@@ -1,0 +1,408 @@
+//
+//  ChecklistViewModel.swift
+//  Fleet Manager
+//
+//  ViewModel for managing checklist state and user interactions
+//
+
+import Foundation
+import Combine
+import SwiftUI
+
+@MainActor
+class ChecklistViewModel: ObservableObject {
+    // MARK: - Published Properties
+
+    @Published var activeChecklist: ChecklistInstance?
+    @Published var pendingChecklists: [ChecklistInstance] = []
+    @Published var completedChecklists: [ChecklistInstance] = []
+    @Published var templates: [ChecklistTemplate] = []
+
+    @Published var isLoading: Bool = false
+    @Published var errorMessage: String?
+    @Published var showError: Bool = false
+
+    @Published var searchQuery: String = ""
+    @Published var selectedCategory: ChecklistCategory?
+    @Published var showTemplateEditor: Bool = false
+    @Published var selectedTemplate: ChecklistTemplate?
+
+    // Current item being edited
+    @Published var currentItemIndex: Int = 0
+    @Published var showingPhotoCapture: Bool = false
+    @Published var showingSignaturePad: Bool = false
+    @Published var showingBarcodeScanner: Bool = false
+
+    // MARK: - Private Properties
+
+    private let checklistService = ChecklistService.shared
+    private var cancellables = Set<AnyCancellable>()
+
+    // MARK: - Initialization
+
+    init() {
+        bindToService()
+    }
+
+    private func bindToService() {
+        checklistService.$pendingChecklists
+            .assign(to: &$pendingChecklists)
+
+        checklistService.$completedChecklists
+            .assign(to: &$completedChecklists)
+
+        checklistService.$templates
+            .assign(to: &$templates)
+
+        checklistService.$activeChecklists
+            .map { $0.first }
+            .assign(to: &$activeChecklist)
+    }
+
+    // MARK: - Checklist Actions
+
+    func startChecklist(_ id: String) async {
+        isLoading = true
+        await checklistService.startChecklist(id)
+        if let checklist = checklistService.activeChecklists.first(where: { $0.id == id }) {
+            activeChecklist = checklist
+            currentItemIndex = 0
+        }
+        isLoading = false
+    }
+
+    func updateItem(response: ChecklistResponse) async {
+        guard let checklistId = activeChecklist?.id,
+              let item = currentItem else { return }
+
+        await checklistService.updateChecklistItem(checklistId, itemId: item.id, response: response)
+
+        // Refresh active checklist
+        if let updated = checklistService.activeChecklists.first(where: { $0.id == checklistId }) {
+            activeChecklist = updated
+        }
+
+        // Auto-advance to next incomplete item
+        if currentItemIndex < (activeChecklist?.items.count ?? 0) - 1 {
+            moveToNextIncompleteItem()
+        }
+    }
+
+    func completeChecklist(signature: Data?, notes: String?) async {
+        guard let checklistId = activeChecklist?.id else { return }
+
+        isLoading = true
+        do {
+            try await checklistService.completeChecklist(checklistId, signature: signature, notes: notes)
+            activeChecklist = nil
+            currentItemIndex = 0
+            showSuccessMessage("Checklist completed successfully!")
+        } catch {
+            showErrorMessage(error.localizedDescription)
+        }
+        isLoading = false
+    }
+
+    func skipChecklist(reason: String) async {
+        guard let checklistId = activeChecklist?.id else { return }
+
+        isLoading = true
+        do {
+            try await checklistService.skipChecklist(checklistId, reason: reason)
+            activeChecklist = nil
+            currentItemIndex = 0
+        } catch {
+            showErrorMessage(error.localizedDescription)
+        }
+        isLoading = false
+    }
+
+    func addAttachment(type: AttachmentType, url: String, filename: String) async {
+        guard let checklistId = activeChecklist?.id else { return }
+
+        let attachment = ChecklistAttachment(
+            id: UUID().uuidString,
+            type: type,
+            url: url,
+            filename: filename,
+            uploadedAt: Date()
+        )
+
+        await checklistService.addAttachment(checklistId, attachment: attachment)
+
+        // Refresh active checklist
+        if let updated = checklistService.activeChecklists.first(where: { $0.id == checklistId }) {
+            activeChecklist = updated
+        }
+    }
+
+    // MARK: - Navigation
+
+    func moveToNextItem() {
+        guard let checklist = activeChecklist else { return }
+        if currentItemIndex < checklist.items.count - 1 {
+            currentItemIndex += 1
+        }
+    }
+
+    func moveToPreviousItem() {
+        if currentItemIndex > 0 {
+            currentItemIndex -= 1
+        }
+    }
+
+    func moveToNextIncompleteItem() {
+        guard let checklist = activeChecklist else { return }
+
+        for index in (currentItemIndex + 1)..<checklist.items.count {
+            if checklist.items[index].response == nil {
+                currentItemIndex = index
+                return
+            }
+        }
+
+        // If all subsequent items are complete, stay on current
+    }
+
+    func moveToItem(at index: Int) {
+        guard let checklist = activeChecklist,
+              index >= 0 && index < checklist.items.count else { return }
+        currentItemIndex = index
+    }
+
+    // MARK: - Template Management
+
+    func manuallyTriggerChecklist(templateId: String) async {
+        await checklistService.handleManualTrigger(templateId: templateId)
+    }
+
+    func createTemplate(_ template: ChecklistTemplate) async {
+        isLoading = true
+        do {
+            try await checklistService.createTemplate(template)
+            showSuccessMessage("Template created successfully!")
+        } catch {
+            showErrorMessage("Failed to create template: \(error.localizedDescription)")
+        }
+        isLoading = false
+    }
+
+    func updateTemplate(_ template: ChecklistTemplate) async {
+        isLoading = true
+        do {
+            try await checklistService.updateTemplate(template)
+            showSuccessMessage("Template updated successfully!")
+        } catch {
+            showErrorMessage("Failed to update template: \(error.localizedDescription)")
+        }
+        isLoading = false
+    }
+
+    func deleteTemplate(_ id: String) async {
+        isLoading = true
+        do {
+            try await checklistService.deleteTemplate(id)
+            showSuccessMessage("Template deleted successfully!")
+        } catch {
+            showErrorMessage("Failed to delete template: \(error.localizedDescription)")
+        }
+        isLoading = false
+    }
+
+    // MARK: - Computed Properties
+
+    var currentItem: ChecklistItemInstance? {
+        guard let checklist = activeChecklist,
+              currentItemIndex < checklist.items.count else { return nil }
+        return checklist.items[currentItemIndex]
+    }
+
+    var progressPercentage: Double {
+        activeChecklist?.progressPercentage ?? 0
+    }
+
+    var completedItemCount: Int {
+        activeChecklist?.items.filter { $0.response != nil }.count ?? 0
+    }
+
+    var totalItemCount: Int {
+        activeChecklist?.items.count ?? 0
+    }
+
+    var requiredItemsComplete: Bool {
+        guard let checklist = activeChecklist else { return false }
+        return checklist.items.filter { $0.isRequired }.allSatisfy { $0.response != nil && $0.validationPassed }
+    }
+
+    var filteredCompletedChecklists: [ChecklistInstance] {
+        var result = completedChecklists
+
+        // Filter by search query
+        if !searchQuery.isEmpty {
+            result = result.filter {
+                $0.templateName.localizedCaseInsensitiveContains(searchQuery) ||
+                $0.driverName.localizedCaseInsensitiveContains(searchQuery)
+            }
+        }
+
+        // Filter by category
+        if let category = selectedCategory {
+            result = result.filter { $0.category == category }
+        }
+
+        return result
+    }
+
+    var filteredTemplates: [ChecklistTemplate] {
+        guard !searchQuery.isEmpty else { return templates }
+        return templates.filter {
+            $0.name.localizedCaseInsensitiveContains(searchQuery) ||
+            $0.description.localizedCaseInsensitiveContains(searchQuery)
+        }
+    }
+
+    // MARK: - Validation
+
+    func validateCurrentItem() -> Bool {
+        guard let item = currentItem,
+              let response = item.response else {
+            return false
+        }
+
+        return item.validationPassed
+    }
+
+    func canCompleteChecklist() -> Bool {
+        guard let checklist = activeChecklist else { return false }
+
+        // All required items must be completed and valid
+        let requiredItemsValid = checklist.items.filter { $0.isRequired }.allSatisfy {
+            $0.response != nil && $0.validationPassed
+        }
+
+        return requiredItemsValid
+    }
+
+    // MARK: - UI Helpers
+
+    func showErrorMessage(_ message: String) {
+        errorMessage = message
+        showError = true
+    }
+
+    func showSuccessMessage(_ message: String) {
+        // Could show a toast or banner
+        print("✅ \(message)")
+    }
+
+    func clearError() {
+        errorMessage = nil
+        showError = false
+    }
+
+    // MARK: - Photo/Signature/Barcode Handlers
+
+    func capturePhoto(for itemId: String) {
+        showingPhotoCapture = true
+    }
+
+    func handlePhotoCaptured(_ imageData: Data) async {
+        // Save image and get URL
+        let filename = "\(UUID().uuidString).jpg"
+        // TODO: Upload to server or save locally
+        let imageUrl = "local://\(filename)"
+
+        // Update item response
+        await updateItem(response: .photo(imageUrl))
+
+        // Add as attachment
+        await addAttachment(type: .photo, url: imageUrl, filename: filename)
+
+        showingPhotoCapture = false
+    }
+
+    func captureSignature(for itemId: String) {
+        showingSignaturePad = true
+    }
+
+    func handleSignatureCaptured(_ signatureData: Data) async {
+        // Convert to base64
+        let base64String = signatureData.base64EncodedString()
+
+        // Update item response
+        await updateItem(response: .signature(base64String))
+
+        showingSignaturePad = false
+    }
+
+    func scanBarcode(for itemId: String) {
+        showingBarcodeScanner = true
+    }
+
+    func handleBarcodeScanned(_ code: String) async {
+        await updateItem(response: .barcode(code))
+        showingBarcodeScanner = false
+    }
+
+    // MARK: - Export
+
+    func exportChecklistToPDF(_ checklistId: String) async -> Data? {
+        guard let checklist = completedChecklists.first(where: { $0.id == checklistId }) else {
+            return nil
+        }
+
+        // TODO: Implement PDF generation
+        return nil
+    }
+
+    // MARK: - Statistics
+
+    var statistics: ChecklistStatistics {
+        ChecklistStatistics(
+            totalCompleted: completedChecklists.count,
+            totalPending: pendingChecklists.count,
+            totalActive: checklistService.activeChecklists.count,
+            completedToday: completedChecklists.filter {
+                Calendar.current.isDateInToday($0.completedAt ?? Date.distantPast)
+            }.count,
+            completedThisWeek: completedChecklists.filter {
+                Calendar.current.isDate($0.completedAt ?? Date.distantPast, equalTo: Date(), toGranularity: .weekOfYear)
+            }.count,
+            averageCompletionTime: calculateAverageCompletionTime()
+        )
+    }
+
+    private func calculateAverageCompletionTime() -> TimeInterval {
+        let completionTimes = completedChecklists.compactMap { checklist -> TimeInterval? in
+            guard let started = checklist.startedAt,
+                  let completed = checklist.completedAt else { return nil }
+            return completed.timeIntervalSince(started)
+        }
+
+        guard !completionTimes.isEmpty else { return 0 }
+        let total = completionTimes.reduce(0, +)
+        return total / Double(completionTimes.count)
+    }
+}
+
+// MARK: - Supporting Types
+
+struct ChecklistStatistics {
+    let totalCompleted: Int
+    let totalPending: Int
+    let totalActive: Int
+    let completedToday: Int
+    let completedThisWeek: Int
+    let averageCompletionTime: TimeInterval
+
+    var formattedAverageCompletionTime: String {
+        let minutes = Int(averageCompletionTime / 60)
+        if minutes < 60 {
+            return "\(minutes) min"
+        } else {
+            let hours = minutes / 60
+            let mins = minutes % 60
+            return "\(hours)h \(mins)m"
+        }
+    }
+}
