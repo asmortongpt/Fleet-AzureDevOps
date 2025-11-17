@@ -1,0 +1,1042 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 48;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		0495F5DFD62AD3C497DE7092 /* ImageUploadService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB7FB32F6586627934CB3AFA /* ImageUploadService.swift */; };
+		0537E0BFB791487988E78493 /* AdminApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = C907237E021C4DC5AA0E7961 /* AdminApp.swift */; };
+		05FD29B2EBB588775BAA1FE2 /* AddTripView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A1F000579F31AE84F13F903 /* AddTripView.swift */; };
+		068908ED00ABE2CCC99837D2 /* CrashReporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADEA64A38480FA712CF17B0A /* CrashReporter.swift */; };
+		0DD2FA05B7BB88D2A99F8C33 /* JailbreakDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87398F778BFEF7EF2DF86B3E /* JailbreakDetector.swift */; };
+		0EACFD0C8AF16EEB70C47365 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A9F0539B2E38A8166C3FEFC /* LoginView.swift */; };
+		104FBABC12851A340672919B /* SyncQueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9356D12F9A3012CD67D50BE7 /* SyncQueue.swift */; };
+		127510355BDC707C09F83E39 /* EnvironmentManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F5ADEF94D0506FA2EAAC608 /* EnvironmentManager.swift */; };
+		1396EF324AC67AE1F94B80B2 /* CameraManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2B306D6939DFE03C02278BC /* CameraManager.swift */; };
+		1D8E3EC22199FD0081A1FD8B /* QuickActionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A9B4C0A4C1C63335C743B4A /* QuickActionsView.swift */; };
+		1EADECA0585536A9C0A29270 /* VehicleModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2206275B015222D51C57E551 /* VehicleModel.swift */; };
+		1ED689725D32DF24B5DCDA67 /* NotificationsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8EE81C544DA2D674F1A7E9B /* NotificationsView.swift */; };
+		1F3F6273C7F72CC6AB1432EB /* DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A6126F750A72AA7F17EB7F2 /* DashboardView.swift */; };
+		210EB20ADE42FDE6A9971963 /* Pods_App.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 67FD8E952DFF702FEC001451 /* Pods_App.framework */; };
+		2195A10DF19DFCF799102BF4 /* MoreView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D699D4BE291F1EA5F945C74E /* MoreView.swift */; };
+		27BEF40315FFEAB575CE37C4 /* MaintenanceDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F5973307C13EA88B233DDA7 /* MaintenanceDetailView.swift */; };
+		27F42289AE2C5BE0C05B9969 /* FleetManagementApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B4F1DE72085BC7EE49218FE /* FleetManagementApp.swift */; };
+		2B7F453BC83C54A7586D98F6 /* ImageUploadService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54EA97D78C595961A9512737 /* ImageUploadService.swift */; };
+		2DEC79E5AE28AB4E737D20AE /* TripTrackingService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71B47AA7C2DDBF992B0F00CD /* TripTrackingService.swift */; };
+		2FAD9763203C412B000D30F8 /* config.xml in Resources */ = {isa = PBXBuildFile; fileRef = 2FAD9762203C412B000D30F8 /* config.xml */; };
+		33FF6ED8E6AF45E6A4D59BD2 /* FleetManagementAppView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91FDF103E98F46859122604B /* FleetManagementAppView.swift */; };
+		340EC571F199FDDBA54DF8F9 /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 713AB4E4FC6B5609CD33E3AB /* MainTabView.swift */; };
+		35BB4B8EEFCCB0C078D2AED2 /* DashboardViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE668E65EFBA651D83C0C179 /* DashboardViewModel.swift */; };
+		360C61B5C1A11798A6E3D32B /* NISTCompliance.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46F879499C1EA5F8CCDDF7C8 /* NISTCompliance.swift */; };
+		3880E7B6342FF209081CEF9C /* AnalyticsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5E52416BB203D0EEF965375 /* AnalyticsManager.swift */; };
+		39DCFBF240FBD2721596DC15 /* PhotoCaptureView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C38520069FC58F103DE1707 /* PhotoCaptureView.swift */; };
+		3BEA6EB128B67C751E716546 /* OBD2DataParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 184D495ABE80A8A6317145D5 /* OBD2DataParser.swift */; };
+		3E111AC820DF00200BE8EAEF /* DataPersistenceManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = BAC214B3C288C3E295885007 /* DataPersistenceManager.swift */; };
+		3EA0B9A4D9B3E76F2CBAE804 /* AuditLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 226315FFBFE6AA825B509A90 /* AuditLogger.swift */; };
+		431C607465CFF42AC08924FF /* FirebaseManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC834984FF378DE275E3836A /* FirebaseManager.swift */; };
+		43641BC24CB5D7DFD7980558 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5953A1033D6F82E599A2D52D /* SettingsView.swift */; };
+		443D9B4B989141FDAAF36D39 /* TripTracking.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E439613C7CF45FD94590B8C /* TripTracking.swift */; };
+		467DD1223B2FBDAB130471F5 /* TelemetryExporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8549A19699C7F183EA1B384 /* TelemetryExporter.swift */; };
+		481F7865097104E4849EAD12 /* FleetModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84C1B663EE2725E43D44BD57 /* FleetModels.swift */; };
+		4B72C13258A942BEB8DFEB9C /* VehicleInspection.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE11154A39164F6F9851447F /* VehicleInspection.swift */; };
+		4C007558067FF7588CB9A046 /* MaintenanceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E365431A12D0E242DC6D206E /* MaintenanceView.swift */; };
+		4FCBE3746AEBD033727E30FC /* BluetoothPermissionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A654643DD537A0A5B2523CA8 /* BluetoothPermissionManager.swift */; };
+		504EC3081FED79650016851F /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 504EC3071FED79650016851F /* AppDelegate.swift */; };
+		504EC30D1FED79650016851F /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 504EC30B1FED79650016851F /* Main.storyboard */; };
+		504EC30F1FED79650016851F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 504EC30E1FED79650016851F /* Assets.xcassets */; };
+		504EC3121FED79650016851F /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 504EC3101FED79650016851F /* LaunchScreen.storyboard */; };
+		50B271D11FEDC1A000F3C39B /* public in Resources */ = {isa = PBXBuildFile; fileRef = 50B271D01FEDC1A000F3C39B /* public */; };
+		50B3B14E65E4A55DBE332DA9 /* UIPerformanceMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26CA39EBA169FEA9F25EC610 /* UIPerformanceMonitor.swift */; };
+		5109453DBE82C3016B9338D3 /* FleetMetricsCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = F984287D647965A21C894EEB /* FleetMetricsCard.swift */; };
+		5331ADCD6F5C61AA888F7B58 /* LoggingManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EB06EC47240321127DACE13 /* LoggingManager.swift */; };
+		55E8293496A834B0ED6D7A34 /* PushNotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = D627423AD178CA84B00D882B /* PushNotificationManager.swift */; };
+		56B58911897181E1822C7076 /* SecurityLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FCEFB0546A624293C4FF512 /* SecurityLogger.swift */; };
+		56EED8FD7C3F9154E51D636A /* Vehicle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D3671F1B6E188B39F6BB04E /* Vehicle.swift */; };
+		5768A2EFBCF5F73E5DF8B6BE /* ReportsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA2436A19EC278A5FC3EAACB /* ReportsView.swift */; };
+		5ADC0BBF86A8DF8B9F5668E3 /* LocalizationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE6640635A4B3224A483ABE3 /* LocalizationManager.swift */; };
+		5C635D536BAE76B681EDAC06 /* MetricsCollector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53B3E738C0AB9A4957FDB5F2 /* MetricsCollector.swift */; };
+		60F1E0280F22EC92EBC68504 /* VehicleViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70EA0C1860DEFBF739E36113 /* VehicleViewModel.swift */; };
+		61E888E6E214B3576AD77A81 /* MissingTypeStubs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F747DBAD0DB075BADD3A3A2 /* MissingTypeStubs.swift */; };
+		6609FF247D3EE1927372EEC8 /* DriverManagementView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 626824C3C36EF8E8F31BB5C0 /* DriverManagementView.swift */; };
+		68274F2DFFA5368AF1FDAAC5 /* PerformanceMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25A30E66C262881FA9E6DC81 /* PerformanceMonitor.swift */; };
+		6989C6B66B5336260C7EA5D3 /* ErrorHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D8FCF9BE9538F8F795FCA9C /* ErrorHandler.swift */; };
+		6A7092747CFB4119B5A587F5 /* AzureConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27DF63BC9B7B43F5B13704F4 /* AzureConfig.swift */; };
+		6F66BDE4B618D6EE03570058 /* VehicleModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9618D77A7C10A819CA4AA14 /* VehicleModel.swift */; };
+		7528A7967C8231B169C30B3C /* BarcodeScannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46BE03AB4DBD36903352BE53 /* BarcodeScannerView.swift */; };
+		753A4288CB098E4CE518DCD8 /* TelemetryExporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35AAABE8F8E6DDFB951EA440 /* TelemetryExporter.swift */; };
+		79EBA4256590FB587268F448 /* HelpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B33E44E3349254D3FBDEAB8 /* HelpView.swift */; };
+		7F691CC70C0097D491CE83CA /* TripTrackingService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16D08B1504E08A77D76D613D /* TripTrackingService.swift */; };
+		7F692B6B8DFA128BF1C46DAC /* CoreDataStubs.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8563CF6B58A033A92B50123 /* CoreDataStubs.swift */; };
+		8114CE871359D23C82448D23 /* PhotoCaptureView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09C619BEA37BC33F2BEA6494 /* PhotoCaptureView.swift */; };
+		81BA0B87E9F824E3CC56B360 /* FIPSCryptoManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44C701A30429F5951D843EBB /* FIPSCryptoManager.swift */; };
+		81DF3DACC7EE13B162332E4F /* LocationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBD83D96E52957761B2D83DF /* LocationManager.swift */; };
+		858D7B99437B46D3FD2BE2F2 /* MaintenanceModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17CD435FCBF1E6C3791DECEC /* MaintenanceModel.swift */; };
+		8EA02B9DC5D057019A4EC4A7 /* SecurityLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 838963176F4A74F195806866 /* SecurityLogger.swift */; };
+		93BE71FF7B0B2B2CFC39762A /* NetworkMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97FDE84822515E597067B0FC /* NetworkMonitor.swift */; };
+		9BF8828693D953B8784E5B38 /* HealthCheckManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F2A394F01EDBA755BFE16C2 /* HealthCheckManager.swift */; };
+		9C4E6046E47B4F18AD7FC0DA /* FeatureFlags.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C3BAE7CB2F7FD82B0AEC472 /* FeatureFlags.swift */; };
+		9E92C16AA2BC63D55E644206 /* VehicleCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC2809B8199A7B5700E6A233 /* VehicleCard.swift */; };
+		9EA18AED274C082E78EACC37 /* AddVehicleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 571D9CE991CDD3D95EA52350 /* AddVehicleView.swift */; };
+		9EF6F804000171E44B6A8069 /* BarcodeScannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56E6005B3A00C09B25727C98 /* BarcodeScannerView.swift */; };
+		A8BC4C0AC7304388A8DFACEE /* AuthenticationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB0F8E37AEC73DF7634D9E5E /* AuthenticationService.swift */; };
+		AA6F2AC0FBCDAEDDA949A531 /* DocumentScannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B16071194C3CDFC062585B7C /* DocumentScannerView.swift */; };
+		AD96906661E1E453647F7E15 /* AuthenticationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57F8AE7882C453D316880215 /* AuthenticationManager.swift */; };
+		B144F1AA908F90CAB55089AA /* DocumentScannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CECD87F73C06F037F4C506F2 /* DocumentScannerView.swift */; };
+		B1931DF8F42B42679360266E /* APIConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F57E119EBBE4898955725AD /* APIConfiguration.swift */; };
+		B3A5822CE9CED460C80E1F02 /* AdvancedCacheManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F861807480E0BE116646CB8 /* AdvancedCacheManager.swift */; };
+		B66C142E10D84DFC9D0403F7 /* ManualDataEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0AF9621D4F54B20AA424A31 /* ManualDataEntry.swift */; };
+		B6C5176E4CEA3D58E4C74B5D /* NavigationCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BBA46DB1D32C25AAA94AB6E /* NavigationCoordinator.swift */; };
+		B765EA9F5BC98B4DF707B6A3 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 528B535AC89DE43F06C0C752 /* LoginView.swift */; };
+		BF504E78E52591F957474223 /* TripsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 322587B38A8655729F0759EA /* TripsView.swift */; };
+		C0082BDA51D4D9DE0DAFED24 /* FeatureFlags.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE7B9ED07B0907C21A042719 /* FeatureFlags.swift */; };
+		C09EA3852F19E8DF65CF6B11 /* DatabaseMigration.swift in Sources */ = {isa = PBXBuildFile; fileRef = BAD4BD7644119DEE395E41C1 /* DatabaseMigration.swift */; };
+		C1CE130B94230DA195C81BAD /* NetworkOptimizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 346C66FAA6F8DE25ABE15C8D /* NetworkOptimizer.swift */; };
+		C8DC9DC076090832E69063DC /* DatabaseMigration.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7EDDBFA4EA484A264FA9B25 /* DatabaseMigration.swift */; };
+		CB115EC312D5F193F28EFB33 /* AccessibilityEnhancements.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E267E82791D05E291BD108A /* AccessibilityEnhancements.swift */; };
+		CD50674436C7F9F07BFE2D58 /* KeychainManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E43AB5490E78BBFF83A5E456 /* KeychainManager.swift */; };
+		CE4575C5140289C0FADB7609 /* RemoteConfigManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45A92EF10DF5D561B6624A91 /* RemoteConfigManager.swift */; };
+		CED6F3841A7B0295737E3B55 /* AuditLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DE133A9EDC93F7437EE02F6 /* AuditLogger.swift */; };
+		D036E2E4ABE5A0A818928E29 /* EncryptionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B7C53095460E1F034B1E77B /* EncryptionManager.swift */; };
+		D432098DDB93B000CB1DB520 /* ErrorHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6913164C95F8AF990EF75826 /* ErrorHandler.swift */; };
+		D692D1E132B24D713EF5E7D6 /* AboutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A055E38F782367163A101332 /* AboutView.swift */; };
+		D75ED85F7F239630A578C03D /* QuickActionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8582D20487251E184F5F4911 /* QuickActionsView.swift */; };
+		D9FB772650EC724B1FB0F26F /* PerformanceOptimizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 740FAAB0ED6F70FB037DFF3F /* PerformanceOptimizer.swift */; };
+		DA823BDE8A91B436E5FFB847 /* TripModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07D1943466FCE07ED73040DF /* TripModels.swift */; };
+		DE5DDF0248C7ECADCC786C65 /* SyncQueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCAB2814574FF75E8941AB88 /* SyncQueue.swift */; };
+		DFD9FD75380C3E8746025568 /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7CC4692F8829295A37DEB2E /* RootView.swift */; };
+		E1CD02B139C09FD4DFF628FE /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45E2E4781D9C7FD949B1B87F /* ProfileView.swift */; };
+		E28E4E99C46F2434412CC188 /* AlertManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7CEE24FD0F9C966E8945375B /* AlertManager.swift */; };
+		E4531189B42026784C6081CC /* VehiclesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBF225A9A3EAF4A5CEB9AF79 /* VehiclesView.swift */; };
+		E641D7862F149E307B75DA13 /* ModernTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6ED2B1C4F4B44A490F2C7123 /* ModernTheme.swift */; };
+		E9B6755080E234541175BE59 /* VehicleCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFBEC6B34D07608DBEF173C0 /* VehicleCard.swift */; };
+		F097904D1FA1EE2E3E1F74B3 /* Animations.swift in Sources */ = {isa = PBXBuildFile; fileRef = 77CE56E5D36E1D83A6A57AA4 /* Animations.swift */; };
+		F45953FE0B07EDEA34366949 /* TripHistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3626031863A4DDF6DB723410 /* TripHistoryView.swift */; };
+		F59D572696306988058A5EEA /* CertificatePinningManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 228E34544EC917D36F619E71 /* CertificatePinningManager.swift */; };
+		FB33DE676A96B8E46D5FF440 /* PhotoLibraryManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA371CA2F6EDEB0A203CFD97 /* PhotoLibraryManager.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		07D1943466FCE07ED73040DF /* TripModels.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TripModels.swift; path = TripModels.swift; sourceTree = "<group>"; };
+		09C619BEA37BC33F2BEA6494 /* PhotoCaptureView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PhotoCaptureView.swift; sourceTree = "<group>"; };
+		0A1F000579F31AE84F13F903 /* AddTripView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AddTripView.swift; path = AddTripView.swift; sourceTree = "<group>"; };
+		0C38520069FC58F103DE1707 /* PhotoCaptureView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = PhotoCaptureView.swift; path = PhotoCaptureView.swift; sourceTree = "<group>"; };
+		0DE133A9EDC93F7437EE02F6 /* AuditLogger.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AuditLogger.swift; sourceTree = "<group>"; };
+		0E267E82791D05E291BD108A /* AccessibilityEnhancements.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AccessibilityEnhancements.swift; path = Theme/AccessibilityEnhancements.swift; sourceTree = "<group>"; };
+		0F57E119EBBE4898955725AD /* APIConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIConfiguration.swift; sourceTree = "<group>"; };
+		0F5ADEF94D0506FA2EAAC608 /* EnvironmentManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = EnvironmentManager.swift; sourceTree = "<group>"; };
+		11876E4ECF760C2C8320A874 /* NIST_INTEGRATION_GUIDE.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = NIST_INTEGRATION_GUIDE.swift; path = NIST_INTEGRATION_GUIDE.swift; sourceTree = "<group>"; };
+		158140F54C68E807B0B0A218 /* SupportTicketView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SupportTicketView.swift; path = Views/Support/SupportTicketView.swift; sourceTree = "<group>"; };
+		16D08B1504E08A77D76D613D /* TripTrackingService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TripTrackingService.swift; path = TripTrackingService.swift; sourceTree = "<group>"; };
+		17CD435FCBF1E6C3791DECEC /* MaintenanceModel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MaintenanceModel.swift; sourceTree = "<group>"; };
+		184D495ABE80A8A6317145D5 /* OBD2DataParser.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = OBD2DataParser.swift; sourceTree = "<group>"; };
+		1E565A7A10DECB0553FE6567 /* ErrorView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ErrorView.swift; path = Views/ErrorView.swift; sourceTree = "<group>"; };
+		1EB06EC47240321127DACE13 /* LoggingManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LoggingManager.swift; sourceTree = "<group>"; };
+		1FCEFB0546A624293C4FF512 /* SecurityLogger.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SecurityLogger.swift; sourceTree = "<group>"; };
+		2206275B015222D51C57E551 /* VehicleModel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = VehicleModel.swift; path = VehicleModel.swift; sourceTree = "<group>"; };
+		226315FFBFE6AA825B509A90 /* AuditLogger.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AuditLogger.swift; path = AuditLogger.swift; sourceTree = "<group>"; };
+		228E34544EC917D36F619E71 /* CertificatePinningManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CertificatePinningManager.swift; sourceTree = "<group>"; };
+		25A30E66C262881FA9E6DC81 /* PerformanceMonitor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = PerformanceMonitor.swift; path = Monitoring/PerformanceMonitor.swift; sourceTree = "<group>"; };
+		26CA39EBA169FEA9F25EC610 /* UIPerformanceMonitor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = UIPerformanceMonitor.swift; path = Monitoring/UIPerformanceMonitor.swift; sourceTree = "<group>"; };
+		273B3076430F835BAA6D5637 /* ProductionValidationTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ProductionValidationTests.swift; path = Tests/ProductionValidationTests.swift; sourceTree = "<group>"; };
+		27DF63BC9B7B43F5B13704F4 /* AzureConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AzureConfig.swift; sourceTree = "<group>"; };
+		2856E6A5C693335650988463 /* OfflineIndicatorView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = OfflineIndicatorView.swift; path = OfflineIndicatorView.swift; sourceTree = "<group>"; };
+		2A9B4C0A4C1C63335C743B4A /* QuickActionsView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = QuickActionsView.swift; sourceTree = "<group>"; };
+		2B9172F5DE11D11F8C60B69B /* Pods-App.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-App.release.xcconfig"; path = "Target Support Files/Pods-App/Pods-App.release.xcconfig"; sourceTree = "<group>"; };
+		2CF2A7801387FACBC731C6A1 /* VehicleListView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = VehicleListView.swift; path = Views/VehicleListView.swift; sourceTree = "<group>"; };
+		2FAD9762203C412B000D30F8 /* config.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = config.xml; sourceTree = "<group>"; };
+		322587B38A8655729F0759EA /* TripsView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TripsView.swift; path = TripsView.swift; sourceTree = "<group>"; };
+		346C66FAA6F8DE25ABE15C8D /* NetworkOptimizer.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NetworkOptimizer.swift; sourceTree = "<group>"; };
+		35AAABE8F8E6DDFB951EA440 /* TelemetryExporter.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TelemetryExporter.swift; path = Monitoring/TelemetryExporter.swift; sourceTree = "<group>"; };
+		3626031863A4DDF6DB723410 /* TripHistoryView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TripHistoryView.swift; sourceTree = "<group>"; };
+		3BBA46DB1D32C25AAA94AB6E /* NavigationCoordinator.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NavigationCoordinator.swift; sourceTree = "<group>"; };
+		3F2A394F01EDBA755BFE16C2 /* HealthCheckManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = HealthCheckManager.swift; sourceTree = "<group>"; };
+		3F6EE710CE87994F14F239CB /* TripDetailView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TripDetailView.swift; path = TripDetailView.swift; sourceTree = "<group>"; };
+		40E16F42F6ED5EF42AE44D2C /* NetworkOptimizer.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = NetworkOptimizer.swift; path = Performance/NetworkOptimizer.swift; sourceTree = "<group>"; };
+		40E238F20052C368232063A6 /* BackgroundSyncManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BackgroundSyncManager.swift; sourceTree = "<group>"; };
+		4219DC638C71B3AAF3C5E73A /* UIPerformanceMonitor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = UIPerformanceMonitor.swift; path = Performance/UIPerformanceMonitor.swift; sourceTree = "<group>"; };
+		4305E173DE03AC5117E025D4 /* VehicleInspectionView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = VehicleInspectionView.swift; path = Views/VehicleInspectionView.swift; sourceTree = "<group>"; };
+		4366A3A8CDE289AAE22199E6 /* AdvancedCacheManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AdvancedCacheManager.swift; path = Performance/AdvancedCacheManager.swift; sourceTree = "<group>"; };
+		437BD613C26F1BC345011745 /* SupportTicketView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SupportTicketView.swift; path = Views/Support/SupportTicketView.swift; sourceTree = "<group>"; };
+		43CA89AB087D2C527DFE116C /* TripHistoryView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TripHistoryView.swift; path = TripHistoryView.swift; sourceTree = "<group>"; };
+		44C701A30429F5951D843EBB /* FIPSCryptoManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = FIPSCryptoManager.swift; sourceTree = "<group>"; };
+		45A92EF10DF5D561B6624A91 /* RemoteConfigManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RemoteConfigManager.swift; sourceTree = "<group>"; };
+		45C1DAA01F8BE29EC5ED3266 /* PerformanceOptimizer.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = PerformanceOptimizer.swift; path = Performance/PerformanceOptimizer.swift; sourceTree = "<group>"; };
+		45E2E4781D9C7FD949B1B87F /* ProfileView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ProfileView.swift; sourceTree = "<group>"; };
+		46BE03AB4DBD36903352BE53 /* BarcodeScannerView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = BarcodeScannerView.swift; path = BarcodeScannerView.swift; sourceTree = "<group>"; };
+		46F879499C1EA5F8CCDDF7C8 /* NISTCompliance.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = NISTCompliance.swift; path = NISTCompliance.swift; sourceTree = "<group>"; };
+		4A6126F750A72AA7F17EB7F2 /* DashboardView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DashboardView.swift; sourceTree = "<group>"; };
+		4B7C53095460E1F034B1E77B /* EncryptionManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = EncryptionManager.swift; sourceTree = "<group>"; };
+		4D8FCF9BE9538F8F795FCA9C /* ErrorHandler.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ErrorHandler.swift; path = ErrorHandler.swift; sourceTree = "<group>"; };
+		504EC3041FED79650016851F /* App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = App.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		504EC3071FED79650016851F /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		504EC30C1FED79650016851F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		504EC30E1FED79650016851F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		504EC3111FED79650016851F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		504EC3131FED79650016851F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		50B271D01FEDC1A000F3C39B /* public */ = {isa = PBXFileReference; lastKnownFileType = folder; path = public; sourceTree = "<group>"; };
+		528B535AC89DE43F06C0C752 /* LoginView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = LoginView.swift; path = LoginView.swift; sourceTree = "<group>"; };
+		53B3E738C0AB9A4957FDB5F2 /* MetricsCollector.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = MetricsCollector.swift; path = Monitoring/MetricsCollector.swift; sourceTree = "<group>"; };
+		54CCDF6182703A7ADFC44FC6 /* AccessibleLoginView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AccessibleLoginView.swift; path = Views/AccessibleLoginView.swift; sourceTree = "<group>"; };
+		54EA97D78C595961A9512737 /* ImageUploadService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ImageUploadService.swift; sourceTree = "<group>"; };
+		56E6005B3A00C09B25727C98 /* BarcodeScannerView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BarcodeScannerView.swift; sourceTree = "<group>"; };
+		571D9CE991CDD3D95EA52350 /* AddVehicleView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AddVehicleView.swift; path = AddVehicleView.swift; sourceTree = "<group>"; };
+		57F8AE7882C453D316880215 /* AuthenticationManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AuthenticationManager.swift; sourceTree = "<group>"; };
+		5953A1033D6F82E599A2D52D /* SettingsView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		5C90D13485972B4C53A4755B /* NetworkOptimizer.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = NetworkOptimizer.swift; path = Performance/NetworkOptimizer.swift; sourceTree = "<group>"; };
+		5CA21F5B146D22EFC799637F /* SyncService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SyncService.swift; path = SyncService.swift; sourceTree = "<group>"; };
+		5E439613C7CF45FD94590B8C /* TripTracking.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TripTracking.swift; sourceTree = "<group>"; };
+		626824C3C36EF8E8F31BB5C0 /* DriverManagementView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DriverManagementView.swift; sourceTree = "<group>"; };
+		67FD8E952DFF702FEC001451 /* Pods_App.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_App.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		689A186BE708D183B9BBC692 /* LocalizationManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = LocalizationManager.swift; path = Utilities/LocalizationManager.swift; sourceTree = "<group>"; };
+		6913164C95F8AF990EF75826 /* ErrorHandler.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ErrorHandler.swift; sourceTree = "<group>"; };
+		6B689B334E340D102BE86A33 /* OBD2DiagnosticsView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = OBD2DiagnosticsView.swift; path = OBD2DiagnosticsView.swift; sourceTree = "<group>"; };
+		6C3BAE7CB2F7FD82B0AEC472 /* FeatureFlags.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = FeatureFlags.swift; path = FeatureFlags.swift; sourceTree = "<group>"; };
+		6CBD0E3AEADEE2730B32DAAB /* AccessibleVehicleListView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AccessibleVehicleListView.swift; path = Views/AccessibleVehicleListView.swift; sourceTree = "<group>"; };
+		6E64C62671B400492D434CCB /* BuildConfiguration.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BuildConfiguration.swift; sourceTree = "<group>"; };
+		6ED2B1C4F4B44A490F2C7123 /* ModernTheme.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ModernTheme.swift; path = Theme/ModernTheme.swift; sourceTree = "<group>"; };
+		70ABDC5F25D24490241D79ED /* UIPerformanceMonitor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = UIPerformanceMonitor.swift; path = Performance/UIPerformanceMonitor.swift; sourceTree = "<group>"; };
+		70E13C35860E1F52F6A5775D /* VehicleDetailView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = VehicleDetailView.swift; path = Views/VehicleDetailView.swift; sourceTree = "<group>"; };
+		70EA0C1860DEFBF739E36113 /* VehicleViewModel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = VehicleViewModel.swift; path = ViewModels/VehicleViewModel.swift; sourceTree = "<group>"; };
+		713AB4E4FC6B5609CD33E3AB /* MainTabView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MainTabView.swift; sourceTree = "<group>"; };
+		71B47AA7C2DDBF992B0F00CD /* TripTrackingService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TripTrackingService.swift; sourceTree = "<group>"; };
+		7241B46490E6460B433B2EEA /* TripDetailView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TripDetailView.swift; sourceTree = "<group>"; };
+		740FAAB0ED6F70FB037DFF3F /* PerformanceOptimizer.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PerformanceOptimizer.swift; sourceTree = "<group>"; };
+		745B2E96DF38259ECA851CD0 /* OnboardingView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = OnboardingView.swift; path = Views/Help/OnboardingView.swift; sourceTree = "<group>"; };
+		77CE56E5D36E1D83A6A57AA4 /* Animations.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Animations.swift; path = Theme/Animations.swift; sourceTree = "<group>"; };
+		7CEE24FD0F9C966E8945375B /* AlertManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AlertManager.swift; path = Monitoring/AlertManager.swift; sourceTree = "<group>"; };
+		7CF36D4EAA764846B433FE89 /* DriverApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DriverApp.swift; sourceTree = "<group>"; };
+		7DB9C689CF57247BF9A8284C /* AccessibilityManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AccessibilityManager.swift; path = Utilities/AccessibilityManager.swift; sourceTree = "<group>"; };
+		7F861807480E0BE116646CB8 /* AdvancedCacheManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AdvancedCacheManager.swift; sourceTree = "<group>"; };
+		838963176F4A74F195806866 /* SecurityLogger.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SecurityLogger.swift; path = SecurityLogger.swift; sourceTree = "<group>"; };
+		84C1B663EE2725E43D44BD57 /* FleetModels.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = FleetModels.swift; sourceTree = "<group>"; };
+		8582D20487251E184F5F4911 /* QuickActionsView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = QuickActionsView.swift; path = QuickActionsView.swift; sourceTree = "<group>"; };
+		87398F778BFEF7EF2DF86B3E /* JailbreakDetector.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = JailbreakDetector.swift; sourceTree = "<group>"; };
+		8B33E44E3349254D3FBDEAB8 /* HelpView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = HelpView.swift; path = HelpView.swift; sourceTree = "<group>"; };
+		8B4F1DE72085BC7EE49218FE /* FleetManagementApp.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = FleetManagementApp.swift; sourceTree = "<group>"; };
+		8D3671F1B6E188B39F6BB04E /* Vehicle.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Vehicle.swift; path = Models/Vehicle.swift; sourceTree = "<group>"; };
+		8F5973307C13EA88B233DDA7 /* MaintenanceDetailView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = MaintenanceDetailView.swift; path = MaintenanceDetailView.swift; sourceTree = "<group>"; };
+		8F747DBAD0DB075BADD3A3A2 /* MissingTypeStubs.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MissingTypeStubs.swift; sourceTree = "<group>"; };
+		91FDF103E98F46859122604B /* FleetManagementAppView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FleetManagementAppView.swift; sourceTree = "<group>"; };
+		9356D12F9A3012CD67D50BE7 /* SyncQueue.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SyncQueue.swift; sourceTree = "<group>"; };
+		93D349D51FFE9EF414A030BF /* AccessibleVehicleListView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AccessibleVehicleListView.swift; path = Views/AccessibleVehicleListView.swift; sourceTree = "<group>"; };
+		97FDE84822515E597067B0FC /* NetworkMonitor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = NetworkMonitor.swift; path = NetworkMonitor.swift; sourceTree = "<group>"; };
+		9A9F0539B2E38A8166C3FEFC /* LoginView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
+		A055E38F782367163A101332 /* AboutView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AboutView.swift; path = AboutView.swift; sourceTree = "<group>"; };
+		A178A970776402C24A2BE65E /* ConflictResolver.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ConflictResolver.swift; path = ConflictResolver.swift; sourceTree = "<group>"; };
+		A654643DD537A0A5B2523CA8 /* BluetoothPermissionManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BluetoothPermissionManager.swift; sourceTree = "<group>"; };
+		A91BA02C415860E69F94FD71 /* OfflineIndicatorView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = OfflineIndicatorView.swift; sourceTree = "<group>"; };
+		A975585E34F3B285A6CDFEEA /* Pods-App.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-App.debug.xcconfig"; path = "Target Support Files/Pods-App/Pods-App.debug.xcconfig"; sourceTree = "<group>"; };
+		AAA465F623576C2679D26006 /* MetricsCollector.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MetricsCollector.swift; sourceTree = "<group>"; };
+		AABBCCDD2233445566778899 /* MaintenanceSubmissionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MaintenanceSubmissionView.swift; sourceTree = "<group>"; };
+		AB7FB32F6586627934CB3AFA /* ImageUploadService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ImageUploadService.swift; path = ImageUploadService.swift; sourceTree = "<group>"; };
+		ADBE25CFB42A441A691F9205 /* VehicleDetailView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = VehicleDetailView.swift; path = Views/VehicleDetailView.swift; sourceTree = "<group>"; };
+		ADEA64A38480FA712CF17B0A /* CrashReporter.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = CrashReporter.swift; path = CrashReporter.swift; sourceTree = "<group>"; };
+		AE6640635A4B3224A483ABE3 /* LocalizationManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LocalizationManager.swift; sourceTree = "<group>"; };
+		AE9C9DD71F2C937AFB38CFAE /* BuildConfiguration.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = BuildConfiguration.swift; path = BuildConfiguration.swift; sourceTree = "<group>"; };
+		AEAF8973F5EAB94708538122 /* OBD2DiagnosticsView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = OBD2DiagnosticsView.swift; sourceTree = "<group>"; };
+		B16071194C3CDFC062585B7C /* DocumentScannerView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DocumentScannerView.swift; sourceTree = "<group>"; };
+		B8EE81C544DA2D674F1A7E9B /* NotificationsView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = NotificationsView.swift; path = NotificationsView.swift; sourceTree = "<group>"; };
+		B9094F1265275ED80281811D /* ErrorView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ErrorView.swift; path = Views/ErrorView.swift; sourceTree = "<group>"; };
+		BAC214B3C288C3E295885007 /* DataPersistenceManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DataPersistenceManager.swift; sourceTree = "<group>"; };
+		BAD4BD7644119DEE395E41C1 /* DatabaseMigration.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DatabaseMigration.swift; sourceTree = "<group>"; };
+		BBCCDDEE3344556677889900 /* OBD2ConnectionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OBD2ConnectionManager.swift; sourceTree = "<group>"; };
+		BE7B9ED07B0907C21A042719 /* FeatureFlags.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = FeatureFlags.swift; sourceTree = "<group>"; };
+		C17586560F2CD0EC9D7B3A57 /* MonitoringIntegrationExample.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = MonitoringIntegrationExample.swift; path = MonitoringIntegrationExample.swift; sourceTree = "<group>"; };
+		C238552849836434F03C23EA /* JailbreakDetector.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = JailbreakDetector.swift; path = JailbreakDetector.swift; sourceTree = "<group>"; };
+		C4D25D7EC06C157B93DDC4BD /* AccessibleLoginView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AccessibleLoginView.swift; path = Views/AccessibleLoginView.swift; sourceTree = "<group>"; };
+		C5E52416BB203D0EEF965375 /* AnalyticsManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AnalyticsManager.swift; sourceTree = "<group>"; };
+		C6366EE59544741FA812506C /* TripModel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TripModel.swift; sourceTree = "<group>"; };
+		C7EDDBFA4EA484A264FA9B25 /* DatabaseMigration.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DatabaseMigration.swift; path = DatabaseMigration.swift; sourceTree = "<group>"; };
+		C8549A19699C7F183EA1B384 /* TelemetryExporter.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TelemetryExporter.swift; path = Monitoring/TelemetryExporter.swift; sourceTree = "<group>"; };
+		C907237E021C4DC5AA0E7961 /* AdminApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdminApp.swift; sourceTree = "<group>"; };
+		CA2436A19EC278A5FC3EAACB /* ReportsView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ReportsView.swift; sourceTree = "<group>"; };
+		CB0F8E37AEC73DF7634D9E5E /* AuthenticationService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AuthenticationService.swift; path = AuthenticationService.swift; sourceTree = "<group>"; };
+		CBD83D96E52957761B2D83DF /* LocationManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LocationManager.swift; sourceTree = "<group>"; };
+		CBF225A9A3EAF4A5CEB9AF79 /* VehiclesView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = VehiclesView.swift; path = VehiclesView.swift; sourceTree = "<group>"; };
+		CCAB2814574FF75E8941AB88 /* SyncQueue.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SyncQueue.swift; path = SyncQueue.swift; sourceTree = "<group>"; };
+		CCDDEEFF4455667788990011 /* DriverPreferencesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DriverPreferencesView.swift; sourceTree = "<group>"; };
+		CDB393E35AC8D6EADA254293 /* CacheManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CacheManager.swift; sourceTree = "<group>"; };
+		CECD87F73C06F037F4C506F2 /* DocumentScannerView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DocumentScannerView.swift; path = DocumentScannerView.swift; sourceTree = "<group>"; };
+		D0AF9621D4F54B20AA424A31 /* ManualDataEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManualDataEntry.swift; sourceTree = "<group>"; };
+		D28C2F730F7B6A83EBCAE35D /* TelemetryExporter.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TelemetryExporter.swift; path = Monitoring/TelemetryExporter.swift; sourceTree = "<group>"; };
+		D370E279435ABECB171CA8D4 /* HelpCenterView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = HelpCenterView.swift; path = Views/Help/HelpCenterView.swift; sourceTree = "<group>"; };
+		D38775567F11EAB7D994C16C /* VehicleInspectionView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = VehicleInspectionView.swift; path = Views/VehicleInspectionView.swift; sourceTree = "<group>"; };
+		D627423AD178CA84B00D882B /* PushNotificationManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PushNotificationManager.swift; sourceTree = "<group>"; };
+		D699D4BE291F1EA5F945C74E /* MoreView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = MoreView.swift; path = MoreView.swift; sourceTree = "<group>"; };
+		D8563CF6B58A033A92B50123 /* CoreDataStubs.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CoreDataStubs.swift; sourceTree = "<group>"; };
+		DC2809B8199A7B5700E6A233 /* VehicleCard.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = VehicleCard.swift; path = Components/VehicleCard.swift; sourceTree = "<group>"; };
+		DC834984FF378DE275E3836A /* FirebaseManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = FirebaseManager.swift; sourceTree = "<group>"; };
+		DD397FC2D4E6E561C505F8BD /* ConflictResolver.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ConflictResolver.swift; sourceTree = "<group>"; };
+		DECE82DC80DA4E07B47E13D9 /* PerformanceOptimizer.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = PerformanceOptimizer.swift; path = Performance/PerformanceOptimizer.swift; sourceTree = "<group>"; };
+		DEEB434961611C611BC78183 /* OnboardingView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = OnboardingView.swift; path = Views/Help/OnboardingView.swift; sourceTree = "<group>"; };
+		E365431A12D0E242DC6D206E /* MaintenanceView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MaintenanceView.swift; sourceTree = "<group>"; };
+		E43AB5490E78BBFF83A5E456 /* KeychainManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = KeychainManager.swift; sourceTree = "<group>"; };
+		E628E82C23BB1F24588EAB67 /* LocalizationManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = LocalizationManager.swift; path = Utilities/LocalizationManager.swift; sourceTree = "<group>"; };
+		E92A4B8F0ED22636777B1450 /* TripTrackingView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TripTrackingView.swift; sourceTree = "<group>"; };
+		E9618D77A7C10A819CA4AA14 /* VehicleModel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = VehicleModel.swift; sourceTree = "<group>"; };
+		EA371CA2F6EDEB0A203CFD97 /* PhotoLibraryManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PhotoLibraryManager.swift; sourceTree = "<group>"; };
+		ED69BBD9B42D719C46846D31 /* AdvancedCacheManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AdvancedCacheManager.swift; path = Performance/AdvancedCacheManager.swift; sourceTree = "<group>"; };
+		EE11154A39164F6F9851447F /* VehicleInspection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VehicleInspection.swift; sourceTree = "<group>"; };
+		EFBEC6B34D07608DBEF173C0 /* VehicleCard.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = VehicleCard.swift; path = Components/VehicleCard.swift; sourceTree = "<group>"; };
+		F146D4D705C7AB16FD9F29EA /* PerformanceMonitor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PerformanceMonitor.swift; sourceTree = "<group>"; };
+		F2B306D6939DFE03C02278BC /* CameraManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CameraManager.swift; sourceTree = "<group>"; };
+		F34ECBC86983BEC6438C51D8 /* AccessibilityManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AccessibilityManager.swift; path = Utilities/AccessibilityManager.swift; sourceTree = "<group>"; };
+		F7CC4692F8829295A37DEB2E /* RootView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
+		F984287D647965A21C894EEB /* FleetMetricsCard.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = FleetMetricsCard.swift; sourceTree = "<group>"; };
+		FCB6906407BB949155B48F3F /* HelpCenterView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = HelpCenterView.swift; path = Views/Help/HelpCenterView.swift; sourceTree = "<group>"; };
+		FE668E65EFBA651D83C0C179 /* DashboardViewModel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DashboardViewModel.swift; sourceTree = "<group>"; };
+		FFB36F4A00A0436EBEFA4922 /* OBD2Manager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OBD2Manager.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		504EC3011FED79650016851F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				210EB20ADE42FDE6A9971963 /* Pods_App.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		0F8B9848787D946DFF81F3C0 /* Security */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Security;
+			sourceTree = "<group>";
+		};
+		1957C0705AEB58F4E1B93AEE /* Monitoring */ = {
+			isa = PBXGroup;
+			children = (
+				D28C2F730F7B6A83EBCAE35D /* TelemetryExporter.swift */,
+				7CEE24FD0F9C966E8945375B /* AlertManager.swift */,
+				25A30E66C262881FA9E6DC81 /* PerformanceMonitor.swift */,
+				53B3E738C0AB9A4957FDB5F2 /* MetricsCollector.swift */,
+				C8549A19699C7F183EA1B384 /* TelemetryExporter.swift */,
+				26CA39EBA169FEA9F25EC610 /* UIPerformanceMonitor.swift */,
+			);
+			name = Monitoring;
+			sourceTree = "<group>";
+		};
+		1DFF5CF011486F4B2C4515A7 /* Theme */ = {
+			isa = PBXGroup;
+			children = (
+				6ED2B1C4F4B44A490F2C7123 /* ModernTheme.swift */,
+				77CE56E5D36E1D83A6A57AA4 /* Animations.swift */,
+				0E267E82791D05E291BD108A /* AccessibilityEnhancements.swift */,
+			);
+			name = Theme;
+			sourceTree = "<group>";
+		};
+		1FD7486A982C26549607FEDD /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				2CF2A7801387FACBC731C6A1 /* VehicleListView.swift */,
+				CF8D471222DFED6E2F8A1850 /* Support */,
+				782EFB332BAB87AA75E7BAF9 /* Help */,
+				6CBD0E3AEADEE2730B32DAAB /* AccessibleVehicleListView.swift */,
+				ADBE25CFB42A441A691F9205 /* VehicleDetailView.swift */,
+				C4D25D7EC06C157B93DDC4BD /* AccessibleLoginView.swift */,
+				4305E173DE03AC5117E025D4 /* VehicleInspectionView.swift */,
+				B9094F1265275ED80281811D /* ErrorView.swift */,
+			);
+			name = Views;
+			sourceTree = "<group>";
+		};
+		1FE1D81FE7873933269BEC95 /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				DC2809B8199A7B5700E6A233 /* VehicleCard.swift */,
+			);
+			name = Components;
+			sourceTree = "<group>";
+		};
+		21A5746FC56EFF5DF859CDD7 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				67FD8E952DFF702FEC001451 /* Pods_App.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		2337AB1229333082AFA9B75A /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				A975585E34F3B285A6CDFEEA /* Pods-App.debug.xcconfig */,
+				2B9172F5DE11D11F8C60B69B /* Pods-App.release.xcconfig */,
+			);
+			name = Pods;
+			path = Pods;
+			sourceTree = "<group>";
+		};
+		39A943424B224FD95A10DEFB /* Performance */ = {
+			isa = PBXGroup;
+			children = (
+				DECE82DC80DA4E07B47E13D9 /* PerformanceOptimizer.swift */,
+				70ABDC5F25D24490241D79ED /* UIPerformanceMonitor.swift */,
+				4366A3A8CDE289AAE22199E6 /* AdvancedCacheManager.swift */,
+				5C90D13485972B4C53A4755B /* NetworkOptimizer.swift */,
+			);
+			name = Performance;
+			sourceTree = "<group>";
+		};
+		44A84B6180580420CA945F32 /* Utilities */ = {
+			isa = PBXGroup;
+			children = (
+				689A186BE708D183B9BBC692 /* LocalizationManager.swift */,
+				7DB9C689CF57247BF9A8284C /* AccessibilityManager.swift */,
+			);
+			name = Utilities;
+			sourceTree = "<group>";
+		};
+		504EC2FB1FED79650016851F = {
+			isa = PBXGroup;
+			children = (
+				504EC3061FED79650016851F /* App */,
+				504EC3051FED79650016851F /* Products */,
+				2337AB1229333082AFA9B75A /* Pods */,
+				21A5746FC56EFF5DF859CDD7 /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		504EC3051FED79650016851F /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				504EC3041FED79650016851F /* App.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		504EC3061FED79650016851F /* App */ = {
+			isa = PBXGroup;
+			children = (
+				504EC3071FED79650016851F /* AppDelegate.swift */,
+				91FDF103E98F46859122604B /* FleetManagementAppView.swift */,
+				7CF36D4EAA764846B433FE89 /* DriverApp.swift */,
+				C907237E021C4DC5AA0E7961 /* AdminApp.swift */,
+				AABBCCDD2233445566778899 /* MaintenanceSubmissionView.swift */,
+				FFB36F4A00A0436EBEFA4922 /* OBD2Manager.swift */,
+				BBCCDDEE3344556677889900 /* OBD2ConnectionManager.swift */,
+				CCDDEEFF4455667788990011 /* DriverPreferencesView.swift */,
+				D0AF9621D4F54B20AA424A31 /* ManualDataEntry.swift */,
+				5E439613C7CF45FD94590B8C /* TripTracking.swift */,
+				EE11154A39164F6F9851447F /* VehicleInspection.swift */,
+				27DF63BC9B7B43F5B13704F4 /* AzureConfig.swift */,
+				0F57E119EBBE4898955725AD /* APIConfiguration.swift */,
+				504EC30B1FED79650016851F /* Main.storyboard */,
+				504EC30E1FED79650016851F /* Assets.xcassets */,
+				504EC3101FED79650016851F /* LaunchScreen.storyboard */,
+				504EC3131FED79650016851F /* Info.plist */,
+				2FAD9762203C412B000D30F8 /* config.xml */,
+				50B271D01FEDC1A000F3C39B /* public */,
+				3BBA46DB1D32C25AAA94AB6E /* NavigationCoordinator.swift */,
+				184D495ABE80A8A6317145D5 /* OBD2DataParser.swift */,
+				F7CC4692F8829295A37DEB2E /* RootView.swift */,
+				8D3671F1B6E188B39F6BB04E /* Vehicle.swift */,
+				1FD7486A982C26549607FEDD /* Views */,
+				4A6126F750A72AA7F17EB7F2 /* DashboardView.swift */,
+				E365431A12D0E242DC6D206E /* MaintenanceView.swift */,
+				626824C3C36EF8E8F31BB5C0 /* DriverManagementView.swift */,
+				5953A1033D6F82E599A2D52D /* SettingsView.swift */,
+				45E2E4781D9C7FD949B1B87F /* ProfileView.swift */,
+				CA2436A19EC278A5FC3EAACB /* ReportsView.swift */,
+				C5E52416BB203D0EEF965375 /* AnalyticsManager.swift */,
+				57F8AE7882C453D316880215 /* AuthenticationManager.swift */,
+				40E238F20052C368232063A6 /* BackgroundSyncManager.swift */,
+				A654643DD537A0A5B2523CA8 /* BluetoothPermissionManager.swift */,
+				CDB393E35AC8D6EADA254293 /* CacheManager.swift */,
+				F2B306D6939DFE03C02278BC /* CameraManager.swift */,
+				228E34544EC917D36F619E71 /* CertificatePinningManager.swift */,
+				BAC214B3C288C3E295885007 /* DataPersistenceManager.swift */,
+				4B7C53095460E1F034B1E77B /* EncryptionManager.swift */,
+				0F5ADEF94D0506FA2EAAC608 /* EnvironmentManager.swift */,
+				44C701A30429F5951D843EBB /* FIPSCryptoManager.swift */,
+				DC834984FF378DE275E3836A /* FirebaseManager.swift */,
+				3F2A394F01EDBA755BFE16C2 /* HealthCheckManager.swift */,
+				E43AB5490E78BBFF83A5E456 /* KeychainManager.swift */,
+				CBD83D96E52957761B2D83DF /* LocationManager.swift */,
+				1EB06EC47240321127DACE13 /* LoggingManager.swift */,
+				D627423AD178CA84B00D882B /* PushNotificationManager.swift */,
+				45A92EF10DF5D561B6624A91 /* RemoteConfigManager.swift */,
+				1DFF5CF011486F4B2C4515A7 /* Theme */,
+				84C1B663EE2725E43D44BD57 /* FleetModels.swift */,
+				F984287D647965A21C894EEB /* FleetMetricsCard.swift */,
+				FE668E65EFBA651D83C0C179 /* DashboardViewModel.swift */,
+				713AB4E4FC6B5609CD33E3AB /* MainTabView.swift */,
+				8B4F1DE72085BC7EE49218FE /* FleetManagementApp.swift */,
+				ADEA64A38480FA712CF17B0A /* CrashReporter.swift */,
+				CB0F8E37AEC73DF7634D9E5E /* AuthenticationService.swift */,
+				5CA21F5B146D22EFC799637F /* SyncService.swift */,
+				97FDE84822515E597067B0FC /* NetworkMonitor.swift */,
+				07D1943466FCE07ED73040DF /* TripModels.swift */,
+				70EA0C1860DEFBF739E36113 /* VehicleViewModel.swift */,
+				E625E46740E770445458750A /* Tests */,
+				44A84B6180580420CA945F32 /* Utilities */,
+				1FE1D81FE7873933269BEC95 /* Components */,
+				1957C0705AEB58F4E1B93AEE /* Monitoring */,
+				39A943424B224FD95A10DEFB /* Performance */,
+				6B689B334E340D102BE86A33 /* OBD2DiagnosticsView.swift */,
+				11876E4ECF760C2C8320A874 /* NIST_INTEGRATION_GUIDE.swift */,
+				AE9C9DD71F2C937AFB38CFAE /* BuildConfiguration.swift */,
+				A178A970776402C24A2BE65E /* ConflictResolver.swift */,
+				CECD87F73C06F037F4C506F2 /* DocumentScannerView.swift */,
+				226315FFBFE6AA825B509A90 /* AuditLogger.swift */,
+				CCAB2814574FF75E8941AB88 /* SyncQueue.swift */,
+				C17586560F2CD0EC9D7B3A57 /* MonitoringIntegrationExample.swift */,
+				43CA89AB087D2C527DFE116C /* TripHistoryView.swift */,
+				46F879499C1EA5F8CCDDF7C8 /* NISTCompliance.swift */,
+				528B535AC89DE43F06C0C752 /* LoginView.swift */,
+				2856E6A5C693335650988463 /* OfflineIndicatorView.swift */,
+				46BE03AB4DBD36903352BE53 /* BarcodeScannerView.swift */,
+				2206275B015222D51C57E551 /* VehicleModel.swift */,
+				AB7FB32F6586627934CB3AFA /* ImageUploadService.swift */,
+				4D8FCF9BE9538F8F795FCA9C /* ErrorHandler.swift */,
+				C7EDDBFA4EA484A264FA9B25 /* DatabaseMigration.swift */,
+				3F6EE710CE87994F14F239CB /* TripDetailView.swift */,
+				0C38520069FC58F103DE1707 /* PhotoCaptureView.swift */,
+				16D08B1504E08A77D76D613D /* TripTrackingService.swift */,
+				838963176F4A74F195806866 /* SecurityLogger.swift */,
+				C238552849836434F03C23EA /* JailbreakDetector.swift */,
+				6C3BAE7CB2F7FD82B0AEC472 /* FeatureFlags.swift */,
+				8582D20487251E184F5F4911 /* QuickActionsView.swift */,
+				CBF225A9A3EAF4A5CEB9AF79 /* VehiclesView.swift */,
+				322587B38A8655729F0759EA /* TripsView.swift */,
+				D699D4BE291F1EA5F945C74E /* MoreView.swift */,
+				8F5973307C13EA88B233DDA7 /* MaintenanceDetailView.swift */,
+				571D9CE991CDD3D95EA52350 /* AddVehicleView.swift */,
+				0A1F000579F31AE84F13F903 /* AddTripView.swift */,
+				B8EE81C544DA2D674F1A7E9B /* NotificationsView.swift */,
+				A055E38F782367163A101332 /* AboutView.swift */,
+				8B33E44E3349254D3FBDEAB8 /* HelpView.swift */,
+				E92A4B8F0ED22636777B1450 /* TripTrackingView.swift */,
+				AEAF8973F5EAB94708538122 /* OBD2DiagnosticsView.swift */,
+				6E64C62671B400492D434CCB /* BuildConfiguration.swift */,
+				DD397FC2D4E6E561C505F8BD /* ConflictResolver.swift */,
+				B16071194C3CDFC062585B7C /* DocumentScannerView.swift */,
+				0DE133A9EDC93F7437EE02F6 /* AuditLogger.swift */,
+				9356D12F9A3012CD67D50BE7 /* SyncQueue.swift */,
+				17CD435FCBF1E6C3791DECEC /* MaintenanceModel.swift */,
+				3626031863A4DDF6DB723410 /* TripHistoryView.swift */,
+				C6366EE59544741FA812506C /* TripModel.swift */,
+				9A9F0539B2E38A8166C3FEFC /* LoginView.swift */,
+				A91BA02C415860E69F94FD71 /* OfflineIndicatorView.swift */,
+				56E6005B3A00C09B25727C98 /* BarcodeScannerView.swift */,
+				E9618D77A7C10A819CA4AA14 /* VehicleModel.swift */,
+				54EA97D78C595961A9512737 /* ImageUploadService.swift */,
+				6913164C95F8AF990EF75826 /* ErrorHandler.swift */,
+				BAD4BD7644119DEE395E41C1 /* DatabaseMigration.swift */,
+				7241B46490E6460B433B2EEA /* TripDetailView.swift */,
+				09C619BEA37BC33F2BEA6494 /* PhotoCaptureView.swift */,
+				71B47AA7C2DDBF992B0F00CD /* TripTrackingService.swift */,
+				F146D4D705C7AB16FD9F29EA /* PerformanceMonitor.swift */,
+				1FCEFB0546A624293C4FF512 /* SecurityLogger.swift */,
+				87398F778BFEF7EF2DF86B3E /* JailbreakDetector.swift */,
+				BE7B9ED07B0907C21A042719 /* FeatureFlags.swift */,
+				AAA465F623576C2679D26006 /* MetricsCollector.swift */,
+				2A9B4C0A4C1C63335C743B4A /* QuickActionsView.swift */,
+				E628E82C23BB1F24588EAB67 /* LocalizationManager.swift */,
+				F34ECBC86983BEC6438C51D8 /* AccessibilityManager.swift */,
+				EFBEC6B34D07608DBEF173C0 /* VehicleCard.swift */,
+				35AAABE8F8E6DDFB951EA440 /* TelemetryExporter.swift */,
+				45C1DAA01F8BE29EC5ED3266 /* PerformanceOptimizer.swift */,
+				4219DC638C71B3AAF3C5E73A /* UIPerformanceMonitor.swift */,
+				ED69BBD9B42D719C46846D31 /* AdvancedCacheManager.swift */,
+				40E16F42F6ED5EF42AE44D2C /* NetworkOptimizer.swift */,
+				93D349D51FFE9EF414A030BF /* AccessibleVehicleListView.swift */,
+				70E13C35860E1F52F6A5775D /* VehicleDetailView.swift */,
+				54CCDF6182703A7ADFC44FC6 /* AccessibleLoginView.swift */,
+				D38775567F11EAB7D994C16C /* VehicleInspectionView.swift */,
+				1E565A7A10DECB0553FE6567 /* ErrorView.swift */,
+				437BD613C26F1BC345011745 /* SupportTicketView.swift */,
+				D370E279435ABECB171CA8D4 /* HelpCenterView.swift */,
+				745B2E96DF38259ECA851CD0 /* OnboardingView.swift */,
+				D8563CF6B58A033A92B50123 /* CoreDataStubs.swift */,
+				EA371CA2F6EDEB0A203CFD97 /* PhotoLibraryManager.swift */,
+				8F747DBAD0DB075BADD3A3A2 /* MissingTypeStubs.swift */,
+				0F8B9848787D946DFF81F3C0 /* Security */,
+				AE6640635A4B3224A483ABE3 /* LocalizationManager.swift */,
+				7F861807480E0BE116646CB8 /* AdvancedCacheManager.swift */,
+				346C66FAA6F8DE25ABE15C8D /* NetworkOptimizer.swift */,
+				740FAAB0ED6F70FB037DFF3F /* PerformanceOptimizer.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		782EFB332BAB87AA75E7BAF9 /* Help */ = {
+			isa = PBXGroup;
+			children = (
+				FCB6906407BB949155B48F3F /* HelpCenterView.swift */,
+				DEEB434961611C611BC78183 /* OnboardingView.swift */,
+			);
+			name = Help;
+			sourceTree = "<group>";
+		};
+		CF8D471222DFED6E2F8A1850 /* Support */ = {
+			isa = PBXGroup;
+			children = (
+				158140F54C68E807B0B0A218 /* SupportTicketView.swift */,
+			);
+			name = Support;
+			sourceTree = "<group>";
+		};
+		E625E46740E770445458750A /* Tests */ = {
+			isa = PBXGroup;
+			children = (
+				273B3076430F835BAA6D5637 /* ProductionValidationTests.swift */,
+			);
+			name = Tests;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		504EC3031FED79650016851F /* App */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 504EC3161FED79650016851F /* Build configuration list for PBXNativeTarget "App" */;
+			buildPhases = (
+				0196B5AFF1AE2E21EF65E689 /* [CP] Check Pods Manifest.lock */,
+				504EC3001FED79650016851F /* Sources */,
+				504EC3011FED79650016851F /* Frameworks */,
+				504EC3021FED79650016851F /* Resources */,
+				D1341DA7D1EAE7223A334872 /* [CP] Embed Pods Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = App;
+			productName = App;
+			productReference = 504EC3041FED79650016851F /* App.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		504EC2FC1FED79650016851F /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastSwiftUpdateCheck = 0920;
+				LastUpgradeCheck = 0920;
+				TargetAttributes = {
+					504EC3031FED79650016851F = {
+						CreatedOnToolsVersion = 9.2;
+						LastSwiftMigration = 1100;
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = 504EC2FF1FED79650016851F /* Build configuration list for PBXProject "App" */;
+			compatibilityVersion = "Xcode 8.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 504EC2FB1FED79650016851F;
+			productRefGroup = 504EC3051FED79650016851F /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				504EC3031FED79650016851F /* App */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		504EC3021FED79650016851F /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				504EC3121FED79650016851F /* LaunchScreen.storyboard in Resources */,
+				50B271D11FEDC1A000F3C39B /* public in Resources */,
+				504EC30F1FED79650016851F /* Assets.xcassets in Resources */,
+				504EC30D1FED79650016851F /* Main.storyboard in Resources */,
+				2FAD9763203C412B000D30F8 /* config.xml in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		0196B5AFF1AE2E21EF65E689 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-App-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		D1341DA7D1EAE7223A334872 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-App/Pods-App-frameworks.sh",
+				"${BUILT_PRODUCTS_DIR}/FirebaseCore/FirebaseCore.framework",
+				"${BUILT_PRODUCTS_DIR}/FirebaseCoreExtension/FirebaseCoreExtension.framework",
+				"${BUILT_PRODUCTS_DIR}/FirebaseCoreInternal/FirebaseCoreInternal.framework",
+				"${BUILT_PRODUCTS_DIR}/FirebaseCrashlytics/FirebaseCrashlytics.framework",
+				"${BUILT_PRODUCTS_DIR}/FirebaseInstallations/FirebaseInstallations.framework",
+				"${BUILT_PRODUCTS_DIR}/FirebaseMessaging/FirebaseMessaging.framework",
+				"${BUILT_PRODUCTS_DIR}/FirebaseRemoteConfigInterop/FirebaseRemoteConfigInterop.framework",
+				"${BUILT_PRODUCTS_DIR}/FirebaseSessions/FirebaseSessions.framework",
+				"${BUILT_PRODUCTS_DIR}/GoogleDataTransport/GoogleDataTransport.framework",
+				"${BUILT_PRODUCTS_DIR}/GoogleUtilities/GoogleUtilities.framework",
+				"${BUILT_PRODUCTS_DIR}/KeychainSwift/KeychainSwift.framework",
+				"${BUILT_PRODUCTS_DIR}/PromisesObjC/FBLPromises.framework",
+				"${BUILT_PRODUCTS_DIR}/PromisesSwift/Promises.framework",
+				"${BUILT_PRODUCTS_DIR}/Sentry/Sentry.framework",
+				"${BUILT_PRODUCTS_DIR}/nanopb/nanopb.framework",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseCore.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseCoreExtension.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseCoreInternal.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseCrashlytics.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseInstallations.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseMessaging.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseRemoteConfigInterop.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseSessions.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleDataTransport.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleUtilities.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/KeychainSwift.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FBLPromises.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Promises.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Sentry.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/nanopb.framework",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-App/Pods-App-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		504EC3001FED79650016851F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				504EC3081FED79650016851F /* AppDelegate.swift in Sources */,
+				33FF6ED8E6AF45E6A4D59BD2 /* FleetManagementAppView.swift in Sources */,
+				0537E0BFB791487988E78493 /* AdminApp.swift in Sources */,
+				B66C142E10D84DFC9D0403F7 /* ManualDataEntry.swift in Sources */,
+				443D9B4B989141FDAAF36D39 /* TripTracking.swift in Sources */,
+				4B72C13258A942BEB8DFEB9C /* VehicleInspection.swift in Sources */,
+				6A7092747CFB4119B5A587F5 /* AzureConfig.swift in Sources */,
+				B1931DF8F42B42679360266E /* APIConfiguration.swift in Sources */,
+				B6C5176E4CEA3D58E4C74B5D /* NavigationCoordinator.swift in Sources */,
+				3BEA6EB128B67C751E716546 /* OBD2DataParser.swift in Sources */,
+				DFD9FD75380C3E8746025568 /* RootView.swift in Sources */,
+				56EED8FD7C3F9154E51D636A /* Vehicle.swift in Sources */,
+				1F3F6273C7F72CC6AB1432EB /* DashboardView.swift in Sources */,
+				4C007558067FF7588CB9A046 /* MaintenanceView.swift in Sources */,
+				6609FF247D3EE1927372EEC8 /* DriverManagementView.swift in Sources */,
+				43641BC24CB5D7DFD7980558 /* SettingsView.swift in Sources */,
+				E1CD02B139C09FD4DFF628FE /* ProfileView.swift in Sources */,
+				5768A2EFBCF5F73E5DF8B6BE /* ReportsView.swift in Sources */,
+				3880E7B6342FF209081CEF9C /* AnalyticsManager.swift in Sources */,
+				AD96906661E1E453647F7E15 /* AuthenticationManager.swift in Sources */,
+				4FCBE3746AEBD033727E30FC /* BluetoothPermissionManager.swift in Sources */,
+				1396EF324AC67AE1F94B80B2 /* CameraManager.swift in Sources */,
+				F59D572696306988058A5EEA /* CertificatePinningManager.swift in Sources */,
+				3E111AC820DF00200BE8EAEF /* DataPersistenceManager.swift in Sources */,
+				D036E2E4ABE5A0A818928E29 /* EncryptionManager.swift in Sources */,
+				127510355BDC707C09F83E39 /* EnvironmentManager.swift in Sources */,
+				81BA0B87E9F824E3CC56B360 /* FIPSCryptoManager.swift in Sources */,
+				431C607465CFF42AC08924FF /* FirebaseManager.swift in Sources */,
+				9BF8828693D953B8784E5B38 /* HealthCheckManager.swift in Sources */,
+				CD50674436C7F9F07BFE2D58 /* KeychainManager.swift in Sources */,
+				81DF3DACC7EE13B162332E4F /* LocationManager.swift in Sources */,
+				5331ADCD6F5C61AA888F7B58 /* LoggingManager.swift in Sources */,
+				55E8293496A834B0ED6D7A34 /* PushNotificationManager.swift in Sources */,
+				CE4575C5140289C0FADB7609 /* RemoteConfigManager.swift in Sources */,
+				E641D7862F149E307B75DA13 /* ModernTheme.swift in Sources */,
+				F097904D1FA1EE2E3E1F74B3 /* Animations.swift in Sources */,
+				CB115EC312D5F193F28EFB33 /* AccessibilityEnhancements.swift in Sources */,
+				481F7865097104E4849EAD12 /* FleetModels.swift in Sources */,
+				5109453DBE82C3016B9338D3 /* FleetMetricsCard.swift in Sources */,
+				35BB4B8EEFCCB0C078D2AED2 /* DashboardViewModel.swift in Sources */,
+				340EC571F199FDDBA54DF8F9 /* MainTabView.swift in Sources */,
+				27F42289AE2C5BE0C05B9969 /* FleetManagementApp.swift in Sources */,
+				068908ED00ABE2CCC99837D2 /* CrashReporter.swift in Sources */,
+				A8BC4C0AC7304388A8DFACEE /* AuthenticationService.swift in Sources */,
+				93BE71FF7B0B2B2CFC39762A /* NetworkMonitor.swift in Sources */,
+				DA823BDE8A91B436E5FFB847 /* TripModels.swift in Sources */,
+				60F1E0280F22EC92EBC68504 /* VehicleViewModel.swift in Sources */,
+				B144F1AA908F90CAB55089AA /* DocumentScannerView.swift in Sources */,
+				3EA0B9A4D9B3E76F2CBAE804 /* AuditLogger.swift in Sources */,
+				DE5DDF0248C7ECADCC786C65 /* SyncQueue.swift in Sources */,
+				360C61B5C1A11798A6E3D32B /* NISTCompliance.swift in Sources */,
+				B765EA9F5BC98B4DF707B6A3 /* LoginView.swift in Sources */,
+				7528A7967C8231B169C30B3C /* BarcodeScannerView.swift in Sources */,
+				1EADECA0585536A9C0A29270 /* VehicleModel.swift in Sources */,
+				0495F5DFD62AD3C497DE7092 /* ImageUploadService.swift in Sources */,
+				6989C6B66B5336260C7EA5D3 /* ErrorHandler.swift in Sources */,
+				C8DC9DC076090832E69063DC /* DatabaseMigration.swift in Sources */,
+				39DCFBF240FBD2721596DC15 /* PhotoCaptureView.swift in Sources */,
+				7F691CC70C0097D491CE83CA /* TripTrackingService.swift in Sources */,
+				8EA02B9DC5D057019A4EC4A7 /* SecurityLogger.swift in Sources */,
+				9C4E6046E47B4F18AD7FC0DA /* FeatureFlags.swift in Sources */,
+				D75ED85F7F239630A578C03D /* QuickActionsView.swift in Sources */,
+				9E92C16AA2BC63D55E644206 /* VehicleCard.swift in Sources */,
+				E4531189B42026784C6081CC /* VehiclesView.swift in Sources */,
+				BF504E78E52591F957474223 /* TripsView.swift in Sources */,
+				2195A10DF19DFCF799102BF4 /* MoreView.swift in Sources */,
+				27BEF40315FFEAB575CE37C4 /* MaintenanceDetailView.swift in Sources */,
+				9EA18AED274C082E78EACC37 /* AddVehicleView.swift in Sources */,
+				05FD29B2EBB588775BAA1FE2 /* AddTripView.swift in Sources */,
+				1ED689725D32DF24B5DCDA67 /* NotificationsView.swift in Sources */,
+				D692D1E132B24D713EF5E7D6 /* AboutView.swift in Sources */,
+				79EBA4256590FB587268F448 /* HelpView.swift in Sources */,
+				AA6F2AC0FBCDAEDDA949A531 /* DocumentScannerView.swift in Sources */,
+				CED6F3841A7B0295737E3B55 /* AuditLogger.swift in Sources */,
+				104FBABC12851A340672919B /* SyncQueue.swift in Sources */,
+				858D7B99437B46D3FD2BE2F2 /* MaintenanceModel.swift in Sources */,
+				F45953FE0B07EDEA34366949 /* TripHistoryView.swift in Sources */,
+				0EACFD0C8AF16EEB70C47365 /* LoginView.swift in Sources */,
+				9EF6F804000171E44B6A8069 /* BarcodeScannerView.swift in Sources */,
+				6F66BDE4B618D6EE03570058 /* VehicleModel.swift in Sources */,
+				2B7F453BC83C54A7586D98F6 /* ImageUploadService.swift in Sources */,
+				D432098DDB93B000CB1DB520 /* ErrorHandler.swift in Sources */,
+				C09EA3852F19E8DF65CF6B11 /* DatabaseMigration.swift in Sources */,
+				8114CE871359D23C82448D23 /* PhotoCaptureView.swift in Sources */,
+				2DEC79E5AE28AB4E737D20AE /* TripTrackingService.swift in Sources */,
+				56B58911897181E1822C7076 /* SecurityLogger.swift in Sources */,
+				0DD2FA05B7BB88D2A99F8C33 /* JailbreakDetector.swift in Sources */,
+				C0082BDA51D4D9DE0DAFED24 /* FeatureFlags.swift in Sources */,
+				1D8E3EC22199FD0081A1FD8B /* QuickActionsView.swift in Sources */,
+				E9B6755080E234541175BE59 /* VehicleCard.swift in Sources */,
+				753A4288CB098E4CE518DCD8 /* TelemetryExporter.swift in Sources */,
+				7F692B6B8DFA128BF1C46DAC /* CoreDataStubs.swift in Sources */,
+				FB33DE676A96B8E46D5FF440 /* PhotoLibraryManager.swift in Sources */,
+				61E888E6E214B3576AD77A81 /* MissingTypeStubs.swift in Sources */,
+				E28E4E99C46F2434412CC188 /* AlertManager.swift in Sources */,
+				68274F2DFFA5368AF1FDAAC5 /* PerformanceMonitor.swift in Sources */,
+				5C635D536BAE76B681EDAC06 /* MetricsCollector.swift in Sources */,
+				467DD1223B2FBDAB130471F5 /* TelemetryExporter.swift in Sources */,
+				50B3B14E65E4A55DBE332DA9 /* UIPerformanceMonitor.swift in Sources */,
+				5ADC0BBF86A8DF8B9F5668E3 /* LocalizationManager.swift in Sources */,
+				B3A5822CE9CED460C80E1F02 /* AdvancedCacheManager.swift in Sources */,
+				C1CE130B94230DA195C81BAD /* NetworkOptimizer.swift in Sources */,
+				D9FB772650EC724B1FB0F26F /* PerformanceOptimizer.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		504EC30B1FED79650016851F /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				504EC30C1FED79650016851F /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+		504EC3101FED79650016851F /* LaunchScreen.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				504EC3111FED79650016851F /* Base */,
+			);
+			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		504EC3141FED79650016851F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		504EC3151FED79650016851F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = iphoneos;
+				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		504EC3171FED79650016851F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = A975585E34F3B285A6CDFEEA /* Pods-App.debug.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 2;
+				DEVELOPMENT_TEAM = FFC6NRQ5U5;
+				INFOPLIST_FILE = App/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				MARKETING_VERSION = 1.0;
+				OTHER_SWIFT_FLAGS = "$(inherited) \"-D\" \"COCOAPODS\" \"-DDEBUG\"";
+				PRODUCT_BUNDLE_IDENTIFIER = com.capitaltechalliance.fleetmanagement;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		504EC3181FED79650016851F /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 2B9172F5DE11D11F8C60B69B /* Pods-App.release.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 2;
+				DEVELOPMENT_TEAM = FFC6NRQ5U5;
+				INFOPLIST_FILE = App/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.capitaltechalliance.fleetmanagement;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		504EC2FF1FED79650016851F /* Build configuration list for PBXProject "App" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				504EC3141FED79650016851F /* Debug */,
+				504EC3151FED79650016851F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		504EC3161FED79650016851F /* Build configuration list for PBXNativeTarget "App" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				504EC3171FED79650016851F /* Debug */,
+				504EC3181FED79650016851F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 504EC2FC1FED79650016851F /* Project object */;
+}

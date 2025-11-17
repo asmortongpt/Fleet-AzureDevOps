@@ -1,0 +1,288 @@
+import { Vehicle, Driver, Staff, ServiceBay, WorkOrder, Technician, FuelTransaction, MaintenanceRequest, GISFacility } from "./types"
+
+const regions = ["North", "South", "East", "West", "Central"]
+const departments = ["Operations", "Sales", "Executive", "Maintenance", "Logistics", "Security", "Construction", "Warehousing"]
+const vehicleTypes: Vehicle["type"][] = ["sedan", "suv", "truck", "van", "emergency", "specialty", "tractor", "forklift", "trailer", "construction", "bus", "motorcycle"]
+const statuses: Vehicle["status"][] = ["active", "idle", "charging", "service", "emergency"]
+
+// Equipment-specific makes and models
+const equipmentData: Record<string, { makes: string[], models: string[] }> = {
+  tractor: { makes: ["John Deere", "Case IH", "New Holland", "Kubota"], models: ["5075E", "Farmall 75C", "T4.75", "M5-111"] },
+  forklift: { makes: ["Toyota", "Crown", "Yale", "Hyster"], models: ["8FGU25", "FC5200", "GDP40VX", "H80FT"] },
+  trailer: { makes: ["Great Dane", "Wabash", "Utility", "Vanguard"], models: ["Everest", "DuraPlate", "3000R", "Reefer"] },
+  construction: { makes: ["Caterpillar", "Komatsu", "Volvo", "JCB"], models: ["320 GC", "PC210", "ECR25D", "JS220"] },
+  bus: { makes: ["Blue Bird", "Thomas Built", "IC Bus", "Gillig"], models: ["Vision", "Saf-T-Liner", "CE Series", "Low Floor"] },
+  motorcycle: { makes: ["Harley-Davidson", "Honda", "Kawasaki", "BMW"], models: ["Street 750", "CB500X", "Ninja 400", "G 310 R"] }
+}
+
+const floridaCities = [
+  { name: "Tampa", lat: 27.9506, lng: -82.4572 },
+  { name: "Miami", lat: 25.7617, lng: -80.1918 },
+  { name: "Orlando", lat: 28.5383, lng: -81.3792 },
+  { name: "Jacksonville", lat: 30.3322, lng: -81.6557 },
+  { name: "Tallahassee", lat: 30.4383, lng: -84.2807 },
+  { name: "St. Petersburg", lat: 27.7676, lng: -82.6403 },
+  { name: "Fort Lauderdale", lat: 26.1224, lng: -80.1373 },
+  { name: "Gainesville", lat: 29.6516, lng: -82.3248 }
+]
+
+export function generateVehicles(count: number = 50): Vehicle[] {
+  const vehicles: Vehicle[] = []
+  
+  for (let i = 0; i < count; i++) {
+    const city = floridaCities[Math.floor(Math.random() * floridaCities.length)]
+    const type = vehicleTypes[Math.floor(Math.random() * vehicleTypes.length)]
+    const status = statuses[Math.floor(Math.random() * statuses.length)]
+    
+    // Get appropriate make and model based on type
+    let make: string
+    let model: string
+    let fuelType: Vehicle["fuelType"]
+    let hoursUsed: number | undefined
+    
+    if (["tractor", "forklift", "trailer", "construction", "bus", "motorcycle"].includes(type)) {
+      const equipment = equipmentData[type]
+      make = equipment.makes[Math.floor(Math.random() * equipment.makes.length)]
+      model = equipment.models[Math.floor(Math.random() * equipment.models.length)]
+      // Equipment often uses diesel or electric
+      fuelType = type === "forklift" ? (Math.random() > 0.5 ? "electric" : "propane") : "diesel"
+      // Track hours for equipment instead of just mileage
+      hoursUsed = Math.floor(Math.random() * 5000 + 500)
+    } else {
+      make = ["Ford", "Chevrolet", "Toyota", "Honda", "Nissan", "Tesla"][Math.floor(Math.random() * 6)]
+      model = ["Explorer", "Silverado", "Camry", "Accord", "Altima", "Model 3"][Math.floor(Math.random() * 6)]
+      fuelType = type === "emergency" ? "diesel" : ["gasoline", "diesel", "electric", "hybrid"][Math.floor(Math.random() * 4)] as any
+    }
+    
+    vehicles.push({
+      id: `veh-${1000 + i}`,
+      tenantId: "tenant-demo",
+      number: `FL-${1000 + i}`,
+      type,
+      make,
+      model,
+      year: 2020 + Math.floor(Math.random() * 4),
+      vin: `1HGBH${Math.random().toString(36).substr(2, 12).toUpperCase()}`,
+      licensePlate: `${String.fromCharCode(65 + Math.floor(Math.random() * 26))}${String.fromCharCode(65 + Math.floor(Math.random() * 26))}${Math.floor(Math.random() * 10000)}`,
+      status,
+      location: {
+        lat: city.lat + (Math.random() - 0.5) * 0.2,
+        lng: city.lng + (Math.random() - 0.5) * 0.2,
+        address: `${Math.floor(Math.random() * 9000 + 1000)} ${["Main", "Oak", "Pine", "Maple", "Cedar"][Math.floor(Math.random() * 5)]} St, ${city.name}, FL`
+      },
+      region: regions[Math.floor(Math.random() * regions.length)],
+      department: departments[Math.floor(Math.random() * departments.length)],
+      fuelLevel: Math.floor(Math.random() * 100),
+      fuelType,
+      mileage: Math.floor(Math.random() * 100000 + 10000),
+      hoursUsed,
+      ownership: Math.random() > 0.7 ? "leased" : (Math.random() > 0.5 ? "owned" : "rented"),
+      lastService: new Date(Date.now() - Math.random() * 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      nextService: new Date(Date.now() + Math.random() * 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      alerts: Math.random() > 0.7 ? ["Low fuel", "Maintenance due"] : [],
+      tags: type === "construction" ? ["heavy-duty", "commercial"] : type === "forklift" ? ["warehouse", "material-handling"] : undefined
+    })
+  }
+  
+  return vehicles
+}
+
+export function generateDrivers(count: number = 30): Driver[] {
+  const drivers: Driver[] = []
+  const firstNames = ["John", "Jane", "Michael", "Sarah", "David", "Emily", "Robert", "Lisa", "James", "Maria"]
+  const lastNames = ["Smith", "Johnson", "Williams", "Brown", "Jones", "Garcia", "Miller", "Davis", "Martinez", "Lopez"]
+  
+  for (let i = 0; i < count; i++) {
+    const firstName = firstNames[Math.floor(Math.random() * firstNames.length)]
+    const lastName = lastNames[Math.floor(Math.random() * lastNames.length)]
+    
+    drivers.push({
+      id: `drv-${2000 + i}`,
+      tenantId: "default-tenant",
+      employeeId: `EMP${10000 + i}`,
+      name: `${firstName} ${lastName}`,
+      email: `${firstName.toLowerCase()}.${lastName.toLowerCase()}@fleet.gov`,
+      phone: `(${Math.floor(Math.random() * 900 + 100)}) ${Math.floor(Math.random() * 900 + 100)}-${Math.floor(Math.random() * 9000 + 1000)}`,
+      department: departments[Math.floor(Math.random() * departments.length)],
+      licenseType: ["Class A CDL", "Class B CDL", "Class C", "Class D"][Math.floor(Math.random() * 4)],
+      licenseExpiry: new Date(Date.now() + Math.random() * 365 * 2 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      safetyScore: Math.floor(Math.random() * 30 + 70),
+      certifications: ["Defensive Driving", "Hazmat", "First Aid"].filter(() => Math.random() > 0.5),
+      status: ["active", "off-duty"][Math.floor(Math.random() * 2)] as any
+    })
+  }
+  
+  return drivers
+}
+
+export function generateStaff(count: number = 25): Staff[] {
+  const staff: Staff[] = []
+  const firstNames = ["Alex", "Chris", "Pat", "Sam", "Jordan", "Taylor", "Morgan", "Casey", "Drew", "Quinn"]
+  const lastNames = ["Anderson", "Thomas", "Jackson", "White", "Harris", "Martin", "Thompson", "Garcia", "Robinson", "Clark"]
+  const roles = ["Fleet Manager", "Operations Coordinator", "Maintenance Supervisor", "Safety Officer", "Logistics Specialist"]
+  
+  for (let i = 0; i < count; i++) {
+    const firstName = firstNames[Math.floor(Math.random() * firstNames.length)]
+    const lastName = lastNames[Math.floor(Math.random() * lastNames.length)]
+    
+    staff.push({
+      id: `stf-${3000 + i}`,
+      tenantId: "default-tenant",
+      employeeId: `STF${20000 + i}`,
+      name: `${firstName} ${lastName}`,
+      email: `${firstName.toLowerCase()}.${lastName.toLowerCase()}@fleet.gov`,
+      phone: `(${Math.floor(Math.random() * 900 + 100)}) ${Math.floor(Math.random() * 900 + 100)}-${Math.floor(Math.random() * 9000 + 1000)}`,
+      department: departments[Math.floor(Math.random() * departments.length)],
+      role: roles[Math.floor(Math.random() * roles.length)],
+      status: "active"
+    })
+  }
+  
+  return staff
+}
+
+export function generateServiceBays(count: number = 8): ServiceBay[] {
+  const bays: ServiceBay[] = []
+  
+  for (let i = 0; i < count; i++) {
+    const occupied = Math.random() > 0.4
+    
+    bays.push({
+      id: `bay-${i + 1}`,
+      number: `Bay ${i + 1}`,
+      status: occupied ? "occupied" : "available",
+      vehicle: occupied ? `FL-${1000 + Math.floor(Math.random() * 50)}` : undefined,
+      technician: occupied ? `Tech-${Math.floor(Math.random() * 5 + 1)}` : undefined,
+      serviceType: occupied ? ["Oil Change", "Brake Repair", "Tire Rotation", "Inspection"][Math.floor(Math.random() * 4)] : undefined,
+      estimatedCompletion: occupied ? new Date(Date.now() + Math.random() * 4 * 60 * 60 * 1000).toISOString() : undefined
+    })
+  }
+  
+  return bays
+}
+
+export function generateWorkOrders(count: number = 20): WorkOrder[] {
+  const orders: WorkOrder[] = []
+  const serviceTypes = ["Oil Change", "Brake Repair", "Tire Rotation", "Engine Diagnostics", "Transmission Service", "AC Repair"]
+  const priorities: WorkOrder["priority"][] = ["low", "medium", "high", "urgent"]
+  const statuses: WorkOrder["status"][] = ["pending", "in-progress", "completed"]
+  
+  for (let i = 0; i < count; i++) {
+    const status = statuses[Math.floor(Math.random() * statuses.length)]
+    
+    orders.push({
+      id: `wo-${4000 + i}`,
+      tenantId: "default-tenant",
+      createdBy: "system",
+      vehicleId: `veh-${1000 + Math.floor(Math.random() * 50)}`,
+      vehicleNumber: `FL-${1000 + Math.floor(Math.random() * 50)}`,
+      serviceType: serviceTypes[Math.floor(Math.random() * serviceTypes.length)],
+      priority: priorities[Math.floor(Math.random() * priorities.length)],
+      status,
+      assignedTo: status !== "pending" ? `Tech-${Math.floor(Math.random() * 5 + 1)}` : undefined,
+      cost: status === "completed" ? Math.floor(Math.random() * 1500 + 100) : undefined,
+      createdDate: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      completedDate: status === "completed" ? new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] : undefined,
+      description: "Scheduled maintenance and inspection required"
+    })
+  }
+  
+  return orders
+}
+
+export function generateTechnicians(count: number = 5): Technician[] {
+  const technicians: Technician[] = []
+  const names = ["Mike Rodriguez", "Sarah Chen", "Tom Anderson", "Lisa Johnson", "Carlos Martinez"]
+  const specializations = ["Engine", "Transmission", "Electrical", "Brakes", "Diagnostics"]
+  
+  for (let i = 0; i < count; i++) {
+    technicians.push({
+      id: `tech-${i + 1}`,
+      name: names[i],
+      specialization: specializations.filter(() => Math.random() > 0.4),
+      availability: ["available", "busy", "off-duty"][Math.floor(Math.random() * 3)] as any,
+      efficiency: Math.floor(Math.random() * 20 + 80),
+      certifications: ["ASE Certified", "Manufacturer Certified"].filter(() => Math.random() > 0.3),
+      activeWorkOrders: Math.floor(Math.random() * 5)
+    })
+  }
+  
+  return technicians
+}
+
+export function generateFuelTransactions(count: number = 50): FuelTransaction[] {
+  const transactions: FuelTransaction[] = []
+  const stations = ["Shell Station", "BP Gas", "Chevron", "Sunoco", "Wawa"]
+  const paymentMethods = ["Fleet Card", "Credit Card", "Direct Bill"]
+  
+  for (let i = 0; i < count; i++) {
+    const gallons = Math.random() * 20 + 5
+    const pricePerGallon = Math.random() * 1.5 + 2.5
+    
+    transactions.push({
+      id: `fuel-${5000 + i}`,
+      vehicleId: `veh-${1000 + Math.floor(Math.random() * 50)}`,
+      vehicleNumber: `FL-${1000 + Math.floor(Math.random() * 50)}`,
+      date: new Date(Date.now() - Math.random() * 90 * 24 * 60 * 60 * 1000).toISOString(),
+      station: stations[Math.floor(Math.random() * stations.length)],
+      gallons: Math.round(gallons * 100) / 100,
+      pricePerGallon: Math.round(pricePerGallon * 100) / 100,
+      totalCost: Math.round(gallons * pricePerGallon * 100) / 100,
+      mpg: Math.round((Math.random() * 15 + 15) * 10) / 10,
+      paymentMethod: paymentMethods[Math.floor(Math.random() * paymentMethods.length)],
+      odometer: Math.floor(Math.random() * 100000 + 10000)
+    })
+  }
+  
+  return transactions.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+}
+
+export function generateFacilities(): GISFacility[] {
+  return [
+    {
+      id: "fac-1",
+      name: "Tampa Regional Office",
+      type: "office",
+      location: { lat: 27.9506, lng: -82.4572 },
+      address: "4567 Kennedy Blvd, Tampa, FL 33609",
+      region: "Central",
+      status: "operational"
+    },
+    {
+      id: "fac-2",
+      name: "Miami Service Center",
+      type: "service-center",
+      location: { lat: 25.7617, lng: -80.1918 },
+      address: "1234 Biscayne Blvd, Miami, FL 33132",
+      region: "South",
+      status: "operational"
+    },
+    {
+      id: "fac-3",
+      name: "Orlando Depot",
+      type: "depot",
+      location: { lat: 28.5383, lng: -81.3792 },
+      address: "7890 Central Florida Pkwy, Orlando, FL 32819",
+      region: "Central",
+      status: "operational"
+    },
+    {
+      id: "fac-4",
+      name: "Jacksonville Fueling Station",
+      type: "fueling-station",
+      location: { lat: 30.3322, lng: -81.6557 },
+      address: "5678 Atlantic Blvd, Jacksonville, FL 32207",
+      region: "North",
+      status: "operational"
+    },
+    {
+      id: "fac-5",
+      name: "Tallahassee Office",
+      type: "office",
+      location: { lat: 30.4383, lng: -84.2807 },
+      address: "2345 Apalachee Pkwy, Tallahassee, FL 32301",
+      region: "North",
+      status: "operational"
+    }
+  ]
+}

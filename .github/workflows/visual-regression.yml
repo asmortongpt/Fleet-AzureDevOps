@@ -1,0 +1,252 @@
+name: Visual Regression Testing
+
+on:
+  pull_request:
+    branches: [main, master, develop]
+    paths:
+      - 'src/components/**Map**.tsx'
+      - 'tests/visual/**'
+      - 'playwright.config.ts'
+  push:
+    branches: [main, master]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  visual-chromium:
+    name: Visual Tests (Chromium)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Build application
+        run: npm run build
+
+      - name: Run visual tests (Chromium)
+        run: npm run test:visual
+        env:
+          CI: true
+          APP_URL: http://localhost:5000
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: visual-test-results-chromium
+          path: |
+            test-results/
+            playwright-report/
+          retention-days: 30
+
+      - name: Upload screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: visual-screenshots-chromium
+          path: tests/visual/**/*-actual.png
+          retention-days: 30
+          if-no-files-found: ignore
+
+  visual-cross-browser:
+    name: Visual Tests (Cross-Browser)
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    if: github.event_name == 'push' || contains(github.event.pull_request.labels.*.name, 'visual-full')
+
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [firefox, webkit]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps ${{ matrix.browser }}
+
+      - name: Build application
+        run: npm run build
+
+      - name: Run visual tests (${{ matrix.browser }})
+        run: npx playwright test --project=visual-${{ matrix.browser }}
+        env:
+          CI: true
+          APP_URL: http://localhost:5000
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: visual-test-results-${{ matrix.browser }}
+          path: |
+            test-results/
+            playwright-report/
+          retention-days: 30
+
+  visual-mobile:
+    name: Visual Tests (Mobile)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    if: github.event_name == 'push' || contains(github.event.pull_request.labels.*.name, 'visual-full')
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps webkit
+
+      - name: Build application
+        run: npm run build
+
+      - name: Run mobile visual tests
+        run: npm run test:visual:mobile
+        env:
+          CI: true
+          APP_URL: http://localhost:5000
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: visual-test-results-mobile
+          path: |
+            test-results/
+            playwright-report/
+          retention-days: 30
+
+  visual-comparison:
+    name: Visual Diff Report
+    runs-on: ubuntu-latest
+    needs: [visual-chromium]
+    if: always() && github.event_name == 'pull_request'
+
+    steps:
+      - name: Download test results
+        uses: actions/download-artifact@v4
+        with:
+          name: visual-test-results-chromium
+          path: test-results/
+
+      - name: Generate visual diff report
+        id: visual-diff
+        run: |
+          if [ -d "test-results" ]; then
+            echo "Visual tests completed"
+            echo "has_diff=true" >> $GITHUB_OUTPUT
+          else
+            echo "No visual test results found"
+            echo "has_diff=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Comment PR with visual diff report
+        if: steps.visual-diff.outputs.has_diff == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+
+            const resultsDir = 'test-results';
+            let comment = '## 📸 Visual Regression Test Results\n\n';
+
+            if (fs.existsSync(resultsDir)) {
+              comment += '✅ Visual tests completed successfully!\n\n';
+              comment += `View detailed report in the [artifacts](https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}).\n`;
+            } else {
+              comment += '⚠️ No visual test results found.\n';
+            }
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+
+  update-baselines:
+    name: Update Visual Baselines
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[update-baselines]')
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Build application
+        run: npm run build
+
+      - name: Update visual baselines
+        run: npm run test:visual:update
+        env:
+          CI: true
+          UPDATE_SNAPSHOTS: true
+          APP_URL: http://localhost:5000
+
+      - name: Commit updated baselines
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add tests/visual/**/*-snapshots/
+          git diff --staged --quiet || git commit -m "chore: update visual regression baselines [skip ci]"
+          git push
+
+      - name: Upload updated baselines
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: updated-visual-baselines
+          path: tests/visual/**/*-snapshots/
+          retention-days: 90

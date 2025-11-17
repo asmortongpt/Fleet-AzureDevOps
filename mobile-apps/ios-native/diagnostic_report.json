@@ -1,0 +1,498 @@
+{
+  "total_swift_files": 104,
+  "files_not_in_project": [
+    "App/TripTrackingView.swift",
+    "App/OBD2DiagnosticsView.swift",
+    "App/NIST_INTEGRATION_GUIDE.swift",
+    "App/BuildConfiguration.swift",
+    "App/CameraMediaExamples.swift",
+    "App/ConflictResolver.swift",
+    "App/DocumentScannerView.swift",
+    "App/AuditLogger.swift",
+    "App/SyncQueue.swift",
+    "App/MonitoringIntegrationExample.swift",
+    "App/MaintenanceModel.swift",
+    "App/TripHistoryView.swift",
+    "App/TripModel.swift",
+    "App/NISTCompliance.swift",
+    "App/LoginView.swift",
+    "App/OfflineIndicatorView.swift",
+    "App/BarcodeScannerView.swift",
+    "App/VehicleModel.swift",
+    "App/ImageUploadService.swift",
+    "App/ErrorHandler.swift",
+    "App/DatabaseMigration.swift",
+    "App/TripDetailView.swift",
+    "App/PhotoCaptureView.swift",
+    "App/TripTrackingService.swift",
+    "App/PerformanceMonitor.swift",
+    "App/SecurityLogger.swift",
+    "App/JailbreakDetector.swift",
+    "App/FeatureFlags.swift",
+    "App/MetricsCollector.swift",
+    "App/QuickActionsView.swift",
+    "App/Tests/ProductionValidationTests.swift",
+    "App/Utilities/LocalizationManager.swift",
+    "App/Utilities/AccessibilityManager.swift",
+    "App/Components/VehicleCard.swift",
+    "App/Monitoring/TelemetryExporter.swift",
+    "App/Performance/PerformanceOptimizer.swift",
+    "App/Performance/UIPerformanceMonitor.swift",
+    "App/Performance/AdvancedCacheManager.swift",
+    "App/Performance/NetworkOptimizer.swift",
+    "App/Views/AccessibleVehicleListView.swift",
+    "App/Views/VehicleDetailView.swift",
+    "App/Views/AccessibleLoginView.swift",
+    "App/Views/VehicleInspectionView.swift",
+    "App/Views/ErrorView.swift",
+    "App/Views/Support/SupportTicketView.swift",
+    "App/Views/Help/HelpCenterView.swift",
+    "App/Views/Help/OnboardingView.swift"
+  ],
+  "compilation_errors": [
+    "/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/VehicleInspection.swift:95:9: error: static method 'buildExpression' requires that 'VehicleInspection' conform to 'View'",
+    "/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/VehicleInspection.swift:95:27: error: missing argument for parameter 'from' in call",
+    "/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/AzureConfig.swift:12:16: error: cannot find 'SecureConfigManager' in scope",
+    "/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/APIConfiguration.swift:200:32: error: cannot find 'ErrorHandler' in scope",
+    "/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/APIConfiguration.swift:213:17: error: cannot find 'JailbreakDetector' in scope",
+    "/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/APIConfiguration.swift:215:13: error: cannot find 'SecurityLogger' in scope",
+    "/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/APIConfiguration.swift:216:18: error: cannot infer contextual base in reference to member 'deviceCompromised'",
+    "/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/APIConfiguration.swift:218:28: error: cannot infer contextual base in reference to member 'critical'",
+    "/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/APIConfiguration.swift:336:17: error: cannot find 'SecurityLogger' in scope",
+    "/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/APIConfiguration.swift:337:22: error: cannot infer contextual base in reference to member 'apiRequestFailed'",
+    "/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/APIConfiguration.swift:343:65: error: cannot infer contextual base in reference to member 'high'",
+    "/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/APIConfiguration.swift:375:17: error: cannot find 'SecurityLogger' in scope",
+    "/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/APIConfiguration.swift:376:22: error: cannot infer contextual base in reference to member 'authenticationFailed'",
+    "/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/APIConfiguration.swift:378:32: error: cannot infer contextual base in reference to member 'high'",
+    "/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/APIConfiguration.swift:389:17: error: cannot find 'SecurityLogger' in scope",
+    "/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/APIConfiguration.swift:390:22: error: cannot infer contextual base in reference to member 'rateLimitExceeded'",
+    "/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/APIConfiguration.swift:392:32: error: cannot infer contextual base in reference to member 'medium'",
+    "/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/APIConfiguration.swift:492:9: error: cannot find 'SecurityLogger' in scope",
+    "/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/APIConfiguration.swift:493:14: error: cannot infer contextual base in reference to member 'authenticationSuccess'",
+    "/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/APIConfiguration.swift:495:24: error: cannot infer contextual base in reference to member 'low'",
+    "/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/NavigationCoordinator.swift:72:16: error: initializer for conditional binding must have Optional type, not '[String]'",
+    "/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/NavigationCoordinator.swift:81:16: error: initializer for conditional binding must have Optional type, not '[String]'",
+    "/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/NavigationCoordinator.swift:90:16: error: initializer for conditional binding must have Optional type, not '[String]'",
+    "/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/CrashReporter.swift:680:36: error: cannot find type 'FleetError' in scope",
+    "    func reportFleetError(_ error: FleetError, context: [String: Any] = [:]) {",
+    "/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/AuthenticationService.swift:20:68: error: type 'APIConfiguration' has no member 'requestTimeout'",
+    "/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/AuthenticationService.swift:21:69: error: type 'APIConfiguration' has no member 'downloadTimeout'",
+    "/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/SyncService.swift:26:29: error: cannot find 'SyncQueue' in scope",
+    "/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/SyncService.swift:27:36: error: cannot find 'ConflictResolver' in scope",
+    "/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/SyncService.swift:230:50: error: cannot find type 'SyncOperation' in scope",
+    "/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/SyncService.swift:275:45: error: cannot find type 'SyncOperation' in scope",
+    "/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/SyncService.swift:330:55: error: cannot find type 'SyncOperation' in scope",
+    "/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/SyncService.swift:366:47: error: cannot find type 'SyncOperation' in scope",
+    "/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/SyncService.swift:372:45: error: cannot find type 'SyncOperation' in scope",
+    "/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/SyncService.swift:378:45: error: cannot find type 'SyncOperation' in scope",
+    "/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/SyncService.swift:386:87: error: cannot find type 'ConflictData' in scope",
+    "/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/SyncService.swift:386:44: error: cannot find type 'SyncOperation' in scope",
+    "/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/SyncService.swift:79:33: error: cannot infer type of closure parameter 'conflict' without a type annotation",
+    "/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/SyncService.swift:93:33: error: cannot infer type of closure parameter '_' without a type annotation",
+    "/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/SyncService.swift:498:27: error: 'async' call in a function that does not support concurrency",
+    "/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/SyncService.swift:527:62: error: cannot infer contextual base in reference to member 'failed'",
+    "/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/SyncService.swift:531:59: error: cannot infer contextual base in reference to member 'pending'"
+  ],
+  "warnings": [
+    "/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/APIConfiguration.swift:504:13: warning: initialization of immutable value 'encryptSensitiveFields' was never used; consider replacing with assignment to '_' or removing it",
+    "/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/NavigationCoordinator.swift:133:9: warning: switch covers known cases, but 'ColorScheme?' may have additional unknown values; this is an error in the Swift 6 language mode",
+    "/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/CrashReporter.swift:397:20: warning: value 'error' was defined but never used; consider replacing with boolean test",
+    "/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/SyncService.swift:124:18: warning: instance method 'lock' is unavailable from asynchronous contexts; Use async-safe scoped locking instead; this is an error in the Swift 6 language mode",
+    "/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/SyncService.swift:126:22: warning: instance method 'unlock' is unavailable from asynchronous contexts; Use async-safe scoped locking instead; this is an error in the Swift 6 language mode",
+    "/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/SyncService.swift:131:18: warning: instance method 'unlock' is unavailable from asynchronous contexts; Use async-safe scoped locking instead; this is an error in the Swift 6 language mode",
+    "/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/SyncService.swift:137:13: warning: no 'async' operations occur within 'await' expression",
+    "/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/SyncService.swift:138:11: warning: 'catch' block is unreachable because no errors are thrown in 'do' block",
+    "/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/SyncService.swift:139:13: warning: no 'async' operations occur within 'await' expression"
+  ],
+  "path_issues": [],
+  "all_issues": [
+    {
+      "type": "missing_from_project",
+      "severity": "high",
+      "file": "App/TripTrackingView.swift",
+      "message": "File exists but not in Xcode project: App/TripTrackingView.swift"
+    },
+    {
+      "type": "missing_from_project",
+      "severity": "high",
+      "file": "App/OBD2DiagnosticsView.swift",
+      "message": "File exists but not in Xcode project: App/OBD2DiagnosticsView.swift"
+    },
+    {
+      "type": "missing_from_project",
+      "severity": "high",
+      "file": "App/NIST_INTEGRATION_GUIDE.swift",
+      "message": "File exists but not in Xcode project: App/NIST_INTEGRATION_GUIDE.swift"
+    },
+    {
+      "type": "missing_from_project",
+      "severity": "high",
+      "file": "App/BuildConfiguration.swift",
+      "message": "File exists but not in Xcode project: App/BuildConfiguration.swift"
+    },
+    {
+      "type": "missing_from_project",
+      "severity": "high",
+      "file": "App/CameraMediaExamples.swift",
+      "message": "File exists but not in Xcode project: App/CameraMediaExamples.swift"
+    },
+    {
+      "type": "missing_from_project",
+      "severity": "high",
+      "file": "App/ConflictResolver.swift",
+      "message": "File exists but not in Xcode project: App/ConflictResolver.swift"
+    },
+    {
+      "type": "missing_from_project",
+      "severity": "high",
+      "file": "App/DocumentScannerView.swift",
+      "message": "File exists but not in Xcode project: App/DocumentScannerView.swift"
+    },
+    {
+      "type": "missing_from_project",
+      "severity": "high",
+      "file": "App/AuditLogger.swift",
+      "message": "File exists but not in Xcode project: App/AuditLogger.swift"
+    },
+    {
+      "type": "missing_from_project",
+      "severity": "high",
+      "file": "App/SyncQueue.swift",
+      "message": "File exists but not in Xcode project: App/SyncQueue.swift"
+    },
+    {
+      "type": "missing_from_project",
+      "severity": "high",
+      "file": "App/MonitoringIntegrationExample.swift",
+      "message": "File exists but not in Xcode project: App/MonitoringIntegrationExample.swift"
+    },
+    {
+      "type": "missing_from_project",
+      "severity": "high",
+      "file": "App/MaintenanceModel.swift",
+      "message": "File exists but not in Xcode project: App/MaintenanceModel.swift"
+    },
+    {
+      "type": "missing_from_project",
+      "severity": "high",
+      "file": "App/TripHistoryView.swift",
+      "message": "File exists but not in Xcode project: App/TripHistoryView.swift"
+    },
+    {
+      "type": "missing_from_project",
+      "severity": "high",
+      "file": "App/TripModel.swift",
+      "message": "File exists but not in Xcode project: App/TripModel.swift"
+    },
+    {
+      "type": "missing_from_project",
+      "severity": "high",
+      "file": "App/NISTCompliance.swift",
+      "message": "File exists but not in Xcode project: App/NISTCompliance.swift"
+    },
+    {
+      "type": "missing_from_project",
+      "severity": "high",
+      "file": "App/LoginView.swift",
+      "message": "File exists but not in Xcode project: App/LoginView.swift"
+    },
+    {
+      "type": "missing_from_project",
+      "severity": "high",
+      "file": "App/OfflineIndicatorView.swift",
+      "message": "File exists but not in Xcode project: App/OfflineIndicatorView.swift"
+    },
+    {
+      "type": "missing_from_project",
+      "severity": "high",
+      "file": "App/BarcodeScannerView.swift",
+      "message": "File exists but not in Xcode project: App/BarcodeScannerView.swift"
+    },
+    {
+      "type": "missing_from_project",
+      "severity": "high",
+      "file": "App/VehicleModel.swift",
+      "message": "File exists but not in Xcode project: App/VehicleModel.swift"
+    },
+    {
+      "type": "missing_from_project",
+      "severity": "high",
+      "file": "App/ImageUploadService.swift",
+      "message": "File exists but not in Xcode project: App/ImageUploadService.swift"
+    },
+    {
+      "type": "missing_from_project",
+      "severity": "high",
+      "file": "App/ErrorHandler.swift",
+      "message": "File exists but not in Xcode project: App/ErrorHandler.swift"
+    },
+    {
+      "type": "missing_from_project",
+      "severity": "high",
+      "file": "App/DatabaseMigration.swift",
+      "message": "File exists but not in Xcode project: App/DatabaseMigration.swift"
+    },
+    {
+      "type": "missing_from_project",
+      "severity": "high",
+      "file": "App/TripDetailView.swift",
+      "message": "File exists but not in Xcode project: App/TripDetailView.swift"
+    },
+    {
+      "type": "missing_from_project",
+      "severity": "high",
+      "file": "App/PhotoCaptureView.swift",
+      "message": "File exists but not in Xcode project: App/PhotoCaptureView.swift"
+    },
+    {
+      "type": "missing_from_project",
+      "severity": "high",
+      "file": "App/TripTrackingService.swift",
+      "message": "File exists but not in Xcode project: App/TripTrackingService.swift"
+    },
+    {
+      "type": "missing_from_project",
+      "severity": "high",
+      "file": "App/PerformanceMonitor.swift",
+      "message": "File exists but not in Xcode project: App/PerformanceMonitor.swift"
+    },
+    {
+      "type": "missing_from_project",
+      "severity": "high",
+      "file": "App/SecurityLogger.swift",
+      "message": "File exists but not in Xcode project: App/SecurityLogger.swift"
+    },
+    {
+      "type": "missing_from_project",
+      "severity": "high",
+      "file": "App/JailbreakDetector.swift",
+      "message": "File exists but not in Xcode project: App/JailbreakDetector.swift"
+    },
+    {
+      "type": "missing_from_project",
+      "severity": "high",
+      "file": "App/FeatureFlags.swift",
+      "message": "File exists but not in Xcode project: App/FeatureFlags.swift"
+    },
+    {
+      "type": "missing_from_project",
+      "severity": "high",
+      "file": "App/MetricsCollector.swift",
+      "message": "File exists but not in Xcode project: App/MetricsCollector.swift"
+    },
+    {
+      "type": "missing_from_project",
+      "severity": "high",
+      "file": "App/QuickActionsView.swift",
+      "message": "File exists but not in Xcode project: App/QuickActionsView.swift"
+    },
+    {
+      "type": "missing_from_project",
+      "severity": "high",
+      "file": "App/Tests/ProductionValidationTests.swift",
+      "message": "File exists but not in Xcode project: App/Tests/ProductionValidationTests.swift"
+    },
+    {
+      "type": "missing_from_project",
+      "severity": "high",
+      "file": "App/Utilities/LocalizationManager.swift",
+      "message": "File exists but not in Xcode project: App/Utilities/LocalizationManager.swift"
+    },
+    {
+      "type": "missing_from_project",
+      "severity": "high",
+      "file": "App/Utilities/AccessibilityManager.swift",
+      "message": "File exists but not in Xcode project: App/Utilities/AccessibilityManager.swift"
+    },
+    {
+      "type": "missing_from_project",
+      "severity": "high",
+      "file": "App/Components/VehicleCard.swift",
+      "message": "File exists but not in Xcode project: App/Components/VehicleCard.swift"
+    },
+    {
+      "type": "missing_from_project",
+      "severity": "high",
+      "file": "App/Monitoring/TelemetryExporter.swift",
+      "message": "File exists but not in Xcode project: App/Monitoring/TelemetryExporter.swift"
+    },
+    {
+      "type": "missing_from_project",
+      "severity": "high",
+      "file": "App/Performance/PerformanceOptimizer.swift",
+      "message": "File exists but not in Xcode project: App/Performance/PerformanceOptimizer.swift"
+    },
+    {
+      "type": "missing_from_project",
+      "severity": "high",
+      "file": "App/Performance/UIPerformanceMonitor.swift",
+      "message": "File exists but not in Xcode project: App/Performance/UIPerformanceMonitor.swift"
+    },
+    {
+      "type": "missing_from_project",
+      "severity": "high",
+      "file": "App/Performance/AdvancedCacheManager.swift",
+      "message": "File exists but not in Xcode project: App/Performance/AdvancedCacheManager.swift"
+    },
+    {
+      "type": "missing_from_project",
+      "severity": "high",
+      "file": "App/Performance/NetworkOptimizer.swift",
+      "message": "File exists but not in Xcode project: App/Performance/NetworkOptimizer.swift"
+    },
+    {
+      "type": "missing_from_project",
+      "severity": "high",
+      "file": "App/Views/AccessibleVehicleListView.swift",
+      "message": "File exists but not in Xcode project: App/Views/AccessibleVehicleListView.swift"
+    },
+    {
+      "type": "missing_from_project",
+      "severity": "high",
+      "file": "App/Views/VehicleDetailView.swift",
+      "message": "File exists but not in Xcode project: App/Views/VehicleDetailView.swift"
+    },
+    {
+      "type": "missing_from_project",
+      "severity": "high",
+      "file": "App/Views/AccessibleLoginView.swift",
+      "message": "File exists but not in Xcode project: App/Views/AccessibleLoginView.swift"
+    },
+    {
+      "type": "missing_from_project",
+      "severity": "high",
+      "file": "App/Views/VehicleInspectionView.swift",
+      "message": "File exists but not in Xcode project: App/Views/VehicleInspectionView.swift"
+    },
+    {
+      "type": "missing_from_project",
+      "severity": "high",
+      "file": "App/Views/ErrorView.swift",
+      "message": "File exists but not in Xcode project: App/Views/ErrorView.swift"
+    },
+    {
+      "type": "missing_from_project",
+      "severity": "high",
+      "file": "App/Views/Support/SupportTicketView.swift",
+      "message": "File exists but not in Xcode project: App/Views/Support/SupportTicketView.swift"
+    },
+    {
+      "type": "missing_from_project",
+      "severity": "high",
+      "file": "App/Views/Help/HelpCenterView.swift",
+      "message": "File exists but not in Xcode project: App/Views/Help/HelpCenterView.swift"
+    },
+    {
+      "type": "missing_from_project",
+      "severity": "high",
+      "file": "App/Views/Help/OnboardingView.swift",
+      "message": "File exists but not in Xcode project: App/Views/Help/OnboardingView.swift"
+    },
+    {
+      "type": "compilation_error",
+      "severity": "critical",
+      "message": "/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/VehicleInspection.swift:95:9: error: static method 'buildExpression' requires that 'VehicleInspection' conform to 'View'"
+    },
+    {
+      "type": "compilation_error",
+      "severity": "critical",
+      "message": "/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/VehicleInspection.swift:95:27: error: missing argument for parameter 'from' in call"
+    },
+    {
+      "type": "compilation_error",
+      "severity": "critical",
+      "message": "/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/AzureConfig.swift:12:16: error: cannot find 'SecureConfigManager' in scope"
+    },
+    {
+      "type": "compilation_error",
+      "severity": "critical",
+      "message": "/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/APIConfiguration.swift:200:32: error: cannot find 'ErrorHandler' in scope"
+    },
+    {
+      "type": "compilation_error",
+      "severity": "critical",
+      "message": "/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/APIConfiguration.swift:213:17: error: cannot find 'JailbreakDetector' in scope"
+    },
+    {
+      "type": "compilation_error",
+      "severity": "critical",
+      "message": "/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/APIConfiguration.swift:215:13: error: cannot find 'SecurityLogger' in scope"
+    },
+    {
+      "type": "compilation_error",
+      "severity": "critical",
+      "message": "/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/APIConfiguration.swift:216:18: error: cannot infer contextual base in reference to member 'deviceCompromised'"
+    },
+    {
+      "type": "compilation_error",
+      "severity": "critical",
+      "message": "/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/APIConfiguration.swift:218:28: error: cannot infer contextual base in reference to member 'critical'"
+    },
+    {
+      "type": "compilation_error",
+      "severity": "critical",
+      "message": "/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/APIConfiguration.swift:336:17: error: cannot find 'SecurityLogger' in scope"
+    },
+    {
+      "type": "compilation_error",
+      "severity": "critical",
+      "message": "/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/APIConfiguration.swift:337:22: error: cannot infer contextual base in reference to member 'apiRequestFailed'"
+    },
+    {
+      "type": "compilation_error",
+      "severity": "critical",
+      "message": "/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/APIConfiguration.swift:343:65: error: cannot infer contextual base in reference to member 'high'"
+    },
+    {
+      "type": "compilation_error",
+      "severity": "critical",
+      "message": "/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/APIConfiguration.swift:375:17: error: cannot find 'SecurityLogger' in scope"
+    },
+    {
+      "type": "compilation_error",
+      "severity": "critical",
+      "message": "/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/APIConfiguration.swift:376:22: error: cannot infer contextual base in reference to member 'authenticationFailed'"
+    },
+    {
+      "type": "compilation_error",
+      "severity": "critical",
+      "message": "/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/APIConfiguration.swift:378:32: error: cannot infer contextual base in reference to member 'high'"
+    },
+    {
+      "type": "compilation_error",
+      "severity": "critical",
+      "message": "/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/APIConfiguration.swift:389:17: error: cannot find 'SecurityLogger' in scope"
+    },
+    {
+      "type": "compilation_error",
+      "severity": "critical",
+      "message": "/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/APIConfiguration.swift:390:22: error: cannot infer contextual base in reference to member 'rateLimitExceeded'"
+    },
+    {
+      "type": "compilation_error",
+      "severity": "critical",
+      "message": "/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/APIConfiguration.swift:392:32: error: cannot infer contextual base in reference to member 'medium'"
+    },
+    {
+      "type": "compilation_error",
+      "severity": "critical",
+      "message": "/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/APIConfiguration.swift:492:9: error: cannot find 'SecurityLogger' in scope"
+    },
+    {
+      "type": "compilation_error",
+      "severity": "critical",
+      "message": "/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/APIConfiguration.swift:493:14: error: cannot infer contextual base in reference to member 'authenticationSuccess'"
+    },
+    {
+      "type": "compilation_error",
+      "severity": "critical",
+      "message": "/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/APIConfiguration.swift:495:24: error: cannot infer contextual base in reference to member 'low'"
+    }
+  ],
+  "summary": {
+    "critical": 20,
+    "high": 47,
+    "medium": 0,
+    "total": 67
+  }
+}

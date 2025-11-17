@@ -1,0 +1,34 @@
+<testsuites id="" name="" tests="1" failures="0" skipped="0" errors="0" time="8.0421">
+<testsuite name="inspect-app-v3.spec.ts" timestamp="2025-11-16T03:34:44.339Z" hostname="chromium" tests="1" failures="0" skipped="0" time="6.632" errors="0">
+<testcase name="Inspect Production App - Email Login Flow" classname="inspect-app-v3.spec.ts" time="6.632">
+<system-out>
+<![CDATA[🔍 Starting production app inspection...
+✅ Loaded production page
+🔐 Logging in with email/password...
+⏳ Waiting for dashboard to load...
+✅ Current URL after login: http://68.220.148.2/login
+
+📋 Analyzing Page Structure...
+Current URL: http://68.220.148.2/login
+Page Title: Fleet Management System - Enterprise
+Has Login Form: [33mtrue[39m
+Has Sidebar: [33mfalse[39m
+Root Element: { id: [32m'not found'[39m, children: [33m1[39m }
+
+Headings found: [33m0[39m
+
+Buttons found: [33m2[39m
+  1. "Sign in with Microsoft" - inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive border bg-background shadow-xs hover:text-accent-foreground dark:bg-input/30 dark:border-input px-4 py-2 has-[>svg]:px-3 w-full h-12 text-base font-medium hover:bg-gray-50 dark:hover:bg-gray-800
+  2. "Sign in" - inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive bg-primary text-primary-foreground shadow-xs hover:bg-primary/90 px-4 py-2 has-[>svg]:px-3 w-full h-12 text-base font-medium
+
+Navigation elements found: [33m0[39m
+
+📁 Initial analysis saved to: test-results/initial-page-analysis.json
+
+⚠️  Could not access dashboard - still on login page
+Please check authentication configuration
+]]>
+</system-out>
+</testcase>
+</testsuite>
+</testsuites>

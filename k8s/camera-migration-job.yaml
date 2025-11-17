@@ -1,0 +1,175 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: camera-system-migration
+  namespace: fleet-management
+spec:
+  ttlSecondsAfterFinished: 300
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: migration
+        image: postgres:15-alpine
+        env:
+        - name: PGHOST
+          valueFrom:
+            configMapKeyRef:
+              name: fleet-api-config
+              key: DB_HOST
+        - name: PGPORT
+          valueFrom:
+            configMapKeyRef:
+              name: fleet-api-config
+              key: DB_PORT
+        - name: PGDATABASE
+          valueFrom:
+            configMapKeyRef:
+              name: fleet-api-config
+              key: DB_NAME
+        - name: PGUSER
+          valueFrom:
+            configMapKeyRef:
+              name: fleet-api-config
+              key: DB_USER
+        - name: PGPASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: fleet-api-secrets
+              key: DB_PASSWORD
+        command:
+        - /bin/sh
+        - -c
+        - |
+          cat << 'EOF' | psql
+          -- Migration: Add Traffic Cameras and Data Source Management System
+          -- Enables automated synchronization of traffic cameras from external sources
+
+          -- Data sources table to track where cameras come from
+          CREATE TABLE IF NOT EXISTS camera_data_sources (
+            id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+            name VARCHAR(255) NOT NULL,
+            description TEXT,
+            source_type VARCHAR(50) NOT NULL CHECK (source_type IN ('arcgis', 'rest_api', 'csv', 'geojson', 'manual')),
+            service_url TEXT NOT NULL,
+            enabled BOOLEAN DEFAULT true,
+            sync_interval_minutes INTEGER DEFAULT 60,
+
+            -- Authentication
+            authentication JSONB,
+
+            -- Field mapping (how external fields map to our schema)
+            field_mapping JSONB NOT NULL,
+
+            -- Sync status
+            last_sync_at TIMESTAMP,
+            last_sync_status VARCHAR(20) CHECK (last_sync_status IN ('success', 'failed', 'pending')),
+            last_sync_error TEXT,
+            total_cameras_synced INTEGER DEFAULT 0,
+
+            -- Metadata
+            metadata JSONB,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+            CONSTRAINT camera_data_sources_name_unique UNIQUE (name)
+          );
+
+          -- Traffic cameras table
+          CREATE TABLE IF NOT EXISTS traffic_cameras (
+            id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+
+            -- Source tracking
+            source_id UUID REFERENCES camera_data_sources(id) ON DELETE CASCADE,
+            external_id VARCHAR(255),
+
+            -- Camera information
+            name VARCHAR(255) NOT NULL,
+            address TEXT,
+            cross_street1 VARCHAR(255),
+            cross_street2 VARCHAR(255),
+            cross_streets TEXT,
+
+            -- Camera access
+            camera_url TEXT,
+            stream_url TEXT,
+            image_url TEXT,
+
+            -- Location (PostGIS point)
+            latitude DECIMAL(10, 7),
+            longitude DECIMAL(10, 7),
+
+            -- Status
+            enabled BOOLEAN DEFAULT true,
+            operational BOOLEAN DEFAULT true,
+            last_checked_at TIMESTAMP,
+
+            -- Additional metadata
+            metadata JSONB,
+
+            -- Timestamps
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            synced_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+            -- Ensure unique cameras per source
+            CONSTRAINT traffic_cameras_source_external_unique UNIQUE (source_id, external_id)
+          );
+
+          -- Indexes for performance
+          CREATE INDEX IF NOT EXISTS idx_camera_data_sources_enabled ON camera_data_sources(enabled);
+          CREATE INDEX IF NOT EXISTS idx_camera_data_sources_sync ON camera_data_sources(last_sync_at) WHERE enabled = true;
+
+          CREATE INDEX IF NOT EXISTS idx_traffic_cameras_source ON traffic_cameras(source_id);
+          CREATE INDEX IF NOT EXISTS idx_traffic_cameras_enabled ON traffic_cameras(enabled);
+          CREATE INDEX IF NOT EXISTS idx_traffic_cameras_location ON traffic_cameras(latitude, longitude);
+          CREATE INDEX IF NOT EXISTS idx_traffic_cameras_external ON traffic_cameras(source_id, external_id);
+
+          -- Comments
+          COMMENT ON TABLE camera_data_sources IS 'Tracks external data sources for traffic camera synchronization';
+          COMMENT ON TABLE traffic_cameras IS 'Stores traffic camera information synchronized from external sources';
+          COMMENT ON COLUMN camera_data_sources.field_mapping IS 'JSON mapping of external fields to our schema (e.g., {"CAMID": "external_id", "CAMNAME": "name"})';
+          COMMENT ON COLUMN camera_data_sources.sync_interval_minutes IS 'How often to sync this data source (in minutes)';
+          COMMENT ON COLUMN traffic_cameras.external_id IS 'ID from the external data source';
+
+          -- Insert Tallahassee traffic cameras data source
+          INSERT INTO camera_data_sources (
+            name,
+            description,
+            source_type,
+            service_url,
+            enabled,
+            sync_interval_minutes,
+            field_mapping,
+            metadata
+          ) VALUES (
+            'City of Tallahassee Traffic Cameras',
+            'Traffic camera feeds from the City of Tallahassee and Leon County GIS',
+            'arcgis',
+            'https://cotinter.leoncountyfl.gov/cotinter/rest/services/Vector/COT_DriverInfoCenter_D_WM/MapServer/0',
+            true,
+            15,
+            jsonb_build_object(
+              'CAMID', 'external_id',
+              'CAMNAME', 'name',
+              'CAMADDRESS', 'address',
+              'CAMWEBADD', 'camera_url',
+              'CROSS_STREET1', 'cross_street1',
+              'CROSS_STREET2', 'cross_street2',
+              'CROSS_STREETS', 'cross_streets',
+              'POINT_X', 'longitude',
+              'POINT_Y', 'latitude'
+            ),
+            jsonb_build_object(
+              'provider', 'Tallahassee-Leon County GIS',
+              'coverage_area', 'Tallahassee, FL',
+              'total_cameras', 243
+            )
+          ) ON CONFLICT (name) DO UPDATE SET
+            service_url = EXCLUDED.service_url,
+            field_mapping = EXCLUDED.field_mapping,
+            metadata = EXCLUDED.metadata,
+            updated_at = CURRENT_TIMESTAMP;
+          EOF
+
+          echo "Camera system migration completed successfully"

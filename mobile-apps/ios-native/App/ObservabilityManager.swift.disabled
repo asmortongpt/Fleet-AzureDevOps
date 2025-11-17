@@ -1,0 +1,485 @@
+//
+//  ObservabilityManager.swift
+//  Fleet Manager - iOS Native App
+//
+//  Central monitoring and observability system for production
+//  Coordinates tracing, metrics, health checks, and performance monitoring
+//
+
+import Foundation
+import OSLog
+import Combine
+
+// MARK: - Observability Manager
+/// Central hub for production monitoring and observability
+class ObservabilityManager {
+
+    // MARK: - Singleton
+    static let shared = ObservabilityManager()
+
+    // MARK: - Dependencies
+    private let logger = LoggingManager.shared
+    private let performanceMonitor = PerformanceMonitor.shared
+    private let healthCheckManager = HealthCheckManager.shared
+    private let metricsCollector = MetricsCollector.shared
+    private let alertManager = AlertManager.shared
+
+    // MARK: - Configuration
+    private struct Configuration {
+        var isEnabled: Bool = true
+        var samplingRate: Double = 1.0 // 100% sampling by default
+        var enableDistributedTracing: Bool = true
+        var enableMetricsCollection: Bool = true
+        var enableHealthChecks: Bool = true
+        var healthCheckInterval: TimeInterval = 300 // 5 minutes
+        var metricsFlushInterval: TimeInterval = 60 // 1 minute
+    }
+
+    private var config = Configuration()
+
+    // MARK: - Session Tracking
+    private var sessionId: String = UUID().uuidString
+    private var sessionStartTime: Date = Date()
+    private var currentTrace: Trace?
+
+    // MARK: - State
+    @Published private(set) var isMonitoring: Bool = false
+    private var cancellables = Set<AnyCancellable>()
+    private var healthCheckTimer: Timer?
+    private var metricsFlushTimer: Timer?
+
+    // MARK: - Initialization
+    private init() {
+        setupConfiguration()
+        startMonitoring()
+    }
+
+    // MARK: - Configuration
+
+    /// Setup observability configuration
+    private func setupConfiguration() {
+        #if DEBUG
+        // Reduce overhead in debug builds
+        config.samplingRate = 0.1 // 10% sampling
+        config.healthCheckInterval = 600 // 10 minutes
+        #else
+        // Full monitoring in production
+        config.samplingRate = 1.0 // 100% sampling
+        config.healthCheckInterval = 300 // 5 minutes
+        #endif
+
+        logger.log(.info, "ObservabilityManager configured", metadata: [
+            "samplingRate": String(config.samplingRate),
+            "healthCheckInterval": String(config.healthCheckInterval)
+        ])
+    }
+
+    /// Update configuration
+    func updateConfiguration(
+        samplingRate: Double? = nil,
+        healthCheckInterval: TimeInterval? = nil,
+        metricsFlushInterval: TimeInterval? = nil
+    ) {
+        if let samplingRate = samplingRate {
+            config.samplingRate = max(0.0, min(1.0, samplingRate))
+        }
+
+        if let healthCheckInterval = healthCheckInterval {
+            config.healthCheckInterval = healthCheckInterval
+            restartHealthChecks()
+        }
+
+        if let metricsFlushInterval = metricsFlushInterval {
+            config.metricsFlushInterval = metricsFlushInterval
+            restartMetricsFlush()
+        }
+
+        logger.log(.info, "ObservabilityManager configuration updated")
+    }
+
+    // MARK: - Monitoring Control
+
+    /// Start all monitoring systems
+    func startMonitoring() {
+        guard !isMonitoring else { return }
+
+        logger.log(.info, "Starting observability monitoring")
+
+        // Start performance monitoring
+        performanceMonitor.startMonitoring()
+
+        // Start health checks
+        startHealthChecks()
+
+        // Start metrics collection
+        startMetricsCollection()
+
+        // Record session start
+        recordSessionStart()
+
+        isMonitoring = true
+
+        logger.log(.info, "Observability monitoring started", metadata: [
+            "sessionId": sessionId
+        ])
+    }
+
+    /// Stop all monitoring systems
+    func stopMonitoring() {
+        guard isMonitoring else { return }
+
+        logger.log(.info, "Stopping observability monitoring")
+
+        // Stop timers
+        healthCheckTimer?.invalidate()
+        metricsFlushTimer?.invalidate()
+
+        // Flush final metrics
+        Task {
+            await flushMetrics()
+        }
+
+        // Record session end
+        recordSessionEnd()
+
+        isMonitoring = false
+
+        logger.log(.info, "Observability monitoring stopped")
+    }
+
+    // MARK: - Health Checks
+
+    private func startHealthChecks() {
+        guard config.enableHealthChecks else { return }
+
+        // Run initial health check
+        Task {
+            await performHealthCheck()
+        }
+
+        // Schedule periodic health checks
+        healthCheckTimer = Timer.scheduledTimer(
+            withTimeInterval: config.healthCheckInterval,
+            repeats: true
+        ) { [weak self] _ in
+            Task {
+                await self?.performHealthCheck()
+            }
+        }
+    }
+
+    private func restartHealthChecks() {
+        healthCheckTimer?.invalidate()
+        startHealthChecks()
+    }
+
+    private func performHealthCheck() async {
+        let report = await healthCheckManager.runHealthCheck()
+
+        // Check for critical issues
+        if !report.isHealthy {
+            alertManager.sendAlert(
+                .healthCheckFailed(report: report),
+                severity: .high
+            )
+        }
+
+        // Record health metrics
+        metricsCollector.recordHealthCheckResult(report)
+    }
+
+    // MARK: - Metrics Collection
+
+    private func startMetricsCollection() {
+        guard config.enableMetricsCollection else { return }
+
+        // Schedule periodic metrics flush
+        metricsFlushTimer = Timer.scheduledTimer(
+            withTimeInterval: config.metricsFlushInterval,
+            repeats: true
+        ) { [weak self] _ in
+            Task {
+                await self?.flushMetrics()
+            }
+        }
+    }
+
+    private func restartMetricsFlush() {
+        metricsFlushTimer?.invalidate()
+        startMetricsCollection()
+    }
+
+    private func flushMetrics() async {
+        do {
+            try await metricsCollector.flushMetrics()
+        } catch {
+            logger.log(.error, "Failed to flush metrics: \(error.localizedDescription)")
+        }
+    }
+
+    // MARK: - Distributed Tracing
+
+    /// Start a new distributed trace
+    func startTrace(
+        name: String,
+        attributes: [String: String] = [:]
+    ) -> Trace {
+        guard config.enableDistributedTracing && shouldSample() else {
+            return Trace.noop()
+        }
+
+        var traceAttributes = attributes
+        traceAttributes["session.id"] = sessionId
+        traceAttributes["trace.name"] = name
+
+        let trace = Trace(
+            id: UUID().uuidString,
+            name: name,
+            startTime: Date(),
+            attributes: traceAttributes
+        )
+
+        currentTrace = trace
+
+        logger.log(.debug, "Started trace: \(name)", metadata: [
+            "trace.id": trace.id
+        ])
+
+        return trace
+    }
+
+    /// End a trace
+    func endTrace(_ trace: Trace, success: Bool = true) {
+        guard trace.id != "noop" else { return }
+
+        trace.end(success: success)
+
+        // Record trace metrics
+        metricsCollector.recordTrace(trace)
+
+        logger.log(.debug, "Ended trace: \(trace.name)", metadata: [
+            "trace.id": trace.id,
+            "duration": String(format: "%.3f", trace.duration ?? 0),
+            "success": String(success)
+        ])
+
+        if currentTrace?.id == trace.id {
+            currentTrace = nil
+        }
+    }
+
+    /// Execute operation with automatic tracing
+    func traced<T>(
+        _ name: String,
+        attributes: [String: String] = [:],
+        operation: () async throws -> T
+    ) async throws -> T {
+        let trace = startTrace(name: name, attributes: attributes)
+
+        do {
+            let result = try await operation()
+            endTrace(trace, success: true)
+            return result
+        } catch {
+            trace.recordError(error)
+            endTrace(trace, success: false)
+            throw error
+        }
+    }
+
+    // MARK: - Session Tracking
+
+    private func recordSessionStart() {
+        sessionId = UUID().uuidString
+        sessionStartTime = Date()
+
+        metricsCollector.recordSessionStart(sessionId: sessionId)
+
+        logger.log(.info, "User session started", metadata: [
+            "session.id": sessionId
+        ])
+    }
+
+    private func recordSessionEnd() {
+        let sessionDuration = Date().timeIntervalSince(sessionStartTime)
+
+        metricsCollector.recordSessionEnd(
+            sessionId: sessionId,
+            duration: sessionDuration
+        )
+
+        logger.log(.info, "User session ended", metadata: [
+            "session.id": sessionId,
+            "duration": String(format: "%.0f", sessionDuration)
+        ])
+    }
+
+    func getCurrentSessionId() -> String {
+        return sessionId
+    }
+
+    // MARK: - Event Tracking
+
+    /// Track a custom event
+    func trackEvent(
+        _ name: String,
+        attributes: [String: String] = [:],
+        metrics: [String: Double] = [:]
+    ) {
+        guard shouldSample() else { return }
+
+        var eventAttributes = attributes
+        eventAttributes["session.id"] = sessionId
+        eventAttributes["event.name"] = name
+
+        metricsCollector.recordEvent(
+            name: name,
+            attributes: eventAttributes,
+            metrics: metrics
+        )
+
+        logger.log(.info, "Event tracked: \(name)", metadata: eventAttributes)
+    }
+
+    // MARK: - Sampling
+
+    private func shouldSample() -> Bool {
+        return Double.random(in: 0...1) <= config.samplingRate
+    }
+
+    // MARK: - Performance Monitoring
+
+    /// Track screen view
+    func trackScreenView(_ screenName: String) {
+        performanceMonitor.trackScreenView(screenName)
+
+        trackEvent("screen_view", attributes: [
+            "screen.name": screenName
+        ])
+    }
+
+    /// Track app lifecycle event
+    func trackAppLifecycle(_ event: AppLifecycleEvent) {
+        performanceMonitor.trackAppLifecycle(event)
+
+        trackEvent("app_lifecycle", attributes: [
+            "event": event.rawValue
+        ])
+    }
+
+    // MARK: - Diagnostics
+
+    /// Generate diagnostics report
+    func generateDiagnosticsReport() async -> DiagnosticsReport {
+        let healthReport = await healthCheckManager.runHealthCheck()
+        let performanceMetrics = performanceMonitor.getCurrentMetrics()
+        let systemMetrics = metricsCollector.getSystemMetrics()
+
+        return DiagnosticsReport(
+            sessionId: sessionId,
+            sessionDuration: Date().timeIntervalSince(sessionStartTime),
+            healthReport: healthReport,
+            performanceMetrics: performanceMetrics,
+            systemMetrics: systemMetrics,
+            timestamp: Date()
+        )
+    }
+
+    /// Export diagnostics as JSON
+    func exportDiagnostics() async -> [String: Any] {
+        let report = await generateDiagnosticsReport()
+        return report.toDictionary()
+    }
+}
+
+// MARK: - Trace
+class Trace {
+    let id: String
+    let name: String
+    let startTime: Date
+    var endTime: Date?
+    var attributes: [String: String]
+    var errors: [Error] = []
+    var spans: [Span] = []
+
+    var duration: TimeInterval? {
+        guard let endTime = endTime else { return nil }
+        return endTime.timeIntervalSince(startTime)
+    }
+
+    init(id: String, name: String, startTime: Date, attributes: [String: String] = [:]) {
+        self.id = id
+        self.name = name
+        self.startTime = startTime
+        self.attributes = attributes
+    }
+
+    /// Create a no-op trace for when sampling is disabled
+    static func noop() -> Trace {
+        return Trace(id: "noop", name: "noop", startTime: Date())
+    }
+
+    func end(success: Bool) {
+        endTime = Date()
+        attributes["success"] = String(success)
+    }
+
+    func recordError(_ error: Error) {
+        errors.append(error)
+        attributes["error"] = error.localizedDescription
+    }
+
+    func addSpan(_ span: Span) {
+        spans.append(span)
+    }
+
+    func setAttribute(_ key: String, _ value: String) {
+        attributes[key] = value
+    }
+}
+
+// MARK: - Span
+struct Span {
+    let id: String
+    let name: String
+    let startTime: Date
+    var endTime: Date?
+    var attributes: [String: String]
+
+    var duration: TimeInterval? {
+        guard let endTime = endTime else { return nil }
+        return endTime.timeIntervalSince(startTime)
+    }
+}
+
+// MARK: - App Lifecycle Event
+enum AppLifecycleEvent: String {
+    case didFinishLaunching
+    case didBecomeActive
+    case willResignActive
+    case didEnterBackground
+    case willEnterForeground
+    case willTerminate
+    case memoryWarning
+}
+
+// MARK: - Diagnostics Report
+struct DiagnosticsReport {
+    let sessionId: String
+    let sessionDuration: TimeInterval
+    let healthReport: HealthCheckReport
+    let performanceMetrics: PerformanceMetrics
+    let systemMetrics: SystemMetrics
+    let timestamp: Date
+
+    func toDictionary() -> [String: Any] {
+        return [
+            "sessionId": sessionId,
+            "sessionDuration": sessionDuration,
+            "healthReport": healthReport.toDictionary(),
+            "performanceMetrics": performanceMetrics.toDictionary(),
+            "systemMetrics": systemMetrics.toDictionary(),
+            "timestamp": ISO8601DateFormatter().string(from: timestamp)
+        ]
+    }
+}

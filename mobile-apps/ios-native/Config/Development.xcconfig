@@ -1,0 +1,79 @@
+// Development Build Configuration
+// This file contains development-specific build settings
+
+// MARK: - API Configuration
+API_BASE_URL = http://localhost:3000
+API_TIMEOUT = 10
+
+// MARK: - Azure Configuration
+AZURE_BASE_URL = http://localhost:5555
+AZURE_API_URL = $(AZURE_BASE_URL)/api
+AZURE_APP_SERVICE_NAME = dcf-fleet-management-dev
+AZURE_RESOURCE_GROUP = fleet-management-dev-rg
+
+// MARK: - Firebase Configuration (Feature Flags & Remote Config)
+FIREBASE_PROJECT_ID = dcf-fleet-development
+FIREBASE_DATABASE_URL = http://localhost:8080
+FIREBASE_STORAGE_BUCKET = dcf-fleet-development.appspot.com
+FIREBASE_API_KEY = $(FIREBASE_DEVELOPMENT_API_KEY)
+FIREBASE_APP_ID = 1:111111111:ios:111111111111111
+
+// MARK: - Environment
+ENVIRONMENT_NAME = Development
+ENVIRONMENT_ID = development
+IS_DEBUG_BUILD = YES
+ENABLE_LOGGING = YES
+LOG_LEVEL = debug
+
+// MARK: - Feature Flags
+ENABLE_CRASH_REPORTING = NO
+ENABLE_ANALYTICS = NO
+ENABLE_OFFLINE_MODE = YES
+ENABLE_BACKGROUND_SYNC = YES
+ENABLE_DARK_MODE = YES
+ENABLE_BIOMETRIC_AUTH = YES
+
+// MARK: - Security & Certificate Pinning
+CERTIFICATE_PINNING_ENABLED = NO
+SSL_PINNING_ENABLED = NO
+REQUIRE_HTTPS = NO
+
+// MARK: - Performance & Caching
+CACHE_ENABLED = YES
+CACHE_TTL = 600
+IMAGE_CACHE_SIZE = 26214400
+HTTP_CACHE_POLICY = allow-cache
+
+// MARK: - Networking Configuration
+REQUEST_RETRY_ATTEMPTS = 1
+REQUEST_RETRY_DELAY = 0.5
+CONNECTION_TIMEOUT = 10
+READ_TIMEOUT = 10
+
+// MARK: - Data Persistence
+DATABASE_ENCRYPTION_ENABLED = NO
+KEYCHAIN_ACCESS_ENABLED = YES
+ALLOW_UNENCRYPTED_LOCAL_STORAGE = YES
+
+// MARK: - Version & Build
+VERSION_NUMBER = 1.0-dev
+BUILD_NUMBER = 0
+BUILD_CONFIGURATION = Debug
+
+// MARK: - App Features
+ENABLE_BARCODE_SCANNER = YES
+ENABLE_CAMERA = YES
+ENABLE_LOCATION_TRACKING = YES
+ENABLE_OBD2_SUPPORT = YES
+ENABLE_DOCUMENT_SCANNING = YES
+
+// MARK: - User Experience
+ENABLE_ANIMATIONS = YES
+MINIMUM_OS_VERSION = 15.0
+SUPPORTED_ARCHITECTURES = arm64
+
+// MARK: - Compliance & Privacy
+GDPR_ENABLED = NO
+PRIVACY_POLICY_URL = http://localhost:3000/privacy
+TERMS_OF_SERVICE_URL = http://localhost:3000/terms
+DATA_RETENTION_DAYS = 30

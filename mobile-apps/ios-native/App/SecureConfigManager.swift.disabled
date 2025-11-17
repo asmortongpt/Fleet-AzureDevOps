@@ -1,0 +1,480 @@
+import Foundation
+import Security
+
+// MARK: - Secure Configuration Manager
+/// Manages sensitive configuration and secrets securely using Keychain and encrypted storage
+/// OWASP Mobile Top 10 - M2: Insecure Data Storage, M7: Client Code Quality
+class SecureConfigManager {
+
+    // MARK: - Properties
+    static let shared = SecureConfigManager()
+
+    /// Keychain service identifier for configuration
+    private let keychainService = "com.fleet.capitaltechalliance.config"
+
+    /// Configuration file name in bundle
+    private let configFileName = "SecureConfig"
+    private let configFileExtension = "plist"
+
+    /// In-memory cache for configuration
+    private var configCache: [String: String] = [:]
+
+    /// Enable configuration encryption
+    private let encryptionEnabled = true
+
+    private init() {
+        loadConfiguration()
+    }
+
+    // MARK: - Public Methods - Configuration Access
+
+    /// Get configuration value for key
+    /// - Parameter key: Configuration key
+    /// - Returns: Configuration value if exists
+    func getValue(forKey key: ConfigKey) -> String? {
+        // Try to get from Keychain first (for sensitive values)
+        if let keychainValue = getFromKeychain(key: key.rawValue) {
+            return keychainValue
+        }
+
+        // Fall back to cache/config file
+        return configCache[key.rawValue]
+    }
+
+    /// Set configuration value (stored in Keychain for sensitive data)
+    /// - Parameters:
+    ///   - value: Configuration value
+    ///   - key: Configuration key
+    func setValue(_ value: String, forKey key: ConfigKey) {
+        configCache[key.rawValue] = value
+
+        // Store sensitive values in Keychain
+        if key.isSensitive {
+            saveToKeychain(key: key.rawValue, value: value)
+        }
+
+        SecurityLogger.shared.logSecurityEvent(
+            .configurationLoaded,
+            details: ["key": key.rawValue, "source": "manual"],
+            severity: .low
+        )
+    }
+
+    /// Delete configuration value
+    /// - Parameter key: Configuration key
+    func deleteValue(forKey key: ConfigKey) {
+        configCache.removeValue(forKey: key.rawValue)
+        deleteFromKeychain(key: key.rawValue)
+
+        SecurityLogger.shared.logSecurityEvent(
+            .dataDeleted,
+            details: ["key": key.rawValue],
+            severity: .low
+        )
+    }
+
+    /// Get all configuration keys
+    /// - Returns: Array of configuration keys
+    func getAllKeys() -> [String] {
+        return Array(configCache.keys)
+    }
+
+    // MARK: - Public Methods - Specific Configurations
+
+    /// Get Azure subscription ID (previously hardcoded)
+    var azureSubscriptionId: String? {
+        return getValue(forKey: .azureSubscriptionId) ?? getDefaultValue(forKey: .azureSubscriptionId)
+    }
+
+    /// Get API encryption key
+    var apiEncryptionKey: String? {
+        return getValue(forKey: .apiEncryptionKey)
+    }
+
+    /// Get certificate pinning hashes
+    var certificatePinningHashes: [String] {
+        if let hashesString = getValue(forKey: .certificatePinningHashes) {
+            return hashesString.components(separatedBy: ",")
+        }
+        return []
+    }
+
+    /// Get API base URL
+    var apiBaseURL: String {
+        return getValue(forKey: .apiBaseURL) ?? "https://fleet.capitaltechalliance.com/api"
+    }
+
+    /// Get session timeout (in seconds)
+    var sessionTimeout: TimeInterval {
+        if let timeoutString = getValue(forKey: .sessionTimeout),
+           let timeout = TimeInterval(timeoutString) {
+            return timeout
+        }
+        return 1800 // 30 minutes default
+    }
+
+    /// Get max login attempts
+    var maxLoginAttempts: Int {
+        if let attemptsString = getValue(forKey: .maxLoginAttempts),
+           let attempts = Int(attemptsString) {
+            return attempts
+        }
+        return 5 // Default
+    }
+
+    // MARK: - Private Methods - Configuration Loading
+
+    /// Load configuration from file and Keychain
+    private func loadConfiguration() {
+        // Load from plist file in bundle
+        if let configDict = loadConfigFromFile() {
+            for (key, value) in configDict {
+                if let stringValue = value as? String {
+                    configCache[key] = stringValue
+                }
+            }
+
+            SecurityLogger.shared.logSecurityEvent(
+                .configurationLoaded,
+                details: ["source": "file", "keyCount": configDict.count],
+                severity: .low
+            )
+        }
+
+        // Override with environment-specific values
+        loadEnvironmentSpecificConfig()
+
+        // Validate that no secrets are hardcoded
+        validateNoHardcodedSecrets()
+    }
+
+    /// Load configuration from plist file
+    private func loadConfigFromFile() -> [String: Any]? {
+        guard let path = Bundle.main.path(forResource: configFileName, ofType: configFileExtension),
+              let data = FileManager.default.contents(atPath: path),
+              let plist = try? PropertyListSerialization.propertyList(from: data, format: nil) as? [String: Any] else {
+            return nil
+        }
+
+        return plist
+    }
+
+    /// Load environment-specific configuration
+    private func loadEnvironmentSpecificConfig() {
+        #if DEBUG
+        // Development configuration
+        setValue("http://localhost:3000/api", forKey: .apiBaseURL)
+        setValue("dev-subscription-id", forKey: .azureSubscriptionId)
+        #else
+        // Production configuration - read from secure source
+        // In production, these should be injected during build or loaded from backend
+        #endif
+    }
+
+    /// Get default value for configuration key
+    private func getDefaultValue(forKey key: ConfigKey) -> String? {
+        switch key {
+        case .azureSubscriptionId:
+            // Read from environment variable or return placeholder
+            return ProcessInfo.processInfo.environment["AZURE_SUBSCRIPTION_ID"] ?? "REPLACE_WITH_ACTUAL_SUBSCRIPTION_ID"
+        case .apiBaseURL:
+            return "https://fleet.capitaltechalliance.com/api"
+        case .sessionTimeout:
+            return "1800"
+        case .maxLoginAttempts:
+            return "5"
+        case .certificatePinningHashes:
+            return "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=,BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB="
+        default:
+            return nil
+        }
+    }
+
+    /// Validate that no secrets are hardcoded in source
+    private func validateNoHardcodedSecrets() {
+        // Check if Azure subscription ID looks like a placeholder
+        if let subscriptionId = azureSubscriptionId {
+            if subscriptionId.contains("your-subscription-id") ||
+               subscriptionId.contains("REPLACE_WITH") ||
+               subscriptionId.count < 10 {
+                SecurityLogger.shared.logSecurityEvent(
+                    .secretsExposed,
+                    details: ["type": "Placeholder subscription ID detected"],
+                    severity: .high
+                )
+            }
+        }
+
+        // Validate certificate hashes are properly configured
+        let hashes = certificatePinningHashes
+        if hashes.isEmpty || hashes.contains(where: { $0.hasPrefix("AAA") || $0.hasPrefix("BBB") }) {
+            SecurityLogger.shared.logSecurityEvent(
+                .configurationFailed,
+                details: ["type": "Certificate pinning hashes not properly configured"],
+                severity: .high
+            )
+        }
+    }
+
+    // MARK: - Private Methods - Keychain Operations
+
+    /// Save value to Keychain
+    private func saveToKeychain(key: String, value: String) {
+        // Delete existing value
+        deleteFromKeychain(key: key)
+
+        // Encrypt value if encryption enabled
+        var valueToStore = value
+        if encryptionEnabled {
+            if let encryptedValue = try? EncryptionManager.shared.encrypt(string: value) {
+                valueToStore = encryptedValue
+            }
+        }
+
+        guard let data = valueToStore.data(using: .utf8) else {
+            return
+        }
+
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: keychainService,
+            kSecAttrAccount as String: key,
+            kSecValueData as String: data,
+            kSecAttrAccessible as String: kSecAttrAccessibleWhenUnlockedThisDeviceOnly
+        ]
+
+        let status = SecItemAdd(query as CFDictionary, nil)
+
+        if status != errSecSuccess {
+            SecurityLogger.shared.logSecurityEvent(
+                .configurationFailed,
+                details: ["operation": "save", "key": key, "status": Int(status)],
+                severity: .medium
+            )
+        }
+    }
+
+    /// Get value from Keychain
+    private func getFromKeychain(key: String) -> String? {
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: keychainService,
+            kSecAttrAccount as String: key,
+            kSecReturnData as String: true,
+            kSecMatchLimit as String: kSecMatchLimitOne
+        ]
+
+        var result: AnyObject?
+        let status = SecItemCopyMatching(query as CFDictionary, &result)
+
+        guard status == errSecSuccess,
+              let data = result as? Data,
+              let value = String(data: data, encoding: .utf8) else {
+            return nil
+        }
+
+        // Decrypt value if encryption enabled
+        if encryptionEnabled {
+            if let decryptedValue = try? EncryptionManager.shared.decrypt(string: value) {
+                return decryptedValue
+            }
+        }
+
+        return value
+    }
+
+    /// Delete value from Keychain
+    private func deleteFromKeychain(key: String) {
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: keychainService,
+            kSecAttrAccount as String: key
+        ]
+
+        SecItemDelete(query as CFDictionary)
+    }
+
+    // MARK: - Public Methods - Remote Configuration
+
+    /// Fetch configuration from remote backend
+    /// - Returns: True if successful
+    func fetchRemoteConfiguration() async -> Bool {
+        do {
+            guard let url = URL(string: "\(apiBaseURL)/config") else {
+                return false
+            }
+
+            var request = URLRequest(url: url)
+            request.httpMethod = "GET"
+            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+
+            let (data, response) = try await URLSession.shared.data(for: request)
+
+            guard let httpResponse = response as? HTTPURLResponse,
+                  httpResponse.statusCode == 200,
+                  let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
+                return false
+            }
+
+            // Update configuration from remote
+            for (key, value) in json {
+                if let configKey = ConfigKey(rawValue: key),
+                   let stringValue = value as? String {
+                    setValue(stringValue, forKey: configKey)
+                }
+            }
+
+            SecurityLogger.shared.logSecurityEvent(
+                .configurationLoaded,
+                details: ["source": "remote", "keyCount": json.count],
+                severity: .low
+            )
+
+            return true
+        } catch {
+            SecurityLogger.shared.logSecurityEvent(
+                .configurationFailed,
+                details: ["source": "remote", "error": error.localizedDescription],
+                severity: .medium
+            )
+            return false
+        }
+    }
+
+    // MARK: - Public Methods - Configuration Reset
+
+    /// Reset all configuration to defaults
+    func resetToDefaults() {
+        configCache.removeAll()
+
+        // Clear all Keychain entries
+        for key in ConfigKey.allCases {
+            deleteFromKeychain(key: key.rawValue)
+        }
+
+        loadConfiguration()
+
+        SecurityLogger.shared.logSecurityEvent(
+            .configurationLoaded,
+            details: ["action": "reset"],
+            severity: .medium
+        )
+    }
+}
+
+// MARK: - Configuration Keys
+enum ConfigKey: String, CaseIterable {
+    // Azure Configuration
+    case azureSubscriptionId = "azure_subscription_id"
+    case azureResourceGroup = "azure_resource_group"
+    case azureAppServiceName = "azure_app_service_name"
+
+    // API Configuration
+    case apiBaseURL = "api_base_url"
+    case apiEncryptionKey = "api_encryption_key"
+    case apiTimeout = "api_timeout"
+
+    // Security Configuration
+    case certificatePinningHashes = "certificate_pinning_hashes"
+    case sessionTimeout = "session_timeout"
+    case maxLoginAttempts = "max_login_attempts"
+    case requireBiometrics = "require_biometrics"
+
+    // Feature Flags
+    case enableDebugMode = "enable_debug_mode"
+    case enableAnalytics = "enable_analytics"
+    case enableCrashReporting = "enable_crash_reporting"
+
+    /// Is this key sensitive and should be stored in Keychain?
+    var isSensitive: Bool {
+        switch self {
+        case .azureSubscriptionId, .apiEncryptionKey:
+            return true
+        default:
+            return false
+        }
+    }
+}
+
+// MARK: - Configuration Error
+enum ConfigError: Error, LocalizedError {
+    case missingConfiguration(key: String)
+    case invalidConfiguration(key: String)
+    case loadFailed
+
+    var errorDescription: String? {
+        switch self {
+        case .missingConfiguration(let key):
+            return "Missing required configuration: \(key)"
+        case .invalidConfiguration(let key):
+            return "Invalid configuration value: \(key)"
+        case .loadFailed:
+            return "Failed to load configuration"
+        }
+    }
+}
+
+// MARK: - Usage Examples
+/*
+ Example Usage:
+
+ 1. Get Azure subscription ID (externalized secret):
+    ```swift
+    if let subscriptionId = SecureConfigManager.shared.azureSubscriptionId {
+        // Use subscription ID
+    }
+    ```
+
+ 2. Set configuration value:
+    ```swift
+    SecureConfigManager.shared.setValue("new-value", forKey: .apiEncryptionKey)
+    ```
+
+ 3. Fetch remote configuration:
+    ```swift
+    Task {
+        let success = await SecureConfigManager.shared.fetchRemoteConfiguration()
+        if success {
+            print("Configuration updated from backend")
+        }
+    }
+    ```
+
+ 4. Get certificate pinning hashes:
+    ```swift
+    let hashes = SecureConfigManager.shared.certificatePinningHashes
+    ```
+
+ 5. Reset configuration:
+    ```swift
+    SecureConfigManager.shared.resetToDefaults()
+    ```
+
+ IMPORTANT: Setup Instructions
+
+ 1. Create SecureConfig.plist in app bundle with non-sensitive default values:
+    ```xml
+    <?xml version="1.0" encoding="UTF-8"?>
+    <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+    <plist version="1.0">
+    <dict>
+        <key>api_base_url</key>
+        <string>https://fleet.capitaltechalliance.com/api</string>
+        <key>session_timeout</key>
+        <string>1800</string>
+        <key>max_login_attempts</key>
+        <string>5</string>
+    </dict>
+    </plist>
+    ```
+
+ 2. Inject sensitive values during build:
+    - Use environment variables
+    - Use build configuration files (.xcconfig)
+    - Never commit sensitive values to source control
+
+ 3. For production:
+    - Fetch configuration from backend on app launch
+    - Use certificate pinning for config endpoint
+    - Validate configuration integrity
+*/

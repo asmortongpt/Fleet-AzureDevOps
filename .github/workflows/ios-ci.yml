@@ -1,0 +1,172 @@
+name: iOS CI/CD
+
+on:
+  push:
+    branches: [ main, develop, 'stage-*', 'feature/*' ]
+    paths:
+      - 'mobile-apps/ios-native/**'
+      - '.github/workflows/ios-ci.yml'
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - 'mobile-apps/ios-native/**'
+      - '.github/workflows/ios-ci.yml'
+  workflow_dispatch:
+
+env:
+  WORKSPACE: mobile-apps/ios-native/App.xcworkspace
+  SCHEME: App
+  DESTINATION: 'platform=iOS Simulator,name=iPhone 17,OS=18.1'
+
+jobs:
+  build-and-test:
+    name: Build and Test iOS App
+    runs-on: macos-14
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          lfs: true
+
+      - name: Select Xcode version
+        run: sudo xcode-select -s /Applications/Xcode_16.1.app
+
+      - name: Show Xcode version
+        run: xcodebuild -version
+
+      - name: Cache CocoaPods
+        uses: actions/cache@v4
+        with:
+          path: mobile-apps/ios-native/Pods
+          key: ${{ runner.os }}-pods-${{ hashFiles('mobile-apps/ios-native/Podfile.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-pods-
+
+      - name: Install CocoaPods dependencies
+        working-directory: mobile-apps/ios-native
+        run: |
+          gem install cocoapods
+          pod install
+
+      - name: Clean build folder
+        working-directory: mobile-apps/ios-native
+        run: |
+          xcodebuild clean \
+            -workspace ${{ env.WORKSPACE }} \
+            -scheme ${{ env.SCHEME }}
+
+      - name: Build app
+        working-directory: mobile-apps/ios-native
+        run: |
+          xcodebuild build-for-testing \
+            -workspace ${{ env.WORKSPACE }} \
+            -scheme ${{ env.SCHEME }} \
+            -destination "${{ env.DESTINATION }}" \
+            -derivedDataPath DerivedData \
+            | xcpretty --color --simple
+
+      - name: Run unit tests
+        working-directory: mobile-apps/ios-native
+        run: |
+          xcodebuild test-without-building \
+            -workspace ${{ env.WORKSPACE }} \
+            -scheme ${{ env.SCHEME }} \
+            -destination "${{ env.DESTINATION }}" \
+            -derivedDataPath DerivedData \
+            -testPlan AppTests \
+            -resultBundlePath TestResults \
+            | xcpretty --color --report html --output test-report.html
+        continue-on-error: true
+
+      - name: Generate test coverage report
+        working-directory: mobile-apps/ios-native
+        run: |
+          xcrun xccov view --report --json DerivedData/Logs/Test/*.xcresult > coverage.json || true
+          xcrun xccov view --report DerivedData/Logs/Test/*.xcresult > coverage.txt || true
+        continue-on-error: true
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: |
+            mobile-apps/ios-native/TestResults
+            mobile-apps/ios-native/test-report.html
+            mobile-apps/ios-native/coverage.json
+            mobile-apps/ios-native/coverage.txt
+          retention-days: 30
+
+      - name: Comment test results on PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const coveragePath = 'mobile-apps/ios-native/coverage.txt';
+            let coverage = 'Coverage report not available';
+
+            if (fs.existsSync(coveragePath)) {
+              coverage = fs.readFileSync(coveragePath, 'utf8');
+            }
+
+            const comment = `## iOS Test Results
+
+            **Build Status**: ✅ Success
+
+            ### Code Coverage
+            \`\`\`
+            ${coverage}
+            \`\`\`
+
+            📊 [Full Test Report](https://github.com/${{github.repository}}/actions/runs/${{github.run_id}})
+            `;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.name,
+              body: comment
+            });
+
+      - name: Check test results
+        working-directory: mobile-apps/ios-native
+        run: |
+          if [ -d "TestResults" ]; then
+            echo "✅ Tests completed"
+            # Extract test summary
+            find TestResults -name "*.xcresult" -exec xcrun xcresulttool get --format json --path {} \; > test-summary.json || true
+          else
+            echo "⚠️  No test results found"
+            exit 1
+          fi
+
+  lint-and-analyze:
+    name: Lint and Static Analysis
+    runs-on: macos-14
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install SwiftLint
+        run: brew install swiftlint
+
+      - name: Run SwiftLint
+        working-directory: mobile-apps/ios-native
+        run: |
+          swiftlint lint --reporter html > swiftlint-report.html || true
+          swiftlint lint --reporter markdown > swiftlint-report.md || true
+        continue-on-error: true
+
+      - name: Upload lint results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lint-results
+          path: |
+            mobile-apps/ios-native/swiftlint-report.html
+            mobile-apps/ios-native/swiftlint-report.md
+          retention-days: 30

@@ -1,0 +1,96 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: arcgis-migration
+  namespace: fleet-management
+spec:
+  ttlSecondsAfterFinished: 300
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: migration
+        image: postgres:15-alpine
+        env:
+        - name: PGHOST
+          valueFrom:
+            configMapKeyRef:
+              name: fleet-api-config
+              key: DB_HOST
+        - name: PGPORT
+          valueFrom:
+            configMapKeyRef:
+              name: fleet-api-config
+              key: DB_PORT
+        - name: PGDATABASE
+          valueFrom:
+            configMapKeyRef:
+              name: fleet-api-config
+              key: DB_NAME
+        - name: PGUSER
+          valueFrom:
+            configMapKeyRef:
+              name: fleet-api-config
+              key: DB_USER
+        - name: PGPASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: fleet-api-secrets
+              key: DB_PASSWORD
+        command:
+        - /bin/sh
+        - -c
+        - |
+          cat << 'EOF' | psql
+          -- Migration: Add ArcGIS Layers Table
+          -- Enables plug-and-play integration with ArcGIS services
+
+          CREATE TABLE IF NOT EXISTS arcgis_layers (
+            id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+            tenant_id UUID NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
+
+            -- Layer configuration
+            name VARCHAR(255) NOT NULL,
+            description TEXT,
+            service_url TEXT NOT NULL,
+            layer_type VARCHAR(20) NOT NULL CHECK (layer_type IN ('feature', 'tile', 'image', 'dynamic', 'wms')),
+
+            -- Display settings
+            enabled BOOLEAN DEFAULT true,
+            opacity DECIMAL(3,2) DEFAULT 1.0 CHECK (opacity >= 0 AND opacity <= 1),
+            min_zoom INTEGER,
+            max_zoom INTEGER,
+            refresh_interval INTEGER, -- in seconds
+
+            -- Authentication (stored as JSON)
+            authentication JSONB,
+
+            -- Styling (stored as JSON)
+            styling JSONB,
+
+            -- Additional metadata (stored as JSON)
+            metadata JSONB,
+
+            -- Timestamps
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+            -- Indexes
+            CONSTRAINT arcgis_layers_tenant_id_name_unique UNIQUE (tenant_id, name)
+          );
+
+          -- Indexes for performance
+          CREATE INDEX IF NOT EXISTS idx_arcgis_layers_tenant_id ON arcgis_layers(tenant_id);
+          CREATE INDEX IF NOT EXISTS idx_arcgis_layers_enabled ON arcgis_layers(enabled);
+          CREATE INDEX IF NOT EXISTS idx_arcgis_layers_tenant_enabled ON arcgis_layers(tenant_id, enabled);
+
+          -- Comments
+          COMMENT ON TABLE arcgis_layers IS 'Stores ArcGIS layer configurations for custom map integrations';
+          COMMENT ON COLUMN arcgis_layers.service_url IS 'ArcGIS REST API endpoint URL';
+          COMMENT ON COLUMN arcgis_layers.layer_type IS 'Type of ArcGIS layer (feature, tile, image, dynamic, or wms)';
+          COMMENT ON COLUMN arcgis_layers.authentication IS 'Authentication configuration (token, oauth, or none)';
+          COMMENT ON COLUMN arcgis_layers.styling IS 'Custom styling configuration for layer rendering';
+          COMMENT ON COLUMN arcgis_layers.metadata IS 'Additional metadata from ArcGIS service capabilities';
+          EOF
+
+          echo "Migration completed successfully"

@@ -1,0 +1,490 @@
+# Prometheus Metrics Configuration for Fleet Manager iOS App
+# This file defines metrics, scrape configurations, and alerting rules
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    cluster: 'fleet-mobile'
+    environment: 'production'
+
+# Scrape configurations
+scrape_configs:
+  # Mobile app metrics endpoint
+  - job_name: 'fleet-ios-metrics'
+    scrape_interval: 30s
+    scrape_timeout: 10s
+    metrics_path: '/api/metrics'
+    scheme: https
+    static_configs:
+      - targets:
+          - 'api.fleet-manager.com'
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: 'api.fleet-manager.com'
+
+  # Backend API metrics (for correlation)
+  - job_name: 'fleet-backend-api'
+    scrape_interval: 15s
+    static_configs:
+      - targets:
+          - 'backend-api:9090'
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: backend
+
+# Metric definitions and labels
+metric_relabel_configs:
+  - source_labels: [__name__]
+    regex: 'fleet_ios_.*'
+    action: keep
+
+# ==============================================================================
+# METRIC DEFINITIONS
+# ==============================================================================
+
+# Application Metrics
+metrics:
+  # Session Metrics
+  - name: session_start
+    type: counter
+    help: "Total number of user sessions started"
+    labels:
+      - app_version
+      - os_version
+      - device_model
+      - environment
+
+  - name: session_end
+    type: counter
+    help: "Total number of user sessions ended"
+    labels:
+      - app_version
+      - session_duration_bucket
+
+  - name: session_duration_seconds
+    type: histogram
+    help: "User session duration in seconds"
+    buckets: [30, 60, 120, 300, 600, 1800, 3600, 7200]
+    labels:
+      - app_version
+      - environment
+
+  # App Launch Metrics
+  - name: app_launch_time_seconds
+    type: histogram
+    help: "Time taken for app to launch in seconds"
+    buckets: [0.5, 1.0, 1.5, 2.0, 3.0, 5.0, 10.0]
+    labels:
+      - app_version
+      - cold_start
+
+  - name: app_crashes_total
+    type: counter
+    help: "Total number of app crashes"
+    labels:
+      - app_version
+      - crash_type
+      - os_version
+
+  # API Request Metrics
+  - name: api_request_total
+    type: counter
+    help: "Total number of API requests"
+    labels:
+      - endpoint
+      - method
+      - status_code
+      - environment
+
+  - name: api_request_duration_seconds
+    type: histogram
+    help: "API request duration in seconds"
+    buckets: [0.1, 0.25, 0.5, 1.0, 2.5, 5.0, 10.0]
+    labels:
+      - endpoint
+      - method
+      - status_code
+
+  - name: api_request_errors_total
+    type: counter
+    help: "Total number of API request errors"
+    labels:
+      - endpoint
+      - error_type
+      - status_code
+
+  - name: api_request_success_total
+    type: counter
+    help: "Total number of successful API requests"
+    labels:
+      - endpoint
+      - method
+
+  # Network Metrics
+  - name: network_request_total
+    type: counter
+    help: "Total number of network requests"
+    labels:
+      - url
+      - method
+      - result
+
+  - name: network_request_success_total
+    type: counter
+    help: "Total successful network requests"
+    labels:
+      - url
+
+  - name: network_bytes_received
+    type: counter
+    help: "Total bytes received from network"
+    labels:
+      - endpoint
+
+  - name: network_bytes_sent
+    type: counter
+    help: "Total bytes sent over network"
+    labels:
+      - endpoint
+
+  # Authentication Metrics
+  - name: auth_success_total
+    type: counter
+    help: "Total successful authentication attempts"
+    labels:
+      - auth_method
+      - environment
+
+  - name: auth_failure_total
+    type: counter
+    help: "Total failed authentication attempts"
+    labels:
+      - auth_method
+      - failure_reason
+
+  - name: auth_duration_seconds
+    type: histogram
+    help: "Authentication duration in seconds"
+    buckets: [0.5, 1.0, 2.0, 5.0, 10.0]
+
+  # Memory Metrics
+  - name: memory_usage_bytes
+    type: histogram
+    help: "App memory usage in bytes"
+    buckets: [52428800, 104857600, 157286400, 209715200, 262144000, 314572800]
+    labels:
+      - screen_name
+
+  - name: memory_warning_total
+    type: counter
+    help: "Total number of memory warnings"
+    labels:
+      - severity
+
+  # Performance Metrics
+  - name: screen_render_time_seconds
+    type: histogram
+    help: "Screen rendering time in seconds"
+    buckets: [0.016, 0.033, 0.05, 0.1, 0.25, 0.5, 1.0]
+    labels:
+      - screen_name
+
+  - name: fps_current
+    type: gauge
+    help: "Current frames per second"
+    labels:
+      - screen_name
+
+  - name: database_query_duration_seconds
+    type: histogram
+    help: "Database query duration in seconds"
+    buckets: [0.001, 0.005, 0.01, 0.05, 0.1, 0.5, 1.0]
+    labels:
+      - query_type
+      - table
+
+  # GPS Tracking Metrics
+  - name: gps_accuracy_meters
+    type: gauge
+    help: "GPS location accuracy in meters"
+    labels:
+      - tracking_active
+
+  - name: gps_location_update_total
+    type: counter
+    help: "Total GPS location updates received"
+    labels:
+      - accuracy_level
+
+  # OBD2 Metrics
+  - name: obd2_connected
+    type: gauge
+    help: "OBD2 connection status (1=connected, 0=disconnected)"
+    labels:
+      - device_type
+
+  - name: obd2_connection_attempts
+    type: counter
+    help: "Total OBD2 connection attempts"
+    labels:
+      - result
+
+  - name: obd2_data_points_total
+    type: counter
+    help: "Total OBD2 data points collected"
+    labels:
+      - data_type
+
+  # Sync Queue Metrics
+  - name: sync_queue_depth
+    type: gauge
+    help: "Number of items in offline sync queue"
+    labels:
+      - queue_type
+
+  - name: sync_operation_total
+    type: counter
+    help: "Total sync operations"
+    labels:
+      - operation_type
+      - result
+
+  - name: sync_operation_duration_seconds
+    type: histogram
+    help: "Sync operation duration in seconds"
+    buckets: [1, 5, 10, 30, 60, 120, 300]
+    labels:
+      - operation_type
+
+  # Feature Usage Metrics
+  - name: feature_usage_total
+    type: counter
+    help: "Total feature usage count"
+    labels:
+      - feature
+      - app_version
+
+  - name: screen_view_total
+    type: counter
+    help: "Total screen views"
+    labels:
+      - screen_name
+      - app_version
+
+  - name: user_action_total
+    type: counter
+    help: "Total user actions"
+    labels:
+      - action
+      - screen_name
+
+  # Battery Metrics
+  - name: battery_level_percent
+    type: gauge
+    help: "Current battery level percentage"
+
+  - name: battery_drain_rate
+    type: gauge
+    help: "Battery drain rate percentage per hour"
+
+  # Error Metrics
+  - name: error_occurred_total
+    type: counter
+    help: "Total errors occurred"
+    labels:
+      - error_type
+      - severity
+      - screen_name
+
+  # Business Metrics
+  - name: trip_created_total
+    type: counter
+    help: "Total trips created"
+    labels:
+      - vehicle_type
+
+  - name: trip_completed_total
+    type: counter
+    help: "Total trips completed"
+    labels:
+      - vehicle_type
+
+  - name: trip_distance_kilometers
+    type: histogram
+    help: "Trip distance in kilometers"
+    buckets: [1, 5, 10, 25, 50, 100, 250, 500]
+
+  - name: maintenance_scheduled_total
+    type: counter
+    help: "Total maintenance items scheduled"
+    labels:
+      - maintenance_type
+
+  - name: inspection_completed_total
+    type: counter
+    help: "Total inspections completed"
+    labels:
+      - passed
+
+# ==============================================================================
+# ALERTING RULES
+# ==============================================================================
+
+rule_files:
+  - 'alert_rules/*.yml'
+
+# Alert rule groups
+groups:
+  # Critical Alerts
+  - name: critical_alerts
+    interval: 30s
+    rules:
+      - alert: HighCrashRate
+        expr: |
+          (sum(rate(app_crashes_total{app="fleet-ios"}[5m])) /
+           sum(rate(session_start{app="fleet-ios"}[5m]))) * 100 > 1
+        for: 5m
+        labels:
+          severity: critical
+          team: mobile
+        annotations:
+          summary: "High crash rate detected"
+          description: "App crash rate is {{ $value | humanizePercentage }}, above 1% threshold"
+          runbook: "https://wiki.fleet.com/runbooks/high-crash-rate"
+
+      - alert: HighAPIErrorRate
+        expr: |
+          (sum(rate(api_request_errors_total{app="fleet-ios"}[5m])) /
+           sum(rate(api_request_total{app="fleet-ios"}[5m]))) * 100 > 5
+        for: 5m
+        labels:
+          severity: critical
+          team: mobile
+        annotations:
+          summary: "High API error rate detected"
+          description: "API error rate is {{ $value | humanizePercentage }}, above 5% threshold"
+          runbook: "https://wiki.fleet.com/runbooks/high-api-error-rate"
+
+      - alert: HighAuthenticationFailureRate
+        expr: |
+          (sum(rate(auth_failure_total{app="fleet-ios"}[5m])) /
+           (sum(rate(auth_success_total{app="fleet-ios"}[5m])) +
+            sum(rate(auth_failure_total{app="fleet-ios"}[5m])))) * 100 > 10
+        for: 5m
+        labels:
+          severity: critical
+          team: mobile
+        annotations:
+          summary: "High authentication failure rate"
+          description: "Auth failure rate is {{ $value | humanizePercentage }}, above 10% threshold"
+          runbook: "https://wiki.fleet.com/runbooks/auth-failure"
+
+  # Warning Alerts
+  - name: warning_alerts
+    interval: 1m
+    rules:
+      - alert: SlowAPIResponseTime
+        expr: |
+          histogram_quantile(0.95,
+            rate(api_request_duration_seconds_bucket{app="fleet-ios"}[5m])
+          ) > 0.5
+        for: 10m
+        labels:
+          severity: warning
+          team: mobile
+        annotations:
+          summary: "Slow API response times"
+          description: "P95 API response time is {{ $value }}s, above 500ms threshold"
+          runbook: "https://wiki.fleet.com/runbooks/slow-api"
+
+      - alert: HighMemoryUsage
+        expr: |
+          histogram_quantile(0.95,
+            rate(memory_usage_bytes_bucket{app="fleet-ios"}[5m])
+          ) > 157286400
+        for: 15m
+        labels:
+          severity: warning
+          team: mobile
+        annotations:
+          summary: "High memory usage detected"
+          description: "P95 memory usage is {{ $value | humanize }}B, above 150MB threshold"
+          runbook: "https://wiki.fleet.com/runbooks/high-memory"
+
+      - alert: HighSyncQueueDepth
+        expr: sync_queue_depth{app="fleet-ios"} > 100
+        for: 10m
+        labels:
+          severity: warning
+          team: mobile
+        annotations:
+          summary: "High offline sync queue depth"
+          description: "Sync queue has {{ $value }} items, above 100 threshold"
+          runbook: "https://wiki.fleet.com/runbooks/high-sync-queue"
+
+  # Info Alerts
+  - name: info_alerts
+    interval: 5m
+    rules:
+      - alert: NewAppVersionDetected
+        expr: |
+          count(count by (app_version) (session_start{app="fleet-ios"})) >
+          count(count by (app_version) (session_start{app="fleet-ios"} offset 1h))
+        for: 5m
+        labels:
+          severity: info
+          team: mobile
+        annotations:
+          summary: "New app version detected"
+          description: "A new app version has been detected in production"
+
+# Recording rules for efficiency
+  - name: recording_rules
+    interval: 30s
+    rules:
+      - record: job:api_request_duration_seconds:p95
+        expr: |
+          histogram_quantile(0.95,
+            sum(rate(api_request_duration_seconds_bucket{app="fleet-ios"}[5m])) by (le, endpoint)
+          )
+
+      - record: job:api_request_duration_seconds:p99
+        expr: |
+          histogram_quantile(0.99,
+            sum(rate(api_request_duration_seconds_bucket{app="fleet-ios"}[5m])) by (le, endpoint)
+          )
+
+      - record: job:error_rate:5m
+        expr: |
+          sum(rate(api_request_errors_total{app="fleet-ios"}[5m])) by (endpoint) /
+          sum(rate(api_request_total{app="fleet-ios"}[5m])) by (endpoint)
+
+      - record: job:crash_free_rate:1h
+        expr: |
+          100 - (sum(rate(app_crashes_total{app="fleet-ios"}[1h])) /
+                 sum(rate(session_start{app="fleet-ios"}[1h])) * 100)
+
+# Alertmanager configuration
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+            - alertmanager:9093
+      timeout: 10s
+
+# Remote write configuration (for long-term storage)
+remote_write:
+  - url: https://prometheus-storage.fleet-manager.com/api/v1/write
+    queue_config:
+      capacity: 10000
+      max_shards: 50
+      min_shards: 1
+      max_samples_per_send: 5000
+      batch_send_deadline: 5s
+      min_backoff: 30ms
+      max_backoff: 100ms

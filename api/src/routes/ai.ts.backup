@@ -1,0 +1,607 @@
+/**
+ * AI Features API Routes
+ *
+ * Endpoints for:
+ * - Natural language conversational intake
+ * - AI-powered validation
+ * - Enhanced OCR and document analysis
+ * - Intelligent controls and fraud detection
+ * - Smart suggestions
+ */
+
+import express, { Request, Response } from 'express'
+import { authenticateJWT, AuthRequest } from '../middleware/auth'
+import {
+  processNaturalLanguageInput,
+  createConversationContext,
+  ConversationContext
+} from '../services/ai-intake'
+import { validateWithAI, getValidationHistory } from '../services/ai-validation'
+import {
+  analyzeDocument,
+  batchAnalyzeDocuments,
+  getDocumentsNeedingReview,
+  markDocumentReviewed
+} from '../services/ai-ocr'
+import { checkControls, getControlCheckHistory } from '../services/ai-controls'
+import multer from 'multer'
+import path from 'path'
+import { v4 as uuidv4 } from 'uuid'
+import fs from 'fs'
+
+const router = express.Router()
+
+// Configure multer for file uploads
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const uploadDir = path.join(__dirname, '../../uploads/documents')
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir, { recursive: true })
+    }
+    cb(null, uploadDir)
+  },
+  filename: (req, file, cb) => {
+    const uniqueName = `${uuidv4()}${path.extname(file.originalname)}`
+    cb(null, uniqueName)
+  }
+})
+
+const upload = multer({
+  storage,
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = /jpeg|jpg|png|pdf|gif/
+    const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase())
+    const mimetype = allowedTypes.test(file.mimetype)
+
+    if (extname && mimetype) {
+      cb(null, true)
+    } else {
+      cb(new Error('Only image and PDF files are allowed'))
+    }
+  }
+})
+
+/**
+ * @openapi
+ * /api/ai/intake/conversation:
+ *   post:
+ *     summary: Process natural language input for conversational data entry
+ *     description: Submit user message and get AI response with extracted data
+ *     tags:
+ *       - AI Features
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - message
+ *             properties:
+ *               message:
+ *                 type: string
+ *                 description: User's natural language message
+ *               context:
+ *                 type: object
+ *                 description: Existing conversation context (optional)
+ *     responses:
+ *       200:
+ *         description: AI response with updated context
+ *       401:
+ *         description: Unauthorized
+ */
+router.post('/intake/conversation', authenticateJWT, async (req: AuthRequest, res: Response) => {
+  try {
+    const { message, context } = req.body
+
+    if (!message) {
+      return res.status(400).json({ error: 'Message is required' })
+    }
+
+    // Use existing context or create new one
+    const conversationContext: ConversationContext = context || createConversationContext(
+      req.user!.tenant_id,
+      req.user!.id
+    )
+
+    const result = await processNaturalLanguageInput(message, conversationContext)
+
+    res.json(result)
+  } catch (error: any) {
+    console.error('Conversation processing error:', error)
+    res.status(500).json({ error: error.message || 'Failed to process message' })
+  }
+})
+
+/**
+ * @openapi
+ * /api/ai/intake/submit:
+ *   post:
+ *     summary: Submit extracted data from conversational intake
+ *     description: Create actual database record from AI-extracted data
+ *     tags:
+ *       - AI Features
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - entityType
+ *               - data
+ *             properties:
+ *               entityType:
+ *                 type: string
+ *                 enum: [fuel_entry, work_order, incident_report, inspection]
+ *               data:
+ *                 type: object
+ *                 description: Validated data to submit
+ *               conversationId:
+ *                 type: string
+ *     responses:
+ *       201:
+ *         description: Entity created successfully
+ *       400:
+ *         description: Invalid data
+ */
+router.post('/intake/submit', authenticateJWT, async (req: AuthRequest, res: Response) => {
+  try {
+    const { entityType, data, conversationId } = req.body
+
+    // Route to appropriate service based on entity type
+    let result
+
+    switch (entityType) {
+      case 'fuel_entry':
+        // Insert into fuel_transactions table
+        // (Actual implementation would go here)
+        result = { id: uuidv4(), ...data }
+        break
+
+      case 'work_order':
+        // Insert into work_orders table
+        result = { id: uuidv4(), ...data }
+        break
+
+      case 'incident_report':
+        // Insert into safety_incidents table
+        result = { id: uuidv4(), ...data }
+        break
+
+      case 'inspection':
+        // Insert into inspections table
+        result = { id: uuidv4(), ...data }
+        break
+
+      default:
+        return res.status(400).json({ error: 'Invalid entity type' })
+    }
+
+    // Mark conversation as completed if provided
+    if (conversationId) {
+      // Update conversation status in database
+    }
+
+    res.status(201).json(result)
+  } catch (error: any) {
+    console.error('Submit error:', error)
+    res.status(500).json({ error: error.message || 'Failed to submit data' })
+  }
+})
+
+/**
+ * @openapi
+ * /api/ai/validate:
+ *   post:
+ *     summary: Validate data with AI-powered checks
+ *     description: Run anomaly detection, get suggestions, and check for issues
+ *     tags:
+ *       - AI Features
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - entityType
+ *               - data
+ *             properties:
+ *               entityType:
+ *                 type: string
+ *               data:
+ *                 type: object
+ *     responses:
+ *       200:
+ *         description: Validation results
+ */
+router.post('/validate', authenticateJWT, async (req: AuthRequest, res: Response) => {
+  try {
+    const { entityType, data } = req.body
+
+    if (!entityType || !data) {
+      return res.status(400).json({ error: 'entityType and data are required' })
+    }
+
+    const validation = await validateWithAI(
+      entityType,
+      data,
+      req.user!.tenant_id,
+      req.user!.id
+    )
+
+    res.json(validation)
+  } catch (error: any) {
+    console.error('Validation error:', error)
+    res.status(500).json({ error: error.message || 'Failed to validate data' })
+  }
+})
+
+/**
+ * @openapi
+ * /api/ai/validate/history:
+ *   get:
+ *     summary: Get validation history for an entity
+ *     tags:
+ *       - AI Features
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: entityType
+ *         required: true
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: entityId
+ *         required: true
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *     responses:
+ *       200:
+ *         description: Validation history
+ */
+router.get('/validate/history', authenticateJWT, async (req: AuthRequest, res: Response) => {
+  try {
+    const { entityType, entityId, limit } = req.query
+
+    const history = await getValidationHistory(
+      entityType as string,
+      entityId as string,
+      req.user!.tenant_id,
+      limit ? parseInt(limit as string) : 10
+    )
+
+    res.json(history)
+  } catch (error: any) {
+    console.error('Get validation history error:', error)
+    res.status(500).json({ error: error.message || 'Failed to get validation history' })
+  }
+})
+
+/**
+ * @openapi
+ * /api/ai/analyze-document:
+ *   post:
+ *     summary: Analyze document with AI OCR
+ *     description: Extract structured data from document image
+ *     tags:
+ *       - AI Features
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - file
+ *             properties:
+ *               file:
+ *                 type: string
+ *                 format: binary
+ *               documentType:
+ *                 type: string
+ *                 enum: [fuel_receipt, parts_invoice, inspection_report, driver_license]
+ *     responses:
+ *       200:
+ *         description: Document analysis results
+ */
+router.post('/analyze-document', authenticateJWT, upload.single('file'), async (req: AuthRequest, res: Response) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: 'No file uploaded' })
+    }
+
+    // In production, upload to cloud storage and get URL
+    // For now, use local file path
+    const fileUrl = `/uploads/documents/${req.file.filename}`
+
+    const analysis = await analyzeDocument(
+      fileUrl,
+      req.user!.tenant_id,
+      req.user!.id,
+      req.body.documentType
+    )
+
+    res.json(analysis)
+  } catch (error: any) {
+    console.error('Document analysis error:', error)
+    res.status(500).json({ error: error.message || 'Failed to analyze document' })
+  }
+})
+
+/**
+ * @openapi
+ * /api/ai/analyze-documents/batch:
+ *   post:
+ *     summary: Batch analyze multiple documents
+ *     tags:
+ *       - AI Features
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               files:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                   format: binary
+ *     responses:
+ *       200:
+ *         description: Batch analysis results
+ */
+router.post('/analyze-documents/batch', authenticateJWT, upload.array('files', 10), async (req: AuthRequest, res: Response) => {
+  try {
+    if (!req.files || !Array.isArray(req.files) || req.files.length === 0) {
+      return res.status(400).json({ error: 'No files uploaded' })
+    }
+
+    const fileUrls = req.files.map(file => `/uploads/documents/${file.filename}`)
+
+    const analyses = await batchAnalyzeDocuments(
+      fileUrls,
+      req.user!.tenant_id,
+      req.user!.id
+    )
+
+    res.json(analyses)
+  } catch (error: any) {
+    console.error('Batch document analysis error:', error)
+    res.status(500).json({ error: error.message || 'Failed to analyze documents' })
+  }
+})
+
+/**
+ * @openapi
+ * /api/ai/documents/review-queue:
+ *   get:
+ *     summary: Get documents that need human review
+ *     tags:
+ *       - AI Features
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 20
+ *     responses:
+ *       200:
+ *         description: Documents needing review
+ */
+router.get('/documents/review-queue', authenticateJWT, async (req: AuthRequest, res: Response) => {
+  try {
+    const limit = req.query.limit ? parseInt(req.query.limit as string) : 20
+
+    const documents = await getDocumentsNeedingReview(req.user!.tenant_id, limit)
+
+    res.json(documents)
+  } catch (error: any) {
+    console.error('Get review queue error:', error)
+    res.status(500).json({ error: error.message || 'Failed to get review queue' })
+  }
+})
+
+/**
+ * @openapi
+ * /api/ai/documents/{documentId}/review:
+ *   post:
+ *     summary: Mark document as reviewed with optional corrections
+ *     tags:
+ *       - AI Features
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: documentId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               corrections:
+ *                 type: object
+ *     responses:
+ *       200:
+ *         description: Document marked as reviewed
+ */
+router.post('/documents/:documentId/review', authenticateJWT, async (req: AuthRequest, res: Response) => {
+  try {
+    const { documentId } = req.params
+    const { corrections } = req.body
+
+    await markDocumentReviewed(documentId, req.user!.id, corrections)
+
+    res.json({ success: true })
+  } catch (error: any) {
+    console.error('Mark reviewed error:', error)
+    res.status(500).json({ error: error.message || 'Failed to mark document as reviewed' })
+  }
+})
+
+/**
+ * @openapi
+ * /api/ai/controls/check:
+ *   post:
+ *     summary: Check intelligent controls for a transaction
+ *     description: Run fraud detection, compliance, and cost controls
+ *     tags:
+ *       - AI Features
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - transactionType
+ *               - transaction
+ *             properties:
+ *               transactionType:
+ *                 type: string
+ *               transaction:
+ *                 type: object
+ *     responses:
+ *       200:
+ *         description: Control check results
+ */
+router.post('/controls/check', authenticateJWT, async (req: AuthRequest, res: Response) => {
+  try {
+    const { transactionType, transaction } = req.body
+
+    if (!transactionType || !transaction) {
+      return res.status(400).json({ error: 'transactionType and transaction are required' })
+    }
+
+    const check = await checkControls(
+      transaction,
+      transactionType,
+      req.user!.tenant_id,
+      req.user!.id
+    )
+
+    res.json(check)
+  } catch (error: any) {
+    console.error('Control check error:', error)
+    res.status(500).json({ error: error.message || 'Failed to check controls' })
+  }
+})
+
+/**
+ * @openapi
+ * /api/ai/controls/history:
+ *   get:
+ *     summary: Get control check history
+ *     tags:
+ *       - AI Features
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: transactionType
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: passed
+ *         schema:
+ *           type: boolean
+ *       - in: query
+ *         name: severity
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Control check history
+ */
+router.get('/controls/history', authenticateJWT, async (req: AuthRequest, res: Response) => {
+  try {
+    const { transactionType, passed, severity, limit } = req.query
+
+    const filters: any = {}
+    if (transactionType) filters.transactionType = transactionType
+    if (passed !== undefined) filters.passed = passed === 'true'
+    if (severity) filters.severity = severity
+    if (limit) filters.limit = parseInt(limit as string)
+
+    const history = await getControlCheckHistory(req.user!.tenant_id, filters)
+
+    res.json(history)
+  } catch (error: any) {
+    console.error('Get control history error:', error)
+    res.status(500).json({ error: error.message || 'Failed to get control history' })
+  }
+})
+
+/**
+ * @openapi
+ * /api/ai/suggestions:
+ *   get:
+ *     summary: Get smart suggestions for a field
+ *     tags:
+ *       - AI Features
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: field
+ *         required: true
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: context
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Suggestions for the field
+ */
+router.get('/suggestions', authenticateJWT, async (req: AuthRequest, res: Response) => {
+  try {
+    const { field, context } = req.query
+
+    if (!field) {
+      return res.status(400).json({ error: 'field is required' })
+    }
+
+    // This would use the validation service to get smart suggestions
+    // For now, return placeholder
+    const suggestions: any[] = []
+
+    res.json({ field, suggestions })
+  } catch (error: any) {
+    console.error('Get suggestions error:', error)
+    res.status(500).json({ error: error.message || 'Failed to get suggestions' })
+  }
+})
+
+export default router

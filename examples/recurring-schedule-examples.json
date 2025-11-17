@@ -1,0 +1,292 @@
+{
+  "examples": [
+    {
+      "name": "Oil Change - Time-Based (Every 90 Days)",
+      "description": "Standard oil change service every 3 months",
+      "schedule": {
+        "vehicle_id": "{{VEHICLE_UUID}}",
+        "service_type": "Oil Change",
+        "priority": "medium",
+        "estimated_cost": 75.00,
+        "recurrence_pattern": {
+          "type": "time",
+          "interval_value": 90,
+          "interval_unit": "days",
+          "lead_time_days": 7,
+          "warning_threshold_days": 14,
+          "grace_period_days": 5
+        },
+        "auto_create_work_order": true,
+        "work_order_template": {
+          "priority": "medium",
+          "assigned_technician": "tech@fleet.com",
+          "estimated_cost": 75.00,
+          "estimated_duration_hours": 1.5,
+          "description": "Regular oil change service including filter replacement",
+          "parts": [
+            "Oil Filter",
+            "5W-30 Motor Oil (5 quarts)"
+          ],
+          "service_provider": "Main Street Auto",
+          "instructions": "Use manufacturer-specified oil viscosity. Check all fluid levels while vehicle is serviced.",
+          "checklist": [
+            "Drain old oil completely",
+            "Replace oil filter",
+            "Add new oil per spec",
+            "Check oil level",
+            "Reset maintenance reminder",
+            "Check for leaks"
+          ]
+        },
+        "notes": "Critical for engine longevity. Do not skip."
+      }
+    },
+    {
+      "name": "Tire Rotation - Mileage-Based (Every 5,000 Miles)",
+      "description": "Rotate tires for even wear based on mileage",
+      "schedule": {
+        "vehicle_id": "{{VEHICLE_UUID}}",
+        "service_type": "Tire Rotation",
+        "priority": "low",
+        "estimated_cost": 45.00,
+        "recurrence_pattern": {
+          "type": "mileage",
+          "interval_value": 5000,
+          "interval_unit": "miles",
+          "lead_time_days": 14,
+          "warning_threshold_days": 21
+        },
+        "auto_create_work_order": true,
+        "work_order_template": {
+          "priority": "low",
+          "estimated_cost": 45.00,
+          "estimated_duration_hours": 1.0,
+          "description": "Rotate all four tires and balance if needed",
+          "parts": [],
+          "instructions": "Follow cross-pattern rotation for non-directional tires",
+          "checklist": [
+            "Check tire pressure (all 4 + spare)",
+            "Inspect tread depth",
+            "Check for uneven wear",
+            "Rotate per pattern",
+            "Rebalance if vibration detected",
+            "Torque lug nuts to spec"
+          ]
+        },
+        "notes": "Extends tire life by 20-30%"
+      }
+    },
+    {
+      "name": "Comprehensive Inspection - Combined (90 Days OR 3,000 Miles)",
+      "description": "Full vehicle inspection based on whichever comes first",
+      "schedule": {
+        "vehicle_id": "{{VEHICLE_UUID}}",
+        "service_type": "Comprehensive Vehicle Inspection",
+        "priority": "high",
+        "estimated_cost": 150.00,
+        "recurrence_pattern": {
+          "type": "combined",
+          "interval_value": 3000,
+          "interval_unit": "miles",
+          "lead_time_days": 10,
+          "warning_threshold_days": 20
+        },
+        "auto_create_work_order": true,
+        "work_order_template": {
+          "priority": "high",
+          "assigned_technician": "senior.tech@fleet.com",
+          "estimated_cost": 150.00,
+          "estimated_duration_hours": 3.0,
+          "description": "Complete multi-point inspection of all vehicle systems",
+          "parts": [
+            "Air Filter",
+            "Cabin Air Filter",
+            "Wiper Blades"
+          ],
+          "service_provider": "Certified Fleet Services",
+          "instructions": "Complete DOT-compliant inspection checklist. Document all findings with photos.",
+          "checklist": [
+            "Engine oil and filter",
+            "Transmission fluid",
+            "Brake system (pads, rotors, fluid)",
+            "Suspension components",
+            "Steering system",
+            "Exhaust system",
+            "Battery and charging system",
+            "All lights and signals",
+            "Windshield and wipers",
+            "HVAC system",
+            "Safety equipment (fire ext, first aid)",
+            "Tire condition and pressure"
+          ]
+        },
+        "notes": "Required for compliance. High priority - schedule in advance."
+      }
+    },
+    {
+      "name": "Forklift Service - Engine Hours (Every 250 Hours)",
+      "description": "Heavy equipment maintenance based on operating hours",
+      "schedule": {
+        "vehicle_id": "{{FORKLIFT_UUID}}",
+        "service_type": "Forklift Preventive Maintenance",
+        "priority": "high",
+        "estimated_cost": 350.00,
+        "recurrence_pattern": {
+          "type": "engine_hours",
+          "interval_value": 250,
+          "interval_unit": "engine_hours",
+          "lead_time_days": 7,
+          "warning_threshold_days": 14
+        },
+        "auto_create_work_order": true,
+        "work_order_template": {
+          "priority": "high",
+          "assigned_technician": "equipment.specialist@fleet.com",
+          "estimated_cost": 350.00,
+          "estimated_duration_hours": 4.0,
+          "description": "Comprehensive forklift service per manufacturer schedule",
+          "parts": [
+            "Hydraulic Oil Filter",
+            "Engine Oil Filter",
+            "Air Filter",
+            "Fuel Filter"
+          ],
+          "service_provider": "Industrial Equipment Services",
+          "instructions": "Follow manufacturer PM schedule. Test all safety systems.",
+          "checklist": [
+            "Engine oil and filter change",
+            "Hydraulic system inspection",
+            "Fork and mast inspection",
+            "Brake system check",
+            "Tire condition",
+            "Battery and charging (if electric)",
+            "Safety devices (horn, lights, backup alarm)",
+            "Overhead guard inspection",
+            "Load capacity placard",
+            "Operator manual present"
+          ]
+        },
+        "notes": "OSHA requires documented PM. Do not operate if overdue."
+      }
+    },
+    {
+      "name": "Annual Safety Certification",
+      "description": "Yearly safety inspection and certification",
+      "schedule": {
+        "vehicle_id": "{{VEHICLE_UUID}}",
+        "service_type": "Annual Safety Certification",
+        "priority": "urgent",
+        "estimated_cost": 200.00,
+        "recurrence_pattern": {
+          "type": "time",
+          "interval_value": 12,
+          "interval_unit": "months",
+          "lead_time_days": 30,
+          "warning_threshold_days": 45,
+          "grace_period_days": 0
+        },
+        "auto_create_work_order": true,
+        "work_order_template": {
+          "priority": "urgent",
+          "assigned_technician": "certified.inspector@fleet.com",
+          "estimated_cost": 200.00,
+          "estimated_duration_hours": 2.0,
+          "description": "State-mandated annual vehicle safety inspection",
+          "parts": [],
+          "service_provider": "Certified State Inspection Station",
+          "instructions": "Must be completed by certified inspector. Update registration after pass.",
+          "checklist": [
+            "Brake system performance test",
+            "Steering and suspension",
+            "Lights and signals",
+            "Horn and emergency equipment",
+            "Windshield condition",
+            "Tires and wheels",
+            "Emissions test (if required)",
+            "VIN verification",
+            "Documentation review"
+          ]
+        },
+        "notes": "REQUIRED BY LAW. Vehicle cannot operate without valid inspection."
+      }
+    },
+    {
+      "name": "Brake Service - Combined (6 Months OR 15,000 Miles)",
+      "description": "Brake inspection and service",
+      "schedule": {
+        "vehicle_id": "{{VEHICLE_UUID}}",
+        "service_type": "Brake System Service",
+        "priority": "high",
+        "estimated_cost": 250.00,
+        "recurrence_pattern": {
+          "type": "combined",
+          "interval_value": 15000,
+          "interval_unit": "miles",
+          "lead_time_days": 14,
+          "warning_threshold_days": 21
+        },
+        "auto_create_work_order": true,
+        "work_order_template": {
+          "priority": "high",
+          "estimated_cost": 250.00,
+          "estimated_duration_hours": 2.5,
+          "description": "Comprehensive brake system inspection and service",
+          "parts": [
+            "Brake Pads (Front)",
+            "Brake Pads (Rear)",
+            "Brake Fluid"
+          ],
+          "instructions": "Replace pads if < 3mm remaining. Flush fluid if dark or contaminated.",
+          "checklist": [
+            "Measure pad thickness all wheels",
+            "Inspect rotor condition",
+            "Check brake fluid level and condition",
+            "Test brake performance",
+            "Inspect brake lines and hoses",
+            "Check parking brake operation",
+            "Road test after service"
+          ]
+        },
+        "notes": "Safety critical. Never defer if pads are low."
+      }
+    },
+    {
+      "name": "Fleet Vehicle Deep Clean - Weekly",
+      "description": "Weekly interior/exterior cleaning and sanitization",
+      "schedule": {
+        "vehicle_id": "{{VEHICLE_UUID}}",
+        "service_type": "Deep Clean & Sanitization",
+        "priority": "low",
+        "estimated_cost": 50.00,
+        "recurrence_pattern": {
+          "type": "time",
+          "interval_value": 1,
+          "interval_unit": "weeks",
+          "lead_time_days": 2,
+          "warning_threshold_days": 3
+        },
+        "auto_create_work_order": true,
+        "work_order_template": {
+          "priority": "low",
+          "assigned_technician": "fleet.services@fleet.com",
+          "estimated_cost": 50.00,
+          "estimated_duration_hours": 1.5,
+          "description": "Complete interior and exterior cleaning",
+          "parts": [],
+          "instructions": "Use EPA-approved sanitizers. Document completion with photos.",
+          "checklist": [
+            "Exterior wash and dry",
+            "Interior vacuum",
+            "Dashboard and console cleaning",
+            "Window cleaning (inside and out)",
+            "Sanitize high-touch surfaces",
+            "Empty and clean trash receptacles",
+            "Check and refill supplies (hand sanitizer, etc.)",
+            "Deodorize if needed"
+          ]
+        },
+        "notes": "Health and safety requirement for shared vehicles"
+      }
+    }
+  ]
+}

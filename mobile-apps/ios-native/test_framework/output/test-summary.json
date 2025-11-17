@@ -1,0 +1,241 @@
+{
+  "app_name": "Fleet Management",
+  "base_url": "https://fleet.capitaltechalliance.com",
+  "total_tests": 19,
+  "tests_by_type": {
+    "navigation": 5,
+    "accessibility": 5,
+    "performance": 5,
+    "interaction": 1,
+    "workflow": 1,
+    "analytics": 1,
+    "error": 1
+  },
+  "tests_by_priority": {
+    "High": 16,
+    "Medium": 2,
+    "Critical": 1
+  },
+  "test_cases": [
+    {
+      "name": "should navigate to Dashboard page",
+      "type": "navigation",
+      "priority": "High",
+      "page_url": "/",
+      "tags": [
+        "navigation",
+        "smoke",
+        "dashboard"
+      ],
+      "description": "Navigate to Dashboard page and verify it loads correctly"
+    },
+    {
+      "name": "should pass WCAG 2.2 AA accessibility checks on Dashboard",
+      "type": "accessibility",
+      "priority": "High",
+      "page_url": "/",
+      "tags": [
+        "a11y",
+        "wcag",
+        "compliance"
+      ],
+      "description": "WCAG 2.2 AA compliance test for Dashboard"
+    },
+    {
+      "name": "should meet Core Web Vitals targets on Dashboard",
+      "type": "performance",
+      "priority": "High",
+      "page_url": "/",
+      "tags": [
+        "performance",
+        "web-vitals"
+      ],
+      "description": "Core Web Vitals performance test for Dashboard"
+    },
+    {
+      "name": "should navigate to Vehicles page",
+      "type": "navigation",
+      "priority": "High",
+      "page_url": "/vehicles",
+      "tags": [
+        "navigation",
+        "smoke",
+        "vehicles"
+      ],
+      "description": "Navigate to Vehicles page and verify it loads correctly"
+    },
+    {
+      "name": "should pass WCAG 2.2 AA accessibility checks on Vehicles",
+      "type": "accessibility",
+      "priority": "High",
+      "page_url": "/vehicles",
+      "tags": [
+        "a11y",
+        "wcag",
+        "compliance"
+      ],
+      "description": "WCAG 2.2 AA compliance test for Vehicles"
+    },
+    {
+      "name": "should meet Core Web Vitals targets on Vehicles",
+      "type": "performance",
+      "priority": "High",
+      "page_url": "/vehicles",
+      "tags": [
+        "performance",
+        "web-vitals"
+      ],
+      "description": "Core Web Vitals performance test for Vehicles"
+    },
+    {
+      "name": "should navigate to Drivers page",
+      "type": "navigation",
+      "priority": "High",
+      "page_url": "/drivers",
+      "tags": [
+        "navigation",
+        "smoke",
+        "drivers"
+      ],
+      "description": "Navigate to Drivers page and verify it loads correctly"
+    },
+    {
+      "name": "should pass WCAG 2.2 AA accessibility checks on Drivers",
+      "type": "accessibility",
+      "priority": "High",
+      "page_url": "/drivers",
+      "tags": [
+        "a11y",
+        "wcag",
+        "compliance"
+      ],
+      "description": "WCAG 2.2 AA compliance test for Drivers"
+    },
+    {
+      "name": "should meet Core Web Vitals targets on Drivers",
+      "type": "performance",
+      "priority": "High",
+      "page_url": "/drivers",
+      "tags": [
+        "performance",
+        "web-vitals"
+      ],
+      "description": "Core Web Vitals performance test for Drivers"
+    },
+    {
+      "name": "should navigate to Reports page",
+      "type": "navigation",
+      "priority": "High",
+      "page_url": "/reports",
+      "tags": [
+        "navigation",
+        "smoke",
+        "reports"
+      ],
+      "description": "Navigate to Reports page and verify it loads correctly"
+    },
+    {
+      "name": "should pass WCAG 2.2 AA accessibility checks on Reports",
+      "type": "accessibility",
+      "priority": "High",
+      "page_url": "/reports",
+      "tags": [
+        "a11y",
+        "wcag",
+        "compliance"
+      ],
+      "description": "WCAG 2.2 AA compliance test for Reports"
+    },
+    {
+      "name": "should meet Core Web Vitals targets on Reports",
+      "type": "performance",
+      "priority": "High",
+      "page_url": "/reports",
+      "tags": [
+        "performance",
+        "web-vitals"
+      ],
+      "description": "Core Web Vitals performance test for Reports"
+    },
+    {
+      "name": "should navigate to Safety page",
+      "type": "navigation",
+      "priority": "High",
+      "page_url": "/safety",
+      "tags": [
+        "navigation",
+        "smoke",
+        "safety"
+      ],
+      "description": "Navigate to Safety page and verify it loads correctly"
+    },
+    {
+      "name": "should pass WCAG 2.2 AA accessibility checks on Safety",
+      "type": "accessibility",
+      "priority": "High",
+      "page_url": "/safety",
+      "tags": [
+        "a11y",
+        "wcag",
+        "compliance"
+      ],
+      "description": "WCAG 2.2 AA compliance test for Safety"
+    },
+    {
+      "name": "should meet Core Web Vitals targets on Safety",
+      "type": "performance",
+      "priority": "High",
+      "page_url": "/safety",
+      "tags": [
+        "performance",
+        "web-vitals"
+      ],
+      "description": "Core Web Vitals performance test for Safety"
+    },
+    {
+      "name": "should display interactive Leaflet map on dashboard",
+      "type": "interaction",
+      "priority": "Medium",
+      "page_url": "/",
+      "tags": [
+        "interaction",
+        "click"
+      ],
+      "description": "Test click interaction on [data-testid='map-container'], .leaflet-container"
+    },
+    {
+      "name": "should complete Vehicle Management workflow",
+      "type": "workflow",
+      "priority": "Critical",
+      "page_url": "/vehicles",
+      "tags": [
+        "workflow",
+        "e2e",
+        "vehicle management"
+      ],
+      "description": "Complete Vehicle Management end-to-end workflow"
+    },
+    {
+      "name": "should track page_view analytics event",
+      "type": "analytics",
+      "priority": "Medium",
+      "page_url": "/",
+      "tags": [
+        "analytics",
+        "telemetry"
+      ],
+      "description": "Verify page_view analytics event is tracked"
+    },
+    {
+      "name": "should handle API timeout gracefully",
+      "type": "error",
+      "priority": "High",
+      "page_url": "/vehicles",
+      "tags": [
+        "error-handling",
+        "resilience"
+      ],
+      "description": "Test error handling for API timeout"
+    }
+  ]
+}

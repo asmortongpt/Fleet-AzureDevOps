@@ -1,0 +1,782 @@
+{
+  "dashboard": {
+    "id": null,
+    "uid": "ios-fleet-mobile",
+    "title": "Fleet Manager - iOS Mobile App Metrics",
+    "description": "Comprehensive monitoring dashboard for iOS mobile application",
+    "tags": ["mobile", "ios", "fleet-management"],
+    "timezone": "browser",
+    "schemaVersion": 38,
+    "version": 1,
+    "refresh": "30s",
+    "time": {
+      "from": "now-1h",
+      "to": "now"
+    },
+    "timepicker": {
+      "refresh_intervals": ["5s", "10s", "30s", "1m", "5m", "15m", "30m", "1h", "2h", "1d"]
+    },
+    "panels": [
+      {
+        "id": 1,
+        "gridPos": { "h": 8, "w": 6, "x": 0, "y": 0 },
+        "type": "stat",
+        "title": "Active Users (Real-time)",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
+        "targets": [
+          {
+            "expr": "count(session_start{app=\"fleet-ios\"} offset 5m) or vector(0)",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short",
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                { "value": 0, "color": "red" },
+                { "value": 1, "color": "yellow" },
+                { "value": 10, "color": "green" }
+              ]
+            }
+          }
+        },
+        "options": {
+          "colorMode": "background",
+          "graphMode": "area",
+          "orientation": "auto",
+          "textMode": "value_and_name"
+        }
+      },
+      {
+        "id": 2,
+        "gridPos": { "h": 8, "w": 6, "x": 6, "y": 0 },
+        "type": "graph",
+        "title": "API Response Times (p50, p95, p99)",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.50, rate(api_request_duration_seconds_bucket{app=\"fleet-ios\"}[5m]))",
+            "legendFormat": "p50",
+            "refId": "A"
+          },
+          {
+            "expr": "histogram_quantile(0.95, rate(api_request_duration_seconds_bucket{app=\"fleet-ios\"}[5m]))",
+            "legendFormat": "p95",
+            "refId": "B"
+          },
+          {
+            "expr": "histogram_quantile(0.99, rate(api_request_duration_seconds_bucket{app=\"fleet-ios\"}[5m]))",
+            "legendFormat": "p99",
+            "refId": "C"
+          }
+        ],
+        "yaxes": [
+          {
+            "format": "ms",
+            "label": "Response Time"
+          },
+          {
+            "format": "short"
+          }
+        ],
+        "lines": true,
+        "linewidth": 2,
+        "fill": 0,
+        "legend": {
+          "show": true,
+          "values": true,
+          "current": true,
+          "avg": true
+        }
+      },
+      {
+        "id": 3,
+        "gridPos": { "h": 8, "w": 6, "x": 12, "y": 0 },
+        "type": "graph",
+        "title": "Error Rates by Endpoint",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
+        "targets": [
+          {
+            "expr": "sum by (endpoint) (rate(api_request_errors_total{app=\"fleet-ios\"}[5m]))",
+            "legendFormat": "{{endpoint}}",
+            "refId": "A"
+          }
+        ],
+        "yaxes": [
+          {
+            "format": "percentunit",
+            "label": "Error Rate"
+          },
+          {
+            "format": "short"
+          }
+        ],
+        "lines": true,
+        "linewidth": 2,
+        "fill": 1,
+        "legend": {
+          "show": true,
+          "values": true,
+          "current": true
+        }
+      },
+      {
+        "id": 4,
+        "gridPos": { "h": 8, "w": 6, "x": 18, "y": 0 },
+        "type": "stat",
+        "title": "Crash-free Rate",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
+        "targets": [
+          {
+            "expr": "100 - (sum(rate(app_crashes_total{app=\"fleet-ios\"}[1h])) / sum(rate(session_start{app=\"fleet-ios\"}[1h])) * 100)",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "percent",
+            "decimals": 3,
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                { "value": 0, "color": "red" },
+                { "value": 95, "color": "yellow" },
+                { "value": 99, "color": "green" }
+              ]
+            }
+          }
+        },
+        "options": {
+          "colorMode": "background",
+          "graphMode": "area",
+          "orientation": "auto",
+          "textMode": "value_and_name"
+        }
+      },
+      {
+        "id": 5,
+        "gridPos": { "h": 8, "w": 8, "x": 0, "y": 8 },
+        "type": "histogram",
+        "title": "App Launch Time Distribution",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
+        "targets": [
+          {
+            "expr": "rate(app_launch_time_seconds_bucket{app=\"fleet-ios\"}[5m])",
+            "legendFormat": "{{le}}",
+            "refId": "A"
+          }
+        ],
+        "options": {
+          "bucketOffset": 0,
+          "legend": {
+            "displayMode": "list",
+            "placement": "bottom"
+          }
+        },
+        "fieldConfig": {
+          "defaults": {
+            "unit": "s"
+          }
+        }
+      },
+      {
+        "id": 6,
+        "gridPos": { "h": 8, "w": 8, "x": 8, "y": 8 },
+        "type": "graph",
+        "title": "Memory Usage Percentiles (p50, p90, p95)",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.50, rate(memory_usage_bytes_bucket{app=\"fleet-ios\"}[5m]))",
+            "legendFormat": "p50",
+            "refId": "A"
+          },
+          {
+            "expr": "histogram_quantile(0.90, rate(memory_usage_bytes_bucket{app=\"fleet-ios\"}[5m]))",
+            "legendFormat": "p90",
+            "refId": "B"
+          },
+          {
+            "expr": "histogram_quantile(0.95, rate(memory_usage_bytes_bucket{app=\"fleet-ios\"}[5m]))",
+            "legendFormat": "p95",
+            "refId": "C"
+          }
+        ],
+        "yaxes": [
+          {
+            "format": "decmbytes",
+            "label": "Memory Usage"
+          },
+          {
+            "format": "short"
+          }
+        ],
+        "lines": true,
+        "linewidth": 2,
+        "fill": 0,
+        "alert": {
+          "name": "High Memory Usage",
+          "conditions": [
+            {
+              "evaluator": {
+                "params": [157286400],
+                "type": "gt"
+              },
+              "operator": {
+                "type": "and"
+              },
+              "query": {
+                "params": ["C", "5m", "now"]
+              },
+              "reducer": {
+                "params": [],
+                "type": "avg"
+              },
+              "type": "query"
+            }
+          ]
+        }
+      },
+      {
+        "id": 7,
+        "gridPos": { "h": 8, "w": 8, "x": 16, "y": 8 },
+        "type": "stat",
+        "title": "Network Request Success Rate",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
+        "targets": [
+          {
+            "expr": "sum(rate(network_request_success_total{app=\"fleet-ios\"}[5m])) / sum(rate(network_request_total{app=\"fleet-ios\"}[5m])) * 100",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "percent",
+            "decimals": 2,
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                { "value": 0, "color": "red" },
+                { "value": 90, "color": "yellow" },
+                { "value": 95, "color": "green" }
+              ]
+            }
+          }
+        },
+        "options": {
+          "colorMode": "background",
+          "graphMode": "area",
+          "orientation": "auto",
+          "textMode": "value_and_name"
+        }
+      },
+      {
+        "id": 8,
+        "gridPos": { "h": 8, "w": 6, "x": 0, "y": 16 },
+        "type": "gauge",
+        "title": "GPS Tracking Accuracy",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
+        "targets": [
+          {
+            "expr": "avg(gps_accuracy_meters{app=\"fleet-ios\"})",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "lengthm",
+            "min": 0,
+            "max": 100,
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                { "value": 0, "color": "green" },
+                { "value": 10, "color": "yellow" },
+                { "value": 30, "color": "red" }
+              ]
+            }
+          }
+        },
+        "options": {
+          "showThresholdLabels": true,
+          "showThresholdMarkers": true
+        }
+      },
+      {
+        "id": 9,
+        "gridPos": { "h": 8, "w": 6, "x": 6, "y": 16 },
+        "type": "stat",
+        "title": "OBD2 Connection Status",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
+        "targets": [
+          {
+            "expr": "sum(obd2_connected{app=\"fleet-ios\"}) / sum(obd2_connection_attempts{app=\"fleet-ios\"}) * 100",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "percent",
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                { "value": 0, "color": "red" },
+                { "value": 70, "color": "yellow" },
+                { "value": 90, "color": "green" }
+              ]
+            },
+            "mappings": [
+              {
+                "type": "special",
+                "options": {
+                  "match": "null",
+                  "result": {
+                    "text": "N/A",
+                    "color": "gray"
+                  }
+                }
+              }
+            ]
+          }
+        },
+        "options": {
+          "colorMode": "background",
+          "graphMode": "none",
+          "orientation": "auto",
+          "textMode": "value_and_name"
+        }
+      },
+      {
+        "id": 10,
+        "gridPos": { "h": 8, "w": 6, "x": 12, "y": 16 },
+        "type": "graph",
+        "title": "Offline Sync Queue Depth",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
+        "targets": [
+          {
+            "expr": "sync_queue_depth{app=\"fleet-ios\"}",
+            "legendFormat": "Queue Depth",
+            "refId": "A"
+          }
+        ],
+        "yaxes": [
+          {
+            "format": "short",
+            "label": "Items in Queue"
+          },
+          {
+            "format": "short"
+          }
+        ],
+        "lines": true,
+        "linewidth": 2,
+        "fill": 1,
+        "alert": {
+          "name": "High Sync Queue",
+          "conditions": [
+            {
+              "evaluator": {
+                "params": [100],
+                "type": "gt"
+              },
+              "operator": {
+                "type": "and"
+              },
+              "query": {
+                "params": ["A", "5m", "now"]
+              },
+              "reducer": {
+                "params": [],
+                "type": "avg"
+              },
+              "type": "query"
+            }
+          ]
+        }
+      },
+      {
+        "id": 11,
+        "gridPos": { "h": 8, "w": 6, "x": 18, "y": 16 },
+        "type": "graph",
+        "title": "Authentication Success/Failure Rate",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
+        "targets": [
+          {
+            "expr": "sum(rate(auth_success_total{app=\"fleet-ios\"}[5m]))",
+            "legendFormat": "Success",
+            "refId": "A"
+          },
+          {
+            "expr": "sum(rate(auth_failure_total{app=\"fleet-ios\"}[5m]))",
+            "legendFormat": "Failure",
+            "refId": "B"
+          }
+        ],
+        "yaxes": [
+          {
+            "format": "ops",
+            "label": "Auth Attempts/sec"
+          },
+          {
+            "format": "short"
+          }
+        ],
+        "lines": true,
+        "linewidth": 2,
+        "fill": 1,
+        "seriesOverrides": [
+          {
+            "alias": "Failure",
+            "color": "#F2495C"
+          },
+          {
+            "alias": "Success",
+            "color": "#73BF69"
+          }
+        ]
+      },
+      {
+        "id": 12,
+        "gridPos": { "h": 8, "w": 8, "x": 0, "y": 24 },
+        "type": "bargauge",
+        "title": "Feature Adoption Rates",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
+        "targets": [
+          {
+            "expr": "sum by (feature) (increase(feature_usage_total{app=\"fleet-ios\"}[24h]))",
+            "legendFormat": "{{feature}}",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short",
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                { "value": 0, "color": "blue" },
+                { "value": 100, "color": "green" },
+                { "value": 1000, "color": "yellow" }
+              ]
+            }
+          }
+        },
+        "options": {
+          "orientation": "horizontal",
+          "displayMode": "gradient",
+          "showUnfilled": true
+        }
+      },
+      {
+        "id": 13,
+        "gridPos": { "h": 8, "w": 8, "x": 8, "y": 24 },
+        "type": "graph",
+        "title": "User Session Duration",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.50, rate(session_duration_seconds_bucket{app=\"fleet-ios\"}[5m]))",
+            "legendFormat": "p50",
+            "refId": "A"
+          },
+          {
+            "expr": "histogram_quantile(0.95, rate(session_duration_seconds_bucket{app=\"fleet-ios\"}[5m]))",
+            "legendFormat": "p95",
+            "refId": "B"
+          },
+          {
+            "expr": "avg(rate(session_duration_seconds_sum{app=\"fleet-ios\"}[5m]) / rate(session_duration_seconds_count{app=\"fleet-ios\"}[5m]))",
+            "legendFormat": "avg",
+            "refId": "C"
+          }
+        ],
+        "yaxes": [
+          {
+            "format": "s",
+            "label": "Session Duration"
+          },
+          {
+            "format": "short"
+          }
+        ],
+        "lines": true,
+        "linewidth": 2,
+        "fill": 0
+      },
+      {
+        "id": 14,
+        "gridPos": { "h": 8, "w": 8, "x": 16, "y": 24 },
+        "type": "gauge",
+        "title": "Battery Usage Impact",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
+        "targets": [
+          {
+            "expr": "avg(battery_drain_rate{app=\"fleet-ios\"})",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "percent",
+            "min": 0,
+            "max": 20,
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                { "value": 0, "color": "green" },
+                { "value": 5, "color": "yellow" },
+                { "value": 10, "color": "orange" },
+                { "value": 15, "color": "red" }
+              ]
+            }
+          }
+        },
+        "options": {
+          "showThresholdLabels": true,
+          "showThresholdMarkers": true
+        }
+      },
+      {
+        "id": 15,
+        "gridPos": { "h": 8, "w": 12, "x": 0, "y": 32 },
+        "type": "piechart",
+        "title": "App Version Distribution",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
+        "targets": [
+          {
+            "expr": "sum by (app_version) (session_start{app=\"fleet-ios\"})",
+            "legendFormat": "{{app_version}}",
+            "refId": "A"
+          }
+        ],
+        "options": {
+          "pieType": "donut",
+          "legend": {
+            "displayMode": "table",
+            "placement": "right",
+            "values": ["value", "percent"]
+          }
+        }
+      },
+      {
+        "id": 16,
+        "gridPos": { "h": 8, "w": 12, "x": 12, "y": 32 },
+        "type": "table",
+        "title": "Top API Endpoints by Request Count",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
+        "targets": [
+          {
+            "expr": "topk(10, sum by (endpoint) (increase(api_request_total{app=\"fleet-ios\"}[1h])))",
+            "format": "table",
+            "instant": true,
+            "refId": "A"
+          }
+        ],
+        "transformations": [
+          {
+            "id": "organize",
+            "options": {
+              "excludeByName": {
+                "Time": true
+              },
+              "indexByName": {},
+              "renameByName": {
+                "endpoint": "Endpoint",
+                "Value": "Requests (1h)"
+              }
+            }
+          }
+        ],
+        "options": {
+          "showHeader": true,
+          "sortBy": [
+            {
+              "displayName": "Requests (1h)",
+              "desc": true
+            }
+          ]
+        }
+      },
+      {
+        "id": 17,
+        "gridPos": { "h": 8, "w": 12, "x": 0, "y": 40 },
+        "type": "graph",
+        "title": "Screen Render Time by View",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
+        "targets": [
+          {
+            "expr": "avg by (screen_name) (screen_render_time_seconds{app=\"fleet-ios\"})",
+            "legendFormat": "{{screen_name}}",
+            "refId": "A"
+          }
+        ],
+        "yaxes": [
+          {
+            "format": "ms",
+            "label": "Render Time"
+          },
+          {
+            "format": "short"
+          }
+        ],
+        "lines": true,
+        "linewidth": 1,
+        "fill": 0,
+        "legend": {
+          "show": true,
+          "values": true,
+          "current": true,
+          "avg": true
+        }
+      },
+      {
+        "id": 18,
+        "gridPos": { "h": 8, "w": 12, "x": 12, "y": 40 },
+        "type": "graph",
+        "title": "Database Query Performance",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, rate(database_query_duration_seconds_bucket{app=\"fleet-ios\"}[5m]))",
+            "legendFormat": "p95",
+            "refId": "A"
+          },
+          {
+            "expr": "histogram_quantile(0.99, rate(database_query_duration_seconds_bucket{app=\"fleet-ios\"}[5m]))",
+            "legendFormat": "p99",
+            "refId": "B"
+          }
+        ],
+        "yaxes": [
+          {
+            "format": "ms",
+            "label": "Query Duration"
+          },
+          {
+            "format": "short"
+          }
+        ],
+        "lines": true,
+        "linewidth": 2,
+        "fill": 0
+      }
+    ],
+    "templating": {
+      "list": [
+        {
+          "name": "environment",
+          "type": "custom",
+          "options": [
+            { "text": "Production", "value": "production" },
+            { "text": "Staging", "value": "staging" },
+            { "text": "Development", "value": "development" }
+          ],
+          "current": {
+            "text": "Production",
+            "value": "production"
+          }
+        },
+        {
+          "name": "version",
+          "type": "query",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "query": "label_values(session_start{app=\"fleet-ios\"}, app_version)",
+          "refresh": 1,
+          "multi": true,
+          "includeAll": true
+        }
+      ]
+    },
+    "annotations": {
+      "list": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "enable": true,
+          "expr": "ALERTS{app=\"fleet-ios\",alertstate=\"firing\"}",
+          "iconColor": "red",
+          "name": "Alerts",
+          "step": "60s",
+          "tagKeys": "alertname,severity",
+          "textFormat": "",
+          "titleFormat": "Alert: {{alertname}}"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "enable": true,
+          "expr": "app_deployment{app=\"fleet-ios\"}",
+          "iconColor": "blue",
+          "name": "Deployments",
+          "step": "60s",
+          "tagKeys": "version",
+          "titleFormat": "Deployment: {{version}}"
+        }
+      ]
+    }
+  },
+  "overwrite": true
+}
