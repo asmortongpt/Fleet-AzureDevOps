@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: fleet-management-staging
+  labels:
+    environment: staging
+    project: fleet-management
+    cost-center: engineering

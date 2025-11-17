@@ -1,0 +1,53 @@
+SCHEDULING NOTIFICATIONS SYSTEM - FILE LOCATIONS
+================================================
+
+CORE SERVICE
+------------
+✓ /home/user/Fleet/api/src/services/scheduling-notification.service.ts
+  Main notification service with multi-channel delivery
+
+BACKGROUND JOB
+--------------
+✓ /home/user/Fleet/api/src/jobs/scheduling-reminders.job.ts
+  Cron-based reminder job (runs every 15 minutes)
+
+API ROUTES
+----------
+✓ /home/user/Fleet/api/src/routes/scheduling-notifications.routes.ts
+  Notification preferences and testing endpoints
+
+✓ /home/user/Fleet/api/src/routes/scheduling.routes.ts (UPDATED)
+  Integrated notification calls in approve/reject routes
+
+EMAIL TEMPLATES
+---------------
+✓ /home/user/Fleet/api/src/templates/scheduling/reservation_request.html
+✓ /home/user/Fleet/api/src/templates/scheduling/reservation_approved.html
+✓ /home/user/Fleet/api/src/templates/scheduling/reservation_rejected.html
+✓ /home/user/Fleet/api/src/templates/scheduling/reservation_reminder.html
+✓ /home/user/Fleet/api/src/templates/scheduling/maintenance_reminder.html
+✓ /home/user/Fleet/api/src/templates/scheduling/conflict_detected.html
+
+DATABASE MIGRATION
+------------------
+✓ /home/user/Fleet/api/src/migrations/030_scheduling_notifications.sql
+  Complete schema with 6 tables, views, indexes, and seed data
+
+DOCUMENTATION
+-------------
+✓ /home/user/Fleet/api/src/services/SCHEDULING_NOTIFICATIONS_README.md
+  Comprehensive 1000+ line technical documentation
+
+✓ /home/user/Fleet/SCHEDULING_NOTIFICATIONS_SUMMARY.md
+  Implementation summary and deployment guide
+
+✓ /home/user/Fleet/SCHEDULING_NOTIFICATIONS_FILES.txt
+  This file - quick reference
+
+TOTAL FILES CREATED: 13
+- 1 Service
+- 1 Background Job
+- 2 API Routes (1 new, 1 updated)
+- 6 Email Templates
+- 1 Database Migration
+- 3 Documentation Files

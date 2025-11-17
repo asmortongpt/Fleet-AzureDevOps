@@ -1,0 +1,236 @@
+# .gitignore.deployment - iOS Deployment Artifacts
+# Append this to your existing .gitignore file
+
+# ============================================================================
+# SECRETS AND CREDENTIALS
+# ============================================================================
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# API Keys
+*.p8
+*.p12
+AuthKey_*.p8
+
+# Certificates and Provisioning Profiles
+*.cer
+*.certSigningRequest
+*.mobileprovision
+
+# Keychain files
+*.keychain
+*.keychain-db
+
+# ============================================================================
+# FASTLANE
+# ============================================================================
+
+# Fastlane reports
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/README.md
+
+# Fastlane screenshots
+fastlane/screenshots
+fastlane/screenshots/**/*.png
+fastlane/screenshots/**/*.jpg
+
+# Fastlane test output
+fastlane/test_output/
+fastlane/test_output/**/*
+
+# Fastlane metadata (keep templates, ignore generated)
+fastlane/metadata/**/screenshots/
+fastlane/metadata/**/*.itmsp
+
+# Deliver temporary files
+fastlane/*.itmsp
+
+# ============================================================================
+# BUILD ARTIFACTS
+# ============================================================================
+
+# Build directories
+builds/
+builds/**/*
+build/
+Build/
+
+# IPA files
+*.ipa
+
+# dSYM files
+*.dSYM
+*.dSYM.zip
+
+# Archives
+*.xcarchive
+
+# App Store packages
+*.pkg
+
+# ============================================================================
+# TEST ARTIFACTS
+# ============================================================================
+
+# Test output
+test_output/
+test_output/**/*
+TestResults/
+TestResults.xcresult
+
+# Coverage reports
+coverage/
+coverage.xml
+*.coverage
+*.lcov
+slather/
+
+# JUnit XML
+junit.xml
+junit*.xml
+
+# Code coverage
+*.gcda
+*.gcno
+*.gcov
+
+# ============================================================================
+# XCODE
+# ============================================================================
+
+# Derived Data
+DerivedData/
+DerivedData/**/*
+
+# User-specific files
+*.xcuserstate
+*.xcuserdatad
+xcuserdata/
+
+# Xcode workspaces (if using CocoaPods)
+# Uncomment if not using CocoaPods
+# *.xcworkspace
+
+# Playgrounds
+timeline.xctimeline
+playground.xcworkspace
+
+# ============================================================================
+# COCOAPODS
+# ============================================================================
+
+# Pods directory
+Pods/
+Podfile.lock
+
+# CocoaPods generated files
+*.xcworkspace
+!default.xcworkspace
+
+# ============================================================================
+# DEPENDENCIES
+# ============================================================================
+
+# Carthage
+Carthage/Build/
+Carthage/Checkouts/
+
+# Swift Package Manager
+.build/
+.swiftpm/
+*.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/
+
+# ============================================================================
+# RUBY DEPENDENCIES
+# ============================================================================
+
+# Bundler
+vendor/bundle
+.bundle/
+
+# Gemfile.lock (include in projects with specific versions)
+# Gemfile.lock
+
+# ============================================================================
+# SCREENSHOTS
+# ============================================================================
+
+screenshots/
+screenshots/**/*.png
+screenshots/**/*.jpg
+screenshots_backup/
+
+# Frame screenshots
+screenshots/**/screenshots.html
+
+# ============================================================================
+# LOGS
+# ============================================================================
+
+# Fastlane logs
+fastlane/fastlane.log
+*.log
+
+# Build logs
+build.log
+test.log
+deploy.log
+
+# ============================================================================
+# TEMPORARY FILES
+# ============================================================================
+
+# Mac OS X
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Thumbnails
+._*
+
+# Files that might appear on external disk
+.Spotlight-V100
+.Trashes
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+
+# ============================================================================
+# CI/CD
+# ============================================================================
+
+# GitHub Actions local testing
+act/
+
+# CircleCI local builds
+.circleci/local/
+
+# ============================================================================
+# MISC
+# ============================================================================
+
+# App Store metadata backups
+metadata_backup/
+
+# Old deployment artifacts
+old_builds/
+archive/
+
+# Version bumps backup
+version_bump_backup/
+
+# Signing certificates backup (should be in Match repo)
+certs_backup/
+
+# Notes and TODOs
+NOTES.md
+TODO.md
+.notes/

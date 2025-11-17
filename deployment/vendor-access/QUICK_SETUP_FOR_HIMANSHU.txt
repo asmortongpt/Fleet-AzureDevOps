@@ -1,0 +1,104 @@
+╔═══════════════════════════════════════════════════════════════════════╗
+║         QUICK SETUP: Grant Access to Himanshu Badola                 ║
+╚═══════════════════════════════════════════════════════════════════════╝
+
+Email: Himanshu.badola.proff@gmail.com
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+ STEP 1: Invite to Azure DevOps (2 minutes)
+
+   Option A - Web Interface (EASIEST):
+   
+   1. Open: https://dev.azure.com/CapitalTechAlliance/_settings/users
+   
+   2. Click "Add users"
+   
+   3. Fill in:
+      Email: Himanshu.badola.proff@gmail.com
+      Access: Basic
+      Projects: FleetManagement
+      Groups: Contributors
+   
+   4. Click "Add" → Himanshu gets an email invitation
+   
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+ STEP 2: Email Himanshu the Access Package (1 minute)
+
+   File to send: himanshu-access-package.tar.gz (23KB)
+   Location: /Users/andrewmorton/Documents/GitHub/Fleet/deployment/vendor-access/
+   
+   Email to: Himanshu.badola.proff@gmail.com
+   Subject: Fleet Management System - Developer Access
+   
+   Message:
+   ────────────────────────────────────────────────────────────────────
+   Hi Himanshu,
+   
+   Welcome! I've set up your access.
+   
+   Azure DevOps:
+   - Check your email for an invitation from Microsoft Azure DevOps
+   - Accept it and sign in with your Gmail
+   - Repository: https://dev.azure.com/CapitalTechAlliance/FleetManagement
+   
+   Kubernetes Access:
+   - Attached: himanshu-access-package.tar.gz
+   - Extract and read START_HERE.md for setup instructions
+   
+   Your Access:
+   ✅ Development: Full access (deploy, debug, test)
+   ✅ Staging: Read-only (view logs, check deployments)
+   ✅ Azure DevOps: Code repository (clone, commit, PR)
+   ❌ Production: No access (security policy)
+   
+   Questions? Reply to this email.
+   
+   Best,
+   [Your Name]
+   ────────────────────────────────────────────────────────────────────
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+ STEP 3: Verify (Optional - after Himanshu sets up)
+
+   Ask Himanshu to run these commands and send you the output:
+   
+   # Test Kubernetes access
+   export KUBECONFIG=/path/to/vendor-kubeconfig.yaml
+   kubectl get pods -n fleet-dev
+   
+   # Test Azure DevOps access  
+   git clone https://dev.azure.com/CapitalTechAlliance/FleetManagement/_git/Fleet
+   
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+ THAT'S IT!
+
+ What Himanshu Gets:
+ ✅ Full development environment access
+ ✅ Code repository access (Azure DevOps)
+ ✅ Complete documentation (30,000+ words)
+ ✅ Deployment scripts
+ ✅ Security guidelines
+ ✅ Troubleshooting guides
+
+ What You Maintain Control Of:
+ ✅ Production environment (Himanshu has zero access)
+ ✅ Secrets and credentials (read-only for Himanshu in dev)
+ ✅ Easy revocation (delete ServiceAccount if needed)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+ Need to Revoke Access Later?
+
+ Azure DevOps:
+   https://dev.azure.com/CapitalTechAlliance/_settings/users
+   → Find Himanshu → Remove
+   
+ Kubernetes:
+   kubectl delete serviceaccount vendor-developer -n fleet-dev
+   kubectl delete serviceaccount vendor-developer -n fleet-staging
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      margin: 0;
+      padding: 0;
+      background-color: #f5f5f5;
+    }
+    .container {
+      max-width: 600px;
+      margin: 20px auto;
+      background: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .header {
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+      color: white;
+      padding: 30px;
+      text-align: center;
+    }
+    .header h1 {
+      margin: 0;
+      font-size: 24px;
+      font-weight: 600;
+    }
+    .header .icon {
+      font-size: 48px;
+      margin-bottom: 10px;
+    }
+    .content {
+      padding: 30px;
+    }
+    .info-box {
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      padding: 20px;
+      margin: 20px 0;
+      border-radius: 6px;
+    }
+    .info-box .info-item {
+      display: flex;
+      margin: 10px 0;
+      padding: 8px 0;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    .info-box .info-item:last-child {
+      border-bottom: none;
+    }
+    .info-box .label {
+      font-weight: 600;
+      color: #6b7280;
+      min-width: 140px;
+    }
+    .info-box .value {
+      color: #111827;
+      flex: 1;
+    }
+    .reason-box {
+      background: #fee2e2;
+      border-left: 4px solid #ef4444;
+      padding: 15px 20px;
+      margin: 20px 0;
+      border-radius: 4px;
+      color: #991b1b;
+    }
+    .reason-box strong {
+      display: block;
+      margin-bottom: 5px;
+    }
+    .button {
+      display: inline-block;
+      padding: 14px 28px;
+      background: #2563eb;
+      color: white !important;
+      text-decoration: none;
+      border-radius: 6px;
+      margin: 10px 10px 10px 0;
+      font-weight: 500;
+      transition: background 0.3s;
+    }
+    .button:hover {
+      background: #1e40af;
+    }
+    .suggestion-box {
+      background: #dbeafe;
+      border-left: 4px solid #3b82f6;
+      padding: 15px 20px;
+      margin: 20px 0;
+      border-radius: 4px;
+      color: #1e3a8a;
+    }
+    .footer {
+      background: #f9fafb;
+      padding: 20px 30px;
+      text-align: center;
+      color: #6b7280;
+      font-size: 13px;
+    }
+    .footer a {
+      color: #2563eb;
+      text-decoration: none;
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 12px;
+      background: #fee2e2;
+      color: #991b1b;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 500;
+      margin-left: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="icon">❌</div>
+      <h1>Reservation Declined</h1>
+    </div>
+
+    <div class="content">
+      <p>Unfortunately, your vehicle reservation request has been declined.</p>
+
+      <div class="info-box">
+        <div class="info-item">
+          <div class="label">Vehicle:</div>
+          <div class="value">
+            <strong>{{make}} {{model}}</strong>
+            <span class="badge">{{license_plate}}</span>
+          </div>
+        </div>
+        <div class="info-item">
+          <div class="label">Requested Period:</div>
+          <div class="value">{{start_time}} - {{end_time}}</div>
+        </div>
+        <div class="info-item">
+          <div class="label">Purpose:</div>
+          <div class="value">{{purpose}}</div>
+        </div>
+      </div>
+
+      <div class="reason-box">
+        <strong>Reason for Decline:</strong>
+        {{rejection_reason}}
+      </div>
+
+      <div class="suggestion-box">
+        <strong>💡 What to do next:</strong>
+        <ul style="margin: 10px 0; padding-left: 20px;">
+          <li>Check available vehicles for alternative dates</li>
+          <li>Contact your fleet manager for assistance</li>
+          <li>Submit a new request with updated details</li>
+        </ul>
+      </div>
+
+      <p style="margin-top: 30px;">
+        <a href="{{available_vehicles_url}}" class="button">View Available Vehicles</a>
+      </p>
+
+      <p style="color: #6b7280; font-size: 14px; margin-top: 30px;">
+        If you have questions about this decision, please contact your fleet manager or supervisor.
+      </p>
+    </div>
+
+    <div class="footer">
+      <p>This is an automated notification from Fleet Management System.</p>
+      <p>
+        <a href="{{settings_url}}">Manage notification preferences</a> |
+        <a href="{{help_url}}">Help & Support</a>
+      </p>
+    </div>
+  </div>
+</body>
+</html>

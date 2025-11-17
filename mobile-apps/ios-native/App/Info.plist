@@ -1,0 +1,279 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!-- App Display Information -->
+	<key>CFBundleDisplayName</key>
+	<string>DCF Fleet Management</string>
+	<key>CFBundleName</key>
+	<string>DCF Fleet Management</string>
+	<key>CFBundleIdentifier</key>
+	<string>com.capitaltechalliance.fleetmanagement</string>
+
+	<!-- Version Information -->
+	<key>CFBundleVersion</key>
+	<string>2</string>
+	<key>CFBundleShortVersionString</key>
+	<string>1.0</string>
+
+	<!-- Bundle Type and Package Type -->
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleExecutable</key>
+	<string>$(EXECUTABLE_NAME)</string>
+
+	<!-- Development Region -->
+	<key>CFBundleDevelopmentRegion</key>
+	<string>en</string>
+
+	<!-- Supported Interface Orientations -->
+	<key>UISupportedInterfaceOrientations</key>
+	<array>
+		<string>UIInterfaceOrientationPortrait</string>
+		<string>UIInterfaceOrientationLandscapeLeft</string>
+		<string>UIInterfaceOrientationLandscapeRight</string>
+	</array>
+	<key>UISupportedInterfaceOrientations~ipad</key>
+	<array>
+		<string>UIInterfaceOrientationPortrait</string>
+		<string>UIInterfaceOrientationPortraitUpsideDown</string>
+		<string>UIInterfaceOrientationLandscapeLeft</string>
+		<string>UIInterfaceOrientationLandscapeRight</string>
+	</array>
+
+	<!-- Minimum iOS Version -->
+	<key>MinimumOSVersion</key>
+	<string>15.0</string>
+
+	<!-- Required Device Capabilities -->
+	<key>UIRequiredDeviceCapabilities</key>
+	<array>
+		<string>armv7</string>
+		<string>arm64</string>
+	</array>
+
+	<!-- Location Permissions - Always and When In Use -->
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>DCF Fleet Management requires access to your location to track vehicle locations and optimize fleet routes in real-time.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>DCF Fleet Management needs your location to track your current vehicle position and provide accurate fleet management services.</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>DCF Fleet Management requires background location access to continuously track vehicle positions for fleet management and compliance purposes.</string>
+
+	<!-- Camera Permission -->
+	<key>NSCameraUsageDescription</key>
+	<string>DCF Fleet Management requires camera access to capture vehicle photos, damage documentation, and inspection images.</string>
+
+	<!-- Photo Library Permission -->
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>DCF Fleet Management needs access to your photo library to upload vehicle photos, maintenance records, and documentation images.</string>
+	<key>NSPhotoLibraryAddOnlyUsageDescription</key>
+	<string>DCF Fleet Management requires permission to save vehicle photos and inspection images to your photo library.</string>
+
+	<!-- Bluetooth Permission -->
+	<key>NSBluetoothPeripheralUsageDescription</key>
+	<string>DCF Fleet Management requires Bluetooth access to connect to OBD2 diagnostic devices for vehicle monitoring and performance data collection.</string>
+	<key>NSBluetoothAlwaysUsageDescription</key>
+	<string>DCF Fleet Management uses Bluetooth to connect with OBD2 devices for real-time vehicle diagnostics and telemetry data.</string>
+
+	<!-- Motion & Fitness Permission -->
+	<key>NSMotionUsageDescription</key>
+	<string>DCF Fleet Management uses motion and fitness data to track vehicle movement patterns and provide improved fleet tracking analytics.</string>
+
+	<!-- Background Execution Modes -->
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>location</string>
+		<string>fetch</string>
+		<string>remote-notification</string>
+	</array>
+
+	<!-- Push Notification Configuration -->
+	<key>aps-environment</key>
+	<string>production</string>
+
+	<!-- URL Schemes -->
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>com.capitaltechalliance.fleetmanagement</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>fleetmgmt</string>
+				<string>dcffleet</string>
+			</array>
+		</dict>
+	</array>
+
+	<!-- Supported File Types -->
+	<key>CFBundleDocumentTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeName</key>
+			<string>Fleet Data</string>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>com.capitaltechalliance.fleetdata</string>
+			</array>
+		</dict>
+		<dict>
+			<key>CFBundleTypeName</key>
+			<string>Image</string>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>public.image</string>
+				<string>public.jpeg</string>
+				<string>public.png</string>
+			</array>
+		</dict>
+		<dict>
+			<key>CFBundleTypeName</key>
+			<string>PDF Document</string>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>com.adobe.pdf</string>
+			</array>
+		</dict>
+	</array>
+
+	<!-- Networking Configuration -->
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsArbitraryLoads</key>
+		<false/>
+		<key>NSExceptionDomains</key>
+		<dict>
+			<key>localhost</key>
+			<dict>
+				<key>NSIncludesSubdomains</key>
+				<true/>
+				<key>NSTemporaryExceptionAllowsInsecureHTTPLoads</key>
+				<true/>
+				<key>NSTemporaryExceptionMinimumTLSVersion</key>
+				<string>TLSv1.2</string>
+			</dict>
+		</dict>
+	</dict>
+
+	<!-- Health and Privacy Compliance -->
+	<key>NSUserTrackingUsageDescription</key>
+	<string>DCF Fleet Management respects your privacy. We collect anonymous fleet management data only to improve our services and comply with regulatory requirements.</string>
+
+	<!-- Health Records Access (if applicable) -->
+	<key>NSHealthShareUsageDescription</key>
+	<string>DCF Fleet Management may access health data for driver wellness and safety monitoring programs.</string>
+	<key>NSHealthUpdateUsageDescription</key>
+	<string>DCF Fleet Management may record health data related to driver wellness and safety initiatives.</string>
+
+	<!-- Contacts Permission (if needed for driver management) -->
+	<key>NSContactsUsageDescription</key>
+	<string>DCF Fleet Management requires access to contacts for emergency contact information and driver communication.</string>
+
+	<!-- Calendar Permission (for scheduling) -->
+	<key>NSCalendarsUsageDescription</key>
+	<string>DCF Fleet Management can access your calendar to schedule maintenance appointments and fleet operations.</string>
+
+	<!-- Microphone Permission (for voice features) -->
+	<key>NSMicrophoneUsageDescription</key>
+	<string>DCF Fleet Management uses your microphone for voice calls and in-vehicle communication features.</string>
+
+	<!-- Network Extension (if applicable for VPN) -->
+	<key>NSLocalNetworkUsageDescription</key>
+	<string>DCF Fleet Management requires access to your local network to communicate with vehicle diagnostic devices.</string>
+	<key>NSBonjourServices</key>
+	<array>
+		<string>_fleetmgmt._tcp</string>
+		<string>_http._tcp</string>
+	</array>
+
+	<!-- App Groups (for shared data between app and extensions) -->
+	<key>com.apple.security.application-groups</key>
+	<array>
+		<string>group.com.capitaltechalliance.fleetmanagement</string>
+	</array>
+
+	<!-- Keychain Sharing -->
+	<key>keychain-access-groups</key>
+	<array>
+		<string>$(AppIdentifierPrefix)com.capitaltechalliance.fleetmanagement</string>
+	</array>
+
+	<!-- HTTP Headers and Security -->
+	<key>NSAllowsLocalNetworking</key>
+	<true/>
+
+	<!-- Status Bar Configuration -->
+	<key>UIViewControllerBasedStatusBarAppearance</key>
+	<true/>
+	<key>UIStatusBarStyle</key>
+	<string>UIStatusBarStyleDarkContent</string>
+
+	<!-- Keyboard Configuration -->
+	<key>UIKeyboardAppearance</key>
+	<string>Light</string>
+
+	<!-- Font Features -->
+	<key>UIFontTextStyleHeadline</key>
+	<string>Headline</string>
+
+	<!-- Allow HTTP Localhost -->
+	<key>NSLocalNetworkUsageDescription</key>
+	<string>DCF Fleet Management requires local network access for device discovery and synchronization.</string>
+
+	<!-- Multitasking Support -->
+	<key>UIRequiresFullScreen</key>
+	<false/>
+	<key>UISupportsDocumentBrowser</key>
+	<false/>
+
+	<!-- Handoff Support -->
+	<key>NSUserActivityTypes</key>
+	<array>
+		<string>com.capitaltechalliance.fleetmanagement.tracking</string>
+		<string>com.capitaltechalliance.fleetmanagement.report</string>
+	</array>
+
+	<!-- Build Information -->
+	<key>BuildMachineOSBuild</key>
+	<string>23A344</string>
+	<key>DTPlatformBuild</key>
+	<string>23A334</string>
+	<key>DTPlatformName</key>
+	<string>iphoneos</string>
+	<key>DTPlatformVersion</key>
+	<string>17.0</string>
+	<key>DTSDKBuild</key>
+	<string>23A334</string>
+	<key>DTSDKName</key>
+	<string>iphoneos17.0</string>
+	<key>DTXcode</key>
+	<string>1500</string>
+	<key>DTXcodeVersion</key>
+	<string>15.0</string>
+
+	<!-- Additional Configuration -->
+	<key>LSApplicationCategoryType</key>
+	<string>public.app-category.business</string>
+	<key>LSSupportsOpeningDocumentsInPlace</key>
+	<true/>
+	<key>LSSupportsOpeningDocumentsInPlace</key>
+	<true/>
+	<key>UILaunchScreen</key>
+	<dict>
+		<key>UIColorName</key>
+		<string></string>
+		<key>UIImageName</key>
+		<string></string>
+	</dict>
+
+</dict>
+</plist>

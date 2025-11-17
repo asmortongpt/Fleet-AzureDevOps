@@ -1,0 +1,242 @@
+import tailwindcss from "@tailwindcss/vite";
+import react from "@vitejs/plugin-react-swc";
+import { defineConfig, PluginOption } from "vite";
+import { visualizer } from "rollup-plugin-visualizer";
+import { resolve } from 'path'
+
+const projectRoot = process.env.PROJECT_ROOT || import.meta.dirname
+
+// https://vite.dev/config/
+export default defineConfig({
+  plugins: [
+    react(),
+    tailwindcss(),
+    // Bundle analyzer - generates stats.html after build
+    visualizer({
+      filename: './dist/stats.html',
+      open: false,
+      gzipSize: true,
+      brotliSize: true,
+      template: 'treemap', // 'sunburst' | 'treemap' | 'network'
+    }) as PluginOption,
+  ],
+  resolve: {
+    alias: {
+      '@': resolve(projectRoot, 'src')
+    }
+  },
+  server: {
+    proxy: {
+      '/api': {
+        target: 'http://localhost:3000',
+        changeOrigin: true,
+        secure: false
+      }
+    }
+  },
+  build: {
+    // ========================================================================
+    // CODE SPLITTING & CHUNK OPTIMIZATION
+    // ========================================================================
+
+    // Target modern browsers for smaller bundles
+    target: 'es2020',
+
+    // Increase chunk size warning limit (500kb default is too small for map apps)
+    chunkSizeWarningLimit: 1000,
+
+    // Minification settings - use esbuild instead of terser to avoid circular dependency issues
+    minify: 'esbuild',
+
+    // Source maps - disable for production, enable for staging
+    sourcemap: process.env.NODE_ENV === 'production' ? false : true,
+
+    // CSS code splitting
+    cssCodeSplit: true,
+
+    // Rollup options for advanced chunking
+    rollupOptions: {
+      output: {
+        // ===================================================================
+        // MANUAL CHUNK STRATEGY
+        // Separates large dependencies into their own chunks for better caching
+        // ===================================================================
+        manualChunks: (id) => {
+          // Core React libraries - changes rarely, cache aggressively
+          if (id.includes('node_modules/react') ||
+              id.includes('node_modules/react-dom') ||
+              id.includes('node_modules/react-router-dom') ||
+              id.includes('node_modules/scheduler')) {
+            return 'react-vendor';
+          }
+
+          // Map libraries - large, load on demand
+          if (id.includes('node_modules/leaflet')) {
+            return 'map-leaflet';
+          }
+          if (id.includes('node_modules/mapbox-gl')) {
+            return 'map-mapbox';
+          }
+          if (id.includes('node_modules/@react-google-maps') ||
+              id.includes('node_modules/google-maps')) {
+            return 'map-google';
+          }
+          if (id.includes('node_modules/azure-maps')) {
+            return 'map-azure';
+          }
+
+          // 3D libraries - very large, load only when needed
+          if (id.includes('node_modules/three')) {
+            return 'three-core';
+          }
+          if (id.includes('node_modules/@react-three')) {
+            return 'three-react';
+          }
+          if (id.includes('node_modules/postprocessing')) {
+            return 'three-postprocessing';
+          }
+
+          // UI component libraries
+          if (id.includes('node_modules/@radix-ui')) {
+            return 'ui-radix';
+          }
+          if (id.includes('node_modules/@phosphor-icons') ||
+              id.includes('node_modules/@heroicons') ||
+              id.includes('node_modules/lucide-react')) {
+            return 'ui-icons';
+          }
+
+          // Data visualization - separate recharts from d3 for better isolation
+          if (id.includes('node_modules/recharts')) {
+            return 'charts-recharts';
+          }
+          if (id.includes('node_modules/d3')) {
+            return 'charts-d3';
+          }
+
+          // Form libraries
+          if (id.includes('node_modules/react-hook-form') ||
+              id.includes('node_modules/@hookform') ||
+              id.includes('node_modules/zod')) {
+            return 'forms';
+          }
+
+          // Large utility libraries
+          if (id.includes('node_modules/date-fns')) {
+            return 'utils-date';
+          }
+          if (id.includes('node_modules/axios')) {
+            return 'utils-http';
+          }
+          if (id.includes('node_modules/lodash')) {
+            return 'utils-lodash';
+          }
+
+          // Animation libraries
+          if (id.includes('node_modules/framer-motion')) {
+            return 'animation';
+          }
+
+          // All other node_modules
+          if (id.includes('node_modules')) {
+            return 'vendor';
+          }
+        },
+
+        // Chunk file naming with content hash for cache busting
+        chunkFileNames: (chunkInfo) => {
+          // Use chunk name if available, otherwise use hash
+          const name = chunkInfo.name || 'chunk';
+          return `assets/js/${name}-[hash].js`;
+        },
+
+        // Entry file naming
+        entryFileNames: 'assets/js/[name]-[hash].js',
+
+        // Asset file naming (images, fonts, etc.)
+        assetFileNames: (assetInfo) => {
+          const info = assetInfo.name?.split('.') || [];
+          const ext = info[info.length - 1];
+
+          // Organize by file type
+          if (/png|jpe?g|svg|gif|tiff|bmp|ico/i.test(ext || '')) {
+            return `assets/images/[name]-[hash][extname]`;
+          }
+          if (/woff2?|ttf|otf|eot/i.test(ext || '')) {
+            return `assets/fonts/[name]-[hash][extname]`;
+          }
+          if (/css/i.test(ext || '')) {
+            return `assets/css/[name]-[hash][extname]`;
+          }
+
+          return `assets/[name]-[hash][extname]`;
+        },
+      },
+
+      // External dependencies (CDN - optional, commented out by default)
+      // Uncomment to load from CDN instead of bundling
+      // external: ['react', 'react-dom'],
+    },
+
+    // ========================================================================
+    // OPTIMIZATION SETTINGS
+    // ========================================================================
+
+    // Preload assets for better performance
+    modulePreload: {
+      polyfill: true,
+    },
+
+    // Report compressed size (slower builds, useful for analysis)
+    reportCompressedSize: true,
+
+    // Emit manifest for advanced caching strategies
+    manifest: true,
+
+    // Asset inlining threshold (4kb)
+    assetsInlineLimit: 4096,
+  },
+
+  // ========================================================================
+  // OPTIMIZATION - DEP PRE-BUNDLING
+  // ========================================================================
+  optimizeDeps: {
+    // Pre-bundle large dependencies for faster dev server startup
+    include: [
+      'react',
+      'react-dom',
+      'react-router-dom',
+      '@radix-ui/react-accordion',
+      '@radix-ui/react-dialog',
+      '@radix-ui/react-dropdown-menu',
+      '@radix-ui/react-select',
+      '@radix-ui/react-tabs',
+      'date-fns',
+      'axios',
+      'recharts',
+      '@phosphor-icons/react',
+    ],
+
+    // Exclude dependencies that should be loaded dynamically
+    exclude: [
+      'leaflet',
+      'mapbox-gl',
+      '@react-google-maps/api',
+      'azure-maps-control',
+      'three',
+      '@react-three/fiber',
+      '@react-three/drei',
+      '@react-three/postprocessing',
+    ],
+  },
+
+  // ========================================================================
+  // PERFORMANCE SETTINGS
+  // ========================================================================
+
+  // Increase the maximum file size for better performance with large apps
+  esbuild: {
+    logOverride: { 'this-is-undefined-in-esm': 'silent' },
+    legalComments: 'none',
+  },
+});

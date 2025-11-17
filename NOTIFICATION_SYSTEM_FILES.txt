@@ -1,0 +1,257 @@
+=================================================================
+FLEET MOBILE APP - NOTIFICATION SYSTEM IMPLEMENTATION
+Complete Push Notification and SMS Integration
+=================================================================
+
+📱 MOBILE APP FILES (React Native)
+=================================================================
+
+1. Push Notification Service
+   /home/user/Fleet/mobile/src/services/PushNotificationService.ts
+   - FCM initialization and configuration
+   - Permission handling (iOS & Android)
+   - Token registration with backend
+   - Foreground/background message handlers
+   - Notification action handlers
+   - Badge count management
+   - Deep linking integration
+
+2. Notification Handler Utility
+   /home/user/Fleet/mobile/src/utils/NotificationHandler.ts
+   - Notification payload parsing
+   - Screen routing logic
+   - Action button handlers (acknowledge, accept, decline, complete, snooze)
+   - Notification grouping (Android)
+   - Sound and vibration patterns
+   - LED color configuration
+
+3. Local Notifications Service
+   /home/user/Fleet/mobile/src/services/LocalNotifications.ts
+   - Schedule one-time notifications
+   - Recurring notifications (daily, weekly)
+   - Maintenance reminders
+   - Inspection reminders
+   - Shift reminders
+   - Badge count management
+   - Notification cancellation
+
+🖥️ BACKEND API FILES (Node.js/Express)
+=================================================================
+
+4. SMS Service
+   /home/user/Fleet/api/src/services/sms.service.ts
+   - Twilio integration
+   - Send SMS messages
+   - Send MMS with photos
+   - Bulk SMS with rate limiting (1 msg/sec)
+   - Template-based SMS
+   - Webhook handler for delivery status
+   - SMS history and statistics
+
+5. Push Notification Service (Already Exists - Enhanced)
+   /home/user/Fleet/api/src/services/push-notification.service.ts
+   - FCM and APNS integration
+   - Device token registration
+   - Send push notifications
+   - User segmentation
+   - Schedule notifications
+   - Template-based notifications
+   - Delivery tracking
+
+6. Mobile Notifications Routes
+   /home/user/Fleet/api/src/routes/mobile-notifications.routes.ts
+   - POST   /api/mobile/notifications/register-device
+   - DELETE /api/mobile/notifications/device/:deviceId
+   - POST   /api/mobile/notifications/send
+   - POST   /api/mobile/notifications/send-to-user
+   - GET    /api/mobile/notifications/preferences
+   - PUT    /api/mobile/notifications/preferences
+   - PUT    /api/mobile/notifications/:id/opened
+   - PUT    /api/mobile/notifications/:id/clicked
+   - POST   /api/mobile/notifications/sms/send
+   - POST   /api/mobile/notifications/sms/send-bulk
+   - POST   /api/mobile/notifications/sms/send-from-template
+   - GET    /api/mobile/notifications/sms/history
+   - GET    /api/mobile/notifications/sms/templates
+   - POST   /api/mobile/notifications/sms/templates
+   - GET    /api/mobile/notifications/sms/stats
+   - POST   /api/mobile/notifications/webhooks/twilio
+
+7. Push Notification Routes (Updated)
+   /home/user/Fleet/api/src/routes/push-notifications.routes.ts
+   - Fixed authenticateToken → authenticateJWT (11 occurrences)
+
+🗄️ DATABASE FILES
+=================================================================
+
+8. Database Migration
+   /home/user/Fleet/api/src/migrations/023_notification_system.sql
+
+   Tables Created:
+   - mobile_devices (enhanced)
+   - push_notifications
+   - push_notification_recipients
+   - push_notification_templates
+   - sms_logs
+   - sms_templates
+   - notification_preferences
+
+   Views Created:
+   - push_notification_stats
+   - sms_stats
+   - active_devices_summary
+
+   Default Templates:
+   - 5 push notification templates
+   - 5 SMS templates
+
+⚙️ CONFIGURATION FILES (Updated)
+=================================================================
+
+9. Server Configuration
+   /home/user/Fleet/api/src/server.ts
+   - Added: import mobileNotificationsRoutes
+   - Added: app.use('/api/mobile/notifications', mobileNotificationsRoutes)
+
+📚 DOCUMENTATION
+=================================================================
+
+10. Implementation Guide
+    /home/user/Fleet/NOTIFICATION_SYSTEM_IMPLEMENTATION.md
+    - Complete feature overview
+    - API documentation
+    - Configuration guide
+    - Usage examples
+    - Testing guide
+    - Troubleshooting
+
+11. File List (This File)
+    /home/user/Fleet/NOTIFICATION_SYSTEM_FILES.txt
+
+=================================================================
+SUMMARY STATISTICS
+=================================================================
+
+Total Files Created:       7 new files
+Total Files Updated:       2 existing files
+Total Lines of Code:       ~3,500 lines
+Mobile Services:           3 services
+Backend Services:          2 services (1 new, 1 enhanced)
+API Routes:                2 route files
+API Endpoints:             17 endpoints
+Database Tables:           7 tables
+Database Views:            3 views
+Default Templates:         10 templates (5 push + 5 SMS)
+Documentation Files:       2 files
+
+=================================================================
+NOTIFICATION CATEGORIES
+=================================================================
+
+1. critical_alert        - Urgent vehicle/safety alerts (RED, urgent sound)
+2. maintenance_reminder  - Maintenance due reminders (ORANGE, default sound)
+3. task_assignment       - New task assignments (BLUE, default sound)
+4. driver_alert          - Driver-specific alerts (YELLOW, default sound)
+5. administrative        - General notifications (WHITE, default sound)
+6. performance           - Performance updates (GREEN, low priority)
+
+=================================================================
+FEATURES IMPLEMENTED
+=================================================================
+
+✅ Firebase Cloud Messaging (FCM) integration
+✅ Apple Push Notification Service (APNS) integration
+✅ Twilio SMS/MMS integration
+✅ Push notification scheduling
+✅ Local notification scheduling
+✅ Recurring notifications
+✅ Template-based notifications
+✅ Notification grouping (Android)
+✅ Custom sounds and vibration patterns
+✅ Deep linking to app screens
+✅ Badge count management (iOS)
+✅ Notification action buttons
+✅ Delivery tracking and analytics
+✅ Open rate and click rate tracking
+✅ Webhook handlers (Twilio)
+✅ Rate limiting (SMS: 1 msg/sec)
+✅ User notification preferences
+✅ Quiet hours support
+✅ Bulk SMS sending
+✅ Device token management
+✅ Platform-specific handling (iOS/Android)
+
+=================================================================
+DEPENDENCIES REQUIRED
+=================================================================
+
+Mobile App (React Native):
+- @react-native-firebase/messaging
+- @notifee/react-native
+- @react-native-async-storage/async-storage
+- react-native-device-info
+
+Backend (Node.js):
+- twilio (already installed ✓)
+- firebase-admin (already installed ✓)
+- apn (already installed ✓)
+- bottleneck (already installed ✓)
+
+=================================================================
+ENVIRONMENT VARIABLES NEEDED
+=================================================================
+
+# Firebase Cloud Messaging
+FIREBASE_SERVICE_ACCOUNT={"type": "service_account", ...}
+
+# Apple Push Notification Service
+APNS_KEY_PATH=/path/to/AuthKey_XXXXX.p8
+APNS_KEY_ID=XXXXX
+APNS_TEAM_ID=XXXXX
+APNS_BUNDLE_ID=com.fleet.app
+
+# Twilio SMS
+TWILIO_ACCOUNT_SID=ACxxxxxxxxxxxxx
+TWILIO_AUTH_TOKEN=xxxxxxxxxx
+TWILIO_PHONE_NUMBER=+1234567890
+
+=================================================================
+NEXT STEPS
+=================================================================
+
+1. Set up Firebase project and download service account JSON
+2. Create Twilio account and get credentials
+3. Add environment variables to .env file
+4. Run database migration: npm run migrate
+5. Install mobile dependencies: npm install
+6. Initialize push notifications in mobile app
+7. Test notification flow end-to-end
+8. Configure templates for your use cases
+9. Set up monitoring and alerting
+10. Deploy to production
+
+=================================================================
+TESTING ENDPOINTS
+=================================================================
+
+# Register Device
+curl -X POST http://localhost:3000/api/mobile/notifications/register-device \
+  -H "Authorization: Bearer YOUR_JWT" \
+  -H "Content-Type: application/json" \
+  -d '{"deviceToken":"TOKEN","platform":"ios"}'
+
+# Send Push Notification
+curl -X POST http://localhost:3000/api/mobile/notifications/send-to-user \
+  -H "Authorization: Bearer YOUR_JWT" \
+  -H "Content-Type: application/json" \
+  -d '{"userId":"1","title":"Test","message":"Hello","screen":"Home"}'
+
+# Send SMS
+curl -X POST http://localhost:3000/api/mobile/notifications/sms/send \
+  -H "Authorization: Bearer YOUR_JWT" \
+  -H "Content-Type: application/json" \
+  -d '{"to":"+1234567890","message":"Test SMS"}'
+
+=================================================================
+END OF FILE
+=================================================================

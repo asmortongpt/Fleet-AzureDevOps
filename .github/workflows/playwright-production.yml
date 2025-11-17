@@ -1,0 +1,394 @@
+name: Playwright Production Tests
+
+on:
+  # Run on pull requests to main
+  pull_request:
+    branches: [main]
+    paths:
+      - 'e2e/**'
+      - 'src/**'
+      - 'playwright.config.ts'
+      - 'package.json'
+      - '.github/workflows/playwright-production.yml'
+
+  # Run on push to main
+  push:
+    branches: [main]
+    paths:
+      - 'e2e/**'
+      - 'src/**'
+      - 'playwright.config.ts'
+
+  # Run nightly at 2 AM UTC
+  schedule:
+    - cron: '0 2 * * *'
+
+  # Allow manual trigger
+  workflow_dispatch:
+    inputs:
+      test_suite:
+        description: 'Test suite to run'
+        required: false
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - smoke
+          - main
+          - management
+          - procurement
+          - tools
+          - workflows
+          - validation
+          - accessibility
+          - performance
+          - security
+          - load
+      browser:
+        description: 'Browser to test'
+        required: false
+        default: 'chromium'
+        type: choice
+        options:
+          - chromium
+          - firefox
+          - webkit
+          - all
+
+env:
+  NODE_VERSION: '20.x'
+  PRODUCTION_URL: 'http://68.220.148.2'
+  CI: true
+
+jobs:
+  # Test job with sharding for parallel execution
+  test:
+    name: Playwright Tests (Shard ${{ matrix.shard }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps
+
+      - name: Verify production server availability
+        run: |
+          echo "🔍 Checking production server at ${{ env.PRODUCTION_URL }}..."
+          max_retries=5
+          retry_count=0
+
+          while [ $retry_count -lt $max_retries ]; do
+            if curl -f -s -o /dev/null -w "%{http_code}" "${{ env.PRODUCTION_URL }}" | grep -q "200\|301\|302"; then
+              echo "✅ Production server is accessible"
+              exit 0
+            fi
+            retry_count=$((retry_count + 1))
+            echo "⏳ Retry $retry_count/$max_retries..."
+            sleep 5
+          done
+
+          echo "❌ Production server is not accessible after $max_retries attempts"
+          exit 1
+
+      - name: Run Playwright tests
+        id: playwright_tests
+        run: |
+          if [ "${{ github.event.inputs.test_suite }}" != "" ] && [ "${{ github.event.inputs.test_suite }}" != "all" ]; then
+            npm run test:${{ github.event.inputs.test_suite }} -- --shard=${{ matrix.shard }}/3
+          else
+            npm test -- --shard=${{ matrix.shard }}/3
+          fi
+        env:
+          APP_URL: ${{ env.PRODUCTION_URL }}
+          PLAYWRIGHT_RETRIES: 1
+        continue-on-error: false
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-results-shard-${{ matrix.shard }}
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7
+          if-no-files-found: warn
+
+      - name: Upload test traces
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-traces-shard-${{ matrix.shard }}
+          path: test-results/**/trace.zip
+          retention-days: 7
+          if-no-files-found: warn
+
+      - name: Upload test videos
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-videos-shard-${{ matrix.shard }}
+          path: test-results/**/video.webm
+          retention-days: 7
+          if-no-files-found: warn
+
+  # Merge reports from all shards
+  merge-reports:
+    name: Merge Test Reports
+    runs-on: ubuntu-latest
+    needs: test
+    if: always()
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Download all test results
+        uses: actions/download-artifact@v4
+        with:
+          path: all-test-results
+          pattern: playwright-results-shard-*
+
+      - name: Merge reports
+        run: |
+          npx playwright merge-reports --reporter html all-test-results/playwright-results-shard-* || true
+          npx playwright merge-reports --reporter json all-test-results/playwright-results-shard-* > merged-results.json || true
+          npx playwright merge-reports --reporter junit all-test-results/playwright-results-shard-* > merged-junit.xml || true
+
+      - name: Upload merged HTML report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-merged
+          path: playwright-report/
+          retention-days: 30
+
+      - name: Upload merged test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-merged
+          path: |
+            merged-results.json
+            merged-junit.xml
+          retention-days: 30
+
+      - name: Generate test summary
+        if: always()
+        run: |
+          echo "## 🎭 Playwright Test Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Production URL:** ${{ env.PRODUCTION_URL }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Test Shards:** 3" >> $GITHUB_STEP_SUMMARY
+          echo "**Browser:** Chromium" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if [ -f merged-results.json ]; then
+            echo "### Test Statistics" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+
+            # Parse JSON results (requires jq)
+            total=$(jq '.suites | [.. | .tests? // empty] | flatten | length' merged-results.json 2>/dev/null || echo "N/A")
+            passed=$(jq '[.. | .tests? // empty] | flatten | map(select(.status == "passed")) | length' merged-results.json 2>/dev/null || echo "N/A")
+            failed=$(jq '[.. | .tests? // empty] | flatten | map(select(.status == "failed")) | length' merged-results.json 2>/dev/null || echo "N/A")
+            skipped=$(jq '[.. | .tests? // empty] | flatten | map(select(.status == "skipped")) | length' merged-results.json 2>/dev/null || echo "N/A")
+
+            echo "| Metric | Count |" >> $GITHUB_STEP_SUMMARY
+            echo "|--------|-------|" >> $GITHUB_STEP_SUMMARY
+            echo "| Total Tests | $total |" >> $GITHUB_STEP_SUMMARY
+            echo "| ✅ Passed | $passed |" >> $GITHUB_STEP_SUMMARY
+            echo "| ❌ Failed | $failed |" >> $GITHUB_STEP_SUMMARY
+            echo "| ⏭️ Skipped | $skipped |" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "📊 [View detailed HTML report in artifacts](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})" >> $GITHUB_STEP_SUMMARY
+
+  # Comment on PR with test results
+  comment-pr:
+    name: Comment Test Results on PR
+    runs-on: ubuntu-latest
+    needs: merge-reports
+    if: always() && github.event_name == 'pull_request'
+    permissions:
+      pull-requests: write
+
+    steps:
+      - name: Download merged results
+        uses: actions/download-artifact@v4
+        with:
+          name: test-results-merged
+          path: results
+
+      - name: Parse test results and comment
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+
+            let resultsPath = 'results/merged-results.json';
+            let testResults = { total: 0, passed: 0, failed: 0, skipped: 0 };
+
+            try {
+              if (fs.existsSync(resultsPath)) {
+                const results = JSON.parse(fs.readFileSync(resultsPath, 'utf8'));
+
+                // Parse Playwright JSON format
+                const tests = [];
+                function collectTests(obj) {
+                  if (obj.tests) tests.push(...obj.tests);
+                  if (obj.suites) obj.suites.forEach(collectTests);
+                }
+                if (results.suites) results.suites.forEach(collectTests);
+
+                testResults.total = tests.length;
+                testResults.passed = tests.filter(t => t.status === 'passed').length;
+                testResults.failed = tests.filter(t => t.status === 'failed').length;
+                testResults.skipped = tests.filter(t => t.status === 'skipped').length;
+              }
+            } catch (error) {
+              console.log('Error parsing results:', error);
+            }
+
+            const passRate = testResults.total > 0
+              ? Math.round((testResults.passed / testResults.total) * 100)
+              : 0;
+
+            const status = testResults.failed === 0 ? '✅ PASSED' : '❌ FAILED';
+            const emoji = testResults.failed === 0 ? '🎉' : '⚠️';
+
+            const body = `## ${emoji} Playwright Production Tests ${status}
+
+            **Production URL:** \`${{ env.PRODUCTION_URL }}\`
+
+            ### Test Results
+
+            | Metric | Count | Percentage |
+            |--------|-------|------------|
+            | Total Tests | ${testResults.total} | 100% |
+            | ✅ Passed | ${testResults.passed} | ${passRate}% |
+            | ❌ Failed | ${testResults.failed} | ${testResults.total > 0 ? Math.round((testResults.failed / testResults.total) * 100) : 0}% |
+            | ⏭️ Skipped | ${testResults.skipped} | ${testResults.total > 0 ? Math.round((testResults.skipped / testResults.total) * 100) : 0}% |
+
+            ### Test Shards
+            Tests were executed in parallel across 3 shards for faster execution.
+
+            ### Artifacts
+            - 📊 [HTML Test Report](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
+            - 📹 [Test Videos](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}) (if tests failed)
+            - 🔍 [Test Traces](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}) (if tests failed)
+
+            ---
+            *Automated comment by Playwright CI/CD • [View workflow run](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})*
+            `;
+
+            // Find existing comment
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+
+            const botComment = comments.find(comment =>
+              comment.user.type === 'Bot' &&
+              comment.body.includes('Playwright Production Tests')
+            );
+
+            if (botComment) {
+              // Update existing comment
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body: body
+              });
+            } else {
+              // Create new comment
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: body
+              });
+            }
+
+  # Fail the workflow if critical tests failed
+  check-critical-tests:
+    name: Check Critical Tests
+    runs-on: ubuntu-latest
+    needs: test
+    if: always()
+
+    steps:
+      - name: Verify critical tests passed
+        run: |
+          if [ "${{ needs.test.result }}" == "failure" ]; then
+            echo "❌ Critical tests failed!"
+            echo "::error::One or more test shards failed. Please review the test results."
+            exit 1
+          else
+            echo "✅ All critical tests passed!"
+          fi
+
+  # Send notification on failure (optional - requires Slack webhook)
+  notify-failure:
+    name: Notify on Failure
+    runs-on: ubuntu-latest
+    needs: [test, merge-reports]
+    if: failure() && (github.event_name == 'schedule' || github.event_name == 'push')
+
+    steps:
+      - name: Send notification
+        run: |
+          echo "🔔 Test failure notification"
+          echo "Workflow: ${{ github.workflow }}"
+          echo "Run: ${{ github.run_id }}"
+          echo "Event: ${{ github.event_name }}"
+          echo ""
+          echo "To enable Slack/Discord/Email notifications, add the webhook URL as a GitHub secret"
+          echo "and uncomment the notification step in the workflow file."
+
+      # Uncomment and configure for Slack notifications:
+      # - name: Send Slack notification
+      #   uses: slackapi/slack-github-action@v1.24.0
+      #   with:
+      #     payload: |
+      #       {
+      #         "text": "❌ Playwright tests failed on ${{ github.ref_name }}",
+      #         "blocks": [
+      #           {
+      #             "type": "section",
+      #             "text": {
+      #               "type": "mrkdwn",
+      #               "text": "❌ *Playwright Production Tests Failed*\n\n*Branch:* ${{ github.ref_name }}\n*Workflow:* ${{ github.workflow }}\n*Run:* <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|View Details>"
+      #             }
+      #           }
+      #         ]
+      #       }
+      #   env:
+      #     SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}

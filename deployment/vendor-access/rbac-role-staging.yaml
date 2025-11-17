@@ -1,0 +1,48 @@
+---
+# Role for vendor developers in staging environment
+# More restrictive than dev - read-only for most resources, limited write access
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: vendor-developer-role
+  namespace: fleet-staging
+rules:
+  # Pods - read-only and logs
+  - apiGroups: [""]
+    resources: ["pods", "pods/log"]
+    verbs: ["get", "list", "watch"]
+
+  # Deployments - read and update (for image changes)
+  - apiGroups: ["apps"]
+    resources: ["deployments", "replicasets", "statefulsets"]
+    verbs: ["get", "list", "watch", "patch"]
+
+  # Services - read-only
+  - apiGroups: [""]
+    resources: ["services"]
+    verbs: ["get", "list", "watch"]
+
+  # ConfigMaps - read-only
+  - apiGroups: [""]
+    resources: ["configmaps"]
+    verbs: ["get", "list", "watch"]
+
+  # Secrets - read-only
+  - apiGroups: [""]
+    resources: ["secrets"]
+    verbs: ["get", "list"]
+
+  # Ingress - read-only
+  - apiGroups: ["networking.k8s.io"]
+    resources: ["ingresses"]
+    verbs: ["get", "list", "watch"]
+
+  # Jobs - read and create (for testing)
+  - apiGroups: ["batch"]
+    resources: ["jobs"]
+    verbs: ["get", "list", "watch", "create"]
+
+  # Events - read-only
+  - apiGroups: [""]
+    resources: ["events"]
+    verbs: ["get", "list", "watch"]

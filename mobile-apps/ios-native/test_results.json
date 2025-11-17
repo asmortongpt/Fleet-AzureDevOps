@@ -1,0 +1,76 @@
+{
+  "plan_id": "TPL-4983248156",
+  "run_id": "TRUN-5F5B39DEB8",
+  "summary": "============================================================\nTEST SUMMARY\n============================================================\nTotal Tests: 6\n\u2705 Passed: 4\n\u274c Failed: 2\n\nFAILED TESTS:\n  - architecture: pod check --verbose\n    [!] Unknown command: `check`\nDid you mean: spec?\n\nUsage:\n\n    $ pod COMMAND\n\n      CocoaPods, the Cocoa library package manager.\n\nCommands:\n\n    + cac...\n  - integration: xcodebuild\n    Command line invocation:\n    /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild -workspace App.xcworkspace -scheme App -destination \"platfo...",
+  "fix_report": "\n============================================================\nACTIONABLE FIX REPORT\n============================================================\n\n1. ARCHITECTURE FAILURE:\n   Command: pod check --verbose\n   Issue: [!] Unknown command: `check`\nDid you mean: spec?\n\nUsage:\n\n    $ pod COMMAND\n\n      CocoaPods, the Cocoa library package manager.\n\nCommands:\n\n    + cache         Manipulate the CocoaPods cache\n    + deintegrate   Deintegrate CocoaPods from your project\n    + env           Display pod environment\n    \n\n2. INTEGRATION FAILURE:\n   Command: xcodebuild\n   Issue: Command line invocation:\n    /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild -workspace App.xcworkspace -scheme App -destination \"platform=iOS Simulator,name=iPhone 17 Pro\" build\n\nComputePackagePrebuildTargetDependencyGraph\n\nPrepare packages\n\nCreateBuildRequest\n\nSendProjectDescription\n\n\n   FIX: Compilation errors detected\n   - Review compiler errors above\n   - Ensure all dependencies are resolved\n",
+  "tasks": [
+    {
+      "description": "Verify all required Swift files exist in filesystem",
+      "category": "architecture",
+      "status": "passed"
+    },
+    {
+      "description": "Verify CocoaPods dependencies are installed",
+      "category": "architecture",
+      "status": "failed"
+    },
+    {
+      "description": "Check Xcode project file includes all Swift source files",
+      "category": "architecture",
+      "status": "passed"
+    },
+    {
+      "description": "Run Swift compiler to identify compilation errors",
+      "category": "static",
+      "status": "passed"
+    },
+    {
+      "description": "Validate import statements and dependencies",
+      "category": "static",
+      "status": "passed"
+    },
+    {
+      "description": "Build iOS app for simulator (Debug configuration)",
+      "category": "integration",
+      "status": "failed"
+    }
+  ],
+  "results": [
+    {
+      "command": "file_check",
+      "category": "architecture",
+      "status": "passed",
+      "log": "All 6 required files exist"
+    },
+    {
+      "command": "pod check --verbose",
+      "category": "architecture",
+      "status": "failed",
+      "log": "[!] Unknown command: `check`\nDid you mean: spec?\n\nUsage:\n\n    $ pod COMMAND\n\n      CocoaPods, the Cocoa library package manager.\n\nCommands:\n\n    + cache         Manipulate the CocoaPods cache\n    + deintegrate   Deintegrate CocoaPods from your project\n    + env           Display pod environment\n    + init          Generate a Podfile for the current directory\n    + install       Install project dependencies according to versions from a\n                    Podfile.lock\n    + ipc           Inter-pr"
+    },
+    {
+      "command": "grep -r \"CrashReporter.swift\" App.xcodeproj/ || echo \"NOT_FOUND\"",
+      "category": "architecture",
+      "status": "passed",
+      "log": "App.xcodeproj/project.pbxproj:\t\t068908ED00ABE2CCC99837D2 /* CrashReporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADEA64A38480FA712CF17B0A /* CrashReporter.swift */; };\nApp.xcodeproj/project.pbxproj:\t\tADEA64A38480FA712CF17B0A /* CrashReporter.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = CrashReporter.swift; path = CrashReporter.swift; sourceTree = \"<group>\"; };\nApp.xcodeproj/project.pbxproj:\t\t\t\tADEA64A38480FA712CF17B0A /* Crash"
+    },
+    {
+      "command": "xcodebuild -workspace App.xcworkspace -scheme App -destination \"platform=iOS Simulator,name=iPhone 17 Pro\" -dry-run 2>&1 | head -100",
+      "category": "static",
+      "status": "passed",
+      "log": "Command line invocation:\n    /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild -workspace App.xcworkspace -scheme App -destination \"platform=iOS Simulator,name=iPhone 17 Pro\" -dry-run\n\n2025-11-13 16:14:02.025 xcodebuild[38802:1326365] [MT] IDERunDestination: Supported platforms for the buildables in the current scheme is empty.\nComputePackagePrebuildTargetDependencyGraph\n\nPrepare packages\n\nCreateBuildRequest\n\nSendProjectDescription\n\nCreateBuildOperation\n\nComputeTargetDependencyGraph\n"
+    },
+    {
+      "command": "echo 'Test not implemented'",
+      "category": "static",
+      "status": "passed",
+      "log": "Test not implemented\n\n"
+    },
+    {
+      "command": "xcodebuild",
+      "category": "integration",
+      "status": "failed",
+      "log": "Command line invocation:\n    /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild -workspace App.xcworkspace -scheme App -destination \"platform=iOS Simulator,name=iPhone 17 Pro\" build\n\nComputePackagePrebuildTargetDependencyGraph\n\nPrepare packages\n\nCreateBuildRequest\n\nSendProjectDescription\n\nCreateBuildOperation\n\nComputeTargetDependencyGraph\nnote: Building targets in dependency order\nnote: Target dependency graph (32 targets)\n    Target 'App' in project 'App'\n        \u279c Implicit dependenc"
+    }
+  ]
+}

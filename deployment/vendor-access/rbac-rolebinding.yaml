@@ -1,0 +1,30 @@
+---
+# RoleBinding for vendor in development environment
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: vendor-developer-binding
+  namespace: fleet-dev
+subjects:
+  - kind: ServiceAccount
+    name: vendor-developer
+    namespace: fleet-dev
+roleRef:
+  kind: Role
+  name: vendor-developer-role
+  apiGroup: rbac.authorization.k8s.io
+---
+# RoleBinding for vendor in staging environment
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: vendor-developer-binding
+  namespace: fleet-staging
+subjects:
+  - kind: ServiceAccount
+    name: vendor-developer
+    namespace: fleet-staging
+roleRef:
+  kind: Role
+  name: vendor-developer-role
+  apiGroup: rbac.authorization.k8s.io

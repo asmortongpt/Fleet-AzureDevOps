@@ -1,0 +1,318 @@
+{
+  "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+  "type": "AdaptiveCard",
+  "version": "1.5",
+  "body": [
+    {
+      "type": "Container",
+      "style": "default",
+      "items": [
+        {
+          "type": "ColumnSet",
+          "columns": [
+            {
+              "type": "Column",
+              "width": "auto",
+              "items": [
+                {
+                  "type": "Image",
+                  "url": "https://img.icons8.com/fluency/96/gas-station.png",
+                  "size": "medium"
+                }
+              ]
+            },
+            {
+              "type": "Column",
+              "width": "stretch",
+              "items": [
+                {
+                  "type": "TextBlock",
+                  "text": "Fuel Receipt",
+                  "weight": "bolder",
+                  "size": "large"
+                },
+                {
+                  "type": "TextBlock",
+                  "text": "Receipt #${receiptNumber}",
+                  "spacing": "none",
+                  "isSubtle": true
+                }
+              ]
+            },
+            {
+              "type": "Column",
+              "width": "auto",
+              "items": [
+                {
+                  "type": "TextBlock",
+                  "text": "$${totalAmount}",
+                  "weight": "bolder",
+                  "size": "extraLarge",
+                  "horizontalAlignment": "right",
+                  "color": "good"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Container",
+      "spacing": "medium",
+      "items": [
+        {
+          "type": "FactSet",
+          "facts": [
+            {
+              "title": "Date & Time:",
+              "value": "${purchaseDateTime}"
+            },
+            {
+              "title": "Driver:",
+              "value": "${driverName}"
+            },
+            {
+              "title": "Vehicle:",
+              "value": "${vehicleNumber} - ${vehicleMake} ${vehicleModel}"
+            },
+            {
+              "title": "Location:",
+              "value": "${stationName}"
+            },
+            {
+              "title": "Address:",
+              "value": "${stationAddress}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Container",
+      "spacing": "medium",
+      "style": "emphasis",
+      "items": [
+        {
+          "type": "TextBlock",
+          "text": "Fuel Details",
+          "weight": "bolder"
+        },
+        {
+          "type": "ColumnSet",
+          "columns": [
+            {
+              "type": "Column",
+              "width": "stretch",
+              "items": [
+                {
+                  "type": "TextBlock",
+                  "text": "Fuel Type",
+                  "isSubtle": true
+                },
+                {
+                  "type": "TextBlock",
+                  "text": "${fuelType}",
+                  "weight": "bolder",
+                  "spacing": "none"
+                }
+              ]
+            },
+            {
+              "type": "Column",
+              "width": "stretch",
+              "items": [
+                {
+                  "type": "TextBlock",
+                  "text": "Gallons",
+                  "isSubtle": true
+                },
+                {
+                  "type": "TextBlock",
+                  "text": "${gallons}",
+                  "weight": "bolder",
+                  "spacing": "none"
+                }
+              ]
+            },
+            {
+              "type": "Column",
+              "width": "stretch",
+              "items": [
+                {
+                  "type": "TextBlock",
+                  "text": "Price/Gallon",
+                  "isSubtle": true
+                },
+                {
+                  "type": "TextBlock",
+                  "text": "$${pricePerGallon}",
+                  "weight": "bolder",
+                  "spacing": "none"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "FactSet",
+          "facts": [
+            {
+              "title": "Current Odometer:",
+              "value": "${currentOdometer} miles"
+            },
+            {
+              "title": "Miles Since Last Fill:",
+              "value": "${milesSinceLastFill}"
+            },
+            {
+              "title": "Calculated MPG:",
+              "value": "${calculatedMPG}"
+            },
+            {
+              "title": "Payment Method:",
+              "value": "${paymentMethod}"
+            },
+            {
+              "title": "Card Last 4:",
+              "value": "****${cardLast4}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Container",
+      "spacing": "medium",
+      "items": [
+        {
+          "type": "TextBlock",
+          "text": "Price Comparison",
+          "weight": "bolder"
+        },
+        {
+          "type": "ColumnSet",
+          "columns": [
+            {
+              "type": "Column",
+              "width": "stretch",
+              "items": [
+                {
+                  "type": "TextBlock",
+                  "text": "Market Average",
+                  "isSubtle": true,
+                  "size": "small"
+                },
+                {
+                  "type": "TextBlock",
+                  "text": "$${marketAverage}",
+                  "spacing": "none"
+                }
+              ]
+            },
+            {
+              "type": "Column",
+              "width": "stretch",
+              "items": [
+                {
+                  "type": "TextBlock",
+                  "text": "You Paid",
+                  "isSubtle": true,
+                  "size": "small"
+                },
+                {
+                  "type": "TextBlock",
+                  "text": "$${pricePerGallon}",
+                  "spacing": "none",
+                  "color": "${priceColor}"
+                }
+              ]
+            },
+            {
+              "type": "Column",
+              "width": "stretch",
+              "items": [
+                {
+                  "type": "TextBlock",
+                  "text": "Difference",
+                  "isSubtle": true,
+                  "size": "small"
+                },
+                {
+                  "type": "TextBlock",
+                  "text": "${priceDifference}",
+                  "spacing": "none",
+                  "color": "${differenceColor}",
+                  "weight": "bolder"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Container",
+      "spacing": "medium",
+      "items": [
+        {
+          "type": "Image",
+          "url": "${receiptImageUrl}",
+          "size": "stretch",
+          "altText": "Fuel receipt image"
+        }
+      ],
+      "isVisible": "${hasReceiptImage}"
+    }
+  ],
+  "actions": [
+    {
+      "type": "Action.Submit",
+      "title": "Approve",
+      "data": {
+        "action": "approve_receipt",
+        "receiptId": "${receiptId}"
+      },
+      "style": "positive"
+    },
+    {
+      "type": "Action.Submit",
+      "title": "Flag for Review",
+      "data": {
+        "action": "flag_receipt",
+        "receiptId": "${receiptId}"
+      },
+      "style": "destructive"
+    },
+    {
+      "type": "Action.OpenUrl",
+      "title": "View Details",
+      "url": "${receiptUrl}"
+    },
+    {
+      "type": "Action.ShowCard",
+      "title": "Add Note",
+      "card": {
+        "type": "AdaptiveCard",
+        "body": [
+          {
+            "type": "Input.Text",
+            "id": "receiptNote",
+            "placeholder": "Add notes about this fuel purchase...",
+            "isMultiline": true
+          }
+        ],
+        "actions": [
+          {
+            "type": "Action.Submit",
+            "title": "Save Note",
+            "data": {
+              "action": "add_receipt_note",
+              "receiptId": "${receiptId}"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

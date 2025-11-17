@@ -1,0 +1,28 @@
+{
+  "timestamp": "2025-11-16T03:12:26.280Z",
+  "productionUrl": "http://68.220.148.2",
+  "authentication": {
+    "required": true,
+    "credentials": "admin@demofleet.com / Demo@123"
+  },
+  "navigation": {
+    "totalItems": 0,
+    "sidebarStructure": null,
+    "navigationItems": []
+  },
+  "initialPage": {
+    "url": "https://login.microsoftonline.com/0ec14b81-7b82-45ee-8f3d-cbc31ced5347/oauth2/v2.0/authorize?client_id=baae0851-0c24-4214-8587-e3fabc46bd4a&response_type=code&redirect_uri=https%3A%2F%2Ffleet.capitaltechalliance.com%2Fapi%2Fauth%2Fmicrosoft%2Fcallback&response_mode=query&scope=openid%20profile%20email%20User.Read&state=ebb29a11-d564-43b0-b681-c46bf5a88c7e&prompt=select_account&sso_reload=true",
+    "title": "Sign in to your account",
+    "headings": [],
+    "hasTable": false,
+    "hasCards": false,
+    "cardCount": 0
+  },
+  "moduleResults": [],
+  "summary": {
+    "totalModulesTested": 0,
+    "successfulNavigations": 0,
+    "failedNavigations": 0,
+    "successRate": "NaN%"
+  }
+}
