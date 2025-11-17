@@ -1,0 +1,270 @@
+{
+  "config": {
+    "configFile": "/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/test_framework/generated_tests/playwright.config.ts",
+    "rootDir": "/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/test_framework/generated_tests",
+    "forbidOnly": false,
+    "fullyParallel": true,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 3600000,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "reporter": [
+      [
+        "html",
+        {
+          "outputFolder": "test-results/html-report",
+          "open": "never"
+        }
+      ],
+      [
+        "json",
+        {
+          "outputFile": "test-results/results.json"
+        }
+      ],
+      [
+        "junit",
+        {
+          "outputFile": "test-results/junit.xml"
+        }
+      ],
+      [
+        "list",
+        null
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/test_framework/generated_tests/test-results/artifacts",
+        "repeatEach": 1,
+        "retries": 1,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/test_framework/generated_tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/test_framework/generated_tests/test-results/artifacts",
+        "repeatEach": 1,
+        "retries": 1,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "firefox",
+        "name": "firefox",
+        "testDir": "/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/test_framework/generated_tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/test_framework/generated_tests/test-results/artifacts",
+        "repeatEach": 1,
+        "retries": 1,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "webkit",
+        "name": "webkit",
+        "testDir": "/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/test_framework/generated_tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/test_framework/generated_tests/test-results/artifacts",
+        "repeatEach": 1,
+        "retries": 1,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "mobile-chrome",
+        "name": "mobile-chrome",
+        "testDir": "/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/test_framework/generated_tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/test_framework/generated_tests/test-results/artifacts",
+        "repeatEach": 1,
+        "retries": 1,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "mobile-safari",
+        "name": "mobile-safari",
+        "testDir": "/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/test_framework/generated_tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/test_framework/generated_tests/test-results/artifacts",
+        "repeatEach": 1,
+        "retries": 1,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "tablet-ipad",
+        "name": "tablet-ipad",
+        "testDir": "/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/test_framework/generated_tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "shard": null,
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.56.1",
+    "workers": 4,
+    "webServer": {
+      "command": "cd ../../../.. && npm run dev",
+      "url": "http://localhost:5000",
+      "reuseExistingServer": true,
+      "timeout": 120000,
+      "stdout": "ignore",
+      "stderr": "pipe"
+    }
+  },
+  "suites": [
+    {
+      "title": "inspect-app-v3.spec.ts",
+      "file": "inspect-app-v3.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "Inspect Production App - Email Login Flow",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 6632,
+                  "errors": [],
+                  "stdout": [
+                    {
+                      "text": "🔍 Starting production app inspection...\n"
+                    },
+                    {
+                      "text": "✅ Loaded production page\n"
+                    },
+                    {
+                      "text": "🔐 Logging in with email/password...\n"
+                    },
+                    {
+                      "text": "⏳ Waiting for dashboard to load...\n"
+                    },
+                    {
+                      "text": "✅ Current URL after login: http://68.220.148.2/login\n"
+                    },
+                    {
+                      "text": "\n📋 Analyzing Page Structure...\n"
+                    },
+                    {
+                      "text": "Current URL: http://68.220.148.2/login\n"
+                    },
+                    {
+                      "text": "Page Title: Fleet Management System - Enterprise\n"
+                    },
+                    {
+                      "text": "Has Login Form: \u001b[33mtrue\u001b[39m\n"
+                    },
+                    {
+                      "text": "Has Sidebar: \u001b[33mfalse\u001b[39m\n"
+                    },
+                    {
+                      "text": "Root Element: { id: \u001b[32m'not found'\u001b[39m, children: \u001b[33m1\u001b[39m }\n"
+                    },
+                    {
+                      "text": "\nHeadings found: \u001b[33m0\u001b[39m\n"
+                    },
+                    {
+                      "text": "\nButtons found: \u001b[33m2\u001b[39m\n"
+                    },
+                    {
+                      "text": "  1. \"Sign in with Microsoft\" - inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive border bg-background shadow-xs hover:text-accent-foreground dark:bg-input/30 dark:border-input px-4 py-2 has-[>svg]:px-3 w-full h-12 text-base font-medium hover:bg-gray-50 dark:hover:bg-gray-800\n"
+                    },
+                    {
+                      "text": "  2. \"Sign in\" - inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive bg-primary text-primary-foreground shadow-xs hover:bg-primary/90 px-4 py-2 has-[>svg]:px-3 w-full h-12 text-base font-medium\n"
+                    },
+                    {
+                      "text": "\nNavigation elements found: \u001b[33m0\u001b[39m\n"
+                    },
+                    {
+                      "text": "\n📁 Initial analysis saved to: test-results/initial-page-analysis.json\n"
+                    },
+                    {
+                      "text": "\n⚠️  Could not access dashboard - still on login page\n"
+                    },
+                    {
+                      "text": "Please check authentication configuration\n"
+                    }
+                  ],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2025-11-16T03:34:44.630Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "bcb0ba866645cceca2d2-132e83b5183180fb558e",
+          "file": "inspect-app-v3.spec.ts",
+          "line": 9,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2025-11-16T03:34:44.314Z",
+    "duration": 8042.1,
+    "expected": 1,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

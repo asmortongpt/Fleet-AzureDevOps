@@ -1,0 +1,99 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*-dist
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Environment files - NEVER commit secrets
+.env
+.env.local
+.env.production
+.env.staging
+.env.development
+.env.*.local
+.env.secrets*
+keyvault-config-*.env
+*-config.env
+**/agent-eval-report*
+packages
+pids
+.file-manifest
+.devcontainer/
+
+# Uploads and generated files
+uploads/
+reports/
+*.csv
+*.xlsx
+*.pdf
+
+# Test coverage
+coverage/
+.nyc_output/
+
+# Secrets and keys
+*.pem
+*.key
+*.p8
+*.p12
+*.pfx
+*.gpg
+secrets/
+.secrets/
+keyvault-backup/
+*-backup/
+*.backup
+
+# Azure Key Vault configuration files
+keyvault-config-*.env
+azure-sp-credentials.*
+
+# Kubernetes secrets (if accidentally downloaded)
+*-secrets.yaml
+*secret*.yaml
+!external-secrets-setup.yaml
+!deployment/secure/*.yaml
+
+.spark-workbench-id
+
+# Vendor Access - Sensitive Files
+deployment/vendor-access/vendor-kubeconfig.yaml
+deployment/vendor-access/vendor-kubeconfig.yaml.gpg
+deployment/vendor-access/azure-devops-pat.txt
+deployment/vendor-access/azure-devops-pat.txt.gpg
+deployment/vendor-access/vendor-distribution-package/
+deployment/vendor-access/.vendor-credentials/
+
+# Python cache files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*_spec*.json
+
+# Performance Benchmark Reports
+benchmarks/reports/*.json
+benchmarks/reports/*.html
+!benchmarks/reports/.gitkeep
+!benchmarks/reports/README.md

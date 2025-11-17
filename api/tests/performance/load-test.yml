@@ -1,0 +1,155 @@
+# Artillery Load Testing Configuration
+# Run with: npx artillery run api/tests/performance/load-test.yml
+
+config:
+  target: 'http://localhost:3000'
+  phases:
+    - duration: 60
+      arrivalRate: 5
+      name: 'Warm up'
+    - duration: 120
+      arrivalRate: 10
+      name: 'Ramp up load'
+    - duration: 180
+      arrivalRate: 20
+      name: 'Sustained load'
+    - duration: 60
+      arrivalRate: 5
+      name: 'Cool down'
+  processor: './load-test-functions.js'
+  variables:
+    testTenantId: 'test-tenant-id'
+    testUserId: 'test-user-id'
+
+scenarios:
+  # Health check
+  - name: 'Health Check'
+    weight: 10
+    flow:
+      - get:
+          url: '/api/health'
+          expect:
+            - statusCode: 200
+
+  # Asset Management
+  - name: 'List Assets'
+    weight: 30
+    flow:
+      - function: 'generateAuthToken'
+      - get:
+          url: '/api/asset-management'
+          headers:
+            Authorization: 'Bearer {{ authToken }}'
+          expect:
+            - statusCode: 200
+            - contentType: json
+
+  - name: 'Get Asset Details'
+    weight: 20
+    flow:
+      - function: 'generateAuthToken'
+      - get:
+          url: '/api/asset-management'
+          headers:
+            Authorization: 'Bearer {{ authToken }}'
+          capture:
+            - json: '$.assets[0].id'
+              as: 'assetId'
+      - get:
+          url: '/api/asset-management/{{ assetId }}'
+          headers:
+            Authorization: 'Bearer {{ authToken }}'
+          expect:
+            - statusCode: 200
+
+  - name: 'Create Asset'
+    weight: 10
+    flow:
+      - function: 'generateAuthToken'
+      - function: 'generateAssetData'
+      - post:
+          url: '/api/asset-management'
+          headers:
+            Authorization: 'Bearer {{ authToken }}'
+            Content-Type: 'application/json'
+          json:
+            asset_name: '{{ assetName }}'
+            asset_type: 'vehicle'
+            asset_tag: '{{ assetTag }}'
+            status: 'active'
+          expect:
+            - statusCode: 201
+
+  # Task Management
+  - name: 'List Tasks'
+    weight: 20
+    flow:
+      - function: 'generateAuthToken'
+      - get:
+          url: '/api/task-management'
+          headers:
+            Authorization: 'Bearer {{ authToken }}'
+          expect:
+            - statusCode: 200
+
+  - name: 'Create Task'
+    weight: 10
+    flow:
+      - function: 'generateAuthToken'
+      - function: 'generateTaskData'
+      - post:
+          url: '/api/task-management'
+          headers:
+            Authorization: 'Bearer {{ authToken }}'
+            Content-Type: 'application/json'
+          json:
+            title: '{{ taskTitle }}'
+            description: 'Load test task'
+            priority: 'medium'
+            status: 'todo'
+          expect:
+            - statusCode: 201
+
+  # Incident Management
+  - name: 'List Incidents'
+    weight: 15
+    flow:
+      - function: 'generateAuthToken'
+      - get:
+          url: '/api/incident-management'
+          headers:
+            Authorization: 'Bearer {{ authToken }}'
+          expect:
+            - statusCode: 200
+
+  # Analytics
+  - name: 'Get Asset Analytics'
+    weight: 5
+    flow:
+      - function: 'generateAuthToken'
+      - get:
+          url: '/api/asset-management/analytics/summary'
+          headers:
+            Authorization: 'Bearer {{ authToken }}'
+          expect:
+            - statusCode: 200
+
+  - name: 'Get Task Analytics'
+    weight: 5
+    flow:
+      - function: 'generateAuthToken'
+      - get:
+          url: '/api/task-management/analytics/summary'
+          headers:
+            Authorization: 'Bearer {{ authToken }}'
+          expect:
+            - statusCode: 200
+
+# Performance expectations
+expect:
+  http:
+    # Response time thresholds (milliseconds)
+    maxErrorRate: 1        # Max 1% error rate
+    median: 200            # 50th percentile < 200ms
+    p95: 500               # 95th percentile < 500ms
+    p99: 1000              # 99th percentile < 1s

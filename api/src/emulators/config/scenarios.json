@@ -1,0 +1,177 @@
+{
+  "scenarios": {
+    "normal_operations": {
+      "name": "Normal Operations",
+      "description": "Standard daily operations with typical traffic and events",
+      "duration": 480,
+      "activeVehicles": 10,
+      "trafficLevel": "moderate",
+      "weatherConditions": "clear",
+      "timeOfDay": "business_hours",
+      "events": {
+        "fuelPurchases": { "frequency": "normal", "count": 3 },
+        "maintenanceEvents": { "frequency": "low", "count": 1 },
+        "anomalies": { "frequency": "low", "count": 0 }
+      }
+    },
+    "rush_hour": {
+      "name": "Rush Hour Traffic",
+      "description": "Heavy traffic during morning and evening rush hours",
+      "duration": 180,
+      "activeVehicles": 15,
+      "trafficLevel": "heavy",
+      "weatherConditions": "clear",
+      "timeOfDay": "rush_hour",
+      "events": {
+        "fuelPurchases": { "frequency": "normal", "count": 2 },
+        "maintenanceEvents": { "frequency": "low", "count": 0 },
+        "anomalies": { "frequency": "low", "count": 1 }
+      },
+      "modifiers": {
+        "speedReduction": 0.4,
+        "idleTimeIncrease": 2.0,
+        "fuelConsumptionIncrease": 1.3
+      }
+    },
+    "night_shift": {
+      "name": "Night Shift Operations",
+      "description": "Overnight operations with minimal traffic",
+      "duration": 480,
+      "activeVehicles": 5,
+      "trafficLevel": "light",
+      "weatherConditions": "clear",
+      "timeOfDay": "night",
+      "events": {
+        "fuelPurchases": { "frequency": "low", "count": 1 },
+        "maintenanceEvents": { "frequency": "very_low", "count": 0 },
+        "anomalies": { "frequency": "very_low", "count": 0 }
+      },
+      "modifiers": {
+        "speedIncrease": 1.15,
+        "idleTimeDecrease": 0.5
+      }
+    },
+    "weekend": {
+      "name": "Weekend Operations",
+      "description": "Reduced operations during weekend",
+      "duration": 720,
+      "activeVehicles": 6,
+      "trafficLevel": "light",
+      "weatherConditions": "clear",
+      "timeOfDay": "mixed",
+      "events": {
+        "fuelPurchases": { "frequency": "low", "count": 2 },
+        "maintenanceEvents": { "frequency": "high", "count": 3 },
+        "anomalies": { "frequency": "very_low", "count": 0 }
+      }
+    },
+    "emergency_response": {
+      "name": "Emergency Response Scenario",
+      "description": "Emergency deployment with priority routing",
+      "duration": 120,
+      "activeVehicles": 8,
+      "trafficLevel": "light",
+      "weatherConditions": "clear",
+      "timeOfDay": "any",
+      "events": {
+        "fuelPurchases": { "frequency": "high", "count": 4 },
+        "maintenanceEvents": { "frequency": "medium", "count": 2 },
+        "anomalies": { "frequency": "medium", "count": 2 }
+      },
+      "modifiers": {
+        "speedIncrease": 1.2,
+        "priorityRouting": true,
+        "idleTimeDecrease": 0.3
+      }
+    },
+    "adverse_weather": {
+      "name": "Adverse Weather Conditions",
+      "description": "Operations during rain, snow, or severe weather",
+      "duration": 360,
+      "activeVehicles": 8,
+      "trafficLevel": "heavy",
+      "weatherConditions": "adverse",
+      "timeOfDay": "business_hours",
+      "events": {
+        "fuelPurchases": { "frequency": "normal", "count": 2 },
+        "maintenanceEvents": { "frequency": "medium", "count": 2 },
+        "anomalies": { "frequency": "high", "count": 3 }
+      },
+      "modifiers": {
+        "speedReduction": 0.6,
+        "fuelConsumptionIncrease": 1.4,
+        "accidentProbability": 0.005,
+        "gpsAccuracyReduction": 2.0
+      }
+    },
+    "maintenance_due": {
+      "name": "Maintenance Due Alerts",
+      "description": "Multiple vehicles reaching maintenance intervals",
+      "duration": 480,
+      "activeVehicles": 12,
+      "trafficLevel": "moderate",
+      "weatherConditions": "clear",
+      "timeOfDay": "business_hours",
+      "events": {
+        "fuelPurchases": { "frequency": "normal", "count": 3 },
+        "maintenanceEvents": { "frequency": "very_high", "count": 8 },
+        "anomalies": { "frequency": "medium", "count": 2 }
+      },
+      "modifiers": {
+        "checkEngineLightProbability": 0.3,
+        "lowTirePressureProbability": 0.4
+      }
+    },
+    "high_utilization": {
+      "name": "High Fleet Utilization",
+      "description": "All vehicles active with heavy usage",
+      "duration": 600,
+      "activeVehicles": 20,
+      "trafficLevel": "moderate",
+      "weatherConditions": "clear",
+      "timeOfDay": "business_hours",
+      "events": {
+        "fuelPurchases": { "frequency": "high", "count": 8 },
+        "maintenanceEvents": { "frequency": "medium", "count": 3 },
+        "anomalies": { "frequency": "medium", "count": 2 }
+      }
+    },
+    "mixed_conditions": {
+      "name": "Mixed Conditions Test",
+      "description": "Comprehensive test with varying conditions",
+      "duration": 720,
+      "activeVehicles": 15,
+      "trafficLevel": "mixed",
+      "weatherConditions": "mixed",
+      "timeOfDay": "mixed",
+      "events": {
+        "fuelPurchases": { "frequency": "high", "count": 6 },
+        "maintenanceEvents": { "frequency": "high", "count": 5 },
+        "anomalies": { "frequency": "high", "count": 4 }
+      },
+      "modifiers": {
+        "randomEvents": true,
+        "trafficVariation": true,
+        "weatherChanges": true
+      }
+    },
+    "stress_test": {
+      "name": "System Stress Test",
+      "description": "Maximum load test with all emulators active",
+      "duration": 60,
+      "activeVehicles": 100,
+      "trafficLevel": "heavy",
+      "weatherConditions": "adverse",
+      "timeOfDay": "rush_hour",
+      "events": {
+        "fuelPurchases": { "frequency": "very_high", "count": 30 },
+        "maintenanceEvents": { "frequency": "very_high", "count": 20 },
+        "anomalies": { "frequency": "very_high", "count": 15 }
+      },
+      "modifiers": {
+        "maxPerformanceTest": true,
+        "allEmulators": true
+      }
+    }
+  }
+}

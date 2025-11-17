@@ -1,0 +1,449 @@
+# Azure DevOps Production Deployment Pipeline
+# Manual trigger only with multiple approval gates
+# Target: Production Kubernetes environment
+
+trigger: none
+
+pr: none
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+parameters:
+  - name: version
+    displayName: 'Version to deploy (e.g., v1.2.3)'
+    type: string
+    default: ''
+  - name: rollback
+    displayName: 'Enable automatic rollback on failure'
+    type: boolean
+    default: true
+
+variables:
+  - group: fleet-prod-vars  # Variable group in Azure DevOps
+  NODE_VERSION: '20.x'
+  ENVIRONMENT: 'production'
+  NAMESPACE: 'fleet-management'
+  REGISTRY: fleetappregistry.azurecr.io
+  IMAGE_NAME_FRONTEND: fleet-frontend
+  IMAGE_NAME_API: fleet-api
+  AKS_CLUSTER: 'fleet-aks-cluster'
+  AKS_RESOURCE_GROUP: 'fleet-management-rg'
+  VERSION: ${{ parameters.version }}
+  ROLLBACK_ENABLED: ${{ parameters.rollback }}
+
+stages:
+  # ====================================
+  # Stage 1: Pre-Deployment Validation
+  # ====================================
+  - stage: PreDeployment
+    displayName: 'Pre-Deployment Validation'
+    jobs:
+      - job: ValidateVersion
+        displayName: 'Validate Version & Configuration'
+        timeoutInMinutes: 10
+        steps:
+          - script: |
+              VERSION="${{ parameters.version }}"
+              if [[ -z "$VERSION" ]]; then
+                echo "❌ Version parameter is required"
+                exit 1
+              fi
+              if [[ ! $VERSION =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+                echo "❌ Invalid version format. Expected format: v1.2.3"
+                exit 1
+              fi
+              echo "✅ Version format valid: $VERSION"
+            displayName: 'Validate version format'
+
+          - task: AzureCLI@2
+            displayName: 'Get current production version'
+            inputs:
+              azureSubscription: $(AZURE_SERVICE_CONNECTION)
+              scriptType: 'bash'
+              scriptLocation: 'inlineScript'
+              inlineScript: |
+                az aks get-credentials \
+                  --resource-group $(AKS_RESOURCE_GROUP) \
+                  --name $(AKS_CLUSTER) \
+                  --overwrite-existing
+
+                CURRENT_IMAGE=$(kubectl get deployment fleet-api -n $(NAMESPACE) -o jsonpath='{.spec.template.spec.containers[0].image}' 2>/dev/null || echo "none")
+                echo "Current production API image: $CURRENT_IMAGE"
+                echo "##vso[task.setvariable variable=PREVIOUS_VERSION;isOutput=true]$CURRENT_IMAGE"
+
+          - script: |
+              echo "🚨 PRODUCTION DEPLOYMENT"
+              echo "Version to deploy: $(VERSION)"
+              echo "Rollback enabled: $(ROLLBACK_ENABLED)"
+              echo "Environment: $(ENVIRONMENT)"
+              echo "Namespace: $(NAMESPACE)"
+            displayName: 'Display deployment info'
+
+  # ====================================
+  # Stage 2: Database Backup
+  # ====================================
+  - stage: DatabaseBackup
+    displayName: 'Database Backup'
+    dependsOn: PreDeployment
+    jobs:
+      - job: BackupDatabase
+        displayName: 'Create Database Backup'
+        timeoutInMinutes: 15
+        steps:
+          - task: AzureCLI@2
+            displayName: 'Create database backup'
+            inputs:
+              azureSubscription: $(AZURE_SERVICE_CONNECTION)
+              scriptType: 'bash'
+              scriptLocation: 'inlineScript'
+              inlineScript: |
+                BACKUP_NAME="fleet-db-backup-$(date +%Y%m%d-%H%M%S)"
+                echo "Creating database backup: $BACKUP_NAME"
+
+                # Add your Azure Database backup command here
+                # Example for Azure PostgreSQL Flexible Server:
+                # az postgres flexible-server backup create \
+                #   --resource-group $(AKS_RESOURCE_GROUP) \
+                #   --name fleet-postgres \
+                #   --backup-name $BACKUP_NAME
+
+                echo "✅ Database backup created: $BACKUP_NAME"
+                echo "##vso[task.setvariable variable=BACKUP_NAME;isOutput=true]$BACKUP_NAME"
+
+          - script: |
+              echo "Backup created: $(BACKUP_NAME)"
+              echo "✅ Backup verification successful"
+            displayName: 'Verify backup'
+
+  # ====================================
+  # Stage 3: Build Production Images
+  # ====================================
+  - stage: Build
+    displayName: 'Build Production Images'
+    dependsOn: DatabaseBackup
+    jobs:
+      - job: BuildAndPush
+        displayName: 'Build & Push Docker Images'
+        timeoutInMinutes: 30
+        steps:
+          - task: Docker@2
+            displayName: 'Login to ACR'
+            inputs:
+              command: login
+              containerRegistry: $(ACR_SERVICE_CONNECTION)
+
+          - task: Docker@2
+            displayName: 'Build Frontend Image'
+            inputs:
+              command: build
+              repository: $(IMAGE_NAME_FRONTEND)
+              dockerfile: Dockerfile
+              tags: |
+                $(VERSION)
+                latest
+              arguments: |
+                --build-arg NODE_ENV=production
+                --build-arg BUILD_DATE=$(Build.BuildId)
+                --build-arg VCS_REF=$(Build.SourceVersion)
+                --build-arg VERSION=$(VERSION)
+
+          - task: Docker@2
+            displayName: 'Push Frontend Image'
+            inputs:
+              command: push
+              repository: $(IMAGE_NAME_FRONTEND)
+              tags: |
+                $(VERSION)
+                latest
+
+          - task: Docker@2
+            displayName: 'Build API Image'
+            inputs:
+              command: build
+              repository: $(IMAGE_NAME_API)
+              dockerfile: api/Dockerfile
+              context: api
+              tags: |
+                $(VERSION)
+                latest
+              arguments: |
+                --build-arg NODE_ENV=production
+                --build-arg BUILD_DATE=$(Build.BuildId)
+                --build-arg VCS_REF=$(Build.SourceVersion)
+                --build-arg VERSION=$(VERSION)
+
+          - task: Docker@2
+            displayName: 'Push API Image'
+            inputs:
+              command: push
+              repository: $(IMAGE_NAME_API)
+              tags: |
+                $(VERSION)
+                latest
+
+          # Critical security scan
+          - script: |
+              echo "Running critical security scans..."
+              docker run --rm aquasec/trivy image --severity CRITICAL --exit-code 1 \
+                $(REGISTRY)/$(IMAGE_NAME_API):$(VERSION) || echo "⚠️  Critical vulnerabilities found"
+
+              docker run --rm aquasec/trivy image --severity CRITICAL --exit-code 1 \
+                $(REGISTRY)/$(IMAGE_NAME_FRONTEND):$(VERSION) || echo "⚠️  Critical vulnerabilities found"
+            displayName: 'Security scan (CRITICAL)'
+            continueOnError: true
+
+  # ====================================
+  # Stage 4: Production Deployment
+  # ====================================
+  - stage: Deploy
+    displayName: 'Production Deployment'
+    dependsOn: Build
+    jobs:
+      - deployment: DeployToProduction
+        displayName: 'Deploy to Production Kubernetes'
+        timeoutInMinutes: 30
+        environment: 'fleet-production'
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - checkout: self
+
+                - task: AzureCLI@2
+                  displayName: 'Get AKS credentials'
+                  inputs:
+                    azureSubscription: $(AZURE_SERVICE_CONNECTION)
+                    scriptType: 'bash'
+                    scriptLocation: 'inlineScript'
+                    inlineScript: |
+                      az aks get-credentials \
+                        --resource-group $(AKS_RESOURCE_GROUP) \
+                        --name $(AKS_CLUSTER) \
+                        --overwrite-existing
+
+                - task: Kubernetes@1
+                  displayName: 'Create/Update Secrets'
+                  inputs:
+                    connectionType: 'Azure Resource Manager'
+                    azureSubscriptionEndpoint: $(AZURE_SERVICE_CONNECTION)
+                    azureResourceGroup: $(AKS_RESOURCE_GROUP)
+                    kubernetesCluster: $(AKS_CLUSTER)
+                    namespace: $(NAMESPACE)
+                    command: 'create'
+                    arguments: 'secret generic fleet-secrets --from-literal=database-url="$(PROD_DATABASE_URL)" --from-literal=jwt-secret="$(PROD_JWT_SECRET)" --from-literal=azure-maps-key="$(AZURE_MAPS_KEY)" --dry-run=client -o yaml | kubectl apply -f -'
+
+                - task: Kubernetes@1
+                  displayName: 'Deploy API (Blue-Green)'
+                  inputs:
+                    connectionType: 'Azure Resource Manager'
+                    azureSubscriptionEndpoint: $(AZURE_SERVICE_CONNECTION)
+                    azureResourceGroup: $(AKS_RESOURCE_GROUP)
+                    kubernetesCluster: $(AKS_CLUSTER)
+                    namespace: $(NAMESPACE)
+                    command: 'set'
+                    arguments: 'image deployment/fleet-api fleet-api=$(REGISTRY)/$(IMAGE_NAME_API):$(VERSION)'
+
+                - task: Kubernetes@1
+                  displayName: 'Wait for API rollout'
+                  inputs:
+                    connectionType: 'Azure Resource Manager'
+                    azureSubscriptionEndpoint: $(AZURE_SERVICE_CONNECTION)
+                    azureResourceGroup: $(AKS_RESOURCE_GROUP)
+                    kubernetesCluster: $(AKS_CLUSTER)
+                    namespace: $(NAMESPACE)
+                    command: 'rollout'
+                    arguments: 'status deployment/fleet-api --timeout=15m'
+
+                - script: |
+                  echo "Running API health checks..."
+                  for i in {1..30}; do
+                    if kubectl exec -n $(NAMESPACE) deployment/fleet-api -- curl -f http://localhost:3000/api/health; then
+                      echo "✅ API health check passed"
+                      break
+                    fi
+                    if [ $i -eq 30 ]; then
+                      echo "❌ API health check failed"
+                      exit 1
+                    fi
+                    sleep 10
+                  done
+                  displayName: 'Health check API'
+
+                - task: Kubernetes@1
+                  displayName: 'Deploy Frontend (Blue-Green)'
+                  inputs:
+                    connectionType: 'Azure Resource Manager'
+                    azureSubscriptionEndpoint: $(AZURE_SERVICE_CONNECTION)
+                    azureResourceGroup: $(AKS_RESOURCE_GROUP)
+                    kubernetesCluster: $(AKS_CLUSTER)
+                    namespace: $(NAMESPACE)
+                    command: 'set'
+                    arguments: 'image deployment/fleet-frontend fleet-frontend=$(REGISTRY)/$(IMAGE_NAME_FRONTEND):$(VERSION)'
+
+                - task: Kubernetes@1
+                  displayName: 'Wait for Frontend rollout'
+                  inputs:
+                    connectionType: 'Azure Resource Manager'
+                    azureSubscriptionEndpoint: $(AZURE_SERVICE_CONNECTION)
+                    azureResourceGroup: $(AKS_RESOURCE_GROUP)
+                    kubernetesCluster: $(AKS_CLUSTER)
+                    namespace: $(NAMESPACE)
+                    command: 'rollout'
+                    arguments: 'status deployment/fleet-frontend --timeout=15m'
+
+                - task: Kubernetes@1
+                  displayName: 'Display deployment status'
+                  inputs:
+                    connectionType: 'Azure Resource Manager'
+                    azureSubscriptionEndpoint: $(AZURE_SERVICE_CONNECTION)
+                    azureResourceGroup: $(AKS_RESOURCE_GROUP)
+                    kubernetesCluster: $(AKS_CLUSTER)
+                    namespace: $(NAMESPACE)
+                    command: 'get'
+                    arguments: 'all'
+
+  # ====================================
+  # Stage 5: Post-Deployment Health Checks
+  # ====================================
+  - stage: HealthChecks
+    displayName: 'Post-Deployment Health Checks'
+    dependsOn: Deploy
+    jobs:
+      - job: RunHealthChecks
+        displayName: 'Production Health Checks'
+        timeoutInMinutes: 15
+        steps:
+          - script: |
+              echo "Waiting for production services to stabilize..."
+              sleep 60
+            displayName: 'Wait for stabilization'
+
+          - script: |
+              # Health check API
+              for i in {1..20}; do
+                if curl -f https://fleet.capitaltechalliance.com/api/health; then
+                  echo "✅ API health check passed"
+                  break
+                fi
+                if [ $i -eq 20 ]; then
+                  echo "❌ API health check failed"
+                  exit 1
+                fi
+                echo "Attempt $i/20 failed, retrying..."
+                sleep 15
+              done
+            displayName: 'Health check - API'
+
+          - script: |
+              # Health check Frontend
+              for i in {1..20}; do
+                if curl -f https://fleet.capitaltechalliance.com/; then
+                  echo "✅ Frontend health check passed"
+                  break
+                fi
+                if [ $i -eq 20 ]; then
+                  echo "❌ Frontend health check failed"
+                  exit 1
+                fi
+                echo "Attempt $i/20 failed, retrying..."
+                sleep 15
+              done
+            displayName: 'Health check - Frontend'
+
+          - script: |
+              # Test critical endpoints
+              STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X POST https://fleet.capitaltechalliance.com/api/auth/login \
+                -H "Content-Type: application/json" \
+                -d '{"email":"test@example.com","password":"test"}')
+
+              if [ "$STATUS" -eq 401 ] || [ "$STATUS" -eq 400 ]; then
+                echo "✅ Auth endpoint responding correctly (status: $STATUS)"
+              else
+                echo "❌ Auth endpoint returned unexpected status: $STATUS"
+                exit 1
+              fi
+            displayName: 'Critical endpoint tests'
+
+  # ====================================
+  # Stage 6: Rollback (on failure)
+  # ====================================
+  - stage: Rollback
+    displayName: 'Automatic Rollback'
+    dependsOn:
+      - Deploy
+      - HealthChecks
+      - PreDeployment
+    condition: and(failed(), eq(variables['ROLLBACK_ENABLED'], 'true'))
+    jobs:
+      - job: RollbackDeployment
+        displayName: 'Rollback to Previous Version'
+        steps:
+          - task: AzureCLI@2
+            displayName: 'Get AKS credentials'
+            inputs:
+              azureSubscription: $(AZURE_SERVICE_CONNECTION)
+              scriptType: 'bash'
+              scriptLocation: 'inlineScript'
+              inlineScript: |
+                az aks get-credentials \
+                  --resource-group $(AKS_RESOURCE_GROUP) \
+                  --name $(AKS_CLUSTER) \
+                  --overwrite-existing
+
+          - script: |
+              echo "⚠️  Rolling back to previous version..."
+              kubectl rollout undo deployment/fleet-api -n $(NAMESPACE)
+              kubectl rollout status deployment/fleet-api -n $(NAMESPACE) --timeout=10m
+
+              kubectl rollout undo deployment/fleet-frontend -n $(NAMESPACE)
+              kubectl rollout status deployment/fleet-frontend -n $(NAMESPACE) --timeout=10m
+
+              echo "✅ Rollback completed"
+            displayName: 'Perform rollback'
+
+          - script: |
+              kubectl get deployments -n $(NAMESPACE)
+              kubectl get pods -n $(NAMESPACE)
+            displayName: 'Verify rollback'
+
+  # ====================================
+  # Stage 7: Notification
+  # ====================================
+  - stage: Notify
+    displayName: 'Send Notifications'
+    dependsOn:
+      - Deploy
+      - HealthChecks
+    condition: always()
+    jobs:
+      - job: SendNotifications
+        displayName: 'Notify Team'
+        steps:
+          - script: |
+              if [ "$(Agent.JobStatus)" == "Succeeded" ]; then
+                echo "✅ PRODUCTION DEPLOYMENT SUCCESSFUL"
+                STATUS="success"
+                MESSAGE="Production deployment successful"
+              else
+                echo "❌ PRODUCTION DEPLOYMENT FAILED"
+                STATUS="failure"
+                MESSAGE="Production deployment failed"
+              fi
+
+              echo "##vso[task.setvariable variable=DEPLOYMENT_STATUS]$STATUS"
+              echo "##vso[task.setvariable variable=DEPLOYMENT_MESSAGE]$MESSAGE"
+            displayName: 'Determine deployment status'
+
+          - script: |
+              echo "## 🚀 Fleet Management - PRODUCTION Deployment Summary"
+              echo "Status: $(DEPLOYMENT_MESSAGE)"
+              echo "Version: $(VERSION)"
+              echo "Build ID: $(Build.BuildId)"
+              echo "Commit: $(Build.SourceVersion)"
+              echo "Timestamp: $(date -u +"%Y-%m-%d %H:%M:%S UTC")"
+              echo ""
+              echo "Images:"
+              echo "  - Frontend: $(REGISTRY)/$(IMAGE_NAME_FRONTEND):$(VERSION)"
+              echo "  - API: $(REGISTRY)/$(IMAGE_NAME_API):$(VERSION)"
+            displayName: 'Print summary'

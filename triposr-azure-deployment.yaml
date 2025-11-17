@@ -1,0 +1,70 @@
+# TripoSR Azure Container Instance Deployment
+# Deploy FREE open-source 3D generation for Fleet damage reporting
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: triposr-service
+  namespace: fleet-management
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8000
+    targetPort: 8000
+    name: http
+  selector:
+    app: triposr
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: triposr-deployment
+  namespace: fleet-management
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: triposr
+  template:
+    metadata:
+      labels:
+        app: triposr
+    spec:
+      containers:
+      - name: triposr
+        image: fleetappregistry.azurecr.io/triposr-api:latest
+        ports:
+        - containerPort: 8000
+        resources:
+          requests:
+            memory: "4Gi"
+            cpu: "2"
+          limits:
+            memory: "8Gi"
+            cpu: "4"
+        env:
+        - name: MODEL_CACHE_DIR
+          value: "/models"
+        - name: TORCH_HOME
+          value: "/models/torch"
+        volumeMounts:
+        - name: model-cache
+          mountPath: /models
+      volumes:
+      - name: model-cache
+        persistentVolumeClaim:
+          claimName: triposr-models
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: triposr-models
+  namespace: fleet-management
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi

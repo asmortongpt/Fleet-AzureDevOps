@@ -1,0 +1,1056 @@
+{
+  "rbac_model": {
+    "resources": [
+      { "name": "vehicle", "description": "Fleet vehicles including cars, trucks, heavy equipment" },
+      { "name": "driver", "description": "Driver records with licenses, certifications, safety scores" },
+      { "name": "work_order", "description": "Maintenance and repair work orders" },
+      { "name": "maintenance_schedule", "description": "Preventive maintenance schedules" },
+      { "name": "fuel_transaction", "description": "Fuel purchases and consumption records" },
+      { "name": "route", "description": "Planned and active routes with waypoints" },
+      { "name": "geofence", "description": "Geographic boundaries and alerts" },
+      { "name": "inspection", "description": "Pre-trip, post-trip, and safety inspections" },
+      { "name": "safety_incident", "description": "Accidents, injuries, OSHA reportable events" },
+      { "name": "video_event", "description": "Dash cam and telematics video footage" },
+      { "name": "charging_station", "description": "EV charging infrastructure" },
+      { "name": "charging_session", "description": "EV charging events and costs" },
+      { "name": "vendor", "description": "Parts suppliers, fuel providers, service vendors" },
+      { "name": "purchase_order", "description": "Procurement orders for parts and services" },
+      { "name": "invoice", "description": "Vendor invoices and payment records" },
+      { "name": "policy", "description": "Automated policy rules and compliance checks" },
+      { "name": "telemetry", "description": "Real-time vehicle sensor data (OBD2, GPS)" },
+      { "name": "facility", "description": "Garages, depots, service centers" },
+      { "name": "user", "description": "User accounts and profiles" },
+      { "name": "role", "description": "Role definitions and assignments" },
+      { "name": "report", "description": "Analytics, dashboards, and exported data" },
+      { "name": "audit_log", "description": "Compliance and security audit trails" },
+      { "name": "damage_report", "description": "Vehicle damage assessments with 3D models" },
+      { "name": "notification", "description": "Alerts and system notifications" }
+    ],
+    "roles": [
+      {
+        "name": "FleetAdmin",
+        "summary": "Tenant administrator with full organizational access except financial approvals; manages users and settings.",
+        "sod_conflicts": ["Finance", "Auditor"],
+        "mfa_required": true,
+        "just_in_time_elevation_allowed": true
+      },
+      {
+        "name": "Manager",
+        "summary": "Fleet manager with operational oversight; approves maintenance and work orders within assigned fleet/region.",
+        "sod_conflicts": ["Finance"],
+        "mfa_required": false,
+        "just_in_time_elevation_allowed": false
+      },
+      {
+        "name": "Supervisor",
+        "summary": "Operations supervisor managing day-to-day team activities; assigns vehicles and drivers within team scope.",
+        "sod_conflicts": [],
+        "mfa_required": false,
+        "just_in_time_elevation_allowed": false
+      },
+      {
+        "name": "Dispatcher",
+        "summary": "Dispatch coordinator assigning drivers, vehicles, and routes; real-time GPS monitoring; no financial or admin access.",
+        "sod_conflicts": ["Finance", "Mechanic"],
+        "mfa_required": false,
+        "just_in_time_elevation_allowed": false
+      },
+      {
+        "name": "Mechanic",
+        "summary": "Maintenance technician executing repairs; can complete work orders and request parts but cannot approve or create orders.",
+        "sod_conflicts": ["Dispatcher", "Finance"],
+        "mfa_required": false,
+        "just_in_time_elevation_allowed": false
+      },
+      {
+        "name": "Driver",
+        "summary": "Vehicle operator with self-service access to own records, inspections, and assigned vehicle; no access to other drivers' data.",
+        "sod_conflicts": ["Mechanic", "Finance", "SafetyOfficer"],
+        "mfa_required": false,
+        "just_in_time_elevation_allowed": false
+      },
+      {
+        "name": "SafetyOfficer",
+        "summary": "Safety and compliance specialist; manages incidents, OSHA reporting, policy enforcement, driver certifications; read-only on operations.",
+        "sod_conflicts": ["Driver"],
+        "mfa_required": true,
+        "just_in_time_elevation_allowed": false
+      },
+      {
+        "name": "Finance",
+        "summary": "Finance and procurement role; creates POs and invoices but requires Manager/Admin approval; cannot also approve own transactions.",
+        "sod_conflicts": ["FleetAdmin", "Manager", "Dispatcher", "Mechanic"],
+        "mfa_required": true,
+        "just_in_time_elevation_allowed": false
+      },
+      {
+        "name": "Analyst",
+        "summary": "Data analyst with read-only access to all operational data; can generate and export reports but cannot modify any records.",
+        "sod_conflicts": [],
+        "mfa_required": false,
+        "just_in_time_elevation_allowed": false
+      },
+      {
+        "name": "Auditor",
+        "summary": "Compliance auditor with read-only access to all data including audit logs; cannot modify any records; strongest SoD enforcement.",
+        "sod_conflicts": ["FleetAdmin", "Finance", "Manager"],
+        "mfa_required": true,
+        "just_in_time_elevation_allowed": false
+      }
+    ],
+    "permissions": [
+      {
+        "role": "FleetAdmin",
+        "privilege": "vehicle:view:global",
+        "conditions": ["vehicles.tenant_id = user.tenant_id"],
+        "justification": "FleetAdmin manages all vehicles across the organization for configuration and oversight.",
+        "risk_if_overgranted": "Cross-tenant data exposure if tenant_id not enforced."
+      },
+      {
+        "role": "FleetAdmin",
+        "privilege": "vehicle:create:global",
+        "conditions": ["vehicles.tenant_id = user.tenant_id"],
+        "justification": "FleetAdmin provisions new vehicles into the fleet.",
+        "risk_if_overgranted": "Unauthorized vehicle additions could inflate costs."
+      },
+      {
+        "role": "FleetAdmin",
+        "privilege": "vehicle:update:global",
+        "conditions": ["vehicles.tenant_id = user.tenant_id"],
+        "justification": "FleetAdmin updates vehicle configurations, status, and assignments.",
+        "risk_if_overgranted": "Could reassign vehicles to bypass audit trails."
+      },
+      {
+        "role": "FleetAdmin",
+        "privilege": "vehicle:delete:global",
+        "conditions": ["vehicles.tenant_id = user.tenant_id AND vehicles.status IN ('sold', 'retired')"],
+        "justification": "FleetAdmin can remove sold/retired vehicles from active fleet.",
+        "risk_if_overgranted": "Accidental deletion of active vehicles disrupts operations."
+      },
+      {
+        "role": "FleetAdmin",
+        "privilege": "driver:view:global",
+        "conditions": ["drivers.tenant_id = user.tenant_id"],
+        "justification": "FleetAdmin manages driver records and certifications.",
+        "risk_if_overgranted": "PII exposure (license numbers, medical info) if not masked."
+      },
+      {
+        "role": "FleetAdmin",
+        "privilege": "driver:create:global",
+        "conditions": ["drivers.tenant_id = user.tenant_id"],
+        "justification": "FleetAdmin onboards new drivers.",
+        "risk_if_overgranted": "Unauthorized driver additions could enable fraud."
+      },
+      {
+        "role": "FleetAdmin",
+        "privilege": "driver:update:global",
+        "conditions": ["drivers.tenant_id = user.tenant_id"],
+        "justification": "FleetAdmin updates driver certifications and status.",
+        "risk_if_overgranted": "Could forge certifications or manipulate safety scores."
+      },
+      {
+        "role": "FleetAdmin",
+        "privilege": "user:manage:global",
+        "conditions": ["users.tenant_id = user.tenant_id"],
+        "justification": "FleetAdmin creates and manages user accounts.",
+        "risk_if_overgranted": "Privilege escalation by creating admin accounts."
+      },
+      {
+        "role": "FleetAdmin",
+        "privilege": "role:manage:global",
+        "conditions": ["users.tenant_id = user.tenant_id AND target_role != 'super-admin'"],
+        "justification": "FleetAdmin assigns roles except super-admin.",
+        "risk_if_overgranted": "Could grant themselves Finance role, violating SoD."
+      },
+      {
+        "role": "Manager",
+        "privilege": "vehicle:view:fleet",
+        "conditions": ["vehicles.tenant_id = user.tenant_id AND (vehicles.assigned_facility_id IN user.facility_ids OR user.facility_ids IS NULL)"],
+        "justification": "Manager oversees vehicles in their assigned facilities/fleets.",
+        "risk_if_overgranted": "Could view cross-regional sensitive vehicle data."
+      },
+      {
+        "role": "Manager",
+        "privilege": "vehicle:update:fleet",
+        "conditions": ["vehicles.tenant_id = user.tenant_id AND vehicles.assigned_facility_id IN user.facility_ids"],
+        "justification": "Manager updates vehicle assignments and status in their fleet.",
+        "risk_if_overgranted": "Could reassign vehicles outside their authority."
+      },
+      {
+        "role": "Manager",
+        "privilege": "work_order:view:fleet",
+        "conditions": ["work_orders.tenant_id = user.tenant_id AND (work_orders.facility_id IN user.facility_ids OR user.facility_ids IS NULL)"],
+        "justification": "Manager monitors maintenance work in their facilities.",
+        "risk_if_overgranted": "Could access work orders from other facilities."
+      },
+      {
+        "role": "Manager",
+        "privilege": "work_order:create:fleet",
+        "conditions": ["work_orders.tenant_id = user.tenant_id AND work_orders.facility_id IN user.facility_ids"],
+        "justification": "Manager initiates maintenance work orders.",
+        "risk_if_overgranted": "Could create fraudulent work orders."
+      },
+      {
+        "role": "Manager",
+        "privilege": "work_order:approve:fleet",
+        "conditions": ["work_orders.tenant_id = user.tenant_id AND work_orders.facility_id IN user.facility_ids AND work_orders.created_by != user.id"],
+        "justification": "Manager approves work orders they did not create (SoD).",
+        "risk_if_overgranted": "Self-approval enables fraudulent maintenance charges."
+      },
+      {
+        "role": "Manager",
+        "privilege": "purchase_order:view:fleet",
+        "conditions": ["purchase_orders.tenant_id = user.tenant_id"],
+        "justification": "Manager reviews procurement for their operations.",
+        "risk_if_overgranted": "Could view sensitive vendor pricing."
+      },
+      {
+        "role": "Manager",
+        "privilege": "purchase_order:approve:fleet",
+        "conditions": ["purchase_orders.tenant_id = user.tenant_id AND purchase_orders.created_by != user.id AND purchase_orders.total <= user.approval_limit"],
+        "justification": "Manager approves POs up to their limit, not self-created.",
+        "risk_if_overgranted": "Unlimited approvals could drain budget."
+      },
+      {
+        "role": "Supervisor",
+        "privilege": "vehicle:view:team",
+        "conditions": ["vehicles.tenant_id = user.tenant_id AND (vehicles.assigned_driver_id IN user.team_driver_ids OR vehicles.id IN user.team_vehicle_ids)"],
+        "justification": "Supervisor manages vehicles assigned to their team.",
+        "risk_if_overgranted": "Could view vehicles from other teams."
+      },
+      {
+        "role": "Supervisor",
+        "privilege": "vehicle:assign:team",
+        "conditions": ["vehicles.tenant_id = user.tenant_id AND vehicles.id IN user.team_vehicle_ids AND new_driver_id IN user.team_driver_ids"],
+        "justification": "Supervisor assigns team drivers to team vehicles.",
+        "risk_if_overgranted": "Could reassign vehicles to unauthorized drivers."
+      },
+      {
+        "role": "Supervisor",
+        "privilege": "driver:view:team",
+        "conditions": ["drivers.tenant_id = user.tenant_id AND drivers.id IN user.team_driver_ids"],
+        "justification": "Supervisor monitors their team drivers.",
+        "risk_if_overgranted": "PII exposure for drivers outside team."
+      },
+      {
+        "role": "Supervisor",
+        "privilege": "work_order:create:team",
+        "conditions": ["work_orders.tenant_id = user.tenant_id AND work_orders.vehicle_id IN user.team_vehicle_ids"],
+        "justification": "Supervisor creates work orders for team vehicles.",
+        "risk_if_overgranted": "Could create work orders for non-team vehicles."
+      },
+      {
+        "role": "Dispatcher",
+        "privilege": "vehicle:view:fleet",
+        "conditions": ["vehicles.tenant_id = user.tenant_id"],
+        "justification": "Dispatcher needs to see all available vehicles for assignment.",
+        "risk_if_overgranted": "No financial data should be visible (purchase price, value)."
+      },
+      {
+        "role": "Dispatcher",
+        "privilege": "vehicle:assign:fleet",
+        "conditions": ["vehicles.tenant_id = user.tenant_id AND vehicles.status = 'active'"],
+        "justification": "Dispatcher assigns active vehicles to routes and drivers.",
+        "risk_if_overgranted": "Could assign out-of-service vehicles."
+      },
+      {
+        "role": "Dispatcher",
+        "privilege": "driver:view:fleet",
+        "conditions": ["drivers.tenant_id = user.tenant_id"],
+        "justification": "Dispatcher sees driver availability and location for assignments.",
+        "risk_if_overgranted": "PII like medical info and SSN must be masked."
+      },
+      {
+        "role": "Dispatcher",
+        "privilege": "route:view:fleet",
+        "conditions": ["routes.tenant_id = user.tenant_id"],
+        "justification": "Dispatcher monitors all active and planned routes.",
+        "risk_if_overgranted": "None, this is core function."
+      },
+      {
+        "role": "Dispatcher",
+        "privilege": "route:create:fleet",
+        "conditions": ["routes.tenant_id = user.tenant_id"],
+        "justification": "Dispatcher creates and optimizes routes.",
+        "risk_if_overgranted": "Could create inefficient routes to inflate hours."
+      },
+      {
+        "role": "Dispatcher",
+        "privilege": "route:update:fleet",
+        "conditions": ["routes.tenant_id = user.tenant_id AND routes.status IN ('planned', 'in_progress')"],
+        "justification": "Dispatcher modifies routes in real-time.",
+        "risk_if_overgranted": "Could modify completed routes to alter records."
+      },
+      {
+        "role": "Dispatcher",
+        "privilege": "gps:view:fleet",
+        "conditions": ["telemetry_data.tenant_id = user.tenant_id"],
+        "justification": "Dispatcher tracks real-time vehicle locations.",
+        "risk_if_overgranted": "Privacy concerns if used for surveillance."
+      },
+      {
+        "role": "Mechanic",
+        "privilege": "vehicle:view:own",
+        "conditions": ["vehicles.tenant_id = user.tenant_id"],
+        "justification": "Mechanic views vehicles they are servicing.",
+        "risk_if_overgranted": "Should not see financial data."
+      },
+      {
+        "role": "Mechanic",
+        "privilege": "work_order:view:own",
+        "conditions": ["work_orders.tenant_id = user.tenant_id AND (work_orders.assigned_technician_id = user.id OR work_orders.assigned_technician_id IS NULL)"],
+        "justification": "Mechanic sees work orders assigned to them or unassigned.",
+        "risk_if_overgranted": "Could cherry-pick easy jobs."
+      },
+      {
+        "role": "Mechanic",
+        "privilege": "work_order:complete:own",
+        "conditions": ["work_orders.tenant_id = user.tenant_id AND work_orders.assigned_technician_id = user.id AND work_orders.status = 'in_progress'"],
+        "justification": "Mechanic completes assigned work orders.",
+        "risk_if_overgranted": "Cannot create, approve, or delete work orders."
+      },
+      {
+        "role": "Mechanic",
+        "privilege": "maintenance_schedule:view:fleet",
+        "conditions": ["maintenance_schedules.tenant_id = user.tenant_id"],
+        "justification": "Mechanic sees upcoming preventive maintenance.",
+        "risk_if_overgranted": "Read-only, no modification."
+      },
+      {
+        "role": "Mechanic",
+        "privilege": "inspection:create:own",
+        "conditions": ["inspections.tenant_id = user.tenant_id"],
+        "justification": "Mechanic performs and records inspections.",
+        "risk_if_overgranted": "None, core function."
+      },
+      {
+        "role": "Driver",
+        "privilege": "vehicle:view:own",
+        "conditions": ["vehicles.tenant_id = user.tenant_id AND vehicles.assigned_driver_id = user.driver_id"],
+        "justification": "Driver sees their assigned vehicle only.",
+        "risk_if_overgranted": "Cannot see other drivers' vehicles."
+      },
+      {
+        "role": "Driver",
+        "privilege": "driver:view:own",
+        "conditions": ["drivers.tenant_id = user.tenant_id AND drivers.user_id = user.id"],
+        "justification": "Driver views their own profile and certifications.",
+        "risk_if_overgranted": "Cannot see other drivers' PII."
+      },
+      {
+        "role": "Driver",
+        "privilege": "inspection:create:own",
+        "conditions": ["inspections.tenant_id = user.tenant_id AND inspections.driver_id = user.driver_id"],
+        "justification": "Driver performs pre/post-trip inspections.",
+        "risk_if_overgranted": "Cannot create inspections for other drivers."
+      },
+      {
+        "role": "Driver",
+        "privilege": "route:view:own",
+        "conditions": ["routes.tenant_id = user.tenant_id AND routes.driver_id = user.driver_id"],
+        "justification": "Driver sees their assigned routes.",
+        "risk_if_overgranted": "Cannot modify routes."
+      },
+      {
+        "role": "Driver",
+        "privilege": "fuel_transaction:create:own",
+        "conditions": ["fuel_transactions.tenant_id = user.tenant_id AND fuel_transactions.driver_id = user.driver_id"],
+        "justification": "Driver logs fuel purchases.",
+        "risk_if_overgranted": "Cannot create transactions for other drivers."
+      },
+      {
+        "role": "SafetyOfficer",
+        "privilege": "safety_incident:view:global",
+        "conditions": ["safety_incidents.tenant_id = user.tenant_id"],
+        "justification": "SafetyOfficer investigates all incidents.",
+        "risk_if_overgranted": "None, required for compliance."
+      },
+      {
+        "role": "SafetyOfficer",
+        "privilege": "safety_incident:create:global",
+        "conditions": ["safety_incidents.tenant_id = user.tenant_id"],
+        "justification": "SafetyOfficer creates incident reports.",
+        "risk_if_overgranted": "None, core function."
+      },
+      {
+        "role": "SafetyOfficer",
+        "privilege": "safety_incident:approve:global",
+        "conditions": ["safety_incidents.tenant_id = user.tenant_id AND safety_incidents.reported_by != user.id"],
+        "justification": "SafetyOfficer approves incidents they didn't create (SoD).",
+        "risk_if_overgranted": "Self-approval could hide incidents."
+      },
+      {
+        "role": "SafetyOfficer",
+        "privilege": "driver:certify:global",
+        "conditions": ["drivers.tenant_id = user.tenant_id AND drivers.user_id != user.id"],
+        "justification": "SafetyOfficer certifies driver compliance.",
+        "risk_if_overgranted": "Cannot certify themselves."
+      },
+      {
+        "role": "SafetyOfficer",
+        "privilege": "video_event:view:global",
+        "conditions": ["video_events.tenant_id = user.tenant_id"],
+        "justification": "SafetyOfficer reviews dash cam footage for incidents.",
+        "risk_if_overgranted": "Privacy concerns require audit logging."
+      },
+      {
+        "role": "SafetyOfficer",
+        "privilege": "policy:create:global",
+        "conditions": ["policies.tenant_id = user.tenant_id"],
+        "justification": "SafetyOfficer creates safety and compliance policies.",
+        "risk_if_overgranted": "Cannot deploy without approval."
+      },
+      {
+        "role": "Finance",
+        "privilege": "purchase_order:view:global",
+        "conditions": ["purchase_orders.tenant_id = user.tenant_id"],
+        "justification": "Finance manages all procurement.",
+        "risk_if_overgranted": "None, required for function."
+      },
+      {
+        "role": "Finance",
+        "privilege": "purchase_order:create:global",
+        "conditions": ["purchase_orders.tenant_id = user.tenant_id"],
+        "justification": "Finance creates POs for parts and services.",
+        "risk_if_overgranted": "Requires Manager approval before ordering."
+      },
+      {
+        "role": "Finance",
+        "privilege": "invoice:view:global",
+        "conditions": ["TRUE"],
+        "justification": "Finance processes all vendor invoices.",
+        "risk_if_overgranted": "None, core function."
+      },
+      {
+        "role": "Finance",
+        "privilege": "invoice:create:global",
+        "conditions": ["TRUE"],
+        "justification": "Finance records incoming invoices.",
+        "risk_if_overgranted": "Cannot approve or pay without Manager authorization."
+      },
+      {
+        "role": "Finance",
+        "privilege": "vendor:manage:global",
+        "conditions": ["vendors.tenant_id = user.tenant_id"],
+        "justification": "Finance manages vendor relationships and contracts.",
+        "risk_if_overgranted": "None, core function."
+      },
+      {
+        "role": "Analyst",
+        "privilege": "vehicle:view:global",
+        "conditions": ["vehicles.tenant_id = user.tenant_id"],
+        "justification": "Analyst generates fleet utilization reports.",
+        "risk_if_overgranted": "Read-only, no modifications."
+      },
+      {
+        "role": "Analyst",
+        "privilege": "report:generate:global",
+        "conditions": ["user.tenant_id = user.tenant_id"],
+        "justification": "Analyst creates custom reports and dashboards.",
+        "risk_if_overgranted": "Data export must be audited."
+      },
+      {
+        "role": "Analyst",
+        "privilege": "report:export:global",
+        "conditions": ["user.tenant_id = user.tenant_id"],
+        "justification": "Analyst exports data for analysis.",
+        "risk_if_overgranted": "PII must be masked in exports."
+      },
+      {
+        "role": "Auditor",
+        "privilege": "audit_log:view:global",
+        "conditions": ["audit_logs.tenant_id = user.tenant_id"],
+        "justification": "Auditor reviews all system activity for compliance.",
+        "risk_if_overgranted": "None, required for compliance."
+      },
+      {
+        "role": "Auditor",
+        "privilege": "audit_log:export:global",
+        "conditions": ["audit_logs.tenant_id = user.tenant_id"],
+        "justification": "Auditor exports logs for external review.",
+        "risk_if_overgranted": "Must be immutable, append-only."
+      },
+      {
+        "role": "Auditor",
+        "privilege": "*:view:global",
+        "conditions": ["resource.tenant_id = user.tenant_id"],
+        "justification": "Auditor has read-only access to all data.",
+        "risk_if_overgranted": "Cannot modify any records."
+      }
+    ],
+    "policy_principles": {
+      "default_deny": true,
+      "naming_convention": "{resource}:{verb}:{scope}",
+      "scopes": ["own", "team", "fleet", "global"],
+      "pii_fields": [
+        "drivers.license_number",
+        "drivers.license_state",
+        "drivers.medical_card_expiration",
+        "drivers.emergency_contact_name",
+        "drivers.emergency_contact_phone",
+        "users.email",
+        "users.phone",
+        "users.mfa_secret",
+        "fuel_transactions.fuel_card_number",
+        "purchase_orders.line_items",
+        "communication_logs.body"
+      ],
+      "row_level_policies": [
+        {
+          "resource": "driver",
+          "policy": "drivers.tenant_id = user.tenant_id AND (drivers.id IN user.team_driver_ids OR drivers.user_id = user.id OR user.scope IN ('fleet', 'global'))",
+          "applies_to_roles": ["Manager", "Supervisor", "Dispatcher", "Driver", "SafetyOfficer"]
+        },
+        {
+          "resource": "vehicle",
+          "policy": "vehicles.tenant_id = user.tenant_id AND (vehicles.id IN user.team_vehicle_ids OR vehicles.assigned_driver_id = user.driver_id OR user.scope IN ('fleet', 'global'))",
+          "applies_to_roles": ["Manager", "Supervisor", "Dispatcher", "Driver", "Mechanic"]
+        },
+        {
+          "resource": "work_order",
+          "policy": "work_orders.tenant_id = user.tenant_id AND (work_orders.facility_id IN user.facility_ids OR work_orders.assigned_technician_id = user.id OR user.scope IN ('fleet', 'global'))",
+          "applies_to_roles": ["Manager", "Supervisor", "Mechanic"]
+        },
+        {
+          "resource": "route",
+          "policy": "routes.tenant_id = user.tenant_id AND (routes.driver_id = user.driver_id OR user.scope IN ('fleet', 'global'))",
+          "applies_to_roles": ["Dispatcher", "Driver"]
+        },
+        {
+          "resource": "purchase_order",
+          "policy": "purchase_orders.tenant_id = user.tenant_id",
+          "applies_to_roles": ["Finance", "Manager", "FleetAdmin"]
+        },
+        {
+          "resource": "safety_incident",
+          "policy": "safety_incidents.tenant_id = user.tenant_id",
+          "applies_to_roles": ["SafetyOfficer", "Manager", "FleetAdmin"]
+        }
+      ]
+    }
+  },
+  "ui_mappings": [
+    {
+      "screen_id": "vehicle_management",
+      "route": "/modules/VehicleManagement",
+      "components": ["VehicleList", "VehicleMap", "AddVehicleButton", "BulkActions"],
+      "visible_to_roles": ["FleetAdmin", "Manager", "Supervisor", "Dispatcher", "Analyst", "Auditor"],
+      "required_privileges": [
+        {"resource": "vehicle", "verb": "view", "scope": "team"}
+      ],
+      "disabled_actions": {
+        "FleetAdmin": [],
+        "Manager": ["delete"],
+        "Supervisor": ["create", "delete", "bulk_update"],
+        "Dispatcher": ["create", "delete", "edit_financial"],
+        "Analyst": ["create", "update", "delete"],
+        "Auditor": ["create", "update", "delete"]
+      }
+    },
+    {
+      "screen_id": "maintenance_board",
+      "route": "/modules/MaintenanceBoard",
+      "components": ["OpenWorkOrders", "ScheduleBoard", "NewWorkOrderButton"],
+      "visible_to_roles": ["FleetAdmin", "Manager", "Supervisor", "Mechanic"],
+      "required_privileges": [
+        {"resource": "work_order", "verb": "view", "scope": "team"}
+      ],
+      "disabled_actions": {
+        "FleetAdmin": [],
+        "Manager": [],
+        "Supervisor": ["approve", "delete"],
+        "Mechanic": ["create", "approve", "delete", "assign"]
+      }
+    },
+    {
+      "screen_id": "driver_management",
+      "route": "/modules/DriverManagement",
+      "components": ["DriverList", "DriverScorecard", "CertificationTracker"],
+      "visible_to_roles": ["FleetAdmin", "Manager", "Supervisor", "SafetyOfficer", "Analyst", "Auditor"],
+      "required_privileges": [
+        {"resource": "driver", "verb": "view", "scope": "team"}
+      ],
+      "disabled_actions": {
+        "FleetAdmin": [],
+        "Manager": ["delete", "certify"],
+        "Supervisor": ["create", "delete", "certify"],
+        "SafetyOfficer": ["delete"],
+        "Analyst": ["create", "update", "delete", "certify"],
+        "Auditor": ["create", "update", "delete", "certify"]
+      }
+    },
+    {
+      "screen_id": "dispatch_console",
+      "route": "/modules/DispatchConsole",
+      "components": ["LiveMap", "RouteOptimizer", "DriverAssignment", "VehicleStatus"],
+      "visible_to_roles": ["FleetAdmin", "Manager", "Dispatcher"],
+      "required_privileges": [
+        {"resource": "route", "verb": "view", "scope": "fleet"},
+        {"resource": "gps", "verb": "view", "scope": "fleet"}
+      ],
+      "disabled_actions": {
+        "FleetAdmin": [],
+        "Manager": [],
+        "Dispatcher": []
+      }
+    },
+    {
+      "screen_id": "procurement",
+      "route": "/modules/Procurement",
+      "components": ["PurchaseOrderList", "VendorManagement", "ApprovalQueue"],
+      "visible_to_roles": ["FleetAdmin", "Manager", "Finance", "Auditor"],
+      "required_privileges": [
+        {"resource": "purchase_order", "verb": "view", "scope": "fleet"}
+      ],
+      "disabled_actions": {
+        "FleetAdmin": ["approve_own"],
+        "Manager": ["create", "pay"],
+        "Finance": ["approve", "pay"],
+        "Auditor": ["create", "update", "delete", "approve", "pay"]
+      }
+    },
+    {
+      "screen_id": "safety_compliance",
+      "route": "/modules/SafetyCompliance",
+      "components": ["IncidentReports", "OSHAReporting", "VideoReview", "PolicyEngine"],
+      "visible_to_roles": ["FleetAdmin", "Manager", "SafetyOfficer", "Auditor"],
+      "required_privileges": [
+        {"resource": "safety_incident", "verb": "view", "scope": "global"}
+      ],
+      "disabled_actions": {
+        "FleetAdmin": ["osha_submit"],
+        "Manager": ["osha_submit", "policy_deploy"],
+        "SafetyOfficer": [],
+        "Auditor": ["create", "update", "delete", "approve"]
+      }
+    },
+    {
+      "screen_id": "analytics_dashboard",
+      "route": "/modules/Analytics",
+      "components": ["ExecutiveDashboard", "CustomReports", "DataExport"],
+      "visible_to_roles": ["FleetAdmin", "Manager", "Analyst", "Auditor"],
+      "required_privileges": [
+        {"resource": "report", "verb": "view", "scope": "global"}
+      ],
+      "disabled_actions": {
+        "FleetAdmin": [],
+        "Manager": [],
+        "Analyst": [],
+        "Auditor": []
+      }
+    }
+  ],
+  "api_mappings": [
+    {
+      "method": "POST",
+      "path": "/api/work-orders",
+      "handler": "create_work_order",
+      "required_privileges": [{"resource": "work_order", "verb": "create", "scope": "team"}],
+      "enforcement": "@requirePermission('work_order:create:team')",
+      "notes": "Validate facility_id IN user.facility_ids; auto-set tenant_id; audit log with correlation_id."
+    },
+    {
+      "method": "PUT",
+      "path": "/api/work-orders/:id/approve",
+      "handler": "approve_work_order",
+      "required_privileges": [{"resource": "work_order", "verb": "approve", "scope": "fleet"}],
+      "enforcement": "@requirePermission('work_order:approve:fleet') AND created_by != user.id",
+      "notes": "SoD check: cannot approve own work orders; validate status transition."
+    },
+    {
+      "method": "POST",
+      "path": "/api/purchase-orders",
+      "handler": "create_purchase_order",
+      "required_privileges": [{"resource": "purchase_order", "verb": "create", "scope": "global"}],
+      "enforcement": "@requirePermission('purchase_order:create:global')",
+      "notes": "Set status='draft'; require Manager approval before submission to vendor."
+    },
+    {
+      "method": "PUT",
+      "path": "/api/purchase-orders/:id/approve",
+      "handler": "approve_purchase_order",
+      "required_privileges": [{"resource": "purchase_order", "verb": "approve", "scope": "fleet"}],
+      "enforcement": "@requirePermission('purchase_order:approve:fleet') AND created_by != user.id AND total <= user.approval_limit",
+      "notes": "SoD: Finance creates, Manager approves; check approval limit."
+    },
+    {
+      "method": "GET",
+      "path": "/api/drivers",
+      "handler": "list_drivers",
+      "required_privileges": [{"resource": "driver", "verb": "view", "scope": "team"}],
+      "enforcement": "@requirePermission('driver:view:team') WITH row_level_policy",
+      "notes": "Apply scope filter; mask PII fields per role; paginate results."
+    },
+    {
+      "method": "GET",
+      "path": "/api/drivers/:id",
+      "handler": "get_driver",
+      "required_privileges": [{"resource": "driver", "verb": "view", "scope": "own"}],
+      "enforcement": "@requirePermission('driver:view:own') WITH row_level_policy",
+      "notes": "Validate driver.id IN user.accessible_driver_ids OR driver.user_id = user.id; mask sensitive fields."
+    },
+    {
+      "method": "PUT",
+      "path": "/api/drivers/:id/certify",
+      "handler": "certify_driver",
+      "required_privileges": [{"resource": "driver", "verb": "certify", "scope": "global"}],
+      "enforcement": "@requirePermission('driver:certify:global') AND driver.user_id != user.id",
+      "notes": "SafetyOfficer only; cannot self-certify; audit certification changes."
+    },
+    {
+      "method": "POST",
+      "path": "/api/vehicles",
+      "handler": "create_vehicle",
+      "required_privileges": [{"resource": "vehicle", "verb": "create", "scope": "global"}],
+      "enforcement": "@requirePermission('vehicle:create:global')",
+      "notes": "Validate VIN uniqueness; auto-set tenant_id; sanitize inputs to prevent mass assignment."
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/vehicles/:id",
+      "handler": "delete_vehicle",
+      "required_privileges": [{"resource": "vehicle", "verb": "delete", "scope": "global"}],
+      "enforcement": "@requirePermission('vehicle:delete:global') AND vehicle.status IN ('sold', 'retired')",
+      "notes": "Soft delete only; cannot delete active vehicles; FleetAdmin only."
+    },
+    {
+      "method": "GET",
+      "path": "/api/telemetry/:vehicle_id",
+      "handler": "get_telemetry",
+      "required_privileges": [{"resource": "telemetry", "verb": "view", "scope": "fleet"}],
+      "enforcement": "@requirePermission('telemetry:view:fleet') WITH row_level_policy",
+      "notes": "Validate vehicle_id accessible to user; rate limit 10 req/min; audit GPS access."
+    },
+    {
+      "method": "GET",
+      "path": "/api/video-events/:id",
+      "handler": "get_video_event",
+      "required_privileges": [{"resource": "video_event", "verb": "view", "scope": "global"}],
+      "enforcement": "@requirePermission('video_event:view:global')",
+      "notes": "SafetyOfficer/Manager only; audit all video access with timestamp and reason."
+    },
+    {
+      "method": "POST",
+      "path": "/api/safety-incidents",
+      "handler": "create_safety_incident",
+      "required_privileges": [{"resource": "safety_incident", "verb": "create", "scope": "global"}],
+      "enforcement": "@requirePermission('safety_incident:create:global')",
+      "notes": "Auto-generate incident_number; notify SafetyOfficer; trigger OSHA workflow if severity >= 'severe'."
+    },
+    {
+      "method": "GET",
+      "path": "/api/audit-logs",
+      "handler": "get_audit_logs",
+      "required_privileges": [{"resource": "audit_log", "verb": "view", "scope": "global"}],
+      "enforcement": "@requirePermission('audit_log:view:global')",
+      "notes": "Auditor/FleetAdmin only; immutable logs; support filtering by action, user, resource, date range."
+    }
+  ],
+  "data_mappings": [
+    {
+      "table": "drivers",
+      "field_classification": {
+        "id": "Internal",
+        "tenant_id": "Internal",
+        "user_id": "Internal",
+        "license_number": "Confidential",
+        "license_state": "Internal",
+        "license_expiration": "Confidential",
+        "cdl_class": "Internal",
+        "medical_card_expiration": "Confidential",
+        "emergency_contact_name": "Confidential",
+        "emergency_contact_phone": "Confidential",
+        "safety_score": "Internal",
+        "incidents_count": "Internal",
+        "violations_count": "Internal"
+      },
+      "row_level_policy": "drivers.tenant_id = user.tenant_id AND (drivers.id IN user.team_driver_ids OR drivers.user_id = user.id OR user.role IN ('FleetAdmin', 'Manager', 'SafetyOfficer', 'Analyst', 'Auditor'))",
+      "controls": ["encryption_at_rest", "mask_in_ui", "audit_on_access"]
+    },
+    {
+      "table": "vehicles",
+      "field_classification": {
+        "id": "Internal",
+        "tenant_id": "Internal",
+        "vin": "Internal",
+        "purchase_price": "Confidential",
+        "current_value": "Confidential",
+        "latitude": "Sensitive",
+        "longitude": "Sensitive",
+        "gps_device_id": "Internal"
+      },
+      "row_level_policy": "vehicles.tenant_id = user.tenant_id AND (vehicles.id IN user.team_vehicle_ids OR vehicles.assigned_driver_id = user.driver_id OR user.role IN ('FleetAdmin', 'Manager', 'Dispatcher', 'Analyst', 'Auditor'))",
+      "controls": ["encryption_at_rest", "mask_financial_for_non_finance_roles", "audit_gps_access"]
+    },
+    {
+      "table": "work_orders",
+      "field_classification": {
+        "id": "Internal",
+        "tenant_id": "Internal",
+        "labor_cost": "Confidential",
+        "parts_cost": "Confidential",
+        "total_cost": "Confidential"
+      },
+      "row_level_policy": "work_orders.tenant_id = user.tenant_id AND (work_orders.facility_id IN user.facility_ids OR work_orders.assigned_technician_id = user.id OR user.role IN ('FleetAdmin', 'Manager', 'Analyst', 'Auditor'))",
+      "controls": ["encryption_at_rest", "mask_costs_for_mechanics"]
+    },
+    {
+      "table": "purchase_orders",
+      "field_classification": {
+        "id": "Internal",
+        "tenant_id": "Internal",
+        "subtotal": "Confidential",
+        "tax": "Confidential",
+        "total": "Confidential",
+        "line_items": "Confidential",
+        "approved_by": "Internal"
+      },
+      "row_level_policy": "purchase_orders.tenant_id = user.tenant_id AND user.role IN ('FleetAdmin', 'Manager', 'Finance', 'Auditor')",
+      "controls": ["encryption_at_rest", "audit_on_access", "sod_enforcement_on_approval"]
+    },
+    {
+      "table": "fuel_transactions",
+      "field_classification": {
+        "id": "Internal",
+        "tenant_id": "Internal",
+        "fuel_card_number": "Confidential",
+        "total_cost": "Internal"
+      },
+      "row_level_policy": "fuel_transactions.tenant_id = user.tenant_id AND (fuel_transactions.driver_id = user.driver_id OR user.role IN ('FleetAdmin', 'Manager', 'Finance', 'Analyst', 'Auditor'))",
+      "controls": ["encryption_at_rest", "mask_card_number"]
+    },
+    {
+      "table": "safety_incidents",
+      "field_classification": {
+        "id": "Internal",
+        "tenant_id": "Internal",
+        "description": "Confidential",
+        "property_damage_cost": "Confidential",
+        "insurance_claim_number": "Confidential"
+      },
+      "row_level_policy": "safety_incidents.tenant_id = user.tenant_id AND user.role IN ('FleetAdmin', 'Manager', 'SafetyOfficer', 'Auditor')",
+      "controls": ["encryption_at_rest", "audit_on_access", "immutable_after_closure"]
+    },
+    {
+      "table": "video_events",
+      "field_classification": {
+        "id": "Internal",
+        "tenant_id": "Internal",
+        "video_url": "Restricted",
+        "thumbnail_url": "Restricted"
+      },
+      "row_level_policy": "video_events.tenant_id = user.tenant_id AND user.role IN ('FleetAdmin', 'Manager', 'SafetyOfficer')",
+      "controls": ["encryption_at_rest", "audit_on_access", "retention_policy_90_days"]
+    },
+    {
+      "table": "users",
+      "field_classification": {
+        "id": "Internal",
+        "tenant_id": "Internal",
+        "email": "Confidential",
+        "password_hash": "Restricted",
+        "phone": "Confidential",
+        "mfa_secret": "Restricted"
+      },
+      "row_level_policy": "users.tenant_id = user.tenant_id AND (users.id = user.id OR user.role IN ('FleetAdmin', 'Auditor'))",
+      "controls": ["encryption_at_rest", "mask_in_ui", "audit_on_access", "bcrypt_password_hashing"]
+    },
+    {
+      "table": "audit_logs",
+      "field_classification": {
+        "id": "Internal",
+        "tenant_id": "Internal",
+        "user_id": "Internal",
+        "action": "Internal",
+        "details": "Internal",
+        "hash": "Internal"
+      },
+      "row_level_policy": "audit_logs.tenant_id = user.tenant_id AND user.role IN ('FleetAdmin', 'Auditor')",
+      "controls": ["encryption_at_rest", "immutable_append_only", "hash_chaining", "retention_7_years"]
+    }
+  ],
+  "controls": {
+    "mfa_required_for_roles": ["FleetAdmin", "Finance", "SafetyOfficer", "Auditor"],
+    "break_glass": {
+      "enabled": true,
+      "max_duration_minutes": 30,
+      "approver_roles": ["FleetAdmin"],
+      "ticket_reference_required": true,
+      "audit_channel": "security_audit_log",
+      "use_case": "Emergency access for Managers to approve critical POs outside normal hours or Dispatchers to override system during outages."
+    },
+    "sod_rules": [
+      {"role": "Finance", "cannot_combine_with": ["FleetAdmin", "Manager", "Dispatcher", "Mechanic"]},
+      {"role": "FleetAdmin", "cannot_combine_with": ["Finance", "Auditor"]},
+      {"role": "Auditor", "cannot_combine_with": ["FleetAdmin", "Finance", "Manager"]},
+      {"role": "Driver", "cannot_combine_with": ["Mechanic", "Finance", "SafetyOfficer"]},
+      {"role": "Dispatcher", "cannot_combine_with": ["Finance", "Mechanic"]}
+    ],
+    "logging": {
+      "who_what_when_where": true,
+      "immutable_log_sink": "audit_logs_table_with_hash_chaining",
+      "pii_access_alerts": true,
+      "video_access_alerts": true,
+      "financial_transaction_alerts": true,
+      "failed_permission_checks_logged": true
+    }
+  },
+  "checklist": {
+    "all_endpoints_gated": false,
+    "ui_hides_but_backend_enforces": false,
+    "row_level_policies_present": false,
+    "sensitive_fields_masked": false,
+    "default_deny_global": false,
+    "no_wildcard_admin_privileges": false
+  },
+  "warnings": [
+    "CRITICAL: Backend currently only enforces role-based authorization (authorize('admin', 'fleet_manager')), NOT fine-grained permissions. All API endpoints need retrofitting.",
+    "CRITICAL: Frontend RBAC framework exists but is disconnected from backend. UI hides features but backend does not gate.",
+    "HIGH: No row-level policy enforcement. Managers can see all vehicles/drivers in tenant, not just their facility/team.",
+    "HIGH: No field-level masking. Dispatchers and Analysts can see purchase_price, current_value, labor_cost.",
+    "HIGH: Mass assignment vulnerability in POST/PUT endpoints - they accept arbitrary columns from req.body.",
+    "HIGH: No SoD enforcement on approvals. Users can approve their own work orders and purchase orders.",
+    "MEDIUM: No break-glass mechanism for emergency access with approvals and time limits.",
+    "MEDIUM: video_events table has no access audit logging despite containing sensitive footage.",
+    "MEDIUM: drivers table missing SSN field but likely needed for compliance; if added, must be Restricted + masked.",
+    "LOW: IDOR risk on GET /api/drivers/:id - validates tenant_id but not whether user can access that specific driver.",
+    "LOW: No approval_limit field on users table to enforce tiered PO approval (Manager <$10k, Admin >$10k).",
+    "LOW: No team_driver_ids, team_vehicle_ids, facility_ids on users table for scope filtering."
+  ],
+  "open_questions": [
+    "Can Dispatchers export fleet-wide fuel consumption data, or only view real-time?",
+    "Should Mechanics see labor_cost and parts_cost on work orders, or only descriptions?",
+    "What is the approval limit threshold for Managers vs FleetAdmin on purchase orders?",
+    "Are there regional/facility-based restrictions (multi-facility tenants), or is scope always tenant-wide for non-team roles?",
+    "Should Drivers be able to update their own emergency contact info, or is that FleetAdmin-only?",
+    "What is the retention policy for video_events (suggested 90 days, but needs confirmation)?",
+    "Should there be a separate 'Billing' role distinct from Finance for invoice processing vs strategic procurement?"
+  ],
+  "tasks": [
+    {
+      "description": "Add permissions, roles, role_permissions tables to database schema with tenant isolation and audit triggers.",
+      "category": "data",
+      "depends_on": []
+    },
+    {
+      "description": "Extend users table with scope fields: facility_ids[], team_driver_ids[], team_vehicle_ids[], approval_limit, scope_level enum.",
+      "category": "data",
+      "depends_on": []
+    },
+    {
+      "description": "Create backend permission middleware @requirePermission(privilege, scope) with row-level policy evaluation.",
+      "category": "architecture",
+      "depends_on": ["Add permissions, roles, role_permissions tables to database schema with tenant isolation and audit triggers."]
+    },
+    {
+      "description": "Implement field masking utility for PII/financial data based on role (e.g., mask license_number for Dispatchers).",
+      "category": "security",
+      "depends_on": []
+    },
+    {
+      "description": "Add SoD validation function to prevent role combinations (Finance + Manager, FleetAdmin + Auditor) on user creation/update.",
+      "category": "security",
+      "depends_on": ["Add permissions, roles, role_permissions tables to database schema with tenant isolation and audit triggers."]
+    },
+    {
+      "description": "Retrofit POST /api/work-orders with @requirePermission('work_order:create:team'), facility_id scope check, input sanitization.",
+      "category": "api",
+      "depends_on": ["Create backend permission middleware @requirePermission(privilege, scope) with row-level policy evaluation."]
+    },
+    {
+      "description": "Retrofit PUT /api/work-orders/:id/approve with @requirePermission('work_order:approve:fleet'), SoD check (created_by != user.id).",
+      "category": "api",
+      "depends_on": ["Create backend permission middleware @requirePermission(privilege, scope) with row-level policy evaluation."]
+    },
+    {
+      "description": "Retrofit POST /api/purchase-orders with @requirePermission('purchase_order:create:global'), set status='draft', sanitize line_items.",
+      "category": "api",
+      "depends_on": ["Create backend permission middleware @requirePermission(privilege, scope) with row-level policy evaluation."]
+    },
+    {
+      "description": "Retrofit PUT /api/purchase-orders/:id/approve with approval_limit check, SoD enforcement, Manager-only approval.",
+      "category": "api",
+      "depends_on": ["Create backend permission middleware @requirePermission(privilege, scope) with row-level policy evaluation.", "Extend users table with scope fields: facility_ids[], team_driver_ids[], team_vehicle_ids[], approval_limit, scope_level enum."]
+    },
+    {
+      "description": "Retrofit GET /api/drivers with row-level policy, field masking (license_number, emergency_contact), scope filtering.",
+      "category": "api",
+      "depends_on": ["Create backend permission middleware @requirePermission(privilege, scope) with row-level policy evaluation.", "Implement field masking utility for PII/financial data based on role (e.g., mask license_number for Dispatchers)."]
+    },
+    {
+      "description": "Retrofit GET /api/drivers/:id with IDOR protection (validate driver in user.accessible_driver_ids), PII masking.",
+      "category": "api",
+      "depends_on": ["Create backend permission middleware @requirePermission(privilege, scope) with row-level policy evaluation.", "Implement field masking utility for PII/financial data based on role (e.g., mask license_number for Dispatchers)."]
+    },
+    {
+      "description": "Retrofit POST /api/vehicles with @requirePermission('vehicle:create:global'), VIN validation, prevent mass assignment.",
+      "category": "api",
+      "depends_on": ["Create backend permission middleware @requirePermission(privilege, scope) with row-level policy evaluation."]
+    },
+    {
+      "description": "Retrofit DELETE /api/vehicles/:id with status check (sold/retired only), FleetAdmin-only, soft delete implementation.",
+      "category": "api",
+      "depends_on": ["Create backend permission middleware @requirePermission(privilege, scope) with row-level policy evaluation."]
+    },
+    {
+      "description": "Retrofit GET /api/telemetry/:vehicle_id with rate limiting (10/min), GPS access audit logging, scope validation.",
+      "category": "api",
+      "depends_on": ["Create backend permission middleware @requirePermission(privilege, scope) with row-level policy evaluation."]
+    },
+    {
+      "description": "Retrofit GET /api/video-events/:id with mandatory audit logging (who/when/why), SafetyOfficer/Manager-only access.",
+      "category": "api",
+      "depends_on": ["Create backend permission middleware @requirePermission(privilege, scope) with row-level policy evaluation."]
+    },
+    {
+      "description": "Implement break-glass temporary elevation API: POST /api/auth/elevate with ticket_ref, approver, max_duration=30min.",
+      "category": "architecture",
+      "depends_on": ["Create backend permission middleware @requirePermission(privilege, scope) with row-level policy evaluation."]
+    },
+    {
+      "description": "Integrate frontend RBAC (src/lib/security/rbac.ts) with backend by fetching user permissions on login, caching in context.",
+      "category": "ui",
+      "depends_on": ["Create backend permission middleware @requirePermission(privilege, scope) with row-level policy evaluation."]
+    },
+    {
+      "description": "Update frontend components to check hasPermission() and show disabled states with tooltips (e.g., 'Contact admin for access').",
+      "category": "ui",
+      "depends_on": ["Integrate frontend RBAC (src/lib/security/rbac.ts) with backend by fetching user permissions on login, caching in context."]
+    },
+    {
+      "description": "Unit tests for permission middleware: grant/deny based on role+scope, row-level policy evaluation, SoD checks.",
+      "category": "unit",
+      "depends_on": ["Create backend permission middleware @requirePermission(privilege, scope) with row-level policy evaluation."]
+    },
+    {
+      "description": "Integration tests: Dispatcher cannot access Finance endpoints; Mechanic cannot approve work_orders; Manager cannot self-approve POs.",
+      "category": "integration",
+      "depends_on": ["Retrofit POST /api/work-orders with @requirePermission('work_order:create:team'), facility_id scope check, input sanitization.", "Retrofit PUT /api/purchase-orders/:id/approve with approval_limit check, SoD enforcement, Manager-only approval."]
+    },
+    {
+      "description": "Security regression tests: IDOR probes on drivers/:id, vehicles/:id; mass-assignment attempts on POST endpoints.",
+      "category": "security",
+      "depends_on": ["Retrofit GET /api/drivers/:id with IDOR protection (validate driver in user.accessible_driver_ids), PII masking.", "Retrofit POST /api/vehicles with @requirePermission('vehicle:create:global'), VIN validation, prevent mass assignment."]
+    },
+    {
+      "description": "UI tests: verify disabled buttons for Analyst on vehicle create; Mechanic cannot see 'Approve' on work orders.",
+      "category": "ui",
+      "depends_on": ["Update frontend components to check hasPermission() and show disabled states with tooltips (e.g., 'Contact admin for access')."]
+    },
+    {
+      "description": "Performance tests: micro-benchmark row-level policy queries on drivers/work_orders at 95th percentile (1000+ records).",
+      "category": "perf",
+      "depends_on": ["Retrofit GET /api/drivers with row-level policy, field masking (license_number, emergency_contact), scope filtering."]
+    },
+    {
+      "description": "Create /docs/rbac.md with role matrix, SoD table, privilege naming conventions, break-glass SOP, field masking guide.",
+      "category": "docs",
+      "depends_on": []
+    },
+    {
+      "description": "Seed database with default roles and permissions for new tenants; migration script for existing tenants.",
+      "category": "data",
+      "depends_on": ["Add permissions, roles, role_permissions tables to database schema with tenant isolation and audit triggers."]
+    }
+  ]
+}

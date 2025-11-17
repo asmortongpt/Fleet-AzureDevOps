@@ -1,0 +1,45 @@
+# Appfile - App Store Connect and Apple Developer Portal configuration
+# https://docs.fastlane.tools/advanced/#appfile
+
+# App Identifier
+app_identifier("com.capitaltechalliance.fleetmanagement")
+
+# Apple ID for App Store Connect
+apple_id(ENV["APPLE_ID"] || "your-apple-id@example.com")
+
+# Apple Developer Team ID
+team_id(ENV["TEAM_ID"] || "FFC6NRQ5U5")
+
+# iTunes Connect Team ID (if different from Developer Team)
+itc_team_id(ENV["ITC_TEAM_ID"] || ENV["TEAM_ID"])
+
+# iTunes Connect Team Name (optional)
+# itc_team_name("Capital Tech Alliance")
+
+# For app-specific configuration
+for_platform :ios do
+  # Production app
+  for_lane :release do
+    app_identifier("com.capitaltechalliance.fleetmanagement")
+  end
+
+  # Staging app
+  for_lane :beta do
+    app_identifier("com.capitaltechalliance.fleetmanagement.staging")
+  end
+
+  for_lane :build_staging do
+    app_identifier("com.capitaltechalliance.fleetmanagement.staging")
+  end
+end
+
+# Environment-specific configuration
+# You can also set these values via environment variables:
+# - FASTLANE_USER for apple_id
+# - FASTLANE_TEAM_ID for team_id
+# - FASTLANE_ITC_TEAM_ID for itc_team_id
+
+# Example usage in CI/CD:
+# export FASTLANE_USER="your-apple-id@example.com"
+# export FASTLANE_TEAM_ID="FFC6NRQ5U5"
+# export FASTLANE_PASSWORD="your-password-or-app-specific-password"

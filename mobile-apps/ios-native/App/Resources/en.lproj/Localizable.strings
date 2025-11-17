@@ -1,0 +1,363 @@
+/*
+  Localizable.strings (English)
+  Fleet Manager - English Localization
+
+  Created for accessibility and government compliance
+*/
+
+// MARK: - General
+"app.name" = "Fleet Manager";
+"app.tagline" = "Capital Tech Alliance";
+"app.version" = "Version %@";
+"ok" = "OK";
+"cancel" = "Cancel";
+"done" = "Done";
+"save" = "Save";
+"delete" = "Delete";
+"edit" = "Edit";
+"close" = "Close";
+"back" = "Back";
+"next" = "Next";
+"previous" = "Previous";
+"loading" = "Loading...";
+"refresh" = "Refresh";
+"retry" = "Try Again";
+"error" = "Error";
+"success" = "Success";
+"warning" = "Warning";
+"info" = "Information";
+
+// MARK: - Authentication
+"auth.welcome_back" = "Welcome Back";
+"auth.sign_in_to_continue" = "Sign in to continue";
+"auth.email" = "Email";
+"auth.email_placeholder" = "you@company.com";
+"auth.password" = "Password";
+"auth.password_placeholder" = "Enter password";
+"auth.remember_me" = "Remember me";
+"auth.forgot_password" = "Forgot Password?";
+"auth.sign_in" = "Sign In";
+"auth.sign_out" = "Sign Out";
+"auth.signing_in" = "Signing in...";
+"auth.sign_in_with_biometric" = "Sign in with %@";
+"auth.biometric_face_id" = "Face ID";
+"auth.biometric_touch_id" = "Touch ID";
+"auth.need_help" = "Need help? Contact Support";
+
+// Authentication Errors
+"auth.error.empty_email" = "Please enter your email address";
+"auth.error.empty_password" = "Please enter your password";
+"auth.error.invalid_credentials" = "Invalid email or password";
+"auth.error.network" = "Network connection error. Please try again.";
+"auth.error.biometric_failed" = "Biometric authentication failed";
+"auth.error.biometric_unavailable" = "Biometric authentication is not available";
+
+// MARK: - Dashboard
+"dashboard.title" = "Dashboard";
+"dashboard.loading" = "Loading fleet data...";
+"dashboard.last_updated" = "Updated %@";
+"dashboard.offline_mode" = "Offline Mode";
+"dashboard.showing_cached_data" = "Showing cached data";
+"dashboard.no_data" = "No Fleet Data";
+"dashboard.no_data_message" = "No vehicles or fleet information available.\nPull to refresh or check your connection.";
+"dashboard.error_loading" = "Error Loading Data";
+"dashboard.online" = "Online";
+"dashboard.offline" = "Offline";
+"dashboard.fleet_metrics" = "Fleet metrics";
+
+// Quick Actions
+"quick_actions.title" = "Quick Actions";
+"quick_actions.add_vehicle" = "Add Vehicle";
+"quick_actions.start_trip" = "Start Trip";
+"quick_actions.scan_barcode" = "Scan Barcode";
+"quick_actions.take_photo" = "Take Photo";
+"quick_actions.report_issue" = "Report Issue";
+"quick_actions.view_reports" = "View Reports";
+
+// Fleet Metrics
+"metrics.total_vehicles" = "Total Vehicles";
+"metrics.active_vehicles" = "Active Vehicles";
+"metrics.maintenance_due" = "Maintenance Due";
+"metrics.low_fuel" = "Low Fuel";
+"metrics.in_use" = "In Use";
+"metrics.available" = "Available";
+"metrics.total" = "Total";
+"metrics.active" = "Active";
+"metrics.avg_miles" = "Avg Miles";
+"metrics.avg_fuel" = "Avg Fuel";
+
+// MARK: - Vehicle List
+"vehicles.title" = "Fleet Vehicles";
+"vehicles.search_placeholder" = "Search vehicles...";
+"vehicles.loading" = "Loading vehicles...";
+"vehicles.no_vehicles_found" = "No Vehicles Found";
+"vehicles.no_vehicles_available" = "No vehicles available";
+"vehicles.no_search_results" = "No vehicles match your search criteria";
+"vehicles.filter" = "Filter";
+"vehicles.sort" = "Sort";
+"vehicles.clear_filters" = "Clear All Filters";
+"vehicles.filters_active" = "Filters active";
+
+// Vehicle Sorting
+"vehicles.sort.number" = "Vehicle Number";
+"vehicles.sort.make" = "Make & Model";
+"vehicles.sort.status" = "Status";
+"vehicles.sort.fuel_level" = "Fuel Level";
+"vehicles.sort.mileage" = "Mileage";
+"vehicles.sort.recent" = "Recently Added";
+
+// Vehicle Status
+"vehicle.status.active" = "Active";
+"vehicle.status.inactive" = "Inactive";
+"vehicle.status.maintenance" = "Maintenance";
+"vehicle.status.out_of_service" = "Out of Service";
+"vehicle.status.reserved" = "Reserved";
+
+// Vehicle Types
+"vehicle.type.sedan" = "Sedan";
+"vehicle.type.suv" = "SUV";
+"vehicle.type.truck" = "Truck";
+"vehicle.type.van" = "Van";
+"vehicle.type.bus" = "Bus";
+"vehicle.type.motorcycle" = "Motorcycle";
+"vehicle.type.equipment" = "Equipment";
+"vehicle.type.other" = "Other";
+
+// MARK: - Vehicle Detail
+"vehicle.detail.title" = "Vehicle Details";
+"vehicle.detail.information" = "Vehicle Information";
+"vehicle.detail.current_location" = "Current Location";
+"vehicle.detail.status_metrics" = "Status & Metrics";
+"vehicle.detail.maintenance" = "Maintenance";
+"vehicle.detail.alerts" = "Alerts";
+"vehicle.detail.tags" = "Tags";
+
+// Vehicle Information Fields
+"vehicle.vin" = "VIN";
+"vehicle.license_plate" = "License Plate";
+"vehicle.department" = "Department";
+"vehicle.region" = "Region";
+"vehicle.ownership" = "Ownership";
+"vehicle.fuel_type" = "Fuel Type";
+"vehicle.assigned_driver" = "Assigned Driver";
+"vehicle.make" = "Make";
+"vehicle.model" = "Model";
+"vehicle.year" = "Year";
+
+// Ownership Types
+"vehicle.ownership.owned" = "Owned";
+"vehicle.ownership.leased" = "Leased";
+"vehicle.ownership.rented" = "Rented";
+
+// Fuel Types
+"vehicle.fuel.gasoline" = "Gasoline";
+"vehicle.fuel.diesel" = "Diesel";
+"vehicle.fuel.electric" = "Electric";
+"vehicle.fuel.hybrid" = "Hybrid";
+"vehicle.fuel.propane" = "Propane";
+"vehicle.fuel.natural_gas" = "Natural Gas";
+
+// Vehicle Metrics
+"vehicle.fuel_level" = "Fuel Level";
+"vehicle.fuel_low" = "Low Fuel";
+"vehicle.total_mileage" = "Total Mileage";
+"vehicle.hours_used" = "Hours Used";
+"vehicle.mileage_format" = "%.0f mi";
+"vehicle.hours_format" = "%.1f hrs";
+
+// Maintenance
+"vehicle.last_service" = "Last Service";
+"vehicle.next_service_due" = "Next Service Due";
+"vehicle.service_overdue" = "Service Overdue";
+
+// Quick Actions
+"vehicle.action.inspect" = "Inspect";
+"vehicle.action.service" = "Service";
+"vehicle.action.locate" = "Locate";
+"vehicle.action.records" = "Records";
+
+// MARK: - Vehicle Inspection
+"inspection.title" = "Vehicle Inspection";
+"inspection.start" = "Start Inspection";
+"inspection.complete" = "Complete Inspection";
+"inspection.cancel" = "Cancel Inspection";
+"inspection.exterior" = "Exterior";
+"inspection.interior" = "Interior";
+"inspection.mechanical" = "Mechanical";
+"inspection.safety" = "Safety";
+"inspection.documentation" = "Documentation";
+"inspection.notes" = "Notes";
+"inspection.add_photo" = "Add Photo";
+"inspection.record_issue" = "Record Issue";
+"inspection.pass" = "Pass";
+"inspection.fail" = "Fail";
+"inspection.not_applicable" = "N/A";
+
+// MARK: - Trip Tracking
+"trip.title" = "Trip Tracking";
+"trip.start_trip" = "Start Trip";
+"trip.end_trip" = "End Trip";
+"trip.pause_trip" = "Pause Trip";
+"trip.resume_trip" = "Resume Trip";
+"trip.current_trip" = "Current Trip";
+"trip.trip_history" = "Trip History";
+"trip.distance" = "Distance";
+"trip.duration" = "Duration";
+"trip.average_speed" = "Average Speed";
+"trip.purpose" = "Trip Purpose";
+"trip.notes" = "Trip Notes";
+"trip.odometer_start" = "Starting Odometer";
+"trip.odometer_end" = "Ending Odometer";
+
+// MARK: - OBD2 Diagnostics
+"obd2.title" = "OBD2 Diagnostics";
+"obd2.connect" = "Connect to Vehicle";
+"obd2.disconnect" = "Disconnect";
+"obd2.connected" = "Connected";
+"obd2.disconnected" = "Disconnected";
+"obd2.scanning" = "Scanning...";
+"obd2.engine_rpm" = "Engine RPM";
+"obd2.vehicle_speed" = "Vehicle Speed";
+"obd2.coolant_temp" = "Coolant Temperature";
+"obd2.fuel_pressure" = "Fuel Pressure";
+"obd2.trouble_codes" = "Trouble Codes";
+"obd2.no_codes" = "No trouble codes detected";
+"obd2.clear_codes" = "Clear Codes";
+
+// MARK: - Barcode Scanner
+"barcode.title" = "Scan Barcode";
+"barcode.scanning" = "Scanning...";
+"barcode.align_barcode" = "Align barcode within frame";
+"barcode.scan_success" = "Barcode scanned successfully";
+"barcode.scan_failed" = "Failed to scan barcode";
+"barcode.manual_entry" = "Enter Manually";
+
+// MARK: - Camera & Photos
+"camera.title" = "Camera";
+"camera.take_photo" = "Take Photo";
+"camera.retake" = "Retake";
+"camera.use_photo" = "Use Photo";
+"camera.choose_from_library" = "Choose from Library";
+"camera.permission_required" = "Camera Permission Required";
+"camera.permission_message" = "Please allow camera access in Settings to take photos.";
+
+// MARK: - Document Scanner
+"document.title" = "Scan Document";
+"document.scanning" = "Scanning document...";
+"document.scan_complete" = "Document scanned";
+"document.save_document" = "Save Document";
+
+// MARK: - Connection Status
+"connection.connected" = "Connected to Fleet services";
+"connection.disconnected" = "No connection";
+"connection.checking" = "Checking connection...";
+"connection.reconnecting" = "Reconnecting...";
+
+// MARK: - Sync Status
+"sync.syncing" = "Syncing...";
+"sync.sync_complete" = "Sync complete";
+"sync.sync_failed" = "Sync failed";
+"sync.pending_changes" = "%d pending changes";
+"sync.last_sync" = "Last sync: %@";
+
+// MARK: - Errors & Alerts
+"error.generic" = "An error occurred. Please try again.";
+"error.network" = "Network connection error";
+"error.server" = "Server error. Please try again later.";
+"error.not_found" = "Resource not found";
+"error.unauthorized" = "Unauthorized. Please sign in again.";
+"error.validation" = "Please check your input and try again.";
+"error.permission_denied" = "Permission denied";
+"error.location_unavailable" = "Location services unavailable";
+"error.camera_unavailable" = "Camera unavailable";
+
+// MARK: - Confirmation Dialogs
+"confirm.delete_title" = "Delete Confirmation";
+"confirm.delete_message" = "Are you sure you want to delete this item? This action cannot be undone.";
+"confirm.discard_title" = "Discard Changes";
+"confirm.discard_message" = "Are you sure you want to discard your changes?";
+"confirm.logout_title" = "Sign Out";
+"confirm.logout_message" = "Are you sure you want to sign out?";
+
+// MARK: - Date & Time Formats
+"date.today" = "Today";
+"date.yesterday" = "Yesterday";
+"date.tomorrow" = "Tomorrow";
+"time.just_now" = "Just now";
+"time.minutes_ago" = "%d minutes ago";
+"time.hours_ago" = "%d hours ago";
+"time.days_ago" = "%d days ago";
+
+// MARK: - Pluralization
+"vehicles.count.zero" = "No vehicles";
+"vehicles.count.one" = "1 vehicle";
+"vehicles.count.other" = "%d vehicles";
+
+"trips.count.zero" = "No trips";
+"trips.count.one" = "1 trip";
+"trips.count.other" = "%d trips";
+
+"alerts.count.zero" = "No alerts";
+"alerts.count.one" = "1 alert";
+"alerts.count.other" = "%d alerts";
+
+// MARK: - Accessibility Labels
+"accessibility.menu" = "Menu";
+"accessibility.close_menu" = "Close menu";
+"accessibility.search" = "Search";
+"accessibility.filter" = "Filter options";
+"accessibility.sort" = "Sort options";
+"accessibility.refresh" = "Refresh data";
+"accessibility.back" = "Back";
+"accessibility.more_options" = "More options";
+"accessibility.dismiss" = "Dismiss";
+
+// Accessibility Hints
+"accessibility.hint.tap_to_open" = "Tap to open";
+"accessibility.hint.tap_to_select" = "Tap to select";
+"accessibility.hint.tap_to_edit" = "Tap to edit";
+"accessibility.hint.tap_to_delete" = "Tap to delete";
+"accessibility.hint.double_tap_to_activate" = "Double tap to activate";
+"accessibility.hint.swipe_to_delete" = "Swipe left to delete";
+
+// Accessibility Values
+"accessibility.value.selected" = "Selected";
+"accessibility.value.not_selected" = "Not selected";
+"accessibility.value.checked" = "Checked";
+"accessibility.value.unchecked" = "Unchecked";
+"accessibility.value.expanded" = "Expanded";
+"accessibility.value.collapsed" = "Collapsed";
+
+// Accessibility Announcements
+"accessibility.announcement.loading" = "Loading data";
+"accessibility.announcement.loaded" = "Data loaded";
+"accessibility.announcement.error" = "Error occurred: %@";
+"accessibility.announcement.saved" = "Saved successfully";
+"accessibility.announcement.deleted" = "Deleted successfully";
+"accessibility.announcement.filter_applied" = "Filter applied";
+"accessibility.announcement.sort_changed" = "Sort order changed";
+
+// MARK: - Settings
+"settings.title" = "Settings";
+"settings.account" = "Account";
+"settings.notifications" = "Notifications";
+"settings.appearance" = "Appearance";
+"settings.language" = "Language";
+"settings.accessibility" = "Accessibility";
+"settings.about" = "About";
+"settings.privacy" = "Privacy";
+"settings.terms" = "Terms of Service";
+"settings.help" = "Help & Support";
+
+// MARK: - Notifications
+"notification.trip_started" = "Trip started";
+"notification.trip_ended" = "Trip ended";
+"notification.low_fuel_alert" = "Low fuel alert for vehicle %@";
+"notification.maintenance_due" = "Maintenance due for vehicle %@";
+"notification.inspection_required" = "Inspection required for vehicle %@";
+
+// MARK: - Offline Mode
+"offline.mode_enabled" = "Offline mode enabled";
+"offline.mode_disabled" = "Offline mode disabled";
+"offline.data_saved_locally" = "Data saved locally. Will sync when online.";
+"offline.limited_functionality" = "Some features are unavailable in offline mode";

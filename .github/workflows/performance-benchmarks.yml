@@ -1,0 +1,237 @@
+name: Performance Benchmarks
+
+on:
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'src/**/*.ts'
+      - 'src/**/*.tsx'
+      - 'benchmarks/**'
+      - 'package.json'
+      - 'vitest.config.ts'
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      create_baseline:
+        description: 'Create new performance baseline'
+        required: false
+        default: 'false'
+
+jobs:
+  benchmark:
+    name: Run Performance Benchmarks
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run benchmarks
+        run: npm run bench -- --reporter=json --outputFile=./benchmarks/reports/bench-results.json
+
+      - name: Run regression tests
+        id: regression
+        run: npm run bench:regression
+        continue-on-error: true
+
+      - name: Generate HTML report
+        run: npm run bench:report
+
+      - name: Check performance budget
+        id: budget
+        run: npm run bench:budget
+        continue-on-error: true
+
+      - name: Upload benchmark results
+        uses: actions/upload-artifact@v4
+        with:
+          name: benchmark-results
+          path: |
+            benchmarks/reports/*.html
+            benchmarks/reports/*.json
+          retention-days: 30
+
+      - name: Comment PR with results
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+
+            // Read regression report
+            const regressionPath = path.join(process.cwd(), 'benchmarks/reports/regression-report.json');
+            let regressionData = null;
+
+            if (fs.existsSync(regressionPath)) {
+              regressionData = JSON.parse(fs.readFileSync(regressionPath, 'utf-8'));
+            }
+
+            // Read latest results
+            const resultsPath = path.join(process.cwd(), 'benchmarks/reports/latest-results.json');
+            let resultsData = null;
+
+            if (fs.existsSync(resultsPath)) {
+              resultsData = JSON.parse(fs.readFileSync(resultsPath, 'utf-8'));
+            }
+
+            // Build comment
+            let comment = '## 📊 Performance Benchmark Results\n\n';
+
+            if (regressionData) {
+              const { comparison, hasRegression, hasCriticalRegression, regressions } = regressionData;
+
+              if (hasCriticalRegression) {
+                comment += '### 🔴 Critical Performance Regression Detected!\n\n';
+                comment += `${regressions.filter(r => r.changePercent > 25).length} benchmark(s) show regression > 25%\n\n`;
+              } else if (hasRegression) {
+                comment += '### ⚠️ Performance Regression Detected\n\n';
+                comment += `${regressions.length} benchmark(s) show regression > 10%\n\n`;
+              } else {
+                comment += '### ✅ No Performance Regressions\n\n';
+              }
+
+              // Show top 5 changes
+              comment += '#### Top Changes\n\n';
+              comment += '| Benchmark | Current | Baseline | Change |\n';
+              comment += '|-----------|---------|----------|--------|\n';
+
+              const sortedComparison = comparison
+                .sort((a, b) => Math.abs(b.changePercent) - Math.abs(a.changePercent))
+                .slice(0, 5);
+
+              sortedComparison.forEach(c => {
+                const icon = c.regression ? '📈' : c.changePercent < -5 ? '📉' : '➡️';
+                const changeStr = c.changePercent > 0 ? `+${c.changePercent.toFixed(1)}%` : `${c.changePercent.toFixed(1)}%`;
+                comment += `| ${icon} ${c.benchmark} | ${c.current.toFixed(2)}ms | ${c.baseline.toFixed(2)}ms | ${changeStr} |\n`;
+              });
+
+              comment += '\n';
+            }
+
+            if (resultsData && resultsData.results) {
+              comment += '#### All Benchmarks\n\n';
+              comment += '<details>\n<summary>View all benchmark results</summary>\n\n';
+              comment += '| Benchmark | Median | Mean | Min | Max | Ops/sec |\n';
+              comment += '|-----------|--------|------|-----|-----|----------|\n';
+
+              resultsData.results.forEach(r => {
+                comment += `| ${r.name} | ${r.medianTime.toFixed(2)}ms | ${r.meanTime.toFixed(2)}ms | ${r.minTime.toFixed(2)}ms | ${r.maxTime.toFixed(2)}ms | ${r.opsPerSecond.toFixed(0)} |\n`;
+              });
+
+              comment += '\n</details>\n\n';
+            }
+
+            comment += '---\n\n';
+            comment += `📄 [View detailed HTML report](https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId})\n\n`;
+            comment += `⚙️ [Performance Budget](../blob/main/performance-budget.json) | [Optimization Guide](../blob/main/docs/PERFORMANCE_OPTIMIZATION.md)`;
+
+            // Post comment
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+
+      - name: Fail if critical regression
+        if: steps.regression.outcome == 'failure'
+        run: |
+          echo "::error::Critical performance regression detected. See benchmark results for details."
+          exit 1
+
+      - name: Fail if budget exceeded
+        if: steps.budget.outcome == 'failure'
+        run: |
+          echo "::error::Performance budget exceeded. See budget report for details."
+          exit 1
+
+  load-test:
+    name: Run Load Tests
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' || github.event.inputs.create_baseline == 'true'
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Run load tests
+        run: npm run test:load
+
+      - name: Upload load test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: load-test-results
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 30
+
+  create-baseline:
+    name: Create Performance Baseline
+    runs-on: ubuntu-latest
+    if: github.event.inputs.create_baseline == 'true' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Create baseline
+        run: |
+          # Remove existing baseline
+          rm -f benchmarks/reports/baseline.json
+
+          # Run benchmarks to create new baseline
+          npm run bench:regression
+
+      - name: Commit baseline
+        if: github.event_name == 'push'
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add benchmarks/reports/baseline.json
+          git commit -m "chore: update performance baseline [skip ci]" || echo "No changes to commit"
+          git push
+
+      - name: Upload baseline
+        uses: actions/upload-artifact@v4
+        with:
+          name: performance-baseline
+          path: benchmarks/reports/baseline.json
+          retention-days: 90

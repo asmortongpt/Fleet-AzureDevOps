@@ -1,0 +1,312 @@
+{
+  "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+  "type": "AdaptiveCard",
+  "version": "1.5",
+  "body": [
+    {
+      "type": "Container",
+      "style": "accent",
+      "items": [
+        {
+          "type": "ColumnSet",
+          "columns": [
+            {
+              "type": "Column",
+              "width": "auto",
+              "items": [
+                {
+                  "type": "Image",
+                  "url": "https://img.icons8.com/fluency/96/driver.png",
+                  "size": "medium"
+                }
+              ]
+            },
+            {
+              "type": "Column",
+              "width": "stretch",
+              "items": [
+                {
+                  "type": "TextBlock",
+                  "text": "Driver Performance Report",
+                  "weight": "bolder",
+                  "size": "large"
+                },
+                {
+                  "type": "TextBlock",
+                  "text": "${driverName}",
+                  "weight": "bolder",
+                  "spacing": "none",
+                  "size": "medium"
+                }
+              ]
+            },
+            {
+              "type": "Column",
+              "width": "auto",
+              "items": [
+                {
+                  "type": "TextBlock",
+                  "text": "${period}",
+                  "horizontalAlignment": "right",
+                  "isSubtle": true
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Container",
+      "spacing": "medium",
+      "items": [
+        {
+          "type": "TextBlock",
+          "text": "Overall Safety Score",
+          "weight": "bolder",
+          "size": "medium"
+        },
+        {
+          "type": "ColumnSet",
+          "columns": [
+            {
+              "type": "Column",
+              "width": "stretch",
+              "items": [
+                {
+                  "type": "TextBlock",
+                  "text": "${safetyScore}/100",
+                  "size": "extraLarge",
+                  "weight": "bolder",
+                  "color": "${scoreColor}"
+                }
+              ]
+            },
+            {
+              "type": "Column",
+              "width": "stretch",
+              "items": [
+                {
+                  "type": "TextBlock",
+                  "text": "${scoreTrend}",
+                  "color": "${trendColor}",
+                  "weight": "bolder"
+                },
+                {
+                  "type": "TextBlock",
+                  "text": "vs. last period",
+                  "isSubtle": true,
+                  "spacing": "none",
+                  "size": "small"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Container",
+      "spacing": "medium",
+      "style": "emphasis",
+      "items": [
+        {
+          "type": "TextBlock",
+          "text": "Key Metrics",
+          "weight": "bolder"
+        },
+        {
+          "type": "FactSet",
+          "facts": [
+            {
+              "title": "Miles Driven:",
+              "value": "${milesDriven}"
+            },
+            {
+              "title": "Hours Driven:",
+              "value": "${hoursDriven}"
+            },
+            {
+              "title": "Trips Completed:",
+              "value": "${tripsCompleted}"
+            },
+            {
+              "title": "On-Time Delivery:",
+              "value": "${onTimePercentage}%"
+            },
+            {
+              "title": "Fuel Efficiency:",
+              "value": "${fuelEfficiency} MPG"
+            },
+            {
+              "title": "Idle Time:",
+              "value": "${idleTime} hours"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Container",
+      "spacing": "medium",
+      "items": [
+        {
+          "type": "TextBlock",
+          "text": "Safety Events",
+          "weight": "bolder"
+        },
+        {
+          "type": "ColumnSet",
+          "columns": [
+            {
+              "type": "Column",
+              "width": "stretch",
+              "items": [
+                {
+                  "type": "TextBlock",
+                  "text": "Hard Braking",
+                  "wrap": true
+                },
+                {
+                  "type": "TextBlock",
+                  "text": "${hardBraking}",
+                  "weight": "bolder",
+                  "color": "${hardBrakingColor}",
+                  "size": "large"
+                }
+              ]
+            },
+            {
+              "type": "Column",
+              "width": "stretch",
+              "items": [
+                {
+                  "type": "TextBlock",
+                  "text": "Harsh Acceleration",
+                  "wrap": true
+                },
+                {
+                  "type": "TextBlock",
+                  "text": "${harshAcceleration}",
+                  "weight": "bolder",
+                  "color": "${harshAccelColor}",
+                  "size": "large"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "ColumnSet",
+          "columns": [
+            {
+              "type": "Column",
+              "width": "stretch",
+              "items": [
+                {
+                  "type": "TextBlock",
+                  "text": "Speeding Events",
+                  "wrap": true
+                },
+                {
+                  "type": "TextBlock",
+                  "text": "${speedingEvents}",
+                  "weight": "bolder",
+                  "color": "${speedingColor}",
+                  "size": "large"
+                }
+              ]
+            },
+            {
+              "type": "Column",
+              "width": "stretch",
+              "items": [
+                {
+                  "type": "TextBlock",
+                  "text": "Distracted Driving",
+                  "wrap": true
+                },
+                {
+                  "type": "TextBlock",
+                  "text": "${distractedDriving}",
+                  "weight": "bolder",
+                  "color": "${distractedColor}",
+                  "size": "large"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Container",
+      "spacing": "medium",
+      "items": [
+        {
+          "type": "TextBlock",
+          "text": "**Recommendations:**",
+          "weight": "bolder"
+        },
+        {
+          "type": "TextBlock",
+          "text": "${recommendations}",
+          "wrap": true,
+          "spacing": "small"
+        }
+      ]
+    }
+  ],
+  "actions": [
+    {
+      "type": "Action.OpenUrl",
+      "title": "View Full Dashboard",
+      "url": "${dashboardUrl}"
+    },
+    {
+      "type": "Action.Submit",
+      "title": "Schedule Training",
+      "data": {
+        "action": "schedule_training",
+        "driverId": "${driverId}"
+      },
+      "style": "positive",
+      "isVisible": "${needsTraining}"
+    },
+    {
+      "type": "Action.Submit",
+      "title": "Send Recognition",
+      "data": {
+        "action": "send_recognition",
+        "driverId": "${driverId}"
+      },
+      "style": "positive",
+      "isVisible": "${excellentPerformance}"
+    },
+    {
+      "type": "Action.ShowCard",
+      "title": "Add Coaching Note",
+      "card": {
+        "type": "AdaptiveCard",
+        "body": [
+          {
+            "type": "Input.Text",
+            "id": "coachingNote",
+            "placeholder": "Enter coaching notes for the driver...",
+            "isMultiline": true
+          }
+        ],
+        "actions": [
+          {
+            "type": "Action.Submit",
+            "title": "Save Note",
+            "data": {
+              "action": "add_coaching_note",
+              "driverId": "${driverId}"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

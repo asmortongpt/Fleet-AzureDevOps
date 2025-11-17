@@ -1,0 +1,40 @@
+---
+# ClusterRole for vendor - read-only access to cluster-wide resources
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: vendor-readonly-cluster
+  labels:
+    role: vendor
+rules:
+  # Nodes - read-only
+  - apiGroups: [""]
+    resources: ["nodes"]
+    verbs: ["get", "list"]
+
+  # Namespaces - read-only
+  - apiGroups: [""]
+    resources: ["namespaces"]
+    verbs: ["get", "list"]
+
+  # StorageClasses - read-only
+  - apiGroups: ["storage.k8s.io"]
+    resources: ["storageclasses"]
+    verbs: ["get", "list"]
+---
+# ClusterRoleBinding for vendor
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: vendor-readonly-cluster-binding
+subjects:
+  - kind: ServiceAccount
+    name: vendor-developer
+    namespace: fleet-dev
+  - kind: ServiceAccount
+    name: vendor-developer
+    namespace: fleet-staging
+roleRef:
+  kind: ClusterRole
+  name: vendor-readonly-cluster
+  apiGroup: rbac.authorization.k8s.io

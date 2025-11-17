@@ -1,0 +1,79 @@
+// Staging Build Configuration
+// This file contains staging-specific build settings
+
+// MARK: - API Configuration
+API_BASE_URL = https://staging-fleet.capitaltechalliance.com
+API_TIMEOUT = 30
+
+// MARK: - Azure Configuration
+AZURE_BASE_URL = https://dcf-fleet-management-staging.azurewebsites.net
+AZURE_API_URL = $(AZURE_BASE_URL)/api
+AZURE_APP_SERVICE_NAME = dcf-fleet-management-staging
+AZURE_RESOURCE_GROUP = fleet-management-staging-rg
+
+// MARK: - Firebase Configuration (Feature Flags & Remote Config)
+FIREBASE_PROJECT_ID = dcf-fleet-staging
+FIREBASE_DATABASE_URL = https://dcf-fleet-staging.firebaseio.com
+FIREBASE_STORAGE_BUCKET = dcf-fleet-staging.appspot.com
+FIREBASE_API_KEY = $(FIREBASE_STAGING_API_KEY)
+FIREBASE_APP_ID = 1:987654321:ios:0987654321fedcba
+
+// MARK: - Environment
+ENVIRONMENT_NAME = Staging
+ENVIRONMENT_ID = staging
+IS_DEBUG_BUILD = YES
+ENABLE_LOGGING = YES
+LOG_LEVEL = warning
+
+// MARK: - Feature Flags
+ENABLE_CRASH_REPORTING = YES
+ENABLE_ANALYTICS = YES
+ENABLE_OFFLINE_MODE = YES
+ENABLE_BACKGROUND_SYNC = YES
+ENABLE_DARK_MODE = YES
+ENABLE_BIOMETRIC_AUTH = YES
+
+// MARK: - Security & Certificate Pinning
+CERTIFICATE_PINNING_ENABLED = YES
+SSL_PINNING_ENABLED = YES
+REQUIRE_HTTPS = YES
+
+// MARK: - Performance & Caching
+CACHE_ENABLED = YES
+CACHE_TTL = 3600
+IMAGE_CACHE_SIZE = 52428800
+HTTP_CACHE_POLICY = allow-cache
+
+// MARK: - Networking Configuration
+REQUEST_RETRY_ATTEMPTS = 3
+REQUEST_RETRY_DELAY = 1.0
+CONNECTION_TIMEOUT = 30
+READ_TIMEOUT = 30
+
+// MARK: - Data Persistence
+DATABASE_ENCRYPTION_ENABLED = YES
+KEYCHAIN_ACCESS_ENABLED = YES
+ALLOW_UNENCRYPTED_LOCAL_STORAGE = NO
+
+// MARK: - Version & Build
+VERSION_NUMBER = 1.0
+BUILD_NUMBER = 1
+BUILD_CONFIGURATION = Debug
+
+// MARK: - App Features
+ENABLE_BARCODE_SCANNER = YES
+ENABLE_CAMERA = YES
+ENABLE_LOCATION_TRACKING = YES
+ENABLE_OBD2_SUPPORT = YES
+ENABLE_DOCUMENT_SCANNING = YES
+
+// MARK: - User Experience
+ENABLE_ANIMATIONS = YES
+MINIMUM_OS_VERSION = 15.0
+SUPPORTED_ARCHITECTURES = arm64
+
+// MARK: - Compliance & Privacy
+GDPR_ENABLED = YES
+PRIVACY_POLICY_URL = https://staging-fleet.capitaltechalliance.com/privacy
+TERMS_OF_SERVICE_URL = https://staging-fleet.capitaltechalliance.com/terms
+DATA_RETENTION_DAYS = 365

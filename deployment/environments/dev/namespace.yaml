@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: fleet-management-dev
+  labels:
+    environment: dev
+    project: fleet-management
+    cost-center: engineering
