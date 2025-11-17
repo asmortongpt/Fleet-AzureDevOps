@@ -1,0 +1,37 @@
+platform :ios, '15.0'
+use_frameworks!
+
+# Native Swift Fleet Management App
+# No Capacitor dependencies needed
+
+target 'App' do
+  # Secure credential storage
+  # Provides secure storage for API keys, tokens, and sensitive credentials
+  pod 'KeychainSwift', '~> 20.0'
+
+  # Error tracking and crash reporting
+  # Captures exceptions, crashes, and performance issues for monitoring and debugging
+  pod 'Sentry', '~> 8.0'
+
+  # Firebase Analytics
+  # Tracks user events, behavior, and engagement metrics for analytics
+  pod 'Firebase/Analytics', '~> 10.0'
+
+  # Firebase Crashlytics
+  # Provides real-time crash reporting and error tracking
+  pod 'Firebase/Crashlytics', '~> 10.0'
+
+  # Firebase Cloud Messaging
+  # Enables push notifications and remote messaging capabilities
+  pod 'Firebase/Messaging', '~> 10.0'
+end
+
+post_install do |installer|
+  installer.generated_projects.each do |project|
+    project.targets.each do |target|
+      target.build_configurations.each do |config|
+        config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '15.0'
+      end
+    end
+  end
+end

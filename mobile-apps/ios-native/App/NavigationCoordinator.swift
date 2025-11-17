@@ -1,0 +1,271 @@
+import SwiftUI
+import Combine
+
+// MARK: - Navigation Coordinator
+class NavigationCoordinator: ObservableObject {
+    // MARK: - Published Properties
+    @Published var selectedTab: TabItem = .dashboard
+    @Published var navigationPath: [NavigationDestination] = []
+    @Published var colorScheme: ColorScheme?
+    @Published var showAlert = false
+    @Published var alertMessage = ""
+    @Published var alertTitle = ""
+
+    // Deep linking state
+    @Published var pendingDeepLink: URL?
+    private var cancellables = Set<AnyCancellable>()
+
+    // MARK: - Initialization
+    init() {
+        loadUserPreferences()
+    }
+
+    // MARK: - Tab Management
+    func selectTab(_ tab: TabItem) {
+        selectedTab = tab
+    }
+
+    func resetToHome() {
+        selectedTab = .dashboard
+        navigationPath.removeAll()
+    }
+
+    // MARK: - Navigation Management
+    func navigate(to destination: NavigationDestination) {
+        navigationPath.append(destination)
+    }
+
+    func navigateBack() {
+        if !navigationPath.isEmpty {
+            navigationPath.removeLast()
+        }
+    }
+
+    func popToRoot() {
+        navigationPath.removeAll()
+    }
+
+    // MARK: - Deep Link Handling
+    func handleDeepLink(_ url: URL) {
+        print("Handling deep link: \(url)")
+
+        guard let components = URLComponents(url: url, resolvingAgainstBaseURL: true),
+              let host = components.host else {
+            showError("Invalid Deep Link", "The link format is not recognized.")
+            return
+        }
+
+        // Handle different deep link patterns
+        // fleet://vehicles/{id}
+        // fleet://trips/{id}
+        // fleet://maintenance/{id}
+        // fleet://dashboard
+        // fleet://more/settings
+
+        switch host {
+        case "dashboard":
+            selectTab(.dashboard)
+            popToRoot()
+
+        case "vehicles":
+            selectTab(.vehicles)
+            let pathComponents = components.path.split(separator: "/").map(String.init)
+            if let vehicleId = pathComponents.first {
+                navigate(to: .vehicleDetail(id: vehicleId))
+            } else {
+                popToRoot()
+            }
+
+        case "trips":
+            selectTab(.trips)
+            let pathComponents = components.path.split(separator: "/").map(String.init)
+            if let tripId = pathComponents.first {
+                navigate(to: .tripDetail(id: tripId))
+            } else {
+                popToRoot()
+            }
+
+        case "maintenance":
+            selectTab(.vehicles)
+            let pathComponents = components.path.split(separator: "/").map(String.init)
+            if let maintenanceId = pathComponents.first {
+                navigate(to: .maintenanceDetail(id: maintenanceId))
+            } else {
+                navigate(to: .maintenance)
+            }
+
+        case "more":
+            selectTab(.more)
+            let pathComponents = components.path.split(separator: "/").map(String.init)
+            if let section = pathComponents.first {
+                switch section {
+                case "settings":
+                    navigate(to: .settings)
+                case "profile":
+                    navigate(to: .profile)
+                default:
+                    popToRoot()
+                }
+            } else {
+                popToRoot()
+            }
+
+        default:
+            showError("Unknown Deep Link", "The link destination '\(host)' is not recognized.")
+        }
+    }
+
+    // MARK: - Alert Management
+    func showError(_ title: String, _ message: String) {
+        alertTitle = title
+        alertMessage = message
+        showAlert = true
+    }
+
+    func showSuccess(_ title: String, _ message: String) {
+        alertTitle = title
+        alertMessage = message
+        showAlert = true
+    }
+
+    // MARK: - Theme Management
+    func toggleColorScheme() {
+        switch colorScheme {
+        case .light:
+            colorScheme = .dark
+        case .dark:
+            colorScheme = nil // System default
+        case .none:
+            colorScheme = .light
+        }
+        saveUserPreferences()
+    }
+
+    func setColorScheme(_ scheme: ColorScheme?) {
+        colorScheme = scheme
+        saveUserPreferences()
+    }
+
+    // MARK: - User Preferences
+    private func loadUserPreferences() {
+        if let savedScheme = UserDefaults.standard.string(forKey: "colorScheme") {
+            switch savedScheme {
+            case "light":
+                colorScheme = .light
+            case "dark":
+                colorScheme = .dark
+            default:
+                colorScheme = nil
+            }
+        }
+
+        if let savedTab = UserDefaults.standard.string(forKey: "lastSelectedTab"),
+           let tab = TabItem(rawValue: savedTab) {
+            selectedTab = tab
+        }
+    }
+
+    private func saveUserPreferences() {
+        if let scheme = colorScheme {
+            UserDefaults.standard.set(scheme == .light ? "light" : "dark", forKey: "colorScheme")
+        } else {
+            UserDefaults.standard.removeObject(forKey: "colorScheme")
+        }
+
+        UserDefaults.standard.set(selectedTab.rawValue, forKey: "lastSelectedTab")
+    }
+}
+
+// MARK: - Tab Items
+enum TabItem: String, CaseIterable {
+    case dashboard = "Dashboard"
+    case vehicles = "Vehicles"
+    case trips = "Trips"
+    case maintenance = "Maintenance"
+    case more = "More"
+
+    var systemImage: String {
+        switch self {
+        case .dashboard:
+            return "chart.bar.fill"
+        case .vehicles:
+            return "car.2.fill"
+        case .trips:
+            return "location.fill"
+        case .maintenance:
+            return "wrench.and.screwdriver.fill"
+        case .more:
+            return "ellipsis.circle.fill"
+        }
+    }
+
+    var title: String {
+        return rawValue
+    }
+}
+
+// MARK: - Navigation Destinations
+enum NavigationDestination: Hashable, Identifiable {
+    case vehicleDetail(id: String)
+    case tripDetail(id: String)
+    case maintenanceDetail(id: String)
+    case addVehicle
+    case addTrip
+    case maintenance
+    case settings
+    case profile
+    case notifications
+    case about
+    case help
+
+    var id: String {
+        switch self {
+        case .vehicleDetail(let id):
+            return "vehicle-\(id)"
+        case .tripDetail(let id):
+            return "trip-\(id)"
+        case .maintenanceDetail(let id):
+            return "maintenance-\(id)"
+        case .addVehicle:
+            return "add-vehicle"
+        case .addTrip:
+            return "add-trip"
+        case .maintenance:
+            return "maintenance"
+        case .settings:
+            return "settings"
+        case .profile:
+            return "profile"
+        case .notifications:
+            return "notifications"
+        case .about:
+            return "about"
+        case .help:
+            return "help"
+        }
+    }
+}
+
+// MARK: - Navigation State Extension
+extension NavigationCoordinator {
+    // Helper to check if we're at root level
+    var isAtRoot: Bool {
+        navigationPath.isEmpty
+    }
+
+    // Helper to get current depth
+    var navigationDepth: Int {
+        navigationPath.count
+    }
+
+    // Navigate to a specific tab with optional destination
+    func navigateToTab(_ tab: TabItem, destination: NavigationDestination? = nil) {
+        selectTab(tab)
+        if let destination = destination {
+            navigationPath.removeAll()
+            navigationPath.append(destination)
+        } else {
+            popToRoot()
+        }
+    }
+}

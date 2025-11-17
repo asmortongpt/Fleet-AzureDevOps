@@ -1,0 +1,150 @@
+import express, { Response } from 'express'
+import { AuthRequest, authenticateJWT } from '../middleware/auth'
+import { requirePermission } from '../middleware/permissions'
+import { auditLog } from '../middleware/audit'
+import pool from '../config/database'
+import { z } from 'zod'
+
+const router = express.Router()
+router.use(authenticateJWT)
+
+// GET /charging-stations
+router.get(
+  '/',
+  requirePermission('charging_station:view:fleet'),
+  auditLog({ action: 'READ', resourceType: 'charging_stations' }),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const { page = 1, limit = 50 } = req.query
+      const offset = (Number(page) - 1) * Number(limit)
+
+      const result = await pool.query(
+        `SELECT * FROM charging_stations WHERE tenant_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3`,
+        [req.user!.tenant_id, limit, offset]
+      )
+
+      const countResult = await pool.query(
+        'SELECT COUNT(*) FROM charging_stations WHERE tenant_id = $1',
+        [req.user!.tenant_id]
+      )
+
+      res.json({
+        data: result.rows,
+        pagination: {
+          page: Number(page),
+          limit: Number(limit),
+          total: parseInt(countResult.rows[0].count),
+          pages: Math.ceil(countResult.rows[0].count / Number(limit))
+        }
+      })
+    } catch (error) {
+      console.error('Get charging-stations error:', error)
+      res.status(500).json({ error: 'Internal server error' })
+    }
+  }
+)
+
+// GET /charging-stations/:id
+router.get(
+  '/:id',
+  requirePermission('charging_station:view:fleet'),
+  auditLog({ action: 'READ', resourceType: 'charging_stations' }),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const result = await pool.query(
+        'SELECT * FROM charging_stations WHERE id = $1 AND tenant_id = $2',
+        [req.params.id, req.user!.tenant_id]
+      )
+
+      if (result.rows.length === 0) {
+        return res.status(404).json({ error: 'ChargingStations not found' })
+      }
+
+      res.json(result.rows[0])
+    } catch (error) {
+      console.error('Get charging-stations error:', error)
+      res.status(500).json({ error: 'Internal server error' })
+    }
+  }
+)
+
+// POST /charging-stations
+router.post(
+  '/',
+  requirePermission('charging_station:create:fleet'),
+  auditLog({ action: 'CREATE', resourceType: 'charging_stations' }),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const data = req.body
+      const columns = Object.keys(data)
+      const values = Object.values(data)
+
+      const placeholders = values.map((_, i) => `$${i + 2}`).join(', ')
+      const columnNames = ['tenant_id', ...columns].join(', ')
+
+      const result = await pool.query(
+        `INSERT INTO charging_stations (${columnNames}) VALUES ($1, ${placeholders}) RETURNING *`,
+        [req.user!.tenant_id, ...values]
+      )
+
+      res.status(201).json(result.rows[0])
+    } catch (error) {
+      console.error('Create charging-stations error:', error)
+      res.status(500).json({ error: 'Internal server error' })
+    }
+  }
+)
+
+// PUT /charging-stations/:id
+router.put(
+  '/:id',
+  requirePermission('charging_station:update:fleet'),
+  auditLog({ action: 'UPDATE', resourceType: 'charging_stations' }),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const data = req.body
+      const fields = Object.keys(data).map((key, i) => `${key} = $${i + 3}`).join(', ')
+      const values = Object.values(data)
+
+      const result = await pool.query(
+        `UPDATE charging_stations SET ${fields}, updated_at = NOW() WHERE id = $1 AND tenant_id = $2 RETURNING *`,
+        [req.params.id, req.user!.tenant_id, ...values]
+      )
+
+      if (result.rows.length === 0) {
+        return res.status(404).json({ error: 'ChargingStations not found' })
+      }
+
+      res.json(result.rows[0])
+    } catch (error) {
+      console.error('Update charging-stations error:', error)
+      res.status(500).json({ error: 'Internal server error' })
+    }
+  }
+)
+
+// DELETE /charging-stations/:id
+router.delete(
+  '/:id',
+  requirePermission('charging_station:delete:fleet'),
+  auditLog({ action: 'DELETE', resourceType: 'charging_stations' }),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const result = await pool.query(
+        'DELETE FROM charging_stations WHERE id = $1 AND tenant_id = $2 RETURNING id',
+        [req.params.id, req.user!.tenant_id]
+      )
+
+      if (result.rows.length === 0) {
+        return res.status(404).json({ error: 'ChargingStations not found' })
+      }
+
+      res.json({ message: 'ChargingStations deleted successfully' })
+    } catch (error) {
+      console.error('Delete charging-stations error:', error)
+      res.status(500).json({ error: 'Internal server error' })
+    }
+  }
+)
+
+export default router

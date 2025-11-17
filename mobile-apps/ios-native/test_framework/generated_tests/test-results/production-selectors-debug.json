@@ -1,0 +1,73 @@
+{
+  "loginPage": {
+    "title": "Fleet Management System - Enterprise",
+    "hasEmailInput": true,
+    "hasPasswordInput": true,
+    "emailInputSelector": "<input data-slot=\"input\" class=\"file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex h-9 w-full min-w-0 roun",
+    "passwordInputSelector": "<input data-slot=\"input\" class=\"file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex h-9 w-full min-w-0 roun",
+    "allButtons": [
+      {
+        "text": "Sign in with Microsoft",
+        "type": "button",
+        "classes": "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive border bg-background shadow-xs hover:text-accent-foreground dark:bg-input/30 dark:border-input px-4 py-2 has-[>svg]:px-3 w-full h-12 text-base font-medium hover:bg-gray-50 dark:hover:bg-gray-800"
+      },
+      {
+        "text": "Sign in",
+        "type": "submit",
+        "classes": "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive bg-primary text-primary-foreground shadow-xs hover:bg-primary/90 px-4 py-2 has-[>svg]:px-3 w-full h-12 text-base font-medium"
+      }
+    ],
+    "formStructure": "<form class=\"space-y-4\"><div class=\"space-y-2\"><label data-slot=\"label\" class=\"flex items-center gap-2 text-sm leading-none font-medium select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50\" for=\"email\">Email</label><input data-slot=\"input\" class=\"file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex h-9 w-"
+  },
+  "dashboard": {
+    "url": "http://68.220.148.2/login",
+    "title": "Fleet Management System - Enterprise",
+    "header": {
+      "exists": false,
+      "h1Count": 0,
+      "h2Count": 0,
+      "h1Text": [],
+      "h2Text": []
+    },
+    "navigation": {
+      "hasSidebar": false,
+      "hasNav": false,
+      "navigationLinks": []
+    },
+    "main": {
+      "exists": false
+    },
+    "tables": {
+      "count": 0,
+      "headers": [],
+      "rowCount": 0
+    },
+    "buttons": [
+      {
+        "text": "Sign in with Microsoft",
+        "ariaLabel": null,
+        "classes": "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md transition-all disabled:p"
+      },
+      {
+        "text": "Sign in",
+        "ariaLabel": null,
+        "classes": "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md transition-all disabled:p"
+      }
+    ],
+    "inputs": [
+      {
+        "type": "email",
+        "name": "",
+        "placeholder": "admin@demofleet.com",
+        "id": "email"
+      },
+      {
+        "type": "password",
+        "name": "",
+        "placeholder": "••••••••",
+        "id": "password"
+      }
+    ]
+  },
+  "timestamp": "2025-11-16T03:36:02.280Z"
+}

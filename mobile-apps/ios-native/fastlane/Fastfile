@@ -1,0 +1,543 @@
+# Fastfile for DCF Fleet Management iOS App
+# Comprehensive CI/CD automation for testing, building, and deployment
+
+default_platform(:ios)
+
+# Global variables
+XCODE_PROJECT = "App.xcodeproj"
+XCODE_WORKSPACE = "App.xcworkspace"
+SCHEME_NAME = "App"
+APP_IDENTIFIER = "com.capitaltechalliance.fleetmanagement"
+APP_NAME = "DCF Fleet Management"
+
+# Staging bundle identifier
+STAGING_APP_IDENTIFIER = "com.capitaltechalliance.fleetmanagement.staging"
+
+platform :ios do
+
+  # ============================================================================
+  # BEFORE ALL - Setup
+  # ============================================================================
+
+  before_all do
+    setup_ci if ENV['CI']
+    ensure_bundle_exec
+  end
+
+  # ============================================================================
+  # TESTING LANES
+  # ============================================================================
+
+  desc "Run all tests with code coverage"
+  lane :test do
+    # Check if workspace exists, otherwise use project
+    if File.exist?("../#{XCODE_WORKSPACE}")
+      scan(
+        workspace: XCODE_WORKSPACE,
+        scheme: SCHEME_NAME,
+        devices: ["iPhone 15 Pro"],
+        code_coverage: true,
+        output_directory: "./test_output",
+        output_types: "html,junit",
+        clean: true,
+        result_bundle: true,
+        xcargs: "-maximum-concurrent-test-device-destinations 1"
+      )
+    else
+      scan(
+        project: XCODE_PROJECT,
+        scheme: SCHEME_NAME,
+        devices: ["iPhone 15 Pro"],
+        code_coverage: true,
+        output_directory: "./test_output",
+        output_types: "html,junit",
+        clean: true,
+        result_bundle: true,
+        xcargs: "-maximum-concurrent-test-device-destinations 1"
+      )
+    end
+
+    # Generate code coverage report
+    slather(
+      cobertura_xml: true,
+      jenkins: true,
+      scheme: SCHEME_NAME,
+      workspace: XCODE_WORKSPACE,
+      output_directory: "./test_output",
+      ignore: ["Pods/*", "AppTests/*"]
+    ) if File.exist?("../#{XCODE_WORKSPACE}")
+  end
+
+  desc "Run unit tests only"
+  lane :test_unit do
+    if File.exist?("../#{XCODE_WORKSPACE}")
+      scan(
+        workspace: XCODE_WORKSPACE,
+        scheme: SCHEME_NAME,
+        devices: ["iPhone 15 Pro"],
+        code_coverage: true,
+        only_testing: ["AppTests/"],
+        output_directory: "./test_output/unit"
+      )
+    else
+      scan(
+        project: XCODE_PROJECT,
+        scheme: SCHEME_NAME,
+        devices: ["iPhone 15 Pro"],
+        code_coverage: true,
+        output_directory: "./test_output/unit"
+      )
+    end
+  end
+
+  desc "Run UI tests only"
+  lane :test_ui do
+    if File.exist?("../#{XCODE_WORKSPACE}")
+      scan(
+        workspace: XCODE_WORKSPACE,
+        scheme: SCHEME_NAME,
+        devices: ["iPhone 15 Pro"],
+        only_testing: ["AppUITests/"],
+        output_directory: "./test_output/ui"
+      )
+    else
+      scan(
+        project: XCODE_PROJECT,
+        scheme: SCHEME_NAME,
+        devices: ["iPhone 15 Pro"],
+        output_directory: "./test_output/ui"
+      )
+    end
+  end
+
+  # ============================================================================
+  # BUILD LANES
+  # ============================================================================
+
+  desc "Build for staging environment"
+  lane :build_staging do
+    # Increment build number
+    increment_build_number(
+      build_number: latest_testflight_build_number(
+        app_identifier: STAGING_APP_IDENTIFIER,
+        initial_build_number: 1
+      ) + 1
+    )
+
+    # Setup code signing
+    setup_code_signing(type: "appstore")
+
+    # Build the app
+    if File.exist?("../#{XCODE_WORKSPACE}")
+      gym(
+        workspace: XCODE_WORKSPACE,
+        scheme: SCHEME_NAME,
+        configuration: "Release",
+        export_method: "app-store",
+        export_options: {
+          provisioningProfiles: {
+            STAGING_APP_IDENTIFIER => "match AppStore #{STAGING_APP_IDENTIFIER}"
+          }
+        },
+        output_directory: "./builds/staging",
+        output_name: "#{APP_NAME}-Staging.ipa",
+        clean: true,
+        include_bitcode: false,
+        include_symbols: true
+      )
+    else
+      gym(
+        project: XCODE_PROJECT,
+        scheme: SCHEME_NAME,
+        configuration: "Release",
+        export_method: "app-store",
+        output_directory: "./builds/staging",
+        output_name: "#{APP_NAME}-Staging.ipa",
+        clean: true,
+        include_bitcode: false,
+        include_symbols: true
+      )
+    end
+
+    UI.success("Staging build completed successfully!")
+  end
+
+  desc "Build for production environment"
+  lane :build_production do
+    # Ensure we're on main/master branch
+    ensure_git_branch(branch: 'main|master')
+
+    # Ensure clean git status
+    ensure_git_status_clean
+
+    # Increment build number
+    increment_build_number(
+      build_number: latest_testflight_build_number(
+        app_identifier: APP_IDENTIFIER,
+        initial_build_number: 1
+      ) + 1
+    )
+
+    # Setup code signing
+    setup_code_signing(type: "appstore")
+
+    # Build the app
+    if File.exist?("../#{XCODE_WORKSPACE}")
+      gym(
+        workspace: XCODE_WORKSPACE,
+        scheme: SCHEME_NAME,
+        configuration: "Release",
+        export_method: "app-store",
+        export_options: {
+          provisioningProfiles: {
+            APP_IDENTIFIER => "match AppStore #{APP_IDENTIFIER}"
+          }
+        },
+        output_directory: "./builds/production",
+        output_name: "#{APP_NAME}.ipa",
+        clean: true,
+        include_bitcode: false,
+        include_symbols: true
+      )
+    else
+      gym(
+        project: XCODE_PROJECT,
+        scheme: SCHEME_NAME,
+        configuration: "Release",
+        export_method: "app-store",
+        output_directory: "./builds/production",
+        output_name: "#{APP_NAME}.ipa",
+        clean: true,
+        include_bitcode: false,
+        include_symbols: true
+      )
+    end
+
+    UI.success("Production build completed successfully!")
+  end
+
+  desc "Build for development testing"
+  lane :build_dev do
+    # Setup code signing for development
+    setup_code_signing(type: "development")
+
+    if File.exist?("../#{XCODE_WORKSPACE}")
+      gym(
+        workspace: XCODE_WORKSPACE,
+        scheme: SCHEME_NAME,
+        configuration: "Debug",
+        export_method: "development",
+        output_directory: "./builds/dev",
+        output_name: "#{APP_NAME}-Dev.ipa",
+        clean: true
+      )
+    else
+      gym(
+        project: XCODE_PROJECT,
+        scheme: SCHEME_NAME,
+        configuration: "Debug",
+        export_method: "development",
+        output_directory: "./builds/dev",
+        output_name: "#{APP_NAME}-Dev.ipa",
+        clean: true
+      )
+    end
+
+    UI.success("Development build completed!")
+  end
+
+  # ============================================================================
+  # DEPLOYMENT LANES
+  # ============================================================================
+
+  desc "Deploy to TestFlight (Staging)"
+  lane :beta do
+    # Run tests first
+    test
+
+    # Build staging version
+    build_staging
+
+    # Upload to TestFlight
+    upload_to_testflight(
+      app_identifier: STAGING_APP_IDENTIFIER,
+      skip_waiting_for_build_processing: false,
+      distribute_external: false,
+      notify_external_testers: false,
+      changelog: changelog_from_git_commits(
+        commits_count: 10,
+        pretty: "- %s",
+        merge_commit_filtering: "exclude_merges"
+      ),
+      groups: ["Internal Testers"]
+    )
+
+    # Notify team
+    slack(
+      message: "New staging build #{lane_context[SharedValues::BUILD_NUMBER]} uploaded to TestFlight!",
+      success: true,
+      default_payloads: [:git_branch, :git_author]
+    ) if ENV['SLACK_URL']
+
+    UI.success("Successfully deployed to TestFlight!")
+  end
+
+  desc "Deploy to App Store (Production)"
+  lane :release do
+    # Ensure on main branch
+    ensure_git_branch(branch: 'main|master')
+
+    # Run comprehensive tests
+    test
+
+    # Build production version
+    build_production
+
+    # Upload to App Store
+    upload_to_app_store(
+      app_identifier: APP_IDENTIFIER,
+      skip_metadata: false,
+      skip_screenshots: false,
+      submit_for_review: false,
+      automatic_release: false,
+      force: false,
+      precheck_include_in_app_purchases: false,
+      submission_information: {
+        add_id_info_uses_idfa: false
+      }
+    )
+
+    # Create git tag
+    add_git_tag(
+      tag: "v#{get_version_number}-#{get_build_number}",
+      message: "Release v#{get_version_number} (#{get_build_number})"
+    )
+
+    # Push tag to remote
+    push_git_tags
+
+    # Notify team
+    slack(
+      message: "#{APP_NAME} v#{get_version_number} (#{get_build_number}) has been uploaded to App Store!",
+      success: true,
+      default_payloads: [:git_branch, :git_author]
+    ) if ENV['SLACK_URL']
+
+    UI.success("Successfully deployed to App Store!")
+  end
+
+  desc "Submit current build for App Store review"
+  lane :submit_review do
+    upload_to_app_store(
+      app_identifier: APP_IDENTIFIER,
+      skip_binary_upload: true,
+      skip_metadata: true,
+      skip_screenshots: true,
+      submit_for_review: true,
+      automatic_release: true,
+      submission_information: {
+        add_id_info_uses_idfa: false,
+        export_compliance_uses_encryption: false
+      }
+    )
+
+    UI.success("App submitted for review!")
+  end
+
+  # ============================================================================
+  # SCREENSHOT GENERATION
+  # ============================================================================
+
+  desc "Generate App Store screenshots"
+  lane :screenshots do
+    # Capture screenshots
+    capture_screenshots(
+      scheme: SCHEME_NAME,
+      devices: [
+        "iPhone 15 Pro Max",
+        "iPhone 15 Pro",
+        "iPhone SE (3rd generation)",
+        "iPad Pro (12.9-inch) (6th generation)"
+      ],
+      languages: ["en-US"],
+      output_directory: "./screenshots",
+      clear_previous_screenshots: true,
+      override_status_bar: true,
+      localize_simulator: true
+    )
+
+    # Frame screenshots
+    frame_screenshots(
+      path: "./screenshots",
+      silver: true
+    )
+
+    UI.success("Screenshots generated successfully!")
+  end
+
+  # ============================================================================
+  # CODE SIGNING
+  # ============================================================================
+
+  desc "Setup code signing using match"
+  private_lane :setup_code_signing do |options|
+    type = options[:type] || "appstore"
+
+    match(
+      type: type,
+      app_identifier: type == "appstore" ? APP_IDENTIFIER : STAGING_APP_IDENTIFIER,
+      readonly: is_ci,
+      git_basic_authorization: ENV['MATCH_GIT_BASIC_AUTHORIZATION']
+    )
+  end
+
+  desc "Register new devices for ad-hoc distribution"
+  lane :register_devices do
+    register_devices(
+      devices_file: "./fastlane/devices.txt"
+    )
+
+    match(
+      type: "adhoc",
+      force_for_new_devices: true
+    )
+  end
+
+  desc "Sync code signing certificates and profiles"
+  lane :sync_certificates do
+    match(
+      type: "development",
+      readonly: false
+    )
+
+    match(
+      type: "appstore",
+      readonly: false
+    )
+
+    match(
+      type: "adhoc",
+      readonly: false
+    )
+
+    UI.success("Certificates synced successfully!")
+  end
+
+  # ============================================================================
+  # VERSIONING
+  # ============================================================================
+
+  desc "Increment version number (major, minor, or patch)"
+  lane :version_bump do |options|
+    bump_type = options[:type] || "patch"
+
+    increment_version_number(
+      bump_type: bump_type
+    )
+
+    version = get_version_number
+
+    # Commit version bump
+    commit_version_bump(
+      message: "Bump version to #{version}",
+      xcodeproj: XCODE_PROJECT
+    )
+
+    UI.success("Version bumped to #{version}")
+  end
+
+  desc "Set specific version and build number"
+  lane :set_version do |options|
+    if options[:version]
+      increment_version_number(
+        version_number: options[:version]
+      )
+    end
+
+    if options[:build]
+      increment_build_number(
+        build_number: options[:build]
+      )
+    end
+
+    UI.success("Version set to #{get_version_number} (#{get_build_number})")
+  end
+
+  # ============================================================================
+  # UTILITIES
+  # ============================================================================
+
+  desc "Run SwiftLint"
+  lane :lint do
+    swiftlint(
+      mode: :lint,
+      executable: "Pods/SwiftLint/swiftlint",
+      config_file: ".swiftlint.yml",
+      raise_if_swiftlint_error: true
+    )
+  end
+
+  desc "Clean build artifacts"
+  lane :clean do
+    clear_derived_data
+    clean_build_artifacts
+
+    sh("rm -rf ../builds")
+    sh("rm -rf ../test_output")
+    sh("rm -rf ../screenshots")
+
+    UI.success("Build artifacts cleaned!")
+  end
+
+  desc "Prepare for release"
+  lane :prepare_release do |options|
+    version = options[:version]
+
+    # Ensure clean status
+    ensure_git_status_clean
+
+    # Bump version
+    version_bump(type: options[:bump_type] || "minor")
+
+    # Run tests
+    test
+
+    # Create release branch
+    sh("git checkout -b release/v#{get_version_number}")
+
+    UI.success("Release preparation complete! Review and merge to main.")
+  end
+
+  desc "Create changelog from git commits"
+  lane :generate_changelog do
+    changelog = changelog_from_git_commits(
+      commits_count: 50,
+      pretty: "- %s",
+      merge_commit_filtering: "exclude_merges"
+    )
+
+    File.write("../CHANGELOG.md", changelog)
+
+    UI.success("Changelog generated!")
+  end
+
+  # ============================================================================
+  # ERROR HANDLING
+  # ============================================================================
+
+  error do |lane, exception, options|
+    slack(
+      message: "Error in lane #{lane}: #{exception}",
+      success: false
+    ) if ENV['SLACK_URL']
+  end
+
+  # ============================================================================
+  # AFTER ALL
+  # ============================================================================
+
+  after_all do |lane|
+    UI.success("✅ Lane '#{lane}' completed successfully!")
+  end
+
+end

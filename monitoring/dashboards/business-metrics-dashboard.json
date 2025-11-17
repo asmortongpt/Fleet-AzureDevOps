@@ -1,0 +1,310 @@
+{
+  "properties": {
+    "lenses": {
+      "0": {
+        "order": 0,
+        "parts": {
+          "0": {
+            "position": {
+              "x": 0,
+              "y": 0,
+              "colSpan": 8,
+              "rowSpan": 4
+            },
+            "metadata": {
+              "inputs": [
+                {
+                  "name": "resourceTypeMode",
+                  "isOptional": true
+                },
+                {
+                  "name": "ComponentId",
+                  "isOptional": true
+                },
+                {
+                  "name": "Scope",
+                  "value": {
+                    "resourceIds": [
+                      "/subscriptions/021415c2-2f52-4a73-ae77-f8363165a5e1/resourceGroups/fleet-production-rg/providers/microsoft.insights/components/fleet-management-insights"
+                    ]
+                  },
+                  "isOptional": true
+                },
+                {
+                  "name": "Query",
+                  "value": "requests\n| where timestamp > ago(24h)\n| extend endpoint = strcat(tostring(split(url, '?')[0]))\n| summarize Requests = count(), AvgDuration = avg(duration) by endpoint\n| top 10 by Requests desc\n| project endpoint, Requests, AvgDuration\n",
+                  "isOptional": true
+                },
+                {
+                  "name": "PartTitle",
+                  "value": "Top 10 API Endpoints by Usage",
+                  "isOptional": true
+                }
+              ],
+              "type": "Extension/Microsoft_OperationsManagementSuite_Workspace/PartType/LogsDashboardPart"
+            }
+          },
+          "1": {
+            "position": {
+              "x": 8,
+              "y": 0,
+              "colSpan": 4,
+              "rowSpan": 4
+            },
+            "metadata": {
+              "inputs": [
+                {
+                  "name": "resourceTypeMode",
+                  "isOptional": true
+                },
+                {
+                  "name": "ComponentId",
+                  "isOptional": true
+                },
+                {
+                  "name": "Scope",
+                  "value": {
+                    "resourceIds": [
+                      "/subscriptions/021415c2-2f52-4a73-ae77-f8363165a5e1/resourceGroups/fleet-production-rg/providers/microsoft.insights/components/fleet-management-insights"
+                    ]
+                  },
+                  "isOptional": true
+                },
+                {
+                  "name": "Query",
+                  "value": "requests\n| where timestamp > ago(24h)\n| where customDimensions.userId != ''\n| summarize UniqueUsers = dcount(tostring(customDimensions.userId))\n| project UniqueUsers\n",
+                  "isOptional": true
+                },
+                {
+                  "name": "PartTitle",
+                  "value": "Active Users (24h)",
+                  "isOptional": true
+                }
+              ],
+              "type": "Extension/Microsoft_OperationsManagementSuite_Workspace/PartType/LogsDashboardPart"
+            }
+          },
+          "2": {
+            "position": {
+              "x": 0,
+              "y": 4,
+              "colSpan": 6,
+              "rowSpan": 4
+            },
+            "metadata": {
+              "inputs": [
+                {
+                  "name": "resourceTypeMode",
+                  "isOptional": true
+                },
+                {
+                  "name": "ComponentId",
+                  "isOptional": true
+                },
+                {
+                  "name": "Scope",
+                  "value": {
+                    "resourceIds": [
+                      "/subscriptions/021415c2-2f52-4a73-ae77-f8363165a5e1/resourceGroups/fleet-production-rg/providers/microsoft.insights/components/fleet-management-insights"
+                    ]
+                  },
+                  "isOptional": true
+                },
+                {
+                  "name": "Query",
+                  "value": "requests\n| where timestamp > ago(24h)\n| extend endpoint = strcat(tostring(split(url, '?')[0]))\n| summarize Requests = count(), AvgDuration = avg(duration) by endpoint\n| top 10 by AvgDuration desc\n| project endpoint, AvgDuration, Requests\n",
+                  "isOptional": true
+                },
+                {
+                  "name": "PartTitle",
+                  "value": "Slowest API Endpoints",
+                  "isOptional": true
+                }
+              ],
+              "type": "Extension/Microsoft_OperationsManagementSuite_Workspace/PartType/LogsDashboardPart"
+            }
+          },
+          "3": {
+            "position": {
+              "x": 6,
+              "y": 4,
+              "colSpan": 6,
+              "rowSpan": 4
+            },
+            "metadata": {
+              "inputs": [
+                {
+                  "name": "resourceTypeMode",
+                  "isOptional": true
+                },
+                {
+                  "name": "ComponentId",
+                  "isOptional": true
+                },
+                {
+                  "name": "Scope",
+                  "value": {
+                    "resourceIds": [
+                      "/subscriptions/021415c2-2f52-4a73-ae77-f8363165a5e1/resourceGroups/fleet-production-rg/providers/microsoft.insights/components/fleet-management-insights"
+                    ]
+                  },
+                  "isOptional": true
+                },
+                {
+                  "name": "Query",
+                  "value": "requests\n| where timestamp > ago(24h)\n| where success == false\n| summarize ErrorCount = count() by resultCode\n| order by ErrorCount desc\n| project resultCode, ErrorCount\n",
+                  "isOptional": true
+                },
+                {
+                  "name": "PartTitle",
+                  "value": "Error Breakdown by HTTP Status",
+                  "isOptional": true
+                }
+              ],
+              "type": "Extension/Microsoft_OperationsManagementSuite_Workspace/PartType/LogsDashboardPart"
+            }
+          },
+          "4": {
+            "position": {
+              "x": 0,
+              "y": 8,
+              "colSpan": 6,
+              "rowSpan": 4
+            },
+            "metadata": {
+              "inputs": [
+                {
+                  "name": "resourceTypeMode",
+                  "isOptional": true
+                },
+                {
+                  "name": "ComponentId",
+                  "isOptional": true
+                },
+                {
+                  "name": "Scope",
+                  "value": {
+                    "resourceIds": [
+                      "/subscriptions/021415c2-2f52-4a73-ae77-f8363165a5e1/resourceGroups/fleet-production-rg/providers/microsoft.insights/components/fleet-management-insights"
+                    ]
+                  },
+                  "isOptional": true
+                },
+                {
+                  "name": "Query",
+                  "value": "requests\n| where timestamp > ago(7d)\n| where name contains 'login'\n| summarize LoginAttempts = count() by bin(timestamp, 1h)\n| render timechart\n",
+                  "isOptional": true
+                },
+                {
+                  "name": "PartTitle",
+                  "value": "Login Activity (7 days)",
+                  "isOptional": true
+                }
+              ],
+              "type": "Extension/Microsoft_OperationsManagementSuite_Workspace/PartType/LogsDashboardPart"
+            }
+          },
+          "5": {
+            "position": {
+              "x": 6,
+              "y": 8,
+              "colSpan": 6,
+              "rowSpan": 4
+            },
+            "metadata": {
+              "inputs": [
+                {
+                  "name": "resourceTypeMode",
+                  "isOptional": true
+                },
+                {
+                  "name": "ComponentId",
+                  "isOptional": true
+                },
+                {
+                  "name": "Scope",
+                  "value": {
+                    "resourceIds": [
+                      "/subscriptions/021415c2-2f52-4a73-ae77-f8363165a5e1/resourceGroups/fleet-production-rg/providers/microsoft.insights/components/fleet-management-insights"
+                    ]
+                  },
+                  "isOptional": true
+                },
+                {
+                  "name": "Query",
+                  "value": "requests\n| where timestamp > ago(24h)\n| extend Module = case(\n    url contains '/vehicles', 'Vehicles',\n    url contains '/drivers', 'Drivers',\n    url contains '/work-orders', 'Work Orders',\n    url contains '/maintenance', 'Maintenance',\n    url contains '/fuel', 'Fuel',\n    url contains '/routes', 'Routes',\n    url contains '/geofences', 'Geofences',\n    url contains '/charging', 'EV Charging',\n    url contains '/inspections', 'Inspections',\n    url contains '/safety', 'Safety',\n    'Other'\n)\n| summarize Requests = count() by Module\n| render piechart\n",
+                  "isOptional": true
+                },
+                {
+                  "name": "PartTitle",
+                  "value": "Feature Usage Distribution",
+                  "isOptional": true
+                }
+              ],
+              "type": "Extension/Microsoft_OperationsManagementSuite_Workspace/PartType/LogsDashboardPart"
+            }
+          },
+          "6": {
+            "position": {
+              "x": 0,
+              "y": 12,
+              "colSpan": 12,
+              "rowSpan": 4
+            },
+            "metadata": {
+              "inputs": [
+                {
+                  "name": "resourceTypeMode",
+                  "isOptional": true
+                },
+                {
+                  "name": "ComponentId",
+                  "isOptional": true
+                },
+                {
+                  "name": "Scope",
+                  "value": {
+                    "resourceIds": [
+                      "/subscriptions/021415c2-2f52-4a73-ae77-f8363165a5e1/resourceGroups/fleet-production-rg/providers/microsoft.insights/components/fleet-management-insights"
+                    ]
+                  },
+                  "isOptional": true
+                },
+                {
+                  "name": "Query",
+                  "value": "dependencies\n| where type == 'SQL'\n| where timestamp > ago(24h)\n| extend Query = substring(data, 0, 100)\n| summarize Count = count(), AvgDuration = avg(duration), MaxDuration = max(duration) by Query\n| top 10 by AvgDuration desc\n| project Query, Count, AvgDuration, MaxDuration\n",
+                  "isOptional": true
+                },
+                {
+                  "name": "PartTitle",
+                  "value": "Slowest Database Queries",
+                  "isOptional": true
+                }
+              ],
+              "type": "Extension/Microsoft_OperationsManagementSuite_Workspace/PartType/LogsDashboardPart"
+            }
+          }
+        }
+      }
+    },
+    "metadata": {
+      "model": {
+        "timeRange": {
+          "value": {
+            "relative": {
+              "duration": 24,
+              "timeUnit": 1
+            }
+          },
+          "type": "MsPortalFx.Composition.Configuration.ValueTypes.TimeRange"
+        }
+      }
+    }
+  },
+  "name": "Fleet Management - Business Metrics",
+  "type": "Microsoft.Portal/dashboards",
+  "location": "eastus2",
+  "tags": {
+    "hidden-title": "Fleet Management - Business Metrics"
+  }
+}

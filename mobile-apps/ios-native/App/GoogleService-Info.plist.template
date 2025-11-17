@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!--
+	==========================================
+	FIREBASE CONFIGURATION TEMPLATE
+	==========================================
+
+	This is a TEMPLATE file. To enable Firebase:
+
+	1. Go to Firebase Console: https://console.firebase.google.com
+	2. Create a new Firebase project (or use existing)
+	3. Add an iOS app to your project
+	4. Download the GoogleService-Info.plist file
+	5. Replace this template file with your downloaded file
+	6. Rename it to GoogleService-Info.plist (remove .template)
+
+	IMPORTANT: Never commit the actual GoogleService-Info.plist to version control!
+	Add it to .gitignore to keep your credentials secure.
+
+	==========================================
+	-->
+
+	<!-- REQUIRED: Your Firebase API Key -->
+	<key>API_KEY</key>
+	<string>YOUR_FIREBASE_API_KEY_HERE</string>
+
+	<!-- REQUIRED: Your Firebase Project ID -->
+	<key>PROJECT_ID</key>
+	<string>YOUR_PROJECT_ID_HERE</string>
+
+	<!-- REQUIRED: Your iOS Bundle Identifier -->
+	<key>BUNDLE_ID</key>
+	<string>com.dcffleet.app</string>
+
+	<!-- REQUIRED: Google App ID -->
+	<key>GOOGLE_APP_ID</key>
+	<string>1:YOUR_APP_ID:ios:YOUR_APP_IDENTIFIER</string>
+
+	<!-- REQUIRED: Firebase Database URL -->
+	<key>DATABASE_URL</key>
+	<string>https://YOUR_PROJECT_ID.firebaseio.com</string>
+
+	<!-- REQUIRED: GCM Sender ID (for Cloud Messaging) -->
+	<key>GCM_SENDER_ID</key>
+	<string>YOUR_SENDER_ID</string>
+
+	<!-- REQUIRED: Storage Bucket -->
+	<key>STORAGE_BUCKET</key>
+	<string>YOUR_PROJECT_ID.appspot.com</string>
+
+	<!-- OAuth Client ID (optional, for Google Sign-In) -->
+	<key>CLIENT_ID</key>
+	<string>YOUR_CLIENT_ID.apps.googleusercontent.com</string>
+
+	<!-- Reversed Client ID (optional, for Google Sign-In) -->
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.YOUR_CLIENT_ID</string>
+
+	<!-- Analytics Configuration -->
+	<key>IS_ADS_ENABLED</key>
+	<false/>
+
+	<key>IS_ANALYTICS_ENABLED</key>
+	<true/>
+
+	<key>IS_APPINVITE_ENABLED</key>
+	<false/>
+
+	<key>IS_GCM_ENABLED</key>
+	<true/>
+
+	<key>IS_SIGNIN_ENABLED</key>
+	<false/>
+
+	<!-- Additional Configuration -->
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+</dict>
+</plist>

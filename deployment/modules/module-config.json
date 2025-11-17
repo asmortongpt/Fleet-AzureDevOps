@@ -1,0 +1,212 @@
+{
+  "moduleCatalog": {
+    "core": {
+      "id": "core",
+      "name": "Core Fleet Management",
+      "required": true,
+      "description": "Essential fleet operations including dashboard, vehicles, drivers, and basic tracking",
+      "modules": [
+        "dashboard",
+        "gps-tracking",
+        "people",
+        "garage",
+        "fuel",
+        "workbench"
+      ],
+      "price": 0,
+      "minUsers": 1
+    },
+    "gis-mapping": {
+      "id": "gis-mapping",
+      "name": "GIS & Advanced Mapping",
+      "required": false,
+      "description": "Multi-layer GIS command center with weather, traffic, cameras, and geofencing",
+      "modules": [
+        "gis-map",
+        "map-layers",
+        "geofences"
+      ],
+      "dependencies": ["core"],
+      "price": 2500,
+      "minUsers": 10
+    },
+    "advanced-routing": {
+      "id": "advanced-routing",
+      "name": "AI Route Optimization",
+      "required": false,
+      "description": "AI-powered route optimization with traffic, weather, and EV awareness",
+      "modules": [
+        "route-optimization",
+        "routes"
+      ],
+      "dependencies": ["core", "gis-mapping"],
+      "price": 3500,
+      "minUsers": 20
+    },
+    "telematics": {
+      "id": "telematics",
+      "name": "Vehicle Telemetry & OBD-II",
+      "required": false,
+      "description": "Real-time vehicle data with OBD-II and Smartcar integration",
+      "modules": [
+        "vehicle-telemetry"
+      ],
+      "dependencies": ["core"],
+      "price": 5000,
+      "minVehicles": 50
+    },
+    "video-telematics": {
+      "id": "video-telematics",
+      "name": "Video Telematics & AI",
+      "required": false,
+      "description": "Dashcam AI event detection with driver coaching workflows",
+      "modules": [
+        "video-telematics"
+      ],
+      "dependencies": ["core"],
+      "price": 7500,
+      "minVehicles": 25
+    },
+    "ev-charging": {
+      "id": "ev-charging",
+      "name": "EV Charging Management",
+      "required": false,
+      "description": "Smart charging optimization with OCPP/OICP network integration",
+      "modules": [
+        "ev-charging"
+      ],
+      "dependencies": ["core"],
+      "price": 4500,
+      "requiresEVs": true
+    },
+    "maintenance": {
+      "id": "maintenance",
+      "name": "Predictive Maintenance",
+      "required": false,
+      "description": "ML-based predictive maintenance with automated work order generation",
+      "modules": [
+        "predictive-maintenance",
+        "maintenance-scheduling"
+      ],
+      "dependencies": ["core"],
+      "price": 3000,
+      "minVehicles": 100
+    },
+    "procurement": {
+      "id": "procurement",
+      "name": "Procurement & Inventory",
+      "required": false,
+      "description": "Complete procurement workflows with vendor, parts, PO, and invoice management",
+      "modules": [
+        "vendor-management",
+        "parts-inventory",
+        "purchase-orders",
+        "invoices"
+      ],
+      "dependencies": ["core"],
+      "price": 2000,
+      "minUsers": 5
+    },
+    "safety-compliance": {
+      "id": "safety-compliance",
+      "name": "OSHA & Safety Compliance",
+      "required": false,
+      "description": "Complete OSHA forms, custom form builder, and workplace safety management",
+      "modules": [
+        "osha-forms",
+        "form-builder"
+      ],
+      "dependencies": ["core"],
+      "price": 3500,
+      "minUsers": 10
+    },
+    "policy-automation": {
+      "id": "policy-automation",
+      "name": "AI Policy Engine",
+      "required": false,
+      "description": "AI-driven compliance automation with 3 execution modes",
+      "modules": [
+        "policy-engine"
+      ],
+      "dependencies": ["core"],
+      "price": 6000,
+      "minUsers": 50
+    },
+    "communications": {
+      "id": "communications",
+      "name": "Communications Suite",
+      "required": false,
+      "description": "AI assistant, Teams integration, email center, and communication logging",
+      "modules": [
+        "ai-assistant",
+        "teams-integration",
+        "email-center",
+        "communication-log"
+      ],
+      "dependencies": ["core"],
+      "price": 2500,
+      "minUsers": 10
+    },
+    "financial": {
+      "id": "financial",
+      "name": "Financial & Receipts",
+      "required": false,
+      "description": "Receipt processing with OCR and mileage reimbursement workflows",
+      "modules": [
+        "receipt-processing",
+        "mileage"
+      ],
+      "dependencies": ["core"],
+      "price": 1500,
+      "minUsers": 5
+    },
+    "analytics": {
+      "id": "analytics",
+      "name": "Advanced Analytics",
+      "required": false,
+      "description": "Comprehensive fleet analytics with driver performance insights",
+      "modules": [
+        "comprehensive",
+        "driver-mgmt"
+      ],
+      "dependencies": ["core"],
+      "price": 2000,
+      "minUsers": 10
+    }
+  },
+  "customerProfiles": {
+    "starter": {
+      "name": "Starter",
+      "description": "Essential fleet management for small operations",
+      "maxUsers": 25,
+      "maxVehicles": 50,
+      "includedModules": ["core"],
+      "monthlyPrice": 500
+    },
+    "professional": {
+      "name": "Professional",
+      "description": "Full-featured fleet management for growing businesses",
+      "maxUsers": 100,
+      "maxVehicles": 250,
+      "includedModules": ["core", "gis-mapping", "maintenance", "procurement", "financial", "analytics"],
+      "monthlyPrice": 2000
+    },
+    "enterprise": {
+      "name": "Enterprise",
+      "description": "Complete enterprise solution with AI and advanced features",
+      "maxUsers": 1000,
+      "maxVehicles": 2500,
+      "includedModules": ["core", "gis-mapping", "advanced-routing", "telematics", "maintenance", "procurement", "safety-compliance", "communications", "financial", "analytics"],
+      "monthlyPrice": 8000
+    },
+    "enterprise-plus": {
+      "name": "Enterprise Plus",
+      "description": "Full platform with all features for large organizations",
+      "maxUsers": 50000,
+      "maxVehicles": 40000,
+      "includedModules": "all",
+      "monthlyPrice": 25000,
+      "customPricing": true
+    }
+  }
+}

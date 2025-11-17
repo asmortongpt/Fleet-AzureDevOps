@@ -1,0 +1,19 @@
+{
+  "version": "1.0.0",
+  "projectType": "react-vite",
+  "buildCommand": "npm run build",
+  "outputDir": "dist",
+  "devCommand": "npm run dev",
+  "previewCommand": "npm run preview",
+  "devPort": 5173,
+  "previewPort": 4173,
+  "deployment": {
+    "type": "azure-static-web-apps",
+    "url": "https://green-pond-0f040980f.3.azurestaticapps.net",
+    "secretName": "AZURE_STATIC_WEB_APPS_API_TOKEN"
+  },
+  "testing": {
+    "timeout": 10000,
+    "retries": 3
+  }
+}

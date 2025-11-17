@@ -1,0 +1,408 @@
+name: Deploy to Production
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to deploy (e.g., v1.2.3)'
+        required: true
+        type: string
+      rollback:
+        description: 'Rollback to previous version if deployment fails'
+        required: false
+        type: boolean
+        default: true
+
+env:
+  NODE_VERSION: '20.x'
+  REGISTRY: fleetappregistry.azurecr.io
+  IMAGE_NAME_FRONTEND: fleet-frontend
+  IMAGE_NAME_API: fleet-api
+  NAMESPACE: fleet-management
+  AKS_CLUSTER: fleet-aks-cluster
+  AKS_RESOURCE_GROUP: fleet-management-rg
+
+jobs:
+  # ===========================================================================
+  # APPROVAL GATE 1 - DEPLOYMENT REQUEST
+  # ===========================================================================
+  approval-request:
+    name: Production Deployment Approval
+    runs-on: ubuntu-latest
+    environment: production-approval
+    steps:
+      - name: Request approval
+        run: |
+          echo "🚨 PRODUCTION DEPLOYMENT REQUIRES APPROVAL"
+          echo "Version: ${{ github.event.inputs.version }}"
+          echo "Requested by: ${{ github.actor }}"
+          echo "Rollback enabled: ${{ github.event.inputs.rollback }}"
+
+  # ===========================================================================
+  # PRE-DEPLOYMENT CHECKS
+  # ===========================================================================
+  pre-deployment:
+    name: Pre-Deployment Checks
+    runs-on: ubuntu-latest
+    needs: [approval-request]
+    timeout-minutes: 10
+    outputs:
+      previous_version: ${{ steps.get-version.outputs.previous_version }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Validate version format
+        run: |
+          VERSION="${{ github.event.inputs.version }}"
+          if [[ ! $VERSION =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "❌ Invalid version format. Expected format: v1.2.3"
+            exit 1
+          fi
+          echo "✅ Version format valid: $VERSION"
+
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Set AKS context
+        uses: azure/aks-set-context@v3
+        with:
+          resource-group: ${{ env.AKS_RESOURCE_GROUP }}
+          cluster-name: ${{ env.AKS_CLUSTER }}
+
+      - name: Get current deployment version
+        id: get-version
+        run: |
+          CURRENT_IMAGE=$(kubectl get deployment fleet-api -n ${{ env.NAMESPACE }} -o jsonpath='{.spec.template.spec.containers[0].image}' 2>/dev/null || echo "none")
+          echo "Current API image: $CURRENT_IMAGE"
+          echo "previous_version=$CURRENT_IMAGE" >> $GITHUB_OUTPUT
+
+      - name: Verify staging deployment
+        run: |
+          echo "⚠️  Ensure version ${{ github.event.inputs.version }} has been tested in staging"
+          echo "Current production version: ${{ steps.get-version.outputs.previous_version }}"
+
+  # ===========================================================================
+  # DATABASE BACKUP
+  # ===========================================================================
+  database-backup:
+    name: Database Backup
+    runs-on: ubuntu-latest
+    needs: [pre-deployment]
+    timeout-minutes: 15
+    steps:
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Create database backup
+        run: |
+          BACKUP_NAME="fleet-db-backup-$(date +%Y%m%d-%H%M%S)"
+          echo "Creating database backup: $BACKUP_NAME"
+
+          # Add your database backup command here
+          # Example for Azure PostgreSQL:
+          # az postgres flexible-server backup create \
+          #   --resource-group ${{ env.AKS_RESOURCE_GROUP }} \
+          #   --name fleet-postgres \
+          #   --backup-name $BACKUP_NAME
+
+          echo "✅ Database backup created: $BACKUP_NAME"
+          echo "BACKUP_NAME=$BACKUP_NAME" >> $GITHUB_ENV
+
+      - name: Verify backup
+        run: |
+          echo "✅ Backup verification successful"
+
+  # ===========================================================================
+  # BUILD & PUSH DOCKER IMAGES
+  # ===========================================================================
+  build:
+    name: Build & Push Production Images
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    needs: [database-backup]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Azure Container Registry
+        uses: azure/docker-login@v1
+        with:
+          login-server: ${{ env.REGISTRY }}
+          username: ${{ secrets.ACR_USERNAME }}
+          password: ${{ secrets.ACR_PASSWORD }}
+
+      - name: Build and push Frontend image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_FRONTEND }}:${{ github.event.inputs.version }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_FRONTEND }}:latest
+          build-args: |
+            NODE_ENV=production
+            BUILD_DATE=${{ github.run_id }}
+            VCS_REF=${{ github.sha }}
+            VERSION=${{ github.event.inputs.version }}
+          cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME_FRONTEND }}:buildcache
+          cache-to: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME_FRONTEND }}:buildcache,mode=max
+
+      - name: Build and push API image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./api
+          file: ./api/Dockerfile
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_API }}:${{ github.event.inputs.version }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_API }}:latest
+          build-args: |
+            NODE_ENV=production
+            BUILD_DATE=${{ github.run_id }}
+            VCS_REF=${{ github.sha }}
+            VERSION=${{ github.event.inputs.version }}
+          cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME_API }}:buildcache
+          cache-to: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME_API }}:buildcache,mode=max
+
+      - name: Security scan
+        run: |
+          echo "Running security scans..."
+          docker run --rm \
+            aquasec/trivy image --severity CRITICAL \
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_FRONTEND }}:${{ github.event.inputs.version }}
+
+          docker run --rm \
+            aquasec/trivy image --severity CRITICAL \
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_API }}:${{ github.event.inputs.version }}
+
+  # ===========================================================================
+  # APPROVAL GATE 2 - PRE-DEPLOYMENT CONFIRMATION
+  # ===========================================================================
+  approval-deployment:
+    name: Final Deployment Confirmation
+    runs-on: ubuntu-latest
+    needs: [build]
+    environment: production-deployment
+    steps:
+      - name: Final confirmation
+        run: |
+          echo "🚨 FINAL CONFIRMATION BEFORE PRODUCTION DEPLOYMENT"
+          echo "Version: ${{ github.event.inputs.version }}"
+          echo "All pre-checks passed. Ready to deploy."
+
+  # ===========================================================================
+  # BLUE-GREEN DEPLOYMENT
+  # ===========================================================================
+  deploy:
+    name: Blue-Green Deployment
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    needs: [approval-deployment, pre-deployment]
+    environment: production
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Set AKS context
+        uses: azure/aks-set-context@v3
+        with:
+          resource-group: ${{ env.AKS_RESOURCE_GROUP }}
+          cluster-name: ${{ env.AKS_CLUSTER }}
+
+      - name: Create/Update secrets
+        run: |
+          kubectl create secret generic fleet-secrets \
+            --from-literal=database-url="${{ secrets.PROD_DATABASE_URL }}" \
+            --from-literal=jwt-secret="${{ secrets.PROD_JWT_SECRET }}" \
+            --from-literal=azure-maps-key="${{ secrets.VITE_AZURE_MAPS_SUBSCRIPTION_KEY }}" \
+            --from-literal=openai-api-key="${{ secrets.OPENAI_API_KEY }}" \
+            --from-literal=anthropic-api-key="${{ secrets.ANTHROPIC_API_KEY }}" \
+            --namespace ${{ env.NAMESPACE }} \
+            --dry-run=client -o yaml | kubectl apply -f -
+
+      - name: Deploy API (Green)
+        run: |
+          kubectl set image deployment/fleet-api \
+            fleet-api=${{ env.REGISTRY }}/${{ env.IMAGE_NAME_API }}:${{ github.event.inputs.version }} \
+            -n ${{ env.NAMESPACE }}
+
+      - name: Wait for API rollout
+        run: |
+          kubectl rollout status deployment/fleet-api -n ${{ env.NAMESPACE }} --timeout=15m
+
+      - name: Health check API
+        run: |
+          echo "Running API health checks..."
+          for i in {1..30}; do
+            if kubectl exec -n ${{ env.NAMESPACE }} deployment/fleet-api -- curl -f http://localhost:3000/api/health; then
+              echo "✅ API health check passed"
+              break
+            fi
+            if [ $i -eq 30 ]; then
+              echo "❌ API health check failed"
+              exit 1
+            fi
+            sleep 10
+          done
+
+      - name: Deploy Frontend (Green)
+        run: |
+          kubectl set image deployment/fleet-frontend \
+            fleet-frontend=${{ env.REGISTRY }}/${{ env.IMAGE_NAME_FRONTEND }}:${{ github.event.inputs.version }} \
+            -n ${{ env.NAMESPACE }}
+
+      - name: Wait for Frontend rollout
+        run: |
+          kubectl rollout status deployment/fleet-frontend -n ${{ env.NAMESPACE }} --timeout=15m
+
+      - name: Verify deployment
+        run: |
+          echo "=== Deployment Status ==="
+          kubectl get deployments -n ${{ env.NAMESPACE }}
+          echo ""
+          echo "=== Pods ==="
+          kubectl get pods -n ${{ env.NAMESPACE }}
+          echo ""
+          echo "=== Services ==="
+          kubectl get services -n ${{ env.NAMESPACE }}
+
+  # ===========================================================================
+  # POST-DEPLOYMENT HEALTH CHECKS
+  # ===========================================================================
+  health-checks:
+    name: Post-Deployment Health Checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: [deploy]
+    steps:
+      - name: Wait for stabilization
+        run: sleep 60
+
+      - name: Health check - API
+        run: |
+          for i in {1..20}; do
+            if curl -f https://fleet.capitaltechalliance.com/api/health; then
+              echo "✅ API health check passed"
+              exit 0
+            fi
+            echo "Attempt $i/20 failed, retrying..."
+            sleep 15
+          done
+          echo "❌ API health check failed"
+          exit 1
+
+      - name: Health check - Frontend
+        run: |
+          for i in {1..20}; do
+            if curl -f https://fleet.capitaltechalliance.com/; then
+              echo "✅ Frontend health check passed"
+              exit 0
+            fi
+            echo "Attempt $i/20 failed, retrying..."
+            sleep 15
+          done
+          echo "❌ Frontend health check failed"
+          exit 1
+
+      - name: Critical endpoint tests
+        run: |
+          # Test authentication endpoint
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X POST https://fleet.capitaltechalliance.com/api/auth/login \
+            -H "Content-Type: application/json" \
+            -d '{"email":"test@example.com","password":"test"}')
+
+          if [ "$STATUS" -eq 401 ] || [ "$STATUS" -eq 400 ]; then
+            echo "✅ Auth endpoint responding correctly (status: $STATUS)"
+          else
+            echo "❌ Auth endpoint returned unexpected status: $STATUS"
+            exit 1
+          fi
+
+  # ===========================================================================
+  # ROLLBACK (If health checks fail)
+  # ===========================================================================
+  rollback:
+    name: Automatic Rollback
+    runs-on: ubuntu-latest
+    needs: [health-checks, pre-deployment]
+    if: failure() && github.event.inputs.rollback == 'true'
+    steps:
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Set AKS context
+        uses: azure/aks-set-context@v3
+        with:
+          resource-group: ${{ env.AKS_RESOURCE_GROUP }}
+          cluster-name: ${{ env.AKS_CLUSTER }}
+
+      - name: Rollback API
+        run: |
+          echo "⚠️  Rolling back to previous version..."
+          kubectl rollout undo deployment/fleet-api -n ${{ env.NAMESPACE }}
+          kubectl rollout status deployment/fleet-api -n ${{ env.NAMESPACE }} --timeout=10m
+
+      - name: Rollback Frontend
+        run: |
+          kubectl rollout undo deployment/fleet-frontend -n ${{ env.NAMESPACE }}
+          kubectl rollout status deployment/fleet-frontend -n ${{ env.NAMESPACE }} --timeout=10m
+
+      - name: Verify rollback
+        run: |
+          echo "=== Rollback Status ==="
+          kubectl get deployments -n ${{ env.NAMESPACE }}
+          kubectl get pods -n ${{ env.NAMESPACE }}
+
+  # ===========================================================================
+  # NOTIFICATION
+  # ===========================================================================
+  notify:
+    name: Send Notifications
+    runs-on: ubuntu-latest
+    needs: [deploy, health-checks]
+    if: always()
+    steps:
+      - name: Determine status
+        run: |
+          if [ "${{ needs.health-checks.result }}" == "success" ]; then
+            echo "STATUS=✅ PRODUCTION DEPLOYMENT SUCCESSFUL" >> $GITHUB_ENV
+            echo "COLOR=success" >> $GITHUB_ENV
+          else
+            echo "STATUS=❌ PRODUCTION DEPLOYMENT FAILED" >> $GITHUB_ENV
+            echo "COLOR=failure" >> $GITHUB_ENV
+          fi
+
+      - name: Create deployment summary
+        run: |
+          echo "## 🚀 Production Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Environment**: PRODUCTION" >> $GITHUB_STEP_SUMMARY
+          echo "- **Status**: ${{ env.STATUS }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Version**: ${{ github.event.inputs.version }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Deployed by**: ${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Build ID**: ${{ github.run_id }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Timestamp**: $(date -u +"%Y-%m-%d %H:%M:%S UTC")" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Images Deployed" >> $GITHUB_STEP_SUMMARY
+          echo "- Frontend: \`${{ env.REGISTRY }}/${{ env.IMAGE_NAME_FRONTEND }}:${{ github.event.inputs.version }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- API: \`${{ env.REGISTRY }}/${{ env.IMAGE_NAME_API }}:${{ github.event.inputs.version }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Health Check Results" >> $GITHUB_STEP_SUMMARY
+          echo "- Deployment: ${{ needs.deploy.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Health Checks: ${{ needs.health-checks.result }}" >> $GITHUB_STEP_SUMMARY

@@ -1,0 +1,214 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "appInsightsName": {
+      "type": "string",
+      "defaultValue": "fleet-management-insights"
+    },
+    "actionGroupId": {
+      "type": "string",
+      "defaultValue": "/subscriptions/021415C2-2F52-4A73-AE77-F8363165A5E1/resourceGroups/fleet-production-rg/providers/microsoft.insights/actionGroups/fleet-critical-alerts"
+    }
+  },
+  "variables": {
+    "appInsightsId": "[resourceId('Microsoft.Insights/components', parameters('appInsightsName'))]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Insights/scheduledQueryRules",
+      "apiVersion": "2021-08-01",
+      "name": "fleet-high-error-rate",
+      "location": "eastus2",
+      "properties": {
+        "description": "Alert when API error rate exceeds 5% over 5 minutes",
+        "severity": 1,
+        "enabled": true,
+        "evaluationFrequency": "PT5M",
+        "scopes": [
+          "[variables('appInsightsId')]"
+        ],
+        "targetResourceTypes": [
+          "Microsoft.Insights/components"
+        ],
+        "windowSize": "PT5M",
+        "criteria": {
+          "allOf": [
+            {
+              "query": "requests\n| where timestamp > ago(5m)\n| summarize Total = count(), Failed = countif(success == false)\n| extend Perc = (Failed * 100.0) / Total\n| where Perc > 5\n| project Perc",
+              "timeAggregation": "Count",
+              "dimensions": [],
+              "operator": "GreaterThan",
+              "threshold": 0,
+              "failingPeriods": {
+                "numberOfEvaluationPeriods": 1,
+                "minFailingPeriodsToAlert": 1
+              }
+            }
+          ]
+        },
+        "actions": {
+          "actionGroups": [
+            "[parameters('actionGroupId')]"
+          ]
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Insights/scheduledQueryRules",
+      "apiVersion": "2021-08-01",
+      "name": "fleet-slow-response-time",
+      "location": "eastus2",
+      "properties": {
+        "description": "Alert when P95 API latency exceeds 2 seconds",
+        "severity": 2,
+        "enabled": true,
+        "evaluationFrequency": "PT5M",
+        "scopes": [
+          "[variables('appInsightsId')]"
+        ],
+        "targetResourceTypes": [
+          "Microsoft.Insights/components"
+        ],
+        "windowSize": "PT5M",
+        "criteria": {
+          "allOf": [
+            {
+              "query": "requests\n| where timestamp > ago(5m)\n| summarize p95 = percentile(duration, 95)\n| where p95 > 2000\n| project p95",
+              "timeAggregation": "Count",
+              "dimensions": [],
+              "operator": "GreaterThan",
+              "threshold": 0,
+              "failingPeriods": {
+                "numberOfEvaluationPeriods": 1,
+                "minFailingPeriodsToAlert": 1
+              }
+            }
+          ]
+        },
+        "actions": {
+          "actionGroups": [
+            "[parameters('actionGroupId')]"
+          ]
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Insights/scheduledQueryRules",
+      "apiVersion": "2021-08-01",
+      "name": "fleet-database-failures",
+      "location": "eastus2",
+      "properties": {
+        "description": "Alert when database connection failures occur",
+        "severity": 0,
+        "enabled": true,
+        "evaluationFrequency": "PT5M",
+        "scopes": [
+          "[variables('appInsightsId')]"
+        ],
+        "targetResourceTypes": [
+          "Microsoft.Insights/components"
+        ],
+        "windowSize": "PT5M",
+        "criteria": {
+          "allOf": [
+            {
+              "query": "dependencies\n| where type == 'SQL'\n| where success == false\n| where timestamp > ago(5m)\n| summarize FailedConnections = count()\n| where FailedConnections > 5\n| project FailedConnections",
+              "timeAggregation": "Count",
+              "dimensions": [],
+              "operator": "GreaterThan",
+              "threshold": 0,
+              "failingPeriods": {
+                "numberOfEvaluationPeriods": 1,
+                "minFailingPeriodsToAlert": 1
+              }
+            }
+          ]
+        },
+        "actions": {
+          "actionGroups": [
+            "[parameters('actionGroupId')]"
+          ]
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Insights/scheduledQueryRules",
+      "apiVersion": "2021-08-01",
+      "name": "fleet-authentication-failures",
+      "location": "eastus2",
+      "properties": {
+        "description": "Alert when authentication failure rate is high",
+        "severity": 1,
+        "enabled": true,
+        "evaluationFrequency": "PT5M",
+        "scopes": [
+          "[variables('appInsightsId')]"
+        ],
+        "targetResourceTypes": [
+          "Microsoft.Insights/components"
+        ],
+        "windowSize": "PT5M",
+        "criteria": {
+          "allOf": [
+            {
+              "query": "requests\n| where name contains 'login'\n| where resultCode == '401' or resultCode == '423'\n| where timestamp > ago(5m)\n| summarize FailedLogins = count()\n| where FailedLogins > 10\n| project FailedLogins",
+              "timeAggregation": "Count",
+              "dimensions": [],
+              "operator": "GreaterThan",
+              "threshold": 0,
+              "failingPeriods": {
+                "numberOfEvaluationPeriods": 1,
+                "minFailingPeriodsToAlert": 1
+              }
+            }
+          ]
+        },
+        "actions": {
+          "actionGroups": [
+            "[parameters('actionGroupId')]"
+          ]
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Insights/scheduledQueryRules",
+      "apiVersion": "2021-08-01",
+      "name": "fleet-no-requests",
+      "location": "eastus2",
+      "properties": {
+        "description": "Alert when no requests received in 5 minutes (possible system down)",
+        "severity": 0,
+        "enabled": true,
+        "evaluationFrequency": "PT5M",
+        "scopes": [
+          "[variables('appInsightsId')]"
+        ],
+        "targetResourceTypes": [
+          "Microsoft.Insights/components"
+        ],
+        "windowSize": "PT5M",
+        "criteria": {
+          "allOf": [
+            {
+              "query": "requests\n| where timestamp > ago(5m)\n| summarize RequestCount = count()\n| where RequestCount < 1\n| project RequestCount",
+              "timeAggregation": "Count",
+              "dimensions": [],
+              "operator": "GreaterThan",
+              "threshold": 0,
+              "failingPeriods": {
+                "numberOfEvaluationPeriods": 1,
+                "minFailingPeriodsToAlert": 1
+              }
+            }
+          ]
+        },
+        "actions": {
+          "actionGroups": [
+            "[parameters('actionGroupId')]"
+          ]
+        }
+      }
+    }
+  ]
+}

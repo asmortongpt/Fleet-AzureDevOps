@@ -1,0 +1,200 @@
+---
+# Secure API Deployment - Uses External Secrets from Azure Key Vault
+# NO hardcoded secrets in this file!
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: fleet-api-config
+  namespace: fleet-management
+data:
+  DB_SSL: "false"
+  PORT: "3000"
+  NODE_ENV: "production"
+  CORS_ORIGIN: "http://68.220.148.2,https://68.220.148.2"
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fleet-api
+  namespace: fleet-management
+  labels:
+    app: fleet-api
+    tier: backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: fleet-api
+  template:
+    metadata:
+      labels:
+        app: fleet-api
+        tier: backend
+    spec:
+      containers:
+      - name: fleet-api
+        image: fleetappregistry.azurecr.io/fleet-api:latest
+        ports:
+        - containerPort: 3000
+          name: http
+        env:
+        # Non-sensitive configuration from ConfigMap
+        - name: DB_SSL
+          valueFrom:
+            configMapKeyRef:
+              name: fleet-api-config
+              key: DB_SSL
+        - name: PORT
+          valueFrom:
+            configMapKeyRef:
+              name: fleet-api-config
+              key: PORT
+        - name: NODE_ENV
+          valueFrom:
+            configMapKeyRef:
+              name: fleet-api-config
+              key: NODE_ENV
+        - name: CORS_ORIGIN
+          valueFrom:
+            configMapKeyRef:
+              name: fleet-api-config
+              key: CORS_ORIGIN
+
+        # Database credentials from External Secrets (Azure Key Vault)
+        - name: DB_HOST
+          valueFrom:
+            secretKeyRef:
+              name: fleet-database-secrets
+              key: DB_HOST
+        - name: DB_PORT
+          valueFrom:
+            secretKeyRef:
+              name: fleet-database-secrets
+              key: DB_PORT
+        - name: DB_NAME
+          valueFrom:
+            secretKeyRef:
+              name: fleet-database-secrets
+              key: DB_NAME
+        - name: DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: fleet-database-secrets
+              key: DB_USERNAME
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: fleet-database-secrets
+              key: DB_PASSWORD
+
+        # Application secrets from External Secrets (Azure Key Vault)
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: fleet-app-secrets
+              key: JWT_SECRET
+        - name: ENCRYPTION_KEY
+          valueFrom:
+            secretKeyRef:
+              name: fleet-app-secrets
+              key: ENCRYPTION_KEY
+
+        # AI Service API Keys from External Secrets (Azure Key Vault)
+        - name: OPENAI_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: fleet-ai-secrets
+              key: OPENAI_API_KEY
+        - name: CLAUDE_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: fleet-ai-secrets
+              key: CLAUDE_API_KEY
+        - name: GEMINI_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: fleet-ai-secrets
+              key: GEMINI_API_KEY
+
+        # Redis credentials from External Secrets (Azure Key Vault)
+        - name: REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: fleet-redis-secrets
+              key: REDIS_PASSWORD
+
+        # Azure Storage from External Secrets (Azure Key Vault)
+        - name: AZURE_STORAGE_CONNECTION_STRING
+          valueFrom:
+            secretKeyRef:
+              name: fleet-storage-secrets
+              key: AZURE_STORAGE_CONNECTION_STRING
+
+        # Optional third-party services from External Secrets (Azure Key Vault)
+        - name: SENDGRID_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: fleet-thirdparty-secrets
+              key: SENDGRID_API_KEY
+              optional: true
+        - name: TWILIO_AUTH_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: fleet-thirdparty-secrets
+              key: TWILIO_AUTH_TOKEN
+              optional: true
+        - name: MAPBOX_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: fleet-thirdparty-secrets
+              key: MAPBOX_API_KEY
+              optional: true
+        - name: SAMSARA_API_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: fleet-thirdparty-secrets
+              key: SAMSARA_API_TOKEN
+              optional: true
+
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /api/health
+            port: 3000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 3
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /api/health
+            port: 3000
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          timeoutSeconds: 2
+          failureThreshold: 3
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: fleet-api-service
+  namespace: fleet-management
+  labels:
+    app: fleet-api
+spec:
+  type: ClusterIP
+  ports:
+  - port: 3000
+    targetPort: 3000
+    protocol: TCP
+    name: http
+  selector:
+    app: fleet-api

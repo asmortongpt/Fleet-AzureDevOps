@@ -1,0 +1,165 @@
+# Fleet Management System - Automated Backup CronJob
+# Runs daily at 2 AM EST
+
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: fleet-database-backup
+  namespace: fleet-management
+spec:
+  schedule: "0 7 * * *"  # 2 AM EST = 7 AM UTC
+  successfulJobsHistoryLimit: 7
+  failedJobsHistoryLimit: 3
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            app: fleet-backup
+        spec:
+          restartPolicy: OnFailure
+          serviceAccountName: fleet-backup-sa
+          containers:
+            - name: postgres-backup
+              image: postgres:15-alpine
+              command:
+                - /bin/sh
+                - -c
+                - |
+                  apk add --no-cache gzip curl azure-cli
+                  /scripts/backup-database.sh
+              env:
+                - name: DB_HOST
+                  value: "fleet-postgres-service"
+                - name: DB_PORT
+                  value: "5432"
+                - name: DB_NAME
+                  value: "fleetdb"
+                - name: DB_USER
+                  valueFrom:
+                    secretKeyRef:
+                      name: fleet-secrets
+                      key: DB_USERNAME
+                - name: DB_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: fleet-secrets
+                      key: DB_PASSWORD
+                - name: AZURE_STORAGE_ACCOUNT
+                  valueFrom:
+                    secretKeyRef:
+                      name: azure-storage-secrets
+                      key: STORAGE_ACCOUNT
+                - name: AZURE_STORAGE_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      name: azure-storage-secrets
+                      key: STORAGE_KEY
+                - name: AZURE_STORAGE_CONTAINER
+                  value: "fleet-backups"
+              volumeMounts:
+                - name: backup-scripts
+                  mountPath: /scripts
+                - name: backup-storage
+                  mountPath: /var/backups/fleet-postgres
+              resources:
+                requests:
+                  memory: "512Mi"
+                  cpu: "250m"
+                limits:
+                  memory: "1Gi"
+                  cpu: "500m"
+          volumes:
+            - name: backup-scripts
+              configMap:
+                name: backup-scripts
+                defaultMode: 0755
+            - name: backup-storage
+              persistentVolumeClaim:
+                claimName: backup-storage
+
+---
+# Service Account for backup jobs
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: fleet-backup-sa
+  namespace: fleet-management
+
+---
+# ConfigMap with backup script
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: backup-scripts
+  namespace: fleet-management
+data:
+  backup-database.sh: |
+    #!/bin/bash
+    # Inline backup script for CronJob
+    set -e
+    
+    BACKUP_DIR="/var/backups/fleet-postgres"
+    DATE=$(date +%Y%m%d_%H%M%S)
+    BACKUP_FILE="fleet_backup_${DATE}.sql.gz"
+    
+    mkdir -p "${BACKUP_DIR}"
+    
+    echo "Starting backup at $(date)"
+    
+    PGPASSWORD="${DB_PASSWORD}" pg_dump \
+      -h "${DB_HOST}" \
+      -p "${DB_PORT}" \
+      -U "${DB_USER}" \
+      -d "${DB_NAME}" \
+      --format=plain \
+      --no-owner \
+      --no-acl \
+      | gzip > "${BACKUP_DIR}/${BACKUP_FILE}"
+    
+    BACKUP_SIZE=$(du -h "${BACKUP_DIR}/${BACKUP_FILE}" | cut -f1)
+    echo "Backup completed: ${BACKUP_FILE} (${BACKUP_SIZE})"
+    
+    # Upload to Azure
+    if [ -n "${AZURE_STORAGE_ACCOUNT}" ]; then
+      az storage blob upload \
+        --account-name "${AZURE_STORAGE_ACCOUNT}" \
+        --account-key "${AZURE_STORAGE_KEY}" \
+        --container-name "${AZURE_STORAGE_CONTAINER}" \
+        --name "${BACKUP_FILE}" \
+        --file "${BACKUP_DIR}/${BACKUP_FILE}"
+      echo "Uploaded to Azure: ${BACKUP_FILE}"
+    fi
+    
+    # Cleanup old backups
+    find "${BACKUP_DIR}" -name "fleet_backup_*.sql.gz" -mtime +30 -delete
+    
+    echo "Backup process completed successfully"
+
+---
+# PVC for local backup storage
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: backup-storage
+  namespace: fleet-management
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: managed-premium
+  resources:
+    requests:
+      storage: 100Gi
+
+---
+# Azure Storage secret template (fill in actual values)
+apiVersion: v1
+kind: Secret
+metadata:
+  name: azure-storage-secrets
+  namespace: fleet-management
+type: Opaque
+stringData:
+  STORAGE_ACCOUNT: "fleetstorageaccount"
+  STORAGE_KEY: "YOUR_AZURE_STORAGE_KEY_HERE"

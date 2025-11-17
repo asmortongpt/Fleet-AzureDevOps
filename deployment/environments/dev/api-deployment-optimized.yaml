@@ -1,0 +1,127 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fleet-api
+  namespace: fleet-management-dev
+  labels:
+    app: fleet-api
+    tier: backend
+    environment: dev
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: fleet-api
+  template:
+    metadata:
+      labels:
+        app: fleet-api
+        tier: backend
+        environment: dev
+    spec:
+      containers:
+      - name: fleet-api
+        image: fleetappregistry.azurecr.io/fleet-api:dev
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 3000
+          name: http
+        env:
+        - name: DB_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: fleet-api-config
+              key: DB_HOST
+        - name: DB_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: fleet-api-config
+              key: DB_PORT
+        - name: DB_NAME
+          valueFrom:
+            configMapKeyRef:
+              name: fleet-api-config
+              key: DB_NAME
+        - name: DB_USER
+          valueFrom:
+            configMapKeyRef:
+              name: fleet-api-config
+              key: DB_USER
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: fleet-api-secrets
+              key: DB_PASSWORD
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: fleet-api-secrets
+              key: JWT_SECRET
+        - name: OPENAI_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: fleet-api-secrets
+              key: OPENAI_API_KEY
+        - name: CLAUDE_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: fleet-api-secrets
+              key: CLAUDE_API_KEY
+        - name: NODE_ENV
+          valueFrom:
+            configMapKeyRef:
+              name: fleet-api-config
+              key: NODE_ENV
+        - name: CORS_ORIGIN
+          valueFrom:
+            configMapKeyRef:
+              name: fleet-api-config
+              key: CORS_ORIGIN
+        - name: OTEL_EXPORTER_OTLP_ENDPOINT
+          value: "http://otel-collector:4318"
+        - name: OTEL_SERVICE_NAME
+          value: "fleet-api"
+        - name: OTEL_RESOURCE_ATTRIBUTES
+          value: "service.namespace=fleet-management-dev,deployment.environment=dev"
+        # OPTIMIZED: Based on actual usage 6m/80Mi + 20% headroom for dev
+        resources:
+          requests:
+            memory: "96Mi"
+            cpu: "50m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+        livenessProbe:
+          httpGet:
+            path: /api/health
+            port: 3000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 3
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /api/health
+            port: 3000
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          timeoutSeconds: 2
+          failureThreshold: 3
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: fleet-api-service
+  namespace: fleet-management-dev
+  labels:
+    app: fleet-api
+spec:
+  type: ClusterIP
+  ports:
+  - port: 3000
+    targetPort: 3000
+    protocol: TCP
+    name: http
+  selector:
+    app: fleet-api

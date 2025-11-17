@@ -1,0 +1,106 @@
+================================================================================
+PLAYWRIGHT RUNNER SERVICE - LAZY INITIALIZATION FIX
+================================================================================
+
+ISSUE:
+Service crashed at module import when STORAGE_CONNECTION_STRING was not set
+
+SOLUTION:
+Implemented lazy blob client initialization with proper error handling
+
+================================================================================
+CODE CHANGES
+================================================================================
+
+File: /services/playwright-runner/app.py
+
+1. REMOVED (Line 26):
+   ❌ blob_service_client = BlobServiceClient.from_connection_string(STORAGE_CONNECTION_STRING)
+
+2. ADDED (Lines 25-40):
+   ✅ # Lazy initialization of blob service client
+   _blob_service_client = None
+
+   def get_blob_service_client() -> BlobServiceClient:
+       """Lazy initialization of Azure Blob Service Client"""
+       global _blob_service_client
+
+       if _blob_service_client is None:
+           if not STORAGE_CONNECTION_STRING:
+               raise ValueError(
+                   "STORAGE_CONNECTION_STRING environment variable is required for screenshot upload. "
+                   "Please set this variable to enable Azure Blob Storage integration."
+               )
+           _blob_service_client = BlobServiceClient.from_connection_string(STORAGE_CONNECTION_STRING)
+
+       return _blob_service_client
+
+3. MODIFIED (Lines 131-149 - upload_screenshot method):
+   
+   OLD:
+   ❌ blob_client = blob_service_client.get_blob_client(...)
+   
+   NEW:
+   ✅ try:
+          blob_service_client = get_blob_service_client()
+          blob_client = blob_service_client.get_blob_client(...)
+          ...
+      except ValueError as e:
+          raise HTTPException(status_code=503, detail=str(e))
+
+================================================================================
+TEST RESULTS
+================================================================================
+
+✓ Python syntax validation passed
+✓ Lazy initialization test passed (3/3 tests)
+✓ Module imports successfully without credentials
+✓ Clear error message when storage not configured
+✓ Proper HTTP 503 response for missing credentials
+
+================================================================================
+FILES CREATED
+================================================================================
+
+test_lazy_init.py (3.1K)       - Test script for lazy initialization
+FIX_SUMMARY.md (4.5K)          - Executive summary
+LAZY_INIT_FIX.md (4.6K)        - Detailed technical docs
+BEFORE_AFTER.md (5.8K)         - Visual comparison
+README_LAZY_INIT.md (4.1K)     - Quick start guide
+IMPLEMENTATION_SUMMARY.txt     - This file
+
+================================================================================
+IMPACT
+================================================================================
+
+Developer Experience:
+- Can now run service locally without Azure credentials
+- Clear error messages guide configuration
+- Non-storage features work without credentials
+
+Production:
+- More robust error handling
+- Graceful degradation
+- Better observability (503 vs crash)
+
+Testing:
+- CI/CD can test without cloud dependencies
+- Easier unit testing
+- Faster local development
+
+================================================================================
+VERIFICATION COMMANDS
+================================================================================
+
+# Test lazy initialization
+python3 test_lazy_init.py
+
+# Validate syntax
+python3 -m py_compile app.py
+
+# View documentation
+cat README_LAZY_INIT.md
+
+================================================================================
+STATUS: ✅ COMPLETE - Ready for Deployment
+================================================================================

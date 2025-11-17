@@ -1,0 +1,95 @@
+╔════════════════════════════════════════════════════════════════════════╗
+║    HIMANSHU BADOLA ACCESS - ONE PAGE SETUP                             ║
+║    Email: Himanshu.badola.proff@gmail.com                              ║
+╚════════════════════════════════════════════════════════════════════════╝
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+ ⚠️  STEP 1: FIX SECURITY POLICY FIRST (2 minutes)
+
+   1. Open: https://dev.azure.com/CapitalTechAlliance/_settings/policy
+
+   2. Enable these two settings:
+      ✅ "Allow team and project administrators to invite new users"
+      ✅ "External guest access"
+
+   3. Click "Save"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+ 👤 STEP 2: ADD HIMANSHU (1 minute)
+
+   1. Open: https://dev.azure.com/CapitalTechAlliance/_settings/users
+
+   2. Click "Add users"
+
+   3. Enter:
+      Email: Himanshu.badola.proff@gmail.com
+      Access: Basic
+      Project: FleetManagement
+      Group: Contributors
+
+   4. Click "Add"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+ 📧 STEP 3: EMAIL HIMANSHU (2 minutes)
+
+   To: Himanshu.badola.proff@gmail.com
+   Subject: Fleet Management System - Developer Access
+
+   Attach: himanshu-access-package.tar.gz
+           (Location: deployment/vendor-access/)
+
+   Body: Use email template from COMPLETE_SETUP_GUIDE.md
+         (Or use the short version below)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+ 📝 SHORT EMAIL TEMPLATE
+
+   Hi Himanshu,
+
+   Welcome! You now have access to the Fleet Management System.
+
+   Azure DevOps:
+   - Check your email for the Microsoft Azure DevOps invitation
+   - Accept it and sign in with your Gmail
+   - Repository: https://dev.azure.com/CapitalTechAlliance/FleetManagement
+
+   Kubernetes:
+   - Extract the attached himanshu-access-package.tar.gz
+   - Read START_HERE.md for setup instructions
+
+   Your Access:
+   ✅ Development: Full access
+   ✅ Staging: Read-only
+   ✅ Azure DevOps: Code repository
+   ❌ Production: No access
+
+   Complete documentation is in the package.
+
+   Questions? Reply to this email.
+
+   Best,
+   [Your Name]
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+ ✅ THAT'S IT!
+
+   Himanshu will receive:
+   ✅ Azure DevOps invitation email (automatic)
+   ✅ Your email with Kubernetes access
+   ✅ Complete documentation (30,000+ words)
+   ✅ Deployment scripts
+   ✅ Security guidelines
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+ 📞 HELP
+
+   Full guide: COMPLETE_SETUP_GUIDE.md
+   Detailed steps: grant-access-to-himanshu.md
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
