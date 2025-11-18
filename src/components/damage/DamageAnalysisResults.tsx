@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { AlertCircle, CheckCircle, DollarSign, Calendar, MapPin, Camera } from 'lucide-react';
+import { AlertCircle, CheckCircle, CurrencyDollar, Calendar, MapPin, Camera } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
@@ -197,7 +197,7 @@ export function DamageAnalysisResults({
         <CardHeader>
           <CardTitle className="flex items-center justify-between">
             <span className="flex items-center">
-              <DollarSign className="mr-2 h-5 w-5" />
+              <CurrencyDollar className="mr-2 h-5 w-5" />
               Estimated Repair Cost
             </span>
             <div className="flex items-center gap-2">
