@@ -11,7 +11,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import {
-  DollarSign,
+  CurrencyDollar,
   Receipt,
   Calendar,
   Download,
@@ -246,7 +246,7 @@ export function ChargesAndBilling() {
       {/* Header */}
       <div>
         <h1 className="text-3xl font-bold flex items-center gap-2">
-          <DollarSign className="w-8 h-8" />
+          <CurrencyDollar className="w-8 h-8" />
           Charges & Billing
         </h1>
         <p className="text-muted-foreground">

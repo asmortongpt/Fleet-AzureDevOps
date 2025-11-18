@@ -19,7 +19,8 @@ target 'App' do
 
   # Firebase Crashlytics
   # Provides real-time crash reporting and error tracking
-  pod 'Firebase/Crashlytics', '~> 10.0'
+  # Temporarily disabled due to build issues
+  # pod 'Firebase/Crashlytics', '~> 10.0'
 
   # Firebase Cloud Messaging
   # Enables push notifications and remote messaging capabilities
