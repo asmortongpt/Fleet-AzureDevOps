@@ -403,72 +403,10 @@ struct LocationRow: View {
 }
 
 // MARK: - Trip Status Badge
-struct TripStatusBadge: View {
-    let status: TripStatus
-
-    var body: some View {
-        Text(status.rawValue)
-            .font(.caption2.bold())
-            .padding(.horizontal, 8)
-            .padding(.vertical, 2)
-            .background(backgroundColor)
-            .foregroundColor(foregroundColor)
-            .cornerRadius(4)
-    }
-
-    private var backgroundColor: Color {
-        switch status {
-        case .planned: return .blue.opacity(0.2)
-        case .inProgress: return .green.opacity(0.2)
-        case .completed: return .gray.opacity(0.2)
-        case .cancelled: return .red.opacity(0.2)
-        }
-    }
-
-    private var foregroundColor: Color {
-        switch status {
-        case .planned: return .blue
-        case .inProgress: return .green
-        case .completed: return .gray
-        case .cancelled: return .red
-        }
-    }
-}
+// TripStatusBadge moved to TripHistoryView.swift to avoid duplicates
 
 // MARK: - Trip Stat Card
-struct TripStatCard: View {
-    let title: String
-    let value: String
-    let subtitle: String
-    let icon: String
-    let color: Color
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack {
-                Image(systemName: icon)
-                    .font(.caption)
-                    .foregroundColor(color)
-                Text(title)
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-            }
-
-            HStack(alignment: .lastTextBaseline, spacing: 4) {
-                Text(value)
-                    .font(.title2.bold())
-                    .foregroundColor(.primary)
-                Text(subtitle)
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-            }
-        }
-        .padding()
-        .frame(minWidth: 120)
-        .background(Color(.secondarySystemGroupedBackground))
-        .cornerRadius(12)
-    }
-}
+// TripStatCard moved to TripHistoryView.swift to avoid duplicates
 
 // MARK: - Active Trip Card
 struct ActiveTripCard: View {
