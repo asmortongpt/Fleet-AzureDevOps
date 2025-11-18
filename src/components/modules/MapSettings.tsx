@@ -29,7 +29,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import {
   Check,
   Map,
-  DollarSign,
+  CurrencyDollar,
   Zap,
   Shield,
   XCircle,
@@ -532,7 +532,7 @@ export function MapSettings() {
                           )}
                         </div>
                         <div className="flex items-center gap-1 text-sm font-semibold">
-                          <DollarSign className="w-4 h-4" />
+                          <CurrencyDollar className="w-4 h-4" />
                           {provider.cost}
                         </div>
                       </div>
