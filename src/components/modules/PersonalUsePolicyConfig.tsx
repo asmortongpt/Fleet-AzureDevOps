@@ -13,9 +13,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {
   Shield,
   Info,
-  Save,
-  RefreshCw,
-  DollarSign,
+  FloppyDisk,
+  ArrowsClockwise,
+  CurrencyDollar,
   Bell,
   Eye,
   CheckCircle,
@@ -65,7 +65,7 @@ const ErrorDisplay = ({ error, onRetry }: { error: string; onRetry: () => void }
     <AlertDescription className="flex items-center justify-between">
       <span>{error}</span>
       <Button variant="outline" size="sm" onClick={onRetry}>
-        <RefreshCw className="w-4 h-4 mr-2" />
+        <ArrowsClockwise className="w-4 h-4 mr-2" />
         Retry
       </Button>
     </AlertDescription>
@@ -308,7 +308,7 @@ export const PersonalUsePolicyConfig: React.FC<PersonalUsePolicyConfigProps> = (
         </div>
         <div className="flex gap-2">
           <Button variant="outline" onClick={handleResetToDefaults}>
-            <RefreshCw className="w-4 h-4 mr-2" />
+            <ArrowsClockwise className="w-4 h-4 mr-2" />
             Reset to Defaults
           </Button>
           <Button variant="outline" onClick={() => setShowPreview(!showPreview)}>
@@ -316,7 +316,7 @@ export const PersonalUsePolicyConfig: React.FC<PersonalUsePolicyConfigProps> = (
             {showPreview ? 'Hide' : 'Show'} Preview
           </Button>
           <Button onClick={handleSave} disabled={saving || !hasChanges}>
-            <Save className="w-4 h-4 mr-2" />
+            <FloppyDisk className="w-4 h-4 mr-2" />
             {saving ? 'Saving...' : 'Save Policy'}
           </Button>
         </div>
@@ -571,7 +571,7 @@ export const PersonalUsePolicyConfig: React.FC<PersonalUsePolicyConfigProps> = (
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <DollarSign className="w-5 h-5" />
+                <CurrencyDollar className="w-5 h-5" />
                 Personal Use Charging
               </CardTitle>
               <CardDescription>
