@@ -66,6 +66,7 @@ import { registerDocumentSystemRoutes } from './routes/document-system.routes'
 // Task and Asset Management
 import taskManagementRoutes from './routes/task-management.routes'
 import assetManagementRoutes from './routes/asset-management.routes'
+import assetRelationshipsRoutes from './routes/asset-relationships.routes'
 import aiTaskAssetRoutes from './routes/ai-task-asset.routes'
 // Microsoft Integration
 import teamsRoutes from './routes/teams.routes'
@@ -299,6 +300,7 @@ registerDocumentSystemRoutes(app)
 // Task and Asset Management
 app.use('/api/task-management', taskManagementRoutes)
 app.use('/api/asset-management', assetManagementRoutes)
+app.use('/api/asset-relationships', assetRelationshipsRoutes)
 app.use('/api/ai', aiTaskAssetRoutes)
 // Microsoft Integration
 app.use('/api/teams', teamsRoutes)

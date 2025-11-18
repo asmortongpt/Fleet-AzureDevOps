@@ -28,17 +28,43 @@ router.get(
   auditLog({ action: 'READ', resourceType: 'maintenance_schedules' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const { page = 1, limit = 50 } = req.query
+      const {
+        page = 1,
+        limit = 50,
+        trigger_metric,
+        vehicle_id,
+        service_type
+      } = req.query
       const offset = (Number(page) - 1) * Number(limit)
 
+      // Build multi-metric filters
+      let filters = 'WHERE tenant_id = $1'
+      const params: any[] = [req.user!.tenant_id]
+      let paramIndex = 2
+
+      if (trigger_metric) {
+        filters += ` AND trigger_metric = $${paramIndex++}`
+        params.push(trigger_metric)
+      }
+
+      if (vehicle_id) {
+        filters += ` AND vehicle_id = $${paramIndex++}`
+        params.push(vehicle_id)
+      }
+
+      if (service_type) {
+        filters += ` AND service_type = $${paramIndex++}`
+        params.push(service_type)
+      }
+
       const result = await pool.query(
-        `SELECT * FROM maintenance_schedules WHERE tenant_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3`,
-        [req.user!.tenant_id, limit, offset]
+        `SELECT * FROM maintenance_schedules ${filters} ORDER BY created_at DESC LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`,
+        [...params, limit, offset]
       )
 
       const countResult = await pool.query(
-        'SELECT COUNT(*) FROM maintenance_schedules WHERE tenant_id = $1',
-        [req.user!.tenant_id]
+        `SELECT COUNT(*) FROM maintenance_schedules ${filters}`,
+        params
       )
 
       res.json({
@@ -517,6 +543,166 @@ router.patch(
       })
     } catch (error: any) {
       console.error('Resume schedule error:', error)
+      res.status(500).json({ error: error.message || 'Internal server error' })
+    }
+  }
+)
+
+// ============================================================================
+// MULTI-METRIC MAINTENANCE ENDPOINTS (Migration 032)
+// ============================================================================
+
+/**
+ * @openapi
+ * /api/maintenance-schedules/multi-metric/due:
+ *   get:
+ *     summary: Get multi-metric maintenance schedules with overdue status
+ *     tags: [Maintenance Schedules]
+ *     description: Uses vw_multi_metric_maintenance_due view to show schedules tracked by various metrics
+ *     parameters:
+ *       - name: trigger_metric
+ *         in: query
+ *         schema:
+ *           type: string
+ *           enum: [ODOMETER, ENGINE_HOURS, PTO_HOURS, AUX_HOURS, CYCLES, CALENDAR]
+ *       - name: is_overdue
+ *         in: query
+ *         schema:
+ *           type: boolean
+ *       - name: vehicle_id
+ *         in: query
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: List of maintenance schedules with multi-metric tracking
+ */
+router.get(
+  '/multi-metric/due',
+  requirePermission('maintenance_schedule:view:fleet'),
+  auditLog({ action: 'READ', resourceType: 'maintenance_schedules_multi_metric' }),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const {
+        trigger_metric,
+        is_overdue,
+        vehicle_id
+      } = req.query
+
+      let filters = 'WHERE tenant_id = $1'
+      const params: any[] = [req.user!.tenant_id]
+      let paramIndex = 2
+
+      if (trigger_metric) {
+        filters += ` AND trigger_metric = $${paramIndex++}`
+        params.push(trigger_metric)
+      }
+
+      if (is_overdue !== undefined) {
+        filters += ` AND is_overdue = $${paramIndex++}`
+        params.push(is_overdue === 'true')
+      }
+
+      if (vehicle_id) {
+        filters += ` AND vehicle_id = $${paramIndex++}`
+        params.push(vehicle_id)
+      }
+
+      const result = await pool.query(
+        `SELECT * FROM vw_multi_metric_maintenance_due ${filters} ORDER BY
+          CASE WHEN is_overdue THEN 0 ELSE 1 END,
+          units_until_due ASC NULLS LAST`,
+        params
+      )
+
+      // Calculate summary statistics
+      const schedules = result.rows
+      const summary = {
+        total: schedules.length,
+        overdue: schedules.filter((s: any) => s.is_overdue).length,
+        by_metric: {
+          ODOMETER: schedules.filter((s: any) => s.trigger_metric === 'ODOMETER').length,
+          ENGINE_HOURS: schedules.filter((s: any) => s.trigger_metric === 'ENGINE_HOURS').length,
+          PTO_HOURS: schedules.filter((s: any) => s.trigger_metric === 'PTO_HOURS').length,
+          AUX_HOURS: schedules.filter((s: any) => s.trigger_metric === 'AUX_HOURS').length,
+          CYCLES: schedules.filter((s: any) => s.trigger_metric === 'CYCLES').length,
+          CALENDAR: schedules.filter((s: any) => s.trigger_metric === 'CALENDAR').length
+        },
+        overdue_by_metric: {
+          ODOMETER: schedules.filter((s: any) => s.trigger_metric === 'ODOMETER' && s.is_overdue).length,
+          ENGINE_HOURS: schedules.filter((s: any) => s.trigger_metric === 'ENGINE_HOURS' && s.is_overdue).length,
+          PTO_HOURS: schedules.filter((s: any) => s.trigger_metric === 'PTO_HOURS' && s.is_overdue).length,
+          AUX_HOURS: schedules.filter((s: any) => s.trigger_metric === 'AUX_HOURS' && s.is_overdue).length,
+          CYCLES: schedules.filter((s: any) => s.trigger_metric === 'CYCLES' && s.is_overdue).length,
+          CALENDAR: schedules.filter((s: any) => s.trigger_metric === 'CALENDAR' && s.is_overdue).length
+        }
+      }
+
+      res.json({
+        data: schedules,
+        summary
+      })
+    } catch (error: any) {
+      console.error('Get multi-metric maintenance due error:', error)
+      res.status(500).json({ error: error.message || 'Internal server error' })
+    }
+  }
+)
+
+/**
+ * @openapi
+ * /api/maintenance-schedules/multi-metric/by-vehicle/{vehicleId}:
+ *   get:
+ *     summary: Get all multi-metric schedules for a specific vehicle
+ *     tags: [Maintenance Schedules]
+ *     parameters:
+ *       - name: vehicleId
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Vehicle maintenance schedules grouped by metric
+ */
+router.get(
+  '/multi-metric/by-vehicle/:vehicleId',
+  requirePermission('maintenance_schedule:view:fleet'),
+  auditLog({ action: 'READ', resourceType: 'maintenance_schedules_by_vehicle' }),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const result = await pool.query(
+        `SELECT * FROM vw_multi_metric_maintenance_due
+         WHERE vehicle_id = $1 AND tenant_id = $2
+         ORDER BY
+           CASE WHEN is_overdue THEN 0 ELSE 1 END,
+           trigger_metric,
+           units_until_due ASC NULLS LAST`,
+        [req.params.vehicleId, req.user!.tenant_id]
+      )
+
+      // Group by trigger metric
+      const byMetric = result.rows.reduce((acc: any, schedule: any) => {
+        const metric = schedule.trigger_metric || 'CALENDAR'
+        if (!acc[metric]) {
+          acc[metric] = []
+        }
+        acc[metric].push(schedule)
+        return acc
+      }, {})
+
+      res.json({
+        vehicle_id: req.params.vehicleId,
+        schedules: result.rows,
+        by_metric: byMetric,
+        summary: {
+          total: result.rows.length,
+          overdue: result.rows.filter((s: any) => s.is_overdue).length,
+          metrics_tracked: Object.keys(byMetric)
+        }
+      })
+    } catch (error: any) {
+      console.error('Get vehicle multi-metric schedules error:', error)
       res.status(500).json({ error: error.message || 'Internal server error' })
     }
   }
