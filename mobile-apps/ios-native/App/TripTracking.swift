@@ -573,28 +573,4 @@ struct EndTripSheet: View {
 }
 
 // MARK: - Trip Stat Card
-struct TripStatCard: View {
-    let title: String
-    let value: String
-    let icon: String
-
-    var body: some View {
-        VStack(spacing: 8) {
-            Image(systemName: icon)
-                .font(.title3)
-                .foregroundColor(.blue)
-
-            Text(value)
-                .font(.headline)
-                .fontWeight(.bold)
-
-            Text(title)
-                .font(.caption)
-                .foregroundColor(.secondary)
-        }
-        .frame(maxWidth: .infinity)
-        .padding()
-        .background(Color(.systemGray6))
-        .cornerRadius(12)
-    }
-}
+// TripStatCard moved to TripHistoryView.swift to avoid duplicates
