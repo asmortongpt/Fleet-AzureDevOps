@@ -62,7 +62,7 @@ const ErrorDisplay = ({ error, onRetry }: { error: string; onRetry: () => void }
     <AlertDescription className="flex items-center justify-between">
       <span>{error}</span>
       <Button variant="outline" size="sm" onClick={onRetry}>
-        <RefreshCw className="w-4 h-4 mr-2" />
+        <ArrowsClockwise className="w-4 h-4 mr-2" />
         Retry
       </Button>
     </AlertDescription>
@@ -295,7 +295,7 @@ export const PersonalUseDashboard: React.FC<PersonalUseDashboardProps> = ({
               queryClient.invalidateQueries({ queryKey: ['trip-usage-pending-approval'] })
             }
           }}>
-            <RefreshCw className="w-4 h-4 mr-2" />
+            <ArrowsClockwise className="w-4 h-4 mr-2" />
             Refresh
           </Button>
           <Button variant="outline" onClick={exportToCSV}>
@@ -621,7 +621,7 @@ export const PersonalUseDashboard: React.FC<PersonalUseDashboardProps> = ({
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <DollarSign className="w-5 h-5" />
+                    <CurrencyDollar className="w-5 h-5" />
                     Personal Use Charges
                   </CardTitle>
                   <CardDescription>

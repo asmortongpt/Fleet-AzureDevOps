@@ -9,7 +9,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import useSWR from 'swr'
-import { Users, Clock, DollarSign, Calendar } from 'lucide-react'
+import { Users, Clock, CurrencyDollar, Calendar } from 'lucide-react'
 
 interface LaborDetailsViewProps {
   workOrderId: string

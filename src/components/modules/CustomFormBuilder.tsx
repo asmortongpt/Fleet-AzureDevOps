@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Plus, GripVertical, X, FileText, Save, Eye } from "lucide-react"
+import { Plus, GripVertical, X, FileText, FloppyDisk, Eye } from "lucide-react"
 
 interface FormField {
   id: string
@@ -217,7 +217,7 @@ export function CustomFormBuilder() {
                   Cancel
                 </Button>
                 <Button onClick={handleSaveForm}>
-                  <Save className="mr-2 h-4 w-4" />
+                  <FloppyDisk className="mr-2 h-4 w-4" />
                   Save Form
                 </Button>
               </div>
