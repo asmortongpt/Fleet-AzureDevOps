@@ -17,11 +17,11 @@ import {
   XCircle,
   Calendar,
   TrendUp,
-  DollarSign,
+  CurrencyDollar,
   Users,
   FileText,
   Download,
-  RefreshCw,
+  ArrowsClockwise,
   Plus
 } from '@phosphor-icons/react'
 import { toast } from 'sonner'
