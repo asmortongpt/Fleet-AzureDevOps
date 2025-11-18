@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		139D578CB86D4116976C49C0 /* TripsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4ECC9D5F3714AABA973F612 /* TripsViewModel.swift */; };
+		9CE95C3CB39344E79BCCC40C /* VehiclesViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D140871C05864856889BAA91 /* VehiclesViewModel.swift */; };
 		A1B1B27FAC5347DA8D2DA7CA /* ScheduleViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC0D0E9B626E46529B49FC69 /* ScheduleViewModel.swift */; };
 		DEB4A48CAD234AE2847A4630 /* ChecklistViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F93144738FB34A8B82D677FE /* ChecklistViewModel.swift */; };
 		BB555706A7044FCC854F5EC2 /* MaintenanceViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1507CDED9014E4F900FCFCA /* MaintenanceViewModel.swift */; };
@@ -122,6 +124,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		D4ECC9D5F3714AABA973F612 /* TripsViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = TripsViewModel.swift; path = App/ViewModels/TripsViewModel.swift; sourceTree = "<group>"; };
+		D140871C05864856889BAA91 /* VehiclesViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = VehiclesViewModel.swift; path = App/ViewModels/VehiclesViewModel.swift; sourceTree = "<group>"; };
 		CC0D0E9B626E46529B49FC69 /* ScheduleViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ScheduleViewModel.swift; path = App/ViewModels/ScheduleViewModel.swift; sourceTree = "<group>"; };
 		F93144738FB34A8B82D677FE /* ChecklistViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ChecklistViewModel.swift; path = App/ViewModels/ChecklistViewModel.swift; sourceTree = "<group>"; };
 		C1507CDED9014E4F900FCFCA /* MaintenanceViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = MaintenanceViewModel.swift; path = App/ViewModels/MaintenanceViewModel.swift; sourceTree = "<group>"; };
@@ -735,6 +739,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				139D578CB86D4116976C49C0 /* TripsViewModel.swift in Sources */,
+				9CE95C3CB39344E79BCCC40C /* VehiclesViewModel.swift in Sources */,
 				A1B1B27FAC5347DA8D2DA7CA /* ScheduleViewModel.swift in Sources */,
 				DEB4A48CAD234AE2847A4630 /* ChecklistViewModel.swift in Sources */,
 				BB555706A7044FCC854F5EC2 /* MaintenanceViewModel.swift in Sources */,
