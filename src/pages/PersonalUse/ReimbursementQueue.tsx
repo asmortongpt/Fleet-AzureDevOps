@@ -17,7 +17,7 @@ import {
   X,
   Eye,
   Download,
-  Filter,
+  Funnel,
   CheckCircle,
   XCircle,
   Clock,
@@ -304,7 +304,7 @@ export function ReimbursementQueue() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Filter className="w-5 h-5" />
+            <Funnel className="w-5 h-5" />
             Filters & Actions
           </CardTitle>
         </CardHeader>
