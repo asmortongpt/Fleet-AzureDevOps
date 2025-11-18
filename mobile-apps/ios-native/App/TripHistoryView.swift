@@ -96,21 +96,21 @@ struct TripHistoryView: View {
 
         return VStack(spacing: 0) {
             HStack(spacing: 20) {
-                StatCard(
+                TripStatCard(
                     title: "Total Trips",
                     value: "\(stats.totalTrips)",
                     icon: "car.fill",
                     color: .blue
                 )
 
-                StatCard(
+                TripStatCard(
                     title: "Distance",
                     value: stats.formattedTotalDistance,
                     icon: "road.lanes",
                     color: .green
                 )
-                
-                StatCard(
+
+                TripStatCard(
                     title: "Duration",
                     value: stats.formattedTotalDuration,
                     icon: "clock.fill",
@@ -122,19 +122,19 @@ struct TripHistoryView: View {
             // Filter Chips
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 10) {
-                    FilterChip(title: "All", isSelected: filterStatus == nil) {
+                    TripFilterChip(title: "All", isSelected: filterStatus == nil) {
                         filterStatus = nil
                     }
-                    
-                    FilterChip(title: "Active", isSelected: filterStatus == .active) {
+
+                    TripFilterChip(title: "Active", isSelected: filterStatus == .active) {
                         filterStatus = .active
                     }
-                    
-                    FilterChip(title: "Completed", isSelected: filterStatus == .completed) {
+
+                    TripFilterChip(title: "Completed", isSelected: filterStatus == .completed) {
                         filterStatus = .completed
                     }
-                    
-                    FilterChip(title: "Paused", isSelected: filterStatus == .paused) {
+
+                    TripFilterChip(title: "Paused", isSelected: filterStatus == .paused) {
                         filterStatus = .paused
                     }
                 }
@@ -253,10 +253,10 @@ struct TripRowView: View {
             HStack {
                 Text(trip.name)
                     .font(.headline)
-                
+
                 Spacer()
-                
-                StatusBadge(status: trip.status)
+
+                TripStatusBadge(status: trip.status)
             }
             
             HStack(spacing: 20) {
@@ -283,52 +283,23 @@ struct TripRowView: View {
     }
 }
 
-// MARK: - Status Badge
-struct StatusBadge: View {
-    let status: TripStatus
-    
-    var body: some View {
-        Text(status.displayName)
-            .font(.caption)
-            .fontWeight(.semibold)
-            .foregroundColor(.white)
-            .padding(.horizontal, 10)
-            .padding(.vertical, 4)
-            .background(statusColor)
-            .cornerRadius(8)
-    }
-    
-    private var statusColor: Color {
-        switch status {
-        case .active:
-            return .green
-        case .paused:
-            return .orange
-        case .completed:
-            return .blue
-        case .cancelled:
-            return .gray
-        }
-    }
-}
-
 // MARK: - Stat Card
-struct StatCard: View {
+private struct TripStatCard: View {
     let title: String
     let value: String
     let icon: String
     let color: Color
-    
+
     var body: some View {
         VStack(spacing: 8) {
             Image(systemName: icon)
                 .font(.title3)
                 .foregroundColor(color)
-            
+
             Text(value)
                 .font(.headline)
                 .fontWeight(.bold)
-            
+
             Text(title)
                 .font(.caption)
                 .foregroundColor(.secondary)
@@ -342,11 +313,11 @@ struct StatCard: View {
 }
 
 // MARK: - Filter Chip
-struct FilterChip: View {
+private struct TripFilterChip: View {
     let title: String
     let isSelected: Bool
     let action: () -> Void
-    
+
     var body: some View {
         Button(action: action) {
             Text(title)
@@ -357,6 +328,35 @@ struct FilterChip: View {
                 .padding(.vertical, 8)
                 .background(isSelected ? Color.blue : Color(.systemGray5))
                 .cornerRadius(20)
+        }
+    }
+}
+
+// MARK: - Trip Status Badge
+private struct TripStatusBadge: View {
+    let status: TripStatus
+
+    var body: some View {
+        Text(status.displayName)
+            .font(.caption)
+            .fontWeight(.semibold)
+            .foregroundColor(.white)
+            .padding(.horizontal, 10)
+            .padding(.vertical, 4)
+            .background(statusColor)
+            .cornerRadius(8)
+    }
+
+    private var statusColor: Color {
+        switch status {
+        case .active:
+            return .green
+        case .paused:
+            return .orange
+        case .completed:
+            return .blue
+        case .cancelled:
+            return .gray
         }
     }
 }
