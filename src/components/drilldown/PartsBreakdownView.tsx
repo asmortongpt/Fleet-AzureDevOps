@@ -9,7 +9,7 @@ import { DrilldownContent } from '@/components/DrilldownPanel'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import useSWR from 'swr'
-import { Package, CurrencyDollar, Hash, ArrowRight, TrendingUp } from 'lucide-react'
+import { Package, DollarSign, Hash, ArrowRight, TrendingUp } from 'lucide-react'
 
 interface PartsBreakdownViewProps {
   workOrderId: string
