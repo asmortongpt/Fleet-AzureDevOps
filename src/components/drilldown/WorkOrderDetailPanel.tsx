@@ -14,7 +14,7 @@ import useSWR from 'swr'
 import {
   Wrench,
   Calendar,
-  CurrencyDollar,
+  DollarSign,
   User,
   Clock,
   Package,
@@ -139,7 +139,7 @@ export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps)
             <Card>
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-medium flex items-center gap-2">
-                  <CurrencyDollar className="h-4 w-4" />
+                  <DollarSign className="h-4 w-4" />
                   Total
                 </CardTitle>
               </CardHeader>
