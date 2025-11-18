@@ -17,7 +17,20 @@ router.get(
   auditLog({ action: 'READ', resourceType: 'vehicles' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const { page = 1, limit = 50 } = req.query
+      const {
+        page = 1,
+        limit = 50,
+        // Multi-asset filters from migration 032
+        asset_category,
+        asset_type,
+        power_type,
+        operational_status,
+        primary_metric,
+        is_road_legal,
+        location_id,
+        group_id,
+        fleet_id
+      } = req.query
       const offset = (Number(page) - 1) * Number(limit)
 
       // Get user scope for row-level filtering
@@ -41,13 +54,62 @@ router.get(
       }
       // fleet/global scope sees all
 
+      // Build multi-asset filters
+      let assetFilters = ''
+      let paramIndex = scopeParams.length + 1
+
+      if (asset_category) {
+        assetFilters += ` AND asset_category = $${paramIndex++}`
+        scopeParams.push(asset_category)
+      }
+
+      if (asset_type) {
+        assetFilters += ` AND asset_type = $${paramIndex++}`
+        scopeParams.push(asset_type)
+      }
+
+      if (power_type) {
+        assetFilters += ` AND power_type = $${paramIndex++}`
+        scopeParams.push(power_type)
+      }
+
+      if (operational_status) {
+        assetFilters += ` AND operational_status = $${paramIndex++}`
+        scopeParams.push(operational_status)
+      }
+
+      if (primary_metric) {
+        assetFilters += ` AND primary_metric = $${paramIndex++}`
+        scopeParams.push(primary_metric)
+      }
+
+      if (is_road_legal !== undefined) {
+        assetFilters += ` AND is_road_legal = $${paramIndex++}`
+        scopeParams.push(is_road_legal === 'true')
+      }
+
+      if (location_id) {
+        assetFilters += ` AND location_id = $${paramIndex++}`
+        scopeParams.push(location_id)
+      }
+
+      if (group_id) {
+        assetFilters += ` AND group_id = $${paramIndex++}`
+        scopeParams.push(group_id)
+      }
+
+      if (fleet_id) {
+        assetFilters += ` AND fleet_id = $${paramIndex++}`
+        scopeParams.push(fleet_id)
+      }
+
       const result = await pool.query(
-        `SELECT * FROM vehicles WHERE tenant_id = $1 ${scopeFilter} ORDER BY created_at DESC LIMIT $2 OFFSET $3`,
+        `SELECT * FROM vehicles WHERE tenant_id = $1 ${scopeFilter}${assetFilters} ORDER BY created_at DESC LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`,
         [...scopeParams, limit, offset]
       )
 
       const countResult = await pool.query(
-        `SELECT COUNT(*) FROM vehicles WHERE tenant_id = $1 ${scopeFilter}`,
+        `SELECT COUNT(*) FROM vehicles WHERE tenant_id = $1 ${scopeFilter}${assetFilters}`,
         scopeParams
       )
 
