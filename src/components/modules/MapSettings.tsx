@@ -29,7 +29,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import {
   Check,
   Map,
-  CurrencyDollar,
+  DollarSign,
   Zap,
   Shield,
   XCircle,
