@@ -44,3 +44,6 @@ docs
 .eslintrc*
 .prettierrc*
 *.log
+
+# Temporary directories
+PMO-repo-temp
