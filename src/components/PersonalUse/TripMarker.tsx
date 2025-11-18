@@ -7,7 +7,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Slider } from '@/components/ui/slider'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
-import { Car, Briefcase, Coffee, SplitHorizontal, DollarSign, Check, X, Info } from '@phosphor-icons/react'
+import { Car, Briefcase, Coffee, SplitHorizontal, CurrencyDollar, Check, X, Info } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import { usePersonalUsePolicies, useMarkTrip, type TripUsageData, type Policy } from '@/hooks/usePersonalUseQueries'
 import { cn } from '@/lib/utils'
@@ -330,7 +330,7 @@ export function TripMarker({
         {/* Cost Preview */}
         {showCostPreview && miles > 0 && (
           <Alert>
-            <DollarSign className="h-4 w-4" />
+            <CurrencyDollar className="h-4 w-4" />
             <AlertDescription>
               <div className="space-y-2">
                 <div className="flex items-center justify-between">

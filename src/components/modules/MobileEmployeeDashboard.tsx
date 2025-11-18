@@ -19,7 +19,7 @@ import {
   CheckCircle,
   AlertCircle,
   Navigation,
-  DollarSign,
+  CurrencyDollar,
   Calendar,
   FileText,
 } from 'lucide-react';
@@ -385,7 +385,7 @@ const MobileEmployeeDashboard: React.FC = () => {
         <div className="bg-blue-50 border-l-4 border-blue-400 p-4 rounded">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <DollarSign className="w-5 h-5 text-blue-600" />
+              <CurrencyDollar className="w-5 h-5 text-blue-600" />
               <div>
                 <p className="text-sm font-medium text-blue-800">
                   Pending Reimbursements

@@ -10,7 +10,7 @@ import {
   Upload,
   Search,
   Filter,
-  RefreshCw,
+  ArrowsClockwise,
   Download,
   Trash2,
   Share2,
@@ -185,7 +185,7 @@ export function DocumentExplorer({
                   disabled={isLoading}
                   aria-label="Refresh documents (Ctrl+R)"
                 >
-                  <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
+                  <ArrowsClockwise className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
                 </Button>
               </div>
             </div>

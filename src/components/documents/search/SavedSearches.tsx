@@ -4,7 +4,7 @@
  */
 
 import { useState } from 'react';
-import { Save, Star, Trash2, Edit, Search } from 'lucide-react';
+import { FloppyDisk, Star, Trash2, Edit, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -70,7 +70,7 @@ export function SavedSearches({
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogTrigger asChild>
           <Button variant="outline" size="sm">
-            <Save className="mr-2 h-4 w-4" />
+            <FloppyDisk className="mr-2 h-4 w-4" />
             Save search
           </Button>
         </DialogTrigger>
