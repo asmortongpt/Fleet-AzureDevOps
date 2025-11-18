@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		A1B1B27FAC5347DA8D2DA7CA /* ScheduleViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC0D0E9B626E46529B49FC69 /* ScheduleViewModel.swift */; };
+		DEB4A48CAD234AE2847A4630 /* ChecklistViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F93144738FB34A8B82D677FE /* ChecklistViewModel.swift */; };
+		BB555706A7044FCC854F5EC2 /* MaintenanceViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1507CDED9014E4F900FCFCA /* MaintenanceViewModel.swift */; };
 		0495F5DFD62AD3C497DE7092 /* ImageUploadService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB7FB32F6586627934CB3AFA /* ImageUploadService.swift */; };
 		0537E0BFB791487988E78493 /* AdminApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = C907237E021C4DC5AA0E7961 /* AdminApp.swift */; };
 		05FD29B2EBB588775BAA1FE2 /* AddTripView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A1F000579F31AE84F13F903 /* AddTripView.swift */; };
@@ -119,6 +122,9 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		CC0D0E9B626E46529B49FC69 /* ScheduleViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ScheduleViewModel.swift; path = App/ViewModels/ScheduleViewModel.swift; sourceTree = "<group>"; };
+		F93144738FB34A8B82D677FE /* ChecklistViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ChecklistViewModel.swift; path = App/ViewModels/ChecklistViewModel.swift; sourceTree = "<group>"; };
+		C1507CDED9014E4F900FCFCA /* MaintenanceViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = MaintenanceViewModel.swift; path = App/ViewModels/MaintenanceViewModel.swift; sourceTree = "<group>"; };
 		07D1943466FCE07ED73040DF /* TripModels.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TripModels.swift; path = TripModels.swift; sourceTree = "<group>"; };
 		09C619BEA37BC33F2BEA6494 /* PhotoCaptureView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PhotoCaptureView.swift; sourceTree = "<group>"; };
 		0A1F000579F31AE84F13F903 /* AddTripView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AddTripView.swift; path = AddTripView.swift; sourceTree = "<group>"; };
@@ -199,7 +205,7 @@
 		6ED2B1C4F4B44A490F2C7123 /* ModernTheme.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ModernTheme.swift; path = Theme/ModernTheme.swift; sourceTree = "<group>"; };
 		70ABDC5F25D24490241D79ED /* UIPerformanceMonitor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = UIPerformanceMonitor.swift; path = Performance/UIPerformanceMonitor.swift; sourceTree = "<group>"; };
 		70E13C35860E1F52F6A5775D /* VehicleDetailView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = VehicleDetailView.swift; path = Views/VehicleDetailView.swift; sourceTree = "<group>"; };
-		70EA0C1860DEFBF739E36113 /* VehicleViewModel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = VehicleViewModel.swift; path = ViewModels/VehicleViewModel.swift; sourceTree = "<group>"; };
+		70EA0C1860DEFBF739E36113 /* VehicleViewModel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = VehicleViewModel.swift; path = App/ViewModels/VehicleViewModel.swift; sourceTree = "<group>"; };
 		713AB4E4FC6B5609CD33E3AB /* MainTabView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MainTabView.swift; sourceTree = "<group>"; };
 		71B47AA7C2DDBF992B0F00CD /* TripTrackingService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TripTrackingService.swift; sourceTree = "<group>"; };
 		7241B46490E6460B433B2EEA /* TripDetailView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TripDetailView.swift; sourceTree = "<group>"; };
@@ -729,6 +735,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A1B1B27FAC5347DA8D2DA7CA /* ScheduleViewModel.swift in Sources */,
+				DEB4A48CAD234AE2847A4630 /* ChecklistViewModel.swift in Sources */,
+				BB555706A7044FCC854F5EC2 /* MaintenanceViewModel.swift in Sources */,
 				504EC3081FED79650016851F /* AppDelegate.swift in Sources */,
 				33FF6ED8E6AF45E6A4D59BD2 /* FleetManagementAppView.swift in Sources */,
 				0537E0BFB791487988E78493 /* AdminApp.swift in Sources */,
