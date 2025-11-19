@@ -21,11 +21,13 @@
     }
   },
   "globalHeaders": {
-    "content-security-policy": "default-src 'self' https:; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com https://atlas.microsoft.com; worker-src 'self' blob:; img-src 'self' data: https:; connect-src 'self' https:;",
-    "X-Frame-Options": "SAMEORIGIN",
+    "content-security-policy": "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com https://atlas.microsoft.com data:; worker-src 'self' blob:; img-src 'self' data: https: blob:; connect-src 'self' https://*.mapbox.com https://*.tiles.mapbox.com https://api.mapbox.com https://events.mapbox.com https://atlas.microsoft.com https://api.openai.com https://graph.microsoft.com wss://localhost:* ws://localhost:*; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests; block-all-mixed-content;",
+    "X-Frame-Options": "DENY",
     "X-Content-Type-Options": "nosniff",
     "Referrer-Policy": "strict-origin-when-cross-origin",
-    "Permissions-Policy": "camera=(), microphone=(), geolocation=(self)"
+    "Permissions-Policy": "camera=(), microphone=(), geolocation=(self), payment=()",
+    "Strict-Transport-Security": "max-age=31536000; includeSubDomains; preload",
+    "X-XSS-Protection": "1; mode=block"
   },
   "mimeTypes": {
     ".json": "application/json",

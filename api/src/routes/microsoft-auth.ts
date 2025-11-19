@@ -158,7 +158,18 @@ router.get('/microsoft/callback', async (req: Request, res: Response) => {
       'Microsoft SSO login successful'
     )
 
-    // Generate JWT token
+    // SECURITY: Generate JWT token with validated secret
+    // JWT_SECRET must be set and must be at least 32 characters
+    if (!process.env.JWT_SECRET) {
+      console.error('FATAL: JWT_SECRET environment variable is not set')
+      return res.redirect(`/login?error=config_error&message=${encodeURIComponent('Server authentication configuration error')}`)
+    }
+
+    if (process.env.JWT_SECRET.length < 32) {
+      console.error('FATAL: JWT_SECRET must be at least 32 characters')
+      return res.redirect(`/login?error=config_error&message=${encodeURIComponent('Server authentication configuration error')}`)
+    }
+
     const token = jwt.sign(
       {
         id: user.id,
@@ -166,13 +177,33 @@ router.get('/microsoft/callback', async (req: Request, res: Response) => {
         tenant_id: user.tenant_id,
         role: user.role
       },
-      process.env.JWT_SECRET || 'your-secret-key-minimum-32-characters-long',
+      process.env.JWT_SECRET,
       { expiresIn: '24h' }
     )
 
-    // Redirect to frontend with token
+    // SECURITY FIX: Store JWT in httpOnly cookie instead of URL parameter (CWE-598)
+    // Tokens in URLs are:
+    // - Logged in browser history
+    // - Exposed in HTTP referrer headers
+    // - Visible in server logs
+    // - Can be leaked through browser extensions
+    //
+    // httpOnly cookies are:
+    // - Not accessible to JavaScript (prevents XSS attacks)
+    // - Not logged in browser history
+    // - Automatically sent with requests to the same domain
+    // - More secure for storing authentication tokens
+    res.cookie('auth_token', token, {
+      httpOnly: true,     // Cannot be accessed by JavaScript
+      secure: process.env.NODE_ENV === 'production', // Only sent over HTTPS in production
+      sameSite: 'lax',    // CSRF protection
+      maxAge: 24 * 60 * 60 * 1000, // 24 hours (matches JWT expiration)
+      path: '/'           // Available throughout the application
+    })
+
+    // Redirect to frontend callback WITHOUT token in URL
     const frontendUrl = process.env.FRONTEND_URL || 'http://68.220.148.2'
-    res.redirect(`${frontendUrl}/auth/callback?token=${token}`)
+    res.redirect(`${frontendUrl}/auth/callback`)
 
   } catch (error: any) {
     console.error('Microsoft OAuth error:', error.response?.data || error.message)
