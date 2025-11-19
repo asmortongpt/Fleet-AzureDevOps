@@ -9,7 +9,11 @@ import express from 'express'
 import cors from 'cors'
 import helmet from 'helmet'
 import rateLimit from 'express-rate-limit'
+import compression from 'compression'
 import dotenv from 'dotenv'
+import { cache } from './utils/cache'
+import { performanceMonitor } from './utils/performance'
+import { env } from './config/environment'
 import authRoutes from './routes/auth'
 import microsoftAuthRoutes from './routes/microsoft-auth'
 import vehiclesRoutes from './routes/vehicles'
@@ -142,13 +146,15 @@ if (process.env.CORS_ORIGIN) {
 
 app.use(cors({
   origin: (origin, callback) => {
-    // Allow requests with no origin (like mobile apps or curl)
+    // Allow requests with no origin (mobile apps, Postman, etc.)
     if (!origin) return callback(null, true)
 
-    if (allowedOrigins.includes(origin) || process.env.NODE_ENV === 'development') {
+    // Check if origin is in the allowedOrigins list
+    if (allowedOrigins.includes(origin)) {
       callback(null, true)
     } else {
-      callback(new Error(`Origin ${origin} not allowed by CORS`))
+      console.warn(`CORS blocked origin: ${origin}`)
+      callback(new Error(`Origin ${origin} not allowed by CORS policy`))
     }
   },
   credentials: true,
@@ -166,23 +172,28 @@ const limiter = rateLimit({
 })
 app.use('/api/', limiter)
 
+// Compression middleware - compress responses > 1KB
+app.use(compression({
+  filter: (req, res) => {
+    if (req.headers['x-no-compression']) {
+      return false;
+    }
+    return compression.filter(req, res);
+  },
+  level: 6, // Balance between speed and compression ratio
+  threshold: 1024 // Only compress responses > 1KB
+}))
+
+// Performance monitoring
+app.use(performanceMonitor)
+
 // Body parser
 app.use(express.json({ limit: '10mb' }))
 app.use(express.urlencoded({ extended: true, limit: '10mb' }))
 
-// GLOBAL MOCK DATA MODE - Bypass authentication for dev/staging
-if (process.env.USE_MOCK_DATA === 'true') {
-  app.use((req: any, res, next) => {
-    console.log('🔓 GLOBAL AUTH BYPASS - Mock data mode enabled')
-    // Inject mock user for ALL requests
-    req.user = {
-      id: '1',
-      email: 'demo@fleet.local',
-      role: 'admin',
-      tenant_id: '1'
-    }
-    next()
-  })
+// Production safety check - USE_MOCK_DATA is not allowed in production
+if (process.env.NODE_ENV === 'production' && process.env.USE_MOCK_DATA === 'true') {
+  throw new Error('FATAL: USE_MOCK_DATA is not allowed in production environment')
 }
 
 // Swagger API Documentation
@@ -239,12 +250,7 @@ app.get('/api/health', (req, res) => {
   })
 })
 
-// Mock data mode (dev/staging only)
-if (process.env.USE_MOCK_DATA === 'true') {
-  console.log('🧪 Using mock data mode - authentication disabled for dev/staging')
-}
-
-// Always register auth routes (authentication bypass handled in middleware)
+// API Routes
 app.use('/api/auth', authRoutes)
 app.use('/api/auth', microsoftAuthRoutes)
 app.use('/api/vehicles', vehiclesRoutes)
@@ -391,11 +397,28 @@ async function startServer() {
     // Initialize database connections first
     await initializeDatabase()
 
+    // Initialize Redis cache connection
+    try {
+      await cache.connect()
+      const stats = await cache.getStats()
+      console.log(`💾 Cache initialized: ${stats.connected ? 'Connected' : 'Disabled (graceful degradation)'}`)
+    } catch (error) {
+      console.warn('⚠️ Cache connection failed - running without cache:', error)
+    }
+
     // Start the Express server
     const server = app.listen(PORT, () => {
-      console.log(`🚀 Fleet API running on port ${PORT}`)
-      console.log(`📚 Environment: ${process.env.NODE_ENV}`)
-      console.log(`🔒 CORS Origins: ${process.env.CORS_ORIGIN}`)
+      console.log('🚀 Starting Fleet Management System API')
+      console.log('═══════════════════════════════════════════')
+      console.log(`📚 Environment: ${env.get('NODE_ENV')}`)
+      console.log(`🌐 Port: ${env.get('PORT')}`)
+      console.log(`🔒 CORS Origins: ${env.get('CORS_ORIGIN') || 'Default origins'}`)
+      console.log(`💾 Database: ${env.get('DATABASE_URL') ? 'Configured' : 'Using individual params'}`)
+      console.log(`🔑 JWT Secret: ${env.get('JWT_SECRET') ? '✅ Set' : '❌ Missing'}`)
+      console.log(`👤 Microsoft OAuth: ${env.get('MICROSOFT_CLIENT_ID') ? 'Configured' : 'Not configured'}`)
+      console.log(`📦 Redis Cache: ${env.get('REDIS_URL') ? 'Enabled' : 'Disabled'}`)
+      console.log(`🧪 Mock Data Mode: ${env.get('USE_MOCK_DATA') === 'true' ? '⚠️  ENABLED' : 'Disabled'}`)
+      console.log('═══════════════════════════════════════════')
 
       // Initialize dispatch WebSocket server
       try {
