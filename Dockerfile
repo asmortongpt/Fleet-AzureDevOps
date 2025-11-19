@@ -3,10 +3,6 @@
 # Stage 1: Build stage
 FROM node:20-alpine AS builder
 
-# Cache buster to force rebuild
-ARG CACHE_BUST=1
-RUN echo "Cache bust: $CACHE_BUST"
-
 # Set working directory
 WORKDIR /app
 
@@ -16,7 +12,11 @@ RUN apk add --no-cache python3 make g++
 # Copy package files
 COPY package*.json ./
 
-# Install dependencies
+# Cache buster MUST come after COPY to invalidate npm ci layer
+ARG CACHE_BUST=1
+RUN echo "Cache bust: $CACHE_BUST - forcing fresh npm install"
+
+# Install dependencies (this layer will rebuild when CACHE_BUST changes)
 RUN npm ci
 
 # Copy source code
