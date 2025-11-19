@@ -35,7 +35,6 @@ import {
   ASSET_TYPE_LABELS,
   POWER_TYPE_LABELS,
   OPERATIONAL_STATUS_LABELS,
-  PrimaryMetric,
 } from '@/types/asset.types'
 
 interface VehicleDetailPanelProps {
