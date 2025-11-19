@@ -121,13 +121,30 @@ jobs:
         run: |
           docker run --rm \
             -v /var/run/docker.sock:/var/run/docker.sock \
-            aquasec/trivy image --severity HIGH,CRITICAL \
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_FRONTEND }}:staging-${{ github.event.inputs.version }} || true
+            aquasec/trivy image \
+            --severity HIGH,CRITICAL \
+            --exit-code 1 \
+            --format sarif \
+            --output trivy-frontend-results.sarif \
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_FRONTEND }}:staging-${{ github.event.inputs.version }}
 
           docker run --rm \
             -v /var/run/docker.sock:/var/run/docker.sock \
-            aquasec/trivy image --severity HIGH,CRITICAL \
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_API }}:staging-${{ github.event.inputs.version }} || true
+            aquasec/trivy image \
+            --severity HIGH,CRITICAL \
+            --exit-code 1 \
+            --format sarif \
+            --output trivy-api-results.sarif \
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_API }}:staging-${{ github.event.inputs.version }}
+
+      - name: Upload security scan results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: staging-security-scan-results
+          path: |
+            trivy-frontend-results.sarif
+            trivy-api-results.sarif
 
   # ===========================================================================
   # DEPLOY TO KUBERNETES

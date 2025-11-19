@@ -27,6 +27,13 @@ COPY triposr-api-service.py .
 # Create output directory
 RUN mkdir -p /tmp/triposr-outputs
 
+# Create non-root user for security
+RUN groupadd -r triposr && useradd -r -g triposr -u 1001 triposr \
+    && chown -R triposr:triposr /app /tmp/triposr-outputs
+
+# Switch to non-root user
+USER triposr
+
 # Expose port
 EXPOSE 8000
 
