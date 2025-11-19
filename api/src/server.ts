@@ -8,12 +8,11 @@ console.log('OpenTelemetry instrumentation started')
 import express from 'express'
 import cors from 'cors'
 import helmet from 'helmet'
-import rateLimit from 'express-rate-limit'
-import compression from 'compression'
+
+import cookieParser from 'cookie-parser'
 import dotenv from 'dotenv'
-import { cache } from './utils/cache'
-import { performanceMonitor } from './utils/performance'
-import { env } from './config/environment'
+import { csrfTokenMiddleware, conditionalCsrfProtection, csrfErrorHandler } from './middleware/csrf'
+import { globalLimiter } from './config/rate-limiters'
 import authRoutes from './routes/auth'
 import microsoftAuthRoutes from './routes/microsoft-auth'
 import vehiclesRoutes from './routes/vehicles'
@@ -98,9 +97,46 @@ import webhookRenewal from './jobs/webhook-renewal.job'
 import schedulingReminders from './jobs/scheduling-reminders.job'
 import dispatchService from './services/dispatch.service'
 import documentService from './services/document.service'
-import { initializeDatabase } from './config/database'
 
 dotenv.config()
+
+// SECURITY: Validate critical security configuration at startup (fail-fast principle)
+// This prevents the server from starting with insecure configuration that could lead
+// to authentication bypass vulnerabilities (CWE-287, CWE-798)
+console.log('🔒 Validating security configuration...')
+
+// Validate JWT_SECRET is set and meets minimum security requirements
+if (!process.env.JWT_SECRET) {
+  console.error('❌ FATAL SECURITY ERROR: JWT_SECRET environment variable is not set')
+  console.error('❌ JWT_SECRET is required for secure authentication')
+  console.error('❌ Generate a secure secret with: openssl rand -base64 48')
+  console.error('❌ Server startup aborted')
+  process.exit(1)
+}
+
+if (process.env.JWT_SECRET.length < 32) {
+  console.error('❌ FATAL SECURITY ERROR: JWT_SECRET is too short')
+  console.error(`❌ Current length: ${process.env.JWT_SECRET.length} characters`)
+  console.error('❌ Minimum required: 32 characters')
+  console.error('❌ Recommended: 64+ characters')
+  console.error('❌ Generate a secure secret with: openssl rand -base64 48')
+  console.error('❌ Server startup aborted')
+  process.exit(1)
+}
+
+// Warn if using weak/default secrets (common weak patterns)
+const weakSecrets = ['changeme', 'secret', 'password', 'test', 'demo', 'default', 'your-secret-key']
+const lowerSecret = process.env.JWT_SECRET.toLowerCase()
+if (weakSecrets.some(weak => lowerSecret.includes(weak))) {
+  console.error('❌ FATAL SECURITY ERROR: JWT_SECRET appears to contain a weak/default value')
+  console.error('❌ Detected weak pattern in secret')
+  console.error('❌ Generate a secure secret with: openssl rand -base64 48')
+  console.error('❌ Server startup aborted')
+  process.exit(1)
+}
+
+console.log('✅ JWT_SECRET validated successfully')
+console.log(`✅ JWT_SECRET length: ${process.env.JWT_SECRET.length} characters`)
 
 const app = express()
 const PORT = process.env.PORT || 3000
@@ -131,69 +167,93 @@ app.use(helmet({
 }))
 
 // CORS configuration - allow frontend deployments
-const allowedOrigins = [
-  'https://fleet.capitaltechalliance.com',
-  'https://green-pond-0f040980f.3.azurestaticapps.net',
+// Default origins for local development only
+const defaultDevOrigins = [
   'http://localhost:5173',
   'http://localhost:3000',
   'http://localhost:4173'
 ]
 
+// In production, CORS_ORIGIN environment variable is REQUIRED
+// Never hardcode production domains in source code
+const allowedOrigins = process.env.NODE_ENV === 'production'
+  ? [] // No default origins in production - must be explicitly configured
+  : [...defaultDevOrigins]
+
 // Add custom origins from environment variable
 if (process.env.CORS_ORIGIN) {
-  allowedOrigins.push(...process.env.CORS_ORIGIN.split(','))
+  allowedOrigins.push(...process.env.CORS_ORIGIN.split(',').map(origin => origin.trim()))
+}
+
+// Warn if no origins configured in production
+if (process.env.NODE_ENV === 'production' && allowedOrigins.length === 0) {
+  console.warn('⚠️  WARNING: No CORS origins configured! Set CORS_ORIGIN environment variable.')
 }
 
 app.use(cors({
   origin: (origin, callback) => {
-    // Allow requests with no origin (mobile apps, Postman, etc.)
+    // Allow requests with no origin (like mobile apps or curl)
     if (!origin) return callback(null, true)
 
-    // Check if origin is in the allowedOrigins list
-    if (allowedOrigins.includes(origin)) {
+    if (allowedOrigins.includes(origin) || process.env.NODE_ENV === 'development') {
       callback(null, true)
     } else {
-      console.warn(`CORS blocked origin: ${origin}`)
-      callback(new Error(`Origin ${origin} not allowed by CORS policy`))
+      callback(new Error(`Origin ${origin} not allowed by CORS`))
     }
   },
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-CSRF-Token']
 }))
 
 // Rate limiting (FedRAMP SI-10)
-const limiter = rateLimit({
-  windowMs: 1 * 60 * 1000, // 1 minute
-  max: 100, // 100 requests per minute
-  standardHeaders: true,
-  legacyHeaders: false,
-  message: 'Too many requests from this IP, please try again later'
-})
-app.use('/api/', limiter)
+// Global rate limiter: 30 requests per minute (reduced from 100 for enhanced security)
+// Endpoint-specific rate limiters are applied in individual route files
+app.use('/api/', globalLimiter)
 
-// Compression middleware - compress responses > 1KB
-app.use(compression({
-  filter: (req, res) => {
-    if (req.headers['x-no-compression']) {
-      return false;
-    }
-    return compression.filter(req, res);
-  },
-  level: 6, // Balance between speed and compression ratio
-  threshold: 1024 // Only compress responses > 1KB
-}))
-
-// Performance monitoring
-app.use(performanceMonitor)
+// Cookie parser (required for CSRF protection)
+app.use(cookieParser())
 
 // Body parser
 app.use(express.json({ limit: '10mb' }))
 app.use(express.urlencoded({ extended: true, limit: '10mb' }))
 
-// Production safety check - USE_MOCK_DATA is not allowed in production
-if (process.env.NODE_ENV === 'production' && process.env.USE_MOCK_DATA === 'true') {
-  throw new Error('FATAL: USE_MOCK_DATA is not allowed in production environment')
+// SECURITY: Development-only mock data mode with strict environment validation
+// This bypass is ONLY allowed in development environment and will terminate the server
+// if attempted in production/staging to prevent security vulnerabilities (CWE-287)
+if (process.env.USE_MOCK_DATA === 'true') {
+  // CRITICAL SECURITY CHECK: Prevent authentication bypass in production
+  if (process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'staging') {
+    console.error('❌ FATAL SECURITY ERROR: USE_MOCK_DATA cannot be enabled in production or staging')
+    console.error('❌ This would bypass all authentication and create a critical security vulnerability')
+    console.error('❌ Server terminated to prevent security breach')
+    process.exit(1)
+  }
+
+  // Only allow in development environment with clear warnings
+  if (process.env.NODE_ENV === 'development') {
+    console.warn('⚠️  WARNING: DEVELOPMENT MODE - Authentication bypass enabled')
+    console.warn('⚠️  This is for local development ONLY and must NEVER be used in production')
+    console.warn('⚠️  All requests will be authenticated as admin user without credentials')
+
+    app.use((req: any, res, next) => {
+      console.log('🔓 DEV-ONLY AUTH BYPASS - Mock data mode (development environment only)')
+      // Inject mock user for development testing ONLY
+      req.user = {
+        id: '1',
+        email: 'demo@fleet.local',
+        role: 'admin',
+        tenant_id: '1'
+      }
+      next()
+    })
+  } else {
+    // If NODE_ENV is not set or is set to something other than development
+    console.error('❌ FATAL ERROR: USE_MOCK_DATA=true requires NODE_ENV=development')
+    console.error('❌ Current NODE_ENV:', process.env.NODE_ENV || 'undefined')
+    console.error('❌ Server terminated to prevent security vulnerability')
+    process.exit(1)
+  }
 }
 
 // Swagger API Documentation
@@ -210,6 +270,35 @@ app.get('/api/openapi.json', (req, res) => {
   res.setHeader('Content-Type', 'application/json')
   res.send(swaggerSpec)
 })
+
+// CSRF token endpoint - must be before CSRF protection middleware
+/**
+ * @openapi
+ * /api/csrf:
+ *   get:
+ *     summary: Get CSRF token
+ *     description: Returns a CSRF token for the client to use in subsequent requests
+ *     tags:
+ *       - Security
+ *     responses:
+ *       200:
+ *         description: CSRF token generated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 csrfToken:
+ *                   type: string
+ *                   description: The CSRF token to include in subsequent requests
+ *                 message:
+ *                   type: string
+ */
+app.get('/api/csrf', csrfTokenMiddleware)
+
+// Apply CSRF protection to all routes (except GET, HEAD, OPTIONS, and webhooks)
+// This must come after the /api/csrf endpoint and before other routes
+app.use(conditionalCsrfProtection)
 
 // Health check
 /**
@@ -250,7 +339,12 @@ app.get('/api/health', (req, res) => {
   })
 })
 
-// API Routes
+// Mock data mode (dev/staging only)
+if (process.env.USE_MOCK_DATA === 'true') {
+  console.log('🧪 Using mock data mode - authentication disabled for dev/staging')
+}
+
+// Always register auth routes (authentication bypass handled in middleware)
 app.use('/api/auth', authRoutes)
 app.use('/api/auth', microsoftAuthRoutes)
 app.use('/api/vehicles', vehiclesRoutes)
@@ -382,6 +476,9 @@ app.use((req, res) => {
   res.status(404).json({ error: 'Endpoint not found' })
 })
 
+// CSRF error handler (must come before generic error handler)
+app.use(csrfErrorHandler)
+
 // Error handler
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
   console.error('Error:', err)
@@ -391,98 +488,66 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
   })
 })
 
-// Async startup function
-async function startServer() {
+const server = app.listen(PORT, () => {
+  console.log(`🚀 Fleet API running on port ${PORT}`)
+  console.log(`📚 Environment: ${process.env.NODE_ENV}`)
+  console.log(`🔒 CORS Origins: ${process.env.CORS_ORIGIN}`)
+
+  // Initialize dispatch WebSocket server
   try {
-    // Initialize database connections first
-    await initializeDatabase()
-
-    // Initialize Redis cache connection
-    try {
-      await cache.connect()
-      const stats = await cache.getStats()
-      console.log(`💾 Cache initialized: ${stats.connected ? 'Connected' : 'Disabled (graceful degradation)'}`)
-    } catch (error) {
-      console.warn('⚠️ Cache connection failed - running without cache:', error)
-    }
-
-    // Start the Express server
-    const server = app.listen(PORT, () => {
-      console.log('🚀 Starting Fleet Management System API')
-      console.log('═══════════════════════════════════════════')
-      console.log(`📚 Environment: ${env.get('NODE_ENV')}`)
-      console.log(`🌐 Port: ${env.get('PORT')}`)
-      console.log(`🔒 CORS Origins: ${env.get('CORS_ORIGIN') || 'Default origins'}`)
-      console.log(`💾 Database: ${env.get('DATABASE_URL') ? 'Configured' : 'Using individual params'}`)
-      console.log(`🔑 JWT Secret: ${env.get('JWT_SECRET') ? '✅ Set' : '❌ Missing'}`)
-      console.log(`👤 Microsoft OAuth: ${env.get('MICROSOFT_CLIENT_ID') ? 'Configured' : 'Not configured'}`)
-      console.log(`📦 Redis Cache: ${env.get('REDIS_URL') ? 'Enabled' : 'Disabled'}`)
-      console.log(`🧪 Mock Data Mode: ${env.get('USE_MOCK_DATA') === 'true' ? '⚠️  ENABLED' : 'Disabled'}`)
-      console.log('═══════════════════════════════════════════')
-
-      // Initialize dispatch WebSocket server
-      try {
-        dispatchService.initializeWebSocketServer(server)
-        console.log(`🎙️  Dispatch WebSocket server initialized`)
-      } catch (error) {
-        console.error('Failed to initialize dispatch WebSocket server:', error)
-      }
-
-      // Start maintenance scheduler
-      try {
-        maintenanceScheduler.start()
-        console.log(`⏰ Maintenance scheduler started`)
-      } catch (error) {
-        console.error('Failed to start maintenance scheduler:', error)
-      }
-
-      // Start telematics sync job
-      try {
-        telematicsSync.start()
-        console.log(`📡 Telematics sync job started`)
-      } catch (error) {
-        console.error('Failed to start telematics sync:', error)
-      }
-
-      // Start Teams sync job
-      try {
-        teamsSync.start()
-        console.log(`💬 Teams sync job started`)
-      } catch (error) {
-        console.error('Failed to start Teams sync:', error)
-      }
-
-      // Start Outlook sync job
-      try {
-        outlookSync.start()
-        console.log(`📧 Outlook sync job started`)
-      } catch (error) {
-        console.error('Failed to start Outlook sync:', error)
-      }
-
-      // Start webhook renewal job
-      try {
-        webhookRenewal.start()
-        console.log(`🔄 Webhook renewal job started`)
-      } catch (error) {
-        console.error('Failed to start webhook renewal:', error)
-      }
-
-      // Start scheduling reminders job
-      try {
-        schedulingReminders.start()
-        console.log(`📅 Scheduling reminders job started`)
-      } catch (error) {
-        console.error('Failed to start scheduling reminders:', error)
-      }
-    })
+    dispatchService.initializeWebSocketServer(server)
+    console.log(`🎙️  Dispatch WebSocket server initialized`)
   } catch (error) {
-    console.error('❌ Failed to start server:', error)
-    process.exit(1)
+    console.error('Failed to initialize dispatch WebSocket server:', error)
   }
-}
 
-// Start the server
-startServer()
+  // Start maintenance scheduler
+  try {
+    maintenanceScheduler.start()
+    console.log(`⏰ Maintenance scheduler started`)
+  } catch (error) {
+    console.error('Failed to start maintenance scheduler:', error)
+  }
+
+  // Start telematics sync job
+  try {
+    telematicsSync.start()
+    console.log(`📡 Telematics sync job started`)
+  } catch (error) {
+    console.error('Failed to start telematics sync:', error)
+  }
+
+  // Start Teams sync job
+  try {
+    teamsSync.start()
+    console.log(`💬 Teams sync job started`)
+  } catch (error) {
+    console.error('Failed to start Teams sync:', error)
+  }
+
+  // Start Outlook sync job
+  try {
+    outlookSync.start()
+    console.log(`📧 Outlook sync job started`)
+  } catch (error) {
+    console.error('Failed to start Outlook sync:', error)
+  }
+
+  // Start webhook renewal job
+  try {
+    webhookRenewal.start()
+    console.log(`🔄 Webhook renewal job started`)
+  } catch (error) {
+    console.error('Failed to start webhook renewal:', error)
+  }
+
+  // Start scheduling reminders job
+  try {
+    schedulingReminders.start()
+    console.log(`📅 Scheduling reminders job started`)
+  } catch (error) {
+    console.error('Failed to start scheduling reminders:', error)
+  }
+})
 
 export default app
