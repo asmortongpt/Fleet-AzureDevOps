@@ -37,6 +37,14 @@ spec:
       initContainers:
         - name: wait-for-db
           image: busybox:1.35
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: false
+            runAsNonRoot: true
+            runAsUser: 1000
+            capabilities:
+              drop:
+                - ALL
           command:
             - sh
             - -c
@@ -49,6 +57,14 @@ spec:
 
         - name: wait-for-redis
           image: busybox:1.35
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: false
+            runAsNonRoot: true
+            runAsUser: 1000
+            capabilities:
+              drop:
+                - ALL
           command:
             - sh
             - -c
@@ -183,6 +199,8 @@ spec:
           securityContext:
             allowPrivilegeEscalation: false
             readOnlyRootFilesystem: false
+            runAsNonRoot: true
+            runAsUser: 1000
             capabilities:
               drop:
                 - ALL

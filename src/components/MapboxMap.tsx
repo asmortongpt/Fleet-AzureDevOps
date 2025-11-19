@@ -263,9 +263,9 @@ function createCameraPopupHTML(camera: TrafficCamera): string {
       <div style="font-size: 12px; color: #666; margin-bottom: 4px;">
         <strong>Status:</strong> <span style="color: ${camera.operational ? "#10b981" : "#ef4444"}">${camera.operational ? "Operational" : "Offline"}</span>
       </div>
-      ${camera.cameraUrl ? `
+      ${camera.cameraUrl && sanitizeUrl(camera.cameraUrl) ? `
         <div style="margin-top: 8px;">
-          <a href="${escapeHtml(camera.cameraUrl)}" target="_blank" rel="noopener noreferrer" style="
+          <a href="${sanitizeUrl(camera.cameraUrl)}" target="_blank" rel="noopener noreferrer" style="
             display: inline-block;
             background-color: #3b82f6;
             color: white;
@@ -296,6 +296,29 @@ function escapeHtml(text: string): string {
   const div = document.createElement('div')
   div.textContent = text
   return div.innerHTML
+}
+
+/**
+ * Sanitizes a URL to prevent XSS via javascript: or data: URI schemes
+ * Only allows http:// and https:// URLs
+ *
+ * @param url - URL to sanitize
+ * @returns Sanitized URL or empty string if invalid
+ */
+function sanitizeUrl(url: string): string {
+  if (!url) return ''
+
+  try {
+    const urlObj = new URL(url)
+    // Only allow http and https protocols
+    if (urlObj.protocol === 'http:' || urlObj.protocol === 'https:') {
+      return escapeHtml(url)
+    }
+  } catch {
+    // Invalid URL
+  }
+
+  return ''
 }
 
 /**

@@ -17,6 +17,7 @@ import crypto from 'crypto'
 import pool from '../config/database'
 import sharp from 'sharp'
 import { Readable } from 'stream'
+import { validateURL, SSRFError } from '../utils/safe-http-request'
 
 export interface FileMetadata {
   originalFilename: string
@@ -297,6 +298,24 @@ export class AttachmentService {
     this.ensureInitialized()
 
     try {
+      // SSRF Protection: Validate blob URL is from trusted Azure Storage
+      try {
+        validateURL(blobUrl, {
+          allowedDomains: [
+            'blob.core.windows.net', // Azure Blob Storage
+            '*.blob.core.windows.net'
+          ]
+        })
+      } catch (error) {
+        if (error instanceof SSRFError) {
+          console.error(`SSRF Protection blocked blob download from ${blobUrl}`, {
+            reason: error.reason
+          })
+          throw new Error(`Unauthorized blob URL: ${error.reason}`)
+        }
+        throw error
+      }
+
       // Extract blob name from URL
       const url = new URL(blobUrl)
       const pathParts = url.pathname.split('/')
@@ -331,6 +350,18 @@ export class AttachmentService {
     this.ensureInitialized()
 
     try{
+      // SSRF Protection: Validate blob URL
+      try {
+        validateURL(blobUrl, {
+          allowedDomains: ['blob.core.windows.net', '*.blob.core.windows.net']
+        })
+      } catch (error) {
+        if (error instanceof SSRFError) {
+          throw new Error(`Unauthorized blob URL: ${error.reason}`)
+        }
+        throw error
+      }
+
       const url = new URL(blobUrl)
       const pathParts = url.pathname.split('/')
       const containerName = pathParts[1]
@@ -359,6 +390,18 @@ export class AttachmentService {
    */
   async getFileSasUrl(blobUrl: string, expiryMinutes: number = 60): Promise<string> {
     try {
+      // SSRF Protection: Validate blob URL
+      try {
+        validateURL(blobUrl, {
+          allowedDomains: ['blob.core.windows.net', '*.blob.core.windows.net']
+        })
+      } catch (error) {
+        if (error instanceof SSRFError) {
+          throw new Error(`Unauthorized blob URL: ${error.reason}`)
+        }
+        throw error
+      }
+
       const url = new URL(blobUrl)
       const pathParts = url.pathname.split('/')
       const containerName = pathParts[1]
@@ -456,6 +499,23 @@ export class AttachmentService {
       })
 
     const uploadUrl = uploadSession.uploadUrl
+
+    // SSRF Protection: Validate upload URL is from Microsoft Graph
+    try {
+      validateURL(uploadUrl, {
+        allowedDomains: [
+          'graph.microsoft.com',
+          '*.sharepoint.com',
+          'onedrive.live.com',
+          '*.onedrive.com'
+        ]
+      })
+    } catch (error) {
+      if (error instanceof SSRFError) {
+        throw new Error(`Unauthorized upload URL from Microsoft Graph: ${error.reason}`)
+      }
+      throw error
+    }
 
     // Upload in chunks
     let uploadedBytes = 0

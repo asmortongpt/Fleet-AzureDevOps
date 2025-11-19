@@ -5,6 +5,8 @@ import { auditLog } from '../middleware/audit'
 import customReportService from '../services/custom-report.service'
 import reportScheduler from '../jobs/report-scheduler.job'
 import fs from 'fs/promises'
+import path from 'path'
+import { safeReadFile, PathTraversalError } from '../utils/safe-file-operations'
 
 const router = express.Router()
 router.use(authenticateJWT)
@@ -256,31 +258,38 @@ router.get(
 
       const filePath = executionRecord.file_url
 
-      // Check file exists
+      // SECURITY: Define allowed reports directory
+      // Reports should be stored in a dedicated directory
+      const reportsDirectory = process.env.REPORTS_DIR || path.join(process.cwd(), 'reports')
+
+      // SECURITY: Safely read file using path validation
       try {
-        await fs.access(filePath)
-      } catch {
+        const fileBuffer = await safeReadFile(filePath, reportsDirectory) as Buffer
+
+        // Set appropriate content type
+        const extension = path.extname(filePath).toLowerCase().substring(1)
+        let contentType = 'application/octet-stream'
+
+        if (extension === 'xlsx') {
+          contentType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        } else if (extension === 'csv') {
+          contentType = 'text/csv'
+        } else if (extension === 'pdf') {
+          contentType = 'application/pdf'
+        }
+
+        // Send file
+        res.setHeader('Content-Type', contentType)
+        res.setHeader('Content-Disposition', `attachment; filename="${executionRecord.id}.${extension}"`)
+        res.send(fileBuffer)
+      } catch (error) {
+        if (error instanceof PathTraversalError) {
+          console.error('Security violation - Path traversal attempt:', error.message)
+          return res.status(403).json({ error: 'Access denied' })
+        }
+        console.error('File access error:', error)
         return res.status(404).json({ error: 'Report file not found' })
       }
-
-      // Set appropriate content type
-      const extension = filePath.split('.').pop()?.toLowerCase()
-      let contentType = 'application/octet-stream'
-
-      if (extension === 'xlsx') {
-        contentType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-      } else if (extension === 'csv') {
-        contentType = 'text/csv'
-      } else if (extension === 'pdf') {
-        contentType = 'application/pdf'
-      }
-
-      // Send file
-      res.setHeader('Content-Type', contentType)
-      res.setHeader('Content-Disposition', `attachment; filename="${executionRecord.id}.${extension}"`)
-
-      const fileBuffer = await fs.readFile(filePath)
-      res.send(fileBuffer)
     } catch (error) {
       console.error('Download report error:', error)
       res.status(500).json({ error: 'Internal server error' })
