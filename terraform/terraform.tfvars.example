@@ -1,0 +1,29 @@
+# Example Terraform Variables for CTAFleet
+# Copy this file to terraform.tfvars and fill in your values
+
+# Environment Configuration
+environment = "production"
+location    = "eastus2"
+dr_location = "westus2"
+cost_center = "Engineering"
+
+# Network Configuration
+allowed_ip_ranges = "0.0.0.0/0"  # Update to restrict access
+
+# AKS Configuration
+kubernetes_version = "1.28.3"
+aks_node_count     = 3
+aks_min_nodes      = 3
+aks_max_nodes      = 10
+aks_vm_size        = "Standard_D4s_v3"
+
+# PostgreSQL Configuration
+postgres_sku                = "GP_Standard_D4s_v3"
+postgres_storage_mb         = 131072  # 128 GB
+postgres_admin_username     = "fleetadmin"
+postgres_admin_password     = "<GENERATE_SECURE_PASSWORD>"
+
+# Redis Configuration
+redis_capacity = 1
+redis_family   = "P"
+redis_sku      = "Premium"
