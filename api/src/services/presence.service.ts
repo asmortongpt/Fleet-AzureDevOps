@@ -1,6 +1,7 @@
 import { Client } from '@microsoft/microsoft-graph-client'
 import axios from 'axios'
 import pool from '../config/database'
+import { validateURL, SSRFError } from '../utils/safe-http-request'
 
 // Azure AD Configuration
 const AZURE_AD_CONFIG = {
@@ -154,6 +155,28 @@ export async function getBatchPresence(userIds: string[]): Promise<PresenceInfo[
  */
 export async function subscribeToPresence(userIds: string[], webhookUrl: string): Promise<any> {
   try {
+    // SSRF Protection: Validate webhook URL
+    // Only allow webhooks to our own application domain
+    const allowedWebhookDomains = [
+      process.env.WEBHOOK_BASE_URL?.replace(/^https?:\/\//, '').split('/')[0] || 'localhost',
+      'fleet.capitaltechalliance.com',
+      // Add other trusted webhook receiver domains here
+    ].filter(Boolean)
+
+    try {
+      validateURL(webhookUrl, {
+        allowedDomains: allowedWebhookDomains
+      })
+    } catch (error) {
+      if (error instanceof SSRFError) {
+        console.error(`SSRF Protection blocked webhook URL: ${webhookUrl}`, {
+          reason: error.reason
+        })
+        throw new Error(`Invalid webhook URL: ${error.reason}. Only application webhook endpoints are allowed.`)
+      }
+      throw error
+    }
+
     const client = await getGraphClient()
 
     const subscription = {
