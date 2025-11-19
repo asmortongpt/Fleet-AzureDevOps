@@ -12,6 +12,7 @@
  */
 
 import pool from '../../config/database'
+import { buildUpdateClause } from '../../utils/sql-safety'
 
 export interface WorkflowTemplate {
   id: string
@@ -374,14 +375,14 @@ export class TaskAssetConfigManager {
     parameters: Record<string, any>
   ): Promise<void> {
     const table = entityType === 'task' ? 'tasks' : 'assets'
-    const setClauses = Object.keys(parameters)
-      .map((key, idx) => `${key} = $${idx + 1}`)
-      .join(', ')
+
+    // Build safe UPDATE clause with validated column names
+    const { fields, values } = buildUpdateClause(parameters, 1)
 
     await pool.query(
-      `UPDATE ${table} SET ${setClauses}, updated_at = NOW()
-       WHERE id = $${Object.keys(parameters).length + 1}`,
-      [...Object.values(parameters), entityId]
+      `UPDATE ${table} SET ${fields}, updated_at = NOW()
+       WHERE id = $${values.length + 1}`,
+      [...values, entityId]
     )
   }
 

@@ -346,7 +346,7 @@ npm run dev
 ```env
 VITE_API_URL=/api
 VITE_ENVIRONMENT=production
-VITE_AZURE_MAPS_SUBSCRIPTION_KEY=560t3GIDj2PBsHx1wDcgQ67VK6d6wgkdcHK0rTmTRhYUQzFizj4SJQQJ99BKACYeBjFbS4kUAAAgAZMP7TCI
+VITE_AZURE_MAPS_SUBSCRIPTION_KEY=YOUR_AZURE_MAPS_KEY_HERE  # Store in Azure Key Vault
 VITE_AZURE_CLIENT_ID=80fe6628-1dc4-41fe-894f-919b12ecc994
 VITE_AZURE_TENANT_ID=0ec14b81-7b82-45ee-8f3d-cbc31ced5347
 VITE_AZURE_AD_REDIRECT_URI=https://fleet.capitaltechalliance.com/auth/callback
@@ -712,7 +712,7 @@ curl -X POST https://fleet.capitaltechalliance.com/api/maintenance-schedules/pro
 
 ### External Services
 
-- **Azure Maps API Key:** 560t3GIDj2PBsHx1wDcgQ67VK6d6wgkdcHK0rTmTRhYUQzFizj4SJQQJ99BKACYeBjFbS4kUAAAgAZMP7TCI
+- **Azure Maps API Key:** Stored in Azure Key Vault (secret name: `azure-maps-key`)
 - **Azure AD Tenant:** 0ec14b81-7b82-45ee-8f3d-cbc31ced5347
 - **Azure AD Client ID:** 80fe6628-1dc4-41fe-894f-919b12ecc994
 

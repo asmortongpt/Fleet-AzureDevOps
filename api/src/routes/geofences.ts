@@ -4,6 +4,7 @@ import { requirePermission } from '../middleware/permissions'
 import { auditLog } from '../middleware/audit'
 import pool from '../config/database'
 import { z } from 'zod'
+import { buildInsertClause, buildUpdateClause } from '../utils/sql-safety'
 
 const router = express.Router()
 router.use(authenticateJWT)
@@ -76,14 +77,15 @@ router.post(
   async (req: AuthRequest, res: Response) => {
     try {
       const data = req.body
-      const columns = Object.keys(data)
-      const values = Object.values(data)
 
-      const placeholders = values.map((_, i) => `$${i + 2}`).join(', ')
-      const columnNames = ['tenant_id', ...columns].join(', ')
+      const { columnNames, placeholders, values } = buildInsertClause(
+        data,
+        ['tenant_id'],
+        1
+      )
 
       const result = await pool.query(
-        `INSERT INTO geofences (${columnNames}) VALUES ($1, ${placeholders}) RETURNING *`,
+        `INSERT INTO geofences (${columnNames}) VALUES (${placeholders}) RETURNING *`,
         [req.user!.tenant_id, ...values]
       )
 
@@ -103,8 +105,7 @@ router.put(
   async (req: AuthRequest, res: Response) => {
     try {
       const data = req.body
-      const fields = Object.keys(data).map((key, i) => `${key} = $${i + 3}`).join(', ')
-      const values = Object.values(data)
+      const { fields, values } = buildUpdateClause(data, 3)
 
       const result = await pool.query(
         `UPDATE geofences SET ${fields}, updated_at = NOW() WHERE id = $1 AND tenant_id = $2 RETURNING *`,
