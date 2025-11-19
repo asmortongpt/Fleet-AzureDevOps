@@ -88,7 +88,7 @@ Read these documents in order to understand the project:
    ```
    Name: AZURE_MAPS_SUBSCRIPTION_KEY
 
-   Value: 560t3GIDj2PBsHx1wDcgQ67VK6d6wgkdcHK0rTmTRhYUQzFizj4SJQQJ99BKACYeBjFbS4kUAAAgAZMP7TCI
+   Value: YOUR_AZURE_MAPS_KEY_HERE  # Get from Azure Portal or Azure Key Vault
    ```
 
 4. **Click "Add secret"**

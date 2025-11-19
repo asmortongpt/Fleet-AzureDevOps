@@ -1,6 +1,7 @@
 import { pool } from '../config/database'
 import { logger } from '../config/logger'
 import axios from 'axios'
+import { safeGet, validateURL, SSRFError } from '../utils/safe-http-request'
 
 interface CameraDataSource {
   id: string
@@ -123,6 +124,30 @@ export class CameraSyncService {
    */
   private async fetchArcGISCameras(source: CameraDataSource): Promise<ExternalCamera[]> {
     const url = `${source.service_url}/query`
+
+    // SSRF Protection: Validate URL before making request
+    try {
+      validateURL(url, {
+        allowedDomains: [
+          'services.arcgis.com',
+          'gis.example.com', // Add your trusted ArcGIS server domains here
+          'arcgis.com',
+          'services1.arcgis.com',
+          'services2.arcgis.com',
+          'services3.arcgis.com',
+        ]
+      })
+    } catch (error) {
+      if (error instanceof SSRFError) {
+        logger.error(`SSRF Protection blocked request to ${url}`, {
+          sourceId: source.id,
+          reason: error.reason
+        })
+        throw new Error(`Invalid or unauthorized service URL: ${error.reason}`)
+      }
+      throw error
+    }
+
     const params: Record<string, any> = {
       where: '1=1',
       outFields: '*',
@@ -136,7 +161,18 @@ export class CameraSyncService {
       params.token = source.authentication.token
     }
 
-    const response = await axios.get(url, { params, timeout: 30000 })
+    const response = await safeGet(url, {
+      params,
+      timeout: 30000,
+      allowedDomains: [
+        'services.arcgis.com',
+        'gis.example.com', // Add your trusted ArcGIS server domains here
+        'arcgis.com',
+        'services1.arcgis.com',
+        'services2.arcgis.com',
+        'services3.arcgis.com',
+      ]
+    })
 
     if (!response.data || !response.data.features) {
       throw new Error('Invalid ArcGIS response: missing features array')

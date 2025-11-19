@@ -28,6 +28,7 @@ import {
   FileNotFoundError,
   FileAlreadyExistsError
 } from '../StorageAdapter';
+import { validatePathWithinDirectory } from '../../utils/safe-file-operations';
 
 const pipelineAsync = promisify(pipeline);
 
@@ -404,12 +405,21 @@ export class LocalStorageAdapter extends BaseStorageAdapter {
 
   // Helper methods
 
+  /**
+   * Get file path with security validation
+   * SECURITY: Prevents path traversal attacks
+   */
   private getFilePath(key: string): string {
-    return path.join(this.storagePath, key);
+    return validatePathWithinDirectory(key, this.storagePath);
   }
 
+  /**
+   * Get metadata path with security validation
+   * SECURITY: Prevents path traversal attacks
+   */
   private getMetadataPath(key: string): string {
-    return path.join(this.metadataPath, `${key}.json`);
+    const metadataKey = `${key}.json`;
+    return validatePathWithinDirectory(metadataKey, this.metadataPath);
   }
 
   private async calculateETag(filePath: string): Promise<string> {
