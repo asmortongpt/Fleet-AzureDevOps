@@ -25,6 +25,15 @@ RUN npm install --production
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/src/migrations ./dist/migrations
 
+# Create non-root user
+RUN addgroup -g 1000 appuser && adduser -D -u 1000 -G appuser appuser
+
+# Change ownership of app directory
+RUN chown -R appuser:appuser /app
+
+# Switch to non-root user
+USER appuser
+
 # Expose port
 EXPOSE 3000
 

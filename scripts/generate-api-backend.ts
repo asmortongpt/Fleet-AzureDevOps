@@ -54,6 +54,7 @@ import { AuthRequest, authenticateJWT, authorize } from '../middleware/auth'
 import { auditLog } from '../middleware/audit'
 import pool from '../config/database'
 import { z } from 'zod'
+import { buildInsertClause, buildUpdateClause } from '../utils/sql-safety'
 
 const router = express.Router()
 ${resource.requireAuth ? 'router.use(authenticateJWT)' : ''}
@@ -126,11 +127,13 @@ router.post(
   async (req: AuthRequest, res: Response) => {
     try {
       const data = req.body
-      const columns = Object.keys(data)
-      const values = Object.values(data)
 
-      const placeholders = values.map((_, i) => \`$\${i + 2}\`).join(', ')
-      const columnNames = ['tenant_id', ...columns].join(', ')
+      // Build safe INSERT clause with validated column names
+      const { columnNames, placeholders, values } = buildInsertClause(
+        data,
+        ['tenant_id'],
+        1
+      )
 
       const result = await pool.query(
         \`INSERT INTO ${resource.table} (\${columnNames}) VALUES ($1, \${placeholders}) RETURNING *\`,
@@ -153,8 +156,9 @@ router.put(
   async (req: AuthRequest, res: Response) => {
     try {
       const data = req.body
-      const fields = Object.keys(data).map((key, i) => \`\${key} = $\${i + 3}\`).join(', ')
-      const values = Object.values(data)
+
+      // Build safe UPDATE clause with validated column names
+      const { fields, values } = buildUpdateClause(data, 3)
 
       const result = await pool.query(
         \`UPDATE ${resource.table} SET \${fields}, updated_at = NOW() WHERE id = $1 AND tenant_id = $2 RETURNING *\`,

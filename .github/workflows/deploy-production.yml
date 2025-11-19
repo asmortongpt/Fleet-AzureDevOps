@@ -50,7 +50,7 @@ jobs:
       previous_version: ${{ steps.get-version.outputs.previous_version }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11  # v4.1.1
 
       - name: Validate version format
         run: |
@@ -62,12 +62,12 @@ jobs:
           echo "✅ Version format valid: $VERSION"
 
       - name: Azure Login
-        uses: azure/login@v1
+        uses: azure/login@8c334a195cbb38e46038007b304988d888bf676a  # v2.0.0
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
       - name: Set AKS context
-        uses: azure/aks-set-context@v3
+        uses: azure/aks-set-context@37037e33d3a2fc08abe40c887d81c3f6e1eb93b9  # v4.0.0
         with:
           resource-group: ${{ env.AKS_RESOURCE_GROUP }}
           cluster-name: ${{ env.AKS_CLUSTER }}
@@ -94,7 +94,7 @@ jobs:
     timeout-minutes: 15
     steps:
       - name: Azure Login
-        uses: azure/login@v1
+        uses: azure/login@8c334a195cbb38e46038007b304988d888bf676a  # v2.0.0
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
@@ -127,20 +127,20 @@ jobs:
     needs: [database-backup]
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11  # v4.1.1
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@2b51285047da1547ffb1b2203d8be4c0af6b1f20  # v3.2.0
 
       - name: Login to Azure Container Registry
-        uses: azure/docker-login@v1
+        uses: azure/docker-login@15c4aadf093404726ab2ff205b2cdd33fa6d054c  # v2.0.0
         with:
           login-server: ${{ env.REGISTRY }}
           username: ${{ secrets.ACR_USERNAME }}
           password: ${{ secrets.ACR_PASSWORD }}
 
       - name: Build and push Frontend image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@2cdde995de11925a030ce8070c3d77a52ffcf1c0  # v5.3.0
         with:
           context: .
           file: ./Dockerfile
@@ -157,7 +157,7 @@ jobs:
           cache-to: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME_FRONTEND }}:buildcache,mode=max
 
       - name: Build and push API image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@2cdde995de11925a030ce8070c3d77a52ffcf1c0  # v5.3.0
         with:
           context: ./api
           file: ./api/Dockerfile
@@ -210,15 +210,15 @@ jobs:
     environment: production
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11  # v4.1.1
 
       - name: Azure Login
-        uses: azure/login@v1
+        uses: azure/login@8c334a195cbb38e46038007b304988d888bf676a  # v2.0.0
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
       - name: Set AKS context
-        uses: azure/aks-set-context@v3
+        uses: azure/aks-set-context@37037e33d3a2fc08abe40c887d81c3f6e1eb93b9  # v4.0.0
         with:
           resource-group: ${{ env.AKS_RESOURCE_GROUP }}
           cluster-name: ${{ env.AKS_CLUSTER }}
@@ -342,12 +342,12 @@ jobs:
     if: failure() && github.event.inputs.rollback == 'true'
     steps:
       - name: Azure Login
-        uses: azure/login@v1
+        uses: azure/login@8c334a195cbb38e46038007b304988d888bf676a  # v2.0.0
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
       - name: Set AKS context
-        uses: azure/aks-set-context@v3
+        uses: azure/aks-set-context@37037e33d3a2fc08abe40c887d81c3f6e1eb93b9  # v4.0.0
         with:
           resource-group: ${{ env.AKS_RESOURCE_GROUP }}
           cluster-name: ${{ env.AKS_CLUSTER }}

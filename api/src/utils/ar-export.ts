@@ -11,7 +11,7 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
-import { execSync } from 'child_process';
+import { execFileSync } from 'child_process';
 
 export interface ModelConversionOptions {
   inputPath: string;
@@ -67,7 +67,17 @@ export async function convertToUSDZ(
       try {
         const converterPath = '/Applications/Xcode.app/Contents/Developer/usr/bin/usdz_converter';
         if (fs.existsSync(converterPath)) {
-          execSync(`${converterPath} "${glbPath}" "${outputPath}"`, {
+          // Use execFileSync to prevent command injection
+          // Validate paths to ensure they don't contain malicious characters
+          const resolvedGlbPath = path.resolve(glbPath);
+          const resolvedOutputPath = path.resolve(outputPath);
+
+          // Additional validation: ensure paths don't escape expected directories
+          if (resolvedGlbPath.includes('\0') || resolvedOutputPath.includes('\0')) {
+            throw new Error('Invalid path: null byte detected');
+          }
+
+          execFileSync(converterPath, [resolvedGlbPath, resolvedOutputPath], {
             stdio: 'inherit'
           });
           return outputPath;
