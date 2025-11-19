@@ -4,11 +4,49 @@ Multi-layer knowledge extraction and indexing for code, architecture, and testin
 """
 
 import os
+import sys
 import asyncio
 from typing import List, Dict, Any, Optional
 from datetime import datetime
 import hashlib
 import json
+
+# Add parent directory to path for importing safe file operations
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', '..', 'api', 'src', 'utils'))
+try:
+    from safe_file_operations import safe_open_file, validate_path_within_directory, PathTraversalError
+except ImportError:
+    # Fallback if import fails - define inline
+    class PathTraversalError(Exception):
+        pass
+
+    def validate_path_within_directory(file_path: str, allowed_directory: str) -> str:
+        resolved_allowed_dir = os.path.abspath(allowed_directory)
+        if os.path.isabs(file_path):
+            resolved_path = os.path.abspath(file_path)
+        else:
+            resolved_path = os.path.abspath(os.path.join(allowed_directory, file_path))
+        try:
+            common_path = os.path.commonpath([resolved_allowed_dir, resolved_path])
+        except ValueError:
+            raise PathTraversalError(file_path, allowed_directory)
+        if common_path != resolved_allowed_dir:
+            raise PathTraversalError(file_path, allowed_directory)
+        if not resolved_path.startswith(resolved_allowed_dir + os.sep) and resolved_path != resolved_allowed_dir:
+            raise PathTraversalError(file_path, allowed_directory)
+        return resolved_path
+
+    def safe_open_file(file_path: str, allowed_directory: str, mode: str = 'r', encoding: str = 'utf-8', **kwargs):
+        validated_path = validate_path_within_directory(file_path, allowed_directory)
+        if 'r' in mode and not os.path.exists(validated_path):
+            raise FileNotFoundError(f"File not found: {file_path}")
+        if 'w' in mode or 'a' in mode:
+            parent_dir = os.path.dirname(validated_path)
+            os.makedirs(parent_dir, exist_ok=True)
+        if 'b' in mode:
+            return open(validated_path, mode, **kwargs)
+        else:
+            return open(validated_path, mode, encoding=encoding, **kwargs)
 
 from fastapi import FastAPI, HTTPException, BackgroundTasks
 from pydantic import BaseModel
@@ -405,7 +443,20 @@ async def process_repository_indexing(request: IndexRequest):
     import os
     from pathlib import Path
 
-    repo_path = Path(request.repository_path)
+    # SECURITY: Validate repository path to prevent path traversal
+    # Define allowed base directory for repositories
+    allowed_repos_base = os.getenv('ALLOWED_REPOS_BASE', '/workspace/repos')
+
+    try:
+        # Validate that the requested repository path is within the allowed base
+        validated_repo_path = validate_path_within_directory(
+            request.repository_path,
+            allowed_repos_base
+        )
+        repo_path = Path(validated_repo_path)
+    except (PathTraversalError, Exception) as e:
+        print(f"❌ Security violation: Invalid repository path '{request.repository_path}': {e}")
+        return
 
     # Walk directory and index files
     for root, dirs, files in os.walk(repo_path):
@@ -418,7 +469,8 @@ async def process_repository_indexing(request: IndexRequest):
                 relative_path = os.path.relpath(filepath, repo_path)
 
                 try:
-                    with open(filepath, 'r', encoding='utf-8') as f:
+                    # SECURITY: Use safe file read within the validated repository path
+                    with safe_open_file(relative_path, str(repo_path), 'r', encoding='utf-8') as f:
                         content = f.read()
 
                     language = "python" if file.endswith('.py') else "typescript"
@@ -433,6 +485,8 @@ async def process_repository_indexing(request: IndexRequest):
                     await index_file_endpoint(code_file)
                     print(f"✅ Indexed: {relative_path}")
 
+                except PathTraversalError as e:
+                    print(f"❌ Security violation for {relative_path}: {e}")
                 except Exception as e:
                     print(f"❌ Failed to index {relative_path}: {e}")
 
