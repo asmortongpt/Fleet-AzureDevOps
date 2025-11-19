@@ -1,144 +1,145 @@
-/**
- * Cache Utility
- *
- * Simple in-memory cache with TTL support
- * Can be extended to use Redis in production
- */
+import { createClient } from 'redis';
 
-export interface CacheEntry {
-  value: any
-  expiry: number
-}
+class CacheService {
+  private client: any;
+  private connected: boolean = false;
 
-export class Cache {
-  private store: Map<string, CacheEntry>
-  private cleanupInterval: NodeJS.Timeout | null
+  async connect(): Promise<void> {
+    if (this.connected) return;
 
-  constructor() {
-    this.store = new Map()
+    try {
+      this.client = createClient({
+        url: process.env.REDIS_URL || 'redis://localhost:6379',
+        socket: {
+          reconnectStrategy: (retries) => {
+            if (retries > 10) {
+              console.error('Redis connection failed after 10 retries');
+              return new Error('Redis connection failed');
+            }
+            return retries * 100;
+          }
+        }
+      });
 
-    // Run cleanup every 5 minutes
-    this.cleanupInterval = setInterval(() => {
-      this.cleanup()
-    }, 5 * 60 * 1000)
-  }
+      this.client.on('error', (err: any) => console.error('Redis Client Error', err));
+      this.client.on('connect', () => console.log('✅ Redis connected'));
 
-  /**
-   * Get value from cache
-   */
-  async get(key: string): Promise<any | null> {
-    const entry = this.store.get(key)
-
-    if (!entry) {
-      return null
+      await this.client.connect();
+      this.connected = true;
+    } catch (error) {
+      console.error('Failed to connect to Redis:', error);
+      // Gracefully degrade - cache will be disabled
+      this.connected = false;
     }
+  }
 
-    // Check if expired
-    if (Date.now() > entry.expiry) {
-      this.store.delete(key)
-      return null
+  async get<T>(key: string): Promise<T | null> {
+    if (!this.connected) return null;
+
+    try {
+      const value = await this.client.get(key);
+      return value ? JSON.parse(value) : null;
+    } catch (error) {
+      console.error(`Cache get error for key ${key}:`, error);
+      return null;
     }
-
-    return entry.value
   }
 
-  /**
-   * Set value in cache with TTL (in seconds)
-   */
-  async set(key: string, value: any, ttl: number = 300): Promise<void> {
-    const expiry = Date.now() + (ttl * 1000)
+  async set(key: string, value: any, ttlSeconds: number = 300): Promise<void> {
+    if (!this.connected) return;
 
-    this.store.set(key, {
-      value,
-      expiry
-    })
-  }
-
-  /**
-   * Delete value from cache
-   */
-  async delete(key: string): Promise<void> {
-    this.store.delete(key)
-  }
-
-  /**
-   * Clear all cache entries matching pattern
-   */
-  async clear(pattern?: string): Promise<void> {
-    if (!pattern) {
-      this.store.clear()
-      return
+    try {
+      await this.client.setEx(key, ttlSeconds, JSON.stringify(value));
+    } catch (error) {
+      console.error(`Cache set error for key ${key}:`, error);
     }
+  }
 
-    // Convert glob pattern to regex
-    const regex = new RegExp(
-      '^' + pattern.replace(/\*/g, '.*').replace(/\?/g, '.') + '$'
-    )
+  async del(key: string): Promise<void> {
+    if (!this.connected) return;
 
-    const keysToDelete: string[] = []
-    for (const key of this.store.keys()) {
-      if (regex.test(key)) {
-        keysToDelete.push(key)
+    try {
+      await this.client.del(key);
+    } catch (error) {
+      console.error(`Cache delete error for key ${key}:`, error);
+    }
+  }
+
+  async delPattern(pattern: string): Promise<void> {
+    if (!this.connected) return;
+
+    try {
+      const keys = await this.client.keys(pattern);
+      if (keys.length > 0) {
+        await this.client.del(keys);
       }
+    } catch (error) {
+      console.error(`Cache delete pattern error for ${pattern}:`, error);
     }
+  }
 
-    keysToDelete.forEach(key => this.store.delete(key))
+  getCacheKey(tenant: string, resource: string, id?: string): string {
+    return id ? `${tenant}:${resource}:${id}` : `${tenant}:${resource}`;
+  }
+
+  async disconnect(): Promise<void> {
+    if (this.connected && this.client) {
+      await this.client.disconnect();
+      this.connected = false;
+    }
+  }
+
+  isConnected(): boolean {
+    return this.connected;
   }
 
   /**
    * Get cache statistics
    */
-  getStats(): {
-    size: number
-    keys: string[]
-    expired: number
-  } {
-    let expired = 0
-    const now = Date.now()
-
-    for (const [key, entry] of this.store.entries()) {
-      if (now > entry.expiry) {
-        expired++
-      }
+  async getStats(): Promise<{ connected: boolean; dbSize?: number }> {
+    if (!this.connected) {
+      return { connected: false };
     }
 
-    return {
-      size: this.store.size,
-      keys: Array.from(this.store.keys()),
-      expired
+    try {
+      const dbSize = await this.client.dbSize();
+      return { connected: true, dbSize };
+    } catch (error) {
+      console.error('Failed to get cache stats:', error);
+      return { connected: this.connected };
     }
-  }
-
-  /**
-   * Clean up expired entries
-   */
-  private cleanup(): void {
-    const now = Date.now()
-    const keysToDelete: string[] = []
-
-    for (const [key, entry] of this.store.entries()) {
-      if (now > entry.expiry) {
-        keysToDelete.push(key)
-      }
-    }
-
-    keysToDelete.forEach(key => this.store.delete(key))
-
-    if (keysToDelete.length > 0) {
-      console.log(`Cache cleanup: removed ${keysToDelete.length} expired entries`)
-    }
-  }
-
-  /**
-   * Destroy cache and cleanup interval
-   */
-  destroy(): void {
-    if (this.cleanupInterval) {
-      clearInterval(this.cleanupInterval)
-      this.cleanupInterval = null
-    }
-    this.store.clear()
   }
 }
 
-export default new Cache()
+export const cache = new CacheService();
+
+// Cache middleware for Express routes
+export const cacheMiddleware = (ttl: number = 300) => {
+  return async (req: any, res: any, next: any) => {
+    if (req.method !== 'GET') {
+      return next();
+    }
+
+    // Build cache key from route and query params
+    const cacheKey = `route:${req.originalUrl}`;
+    const cached = await cache.get(cacheKey);
+
+    if (cached) {
+      console.log(`✅ Cache HIT: ${cacheKey}`);
+      return res.json(cached);
+    }
+
+    console.log(`❌ Cache MISS: ${cacheKey}`);
+
+    // Store original res.json
+    const originalJson = res.json.bind(res);
+
+    // Override res.json to cache the response
+    res.json = (body: any) => {
+      cache.set(cacheKey, body, ttl);
+      return originalJson(body);
+    };
+
+    next();
+  };
+};

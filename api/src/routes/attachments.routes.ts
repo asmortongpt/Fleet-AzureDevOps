@@ -14,6 +14,8 @@ import { AuthRequest, authenticateJWT, authorize } from '../middleware/auth'
 import { auditLog } from '../middleware/audit'
 import attachmentService from '../services/attachment.service'
 import pool from '../config/database'
+import { getErrorMessage } from '../utils/error-handler'
+import { SqlParams, Attachment } from '../types'
 
 const router = Router()
 
@@ -28,8 +30,8 @@ const upload = multer({
     try {
       attachmentService.validateFileType(file)
       cb(null, true)
-    } catch (error: any) {
-      cb(new Error(error.message))
+    } catch (error: unknown) {
+      cb(new Error(getErrorMessage(error)))
     }
   }
 })
@@ -102,7 +104,7 @@ router.post(
         message: 'File uploaded successfully',
         attachment: result
       })
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Upload error:', error)
       res.status(500).json({
         error: 'Failed to upload file',
@@ -154,7 +156,7 @@ router.post(
         message: `${results.length} files uploaded successfully`,
         attachments: results
       })
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Multiple upload error:', error)
       res.status(500).json({
         error: 'Failed to upload files',
@@ -211,7 +213,7 @@ router.get(
       res.setHeader('Content-Length', fileBuffer.length)
 
       res.send(fileBuffer)
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Download error:', error)
       res.status(500).json({
         error: 'Failed to download file',
@@ -258,7 +260,7 @@ router.get(
         sasUrl,
         expiresIn: `${expiryMinutes} minutes`
       })
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('SAS URL generation error:', error)
       res.status(500).json({
         error: 'Failed to generate SAS URL',
@@ -305,7 +307,7 @@ router.delete(
       )
 
       res.json({ message: 'Attachment deleted successfully' })
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Delete error:', error)
       res.status(500).json({
         error: 'Failed to delete attachment',
@@ -353,7 +355,7 @@ router.post(
         message: 'File uploaded to Teams successfully',
         file: result
       })
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Teams upload error:', error)
       res.status(500).json({
         error: 'Failed to upload file to Teams',
@@ -388,7 +390,7 @@ router.get(
 
       res.setHeader('Content-Type', 'application/octet-stream')
       res.send(fileBuffer)
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Teams download error:', error)
       res.status(500).json({
         error: 'Failed to download file from Teams',
@@ -434,7 +436,7 @@ router.post(
         message: 'Attachment added to email successfully',
         attachment: result
       })
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Outlook attachment error:', error)
       res.status(500).json({
         error: 'Failed to add attachment to email',
@@ -482,7 +484,7 @@ router.post(
         recipients: email.to.length,
         attachments: files.length
       })
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Send email error:', error)
       res.status(500).json({
         error: 'Failed to send email',
@@ -516,7 +518,7 @@ router.get(
 
       res.setHeader('Content-Type', 'application/octet-stream')
       res.send(fileBuffer)
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Download email attachment error:', error)
       res.status(500).json({
         error: 'Failed to download email attachment',
@@ -563,7 +565,7 @@ router.get(
         WHERE 1=1
       `
 
-      const params: any[] = []
+      const params: SqlParams = []
       let paramIndex = 1
 
       if (communicationId) {
@@ -596,7 +598,7 @@ router.get(
           pages: Math.ceil(countResult.rows[0].count / Number(limit))
         }
       })
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Get attachments error:', error)
       res.status(500).json({
         error: 'Failed to get attachments',
@@ -639,7 +641,7 @@ router.get(
       }
 
       res.json(result.rows[0])
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Get attachment error:', error)
       res.status(500).json({
         error: 'Failed to get attachment',
@@ -672,7 +674,7 @@ router.post(
         message: 'Cleanup completed',
         deletedCount
       })
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Cleanup error:', error)
       res.status(500).json({
         error: 'Failed to cleanup orphaned files',
@@ -724,7 +726,7 @@ router.get(
         summary: stats.rows[0],
         by_type: byType.rows
       })
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Get stats error:', error)
       res.status(500).json({
         error: 'Failed to get attachment statistics',
