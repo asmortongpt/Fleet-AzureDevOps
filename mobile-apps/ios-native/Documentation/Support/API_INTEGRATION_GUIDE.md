@@ -242,7 +242,7 @@ Accept: application/json
 ```json
 {
   "email": "driver@company.com",
-  "password": "SecurePassword123!",
+  "password": "YOUR_PASSWORD_HERE",
   "deviceId": "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX",
   "deviceName": "John's iPhone 13"
 }
@@ -259,8 +259,8 @@ Accept: application/json
     "role": "driver",
     "organization_id": 100
   },
-  "access_token": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...",
-  "refresh_token": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "access_token": "YOUR_ACCESS_TOKEN_HERE",
+  "refresh_token": "YOUR_REFRESH_TOKEN_HERE",
   "expires_in": 3600
 }
 ```
@@ -288,15 +288,15 @@ Content-Type: application/json
 **Request Body:**
 ```json
 {
-  "refresh_token": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9..."
+  "refresh_token": "YOUR_REFRESH_TOKEN_HERE"
 }
 ```
 
 **Success Response (200 OK):**
 ```json
 {
-  "access_token": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...",
-  "refresh_token": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "access_token": "YOUR_ACCESS_TOKEN_HERE",
+  "refresh_token": "YOUR_REFRESH_TOKEN_HERE",
   "expires_in": 3600
 }
 ```
@@ -364,7 +364,7 @@ class AuthenticationManager {
 All authenticated API requests must include:
 
 ```http
-Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...
+Authorization: Bearer YOUR_ACCESS_TOKEN_HERE
 ```
 
 ---
@@ -994,7 +994,7 @@ Webhooks allow the backend to push real-time notifications to mobile app users v
 
 ```json
 {
-  "to": "device_token_here",
+  "to": "YOUR_FCM_DEVICE_TOKEN_HERE",
   "notification": {
     "title": "Maintenance Due",
     "body": "Oil change due for Ford F-150 on 2025-02-01"
@@ -1276,7 +1276,7 @@ open fleet-api.postman_collection.json
 # Test authentication
 curl -X POST https://api.fleetmanagement.com/api/v1/auth/login \
   -H "Content-Type: application/json" \
-  -d '{"email":"test@example.com","password":"password"}'
+  -d '{"email":"test@example.com","password":"YOUR_PASSWORD_HERE"}'
 
 # Test authorized request
 curl -X GET https://api.fleetmanagement.com/api/v1/vehicles \
@@ -1298,8 +1298,8 @@ curl -v -X GET https://api.fleetmanagement.com/api/v1/trips
 class CertificatePinningManager {
     static func validateServerTrust(_ serverTrust: SecTrust) -> Bool {
         let pinnedCertificates = [
-            "sha256/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
-            "sha256/BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB="
+            "sha256/YOUR_CERTIFICATE_HASH_1_HERE",
+            "sha256/YOUR_CERTIFICATE_HASH_2_HERE"
         ]
 
         // Validate server certificate against pinned certificates
@@ -1343,7 +1343,7 @@ func signRequest(_ request: URLRequest) -> URLRequest {
 
     let signature = HMAC.sha256(
         data: "\(request.httpMethod ?? "")\(request.url?.path ?? "")\(timestamp)\(nonce)",
-        key: apiSecret
+        key: ConfigurationManager.shared.apiSecret
     )
 
     signedRequest.setValue(timestamp, forHTTPHeaderField: "X-Timestamp")

@@ -699,19 +699,33 @@ class OfflineStorageManager private constructor(private val context: Context) {
     fun getStorageStats(): Map<String, Any> {
         return mapOf(
             "inspections_total" to getRecordCount(FleetDatabaseHelper.TABLE_INSPECTIONS),
-            "inspections_pending" to getRecordCount(FleetDatabaseHelper.TABLE_INSPECTIONS, "${FleetDatabaseHelper.COL_SYNC_STATUS} = '${SyncStatus.PENDING.name}'"),
+            "inspections_pending" to getRecordCountWithStatus(FleetDatabaseHelper.TABLE_INSPECTIONS, SyncStatus.PENDING.name),
             "reports_total" to getRecordCount(FleetDatabaseHelper.TABLE_REPORTS),
-            "reports_pending" to getRecordCount(FleetDatabaseHelper.TABLE_REPORTS, "${FleetDatabaseHelper.COL_SYNC_STATUS} = '${SyncStatus.PENDING.name}'"),
+            "reports_pending" to getRecordCountWithStatus(FleetDatabaseHelper.TABLE_REPORTS, SyncStatus.PENDING.name),
             "photos_total" to getRecordCount(FleetDatabaseHelper.TABLE_PHOTOS),
-            "photos_pending" to getRecordCount(FleetDatabaseHelper.TABLE_PHOTOS, "${FleetDatabaseHelper.COL_SYNC_STATUS} = '${SyncStatus.PENDING.name}'"),
+            "photos_pending" to getRecordCountWithStatus(FleetDatabaseHelper.TABLE_PHOTOS, SyncStatus.PENDING.name),
             "sync_queue_size" to getRecordCount(FleetDatabaseHelper.TABLE_SYNC_QUEUE),
             "database_size_mb" to getDatabaseSize()
         )
     }
 
-    private fun getRecordCount(table: String, condition: String? = null): Int {
-        val selection = condition ?: "1=1"
-        val cursor = db.rawQuery("SELECT COUNT(*) FROM $table WHERE $selection", null)
+    private fun getRecordCount(table: String): Int {
+        val cursor = db.rawQuery("SELECT COUNT(*) FROM $table", null)
+
+        cursor.use {
+            if (it.moveToFirst()) {
+                return it.getInt(0)
+            }
+        }
+
+        return 0
+    }
+
+    private fun getRecordCountWithStatus(table: String, status: String): Int {
+        val cursor = db.rawQuery(
+            "SELECT COUNT(*) FROM $table WHERE ${FleetDatabaseHelper.COL_SYNC_STATUS} = ?",
+            arrayOf(status)
+        )
 
         cursor.use {
             if (it.moveToFirst()) {

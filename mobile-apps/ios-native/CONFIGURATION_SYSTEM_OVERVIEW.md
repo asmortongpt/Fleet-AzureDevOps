@@ -83,7 +83,7 @@ let apiKey = ProcessInfo.processInfo.environment["FIREBASE_API_KEY"]
 let token = KeychainManager.shared.retrieve(for: "auth_token")
 
 // ✗ Never: Hardcoded secrets
-let secret = "AIzaSyDu3opH0_9uKc5K3_dKyX2P" // NEVER!
+let secret = "YOUR_API_KEY_NEVER_HARDCODE" // NEVER!
 ```
 
 ### 2. Environment-Specific Configuration
@@ -207,7 +207,7 @@ cp .env.production.template .env.production
 ### 2. Edit Development File
 ```bash
 # .env.development
-FIREBASE_DEVELOPMENT_API_KEY=your-dev-key
+FIREBASE_DEVELOPMENT_API_KEY=YOUR_DEV_KEY_HERE
 AUTH_API_URL=http://localhost:3000/auth
 ```
 
@@ -301,7 +301,7 @@ print(BuildConfiguration.debugInfoString)
 ### 1. Never Hardcode Secrets
 ```swift
 // ✗ Bad
-let key = "AIzaSyDu3opH0_9uKc5K3_dKyX2P"
+let key = "YOUR_API_KEY_NEVER_HARDCODE"
 
 // ✓ Good
 let key = ProcessInfo.processInfo.environment["FIREBASE_API_KEY"]
@@ -310,8 +310,8 @@ let key = ProcessInfo.processInfo.environment["FIREBASE_API_KEY"]
 ### 2. Use Environment Variables
 ```bash
 # .env.production (never committed)
-FIREBASE_PRODUCTION_API_KEY=secret-key-here
-AZURE_SUBSCRIPTION_ID=secret-id-here
+FIREBASE_PRODUCTION_API_KEY=YOUR_FIREBASE_KEY_HERE
+AZURE_SUBSCRIPTION_ID=YOUR_AZURE_SUBSCRIPTION_ID_HERE
 ```
 
 ### 3. Use Keychain for Runtime Secrets

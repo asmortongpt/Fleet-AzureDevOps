@@ -12,6 +12,15 @@ COPY . .
 # Compile TypeScript to JavaScript (skip type checking, just transpile)
 RUN npx tsc --noEmitOnError false || echo "TypeScript had errors but compiled anyway"
 
+# Create non-root user
+RUN addgroup -g 1000 appuser && adduser -D -u 1000 -G appuser appuser
+
+# Change ownership of app directory
+RUN chown -R appuser:appuser /app
+
+# Switch to non-root user
+USER appuser
+
 # Expose port
 EXPOSE 3000
 
