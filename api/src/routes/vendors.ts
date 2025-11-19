@@ -5,6 +5,7 @@ import { auditLog } from '../middleware/audit'
 import pool from '../config/database'
 import { z } from 'zod'
 import { buildInsertClause, buildUpdateClause } from '../utils/sql-safety'
+import { createVendorSchema, updateVendorSchema } from '../validation/schemas'
 
 const router = express.Router()
 router.use(authenticateJWT)
@@ -76,12 +77,15 @@ router.post(
   auditLog({ action: 'CREATE', resourceType: 'vendors' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const data = req.body
+      // Validate and filter input data
+      const validatedData = createVendorSchema.parse(req.body)
 
+      // Build INSERT with field whitelisting to prevent mass assignment
       const { columnNames, placeholders, values } = buildInsertClause(
-        data,
+        validatedData,
         ['tenant_id'],
-        1
+        1,
+        'vendors'
       )
 
       const result = await pool.query(
@@ -91,6 +95,9 @@ router.post(
 
       res.status(201).json(result.rows[0])
     } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: 'Validation error', details: error.errors })
+      }
       console.error('Create vendors error:', error)
       res.status(500).json({ error: 'Internal server error' })
     }
@@ -104,8 +111,11 @@ router.put(
   auditLog({ action: 'UPDATE', resourceType: 'vendors' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const data = req.body
-      const { fields, values } = buildUpdateClause(data, 3)
+      // Validate and filter input data
+      const validatedData = updateVendorSchema.parse(req.body)
+
+      // Build UPDATE with field whitelisting to prevent mass assignment
+      const { fields, values } = buildUpdateClause(validatedData, 3, 'vendors')
 
       const result = await pool.query(
         `UPDATE vendors SET ${fields}, updated_at = NOW() WHERE id = $1 AND tenant_id = $2 RETURNING *`,
@@ -118,6 +128,9 @@ router.put(
 
       res.json(result.rows[0])
     } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: 'Validation error', details: error.errors })
+      }
       console.error('Update vendors error:', error)
       res.status(500).json({ error: 'Internal server error' })
     }

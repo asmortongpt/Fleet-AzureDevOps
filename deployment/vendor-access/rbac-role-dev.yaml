@@ -27,10 +27,9 @@ rules:
     resources: ["configmaps"]
     verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
 
-  # Secrets - read-only (cannot create/modify secrets)
-  - apiGroups: [""]
-    resources: ["secrets"]
-    verbs: ["get", "list"]
+  # Secrets - REMOVED for security (vendors should not have access to secrets)
+  # Use sealed secrets or external secrets operator for vendor-facing configurations
+  # For dev environment testing, use non-sensitive test credentials in ConfigMaps
 
   # Ingress - full access
   - apiGroups: ["networking.k8s.io"]

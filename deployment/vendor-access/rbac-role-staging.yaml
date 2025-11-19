@@ -27,10 +27,8 @@ rules:
     resources: ["configmaps"]
     verbs: ["get", "list", "watch"]
 
-  # Secrets - read-only
-  - apiGroups: [""]
-    resources: ["secrets"]
-    verbs: ["get", "list"]
+  # Secrets - REMOVED for security (vendors should not have access to secrets)
+  # Use sealed secrets or external secrets operator for vendor-facing configurations
 
   # Ingress - read-only
   - apiGroups: ["networking.k8s.io"]
