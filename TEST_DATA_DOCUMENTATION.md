@@ -24,11 +24,17 @@ npm run seed:verify
 
 ### Test Credentials
 
-All user accounts use the same password for testing purposes:
+> **⚠️ SECURITY WARNING - FOR DEVELOPMENT/TESTING ONLY**
+>
+> These credentials are for LOCAL DEVELOPMENT and TESTING environments ONLY.
+> - **NEVER** use these passwords in production
+> - **NEVER** commit real credentials to version control
+> - **ALWAYS** use strong, unique passwords in production
+> - **ALWAYS** use Azure Key Vault or similar secret management in production
 
-**Password:** `TestPassword123!`
+**Test Environment Password (Development Only):** `TestPassword123!`
 
-**Admin Accounts:**
+**Admin Test Accounts:**
 - `admin@demo-transport.local` (Demo Transport Company)
 - `admin@fl-logistics.local` (Florida Logistics LLC)
 - `admin@sunshine-fleet.local` (Sunshine Fleet Services)
@@ -38,6 +44,14 @@ All user accounts use the same password for testing purposes:
 - Technicians: `tech1@{domain}`, `tech2@{domain}`
 - Drivers: `driver1@{domain}` through `driver6@{domain}`
 - Viewers: `viewer@{domain}`
+
+> **Production Setup:**
+> For production environments, follow the secure credential management guide:
+> 1. Use Azure AD for authentication (no passwords)
+> 2. Store secrets in Azure Key Vault
+> 3. Use managed identities for service-to-service authentication
+> 4. Enable MFA for all admin accounts
+> 5. Rotate credentials regularly
 
 ## Data Generated
 
@@ -339,16 +353,27 @@ npm run seed
 
 ## Database Connection
 
-The seed script uses these environment variables from `/Users/andrewmorton/Documents/GitHub/Fleet/api/.env`:
+> **⚠️ SECURITY WARNING**
+> The database credentials shown below are EXAMPLE VALUES ONLY.
+> **NEVER** commit real database passwords to documentation or code.
+
+The seed script uses environment variables from your `.env` file:
 
 ```bash
+# Example .env configuration (use your own secure values)
 DB_HOST=fleet-postgres-service
 DB_PORT=5432
 DB_NAME=fleetdb
 DB_USER=fleetadmin
-DB_PASSWORD=FleetAdmin2024!Secure
-DB_SSL=false
+DB_PASSWORD=<YOUR-SECURE-PASSWORD-HERE>  # Use Azure Key Vault in production
+DB_SSL=true  # Always use SSL in production
 ```
+
+**For Production:**
+- Store `DB_PASSWORD` in Azure Key Vault
+- Use managed identities instead of password authentication
+- Enable SSL/TLS for all database connections
+- Restrict network access using Azure Private Link
 
 ### Alternative: Run Against Different Environment
 
@@ -379,11 +404,11 @@ DB_HOST=localhost npm run seed
 
 ### Connection Issues
 ```bash
-# Test database connection
+# Test database connection (password should come from environment variable)
 kubectl exec -n fleet-management deployment/fleet-api -- \
   node -e "const {Pool} = require('pg'); \
   const pool = new Pool({host:'fleet-postgres-service', port:5432, \
-  database:'fleetdb', user:'fleetadmin', password:'FleetAdmin2024!Secure'}); \
+  database:'fleetdb', user:'fleetadmin', password:process.env.DB_PASSWORD}); \
   pool.query('SELECT NOW()').then(r => console.log(r.rows)).catch(console.error);"
 ```
 

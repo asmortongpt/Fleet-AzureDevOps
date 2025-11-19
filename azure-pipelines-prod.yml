@@ -182,16 +182,30 @@ stages:
                 $(VERSION)
                 latest
 
-          # Critical security scan
+          # Critical security scan - FAIL on HIGH/CRITICAL
           - script: |
-              echo "Running critical security scans..."
-              docker run --rm aquasec/trivy image --severity CRITICAL --exit-code 1 \
-                $(REGISTRY)/$(IMAGE_NAME_API):$(VERSION) || echo "⚠️  Critical vulnerabilities found"
+              echo "Running security scans with enforcement..."
+              docker run --rm aquasec/trivy image \
+                --severity HIGH,CRITICAL \
+                --exit-code 1 \
+                --format sarif \
+                --output $(Build.ArtifactStagingDirectory)/trivy-api-results.sarif \
+                $(REGISTRY)/$(IMAGE_NAME_API):$(VERSION)
 
-              docker run --rm aquasec/trivy image --severity CRITICAL --exit-code 1 \
-                $(REGISTRY)/$(IMAGE_NAME_FRONTEND):$(VERSION) || echo "⚠️  Critical vulnerabilities found"
-            displayName: 'Security scan (CRITICAL)'
-            continueOnError: true
+              docker run --rm aquasec/trivy image \
+                --severity HIGH,CRITICAL \
+                --exit-code 1 \
+                --format sarif \
+                --output $(Build.ArtifactStagingDirectory)/trivy-frontend-results.sarif \
+                $(REGISTRY)/$(IMAGE_NAME_FRONTEND):$(VERSION)
+            displayName: 'Security scan - Enforce on HIGH/CRITICAL'
+
+          - task: PublishBuildArtifacts@1
+            condition: always()
+            inputs:
+              PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+              ArtifactName: 'security-scan-results'
+            displayName: 'Upload security scan results'
 
   # ====================================
   # Stage 4: Production Deployment

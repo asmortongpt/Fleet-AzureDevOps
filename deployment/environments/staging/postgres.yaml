@@ -27,7 +27,7 @@ spec:
           image: postgres:15-alpine
           securityContext:
             allowPrivilegeEscalation: false
-            readOnlyRootFilesystem: false
+            readOnlyRootFilesystem: true
             runAsNonRoot: true
             runAsUser: 999
             capabilities:
@@ -60,6 +60,10 @@ spec:
             - name: postgres-config
               mountPath: /etc/postgresql/postgresql.conf
               subPath: postgresql.conf
+            - name: tmp
+              mountPath: /tmp
+            - name: run
+              mountPath: /var/run/postgresql
           resources:
             requests:
               memory: "256Mi"
@@ -89,6 +93,10 @@ spec:
         - name: postgres-config
           configMap:
             name: postgres-config
+        - name: tmp
+          emptyDir: {}
+        - name: run
+          emptyDir: {}
   volumeClaimTemplates:
     - metadata:
         name: postgres-storage

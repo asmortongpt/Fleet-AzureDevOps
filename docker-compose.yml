@@ -5,11 +5,12 @@ services:
     image: postgres:15-alpine
     container_name: fleet-postgres
     environment:
-      POSTGRES_DB: fleetdb
-      POSTGRES_USER: fleetadmin
-      POSTGRES_PASSWORD: FleetAdmin2024!Secure
+      POSTGRES_DB: ${POSTGRES_DB:-fleetdb}
+      POSTGRES_USER: ${POSTGRES_USER:-fleetadmin}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
-      - "5432:5432"
+      # Bind to localhost only for security
+      - "127.0.0.1:5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./api/src/migrations:/docker-entrypoint-initdb.d
@@ -20,13 +21,28 @@ services:
       retries: 5
     networks:
       - fleet-network
+    # Security hardening
+    security_opt:
+      - no-new-privileges:true
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    # Run as non-root user (postgres user is 999 in alpine image)
+    user: "999:999"
 
   redis:
     image: redis:7-alpine
     container_name: fleet-redis
     command: redis-server --appendonly yes
     ports:
-      - "6379:6379"
+      # Bind to localhost only for security
+      - "127.0.0.1:6379:6379"
     volumes:
       - redis_data:/data
     healthcheck:
@@ -36,12 +52,27 @@ services:
       retries: 5
     networks:
       - fleet-network
+    # Security hardening
+    security_opt:
+      - no-new-privileges:true
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+    # Run as non-root user (redis user is 999 in alpine image)
+    user: "999:999"
 
   adminer:
     image: adminer:latest
     container_name: fleet-adminer
     ports:
-      - "8080:8080"
+      # Bind to localhost only for security
+      - "127.0.0.1:8080:8080"
     environment:
       ADMINER_DEFAULT_SERVER: postgres
       ADMINER_DESIGN: nette
@@ -49,6 +80,22 @@ services:
       - postgres
     networks:
       - fleet-network
+    # Security hardening
+    security_opt:
+      - no-new-privileges:true
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+        reservations:
+          cpus: '0.1'
+          memory: 64M
+    # Read-only root filesystem (adminer needs /tmp writable)
+    read_only: true
+    tmpfs:
+      - /tmp
 
 volumes:
   postgres_data:
