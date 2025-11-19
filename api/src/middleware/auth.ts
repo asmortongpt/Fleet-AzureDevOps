@@ -16,26 +16,10 @@ export const authenticateJWT = async (
   res: Response,
   next: NextFunction
 ) => {
-  // If req.user already exists (set by global middleware), skip JWT validation
+  // If req.user already exists (set by development-only global middleware with strict
+  // environment validation), skip JWT validation
   if (req.user) {
-    console.log('✅ AUTH MIDDLEWARE - User already authenticated via global middleware')
-    return next()
-  }
-
-  // DEBUG: Log environment variable value
-  console.log('🔍 AUTH MIDDLEWARE - USE_MOCK_DATA:', process.env.USE_MOCK_DATA)
-  console.log('🔍 AUTH MIDDLEWARE - USE_MOCK_DATA type:', typeof process.env.USE_MOCK_DATA)
-
-  // If USE_MOCK_DATA is enabled, bypass authentication for dev/staging
-  if (process.env.USE_MOCK_DATA === 'true') {
-    console.log('✅ AUTH MIDDLEWARE - BYPASSING AUTHENTICATION for mock data mode')
-    // Create a mock user for database queries that require tenant_id
-    req.user = {
-      id: '1',
-      email: 'demo@fleet.local',
-      role: 'admin',
-      tenant_id: '1'
-    }
+    console.log('✅ AUTH MIDDLEWARE - User already authenticated via development mode')
     return next()
   }
 
@@ -47,17 +31,24 @@ export const authenticateJWT = async (
     return res.status(401).json({ error: 'Authentication required' })
   }
 
-  // SECURITY: JWT_SECRET must be set in environment variables
+  // SECURITY: JWT_SECRET must be set in environment variables and be at least 32 characters
   if (!process.env.JWT_SECRET) {
     console.error('FATAL: JWT_SECRET environment variable is not set')
+    return res.status(500).json({ error: 'Server configuration error' })
+  }
+
+  if (process.env.JWT_SECRET.length < 32) {
+    console.error('FATAL: JWT_SECRET must be at least 32 characters')
     return res.status(500).json({ error: 'Server configuration error' })
   }
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET) as any
     req.user = decoded
+    console.log('✅ AUTH MIDDLEWARE - JWT token validated successfully')
     next()
   } catch (error) {
+    console.log('❌ AUTH MIDDLEWARE - Invalid or expired token')
     return res.status(403).json({ error: 'Invalid or expired token' })
   }
 }
@@ -68,17 +59,22 @@ export const authorize = (...roles: string[]) => {
       return res.status(401).json({ error: 'Authentication required' })
     }
 
-    // TEMPORARY FIX: Allow all authenticated users for GET requests (read-only)
-    // This enables the frontend to load data while we update role assignments
-    if (req.method === 'GET') {
-      console.log('✅ AUTHORIZE - Allowing GET request for authenticated user:', req.user.role)
-      return next()
-    }
-
-    // For non-GET requests (POST, PUT, DELETE), enforce role-based access
+    // SECURITY FIX: Enforce RBAC for ALL HTTP methods (CWE-862)
+    // Previously, GET requests bypassed authorization checks, allowing any authenticated
+    // user to read sensitive data regardless of their role/permissions.
+    //
+    // This violated the principle of least privilege and could expose:
+    // - Confidential fleet data
+    // - Personal driver information
+    // - Financial records
+    // - Maintenance schedules
+    // - Location data
+    //
+    // Now ALL requests (including GET) must have the proper role authorization
     if (!roles.includes(req.user.role)) {
       console.log('❌ AUTHORIZE - Permission denied:', {
         method: req.method,
+        path: req.path,
         required: roles,
         current: req.user.role
       })
@@ -88,6 +84,12 @@ export const authorize = (...roles: string[]) => {
         current: req.user.role
       })
     }
+
+    console.log('✅ AUTHORIZE - Access granted:', {
+      method: req.method,
+      path: req.path,
+      role: req.user.role
+    })
 
     next()
   }
