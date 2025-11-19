@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react"
+import { useMemo, useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -11,6 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { MetricCard } from "@/components/MetricCard"
 import { AddVehicleDialog } from "@/components/dialogs/AddVehicleDialog"
 import { UniversalMap } from "@/components/UniversalMap"
+import { AssetTypeFilter, FilterState as AssetFilterState } from "@/components/filters/AssetTypeFilter"
 import {
   Car,
   Pulse,
@@ -25,8 +26,8 @@ import {
   X
 } from "@phosphor-icons/react"
 import { Vehicle } from "@/lib/types"
-import { useState } from "react"
 import { useFleetData } from "@/hooks/use-fleet-data"
+import apiClient from "@/lib/api-client"
 
 interface FleetDashboardProps {
   data: ReturnType<typeof useFleetData>
@@ -65,10 +66,80 @@ export function FleetDashboard({ data }: FleetDashboardProps) {
   const [statusFilter, setStatusFilter] = useState<string>("all")
   const [searchQuery, setSearchQuery] = useState<string>("")
 
+  // Asset Type Filters state
+  const [assetFilters, setAssetFilters] = useState<AssetFilterState>({})
+  const [showAssetFilters, setShowAssetFilters] = useState(false)
+
   // Advanced filters state
   const [isAdvancedFiltersOpen, setIsAdvancedFiltersOpen] = useState(false)
   const [filterCriteria, setFilterCriteria] = useState<AdvancedFilterCriteria>(defaultFilterCriteria)
   const [appliedFilters, setAppliedFilters] = useState<AdvancedFilterCriteria>(defaultFilterCriteria)
+
+  // Sync asset filters with URL parameters
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const newFilters: AssetFilterState = {}
+
+    if (params.get('asset_category')) newFilters.asset_category = params.get('asset_category') as any
+    if (params.get('asset_type')) newFilters.asset_type = params.get('asset_type') as any
+    if (params.get('power_type')) newFilters.power_type = params.get('power_type') as any
+    if (params.get('operational_status')) newFilters.operational_status = params.get('operational_status') as any
+    if (params.get('primary_metric')) newFilters.primary_metric = params.get('primary_metric') as any
+    if (params.get('is_road_legal')) newFilters.is_road_legal = params.get('is_road_legal') === 'true'
+
+    if (Object.keys(newFilters).length > 0) {
+      setAssetFilters(newFilters)
+      setShowAssetFilters(true)
+    }
+  }, [])
+
+  // Update URL parameters when asset filters change
+  const handleAssetFilterChange = (newFilters: AssetFilterState) => {
+    setAssetFilters(newFilters)
+
+    // Update URL parameters
+    const params = new URLSearchParams()
+    Object.entries(newFilters).forEach(([key, value]) => {
+      if (value !== undefined) {
+        params.set(key, String(value))
+      }
+    })
+
+    const newUrl = params.toString()
+      ? `${window.location.pathname}?${params.toString()}`
+      : window.location.pathname
+    window.history.replaceState({}, '', newUrl)
+
+    // In a real implementation, you would fetch vehicles from API here:
+    // fetchVehiclesWithFilters(newFilters)
+  }
+
+  const handleClearAssetFilters = () => {
+    setAssetFilters({})
+    window.history.replaceState({}, '', window.location.pathname)
+    // In a real implementation, you would fetch all vehicles:
+    // fetchVehiclesWithFilters({})
+  }
+
+  // Function to fetch vehicles from API with filters (for future use)
+  const fetchVehiclesWithFilters = async (filters: AssetFilterState) => {
+    try {
+      const params: any = {}
+      if (filters.asset_category) params.asset_category = filters.asset_category
+      if (filters.asset_type) params.asset_type = filters.asset_type
+      if (filters.power_type) params.power_type = filters.power_type
+      if (filters.operational_status) params.operational_status = filters.operational_status
+      if (filters.primary_metric) params.primary_metric = filters.primary_metric
+      if (filters.is_road_legal !== undefined) params.is_road_legal = filters.is_road_legal
+
+      // Uncomment when API is ready:
+      // const response = await apiClient.vehicles.list(params)
+      // Update vehicles state with response
+      console.log('Fetching vehicles with filters:', params)
+    } catch (error) {
+      console.error('Error fetching vehicles:', error)
+    }
+  }
 
   const filteredVehicles = useMemo(() => {
     return vehicles.filter(v => {
@@ -80,6 +151,20 @@ export function FleetDashboard({ data }: FleetDashboardProps) {
         v.number.toLowerCase().includes(searchQuery.toLowerCase()) ||
         v.make.toLowerCase().includes(searchQuery.toLowerCase()) ||
         v.model.toLowerCase().includes(searchQuery.toLowerCase())
+
+      // Asset type filters
+      const matchesAssetCategory = !assetFilters.asset_category ||
+        (v as any).asset_category === assetFilters.asset_category
+      const matchesAssetType = !assetFilters.asset_type ||
+        (v as any).asset_type === assetFilters.asset_type
+      const matchesPowerType = !assetFilters.power_type ||
+        (v as any).power_type === assetFilters.power_type
+      const matchesOperationalStatus = !assetFilters.operational_status ||
+        (v as any).operational_status === assetFilters.operational_status
+      const matchesPrimaryMetric = !assetFilters.primary_metric ||
+        (v as any).primary_metric === assetFilters.primary_metric
+      const matchesRoadLegal = assetFilters.is_road_legal === undefined ||
+        (v as any).is_road_legal === assetFilters.is_road_legal
 
       // Advanced filters
       const matchesAdvancedStatus = appliedFilters.vehicleStatus.length === 0 ||
@@ -135,12 +220,14 @@ export function FleetDashboard({ data }: FleetDashboardProps) {
       })()
 
       return matchesType && matchesRegion && matchesStatus && matchesSearch &&
+        matchesAssetCategory && matchesAssetType && matchesPowerType &&
+        matchesOperationalStatus && matchesPrimaryMetric && matchesRoadLegal &&
         matchesAdvancedStatus && matchesDepartment && matchesAdvancedRegion &&
         matchesFuelLevel && matchesMileage && matchesAlertStatus &&
         matchesDriverAssignment && matchesAdvancedVehicleType &&
         matchesYearRange && matchesLastMaintenance
     })
-  }, [vehicles, vehicleTypeFilter, regionFilter, statusFilter, searchQuery, appliedFilters])
+  }, [vehicles, vehicleTypeFilter, regionFilter, statusFilter, searchQuery, assetFilters, appliedFilters])
 
   const metrics = useMemo(() => {
     const total = filteredVehicles.length
@@ -239,6 +326,20 @@ export function FleetDashboard({ data }: FleetDashboardProps) {
             <Button
               variant="outline"
               size="sm"
+              onClick={() => setShowAssetFilters(!showAssetFilters)}
+              className={Object.keys(assetFilters).length > 0 ? "border-primary" : ""}
+            >
+              <FunnelSimple className="w-4 h-4 mr-2" />
+              Asset Filters
+              {Object.keys(assetFilters).length > 0 && (
+                <Badge variant="secondary" className="ml-2 h-5 px-1.5">
+                  {Object.keys(assetFilters).length}
+                </Badge>
+              )}
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
               onClick={() => setIsAdvancedFiltersOpen(true)}
               className={hasActiveFilters ? "border-primary" : ""}
             >
@@ -252,6 +353,17 @@ export function FleetDashboard({ data }: FleetDashboardProps) {
             </Button>
           </div>
         </div>
+
+        {/* Asset Type Filter Component */}
+        {showAssetFilters && (
+          <div className="mb-4">
+            <AssetTypeFilter
+              onFilterChange={handleAssetFilterChange}
+              onClear={handleClearAssetFilters}
+              activeFilters={assetFilters}
+            />
+          </div>
+        )}
 
         <div className="flex flex-wrap gap-3">
           <div className="relative flex-1 min-w-[200px]">

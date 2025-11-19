@@ -6,6 +6,7 @@ import { applyFieldMasking } from '../utils/fieldMasking'
 import pool from '../config/database'
 import { z } from 'zod'
 import { buildInsertClause, buildUpdateClause } from '../utils/sql-safety'
+import { createVehicleSchema, updateVehicleSchema } from '../validation/schemas'
 
 const router = express.Router()
 router.use(authenticateJWT)
@@ -178,35 +179,28 @@ router.post(
   auditLog({ action: 'CREATE', resourceType: 'vehicles' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const data = req.body
+      // Validate and filter input data
+      const validatedData = createVehicleSchema.parse(req.body)
 
-      // VIN validation: Must be exactly 17 alphanumeric characters
-      if (data.vin) {
-        const vinRegex = /^[A-HJ-NPR-Z0-9]{17}$/i
-        if (!vinRegex.test(data.vin)) {
-          return res.status(400).json({
-            error: 'Invalid VIN: Must be exactly 17 alphanumeric characters (excluding I, O, Q)'
-          })
-        }
+      // Check for duplicate VIN
+      const vinCheck = await pool.query(
+        'SELECT id FROM vehicles WHERE vin = $1 AND tenant_id = $2',
+        [validatedData.vin.toUpperCase(), req.user!.tenant_id]
+      )
 
-        // Check for duplicate VIN
-        const vinCheck = await pool.query(
-          'SELECT id FROM vehicles WHERE vin = $1 AND tenant_id = $2',
-          [data.vin.toUpperCase(), req.user!.tenant_id]
-        )
-
-        if (vinCheck.rows.length > 0) {
-          return res.status(409).json({ error: 'VIN already exists in the system' })
-        }
-
-        // Normalize VIN to uppercase
-        data.vin = data.vin.toUpperCase()
+      if (vinCheck.rows.length > 0) {
+        return res.status(409).json({ error: 'VIN already exists in the system' })
       }
 
+      // Normalize VIN to uppercase
+      validatedData.vin = validatedData.vin.toUpperCase()
+
+      // Build INSERT with field whitelisting to prevent mass assignment
       const { columnNames, placeholders, values } = buildInsertClause(
-        data,
+        validatedData,
         ['tenant_id'],
-        1
+        1,
+        'vehicles'
       )
 
       const result = await pool.query(
@@ -216,6 +210,9 @@ router.post(
 
       res.status(201).json(result.rows[0])
     } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: 'Validation error', details: error.errors })
+      }
       console.error('Create vehicles error:', error)
       res.status(500).json({ error: 'Internal server error' })
     }
@@ -229,8 +226,11 @@ router.put(
   auditLog({ action: 'UPDATE', resourceType: 'vehicles' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const data = req.body
-      const { fields, values } = buildUpdateClause(data, 3)
+      // Validate and filter input data
+      const validatedData = updateVehicleSchema.parse(req.body)
+
+      // Build UPDATE with field whitelisting to prevent mass assignment
+      const { fields, values } = buildUpdateClause(validatedData, 3, 'vehicles')
 
       const result = await pool.query(
         `UPDATE vehicles SET ${fields}, updated_at = NOW() WHERE id = $1 AND tenant_id = $2 RETURNING *`,
@@ -243,6 +243,9 @@ router.put(
 
       res.json(result.rows[0])
     } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: 'Validation error', details: error.errors })
+      }
       console.error('Update vehicles error:', error)
       res.status(500).json({ error: 'Internal server error' })
     }
