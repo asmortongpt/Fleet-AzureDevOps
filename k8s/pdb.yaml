@@ -1,0 +1,92 @@
+# Pod Disruption Budgets for High Availability
+# Ensures minimum number of pods are always available during voluntary disruptions
+
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: fleet-api-pdb
+  namespace: ctafleet
+  labels:
+    app: fleet
+    component: api
+spec:
+  minAvailable: 2
+  selector:
+    matchLabels:
+      app: fleet
+      component: api
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: fleet-frontend-pdb
+  namespace: ctafleet
+  labels:
+    app: fleet
+    component: frontend
+spec:
+  minAvailable: 2
+  selector:
+    matchLabels:
+      app: fleet
+      component: frontend
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: postgres-pdb
+  namespace: ctafleet
+  labels:
+    app: fleet
+    component: postgres
+spec:
+  maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: fleet
+      component: postgres
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: redis-pdb
+  namespace: ctafleet
+  labels:
+    app: fleet
+    component: redis
+spec:
+  maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: fleet
+      component: redis
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: test-orchestrator-pdb
+  namespace: ctafleet
+  labels:
+    app: fleet
+    component: test-orchestrator
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: fleet
+      component: test-orchestrator
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: rag-indexer-pdb
+  namespace: ctafleet
+  labels:
+    app: fleet
+    component: rag-indexer
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: fleet
+      component: rag-indexer
