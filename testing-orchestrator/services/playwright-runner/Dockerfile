@@ -12,6 +12,13 @@ COPY app.py .
 
 # Playwright browsers are already installed in the base image
 
+# Create non-root user for security
+RUN groupadd -r playwright && useradd -r -g playwright -u 1001 playwright \
+    && chown -R playwright:playwright /app
+
+# Switch to non-root user
+USER playwright
+
 # Expose port
 EXPOSE 8002
 

@@ -6,10 +6,7 @@ import { applyFieldMasking } from '../utils/fieldMasking'
 import pool from '../config/database'
 import { z } from 'zod'
 import { buildInsertClause, buildUpdateClause } from '../utils/sql-safety'
-import { Driver, SqlParams, QueryResult } from '../types'
-import { ApiResponse } from '../utils/apiResponse'
-import { validate } from '../middleware/validation'
-import { getPaginationParams, createPaginatedResponse } from '../utils/pagination'
+import { createUserSchema, updateUserSchema } from '../validation/schemas'
 
 const router = express.Router()
 router.use(authenticateJWT)
@@ -22,7 +19,8 @@ router.get(
   auditLog({ action: 'READ', resourceType: 'users' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const paginationParams = getPaginationParams(req)
+      const { page = 1, limit = 50 } = req.query
+      const offset = (Number(page) - 1) * Number(limit)
 
       // Get user scope for row-level filtering
       const userResult = await pool.query(
@@ -32,7 +30,7 @@ router.get(
 
       const user = userResult.rows[0]
       let scopeFilter = ''
-      let scopeParams: SqlParams = [req.user!.tenant_id]
+      let scopeParams: any[] = [req.user!.tenant_id]
 
       if (user.scope_level === 'own' && user.driver_id) {
         // Drivers only see themselves
@@ -46,12 +44,8 @@ router.get(
       // fleet/global scope sees all
 
       const result = await pool.query(
-        `SELECT id, tenant_id, email, first_name, last_name, phone, role,
-                driver_id, scope_level, is_active, license_number, license_expiry,
-                certification_status, certification_type, certification_expiry,
-                created_at, updated_at
-         FROM users WHERE tenant_id = $1 ${scopeFilter} ORDER BY created_at DESC LIMIT $2 OFFSET $3`,
-        [...scopeParams, paginationParams.limit, paginationParams.offset]
+        `SELECT * FROM users WHERE tenant_id = $1 ${scopeFilter} ORDER BY created_at DESC LIMIT $2 OFFSET $3`,
+        [...scopeParams, limit, offset]
       )
 
       const countResult = await pool.query(
@@ -59,16 +53,18 @@ router.get(
         scopeParams
       )
 
-      const paginatedResponse = createPaginatedResponse(
-        result.rows,
-        parseInt(countResult.rows[0].count),
-        paginationParams
-      )
-
-      return ApiResponse.success(res, paginatedResponse, 'Drivers retrieved successfully')
+      res.json({
+        data: result.rows,
+        pagination: {
+          page: Number(page),
+          limit: Number(limit),
+          total: parseInt(countResult.rows[0].count),
+          pages: Math.ceil(countResult.rows[0].count / Number(limit))
+        }
+      })
     } catch (error) {
       console.error('Get drivers error:', error)
-      return ApiResponse.serverError(res, 'Failed to retrieve drivers')
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )
@@ -79,20 +75,15 @@ router.get(
   requirePermission('driver:view:own'),
   applyFieldMasking('driver'),
   auditLog({ action: 'READ', resourceType: 'users' }),
-  validate([{ field: 'id', required: true, type: 'uuid' }], 'params'),
   async (req: AuthRequest, res: Response) => {
     try {
       const result = await pool.query(
-        `SELECT id, tenant_id, email, first_name, last_name, phone, role,
-                driver_id, scope_level, is_active, license_number, license_expiry,
-                license_state, certification_status, certification_type,
-                certification_expiry, created_at, updated_at
-         FROM users WHERE id = $1 AND tenant_id = $2`,
+        'SELECT * FROM users WHERE id = $1 AND tenant_id = $2',
         [req.params.id, req.user!.tenant_id]
       )
 
       if (result.rows.length === 0) {
-        return ApiResponse.notFound(res, 'Driver')
+        return res.status(404).json({ error: 'Drivers not found' })
       }
 
       // IDOR protection: Check if user has access to this driver
@@ -104,17 +95,17 @@ router.get(
       const driverId = req.params.id
 
       if (user.scope_level === 'own' && user.driver_id !== driverId) {
-        return ApiResponse.forbidden(res, 'Access denied: You can only view your own driver record')
+        return res.status(403).json({ error: 'Access denied: You can only view your own driver record' })
       } else if (user.scope_level === 'team' && user.team_driver_ids) {
         if (!user.team_driver_ids.includes(driverId)) {
-          return ApiResponse.forbidden(res, 'Access denied: Driver not in your team')
+          return res.status(403).json({ error: 'Access denied: Driver not in your team' })
         }
       }
 
-      return ApiResponse.success(res, result.rows[0], 'Driver retrieved successfully')
+      res.json(result.rows[0])
     } catch (error) {
       console.error('Get drivers error:', error)
-      return ApiResponse.serverError(res, 'Failed to retrieve driver')
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )
@@ -124,21 +115,18 @@ router.post(
   '/',
   requirePermission('driver:create:global'),
   auditLog({ action: 'CREATE', resourceType: 'users' }),
-  validate([
-    { field: 'email', required: true, type: 'email' },
-    { field: 'first_name', required: true, minLength: 1, maxLength: 100 },
-    { field: 'last_name', required: true, minLength: 1, maxLength: 100 },
-    { field: 'phone', required: false, type: 'phone' },
-    { field: 'license_number', required: false, minLength: 5, maxLength: 50 }
-  ]),
   async (req: AuthRequest, res: Response) => {
     try {
-      const data = req.body
+      // Validate and filter input data
+      // CRITICAL: Uses 'users' whitelist to prevent setting role, is_admin, etc.
+      const validatedData = createUserSchema.parse(req.body)
 
+      // Build INSERT with field whitelisting to prevent privilege escalation
       const { columnNames, placeholders, values } = buildInsertClause(
-        data,
+        validatedData,
         ['tenant_id'],
-        1
+        1,
+        'users'
       )
 
       const result = await pool.query(
@@ -146,10 +134,13 @@ router.post(
         [req.user!.tenant_id, ...values]
       )
 
-      return ApiResponse.success(res, result.rows[0], 'Driver created successfully', 201)
+      res.status(201).json(result.rows[0])
     } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: 'Validation error', details: error.errors })
+      }
       console.error('Create drivers error:', error)
-      return ApiResponse.serverError(res, 'Failed to create driver')
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )
@@ -159,11 +150,14 @@ router.put(
   '/:id',
   requirePermission('driver:update:global'),
   auditLog({ action: 'UPDATE', resourceType: 'users' }),
-  validate([{ field: 'id', required: true, type: 'uuid' }], 'params'),
   async (req: AuthRequest, res: Response) => {
     try {
-      const data = req.body
-      const { fields, values } = buildUpdateClause(data, 3)
+      // Validate and filter input data
+      // CRITICAL: Uses 'users' whitelist to prevent setting role, is_admin, etc.
+      const validatedData = updateUserSchema.parse(req.body)
+
+      // Build UPDATE with field whitelisting to prevent privilege escalation
+      const { fields, values } = buildUpdateClause(validatedData, 3, 'users')
 
       const result = await pool.query(
         `UPDATE users SET ${fields}, updated_at = NOW() WHERE id = $1 AND tenant_id = $2 RETURNING *`,
@@ -171,13 +165,16 @@ router.put(
       )
 
       if (result.rows.length === 0) {
-        return ApiResponse.notFound(res, 'Driver')
+        return res.status(404).json({ error: 'Drivers not found' })
       }
 
-      return ApiResponse.success(res, result.rows[0], 'Driver updated successfully')
+      res.json(result.rows[0])
     } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: 'Validation error', details: error.errors })
+      }
       console.error('Update drivers error:', error)
-      return ApiResponse.serverError(res, 'Failed to update driver')
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )
@@ -187,20 +184,15 @@ router.put(
   '/:id/certify',
   requirePermission('driver:certify:global'),
   auditLog({ action: 'CERTIFY', resourceType: 'users' }),
-  validate([
-    { field: 'id', required: true, type: 'uuid' },
-  ], 'params'),
-  validate([
-    { field: 'certification_type', required: true, minLength: 1 },
-    { field: 'expiry_date', required: true, type: 'date' }
-  ]),
   async (req: AuthRequest, res: Response) => {
     try {
       const { certification_type, expiry_date } = req.body
 
       // Prevent self-certification (SoD)
       if (req.params.id === req.user!.id) {
-        return ApiResponse.forbidden(res, 'Separation of Duties violation: You cannot certify yourself')
+        return res.status(403).json({
+          error: 'Separation of Duties violation: You cannot certify yourself'
+        })
       }
 
       const result = await pool.query(
@@ -217,13 +209,13 @@ router.put(
       )
 
       if (result.rows.length === 0) {
-        return ApiResponse.notFound(res, 'Driver')
+        return res.status(404).json({ error: 'Driver not found' })
       }
 
-      return ApiResponse.success(res, result.rows[0], 'Driver certified successfully')
+      res.json(result.rows[0])
     } catch (error) {
       console.error('Certify driver error:', error)
-      return ApiResponse.serverError(res, 'Failed to certify driver')
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )
@@ -233,7 +225,6 @@ router.delete(
   '/:id',
   requirePermission('driver:delete:global'),
   auditLog({ action: 'DELETE', resourceType: 'users' }),
-  validate([{ field: 'id', required: true, type: 'uuid' }], 'params'),
   async (req: AuthRequest, res: Response) => {
     try {
       const result = await pool.query(
@@ -242,13 +233,13 @@ router.delete(
       )
 
       if (result.rows.length === 0) {
-        return ApiResponse.notFound(res, 'Driver')
+        return res.status(404).json({ error: 'Drivers not found' })
       }
 
-      return ApiResponse.success(res, { id: result.rows[0].id }, 'Driver deleted successfully')
+      res.json({ message: 'Drivers deleted successfully' })
     } catch (error) {
       console.error('Delete drivers error:', error)
-      return ApiResponse.serverError(res, 'Failed to delete driver')
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )

@@ -162,7 +162,7 @@ export function Login() {
 
           <div className="text-center text-sm text-muted-foreground">
             <p>
-              Demo credentials: <code className="bg-muted px-1 rounded">admin@demofleet.com</code> / <code className="bg-muted px-1 rounded">Demo@123</code>
+              Need help? Contact your system administrator for credentials.
             </p>
           </div>
         </CardContent>
