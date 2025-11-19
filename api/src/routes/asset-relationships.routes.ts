@@ -116,9 +116,46 @@ router.get(
 
 /**
  * @openapi
- * /api/asset-relationships/active:
+ * /api/asset-relationships/active-combos:
  *   get:
  *     summary: Get active asset combinations
+ *     tags: [Asset Relationships]
+ *     description: Returns currently active parent-child asset relationships (tractor-trailer combos, equipment attachments, etc.)
+ *     responses:
+ *       200:
+ *         description: List of active asset combinations
+ */
+router.get(
+  '/active-combos',
+  requirePermission('vehicle:view:fleet'),
+  auditLog({ action: 'READ', resourceType: 'asset_relationships' }),
+  async (req: AuthRequest, res) => {
+    try {
+      const result = await pool.query(
+        `SELECT vw.*
+         FROM vw_active_asset_combos vw
+         JOIN vehicles v ON vw.parent_id = v.id
+         WHERE v.tenant_id = $1
+         ORDER BY vw.parent_make, vw.parent_model`,
+        [req.user!.tenant_id]
+      )
+
+      res.json({
+        combinations: result.rows,
+        total: result.rows.length
+      })
+    } catch (error) {
+      console.error('Error fetching active combinations:', error)
+      res.status(500).json({ error: 'Failed to fetch active combinations' })
+    }
+  }
+)
+
+/**
+ * @openapi
+ * /api/asset-relationships/active:
+ *   get:
+ *     summary: Get active asset combinations (alias for /active-combos)
  *     tags: [Asset Relationships]
  *     description: Returns currently active parent-child asset relationships
  *     responses:
@@ -132,7 +169,11 @@ router.get(
   async (req: AuthRequest, res) => {
     try {
       const result = await pool.query(
-        `SELECT * FROM vw_active_asset_combos WHERE tenant_id = $1 ORDER BY parent_asset_name`,
+        `SELECT vw.*
+         FROM vw_active_asset_combos vw
+         JOIN vehicles v ON vw.parent_id = v.id
+         WHERE v.tenant_id = $1
+         ORDER BY vw.parent_make, vw.parent_model`,
         [req.user!.tenant_id]
       )
 
