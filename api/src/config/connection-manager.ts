@@ -362,13 +362,20 @@ export class ConnectionManager {
 export const connectionManager = new ConnectionManager()
 
 // Initialize on module load (async)
-// Note: You may want to call this explicitly in your app startup
+// Note: You should call this explicitly in your app startup
 export async function initializeConnectionManager(): Promise<void> {
   await connectionManager.initialize()
   connectionManager.setupGracefulShutdown()
 }
 
-// Export default pool for backward compatibility
-export const pool = connectionManager.getPool(PoolType.WEBAPP)
+/**
+ * Get the default pool for backward compatibility
+ * This is a function to avoid calling getPool() during module initialization
+ *
+ * DEPRECATED: Use connectionManager.getWritePool() for new code
+ */
+export function getDefaultPool(): Pool {
+  return connectionManager.getPool(PoolType.WEBAPP)
+}
 
 export default connectionManager
