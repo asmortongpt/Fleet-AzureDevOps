@@ -52,17 +52,17 @@ stages:
     - script: |
         cd api
         npm install
-        npm run build || true
-      displayName: 'Build API (allow TypeScript warnings)'
-    
-    - script: |
-        cd api
-        npm test || true
-      displayName: 'Run API Tests (non-blocking)'
+        npm run build
+      displayName: 'Build API'
 
     - script: |
         cd api
-        npm run test:coverage || true
+        npm test
+      displayName: 'Run API Tests'
+
+    - script: |
+        cd api
+        npm run test:coverage
       displayName: 'Run API Tests with Coverage'
 
     - task: PublishTestResults@2
@@ -193,15 +193,41 @@ stages:
               arguments: 'status deployment/fleet-api --timeout=180s'
           
           - task: AzureCLI@2
-            displayName: 'Run Database Migrations'
+            displayName: 'Run Database Migrations via Kubernetes Job'
             inputs:
               azureSubscription: '$(azureSubscription)'
               scriptType: 'bash'
               scriptLocation: 'inlineScript'
               inlineScript: |
-                echo "Running database migrations..."
-                kubectl exec -n $(aksNamespace) \
-                  deployment/fleet-api -- npm run migrate || echo "Migration skipped"
+                echo "Applying migration job manifest..."
+                kubectl apply -f k8s/production-migration-job.yaml
+
+                # Delete any existing migration job
+                kubectl delete job production-database-migration -n $(aksNamespace) --ignore-not-found=true
+
+                # Create the migration job
+                kubectl create job production-database-migration \
+                  --from=cronjob/production-database-migration \
+                  -n $(aksNamespace) || \
+                kubectl apply -f k8s/production-migration-job.yaml
+
+                echo "Waiting for migration job to complete..."
+                kubectl wait --for=condition=complete --timeout=600s \
+                  job/production-database-migration -n $(aksNamespace)
+
+                # Get migration logs
+                echo "Migration logs:"
+                kubectl logs -n $(aksNamespace) \
+                  job/production-database-migration
+
+                # Check job status
+                JOB_STATUS=$(kubectl get job production-database-migration -n $(aksNamespace) -o jsonpath='{.status.succeeded}')
+                if [ "$JOB_STATUS" = "1" ]; then
+                  echo "✓ Database migration completed successfully"
+                else
+                  echo "❌ Database migration failed"
+                  exit 1
+                fi
 
           - script: |
               cd api

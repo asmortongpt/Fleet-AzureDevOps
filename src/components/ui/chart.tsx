@@ -67,6 +67,64 @@ function ChartContainer({
   )
 }
 
+/**
+ * Validates and sanitizes a CSS color value to prevent XSS attacks
+ * Only allows valid CSS color formats: hex, rgb/rgba, hsl/hsla, and named colors
+ *
+ * @param color - The color value to validate
+ * @returns Sanitized color value or null if invalid
+ */
+function sanitizeColor(color: string | undefined): string | null {
+  if (!color || typeof color !== 'string') {
+    return null
+  }
+
+  // Remove any whitespace
+  const trimmed = color.trim()
+
+  // Validate hex colors: #RGB, #RRGGBB, #RGBA, #RRGGBBAA
+  const hexRegex = /^#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{4}|[0-9A-Fa-f]{8})$/
+  if (hexRegex.test(trimmed)) {
+    return trimmed
+  }
+
+  // Validate rgb/rgba: rgb(r, g, b) or rgba(r, g, b, a)
+  const rgbRegex = /^rgba?\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*(?:,\s*([0-9.]+)\s*)?\)$/
+  const rgbMatch = trimmed.match(rgbRegex)
+  if (rgbMatch) {
+    const [, r, g, b, a] = rgbMatch
+    // Validate ranges
+    if (parseInt(r) <= 255 && parseInt(g) <= 255 && parseInt(b) <= 255 && (!a || parseFloat(a) <= 1)) {
+      return trimmed
+    }
+  }
+
+  // Validate hsl/hsla: hsl(h, s%, l%) or hsla(h, s%, l%, a)
+  const hslRegex = /^hsla?\(\s*(\d{1,3})\s*,\s*(\d{1,3})%\s*,\s*(\d{1,3})%\s*(?:,\s*([0-9.]+)\s*)?\)$/
+  const hslMatch = trimmed.match(hslRegex)
+  if (hslMatch) {
+    const [, h, s, l, a] = hslMatch
+    // Validate ranges
+    if (parseInt(h) <= 360 && parseInt(s) <= 100 && parseInt(l) <= 100 && (!a || parseFloat(a) <= 1)) {
+      return trimmed
+    }
+  }
+
+  // Validate CSS named colors (common ones)
+  const namedColors = [
+    'black', 'white', 'red', 'green', 'blue', 'yellow', 'orange', 'purple', 'pink',
+    'gray', 'grey', 'brown', 'cyan', 'magenta', 'lime', 'navy', 'teal', 'olive',
+    'maroon', 'aqua', 'fuchsia', 'silver', 'transparent', 'currentColor'
+  ]
+  if (namedColors.includes(trimmed.toLowerCase())) {
+    return trimmed.toLowerCase()
+  }
+
+  // If none of the above, reject the color
+  console.warn(`Invalid color value rejected: ${color}`)
+  return null
+}
+
 const ChartStyle = ({ id, config }: { id: string; config: ChartConfig }) => {
   const colorConfig = Object.entries(config).filter(
     ([, config]) => config.theme || config.color
@@ -88,7 +146,9 @@ ${colorConfig
     const color =
       itemConfig.theme?.[theme as keyof typeof itemConfig.theme] ||
       itemConfig.color
-    return color ? `  --color-${key}: ${color};` : null
+    // Sanitize color value to prevent XSS
+    const sanitizedColor = sanitizeColor(color)
+    return sanitizedColor ? `  --color-${key}: ${sanitizedColor};` : null
   })
   .join("\n")}
 }

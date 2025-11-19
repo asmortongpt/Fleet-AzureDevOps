@@ -6,6 +6,7 @@ import { applyFieldMasking } from '../utils/fieldMasking'
 import pool from '../config/database'
 import { z } from 'zod'
 import { buildInsertClause, buildUpdateClause } from '../utils/sql-safety'
+import { createUserSchema, updateUserSchema } from '../validation/schemas'
 
 const router = express.Router()
 router.use(authenticateJWT)
@@ -116,25 +117,16 @@ router.post(
   auditLog({ action: 'CREATE', resourceType: 'users' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const data = req.body
+      // Validate and filter input data
+      // CRITICAL: Uses 'users' whitelist to prevent setting role, is_admin, etc.
+      const validatedData = createUserSchema.parse(req.body)
 
-      // Input validation: Ensure required fields are present
-      if (!data.email || !data.first_name || !data.last_name) {
-        return res.status(400).json({
-          error: 'Validation failed: email, first_name, and last_name are required'
-        })
-      }
-
-      // Validate email format
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-      if (!emailRegex.test(data.email)) {
-        return res.status(400).json({ error: 'Invalid email format' })
-      }
-
+      // Build INSERT with field whitelisting to prevent privilege escalation
       const { columnNames, placeholders, values } = buildInsertClause(
-        data,
+        validatedData,
         ['tenant_id'],
-        1
+        1,
+        'users'
       )
 
       const result = await pool.query(
@@ -144,6 +136,9 @@ router.post(
 
       res.status(201).json(result.rows[0])
     } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: 'Validation error', details: error.errors })
+      }
       console.error('Create drivers error:', error)
       res.status(500).json({ error: 'Internal server error' })
     }
@@ -157,8 +152,12 @@ router.put(
   auditLog({ action: 'UPDATE', resourceType: 'users' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const data = req.body
-      const { fields, values } = buildUpdateClause(data, 3)
+      // Validate and filter input data
+      // CRITICAL: Uses 'users' whitelist to prevent setting role, is_admin, etc.
+      const validatedData = updateUserSchema.parse(req.body)
+
+      // Build UPDATE with field whitelisting to prevent privilege escalation
+      const { fields, values } = buildUpdateClause(validatedData, 3, 'users')
 
       const result = await pool.query(
         `UPDATE users SET ${fields}, updated_at = NOW() WHERE id = $1 AND tenant_id = $2 RETURNING *`,
@@ -171,6 +170,9 @@ router.put(
 
       res.json(result.rows[0])
     } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: 'Validation error', details: error.errors })
+      }
       console.error('Update drivers error:', error)
       res.status(500).json({ error: 'Internal server error' })
     }

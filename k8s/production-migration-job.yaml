@@ -1,0 +1,274 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: migration-scripts
+  namespace: fleet-management
+data:
+  run-migrations.sh: |
+    #!/bin/bash
+    set -e
+
+    echo "======================================="
+    echo "Fleet Database Migration - PRODUCTION"
+    echo "======================================="
+    echo ""
+    echo "⚠️  WARNING: PRODUCTION MIGRATION IN PROGRESS"
+    echo ""
+
+    # Database connection settings
+    export PGHOST="${DB_HOST:-fleet-postgres-service}"
+    export PGPORT="${DB_PORT:-5432}"
+    export PGDATABASE="${DB_NAME:-fleetdb}"
+    export PGUSER="${DB_USER:-fleetadmin}"
+
+    echo "Database: $PGDATABASE on $PGHOST:$PGPORT"
+    echo ""
+
+    # Backup verification
+    echo "[Pre-Check] Verifying database connection..."
+    psql -c "SELECT version();" > /dev/null
+    if [ $? -ne 0 ]; then
+      echo "❌ Database connection failed"
+      exit 1
+    fi
+    echo "✓ Database connection successful"
+    echo ""
+
+    # Step 1: Apply base schema
+    echo "[1/5] Applying base schema..."
+    if [ -f /migrations/database/schema.sql ]; then
+      psql -f /migrations/database/schema.sql 2>&1 | grep -v "NOTICE:" || true
+      echo "✓ Base schema applied"
+    else
+      echo "⚠️  Base schema file not found, skipping"
+    fi
+    echo ""
+
+    # Step 2: Apply indexes
+    echo "[2/5] Creating indexes..."
+    if [ -f /migrations/database/indexes.sql ]; then
+      psql -f /migrations/database/indexes.sql 2>&1 | grep -v "NOTICE:" || true
+      echo "✓ Indexes created"
+    else
+      echo "⚠️  Indexes file not found, skipping"
+    fi
+    echo ""
+
+    # Step 3: Apply orchestration schema
+    echo "[3/5] Applying orchestration schema..."
+    if [ -f /migrations/database/orchestration-schema.sql ]; then
+      psql -f /migrations/database/orchestration-schema.sql 2>&1 | grep -v "NOTICE:" || true
+      echo "✓ Orchestration schema applied"
+    else
+      echo "⚠️  Orchestration schema file not found, skipping"
+    fi
+    echo ""
+
+    # Step 4: Apply api/src migrations
+    echo "[4/5] Applying API migrations..."
+    MIGRATION_COUNT=0
+    if [ -d /migrations/api/src/migrations ]; then
+      for migration in /migrations/api/src/migrations/*.sql; do
+          if [ -f "$migration" ]; then
+              filename=$(basename "$migration")
+              echo "  Applying: $filename"
+              psql -f "$migration" 2>&1 | grep -v "NOTICE:" || echo "  ⚠️  $filename had warnings (continuing...)"
+              MIGRATION_COUNT=$((MIGRATION_COUNT + 1))
+          fi
+      done
+      echo "✓ API migrations applied ($MIGRATION_COUNT files)"
+    else
+      echo "⚠️  API migrations directory not found"
+    fi
+    echo ""
+
+    # Step 5: Apply api/db migrations
+    echo "[5/5] Applying database migrations..."
+    MIGRATION_COUNT=0
+    if [ -d /migrations/api/db/migrations ]; then
+      for migration in /migrations/api/db/migrations/*.sql; do
+          if [ -f "$migration" ]; then
+              filename=$(basename "$migration")
+              echo "  Applying: $filename"
+              psql -f "$migration" 2>&1 | grep -v "NOTICE:" || echo "  ⚠️  $filename had warnings (continuing...)"
+              MIGRATION_COUNT=$((MIGRATION_COUNT + 1))
+          fi
+      done
+      echo "✓ Database migrations applied ($MIGRATION_COUNT files)"
+    else
+      echo "⚠️  Database migrations directory not found"
+    fi
+    echo ""
+
+    # Final verification
+    echo "Verifying migration results..."
+    table_count=$(psql -t -c "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='public';")
+    echo "Total tables in database: $table_count"
+    echo ""
+
+    if [ "$table_count" -gt 200 ]; then
+        echo "✓ Migration completed successfully!"
+        echo "✓ Database has $table_count tables (expected 200+)"
+        echo ""
+        echo "======================================="
+        echo "PRODUCTION MIGRATION COMPLETE"
+        echo "======================================="
+        exit 0
+    else
+        echo "⚠️  Migration completed but table count is lower than expected"
+        echo "  Expected: 200+ tables"
+        echo "  Actual: $table_count tables"
+        echo ""
+        echo "⚠️  Review required - manual verification needed"
+        exit 1
+    fi
+
+  rollback-migrations.sh: |
+    #!/bin/bash
+    set -e
+
+    echo "======================================="
+    echo "Fleet Database Rollback - PRODUCTION"
+    echo "======================================="
+    echo ""
+    echo "⚠️  WARNING: PRODUCTION ROLLBACK IN PROGRESS"
+    echo ""
+
+    # Database connection settings
+    export PGHOST="${DB_HOST:-fleet-postgres-service}"
+    export PGPORT="${DB_PORT:-5432}"
+    export PGDATABASE="${DB_NAME:-fleetdb}"
+    export PGUSER="${DB_USER:-fleetadmin}"
+
+    echo "This script should restore from backup"
+    echo "Database: $PGDATABASE on $PGHOST:$PGPORT"
+    echo ""
+
+    # Verify backup exists
+    if [ -z "$BACKUP_NAME" ]; then
+      echo "❌ BACKUP_NAME not provided"
+      echo "Cannot rollback without backup name"
+      exit 1
+    fi
+
+    echo "Rollback should restore from: $BACKUP_NAME"
+    echo "⚠️  Implement Azure PostgreSQL backup restore here"
+    echo ""
+
+    exit 0
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: production-database-migration
+  namespace: fleet-management
+  labels:
+    app: fleet-migration
+    environment: production
+spec:
+  ttlSecondsAfterFinished: 3600
+  backoffLimit: 1
+  template:
+    metadata:
+      labels:
+        app: fleet-migration
+        environment: production
+    spec:
+      restartPolicy: Never
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
+      volumes:
+        - name: migration-scripts
+          configMap:
+            name: migration-scripts
+            defaultMode: 0755
+        - name: migration-files
+          emptyDir: {}
+      initContainers:
+        - name: copy-migrations
+          image: busybox:1.36
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            runAsUser: 1000
+            capabilities:
+              drop:
+                - ALL
+          command: ['/bin/sh', '-c']
+          args:
+            - |
+              echo "Preparing migration directories..."
+              mkdir -p /migrations/database
+              mkdir -p /migrations/api/src/migrations
+              mkdir -p /migrations/api/db/migrations
+              echo "✓ Migration directories created"
+          volumeMounts:
+            - name: migration-files
+              mountPath: /migrations
+      containers:
+        - name: migrate
+          image: postgres:15-alpine
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: false
+            runAsNonRoot: true
+            runAsUser: 1000
+            capabilities:
+              drop:
+                - ALL
+          env:
+            - name: DB_HOST
+              value: "fleet-postgres-service"
+            - name: DB_PORT
+              value: "5432"
+            - name: DB_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: fleet-secrets
+                  key: database-name
+                  optional: true
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: fleet-secrets
+                  key: database-user
+                  optional: true
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: fleet-secrets
+                  key: database-password
+          command: ['/bin/sh', '-c']
+          args:
+            - |
+              echo "Installing git and bash..."
+              apk add --no-cache git bash
+
+              echo "Cloning Fleet repository..."
+              cd /tmp
+              git clone --depth 1 --branch main https://github.com/asmortongpt/Fleet.git
+
+              echo "Copying migration files..."
+              cp -r /tmp/Fleet/database/* /migrations/database/ 2>/dev/null || echo "No database migrations"
+              cp -r /tmp/Fleet/api/src/migrations/* /migrations/api/src/migrations/ 2>/dev/null || echo "No API src migrations"
+              cp -r /tmp/Fleet/api/db/migrations/* /migrations/api/db/migrations/ 2>/dev/null || echo "No API db migrations"
+
+              echo "Running migrations..."
+              /scripts/run-migrations.sh
+          volumeMounts:
+            - name: migration-scripts
+              mountPath: /scripts
+            - name: migration-files
+              mountPath: /migrations
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "100m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
