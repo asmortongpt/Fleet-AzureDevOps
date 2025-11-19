@@ -1,6 +1,6 @@
 import express, { Response } from 'express'
 import { AuthRequest, authenticateJWT } from '../middleware/auth'
-import { requirePermission } from '../middleware/permissions'
+import { requirePermission, validateScope } from '../middleware/permissions'
 import { auditLog } from '../middleware/audit'
 import { applyFieldMasking } from '../utils/fieldMasking'
 import pool from '../config/database'
@@ -110,6 +110,7 @@ router.get(
 router.get(
   '/:id',
   requirePermission('work_order:view:own'),
+  validateScope('work_order'), // BOLA protection: validate user has access based on scope (own/team/fleet)
   applyFieldMasking('work_order'),
   auditLog({ action: 'READ', resourceType: 'work_orders' }),
   async (req: AuthRequest, res: Response) => {

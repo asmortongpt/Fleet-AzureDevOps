@@ -20,6 +20,13 @@ RUN python -c "import tree_sitter_python; import tree_sitter_typescript"
 # Copy application code
 COPY app.py .
 
+# Create non-root user for security
+RUN groupadd -r ragindexer && useradd -r -g ragindexer -u 1001 ragindexer \
+    && chown -R ragindexer:ragindexer /app
+
+# Switch to non-root user
+USER ragindexer
+
 # Expose port
 EXPOSE 8000
 

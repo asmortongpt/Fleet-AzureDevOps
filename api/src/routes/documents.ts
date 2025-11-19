@@ -1,25 +1,19 @@
 import express, { Response } from 'express'
 import { AuthRequest, authenticateJWT } from '../middleware/auth'
-import { requirePermission } from '../middleware/permissions'
+import { requirePermission, validateScope } from '../middleware/permissions'
 import { auditLog } from '../middleware/audit'
 import pool from '../config/database'
 import { z } from 'zod'
 import multer from 'multer'
 import path from 'path'
+import fs from 'fs/promises'
+import { fileUploadLimiter } from '../config/rate-limiters'
+import { secureFileValidation } from '../utils/file-validation'
 
 const router = express.Router()
 router.use(authenticateJWT)
 
-// Configure multer for file uploads
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, process.env.UPLOAD_DIR || '/tmp/uploads')
-  },
-  filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9)
-    cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname))
-  }
-})
+// Configure multer for file uploads - using memory storage for security validation// Files are validated before being written to diskconst upload = multer({  storage: multer.memoryStorage(), // Store in memory for validation before disk write  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit (reduced from 50MB)  fileFilter: (req, file, cb) => {    // Basic check - actual validation happens after upload using magic bytes    // This is just to reject obviously wrong content types early    if (file.mimetype.startsWith('image/') ||        file.mimetype.startsWith('application/pdf') ||        file.mimetype.includes('document') ||        file.mimetype.includes('sheet')) {      cb(null, true)    } else {      cb(new Error('File type not allowed'))    }  }})
 
 const upload = multer({
   storage,
@@ -142,19 +136,29 @@ router.get(
 router.get(
   '/:id',
   requirePermission('document:view:fleet'),
+  validateScope('document'), // BOLA protection: validate user has access to this document
   auditLog({ action: 'READ', resourceType: 'documents' }),
   async (req: AuthRequest, res: Response) => {
     try {
+      // First check tenant isolation and get uploader info
       const result = await pool.query(
         `SELECT d.*,
-                uploader.first_name || ' ' || uploader.last_name as uploaded_by_name
+                uploader.first_name || ' ' || uploader.last_name as uploaded_by_name,
+                uploader.tenant_id as uploader_tenant_id
          FROM documents d
-         LEFT JOIN drivers uploader ON d.uploaded_by = uploader.id
+         LEFT JOIN users uploader ON d.uploaded_by = uploader.id
          WHERE d.id = $1`,
         [req.params.id]
       )
 
       if (result.rows.length === 0) {
+        return res.status(404).json({ error: 'Document not found' })
+      }
+
+      // CRITICAL: Enforce tenant isolation
+      // Documents must belong to users in the same tenant
+      const document = result.rows[0]
+      if (document.uploader_tenant_id && document.uploader_tenant_id !== req.user!.tenant_id) {
         return res.status(404).json({ error: 'Document not found' })
       }
 
@@ -176,8 +180,11 @@ router.get(
         [req.params.id]
       )
 
+      // Remove tenant_id from response to avoid information disclosure
+      delete document.uploader_tenant_id
+
       res.json({
-        ...result.rows[0],
+        ...document,
         camera_metadata: cameraResult.rows[0] || null,
         ocr_data: ocrResult.rows[0] || null,
         receipt_items: receiptResult.rows || []
@@ -192,6 +199,7 @@ router.get(
 // POST /documents/upload
 router.post(
   '/upload',
+  fileUploadLimiter, // Rate limit: 5 uploads per minute
   requirePermission('document:create:fleet'),
   upload.single('file'),
   auditLog({ action: 'CREATE', resourceType: 'documents' }),
@@ -199,6 +207,24 @@ router.post(
     try {
       if (!req.file) {
         return res.status(400).json({ error: 'No file uploaded' })
+      }
+
+      // SECURITY: Validate file content using magic bytes (not just MIME type)
+      const validation = await secureFileValidation(req.file.buffer, req.file.originalname)
+      
+      if (!validation.valid) {
+        return res.status(400).json({
+          error: 'File validation failed',
+          message: validation.error
+        })
+      }
+
+      // Virus scan check
+      if (validation.virusScanResult && !validation.virusScanResult.clean) {
+        return res.status(400).json({
+          error: 'File failed security scan',
+          message: validation.virusScanResult.threat
+        })
       }
 
       const {
@@ -209,6 +235,18 @@ router.post(
         related_entity_id,
         tags = []
       } = req.body
+
+      // Create upload directory if it doesn't exist
+      const uploadDir = process.env.UPLOAD_DIR || '/tmp/uploads'
+      try {
+        await fs.mkdir(uploadDir, { recursive: true })
+      } catch (err) {
+        console.error('Failed to create upload directory:', err)
+      }
+
+      // Write validated file to disk with secure filename
+      const secureFilePath = path.join(uploadDir, validation.secureFilename!)
+      await fs.writeFile(secureFilePath, req.file.buffer)
 
       // Insert document record
       const result = await pool.query(
@@ -222,15 +260,15 @@ router.post(
         [
           document_type,
           category,
-          req.file.filename,
+          validation.secureFilename,
           req.file.originalname,
           req.file.size,
-          req.file.mimetype,
-          req.file.path,
+          validation.mimeType,
+          secureFilePath,
           description,
           related_entity_type,
           related_entity_id ? parseInt(related_entity_id) : null,
-          JSON.parse(tags),
+          Array.isArray(tags) ? tags : JSON.parse(tags || '[]'),
           req.user!.id
         ]
       )
@@ -249,6 +287,7 @@ router.post(
 // POST /documents/camera-capture
 router.post(
   '/camera-capture',
+  fileUploadLimiter, // Rate limit: 5 uploads per minute
   requirePermission('document:create:fleet'),
   upload.single('photo'),
   auditLog({ action: 'CREATE', resourceType: 'documents' }),
@@ -256,6 +295,24 @@ router.post(
     try {
       if (!req.file) {
         return res.status(400).json({ error: 'No photo uploaded' })
+      }
+
+      // SECURITY: Validate file content using magic bytes (not just MIME type)
+      const validation = await secureFileValidation(req.file.buffer, req.file.originalname)
+      
+      if (!validation.valid) {
+        return res.status(400).json({
+          error: 'File validation failed',
+          message: validation.error
+        })
+      }
+
+      // Virus scan check
+      if (validation.virusScanResult && !validation.virusScanResult.clean) {
+        return res.status(400).json({
+          error: 'File failed security scan',
+          message: validation.virusScanResult.threat
+        })
       }
 
       const {
@@ -277,6 +334,18 @@ router.post(
         auto_rotate_applied = false
       } = req.body
 
+      // Create upload directory if it doesn't exist
+      const uploadDir = process.env.UPLOAD_DIR || '/tmp/uploads'
+      try {
+        await fs.mkdir(uploadDir, { recursive: true })
+      } catch (err) {
+        console.error('Failed to create upload directory:', err)
+      }
+
+      // Write validated file to disk with secure filename
+      const secureFilePath = path.join(uploadDir, validation.secureFilename!)
+      await fs.writeFile(secureFilePath, req.file.buffer)
+
       // Insert document
       const docResult = await pool.query(
         `INSERT INTO documents (
@@ -289,11 +358,11 @@ router.post(
         [
           document_type,
           category,
-          req.file.filename,
+          validation.secureFilename,
           req.file.originalname,
           req.file.size,
-          req.file.mimetype,
-          req.file.path,
+          validation.mimeType,
+          secureFilePath,
           description,
           related_entity_type,
           related_entity_id ? parseInt(related_entity_id) : null,
@@ -340,10 +409,29 @@ router.post(
 router.put(
   '/:id',
   requirePermission('document:update:fleet'),
+  validateScope('document'), // BOLA protection: validate user has access to this document
   auditLog({ action: 'UPDATE', resourceType: 'documents' }),
   async (req: AuthRequest, res: Response) => {
     try {
       const { description, category, tags, related_entity_type, related_entity_id } = req.body
+
+      // First verify tenant isolation before update
+      const checkResult = await pool.query(
+        `SELECT d.id, uploader.tenant_id as uploader_tenant_id
+         FROM documents d
+         LEFT JOIN users uploader ON d.uploaded_by = uploader.id
+         WHERE d.id = $1`,
+        [req.params.id]
+      )
+
+      if (checkResult.rows.length === 0) {
+        return res.status(404).json({ error: 'Document not found' })
+      }
+
+      // CRITICAL: Enforce tenant isolation
+      if (checkResult.rows[0].uploader_tenant_id && checkResult.rows[0].uploader_tenant_id !== req.user!.tenant_id) {
+        return res.status(404).json({ error: 'Document not found' })
+      }
 
       const result = await pool.query(
         `UPDATE documents
@@ -357,10 +445,6 @@ router.put(
         [req.params.id, description, category, tags, related_entity_type, related_entity_id]
       )
 
-      if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'Document not found' })
-      }
-
       res.json(result.rows[0])
     } catch (error) {
       console.error('Update document error:', error)
@@ -373,17 +457,32 @@ router.put(
 router.delete(
   '/:id',
   requirePermission('document:delete:fleet'),
+  validateScope('document'), // BOLA protection: validate user has access to this document
   auditLog({ action: 'DELETE', resourceType: 'documents' }),
   async (req: AuthRequest, res: Response) => {
     try {
+      // First verify tenant isolation before delete
+      const checkResult = await pool.query(
+        `SELECT d.id, uploader.tenant_id as uploader_tenant_id
+         FROM documents d
+         LEFT JOIN users uploader ON d.uploaded_by = uploader.id
+         WHERE d.id = $1`,
+        [req.params.id]
+      )
+
+      if (checkResult.rows.length === 0) {
+        return res.status(404).json({ error: 'Document not found' })
+      }
+
+      // CRITICAL: Enforce tenant isolation
+      if (checkResult.rows[0].uploader_tenant_id && checkResult.rows[0].uploader_tenant_id !== req.user!.tenant_id) {
+        return res.status(404).json({ error: 'Document not found' })
+      }
+
       const result = await pool.query(
         `DELETE FROM documents WHERE id = $1 RETURNING id`,
         [req.params.id]
       )
-
-      if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'Document not found' })
-      }
 
       // TODO: Delete physical file from storage
 
@@ -403,12 +502,16 @@ router.delete(
 router.post(
   '/:id/ocr',
   requirePermission('document:create:fleet'),
+  validateScope('document'), // BOLA protection: validate user has access to this document
   auditLog({ action: 'CREATE', resourceType: 'ocr_processing' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      // Get document
+      // Get document and verify tenant isolation
       const docResult = await pool.query(
-        `SELECT * FROM documents WHERE id = $1`,
+        `SELECT d.*, uploader.tenant_id as uploader_tenant_id
+         FROM documents d
+         LEFT JOIN users uploader ON d.uploaded_by = uploader.id
+         WHERE d.id = $1`,
         [req.params.id]
       )
 
@@ -416,7 +519,11 @@ router.post(
         return res.status(404).json({ error: 'Document not found' })
       }
 
+      // CRITICAL: Enforce tenant isolation
       const document = docResult.rows[0]
+      if (document.uploader_tenant_id && document.uploader_tenant_id !== req.user!.tenant_id) {
+        return res.status(404).json({ error: 'Document not found' })
+      }
 
       // TODO: Call actual OCR service (Azure Computer Vision, Google Cloud Vision, AWS Textract, etc.)
       // For now, create a placeholder OCR log entry
@@ -447,15 +554,25 @@ router.post(
 router.post(
   '/:id/parse-receipt',
   requirePermission('document:create:fleet'),
+  validateScope('document'), // BOLA protection: validate user has access to this document
   auditLog({ action: 'CREATE', resourceType: 'receipt_parsing' }),
   async (req: AuthRequest, res: Response) => {
     try {
       const docResult = await pool.query(
-        `SELECT * FROM documents WHERE id = $1`,
+        `SELECT d.*, uploader.tenant_id as uploader_tenant_id
+         FROM documents d
+         LEFT JOIN users uploader ON d.uploaded_by = uploader.id
+         WHERE d.id = $1`,
         [req.params.id]
       )
 
       if (docResult.rows.length === 0) {
+        return res.status(404).json({ error: 'Document not found' })
+      }
+
+      // CRITICAL: Enforce tenant isolation
+      const document = docResult.rows[0]
+      if (document.uploader_tenant_id && document.uploader_tenant_id !== req.user!.tenant_id) {
         return res.status(404).json({ error: 'Document not found' })
       }
 
@@ -476,6 +593,7 @@ router.post(
 router.put(
   '/:id/receipt-items',
   requirePermission('document:update:fleet'),
+  validateScope('document'), // BOLA protection: validate user has access to this document
   auditLog({ action: 'UPDATE', resourceType: 'receipt_line_items' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -483,6 +601,24 @@ router.put(
 
       if (!Array.isArray(line_items)) {
         return res.status(400).json({ error: 'line_items must be an array' })
+      }
+
+      // First verify tenant isolation
+      const docResult = await pool.query(
+        `SELECT d.id, uploader.tenant_id as uploader_tenant_id
+         FROM documents d
+         LEFT JOIN users uploader ON d.uploaded_by = uploader.id
+         WHERE d.id = $1`,
+        [req.params.id]
+      )
+
+      if (docResult.rows.length === 0) {
+        return res.status(404).json({ error: 'Document not found' })
+      }
+
+      // CRITICAL: Enforce tenant isolation
+      if (docResult.rows[0].uploader_tenant_id && docResult.rows[0].uploader_tenant_id !== req.user!.tenant_id) {
+        return res.status(404).json({ error: 'Document not found' })
       }
 
       // Delete existing line items

@@ -5,8 +5,29 @@ import { MobileDamageService, MobilePhotoData, LiDARScanData, VideoAnalysisData 
 import { OpenAIVisionService } from '../services/openaiVisionService';
 import { pool } from '../config/database';
 import { logger } from '../config/logger';
+import { aiProcessingLimiter } from '../config/rate-limiters'
+import { validateFileContent, validateFileSize } from '../utils/file-validation'
+import { authenticateJWT, AuthRequest } from '../middleware/auth';
+import { requirePermission } from '../middleware/permissions';
+import { rateLimit } from '../middleware/rateLimit';
 
 const router = express.Router();
+
+/**
+ * Validate that a vehicle belongs to the user's tenant
+ */
+async function validateVehicleTenant(vehicleId: string, tenantId: string): Promise<boolean> {
+  try {
+    const result = await pool.query(
+      'SELECT id FROM vehicles WHERE id = $1 AND tenant_id = $2',
+      [vehicleId, tenantId]
+    );
+    return result.rows.length > 0;
+  } catch (error) {
+    logger.error('Error validating vehicle tenant', { error, vehicleId, tenantId });
+    return false;
+  }
+}
 
 // Lazy initialization of services to avoid startup errors when OpenAI API key is not configured
 let mobileDamageService: MobileDamageService | null = null;
@@ -30,7 +51,7 @@ function getVisionService(): OpenAIVisionService {
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: {
-    fileSize: 50 * 1024 * 1024, // 50MB max file size
+    fileSize: 50 * 1024 * 1024, // 50MB for videos, validated per file type // 50MB max file size
   },
   fileFilter: (req, file, cb) => {
     // Accept images and videos
@@ -45,17 +66,43 @@ const upload = multer({
 /**
  * POST /api/damage/analyze-photo
  * Analyze single photo for damage detection
+ * Requires: Authentication, damage:analyze permission, rate limiting
  */
-router.post('/analyze-photo', upload.single('photo'), async (req: Request, res: Response) => {
+router.post(
+  '/analyze-photo',
+  authenticateJWT,
+  requirePermission('damage:analyze'),
+  rateLimit(20, 60000), // 20 requests per minute
+  upload.single('photo'),
+  async (req: AuthRequest, res: Response) => {
   try {
     if (!req.file) {
       return res.status(400).json({ error: 'No photo file provided' });
     }
 
+    // SECURITY: Validate file content and size
+    const contentValidation = await validateFileContent(req.file.buffer);
+    if (!contentValidation.valid) {
+      return res.status(400).json({
+        error: 'File validation failed',
+        message: contentValidation.error
+      });
+    }
+
+    // Validate file size for images (10MB limit for damage analysis photos)
+    const sizeValidation = validateFileSize(req.file.buffer, contentValidation.mimeType!);
+    if (!sizeValidation.valid) {
+      return res.status(400).json({
+        error: 'File size validation failed',
+        message: sizeValidation.error
+      });
+    }
+
     logger.info('Analyzing photo for damage', {
       filename: req.file.originalname,
       size: req.file.size,
-      mimetype: req.file.mimetype
+      mimetype: contentValidation.mimeType,
+      validatedType: contentValidation.extension
     });
 
     // Convert buffer to base64 data URL
@@ -103,8 +150,15 @@ router.post('/analyze-photo', upload.single('photo'), async (req: Request, res: 
 /**
  * POST /api/damage/analyze-lidar
  * Analyze LiDAR scan data with reference photos
+ * Requires: Authentication, damage:analyze permission, rate limiting
  */
-router.post('/analyze-lidar', upload.array('photos', 10), async (req: Request, res: Response) => {
+router.post(
+  '/analyze-lidar',
+  authenticateJWT,
+  requirePermission('damage:analyze'),
+  rateLimit(10, 60000), // 10 requests per minute (more intensive)
+  upload.array('photos', 10),
+  async (req: AuthRequest, res: Response) => {
   try {
     if (!req.files || req.files.length === 0) {
       return res.status(400).json({ error: 'No photo files provided' });
@@ -165,8 +219,15 @@ router.post('/analyze-lidar', upload.array('photos', 10), async (req: Request, r
 /**
  * POST /api/damage/analyze-video
  * Analyze video walkthrough for damage detection
+ * Requires: Authentication, damage:analyze permission, strict rate limiting
  */
-router.post('/analyze-video', upload.single('video'), async (req: Request, res: Response) => {
+router.post(
+  '/analyze-video',
+  authenticateJWT,
+  requirePermission('damage:analyze'),
+  rateLimit(5, 60000), // 5 requests per minute (very intensive)
+  upload.single('video'),
+  async (req: AuthRequest, res: Response) => {
   try {
     if (!req.file) {
       return res.status(400).json({ error: 'No video file provided' });
@@ -219,8 +280,15 @@ router.post('/analyze-video', upload.single('video'), async (req: Request, res: 
 /**
  * POST /api/damage/comprehensive-analysis
  * Comprehensive analysis using all available mobile capabilities
+ * Requires: Authentication, damage:analyze permission, strict rate limiting
  */
-router.post('/comprehensive-analysis', upload.array('photos', 20), async (req: Request, res: Response) => {
+router.post(
+  '/comprehensive-analysis',
+  authenticateJWT,
+  requirePermission('damage:analyze'),
+  rateLimit(5, 60000), // 5 requests per minute (very intensive)
+  upload.array('photos', 20),
+  async (req: AuthRequest, res: Response) => {
   try {
     if (!req.files || req.files.length === 0) {
       return res.status(400).json({ error: 'At least one photo is required' });
@@ -309,181 +377,242 @@ router.post('/comprehensive-analysis', upload.array('photos', 20), async (req: R
 /**
  * POST /api/damage/save
  * Save confirmed damage to database
+ * Requires: Authentication, damage:create permission, tenant validation
  */
-router.post('/save', async (req: Request, res: Response) => {
-  try {
-    const { vehicleId, damages, photoUrls, analysisMetadata } = req.body;
-
-    if (!vehicleId || !damages || damages.length === 0) {
-      return res.status(400).json({ error: 'vehicleId and damages are required' });
-    }
-
-    logger.info('Saving damage records', {
-      vehicleId,
-      damageCount: damages.length
-    });
-
-    const client = await pool.connect();
+router.post(
+  '/save',
+  authenticateJWT,
+  requirePermission('damage:create'),
+  async (req: AuthRequest, res: Response) => {
     try {
-      await client.query('BEGIN');
+      const { vehicleId, damages, photoUrls, analysisMetadata } = req.body;
 
-      const insertedIds: string[] = [];
-
-      for (const damage of damages) {
-        const result = await client.query(
-          `INSERT INTO vehicle_damage (
-            vehicle_id,
-            position_x, position_y, position_z,
-            normal_x, normal_y, normal_z,
-            severity,
-            damage_type,
-            part_name,
-            description,
-            photo_urls,
-            cost_estimate,
-            repair_status,
-            reported_at
-          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, NOW())
-          RETURNING id`,
-          [
-            vehicleId,
-            damage.position?.x || 0,
-            damage.position?.y || 0,
-            damage.position?.z || 0,
-            damage.normal?.x || 0,
-            damage.normal?.y || 1,
-            damage.normal?.z || 0,
-            damage.severity,
-            damage.type,
-            damage.part,
-            damage.description,
-            photoUrls || [],
-            damage.costEstimate || 0,
-            'pending'
-          ]
-        );
-
-        insertedIds.push(result.rows[0].id);
+      if (!vehicleId || !damages || damages.length === 0) {
+        return res.status(400).json({ error: 'vehicleId and damages are required' });
       }
 
-      await client.query('COMMIT');
+      // Validate vehicle belongs to user's tenant
+      const hasAccess = await validateVehicleTenant(vehicleId, req.user!.tenant_id);
+      if (!hasAccess) {
+        logger.warn('Unauthorized vehicle access attempt', {
+          vehicleId,
+          userId: req.user!.id,
+          tenantId: req.user!.tenant_id
+        });
+        return res.status(403).json({ error: 'Access denied: Vehicle not found or not accessible' });
+      }
 
-      logger.info('Damage records saved successfully', {
+      logger.info('Saving damage records', {
         vehicleId,
-        insertedCount: insertedIds.length
+        damageCount: damages.length,
+        userId: req.user!.id,
+        tenantId: req.user!.tenant_id
       });
 
-      res.json({
-        success: true,
-        damageIds: insertedIds,
-        message: `${insertedIds.length} damage records saved successfully`
-      });
+      const client = await pool.connect();
+      try {
+        await client.query('BEGIN');
+
+        const insertedIds: string[] = [];
+
+        for (const damage of damages) {
+          const result = await client.query(
+            `INSERT INTO vehicle_damage (
+              vehicle_id,
+              position_x, position_y, position_z,
+              normal_x, normal_y, normal_z,
+              severity,
+              damage_type,
+              part_name,
+              description,
+              photo_urls,
+              cost_estimate,
+              repair_status,
+              reported_at
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, NOW())
+            RETURNING id`,
+            [
+              vehicleId,
+              damage.position?.x || 0,
+              damage.position?.y || 0,
+              damage.position?.z || 0,
+              damage.normal?.x || 0,
+              damage.normal?.y || 1,
+              damage.normal?.z || 0,
+              damage.severity,
+              damage.type,
+              damage.part,
+              damage.description,
+              photoUrls || [],
+              damage.costEstimate || 0,
+              'pending'
+            ]
+          );
+
+          insertedIds.push(result.rows[0].id);
+        }
+
+        await client.query('COMMIT');
+
+        logger.info('Damage records saved successfully', {
+          vehicleId,
+          insertedCount: insertedIds.length
+        });
+
+        res.json({
+          success: true,
+          damageIds: insertedIds,
+          message: `${insertedIds.length} damage records saved successfully`
+        });
+      } catch (error) {
+        await client.query('ROLLBACK');
+        throw error;
+      } finally {
+        client.release();
+      }
     } catch (error) {
-      await client.query('ROLLBACK');
-      throw error;
-    } finally {
-      client.release();
+      logger.error('Error saving damage records', { error });
+      res.status(500).json({
+        error: 'Failed to save damage records',
+        message: error instanceof Error ? error.message : 'Unknown error'
+      });
     }
-  } catch (error) {
-    logger.error('Error saving damage records', { error });
-    res.status(500).json({
-      error: 'Failed to save damage records',
-      message: error instanceof Error ? error.message : 'Unknown error'
-    });
   }
-});
+);
 
 /**
  * GET /api/damage/:vehicleId
  * Get all damage records for a vehicle
+ * Requires: Authentication, damage:read permission, tenant validation
  */
-router.get('/:vehicleId', async (req: Request, res: Response) => {
-  try {
-    const { vehicleId } = req.params;
+router.get(
+  '/:vehicleId',
+  authenticateJWT,
+  requirePermission('damage:read'),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const { vehicleId } = req.params;
 
-    logger.info('Fetching damage records', { vehicleId });
+      // Validate vehicle belongs to user's tenant
+      const hasAccess = await validateVehicleTenant(vehicleId, req.user!.tenant_id);
+      if (!hasAccess) {
+        logger.warn('Unauthorized vehicle access attempt', {
+          vehicleId,
+          userId: req.user!.id,
+          tenantId: req.user!.tenant_id
+        });
+        return res.status(403).json({ error: 'Access denied: Vehicle not found or not accessible' });
+      }
 
-    const result = await pool.query(
-      `SELECT
-        id,
-        vehicle_id,
-        position_x, position_y, position_z,
-        normal_x, normal_y, normal_z,
-        severity,
-        damage_type,
-        part_name,
-        description,
-        photo_urls,
-        cost_estimate,
-        actual_repair_cost,
-        repair_status,
-        repair_scheduled_date,
-        repair_completed_date,
-        reported_at,
-        updated_at
-      FROM vehicle_damage
-      WHERE vehicle_id = $1 AND deleted_at IS NULL
-      ORDER BY reported_at DESC`,
-      [vehicleId]
-    );
+      logger.info('Fetching damage records', {
+        vehicleId,
+        userId: req.user!.id,
+        tenantId: req.user!.tenant_id
+      });
 
-    res.json({
-      success: true,
-      damages: result.rows
-    });
-  } catch (error) {
-    logger.error('Error fetching damage records', { error });
-    res.status(500).json({
-      error: 'Failed to fetch damage records',
-      message: error instanceof Error ? error.message : 'Unknown error'
-    });
+      const result = await pool.query(
+        `SELECT
+          id,
+          vehicle_id,
+          position_x, position_y, position_z,
+          normal_x, normal_y, normal_z,
+          severity,
+          damage_type,
+          part_name,
+          description,
+          photo_urls,
+          cost_estimate,
+          actual_repair_cost,
+          repair_status,
+          repair_scheduled_date,
+          repair_completed_date,
+          reported_at,
+          updated_at
+        FROM vehicle_damage
+        WHERE vehicle_id = $1 AND deleted_at IS NULL
+        ORDER BY reported_at DESC`,
+        [vehicleId]
+      );
+
+      res.json({
+        success: true,
+        damages: result.rows
+      });
+    } catch (error) {
+      logger.error('Error fetching damage records', { error });
+      res.status(500).json({
+        error: 'Failed to fetch damage records',
+        message: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
   }
-});
+);
 
 /**
  * GET /api/damage/summary/:vehicleId
  * Get damage summary for a vehicle
+ * Requires: Authentication, damage:read permission, tenant validation
  */
-router.get('/summary/:vehicleId', async (req: Request, res: Response) => {
-  try {
-    const { vehicleId } = req.params;
+router.get(
+  '/summary/:vehicleId',
+  authenticateJWT,
+  requirePermission('damage:read'),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const { vehicleId } = req.params;
 
-    logger.info('Fetching damage summary', { vehicleId });
+      // Validate vehicle belongs to user's tenant
+      const hasAccess = await validateVehicleTenant(vehicleId, req.user!.tenant_id);
+      if (!hasAccess) {
+        logger.warn('Unauthorized vehicle access attempt', {
+          vehicleId,
+          userId: req.user!.id,
+          tenantId: req.user!.tenant_id
+        });
+        return res.status(403).json({ error: 'Access denied: Vehicle not found or not accessible' });
+      }
 
-    const result = await pool.query(
-      `SELECT * FROM v_vehicle_damage_summary WHERE vehicle_id = $1`,
-      [vehicleId]
-    );
+      logger.info('Fetching damage summary', {
+        vehicleId,
+        userId: req.user!.id,
+        tenantId: req.user!.tenant_id
+      });
 
-    if (result.rows.length === 0) {
-      return res.json({
+      const result = await pool.query(
+        `SELECT * FROM v_vehicle_damage_summary WHERE vehicle_id = $1`,
+        [vehicleId]
+      );
+
+      if (result.rows.length === 0) {
+        return res.json({
+          success: true,
+          summary: {
+            vehicle_id: vehicleId,
+            total_damages: 0,
+            critical_count: 0,
+            severe_count: 0,
+            moderate_count: 0,
+            minor_count: 0,
+            total_estimated_cost: 0,
+            total_actual_cost: 0,
+            pending_repairs: 0,
+            completed_repairs: 0
+          }
+        });
+      }
+
+      res.json({
         success: true,
-        summary: {
-          vehicle_id: vehicleId,
-          total_damages: 0,
-          critical_count: 0,
-          severe_count: 0,
-          moderate_count: 0,
-          minor_count: 0,
-          total_estimated_cost: 0,
-          total_actual_cost: 0,
-          pending_repairs: 0,
-          completed_repairs: 0
-        }
+        summary: result.rows[0]
+      });
+    } catch (error) {
+      logger.error('Error fetching damage summary', { error });
+      res.status(500).json({
+        error: 'Failed to fetch damage summary',
+        message: error instanceof Error ? error.message : 'Unknown error'
       });
     }
-
-    res.json({
-      success: true,
-      summary: result.rows[0]
-    });
-  } catch (error) {
-    logger.error('Error fetching damage summary', { error });
-    res.status(500).json({
-      error: 'Failed to fetch damage summary',
-      message: error instanceof Error ? error.message : 'Unknown error'
-    });
   }
-});
+);
 
 export default router;
