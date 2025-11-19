@@ -54,14 +54,6 @@ export async function initializeDatabase(): Promise<void> {
 }
 
 /**
- * Legacy single pool export for backward compatibility
- *
- * DEPRECATED: Use connectionManager.getWritePool() for new code
- * This pool uses the webapp user by default (if configured), falling back to admin user
- */
-export const pool: Pool = connectionManager.getPool(PoolType.WEBAPP)
-
-/**
  * Export the connection manager for advanced usage
  */
 export { connectionManager, PoolType }
@@ -82,6 +74,21 @@ export const getDatabaseHealth = () => connectionManager.getHealthStatus()
  * Get pool statistics
  */
 export const getPoolStats = () => connectionManager.getAllPoolStats()
+
+/**
+ * Legacy pool export with lazy initialization for backward compatibility
+ * Uses a Proxy to defer pool access until it's actually used
+ *
+ * DEPRECATED: Use getWritePool() for new code
+ */
+const poolProxy = new Proxy({} as Pool, {
+  get(target, prop) {
+    const pool = connectionManager.getWritePool()
+    return (pool as any)[prop]
+  }
+})
+
+export const pool = poolProxy
 
 /**
  * Default export (legacy compatibility)
