@@ -1,6 +1,6 @@
 fastapi==0.104.1
 uvicorn[standard]==0.24.0
-pydantic==2.5.0
+pydantic==2.7.0  # Updated: Fix regex DOS vulnerability
 playwright==1.40.0
 azure-storage-blob==12.19.0
 python-dotenv==1.0.0

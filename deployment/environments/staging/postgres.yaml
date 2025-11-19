@@ -19,10 +19,20 @@ spec:
         environment: staging
     spec:
       securityContext:
+        runAsNonRoot: true
+        runAsUser: 999
         fsGroup: 999
       containers:
         - name: postgres
           image: postgres:15-alpine
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: false
+            runAsNonRoot: true
+            runAsUser: 999
+            capabilities:
+              drop:
+                - ALL
           ports:
             - name: postgres
               containerPort: 5432

@@ -4,7 +4,7 @@ anthropic>=0.18.0
 
 # Vector DB for RAG
 chromadb>=0.4.0
-sentence-transformers>=2.2.0
+sentence-transformers>=2.7.0  # Updated: Fix code injection vulnerability
 
 # Code parsing and analysis
 tree-sitter>=0.20.0

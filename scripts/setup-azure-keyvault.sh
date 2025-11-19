@@ -2,6 +2,17 @@
 
 # Fleet Management - Azure Key Vault Setup Script
 # This script sets up Azure Key Vault and stores all secrets securely
+#
+# ⚠️  SECURITY NOTICE ⚠️
+# This script:
+#   - Creates sensitive Service Principal credentials
+#   - Generates cryptographic secrets
+#   - Outputs a configuration file with credentials
+#
+# After running:
+#   - Immediately add keyvault-config-*.env to .gitignore
+#   - Delete the config file after creating Kubernetes secrets
+#   - Never commit the generated credentials to version control
 
 set -e
 
@@ -14,6 +25,9 @@ NC='\033[0m' # No Color
 
 echo -e "${GREEN}🔐 Fleet Management - Azure Key Vault Setup${NC}"
 echo "=============================================="
+echo -e "${YELLOW}⚠️  This script generates sensitive credentials${NC}"
+echo -e "${YELLOW}   Follow security best practices after completion${NC}"
+echo ""
 
 # Configuration
 RESOURCE_GROUP="${RESOURCE_GROUP:-fleet-production-rg}"
@@ -216,7 +230,20 @@ CONFIG_FILE="keyvault-config-$ENVIRONMENT.env"
 cat > $CONFIG_FILE <<EOF
 # Azure Key Vault Configuration - $ENVIRONMENT
 # Generated: $(date)
-# DO NOT COMMIT THIS FILE TO GIT
+#
+# ⚠️  SECURITY WARNING ⚠️
+# This file contains sensitive credentials!
+# DO NOT:
+#   - Commit this file to Git
+#   - Share this file via email, Slack, or any messaging platform
+#   - Store this file in shared drives or cloud storage
+#   - Include this file in container images
+#
+# DO:
+#   - Store this file in a secure location with restricted access
+#   - Add to .gitignore: echo "keyvault-config-*.env" >> .gitignore
+#   - Delete after deploying to production
+#   - Use the values to create Kubernetes secrets, then delete the file
 
 KEY_VAULT_NAME=$KEY_VAULT_NAME
 RESOURCE_GROUP=$RESOURCE_GROUP
@@ -227,7 +254,22 @@ SUBSCRIPTION_ID=$SUBSCRIPTION_ID
 KEY_VAULT_URI=https://$KEY_VAULT_NAME.vault.azure.net/
 EOF
 
+# Restrict file permissions
+chmod 600 $CONFIG_FILE
+
 echo -e "\n${GREEN}✓ Configuration saved to: $CONFIG_FILE${NC}"
-echo -e "${RED}⚠️  Keep this file secure and DO NOT commit it to Git!${NC}"
+echo -e "${RED}⚠️  SECURITY WARNING: This file contains sensitive credentials!${NC}"
+echo -e "${RED}   - File permissions set to 600 (owner read/write only)${NC}"
+echo -e "${RED}   - DO NOT commit this file to Git${NC}"
+echo -e "${RED}   - Add to .gitignore immediately${NC}"
+echo -e "${RED}   - Delete after creating Kubernetes secrets${NC}"
+
+echo -e "\n${YELLOW}Security Best Practices:${NC}"
+echo "  1. Add to .gitignore: echo 'keyvault-config-*.env' >> .gitignore"
+echo "  2. Create Kubernetes secret using these values"
+echo "  3. Delete this file after deployment: rm $CONFIG_FILE"
+echo "  4. Rotate Service Principal credentials regularly (every 90 days)"
+echo "  5. Enable Azure Key Vault audit logging"
+echo "  6. Use managed identities in production when possible"
 
 echo -e "\n${GREEN}Setup complete! 🎉${NC}"

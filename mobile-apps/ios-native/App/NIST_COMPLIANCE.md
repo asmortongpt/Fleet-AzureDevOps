@@ -497,7 +497,7 @@ let retrievedKey = try crypto.retrieveKeyFromSecureEnclave(identifier: "encrypti
 
 **Implementation:**
 ```swift
-let password = "UserPassword123!"
+let password = "EXAMPLE_PASSWORD_HERE"
 let salt = try crypto.generateSalt()
 let derivedKey = try crypto.deriveKey(password: password, salt: salt, iterations: 100_000)
 ```
@@ -582,15 +582,15 @@ class NISTComplianceTests: XCTestCase {
         let compliance = NISTCompliance.shared
 
         // AAL1 (weak)
-        let aal1 = compliance.verifyAuthenticationStrength(password: "password")
+        let aal1 = compliance.verifyAuthenticationStrength(password: "weak_pwd")
         XCTAssertEqual(aal1, .aal1)
 
         // AAL2 (strong)
-        let aal2 = compliance.verifyAuthenticationStrength(password: "MyP@ssw0rd123")
+        let aal2 = compliance.verifyAuthenticationStrength(password: "STRONG_PWD_AAL2")
         XCTAssertEqual(aal2, .aal2Eligible)
 
         // AAL3 (very strong)
-        let aal3 = compliance.verifyAuthenticationStrength(password: "MyV3ry$tr0ng!P@ssw0rd")
+        let aal3 = compliance.verifyAuthenticationStrength(password: "VERY_STRONG_PWD_AAL3")
         XCTAssertEqual(aal3, .aal3Eligible)
     }
 

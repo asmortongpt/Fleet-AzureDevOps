@@ -212,7 +212,7 @@ cp .env.production.template .env.production
 ```bash
 # .env.development
 # Replace placeholders with your local development values
-FIREBASE_DEVELOPMENT_API_KEY=your-dev-firebase-key
+FIREBASE_DEVELOPMENT_API_KEY=YOUR_DEV_FIREBASE_KEY_HERE
 AUTH_API_URL=http://localhost:3000/auth
 ```
 
@@ -535,7 +535,7 @@ print(BuildConfiguration.debugInfoString)
 let apiKey = ProcessInfo.processInfo.environment["FIREBASE_API_KEY"]
 
 // ✗ Bad: Hardcoded secret
-let apiKey = "AIzaSyDu3opH0_9uKc5K3_dKyX2P" // NEVER!
+let apiKey = "YOUR_API_KEY_NEVER_HARDCODE" // NEVER!
 ```
 
 ### 3. Use Keychain for Sensitive Data
