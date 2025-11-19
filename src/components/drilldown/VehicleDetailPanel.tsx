@@ -21,7 +21,22 @@ import {
   Clock,
   Route,
   AlertTriangle,
+  Zap,
+  Timer,
+  RotateCw,
+  Settings,
+  Link2,
 } from 'lucide-react'
+import { MetricCard } from './MetricCard'
+import { AssetRelationshipsList } from './AssetRelationshipsList'
+import {
+  ExtendedVehicleData,
+  ASSET_CATEGORY_LABELS,
+  ASSET_TYPE_LABELS,
+  POWER_TYPE_LABELS,
+  OPERATIONAL_STATUS_LABELS,
+  PrimaryMetric,
+} from '@/types/asset.types'
 
 interface VehicleDetailPanelProps {
   vehicleId: string
@@ -159,6 +174,224 @@ export function VehicleDetailPanel({ vehicleId }: VehicleDetailPanelProps) {
                   <p className="font-medium">{vehicle.department || 'N/A'}</p>
                 </div>
               </div>
+            </CardContent>
+          </Card>
+
+          {/* Asset Classification */}
+          {(vehicle.asset_category || vehicle.asset_type || vehicle.power_type) && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Car className="h-5 w-5" />
+                  Asset Classification
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 gap-4">
+                  {vehicle.asset_category && (
+                    <div>
+                      <p className="text-sm text-muted-foreground">Category</p>
+                      <p className="font-medium">
+                        {ASSET_CATEGORY_LABELS[vehicle.asset_category] || vehicle.asset_category}
+                      </p>
+                    </div>
+                  )}
+                  {vehicle.asset_type && (
+                    <div>
+                      <p className="text-sm text-muted-foreground">Type</p>
+                      <p className="font-medium">
+                        {ASSET_TYPE_LABELS[vehicle.asset_type] || vehicle.asset_type}
+                      </p>
+                    </div>
+                  )}
+                  {vehicle.power_type && (
+                    <div>
+                      <p className="text-sm text-muted-foreground">Power Type</p>
+                      <p className="font-medium">
+                        {POWER_TYPE_LABELS[vehicle.power_type] || vehicle.power_type}
+                      </p>
+                    </div>
+                  )}
+                  {vehicle.operational_status && (
+                    <div>
+                      <p className="text-sm text-muted-foreground">Operational Status</p>
+                      <div className="flex items-center gap-2 mt-1">
+                        <Badge
+                          variant={
+                            vehicle.operational_status === 'AVAILABLE'
+                              ? 'default'
+                              : vehicle.operational_status === 'IN_USE'
+                              ? 'secondary'
+                              : vehicle.operational_status === 'MAINTENANCE'
+                              ? 'destructive'
+                              : 'outline'
+                          }
+                        >
+                          {OPERATIONAL_STATUS_LABELS[vehicle.operational_status] ||
+                            vehicle.operational_status}
+                        </Badge>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Multi-Metric Tracking */}
+          {(vehicle.primary_metric ||
+            vehicle.engine_hours ||
+            vehicle.pto_hours ||
+            vehicle.aux_hours ||
+            vehicle.cycle_count) && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Activity className="h-5 w-5" />
+                  Usage Metrics
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                  {/* Odometer (from existing mileage field) */}
+                  {(vehicle.odometer || vehicle.mileage) && (
+                    <MetricCard
+                      label="Odometer"
+                      value={vehicle.odometer || vehicle.mileage}
+                      unit="mi"
+                      isPrimary={vehicle.primary_metric === PrimaryMetric.ODOMETER}
+                      icon={<Gauge className="h-4 w-4" />}
+                    />
+                  )}
+
+                  {/* Engine Hours */}
+                  {vehicle.engine_hours !== undefined && vehicle.engine_hours > 0 && (
+                    <MetricCard
+                      label="Engine Hours"
+                      value={vehicle.engine_hours}
+                      unit="hrs"
+                      isPrimary={vehicle.primary_metric === 'ENGINE_HOURS'}
+                      icon={<Timer className="h-4 w-4" />}
+                    />
+                  )}
+
+                  {/* PTO Hours */}
+                  {vehicle.pto_hours !== undefined && vehicle.pto_hours > 0 && (
+                    <MetricCard
+                      label="PTO Hours"
+                      value={vehicle.pto_hours}
+                      unit="hrs"
+                      isPrimary={vehicle.primary_metric === 'PTO_HOURS'}
+                      icon={<Zap className="h-4 w-4" />}
+                    />
+                  )}
+
+                  {/* Auxiliary Hours */}
+                  {vehicle.aux_hours !== undefined && vehicle.aux_hours > 0 && (
+                    <MetricCard
+                      label="Aux Hours"
+                      value={vehicle.aux_hours}
+                      unit="hrs"
+                      isPrimary={vehicle.primary_metric === 'AUX_HOURS'}
+                      icon={<Clock className="h-4 w-4" />}
+                    />
+                  )}
+
+                  {/* Cycle Count */}
+                  {vehicle.cycle_count !== undefined && vehicle.cycle_count > 0 && (
+                    <MetricCard
+                      label="Cycles"
+                      value={vehicle.cycle_count}
+                      unit="cycles"
+                      isPrimary={vehicle.primary_metric === 'CYCLES'}
+                      icon={<RotateCw className="h-4 w-4" />}
+                    />
+                  )}
+                </div>
+
+                {vehicle.last_metric_update && (
+                  <p className="text-xs text-muted-foreground mt-4">
+                    Last updated:{' '}
+                    {new Date(vehicle.last_metric_update).toLocaleString()}
+                  </p>
+                )}
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Equipment Specifications (for HEAVY_EQUIPMENT) */}
+          {vehicle.asset_category === 'HEAVY_EQUIPMENT' &&
+            (vehicle.capacity_tons ||
+              vehicle.lift_height_feet ||
+              vehicle.max_reach_feet ||
+              vehicle.bucket_capacity_yards ||
+              vehicle.operating_weight_lbs) && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Settings className="h-5 w-5" />
+                    Equipment Specifications
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    {vehicle.capacity_tons && (
+                      <div>
+                        <p className="text-sm text-muted-foreground">Capacity</p>
+                        <p className="font-medium text-lg">
+                          {vehicle.capacity_tons} <span className="text-sm">tons</span>
+                        </p>
+                      </div>
+                    )}
+                    {vehicle.lift_height_feet && (
+                      <div>
+                        <p className="text-sm text-muted-foreground">Lift Height</p>
+                        <p className="font-medium text-lg">
+                          {vehicle.lift_height_feet} <span className="text-sm">ft</span>
+                        </p>
+                      </div>
+                    )}
+                    {vehicle.max_reach_feet && (
+                      <div>
+                        <p className="text-sm text-muted-foreground">Max Reach</p>
+                        <p className="font-medium text-lg">
+                          {vehicle.max_reach_feet} <span className="text-sm">ft</span>
+                        </p>
+                      </div>
+                    )}
+                    {vehicle.bucket_capacity_yards && (
+                      <div>
+                        <p className="text-sm text-muted-foreground">Bucket Capacity</p>
+                        <p className="font-medium text-lg">
+                          {vehicle.bucket_capacity_yards}{' '}
+                          <span className="text-sm">yd³</span>
+                        </p>
+                      </div>
+                    )}
+                    {vehicle.operating_weight_lbs && (
+                      <div>
+                        <p className="text-sm text-muted-foreground">Operating Weight</p>
+                        <p className="font-medium text-lg">
+                          {vehicle.operating_weight_lbs.toLocaleString()}{' '}
+                          <span className="text-sm">lbs</span>
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+          {/* Asset Relationships (Attached Assets) */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Link2 className="h-5 w-5" />
+                Attached Assets
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <AssetRelationshipsList vehicleId={vehicle.id} />
             </CardContent>
           </Card>
 

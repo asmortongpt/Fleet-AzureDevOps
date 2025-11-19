@@ -108,15 +108,41 @@ api/
 
 ## 🔌 API Endpoints
 
-### Vehicles
+### Vehicles (Multi-Asset Support)
 ```
-GET    /api/vehicles              # List all vehicles
-POST   /api/vehicles              # Create vehicle
+GET    /api/vehicles              # List all vehicles/assets
+       ?asset_category=HEAVY_EQUIPMENT    # Filter by category
+       &asset_type=EXCAVATOR              # Filter by type
+       &operational_status=AVAILABLE      # Filter by status
+       &primary_metric=ENGINE_HOURS       # Filter by metric type
+POST   /api/vehicles              # Create vehicle/asset
 GET    /api/vehicles/:id          # Get vehicle by ID
-PUT    /api/vehicles/:id          # Update vehicle
+PUT    /api/vehicles/:id          # Update vehicle (including hours)
 DELETE /api/vehicles/:id          # Delete vehicle
 GET    /api/vehicles/search       # Search vehicles
 ```
+
+**Supported Asset Categories:**
+- PASSENGER_VEHICLE, HEAVY_EQUIPMENT, TRAILER, TRACTOR, SPECIALTY, NON_POWERED
+
+**Multi-Metric Tracking:**
+- Odometer, Engine Hours, PTO Hours, Aux Hours, Cycles, Calendar-based
+
+### Asset Relationships (NEW)
+```
+GET    /api/asset-relationships                # List relationships
+       ?parent_asset_id=uuid                   # Filter by parent
+       &relationship_type=TOWS                 # Filter by type
+GET    /api/asset-relationships/active         # Get active combos
+GET    /api/asset-relationships/:id            # Get by ID
+POST   /api/asset-relationships                # Create (attach trailer)
+PUT    /api/asset-relationships/:id            # Update relationship
+PATCH  /api/asset-relationships/:id/deactivate # Deactivate (detach)
+DELETE /api/asset-relationships/:id            # Delete permanently
+GET    /api/asset-relationships/history/:id    # Get asset history
+```
+
+**Relationship Types:** TOWS, ATTACHED, CARRIES, POWERS, CONTAINS
 
 ### Drivers
 ```
@@ -136,7 +162,36 @@ PUT    /api/work-orders/:id       # Update work order
 DELETE /api/work-orders/:id       # Delete work order
 ```
 
-*(18 total entity endpoints)*
+### Maintenance Schedules (Multi-Metric Support)
+```
+GET    /api/maintenance-schedules          # List schedules
+       ?trigger_metric=ENGINE_HOURS        # Filter by metric
+       &vehicle_id=uuid                    # Filter by vehicle
+POST   /api/maintenance-schedules          # Create schedule
+PUT    /api/maintenance-schedules/:id      # Update schedule
+DELETE /api/maintenance-schedules/:id      # Delete schedule
+```
+
+**Trigger Metrics:** ODOMETER, ENGINE_HOURS, PTO_HOURS, AUX_HOURS, CYCLES, CALENDAR
+
+*(18+ total entity endpoints)*
+
+---
+
+## 📚 Multi-Asset Documentation
+
+For comprehensive multi-asset feature documentation:
+
+- **API Documentation**: See [`/docs/MULTI_ASSET_API_DOCUMENTATION.md`](../docs/MULTI_ASSET_API_DOCUMENTATION.md)
+- **User Guide**: See [`/docs/MULTI_ASSET_USER_GUIDE.md`](../docs/MULTI_ASSET_USER_GUIDE.md)
+- **Migration**: See [`/api/src/migrations/032_multi_asset_vehicle_extensions.sql`](./src/migrations/032_multi_asset_vehicle_extensions.sql)
+
+**Key Features:**
+- Track heavy equipment, trailers, tractors, specialty equipment
+- Multi-metric tracking (hours, cycles, calendar)
+- Asset relationships (tractor-trailer combos)
+- Hour-based maintenance scheduling
+- Equipment specifications (capacity, reach, lift height)
 
 ---
 
