@@ -6,6 +6,9 @@ import { applyFieldMasking } from '../utils/fieldMasking'
 import pool from '../config/database'
 import { z } from 'zod'
 import { buildInsertClause, buildUpdateClause } from '../utils/sql-safety'
+import { ApiResponse } from '../utils/apiResponse'
+import { validate } from '../middleware/validation'
+import { getPaginationParams, createPaginatedResponse } from '../utils/pagination'
 
 const router = express.Router()
 router.use(authenticateJWT)
@@ -18,9 +21,8 @@ router.get(
   auditLog({ action: 'READ', resourceType: 'vehicles' }),
   async (req: AuthRequest, res: Response) => {
     try {
+      const paginationParams = getPaginationParams(req)
       const {
-        page = 1,
-        limit = 50,
         // Multi-asset filters from migration 032
         asset_category,
         asset_type,
@@ -32,7 +34,6 @@ router.get(
         group_id,
         fleet_id
       } = req.query
-      const offset = (Number(page) - 1) * Number(limit)
 
       // Get user scope for row-level filtering
       const userResult = await pool.query(
@@ -105,8 +106,13 @@ router.get(
       }
 
       const result = await pool.query(
-        `SELECT * FROM vehicles WHERE tenant_id = $1 ${scopeFilter}${assetFilters} ORDER BY created_at DESC LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`,
-        [...scopeParams, limit, offset]
+        `SELECT id, tenant_id, make, model, year, vin, license_plate, status,
+                asset_category, asset_type, power_type, operational_status,
+                driver_id, location_id, group_id, fleet_id, odometer, fuel_level,
+                battery_level, is_road_legal, registration_expiry, insurance_expiry,
+                created_at, updated_at
+         FROM vehicles WHERE tenant_id = $1 ${scopeFilter}${assetFilters} ORDER BY created_at DESC LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`,
+        [...scopeParams, paginationParams.limit, paginationParams.offset]
       )
 
       const countResult = await pool.query(
@@ -114,18 +120,16 @@ router.get(
         scopeParams
       )
 
-      res.json({
-        data: result.rows,
-        pagination: {
-          page: Number(page),
-          limit: Number(limit),
-          total: parseInt(countResult.rows[0].count),
-          pages: Math.ceil(countResult.rows[0].count / Number(limit))
-        }
-      })
+      const paginatedResponse = createPaginatedResponse(
+        result.rows,
+        parseInt(countResult.rows[0].count),
+        paginationParams
+      )
+
+      return ApiResponse.success(res, paginatedResponse, 'Vehicles retrieved successfully', 200)
     } catch (error) {
       console.error('Get vehicles error:', error)
-      res.status(500).json({ error: 'Internal server error' })
+      return ApiResponse.serverError(res, 'Failed to retrieve vehicles')
     }
   }
 )
@@ -136,15 +140,22 @@ router.get(
   requirePermission('vehicle:view:own'),
   applyFieldMasking('vehicle'),
   auditLog({ action: 'READ', resourceType: 'vehicles' }),
+  validate([{ field: 'id', required: true, type: 'uuid' }], 'params'),
   async (req: AuthRequest, res: Response) => {
     try {
       const result = await pool.query(
-        'SELECT * FROM vehicles WHERE id = $1 AND tenant_id = $2',
+        `SELECT id, tenant_id, make, model, year, vin, license_plate, status,
+                asset_category, asset_type, power_type, operational_status,
+                driver_id, location_id, group_id, fleet_id, odometer, fuel_level,
+                engine_hours, pto_hours, aux_hours, battery_level, is_road_legal,
+                registration_expiry, insurance_expiry, purchase_date, purchase_price,
+                current_value, created_at, updated_at
+         FROM vehicles WHERE id = $1 AND tenant_id = $2`,
         [req.params.id, req.user!.tenant_id]
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'Vehicles not found' })
+        return ApiResponse.notFound(res, 'Vehicle')
       }
 
       // IDOR protection: Check if user has access to this vehicle
@@ -156,17 +167,17 @@ router.get(
       const vehicleId = req.params.id
 
       if (user.scope_level === 'own' && user.vehicle_id !== vehicleId) {
-        return res.status(403).json({ error: 'Access denied: You can only view your assigned vehicle' })
+        return ApiResponse.forbidden(res, 'Access denied: You can only view your assigned vehicle')
       } else if (user.scope_level === 'team' && user.team_vehicle_ids) {
         if (!user.team_vehicle_ids.includes(vehicleId)) {
-          return res.status(403).json({ error: 'Access denied: Vehicle not in your team' })
+          return ApiResponse.forbidden(res, 'Access denied: Vehicle not in your team')
         }
       }
 
-      res.json(result.rows[0])
+      return ApiResponse.success(res, result.rows[0], 'Vehicle retrieved successfully')
     } catch (error) {
       console.error('Get vehicles error:', error)
-      res.status(500).json({ error: 'Internal server error' })
+      return ApiResponse.serverError(res, 'Failed to retrieve vehicle')
     }
   }
 )
@@ -176,19 +187,18 @@ router.post(
   '/',
   requirePermission('vehicle:create:global'),
   auditLog({ action: 'CREATE', resourceType: 'vehicles' }),
+  validate([
+    { field: 'vin', required: false, type: 'vin' },
+    { field: 'make', required: false, minLength: 1, maxLength: 100 },
+    { field: 'model', required: false, minLength: 1, maxLength: 100 },
+    { field: 'year', required: false, type: 'number', min: 1900, max: new Date().getFullYear() + 1 }
+  ]),
   async (req: AuthRequest, res: Response) => {
     try {
       const data = req.body
 
-      // VIN validation: Must be exactly 17 alphanumeric characters
+      // VIN validation and duplicate check
       if (data.vin) {
-        const vinRegex = /^[A-HJ-NPR-Z0-9]{17}$/i
-        if (!vinRegex.test(data.vin)) {
-          return res.status(400).json({
-            error: 'Invalid VIN: Must be exactly 17 alphanumeric characters (excluding I, O, Q)'
-          })
-        }
-
         // Check for duplicate VIN
         const vinCheck = await pool.query(
           'SELECT id FROM vehicles WHERE vin = $1 AND tenant_id = $2',
@@ -196,7 +206,7 @@ router.post(
         )
 
         if (vinCheck.rows.length > 0) {
-          return res.status(409).json({ error: 'VIN already exists in the system' })
+          return ApiResponse.conflict(res, 'VIN already exists in the system')
         }
 
         // Normalize VIN to uppercase
@@ -214,10 +224,10 @@ router.post(
         [req.user!.tenant_id, ...values]
       )
 
-      res.status(201).json(result.rows[0])
+      return ApiResponse.success(res, result.rows[0], 'Vehicle created successfully', 201)
     } catch (error) {
       console.error('Create vehicles error:', error)
-      res.status(500).json({ error: 'Internal server error' })
+      return ApiResponse.serverError(res, 'Failed to create vehicle')
     }
   }
 )
@@ -227,6 +237,7 @@ router.put(
   '/:id',
   requirePermission('vehicle:update:global'),
   auditLog({ action: 'UPDATE', resourceType: 'vehicles' }),
+  validate([{ field: 'id', required: true, type: 'uuid' }], 'params'),
   async (req: AuthRequest, res: Response) => {
     try {
       const data = req.body
@@ -238,13 +249,13 @@ router.put(
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'Vehicles not found' })
+        return ApiResponse.notFound(res, 'Vehicle')
       }
 
-      res.json(result.rows[0])
+      return ApiResponse.success(res, result.rows[0], 'Vehicle updated successfully')
     } catch (error) {
       console.error('Update vehicles error:', error)
-      res.status(500).json({ error: 'Internal server error' })
+      return ApiResponse.serverError(res, 'Failed to update vehicle')
     }
   }
 )
@@ -254,6 +265,7 @@ router.delete(
   '/:id',
   requirePermission('vehicle:delete:global'),
   auditLog({ action: 'DELETE', resourceType: 'vehicles' }),
+  validate([{ field: 'id', required: true, type: 'uuid' }], 'params'),
   async (req: AuthRequest, res: Response) => {
     try {
       // Check vehicle status before deletion
@@ -263,14 +275,12 @@ router.delete(
       )
 
       if (statusCheck.rows.length === 0) {
-        return res.status(404).json({ error: 'Vehicle not found' })
+        return ApiResponse.notFound(res, 'Vehicle')
       }
 
       const vehicleStatus = statusCheck.rows[0].status
       if (vehicleStatus !== 'sold' && vehicleStatus !== 'retired') {
-        return res.status(403).json({
-          error: 'Vehicle can only be deleted if status is "sold" or "retired"'
-        })
+        return ApiResponse.forbidden(res, 'Vehicle can only be deleted if status is "sold" or "retired"')
       }
 
       const result = await pool.query(
@@ -278,10 +288,10 @@ router.delete(
         [req.params.id, req.user!.tenant_id]
       )
 
-      res.json({ message: 'Vehicle deleted successfully' })
+      return ApiResponse.success(res, { id: result.rows[0].id }, 'Vehicle deleted successfully')
     } catch (error) {
       console.error('Delete vehicles error:', error)
-      res.status(500).json({ error: 'Internal server error' })
+      return ApiResponse.serverError(res, 'Failed to delete vehicle')
     }
   }
 )
