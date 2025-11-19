@@ -94,6 +94,7 @@ import webhookRenewal from './jobs/webhook-renewal.job'
 import schedulingReminders from './jobs/scheduling-reminders.job'
 import dispatchService from './services/dispatch.service'
 import documentService from './services/document.service'
+import { initializeDatabase } from './config/database'
 
 dotenv.config()
 
@@ -384,66 +385,81 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
   })
 })
 
-const server = app.listen(PORT, () => {
-  console.log(`🚀 Fleet API running on port ${PORT}`)
-  console.log(`📚 Environment: ${process.env.NODE_ENV}`)
-  console.log(`🔒 CORS Origins: ${process.env.CORS_ORIGIN}`)
-
-  // Initialize dispatch WebSocket server
+// Async startup function
+async function startServer() {
   try {
-    dispatchService.initializeWebSocketServer(server)
-    console.log(`🎙️  Dispatch WebSocket server initialized`)
-  } catch (error) {
-    console.error('Failed to initialize dispatch WebSocket server:', error)
-  }
+    // Initialize database connections first
+    await initializeDatabase()
 
-  // Start maintenance scheduler
-  try {
-    maintenanceScheduler.start()
-    console.log(`⏰ Maintenance scheduler started`)
-  } catch (error) {
-    console.error('Failed to start maintenance scheduler:', error)
-  }
+    // Start the Express server
+    const server = app.listen(PORT, () => {
+      console.log(`🚀 Fleet API running on port ${PORT}`)
+      console.log(`📚 Environment: ${process.env.NODE_ENV}`)
+      console.log(`🔒 CORS Origins: ${process.env.CORS_ORIGIN}`)
 
-  // Start telematics sync job
-  try {
-    telematicsSync.start()
-    console.log(`📡 Telematics sync job started`)
-  } catch (error) {
-    console.error('Failed to start telematics sync:', error)
-  }
+      // Initialize dispatch WebSocket server
+      try {
+        dispatchService.initializeWebSocketServer(server)
+        console.log(`🎙️  Dispatch WebSocket server initialized`)
+      } catch (error) {
+        console.error('Failed to initialize dispatch WebSocket server:', error)
+      }
 
-  // Start Teams sync job
-  try {
-    teamsSync.start()
-    console.log(`💬 Teams sync job started`)
-  } catch (error) {
-    console.error('Failed to start Teams sync:', error)
-  }
+      // Start maintenance scheduler
+      try {
+        maintenanceScheduler.start()
+        console.log(`⏰ Maintenance scheduler started`)
+      } catch (error) {
+        console.error('Failed to start maintenance scheduler:', error)
+      }
 
-  // Start Outlook sync job
-  try {
-    outlookSync.start()
-    console.log(`📧 Outlook sync job started`)
-  } catch (error) {
-    console.error('Failed to start Outlook sync:', error)
-  }
+      // Start telematics sync job
+      try {
+        telematicsSync.start()
+        console.log(`📡 Telematics sync job started`)
+      } catch (error) {
+        console.error('Failed to start telematics sync:', error)
+      }
 
-  // Start webhook renewal job
-  try {
-    webhookRenewal.start()
-    console.log(`🔄 Webhook renewal job started`)
-  } catch (error) {
-    console.error('Failed to start webhook renewal:', error)
-  }
+      // Start Teams sync job
+      try {
+        teamsSync.start()
+        console.log(`💬 Teams sync job started`)
+      } catch (error) {
+        console.error('Failed to start Teams sync:', error)
+      }
 
-  // Start scheduling reminders job
-  try {
-    schedulingReminders.start()
-    console.log(`📅 Scheduling reminders job started`)
+      // Start Outlook sync job
+      try {
+        outlookSync.start()
+        console.log(`📧 Outlook sync job started`)
+      } catch (error) {
+        console.error('Failed to start Outlook sync:', error)
+      }
+
+      // Start webhook renewal job
+      try {
+        webhookRenewal.start()
+        console.log(`🔄 Webhook renewal job started`)
+      } catch (error) {
+        console.error('Failed to start webhook renewal:', error)
+      }
+
+      // Start scheduling reminders job
+      try {
+        schedulingReminders.start()
+        console.log(`📅 Scheduling reminders job started`)
+      } catch (error) {
+        console.error('Failed to start scheduling reminders:', error)
+      }
+    })
   } catch (error) {
-    console.error('Failed to start scheduling reminders:', error)
+    console.error('❌ Failed to start server:', error)
+    process.exit(1)
   }
-})
+}
+
+// Start the server
+startServer()
 
 export default app
