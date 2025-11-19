@@ -18,6 +18,7 @@ import * as crypto from 'crypto'
 import axios from 'axios'
 import { analyzeDocument } from './ai-ocr'
 import OpenAI from 'openai'
+import { validateURL, SSRFError } from '../utils/safe-http-request'
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
@@ -647,6 +648,29 @@ class WebhookService {
       try {
         // Download attachment if it's a hosted content
         if (attachment.contentType === 'reference' && attachment.contentUrl) {
+          // SSRF Protection: Validate attachment URL
+          try {
+            validateURL(attachment.contentUrl, {
+              allowedDomains: [
+                'graph.microsoft.com',
+                '*.sharepoint.com',
+                'onedrive.live.com',
+                '*.onedrive.com',
+                'teams.microsoft.com',
+                '*.office.com'
+              ]
+            })
+          } catch (error) {
+            if (error instanceof SSRFError) {
+              console.error(`SSRF Protection blocked Teams attachment URL: ${attachment.contentUrl}`, {
+                reason: error.reason
+              })
+              // Skip this attachment but continue processing others
+              continue
+            }
+            throw error
+          }
+
           await pool.query(
             `INSERT INTO communication_attachments
              (communication_id, file_name, file_url, file_type, file_size)

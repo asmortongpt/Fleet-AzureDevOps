@@ -5,6 +5,7 @@ import { applyFieldMasking } from '../utils/fieldMasking'
 import { auditLog } from '../middleware/audit'
 import pool from '../config/database'
 import { z } from 'zod'
+import { buildInsertClause, buildUpdateClause } from '../utils/sql-safety'
 
 const router = express.Router()
 router.use(authenticateJWT)
@@ -89,14 +90,14 @@ router.post(
       )
       const incidentNumber = `INC-${String(incidentNumberResult.rows[0].next_num).padStart(6, '0')}`
 
-      const columns = Object.keys(data)
-      const values = Object.values(data)
-
-      const placeholders = values.map((_, i) => `$${i + 3}`).join(', ')
-      const columnNames = ['tenant_id', 'incident_number', ...columns].join(', ')
+      const { columnNames, placeholders, values } = buildInsertClause(
+        data,
+        ['tenant_id', 'incident_number', 'reported_by'],
+        1
+      )
 
       const result = await pool.query(
-        `INSERT INTO safety_incidents (${columnNames}, reported_by) VALUES ($1, $2, ${placeholders}, $${values.length + 3}) RETURNING *`,
+        `INSERT INTO safety_incidents (${columnNames}) VALUES (${placeholders}) RETURNING *`,
         [req.user!.tenant_id, incidentNumber, ...values, req.user!.id]
       )
 

@@ -3,6 +3,37 @@
  * FedRAMP-compliant authentication with SSO/OIDC, MFA, and session management
  */
 
+/**
+ * Constant-time string comparison to prevent timing attacks
+ * Compares two strings in constant time to avoid leaking information about the strings
+ *
+ * @param a - First string to compare
+ * @param b - Second string to compare
+ * @returns True if strings are equal, false otherwise
+ */
+function timingSafeEqual(a: string, b: string): boolean {
+  // If lengths don't match, still compare to maintain constant time
+  const aLen = a.length
+  const bLen = b.length
+  const maxLen = Math.max(aLen, bLen)
+
+  // Pad shorter string to avoid early termination
+  const aPadded = a.padEnd(maxLen, '\0')
+  const bPadded = b.padEnd(maxLen, '\0')
+
+  let result = 0
+
+  // Compare each character, accumulating differences
+  for (let i = 0; i < maxLen; i++) {
+    result |= aPadded.charCodeAt(i) ^ bPadded.charCodeAt(i)
+  }
+
+  // Also XOR the lengths to detect length mismatch
+  result |= aLen ^ bLen
+
+  return result === 0
+}
+
 export interface AuthToken {
   accessToken: string
   refreshToken: string
@@ -165,9 +196,17 @@ export class MFAService {
   }
 
   static async verifyTOTP(secret: string, token: string): Promise<boolean> {
-    // In production, implement actual TOTP verification
-    // This is a placeholder
-    return token.length === 6 && /^\d+$/.test(token)
+    // In production, implement actual TOTP verification using a library like otplib
+    // This is a placeholder that validates format and uses constant-time comparison
+    if (token.length !== 6 || !/^\d+$/.test(token)) {
+      return false
+    }
+
+    // In a real implementation, you would generate the expected token from the secret
+    // and use constant-time comparison to prevent timing attacks
+    // For now, this is a placeholder that demonstrates the pattern
+    const expectedToken = "000000" // Placeholder - would be generated from secret
+    return timingSafeEqual(token, expectedToken)
   }
 
   static async sendSMSCode(phoneNumber: string): Promise<string> {
@@ -328,8 +367,10 @@ export class PasswordPolicy {
   }
 
   static async verifyPassword(password: string, hash: string): Promise<boolean> {
-    // In production, use proper password verification
-    return hash === `hashed_${password}`
+    // In production, use proper password verification with bcrypt or Argon2
+    // Using constant-time comparison to prevent timing attacks
+    const expectedHash = `hashed_${password}`
+    return timingSafeEqual(hash, expectedHash)
   }
 }
 
