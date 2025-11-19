@@ -13,8 +13,8 @@ RUN npm install
 # Copy source code
 COPY src ./src
 
-# Build TypeScript (allow warnings in legacy code)
-RUN npm run build || true
+# Build TypeScript - fail on errors
+RUN npm run build
 
 # Production image
 FROM node:20-alpine

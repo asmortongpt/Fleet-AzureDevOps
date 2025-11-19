@@ -20,10 +20,14 @@ export class APIError extends Error {
 class APIClient {
   private baseURL: string
   private token: string | null = null
+  private csrfToken: string | null = null
+  private csrfTokenPromise: Promise<void> | null = null
 
   constructor(baseURL: string) {
     this.baseURL = baseURL
     this.token = localStorage.getItem('token')
+    // Initialize CSRF token on construction
+    this.initializeCsrfToken()
   }
 
   setToken(token: string) {
@@ -36,10 +40,73 @@ class APIClient {
     localStorage.removeItem('token')
   }
 
+  /**
+   * Fetches a CSRF token from the server
+   * Only fetches once and caches the result
+   */
+  private async initializeCsrfToken(): Promise<void> {
+    // Skip CSRF token in development mock mode
+    if (import.meta.env.VITE_USE_MOCK_DATA === 'true') {
+      return
+    }
+
+    // If already fetching, return existing promise
+    if (this.csrfTokenPromise) {
+      return this.csrfTokenPromise
+    }
+
+    // If we already have a token, don't fetch again
+    if (this.csrfToken) {
+      return
+    }
+
+    // Create a new promise for fetching the CSRF token
+    this.csrfTokenPromise = (async () => {
+      try {
+        const response = await fetch(`${this.baseURL}/api/csrf`, {
+          method: 'GET',
+          credentials: 'include', // Required for cookies
+        })
+
+        if (response.ok) {
+          const data = await response.json()
+          this.csrfToken = data.csrfToken
+          console.log('CSRF token initialized successfully')
+        } else {
+          console.warn('Failed to fetch CSRF token:', response.status)
+        }
+      } catch (error) {
+        console.error('Error fetching CSRF token:', error)
+      } finally {
+        this.csrfTokenPromise = null
+      }
+    })()
+
+    return this.csrfTokenPromise
+  }
+
+  /**
+   * Refreshes the CSRF token from the server
+   */
+  async refreshCsrfToken(): Promise<void> {
+    this.csrfToken = null
+    this.csrfTokenPromise = null
+    await this.initializeCsrfToken()
+  }
+
   private async request<T>(
     endpoint: string,
     options: RequestInit = {}
   ): Promise<T> {
+    // Ensure CSRF token is initialized for state-changing requests
+    const isStateChanging = ['POST', 'PUT', 'PATCH', 'DELETE'].includes(
+      options.method?.toUpperCase() || 'GET'
+    )
+
+    if (isStateChanging) {
+      await this.initializeCsrfToken()
+    }
+
     const headers: HeadersInit = {
       'Content-Type': 'application/json',
       ...options.headers
@@ -49,16 +116,46 @@ class APIClient {
       headers['Authorization'] = `Bearer ${this.token}`
     }
 
+    // Add CSRF token to headers for state-changing requests
+    if (isStateChanging && this.csrfToken) {
+      headers['X-CSRF-Token'] = this.csrfToken
+    }
+
     const url = `${this.baseURL}${endpoint}`
 
     try {
       const response = await fetch(url, {
         ...options,
-        headers
+        headers,
+        credentials: 'include' // Required for CSRF cookies
       })
 
       if (!response.ok) {
         const error = await response.json().catch(() => ({ error: 'Unknown error' }))
+
+        // If CSRF token is invalid, refresh and retry once
+        if (response.status === 403 && error.error?.includes('CSRF')) {
+          console.warn('CSRF token invalid, refreshing...')
+          await this.refreshCsrfToken()
+
+          // Retry the request with new CSRF token
+          if (isStateChanging && this.csrfToken) {
+            headers['X-CSRF-Token'] = this.csrfToken
+            const retryResponse = await fetch(url, {
+              ...options,
+              headers,
+              credentials: 'include'
+            })
+
+            if (retryResponse.ok) {
+              if (retryResponse.status === 204) {
+                return {} as T
+              }
+              return await retryResponse.json()
+            }
+          }
+        }
+
         throw new APIError(
           error.error || `HTTP ${response.status}`,
           response.status,

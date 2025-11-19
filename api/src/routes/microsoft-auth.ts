@@ -3,34 +3,16 @@ import axios from 'axios'
 import jwt from 'jsonwebtoken'
 import pool from '../config/database'
 import { createAuditLog } from '../middleware/audit'
-import { env } from '../config/environment'
 
 const router = express.Router()
 
-// JWT Secret validation helper
-const getJwtSecret = (): string => {
-  const secret = process.env.JWT_SECRET
-  if (!secret) {
-    throw new Error('FATAL: JWT_SECRET environment variable is not configured')
-  }
-  if (secret.length < 32) {
-    throw new Error('FATAL: JWT_SECRET must be at least 32 characters long')
-  }
-  return secret
-}
-
 // Azure AD Configuration
-// IMPORTANT: These env vars come from environment or Azure Key Vault
+// IMPORTANT: These env vars come from Azure Key Vault via CSI Driver
 const AZURE_AD_CONFIG = {
-  clientId: env.get('MICROSOFT_CLIENT_ID') || '',
-  clientSecret: env.get('MICROSOFT_CLIENT_SECRET') || '',
-  tenantId: env.get('MICROSOFT_TENANT_ID') || '',
-  redirectUri: env.get('MICROSOFT_REDIRECT_URI') || 'https://fleet.capitaltechalliance.com/api/auth/microsoft/callback'
-}
-
-// Validate Microsoft OAuth configuration in production
-if (env.isProduction() && (!AZURE_AD_CONFIG.clientId || !AZURE_AD_CONFIG.clientSecret || !AZURE_AD_CONFIG.tenantId)) {
-  console.warn('⚠️  WARNING: Microsoft OAuth is not configured. SSO login will not work.')
+  clientId: process.env.AZURE_AD_CLIENT_ID || process.env.MICROSOFT_CLIENT_ID || '80fe6628-1dc4-41fe-894f-919b12ecc994',
+  clientSecret: process.env.AZURE_AD_CLIENT_SECRET || process.env.MICROSOFT_CLIENT_SECRET || '',
+  tenantId: process.env.AZURE_AD_TENANT_ID || process.env.MICROSOFT_TENANT_ID || '0ec14b81-7b82-45ee-8f3d-cbc31ced5347',
+  redirectUri: process.env.AZURE_AD_REDIRECT_URI || process.env.MICROSOFT_REDIRECT_URI || 'https://fleet.capitaltechalliance.com/api/auth/microsoft/callback'
 }
 
 /**
@@ -176,7 +158,18 @@ router.get('/microsoft/callback', async (req: Request, res: Response) => {
       'Microsoft SSO login successful'
     )
 
-    // Generate JWT token
+    // SECURITY: Generate JWT token with validated secret
+    // JWT_SECRET must be set and must be at least 32 characters
+    if (!process.env.JWT_SECRET) {
+      console.error('FATAL: JWT_SECRET environment variable is not set')
+      return res.redirect(`/login?error=config_error&message=${encodeURIComponent('Server authentication configuration error')}`)
+    }
+
+    if (process.env.JWT_SECRET.length < 32) {
+      console.error('FATAL: JWT_SECRET must be at least 32 characters')
+      return res.redirect(`/login?error=config_error&message=${encodeURIComponent('Server authentication configuration error')}`)
+    }
+
     const token = jwt.sign(
       {
         id: user.id,
@@ -184,13 +177,33 @@ router.get('/microsoft/callback', async (req: Request, res: Response) => {
         tenant_id: user.tenant_id,
         role: user.role
       },
-      getJwtSecret(),
+      process.env.JWT_SECRET,
       { expiresIn: '24h' }
     )
 
-    // Redirect to frontend with token
+    // SECURITY FIX: Store JWT in httpOnly cookie instead of URL parameter (CWE-598)
+    // Tokens in URLs are:
+    // - Logged in browser history
+    // - Exposed in HTTP referrer headers
+    // - Visible in server logs
+    // - Can be leaked through browser extensions
+    //
+    // httpOnly cookies are:
+    // - Not accessible to JavaScript (prevents XSS attacks)
+    // - Not logged in browser history
+    // - Automatically sent with requests to the same domain
+    // - More secure for storing authentication tokens
+    res.cookie('auth_token', token, {
+      httpOnly: true,     // Cannot be accessed by JavaScript
+      secure: process.env.NODE_ENV === 'production', // Only sent over HTTPS in production
+      sameSite: 'lax',    // CSRF protection
+      maxAge: 24 * 60 * 60 * 1000, // 24 hours (matches JWT expiration)
+      path: '/'           // Available throughout the application
+    })
+
+    // Redirect to frontend callback WITHOUT token in URL
     const frontendUrl = process.env.FRONTEND_URL || 'http://68.220.148.2'
-    res.redirect(`${frontendUrl}/auth/callback?token=${token}`)
+    res.redirect(`${frontendUrl}/auth/callback`)
 
   } catch (error: any) {
     console.error('Microsoft OAuth error:', error.response?.data || error.message)
