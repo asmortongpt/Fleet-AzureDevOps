@@ -16,9 +16,21 @@ spec:
       template:
         spec:
           restartPolicy: OnFailure
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1000
+            fsGroup: 1000
           containers:
           - name: camera-sync
             image: fleetappregistry.azurecr.io/fleet-api:v1.3-cameras
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: false
+              runAsNonRoot: true
+              runAsUser: 1000
+              capabilities:
+                drop:
+                  - ALL
             command:
             - node
             - dist/scripts/sync-cameras.js

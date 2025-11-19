@@ -85,9 +85,18 @@ export function CodeViewer({ document }: CodeViewerProps) {
     return langMap[ext] || ext.toUpperCase();
   };
 
+  /**
+   * Escapes HTML to prevent XSS attacks
+   */
+  const escapeHtml = (text: string): string => {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  };
+
   const highlightCode = (code: string): string => {
-    // Basic syntax highlighting (can be enhanced with a library like Prism.js or highlight.js)
-    let highlighted = code;
+    // SECURITY: First escape all HTML to prevent XSS attacks
+    let highlighted = escapeHtml(code);
 
     // Keywords (simplified example)
     const keywords = [
@@ -102,9 +111,9 @@ export function CodeViewer({ document }: CodeViewerProps) {
       highlighted = highlighted.replace(regex, `<span class="text-purple-600 dark:text-purple-400 font-semibold">${keyword}</span>`);
     });
 
-    // Strings
+    // Strings - now matching escaped quotes
     highlighted = highlighted.replace(
-      /(".*?"|'.*?'|`.*?`)/g,
+      /(&quot;.*?&quot;|&#39;.*?&#39;|`.*?`)/g,
       '<span class="text-green-600 dark:text-green-400">$1</span>'
     );
 

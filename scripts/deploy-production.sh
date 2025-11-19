@@ -83,10 +83,11 @@ echo ""
 echo "🌐 Step 5: Updating frontend environment..."
 
 # Update frontend .env to point to API
+# Note: Set AZURE_MAPS_KEY environment variable before running this script
 cat > /Users/andrewmorton/Documents/GitHub/Fleet/.env.production << EOF
 VITE_API_URL=http://fleet-api-service:3000
 VITE_ENVIRONMENT=production
-VITE_AZURE_MAPS_SUBSCRIPTION_KEY=560t3GIDj2PBsHx1wDcgQ67VK6d6wgkdcHK0rTmTRhYUQzFizj4SJQQJ99BKACYeBjFbS4kUAAAgAZMP7TCI
+VITE_AZURE_MAPS_SUBSCRIPTION_KEY=\${AZURE_MAPS_KEY:-YOUR_AZURE_MAPS_KEY}
 VITE_ENABLE_AI_ASSISTANT=true
 VITE_ENABLE_DARK_MODE=true
 EOF
