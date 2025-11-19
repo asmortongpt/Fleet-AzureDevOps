@@ -19,16 +19,23 @@ import axios from 'axios'
 import { analyzeDocument } from './ai-ocr'
 import OpenAI from 'openai'
 import { validateURL, SSRFError } from '../utils/safe-http-request'
+import { env } from '../config/environment'
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
 })
 
 // Azure AD Configuration
+// IMPORTANT: These env vars come from environment or Azure Key Vault
 const AZURE_AD_CONFIG = {
-  clientId: process.env.AZURE_AD_CLIENT_ID || process.env.MICROSOFT_CLIENT_ID || '80fe6628-1dc4-41fe-894f-919b12ecc994',
-  clientSecret: process.env.AZURE_AD_CLIENT_SECRET || process.env.MICROSOFT_CLIENT_SECRET || '',
-  tenantId: process.env.AZURE_AD_TENANT_ID || process.env.MICROSOFT_TENANT_ID || '0ec14b81-7b82-45ee-8f3d-cbc31ced5347'
+  clientId: env.get('MICROSOFT_CLIENT_ID') || '',
+  clientSecret: env.get('MICROSOFT_CLIENT_SECRET') || '',
+  tenantId: env.get('MICROSOFT_TENANT_ID') || ''
+}
+
+// Validate Microsoft OAuth configuration
+if (!AZURE_AD_CONFIG.clientId || !AZURE_AD_CONFIG.clientSecret || !AZURE_AD_CONFIG.tenantId) {
+  console.warn('⚠️  WARNING: Microsoft OAuth is not configured. Webhook service will not work.')
 }
 
 // Webhook notification URL (must be HTTPS and publicly accessible)
