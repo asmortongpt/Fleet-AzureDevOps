@@ -5,6 +5,7 @@ import { auditLog } from '../middleware/audit'
 import { rateLimit } from '../middleware/rateLimit'
 import pool from '../config/database'
 import { z } from 'zod'
+import { buildInsertClause, buildUpdateClause } from '../utils/sql-safety'
 
 const router = express.Router()
 router.use(authenticateJWT)
@@ -79,14 +80,15 @@ router.post(
   async (req: AuthRequest, res: Response) => {
     try {
       const data = req.body
-      const columns = Object.keys(data)
-      const values = Object.values(data)
 
-      const placeholders = values.map((_, i) => `$${i + 2}`).join(', ')
-      const columnNames = ['tenant_id', ...columns].join(', ')
+      const { columnNames, placeholders, values } = buildInsertClause(
+        data,
+        ['tenant_id'],
+        1
+      )
 
       const result = await pool.query(
-        `INSERT INTO video_events (${columnNames}) VALUES ($1, ${placeholders}) RETURNING *`,
+        `INSERT INTO video_events (${columnNames}) VALUES (${placeholders}) RETURNING *`,
         [req.user!.tenant_id, ...values]
       )
 
