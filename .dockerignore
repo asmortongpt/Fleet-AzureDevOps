@@ -47,3 +47,30 @@ docs
 
 # Temporary directories
 PMO-repo-temp
+
+# Testing artifacts
+playwright-report
+test-results
+benchmarks
+e2e
+tests
+__tests__
+*.test.ts
+*.test.tsx
+*.spec.ts
+*.spec.tsx
+
+# Storybook
+.storybook
+storybook-static
+
+# Build artifacts from previous builds
+dist-old
+build
+
+# Large dependencies we'll reinstall
+.pnpm-store
+
+# Temporary files
+/tmp
+*.tar.gz
