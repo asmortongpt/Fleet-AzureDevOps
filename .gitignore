@@ -77,7 +77,10 @@ azure-sp-credentials.*
 !k8s/azure-ad-secret-role.yaml
 # Note: The above files are templates only - never commit with actual secret values
 
+# Spark development environment files
 .spark-workbench-id
+.spark-initial-sha
+spark.meta.json
 
 # Vendor Access - Sensitive Files
 deployment/vendor-access/vendor-kubeconfig.yaml
