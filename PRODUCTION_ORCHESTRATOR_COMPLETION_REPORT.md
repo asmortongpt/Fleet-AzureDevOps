@@ -178,10 +178,10 @@ $ cd api && npm run build
    - Reduce manual data entry
 
 **API Keys Configured**:
-- ✅ OpenAI: `sk-proj-W1qyD4q...` (GPT-4, Vision)
-- ✅ Claude: `sk-ant-api03-KYDi3...` (Document analysis)
-- ✅ Azure OpenAI: Endpoint configured (Predictive maintenance)
-- ✅ Gemini: `AIzaSyCXuS4m...` (Alternative vision)
+- ✅ OpenAI: `YOUR_OPENAI_API_KEY` (GPT-4, Vision) - Store in environment variable `OPENAI_API_KEY`
+- ✅ Claude: `YOUR_CLAUDE_API_KEY` (Document analysis) - Store in environment variable `CLAUDE_API_KEY`
+- ✅ Azure OpenAI: Endpoint configured (Predictive maintenance) - Store in Azure Key Vault
+- ✅ Gemini: `YOUR_GEMINI_API_KEY` (Alternative vision) - Store in environment variable `GEMINI_API_KEY`
 
 ---
 
@@ -608,10 +608,10 @@ DB_HOST=fleet-postgres-service
 DB_PORT=5432
 DB_NAME=fleetdb
 DB_USER=fleetadmin
-DB_PASSWORD=FleetAdmin2024!Secure
-JWT_SECRET=92f5e7c3a8b1d4e6f9a2c5d8e1b4a7c0d3e6f9a2b5c8d1e4f7a0b3c6d9e2f5a8
-OPENAI_API_KEY=sk-proj-W1qyD...
-CLAUDE_API_KEY=sk-ant-api03-KYDi3...
+DB_PASSWORD=${DB_PASSWORD}  # Store in Azure Key Vault or Kubernetes Secret
+JWT_SECRET=${JWT_SECRET}  # Generate with: openssl rand -base64 64
+OPENAI_API_KEY=${OPENAI_API_KEY}  # Store in Azure Key Vault
+CLAUDE_API_KEY=${CLAUDE_API_KEY}  # Store in Azure Key Vault
 NODE_ENV=production
 CORS_ORIGIN=http://68.220.148.2
 ```
@@ -619,7 +619,7 @@ CORS_ORIGIN=http://68.220.148.2
 **Frontend (.env.production)**:
 ```
 VITE_API_URL=http://fleet-api-service:3000
-VITE_AZURE_MAPS_SUBSCRIPTION_KEY=560t3GIDj2PBs...
+VITE_AZURE_MAPS_SUBSCRIPTION_KEY=${AZURE_MAPS_KEY}  # Store in Azure Key Vault
 VITE_ENABLE_AI_ASSISTANT=true
 ```
 
@@ -627,7 +627,7 @@ VITE_ENABLE_AI_ASSISTANT=true
 
 **Database**:
 - Username: `fleetadmin`
-- Password: `FleetAdmin2024!Secure`
+- Password: Stored in Azure Key Vault (secret name: `db-password`)
 - Database: `fleetdb`
 
 **Application**:

@@ -8,6 +8,7 @@ import fsSync from 'fs'
 import path from 'path'
 import crypto from 'crypto'
 import { StorageAdapter, StorageMetadata, UploadOptions } from './storage-adapter.base'
+import { validatePathWithinDirectory } from '../../utils/safe-file-operations'
 
 export interface LocalStorageConfig {
   basePath: string
@@ -309,7 +310,8 @@ export class LocalStorageAdapter extends StorageAdapter {
   }
 
   /**
-   * Helper: Resolve full path
+   * Helper: Resolve full path with security validation
+   * SECURITY: Prevents path traversal attacks by validating the resolved path
    */
   private resolvePath(filePath: string): string {
     // Remove leading slash if present
@@ -317,7 +319,9 @@ export class LocalStorageAdapter extends StorageAdapter {
       ? filePath.substring(1)
       : filePath
 
-    return path.join(this.basePath, normalizedPath)
+    // SECURITY: Validate that the resolved path is within basePath
+    // This prevents path traversal attacks using ../ or absolute paths
+    return validatePathWithinDirectory(normalizedPath, this.basePath)
   }
 
   /**

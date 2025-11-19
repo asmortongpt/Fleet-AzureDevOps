@@ -1,7 +1,7 @@
 fastapi==0.104.1
 uvicorn[standard]==0.24.0
-pydantic==2.5.0
-openai>=1.54.0
+pydantic==2.7.0  # Updated: Fix regex DOS vulnerability
+openai>=1.54.0  # Already fixed: Fix sensitive information logging
 aiohttp>=3.8.0
 azure-cosmos>=4.5.1
 azure-storage-blob>=12.19.0

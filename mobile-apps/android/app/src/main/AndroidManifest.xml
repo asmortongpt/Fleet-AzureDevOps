@@ -38,7 +38,7 @@
 
     <application
         android:name=".FleetApplication"
-        android:allowBackup="true"
+        android:allowBackup="false"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher"
@@ -47,6 +47,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Fleet"
         android:usesCleartextTraffic="false"
+        android:networkSecurityConfig="@xml/network_security_config"
         tools:targetApi="31">
 
         <!-- AR Core Metadata -->

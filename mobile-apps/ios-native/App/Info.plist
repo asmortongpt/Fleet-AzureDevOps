@@ -148,8 +148,16 @@
 	<!-- Networking Configuration -->
 	<key>NSAppTransportSecurity</key>
 	<dict>
+		<!-- Enforce strict security for all connections -->
 		<key>NSAllowsArbitraryLoads</key>
 		<false/>
+		<!-- Require minimum TLS 1.2 globally -->
+		<key>NSExceptionMinimumTLSVersion</key>
+		<string>TLSv1.2</string>
+		<!-- Enable Certificate Transparency for enhanced security -->
+		<key>NSRequiresCertificateTransparency</key>
+		<true/>
+		<!-- Exception for localhost development only -->
 		<key>NSExceptionDomains</key>
 		<dict>
 			<key>localhost</key>
@@ -208,8 +216,9 @@
 	</array>
 
 	<!-- HTTP Headers and Security -->
+	<!-- Restrict local networking - only enable if needed for development -->
 	<key>NSAllowsLocalNetworking</key>
-	<true/>
+	<false/>
 
 	<!-- Status Bar Configuration -->
 	<key>UIViewControllerBasedStatusBarAppearance</key>
