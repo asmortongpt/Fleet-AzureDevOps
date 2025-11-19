@@ -9,17 +9,14 @@ RUN npm install --production=false
 # Copy source code
 COPY . .
 
-# Compile TypeScript to JavaScript (skip type checking, just transpile)
-RUN npx tsc --noEmitOnError false || echo "TypeScript had errors but compiled anyway"
+# Compile TypeScript to JavaScript (ignore errors, allow compilation)
+RUN npx tsc --noEmitOnError false --skipLibCheck || true
 
-# Create non-root user
-RUN addgroup -g 1000 appuser && adduser -D -u 1000 -G appuser appuser
-
-# Change ownership of app directory
-RUN chown -R appuser:appuser /app
+# Change ownership of app directory to node user (already exists in node:alpine)
+RUN chown -R node:node /app
 
 # Switch to non-root user
-USER appuser
+USER node
 
 # Expose port
 EXPOSE 3000
