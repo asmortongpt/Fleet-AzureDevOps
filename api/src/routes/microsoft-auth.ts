@@ -3,16 +3,34 @@ import axios from 'axios'
 import jwt from 'jsonwebtoken'
 import pool from '../config/database'
 import { createAuditLog } from '../middleware/audit'
+import { env } from '../config/environment'
 
 const router = express.Router()
 
+// JWT Secret validation helper
+const getJwtSecret = (): string => {
+  const secret = process.env.JWT_SECRET
+  if (!secret) {
+    throw new Error('FATAL: JWT_SECRET environment variable is not configured')
+  }
+  if (secret.length < 32) {
+    throw new Error('FATAL: JWT_SECRET must be at least 32 characters long')
+  }
+  return secret
+}
+
 // Azure AD Configuration
-// IMPORTANT: These env vars come from Azure Key Vault via CSI Driver
+// IMPORTANT: These env vars come from environment or Azure Key Vault
 const AZURE_AD_CONFIG = {
-  clientId: process.env.AZURE_AD_CLIENT_ID || process.env.MICROSOFT_CLIENT_ID || '80fe6628-1dc4-41fe-894f-919b12ecc994',
-  clientSecret: process.env.AZURE_AD_CLIENT_SECRET || process.env.MICROSOFT_CLIENT_SECRET || '',
-  tenantId: process.env.AZURE_AD_TENANT_ID || process.env.MICROSOFT_TENANT_ID || '0ec14b81-7b82-45ee-8f3d-cbc31ced5347',
-  redirectUri: process.env.AZURE_AD_REDIRECT_URI || process.env.MICROSOFT_REDIRECT_URI || 'https://fleet.capitaltechalliance.com/api/auth/microsoft/callback'
+  clientId: env.get('MICROSOFT_CLIENT_ID') || '',
+  clientSecret: env.get('MICROSOFT_CLIENT_SECRET') || '',
+  tenantId: env.get('MICROSOFT_TENANT_ID') || '',
+  redirectUri: env.get('MICROSOFT_REDIRECT_URI') || 'https://fleet.capitaltechalliance.com/api/auth/microsoft/callback'
+}
+
+// Validate Microsoft OAuth configuration in production
+if (env.isProduction() && (!AZURE_AD_CONFIG.clientId || !AZURE_AD_CONFIG.clientSecret || !AZURE_AD_CONFIG.tenantId)) {
+  console.warn('⚠️  WARNING: Microsoft OAuth is not configured. SSO login will not work.')
 }
 
 /**
@@ -166,7 +184,7 @@ router.get('/microsoft/callback', async (req: Request, res: Response) => {
         tenant_id: user.tenant_id,
         role: user.role
       },
-      process.env.JWT_SECRET || 'your-secret-key-minimum-32-characters-long',
+      getJwtSecret(),
       { expiresIn: '24h' }
     )
 
