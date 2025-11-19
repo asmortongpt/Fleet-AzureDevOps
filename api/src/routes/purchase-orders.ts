@@ -6,6 +6,7 @@ import { applyFieldMasking } from '../utils/fieldMasking'
 import pool from '../config/database'
 import { z } from 'zod'
 import { buildInsertClause, buildUpdateClause } from '../utils/sql-safety'
+import { createPurchaseOrderSchema, updatePurchaseOrderSchema } from '../validation/schemas'
 
 const router = express.Router()
 router.use(authenticateJWT)
@@ -79,25 +80,27 @@ router.post(
   auditLog({ action: 'CREATE', resourceType: 'purchase_orders' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const data = req.body
+      // Validate and filter input data
+      const validatedData = createPurchaseOrderSchema.parse(req.body)
 
-      // Force status to 'draft' for new purchase orders
-      data.status = 'draft'
-      data.created_by = req.user!.id
-
+      // Build INSERT with field whitelisting to prevent mass assignment
       const { columnNames, placeholders, values } = buildInsertClause(
-        data,
-        ['tenant_id'],
-        1
+        validatedData,
+        ['tenant_id', 'status', 'created_by'],
+        1,
+        'purchase_orders'
       )
 
       const result = await pool.query(
         `INSERT INTO purchase_orders (${columnNames}) VALUES (${placeholders}) RETURNING *`,
-        [req.user!.tenant_id, ...values]
+        [req.user!.tenant_id, 'draft', req.user!.id, ...values]
       )
 
       res.status(201).json(result.rows[0])
     } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: 'Validation error', details: error.errors })
+      }
       console.error('Create purchase-orders error:', error)
       res.status(500).json({ error: 'Internal server error' })
     }

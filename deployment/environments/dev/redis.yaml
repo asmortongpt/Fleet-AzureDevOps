@@ -27,7 +27,7 @@ spec:
           image: redis:7-alpine
           securityContext:
             allowPrivilegeEscalation: false
-            readOnlyRootFilesystem: false
+            readOnlyRootFilesystem: true
             runAsNonRoot: true
             runAsUser: 999
             capabilities:
@@ -51,6 +51,10 @@ spec:
             - name: redis-config
               mountPath: /usr/local/etc/redis/redis.conf
               subPath: redis.conf
+            - name: tmp
+              mountPath: /tmp
+            - name: run
+              mountPath: /run
           resources:
             requests:
               memory: "128Mi"
@@ -78,6 +82,10 @@ spec:
         - name: redis-config
           configMap:
             name: redis-config
+        - name: tmp
+          emptyDir: {}
+        - name: run
+          emptyDir: {}
   volumeClaimTemplates:
     - metadata:
         name: redis-storage
