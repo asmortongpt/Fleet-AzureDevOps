@@ -70,10 +70,10 @@ az keyvault secret show \
 az keyvault secret set \
   --vault-name $KEY_VAULT_NAME \
   --name openai-api-key \
-  --value "sk-proj-your-new-key-here"
+  --value "YOUR_OPENAI_API_KEY_HERE"
 
 # Or use the helper script
-./scripts/access-secret.sh set openai-api-key "sk-proj-your-new-key-here"
+./scripts/access-secret.sh set openai-api-key "YOUR_OPENAI_API_KEY_HERE"
 ```
 
 ### Rotate a Secret (Generate New Random Value)
@@ -182,16 +182,16 @@ KEY_VAULT_NAME="fleet-secrets-vault-123456"
 
 # Update API keys with your actual values
 az keyvault secret set --vault-name $KEY_VAULT_NAME \
-  --name openai-api-key --value "your-real-openai-key"
+  --name openai-api-key --value "YOUR_OPENAI_API_KEY_HERE"
 
 az keyvault secret set --vault-name $KEY_VAULT_NAME \
-  --name claude-api-key --value "your-real-claude-key"
+  --name claude-api-key --value "YOUR_CLAUDE_API_KEY_HERE"
 
 az keyvault secret set --vault-name $KEY_VAULT_NAME \
-  --name gemini-api-key --value "your-real-gemini-key"
+  --name gemini-api-key --value "YOUR_GEMINI_API_KEY_HERE"
 
 az keyvault secret set --vault-name $KEY_VAULT_NAME \
-  --name azure-storage-connection-string --value "your-connection-string"
+  --name azure-storage-connection-string --value "YOUR_AZURE_STORAGE_CONNECTION_STRING_HERE"
 ```
 
 ---
