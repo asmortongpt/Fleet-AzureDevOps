@@ -165,13 +165,13 @@ export function validateURL(
     }
 
     // Subdomain match (e.g., *.blob.core.windows.net)
-    if (allowedDomain.startsWith('*.')) {
+    if (allowedDomain.indexOf('*.') === 0) {
       const baseDomain = allowedDomain.substring(2)
-      return hostname.endsWith('.' + baseDomain) || hostname === baseDomain
+      return hostname.indexOf('.' + baseDomain, hostname.length - baseDomain.length - 1) !== -1 || hostname === baseDomain
     }
 
     // Allow subdomains by default
-    return hostname.endsWith('.' + allowedDomain)
+    return hostname.indexOf('.' + allowedDomain, hostname.length - allowedDomain.length - 1) !== -1
   })
 
   if (!isAllowed) {

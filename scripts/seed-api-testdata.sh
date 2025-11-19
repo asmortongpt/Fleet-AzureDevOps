@@ -43,7 +43,7 @@ esac
 
 # Test admin credentials
 ADMIN_EMAIL="testadmin@fleet.test"
-ADMIN_PASSWORD="TestFleet@2024!"
+ADMIN_PASSWORD="${TEST_ADMIN_PASSWORD:-TestPassword123}"
 ADMIN_FIRSTNAME="Test"
 ADMIN_LASTNAME="Administrator"
 ADMIN_PHONE="850-555-0000"
