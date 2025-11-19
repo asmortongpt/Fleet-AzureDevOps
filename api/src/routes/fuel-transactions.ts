@@ -1,6 +1,6 @@
 import express, { Response } from 'express'
 import { AuthRequest, authenticateJWT } from '../middleware/auth'
-import { requirePermission } from '../middleware/permissions'
+import { requirePermission, validateScope } from '../middleware/permissions'
 import { applyFieldMasking } from '../utils/fieldMasking'
 import { auditLog } from '../middleware/audit'
 import pool from '../config/database'
@@ -72,6 +72,7 @@ router.get(
 router.get(
   '/:id',
   requirePermission('fuel_transaction:view:own'),
+  validateScope('fuel_transaction'), // BOLA protection: validate user has access based on scope (own/team/fleet)
   applyFieldMasking('fuel_transaction'),
   auditLog({ action: 'READ', resourceType: 'fuel_transactions' }),
   async (req: AuthRequest, res: Response) => {
@@ -82,7 +83,7 @@ router.get(
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'FuelTransactions not found' })
+        return res.status(404).json({ error: 'Fuel transaction not found' })
       }
 
       res.json(result.rows[0])

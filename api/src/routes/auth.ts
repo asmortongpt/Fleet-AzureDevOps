@@ -4,23 +4,9 @@ import jwt from 'jsonwebtoken'
 import pool from '../config/database'
 import { createAuditLog } from '../middleware/audit'
 import { z } from 'zod'
-import { JWTPayload, User } from '../types'
-import { ApiResponse } from '../utils/apiResponse'
-import { validate } from '../middleware/validation'
+import { loginLimiter, registrationLimiter } from '../config/rate-limiters'
 
 const router = express.Router()
-
-// JWT Secret validation helper
-const getJwtSecret = (): string => {
-  const secret = process.env.JWT_SECRET
-  if (!secret) {
-    throw new Error('FATAL: JWT_SECRET environment variable is not configured')
-  }
-  if (secret.length < 32) {
-    throw new Error('FATAL: JWT_SECRET must be at least 32 characters long')
-  }
-  return secret
-}
 
 // Validation schemas
 const loginSchema = z.object({
@@ -38,8 +24,9 @@ const registerSchema = z.object({
     .regex(/[^A-Za-z0-9]/, 'Password must contain special character'),
   first_name: z.string().min(1),
   last_name: z.string().min(1),
-  phone: z.string().optional(),
-  role: z.enum(['admin', 'fleet_manager', 'driver', 'technician', 'viewer']).default('viewer')
+  phone: z.string().optional()
+  // SECURITY: Role is NOT accepted in registration - always defaults to 'viewer'
+  // This prevents privilege escalation attacks during self-registration
 })
 
 /**
@@ -110,115 +97,36 @@ const registerSchema = z.object({
  *                   format: date-time
  */
 // POST /api/auth/login
-router.post('/login',
-  validate([
-    { field: 'email', required: true, type: 'email' },
-    { field: 'password', required: true, minLength: 1 }
-  ]),
-  async (req: Request, res: Response) => {
-    try {
-      const { email, password } = req.body
+router.post('/login', loginLimiter, async (req: Request, res: Response) => {
+  try {
+    const { email, password } = loginSchema.parse(req.body)
 
-      // Get user - explicit columns for performance and security
-      const userResult = await pool.query(
-        `SELECT id, tenant_id, email, password_hash, first_name, last_name, role,
-                failed_login_attempts, account_locked_until, is_active, created_at
-         FROM users WHERE email = $1 AND is_active = true`,
-        [email.toLowerCase()]
+    // Get user
+    const userResult = await pool.query(
+      `SELECT * FROM users WHERE email = $1 AND is_active = true`,
+      [email.toLowerCase()]
+    )
+
+    if (userResult.rows.length === 0) {
+      await createAuditLog(
+        null,
+        null,
+        'LOGIN',
+        'users',
+        null,
+        { email },
+        req.ip || null,
+        req.get('User-Agent') || null,
+        'failure',
+        'User not found or inactive'
       )
+      return res.status(401).json({ error: 'Invalid credentials' })
+    }
 
-      if (userResult.rows.length === 0) {
-        await createAuditLog(
-          null,
-          null,
-          'LOGIN',
-          'users',
-          null,
-          { email },
-          req.ip || null,
-          req.get('User-Agent') || null,
-          'failure',
-          'User not found or inactive'
-        )
-        return ApiResponse.unauthorized(res, 'Invalid credentials')
-      }
+    const user = userResult.rows[0]
 
-      const user = userResult.rows[0]
-
-      // Check if account is locked (FedRAMP AC-7)
-      if (user.account_locked_until && new Date(user.account_locked_until) > new Date()) {
-        await createAuditLog(
-          user.tenant_id,
-          user.id,
-          'LOGIN',
-          'users',
-          user.id,
-          { email },
-          req.ip || null,
-          req.get('User-Agent') || null,
-          'failure',
-          'Account locked'
-        )
-        return ApiResponse.locked(res, 'Account locked due to multiple failed login attempts', {
-          locked_until: user.account_locked_until
-        })
-      }
-
-      // Verify password
-      const validPassword = await bcrypt.compare(password, user.password_hash)
-
-      if (!validPassword) {
-        // Increment failed attempts
-        const newAttempts = user.failed_login_attempts + 1
-        const lockAccount = newAttempts >= 3
-        const lockedUntil = lockAccount ? new Date(Date.now() + 30 * 60 * 1000) : null // 30 minutes
-
-        await pool.query(
-          `UPDATE users
-           SET failed_login_attempts = $1,
-               account_locked_until = $2
-           WHERE id = $3`,
-          [newAttempts, lockedUntil, user.id]
-        )
-
-        await createAuditLog(
-          user.tenant_id,
-          user.id,
-          'LOGIN',
-          'users',
-          user.id,
-          { email, attempts: newAttempts },
-          req.ip || null,
-          req.get('User-Agent') || null,
-          'failure',
-          `Invalid password (attempt ${newAttempts}/3)`
-        )
-
-        return ApiResponse.unauthorized(res, 'Invalid credentials')
-      }
-
-      // Reset failed attempts on successful login
-      await pool.query(
-        `UPDATE users
-         SET failed_login_attempts = 0,
-             account_locked_until = NULL,
-             last_login_at = NOW()
-         WHERE id = $1`,
-        [user.id]
-      )
-
-      // Generate JWT token
-      const token = jwt.sign(
-        {
-          id: user.id,
-          email: user.email,
-          role: user.role,
-          tenant_id: user.tenant_id
-        },
-        getJwtSecret(),
-        { expiresIn: '24h' }
-      )
-
+    // Check if account is locked (FedRAMP AC-7)
+    if (user.account_locked_until && new Date(user.account_locked_until) > new Date()) {
       await createAuditLog(
         user.tenant_id,
         user.id,
@@ -228,124 +136,201 @@ router.post('/login',
         { email },
         req.ip || null,
         req.get('User-Agent') || null,
-        'success'
+        'failure',
+        'Account locked'
       )
-
-      return ApiResponse.success(res, {
-        token,
-        user: {
-          id: user.id,
-          email: user.email,
-          first_name: user.first_name,
-          last_name: user.last_name,
-          role: user.role,
-          tenant_id: user.tenant_id
-        }
-      }, 'Login successful')
-    } catch (error) {
-      console.error('Login error:', error)
-      return ApiResponse.serverError(res, 'Login failed')
+      return res.status(423).json({
+        error: 'Account locked due to multiple failed login attempts',
+        locked_until: user.account_locked_until
+      })
     }
-  }
-)
 
-// POST /api/auth/register
-router.post('/register',
-  validate([
-    { field: 'email', required: true, type: 'email' },
-    { field: 'password', required: true, minLength: 8,
-      custom: (value) => {
-        if (!/[A-Z]/.test(value)) return 'Password must contain uppercase letter'
-        if (!/[a-z]/.test(value)) return 'Password must contain lowercase letter'
-        if (!/[0-9]/.test(value)) return 'Password must contain number'
-        if (!/[^A-Za-z0-9]/.test(value)) return 'Password must contain special character'
-        return true
-      }
-    },
-    { field: 'first_name', required: true, minLength: 1 },
-    { field: 'last_name', required: true, minLength: 1 },
-    { field: 'phone', required: false, type: 'phone' },
-    { field: 'role', required: false, enum: ['admin', 'fleet_manager', 'driver', 'technician', 'viewer'] }
-  ]),
-  async (req: Request, res: Response) => {
-    try {
-      const data = req.body
-      const role = data.role || 'viewer'
+    // Verify password
+    const validPassword = await bcrypt.compare(password, user.password_hash)
 
-      // Check if user already exists
-      const existing = await pool.query(
-        'SELECT id FROM users WHERE email = $1',
-        [data.email.toLowerCase()]
+    if (!validPassword) {
+      // Increment failed attempts
+      const newAttempts = user.failed_login_attempts + 1
+      const lockAccount = newAttempts >= 3
+      const lockedUntil = lockAccount ? new Date(Date.now() + 30 * 60 * 1000) : null // 30 minutes
+
+      await pool.query(
+        `UPDATE users
+         SET failed_login_attempts = $1,
+             account_locked_until = $2
+         WHERE id = $3`,
+        [newAttempts, lockedUntil, user.id]
       )
-
-      if (existing.rows.length > 0) {
-        return ApiResponse.conflict(res, 'Email already registered')
-      }
-
-      // Hash password
-      const passwordHash = await bcrypt.hash(data.password, 10)
-
-      // Get default tenant (or create one)
-      let tenantResult = await pool.query('SELECT id FROM tenants LIMIT 1')
-      let tenantId: string
-
-      if (tenantResult.rows.length === 0) {
-        const newTenant = await pool.query(
-          `INSERT INTO tenants (name, domain) VALUES ($1, $2) RETURNING id`,
-          ['Default Tenant', 'default']
-        )
-        tenantId = newTenant.rows[0].id
-      } else {
-        tenantId = tenantResult.rows[0].id
-      }
-
-      // Create user
-      const userResult = await pool.query(
-        `INSERT INTO users (
-          tenant_id, email, password_hash, first_name, last_name, phone, role
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7)
-        RETURNING id, email, first_name, last_name, role, tenant_id`,
-        [
-          tenantId,
-          data.email.toLowerCase(),
-          passwordHash,
-          data.first_name,
-          data.last_name,
-          data.phone || null,
-          role
-        ]
-      )
-
-      const user = userResult.rows[0]
 
       await createAuditLog(
-        tenantId,
+        user.tenant_id,
         user.id,
-        'CREATE',
+        'LOGIN',
         'users',
         user.id,
-        { email: data.email, role: role },
+        { email, attempts: newAttempts },
         req.ip || null,
         req.get('User-Agent') || null,
-        'success'
+        'failure',
+        `Invalid password (attempt ${newAttempts}/3)`
       )
 
-      return ApiResponse.success(res, {
-        user: {
-          id: user.id,
-          email: user.email,
-          first_name: user.first_name,
-          last_name: user.last_name,
-          role: user.role,
-          tenant_id: user.tenant_id
-        }
-      }, 'User registered successfully', 201)
-    } catch (error) {
-      console.error('Register error:', error)
-      return ApiResponse.serverError(res, 'Registration failed')
+      return res.status(401).json({
+        error: 'Invalid credentials',
+        attempts_remaining: Math.max(0, 3 - newAttempts)
+      })
     }
+
+    // Reset failed attempts on successful login
+    await pool.query(
+      `UPDATE users
+       SET failed_login_attempts = 0,
+           account_locked_until = NULL,
+           last_login_at = NOW()
+       WHERE id = $1`,
+      [user.id]
+    )
+
+    // SECURITY: Generate JWT token with validated secret
+    // JWT_SECRET must be set and must be at least 32 characters
+    if (!process.env.JWT_SECRET) {
+      console.error('FATAL: JWT_SECRET environment variable is not set')
+      return res.status(500).json({ error: 'Server configuration error - authentication unavailable' })
+    }
+
+    if (process.env.JWT_SECRET.length < 32) {
+      console.error('FATAL: JWT_SECRET must be at least 32 characters')
+      return res.status(500).json({ error: 'Server configuration error - authentication unavailable' })
+    }
+
+    const token = jwt.sign(
+      {
+        id: user.id,
+        email: user.email,
+        role: user.role,
+        tenant_id: user.tenant_id
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: '24h' }
+    )
+
+    await createAuditLog(
+      user.tenant_id,
+      user.id,
+      'LOGIN',
+      'users',
+      user.id,
+      { email },
+      req.ip || null,
+      req.get('User-Agent') || null,
+      'success'
+    )
+
+    res.json({
+      token,
+      user: {
+        id: user.id,
+        email: user.email,
+        first_name: user.first_name,
+        last_name: user.last_name,
+        role: user.role,
+        tenant_id: user.tenant_id
+      }
+    })
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ error: 'Validation error', details: error.errors })
+    }
+    console.error('Login error:', error)
+    res.status(500).json({ error: 'Internal server error' })
   }
-)
+})
+
+// POST /api/auth/register
+router.post('/register', registrationLimiter, async (req: Request, res: Response) => {
+  try {
+    const data = registerSchema.parse(req.body)
+
+    // Check if user already exists
+    const existing = await pool.query(
+      'SELECT id FROM users WHERE email = $1',
+      [data.email.toLowerCase()]
+    )
+
+    if (existing.rows.length > 0) {
+      return res.status(409).json({ error: 'Email already registered' })
+    }
+
+    // Hash password
+    const passwordHash = await bcrypt.hash(data.password, 10)
+
+    // Get default tenant (or create one)
+    let tenantResult = await pool.query('SELECT id FROM tenants LIMIT 1')
+    let tenantId: string
+
+    if (tenantResult.rows.length === 0) {
+      const newTenant = await pool.query(
+        `INSERT INTO tenants (name, domain) VALUES ($1, $2) RETURNING id`,
+        ['Default Tenant', 'default']
+      )
+      tenantId = newTenant.rows[0].id
+    } else {
+      tenantId = tenantResult.rows[0].id
+    }
+
+    // SECURITY: Force role to 'viewer' for all self-registrations
+    // This prevents privilege escalation attacks during registration
+    const defaultRole = 'viewer'
+
+    // Create user with forced role
+    const userResult = await pool.query(
+      `INSERT INTO users (
+        tenant_id, email, password_hash, first_name, last_name, phone, role
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7)
+      RETURNING id, email, first_name, last_name, role, tenant_id`,
+      [
+        tenantId,
+        data.email.toLowerCase(),
+        passwordHash,
+        data.first_name,
+        data.last_name,
+        data.phone || null,
+        defaultRole
+      ]
+    )
+
+    const user = userResult.rows[0]
+
+    await createAuditLog(
+      tenantId,
+      user.id,
+      'CREATE',
+      'users',
+      user.id,
+      { email: data.email, role: defaultRole },
+      req.ip || null,
+      req.get('User-Agent') || null,
+      'success'
+    )
+
+    res.status(201).json({
+      user: {
+        id: user.id,
+        email: user.email,
+        first_name: user.first_name,
+        last_name: user.last_name,
+        role: user.role,
+        tenant_id: user.tenant_id
+      }
+    })
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ error: 'Validation error', details: error.errors })
+    }
+    console.error('Register error:', error)
+    res.status(500).json({ error: 'Internal server error' })
+  }
+})
 
 // POST /api/auth/logout
 router.post('/logout', async (req: Request, res: Response) => {
@@ -353,7 +338,13 @@ router.post('/logout', async (req: Request, res: Response) => {
 
   if (token) {
     try {
-      const decoded = jwt.verify(token, getJwtSecret()) as JWTPayload
+      // SECURITY: Validate JWT_SECRET before attempting to verify token
+      if (!process.env.JWT_SECRET) {
+        console.error('FATAL: JWT_SECRET environment variable is not set')
+        return res.status(500).json({ error: 'Server configuration error' })
+      }
+
+      const decoded = jwt.verify(token, process.env.JWT_SECRET) as any
 
       await createAuditLog(
         decoded.tenant_id,
@@ -371,7 +362,7 @@ router.post('/logout', async (req: Request, res: Response) => {
     }
   }
 
-  return ApiResponse.success(res, {}, 'Logged out successfully')
+  res.json({ message: 'Logged out successfully' })
 })
 
 export default router

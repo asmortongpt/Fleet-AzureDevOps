@@ -17,6 +17,13 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy application code
 COPY app.py .
 
+# Create non-root user for security
+RUN groupadd -r testorch && useradd -r -g testorch -u 1001 testorch \
+    && chown -R testorch:testorch /app
+
+# Switch to non-root user
+USER testorch
+
 # Expose port
 EXPOSE 8001
 
