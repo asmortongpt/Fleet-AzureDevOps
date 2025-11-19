@@ -6,6 +6,7 @@
 import { db } from '../db';
 import admin from 'firebase-admin';
 import apn from 'apn';
+import { SqlParams } from '../types';
 
 // Types
 export interface MobileDevice {
@@ -434,7 +435,7 @@ class PushNotificationService {
         WHERE n.tenant_id = $1
       `;
 
-      const params: any[] = [tenantId];
+      const params: SqlParams = [tenantId];
       let paramIndex = 2;
 
       if (filters?.category) {
@@ -498,7 +499,7 @@ class PushNotificationService {
         WHERE n.tenant_id = $1 AND n.delivery_status IN ('sent', 'sending')
       `;
 
-      const params: any[] = [tenantId];
+      const params: SqlParams = [tenantId];
 
       if (dateRange) {
         query += ` AND n.created_at BETWEEN $2 AND $3`;
@@ -536,7 +537,7 @@ class PushNotificationService {
   async getTemplates(tenantId: string, category?: string) {
     try {
       let query = 'SELECT * FROM push_notification_templates WHERE tenant_id = $1 AND is_active = true';
-      const params: any[] = [tenantId];
+      const params: SqlParams = [tenantId];
 
       if (category) {
         query += ' AND category = $2';

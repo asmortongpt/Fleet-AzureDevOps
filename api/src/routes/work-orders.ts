@@ -76,7 +76,12 @@ router.get(
       }
 
       const result = await pool.query(
-        `SELECT * FROM work_orders ${whereClause} ORDER BY created_at DESC LIMIT $${queryParams.length + 1} OFFSET $${queryParams.length + 2}`,
+        `SELECT id, tenant_id, work_order_number, vehicle_id, facility_id,
+                assigned_technician_id, type, priority, status, description,
+                scheduled_start, scheduled_end, actual_start, actual_end,
+                labor_hours, labor_cost, parts_cost, odometer_reading,
+                engine_hours_reading, created_by, created_at, updated_at
+         FROM work_orders ${whereClause} ORDER BY created_at DESC LIMIT $${queryParams.length + 1} OFFSET $${queryParams.length + 2}`,
         [...queryParams, limit, offset]
       )
 
@@ -110,7 +115,12 @@ router.get(
   async (req: AuthRequest, res: Response) => {
     try {
       const result = await pool.query(
-        'SELECT * FROM work_orders WHERE id = $1 AND tenant_id = $2',
+        `SELECT id, tenant_id, work_order_number, vehicle_id, facility_id,
+                assigned_technician_id, type, priority, status, description,
+                scheduled_start, scheduled_end, actual_start, actual_end,
+                labor_hours, labor_cost, parts_cost, notes, odometer_reading,
+                engine_hours_reading, created_by, created_at, updated_at
+         FROM work_orders WHERE id = $1 AND tenant_id = $2`,
         [req.params.id, req.user!.tenant_id]
       )
 
