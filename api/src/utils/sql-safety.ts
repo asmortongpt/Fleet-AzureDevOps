@@ -104,3 +104,202 @@ export function validateTableName(tableName: string): string {
   }
   return tableName
 }
+
+/**
+ * Advanced query builder with pagination and sorting
+ */
+export interface QueryBuilderOptions {
+  table: string
+  columns?: string[]
+  where?: Record<string, any>
+  orderBy?: string
+  orderDirection?: 'ASC' | 'DESC'
+  limit?: number
+  offset?: number
+  joins?: Array<{
+    type: 'INNER' | 'LEFT' | 'RIGHT'
+    table: string
+    on: string
+  }>
+}
+
+/**
+ * Build a complete SELECT query with safety checks
+ */
+export function buildSelectQuery(options: QueryBuilderOptions): {
+  query: string
+  values: any[]
+} {
+  const {
+    table,
+    columns = ['*'],
+    where,
+    orderBy,
+    orderDirection = 'DESC',
+    limit,
+    offset,
+    joins = []
+  } = options
+
+  // Validate table name
+  validateTableName(table)
+
+  // Validate column names (unless SELECT *)
+  if (columns[0] !== '*') {
+    validateColumnNames(columns)
+  }
+
+  // Build SELECT clause
+  const selectClause = columns.join(', ')
+
+  // Build JOIN clauses
+  let joinClauses = ''
+  for (const join of joins) {
+    validateTableName(join.table)
+    joinClauses += ` ${join.type} JOIN ${join.table} ON ${join.on}`
+  }
+
+  // Build WHERE clause
+  let whereClause = ''
+  const values: any[] = []
+  if (where) {
+    const { whereClause: wc, values: wv } = buildWhereClause(where)
+    whereClause = ` WHERE ${wc}`
+    values.push(...wv)
+  }
+
+  // Build ORDER BY clause
+  let orderClause = ''
+  if (orderBy) {
+    validateColumnNames([orderBy])
+    const direction = orderDirection === 'ASC' ? 'ASC' : 'DESC'
+    orderClause = ` ORDER BY ${orderBy} ${direction}`
+  }
+
+  // Build LIMIT and OFFSET
+  let limitClause = ''
+  if (limit !== undefined) {
+    limitClause = ` LIMIT $${values.length + 1}`
+    values.push(limit)
+  }
+
+  let offsetClause = ''
+  if (offset !== undefined) {
+    offsetClause = ` OFFSET $${values.length + 1}`
+    values.push(offset)
+  }
+
+  // Construct final query
+  const query = `SELECT ${selectClause} FROM ${table}${joinClauses}${whereClause}${orderClause}${limitClause}${offsetClause}`
+
+  return { query, values }
+}
+
+/**
+ * Sanitize user input to prevent SQL injection
+ * Note: Always use parameterized queries, but this provides an extra layer
+ */
+export function sanitizeInput(input: string): string {
+  // Remove potential SQL injection patterns
+  return input
+    .replace(/['";\\]/g, '') // Remove quotes and backslashes
+    .replace(/--/g, '') // Remove SQL comments
+    .replace(/\/\*/g, '') // Remove multi-line comment start
+    .replace(/\*\//g, '') // Remove multi-line comment end
+    .replace(/xp_/gi, '') // Remove SQL Server extended procedures
+    .replace(/sp_/gi, '') // Remove SQL Server stored procedures
+    .trim()
+}
+
+/**
+ * Validate pagination parameters
+ */
+export function validatePagination(page?: number, limit?: number): {
+  page: number
+  limit: number
+  offset: number
+} {
+  const validPage = Math.max(1, Math.floor(page || 1))
+  const validLimit = Math.min(100, Math.max(1, Math.floor(limit || 50)))
+  const offset = (validPage - 1) * validLimit
+
+  return { page: validPage, limit: validLimit, offset }
+}
+
+/**
+ * Build a safe ORDER BY clause with multiple columns
+ */
+export function buildOrderByClause(
+  sorts: Array<{ column: string; direction?: 'ASC' | 'DESC' }>
+): string {
+  if (!sorts || sorts.length === 0) {
+    return ''
+  }
+
+  // Validate all column names
+  validateColumnNames(sorts.map(s => s.column))
+
+  const orderParts = sorts.map(sort => {
+    const direction = sort.direction === 'ASC' ? 'ASC' : 'DESC'
+    return `${sort.column} ${direction}`
+  })
+
+  return ` ORDER BY ${orderParts.join(', ')}`
+}
+
+/**
+ * Build IN clause safely
+ */
+export function buildInClause(
+  column: string,
+  values: any[],
+  startIndex: number = 1
+): { inClause: string; values: any[] } {
+  validateColumnNames([column])
+
+  if (!values || values.length === 0) {
+    throw new Error('IN clause requires at least one value')
+  }
+
+  const placeholders = values.map((_, i) => `$${i + startIndex}`).join(', ')
+  const inClause = `${column} IN (${placeholders})`
+
+  return { inClause, values }
+}
+
+/**
+ * Escape LIKE patterns to prevent wildcard injection
+ */
+export function escapeLikePattern(pattern: string): string {
+  return pattern
+    .replace(/\\/g, '\\\\')
+    .replace(/%/g, '\\%')
+    .replace(/_/g, '\\_')
+}
+
+/**
+ * Build LIKE clause for search
+ */
+export function buildLikeClause(
+  columns: string[],
+  searchTerm: string,
+  startIndex: number = 1
+): { likeClause: string; values: any[] } {
+  validateColumnNames(columns)
+
+  if (!searchTerm || searchTerm.trim() === '') {
+    throw new Error('Search term cannot be empty')
+  }
+
+  const escapedTerm = escapeLikePattern(searchTerm.trim())
+  const pattern = `%${escapedTerm}%`
+
+  const likeParts = columns.map((col, i) => {
+    return `${col} ILIKE $${startIndex + i}`
+  })
+
+  const likeClause = likeParts.join(' OR ')
+  const values = columns.map(() => pattern)
+
+  return { likeClause, values }
+}

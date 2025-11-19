@@ -1,0 +1,232 @@
+# Test Orchestrator Service
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: test-orchestrator
+  namespace: ctafleet
+  labels:
+    app: fleet
+    component: test-orchestrator
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: fleet
+      component: test-orchestrator
+  template:
+    metadata:
+      labels:
+        app: fleet
+        component: test-orchestrator
+    spec:
+      containers:
+      - name: test-orchestrator
+        image: fleetappregistry.azurecr.io/fleet-test-orchestrator:latest
+        imagePullPolicy: Always
+        ports:
+        - name: http
+          containerPort: 8000
+          protocol: TCP
+        envFrom:
+        - secretRef:
+            name: fleet-secrets
+        env:
+        - name: ENVIRONMENT
+          value: "production"
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "200m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 30
+          periodSeconds: 30
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 10
+          periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: test-orchestrator-service
+  namespace: ctafleet
+  labels:
+    app: fleet
+    component: test-orchestrator
+spec:
+  type: ClusterIP
+  selector:
+    app: fleet
+    component: test-orchestrator
+  ports:
+  - name: http
+    port: 8000
+    targetPort: 8000
+---
+# RAG Indexer Service
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rag-indexer
+  namespace: ctafleet
+  labels:
+    app: fleet
+    component: rag-indexer
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: fleet
+      component: rag-indexer
+  template:
+    metadata:
+      labels:
+        app: fleet
+        component: rag-indexer
+    spec:
+      containers:
+      - name: rag-indexer
+        image: fleetappregistry.azurecr.io/fleet-rag-indexer:latest
+        imagePullPolicy: Always
+        ports:
+        - name: http
+          containerPort: 8001
+          protocol: TCP
+        envFrom:
+        - secretRef:
+            name: fleet-secrets
+        env:
+        - name: ENVIRONMENT
+          value: "production"
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "200m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8001
+          initialDelaySeconds: 30
+          periodSeconds: 30
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8001
+          initialDelaySeconds: 10
+          periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: rag-indexer-service
+  namespace: ctafleet
+  labels:
+    app: fleet
+    component: rag-indexer
+spec:
+  type: ClusterIP
+  selector:
+    app: fleet
+    component: rag-indexer
+  ports:
+  - name: http
+    port: 8001
+    targetPort: 8001
+---
+# Playwright Runner Service
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: playwright-runner
+  namespace: ctafleet
+  labels:
+    app: fleet
+    component: playwright-runner
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: fleet
+      component: playwright-runner
+  template:
+    metadata:
+      labels:
+        app: fleet
+        component: playwright-runner
+    spec:
+      containers:
+      - name: playwright-runner
+        image: fleetappregistry.azurecr.io/fleet-playwright-runner:latest
+        imagePullPolicy: Always
+        ports:
+        - name: http
+          containerPort: 8002
+          protocol: TCP
+        env:
+        - name: TARGET_URL
+          value: "http://fleet-frontend-service"
+        - name: ENVIRONMENT
+          value: "production"
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "500m"
+          limits:
+            memory: "2Gi"
+            cpu: "1000m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8002
+          initialDelaySeconds: 30
+          periodSeconds: 30
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8002
+          initialDelaySeconds: 30
+          periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: playwright-runner-service
+  namespace: ctafleet
+  labels:
+    app: fleet
+    component: playwright-runner
+spec:
+  type: ClusterIP
+  selector:
+    app: fleet
+    component: playwright-runner
+  ports:
+  - name: http
+    port: 8002
+    targetPort: 8002
