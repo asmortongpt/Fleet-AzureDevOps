@@ -23,13 +23,18 @@ spec:
         runAsNonRoot: true
         runAsUser: 1000
         fsGroup: 1000
+      volumes:
+      - name: tmp
+        emptyDir: {}
+      - name: app-cache
+        emptyDir: {}
       containers:
       - name: fleet-api
         image: fleetappregistry.azurecr.io/fleet-api:dev
         imagePullPolicy: Always
         securityContext:
           allowPrivilegeEscalation: false
-          readOnlyRootFilesystem: false
+          readOnlyRootFilesystem: true
           runAsNonRoot: true
           runAsUser: 1000
           capabilities:
@@ -89,6 +94,11 @@ spec:
             configMapKeyRef:
               name: fleet-api-config
               key: CORS_ORIGIN
+        volumeMounts:
+        - name: tmp
+          mountPath: /tmp
+        - name: app-cache
+          mountPath: /app/.cache
         resources:
           requests:
             memory: "128Mi"
