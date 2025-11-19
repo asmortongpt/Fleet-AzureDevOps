@@ -31,9 +31,21 @@ spec:
       labels:
         app: triposr
     spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
       containers:
       - name: triposr
         image: fleetappregistry.azurecr.io/triposr-api:latest
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: false
+          runAsNonRoot: true
+          runAsUser: 1000
+          capabilities:
+            drop:
+              - ALL
         ports:
         - containerPort: 8000
         resources:

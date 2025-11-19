@@ -4,6 +4,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
 
+    // Security: Privacy overlay to hide sensitive data when app is backgrounded
+    private var privacyProtectionWindow: UIWindow?
+
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
 
         print("✅ DCF Fleet Management - Minimal MVP")
@@ -63,6 +66,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func applicationWillResignActive(_ application: UIApplication) {
         // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
         // Use this method to pause ongoing tasks, disable timers, and invalidate graphics rendering callbacks. Games should use this method to pause the game.
+
+        // Security: Show privacy overlay to hide sensitive data in app switcher
+        showPrivacyProtectionScreen()
     }
 
     func applicationDidEnterBackground(_ application: UIApplication) {
@@ -86,6 +92,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func applicationDidBecomeActive(_ application: UIApplication) {
         // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
 
+        // Security: Remove privacy overlay when app becomes active
+        hidePrivacyProtectionScreen()
+
         // Log session start
         AnalyticsManager.shared.logSessionStart()
 
@@ -108,6 +117,60 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, continue userActivity: NSUserActivity, restorationHandler: @escaping ([UIUserActivityRestoring]?) -> Void) -> Bool {
         // Handle Universal Links for the native app
         return true
+    }
+
+    // MARK: - Security - Privacy Protection
+
+    /// Shows a privacy overlay screen to hide sensitive data when app is backgrounded
+    private func showPrivacyProtectionScreen() {
+        guard privacyProtectionWindow == nil else { return }
+
+        // Create a new window for the privacy screen
+        let privacyWindow = UIWindow(frame: UIScreen.main.bounds)
+
+        // Create a simple view controller with app logo or branding
+        let privacyVC = UIViewController()
+        privacyVC.view.backgroundColor = .systemBackground
+
+        // Add app logo or branding to center
+        let imageView = UIImageView(image: UIImage(named: "AppIcon") ?? UIImage())
+        imageView.contentMode = .scaleAspectFit
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        privacyVC.view.addSubview(imageView)
+
+        // Add app name label
+        let label = UILabel()
+        label.text = "DCF Fleet Management"
+        label.font = UIFont.systemFont(ofSize: 24, weight: .semibold)
+        label.textAlignment = .center
+        label.translatesAutoresizingMaskIntoConstraints = false
+        privacyVC.view.addSubview(label)
+
+        // Layout constraints
+        NSLayoutConstraint.activate([
+            imageView.centerXAnchor.constraint(equalTo: privacyVC.view.centerXAnchor),
+            imageView.centerYAnchor.constraint(equalTo: privacyVC.view.centerYAnchor, constant: -40),
+            imageView.widthAnchor.constraint(equalToConstant: 120),
+            imageView.heightAnchor.constraint(equalToConstant: 120),
+
+            label.topAnchor.constraint(equalTo: imageView.bottomAnchor, constant: 20),
+            label.centerXAnchor.constraint(equalTo: privacyVC.view.centerXAnchor),
+            label.leadingAnchor.constraint(greaterThanOrEqualTo: privacyVC.view.leadingAnchor, constant: 20),
+            label.trailingAnchor.constraint(lessThanOrEqualTo: privacyVC.view.trailingAnchor, constant: -20)
+        ])
+
+        privacyWindow.rootViewController = privacyVC
+        privacyWindow.windowLevel = .alert + 1
+        privacyWindow.makeKeyAndVisible()
+
+        privacyProtectionWindow = privacyWindow
+    }
+
+    /// Hides the privacy overlay screen when app becomes active
+    private func hidePrivacyProtectionScreen() {
+        privacyProtectionWindow?.isHidden = true
+        privacyProtectionWindow = nil
+        window?.makeKeyAndVisible()
     }
 
 }
