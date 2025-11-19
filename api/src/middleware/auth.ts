@@ -1,14 +1,31 @@
 import { Request, Response, NextFunction } from 'express'
 import jwt from 'jsonwebtoken'
 import pool from '../config/database'
+import { JWTPayload } from '../types'
+
+// JWT Secret validation helper
+const getJwtSecret = (): string => {
+  const secret = process.env.JWT_SECRET
+  if (!secret) {
+    throw new Error('FATAL: JWT_SECRET environment variable is not configured')
+  }
+  if (secret.length < 32) {
+    throw new Error('FATAL: JWT_SECRET must be at least 32 characters long')
+  }
+  return secret
+}
+
+// Startup check - verify JWT_SECRET is configured at module load time
+try {
+  getJwtSecret()
+  console.log('✅ JWT_SECRET validation passed')
+} catch (error) {
+  console.error('❌ JWT_SECRET validation failed:', (error as Error).message)
+  throw error
+}
 
 export interface AuthRequest extends Request {
-  user?: {
-    id: string
-    email: string
-    role: string
-    tenant_id: string
-  }
+  user?: JWTPayload
 }
 
 export const authenticateJWT = async (
@@ -16,29 +33,6 @@ export const authenticateJWT = async (
   res: Response,
   next: NextFunction
 ) => {
-  // If req.user already exists (set by global middleware), skip JWT validation
-  if (req.user) {
-    console.log('✅ AUTH MIDDLEWARE - User already authenticated via global middleware')
-    return next()
-  }
-
-  // DEBUG: Log environment variable value
-  console.log('🔍 AUTH MIDDLEWARE - USE_MOCK_DATA:', process.env.USE_MOCK_DATA)
-  console.log('🔍 AUTH MIDDLEWARE - USE_MOCK_DATA type:', typeof process.env.USE_MOCK_DATA)
-
-  // If USE_MOCK_DATA is enabled, bypass authentication for dev/staging
-  if (process.env.USE_MOCK_DATA === 'true') {
-    console.log('✅ AUTH MIDDLEWARE - BYPASSING AUTHENTICATION for mock data mode')
-    // Create a mock user for database queries that require tenant_id
-    req.user = {
-      id: '1',
-      email: 'demo@fleet.local',
-      role: 'admin',
-      tenant_id: '1'
-    }
-    return next()
-  }
-
   console.log('🔒 AUTH MIDDLEWARE - CHECKING JWT TOKEN')
   const token = req.headers.authorization?.split(' ')[1]
 
@@ -47,14 +41,8 @@ export const authenticateJWT = async (
     return res.status(401).json({ error: 'Authentication required' })
   }
 
-  // SECURITY: JWT_SECRET must be set in environment variables
-  if (!process.env.JWT_SECRET) {
-    console.error('FATAL: JWT_SECRET environment variable is not set')
-    return res.status(500).json({ error: 'Server configuration error' })
-  }
-
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET) as any
+    const decoded = jwt.verify(token, getJwtSecret()) as JWTPayload
     req.user = decoded
     next()
   } catch (error) {
@@ -68,20 +56,9 @@ export const authorize = (...roles: string[]) => {
       return res.status(401).json({ error: 'Authentication required' })
     }
 
-    // TEMPORARY FIX: Allow all authenticated users for GET requests (read-only)
-    // This enables the frontend to load data while we update role assignments
-    if (req.method === 'GET') {
-      console.log('✅ AUTHORIZE - Allowing GET request for authenticated user:', req.user.role)
-      return next()
-    }
-
-    // For non-GET requests (POST, PUT, DELETE), enforce role-based access
+    // Enforce RBAC for ALL HTTP methods (GET, POST, PUT, DELETE)
     if (!roles.includes(req.user.role)) {
-      console.log('❌ AUTHORIZE - Permission denied:', {
-        method: req.method,
-        required: roles,
-        current: req.user.role
-      })
+      console.log(`❌ AUTHORIZE - Access denied. User role: ${req.user.role}, Required: ${roles.join(', ')}`)
       return res.status(403).json({
         error: 'Insufficient permissions',
         required: roles,
@@ -89,6 +66,7 @@ export const authorize = (...roles: string[]) => {
       })
     }
 
+    console.log(`✅ AUTHORIZE - Access granted. User: ${req.user.email}, Role: ${req.user.role}`)
     next()
   }
 }

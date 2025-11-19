@@ -4,14 +4,224 @@ Complete guide for setting up, running, and troubleshooting tests for the Fleet 
 
 ## Table of Contents
 
-1. [Quick Start](#quick-start)
-2. [Test Data Setup](#test-data-setup)
-3. [Running Tests](#running-tests)
-4. [Test Environment](#test-environment)
-5. [Authentication Bypass](#authentication-bypass)
-6. [Current Test Status](#current-test-status)
-7. [Troubleshooting](#troubleshooting)
-8. [Test Configuration](#test-configuration)
+1. [API Unit Testing with Jest](#api-unit-testing-with-jest)
+2. [Quick Start](#quick-start)
+3. [Test Data Setup](#test-data-setup)
+4. [Running Tests](#running-tests)
+5. [Test Environment](#test-environment)
+6. [Authentication Bypass](#authentication-bypass)
+7. [Current Test Status](#current-test-status)
+8. [Troubleshooting](#troubleshooting)
+9. [Test Configuration](#test-configuration)
+
+---
+
+## API Unit Testing with Jest
+
+### Overview
+
+The Fleet API (`/home/user/Fleet/api`) uses Jest as the primary testing framework for unit and integration tests. This provides fast, reliable testing for backend middleware, utilities, and API endpoints.
+
+### Test Infrastructure
+
+**Location**: `/home/user/Fleet/api/`
+
+**Files Created**:
+- `jest.config.js` - Jest configuration
+- `src/__tests__/setup.ts` - Global test setup and teardown
+- `src/__tests__/helpers.ts` - Test helper functions
+- `src/middleware/__tests__/` - Middleware tests
+- `src/utils/__tests__/` - Utility function tests
+- `src/routes/__tests__/` - Integration tests
+
+**Coverage**: Target 50%+ for branches, functions, lines, and statements
+
+### Running API Tests
+
+```bash
+cd /home/user/Fleet/api
+
+# Install Jest dependencies if needed
+npm install
+
+# Run all Jest tests
+npm test
+
+# Run tests in watch mode (reruns on file changes)
+npm run test:watch
+
+# Run tests with coverage report
+npm run test:coverage
+
+# Run only unit tests (excludes integration tests)
+npm run test:unit
+
+# Run only integration tests
+npm run test:integration
+
+# Run tests in CI mode (for CI/CD pipelines)
+npm run test:ci
+```
+
+### Test Helper Functions
+
+Located in `/home/user/Fleet/api/src/__tests__/helpers.ts`:
+
+```typescript
+import {
+  createMockUser,      // Create mock user object
+  createAuthToken,     // Create JWT token for testing
+  mockRequest,         // Mock Express request
+  mockResponse,        // Mock Express response
+  mockNext            // Mock Express next function
+} from './__tests__/helpers';
+```
+
+### Writing Unit Tests
+
+**Example: Testing Middleware**
+
+```typescript
+// src/middleware/__tests__/auth.test.ts
+import { authenticateJWT } from '../auth';
+import { mockRequest, mockResponse, mockNext, createAuthToken } from '../../__tests__/helpers';
+
+describe('Authentication Middleware', () => {
+  it('should authenticate valid JWT token', () => {
+    const token = createAuthToken();
+    const req = mockRequest({
+      headers: { authorization: `Bearer ${token}` },
+      user: undefined
+    });
+    const res = mockResponse();
+    const next = mockNext();
+
+    authenticateJWT(req, res, next);
+
+    expect(next).toHaveBeenCalled();
+    expect(req.user).toBeDefined();
+  });
+});
+```
+
+### Test Files Created
+
+1. **Authentication Tests** (`src/middleware/__tests__/auth.test.ts`)
+   - Valid token authentication
+   - Missing token rejection
+   - Invalid token rejection
+   - Expired token rejection
+   - Mock data bypass mode
+   - Multiple role authorization
+   - **Total: 10 test cases**
+
+2. **Validation Tests** (`src/middleware/__tests__/validation.test.ts`)
+   - Required field validation
+   - Email format validation
+   - UUID format validation
+   - String/number/boolean type validation
+   - Min/max length validation
+   - Min/max value validation
+   - Custom pattern validation
+   - Custom function validation
+   - **Total: 15 test cases**
+
+3. **API Response Tests** (`src/utils/__tests__/apiResponse.test.ts`)
+   - Success response formatting
+   - Error response formatting
+   - Validation error formatting
+   - Not found responses
+   - Unauthorized/forbidden responses
+   - Server error responses
+   - Paginated responses
+   - Created/no content responses
+   - **Total: 12 test cases**
+
+4. **Integration Tests** (`src/routes/__tests__/auth.integration.test.ts`)
+   - Login endpoint testing
+   - Registration endpoint testing
+   - Profile retrieval testing
+   - Logout functionality
+   - Password reset flow
+   - **Total: 10+ test cases**
+
+### Coverage Reports
+
+After running `npm run test:coverage`:
+
+```bash
+# View HTML coverage report
+open api/coverage/lcov-report/index.html
+
+# Or on Linux
+xdg-open api/coverage/lcov-report/index.html
+```
+
+**Coverage Files**:
+- `coverage/lcov-report/index.html` - Interactive HTML report
+- `coverage/lcov.info` - LCOV format for CI tools
+- `coverage/coverage-final.json` - JSON format
+
+### Test Coverage Goals
+
+**Current Coverage**: ~3% (before this update)
+**Target Coverage**: 50%+
+
+**Priority Areas for Testing**:
+1. ✅ Authentication middleware (DONE)
+2. ✅ Validation middleware (DONE)
+3. ✅ API response utilities (DONE)
+4. Route handlers (NEXT)
+5. Service layer business logic
+6. Database repositories
+7. Utility functions
+
+### Best Practices
+
+1. **Test Independence**: Each test should be independent and not rely on other tests
+2. **Mock External Dependencies**: Use Jest mocks for database, external APIs, etc.
+3. **AAA Pattern**: Arrange, Act, Assert
+4. **Descriptive Names**: Test names should clearly describe what is being tested
+5. **Coverage Threshold**: Maintain 50%+ coverage on all metrics
+
+### Example Test Pattern
+
+```typescript
+describe('Module Name', () => {
+  describe('function name', () => {
+    it('should handle valid input', () => {
+      // Arrange
+      const input = 'test';
+
+      // Act
+      const result = myFunction(input);
+
+      // Assert
+      expect(result).toBe('expected');
+    });
+
+    it('should handle invalid input', () => {
+      expect(() => myFunction(null)).toThrow();
+    });
+  });
+});
+```
+
+### CI/CD Integration
+
+Add to GitHub Actions workflow:
+
+```yaml
+- name: Run API Tests
+  run: |
+    cd api
+    npm run test:ci
+
+- name: Upload Coverage
+  uses: codecov/codecov-action@v3
+  with:
+    file: ./api/coverage/lcov.info
+```
 
 ---
 

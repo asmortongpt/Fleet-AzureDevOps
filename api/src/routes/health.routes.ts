@@ -15,6 +15,7 @@
 import express, { Request, Response } from 'express';
 import { microsoftGraphService } from '../services/microsoft-graph.service';
 import { queueService } from '../services/queue.service';
+import { getErrorMessage } from '../utils/error-handler';
 
 const router = express.Router();
 
@@ -26,7 +27,7 @@ interface HealthCheckResult {
       status: 'up' | 'down' | 'degraded';
       latency?: number;
       message?: string;
-      details?: any;
+      details?: Record<string, unknown>;
     };
   };
   summary: {
@@ -65,7 +66,7 @@ router.get('/microsoft', async (req: Request, res: Response) => {
         hasTenantId: !!process.env.MICROSOFT_TENANT_ID
       }
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
     results.services.microsoft_graph = {
       status: 'down',
       message: error.message,
@@ -81,7 +82,7 @@ router.get('/microsoft', async (req: Request, res: Response) => {
       status: 'up',
       message: 'Teams service is operational'
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
     results.services.teams = {
       status: 'down',
       message: error.message
@@ -95,7 +96,7 @@ router.get('/microsoft', async (req: Request, res: Response) => {
       status: 'up',
       message: 'Outlook service is operational'
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
     results.services.outlook = {
       status: 'down',
       message: error.message
@@ -109,7 +110,7 @@ router.get('/microsoft', async (req: Request, res: Response) => {
       status: 'up',
       message: 'Calendar service is operational'
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
     results.services.calendar = {
       status: 'down',
       message: error.message
@@ -136,7 +137,7 @@ router.get('/microsoft', async (req: Request, res: Response) => {
         }))
       }
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
     results.services.webhooks = {
       status: 'degraded',
       message: 'Unable to check webhook subscriptions',
@@ -157,7 +158,7 @@ router.get('/microsoft', async (req: Request, res: Response) => {
         failed: stats.failed
       }
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
     results.services.queue = {
       status: 'down',
       message: error.message
@@ -186,7 +187,7 @@ router.get('/microsoft', async (req: Request, res: Response) => {
       message: 'Sync service is operational',
       details: syncState.rows
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
     results.services.sync = {
       status: 'degraded',
       message: 'Sync service status unknown',
@@ -208,7 +209,7 @@ router.get('/microsoft', async (req: Request, res: Response) => {
       latency: dbLatency,
       message: 'Database is accessible'
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
     results.services.database = {
       status: 'down',
       message: error.message
@@ -252,7 +253,7 @@ router.get('/microsoft/simple', async (req: Request, res: Response) => {
       status: 'ok',
       timestamp: new Date().toISOString()
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     res.status(503).json({
       status: 'error',
       message: error.message,
@@ -300,7 +301,7 @@ router.get('/microsoft/metrics', async (req: Request, res: Response) => {
 
     await pool.end();
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     metrics.push(`# Error: ${error.message}`);
   }
 
