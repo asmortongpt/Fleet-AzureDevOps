@@ -1,0 +1,202 @@
+---
+# Resource Quota for Production Environment
+# Limits total resource consumption in the fleet-management namespace
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: fleet-management-quota
+  namespace: fleet-management
+spec:
+  hard:
+    # Compute Resources
+    requests.cpu: "20"
+    requests.memory: 40Gi
+    limits.cpu: "40"
+    limits.memory: 80Gi
+
+    # Storage
+    requests.storage: 500Gi
+    persistentvolumeclaims: "10"
+
+    # Object Counts
+    pods: "50"
+    services: "20"
+    configmaps: "30"
+    secrets: "30"
+    replicationcontrollers: "20"
+
+    # Load Balancers
+    services.loadbalancers: "5"
+    services.nodeports: "10"
+
+---
+# Limit Range for Production Environment
+# Sets default and maximum resource limits for individual pods/containers
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: fleet-management-limits
+  namespace: fleet-management
+spec:
+  limits:
+    # Container limits
+    - max:
+        cpu: "4"
+        memory: 8Gi
+      min:
+        cpu: "100m"
+        memory: 128Mi
+      default:
+        cpu: "1"
+        memory: 1Gi
+      defaultRequest:
+        cpu: "500m"
+        memory: 512Mi
+      type: Container
+
+    # Pod limits
+    - max:
+        cpu: "8"
+        memory: 16Gi
+      type: Pod
+
+    # PVC limits
+    - max:
+        storage: 200Gi
+      min:
+        storage: 1Gi
+      type: PersistentVolumeClaim
+
+---
+# Resource Quota for Staging Environment
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: fleet-staging-quota
+  namespace: fleet-staging
+spec:
+  hard:
+    # Compute Resources (50% of production)
+    requests.cpu: "10"
+    requests.memory: 20Gi
+    limits.cpu: "20"
+    limits.memory: 40Gi
+
+    # Storage
+    requests.storage: 200Gi
+    persistentvolumeclaims: "8"
+
+    # Object Counts
+    pods: "30"
+    services: "15"
+    configmaps: "20"
+    secrets: "20"
+    replicationcontrollers: "15"
+
+    # Load Balancers
+    services.loadbalancers: "3"
+    services.nodeports: "5"
+
+---
+# Limit Range for Staging Environment
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: fleet-staging-limits
+  namespace: fleet-staging
+spec:
+  limits:
+    # Container limits
+    - max:
+        cpu: "2"
+        memory: 4Gi
+      min:
+        cpu: "50m"
+        memory: 64Mi
+      default:
+        cpu: "500m"
+        memory: 512Mi
+      defaultRequest:
+        cpu: "250m"
+        memory: 256Mi
+      type: Container
+
+    # Pod limits
+    - max:
+        cpu: "4"
+        memory: 8Gi
+      type: Pod
+
+    # PVC limits
+    - max:
+        storage: 100Gi
+      min:
+        storage: 1Gi
+      type: PersistentVolumeClaim
+
+---
+# Resource Quota for Development Environment
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: fleet-dev-quota
+  namespace: fleet-dev
+spec:
+  hard:
+    # Compute Resources (25% of production)
+    requests.cpu: "5"
+    requests.memory: 10Gi
+    limits.cpu: "10"
+    limits.memory: 20Gi
+
+    # Storage
+    requests.storage: 100Gi
+    persistentvolumeclaims: "5"
+
+    # Object Counts
+    pods: "20"
+    services: "10"
+    configmaps: "15"
+    secrets: "15"
+    replicationcontrollers: "10"
+
+    # Load Balancers
+    services.loadbalancers: "2"
+    services.nodeports: "3"
+
+---
+# Limit Range for Development Environment
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: fleet-dev-limits
+  namespace: fleet-dev
+spec:
+  limits:
+    # Container limits
+    - max:
+        cpu: "1"
+        memory: 2Gi
+      min:
+        cpu: "50m"
+        memory: 64Mi
+      default:
+        cpu: "250m"
+        memory: 256Mi
+      defaultRequest:
+        cpu: "100m"
+        memory: 128Mi
+      type: Container
+
+    # Pod limits
+    - max:
+        cpu: "2"
+        memory: 4Gi
+      type: Pod
+
+    # PVC limits
+    - max:
+        storage: 50Gi
+      min:
+        storage: 1Gi
+      type: PersistentVolumeClaim

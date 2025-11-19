@@ -23,9 +23,7 @@ RUN npm ci
 COPY . .
 
 # Set build-time environment variables for Vite
-# Note: VITE_AZURE_MAPS_SUBSCRIPTION_KEY should be passed as build arg for security
-ARG VITE_AZURE_MAPS_SUBSCRIPTION_KEY
-ENV VITE_AZURE_MAPS_SUBSCRIPTION_KEY=$VITE_AZURE_MAPS_SUBSCRIPTION_KEY
+# SECURITY: Secrets are injected at runtime, not build-time
 ENV VITE_ENVIRONMENT=production
 ENV VITE_API_URL=""
 
@@ -50,6 +48,10 @@ COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 # Copy built application from builder
 COPY --from=builder /app/dist /usr/share/nginx/html
+
+# Copy runtime configuration script
+COPY scripts/runtime-config.sh /docker-entrypoint.d/01-runtime-config.sh
+RUN chmod +x /docker-entrypoint.d/01-runtime-config.sh
 
 # Create fleetapp user and set permissions for nginx
 RUN addgroup -g 1000 fleetapp && \
