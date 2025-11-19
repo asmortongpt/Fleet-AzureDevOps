@@ -6,3 +6,7 @@ metadata:
     environment: dev
     project: fleet-management
     cost-center: engineering
+    # Pod Security Standards (baseline for dev to allow more flexibility)
+    pod-security.kubernetes.io/enforce: baseline
+    pod-security.kubernetes.io/audit: restricted
+    pod-security.kubernetes.io/warn: restricted

@@ -174,15 +174,16 @@ export function requirePermission(
 
 /**
  * Check if resource is within user's scope
+ * Comprehensive BOLA/IDOR protection for all resource types
  */
 export async function validateResourceScope(
   userId: string,
-  resourceType: 'vehicle' | 'driver' | 'work_order' | 'route',
+  resourceType: 'vehicle' | 'driver' | 'work_order' | 'route' | 'document' | 'fuel_transaction',
   resourceId: string
 ): Promise<boolean> {
   try {
     const result = await pool.query(
-      'SELECT facility_ids, team_driver_ids, team_vehicle_ids, scope_level FROM users WHERE id = $1',
+      'SELECT facility_ids, team_driver_ids, team_vehicle_ids, driver_id, vehicle_id, scope_level FROM users WHERE id = $1',
       [userId]
     )
 
@@ -192,31 +193,36 @@ export async function validateResourceScope(
 
     const user = result.rows[0]
 
-    // Global scope can access everything (within tenant)
-    if (user.scope_level === 'global') {
+    // Global and fleet scope can access everything (within tenant)
+    if (user.scope_level === 'global' || user.scope_level === 'fleet') {
       return true
     }
 
     // Check resource-specific scope
     switch (resourceType) {
       case 'vehicle':
-        if (user.scope_level === 'fleet') return true
-        if (user.team_vehicle_ids && user.team_vehicle_ids.includes(resourceId)) return true
+        if (user.scope_level === 'own' && user.vehicle_id === resourceId) return true
+        if (user.scope_level === 'team' && user.team_vehicle_ids && user.team_vehicle_ids.includes(resourceId)) return true
         break
 
       case 'driver':
-        if (user.scope_level === 'fleet') return true
-        if (user.team_driver_ids && user.team_driver_ids.includes(resourceId)) return true
+        if (user.scope_level === 'own' && user.driver_id === resourceId) return true
+        if (user.scope_level === 'team' && user.team_driver_ids && user.team_driver_ids.includes(resourceId)) return true
         break
 
       case 'work_order':
         const woResult = await pool.query(
-          'SELECT facility_id FROM work_orders WHERE id = $1',
+          'SELECT facility_id, assigned_technician_id FROM work_orders WHERE id = $1',
           [resourceId]
         )
         if (woResult.rows.length > 0) {
-          const facilityId = woResult.rows[0].facility_id
-          if (user.facility_ids && user.facility_ids.includes(facilityId)) return true
+          const { facility_id, assigned_technician_id } = woResult.rows[0]
+
+          // Own scope: can only see work orders assigned to them
+          if (user.scope_level === 'own' && assigned_technician_id === userId) return true
+
+          // Team scope: can see work orders in their facilities
+          if (user.scope_level === 'team' && user.facility_ids && facility_id && user.facility_ids.includes(facility_id)) return true
         }
         break
 
@@ -227,7 +233,44 @@ export async function validateResourceScope(
         )
         if (routeResult.rows.length > 0) {
           const driverId = routeResult.rows[0].driver_id
-          if (user.team_driver_ids && user.team_driver_ids.includes(driverId)) return true
+
+          // Own scope: can only see their own routes
+          if (user.scope_level === 'own' && user.driver_id === driverId) return true
+
+          // Team scope: can see routes for drivers in their team
+          if (user.scope_level === 'team' && user.team_driver_ids && user.team_driver_ids.includes(driverId)) return true
+        }
+        break
+
+      case 'document':
+        const docResult = await pool.query(
+          'SELECT uploaded_by FROM documents WHERE id = $1',
+          [resourceId]
+        )
+        if (docResult.rows.length > 0) {
+          const uploadedBy = docResult.rows[0].uploaded_by
+
+          // Own scope: can only see documents they uploaded
+          if (user.scope_level === 'own' && uploadedBy === userId) return true
+
+          // Team scope: can see all documents in their tenant (documents don't have facility association)
+          if (user.scope_level === 'team') return true
+        }
+        break
+
+      case 'fuel_transaction':
+        const fuelResult = await pool.query(
+          'SELECT driver_id FROM fuel_transactions WHERE id = $1',
+          [resourceId]
+        )
+        if (fuelResult.rows.length > 0) {
+          const driverId = fuelResult.rows[0].driver_id
+
+          // Own scope: can only see their own fuel transactions
+          if (user.scope_level === 'own' && user.driver_id === driverId) return true
+
+          // Team scope: can see fuel transactions for drivers in their team
+          if (user.scope_level === 'team' && user.team_driver_ids && user.team_driver_ids.includes(driverId)) return true
         }
         break
     }
@@ -236,6 +279,50 @@ export async function validateResourceScope(
   } catch (error) {
     console.error('Scope validation error:', error)
     return false
+  }
+}
+
+/**
+ * Middleware factory to validate scope for a specific resource type
+ * Use this to protect individual resource endpoints (GET /:id, PUT /:id, DELETE /:id)
+ */
+export function validateScope(resourceType: 'vehicle' | 'driver' | 'work_order' | 'route' | 'document' | 'fuel_transaction') {
+  return async (req: AuthRequest, res: Response, next: NextFunction) => {
+    if (!req.user) {
+      return res.status(401).json({ error: 'Authentication required' })
+    }
+
+    try {
+      const resourceId = req.params.id
+
+      if (!resourceId) {
+        return res.status(400).json({ error: 'Resource ID required' })
+      }
+
+      const hasAccess = await validateResourceScope(req.user.id, resourceType, resourceId)
+
+      if (!hasAccess) {
+        await logPermissionCheck({
+          userId: req.user.id,
+          tenantId: req.user.tenant_id,
+          permission: `${resourceType}:scope_check`,
+          granted: false,
+          reason: 'Resource outside user scope',
+          ipAddress: req.ip,
+          userAgent: req.get('user-agent') || '',
+          resourceId
+        })
+
+        // Return 404 instead of 403 to prevent information disclosure
+        // (don't reveal that the resource exists)
+        return res.status(404).json({ error: `${resourceType.charAt(0).toUpperCase() + resourceType.slice(1).replace('_', ' ')} not found` })
+      }
+
+      next()
+    } catch (error) {
+      console.error('Scope validation middleware error:', error)
+      return res.status(500).json({ error: 'Internal server error' })
+    }
   }
 }
 

@@ -16,8 +16,9 @@
  */
 
 import express, { Request, Response } from 'express'
-import { AuthRequest } from '../../middleware/auth'
+import { AuthRequest, authenticateJWT } from '../../middleware/auth'
 import { validateWebhook, WebhookRequest } from '../../middleware/webhook-validation'
+import { requirePermission } from '../../middleware/permissions'
 import webhookService from '../../services/webhook.service'
 import pool from '../../config/database'
 
@@ -253,17 +254,23 @@ async function handleEmailDelete(notification: any): Promise<void> {
 /**
  * GET /api/webhooks/outlook/subscriptions
  * List all active Outlook subscriptions
+ * Requires: Authentication, webhook:read permission, tenant isolation
  */
 router.get(
   '/subscriptions',
+  authenticateJWT,
+  requirePermission('webhook:read'),
   async (req: AuthRequest, res: Response) => {
     try {
+      // Only return subscriptions for user's tenant
       const result = await pool.query(
         `SELECT *
          FROM webhook_subscriptions
          WHERE subscription_type = 'outlook_emails'
          AND status = 'active'
-         ORDER BY created_at DESC`
+         AND tenant_id = $1
+         ORDER BY created_at DESC`,
+        [req.user!.tenant_id]
       )
 
       res.json({
@@ -281,9 +288,12 @@ router.get(
 /**
  * POST /api/webhooks/outlook/subscribe
  * Create a new Outlook mailbox subscription
+ * Requires: Authentication, webhook:create permission, tenant validation
  */
 router.post(
   '/subscribe',
+  authenticateJWT,
+  requirePermission('webhook:create'),
   async (req: AuthRequest, res: Response) => {
     try {
       const { tenantId, userEmail, folderId } = req.body
@@ -291,6 +301,18 @@ router.post(
       if (!tenantId || !userEmail) {
         return res.status(400).json({
           error: 'Missing required fields: tenantId, userEmail'
+        })
+      }
+
+      // Validate user can only create subscriptions for their own tenant
+      if (tenantId !== req.user!.tenant_id) {
+        console.warn('Unauthorized tenant access attempt', {
+          requestedTenant: tenantId,
+          userTenant: req.user!.tenant_id,
+          userId: req.user!.id
+        })
+        return res.status(403).json({
+          error: 'Access denied: Cannot create subscriptions for other tenants'
         })
       }
 
@@ -324,12 +346,36 @@ router.post(
 /**
  * DELETE /api/webhooks/outlook/subscribe/:subscriptionId
  * Delete an Outlook subscription
+ * Requires: Authentication, webhook:delete permission, tenant validation
  */
 router.delete(
   '/subscribe/:subscriptionId',
+  authenticateJWT,
+  requirePermission('webhook:delete'),
   async (req: AuthRequest, res: Response) => {
     try {
       const { subscriptionId } = req.params
+
+      // Validate subscription belongs to user's tenant
+      const checkResult = await pool.query(
+        'SELECT tenant_id FROM webhook_subscriptions WHERE subscription_id = $1',
+        [subscriptionId]
+      )
+
+      if (checkResult.rows.length === 0) {
+        return res.status(404).json({ error: 'Subscription not found' })
+      }
+
+      if (checkResult.rows[0].tenant_id !== req.user!.tenant_id) {
+        console.warn('Unauthorized subscription deletion attempt', {
+          subscriptionId,
+          userId: req.user!.id,
+          userTenant: req.user!.tenant_id
+        })
+        return res.status(403).json({
+          error: 'Access denied: Cannot delete subscriptions from other tenants'
+        })
+      }
 
       await webhookService.deleteSubscription(subscriptionId)
 
@@ -351,12 +397,36 @@ router.delete(
 /**
  * POST /api/webhooks/outlook/renew/:subscriptionId
  * Manually renew an Outlook subscription
+ * Requires: Authentication, webhook:update permission, tenant validation
  */
 router.post(
   '/renew/:subscriptionId',
+  authenticateJWT,
+  requirePermission('webhook:update'),
   async (req: AuthRequest, res: Response) => {
     try {
       const { subscriptionId } = req.params
+
+      // Validate subscription belongs to user's tenant
+      const checkResult = await pool.query(
+        'SELECT tenant_id FROM webhook_subscriptions WHERE subscription_id = $1',
+        [subscriptionId]
+      )
+
+      if (checkResult.rows.length === 0) {
+        return res.status(404).json({ error: 'Subscription not found' })
+      }
+
+      if (checkResult.rows[0].tenant_id !== req.user!.tenant_id) {
+        console.warn('Unauthorized subscription renewal attempt', {
+          subscriptionId,
+          userId: req.user!.id,
+          userTenant: req.user!.tenant_id
+        })
+        return res.status(403).json({
+          error: 'Access denied: Cannot renew subscriptions from other tenants'
+        })
+      }
 
       await webhookService.renewSubscription(subscriptionId)
 
@@ -378,9 +448,12 @@ router.post(
 /**
  * GET /api/webhooks/outlook/events
  * Get recent webhook events for debugging
+ * Requires: Authentication, webhook:read permission, tenant isolation
  */
 router.get(
   '/events',
+  authenticateJWT,
+  requirePermission('webhook:read'),
   async (req: AuthRequest, res: Response) => {
     try {
       const { limit = 50, processed } = req.query
@@ -390,9 +463,10 @@ router.get(
         FROM webhook_events we
         LEFT JOIN webhook_subscriptions ws ON we.subscription_id = ws.subscription_id
         WHERE ws.subscription_type = 'outlook_emails'
+        AND ws.tenant_id = $1
       `
 
-      const params: any[] = []
+      const params: any[] = [req.user!.tenant_id]
 
       if (processed !== undefined) {
         query += ` AND we.processed = $${params.length + 1}`
@@ -419,21 +493,24 @@ router.get(
 /**
  * POST /api/webhooks/outlook/categorize/:communicationId
  * Manually trigger AI categorization for an email
+ * Requires: Authentication, communication:update permission, tenant validation
  */
 router.post(
   '/categorize/:communicationId',
+  authenticateJWT,
+  requirePermission('communication:update'),
   async (req: AuthRequest, res: Response) => {
     try {
       const { communicationId } = req.params
 
-      // Get communication
+      // Get communication with tenant validation
       const result = await pool.query(
-        `SELECT * FROM communications WHERE id = $1`,
-        [communicationId]
+        `SELECT * FROM communications WHERE id = $1 AND tenant_id = $2`,
+        [communicationId, req.user!.tenant_id]
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'Communication not found' })
+        return res.status(404).json({ error: 'Communication not found or access denied' })
       }
 
       const communication = result.rows[0]
@@ -498,57 +575,70 @@ router.get('/health', (req: Request, res: Response) => {
 /**
  * GET /api/webhooks/outlook/stats
  * Get statistics about processed emails
+ * Requires: Authentication, webhook:read permission, tenant isolation
  */
 router.get(
   '/stats',
+  authenticateJWT,
+  requirePermission('webhook:read'),
   async (req: AuthRequest, res: Response) => {
     try {
-      // Total emails processed
+      // Total emails processed (tenant-specific)
       const totalResult = await pool.query(
         `SELECT COUNT(*) as total
          FROM communications
          WHERE communication_type = 'Email'
-         AND source_platform = 'Microsoft Outlook'`
+         AND source_platform = 'Microsoft Outlook'
+         AND tenant_id = $1`,
+        [req.user!.tenant_id]
       )
 
-      // By category
+      // By category (tenant-specific)
       const categoryResult = await pool.query(
         `SELECT ai_detected_category, COUNT(*) as count
          FROM communications
          WHERE communication_type = 'Email'
          AND source_platform = 'Microsoft Outlook'
+         AND tenant_id = $1
          GROUP BY ai_detected_category
          ORDER BY count DESC
-         LIMIT 10`
+         LIMIT 10`,
+        [req.user!.tenant_id]
       )
 
-      // By priority
+      // By priority (tenant-specific)
       const priorityResult = await pool.query(
         `SELECT ai_detected_priority, COUNT(*) as count
          FROM communications
          WHERE communication_type = 'Email'
          AND source_platform = 'Microsoft Outlook'
+         AND tenant_id = $1
          GROUP BY ai_detected_priority
-         ORDER BY count DESC`
+         ORDER BY count DESC`,
+        [req.user!.tenant_id]
       )
 
-      // Recent activity (last 24 hours)
+      // Recent activity (last 24 hours, tenant-specific)
       const recentResult = await pool.query(
         `SELECT COUNT(*) as recent_count
          FROM communications
          WHERE communication_type = 'Email'
          AND source_platform = 'Microsoft Outlook'
-         AND communication_datetime > NOW() - INTERVAL '24 hours'`
+         AND tenant_id = $1
+         AND communication_datetime > NOW() - INTERVAL '24 hours'`,
+        [req.user!.tenant_id]
       )
 
-      // Processing queue status
+      // Processing queue status (tenant-specific)
       const queueResult = await pool.query(
         `SELECT status, COUNT(*) as count
          FROM webhook_processing_queue wpq
          JOIN webhook_events we ON wpq.webhook_event_id = we.id
          JOIN webhook_subscriptions ws ON we.subscription_id = ws.subscription_id
          WHERE ws.subscription_type = 'outlook_emails'
-         GROUP BY status`
+         AND ws.tenant_id = $1
+         GROUP BY status`,
+        [req.user!.tenant_id]
       )
 
       res.json({
