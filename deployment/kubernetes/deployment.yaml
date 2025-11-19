@@ -144,6 +144,10 @@ spec:
               readOnly: true
             - name: tmp
               mountPath: /tmp
+            - name: app-cache
+              mountPath: /app/.cache
+            - name: npm-cache
+              mountPath: /app/.npm
           
           resources:
             requests:
@@ -182,7 +186,7 @@ spec:
           
           securityContext:
             allowPrivilegeEscalation: false
-            readOnlyRootFilesystem: false
+            readOnlyRootFilesystem: true
             capabilities:
               drop:
                 - ALL
@@ -192,6 +196,10 @@ spec:
           configMap:
             name: module-config
         - name: tmp
+          emptyDir: {}
+        - name: app-cache
+          emptyDir: {}
+        - name: npm-cache
           emptyDir: {}
       
       # Node affinity for Azure specific zones

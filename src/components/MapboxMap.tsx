@@ -392,7 +392,7 @@ export function MapboxMap({
     const icon = vehicle.type === "car" ? "🚗" :
                  vehicle.type === "truck" ? "🚚" :
                  vehicle.type === "van" ? "🚐" : "🚙"
-    el.innerHTML = icon
+    el.textContent = icon
 
     el.addEventListener("mouseenter", () => { el.style.transform = "scale(1.2)" })
     el.addEventListener("mouseleave", () => { el.style.transform = "scale(1)" })
@@ -429,7 +429,7 @@ export function MapboxMap({
       cursor: pointer;
       transition: transform 0.2s;
     `
-    el.innerHTML = icon
+    el.textContent = icon
 
     el.addEventListener("mouseenter", () => { el.style.transform = "scale(1.2)" })
     el.addEventListener("mouseleave", () => { el.style.transform = "scale(1)" })
@@ -459,7 +459,7 @@ export function MapboxMap({
       cursor: pointer;
       transition: transform 0.2s;
     `
-    el.innerHTML = "📹"
+    el.textContent = "📹"
 
     el.addEventListener("mouseenter", () => { el.style.transform = "scale(1.2)" })
     el.addEventListener("mouseleave", () => { el.style.transform = "scale(1)" })

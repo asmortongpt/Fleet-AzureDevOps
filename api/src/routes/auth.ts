@@ -4,6 +4,7 @@ import jwt from 'jsonwebtoken'
 import pool from '../config/database'
 import { createAuditLog } from '../middleware/audit'
 import { z } from 'zod'
+import { loginLimiter, registrationLimiter } from '../config/rate-limiters'
 
 const router = express.Router()
 
@@ -23,8 +24,9 @@ const registerSchema = z.object({
     .regex(/[^A-Za-z0-9]/, 'Password must contain special character'),
   first_name: z.string().min(1),
   last_name: z.string().min(1),
-  phone: z.string().optional(),
-  role: z.enum(['admin', 'fleet_manager', 'driver', 'technician', 'viewer']).default('viewer')
+  phone: z.string().optional()
+  // SECURITY: Role is NOT accepted in registration - always defaults to 'viewer'
+  // This prevents privilege escalation attacks during self-registration
 })
 
 /**
@@ -95,7 +97,7 @@ const registerSchema = z.object({
  *                   format: date-time
  */
 // POST /api/auth/login
-router.post('/login', async (req: Request, res: Response) => {
+router.post('/login', loginLimiter, async (req: Request, res: Response) => {
   try {
     const { email, password } = loginSchema.parse(req.body)
 
@@ -189,7 +191,18 @@ router.post('/login', async (req: Request, res: Response) => {
       [user.id]
     )
 
-    // Generate JWT token
+    // SECURITY: Generate JWT token with validated secret
+    // JWT_SECRET must be set and must be at least 32 characters
+    if (!process.env.JWT_SECRET) {
+      console.error('FATAL: JWT_SECRET environment variable is not set')
+      return res.status(500).json({ error: 'Server configuration error - authentication unavailable' })
+    }
+
+    if (process.env.JWT_SECRET.length < 32) {
+      console.error('FATAL: JWT_SECRET must be at least 32 characters')
+      return res.status(500).json({ error: 'Server configuration error - authentication unavailable' })
+    }
+
     const token = jwt.sign(
       {
         id: user.id,
@@ -197,7 +210,7 @@ router.post('/login', async (req: Request, res: Response) => {
         role: user.role,
         tenant_id: user.tenant_id
       },
-      process.env.JWT_SECRET || 'changeme',
+      process.env.JWT_SECRET,
       { expiresIn: '24h' }
     )
 
@@ -234,7 +247,7 @@ router.post('/login', async (req: Request, res: Response) => {
 })
 
 // POST /api/auth/register
-router.post('/register', async (req: Request, res: Response) => {
+router.post('/register', registrationLimiter, async (req: Request, res: Response) => {
   try {
     const data = registerSchema.parse(req.body)
 
@@ -265,7 +278,11 @@ router.post('/register', async (req: Request, res: Response) => {
       tenantId = tenantResult.rows[0].id
     }
 
-    // Create user
+    // SECURITY: Force role to 'viewer' for all self-registrations
+    // This prevents privilege escalation attacks during registration
+    const defaultRole = 'viewer'
+
+    // Create user with forced role
     const userResult = await pool.query(
       `INSERT INTO users (
         tenant_id, email, password_hash, first_name, last_name, phone, role
@@ -278,7 +295,7 @@ router.post('/register', async (req: Request, res: Response) => {
         data.first_name,
         data.last_name,
         data.phone || null,
-        data.role
+        defaultRole
       ]
     )
 
@@ -290,7 +307,7 @@ router.post('/register', async (req: Request, res: Response) => {
       'CREATE',
       'users',
       user.id,
-      { email: data.email, role: data.role },
+      { email: data.email, role: defaultRole },
       req.ip || null,
       req.get('User-Agent') || null,
       'success'
@@ -321,7 +338,13 @@ router.post('/logout', async (req: Request, res: Response) => {
 
   if (token) {
     try {
-      const decoded = jwt.verify(token, process.env.JWT_SECRET || 'changeme') as any
+      // SECURITY: Validate JWT_SECRET before attempting to verify token
+      if (!process.env.JWT_SECRET) {
+        console.error('FATAL: JWT_SECRET environment variable is not set')
+        return res.status(500).json({ error: 'Server configuration error' })
+      }
+
+      const decoded = jwt.verify(token, process.env.JWT_SECRET) as any
 
       await createAuditLog(
         decoded.tenant_id,

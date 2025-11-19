@@ -16,8 +16,9 @@
  */
 
 import express, { Request, Response } from 'express'
-import { AuthRequest } from '../../middleware/auth'
+import { AuthRequest, authenticateJWT } from '../../middleware/auth'
 import { validateWebhook, WebhookRequest } from '../../middleware/webhook-validation'
+import { requirePermission } from '../../middleware/permissions'
 import webhookService from '../../services/webhook.service'
 import pool from '../../config/database'
 
@@ -246,17 +247,23 @@ async function handleMessageDelete(notification: any): Promise<void> {
 /**
  * GET /api/webhooks/teams/subscriptions
  * List all active Teams subscriptions
+ * Requires: Authentication, webhook:read permission, tenant isolation
  */
 router.get(
   '/subscriptions',
+  authenticateJWT,
+  requirePermission('webhook:read'),
   async (req: AuthRequest, res: Response) => {
     try {
+      // Only return subscriptions for user's tenant
       const result = await pool.query(
         `SELECT *
          FROM webhook_subscriptions
          WHERE subscription_type = 'teams_messages'
          AND status = 'active'
-         ORDER BY created_at DESC`
+         AND tenant_id = $1
+         ORDER BY created_at DESC`,
+        [req.user!.tenant_id]
       )
 
       res.json({
@@ -274,9 +281,12 @@ router.get(
 /**
  * POST /api/webhooks/teams/subscribe
  * Create a new Teams channel subscription
+ * Requires: Authentication, webhook:create permission, tenant validation
  */
 router.post(
   '/subscribe',
+  authenticateJWT,
+  requirePermission('webhook:create'),
   async (req: AuthRequest, res: Response) => {
     try {
       const { tenantId, teamId, channelId } = req.body
@@ -284,6 +294,18 @@ router.post(
       if (!tenantId || !teamId || !channelId) {
         return res.status(400).json({
           error: 'Missing required fields: tenantId, teamId, channelId'
+        })
+      }
+
+      // Validate user can only create subscriptions for their own tenant
+      if (tenantId !== req.user!.tenant_id) {
+        console.warn('Unauthorized tenant access attempt', {
+          requestedTenant: tenantId,
+          userTenant: req.user!.tenant_id,
+          userId: req.user!.id
+        })
+        return res.status(403).json({
+          error: 'Access denied: Cannot create subscriptions for other tenants'
         })
       }
 
@@ -317,12 +339,36 @@ router.post(
 /**
  * DELETE /api/webhooks/teams/subscribe/:subscriptionId
  * Delete a Teams subscription
+ * Requires: Authentication, webhook:delete permission, tenant validation
  */
 router.delete(
   '/subscribe/:subscriptionId',
+  authenticateJWT,
+  requirePermission('webhook:delete'),
   async (req: AuthRequest, res: Response) => {
     try {
       const { subscriptionId } = req.params
+
+      // Validate subscription belongs to user's tenant
+      const checkResult = await pool.query(
+        'SELECT tenant_id FROM webhook_subscriptions WHERE subscription_id = $1',
+        [subscriptionId]
+      )
+
+      if (checkResult.rows.length === 0) {
+        return res.status(404).json({ error: 'Subscription not found' })
+      }
+
+      if (checkResult.rows[0].tenant_id !== req.user!.tenant_id) {
+        console.warn('Unauthorized subscription deletion attempt', {
+          subscriptionId,
+          userId: req.user!.id,
+          userTenant: req.user!.tenant_id
+        })
+        return res.status(403).json({
+          error: 'Access denied: Cannot delete subscriptions from other tenants'
+        })
+      }
 
       await webhookService.deleteSubscription(subscriptionId)
 
@@ -344,12 +390,36 @@ router.delete(
 /**
  * POST /api/webhooks/teams/renew/:subscriptionId
  * Manually renew a Teams subscription
+ * Requires: Authentication, webhook:update permission, tenant validation
  */
 router.post(
   '/renew/:subscriptionId',
+  authenticateJWT,
+  requirePermission('webhook:update'),
   async (req: AuthRequest, res: Response) => {
     try {
       const { subscriptionId } = req.params
+
+      // Validate subscription belongs to user's tenant
+      const checkResult = await pool.query(
+        'SELECT tenant_id FROM webhook_subscriptions WHERE subscription_id = $1',
+        [subscriptionId]
+      )
+
+      if (checkResult.rows.length === 0) {
+        return res.status(404).json({ error: 'Subscription not found' })
+      }
+
+      if (checkResult.rows[0].tenant_id !== req.user!.tenant_id) {
+        console.warn('Unauthorized subscription renewal attempt', {
+          subscriptionId,
+          userId: req.user!.id,
+          userTenant: req.user!.tenant_id
+        })
+        return res.status(403).json({
+          error: 'Access denied: Cannot renew subscriptions from other tenants'
+        })
+      }
 
       await webhookService.renewSubscription(subscriptionId)
 
@@ -371,9 +441,12 @@ router.post(
 /**
  * GET /api/webhooks/teams/events
  * Get recent webhook events for debugging
+ * Requires: Authentication, webhook:read permission, tenant isolation
  */
 router.get(
   '/events',
+  authenticateJWT,
+  requirePermission('webhook:read'),
   async (req: AuthRequest, res: Response) => {
     try {
       const { limit = 50, processed } = req.query
@@ -383,9 +456,10 @@ router.get(
         FROM webhook_events we
         LEFT JOIN webhook_subscriptions ws ON we.subscription_id = ws.subscription_id
         WHERE ws.subscription_type = 'teams_messages'
+        AND ws.tenant_id = $1
       `
 
-      const params: any[] = []
+      const params: any[] = [req.user!.tenant_id]
 
       if (processed !== undefined) {
         query += ` AND we.processed = $${params.length + 1}`
