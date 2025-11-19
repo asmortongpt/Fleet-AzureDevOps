@@ -20,9 +20,21 @@ spec:
         spec:
           restartPolicy: OnFailure
           serviceAccountName: fleet-backup-sa
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1000
+            fsGroup: 1000
           containers:
             - name: postgres-backup
               image: postgres:15-alpine
+              securityContext:
+                allowPrivilegeEscalation: false
+                readOnlyRootFilesystem: false
+                runAsNonRoot: true
+                runAsUser: 1000
+                capabilities:
+                  drop:
+                    - ALL
               command:
                 - /bin/sh
                 - -c
@@ -153,13 +165,27 @@ spec:
       storage: 100Gi
 
 ---
-# Azure Storage secret template (fill in actual values)
-apiVersion: v1
-kind: Secret
-metadata:
-  name: azure-storage-secrets
-  namespace: fleet-management
-type: Opaque
-stringData:
-  STORAGE_ACCOUNT: "fleetstorageaccount"
-  STORAGE_KEY: "YOUR_AZURE_STORAGE_KEY_HERE"
+# Azure Storage Secret
+# DO NOT store secrets directly in this file!
+# Create this secret using kubectl or Azure Key Vault:
+#
+# Option 1 - Using kubectl:
+#   kubectl create secret generic azure-storage-secrets \
+#     --from-literal=STORAGE_ACCOUNT="${AZURE_STORAGE_ACCOUNT}" \
+#     --from-literal=STORAGE_KEY="${AZURE_STORAGE_KEY}" \
+#     -n fleet-management
+#
+# Option 2 - Using Azure Key Vault (recommended):
+#   Run: /home/user/Fleet/scripts/setup-azure-keyvault.sh
+#   Then use External Secrets Operator to sync from Key Vault
+#
+# Template (DO NOT USE IN PRODUCTION):
+# apiVersion: v1
+# kind: Secret
+# metadata:
+#   name: azure-storage-secrets
+#   namespace: fleet-management
+# type: Opaque
+# stringData:
+#   STORAGE_ACCOUNT: "USE_EXTERNAL_SECRETS_OR_KUBECTL"
+#   STORAGE_KEY: "USE_EXTERNAL_SECRETS_OR_KUBECTL"
