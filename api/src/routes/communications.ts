@@ -4,6 +4,7 @@ import { requirePermission } from '../middleware/permissions'
 import { auditLog } from '../middleware/audit'
 import pool from '../config/database'
 import { z } from 'zod'
+import { buildInsertClause, buildUpdateClause } from '../utils/sql-safety'
 
 const router = express.Router()
 router.use(authenticateJWT)
@@ -161,14 +162,15 @@ router.post(
   async (req: AuthRequest, res: Response) => {
     try {
       const { linked_entities, ...data } = req.body
-      const columns = Object.keys(data)
-      const values = Object.values(data)
 
-      const placeholders = values.map((_, i) => `$${i + 2}`).join(', ')
-      const columnNames = ['created_by', ...columns].join(', ')
+      const { columnNames, placeholders, values } = buildInsertClause(
+        data,
+        ['created_by'],
+        1
+      )
 
       const result = await pool.query(
-        `INSERT INTO communications (${columnNames}) VALUES ($1, ${placeholders}) RETURNING *`,
+        `INSERT INTO communications (${columnNames}) VALUES (${placeholders}) RETURNING *`,
         [req.user!.id, ...values]
       )
 
@@ -415,14 +417,15 @@ router.post(
   async (req: AuthRequest, res: Response) => {
     try {
       const data = req.body
-      const columns = Object.keys(data)
-      const values = Object.values(data)
 
-      const placeholders = values.map((_, i) => `$${i + 2}`).join(', ')
-      const columnNames = ['created_by', ...columns].join(', ')
+      const { columnNames, placeholders, values } = buildInsertClause(
+        data,
+        ['created_by'],
+        1
+      )
 
       const result = await pool.query(
-        `INSERT INTO communication_templates (${columnNames}) VALUES ($1, ${placeholders}) RETURNING *`,
+        `INSERT INTO communication_templates (${columnNames}) VALUES (${placeholders}) RETURNING *`,
         [req.user!.id, ...values]
       )
 

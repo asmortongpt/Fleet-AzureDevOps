@@ -21,12 +21,24 @@ spec:
         component: migration
     spec:
       restartPolicy: OnFailure
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
 
       # Use init container approach (optional)
       containers:
       - name: migration
         image: fleet-api:latest  # Replace with your actual image
         imagePullPolicy: IfNotPresent
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: false
+          runAsNonRoot: true
+          runAsUser: 1000
+          capabilities:
+            drop:
+              - ALL
 
         command: ["/bin/sh", "-c"]
         args:
@@ -107,11 +119,23 @@ spec:
             component: migration-check
         spec:
           restartPolicy: OnFailure
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1000
+            fsGroup: 1000
 
           containers:
           - name: migration-check
             image: fleet-api:latest
             imagePullPolicy: IfNotPresent
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: false
+              runAsNonRoot: true
+              runAsUser: 1000
+              capabilities:
+                drop:
+                  - ALL
 
             command: ["/bin/sh", "-c"]
             args:

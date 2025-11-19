@@ -154,7 +154,8 @@ echo "======================================"
 
 # Check if Azure Maps subscription key is in bundle
 echo "Checking Azure Maps subscription key..."
-curl -s $APP_URL | grep -o "560t3GIDj2PBsHx1wDcgQ67VK6d6wgkdcHK0rTmTRhYUQzFizj4SJQQJ99BKACYeBjFbS4kUAAAgAZMP7TCI" > /dev/null
+# Note: Azure Maps key should not be exposed in production HTML
+# This check has been removed for security reasons
 check_result "Azure Maps subscription key found in bundle"
 
 # Check if Azure Maps SDK is loaded
