@@ -11,11 +11,18 @@ export interface MicrosoftAuthConfig {
 }
 
 // Azure AD App Registration Configuration
+// SECURITY: These values must be set in environment variables
+// Do NOT hardcode client IDs or tenant IDs in production
 export const MICROSOFT_AUTH_CONFIG: MicrosoftAuthConfig = {
-  clientId: import.meta.env.VITE_AZURE_CLIENT_ID || '80fe6628-1dc4-41fe-894f-919b12ecc994',
-  tenantId: import.meta.env.VITE_AZURE_TENANT_ID || '0ec14b81-7b82-45ee-8f3d-cbc31ced5347',
+  clientId: import.meta.env.VITE_AZURE_CLIENT_ID || import.meta.env.VITE_AZURE_AD_CLIENT_ID || '',
+  tenantId: import.meta.env.VITE_AZURE_TENANT_ID || import.meta.env.VITE_AZURE_AD_TENANT_ID || '',
   redirectUri: window.location.origin + '/auth/callback',
   scopes: ['openid', 'profile', 'email', 'User.Read']
+}
+
+// Validate configuration on load
+if (!MICROSOFT_AUTH_CONFIG.clientId || !MICROSOFT_AUTH_CONFIG.tenantId) {
+  console.warn('⚠️  WARNING: Microsoft OAuth is not configured. Please set VITE_AZURE_CLIENT_ID and VITE_AZURE_TENANT_ID environment variables.')
 }
 
 /**
