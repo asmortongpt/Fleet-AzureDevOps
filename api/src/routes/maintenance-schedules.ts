@@ -18,6 +18,9 @@ import {
   GetDueSchedulesRequest,
   ManualWorkOrderGenerationRequest
 } from '../types/maintenance'
+import { ApiResponse } from '../utils/apiResponse'
+import { validate } from '../middleware/validation'
+import { getPaginationParams, createPaginatedResponse } from '../utils/pagination'
 
 const router = express.Router()
 router.use(authenticateJWT)
@@ -29,14 +32,12 @@ router.get(
   auditLog({ action: 'READ', resourceType: 'maintenance_schedules' }),
   async (req: AuthRequest, res: Response) => {
     try {
+      const paginationParams = getPaginationParams(req)
       const {
-        page = 1,
-        limit = 50,
         trigger_metric,
         vehicle_id,
         service_type
       } = req.query
-      const offset = (Number(page) - 1) * Number(limit)
 
       // Build multi-metric filters
       let filters = 'WHERE tenant_id = $1'
@@ -59,8 +60,13 @@ router.get(
       }
 
       const result = await pool.query(
-        `SELECT * FROM maintenance_schedules ${filters} ORDER BY created_at DESC LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`,
-        [...params, limit, offset]
+        `SELECT id, tenant_id, vehicle_id, service_type, priority, status,
+                trigger_metric, trigger_value, current_value, next_due,
+                estimated_cost, is_recurring, recurrence_pattern,
+                auto_create_work_order, work_order_template, notes,
+                created_at, updated_at
+         FROM maintenance_schedules ${filters} ORDER BY created_at DESC LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`,
+        [...params, paginationParams.limit, paginationParams.offset]
       )
 
       const countResult = await pool.query(
@@ -68,18 +74,16 @@ router.get(
         params
       )
 
-      res.json({
-        data: result.rows,
-        pagination: {
-          page: Number(page),
-          limit: Number(limit),
-          total: parseInt(countResult.rows[0].count),
-          pages: Math.ceil(countResult.rows[0].count / Number(limit))
-        }
-      })
+      const paginatedResponse = createPaginatedResponse(
+        result.rows,
+        parseInt(countResult.rows[0].count),
+        paginationParams
+      )
+
+      return ApiResponse.success(res, paginatedResponse, 'Maintenance schedules retrieved successfully')
     } catch (error) {
       console.error('Get maintenance-schedules error:', error)
-      res.status(500).json({ error: 'Internal server error' })
+      return ApiResponse.serverError(res, 'Failed to retrieve maintenance schedules')
     }
   }
 )
@@ -89,21 +93,27 @@ router.get(
   '/:id',
   requirePermission('maintenance_schedule:view:fleet'),
   auditLog({ action: 'READ', resourceType: 'maintenance_schedules' }),
+  validate([{ field: 'id', required: true, type: 'uuid' }], 'params'),
   async (req: AuthRequest, res: Response) => {
     try {
       const result = await pool.query(
-        'SELECT * FROM maintenance_schedules WHERE id = $1 AND tenant_id = $2',
+        `SELECT id, tenant_id, vehicle_id, service_type, priority, status,
+                trigger_metric, trigger_value, current_value, next_due,
+                estimated_cost, is_recurring, recurrence_pattern,
+                auto_create_work_order, work_order_template, parts,
+                notes, created_at, updated_at
+         FROM maintenance_schedules WHERE id = $1 AND tenant_id = $2`,
         [req.params.id, req.user!.tenant_id]
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'MaintenanceSchedules not found' })
+        return ApiResponse.notFound(res, 'Maintenance schedule')
       }
 
-      res.json(result.rows[0])
+      return ApiResponse.success(res, result.rows[0], 'Maintenance schedule retrieved successfully')
     } catch (error) {
       console.error('Get maintenance-schedules error:', error)
-      res.status(500).json({ error: 'Internal server error' })
+      return ApiResponse.serverError(res, 'Failed to retrieve maintenance schedule')
     }
   }
 )
@@ -113,6 +123,12 @@ router.post(
   '/',
   requirePermission('maintenance_schedule:create:fleet'),
   auditLog({ action: 'CREATE', resourceType: 'maintenance_schedules' }),
+  validate([
+    { field: 'vehicle_id', required: true, type: 'uuid' },
+    { field: 'service_type', required: true, minLength: 1 },
+    { field: 'trigger_metric', required: false },
+    { field: 'interval_value', required: false, type: 'number', min: 1 }
+  ]),
   async (req: AuthRequest, res: Response) => {
     try {
       const data = req.body
@@ -128,10 +144,10 @@ router.post(
         [req.user!.tenant_id, ...values]
       )
 
-      res.status(201).json(result.rows[0])
+      return ApiResponse.success(res, result.rows[0], 'Maintenance schedule created successfully', 201)
     } catch (error) {
       console.error('Create maintenance-schedules error:', error)
-      res.status(500).json({ error: 'Internal server error' })
+      return ApiResponse.serverError(res, 'Failed to create maintenance schedule')
     }
   }
 )
@@ -141,6 +157,7 @@ router.put(
   '/:id',
   requirePermission('maintenance_schedule:update:fleet'),
   auditLog({ action: 'UPDATE', resourceType: 'maintenance_schedules' }),
+  validate([{ field: 'id', required: true, type: 'uuid' }], 'params'),
   async (req: AuthRequest, res: Response) => {
     try {
       const data = req.body
@@ -152,13 +169,13 @@ router.put(
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'MaintenanceSchedules not found' })
+        return ApiResponse.notFound(res, 'Maintenance schedule')
       }
 
-      res.json(result.rows[0])
+      return ApiResponse.success(res, result.rows[0], 'Maintenance schedule updated successfully')
     } catch (error) {
       console.error('Update maintenance-schedules error:', error)
-      res.status(500).json({ error: 'Internal server error' })
+      return ApiResponse.serverError(res, 'Failed to update maintenance schedule')
     }
   }
 )
@@ -168,6 +185,7 @@ router.delete(
   '/:id',
   requirePermission('maintenance_schedule:delete:fleet'),
   auditLog({ action: 'DELETE', resourceType: 'maintenance_schedules' }),
+  validate([{ field: 'id', required: true, type: 'uuid' }], 'params'),
   async (req: AuthRequest, res: Response) => {
     try {
       const result = await pool.query(
@@ -176,13 +194,13 @@ router.delete(
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'MaintenanceSchedules not found' })
+        return ApiResponse.notFound(res, 'Maintenance schedule')
       }
 
-      res.json({ message: 'MaintenanceSchedules deleted successfully' })
+      return ApiResponse.success(res, { id: result.rows[0].id }, 'Maintenance schedule deleted successfully')
     } catch (error) {
       console.error('Delete maintenance-schedules error:', error)
-      res.status(500).json({ error: 'Internal server error' })
+      return ApiResponse.serverError(res, 'Failed to delete maintenance schedule')
     }
   }
 )

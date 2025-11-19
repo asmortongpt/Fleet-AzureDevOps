@@ -4,6 +4,7 @@ import { requirePermission } from '../middleware/permissions'
 import { auditLog } from '../middleware/audit'
 import pool from '../config/database'
 import { z } from 'zod'
+import { SqlParams } from '../types'
 
 const router = express.Router()
 router.use(authenticateJWT)
@@ -33,7 +34,7 @@ router.get(
       const offset = (Number(page) - 1) * Number(limit)
 
       let query = 'SELECT * FROM damage_reports WHERE tenant_id = $1'
-      const params: any[] = [req.user!.tenant_id]
+      const params: SqlParams = [req.user!.tenant_id]
 
       if (vehicle_id) {
         query += ' AND vehicle_id = $2'
@@ -143,7 +144,7 @@ router.put(
       const validatedData = damageReportSchema.partial().parse(req.body)
 
       const fields: string[] = []
-      const values: any[] = []
+      const values: SqlParams = []
       let paramIndex = 3
 
       Object.entries(validatedData).forEach(([key, value]) => {
