@@ -217,8 +217,8 @@ try EncryptionManager.shared.secureStore(data: tokenData, forKey: "token")
 ### ❌ DON'T: Hardcode Secrets
 ```swift
 // BAD - Exposed in binary!
-let apiKey = "sk_live_12345abcde"
-let subscriptionId = "abc-123-def-456"
+let apiKey = "YOUR_API_KEY_NEVER_HARDCODE"
+let subscriptionId = "YOUR_SUBSCRIPTION_ID_HERE"
 ```
 
 ### ✅ DO: Use SecureConfigManager

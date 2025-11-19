@@ -121,7 +121,7 @@ VITE_API_URL=http://localhost:3000
 VITE_ENVIRONMENT=development
 
 # Azure Maps (use demo key or get your own)
-VITE_AZURE_MAPS_SUBSCRIPTION_KEY=560t3GIDj2PBsHx1wDcgQ67VK6d6wgkdcHK0rTmTRhYUQzFizj4SJQQJ99BKACYeBjFbS4kUAAAgAZMP7TCI
+VITE_AZURE_MAPS_SUBSCRIPTION_KEY=YOUR_AZURE_MAPS_KEY_HERE  # Get from Azure Portal or Azure Key Vault
 
 # Azure AD / Microsoft Authentication (Optional for local dev)
 VITE_AZURE_CLIENT_ID=80fe6628-1dc4-41fe-894f-919b12ecc994

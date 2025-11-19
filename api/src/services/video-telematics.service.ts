@@ -7,6 +7,7 @@ import { Pool } from 'pg';
 import axios from 'axios';
 import { BlobServiceClient, ContainerClient } from '@azure/storage-blob';
 import { logger } from '../config/logger';
+import { safeGet, validateURL, SSRFError } from '../utils/safe-http-request';
 
 const AZURE_STORAGE_CONNECTION_STRING = process.env.AZURE_STORAGE_CONNECTION_STRING;
 const AZURE_STORAGE_CONTAINER = process.env.AZURE_STORAGE_VIDEO_CONTAINER || 'video-telematics';
@@ -308,10 +309,42 @@ class VideoTelematicsService {
     try {
       logger.info(`Downloading video for event ${eventId} from ${videoUrl}`);
 
+      // SSRF Protection: Validate video URL before downloading
+      try {
+        validateURL(videoUrl, {
+          allowedDomains: [
+            // Samsara video URLs
+            'api.samsara.com',
+            'samsara-fleet-videos.s3.amazonaws.com',
+            'videos.samsara.com',
+
+            // Smartcar/telematics providers
+            'api.smartcar.com',
+
+            // Add other trusted video providers here
+          ]
+        });
+      } catch (error) {
+        if (error instanceof SSRFError) {
+          logger.error(`SSRF Protection blocked video download from ${videoUrl}`, {
+            eventId,
+            reason: error.reason
+          });
+          throw new Error(`Unauthorized video URL: ${error.reason}`);
+        }
+        throw error;
+      }
+
       // Download video from provider URL
-      const response = await axios.get(videoUrl, {
+      const response = await safeGet(videoUrl, {
         responseType: 'arraybuffer',
-        timeout: 300000 // 5 minutes
+        timeout: 300000, // 5 minutes
+        allowedDomains: [
+          'api.samsara.com',
+          'samsara-fleet-videos.s3.amazonaws.com',
+          'videos.samsara.com',
+          'api.smartcar.com',
+        ]
       });
 
       const videoBuffer = Buffer.from(response.data);
