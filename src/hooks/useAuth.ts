@@ -2,6 +2,7 @@
 // Manages user authentication state, login, logout, and token management
 
 import { useState, useEffect, useCallback, createContext, useContext } from 'react';
+import logger from '@/utils/logger'
 
 interface User {
   id: string;
@@ -52,7 +53,7 @@ export const useAuthProvider = () => {
           setUserState({ ...userData, token });
         }
       } catch (error) {
-        console.error('Failed to initialize auth:', error);
+        logger.error('Failed to initialize auth:', { error });
         localStorage.removeItem('user');
         localStorage.removeItem('token');
       } finally {
@@ -98,7 +99,7 @@ export const useAuthProvider = () => {
 
       setUserState(userData);
     } catch (error) {
-      console.error('Login error:', error);
+      logger.error('Login error:', { error });
       throw error;
     } finally {
       setIsLoading(false);
@@ -148,7 +149,7 @@ export const useAuthProvider = () => {
         localStorage.setItem('user', JSON.stringify(updatedUser));
       }
     } catch (error) {
-      console.error('Token refresh error:', error);
+      logger.error('Token refresh error:', { error });
       logout();
     }
   }, [user, logout]);

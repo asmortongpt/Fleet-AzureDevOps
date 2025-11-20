@@ -1,5 +1,5 @@
 import * as appInsights from 'applicationinsights'
-import { logger } from './logger'
+import { logger } from '../utils/logger'
 
 interface CustomProperties {
   [key: string]: string | number | boolean

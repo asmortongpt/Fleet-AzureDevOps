@@ -1,4 +1,5 @@
 import { Vehicle, Driver, WorkOrder, Part, Vendor, PurchaseOrder, Invoice } from "./types"
+import logger from '@/utils/logger'
 
 /**
  * Enterprise-grade data service with multi-tenant isolation,
@@ -284,7 +285,7 @@ export class DataService {
     try {
       localStorage.setItem(key, JSON.stringify(data))
     } catch (error) {
-      console.error("Failed to save to storage:", error)
+      logger.error("Failed to save to storage:", { error })
     }
   }
 }
