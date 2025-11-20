@@ -249,6 +249,9 @@ export interface GISFacility {
   tenantId?: string // Multi-tenant support
 }
 
+// Alias for backward compatibility
+export type Facility = GISFacility
+
 export interface Vendor {
   id: string
   tenantId: string
