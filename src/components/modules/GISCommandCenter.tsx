@@ -16,7 +16,6 @@ import {
   CarProfile
 } from "@phosphor-icons/react"
 import { MetricCard } from "@/components/MetricCard"
-import { useState } from "react"
 import { useFleetData } from "@/hooks/use-fleet-data"
 import { Vehicle, GISFacility } from "@/lib/types"
 import { useFacilities } from "@/hooks/use-api"
