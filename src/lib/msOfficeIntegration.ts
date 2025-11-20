@@ -5,6 +5,7 @@
 
 import { apiClient } from './api-client'
 import { MSTeamsMessage, MSOutlookEmail, Receipt, CommunicationLog } from "./types"
+import logger from '@/utils/logger'
 
 export class MSOfficeIntegrationService {
   async sendTeamsMessage(
@@ -40,7 +41,7 @@ export class MSOfficeIntegrationService {
         reactions: []
       }
     } catch (error) {
-      console.error('Error sending Teams message:', error)
+      logger.error('Error sending Teams message:', { error })
       throw error
     }
   }
@@ -83,7 +84,7 @@ export class MSOfficeIntegrationService {
         hasReceipt: false
       }
     } catch (error) {
-      console.error('Error sending email:', error)
+      logger.error('Error sending email:', { error })
       throw error
     }
   }
@@ -125,7 +126,7 @@ export class MSOfficeIntegrationService {
         success: true
       }
     } catch (error) {
-      console.error('Error creating calendar event:', error)
+      logger.error('Error creating calendar event:', { error })
       throw error
     }
   }
@@ -179,7 +180,7 @@ Fleet Management Team
 
       return receipt
     } catch (error) {
-      console.error('Error processing receipt:', error)
+      logger.error('Error processing receipt:', { error })
       throw error
     }
   }
@@ -204,7 +205,7 @@ Fleet Management Team
 
       return await response.json()
     } catch (error) {
-      console.error('Error extracting receipt data:', error)
+      logger.error('Error extracting receipt data:', { error })
       throw error
     }
   }
@@ -257,7 +258,7 @@ Fleet Management Team
     try {
       await apiClient.post('/api/communication-logs', log)
     } catch (error) {
-      console.error('Error logging communication:', error)
+      logger.error('Error logging communication:', { error })
     }
 
     return log
@@ -282,7 +283,7 @@ Fleet Management Team
         fileName: response.fileName
       }
     } catch (error) {
-      console.error('Error generating report:', error)
+      logger.error('Error generating report:', { error })
       throw error
     }
   }
@@ -306,7 +307,7 @@ Fleet Management Team
       const response: any = await apiClient.get('/api/outlook/contacts')
       return response.value || []
     } catch (error) {
-      console.error('Error syncing contacts:', error)
+      logger.error('Error syncing contacts:', { error })
       return []
     }
   }
@@ -327,7 +328,7 @@ Fleet Management Team
       const response: any = await apiClient.teams.listChannels(teamId)
       return response.value || []
     } catch (error) {
-      console.error('Error getting Teams channels:', error)
+      logger.error('Error getting Teams channels:', { error })
       return []
     }
   }
@@ -337,7 +338,7 @@ Fleet Management Team
       const response: any = await apiClient.teams.listMessages(teamId, channelId)
       return response.value || []
     } catch (error) {
-      console.error('Error getting Teams messages:', error)
+      logger.error('Error getting Teams messages:', { error })
       return []
     }
   }
@@ -347,7 +348,7 @@ Fleet Management Team
       const response: any = await apiClient.outlook.listMessages(filter)
       return response.value || []
     } catch (error) {
-      console.error('Error getting emails:', error)
+      logger.error('Error getting emails:', { error })
       return []
     }
   }
@@ -364,7 +365,7 @@ Fleet Management Team
         }
       })
     } catch (error) {
-      console.error('Error replying to email:', error)
+      logger.error('Error replying to email:', { error })
       throw error
     }
   }

@@ -4,6 +4,7 @@
  */
 
 import { ArcGISLayerConfig, ArcGISServiceCapabilities } from './types'
+import logger from '@/utils/logger'
 
 // GeoJSON type definitions
 declare namespace GeoJSON {
@@ -81,7 +82,7 @@ export class ArcGISService {
         supportedOperations: this.detectSupportedOperations(data)
       }
     } catch (error) {
-      console.error('Error fetching ArcGIS service capabilities:', error)
+      logger.error('Error fetching ArcGIS service capabilities:', { error })
       throw error
     }
   }
@@ -211,7 +212,7 @@ export class ArcGISService {
 
       return data
     } catch (error) {
-      console.error('Error querying ArcGIS features:', error)
+      logger.error('Error querying ArcGIS features:', { error })
       throw error
     }
   }

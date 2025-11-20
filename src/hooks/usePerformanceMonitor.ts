@@ -36,6 +36,7 @@
  */
 
 import { useEffect, useRef, useState, useCallback, useMemo } from "react"
+import logger from '@/utils/logger'
 
 // ============================================================================
 // Types & Interfaces
@@ -187,7 +188,7 @@ function getCurrentMemoryUsage(): MemorySnapshot | null {
       timestamp: Date.now(),
     }
   } catch (error) {
-    console.warn("Failed to get memory usage:", error)
+    logger.warn("Failed to get memory usage:", { error })
     return null
   }
 }
@@ -495,7 +496,7 @@ export function usePerformanceMonitor(
   const reportMetrics = useCallback(() => {
     if (!config.enabled) return
 
-    console.log(formatMetricsReport(metrics))
+    logger.debug('Log', { data: formatMetricsReport(metrics }))
   }, [config.enabled, metrics])
 
   // Auto-reporting
@@ -528,7 +529,7 @@ export function usePerformanceMonitor(
     return () => {
       if (config.enabled && config.reportInterval > 0) {
         // Report final metrics on unmount
-        console.log(formatMetricsReport(metrics))
+        logger.debug('Log', { data: formatMetricsReport(metrics }))
       }
     }
   }, [])
