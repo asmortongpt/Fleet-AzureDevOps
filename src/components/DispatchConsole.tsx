@@ -82,7 +82,7 @@ interface ActiveListener {
 }
 
 export default function DispatchConsole() {
-  const { user, isAuthenticated } = useAuth()
+  const { user } = useAuth()
   const [channels, setChannels] = useState<DispatchChannel[]>([])
   const [selectedChannel, setSelectedChannel] = useState<number | null>(null)
   const [activeListeners, setActiveListeners] = useState<ActiveListener[]>([])

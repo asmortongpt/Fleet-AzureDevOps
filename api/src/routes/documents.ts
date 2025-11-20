@@ -197,7 +197,7 @@ router.get(
 
       // Get OCR data if exists
       const ocrResult = await pool.query(
-        `SELECT * FROM ocr_processing_log WHERE document_id = $1 ORDER BY processed_at DESC LIMIT 1`,
+        `SELECT id, tenant_id, document_id, status, confidence_score, text_content, processed_at FROM ocr_processing_log WHERE document_id = $1 ORDER BY processed_at DESC LIMIT 1`,
         [req.params.id]
       )
 

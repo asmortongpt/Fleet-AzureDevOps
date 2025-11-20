@@ -3,11 +3,9 @@
  * Shows all vehicles at a facility with utilization metrics
  */
 
-import React from 'react'
 import { DrilldownContent } from '@/components/DrilldownPanel'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Progress } from '@/components/ui/progress'
 import useSWR from 'swr'
 import { Car, Gauge, Fuel, Activity } from 'lucide-react'
 

@@ -1,6 +1,7 @@
 import { Pool, PoolClient, QueryResult } from 'pg'
 import { DatabaseError, NotFoundError, ValidationError } from './errors'
 import { QueryLogger } from './QueryLogger'
+import { getTableColumns } from '../../utils/column-resolver'
 
 /**
  * Base Repository Class
@@ -51,6 +52,9 @@ export abstract class BaseRepository<T = any> {
   } = {}): Promise<T[]> {
     const { where = {}, orderBy = 'created_at DESC', limit, offset, client } = options
 
+    const columns = await getTableColumns(this.pool, this.tableName)
+    const columnList = columns.join(', ')
+
     const whereConditions: string[] = []
     const values: any[] = []
     let paramCount = 1
@@ -71,7 +75,7 @@ export abstract class BaseRepository<T = any> {
     if (offset) values.push(offset)
 
     const query = `
-      SELECT * FROM ${this.tableName}
+      SELECT ${columnList} FROM ${this.tableName}
       ${whereClause}
       ORDER BY ${orderBy}
       ${limitClause} ${offsetClause}
@@ -85,6 +89,9 @@ export abstract class BaseRepository<T = any> {
    * Find a single record by ID
    */
   async findById(id: string | number, tenantId?: string, client?: PoolClient): Promise<T | null> {
+    const columns = await getTableColumns(this.pool, this.tableName)
+    const columnList = columns.join(', ')
+
     const whereConditions = ['id = $1']
     const values: any[] = [id]
 
@@ -94,7 +101,7 @@ export abstract class BaseRepository<T = any> {
     }
 
     const query = `
-      SELECT * FROM ${this.tableName}
+      SELECT ${columnList} FROM ${this.tableName}
       WHERE ${whereConditions.join(' AND ')}
       LIMIT 1
     `
@@ -107,6 +114,9 @@ export abstract class BaseRepository<T = any> {
    * Find a single record by conditions
    */
   async findOne(where: Record<string, any>, client?: PoolClient): Promise<T | null> {
+    const columns = await getTableColumns(this.pool, this.tableName)
+    const columnList = columns.join(', ')
+
     const whereConditions: string[] = []
     const values: any[] = []
     let paramCount = 1
@@ -124,7 +134,7 @@ export abstract class BaseRepository<T = any> {
     }
 
     const query = `
-      SELECT * FROM ${this.tableName}
+      SELECT ${columnList} FROM ${this.tableName}
       WHERE ${whereConditions.join(' AND ')}
       LIMIT 1
     `

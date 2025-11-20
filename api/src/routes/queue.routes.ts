@@ -96,7 +96,7 @@ router.get('/:queueName/jobs', requireAdmin, async (req: Request, res: Response)
     const { status, limit = 50, offset = 0 } = req.query;
 
     let query = `
-      SELECT * FROM job_tracking
+      SELECT id, tenant_id, job_name, job_type, status, progress, result_data, created_at, updated_at FROM job_tracking
       WHERE queue_name = $1
     `;
     const params: any[] = [queueName];
@@ -144,7 +144,7 @@ router.get('/:queueName/failed', requireAdmin, async (req: Request, res: Respons
     const { limit = 50, offset = 0 } = req.query;
 
     const result = await pool.query(
-      `SELECT * FROM job_tracking
+      `SELECT id, tenant_id, job_name, job_type, status, progress, result_data, created_at, updated_at FROM job_tracking
        WHERE queue_name = $1 AND status = $2
        ORDER BY failed_at DESC
        LIMIT $3 OFFSET $4`,

@@ -160,7 +160,7 @@ router.get('/:id', requirePermission('vehicle:view:fleet'), async (req: AuthRequ
 
     // Get maintenance records
     const maintenance = await pool.query(
-      `SELECT * FROM maintenance_schedules
+      `SELECT id, tenant_id, vehicle_id, service_type, description, scheduled_date, status FROM maintenance_schedules
        WHERE asset_id = $1
        ORDER BY scheduled_date DESC
        LIMIT 20`,

@@ -264,7 +264,7 @@ export async function predictAssetMaintenance(
 
     // Get maintenance history
     const maintenanceHistory = await pool.query(
-      `SELECT * FROM asset_maintenance
+      `SELECT id, tenant_id, asset_id, maintenance_type, maintenance_date, status, created_at FROM asset_maintenance
        WHERE asset_id = $1
        ORDER BY maintenance_date DESC
        LIMIT 10`,
