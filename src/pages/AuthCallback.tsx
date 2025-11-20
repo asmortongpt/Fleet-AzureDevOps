@@ -35,7 +35,7 @@ export function AuthCallback() {
       }
 
       // Check if we have a token in the URL (from backend redirect)
-      const params = new URLSearchParams(window.location?.search)
+      const params = new URLSearchParams(window.location.search)
       const token = params.get('token')
 
       if (token) {

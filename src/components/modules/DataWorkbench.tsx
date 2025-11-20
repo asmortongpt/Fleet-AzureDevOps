@@ -253,7 +253,7 @@ export function DataWorkbench({ data }: DataWorkbenchProps) {
     toast.info('Refreshing fleet data...')
     // TODO: Implement actual data refresh from API
     setTimeout(() => {
-      window.location?.reload()
+      window.location.reload()
     }, 500)
   }
 
