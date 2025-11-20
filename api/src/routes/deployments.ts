@@ -3,6 +3,7 @@ import pool from '../config/database'
 import { createAuditLog } from '../middleware/audit'
 import { AuthRequest, authenticateJWT } from '../middleware/auth'
 import { requirePermission } from '../middleware/permissions'
+import { getErrorMessage } from '../utils/error-handler'
 
 const router = express.Router()
 router.use(authenticateJWT)
@@ -60,7 +61,7 @@ router.get('/',
     })
   } catch (error: any) {
     console.error('Error fetching deployments:', error)
-    res.status(500).json({ error: 'Failed to fetch deployments', message: error.message })
+    res.status(500).json({ error: 'Failed to fetch deployments', message: getErrorMessage(error) })
   }
 })
 
@@ -134,7 +135,7 @@ router.post('/',
     res.status(201).json(result.rows[0])
   } catch (error: any) {
     console.error('Error creating deployment:', error)
-    res.status(500).json({ error: 'Failed to create deployment', message: error.message })
+    res.status(500).json({ error: 'Failed to create deployment', message: getErrorMessage(error) })
   }
 })
 
@@ -207,7 +208,7 @@ router.patch('/:id',
     res.json(result.rows[0])
   } catch (error: any) {
     console.error('Error updating deployment:', error)
-    res.status(500).json({ error: 'Failed to update deployment', message: error.message })
+    res.status(500).json({ error: 'Failed to update deployment', message: getErrorMessage(error) })
   }
 })
 
@@ -248,7 +249,7 @@ router.get('/:id',
     })
   } catch (error: any) {
     console.error('Error fetching deployment:', error)
-    res.status(500).json({ error: 'Failed to fetch deployment', message: error.message })
+    res.status(500).json({ error: 'Failed to fetch deployment', message: getErrorMessage(error) })
   }
 })
 
@@ -283,7 +284,7 @@ router.get('/stats/summary',
     })
   } catch (error: any) {
     console.error('Error fetching deployment stats:', error)
-    res.status(500).json({ error: 'Failed to fetch stats', message: error.message })
+    res.status(500).json({ error: 'Failed to fetch stats', message: getErrorMessage(error) })
   }
 })
 

@@ -16,6 +16,7 @@ import { AuthRequest, authenticateJWT, authorize } from '../middleware/auth'
 import { auditLog } from '../middleware/audit'
 import pool from '../config/database'
 import documentService from '../services/document.service'
+import { getErrorMessage } from '../utils/error-handler'
 
 const router = Router()
 
@@ -179,7 +180,7 @@ router.post(
       console.error('Upload fleet document error:', error)
       res.status(500).json({
         error: 'Internal server error',
-        details: process.env.NODE_ENV === 'development' ? error.message : undefined
+        details: process.env.NODE_ENV === 'development' ? getErrorMessage(error) : undefined
       })
     }
   }
@@ -338,7 +339,7 @@ router.get(
       console.error('Get fleet documents error:', error)
       res.status(500).json({
         error: 'Internal server error',
-        details: process.env.NODE_ENV === 'development' ? error.message : undefined
+        details: process.env.NODE_ENV === 'development' ? getErrorMessage(error) : undefined
       })
     }
   }
@@ -407,7 +408,7 @@ router.get(
       console.error('Get fleet document error:', error)
       res.status(500).json({
         error: 'Internal server error',
-        details: process.env.NODE_ENV === 'development' ? error.message : undefined
+        details: process.env.NODE_ENV === 'development' ? getErrorMessage(error) : undefined
       })
     }
   }
@@ -461,7 +462,7 @@ router.delete(
       console.error('Delete fleet document error:', error)
       res.status(500).json({
         error: 'Internal server error',
-        details: process.env.NODE_ENV === 'development' ? error.message : undefined
+        details: process.env.NODE_ENV === 'development' ? getErrorMessage(error) : undefined
       })
     }
   }
@@ -528,7 +529,7 @@ router.get(
       console.error('Get expiring documents error:', error)
       res.status(500).json({
         error: 'Internal server error',
-        details: process.env.NODE_ENV === 'development' ? error.message : undefined
+        details: process.env.NODE_ENV === 'development' ? getErrorMessage(error) : undefined
       })
     }
   }
@@ -624,7 +625,7 @@ router.post(
       console.error('Trigger OCR processing error:', error)
       res.status(500).json({
         error: 'Internal server error',
-        details: process.env.NODE_ENV === 'development' ? error.message : undefined
+        details: process.env.NODE_ENV === 'development' ? getErrorMessage(error) : undefined
       })
     }
   }
@@ -681,7 +682,7 @@ router.get(
       console.error('Download fleet document error:', error)
       res.status(500).json({
         error: 'Internal server error',
-        details: process.env.NODE_ENV === 'development' ? error.message : undefined
+        details: process.env.NODE_ENV === 'development' ? getErrorMessage(error) : undefined
       })
     }
   }

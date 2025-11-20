@@ -7,6 +7,7 @@ import { z } from 'zod'
 import { createVehicleSchema, updateVehicleSchema } from '../validation/schemas'
 import vehiclesService from '../services/vehicles.service'
 import { cacheMiddleware, CacheStrategies, invalidateOnWrite } from '../middleware/cache'
+import { getErrorMessage } from '../utils/error-handler'
 
 const router = express.Router()
 router.use(authenticateJWT)
@@ -81,8 +82,8 @@ router.get(
 
       res.json(vehicle)
     } catch (error: any) {
-      if (error.message?.includes('Access denied')) {
-        return res.status(403).json({ error: error.message })
+      if (getErrorMessage(error)?.includes('Access denied')) {
+        return res.status(403).json({ error: getErrorMessage(error) })
       }
       console.error('Get vehicle error:', error)
       res.status(500).json({ error: 'Internal server error' })
@@ -108,8 +109,8 @@ router.post(
       if (error instanceof z.ZodError) {
         return res.status(400).json({ error: 'Validation error', details: error.errors })
       }
-      if (error.message?.includes('VIN already exists')) {
-        return res.status(409).json({ error: error.message })
+      if (getErrorMessage(error)?.includes('VIN already exists')) {
+        return res.status(409).json({ error: getErrorMessage(error) })
       }
       console.error('Create vehicle error:', error)
       res.status(500).json({ error: 'Internal server error' })
@@ -139,7 +140,7 @@ router.put(
       if (error instanceof z.ZodError) {
         return res.status(400).json({ error: 'Validation error', details: error.errors })
       }
-      if (error.message?.includes('not found')) {
+      if (getErrorMessage(error)?.includes('not found')) {
         return res.status(404).json({ error: 'Vehicle not found' })
       }
       console.error('Update vehicle error:', error)
@@ -160,11 +161,11 @@ router.delete(
 
       res.json({ message: 'Vehicle deleted successfully' })
     } catch (error: any) {
-      if (error.message?.includes('not found')) {
+      if (getErrorMessage(error)?.includes('not found')) {
         return res.status(404).json({ error: 'Vehicle not found' })
       }
-      if (error.message?.includes('can only be deleted')) {
-        return res.status(403).json({ error: error.message })
+      if (getErrorMessage(error)?.includes('can only be deleted')) {
+        return res.status(403).json({ error: getErrorMessage(error) })
       }
       console.error('Delete vehicle error:', error)
       res.status(500).json({ error: 'Internal server error' })

@@ -7,6 +7,7 @@ import reportScheduler from '../jobs/report-scheduler.job'
 import fs from 'fs/promises'
 import path from 'path'
 import { safeReadFile, PathTraversalError } from '../utils/safe-file-operations'
+import { getErrorMessage } from '../utils/error-handler'
 
 const router = express.Router()
 router.use(authenticateJWT)
@@ -284,7 +285,7 @@ router.get(
         res.send(fileBuffer)
       } catch (error) {
         if (error instanceof PathTraversalError) {
-          console.error('Security violation - Path traversal attempt:', error.message)
+          console.error('Security violation - Path traversal attempt:', getErrorMessage(error))
           return res.status(403).json({ error: 'Access denied' })
         }
         console.error('File access error:', error)

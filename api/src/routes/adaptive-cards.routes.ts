@@ -14,6 +14,7 @@ import {
   validateAdaptiveCard
 } from '../services/adaptive-cards.service'
 import { handleCardAction } from '../services/actionable-messages.service'
+import { getErrorMessage } from '../utils/error-handler'
 
 const router = express.Router()
 
@@ -75,8 +76,8 @@ router.post('/vehicle-maintenance', authenticateJWT, async (req: Request, res: R
       card
     })
   } catch (error: any) {
-    console.error('Error sending maintenance card:', error.message)
-    res.status(500).json({ error: error.message })
+    console.error('Error sending maintenance card:', getErrorMessage(error))
+    res.status(500).json({ error: getErrorMessage(error) })
   }
 })
 
@@ -131,8 +132,8 @@ router.post('/work-order', authenticateJWT, async (req: Request, res: Response) 
       card
     })
   } catch (error: any) {
-    console.error('Error sending work order card:', error.message)
-    res.status(500).json({ error: error.message })
+    console.error('Error sending work order card:', getErrorMessage(error))
+    res.status(500).json({ error: getErrorMessage(error) })
   }
 })
 
@@ -189,8 +190,8 @@ router.post('/incident', authenticateJWT, async (req: Request, res: Response) =>
       card
     })
   } catch (error: any) {
-    console.error('Error sending incident card:', error.message)
-    res.status(500).json({ error: error.message })
+    console.error('Error sending incident card:', getErrorMessage(error))
+    res.status(500).json({ error: getErrorMessage(error) })
   }
 })
 
@@ -243,8 +244,8 @@ router.post('/approval', authenticateJWT, async (req: Request, res: Response) =>
       card
     })
   } catch (error: any) {
-    console.error('Error sending approval card:', error.message)
-    res.status(500).json({ error: error.message })
+    console.error('Error sending approval card:', getErrorMessage(error))
+    res.status(500).json({ error: getErrorMessage(error) })
   }
 })
 
@@ -297,8 +298,8 @@ router.post('/driver-performance', authenticateJWT, async (req: Request, res: Re
       card
     })
   } catch (error: any) {
-    console.error('Error sending performance card:', error.message)
-    res.status(500).json({ error: error.message })
+    console.error('Error sending performance card:', getErrorMessage(error))
+    res.status(500).json({ error: getErrorMessage(error) })
   }
 })
 
@@ -353,8 +354,8 @@ router.post('/fuel-receipt', authenticateJWT, async (req: Request, res: Response
       card
     })
   } catch (error: any) {
-    console.error('Error sending fuel receipt card:', error.message)
-    res.status(500).json({ error: error.message })
+    console.error('Error sending fuel receipt card:', getErrorMessage(error))
+    res.status(500).json({ error: getErrorMessage(error) })
   }
 })
 
@@ -421,8 +422,8 @@ router.post('/inspection-checklist', authenticateJWT, async (req: Request, res: 
       card
     })
   } catch (error: any) {
-    console.error('Error sending inspection card:', error.message)
-    res.status(500).json({ error: error.message })
+    console.error('Error sending inspection card:', getErrorMessage(error))
+    res.status(500).json({ error: getErrorMessage(error) })
   }
 })
 
@@ -449,8 +450,8 @@ router.post('/:cardType/action', authenticateJWT, async (req: Request, res: Resp
       res.status(400).json(result)
     }
   } catch (error: any) {
-    console.error('Error handling card action:', error.message)
-    res.status(500).json({ error: error.message })
+    console.error('Error handling card action:', getErrorMessage(error))
+    res.status(500).json({ error: getErrorMessage(error) })
   }
 })
 
@@ -514,8 +515,8 @@ router.get('/preview/:cardType', authenticateJWT, async (req: Request, res: Resp
 
     res.json({ card })
   } catch (error: any) {
-    console.error('Error generating card preview:', error.message)
-    res.status(500).json({ error: error.message })
+    console.error('Error generating card preview:', getErrorMessage(error))
+    res.status(500).json({ error: getErrorMessage(error) })
   }
 })
 

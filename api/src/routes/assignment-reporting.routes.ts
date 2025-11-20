@@ -13,6 +13,7 @@ import express, { Request, Response } from 'express';
 import { Pool } from 'pg';
 import { authenticateJWT, AuthRequest } from '../middleware/auth';
 import { requirePermission } from '../middleware/permissions';
+import { getErrorMessage } from '../utils/error-handler'
 
 const router = express.Router();
 
@@ -107,7 +108,7 @@ router.get(
       console.error('Error generating assignment inventory report:', error);
       res.status(500).json({
         error: 'Failed to generate assignment inventory report',
-        details: error.message,
+        details: getErrorMessage(error),
       });
     }
   }
@@ -160,7 +161,7 @@ router.get(
       console.error('Error generating policy compliance report:', error);
       res.status(500).json({
         error: 'Failed to generate policy compliance report',
-        details: error.message,
+        details: getErrorMessage(error),
       });
     }
   }
@@ -253,7 +254,7 @@ router.get(
       console.error('Error generating assignment changes report:', error);
       res.status(500).json({
         error: 'Failed to generate assignment changes report',
-        details: error.message,
+        details: getErrorMessage(error),
       });
     }
   }
@@ -301,7 +302,7 @@ router.get(
       console.error('Error generating region distribution report:', error);
       res.status(500).json({
         error: 'Failed to generate region distribution report',
-        details: error.message,
+        details: getErrorMessage(error),
       });
     }
   }
@@ -352,7 +353,7 @@ router.get(
       console.error('Error generating department summary report:', error);
       res.status(500).json({
         error: 'Failed to generate department summary report',
-        details: error.message,
+        details: getErrorMessage(error),
       });
     }
   }
@@ -431,7 +432,7 @@ router.get(
       console.error('Error generating on-call summary report:', error);
       res.status(500).json({
         error: 'Failed to generate on-call summary report',
-        details: error.message,
+        details: getErrorMessage(error),
       });
     }
   }
@@ -482,7 +483,7 @@ router.get(
       console.error('Error generating cost/benefit summary report:', error);
       res.status(500).json({
         error: 'Failed to generate cost/benefit summary report',
-        details: error.message,
+        details: getErrorMessage(error),
       });
     }
   }
@@ -515,7 +516,7 @@ router.post(
       console.error('Error exporting report:', error);
       res.status(500).json({
         error: 'Failed to export report',
-        details: error.message,
+        details: getErrorMessage(error),
       });
     }
   }
