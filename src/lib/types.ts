@@ -35,6 +35,7 @@ export interface Vehicle {
   id: string
   tenantId: string
   number: string
+  name?: string // Computed display name (e.g., "Vehicle #123" or "2024 Ford F-150")
   type: "sedan" | "suv" | "truck" | "van" | "emergency" | "specialty" | "tractor" | "forklift" | "trailer" | "construction" | "bus" | "motorcycle"
   make: string
   model: string
@@ -54,6 +55,7 @@ export interface Vehicle {
   mileage: number
   hoursUsed?: number // For equipment tracking
   assignedDriver?: string
+  driver?: string // Alias for assignedDriver for backwards compatibility
   ownership: "owned" | "leased" | "rented"
   lastService: string
   nextService: string
@@ -243,6 +245,8 @@ export interface GISFacility {
   address: string
   region: string
   status: "operational" | "maintenance" | "closed"
+  capacity?: number // Vehicle capacity for depots/service centers
+  tenantId?: string // Multi-tenant support
 }
 
 export interface Vendor {
@@ -646,6 +650,7 @@ export interface Document {
   id: string
   tenantId: string
   fileName: string
+  name?: string // Display name (defaults to fileName if not provided)
   fileType: string
   fileSize: number
   fileUrl: string

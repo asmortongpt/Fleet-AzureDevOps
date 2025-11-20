@@ -103,7 +103,7 @@ router.post('/login', loginLimiter, async (req: Request, res: Response) => {
 
     // Get user
     const userResult = await pool.query(
-      `SELECT * FROM users WHERE email = $1 AND is_active = true`,
+      `SELECT id, tenant_id, email, first_name, last_name, role, status, phone, created_at, updated_at, deleted_at FROM users WHERE email = $1 AND is_active = true`,
       [email.toLowerCase()]
     )
 
@@ -437,7 +437,7 @@ router.post('/refresh', async (req: Request, res: Response) => {
 
     // Get user data
     const userResult = await pool.query(
-      `SELECT * FROM users WHERE id = $1 AND is_active = true`,
+      `SELECT id, tenant_id, email, first_name, last_name, role, status, phone, created_at, updated_at, deleted_at FROM users WHERE id = $1 AND is_active = true`,
       [decoded.id]
     )
 
