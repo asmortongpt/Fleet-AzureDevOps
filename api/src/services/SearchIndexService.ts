@@ -82,12 +82,10 @@ export interface SpellingSuggestion {
 }
 
 export class SearchIndexService {
-  private cache: Cache
   private cacheEnabled: boolean
   private cacheTTL: number = 300 // 5 minutes
 
   constructor() {
-    this.cache = new Cache()
     this.cacheEnabled = process.env.SEARCH_CACHE_ENABLED !== 'false'
   }
 
@@ -108,7 +106,7 @@ export class SearchIndexService {
     // Check cache
     const cacheKey = this.generateCacheKey(searchQuery, options)
     if (this.cacheEnabled) {
-      const cached = await this.cache.get(cacheKey)
+      const cached = await cache.get(cacheKey)
       if (cached) {
         return cached
       }
@@ -166,7 +164,7 @@ export class SearchIndexService {
 
       // Cache results
       if (this.cacheEnabled) {
-        await this.cache.set(cacheKey, response, this.cacheTTL)
+        await cache.set(cacheKey, response, this.cacheTTL)
       }
 
       // Log search for analytics
@@ -779,7 +777,7 @@ export class SearchIndexService {
    * Clear search cache
    */
   async clearCache(): Promise<void> {
-    await this.cache.clear('search:*')
+    await cache.delPattern('search:*')
   }
 
   /**
