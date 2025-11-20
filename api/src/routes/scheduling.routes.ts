@@ -896,7 +896,7 @@ router.post('/calendar/sync', async (req: Request, res: Response) => {
 router.get('/appointment-types', async (req: Request, res: Response) => {
   try {
     const result = await pool.query(
-      `SELECT * FROM appointment_types
+      `SELECT id, tenant_id, name, description, duration_minutes, default_resource_id, created_at, updated_at FROM appointment_types
        WHERE is_active = true
        ORDER BY name`
     )

@@ -387,7 +387,7 @@ export class NotificationService {
    */
   async getUnreadNotifications(userId: string, limit: number = 50): Promise<Notification[]> {
     const result = await pool.query(
-      `SELECT * FROM notifications
+      `SELECT id, tenant_id, user_id, notification_type, title, message, is_read, created_at FROM notifications
        WHERE user_id = $1 AND read_at IS NULL
        ORDER BY created_at DESC
        LIMIT $2`,
@@ -516,7 +516,7 @@ export class NotificationService {
    */
   async processScheduledNotifications(): Promise<void> {
     const result = await pool.query(
-      `SELECT * FROM scheduled_notifications
+      `SELECT id, tenant_id, user_id, notification_type, message, scheduled_time, sent_at FROM scheduled_notifications
        WHERE scheduled_for <= NOW() AND sent_at IS NULL
        ORDER BY scheduled_for ASC
        LIMIT 100`

@@ -63,7 +63,7 @@ class MLDecisionEngineService {
     try {
       // Get active maintenance prediction model
       const modelResult = await pool.query(
-        `SELECT * FROM ml_models
+        `SELECT id, tenant_id, model_name, model_type, version, status, accuracy, created_at, updated_at FROM ml_models
          WHERE tenant_id = $1
            AND model_type = 'predictive_maintenance'
            AND is_active = true
@@ -613,7 +613,7 @@ class MLDecisionEngineService {
 
   private async getActiveModel(tenantId: string, modelType: string): Promise<any> {
     const result = await pool.query(
-      `SELECT * FROM ml_models
+      `SELECT id, tenant_id, model_name, model_type, version, status, accuracy, created_at, updated_at FROM ml_models
        WHERE tenant_id = $1 AND model_type = $2 AND is_active = true
        ORDER BY created_at DESC LIMIT 1`,
       [tenantId, modelType]

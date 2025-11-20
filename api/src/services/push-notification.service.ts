@@ -403,7 +403,7 @@ class PushNotificationService {
   async processScheduledNotifications(): Promise<void> {
     try {
       const result = await pool.query(
-        `SELECT * FROM push_notifications
+        `SELECT id, tenant_id, user_id, title, message, is_read, created_at FROM push_notifications
          WHERE delivery_status = 'scheduled'
          AND scheduled_for <= CURRENT_TIMESTAMP
          ORDER BY scheduled_for ASC

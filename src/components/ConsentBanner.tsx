@@ -6,8 +6,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { PrivacyManager, PrivacyCategory, ConsentStatus } from '../utils/privacy';
-import { getTelemetryConfig } from '../config/telemetry';
+import { PrivacyManager, PrivacyCategory } from '../utils/privacy';import { getTelemetryConfig } from '../config/telemetry';
 
 interface ConsentBannerProps {
   position?: 'top' | 'bottom';

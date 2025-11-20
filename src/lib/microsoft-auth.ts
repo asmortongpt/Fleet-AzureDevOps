@@ -122,7 +122,7 @@ export function isAuthenticated(): boolean {
 
   // Production: check for valid token
   const token = localStorage.getItem('token')
-  logger.info('[AUTH] Checking token, exists:', { token ? 'yes' : 'no' })
+  logger.info('[AUTH] Checking token, exists:', { exists: token ? 'yes' : 'no' })
 
   if (!token) {
     logger.info('[AUTH] No token found - not authenticated')

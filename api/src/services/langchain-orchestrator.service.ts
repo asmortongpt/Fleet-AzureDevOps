@@ -700,7 +700,7 @@ Provide a brief analysis of the vehicle condition and any immediate concerns.`
 
   private async getMaintenanceHistory(vehicleId: string, tenantId: string): Promise<any> {
     const result = await pool.query(
-      `SELECT * FROM tasks
+      `SELECT id, tenant_id, title, description, status, priority, due_date, assigned_to, created_by, created_at, updated_at FROM tasks
        WHERE related_asset_id = $1 AND tenant_id = $2 AND task_type = 'maintenance'
        ORDER BY created_at DESC LIMIT 10`,
       [vehicleId, tenantId]

@@ -272,7 +272,7 @@ export class DocumentVersionService {
 
       // Get the version to restore
       const versionResult = await client.query(
-        `SELECT * FROM document_versions
+        `SELECT id, tenant_id, document_id, version_number, file_path, created_at, created_by FROM document_versions
          WHERE document_id = $1 AND version_number = $2`,
         [documentId, versionNumber]
       )

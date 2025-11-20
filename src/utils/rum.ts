@@ -108,7 +108,7 @@ export class RUMTracker {
     this.trackResourceTiming();
     this.setupAutoFlush();
 
-    logger.info('[RUM] Tracking started', { this.context });
+    logger.info('[RUM] Tracking started', { context: this.context });
   }
 
   /**
@@ -424,7 +424,7 @@ export class RUMTracker {
       });
 
       if (!response.ok) {
-        logger.error('[RUM] Failed to send metrics:', { response.statusText });
+        logger.error('[RUM] Failed to send metrics:', { statusText: response.statusText });
       }
     } catch (error) {
       logger.error('[RUM] Error sending metrics:', { error });

@@ -1,6 +1,4 @@
-import React, { useState } from 'react';
-import { AlertCircle, CheckCircle, CurrencyDollar, Calendar, MapPin, Camera } from 'lucide-react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
+import React, { useState } from 'react';import { AlertCircle, CheckCircle, CurrencyDollar, MapPin, Camera } from 'lucide-react';import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
 import { Alert, AlertDescription } from '../ui/alert';
