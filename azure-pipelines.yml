@@ -75,10 +75,123 @@ pool:
 # ============================================================================
 stages:
   # ==========================================================================
+  # STAGE 0: SECURITY QUALITY GATES (FedRAMP/SOC 2 Compliance)
+  # ==========================================================================
+  - stage: SecurityGate
+    displayName: 'Security Quality Gates'
+    jobs:
+      - job: SecurityChecks
+        displayName: 'Security & Quality Validation'
+        pool:
+          vmImage: 'ubuntu-latest'
+        steps:
+          # Azure Key Vault Integration - Load secrets for pipeline
+          - task: AzureKeyVault@2
+            displayName: 'Load Secrets from Azure Key Vault'
+            inputs:
+              azureSubscription: 'FleetManagement-ServiceConnection'
+              KeyVaultName: 'fleet-secrets-0d326d71'
+              SecretsFilter: '*'
+              RunAsPreJob: true
+            continueOnError: false
+
+          # Install Node.js
+          - task: NodeTool@0
+            displayName: 'Install Node.js $(nodeVersion)'
+            inputs:
+              versionSpec: $(nodeVersion)
+
+          # Install dependencies
+          - script: |
+              cd api
+              npm ci
+            displayName: 'Install Dependencies'
+
+          # Security Gate 1: npm audit (High/Critical vulnerabilities)
+          - script: |
+              cd api
+              echo "Running npm audit for high/critical vulnerabilities..."
+              npm audit --audit-level=high
+              if [ $? -ne 0 ]; then
+                echo "##vso[task.logissue type=error]High or critical npm vulnerabilities found!"
+                echo "##vso[task.complete result=Failed;]FAILED: Security vulnerabilities detected"
+                exit 1
+              fi
+              echo "✅ No high/critical vulnerabilities found"
+            displayName: 'Security: npm Vulnerability Scan'
+            continueOnError: false
+
+          # Security Gate 2: TypeScript Type Safety
+          - script: |
+              cd api
+              echo "Running TypeScript compiler check..."
+              npx tsc --noEmit
+              if [ $? -ne 0 ]; then
+                echo "##vso[task.logissue type=error]TypeScript compilation errors found!"
+                echo "##vso[task.complete result=Failed;]FAILED: TypeScript errors"
+                exit 1
+              fi
+              echo "✅ TypeScript check passed"
+            displayName: 'Quality: TypeScript Compilation Check'
+            continueOnError: false
+
+          # Security Gate 3: ESLint (Zero warnings policy)
+          - script: |
+              cd api
+              echo "Running ESLint with zero warnings policy..."
+              npx eslint src --ext .ts --max-warnings 0
+              if [ $? -ne 0 ]; then
+                echo "##vso[task.logissue type=warning]ESLint warnings or errors found"
+                echo "##vso[task.complete result=Failed;]FAILED: Code quality issues"
+                exit 1
+              fi
+              echo "✅ ESLint check passed"
+            displayName: 'Quality: ESLint Zero Warnings'
+            continueOnError: false
+
+          # Security Gate 4: Secret Scanning (prevent credential leaks)
+          - script: |
+              echo "Installing git-secrets..."
+              git clone https://github.com/awslabs/git-secrets.git /tmp/git-secrets
+              cd /tmp/git-secrets
+              sudo make install
+              cd $(Build.SourcesDirectory)
+
+              echo "Configuring git-secrets patterns..."
+              git secrets --install
+              git secrets --register-aws
+              git secrets --add 'password\s*=\s*["\047][^"\047]+'
+              git secrets --add 'api[_-]?key\s*=\s*["\047][^"\047]+'
+              git secrets --add 'secret\s*=\s*["\047][^"\047]+'
+              git secrets --add 'token\s*=\s*["\047][^"\047]+'
+
+              echo "Scanning repository for secrets..."
+              git secrets --scan --recursive
+              if [ $? -ne 0 ]; then
+                echo "##vso[task.logissue type=error]Secrets detected in repository!"
+                echo "##vso[task.complete result=Failed;]FAILED: Secret scan detected credentials"
+                exit 1
+              fi
+              echo "✅ No secrets detected"
+            displayName: 'Security: Secret Detection'
+            continueOnError: false
+
+          # Security Gate 5: Dependency License Compliance
+          - script: |
+              cd api
+              echo "Checking for GPL/AGPL licenses (incompatible with proprietary use)..."
+              npx license-checker --summary --onlyAllow "MIT;Apache-2.0;BSD-2-Clause;BSD-3-Clause;ISC;0BSD;CC0-1.0" || true
+              echo "✅ License check complete (review summary above)"
+            displayName: 'Compliance: License Validation'
+            continueOnError: true # Warning only
+
+  # ==========================================================================
   # STAGE 1: LINT & TYPE CHECK
   # ==========================================================================
   - stage: Lint
     displayName: 'Lint & Type Check'
+    dependsOn: SecurityGate
+    condition: succeeded()
     jobs:
       - template: azure-pipelines/templates/lint-template.yml
 
