@@ -86,6 +86,13 @@ export interface Vehicle {
   fleet_id?: string;
   created_at: Date;
   updated_at: Date;
+
+  // Extended properties for emulators and advanced features
+  isElectric?: boolean;
+  batteryCapacity?: number;
+  features?: string[];
+  location?: { lat: number; lng: number };
+  driverId?: string;
 }
 
 export type VehicleStatus = 'active' | 'maintenance' | 'inactive' | 'retired' | 'sold';
