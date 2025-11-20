@@ -1,5 +1,5 @@
 import Redis from 'ioredis'
-import logger from './logger'
+import logger from '../utils/logger'
 
 /**
  * Redis Configuration and Client Setup
