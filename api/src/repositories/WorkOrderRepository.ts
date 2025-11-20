@@ -439,7 +439,29 @@ export class WorkOrderRepository extends BaseRepository<WorkOrder> {
       WHERE tenant_id = $1 AND deleted_at IS NULL
     `;
 
-    const result = await this.query(query, [tenantId]);
+    interface WorkOrderStatsRow {
+      total: string
+      status_open: string
+      status_in_progress: string
+      status_completed: string
+      status_cancelled: string
+      status_on_hold: string
+      priority_low: string
+      priority_medium: string
+      priority_high: string
+      priority_critical: string
+      type_repair: string
+      type_maintenance: string
+      type_inspection: string
+      type_modification: string
+      type_other: string
+      overdue_count: string
+      active_count: string
+      avg_completion_days: string
+      total_cost: string
+    }
+
+    const result = await this.query<WorkOrderStatsRow>(query, [tenantId]);
     const row = result.rows[0];
 
     return {
