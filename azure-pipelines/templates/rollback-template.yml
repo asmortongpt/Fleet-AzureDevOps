@@ -1,0 +1,210 @@
+# ============================================================================
+# Rollback Deployment Template
+# ============================================================================
+jobs:
+  - job: RollbackDeployment
+    displayName: 'Rollback Deployment'
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+      - checkout: self
+        displayName: 'Checkout code'
+        clean: true
+
+      # ==================================================================
+      # Azure Login & AKS Context
+      # ==================================================================
+      - task: AzureCLI@2
+        displayName: 'Get AKS Credentials'
+        inputs:
+          azureSubscription: 'fleet-azure-subscription'
+          scriptType: 'bash'
+          scriptLocation: 'inlineScript'
+          inlineScript: |
+            az aks get-credentials \
+              --resource-group $(aksResourceGroup) \
+              --name $(aksCluster) \
+              --overwrite-existing
+
+      # ==================================================================
+      # Download Previous Deployment State
+      # ==================================================================
+      - task: DownloadPipelineArtifact@2
+        displayName: 'Download deployment state'
+        inputs:
+          artifactName: 'deployment-state'
+          targetPath: '$(Pipeline.Workspace)/deployment-state'
+        continueOnError: true
+
+      # ==================================================================
+      # Rollback API Deployment
+      # ==================================================================
+      - script: |
+          echo "=========================================="
+          echo "INITIATING ROLLBACK DUE TO DEPLOYMENT FAILURE"
+          echo "=========================================="
+          echo "Build ID: $(Build.BuildId)"
+          echo "Source Version: $(Build.SourceVersion)"
+          echo "=========================================="
+
+          # Try to read previous API image from artifact
+          if [ -f "$(Pipeline.Workspace)/deployment-state/previous-api-image.txt" ]; then
+            PREVIOUS_API_IMAGE=$(cat $(Pipeline.Workspace)/deployment-state/previous-api-image.txt)
+            echo "Found previous API image: $PREVIOUS_API_IMAGE"
+
+            if [ -n "$PREVIOUS_API_IMAGE" ]; then
+              echo "Rolling back API to: $PREVIOUS_API_IMAGE"
+              kubectl set image deployment/fleet-api \
+                fleet-api=$PREVIOUS_API_IMAGE \
+                -n $(namespace)
+              kubectl rollout status deployment/fleet-api -n $(namespace) --timeout=3m
+            else
+              echo "No previous API image found, using kubectl rollout undo"
+              kubectl rollout undo deployment/fleet-api -n $(namespace)
+              kubectl rollout status deployment/fleet-api -n $(namespace) --timeout=3m
+            fi
+          else
+            echo "Deployment state artifact not found, using kubectl rollout undo"
+            kubectl rollout undo deployment/fleet-api -n $(namespace)
+            kubectl rollout status deployment/fleet-api -n $(namespace) --timeout=3m
+          fi
+        displayName: 'Rollback API deployment'
+        continueOnError: false
+
+      # ==================================================================
+      # Rollback Frontend Deployment
+      # ==================================================================
+      - script: |
+          # Try to read previous Frontend image from artifact
+          if [ -f "$(Pipeline.Workspace)/deployment-state/previous-frontend-image.txt" ]; then
+            PREVIOUS_FRONTEND_IMAGE=$(cat $(Pipeline.Workspace)/deployment-state/previous-frontend-image.txt)
+            echo "Found previous Frontend image: $PREVIOUS_FRONTEND_IMAGE"
+
+            if [ -n "$PREVIOUS_FRONTEND_IMAGE" ]; then
+              echo "Rolling back Frontend to: $PREVIOUS_FRONTEND_IMAGE"
+              kubectl set image deployment/fleet-frontend \
+                fleet-frontend=$PREVIOUS_FRONTEND_IMAGE \
+                -n $(namespace)
+              kubectl rollout status deployment/fleet-frontend -n $(namespace) --timeout=3m
+            else
+              echo "No previous Frontend image found, using kubectl rollout undo"
+              kubectl rollout undo deployment/fleet-frontend -n $(namespace)
+              kubectl rollout status deployment/fleet-frontend -n $(namespace) --timeout=3m
+            fi
+          else
+            echo "Deployment state artifact not found, using kubectl rollout undo"
+            kubectl rollout undo deployment/fleet-frontend -n $(namespace)
+            kubectl rollout status deployment/fleet-frontend -n $(namespace) --timeout=3m
+          fi
+        displayName: 'Rollback Frontend deployment'
+        continueOnError: false
+
+      # ==================================================================
+      # Verify Rollback
+      # ==================================================================
+      - script: |
+          echo "=========================================="
+          echo "Verifying rollback..."
+          echo "=========================================="
+          kubectl get pods -n $(namespace)
+          kubectl get deployments -n $(namespace)
+          echo "=========================================="
+        displayName: 'Verify rollback'
+
+      # ==================================================================
+      # Test Health Endpoints After Rollback
+      # ==================================================================
+      - script: |
+          echo "Waiting 30 seconds for services to stabilize after rollback..."
+          sleep 30
+
+          echo "Testing API health endpoint after rollback..."
+          curl --fail $(productionUrl)/api/health && \
+            echo "##vso[task.complete result=Succeeded;]API health check passed after rollback"
+
+          echo "Testing Frontend health endpoint after rollback..."
+          curl --fail $(productionUrl)/ && \
+            echo "##vso[task.complete result=Succeeded;]Frontend health check passed after rollback"
+        displayName: 'Test health endpoints after rollback'
+        continueOnError: true
+
+      # ==================================================================
+      # Send Rollback Notification
+      # ==================================================================
+      - script: |
+          echo "=========================================="
+          echo "ROLLBACK COMPLETED"
+          echo "=========================================="
+          echo "Build ID: $(Build.BuildId)"
+          echo "Source Version: $(Build.SourceVersion)"
+          echo "Rollback Reason: Smoke tests failed"
+          echo "=========================================="
+          echo ""
+          echo "##vso[task.logissue type=error]ROLLBACK EXECUTED: Deployment was rolled back due to smoke test failure"
+          echo ""
+          echo "Check pipeline logs at:"
+          echo "$(System.TeamFoundationCollectionUri)$(System.TeamProject)/_build/results?buildId=$(Build.BuildId)"
+          echo ""
+          echo "Manual verification recommended."
+          echo "=========================================="
+        displayName: 'Send rollback notification'
+
+      # ==================================================================
+      # Create Work Item for Rollback (Optional)
+      # ==================================================================
+      - task: CreateWorkItem@1
+        displayName: 'Create work item for rollback'
+        condition: succeededOrFailed()
+        inputs:
+          workItemType: 'Bug'
+          title: 'Deployment Rollback - Build $(Build.BuildId)'
+          assignedTo: ''
+          areaPath: '$(System.TeamProject)'
+          iterationPath: '$(System.TeamProject)'
+          fieldMappings: |
+            Description=Automatic rollback was triggered due to deployment failure.
+
+            Build ID: $(Build.BuildId)
+            Source Version: $(Build.SourceVersion)
+            Source Branch: $(Build.SourceBranch)
+
+            Pipeline URL: $(System.TeamFoundationCollectionUri)$(System.TeamProject)/_build/results?buildId=$(Build.BuildId)
+
+            Action Required:
+            1. Review pipeline logs
+            2. Investigate smoke test failures
+            3. Fix issues in code
+            4. Re-run deployment
+
+            Severity=2 - High
+        continueOnError: true
+
+      # ==================================================================
+      # Send Email Notification (Optional - requires setup)
+      # ==================================================================
+      - task: SendEmail@1
+        displayName: 'Send email notification'
+        condition: succeededOrFailed()
+        inputs:
+          To: 'devops@capitaltechalliance.com'
+          From: 'azure-pipelines@capitaltechalliance.com'
+          Subject: 'ROLLBACK: Fleet Management Deployment Failed - Build $(Build.BuildId)'
+          Body: |
+            Automatic rollback was executed for Fleet Management System deployment.
+
+            Build ID: $(Build.BuildId)
+            Source Version: $(Build.SourceVersion)
+            Source Branch: $(Build.SourceBranch)
+
+            Reason: Smoke tests failed after deployment
+
+            Pipeline URL:
+            $(System.TeamFoundationCollectionUri)$(System.TeamProject)/_build/results?buildId=$(Build.BuildId)
+
+            Action Required:
+            1. Review pipeline logs and smoke test results
+            2. Investigate deployment failures
+            3. Fix issues and re-deploy
+
+            Services have been rolled back to previous stable version.
+        continueOnError: true
