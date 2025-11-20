@@ -729,10 +729,10 @@ export function LeafletMap({
 
         // Validate coordinate ranges
         if (
-          vehicle.location.lat < -90 ||
-          vehicle.location.lat > 90 ||
-          vehicle.location.lng < -180 ||
-          vehicle.location.lng > 180
+          vehicle.location?.lat < -90 ||
+          vehicle.location?.lat > 90 ||
+          vehicle.location?.lng < -180 ||
+          vehicle.location?.lng > 180
         ) {
           console.warn(`⚠️  Vehicle ${vehicle.id} has out-of-range coordinates:`, vehicle.location)
           return
@@ -740,7 +740,7 @@ export function LeafletMap({
 
         try {
           const icon = createVehicleIcon(vehicle)
-          const marker = L!.marker([vehicle.location.lat, vehicle.location.lng], {
+          const marker = L!.marker([vehicle.location?.lat, vehicle.location?.lng], {
             icon,
             title: `${vehicle.name} - ${vehicle.status}`,
             alt: `Vehicle: ${vehicle.name}, Type: ${vehicle.type}, Status: ${vehicle.status}`,
@@ -828,10 +828,10 @@ export function LeafletMap({
 
         // Validate coordinate ranges
         if (
-          facility.location.lat < -90 ||
-          facility.location.lat > 90 ||
-          facility.location.lng < -180 ||
-          facility.location.lng > 180
+          facility.location?.lat < -90 ||
+          facility.location?.lat > 90 ||
+          facility.location?.lng < -180 ||
+          facility.location?.lng > 180
         ) {
           console.warn(`⚠️  Facility ${facility.id} has out-of-range coordinates:`, facility.location)
           return
@@ -839,7 +839,7 @@ export function LeafletMap({
 
         try {
           const icon = createFacilityIcon(facility)
-          const marker = L!.marker([facility.location.lat, facility.location.lng], {
+          const marker = L!.marker([facility.location?.lat, facility.location?.lng], {
             icon,
             title: `${facility.name} - ${facility.type}`,
             alt: `Facility: ${facility.name}, Type: ${facility.type}, Status: ${facility.status}`,
@@ -1010,7 +1010,7 @@ export function LeafletMap({
       if (showVehicles) {
         vehicles.forEach((v) => {
           if (v.location?.lat && v.location?.lng) {
-            bounds.push([v.location.lat, v.location.lng])
+            bounds.push([v.location?.lat, v.location?.lng])
           }
         })
       }
@@ -1019,7 +1019,7 @@ export function LeafletMap({
       if (showFacilities) {
         facilities.forEach((f) => {
           if (f.location?.lat && f.location?.lng) {
-            bounds.push([f.location.lat, f.location.lng])
+            bounds.push([f.location?.lat, f.location?.lng])
           }
         })
       }
@@ -1085,7 +1085,7 @@ export function LeafletMap({
             This may be due to network issues, browser compatibility, or missing dependencies.
           </p>
           <button
-            onClick={() => window.location.reload()}
+            onClick={() => window.location?.reload()}
             className="px-6 py-2.5 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 transition-colors font-medium text-sm"
             aria-label="Reload page to retry map initialization"
           >
@@ -1415,14 +1415,14 @@ function createVehiclePopup(vehicle: Vehicle): string {
             ? `
           <div style="margin-top: 8px; padding-top: 10px; border-top: 1px solid #e5e7eb;">
             <div style="color: #6b7280; font-weight: 500; margin-bottom: 6px; font-size: 13px;">Location:</div>
-            <div style="color: #111827; font-size: 13px; line-height: 1.4;">${escapeHtml(vehicle.location.address)}</div>
+            <div style="color: #111827; font-size: 13px; line-height: 1.4;">${escapeHtml(vehicle.location?.address)}</div>
           </div>
         `
             : vehicle.location?.lat && vehicle.location?.lng
               ? `
           <div style="margin-top: 8px; padding-top: 10px; border-top: 1px solid #e5e7eb;">
             <div style="color: #9ca3af; font-size: 11px; font-family: 'Courier New', monospace;">
-              ${vehicle.location.lat.toFixed(6)}, ${vehicle.location.lng.toFixed(6)}
+              ${vehicle.location?.lat.toFixed(6)}, ${vehicle.location?.lng.toFixed(6)}
             </div>
           </div>
         `
