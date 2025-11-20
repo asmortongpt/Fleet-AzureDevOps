@@ -228,7 +228,6 @@ export function EnhancedMapLayers() {
 
   const { data: incidentsData, isLoading: incidentsLoading, error: incidentsError } = useSafetyIncidents()
   const { data: chargingData, isLoading: chargingLoading, error: chargingError } = useChargingStations()
-
   // -------------------------------------------------------------------------
   // State Management
   // -------------------------------------------------------------------------

@@ -52,7 +52,7 @@ class MCPServerService {
   async connectServer(serverId: string, tenantId: string): Promise<boolean> {
     try {
       const result = await pool.query(
-        `SELECT * FROM mcp_servers
+        `SELECT id, tenant_id, server_name, server_url, status, last_health_check, created_at, updated_at FROM mcp_servers
          WHERE id = $1 AND tenant_id = $2 AND is_active = true`,
         [serverId, tenantId]
       )
@@ -268,7 +268,7 @@ class MCPServerService {
    */
   async getActiveServers(tenantId: string): Promise<MCPServer[]> {
     const result = await pool.query(
-      `SELECT * FROM mcp_servers
+      `SELECT id, tenant_id, server_name, server_url, status, last_health_check, created_at, updated_at FROM mcp_servers
        WHERE tenant_id = $1 AND is_active = true
        ORDER BY server_name`,
       [tenantId]

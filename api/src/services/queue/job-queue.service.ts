@@ -402,7 +402,12 @@ export class JobQueueService {
     job.progress({ percentage: 50, message: 'Fetching data...' })
 
     const table = entityType === 'task' ? 'tasks' : 'assets'
-    const result = await pool.query(`SELECT * FROM ${table} LIMIT 1000`)
+    const columnMap: Record<string, string> = {
+      'tasks': 'id, tenant_id, title, description, status, priority, due_date, assigned_to, created_by, created_at, updated_at',
+      'assets': 'id, tenant_id, asset_name, asset_type, location, status, acquisition_date, depreciation_rate, created_at, updated_at'
+    }
+    const columns = columnMap[table] || '*'
+    const result = await pool.query(`SELECT ${columns} FROM ${table} LIMIT 1000`)
 
     job.progress({ percentage: 100, message: 'Export complete' })
 
