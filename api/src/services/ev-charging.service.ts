@@ -659,7 +659,7 @@ class EVChargingService {
 
     // Get latest battery health log
     const healthResult = await this.db.query(
-      `SELECT * FROM battery_health_logs
+      `SELECT id, tenant_id, vehicle_id, state_of_health, state_of_charge, temperature, voltage, current, recorded_at FROM battery_health_logs
        WHERE vehicle_id = $1
        ORDER BY timestamp DESC
        LIMIT 1`,

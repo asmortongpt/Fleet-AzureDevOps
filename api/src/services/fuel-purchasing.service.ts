@@ -339,7 +339,7 @@ export class FuelPurchasingService {
   async getContracts(tenantId: string, status?: string): Promise<FuelContract[]> {
     try {
       let query = `
-        SELECT * FROM fuel_contracts
+        SELECT id, tenant_id, contract_name, supplier_id, start_date, end_date, price_per_gallon, created_at FROM fuel_contracts
         WHERE tenant_id = $1
       `
 

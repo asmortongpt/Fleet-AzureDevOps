@@ -34,7 +34,6 @@
 
 import { useEffect, useRef, useState, useCallback, useMemo } from "react"
 import type { DependencyList } from "react"
-import { usePerformanceMonitor } from "@/hooks/usePerformanceMonitor"
 
 // ============================================================================
 // Dependency Validation & Dynamic Imports

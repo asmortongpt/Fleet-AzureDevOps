@@ -61,7 +61,6 @@ import { ChargesAndBilling } from "@/pages/PersonalUse/ChargesAndBilling"
 import { ArcGISIntegration } from "@/components/modules/ArcGISIntegration"
 import { MapSettings } from "@/components/modules/MapSettings"
 import { ExecutiveDashboard } from "@/components/modules/ExecutiveDashboard"
-import DispatchConsole from "@/components/DispatchConsole"
 import { AssetManagement } from "@/components/modules/AssetManagement"
 import { EquipmentDashboard } from "@/components/modules/EquipmentDashboard"
 import { TaskManagement } from "@/components/modules/TaskManagement"
@@ -81,7 +80,6 @@ import { ErrorBoundary } from "@/components/ErrorBoundary"
 import { ThemeToggle } from "@/components/ThemeToggle"
 import { DrilldownManager } from "@/components/DrilldownManager"
 import { useFleetData } from "@/hooks/use-fleet-data"
-import { useFacilities } from "@/hooks/use-api"
 
 function App() {
   const [activeModule, setActiveModule] = useState("dashboard")

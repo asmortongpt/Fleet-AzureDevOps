@@ -426,7 +426,7 @@ router.post('/sessions/:transactionId/stop', authenticateJWT, requirePermission(
 router.get('/sessions/active', authenticateJWT, requirePermission('charging_station:view:fleet'), async (req: Request, res: Response) => {
   try {
     const result = await pool.query(
-      `SELECT * FROM active_charging_sessions ORDER BY start_time DESC`
+      `SELECT id, tenant_id, vehicle_id, charger_id, start_time, end_time, energy_charged, cost FROM active_charging_sessions ORDER BY start_time DESC`
     );
 
     res.json({
@@ -630,7 +630,7 @@ router.get('/vehicles/:id/battery-health', authenticateJWT, requirePermission('v
 router.get('/station-utilization', authenticateJWT, requirePermission('charging_station:view:fleet'), async (req: Request, res: Response) => {
   try {
     const result = await pool.query(
-      `SELECT * FROM station_utilization_today ORDER BY utilization_percent DESC`
+      `SELECT station_id, station_name, utilization_percent, total_sessions, peak_hour FROM station_utilization_today ORDER BY utilization_percent DESC`
     );
 
     res.json({
