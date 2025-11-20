@@ -78,7 +78,7 @@ export function generateMockFacilities(count: number = 5): GISFacility[] {
       name: names[i % names.length],
       type,
       status: i % 7 === 0 ? "maintenance" : i % 11 === 0 ? "closed" : "operational",
-      capacity: Math.floor(Math.random() * 50) + 20,
+      region: ["North", "South", "East", "West", "Central"][i % 5],
       address: Math.floor(Math.random() * 9000 + 1000) + " " + ["Capital", "Tennessee", "Apalachee", "Thomasville", "Mahan"][i % 5] + " Dr, Tallahassee, FL 32301",
       location: {
         lat: baseLat + (Math.random() - 0.5) * spread,
@@ -109,15 +109,21 @@ export function generateMockCameras(count: number = 8): TrafficCamera[] {
 
   return Array.from({ length: count }, (_, i) => {
     const intersection = intersections[i % intersections.length]
+    const now = new Date().toISOString()
     return {
       id: "CAM-" + String(i + 1).padStart(4, "0"),
+      sourceId: "mock-source-001",
+      externalId: "ext-cam-" + (i + 1),
       name: "Traffic Camera - " + intersection.name,
       latitude: baseLat + (Math.random() - 0.5) * spread,
       longitude: baseLng + (Math.random() - 0.5) * spread,
       address: intersection.name + ", Tallahassee, FL",
       crossStreets: intersection.cross,
       operational: i % 7 !== 0,
+      enabled: true,
       cameraUrl: i % 2 === 0 ? "https://example.com/camera/" + (i + 1) : undefined,
+      createdAt: now,
+      updatedAt: now,
     }
   })
 }
