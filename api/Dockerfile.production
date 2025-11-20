@@ -9,8 +9,8 @@ RUN npm install --production=false
 # Copy source code
 COPY . .
 
-# Compile TypeScript to JavaScript (ignore errors, allow compilation)
-RUN npx tsc --noEmitOnError false --skipLibCheck || true
+# Compile TypeScript to JavaScript (fail on errors)
+RUN npx tsc
 
 # Change ownership of app directory to node user (already exists in node:alpine)
 RUN chown -R node:node /app
