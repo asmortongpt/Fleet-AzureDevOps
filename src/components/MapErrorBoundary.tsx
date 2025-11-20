@@ -391,7 +391,7 @@ export class MapErrorBoundary extends Component<MapErrorBoundaryProps, MapErrorB
   }
 
   private handleReload = (): void => {
-    window.location?.reload()
+    window.location.reload()
   }
 
   private handleCheckNetwork = (): void => {
@@ -413,7 +413,7 @@ export class MapErrorBoundary extends Component<MapErrorBoundaryProps, MapErrorB
       localStorage.removeItem('fleet_map_provider')
       localStorage.removeItem('fleet_map_cache')
       alert('Cache cleared. Reloading page...')
-      window.location?.reload()
+      window.location.reload()
     } catch (error) {
       console.error('Failed to clear cache:', error)
     }
@@ -424,7 +424,7 @@ export class MapErrorBoundary extends Component<MapErrorBoundaryProps, MapErrorB
       localStorage.removeItem('fleet_map_provider')
       localStorage.removeItem('fleet_map_settings')
       alert('Settings reset. Reloading page...')
-      window.location?.reload()
+      window.location.reload()
     } catch (error) {
       console.error('Failed to reset settings:', error)
     }

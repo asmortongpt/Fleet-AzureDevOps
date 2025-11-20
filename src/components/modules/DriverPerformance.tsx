@@ -413,7 +413,7 @@ export function DriverPerformance({ data }: DriverPerformanceProps) {
                         <Button
                           size="sm"
                           variant="outline"
-                          onClick={() => window.location?.href = `mailto:${selectedDriver.email}`}
+                          onClick={() => window.location.href = `mailto:${selectedDriver.email}`}
                         >
                           Email
                         </Button>
@@ -426,7 +426,7 @@ export function DriverPerformance({ data }: DriverPerformanceProps) {
                         <Button
                           size="sm"
                           variant="outline"
-                          onClick={() => window.location?.href = `tel:${selectedDriver.phone}`}
+                          onClick={() => window.location.href = `tel:${selectedDriver.phone}`}
                         >
                           Call
                         </Button>

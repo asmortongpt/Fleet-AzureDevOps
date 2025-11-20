@@ -184,7 +184,7 @@ class MapErrorBoundary extends Component<
               {this.state.error?.message || "An unexpected error occurred while loading the map."}
             </p>
             <button
-              onClick={() => window.location?.reload()}
+              onClick={() => window.location.reload()}
               className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
             >
               Reload Page
@@ -701,7 +701,7 @@ export function setMapProvider(provider: MapProvider, reloadPage = true): boolea
   const success = safeSetLocalStorage(STORAGE_KEY, provider)
 
   if (success && reloadPage && typeof window !== "undefined") {
-    window.location?.reload()
+    window.location.reload()
   }
 
   return success
