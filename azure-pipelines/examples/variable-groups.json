@@ -1,0 +1,129 @@
+{
+  "variableGroups": {
+    "fleet-production-vars": {
+      "name": "fleet-production-vars",
+      "description": "Production variables for Fleet Management System",
+      "type": "Vsts",
+      "variables": {
+        "nodeVersion": {
+          "value": "20.x",
+          "isSecret": false,
+          "description": "Node.js version for builds"
+        },
+        "registryName": {
+          "value": "fleetacr",
+          "isSecret": false,
+          "description": "Azure Container Registry name"
+        },
+        "registryLoginServer": {
+          "value": "fleetacr.azurecr.io",
+          "isSecret": false,
+          "description": "ACR login server URL"
+        },
+        "aksCluster": {
+          "value": "fleet-aks-cluster",
+          "isSecret": false,
+          "description": "AKS cluster name"
+        },
+        "aksResourceGroup": {
+          "value": "fleet-management-rg",
+          "isSecret": false,
+          "description": "Azure resource group for AKS"
+        },
+        "namespace": {
+          "value": "fleet-management",
+          "isSecret": false,
+          "description": "Kubernetes namespace"
+        },
+        "productionUrl": {
+          "value": "https://fleet.capitaltechalliance.com",
+          "isSecret": false,
+          "description": "Production URL for smoke tests"
+        }
+      }
+    },
+    "fleet-secrets": {
+      "name": "fleet-secrets",
+      "description": "Secrets from Azure Key Vault for Fleet Management",
+      "type": "AzureKeyVault",
+      "providerData": {
+        "serviceEndpointId": "fleet-azure-subscription",
+        "vault": "fleet-keyvault"
+      },
+      "variables": {
+        "DATABASE-URL": {
+          "value": "",
+          "isSecret": true,
+          "contentType": "string",
+          "enabled": true,
+          "expires": null
+        },
+        "JWT-SECRET": {
+          "value": "",
+          "isSecret": true,
+          "contentType": "string",
+          "enabled": true,
+          "expires": null
+        },
+        "AZURE-MAPS-KEY": {
+          "value": "",
+          "isSecret": true,
+          "contentType": "string",
+          "enabled": true,
+          "expires": null
+        },
+        "OPENAI-API-KEY": {
+          "value": "",
+          "isSecret": true,
+          "contentType": "string",
+          "enabled": true,
+          "expires": null
+        },
+        "ANTHROPIC-API-KEY": {
+          "value": "",
+          "isSecret": true,
+          "contentType": "string",
+          "enabled": true,
+          "expires": null
+        }
+      }
+    }
+  },
+  "instructions": {
+    "createVariableGroup": {
+      "step1": "Go to Pipelines → Library in Azure DevOps",
+      "step2": "Click '+ Variable group'",
+      "step3": "Enter name and description",
+      "step4": "Add variables from the JSON above",
+      "step5": "For fleet-secrets, toggle 'Link secrets from an Azure key vault as variables'",
+      "step6": "Select Azure subscription and Key Vault name",
+      "step7": "Click 'Authorize' to grant access",
+      "step8": "Add secrets by clicking '+ Add' and selecting from Key Vault",
+      "step9": "Click 'Save'"
+    },
+    "grantKeyVaultAccess": {
+      "description": "Grant the service principal access to Key Vault",
+      "command": "az keyvault set-policy --name fleet-keyvault --spn {service-principal-id} --secret-permissions get list"
+    },
+    "addSecretsToKeyVault": {
+      "description": "Add secrets to Azure Key Vault before linking to variable group",
+      "commands": [
+        "az keyvault secret set --vault-name fleet-keyvault --name DATABASE-URL --value 'postgresql://user:pass@host:5432/db'",
+        "az keyvault secret set --vault-name fleet-keyvault --name JWT-SECRET --value '$(openssl rand -base64 32)'",
+        "az keyvault secret set --vault-name fleet-keyvault --name AZURE-MAPS-KEY --value 'your-azure-maps-key'",
+        "az keyvault secret set --vault-name fleet-keyvault --name OPENAI-API-KEY --value 'sk-proj-...'",
+        "az keyvault secret set --vault-name fleet-keyvault --name ANTHROPIC-API-KEY --value 'sk-ant-api03-...'"
+      ]
+    }
+  },
+  "cliCommands": {
+    "createFleetProductionVars": {
+      "description": "Create fleet-production-vars variable group via CLI",
+      "command": "az pipelines variable-group create --name fleet-production-vars --variables nodeVersion=20.x registryName=fleetacr registryLoginServer=fleetacr.azurecr.io aksCluster=fleet-aks-cluster aksResourceGroup=fleet-management-rg namespace=fleet-management productionUrl=https://fleet.capitaltechalliance.com --organization https://dev.azure.com/your-org --project 'Fleet Management'"
+    },
+    "linkKeyVault": {
+      "description": "Link Key Vault to variable group (requires Azure DevOps REST API)",
+      "note": "Key Vault linking is easier via UI. Use the web interface for fleet-secrets variable group."
+    }
+  }
+}

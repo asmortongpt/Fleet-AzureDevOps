@@ -1,0 +1,85 @@
+# ============================================================================
+# Build Verification Template
+# ============================================================================
+jobs:
+  - job: BuildFrontend
+    displayName: 'Build Frontend'
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+      - checkout: self
+        displayName: 'Checkout code'
+        clean: true
+
+      - task: NodeTool@0
+        displayName: 'Setup Node.js'
+        inputs:
+          versionSpec: '$(nodeVersion)'
+
+      - task: Cache@2
+        displayName: 'Cache npm packages'
+        inputs:
+          key: 'npm | "$(Agent.OS)" | package-lock.json'
+          restoreKeys: |
+            npm | "$(Agent.OS)"
+          path: $(npm_config_cache)
+
+      - script: |
+          npm ci
+        displayName: 'Install dependencies'
+        workingDirectory: $(Build.SourcesDirectory)
+
+      - script: |
+          npm run build
+        displayName: 'Build frontend'
+        workingDirectory: $(Build.SourcesDirectory)
+        env:
+          NODE_ENV: production
+
+      - task: PublishPipelineArtifact@1
+        displayName: 'Publish frontend artifacts'
+        inputs:
+          targetPath: '$(Build.SourcesDirectory)/dist'
+          artifact: 'frontend-dist'
+          publishLocation: 'pipeline'
+
+  - job: BuildAPI
+    displayName: 'Build API'
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+      - checkout: self
+        displayName: 'Checkout code'
+        clean: true
+
+      - task: NodeTool@0
+        displayName: 'Setup Node.js'
+        inputs:
+          versionSpec: '$(nodeVersion)'
+
+      - task: Cache@2
+        displayName: 'Cache npm packages'
+        inputs:
+          key: 'npm-api | "$(Agent.OS)" | api/package-lock.json'
+          restoreKeys: |
+            npm-api | "$(Agent.OS)"
+          path: $(npm_config_cache)
+
+      - script: |
+          npm ci
+        displayName: 'Install API dependencies'
+        workingDirectory: $(Build.SourcesDirectory)/api
+
+      - script: |
+          npm run build
+        displayName: 'Build API'
+        workingDirectory: $(Build.SourcesDirectory)/api
+        env:
+          NODE_ENV: production
+
+      - task: PublishPipelineArtifact@1
+        displayName: 'Publish API artifacts'
+        inputs:
+          targetPath: '$(Build.SourcesDirectory)/api/dist'
+          artifact: 'api-dist'
+          publishLocation: 'pipeline'
