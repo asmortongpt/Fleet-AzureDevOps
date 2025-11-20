@@ -50,7 +50,7 @@ export function startVersionChecker() {
 
           // Wait 2 seconds then hard reload
           setTimeout(() => {
-            window.location.reload();
+            window.location?.reload();
           }, 2000);
         }
       }

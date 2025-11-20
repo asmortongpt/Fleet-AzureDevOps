@@ -788,7 +788,7 @@ export function RouteOptimizer() {
                       <div>
                         <h3 className="font-semibold text-lg">Route {route.routeNumber}</h3>
                         <p className="text-sm text-muted-foreground">
-                          {route.vehicle.name} • {route.driver.name}
+                          {route.vehicle.name} • {route.driver?.name}
                         </p>
                       </div>
                       <div className="text-right">
