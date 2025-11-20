@@ -330,7 +330,7 @@ async function seedDatabase() {
     await client.query('BEGIN');
 
     // Default password for all test users
-    const defaultPassword = await bcrypt.hash('TestPassword123!', 12);
+    const defaultPassword = await bcrypt.hash('TestPassword123!', 10);
 
     // Tracking counters
     let totalRecords = 0;
