@@ -326,7 +326,7 @@ export class StorageManager {
     targetProvider: string,
     options?: {
       filter?: (file: any) => boolean;
-      deleteSou rce?: boolean;
+      deleteSource?: boolean;
       onProgress?: (progress: { completed: number; total: number; current: string }) => void;
     }
   ): Promise<MigrationJob> {
