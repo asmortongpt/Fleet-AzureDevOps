@@ -22,7 +22,7 @@ interface UseWebSocketOptions {
 
 export function useWebSocket(options: UseWebSocketOptions = {}) {
   const {
-    url = `${window.location?.protocol === 'https:' ? 'wss:' : 'ws:'}//${window.location?.host}/api/dispatch/ws`,
+    url = `${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${window.location.host}/api/dispatch/ws`,
     reconnectInterval = 3000,
     reconnectAttempts = 10,
     onOpen,

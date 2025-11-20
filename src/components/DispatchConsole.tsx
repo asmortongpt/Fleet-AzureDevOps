@@ -229,7 +229,7 @@ export default function DispatchConsole() {
     }
 
     const token = localStorage.getItem('token')
-    const wsUrl = `${window.location?.protocol === 'https:' ? 'wss:' : 'ws:'}//${window.location?.host}/api/dispatch/ws`
+    const wsUrl = `${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${window.location.host}/api/dispatch/ws`
 
     const ws = new WebSocket(wsUrl)
 
