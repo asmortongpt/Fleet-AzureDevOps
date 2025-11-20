@@ -19,7 +19,6 @@ import {
 } from "@phosphor-icons/react"
 import { UniversalMap } from "@/components/UniversalMap"
 import { MetricCard } from "@/components/MetricCard"
-import { useState } from "react"
 import { useFleetData } from "@/hooks/use-fleet-data"
 import { toast } from "sonner"
 
