@@ -356,7 +356,18 @@ export async function deleteSchedule(scheduleId: string): Promise<void> {
  */
 export async function getSchedulesForReport(reportId: string): Promise<any[]> {
   const result = await pool.query(
-    'SELECT * FROM report_schedules WHERE report_id = $1 ORDER BY created_at DESC',
+    'SELECT 
+      id,
+      tenant_id,
+      report_id,
+      name,
+      schedule_type,
+      schedule_config,
+      last_run,
+      next_run,
+      is_active,
+      created_at,
+      updated_at FROM report_schedules WHERE report_id = $1 ORDER BY created_at DESC',
     [reportId]
   )
 

@@ -25,7 +25,28 @@ router.get(
         [req.user!.id, req.user!.tenant_id]
       )
 
-      let query = 'SELECT * FROM routes WHERE tenant_id = $1'
+      let query = 'SELECT 
+      id,
+      tenant_id,
+      route_name,
+      vehicle_id,
+      driver_id,
+      status,
+      start_location,
+      end_location,
+      planned_start_time,
+      planned_end_time,
+      actual_start_time,
+      actual_end_time,
+      total_distance,
+      estimated_duration,
+      actual_duration,
+      waypoints,
+      optimized_waypoints,
+      route_geometry,
+      notes,
+      created_at,
+      updated_at FROM routes WHERE tenant_id = $1'
       let countQuery = 'SELECT COUNT(*) FROM routes WHERE tenant_id = $1'
       const params: any[] = [req.user!.tenant_id]
 
@@ -92,7 +113,28 @@ router.get(
   async (req: AuthRequest, res: Response) => {
     try {
       const result = await pool.query(
-        'SELECT * FROM routes WHERE id = $1 AND tenant_id = $2',
+        'SELECT 
+      id,
+      tenant_id,
+      route_name,
+      vehicle_id,
+      driver_id,
+      status,
+      start_location,
+      end_location,
+      planned_start_time,
+      planned_end_time,
+      actual_start_time,
+      actual_end_time,
+      total_distance,
+      estimated_duration,
+      actual_duration,
+      waypoints,
+      optimized_waypoints,
+      route_geometry,
+      notes,
+      created_at,
+      updated_at FROM routes WHERE id = $1 AND tenant_id = $2',
         [req.params.id, req.user!.tenant_id]
       )
 
