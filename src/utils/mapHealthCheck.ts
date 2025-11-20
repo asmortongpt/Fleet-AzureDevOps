@@ -12,6 +12,7 @@
 
 import { useState, useEffect } from 'react'
 import { retryFetch, categorizeError, ErrorCategory } from './retry'
+import logger from '@/utils/logger'
 
 // ============================================================================
 // Types & Interfaces
@@ -374,13 +375,13 @@ export class MapHealthCheckManager {
 
     // Initial check
     this.checkHealth(provider).catch(err => {
-      console.error(`Health check failed for ${provider}:`, err)
+      logger.error('Error', { error: `Health check failed for ${provider}:`, err })
     })
 
     // Set up periodic checks
     const intervalId = setInterval(() => {
       this.checkHealth(provider).catch(err => {
-        console.error(`Health check failed for ${provider}:`, err)
+        logger.error('Error', { error: `Health check failed for ${provider}:`, err })
       })
     }, this.config.interval)
 

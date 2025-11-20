@@ -15,6 +15,7 @@
 /**
  * ARIA live region politeness levels
  */
+import logger from '@/utils/logger'
 export type AriaLive = 'off' | 'polite' | 'assertive'
 
 /**
@@ -690,8 +691,8 @@ export function getContrastRatio(foreground: string, background: string): number
  * @example
  * ```ts
  * const result = checkContrast('#000000', '#FFFFFF')
- * console.log(result.passesAA) // true
- * console.log(result.ratio) // 21
+ * logger.debug('Log', { data: result.passesAA }) // true
+ * logger.debug('Log', { data: result.ratio }) // 21
  * ```
  */
 export function checkContrast(foreground: string, background: string): ContrastResult | null {

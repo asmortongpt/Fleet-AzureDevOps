@@ -6,6 +6,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { apiClient } from '@/lib/api-client'
 import { toast } from 'sonner'
+import logger from '@/utils/logger'
 
 // Query keys for cache management
 export const personalUseQueryKeys = {
@@ -118,7 +119,7 @@ export function useCreateTripUsage() {
     },
     onError: (error: any) => {
       const errorMessage = error.response?.data?.error || error.message || 'Failed to create trip usage'
-      console.error('Error creating trip usage:', error)
+      logger.error('Error creating trip usage:', { error })
     }
   })
 }
@@ -146,7 +147,7 @@ export function useMarkTrip() {
     },
     onError: (error: any) => {
       const errorMessage = error.response?.data?.error || error.message || 'Failed to mark trip'
-      console.error('Error marking trip:', error)
+      logger.error('Error marking trip:', { error })
     }
   })
 }
@@ -171,7 +172,7 @@ export function useUpdateTripUsage() {
     },
     onError: (error: any) => {
       const errorMessage = error.response?.data?.error || error.message || 'Failed to update trip usage'
-      console.error('Error updating trip usage:', error)
+      logger.error('Error updating trip usage:', { error })
     }
   })
 }
@@ -195,7 +196,7 @@ export function useDeleteTripUsage() {
     },
     onError: (error: any) => {
       const errorMessage = error.response?.data?.error || error.message || 'Failed to delete trip usage'
-      console.error('Error deleting trip usage:', error)
+      logger.error('Error deleting trip usage:', { error })
     }
   })
 }

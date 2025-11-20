@@ -3,6 +3,7 @@
  * Production-ready service for real-time vehicle telemetry
  */
 
+import logger from '@/utils/logger'
 export interface VINDecodeResult {
   vin: string
   make: string
@@ -50,7 +51,7 @@ export class OBDIIService {
   }
 
   async clearDTCs(vehicleId: string): Promise<void> {
-    console.log(`Clearing DTCs for vehicle ${vehicleId}`)
+    logger.info(`Clearing DTCs for vehicle ${vehicleId}`)
   }
 }
 
