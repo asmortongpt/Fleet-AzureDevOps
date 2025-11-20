@@ -43,7 +43,25 @@ router.get(
       let queryParams = [...scopeParams]
 
       const result = await pool.query(
-        `SELECT * FROM fuel_transactions ${whereClause} ORDER BY created_at DESC LIMIT $${queryParams.length + 1} OFFSET $${queryParams.length + 2}`,
+        `SELECT 
+      id,
+      tenant_id,
+      vehicle_id,
+      driver_id,
+      transaction_date,
+      gallons,
+      price_per_gallon,
+      total_cost,
+      odometer_reading,
+      fuel_type,
+      location,
+      latitude,
+      longitude,
+      fuel_card_number,
+      receipt_photo,
+      notes,
+      created_at,
+      updated_at FROM fuel_transactions ${whereClause} ORDER BY created_at DESC LIMIT ${queryParams.length + 1} OFFSET ${queryParams.length + 2}`,
         [...queryParams, limit, offset]
       )
 
@@ -78,7 +96,25 @@ router.get(
   async (req: AuthRequest, res: Response) => {
     try {
       const result = await pool.query(
-        'SELECT * FROM fuel_transactions WHERE id = $1 AND tenant_id = $2',
+        'SELECT 
+      id,
+      tenant_id,
+      vehicle_id,
+      driver_id,
+      transaction_date,
+      gallons,
+      price_per_gallon,
+      total_cost,
+      odometer_reading,
+      fuel_type,
+      location,
+      latitude,
+      longitude,
+      fuel_card_number,
+      receipt_photo,
+      notes,
+      created_at,
+      updated_at FROM fuel_transactions WHERE id = $1 AND tenant_id = $2',
         [req.params.id, req.user!.tenant_id]
       )
 
