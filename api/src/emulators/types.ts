@@ -265,3 +265,46 @@ export interface EmulatorStats {
   uptime: number
   memoryUsage: number
 }
+
+// EV Charging Types
+export interface EVChargingSession {
+  id: string
+  vehicleId: string
+  stationId: string
+  startTime: Date
+  endTime?: Date
+  startCharge: number // %
+  endCharge?: number // %
+  currentCharge?: number // %
+  energyDelivered: number // kWh
+  cost: number
+  status: 'active' | 'completed' | 'interrupted'
+  powerLevel: 'level1' | 'level2' | 'dcfast'
+  maxPower: number // kW
+  powerKw?: number // kW (alternative property name)
+  duration?: number // minutes
+}
+
+export interface ChargingStation {
+  id: string
+  name: string
+  location: Location
+  type: 'level1' | 'level2' | 'dcfast'
+  maxPower: number // kW
+  powerKw?: number // kW (alternative property name)
+  status: 'available' | 'in-use' | 'offline'
+  connectorType: string
+  pricePerKwh: number
+  networkId?: string
+  inUse?: boolean
+}
+
+export interface BatteryHealth {
+  vehicleId: string
+  health: number // %
+  capacity: number // kWh
+  degradationRate: number // % per year
+  cycleCount: number
+  lastUpdated: Date
+  estimatedRange: number // miles
+}
