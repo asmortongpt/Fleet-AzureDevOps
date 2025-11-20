@@ -86,7 +86,7 @@ function SidebarProvider({
       // NOTE: Secure flag requires HTTPS in production
       // SameSite=Strict prevents CSRF attacks
       // HttpOnly cannot be set from JavaScript, but this cookie doesn't contain sensitive data
-      const isProduction = window.location.protocol === 'https:'
+      const isProduction = window.location?.protocol === 'https:'
       const cookieValue = `${SIDEBAR_COOKIE_NAME}=${openState}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}; SameSite=Strict${isProduction ? '; Secure' : ''}`
       document.cookie = cookieValue
     },

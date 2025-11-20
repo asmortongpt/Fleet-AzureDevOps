@@ -855,8 +855,8 @@ export function EnhancedMapLayers() {
                             {incident.type.replace(/-/g, " ")}
                           </p>
                           <p className="text-sm text-muted-foreground">
-                            Lat: {incident.location.lat.toFixed(4)}, Lng:{" "}
-                            {incident.location.lng.toFixed(4)}
+                            Lat: {incident.location?.lat.toFixed(4)}, Lng:{" "}
+                            {incident.location?.lng.toFixed(4)}
                           </p>
                         </div>
                         <Badge variant={getSeverityColor(incident.severity)}>
@@ -940,7 +940,7 @@ export function EnhancedMapLayers() {
                       </div>
 
                       <div className="flex items-center justify-between text-xs text-muted-foreground">
-                        <span>Lat: {camera.location.lat.toFixed(4)}</span>
+                        <span>Lat: {camera.location?.lat.toFixed(4)}</span>
                         <span>
                           Updated: {new Date(camera.lastUpdate).toLocaleTimeString()}
                         </span>

@@ -142,7 +142,7 @@ export function KeyboardShortcuts({ children }: KeyboardShortcutsProps) {
       shiftKey: true,
       description: 'Hard Refresh Data',
       action: () => {
-        window.location.reload();
+        window.location?.reload();
       },
       preventDefault: true,
     },
