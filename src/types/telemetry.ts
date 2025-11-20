@@ -5,7 +5,8 @@
  * Import from here for type safety across the application.
  */
 
-// Re-export from config
+// Import and re-export from config
+import { TelemetryLevel, AnalyticsProvider } from '../config/telemetry';
 export {
   TelemetryLevel,
   AnalyticsProvider,
@@ -13,7 +14,8 @@ export {
   EventLevelMapping,
 } from '../config/telemetry';
 
-// Re-export from privacy utils
+// Import and re-export from privacy utils
+import { PrivacyCategory } from '../utils/privacy';
 export {
   ConsentStatus,
   PrivacyCategory,
