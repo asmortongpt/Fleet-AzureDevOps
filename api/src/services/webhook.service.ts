@@ -17,13 +17,36 @@ import pool from '../config/database'
 import * as crypto from 'crypto'
 import axios from 'axios'
 import { analyzeDocument } from './ai-ocr'
-import OpenAI from 'openai'
 import { validateURL, SSRFError } from '../utils/safe-http-request'
 import { env } from '../config/environment'
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
-})
+// Optional OpenAI client - lazy loaded
+let OpenAI: any = null
+let openai: any = null
+
+// Lazy load OpenAI SDK
+async function loadOpenAI() {
+  if (OpenAI && openai) return true
+
+  try {
+    const openaiModule = await import('openai')
+    OpenAI = openaiModule.default
+
+    if (!process.env.OPENAI_API_KEY) {
+      console.warn('OpenAI API key not configured - AI categorization will be disabled')
+      return false
+    }
+
+    openai = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY
+    })
+
+    return true
+  } catch (err) {
+    console.warn('openai package not available - AI categorization will be disabled. Install openai package for AI features.')
+    return false
+  }
+}
 
 // Azure AD Configuration
 // IMPORTANT: These env vars come from environment or Azure Key Vault
@@ -589,6 +612,13 @@ class WebhookService {
    * Categorize Teams message using AI
    */
   private async categorizeMessage(content: string): Promise<string> {
+    const openaiAvailable = await loadOpenAI()
+
+    if (!openaiAvailable || !openai) {
+      console.log('OpenAI not available - returning default category')
+      return 'General Discussion'
+    }
+
     try {
       const completion = await openai.chat.completions.create({
         model: 'gpt-4',
@@ -617,6 +647,13 @@ class WebhookService {
    * Categorize email using AI
    */
   private async categorizeEmail(email: OutlookEmail): Promise<string> {
+    const openaiAvailable = await loadOpenAI()
+
+    if (!openaiAvailable || !openai) {
+      console.log('OpenAI not available - returning default category')
+      return 'Administrative'
+    }
+
     try {
       const completion = await openai.chat.completions.create({
         model: 'gpt-4',
@@ -755,6 +792,13 @@ class WebhookService {
    * Extract receipt data from email
    */
   private async extractReceiptData(communicationId: string, email: OutlookEmail): Promise<void> {
+    const openaiAvailable = await loadOpenAI()
+
+    if (!openaiAvailable || !openai) {
+      console.log('OpenAI not available - skipping receipt data extraction')
+      return
+    }
+
     try {
       // Use AI to extract structured data from email body
       const completion = await openai.chat.completions.create({
