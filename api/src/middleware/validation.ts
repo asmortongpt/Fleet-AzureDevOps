@@ -205,14 +205,6 @@ export const commonSchemas = {
   }),
 
   /**
-   * Search query
-   */
-  search: z.object({
-    q: z.string().min(1).max(500),
-    ...commonSchemas.pagination.shape
-  }),
-
-  /**
    * Email validation
    */
   email: z.string().email('Invalid email address').toLowerCase(),
@@ -283,6 +275,15 @@ export const commonSchemas = {
     size: z.number().int().positive().max(50 * 1024 * 1024) // 50MB max
   })
 }
+
+/**
+ * Add search schema after commonSchemas is fully initialized
+ * This prevents circular dependency error
+ */
+commonSchemas.search = z.object({
+  q: z.string().min(1).max(500),
+  ...commonSchemas.pagination.shape
+}) as any
 
 /**
  * Sanitize input to prevent XSS
