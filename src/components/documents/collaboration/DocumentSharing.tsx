@@ -46,7 +46,7 @@ export function DocumentSharing({
   const [linkSharing, setLinkSharing] = useState(document.isShared);
   const [copied, setCopied] = useState(false);
 
-  const shareLink = `${window.location.origin}/documents/${document.id}`;
+  const shareLink = `${window.location?.origin}/documents/${document.id}`;
 
   const handleShare = () => {
     if (email.trim()) {

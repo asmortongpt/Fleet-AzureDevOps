@@ -122,7 +122,7 @@ export function VideoTelematics() {
     const matchesSearch =
       event.vehicleNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
       event.driverName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      event.location.address.toLowerCase().includes(searchTerm.toLowerCase())
+      event.location?.address.toLowerCase().includes(searchTerm.toLowerCase())
     const matchesType = filterType === "all" || event.eventType === filterType
     const matchesSeverity = filterSeverity === "all" || event.severity === filterSeverity
     const matchesReviewed = 
@@ -587,7 +587,7 @@ export function VideoTelematics() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label className="text-xs text-muted-foreground">Location</Label>
-                  <p className="text-sm">{selectedEvent.location.address}</p>
+                  <p className="text-sm">{selectedEvent.location?.address}</p>
                 </div>
                 <div>
                   <Label className="text-xs text-muted-foreground">AI Confidence</Label>

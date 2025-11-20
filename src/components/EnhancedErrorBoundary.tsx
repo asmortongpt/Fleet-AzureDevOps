@@ -61,7 +61,7 @@ export class EnhancedErrorBoundary extends Component<Props, State> {
           componentStack: errorInfo.componentStack,
         },
         userAgent: navigator.userAgent,
-        url: window.location.href,
+        url: window.location?.href,
       };
 
       const existingLogs = JSON.parse(
@@ -118,7 +118,7 @@ export class EnhancedErrorBoundary extends Component<Props, State> {
         },
         timestamp: new Date().toISOString(),
         userAgent: navigator.userAgent,
-        url: window.location.href,
+        url: window.location?.href,
       }),
     }).catch((err) => {
       console.error('Failed to report error:', err);
@@ -134,11 +134,11 @@ export class EnhancedErrorBoundary extends Component<Props, State> {
   };
 
   private handleReload = () => {
-    window.location.reload();
+    window.location?.reload();
   };
 
   private handleGoHome = () => {
-    window.location.href = '/';
+    window.location?.href = '/';
   };
 
   private handleDownloadLog = () => {
