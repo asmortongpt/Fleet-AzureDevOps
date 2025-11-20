@@ -1,0 +1,103 @@
+# ============================================================================
+# Docker Build & Push Template
+# ============================================================================
+jobs:
+  - job: DockerBuildPush
+    displayName: 'Build & Push Docker Images'
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+      - checkout: self
+        displayName: 'Checkout code'
+        clean: true
+
+      - task: Docker@2
+        displayName: 'Docker Login to ACR'
+        inputs:
+          command: 'login'
+          containerRegistry: 'fleet-acr-connection'  # Service connection name
+
+      - task: Docker@2
+        displayName: 'Build API Docker Image'
+        inputs:
+          command: 'build'
+          repository: '$(registryLoginServer)/fleet-api'
+          dockerfile: '$(Build.SourcesDirectory)/api/Dockerfile.production'
+          buildContext: '$(Build.SourcesDirectory)/api'
+          tags: |
+            $(imageTag)
+            latest
+          arguments: '--build-arg BUILD_DATE=$(Build.BuildNumber) --build-arg VCS_REF=$(Build.SourceVersion) --build-arg CACHE_BUST=$(Build.BuildId)'
+
+      - task: Docker@2
+        displayName: 'Push API Docker Image'
+        inputs:
+          command: 'push'
+          repository: '$(registryLoginServer)/fleet-api'
+          tags: |
+            $(imageTag)
+            latest
+
+      - task: Docker@2
+        displayName: 'Build Frontend Docker Image'
+        inputs:
+          command: 'build'
+          repository: '$(registryLoginServer)/fleet-frontend'
+          dockerfile: '$(Build.SourcesDirectory)/Dockerfile'
+          buildContext: '$(Build.SourcesDirectory)'
+          tags: |
+            $(imageTag)
+            latest
+          arguments: '--build-arg BUILD_DATE=$(Build.BuildNumber) --build-arg VCS_REF=$(Build.SourceVersion) --build-arg CACHE_BUST=$(Build.BuildId)'
+
+      - task: Docker@2
+        displayName: 'Push Frontend Docker Image'
+        inputs:
+          command: 'push'
+          repository: '$(registryLoginServer)/fleet-frontend'
+          tags: |
+            $(imageTag)
+            latest
+
+      # Install Syft for SBOM generation
+      - script: |
+          curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sh -s -- -b /usr/local/bin
+          syft version
+        displayName: 'Install Syft'
+
+      # Generate SBOM for API image
+      - script: |
+          syft $(registryLoginServer)/fleet-api:$(imageTag) \
+            -o spdx-json=sbom-api.spdx.json \
+            -o cyclonedx-json=sbom-api.cyclonedx.json
+        displayName: 'Generate SBOM for API'
+        workingDirectory: $(Build.ArtifactStagingDirectory)
+
+      # Generate SBOM for Frontend image
+      - script: |
+          syft $(registryLoginServer)/fleet-frontend:$(imageTag) \
+            -o spdx-json=sbom-frontend.spdx.json \
+            -o cyclonedx-json=sbom-frontend.cyclonedx.json
+        displayName: 'Generate SBOM for Frontend'
+        workingDirectory: $(Build.ArtifactStagingDirectory)
+
+      - task: PublishPipelineArtifact@1
+        displayName: 'Publish SBOM artifacts'
+        inputs:
+          targetPath: '$(Build.ArtifactStagingDirectory)'
+          artifact: 'sbom-reports'
+          publishLocation: 'pipeline'
+
+      # Save image digests for deployment
+      - script: |
+          docker inspect $(registryLoginServer)/fleet-api:$(imageTag) --format='{{.Id}}' > api-image-digest.txt
+          docker inspect $(registryLoginServer)/fleet-frontend:$(imageTag) --format='{{.Id}}' > frontend-image-digest.txt
+        displayName: 'Save image digests'
+        workingDirectory: $(Build.ArtifactStagingDirectory)
+
+      - task: PublishPipelineArtifact@1
+        displayName: 'Publish image digests'
+        inputs:
+          targetPath: '$(Build.ArtifactStagingDirectory)'
+          artifact: 'image-digests'
+          publishLocation: 'pipeline'
