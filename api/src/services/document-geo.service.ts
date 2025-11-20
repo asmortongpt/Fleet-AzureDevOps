@@ -16,7 +16,21 @@
  */
 
 import pool from '../config/database'
-import ExifParser from 'exif-parser'
+
+// Optional EXIF parser for image metadata extraction
+let ExifParser: any = null
+
+// Lazy load optional EXIF parser
+async function loadExifParser() {
+  if (ExifParser) return
+
+  try {
+    const exifModule = await import('exif-parser')
+    ExifParser = exifModule.default
+  } catch (err) {
+    console.warn('exif-parser not available - install exif-parser for image location extraction from EXIF data')
+  }
+}
 
 // ============================================================================
 // Types & Interfaces
@@ -143,6 +157,14 @@ export class DocumentGeoService {
    */
   private async extractExifLocation(filePath: string): Promise<GeoLocation | null> {
     try {
+      // Load EXIF parser if not already loaded
+      await loadExifParser()
+
+      if (!ExifParser) {
+        console.warn('EXIF parser not available - cannot extract location from image')
+        return null
+      }
+
       const fs = await import('fs/promises')
       const buffer = await fs.readFile(filePath)
 
