@@ -1,5 +1,6 @@
 import express, { Request, Response } from 'express'
 import { authenticateJWT } from '../middleware/auth'
+import { getErrorMessage } from '../utils/error-handler'
 import {
   getPresence,
   setPresence,
@@ -27,8 +28,8 @@ router.get('/:userId', authenticateJWT, async (req: Request, res: Response) => {
       presence
     })
   } catch (error: any) {
-    console.error('Error fetching user presence:', error.message)
-    res.status(500).json({ error: error.message })
+    console.error('Error fetching user presence:', getErrorMessage(error))
+    res.status(500).json({ error: getErrorMessage(error) })
   }
 })
 
@@ -53,8 +54,8 @@ router.post('/', authenticateJWT, async (req: Request, res: Response) => {
       message: 'Presence updated successfully'
     })
   } catch (error: any) {
-    console.error('Error setting user presence:', error.message)
-    res.status(500).json({ error: error.message })
+    console.error('Error setting user presence:', getErrorMessage(error))
+    res.status(500).json({ error: getErrorMessage(error) })
   }
 })
 
@@ -80,8 +81,8 @@ router.get('/batch/users', authenticateJWT, async (req: Request, res: Response) 
       presences
     })
   } catch (error: any) {
-    console.error('Error fetching batch presence:', error.message)
-    res.status(500).json({ error: error.message })
+    console.error('Error fetching batch presence:', getErrorMessage(error))
+    res.status(500).json({ error: getErrorMessage(error) })
   }
 })
 
@@ -101,8 +102,8 @@ router.get('/driver/:driverId', authenticateJWT, async (req: Request, res: Respo
       ...availability
     })
   } catch (error: any) {
-    console.error('Error fetching driver availability:', error.message)
-    res.status(500).json({ error: error.message })
+    console.error('Error fetching driver availability:', getErrorMessage(error))
+    res.status(500).json({ error: getErrorMessage(error) })
   }
 })
 
@@ -122,8 +123,8 @@ router.get('/drivers/all', authenticateJWT, async (req: Request, res: Response) 
       drivers
     })
   } catch (error: any) {
-    console.error('Error fetching all drivers availability:', error.message)
-    res.status(500).json({ error: error.message })
+    console.error('Error fetching all drivers availability:', getErrorMessage(error))
+    res.status(500).json({ error: getErrorMessage(error) })
   }
 })
 
@@ -143,8 +144,8 @@ router.get('/drivers/available', authenticateJWT, async (req: Request, res: Resp
       drivers: availableDrivers
     })
   } catch (error: any) {
-    console.error('Error fetching available drivers:', error.message)
-    res.status(500).json({ error: error.message })
+    console.error('Error fetching available drivers:', getErrorMessage(error))
+    res.status(500).json({ error: getErrorMessage(error) })
   }
 })
 
@@ -176,8 +177,8 @@ router.post('/intelligent-routing', authenticateJWT, async (req: Request, res: R
       suggestion
     })
   } catch (error: any) {
-    console.error('Error getting intelligent routing suggestion:', error.message)
-    res.status(500).json({ error: error.message })
+    console.error('Error getting intelligent routing suggestion:', getErrorMessage(error))
+    res.status(500).json({ error: getErrorMessage(error) })
   }
 })
 
@@ -203,8 +204,8 @@ router.post('/subscribe', authenticateJWT, async (req: Request, res: Response) =
       note: 'Webhook subscriptions require proper Azure configuration'
     })
   } catch (error: any) {
-    console.error('Error creating presence subscription:', error.message)
-    res.status(500).json({ error: error.message })
+    console.error('Error creating presence subscription:', getErrorMessage(error))
+    res.status(500).json({ error: getErrorMessage(error) })
   }
 })
 

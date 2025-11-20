@@ -12,6 +12,7 @@ import { Router } from 'express'
 import type { AuthRequest } from '../middleware/auth'
 import { authenticateJWT } from '../middleware/auth'
 import documentGeoService from '../services/document-geo.service'
+import { getErrorMessage } from '../utils/error-handler'
 
 const router = Router()
 
@@ -105,7 +106,7 @@ router.post('/nearby', async (req: AuthRequest, res) => {
     console.error('Error finding nearby documents:', error)
     res.status(500).json({
       error: 'Failed to find nearby documents',
-      details: error.message
+      details: getErrorMessage(error)
     })
   }
 })
@@ -168,7 +169,7 @@ router.post('/within-polygon', async (req: AuthRequest, res) => {
     console.error('Error finding documents in polygon:', error)
     res.status(500).json({
       error: 'Failed to find documents in polygon',
-      details: error.message
+      details: getErrorMessage(error)
     })
   }
 })
@@ -247,7 +248,7 @@ router.post('/along-route', async (req: AuthRequest, res) => {
     console.error('Error finding documents along route:', error)
     res.status(500).json({
       error: 'Failed to find documents along route',
-      details: error.message
+      details: getErrorMessage(error)
     })
   }
 })
@@ -288,7 +289,7 @@ router.get('/heatmap', async (req: AuthRequest, res) => {
     console.error('Error generating heatmap:', error)
     res.status(500).json({
       error: 'Failed to generate heatmap',
-      details: error.message
+      details: getErrorMessage(error)
     })
   }
 })
@@ -330,7 +331,7 @@ router.get('/clusters', async (req: AuthRequest, res) => {
     console.error('Error clustering documents:', error)
     res.status(500).json({
       error: 'Failed to cluster documents',
-      details: error.message
+      details: getErrorMessage(error)
     })
   }
 })
@@ -371,7 +372,7 @@ router.post('/geocode', async (req: AuthRequest, res) => {
     console.error('Error geocoding address:', error)
     res.status(500).json({
       error: 'Failed to geocode address',
-      details: error.message
+      details: getErrorMessage(error)
     })
   }
 })
@@ -422,7 +423,7 @@ router.post('/reverse-geocode', async (req: AuthRequest, res) => {
     console.error('Error reverse geocoding:', error)
     res.status(500).json({
       error: 'Failed to reverse geocode',
-      details: error.message
+      details: getErrorMessage(error)
     })
   }
 })
@@ -479,7 +480,7 @@ router.put('/:id/location', async (req: AuthRequest, res) => {
     console.error('Error setting document location:', error)
     res.status(500).json({
       error: 'Failed to set document location',
-      details: error.message
+      details: getErrorMessage(error)
     })
   }
 })
@@ -509,7 +510,7 @@ router.get('/all', async (req: AuthRequest, res) => {
     console.error('Error getting geolocated documents:', error)
     res.status(500).json({
       error: 'Failed to get geolocated documents',
-      details: error.message
+      details: getErrorMessage(error)
     })
   }
 })
@@ -555,7 +556,7 @@ router.post('/:id/extract-location', async (req: AuthRequest, res) => {
     console.error('Error extracting location:', error)
     res.status(500).json({
       error: 'Failed to extract location',
-      details: error.message
+      details: getErrorMessage(error)
     })
   }
 })

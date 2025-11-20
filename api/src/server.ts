@@ -94,6 +94,7 @@ import permissionsRoutes from './routes/permissions'
 import breakGlassRoutes from './routes/break-glass'
 // Query Performance Monitoring
 import queryPerformanceRoutes from './routes/monitoring/query-performance'
+import performanceRoutes from './routes/performance.routes'
 import maintenanceScheduler from './jobs/maintenance-scheduler'
 import telematicsSync from './jobs/telematics-sync'
 import teamsSync from './jobs/teams-sync.job'
@@ -267,6 +268,20 @@ if (process.env.USE_MOCK_DATA === 'true') {
   }
 }
 
+// ============================================
+// API Versioning Middleware
+// ============================================
+import { apiVersioning, getApiVersionInfo } from './middleware/api-version'
+
+// Apply API versioning middleware globally
+app.use('/api/', apiVersioning('v1'))
+console.log('✅ API Versioning enabled (default: v1)')
+
+// API Version info endpoint
+app.get('/api/version', (req, res) => {
+  res.json(getApiVersionInfo())
+})
+
 // Swagger API Documentation
 import swaggerUi from 'swagger-ui-express'
 import { swaggerSpec } from './config/swagger'
@@ -403,86 +418,151 @@ if (process.env.USE_MOCK_DATA === 'true') {
   console.log('🧪 Using mock data mode - authentication disabled for dev/staging')
 }
 
+// ============================================
+// API v1 Routes - Versioned Endpoints
+// ============================================
+
 // Always register auth routes (authentication bypass handled in middleware)
-app.use('/api/auth', authRoutes)
-app.use('/api/auth', microsoftAuthRoutes)
-app.use('/api/vehicles', vehiclesRoutes)
-app.use('/api/drivers', driversRoutes)
-app.use('/api/work-orders', workOrdersRoutes)
-app.use('/api/maintenance-schedules', maintenanceSchedulesRoutes)
-app.use('/api/fuel-transactions', fuelTransactionsRoutes)
-app.use('/api/routes', routesRoutes)
-app.use('/api/geofences', geofencesRoutes)
-app.use('/api/inspections', inspectionsRoutes)
-app.use('/api/damage-reports', damageReportsRoutes)
-app.use('/api/safety-incidents', safetyIncidentsRoutes)
-app.use('/api/video-events', videoEventsRoutes)
-app.use('/api/charging-stations', chargingStationsRoutes)
-app.use('/api/charging-sessions', chargingSessionsRoutes)
-app.use('/api/purchase-orders', purchaseOrdersRoutes)
-app.use('/api/communication-logs', communicationLogsRoutes)
-app.use('/api/policies', policiesRoutes)
-app.use('/api/facilities', facilitiesRoutes)
-app.use('/api/vendors', vendorsRoutes)
-app.use('/api/telemetry', telemetryRoutes)
-app.use('/api/telematics', telematicsRoutes)
-app.use('/api/smartcar', smartcarRoutes)
-app.use('/api/quality-gates', qualityGatesRoutes)
-app.use('/api/deployments', deploymentsRoutes)
-app.use('/api/mileage-reimbursement', mileageReimbursementRoutes)
-app.use('/api/trip-usage', tripUsageRoutes)
-app.use('/api/trips', tripMarkingRoutes)
-app.use('/api/personal-use-policies', personalUsePoliciesRoutes)
-app.use('/api/personal-use-charges', personalUseChargesRoutes)
-app.use('/api/reimbursements', reimbursementRequestsRoutes)
-app.use('/api/billing-reports', billingReportsRoutes)
-app.use('/api/arcgis-layers', arcgisLayersRoutes)
-app.use('/api/traffic-cameras', trafficCamerasRoutes)
-app.use('/api/dispatch', dispatchRoutes)
-app.use('/api/route-optimization', routeOptimizationRoutes)
-app.use('/api/video', videoTelematicsRoutes)
-app.use('/api/ev', evManagementRoutes)
-app.use('/api/vehicles', vehicle3DRoutes)
-app.use('/api/mobile', mobileIntegrationRoutes)
-app.use('/api/mobile', mobileOcrRoutes)
-app.use('/api/mobile/trips', mobileTripsRoutes)
-app.use('/api/damage', damageRoutes)
-app.use('/api/emulator', emulatorRoutes)
+app.use('/api/v1/auth', authRoutes)
+app.use('/api/v1/auth', microsoftAuthRoutes)
+
+// Core Fleet Management
+app.use('/api/v1/vehicles', vehiclesRoutes)
+app.use('/api/v1/drivers', driversRoutes)
+app.use('/api/v1/work-orders', workOrdersRoutes)
+app.use('/api/v1/maintenance-schedules', maintenanceSchedulesRoutes)
+app.use('/api/v1/fuel-transactions', fuelTransactionsRoutes)
+app.use('/api/v1/routes', routesRoutes)
+app.use('/api/v1/geofences', geofencesRoutes)
+app.use('/api/v1/inspections', inspectionsRoutes)
+app.use('/api/v1/damage-reports', damageReportsRoutes)
+app.use('/api/v1/safety-incidents', safetyIncidentsRoutes)
+app.use('/api/v1/video-events', videoEventsRoutes)
+
+// EV & Charging Management
+app.use('/api/v1/charging-stations', chargingStationsRoutes)
+app.use('/api/v1/charging-sessions', chargingSessionsRoutes)
+app.use('/api/v1/ev', evManagementRoutes)
+
+// Financial & Procurement
+app.use('/api/v1/purchase-orders', purchaseOrdersRoutes)
+app.use('/api/v1/mileage-reimbursement', mileageReimbursementRoutes)
+app.use('/api/v1/trip-usage', tripUsageRoutes)
+app.use('/api/v1/trips', tripMarkingRoutes)
+app.use('/api/v1/personal-use-policies', personalUsePoliciesRoutes)
+app.use('/api/v1/personal-use-charges', personalUseChargesRoutes)
+app.use('/api/v1/reimbursements', reimbursementRequestsRoutes)
+app.use('/api/v1/billing-reports', billingReportsRoutes)
+
+// Communication & Policy
+app.use('/api/v1/communication-logs', communicationLogsRoutes)
+app.use('/api/v1/policies', policiesRoutes)
+app.use('/api/v1/communications', communicationsRoutes)
+app.use('/api/v1/policy-templates', policyTemplatesRoutes)
+
+// Facilities & Vendors
+app.use('/api/v1/facilities', facilitiesRoutes)
+app.use('/api/v1/vendors', vendorsRoutes)
+
+// Telematics & IoT
+app.use('/api/v1/telemetry', telemetryRoutes)
+app.use('/api/v1/telematics', telematicsRoutes)
+app.use('/api/v1/smartcar', smartcarRoutes)
+app.use('/api/v1/video', videoTelematicsRoutes)
+
+// Geospatial & Mapping
+app.use('/api/v1/arcgis-layers', arcgisLayersRoutes)
+app.use('/api/v1/traffic-cameras', trafficCamerasRoutes)
+
+// Dispatch & Route Optimization
+app.use('/api/v1/dispatch', dispatchRoutes)
+app.use('/api/v1/route-optimization', routeOptimizationRoutes)
+
+// Mobile Integration
+app.use('/api/v1/mobile', mobileIntegrationRoutes)
+app.use('/api/v1/mobile', mobileOcrRoutes)
+app.use('/api/v1/mobile/trips', mobileTripsRoutes)
+app.use('/api/v1/mobile/notifications', mobileNotificationsRoutes)
+app.use('/api/v1/mobile', mobileMessagingRoutes)
+
+// 3D Visualization & Damage Assessment
+app.use('/api/v1/vehicles', vehicle3DRoutes)
+app.use('/api/v1/damage', damageRoutes)
+
+// Emulators & Testing
+app.use('/api/v1/emulator', emulatorRoutes)
+
+// DevOps & Quality
+app.use('/api/v1/quality-gates', qualityGatesRoutes)
+app.use('/api/v1/deployments', deploymentsRoutes)
+
 // Enterprise Features
-app.use('/api/osha-compliance', oshaComplianceRoutes)
-app.use('/api/communications', communicationsRoutes)
-app.use('/api/policy-templates', policyTemplatesRoutes)
-app.use('/api/documents', documentsRoutes)
-app.use('/api/fleet-documents', fleetDocumentsRoutes)
-app.use('/api/attachments', attachmentsRoutes)
+app.use('/api/v1/osha-compliance', oshaComplianceRoutes)
+
+// Document Management
+app.use('/api/v1/documents', documentsRoutes)
+app.use('/api/v1/fleet-documents', fleetDocumentsRoutes)
+app.use('/api/v1/attachments', attachmentsRoutes)
 // Document System - World-class document storage with OCR, AI, RAG, and geospatial features
-registerDocumentSystemRoutes(app)
+registerDocumentSystemRoutes(app) // This function handles its own versioning
+
 // Task and Asset Management
-app.use('/api/task-management', taskManagementRoutes)
-app.use('/api/asset-management', assetManagementRoutes)
-app.use('/api/asset-relationships', assetRelationshipsRoutes)
-app.use('/api/ai', aiTaskAssetRoutes)
+app.use('/api/v1/task-management', taskManagementRoutes)
+app.use('/api/v1/asset-management', assetManagementRoutes)
+app.use('/api/v1/asset-relationships', assetRelationshipsRoutes)
+app.use('/api/v1/ai', aiTaskAssetRoutes)
+
 // Microsoft Integration
-app.use('/api/teams', teamsRoutes)
-app.use('/api/outlook', outlookRoutes)
-app.use('/api/sync', syncRoutes)
-app.use('/api/cards', adaptiveCardsRoutes)
-app.use('/api/calendar', calendarRoutes)
-app.use('/api/presence', presenceRoutes)
-app.use('/api/scheduling', schedulingRoutes)
-app.use('/api/scheduling-notifications', schedulingNotificationsRoutes)
-app.use('/api/mobile/notifications', mobileNotificationsRoutes)
-app.use('/api/mobile', mobileMessagingRoutes)
-app.use('/api/health', healthRoutes)
+app.use('/api/v1/teams', teamsRoutes)
+app.use('/api/v1/outlook', outlookRoutes)
+app.use('/api/v1/sync', syncRoutes)
+app.use('/api/v1/cards', adaptiveCardsRoutes)
+app.use('/api/v1/calendar', calendarRoutes)
+app.use('/api/v1/presence', presenceRoutes)
+app.use('/api/v1/scheduling', schedulingRoutes)
+app.use('/api/v1/scheduling-notifications', schedulingNotificationsRoutes)
+app.use('/api/v1/health', healthRoutes)
+
 // Webhook endpoints (no auth required - validated by Microsoft)
+// Note: Webhooks remain unversioned as they are validated by external services
 app.use('/api/webhooks/teams', teamsWebhookRoutes)
 app.use('/api/webhooks/outlook', outlookWebhookRoutes)
-// app.use('/api/ai', aiRoutes) // Temporarily disabled
+
 // RBAC & Security
-app.use('/api/permissions', permissionsRoutes)
-app.use('/api/break-glass', breakGlassRoutes)
+app.use('/api/v1/permissions', permissionsRoutes)
+app.use('/api/v1/break-glass', breakGlassRoutes)
+
 // Query Performance Monitoring
-app.use('/api/monitoring/query-performance', queryPerformanceRoutes)
+app.use('/api/v1/monitoring/query-performance', queryPerformanceRoutes)
+
+// Performance Monitoring & Optimization
+app.use('/api/v1/performance', performanceRoutes)
+
+// ============================================
+// Legacy Route Redirects (for backwards compatibility)
+// ============================================
+// Redirect old unversioned routes to v1
+// These can be removed after a deprecation period
+console.log('⚠️  Setting up legacy route redirects to /api/v1/*')
+
+// Core routes - most commonly used
+const coreRoutes = [
+  'vehicles', 'drivers', 'work-orders', 'maintenance-schedules',
+  'fuel-transactions', 'inspections', 'damage-reports'
+]
+
+coreRoutes.forEach(route => {
+  app.use(`/api/${route}`, (req, res) => {
+    const newPath = `/api/v1/${route}${req.url}`
+    res.setHeader('X-API-Deprecation', 'This endpoint is deprecated. Please use /api/v1/* instead')
+    res.setHeader('Location', newPath)
+    res.status(307).json({
+      message: `This endpoint has moved to ${newPath}`,
+      redirectTo: newPath,
+      hint: 'Update your API client to use /api/v1/* endpoints'
+    })
+  })
+})
 
 // System Status endpoint
 /**
