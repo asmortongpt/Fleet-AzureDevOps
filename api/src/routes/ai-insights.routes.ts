@@ -224,7 +224,7 @@ router.get(
   async (req: AuthRequest, res: Response) => {
     try {
       const result = await pool.query(
-        `SELECT * FROM detected_patterns
+        `SELECT id, tenant_id, vehicle_id, pattern_type, pattern_data, confidence_score, detected_at FROM detected_patterns
          WHERE tenant_id = $1 AND is_monitored = true
          ORDER BY occurrence_count DESC, last_detected_at DESC
          LIMIT 50`,
@@ -788,7 +788,7 @@ router.get(
   async (req: AuthRequest, res: Response) => {
     try {
       const result = await pool.query(
-        `SELECT * FROM training_jobs
+        `SELECT id, tenant_id, job_name, job_type, status, progress, start_time, end_time, result_data FROM training_jobs
          WHERE tenant_id = $1
          ORDER BY created_at DESC
          LIMIT 50`,

@@ -220,7 +220,7 @@ export async function checkTechnicianAvailability(
   try {
     // Check technician availability records
     const availability = await pool.query(
-      `SELECT * FROM technician_availability
+      `SELECT id, tenant_id, technician_id, day_of_week, start_time, end_time, created_at, updated_at FROM technician_availability
        WHERE tenant_id = $1
          AND technician_id = $2
          AND availability_type != 'available'
@@ -615,7 +615,7 @@ async function syncReservationToCalendars(
 
     // Get enabled calendar integrations
     const integrations = await pool.query(
-      `SELECT * FROM calendar_integrations
+      `SELECT id, tenant_id, user_id, calendar_type, calendar_id, is_synced, last_sync_at, created_at, updated_at FROM calendar_integrations
        WHERE user_id = $1 AND is_enabled = true`,
       [userId]
     )
@@ -713,7 +713,7 @@ async function syncMaintenanceToCalendars(
     }
 
     const integrations = await pool.query(
-      `SELECT * FROM calendar_integrations
+      `SELECT id, tenant_id, user_id, calendar_type, calendar_id, is_synced, last_sync_at, created_at, updated_at FROM calendar_integrations
        WHERE user_id = ANY($1) AND is_enabled = true`,
       [userIds]
     )

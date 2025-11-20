@@ -162,7 +162,7 @@ export class CustomFieldsService {
    */
   async getFieldDefinitions(tenantId: string, entityType: 'task' | 'asset', includeInactive: boolean = false): Promise<CustomFieldDefinition[]> {
     let query = `
-      SELECT * FROM custom_field_definitions
+      SELECT id, tenant_id, field_name, field_type, required, created_at, updated_at FROM custom_field_definitions
       WHERE tenant_id = $1 AND entity_type = $2
     `
 
@@ -245,7 +245,7 @@ export class CustomFieldsService {
    */
   async getFieldGroups(tenantId: string, entityType: 'task' | 'asset'): Promise<FieldGroup[]> {
     const result = await pool.query(
-      `SELECT * FROM custom_field_groups
+      `SELECT id, tenant_id, group_name, created_at, updated_at FROM custom_field_groups
        WHERE tenant_id = $1 AND entity_type = $2
        ORDER BY sort_order ASC`,
       [tenantId, entityType]

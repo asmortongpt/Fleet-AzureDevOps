@@ -405,7 +405,7 @@ export class CustomReportService {
    */
   async listReports(tenantId: string, userId: string): Promise<CustomReport[]> {
     const result = await pool.query(
-      `SELECT * FROM custom_reports
+      `SELECT id, tenant_id, report_name, report_type, query_config, created_at, updated_at FROM custom_reports
        WHERE tenant_id = $1
        AND (created_by = $2 OR is_public = true OR id IN (
          SELECT report_id FROM report_shares WHERE shared_with_user_id = $2

@@ -169,8 +169,7 @@ export function useSyncCalendar() {
         }
       )
     },
-    onSuccess: (result, { integrationId }) => {
-      // Update sync status and last sync time
+    onSuccess: (result, { integrationId }) => {      // Update sync status and last sync time
       queryClient.setQueryData(
         calendarKeys.integrations(),
         (old: CalendarIntegration[] | undefined) => {
@@ -190,8 +189,7 @@ export function useSyncCalendar() {
       // Invalidate scheduling data as it may have changed
       queryClient.invalidateQueries({ queryKey: ['scheduling'] })
     },
-    onError: (err, { integrationId }) => {
-      // Update sync status to failed
+    onError: (err, { integrationId }) => {      // Update sync status to failed
       queryClient.setQueryData(
         calendarKeys.integrations(),
         (old: CalendarIntegration[] | undefined) => {
@@ -247,7 +245,7 @@ export function useUpdateCalendarIntegration() {
 
       return { previousIntegrations }
     },
-    onError: (err, { integrationId }, context) => {
+    onError: (_error, _variables, context) => {
       // Rollback on error
       if (context?.previousIntegrations) {
         queryClient.setQueryData(
