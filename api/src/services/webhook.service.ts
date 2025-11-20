@@ -259,7 +259,12 @@ class WebhookService {
     try {
       // Get subscription details from database
       const result = await pool.query(
-        `SELECT * FROM webhook_subscriptions WHERE subscription_id = $1`,
+        `SELECT subscription_id, resource, change_type, notification_url,
+                expiration_date_time, client_state, status, subscription_type,
+                tenant_id, team_id, channel_id, user_email, folder_id,
+                renewal_failure_count, last_renewed_at, created_at
+         FROM webhook_subscriptions
+         WHERE subscription_id = $1`,
         [subscriptionId]
       )
 

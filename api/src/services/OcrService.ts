@@ -964,7 +964,11 @@ export class OcrService {
   async getOcrResult(documentId: string): Promise<OcrResult | null> {
     try {
       const result = await pool.query(
-        `SELECT * FROM ocr_results WHERE document_id = $1`,
+        `SELECT document_id, provider, full_text, pages, tables, forms,
+                languages, primary_language, average_confidence,
+                processing_time, metadata, created_at, updated_at
+         FROM ocr_results
+         WHERE document_id = $1`,
         [documentId]
       );
 
