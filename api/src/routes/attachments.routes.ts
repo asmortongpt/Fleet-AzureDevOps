@@ -108,7 +108,7 @@ router.post(
       console.error('Upload error:', error)
       res.status(500).json({
         error: 'Failed to upload file',
-        details: error.message
+        details: getErrorMessage(error)
       })
     }
   }
@@ -160,7 +160,7 @@ router.post(
       console.error('Multiple upload error:', error)
       res.status(500).json({
         error: 'Failed to upload files',
-        details: error.message
+        details: getErrorMessage(error)
       })
     }
   }
@@ -217,7 +217,7 @@ router.get(
       console.error('Download error:', error)
       res.status(500).json({
         error: 'Failed to download file',
-        details: error.message
+        details: getErrorMessage(error)
       })
     }
   }
@@ -264,7 +264,7 @@ router.get(
       console.error('SAS URL generation error:', error)
       res.status(500).json({
         error: 'Failed to generate SAS URL',
-        details: error.message
+        details: getErrorMessage(error)
       })
     }
   }
@@ -311,7 +311,7 @@ router.delete(
       console.error('Delete error:', error)
       res.status(500).json({
         error: 'Failed to delete attachment',
-        details: error.message
+        details: getErrorMessage(error)
       })
     }
   }
@@ -359,7 +359,7 @@ router.post(
       console.error('Teams upload error:', error)
       res.status(500).json({
         error: 'Failed to upload file to Teams',
-        details: error.message
+        details: getErrorMessage(error)
       })
     }
   }
@@ -394,7 +394,7 @@ router.get(
       console.error('Teams download error:', error)
       res.status(500).json({
         error: 'Failed to download file from Teams',
-        details: error.message
+        details: getErrorMessage(error)
       })
     }
   }
@@ -440,7 +440,7 @@ router.post(
       console.error('Outlook attachment error:', error)
       res.status(500).json({
         error: 'Failed to add attachment to email',
-        details: error.message
+        details: getErrorMessage(error)
       })
     }
   }
@@ -488,7 +488,7 @@ router.post(
       console.error('Send email error:', error)
       res.status(500).json({
         error: 'Failed to send email',
-        details: error.message
+        details: getErrorMessage(error)
       })
     }
   }
@@ -522,7 +522,7 @@ router.get(
       console.error('Download email attachment error:', error)
       res.status(500).json({
         error: 'Failed to download email attachment',
-        details: error.message
+        details: getErrorMessage(error)
       })
     }
   }
@@ -602,7 +602,7 @@ router.get(
       console.error('Get attachments error:', error)
       res.status(500).json({
         error: 'Failed to get attachments',
-        details: error.message
+        details: getErrorMessage(error)
       })
     }
   }
@@ -645,7 +645,7 @@ router.get(
       console.error('Get attachment error:', error)
       res.status(500).json({
         error: 'Failed to get attachment',
-        details: error.message
+        details: getErrorMessage(error)
       })
     }
   }
@@ -678,7 +678,7 @@ router.post(
       console.error('Cleanup error:', error)
       res.status(500).json({
         error: 'Failed to cleanup orphaned files',
-        details: error.message
+        details: getErrorMessage(error)
       })
     }
   }
@@ -730,7 +730,7 @@ router.get(
       console.error('Get stats error:', error)
       res.status(500).json({
         error: 'Failed to get attachment statistics',
-        details: error.message
+        details: getErrorMessage(error)
       })
     }
   }

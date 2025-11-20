@@ -14,6 +14,7 @@ import ragEngineService from '../services/rag-engine.service'
 import mlTrainingService from '../services/ml-training.service'
 import mcpServerService from '../services/mcp-server.service'
 import pool from '../config/database'
+import { getErrorMessage } from '../utils/error-handler'
 
 const router = express.Router()
 router.use(authenticateJWT)
@@ -89,7 +90,7 @@ router.get(
         count: result.rows.length
       })
     } catch (error: any) {
-      res.status(500).json({ error: 'Failed to retrieve insights', message: error.message })
+      res.status(500).json({ error: 'Failed to retrieve insights', message: getErrorMessage(error) })
     }
   }
 )
@@ -119,7 +120,7 @@ router.post(
         generated_at: new Date().toISOString()
       })
     } catch (error: any) {
-      res.status(500).json({ error: 'Failed to generate insights', message: error.message })
+      res.status(500).json({ error: 'Failed to generate insights', message: getErrorMessage(error) })
     }
   }
 )
@@ -144,7 +145,7 @@ router.get(
       const healthScore = await fleetCognitionService.getFleetHealthScore(req.user!.tenant_id)
       res.json(healthScore)
     } catch (error: any) {
-      res.status(500).json({ error: 'Failed to calculate health score', message: error.message })
+      res.status(500).json({ error: 'Failed to calculate health score', message: getErrorMessage(error) })
     }
   }
 )
@@ -178,7 +179,7 @@ router.get(
         count: recommendations.length
       })
     } catch (error: any) {
-      res.status(500).json({ error: 'Failed to get recommendations', message: error.message })
+      res.status(500).json({ error: 'Failed to get recommendations', message: getErrorMessage(error) })
     }
   }
 )
@@ -213,7 +214,7 @@ router.get(
         count: result.rows.length
       })
     } catch (error: any) {
-      res.status(500).json({ error: 'Failed to retrieve patterns', message: error.message })
+      res.status(500).json({ error: 'Failed to retrieve patterns', message: getErrorMessage(error) })
     }
   }
 )
@@ -262,7 +263,7 @@ router.get(
         count: result.rows.length
       })
     } catch (error: any) {
-      res.status(500).json({ error: 'Failed to retrieve anomalies', message: error.message })
+      res.status(500).json({ error: 'Failed to retrieve anomalies', message: getErrorMessage(error) })
     }
   }
 )
@@ -303,7 +304,7 @@ router.post(
       if (error.name === 'ZodError') {
         return res.status(400).json({ error: 'Validation error', details: error.errors })
       }
-      res.status(500).json({ error: 'Prediction failed', message: error.message })
+      res.status(500).json({ error: 'Prediction failed', message: getErrorMessage(error) })
     }
   }
 )
@@ -342,7 +343,7 @@ router.post(
       if (error.name === 'ZodError') {
         return res.status(400).json({ error: 'Validation error', details: error.errors })
       }
-      res.status(500).json({ error: 'Scoring failed', message: error.message })
+      res.status(500).json({ error: 'Scoring failed', message: getErrorMessage(error) })
     }
   }
 )
@@ -381,7 +382,7 @@ router.post(
       if (error.name === 'ZodError') {
         return res.status(400).json({ error: 'Validation error', details: error.errors })
       }
-      res.status(500).json({ error: 'Prediction failed', message: error.message })
+      res.status(500).json({ error: 'Prediction failed', message: getErrorMessage(error) })
     }
   }
 )
@@ -418,7 +419,7 @@ router.post(
       if (error.name === 'ZodError') {
         return res.status(400).json({ error: 'Validation error', details: error.errors })
       }
-      res.status(500).json({ error: 'Forecasting failed', message: error.message })
+      res.status(500).json({ error: 'Forecasting failed', message: getErrorMessage(error) })
     }
   }
 )
@@ -450,7 +451,7 @@ router.put(
 
       res.json({ message: 'Outcome recorded successfully' })
     } catch (error: any) {
-      res.status(500).json({ error: 'Failed to record outcome', message: error.message })
+      res.status(500).json({ error: 'Failed to record outcome', message: getErrorMessage(error) })
     }
   }
 )
@@ -496,7 +497,7 @@ router.post(
       if (error.name === 'ZodError') {
         return res.status(400).json({ error: 'Validation error', details: error.errors })
       }
-      res.status(500).json({ error: 'RAG query failed', message: error.message })
+      res.status(500).json({ error: 'RAG query failed', message: getErrorMessage(error) })
     }
   }
 )
@@ -538,7 +539,7 @@ router.post(
       if (error.name === 'ZodError') {
         return res.status(400).json({ error: 'Validation error', details: error.errors })
       }
-      res.status(500).json({ error: 'Indexing failed', message: error.message })
+      res.status(500).json({ error: 'Indexing failed', message: getErrorMessage(error) })
     }
   }
 )
@@ -570,7 +571,7 @@ router.post(
 
       res.json({ message: 'Feedback recorded' })
     } catch (error: any) {
-      res.status(500).json({ error: 'Failed to record feedback', message: error.message })
+      res.status(500).json({ error: 'Failed to record feedback', message: getErrorMessage(error) })
     }
   }
 )
@@ -594,7 +595,7 @@ router.get(
       const stats = await ragEngineService.getStatistics(req.user!.tenant_id)
       res.json(stats)
     } catch (error: any) {
-      res.status(500).json({ error: 'Failed to retrieve stats', message: error.message })
+      res.status(500).json({ error: 'Failed to retrieve stats', message: getErrorMessage(error) })
     }
   }
 )
@@ -646,7 +647,7 @@ router.get(
         count: result.rows.length
       })
     } catch (error: any) {
-      res.status(500).json({ error: 'Failed to retrieve models', message: error.message })
+      res.status(500).json({ error: 'Failed to retrieve models', message: getErrorMessage(error) })
     }
   }
 )
@@ -677,7 +678,7 @@ router.get(
         performance_history: performance
       })
     } catch (error: any) {
-      res.status(500).json({ error: 'Failed to retrieve performance', message: error.message })
+      res.status(500).json({ error: 'Failed to retrieve performance', message: getErrorMessage(error) })
     }
   }
 )
@@ -702,7 +703,7 @@ router.post(
 
       res.json({ message: 'Model deployed successfully' })
     } catch (error: any) {
-      res.status(500).json({ error: 'Deployment failed', message: error.message })
+      res.status(500).json({ error: 'Deployment failed', message: getErrorMessage(error) })
     }
   }
 )
@@ -736,7 +737,7 @@ router.get(
         count: result.rows.length
       })
     } catch (error: any) {
-      res.status(500).json({ error: 'Failed to retrieve jobs', message: error.message })
+      res.status(500).json({ error: 'Failed to retrieve jobs', message: getErrorMessage(error) })
     }
   }
 )

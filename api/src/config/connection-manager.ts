@@ -10,7 +10,8 @@ dotenv.config()
 export enum PoolType {
   ADMIN = 'admin',      // Full admin privileges (migrations, schema changes)
   WEBAPP = 'webapp',    // Standard web app user (read/write on app tables)
-  READONLY = 'readonly' // Read-only access (reporting, analytics)
+  READONLY = 'readonly', // Read-only access (reporting, analytics)
+  READ_REPLICA = 'read_replica' // Read replica for load distribution
 }
 
 /**
@@ -108,6 +109,25 @@ export class ConnectionManager {
       idleTimeoutMillis: parseInt(process.env.DB_READONLY_IDLE_TIMEOUT_MS || '60000'),
       connectionTimeoutMillis: parseInt(process.env.DB_READONLY_CONNECTION_TIMEOUT_MS || '5000')
     })
+
+    // Read replica pool configuration (for distributed read operations)
+    // PERFORMANCE OPTIMIZED for high-volume read queries:
+    // - max: 50 connections (handle high read throughput)
+    // - idleTimeout: 30s (balance between connection reuse and resource conservation)
+    // - connectionTimeout: 3s (fast fail for read queries)
+    // - Connects to read replica host if configured, otherwise uses main DB
+    const readReplicaHost = process.env.DB_READ_REPLICA_HOST || baseConfig.host
+    if (readReplicaHost !== baseConfig.host) {
+      this.poolConfigs.set(PoolType.READ_REPLICA, {
+        ...baseConfig,
+        host: readReplicaHost,
+        user: process.env.DB_READONLY_USER || process.env.DB_USER || 'fleetadmin',
+        password: process.env.DB_READONLY_PASSWORD || process.env.DB_PASSWORD || '',
+        max: parseInt(process.env.DB_READ_REPLICA_POOL_SIZE || '50'),
+        idleTimeoutMillis: parseInt(process.env.DB_READ_REPLICA_IDLE_TIMEOUT_MS || '30000'),
+        connectionTimeoutMillis: parseInt(process.env.DB_READ_REPLICA_CONNECTION_TIMEOUT_MS || '3000')
+      })
+    }
   }
 
   /**
@@ -215,11 +235,22 @@ export class ConnectionManager {
   }
 
   /**
-   * Get pool for read operations (uses readonly pool if available)
+   * Get pool for read operations (uses read replica if available, falls back to readonly, then webapp)
+   * This method intelligently routes read queries to the best available pool
    */
   getReadPool(): Pool {
+    // Priority: READ_REPLICA > READONLY > WEBAPP
+    const readReplicaPool = this.pools.get(PoolType.READ_REPLICA)
+    if (readReplicaPool) {
+      return readReplicaPool
+    }
+
     const readOnlyPool = this.pools.get(PoolType.READONLY)
-    return readOnlyPool || this.getPool(PoolType.WEBAPP)
+    if (readOnlyPool) {
+      return readOnlyPool
+    }
+
+    return this.getPool(PoolType.WEBAPP)
   }
 
   /**
@@ -318,6 +349,104 @@ export class ConnectionManager {
     }
 
     return stats
+  }
+
+  /**
+   * Check replica lag for read replica
+   * Returns lag in milliseconds, or null if not a replica or check fails
+   */
+  async getReplicaLag(): Promise<number | null> {
+    const replicaPool = this.pools.get(PoolType.READ_REPLICA)
+    if (!replicaPool) {
+      return null
+    }
+
+    try {
+      const client = await replicaPool.connect()
+
+      // PostgreSQL-specific replica lag check
+      const result = await client.query(`
+        SELECT
+          CASE
+            WHEN pg_is_in_recovery() THEN
+              EXTRACT(EPOCH FROM (now() - pg_last_xact_replay_timestamp()))::INTEGER * 1000
+            ELSE
+              0
+          END as lag_ms
+      `)
+
+      client.release()
+      return result.rows[0]?.lag_ms || 0
+    } catch (error) {
+      console.error('[READ_REPLICA] Failed to check replica lag:', error)
+      return null
+    }
+  }
+
+  /**
+   * Get connection leak detection info
+   * Identifies connections that have been checked out for too long
+   */
+  async detectConnectionLeaks(maxConnectionAgeMs: number = 60000): Promise<Record<string, any>> {
+    const leaks: Record<string, any> = {}
+
+    for (const [poolType, pool] of this.pools.entries()) {
+      const activeConnections = pool.totalCount - pool.idleCount
+      const waitingClients = pool.waitingCount
+
+      if (activeConnections > 0 || waitingClients > 0) {
+        leaks[poolType] = {
+          activeConnections,
+          waitingClients,
+          potentialLeak: activeConnections > (this.poolConfigs.get(poolType)?.max || 0) * 0.8,
+          warning: waitingClients > 0 ? 'Clients are waiting for connections' : null
+        }
+      }
+    }
+
+    return leaks
+  }
+
+  /**
+   * Get enhanced pool diagnostics for performance monitoring
+   */
+  async getPoolDiagnostics(): Promise<Record<string, any>> {
+    const diagnostics: Record<string, any> = {
+      timestamp: new Date().toISOString(),
+      pools: {},
+      replicaLag: await this.getReplicaLag(),
+      connectionLeaks: await this.detectConnectionLeaks()
+    }
+
+    for (const [poolType, pool] of this.pools.entries()) {
+      const config = this.poolConfigs.get(poolType)
+
+      diagnostics.pools[poolType] = {
+        config: {
+          max: config?.max,
+          idleTimeoutMillis: config?.idleTimeoutMillis,
+          connectionTimeoutMillis: config?.connectionTimeoutMillis
+        },
+        stats: {
+          totalCount: pool.totalCount,
+          idleCount: pool.idleCount,
+          waitingCount: pool.waitingCount,
+          activeCount: pool.totalCount - pool.idleCount
+        },
+        utilization: {
+          percentage: ((pool.totalCount - pool.idleCount) / (config?.max || 1) * 100).toFixed(2) + '%',
+          available: pool.idleCount,
+          inUse: pool.totalCount - pool.idleCount
+        },
+        health: {
+          hasWaitingClients: pool.waitingCount > 0,
+          nearCapacity: (pool.totalCount / (config?.max || 1)) > 0.8,
+          hasIdleConnections: pool.idleCount > 0
+        }
+      }
+    }
+
+    return diagnostics
   }
 
   /**

@@ -217,14 +217,23 @@ export class InspectionRepository extends BaseRepository<Inspection> {
       WHERE tenant_id = $1
     `
 
-    const result = await this.query(query, [tenantId])
+    interface StatsRow {
+      total: string
+      pending: string
+      completed: string
+      passed: string
+      failed: string
+      overdue: string
+    }
+
+    const result = await this.query<StatsRow>(query, [tenantId])
     const row = result.rows[0]
 
     return {
       total: parseInt(row.total),
       pending: parseInt(row.pending),
       completed: parseInt(row.completed),
-      passed: parseInt(row.passed),
+      passed: parseInt(row.passed as string),
       failed: parseInt(row.failed),
       overdue: parseInt(row.overdue)
     }
