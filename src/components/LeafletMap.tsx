@@ -35,6 +35,7 @@
 import { useEffect, useRef, useState, useCallback, useMemo } from "react"
 import type { DependencyList } from "react"
 import { usePerformanceMonitor } from "@/hooks/usePerformanceMonitor"
+import type { Vehicle, GISFacility, TrafficCamera } from "@/lib/types"
 
 // ============================================================================
 // Dependency Validation & Dynamic Imports
@@ -102,77 +103,7 @@ async function ensureLeafletLoaded(): Promise<typeof import("leaflet")> {
 // Type Definitions & Interfaces
 // ============================================================================
 
-/**
- * Vehicle entity with location and status information
- */
-export interface Vehicle {
-  /** Unique identifier */
-  id: string
-  /** Display name */
-  name: string
-  /** Vehicle type */
-  type: "car" | "truck" | "van" | "bus"
-  /** Current operational status */
-  status: "active" | "idle" | "charging" | "service" | "emergency" | "offline"
-  /** Assigned driver name (optional) */
-  driver?: string | null
-  /** Geographic location data */
-  location?: {
-    /** Latitude coordinate */
-    lat: number
-    /** Longitude coordinate */
-    lng: number
-    /** Human-readable address (optional) */
-    address?: string | null
-  } | null
-}
-
-/**
- * GIS Facility entity (depot, office, service center, etc.)
- */
-export interface GISFacility {
-  /** Unique identifier */
-  id: string
-  /** Display name */
-  name: string
-  /** Facility type */
-  type: "office" | "depot" | "service-center" | "fueling-station"
-  /** Operational status */
-  status: "operational" | "maintenance" | "closed"
-  /** Vehicle capacity */
-  capacity: number
-  /** Physical address */
-  address: string
-  /** Geographic location */
-  location?: {
-    /** Latitude coordinate */
-    lat: number
-    /** Longitude coordinate */
-    lng: number
-  } | null
-}
-
-/**
- * Traffic camera entity with live feed capabilities
- */
-export interface TrafficCamera {
-  /** Unique identifier */
-  id: string
-  /** Display name */
-  name: string
-  /** Latitude coordinate */
-  latitude: number
-  /** Longitude coordinate */
-  longitude: number
-  /** Physical address (optional) */
-  address?: string | null
-  /** Cross streets description (optional) */
-  crossStreets?: string | null
-  /** Camera operational status */
-  operational: boolean
-  /** Live feed URL (optional) */
-  cameraUrl?: string | null
-}
+// Types imported from @/lib/types above
 
 /**
  * Map visual style options
