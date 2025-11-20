@@ -10,8 +10,27 @@
  * - Custom AI workflows
  */
 
-import { Client } from '@modelcontextprotocol/sdk/client/index.js'
-import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js'
+// Optional MCP SDK dependencies - lazy loaded
+let Client: any = null
+let StdioClientTransport: any = null
+
+// Lazy load MCP SDK
+async function loadMcpSdk() {
+  if (Client && StdioClientTransport) return true
+
+  try {
+    const clientModule = await import('@modelcontextprotocol/sdk/client/index.js')
+    Client = clientModule.Client
+
+    const transportModule = await import('@modelcontextprotocol/sdk/client/stdio.js')
+    StdioClientTransport = transportModule.StdioClientTransport
+
+    return true
+  } catch (err) {
+    console.warn('MCP SDK not available - MCP server integration will be disabled. Install @modelcontextprotocol/sdk for MCP support.')
+    return false
+  }
+}
 
 interface MCPServerConfig {
   name: string
@@ -29,13 +48,20 @@ interface MCPToolCall {
  * MCP Server Manager
  */
 export class MCPServerManager {
-  private clients: Map<string, Client> = new Map()
-  private transports: Map<string, StdioClientTransport> = new Map()
+  private clients: Map<string, any> = new Map()
+  private transports: Map<string, any> = new Map()
 
   /**
    * Initialize and connect to MCP servers
    */
   async connect(config: MCPServerConfig): Promise<void> {
+    const sdkAvailable = await loadMcpSdk()
+
+    if (!sdkAvailable) {
+      console.warn(`MCP SDK not available - cannot connect to server ${config.name}`)
+      return
+    }
+
     try {
       const transport = new StdioClientTransport({
         command: config.command,
