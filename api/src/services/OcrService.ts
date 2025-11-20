@@ -21,13 +21,45 @@ import pool from '../config/database';
 import fs from 'fs/promises';
 import path from 'path';
 import { createWorker, PSM, OEM } from 'tesseract.js';
-import vision from '@google-cloud/vision';
-import { TextractClient, AnalyzeDocumentCommand, DetectDocumentTextCommand } from '@aws-sdk/client-textract';
-import { ComputerVisionClient } from '@azure/cognitiveservices-computervision';
-import { ApiKeyCredentials } from '@azure/ms-rest-js';
 import pdfParse from 'pdf-parse';
 import mammoth from 'mammoth';
 import xlsx from 'xlsx';
+
+// Optional cloud OCR provider imports - only load if packages are installed
+let vision: any = null;
+let TextractClient: any = null;
+let AnalyzeDocumentCommand: any = null;
+let DetectDocumentTextCommand: any = null;
+let ComputerVisionClient: any = null;
+let ApiKeyCredentials: any = null;
+
+// Lazy load optional OCR providers
+async function loadOptionalProviders() {
+  try {
+    const visionModule = await import('@google-cloud/vision');
+    vision = visionModule.default;
+  } catch (err) {
+    console.warn('Google Cloud Vision not available - install @google-cloud/vision for premium OCR');
+  }
+
+  try {
+    const textractModule = await import('@aws-sdk/client-textract');
+    TextractClient = textractModule.TextractClient;
+    AnalyzeDocumentCommand = textractModule.AnalyzeDocumentCommand;
+    DetectDocumentTextCommand = textractModule.DetectDocumentTextCommand;
+  } catch (err) {
+    console.warn('AWS Textract not available - install @aws-sdk/client-textract for premium OCR');
+  }
+
+  try {
+    const azureModule = await import('@azure/cognitiveservices-computervision');
+    const msRestModule = await import('@azure/ms-rest-js');
+    ComputerVisionClient = azureModule.ComputerVisionClient;
+    ApiKeyCredentials = msRestModule.ApiKeyCredentials;
+  } catch (err) {
+    console.warn('Azure Computer Vision not available - install @azure/cognitiveservices-computervision for premium OCR');
+  }
+}
 
 // OCR Provider Types
 export enum OcrProvider {
