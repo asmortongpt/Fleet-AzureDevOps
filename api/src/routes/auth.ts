@@ -304,7 +304,10 @@ router.post('/register', registrationLimiter, async (req: Request, res: Response
     }
 
     // Hash password
-    const passwordHash = await bcrypt.hash(data.password, 10)
+    // SECURITY: Use bcrypt with cost factor 12 (FedRAMP compliance)
+    // Cost factor 12 provides strong protection against brute-force attacks
+    // while maintaining reasonable performance (takes ~250ms on modern hardware)
+    const passwordHash = await bcrypt.hash(data.password, 12)
 
     // Get default tenant (or create one)
     let tenantResult = await pool.query('SELECT id FROM tenants LIMIT 1')
