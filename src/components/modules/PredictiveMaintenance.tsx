@@ -12,6 +12,7 @@ import { Vehicle } from "@/lib/types"
 import { useFleetData } from "@/hooks/use-fleet-data"
 
 interface PredictiveMaintenanceProps {
+  data?: any
   data: ReturnType<typeof useFleetData>
 }
 
