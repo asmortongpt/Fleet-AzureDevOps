@@ -13,6 +13,7 @@
  * - Environment detection
  */
 
+import React from 'react';
 import { getTelemetryConfig } from '../config/telemetry';
 import { DataSanitizer } from '../utils/privacy';
 import { analytics } from './analytics';
