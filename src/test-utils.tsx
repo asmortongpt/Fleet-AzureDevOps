@@ -7,6 +7,7 @@
 
 import { ReactElement } from 'react'
 import { render, RenderOptions } from '@testing-library/react'
+import { vi, expect } from 'vitest'
 import { Vehicle, GISFacility, TrafficCamera } from '@/lib/types'
 
 // ============================================================================

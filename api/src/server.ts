@@ -12,6 +12,7 @@ import helmet from 'helmet'
 import cookieParser from 'cookie-parser'
 import dotenv from 'dotenv'
 import { csrfTokenMiddleware, conditionalCsrfProtection, csrfErrorHandler } from './middleware/csrf'
+import { setTenantContext, debugTenantContext } from './middleware/tenant-context'
 import { globalLimiter } from './config/rate-limiters'
 import authRoutes from './routes/auth'
 import microsoftAuthRoutes from './routes/microsoft-auth'
@@ -299,6 +300,54 @@ app.get('/api/csrf', csrfTokenMiddleware)
 // Apply CSRF protection to all routes (except GET, HEAD, OPTIONS, and webhooks)
 // This must come after the /api/csrf endpoint and before other routes
 app.use(conditionalCsrfProtection)
+
+// ============================================
+// CRITICAL SECURITY: Tenant Context Middleware
+// ============================================
+// This middleware sets the PostgreSQL session variable for Row-Level Security (RLS)
+// It MUST run after authentication and before any database queries
+// This enforces multi-tenant isolation at the database level
+//
+// NOTE: Auth routes (/api/auth/*) are exempt from tenant context since they
+// handle authentication before tenant context can be established
+//
+// Related migrations:
+// - 032_enable_rls.sql - Enables RLS on all multi-tenant tables
+// - 033_fix_nullable_tenant_id.sql - Enforces NOT NULL on tenant_id columns
+//
+// For debugging tenant isolation, use: GET /api/debug/tenant-context
+// (requires authentication)
+console.log('🔐 Registering tenant context middleware for multi-tenant isolation')
+
+// Apply tenant context to ALL routes except auth, health, and public endpoints
+app.use('/api/', (req, res, next) => {
+  // Skip tenant context for these paths (they don't need it)
+  const skipPaths = [
+    '/api/health',
+    '/api/csrf',
+    '/api/auth/',
+    '/api/docs',
+    '/api/openapi.json'
+  ]
+
+  // Check if current path should skip tenant context
+  const shouldSkip = skipPaths.some(path => req.path.startsWith(path) || req.path === path)
+
+  if (shouldSkip) {
+    return next()
+  }
+
+  // For all other paths, set tenant context
+  setTenantContext(req as any, res, next)
+})
+
+// Debug endpoint for tenant context verification (development/testing only)
+// This helps verify that RLS is working correctly
+if (process.env.NODE_ENV !== 'production') {
+  const { authenticateJWT } = require('./middleware/auth')
+  app.get('/api/debug/tenant-context', authenticateJWT, setTenantContext, debugTenantContext)
+  console.log('🐛 Debug endpoint registered: GET /api/debug/tenant-context')
+}
 
 // Health check
 /**
