@@ -11,7 +11,7 @@ import { outlookService } from '../services/outlook.service';
 import teamsService from '../services/teams.service';
 import pool from '../config/database';
 import { z } from 'zod';
-import { logger } from '../config/logger';
+import { logger } from '../utils/logger';
 import twilio from 'twilio';
 
 const router = express.Router();

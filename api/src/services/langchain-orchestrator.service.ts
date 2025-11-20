@@ -13,7 +13,7 @@ import { AIMessage, HumanMessage, SystemMessage } from '@langchain/core/messages
 import { DynamicStructuredTool } from '@langchain/core/tools'
 import { z } from 'zod'
 import pool from '../config/database'
-import { logger } from '../config/logger'
+import { logger } from '../utils/logger'
 import mcpServerService from './mcp-server.service'
 
 export interface WorkflowContext {

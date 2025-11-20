@@ -10,6 +10,7 @@ import { auditLog } from '../middleware/audit'
 import pool from '../config/database'
 import SamsaraService from '../services/samsara.service'
 import crypto from 'crypto'
+import { cacheMiddleware, invalidateOnWrite } from '../middleware/cache'
 
 const router = express.Router()
 router.use(authenticateJWT)

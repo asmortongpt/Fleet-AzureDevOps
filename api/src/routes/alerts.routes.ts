@@ -16,6 +16,29 @@ import pool from '../config/database'
 import { authenticateJWT } from '../middleware/auth'
 import { requirePermission } from '../middleware/permissions'
 import alertEngine from '../services/alert-engine.service'
+import { z } from 'zod'
+
+// SECURITY: Input validation schemas
+const createAlertRuleSchema = z.object({
+  rule_name: z.string().min(1).max(200),
+  rule_type: z.enum(['maintenance_due', 'fuel_threshold', 'geofence_violation', 'speed_violation', 'idle_time', 'custom']),
+  conditions: z.record(z.any()),
+  severity: z.enum(['info', 'warning', 'critical', 'emergency']),
+  channels: z.array(z.enum(['in_app', 'email', 'sms', 'push'])).optional(),
+  recipients: z.array(z.string().uuid()).optional(),
+  is_enabled: z.boolean().optional(),
+  cooldown_minutes: z.number().int().min(0).max(1440).optional()
+})
+
+const updateAlertRuleSchema = createAlertRuleSchema.partial()
+
+const acknowledgeAlertSchema = z.object({
+  notes: z.string().max(1000).optional()
+})
+
+const resolveAlertSchema = z.object({
+  resolution_notes: z.string().min(1).max(1000)
+})
 
 const router = Router()
 router.use(authenticateJWT)
@@ -427,6 +450,9 @@ router.get('/rules', requirePermission('report:view:global'), async (req: AuthRe
  */
 router.post('/rules', requirePermission('report:generate:global'), async (req: AuthRequest, res) => {
   try {
+    // SECURITY: Validate input data
+    const validatedData = createAlertRuleSchema.parse(req.body)
+
     const {
       rule_name,
       rule_type,
@@ -436,7 +462,7 @@ router.post('/rules', requirePermission('report:generate:global'), async (req: A
       recipients,
       is_enabled,
       cooldown_minutes
-    } = req.body
+    } = validatedData
 
     const tenantId = req.user?.tenant_id
     const userId = req.user?.id
@@ -466,6 +492,9 @@ router.post('/rules', requirePermission('report:generate:global'), async (req: A
       message: 'Alert rule created successfully'
     })
   } catch (error) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ error: 'Validation error', details: error.errors })
+    }
     console.error('Error creating alert rule:', error)
     res.status(500).json({ error: 'Failed to create alert rule' })
   }
@@ -504,8 +533,11 @@ router.post('/rules', requirePermission('report:generate:global'), async (req: A
  */
 router.put('/rules/:id', requirePermission('report:generate:global'), async (req: AuthRequest, res) => {
   try {
+    // SECURITY: Validate input data
+    const validatedData = updateAlertRuleSchema.parse(req.body)
+
     const { id } = req.params
-    const updates = req.body
+    const updates = validatedData
     const tenantId = req.user?.tenant_id
 
     const setClauses: string[] = []
