@@ -256,7 +256,7 @@ export function DocumentProperties({ document, onUpdate, onClose }: DocumentProp
               <PropertyRow
                 icon={MapPin}
                 label="Location"
-                value={`${document.location.lat.toFixed(6)}, ${document.location.lng.toFixed(6)}`}
+                value={`${document.location?.lat.toFixed(6)}, ${document.location?.lng.toFixed(6)}`}
               />
             )}
 
