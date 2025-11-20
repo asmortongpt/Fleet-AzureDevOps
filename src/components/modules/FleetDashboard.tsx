@@ -77,7 +77,7 @@ export function FleetDashboard({ data }: FleetDashboardProps) {
 
   // Sync asset filters with URL parameters
   useEffect(() => {
-    const params = new URLSearchParams(window.location?.search)
+    const params = new URLSearchParams(window.location.search)
     const newFilters: AssetFilterState = {}
 
     if (params.get('asset_category')) newFilters.asset_category = params.get('asset_category') as any
@@ -106,8 +106,8 @@ export function FleetDashboard({ data }: FleetDashboardProps) {
     })
 
     const newUrl = params.toString()
-      ? `${window.location?.pathname}?${params.toString()}`
-      : window.location?.pathname
+      ? `${window.location.pathname}?${params.toString()}`
+      : window.location.pathname
     window.history.replaceState({}, '', newUrl)
 
     // In a real implementation, you would fetch vehicles from API here:
@@ -116,7 +116,7 @@ export function FleetDashboard({ data }: FleetDashboardProps) {
 
   const handleClearAssetFilters = () => {
     setAssetFilters({})
-    window.history.replaceState({}, '', window.location?.pathname)
+    window.history.replaceState({}, '', window.location.pathname)
     // In a real implementation, you would fetch all vehicles:
     // fetchVehiclesWithFilters({})
   }
