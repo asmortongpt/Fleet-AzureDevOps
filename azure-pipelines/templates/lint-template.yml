@@ -1,0 +1,68 @@
+# ============================================================================
+# Lint & Type Check Template
+# ============================================================================
+jobs:
+  - job: LintTypeCheck
+    displayName: 'Lint & Type Check'
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+      - checkout: self
+        displayName: 'Checkout code'
+        clean: true
+
+      - task: NodeTool@0
+        displayName: 'Setup Node.js'
+        inputs:
+          versionSpec: '$(nodeVersion)'
+          checkLatest: false
+
+      - task: Cache@2
+        displayName: 'Cache npm packages'
+        inputs:
+          key: 'npm | "$(Agent.OS)" | package-lock.json'
+          restoreKeys: |
+            npm | "$(Agent.OS)"
+          path: $(npm_config_cache)
+
+      - script: |
+          npm ci
+        displayName: 'Install frontend dependencies'
+        workingDirectory: $(Build.SourcesDirectory)
+
+      - script: |
+          npm ci
+        displayName: 'Install API dependencies'
+        workingDirectory: $(Build.SourcesDirectory)/api
+
+      - script: |
+          npm run lint
+        displayName: 'ESLint - Frontend'
+        workingDirectory: $(Build.SourcesDirectory)
+        continueOnError: false
+
+      - script: |
+          npm run lint
+        displayName: 'ESLint - API'
+        workingDirectory: $(Build.SourcesDirectory)/api
+        continueOnError: false
+
+      - script: |
+          npx tsc --noEmit
+        displayName: 'TypeScript Check - Frontend'
+        workingDirectory: $(Build.SourcesDirectory)
+        continueOnError: false
+
+      - script: |
+          npx tsc --noEmit
+        displayName: 'TypeScript Check - API'
+        workingDirectory: $(Build.SourcesDirectory)/api
+        continueOnError: false
+
+      - task: PublishPipelineArtifact@1
+        displayName: 'Publish lint results'
+        condition: succeededOrFailed()
+        inputs:
+          targetPath: '$(Build.SourcesDirectory)'
+          artifact: 'lint-results'
+          publishLocation: 'pipeline'
