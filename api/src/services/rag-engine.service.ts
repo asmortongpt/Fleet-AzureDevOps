@@ -4,7 +4,7 @@
  */
 
 import pool from '../config/database'
-import { logger } from '../config/logger'
+import { logger } from '../utils/logger'
 import OpenAI from 'openai'
 
 const openai = new OpenAI({

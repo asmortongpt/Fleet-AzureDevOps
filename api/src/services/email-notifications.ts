@@ -1,5 +1,5 @@
 import nodemailer from 'nodemailer'
-import { logger } from '../config/logger'
+import { logger } from '../utils/logger'
 import { outlookService } from './outlook.service'
 import { microsoftGraphService, MicrosoftGraphService } from './microsoft-graph.service'
 

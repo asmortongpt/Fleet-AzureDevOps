@@ -1,5 +1,5 @@
 import { OpenAIVisionService, DamageDetectionResult } from './openaiVisionService';
-import { logger } from '../config/logger';
+import { logger } from '../utils/logger';
 import * as THREE from 'three';
 
 export interface LiDARScanData {

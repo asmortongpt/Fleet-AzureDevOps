@@ -87,6 +87,8 @@ import schedulingNotificationsRoutes from './routes/scheduling-notifications.rou
 import mobileNotificationsRoutes from './routes/mobile-notifications.routes'
 import mobileMessagingRoutes from './routes/mobile-messaging.routes'
 // import aiRoutes from './routes/ai' // Temporarily disabled
+// DI Example Routes
+import exampleDIRoutes from './routes/example-di.routes'
 // RBAC & Security
 import permissionsRoutes from './routes/permissions'
 import breakGlassRoutes from './routes/break-glass'
@@ -218,6 +220,12 @@ app.use(cookieParser())
 // Body parser
 app.use(express.json({ limit: '10mb' }))
 app.use(express.urlencoded({ extended: true, limit: '10mb' }))
+
+// Dependency Injection Container Middleware
+// This creates a scoped container for each request with fresh dependencies
+import { containerMiddleware, container as diContainer } from './container'
+app.use(containerMiddleware)
+console.log('✅ Dependency Injection container initialized')
 
 // SECURITY: Development-only mock data mode with strict environment validation
 // This bypass is ONLY allowed in development environment and will terminate the server

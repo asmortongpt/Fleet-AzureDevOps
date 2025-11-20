@@ -8,7 +8,7 @@
  */
 
 import { cameraSyncService } from '../services/camera-sync'
-import { logger } from '../config/logger'
+import { logger } from '../utils/logger'
 
 async function main() {
   logger.info('Camera sync job starting')

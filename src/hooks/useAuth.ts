@@ -69,6 +69,7 @@ export const useAuthProvider = () => {
     try {
       const response = await fetch('/api/auth/login', {
         method: 'POST',
+        credentials: 'include',  // Required to receive cookies
         headers: {
           'Content-Type': 'application/json',
         },
@@ -90,7 +91,8 @@ export const useAuthProvider = () => {
         token: data.token,
       };
 
-      // Store in localStorage
+      // SECURITY: Store user and access token in localStorage
+      // Refresh token is now in httpOnly cookie (not accessible to JS)
       localStorage.setItem('user', JSON.stringify(userData));
       localStorage.setItem('token', data.token);
 
@@ -121,13 +123,15 @@ export const useAuthProvider = () => {
     }
   }, []);
 
-  // Refresh token
+  // SECURITY: Refresh token using httpOnly cookie
+  // The refresh token is automatically sent via cookie, not in the request body
   const refreshToken = useCallback(async () => {
     try {
       const response = await fetch('/api/auth/refresh', {
         method: 'POST',
+        credentials: 'include',  // Required to send cookies
         headers: {
-          'Authorization': `Bearer ${user?.token}`,
+          'Content-Type': 'application/json',
         },
       });
 
@@ -141,6 +145,7 @@ export const useAuthProvider = () => {
         const updatedUser = { ...user, token: data.token };
         setUserState(updatedUser);
         localStorage.setItem('token', data.token);
+        localStorage.setItem('user', JSON.stringify(updatedUser));
       }
     } catch (error) {
       console.error('Token refresh error:', error);

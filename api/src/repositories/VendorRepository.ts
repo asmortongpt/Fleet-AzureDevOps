@@ -132,7 +132,10 @@ export class VendorRepository extends BaseRepository<Vendor> {
    */
   async searchByName(tenantId: string, searchTerm: string): Promise<Vendor[]> {
     const query = `
-      SELECT * FROM ${this.tableName}
+      SELECT id, tenant_id, name, contact_name, email, phone, address,
+             city, state, zip, country, vendor_type, tax_id, payment_terms,
+             notes, is_active, created_at, updated_at
+      FROM ${this.tableName}
       WHERE tenant_id = $1 AND name ILIKE $2
       ORDER BY name ASC
     `

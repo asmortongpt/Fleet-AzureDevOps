@@ -1,0 +1,265 @@
+{
+  "agent": "Architecture & Configuration Auditor",
+  "project": "Fleet Management System",
+  "audit_date": "2025-11-20",
+  "project_path": "/Users/andrewmorton/Documents/GitHub/Fleet",
+  "findings": [
+    {
+      "item": "1. TypeScript Config",
+      "status": "Partially Implemented",
+      "severity": "CRITICAL",
+      "evidence": [
+        "api/tsconfig.json:9 - \"strict\": true ✓",
+        "api/tsconfig.json:12 - \"noEmitOnError\": false ✗",
+        "api/tsconfig.json:15-20 - Multiple strict checks disabled",
+        "tsconfig.json:13 - strictNullChecks: true (frontend only)",
+        "tsconfig.json:19 - noEmit: true (no noEmitOnError)"
+      ],
+      "issue": "API TypeScript configuration has strict mode enabled but noEmitOnError is explicitly disabled (line 12) with comment 'Temporarily disabled to allow build completion'. Additionally, critical strict checks are disabled including strictNullChecks, strictFunctionTypes, strictBindCallApply, strictPropertyInitialization, noImplicitThis, and noImplicitAny. This allows type-unsafe code to compile and deploy to production.",
+      "recommendation": "Enable noEmitOnError and incrementally re-enable strict checks:\n\n```json\n// api/tsconfig.json\n{\n  \"compilerOptions\": {\n    \"strict\": true,\n    \"noEmitOnError\": true,  // CRITICAL: Enable this\n    \"strictNullChecks\": true,\n    \"strictFunctionTypes\": true,\n    \"strictBindCallApply\": true,\n    \"strictPropertyInitialization\": true,\n    \"noImplicitThis\": true,\n    \"noImplicitAny\": true\n  }\n}\n```\n\nImplementation strategy:\n1. Run `tsc --noEmit` to identify all type errors\n2. Fix critical type safety issues first\n3. Enable checks incrementally, starting with noEmitOnError\n4. Use `// @ts-expect-error` with TODO comments for remaining issues\n5. Create technical debt tickets for deferred fixes",
+      "impact": "Type errors can slip into production, causing runtime failures. Null pointer exceptions, type coercion bugs, and undefined behavior are not caught at compile time. This directly violates Azure DevOps production readiness requirements."
+    },
+    {
+      "item": "2. Dependency Injection",
+      "status": "Missing",
+      "severity": "HIGH",
+      "evidence": [
+        "69 route files contain 'new' keyword or class instantiation",
+        "api/src/routes/ocr.routes.ts:11 - Direct service import: 'import ocrService from'",
+        "api/src/routes/ocr.routes.ts:12 - Direct service import: 'import ocrQueueService from'",
+        "api/src/routes/auth.ts, drivers.ts, vehicles.ts, etc. - Direct instantiation pattern",
+        "No Container, inject, or DI framework found in codebase"
+      ],
+      "issue": "The codebase uses direct service instantiation and module imports instead of dependency injection. Services are imported as singletons or instantiated directly in route handlers. This creates tight coupling, makes testing difficult, prevents service mocking, and violates SOLID principles (specifically Dependency Inversion).",
+      "recommendation": "Implement dependency injection using a lightweight DI container:\n\n```typescript\n// api/src/container.ts\nimport { Container } from 'typedi';\nimport { OcrService } from './services/OcrService';\nimport { DocumentService } from './services/document.service';\n\n// Register services\nContainer.set(OcrService, new OcrService());\nContainer.set(DocumentService, new DocumentService());\n\nexport { Container };\n\n// api/src/routes/ocr.routes.ts\nimport { Container } from '../container';\nimport { OcrService } from '../services/OcrService';\n\nconst router = express.Router();\n\nrouter.post('/process', async (req, res) => {\n  const ocrService = Container.get(OcrService);\n  // Use service\n});\n```\n\nAlternatives:\n- Use InversifyJS for more robust DI\n- Use NestJS framework which has built-in DI\n- Create simple service registry pattern",
+      "impact": "Testing requires complex mocking, services cannot be easily swapped, circular dependencies can occur, difficult to manage service lifecycle, and hard to implement features like service health checks or graceful degradation."
+    },
+    {
+      "item": "3. Error Handling Consistency",
+      "status": "Partially Implemented",
+      "severity": "HIGH",
+      "evidence": [
+        "api/src/middleware/error-handler.ts - Centralized error handler exists ✓",
+        "api/src/routes/vehicles.ts:21-37 - Manual try/catch with console.error",
+        "api/src/routes/drivers.ts:65-68 - Inconsistent error format: res.status(500).json({ error: 'Internal server error' })",
+        "api/src/routes/inspections.ts:44-47 - Pattern: catch (error) { console.error(...); res.status(500).json({ error: '...' }) }",
+        "713 occurrences of pool.query across 78 route files - many without proper error handling"
+      ],
+      "issue": "While a centralized error handler exists (error-handler.ts with AppError class), most routes still use manual try/catch blocks with inconsistent error responses. Routes directly return error responses instead of passing errors to the middleware via next(). Error logging uses console.error instead of the logger utility. No consistent use of asyncHandler wrapper.",
+      "recommendation": "Enforce consistent error handling using asyncHandler:\n\n```typescript\n// api/src/routes/vehicles.ts - BEFORE\nrouter.get('/', async (req, res) => {\n  try {\n    const result = await pool.query(...);\n    res.json(result.rows);\n  } catch (error) {\n    console.error('Error:', error);\n    res.status(500).json({ error: 'Internal server error' });\n  }\n});\n\n// AFTER\nimport { asyncHandler, NotFoundError } from '../middleware/error-handler';\n\nrouter.get('/', asyncHandler(async (req, res) => {\n  const result = await pool.query(...);\n  if (result.rows.length === 0) {\n    throw new NotFoundError('Vehicle');\n  }\n  res.json(result.rows);\n}));\n```\n\nImplementation steps:\n1. Refactor all routes to use asyncHandler\n2. Remove manual try/catch blocks\n3. Use typed error classes (NotFoundError, ValidationError, etc.)\n4. Add ESLint rule to prevent direct res.status(500)\n5. Ensure error middleware is registered AFTER all routes in server.ts",
+      "impact": "Inconsistent error responses confuse API consumers, errors may not be properly logged, stack traces leak in production, debugging is harder, and error monitoring/alerting cannot work reliably."
+    },
+    {
+      "item": "4. Routes Structure",
+      "status": "Partially Implemented",
+      "severity": "MEDIUM",
+      "evidence": [
+        "api/src/routes/ contains 110+ route files",
+        "Some domain grouping: mobile-*.routes.ts, document-*.routes.ts",
+        "Mixed naming: vehicles.ts, drivers.ts vs ai-chat.ts, mobile-ocr.routes.ts",
+        "No clear domain folders, all routes in flat structure",
+        "Examples: routes/vehicles.ts, routes/drivers.ts, routes/inspections.ts (flat)",
+        "vs routes/mobile-ocr.routes.ts, routes/document-geo.routes.ts (prefixed)"
+      ],
+      "issue": "Routes are organized in a flat directory structure with 110+ files. While some use domain prefixes (mobile-, document-, ai-), there's no consistent folder-based organization by business domain. This makes navigation difficult and doesn't scale well. Naming is inconsistent (some have .routes.ts suffix, others don't).",
+      "recommendation": "Reorganize routes by business domain:\n\n```bash\napi/src/routes/\n├── fleet/\n│   ├── vehicles.routes.ts\n│   ├── drivers.routes.ts\n│   └── assignments.routes.ts\n├── maintenance/\n│   ├── inspections.routes.ts\n│   ├── work-orders.routes.ts\n│   └── schedules.routes.ts\n├── documents/\n│   ├── documents.routes.ts\n│   ├── search.routes.ts\n│   └── attachments.routes.ts\n├── mobile/\n│   ├── ocr.routes.ts\n│   ├── trips.routes.ts\n│   └── notifications.routes.ts\n├── ai/\n│   ├── chat.routes.ts\n│   ├── insights.routes.ts\n│   └── search.routes.ts\n└── index.ts  // Re-exports all routes\n```\n\nBenefits:\n- Clear domain boundaries\n- Easier navigation\n- Reduced cognitive load\n- Better for team scaling",
+      "impact": "Developers struggle to find relevant routes, onboarding takes longer, risk of duplicate functionality, harder to enforce domain-specific security policies, and merge conflicts increase."
+    },
+    {
+      "item": "5. Services Grouped by Domain",
+      "status": "Partially Implemented",
+      "severity": "MEDIUM",
+      "evidence": [
+        "api/src/services/ has some organization:",
+        "  - services/ai-bus/, services/collaboration/, services/storage/ (good)",
+        "  - services/dal/, services/queue/, services/notifications/ (good)",
+        "  - services/analytics/ (good)",
+        "But 70+ service files directly in services/ root (bad):",
+        "  - services/obd2.service.ts",
+        "  - services/driver-scorecard.service.ts",
+        "  - services/fuel-optimization.service.ts",
+        "  - services/smartcar.service.ts",
+        "  - services/microsoft-graph.service.ts"
+      ],
+      "issue": "Services directory shows partial organization with some domain folders (dal/, ai-bus/, collaboration/, storage/, queue/, notifications/, analytics/), but 70+ services remain in the root directory without domain grouping. This creates the same navigation and scaling issues as routes.",
+      "recommendation": "Complete service domain organization:\n\n```bash\napi/src/services/\n├── fleet/\n│   ├── vehicle.service.ts\n│   ├── driver.service.ts\n│   └── telematics.service.ts\n├── maintenance/\n│   ├── inspection.service.ts\n│   ├── work-order.service.ts\n│   └── scheduling.service.ts\n├── fuel/\n│   ├── fuel-optimization.service.ts\n│   ├── fuel-purchasing.service.ts\n│   └── fuel-transaction.service.ts\n├── integrations/\n│   ├── smartcar.service.ts\n│   ├── samsara.service.ts\n│   └── microsoft-graph.service.ts\n├── ai/\n│   ├── ai-agent-supervisor.service.ts\n│   ├── rag-engine.service.ts\n│   └── ml-training.service.ts\n├── shared/  // Cross-cutting concerns\n│   ├── dal/\n│   ├── queue/\n│   ├── storage/\n│   └── notifications/\n└── index.ts\n```",
+      "impact": "Same as routes: poor discoverability, harder maintenance, team scaling issues, increased cognitive load, and potential for duplicate implementations."
+    },
+    {
+      "item": "6. Business Logic & DB in Routes",
+      "status": "Critical Issue Found",
+      "severity": "CRITICAL",
+      "evidence": [
+        "713 direct database queries (pool.query) across 78 route files",
+        "70 route files import pool directly",
+        "api/src/routes/vehicles.ts:39-100 - Complex multi-asset filtering logic in route",
+        "api/src/routes/drivers.ts:26-48 - Direct SQL with scope filtering",
+        "api/src/routes/inspections.ts:22-28 - Direct SQL queries",
+        "Business logic examples:",
+        "  - routes/vehicles.ts:48-56 - Scope level authorization logic",
+        "  - routes/vehicles.ts:59-100 - Dynamic query building with filters",
+        "  - routes/drivers.ts:35-44 - Team access control logic"
+      ],
+      "issue": "Routes contain extensive business logic and direct database queries. 70 route files import the database pool directly and execute queries inline. Complex authorization logic, query building, and data transformation happen in route handlers. This violates separation of concerns and makes code untestable and unmaintainable.",
+      "recommendation": "Extract all business logic and database access to service layer:\n\n```typescript\n// BEFORE - Route handles everything\nrouter.get('/vehicles', async (req, res) => {\n  const userResult = await pool.query(\n    'SELECT team_vehicle_ids, scope_level FROM users WHERE id = $1',\n    [req.user.id]\n  );\n  const user = userResult.rows[0];\n  let scopeFilter = '';\n  // ... 60+ lines of business logic\n  const result = await pool.query(query, params);\n  res.json(result.rows);\n});\n\n// AFTER - Route delegates to service\nimport { VehicleService } from '../services/fleet/vehicle.service';\n\nrouter.get('/vehicles', asyncHandler(async (req, res) => {\n  const vehicleService = Container.get(VehicleService);\n  const filters = {\n    assetCategory: req.query.asset_category,\n    assetType: req.query.asset_type,\n    powerType: req.query.power_type,\n    // ...\n  };\n  const vehicles = await vehicleService.getVehiclesForUser(\n    req.user,\n    filters,\n    { page: req.query.page, limit: req.query.limit }\n  );\n  res.json(vehicles);\n}));\n\n// api/src/services/fleet/vehicle.service.ts\nexport class VehicleService {\n  constructor(\n    private vehicleRepo: VehicleRepository,\n    private authService: AuthorizationService\n  ) {}\n\n  async getVehiclesForUser(user, filters, pagination) {\n    const scope = await this.authService.getUserScope(user);\n    return this.vehicleRepo.findByScope(scope, filters, pagination);\n  }\n}\n```\n\nRefactoring priority:\n1. High-traffic routes first (vehicles, drivers, inspections)\n2. Routes with complex business logic\n3. Routes with security implications\n4. Remaining routes",
+      "impact": "Code is impossible to unit test, business logic is duplicated across routes, database queries are not optimized, security checks are inconsistently applied, and refactoring becomes extremely risky."
+    },
+    {
+      "item": "7. ESLint Security Config",
+      "status": "Missing",
+      "severity": "HIGH",
+      "evidence": [
+        ".eslintrc.json - No security plugins found",
+        "eslint.config.js - No security plugins found",
+        "api/.eslintrc.json - No security plugins found",
+        "api/eslint.config.js - No security plugins found",
+        "package.json - eslint-plugin-security not in dependencies",
+        "api/package.json - eslint-plugin-security not in dependencies",
+        "Pre-commit hook exists: .git/hooks/pre-commit (secret detection only)",
+        "No pre-commit linting for security rules"
+      ],
+      "issue": "ESLint is configured without security-focused plugins. No eslint-plugin-security, no-eval, no-unsafe-regex, or other security rules. While a pre-commit hook exists for secret detection, it doesn't run ESLint security checks. This allows security vulnerabilities to be committed.",
+      "recommendation": "Add security-focused ESLint configuration:\n\n```bash\nnpm install --save-dev eslint-plugin-security eslint-plugin-no-unsanitized\n```\n\n```javascript\n// api/eslint.config.js\nimport security from 'eslint-plugin-security';\nimport noUnsanitized from 'eslint-plugin-no-unsanitized';\n\nexport default tseslint.config(\n  // ... existing config\n  {\n    plugins: {\n      security,\n      'no-unsanitized': noUnsanitized,\n    },\n    rules: {\n      // Security rules\n      'security/detect-object-injection': 'error',\n      'security/detect-non-literal-regexp': 'warn',\n      'security/detect-unsafe-regex': 'error',\n      'security/detect-buffer-noassert': 'error',\n      'security/detect-child-process': 'warn',\n      'security/detect-disable-mustache-escape': 'error',\n      'security/detect-eval-with-expression': 'error',\n      'security/detect-no-csrf-before-method-override': 'error',\n      'security/detect-non-literal-fs-filename': 'warn',\n      'security/detect-non-literal-require': 'warn',\n      'security/detect-possible-timing-attacks': 'warn',\n      'security/detect-pseudoRandomBytes': 'error',\n      'no-eval': 'error',\n      'no-implied-eval': 'error',\n      'no-new-func': 'error',\n      'no-script-url': 'error',\n    },\n  }\n);\n```\n\nUpdate pre-commit hook:\n```bash\n# .git/hooks/pre-commit\necho \"Running ESLint security checks...\"\nnpm run lint || exit 1\n```",
+      "impact": "Security vulnerabilities like XSS, SQL injection, command injection, regex DoS, and insecure randomness can be introduced without detection. Code review is the only defense, which is error-prone."
+    },
+    {
+      "item": "8. Global Error Middleware",
+      "status": "OK",
+      "severity": "LOW",
+      "evidence": [
+        "api/src/middleware/error-handler.ts - Comprehensive error handler exists ✓",
+        "Provides: AppError base class, typed errors (ValidationError, AuthenticationError, etc.)",
+        "Features: asyncHandler wrapper, Zod error formatting, PostgreSQL error mapping",
+        "Security: Sanitizes sensitive fields, hides stack traces in production",
+        "Logging: Integration with logger utility",
+        "Documentation: Well-documented with usage examples"
+      ],
+      "issue": "No issue - error middleware is properly implemented",
+      "recommendation": "Current implementation is production-ready. Ensure it's consistently used:\n\n1. Verify registration in server.ts (after all routes)\n2. Audit all routes to use asyncHandler wrapper\n3. Replace manual try/catch with typed error throws\n4. Monitor error logs to ensure proper categorization\n\nMinor enhancement suggestions:\n- Add error rate limiting to prevent log flooding\n- Add correlation IDs for request tracing\n- Integrate with Application Insights for Azure monitoring",
+      "impact": "Minimal - the implementation is solid. Main risk is inconsistent usage (covered in finding #3)"
+    },
+    {
+      "item": "9. Service Layer Abstraction",
+      "status": "Partially Implemented",
+      "severity": "HIGH",
+      "evidence": [
+        "70 service classes exist in api/src/services/",
+        "Good examples: OcrService, DocumentService, DispatchService",
+        "BUT: 70 route files still query database directly",
+        "api/src/routes/vehicles.ts:39-100 - No service layer, direct DB access",
+        "api/src/routes/drivers.ts:26-54 - No service layer, direct DB access",
+        "api/src/routes/inspections.ts:22-48 - No service layer, direct DB access",
+        "Inconsistent pattern: some routes use services, most don't"
+      ],
+      "issue": "Service layer exists but is not consistently used. Many services exist (70+ classes) but 70 route files bypass them and query the database directly. This creates an inconsistent architecture where some endpoints follow best practices and others don't. It's unclear when to use a service vs. direct database access.",
+      "recommendation": "Enforce service layer usage:\n\n1. Create architectural decision record (ADR):\n```markdown\n# ADR: Mandatory Service Layer\n\nAll routes MUST use service layer for business logic and data access.\nDirect database imports in routes are prohibited.\n\nPattern:\n- Route: HTTP handling, validation, response formatting\n- Service: Business logic, orchestration\n- Repository: Data access\n```\n\n2. Add ESLint rule:\n```javascript\n// .eslintrc.js\nrules: {\n  'no-restricted-imports': ['error', {\n    patterns: [{\n      group: ['**/config/database'],\n      message: 'Direct database imports not allowed in routes. Use service layer.',\n    }]\n  }]\n}\n```\n\n3. Refactor existing routes:\n- Create service classes for core domains (VehicleService, DriverService, etc.)\n- Move business logic from routes to services\n- Update routes to use services exclusively\n\n4. Document pattern in CONTRIBUTING.md",
+      "impact": "Inconsistent architecture confuses developers, makes testing difficult, prevents code reuse, and creates maintenance nightmares. Business logic duplication increases, and bugs are harder to fix."
+    },
+    {
+      "item": "10. Async Jobs Identification",
+      "status": "Partially Implemented",
+      "severity": "MEDIUM",
+      "evidence": [
+        "api/src/jobs/ directory exists with 11 background jobs ✓",
+        "Jobs found: maintenance-scheduler.ts, telematics-sync.ts, outlook-sync.job.ts",
+        "Queue infrastructure: queue-processors.ts, pg-boss in package.json ✓",
+        "BUT: Routes still do synchronous heavy operations:",
+        "  - api/src/routes/ocr.routes.ts:72-80 - Async option exists but default is sync",
+        "  - api/src/routes/mobile-ocr.routes.ts - OCR processing in request/response",
+        "  - api/src/routes/attachments.routes.ts - File processing synchronously",
+        "  - Video/image processing in routes without queueing",
+        "  - Report generation potentially synchronous"
+      ],
+      "issue": "Job queue infrastructure exists (pg-boss) and some background jobs are implemented, but many heavy operations still run synchronously in request handlers. This blocks the event loop and can cause timeouts. Routes offer async option but default to synchronous processing, which will fail under load.",
+      "recommendation": "Enforce async-first for heavy operations:\n\n```typescript\n// BEFORE - Synchronous by default\nrouter.post('/process', async (req, res) => {\n  const async = req.body.async === 'true';  // Optional\n  if (async) {\n    const jobId = await queueService.enqueue(...);\n    return res.json({ jobId, status: 'queued' });\n  }\n  // Dangerous: processes synchronously by default\n  const result = await processImage(file);  // Blocks\n  res.json(result);\n});\n\n// AFTER - Async by default\nrouter.post('/process', asyncHandler(async (req, res) => {\n  const sync = req.body.sync === 'true';  // Opt-in to sync\n  \n  // Validate sync request\n  if (sync) {\n    if (req.file.size > SYNC_SIZE_LIMIT) {\n      throw new ValidationError(\n        'File too large for synchronous processing. Use async mode.'\n      );\n    }\n  }\n  \n  // Queue by default for safety\n  const jobId = await ocrQueue.enqueue({\n    documentId,\n    filePath: req.file.path,\n    options,\n  });\n  \n  if (sync) {\n    // Poll for completion with timeout\n    const result = await ocrQueue.waitForJob(jobId, { timeout: 30000 });\n    return res.json(result);\n  }\n  \n  res.json({ jobId, status: 'processing' });\n}));\n```\n\nOperations requiring async:\n- OCR/document processing (>5 seconds)\n- Video processing/transcoding\n- Large file uploads\n- Batch operations\n- Report generation\n- Email sending (bulk)\n- External API calls (>3 seconds)\n- Image processing\n- ML inference",
+      "impact": "Synchronous heavy operations cause request timeouts, block other requests, make the API appear slow/unresponsive, and can crash the server under load. User experience degrades significantly."
+    },
+    {
+      "item": "11. Repository Pattern",
+      "status": "Partially Implemented",
+      "severity": "HIGH",
+      "evidence": [
+        "Repository pattern EXISTS in api/src/repositories/ ✓",
+        "api/src/repositories/InspectionRepository.ts - Full implementation with BaseRepository",
+        "api/src/repositories/VendorRepository.ts - Full implementation",
+        "api/src/services/dal/BaseRepository.ts - Well-designed base class ✓",
+        "BUT: Only 2 repository implementations found",
+        "70 route files still use direct pool.query",
+        "Example routes bypassing repositories:",
+        "  - api/src/routes/vendors.dal-example.ts (exists but not used)",
+        "  - api/src/routes/inspections.dal-example.ts (exists but not used)",
+        "  - api/src/routes/vehicles.ts - Direct SQL",
+        "  - api/src/routes/drivers.ts - Direct SQL"
+      ],
+      "issue": "Repository pattern infrastructure exists with excellent BaseRepository implementation and DAL utilities, but it's barely used. Only 2 repositories (InspectionRepository, VendorRepository) are implemented despite 110+ route files. Example files (*.dal-example.ts) exist showing the pattern but aren't adopted. Most routes continue using direct SQL queries.",
+      "recommendation": "Complete repository pattern adoption:\n\n1. Create repositories for all entities:\n```typescript\n// api/src/repositories/VehicleRepository.ts\nimport { BaseRepository } from '../services/dal/BaseRepository';\n\nexport class VehicleRepository extends BaseRepository<Vehicle> {\n  constructor() {\n    super('vehicles', connectionManager.getWritePool());\n  }\n\n  async findByTenant(tenantId: string, filters: VehicleFilters) {\n    return this.findAll({\n      where: this.buildFilterClause(tenantId, filters),\n      orderBy: 'created_at DESC'\n    });\n  }\n\n  async findWithinScope(\n    tenantId: string,\n    userScope: UserScope,\n    filters: VehicleFilters\n  ): Promise<Vehicle[]> {\n    const whereClause = this.buildScopeQuery(tenantId, userScope);\n    return this.findAll({ where: whereClause });\n  }\n\n  private buildScopeQuery(tenantId: string, scope: UserScope) {\n    // Complex scope logic encapsulated here\n  }\n}\n```\n\n2. Refactor service layer to use repositories:\n```typescript\n// api/src/services/fleet/vehicle.service.ts\nexport class VehicleService {\n  constructor(\n    private vehicleRepo: VehicleRepository,\n    private authService: AuthorizationService\n  ) {}\n\n  async getVehiclesForUser(user, filters) {\n    const scope = await this.authService.getUserScope(user);\n    return this.vehicleRepo.findWithinScope(user.tenant_id, scope, filters);\n  }\n}\n```\n\n3. Implementation priority:\n- Core entities: Vehicle, Driver, Inspection (DONE ✓), Maintenance\n- High-traffic entities: Document, User, Asset\n- Remaining entities\n\n4. Remove direct database access:\n- Add ESLint rule to block pool imports in routes\n- Move .dal-example files to actual implementations\n- Update architecture documentation",
+      "impact": "Direct SQL in routes prevents query optimization, makes database schema changes risky, prevents adding caching layer, makes testing impossible, and creates SQL injection risks if parameterization is forgotten."
+    }
+  ],
+  "summary": {
+    "total_items": 11,
+    "ok": 1,
+    "issues": 10,
+    "critical": 3,
+    "high": 5,
+    "medium": 2,
+    "low": 1
+  },
+  "critical_blockers": [
+    {
+      "finding": "TypeScript noEmitOnError disabled",
+      "action_required": "Enable noEmitOnError and fix type errors before Azure DevOps deployment",
+      "estimated_effort": "3-5 days"
+    },
+    {
+      "finding": "Business logic in routes with direct DB access",
+      "action_required": "Extract business logic to service layer for core routes (vehicles, drivers, inspections)",
+      "estimated_effort": "5-7 days"
+    },
+    {
+      "finding": "Repository pattern not adopted",
+      "action_required": "Implement repositories for core entities and enforce pattern",
+      "estimated_effort": "3-5 days"
+    }
+  ],
+  "quick_wins": [
+    {
+      "finding": "ESLint security plugins missing",
+      "action": "Install and configure eslint-plugin-security",
+      "estimated_effort": "2 hours"
+    },
+    {
+      "finding": "Inconsistent error handling",
+      "action": "Refactor routes to use asyncHandler wrapper",
+      "estimated_effort": "1 day per 20 routes"
+    },
+    {
+      "finding": "Route/service organization",
+      "action": "Create domain folders and move files",
+      "estimated_effort": "4 hours"
+    }
+  ],
+  "production_readiness_score": "45/100",
+  "production_readiness_assessment": "NOT READY FOR AZURE DEVOPS DEPLOYMENT",
+  "blockers_detail": "The system has 3 critical blockers that must be resolved before production deployment: (1) TypeScript compiler is configured to allow type-unsafe code to compile, (2) 70 route files contain business logic and direct database queries instead of using service/repository layers, and (3) Repository pattern infrastructure exists but is not adopted. These issues create significant risks for runtime failures, security vulnerabilities, and maintenance nightmares.",
+  "recommendations_summary": {
+    "immediate": [
+      "Enable TypeScript noEmitOnError and fix compilation errors",
+      "Install and configure ESLint security plugins",
+      "Refactor top 10 high-traffic routes to use service layer"
+    ],
+    "short_term": [
+      "Implement repository pattern for core entities",
+      "Reorganize routes and services by domain",
+      "Standardize error handling across all routes",
+      "Set up DI container"
+    ],
+    "long_term": [
+      "Complete migration to repository pattern",
+      "Enforce async-first for heavy operations",
+      "Enable all strict TypeScript checks",
+      "Create architectural decision records (ADRs)"
+    ]
+  },
+  "architecture_debt_estimate": "15-20 developer days to resolve critical issues, 30-40 days for complete remediation"
+}
