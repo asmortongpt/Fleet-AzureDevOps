@@ -15,7 +15,7 @@
 import { Router, Request, Response } from 'express'
 import teamsService from '../services/teams.service'
 import { authenticateJWT, AuthRequest } from '../middleware/auth'
-import { logger } from '../config/logger'
+import { logger } from '../utils/logger'
 import {
   SendMessageRequest,
   ReplyToMessageRequest,

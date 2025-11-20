@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express'
 import { AuthRequest } from './auth'
 import pool from '../config/database'
+import logger from '../utils/logger'
 
 /**
  * Permission middleware for fine-grained RBAC
@@ -48,7 +49,7 @@ export async function getUserPermissions(userId: string): Promise<Set<string>> {
 
     return permissions
   } catch (error) {
-    console.error('Error fetching user permissions:', error)
+    logger.error('Error fetching user permissions', { error, userId })
     return new Set()
   }
 }
@@ -166,7 +167,7 @@ export function requirePermission(
 
       next()
     } catch (error) {
-      console.error('Permission check error:', error)
+      logger.error('Permission check error', { error, userId: req.user.id, permission })
       return res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -277,7 +278,7 @@ export async function validateResourceScope(
 
     return false
   } catch (error) {
-    console.error('Scope validation error:', error)
+    logger.error('Scope validation error', { error, userId, resourceType, resourceId })
     return false
   }
 }
@@ -320,7 +321,7 @@ export function validateScope(resourceType: 'vehicle' | 'driver' | 'work_order' 
 
       next()
     } catch (error) {
-      console.error('Scope validation middleware error:', error)
+      logger.error('Scope validation middleware error', { error, userId: req.user?.id, resourceType, resourceId: req.params.id })
       return res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -377,7 +378,7 @@ export function preventSelfApproval(createdByField: string = 'created_by') {
 
       next()
     } catch (error) {
-      console.error('Self-approval check error:', error)
+      logger.error('Self-approval check error', { error, userId: req.user?.id, resourceId })
       return res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -427,7 +428,7 @@ export function checkApprovalLimit() {
 
       next()
     } catch (error) {
-      console.error('Approval limit check error:', error)
+      logger.error('Approval limit check error', { error, userId: req.user?.id, poId })
       return res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -463,7 +464,7 @@ async function logPermissionCheck(entry: {
       ]
     )
   } catch (error) {
-    console.error('Failed to log permission check:', error)
+    logger.error('Failed to log permission check', { error, userId: entry.userId, permission: entry.permission })
     // Don't throw - logging failure shouldn't block the request
   }
 }
@@ -500,7 +501,7 @@ export function requireVehicleStatus(...allowedStatuses: string[]) {
 
       next()
     } catch (error) {
-      console.error('Vehicle status check error:', error)
+      logger.error('Vehicle status check error', { error, vehicleId })
       return res.status(500).json({ error: 'Internal server error' })
     }
   }

@@ -8,7 +8,7 @@ import { AuthRequest, authenticateJWT, authorize } from '../middleware/auth'
 import { auditLog } from '../middleware/audit'
 import { outlookService } from '../services/outlook.service'
 import { z } from 'zod'
-import { logger } from '../config/logger'
+import { logger } from '../utils/logger'
 import {
   SendEmailRequest,
   ReplyEmailRequest,

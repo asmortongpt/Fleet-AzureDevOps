@@ -6,7 +6,7 @@
 import express, { Request, Response } from 'express'
 import pool from '../config/database'
 import schedulingNotificationService from '../services/scheduling-notification.service'
-import { logger } from '../config/logger'
+import { logger } from '../utils/logger'
 
 const router = express.Router()
 

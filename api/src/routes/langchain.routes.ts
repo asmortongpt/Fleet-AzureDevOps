@@ -9,7 +9,7 @@ import { requirePermission } from '../middleware/permissions'
 import langchainOrchestratorService from '../services/langchain-orchestrator.service'
 import aiAgentSupervisorService from '../services/ai-agent-supervisor.service'
 import mcpServerRegistryService from '../services/mcp-server-registry.service'
-import { logger } from '../config/logger'
+import { logger } from '../utils/logger'
 import { v4 as uuidv4 } from 'uuid'
 
 const router = Router()

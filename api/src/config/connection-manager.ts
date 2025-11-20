@@ -82,23 +82,31 @@ export class ConnectionManager {
     })
 
     // Web app pool configuration (for normal application operations)
+    // PERFORMANCE OPTIMIZED for high-throughput API workloads:
+    // - max: 20 connections (balances throughput vs resource usage)
+    // - idleTimeout: 30s (releases idle connections to reduce memory)
+    // - connectionTimeout: 2s (fast fail for overloaded scenarios)
     this.poolConfigs.set(PoolType.WEBAPP, {
       ...baseConfig,
       user: process.env.DB_WEBAPP_USER || process.env.DB_USER || 'fleetadmin',
       password: process.env.DB_WEBAPP_PASSWORD || process.env.DB_PASSWORD || '',
       max: parseInt(process.env.DB_WEBAPP_POOL_SIZE || '20'),
-      idleTimeoutMillis: 30000,
-      connectionTimeoutMillis: 10000
+      idleTimeoutMillis: parseInt(process.env.DB_IDLE_TIMEOUT_MS || '30000'),
+      connectionTimeoutMillis: parseInt(process.env.DB_CONNECTION_TIMEOUT_MS || '2000')
     })
 
     // Read-only pool configuration (for reporting and analytics)
+    // PERFORMANCE OPTIMIZED for long-running analytical queries:
+    // - max: 10 connections (reporting workloads are fewer but longer)
+    // - idleTimeout: 60s (keep connections warm for dashboard refreshes)
+    // - connectionTimeout: 5s (analytics can tolerate slightly higher latency)
     this.poolConfigs.set(PoolType.READONLY, {
       ...baseConfig,
       user: process.env.DB_READONLY_USER || process.env.DB_USER || 'fleetadmin',
       password: process.env.DB_READONLY_PASSWORD || process.env.DB_PASSWORD || '',
       max: parseInt(process.env.DB_READONLY_POOL_SIZE || '10'),
-      idleTimeoutMillis: 30000,
-      connectionTimeoutMillis: 10000
+      idleTimeoutMillis: parseInt(process.env.DB_READONLY_IDLE_TIMEOUT_MS || '60000'),
+      connectionTimeoutMillis: parseInt(process.env.DB_READONLY_CONNECTION_TIMEOUT_MS || '5000')
     })
   }
 
