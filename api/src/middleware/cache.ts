@@ -1,21 +1,21 @@
 /**
- * Caching Middleware
+ * Redis-Based Caching Middleware
  *
  * Production-ready caching with:
- * - In-memory cache (with LRU eviction)
- * - Redis support for distributed caching
+ * - Redis distributed caching
  * - Smart cache key generation
  * - Conditional caching based on status codes
  * - Cache invalidation strategies
  * - TTL support
- * - Compression for large responses
+ * - Performance metrics
  *
  * @module middleware/cache
  */
 
 import { Request, Response, NextFunction } from 'express'
 import crypto from 'crypto'
-import { perfLogger } from '../utils/logger'
+import redisClient from '../config/redis'
+import logger from '../config/logger'
 
 /**
  * Cache entry
@@ -25,134 +25,7 @@ interface CacheEntry {
   headers: Record<string, string>
   statusCode: number
   timestamp: number
-  ttl: number
 }
-
-/**
- * In-memory LRU cache
- */
-class LRUCache {
-  private cache: Map<string, CacheEntry> = new Map()
-  private maxSize: number
-  private cleanupInterval: NodeJS.Timeout
-
-  constructor(maxSize: number = 1000) {
-    this.maxSize = maxSize
-
-    // Cleanup expired entries every minute
-    this.cleanupInterval = setInterval(() => {
-      this.cleanup()
-    }, 60000)
-  }
-
-  /**
-   * Get entry from cache
-   */
-  get(key: string): CacheEntry | null {
-    const entry = this.cache.get(key)
-
-    if (!entry) {
-      perfLogger.cache('miss', { key })
-      return null
-    }
-
-    // Check if expired
-    if (Date.now() - entry.timestamp > entry.ttl) {
-      this.cache.delete(key)
-      perfLogger.cache('miss', { key })
-      return null
-    }
-
-    // Move to end (LRU)
-    this.cache.delete(key)
-    this.cache.set(key, entry)
-
-    perfLogger.cache('hit', { key })
-    return entry
-  }
-
-  /**
-   * Set entry in cache
-   */
-  set(key: string, entry: CacheEntry): void {
-    // Evict oldest if at capacity
-    if (this.cache.size >= this.maxSize) {
-      const firstKey = this.cache.keys().next().value
-      if (firstKey) {
-        this.cache.delete(firstKey)
-      }
-    }
-
-    this.cache.set(key, entry)
-    perfLogger.cache('set', { key, size: JSON.stringify(entry.data).length })
-  }
-
-  /**
-   * Delete entry from cache
-   */
-  delete(key: string): void {
-    this.cache.delete(key)
-    perfLogger.cache('delete', { key })
-  }
-
-  /**
-   * Clear all entries
-   */
-  clear(): void {
-    this.cache.clear()
-  }
-
-  /**
-   * Delete entries matching pattern
-   */
-  deletePattern(pattern: string | RegExp): number {
-    let count = 0
-    const regex = typeof pattern === 'string' ? new RegExp(pattern) : pattern
-
-    for (const key of this.cache.keys()) {
-      if (regex.test(key)) {
-        this.cache.delete(key)
-        count++
-      }
-    }
-
-    return count
-  }
-
-  /**
-   * Cleanup expired entries
-   */
-  private cleanup(): void {
-    const now = Date.now()
-    for (const [key, entry] of this.cache.entries()) {
-      if (now - entry.timestamp > entry.ttl) {
-        this.cache.delete(key)
-      }
-    }
-  }
-
-  /**
-   * Get cache statistics
-   */
-  stats(): { size: number; maxSize: number; hitRate?: number } {
-    return {
-      size: this.cache.size,
-      maxSize: this.maxSize
-    }
-  }
-
-  /**
-   * Cleanup on shutdown
-   */
-  cleanup(): void {
-    clearInterval(this.cleanupInterval)
-  }
-}
-
-/**
- * Global cache instance
- */
-const cache = new LRUCache(1000)
 
 /**
  * Cache configuration
@@ -233,27 +106,27 @@ function generateCacheKey(req: Request, config: CacheConfig = {}): string {
 }
 
 /**
- * Cache middleware
+ * Cache middleware using Redis
  *
  * Usage:
  * ```typescript
  * import { cacheMiddleware } from './middleware/cache'
  *
- * // Cache for 5 minutes
- * router.get('/vehicles', cacheMiddleware({ ttl: 300000 }), handler)
+ * // Cache for 5 minutes (300 seconds)
+ * router.get('/vehicles', cacheMiddleware({ ttl: 300 }), handler)
  *
  * // Cache per user
- * router.get('/my-vehicles', cacheMiddleware({ ttl: 60000, varyByUser: true }), handler)
+ * router.get('/my-vehicles', cacheMiddleware({ ttl: 60, varyByUser: true }), handler)
  * ```
  */
 export function cacheMiddleware(config: CacheConfig = {}) {
   const {
-    ttl = 300000, // 5 minutes default
+    ttl = 300, // 5 minutes default (in seconds)
     statusCodes = [200],
     skip
   } = config
 
-  return (req: Request, res: Response, next: NextFunction) => {
+  return async (req: Request, res: Response, next: NextFunction) => {
     // Only cache GET and HEAD requests
     if (req.method !== 'GET' && req.method !== 'HEAD') {
       return next()
@@ -266,106 +139,186 @@ export function cacheMiddleware(config: CacheConfig = {}) {
 
     // Generate cache key
     const cacheKey = generateCacheKey(req, config)
+    const startTime = Date.now()
 
-    // Try to get from cache
-    const cached = cache.get(cacheKey)
+    try {
+      // Try to get from Redis cache
+      const cachedData = await redisClient.get(cacheKey)
 
-    if (cached) {
-      // Set cached headers
-      Object.entries(cached.headers).forEach(([key, value]) => {
-        res.setHeader(key, value)
-      })
+      if (cachedData) {
+        const cached: CacheEntry = JSON.parse(cachedData)
+        const duration = Date.now() - startTime
 
-      // Set cache hit header
-      res.setHeader('X-Cache', 'HIT')
+        logger.debug(`Cache HIT: ${cacheKey} (${duration}ms)`)
 
-      // Send cached response
-      return res.status(cached.statusCode).json(cached.data)
-    }
-
-    // Set cache miss header
-    res.setHeader('X-Cache', 'MISS')
-
-    // Intercept res.json to cache the response
-    const originalJson = res.json.bind(res)
-
-    res.json = function(data: any) {
-      // Only cache successful responses
-      if (statusCodes.includes(res.statusCode)) {
-        // Extract relevant headers
-        const headers: Record<string, string> = {}
-        const headersToCache = ['content-type', 'etag', 'last-modified']
-
-        headersToCache.forEach(header => {
-          const value = res.getHeader(header)
-          if (value) {
-            headers[header] = value.toString()
-          }
+        // Set cached headers
+        Object.entries(cached.headers).forEach(([key, value]) => {
+          res.setHeader(key, value)
         })
 
-        // Cache the response
-        cache.set(cacheKey, {
-          data,
-          headers,
-          statusCode: res.statusCode,
-          timestamp: Date.now(),
-          ttl
-        })
+        // Set cache metadata headers
+        res.setHeader('X-Cache', 'HIT')
+        res.setHeader('X-Cache-Key', cacheKey)
+        res.setHeader('X-Response-Time', `${duration}ms`)
+
+        // Send cached response
+        return res.status(cached.statusCode).json(cached.data)
       }
 
-      // Call original json method
-      return originalJson(data)
-    }
+      // Cache MISS
+      logger.debug(`Cache MISS: ${cacheKey}`)
+      res.setHeader('X-Cache', 'MISS')
 
-    next()
+      // Intercept res.json to cache the response
+      const originalJson = res.json.bind(res)
+
+      res.json = function (data: any) {
+        const duration = Date.now() - startTime
+
+        // Only cache successful responses
+        if (statusCodes.includes(res.statusCode)) {
+          // Extract relevant headers
+          const headers: Record<string, string> = {}
+          const headersToCache = ['content-type', 'etag', 'last-modified']
+
+          headersToCache.forEach((header) => {
+            const value = res.getHeader(header)
+            if (value) {
+              headers[header] = value.toString()
+            }
+          })
+
+          // Cache the response asynchronously (don't block)
+          const cacheEntry: CacheEntry = {
+            data,
+            headers,
+            statusCode: res.statusCode,
+            timestamp: Date.now(),
+          }
+
+          redisClient
+            .setex(cacheKey, ttl, JSON.stringify(cacheEntry))
+            .then(() => {
+              logger.debug(`Cached response: ${cacheKey} (TTL: ${ttl}s)`)
+            })
+            .catch((err) => {
+              logger.error(`Error caching response for ${cacheKey}:`, err)
+            })
+        }
+
+        res.setHeader('X-Response-Time', `${duration}ms`)
+        return originalJson(data)
+      }
+
+      next()
+    } catch (error) {
+      // On cache error, continue without caching
+      logger.error(`Cache middleware error for ${cacheKey}:`, error)
+      res.setHeader('X-Cache', 'ERROR')
+      next()
+    }
   }
 }
 
 /**
- * Cache invalidation helpers
+ * Cache invalidation helpers using Redis
  */
 export const cacheInvalidation = {
   /**
    * Invalidate specific cache entry
    */
-  invalidate(key: string): void {
-    cache.delete(key)
+  async invalidate(key: string): Promise<void> {
+    try {
+      await redisClient.del(key)
+      logger.debug(`Invalidated cache key: ${key}`)
+    } catch (error) {
+      logger.error(`Error invalidating cache key ${key}:`, error)
+    }
   },
 
   /**
    * Invalidate all cache entries matching pattern
    */
-  invalidatePattern(pattern: string | RegExp): number {
-    return cache.deletePattern(pattern)
+  async invalidatePattern(pattern: string): Promise<number> {
+    try {
+      const keys = await redisClient.keys(pattern)
+      if (keys.length === 0) {
+        logger.debug(`No cache keys found matching pattern: ${pattern}`)
+        return 0
+      }
+      const count = await redisClient.del(...keys)
+      logger.info(`Invalidated ${count} cache keys matching pattern: ${pattern}`)
+      return count
+    } catch (error) {
+      logger.error(`Error invalidating cache pattern ${pattern}:`, error)
+      return 0
+    }
   },
 
   /**
    * Invalidate all cache for a resource type
    */
-  invalidateResource(resource: string): number {
-    return cache.deletePattern(new RegExp(`\\/${resource}(\\/|\\?|$)`))
+  async invalidateResource(resource: string): Promise<number> {
+    const pattern = `*${resource}*`
+    return await this.invalidatePattern(pattern)
   },
 
   /**
    * Invalidate all cache for a tenant
    */
-  invalidateTenant(tenantId: string): number {
-    return cache.deletePattern(new RegExp(`tenant:${tenantId}`))
+  async invalidateTenant(tenantId: string): Promise<number> {
+    const pattern = `*tenant:${tenantId}*`
+    return await this.invalidatePattern(pattern)
   },
 
   /**
    * Clear all cache
    */
-  clearAll(): void {
-    cache.clear()
+  async clearAll(): Promise<void> {
+    try {
+      await redisClient.flushdb()
+      logger.info('Cleared all cache from current database')
+    } catch (error) {
+      logger.error('Error clearing all cache:', error)
+    }
   },
 
   /**
    * Get cache statistics
    */
-  stats(): ReturnType<typeof cache.stats> {
-    return cache.stats()
-  }
+  async stats(): Promise<any> {
+    try {
+      const info = await redisClient.info('stats')
+      const keyspace = await redisClient.info('keyspace')
+      const memory = await redisClient.info('memory')
+
+      // Parse keyspace info to get key count
+      const dbMatch = keyspace.match(/db0:keys=(\d+)/)
+      const keyCount = dbMatch ? parseInt(dbMatch[1], 10) : 0
+
+      // Parse hits and misses
+      const hitsMatch = info.match(/keyspace_hits:(\d+)/)
+      const missesMatch = info.match(/keyspace_misses:(\d+)/)
+      const hits = hitsMatch ? parseInt(hitsMatch[1], 10) : 0
+      const misses = missesMatch ? parseInt(missesMatch[1], 10) : 0
+      const hitRate = hits + misses > 0 ? (hits / (hits + misses)) * 100 : 0
+
+      // Parse memory usage
+      const memoryMatch = memory.match(/used_memory_human:(.+)/)
+      const memoryUsed = memoryMatch ? memoryMatch[1].trim() : 'N/A'
+
+      return {
+        keyCount,
+        hits,
+        misses,
+        hitRate: hitRate.toFixed(2) + '%',
+        memoryUsed,
+      }
+    } catch (error) {
+      logger.error('Error getting cache stats:', error)
+      return null
+    }
+  },
 }
 
 /**
@@ -386,8 +339,10 @@ export function invalidateOnWrite(resource: string | string[]) {
       res.on('finish', () => {
         if (res.statusCode >= 200 && res.statusCode < 300) {
           const resources = Array.isArray(resource) ? resource : [resource]
-          resources.forEach(r => {
-            cacheInvalidation.invalidateResource(r)
+          resources.forEach((r) => {
+            cacheInvalidation
+              .invalidateResource(r)
+              .catch((err) => logger.error(`Error invalidating ${r}:`, err))
           })
         }
       })
@@ -398,60 +353,65 @@ export function invalidateOnWrite(resource: string | string[]) {
 }
 
 /**
- * Predefined cache strategies
+ * Predefined cache strategies (TTL in seconds for Redis)
  */
 export const CacheStrategies = {
   /**
-   * Short-lived cache (1 minute)
+   * Short-lived cache (30 seconds) - for real-time data
    */
-  shortLived: cacheMiddleware({ ttl: 60000 }),
+  realtime: cacheMiddleware({ ttl: 30 }),
 
   /**
-   * Medium-lived cache (5 minutes)
+   * Short-lived cache (1 minute) - for frequently changing data
    */
-  mediumLived: cacheMiddleware({ ttl: 300000 }),
+  shortLived: cacheMiddleware({ ttl: 60 }),
 
   /**
-   * Long-lived cache (1 hour)
+   * Medium-lived cache (5 minutes) - for standard endpoints
    */
-  longLived: cacheMiddleware({ ttl: 3600000 }),
+  mediumLived: cacheMiddleware({ ttl: 300 }),
 
   /**
-   * User-specific cache
+   * Long-lived cache (1 hour) - for static data
+   */
+  longLived: cacheMiddleware({ ttl: 3600 }),
+
+  /**
+   * User-specific cache (5 minutes)
    */
   userSpecific: cacheMiddleware({
-    ttl: 300000,
+    ttl: 300,
     varyByUser: true,
-    varyByTenant: true
+    varyByTenant: true,
   }),
 
   /**
-   * Public data cache (no user variance)
+   * Public data cache (1 hour, no user variance)
    */
   publicData: cacheMiddleware({
-    ttl: 3600000,
+    ttl: 3600,
     varyByUser: false,
-    varyByTenant: false
+    varyByTenant: false,
   }),
 
   /**
-   * Search results cache
+   * Search results cache (5 minutes)
    */
   searchResults: cacheMiddleware({
-    ttl: 300000,
+    ttl: 300,
     varyByQuery: true,
-    varyByUser: true
-  })
+    varyByUser: true,
+  }),
 }
-
-/**
- * Export cache instance for direct access
- */
-export { cache }
 
 /**
  * Cleanup function (call on server shutdown)
  */
-export function cleanup(): void {
-  cache.cleanup()
+export async function cleanup(): Promise<void> {
+  try {
+    await redisClient.quit()
+    logger.info('Redis cache connection closed')
+  } catch (error) {
+    logger.error('Error closing Redis cache connection:', error)
+  }
 }

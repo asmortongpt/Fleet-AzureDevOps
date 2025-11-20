@@ -5,6 +5,7 @@ import { auditLog } from '../middleware/audit'
 import pool from '../config/database'
 import { z } from 'zod'
 import { buildInsertClause, buildUpdateClause } from '../utils/sql-safety'
+import { cacheMiddleware, invalidateOnWrite, CacheStrategies } from '../middleware/cache'
 
 const router = express.Router()
 router.use(authenticateJWT)
@@ -13,10 +14,11 @@ router.use(authenticateJWT)
 // Communications - Universal contextual communications system
 // ============================================================================
 
-// GET /communications
+// GET /communications (CACHED: 5 minutes, vary by tenant and query params)
 router.get(
   '/',
   requirePermission('communication:view:global'),
+  cacheMiddleware({ ttl: 300000, varyByTenant: true, varyByQuery: true }),
   auditLog({ action: 'READ', resourceType: 'communications' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -107,10 +109,11 @@ router.get(
   }
 )
 
-// GET /communications/:id
+// GET /communications/:id (CACHED: 5 minutes)
 router.get(
   '/:id',
   requirePermission('communication:view:global'),
+  CacheStrategies.mediumLived,
   auditLog({ action: 'READ', resourceType: 'communications' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -154,10 +157,11 @@ router.get(
   }
 )
 
-// POST /communications
+// POST /communications (INVALIDATE CACHE on write)
 router.post(
   '/',
   requirePermission('communication:send:global'),
+  invalidateOnWrite('communications'),
   auditLog({ action: 'CREATE', resourceType: 'communications' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -176,16 +180,30 @@ router.post(
 
       const communicationId = result.rows[0].id
 
-      // Link entities if provided
-      if (linked_entities && Array.isArray(linked_entities)) {
-        for (const link of linked_entities) {
-          await pool.query(
-            `INSERT INTO communication_entity_links (communication_id, entity_type, entity_id, link_type, manually_added)
-             VALUES ($1, $2, $3, $4, TRUE)
-             ON CONFLICT (communication_id, entity_type, entity_id) DO NOTHING`,
-            [communicationId, link.entity_type, link.entity_id, link.link_type || 'Related']
+      // Link entities if provided (FIXED: Batch insert to avoid N+1 query)
+      if (linked_entities && Array.isArray(linked_entities) && linked_entities.length > 0) {
+        // Build batch insert query
+        const values: any[] = []
+        const placeholders: string[] = []
+
+        linked_entities.forEach((link, index) => {
+          const baseIndex = index * 4 + 1
+          placeholders.push(`($${baseIndex}, $${baseIndex + 1}, $${baseIndex + 2}, $${baseIndex + 3})`)
+          values.push(
+            communicationId,
+            link.entity_type,
+            link.entity_id,
+            link.link_type || 'Related'
           )
-        }
+        })
+
+        // Single batch insert instead of N queries
+        await pool.query(
+          `INSERT INTO communication_entity_links (communication_id, entity_type, entity_id, link_type, manually_added)
+           VALUES ${placeholders.join(', ')}
+           ON CONFLICT (communication_id, entity_type, entity_id) DO NOTHING`,
+          values
+        )
       }
 
       res.status(201).json(result.rows[0])
@@ -196,10 +214,11 @@ router.post(
   }
 )
 
-// PUT /communications/:id
+// PUT /communications/:id (INVALIDATE CACHE on write)
 router.put(
   '/:id',
   requirePermission('communication:send:global'),
+  invalidateOnWrite('communications'),
   auditLog({ action: 'UPDATE', resourceType: 'communications' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -341,10 +360,11 @@ router.get(
 // Follow-ups Dashboard
 // ============================================================================
 
-// GET /communications/follow-ups/pending
+// GET /communications/follow-ups/pending (CACHED: 1 minute, critical data)
 router.get(
   '/follow-ups/pending',
   requirePermission('communication:view:global'),
+  CacheStrategies.shortLived,
   auditLog({ action: 'READ', resourceType: 'communications_followups' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -441,10 +461,11 @@ router.post(
 // Dashboard & Analytics
 // ============================================================================
 
-// GET /communications/dashboard
+// GET /communications/dashboard (CACHED: 2 minutes for performance)
 router.get(
   '/dashboard',
   requirePermission('communication:view:global'),
+  cacheMiddleware({ ttl: 120000, varyByTenant: true }),
   auditLog({ action: 'READ', resourceType: 'communications_dashboard' }),
   async (req: AuthRequest, res: Response) => {
     try {

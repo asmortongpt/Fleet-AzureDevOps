@@ -14,7 +14,7 @@ import {
 } from '../types/trip-usage'
 import { emailNotificationService } from '../services/email-notifications'
 import { appInsightsService } from '../config/app-insights'
-import { logger } from '../config/logger'
+import { logger } from '../utils/logger'
 
 const router = express.Router()
 router.use(authenticateJWT)

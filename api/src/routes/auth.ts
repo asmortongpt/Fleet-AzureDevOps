@@ -228,11 +228,17 @@ router.post('/login', loginLimiter, async (req: Request, res: Response) => {
       { expiresIn: '7d' }
     )
 
-    // Store refresh token in database for rotation tracking
+    // Store refresh token in database with enhanced security tracking
     await pool.query(
-      `INSERT INTO refresh_tokens (user_id, token_hash, expires_at, created_at)
-       VALUES ($1, $2, NOW() + INTERVAL '7 days', NOW())`,
-      [user.id, Buffer.from(refreshToken).toString('base64').substring(0, 64)]
+      `INSERT INTO refresh_tokens (user_id, tenant_id, token_hash, expires_at, created_at, ip_address, user_agent)
+       VALUES ($1, $2, $3, NOW() + INTERVAL '7 days', NOW(), $4, $5)`,
+      [
+        user.id,
+        user.tenant_id,
+        Buffer.from(refreshToken).toString('base64').substring(0, 64),
+        req.ip || null,
+        req.get('User-Agent') || null
+      ]
     )
 
     await createAuditLog(
@@ -247,9 +253,17 @@ router.post('/login', loginLimiter, async (req: Request, res: Response) => {
       'success'
     )
 
+    // SECURITY: Set refresh token in httpOnly cookie to prevent XSS attacks
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,  // Not accessible to JavaScript
+      secure: process.env.NODE_ENV === 'production',  // HTTPS only in production
+      sameSite: 'strict',  // CSRF protection
+      maxAge: 7 * 24 * 60 * 60 * 1000,  // 7 days
+      path: '/api/auth/refresh'  // Limited scope
+    })
+
     res.json({
       token,
-      refreshToken,
       expiresIn: 900, // 15 minutes in seconds
       user: {
         id: user.id,
@@ -398,7 +412,8 @@ router.post('/register', registrationLimiter, async (req: Request, res: Response
 // POST /api/auth/refresh - Refresh token rotation
 router.post('/refresh', async (req: Request, res: Response) => {
   try {
-    const { refreshToken } = req.body
+    // SECURITY: Read refresh token from httpOnly cookie instead of request body
+    const refreshToken = req.cookies?.refreshToken
 
     if (!refreshToken) {
       return res.status(401).json({ error: 'Refresh token required' })
@@ -478,11 +493,17 @@ router.post('/refresh', async (req: Request, res: Response) => {
       { expiresIn: '7d' }
     )
 
-    // Store new refresh token
+    // Store new refresh token with enhanced security tracking
     await pool.query(
-      `INSERT INTO refresh_tokens (user_id, token_hash, expires_at, created_at)
-       VALUES ($1, $2, NOW() + INTERVAL '7 days', NOW())`,
-      [user.id, Buffer.from(newRefreshToken).toString('base64').substring(0, 64)]
+      `INSERT INTO refresh_tokens (user_id, tenant_id, token_hash, expires_at, created_at, ip_address, user_agent)
+       VALUES ($1, $2, $3, NOW() + INTERVAL '7 days', NOW(), $4, $5)`,
+      [
+        user.id,
+        user.tenant_id,
+        Buffer.from(newRefreshToken).toString('base64').substring(0, 64),
+        req.ip || null,
+        req.get('User-Agent') || null
+      ]
     )
 
     await createAuditLog(
@@ -497,9 +518,17 @@ router.post('/refresh', async (req: Request, res: Response) => {
       'success'
     )
 
+    // SECURITY: Set new refresh token in httpOnly cookie (token rotation)
+    res.cookie('refreshToken', newRefreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 7 * 24 * 60 * 60 * 1000,  // 7 days
+      path: '/api/auth/refresh'
+    })
+
     res.json({
       token: newToken,
-      refreshToken: newRefreshToken,
       expiresIn: 900 // 15 minutes in seconds
     })
   } catch (error) {
@@ -577,6 +606,14 @@ router.post('/logout', async (req: Request, res: Response) => {
       // Token invalid, but still return success for logout
     }
   }
+
+  // SECURITY: Clear refresh token cookie on logout
+  res.clearCookie('refreshToken', {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'strict',
+    path: '/api/auth/refresh'
+  })
 
   res.json({ message: 'Logged out successfully' })
 })

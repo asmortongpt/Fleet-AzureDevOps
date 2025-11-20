@@ -2,7 +2,7 @@ import express, { Response } from 'express'
 import { AuthRequest, authenticateJWT } from '../middleware/auth'
 import { requirePermission } from '../middleware/permissions'
 import { pool } from '../config/database'
-import { logger } from '../config/logger'
+import { logger } from '../utils/logger'
 import { z } from 'zod'
 
 const router = express.Router()

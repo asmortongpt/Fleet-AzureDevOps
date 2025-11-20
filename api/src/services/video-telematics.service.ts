@@ -6,7 +6,7 @@
 import { Pool } from 'pg';
 import axios from 'axios';
 import { BlobServiceClient, ContainerClient } from '@azure/storage-blob';
-import { logger } from '../config/logger';
+import { logger } from '../utils/logger';
 import { safeGet, validateURL, SSRFError } from '../utils/safe-http-request';
 
 const AZURE_STORAGE_CONNECTION_STRING = process.env.AZURE_STORAGE_CONNECTION_STRING;
@@ -131,7 +131,12 @@ class VideoTelematicsService {
    */
   async getVehicleCameras(vehicleId: number) {
     const result = await this.db.query(
-      `SELECT * FROM vehicle_cameras WHERE vehicle_id = $1 ORDER BY camera_type`,
+      `SELECT id, vehicle_id, camera_type, camera_name, resolution, recording_mode,
+              pre_event_buffer_seconds, post_event_buffer_seconds, privacy_blur_faces,
+              privacy_blur_plates, status, last_ping_at, firmware_version, created_at, updated_at
+       FROM vehicle_cameras
+       WHERE vehicle_id = $1
+       ORDER BY camera_type`,
       [vehicleId]
     );
 

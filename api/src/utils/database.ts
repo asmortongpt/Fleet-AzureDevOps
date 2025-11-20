@@ -4,9 +4,10 @@
 import { Pool, QueryResult as PgQueryResult, PoolClient } from 'pg';
 import pool from '../config/database';
 import { QueryResult, SqlValue, SqlParams } from '../types';
+import { monitoredQuery } from './query-monitor';
 
 /**
- * Execute a typed query with proper error handling
+ * Execute a typed query with proper error handling and performance monitoring
  * @param text SQL query text
  * @param params Query parameters
  * @returns Typed query result
@@ -16,7 +17,8 @@ export async function query<T = unknown>(
   params?: SqlParams
 ): Promise<QueryResult<T>> {
   try {
-    const result = await pool.query<T>(text, params);
+    // Use monitored query for automatic performance tracking
+    const result = await monitoredQuery<T>(pool, text, params);
     return result as QueryResult<T>;
   } catch (error) {
     console.error('Database query error:', {
@@ -99,12 +101,12 @@ export async function transaction<T>(
   const client = await pool.connect();
 
   try {
-    await client.query('BEGIN');
+    await monitoredQuery(client, 'BEGIN', []);
     const result = await callback(client);
-    await client.query('COMMIT');
+    await monitoredQuery(client, 'COMMIT', []);
     return result;
   } catch (error) {
-    await client.query('ROLLBACK');
+    await monitoredQuery(client, 'ROLLBACK', []);
     console.error('Transaction error:', error);
     throw error;
   } finally {
@@ -113,7 +115,7 @@ export async function transaction<T>(
 }
 
 /**
- * Execute a query within a client (for transactions)
+ * Execute a query within a client (for transactions) with performance monitoring
  * @param client Pool client
  * @param text SQL query text
  * @param params Query parameters
@@ -125,7 +127,8 @@ export async function clientQuery<T = unknown>(
   params?: SqlParams
 ): Promise<QueryResult<T>> {
   try {
-    const result = await client.query<T>(text, params);
+    // Use monitored query for transaction queries too
+    const result = await monitoredQuery<T>(client, text, params);
     return result as QueryResult<T>;
   } catch (error) {
     console.error('Client query error:', {
