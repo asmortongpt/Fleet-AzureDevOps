@@ -82,7 +82,7 @@ declare module 'xlsx' {
   }
 
   export function read(data: any, opts?: ParsingOptions): WorkBook;
-  export function utils: {
+  export const utils: {
     sheet_to_json(worksheet: WorkSheet, opts?: any): any[];
     sheet_to_csv(worksheet: WorkSheet, opts?: any): string;
     book_new(): WorkBook;
