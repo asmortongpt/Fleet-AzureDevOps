@@ -12,7 +12,23 @@
 
 import Anthropic from '@anthropic-ai/sdk'
 import pool from '../../config/database'
-import { embed } from '../embeddings.service'
+
+// Optional embeddings service - lazy loaded
+let embed: ((text: string) => Promise<number[]>) | null = null
+
+// Lazy load embeddings service if available
+async function loadEmbeddingsService() {
+  if (embed) return true
+
+  try {
+    const embeddingsModule = await import('../embeddings.service')
+    embed = embeddingsModule.embed
+    return true
+  } catch (err) {
+    console.warn('embeddings.service not available - embedding-based features will be disabled')
+    return false
+  }
+}
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY || ''
@@ -52,23 +68,43 @@ export async function analyzeTaskAndSuggest(taskData: {
   tenant_id: string
 }): Promise<TaskSuggestion> {
   try {
-    // Find similar tasks using embeddings
-    const taskText = `${taskData.title} ${taskData.description || ''}`
-    const embedding = await embed(taskText)
+    // Find similar tasks using embeddings (if available)
+    let similarTasks: { rows: any[] } = { rows: [] }
 
-    const similarTasks = await pool.query(
-      `SELECT
-        id, task_title, description, priority, assigned_to,
-        actual_hours, status, created_at,
-        (embedding <-> $1::vector) as similarity
-      FROM tasks
-      WHERE tenant_id = $2
-        AND embedding IS NOT NULL
-        AND status = 'completed'
-      ORDER BY similarity ASC
-      LIMIT 5`,
-      [JSON.stringify(embedding), taskData.tenant_id]
-    )
+    const embeddingsAvailable = await loadEmbeddingsService()
+
+    if (embeddingsAvailable && embed) {
+      const taskText = `${taskData.title} ${taskData.description || ''}`
+      const embedding = await embed(taskText)
+
+      similarTasks = await pool.query(
+        `SELECT
+          id, task_title, description, priority, assigned_to,
+          actual_hours, status, created_at,
+          (embedding <-> $1::vector) as similarity
+        FROM tasks
+        WHERE tenant_id = $2
+          AND embedding IS NOT NULL
+          AND status = 'completed'
+        ORDER BY similarity ASC
+        LIMIT 5`,
+        [JSON.stringify(embedding), taskData.tenant_id]
+      )
+    } else {
+      // Fallback: Find similar tasks by title/type match if embeddings unavailable
+      similarTasks = await pool.query(
+        `SELECT
+          id, task_title, description, priority, assigned_to,
+          actual_hours, status, created_at
+        FROM tasks
+        WHERE tenant_id = $1
+          AND status = 'completed'
+          AND (task_type = $2 OR task_title ILIKE $3)
+        ORDER BY created_at DESC
+        LIMIT 5`,
+        [taskData.tenant_id, taskData.type || 'general', `%${taskData.title.split(' ')[0]}%`]
+      )
+    }
 
     // Use Claude to analyze and provide suggestions
     const prompt = `Analyze this task and provide intelligent suggestions:
