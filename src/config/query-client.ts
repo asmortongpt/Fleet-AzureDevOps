@@ -1,4 +1,5 @@
 import { QueryClient, DefaultOptions } from '@tanstack/react-query'
+import logger from '@/utils/logger'
 
 /**
  * Default options for TanStack Query
@@ -48,7 +49,7 @@ const queryConfig: DefaultOptions = {
 
     // Global error handler for mutations (can be overridden per mutation)
     onError: (error) => {
-      console.error('Mutation error:', error)
+      logger.error('Mutation error:', { error })
       // You can add toast notifications here if desired
       // toast.error('An error occurred. Please try again.')
     },

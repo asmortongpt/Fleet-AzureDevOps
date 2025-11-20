@@ -9,7 +9,7 @@
  */
 
 import pool from '../config/database'
-import { logger } from '../config/logger'
+import { logger } from '../utils/logger'
 
 export interface MaintenancePrediction {
   vehicle_id: string

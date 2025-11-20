@@ -3,6 +3,7 @@
  * Controls which modules are available based on customer subscription
  */
 
+import logger from '@/utils/logger'
 export interface ModuleDefinition {
   id: string
   name: string
@@ -274,9 +275,9 @@ export class ModuleManager {
     if (configPath) {
       try {
         // Load from file or API
-        console.log("Loading module config from:", configPath)
+        logger.info("Loading module config from:", { configPath })
       } catch (error) {
-        console.error("Failed to load module config:", error)
+        logger.error("Failed to load module config:", { error })
       }
     }
   }

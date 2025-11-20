@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react"
+import logger from '@/utils/logger'
 
 /**
  * Custom hook for managing intervals with proper cleanup
@@ -11,7 +12,7 @@ import { useEffect, useRef } from "react"
  * @example
  * ```tsx
  * useInterval(() => {
- *   console.log("Running every 5 seconds")
+ *   logger.info("Running every 5 seconds")
  * }, 5000)
  *
  * // With conditional execution

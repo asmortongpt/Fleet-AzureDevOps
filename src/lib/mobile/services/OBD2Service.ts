@@ -15,6 +15,7 @@
  */
 
 import { Platform } from 'react-native'
+import logger from '@/utils/logger'
 
 // Type definitions for Bluetooth libraries
 // These would be imported from actual libraries:
@@ -407,7 +408,7 @@ export class OBD2Service {
 
       return adapters
     } catch (error) {
-      console.error('Error scanning for OBD2 adapters:', error)
+      logger.error('Error scanning for OBD2 adapters:', { error })
       throw new Error(`Failed to scan for adapters: ${error}`)
     }
   }
@@ -417,7 +418,7 @@ export class OBD2Service {
    */
   async connect(adapter: OBD2Adapter): Promise<boolean> {
     try {
-      console.log(`Connecting to OBD2 adapter: ${adapter.name} (${adapter.address})`)
+      logger.info(`Connecting to OBD2 adapter: ${adapter.name} (${adapter.address})`)
 
       if (adapter.connectionType === ConnectionType.BLUETOOTH) {
         this.connection = await this.connectBluetooth(adapter)
@@ -440,10 +441,10 @@ export class OBD2Service {
 
       this.connectedAdapter = adapter
 
-      console.log(`Successfully connected to ${adapter.name}`)
+      logger.info(`Successfully connected to ${adapter.name}`)
       return true
     } catch (error) {
-      console.error('Error connecting to OBD2 adapter:', error)
+      logger.error('Error connecting to OBD2 adapter:', { error })
       throw new Error(`Failed to connect: ${error}`)
     }
   }
@@ -474,9 +475,9 @@ export class OBD2Service {
         this.connectedAdapter = null
       }
 
-      console.log('Disconnected from OBD2 adapter')
+      logger.info('Disconnected from OBD2 adapter')
     } catch (error) {
-      console.error('Error disconnecting:', error)
+      logger.error('Error disconnecting:', { error })
     }
   }
 
@@ -495,10 +496,10 @@ export class OBD2Service {
       // Parse VIN from response
       const vin = this.parseVIN(response)
 
-      console.log(`VIN read: ${vin}`)
+      logger.info(`VIN read: ${vin}`)
       return vin
     } catch (error) {
-      console.error('Error reading VIN:', error)
+      logger.error('Error reading VIN:', { error })
       throw new Error(`Failed to read VIN: ${error}`)
     }
   }
@@ -518,10 +519,10 @@ export class OBD2Service {
       // Parse DTCs
       const dtcs = this.parseDTCs(response)
 
-      console.log(`Read ${dtcs.length} DTCs`)
+      logger.info(`Read ${dtcs.length} DTCs`)
       return dtcs
     } catch (error) {
-      console.error('Error reading DTCs:', error)
+      logger.error('Error reading DTCs:', { error })
       throw new Error(`Failed to read DTCs: ${error}`)
     }
   }
@@ -541,10 +542,10 @@ export class OBD2Service {
       // Parse DTCs
       const dtcs = this.parseDTCs(response)
 
-      console.log(`Read ${dtcs.length} pending DTCs`)
+      logger.info(`Read ${dtcs.length} pending DTCs`)
       return dtcs
     } catch (error) {
-      console.error('Error reading pending DTCs:', error)
+      logger.error('Error reading pending DTCs:', { error })
       throw new Error(`Failed to read pending DTCs: ${error}`)
     }
   }
@@ -565,11 +566,11 @@ export class OBD2Service {
       const remainingDTCs = await this.readDTCs()
 
       const success = remainingDTCs.length === 0
-      console.log(`Clear DTCs ${success ? 'successful' : 'failed'}`)
+      logger.info(`Clear DTCs ${success ? 'successful' : 'failed'}`)
 
       return success
     } catch (error) {
-      console.error('Error clearing DTCs:', error)
+      logger.error('Error clearing DTCs:', { error })
       throw new Error(`Failed to clear DTCs: ${error}`)
     }
   }
@@ -597,7 +598,7 @@ export class OBD2Service {
 
       return value
     } catch (error) {
-      console.error(`Error reading PID ${pidKey}:`, error)
+      logger.error('Error', { error: `Error reading PID ${pidKey}:`, error })
       throw new Error(`Failed to read PID: ${error}`)
     }
   }
@@ -682,11 +683,11 @@ export class OBD2Service {
         const data = await this.readMultiplePIDs(pidKeys)
         callback(data)
       } catch (error) {
-        console.error('Error in live data stream:', error)
+        logger.error('Error in live data stream:', { error })
       }
     }, intervalMs)
 
-    console.log(`Started live data stream with ${pidKeys.length} PIDs at ${intervalMs}ms interval`)
+    logger.info(`Started live data stream with ${pidKeys.length} PIDs at ${intervalMs}ms interval`)
   }
 
   /**
@@ -696,7 +697,7 @@ export class OBD2Service {
     if (this.streamingInterval) {
       clearInterval(this.streamingInterval)
       this.streamingInterval = null
-      console.log('Stopped live data stream')
+      logger.info('Stopped live data stream')
     }
   }
 
@@ -725,7 +726,7 @@ export class OBD2Service {
       // return devices
       return []
     } catch (error) {
-      console.error('Error scanning Bluetooth Classic:', error)
+      logger.error('Error scanning Bluetooth Classic:', { error })
       return []
     }
   }
@@ -738,7 +739,7 @@ export class OBD2Service {
       // return peripherals
       return []
     } catch (error) {
-      console.error('Error scanning BLE:', error)
+      logger.error('Error scanning BLE:', { error })
       return []
     }
   }

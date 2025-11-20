@@ -21,6 +21,7 @@ import {
 } from '@/hooks/use-api'
 import { useCallback, useState, useEffect } from 'react'
 import { generateAllDemoData } from '@/lib/demo-data'
+import logger from '@/utils/logger'
 
 export function useFleetData() {
   // Fetch data from API using SWR hooks
@@ -55,7 +56,7 @@ export function useFleetData() {
     if (isDemoMode || (!isLoading && hasNoData) || hasApiErrors) {
       if (!useDemoData) {
         setUseDemoData(true)
-        console.log('📊 Using demo data for walkthrough (API unavailable or demo mode active)')
+        logger.info('📊 Using demo data for walkthrough (API unavailable or demo mode active)')
       }
     }
   }, [vehiclesError, driversError, facilitiesError, vehiclesData, driversData, facilitiesData, vehiclesLoading, driversLoading, facilitiesLoading, useDemoData])
@@ -86,9 +87,9 @@ export function useFleetData() {
   // Data initialization
   const initializeData = useCallback(() => {
     if (useDemoData) {
-      console.log('✅ Demo data initialized - 50 vehicles, 5 facilities, 30 drivers ready for walkthrough')
+      logger.info('✅ Demo data initialized - 50 vehicles, 5 facilities, 30 drivers ready for walkthrough')
     } else {
-      console.log('Using production API - data initialization not required')
+      logger.info('Using production API - data initialization not required')
     }
   }, [useDemoData])
 

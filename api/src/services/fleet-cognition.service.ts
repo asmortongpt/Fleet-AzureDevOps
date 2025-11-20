@@ -5,7 +5,7 @@
  */
 
 import pool from '../config/database'
-import { logger } from '../config/logger'
+import { logger } from '../utils/logger'
 import mlDecisionEngineService from './ml-decision-engine.service'
 import ragEngineService from './rag-engine.service'
 
