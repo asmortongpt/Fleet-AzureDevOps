@@ -103,7 +103,12 @@ router.post('/login', loginLimiter, async (req: Request, res: Response) => {
 
     // Get user
     const userResult = await pool.query(
-      `SELECT * FROM users WHERE email = $1 AND is_active = true`,
+      `SELECT id, email, first_name, last_name, role, tenant_id, is_active,
+              phone, password_hash, failed_login_attempts, account_locked_until,
+              last_login_at, team_vehicle_ids, team_driver_ids, vehicle_id,
+              driver_id, scope_level, created_at, updated_at
+       FROM users
+       WHERE email = $1 AND is_active = true`,
       [email.toLowerCase()]
     )
 
@@ -441,7 +446,9 @@ router.post('/refresh', async (req: Request, res: Response) => {
     // Check if refresh token exists in database and is not revoked
     const tokenHash = Buffer.from(refreshToken).toString('base64').substring(0, 64)
     const tokenResult = await pool.query(
-      `SELECT * FROM refresh_tokens
+      `SELECT id, user_id, tenant_id, token_hash, expires_at, created_at,
+              revoked_at, ip_address, user_agent
+       FROM refresh_tokens
        WHERE user_id = $1 AND token_hash = $2 AND revoked_at IS NULL AND expires_at > NOW()`,
       [decoded.id, tokenHash]
     )
@@ -452,7 +459,12 @@ router.post('/refresh', async (req: Request, res: Response) => {
 
     // Get user data
     const userResult = await pool.query(
-      `SELECT * FROM users WHERE id = $1 AND is_active = true`,
+      `SELECT id, email, first_name, last_name, role, tenant_id, is_active,
+              phone, password_hash, failed_login_attempts, account_locked_until,
+              last_login_at, team_vehicle_ids, team_driver_ids, vehicle_id,
+              driver_id, scope_level, created_at, updated_at
+       FROM users
+       WHERE id = $1 AND is_active = true`,
       [decoded.id]
     )
 

@@ -4,6 +4,7 @@
  */
 
 // API base URL - defaults to current origin since endpoints already include /api
+import logger from '@/utils/logger'
 const API_BASE_URL = import.meta.env.VITE_API_URL || window.location.origin
 
 export class APIError extends Error {
@@ -73,12 +74,12 @@ class APIClient {
         if (response.ok) {
           const data = await response.json()
           this.csrfToken = data.csrfToken
-          console.log('CSRF token initialized successfully')
+          logger.info('CSRF token initialized successfully')
         } else {
-          console.warn('Failed to fetch CSRF token:', response.status)
+          logger.warn('Failed to fetch CSRF token:', { response.status })
         }
       } catch (error) {
-        console.error('Error fetching CSRF token:', error)
+        logger.error('Error fetching CSRF token:', { error })
       } finally {
         this.csrfTokenPromise = null
       }
@@ -113,7 +114,7 @@ class APIClient {
     this.isRefreshing = true
     this.refreshTokenPromise = (async () => {
       try {
-        console.log('Attempting to refresh access token...')
+        logger.info('Attempting to refresh access token...')
         const response = await fetch(`${this.baseURL}/api/auth/refresh`, {
           method: 'POST',
           credentials: 'include', // Required for httpOnly cookie
@@ -125,15 +126,15 @@ class APIClient {
         if (response.ok) {
           const data = await response.json()
           this.setToken(data.token)
-          console.log('Access token refreshed successfully')
+          logger.info('Access token refreshed successfully')
           return true
         } else {
-          console.warn('Token refresh failed:', response.status)
+          logger.warn('Token refresh failed:', { response.status })
           this.clearToken()
           return false
         }
       } catch (error) {
-        console.error('Token refresh error:', error)
+        logger.error('Token refresh error:', { error })
         this.clearToken()
         return false
       } finally {
@@ -187,7 +188,7 @@ class APIClient {
 
         // If CSRF token is invalid, refresh and retry once
         if (response.status === 403 && error.error?.includes('CSRF')) {
-          console.warn('CSRF token invalid, refreshing...')
+          logger.warn('CSRF token invalid, refreshing...')
           await this.refreshCsrfToken()
 
           // Retry the request with new CSRF token
@@ -225,12 +226,12 @@ class APIClient {
       if (error instanceof APIError) {
         // OWASP ASVS 3.0: Automatic token refresh on 401 Unauthorized
         if (error.status === 401 && !endpoint.includes('/auth/')) {
-          console.log('Received 401, attempting token refresh...')
+          logger.info('Received 401, attempting token refresh...')
           const refreshed = await this.refreshAccessToken()
 
           if (refreshed) {
             // Retry the original request with new token
-            console.log('Token refreshed, retrying original request...')
+            logger.info('Token refreshed, retrying original request...')
             const retryHeaders: HeadersInit = {
               'Content-Type': 'application/json',
               ...options.headers
