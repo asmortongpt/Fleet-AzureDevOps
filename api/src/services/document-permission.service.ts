@@ -131,7 +131,15 @@ export class DocumentPermissionService {
 
       // Get permission details for logging
       const permissionResult = await client.query(
-        `SELECT * FROM document_permissions WHERE id = $1`,
+        `SELECT 
+      id,
+      document_id,
+      user_id,
+      role,
+      permission_type,
+      granted_by,
+      granted_at,
+      expires_at FROM document_permissions WHERE id = $1`,
         [permissionId]
       )
 

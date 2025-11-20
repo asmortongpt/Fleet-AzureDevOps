@@ -23,7 +23,7 @@ router.get(
 
       // Get user's scope for row-level filtering
       const userResult = await pool.query(
-        'SELECT driver_id, scope_level FROM users WHERE id = $1',
+        'SELECT driver_id, scope_level FROM users WHERE id = $1`,
         [req.user!.id]
       )
 
@@ -96,7 +96,7 @@ router.get(
   async (req: AuthRequest, res: Response) => {
     try {
       const result = await pool.query(
-        'SELECT 
+        `SELECT
       id,
       tenant_id,
       vehicle_id,
@@ -114,7 +114,7 @@ router.get(
       receipt_photo,
       notes,
       created_at,
-      updated_at FROM fuel_transactions WHERE id = $1 AND tenant_id = $2',
+      updated_at FROM fuel_transactions WHERE id = $1 AND tenant_id = $2`,
         [req.params.id, req.user!.tenant_id]
       )
 
@@ -141,7 +141,7 @@ router.post(
 
       // Get user's driver_id for validation
       const userResult = await pool.query(
-        'SELECT driver_id FROM users WHERE id = $1',
+        'SELECT driver_id FROM users WHERE id = $1`,
         [req.user!.id]
       )
 
@@ -150,7 +150,7 @@ router.post(
       // Validate that driver_id matches user's driver_id (for own scope)
       if (data.driver_id && userDriverId && data.driver_id !== userDriverId) {
         return res.status(403).json({
-          error: 'You can only create fuel transactions for yourself'
+          error: 'You can only create fuel transactions for yourself`
         })
       }
 
@@ -186,7 +186,7 @@ router.delete(
   async (req: AuthRequest, res: Response) => {
     try {
       const result = await pool.query(
-        'DELETE FROM fuel_transactions WHERE id = $1 AND tenant_id = $2 RETURNING id',
+        'DELETE FROM fuel_transactions WHERE id = $1 AND tenant_id = $2 RETURNING id`,
         [req.params.id, req.user!.tenant_id]
       )
 

@@ -131,7 +131,7 @@ export async function checkVehicleConflicts(
 
     // Check if vehicle is out of service
     const vehicle = await pool.query(
-      'SELECT status FROM vehicles WHERE id = $1',
+      'SELECT status FROM vehicles WHERE id = $1`,
       [vehicleId]
     )
 
@@ -139,7 +139,7 @@ export async function checkVehicleConflicts(
       conflicts.push({
         type: 'vehicle_out_of_service',
         severity: 'critical',
-        description: 'Vehicle is currently out of service',
+        description: 'Vehicle is currently out of service`,
         conflictingAppointments: []
       })
     }
@@ -193,7 +193,7 @@ export async function checkServiceBayConflicts(
       conflicts.push({
         type: 'service_bay_occupied',
         severity: 'high',
-        description: 'Service bay is already scheduled during this time',
+        description: 'Service bay is already scheduled during this time`,
         conflictingAppointments: schedules.rows
       })
     }
@@ -262,7 +262,7 @@ export async function checkTechnicianAvailability(
       conflicts.push({
         type: 'technician_double_booked',
         severity: 'high',
-        description: 'Technician is already assigned to another job',
+        description: 'Technician is already assigned to another job`,
         conflictingAppointments: schedules.rows
       })
     }
@@ -566,7 +566,7 @@ async function syncReservationToCalendars(
   try {
     // Get vehicle details
     const vehicle = await pool.query(
-      'SELECT 
+      `SELECT
       id,
       tenant_id,
       vin,
@@ -595,7 +595,7 @@ async function syncReservationToCalendars(
       photos,
       notes,
       created_at,
-      updated_at FROM vehicles WHERE id = $1',
+      updated_at FROM vehicles WHERE id = $1`,
       [reservation.vehicle_id]
     )
 
@@ -696,7 +696,7 @@ async function syncMaintenanceToCalendars(
 
     const appt = details.rows[0]
     const subject = `Maintenance: ${appt.appointment_type} - ${appt.make} ${appt.model}`
-    const location = appt.bay_name || 'Service Center'
+    const location = appt.bay_name || 'Service Center`
     const body = `
       <strong>Maintenance Appointment:</strong><br/>
       Vehicle: ${appt.make} ${appt.model} (${appt.license_plate})<br/>

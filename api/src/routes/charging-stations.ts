@@ -37,7 +37,7 @@ router.get(
       )
 
       const countResult = await pool.query(
-        'SELECT COUNT(*) FROM charging_stations WHERE tenant_id = $1',
+        'SELECT COUNT(*) FROM charging_stations WHERE tenant_id = $1`,
         [req.user!.tenant_id]
       )
 
@@ -65,7 +65,7 @@ router.get(
   async (req: AuthRequest, res: Response) => {
     try {
       const result = await pool.query(
-        'SELECT 
+        `SELECT
       id,
       tenant_id,
       name,
@@ -77,7 +77,7 @@ router.get(
       status,
       is_active,
       created_at,
-      updated_at FROM charging_stations WHERE id = $1 AND tenant_id = $2',
+      updated_at FROM charging_stations WHERE id = $1 AND tenant_id = $2`,
         [req.params.id, req.user!.tenant_id]
       )
 
@@ -155,7 +155,7 @@ router.delete(
   async (req: AuthRequest, res: Response) => {
     try {
       const result = await pool.query(
-        'DELETE FROM charging_stations WHERE id = $1 AND tenant_id = $2 RETURNING id',
+        'DELETE FROM charging_stations WHERE id = $1 AND tenant_id = $2 RETURNING id`,
         [req.params.id, req.user!.tenant_id]
       )
 
