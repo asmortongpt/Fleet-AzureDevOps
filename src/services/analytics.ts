@@ -24,6 +24,7 @@ import {
   type TelemetryConfig,
 } from '../config/telemetry';
 import { PrivacyManager, DataSanitizer } from '../utils/privacy';
+import logger from '@/utils/logger'
 
 /**
  * Analytics event
@@ -104,27 +105,27 @@ export abstract class AnalyticsBackend {
  */
 class ConsoleBackend extends AnalyticsBackend {
   async initialize(): Promise<void> {
-    console.log('📊 Console Analytics initialized');
+    logger.info('📊 Console Analytics initialized');
   }
 
   async trackEvent(event: AnalyticsEvent): Promise<void> {
-    console.log('📊 Event:', event.name, event.properties);
+    logger.info('📊 Event:', { event.name, event.properties });
   }
 
   async setUserProperties(properties: UserProperties): Promise<void> {
-    console.log('👤 User properties:', properties);
+    logger.info('👤 User properties:', { properties });
   }
 
   async trackError(error: ErrorEvent): Promise<void> {
-    console.error('❌ Error tracked:', error.name, error.message);
+    logger.error('❌ Error tracked:', { error.name, error.message });
   }
 
   async trackPerformance(metric: PerformanceMetric): Promise<void> {
-    console.log('⚡ Performance:', metric.name, metric.value, metric.unit);
+    logger.info('⚡ Performance:', { metric.name, metric.value, metric.unit });
   }
 
   async flush(): Promise<void> {
-    console.log('📊 Flush (no-op for console)');
+    logger.info('📊 Flush (no-op for console)');
   }
 }
 
@@ -203,7 +204,7 @@ class CustomBackend extends AnalyticsBackend {
         throw new Error(`Backend responded with ${response.status}`);
       }
     } catch (error) {
-      console.error('Failed to send analytics to backend:', error);
+      logger.error('Failed to send analytics to backend:', { error });
       // Re-queue events on failure
       if (path.includes('/events/batch') && data.events) {
         this.eventQueue.unshift(...data.events);
@@ -425,7 +426,7 @@ export class AnalyticsService {
           this.backends.push(backend);
         }
       } catch (error) {
-        console.error(`Failed to initialize ${provider} analytics:`, error);
+        logger.error('Error', { error: `Failed to initialize ${provider} analytics:`, error });
       }
     }
 
@@ -552,7 +553,7 @@ export class AnalyticsService {
     await Promise.all(
       this.backends.map(backend =>
         backend.trackEvent(event).catch(err =>
-          console.error('Backend tracking error:', err)
+          logger.error('Backend tracking error:', { err })
         )
       )
     );
@@ -584,7 +585,7 @@ export class AnalyticsService {
     await Promise.all(
       this.backends.map(backend =>
         backend.setUserProperties(properties).catch(err =>
-          console.error('Backend identify error:', err)
+          logger.error('Backend identify error:', { err })
         )
       )
     );
@@ -610,7 +611,7 @@ export class AnalyticsService {
     await Promise.all(
       this.backends.map(backend =>
         backend.trackError(errorEvent).catch(err =>
-          console.error('Backend error tracking error:', err)
+          logger.error('Backend error tracking error:', { err })
         )
       )
     );
@@ -634,7 +635,7 @@ export class AnalyticsService {
     await Promise.all(
       this.backends.map(backend =>
         backend.trackPerformance(metric).catch(err =>
-          console.error('Backend performance tracking error:', err)
+          logger.error('Backend performance tracking error:', { err })
         )
       )
     );
@@ -647,7 +648,7 @@ export class AnalyticsService {
     await Promise.all(
       this.backends.map(backend =>
         backend.flush().catch(err =>
-          console.error('Backend flush error:', err)
+          logger.error('Backend flush error:', { err })
         )
       )
     );

@@ -1,5 +1,5 @@
 import pool from '../config/database'
-import { logger } from '../config/logger'
+import { logger } from '../utils/logger'
 import { appInsightsService } from '../config/app-insights'
 
 interface DriverBillingRecord {

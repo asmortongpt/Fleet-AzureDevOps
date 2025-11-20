@@ -3,6 +3,7 @@
  * Handles Microsoft/Azure AD Single Sign-On (SSO) integration
  */
 
+import logger from '@/utils/logger'
 export interface MicrosoftAuthConfig {
   clientId: string
   tenantId: string
@@ -22,7 +23,7 @@ export const MICROSOFT_AUTH_CONFIG: MicrosoftAuthConfig = {
 
 // Validate configuration on load
 if (!MICROSOFT_AUTH_CONFIG.clientId || !MICROSOFT_AUTH_CONFIG.tenantId) {
-  console.warn('⚠️  WARNING: Microsoft OAuth is not configured. Please set VITE_AZURE_CLIENT_ID and VITE_AZURE_TENANT_ID environment variables.')
+  logger.warn('⚠️  WARNING: Microsoft OAuth is not configured. Please set VITE_AZURE_CLIENT_ID and VITE_AZURE_TENANT_ID environment variables.')
 }
 
 /**
@@ -103,28 +104,28 @@ export function getTenantIdFromState(): string | null {
  * @returns True if user has valid token
  */
 export function isAuthenticated(): boolean {
-  console.log('[AUTH] Checking authentication')
-  console.log('[AUTH] Environment - DEV:', import.meta.env.DEV, 'PROD:', import.meta.env.PROD)
+  logger.info('[AUTH] Checking authentication')
+  logger.info('[AUTH] Environment - DEV:', { import.meta.env.DEV, 'PROD:', import.meta.env.PROD })
 
   // Detect Playwright/test automation
   const isPlaywright = (window as any).playwright !== undefined ||
                        (navigator as any).webdriver === true ||
                        (window as any).__playwright !== undefined
 
-  console.log('[AUTH] Playwright detected:', isPlaywright)
+  logger.info('[AUTH] Playwright detected:', { isPlaywright })
 
   // In DEV mode or Playwright, bypass authentication entirely
   if (import.meta.env.DEV || isPlaywright) {
-    console.log('[AUTH] Test/DEV mode - bypassing authentication')
+    logger.info('[AUTH] Test/DEV mode - bypassing authentication')
     return true
   }
 
   // Production: check for valid token
   const token = localStorage.getItem('token')
-  console.log('[AUTH] Checking token, exists:', token ? 'yes' : 'no')
+  logger.info('[AUTH] Checking token, exists:', { token ? 'yes' : 'no' })
 
   if (!token) {
-    console.log('[AUTH] No token found - not authenticated')
+    logger.info('[AUTH] No token found - not authenticated')
     return false
   }
 
@@ -133,10 +134,10 @@ export function isAuthenticated(): boolean {
     const payload = JSON.parse(atob(token.split('.')[1]))
     const expiresAt = payload.exp * 1000
     const isValid = Date.now() < expiresAt
-    console.log('[AUTH] Token validation result:', isValid)
+    logger.info('[AUTH] Token validation result:', { isValid })
     return isValid
   } catch (error) {
-    console.log('[AUTH] Token validation failed:', error)
+    logger.info('[AUTH] Token validation failed:', { error })
     return false
   }
 }

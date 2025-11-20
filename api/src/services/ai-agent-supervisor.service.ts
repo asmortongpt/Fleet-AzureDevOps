@@ -9,7 +9,7 @@ import { ChatPromptTemplate } from '@langchain/core/prompts'
 import { StringOutputParser, JsonOutputParser } from '@langchain/core/output_parsers'
 import { HumanMessage, SystemMessage, AIMessage } from '@langchain/core/messages'
 import pool from '../config/database'
-import { logger } from '../config/logger'
+import { logger } from '../utils/logger'
 import langchainOrchestratorService from './langchain-orchestrator.service'
 import mcpServerRegistryService from './mcp-server-registry.service'
 
