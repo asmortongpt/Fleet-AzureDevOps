@@ -239,7 +239,18 @@ router.get(
 
     // Get policy
     const policyResult = await pool.query(
-      'SELECT * FROM personal_use_policies WHERE tenant_id = $1',
+      'SELECT 
+      id,
+      tenant_id,
+      name,
+      description,
+      rate_per_mile,
+      rate_type,
+      effective_date,
+      expiry_date,
+      is_active,
+      created_at,
+      updated_at FROM personal_use_policies WHERE tenant_id = $1',
       [req.user!.tenant_id]
     )
 
@@ -355,7 +366,18 @@ router.get(
 
       // Get policy
       const policyResult = await pool.query(
-        'SELECT * FROM personal_use_policies WHERE tenant_id = $1',
+        'SELECT 
+      id,
+      tenant_id,
+      name,
+      description,
+      rate_per_mile,
+      rate_type,
+      effective_date,
+      expiry_date,
+      is_active,
+      created_at,
+      updated_at FROM personal_use_policies WHERE tenant_id = $1',
         [req.user!.tenant_id]
       )
 
