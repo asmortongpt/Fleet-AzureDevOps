@@ -75,7 +75,7 @@ export function useNotifications() {
       window.focus()
       notif.close()
       if (notification.data?.url) {
-        window.location?.href = notification.data.url
+        window.location.href = notification.data.url
       }
     }
 
