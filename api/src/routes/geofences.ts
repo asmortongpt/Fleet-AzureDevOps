@@ -35,7 +35,7 @@ router.get(
       )
 
       const countResult = await pool.query(
-        'SELECT COUNT(*) FROM geofences WHERE tenant_id = $1',
+        'SELECT COUNT(*) FROM geofences WHERE tenant_id = $1`,
         [req.user!.tenant_id]
       )
 
@@ -63,7 +63,7 @@ router.get(
   async (req: AuthRequest, res: Response) => {
     try {
       const result = await pool.query(
-        'SELECT 
+        `SELECT
       id,
       tenant_id,
       name,
@@ -73,7 +73,7 @@ router.get(
       radius,
       is_active,
       created_at,
-      updated_at FROM geofences WHERE id = $1 AND tenant_id = $2',
+      updated_at FROM geofences WHERE id = $1 AND tenant_id = $2`,
         [req.params.id, req.user!.tenant_id]
       )
 
@@ -152,7 +152,7 @@ router.delete(
   async (req: AuthRequest, res: Response) => {
     try {
       const result = await pool.query(
-        'DELETE FROM geofences WHERE id = $1 AND tenant_id = $2 RETURNING id',
+        'DELETE FROM geofences WHERE id = $1 AND tenant_id = $2 RETURNING id`,
         [req.params.id, req.user!.tenant_id]
       )
 
