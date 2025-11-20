@@ -248,7 +248,18 @@ export class JobQueueService {
    */
   async getJobStatus(jobId: string): Promise<any> {
     const result = await pool.query(
-      'SELECT * FROM job_queue WHERE id = $1',
+      'SELECT 
+      id,
+      type,
+      status,
+      payload,
+      progress,
+      error_message,
+      user_id,
+      tenant_id,
+      created_at,
+      updated_at,
+      completed_at FROM job_queue WHERE id = $1',
       [jobId]
     )
 

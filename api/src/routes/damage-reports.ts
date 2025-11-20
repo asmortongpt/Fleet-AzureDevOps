@@ -90,7 +90,7 @@ router.get(
   async (req: AuthRequest, res: Response) => {
     try {
       const result = await pool.query(
-        'SELECT 
+        `SELECT
       id,
       tenant_id,
       vehicle_id,
@@ -104,7 +104,7 @@ router.get(
       status,
       notes,
       created_at,
-      updated_at FROM damage_reports WHERE id = $1 AND tenant_id = $2',
+      updated_at FROM damage_reports WHERE id = $1 AND tenant_id = $2`,
         [req.params.id, req.user!.tenant_id]
       )
 
