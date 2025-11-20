@@ -181,7 +181,24 @@ export class CustomFieldsService {
    */
   async getFieldDefinition(fieldId: string): Promise<CustomFieldDefinition | null> {
     const result = await pool.query(
-      'SELECT * FROM custom_field_definitions WHERE id = $1',
+      'SELECT 
+      id,
+      tenant_id,
+      entity_type,
+      field_name,
+      field_label,
+      field_type,
+      description,
+      required,
+      default_value,
+      options,
+      validation,
+      conditional,
+      group_name,
+      sort_order,
+      is_active,
+      created_at,
+      updated_at FROM custom_field_definitions WHERE id = $1',
       [fieldId]
     )
 

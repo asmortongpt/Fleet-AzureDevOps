@@ -112,7 +112,7 @@ router.put(
       // Validation: if charging for personal use, rate must be provided
       if (validated.charge_personal_use && !validated.personal_use_rate_per_mile) {
         return res.status(400).json({
-          error: 'Personal use rate per mile is required when charge_personal_use is enabled'
+          error: 'Personal use rate per mile is required when charge_personal_use is enabled`
         })
       }
 
@@ -121,13 +121,13 @@ router.put(
           validated.max_personal_miles_per_month &&
           validated.max_personal_miles_per_year < validated.max_personal_miles_per_month) {
         return res.status(400).json({
-          error: 'Annual limit must be greater than or equal to monthly limit'
+          error: 'Annual limit must be greater than or equal to monthly limit`
         })
       }
 
       // Check if policy exists
       const existingResult = await pool.query(
-        'SELECT id FROM personal_use_policies WHERE tenant_id = $1',
+        'SELECT id FROM personal_use_policies WHERE tenant_id = $1`,
         [req.user!.tenant_id]
       )
 
@@ -203,8 +203,8 @@ router.put(
         success: true,
         data: result.rows[0],
         message: existingResult.rows.length > 0
-          ? 'Personal use policy updated successfully'
-          : 'Personal use policy created successfully'
+          ? 'Personal use policy updated successfully`
+          : 'Personal use policy created successfully`
       })
     } catch (error: any) {
       console.error('Update policy error:', error)
@@ -229,7 +229,7 @@ router.get(
 
     // Verify driver belongs to tenant
     const driverCheck = await pool.query(
-      'SELECT id, name FROM users WHERE id = $1 AND tenant_id = $2',
+      'SELECT id, name FROM users WHERE id = $1 AND tenant_id = $2`,
       [driver_id, req.user!.tenant_id]
     )
 
@@ -239,7 +239,7 @@ router.get(
 
     // Get policy
     const policyResult = await pool.query(
-      'SELECT 
+      `SELECT
       id,
       tenant_id,
       name,
@@ -250,7 +250,7 @@ router.get(
       expiry_date,
       is_active,
       created_at,
-      updated_at FROM personal_use_policies WHERE tenant_id = $1',
+      updated_at FROM personal_use_policies WHERE tenant_id = $1`,
       [req.user!.tenant_id]
     )
 
@@ -366,7 +366,7 @@ router.get(
 
       // Get policy
       const policyResult = await pool.query(
-        'SELECT 
+        `SELECT
       id,
       tenant_id,
       name,
@@ -377,7 +377,7 @@ router.get(
       expiry_date,
       is_active,
       created_at,
-      updated_at FROM personal_use_policies WHERE tenant_id = $1',
+      updated_at FROM personal_use_policies WHERE tenant_id = $1`,
         [req.user!.tenant_id]
       )
 
@@ -385,7 +385,7 @@ router.get(
         return res.json({
           success: true,
           data: [],
-          message: 'No usage limits configured'
+          message: 'No usage limits configured`
         })
       }
 

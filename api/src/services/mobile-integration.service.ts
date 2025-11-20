@@ -310,7 +310,39 @@ export class MobileIntegrationService {
     // 2. Get active route if route_id provided
     if (data.route_id) {
       const routeResult = await pool.query(
-        `SELECT * FROM optimized_routes WHERE id = $1`,
+        `SELECT 
+      id,
+      job_id,
+      tenant_id,
+      route_number,
+      route_name,
+      vehicle_id,
+      driver_id,
+      total_stops,
+      total_distance_miles,
+      total_duration_minutes,
+      driving_duration_minutes,
+      service_duration_minutes,
+      total_weight_lbs,
+      total_volume_cuft,
+      total_packages,
+      capacity_utilization_percent,
+      fuel_cost,
+      labor_cost,
+      total_cost,
+      planned_start_time,
+      planned_end_time,
+      actual_start_time,
+      actual_end_time,
+      route_geometry,
+      route_polyline,
+      waypoints,
+      traffic_factor,
+      alternative_routes_count,
+      status,
+      notes,
+      created_at,
+      updated_at FROM optimized_routes WHERE id = $1`,
         [data.route_id]
       )
       result.route = routeResult.rows[0]
