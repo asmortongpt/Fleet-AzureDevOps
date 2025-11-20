@@ -506,7 +506,7 @@ export class OcrService {
   }
 
   /**
-   * Process with Tesseract.js
+   * Process with Tesseract.js (using worker thread for CPU-intensive work)
    */
   private async processWithTesseract(
     imageBuffer: Buffer,
@@ -514,69 +514,92 @@ export class OcrService {
     options: OcrOptions,
     fileSize: number
   ): Promise<OcrResult> {
-    const worker = await createWorker('eng', OEM.LSTM_ONLY, {
-      logger: (m) => console.log('Tesseract:', m)
-    });
+    const { Worker } = await import('worker_threads');
+    const path = await import('path');
 
-    try {
-      // Load additional languages if specified
-      if (options.languages && options.languages.length > 0) {
-        await worker.loadLanguage(options.languages.join('+'));
-        await worker.initialize(options.languages.join('+'));
-      }
+    return new Promise((resolve, reject) => {
+      // Create worker thread for CPU-intensive OCR processing
+      const worker = new Worker(
+        path.join(__dirname, '../workers/tesseract.worker.js'),
+        {
+          workerData: {
+            imageBuffer,
+            languages: options.languages || ['eng'],
+            options: {
+              tessedit_pageseg_mode: PSM.AUTO,
+              preserve_interword_spaces: '1'
+            }
+          }
+        }
+      );
 
-      // Configure Tesseract
-      await worker.setParameters({
-        tessedit_pageseg_mode: PSM.AUTO,
-        preserve_interword_spaces: '1'
+      // Timeout after 2 minutes
+      const timeout = setTimeout(() => {
+        worker.terminate();
+        reject(new Error('OCR processing timeout (2 minutes)'));
+      }, 120000);
+
+      worker.on('message', (result) => {
+        clearTimeout(timeout);
+
+        if (!result.success) {
+          reject(new Error(result.error || 'OCR processing failed'));
+          return;
+        }
+
+        const data = result.data!;
+
+        // Build pages
+        const pages: OcrPage[] = [{
+          pageNumber: 1,
+          text: data.text,
+          confidence: data.confidence / 100,
+          lines: data.lines.map((line: any) => ({
+            text: line.text,
+            confidence: line.confidence / 100,
+            words: line.words.map((word: any) => ({
+              text: word.text,
+              confidence: word.confidence / 100,
+              boundingBox: word.bbox
+            })),
+            boundingBox: line.bbox
+          })),
+          boundingBox: { x: 0, y: 0, width: data.imageWidth, height: data.imageHeight }
+        }];
+
+        resolve({
+          provider: OcrProvider.TESSERACT,
+          documentId,
+          fullText: data.text,
+          pages,
+          languages: options.languages || ['eng'],
+          primaryLanguage: options.languages?.[0] || 'eng',
+          averageConfidence: data.confidence / 100,
+          processingTime: 0,
+          metadata: {
+            documentFormat: 'image',
+            pageCount: 1,
+            hasHandwriting: false,
+            hasTables: false,
+            hasForms: false,
+            fileSize,
+            processedAt: new Date()
+          }
+        });
       });
 
-      // Perform OCR
-      const { data } = await worker.recognize(imageBuffer);
+      worker.on('error', (error) => {
+        clearTimeout(timeout);
+        reject(error);
+      });
 
-      // Build pages
-      const pages: OcrPage[] = [{
-        pageNumber: 1,
-        text: data.text,
-        confidence: data.confidence / 100,
-        lines: data.lines.map(line => ({
-          text: line.text,
-          confidence: line.confidence / 100,
-          words: line.words.map(word => ({
-            text: word.text,
-            confidence: word.confidence / 100,
-            boundingBox: word.bbox
-          })),
-          boundingBox: line.bbox
-        })),
-        boundingBox: { x: 0, y: 0, width: data.imageWidth || 0, height: data.imageHeight || 0 }
-      }];
-
-      await worker.terminate();
-
-      return {
-        provider: OcrProvider.TESSERACT,
-        documentId,
-        fullText: data.text,
-        pages,
-        languages: options.languages || ['eng'],
-        primaryLanguage: options.languages?.[0] || 'eng',
-        averageConfidence: data.confidence / 100,
-        processingTime: 0,
-        metadata: {
-          documentFormat: 'image',
-          pageCount: 1,
-          hasHandwriting: false,
-          hasTables: false,
-          hasForms: false,
-          fileSize,
-          processedAt: new Date()
+      worker.on('exit', (code) => {
+        clearTimeout(timeout);
+        if (code !== 0) {
+          reject(new Error(`Worker stopped with exit code ${code}`));
         }
-      };
-    } catch (error) {
-      await worker.terminate();
-      throw error;
-    }
+      });
+    });
   }
 
   /**

@@ -7,17 +7,17 @@
     "rootDir": "./src",
     // Enable strict mode for type safety
     "strict": true,
-    // Fail on errors - this prevents unsafe code from being deployed
-    // Temporarily disabled to allow build completion - re-enable after fixing critical errors
-    "noEmitOnError": false,
-    // Relax specific strict checks to allow existing code to compile
-    // These can be enabled incrementally in future iterations
-    "strictNullChecks": false,
-    "strictFunctionTypes": false,
-    "strictBindCallApply": false,
-    "strictPropertyInitialization": false,
-    "noImplicitThis": false,
-    "noImplicitAny": false,
+    // CRITICAL: Fail on errors to prevent unsafe code from being deployed
+    "noEmitOnError": true,
+    // CRITICAL: Enable strict null checks to catch potential runtime errors
+    "strictNullChecks": true,
+    // CRITICAL: Require explicit types to prevent implicit any
+    "noImplicitAny": true,
+    // Additional strict checks for better type safety
+    "strictFunctionTypes": true,
+    "strictBindCallApply": true,
+    "strictPropertyInitialization": true,
+    "noImplicitThis": true,
     "alwaysStrict": true,
     // Code quality checks - disabled to allow existing patterns
     "noUnusedLocals": false,

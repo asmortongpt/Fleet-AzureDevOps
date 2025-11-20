@@ -2,6 +2,7 @@ import { Response, NextFunction } from 'express'
 import { AuthRequest } from './auth'
 import pool from '../config/database'
 import crypto from 'crypto'
+import logger from '../utils/logger'
 
 export interface AuditOptions {
   action: 'CREATE' | 'READ' | 'UPDATE' | 'DELETE' | 'LOGIN' | 'LOGOUT' | 'EXPORT' | 'CALCULATE' | 'APPROVE' | 'REJECT' | 'BULK_CREATE'
@@ -57,7 +58,7 @@ export const auditLog = (options: AuditOptions) => {
             ]
           )
         } catch (error) {
-          console.error('Audit logging error:', error)
+          logger.error('Audit logging error:', { error: error })
           // Don't fail the request if audit logging fails
         }
       })
