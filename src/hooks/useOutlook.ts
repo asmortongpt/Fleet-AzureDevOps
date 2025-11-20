@@ -89,26 +89,26 @@ export function useEmails(filter?: {
     const unsubscribeNew = subscribe('outlook:new-email', (message: any) => {
       queryClient.setQueryData(
         outlookKeys.messages(filter),
-        (old: OutlookEmail[] = []) => [message.data.email, ...old]
+        (old: OutlookEmail[] = []) => [message.data?.email, ...old]
       )
 
       // Show notification
       if (Notification.permission === 'granted') {
         new Notification('New Email', {
-          body: `${message.data.email.from.name}: ${message.data.email.subject}`,
+          body: `${message.data?.email.from.name}: ${message.data?.email.subject}`,
           icon: '/icons/email.png',
-          tag: message.data.email.id
+          tag: message.data?.email.id
         })
       }
 
-      toast.info(`New email from ${message.data.email.from.name}`)
+      toast.info(`New email from ${message.data?.email.from.name}`)
     })
 
     const unsubscribeUpdated = subscribe('outlook:email-updated', (message: any) => {
       queryClient.setQueryData(
         outlookKeys.messages(filter),
         (old: OutlookEmail[] = []) =>
-          old.map(email => email.id === message.data.email.id ? message.data.email : email)
+          old.map(email => email.id === message.data?.email.id ? message.data?.email : email)
       )
     })
 
