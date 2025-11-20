@@ -98,7 +98,7 @@ router.get('/microsoft/callback', async (req: Request, res: Response) => {
 
     // Check if user exists
     let userResult = await pool.query(
-      `SELECT * FROM users WHERE email = $1 AND tenant_id = $2`,
+      `SELECT id, tenant_id, email, first_name, last_name, role, status, phone, created_at, updated_at, deleted_at FROM users WHERE email = $1 AND tenant_id = $2`,
       [email.toLowerCase(), tenantId]
     )
 

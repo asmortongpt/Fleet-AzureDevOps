@@ -150,8 +150,9 @@ export class InspectionRepository extends BaseRepository<Inspection> {
    * Find overdue inspections
    */
   async findOverdue(tenantId: string): Promise<Inspection[]> {
+    const columns = 'id, tenant_id, vehicle_id, inspection_date, inspection_type, status, notes, created_at, updated_at';
     const query = `
-      SELECT * FROM ${this.tableName}
+      SELECT ${columns} FROM ${this.tableName}
       WHERE tenant_id = $1
         AND status = 'pending'
         AND scheduled_date < NOW()
@@ -230,8 +231,9 @@ export class InspectionRepository extends BaseRepository<Inspection> {
    * Get inspections due soon (within next N days)
    */
   async findDueSoon(tenantId: string, daysAhead: number = 7): Promise<Inspection[]> {
+    const columns = 'id, tenant_id, vehicle_id, inspection_date, inspection_type, status, notes, created_at, updated_at';
     const query = `
-      SELECT * FROM ${this.tableName}
+      SELECT ${columns} FROM ${this.tableName}
       WHERE tenant_id = $1
         AND status = 'pending'
         AND scheduled_date BETWEEN NOW() AND NOW() + INTERVAL '${daysAhead} days'
@@ -267,8 +269,9 @@ export class InspectionRepository extends BaseRepository<Inspection> {
    * Find inspections within date range
    */
   async findByDateRange(tenantId: string, startDate: Date, endDate: Date): Promise<Inspection[]> {
+    const columns = 'id, tenant_id, vehicle_id, inspection_date, inspection_type, status, notes, created_at, updated_at';
     const query = `
-      SELECT * FROM ${this.tableName}
+      SELECT ${columns} FROM ${this.tableName}
       WHERE tenant_id = $1
         AND scheduled_date BETWEEN $2 AND $3
       ORDER BY scheduled_date DESC
