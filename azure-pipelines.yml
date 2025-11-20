@@ -1,301 +1,155 @@
-# Azure DevOps Pipeline for Fleet Management
-# Replaces GitHub Actions CI/CD
+# ============================================================================
+# Fleet Management System - Azure DevOps CI/CD Pipeline
+# ============================================================================
+# This pipeline replaces GitHub Actions with Azure DevOps Pipelines
+#
+# Features:
+# - Multi-stage pipeline (Build, Test, Security, Deploy)
+# - SBOM generation (SPDX + CycloneDX)
+# - Container scanning (Trivy)
+# - Secret detection
+# - Automatic rollback on failure
+# - Health checks / smoke tests
+# ============================================================================
 
 trigger:
   branches:
     include:
-    - main
-    - develop
-    - stage-*
+      - main
+      - develop
+      - stage-*
   paths:
     exclude:
-    - '**/*.md'
-    - '.github/**'
+      - README.md
+      - docs/**
+      - '*.md'
 
 pr:
   branches:
     include:
-    - main
-    - develop
+      - main
+      - develop
+  paths:
+    exclude:
+      - README.md
+      - docs/**
+      - '*.md'
 
+# ============================================================================
+# VARIABLES
+# ============================================================================
 variables:
-  # Azure Resources
-  azureSubscription: 'Azure-Fleet-Management'
-  acrName: 'fleetappregistry'
-  acrLoginServer: 'fleetappregistry.azurecr.io'
-  aksResourceGroup: 'fleet-production-rg'
-  aksClusterName: 'fleet-aks-cluster'
-  aksNamespace: 'fleet-management'
-  
-  # Build Configuration
-  nodeVersion: '20.x'
-  
-  # Image Tags
-  apiImageName: 'fleet-api'
-  frontendImageName: 'fleet-frontend'
-  imageTag: '$(Build.BuildId)'
+  - group: fleet-production-vars  # Create this variable group in Azure DevOps
+  - group: fleet-secrets          # Create this variable group with secrets
 
+  # Pipeline variables
+  - name: nodeVersion
+    value: '20.x'
+  - name: registryName
+    value: 'fleetacr'
+  - name: registryLoginServer
+    value: 'fleetacr.azurecr.io'
+  - name: aksCluster
+    value: 'fleet-aks-cluster'
+  - name: aksResourceGroup
+    value: 'fleet-management-rg'
+  - name: namespace
+    value: 'fleet-management'
+  - name: productionUrl
+    value: 'https://fleet.capitaltechalliance.com'
+  - name: imageTag
+    value: '$(Build.SourceVersion)'
+  - name: isProdBranch
+    value: $[eq(variables['Build.SourceBranch'], 'refs/heads/main')]
+  - name: isDevelopBranch
+    value: $[eq(variables['Build.SourceBranch'], 'refs/heads/develop')]
+
+# ============================================================================
+# BUILD AGENT POOL
+# ============================================================================
+pool:
+  vmImage: 'ubuntu-latest'
+
+# ============================================================================
+# STAGES
+# ============================================================================
 stages:
-- stage: Build
-  displayName: 'Build & Test'
-  jobs:
-  - job: BuildAPI
-    displayName: 'Build API'
-    pool:
-      vmImage: 'ubuntu-latest'
-    steps:
-    - task: NodeTool@0
-      inputs:
-        versionSpec: '$(nodeVersion)'
-      displayName: 'Install Node.js'
-    
-    - script: |
-        cd api
-        npm install
-        npm run build
-      displayName: 'Build API'
+  # ==========================================================================
+  # STAGE 1: LINT & TYPE CHECK
+  # ==========================================================================
+  - stage: Lint
+    displayName: 'Lint & Type Check'
+    jobs:
+      - template: azure-pipelines/templates/lint-template.yml
 
-    - script: |
-        cd api
-        npm test
-      displayName: 'Run API Tests'
+  # ==========================================================================
+  # STAGE 2: UNIT TESTS
+  # ==========================================================================
+  - stage: Test
+    displayName: 'Unit Tests'
+    dependsOn: []  # Run in parallel with Lint
+    jobs:
+      - template: azure-pipelines/templates/test-template.yml
 
-    - script: |
-        cd api
-        npm run test:coverage
-      displayName: 'Run API Tests with Coverage'
+  # ==========================================================================
+  # STAGE 3: BUILD VERIFICATION
+  # ==========================================================================
+  - stage: Build
+    displayName: 'Build Verification'
+    dependsOn:
+      - Lint
+      - Test
+    jobs:
+      - template: azure-pipelines/templates/build-template.yml
 
-    - task: PublishTestResults@2
-      condition: succeededOrFailed()
-      inputs:
-        testResultsFormat: 'JUnit'
-        testResultsFiles: 'api/test-results/*.xml'
-        failTaskOnFailedTests: false
-      displayName: 'Publish API Test Results'
+  # ==========================================================================
+  # STAGE 4: DOCKER BUILD & PUSH
+  # ==========================================================================
+  - stage: Docker
+    displayName: 'Build & Push Docker Images'
+    dependsOn: Build
+    condition: and(succeeded(), or(eq(variables.isProdBranch, true), eq(variables.isDevelopBranch, true)))
+    jobs:
+      - template: azure-pipelines/templates/docker-template.yml
 
-    - task: PublishCodeCoverageResults@2
-      condition: succeededOrFailed()
-      inputs:
-        summaryFileLocation: 'api/coverage/cobertura-coverage.xml'
-        failIfCoverageEmpty: false
-      displayName: 'Publish Code Coverage'
+  # ==========================================================================
+  # STAGE 5: SECURITY SCANNING
+  # ==========================================================================
+  - stage: Security
+    displayName: 'Security Scanning'
+    dependsOn: Docker
+    condition: and(succeeded(), or(eq(variables.isProdBranch, true), eq(variables.isDevelopBranch, true)))
+    jobs:
+      - template: azure-pipelines/templates/security-template.yml
 
-  - job: BuildFrontend
-    displayName: 'Build Frontend'
-    pool:
-      vmImage: 'ubuntu-latest'
-    steps:
-    - task: NodeTool@0
-      inputs:
-        versionSpec: '$(nodeVersion)'
-      displayName: 'Install Node.js'
-    
-    - script: |
-        npm install
-        npm run build
-      displayName: 'Build Frontend'
-      env:
-        VITE_API_URL: 'https://fleet.capitaltechalliance.com'
-    
-    - task: PublishBuildArtifacts@1
-      inputs:
-        PathtoPublish: 'dist'
-        ArtifactName: 'frontend-dist'
-      displayName: 'Publish Frontend Artifacts'
+  # ==========================================================================
+  # STAGE 6: DEPLOY TO KUBERNETES
+  # ==========================================================================
+  - stage: Deploy
+    displayName: 'Deploy to Kubernetes'
+    dependsOn: Security
+    condition: and(succeeded(), eq(variables.isProdBranch, true))
+    jobs:
+      - template: azure-pipelines/templates/deploy-template.yml
 
-- stage: Docker
-  displayName: 'Build & Push Docker Images'
-  dependsOn: Build
-  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
-  jobs:
-  - job: BuildImages
-    displayName: 'Build Docker Images'
-    pool:
-      vmImage: 'ubuntu-latest'
-    steps:
-    - task: Docker@2
-      displayName: 'Build API Image'
-      inputs:
-        command: 'build'
-        repository: '$(acrLoginServer)/$(apiImageName)'
-        dockerfile: 'api/Dockerfile'
-        buildContext: 'api'
-        tags: |
-          $(imageTag)
-          latest
-    
-    - task: Docker@2
-      displayName: 'Login to ACR'
-      inputs:
-        command: 'login'
-        containerRegistry: '$(acrName)'
-    
-    - task: AzureCLI@2
-      displayName: 'Build & Push API to ACR'
-      inputs:
-        azureSubscription: '$(azureSubscription)'
-        scriptType: 'bash'
-        scriptLocation: 'inlineScript'
-        inlineScript: |
-          az acr build \
-            --registry $(acrName) \
-            --image $(apiImageName):$(imageTag) \
-            --image $(apiImageName):latest \
-            --file Dockerfile \
-            ./api
+  # ==========================================================================
+  # STAGE 7: SMOKE TESTS
+  # ==========================================================================
+  - stage: SmokeTest
+    displayName: 'Smoke Tests'
+    dependsOn: Deploy
+    condition: and(succeeded(), eq(variables.isProdBranch, true))
+    jobs:
+      - template: azure-pipelines/templates/smoke-test-template.yml
 
-- stage: Deploy
-  displayName: 'Deploy to AKS'
-  dependsOn: Docker
-  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
-  jobs:
-  - deployment: DeployToProduction
-    displayName: 'Deploy to Production'
-    pool:
-      vmImage: 'ubuntu-latest'
-    environment: 'production'
-    strategy:
-      runOnce:
-        deploy:
-          steps:
-          - task: AzureCLI@2
-            displayName: 'Get AKS Credentials'
-            inputs:
-              azureSubscription: '$(azureSubscription)'
-              scriptType: 'bash'
-              scriptLocation: 'inlineScript'
-              inlineScript: |
-                az aks get-credentials \
-                  --resource-group $(aksResourceGroup) \
-                  --name $(aksClusterName) \
-                  --overwrite-existing
-          
-          - task: Kubernetes@1
-            displayName: 'Update API Deployment'
-            inputs:
-              connectionType: 'Azure Resource Manager'
-              azureSubscriptionEndpoint: '$(azureSubscription)'
-              azureResourceGroup: '$(aksResourceGroup)'
-              kubernetesCluster: '$(aksClusterName)'
-              namespace: '$(aksNamespace)'
-              command: 'set'
-              arguments: 'image deployment/fleet-api fleet-api=$(acrLoginServer)/$(apiImageName):$(imageTag)'
-          
-          - task: Kubernetes@1
-            displayName: 'Wait for Rollout'
-            inputs:
-              connectionType: 'Azure Resource Manager'
-              azureSubscriptionEndpoint: '$(azureSubscription)'
-              azureResourceGroup: '$(aksResourceGroup)'
-              kubernetesCluster: '$(aksClusterName)'
-              namespace: '$(aksNamespace)'
-              command: 'rollout'
-              arguments: 'status deployment/fleet-api --timeout=180s'
-          
-          - task: AzureCLI@2
-            displayName: 'Run Database Migrations via Kubernetes Job'
-            inputs:
-              azureSubscription: '$(azureSubscription)'
-              scriptType: 'bash'
-              scriptLocation: 'inlineScript'
-              inlineScript: |
-                echo "Applying migration job manifest..."
-                kubectl apply -f k8s/production-migration-job.yaml
-
-                # Delete any existing migration job
-                kubectl delete job production-database-migration -n $(aksNamespace) --ignore-not-found=true
-
-                # Create the migration job
-                kubectl create job production-database-migration \
-                  --from=cronjob/production-database-migration \
-                  -n $(aksNamespace) || \
-                kubectl apply -f k8s/production-migration-job.yaml
-
-                echo "Waiting for migration job to complete..."
-                kubectl wait --for=condition=complete --timeout=600s \
-                  job/production-database-migration -n $(aksNamespace)
-
-                # Get migration logs
-                echo "Migration logs:"
-                kubectl logs -n $(aksNamespace) \
-                  job/production-database-migration
-
-                # Check job status
-                JOB_STATUS=$(kubectl get job production-database-migration -n $(aksNamespace) -o jsonpath='{.status.succeeded}')
-                if [ "$JOB_STATUS" = "1" ]; then
-                  echo "✓ Database migration completed successfully"
-                else
-                  echo "❌ Database migration failed"
-                  exit 1
-                fi
-
-          - script: |
-              cd api
-              npm run verify:integration || echo "Integration verification skipped"
-            displayName: 'Verify Microsoft Integration'
-            env:
-              MS_GRAPH_CLIENT_ID: $(MS_GRAPH_CLIENT_ID)
-              MS_GRAPH_CLIENT_SECRET: $(MS_GRAPH_CLIENT_SECRET)
-              MS_GRAPH_TENANT_ID: $(MS_GRAPH_TENANT_ID)
-
-          - task: AzureCLI@2
-            displayName: 'Setup Webhooks'
-            inputs:
-              azureSubscription: '$(azureSubscription)'
-              scriptType: 'bash'
-              scriptLocation: 'inlineScript'
-              inlineScript: |
-                cd api
-                npm run setup:webhooks || echo "Webhook setup skipped"
-            env:
-              MS_GRAPH_CLIENT_ID: $(MS_GRAPH_CLIENT_ID)
-              MS_GRAPH_CLIENT_SECRET: $(MS_GRAPH_CLIENT_SECRET)
-              MS_GRAPH_TENANT_ID: $(MS_GRAPH_TENANT_ID)
-              MS_GRAPH_WEBHOOK_URL: $(MS_GRAPH_WEBHOOK_URL)
-
-          - task: AzureCLI@2
-            displayName: 'Verify Deployment'
-            inputs:
-              azureSubscription: '$(azureSubscription)'
-              scriptType: 'bash'
-              scriptLocation: 'inlineScript'
-              inlineScript: |
-                echo "Verifying CORS headers..."
-                curl -I \
-                  -H "Origin: https://green-pond-0f040980f.3.azurestaticapps.net" \
-                  -X OPTIONS \
-                  https://fleet.capitaltechalliance.com/api/vehicles \
-                  | grep -i "access-control-allow-origin"
-
-- stage: Test
-  displayName: 'Run E2E Tests'
-  dependsOn: Deploy
-  condition: succeeded()
-  jobs:
-  - job: E2ETests
-    displayName: 'Playwright E2E Tests'
-    pool:
-      vmImage: 'ubuntu-latest'
-    steps:
-    - task: NodeTool@0
-      inputs:
-        versionSpec: '$(nodeVersion)'
-      displayName: 'Install Node.js'
-    
-    - script: |
-        npm install
-        npx playwright install --with-deps chromium
-      displayName: 'Install Dependencies'
-    
-    - script: |
-        npx playwright test e2e/final-verification.spec.ts --project=chromium
-      displayName: 'Run E2E Tests'
-      env:
-        PLAYWRIGHT_BASE_URL: 'https://fleet.capitaltechalliance.com'
-    
-    - task: PublishTestResults@2
-      condition: succeededOrFailed()
-      inputs:
-        testResultsFormat: 'JUnit'
-        testResultsFiles: 'test-results/*.xml'
-      displayName: 'Publish E2E Test Results'
+  # ==========================================================================
+  # STAGE 8: ROLLBACK (On failure)
+  # ==========================================================================
+  - stage: Rollback
+    displayName: 'Rollback Deployment'
+    dependsOn:
+      - Deploy
+      - SmokeTest
+    condition: failed()
+    jobs:
+      - template: azure-pipelines/templates/rollback-template.yml

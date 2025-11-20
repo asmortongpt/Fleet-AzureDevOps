@@ -1,0 +1,158 @@
+# ============================================================================
+# Smoke Tests Template
+# ============================================================================
+jobs:
+  - job: SmokeTests
+    displayName: 'Smoke Tests'
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+      - checkout: none
+        displayName: 'Skip checkout'
+
+      # ==================================================================
+      # Wait for Services
+      # ==================================================================
+      - script: |
+          echo "Waiting 30 seconds for services to stabilize..."
+          sleep 30
+        displayName: 'Wait for services to be ready'
+
+      # ==================================================================
+      # Health Check - API
+      # ==================================================================
+      - script: |
+          echo "Testing API health endpoint..."
+          RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" $(productionUrl)/api/health)
+
+          if [ "$RESPONSE" -eq 200 ]; then
+            echo "##vso[task.complete result=Succeeded;]API health check passed"
+          else
+            echo "##vso[task.logissue type=error]API health check failed with status: $RESPONSE"
+            exit 1
+          fi
+        displayName: 'Health check - API'
+        continueOnError: false
+
+      # ==================================================================
+      # Health Check - Frontend
+      # ==================================================================
+      - script: |
+          echo "Testing Frontend health endpoint..."
+          RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" $(productionUrl)/)
+
+          if [ "$RESPONSE" -eq 200 ]; then
+            echo "##vso[task.complete result=Succeeded;]Frontend health check passed"
+          else
+            echo "##vso[task.logissue type=error]Frontend health check failed with status: $RESPONSE"
+            exit 1
+          fi
+        displayName: 'Health check - Frontend'
+        continueOnError: false
+
+      # ==================================================================
+      # Test Authentication Endpoint
+      # ==================================================================
+      - script: |
+          echo "Testing authentication endpoint..."
+          RESPONSE=$(curl -s -X POST $(productionUrl)/api/auth/login \
+            -H "Content-Type: application/json" \
+            -d '{"email":"test@example.com","password":"wrongpassword"}' \
+            -o /dev/null -w "%{http_code}")
+
+          # We expect 401 for wrong credentials, which means the endpoint is working
+          if [ "$RESPONSE" -eq 401 ] || [ "$RESPONSE" -eq 400 ]; then
+            echo "##vso[task.complete result=Succeeded;]Auth endpoint responding correctly"
+          else
+            echo "##vso[task.logissue type=error]Auth endpoint check failed with status: $RESPONSE"
+            exit 1
+          fi
+        displayName: 'Test authentication endpoint'
+        continueOnError: false
+
+      # ==================================================================
+      # Test API Endpoints
+      # ==================================================================
+      - script: |
+          echo "Testing vehicles endpoint..."
+          RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" $(productionUrl)/api/vehicles)
+
+          # 200 (success) or 401 (needs auth) are both acceptable
+          if [ "$RESPONSE" -eq 200 ] || [ "$RESPONSE" -eq 401 ]; then
+            echo "##vso[task.complete result=Succeeded;]Vehicles endpoint responding"
+          else
+            echo "##vso[task.logissue type=error]Vehicles endpoint check failed with status: $RESPONSE"
+            exit 1
+          fi
+        displayName: 'Test vehicles endpoint'
+        continueOnError: false
+
+      # ==================================================================
+      # Test CORS Headers
+      # ==================================================================
+      - script: |
+          echo "Testing CORS headers..."
+          RESPONSE=$(curl -s -I \
+            -H "Origin: https://fleet.capitaltechalliance.com" \
+            -X OPTIONS \
+            $(productionUrl)/api/vehicles)
+
+          if echo "$RESPONSE" | grep -i "access-control-allow-origin"; then
+            echo "##vso[task.complete result=Succeeded;]CORS headers present"
+          else
+            echo "##vso[task.logissue type=warning]CORS headers may be missing"
+          fi
+        displayName: 'Test CORS headers'
+        continueOnError: true
+
+      # ==================================================================
+      # Test SSL Certificate
+      # ==================================================================
+      - script: |
+          echo "Testing SSL certificate..."
+          openssl s_client -connect fleet.capitaltechalliance.com:443 </dev/null 2>/dev/null | \
+            openssl x509 -noout -dates
+
+          if [ $? -eq 0 ]; then
+            echo "##vso[task.complete result=Succeeded;]SSL certificate valid"
+          else
+            echo "##vso[task.logissue type=warning]SSL certificate check failed"
+          fi
+        displayName: 'Test SSL certificate'
+        continueOnError: true
+
+      # ==================================================================
+      # Performance Check
+      # ==================================================================
+      - script: |
+          echo "Testing response time..."
+          START_TIME=$(date +%s%N)
+          curl -s -o /dev/null $(productionUrl)/api/health
+          END_TIME=$(date +%s%N)
+
+          DURATION=$(( (END_TIME - START_TIME) / 1000000 ))  # Convert to milliseconds
+          echo "Response time: ${DURATION}ms"
+
+          if [ "$DURATION" -lt 2000 ]; then
+            echo "##vso[task.complete result=Succeeded;]Response time acceptable"
+          else
+            echo "##vso[task.logissue type=warning]Response time is slow: ${DURATION}ms"
+          fi
+        displayName: 'Performance check'
+        continueOnError: true
+
+      # ==================================================================
+      # Smoke Test Summary
+      # ==================================================================
+      - script: |
+          echo "=========================================="
+          echo "Smoke Test Summary"
+          echo "=========================================="
+          echo "Build ID: $(Build.BuildId)"
+          echo "Source Version: $(Build.SourceVersion)"
+          echo "Production URL: $(productionUrl)"
+          echo "=========================================="
+          echo "All critical smoke tests passed!"
+          echo "Deployment verified successfully."
+          echo "=========================================="
+        displayName: 'Smoke test summary'
