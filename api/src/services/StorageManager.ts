@@ -326,7 +326,7 @@ export class StorageManager {
     targetProvider: string,
     options?: {
       filter?: (file: any) => boolean;
-      deleteSou rce?: boolean;
+      deleteSource?: boolean;
       onProgress?: (progress: { completed: number; total: number; current: string }) => void;
     }
   ): Promise<MigrationJob> {
@@ -552,7 +552,10 @@ export class StorageManager {
 
   private async getFileInfo(key: string): Promise<any> {
     const result = await pool.query(
-      'SELECT * FROM storage_files WHERE key = $1 AND deleted_at IS NULL',
+      `SELECT key, size, provider, tier, hash, reference_key, metadata,
+              created_at, last_accessed_at, access_count
+       FROM storage_files
+       WHERE key = $1 AND deleted_at IS NULL`,
       [key]
     );
 
@@ -633,7 +636,10 @@ export class StorageManager {
   }
 
   private async listFromDatabase(options?: ListOptions & { tier?: string }): Promise<ListResult> {
-    let query = 'SELECT * FROM storage_files WHERE deleted_at IS NULL';
+    let query = `SELECT key, size, provider, tier, hash, reference_key, metadata,
+                        created_at, last_accessed_at, access_count
+                 FROM storage_files
+                 WHERE deleted_at IS NULL`;
     const params: any[] = [];
 
     if (options?.tier) {
@@ -665,7 +671,10 @@ export class StorageManager {
 
   private async getFilesByProvider(provider: string): Promise<any[]> {
     const result = await pool.query(
-      'SELECT * FROM storage_files WHERE provider = $1 AND deleted_at IS NULL',
+      `SELECT key, size, provider, tier, hash, reference_key, metadata,
+              created_at, last_accessed_at, access_count
+       FROM storage_files
+       WHERE provider = $1 AND deleted_at IS NULL`,
       [provider]
     );
     return result.rows;
@@ -673,7 +682,9 @@ export class StorageManager {
 
   private async getTieringCandidates(): Promise<any[]> {
     const result = await pool.query(`
-      SELECT * FROM storage_files
+      SELECT key, size, provider, tier, hash, reference_key,
+             created_at, last_accessed_at, access_count
+      FROM storage_files
       WHERE deleted_at IS NULL
       AND last_accessed_at < NOW() - INTERVAL '7 days'
       ORDER BY last_accessed_at ASC

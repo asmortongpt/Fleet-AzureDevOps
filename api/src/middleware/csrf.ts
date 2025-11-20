@@ -19,12 +19,27 @@
 import { Request, Response, NextFunction } from 'express'
 import { doubleCsrf } from 'csrf-csrf'
 
-const CSRF_SECRET = process.env.CSRF_SECRET || 'fleet-management-csrf-secret-change-in-production'
-
-// Warn if using default secret
+// SECURITY: CSRF_SECRET must be set in environment variables (no defaults allowed)
+// This prevents CSRF attacks by ensuring unique secret per deployment (CWE-352)
 if (!process.env.CSRF_SECRET) {
-  console.warn('⚠️  WARNING: Using default CSRF secret. Set CSRF_SECRET environment variable in production!')
+  console.error('❌ FATAL SECURITY ERROR: CSRF_SECRET environment variable is not set')
+  console.error('❌ CSRF_SECRET is required for CSRF protection')
+  console.error('❌ Generate a secure secret with: openssl rand -base64 48')
+  console.error('❌ Server startup aborted')
+  process.exit(1)
 }
+
+if (process.env.CSRF_SECRET.length < 32) {
+  console.error('❌ FATAL SECURITY ERROR: CSRF_SECRET is too short')
+  console.error(`❌ Current length: ${process.env.CSRF_SECRET.length} characters`)
+  console.error('❌ Minimum required: 32 characters')
+  console.error('❌ Recommended: 64+ characters')
+  console.error('❌ Generate a secure secret with: openssl rand -base64 48')
+  console.error('❌ Server startup aborted')
+  process.exit(1)
+}
+
+const CSRF_SECRET = process.env.CSRF_SECRET
 
 /**
  * Configure CSRF protection with double submit cookie pattern
