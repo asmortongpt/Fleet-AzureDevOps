@@ -138,7 +138,7 @@ router.get(
 
       // Get attachments
       const attachmentsResult = await pool.query(
-        `SELECT * FROM communication_attachments WHERE communication_id = $1`,
+        `SELECT id, tenant_id, communication_id, file_name, file_url, created_at FROM communication_attachments WHERE communication_id = $1`,
         [req.params.id]
       )
 
@@ -390,7 +390,7 @@ router.get(
     try {
       const { category } = req.query
 
-      let query = `SELECT * FROM communication_templates WHERE is_active = TRUE`
+      let query = `SELECT id, tenant_id, template_name, subject, body, is_active, created_at, updated_at FROM communication_templates WHERE is_active = TRUE`
       const params: any[] = []
 
       if (category) {

@@ -26,7 +26,7 @@ router.post('/vehicle-maintenance', authenticateJWT, async (req: Request, res: R
     const { vehicleId, maintenanceId, teamId, channelId, userId } = req.body
 
     // Get vehicle and maintenance data
-    const vehicleResult = await pool.query('SELECT * FROM vehicles WHERE id = $1', [vehicleId])
+    const vehicleResult = await pool.query('SELECT id, tenant_id, vin, license_plate, make, model, year, color, current_mileage, status, acquired_date, disposition_date, purchase_price, residual_value, created_at, updated_at, deleted_at FROM vehicles WHERE id = $1', [vehicleId])
     const maintenanceResult = await pool.query('SELECT * FROM maintenance WHERE id = $1', [maintenanceId])
 
     if (vehicleResult.rows.length === 0 || maintenanceResult.rows.length === 0) {
@@ -244,7 +244,7 @@ router.post('/driver-performance', authenticateJWT, async (req: Request, res: Re
     const { driverId, metrics, teamId, channelId, userId } = req.body
 
     // Get driver data
-    const driverResult = await pool.query('SELECT * FROM users WHERE id = $1 AND role = $2', [driverId, 'driver'])
+    const driverResult = await pool.query('SELECT id, tenant_id, email, first_name, last_name, role, status, phone, created_at, updated_at, deleted_at FROM users WHERE id = $1 AND role = $2', [driverId, 'driver'])
 
     if (driverResult.rows.length === 0) {
       return res.status(404).json({ error: 'Driver not found' })
@@ -348,8 +348,8 @@ router.post('/inspection-checklist', authenticateJWT, async (req: Request, res: 
     const { vehicleId, driverId, teamId, channelId, userId } = req.body
 
     // Get vehicle and driver data
-    const vehicleResult = await pool.query('SELECT * FROM vehicles WHERE id = $1', [vehicleId])
-    const driverResult = await pool.query('SELECT * FROM users WHERE id = $1', [driverId])
+    const vehicleResult = await pool.query('SELECT id, tenant_id, vin, license_plate, make, model, year, color, current_mileage, status, acquired_date, disposition_date, purchase_price, residual_value, created_at, updated_at, deleted_at FROM vehicles WHERE id = $1', [vehicleId])
+    const driverResult = await pool.query('SELECT id, tenant_id, email, first_name, last_name, role, status, phone, created_at, updated_at, deleted_at FROM users WHERE id = $1', [driverId])
 
     if (vehicleResult.rows.length === 0 || driverResult.rows.length === 0) {
       return res.status(404).json({ error: 'Vehicle or driver not found' })

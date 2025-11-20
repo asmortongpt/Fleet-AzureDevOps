@@ -316,7 +316,7 @@ export async function suggestWorkflow(
 
     // Get subtasks and dependencies
     const subtasks = await pool.query(
-      `SELECT * FROM tasks WHERE parent_task_id = $1`,
+      `SELECT id, tenant_id, title, description, status, priority, due_date, assigned_to, created_by, created_at, updated_at FROM tasks WHERE parent_task_id = $1`,
       [taskId]
     )
 
