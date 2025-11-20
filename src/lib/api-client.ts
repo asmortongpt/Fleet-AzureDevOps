@@ -4,7 +4,7 @@
  */
 
 // API base URL - defaults to current origin since endpoints already include /api
-const API_BASE_URL = import.meta.env.VITE_API_URL || window.location?.origin
+const API_BASE_URL = import.meta.env.VITE_API_URL || window.location.origin
 
 export class APIError extends Error {
   constructor(
@@ -174,7 +174,7 @@ class APIClient {
         // Auto-logout on 401
         if (error.status === 401) {
           this.clearToken()
-          window.location?.href = '/login'
+          window.location.href = '/login'
         }
         throw error
       }
