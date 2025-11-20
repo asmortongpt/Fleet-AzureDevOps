@@ -118,7 +118,7 @@ export function PeopleManagement({ data }: PeopleManagementProps) {
                     <Button
                       size="sm"
                       variant="outline"
-                      onClick={() => window.location?.href = `tel:${driver.phone}`}
+                      onClick={() => window.location.href = `tel:${driver.phone}`}
                     >
                       <Phone className="w-4 h-4 mr-2" />
                       Call
@@ -126,7 +126,7 @@ export function PeopleManagement({ data }: PeopleManagementProps) {
                     <Button
                       size="sm"
                       variant="outline"
-                      onClick={() => window.location?.href = `mailto:${driver.email}`}
+                      onClick={() => window.location.href = `mailto:${driver.email}`}
                     >
                       <EnvelopeSimple className="w-4 h-4 mr-2" />
                       Email
@@ -136,7 +136,7 @@ export function PeopleManagement({ data }: PeopleManagementProps) {
                       variant="outline"
                       onClick={() => {
                         // Navigate to driver performance with this driver selected
-                        window.location?.hash = 'driver-performance'
+                        window.location.hash = 'driver-performance'
                       }}
                     >
                       View Details
@@ -187,7 +187,7 @@ export function PeopleManagement({ data }: PeopleManagementProps) {
                         <Button
                           size="sm"
                           variant="outline"
-                          onClick={() => window.location?.href = `tel:${member.phone}`}
+                          onClick={() => window.location.href = `tel:${member.phone}`}
                         >
                           <Phone className="w-3 h-3 mr-1" />
                           Call
@@ -195,7 +195,7 @@ export function PeopleManagement({ data }: PeopleManagementProps) {
                         <Button
                           size="sm"
                           variant="outline"
-                          onClick={() => window.location?.href = `mailto:${member.email}`}
+                          onClick={() => window.location.href = `mailto:${member.email}`}
                         >
                           <EnvelopeSimple className="w-3 h-3 mr-1" />
                           Email
