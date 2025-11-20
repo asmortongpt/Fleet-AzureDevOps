@@ -21,9 +21,6 @@ import pool from '../config/database';
 import fs from 'fs/promises';
 import path from 'path';
 import { createWorker, PSM, OEM } from 'tesseract.js';
-import pdfParse from 'pdf-parse';
-import mammoth from 'mammoth';
-import xlsx from 'xlsx';
 
 // Optional cloud OCR provider imports - only load if packages are installed
 let vision: any = null;
@@ -33,8 +30,14 @@ let DetectDocumentTextCommand: any = null;
 let ComputerVisionClient: any = null;
 let ApiKeyCredentials: any = null;
 
-// Lazy load optional OCR providers
+// Optional document parsing library imports - only load if packages are installed
+let pdfParse: any = null;
+let mammoth: any = null;
+let xlsx: any = null;
+
+// Lazy load optional OCR providers and document parsers
 async function loadOptionalProviders() {
+  // Cloud OCR providers
   try {
     const visionModule = await import('@google-cloud/vision');
     vision = visionModule.default;
@@ -58,6 +61,28 @@ async function loadOptionalProviders() {
     ApiKeyCredentials = msRestModule.ApiKeyCredentials;
   } catch (err) {
     console.warn('Azure Computer Vision not available - install @azure/cognitiveservices-computervision for premium OCR');
+  }
+
+  // Document parsing libraries
+  try {
+    const pdfParseModule = await import('pdf-parse');
+    pdfParse = pdfParseModule.default;
+  } catch (err) {
+    console.warn('pdf-parse not available - install pdf-parse for PDF document OCR');
+  }
+
+  try {
+    const mammothModule = await import('mammoth');
+    mammoth = mammothModule.default;
+  } catch (err) {
+    console.warn('mammoth not available - install mammoth for DOCX document OCR');
+  }
+
+  try {
+    const xlsxModule = await import('xlsx');
+    xlsx = xlsxModule.default;
+  } catch (err) {
+    console.warn('xlsx not available - install xlsx for Excel spreadsheet OCR');
   }
 }
 
