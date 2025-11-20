@@ -35,6 +35,18 @@ export default defineConfig({
         changeOrigin: true,
         secure: false
       }
+    },
+    fs: {
+      // Exclude test reports and other non-source HTML files from scanning
+      deny: [
+        '**/node_modules/**',
+        '**/playwright-report/**',
+        '**/test-results/**',
+        '**/api/test-results/**',
+        '**/docs/**',
+        '**/landing/**',
+        '**/api/src/templates/**'
+      ]
     }
   },
   build: {

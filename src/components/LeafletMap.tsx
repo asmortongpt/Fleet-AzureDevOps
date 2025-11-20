@@ -1085,7 +1085,7 @@ export function LeafletMap({
             This may be due to network issues, browser compatibility, or missing dependencies.
           </p>
           <button
-            onClick={() => window.location?.reload()}
+            onClick={() => window.location.reload()}
             className="px-6 py-2.5 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 transition-colors font-medium text-sm"
             aria-label="Reload page to retry map initialization"
           >
