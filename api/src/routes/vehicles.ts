@@ -106,7 +106,7 @@ router.get(
       }
 
       const result = await pool.query(
-        `SELECT * FROM vehicles WHERE tenant_id = $1 ${scopeFilter}${assetFilters} ORDER BY created_at DESC LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`,
+        `SELECT id, tenant_id, vin, license_plate, make, model, year, color, current_mileage, status, acquired_date, disposition_date, purchase_price, residual_value, created_at, updated_at, deleted_at FROM vehicles WHERE tenant_id = $1 ${scopeFilter}${assetFilters} ORDER BY created_at DESC LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`,
         [...scopeParams, limit, offset]
       )
 
@@ -140,7 +140,7 @@ router.get(
   async (req: AuthRequest, res: Response) => {
     try {
       const result = await pool.query(
-        'SELECT * FROM vehicles WHERE id = $1 AND tenant_id = $2',
+        'SELECT id, tenant_id, vin, license_plate, make, model, year, color, current_mileage, status, acquired_date, disposition_date, purchase_price, residual_value, created_at, updated_at, deleted_at FROM vehicles WHERE id = $1 AND tenant_id = $2',
         [req.params.id, req.user!.tenant_id]
       )
 
