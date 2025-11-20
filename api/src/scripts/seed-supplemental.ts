@@ -44,7 +44,7 @@ async function seedSupplemental() {
     let totalRecords = 0;
 
     // Fetch existing data
-    const tenantsResult = await client.query('SELECT 
+    const tenantsResult = await client.query(`SELECT
       id,
       name,
       domain,
@@ -54,7 +54,7 @@ async function seedSupplemental() {
       updated_at FROM tenants WHERE is_active = true');
     const tenants = tenantsResult.rows;
 
-    const vehiclesResult = await client.query('SELECT 
+    const vehiclesResult = await client.query(`SELECT
       id,
       tenant_id,
       vin,
@@ -86,7 +86,7 @@ async function seedSupplemental() {
       updated_at FROM vehicles WHERE assigned_driver_id IS NOT NULL LIMIT 100');
     const vehicles = vehiclesResult.rows;
 
-    const usersResult = await client.query('SELECT 
+    const usersResult = await client.query(`SELECT
       id,
       tenant_id,
       email,
@@ -105,7 +105,7 @@ async function seedSupplemental() {
       updated_at FROM users WHERE is_active = true');
     const users = usersResult.rows;
 
-    const driversResult = await client.query('SELECT 
+    const driversResult = await client.query(`SELECT
       id,
       tenant_id,
       user_id,
@@ -350,7 +350,7 @@ async function seedSupplemental() {
         vendorValues.push(`(
           '${tenant.id}', '${city.name} ${type.replace('_', ' ')} Co.', '${type}',
           'Contact ${randomInt(1, 100)}', 'contact${i}@vendor.com',
-          '${generatePhoneNumber()}', '${randomInt(100, 9999)} Industrial Pkwy',
+          '${generatePhoneNumber()}', '${randomInt(100, 9999)} Industrial Pkwy`,
           '${city.name}', 'FL', '${randomInt(30000, 34999)}', true
         )`);
       }

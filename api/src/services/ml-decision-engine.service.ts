@@ -263,7 +263,24 @@ class MLDecisionEngineService {
 
       // Get prediction details
       const predResult = await pool.query(
-        `SELECT * FROM predictions WHERE id = $1`,
+        `SELECT 
+      id,
+      tenant_id,
+      model_id,
+      prediction_type,
+      entity_type,
+      entity_id,
+      input_features,
+      prediction_value,
+      confidence_score,
+      probability_distribution,
+      prediction_date,
+      actual_outcome,
+      outcome_date,
+      is_correct,
+      error_magnitude,
+      metadata,
+      created_at FROM predictions WHERE id = $1`,
         [predictionId]
       )
 

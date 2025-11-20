@@ -20,7 +20,8 @@ router.get(
       const offset = (Number(page) - 1) * Number(limit)
 
       const result = await pool.query(
-        `SELECT * FROM communication_logs WHERE tenant_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3`,
+        `SELECT id, tenant_id, communication_id, log_type, message, metadata, created_at
+         FROM communication_logs WHERE tenant_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3`,
         [req.user!.tenant_id, limit, offset]
       )
 
@@ -53,7 +54,7 @@ router.get(
   async (req: AuthRequest, res: Response) => {
     try {
       const result = await pool.query(
-        'SELECT * FROM communication_logs WHERE id = $1 AND tenant_id = $2',
+        'SELECT id, tenant_id, communication_id, log_type, message, metadata, created_at FROM communication_logs WHERE id = $1 AND tenant_id = $2',
         [req.params.id, req.user!.tenant_id]
       )
 

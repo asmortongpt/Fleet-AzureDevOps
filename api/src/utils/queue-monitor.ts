@@ -211,7 +211,10 @@ export class QueueMonitor {
   async getRecentAlerts(limit: number = 50): Promise<Alert[]> {
     try {
       const result = await pool.query(
-        `SELECT * FROM queue_alerts
+        `SELECT
+      id, tenant_id, queue_name, alert_type, threshold, current_value,
+      message, severity, acknowledged, created_at, updated_at
+    FROM queue_alerts
          ORDER BY created_at DESC
          LIMIT $1`,
         [limit]

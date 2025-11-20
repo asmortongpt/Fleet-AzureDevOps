@@ -411,7 +411,15 @@ class PhotoProcessingService {
 
       // Get photo details
       const photoResult = await pool.query(
-        `SELECT * FROM mobile_photos WHERE id = $1`,
+        `SELECT 
+      id,
+      tenant_id,
+      user_id,
+      mobile_id,
+      photo_url,
+      metadata,
+      taken_at,
+      created_at FROM mobile_photos WHERE id = $1`,
         [job.photo_id]
       );
 

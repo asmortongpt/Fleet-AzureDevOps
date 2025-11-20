@@ -321,7 +321,7 @@ export async function tentativelyAcceptEvent(userId: string, eventId: string, co
     await client
       .api(`/users/${userId}/calendar/events/${eventId}/tentativelyAccept`)
       .post({
-        comment: comment || 'Tentatively accepted',
+        comment: comment || 'Tentatively accepted`,
         sendResponse: true
       })
 
@@ -434,7 +434,7 @@ export async function scheduleMaintenance(
   try {
     // Get vehicle details
     const vehicleResult = await pool.query(
-      'SELECT 
+      `SELECT
       id,
       tenant_id,
       vin,
@@ -463,7 +463,7 @@ export async function scheduleMaintenance(
       photos,
       notes,
       created_at,
-      updated_at FROM vehicles WHERE id = $1',
+      updated_at FROM vehicles WHERE id = $1`,
       [vehicleId]
     )
 
@@ -522,7 +522,7 @@ export async function scheduleDriverTraining(
   try {
     // Get driver details
     const driverResult = await pool.query(
-      'SELECT 
+      `SELECT
       id,
       tenant_id,
       email,
@@ -538,7 +538,7 @@ export async function scheduleDriverTraining(
       mfa_enabled,
       mfa_secret,
       created_at,
-      updated_at FROM users WHERE id = $1 AND role = $2',
+      updated_at FROM users WHERE id = $1 AND role = $2`,
       [driverId, 'driver']
     )
 
