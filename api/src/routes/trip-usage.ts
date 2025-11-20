@@ -15,6 +15,7 @@ import {
 import { emailNotificationService } from '../services/email-notifications'
 import { appInsightsService } from '../config/app-insights'
 import { logger } from '../utils/logger'
+import { getErrorMessage } from '../utils/error-handler'
 
 const router = express.Router()
 router.use(authenticateJWT)
@@ -186,7 +187,7 @@ router.post(
             purpose: validated.personal_notes,
             approvalUrl
           }).catch(error => {
-            logger.error('Failed to send approval request email', { error: error.message })
+            logger.error('Failed to send approval request email', { error: getErrorMessage(error) })
           })
         }
       }
@@ -563,7 +564,7 @@ router.post(
           miles: trip.miles_total,
           status: 'approved'
         }).catch(error => {
-          logger.error('Failed to send approval notification email', { error: error.message })
+          logger.error('Failed to send approval notification email', { error: getErrorMessage(error) })
         })
       }
 
@@ -637,7 +638,7 @@ router.post(
           status: 'rejected',
           rejectionReason: rejection_reason
         }).catch(error => {
-          logger.error('Failed to send rejection notification email', { error: error.message })
+          logger.error('Failed to send rejection notification email', { error: getErrorMessage(error) })
         })
       }
 

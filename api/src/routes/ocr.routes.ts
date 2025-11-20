@@ -11,6 +11,7 @@ import fs from 'fs/promises';
 import ocrService, { OcrOptions, OcrProvider } from '../services/OcrService';
 import ocrQueueService from '../services/OcrQueueService';
 import pool from '../config/database';
+import { getErrorMessage } from '../utils/error-handler'
 
 const router = express.Router();
 
@@ -109,7 +110,7 @@ router.post('/process', upload.single('file'), async (req: Request, res: Respons
     console.error('OCR processing error:', error);
     return res.status(500).json({
       error: 'OCR processing failed',
-      message: error.message
+      message: getErrorMessage(error)
     });
   }
 });
@@ -163,7 +164,7 @@ router.post('/batch', upload.array('files', 100), async (req: Request, res: Resp
     console.error('Batch OCR error:', error);
     return res.status(500).json({
       error: 'Batch OCR processing failed',
-      message: error.message
+      message: getErrorMessage(error)
     });
   }
 });
@@ -188,7 +189,7 @@ router.get('/job/:jobId', async (req: Request, res: Response) => {
     console.error('Error getting job status:', error);
     return res.status(500).json({
       error: 'Failed to get job status',
-      message: error.message
+      message: getErrorMessage(error)
     });
   }
 });
@@ -213,7 +214,7 @@ router.get('/batch/:batchId', async (req: Request, res: Response) => {
     console.error('Error getting batch status:', error);
     return res.status(500).json({
       error: 'Failed to get batch status',
-      message: error.message
+      message: getErrorMessage(error)
     });
   }
 });
@@ -238,7 +239,7 @@ router.get('/result/:documentId', async (req: Request, res: Response) => {
     console.error('Error getting OCR result:', error);
     return res.status(500).json({
       error: 'Failed to get OCR result',
-      message: error.message
+      message: getErrorMessage(error)
     });
   }
 });
@@ -272,7 +273,7 @@ router.post('/search', async (req: Request, res: Response) => {
     console.error('OCR search error:', error);
     return res.status(500).json({
       error: 'OCR search failed',
-      message: error.message
+      message: getErrorMessage(error)
     });
   }
 });
@@ -296,7 +297,7 @@ router.delete('/job/:jobId', async (req: Request, res: Response) => {
     console.error('Error cancelling job:', error);
     return res.status(500).json({
       error: 'Failed to cancel job',
-      message: error.message
+      message: getErrorMessage(error)
     });
   }
 });
@@ -321,7 +322,7 @@ router.post('/job/:jobId/retry', async (req: Request, res: Response) => {
     console.error('Error retrying job:', error);
     return res.status(500).json({
       error: 'Failed to retry job',
-      message: error.message
+      message: getErrorMessage(error)
     });
   }
 });
@@ -342,7 +343,7 @@ router.get('/statistics', async (req: Request, res: Response) => {
     console.error('Error getting OCR statistics:', error);
     return res.status(500).json({
       error: 'Failed to get statistics',
-      message: error.message
+      message: getErrorMessage(error)
     });
   }
 });
@@ -394,7 +395,7 @@ router.get('/providers', async (req: Request, res: Response) => {
     console.error('Error getting providers:', error);
     return res.status(500).json({
       error: 'Failed to get providers',
-      message: error.message
+      message: getErrorMessage(error)
     });
   }
 });
@@ -435,7 +436,7 @@ router.get('/languages', async (req: Request, res: Response) => {
     console.error('Error getting languages:', error);
     return res.status(500).json({
       error: 'Failed to get languages',
-      message: error.message
+      message: getErrorMessage(error)
     });
   }
 });
@@ -460,7 +461,7 @@ router.post('/cleanup', async (req: Request, res: Response) => {
     console.error('Cleanup error:', error);
     return res.status(500).json({
       error: 'Cleanup failed',
-      message: error.message
+      message: getErrorMessage(error)
     });
   }
 });
