@@ -333,7 +333,22 @@ export class MaintenanceRepository extends BaseRepository<MaintenanceSchedule> {
       WHERE tenant_id = $1 AND deleted_at IS NULL
     `;
 
-    const result = await this.query(query, [tenantId]);
+    interface MaintenanceStatsRow {
+      total: string
+      scheduled: string
+      in_progress: string
+      completed: string
+      overdue: string
+      cancelled: string
+      priority_low: string
+      priority_medium: string
+      priority_high: string
+      priority_critical: string
+      overdue_count: string
+      upcoming_count: string
+    }
+
+    const result = await this.query<MaintenanceStatsRow>(query, [tenantId]);
     const row = result.rows[0];
 
     return {
