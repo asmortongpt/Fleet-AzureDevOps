@@ -3,6 +3,7 @@ import { AuthRequest, authenticateJWT } from '../middleware/auth'
 import { requirePermission } from '../middleware/permissions'
 import { auditLog } from '../middleware/audit'
 import executiveDashboardService from '../services/executive-dashboard.service'
+import { cacheMiddleware } from '../middleware/cache'
 
 const router = express.Router()
 router.use(authenticateJWT)
@@ -41,6 +42,7 @@ router.use(authenticateJWT)
 router.get(
   '/kpis',
   requirePermission('report:view:global'),
+  cacheMiddleware({ ttl: 30, varyByTenant: true, varyByUser: false }),
   auditLog({ action: 'READ', resourceType: 'executive_dashboard' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -81,6 +83,7 @@ router.get(
 router.get(
   '/trends',
   requirePermission('report:view:global'),
+  cacheMiddleware({ ttl: 30, varyByTenant: true, varyByQuery: true, varyByUser: false }),
   auditLog({ action: 'READ', resourceType: 'executive_dashboard' }),
   async (req: AuthRequest, res: Response) => {
     try {
