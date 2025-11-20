@@ -160,18 +160,18 @@ export function useTeamsWebSocket() {
 
   useEffect(() => {
     const unsubscribeNew = subscribe('teams:new-message', (message) => {
-      setTeamsMessages(prev => [...prev, message.data.message])
+      setTeamsMessages(prev => [...prev, message.data?.message])
     })
 
     const unsubscribeUpdated = subscribe('teams:message-updated', (message) => {
       setTeamsMessages(prev =>
-        prev.map(msg => msg.id === message.data.message.id ? message.data.message : msg)
+        prev.map(msg => msg.id === message.data?.message.id ? message.data?.message : msg)
       )
     })
 
     const unsubscribeDeleted = subscribe('teams:message-deleted', (message) => {
       setTeamsMessages(prev =>
-        prev.filter(msg => msg.id !== message.data.messageId)
+        prev.filter(msg => msg.id !== message.data?.messageId)
       )
     })
 
@@ -195,12 +195,12 @@ export function useOutlookWebSocket() {
 
   useEffect(() => {
     const unsubscribeNew = subscribe('outlook:new-email', (message) => {
-      setNewEmails(prev => [...prev, message.data.email])
+      setNewEmails(prev => [...prev, message.data?.email])
     })
 
     const unsubscribeUpdated = subscribe('outlook:email-updated', (message) => {
       setNewEmails(prev =>
-        prev.map(email => email.id === message.data.email.id ? message.data.email : email)
+        prev.map(email => email.id === message.data?.email.id ? message.data?.email : email)
       )
     })
 
