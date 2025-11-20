@@ -203,15 +203,36 @@ router.post('/login', loginLimiter, async (req: Request, res: Response) => {
       return res.status(500).json({ error: 'Server configuration error - authentication unavailable' })
     }
 
+    // Generate access token (short-lived: 15 minutes)
     const token = jwt.sign(
       {
         id: user.id,
         email: user.email,
         role: user.role,
-        tenant_id: user.tenant_id
+        tenant_id: user.tenant_id,
+        type: 'access'
       },
       process.env.JWT_SECRET,
-      { expiresIn: '24h' }
+      { expiresIn: '15m' }
+    )
+
+    // Generate refresh token (long-lived: 7 days)
+    const refreshToken = jwt.sign(
+      {
+        id: user.id,
+        tenant_id: user.tenant_id,
+        type: 'refresh',
+        jti: `${user.id}-${Date.now()}-${Math.random().toString(36).substring(7)}` // Unique token ID
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: '7d' }
+    )
+
+    // Store refresh token in database for rotation tracking
+    await pool.query(
+      `INSERT INTO refresh_tokens (user_id, token_hash, expires_at, created_at)
+       VALUES ($1, $2, NOW() + INTERVAL '7 days', NOW())`,
+      [user.id, Buffer.from(refreshToken).toString('base64').substring(0, 64)]
     )
 
     await createAuditLog(
@@ -228,6 +249,8 @@ router.post('/login', loginLimiter, async (req: Request, res: Response) => {
 
     res.json({
       token,
+      refreshToken,
+      expiresIn: 900, // 15 minutes in seconds
       user: {
         id: user.id,
         email: user.email,
@@ -332,9 +355,184 @@ router.post('/register', registrationLimiter, async (req: Request, res: Response
   }
 })
 
+/**
+ * @openapi
+ * /api/auth/refresh:
+ *   post:
+ *     summary: Refresh access token
+ *     description: Exchange a valid refresh token for a new access token and refresh token (token rotation)
+ *     tags:
+ *       - Authentication
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - refreshToken
+ *             properties:
+ *               refreshToken:
+ *                 type: string
+ *                 description: The refresh token received during login
+ *     responses:
+ *       200:
+ *         description: Token refreshed successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 token:
+ *                   type: string
+ *                   description: New JWT access token
+ *                 refreshToken:
+ *                   type: string
+ *                   description: New refresh token (rotation)
+ *                 expiresIn:
+ *                   type: number
+ *                   description: Token expiration time in seconds
+ *       401:
+ *         description: Invalid or expired refresh token
+ */
+// POST /api/auth/refresh - Refresh token rotation
+router.post('/refresh', async (req: Request, res: Response) => {
+  try {
+    const { refreshToken } = req.body
+
+    if (!refreshToken) {
+      return res.status(401).json({ error: 'Refresh token required' })
+    }
+
+    // SECURITY: Validate JWT_SECRET
+    if (!process.env.JWT_SECRET) {
+      console.error('FATAL: JWT_SECRET environment variable is not set')
+      return res.status(500).json({ error: 'Server configuration error' })
+    }
+
+    // Verify refresh token
+    let decoded: any
+    try {
+      decoded = jwt.verify(refreshToken, process.env.JWT_SECRET) as any
+    } catch (error) {
+      return res.status(401).json({ error: 'Invalid or expired refresh token' })
+    }
+
+    // Validate token type
+    if (decoded.type !== 'refresh') {
+      return res.status(401).json({ error: 'Invalid token type' })
+    }
+
+    // Check if refresh token exists in database and is not revoked
+    const tokenHash = Buffer.from(refreshToken).toString('base64').substring(0, 64)
+    const tokenResult = await pool.query(
+      `SELECT * FROM refresh_tokens
+       WHERE user_id = $1 AND token_hash = $2 AND revoked_at IS NULL AND expires_at > NOW()`,
+      [decoded.id, tokenHash]
+    )
+
+    if (tokenResult.rows.length === 0) {
+      return res.status(401).json({ error: 'Refresh token not found or revoked' })
+    }
+
+    // Get user data
+    const userResult = await pool.query(
+      `SELECT * FROM users WHERE id = $1 AND is_active = true`,
+      [decoded.id]
+    )
+
+    if (userResult.rows.length === 0) {
+      return res.status(401).json({ error: 'User not found or inactive' })
+    }
+
+    const user = userResult.rows[0]
+
+    // Revoke old refresh token (rotation)
+    await pool.query(
+      `UPDATE refresh_tokens SET revoked_at = NOW() WHERE token_hash = $1`,
+      [tokenHash]
+    )
+
+    // Generate new access token
+    const newToken = jwt.sign(
+      {
+        id: user.id,
+        email: user.email,
+        role: user.role,
+        tenant_id: user.tenant_id,
+        type: 'access'
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: '15m' }
+    )
+
+    // Generate new refresh token
+    const newRefreshToken = jwt.sign(
+      {
+        id: user.id,
+        tenant_id: user.tenant_id,
+        type: 'refresh',
+        jti: `${user.id}-${Date.now()}-${Math.random().toString(36).substring(7)}`
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: '7d' }
+    )
+
+    // Store new refresh token
+    await pool.query(
+      `INSERT INTO refresh_tokens (user_id, token_hash, expires_at, created_at)
+       VALUES ($1, $2, NOW() + INTERVAL '7 days', NOW())`,
+      [user.id, Buffer.from(newRefreshToken).toString('base64').substring(0, 64)]
+    )
+
+    await createAuditLog(
+      user.tenant_id,
+      user.id,
+      'REFRESH_TOKEN',
+      'users',
+      user.id,
+      {},
+      req.ip || null,
+      req.get('User-Agent') || null,
+      'success'
+    )
+
+    res.json({
+      token: newToken,
+      refreshToken: newRefreshToken,
+      expiresIn: 900 // 15 minutes in seconds
+    })
+  } catch (error) {
+    console.error('Refresh token error:', error)
+    res.status(500).json({ error: 'Internal server error' })
+  }
+})
+
+/**
+ * @openapi
+ * /api/auth/logout:
+ *   post:
+ *     summary: User logout
+ *     description: Logout user and revoke all refresh tokens
+ *     tags:
+ *       - Authentication
+ *     requestBody:
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               revokeAllTokens:
+ *                 type: boolean
+ *                 description: Revoke all refresh tokens for this user (logout from all devices)
+ *     responses:
+ *       200:
+ *         description: Logged out successfully
+ */
 // POST /api/auth/logout
 router.post('/logout', async (req: Request, res: Response) => {
   const token = req.headers.authorization?.split(' ')[1]
+  const { revokeAllTokens } = req.body
 
   if (token) {
     try {
@@ -346,13 +544,31 @@ router.post('/logout', async (req: Request, res: Response) => {
 
       const decoded = jwt.verify(token, process.env.JWT_SECRET) as any
 
+      // Revoke refresh tokens
+      if (revokeAllTokens) {
+        // Revoke all tokens for this user (logout from all devices)
+        await pool.query(
+          `UPDATE refresh_tokens SET revoked_at = NOW()
+           WHERE user_id = $1 AND revoked_at IS NULL`,
+          [decoded.id]
+        )
+      } else {
+        // Just revoke tokens that should have been cleaned up
+        // In a production system, you'd track which specific refresh token to revoke
+        await pool.query(
+          `UPDATE refresh_tokens SET revoked_at = NOW()
+           WHERE user_id = $1 AND expires_at < NOW() AND revoked_at IS NULL`,
+          [decoded.id]
+        )
+      }
+
       await createAuditLog(
         decoded.tenant_id,
         decoded.id,
         'LOGOUT',
         'users',
         decoded.id,
-        {},
+        { revokeAllTokens: !!revokeAllTokens },
         req.ip || null,
         req.get('User-Agent') || null,
         'success'
