@@ -11,6 +11,7 @@ import pool from '../config/database';
 import VideoTelematicsService from '../services/video-telematics.service';
 import DriverSafetyAIService from '../services/driver-safety-ai.service';
 import { z } from 'zod';
+import { getErrorMessage } from '../utils/error-handler'
 
 const router = express.Router();
 router.use(authenticateJWT);
@@ -88,7 +89,7 @@ router.post(
       });
     } catch (error: any) {
       console.error('Register camera error:', error);
-      res.status(400).json({ error: error.message || 'Failed to register camera' });
+      res.status(400).json({ error: getErrorMessage(error) || 'Failed to register camera' });
     }
   }
 );
@@ -267,7 +268,7 @@ router.post(
       });
     } catch (error: any) {
       console.error('Create video event error:', error);
-      res.status(400).json({ error: error.message || 'Failed to create video event' });
+      res.status(400).json({ error: getErrorMessage(error) || 'Failed to create video event' });
     }
   }
 );
@@ -440,7 +441,7 @@ router.post(
       });
     } catch (error: any) {
       console.error('Create evidence locker error:', error);
-      res.status(400).json({ error: error.message || 'Failed to create evidence locker' });
+      res.status(400).json({ error: getErrorMessage(error) || 'Failed to create evidence locker' });
     }
   }
 );
@@ -537,7 +538,7 @@ router.post(
       });
     } catch (error: any) {
       console.error('Create coaching session error:', error);
-      res.status(400).json({ error: error.message || 'Failed to create coaching session' });
+      res.status(400).json({ error: getErrorMessage(error) || 'Failed to create coaching session' });
     }
   }
 );

@@ -18,6 +18,7 @@ import { requirePermission } from '../middleware/permissions';
 import { auditLog } from '../middleware/audit';
 import ocrService from '../services/OcrService';
 import pool from '../config/database';
+import { getErrorMessage } from '../utils/error-handler'
 
 const router = express.Router();
 
@@ -211,7 +212,7 @@ router.post(
 
       return res.status(500).json({
         error: 'Failed to process fuel receipt',
-        message: error.message,
+        message: getErrorMessage(error),
       });
     }
   }
@@ -385,7 +386,7 @@ router.post(
 
       return res.status(500).json({
         error: 'Failed to process odometer reading',
-        message: error.message,
+        message: getErrorMessage(error),
       });
     }
   }
@@ -473,7 +474,7 @@ router.post(
 
       return res.status(500).json({
         error: 'Validation failed',
-        message: error.message,
+        message: getErrorMessage(error),
       });
     }
   }
@@ -522,7 +523,7 @@ router.get(
       console.error('Error fetching OCR history:', error);
       return res.status(500).json({
         error: 'Failed to fetch OCR history',
-        message: error.message,
+        message: getErrorMessage(error),
       });
     }
   }
