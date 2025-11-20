@@ -1,170 +1,26 @@
-<testsuites id="" name="" tests="9" failures="8" skipped="0" errors="0" time="129.96168400000002">
-<testsuite name="00-smoke-tests.spec.ts" timestamp="2025-11-16T15:18:25.147Z" hostname="chromium" tests="9" failures="8" skipped="0" time="289.578" errors="0">
-<testcase name="Smoke Tests - Application Health › Application is accessible and loads" classname="00-smoke-tests.spec.ts" time="0.923">
-<failure message="00-smoke-tests.spec.ts:39:3 Application is accessible and loads" type="FAILURE">
-<![CDATA[  [chromium] › 00-smoke-tests.spec.ts:39:3 › Smoke Tests - Application Health › Application is accessible and loads 
-
-    Error: expect(received).toBeLessThan(expected)
-
-    Expected: < 400
-    Received:   403
-
-      42 |
-      43 |     // Verify response is successful
-    > 44 |     expect(response?.status()).toBeLessThan(400);
-         |                                ^
-      45 |
-      46 |     // Wait for page to load
-      47 |     await page.waitForLoadState('networkidle', { timeout: 30000 });
-        at /Users/andrewmorton/Documents/GitHub/Fleet/e2e/00-smoke-tests.spec.ts:44:32
-
-    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
-    ../test-results/00-smoke-tests-Smoke-Tests-0747e-ion-is-accessible-and-loads-chromium/test-failed-1.png
-    ────────────────────────────────────────────────────────────────────────────────────────────────
-
-    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
-    ../test-results/00-smoke-tests-Smoke-Tests-0747e-ion-is-accessible-and-loads-chromium/video.webm
-    ────────────────────────────────────────────────────────────────────────────────────────────────
-
-    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
-
-    Error: expect(received).toBeLessThan(expected)
-
-    Expected: < 400
-    Received:   403
-
-      42 |
-      43 |     // Verify response is successful
-    > 44 |     expect(response?.status()).toBeLessThan(400);
-         |                                ^
-      45 |
-      46 |     // Wait for page to load
-      47 |     await page.waitForLoadState('networkidle', { timeout: 30000 });
-        at /Users/andrewmorton/Documents/GitHub/Fleet/e2e/00-smoke-tests.spec.ts:44:32
-
-    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
-    ../test-results/00-smoke-tests-Smoke-Tests-0747e-ion-is-accessible-and-loads-chromium-retry1/test-failed-1.png
-    ────────────────────────────────────────────────────────────────────────────────────────────────
-
-    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
-    ../test-results/00-smoke-tests-Smoke-Tests-0747e-ion-is-accessible-and-loads-chromium-retry1/video.webm
-    ────────────────────────────────────────────────────────────────────────────────────────────────
-
-    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
-    ../test-results/00-smoke-tests-Smoke-Tests-0747e-ion-is-accessible-and-loads-chromium-retry1/trace.zip
-    Usage:
-
-        npx playwright show-trace ../test-results/00-smoke-tests-Smoke-Tests-0747e-ion-is-accessible-and-loads-chromium-retry1/trace.zip
-
-    ────────────────────────────────────────────────────────────────────────────────────────────────
-]]>
-</failure>
-<system-out>
-<![CDATA[
-[[ATTACHMENT|00-smoke-tests-Smoke-Tests-0747e-ion-is-accessible-and-loads-chromium/test-failed-1.png]]
-
-[[ATTACHMENT|00-smoke-tests-Smoke-Tests-0747e-ion-is-accessible-and-loads-chromium/video.webm]]
-
-[[ATTACHMENT|00-smoke-tests-Smoke-Tests-0747e-ion-is-accessible-and-loads-chromium-retry1/test-failed-1.png]]
-
-[[ATTACHMENT|00-smoke-tests-Smoke-Tests-0747e-ion-is-accessible-and-loads-chromium-retry1/video.webm]]
-
-[[ATTACHMENT|00-smoke-tests-Smoke-Tests-0747e-ion-is-accessible-and-loads-chromium-retry1/trace.zip]]
-]]>
-</system-out>
+<testsuites id="" name="" tests="9" failures="6" skipped="0" errors="0" time="28.642054">
+<testsuite name="00-smoke-tests.spec.ts" timestamp="2025-11-20T17:49:01.647Z" hostname="chromium" tests="9" failures="6" skipped="0" time="85.281" errors="0">
+<testcase name="Smoke Tests - Application Health › Application is accessible and loads" classname="00-smoke-tests.spec.ts" time="4.16">
 </testcase>
-<testcase name="Smoke Tests - Application Health › Application title is correct" classname="00-smoke-tests.spec.ts" time="1.906">
-<failure message="00-smoke-tests.spec.ts:55:3 Application title is correct" type="FAILURE">
-<![CDATA[  [chromium] › 00-smoke-tests.spec.ts:55:3 › Smoke Tests - Application Health › Application title is correct 
-
-    Error: expect(received).toMatch(expected)
-
-    Expected pattern: /fleet|manager/i
-    Received string:  ""
-
-      59 |     // Check for Fleet-related title
-      60 |     const title = await page.title();
-    > 61 |     expect(title.toLowerCase()).toMatch(/fleet|manager/i);
-         |                                 ^
-      62 |   });
-      63 |
-      64 |   test('Debug - Check what HTML is rendered', async ({ page }) => {
-        at /Users/andrewmorton/Documents/GitHub/Fleet/e2e/00-smoke-tests.spec.ts:61:33
-
-    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
-    ../test-results/00-smoke-tests-Smoke-Tests-12988-pplication-title-is-correct-chromium/test-failed-1.png
-    ────────────────────────────────────────────────────────────────────────────────────────────────
-
-    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
-    ../test-results/00-smoke-tests-Smoke-Tests-12988-pplication-title-is-correct-chromium/video.webm
-    ────────────────────────────────────────────────────────────────────────────────────────────────
-
-    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
-
-    Error: expect(received).toMatch(expected)
-
-    Expected pattern: /fleet|manager/i
-    Received string:  ""
-
-      59 |     // Check for Fleet-related title
-      60 |     const title = await page.title();
-    > 61 |     expect(title.toLowerCase()).toMatch(/fleet|manager/i);
-         |                                 ^
-      62 |   });
-      63 |
-      64 |   test('Debug - Check what HTML is rendered', async ({ page }) => {
-        at /Users/andrewmorton/Documents/GitHub/Fleet/e2e/00-smoke-tests.spec.ts:61:33
-
-    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
-    ../test-results/00-smoke-tests-Smoke-Tests-12988-pplication-title-is-correct-chromium-retry1/test-failed-1.png
-    ────────────────────────────────────────────────────────────────────────────────────────────────
-
-    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
-    ../test-results/00-smoke-tests-Smoke-Tests-12988-pplication-title-is-correct-chromium-retry1/video.webm
-    ────────────────────────────────────────────────────────────────────────────────────────────────
-
-    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
-    ../test-results/00-smoke-tests-Smoke-Tests-12988-pplication-title-is-correct-chromium-retry1/trace.zip
-    Usage:
-
-        npx playwright show-trace ../test-results/00-smoke-tests-Smoke-Tests-12988-pplication-title-is-correct-chromium-retry1/trace.zip
-
-    ────────────────────────────────────────────────────────────────────────────────────────────────
-]]>
-</failure>
-<system-out>
-<![CDATA[
-[[ATTACHMENT|00-smoke-tests-Smoke-Tests-12988-pplication-title-is-correct-chromium/test-failed-1.png]]
-
-[[ATTACHMENT|00-smoke-tests-Smoke-Tests-12988-pplication-title-is-correct-chromium/video.webm]]
-
-[[ATTACHMENT|00-smoke-tests-Smoke-Tests-12988-pplication-title-is-correct-chromium-retry1/test-failed-1.png]]
-
-[[ATTACHMENT|00-smoke-tests-Smoke-Tests-12988-pplication-title-is-correct-chromium-retry1/video.webm]]
-
-[[ATTACHMENT|00-smoke-tests-Smoke-Tests-12988-pplication-title-is-correct-chromium-retry1/trace.zip]]
-]]>
-</system-out>
+<testcase name="Smoke Tests - Application Health › Application title is correct" classname="00-smoke-tests.spec.ts" time="4.641">
 </testcase>
-<testcase name="Smoke Tests - Application Health › Debug - Check what HTML is rendered" classname="00-smoke-tests.spec.ts" time="126.583">
-<failure message="00-smoke-tests.spec.ts:64:3 Debug - Check what HTML is rendered" type="FAILURE">
-<![CDATA[  [chromium] › 00-smoke-tests.spec.ts:64:3 › Smoke Tests - Application Health › Debug - Check what HTML is rendered 
+<testcase name="Smoke Tests - Application Health › Debug - Check what HTML is rendered" classname="00-smoke-tests.spec.ts" time="14.523">
+<failure message="00-smoke-tests.spec.ts:70:3 Debug - Check what HTML is rendered" type="FAILURE">
+<![CDATA[  [chromium] › 00-smoke-tests.spec.ts:70:3 › Smoke Tests - Application Health › Debug - Check what HTML is rendered 
 
-    Test timeout of 60000ms exceeded.
+    Error: expect(received).toBeGreaterThan(expected)
 
-    Error: locator.innerHTML: Test timeout of 60000ms exceeded.
-    Call log:
-      - waiting for locator('#root')
+    Expected: > 0
+    Received:   0
 
-
-      80 |
-      81 |     // Check root content
-    > 82 |     const rootHTML = await page.locator('#root').innerHTML();
-         |                                                  ^
-      83 |     console.log('===== ROOT HTML (first 500 chars) =====');
-      84 |     console.log(rootHTML.substring(0, 500));
-      85 |     console.log('===== FAILED REQUESTS =====');
-        at /Users/andrewmorton/Documents/GitHub/Fleet/e2e/00-smoke-tests.spec.ts:82:50
+      114 |     }
+      115 |
+    > 116 |     expect(rootHTML.length).toBeGreaterThan(0);
+          |                             ^
+      117 |   });
+      118 |
+      119 |   test('Main application structure is present', async ({ page }) => {
+        at /Users/andrewmorton/Documents/GitHub/Fleet/e2e/00-smoke-tests.spec.ts:116:29
 
     attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
     ../test-results/00-smoke-tests-Smoke-Tests-55596-Check-what-HTML-is-rendered-chromium/test-failed-1.png
@@ -176,21 +32,19 @@
 
     Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
 
-    Test timeout of 60000ms exceeded.
+    Error: expect(received).toBeGreaterThan(expected)
 
-    Error: locator.innerHTML: Test timeout of 60000ms exceeded.
-    Call log:
-      - waiting for locator('#root')
+    Expected: > 0
+    Received:   0
 
-
-      80 |
-      81 |     // Check root content
-    > 82 |     const rootHTML = await page.locator('#root').innerHTML();
-         |                                                  ^
-      83 |     console.log('===== ROOT HTML (first 500 chars) =====');
-      84 |     console.log(rootHTML.substring(0, 500));
-      85 |     console.log('===== FAILED REQUESTS =====');
-        at /Users/andrewmorton/Documents/GitHub/Fleet/e2e/00-smoke-tests.spec.ts:82:50
+      114 |     }
+      115 |
+    > 116 |     expect(rootHTML.length).toBeGreaterThan(0);
+          |                             ^
+      117 |   });
+      118 |
+      119 |   test('Main application structure is present', async ({ page }) => {
+        at /Users/andrewmorton/Documents/GitHub/Fleet/e2e/00-smoke-tests.spec.ts:116:29
 
     attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
     ../test-results/00-smoke-tests-Smoke-Tests-55596-Check-what-HTML-is-rendered-chromium-retry1/test-failed-1.png
@@ -210,10 +64,44 @@
 ]]>
 </failure>
 <system-out>
-<![CDATA[
+<![CDATA[===== ROOT HTML (first 1000 chars) =====
+
+===== PAGE ERRORS =====
+[ [32m"Identifier 'useState' has already been declared"[39m ]
+===== FAILED REQUESTS =====
+[]
+===== CONSOLE LOGS (last 15) =====
+[
+  [32m'[log] [TEST] Auth token injected: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6InRlc3QtdXNlci0xMjMiLCJlbWFpbCI6InRlc3RAZXhhbXBsZS5jb20iLCJyb2xlIjoiYWRtaW4iLCJ0ZW5hbnRfaWQiOiIxMTExMTExMS0xMTExLTExMTEtMTExMS0xMTExMTExMTExMTEiLCJtaWNyb3NvZnRfaWQiOiJ0ZXN0LW1pY3Jvc29mdC1pZCIsImF1dGhfcHJvdmlkZXIiOiJtaWNyb3NvZnQiLCJleHAiOjE3NjM3NDczNDJ9.bW9jay1zaWduYXR1cmU='[39m,
+  [32m'[log] [TEST] Playwright flag set'[39m,
+  [32m'[debug] [vite] connecting...'[39m,
+  [32m'[debug] [vite] connected.'[39m,
+  [32m'[log] ServiceWorker registered: ServiceWorkerRegistration'[39m
+]
+===== ROOT IS EMPTY - Checking for errors =====
+Page URL: http://localhost:5173/
+Page title: CTAFleet - Fleet Management System
+
 [[ATTACHMENT|00-smoke-tests-Smoke-Tests-55596-Check-what-HTML-is-rendered-chromium/test-failed-1.png]]
 
 [[ATTACHMENT|00-smoke-tests-Smoke-Tests-55596-Check-what-HTML-is-rendered-chromium/video.webm]]
+===== ROOT HTML (first 1000 chars) =====
+
+===== PAGE ERRORS =====
+[ [32m"Identifier 'useState' has already been declared"[39m ]
+===== FAILED REQUESTS =====
+[]
+===== CONSOLE LOGS (last 15) =====
+[
+  [32m'[log] [TEST] Auth token injected: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6InRlc3QtdXNlci0xMjMiLCJlbWFpbCI6InRlc3RAZXhhbXBsZS5jb20iLCJyb2xlIjoiYWRtaW4iLCJ0ZW5hbnRfaWQiOiIxMTExMTExMS0xMTExLTExMTEtMTExMS0xMTExMTExMTExMTEiLCJtaWNyb3NvZnRfaWQiOiJ0ZXN0LW1pY3Jvc29mdC1pZCIsImF1dGhfcHJvdmlkZXIiOiJtaWNyb3NvZnQiLCJleHAiOjE3NjM3NDczNTF9.bW9jay1zaWduYXR1cmU='[39m,
+  [32m'[log] [TEST] Playwright flag set'[39m,
+  [32m'[debug] [vite] connecting...'[39m,
+  [32m'[debug] [vite] connected.'[39m,
+  [32m'[log] ServiceWorker registered: ServiceWorkerRegistration'[39m
+]
+===== ROOT IS EMPTY - Checking for errors =====
+Page URL: http://localhost:5173/
+Page title: CTAFleet - Fleet Management System
 
 [[ATTACHMENT|00-smoke-tests-Smoke-Tests-55596-Check-what-HTML-is-rendered-chromium-retry1/test-failed-1.png]]
 
@@ -223,30 +111,23 @@
 ]]>
 </system-out>
 </testcase>
-<testcase name="Smoke Tests - Application Health › Main application structure is present" classname="00-smoke-tests.spec.ts" time="44.564">
-<failure message="00-smoke-tests.spec.ts:94:3 Main application structure is present" type="FAILURE">
-<![CDATA[  [chromium] › 00-smoke-tests.spec.ts:94:3 › Smoke Tests - Application Health › Main application structure is present 
+<testcase name="Smoke Tests - Application Health › Main application structure is present" classname="00-smoke-tests.spec.ts" time="14.527">
+<failure message="00-smoke-tests.spec.ts:119:3 Main application structure is present" type="FAILURE">
+<![CDATA[  [chromium] › 00-smoke-tests.spec.ts:119:3 › Smoke Tests - Application Health › Main application structure is present 
 
-    Error: expect(locator).toBeAttached() failed
+    Error: expect(received).toBeGreaterThan(expected)
 
-    Locator: locator('aside, main, [role="main"]').first()
-    Expected: attached
-    Timeout: 15000ms
-    Error: element(s) not found
+    Expected: > 0
+    Received:   0
 
-    Call log:
-      - Expect "toBeAttached" with timeout 15000ms
-      - waiting for locator('aside, main, [role="main"]').first()
-
-
-      101 |     // Check for main app container - look for aside (sidebar) or main content area
-      102 |     const mainContent = page.locator('aside, main, [role="main"]').first();
-    > 103 |     await expect(mainContent).toBeAttached({ timeout: 15000 });
-          |                               ^
-      104 |   });
-      105 |
-      106 |   test('Navigation elements are present', async ({ page }) => {
-        at /Users/andrewmorton/Documents/GitHub/Fleet/e2e/00-smoke-tests.spec.ts:103:31
+      137 |
+      138 |     // At minimum, we should have some buttons (for UI interaction)
+    > 139 |     expect(hasButtons).toBeGreaterThan(0);
+          |                        ^
+      140 |   });
+      141 |
+      142 |   test('Navigation elements are present', async ({ page }) => {
+        at /Users/andrewmorton/Documents/GitHub/Fleet/e2e/00-smoke-tests.spec.ts:139:24
 
     attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
     ../test-results/00-smoke-tests-Smoke-Tests-23040-cation-structure-is-present-chromium/test-failed-1.png
@@ -258,26 +139,19 @@
 
     Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
 
-    Error: expect(locator).toBeAttached() failed
+    Error: expect(received).toBeGreaterThan(expected)
 
-    Locator: locator('aside, main, [role="main"]').first()
-    Expected: attached
-    Timeout: 15000ms
-    Error: element(s) not found
+    Expected: > 0
+    Received:   0
 
-    Call log:
-      - Expect "toBeAttached" with timeout 15000ms
-      - waiting for locator('aside, main, [role="main"]').first()
-
-
-      101 |     // Check for main app container - look for aside (sidebar) or main content area
-      102 |     const mainContent = page.locator('aside, main, [role="main"]').first();
-    > 103 |     await expect(mainContent).toBeAttached({ timeout: 15000 });
-          |                               ^
-      104 |   });
-      105 |
-      106 |   test('Navigation elements are present', async ({ page }) => {
-        at /Users/andrewmorton/Documents/GitHub/Fleet/e2e/00-smoke-tests.spec.ts:103:31
+      137 |
+      138 |     // At minimum, we should have some buttons (for UI interaction)
+    > 139 |     expect(hasButtons).toBeGreaterThan(0);
+          |                        ^
+      140 |   });
+      141 |
+      142 |   test('Navigation elements are present', async ({ page }) => {
+        at /Users/andrewmorton/Documents/GitHub/Fleet/e2e/00-smoke-tests.spec.ts:139:24
 
     attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
     ../test-results/00-smoke-tests-Smoke-Tests-23040-cation-structure-is-present-chromium-retry1/test-failed-1.png
@@ -297,10 +171,12 @@
 ]]>
 </failure>
 <system-out>
-<![CDATA[
+<![CDATA[[STRUCTURE TEST] Found - aside: 0, buttons: 0, nav: 0
+
 [[ATTACHMENT|00-smoke-tests-Smoke-Tests-23040-cation-structure-is-present-chromium/test-failed-1.png]]
 
 [[ATTACHMENT|00-smoke-tests-Smoke-Tests-23040-cation-structure-is-present-chromium/video.webm]]
+[STRUCTURE TEST] Found - aside: 0, buttons: 0, nav: 0
 
 [[ATTACHMENT|00-smoke-tests-Smoke-Tests-23040-cation-structure-is-present-chromium-retry1/test-failed-1.png]]
 
@@ -310,30 +186,23 @@
 ]]>
 </system-out>
 </testcase>
-<testcase name="Smoke Tests - Application Health › Navigation elements are present" classname="00-smoke-tests.spec.ts" time="43.895">
-<failure message="00-smoke-tests.spec.ts:106:3 Navigation elements are present" type="FAILURE">
-<![CDATA[  [chromium] › 00-smoke-tests.spec.ts:106:3 › Smoke Tests - Application Health › Navigation elements are present 
+<testcase name="Smoke Tests - Application Health › Navigation elements are present" classname="00-smoke-tests.spec.ts" time="11.229">
+<failure message="00-smoke-tests.spec.ts:142:3 Navigation elements are present" type="FAILURE">
+<![CDATA[  [chromium] › 00-smoke-tests.spec.ts:142:3 › Smoke Tests - Application Health › Navigation elements are present 
 
-    Error: expect(locator).toBeAttached() failed
+    Error: expect(received).toBeGreaterThan(expected)
 
-    Locator: locator('aside, nav, [role="navigation"]').first()
-    Expected: attached
-    Timeout: 15000ms
-    Error: element(s) not found
+    Expected: > 0
+    Received:   0
 
-    Call log:
-      - Expect "toBeAttached" with timeout 15000ms
-      - waiting for locator('aside, nav, [role="navigation"]').first()
-
-
-      113 |     // Check for sidebar or navigation
-      114 |     const nav = page.locator('aside, nav, [role="navigation"]').first();
-    > 115 |     await expect(nav).toBeAttached({ timeout: 15000 });
-          |                       ^
-      116 |   });
-      117 |
-      118 |   test('No critical JavaScript errors', async ({ page }) => {
-        at /Users/andrewmorton/Documents/GitHub/Fleet/e2e/00-smoke-tests.spec.ts:115:23
+      155 |
+      156 |     // Should have at least some interactive elements
+    > 157 |     expect(buttonCount).toBeGreaterThan(0);
+          |                         ^
+      158 |   });
+      159 |
+      160 |   test('No critical JavaScript errors', async ({ page }) => {
+        at /Users/andrewmorton/Documents/GitHub/Fleet/e2e/00-smoke-tests.spec.ts:157:25
 
     attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
     ../test-results/00-smoke-tests-Smoke-Tests-ea880-gation-elements-are-present-chromium/test-failed-1.png
@@ -345,26 +214,19 @@
 
     Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
 
-    Error: expect(locator).toBeAttached() failed
+    Error: expect(received).toBeGreaterThan(expected)
 
-    Locator: locator('aside, nav, [role="navigation"]').first()
-    Expected: attached
-    Timeout: 15000ms
-    Error: element(s) not found
+    Expected: > 0
+    Received:   0
 
-    Call log:
-      - Expect "toBeAttached" with timeout 15000ms
-      - waiting for locator('aside, nav, [role="navigation"]').first()
-
-
-      113 |     // Check for sidebar or navigation
-      114 |     const nav = page.locator('aside, nav, [role="navigation"]').first();
-    > 115 |     await expect(nav).toBeAttached({ timeout: 15000 });
-          |                       ^
-      116 |   });
-      117 |
-      118 |   test('No critical JavaScript errors', async ({ page }) => {
-        at /Users/andrewmorton/Documents/GitHub/Fleet/e2e/00-smoke-tests.spec.ts:115:23
+      155 |
+      156 |     // Should have at least some interactive elements
+    > 157 |     expect(buttonCount).toBeGreaterThan(0);
+          |                         ^
+      158 |   });
+      159 |
+      160 |   test('No critical JavaScript errors', async ({ page }) => {
+        at /Users/andrewmorton/Documents/GitHub/Fleet/e2e/00-smoke-tests.spec.ts:157:25
 
     attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
     ../test-results/00-smoke-tests-Smoke-Tests-ea880-gation-elements-are-present-chromium-retry1/test-failed-1.png
@@ -384,10 +246,12 @@
 ]]>
 </failure>
 <system-out>
-<![CDATA[
+<![CDATA[[NAV TEST] Found 0 buttons on page
+
 [[ATTACHMENT|00-smoke-tests-Smoke-Tests-ea880-gation-elements-are-present-chromium/test-failed-1.png]]
 
 [[ATTACHMENT|00-smoke-tests-Smoke-Tests-ea880-gation-elements-are-present-chromium/video.webm]]
+[NAV TEST] Found 0 buttons on page
 
 [[ATTACHMENT|00-smoke-tests-Smoke-Tests-ea880-gation-elements-are-present-chromium-retry1/test-failed-1.png]]
 
@@ -397,38 +261,25 @@
 ]]>
 </system-out>
 </testcase>
-<testcase name="Smoke Tests - Application Health › No critical JavaScript errors" classname="00-smoke-tests.spec.ts" time="2.847">
-<system-err>
-<![CDATA[Console errors detected: [
-  [32m'Failed to load resource: the server responded with a status of 403 (Forbidden)'[39m
-]
-]]>
-</system-err>
+<testcase name="Smoke Tests - Application Health › No critical JavaScript errors" classname="00-smoke-tests.spec.ts" time="2.902">
 </testcase>
-<testcase name="Smoke Tests - Application Health › Page can handle navigation" classname="00-smoke-tests.spec.ts" time="43.958">
-<failure message="00-smoke-tests.spec.ts:146:3 Page can handle navigation" type="FAILURE">
-<![CDATA[  [chromium] › 00-smoke-tests.spec.ts:146:3 › Smoke Tests - Application Health › Page can handle navigation 
+<testcase name="Smoke Tests - Application Health › Page can handle navigation" classname="00-smoke-tests.spec.ts" time="11.047">
+<failure message="00-smoke-tests.spec.ts:188:3 Page can handle navigation" type="FAILURE">
+<![CDATA[  [chromium] › 00-smoke-tests.spec.ts:188:3 › Smoke Tests - Application Health › Page can handle navigation 
 
-    Error: expect(locator).toBeAttached() failed
+    Error: expect(received).toBeGreaterThan(expected)
 
-    Locator: locator('button, a').first()
-    Expected: attached
-    Timeout: 15000ms
-    Error: element(s) not found
+    Expected: > 0
+    Received:   0
 
-    Call log:
-      - Expect "toBeAttached" with timeout 15000ms
-      - waiting for locator('button, a').first()
-
-
-      153 |     // Try to find any clickable buttons
-      154 |     const buttons = page.locator('button, a').first();
-    > 155 |     await expect(buttons).toBeAttached({ timeout: 15000 });
-          |                           ^
-      156 |   });
-      157 | });
-      158 |
-        at /Users/andrewmorton/Documents/GitHub/Fleet/e2e/00-smoke-tests.spec.ts:155:27
+      201 |
+      202 |     // Verify we have interactive elements
+    > 203 |     expect(buttonCount).toBeGreaterThan(0);
+          |                         ^
+      204 |   });
+      205 | });
+      206 |
+        at /Users/andrewmorton/Documents/GitHub/Fleet/e2e/00-smoke-tests.spec.ts:203:25
 
     attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
     ../test-results/00-smoke-tests-Smoke-Tests-307c9--Page-can-handle-navigation-chromium/test-failed-1.png
@@ -440,26 +291,19 @@
 
     Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
 
-    Error: expect(locator).toBeAttached() failed
+    Error: expect(received).toBeGreaterThan(expected)
 
-    Locator: locator('button, a').first()
-    Expected: attached
-    Timeout: 15000ms
-    Error: element(s) not found
+    Expected: > 0
+    Received:   0
 
-    Call log:
-      - Expect "toBeAttached" with timeout 15000ms
-      - waiting for locator('button, a').first()
-
-
-      153 |     // Try to find any clickable buttons
-      154 |     const buttons = page.locator('button, a').first();
-    > 155 |     await expect(buttons).toBeAttached({ timeout: 15000 });
-          |                           ^
-      156 |   });
-      157 | });
-      158 |
-        at /Users/andrewmorton/Documents/GitHub/Fleet/e2e/00-smoke-tests.spec.ts:155:27
+      201 |
+      202 |     // Verify we have interactive elements
+    > 203 |     expect(buttonCount).toBeGreaterThan(0);
+          |                         ^
+      204 |   });
+      205 | });
+      206 |
+        at /Users/andrewmorton/Documents/GitHub/Fleet/e2e/00-smoke-tests.spec.ts:203:25
 
     attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
     ../test-results/00-smoke-tests-Smoke-Tests-307c9--Page-can-handle-navigation-chromium-retry1/test-failed-1.png
@@ -479,10 +323,12 @@
 ]]>
 </failure>
 <system-out>
-<![CDATA[
+<![CDATA[[NAVIGATION TEST] Found 0 interactive elements
+
 [[ATTACHMENT|00-smoke-tests-Smoke-Tests-307c9--Page-can-handle-navigation-chromium/test-failed-1.png]]
 
 [[ATTACHMENT|00-smoke-tests-Smoke-Tests-307c9--Page-can-handle-navigation-chromium/video.webm]]
+[NAVIGATION TEST] Found 0 interactive elements
 
 [[ATTACHMENT|00-smoke-tests-Smoke-Tests-307c9--Page-can-handle-navigation-chromium-retry1/test-failed-1.png]]
 
@@ -492,23 +338,23 @@
 ]]>
 </system-out>
 </testcase>
-<testcase name="Module Accessibility Check › Check if module navigation exists" classname="00-smoke-tests.spec.ts" time="12.535">
-<failure message="00-smoke-tests.spec.ts:161:3 Check if module navigation exists" type="FAILURE">
-<![CDATA[  [chromium] › 00-smoke-tests.spec.ts:161:3 › Module Accessibility Check › Check if module navigation exists 
+<testcase name="Module Accessibility Check › Check if module navigation exists" classname="00-smoke-tests.spec.ts" time="11.132">
+<failure message="00-smoke-tests.spec.ts:209:3 Check if module navigation exists" type="FAILURE">
+<![CDATA[  [chromium] › 00-smoke-tests.spec.ts:209:3 › Module Accessibility Check › Check if module navigation exists 
 
     Error: expect(received).toBeGreaterThan(expected)
 
     Expected: > 0
     Received:   0
 
-      171 |
-      172 |     // Should have at least some interactive elements
-    > 173 |     expect(count).toBeGreaterThan(0);
+      222 |
+      223 |     // Should have at least some navigation buttons
+    > 224 |     expect(count).toBeGreaterThan(0);
           |                   ^
-      174 |   });
-      175 |
-      176 |   test('Dashboard or main view is visible', async ({ page }) => {
-        at /Users/andrewmorton/Documents/GitHub/Fleet/e2e/00-smoke-tests.spec.ts:173:19
+      225 |   });
+      226 |
+      227 |   test('Dashboard or main view is visible', async ({ page }) => {
+        at /Users/andrewmorton/Documents/GitHub/Fleet/e2e/00-smoke-tests.spec.ts:224:19
 
     attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
     ../test-results/00-smoke-tests-Module-Acce-5c45a-if-module-navigation-exists-chromium/test-failed-1.png
@@ -525,14 +371,14 @@
     Expected: > 0
     Received:   0
 
-      171 |
-      172 |     // Should have at least some interactive elements
-    > 173 |     expect(count).toBeGreaterThan(0);
+      222 |
+      223 |     // Should have at least some navigation buttons
+    > 224 |     expect(count).toBeGreaterThan(0);
           |                   ^
-      174 |   });
-      175 |
-      176 |   test('Dashboard or main view is visible', async ({ page }) => {
-        at /Users/andrewmorton/Documents/GitHub/Fleet/e2e/00-smoke-tests.spec.ts:173:19
+      225 |   });
+      226 |
+      227 |   test('Dashboard or main view is visible', async ({ page }) => {
+        at /Users/andrewmorton/Documents/GitHub/Fleet/e2e/00-smoke-tests.spec.ts:224:19
 
     attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
     ../test-results/00-smoke-tests-Module-Acce-5c45a-if-module-navigation-exists-chromium-retry1/test-failed-1.png
@@ -552,10 +398,12 @@
 ]]>
 </failure>
 <system-out>
-<![CDATA[
+<![CDATA[[MODULE NAV TEST] Found 0 buttons
+
 [[ATTACHMENT|00-smoke-tests-Module-Acce-5c45a-if-module-navigation-exists-chromium/test-failed-1.png]]
 
 [[ATTACHMENT|00-smoke-tests-Module-Acce-5c45a-if-module-navigation-exists-chromium/video.webm]]
+[MODULE NAV TEST] Found 0 buttons
 
 [[ATTACHMENT|00-smoke-tests-Module-Acce-5c45a-if-module-navigation-exists-chromium-retry1/test-failed-1.png]]
 
@@ -565,23 +413,23 @@
 ]]>
 </system-out>
 </testcase>
-<testcase name="Module Accessibility Check › Dashboard or main view is visible" classname="00-smoke-tests.spec.ts" time="12.367">
-<failure message="00-smoke-tests.spec.ts:176:3 Dashboard or main view is visible" type="FAILURE">
-<![CDATA[  [chromium] › 00-smoke-tests.spec.ts:176:3 › Module Accessibility Check › Dashboard or main view is visible 
+<testcase name="Module Accessibility Check › Dashboard or main view is visible" classname="00-smoke-tests.spec.ts" time="11.12">
+<failure message="00-smoke-tests.spec.ts:227:3 Dashboard or main view is visible" type="FAILURE">
+<![CDATA[  [chromium] › 00-smoke-tests.spec.ts:227:3 › Module Accessibility Check › Dashboard or main view is visible 
 
-    Error: expect(received).toBeGreaterThan(expected)
+    Error: expect(received).toBe(expected) // Object.is equality
 
-    Expected: > 0
-    Received:   0
+    Expected: true
+    Received: false
 
-      186 |
-      187 |     // Should have main application structure
-    > 188 |     expect(count).toBeGreaterThan(0);
-          |                   ^
-      189 |   });
-      190 | });
-      191 |
-        at /Users/andrewmorton/Documents/GitHub/Fleet/e2e/00-smoke-tests.spec.ts:188:19
+      243 |
+      244 |     // Should have some UI elements rendered
+    > 245 |     expect(hasContent).toBe(true);
+          |                        ^
+      246 |     expect(divs).toBeGreaterThan(0);
+      247 |   });
+      248 | });
+        at /Users/andrewmorton/Documents/GitHub/Fleet/e2e/00-smoke-tests.spec.ts:245:24
 
     attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
     ../test-results/00-smoke-tests-Module-Acce-57188-ard-or-main-view-is-visible-chromium/test-failed-1.png
@@ -593,19 +441,19 @@
 
     Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
 
-    Error: expect(received).toBeGreaterThan(expected)
+    Error: expect(received).toBe(expected) // Object.is equality
 
-    Expected: > 0
-    Received:   0
+    Expected: true
+    Received: false
 
-      186 |
-      187 |     // Should have main application structure
-    > 188 |     expect(count).toBeGreaterThan(0);
-          |                   ^
-      189 |   });
-      190 | });
-      191 |
-        at /Users/andrewmorton/Documents/GitHub/Fleet/e2e/00-smoke-tests.spec.ts:188:19
+      243 |
+      244 |     // Should have some UI elements rendered
+    > 245 |     expect(hasContent).toBe(true);
+          |                        ^
+      246 |     expect(divs).toBeGreaterThan(0);
+      247 |   });
+      248 | });
+        at /Users/andrewmorton/Documents/GitHub/Fleet/e2e/00-smoke-tests.spec.ts:245:24
 
     attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
     ../test-results/00-smoke-tests-Module-Acce-57188-ard-or-main-view-is-visible-chromium-retry1/test-failed-1.png
@@ -625,10 +473,12 @@
 ]]>
 </failure>
 <system-out>
-<![CDATA[
+<![CDATA[[DASHBOARD TEST] Root has content: false, buttons: 0, divs: 1
+
 [[ATTACHMENT|00-smoke-tests-Module-Acce-57188-ard-or-main-view-is-visible-chromium/test-failed-1.png]]
 
 [[ATTACHMENT|00-smoke-tests-Module-Acce-57188-ard-or-main-view-is-visible-chromium/video.webm]]
+[DASHBOARD TEST] Root has content: false, buttons: 0, divs: 1
 
 [[ATTACHMENT|00-smoke-tests-Module-Acce-57188-ard-or-main-view-is-visible-chromium-retry1/test-failed-1.png]]
 
