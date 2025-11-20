@@ -15,7 +15,7 @@
  */
 
 import pool from '../config/database'
-import { Cache } from '../utils/cache'
+import { cache } from '../utils/cache'
 
 export interface SearchQuery {
   query: string
