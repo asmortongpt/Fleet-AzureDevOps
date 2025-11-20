@@ -4,7 +4,7 @@
  */
 
 import pool from '../config/database'
-import { logger } from '../config/logger'
+import { logger } from '../utils/logger'
 
 export interface TrainingConfig {
   model_name: string

@@ -5,7 +5,7 @@
  */
 
 import pool from '../config/database'
-import { logger } from '../config/logger'
+import { logger } from '../utils/logger'
 import * as mapboxService from './mapbox.service'
 
 export interface Stop {

@@ -3,6 +3,7 @@
  * FedRAMP-compliant authorization framework
  */
 
+import logger from '@/utils/logger'
 export type Permission = 
   // Vehicle permissions
   | "vehicles.view" | "vehicles.create" | "vehicles.edit" | "vehicles.delete" | "vehicles.assign"
@@ -341,5 +342,5 @@ export interface PermissionAuditLog {
  */
 export function logPermissionCheck(entry: PermissionAuditLog): void {
   // In production, this would write to audit log storage
-  console.log("[RBAC Audit]", entry)
+  logger.info("[RBAC Audit]", { entry })
 }

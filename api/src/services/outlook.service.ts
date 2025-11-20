@@ -5,7 +5,7 @@
  */
 
 import { microsoftGraphService, MicrosoftGraphService } from './microsoft-graph.service'
-import { logger } from '../config/logger'
+import { logger } from '../utils/logger'
 import pool from '../config/database'
 import {
   Email,

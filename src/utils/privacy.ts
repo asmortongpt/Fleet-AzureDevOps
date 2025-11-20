@@ -6,6 +6,7 @@
  */
 
 import { getTelemetryConfig } from '../config/telemetry';
+import logger from '@/utils/logger'
 
 /**
  * Consent status
@@ -70,7 +71,7 @@ export class PrivacyManager {
       const stored = localStorage.getItem(this.CONSENT_KEY);
       return stored ? JSON.parse(stored) : null;
     } catch (error) {
-      console.error('Failed to get consent record:', error);
+      logger.error('Failed to get consent record:', { error });
       return null;
     }
   }
@@ -104,7 +105,7 @@ export class PrivacyManager {
       // Dispatch custom event for listeners
       window.dispatchEvent(new CustomEvent('consentChanged', { detail: record }));
     } catch (error) {
-      console.error('Failed to set consent record:', error);
+      logger.error('Failed to set consent record:', { error });
     }
   }
 
@@ -275,7 +276,7 @@ export class PrivacyManager {
           }),
         });
       } catch (error) {
-        console.error('Failed to request data deletion from backend:', error);
+        logger.error('Failed to request data deletion from backend:', { error });
       }
     }
   }
