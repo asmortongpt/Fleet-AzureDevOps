@@ -139,7 +139,7 @@ router.get(
     try {
       // Get session
       const sessionResult = await pool.query(
-        `SELECT * FROM chat_sessions
+        `SELECT id, tenant_id, user_id, title, created_at, updated_at, closed_at FROM chat_sessions
          WHERE id = $1 AND tenant_id = $2`,
         [req.params.id, req.user!.tenant_id]
       )
@@ -150,7 +150,7 @@ router.get(
 
       // Get messages
       const messagesResult = await pool.query(
-        `SELECT * FROM chat_messages
+        `SELECT id, tenant_id, session_id, role, content, created_at, updated_at FROM chat_messages
          WHERE session_id = $1
          ORDER BY created_at ASC`,
         [req.params.id]

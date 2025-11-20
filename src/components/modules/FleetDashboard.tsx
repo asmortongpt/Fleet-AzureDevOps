@@ -27,7 +27,6 @@ import {
 } from "@phosphor-icons/react"
 import { Vehicle } from "@/lib/types"
 import { useFleetData } from "@/hooks/use-fleet-data"
-import apiClient from "@/lib/api-client"
 
 interface FleetDashboardProps {
   data: ReturnType<typeof useFleetData>

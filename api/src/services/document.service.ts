@@ -300,7 +300,7 @@ export class DocumentService {
       is_archived,
       created_at,
       updated_at FROM fleet_documents WHERE id = $1 AND tenant_id = $2'
-        : 'SELECT * FROM fleet_documents WHERE id = $1'
+        : 'SELECT id, tenant_id, document_name, document_type, file_path, created_at, updated_at FROM fleet_documents WHERE id = $1'
 
       const params = tenantId ? [documentId, tenantId] : [documentId]
 
@@ -486,14 +486,14 @@ export class DocumentService {
   async getExpiringDocuments(daysThreshold: number, tenantId?: number): Promise<DocumentRecord[]> {
     try {
       const query = tenantId
-        ? `SELECT * FROM fleet_documents
+        ? `SELECT id, tenant_id, document_name, document_type, file_path, created_at, updated_at FROM fleet_documents
            WHERE expires_at IS NOT NULL
            AND expires_at <= NOW() + INTERVAL '${daysThreshold} days'
            AND expires_at > NOW()
            AND is_archived = false
            AND tenant_id = $1
            ORDER BY expires_at ASC`
-        : `SELECT * FROM fleet_documents
+        : `SELECT id, tenant_id, document_name, document_type, file_path, created_at, updated_at FROM fleet_documents
            WHERE expires_at IS NOT NULL
            AND expires_at <= NOW() + INTERVAL '${daysThreshold} days'
            AND expires_at > NOW()

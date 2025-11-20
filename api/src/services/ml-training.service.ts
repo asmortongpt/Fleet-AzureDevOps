@@ -373,7 +373,7 @@ class MLTrainingService {
     tenantId: string
   ): Promise<any[]> {
     const result = await pool.query(
-      `SELECT * FROM model_performance
+      `SELECT id, tenant_id, model_name, metric_name, metric_value, evaluation_date FROM model_performance
        WHERE model_id = $1 AND tenant_id = $2
        ORDER BY evaluation_date DESC`,
       [modelId, tenantId]

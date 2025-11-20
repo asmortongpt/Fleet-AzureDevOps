@@ -3,7 +3,6 @@
  * Shows list of trips with ability to drill into individual trip telemetry
  */
 
-import React from 'react'
 import { useDrilldown } from '@/contexts/DrilldownContext'
 import { DrilldownContent } from '@/components/DrilldownPanel'
 import { Card, CardContent } from '@/components/ui/card'
