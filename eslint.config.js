@@ -8,7 +8,12 @@ import storybook from 'eslint-plugin-storybook';
 export default tseslint.config(
   {
     // Global ignores
-    ignores: ['**/dist/**', '**/node_modules/**', '**/.eslintrc.cjs'],
+    ignores: [
+      '**/dist/**',
+      '**/node_modules/**',
+      '**/.eslintrc.cjs',
+      '**/api/**', // API has its own config
+    ],
   },
   {
     // Base config for all files
@@ -80,6 +85,13 @@ export default tseslint.config(
       react: {
         version: 'detect',
       },
+    },
+  },
+  {
+    // Allow console in benchmark and script files
+    files: ['**/benchmarks/**/*.ts', '**/scripts/**/*.{js,ts}'],
+    rules: {
+      'no-console': 'off',
     },
   },
   // Storybook configuration
