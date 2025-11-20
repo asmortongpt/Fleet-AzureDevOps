@@ -117,8 +117,8 @@ const CarbonFootprintTracker: React.FC = () => {
       const data = await response.json();
 
       if (data.success) {
-        setCarbonData(data.data.logs);
-        setSummary(data.data.summary);
+        setCarbonData(data.data?.logs);
+        setSummary(data.data?.summary);
       }
 
       // Load ESG report

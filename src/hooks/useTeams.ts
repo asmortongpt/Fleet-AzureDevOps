@@ -117,30 +117,30 @@ export function useTeamsMessages(teamId: string, channelId: string, options?: {
     if (!options?.enableRealtime || !teamId || !channelId) return
 
     const unsubscribeNew = subscribe('teams:new-message', (message: any) => {
-      if (message.data.teamId === teamId && message.data.channelId === channelId) {
+      if (message.data?.teamId === teamId && message.data?.channelId === channelId) {
         queryClient.setQueryData(
           teamsKeys.messages(teamId, channelId),
-          (old: TeamsMessage[] = []) => [message.data.message, ...old]
+          (old: TeamsMessage[] = []) => [message.data?.message, ...old]
         )
       }
     })
 
     const unsubscribeUpdated = subscribe('teams:message-updated', (message: any) => {
-      if (message.data.teamId === teamId && message.data.channelId === channelId) {
+      if (message.data?.teamId === teamId && message.data?.channelId === channelId) {
         queryClient.setQueryData(
           teamsKeys.messages(teamId, channelId),
           (old: TeamsMessage[] = []) =>
-            old.map(msg => msg.id === message.data.message.id ? message.data.message : msg)
+            old.map(msg => msg.id === message.data?.message.id ? message.data?.message : msg)
         )
       }
     })
 
     const unsubscribeDeleted = subscribe('teams:message-deleted', (message: any) => {
-      if (message.data.teamId === teamId && message.data.channelId === channelId) {
+      if (message.data?.teamId === teamId && message.data?.channelId === channelId) {
         queryClient.setQueryData(
           teamsKeys.messages(teamId, channelId),
           (old: TeamsMessage[] = []) =>
-            old.filter(msg => msg.id !== message.data.messageId)
+            old.filter(msg => msg.id !== message.data?.messageId)
         )
       }
     })

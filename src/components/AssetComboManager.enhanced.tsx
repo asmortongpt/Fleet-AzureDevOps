@@ -13,7 +13,7 @@
 import React, { useState, useEffect } from 'react'
 import {
   Link,
-  Unlink,
+  LinkBreak,
   Clock,
   Plus,
   X,
@@ -47,7 +47,7 @@ import type {
   RelationshipHistoryEntry,
   RelationshipType,
   AssetType
-} from '../../api/src/types/asset.types'
+} from '@/types/asset.types'
 
 // Props interface matching Task 4.4 specification
 interface AssetComboManagerProps {
@@ -385,7 +385,7 @@ export const AssetComboManager: React.FC<AssetComboManagerProps> = ({
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
                       <Button variant="destructive" size="sm">
-                        <Unlink className="w-4 h-4 mr-2" />
+                        <LinkBreak className="w-4 h-4 mr-2" />
                         Detach
                       </Button>
                     </AlertDialogTrigger>
