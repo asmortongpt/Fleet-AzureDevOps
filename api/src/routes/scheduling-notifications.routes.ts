@@ -19,7 +19,16 @@ router.get('/preferences', async (req: Request, res: Response) => {
     const { userId } = req.user as any
 
     const result = await pool.query(
-      `SELECT * FROM scheduling_notification_preferences WHERE user_id = $1`,
+      `SELECT 
+      id,
+      user_id,
+      email_enabled,
+      sms_enabled,
+      push_enabled,
+      schedule_changes,
+      shift_reminders,
+      created_at,
+      updated_at FROM scheduling_notification_preferences WHERE user_id = $1`,
       [userId]
     )
 
@@ -128,7 +137,16 @@ router.put('/preferences', async (req: Request, res: Response) => {
 
     // Fetch updated preferences
     const result = await pool.query(
-      `SELECT * FROM scheduling_notification_preferences WHERE user_id = $1`,
+      `SELECT 
+      id,
+      user_id,
+      email_enabled,
+      sms_enabled,
+      push_enabled,
+      schedule_changes,
+      shift_reminders,
+      created_at,
+      updated_at FROM scheduling_notification_preferences WHERE user_id = $1`,
       [userId]
     )
 

@@ -93,7 +93,18 @@ router.post(
 
       // Get policy for cost preview
       const policyResult = await pool.query(
-        `SELECT * FROM personal_use_policies WHERE tenant_id = $1`,
+        `SELECT 
+      id,
+      tenant_id,
+      name,
+      description,
+      rate_per_mile,
+      rate_type,
+      effective_date,
+      expiry_date,
+      is_active,
+      created_at,
+      updated_at FROM personal_use_policies WHERE tenant_id = $1`,
         [req.user!.tenant_id]
       )
 
@@ -201,7 +212,17 @@ router.post(
 
       // Get complete usage record
       const usageResult = await pool.query(
-        `SELECT * FROM trip_usage_classification WHERE id = $1`,
+        `SELECT 
+      id,
+      tenant_id,
+      trip_id,
+      classification,
+      reason,
+      classified_by,
+      classified_at,
+      notes,
+      created_at,
+      updated_at FROM trip_usage_classification WHERE id = $1`,
         [usageId]
       )
 
@@ -352,7 +373,18 @@ router.patch(
 
       // Get policy for cost preview
       const policyResult = await pool.query(
-        `SELECT * FROM personal_use_policies WHERE tenant_id = $1`,
+        `SELECT 
+      id,
+      tenant_id,
+      name,
+      description,
+      rate_per_mile,
+      rate_type,
+      effective_date,
+      expiry_date,
+      is_active,
+      created_at,
+      updated_at FROM personal_use_policies WHERE tenant_id = $1`,
         [req.user!.tenant_id]
       )
 
@@ -535,7 +567,18 @@ router.get('/:id/usage', async (req: AuthRequest, res: Response) => {
 
     // Get cost preview
     const policyResult = await pool.query(
-      `SELECT * FROM personal_use_policies WHERE tenant_id = $1`,
+      `SELECT 
+      id,
+      tenant_id,
+      name,
+      description,
+      rate_per_mile,
+      rate_type,
+      effective_date,
+      expiry_date,
+      is_active,
+      created_at,
+      updated_at FROM personal_use_policies WHERE tenant_id = $1`,
       [req.user!.tenant_id]
     )
 

@@ -33,7 +33,21 @@ router.get(
       const { page = 1, limit = 50, vehicle_id } = req.query
       const offset = (Number(page) - 1) * Number(limit)
 
-      let query = 'SELECT * FROM damage_reports WHERE tenant_id = $1'
+      let query = `SELECT
+      id,
+      tenant_id,
+      vehicle_id,
+      reporter_id,
+      incident_date,
+      description,
+      severity,
+      location,
+      photos,
+      estimated_cost,
+      status,
+      notes,
+      created_at,
+      updated_at FROM damage_reports WHERE tenant_id = $1`
       const params: SqlParams = [req.user!.tenant_id]
 
       if (vehicle_id) {
@@ -76,7 +90,21 @@ router.get(
   async (req: AuthRequest, res: Response) => {
     try {
       const result = await pool.query(
-        'SELECT * FROM damage_reports WHERE id = $1 AND tenant_id = $2',
+        'SELECT 
+      id,
+      tenant_id,
+      vehicle_id,
+      reporter_id,
+      incident_date,
+      description,
+      severity,
+      location,
+      photos,
+      estimated_cost,
+      status,
+      notes,
+      created_at,
+      updated_at FROM damage_reports WHERE id = $1 AND tenant_id = $2',
         [req.params.id, req.user!.tenant_id]
       )
 
