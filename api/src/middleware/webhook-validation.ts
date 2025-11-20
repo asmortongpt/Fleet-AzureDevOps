@@ -32,7 +32,7 @@ export const handleValidationToken = (
   const validationToken = req.query.validationToken as string
 
   if (validationToken) {
-    logger.info('📋 Webhook validation token received:', { validationToken.substring(0, 20 }) + '...')
+    logger.info('📋 Webhook validation token received:', validationToken.substring(0, 20) + '...')
 
     // Return the validation token in plain text as required by Microsoft Graph
     res.type('text/plain')
