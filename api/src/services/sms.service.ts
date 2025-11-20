@@ -307,7 +307,10 @@ class SMSService {
   ): Promise<SMSLog[]> {
     try {
       let query = `
-        SELECT * FROM sms_logs
+        SELECT id, tenant_id, to_number, from_number, body, status,
+               message_sid, error_code, error_message, sent_at,
+               delivered_at, created_by, created_at, updated_at
+        FROM sms_logs
         WHERE tenant_id = $1
       `;
 
@@ -358,7 +361,7 @@ class SMSService {
    */
   async getTemplates(tenantId: string, category?: string): Promise<SMSTemplate[]> {
     try {
-      let query = 'SELECT * FROM sms_templates WHERE tenant_id = $1';
+      let query = 'SELECT id, tenant_id, name, body, category, variables, created_at, updated_at FROM sms_templates WHERE tenant_id = $1';
       const params: any[] = [tenantId];
 
       if (category) {
@@ -382,7 +385,7 @@ class SMSService {
   async getTemplate(name: string, tenantId: string): Promise<SMSTemplate | null> {
     try {
       const result = await db.query(
-        'SELECT * FROM sms_templates WHERE name = $1 AND tenant_id = $2',
+        'SELECT id, tenant_id, name, body, category, variables, created_at, updated_at FROM sms_templates WHERE name = $1 AND tenant_id = $2',
         [name, tenantId]
       );
 

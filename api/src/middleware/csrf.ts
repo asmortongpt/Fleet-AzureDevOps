@@ -18,6 +18,7 @@
 
 import { Request, Response, NextFunction } from 'express'
 import { doubleCsrf } from 'csrf-csrf'
+import logger from '../utils/logger'
 
 // SECURITY: CSRF_SECRET must be set in environment variables (no defaults allowed)
 // This prevents CSRF attacks by ensuring unique secret per deployment (CWE-352)
@@ -80,7 +81,7 @@ export const csrfTokenMiddleware = (req: Request, res: Response) => {
       message: 'CSRF token generated successfully'
     })
   } catch (error) {
-    console.error('CSRF token generation error:', error)
+    logger.error('CSRF token generation error:', { error: error })
     res.status(500).json({
       error: 'Failed to generate CSRF token'
     })

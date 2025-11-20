@@ -12,6 +12,7 @@
 import { Request, Response, NextFunction } from 'express'
 import * as crypto from 'crypto'
 import pool from '../config/database'
+import logger from '../utils/logger'
 
 export interface WebhookRequest extends Request {
   webhookValidated?: boolean
@@ -31,7 +32,7 @@ export const handleValidationToken = (
   const validationToken = req.query.validationToken as string
 
   if (validationToken) {
-    console.log('📋 Webhook validation token received:', validationToken.substring(0, 20) + '...')
+    logger.info('📋 Webhook validation token received:', { validationToken.substring(0, 20 }) + '...')
 
     // Return the validation token in plain text as required by Microsoft Graph
     res.type('text/plain')
@@ -76,16 +77,16 @@ export const validateClientState = async (
       )
 
       if (result.rows.length === 0) {
-        console.error('❌ Unknown subscription ID:', subscriptionId)
+        logger.error('❌ Unknown subscription ID:', { error: subscriptionId })
         return res.status(404).json({ error: 'Unknown subscription' })
       }
 
       const subscription = result.rows[0]
 
       if (subscription.client_state !== clientState) {
-        console.error('❌ Client state mismatch for subscription:', subscriptionId)
+        logger.error('❌ Client state mismatch for subscription:', { error: subscriptionId })
         console.error('Expected:', subscription.client_state)
-        console.error('Received:', clientState)
+        logger.error('Received:', { error: clientState })
 
         // Log security incident
         await logSecurityIncident(
@@ -99,7 +100,7 @@ export const validateClientState = async (
       }
 
       if (subscription.status !== 'active') {
-        console.warn('⚠️  Received webhook for non-active subscription:', subscriptionId)
+        logger.warn('⚠️  Received webhook for non-active subscription:', subscriptionId)
         return res.status(410).json({ error: 'Subscription no longer active' })
       }
 
@@ -111,7 +112,7 @@ export const validateClientState = async (
 
     next()
   } catch (error) {
-    console.error('Error validating client state:', error)
+    logger.error('Error validating client state:', { error: error })
     res.status(500).json({ error: 'Validation error' })
   }
 }
@@ -136,7 +137,7 @@ export const validateRequestOrigin = (
 
   // Log suspicious requests
   if (!isMicrosoftUA && userAgent !== '') {
-    console.warn('⚠️  Suspicious webhook request from:', {
+    logger.warn('⚠️  Suspicious webhook request from:', {
       userAgent,
       origin,
       referer,
@@ -187,7 +188,7 @@ export const rateLimitWebhooks = (
   rateLimitData.count++
 
   if (rateLimitData.count > maxRequests) {
-    console.warn('⚠️  Rate limit exceeded for IP:', clientIp)
+    logger.warn('⚠️  Rate limit exceeded for IP:', clientIp)
     return res.status(429).json({
       error: 'Too many requests',
       retryAfter: Math.ceil((rateLimitData.resetAt - now) / 1000)
@@ -267,7 +268,7 @@ async function logSecurityIncident(
       ]
     )
   } catch (error) {
-    console.error('Failed to log security incident:', error)
+    logger.error('Failed to log security incident:', { error: error })
   }
 }
 
@@ -304,7 +305,7 @@ export const checkIdempotency = async (
       )
 
       if (result.rows.length > 0) {
-        console.warn('⚠️  Duplicate webhook notification detected:', {
+        logger.warn('⚠️  Duplicate webhook notification detected:', {
           subscriptionId,
           resource,
           changeType
@@ -319,7 +320,7 @@ export const checkIdempotency = async (
 
     next()
   } catch (error) {
-    console.error('Error checking idempotency:', error)
+    logger.error('Error checking idempotency:', { error: error })
     // Don't block on idempotency check failure
     next()
   }

@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express'
 import jwt from 'jsonwebtoken'
 import pool from '../config/database'
+import logger from '../utils/logger'
 
 export interface AuthRequest extends Request {
   user?: {
@@ -19,15 +20,15 @@ export const authenticateJWT = async (
   // If req.user already exists (set by development-only global middleware with strict
   // environment validation), skip JWT validation
   if (req.user) {
-    console.log('✅ AUTH MIDDLEWARE - User already authenticated via development mode')
+    logger.info('✅ AUTH MIDDLEWARE - User already authenticated via development mode')
     return next()
   }
 
-  console.log('🔒 AUTH MIDDLEWARE - CHECKING JWT TOKEN')
+  logger.info('🔒 AUTH MIDDLEWARE - CHECKING JWT TOKEN')
   const token = req.headers.authorization?.split(' ')[1]
 
   if (!token) {
-    console.log('❌ AUTH MIDDLEWARE - No token provided')
+    logger.info('❌ AUTH MIDDLEWARE - No token provided')
     return res.status(401).json({ error: 'Authentication required' })
   }
 
@@ -45,10 +46,10 @@ export const authenticateJWT = async (
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET) as any
     req.user = decoded
-    console.log('✅ AUTH MIDDLEWARE - JWT token validated successfully')
+    logger.info('✅ AUTH MIDDLEWARE - JWT token validated successfully')
     next()
   } catch (error) {
-    console.log('❌ AUTH MIDDLEWARE - Invalid or expired token')
+    logger.info('❌ AUTH MIDDLEWARE - Invalid or expired token')
     return res.status(403).json({ error: 'Invalid or expired token' })
   }
 }
@@ -125,7 +126,7 @@ export const checkAccountLock = async (
 
     next()
   } catch (error) {
-    console.error('Account lock check error:', error)
+    logger.error('Account lock check error:', { error: error })
     return res.status(500).json({ error: 'Internal server error' })
   }
 }

@@ -4,7 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { MobileDamageService, MobilePhotoData, LiDARScanData, VideoAnalysisData } from '../services/mobileDamageService';
 import { OpenAIVisionService } from '../services/openaiVisionService';
 import { pool } from '../config/database';
-import { logger } from '../config/logger';
+import { logger } from '../utils/logger';
 import { aiProcessingLimiter } from '../config/rate-limiters'
 import { validateFileContent, validateFileSize } from '../utils/file-validation'
 import { authenticateJWT, AuthRequest } from '../middleware/auth';

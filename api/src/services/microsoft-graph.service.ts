@@ -39,7 +39,7 @@ import {
   GRAPH_API_BASE_URL,
   GRAPH_ERROR_CODES,
 } from '../config/microsoft-graph.config'
-import { logger } from '../config/logger'
+import { logger } from '../utils/logger'
 
 /**
  * Secure in-memory token cache

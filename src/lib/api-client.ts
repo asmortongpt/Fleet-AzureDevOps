@@ -22,6 +22,8 @@ class APIClient {
   private token: string | null = null
   private csrfToken: string | null = null
   private csrfTokenPromise: Promise<void> | null = null
+  private refreshTokenPromise: Promise<void> | null = null
+  private isRefreshing: boolean = false
 
   constructor(baseURL: string) {
     this.baseURL = baseURL
@@ -92,6 +94,56 @@ class APIClient {
     this.csrfToken = null
     this.csrfTokenPromise = null
     await this.initializeCsrfToken()
+  }
+
+  /**
+   * Refresh the access token using the httpOnly refresh token cookie
+   * OWASP ASVS 3.0 compliant automatic token refresh
+   */
+  private async refreshAccessToken(): Promise<boolean> {
+    // If already refreshing, wait for that to complete
+    if (this.isRefreshing) {
+      if (this.refreshTokenPromise) {
+        await this.refreshTokenPromise
+        return !!this.token
+      }
+      return false
+    }
+
+    this.isRefreshing = true
+    this.refreshTokenPromise = (async () => {
+      try {
+        console.log('Attempting to refresh access token...')
+        const response = await fetch(`${this.baseURL}/api/auth/refresh`, {
+          method: 'POST',
+          credentials: 'include', // Required for httpOnly cookie
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        })
+
+        if (response.ok) {
+          const data = await response.json()
+          this.setToken(data.token)
+          console.log('Access token refreshed successfully')
+          return true
+        } else {
+          console.warn('Token refresh failed:', response.status)
+          this.clearToken()
+          return false
+        }
+      } catch (error) {
+        console.error('Token refresh error:', error)
+        this.clearToken()
+        return false
+      } finally {
+        this.isRefreshing = false
+        this.refreshTokenPromise = null
+      }
+    })()
+
+    const result = await this.refreshTokenPromise
+    return result as boolean
   }
 
   private async request<T>(
@@ -171,8 +223,46 @@ class APIClient {
       return await response.json()
     } catch (error) {
       if (error instanceof APIError) {
-        // Auto-logout on 401
-        if (error.status === 401) {
+        // OWASP ASVS 3.0: Automatic token refresh on 401 Unauthorized
+        if (error.status === 401 && !endpoint.includes('/auth/')) {
+          console.log('Received 401, attempting token refresh...')
+          const refreshed = await this.refreshAccessToken()
+
+          if (refreshed) {
+            // Retry the original request with new token
+            console.log('Token refreshed, retrying original request...')
+            const retryHeaders: HeadersInit = {
+              'Content-Type': 'application/json',
+              ...options.headers
+            }
+
+            if (this.token) {
+              retryHeaders['Authorization'] = `Bearer ${this.token}`
+            }
+
+            // Re-add CSRF token if needed
+            const isStateChanging = ['POST', 'PUT', 'PATCH', 'DELETE'].includes(
+              options.method?.toUpperCase() || 'GET'
+            )
+            if (isStateChanging && this.csrfToken) {
+              retryHeaders['X-CSRF-Token'] = this.csrfToken
+            }
+
+            const retryResponse = await fetch(url, {
+              ...options,
+              headers: retryHeaders,
+              credentials: 'include'
+            })
+
+            if (retryResponse.ok) {
+              if (retryResponse.status === 204) {
+                return {} as T
+              }
+              return await retryResponse.json()
+            }
+          }
+
+          // If refresh failed or retry failed, logout
           this.clearToken()
           window.location.href = '/login'
         }

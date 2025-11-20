@@ -48,7 +48,7 @@ export const setTenantContext = async (
 ) => {
   // Skip if user is not authenticated (will be caught by authenticateJWT)
   if (!req.user) {
-    console.warn('⚠️  TENANT CONTEXT - No authenticated user, skipping tenant context')
+    logger.warn('⚠️  TENANT CONTEXT - No authenticated user, skipping tenant context')
     return next()
   }
 
@@ -167,7 +167,7 @@ export const getCurrentTenantId = async (
 
     return result.rows[0]?.tenant_id || null
   } catch (error) {
-    console.error('❌ Failed to get current tenant ID', error)
+    logger.error('❌ Failed to get current tenant ID', { error: error })
     return null
   }
 }
@@ -309,7 +309,7 @@ export const requireTenantContext = async (
 
     next()
   } catch (error) {
-    console.error('❌ TENANT CONTEXT - Validation failed', error)
+    logger.error('❌ TENANT CONTEXT - Validation failed', { error: error })
 
     return res.status(500).json({
       error: 'Tenant context validation error',
@@ -325,6 +325,7 @@ export const requireTenantContext = async (
  * Usage in services:
  * ```typescript
  * import { setTenantContextDirect } from '../middleware/tenant-context'
+import logger from '../utils/logger'
  *
  * const client = await pool.connect()
  * await setTenantContextDirect(client, tenantId)

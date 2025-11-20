@@ -4,7 +4,7 @@
  */
 
 import axios from 'axios'
-import { logger } from '../config/logger'
+import { logger } from '../utils/logger'
 
 const MAPBOX_API_KEY = process.env.MAPBOX_API_KEY || ''
 const MAPBOX_BASE_URL = 'https://api.mapbox.com'

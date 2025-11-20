@@ -773,7 +773,10 @@ class SyncService {
   private async getLastSyncState(resourceId: string, resourceType: string): Promise<SyncState | null> {
     try {
       const result = await pool.query(
-        `SELECT * FROM sync_state WHERE resource_id = $1 AND resource_type = $2`,
+        `SELECT id, resource_type, resource_id, last_sync_at, delta_token,
+                sync_status, error_message, items_synced, created_at, updated_at
+         FROM sync_state
+         WHERE resource_id = $1 AND resource_type = $2`,
         [resourceId, resourceType]
       )
 
@@ -947,7 +950,8 @@ class SyncService {
   async getRecentSyncErrors(limit: number = 50): Promise<any[]> {
     try {
       const result = await pool.query(`
-        SELECT *
+        SELECT id, resource_type, resource_id, error_type, error_message,
+               error_details, retry_count, resolved, created_at, updated_at
         FROM sync_errors
         WHERE resolved = false
         ORDER BY created_at DESC
