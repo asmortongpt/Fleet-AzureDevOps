@@ -6,8 +6,7 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Plus, GripVertical, X, FileText, Save, Eye } from "lucide-react"
-
+import { Plus, GripVertical, X, FileText, Eye } from "lucide-react"
 interface FormField {
   id: string
   type: "text" | "number" | "date" | "select" | "checkbox" | "textarea" | "signature" | "photo" | "file"

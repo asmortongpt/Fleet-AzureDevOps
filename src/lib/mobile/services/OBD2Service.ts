@@ -14,7 +14,6 @@
  * Business Value: $800,000/year (vehicle diagnostics, predictive maintenance)
  */
 
-import { Platform } from 'react-native'
 import logger from '@/utils/logger'
 
 // Type definitions for Bluetooth libraries

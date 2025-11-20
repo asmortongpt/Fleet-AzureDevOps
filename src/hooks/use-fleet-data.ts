@@ -32,7 +32,6 @@ export function useFleetData() {
   const { data: facilitiesData, isLoading: facilitiesLoading, error: facilitiesError } = useFacilities()
   const { data: maintenanceData, isLoading: maintenanceLoading, error: maintenanceError } = useMaintenanceSchedules()
   const { data: routesData, isLoading: routesLoading, error: routesError } = useRoutes()
-
   // Demo data fallback
   const [demoData] = useState(() => generateAllDemoData())
   const [useDemoData, setUseDemoData] = useState(() => {

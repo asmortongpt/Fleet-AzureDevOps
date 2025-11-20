@@ -119,7 +119,7 @@ class VehicleModelsService {
    */
   async getVehicle3DModel(vehicleId: number): Promise<any> {
     const query = `
-      SELECT * FROM vehicle_3d_viewer_data
+      SELECT id, tenant_id, vehicle_id, viewer_config, created_at, updated_at FROM vehicle_3d_viewer_data
       WHERE vehicle_id = $1
     `;
 
@@ -141,7 +141,7 @@ class VehicleModelsService {
     bodyStyle?: string;
   }): Promise<Vehicle3DModel[]> {
     let query = `
-      SELECT * FROM vehicle_3d_models
+      SELECT id, tenant_id, model_name, model_file, created_at, updated_at FROM vehicle_3d_models
       WHERE is_published = true
     `;
     const params: any[] = [];
@@ -264,7 +264,7 @@ class VehicleModelsService {
    */
   async getCustomizationOptions(model3dId?: number, category?: string): Promise<CustomizationOption[]> {
     let query = `
-      SELECT * FROM vehicle_3d_customization_catalog
+      SELECT id, tenant_id, customization_name, category, preview_url, created_at FROM vehicle_3d_customization_catalog
       WHERE is_available = true
     `;
     const params: any[] = [];
@@ -375,7 +375,7 @@ class VehicleModelsService {
    */
   async getARAnalytics(days: number = 30): Promise<any> {
     const query = `
-      SELECT * FROM ar_session_analytics
+      SELECT id, tenant_id, session_date, total_sessions, avg_session_duration, unique_users FROM ar_session_analytics
       WHERE session_date >= CURRENT_DATE - INTERVAL '${days} days'
       ORDER BY session_date DESC
     `;
@@ -433,7 +433,7 @@ class VehicleModelsService {
    */
   async getVehicleRenders(vehicleId: number, featured?: boolean): Promise<any[]> {
     let query = `
-      SELECT * FROM vehicle_3d_renders
+      SELECT id, tenant_id, render_type, render_data, created_at FROM vehicle_3d_renders
       WHERE vehicle_id = $1
     `;
     const params = [vehicleId];
@@ -501,7 +501,7 @@ class VehicleModelsService {
    * Get performance summary
    */
   async getPerformanceSummary(): Promise<any[]> {
-    const query = `SELECT * FROM performance_3d_summary`;
+    const query = `SELECT id, tenant_id, render_date, total_renders, avg_render_time, cache_hit_rate FROM performance_3d_summary`;
     const result = await this.db.query(query);
     return result.rows;
   }
@@ -515,7 +515,7 @@ class VehicleModelsService {
   ): Promise<Vehicle3DInstance> {
     // Check if vehicle already has a 3D instance
     const existingQuery = `
-      SELECT * FROM vehicle_3d_instances WHERE vehicle_id = $1
+      SELECT id, tenant_id, vehicle_id, model_id, customization_data, created_at FROM vehicle_3d_instances WHERE vehicle_id = $1
     `;
     const existing = await this.db.query(existingQuery, [vehicleId]);
 

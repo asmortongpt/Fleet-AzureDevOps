@@ -3,7 +3,6 @@
  * Shows comprehensive vehicle information with action buttons
  */
 
-import React from 'react'
 import { useDrilldown } from '@/contexts/DrilldownContext'
 import { DrilldownContent } from '@/components/DrilldownPanel'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
