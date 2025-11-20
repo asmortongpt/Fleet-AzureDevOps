@@ -14,7 +14,7 @@ import {
   Clock,
   Share2,
   Edit,
-  FloppyDisk,
+  Save,
   X
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -86,7 +86,7 @@ export function DocumentProperties({ document, onUpdate, onClose }: DocumentProp
                 Cancel
               </Button>
               <Button size="sm" onClick={handleSave}>
-                <FloppyDisk className="mr-2 h-4 w-4" />
+                <Save className="mr-2 h-4 w-4" />
                 Save
               </Button>
             </>
