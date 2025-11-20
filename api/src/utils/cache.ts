@@ -1,4 +1,17 @@
-import { createClient } from 'redis';
+// Optional Redis client for caching
+let createClient: any = null
+
+// Lazy load optional Redis client
+async function loadRedisClient() {
+  if (createClient) return
+
+  try {
+    const redisModule = await import('redis')
+    createClient = redisModule.createClient
+  } catch (err) {
+    console.warn('redis not available - caching will be disabled. Install redis package for caching support.')
+  }
+}
 
 class CacheService {
   private client: any;
@@ -6,6 +19,15 @@ class CacheService {
 
   async connect(): Promise<void> {
     if (this.connected) return;
+
+    // Load Redis client if not already loaded
+    await loadRedisClient()
+
+    if (!createClient) {
+      console.log('⚠️  Redis not available - caching disabled')
+      this.connected = false
+      return
+    }
 
     try {
       this.client = createClient({
