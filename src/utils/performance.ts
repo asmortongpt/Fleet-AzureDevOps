@@ -19,7 +19,7 @@
  * @example
  * ```ts
  * // FPS Monitoring
- * const fpsMonitor = new FPSMonitor((fps) => console.log(`FPS: ${fps}`))
+ * const fpsMonitor = new FPSMonitor((fps) => logger.info(`FPS: ${fps}`))
  * fpsMonitor.start()
  *
  * // Memory Leak Detection
@@ -27,7 +27,7 @@
  * detector.start()
  *
  * // Web Vitals
- * trackWebVitals((metric) => console.log(metric))
+ * trackWebVitals((metric) => logger.debug('Log', { data: metric }))
  * ```
  */
 
@@ -38,6 +38,7 @@
 /**
  * Web Vitals metric data
  */
+import logger from '@/utils/logger'
 export interface WebVital {
   /** Metric name (LCP, FID, CLS, etc.) */
   name: "LCP" | "FID" | "CLS" | "TTFB" | "FCP" | "INP"
@@ -322,7 +323,7 @@ export class MemoryLeakDetector {
         this.snapshots.shift()
       }
     } catch (error) {
-      console.warn("Failed to take memory snapshot:", error)
+      logger.warn("Failed to take memory snapshot:", { error })
     }
   }
 
@@ -363,7 +364,7 @@ export class MemoryLeakDetector {
     }
 
     if (detected && import.meta.env.DEV) {
-      console.warn("⚠️  Potential memory leak detected:", report)
+      logger.warn("⚠️  Potential memory leak detected:", { report })
     }
   }
 
@@ -448,7 +449,7 @@ function getRating<T extends keyof typeof WEB_VITALS_THRESHOLDS>(
  */
 export function trackWebVitals(callback: (metric: WebVital) => void): () => void {
   if (typeof window === "undefined" || !("PerformanceObserver" in window)) {
-    console.warn("Web Vitals tracking not supported in this environment")
+    logger.warn("Web Vitals tracking not supported in this environment")
     return () => {}
   }
 
@@ -473,7 +474,7 @@ export function trackWebVitals(callback: (metric: WebVital) => void): () => void
     lcpObserver.observe({ type: "largest-contentful-paint", buffered: true })
     observers.push(lcpObserver)
   } catch (error) {
-    console.warn("LCP observer failed:", error)
+    logger.warn("LCP observer failed:", { error })
   }
 
   try {
@@ -494,7 +495,7 @@ export function trackWebVitals(callback: (metric: WebVital) => void): () => void
     fidObserver.observe({ type: "first-input", buffered: true })
     observers.push(fidObserver)
   } catch (error) {
-    console.warn("FID observer failed:", error)
+    logger.warn("FID observer failed:", { error })
   }
 
   try {
@@ -518,7 +519,7 @@ export function trackWebVitals(callback: (metric: WebVital) => void): () => void
     clsObserver.observe({ type: "layout-shift", buffered: true })
     observers.push(clsObserver)
   } catch (error) {
-    console.warn("CLS observer failed:", error)
+    logger.warn("CLS observer failed:", { error })
   }
 
   try {
@@ -538,7 +539,7 @@ export function trackWebVitals(callback: (metric: WebVital) => void): () => void
     fcpObserver.observe({ type: "paint", buffered: true })
     observers.push(fcpObserver)
   } catch (error) {
-    console.warn("FCP observer failed:", error)
+    logger.warn("FCP observer failed:", { error })
   }
 
   // Cleanup function
@@ -590,7 +591,7 @@ export function clearMarks(): void {
     performance.clearMarks()
     performance.clearMeasures()
   } catch (error) {
-    console.warn("Failed to clear performance marks:", error)
+    logger.warn("Failed to clear performance marks:", { error })
   }
 }
 
@@ -673,16 +674,16 @@ export function getMarkerOptimizationSuggestions(
  */
 export function estimateBundleImpact(componentName: string): void {
   if (import.meta.env.DEV) {
-    console.log(`\n📦 Bundle Impact Analysis: ${componentName}`)
-    console.log("To analyze actual bundle size, use:")
-    console.log("  - vite-bundle-visualizer")
-    console.log("  - webpack-bundle-analyzer")
-    console.log("  - rollup-plugin-visualizer")
-    console.log("\nRecommendations:")
-    console.log("  ✅ Use dynamic imports for heavy dependencies")
-    console.log("  ✅ Tree-shake unused code")
-    console.log("  ✅ Lazy load map providers")
-    console.log("  ✅ Code-split by route\n")
+    logger.info(`\n📦 Bundle Impact Analysis: ${componentName}`)
+    logger.info("To analyze actual bundle size, use:")
+    logger.info("  - vite-bundle-visualizer")
+    logger.info("  - webpack-bundle-analyzer")
+    logger.info("  - rollup-plugin-visualizer")
+    logger.info("\nRecommendations:")
+    logger.info("  ✅ Use dynamic imports for heavy dependencies")
+    logger.info("  ✅ Tree-shake unused code")
+    logger.info("  ✅ Lazy load map providers")
+    logger.info("  ✅ Code-split by route\n")
   }
 }
 

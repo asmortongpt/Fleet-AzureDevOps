@@ -18,6 +18,7 @@ import "./main.css"
 import "./styles/theme.css"
 import "./index.css"
 import "leaflet/dist/leaflet.css"
+import logger from '@/utils/logger'
 
 // Start automatic version checking and cache refresh
 startVersionChecker();
@@ -25,11 +26,11 @@ startVersionChecker();
 // Protected Route Component
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const authenticated = isAuthenticated()
-  console.log('[PROTECTED_ROUTE] isAuthenticated:', authenticated)
+  logger.info('[PROTECTED_ROUTE] isAuthenticated:', { authenticated })
 
   // In DEV mode or test environment, always allow access
   if (import.meta.env.DEV) {
-    console.log('[PROTECTED_ROUTE] DEV mode - allowing access')
+    logger.info('[PROTECTED_ROUTE] DEV mode - allowing access')
     return <>{children}</>
   }
 

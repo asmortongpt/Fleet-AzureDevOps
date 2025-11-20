@@ -11,6 +11,7 @@
  * @param b - Second string to compare
  * @returns True if strings are equal, false otherwise
  */
+import logger from '@/utils/logger'
 function timingSafeEqual(a: string, b: string): boolean {
   // If lengths don't match, still compare to maintain constant time
   const aLen = a.length
@@ -215,14 +216,14 @@ export class MFAService {
     const randomValues = new Uint32Array(1)
     crypto.getRandomValues(randomValues)
     const code = (100000 + (randomValues[0] % 900000)).toString()
-    console.log(`SMS Code sent to ${phoneNumber}: ${code}`)
+    logger.info(`SMS Code sent to ${phoneNumber}: ${code}`)
     return code
   }
 
   static async sendEmailCode(email: string): Promise<string> {
     // In production, integrate with email provider
     const code = Math.floor(100000 + Math.random() * 900000).toString()
-    console.log(`Email Code sent to ${email}: ${code}`)
+    logger.info(`Email Code sent to ${email}: ${code}`)
     return code
   }
 

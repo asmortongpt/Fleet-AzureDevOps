@@ -4,6 +4,7 @@
  */
 
 import { useEffect, useRef, useState, useCallback } from 'react'
+import logger from '@/utils/logger'
 
 export interface WebSocketMessage {
   type: string
@@ -46,14 +47,14 @@ export function useWebSocket(options: UseWebSocketOptions = {}) {
       const ws = new WebSocket(url)
 
       ws.onopen = () => {
-        console.log('WebSocket connected')
+        logger.info('WebSocket connected')
         setIsConnected(true)
         reconnectCountRef.current = 0
         onOpen?.()
       }
 
       ws.onclose = () => {
-        console.log('WebSocket disconnected')
+        logger.info('WebSocket disconnected')
         setIsConnected(false)
         wsRef.current = null
         onClose?.()
@@ -61,13 +62,13 @@ export function useWebSocket(options: UseWebSocketOptions = {}) {
         // Attempt to reconnect
         if (reconnectCountRef.current < reconnectAttempts) {
           reconnectCountRef.current++
-          console.log(`Reconnecting... (${reconnectCountRef.current}/${reconnectAttempts})`)
+          logger.info(`Reconnecting... (${reconnectCountRef.current}/${reconnectAttempts})`)
           setTimeout(connect, reconnectInterval)
         }
       }
 
       ws.onerror = (error) => {
-        console.error('WebSocket error:', error)
+        logger.error('WebSocket error:', { error })
         onError?.(error)
       }
 
@@ -89,13 +90,13 @@ export function useWebSocket(options: UseWebSocketOptions = {}) {
             wildcardListeners.forEach(callback => callback(message))
           }
         } catch (error) {
-          console.error('Error parsing WebSocket message:', error)
+          logger.error('Error parsing WebSocket message:', { error })
         }
       }
 
       wsRef.current = ws
     } catch (error) {
-      console.error('Error creating WebSocket:', error)
+      logger.error('Error creating WebSocket:', { error })
     }
   }, [url, reconnectInterval, reconnectAttempts, onOpen, onClose, onError, onMessage])
 
@@ -111,7 +112,7 @@ export function useWebSocket(options: UseWebSocketOptions = {}) {
     if (wsRef.current?.readyState === WebSocket.OPEN) {
       wsRef.current.send(JSON.stringify(message))
     } else {
-      console.warn('WebSocket is not connected')
+      logger.warn('WebSocket is not connected')
     }
   }, [])
 

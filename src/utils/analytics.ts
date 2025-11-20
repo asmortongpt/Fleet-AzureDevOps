@@ -1,6 +1,7 @@
 // Analytics Tracking System
 // Tracks user interactions, events, and usage patterns
 
+import logger from '@/utils/logger'
 interface AnalyticsEvent {
   name: string;
   properties?: Record<string, any>;
@@ -62,7 +63,7 @@ class AnalyticsService {
 
     // Log to console in development
     if (process.env.NODE_ENV === 'development') {
-      console.log('📊 Analytics Event:', event);
+      logger.info('📊 Analytics Event:', { event });
     }
 
     // Send to analytics service
@@ -90,7 +91,7 @@ class AnalyticsService {
       //   body: JSON.stringify(event),
       // });
     } catch (error) {
-      console.error('Failed to send analytics event:', error);
+      logger.error('Failed to send analytics event:', { error });
     }
   }
 
