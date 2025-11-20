@@ -4,9 +4,41 @@
  */
 
 import pool from '../config/database';
-import admin from 'firebase-admin';
-import apn from 'apn';
 import { SqlParams } from '../types';
+
+// Optional firebase-admin - lazy loaded
+let admin: any = null
+
+// Lazy load Firebase Admin SDK
+async function loadFirebaseAdmin() {
+  if (admin) return true
+
+  try {
+    const adminModule = await import('firebase-admin')
+    admin = adminModule.default
+    return true
+  } catch (err) {
+    console.warn('firebase-admin not available - FCM push notifications will be disabled. Install firebase-admin for FCM support.')
+    return false
+  }
+}
+
+// Optional apn - lazy loaded
+let apn: any = null
+
+// Lazy load Apple Push Notification
+async function loadApn() {
+  if (apn) return true
+
+  try {
+    const apnModule = await import('apn')
+    apn = apnModule.default
+    return true
+  } catch (err) {
+    console.warn('apn not available - APNS push notifications will be disabled. Install apn for APNS support.')
+    return false
+  }
+}
 
 // Types
 export interface MobileDevice {
@@ -98,8 +130,15 @@ class PushNotificationService {
   /**
    * Initialize Firebase Cloud Messaging
    */
-  private initializeFCM() {
+  private async initializeFCM() {
     try {
+      const adminAvailable = await loadFirebaseAdmin()
+
+      if (!adminAvailable) {
+        console.log('FCM running in mock mode (firebase-admin not available)');
+        return;
+      }
+
       // Check if FCM is already initialized
       if (admin.apps.length > 0) {
         this.fcmInitialized = true;
@@ -126,8 +165,15 @@ class PushNotificationService {
   /**
    * Initialize Apple Push Notification Service
    */
-  private initializeAPNS() {
+  private async initializeAPNS() {
     try {
+      const apnAvailable = await loadApn()
+
+      if (!apnAvailable) {
+        console.log('APNS running in mock mode (apn not available)');
+        return;
+      }
+
       if (!this.isDevelopment && process.env.APNS_KEY_PATH && process.env.APNS_KEY_ID && process.env.APNS_TEAM_ID) {
         this.apnProvider = new apn.Provider({
           token: {
