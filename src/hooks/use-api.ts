@@ -6,6 +6,7 @@
 import useSWR, { mutate } from 'swr'
 import { apiClient, APIError } from '@/lib/api-client'
 import { transformVehicles, transformDrivers, transformFacilities } from '@/lib/data-transformers'
+import logger from '@/utils/logger'
 
 interface UseAPIOptions {
   refreshInterval?: number
@@ -27,7 +28,7 @@ export function useAPI<T>(
       revalidateOnFocus: options.revalidateOnFocus !== false,
       dedupingInterval: options.dedupingInterval || 2000,
       onError: (error) => {
-        console.error('API Error:', error)
+        logger.error('API Error:', { error })
       }
     }
   )

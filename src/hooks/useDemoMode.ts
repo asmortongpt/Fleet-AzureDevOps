@@ -3,6 +3,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from './useAuth';
+import logger from '@/utils/logger'
 
 export type UserRole =
   | 'fleet_manager'
@@ -123,7 +124,7 @@ export const useDemoMode = () => {
   // Switch to a different role
   const switchRole = useCallback(async (newRole: UserRole) => {
     if (!isDemoMode) {
-      console.warn('Cannot switch roles outside of demo mode');
+      logger.warn('Cannot switch roles outside of demo mode');
       return;
     }
 

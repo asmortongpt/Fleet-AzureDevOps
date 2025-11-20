@@ -5,7 +5,7 @@
 
 import { Pool } from 'pg';
 import axios from 'axios';
-import { logger } from '../config/logger';
+import { logger } from '../utils/logger';
 
 const AZURE_COMPUTER_VISION_KEY = process.env.AZURE_COMPUTER_VISION_KEY;
 const AZURE_COMPUTER_VISION_ENDPOINT = process.env.AZURE_COMPUTER_VISION_ENDPOINT;

@@ -4,16 +4,17 @@
  */
 
 // Generate build version from current timestamp
+import logger from '@/utils/logger'
 export const BUILD_VERSION = import.meta.env.VITE_BUILD_VERSION || Date.now().toString();
 
 export function startVersionChecker() {
   // Only run in production
   if (import.meta.env.DEV) {
-    console.log('📦 Version checker disabled in development mode');
+    logger.info('📦 Version checker disabled in development mode');
     return;
   }
 
-  console.log(`🚀 Fleet Management v${BUILD_VERSION} - Auto-refresh enabled`);
+  logger.info(`🚀 Fleet Management v${BUILD_VERSION} - Auto-refresh enabled`);
 
   // Check for new version every 5 minutes
   const CHECK_INTERVAL = 5 * 60 * 1000; // 5 minutes
@@ -37,8 +38,8 @@ export function startVersionChecker() {
         const serverVersion = versionMatch[1];
 
         if (serverVersion !== BUILD_VERSION) {
-          console.log(`🔄 New version detected: ${serverVersion} (current: ${BUILD_VERSION})`);
-          console.log('♻️  Auto-refreshing to load new version...');
+          logger.info(`🔄 New version detected: ${serverVersion} (current: ${BUILD_VERSION})`);
+          logger.info('♻️  Auto-refreshing to load new version...');
 
           // Show notification if available
           if ('Notification' in window && Notification.permission === 'granted') {
@@ -55,7 +56,7 @@ export function startVersionChecker() {
         }
       }
     } catch (error) {
-      console.error('Version check failed:', error);
+      logger.error('Version check failed:', { error });
     }
   }, CHECK_INTERVAL);
 }

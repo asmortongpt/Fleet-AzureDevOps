@@ -19,6 +19,7 @@
 // Types
 // ============================================================================
 
+import logger from '@/utils/logger'
 export interface WebVital {
   name: string;
   value: number;
@@ -107,7 +108,7 @@ export class RUMTracker {
     this.trackResourceTiming();
     this.setupAutoFlush();
 
-    console.log('[RUM] Tracking started', this.context);
+    logger.info('[RUM] Tracking started', { this.context });
   }
 
   /**
@@ -118,7 +119,7 @@ export class RUMTracker {
     if (this.flushTimer) {
       clearInterval(this.flushTimer);
     }
-    console.log('[RUM] Tracking stopped');
+    logger.info('[RUM] Tracking stopped');
   }
 
   /**
@@ -399,7 +400,7 @@ export class RUMTracker {
       this.sendToEndpoint(batch);
     } else {
       // Log to console if no endpoint configured
-      console.log('[RUM] Metrics:', batch);
+      logger.info('[RUM] Metrics:', { batch });
     }
   }
 
@@ -423,10 +424,10 @@ export class RUMTracker {
       });
 
       if (!response.ok) {
-        console.error('[RUM] Failed to send metrics:', response.statusText);
+        logger.error('[RUM] Failed to send metrics:', { response.statusText });
       }
     } catch (error) {
-      console.error('[RUM] Error sending metrics:', error);
+      logger.error('[RUM] Error sending metrics:', { error });
     }
   }
 
