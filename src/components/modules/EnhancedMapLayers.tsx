@@ -248,7 +248,7 @@ export function EnhancedMapLayers() {
     if (!incidentsData?.data) return []
 
     try {
-      return incidentsData.data.map((incident: any) => ({
+      return incidentsData.data?.map((incident: any) => ({
         id: incident.id,
         type: (incident.incident_type || 'hazard') as TrafficIncident['type'],
         severity: (incident.severity || 'minor') as TrafficIncident['severity'],
