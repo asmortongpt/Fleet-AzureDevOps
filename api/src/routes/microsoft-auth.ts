@@ -3,6 +3,7 @@ import axios from 'axios'
 import jwt from 'jsonwebtoken'
 import pool from '../config/database'
 import { createAuditLog } from '../middleware/audit'
+import { getErrorMessage } from '../utils/error-handler'
 
 const router = express.Router()
 
@@ -206,9 +207,9 @@ router.get('/microsoft/callback', async (req: Request, res: Response) => {
     res.redirect(`${frontendUrl}/auth/callback`)
 
   } catch (error: any) {
-    console.error('Microsoft OAuth error:', error.response?.data || error.message)
+    console.error('Microsoft OAuth error:', error.response?.data || getErrorMessage(error))
 
-    const errorMessage = error.response?.data?.error_description || error.message || 'Authentication failed'
+    const errorMessage = error.response?.data?.error_description || getErrorMessage(error) || 'Authentication failed'
     res.redirect(`/login?error=auth_failed&message=${encodeURIComponent(errorMessage)}`)
   }
 })
@@ -247,7 +248,7 @@ router.get('/microsoft', async (req: Request, res: Response) => {
 
     res.redirect(authUrl)
   } catch (error: any) {
-    console.error('Error initiating Microsoft OAuth:', error.message)
+    console.error('Error initiating Microsoft OAuth:', getErrorMessage(error))
     res.redirect(`/login?error=auth_failed&message=${encodeURIComponent('Failed to initiate authentication')}`)
   }
 })
@@ -286,7 +287,7 @@ router.get('/microsoft/login', async (req: Request, res: Response) => {
 
     res.redirect(authUrl)
   } catch (error: any) {
-    console.error('Error initiating Microsoft OAuth:', error.message)
+    console.error('Error initiating Microsoft OAuth:', getErrorMessage(error))
     res.redirect(`/login?error=auth_failed&message=${encodeURIComponent('Failed to initiate authentication')}`)
   }
 })

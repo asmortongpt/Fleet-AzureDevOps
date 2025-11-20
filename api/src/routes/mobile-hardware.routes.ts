@@ -14,6 +14,7 @@ import { authenticateJWT } from '../middleware/auth'
 import { requirePermission } from '../middleware/permissions'
 import { auditLog } from '../middleware/audit'
 import { z } from 'zod'
+import { getErrorMessage } from '../utils/error-handler'
 
 const router = express.Router()
 
@@ -87,7 +88,7 @@ router.post('/parts/scan', requirePermission('inventory:view:global'), async (re
     res.json({ part })
   } catch (error: any) {
     console.error('Error scanning part:', error)
-    res.status(400).json({ error: error.message })
+    res.status(400).json({ error: getErrorMessage(error) })
   }
 })
 
@@ -151,7 +152,7 @@ router.get('/parts/search', requirePermission('inventory:view:global'), async (r
     res.json({ parts })
   } catch (error: any) {
     console.error('Error searching parts:', error)
-    res.status(400).json({ error: error.message })
+    res.status(400).json({ error: getErrorMessage(error) })
   }
 })
 
@@ -215,7 +216,7 @@ router.post('/parts/order', requirePermission('inventory:create:global'), auditL
     res.status(201).json(order)
   } catch (error: any) {
     console.error('Error ordering part:', error)
-    res.status(400).json({ error: error.message })
+    res.status(400).json({ error: getErrorMessage(error) })
   }
 })
 
@@ -293,7 +294,7 @@ router.post('/checkin/nfc', requirePermission('vehicle:update:fleet'), auditLog,
     res.json(checkIn)
   } catch (error: any) {
     console.error('Error during vehicle check-in:', error)
-    res.status(400).json({ error: error.message })
+    res.status(400).json({ error: getErrorMessage(error) })
   }
 })
 
@@ -347,7 +348,7 @@ router.get('/vehicles/details', requirePermission('vehicle:view:fleet'), async (
     res.json(vehicle)
   } catch (error: any) {
     console.error('Error getting vehicle details:', error)
-    res.status(400).json({ error: error.message })
+    res.status(400).json({ error: getErrorMessage(error) })
   }
 })
 
@@ -420,7 +421,7 @@ router.post('/beacons/register', requirePermission('vehicle:update:fleet'), audi
     res.status(201).json(beacon)
   } catch (error: any) {
     console.error('Error registering beacon:', error)
-    res.status(400).json({ error: error.message })
+    res.status(400).json({ error: getErrorMessage(error) })
   }
 })
 
@@ -490,7 +491,7 @@ router.get('/beacons/nearby', requirePermission('vehicle:view:fleet'), async (re
     res.json({ beacons })
   } catch (error: any) {
     console.error('Error getting nearby beacons:', error)
-    res.status(400).json({ error: error.message })
+    res.status(400).json({ error: getErrorMessage(error) })
   }
 })
 
@@ -588,7 +589,7 @@ router.post('/dashcam/event', requirePermission('safety_incident:create:global')
     res.status(201).json(event)
   } catch (error: any) {
     console.error('Error tagging dashcam event:', error)
-    res.status(400).json({ error: error.message })
+    res.status(400).json({ error: getErrorMessage(error) })
   }
 })
 
@@ -654,7 +655,7 @@ router.get('/dashcam/events', requirePermission('safety_incident:view:global'), 
     res.json({ events })
   } catch (error: any) {
     console.error('Error getting dashcam events:', error)
-    res.status(400).json({ error: error.message })
+    res.status(400).json({ error: getErrorMessage(error) })
   }
 })
 
@@ -704,7 +705,7 @@ router.get('/work-orders/:workOrderId/parts', requirePermission('work_order:view
     res.json({ parts })
   } catch (error: any) {
     console.error('Error getting work order parts:', error)
-    res.status(400).json({ error: error.message })
+    res.status(400).json({ error: getErrorMessage(error) })
   }
 })
 
@@ -776,7 +777,7 @@ router.post('/work-orders/:workOrderId/parts', requirePermission('work_order:upd
     res.status(201).json(workOrderPart)
   } catch (error: any) {
     console.error('Error adding part to work order:', error)
-    res.status(400).json({ error: error.message })
+    res.status(400).json({ error: getErrorMessage(error) })
   }
 })
 
@@ -844,7 +845,7 @@ router.post('/work-orders/:workOrderId/parts/batch', requirePermission('work_ord
     res.status(201).json({ parts: addedParts, count: addedParts.length })
   } catch (error: any) {
     console.error('Error adding parts batch to work order:', error)
-    res.status(400).json({ error: error.message })
+    res.status(400).json({ error: getErrorMessage(error) })
   }
 })
 
@@ -905,7 +906,7 @@ router.post('/assets/scan', requirePermission('asset:view:global'), async (req: 
     res.json({ asset })
   } catch (error: any) {
     console.error('Error scanning asset:', error)
-    res.status(400).json({ error: error.message })
+    res.status(400).json({ error: getErrorMessage(error) })
   }
 })
 

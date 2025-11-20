@@ -14,6 +14,7 @@ import { Pool } from 'pg';
 import { z } from 'zod';
 import { authenticateJWT, AuthRequest } from '../middleware/auth';
 import { requirePermission } from '../middleware/permissions';
+import { getErrorMessage } from '../utils/error-handler'
 
 const router = express.Router();
 
@@ -114,7 +115,7 @@ router.get(
       console.error('Error fetching reauthorization cycles:', error);
       res.status(500).json({
         error: 'Failed to fetch reauthorization cycles',
-        details: error.message,
+        details: getErrorMessage(error),
       });
     }
   }
@@ -196,7 +197,7 @@ router.post(
       }
       res.status(500).json({
         error: 'Failed to create reauthorization cycle',
-        details: error.message,
+        details: getErrorMessage(error),
       });
     }
   }
@@ -266,7 +267,7 @@ router.get(
       console.error('Error fetching assignments for review:', error);
       res.status(500).json({
         error: 'Failed to fetch assignments for review',
-        details: error.message,
+        details: getErrorMessage(error),
       });
     }
   }
@@ -355,7 +356,7 @@ router.post(
       }
       res.status(500).json({
         error: 'Failed to create reauthorization decision',
-        details: error.message,
+        details: getErrorMessage(error),
       });
     }
   }
@@ -426,7 +427,7 @@ router.post(
       console.error('Error submitting reauthorization cycle:', error);
       res.status(500).json({
         error: 'Failed to submit reauthorization cycle',
-        details: error.message,
+        details: getErrorMessage(error),
       });
     }
   }

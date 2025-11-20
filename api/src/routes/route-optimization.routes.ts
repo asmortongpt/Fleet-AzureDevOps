@@ -9,6 +9,7 @@ import { auditLog } from '../middleware/audit'
 import pool from '../config/database'
 import * as routeOptimizationService from '../services/route-optimization.service'
 import { z } from 'zod'
+import { getErrorMessage } from '../utils/error-handler'
 
 const router = express.Router()
 router.use(authenticateJWT)
@@ -199,7 +200,7 @@ router.post(
 
       res.status(500).json({
         error: 'Route optimization failed',
-        message: error.message
+        message: getErrorMessage(error)
       })
     }
   }
@@ -224,7 +225,16 @@ router.get(
       const { page = 1, limit = 50, status } = req.query
       const offset = (Number(page) - 1) * Number(limit)
 
-      let query = `SELECT * FROM route_optimization_jobs WHERE tenant_id = $1`
+      let query = `SELECT
+        id, tenant_id, job_name, job_type, optimization_goal, max_vehicles,
+        max_stops_per_route, max_route_duration_minutes, consider_traffic,
+        consider_time_windows, consider_vehicle_capacity, consider_driver_hours,
+        consider_ev_range, scheduled_date, scheduled_time, time_zone, status,
+        progress_percent, total_routes, total_distance_miles, total_duration_minutes,
+        estimated_fuel_cost, estimated_time_saved_minutes, estimated_cost_savings,
+        solver_runtime_seconds, solver_status, optimization_score, created_by,
+        created_at, started_at, completed_at, error_message
+      FROM route_optimization_jobs WHERE tenant_id = $1`
       const params: any[] = [req.user!.tenant_id]
 
       if (status) {
@@ -291,7 +301,17 @@ router.get(
 
       // Get stops
       const stopsResult = await pool.query(
-        `SELECT * FROM route_stops WHERE job_id = $1 ORDER BY assigned_route_id, assigned_sequence`,
+        `SELECT
+          id, job_id, tenant_id, stop_name, stop_type, priority, address,
+          latitude, longitude, earliest_arrival, latest_arrival, service_duration_minutes,
+          weight_lbs, volume_cuft, package_count, requires_refrigeration,
+          requires_liftgate, requires_signature, access_notes, customer_name,
+          customer_phone, customer_email, assigned_route_id, assigned_sequence,
+          estimated_arrival_time, actual_arrival_time, actual_departure_time,
+          status, completion_notes, metadata, created_at, updated_at
+        FROM route_stops
+        WHERE job_id = $1
+        ORDER BY assigned_route_id, assigned_sequence`,
         [req.params.id]
       )
 
@@ -324,11 +344,20 @@ router.get(
   async (req: AuthRequest, res: Response) => {
     try {
       const result = await pool.query(
-        `SELECT * FROM active_routes_summary
-         WHERE id IN (
-           SELECT id FROM optimized_routes WHERE tenant_id = $1
-         )
-         ORDER BY planned_start_time DESC`,
+        `SELECT
+          id, job_id, tenant_id, route_number, route_name, vehicle_id, driver_id,
+          total_stops, total_distance_miles, total_duration_minutes,
+          driving_duration_minutes, service_duration_minutes, total_weight_lbs,
+          total_volume_cuft, total_packages, capacity_utilization_percent,
+          fuel_cost, labor_cost, total_cost, planned_start_time, planned_end_time,
+          actual_start_time, actual_end_time, route_geometry, route_polyline,
+          waypoints, traffic_factor, alternative_routes_count, status, notes,
+          created_at, updated_at
+        FROM active_routes_summary
+        WHERE id IN (
+          SELECT id FROM optimized_routes WHERE tenant_id = $1
+        )
+        ORDER BY planned_start_time DESC`,
         [req.user!.tenant_id]
       )
 
@@ -373,9 +402,17 @@ router.get(
 
       // Get stops
       const stopsResult = await pool.query(
-        `SELECT * FROM route_stops
-         WHERE assigned_route_id = $1
-         ORDER BY assigned_sequence`,
+        `SELECT
+          id, job_id, tenant_id, stop_name, stop_type, priority, address,
+          latitude, longitude, earliest_arrival, latest_arrival, service_duration_minutes,
+          weight_lbs, volume_cuft, package_count, requires_refrigeration,
+          requires_liftgate, requires_signature, access_notes, customer_name,
+          customer_phone, customer_email, assigned_route_id, assigned_sequence,
+          estimated_arrival_time, actual_arrival_time, actual_departure_time,
+          status, completion_notes, metadata, created_at, updated_at
+        FROM route_stops
+        WHERE assigned_route_id = $1
+        ORDER BY assigned_sequence`,
         [req.params.id]
       )
 
@@ -506,12 +543,21 @@ router.get(
 
       // Get recent jobs
       const recentResult = await pool.query(
-        `SELECT * FROM optimization_job_stats
-         WHERE id IN (
-           SELECT id FROM route_optimization_jobs WHERE tenant_id = $1
-         )
-         ORDER BY id DESC
-         LIMIT 10`,
+        `SELECT
+          id, tenant_id, job_name, job_type, optimization_goal, max_vehicles,
+          max_stops_per_route, max_route_duration_minutes, consider_traffic,
+          consider_time_windows, consider_vehicle_capacity, consider_driver_hours,
+          consider_ev_range, scheduled_date, scheduled_time, time_zone, status,
+          progress_percent, total_routes, total_distance_miles, total_duration_minutes,
+          estimated_fuel_cost, estimated_time_saved_minutes, estimated_cost_savings,
+          solver_runtime_seconds, solver_status, optimization_score, created_by,
+          created_at, started_at, completed_at, error_message
+        FROM optimization_job_stats
+        WHERE id IN (
+          SELECT id FROM route_optimization_jobs WHERE tenant_id = $1
+        )
+        ORDER BY id DESC
+        LIMIT 10`,
         [req.user!.tenant_id]
       )
 
