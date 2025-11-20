@@ -92,6 +92,8 @@ import exampleDIRoutes from './routes/example-di.routes'
 // RBAC & Security
 import permissionsRoutes from './routes/permissions'
 import breakGlassRoutes from './routes/break-glass'
+// Query Performance Monitoring
+import queryPerformanceRoutes from './routes/monitoring/query-performance'
 import maintenanceScheduler from './jobs/maintenance-scheduler'
 import telematicsSync from './jobs/telematics-sync'
 import teamsSync from './jobs/teams-sync.job'
@@ -479,6 +481,8 @@ app.use('/api/webhooks/outlook', outlookWebhookRoutes)
 // RBAC & Security
 app.use('/api/permissions', permissionsRoutes)
 app.use('/api/break-glass', breakGlassRoutes)
+// Query Performance Monitoring
+app.use('/api/monitoring/query-performance', queryPerformanceRoutes)
 
 // System Status endpoint
 /**
