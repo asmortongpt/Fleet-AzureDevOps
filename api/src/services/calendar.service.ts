@@ -434,7 +434,36 @@ export async function scheduleMaintenance(
   try {
     // Get vehicle details
     const vehicleResult = await pool.query(
-      'SELECT * FROM vehicles WHERE id = $1',
+      'SELECT 
+      id,
+      tenant_id,
+      vin,
+      make,
+      model,
+      year,
+      license_plate,
+      vehicle_type,
+      fuel_type,
+      status,
+      odometer,
+      engine_hours,
+      purchase_date,
+      purchase_price,
+      current_value,
+      gps_device_id,
+      last_gps_update,
+      latitude,
+      longitude,
+      location,
+      speed,
+      heading,
+      assigned_driver_id,
+      assigned_facility_id,
+      telematics_data,
+      photos,
+      notes,
+      created_at,
+      updated_at FROM vehicles WHERE id = $1',
       [vehicleId]
     )
 
@@ -493,7 +522,23 @@ export async function scheduleDriverTraining(
   try {
     // Get driver details
     const driverResult = await pool.query(
-      'SELECT * FROM users WHERE id = $1 AND role = $2',
+      'SELECT 
+      id,
+      tenant_id,
+      email,
+      password_hash,
+      first_name,
+      last_name,
+      phone,
+      role,
+      is_active,
+      failed_login_attempts,
+      account_locked_until,
+      last_login_at,
+      mfa_enabled,
+      mfa_secret,
+      created_at,
+      updated_at FROM users WHERE id = $1 AND role = $2',
       [driverId, 'driver']
     )
 

@@ -566,7 +566,36 @@ async function syncReservationToCalendars(
   try {
     // Get vehicle details
     const vehicle = await pool.query(
-      'SELECT * FROM vehicles WHERE id = $1',
+      'SELECT 
+      id,
+      tenant_id,
+      vin,
+      make,
+      model,
+      year,
+      license_plate,
+      vehicle_type,
+      fuel_type,
+      status,
+      odometer,
+      engine_hours,
+      purchase_date,
+      purchase_price,
+      current_value,
+      gps_device_id,
+      last_gps_update,
+      latitude,
+      longitude,
+      location,
+      speed,
+      heading,
+      assigned_driver_id,
+      assigned_facility_id,
+      telematics_data,
+      photos,
+      notes,
+      created_at,
+      updated_at FROM vehicles WHERE id = $1',
       [reservation.vehicle_id]
     )
 
