@@ -243,7 +243,25 @@ router.post(
 
       // Get session
       const sessionResult = await pool.query(
-        'SELECT * FROM chat_sessions WHERE id = $1 AND tenant_id = $2',
+        'SELECT 
+      id,
+      tenant_id,
+      user_id,
+      title,
+      description,
+      document_scope,
+      system_prompt,
+      model_name,
+      temperature,
+      max_tokens,
+      message_count,
+      total_tokens_used,
+      total_cost_usd,
+      created_at,
+      updated_at,
+      last_message_at,
+      is_active,
+      deleted_at FROM chat_sessions WHERE id = $1 AND tenant_id = $2',
         [chatData.sessionId, req.user!.tenant_id]
       )
 
@@ -421,7 +439,25 @@ router.post(
 
       // Get session and prepare context (similar to regular chat)
       const sessionResult = await pool.query(
-        'SELECT * FROM chat_sessions WHERE id = $1 AND tenant_id = $2',
+        'SELECT 
+      id,
+      tenant_id,
+      user_id,
+      title,
+      description,
+      document_scope,
+      system_prompt,
+      model_name,
+      temperature,
+      max_tokens,
+      message_count,
+      total_tokens_used,
+      total_cost_usd,
+      created_at,
+      updated_at,
+      last_message_at,
+      is_active,
+      deleted_at FROM chat_sessions WHERE id = $1 AND tenant_id = $2',
         [chatData.sessionId, req.user!.tenant_id]
       )
 

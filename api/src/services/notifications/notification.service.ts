@@ -308,7 +308,19 @@ export class NotificationService {
    */
   async getUserPreferences(userId: string): Promise<NotificationPreferences> {
     const result = await pool.query(
-      'SELECT * FROM notification_preferences WHERE user_id = $1',
+      'SELECT 
+      id,
+      user_id,
+      email_notifications,
+      sms_notifications,
+      push_notifications,
+      in_app_notifications,
+      notification_types,
+      quiet_hours_start,
+      quiet_hours_end,
+      timezone,
+      created_at,
+      updated_at FROM notification_preferences WHERE user_id = $1',
       [userId]
     )
 
@@ -420,7 +432,19 @@ export class NotificationService {
    */
   private async getTemplate(templateId: string): Promise<NotificationTemplate | null> {
     const result = await pool.query(
-      'SELECT * FROM notification_templates WHERE id = $1',
+      'SELECT 
+      id,
+      name,
+      type,
+      email_subject,
+      email_body,
+      sms_text,
+      push_title,
+      push_body,
+      in_app_title,
+      in_app_message,
+      variables,
+      created_at FROM notification_templates WHERE id = $1',
       [templateId]
     )
 

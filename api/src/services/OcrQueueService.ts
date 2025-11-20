@@ -511,7 +511,21 @@ export class OcrQueueService {
   async getBatchStatus(batchId: string): Promise<BatchOcrJob | null> {
     try {
       const result = await pool.query(
-        `SELECT * FROM ocr_batch_jobs WHERE id = $1`,
+        `SELECT 
+      id,
+      tenant_id,
+      user_id,
+      total_documents,
+      completed_documents,
+      failed_documents,
+      status,
+      options,
+      created_at,
+      updated_at,
+      REFERENCES,
+      ON,
+      REFERENCES,
+      ON FROM ocr_batch_jobs WHERE id = $1`,
         [batchId]
       );
 
@@ -565,7 +579,35 @@ export class OcrQueueService {
     try {
       // Get job details
       const jobResult = await pool.query(
-        `SELECT * FROM ocr_jobs WHERE id = $1`,
+        `SELECT 
+      id,
+      document_id,
+      tenant_id,
+      user_id,
+      batch_id,
+      queue_job_id,
+      file_path,
+      file_name,
+      file_size,
+      mime_type,
+      options,
+      status,
+      priority,
+      progress,
+      result,
+      error,
+      started_at,
+      completed_at,
+      failed_at,
+      processing_time,
+      retry_count,
+      max_retries,
+      created_at,
+      updated_at,
+      REFERENCES,
+      ON,
+      REFERENCES,
+      ON FROM ocr_jobs WHERE id = $1`,
         [jobId]
       );
 
