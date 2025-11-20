@@ -120,12 +120,20 @@ class Environment {
       }
     }
 
-    // Development warnings
+    // Development warnings - JWT_SECRET still required even in development
     if (this.config.NODE_ENV === 'development') {
       if (!this.config.JWT_SECRET) {
-        console.warn('⚠️  WARNING: JWT_SECRET not set. Using insecure default for development only.');
-        this.config.JWT_SECRET = 'dev-secret-change-in-production-minimum-32-chars';
+        console.warn('⚠️  WARNING: JWT_SECRET not set even in development.');
+        console.warn('⚠️  Set JWT_SECRET environment variable to prevent startup errors.');
+        console.warn('⚠️  Generate one with: openssl rand -base64 48');
       }
+    }
+
+    // JWT_SECRET is required in all environments
+    if (!this.config.JWT_SECRET) {
+      errors.push('JWT_SECRET must be set in all environments (generate with: openssl rand -base64 48)');
+    } else if (this.config.JWT_SECRET.length < 32) {
+      errors.push('JWT_SECRET must be at least 32 characters long');
     }
 
     if (errors.length > 0) {
