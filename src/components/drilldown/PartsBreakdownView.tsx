@@ -3,14 +3,11 @@
  * Shows detailed parts list with costs and ability to drill into item history
  */
 
-import React from 'react'
 import { useDrilldown } from '@/contexts/DrilldownContext'
 import { DrilldownContent } from '@/components/DrilldownPanel'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
+import { Card, CardContent } from '@/components/ui/card'
 import useSWR from 'swr'
-import { Package, DollarSign, Hash, ArrowRight, TrendingUp } from 'lucide-react'
-
+import { Package, Hash, ArrowRight } from 'lucide-react'
 interface PartsBreakdownViewProps {
   workOrderId: string
   workOrderNumber?: string

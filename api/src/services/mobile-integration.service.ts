@@ -244,7 +244,7 @@ export class MobileIntegrationService {
 
     // Get route waypoints with turn-by-turn directions
     const waypoints = await pool.query(
-      `SELECT * FROM route_waypoints
+      `SELECT id, tenant_id, route_id, waypoint_order, latitude, longitude, address, created_at FROM route_waypoints
        WHERE route_id = $1
        ORDER BY sequence`,
       [route.id]
@@ -349,7 +349,7 @@ export class MobileIntegrationService {
 
       // Get next stop
       const nextStopResult = await pool.query(
-        `SELECT * FROM route_stops
+        `SELECT id, tenant_id, route_id, stop_order, stop_name, latitude, longitude, created_at FROM route_stops
          WHERE route_id = $1
            AND (status = 'pending' OR status = 'in_progress')
          ORDER BY sequence
@@ -372,7 +372,7 @@ export class MobileIntegrationService {
     // 4. Get active geofences if requested
     if (data.include_geofences) {
       const geofencesResult = await pool.query(
-        `SELECT * FROM geofences
+        `SELECT id, tenant_id, geofence_name, latitude, longitude, radius_meters, created_at, updated_at FROM geofences
          WHERE tenant_id = $1 AND is_active = true`,
         [tenantId]
       )
@@ -597,7 +597,7 @@ export class MobileIntegrationService {
   ): Promise<any | null> {
     // Check for conflicts
     const existing = await pool.query(
-      `SELECT * FROM vehicle_inspections
+      `SELECT id, tenant_id, vehicle_id, inspection_type, inspection_date, status, notes, created_at FROM vehicle_inspections
        WHERE mobile_id = $1`,
       [inspection.id]
     )
@@ -737,7 +737,7 @@ export class MobileIntegrationService {
 
     // Get active routes
     const routes = await pool.query(
-      `SELECT * FROM optimized_routes
+      `SELECT id, tenant_id, route_name, total_distance, estimated_duration, waypoint_count, created_at FROM optimized_routes
        WHERE tenant_id = $1 AND driver_id = $2 AND status = 'active'
        ORDER BY created_at DESC`,
       [tenantId, userId]
@@ -758,7 +758,7 @@ export class MobileIntegrationService {
 
     // Get recent safety events
     const safetyEvents = await pool.query(
-      `SELECT * FROM driver_safety_events
+      `SELECT id, tenant_id, driver_id, event_type, severity, event_data, event_date, created_at FROM driver_safety_events
        WHERE tenant_id = $1 AND driver_id = $2
        ORDER BY event_time DESC
        LIMIT 10`,

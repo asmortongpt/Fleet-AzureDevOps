@@ -5,7 +5,7 @@
  */
 
 import React, { useState, useRef, useEffect } from 'react'
-import { Send, Loader2, CheckCircle2, AlertCircle, Sparkles } from 'lucide-react'
+import { Send, Loader2, AlertCircle, Sparkles } from 'lucide-react'
 import { Button } from '../ui/button'
 import { Input } from '../ui/input'
 import { Card } from '../ui/card'

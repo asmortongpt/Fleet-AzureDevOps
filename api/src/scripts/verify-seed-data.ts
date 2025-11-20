@@ -220,11 +220,11 @@ async function verifyData() {
     console.log('='.repeat(80));
     console.log('\n💡 Quick SQL Queries for Manual Verification:');
     console.log('\n   -- List all tenants');
-    console.log('   SELECT * FROM tenants;');
+    console.log('   SELECT ` + (await getTableColumns(pool, 'tenants')).join(', ') + ` FROM tenants;');
     console.log('\n   -- Count vehicles by status');
     console.log('   SELECT status, COUNT(*) FROM vehicles GROUP BY status;');
     console.log('\n   -- Recent fuel transactions');
-    console.log('   SELECT * FROM fuel_transactions ORDER BY transaction_date DESC LIMIT 10;');
+    console.log('   SELECT ` + (await getTableColumns(pool, 'fuel_transactions')).join(', ') + ` FROM fuel_transactions ORDER BY transaction_date DESC LIMIT 10;');
     console.log('\n   -- Work orders by status');
     console.log('   SELECT status, priority, COUNT(*) FROM work_orders GROUP BY status, priority;');
     console.log('\n');

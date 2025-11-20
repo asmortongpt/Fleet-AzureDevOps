@@ -648,7 +648,7 @@ router.get(
       }
 
       const result = await pool.query(
-        `SELECT * FROM vw_multi_metric_maintenance_due ${filters} ORDER BY
+        `SELECT vehicle_id, vehicle_name, last_service_date, days_since_service, miles_since_service, next_due_date FROM vw_multi_metric_maintenance_due ${filters} ORDER BY
           CASE WHEN is_overdue THEN 0 ELSE 1 END,
           units_until_due ASC NULLS LAST`,
         params
@@ -711,7 +711,7 @@ router.get(
   async (req: AuthRequest, res: Response) => {
     try {
       const result = await pool.query(
-        `SELECT * FROM vw_multi_metric_maintenance_due
+        `SELECT vehicle_id, vehicle_name, last_service_date, days_since_service, miles_since_service, next_due_date FROM vw_multi_metric_maintenance_due
          WHERE vehicle_id = $1 AND tenant_id = $2
          ORDER BY
            CASE WHEN is_overdue THEN 0 ELSE 1 END,

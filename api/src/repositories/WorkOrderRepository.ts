@@ -157,8 +157,9 @@ export class WorkOrderRepository extends BaseRepository<WorkOrder> {
     const total = parseInt(countResult.rows[0].count, 10);
 
     // Get paginated data
+    const columns = 'id, tenant_id, vehicle_id, type, priority, description, estimated_cost, actual_cost, status, created_at, updated_at, deleted_at, metadata, created_by, assigned_to';
     const dataQuery = `
-      SELECT * FROM ${this.tableName}
+      SELECT ${columns} FROM ${this.tableName}
       ${whereClause}
       ORDER BY created_at DESC
       LIMIT ${limit} OFFSET ${offset}
@@ -238,8 +239,9 @@ export class WorkOrderRepository extends BaseRepository<WorkOrder> {
    * Find active work orders (open or in progress)
    */
   async findActive(tenantId: string): Promise<WorkOrder[]> {
+    const columns = 'id, tenant_id, vehicle_id, type, priority, description, estimated_cost, actual_cost, status, created_at, updated_at, deleted_at, metadata, created_by, assigned_to';
     const query = `
-      SELECT * FROM ${this.tableName}
+      SELECT ${columns} FROM ${this.tableName}
       WHERE tenant_id = $1
         AND status IN ('open', 'in_progress')
         AND deleted_at IS NULL
@@ -254,8 +256,9 @@ export class WorkOrderRepository extends BaseRepository<WorkOrder> {
    * Find overdue work orders
    */
   async findOverdue(tenantId: string): Promise<WorkOrder[]> {
+    const columns = 'id, tenant_id, vehicle_id, type, priority, description, estimated_cost, actual_cost, status, created_at, updated_at, deleted_at, metadata, created_by, assigned_to';
     const query = `
-      SELECT * FROM ${this.tableName}
+      SELECT ${columns} FROM ${this.tableName}
       WHERE tenant_id = $1
         AND status IN ('open', 'in_progress')
         AND scheduled_end_date < NOW()
@@ -516,8 +519,9 @@ export class WorkOrderRepository extends BaseRepository<WorkOrder> {
     minCost: number,
     maxCost: number
   ): Promise<WorkOrder[]> {
+    const columns = 'id, tenant_id, vehicle_id, type, priority, description, estimated_cost, actual_cost, status, created_at, updated_at, deleted_at, metadata, created_by, assigned_to';
     const query = `
-      SELECT * FROM ${this.tableName}
+      SELECT ${columns} FROM ${this.tableName}
       WHERE tenant_id = $1
         AND actual_cost BETWEEN $2 AND $3
         AND deleted_at IS NULL

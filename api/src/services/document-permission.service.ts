@@ -34,7 +34,7 @@ export class DocumentPermissionService {
 
       // Check if permission already exists
       const existingPermission = await client.query(
-        `SELECT * FROM document_permissions
+        `SELECT id, tenant_id, document_id, user_id, permission_type, granted_at FROM document_permissions
          WHERE (document_id = $1 OR folder_id = $2)
            AND user_id = $3
            AND permission_type = $4`,
@@ -335,7 +335,7 @@ export class DocumentPermissionService {
     try {
       // Get direct permissions
       const userPermissions = await pool.query(
-        `SELECT * FROM document_permissions
+        `SELECT id, tenant_id, document_id, user_id, permission_type, granted_at FROM document_permissions
          WHERE document_id = $1 AND user_id = $2`,
         [documentId, userId]
       )
