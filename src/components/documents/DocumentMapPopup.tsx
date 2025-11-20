@@ -109,7 +109,7 @@ export function DocumentMapPopup({ document, onView, onDownload }: DocumentMapPo
             />
           </svg>
           <span className="text-gray-700 dark:text-gray-300 text-xs leading-relaxed">
-            {document.location.address}
+            {document.location?.address}
           </span>
         </div>
       )}
@@ -131,9 +131,9 @@ export function DocumentMapPopup({ document, onView, onDownload }: DocumentMapPo
             />
           </svg>
           <span>
-            {document.location.city}
-            {document.location.city && document.location.state && ', '}
-            {document.location.state}
+            {document.location?.city}
+            {document.location?.city && document.location?.state && ', '}
+            {document.location?.state}
           </span>
         </div>
       )}
@@ -175,7 +175,7 @@ export function DocumentMapPopup({ document, onView, onDownload }: DocumentMapPo
             />
           </svg>
           <span>
-            {document.location.lat.toFixed(4)}, {document.location.lng.toFixed(4)}
+            {document.location?.lat.toFixed(4)}, {document.location?.lng.toFixed(4)}
           </span>
         </div>
       )}

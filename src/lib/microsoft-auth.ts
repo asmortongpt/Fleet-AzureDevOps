@@ -16,7 +16,7 @@ export interface MicrosoftAuthConfig {
 export const MICROSOFT_AUTH_CONFIG: MicrosoftAuthConfig = {
   clientId: import.meta.env.VITE_AZURE_CLIENT_ID || import.meta.env.VITE_AZURE_AD_CLIENT_ID || '',
   tenantId: import.meta.env.VITE_AZURE_TENANT_ID || import.meta.env.VITE_AZURE_AD_TENANT_ID || '',
-  redirectUri: window.location.origin + '/auth/callback',
+  redirectUri: window.location?.origin + '/auth/callback',
   scopes: ['openid', 'profile', 'email', 'User.Read']
 }
 
@@ -32,7 +32,7 @@ if (!MICROSOFT_AUTH_CONFIG.clientId || !MICROSOFT_AUTH_CONFIG.tenantId) {
  */
 export function getMicrosoftLoginUrl(tenantId?: string): string {
   // Use the backend endpoint to initiate OAuth - this ensures redirect_uri consistency
-  const apiBaseUrl = import.meta.env.VITE_API_URL || window.location.origin + '/api'
+  const apiBaseUrl = import.meta.env.VITE_API_URL || window.location?.origin + '/api'
   const url = `${apiBaseUrl}/auth/microsoft/login`
   return tenantId ? `${url}?tenant_id=${tenantId}` : url
 
@@ -58,7 +58,7 @@ export function getMicrosoftLoginUrl(tenantId?: string): string {
  * @param tenantId Optional fleet tenant ID
  */
 export function signInWithMicrosoft(tenantId?: string): void {
-  window.location.href = getMicrosoftLoginUrl(tenantId)
+  window.location?.href = getMicrosoftLoginUrl(tenantId)
 }
 
 /**
@@ -66,7 +66,7 @@ export function signInWithMicrosoft(tenantId?: string): void {
  * @returns Authorization code if present, null otherwise
  */
 export function getAuthCodeFromUrl(): string | null {
-  const params = new URLSearchParams(window.location.search)
+  const params = new URLSearchParams(window.location?.search)
   return params.get('code')
 }
 
@@ -75,7 +75,7 @@ export function getAuthCodeFromUrl(): string | null {
  * @returns Error information if present
  */
 export function getAuthErrorFromUrl(): { error: string; description: string } | null {
-  const params = new URLSearchParams(window.location.search)
+  const params = new URLSearchParams(window.location?.search)
   const error = params.get('error')
   const errorDescription = params.get('error_description')
 
@@ -94,7 +94,7 @@ export function getAuthErrorFromUrl(): { error: string; description: string } | 
  * @returns Tenant ID from state parameter
  */
 export function getTenantIdFromState(): string | null {
-  const params = new URLSearchParams(window.location.search)
+  const params = new URLSearchParams(window.location?.search)
   return params.get('state')
 }
 
@@ -169,7 +169,7 @@ export function getCurrentUser(): any | null {
  */
 export function signOut(): void {
   localStorage.removeItem('token')
-  window.location.href = '/login'
+  window.location?.href = '/login'
 }
 
 /**
