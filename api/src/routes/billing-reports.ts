@@ -2,7 +2,7 @@ import express, { Response } from 'express'
 import { AuthRequest, authenticateJWT } from '../middleware/auth'
 import { requirePermission } from '../middleware/permissions'
 import { billingReportsService } from '../services/billing-reports'
-import { logger } from '../config/logger'
+import { logger } from '../utils/logger'
 
 const router = express.Router()
 
