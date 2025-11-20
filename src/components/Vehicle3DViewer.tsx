@@ -287,7 +287,7 @@ function VehicleModel({
       {showDamage && damageMarkers.map((marker, index) => (
         <DamageMarker
           key={index}
-          position={[marker.location.x, marker.location.y, marker.location.z]}
+          position={[marker.location?.x, marker.location?.y, marker.location?.z]}
           severity={marker.severity}
           type={marker.type}
           description={marker.description}
@@ -670,7 +670,7 @@ export function Vehicle3DViewer({
     } else if (isAndroid && modelUrl) {
       // Open Scene Viewer for Android
       const intent = `intent://arvr.google.com/scene-viewer/1.0?file=${encodeURIComponent(modelUrl)}&mode=ar_only#Intent;scheme=https;package=com.google.ar.core;action=android.intent.action.VIEW;S.browser_fallback_url=https://developers.google.com/ar;end;`;
-      window.location.href = intent;
+      window.location?.href = intent;
     } else {
       // Fallback or show message
       alert('AR viewing requires a compatible mobile device');

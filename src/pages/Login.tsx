@@ -20,7 +20,7 @@ export function Login() {
   const [password, setPassword] = useState('')
 
   // Check for error messages in URL
-  const params = new URLSearchParams(window.location.search)
+  const params = new URLSearchParams(window.location?.search)
   const urlError = params.get('error')
   const urlMessage = params.get('message') || params.get('error_description')
 

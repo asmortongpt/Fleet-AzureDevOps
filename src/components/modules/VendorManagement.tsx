@@ -380,7 +380,7 @@ export function VendorManagement() {
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => window.location.href = `tel:${vendor.phone}`}
+                          onClick={() => window.location?.href = `tel:${vendor.phone}`}
                         >
                           <Phone className="w-4 h-4 mr-1" />
                           Call
@@ -388,7 +388,7 @@ export function VendorManagement() {
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => window.location.href = `mailto:${vendor.email}`}
+                          onClick={() => window.location?.href = `mailto:${vendor.email}`}
                         >
                           <Envelope className="w-4 h-4 mr-1" />
                           Email
@@ -464,7 +464,7 @@ export function VendorManagement() {
                         <Button
                           size="sm"
                           variant="outline"
-                          onClick={() => window.location.href = `mailto:${selectedVendor.email}`}
+                          onClick={() => window.location?.href = `mailto:${selectedVendor.email}`}
                         >
                           <Envelope className="w-3 h-3 mr-1" />
                           Email
@@ -478,7 +478,7 @@ export function VendorManagement() {
                         <Button
                           size="sm"
                           variant="outline"
-                          onClick={() => window.location.href = `tel:${selectedVendor.phone}`}
+                          onClick={() => window.location?.href = `tel:${selectedVendor.phone}`}
                         >
                           <Phone className="w-3 h-3 mr-1" />
                           Call
