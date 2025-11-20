@@ -10,24 +10,56 @@
  */
 
 import { Readable } from 'stream';
-import {
-  S3Client,
-  PutObjectCommand,
-  GetObjectCommand,
-  DeleteObjectCommand,
-  DeleteObjectsCommand,
-  CopyObjectCommand,
-  HeadObjectCommand,
-  ListObjectsV2Command,
-  CreateMultipartUploadCommand,
-  UploadPartCommand,
-  CompleteMultipartUploadCommand,
-  AbortMultipartUploadCommand,
-  GetObjectAttributesCommand,
-  PutObjectAclCommand,
-  ObjectCannedACL
-} from '@aws-sdk/client-s3';
-import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+
+// Optional AWS SDK dependencies - lazy loaded
+let S3Client: any = null;
+let PutObjectCommand: any = null;
+let GetObjectCommand: any = null;
+let DeleteObjectCommand: any = null;
+let DeleteObjectsCommand: any = null;
+let CopyObjectCommand: any = null;
+let HeadObjectCommand: any = null;
+let ListObjectsV2Command: any = null;
+let CreateMultipartUploadCommand: any = null;
+let UploadPartCommand: any = null;
+let CompleteMultipartUploadCommand: any = null;
+let AbortMultipartUploadCommand: any = null;
+let GetObjectAttributesCommand: any = null;
+let PutObjectAclCommand: any = null;
+let ObjectCannedACL: any = null;
+let getSignedUrl: any = null;
+
+// Lazy load AWS SDK
+async function loadAwsS3() {
+  if (S3Client) return true;
+
+  try {
+    const clientModule = await import('@aws-sdk/client-s3');
+    S3Client = clientModule.S3Client;
+    PutObjectCommand = clientModule.PutObjectCommand;
+    GetObjectCommand = clientModule.GetObjectCommand;
+    DeleteObjectCommand = clientModule.DeleteObjectCommand;
+    DeleteObjectsCommand = clientModule.DeleteObjectsCommand;
+    CopyObjectCommand = clientModule.CopyObjectCommand;
+    HeadObjectCommand = clientModule.HeadObjectCommand;
+    ListObjectsV2Command = clientModule.ListObjectsV2Command;
+    CreateMultipartUploadCommand = clientModule.CreateMultipartUploadCommand;
+    UploadPartCommand = clientModule.UploadPartCommand;
+    CompleteMultipartUploadCommand = clientModule.CompleteMultipartUploadCommand;
+    AbortMultipartUploadCommand = clientModule.AbortMultipartUploadCommand;
+    GetObjectAttributesCommand = clientModule.GetObjectAttributesCommand;
+    PutObjectAclCommand = clientModule.PutObjectAclCommand;
+    ObjectCannedACL = clientModule.ObjectCannedACL;
+
+    const presignerModule = await import('@aws-sdk/s3-request-presigner');
+    getSignedUrl = presignerModule.getSignedUrl;
+
+    return true;
+  } catch (err) {
+    console.warn('AWS S3 SDK not available - S3 storage will be disabled. Install @aws-sdk/client-s3 and @aws-sdk/s3-request-presigner for S3 storage support.');
+    return false;
+  }
+}
 import {
   BaseStorageAdapter,
   StorageConfig,
@@ -60,30 +92,51 @@ export class S3StorageAdapter extends BaseStorageAdapter {
     super(config);
 
     if (!config.s3) {
-      throw new Error('S3 configuration is required');
+      console.warn('S3 configuration not provided - S3 storage adapter will be unavailable');
+      return;
     }
 
     const { accessKeyId, secretAccessKey, region, bucket, endpoint, forcePathStyle } = config.s3;
 
     if (!accessKeyId || !secretAccessKey || !region || !bucket) {
-      throw new Error('S3 credentials, region, and bucket are required');
+      console.warn('S3 credentials, region, or bucket not provided - S3 storage adapter will be unavailable');
+      return;
     }
 
     this.bucket = bucket;
 
-    this.client = new S3Client({
-      region,
-      credentials: {
-        accessKeyId,
-        secretAccessKey
-      },
-      endpoint,
-      forcePathStyle: forcePathStyle || false
-    });
+    // Note: S3Client will be instantiated during initialize() after AWS SDK is loaded
+    this.config.s3 = { accessKeyId, secretAccessKey, region, bucket, endpoint, forcePathStyle };
   }
 
   async initialize(): Promise<void> {
+    // Load AWS SDK if not already loaded
+    const sdkAvailable = await loadAwsS3();
+
+    if (!sdkAvailable) {
+      console.warn('S3 storage adapter unavailable - AWS SDK not installed');
+      return;
+    }
+
+    if (!this.bucket || !this.config.s3) {
+      console.warn('S3 storage adapter unavailable - configuration not provided');
+      return;
+    }
+
     try {
+      // Create S3Client now that SDK is loaded
+      const { accessKeyId, secretAccessKey, region, endpoint, forcePathStyle } = this.config.s3;
+
+      this.client = new S3Client({
+        region,
+        credentials: {
+          accessKeyId,
+          secretAccessKey
+        },
+        endpoint,
+        forcePathStyle: forcePathStyle || false
+      });
+
       // Verify bucket exists by attempting to list objects
       await this.client.send(
         new ListObjectsV2Command({
@@ -93,12 +146,14 @@ export class S3StorageAdapter extends BaseStorageAdapter {
       );
 
       this.initialized = true;
+      console.log(`✅ S3 storage adapter initialized for bucket: ${this.bucket}`);
     } catch (error) {
-      throw new Error(
-        `Failed to initialize S3 storage for bucket ${this.bucket}: ${
+      console.warn(
+        `S3 storage adapter unavailable - failed to initialize bucket ${this.bucket}: ${
           error instanceof Error ? error.message : 'Unknown error'
         }`
       );
+      // Don't throw - allow app to continue without S3
     }
   }
 
