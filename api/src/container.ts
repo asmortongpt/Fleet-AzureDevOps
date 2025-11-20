@@ -33,7 +33,7 @@ import documentServiceInstance from './services/document.service'
 import ExampleDIService from './services/example-di.service'
 
 // Logger import
-import logger from './config/logger'
+import logger from './utils/logger'
 
 /**
  * Container type definition for better TypeScript support
@@ -41,7 +41,7 @@ import logger from './config/logger'
  * This interface defines all services available through DI.
  * Services are loaded lazily to avoid circular dependencies.
  */
-export interface DIContainer {
+export interface DIContainer extends AwilixContainer {
   // Database
   db: Pool
   readPool: Pool
@@ -118,7 +118,7 @@ export function registerService<K extends keyof DIContainer>(
 export function registerServiceClass<T>(
   serviceName: string,
   serviceClass: new (...args: any[]) => T,
-  lifetime: Lifetime = Lifetime.SCOPED
+  lifetime: typeof Lifetime.SCOPED | typeof Lifetime.SINGLETON | typeof Lifetime.TRANSIENT = Lifetime.SCOPED
 ) {
   container.register({
     [serviceName]: asClass(serviceClass, { lifetime })

@@ -20,7 +20,6 @@
  */
 
 import { Pool } from 'pg'
-import logger from '../config/logger'
 
 /**
  * Dependencies interface
@@ -28,7 +27,7 @@ import logger from '../config/logger'
  */
 export interface ExampleServiceDependencies {
   db: Pool
-  logger: typeof logger
+  logger: any // Winston logger instance
 }
 
 /**
@@ -43,7 +42,7 @@ export interface ExampleServiceDependencies {
 export class ExampleDIService {
   // Dependencies injected through constructor
   private readonly db: Pool
-  private readonly logger: typeof logger
+  private readonly logger: any // Winston logger instance
 
   /**
    * Constructor with dependency injection
