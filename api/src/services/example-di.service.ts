@@ -78,7 +78,7 @@ export class ExampleDIService {
   async performAction(vehicleId: number): Promise<{ success: boolean; message: string }> {
     try {
       // Use injected dependencies
-      const result = await this.db.query('SELECT 
+      const result = await this.db.query(`SELECT
       id,
       tenant_id,
       vin,
@@ -107,7 +107,7 @@ export class ExampleDIService {
       photos,
       notes,
       created_at,
-      updated_at FROM vehicles WHERE id = $1', [vehicleId])
+      updated_at FROM vehicles WHERE id = $1`, [vehicleId])
 
       if (result.rows.length === 0) {
         return {

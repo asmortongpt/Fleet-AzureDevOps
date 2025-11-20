@@ -209,7 +209,17 @@ class DispatchService {
 
       // Get channel info
       const channelResult = await pool.query(
-        'SELECT * FROM dispatch_channels WHERE id = $1',
+        'SELECT 
+      id,
+      name,
+      description,
+      channel_type,
+      is_active,
+      priority_level,
+      color_code,
+      created_at,
+      updated_at,
+      created_by FROM dispatch_channels WHERE id = $1',
         [channelId]
       )
 
@@ -569,7 +579,17 @@ class DispatchService {
    */
   async getChannels(userId?: number): Promise<DispatchChannel[]> {
     try {
-      let query = 'SELECT * FROM dispatch_channels WHERE is_active = true'
+      let query = 'SELECT 
+      id,
+      name,
+      description,
+      channel_type,
+      is_active,
+      priority_level,
+      color_code,
+      created_at,
+      updated_at,
+      created_by FROM dispatch_channels WHERE is_active = true'
       const params: any[] = []
 
       if (userId) {

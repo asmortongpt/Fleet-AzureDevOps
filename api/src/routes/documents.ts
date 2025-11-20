@@ -159,7 +159,39 @@ router.get(
 
       // Get camera metadata if exists
       const cameraResult = await pool.query(
-        `SELECT * FROM camera_capture_metadata WHERE document_id = $1`,
+        `SELECT 
+      id,
+      document_id,
+      device_manufacturer,
+      device_model,
+      os_name,
+      os_version,
+      app_version,
+      photo_taken_at,
+      camera_make,
+      camera_model,
+      focal_length,
+      aperture,
+      iso,
+      flash_used,
+      orientation,
+      latitude,
+      longitude,
+      altitude,
+      location_accuracy,
+      location_address,
+      image_width,
+      image_height,
+      image_resolution_dpi,
+      file_size_original_bytes,
+      file_size_compressed_bytes,
+      compression_ratio,
+      auto_crop_applied,
+      auto_rotate_applied,
+      auto_brightness_applied,
+      auto_contrast_applied,
+      edge_detection_applied,
+      created_at FROM camera_capture_metadata WHERE document_id = $1`,
         [req.params.id]
       )
 
@@ -171,7 +203,25 @@ router.get(
 
       // Get receipt data if exists
       const receiptResult = await pool.query(
-        `SELECT * FROM receipt_line_items WHERE document_id = $1 ORDER BY line_number`,
+        `SELECT 
+      id,
+      document_id,
+      line_number,
+      item_description,
+      quantity,
+      unit_price,
+      line_total,
+      product_category,
+      product_code,
+      is_taxable,
+      tax_rate,
+      tax_amount,
+      is_approved,
+      approved_by,
+      approved_at,
+      gl_account_code,
+      cost_center,
+      created_at FROM receipt_line_items WHERE document_id = $1 ORDER BY line_number`,
         [req.params.id]
       )
 
@@ -649,7 +699,25 @@ router.put(
 
       // Get updated line items
       const result = await pool.query(
-        `SELECT * FROM receipt_line_items WHERE document_id = $1 ORDER BY line_number`,
+        `SELECT 
+      id,
+      document_id,
+      line_number,
+      item_description,
+      quantity,
+      unit_price,
+      line_total,
+      product_category,
+      product_code,
+      is_taxable,
+      tax_rate,
+      tax_amount,
+      is_approved,
+      approved_by,
+      approved_at,
+      gl_account_code,
+      cost_center,
+      created_at FROM receipt_line_items WHERE document_id = $1 ORDER BY line_number`,
         [req.params.id]
       )
 
