@@ -9,6 +9,7 @@ import { requirePermission } from '../middleware/permissions'
 import { auditLog } from '../middleware/audit'
 import pool from '../config/database'
 import SmartcarService from '../services/smartcar.service'
+import { getErrorMessage } from '../utils/error-handler'
 
 const router = express.Router()
 
@@ -20,7 +21,7 @@ try {
     console.log('✅ Smartcar service initialized')
   }
 } catch (error: any) {
-  console.warn('⚠️  Smartcar service not initialized:', error.message)
+  console.warn('⚠️  Smartcar service not initialized:', getErrorMessage(error))
 }
 
 /**
@@ -56,7 +57,7 @@ router.get('/connect', authenticateJWT, requirePermission('vehicle:manage:global
     })
   } catch (error: any) {
     console.error('Smartcar connect error:', error)
-    res.status(500).json({ error: error.message || 'Internal server error' })
+    res.status(500).json({ error: getErrorMessage(error) || 'Internal server error' })
   }
 })
 
@@ -138,7 +139,7 @@ router.get('/callback', async (req: Request, res: Response) => {
     res.redirect(`/vehicles/${vehicle_id}?smartcar_connected=true`)
   } catch (error: any) {
     console.error('Smartcar callback error:', error)
-    res.redirect(`/vehicles?error=smartcar_auth_failed&message=${encodeURIComponent(error.message)}`)
+    res.redirect(`/vehicles?error=smartcar_auth_failed&message=${encodeURIComponent(getErrorMessage(error))}`)
   }
 })
 
@@ -170,7 +171,7 @@ router.get(
       res.json(location)
     } catch (error: any) {
       console.error('Get Smartcar location error:', error)
-      res.status(500).json({ error: error.message || 'Internal server error' })
+      res.status(500).json({ error: getErrorMessage(error) || 'Internal server error' })
     }
   }
 )
@@ -203,7 +204,7 @@ router.get(
       res.json(battery)
     } catch (error: any) {
       console.error('Get Smartcar battery error:', error)
-      res.status(500).json({ error: error.message || 'Internal server error' })
+      res.status(500).json({ error: getErrorMessage(error) || 'Internal server error' })
     }
   }
 )
@@ -236,7 +237,7 @@ router.get(
       res.json(charge)
     } catch (error: any) {
       console.error('Get Smartcar charge error:', error)
-      res.status(500).json({ error: error.message || 'Internal server error' })
+      res.status(500).json({ error: getErrorMessage(error) || 'Internal server error' })
     }
   }
 )
@@ -269,7 +270,7 @@ router.post(
       res.json(result)
     } catch (error: any) {
       console.error('Lock vehicle error:', error)
-      res.status(500).json({ error: error.message || 'Internal server error' })
+      res.status(500).json({ error: getErrorMessage(error) || 'Internal server error' })
     }
   }
 )
@@ -302,7 +303,7 @@ router.post(
       res.json(result)
     } catch (error: any) {
       console.error('Unlock vehicle error:', error)
-      res.status(500).json({ error: error.message || 'Internal server error' })
+      res.status(500).json({ error: getErrorMessage(error) || 'Internal server error' })
     }
   }
 )
@@ -335,7 +336,7 @@ router.post(
       res.json(result)
     } catch (error: any) {
       console.error('Start charging error:', error)
-      res.status(500).json({ error: error.message || 'Internal server error' })
+      res.status(500).json({ error: getErrorMessage(error) || 'Internal server error' })
     }
   }
 )
@@ -368,7 +369,7 @@ router.post(
       res.json(result)
     } catch (error: any) {
       console.error('Stop charging error:', error)
-      res.status(500).json({ error: error.message || 'Internal server error' })
+      res.status(500).json({ error: getErrorMessage(error) || 'Internal server error' })
     }
   }
 )
@@ -410,7 +411,7 @@ router.delete(
       res.json({ message: 'Smartcar disconnected successfully' })
     } catch (error: any) {
       console.error('Disconnect Smartcar error:', error)
-      res.status(500).json({ error: error.message || 'Internal server error' })
+      res.status(500).json({ error: getErrorMessage(error) || 'Internal server error' })
     }
   }
 )
@@ -437,7 +438,7 @@ router.post(
       res.json({ message: 'Vehicle data synced successfully' })
     } catch (error: any) {
       console.error('Sync Smartcar data error:', error)
-      res.status(500).json({ error: error.message || 'Internal server error' })
+      res.status(500).json({ error: getErrorMessage(error) || 'Internal server error' })
     }
   }
 )

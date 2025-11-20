@@ -16,6 +16,7 @@ import {
 import { appInsightsService } from '../config/app-insights'
 import { emailNotificationService } from '../services/email-notifications'
 import { logger } from '../utils/logger'
+import { getErrorMessage } from '../utils/error-handler'
 
 const router = express.Router()
 router.use(authenticateJWT)
@@ -411,7 +412,7 @@ router.post(
                 percentageUsed: monthlyPercentage,
                 period: 'month'
               }).catch(error => {
-                logger.error('Failed to send limit warning email', { error: error.message })
+                logger.error('Failed to send limit warning email', { error: getErrorMessage(error) })
               })
             }
 

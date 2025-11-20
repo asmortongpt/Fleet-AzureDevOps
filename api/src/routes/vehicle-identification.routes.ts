@@ -13,6 +13,7 @@ import type { AuthRequest } from '../middleware/auth'
 import { authenticateJWT } from '../middleware/auth'
 import { requirePermission } from '../middleware/permissions'
 import vehicleIdentificationService from '../services/vehicle-identification.service'
+import { getErrorMessage } from '../utils/error-handler'
 
 const router = Router()
 router.use(authenticateJWT)
@@ -54,7 +55,7 @@ router.post('/qr/generate/:vehicleId', requirePermission('vehicle:update:fleet')
     })
   } catch (error: any) {
     console.error('Error generating QR code:', error)
-    res.status(500).json({ error: error.message || 'Failed to generate QR code' })
+    res.status(500).json({ error: getErrorMessage(error) || 'Failed to generate QR code' })
   }
 })
 
@@ -102,7 +103,7 @@ router.post('/qr/scan', requirePermission('vehicle:view:fleet'), async (req: Aut
     res.json({ vehicle })
   } catch (error: any) {
     console.error('Error scanning QR code:', error)
-    res.status(500).json({ error: error.message || 'Failed to scan QR code' })
+    res.status(500).json({ error: getErrorMessage(error) || 'Failed to scan QR code' })
   }
 })
 
@@ -161,7 +162,7 @@ router.post('/vin', requirePermission('vehicle:view:fleet'), async (req: AuthReq
     res.json({ vehicle })
   } catch (error: any) {
     console.error('Error identifying by VIN:', error)
-    res.status(500).json({ error: error.message || 'Failed to identify vehicle' })
+    res.status(500).json({ error: getErrorMessage(error) || 'Failed to identify vehicle' })
   }
 })
 
@@ -213,7 +214,7 @@ router.post('/license-plate', requirePermission('vehicle:view:fleet'), async (re
     res.json({ vehicle })
   } catch (error: any) {
     console.error('Error identifying by license plate:', error)
-    res.status(500).json({ error: error.message || 'Failed to identify vehicle' })
+    res.status(500).json({ error: getErrorMessage(error) || 'Failed to identify vehicle' })
   }
 })
 
@@ -269,14 +270,14 @@ router.post('/license-plate/ocr', requirePermission('vehicle:view:fleet'), async
   } catch (error: any) {
     console.error('Error processing license plate image:', error)
 
-    if (error.message.includes('Azure Computer Vision')) {
+    if (getErrorMessage(error).includes('Azure Computer Vision')) {
       return res.status(501).json({
         error: 'OCR service not configured',
-        details: error.message
+        details: getErrorMessage(error)
       })
     }
 
-    res.status(500).json({ error: error.message || 'Failed to process image' })
+    res.status(500).json({ error: getErrorMessage(error) || 'Failed to process image' })
   }
 })
 
@@ -315,7 +316,7 @@ router.get('/search', requirePermission('vehicle:view:fleet'), async (req: AuthR
     res.json({ vehicles, total: vehicles.length })
   } catch (error: any) {
     console.error('Error searching vehicles:', error)
-    res.status(500).json({ error: error.message || 'Failed to search vehicles' })
+    res.status(500).json({ error: getErrorMessage(error) || 'Failed to search vehicles' })
   }
 })
 
@@ -351,7 +352,7 @@ router.get('/label/:vehicleId', requirePermission('vehicle:view:fleet'), async (
     res.json(label)
   } catch (error: any) {
     console.error('Error generating label:', error)
-    res.status(500).json({ error: error.message || 'Failed to generate label' })
+    res.status(500).json({ error: getErrorMessage(error) || 'Failed to generate label' })
   }
 })
 

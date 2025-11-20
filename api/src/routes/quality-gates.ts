@@ -3,6 +3,7 @@ import pool from '../config/database'
 import { createAuditLog } from '../middleware/audit'
 import { AuthRequest, authenticateJWT } from '../middleware/auth'
 import { requirePermission } from '../middleware/permissions'
+import { getErrorMessage } from '../utils/error-handler'
 
 const router = express.Router()
 router.use(authenticateJWT)
@@ -61,7 +62,7 @@ router.get('/',
     })
   } catch (error: any) {
     console.error('Error fetching quality gates:', error)
-    res.status(500).json({ error: 'Failed to fetch quality gates', message: error.message })
+    res.status(500).json({ error: 'Failed to fetch quality gates', message: getErrorMessage(error) })
   }
 })
 
@@ -154,7 +155,7 @@ router.post('/',
     res.status(201).json(result.rows[0])
   } catch (error: any) {
     console.error('Error creating quality gate:', error)
-    res.status(500).json({ error: 'Failed to create quality gate', message: error.message })
+    res.status(500).json({ error: 'Failed to create quality gate', message: getErrorMessage(error) })
   }
 })
 
@@ -190,7 +191,7 @@ router.get('/summary',
     })
   } catch (error: any) {
     console.error('Error fetching quality gate summary:', error)
-    res.status(500).json({ error: 'Failed to fetch summary', message: error.message })
+    res.status(500).json({ error: 'Failed to fetch summary', message: getErrorMessage(error) })
   }
 })
 
@@ -219,7 +220,7 @@ router.get('/latest/:gate_type',
     res.json(result.rows[0])
   } catch (error: any) {
     console.error('Error fetching latest quality gate:', error)
-    res.status(500).json({ error: 'Failed to fetch quality gate', message: error.message })
+    res.status(500).json({ error: 'Failed to fetch quality gate', message: getErrorMessage(error) })
   }
 })
 

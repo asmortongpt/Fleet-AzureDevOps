@@ -21,6 +21,7 @@ import {
 import { ApiResponse } from '../utils/apiResponse'
 import { validate } from '../middleware/validation'
 import { getPaginationParams, createPaginatedResponse } from '../utils/pagination'
+import { getErrorMessage } from '../utils/error-handler'
 
 const router = express.Router()
 router.use(authenticateJWT)
@@ -266,7 +267,7 @@ router.post(
       res.status(201).json(result.rows[0])
     } catch (error: any) {
       console.error('Create recurring schedule error:', error)
-      res.status(500).json({ error: error.message || 'Internal server error' })
+      res.status(500).json({ error: getErrorMessage(error) || 'Internal server error' })
     }
   }
 )
@@ -320,7 +321,7 @@ router.put(
       res.json(result.rows[0])
     } catch (error: any) {
       console.error('Update recurrence pattern error:', error)
-      res.status(500).json({ error: error.message || 'Internal server error' })
+      res.status(500).json({ error: getErrorMessage(error) || 'Internal server error' })
     }
   }
 )
@@ -370,7 +371,7 @@ router.get(
       })
     } catch (error: any) {
       console.error('Get due schedules error:', error)
-      res.status(500).json({ error: error.message || 'Internal server error' })
+      res.status(500).json({ error: getErrorMessage(error) || 'Internal server error' })
     }
   }
 )
@@ -448,7 +449,7 @@ router.post(
       })
     } catch (error: any) {
       console.error('Generate work order error:', error)
-      res.status(500).json({ error: error.message || 'Internal server error' })
+      res.status(500).json({ error: getErrorMessage(error) || 'Internal server error' })
     }
   }
 )
@@ -505,7 +506,7 @@ router.get(
       })
     } catch (error: any) {
       console.error('Get schedule history error:', error)
-      res.status(500).json({ error: error.message || 'Internal server error' })
+      res.status(500).json({ error: getErrorMessage(error) || 'Internal server error' })
     }
   }
 )
@@ -521,7 +522,7 @@ router.get(
       res.json(stats)
     } catch (error: any) {
       console.error('Get recurring schedule stats error:', error)
-      res.status(500).json({ error: error.message || 'Internal server error' })
+      res.status(500).json({ error: getErrorMessage(error) || 'Internal server error' })
     }
   }
 )
@@ -551,7 +552,7 @@ router.patch(
       })
     } catch (error: any) {
       console.error('Pause schedule error:', error)
-      res.status(500).json({ error: error.message || 'Internal server error' })
+      res.status(500).json({ error: getErrorMessage(error) || 'Internal server error' })
     }
   }
 )
@@ -581,7 +582,7 @@ router.patch(
       })
     } catch (error: any) {
       console.error('Resume schedule error:', error)
-      res.status(500).json({ error: error.message || 'Internal server error' })
+      res.status(500).json({ error: getErrorMessage(error) || 'Internal server error' })
     }
   }
 )
@@ -682,7 +683,7 @@ router.get(
       })
     } catch (error: any) {
       console.error('Get multi-metric maintenance due error:', error)
-      res.status(500).json({ error: error.message || 'Internal server error' })
+      res.status(500).json({ error: getErrorMessage(error) || 'Internal server error' })
     }
   }
 )
@@ -741,7 +742,7 @@ router.get(
       })
     } catch (error: any) {
       console.error('Get vehicle multi-metric schedules error:', error)
-      res.status(500).json({ error: error.message || 'Internal server error' })
+      res.status(500).json({ error: getErrorMessage(error) || 'Internal server error' })
     }
   }
 )
