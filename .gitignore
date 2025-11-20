@@ -103,3 +103,10 @@ benchmarks/reports/*.json
 benchmarks/reports/*.html
 !benchmarks/reports/.gitkeep
 !benchmarks/reports/README.md
+
+# Testing artifacts
+test-results/
+playwright-report/
+
+# Build outputs
+build/
