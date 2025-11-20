@@ -199,7 +199,20 @@ class PushNotificationService {
     try {
       // Check if device already exists
       const existing = await pool.query(
-        'SELECT * FROM mobile_devices WHERE device_token = $1 AND user_id = $2',
+        'SELECT 
+      id,
+      user_id,
+      tenant_id,
+      device_token,
+      platform,
+      device_name,
+      device_model,
+      os_version,
+      app_version,
+      last_active,
+      is_active,
+      created_at,
+      updated_at FROM mobile_devices WHERE device_token = $1 AND user_id = $2',
         [deviceData.deviceToken, deviceData.userId]
       );
 
@@ -582,7 +595,21 @@ class PushNotificationService {
    */
   async getTemplates(tenantId: string, category?: string) {
     try {
-      let query = 'SELECT * FROM push_notification_templates WHERE tenant_id = $1 AND is_active = true';
+      let query = 'SELECT 
+      id,
+      tenant_id,
+      template_name,
+      category,
+      title_template,
+      message_template,
+      data_payload_template,
+      action_buttons,
+      priority,
+      sound,
+      is_active,
+      created_by,
+      created_at,
+      updated_at FROM push_notification_templates WHERE tenant_id = $1 AND is_active = true';
       const params: SqlParams = [tenantId];
 
       if (category) {
@@ -610,7 +637,21 @@ class PushNotificationService {
   ): Promise<PushNotification> {
     try {
       const result = await pool.query(
-        'SELECT * FROM push_notification_templates WHERE tenant_id = $1 AND template_name = $2',
+        'SELECT 
+      id,
+      tenant_id,
+      template_name,
+      category,
+      title_template,
+      message_template,
+      data_payload_template,
+      action_buttons,
+      priority,
+      sound,
+      is_active,
+      created_by,
+      created_at,
+      updated_at FROM push_notification_templates WHERE tenant_id = $1 AND template_name = $2',
         [tenantId, templateName]
       );
 
@@ -654,7 +695,20 @@ class PushNotificationService {
 
       // Get recipients
       const recipientsResult = await pool.query(
-        'SELECT * FROM push_notification_recipients WHERE push_notification_id = $1',
+        'SELECT 
+      id,
+      push_notification_id,
+      user_id,
+      device_id,
+      device_token,
+      delivery_status,
+      error_message,
+      delivered_at,
+      opened_at,
+      clicked_at,
+      action_taken,
+      created_at,
+      updated_at FROM push_notification_recipients WHERE push_notification_id = $1',
         [notification.id]
       );
 
