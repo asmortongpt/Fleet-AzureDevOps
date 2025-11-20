@@ -33,7 +33,6 @@ import { Switch } from "@/components/ui/switch"
 import { Plus, MagnifyingGlass, MapPin, Pencil, Trash, Copy } from "@phosphor-icons/react"
 import { UniversalMap } from "@/components/UniversalMap"
 import { useFleetData } from "@/hooks/use-fleet-data"
-import { useState } from "react"
 import { toast } from "sonner"
 
 interface Geofence {
