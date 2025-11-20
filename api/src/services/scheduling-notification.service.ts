@@ -726,7 +726,16 @@ class SchedulingNotificationService {
    */
   private async getNotificationPreferences(userId: string): Promise<NotificationPreferences> {
     const result = await pool.query(
-      `SELECT * FROM scheduling_notification_preferences WHERE user_id = $1`,
+      `SELECT 
+      id,
+      user_id,
+      email_enabled,
+      sms_enabled,
+      push_enabled,
+      schedule_changes,
+      shift_reminders,
+      created_at,
+      updated_at FROM scheduling_notification_preferences WHERE user_id = $1`,
       [userId]
     )
 
