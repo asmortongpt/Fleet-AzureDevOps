@@ -3,6 +3,7 @@ import { AuthRequest, authenticateJWT, authorize } from '../middleware/auth'
 import { auditLog } from '../middleware/audit'
 import pool from '../config/database'
 import { z } from 'zod'
+import { getErrorMessage } from '../utils/error-handler'
 import {
   UsageType,
   ApprovalStatus,
@@ -219,7 +220,7 @@ router.post(
       res.status(500).json({
         success: false,
         error: 'Failed to mark trip',
-        details: error.message
+        details: getErrorMessage(error)
       })
     }
   }
@@ -295,7 +296,7 @@ router.post(
       res.status(500).json({
         success: false,
         error: 'Failed to start personal trip',
-        details: error.message
+        details: getErrorMessage(error)
       })
     }
   }
@@ -416,7 +417,7 @@ router.patch(
       res.status(500).json({
         success: false,
         error: 'Failed to split trip',
-        details: error.message
+        details: getErrorMessage(error)
       })
     }
   }
@@ -498,7 +499,7 @@ router.get('/my-personal', async (req: AuthRequest, res: Response) => {
     res.status(500).json({
       success: false,
       error: 'Failed to retrieve personal trips',
-      details: error.message
+      details: getErrorMessage(error)
     })
   }
 })
@@ -559,7 +560,7 @@ router.get('/:id/usage', async (req: AuthRequest, res: Response) => {
     res.status(500).json({
       success: false,
       error: 'Failed to retrieve trip usage',
-      details: error.message
+      details: getErrorMessage(error)
     })
   }
 })
