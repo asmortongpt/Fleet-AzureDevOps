@@ -29,3 +29,8 @@ plugins {
 tasks.register("clean", Delete::class) {
     delete(rootProject.buildDir)
 }
+
+// Enable dependency locking for reproducible builds
+dependencyLocking {
+    lockAllConfigurations()
+}
