@@ -76,7 +76,7 @@ Complete documentation:
 
 **Login**:
 - Email: `admin@multi-asset-test.local`
-- Password: `Test123!`
+- Password: `YOUR_TEST_PASSWORD_HERE`
 
 ## Test Coverage
 
@@ -118,7 +118,7 @@ GROUP BY trigger_metric;
 # Get auth token
 TOKEN=$(curl -X POST http://localhost:3000/api/auth/login \
   -H "Content-Type: application/json" \
-  -d '{"email":"admin@multi-asset-test.local","password":"Test123!"}' \
+  -d '{"email":"admin@multi-asset-test.local","password":"YOUR_TEST_PASSWORD_HERE"}' \
   | jq -r '.token')
 
 # Filter heavy equipment

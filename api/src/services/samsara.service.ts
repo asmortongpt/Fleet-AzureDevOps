@@ -1,13 +1,23 @@
 /**
  * Samsara Telematics Service
  * Real-time fleet tracking, driver safety, and compliance
+ *
+ * Security: Uses SSRF-protected HTTP client to prevent server-side request forgery
  */
 
 import axios, { AxiosInstance } from 'axios';
 import { Pool } from 'pg';
+import { createSafeAxiosInstance, SSRFError } from '../utils/ssrf-protection';
 
 const SAMSARA_API_TOKEN = process.env.SAMSARA_API_TOKEN;
 const SAMSARA_BASE_URL = 'https://api.samsara.com';
+
+// Allowed domains for Samsara requests
+const SAMSARA_ALLOWED_DOMAINS = [
+  'api.samsara.com',
+  'samsara-fleet-videos.s3.amazonaws.com',
+  'videos.samsara.com',
+];
 
 interface SamsaraVehicle {
   id: string;
@@ -66,13 +76,14 @@ class SamsaraService {
       throw new Error('SAMSARA_API_TOKEN environment variable is required');
     }
 
-    this.api = axios.create({
-      baseURL: SAMSARA_BASE_URL,
+    // SSRF Protection: Use safe axios instance with domain allowlist
+    this.api = createSafeAxiosInstance(SAMSARA_BASE_URL, {
       headers: {
         'Authorization': `Bearer ${SAMSARA_API_TOKEN}`,
         'Content-Type': 'application/json'
       },
-      timeout: 30000
+      timeout: 30000,
+      allowedDomains: SAMSARA_ALLOWED_DOMAINS,
     });
 
     this.db = db;

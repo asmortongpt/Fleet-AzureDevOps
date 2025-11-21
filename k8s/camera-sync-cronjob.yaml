@@ -20,17 +20,22 @@ spec:
             runAsNonRoot: true
             runAsUser: 1000
             fsGroup: 1000
+            seccompProfile:
+              type: RuntimeDefault
           containers:
           - name: camera-sync
             image: fleetappregistry.azurecr.io/fleet-api:v1.3-cameras
             securityContext:
               allowPrivilegeEscalation: false
-              readOnlyRootFilesystem: false
+              readOnlyRootFilesystem: true
               runAsNonRoot: true
               runAsUser: 1000
               capabilities:
                 drop:
                   - ALL
+            volumeMounts:
+            - name: tmp
+              mountPath: /tmp
             command:
             - node
             - dist/scripts/sync-cameras.js
@@ -77,3 +82,6 @@ spec:
               limits:
                 memory: "512Mi"
                 cpu: "500m"
+          volumes:
+          - name: tmp
+            emptyDir: {}

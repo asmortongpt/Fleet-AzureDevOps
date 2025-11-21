@@ -160,7 +160,7 @@ router.get('/:id', requirePermission('vehicle:view:fleet'), async (req: AuthRequ
 
     // Get maintenance records
     const maintenance = await pool.query(
-      `SELECT * FROM maintenance_schedules
+      `SELECT id, tenant_id, vehicle_id, service_type, description, scheduled_date, completed_date, status, odometer_reading, estimated_cost, actual_cost, assigned_vendor_id, assigned_technician, notes, recurring, recurring_interval_miles, recurring_interval_days, next_service_date, next_service_odometer, priority, created_at, updated_at, deleted_at FROM maintenance_schedules
        WHERE asset_id = $1
        ORDER BY scheduled_date DESC
        LIMIT 20`,
@@ -453,7 +453,7 @@ router.get('/:id/depreciation', requirePermission('vehicle:view:fleet'), async (
     const tenantId = req.user?.tenant_id
 
     const result = await pool.query(
-      `SELECT * FROM assets WHERE id = $1 AND tenant_id = $2`,
+      `SELECT id, tenant_id, asset_name, asset_type, status, created_at, updated_at FROM assets WHERE id = $1 AND tenant_id = $2`,
       [id, tenantId]
     )
 

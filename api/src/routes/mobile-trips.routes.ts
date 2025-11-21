@@ -597,7 +597,7 @@ router.get('/:id', requirePermission('route:view:own'), async (req: Request, res
     // Get events
     if (includeEvents) {
       const eventsResult = await pool.query(
-        `SELECT * FROM trip_events
+        `SELECT id, tenant_id, trip_id, event_type, event_data, event_timestamp, created_at FROM trip_events
          WHERE trip_id = $1
          ORDER BY timestamp ASC`,
         [tripId]
