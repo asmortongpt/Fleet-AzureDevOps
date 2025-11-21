@@ -129,7 +129,7 @@ class APIClient {
           logger.info('Access token refreshed successfully')
           return true
         } else {
-          logger.warn('Token refresh failed:', { response.status })
+          logger.warn('Token refresh failed:', { status: response.status })
           this.clearToken()
           return false
         }
