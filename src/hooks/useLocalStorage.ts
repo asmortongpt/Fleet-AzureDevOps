@@ -31,7 +31,7 @@ export function useLocalStorage<T>(key: string, initialValue: T): [T, (value: T)
       const item = window.localStorage.getItem(key)
       return item ? JSON.parse(item) : initialValue
     } catch (error) {
-      logger.error('Error', { error: `Error loading localStorage key "${key}":`, error })
+      logger.error('Error', { message: `Error loading localStorage key "${key}":`, error: error })
       return initialValue
     }
   })
@@ -48,7 +48,7 @@ export function useLocalStorage<T>(key: string, initialValue: T): [T, (value: T)
         window.localStorage.setItem(key, JSON.stringify(valueToStore))
       }
     } catch (error) {
-      logger.error('Error', { error: `Error setting localStorage key "${key}":`, error })
+      logger.error('Error', { message: `Error setting localStorage key "${key}":`, error: error })
     }
   }
 
