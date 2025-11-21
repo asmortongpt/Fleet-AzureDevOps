@@ -1,0 +1,85 @@
+# API to Redis Network Policy
+# Allows the fleet-api pods to communicate with Redis for caching/sessions
+#
+# SECURITY NOTE: This policy restricts Redis access to only the API pods
+# preventing unauthorized access to cached data and session information
+
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: api-to-redis
+  namespace: fleet-management
+  labels:
+    app: fleet
+    policy-type: egress
+    target: redis
+  annotations:
+    description: "Allow API pods to connect to Redis cache"
+spec:
+  podSelector:
+    matchLabels:
+      app: fleet-api
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              app: redis
+      ports:
+        - port: 6379
+          protocol: TCP
+---
+# Also apply to ctafleet namespace
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: api-to-redis
+  namespace: ctafleet
+  labels:
+    app: fleet
+    policy-type: egress
+    target: redis
+  annotations:
+    description: "Allow API pods to connect to Redis cache"
+spec:
+  podSelector:
+    matchLabels:
+      component: api
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              component: redis
+      ports:
+        - port: 6379
+          protocol: TCP
+---
+# Staging namespace
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: api-to-redis
+  namespace: ctafleet-staging
+  labels:
+    app: fleet
+    policy-type: egress
+    target: redis
+  annotations:
+    description: "Allow API pods to connect to Redis cache"
+spec:
+  podSelector:
+    matchLabels:
+      component: api
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              component: redis
+      ports:
+        - port: 6379
+          protocol: TCP
