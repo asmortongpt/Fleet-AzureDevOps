@@ -95,12 +95,12 @@ curl https://your-api-url/health
 # 2. Create admin user
 curl -X POST https://your-api-url/api/auth/register \
   -H "Content-Type: application/json" \
-  -d '{"email":"admin@test.com","password":"Admin123!","name":"Admin","role":"admin"}'
+  -d '{"email":"admin@test.com","password":"YOUR_ADMIN_PASSWORD_HERE","name":"Admin","role":"admin"}'
 
 # 3. Test login
 curl -X POST https://your-api-url/api/auth/login \
   -H "Content-Type: application/json" \
-  -d '{"email":"admin@test.com","password":"Admin123!"}'
+  -d '{"email":"admin@test.com","password":"YOUR_ADMIN_PASSWORD_HERE"}'
 
 # 4. Access frontend
 open https://your-frontend-url

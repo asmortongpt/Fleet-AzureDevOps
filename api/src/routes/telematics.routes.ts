@@ -11,6 +11,7 @@ import pool from '../config/database'
 import SamsaraService from '../services/samsara.service'
 import crypto from 'crypto'
 import { cacheMiddleware, invalidateOnWrite } from '../middleware/cache'
+import { getErrorMessage } from '../utils/error-handler'
 
 const router = express.Router()
 router.use(authenticateJWT)
@@ -23,7 +24,7 @@ try {
     console.log('✅ Samsara service initialized')
   }
 } catch (error: any) {
-  console.warn('⚠️  Samsara service not initialized:', error.message)
+  console.warn('⚠️  Samsara service not initialized:', getErrorMessage(error))
 }
 
 /**
@@ -413,7 +414,7 @@ router.post(
       })
     } catch (error: any) {
       console.error('Request video error:', error)
-      res.status(500).json({ error: error.message || 'Internal server error' })
+      res.status(500).json({ error: getErrorMessage(error) || 'Internal server error' })
     }
   }
 )
@@ -438,7 +439,7 @@ router.get(
       res.json(status)
     } catch (error: any) {
       console.error('Get video status error:', error)
-      res.status(500).json({ error: error.message || 'Internal server error' })
+      res.status(500).json({ error: getErrorMessage(error) || 'Internal server error' })
     }
   }
 )
@@ -531,7 +532,7 @@ router.post(
       })
     } catch (error: any) {
       console.error('Sync error:', error)
-      res.status(500).json({ error: error.message || 'Internal server error' })
+      res.status(500).json({ error: getErrorMessage(error) || 'Internal server error' })
     }
   }
 )

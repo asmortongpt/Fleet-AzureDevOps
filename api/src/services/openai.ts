@@ -1,9 +1,20 @@
 import OpenAI from 'openai'
 import pool from '../config/database'
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
-})
+// Lazy initialization to avoid module-level crashes
+let openai: OpenAI | null = null
+
+function getOpenAIClient(): OpenAI {
+  if (!openai) {
+    if (!process.env.OPENAI_API_KEY) {
+      throw new Error('OPENAI_API_KEY not configured')
+    }
+    openai = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY
+    })
+  }
+  return openai
+}
 
 export async function naturalLanguageQuery(query: string, tenantId: string) {
   try {
@@ -21,7 +32,7 @@ export async function naturalLanguageQuery(query: string, tenantId: string) {
       return acc
     }, {} as Record<string, string[]>)
 
-    const completion = await openai.chat.completions.create({
+    const completion = await getOpenAIClient().chat.completions.create({
       model: 'gpt-4',
       messages: [
         {
@@ -71,7 +82,7 @@ Rules:
 
 export async function aiAssistant(messages: Array<{ role: string, content: string }>, context?: any) {
   try {
-    const completion = await openai.chat.completions.create({
+    const completion = await getOpenAIClient().chat.completions.create({
       model: 'gpt-4',
       messages: [
         {
@@ -105,7 +116,7 @@ Current Context: ${context ? JSON.stringify(context) : 'None'}`
 
 export async function processReceiptOCR(imageUrl: string) {
   try {
-    const completion = await openai.chat.completions.create({
+    const completion = await getOpenAIClient().chat.completions.create({
       model: 'gpt-4-vision-preview',
       messages: [
         {

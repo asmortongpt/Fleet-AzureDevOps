@@ -217,7 +217,7 @@ export function CustomFormBuilder() {
                   Cancel
                 </Button>
                 <Button onClick={handleSaveForm}>
-                  <FloppyDisk className="mr-2 h-4 w-4" />
+                  <Save className="mr-2 h-4 w-4" />
                   Save Form
                 </Button>
               </div>

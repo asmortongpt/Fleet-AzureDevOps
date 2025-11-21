@@ -7,6 +7,7 @@ import express, { Request, Response, Router } from 'express';
 import { queueService } from '../services/queue.service';
 import { pool } from '../config/database';
 import { QueueName, JobStatus } from '../types/queue.types';
+import { getErrorMessage } from '../utils/error-handler'
 
 const router: Router = express.Router();
 
@@ -63,7 +64,7 @@ router.get('/stats', requireAdmin, async (req: Request, res: Response) => {
     });
   } catch (error: any) {
     console.error('Error getting queue stats:', error);
-    res.status(500).json({ error: 'Failed to get queue statistics', message: error.message });
+    res.status(500).json({ error: 'Failed to get queue statistics', message: getErrorMessage(error) });
   }
 });
 
@@ -81,7 +82,7 @@ router.get('/health', async (req: Request, res: Response) => {
     });
   } catch (error: any) {
     console.error('Error getting queue health:', error);
-    res.status(500).json({ error: 'Failed to get queue health', message: error.message });
+    res.status(500).json({ error: 'Failed to get queue health', message: getErrorMessage(error) });
   }
 });
 
@@ -129,7 +130,7 @@ router.get('/:queueName/jobs', requireAdmin, async (req: Request, res: Response)
     });
   } catch (error: any) {
     console.error('Error getting jobs:', error);
-    res.status(500).json({ error: 'Failed to get jobs', message: error.message });
+    res.status(500).json({ error: 'Failed to get jobs', message: getErrorMessage(error) });
   }
 });
 
@@ -168,7 +169,7 @@ router.get('/:queueName/failed', requireAdmin, async (req: Request, res: Respons
     });
   } catch (error: any) {
     console.error('Error getting failed jobs:', error);
-    res.status(500).json({ error: 'Failed to get failed jobs', message: error.message });
+    res.status(500).json({ error: 'Failed to get failed jobs', message: getErrorMessage(error) });
   }
 });
 
@@ -212,7 +213,7 @@ router.get('/dead-letter', requireAdmin, async (req: Request, res: Response) => 
     });
   } catch (error: any) {
     console.error('Error getting dead letter jobs:', error);
-    res.status(500).json({ error: 'Failed to get dead letter jobs', message: error.message });
+    res.status(500).json({ error: 'Failed to get dead letter jobs', message: getErrorMessage(error) });
   }
 });
 
@@ -236,7 +237,7 @@ router.post('/:queueName/retry/:jobId', requireAdmin, async (req: Request, res: 
     });
   } catch (error: any) {
     console.error('Error retrying job:', error);
-    res.status(500).json({ error: 'Failed to retry job', message: error.message });
+    res.status(500).json({ error: 'Failed to retry job', message: getErrorMessage(error) });
   }
 });
 
@@ -260,7 +261,7 @@ router.post('/:queueName/pause', requireAdmin, async (req: Request, res: Respons
     });
   } catch (error: any) {
     console.error('Error pausing queue:', error);
-    res.status(500).json({ error: 'Failed to pause queue', message: error.message });
+    res.status(500).json({ error: 'Failed to pause queue', message: getErrorMessage(error) });
   }
 });
 
@@ -284,7 +285,7 @@ router.post('/:queueName/resume', requireAdmin, async (req: Request, res: Respon
     });
   } catch (error: any) {
     console.error('Error resuming queue:', error);
-    res.status(500).json({ error: 'Failed to resume queue', message: error.message });
+    res.status(500).json({ error: 'Failed to resume queue', message: getErrorMessage(error) });
   }
 });
 
@@ -317,7 +318,7 @@ router.delete('/:queueName/clear', requireAdmin, async (req: Request, res: Respo
     });
   } catch (error: any) {
     console.error('Error clearing queue:', error);
-    res.status(500).json({ error: 'Failed to clear queue', message: error.message });
+    res.status(500).json({ error: 'Failed to clear queue', message: getErrorMessage(error) });
   }
 });
 
@@ -351,7 +352,7 @@ router.post('/dead-letter/:jobId/review', requireAdmin, async (req: Request, res
     });
   } catch (error: any) {
     console.error('Error reviewing dead letter job:', error);
-    res.status(500).json({ error: 'Failed to review job', message: error.message });
+    res.status(500).json({ error: 'Failed to review job', message: getErrorMessage(error) });
   }
 });
 
@@ -389,9 +390,9 @@ router.get('/metrics', requireAdmin, async (req: Request, res: Response) => {
         MIN(EXTRACT(EPOCH FROM (completed_at - started_at)) * 1000)
           FILTER (WHERE completed_at IS NOT NULL) as min_processing_time_ms
        FROM job_tracking
-       WHERE created_at > NOW() - INTERVAL '${interval}'
+       WHERE created_at > NOW() - $1::INTERVAL
        GROUP BY queue_name`,
-      []
+      [interval]
     );
 
     // Calculate success rates
@@ -423,7 +424,7 @@ router.get('/metrics', requireAdmin, async (req: Request, res: Response) => {
     });
   } catch (error: any) {
     console.error('Error getting metrics:', error);
-    res.status(500).json({ error: 'Failed to get metrics', message: error.message });
+    res.status(500).json({ error: 'Failed to get metrics', message: getErrorMessage(error) });
   }
 });
 
@@ -450,7 +451,7 @@ router.get('/:queueName/job/:jobId', requireAdmin, async (req: Request, res: Res
     });
   } catch (error: any) {
     console.error('Error getting job:', error);
-    res.status(500).json({ error: 'Failed to get job', message: error.message });
+    res.status(500).json({ error: 'Failed to get job', message: getErrorMessage(error) });
   }
 });
 

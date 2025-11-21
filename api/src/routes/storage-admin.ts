@@ -16,6 +16,7 @@ import multer from 'multer';
 import { Readable } from 'stream';
 import StorageManager from '../services/StorageManager';
 import { loadStorageConfig, loadQuotaConfig, loadFailoverConfig, storageFeatures } from '../config/storage';
+import { getErrorMessage } from '../utils/error-handler'
 
 const router = express.Router();
 
@@ -104,7 +105,7 @@ router.post('/upload', upload.single('file'), async (req: Request, res: Response
     console.error('Upload error:', error);
     res.status(500).json({
       error: 'Upload failed',
-      message: error.message
+      message: getErrorMessage(error)
     });
   }
 });
@@ -152,7 +153,7 @@ router.get('/download/:key(*)', async (req: Request, res: Response) => {
     console.error('Download error:', error);
     res.status(error.statusCode || 500).json({
       error: 'Download failed',
-      message: error.message
+      message: getErrorMessage(error)
     });
   }
 });
@@ -199,7 +200,7 @@ router.get('/url/:key(*)', async (req: Request, res: Response) => {
     console.error('Get URL error:', error);
     res.status(error.statusCode || 500).json({
       error: 'Failed to generate URL',
-      message: error.message
+      message: getErrorMessage(error)
     });
   }
 });
@@ -237,7 +238,7 @@ router.delete('/delete/:key(*)', async (req: Request, res: Response) => {
     console.error('Delete error:', error);
     res.status(error.statusCode || 500).json({
       error: 'Delete failed',
-      message: error.message
+      message: getErrorMessage(error)
     });
   }
 });
@@ -293,7 +294,7 @@ router.get('/list', async (req: Request, res: Response) => {
     console.error('List error:', error);
     res.status(500).json({
       error: 'List failed',
-      message: error.message
+      message: getErrorMessage(error)
     });
   }
 });
@@ -323,7 +324,7 @@ router.get('/stats', async (req: Request, res: Response) => {
     console.error('Stats error:', error);
     res.status(500).json({
       error: 'Failed to get stats',
-      message: error.message
+      message: getErrorMessage(error)
     });
   }
 });
@@ -380,7 +381,7 @@ router.post('/migrate', async (req: Request, res: Response) => {
     console.error('Migration error:', error);
     res.status(500).json({
       error: 'Migration failed',
-      message: error.message
+      message: getErrorMessage(error)
     });
   }
 });
@@ -417,7 +418,7 @@ router.post('/tier/auto', async (req: Request, res: Response) => {
     console.error('Auto-tiering error:', error);
     res.status(500).json({
       error: 'Auto-tiering failed',
-      message: error.message
+      message: getErrorMessage(error)
     });
   }
 });
@@ -455,7 +456,7 @@ router.get('/config', async (req: Request, res: Response) => {
     console.error('Config error:', error);
     res.status(500).json({
       error: 'Failed to get config',
-      message: error.message
+      message: getErrorMessage(error)
     });
   }
 });
@@ -498,7 +499,7 @@ router.get('/health', async (req: Request, res: Response) => {
     res.status(500).json({
       success: false,
       status: 'unhealthy',
-      error: error.message
+      error: getErrorMessage(error)
     });
   }
 });
@@ -555,7 +556,7 @@ router.post('/batch/upload', upload.array('files', 10), async (req: Request, res
       } catch (error: any) {
         errors.push({
           filename: file.originalname,
-          error: error.message
+          error: getErrorMessage(error)
         });
       }
     }
@@ -573,7 +574,7 @@ router.post('/batch/upload', upload.array('files', 10), async (req: Request, res
     console.error('Batch upload error:', error);
     res.status(500).json({
       error: 'Batch upload failed',
-      message: error.message
+      message: getErrorMessage(error)
     });
   }
 });
@@ -619,7 +620,7 @@ router.post('/batch/delete', async (req: Request, res: Response) => {
       } catch (error: any) {
         errors.push({
           key,
-          error: error.message
+          error: getErrorMessage(error)
         });
       }
     }
@@ -637,7 +638,7 @@ router.post('/batch/delete', async (req: Request, res: Response) => {
     console.error('Batch delete error:', error);
     res.status(500).json({
       error: 'Batch delete failed',
-      message: error.message
+      message: getErrorMessage(error)
     });
   }
 });

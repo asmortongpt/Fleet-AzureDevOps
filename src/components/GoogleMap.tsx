@@ -338,7 +338,7 @@ export function GoogleMap({
           if (!vehicle.location?.lat || !vehicle.location?.lng) return
 
           const marker = new google.maps.Marker({
-            position: { lat: vehicle.location.lat, lng: vehicle.location.lng },
+            position: { lat: vehicle.location?.lat, lng: vehicle.location?.lng },
             map: mapInstanceRef.current,
             title: vehicle.name,
             optimized: true,
@@ -363,7 +363,7 @@ export function GoogleMap({
           })
 
           newMarkers.push({ marker, infoWindow })
-          bounds.extend({ lat: vehicle.location.lat, lng: vehicle.location.lng })
+          bounds.extend({ lat: vehicle.location?.lat, lng: vehicle.location?.lng })
           hasMarkers = true
         })
       }
@@ -374,7 +374,7 @@ export function GoogleMap({
           if (!facility.location?.lat || !facility.location?.lng) return
 
           const marker = new google.maps.Marker({
-            position: { lat: facility.location.lat, lng: facility.location.lng },
+            position: { lat: facility.location?.lat, lng: facility.location?.lng },
             map: mapInstanceRef.current,
             title: facility.name,
             optimized: true,
@@ -399,7 +399,7 @@ export function GoogleMap({
           })
 
           newMarkers.push({ marker, infoWindow })
-          bounds.extend({ lat: facility.location.lat, lng: facility.location.lng })
+          bounds.extend({ lat: facility.location?.lat, lng: facility.location?.lng })
           hasMarkers = true
         })
       }
@@ -651,7 +651,7 @@ function getVehicleColor(status: Vehicle["status"]): string {
 function createVehicleInfoHTML(vehicle: Vehicle): string {
   const location = vehicle.location?.address ||
     (vehicle.location?.lat && vehicle.location?.lng
-      ? `${vehicle.location.lat.toFixed(4)}, ${vehicle.location.lng.toFixed(4)}`
+      ? `${vehicle.location?.lat.toFixed(4)}, ${vehicle.location?.lng.toFixed(4)}`
       : "Unknown")
 
   return `

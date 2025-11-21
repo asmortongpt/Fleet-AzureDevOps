@@ -1,21 +1,32 @@
 """
 Test Orchestrator Service
 Comprehensive testing with RAG-powered code awareness and MCP tool integration
+
+Security: Implements CVE-2025-62727 mitigations and DoS protection
 """
 
 import os
+import sys
 import asyncio
 import json
 from typing import List, Dict, Any, Optional
 from datetime import datetime
 from enum import Enum
 
-from fastapi import FastAPI, HTTPException, BackgroundTasks
+from fastapi import FastAPI, HTTPException, BackgroundTasks, Request
 from pydantic import BaseModel
 from openai import AsyncAzureOpenAI
 from azure.cosmos.aio import CosmosClient
 from azure.storage.blob.aio import BlobServiceClient
 import httpx
+
+# Add parent directory to path for security middleware
+sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
+try:
+    from security_middleware import add_security_middleware
+except ImportError:
+    add_security_middleware = None
+    print("Warning: security_middleware not found. Running without security middleware.")
 
 # ============================================================================
 # CONFIGURATION
@@ -81,7 +92,21 @@ async def get_blob_service_client():
 # FASTAPI APP
 # ============================================================================
 
-app = FastAPI(title="Test Orchestrator Service", version="1.0.0")
+app = FastAPI(title="Test Orchestrator Service", version="1.1.0")
+
+# ============================================================================
+# SECURITY MIDDLEWARE (CVE-2025-62727 Mitigation)
+# ============================================================================
+
+limiter = None
+if add_security_middleware:
+    limiter = add_security_middleware(
+        app,
+        max_request_size=5 * 1024 * 1024,  # 5MB limit for test plans
+        max_ranges=10,
+        enable_rate_limiting=True,
+        rate_limit="100/minute"
+    )
 
 # ============================================================================
 # MODELS

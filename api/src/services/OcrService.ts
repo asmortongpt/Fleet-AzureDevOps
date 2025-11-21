@@ -200,15 +200,17 @@ export class OcrService {
   private googleVisionClient: vision.ImageAnnotatorClient | null = null;
   private textractClient: TextractClient | null = null;
   private azureVisionClient: ComputerVisionClient | null = null;
+  private initialized = false;
 
   constructor() {
-    this.initializeProviders();
+    // Don't call initialization in constructor - do it lazily
   }
 
   /**
-   * Initialize OCR provider clients
+   * Initialize OCR provider clients (called lazily on first use)
    */
   private initializeProviders(): void {
+    if (this.initialized) return;
     try {
       // Initialize Google Cloud Vision
       if (process.env.GOOGLE_CLOUD_PROJECT && process.env.GOOGLE_APPLICATION_CREDENTIALS) {
@@ -246,6 +248,8 @@ export class OcrService {
     } catch (error) {
       console.error('Error initializing OCR providers:', error);
     }
+
+    this.initialized = true;
   }
 
   /**
@@ -256,6 +260,9 @@ export class OcrService {
     documentId: string,
     options: OcrOptions = {}
   ): Promise<OcrResult> {
+    // Ensure providers are initialized
+    this.initializeProviders();
+
     const startTime = Date.now();
 
     try {
@@ -1108,4 +1115,14 @@ export class OcrService {
   }
 }
 
-export default new OcrService();
+// Export function to get singleton instance (lazy initialization)
+let serviceInstance: OcrService | null = null;
+
+export function getOcrService(): OcrService {
+  if (!serviceInstance) {
+    serviceInstance = new OcrService();
+  }
+  return serviceInstance;
+}
+
+export default getOcrService;

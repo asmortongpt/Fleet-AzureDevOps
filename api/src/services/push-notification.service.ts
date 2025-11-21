@@ -3,42 +3,10 @@
  * Handles Firebase Cloud Messaging (FCM) and Apple Push Notification Service (APNS)
  */
 
-import pool from '../config/database';
+import { pool as db } from '../config/database';
+import admin from 'firebase-admin';
+import apn from 'apn';
 import { SqlParams } from '../types';
-
-// Optional firebase-admin - lazy loaded
-let admin: any = null
-
-// Lazy load Firebase Admin SDK
-async function loadFirebaseAdmin() {
-  if (admin) return true
-
-  try {
-    const adminModule = await import('firebase-admin')
-    admin = adminModule.default
-    return true
-  } catch (err) {
-    console.warn('firebase-admin not available - FCM push notifications will be disabled. Install firebase-admin for FCM support.')
-    return false
-  }
-}
-
-// Optional apn - lazy loaded
-let apn: any = null
-
-// Lazy load Apple Push Notification
-async function loadApn() {
-  if (apn) return true
-
-  try {
-    const apnModule = await import('apn')
-    apn = apnModule.default
-    return true
-  } catch (err) {
-    console.warn('apn not available - APNS push notifications will be disabled. Install apn for APNS support.')
-    return false
-  }
-}
 
 // Types
 export interface MobileDevice {
@@ -130,15 +98,8 @@ class PushNotificationService {
   /**
    * Initialize Firebase Cloud Messaging
    */
-  private async initializeFCM() {
+  private initializeFCM() {
     try {
-      const adminAvailable = await loadFirebaseAdmin()
-
-      if (!adminAvailable) {
-        console.log('FCM running in mock mode (firebase-admin not available)');
-        return;
-      }
-
       // Check if FCM is already initialized
       if (admin.apps.length > 0) {
         this.fcmInitialized = true;
@@ -165,15 +126,8 @@ class PushNotificationService {
   /**
    * Initialize Apple Push Notification Service
    */
-  private async initializeAPNS() {
+  private initializeAPNS() {
     try {
-      const apnAvailable = await loadApn()
-
-      if (!apnAvailable) {
-        console.log('APNS running in mock mode (apn not available)');
-        return;
-      }
-
       if (!this.isDevelopment && process.env.APNS_KEY_PATH && process.env.APNS_KEY_ID && process.env.APNS_TEAM_ID) {
         this.apnProvider = new apn.Provider({
           token: {
@@ -198,14 +152,18 @@ class PushNotificationService {
   async registerDevice(deviceData: Omit<MobileDevice, 'id' | 'lastActive' | 'isActive'>): Promise<MobileDevice> {
     try {
       // Check if device already exists
-      const existing = await pool.query(
-        'SELECT * FROM mobile_devices WHERE device_token = $1 AND user_id = $2',
+      const existing = await db.query(
+        `SELECT id, user_id, tenant_id, device_token, platform, device_name,
+                device_model, os_version, app_version, last_active, is_active,
+                created_at, updated_at
+         FROM mobile_devices
+         WHERE device_token = $1 AND user_id = $2`,
         [deviceData.deviceToken, deviceData.userId]
       );
 
       if (existing.rows.length > 0) {
         // Update existing device
-        const result = await pool.query(
+        const result = await db.query(
           `UPDATE mobile_devices
            SET platform = $1, device_name = $2, device_model = $3,
                os_version = $4, app_version = $5, last_active = CURRENT_TIMESTAMP,
@@ -225,7 +183,7 @@ class PushNotificationService {
       }
 
       // Insert new device
-      const result = await pool.query(
+      const result = await db.query(
         `INSERT INTO mobile_devices
          (user_id, tenant_id, device_token, platform, device_name, device_model, os_version, app_version)
          VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
@@ -254,7 +212,7 @@ class PushNotificationService {
    */
   async unregisterDevice(deviceId: string): Promise<boolean> {
     try {
-      await pool.query(
+      await db.query(
         'UPDATE mobile_devices SET is_active = false WHERE id = $1',
         [deviceId]
       );
@@ -274,7 +232,7 @@ class PushNotificationService {
   ): Promise<string> {
     try {
       // Create notification record
-      const notificationResult = await pool.query(
+      const notificationResult = await db.query(
         `INSERT INTO push_notifications
          (tenant_id, notification_type, category, priority, title, message,
           data_payload, action_buttons, image_url, sound, badge_count,
@@ -311,7 +269,7 @@ class PushNotificationService {
       await this.deliverToDevices(notification, devices, notificationId);
 
       // Update notification status
-      await pool.query(
+      await db.query(
         `UPDATE push_notifications
          SET delivery_status = 'sent', sent_at = CURRENT_TIMESTAMP
          WHERE id = $1`,
@@ -345,7 +303,7 @@ class PushNotificationService {
     scheduledFor: Date
   ): Promise<string> {
     try {
-      const result = await pool.query(
+      const result = await db.query(
         `INSERT INTO push_notifications
          (tenant_id, notification_type, category, priority, title, message,
           data_payload, action_buttons, image_url, sound, badge_count,
@@ -389,8 +347,12 @@ class PushNotificationService {
    */
   async processScheduledNotifications(): Promise<void> {
     try {
-      const result = await pool.query(
-        `SELECT * FROM push_notifications
+      const result = await db.query(
+        `SELECT id, tenant_id, notification_type, category, priority, title, message,
+                data_payload, action_buttons, image_url, sound, badge_count,
+                scheduled_for, delivery_status, total_recipients, delivered_count,
+                opened_count, clicked_count, failed_count, sent_at, created_by, created_at
+         FROM push_notifications
          WHERE delivery_status = 'scheduled'
          AND scheduled_for <= CURRENT_TIMESTAMP
          ORDER BY scheduled_for ASC
@@ -410,7 +372,7 @@ class PushNotificationService {
    */
   async trackNotificationOpened(recipientId: string): Promise<void> {
     try {
-      await pool.query(
+      await db.query(
         `UPDATE push_notification_recipients
          SET opened_at = CURRENT_TIMESTAMP, delivery_status = 'delivered'
          WHERE id = $1`,
@@ -418,7 +380,7 @@ class PushNotificationService {
       );
 
       // Update notification stats
-      await pool.query(
+      await db.query(
         `UPDATE push_notifications
          SET opened_count = opened_count + 1
          WHERE id = (SELECT push_notification_id FROM push_notification_recipients WHERE id = $1)`,
@@ -434,7 +396,7 @@ class PushNotificationService {
    */
   async trackNotificationClicked(recipientId: string, action: string): Promise<void> {
     try {
-      await pool.query(
+      await db.query(
         `UPDATE push_notification_recipients
          SET clicked_at = CURRENT_TIMESTAMP, action_taken = $2
          WHERE id = $1`,
@@ -442,7 +404,7 @@ class PushNotificationService {
       );
 
       // Update notification stats
-      await pool.query(
+      await db.query(
         `UPDATE push_notifications
          SET clicked_count = clicked_count + 1
          WHERE id = (SELECT push_notification_id FROM push_notification_recipients WHERE id = $1)`,
@@ -521,7 +483,7 @@ class PushNotificationService {
         params.push(filters.offset);
       }
 
-      const result = await pool.query(query, params);
+      const result = await db.query(query, params);
       return result.rows;
     } catch (error) {
       console.error('Error getting notification history:', error);
@@ -552,7 +514,7 @@ class PushNotificationService {
         params.push(dateRange.start, dateRange.end);
       }
 
-      const result = await pool.query(query, params);
+      const result = await db.query(query, params);
       const row = result.rows[0];
 
       const totalSent = parseInt(row.total_sent) || 0;
@@ -582,7 +544,11 @@ class PushNotificationService {
    */
   async getTemplates(tenantId: string, category?: string) {
     try {
-      let query = 'SELECT * FROM push_notification_templates WHERE tenant_id = $1 AND is_active = true';
+      let query = `SELECT id, tenant_id, template_name, category, title_template,
+                          message_template, data_payload_template, action_buttons,
+                          priority, sound, is_active, created_at, updated_at
+                   FROM push_notification_templates
+                   WHERE tenant_id = $1 AND is_active = true`;
       const params: SqlParams = [tenantId];
 
       if (category) {
@@ -592,7 +558,7 @@ class PushNotificationService {
 
       query += ' ORDER BY template_name ASC';
 
-      const result = await pool.query(query, params);
+      const result = await db.query(query, params);
       return result.rows;
     } catch (error) {
       console.error('Error getting templates:', error);
@@ -609,8 +575,12 @@ class PushNotificationService {
     variables: Record<string, any>
   ): Promise<PushNotification> {
     try {
-      const result = await pool.query(
-        'SELECT * FROM push_notification_templates WHERE tenant_id = $1 AND template_name = $2',
+      const result = await db.query(
+        `SELECT id, tenant_id, template_name, category, title_template,
+                message_template, data_payload_template, action_buttons,
+                priority, sound, is_active, created_at, updated_at
+         FROM push_notification_templates
+         WHERE tenant_id = $1 AND template_name = $2`,
         [tenantId, templateName]
       );
 
@@ -647,14 +617,18 @@ class PushNotificationService {
   private async processScheduledNotification(notification: any): Promise<void> {
     try {
       // Update status to sending
-      await pool.query(
+      await db.query(
         'UPDATE push_notifications SET delivery_status = $1 WHERE id = $2',
         ['sending', notification.id]
       );
 
       // Get recipients
-      const recipientsResult = await pool.query(
-        'SELECT * FROM push_notification_recipients WHERE push_notification_id = $1',
+      const recipientsResult = await db.query(
+        `SELECT id, push_notification_id, user_id, device_id, device_token,
+                delivery_status, delivered_at, opened_at, clicked_at, action_taken,
+                error_message, created_at
+         FROM push_notification_recipients
+         WHERE push_notification_id = $1`,
         [notification.id]
       );
 
@@ -669,7 +643,7 @@ class PushNotificationService {
       await this.deliverToDevices(notification, devices, notification.id);
 
       // Update status to sent
-      await pool.query(
+      await db.query(
         `UPDATE push_notifications
          SET delivery_status = 'sent', sent_at = CURRENT_TIMESTAMP
          WHERE id = $1`,
@@ -677,7 +651,7 @@ class PushNotificationService {
       );
     } catch (error) {
       console.error('Error processing scheduled notification:', error);
-      await pool.query(
+      await db.query(
         'UPDATE push_notifications SET delivery_status = $1 WHERE id = $2',
         ['failed', notification.id]
       );
@@ -687,7 +661,7 @@ class PushNotificationService {
   private async getRecipientDevices(recipients: NotificationRecipient[]) {
     const userIds = recipients.map(r => r.userId);
 
-    const result = await pool.query(
+    const result = await db.query(
       `SELECT md.*, u.id as user_id
        FROM mobile_devices md
        JOIN users u ON md.user_id = u.id
@@ -700,7 +674,7 @@ class PushNotificationService {
 
   private async createRecipientRecords(notificationId: string, devices: any[]) {
     for (const device of devices) {
-      await pool.query(
+      await db.query(
         `INSERT INTO push_notification_recipients
          (push_notification_id, user_id, device_id, device_token)
          VALUES ($1, $2, $3, $4)`,
@@ -807,7 +781,7 @@ class PushNotificationService {
     status: string,
     errorMessage?: string
   ) {
-    await pool.query(
+    await db.query(
       `UPDATE push_notification_recipients
        SET delivery_status = $1, delivered_at = CURRENT_TIMESTAMP, error_message = $2
        WHERE push_notification_id = $3 AND device_id = $4`,
@@ -816,7 +790,7 @@ class PushNotificationService {
 
     // Update notification counts
     const countField = status === 'delivered' ? 'delivered_count' : 'failed_count';
-    await pool.query(
+    await db.query(
       `UPDATE push_notifications SET ${countField} = ${countField} + 1 WHERE id = $1`,
       [notificationId]
     );

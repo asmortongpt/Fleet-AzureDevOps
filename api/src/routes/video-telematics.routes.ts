@@ -11,6 +11,7 @@ import pool from '../config/database';
 import VideoTelematicsService from '../services/video-telematics.service';
 import DriverSafetyAIService from '../services/driver-safety-ai.service';
 import { z } from 'zod';
+import { getErrorMessage } from '../utils/error-handler'
 
 const router = express.Router();
 router.use(authenticateJWT);
@@ -88,7 +89,7 @@ router.post(
       });
     } catch (error: any) {
       console.error('Register camera error:', error);
-      res.status(400).json({ error: error.message || 'Failed to register camera' });
+      res.status(400).json({ error: getErrorMessage(error) || 'Failed to register camera' });
     }
   }
 );
@@ -267,7 +268,7 @@ router.post(
       });
     } catch (error: any) {
       console.error('Create video event error:', error);
-      res.status(400).json({ error: error.message || 'Failed to create video event' });
+      res.status(400).json({ error: getErrorMessage(error) || 'Failed to create video event' });
     }
   }
 );
@@ -440,7 +441,7 @@ router.post(
       });
     } catch (error: any) {
       console.error('Create evidence locker error:', error);
-      res.status(400).json({ error: error.message || 'Failed to create evidence locker' });
+      res.status(400).json({ error: getErrorMessage(error) || 'Failed to create evidence locker' });
     }
   }
 );
@@ -491,7 +492,7 @@ router.get(
   async (req: AuthRequest, res: Response) => {
     try {
       const result = await pool.query(
-        `SELECT * FROM events_requiring_coaching
+        `SELECT id, tenant_id, vehicle_id, driver_id, event_type, severity, event_timestamp, created_at FROM events_requiring_coaching
          WHERE vehicle_id IN (SELECT id FROM vehicles WHERE tenant_id = $1)
          LIMIT 100`,
         [req.user!.tenant_id]
@@ -537,7 +538,7 @@ router.post(
       });
     } catch (error: any) {
       console.error('Create coaching session error:', error);
-      res.status(400).json({ error: error.message || 'Failed to create coaching session' });
+      res.status(400).json({ error: getErrorMessage(error) || 'Failed to create coaching session' });
     }
   }
 );
@@ -664,7 +665,7 @@ router.get(
   async (req: AuthRequest, res: Response) => {
     try {
       const result = await pool.query(
-        `SELECT * FROM driver_video_scorecard
+        `SELECT id, tenant_id, driver_id, score, total_events, safe_events, violation_events, last_updated FROM driver_video_scorecard
          WHERE driver_id IN (
            SELECT id FROM drivers WHERE tenant_id = $1
          )
@@ -693,7 +694,7 @@ router.get(
   async (req: AuthRequest, res: Response) => {
     try {
       const result = await pool.query(
-        `SELECT * FROM camera_health_status
+        `SELECT id, tenant_id, vehicle_id, camera_status, last_sync, battery_level, signal_strength FROM camera_health_status
          WHERE vehicle_id IN (
            SELECT id FROM vehicles WHERE tenant_id = $1
          )

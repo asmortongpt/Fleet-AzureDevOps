@@ -75,15 +75,17 @@ class DispatchService {
   private blobServiceClient: BlobServiceClient | null = null
   private speechConfig: speechSdk.SpeechConfig | null = null
   private pubsubClient: WebPubSubServiceClient | null = null
+  private initialized = false
 
   constructor() {
-    this.initializeAzureServices()
+    // Don't call initialization in constructor - do it lazily
   }
 
   /**
-   * Initialize Azure services for dispatch system
+   * Initialize Azure services for dispatch system (called lazily)
    */
   private initializeAzureServices() {
+    if (this.initialized) return
     try {
       // Azure Blob Storage for audio archival
       const blobConnectionString = process.env.AZURE_STORAGE_CONNECTION_STRING
@@ -110,12 +112,17 @@ class DispatchService {
     } catch (error) {
       console.error('⚠️  Error initializing Azure services:', error)
     }
+
+    this.initialized = true
   }
 
   /**
    * Initialize WebSocket server for real-time audio streaming
    */
   initializeWebSocketServer(server: HttpServer) {
+    // Ensure Azure services are initialized
+    this.initializeAzureServices()
+
     this.wss = new WebSocketServer({
       server,
       path: '/api/dispatch/ws'
@@ -671,4 +678,14 @@ class DispatchService {
   }
 }
 
-export default new DispatchService()
+// Export function to get singleton instance (lazy initialization)
+let serviceInstance: DispatchService | null = null
+
+export function getDispatchService(): DispatchService {
+  if (!serviceInstance) {
+    serviceInstance = new DispatchService()
+  }
+  return serviceInstance
+}
+
+export default getDispatchService
