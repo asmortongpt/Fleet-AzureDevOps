@@ -445,8 +445,12 @@ export class JobQueueService {
   private async processCleanupOldData(job: Job): Promise<any> {
     const { retentionDays } = job.data.payload
 
+    // Validate and sanitize retentionDays parameter
+    const retentionDaysNum = Math.max(1, Math.min(365, retentionDays || 30))
+
     const result = await pool.query(
-      `DELETE FROM notifications WHERE created_at < NOW() - INTERVAL '${retentionDays} days'`
+      `DELETE FROM notifications WHERE created_at < NOW() - ($1 || ' days')::INTERVAL`,
+      [retentionDaysNum]
     )
 
     return { deletedCount: result.rowCount }
