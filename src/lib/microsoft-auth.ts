@@ -105,7 +105,7 @@ export function getTenantIdFromState(): string | null {
  */
 export function isAuthenticated(): boolean {
   logger.info('[AUTH] Checking authentication')
-  logger.info('[AUTH] Environment - DEV:', { import.meta.env.DEV, 'PROD:', import.meta.env.PROD })
+  logger.info('[AUTH] Environment - DEV:', { isDev: import.meta.env.DEV, isProd: import.meta.env.PROD })
 
   // Detect Playwright/test automation
   const isPlaywright = (window as any).playwright !== undefined ||

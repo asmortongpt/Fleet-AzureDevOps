@@ -709,7 +709,19 @@ class OfflineStorageManager private constructor(private val context: Context) {
         )
     }
 
+    // Security: Whitelist of allowed table names to prevent SQL injection
+    private val ALLOWED_TABLES = setOf(
+        FleetDatabaseHelper.TABLE_INSPECTIONS,
+        FleetDatabaseHelper.TABLE_REPORTS,
+        FleetDatabaseHelper.TABLE_PHOTOS,
+        FleetDatabaseHelper.TABLE_SYNC_QUEUE,
+        FleetDatabaseHelper.TABLE_SYNC_METADATA
+    )
+
     private fun getRecordCount(table: String): Int {
+        // Security: Validate table name against whitelist to prevent SQL injection
+        require(table in ALLOWED_TABLES) { "Invalid table name: $table" }
+
         val cursor = db.rawQuery("SELECT COUNT(*) FROM $table", null)
 
         cursor.use {
@@ -722,6 +734,9 @@ class OfflineStorageManager private constructor(private val context: Context) {
     }
 
     private fun getRecordCountWithStatus(table: String, status: String): Int {
+        // Security: Validate table name against whitelist to prevent SQL injection
+        require(table in ALLOWED_TABLES) { "Invalid table name: $table" }
+
         val cursor = db.rawQuery(
             "SELECT COUNT(*) FROM $table WHERE ${FleetDatabaseHelper.COL_SYNC_STATUS} = ?",
             arrayOf(status)

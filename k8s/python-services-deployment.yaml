@@ -24,10 +24,26 @@ spec:
         app: fleet
         component: test-orchestrator
     spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1001
+        runAsGroup: 1001
+        fsGroup: 1001
+        seccompProfile:
+          type: RuntimeDefault
       containers:
       - name: test-orchestrator
-        image: fleetappregistry.azurecr.io/fleet-test-orchestrator:latest
-        imagePullPolicy: Always
+        # SECURITY: Use specific version tags, update via CI/CD pipeline
+        image: fleetappregistry.azurecr.io/fleet-test-orchestrator:v1.0.0
+        imagePullPolicy: IfNotPresent
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
+          runAsUser: 1001
+          capabilities:
+            drop:
+              - ALL
         ports:
         - name: http
           containerPort: 8000
@@ -38,6 +54,9 @@ spec:
         env:
         - name: ENVIRONMENT
           value: "production"
+        volumeMounts:
+        - name: tmp
+          mountPath: /tmp
         resources:
           requests:
             memory: "256Mi"
@@ -57,6 +76,9 @@ spec:
             port: 8000
           initialDelaySeconds: 10
           periodSeconds: 10
+      volumes:
+      - name: tmp
+        emptyDir: {}
 ---
 apiVersion: v1
 kind: Service
@@ -102,10 +124,26 @@ spec:
         app: fleet
         component: rag-indexer
     spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1001
+        runAsGroup: 1001
+        fsGroup: 1001
+        seccompProfile:
+          type: RuntimeDefault
       containers:
       - name: rag-indexer
-        image: fleetappregistry.azurecr.io/fleet-rag-indexer:latest
-        imagePullPolicy: Always
+        # SECURITY: Use specific version tags, update via CI/CD pipeline
+        image: fleetappregistry.azurecr.io/fleet-rag-indexer:v1.0.0
+        imagePullPolicy: IfNotPresent
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
+          runAsUser: 1001
+          capabilities:
+            drop:
+              - ALL
         ports:
         - name: http
           containerPort: 8001
@@ -116,6 +154,9 @@ spec:
         env:
         - name: ENVIRONMENT
           value: "production"
+        volumeMounts:
+        - name: tmp
+          mountPath: /tmp
         resources:
           requests:
             memory: "256Mi"
@@ -135,6 +176,9 @@ spec:
             port: 8001
           initialDelaySeconds: 10
           periodSeconds: 10
+      volumes:
+      - name: tmp
+        emptyDir: {}
 ---
 apiVersion: v1
 kind: Service
@@ -180,10 +224,26 @@ spec:
         app: fleet
         component: playwright-runner
     spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1001
+        runAsGroup: 1001
+        fsGroup: 1001
+        seccompProfile:
+          type: RuntimeDefault
       containers:
       - name: playwright-runner
-        image: fleetappregistry.azurecr.io/fleet-playwright-runner:latest
-        imagePullPolicy: Always
+        # SECURITY: Use specific version tags, update via CI/CD pipeline
+        image: fleetappregistry.azurecr.io/fleet-playwright-runner:v1.0.0
+        imagePullPolicy: IfNotPresent
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
+          runAsUser: 1001
+          capabilities:
+            drop:
+              - ALL
         ports:
         - name: http
           containerPort: 8002
@@ -193,6 +253,9 @@ spec:
           value: "http://fleet-frontend-service"
         - name: ENVIRONMENT
           value: "production"
+        volumeMounts:
+        - name: tmp
+          mountPath: /tmp
         resources:
           requests:
             memory: "1Gi"
@@ -212,6 +275,9 @@ spec:
             port: 8002
           initialDelaySeconds: 30
           periodSeconds: 10
+      volumes:
+      - name: tmp
+        emptyDir: {}
 ---
 apiVersion: v1
 kind: Service

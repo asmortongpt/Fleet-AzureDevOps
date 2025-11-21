@@ -12,6 +12,7 @@
 
 import { Router, Request, Response } from 'express'
 import documentSearchService from '../services/document-search.service'
+import { getErrorMessage } from '../utils/error-handler'
 
 const router = Router()
 
@@ -61,7 +62,7 @@ router.post('/', async (req: Request, res: Response) => {
     console.error('Document search error:', error)
     return res.status(500).json({
       error: 'Search failed',
-      message: error instanceof Error ? error.message : 'Unknown error'
+      message: error instanceof Error ? getErrorMessage(error) : 'Unknown error'
     })
   }
 })
@@ -102,7 +103,7 @@ router.get('/vehicle/:vehicleId', async (req: Request, res: Response) => {
     console.error('Vehicle document search error:', error)
     return res.status(500).json({
       error: 'Vehicle search failed',
-      message: error instanceof Error ? error.message : 'Unknown error'
+      message: error instanceof Error ? getErrorMessage(error) : 'Unknown error'
     })
   }
 })
@@ -142,7 +143,7 @@ router.get('/suggestions', async (req: Request, res: Response) => {
     console.error('Suggestions error:', error)
     return res.status(500).json({
       error: 'Failed to get suggestions',
-      message: error instanceof Error ? error.message : 'Unknown error'
+      message: error instanceof Error ? getErrorMessage(error) : 'Unknown error'
     })
   }
 })
@@ -175,7 +176,7 @@ router.get('/stats', async (req: Request, res: Response) => {
     console.error('Search stats error:', error)
     return res.status(500).json({
       error: 'Failed to get search statistics',
-      message: error instanceof Error ? error.message : 'Unknown error'
+      message: error instanceof Error ? getErrorMessage(error) : 'Unknown error'
     })
   }
 })
@@ -205,7 +206,7 @@ router.post('/index/:documentId', async (req: Request, res: Response) => {
     console.error('Document indexing error:', error)
     return res.status(500).json({
       error: 'Failed to index document',
-      message: error instanceof Error ? error.message : 'Unknown error'
+      message: error instanceof Error ? getErrorMessage(error) : 'Unknown error'
     })
   }
 })
@@ -242,7 +243,7 @@ router.post('/index/batch', async (req: Request, res: Response) => {
     console.error('Batch indexing error:', error)
     return res.status(500).json({
       error: 'Failed to batch index documents',
-      message: error instanceof Error ? error.message : 'Unknown error'
+      message: error instanceof Error ? getErrorMessage(error) : 'Unknown error'
     })
   }
 })

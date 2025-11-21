@@ -16,6 +16,7 @@ import { Router, Request, Response } from 'express'
 import teamsService from '../services/teams.service'
 import { authenticateJWT, AuthRequest } from '../middleware/auth'
 import { logger } from '../utils/logger'
+import { getErrorMessage } from '../utils/error-handler'
 import {
   SendMessageRequest,
   ReplyToMessageRequest,
@@ -75,7 +76,7 @@ router.get('/', async (req: AuthRequest, res: Response) => {
     })
   } catch (error) {
     logger.error('Error getting teams', {
-      error: error instanceof Error ? error.message : 'Unknown error',
+      error: error instanceof Error ? getErrorMessage(error) : 'Unknown error',
       userId: req.user?.id
     })
 
@@ -122,7 +123,7 @@ router.get('/:teamId/channels', async (req: AuthRequest, res: Response) => {
     })
   } catch (error) {
     logger.error('Error getting channels', {
-      error: error instanceof Error ? error.message : 'Unknown error',
+      error: error instanceof Error ? getErrorMessage(error) : 'Unknown error',
       teamId: req.params.teamId,
       userId: req.user?.id
     })
@@ -180,7 +181,7 @@ router.get('/:teamId/channels/:channelId/messages', async (req: AuthRequest, res
     })
   } catch (error) {
     logger.error('Error getting messages', {
-      error: error instanceof Error ? error.message : 'Unknown error',
+      error: error instanceof Error ? getErrorMessage(error) : 'Unknown error',
       teamId: req.params.teamId,
       channelId: req.params.channelId,
       userId: req.user?.id
@@ -305,7 +306,7 @@ router.post('/:teamId/channels/:channelId/messages', async (req: AuthRequest, re
     })
   } catch (error) {
     logger.error('Error sending message', {
-      error: error instanceof Error ? error.message : 'Unknown error',
+      error: error instanceof Error ? getErrorMessage(error) : 'Unknown error',
       teamId: req.params.teamId,
       channelId: req.params.channelId,
       userId: req.user?.id
@@ -404,7 +405,7 @@ router.post('/:teamId/channels/:channelId/messages/:messageId/replies', async (r
     })
   } catch (error) {
     logger.error('Error replying to message', {
-      error: error instanceof Error ? error.message : 'Unknown error',
+      error: error instanceof Error ? getErrorMessage(error) : 'Unknown error',
       teamId: req.params.teamId,
       channelId: req.params.channelId,
       messageId: req.params.messageId,
@@ -493,7 +494,7 @@ router.post('/:teamId/channels/:channelId/messages/:messageId/reactions', async 
     })
   } catch (error) {
     logger.error('Error adding reaction', {
-      error: error instanceof Error ? error.message : 'Unknown error',
+      error: error instanceof Error ? getErrorMessage(error) : 'Unknown error',
       teamId: req.params.teamId,
       channelId: req.params.channelId,
       messageId: req.params.messageId,
@@ -578,7 +579,7 @@ router.post('/:teamId/channels', async (req: AuthRequest, res: Response) => {
     })
   } catch (error) {
     logger.error('Error creating channel', {
-      error: error instanceof Error ? error.message : 'Unknown error',
+      error: error instanceof Error ? getErrorMessage(error) : 'Unknown error',
       teamId: req.params.teamId,
       userId: req.user?.id
     })
@@ -669,7 +670,7 @@ router.patch('/:teamId/channels/:channelId/messages/:messageId', async (req: Aut
     })
   } catch (error) {
     logger.error('Error updating message', {
-      error: error instanceof Error ? error.message : 'Unknown error',
+      error: error instanceof Error ? getErrorMessage(error) : 'Unknown error',
       teamId: req.params.teamId,
       channelId: req.params.channelId,
       messageId: req.params.messageId,
@@ -728,7 +729,7 @@ router.delete('/:teamId/channels/:channelId/messages/:messageId', async (req: Au
     })
   } catch (error) {
     logger.error('Error deleting message', {
-      error: error instanceof Error ? error.message : 'Unknown error',
+      error: error instanceof Error ? getErrorMessage(error) : 'Unknown error',
       teamId: req.params.teamId,
       channelId: req.params.channelId,
       messageId: req.params.messageId,

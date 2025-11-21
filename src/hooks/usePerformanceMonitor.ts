@@ -496,7 +496,7 @@ export function usePerformanceMonitor(
   const reportMetrics = useCallback(() => {
     if (!config.enabled) return
 
-    logger.debug('Log', { data: formatMetricsReport(metrics }))
+    logger.debug('Log', { data: formatMetricsReport(metrics) }))
   }, [config.enabled, metrics])
 
   // Auto-reporting
@@ -529,7 +529,7 @@ export function usePerformanceMonitor(
     return () => {
       if (config.enabled && config.reportInterval > 0) {
         // Report final metrics on unmount
-        logger.debug('Log', { data: formatMetricsReport(metrics }))
+        logger.debug('Log', { data: formatMetricsReport(metrics) }))
       }
     }
   }, [])
