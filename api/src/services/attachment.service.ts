@@ -773,11 +773,15 @@ export class AttachmentService {
    */
   async cleanupOrphanedFiles(daysOld: number = 30): Promise<number> {
     try {
+      // Validate and sanitize daysOld parameter
+      const daysOldNum = Math.max(1, Math.min(365, daysOld || 30))
+
       const result = await pool.query(
         `SELECT blob_url
          FROM communication_attachments
          WHERE communication_id IS NULL
-         AND created_at < NOW() - INTERVAL '${daysOld} days'`
+         AND created_at < NOW() - ($1 || ' days')::INTERVAL`,
+        [daysOldNum]
       )
 
       let deletedCount = 0
@@ -795,7 +799,8 @@ export class AttachmentService {
       await pool.query(
         `DELETE FROM communication_attachments
          WHERE communication_id IS NULL
-         AND created_at < NOW() - INTERVAL '${daysOld} days'`
+         AND created_at < NOW() - ($1 || ' days')::INTERVAL`,
+        [daysOldNum]
       )
 
       console.log(`✅ Cleaned up ${deletedCount} orphaned files`)

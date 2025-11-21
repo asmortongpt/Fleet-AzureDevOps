@@ -76,7 +76,7 @@ BEGIN
   VALUES (
     v_tenant_id,
     'admin@multi-asset-test.local',
-    '$2b$10$vI8aWBnW3fID.Z05SH4g/.c9LCvDvr2V8cQ6OwZULl7nj8HfQ4K0m', -- password: "Test123!"
+    '$2b$10$vI8aWBnW3fID.Z05SH4g/.c9LCvDvr2V8cQ6OwZULl7nj8HfQ4K0m', -- password: YOUR_TEST_PASSWORD_HERE (generate hash with bcrypt)
     'Test',
     'Administrator',
     '555-0100',
@@ -555,7 +555,7 @@ BEGIN
   RAISE NOTICE 'MULTI-ASSET TEST DATA SEED COMPLETE';
   RAISE NOTICE '========================================';
   RAISE NOTICE 'Tenant ID: %', v_tenant_id;
-  RAISE NOTICE 'Admin User: admin@multi-asset-test.local (password: Test123!)';
+  RAISE NOTICE 'Admin User: admin@multi-asset-test.local (password: YOUR_TEST_PASSWORD_HERE)';
   RAISE NOTICE '----------------------------------------';
   RAISE NOTICE 'Assets Created:';
   RAISE NOTICE '  - 5 Semi Tractors (2 IN_USE, 2 AVAILABLE, 1 MAINTENANCE)';

@@ -3,6 +3,7 @@ import pool from '../config/database'
 import { createAuditLog } from '../middleware/audit'
 import { AuthRequest, authenticateJWT } from '../middleware/auth'
 import { requirePermission } from '../middleware/permissions'
+import { getErrorMessage } from '../utils/error-handler'
 
 const router = express.Router()
 router.use(authenticateJWT)
@@ -60,7 +61,7 @@ router.get('/',
     })
   } catch (error: any) {
     console.error('Error fetching deployments:', error)
-    res.status(500).json({ error: 'Failed to fetch deployments', message: error.message })
+    res.status(500).json({ error: 'Failed to fetch deployments', message: getErrorMessage(error) })
   }
 })
 
@@ -134,7 +135,7 @@ router.post('/',
     res.status(201).json(result.rows[0])
   } catch (error: any) {
     console.error('Error creating deployment:', error)
-    res.status(500).json({ error: 'Failed to create deployment', message: error.message })
+    res.status(500).json({ error: 'Failed to create deployment', message: getErrorMessage(error) })
   }
 })
 
@@ -207,7 +208,7 @@ router.patch('/:id',
     res.json(result.rows[0])
   } catch (error: any) {
     console.error('Error updating deployment:', error)
-    res.status(500).json({ error: 'Failed to update deployment', message: error.message })
+    res.status(500).json({ error: 'Failed to update deployment', message: getErrorMessage(error) })
   }
 })
 
@@ -248,7 +249,7 @@ router.get('/:id',
     })
   } catch (error: any) {
     console.error('Error fetching deployment:', error)
-    res.status(500).json({ error: 'Failed to fetch deployment', message: error.message })
+    res.status(500).json({ error: 'Failed to fetch deployment', message: getErrorMessage(error) })
   }
 })
 
@@ -262,6 +263,9 @@ router.get('/stats/summary',
   try {
     const { days = 30 } = req.query
 
+    // Validate and sanitize days parameter
+    const daysNum = Math.max(1, Math.min(365, parseInt(days as string) || 30))
+
     const result = await pool.query(
       `SELECT
         environment,
@@ -271,10 +275,10 @@ router.get('/stats/summary',
         COUNT(CASE WHEN status = 'rolled_back' THEN 1 END) as rolled_back,
         ROUND(AVG(EXTRACT(EPOCH FROM (completed_at - started_at))/60), 2) as avg_duration_minutes
       FROM deployments
-      WHERE started_at >= NOW() - INTERVAL '${parseInt(days as string)} days'
+      WHERE started_at >= NOW() - ($1 || ' days')::INTERVAL
       GROUP BY environment
       ORDER BY environment`,
-      []
+      [daysNum]
     )
 
     res.json({
@@ -283,7 +287,7 @@ router.get('/stats/summary',
     })
   } catch (error: any) {
     console.error('Error fetching deployment stats:', error)
-    res.status(500).json({ error: 'Failed to fetch stats', message: error.message })
+    res.status(500).json({ error: 'Failed to fetch stats', message: getErrorMessage(error) })
   }
 })
 
