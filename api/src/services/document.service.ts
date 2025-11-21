@@ -441,22 +441,25 @@ export class DocumentService {
    */
   async getExpiringDocuments(daysThreshold: number, tenantId?: number): Promise<DocumentRecord[]> {
     try {
+      // Validate and sanitize daysThreshold parameter
+      const daysThresholdNum = Math.max(1, Math.min(365, daysThreshold || 30))
+
       const query = tenantId
         ? `SELECT * FROM fleet_documents
            WHERE expires_at IS NOT NULL
-           AND expires_at <= NOW() + INTERVAL '${daysThreshold} days'
+           AND expires_at <= NOW() + ($2 || ' days')::INTERVAL
            AND expires_at > NOW()
            AND is_archived = false
            AND tenant_id = $1
            ORDER BY expires_at ASC`
         : `SELECT * FROM fleet_documents
            WHERE expires_at IS NOT NULL
-           AND expires_at <= NOW() + INTERVAL '${daysThreshold} days'
+           AND expires_at <= NOW() + ($1 || ' days')::INTERVAL
            AND expires_at > NOW()
            AND is_archived = false
            ORDER BY expires_at ASC`
 
-      const params = tenantId ? [tenantId] : []
+      const params = tenantId ? [tenantId, daysThresholdNum] : [daysThresholdNum]
       const result = await pool.query(query, params)
 
       return result.rows.map(doc => ({

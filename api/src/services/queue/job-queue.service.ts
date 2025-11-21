@@ -15,6 +15,15 @@ import Bull, { Queue, Job, JobOptions } from 'bull'
 import pool from '../../config/database'
 import { notificationService } from '../notifications/notification.service'
 import { customFieldsService } from '../custom-fields/custom-fields.service'
+import { validateColumnNames } from '../../utils/sql-safety'
+
+// Allowlist of valid table names for job queue operations
+const ALLOWED_JOB_TABLES = ['tasks', 'assets'] as const;
+type AllowedJobTable = typeof ALLOWED_JOB_TABLES[number];
+
+function isAllowedJobTable(table: string): table is AllowedJobTable {
+  return ALLOWED_JOB_TABLES.includes(table as AllowedJobTable);
+}
 
 export type JobType =
   | 'send_notification'
@@ -247,8 +256,9 @@ export class JobQueueService {
    * Get job status
    */
   async getJobStatus(jobId: string): Promise<any> {
+    const columns = 'id, tenant_id, job_name, job_type, status, progress, result_data, created_at, updated_at'
     const result = await pool.query(
-      'SELECT * FROM job_queue WHERE id = $1',
+      `SELECT ${columns} FROM job_queue WHERE id = $1`,
       [jobId]
     )
 
@@ -370,9 +380,18 @@ export class JobQueueService {
       const entityId = entityIds[i]
       const table = entityType === 'task' ? 'tasks' : 'assets'
 
+      // Validate table name against allowlist
+      if (!isAllowedJobTable(table)) {
+        throw new Error(`Invalid entity type: ${entityType}`);
+      }
+
+      // Validate column names to prevent SQL injection
+      const columnNames = Object.keys(updates);
+      validateColumnNames(columnNames);
+
       await pool.query(
-        `UPDATE ${table} SET ${Object.keys(updates).map((k, idx) => `${k} = $${idx + 1}`).join(', ')}
-         WHERE id = $${Object.keys(updates).length + 1}`,
+        `UPDATE ${table} SET ${columnNames.map((k, idx) => `${k} = $${idx + 1}`).join(', ')}
+         WHERE id = $${columnNames.length + 1}`,
         [...Object.values(updates), entityId]
       )
 
@@ -391,6 +410,12 @@ export class JobQueueService {
     job.progress({ percentage: 50, message: 'Fetching data...' })
 
     const table = entityType === 'task' ? 'tasks' : 'assets'
+
+    // Validate table name against allowlist
+    if (!isAllowedJobTable(table)) {
+      throw new Error(`Invalid entity type: ${entityType}`);
+    }
+
     const result = await pool.query(`SELECT * FROM ${table} LIMIT 1000`)
 
     job.progress({ percentage: 100, message: 'Export complete' })
@@ -444,8 +469,12 @@ export class JobQueueService {
   private async processCleanupOldData(job: Job): Promise<any> {
     const { retentionDays } = job.data.payload
 
+    // Validate and sanitize retentionDays parameter
+    const retentionDaysNum = Math.max(1, Math.min(365, retentionDays || 30))
+
     const result = await pool.query(
-      `DELETE FROM notifications WHERE created_at < NOW() - INTERVAL '${retentionDays} days'`
+      `DELETE FROM notifications WHERE created_at < NOW() - ($1 || ' days')::INTERVAL`,
+      [retentionDaysNum]
     )
 
     return { deletedCount: result.rowCount }
