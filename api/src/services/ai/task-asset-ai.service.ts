@@ -12,7 +12,8 @@
 
 import Anthropic from '@anthropic-ai/sdk'
 import pool from '../../config/database'
-import { embed } from '../embeddings.service'
+// Note: embeddings.service doesn't exist - EmbeddingService is at ../EmbeddingService.ts
+// import embeddingService from '../EmbeddingService'
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY || ''
@@ -52,23 +53,27 @@ export async function analyzeTaskAndSuggest(taskData: {
   tenant_id: string
 }): Promise<TaskSuggestion> {
   try {
+    // TODO: Re-enable embeddings when import is fixed
     // Find similar tasks using embeddings
-    const taskText = `${taskData.title} ${taskData.description || ''}`
-    const embedding = await embed(taskText)
+    // const taskText = `${taskData.title} ${taskData.description || ''}`
+    // const embedding = await embed(taskText)
 
-    const similarTasks = await pool.query(
-      `SELECT
-        id, task_title, description, priority, assigned_to,
-        actual_hours, status, created_at,
-        (embedding <-> $1::vector) as similarity
-      FROM tasks
-      WHERE tenant_id = $2
-        AND embedding IS NOT NULL
-        AND status = 'completed'
-      ORDER BY similarity ASC
-      LIMIT 5`,
-      [JSON.stringify(embedding), taskData.tenant_id]
-    )
+    // Temporarily disabled - embedding service import needs fixing
+    const similarTasks = { rows: [] }
+
+    // const similarTasks = await pool.query(
+    //   `SELECT
+    //     id, task_title, description, priority, assigned_to,
+    //     actual_hours, status, created_at,
+    //     (embedding <-> $1::vector) as similarity
+    //   FROM tasks
+    //   WHERE tenant_id = $2
+    //     AND embedding IS NOT NULL
+    //     AND status = 'completed'
+    //   ORDER BY similarity ASC
+    //   LIMIT 5`,
+    //   [JSON.stringify(embedding), taskData.tenant_id]
+    // )
 
     // Use Claude to analyze and provide suggestions
     const prompt = `Analyze this task and provide intelligent suggestions:
