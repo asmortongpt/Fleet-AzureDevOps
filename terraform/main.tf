@@ -159,6 +159,12 @@ resource "azurerm_kubernetes_cluster" "main" {
   dns_prefix          = "ctafleet-${local.environment}"
   kubernetes_version  = var.kubernetes_version
 
+  # Security: Disable local accounts (use Azure AD only)
+  local_account_disabled          = true
+
+  # Security: Restrict API server access to authorized IPs only
+  api_server_authorized_ip_ranges = var.aks_authorized_ip_ranges
+
   default_node_pool {
     name                = "system"
     node_count          = var.aks_node_count
@@ -178,6 +184,17 @@ resource "azurerm_kubernetes_cluster" "main" {
 
   identity {
     type = "SystemAssigned"
+  }
+
+  # Security: Enable automatic cluster upgrades
+  automatic_channel_upgrade = "stable"
+
+  # Security: Enable Azure AD RBAC integration
+  azure_active_directory_role_based_access_control {
+    managed                = true
+    azure_rbac_enabled     = true
+    tenant_id              = data.azurerm_client_config.current.tenant_id
+    admin_group_object_ids = var.aks_admin_group_ids
   }
 
   network_profile {
@@ -201,6 +218,11 @@ resource "azurerm_kubernetes_cluster" "main" {
     scale_down_delay_after_add       = "10m"
     scale_down_unneeded              = "10m"
     scale_down_utilization_threshold = 0.5
+  }
+
+  # Security: Enable Microsoft Defender for Containers
+  microsoft_defender {
+    log_analytics_workspace_id = azurerm_log_analytics_workspace.main.id
   }
 
   tags = local.common_tags
@@ -270,6 +292,15 @@ resource "azurerm_storage_account" "main" {
   account_replication_type = "GRS"
   account_kind             = "StorageV2"
 
+  # Security: Disable public blob access
+  allow_blob_public_access  = false
+
+  # Security: Enforce minimum TLS version
+  min_tls_version           = "TLS1_2"
+
+  # Security: Enforce HTTPS-only traffic
+  enable_https_traffic_only = true
+
   blob_properties {
     versioning_enabled       = true
     change_feed_enabled      = true
@@ -288,6 +319,7 @@ resource "azurerm_storage_account" "main" {
     default_action             = "Deny"
     bypass                     = ["AzureServices"]
     virtual_network_subnet_ids = [azurerm_subnet.aks.id]
+    ip_rules                   = var.allowed_storage_ips
   }
 
   tags = local.common_tags
@@ -316,10 +348,60 @@ resource "azurerm_key_vault" "main" {
   soft_delete_retention_days = 90
   purge_protection_enabled   = true
 
+  # Security: Disable public network access (use private endpoints only)
+  public_network_access_enabled = false
+
   network_acls {
     default_action             = "Deny"
     bypass                     = "AzureServices"
     virtual_network_subnet_ids = [azurerm_subnet.aks.id]
+    ip_rules                   = var.allowed_keyvault_ips
+  }
+
+  tags = local.common_tags
+}
+
+# Private Endpoint Subnet for Key Vault
+resource "azurerm_subnet" "private_endpoints" {
+  name                 = "private-endpoints-subnet"
+  resource_group_name  = azurerm_resource_group.main.name
+  virtual_network_name = azurerm_virtual_network.main.name
+  address_prefixes     = ["10.0.4.0/24"]
+}
+
+# Private DNS Zone for Key Vault
+resource "azurerm_private_dns_zone" "keyvault" {
+  name                = "privatelink.vaultcore.azure.net"
+  resource_group_name = azurerm_resource_group.main.name
+  tags                = local.common_tags
+}
+
+# Link Private DNS Zone to VNet
+resource "azurerm_private_dns_zone_virtual_network_link" "keyvault" {
+  name                  = "keyvault-dns-link"
+  resource_group_name   = azurerm_resource_group.main.name
+  private_dns_zone_name = azurerm_private_dns_zone.keyvault.name
+  virtual_network_id    = azurerm_virtual_network.main.id
+  tags                  = local.common_tags
+}
+
+# Private Endpoint for Key Vault
+resource "azurerm_private_endpoint" "keyvault" {
+  name                = "ctafleet-${local.environment}-kv-pe"
+  location            = azurerm_resource_group.main.location
+  resource_group_name = azurerm_resource_group.main.name
+  subnet_id           = azurerm_subnet.private_endpoints.id
+
+  private_service_connection {
+    name                           = "keyvault-privateserviceconnection"
+    private_connection_resource_id = azurerm_key_vault.main.id
+    subresource_names              = ["vault"]
+    is_manual_connection           = false
+  }
+
+  private_dns_zone_group {
+    name                 = "keyvault-dns-zone-group"
+    private_dns_zone_ids = [azurerm_private_dns_zone.keyvault.id]
   }
 
   tags = local.common_tags
