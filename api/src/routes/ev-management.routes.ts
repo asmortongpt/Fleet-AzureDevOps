@@ -17,6 +17,7 @@ import OCPPService from '../services/ocpp.service';
 import EVChargingService from '../services/ev-charging.service';
 import { authenticateJWT } from '../middleware/auth';
 import { requirePermission } from '../middleware/permissions';
+import { getErrorMessage } from '../utils/error-handler'
 
 const router = express.Router();
 
@@ -93,7 +94,7 @@ router.get('/chargers', authenticateJWT, requirePermission('charging_station:vie
     res.status(500).json({
       success: false,
       error: 'Failed to fetch charging stations',
-      message: error.message
+      message: getErrorMessage(error)
     });
   }
 });
@@ -135,7 +136,7 @@ router.get('/chargers/:id/status', authenticateJWT, requirePermission('charging_
     res.status(500).json({
       success: false,
       error: 'Failed to fetch charger status',
-      message: error.message
+      message: getErrorMessage(error)
     });
   }
 });
@@ -212,7 +213,7 @@ router.post('/chargers/:id/reserve', authenticateJWT, requirePermission('chargin
     res.status(500).json({
       success: false,
       error: 'Failed to create reservation',
-      message: error.message
+      message: getErrorMessage(error)
     });
   }
 });
@@ -247,7 +248,7 @@ router.delete('/reservations/:id/cancel', authenticateJWT, requirePermission('ch
     res.status(500).json({
       success: false,
       error: 'Failed to cancel reservation',
-      message: error.message
+      message: getErrorMessage(error)
     });
   }
 });
@@ -323,7 +324,7 @@ router.post('/vehicles/:id/charge-schedule', authenticateJWT, requirePermission(
     res.status(500).json({
       success: false,
       error: 'Failed to create charging schedule',
-      message: error.message
+      message: getErrorMessage(error)
     });
   }
 });
@@ -367,7 +368,7 @@ router.post('/chargers/:id/remote-start', authenticateJWT, requirePermission('ch
     res.status(500).json({
       success: false,
       error: 'Failed to start charging',
-      message: error.message
+      message: getErrorMessage(error)
     });
   }
 });
@@ -407,7 +408,7 @@ router.post('/sessions/:transactionId/stop', authenticateJWT, requirePermission(
     res.status(500).json({
       success: false,
       error: 'Failed to stop charging',
-      message: error.message
+      message: getErrorMessage(error)
     });
   }
 });
@@ -425,7 +426,7 @@ router.post('/sessions/:transactionId/stop', authenticateJWT, requirePermission(
 router.get('/sessions/active', authenticateJWT, requirePermission('charging_station:view:fleet'), async (req: Request, res: Response) => {
   try {
     const result = await pool.query(
-      `SELECT * FROM active_charging_sessions ORDER BY start_time DESC`
+      `SELECT id, tenant_id, vehicle_id, charger_id, start_time, end_time, energy_charged, cost FROM active_charging_sessions ORDER BY start_time DESC`
     );
 
     res.json({
@@ -438,7 +439,7 @@ router.get('/sessions/active', authenticateJWT, requirePermission('charging_stat
     res.status(500).json({
       success: false,
       error: 'Failed to fetch active sessions',
-      message: error.message
+      message: getErrorMessage(error)
     });
   }
 });
@@ -519,7 +520,7 @@ router.get('/carbon-footprint', authenticateJWT, requirePermission('report:view:
     res.status(500).json({
       success: false,
       error: 'Failed to fetch carbon footprint data',
-      message: error.message
+      message: getErrorMessage(error)
     });
   }
 });
@@ -576,7 +577,7 @@ router.get('/esg-report', authenticateJWT, requirePermission('report:view:global
     res.status(500).json({
       success: false,
       error: 'Failed to generate ESG report',
-      message: error.message
+      message: getErrorMessage(error)
     });
   }
 });
@@ -611,7 +612,7 @@ router.get('/vehicles/:id/battery-health', authenticateJWT, requirePermission('v
     res.status(500).json({
       success: false,
       error: 'Failed to fetch battery health',
-      message: error.message
+      message: getErrorMessage(error)
     });
   }
 });
@@ -629,7 +630,7 @@ router.get('/vehicles/:id/battery-health', authenticateJWT, requirePermission('v
 router.get('/station-utilization', authenticateJWT, requirePermission('charging_station:view:fleet'), async (req: Request, res: Response) => {
   try {
     const result = await pool.query(
-      `SELECT * FROM station_utilization_today ORDER BY utilization_percent DESC`
+      `SELECT station_id, station_name, utilization_percent, total_sessions, peak_hour FROM station_utilization_today ORDER BY utilization_percent DESC`
     );
 
     res.json({
@@ -641,7 +642,7 @@ router.get('/station-utilization', authenticateJWT, requirePermission('charging_
     res.status(500).json({
       success: false,
       error: 'Failed to fetch station utilization',
-      message: error.message
+      message: getErrorMessage(error)
     });
   }
 });
@@ -697,26 +698,12 @@ router.get('/vehicles/:id/charging-history', authenticateJWT, requirePermission(
     res.status(500).json({
       success: false,
       error: 'Failed to fetch charging history',
-      message: error.message
+      message: getErrorMessage(error)
     });
   }
 });
 
-// Initialize OCPP connections on startup
-(async () => {
-  try {
-    const stationsResult = await pool.query(
-      'SELECT station_id FROM charging_stations WHERE is_enabled = true AND ws_url IS NOT NULL'
-    );
-
-    console.log(`🔌 Connecting to ${stationsResult.rows.length} OCPP charging stations...`);
-
-    for (const row of stationsResult.rows) {
-      await ocppService.connectStation(row.station_id);
-    }
-  } catch (error) {
-    console.error('Error initializing OCPP connections:', error);
-  }
-})();
+// OCPP connections will be initialized by the server on startup
+// See src/server.ts for initialization logic
 
 export default router;

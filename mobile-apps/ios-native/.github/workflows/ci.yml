@@ -36,12 +36,14 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        # SECURITY: Pinned to SHA for supply chain security
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11  # v4
         with:
           fetch-depth: 0
 
       - name: Cache SwiftLint
-        uses: actions/cache@v3
+        # SECURITY: Pinned to SHA for supply chain security
+        uses: actions/cache@704facf57e6136b1bc63b828d79edcd491f0ee84  # v3
         with:
           path: .build
           key: ${{ runner.os }}-swiftlint-${{ hashFiles('**/Podfile.lock') }}
@@ -72,10 +74,12 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        # SECURITY: Pinned to SHA for supply chain security
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11  # v4
 
       - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@master
+        # SECURITY: Pinned to SHA for supply chain security
+        uses: aquasecurity/trivy-action@6e7b7d1fd3e4fef0c5fa8cce1229c54b2c9a1ade  # master
         with:
           scan-type: 'fs'
           scan-ref: '${{ env.WORKING_DIRECTORY }}'
@@ -84,7 +88,8 @@ jobs:
           severity: 'CRITICAL,HIGH'
 
       - name: Upload Trivy results to GitHub Security
-        uses: github/codeql-action/upload-sarif@v2
+        # SECURITY: Pinned to SHA for supply chain security
+        uses: github/codeql-action/upload-sarif@32dc499307d133bb5085bae78498c0ac2cf762d5  # v2
         if: always()
         with:
           sarif_file: 'trivy-results.sarif'
@@ -119,7 +124,8 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        # SECURITY: Pinned to SHA for supply chain security
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11  # v4
         with:
           fetch-depth: 0
 
@@ -129,7 +135,8 @@ jobs:
           xcodebuild -version
 
       - name: Cache CocoaPods
-        uses: actions/cache@v3
+        # SECURITY: Pinned to SHA for supply chain security
+        uses: actions/cache@704facf57e6136b1bc63b828d79edcd491f0ee84  # v3
         with:
           path: |
             ${{ env.WORKING_DIRECTORY }}/Pods
@@ -139,7 +146,8 @@ jobs:
             ${{ runner.os }}-pods-
 
       - name: Cache DerivedData
-        uses: actions/cache@v3
+        # SECURITY: Pinned to SHA for supply chain security
+        uses: actions/cache@704facf57e6136b1bc63b828d79edcd491f0ee84  # v3
         with:
           path: ~/Library/Developer/Xcode/DerivedData
           key: ${{ runner.os }}-derived-data-${{ hashFiles(format('{0}/**/*.swift', env.WORKING_DIRECTORY)) }}
@@ -155,7 +163,8 @@ jobs:
           fi
 
       - name: Setup Ruby
-        uses: ruby/setup-ruby@v1
+        # SECURITY: Pinned to SHA for supply chain security
+        uses: ruby/setup-ruby@5f19ec79cedfadb78ab837f95b87734d0003c899  # v1
         with:
           ruby-version: '3.2'
           bundler-cache: true
@@ -237,7 +246,8 @@ jobs:
 
       - name: Upload test results
         if: always()
-        uses: actions/upload-artifact@v3
+        # SECURITY: Pinned to SHA for supply chain security
+        uses: actions/upload-artifact@a8a3f3ad30e3422c9c7b888a15615d19a852ae32  # v3
         with:
           name: test-results
           path: |
@@ -248,7 +258,8 @@ jobs:
 
       - name: Publish test results
         if: always()
-        uses: EnricoMi/publish-unit-test-result-action/composite@v2
+        # SECURITY: Pinned to SHA for supply chain security
+        uses: EnricoMi/publish-unit-test-result-action/composite@ca89ad036b5fcd524c1017287fb01b5139908f34  # v2
         with:
           files: |
             ${{ env.WORKING_DIRECTORY }}/test_output/**/*.xml
@@ -257,7 +268,8 @@ jobs:
 
       - name: Upload coverage to Codecov
         if: always()
-        uses: codecov/codecov-action@v3
+        # SECURITY: Pinned to SHA for supply chain security
+        uses: codecov/codecov-action@eaaf4bedf32dbdc6b720b63067d99c4d77d6047d  # v3
         with:
           files: ${{ env.WORKING_DIRECTORY }}/coverage.json
           flags: ios
@@ -275,7 +287,8 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        # SECURITY: Pinned to SHA for supply chain security
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11  # v4
 
       - name: Select Xcode version
         run: sudo xcode-select -s /Applications/Xcode_15.0.app/Contents/Developer

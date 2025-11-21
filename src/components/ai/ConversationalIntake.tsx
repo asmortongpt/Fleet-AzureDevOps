@@ -84,19 +84,19 @@ export function ConversationalIntake({
 
       const assistantMessage: Message = {
         role: 'assistant',
-        content: response.data.response,
+        content: response.data?.response,
         timestamp: new Date()
       }
 
       setMessages(prev => [...prev, assistantMessage])
-      setContext(response.data.updatedContext)
-      setSuggestions(response.data.suggestions || [])
+      setContext(response.data?.updatedContext)
+      setSuggestions(response.data?.suggestions || [])
 
       // If ready to submit, show confirmation
-      if (response.data.readyToSubmit && response.data.validatedData) {
+      if (response.data?.readyToSubmit && response.data?.validatedData) {
         // Auto-submit or show confirmation UI
         if (onSubmit) {
-          onSubmit(response.data.validatedData)
+          onSubmit(response.data?.validatedData)
         }
       }
     } catch (error: any) {

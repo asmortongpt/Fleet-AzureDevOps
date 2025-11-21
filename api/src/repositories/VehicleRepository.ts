@@ -199,7 +199,13 @@ export class VehicleRepository extends BaseRepository<Vehicle> {
       ) subquery
     `
 
-    const result = await this.query(query, [tenantId])
+    interface VehicleStatsRow {
+      total: string
+      by_status: Record<string, number>
+      by_asset_type: Record<string, number>
+    }
+
+    const result = await this.query<VehicleStatsRow>(query, [tenantId])
     const row = result.rows[0]
 
     return {

@@ -17,6 +17,7 @@ import type { AuthRequest } from '../middleware/auth'
 import { authenticateJWT } from '../middleware/auth'
 import { requirePermission } from '../middleware/permissions'
 import heavyEquipmentService from '../services/heavy-equipment.service'
+import { getErrorMessage } from '../utils/error-handler'
 
 const router = Router()
 
@@ -85,8 +86,8 @@ router.get('/:id', requirePermission('vehicle:view:fleet'), async (req: AuthRequ
     res.json({ equipment })
   } catch (error: any) {
     console.error('Error fetching equipment:', error)
-    if (error.message === 'Equipment not found') {
-      res.status(404).json({ error: error.message })
+    if (getErrorMessage(error) === 'Equipment not found') {
+      res.status(404).json({ error: getErrorMessage(error) })
     } else {
       res.status(500).json({ error: 'Failed to fetch equipment' })
     }
@@ -143,8 +144,8 @@ router.put('/:id', requirePermission('vehicle:update:fleet'), async (req: AuthRe
     })
   } catch (error: any) {
     console.error('Error updating equipment:', error)
-    if (error.message === 'Equipment not found') {
-      res.status(404).json({ error: error.message })
+    if (getErrorMessage(error) === 'Equipment not found') {
+      res.status(404).json({ error: getErrorMessage(error) })
     } else {
       res.status(500).json({ error: 'Failed to update equipment' })
     }

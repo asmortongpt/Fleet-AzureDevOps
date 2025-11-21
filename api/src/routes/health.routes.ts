@@ -69,7 +69,7 @@ router.get('/microsoft', async (req: Request, res: Response) => {
   } catch (error: unknown) {
     results.services.microsoft_graph = {
       status: 'down',
-      message: error.message,
+      message: getErrorMessage(error),
       details: { error: error.toString() }
     };
   }
@@ -85,7 +85,7 @@ router.get('/microsoft', async (req: Request, res: Response) => {
   } catch (error: unknown) {
     results.services.teams = {
       status: 'down',
-      message: error.message
+      message: getErrorMessage(error)
     };
   }
 
@@ -99,7 +99,7 @@ router.get('/microsoft', async (req: Request, res: Response) => {
   } catch (error: unknown) {
     results.services.outlook = {
       status: 'down',
-      message: error.message
+      message: getErrorMessage(error)
     };
   }
 
@@ -113,7 +113,7 @@ router.get('/microsoft', async (req: Request, res: Response) => {
   } catch (error: unknown) {
     results.services.calendar = {
       status: 'down',
-      message: error.message
+      message: getErrorMessage(error)
     };
   }
 
@@ -141,7 +141,7 @@ router.get('/microsoft', async (req: Request, res: Response) => {
     results.services.webhooks = {
       status: 'degraded',
       message: 'Unable to check webhook subscriptions',
-      details: { error: error.message }
+      details: { error: getErrorMessage(error) }
     };
   }
 
@@ -161,7 +161,7 @@ router.get('/microsoft', async (req: Request, res: Response) => {
   } catch (error: unknown) {
     results.services.queue = {
       status: 'down',
-      message: error.message
+      message: getErrorMessage(error)
     };
   }
 
@@ -191,7 +191,7 @@ router.get('/microsoft', async (req: Request, res: Response) => {
     results.services.sync = {
       status: 'degraded',
       message: 'Sync service status unknown',
-      details: { error: error.message }
+      details: { error: getErrorMessage(error) }
     };
   }
 
@@ -212,7 +212,7 @@ router.get('/microsoft', async (req: Request, res: Response) => {
   } catch (error: unknown) {
     results.services.database = {
       status: 'down',
-      message: error.message
+      message: getErrorMessage(error)
     };
   }
 
@@ -256,7 +256,7 @@ router.get('/microsoft/simple', async (req: Request, res: Response) => {
   } catch (error: unknown) {
     res.status(503).json({
       status: 'error',
-      message: error.message,
+      message: getErrorMessage(error),
       timestamp: new Date().toISOString()
     });
   }
@@ -302,7 +302,7 @@ router.get('/microsoft/metrics', async (req: Request, res: Response) => {
     await pool.end();
 
   } catch (error: unknown) {
-    metrics.push(`# Error: ${error.message}`);
+    metrics.push(`# Error: ${getErrorMessage(error)}`);
   }
 
   res.send(metrics.join('\n'));
