@@ -194,10 +194,10 @@ Added `APPLICATION-INSIGHTS-CONNECTION-STRING` to:
 
 **Connection String:**
 ```
-InstrumentationKey=bbc6ffdb-49dd-4523-9475-10564a0f2c02
-IngestionEndpoint=https://eastus2-3.in.applicationinsights.azure.com/
-LiveEndpoint=https://eastus2.livediagnostics.monitor.azure.com/
-ApplicationId=c433c054-6dd8-47bf-8502-9ca3872809e7
+InstrumentationKey=<YOUR_INSTRUMENTATION_KEY>
+IngestionEndpoint=<YOUR_INGESTION_ENDPOINT>
+LiveEndpoint=<YOUR_LIVE_ENDPOINT>
+ApplicationId=<YOUR_APPLICATION_ID>
 ```
 
 ### Deployments Applied
