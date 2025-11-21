@@ -77,7 +77,7 @@ export function useVehicleScheduleWithUtils(
     hasUpcomingReservations: () => {
       if (!query.data?.reservations) return false
       const now = new Date()
-      return query.data.reservations.some(
+      return query.data?.reservations.some(
         reservation =>
           new Date(reservation.start_time) > now &&
           reservation.status !== 'cancelled'
@@ -87,7 +87,7 @@ export function useVehicleScheduleWithUtils(
     hasUpcomingMaintenance: () => {
       if (!query.data?.maintenance) return false
       const now = new Date()
-      return query.data.maintenance.some(
+      return query.data?.maintenance.some(
         appointment =>
           new Date(appointment.scheduled_start) > now &&
           appointment.status !== 'cancelled'
@@ -97,7 +97,7 @@ export function useVehicleScheduleWithUtils(
     getNextReservation: () => {
       if (!query.data?.reservations) return null
       const now = new Date()
-      const upcoming = query.data.reservations
+      const upcoming = query.data?.reservations
         .filter(
           reservation =>
             new Date(reservation.start_time) > now &&
@@ -112,7 +112,7 @@ export function useVehicleScheduleWithUtils(
     getNextMaintenance: () => {
       if (!query.data?.maintenance) return null
       const now = new Date()
-      const upcoming = query.data.maintenance
+      const upcoming = query.data?.maintenance
         .filter(
           appointment =>
             new Date(appointment.scheduled_start) > now &&
@@ -127,7 +127,7 @@ export function useVehicleScheduleWithUtils(
     getCurrentReservation: () => {
       if (!query.data?.reservations) return null
       const now = new Date()
-      return query.data.reservations.find(
+      return query.data?.reservations.find(
         reservation =>
           new Date(reservation.start_time) <= now &&
           new Date(reservation.end_time) >= now &&
@@ -138,7 +138,7 @@ export function useVehicleScheduleWithUtils(
     getCurrentMaintenance: () => {
       if (!query.data?.maintenance) return null
       const now = new Date()
-      return query.data.maintenance.find(
+      return query.data?.maintenance.find(
         appointment =>
           new Date(appointment.scheduled_start) <= now &&
           new Date(appointment.scheduled_end) >= now &&
@@ -174,7 +174,7 @@ export function useVehicleScheduleWithUtils(
       if (!query.data) return []
 
       const events = [
-        ...query.data.reservations.map(reservation => ({
+        ...query.data?.reservations.map(reservation => ({
           id: reservation.id,
           type: 'reservation' as const,
           start: new Date(reservation.start_time),
@@ -182,7 +182,7 @@ export function useVehicleScheduleWithUtils(
           status: reservation.status,
           data: reservation,
         })),
-        ...query.data.maintenance.map(appointment => ({
+        ...query.data?.maintenance.map(appointment => ({
           id: appointment.id,
           type: 'maintenance' as const,
           start: new Date(appointment.scheduled_start),
@@ -200,7 +200,7 @@ export function useVehicleScheduleWithUtils(
       if (!query.data) return []
 
       const events = [
-        ...query.data.reservations
+        ...query.data?.reservations
           .filter(
             reservation =>
               new Date(reservation.start_time) < end &&
@@ -214,7 +214,7 @@ export function useVehicleScheduleWithUtils(
             status: reservation.status,
             data: reservation,
           })),
-        ...query.data.maintenance
+        ...query.data?.maintenance
           .filter(
             appointment =>
               new Date(appointment.scheduled_start) < end &&

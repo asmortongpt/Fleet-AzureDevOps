@@ -3,6 +3,7 @@ import { AuthRequest, authenticateJWT, authorize } from '../middleware/auth'
 import { auditLog } from '../middleware/audit'
 import pool from '../config/database'
 import { z } from 'zod'
+import { getErrorMessage } from '../utils/error-handler'
 import {
   ReimbursementStatus,
   CreateReimbursementRequest,
@@ -177,7 +178,7 @@ router.post(
       res.status(500).json({
         success: false,
         error: 'Failed to create reimbursement request',
-        details: error.message
+        details: getErrorMessage(error)
       })
     }
   }
@@ -292,7 +293,7 @@ router.get('/', async (req: AuthRequest, res: Response) => {
     res.status(500).json({
       success: false,
       error: 'Failed to retrieve reimbursement requests',
-      details: error.message
+      details: getErrorMessage(error)
     })
   }
 })
@@ -346,7 +347,7 @@ router.get('/:id', async (req: AuthRequest, res: Response) => {
     res.status(500).json({
       success: false,
       error: 'Failed to retrieve reimbursement request',
-      details: error.message
+      details: getErrorMessage(error)
     })
   }
 })
@@ -365,7 +366,14 @@ router.patch(
 
       // Get current request
       const currentResult = await pool.query(
-        `SELECT * FROM reimbursement_requests WHERE id = $1 AND tenant_id = $2`,
+        `SELECT
+          id, tenant_id, driver_id, charge_id, request_amount, description,
+          expense_date, category, receipt_file_path, receipt_uploaded_at,
+          receipt_metadata, status, submitted_at, reviewed_at, reviewed_by_user_id,
+          reviewer_notes, approved_amount, payment_date, payment_method,
+          payment_reference, created_at, updated_at, created_by_user_id
+        FROM reimbursement_requests
+        WHERE id = $1 AND tenant_id = $2`,
         [req.params.id, req.user!.tenant_id]
       )
 
@@ -434,7 +442,7 @@ router.patch(
       res.status(500).json({
         success: false,
         error: 'Failed to approve reimbursement request',
-        details: error.message
+        details: getErrorMessage(error)
       })
     }
   }
@@ -461,7 +469,14 @@ router.patch(
 
       // Get current request
       const currentResult = await pool.query(
-        `SELECT * FROM reimbursement_requests WHERE id = $1 AND tenant_id = $2`,
+        `SELECT
+          id, tenant_id, driver_id, charge_id, request_amount, description,
+          expense_date, category, receipt_file_path, receipt_uploaded_at,
+          receipt_metadata, status, submitted_at, reviewed_at, reviewed_by_user_id,
+          reviewer_notes, approved_amount, payment_date, payment_method,
+          payment_reference, created_at, updated_at, created_by_user_id
+        FROM reimbursement_requests
+        WHERE id = $1 AND tenant_id = $2`,
         [req.params.id, req.user!.tenant_id]
       )
 
@@ -513,7 +528,7 @@ router.patch(
       res.status(500).json({
         success: false,
         error: 'Failed to reject reimbursement request',
-        details: error.message
+        details: getErrorMessage(error)
       })
     }
   }
@@ -543,7 +558,14 @@ router.patch(
 
       // Get current request
       const currentResult = await pool.query(
-        `SELECT * FROM reimbursement_requests WHERE id = $1 AND tenant_id = $2`,
+        `SELECT
+          id, tenant_id, driver_id, charge_id, request_amount, description,
+          expense_date, category, receipt_file_path, receipt_uploaded_at,
+          receipt_metadata, status, submitted_at, reviewed_at, reviewed_by_user_id,
+          reviewer_notes, approved_amount, payment_date, payment_method,
+          payment_reference, created_at, updated_at, created_by_user_id
+        FROM reimbursement_requests
+        WHERE id = $1 AND tenant_id = $2`,
         [req.params.id, req.user!.tenant_id]
       )
 
@@ -596,7 +618,7 @@ router.patch(
       res.status(500).json({
         success: false,
         error: 'Failed to process payment',
-        details: error.message
+        details: getErrorMessage(error)
       })
     }
   }
@@ -612,7 +634,16 @@ router.get(
   async (req: AuthRequest, res: Response) => {
     try {
       const result = await pool.query(
-        `SELECT * FROM v_pending_reimbursements WHERE tenant_id = $1 ORDER BY days_pending DESC`,
+        `SELECT
+          id, tenant_id, driver_id, charge_id, request_amount, description,
+          expense_date, category, receipt_file_path, receipt_uploaded_at,
+          receipt_metadata, status, submitted_at, reviewed_at, reviewed_by_user_id,
+          reviewer_notes, approved_amount, payment_date, payment_method,
+          payment_reference, created_at, updated_at, created_by_user_id,
+          driver_name, driver_email, days_pending
+        FROM v_pending_reimbursements
+        WHERE tenant_id = $1
+        ORDER BY days_pending DESC`,
         [req.user!.tenant_id]
       )
 
@@ -637,7 +668,7 @@ router.get(
       res.status(500).json({
         success: false,
         error: 'Failed to retrieve pending reimbursements',
-        details: error.message
+        details: getErrorMessage(error)
       })
     }
   }
@@ -664,8 +695,13 @@ router.get('/summary/driver/:driver_id', async (req: AuthRequest, res: Response)
     }
 
     const result = await pool.query(
-      `SELECT * FROM v_driver_reimbursement_summary
-       WHERE tenant_id = $1 AND driver_id = $2`,
+      `SELECT
+        driver_id, tenant_id, driver_name, driver_email,
+        total_requests, pending_requests, approved_requests,
+        rejected_requests, paid_requests, total_requested,
+        total_approved, total_paid, avg_approval_days
+      FROM v_driver_reimbursement_summary
+      WHERE tenant_id = $1 AND driver_id = $2`,
       [req.user!.tenant_id, driverId]
     )
 
@@ -678,7 +714,7 @@ router.get('/summary/driver/:driver_id', async (req: AuthRequest, res: Response)
     res.status(500).json({
       success: false,
       error: 'Failed to retrieve reimbursement summary',
-      details: error.message
+      details: getErrorMessage(error)
     })
   }
 })

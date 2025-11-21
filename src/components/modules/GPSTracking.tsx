@@ -488,7 +488,7 @@ export function GPSTracking({
                       </Badge>
                       {vehicle.location?.lat && vehicle.location?.lng && (
                         <p className="text-xs text-muted-foreground mt-1">
-                          {vehicle.location.lat.toFixed(4)}, {vehicle.location.lng.toFixed(4)}
+                          {vehicle.location?.lat.toFixed(4)}, {vehicle.location?.lng.toFixed(4)}
                         </p>
                       )}
                     </div>

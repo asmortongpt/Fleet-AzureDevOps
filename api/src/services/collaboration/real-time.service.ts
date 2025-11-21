@@ -16,6 +16,14 @@ import { Server as HTTPServer } from 'http'
 import jwt from 'jsonwebtoken'
 import pool from '../../config/database'
 
+// Allowlist of valid comment tables
+const COMMENT_TABLES = ['task_comments', 'asset_comments'] as const;
+type CommentTable = typeof COMMENT_TABLES[number];
+
+function isValidCommentTable(table: string): table is CommentTable {
+  return COMMENT_TABLES.includes(table as CommentTable);
+}
+
 interface CollaborationUser {
   userId: string
   userName: string
@@ -232,9 +240,18 @@ export class CollaborationService {
     const user = socket.data.user
 
     try {
-      const table = data.entityType === 'task' ? 'task_comments' : 'asset_comments'
+      const table: CommentTable = data.entityType === 'task' ? 'task_comments' : 'asset_comments'
+
+      // Validate table name against allowlist to prevent SQL injection
+      if (!isValidCommentTable(table)) {
+        socket.emit('error', { message: 'Invalid entity type' })
+        return
+      }
+
+      // Table and column names are validated/constant, safe to use in query
+      const idColumn = data.entityType === 'task' ? 'task_id' : 'asset_id'
       const result = await pool.query(
-        `INSERT INTO ${table} (${data.entityType}_id, created_by, comment_text)
+        `INSERT INTO ${table} (${idColumn}, created_by, comment_text)
          VALUES ($1, $2, $3)
          RETURNING *`,
         [data.entityId, user.id, data.text]

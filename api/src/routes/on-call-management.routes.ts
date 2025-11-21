@@ -15,6 +15,7 @@ import { Pool } from 'pg';
 import { z } from 'zod';
 import { authenticateJWT, AuthRequest } from '../middleware/auth';
 import { requirePermission } from '../middleware/permissions';
+import { getErrorMessage } from '../utils/error-handler'
 
 const router = express.Router();
 
@@ -170,7 +171,7 @@ router.get(
       console.error('Error fetching on-call periods:', error);
       res.status(500).json({
         error: 'Failed to fetch on-call periods',
-        details: error.message,
+        details: getErrorMessage(error),
       });
     }
   }
@@ -219,7 +220,7 @@ router.get(
       console.error('Error fetching on-call period:', error);
       res.status(500).json({
         error: 'Failed to fetch on-call period',
-        details: error.message,
+        details: getErrorMessage(error),
       });
     }
   }
@@ -294,7 +295,7 @@ router.post(
       }
       res.status(500).json({
         error: 'Failed to create on-call period',
-        details: error.message,
+        details: getErrorMessage(error),
       });
     }
   }
@@ -360,7 +361,7 @@ router.put(
       }
       res.status(500).json({
         error: 'Failed to update on-call period',
-        details: error.message,
+        details: getErrorMessage(error),
       });
     }
   }
@@ -413,7 +414,7 @@ router.post(
       }
       res.status(500).json({
         error: 'Failed to acknowledge on-call period',
-        details: error.message,
+        details: getErrorMessage(error),
       });
     }
   }
@@ -478,7 +479,7 @@ router.get(
       console.error('Error fetching current on-call periods:', error);
       res.status(500).json({
         error: 'Failed to fetch current on-call periods',
-        details: error.message,
+        details: getErrorMessage(error),
       });
     }
   }
@@ -515,7 +516,7 @@ router.get(
       console.error('Error fetching callback trips:', error);
       res.status(500).json({
         error: 'Failed to fetch callback trips',
-        details: error.message,
+        details: getErrorMessage(error),
       });
     }
   }
@@ -588,7 +589,7 @@ router.post(
       }
       res.status(500).json({
         error: 'Failed to log callback trip',
-        details: error.message,
+        details: getErrorMessage(error),
       });
     }
   }
@@ -625,7 +626,7 @@ router.delete(
       console.error('Error deleting on-call period:', error);
       res.status(500).json({
         error: 'Failed to delete on-call period',
-        details: error.message,
+        details: getErrorMessage(error),
       });
     }
   }
