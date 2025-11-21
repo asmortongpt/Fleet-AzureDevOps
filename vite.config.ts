@@ -37,15 +37,12 @@ export default defineConfig({
       }
     },
     fs: {
-      // Exclude test reports and other non-source HTML files from scanning
-      deny: [
-        '**/node_modules/**',
-        '**/playwright-report/**',
-        '**/test-results/**',
-        '**/api/test-results/**',
-        '**/docs/**',
-        '**/landing/**',
-        '**/api/src/templates/**'
+      // Allow serving files from node_modules and project root
+      allow: [
+        // Allow project root
+        '.',
+        // Allow node_modules for CSS and asset imports
+        '../node_modules'
       ]
     }
   },
