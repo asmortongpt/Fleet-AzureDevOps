@@ -523,13 +523,16 @@ export class OBD2ServiceBackend {
     vehicleId: number,
     days: number = 30
   ): Promise<any[]> {
+    // Validate and sanitize days parameter
+    const daysNum = Math.max(1, Math.min(365, days || 30))
+
     const result = await pool.query(
       `SELECT *
        FROM obd2_fuel_economy_trends
        WHERE tenant_id = $1 AND vehicle_id = $2
-         AND date >= CURRENT_DATE - INTERVAL '${days} days'
+         AND date >= CURRENT_DATE - ($3 || ' days')::INTERVAL
        ORDER BY date DESC`,
-      [tenantId, vehicleId]
+      [tenantId, vehicleId, daysNum]
     )
 
     return result.rows

@@ -232,14 +232,16 @@ export class InspectionRepository extends BaseRepository<Inspection> {
    */
   async findDueSoon(tenantId: string, daysAhead: number = 7): Promise<Inspection[]> {
     const columns = 'id, tenant_id, vehicle_id, inspection_date, inspection_type, status, notes, created_at, updated_at';
+    // Validate and sanitize daysAhead parameter
+    const daysAheadNum = Math.max(1, Math.min(365, daysAhead || 7))
     const query = `
       SELECT ${columns} FROM ${this.tableName}
       WHERE tenant_id = $1
         AND status = 'pending'
-        AND scheduled_date BETWEEN NOW() AND NOW() + INTERVAL '${daysAhead} days'
+        AND scheduled_date BETWEEN NOW() AND NOW() + ($2 || ' days')::INTERVAL
       ORDER BY scheduled_date ASC
     `
-    const result = await this.query<Inspection>(query, [tenantId])
+    const result = await this.query<Inspection>(query, [tenantId, daysAheadNum])
     return result.rows
   }
 
