@@ -16,7 +16,6 @@
  */
 
 import pool from '../config/database'
-import embeddingService, { EmbeddingResult } from './EmbeddingService'
 
 export interface VectorStoreConfig {
   backend: 'pgvector' | 'pinecone' | 'qdrant'
@@ -60,16 +59,18 @@ export class VectorSearchService {
   private backend: 'pgvector' | 'pinecone' | 'qdrant'
   private pinecone: any = null
   private qdrant: any = null
+  private initialized = false
 
   constructor(config: Partial<VectorStoreConfig> = {}) {
     this.backend = config.backend || this.selectBestBackend()
-    this.initializeBackend()
+    // Don't call async initialization in constructor
   }
 
   /**
-   * Initialize vector store backend
+   * Initialize vector store backend (called lazily)
    */
   private async initializeBackend(): Promise<void> {
+    if (this.initialized) return
     switch (this.backend) {
       case 'pgvector':
         await this.initializePgVector()
@@ -81,6 +82,7 @@ export class VectorSearchService {
         await this.initializeQdrant()
         break
     }
+    this.initialized = true
   }
 
   /**
@@ -159,8 +161,12 @@ export class VectorSearchService {
     tenantId: string,
     document: VectorDocument
   ): Promise<{ id: string; success: boolean }> {
+    // Ensure backend is initialized
+    await this.initializeBackend()
+
     // Generate embedding if not provided
     if (!document.embedding) {
+      const embeddingService = await import('./EmbeddingService').then(m => m.default())
       const embeddingResult = await embeddingService.generateEmbedding(document.content)
       document.embedding = embeddingResult.embedding
     }
@@ -221,7 +227,11 @@ export class VectorSearchService {
     query: string,
     options: SearchOptions = {}
   ): Promise<SearchResult[]> {
+    // Ensure backend is initialized
+    await this.initializeBackend()
+
     // Generate query embedding
+    const embeddingService = await import('./EmbeddingService').then(m => m.default())
     const embeddingResult = await embeddingService.generateEmbedding(query)
 
     return this.searchByVector(tenantId, embeddingResult.embedding, options)
