@@ -747,6 +747,9 @@ export async function getUpcomingReservations(
   daysAhead: number = 7
 ): Promise<any[]> {
   try {
+    // Validate and sanitize daysAhead parameter
+    const daysAheadNum = Math.max(1, Math.min(365, daysAhead || 7))
+
     const result = await pool.query(
       `SELECT vr.*, v.make, v.model, v.license_plate, v.vin,
               u.first_name || ' ' || u.last_name as driver_name
@@ -758,9 +761,9 @@ export async function getUpcomingReservations(
          AND vr.reserved_by = $2
          AND vr.status NOT IN ('cancelled', 'completed')
          AND vr.start_time >= NOW()
-         AND vr.start_time <= NOW() + INTERVAL '${daysAhead} days'
+         AND vr.start_time <= NOW() + ($3 || ' days')::INTERVAL
        ORDER BY vr.start_time`,
-      [tenantId, userId]
+      [tenantId, userId, daysAheadNum]
     )
 
     return result.rows

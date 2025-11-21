@@ -259,10 +259,10 @@ export class QueueMonitor {
           AVG(avg_processing_time_ms) as avg_processing_time,
           AVG(jobs_per_minute) as avg_jobs_per_minute
          FROM queue_statistics
-         WHERE queue_name = $1 AND timestamp > NOW() - INTERVAL '${interval}'
+         WHERE queue_name = $1 AND timestamp > NOW() - $2::INTERVAL
          GROUP BY DATE_TRUNC('hour', timestamp)
          ORDER BY hour DESC`,
-        [queueName]
+        [queueName, interval]
       );
 
       return result.rows;
@@ -305,13 +305,23 @@ export class QueueMonitor {
       }
 
       // Get dead letter queue summary
+      // Map timeRange to interval (sanitized via whitelist)
+      const timeRangeMap: Record<string, string> = {
+        '1h': '1 hour',
+        '24h': '24 hours',
+        '7d': '7 days',
+        '30d': '30 days'
+      };
+      const interval = timeRangeMap[timeRange] || '24 hours';
+
       const dlqResult = await pool.query(
         `SELECT
           COUNT(*) as total,
           COUNT(*) FILTER (WHERE reviewed = FALSE) as unreviewed,
           COUNT(*) FILTER (WHERE retry_attempted = TRUE) as retried
          FROM dead_letter_queue
-         WHERE moved_to_dlq_at > NOW() - INTERVAL '${timeRange}'`
+         WHERE moved_to_dlq_at > NOW() - $1::INTERVAL`,
+        [interval]
       );
 
       report.deadLetterQueue = {
@@ -332,9 +342,13 @@ export class QueueMonitor {
    */
   async cleanupOldStatistics(daysToKeep: number = 30): Promise<void> {
     try {
+      // Validate and sanitize daysToKeep parameter
+      const daysToKeepNum = Math.max(1, Math.min(365, daysToKeep || 30))
+
       const result = await pool.query(
         `DELETE FROM queue_statistics
-         WHERE created_at < NOW() - INTERVAL '${daysToKeep} days'`
+         WHERE created_at < NOW() - ($1 || ' days')::INTERVAL`,
+        [daysToKeepNum]
       );
 
       console.log(`🧹 Cleaned up ${result.rowCount} old statistics records`);
