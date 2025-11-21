@@ -374,13 +374,16 @@ class VehicleModelsService {
    * Get AR analytics
    */
   async getARAnalytics(days: number = 30): Promise<any> {
+    // Validate and sanitize days parameter
+    const daysNum = Math.max(1, Math.min(365, days || 30))
+
     const query = `
       SELECT * FROM ar_session_analytics
-      WHERE session_date >= CURRENT_DATE - INTERVAL '${days} days'
+      WHERE session_date >= CURRENT_DATE - ($1 || ' days')::INTERVAL
       ORDER BY session_date DESC
     `;
 
-    const result = await this.db.query(query);
+    const result = await this.db.query(query, [daysNum]);
     return result.rows;
   }
 

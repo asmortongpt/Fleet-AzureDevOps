@@ -168,6 +168,9 @@ router.get('/summary',
   try {
     const { days = 7 } = req.query
 
+    // Validate and sanitize days parameter
+    const daysNum = Math.max(1, Math.min(365, parseInt(days as string) || 7))
+
     const result = await pool.query(
       `SELECT
         gate_type,
@@ -178,10 +181,10 @@ router.get('/summary',
         ROUND(AVG(execution_time_seconds), 2) as avg_execution_time,
         MAX(executed_at) as last_run
       FROM quality_gates
-      WHERE executed_at >= NOW() - INTERVAL '${parseInt(days as string)} days'
+      WHERE executed_at >= NOW() - ($1 || ' days')::INTERVAL
       GROUP BY gate_type
       ORDER BY gate_type`,
-      []
+      [daysNum]
     )
 
     res.json({
