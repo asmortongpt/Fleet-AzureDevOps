@@ -21,9 +21,21 @@ import OpenAI from 'openai'
 import { validateURL, SSRFError } from '../utils/safe-http-request'
 import { env } from '../config/environment'
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
-})
+// Lazy initialization of OpenAI client - only create when needed and API key is available
+let openai: OpenAI | null = null
+
+function getOpenAIClient(): OpenAI | null {
+  if (openai) return openai
+
+  const apiKey = process.env.OPENAI_API_KEY
+  if (!apiKey) {
+    console.warn('⚠️  WARNING: OPENAI_API_KEY not configured. AI categorization will be disabled.')
+    return null
+  }
+
+  openai = new OpenAI({ apiKey })
+  return openai
+}
 
 // Azure AD Configuration
 // IMPORTANT: These env vars come from environment or Azure Key Vault
@@ -595,7 +607,13 @@ class WebhookService {
    */
   private async categorizeMessage(content: string): Promise<string> {
     try {
-      const completion = await openai.chat.completions.create({
+      const client = getOpenAIClient()
+      if (!client) {
+        console.log('AI categorization disabled (no API key) - using default category')
+        return 'General Discussion'
+      }
+
+      const completion = await client.chat.completions.create({
         model: 'gpt-4',
         messages: [
           {
@@ -623,7 +641,13 @@ class WebhookService {
    */
   private async categorizeEmail(email: OutlookEmail): Promise<string> {
     try {
-      const completion = await openai.chat.completions.create({
+      const client = getOpenAIClient()
+      if (!client) {
+        console.log('AI categorization disabled (no API key) - using default category')
+        return 'Administrative'
+      }
+
+      const completion = await client.chat.completions.create({
         model: 'gpt-4',
         messages: [
           {
@@ -761,8 +785,14 @@ class WebhookService {
    */
   private async extractReceiptData(communicationId: string, email: OutlookEmail): Promise<void> {
     try {
+      const client = getOpenAIClient()
+      if (!client) {
+        console.log('AI receipt extraction disabled (no API key) - skipping structured data extraction')
+        return
+      }
+
       // Use AI to extract structured data from email body
-      const completion = await openai.chat.completions.create({
+      const completion = await client.chat.completions.create({
         model: 'gpt-4',
         messages: [
           {
