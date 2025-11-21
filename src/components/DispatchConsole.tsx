@@ -365,7 +365,7 @@ export default function DispatchConsole() {
       audioChunksRef.current = []
 
       mediaRecorderRef.current.ondataavailable = (event) => {
-        if (event.data.size > 0) {
+        if (event.data?.size > 0) {
           audioChunksRef.current.push(event.data)
 
           // Send audio chunk to server

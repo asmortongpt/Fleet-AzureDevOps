@@ -17,8 +17,8 @@ import { startVersionChecker } from './lib/version-checker.ts'
 import "./main.css"
 import "./styles/theme.css"
 import "./index.css"
-import "leaflet/dist/leaflet.css"
-import logger from '@/utils/logger'
+// TODO: Fix leaflet CSS import - causes Vite serving issues
+// import "leaflet/dist/leaflet.css"
 
 // Start automatic version checking and cache refresh
 startVersionChecker();
@@ -26,11 +26,11 @@ startVersionChecker();
 // Protected Route Component
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const authenticated = isAuthenticated()
-  logger.info('[PROTECTED_ROUTE] isAuthenticated:', { authenticated })
+  console.log('[PROTECTED_ROUTE] isAuthenticated:', authenticated)
 
   // In DEV mode or test environment, always allow access
   if (import.meta.env.DEV) {
-    logger.info('[PROTECTED_ROUTE] DEV mode - allowing access')
+    console.log('[PROTECTED_ROUTE] DEV mode - allowing access')
     return <>{children}</>
   }
 
