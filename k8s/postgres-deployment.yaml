@@ -133,6 +133,8 @@ spec:
         fsGroup: 999
         runAsUser: 999
         runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
 ---
 apiVersion: v1
 kind: Service
