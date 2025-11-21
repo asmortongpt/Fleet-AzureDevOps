@@ -117,11 +117,11 @@ class ConsoleBackend extends AnalyticsBackend {
   }
 
   async trackError(error: ErrorEvent): Promise<void> {
-    logger.error('❌ Error tracked:', { error.name, error.message });
+    logger.error('❌ Error tracked:', { name: error.name, message: error.message });
   }
 
   async trackPerformance(metric: PerformanceMetric): Promise<void> {
-    logger.info('⚡ Performance:', { metric.name, metric.value, metric.unit });
+    logger.info('⚡ Performance:', { name: metric.name, value: metric.value, unit: metric.unit });
   }
 
   async flush(): Promise<void> {
