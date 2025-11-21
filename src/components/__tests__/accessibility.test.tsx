@@ -30,7 +30,7 @@ const mockVehicles: Vehicle[] = [
   {
     id: 'v1',
     name: 'Vehicle 1',
-    type: 'car',
+    type: 'sedan',
     status: 'active',
     driver: 'John Doe',
     location: {
@@ -373,7 +373,7 @@ describe('LeafletMap Accessibility', () => {
         {
           id: 'invalid',
           name: 'Invalid',
-          type: 'car' as const,
+          type: 'sedan' as const,
           status: 'active' as const,
           location: null,
         },

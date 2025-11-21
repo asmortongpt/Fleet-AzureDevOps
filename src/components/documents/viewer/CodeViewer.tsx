@@ -1,10 +1,12 @@
 /**
  * CodeViewer - Syntax-highlighted code viewer
  * Features: Syntax highlighting, line numbers, copy, search
+ * SECURITY: Uses DOMPurify to sanitize HTML and prevent XSS attacks
  */
 
 import { useState, useEffect } from 'react';
 import { Copy, Check, Search, Download } from 'lucide-react';
+import DOMPurify from 'dompurify';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -94,6 +96,25 @@ export function CodeViewer({ document }: CodeViewerProps) {
     return div.innerHTML;
   };
 
+  /**
+   * SECURITY: Sanitizes highlighted HTML using DOMPurify
+   * This provides defense-in-depth against XSS attacks
+   */
+  const sanitizeHighlightedCode = (html: string): string => {
+    return DOMPurify.sanitize(html, {
+      // Only allow safe HTML tags for syntax highlighting
+      ALLOWED_TAGS: ['span', 'br'],
+      // Only allow class attributes for styling
+      ALLOWED_ATTR: ['class'],
+      // Disable data attributes
+      ALLOW_DATA_ATTR: false,
+      // Keep safe HTML entities
+      KEEP_CONTENT: true,
+      // Return clean HTML
+      RETURN_TRUSTED_TYPE: false,
+    });
+  };
+
   const highlightCode = (code: string): string => {
     // SECURITY: First escape all HTML to prevent XSS attacks
     let highlighted = escapeHtml(code);
@@ -133,7 +154,8 @@ export function CodeViewer({ document }: CodeViewerProps) {
       '<span class="text-orange-600 dark:text-orange-400">$1</span>'
     );
 
-    return highlighted;
+    // SECURITY: Sanitize the final HTML to ensure no XSS vectors remain
+    return sanitizeHighlightedCode(highlighted);
   };
 
   const lines = code.split('\n');

@@ -15,6 +15,7 @@
 
 import { Client, ClientOptions } from '@microsoft/microsoft-graph-client'
 import axios, { AxiosError, AxiosRequestConfig } from 'axios'
+import { validateOutboundUrl, SSRFError } from '../utils/ssrf-protection'
 import {
   CachedToken,
   TokenStoreEntry,
@@ -506,6 +507,7 @@ export class MicrosoftGraphService {
 
   /**
    * Execute Graph API request
+   * SSRF Protection: Validates URLs to ensure only Microsoft Graph endpoints are called
    */
   private async executeGraphRequest<T>(
     endpoint: string,
@@ -515,6 +517,14 @@ export class MicrosoftGraphService {
     options?: GraphRequestOptions
   ): Promise<T> {
     const url = endpoint.startsWith('http') ? endpoint : `${GRAPH_API_BASE_URL}${endpoint}`
+
+    // SSRF Protection: Validate URL before making request
+    await validateOutboundUrl(url, {
+      allowedDomains: [
+        'graph.microsoft.com',
+        'login.microsoftonline.com',
+      ],
+    })
 
     const config: AxiosRequestConfig = {
       method,
