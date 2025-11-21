@@ -1,6 +1,15 @@
 import { Request, Response, NextFunction } from 'express'
 import { AuthRequest } from './auth'
 import pool from '../config/database'
+import { isValidIdentifier } from '../utils/sql-safety'
+
+// Allowlist of tables for self-approval checks
+const SELF_APPROVAL_TABLES = ['work_orders', 'purchase_orders', 'safety_incidents'] as const;
+type SelfApprovalTable = typeof SELF_APPROVAL_TABLES[number];
+
+function isValidSelfApprovalTable(table: string): table is SelfApprovalTable {
+  return SELF_APPROVAL_TABLES.includes(table as SelfApprovalTable);
+}
 
 /**
  * Permission middleware for fine-grained RBAC
@@ -338,8 +347,14 @@ export function preventSelfApproval(createdByField: string = 'created_by') {
     try {
       const resourceId = req.params.id
 
+      // Validate createdByField to prevent SQL injection
+      if (!isValidIdentifier(createdByField)) {
+        console.error(`Invalid createdByField: ${createdByField}`)
+        return res.status(500).json({ error: 'Internal server error' })
+      }
+
       // Determine table based on URL path
-      let table = ''
+      let table: SelfApprovalTable | '' = ''
       if (req.path.includes('work-orders')) table = 'work_orders'
       else if (req.path.includes('purchase-orders')) table = 'purchase_orders'
       else if (req.path.includes('safety-incidents')) table = 'safety_incidents'
@@ -347,6 +362,12 @@ export function preventSelfApproval(createdByField: string = 'created_by') {
         return next() // Skip check if table not recognized
       }
 
+      // Validate table against allowlist (defense in depth)
+      if (!isValidSelfApprovalTable(table)) {
+        return next()
+      }
+
+      // Table and field are validated, safe to use in query
       const result = await pool.query(
         `SELECT ${createdByField} FROM ${table} WHERE id = $1`,
         [resourceId]
