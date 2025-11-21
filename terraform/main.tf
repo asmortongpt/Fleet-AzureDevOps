@@ -292,11 +292,15 @@ resource "azurerm_storage_account" "main" {
   account_replication_type = "GRS"
   account_kind             = "StorageV2"
 
-  # Security: Disable public blob access
-  allow_blob_public_access  = false
+  # Security: Disable public blob access (HIGH priority fix)
+  allow_blob_public_access        = false
+  allow_nested_items_to_be_public = false
 
-  # Security: Enforce minimum TLS version
-  min_tls_version           = "TLS1_2"
+  # Security: Disable public network access (HIGH priority fix)
+  public_network_access_enabled = false
+
+  # Security: Enforce minimum TLS version (MEDIUM priority fix)
+  min_tls_version = "TLS1_2"
 
   # Security: Enforce HTTPS-only traffic
   enable_https_traffic_only = true
