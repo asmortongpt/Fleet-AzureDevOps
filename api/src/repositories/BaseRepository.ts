@@ -12,6 +12,15 @@
 import { Pool, PoolClient } from 'pg';
 import { connectionManager } from '../config/connection-manager';
 import { NotFoundError, DatabaseError } from '../middleware/error-handler';
+import { isValidIdentifier } from '../utils/sql-safety';
+
+// Valid sort orders allowlist
+const VALID_SORT_ORDERS = ['ASC', 'DESC'] as const;
+type ValidSortOrder = typeof VALID_SORT_ORDERS[number];
+
+function isValidSortOrder(order: string): order is ValidSortOrder {
+  return VALID_SORT_ORDERS.includes(order.toUpperCase() as ValidSortOrder);
+}
 
 export interface PaginationOptions {
   page?: number;
@@ -96,6 +105,16 @@ export abstract class BaseRepository<T extends { id: string | number }> {
       const offset = (page - 1) * limit;
       const pool = this.getPool(context);
 
+      // Validate sortBy column name to prevent SQL injection
+      if (!isValidIdentifier(sortBy)) {
+        throw new DatabaseError(`Invalid sort column: ${sortBy}`, { sortBy });
+      }
+
+      // Validate sort order against allowlist
+      if (!isValidSortOrder(sortOrder)) {
+        throw new DatabaseError(`Invalid sort order: ${sortOrder}`, { sortOrder });
+      }
+
       // Get total count
       const countResult = await pool.query(
         `SELECT COUNT(*) as count FROM ${this.tableName} WHERE tenant_id = $1`,
@@ -103,7 +122,7 @@ export abstract class BaseRepository<T extends { id: string | number }> {
       );
       const total = parseInt(countResult.rows[0].count, 10);
 
-      // Get paginated data
+      // Get paginated data (sortBy and sortOrder are validated above)
       const dataResult = await pool.query(
         `SELECT * FROM ${this.tableName}
          WHERE tenant_id = $1
@@ -145,6 +164,16 @@ export abstract class BaseRepository<T extends { id: string | number }> {
       const offset = (page - 1) * limit;
       const pool = this.getPool(context);
 
+      // Validate sortBy column name to prevent SQL injection
+      if (!isValidIdentifier(sortBy)) {
+        throw new DatabaseError(`Invalid sort column: ${sortBy}`, { sortBy });
+      }
+
+      // Validate sort order against allowlist
+      if (!isValidSortOrder(sortOrder)) {
+        throw new DatabaseError(`Invalid sort order: ${sortOrder}`, { sortOrder });
+      }
+
       // Build WHERE clause
       const whereConditions = ['tenant_id = $1'];
       const values: any[] = [context.tenantId];
@@ -152,6 +181,10 @@ export abstract class BaseRepository<T extends { id: string | number }> {
 
       for (const [key, value] of Object.entries(conditions)) {
         if (value !== undefined) {
+          // Validate column name to prevent SQL injection
+          if (!isValidIdentifier(key)) {
+            throw new DatabaseError(`Invalid column name: ${key}`, { key });
+          }
           whereConditions.push(`${key} = $${paramIndex}`);
           values.push(value);
           paramIndex++;
@@ -167,7 +200,7 @@ export abstract class BaseRepository<T extends { id: string | number }> {
       );
       const total = parseInt(countResult.rows[0].count, 10);
 
-      // Get paginated data
+      // Get paginated data (sortBy and sortOrder are validated above)
       const dataResult = await pool.query(
         `SELECT * FROM ${this.tableName}
          WHERE ${whereClause}
@@ -205,9 +238,18 @@ export abstract class BaseRepository<T extends { id: string | number }> {
       };
 
       const columns = Object.keys(dataWithTenant);
+
+      // Validate all column names to prevent SQL injection
+      for (const col of columns) {
+        if (!isValidIdentifier(col)) {
+          throw new DatabaseError(`Invalid column name: ${col}`, { col });
+        }
+      }
+
       const values = Object.values(dataWithTenant);
       const placeholders = columns.map((_, i) => `$${i + 1}`).join(', ');
 
+      // Column names are validated above
       const result = await pool.query(
         `INSERT INTO ${this.tableName} (${columns.join(', ')})
          VALUES (${placeholders})
@@ -240,9 +282,18 @@ export abstract class BaseRepository<T extends { id: string | number }> {
       };
 
       const columns = Object.keys(dataWithMeta);
+
+      // Validate all column names to prevent SQL injection
+      for (const col of columns) {
+        if (!isValidIdentifier(col)) {
+          throw new DatabaseError(`Invalid column name: ${col}`, { col });
+        }
+      }
+
       const values = Object.values(dataWithMeta);
       const setClause = columns.map((col, i) => `${col} = $${i + 1}`).join(', ');
 
+      // Column names are validated above
       const result = await pool.query(
         `UPDATE ${this.tableName}
          SET ${setClause}
