@@ -1,0 +1,178 @@
+---
+# Fleet API Service Account with Least-Privilege RBAC
+#
+# SECURITY PRINCIPLES:
+# - automountServiceAccountToken: false (secrets accessed via volume mounts only)
+# - resourceNames restricts access to specific secrets
+# - Only "get" verb allowed (no list/watch to prevent enumeration)
+# - Namespace-scoped Roles (not ClusterRoles)
+#
+# This file configures RBAC for the fleet-api deployment to access
+# only the specific secrets it needs, with no broader permissions.
+
+---
+# ServiceAccount for Fleet API
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: fleet-api
+  namespace: fleet-management
+  labels:
+    app: fleet
+    component: api
+    security.fleet.io/least-privilege: "true"
+# SECURITY: Disable automatic mounting of service account token
+# The API accesses secrets via volume mounts, not Kubernetes API
+automountServiceAccountToken: false
+
+---
+# Role for Fleet API - Access to specific secrets only
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: fleet-api-secret-reader
+  namespace: fleet-management
+  labels:
+    app: fleet
+    component: api
+    security.fleet.io/least-privilege: "true"
+rules:
+# Database secrets - specific secret only
+- apiGroups: [""]
+  resources: ["secrets"]
+  resourceNames: ["fleet-database-secrets"]
+  verbs: ["get"]
+
+# Application secrets (JWT, encryption) - specific secret only
+- apiGroups: [""]
+  resources: ["secrets"]
+  resourceNames: ["fleet-app-secrets"]
+  verbs: ["get"]
+
+# Redis secrets - specific secret only
+- apiGroups: [""]
+  resources: ["secrets"]
+  resourceNames: ["fleet-redis-secrets"]
+  verbs: ["get"]
+
+# Storage secrets - specific secret only
+- apiGroups: [""]
+  resources: ["secrets"]
+  resourceNames: ["fleet-storage-secrets"]
+  verbs: ["get"]
+
+# Legacy combined secret (for migration period only - remove after migration)
+- apiGroups: [""]
+  resources: ["secrets"]
+  resourceNames: ["fleet-secrets"]
+  verbs: ["get"]
+
+---
+# RoleBinding for Fleet API
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: fleet-api-secret-reader-binding
+  namespace: fleet-management
+  labels:
+    app: fleet
+    component: api
+    security.fleet.io/least-privilege: "true"
+subjects:
+- kind: ServiceAccount
+  name: fleet-api
+  namespace: fleet-management
+roleRef:
+  kind: Role
+  name: fleet-api-secret-reader
+  apiGroup: rbac.authorization.k8s.io
+
+---
+# Role for Fleet API - ConfigMap access (read-only)
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: fleet-api-configmap-reader
+  namespace: fleet-management
+  labels:
+    app: fleet
+    component: api
+    security.fleet.io/least-privilege: "true"
+rules:
+# ConfigMaps - specific configmaps only
+- apiGroups: [""]
+  resources: ["configmaps"]
+  resourceNames: ["fleet-config", "fleet-api-config"]
+  verbs: ["get"]
+
+---
+# RoleBinding for Fleet API ConfigMap access
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: fleet-api-configmap-reader-binding
+  namespace: fleet-management
+  labels:
+    app: fleet
+    component: api
+    security.fleet.io/least-privilege: "true"
+subjects:
+- kind: ServiceAccount
+  name: fleet-api
+  namespace: fleet-management
+roleRef:
+  kind: Role
+  name: fleet-api-configmap-reader
+  apiGroup: rbac.authorization.k8s.io
+
+---
+# ServiceAccount for ctafleet namespace (for api-deployment.yaml)
+# Mirrors the fleet-management configuration
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: fleet-api
+  namespace: ctafleet
+  labels:
+    app: fleet
+    component: api
+    security.fleet.io/least-privilege: "true"
+automountServiceAccountToken: false
+
+---
+# Role for Fleet API in ctafleet namespace
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: fleet-api-secret-reader
+  namespace: ctafleet
+  labels:
+    app: fleet
+    component: api
+    security.fleet.io/least-privilege: "true"
+rules:
+# Only the specific secrets needed
+- apiGroups: [""]
+  resources: ["secrets"]
+  resourceNames: ["fleet-secrets"]
+  verbs: ["get"]
+
+---
+# RoleBinding for Fleet API in ctafleet namespace
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: fleet-api-secret-reader-binding
+  namespace: ctafleet
+  labels:
+    app: fleet
+    component: api
+    security.fleet.io/least-privilege: "true"
+subjects:
+- kind: ServiceAccount
+  name: fleet-api
+  namespace: ctafleet
+roleRef:
+  kind: Role
+  name: fleet-api-secret-reader
+  apiGroup: rbac.authorization.k8s.io
