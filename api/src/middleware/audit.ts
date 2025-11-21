@@ -5,7 +5,7 @@ import crypto from 'crypto'
 import logger from '../utils/logger'
 
 export interface AuditOptions {
-  action: 'CREATE' | 'READ' | 'UPDATE' | 'DELETE' | 'LOGIN' | 'LOGOUT' | 'EXPORT' | 'CALCULATE' | 'APPROVE' | 'REJECT' | 'BULK_CREATE'
+  action: 'CREATE' | 'READ' | 'UPDATE' | 'DELETE' | 'LOGIN' | 'LOGOUT' | 'EXPORT' | 'CALCULATE' | 'APPROVE' | 'REJECT' | 'BULK_CREATE' | 'SEARCH' | 'QUERY' | 'EXECUTE' | 'CERTIFY' | 'UPLOAD' | 'DOWNLOAD' | 'CREATE_CATEGORY' | 'RAG_QUERY' | 'REQUEST_ELEVATION' | 'VIEW_ELEVATION_REQUESTS' | 'APPROVE_ELEVATION' | 'REVOKE_ELEVATION' | 'VIEW_ACTIVE_ELEVATIONS'
   resourceType: string
   resourceId?: string
 }

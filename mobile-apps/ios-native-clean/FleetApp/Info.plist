@@ -35,5 +35,32 @@
 	</array>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>We need your location to show nearby vehicles and track trips.</string>
+
+	<!-- Security: App Transport Security Configuration -->
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<!-- Security: Enforce strict transport security - no arbitrary loads -->
+		<key>NSAllowsArbitraryLoads</key>
+		<false/>
+		<!-- Security: Require minimum TLS 1.2 globally -->
+		<key>NSExceptionMinimumTLSVersion</key>
+		<string>TLSv1.2</string>
+		<!-- Security: Enable Certificate Transparency for enhanced security -->
+		<key>NSRequiresCertificateTransparency</key>
+		<true/>
+		<!-- Exception for localhost development only -->
+		<key>NSExceptionDomains</key>
+		<dict>
+			<key>localhost</key>
+			<dict>
+				<key>NSIncludesSubdomains</key>
+				<true/>
+				<key>NSTemporaryExceptionAllowsInsecureHTTPLoads</key>
+				<true/>
+				<key>NSTemporaryExceptionMinimumTLSVersion</key>
+				<string>TLSv1.2</string>
+			</dict>
+		</dict>
+	</dict>
 </dict>
 </plist>

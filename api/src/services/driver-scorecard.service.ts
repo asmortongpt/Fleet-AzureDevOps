@@ -387,6 +387,9 @@ export class DriverScorecardService {
     tenantId: string,
     months: number = 6
   ): Promise<any[]> {
+    // Validate and sanitize months parameter
+    const monthsNum = Math.max(1, Math.min(24, months || 6))
+
     const result = await pool.query(
       `SELECT
          period_start,
@@ -399,9 +402,9 @@ export class DriverScorecardService {
          rank_position
        FROM driver_scores
        WHERE driver_id = $1 AND tenant_id = $2
-       AND period_end >= CURRENT_DATE - INTERVAL '${months} months'
+       AND period_end >= CURRENT_DATE - ($3 || ' months')::INTERVAL
        ORDER BY period_end DESC`,
-      [driverId, tenantId]
+      [driverId, tenantId, monthsNum]
     )
 
     return result.rows

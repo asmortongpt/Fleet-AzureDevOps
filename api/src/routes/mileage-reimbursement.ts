@@ -1,6 +1,7 @@
 import express, { Request, Response } from 'express'
 import axios from 'axios'
 import pool from '../config/database'
+import { getErrorMessage } from '../utils/error-handler'
 
 const router = express.Router()
 
@@ -89,7 +90,7 @@ router.get('/rates', async (req: Request, res: Response) => {
     })
   } catch (error: any) {
     console.error('Error fetching mileage rates:', error)
-    res.status(500).json({ error: 'Failed to fetch mileage rates', message: error.message })
+    res.status(500).json({ error: 'Failed to fetch mileage rates', message: getErrorMessage(error) })
   }
 })
 
@@ -176,7 +177,7 @@ router.post('/calculate', async (req: Request, res: Response) => {
     res.json(calculations)
   } catch (error: any) {
     console.error('Error calculating mileage:', error)
-    res.status(500).json({ error: 'Failed to calculate mileage', message: error.message })
+    res.status(500).json({ error: 'Failed to calculate mileage', message: getErrorMessage(error) })
   }
 })
 
@@ -206,7 +207,7 @@ router.get('/rates/history', async (req: Request, res: Response) => {
     })
   } catch (error: any) {
     console.error('Error fetching rate history:', error)
-    res.status(500).json({ error: 'Failed to fetch rate history', message: error.message })
+    res.status(500).json({ error: 'Failed to fetch rate history', message: getErrorMessage(error) })
   }
 })
 
@@ -281,7 +282,7 @@ router.post('/validate-trip', async (req: Request, res: Response) => {
     })
   } catch (error: any) {
     console.error('Error validating trip:', error)
-    res.status(500).json({ error: 'Failed to validate trip', message: error.message })
+    res.status(500).json({ error: 'Failed to validate trip', message: getErrorMessage(error) })
   }
 })
 
@@ -335,7 +336,7 @@ router.put('/rates/tenant/:tenant_id', async (req: Request, res: Response) => {
     })
   } catch (error: any) {
     console.error('Error updating tenant rate:', error)
-    res.status(500).json({ error: 'Failed to update tenant rate', message: error.message })
+    res.status(500).json({ error: 'Failed to update tenant rate', message: getErrorMessage(error) })
   }
 })
 

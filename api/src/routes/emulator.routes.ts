@@ -5,6 +5,7 @@
 
 import express, { Request, Response } from 'express'
 import { EmulatorOrchestrator } from '../emulators/EmulatorOrchestrator'
+import { getErrorMessage } from '../utils/error-handler'
 
 const router = express.Router()
 
@@ -44,7 +45,7 @@ router.get('/status', async (req: Request, res: Response) => {
   } catch (error: any) {
     res.status(500).json({
       success: false,
-      error: error.message
+      error: getErrorMessage(error)
     })
   }
 })
@@ -86,7 +87,7 @@ router.post('/start', async (req: Request, res: Response) => {
   } catch (error: any) {
     res.status(500).json({
       success: false,
-      error: error.message
+      error: getErrorMessage(error)
     })
   }
 })
@@ -114,7 +115,7 @@ router.post('/stop', async (req: Request, res: Response) => {
   } catch (error: any) {
     res.status(500).json({
       success: false,
-      error: error.message
+      error: getErrorMessage(error)
     })
   }
 })
@@ -142,7 +143,7 @@ router.post('/pause', async (req: Request, res: Response) => {
   } catch (error: any) {
     res.status(500).json({
       success: false,
-      error: error.message
+      error: getErrorMessage(error)
     })
   }
 })
@@ -170,7 +171,7 @@ router.post('/resume', async (req: Request, res: Response) => {
   } catch (error: any) {
     res.status(500).json({
       success: false,
-      error: error.message
+      error: getErrorMessage(error)
     })
   }
 })
@@ -208,7 +209,7 @@ router.post('/scenario/:scenarioId', async (req: Request, res: Response) => {
   } catch (error: any) {
     res.status(500).json({
       success: false,
-      error: error.message
+      error: getErrorMessage(error)
     })
   }
 })
@@ -252,7 +253,7 @@ router.get('/vehicles/:vehicleId/telemetry', async (req: Request, res: Response)
   } catch (error: any) {
     res.status(500).json({
       success: false,
-      error: error.message
+      error: getErrorMessage(error)
     })
   }
 })
@@ -283,7 +284,7 @@ router.get('/scenarios', async (req: Request, res: Response) => {
   } catch (error: any) {
     res.status(500).json({
       success: false,
-      error: error.message
+      error: getErrorMessage(error)
     })
   }
 })
@@ -314,7 +315,7 @@ router.get('/vehicles', async (req: Request, res: Response) => {
   } catch (error: any) {
     res.status(500).json({
       success: false,
-      error: error.message
+      error: getErrorMessage(error)
     })
   }
 })
@@ -348,7 +349,7 @@ router.get('/routes', async (req: Request, res: Response) => {
   } catch (error: any) {
     res.status(500).json({
       success: false,
-      error: error.message
+      error: getErrorMessage(error)
     })
   }
 })

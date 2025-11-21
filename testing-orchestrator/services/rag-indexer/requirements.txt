@@ -1,5 +1,6 @@
-fastapi>=0.100.0
-uvicorn[standard]>=0.24.0
+fastapi>=0.110.0  # Updated: Uses patched Starlette for CVE-2025-62727
+starlette>=0.37.0  # Updated: Fix DoS vulnerability CVE-2025-62727
+uvicorn[standard]>=0.27.0
 pydantic>=2.7.0  # Updated: Fix regex DOS vulnerability
 openai>=1.54.0  # Updated: Fix sensitive information logging
 azure-cosmos>=4.0.0
@@ -11,3 +12,4 @@ tree-sitter-typescript>=0.21.0
 httpx>=0.25.0
 python-dotenv>=1.0.0
 aiohttp>=3.8.0
+slowapi>=0.1.9  # Updated: Rate limiting for DoS protection

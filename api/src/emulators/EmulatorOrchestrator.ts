@@ -371,7 +371,7 @@ export class EmulatorOrchestrator extends EventEmitter {
     }
 
     // EV Charging Emulator
-    if (vehicle.isElectric || vehicle.features.includes('evcharging')) {
+    if (vehicle.isElectric || vehicle.features?.includes('evcharging')) {
       const evChargingEmulator = new EVChargingEmulator({
         updateIntervalMs: this.config.emulators?.gps?.updateIntervalMs || 5000,
         maxConcurrentSessions: 10,
@@ -429,8 +429,8 @@ export class EmulatorOrchestrator extends EventEmitter {
         id: vehicleId,
         currentSpeed: 0,
         speedLimit: 55,
-        location: vehicle.location,
-        driverId: vehicle.driverId
+        location: vehicle.location || { lat: 0, lng: 0 },
+        driverId: vehicle.driverId || vehicle.driver_id || ''
       })
       videoTelematicsEmulator.on('video-event-detected', (data) => this.emit('video-telematics', {
         type: 'video-telematics',

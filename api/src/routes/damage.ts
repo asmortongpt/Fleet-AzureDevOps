@@ -10,6 +10,7 @@ import { validateFileContent, validateFileSize } from '../utils/file-validation'
 import { authenticateJWT, AuthRequest } from '../middleware/auth';
 import { requirePermission } from '../middleware/permissions';
 import { rateLimit } from '../middleware/rateLimit';
+import { getErrorMessage } from '../utils/error-handler'
 
 const router = express.Router();
 
@@ -142,7 +143,7 @@ router.post(
     logger.error('Error analyzing photo', { error });
     res.status(500).json({
       error: 'Failed to analyze photo',
-      message: error instanceof Error ? error.message : 'Unknown error'
+      message: error instanceof Error ? getErrorMessage(error) : 'Unknown error'
     });
   }
 });
@@ -211,7 +212,7 @@ router.post(
     logger.error('Error analyzing LiDAR scan', { error });
     res.status(500).json({
       error: 'Failed to analyze LiDAR scan',
-      message: error instanceof Error ? error.message : 'Unknown error'
+      message: error instanceof Error ? getErrorMessage(error) : 'Unknown error'
     });
   }
 });
@@ -272,7 +273,7 @@ router.post(
     logger.error('Error analyzing video', { error });
     res.status(500).json({
       error: 'Failed to analyze video',
-      message: error instanceof Error ? error.message : 'Unknown error'
+      message: error instanceof Error ? getErrorMessage(error) : 'Unknown error'
     });
   }
 });
@@ -369,7 +370,7 @@ router.post(
     logger.error('Error in comprehensive analysis', { error });
     res.status(500).json({
       error: 'Failed to complete comprehensive analysis',
-      message: error instanceof Error ? error.message : 'Unknown error'
+      message: error instanceof Error ? getErrorMessage(error) : 'Unknown error'
     });
   }
 });
@@ -474,7 +475,7 @@ router.post(
       logger.error('Error saving damage records', { error });
       res.status(500).json({
         error: 'Failed to save damage records',
-        message: error instanceof Error ? error.message : 'Unknown error'
+        message: error instanceof Error ? getErrorMessage(error) : 'Unknown error'
       });
     }
   }
@@ -542,7 +543,7 @@ router.get(
       logger.error('Error fetching damage records', { error });
       res.status(500).json({
         error: 'Failed to fetch damage records',
-        message: error instanceof Error ? error.message : 'Unknown error'
+        message: error instanceof Error ? getErrorMessage(error) : 'Unknown error'
       });
     }
   }
@@ -609,7 +610,7 @@ router.get(
       logger.error('Error fetching damage summary', { error });
       res.status(500).json({
         error: 'Failed to fetch damage summary',
-        message: error instanceof Error ? error.message : 'Unknown error'
+        message: error instanceof Error ? getErrorMessage(error) : 'Unknown error'
       });
     }
   }

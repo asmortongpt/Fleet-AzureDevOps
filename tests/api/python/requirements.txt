@@ -5,3 +5,7 @@ requests==2.31.0
 faker==20.1.0
 python-dotenv==1.0.0
 playwright==1.40.0
+
+# Security updates
+starlette>=0.31.1  # Fix DoS vulnerability
+openai>=1.0.0  # Fix sensitive information logging

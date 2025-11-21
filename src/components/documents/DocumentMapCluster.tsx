@@ -203,12 +203,12 @@ export function DocumentMapCluster({
                               </p>
                               {doc.location?.address && (
                                 <p className="text-xs text-gray-600 mt-1 truncate">
-                                  {doc.location.address}
+                                  {doc.location?.address}
                                 </p>
                               )}
                               {doc.location && (
                                 <p className="text-xs text-gray-500 mt-1 font-mono">
-                                  {doc.location.lat.toFixed(4)}, {doc.location.lng.toFixed(4)}
+                                  {doc.location?.lat.toFixed(4)}, {doc.location?.lng.toFixed(4)}
                                 </p>
                               )}
                             </div>

@@ -239,7 +239,7 @@ router.get(
 
     // Get policy
     const policyResult = await pool.query(
-      'SELECT * FROM personal_use_policies WHERE tenant_id = $1',
+      'SELECT id, tenant_id, policy_name, deduction_percent, reimbursement_method, created_at, updated_at FROM personal_use_policies WHERE tenant_id = $1',
       [req.user!.tenant_id]
     )
 
@@ -355,7 +355,7 @@ router.get(
 
       // Get policy
       const policyResult = await pool.query(
-        'SELECT * FROM personal_use_policies WHERE tenant_id = $1',
+        'SELECT id, tenant_id, policy_name, deduction_percent, reimbursement_method, created_at, updated_at FROM personal_use_policies WHERE tenant_id = $1',
         [req.user!.tenant_id]
       )
 

@@ -26,6 +26,7 @@
 import { Request, Response, NextFunction } from 'express'
 import pool from '../config/database'
 import { AuthRequest } from './auth'
+import logger from '../utils/logger'
 
 /**
  * Sets the tenant context for the current database session.

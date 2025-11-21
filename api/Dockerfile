@@ -1,5 +1,9 @@
 # Fleet Management API - Production Dockerfile
-FROM node:20-alpine AS builder
+# SECURITY: Pinned to specific version with SHA256 digest to prevent supply chain attacks
+# Image: node:20-alpine (Node.js 20.x LTS on Alpine Linux)
+# Last updated: 2025-11-21
+# To update: docker pull node:20-alpine && docker inspect --format='{{index .RepoDigests 0}}' node:20-alpine
+FROM node:20-alpine@sha256:6178e78b972f79c335df281f4b7674a2d85071aae2af020ffa39f0a770265435 AS builder
 
 WORKDIR /app
 
@@ -8,7 +12,8 @@ COPY package*.json ./
 COPY tsconfig.json ./
 
 # Install ALL dependencies (including devDependencies for build)
-RUN npm install
+# Use --legacy-peer-deps due to langchain version conflicts
+RUN npm install --legacy-peer-deps
 
 # Copy source code
 COPY src ./src
@@ -17,7 +22,8 @@ COPY src ./src
 RUN npm run build
 
 # Production image
-FROM node:20-alpine
+# SECURITY: Same pinned image for production stage
+FROM node:20-alpine@sha256:6178e78b972f79c335df281f4b7674a2d85071aae2af020ffa39f0a770265435
 
 WORKDIR /app
 
@@ -26,7 +32,7 @@ RUN apk add --no-cache python3 make g++
 
 # Install production dependencies only
 COPY package*.json ./
-RUN npm install --only=production && \
+RUN npm install --only=production --legacy-peer-deps && \
     rm -rf ~/.npm
 
 # Copy built artifacts from builder
