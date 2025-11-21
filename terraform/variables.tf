@@ -35,6 +35,40 @@ variable "allowed_ip_ranges" {
   default     = "0.0.0.0/0"
 }
 
+variable "allowed_storage_ips" {
+  description = "List of IP ranges allowed to access Storage Account"
+  type        = list(string)
+  default     = []
+}
+
+variable "allowed_keyvault_ips" {
+  description = "List of IP ranges allowed to access Key Vault"
+  type        = list(string)
+  default     = []
+}
+
+variable "aks_authorized_ip_ranges" {
+  description = "List of IP ranges authorized to access AKS API server"
+  type        = list(string)
+  default     = []
+
+  validation {
+    condition     = length(var.aks_authorized_ip_ranges) > 0
+    error_message = "AKS API server must have authorized IP ranges defined for security. Add your office/CI/CD IPs."
+  }
+}
+
+variable "aks_admin_group_ids" {
+  description = "List of Azure AD group object IDs for AKS cluster admins"
+  type        = list(string)
+  default     = []
+
+  validation {
+    condition     = length(var.aks_admin_group_ids) > 0
+    error_message = "At least one Azure AD admin group must be specified for AKS RBAC."
+  }
+}
+
 # AKS Configuration
 variable "kubernetes_version" {
   description = "Kubernetes version for AKS cluster"

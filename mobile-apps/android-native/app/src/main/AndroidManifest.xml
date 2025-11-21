@@ -2,6 +2,18 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <!-- Security: Custom permissions for content provider access control -->
+    <permission
+        android:name="com.fleet.READ_DATA"
+        android:protectionLevel="signature"
+        android:label="Read Fleet Data"
+        android:description="Allows reading fleet management data" />
+    <permission
+        android:name="com.fleet.WRITE_DATA"
+        android:protectionLevel="signature"
+        android:label="Write Fleet Data"
+        android:description="Allows writing fleet management data" />
+
     <!-- Permissions -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -47,6 +59,7 @@
             android:screenOrientation="fullSensor"
             android:configChanges="orientation|screenSize|keyboardHidden"
             android:windowSoftInputMode="adjustResize">
+            <!-- Security: exported=true is required for LAUNCHER, has intent-filter -->
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -64,11 +77,14 @@
         </activity>
 
         <!-- FileProvider for camera/file access -->
+        <!-- Security: exported=false, grantUriPermissions for controlled access -->
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.fileprovider"
             android:exported="false"
-            android:grantUriPermissions="true">
+            android:grantUriPermissions="true"
+            android:readPermission="com.fleet.READ_DATA"
+            android:writePermission="com.fleet.WRITE_DATA">
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths" />

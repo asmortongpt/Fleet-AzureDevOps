@@ -416,9 +416,9 @@ metadata:
   name: api-secrets
 type: Opaque
 data:
-  DATABASE_URL: cG9zdGdyZXM6Ly91c2VyOnBhc3N3b3JkQGxvY2FsaG9zdDo1NDMyL2ZsZWV0  # Base64 encoded
-  JWT_SECRET: c3VwZXItc2VjcmV0LWp3dC1rZXktY2hhbmdlLW1lLWluLXByb2R1Y3Rpb24=      # Base64 encoded
-  AZURE_CLIENT_SECRET: ZXhhbXBsZS1jbGllbnQtc2VjcmV0LWNoYW5nZS1tZQ==           # Base64 encoded
+  DATABASE_URL: <BASE64_ENCODED_DATABASE_URL>
+  JWT_SECRET: <BASE64_ENCODED_JWT_SECRET>
+  AZURE_CLIENT_SECRET: <BASE64_ENCODED_CLIENT_SECRET>
 ```
 
 Azure DevOps pattern matching detected these as real secrets even though they were example/placeholder values.

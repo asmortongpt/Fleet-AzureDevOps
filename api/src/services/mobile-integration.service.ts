@@ -273,7 +273,7 @@ export class MobileIntegrationService {
 
     // 1. Get vehicle info
     const vehicleResult = await pool.query(
-      `SELECT * FROM vehicles WHERE tenant_id = $1 AND id = $2`,
+      `SELECT id, tenant_id, vin, license_plate, make, model, year, color, current_mileage, status, acquired_date, disposition_date, purchase_price, residual_value, created_at, updated_at, deleted_at FROM vehicles WHERE tenant_id = $1 AND id = $2`,
       [tenantId, data.vehicle_id]
     )
     result.vehicle = vehicleResult.rows[0]
@@ -311,7 +311,7 @@ export class MobileIntegrationService {
     // 4. Get active geofences if requested
     if (data.include_geofences) {
       const geofencesResult = await pool.query(
-        `SELECT * FROM geofences
+        `SELECT id, tenant_id, geofence_name, center_latitude, center_longitude, radius_meters, geofence_type, status, created_at, updated_at FROM geofences
          WHERE tenant_id = $1 AND is_active = true`,
         [tenantId]
       )

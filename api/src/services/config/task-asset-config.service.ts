@@ -14,6 +14,14 @@
 import pool from '../../config/database'
 import { buildUpdateClause } from '../../utils/sql-safety'
 
+// Allowlist of valid entity tables
+const ENTITY_TABLES = ['tasks', 'assets'] as const;
+type EntityTable = typeof ENTITY_TABLES[number];
+
+function isValidEntityTable(table: string): table is EntityTable {
+  return ENTITY_TABLES.includes(table as EntityTable);
+}
+
 export interface WorkflowTemplate {
   id: string
   name: string
@@ -374,11 +382,17 @@ export class TaskAssetConfigManager {
     entityId: string,
     parameters: Record<string, any>
   ): Promise<void> {
-    const table = entityType === 'task' ? 'tasks' : 'assets'
+    const table: EntityTable = entityType === 'task' ? 'tasks' : 'assets'
+
+    // Validate table name against allowlist to prevent SQL injection
+    if (!isValidEntityTable(table)) {
+      throw new Error(`Invalid entity type: ${entityType}`);
+    }
 
     // Build safe UPDATE clause with validated column names
     const { fields, values } = buildUpdateClause(parameters, 1)
 
+    // Table name is validated, safe to use in query
     await pool.query(
       `UPDATE ${table} SET ${fields}, updated_at = NOW()
        WHERE id = $${values.length + 1}`,

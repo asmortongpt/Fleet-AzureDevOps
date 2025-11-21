@@ -4,7 +4,7 @@
  */
 
 import twilio from 'twilio';
-import { db } from '../db';
+import { pool as db } from '../config/database';
 import Bottleneck from 'bottleneck';
 
 export interface SMSMessage {

@@ -263,6 +263,9 @@ router.get('/stats/summary',
   try {
     const { days = 30 } = req.query
 
+    // Validate and sanitize days parameter
+    const daysNum = Math.max(1, Math.min(365, parseInt(days as string) || 30))
+
     const result = await pool.query(
       `SELECT
         environment,
@@ -272,10 +275,10 @@ router.get('/stats/summary',
         COUNT(CASE WHEN status = 'rolled_back' THEN 1 END) as rolled_back,
         ROUND(AVG(EXTRACT(EPOCH FROM (completed_at - started_at))/60), 2) as avg_duration_minutes
       FROM deployments
-      WHERE started_at >= NOW() - INTERVAL '${parseInt(days as string)} days'
+      WHERE started_at >= NOW() - ($1 || ' days')::INTERVAL
       GROUP BY environment
       ORDER BY environment`,
-      []
+      [daysNum]
     )
 
     res.json({

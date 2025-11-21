@@ -481,7 +481,7 @@ curl http://68.220.148.2/api/health
 
 ### Default Login
 - **Email**: admin@fleetmanagement.com
-- **Password**: Admin123! (⚠️ CHANGE IN PRODUCTION)
+- **Password**: YOUR_ADMIN_PASSWORD_HERE (change this in production)
 
 ### Azure Resources
 - **AKS Cluster**: fleet-aks-cluster (eastus2)

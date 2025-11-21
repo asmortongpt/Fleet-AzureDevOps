@@ -90,7 +90,7 @@ export function Notifications() {
       if (selectedSeverity !== 'all') params.severity = selectedSeverity
 
       const response = await apiClient.get('/api/alerts', { params })
-      setAlerts(response.data.alerts || [])
+      setAlerts(response.data?.alerts || [])
     } catch (error) {
       console.error('Error fetching alerts:', error)
     } finally {
