@@ -391,6 +391,7 @@ class MLDecisionEngineService {
     driverId: string,
     period: string
   ): Promise<any> {
+    // SECURITY: Use parameterized interval to prevent SQL injection
     const days = period === '7d' ? 7 : period === '30d' ? 30 : 90
 
     const result = await pool.query(
@@ -402,12 +403,12 @@ class MLDecisionEngineService {
         COUNT(si.id) as safety_incidents
        FROM trips t
        LEFT JOIN safety_incidents si ON si.driver_id = $1
-         AND si.incident_date >= NOW() - INTERVAL '${days} days'
+         AND si.incident_date >= NOW() - ($3::integer * INTERVAL '1 day')
        WHERE t.driver_id = $1
          AND t.tenant_id = $2
-         AND t.start_time >= NOW() - INTERVAL '${days} days'
+         AND t.start_time >= NOW() - ($3::integer * INTERVAL '1 day')
        GROUP BY t.driver_id`,
-      [driverId, tenantId]
+      [driverId, tenantId, days]
     )
 
     return result.rows[0] || {}
@@ -495,6 +496,7 @@ class MLDecisionEngineService {
   }
 
   private async getHistoricalCostData(tenantId: string, period: string): Promise<any> {
+    // SECURITY: Use parameterized interval to prevent SQL injection
     const months = period === 'week' ? 1 : period === 'month' ? 3 : 12
 
     const result = await pool.query(
@@ -510,7 +512,7 @@ class MLDecisionEngineService {
                 SUM(ft.total_cost) as total_cost
          FROM fuel_transactions ft
          WHERE ft.tenant_id = $1
-           AND ft.transaction_date >= NOW() - INTERVAL '${months} months'
+           AND ft.transaction_date >= NOW() - ($2::integer * INTERVAL '1 month')
          GROUP BY DATE(ft.transaction_date)
          UNION ALL
          SELECT DATE(wo.created_at) as date,
@@ -519,12 +521,12 @@ class MLDecisionEngineService {
                 SUM(wo.total_cost) as total_cost
          FROM work_orders wo
          WHERE wo.tenant_id = $1
-           AND wo.created_at >= NOW() - INTERVAL '${months} months'
+           AND wo.created_at >= NOW() - ($2::integer * INTERVAL '1 month')
          GROUP BY DATE(wo.created_at)
        ) costs
        GROUP BY DATE_TRUNC('month', date)
        ORDER BY month`,
-      [tenantId]
+      [tenantId, months]
     )
 
     return result.rows
