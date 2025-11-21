@@ -710,4 +710,6 @@ export class VectorSearchService {
   }
 }
 
-export default new VectorSearchService()
+// Export the class instead of an instance to avoid module-level database access
+// Initialize in server.ts after database connection is established
+export default VectorSearchService
