@@ -15,7 +15,7 @@
 import { URL } from 'url';
 import dns from 'dns/promises';
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
-import { logger } from '../config/logger';
+import { logger } from './logger';
 
 // =============================================================================
 // CONFIGURATION
