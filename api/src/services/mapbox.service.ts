@@ -1,13 +1,21 @@
 /**
  * Mapbox Integration Service
  * Provides routing, directions, traffic, and geocoding via Mapbox API
+ *
+ * Security: Uses SSRF-protected HTTP client to prevent server-side request forgery
  */
 
-import axios from 'axios'
+import { safeGet, SSRFError, createSafeAxiosInstance } from '../utils/ssrf-protection'
 import { logger } from '../config/logger'
 
 const MAPBOX_API_KEY = process.env.MAPBOX_API_KEY || ''
 const MAPBOX_BASE_URL = 'https://api.mapbox.com'
+
+// Allowed domains for Mapbox requests
+const MAPBOX_ALLOWED_DOMAINS = [
+  'api.mapbox.com',
+  'events.mapbox.com',
+]
 
 export interface Coordinate {
   latitude: number
@@ -108,8 +116,9 @@ export async function getDirections(
 
     const url = `${MAPBOX_BASE_URL}/directions/v5/mapbox/${profile}/${coordsString}?${params}`
 
-    const response = await axios.get(url, {
-      timeout: 30000
+    const response = await safeGet(url, {
+      timeout: 30000,
+      allowedDomains: MAPBOX_ALLOWED_DOMAINS,
     })
 
     if (!response.data.routes || response.data.routes.length === 0) {
@@ -157,8 +166,9 @@ export async function getDistanceMatrix(
 
     const url = `${MAPBOX_BASE_URL}/directions-matrix/v1/mapbox/${profile}/${coordsString}?${params}`
 
-    const response = await axios.get(url, {
-      timeout: 60000
+    const response = await safeGet(url, {
+      timeout: 60000,
+      allowedDomains: MAPBOX_ALLOWED_DOMAINS,
     })
 
     return {
@@ -202,7 +212,9 @@ export async function geocodeAddress(address: string): Promise<Coordinate | null
     const encodedAddress = encodeURIComponent(address)
     const url = `${MAPBOX_BASE_URL}/geocoding/v5/mapbox.places/${encodedAddress}.json?access_token=${MAPBOX_API_KEY}&limit=1`
 
-    const response = await axios.get(url)
+    const response = await safeGet(url, {
+      allowedDomains: MAPBOX_ALLOWED_DOMAINS,
+    })
 
     if (!response.data.features || response.data.features.length === 0) {
       return null
@@ -231,7 +243,9 @@ export async function reverseGeocode(
 
     const url = `${MAPBOX_BASE_URL}/geocoding/v5/mapbox.places/${longitude},${latitude}.json?access_token=${MAPBOX_API_KEY}`
 
-    const response = await axios.get(url)
+    const response = await safeGet(url, {
+      allowedDomains: MAPBOX_ALLOWED_DOMAINS,
+    })
 
     if (!response.data.features || response.data.features.length === 0) {
       return null
@@ -313,7 +327,9 @@ export async function getIsochrone(
 
     const url = `${MAPBOX_BASE_URL}/isochrone/v1/mapbox/${profile}/${coordinate.longitude},${coordinate.latitude}?contours_minutes=${minutes}&polygons=true&access_token=${MAPBOX_API_KEY}`
 
-    const response = await axios.get(url)
+    const response = await safeGet(url, {
+      allowedDomains: MAPBOX_ALLOWED_DOMAINS,
+    })
     return response.data
   } catch (error: any) {
     logger.error('Isochrone error:', error.message)
