@@ -9,7 +9,7 @@ import { Router, Request, Response } from 'express'
 import { connectionManager } from '../config/connection-manager'
 import { queryPerformanceService } from '../services/query-performance.service'
 import { workerPool } from '../config/worker-pool'
-import { authenticateToken } from '../middleware/auth'
+import { authenticateJWT } from '../middleware/auth'
 import { getErrorMessage } from '../utils/error-handler'
 
 const router = Router()
@@ -19,7 +19,7 @@ const router = Router()
  * @desc Get overall system health
  * @access Private (Admin)
  */
-router.get('/health', authenticateToken, async (req: Request, res: Response) => {
+router.get('/health', authenticateJWT, async (req: Request, res: Response) => {
   try {
     const dbHealth = await connectionManager.getHealthStatus()
     const poolStats = connectionManager.getAllPoolStats()
@@ -67,7 +67,7 @@ router.get('/health', authenticateToken, async (req: Request, res: Response) => 
  * @desc Get detailed pool diagnostics
  * @access Private (Admin)
  */
-router.get('/database/pools', authenticateToken, async (req: Request, res: Response) => {
+router.get('/database/pools', authenticateJWT, async (req: Request, res: Response) => {
   try {
     const diagnostics = await connectionManager.getPoolDiagnostics()
     res.json(diagnostics)
@@ -85,7 +85,7 @@ router.get('/database/pools', authenticateToken, async (req: Request, res: Respo
  * @desc Get read replica lag
  * @access Private (Admin)
  */
-router.get('/database/replica-lag', authenticateToken, async (req: Request, res: Response) => {
+router.get('/database/replica-lag', authenticateJWT, async (req: Request, res: Response) => {
   try {
     const lag = await connectionManager.getReplicaLag()
 
@@ -109,7 +109,7 @@ router.get('/database/replica-lag', authenticateToken, async (req: Request, res:
  * @desc Detect connection leaks
  * @access Private (Admin)
  */
-router.get('/database/connection-leaks', authenticateToken, async (req: Request, res: Response) => {
+router.get('/database/connection-leaks', authenticateJWT, async (req: Request, res: Response) => {
   try {
     const leaks = await connectionManager.detectConnectionLeaks()
 
@@ -132,7 +132,7 @@ router.get('/database/connection-leaks', authenticateToken, async (req: Request,
  * @desc Get query statistics
  * @access Private (Admin)
  */
-router.get('/queries/stats', authenticateToken, (req: Request, res: Response) => {
+router.get('/queries/stats', authenticateJWT, (req: Request, res: Response) => {
   try {
     const stats = queryPerformanceService.getQueryStats()
     res.json(stats)
@@ -150,7 +150,7 @@ router.get('/queries/stats', authenticateToken, (req: Request, res: Response) =>
  * @desc Get slow queries
  * @access Private (Admin)
  */
-router.get('/queries/slow', authenticateToken, (req: Request, res: Response) => {
+router.get('/queries/slow', authenticateJWT, (req: Request, res: Response) => {
   try {
     const limit = parseInt(req.query.limit as string) || 20
     const slowQueries = queryPerformanceService.getSlowQueries(limit)
@@ -174,7 +174,7 @@ router.get('/queries/slow', authenticateToken, (req: Request, res: Response) => 
  * @desc Get recent queries
  * @access Private (Admin)
  */
-router.get('/queries/recent', authenticateToken, (req: Request, res: Response) => {
+router.get('/queries/recent', authenticateJWT, (req: Request, res: Response) => {
   try {
     const limit = parseInt(req.query.limit as string) || 50
     const recentQueries = queryPerformanceService.getRecentQueries(limit)
@@ -197,7 +197,7 @@ router.get('/queries/recent', authenticateToken, (req: Request, res: Response) =
  * @desc Get performance summary
  * @access Private (Admin)
  */
-router.get('/queries/summary', authenticateToken, (req: Request, res: Response) => {
+router.get('/queries/summary', authenticateJWT, (req: Request, res: Response) => {
   try {
     const summary = queryPerformanceService.getPerformanceSummary()
     res.json(summary)
@@ -215,7 +215,7 @@ router.get('/queries/summary', authenticateToken, (req: Request, res: Response) 
  * @desc Analyze query plan
  * @access Private (Admin)
  */
-router.post('/queries/analyze', authenticateToken, async (req: Request, res: Response) => {
+router.post('/queries/analyze', authenticateJWT, async (req: Request, res: Response) => {
   try {
     const { query, params } = req.body
 
@@ -241,7 +241,7 @@ router.post('/queries/analyze', authenticateToken, async (req: Request, res: Res
  * @desc Clear query metrics
  * @access Private (Admin)
  */
-router.delete('/queries/metrics', authenticateToken, (req: Request, res: Response) => {
+router.delete('/queries/metrics', authenticateJWT, (req: Request, res: Response) => {
   try {
     queryPerformanceService.clearMetrics()
 
@@ -263,7 +263,7 @@ router.delete('/queries/metrics', authenticateToken, (req: Request, res: Respons
  * @desc Get worker pool statistics
  * @access Private (Admin)
  */
-router.get('/workers/stats', authenticateToken, (req: Request, res: Response) => {
+router.get('/workers/stats', authenticateJWT, (req: Request, res: Response) => {
   try {
     const stats = workerPool.getStats()
     res.json(stats)
@@ -281,7 +281,7 @@ router.get('/workers/stats', authenticateToken, (req: Request, res: Response) =>
  * @desc Get detailed worker information
  * @access Private (Admin)
  */
-router.get('/workers/info', authenticateToken, (req: Request, res: Response) => {
+router.get('/workers/info', authenticateJWT, (req: Request, res: Response) => {
   try {
     const info = workerPool.getWorkerInfo()
     res.json({
@@ -302,7 +302,7 @@ router.get('/workers/info', authenticateToken, (req: Request, res: Response) => 
  * @desc Get memory usage statistics
  * @access Private (Admin)
  */
-router.get('/memory', authenticateToken, (req: Request, res: Response) => {
+router.get('/memory', authenticateJWT, (req: Request, res: Response) => {
   try {
     const usage = process.memoryUsage()
 
@@ -353,7 +353,7 @@ router.get('/memory', authenticateToken, (req: Request, res: Response) => {
  * @desc Trigger garbage collection (if --expose-gc flag is set)
  * @access Private (Admin)
  */
-router.post('/gc', authenticateToken, (req: Request, res: Response) => {
+router.post('/gc', authenticateJWT, (req: Request, res: Response) => {
   try {
     if (global.gc) {
       const before = process.memoryUsage()
