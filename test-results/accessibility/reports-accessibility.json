@@ -1,0 +1,14 @@
+{
+  "url": "http://68.220.148.2/reports",
+  "timestamp": "2025-11-21T00:22:17.124Z",
+  "violations": [],
+  "passes": 5,
+  "incomplete": 0,
+  "summary": {
+    "critical": 0,
+    "serious": 0,
+    "moderate": 0,
+    "minor": 0,
+    "total": 0
+  }
+}
