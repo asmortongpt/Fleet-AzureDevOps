@@ -520,6 +520,7 @@ class DriverSafetyAIService {
    * Get driver safety insights
    */
   async getDriverSafetyInsights(driverId: number, days: number = 30) {
+    // SECURITY: Use parameterized interval to prevent SQL injection
     const result = await this.db.query(
       `SELECT
          COUNT(*) as total_events,
@@ -530,9 +531,9 @@ class DriverSafetyAIService {
          json_agg(DISTINCT jsonb_array_elements(ai_detected_behaviors)->>'behavior') as common_behaviors
        FROM video_safety_events
        WHERE driver_id = $1
-         AND event_timestamp >= CURRENT_DATE - INTERVAL '${days} days'
+         AND event_timestamp >= CURRENT_DATE - ($2::integer * INTERVAL '1 day')
          AND ai_processing_status = 'completed'`,
-      [driverId]
+      [driverId, days]
     );
 
     return result.rows[0] || {
