@@ -17,7 +17,8 @@ import { startVersionChecker } from './lib/version-checker.ts'
 import "./main.css"
 import "./styles/theme.css"
 import "./index.css"
-import "leaflet/dist/leaflet.css"
+// TODO: Fix leaflet CSS import - causes Vite serving issues
+// import "leaflet/dist/leaflet.css"
 
 // Start automatic version checking and cache refresh
 startVersionChecker();
