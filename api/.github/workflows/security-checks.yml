@@ -1,0 +1,61 @@
+# Security Checks Workflow
+# Runs security validations on pull requests and pushes
+
+name: Security Checks
+
+on:
+  push:
+    branches: [main, stage-a/*, develop]
+  pull_request:
+    branches: [main, stage-a/*, develop]
+
+jobs:
+  docker-image-security:
+    name: Docker Image Security Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check for unpinned Docker images
+        run: |
+          echo "Checking for :latest tags and unpinned images..."
+          chmod +x ./scripts/check-docker-tags.sh
+          ./scripts/check-docker-tags.sh
+
+      - name: Verify no :latest tags in Dockerfiles
+        run: |
+          if grep -r ":latest" Dockerfile* --include="Dockerfile*" 2>/dev/null; then
+            echo "::error::Found :latest tag in Dockerfile(s). Use pinned versions with SHA256 digests."
+            exit 1
+          fi
+          echo "No :latest tags found in Dockerfiles"
+
+      - name: Verify no :latest tags in K8s manifests
+        run: |
+          if grep -r "image:.*:latest" . --include="*.yaml" --include="*.yml" 2>/dev/null | grep -v node_modules; then
+            echo "::error::Found :latest tag in Kubernetes manifest(s). Use pinned versions."
+            exit 1
+          fi
+          echo "No :latest tags found in Kubernetes manifests"
+
+  dockerfile-lint:
+    name: Dockerfile Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Lint Dockerfiles with Hadolint
+        uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: Dockerfile
+          failure-threshold: error
+          ignore: DL3018  # Allow apk add without version pinning (we pin base images instead)
+
+      - name: Lint Dockerfile.production
+        uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: Dockerfile.production
+          failure-threshold: error
+          ignore: DL3018

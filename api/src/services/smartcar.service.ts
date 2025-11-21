@@ -2,10 +2,21 @@
  * Smartcar Connected Vehicle Service
  * Supports 50+ car brands (Tesla, Ford, GM, Mercedes, BMW, etc.)
  * Remote control: lock/unlock, start/stop, locate, charge
+ *
+ * Security: Uses SSRF-protected HTTP client to prevent server-side request forgery
  */
 
 import axios, { AxiosInstance } from 'axios'
 import { Pool } from 'pg'
+import { createSafeAxiosInstance, safePost, safeDelete, SSRFError } from '../utils/ssrf-protection'
+
+// Allowed domains for Smartcar requests
+const SMARTCAR_ALLOWED_DOMAINS = [
+  'api.smartcar.com',
+  'auth.smartcar.com',
+  'connect.smartcar.com',
+  'management.smartcar.com',
+]
 
 const SMARTCAR_CLIENT_ID = process.env.SMARTCAR_CLIENT_ID
 const SMARTCAR_CLIENT_SECRET = process.env.SMARTCAR_CLIENT_SECRET
@@ -64,9 +75,10 @@ class SmartcarService {
       throw new Error('SMARTCAR_CLIENT_ID and SMARTCAR_CLIENT_SECRET environment variables are required')
     }
 
-    this.api = axios.create({
-      baseURL: 'https://api.smartcar.com/v2.0',
-      timeout: 30000
+    // SSRF Protection: Use safe axios instance with domain allowlist
+    this.api = createSafeAxiosInstance('https://api.smartcar.com/v2.0', {
+      timeout: 30000,
+      allowedDomains: SMARTCAR_ALLOWED_DOMAINS,
     })
 
     this.db = db
@@ -108,7 +120,8 @@ class SmartcarService {
     expires_in: number
     token_type: string
   }> {
-    const response = await axios.post(
+    // SSRF Protection: Use safe HTTP client with domain allowlist
+    const response = await safePost(
       'https://auth.smartcar.com/oauth/token',
       {
         code,
@@ -120,7 +133,8 @@ class SmartcarService {
       {
         headers: {
           'Content-Type': 'application/json'
-        }
+        },
+        allowedDomains: SMARTCAR_ALLOWED_DOMAINS,
       }
     )
 
@@ -135,7 +149,8 @@ class SmartcarService {
     refresh_token: string
     expires_in: number
   }> {
-    const response = await axios.post(
+    // SSRF Protection: Use safe HTTP client with domain allowlist
+    const response = await safePost(
       'https://auth.smartcar.com/oauth/token',
       {
         grant_type: 'refresh_token',
@@ -146,7 +161,8 @@ class SmartcarService {
       {
         headers: {
           'Content-Type': 'application/json'
-        }
+        },
+        allowedDomains: SMARTCAR_ALLOWED_DOMAINS,
       }
     )
 
@@ -368,10 +384,12 @@ class SmartcarService {
    * Disconnect Smartcar vehicle (revoke access)
    */
   async disconnectVehicle(accessToken: string): Promise<void> {
-    await axios.delete('https://management.smartcar.com/oauth/token', {
+    // SSRF Protection: Use safe HTTP client with domain allowlist
+    await safeDelete('https://management.smartcar.com/oauth/token', {
       headers: {
         Authorization: `Bearer ${accessToken}`
-      }
+      },
+      allowedDomains: SMARTCAR_ALLOWED_DOMAINS,
     })
   }
 
