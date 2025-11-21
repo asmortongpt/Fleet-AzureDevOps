@@ -9,6 +9,7 @@ import { auditLog } from '../middleware/audit'
 import { outlookService } from '../services/outlook.service'
 import { z } from 'zod'
 import { logger } from '../utils/logger'
+import { getErrorMessage } from '../utils/error-handler'
 import {
   SendEmailRequest,
   ReplyEmailRequest,
@@ -83,7 +84,7 @@ router.post(
       logger.error('Send email error:', error)
       res.status(500).json({
         success: false,
-        error: error instanceof Error ? error.message : 'Internal server error'
+        error: error instanceof Error ? getErrorMessage(error) : 'Internal server error'
       })
     }
   }
@@ -138,7 +139,7 @@ router.get(
       logger.error('Get emails error:', error)
       res.status(500).json({
         success: false,
-        error: error instanceof Error ? error.message : 'Internal server error'
+        error: error instanceof Error ? getErrorMessage(error) : 'Internal server error'
       })
     }
   }
@@ -167,7 +168,7 @@ router.get(
       logger.error('Get email error:', error)
       res.status(500).json({
         success: false,
-        error: error instanceof Error ? error.message : 'Internal server error'
+        error: error instanceof Error ? getErrorMessage(error) : 'Internal server error'
       })
     }
   }
@@ -219,7 +220,7 @@ router.post(
       logger.error('Reply email error:', error)
       res.status(500).json({
         success: false,
-        error: error instanceof Error ? error.message : 'Internal server error'
+        error: error instanceof Error ? getErrorMessage(error) : 'Internal server error'
       })
     }
   }
@@ -272,7 +273,7 @@ router.post(
       logger.error('Forward email error:', error)
       res.status(500).json({
         success: false,
-        error: error instanceof Error ? error.message : 'Internal server error'
+        error: error instanceof Error ? getErrorMessage(error) : 'Internal server error'
       })
     }
   }
@@ -323,7 +324,7 @@ router.patch(
       logger.error('Update email error:', error)
       res.status(500).json({
         success: false,
-        error: error instanceof Error ? error.message : 'Internal server error'
+        error: error instanceof Error ? getErrorMessage(error) : 'Internal server error'
       })
     }
   }
@@ -360,7 +361,7 @@ router.post(
       logger.error('Move email error:', error)
       res.status(500).json({
         success: false,
-        error: error instanceof Error ? error.message : 'Internal server error'
+        error: error instanceof Error ? getErrorMessage(error) : 'Internal server error'
       })
     }
   }
@@ -389,7 +390,7 @@ router.delete(
       logger.error('Delete email error:', error)
       res.status(500).json({
         success: false,
-        error: error instanceof Error ? error.message : 'Internal server error'
+        error: error instanceof Error ? getErrorMessage(error) : 'Internal server error'
       })
     }
   }
@@ -418,7 +419,7 @@ router.post(
       logger.error('Mark as read error:', error)
       res.status(500).json({
         success: false,
-        error: error instanceof Error ? error.message : 'Internal server error'
+        error: error instanceof Error ? getErrorMessage(error) : 'Internal server error'
       })
     }
   }
@@ -449,7 +450,7 @@ router.get(
       logger.error('Get folders error:', error)
       res.status(500).json({
         success: false,
-        error: error instanceof Error ? error.message : 'Internal server error'
+        error: error instanceof Error ? getErrorMessage(error) : 'Internal server error'
       })
     }
   }
@@ -494,7 +495,7 @@ router.post(
       logger.error('Create folder error:', error)
       res.status(500).json({
         success: false,
-        error: error instanceof Error ? error.message : 'Internal server error'
+        error: error instanceof Error ? getErrorMessage(error) : 'Internal server error'
       })
     }
   }
@@ -523,7 +524,7 @@ router.get(
       logger.error('Get attachments error:', error)
       res.status(500).json({
         success: false,
-        error: error instanceof Error ? error.message : 'Internal server error'
+        error: error instanceof Error ? getErrorMessage(error) : 'Internal server error'
       })
     }
   }
@@ -556,7 +557,7 @@ router.get(
       logger.error('Download attachment error:', error)
       res.status(500).json({
         success: false,
-        error: error instanceof Error ? error.message : 'Internal server error'
+        error: error instanceof Error ? getErrorMessage(error) : 'Internal server error'
       })
     }
   }
@@ -612,7 +613,7 @@ router.get(
       logger.error('Search emails error:', error)
       res.status(500).json({
         success: false,
-        error: error instanceof Error ? error.message : 'Internal server error'
+        error: error instanceof Error ? getErrorMessage(error) : 'Internal server error'
       })
     }
   }
@@ -656,7 +657,7 @@ router.post(
       logger.error('Categorize email error:', error)
       res.status(500).json({
         success: false,
-        error: error instanceof Error ? error.message : 'Internal server error'
+        error: error instanceof Error ? getErrorMessage(error) : 'Internal server error'
       })
     }
   }
@@ -685,7 +686,7 @@ router.get(
       logger.error('Status check error:', error)
       res.status(500).json({
         success: false,
-        error: error instanceof Error ? error.message : 'Internal server error'
+        error: error instanceof Error ? getErrorMessage(error) : 'Internal server error'
       })
     }
   }

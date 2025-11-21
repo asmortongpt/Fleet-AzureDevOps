@@ -32,6 +32,14 @@ import documentServiceInstance from './services/document.service'
 // Import service classes for DI (exported as classes, not instances)
 import ExampleDIService from './services/example-di.service'
 
+// Import repository classes
+import { VehicleRepository } from './repositories/VehicleRepository'
+import { DriverRepository } from './repositories/DriverRepository'
+import { VendorRepository } from './repositories/VendorRepository'
+import { InspectionRepository } from './repositories/InspectionRepository'
+import { MaintenanceRepository } from './repositories/MaintenanceRepository'
+import { WorkOrderRepository } from './repositories/WorkOrderRepository'
+
 // Logger import
 import logger from './utils/logger'
 
@@ -56,6 +64,14 @@ export interface DIContainer extends AwilixContainer {
 
   // DI Services (proper constructor injection)
   exampleDIService: ExampleDIService
+
+  // Repositories (data access layer)
+  vehicleRepository: VehicleRepository
+  driverRepository: DriverRepository
+  vendorRepository: VendorRepository
+  inspectionRepository: InspectionRepository
+  maintenanceRepository: MaintenanceRepository
+  workOrderRepository: WorkOrderRepository
 }
 
 /**
@@ -92,6 +108,30 @@ export function createDIContainer() {
         db: container.resolve('db'),
         logger: container.resolve('logger')
       })
+    })
+  })
+
+  // Register repositories
+  // Repositories are SINGLETON because they're stateless and thread-safe
+  // They only provide data access methods and maintain no state
+  container.register({
+    vehicleRepository: asClass(VehicleRepository, {
+      lifetime: Lifetime.SINGLETON
+    }),
+    driverRepository: asClass(DriverRepository, {
+      lifetime: Lifetime.SINGLETON
+    }),
+    vendorRepository: asClass(VendorRepository, {
+      lifetime: Lifetime.SINGLETON
+    }),
+    inspectionRepository: asClass(InspectionRepository, {
+      lifetime: Lifetime.SINGLETON
+    }),
+    maintenanceRepository: asClass(MaintenanceRepository, {
+      lifetime: Lifetime.SINGLETON
+    }),
+    workOrderRepository: asClass(WorkOrderRepository, {
+      lifetime: Lifetime.SINGLETON
     })
   })
 

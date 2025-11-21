@@ -423,20 +423,25 @@ export class CostAnalysisService {
     category: string | null,
     months: number = 12
   ): Promise<Array<{ month: string; amount: number }>> {
+    // Validate and sanitize months parameter
+    const monthsNum = Math.max(1, Math.min(24, months || 12))
+
     let query = `
       SELECT
         TO_CHAR(DATE_TRUNC('month', transaction_date), 'YYYY-MM') as month,
         SUM(amount) as amount
       FROM cost_tracking
       WHERE tenant_id = $1
-      AND transaction_date >= CURRENT_DATE - INTERVAL '${months} months'
+      AND transaction_date >= CURRENT_DATE - ($2 || ' months')::INTERVAL
     `
 
-    const params: any[] = [tenantId]
+    const params: any[] = [tenantId, monthsNum]
+    let paramIndex = 3
 
     if (category) {
-      query += ' AND cost_category = $2'
+      query += ` AND cost_category = $${paramIndex}`
       params.push(category)
+      paramIndex++
     }
 
     query += ' GROUP BY DATE_TRUNC(\'month\', transaction_date) ORDER BY month ASC'

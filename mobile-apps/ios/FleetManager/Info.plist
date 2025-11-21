@@ -34,8 +34,15 @@
     </array>
     <key>NSAppTransportSecurity</key>
     <dict>
+        <!-- Security: Enforce strict transport security -->
         <key>NSAllowsArbitraryLoads</key>
         <false/>
+        <!-- Security: Require minimum TLS 1.2 globally -->
+        <key>NSExceptionMinimumTLSVersion</key>
+        <string>TLSv1.2</string>
+        <!-- Security: Enable Certificate Transparency for enhanced security -->
+        <key>NSRequiresCertificateTransparency</key>
+        <true/>
         <key>NSExceptionDomains</key>
         <dict>
             <key>fleet.capitaltechalliance.com</key>
@@ -46,6 +53,8 @@
                 <false/>
                 <key>NSTemporaryExceptionMinimumTLSVersion</key>
                 <string>TLSv1.2</string>
+                <key>NSRequiresCertificateTransparency</key>
+                <true/>
             </dict>
         </dict>
     </dict>

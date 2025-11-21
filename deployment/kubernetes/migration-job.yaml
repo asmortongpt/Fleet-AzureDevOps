@@ -25,20 +25,26 @@ spec:
         runAsNonRoot: true
         runAsUser: 1000
         fsGroup: 1000
-
-      # Use init container approach (optional)
+        seccompProfile:
+          type: RuntimeDefault
+      volumes:
+      - name: tmp
+        emptyDir: {}
       containers:
       - name: migration
         image: fleet-api:latest  # Replace with your actual image
         imagePullPolicy: IfNotPresent
         securityContext:
           allowPrivilegeEscalation: false
-          readOnlyRootFilesystem: false
+          readOnlyRootFilesystem: true
           runAsNonRoot: true
           runAsUser: 1000
           capabilities:
             drop:
               - ALL
+        volumeMounts:
+        - name: tmp
+          mountPath: /tmp
 
         command: ["/bin/sh", "-c"]
         args:
@@ -123,19 +129,26 @@ spec:
             runAsNonRoot: true
             runAsUser: 1000
             fsGroup: 1000
-
+            seccompProfile:
+              type: RuntimeDefault
+          volumes:
+          - name: tmp
+            emptyDir: {}
           containers:
           - name: migration-check
             image: fleet-api:latest
             imagePullPolicy: IfNotPresent
             securityContext:
               allowPrivilegeEscalation: false
-              readOnlyRootFilesystem: false
+              readOnlyRootFilesystem: true
               runAsNonRoot: true
               runAsUser: 1000
               capabilities:
                 drop:
                   - ALL
+            volumeMounts:
+            - name: tmp
+              mountPath: /tmp
 
             command: ["/bin/sh", "-c"]
             args:

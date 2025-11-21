@@ -193,7 +193,7 @@ function getVehicleColor(status: Vehicle["status"]): string {
  */
 function createVehiclePopupHTML(vehicle: Vehicle): string {
   const locationText = vehicle.location?.address ||
-    (vehicle.location ? `${vehicle.location.lat.toFixed(4)}, ${vehicle.location.lng.toFixed(4)}` : "Unknown")
+    (vehicle.location ? `${vehicle.location?.lat.toFixed(4)}, ${vehicle.location?.lng.toFixed(4)}` : "Unknown")
 
   return `
     <div style="padding: 12px; min-width: 200px; font-family: system-ui, -apple-system, sans-serif;">
@@ -657,7 +657,7 @@ export function MapboxMap({
 
         const el = createVehicleMarkerElement(vehicle)
         const marker = new mapbox.Marker({ element: el })
-          .setLngLat([vehicle.location.lng, vehicle.location.lat])
+          .setLngLat([vehicle.location?.lng, vehicle.location?.lat])
           .setPopup(
             new mapbox.Popup({
               offset: 25,
@@ -698,7 +698,7 @@ export function MapboxMap({
 
         const el = createFacilityMarkerElement(facility)
         const marker = new mapbox.Marker({ element: el })
-          .setLngLat([facility.location.lng, facility.location.lat])
+          .setLngLat([facility.location?.lng, facility.location?.lat])
           .setPopup(
             new mapbox.Popup({
               offset: 25,
@@ -771,7 +771,7 @@ export function MapboxMap({
     if (showVehicles && vehicles) {
       vehicles.forEach(v => {
         if (v.location) {
-          coordinates.push([v.location.lng, v.location.lat])
+          coordinates.push([v.location?.lng, v.location?.lat])
         }
       })
     }
@@ -779,7 +779,7 @@ export function MapboxMap({
     if (showFacilities && facilities) {
       facilities.forEach(f => {
         if (f.location) {
-          coordinates.push([f.location.lng, f.location.lat])
+          coordinates.push([f.location?.lng, f.location?.lat])
         }
       })
     }

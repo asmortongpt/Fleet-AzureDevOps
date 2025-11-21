@@ -13,6 +13,7 @@ import pool from '../config/database';
 import { z } from 'zod';
 import { logger } from '../utils/logger';
 import twilio from 'twilio';
+import { getErrorMessage } from '../utils/error-handler'
 
 const router = express.Router();
 router.use(authenticateJWT);
@@ -164,7 +165,7 @@ router.post(
       logger.error('Mobile email send error:', error);
       res.status(500).json({
         success: false,
-        error: error instanceof Error ? error.message : 'Internal server error',
+        error: error instanceof Error ? getErrorMessage(error) : 'Internal server error',
       });
     }
   }
@@ -280,7 +281,7 @@ router.post(
       logger.error('Mobile SMS send error:', error);
       res.status(500).json({
         success: false,
-        error: error instanceof Error ? error.message : 'Internal server error',
+        error: error instanceof Error ? getErrorMessage(error) : 'Internal server error',
       });
     }
   }
@@ -360,7 +361,7 @@ router.post(
       logger.error('Mobile Teams send error:', error);
       res.status(500).json({
         success: false,
-        error: error instanceof Error ? error.message : 'Internal server error',
+        error: error instanceof Error ? getErrorMessage(error) : 'Internal server error',
       });
     }
   }
@@ -383,7 +384,7 @@ router.get(
       const { type, category } = req.query;
 
       let query = `
-        SELECT * FROM communication_templates
+        SELECT id, tenant_id, template_name, subject, body, is_active, created_at, updated_at FROM communication_templates
         WHERE is_active = TRUE
       `;
       const params: any[] = [];

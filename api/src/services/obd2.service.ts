@@ -183,7 +183,7 @@ export class OBD2ServiceBackend {
     userId: number
   ): Promise<OBD2Adapter[]> {
     const result = await pool.query(
-      `SELECT * FROM obd2_adapters
+      `SELECT id, tenant_id, user_id, vehicle_id, adapter_type, connection_type, device_id, device_name, mac_address, ip_address, port, supported_protocols, firmware_version, hardware_version, vin, protocol_detected, is_paired, is_active, last_connected_at, last_data_received_at, pairing_metadata, created_at, updated_at FROM obd2_adapters
        WHERE tenant_id = $1 AND user_id = $2 AND is_active = true
        ORDER BY last_connected_at DESC NULLS LAST, created_at DESC`,
       [tenantId, userId]
@@ -200,7 +200,7 @@ export class OBD2ServiceBackend {
     adapterId: number
   ): Promise<OBD2Adapter | null> {
     const result = await pool.query(
-      `SELECT * FROM obd2_adapters
+      `SELECT id, tenant_id, user_id, vehicle_id, adapter_type, connection_type, device_id, device_name, mac_address, ip_address, port, supported_protocols, firmware_version, hardware_version, vin, protocol_detected, is_paired, is_active, last_connected_at, last_data_received_at, pairing_metadata, created_at, updated_at FROM obd2_adapters
        WHERE tenant_id = $1 AND id = $2`,
       [tenantId, adapterId]
     )
@@ -247,7 +247,7 @@ export class OBD2ServiceBackend {
     for (const dtc of dtcs) {
       // Check if DTC already exists and is active
       const existing = await pool.query(
-        `SELECT * FROM obd2_diagnostic_codes
+        `SELECT id, tenant_id, vehicle_id, adapter_id, user_id, dtc_code, dtc_type, description, severity, status, is_mil_on, freeze_frame_data, detected_at, reported_at, cleared_at, cleared_by, resolution_notes, work_order_id, raw_data, metadata FROM obd2_diagnostic_codes
          WHERE tenant_id = $1 AND vehicle_id = $2 AND dtc_code = $3 AND status = 'active'`,
         [tenantId, vehicleId, dtc.dtc_code]
       )
@@ -523,13 +523,16 @@ export class OBD2ServiceBackend {
     vehicleId: number,
     days: number = 30
   ): Promise<any[]> {
+    // Validate and sanitize days parameter
+    const daysNum = Math.max(1, Math.min(365, days || 30))
+
     const result = await pool.query(
       `SELECT *
        FROM obd2_fuel_economy_trends
        WHERE tenant_id = $1 AND vehicle_id = $2
-         AND date >= CURRENT_DATE - INTERVAL '${days} days'
+         AND date >= CURRENT_DATE - ($3 || ' days')::INTERVAL
        ORDER BY date DESC`,
-      [tenantId, vehicleId]
+      [tenantId, vehicleId, daysNum]
     )
 
     return result.rows
@@ -544,7 +547,7 @@ export class OBD2ServiceBackend {
     limit: number = 100
   ): Promise<LiveOBD2Data[]> {
     const result = await pool.query(
-      `SELECT * FROM obd2_live_data
+      `SELECT id, tenant_id, vehicle_id, adapter_id, user_id, session_id, session_start, session_end, engine_rpm, vehicle_speed, throttle_position, engine_coolant_temp, intake_air_temp, maf_air_flow_rate, fuel_pressure, intake_manifold_pressure, timing_advance, fuel_level, short_term_fuel_trim, long_term_fuel_trim, fuel_consumption_rate, o2_sensor_voltage, catalyst_temperature, battery_voltage, odometer_reading, location, all_pids, recorded_at FROM obd2_live_data
        WHERE tenant_id = $1 AND vehicle_id = $2
        ORDER BY recorded_at DESC
        LIMIT $3`,

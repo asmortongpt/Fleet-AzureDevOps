@@ -18,6 +18,7 @@ import OpenAI from 'openai'
 import vectorSearchService from '../services/VectorSearchService'
 import embeddingService from '../services/EmbeddingService'
 import pool from '../config/database'
+import { getErrorMessage } from '../utils/error-handler'
 
 const router = express.Router()
 router.use(authenticateJWT)
@@ -78,7 +79,7 @@ router.post(
         return res.status(400).json({ error: 'Validation error', details: error.errors })
       }
       console.error('Create session error:', error)
-      res.status(500).json({ error: 'Failed to create session', message: error.message })
+      res.status(500).json({ error: 'Failed to create session', message: getErrorMessage(error) })
     }
   }
 )
@@ -115,7 +116,7 @@ router.get(
       })
     } catch (error: any) {
       console.error('Get sessions error:', error)
-      res.status(500).json({ error: 'Failed to get sessions', message: error.message })
+      res.status(500).json({ error: 'Failed to get sessions', message: getErrorMessage(error) })
     }
   }
 )
@@ -161,7 +162,7 @@ router.get(
       })
     } catch (error: any) {
       console.error('Get session error:', error)
-      res.status(500).json({ error: 'Failed to get session', message: error.message })
+      res.status(500).json({ error: 'Failed to get session', message: getErrorMessage(error) })
     }
   }
 )
@@ -194,7 +195,7 @@ router.delete(
       res.json({ success: true, message: 'Session deleted' })
     } catch (error: any) {
       console.error('Delete session error:', error)
-      res.status(500).json({ error: 'Failed to delete session', message: error.message })
+      res.status(500).json({ error: 'Failed to delete session', message: getErrorMessage(error) })
     }
   }
 )
@@ -379,7 +380,7 @@ router.post(
         return res.status(400).json({ error: 'Validation error', details: error.errors })
       }
       console.error('Chat error:', error)
-      res.status(500).json({ error: 'Chat failed', message: error.message })
+      res.status(500).json({ error: 'Chat failed', message: getErrorMessage(error) })
     }
   }
 )
@@ -501,7 +502,7 @@ router.post(
       res.end()
     } catch (error: any) {
       console.error('Streaming chat error:', error)
-      res.write(`data: ${JSON.stringify({ error: error.message })}\n\n`)
+      res.write(`data: ${JSON.stringify({ error: getErrorMessage(error) })}\n\n`)
       res.end()
     }
   }

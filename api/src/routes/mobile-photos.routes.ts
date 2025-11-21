@@ -23,6 +23,7 @@ import pool from '../config/database';
 import photoProcessingService from '../services/photo-processing.service';
 import { v4 as uuidv4 } from 'uuid';
 import { z } from 'zod';
+import { getErrorMessage } from '../utils/error-handler'
 
 const router = express.Router();
 
@@ -207,7 +208,7 @@ router.post(
       console.error('Photo upload error:', error);
       res.status(500).json({
         error: 'Failed to upload photo',
-        details: error.message,
+        details: getErrorMessage(error),
       });
     }
   }
@@ -351,7 +352,7 @@ router.post(
           errors.push({
             index: i,
             fileName: file.originalname,
-            error: error.message,
+            error: getErrorMessage(error),
           });
         }
       }
@@ -368,7 +369,7 @@ router.post(
       console.error('Batch upload error:', error);
       res.status(500).json({
         error: 'Failed to upload photos',
-        details: error.message,
+        details: getErrorMessage(error),
       });
     }
   }
@@ -439,7 +440,7 @@ router.get(
       console.error('Sync queue error:', error);
       res.status(500).json({
         error: 'Failed to get sync queue',
-        details: error.message,
+        details: getErrorMessage(error),
       });
     }
   }
@@ -504,7 +505,7 @@ router.post(
       console.error('Sync complete error:', error);
       res.status(400).json({
         error: 'Failed to mark photos as synced',
-        details: error.message,
+        details: getErrorMessage(error),
       });
     }
   }
@@ -565,7 +566,7 @@ router.get(
       console.error('Get status error:', error);
       res.status(500).json({
         error: 'Failed to get photo status',
-        details: error.message,
+        details: getErrorMessage(error),
       });
     }
   }
@@ -616,7 +617,7 @@ router.get(
       console.error('Get photo error:', error);
       res.status(500).json({
         error: 'Failed to get photo',
-        details: error.message,
+        details: getErrorMessage(error),
       });
     }
   }
@@ -689,7 +690,7 @@ router.delete(
       console.error('Delete photo error:', error);
       res.status(500).json({
         error: 'Failed to delete photo',
-        details: error.message,
+        details: getErrorMessage(error),
       });
     }
   }
@@ -730,7 +731,7 @@ router.get(
       console.error('Get stats error:', error);
       res.status(500).json({
         error: 'Failed to get processing stats',
-        details: error.message,
+        details: getErrorMessage(error),
       });
     }
   }
