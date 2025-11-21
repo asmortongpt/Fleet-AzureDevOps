@@ -4,6 +4,7 @@ import { requirePermission } from '../middleware/permissions'
 import { pool } from '../config/database'
 import { logger } from '../utils/logger'
 import { z } from 'zod'
+import { getErrorMessage } from '../utils/error-handler'
 
 const router = express.Router()
 
@@ -61,7 +62,7 @@ router.get('/', requirePermission('geofence:view:fleet'), async (req: AuthReques
     })
   } catch (error: any) {
     logger.error('Failed to fetch ArcGIS layers', {
-      error: error.message,
+      error: getErrorMessage(error),
       tenantId
     })
     res.status(500).json({ error: 'Failed to fetch layers' })
@@ -90,7 +91,7 @@ router.get('/enabled/list', requirePermission('geofence:view:fleet'), async (req
     })
   } catch (error: any) {
     logger.error('Failed to fetch enabled ArcGIS layers', {
-      error: error.message,
+      error: getErrorMessage(error),
       tenantId
     })
     res.status(500).json({ error: 'Failed to fetch layers' })
@@ -122,7 +123,7 @@ router.get('/:id', requirePermission('geofence:view:fleet'), async (req: AuthReq
     })
   } catch (error: any) {
     logger.error('Failed to fetch ArcGIS layer', {
-      error: error.message,
+      error: getErrorMessage(error),
       layerId: id
     })
     res.status(500).json({ error: 'Failed to fetch layer' })
@@ -186,7 +187,7 @@ router.post(
       }
 
       logger.error('Failed to create ArcGIS layer', {
-        error: error.message,
+        error: getErrorMessage(error),
         tenantId
       })
       res.status(500).json({ error: 'Failed to create layer' })
@@ -300,7 +301,7 @@ router.put(
       }
 
       logger.error('Failed to update ArcGIS layer', {
-        error: error.message,
+        error: getErrorMessage(error),
         layerId: id
       })
       res.status(500).json({ error: 'Failed to update layer' })
@@ -343,7 +344,7 @@ router.delete(
       })
     } catch (error: any) {
       logger.error('Failed to delete ArcGIS layer', {
-        error: error.message,
+        error: getErrorMessage(error),
         layerId: id
       })
       res.status(500).json({ error: 'Failed to delete layer' })

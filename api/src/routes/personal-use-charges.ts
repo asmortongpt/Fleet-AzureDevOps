@@ -16,6 +16,7 @@ import {
 import { appInsightsService } from '../config/app-insights'
 import { emailNotificationService } from '../services/email-notifications'
 import { logger } from '../utils/logger'
+import { getErrorMessage } from '../utils/error-handler'
 
 const router = express.Router()
 router.use(authenticateJWT)
@@ -221,7 +222,7 @@ router.post(
 
       // Get policy to determine rate
       const policyResult = await pool.query(
-        'SELECT * FROM personal_use_policies WHERE tenant_id = $1',
+        'SELECT id, tenant_id, policy_name, deduction_percent, reimbursement_method, created_at, updated_at FROM personal_use_policies WHERE tenant_id = $1',
         [req.user!.tenant_id]
       )
 
@@ -369,7 +370,7 @@ router.post(
 
       // Check usage limits and send warnings if needed
       const policyResult = await pool.query(
-        'SELECT * FROM personal_use_policies WHERE tenant_id = $1',
+        'SELECT id, tenant_id, policy_name, deduction_percent, reimbursement_method, created_at, updated_at FROM personal_use_policies WHERE tenant_id = $1',
         [req.user!.tenant_id]
       )
 
@@ -411,7 +412,7 @@ router.post(
                 percentageUsed: monthlyPercentage,
                 period: 'month'
               }).catch(error => {
-                logger.error('Failed to send limit warning email', { error: error.message })
+                logger.error('Failed to send limit warning email', { error: getErrorMessage(error) })
               })
             }
 
@@ -456,7 +457,7 @@ router.patch(
 
       // Get existing charge
       const existing = await pool.query(
-        'SELECT * FROM personal_use_charges WHERE id = $1 AND tenant_id = $2',
+        'SELECT id, tenant_id, trip_id, driver_id, charge_date, charge_amount, status, created_at, updated_at FROM personal_use_charges WHERE id = $1 AND tenant_id = $2',
         [req.params.id, req.user!.tenant_id]
       )
 
@@ -641,7 +642,7 @@ router.post(
 
       // Get policy
       const policyResult = await pool.query(
-        'SELECT * FROM personal_use_policies WHERE tenant_id = $1',
+        'SELECT id, tenant_id, policy_name, deduction_percent, reimbursement_method, created_at, updated_at FROM personal_use_policies WHERE tenant_id = $1',
         [req.user!.tenant_id]
       )
 

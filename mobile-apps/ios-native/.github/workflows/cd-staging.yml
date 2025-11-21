@@ -39,7 +39,8 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        # SECURITY: Pinned to SHA for supply chain security
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11  # v4
         with:
           fetch-depth: 0
 
@@ -77,7 +78,8 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        # SECURITY: Pinned to SHA for supply chain security
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11  # v4
 
       - name: Select Xcode version
         run: |
@@ -85,7 +87,8 @@ jobs:
           xcodebuild -version
 
       - name: Setup Ruby
-        uses: ruby/setup-ruby@v1
+        # SECURITY: Pinned to SHA for supply chain security
+        uses: ruby/setup-ruby@5f19ec79cedfadb78ab837f95b87734d0003c899  # v1
         with:
           ruby-version: '3.2'
           bundler-cache: true
@@ -98,7 +101,8 @@ jobs:
           fastlane --version
 
       - name: Cache CocoaPods
-        uses: actions/cache@v3
+        # SECURITY: Pinned to SHA for supply chain security
+        uses: actions/cache@704facf57e6136b1bc63b828d79edcd491f0ee84  # v3
         with:
           path: |
             ${{ env.WORKING_DIRECTORY }}/Pods
@@ -122,7 +126,8 @@ jobs:
 
       - name: Upload test results
         if: always()
-        uses: actions/upload-artifact@v3
+        # SECURITY: Pinned to SHA for supply chain security
+        uses: actions/upload-artifact@a8a3f3ad30e3422c9c7b888a15615d19a852ae32  # v3
         with:
           name: staging-test-results
           path: ${{ env.WORKING_DIRECTORY }}/test_output/
@@ -143,7 +148,8 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        # SECURITY: Pinned to SHA for supply chain security
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11  # v4
         with:
           fetch-depth: 0
 
@@ -153,7 +159,8 @@ jobs:
           xcodebuild -version
 
       - name: Setup Ruby
-        uses: ruby/setup-ruby@v1
+        # SECURITY: Pinned to SHA for supply chain security
+        uses: ruby/setup-ruby@5f19ec79cedfadb78ab837f95b87734d0003c899  # v1
         with:
           ruby-version: '3.2'
           bundler-cache: true
@@ -167,7 +174,8 @@ jobs:
           fastlane --version
 
       - name: Cache CocoaPods
-        uses: actions/cache@v3
+        # SECURITY: Pinned to SHA for supply chain security
+        uses: actions/cache@704facf57e6136b1bc63b828d79edcd491f0ee84  # v3
         with:
           path: |
             ${{ env.WORKING_DIRECTORY }}/Pods
@@ -231,7 +239,8 @@ jobs:
 
       - name: Upload build artifacts
         if: always()
-        uses: actions/upload-artifact@v3
+        # SECURITY: Pinned to SHA for supply chain security
+        uses: actions/upload-artifact@a8a3f3ad30e3422c9c7b888a15615d19a852ae32  # v3
         with:
           name: staging-build
           path: |

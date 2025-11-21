@@ -133,6 +133,9 @@ class CacheService {
   }
 }
 
+// Export the class for backwards compatibility with code that instantiates it
+export { CacheService as Cache };
+
 export const cache = new CacheService();
 
 // Cache middleware for Express routes

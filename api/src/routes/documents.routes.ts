@@ -20,6 +20,7 @@ import { requirePermission } from '../middleware/permissions'
 import { auditLog } from '../middleware/audit'
 import documentManagementService from '../services/document-management.service'
 import documentRAGService from '../services/document-rag.service'
+import { getErrorMessage } from '../utils/error-handler'
 
 const router = Router()
 
@@ -119,7 +120,7 @@ router.post('/upload',
     console.error('Error uploading document:', error)
     res.status(500).json({
       error: 'Failed to upload document',
-      details: error.message
+      details: getErrorMessage(error)
     })
   }
 })
@@ -248,7 +249,7 @@ router.put('/:id',
     console.error('Error updating document:', error)
     res.status(500).json({
       error: 'Failed to update document',
-      details: error.message
+      details: getErrorMessage(error)
     })
   }
 })
@@ -280,7 +281,7 @@ router.delete('/:id',
     console.error('Error deleting document:', error)
     res.status(500).json({
       error: 'Failed to delete document',
-      details: error.message
+      details: getErrorMessage(error)
     })
   }
 })
@@ -378,7 +379,7 @@ router.post('/categories',
     console.error('Error creating category:', error)
     res.status(500).json({
       error: 'Failed to create category',
-      details: error.message
+      details: getErrorMessage(error)
     })
   }
 })
@@ -430,7 +431,7 @@ router.post('/search',
     console.error('Error performing semantic search:', error)
     res.status(500).json({
       error: 'Failed to perform search',
-      details: error.message
+      details: getErrorMessage(error)
     })
   }
 })
@@ -485,7 +486,7 @@ router.post('/ask',
     console.error('Error answering question:', error)
     res.status(500).json({
       error: 'Failed to answer question',
-      details: error.message
+      details: getErrorMessage(error)
     })
   }
 })
@@ -546,7 +547,7 @@ router.post('/queries/:id/feedback',
     console.error('Error submitting feedback:', error)
     res.status(500).json({
       error: 'Failed to submit feedback',
-      details: error.message
+      details: getErrorMessage(error)
     })
   }
 })
