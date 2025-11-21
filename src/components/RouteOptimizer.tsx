@@ -36,7 +36,7 @@ import {
   Route,
   TrendingDown,
   Clock,
-  CurrencyDollar,
+  DollarSign,
   MapPin,
   Upload,
   Download,
@@ -686,7 +686,7 @@ export function RouteOptimizer() {
                     <p className="text-sm text-muted-foreground">Total Cost</p>
                     <p className="text-2xl font-bold">${result.totalCost.toFixed(2)}</p>
                   </div>
-                  <CurrencyDollar className="h-8 w-8 text-orange-500" />
+                  <DollarSign className="h-8 w-8 text-orange-500" />
                 </div>
               </CardContent>
             </Card>
@@ -788,7 +788,7 @@ export function RouteOptimizer() {
                       <div>
                         <h3 className="font-semibold text-lg">Route {route.routeNumber}</h3>
                         <p className="text-sm text-muted-foreground">
-                          {route.vehicle.name} • {route.driver.name}
+                          {route.vehicle.name} • {route.driver?.name}
                         </p>
                       </div>
                       <div className="text-right">

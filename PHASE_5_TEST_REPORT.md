@@ -31,7 +31,7 @@ The seed file creates a complete test environment with:
 
 #### 1.1 Tenant & Users
 - **Tenant**: Multi-Asset Test Company (domain: multi-asset-test.local)
-- **Admin User**: admin@multi-asset-test.local (password: Test123!)
+- **Admin User**: admin@multi-asset-test.local (password: YOUR_TEST_PASSWORD_HERE)
 - **Driver Users**: 3 drivers with CDL licenses
 - **Facility**: Main Depot in Tampa, FL
 
