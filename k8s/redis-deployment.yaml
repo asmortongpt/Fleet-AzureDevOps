@@ -37,8 +37,18 @@ spec:
     spec:
       containers:
       - name: redis
-        image: redis:7-alpine
+        # SECURITY: Pinned to specific version with SHA256 digest
+        # To update: docker pull redis:7-alpine && docker inspect --format='{{index .RepoDigests 0}}' redis:7-alpine
+        image: redis:7-alpine@sha256:ee64a64eaab618d88051c3ade8f6352d11531fcf79d9a4818b9b183d8c1d18ba
         imagePullPolicy: IfNotPresent
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: false
+          runAsNonRoot: true
+          runAsUser: 999
+          capabilities:
+            drop:
+              - ALL
         command:
         - redis-server
         - --appendonly
@@ -97,6 +107,8 @@ spec:
         fsGroup: 999
         runAsUser: 999
         runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
 ---
 apiVersion: v1
 kind: Service

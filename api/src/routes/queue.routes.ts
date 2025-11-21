@@ -390,9 +390,9 @@ router.get('/metrics', requireAdmin, async (req: Request, res: Response) => {
         MIN(EXTRACT(EPOCH FROM (completed_at - started_at)) * 1000)
           FILTER (WHERE completed_at IS NOT NULL) as min_processing_time_ms
        FROM job_tracking
-       WHERE created_at > NOW() - INTERVAL '${interval}'
+       WHERE created_at > NOW() - $1::INTERVAL
        GROUP BY queue_name`,
-      []
+      [interval]
     );
 
     // Calculate success rates

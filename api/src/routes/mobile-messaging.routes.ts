@@ -384,7 +384,7 @@ router.get(
       const { type, category } = req.query;
 
       let query = `
-        SELECT * FROM communication_templates
+        SELECT id, tenant_id, template_name, subject, body, is_active, created_at, updated_at FROM communication_templates
         WHERE is_active = TRUE
       `;
       const params: any[] = [];

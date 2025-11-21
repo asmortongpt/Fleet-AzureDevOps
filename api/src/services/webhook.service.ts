@@ -17,35 +17,24 @@ import pool from '../config/database'
 import * as crypto from 'crypto'
 import axios from 'axios'
 import { analyzeDocument } from './ai-ocr'
+import OpenAI from 'openai'
 import { validateURL, SSRFError } from '../utils/safe-http-request'
 import { env } from '../config/environment'
 
-// Optional OpenAI client - lazy loaded
-let OpenAI: any = null
-let openai: any = null
+// Lazy initialization of OpenAI client - only create when needed and API key is available
+let openai: OpenAI | null = null
 
-// Lazy load OpenAI SDK
-async function loadOpenAI() {
-  if (OpenAI && openai) return true
+function getOpenAIClient(): OpenAI | null {
+  if (openai) return openai
 
-  try {
-    const openaiModule = await import('openai')
-    OpenAI = openaiModule.default
-
-    if (!process.env.OPENAI_API_KEY) {
-      console.warn('OpenAI API key not configured - AI categorization will be disabled')
-      return false
-    }
-
-    openai = new OpenAI({
-      apiKey: process.env.OPENAI_API_KEY
-    })
-
-    return true
-  } catch (err) {
-    console.warn('openai package not available - AI categorization will be disabled. Install openai package for AI features.')
-    return false
+  const apiKey = process.env.OPENAI_API_KEY
+  if (!apiKey) {
+    console.warn('⚠️  WARNING: OPENAI_API_KEY not configured. AI categorization will be disabled.')
+    return null
   }
+
+  openai = new OpenAI({ apiKey })
+  return openai
 }
 
 // Azure AD Configuration
@@ -617,15 +606,14 @@ class WebhookService {
    * Categorize Teams message using AI
    */
   private async categorizeMessage(content: string): Promise<string> {
-    const openaiAvailable = await loadOpenAI()
-
-    if (!openaiAvailable || !openai) {
-      console.log('OpenAI not available - returning default category')
-      return 'General Discussion'
-    }
-
     try {
-      const completion = await openai.chat.completions.create({
+      const client = getOpenAIClient()
+      if (!client) {
+        console.log('AI categorization disabled (no API key) - using default category')
+        return 'General Discussion'
+      }
+
+      const completion = await client.chat.completions.create({
         model: 'gpt-4',
         messages: [
           {
@@ -652,15 +640,14 @@ class WebhookService {
    * Categorize email using AI
    */
   private async categorizeEmail(email: OutlookEmail): Promise<string> {
-    const openaiAvailable = await loadOpenAI()
-
-    if (!openaiAvailable || !openai) {
-      console.log('OpenAI not available - returning default category')
-      return 'Administrative'
-    }
-
     try {
-      const completion = await openai.chat.completions.create({
+      const client = getOpenAIClient()
+      if (!client) {
+        console.log('AI categorization disabled (no API key) - using default category')
+        return 'Administrative'
+      }
+
+      const completion = await client.chat.completions.create({
         model: 'gpt-4',
         messages: [
           {
@@ -797,16 +784,15 @@ class WebhookService {
    * Extract receipt data from email
    */
   private async extractReceiptData(communicationId: string, email: OutlookEmail): Promise<void> {
-    const openaiAvailable = await loadOpenAI()
-
-    if (!openaiAvailable || !openai) {
-      console.log('OpenAI not available - skipping receipt data extraction')
-      return
-    }
-
     try {
+      const client = getOpenAIClient()
+      if (!client) {
+        console.log('AI receipt extraction disabled (no API key) - skipping structured data extraction')
+        return
+      }
+
       // Use AI to extract structured data from email body
-      const completion = await openai.chat.completions.create({
+      const completion = await client.chat.completions.create({
         model: 'gpt-4',
         messages: [
           {
