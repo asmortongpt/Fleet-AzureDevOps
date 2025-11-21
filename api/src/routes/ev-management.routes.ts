@@ -426,7 +426,7 @@ router.post('/sessions/:transactionId/stop', authenticateJWT, requirePermission(
 router.get('/sessions/active', authenticateJWT, requirePermission('charging_station:view:fleet'), async (req: Request, res: Response) => {
   try {
     const result = await pool.query(
-      `SELECT * FROM active_charging_sessions ORDER BY start_time DESC`
+      `SELECT id, tenant_id, vehicle_id, charger_id, start_time, end_time, energy_charged, cost FROM active_charging_sessions ORDER BY start_time DESC`
     );
 
     res.json({
@@ -630,7 +630,7 @@ router.get('/vehicles/:id/battery-health', authenticateJWT, requirePermission('v
 router.get('/station-utilization', authenticateJWT, requirePermission('charging_station:view:fleet'), async (req: Request, res: Response) => {
   try {
     const result = await pool.query(
-      `SELECT * FROM station_utilization_today ORDER BY utilization_percent DESC`
+      `SELECT station_id, station_name, utilization_percent, total_sessions, peak_hour FROM station_utilization_today ORDER BY utilization_percent DESC`
     );
 
     res.json({
@@ -703,21 +703,7 @@ router.get('/vehicles/:id/charging-history', authenticateJWT, requirePermission(
   }
 });
 
-// Initialize OCPP connections on startup
-(async () => {
-  try {
-    const stationsResult = await pool.query(
-      'SELECT station_id FROM charging_stations WHERE is_enabled = true AND ws_url IS NOT NULL'
-    );
-
-    console.log(`🔌 Connecting to ${stationsResult.rows.length} OCPP charging stations...`);
-
-    for (const row of stationsResult.rows) {
-      await ocppService.connectStation(row.station_id);
-    }
-  } catch (error) {
-    console.error('Error initializing OCPP connections:', error);
-  }
-})();
+// OCPP connections will be initialized by the server on startup
+// See src/server.ts for initialization logic
 
 export default router;

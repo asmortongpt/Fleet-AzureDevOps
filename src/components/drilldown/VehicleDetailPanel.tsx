@@ -405,17 +405,17 @@ export function VehicleDetailPanel({ vehicleId }: VehicleDetailPanelProps) {
               </CardHeader>
               <CardContent>
                 <p className="text-sm">
-                  Lat: {vehicle.location.lat?.toFixed(6)}, Lng:{' '}
-                  {vehicle.location.lng?.toFixed(6)}
+                  Lat: {vehicle.location?.lat?.toFixed(6)}, Lng:{' '}
+                  {vehicle.location?.lng?.toFixed(6)}
                 </p>
-                {vehicle.location.address && (
+                {vehicle.location?.address && (
                   <p className="text-sm text-muted-foreground mt-1">
-                    {vehicle.location.address}
+                    {vehicle.location?.address}
                   </p>
                 )}
-                {vehicle.location.last_update && (
+                {vehicle.location?.last_update && (
                   <p className="text-xs text-muted-foreground mt-2">
-                    Last updated: {new Date(vehicle.location.last_update).toLocaleString()}
+                    Last updated: {new Date(vehicle.location?.last_update).toLocaleString()}
                   </p>
                 )}
               </CardContent>

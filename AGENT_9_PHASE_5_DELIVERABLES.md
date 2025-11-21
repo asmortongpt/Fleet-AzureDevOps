@@ -280,12 +280,12 @@ cd api && npm test -- multi-asset-integration.test.ts
 **Domain**: multi-asset-test.local
 **Admin Login**:
 - Email: `admin@multi-asset-test.local`
-- Password: `Test123!`
+- Password: `YOUR_TEST_PASSWORD_HERE`
 
 **Driver Logins**:
-- `driver1@multi-asset-test.local` / `Test123!` (John Driver - CDL Class A)
-- `driver2@multi-asset-test.local` / `Test123!` (Jane Smith - CDL Class A)
-- `driver3@multi-asset-test.local` / `Test123!` (Mike Johnson - CDL Class B)
+- `driver1@multi-asset-test.local` / `YOUR_TEST_PASSWORD_HERE` (John Driver - CDL Class A)
+- `driver2@multi-asset-test.local` / `YOUR_TEST_PASSWORD_HERE` (Jane Smith - CDL Class A)
+- `driver3@multi-asset-test.local` / `YOUR_TEST_PASSWORD_HERE` (Mike Johnson - CDL Class B)
 
 ---
 

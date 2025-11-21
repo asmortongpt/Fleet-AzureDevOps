@@ -369,4 +369,14 @@ export class VehicleIdentificationService {
   }
 }
 
-export default new VehicleIdentificationService()
+// Export function to get singleton instance (lazy initialization)
+let serviceInstance: VehicleIdentificationService | null = null
+
+export function getVehicleIdentificationService(): VehicleIdentificationService {
+  if (!serviceInstance) {
+    serviceInstance = new VehicleIdentificationService()
+  }
+  return serviceInstance
+}
+
+export default getVehicleIdentificationService

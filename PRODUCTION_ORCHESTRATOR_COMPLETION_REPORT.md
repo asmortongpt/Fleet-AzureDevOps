@@ -445,7 +445,7 @@ fleet-api-service         ClusterIP      (pending deployment)
      -H "Content-Type: application/json" \
      -d '{
        "email": "test@fleet.com",
-       "password": "Test123!@#",
+       "password": "YOUR_TEST_PASSWORD_HERE",
        "first_name": "Test",
        "last_name": "User",
        "role": "fleet_manager"
@@ -456,7 +456,7 @@ fleet-api-service         ClusterIP      (pending deployment)
      -H "Content-Type: application/json" \
      -d '{
        "email": "test@fleet.com",
-       "password": "Test123!@#"
+       "password": "YOUR_TEST_PASSWORD_HERE"
      }'
    ```
 
@@ -632,7 +632,7 @@ VITE_ENABLE_AI_ASSISTANT=true
 
 **Application**:
 - Email: `admin@fleetmanagement.com`
-- Password: `Admin123!`
+- Password: `YOUR_ADMIN_PASSWORD_HERE`
 - Role: `admin`
 
 ### Support Contacts

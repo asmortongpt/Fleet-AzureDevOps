@@ -27,7 +27,7 @@ describe('Multi-Asset Fleet Management - Integration Tests', () => {
       .post('/api/auth/login')
       .send({
         email: 'admin@multi-asset-test.local',
-        password: 'Test123!'
+        password: process.env.TEST_PASSWORD || 'YOUR_TEST_PASSWORD_HERE'
       })
 
     authToken = loginResponse.body.token
