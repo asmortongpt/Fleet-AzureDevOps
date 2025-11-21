@@ -12,4 +12,4 @@ tree-sitter-typescript>=0.21.0
 httpx>=0.25.0
 python-dotenv>=1.0.0
 aiohttp>=3.8.0
-slowapi>=0.1.8  # Added: Rate limiting for DoS protection
+slowapi>=0.1.9  # Updated: Rate limiting for DoS protection
