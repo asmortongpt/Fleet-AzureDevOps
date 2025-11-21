@@ -15,7 +15,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        # SECURITY: Pinned to SHA for supply chain security
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11  # v4
 
       - name: Check for unpinned Docker images
         run: |
@@ -44,17 +45,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        # SECURITY: Pinned to SHA for supply chain security
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11  # v4
 
       - name: Lint Dockerfiles with Hadolint
-        uses: hadolint/hadolint-action@v3.1.0
+        # SECURITY: Pinned to SHA for supply chain security
+        uses: hadolint/hadolint-action@54c9adbab1582c2ef04b2016b760714a4bfde3cf  # v3.1.0
         with:
           dockerfile: Dockerfile
           failure-threshold: error
           ignore: DL3018  # Allow apk add without version pinning (we pin base images instead)
 
       - name: Lint Dockerfile.production
-        uses: hadolint/hadolint-action@v3.1.0
+        # SECURITY: Pinned to SHA for supply chain security
+        uses: hadolint/hadolint-action@54c9adbab1582c2ef04b2016b760714a4bfde3cf  # v3.1.0
         with:
           dockerfile: Dockerfile.production
           failure-threshold: error
