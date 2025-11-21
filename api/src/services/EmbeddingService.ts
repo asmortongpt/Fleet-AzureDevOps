@@ -69,6 +69,7 @@ export class EmbeddingService {
   private localModel: LocalEmbeddingModel | null = null
   private cache: Map<string, { embedding: number[]; timestamp: number }> = new Map()
   private cacheMaxAge = 24 * 60 * 60 * 1000 // 24 hours
+  private initialized = false
 
   // Provider configurations
   private readonly providerConfigs = {
@@ -87,13 +88,14 @@ export class EmbeddingService {
   }
 
   constructor() {
-    this.initializeProviders()
+    // Don't call async initialization in constructor
   }
 
   /**
-   * Initialize embedding providers based on available API keys
+   * Initialize embedding providers based on available API keys (called lazily)
    */
   private async initializeProviders(): Promise<void> {
+    if (this.initialized) return
     // OpenAI initialization
     if (process.env.OPENAI_API_KEY) {
       this.openai = new OpenAI({
@@ -122,6 +124,8 @@ export class EmbeddingService {
       // Note: Actual initialization would require transformers.js
       // For now, we'll use a fallback implementation
     }
+
+    this.initialized = true
   }
 
   /**
@@ -131,6 +135,9 @@ export class EmbeddingService {
     text: string,
     config: Partial<EmbeddingConfig> = {}
   ): Promise<EmbeddingResult> {
+    // Ensure providers are initialized
+    await this.initializeProviders()
+
     const {
       provider = this.selectBestProvider(),
       model = this.getDefaultModel(provider),
@@ -611,4 +618,15 @@ export class EmbeddingService {
   }
 }
 
-export default new EmbeddingService()
+// Export class instead of instance to avoid module-level initialization
+// Users should create their own instance or import the singleton helper
+let serviceInstance: EmbeddingService | null = null
+
+export function getEmbeddingService(): EmbeddingService {
+  if (!serviceInstance) {
+    serviceInstance = new EmbeddingService()
+  }
+  return serviceInstance
+}
+
+export default getEmbeddingService
