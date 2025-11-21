@@ -276,9 +276,10 @@ export interface EVChargingSession {
   startCharge: number // %
   endCharge?: number // %
   currentCharge?: number // %
+  targetCharge?: number // % Target charge level
   energyDelivered: number // kWh
   cost: number
-  status: 'active' | 'completed' | 'interrupted'
+  status: 'active' | 'completed' | 'interrupted' | 'charging'
   powerLevel: 'level1' | 'level2' | 'dcfast'
   maxPower: number // kW
   powerKw?: number // kW (alternative property name)

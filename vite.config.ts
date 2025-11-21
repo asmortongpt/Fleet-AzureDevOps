@@ -35,6 +35,15 @@ export default defineConfig({
         changeOrigin: true,
         secure: false
       }
+    },
+    fs: {
+      // Allow serving files from node_modules and project root
+      allow: [
+        // Allow project root
+        '.',
+        // Allow node_modules for CSS and asset imports
+        '../node_modules'
+      ]
     }
   },
   build: {

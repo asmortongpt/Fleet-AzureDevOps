@@ -14,6 +14,7 @@ import { Pool } from 'pg';
 import { z } from 'zod';
 import { authenticateJWT, AuthRequest } from '../middleware/auth';
 import { requirePermission } from '../middleware/permissions';
+import { getErrorMessage } from '../utils/error-handler'
 
 const router = express.Router();
 
@@ -146,7 +147,7 @@ router.get(
       console.error('Error fetching cost/benefit analyses:', error);
       res.status(500).json({
         error: 'Failed to fetch cost/benefit analyses',
-        details: error.message,
+        details: getErrorMessage(error),
       });
     }
   }
@@ -201,7 +202,7 @@ router.get(
       console.error('Error fetching cost/benefit analysis:', error);
       res.status(500).json({
         error: 'Failed to fetch cost/benefit analysis',
-        details: error.message,
+        details: getErrorMessage(error),
       });
     }
   }
@@ -294,7 +295,7 @@ router.post(
       }
       res.status(500).json({
         error: 'Failed to create cost/benefit analysis',
-        details: error.message,
+        details: getErrorMessage(error),
       });
     }
   }
@@ -360,7 +361,7 @@ router.put(
       }
       res.status(500).json({
         error: 'Failed to update cost/benefit analysis',
-        details: error.message,
+        details: getErrorMessage(error),
       });
     }
   }
@@ -418,7 +419,7 @@ router.post(
       }
       res.status(500).json({
         error: 'Failed to review cost/benefit analysis',
-        details: error.message,
+        details: getErrorMessage(error),
       });
     }
   }
@@ -457,7 +458,7 @@ router.delete(
       console.error('Error deleting cost/benefit analysis:', error);
       res.status(500).json({
         error: 'Failed to delete cost/benefit analysis',
-        details: error.message,
+        details: getErrorMessage(error),
       });
     }
   }

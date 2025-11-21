@@ -386,12 +386,7 @@ router.post(
 
       // Get schedule
       const scheduleResult = await pool.query(
-        `SELECT id, tenant_id, vehicle_id, service_type, priority, status,
-                trigger_metric, trigger_value, current_value, next_due,
-                estimated_cost, is_recurring, recurrence_pattern,
-                auto_create_work_order, work_order_template, parts, notes,
-                created_at, updated_at
-         FROM maintenance_schedules WHERE id = $1 AND tenant_id = $2`,
+        'SELECT id, tenant_id, vehicle_id, service_type, description, scheduled_date, completed_date, status, odometer_reading, estimated_cost, actual_cost, assigned_vendor_id, assigned_technician, notes, recurring, recurring_interval_miles, recurring_interval_days, next_service_date, next_service_odometer, priority, created_at, updated_at, deleted_at FROM maintenance_schedules WHERE id = $1 AND tenant_id = $2',
         [req.params.id, req.user!.tenant_id]
       )
 
@@ -415,11 +410,7 @@ router.post(
 
       // Get vehicle telemetry
       const telemetryResult = await pool.query(
-        `SELECT id, tenant_id, vehicle_id, snapshot_date, odometer,
-                engine_hours, pto_hours, aux_hours, fuel_level,
-                battery_voltage, coolant_temp, oil_pressure,
-                created_at, updated_at
-         FROM vehicle_telemetry_snapshots
+        `SELECT * FROM vehicle_telemetry_snapshots
          WHERE vehicle_id = $1 AND tenant_id = $2
          ORDER BY snapshot_date DESC LIMIT 1`,
         [schedule.vehicle_id, req.user!.tenant_id]
@@ -432,12 +423,7 @@ router.post(
 
       // Get created work order
       const workOrderResult = await pool.query(
-        `SELECT id, tenant_id, work_order_number, title, description,
-                vehicle_id, driver_id, assigned_to, priority, status,
-                scheduled_date, completed_date, estimated_cost, actual_cost,
-                labor_hours, parts_cost, notes, attachments,
-                created_at, updated_at, created_by
-         FROM work_orders WHERE id = $1`,
+        'SELECT id, tenant_id, vehicle_id, type, priority, description, estimated_cost, actual_cost, status, created_at, updated_at, deleted_at, metadata, created_by, assigned_to FROM work_orders WHERE id = $1',
         [workOrderId]
       )
 
@@ -462,12 +448,7 @@ router.get(
     try {
       // Get schedule
       const scheduleResult = await pool.query(
-        `SELECT id, tenant_id, vehicle_id, service_type, priority, status,
-                trigger_metric, trigger_value, current_value, next_due,
-                estimated_cost, is_recurring, recurrence_pattern,
-                auto_create_work_order, work_order_template, parts, notes,
-                created_at, updated_at
-         FROM maintenance_schedules WHERE id = $1 AND tenant_id = $2`,
+        'SELECT id, tenant_id, vehicle_id, service_type, description, scheduled_date, completed_date, status, odometer_reading, estimated_cost, actual_cost, assigned_vendor_id, assigned_technician, notes, recurring, recurring_interval_miles, recurring_interval_days, next_service_date, next_service_odometer, priority, created_at, updated_at, deleted_at FROM maintenance_schedules WHERE id = $1 AND tenant_id = $2',
         [req.params.id, req.user!.tenant_id]
       )
 
