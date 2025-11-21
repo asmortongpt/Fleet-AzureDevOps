@@ -150,12 +150,9 @@ export class InspectionRepository extends BaseRepository<Inspection> {
    * Find overdue inspections
    */
   async findOverdue(tenantId: string): Promise<Inspection[]> {
+    const columns = 'id, tenant_id, vehicle_id, inspection_date, inspection_type, status, notes, created_at, updated_at';
     const query = `
-      SELECT id, tenant_id, vehicle_id, driver_id, inspector_id,
-             inspection_type, status, scheduled_date, completed_date,
-             odometer, location, notes, checklist_data, defects_found,
-             signature_url, passed, created_at, updated_at
-      FROM ${this.tableName}
+      SELECT ${columns} FROM ${this.tableName}
       WHERE tenant_id = $1
         AND status = 'pending'
         AND scheduled_date < NOW()
@@ -217,23 +214,14 @@ export class InspectionRepository extends BaseRepository<Inspection> {
       WHERE tenant_id = $1
     `
 
-    interface StatsRow {
-      total: string
-      pending: string
-      completed: string
-      passed: string
-      failed: string
-      overdue: string
-    }
-
-    const result = await this.query<StatsRow>(query, [tenantId])
+    const result = await this.query(query, [tenantId])
     const row = result.rows[0]
 
     return {
       total: parseInt(row.total),
       pending: parseInt(row.pending),
       completed: parseInt(row.completed),
-      passed: parseInt(row.passed as string),
+      passed: parseInt(row.passed),
       failed: parseInt(row.failed),
       overdue: parseInt(row.overdue)
     }
@@ -243,18 +231,17 @@ export class InspectionRepository extends BaseRepository<Inspection> {
    * Get inspections due soon (within next N days)
    */
   async findDueSoon(tenantId: string, daysAhead: number = 7): Promise<Inspection[]> {
+    const columns = 'id, tenant_id, vehicle_id, inspection_date, inspection_type, status, notes, created_at, updated_at';
+    // Validate and sanitize daysAhead parameter
+    const daysAheadNum = Math.max(1, Math.min(365, daysAhead || 7))
     const query = `
-      SELECT id, tenant_id, vehicle_id, driver_id, inspector_id,
-             inspection_type, status, scheduled_date, completed_date,
-             odometer, location, notes, checklist_data, defects_found,
-             signature_url, passed, created_at, updated_at
-      FROM ${this.tableName}
+      SELECT ${columns} FROM ${this.tableName}
       WHERE tenant_id = $1
         AND status = 'pending'
-        AND scheduled_date BETWEEN NOW() AND NOW() + INTERVAL '${daysAhead} days'
+        AND scheduled_date BETWEEN NOW() AND NOW() + ($2 || ' days')::INTERVAL
       ORDER BY scheduled_date ASC
     `
-    const result = await this.query<Inspection>(query, [tenantId])
+    const result = await this.query<Inspection>(query, [tenantId, daysAheadNum])
     return result.rows
   }
 
@@ -284,12 +271,9 @@ export class InspectionRepository extends BaseRepository<Inspection> {
    * Find inspections within date range
    */
   async findByDateRange(tenantId: string, startDate: Date, endDate: Date): Promise<Inspection[]> {
+    const columns = 'id, tenant_id, vehicle_id, inspection_date, inspection_type, status, notes, created_at, updated_at';
     const query = `
-      SELECT id, tenant_id, vehicle_id, driver_id, inspector_id,
-             inspection_type, status, scheduled_date, completed_date,
-             odometer, location, notes, checklist_data, defects_found,
-             signature_url, passed, created_at, updated_at
-      FROM ${this.tableName}
+      SELECT ${columns} FROM ${this.tableName}
       WHERE tenant_id = $1
         AND scheduled_date BETWEEN $2 AND $3
       ORDER BY scheduled_date DESC

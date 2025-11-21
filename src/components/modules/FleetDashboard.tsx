@@ -184,9 +184,9 @@ export function FleetDashboard({ data }: FleetDashboardProps) {
         (appliedFilters.mileageRange.max === null || v.mileage <= appliedFilters.mileageRange.max)
 
       const matchesAlertStatus = appliedFilters.alertStatus.length === 0 || (
-        (appliedFilters.alertStatus.includes("has-alerts") && v.alerts.length > 0) ||
-        (appliedFilters.alertStatus.includes("no-alerts") && v.alerts.length === 0) ||
-        (appliedFilters.alertStatus.includes("critical") && v.alerts.some(a => a.toLowerCase().includes("critical")))
+        (appliedFilters.alertStatus.includes("has-alerts") && v.alerts && v.alerts.length > 0) ||
+        (appliedFilters.alertStatus.includes("no-alerts") && (!v.alerts || v.alerts.length === 0)) ||
+        (appliedFilters.alertStatus.includes("critical") && v.alerts && v.alerts.some(a => a.toLowerCase().includes("critical")))
       )
 
       const matchesDriverAssignment =

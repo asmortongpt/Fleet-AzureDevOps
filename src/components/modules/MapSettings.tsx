@@ -532,7 +532,7 @@ export function MapSettings() {
                           )}
                         </div>
                         <div className="flex items-center gap-1 text-sm font-semibold">
-                          <CurrencyDollar className="w-4 h-4" />
+                          <DollarSign className="w-4 h-4" />
                           {provider.cost}
                         </div>
                       </div>

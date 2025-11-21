@@ -6,6 +6,7 @@
 import { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import { Pool, PoolClient } from 'pg';
+import { vi, expect } from 'vitest';
 
 // ========== Mock Express Objects ==========
 

@@ -14,7 +14,6 @@ import {
   validateAdaptiveCard
 } from '../services/adaptive-cards.service'
 import { handleCardAction } from '../services/actionable-messages.service'
-import { getErrorMessage } from '../utils/error-handler'
 
 const router = express.Router()
 
@@ -27,21 +26,8 @@ router.post('/vehicle-maintenance', authenticateJWT, async (req: Request, res: R
     const { vehicleId, maintenanceId, teamId, channelId, userId } = req.body
 
     // Get vehicle and maintenance data
-    const vehicleResult = await pool.query(
-      `SELECT id, tenant_id, vehicle_number, vin, make, model, year,
-              license_plate, odometer, status, assigned_driver_id,
-              fuel_type, fuel_capacity, created_at, updated_at
-       FROM vehicles WHERE id = $1`,
-      [vehicleId]
-    )
-    const maintenanceResult = await pool.query(
-      `SELECT id, tenant_id, vehicle_id, service_type, description,
-              scheduled_date, completed_date, odometer_reading,
-              cost, vendor, status, priority, notes,
-              created_at, updated_at
-       FROM maintenance WHERE id = $1`,
-      [maintenanceId]
-    )
+    const vehicleResult = await pool.query('SELECT id, tenant_id, vin, license_plate, make, model, year, color, current_mileage, status, acquired_date, disposition_date, purchase_price, residual_value, created_at, updated_at, deleted_at FROM vehicles WHERE id = $1', [vehicleId])
+    const maintenanceResult = await pool.query('SELECT * FROM maintenance WHERE id = $1', [maintenanceId])
 
     if (vehicleResult.rows.length === 0 || maintenanceResult.rows.length === 0) {
       return res.status(404).json({ error: 'Vehicle or maintenance record not found' })
@@ -76,8 +62,8 @@ router.post('/vehicle-maintenance', authenticateJWT, async (req: Request, res: R
       card
     })
   } catch (error: any) {
-    console.error('Error sending maintenance card:', getErrorMessage(error))
-    res.status(500).json({ error: getErrorMessage(error) })
+    console.error('Error sending maintenance card:', error.message)
+    res.status(500).json({ error: error.message })
   }
 })
 
@@ -132,8 +118,8 @@ router.post('/work-order', authenticateJWT, async (req: Request, res: Response) 
       card
     })
   } catch (error: any) {
-    console.error('Error sending work order card:', getErrorMessage(error))
-    res.status(500).json({ error: getErrorMessage(error) })
+    console.error('Error sending work order card:', error.message)
+    res.status(500).json({ error: error.message })
   }
 })
 
@@ -190,8 +176,8 @@ router.post('/incident', authenticateJWT, async (req: Request, res: Response) =>
       card
     })
   } catch (error: any) {
-    console.error('Error sending incident card:', getErrorMessage(error))
-    res.status(500).json({ error: getErrorMessage(error) })
+    console.error('Error sending incident card:', error.message)
+    res.status(500).json({ error: error.message })
   }
 })
 
@@ -244,8 +230,8 @@ router.post('/approval', authenticateJWT, async (req: Request, res: Response) =>
       card
     })
   } catch (error: any) {
-    console.error('Error sending approval card:', getErrorMessage(error))
-    res.status(500).json({ error: getErrorMessage(error) })
+    console.error('Error sending approval card:', error.message)
+    res.status(500).json({ error: error.message })
   }
 })
 
@@ -258,13 +244,7 @@ router.post('/driver-performance', authenticateJWT, async (req: Request, res: Re
     const { driverId, metrics, teamId, channelId, userId } = req.body
 
     // Get driver data
-    const driverResult = await pool.query(
-      `SELECT id, tenant_id, first_name, last_name, email, phone,
-              role, license_number, license_expiry, status,
-              hire_date, created_at, updated_at
-       FROM users WHERE id = $1 AND role = $2`,
-      [driverId, 'driver']
-    )
+    const driverResult = await pool.query('SELECT id, tenant_id, email, first_name, last_name, role, status, phone, created_at, updated_at, deleted_at FROM users WHERE id = $1 AND role = $2', [driverId, 'driver'])
 
     if (driverResult.rows.length === 0) {
       return res.status(404).json({ error: 'Driver not found' })
@@ -298,8 +278,8 @@ router.post('/driver-performance', authenticateJWT, async (req: Request, res: Re
       card
     })
   } catch (error: any) {
-    console.error('Error sending performance card:', getErrorMessage(error))
-    res.status(500).json({ error: getErrorMessage(error) })
+    console.error('Error sending performance card:', error.message)
+    res.status(500).json({ error: error.message })
   }
 })
 
@@ -354,8 +334,8 @@ router.post('/fuel-receipt', authenticateJWT, async (req: Request, res: Response
       card
     })
   } catch (error: any) {
-    console.error('Error sending fuel receipt card:', getErrorMessage(error))
-    res.status(500).json({ error: getErrorMessage(error) })
+    console.error('Error sending fuel receipt card:', error.message)
+    res.status(500).json({ error: error.message })
   }
 })
 
@@ -368,20 +348,8 @@ router.post('/inspection-checklist', authenticateJWT, async (req: Request, res: 
     const { vehicleId, driverId, teamId, channelId, userId } = req.body
 
     // Get vehicle and driver data
-    const vehicleResult = await pool.query(
-      `SELECT id, tenant_id, vehicle_number, vin, make, model, year,
-              license_plate, odometer, status, assigned_driver_id,
-              fuel_type, fuel_capacity, created_at, updated_at
-       FROM vehicles WHERE id = $1`,
-      [vehicleId]
-    )
-    const driverResult = await pool.query(
-      `SELECT id, tenant_id, first_name, last_name, email, phone,
-              role, license_number, license_expiry, status,
-              hire_date, created_at, updated_at
-       FROM users WHERE id = $1`,
-      [driverId]
-    )
+    const vehicleResult = await pool.query('SELECT id, tenant_id, vin, license_plate, make, model, year, color, current_mileage, status, acquired_date, disposition_date, purchase_price, residual_value, created_at, updated_at, deleted_at FROM vehicles WHERE id = $1', [vehicleId])
+    const driverResult = await pool.query('SELECT id, tenant_id, email, first_name, last_name, role, status, phone, created_at, updated_at, deleted_at FROM users WHERE id = $1', [driverId])
 
     if (vehicleResult.rows.length === 0 || driverResult.rows.length === 0) {
       return res.status(404).json({ error: 'Vehicle or driver not found' })
@@ -422,8 +390,8 @@ router.post('/inspection-checklist', authenticateJWT, async (req: Request, res: 
       card
     })
   } catch (error: any) {
-    console.error('Error sending inspection card:', getErrorMessage(error))
-    res.status(500).json({ error: getErrorMessage(error) })
+    console.error('Error sending inspection card:', error.message)
+    res.status(500).json({ error: error.message })
   }
 })
 
@@ -450,8 +418,8 @@ router.post('/:cardType/action', authenticateJWT, async (req: Request, res: Resp
       res.status(400).json(result)
     }
   } catch (error: any) {
-    console.error('Error handling card action:', getErrorMessage(error))
-    res.status(500).json({ error: getErrorMessage(error) })
+    console.error('Error handling card action:', error.message)
+    res.status(500).json({ error: error.message })
   }
 })
 
@@ -515,8 +483,8 @@ router.get('/preview/:cardType', authenticateJWT, async (req: Request, res: Resp
 
     res.json({ card })
   } catch (error: any) {
-    console.error('Error generating card preview:', getErrorMessage(error))
-    res.status(500).json({ error: getErrorMessage(error) })
+    console.error('Error generating card preview:', error.message)
+    res.status(500).json({ error: error.message })
   }
 })
 

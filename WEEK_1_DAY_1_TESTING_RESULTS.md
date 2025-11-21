@@ -33,7 +33,7 @@ After fixing the initial deployment issues (BUG-001 through BUG-004), we attempt
 ```sql
 -- User Details
 Email:     admin@fleettest.com
-Password:  TestPass123!
+Password:  YOUR_TEST_PASSWORD_HERE
 User ID:   cbdf4e39-a24f-4359-bc38-9c8eac6a3965
 Role:      fleet_manager
 Tenant ID: 00000000-0000-0000-0000-000000000001
@@ -63,7 +63,7 @@ eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImNiZGY0ZTM5LWEyNGYtNDM1OS1iYzM4LTl
 ```bash
 curl -s -X POST http://172.168.84.37/api/auth/login \
   -H "Content-Type: application/json" \
-  -d '{"email":"admin@fleettest.com","password":"TestPass123!"}'
+  -d '{"email":"admin@fleettest.com","password":"YOUR_TEST_PASSWORD_HERE"}'
 ```
 
 **Response**: HTTP 200 ✅
@@ -527,7 +527,7 @@ curl -H "Authorization: Bearer $TOKEN" http://172.168.84.37/api/vehicles/{id}
 ```bash
 TOKEN=$(curl -s -X POST http://172.168.84.37/api/auth/login \
   -H "Content-Type: application/json" \
-  -d '{"email":"admin@fleettest.com","password":"TestPass123!"}' | jq -r '.token')
+  -d '{"email":"admin@fleettest.com","password":"YOUR_TEST_PASSWORD_HERE"}' | jq -r '.token')
 
 echo $TOKEN
 ```
