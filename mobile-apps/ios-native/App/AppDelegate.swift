@@ -121,16 +121,30 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     // MARK: - Security - Privacy Protection
 
+    // Security: Tag for blur view overlay
+    private let blurViewTag = 999
+
     /// Shows a privacy overlay screen to hide sensitive data when app is backgrounded
+    /// Uses both blur effect (immediate) and privacy window (for app switcher)
     private func showPrivacyProtectionScreen() {
+        // First layer: Add blur effect to current window for immediate obscuring
+        addBlurEffectToWindow()
+
         guard privacyProtectionWindow == nil else { return }
 
-        // Create a new window for the privacy screen
+        // Second layer: Create a new window for the privacy screen (app switcher protection)
         let privacyWindow = UIWindow(frame: UIScreen.main.bounds)
 
         // Create a simple view controller with app logo or branding
         let privacyVC = UIViewController()
         privacyVC.view.backgroundColor = .systemBackground
+
+        // Add blur effect to privacy window as well
+        let blurEffect = UIBlurEffect(style: .light)
+        let blurView = UIVisualEffectView(effect: blurEffect)
+        blurView.frame = privacyVC.view.bounds
+        blurView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        privacyVC.view.addSubview(blurView)
 
         // Add app logo or branding to center
         let imageView = UIImageView(image: UIImage(named: "AppIcon") ?? UIImage())
@@ -168,9 +182,30 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     /// Hides the privacy overlay screen when app becomes active
     private func hidePrivacyProtectionScreen() {
+        // Remove blur effect from main window
+        removeBlurEffectFromWindow()
+
         privacyProtectionWindow?.isHidden = true
         privacyProtectionWindow = nil
         window?.makeKeyAndVisible()
+    }
+
+    /// Adds blur effect overlay to main window for immediate screen obscuring
+    private func addBlurEffectToWindow() {
+        guard let mainWindow = window else { return }
+        guard mainWindow.viewWithTag(blurViewTag) == nil else { return }
+
+        let blurEffect = UIBlurEffect(style: .light)
+        let blurView = UIVisualEffectView(effect: blurEffect)
+        blurView.frame = mainWindow.frame
+        blurView.tag = blurViewTag
+        blurView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        mainWindow.addSubview(blurView)
+    }
+
+    /// Removes blur effect overlay from main window
+    private func removeBlurEffectFromWindow() {
+        window?.viewWithTag(blurViewTag)?.removeFromSuperview()
     }
 
 }

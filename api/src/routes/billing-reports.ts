@@ -3,6 +3,7 @@ import { AuthRequest, authenticateJWT } from '../middleware/auth'
 import { requirePermission } from '../middleware/permissions'
 import { billingReportsService } from '../services/billing-reports'
 import { logger } from '../utils/logger'
+import { getErrorMessage } from '../utils/error-handler'
 
 const router = express.Router()
 
@@ -35,7 +36,7 @@ router.get('/monthly/:period',
       })
     } catch (error: any) {
       logger.error('Failed to generate monthly billing report', {
-        error: error.message,
+        error: getErrorMessage(error),
         tenantId
       })
       res.status(500).json({ error: 'Failed to generate billing report' })
@@ -69,7 +70,7 @@ router.get('/payroll-export/:period',
       })
     } catch (error: any) {
       logger.error('Failed to generate payroll export', {
-        error: error.message,
+        error: getErrorMessage(error),
         tenantId
       })
       res.status(500).json({ error: 'Failed to generate payroll export' })
@@ -102,7 +103,7 @@ router.get('/payroll-csv/:period',
       res.send(csv)
     } catch (error: any) {
       logger.error('Failed to generate payroll CSV', {
-        error: error.message,
+        error: getErrorMessage(error),
         tenantId
       })
       res.status(500).json({ error: 'Failed to generate CSV export' })
@@ -142,7 +143,7 @@ router.post('/mark-billed/:period',
       })
     } catch (error: any) {
       logger.error('Failed to mark charges as billed', {
-        error: error.message,
+        error: getErrorMessage(error),
         tenantId
       })
       res.status(500).json({ error: 'Failed to update charge status' })

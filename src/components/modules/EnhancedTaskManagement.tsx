@@ -84,7 +84,7 @@ import {
   Calendar,
   List,
   Kanban as KanbanIcon,
-  GanttChart,
+  Gantt,
   Rows
 } from "@phosphor-icons/react"
 import { toast } from "sonner"
@@ -743,7 +743,7 @@ export function EnhancedTaskManagement() {
               size="sm"
               onClick={() => setViewMode('gantt')}
             >
-              <GanttChart className="w-4 h-4" />
+              <Gantt className="w-4 h-4" />
             </Button>
           </div>
 
