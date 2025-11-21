@@ -32,73 +32,73 @@ function DrilldownContent() {
   switch (currentLevel.type) {
     // Vehicle drilldown hierarchy
     case 'vehicle-detail':
-      return <VehicleDetailPanel vehicleId={currentLevel.data.vehicleId} />
+      return <VehicleDetailPanel vehicleId={currentLevel.data?.vehicleId} />
 
     case 'vehicle-trips':
       return (
         <VehicleTripsList
-          vehicleId={currentLevel.data.vehicleId}
-          vehicleName={currentLevel.data.vehicleName}
+          vehicleId={currentLevel.data?.vehicleId}
+          vehicleName={currentLevel.data?.vehicleName}
         />
       )
 
     case 'trip-telemetry':
       return (
         <TripTelemetryView
-          tripId={currentLevel.data.tripId}
-          trip={currentLevel.data.trip}
+          tripId={currentLevel.data?.tripId}
+          trip={currentLevel.data?.trip}
         />
       )
 
     // Driver drilldown hierarchy
     case 'driver-detail':
-      return <DriverDetailPanel driverId={currentLevel.data.driverId} />
+      return <DriverDetailPanel driverId={currentLevel.data?.driverId} />
 
     case 'driver-performance':
       return (
         <DriverPerformanceView
-          driverId={currentLevel.data.driverId}
-          driverName={currentLevel.data.driverName}
+          driverId={currentLevel.data?.driverId}
+          driverName={currentLevel.data?.driverName}
         />
       )
 
     case 'driver-trips':
       return (
         <DriverTripsView
-          driverId={currentLevel.data.driverId}
-          driverName={currentLevel.data.driverName}
+          driverId={currentLevel.data?.driverId}
+          driverName={currentLevel.data?.driverName}
         />
       )
 
     // Maintenance drilldown hierarchy
     case 'work-order-detail':
-      return <WorkOrderDetailPanel workOrderId={currentLevel.data.workOrderId} />
+      return <WorkOrderDetailPanel workOrderId={currentLevel.data?.workOrderId} />
 
     case 'work-order-parts':
       return (
         <PartsBreakdownView
-          workOrderId={currentLevel.data.workOrderId}
-          workOrderNumber={currentLevel.data.workOrderNumber}
+          workOrderId={currentLevel.data?.workOrderId}
+          workOrderNumber={currentLevel.data?.workOrderNumber}
         />
       )
 
     case 'work-order-labor':
       return (
         <LaborDetailsView
-          workOrderId={currentLevel.data.workOrderId}
-          workOrderNumber={currentLevel.data.workOrderNumber}
+          workOrderId={currentLevel.data?.workOrderId}
+          workOrderNumber={currentLevel.data?.workOrderNumber}
         />
       )
 
     // Facility drilldown hierarchy
     case 'facility-detail':
-      return <FacilityDetailPanel facilityId={currentLevel.data.facilityId} />
+      return <FacilityDetailPanel facilityId={currentLevel.data?.facilityId} />
 
     case 'facility-vehicles':
       return (
         <FacilityVehiclesView
-          facilityId={currentLevel.data.facilityId}
-          facilityName={currentLevel.data.facilityName}
+          facilityId={currentLevel.data?.facilityId}
+          facilityName={currentLevel.data?.facilityName}
         />
       )
 

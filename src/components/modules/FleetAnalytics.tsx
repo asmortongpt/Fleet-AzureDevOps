@@ -19,6 +19,7 @@ import { useState } from "react"
 import { useFleetData } from "@/hooks/use-fleet-data"
 
 interface FleetAnalyticsProps {
+  data?: any
   data: ReturnType<typeof useFleetData>
 }
 
