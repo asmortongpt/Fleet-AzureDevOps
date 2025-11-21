@@ -3,7 +3,7 @@
  * Handles Firebase Cloud Messaging (FCM) and Apple Push Notification Service (APNS)
  */
 
-import { db } from '../db';
+import { pool as db } from '../config/database';
 import admin from 'firebase-admin';
 import apn from 'apn';
 import { SqlParams } from '../types';
