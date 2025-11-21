@@ -1,0 +1,91 @@
+# Allow Database Ingress Network Policy
+# Restricts database access to only authorized pods (API)
+#
+# SECURITY NOTE: This policy is critical for database security
+# Only API pods can connect to the database, preventing:
+# - Direct database access from compromised frontend pods
+# - Lateral movement attacks from any other compromised pods
+# - Unauthorized data extraction
+
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-database-ingress
+  namespace: fleet-management
+  labels:
+    app: fleet
+    policy-type: ingress
+    target: database
+    security-level: critical
+  annotations:
+    description: "Restrict database access to API pods only"
+spec:
+  podSelector:
+    matchLabels:
+      app: postgres
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app: fleet-api
+      ports:
+        - port: 5432
+          protocol: TCP
+---
+# Also apply to ctafleet namespace
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-database-ingress
+  namespace: ctafleet
+  labels:
+    app: fleet
+    policy-type: ingress
+    target: database
+    security-level: critical
+  annotations:
+    description: "Restrict database access to API pods only"
+spec:
+  podSelector:
+    matchLabels:
+      component: postgres
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              component: api
+      ports:
+        - port: 5432
+          protocol: TCP
+---
+# Staging namespace
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-database-ingress
+  namespace: ctafleet-staging
+  labels:
+    app: fleet
+    policy-type: ingress
+    target: database
+    security-level: critical
+  annotations:
+    description: "Restrict database access to API pods only"
+spec:
+  podSelector:
+    matchLabels:
+      component: postgres
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              component: api
+      ports:
+        - port: 5432
+          protocol: TCP
