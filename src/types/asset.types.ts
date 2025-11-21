@@ -514,3 +514,68 @@ export function getAssetTypeLabel(assetType?: AssetType): string {
 export function getOperationalStatusLabel(status?: OperationalStatus): string {
   return status ? OPERATIONAL_STATUS_LABELS[status] : 'Unknown'
 }
+
+// ============================================================================
+// ADDITIONAL TYPES FOR COMPATIBILITY
+// ============================================================================
+
+/**
+ * Active asset combination (alias for AssetRelationship)
+ */
+export interface ActiveAssetCombination extends AssetRelationship {
+  parent_asset_name?: string
+  child_asset_name?: string
+}
+
+/**
+ * Relationship history entry
+ */
+export interface RelationshipHistoryEntry {
+  id: string
+  parent_asset_id: string
+  child_asset_id: string
+  relationship_type: RelationshipType
+  effective_from: string
+  effective_to?: string
+  notes?: string
+  created_at: string
+  created_by?: string
+  parent_asset_name?: string
+  child_asset_name?: string
+}
+
+/**
+ * Extended vehicle data with additional metrics
+ */
+export interface ExtendedVehicleData {
+  id: string
+  name: string
+  type: AssetType
+  status: OperationalStatus
+  location?: {
+    lat: number
+    lng: number
+    address?: string
+  }
+  driver?: string
+  mileage?: number
+  fuel_level?: number
+  last_service?: string
+  next_service?: string
+  // Extended fields
+  telemetry?: any
+  maintenance_history?: any[]
+  trip_history?: any[]
+}
+
+/**
+ * Primary metric types for filtering and display
+ */
+export type PrimaryMetric =
+  | 'mileage'
+  | 'fuel_consumed'
+  | 'engine_hours'
+  | 'pto_hours'
+  | 'idle_time'
+  | 'cost'
+  | 'efficiency'

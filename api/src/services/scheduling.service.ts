@@ -566,7 +566,7 @@ async function syncReservationToCalendars(
   try {
     // Get vehicle details
     const vehicle = await pool.query(
-      'SELECT * FROM vehicles WHERE id = $1',
+      'SELECT id, tenant_id, vin, license_plate, make, model, year, color, current_mileage, status, acquired_date, disposition_date, purchase_price, residual_value, created_at, updated_at, deleted_at FROM vehicles WHERE id = $1',
       [reservation.vehicle_id]
     )
 
@@ -747,6 +747,9 @@ export async function getUpcomingReservations(
   daysAhead: number = 7
 ): Promise<any[]> {
   try {
+    // Validate and sanitize daysAhead parameter
+    const daysAheadNum = Math.max(1, Math.min(365, daysAhead || 7))
+
     const result = await pool.query(
       `SELECT vr.*, v.make, v.model, v.license_plate, v.vin,
               u.first_name || ' ' || u.last_name as driver_name
@@ -758,9 +761,9 @@ export async function getUpcomingReservations(
          AND vr.reserved_by = $2
          AND vr.status NOT IN ('cancelled', 'completed')
          AND vr.start_time >= NOW()
-         AND vr.start_time <= NOW() + INTERVAL '${daysAhead} days'
+         AND vr.start_time <= NOW() + ($3 || ' days')::INTERVAL
        ORDER BY vr.start_time`,
-      [tenantId, userId]
+      [tenantId, userId, daysAheadNum]
     )
 
     return result.rows

@@ -1,0 +1,110 @@
+# API External Egress Network Policy
+# Allows API pods to reach external services (Mapbox, Microsoft Graph, Azure)
+#
+# SECURITY NOTE: This policy allows outbound HTTPS (443) to external IPs only
+# Internal cluster traffic (10.x, 172.16.x, 192.168.x) is explicitly blocked
+# to prevent lateral movement within the cluster
+
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: api-external-egress
+  namespace: fleet-management
+  labels:
+    app: fleet
+    policy-type: egress
+    target: external
+  annotations:
+    description: "Allow API pods to reach external services (Mapbox, Microsoft Graph, Azure)"
+    external-services: "Mapbox API, Microsoft Graph, Azure Services"
+spec:
+  podSelector:
+    matchLabels:
+      app: fleet-api
+  policyTypes:
+    - Egress
+  egress:
+    # Allow HTTPS to external IPs only (not internal cluster IPs)
+    - to:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+            except:
+              # Exclude private IP ranges to prevent lateral movement
+              - 10.0.0.0/8
+              - 172.16.0.0/12
+              - 192.168.0.0/16
+              # Exclude link-local addresses
+              - 169.254.0.0/16
+      ports:
+        - port: 443
+          protocol: TCP
+---
+# Also apply to ctafleet namespace
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: api-external-egress
+  namespace: ctafleet
+  labels:
+    app: fleet
+    policy-type: egress
+    target: external
+  annotations:
+    description: "Allow API pods to reach external services (Mapbox, Microsoft Graph, Azure)"
+    external-services: "Mapbox API, Microsoft Graph, Azure Services"
+spec:
+  podSelector:
+    matchLabels:
+      component: api
+  policyTypes:
+    - Egress
+  egress:
+    # Allow HTTPS to external IPs only (not internal cluster IPs)
+    - to:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+            except:
+              # Exclude private IP ranges to prevent lateral movement
+              - 10.0.0.0/8
+              - 172.16.0.0/12
+              - 192.168.0.0/16
+              # Exclude link-local addresses
+              - 169.254.0.0/16
+      ports:
+        - port: 443
+          protocol: TCP
+---
+# Staging namespace
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: api-external-egress
+  namespace: ctafleet-staging
+  labels:
+    app: fleet
+    policy-type: egress
+    target: external
+  annotations:
+    description: "Allow API pods to reach external services (Mapbox, Microsoft Graph, Azure)"
+    external-services: "Mapbox API, Microsoft Graph, Azure Services"
+spec:
+  podSelector:
+    matchLabels:
+      component: api
+  policyTypes:
+    - Egress
+  egress:
+    # Allow HTTPS to external IPs only (not internal cluster IPs)
+    - to:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+            except:
+              # Exclude private IP ranges to prevent lateral movement
+              - 10.0.0.0/8
+              - 172.16.0.0/12
+              - 192.168.0.0/16
+              # Exclude link-local addresses
+              - 169.254.0.0/16
+      ports:
+        - port: 443
+          protocol: TCP

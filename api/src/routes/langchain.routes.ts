@@ -11,6 +11,7 @@ import aiAgentSupervisorService from '../services/ai-agent-supervisor.service'
 import mcpServerRegistryService from '../services/mcp-server-registry.service'
 import { logger } from '../utils/logger'
 import { v4 as uuidv4 } from 'uuid'
+import { getErrorMessage } from '../utils/error-handler'
 
 const router = Router()
 
@@ -77,10 +78,10 @@ router.post('/execute', requirePermission('report:generate:global'), async (req:
       result
     })
   } catch (error: any) {
-    logger.error('Workflow execution failed', { error: error.message })
+    logger.error('Workflow execution failed', { error: getErrorMessage(error) })
     res.status(500).json({
       error: 'Failed to execute workflow',
-      details: error.message
+      details: getErrorMessage(error)
     })
   }
 })
@@ -160,10 +161,10 @@ router.post('/chat', requirePermission('report:view:global'), async (req: Reques
       ...response
     })
   } catch (error: any) {
-    logger.error('Chat processing failed', { error: error.message })
+    logger.error('Chat processing failed', { error: getErrorMessage(error) })
     res.status(500).json({
       error: 'Failed to process chat message',
-      details: error.message
+      details: getErrorMessage(error)
     })
   }
 })
@@ -201,10 +202,10 @@ router.post('/supervisor/query', requirePermission('report:view:global'), async 
       executionTimeMs: result.executionTimeMs
     })
   } catch (error: any) {
-    logger.error('Supervisor query failed', { error: error.message })
+    logger.error('Supervisor query failed', { error: getErrorMessage(error) })
     res.status(500).json({
       error: 'Failed to process supervisor query',
-      details: error.message
+      details: getErrorMessage(error)
     })
   }
 })
@@ -227,10 +228,10 @@ router.get('/agents', requirePermission('report:view:global'), async (req: Reque
       }))
     })
   } catch (error: any) {
-    logger.error('Failed to list agents', { error: error.message })
+    logger.error('Failed to list agents', { error: getErrorMessage(error) })
     res.status(500).json({
       error: 'Failed to list agents',
-      details: error.message
+      details: getErrorMessage(error)
     })
   }
 })
@@ -259,10 +260,10 @@ router.get('/agents/:agentId', requirePermission('report:view:global'), async (r
       }
     })
   } catch (error: any) {
-    logger.error('Failed to get agent', { error: error.message })
+    logger.error('Failed to get agent', { error: getErrorMessage(error) })
     res.status(500).json({
       error: 'Failed to get agent',
-      details: error.message
+      details: getErrorMessage(error)
     })
   }
 })
@@ -333,10 +334,10 @@ router.get('/workflows', requirePermission('report:view:global'), async (req: Re
       workflows
     })
   } catch (error: any) {
-    logger.error('Failed to list workflows', { error: error.message })
+    logger.error('Failed to list workflows', { error: getErrorMessage(error) })
     res.status(500).json({
       error: 'Failed to list workflows',
-      details: error.message
+      details: getErrorMessage(error)
     })
   }
 })
@@ -505,10 +506,10 @@ router.get('/workflows/:workflowId', requirePermission('report:view:global'), as
       workflow
     })
   } catch (error: any) {
-    logger.error('Failed to get workflow', { error: error.message })
+    logger.error('Failed to get workflow', { error: getErrorMessage(error) })
     res.status(500).json({
       error: 'Failed to get workflow',
-      details: error.message
+      details: getErrorMessage(error)
     })
   }
 })
@@ -526,10 +527,10 @@ router.get('/mcp/servers', requirePermission('report:view:global'), async (req: 
       servers: healthStatus
     })
   } catch (error: any) {
-    logger.error('Failed to list MCP servers', { error: error.message })
+    logger.error('Failed to list MCP servers', { error: getErrorMessage(error) })
     res.status(500).json({
       error: 'Failed to list MCP servers',
-      details: error.message
+      details: getErrorMessage(error)
     })
   }
 })
@@ -548,10 +549,10 @@ router.get('/mcp/tools', requirePermission('report:view:global'), async (req: Re
       tools
     })
   } catch (error: any) {
-    logger.error('Failed to list MCP tools', { error: error.message })
+    logger.error('Failed to list MCP tools', { error: getErrorMessage(error) })
     res.status(500).json({
       error: 'Failed to list MCP tools',
-      details: error.message
+      details: getErrorMessage(error)
     })
   }
 })
@@ -571,10 +572,10 @@ router.delete('/sessions/:sessionId', requirePermission('report:generate:global'
       message: 'Session cleared successfully'
     })
   } catch (error: any) {
-    logger.error('Failed to clear session', { error: error.message })
+    logger.error('Failed to clear session', { error: getErrorMessage(error) })
     res.status(500).json({
       error: 'Failed to clear session',
-      details: error.message
+      details: getErrorMessage(error)
     })
   }
 })
@@ -592,10 +593,10 @@ router.get('/sessions', requirePermission('report:view:global'), async (req: Req
       sessions
     })
   } catch (error: any) {
-    logger.error('Failed to list sessions', { error: error.message })
+    logger.error('Failed to list sessions', { error: getErrorMessage(error) })
     res.status(500).json({
       error: 'Failed to list sessions',
-      details: error.message
+      details: getErrorMessage(error)
     })
   }
 })

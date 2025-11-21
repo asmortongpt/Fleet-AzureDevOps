@@ -1,4 +1,5 @@
 import jwt from 'jsonwebtoken';
+import { vi } from 'vitest';
 
 export const createMockUser = (overrides = {}) => ({
   id: '1',
@@ -30,10 +31,10 @@ export const mockRequest = (overrides = {}) => ({
 
 export const mockResponse = () => {
   const res: any = {};
-  res.status = jest.fn().mockReturnValue(res);
-  res.json = jest.fn().mockReturnValue(res);
-  res.send = jest.fn().mockReturnValue(res);
+  res.status = vi.fn().mockReturnValue(res);
+  res.json = vi.fn().mockReturnValue(res);
+  res.send = vi.fn().mockReturnValue(res);
   return res;
 };
 
-export const mockNext = () => jest.fn();
+export const mockNext = () => vi.fn();

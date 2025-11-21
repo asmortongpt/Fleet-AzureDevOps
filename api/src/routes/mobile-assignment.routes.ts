@@ -17,6 +17,7 @@ import { z } from 'zod';
 import { authenticateJWT, AuthRequest } from '../middleware/auth';
 import { requirePermission } from '../middleware/permissions';
 import { AssignmentNotificationService } from '../services/assignment-notification.service';
+import { getErrorMessage } from '../utils/error-handler'
 
 const router = express.Router();
 
@@ -170,7 +171,7 @@ router.get(
       console.error('Error fetching mobile employee dashboard:', error);
       res.status(500).json({
         error: 'Failed to fetch employee dashboard',
-        details: error.message,
+        details: getErrorMessage(error),
       });
     }
   }
@@ -229,7 +230,7 @@ router.post(
       console.error('Error acknowledging on-call period:', error);
       res.status(500).json({
         error: 'Failed to acknowledge on-call period',
-        details: error.message,
+        details: getErrorMessage(error),
       });
     }
   }
@@ -323,7 +324,7 @@ router.post(
       }
       res.status(500).json({
         error: 'Failed to log callback trip',
-        details: error.message,
+        details: getErrorMessage(error),
       });
     }
   }
@@ -443,7 +444,7 @@ router.get(
       console.error('Error fetching manager mobile dashboard:', error);
       res.status(500).json({
         error: 'Failed to fetch manager dashboard',
-        details: error.message,
+        details: getErrorMessage(error),
       });
     }
   }
@@ -521,7 +522,7 @@ router.post(
       console.error('Error processing mobile approval:', error);
       res.status(500).json({
         error: 'Failed to process approval',
-        details: error.message,
+        details: getErrorMessage(error),
       });
     }
   }
@@ -590,7 +591,7 @@ router.get(
       console.error('Error fetching offline data:', error);
       res.status(500).json({
         error: 'Failed to fetch offline data',
-        details: error.message,
+        details: getErrorMessage(error),
       });
     }
   }
