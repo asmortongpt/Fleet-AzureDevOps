@@ -35,6 +35,8 @@ spec:
         runAsUser: 1001
         runAsGroup: 1001
         fsGroup: 1001
+        seccompProfile:
+          type: RuntimeDefault
       initContainers:
       # Wait for PostgreSQL to be ready
       - name: wait-for-postgres
@@ -70,12 +72,15 @@ spec:
         command: ['node', 'dist/scripts/run-migrations.js']
         securityContext:
           allowPrivilegeEscalation: false
-          readOnlyRootFilesystem: false
+          readOnlyRootFilesystem: true
           runAsNonRoot: true
           runAsUser: 1001
           capabilities:
             drop:
               - ALL
+        volumeMounts:
+        - name: tmp
+          mountPath: /tmp
         envFrom:
         - configMapRef:
             name: fleet-config
@@ -89,7 +94,7 @@ spec:
         imagePullPolicy: IfNotPresent
         securityContext:
           allowPrivilegeEscalation: false
-          readOnlyRootFilesystem: false
+          readOnlyRootFilesystem: true
           runAsNonRoot: true
           runAsUser: 1001
           capabilities:
