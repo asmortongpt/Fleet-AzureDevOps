@@ -12,6 +12,8 @@ spec:
         runAsNonRoot: true
         runAsUser: 1000
         fsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
       containers:
       - name: migration
         # SECURITY: Pinned to specific version with SHA256 digest to prevent supply chain attacks
@@ -22,7 +24,7 @@ spec:
         imagePullPolicy: IfNotPresent
         securityContext:
           allowPrivilegeEscalation: false
-          readOnlyRootFilesystem: false
+          readOnlyRootFilesystem: true
           runAsNonRoot: true
           runAsUser: 1000
           capabilities:
@@ -54,6 +56,9 @@ spec:
             secretKeyRef:
               name: fleet-api-secrets
               key: DB_PASSWORD
+        volumeMounts:
+        - name: tmp
+          mountPath: /tmp
         command:
         - /bin/sh
         - -c
@@ -111,3 +116,6 @@ spec:
           EOF
 
           echo "Migration completed successfully"
+      volumes:
+      - name: tmp
+        emptyDir: {}
