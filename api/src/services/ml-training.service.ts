@@ -174,11 +174,12 @@ class MLTrainingService {
   ): Promise<string> {
     logger.info('Creating A/B test', { tenantId, testName: config.test_name })
 
+    // SECURITY: Use parameterized interval to prevent SQL injection
     const result = await pool.query(
       `INSERT INTO model_ab_tests (
         tenant_id, test_name, model_a_id, model_b_id,
         traffic_split_percent, status, start_date, end_date, created_by
-      ) VALUES ($1, $2, $3, $4, $5, $6, NOW(), NOW() + INTERVAL '${config.duration_days} days', $7)
+      ) VALUES ($1, $2, $3, $4, $5, $6, NOW(), NOW() + ($8::integer * INTERVAL '1 day'), $7)
       RETURNING id`,
       [
         tenantId,
@@ -187,7 +188,8 @@ class MLTrainingService {
         config.model_b_id,
         config.traffic_split_percent,
         'running',
-        userId
+        userId,
+        config.duration_days
       ]
     )
 
