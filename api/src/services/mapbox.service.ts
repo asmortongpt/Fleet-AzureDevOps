@@ -6,7 +6,7 @@
  */
 
 import { safeGet, SSRFError, createSafeAxiosInstance } from '../utils/ssrf-protection'
-import { logger } from '../config/logger'
+import { logger } from '../utils/logger'
 
 const MAPBOX_API_KEY = process.env.MAPBOX_API_KEY || ''
 const MAPBOX_BASE_URL = 'https://api.mapbox.com'
