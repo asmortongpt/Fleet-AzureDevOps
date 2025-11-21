@@ -169,6 +169,9 @@ export async function checkDueSchedules(
   daysAhead: number = 1,
   includeOverdue: boolean = true
 ): Promise<DueSchedule[]> {
+  // Validate and sanitize daysAhead parameter
+  const daysAheadNum = Math.max(1, Math.min(365, daysAhead || 1))
+
   const query = `
     WITH latest_telemetry AS (
       SELECT DISTINCT ON (vehicle_id)
@@ -192,7 +195,7 @@ export async function checkDueSchedules(
       AND ms.is_recurring = true
       AND ms.auto_create_work_order = true
       AND (
-        ms.next_due <= NOW() + INTERVAL '${daysAhead} days'
+        ms.next_due <= NOW() + ($2 || ' days')::INTERVAL
         ${includeOverdue ? '' : 'AND ms.next_due >= NOW()'}
       )
       AND (
@@ -202,7 +205,7 @@ export async function checkDueSchedules(
     ORDER BY ms.next_due ASC
   `
 
-  const result = await pool.query(query, [tenantId])
+  const result = await pool.query(query, [tenantId, daysAheadNum])
 
   return result.rows.map((row) => ({
     schedule: row as MaintenanceSchedule,

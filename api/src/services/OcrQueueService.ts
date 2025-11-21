@@ -651,14 +651,17 @@ export class OcrQueueService {
    */
   async cleanupOldJobs(daysOld: number = 30): Promise<number> {
     try {
+      // Validate and sanitize daysOld parameter
+      const daysOldNum = Math.max(1, Math.min(365, daysOld || 30))
+
       const result = await pool.query(
         `DELETE FROM ocr_jobs
          WHERE status IN ($1, $2)
-         AND completed_at < NOW() - INTERVAL '${daysOld} days'`,
-        [OcrJobStatus.COMPLETED, OcrJobStatus.FAILED]
+         AND completed_at < NOW() - ($3 || ' days')::INTERVAL`,
+        [OcrJobStatus.COMPLETED, OcrJobStatus.FAILED, daysOldNum]
       );
 
-      console.log(`🗑️ Cleaned up ${result.rowCount} old OCR jobs`);
+      console.log(`Cleaned up ${result.rowCount} old OCR jobs`);
       return result.rowCount || 0;
     } catch (error) {
       console.error('Error cleaning up old jobs:', error);
