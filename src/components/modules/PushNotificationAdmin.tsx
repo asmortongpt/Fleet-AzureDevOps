@@ -389,7 +389,7 @@ const PushNotificationAdmin: React.FC = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-600">Total Sent</p>
-                  <p className="text-2xl font-bold text-gray-900">{statsQuery.data.totalSent}</p>
+                  <p className="text-2xl font-bold text-gray-900">{statsQuery.data?.totalSent}</p>
                 </div>
                 <Send className="text-blue-600" size={32} />
               </div>
@@ -398,7 +398,7 @@ const PushNotificationAdmin: React.FC = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-600">Delivery Rate</p>
-                  <p className="text-2xl font-bold text-green-600">{statsQuery.data.deliveryRate.toFixed(1)}%</p>
+                  <p className="text-2xl font-bold text-green-600">{statsQuery.data?.deliveryRate.toFixed(1)}%</p>
                 </div>
                 <CheckCircle className="text-green-600" size={32} />
               </div>
@@ -407,7 +407,7 @@ const PushNotificationAdmin: React.FC = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-600">Open Rate</p>
-                  <p className="text-2xl font-bold text-blue-600">{statsQuery.data.openRate.toFixed(1)}%</p>
+                  <p className="text-2xl font-bold text-blue-600">{statsQuery.data?.openRate.toFixed(1)}%</p>
                 </div>
                 <Eye className="text-blue-600" size={32} />
               </div>
@@ -416,7 +416,7 @@ const PushNotificationAdmin: React.FC = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-600">Click Rate</p>
-                  <p className="text-2xl font-bold text-purple-600">{statsQuery.data.clickRate.toFixed(1)}%</p>
+                  <p className="text-2xl font-bold text-purple-600">{statsQuery.data?.clickRate.toFixed(1)}%</p>
                 </div>
                 <TrendingUp className="text-purple-600" size={32} />
               </div>
@@ -772,24 +772,24 @@ const PushNotificationAdmin: React.FC = () => {
                           <div>
                             <div className="flex justify-between text-sm mb-1">
                               <span>Delivered</span>
-                              <span className="font-semibold">{statsQuery.data.delivered} / {statsQuery.data.totalSent}</span>
+                              <span className="font-semibold">{statsQuery.data?.delivered} / {statsQuery.data?.totalSent}</span>
                             </div>
                             <div className="w-full bg-gray-200 rounded-full h-2">
                               <div
                                 className="bg-green-600 h-2 rounded-full"
-                                style={{ width: `${statsQuery.data.deliveryRate}%` }}
+                                style={{ width: `${statsQuery.data?.deliveryRate}%` }}
                               />
                             </div>
                           </div>
                           <div>
                             <div className="flex justify-between text-sm mb-1">
                               <span>Failed</span>
-                              <span className="font-semibold">{statsQuery.data.failed}</span>
+                              <span className="font-semibold">{statsQuery.data?.failed}</span>
                             </div>
                             <div className="w-full bg-gray-200 rounded-full h-2">
                               <div
                                 className="bg-red-600 h-2 rounded-full"
-                                style={{ width: `${(statsQuery.data.failed / statsQuery.data.totalSent) * 100}%` }}
+                                style={{ width: `${(statsQuery.data?.failed / statsQuery.data?.totalSent) * 100}%` }}
                               />
                             </div>
                           </div>
@@ -802,24 +802,24 @@ const PushNotificationAdmin: React.FC = () => {
                           <div>
                             <div className="flex justify-between text-sm mb-1">
                               <span>Open Rate</span>
-                              <span className="font-semibold">{statsQuery.data.openRate.toFixed(1)}%</span>
+                              <span className="font-semibold">{statsQuery.data?.openRate.toFixed(1)}%</span>
                             </div>
                             <div className="w-full bg-gray-200 rounded-full h-2">
                               <div
                                 className="bg-blue-600 h-2 rounded-full"
-                                style={{ width: `${statsQuery.data.openRate}%` }}
+                                style={{ width: `${statsQuery.data?.openRate}%` }}
                               />
                             </div>
                           </div>
                           <div>
                             <div className="flex justify-between text-sm mb-1">
                               <span>Click Rate</span>
-                              <span className="font-semibold">{statsQuery.data.clickRate.toFixed(1)}%</span>
+                              <span className="font-semibold">{statsQuery.data?.clickRate.toFixed(1)}%</span>
                             </div>
                             <div className="w-full bg-gray-200 rounded-full h-2">
                               <div
                                 className="bg-purple-600 h-2 rounded-full"
-                                style={{ width: `${statsQuery.data.clickRate}%` }}
+                                style={{ width: `${statsQuery.data?.clickRate}%` }}
                               />
                             </div>
                           </div>
@@ -832,7 +832,7 @@ const PushNotificationAdmin: React.FC = () => {
                         <div className="flex items-center justify-between">
                           <div>
                             <p className="text-sm text-blue-800 font-medium">Total Notifications</p>
-                            <p className="text-3xl font-bold text-blue-900 mt-2">{statsQuery.data.totalSent}</p>
+                            <p className="text-3xl font-bold text-blue-900 mt-2">{statsQuery.data?.totalSent}</p>
                           </div>
                           <Bell className="text-blue-600" size={40} />
                         </div>
@@ -841,7 +841,7 @@ const PushNotificationAdmin: React.FC = () => {
                         <div className="flex items-center justify-between">
                           <div>
                             <p className="text-sm text-green-800 font-medium">Successfully Delivered</p>
-                            <p className="text-3xl font-bold text-green-900 mt-2">{statsQuery.data.delivered}</p>
+                            <p className="text-3xl font-bold text-green-900 mt-2">{statsQuery.data?.delivered}</p>
                           </div>
                           <CheckCircle className="text-green-600" size={40} />
                         </div>
@@ -850,7 +850,7 @@ const PushNotificationAdmin: React.FC = () => {
                         <div className="flex items-center justify-between">
                           <div>
                             <p className="text-sm text-purple-800 font-medium">User Interactions</p>
-                            <p className="text-3xl font-bold text-purple-900 mt-2">{statsQuery.data.clicked}</p>
+                            <p className="text-3xl font-bold text-purple-900 mt-2">{statsQuery.data?.clicked}</p>
                           </div>
                           <TrendingUp className="text-purple-600" size={40} />
                         </div>

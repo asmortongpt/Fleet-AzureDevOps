@@ -64,8 +64,8 @@
 - ✅ Views for common queries (v_active_vehicles, v_overdue_maintenance)
 
 **Seed Data**:
-- ✅ Default tenant created
-- ✅ Admin user created (admin@fleetmanagement.com / Admin123!)
+- Default tenant created
+- Admin user created (admin@fleetmanagement.com / YOUR_ADMIN_PASSWORD_HERE)
 
 ### 4. Azure Maps Integration ✅
 - ✅ Subscription key embedded in production bundle
@@ -542,7 +542,7 @@ kubectl set image deployment/fleet-app fleet-app=fleetappregistry.azurecr.io/fle
 ## 📝 Notes
 
 - **Database Password**: Stored in Kubernetes secret (not in .env)
-- **Admin Credentials**: admin@fleetmanagement.com / Admin123! (CHANGE IN PRODUCTION)
+- **Admin Credentials**: admin@fleetmanagement.com / YOUR_ADMIN_PASSWORD_HERE (CHANGE IN PRODUCTION)
 - **API Server**: Needs to be containerized and deployed to AKS
 - **Azure Maps Key**: Already embedded in production bundle
 - **All AI API Keys**: Available in .env, ready to integrate

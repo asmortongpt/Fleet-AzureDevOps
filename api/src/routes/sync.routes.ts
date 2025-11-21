@@ -19,6 +19,7 @@ import syncService from '../services/sync.service'
 import teamsSync from '../jobs/teams-sync.job'
 import outlookSync from '../jobs/outlook-sync.job'
 import { pool } from '../config/database'
+import { getErrorMessage } from '../utils/error-handler'
 
 const router = Router()
 
@@ -71,7 +72,7 @@ router.post('/teams/:teamId/channels/:channelId', async (req: Request, res: Resp
     res.status(500).json({
       success: false,
       error: 'Failed to sync Teams channel',
-      message: error.message
+      message: getErrorMessage(error)
     })
   }
 })
@@ -119,7 +120,7 @@ router.post('/outlook/folders/:folderId', async (req: Request, res: Response) =>
     res.status(500).json({
       success: false,
       error: 'Failed to sync Outlook folder',
-      message: error.message
+      message: getErrorMessage(error)
     })
   }
 })
@@ -152,7 +153,7 @@ router.get('/status', async (req: Request, res: Response) => {
     res.status(500).json({
       success: false,
       error: 'Failed to get sync status',
-      message: error.message
+      message: getErrorMessage(error)
     })
   }
 })
@@ -211,7 +212,7 @@ router.post('/full', async (req: Request, res: Response) => {
     res.status(500).json({
       success: false,
       error: 'Failed to perform full re-sync',
-      message: error.message
+      message: getErrorMessage(error)
     })
   }
 })
@@ -253,7 +254,7 @@ router.get('/errors', async (req: Request, res: Response) => {
     res.status(500).json({
       success: false,
       error: 'Failed to get sync errors',
-      message: error.message
+      message: getErrorMessage(error)
     })
   }
 })
@@ -300,7 +301,7 @@ router.get('/jobs', async (req: Request, res: Response) => {
     res.status(500).json({
       success: false,
       error: 'Failed to get sync jobs',
-      message: error.message
+      message: getErrorMessage(error)
     })
   }
 })
@@ -338,7 +339,7 @@ router.post('/teams/all', async (req: Request, res: Response) => {
     res.status(500).json({
       success: false,
       error: 'Failed to sync Teams channels',
-      message: error.message
+      message: getErrorMessage(error)
     })
   }
 })
@@ -376,7 +377,7 @@ router.post('/outlook/all', async (req: Request, res: Response) => {
     res.status(500).json({
       success: false,
       error: 'Failed to sync Outlook folders',
-      message: error.message
+      message: getErrorMessage(error)
     })
   }
 })
@@ -420,7 +421,7 @@ router.delete('/errors/:id', async (req: Request, res: Response) => {
     res.status(500).json({
       success: false,
       error: 'Failed to resolve error',
-      message: error.message
+      message: getErrorMessage(error)
     })
   }
 })
@@ -506,7 +507,7 @@ router.get('/health', async (req: Request, res: Response) => {
     res.status(500).json({
       success: false,
       error: 'Failed to get health status',
-      message: error.message
+      message: getErrorMessage(error)
     })
   }
 })

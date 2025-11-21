@@ -24,6 +24,23 @@ interface TableCount {
   count: number;
 }
 
+// Allowlist of valid table names to prevent SQL injection
+const ALLOWED_TABLES = [
+  'tenants',
+  'users',
+  'vehicles',
+  'fuel_transactions',
+  'work_orders',
+  'maintenance_records',
+  'routes'
+] as const;
+
+type AllowedTable = typeof ALLOWED_TABLES[number];
+
+function isAllowedTable(table: string): table is AllowedTable {
+  return ALLOWED_TABLES.includes(table as AllowedTable);
+}
+
 async function verifyData() {
   const client = await pool.connect();
 
@@ -34,7 +51,7 @@ async function verifyData() {
     // ========================================
     // 1. Count all records by table
     // ========================================
-    const tables = [
+    const tables: AllowedTable[] = [
       'tenants',
       'users',
       'vehicles',
@@ -46,6 +63,10 @@ async function verifyData() {
     const counts: Record<string, number> = {};
 
     for (const table of tables) {
+      // Table names are validated against allowlist, safe to use in query
+      if (!isAllowedTable(table)) {
+        throw new Error(`Invalid table name: ${table}`);
+      }
       const result = await client.query(`SELECT COUNT(*) as count FROM ${table}`);
       counts[table] = parseInt(result.rows[0].count);
     }

@@ -6,7 +6,14 @@
 import { google } from 'googleapis'
 import { OAuth2Client } from 'google-auth-library'
 import pool from '../config/database'
-import axios from 'axios'
+import { safePost } from '../utils/ssrf-protection'
+
+// Allowed domains for Google Calendar OAuth requests
+const GOOGLE_OAUTH_ALLOWED_DOMAINS = [
+  'oauth2.googleapis.com',
+  'accounts.google.com',
+  'www.googleapis.com',
+]
 
 // Google OAuth Configuration
 const GOOGLE_CONFIG = {
@@ -646,10 +653,10 @@ export async function revokeIntegration(userId: string, integrationId: string): 
 
     const integration = result.rows[0]
 
-    // Revoke token with Google
+    // Revoke token with Google (SSRF-protected)
     if (integration.access_token) {
       try {
-        await axios.post(
+        await safePost(
           'https://oauth2.googleapis.com/revoke',
           new URLSearchParams({
             token: integration.access_token
@@ -657,7 +664,8 @@ export async function revokeIntegration(userId: string, integrationId: string): 
           {
             headers: {
               'Content-Type': 'application/x-www-form-urlencoded'
-            }
+            },
+            allowedDomains: GOOGLE_OAUTH_ALLOWED_DOMAINS,
           }
         )
       } catch (error) {
