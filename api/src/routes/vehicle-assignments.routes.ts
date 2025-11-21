@@ -16,6 +16,7 @@ import { z } from 'zod';
 import { authenticateJWT, AuthRequest } from '../middleware/auth';
 import { requirePermission } from '../middleware/permissions';
 import { AssignmentNotificationService } from '../services/assignment-notification.service';
+import { getErrorMessage } from '../utils/error-handler'
 
 const router = express.Router();
 
@@ -185,7 +186,7 @@ router.get(
       console.error('Error fetching vehicle assignments:', error);
       res.status(500).json({
         error: 'Failed to fetch vehicle assignments',
-        details: error.message,
+        details: getErrorMessage(error),
       });
     }
   }
@@ -246,7 +247,7 @@ router.get(
       console.error('Error fetching vehicle assignment:', error);
       res.status(500).json({
         error: 'Failed to fetch vehicle assignment',
-        details: error.message,
+        details: getErrorMessage(error),
       });
     }
   }
@@ -348,7 +349,7 @@ router.post(
       }
       res.status(500).json({
         error: 'Failed to create vehicle assignment',
-        details: error.message,
+        details: getErrorMessage(error),
       });
     }
   }
@@ -415,7 +416,7 @@ router.put(
       }
       res.status(500).json({
         error: 'Failed to update vehicle assignment',
-        details: error.message,
+        details: getErrorMessage(error),
       });
     }
   }
@@ -464,7 +465,7 @@ router.post(
       }
       res.status(500).json({
         error: 'Failed to update lifecycle state',
-        details: error.message,
+        details: getErrorMessage(error),
       });
     }
   }
@@ -515,7 +516,7 @@ router.post(
       console.error('Error recommending assignment:', error);
       res.status(500).json({
         error: 'Failed to recommend assignment',
-        details: error.message,
+        details: getErrorMessage(error),
       });
     }
   }
@@ -599,7 +600,7 @@ router.post(
       }
       res.status(500).json({
         error: 'Failed to process approval',
-        details: error.message,
+        details: getErrorMessage(error),
       });
     }
   }
@@ -645,7 +646,7 @@ router.post(
       console.error('Error activating assignment:', error);
       res.status(500).json({
         error: 'Failed to activate assignment',
-        details: error.message,
+        details: getErrorMessage(error),
       });
     }
   }
@@ -699,7 +700,7 @@ router.post(
       console.error('Error terminating assignment:', error);
       res.status(500).json({
         error: 'Failed to terminate assignment',
-        details: error.message,
+        details: getErrorMessage(error),
       });
     }
   }
@@ -736,7 +737,7 @@ router.get(
       console.error('Error fetching assignment history:', error);
       res.status(500).json({
         error: 'Failed to fetch assignment history',
-        details: error.message,
+        details: getErrorMessage(error),
       });
     }
   }
@@ -778,7 +779,7 @@ router.delete(
       console.error('Error deleting vehicle assignment:', error);
       res.status(500).json({
         error: 'Failed to delete vehicle assignment',
-        details: error.message,
+        details: getErrorMessage(error),
       });
     }
   }

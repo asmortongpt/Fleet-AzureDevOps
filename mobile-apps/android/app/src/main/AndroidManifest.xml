@@ -2,6 +2,18 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <!-- Security: Custom permissions for content provider access control -->
+    <permission
+        android:name="com.fleet.READ_DATA"
+        android:protectionLevel="signature"
+        android:label="Read Fleet Data"
+        android:description="Allows reading fleet management data" />
+    <permission
+        android:name="com.fleet.WRITE_DATA"
+        android:protectionLevel="signature"
+        android:label="Write Fleet Data"
+        android:description="Allows writing fleet management data" />
+
     <!-- Permissions -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -56,6 +68,7 @@
             android:value="optional" />
 
         <!-- Firebase Cloud Messaging -->
+        <!-- Security: exported=false, has intent-filter for internal Firebase events only -->
         <service
             android:name=".services.FleetMessagingService"
             android:exported="false">
@@ -65,6 +78,7 @@
         </service>
 
         <!-- Main Activity -->
+        <!-- Security: exported=true is required for LAUNCHER, has intent-filter -->
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -77,12 +91,14 @@
         </activity>
 
         <!-- Camera Activity -->
+        <!-- Security: exported=false, internal component only -->
         <activity
             android:name=".ui.camera.CameraActivity"
             android:exported="false"
             android:screenOrientation="portrait" />
 
         <!-- AR Activity -->
+        <!-- Security: exported=false, internal component only -->
         <activity
             android:name=".ui.ar.ARScanActivity"
             android:exported="false"
@@ -90,15 +106,28 @@
             android:configChanges="orientation|screenSize" />
 
         <!-- Background Sync Worker -->
+        <!-- Security: exported=false with precise permissions for initialization provider -->
         <provider
             android:name="androidx.startup.InitializationProvider"
             android:authorities="${applicationId}.androidx-startup"
             android:exported="false"
+            android:readPermission="com.fleet.READ_DATA"
+            android:writePermission="com.fleet.WRITE_DATA"
             tools:node="merge">
             <meta-data
                 android:name="androidx.work.WorkManagerInitializer"
                 android:value="androidx.startup" />
         </provider>
+
+        <!-- Fleet Data Provider -->
+        <!-- Security: Not exported, with precise read/write permissions -->
+        <provider
+            android:name=".data.FleetDataProvider"
+            android:authorities="${applicationId}.fleetdata"
+            android:exported="false"
+            android:grantUriPermissions="true"
+            android:readPermission="com.fleet.READ_DATA"
+            android:writePermission="com.fleet.WRITE_DATA" />
 
     </application>
 

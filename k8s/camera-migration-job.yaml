@@ -12,17 +12,22 @@ spec:
         runAsNonRoot: true
         runAsUser: 1000
         fsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
       containers:
       - name: migration
         image: postgres:15-alpine
         securityContext:
           allowPrivilegeEscalation: false
-          readOnlyRootFilesystem: false
+          readOnlyRootFilesystem: true
           runAsNonRoot: true
           runAsUser: 1000
           capabilities:
             drop:
               - ALL
+        volumeMounts:
+        - name: tmp
+          mountPath: /tmp
         env:
         - name: PGHOST
           valueFrom:
@@ -185,3 +190,6 @@ spec:
           EOF
 
           echo "Camera system migration completed successfully"
+      volumes:
+      - name: tmp
+        emptyDir: {}

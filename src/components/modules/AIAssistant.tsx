@@ -111,7 +111,7 @@ const AIAssistant: React.FC = () => {
       const response = await axios.get('/api/langchain/agents', {
         headers: getAuthHeader()
       })
-      return response.data.agents
+      return response.data?.agents
     },
     staleTime: 5 * 60 * 1000 // 5 minutes
   })
@@ -123,7 +123,7 @@ const AIAssistant: React.FC = () => {
       const response = await axios.get('/api/langchain/workflows', {
         headers: getAuthHeader()
       })
-      return response.data.workflows
+      return response.data?.workflows
     },
     staleTime: 5 * 60 * 1000
   })
@@ -135,7 +135,7 @@ const AIAssistant: React.FC = () => {
       const response = await axios.get('/api/langchain/mcp/servers', {
         headers: getAuthHeader()
       })
-      return response.data.servers
+      return response.data?.servers
     },
     staleTime: 5 * 60 * 1000
   })
@@ -207,11 +207,11 @@ You can chat with me naturally, or run structured workflows for complex tasks. H
       const assistantMessage: Message = {
         id: `msg-${Date.now()}-ai`,
         role: 'assistant',
-        content: response.data.message,
+        content: response.data?.message,
         timestamp: new Date(),
-        agentsUsed: response.data.agentsUsed,
-        tokensUsed: response.data.tokensUsed,
-        executionTimeMs: response.data.executionTimeMs
+        agentsUsed: response.data?.agentsUsed,
+        tokensUsed: response.data?.tokensUsed,
+        executionTimeMs: response.data?.executionTimeMs
       }
 
       setMessages(prev => [...prev, assistantMessage])
@@ -298,7 +298,7 @@ You can chat with me naturally, or run structured workflows for complex tasks. H
         }
       )
 
-      const result = response.data.result
+      const result = response.data?.result
 
       setWorkflowExecution({
         workflowId: selectedWorkflow.id,

@@ -3,6 +3,7 @@ import pool from '../config/database'
 import { createAuditLog } from '../middleware/audit'
 import { AuthRequest, authenticateJWT } from '../middleware/auth'
 import { requirePermission } from '../middleware/permissions'
+import { getErrorMessage } from '../utils/error-handler'
 
 const router = express.Router()
 router.use(authenticateJWT)
@@ -61,7 +62,7 @@ router.get('/',
     })
   } catch (error: any) {
     console.error('Error fetching quality gates:', error)
-    res.status(500).json({ error: 'Failed to fetch quality gates', message: error.message })
+    res.status(500).json({ error: 'Failed to fetch quality gates', message: getErrorMessage(error) })
   }
 })
 
@@ -154,7 +155,7 @@ router.post('/',
     res.status(201).json(result.rows[0])
   } catch (error: any) {
     console.error('Error creating quality gate:', error)
-    res.status(500).json({ error: 'Failed to create quality gate', message: error.message })
+    res.status(500).json({ error: 'Failed to create quality gate', message: getErrorMessage(error) })
   }
 })
 
@@ -168,6 +169,9 @@ router.get('/summary',
   try {
     const { days = 7 } = req.query
 
+    // Validate and sanitize days parameter
+    const daysNum = Math.max(1, Math.min(365, parseInt(days as string) || 7))
+
     const result = await pool.query(
       `SELECT
         gate_type,
@@ -178,10 +182,10 @@ router.get('/summary',
         ROUND(AVG(execution_time_seconds), 2) as avg_execution_time,
         MAX(executed_at) as last_run
       FROM quality_gates
-      WHERE executed_at >= NOW() - INTERVAL '${parseInt(days as string)} days'
+      WHERE executed_at >= NOW() - ($1 || ' days')::INTERVAL
       GROUP BY gate_type
       ORDER BY gate_type`,
-      []
+      [daysNum]
     )
 
     res.json({
@@ -190,7 +194,7 @@ router.get('/summary',
     })
   } catch (error: any) {
     console.error('Error fetching quality gate summary:', error)
-    res.status(500).json({ error: 'Failed to fetch summary', message: error.message })
+    res.status(500).json({ error: 'Failed to fetch summary', message: getErrorMessage(error) })
   }
 })
 
@@ -219,7 +223,7 @@ router.get('/latest/:gate_type',
     res.json(result.rows[0])
   } catch (error: any) {
     console.error('Error fetching latest quality gate:', error)
-    res.status(500).json({ error: 'Failed to fetch quality gate', message: error.message })
+    res.status(500).json({ error: 'Failed to fetch quality gate', message: getErrorMessage(error) })
   }
 })
 

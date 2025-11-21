@@ -1,0 +1,202 @@
+# Gitleaks Configuration for Fleet API
+# Prevents accidental commits of secrets and sensitive data
+# Install: brew install gitleaks (macOS) or see https://github.com/gitleaks/gitleaks
+
+title = "Fleet API Secret Scanning Configuration"
+
+# ============================================================================
+# Azure AD / Microsoft Credentials
+# ============================================================================
+
+[[rules]]
+id = "azure-ad-client-secret"
+description = "Azure AD Client Secret"
+regex = '''(?i)(AZURE_AD_CLIENT_SECRET|MICROSOFT_GRAPH_CLIENT_SECRET)\s*[:=]\s*['"]?([a-zA-Z0-9~_.-]{32,44})['"]?'''
+tags = ["azure", "secret", "critical"]
+
+[[rules]]
+id = "azure-ad-client-id"
+description = "Azure AD Client ID (GUID)"
+regex = '''(?i)(AZURE_AD_CLIENT_ID|MICROSOFT_GRAPH_CLIENT_ID)\s*[:=]\s*['"]?([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})['"]?'''
+tags = ["azure", "client-id", "high"]
+
+[[rules]]
+id = "azure-tenant-id"
+description = "Azure AD Tenant ID (GUID)"
+regex = '''(?i)(AZURE_AD_TENANT_ID|MICROSOFT_GRAPH_TENANT_ID|TENANT_ID)\s*[:=]\s*['"]?([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})['"]?'''
+tags = ["azure", "tenant-id", "medium"]
+
+# ============================================================================
+# Cryptographic Secrets
+# ============================================================================
+
+[[rules]]
+id = "jwt-secret"
+description = "JWT Secret"
+regex = '''(?i)JWT_SECRET\s*[:=]\s*['"]?([a-zA-Z0-9+/=]{40,})['"]?'''
+tags = ["jwt", "secret", "critical"]
+
+[[rules]]
+id = "csrf-secret"
+description = "CSRF Secret"
+regex = '''(?i)CSRF_SECRET\s*[:=]\s*['"]?([a-zA-Z0-9+/=]{40,})['"]?'''
+tags = ["csrf", "secret", "critical"]
+
+[[rules]]
+id = "session-secret"
+description = "Session Secret"
+regex = '''(?i)SESSION_SECRET\s*[:=]\s*['"]?([a-zA-Z0-9+/=]{40,})['"]?'''
+tags = ["session", "secret", "critical"]
+
+# ============================================================================
+# Database Credentials
+# ============================================================================
+
+[[rules]]
+id = "database-password"
+description = "Database Password in Connection String"
+regex = '''postgresql://[^:]+:([^@\s]+)@'''
+tags = ["database", "password", "critical"]
+
+[[rules]]
+id = "db-password-env"
+description = "Database Password Environment Variable"
+regex = '''(?i)DB_PASSWORD\s*[:=]\s*['"]?([a-zA-Z0-9!@#$%^&*()_+\-=]{8,})['"]?'''
+tags = ["database", "password", "critical"]
+
+# ============================================================================
+# API Keys and Tokens
+# ============================================================================
+
+[[rules]]
+id = "api-key-generic"
+description = "Generic API Key"
+regex = '''(?i)(api[_-]?key|apikey)\s*[:=]\s*['"]?([a-zA-Z0-9]{32,})['"]?'''
+tags = ["api", "key", "high"]
+
+[[rules]]
+id = "bearer-token"
+description = "Bearer Token"
+regex = '''(?i)bearer\s+([a-zA-Z0-9\-._~+/]+=*)'''
+tags = ["token", "bearer", "high"]
+
+[[rules]]
+id = "authorization-header"
+description = "Authorization Header with Token"
+regex = '''(?i)authorization\s*[:=]\s*['"]?bearer\s+([a-zA-Z0-9\-._~+/]+=*)['"]?'''
+tags = ["authorization", "token", "high"]
+
+# ============================================================================
+# Private Keys and Certificates
+# ============================================================================
+
+[[rules]]
+id = "rsa-private-key"
+description = "RSA Private Key"
+regex = '''-----BEGIN RSA PRIVATE KEY-----'''
+tags = ["private-key", "rsa", "critical"]
+
+[[rules]]
+id = "private-key-generic"
+description = "Generic Private Key"
+regex = '''-----BEGIN PRIVATE KEY-----'''
+tags = ["private-key", "critical"]
+
+[[rules]]
+id = "certificate"
+description = "X.509 Certificate"
+regex = '''-----BEGIN CERTIFICATE-----'''
+tags = ["certificate", "medium"]
+
+# ============================================================================
+# AWS Credentials (if used)
+# ============================================================================
+
+[[rules]]
+id = "aws-access-key"
+description = "AWS Access Key ID"
+regex = '''(?i)(A3T[A-Z0-9]|AKIA|AGPA|AIDA|AROA|AIPA|ANPA|ANVA|ASIA)[A-Z0-9]{16}'''
+tags = ["aws", "access-key", "critical"]
+
+[[rules]]
+id = "aws-secret-key"
+description = "AWS Secret Access Key"
+regex = '''(?i)aws_secret_access_key\s*[:=]\s*['"]?([a-zA-Z0-9/+=]{40})['"]?'''
+tags = ["aws", "secret-key", "critical"]
+
+# ============================================================================
+# Hardcoded Passwords
+# ============================================================================
+
+[[rules]]
+id = "hardcoded-password"
+description = "Hardcoded Password"
+regex = '''(?i)(password|passwd|pwd)\s*[:=]\s*['"]([^'"]{8,})['"]'''
+tags = ["password", "hardcoded", "high"]
+
+# ============================================================================
+# Allowlist - Files/Paths That Are Safe to Ignore
+# ============================================================================
+
+[allowlist]
+description = "Files and patterns that are safe to commit"
+paths = [
+    # Template and example files (placeholders only)
+    ".env.example",
+    ".env.test.example",
+    "**/*.example",
+
+    # Documentation files
+    "README.md",
+    "SECURITY_AUDIT_SECRET_ROTATION_REPORT.md",
+    "docs/",
+
+    # Test fixtures with fake data
+    "tests/fixtures/",
+    "__tests__/",
+
+    # Configuration files (no secrets)
+    ".gitleaks.toml",
+    ".gitignore",
+    "package.json",
+    "tsconfig.json",
+
+    # Build output (already in .gitignore)
+    "dist/",
+    "build/",
+    "node_modules/"
+]
+
+# Regular expressions for safe patterns
+regexes = [
+    # Placeholder values
+    '''YOUR_[A-Z_]+_HERE''',
+    '''<[A-Z_]+>''',
+    '''PLACEHOLDER''',
+    '''EXAMPLE''',
+    '''test-[a-z-]+-placeholder''',
+
+    # Environment variable references (not actual values)
+    '''\$\{[A-Z_]+(:?[^\}]*)\}''',
+    '''process\.env\.[A-Z_]+'''
+]
+
+# Stop words that indicate placeholder/example content
+stopwords = [
+    "placeholder",
+    "example",
+    "test",
+    "demo",
+    "sample",
+    "your_",
+    "insert_",
+    "replace_"
+]
+
+# ============================================================================
+# Detection Settings
+# ============================================================================
+
+[extend]
+# Use default gitleaks rules in addition to custom ones
+useDefault = true
