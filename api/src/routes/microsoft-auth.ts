@@ -3,6 +3,7 @@ import axios from 'axios'
 import jwt from 'jsonwebtoken'
 import pool from '../config/database'
 import { createAuditLog } from '../middleware/audit'
+import { getValidatedFrontendUrl, buildSafeRedirectUrl } from '../utils/redirect-validator'
 
 const router = express.Router()
 
@@ -24,7 +25,11 @@ router.get('/microsoft/callback', async (req: Request, res: Response) => {
     const { code, state } = req.query
 
     if (!code || typeof code !== 'string') {
-      return res.redirect(`/login?error=auth_failed&message=${encodeURIComponent('No authorization code received')}`)
+      const safeErrorUrl = buildSafeRedirectUrl('/login', {
+        error: 'auth_failed',
+        message: 'No authorization code received'
+      })
+      return res.redirect(safeErrorUrl)
     }
 
     // Exchange authorization code for access token
@@ -162,12 +167,20 @@ router.get('/microsoft/callback', async (req: Request, res: Response) => {
     // JWT_SECRET must be set and must be at least 32 characters
     if (!process.env.JWT_SECRET) {
       console.error('FATAL: JWT_SECRET environment variable is not set')
-      return res.redirect(`/login?error=config_error&message=${encodeURIComponent('Server authentication configuration error')}`)
+      const safeErrorUrl = buildSafeRedirectUrl('/login', {
+        error: 'config_error',
+        message: 'Server authentication configuration error'
+      })
+      return res.redirect(safeErrorUrl)
     }
 
     if (process.env.JWT_SECRET.length < 32) {
       console.error('FATAL: JWT_SECRET must be at least 32 characters')
-      return res.redirect(`/login?error=config_error&message=${encodeURIComponent('Server authentication configuration error')}`)
+      const safeErrorUrl = buildSafeRedirectUrl('/login', {
+        error: 'config_error',
+        message: 'Server authentication configuration error'
+      })
+      return res.redirect(safeErrorUrl)
     }
 
     const token = jwt.sign(
@@ -201,15 +214,25 @@ router.get('/microsoft/callback', async (req: Request, res: Response) => {
       path: '/'           // Available throughout the application
     })
 
-    // Redirect to frontend callback WITHOUT token in URL
-    const frontendUrl = process.env.FRONTEND_URL || 'http://68.220.148.2'
-    res.redirect(`${frontendUrl}/auth/callback`)
+    // SECURITY FIX (CWE-601): Validate frontend URL before redirect
+    try {
+      const frontendUrl = getValidatedFrontendUrl()
+      const safeCallbackUrl = buildSafeRedirectUrl(`${frontendUrl}/auth/callback`)
+      res.redirect(safeCallbackUrl)
+    } catch (error: any) {
+      console.error('Frontend URL validation failed:', error.message)
+      res.redirect('/login?error=config_error&message=Invalid+frontend+configuration')
+    }
 
   } catch (error: any) {
     console.error('Microsoft OAuth error:', error.response?.data || error.message)
 
     const errorMessage = error.response?.data?.error_description || error.message || 'Authentication failed'
-    res.redirect(`/login?error=auth_failed&message=${encodeURIComponent(errorMessage)}`)
+    const safeErrorUrl = buildSafeRedirectUrl('/login', {
+      error: 'auth_failed',
+      message: errorMessage
+    })
+    res.redirect(safeErrorUrl)
   }
 })
 
@@ -231,7 +254,11 @@ router.get('/microsoft', async (req: Request, res: Response) => {
         `SELECT id FROM tenants ORDER BY created_at LIMIT 1`
       )
       if (!defaultTenantResult.rows[0]?.id) {
-        return res.redirect(`/login?error=config_error&message=${encodeURIComponent('No tenants configured in system')}`)
+        const safeErrorUrl = buildSafeRedirectUrl('/login', {
+          error: 'config_error',
+          message: 'No tenants configured in system'
+        })
+        return res.redirect(safeErrorUrl)
       }
       state = defaultTenantResult.rows[0].id
     }
@@ -248,7 +275,11 @@ router.get('/microsoft', async (req: Request, res: Response) => {
     res.redirect(authUrl)
   } catch (error: any) {
     console.error('Error initiating Microsoft OAuth:', error.message)
-    res.redirect(`/login?error=auth_failed&message=${encodeURIComponent('Failed to initiate authentication')}`)
+    const safeErrorUrl = buildSafeRedirectUrl('/login', {
+      error: 'auth_failed',
+      message: 'Failed to initiate authentication'
+    })
+    res.redirect(safeErrorUrl)
   }
 })
 
@@ -270,7 +301,11 @@ router.get('/microsoft/login', async (req: Request, res: Response) => {
         `SELECT id FROM tenants ORDER BY created_at LIMIT 1`
       )
       if (!defaultTenantResult.rows[0]?.id) {
-        return res.redirect(`/login?error=config_error&message=${encodeURIComponent('No tenants configured in system')}`)
+        const safeErrorUrl = buildSafeRedirectUrl('/login', {
+          error: 'config_error',
+          message: 'No tenants configured in system'
+        })
+        return res.redirect(safeErrorUrl)
       }
       state = defaultTenantResult.rows[0].id
     }
@@ -287,7 +322,11 @@ router.get('/microsoft/login', async (req: Request, res: Response) => {
     res.redirect(authUrl)
   } catch (error: any) {
     console.error('Error initiating Microsoft OAuth:', error.message)
-    res.redirect(`/login?error=auth_failed&message=${encodeURIComponent('Failed to initiate authentication')}`)
+    const safeErrorUrl = buildSafeRedirectUrl('/login', {
+      error: 'auth_failed',
+      message: 'Failed to initiate authentication'
+    })
+    res.redirect(safeErrorUrl)
   }
 })
 
