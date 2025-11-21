@@ -17,6 +17,7 @@ import vectorSearchService from '../services/VectorSearchService'
 import embeddingService from '../services/EmbeddingService'
 import documentAiService from '../services/DocumentAiService'
 import pool from '../config/database'
+import { getErrorMessage } from '../utils/error-handler'
 
 const router = express.Router()
 router.use(authenticateJWT)
@@ -109,7 +110,7 @@ router.post(
         return res.status(400).json({ error: 'Validation error', details: error.errors })
       }
       console.error('Semantic search error:', error)
-      res.status(500).json({ error: 'Search failed', message: error.message })
+      res.status(500).json({ error: 'Search failed', message: getErrorMessage(error) })
     }
   }
 )
@@ -188,7 +189,7 @@ router.post(
         return res.status(400).json({ error: 'Validation error', details: error.errors })
       }
       console.error('Hybrid search error:', error)
-      res.status(500).json({ error: 'Search failed', message: error.message })
+      res.status(500).json({ error: 'Search failed', message: getErrorMessage(error) })
     }
   }
 )
@@ -250,7 +251,7 @@ router.post(
         return res.status(400).json({ error: 'Validation error', details: error.errors })
       }
       console.error('Document Q&A error:', error)
-      res.status(500).json({ error: 'Q&A failed', message: error.message })
+      res.status(500).json({ error: 'Q&A failed', message: getErrorMessage(error) })
     }
   }
 )
@@ -312,7 +313,7 @@ router.post(
         return res.status(400).json({ error: 'Validation error', details: error.errors })
       }
       console.error('Query expansion error:', error)
-      res.status(500).json({ error: 'Expansion failed', message: error.message })
+      res.status(500).json({ error: 'Expansion failed', message: getErrorMessage(error) })
     }
   }
 )
@@ -396,7 +397,7 @@ router.post(
         return res.status(400).json({ error: 'Validation error', details: error.errors })
       }
       console.error('Document indexing error:', error)
-      res.status(500).json({ error: 'Indexing failed', message: error.message })
+      res.status(500).json({ error: 'Indexing failed', message: getErrorMessage(error) })
     }
   }
 )
@@ -484,7 +485,7 @@ router.post(
         return res.status(400).json({ error: 'Validation error', details: error.errors })
       }
       console.error('Batch indexing error:', error)
-      res.status(500).json({ error: 'Batch indexing failed', message: error.message })
+      res.status(500).json({ error: 'Batch indexing failed', message: getErrorMessage(error) })
     }
   }
 )
@@ -553,7 +554,7 @@ router.get(
       })
     } catch (error: any) {
       console.error('Analytics error:', error)
-      res.status(500).json({ error: 'Failed to get analytics', message: error.message })
+      res.status(500).json({ error: 'Failed to get analytics', message: getErrorMessage(error) })
     }
   }
 )
@@ -609,7 +610,7 @@ router.post(
         return res.status(400).json({ error: 'Validation error', details: error.errors })
       }
       console.error('Feedback error:', error)
-      res.status(500).json({ error: 'Failed to record feedback', message: error.message })
+      res.status(500).json({ error: 'Failed to record feedback', message: getErrorMessage(error) })
     }
   }
 )

@@ -1,5 +1,6 @@
 import express, { Request, Response } from 'express'
 import { authenticateJWT } from '../middleware/auth'
+import { getErrorMessage } from '../utils/error-handler'
 import {
   createEvent,
   getEvents,
@@ -58,8 +59,8 @@ router.post('/events', authenticateJWT, async (req: Request, res: Response) => {
       event
     })
   } catch (error: any) {
-    console.error('Error creating calendar event:', error.message)
-    res.status(500).json({ error: error.message })
+    console.error('Error creating calendar event:', getErrorMessage(error))
+    res.status(500).json({ error: getErrorMessage(error) })
   }
 })
 
@@ -86,8 +87,8 @@ router.get('/events', authenticateJWT, async (req: Request, res: Response) => {
       events
     })
   } catch (error: any) {
-    console.error('Error fetching calendar events:', error.message)
-    res.status(500).json({ error: error.message })
+    console.error('Error fetching calendar events:', getErrorMessage(error))
+    res.status(500).json({ error: getErrorMessage(error) })
   }
 })
 
@@ -111,8 +112,8 @@ router.get('/events/:eventId', authenticateJWT, async (req: Request, res: Respon
       event
     })
   } catch (error: any) {
-    console.error('Error fetching calendar event:', error.message)
-    res.status(500).json({ error: error.message })
+    console.error('Error fetching calendar event:', getErrorMessage(error))
+    res.status(500).json({ error: getErrorMessage(error) })
   }
 })
 
@@ -145,8 +146,8 @@ router.patch('/events/:eventId', authenticateJWT, async (req: Request, res: Resp
       event
     })
   } catch (error: any) {
-    console.error('Error updating calendar event:', error.message)
-    res.status(500).json({ error: error.message })
+    console.error('Error updating calendar event:', getErrorMessage(error))
+    res.status(500).json({ error: getErrorMessage(error) })
   }
 })
 
@@ -170,8 +171,8 @@ router.delete('/events/:eventId', authenticateJWT, async (req: Request, res: Res
       message: 'Calendar event deleted'
     })
   } catch (error: any) {
-    console.error('Error deleting calendar event:', error.message)
-    res.status(500).json({ error: error.message })
+    console.error('Error deleting calendar event:', getErrorMessage(error))
+    res.status(500).json({ error: getErrorMessage(error) })
   }
 })
 
@@ -195,8 +196,8 @@ router.post('/events/:eventId/accept', authenticateJWT, async (req: Request, res
       message: 'Meeting accepted'
     })
   } catch (error: any) {
-    console.error('Error accepting meeting:', error.message)
-    res.status(500).json({ error: error.message })
+    console.error('Error accepting meeting:', getErrorMessage(error))
+    res.status(500).json({ error: getErrorMessage(error) })
   }
 })
 
@@ -220,8 +221,8 @@ router.post('/events/:eventId/decline', authenticateJWT, async (req: Request, re
       message: 'Meeting declined'
     })
   } catch (error: any) {
-    console.error('Error declining meeting:', error.message)
-    res.status(500).json({ error: error.message })
+    console.error('Error declining meeting:', getErrorMessage(error))
+    res.status(500).json({ error: getErrorMessage(error) })
   }
 })
 
@@ -245,8 +246,8 @@ router.post('/events/:eventId/tentative', authenticateJWT, async (req: Request, 
       message: 'Meeting tentatively accepted'
     })
   } catch (error: any) {
-    console.error('Error tentatively accepting meeting:', error.message)
-    res.status(500).json({ error: error.message })
+    console.error('Error tentatively accepting meeting:', getErrorMessage(error))
+    res.status(500).json({ error: getErrorMessage(error) })
   }
 })
 
@@ -289,8 +290,8 @@ router.post('/find-times', authenticateJWT, async (req: Request, res: Response) 
       suggestions
     })
   } catch (error: any) {
-    console.error('Error finding meeting times:', error.message)
-    res.status(500).json({ error: error.message })
+    console.error('Error finding meeting times:', getErrorMessage(error))
+    res.status(500).json({ error: getErrorMessage(error) })
   }
 })
 
@@ -320,8 +321,8 @@ router.get('/availability', authenticateJWT, async (req: Request, res: Response)
       availability
     })
   } catch (error: any) {
-    console.error('Error getting availability:', error.message)
-    res.status(500).json({ error: error.message })
+    console.error('Error getting availability:', getErrorMessage(error))
+    res.status(500).json({ error: getErrorMessage(error) })
   }
 })
 
@@ -354,8 +355,8 @@ router.post('/schedule-maintenance', authenticateJWT, async (req: Request, res: 
       event
     })
   } catch (error: any) {
-    console.error('Error scheduling maintenance:', error.message)
-    res.status(500).json({ error: error.message })
+    console.error('Error scheduling maintenance:', getErrorMessage(error))
+    res.status(500).json({ error: getErrorMessage(error) })
   }
 })
 
@@ -389,8 +390,8 @@ router.post('/schedule-training', authenticateJWT, async (req: Request, res: Res
       event
     })
   } catch (error: any) {
-    console.error('Error scheduling training:', error.message)
-    res.status(500).json({ error: error.message })
+    console.error('Error scheduling training:', getErrorMessage(error))
+    res.status(500).json({ error: getErrorMessage(error) })
   }
 })
 
