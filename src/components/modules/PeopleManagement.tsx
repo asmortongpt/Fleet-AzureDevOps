@@ -18,6 +18,7 @@ import { useState } from "react"
 import { useFleetData } from "@/hooks/use-fleet-data"
 
 interface PeopleManagementProps {
+  data?: any
   data: ReturnType<typeof useFleetData>
 }
 
