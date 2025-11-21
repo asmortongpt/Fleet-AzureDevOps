@@ -185,7 +185,7 @@ router.get(
 
       // Get attachment metadata from database
       const result = await pool.query(
-        `SELECT * FROM communication_attachments WHERE id = $1`,
+        `SELECT id, tenant_id, communication_id, file_name, file_url, created_at FROM communication_attachments WHERE id = $1`,
         [blobId]
       )
 

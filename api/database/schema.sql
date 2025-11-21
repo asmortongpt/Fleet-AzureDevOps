@@ -790,14 +790,15 @@ VALUES (
     true
 ) ON CONFLICT DO NOTHING;
 
--- Insert admin user (password: Admin123! - CHANGE THIS IN PRODUCTION)
+-- Insert admin user (password: YOUR_ADMIN_PASSWORD_HERE - CHANGE THIS IN PRODUCTION)
 -- Password hash generated with bcrypt, rounds=10
+-- SECURITY: Generate your own password hash using: echo "password" | htpasswd -bnBC 10 "" | tr -d ':\n'
 INSERT INTO users (id, tenant_id, email, password_hash, first_name, last_name, role, is_active)
 VALUES (
     '00000000-0000-0000-0000-000000000002'::UUID,
     '00000000-0000-0000-0000-000000000001'::UUID,
     'admin@fleetmanagement.com',
-    '$2b$10$rSyN0kzQvb9VqP1Ue3jV8.xQZYv4YvWxqJLjBzH6P8RqK2JZyK1Oa', -- Admin123!
+    '$2b$10$REPLACE_WITH_YOUR_BCRYPT_HASH_HERE', -- YOUR_ADMIN_PASSWORD_HERE (generate with bcrypt)
     'System',
     'Administrator',
     'admin',

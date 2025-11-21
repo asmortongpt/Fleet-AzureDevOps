@@ -345,9 +345,9 @@ export function DocumentScanner({
                           {analysis.suggestedMatches.driver && (
                             <div className="flex items-center gap-2">
                               <Badge variant="outline">Driver</Badge>
-                              <span className="text-sm">{analysis.suggestedMatches.driver.name}</span>
+                              <span className="text-sm">{analysis.suggestedMatches.driver?.name}</span>
                               <Badge variant="secondary" className="text-xs">
-                                {Math.round(analysis.suggestedMatches.driver.confidence * 100)}% match
+                                {Math.round(analysis.suggestedMatches.driver?.confidence * 100)}% match
                               </Badge>
                             </div>
                           )}

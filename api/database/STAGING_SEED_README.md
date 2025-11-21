@@ -57,15 +57,15 @@ The seed data creates a complete fleet management system with:
 ### Option 1: Using the Master Script (Recommended)
 
 ```bash
-# Set your database URL
-export DATABASE_URL="postgresql://username:password@host:5432/database"
+# Set your database URL (replace with your actual credentials)
+export DATABASE_URL="postgresql://<USERNAME>:<PASSWORD>@<HOST>:5432/<DATABASE>"
 
 # Run the seed script
 cd database
 ./seed_staging.sh
 
 # Or pass the URL directly
-./seed_staging.sh "postgresql://username:password@host:5432/database"
+./seed_staging.sh "postgresql://<USERNAME>:<PASSWORD>@<HOST>:5432/<DATABASE>"
 ```
 
 ### Option 2: Manual Execution
@@ -83,17 +83,22 @@ After seeding, you can log in with:
 
 **Admin User:**
 - Email: `admin@capitaltechalliance.com`
-- Password: `Admin123!`
+- Password: See seed SQL file (line 45)
 
 **Fleet Manager:**
 - Email: `james.thompson@capitaltechalliance.com`
-- Password: `Admin123!`
+- Password: See seed SQL file
 
 **Sample Driver:**
 - Email: `john.davis@capitaltechalliance.com`
-- Password: `Admin123!`
+- Password: See seed SQL file
 
-> ⚠️ **Security Note**: Change all passwords in production environments!
+> ⚠️ **CRITICAL SECURITY WARNING**:
+> - Default passwords are for DEVELOPMENT/TESTING ONLY
+> - NEVER use these credentials in production
+> - Force password change on first login
+> - Implement strong password policy
+> - Use Azure AD authentication in production
 
 ## 📍 Location Details
 

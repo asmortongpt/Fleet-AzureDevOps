@@ -289,12 +289,20 @@ class OfflineStorageManager {
     }
 
     func getInspections(vehicleId: String? = nil, syncStatus: SyncStatus? = nil) -> [InspectionRecord] {
+        // Security: Use parameterized queries to prevent SQL injection
         var sql = "SELECT * FROM inspections WHERE 1=1"
-        if let vehicleId = vehicleId {
-            sql += " AND vehicle_id = '\(vehicleId)'"
+        var bindIndex: Int32 = 1
+        var bindings: [(Int32, String)] = []
+
+        if vehicleId != nil {
+            sql += " AND vehicle_id = ?"
+            bindings.append((bindIndex, vehicleId!))
+            bindIndex += 1
         }
         if let syncStatus = syncStatus {
-            sql += " AND sync_status = '\(syncStatus.rawValue)'"
+            sql += " AND sync_status = ?"
+            bindings.append((bindIndex, syncStatus.rawValue))
+            bindIndex += 1
         }
         sql += " ORDER BY timestamp DESC;"
 
@@ -303,6 +311,11 @@ class OfflineStorageManager {
 
         queue.sync {
             if sqlite3_prepare_v2(db, sql, -1, &statement, nil) == SQLITE_OK {
+                // Security: Bind parameters instead of string interpolation
+                for (index, value) in bindings {
+                    sqlite3_bind_text(statement, index, (value as NSString).utf8String, -1, nil)
+                }
+
                 while sqlite3_step(statement) == SQLITE_ROW {
                     if let inspection = parseInspectionRow(statement!) {
                         inspections.append(inspection)
@@ -419,15 +432,25 @@ class OfflineStorageManager {
     }
 
     func getReports(vehicleId: String? = nil, reportType: String? = nil, syncStatus: SyncStatus? = nil) -> [ReportRecord] {
+        // Security: Use parameterized queries to prevent SQL injection
         var sql = "SELECT * FROM reports WHERE 1=1"
-        if let vehicleId = vehicleId {
-            sql += " AND vehicle_id = '\(vehicleId)'"
+        var bindIndex: Int32 = 1
+        var bindings: [(Int32, String)] = []
+
+        if vehicleId != nil {
+            sql += " AND vehicle_id = ?"
+            bindings.append((bindIndex, vehicleId!))
+            bindIndex += 1
         }
-        if let reportType = reportType {
-            sql += " AND report_type = '\(reportType)'"
+        if reportType != nil {
+            sql += " AND report_type = ?"
+            bindings.append((bindIndex, reportType!))
+            bindIndex += 1
         }
         if let syncStatus = syncStatus {
-            sql += " AND sync_status = '\(syncStatus.rawValue)'"
+            sql += " AND sync_status = ?"
+            bindings.append((bindIndex, syncStatus.rawValue))
+            bindIndex += 1
         }
         sql += " ORDER BY timestamp DESC;"
 
@@ -436,6 +459,11 @@ class OfflineStorageManager {
 
         queue.sync {
             if sqlite3_prepare_v2(db, sql, -1, &statement, nil) == SQLITE_OK {
+                // Security: Bind parameters instead of string interpolation
+                for (index, value) in bindings {
+                    sqlite3_bind_text(statement, index, (value as NSString).utf8String, -1, nil)
+                }
+
                 while sqlite3_step(statement) == SQLITE_ROW {
                     if let report = parseReportRow(statement!) {
                         reports.append(report)
@@ -783,7 +811,18 @@ class OfflineStorageManager {
         return stats
     }
 
+    // Security: Whitelist of allowed table names to prevent SQL injection
+    private let allowedTables: Set<String> = [
+        "inspections", "reports", "photos", "sync_queue", "sync_metadata"
+    ]
+
     private func getRecordCount(table: String, condition: String? = nil) -> Int {
+        // Security: Validate table name against whitelist
+        guard allowedTables.contains(table) else {
+            print("ERROR: Invalid table name: \(table)")
+            return 0
+        }
+
         var sql = "SELECT COUNT(*) FROM \(table)"
         if let condition = condition {
             sql += " WHERE \(condition)"
