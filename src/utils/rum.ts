@@ -564,7 +564,7 @@ export class RUMTracker {
 
     this.events.forEach((event) => {
       if (event.type === 'web-vital') {
-        webVitals[event.data.name] = event.data;
+        webVitals[event.data?.name] = event.data;
       } else if (event.type === 'map-metric') {
         mapMetrics.push(event.data);
       }

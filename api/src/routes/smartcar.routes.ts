@@ -9,7 +9,7 @@ import { requirePermission } from '../middleware/permissions'
 import { auditLog } from '../middleware/audit'
 import pool from '../config/database'
 import SmartcarService from '../services/smartcar.service'
-import { getErrorMessage } from '../utils/error-handler'
+import { buildSafeRedirectUrl, validateInternalPath } from '../utils/redirect-validator'
 
 const router = express.Router()
 
@@ -21,7 +21,7 @@ try {
     console.log('✅ Smartcar service initialized')
   }
 } catch (error: any) {
-  console.warn('⚠️  Smartcar service not initialized:', getErrorMessage(error))
+  console.warn('⚠️  Smartcar service not initialized:', error.message)
 }
 
 /**
@@ -57,7 +57,7 @@ router.get('/connect', authenticateJWT, requirePermission('vehicle:manage:global
     })
   } catch (error: any) {
     console.error('Smartcar connect error:', error)
-    res.status(500).json({ error: getErrorMessage(error) || 'Internal server error' })
+    res.status(500).json({ error: error.message || 'Internal server error' })
   }
 })
 
@@ -75,16 +75,35 @@ router.get('/callback', async (req: Request, res: Response) => {
 
     if (error) {
       console.error('Smartcar OAuth error:', error)
-      return res.redirect(`/vehicles?error=smartcar_auth_failed&message=${encodeURIComponent(error as string)}`)
+      const safeErrorUrl = buildSafeRedirectUrl('/vehicles', {
+        error: 'smartcar_auth_failed',
+        message: error as string
+      })
+      return res.redirect(safeErrorUrl)
     }
 
     if (!code || !state) {
-      return res.redirect('/vehicles?error=smartcar_auth_failed&message=Missing+authorization+code')
+      const safeErrorUrl = buildSafeRedirectUrl('/vehicles', {
+        error: 'smartcar_auth_failed',
+        message: 'Missing authorization code'
+      })
+      return res.redirect(safeErrorUrl)
     }
 
     // Decode state parameter
     const stateData = JSON.parse(Buffer.from(state as string, 'base64').toString('utf-8'))
     const { vehicle_id, user_id, tenant_id } = stateData
+
+    // SECURITY: Validate vehicle_id is a valid integer to prevent path traversal
+    const parsedVehicleId = parseInt(vehicle_id, 10)
+    if (isNaN(parsedVehicleId) || parsedVehicleId <= 0) {
+      console.warn(`Invalid vehicle_id in state parameter: ${vehicle_id}`)
+      const safeErrorUrl = buildSafeRedirectUrl('/vehicles', {
+        error: 'invalid_state',
+        message: 'Invalid vehicle identifier'
+      })
+      return res.redirect(safeErrorUrl)
+    }
 
     // Exchange code for access token
     const tokens = await smartcarService.exchangeCode(code as string)
@@ -93,7 +112,11 @@ router.get('/callback', async (req: Request, res: Response) => {
     const smartcarVehicles = await smartcarService.getVehicles(tokens.access_token)
 
     if (smartcarVehicles.length === 0) {
-      return res.redirect('/vehicles?error=no_vehicles&message=No+vehicles+found+in+Smartcar+account')
+      const safeErrorUrl = buildSafeRedirectUrl('/vehicles', {
+        error: 'no_vehicles',
+        message: 'No vehicles found in Smartcar account'
+      })
+      return res.redirect(safeErrorUrl)
     }
 
     // Use first vehicle (in production, let user select if multiple)
@@ -105,7 +128,7 @@ router.get('/callback', async (req: Request, res: Response) => {
 
     // Store connection in database
     await smartcarService.storeVehicleConnection(
-      parseInt(vehicle_id),
+      parsedVehicleId,
       smartcarVehicleId,
       tokens.access_token,
       tokens.refresh_token,
@@ -127,7 +150,7 @@ router.get('/callback', async (req: Request, res: Response) => {
         tenant_id,
         'CONNECT',
         'smartcar_vehicle',
-        vehicle_id,
+        parsedVehicleId,
         JSON.stringify({ smartcar_vehicle_id: smartcarVehicleId, ...vehicleInfo }),
         req.ip,
         req.get('User-Agent'),
@@ -136,10 +159,18 @@ router.get('/callback', async (req: Request, res: Response) => {
       ]
     )
 
-    res.redirect(`/vehicles/${vehicle_id}?smartcar_connected=true`)
+    // SECURITY FIX (CWE-601): Validate redirect path and sanitize vehicle_id
+    const safeSuccessUrl = buildSafeRedirectUrl(`/vehicles/${parsedVehicleId}`, {
+      smartcar_connected: 'true'
+    })
+    res.redirect(safeSuccessUrl)
   } catch (error: any) {
     console.error('Smartcar callback error:', error)
-    res.redirect(`/vehicles?error=smartcar_auth_failed&message=${encodeURIComponent(getErrorMessage(error))}`)
+    const safeErrorUrl = buildSafeRedirectUrl('/vehicles', {
+      error: 'smartcar_auth_failed',
+      message: error.message || 'Connection failed'
+    })
+    res.redirect(safeErrorUrl)
   }
 })
 
@@ -171,7 +202,7 @@ router.get(
       res.json(location)
     } catch (error: any) {
       console.error('Get Smartcar location error:', error)
-      res.status(500).json({ error: getErrorMessage(error) || 'Internal server error' })
+      res.status(500).json({ error: error.message || 'Internal server error' })
     }
   }
 )
@@ -204,7 +235,7 @@ router.get(
       res.json(battery)
     } catch (error: any) {
       console.error('Get Smartcar battery error:', error)
-      res.status(500).json({ error: getErrorMessage(error) || 'Internal server error' })
+      res.status(500).json({ error: error.message || 'Internal server error' })
     }
   }
 )
@@ -237,7 +268,7 @@ router.get(
       res.json(charge)
     } catch (error: any) {
       console.error('Get Smartcar charge error:', error)
-      res.status(500).json({ error: getErrorMessage(error) || 'Internal server error' })
+      res.status(500).json({ error: error.message || 'Internal server error' })
     }
   }
 )
@@ -270,7 +301,7 @@ router.post(
       res.json(result)
     } catch (error: any) {
       console.error('Lock vehicle error:', error)
-      res.status(500).json({ error: getErrorMessage(error) || 'Internal server error' })
+      res.status(500).json({ error: error.message || 'Internal server error' })
     }
   }
 )
@@ -303,7 +334,7 @@ router.post(
       res.json(result)
     } catch (error: any) {
       console.error('Unlock vehicle error:', error)
-      res.status(500).json({ error: getErrorMessage(error) || 'Internal server error' })
+      res.status(500).json({ error: error.message || 'Internal server error' })
     }
   }
 )
@@ -336,7 +367,7 @@ router.post(
       res.json(result)
     } catch (error: any) {
       console.error('Start charging error:', error)
-      res.status(500).json({ error: getErrorMessage(error) || 'Internal server error' })
+      res.status(500).json({ error: error.message || 'Internal server error' })
     }
   }
 )
@@ -369,7 +400,7 @@ router.post(
       res.json(result)
     } catch (error: any) {
       console.error('Stop charging error:', error)
-      res.status(500).json({ error: getErrorMessage(error) || 'Internal server error' })
+      res.status(500).json({ error: error.message || 'Internal server error' })
     }
   }
 )
@@ -411,7 +442,7 @@ router.delete(
       res.json({ message: 'Smartcar disconnected successfully' })
     } catch (error: any) {
       console.error('Disconnect Smartcar error:', error)
-      res.status(500).json({ error: getErrorMessage(error) || 'Internal server error' })
+      res.status(500).json({ error: error.message || 'Internal server error' })
     }
   }
 )
@@ -438,7 +469,7 @@ router.post(
       res.json({ message: 'Vehicle data synced successfully' })
     } catch (error: any) {
       console.error('Sync Smartcar data error:', error)
-      res.status(500).json({ error: getErrorMessage(error) || 'Internal server error' })
+      res.status(500).json({ error: error.message || 'Internal server error' })
     }
   }
 )

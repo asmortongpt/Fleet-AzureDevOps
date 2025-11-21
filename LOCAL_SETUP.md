@@ -88,7 +88,7 @@ psql postgres
 
 # In psql terminal:
 CREATE DATABASE fleetdb;
-CREATE USER fleetadmin WITH PASSWORD 'FleetAdmin2024!Secure';
+CREATE USER fleetadmin WITH PASSWORD '<YOUR_DB_PASSWORD>';
 GRANT ALL PRIVILEGES ON DATABASE fleetdb TO fleetadmin;
 ALTER DATABASE fleetdb OWNER TO fleetadmin;
 \q
@@ -102,7 +102,7 @@ DB_HOST=localhost
 DB_PORT=5432
 DB_NAME=fleetdb
 DB_USER=fleetadmin
-DB_PASSWORD=FleetAdmin2024!Secure
+DB_PASSWORD=<YOUR_DB_PASSWORD>
 ```
 
 4. **Continue with steps 2-5 from Option 1**
@@ -145,12 +145,12 @@ DB_HOST=localhost
 DB_PORT=5432
 DB_NAME=fleetdb
 DB_USER=fleetadmin
-DB_PASSWORD=FleetAdmin2024!Secure
+DB_PASSWORD=<YOUR_DB_PASSWORD>
 DB_SSL=false
 
 # JWT Configuration
-JWT_SECRET=dev-secret-key-change-in-production-min-32-chars-long
-MFA_ENCRYPTION_KEY=8cedee3eff68813f1bd4b6fd2c79de60bb566890499ba064b2ca6be847fde60e
+JWT_SECRET=<YOUR_JWT_SECRET_MIN_32_CHARS>
+MFA_ENCRYPTION_KEY=<YOUR_MFA_ENCRYPTION_KEY>
 
 # API Configuration
 PORT=3000
@@ -169,10 +169,10 @@ REDIS_URL=redis://localhost:6379
 # Leave empty to use in-memory rate limiting
 # REDIS_URL=
 
-# AI Services (Optional - add your own keys)
-OPENAI_API_KEY=sk-proj-YOUR-KEY-HERE
-CLAUDE_API_KEY=sk-ant-YOUR-KEY-HERE
-GEMINI_API_KEY=YOUR-KEY-HERE
+# AI Services (Optional - add your own keys from respective providers)
+OPENAI_API_KEY=<YOUR_OPENAI_API_KEY>
+CLAUDE_API_KEY=<YOUR_CLAUDE_API_KEY>
+GEMINI_API_KEY=<YOUR_GEMINI_API_KEY>
 ```
 
 ---
@@ -191,7 +191,7 @@ services:
     environment:
       POSTGRES_DB: fleetdb
       POSTGRES_USER: fleetadmin
-      POSTGRES_PASSWORD: FleetAdmin2024!Secure
+      POSTGRES_PASSWORD: <YOUR_DB_PASSWORD>
     ports:
       - "5432:5432"
     volumes:
@@ -327,7 +327,7 @@ npm run db:seed      # Seed database
 - System: PostgreSQL
 - Server: postgres (or localhost if not using Docker)
 - Username: fleetadmin
-- Password: FleetAdmin2024!Secure
+- Password: <YOUR_DB_PASSWORD>
 - Database: fleetdb
 
 **VS Code Extension**:

@@ -52,11 +52,11 @@ Capital Tech Alliance - Record Summary:
   Facilities: 3
 ```
 
-## 🔑 Test Login
+## Test Login
 
 After seeding, log in with:
 - **Email**: `admin@capitaltechalliance.com`
-- **Password**: `Admin123!`
+- **Password**: `YOUR_ADMIN_PASSWORD_HERE`
 
 ## 📊 What Gets Created
 
