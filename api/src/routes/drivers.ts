@@ -7,17 +7,14 @@ import pool from '../config/database'
 import { z } from 'zod'
 import { buildInsertClause, buildUpdateClause } from '../utils/sql-safety'
 import { createUserSchema, updateUserSchema } from '../validation/schemas'
-import { cacheMiddleware, invalidateOnWrite, CacheStrategies } from '../middleware/cache'
-import { buildScopeSelectQuery, buildScopeCountQuery } from '../utils/scope-filter'
 
 const router = express.Router()
 router.use(authenticateJWT)
 
-// GET /drivers (CACHED: 60 seconds, user-specific due to scope filtering)
+// GET /drivers
 router.get(
   '/',
   requirePermission('driver:view:team'),
-  cacheMiddleware({ ttl: 60, varyByUser: true, varyByTenant: true, varyByQuery: true }),
   applyFieldMasking('driver'),
   auditLog({ action: 'READ', resourceType: 'users' }),
   async (req: AuthRequest, res: Response) => {
@@ -47,12 +44,7 @@ router.get(
       // fleet/global scope sees all
 
       const result = await pool.query(
-        `SELECT id, tenant_id, first_name, last_name, email, phone, role,
-                license_number, license_expiry, license_state, license_class,
-                status, hire_date, termination_date, department_id,
-                assigned_vehicle_id, team_id, scope_level,
-                created_at, updated_at, created_by
-         FROM users WHERE tenant_id = $1 ${scopeFilter} ORDER BY created_at DESC LIMIT $2 OFFSET $3`,
+        `SELECT id, tenant_id, email, first_name, last_name, role, status, phone, created_at, updated_at, deleted_at FROM users WHERE tenant_id = $1 ${scopeFilter} ORDER BY created_at DESC LIMIT $2 OFFSET $3`,
         [...scopeParams, limit, offset]
       )
 
@@ -77,22 +69,16 @@ router.get(
   }
 )
 
-// GET /drivers/:id (CACHED: 60 seconds, user-specific)
+// GET /drivers/:id
 router.get(
   '/:id',
   requirePermission('driver:view:own'),
-  cacheMiddleware({ ttl: 60, varyByUser: true, varyByTenant: true }),
   applyFieldMasking('driver'),
   auditLog({ action: 'READ', resourceType: 'users' }),
   async (req: AuthRequest, res: Response) => {
     try {
       const result = await pool.query(
-        `SELECT id, tenant_id, first_name, last_name, email, phone, role,
-                license_number, license_expiry, license_state, license_class,
-                status, hire_date, termination_date, department_id,
-                assigned_vehicle_id, team_id, scope_level,
-                created_at, updated_at, created_by
-         FROM users WHERE id = $1 AND tenant_id = $2`,
+        'SELECT id, tenant_id, email, first_name, last_name, role, status, phone, created_at, updated_at, deleted_at FROM users WHERE id = $1 AND tenant_id = $2',
         [req.params.id, req.user!.tenant_id]
       )
 
@@ -124,11 +110,10 @@ router.get(
   }
 )
 
-// POST /drivers (Invalidates driver cache on success)
+// POST /drivers
 router.post(
   '/',
   requirePermission('driver:create:global'),
-  invalidateOnWrite(['drivers', 'users']),
   auditLog({ action: 'CREATE', resourceType: 'users' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -160,11 +145,10 @@ router.post(
   }
 )
 
-// PUT /drivers/:id (Invalidates driver cache on success)
+// PUT /drivers/:id
 router.put(
   '/:id',
   requirePermission('driver:update:global'),
-  invalidateOnWrite(['drivers', 'users']),
   auditLog({ action: 'UPDATE', resourceType: 'users' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -236,11 +220,10 @@ router.put(
   }
 )
 
-// DELETE /drivers/:id (Invalidates driver cache on success)
+// DELETE /drivers/:id
 router.delete(
   '/:id',
   requirePermission('driver:delete:global'),
-  invalidateOnWrite(['drivers', 'users']),
   auditLog({ action: 'DELETE', resourceType: 'users' }),
   async (req: AuthRequest, res: Response) => {
     try {

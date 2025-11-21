@@ -287,7 +287,7 @@ function VehicleModel({
       {showDamage && damageMarkers.map((marker, index) => (
         <DamageMarker
           key={index}
-          position={[marker.location.x, marker.location.y, marker.location.z]}
+          position={[marker.location?.x, marker.location?.y, marker.location?.z]}
           severity={marker.severity}
           type={marker.type}
           description={marker.description}
