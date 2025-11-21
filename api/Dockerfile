@@ -8,7 +8,8 @@ COPY package*.json ./
 COPY tsconfig.json ./
 
 # Install ALL dependencies (including devDependencies for build)
-RUN npm install
+# Use --legacy-peer-deps due to langchain version conflicts
+RUN npm install --legacy-peer-deps
 
 # Copy source code
 COPY src ./src
@@ -26,7 +27,7 @@ RUN apk add --no-cache python3 make g++
 
 # Install production dependencies only
 COPY package*.json ./
-RUN npm install --only=production && \
+RUN npm install --only=production --legacy-peer-deps && \
     rm -rf ~/.npm
 
 # Copy built artifacts from builder
