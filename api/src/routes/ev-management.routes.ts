@@ -702,21 +702,7 @@ router.get('/vehicles/:id/charging-history', authenticateJWT, requirePermission(
   }
 });
 
-// Initialize OCPP connections on startup
-(async () => {
-  try {
-    const stationsResult = await pool.query(
-      'SELECT station_id FROM charging_stations WHERE is_enabled = true AND ws_url IS NOT NULL'
-    );
-
-    console.log(`🔌 Connecting to ${stationsResult.rows.length} OCPP charging stations...`);
-
-    for (const row of stationsResult.rows) {
-      await ocppService.connectStation(row.station_id);
-    }
-  } catch (error) {
-    console.error('Error initializing OCPP connections:', error);
-  }
-})();
+// OCPP connections will be initialized by the server on startup
+// See src/server.ts for initialization logic
 
 export default router;
