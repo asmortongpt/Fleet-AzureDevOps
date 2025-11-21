@@ -11,6 +11,7 @@ import { auditLog } from '../middleware/audit';
 import pool from '../config/database';
 import VehicleModelsService from '../services/vehicle-models.service';
 import { z } from 'zod';
+import { getErrorMessage } from '../utils/error-handler'
 
 const router = express.Router();
 const vehicleModelsService = new VehicleModelsService(pool);
@@ -43,7 +44,7 @@ router.get(
       res.json(modelData);
     } catch (error: any) {
       console.error('Get 3D model error:', error);
-      res.status(500).json({ error: error.message || 'Internal server error' });
+      res.status(500).json({ error: getErrorMessage(error) || 'Internal server error' });
     }
   }
 );
@@ -84,7 +85,7 @@ router.get(
       });
     } catch (error: any) {
       console.error('Get AR model error:', error);
-      res.status(500).json({ error: error.message || 'Internal server error' });
+      res.status(500).json({ error: getErrorMessage(error) || 'Internal server error' });
     }
   }
 );
@@ -127,7 +128,7 @@ router.post(
       if (error instanceof z.ZodError) {
         return res.status(400).json({ error: 'Invalid customization data', details: error.errors });
       }
-      res.status(500).json({ error: error.message || 'Internal server error' });
+      res.status(500).json({ error: getErrorMessage(error) || 'Internal server error' });
     }
   }
 );
@@ -156,7 +157,7 @@ router.get(
       });
     } catch (error: any) {
       console.error('List models error:', error);
-      res.status(500).json({ error: error.message || 'Internal server error' });
+      res.status(500).json({ error: getErrorMessage(error) || 'Internal server error' });
     }
   }
 );
@@ -174,7 +175,7 @@ router.get(
       res.json(catalog);
     } catch (error: any) {
       console.error('Get catalog error:', error);
-      res.status(500).json({ error: error.message || 'Internal server error' });
+      res.status(500).json({ error: getErrorMessage(error) || 'Internal server error' });
     }
   }
 );
@@ -199,7 +200,7 @@ router.get(
       });
     } catch (error: any) {
       console.error('Get customization options error:', error);
-      res.status(500).json({ error: error.message || 'Internal server error' });
+      res.status(500).json({ error: getErrorMessage(error) || 'Internal server error' });
     }
   }
 );
@@ -242,7 +243,7 @@ router.post(
       if (error instanceof z.ZodError) {
         return res.status(400).json({ error: 'Invalid damage marker data', details: error.errors });
       }
-      res.status(500).json({ error: error.message || 'Internal server error' });
+      res.status(500).json({ error: getErrorMessage(error) || 'Internal server error' });
     }
   }
 );
@@ -287,7 +288,7 @@ router.post(
       if (error instanceof z.ZodError) {
         return res.status(400).json({ error: 'Invalid session data', details: error.errors });
       }
-      res.status(500).json({ error: error.message || 'Internal server error' });
+      res.status(500).json({ error: getErrorMessage(error) || 'Internal server error' });
     }
   }
 );
@@ -324,7 +325,7 @@ router.put(
       if (error instanceof z.ZodError) {
         return res.status(400).json({ error: 'Invalid update data', details: error.errors });
       }
-      res.status(500).json({ error: error.message || 'Internal server error' });
+      res.status(500).json({ error: getErrorMessage(error) || 'Internal server error' });
     }
   }
 );
@@ -350,7 +351,7 @@ router.get(
       });
     } catch (error: any) {
       console.error('Get AR analytics error:', error);
-      res.status(500).json({ error: error.message || 'Internal server error' });
+      res.status(500).json({ error: getErrorMessage(error) || 'Internal server error' });
     }
   }
 );
@@ -397,7 +398,7 @@ router.post(
       if (error instanceof z.ZodError) {
         return res.status(400).json({ error: 'Invalid render data', details: error.errors });
       }
-      res.status(500).json({ error: error.message || 'Internal server error' });
+      res.status(500).json({ error: getErrorMessage(error) || 'Internal server error' });
     }
   }
 );
@@ -422,7 +423,7 @@ router.get(
       });
     } catch (error: any) {
       console.error('Get renders error:', error);
-      res.status(500).json({ error: error.message || 'Internal server error' });
+      res.status(500).json({ error: getErrorMessage(error) || 'Internal server error' });
     }
   }
 );
@@ -466,7 +467,7 @@ router.post(
       if (error instanceof z.ZodError) {
         return res.status(400).json({ error: 'Invalid metrics data', details: error.errors });
       }
-      res.status(500).json({ error: error.message || 'Internal server error' });
+      res.status(500).json({ error: getErrorMessage(error) || 'Internal server error' });
     }
   }
 );
@@ -489,7 +490,7 @@ router.get(
       });
     } catch (error: any) {
       console.error('Get performance summary error:', error);
-      res.status(500).json({ error: error.message || 'Internal server error' });
+      res.status(500).json({ error: getErrorMessage(error) || 'Internal server error' });
     }
   }
 );
@@ -534,7 +535,7 @@ router.post(
       });
     } catch (error: any) {
       console.error('Create 3D instance error:', error);
-      res.status(500).json({ error: error.message || 'Internal server error' });
+      res.status(500).json({ error: getErrorMessage(error) || 'Internal server error' });
     }
   }
 );

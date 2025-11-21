@@ -23,6 +23,8 @@ spec:
         runAsNonRoot: true
         runAsUser: 1000
         fsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
       volumes:
       - name: tmp
         emptyDir: {}
@@ -30,13 +32,13 @@ spec:
         emptyDir: {}
       containers:
       - name: fleet-api
-        image: fleetappregistry.azurecr.io/fleet-api:staging
-        imagePullPolicy: Always
+        image: fleetappregistry.azurecr.io/fleet-api:v1.0.0-staging
+        imagePullPolicy: IfNotPresent
         securityContext:
           allowPrivilegeEscalation: false
           readOnlyRootFilesystem: true
           runAsNonRoot: true
-          runAsUser: 1000
+          runAsUser: 1001
           capabilities:
             drop:
               - ALL

@@ -1,6 +1,8 @@
 """
 RAG Indexer Service - FIXED VERSION
 Multi-layer knowledge extraction and indexing for code, architecture, and testing
+
+Security: Implements CVE-2025-62727 mitigations and DoS protection
 """
 
 import os
@@ -11,8 +13,10 @@ from datetime import datetime
 import hashlib
 import json
 
-# Add parent directory to path for importing safe file operations
+# Add parent directory to path for importing safe file operations and security middleware
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', '..', 'api', 'src', 'utils'))
+sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
+
 try:
     from safe_file_operations import safe_open_file, validate_path_within_directory, PathTraversalError
 except ImportError:
@@ -48,7 +52,13 @@ except ImportError:
         else:
             return open(validated_path, mode, encoding=encoding, **kwargs)
 
-from fastapi import FastAPI, HTTPException, BackgroundTasks
+try:
+    from security_middleware import add_security_middleware
+except ImportError:
+    add_security_middleware = None
+    print("Warning: security_middleware not found. Running without security middleware.")
+
+from fastapi import FastAPI, HTTPException, BackgroundTasks, Request
 from pydantic import BaseModel
 from openai import AsyncAzureOpenAI
 from azure.cosmos.aio import CosmosClient
@@ -148,7 +158,21 @@ async def get_search_index_client():
 # FASTAPI APP
 # ============================================================================
 
-app = FastAPI(title="RAG Indexer Service", version="1.0.0")
+app = FastAPI(title="RAG Indexer Service", version="1.1.0")
+
+# ============================================================================
+# SECURITY MIDDLEWARE (CVE-2025-62727 Mitigation)
+# ============================================================================
+
+limiter = None
+if add_security_middleware:
+    limiter = add_security_middleware(
+        app,
+        max_request_size=50 * 1024 * 1024,  # 50MB limit for code indexing
+        max_ranges=10,
+        enable_rate_limiting=True,
+        rate_limit="50/minute"  # Lower rate for indexing operations
+    )
 
 # ============================================================================
 # MODELS

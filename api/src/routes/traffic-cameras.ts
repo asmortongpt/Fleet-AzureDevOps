@@ -4,6 +4,7 @@ import { requirePermission } from '../middleware/permissions'
 import { pool } from '../config/database'
 import { logger } from '../utils/logger'
 import { cameraSyncService } from '../services/camera-sync'
+import { getErrorMessage } from '../utils/error-handler'
 
 const router = express.Router()
 
@@ -51,7 +52,7 @@ router.get('/', requirePermission('geofence:view:fleet'), async (req: AuthReques
       count: result.rows.length
     })
   } catch (error: any) {
-    logger.error('Failed to fetch traffic cameras', { error: error.message })
+    logger.error('Failed to fetch traffic cameras', { error: getErrorMessage(error) })
     res.status(500).json({ error: 'Failed to fetch cameras' })
   }
 })
@@ -86,7 +87,7 @@ router.get('/:id', requirePermission('geofence:view:fleet'), async (req: AuthReq
     })
   } catch (error: any) {
     logger.error('Failed to fetch traffic camera', {
-      error: error.message,
+      error: getErrorMessage(error),
       cameraId: id
     })
     res.status(500).json({ error: 'Failed to fetch camera' })
@@ -106,7 +107,7 @@ router.get('/sources/list', requirePermission('geofence:view:fleet'), async (req
       sources
     })
   } catch (error: any) {
-    logger.error('Failed to fetch camera sources', { error: error.message })
+    logger.error('Failed to fetch camera sources', { error: getErrorMessage(error) })
     res.status(500).json({ error: 'Failed to fetch sources' })
   }
 })
@@ -125,7 +126,7 @@ router.post(
 
       // Run sync in background
       cameraSyncService.syncAll().catch(error => {
-        logger.error('Background camera sync failed', { error: error.message })
+        logger.error('Background camera sync failed', { error: getErrorMessage(error) })
       })
 
       res.json({
@@ -133,7 +134,7 @@ router.post(
         message: 'Camera synchronization started'
       })
     } catch (error: any) {
-      logger.error('Failed to start camera sync', { error: error.message })
+      logger.error('Failed to start camera sync', { error: getErrorMessage(error) })
       res.status(500).json({ error: 'Failed to start sync' })
     }
   }
@@ -173,7 +174,7 @@ router.post(
       cameraSyncService.syncSource(source).catch(error => {
         logger.error('Background source sync failed', {
           sourceId: id,
-          error: error.message
+          error: getErrorMessage(error)
         })
       })
 
@@ -184,7 +185,7 @@ router.post(
     } catch (error: any) {
       logger.error('Failed to start source sync', {
         sourceId: id,
-        error: error.message
+        error: getErrorMessage(error)
       })
       res.status(500).json({ error: 'Failed to start sync' })
     }
@@ -240,7 +241,7 @@ router.get('/nearby', requirePermission('geofence:view:fleet'), async (req: Auth
       count: result.rows.length
     })
   } catch (error: any) {
-    logger.error('Failed to fetch nearby cameras', { error: error.message })
+    logger.error('Failed to fetch nearby cameras', { error: getErrorMessage(error) })
     res.status(500).json({ error: 'Failed to fetch nearby cameras' })
   }
 })

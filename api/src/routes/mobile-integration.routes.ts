@@ -10,6 +10,7 @@ import { requirePermission } from '../middleware/permissions'
 import { auditLog } from '../middleware/audit'
 import mobileIntegrationService from '../services/mobile-integration.service'
 import { z } from 'zod'
+import { getErrorMessage } from '../utils/error-handler'
 
 const router = express.Router()
 
@@ -133,7 +134,7 @@ router.post('/register', requirePermission('driver:create:global'), auditLog, as
     res.json(device)
   } catch (error: any) {
     console.error('Error registering device:', error)
-    res.status(400).json({ error: error.message })
+    res.status(400).json({ error: getErrorMessage(error) })
   }
 })
 
@@ -194,7 +195,7 @@ router.post('/sync', requirePermission('driver:update:global'), auditLog, async 
     res.json(result)
   } catch (error: any) {
     console.error('Error syncing mobile data:', error)
-    res.status(400).json({ error: error.message })
+    res.status(400).json({ error: getErrorMessage(error) })
   }
 })
 
@@ -235,7 +236,7 @@ router.get('/route/:vehicleId', requirePermission('route:view:fleet'), async (re
     res.json(route)
   } catch (error: any) {
     console.error('Error getting mobile route:', error)
-    res.status(400).json({ error: error.message })
+    res.status(400).json({ error: getErrorMessage(error) })
   }
 })
 
@@ -286,7 +287,7 @@ router.post('/ar-navigation', requirePermission('route:view:fleet'), async (req:
     res.json(data)
   } catch (error: any) {
     console.error('Error getting AR navigation data:', error)
-    res.status(400).json({ error: error.message })
+    res.status(400).json({ error: getErrorMessage(error) })
   }
 })
 
@@ -339,7 +340,7 @@ router.post('/keyless-entry', requirePermission('vehicle:update:fleet'), auditLo
     res.json(result)
   } catch (error: any) {
     console.error('Error executing keyless entry:', error)
-    res.status(400).json({ error: error.message })
+    res.status(400).json({ error: getErrorMessage(error) })
   }
 })
 
@@ -388,7 +389,7 @@ router.post('/damage-detection', requirePermission('safety_incident:create:globa
     res.status(201).json(result)
   } catch (error: any) {
     console.error('Error submitting damage detection:', error)
-    res.status(400).json({ error: error.message })
+    res.status(400).json({ error: getErrorMessage(error) })
   }
 })
 
@@ -431,7 +432,7 @@ router.get('/dispatch/messages', requirePermission('communication:view:global'),
     res.json(messages)
   } catch (error: any) {
     console.error('Error getting dispatch messages:', error)
-    res.status(400).json({ error: error.message })
+    res.status(400).json({ error: getErrorMessage(error) })
   }
 })
 
@@ -484,7 +485,7 @@ router.get('/charging-stations/nearby', requirePermission('charging_station:view
     res.json(stations)
   } catch (error: any) {
     console.error('Error getting nearby charging stations:', error)
-    res.status(400).json({ error: error.message })
+    res.status(400).json({ error: getErrorMessage(error) })
   }
 })
 
@@ -542,7 +543,7 @@ router.post('/push-notification', requirePermission('communication:send:global')
     res.json({ success })
   } catch (error: any) {
     console.error('Error sending push notification:', error)
-    res.status(400).json({ error: error.message })
+    res.status(400).json({ error: getErrorMessage(error) })
   }
 })
 

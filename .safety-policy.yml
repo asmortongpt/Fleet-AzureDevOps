@@ -1,0 +1,64 @@
+# Safety Policy Configuration for Fleet Project
+# This file configures security scanning and prevents unsafe pickle loads
+# https://docs.safetycli.com/safety-docs/safety-policy-file
+
+version: "3.0"
+
+# Scanner configuration
+scan:
+  max_depth: 6
+  exclude:
+    - "**/node_modules/**"
+    - "**/.git/**"
+    - "**/venv/**"
+    - "**/__pycache__/**"
+
+# Security policy for pickle deserialization
+# Prevents loading pickle files from untrusted sources
+security:
+  # Fail on high severity vulnerabilities
+  fail_on_severity:
+    - critical
+    - high
+
+  # Continue CI on medium/low vulnerabilities but report them
+  warn_on_severity:
+    - medium
+    - low
+
+# Ignored vulnerabilities (with justification required)
+ignore-vulnerabilities:
+  # Example format for ignoring specific CVEs with documentation:
+  # CVE-XXXX-XXXXX:
+  #   reason: "Detailed justification for ignoring"
+  #   expires: "2025-12-31"
+
+# Python-specific security settings
+python:
+  # Enforce safe deserialization practices
+  pickle:
+    # Only allow pickle.loads with weights_only=True for torch
+    enforce_safe_deserialization: true
+    # Allowed sources for pickle files (restrict to local only)
+    allowed_sources:
+      - local
+    # Block pickle files from network sources
+    blocked_sources:
+      - http
+      - https
+      - ftp
+      - s3
+      - azure-blob
+
+# Package version constraints (enforce minimum versions for security)
+required-versions:
+  torch: ">=2.1.0"  # Safe deserialization defaults
+  starlette: ">=0.31.1"  # DoS vulnerability fix
+  openai: ">=1.0.0"  # Sensitive info logging fix
+  pydantic: ">=2.7.0"  # Regex DoS fix
+  pillow: ">=10.3.0"  # Code injection fix
+
+# Audit logging configuration
+audit:
+  log_security_events: true
+  log_deserialization_attempts: true

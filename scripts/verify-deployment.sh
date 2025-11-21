@@ -63,7 +63,7 @@ echo "========================"
 
 # Create test user
 TEST_EMAIL="test-$(date +%s)@test.com"
-TEST_PASSWORD="Test123!"
+TEST_PASSWORD="${TEST_PASSWORD:-YOUR_TEST_PASSWORD_HERE}"
 
 REGISTER_RESPONSE=$(curl -s -X POST "$API_URL/api/auth/register" \
   -H "Content-Type: application/json" \
