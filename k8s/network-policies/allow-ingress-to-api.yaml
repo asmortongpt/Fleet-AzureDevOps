@@ -1,0 +1,101 @@
+# Allow Ingress to API Network Policy
+# Allows traffic from ingress-nginx controller to reach the API pods
+#
+# SECURITY NOTE: This policy only allows traffic from the ingress controller
+# namespace, preventing direct pod-to-pod access from unauthorized sources
+
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-ingress-to-api
+  namespace: fleet-management
+  labels:
+    app: fleet
+    policy-type: ingress
+    target: api
+  annotations:
+    description: "Allow ingress controller to reach API pods on port 3000"
+spec:
+  podSelector:
+    matchLabels:
+      app: fleet-api
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              name: ingress-nginx
+      ports:
+        - port: 3000
+          protocol: TCP
+---
+# Also apply to ctafleet namespace
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-ingress-to-api
+  namespace: ctafleet
+  labels:
+    app: fleet
+    policy-type: ingress
+    target: api
+  annotations:
+    description: "Allow ingress controller to reach API pods on port 3000"
+spec:
+  podSelector:
+    matchLabels:
+      component: api
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              name: ingress-nginx
+      ports:
+        - port: 3000
+          protocol: TCP
+    # Also allow from frontend pods
+    - from:
+        - podSelector:
+            matchLabels:
+              component: frontend
+      ports:
+        - port: 3000
+          protocol: TCP
+---
+# Staging namespace
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-ingress-to-api
+  namespace: ctafleet-staging
+  labels:
+    app: fleet
+    policy-type: ingress
+    target: api
+  annotations:
+    description: "Allow ingress controller to reach API pods on port 3000"
+spec:
+  podSelector:
+    matchLabels:
+      component: api
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              name: ingress-nginx
+      ports:
+        - port: 3000
+          protocol: TCP
+    # Also allow from frontend pods
+    - from:
+        - podSelector:
+            matchLabels:
+              component: frontend
+      ports:
+        - port: 3000
+          protocol: TCP
