@@ -177,7 +177,7 @@ export function ImageViewer({ document, state, onStateChange }: ImageViewerProps
                       <div className="flex items-center gap-2 text-sm">
                         <MapPin className="h-4 w-4 text-muted-foreground" />
                         <span>
-                          {document.location.lat.toFixed(6)}, {document.location.lng.toFixed(6)}
+                          {document.location?.lat.toFixed(6)}, {document.location?.lng.toFixed(6)}
                         </span>
                       </div>
                       {document.capturedAt && (

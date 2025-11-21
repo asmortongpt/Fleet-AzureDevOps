@@ -17,6 +17,14 @@ import axios, { AxiosError } from 'axios'
 import winston from 'winston'
 import dispatchService from './dispatch.service'
 
+// Allowlist of valid table names for sync operations
+const SYNC_TABLES = ['teams_messages', 'outlook_emails'] as const;
+type SyncTable = typeof SYNC_TABLES[number];
+
+function isValidSyncTable(table: string): table is SyncTable {
+  return SYNC_TABLES.includes(table as SyncTable);
+}
+
 // Configure logger
 const logger = winston.createLogger({
   level: process.env.LOG_LEVEL || 'info',
@@ -638,7 +646,15 @@ class SyncService {
     try {
       const lastSync = await this.getLastSyncTimestamp(resourceId, resourceType)
 
-      let tableName = resourceType === 'teams_channel' ? 'teams_messages' : 'outlook_emails'
+      const tableName: SyncTable = resourceType === 'teams_channel' ? 'teams_messages' : 'outlook_emails'
+
+      // Validate table name against allowlist to prevent SQL injection
+      if (!isValidSyncTable(tableName)) {
+        logger.error('Invalid table name for sync:', tableName)
+        return 0
+      }
+
+      // Table name is validated, safe to use in query
       let query = `SELECT COUNT(*) as count FROM ${tableName} WHERE `
 
       if (resourceType === 'teams_channel') {
@@ -678,7 +694,15 @@ class SyncService {
       const lastSync = await this.getLastSyncTimestamp(resourceId, resourceType)
       if (!lastSync) return 0
 
-      let tableName = resourceType === 'teams_channel' ? 'teams_messages' : 'outlook_emails'
+      const tableName: SyncTable = resourceType === 'teams_channel' ? 'teams_messages' : 'outlook_emails'
+
+      // Validate table name against allowlist to prevent SQL injection
+      if (!isValidSyncTable(tableName)) {
+        logger.error('Invalid table name for sync:', tableName)
+        return 0
+      }
+
+      // Table name is validated, safe to use in query
       let query = `SELECT COUNT(*) as count FROM ${tableName} WHERE `
 
       if (resourceType === 'teams_channel') {
@@ -706,7 +730,15 @@ class SyncService {
       const lastSync = await this.getLastSyncTimestamp(resourceId, resourceType)
       if (!lastSync) return 0
 
-      let tableName = resourceType === 'teams_channel' ? 'teams_messages' : 'outlook_emails'
+      const tableName: SyncTable = resourceType === 'teams_channel' ? 'teams_messages' : 'outlook_emails'
+
+      // Validate table name against allowlist to prevent SQL injection
+      if (!isValidSyncTable(tableName)) {
+        logger.error('Invalid table name for sync:', tableName)
+        return 0
+      }
+
+      // Table name is validated, safe to use in query
       let query = `SELECT COUNT(*) as count FROM ${tableName} WHERE deleted_at IS NOT NULL AND deleted_at > $1`
 
       const result = await pool.query(query, [lastSync])

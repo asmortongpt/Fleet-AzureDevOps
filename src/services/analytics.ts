@@ -207,7 +207,7 @@ class CustomBackend extends AnalyticsBackend {
       logger.error('Failed to send analytics to backend:', { error });
       // Re-queue events on failure
       if (path.includes('/events/batch') && data.events) {
-        this.eventQueue.unshift(...data.events);
+        this.eventQueue.unshift(...data?.events);
       }
     }
   }
