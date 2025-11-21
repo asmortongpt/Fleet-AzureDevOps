@@ -1,6 +1,34 @@
 import { Pool, PoolClient } from 'pg'
 import { TransactionError } from './errors'
 
+// Allowlist of valid PostgreSQL isolation levels
+const VALID_ISOLATION_LEVELS = [
+  'READ UNCOMMITTED',
+  'READ COMMITTED',
+  'REPEATABLE READ',
+  'SERIALIZABLE'
+] as const;
+
+type IsolationLevel = typeof VALID_ISOLATION_LEVELS[number];
+
+function isValidIsolationLevel(level: string): level is IsolationLevel {
+  return VALID_ISOLATION_LEVELS.includes(level as IsolationLevel);
+}
+
+// Validate savepoint names to prevent SQL injection
+// PostgreSQL identifiers: start with letter/underscore, contain alphanumeric/underscore, max 63 chars
+const VALID_SAVEPOINT_PATTERN = /^[a-zA-Z_][a-zA-Z0-9_]{0,62}$/;
+
+function isValidSavepointName(name: string): boolean {
+  return VALID_SAVEPOINT_PATTERN.test(name);
+}
+
+function validateSavepointName(name: string): void {
+  if (!isValidSavepointName(name)) {
+    throw new TransactionError(`Invalid savepoint name: ${name}`);
+  }
+}
+
 /**
  * Transaction context for nested transaction support
  */
@@ -69,9 +97,15 @@ export async function withTransactionIsolation<T>(
   isolationLevel: 'READ UNCOMMITTED' | 'READ COMMITTED' | 'REPEATABLE READ' | 'SERIALIZABLE',
   callback: (client: PoolClient) => Promise<T>
 ): Promise<T> {
+  // Validate isolation level against allowlist
+  if (!isValidIsolationLevel(isolationLevel)) {
+    throw new TransactionError(`Invalid isolation level: ${isolationLevel}`);
+  }
+
   const client = await pool.connect()
 
   try {
+    // Isolation level is validated, safe to use in query
     await client.query(`BEGIN ISOLATION LEVEL ${isolationLevel}`)
     const result = await callback(client)
     await client.query('COMMIT')
@@ -115,7 +149,11 @@ export async function withNestedTransaction<T>(
   callback: () => Promise<T>,
   savepointName: string = `sp_${Date.now()}`
 ): Promise<T> {
+  // Validate savepoint name to prevent SQL injection
+  validateSavepointName(savepointName);
+
   try {
+    // Savepoint name is validated, safe to use in query
     await client.query(`SAVEPOINT ${savepointName}`)
     const result = await callback()
     await client.query(`RELEASE SAVEPOINT ${savepointName}`)
@@ -254,14 +292,23 @@ export class TransactionManager {
   /**
    * Begin a new transaction
    */
-  async begin(isolationLevel?: string): Promise<void> {
+  async begin(isolationLevel?: IsolationLevel): Promise<void> {
     if (this.transactionLevel === 0) {
       this.client = await this.pool.connect()
-      const isolationClause = isolationLevel ? ` ISOLATION LEVEL ${isolationLevel}` : ''
+      let isolationClause = ''
+      if (isolationLevel) {
+        // Validate isolation level against allowlist
+        if (!isValidIsolationLevel(isolationLevel)) {
+          throw new TransactionError(`Invalid isolation level: ${isolationLevel}`);
+        }
+        isolationClause = ` ISOLATION LEVEL ${isolationLevel}`
+      }
       await this.client.query(`BEGIN${isolationClause}`)
     } else {
       // Nested transaction: create savepoint
+      // Savepoint name is generated from a numeric counter, safe pattern
       const savepointName = `sp_level_${this.transactionLevel}`
+      validateSavepointName(savepointName);
       this.savepoints.push(savepointName)
       await this.client!.query(`SAVEPOINT ${savepointName}`)
     }
@@ -286,7 +333,11 @@ export class TransactionManager {
     } else {
       // Release savepoint
       const savepointName = this.savepoints.pop()
-      await this.client!.query(`RELEASE SAVEPOINT ${savepointName}`)
+      if (savepointName) {
+        // Savepoint names are generated internally, but validate for safety
+        validateSavepointName(savepointName);
+        await this.client!.query(`RELEASE SAVEPOINT ${savepointName}`)
+      }
     }
   }
 
@@ -308,7 +359,11 @@ export class TransactionManager {
     } else {
       // Rollback to savepoint
       const savepointName = this.savepoints.pop()
-      await this.client!.query(`ROLLBACK TO SAVEPOINT ${savepointName}`)
+      if (savepointName) {
+        // Savepoint names are generated internally, but validate for safety
+        validateSavepointName(savepointName);
+        await this.client!.query(`ROLLBACK TO SAVEPOINT ${savepointName}`)
+      }
     }
   }
 
