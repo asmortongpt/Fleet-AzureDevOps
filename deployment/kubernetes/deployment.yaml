@@ -31,11 +31,19 @@ spec:
         runAsNonRoot: true
         runAsUser: 1000
         fsGroup: 1000
-      
+
       # Init container to check database availability
       initContainers:
         - name: wait-for-db
-          image: busybox:1.35
+          image: busybox:1.36@sha256:9ae97d36d26566ff84e8893c64a6dc4fe8ca6d1144bf5b87b2b85a32def253c7
+          securityContext:
+            allowPrivilegeEscalation: false
+            runAsNonRoot: true
+            runAsUser: 1001
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
           command:
             - sh
             - -c
@@ -45,9 +53,17 @@ spec:
                 sleep 2
               done
               echo "PostgreSQL is ready!"
-        
+
         - name: wait-for-redis
-          image: busybox:1.35
+          image: busybox:1.36@sha256:9ae97d36d26566ff84e8893c64a6dc4fe8ca6d1144bf5b87b2b85a32def253c7
+          securityContext:
+            allowPrivilegeEscalation: false
+            runAsNonRoot: true
+            runAsUser: 1001
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
           command:
             - sh
             - -c
@@ -57,11 +73,11 @@ spec:
                 sleep 2
               done
               echo "Redis is ready!"
-      
+
       containers:
         - name: fleet-app
-          image: fleetappregistry.azurecr.io/fleet-app:latest
-          imagePullPolicy: Always
+          image: fleetappregistry.azurecr.io/fleet-app:v1.0.0
+          imagePullPolicy: IfNotPresent
           ports:
             - name: http
               containerPort: 3000
@@ -69,7 +85,7 @@ spec:
             - name: metrics
               containerPort: 9090
               protocol: TCP
-          
+
           env:
             - name: NODE_ENV
               valueFrom:
@@ -136,7 +152,7 @@ spec:
                 secretKeyRef:
                   name: fleet-secrets
                   key: AZURE_STORAGE_CONNECTION_STRING
-          
+
           # Module-specific configuration
           volumeMounts:
             - name: module-config
@@ -148,7 +164,7 @@ spec:
               mountPath: /app/.cache
             - name: npm-cache
               mountPath: /app/.npm
-          
+
           resources:
             requests:
               memory: "512Mi"
@@ -156,7 +172,7 @@ spec:
             limits:
               memory: "2Gi"
               cpu: "2000m"
-          
+
           livenessProbe:
             httpGet:
               path: /health
@@ -165,7 +181,7 @@ spec:
             periodSeconds: 10
             timeoutSeconds: 5
             failureThreshold: 3
-          
+
           readinessProbe:
             httpGet:
               path: /ready
@@ -174,7 +190,7 @@ spec:
             periodSeconds: 5
             timeoutSeconds: 3
             failureThreshold: 3
-          
+
           startupProbe:
             httpGet:
               path: /health
@@ -183,14 +199,16 @@ spec:
             periodSeconds: 10
             timeoutSeconds: 3
             failureThreshold: 30
-          
+
           securityContext:
             allowPrivilegeEscalation: false
+            runAsNonRoot: true
+            runAsUser: 1001
             readOnlyRootFilesystem: true
             capabilities:
               drop:
                 - ALL
-      
+
       volumes:
         - name: module-config
           configMap:
@@ -201,7 +219,7 @@ spec:
           emptyDir: {}
         - name: npm-cache
           emptyDir: {}
-      
+
       # Node affinity for Azure specific zones
       affinity:
         podAntiAffinity:
@@ -223,7 +241,7 @@ spec:
                     operator: In
                     values:
                       - linux
-      
+
       # Pod disruption budget handled separately
       # Tolerations for specific workloads
       tolerations:
