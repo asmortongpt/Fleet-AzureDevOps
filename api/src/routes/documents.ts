@@ -13,10 +13,10 @@ import { secureFileValidation } from '../utils/file-validation'
 const router = express.Router()
 router.use(authenticateJWT)
 
-// Configure multer for file uploads - using memory storage for security validation// Files are validated before being written to diskconst upload = multer({  storage: multer.memoryStorage(), // Store in memory for validation before disk write  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit (reduced from 50MB)  fileFilter: (req, file, cb) => {    // Basic check - actual validation happens after upload using magic bytes    // This is just to reject obviously wrong content types early    if (file.mimetype.startsWith('image/') ||        file.mimetype.startsWith('application/pdf') ||        file.mimetype.includes('document') ||        file.mimetype.includes('sheet')) {      cb(null, true)    } else {      cb(new Error('File type not allowed'))    }  }})
-
+// Configure multer for file uploads - using memory storage for security validation
+// Files are validated before being written to disk
 const upload = multer({
-  storage,
+  storage: multer.memoryStorage(), // Store in memory for validation before disk write
   limits: { fileSize: 50 * 1024 * 1024 }, // 50MB limit
   fileFilter: (req, file, cb) => {
     const allowedTypes = [
