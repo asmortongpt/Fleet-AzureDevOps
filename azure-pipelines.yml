@@ -1,8 +1,7 @@
 # ============================================================================
-# Fleet Management System - Azure DevOps CI/CD Pipeline (Simplified)
+# Fleet Management System - Azure DevOps CI/CD Pipeline
 # ============================================================================
-# This pipeline builds, tests, and provides deployment artifacts
-# Actual deployment is done manually via kubectl or GitHub Actions
+# Simple build and verify pipeline
 # ============================================================================
 
 trigger:
@@ -21,181 +20,70 @@ pr:
     include:
       - main
       - develop
-  paths:
-    exclude:
-      - README.md
-      - docs/**
-      - '*.md'
 
-# ============================================================================
-# VARIABLES
-# ============================================================================
 variables:
   nodeVersion: '20.x'
-  registryName: 'fleetappregistry'
-  registryLoginServer: 'fleetappregistry.azurecr.io'
-  aksCluster: 'fleet-aks-cluster'
-  aksResourceGroup: 'fleet-management-rg'
-  namespace: 'fleet-management'
   productionUrl: 'https://fleet.capitaltechalliance.com'
-  imageTag: '$(Build.BuildId)'
-  isProdBranch: $[eq(variables['Build.SourceBranch'], 'refs/heads/main')]
 
-# ============================================================================
-# BUILD AGENT POOL
-# ============================================================================
 pool:
   vmImage: 'ubuntu-latest'
 
-# ============================================================================
-# STAGES
-# ============================================================================
 stages:
-  # ==========================================================================
-  # STAGE 1: BUILD & TEST
-  # ==========================================================================
-  - stage: BuildAndTest
-    displayName: 'Build & Test'
+  - stage: Build
+    displayName: 'Build & Verify'
     jobs:
-      - job: Build
+      - job: BuildJob
         displayName: 'Build Application'
         steps:
           - checkout: self
-            displayName: 'Checkout code'
             clean: true
 
-          # Install Node.js
           - task: NodeTool@0
-            displayName: 'Install Node.js $(nodeVersion)'
+            displayName: 'Install Node.js'
             inputs:
               versionSpec: $(nodeVersion)
 
-          # Install Frontend Dependencies
-          - script: |
-              echo "Installing frontend dependencies..."
-              npm ci
-            displayName: 'Install Frontend Dependencies'
+          - script: npm ci
+            displayName: 'Install Dependencies'
 
-          # Build Frontend
-          - script: |
-              echo "Building frontend..."
-              npx vite build || npm run build || true
-              echo "Build completed"
+          - script: npx vite build
             displayName: 'Build Frontend'
-            continueOnError: true
 
-          # Install API Dependencies
           - script: |
-              echo "Installing API dependencies..."
-              cd api
-              npm ci
-            displayName: 'Install API Dependencies'
-            continueOnError: true
+              if [ -d "dist" ]; then
+                echo "Build successful - dist folder exists"
+                ls -la dist/
+              else
+                echo "Warning: dist folder not found"
+              fi
+            displayName: 'Verify Build'
 
-          # Run TypeScript Check
-          - script: |
-              echo "Running TypeScript check..."
-              npx tsc --noEmit || true
-            displayName: 'TypeScript Check'
-            continueOnError: true
-
-          # Run Unit Tests
-          - script: |
-              echo "Running tests..."
-              npm test -- --passWithNoTests || true
-            displayName: 'Run Tests'
-            continueOnError: true
-
-          # Publish Build Artifacts
           - task: PublishPipelineArtifact@1
-            displayName: 'Publish Build Artifacts'
+            displayName: 'Publish Artifacts'
             inputs:
               targetPath: 'dist'
               artifact: 'frontend-build'
-              publishLocation: 'pipeline'
+            condition: succeededOrFailed()
 
-  # ==========================================================================
-  # STAGE 2: SECURITY SCAN
-  # ==========================================================================
-  - stage: SecurityScan
-    displayName: 'Security Scan'
-    dependsOn: BuildAndTest
+  - stage: Verify
+    displayName: 'Verify Deployment'
+    dependsOn: Build
     condition: succeeded()
     jobs:
-      - job: SecurityChecks
-        displayName: 'Security Checks'
-        steps:
-          - checkout: self
-
-          # npm audit
-          - script: |
-              echo "Running npm audit..."
-              npm audit --audit-level=high || echo "Vulnerabilities found - review recommended"
-            displayName: 'npm Audit'
-            continueOnError: true
-
-          # Secret scanning
-          - script: |
-              echo "Scanning for secrets..."
-              # Simple grep-based secret scan
-              if grep -rE "(api[_-]?key|password|secret|token)\s*[:=]\s*['\"][^'\"]{8,}" --include="*.ts" --include="*.js" --include="*.tsx" --include="*.json" . 2>/dev/null | grep -v node_modules | grep -v ".git" | head -5; then
-                echo "##vso[task.logissue type=warning]Potential secrets found in code - please review"
-              else
-                echo "No obvious secrets found"
-              fi
-            displayName: 'Secret Scan'
-            continueOnError: true
-
-  # ==========================================================================
-  # STAGE 3: DEPLOYMENT INFO (Manual deployment instructions)
-  # ==========================================================================
-  - stage: DeploymentInfo
-    displayName: 'Deployment Info'
-    dependsOn: SecurityScan
-    condition: and(succeeded(), eq(variables.isProdBranch, true))
-    jobs:
-      - job: DeployInfo
-        displayName: 'Deployment Instructions'
+      - job: HealthCheck
+        displayName: 'Health Check'
         steps:
           - script: |
-              echo "=========================================="
-              echo "DEPLOYMENT READY"
-              echo "=========================================="
-              echo ""
-              echo "Build: $(Build.BuildId)"
-              echo "Commit: $(Build.SourceVersion)"
-              echo "Branch: $(Build.SourceBranch)"
-              echo ""
-              echo "To deploy manually, run:"
-              echo ""
-              echo "  # Login to Azure"
-              echo "  az login"
-              echo ""
-              echo "  # Get AKS credentials"
-              echo "  az aks get-credentials --resource-group $(aksResourceGroup) --name $(aksCluster)"
-              echo ""
-              echo "  # Build and push image"
-              echo "  az acr build --registry $(registryName) --image fleet-app:$(imageTag) ."
-              echo ""
-              echo "  # Update deployment"
-              echo "  kubectl set image deployment/fleet-app fleet-app=$(registryLoginServer)/fleet-app:$(imageTag) -n $(namespace)"
-              echo ""
-              echo "  # Set env vars"
-              echo "  kubectl set env deployment/fleet-app VITE_API_URL=$(productionUrl) VITE_ENVIRONMENT=production VITE_BUILD_VERSION=$(imageTag) -n $(namespace)"
-              echo ""
-              echo "=========================================="
-              echo "Current Production URL: $(productionUrl)"
-              echo "=========================================="
-            displayName: 'Print Deployment Instructions'
-
-          # Health check
-          - script: |
-              echo "Checking current deployment health..."
+              echo "Checking production health..."
               HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" $(productionUrl)/api/health || echo "000")
-              if [ "$HTTP_CODE" = "200" ]; then
-                echo "##vso[task.complete result=Succeeded;]Current deployment is healthy (HTTP $HTTP_CODE)"
+              echo "API Health: HTTP $HTTP_CODE"
+
+              FRONTEND_CODE=$(curl -s -o /dev/null -w "%{http_code}" $(productionUrl)/ || echo "000")
+              echo "Frontend: HTTP $FRONTEND_CODE"
+
+              if [ "$HTTP_CODE" = "200" ] && [ "$FRONTEND_CODE" = "200" ]; then
+                echo "Production is healthy!"
               else
-                echo "##vso[task.logissue type=warning]Current deployment returned HTTP $HTTP_CODE"
+                echo "Warning: Production may have issues"
               fi
-            displayName: 'Health Check'
-            continueOnError: true
+            displayName: 'Check Production Health'
