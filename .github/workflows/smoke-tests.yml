@@ -9,9 +9,9 @@ on:
         required: false
         default: 'https://fleet.capitaltechalliance.com'
 
-  # Run every 5 minutes as uptime monitor
-  schedule:
-    - cron: '*/5 * * * *'
+  # Disabled: Running every 5 minutes exhausts GitHub Actions minutes quota
+  # schedule:
+  #   - cron: '*/5 * * * *'
 
   # Run on push to main for immediate verification
   push:
