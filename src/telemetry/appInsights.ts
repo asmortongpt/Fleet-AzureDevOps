@@ -10,16 +10,25 @@
  * - 10% sampling for production
  */
 
-import {
-  ApplicationInsights,
+// Dynamic import types - we'll import the actual module lazily to prevent bundle crashes
+import type {
+  ApplicationInsights as ApplicationInsightsType,
   IExceptionTelemetry,
   IPageViewTelemetry,
   ITraceTelemetry,
   IMetricTelemetry,
   IEventTelemetry,
   ITelemetryItem,
-  SeverityLevel,
 } from '@microsoft/applicationinsights-web';
+
+// Re-export SeverityLevel enum (used for typing)
+export const SeverityLevel = {
+  Verbose: 0,
+  Information: 1,
+  Warning: 2,
+  Error: 3,
+  Critical: 4,
+} as const;
 
 // Type definitions for telemetry configuration
 export interface TelemetryConfig {
@@ -41,8 +50,9 @@ export interface AuthenticatedUser {
 }
 
 // Singleton instance
-let appInsightsInstance: ApplicationInsights | null = null;
+let appInsightsInstance: ApplicationInsightsType | null = null;
 let isInitialized = false;
+let initializationPromise: Promise<ApplicationInsightsType | null> | null = null;
 
 /**
  * Get default telemetry configuration based on environment
@@ -68,8 +78,9 @@ function getDefaultConfig(): TelemetryConfig {
 /**
  * Initialize Azure Application Insights
  * Should be called once at application startup
+ * Uses dynamic import to prevent bundle crashes
  */
-export function initializeAppInsights(customConfig?: Partial<TelemetryConfig>): ApplicationInsights | null {
+export function initializeAppInsights(customConfig?: Partial<TelemetryConfig>): ApplicationInsightsType | null {
   if (isInitialized && appInsightsInstance) {
     console.warn('[AppInsights] Already initialized. Returning existing instance.');
     return appInsightsInstance;
@@ -83,7 +94,21 @@ export function initializeAppInsights(customConfig?: Partial<TelemetryConfig>): 
     return null;
   }
 
+  // Initialize asynchronously using dynamic import to avoid bundle crashes
+  initializationPromise = initializeAsync(config);
+
+  // Return null for now - the instance will be available via getAppInsights() after async init
+  return null;
+}
+
+/**
+ * Async initialization helper using dynamic import
+ */
+async function initializeAsync(config: TelemetryConfig): Promise<ApplicationInsightsType | null> {
   try {
+    // Dynamic import to prevent bundle crashes
+    const { ApplicationInsights } = await import('@microsoft/applicationinsights-web');
+
     appInsightsInstance = new ApplicationInsights({
       config: {
         connectionString: config.connectionString,
@@ -168,6 +193,7 @@ export function initializeAppInsights(customConfig?: Partial<TelemetryConfig>): 
     return appInsightsInstance;
   } catch (error) {
     console.error('[AppInsights] Failed to initialize:', error);
+    isInitialized = false;
     return null;
   }
 }
@@ -195,13 +221,20 @@ function scrubPiiFromUrl(url: string): string {
 
 /**
  * Get the Application Insights instance
+ * Returns null if not yet initialized
  */
-export function getAppInsights(): ApplicationInsights | null {
-  if (!isInitialized) {
-    console.warn('[AppInsights] Not initialized. Call initializeAppInsights first.');
-    return null;
-  }
+export function getAppInsights(): ApplicationInsightsType | null {
   return appInsightsInstance;
+}
+
+/**
+ * Wait for Application Insights to be initialized
+ * Useful for code that needs to ensure telemetry is ready
+ */
+export async function waitForAppInsights(): Promise<ApplicationInsightsType | null> {
+  if (appInsightsInstance) return appInsightsInstance;
+  if (initializationPromise) return initializationPromise;
+  return null;
 }
 
 /**
@@ -352,9 +385,6 @@ export function flushTelemetry(): void {
 export function isTelemetryEnabled(): boolean {
   return isInitialized && appInsightsInstance !== null;
 }
-
-// Export SeverityLevel for external use
-export { SeverityLevel };
 
 // Export types
 export type {
