@@ -16,8 +16,9 @@ COPY package*.json ./
 ARG CACHE_BUST=1
 RUN echo "Cache bust: $CACHE_BUST - forcing fresh npm install"
 
-# Install dependencies (this layer will rebuild when CACHE_BUST changes)
-RUN npm ci
+# Install dependencies (use npm install to resolve correct platform deps)
+# npm ci would fail because lock file has macOS bindings
+RUN npm install
 
 # Copy source code
 COPY . .
