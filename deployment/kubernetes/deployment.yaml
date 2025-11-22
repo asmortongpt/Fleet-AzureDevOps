@@ -78,7 +78,7 @@ spec:
 
       containers:
         - name: fleet-app
-          image: fleetappregistry.azurecr.io/fleet-app:v1.0.0
+          image: fleetappregistry.azurecr.io/fleet-app:v20251122-runtime-fix
           imagePullPolicy: IfNotPresent
           ports:
             - name: http
