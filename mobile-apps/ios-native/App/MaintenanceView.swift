@@ -509,7 +509,7 @@ struct ScheduleMaintenanceView: View {
 // MARK: - Maintenance Detail View
 struct MaintenanceDetailView: View {
     let record: MaintenanceRecord
-    @ObservedObject var viewModel: any ObservableObject  // Type-erased to avoid missing MaintenanceViewModel
+    @ObservedObject var viewModel: MaintenanceViewModel
     @Environment(\.dismiss) private var dismiss
     @State private var showingReschedule = false
 
