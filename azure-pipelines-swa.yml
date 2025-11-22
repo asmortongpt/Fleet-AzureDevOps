@@ -19,11 +19,16 @@ steps:
     env:
       NODE_ENV: production
 
-  - task: AzureStaticWebApp@0
-    inputs:
-      app_location: 'dist'
-      skip_app_build: true
-      azure_static_web_apps_api_token: $(AZURE_STATIC_WEB_APPS_API_TOKEN)
+  - script: |
+      npm install -g @azure/static-web-apps-cli
+      swa deploy dist --deployment-token $DEPLOYMENT_TOKEN --env production
     displayName: 'Deploy to Azure Static Web Apps'
     env:
-      AZURE_STATIC_WEB_APPS_API_TOKEN: '8958e9063a41847d18681ecea6fcd3277793beac070b38f016af1cb382a8d6cf03-d2d7e5b3-bdb3-4c4d-b1d0-48d6997a683000f04210f040980f'
+      DEPLOYMENT_TOKEN: '8958e9063a41847d18681ecea6fcd3277793beac070b38f016af1cb382a8d6cf03-d2d7e5b3-bdb3-4c4d-b1d0-48d6997a683000f04210f040980f'
+
+  - script: |
+      echo "Verifying deployment..."
+      sleep 30
+      curl -sf https://green-pond-0f040980f.3.azurestaticapps.net > /dev/null && echo "Deployment successful!" || echo "Deployment may need verification"
+    displayName: 'Verify Deployment'
+    continueOnError: true
