@@ -10,8 +10,7 @@
     },
     {
       "route": "/*",
-      "serve": "/index.html",
-      "statusCode": 200
+      "rewrite": "/index.html"
     }
   ],
   "responseOverrides": {
@@ -21,7 +20,7 @@
     }
   },
   "globalHeaders": {
-    "content-security-policy": "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com https://atlas.microsoft.com data:; worker-src 'self' blob:; img-src 'self' data: https: blob:; connect-src 'self' https://*.mapbox.com https://*.tiles.mapbox.com https://api.mapbox.com https://events.mapbox.com https://atlas.microsoft.com https://api.openai.com https://graph.microsoft.com wss://localhost:* ws://localhost:*; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests; block-all-mixed-content;",
+    "content-security-policy": "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com https://atlas.microsoft.com data:; worker-src 'self' blob:; img-src 'self' data: https: blob:; connect-src 'self' https://*.mapbox.com https://*.tiles.mapbox.com https://api.mapbox.com https://events.mapbox.com https://atlas.microsoft.com https://api.openai.com https://graph.microsoft.com https://*.applicationinsights.azure.com https://*.applicationinsights.io https://dc.services.visualstudio.com wss://localhost:* ws://localhost:*; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests; block-all-mixed-content;",
     "X-Frame-Options": "DENY",
     "X-Content-Type-Options": "nosniff",
     "Referrer-Policy": "strict-origin-when-cross-origin",
