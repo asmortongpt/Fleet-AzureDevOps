@@ -353,12 +353,14 @@ export function initializeServiceWorker(): void {
   });
 }
 
-// Auto-initialize when module is imported (can be disabled by checking env)
-if (typeof window !== 'undefined' && import.meta.env.VITE_DISABLE_SW_AUTO_INIT !== 'true') {
-  // Defer initialization until the page loads
-  if (document.readyState === 'complete') {
-    initializeServiceWorker();
-  } else {
-    window.addEventListener('load', initializeServiceWorker);
-  }
-}
+// NOTE: Auto-initialization removed to prevent blocking React rendering.
+// Service worker is now manually initialized from main.tsx AFTER React mounts.
+// To restore auto-init behavior, uncomment below:
+//
+// if (typeof window !== 'undefined' && import.meta.env.VITE_DISABLE_SW_AUTO_INIT !== 'true') {
+//   if (document.readyState === 'complete') {
+//     initializeServiceWorker();
+//   } else {
+//     window.addEventListener('load', initializeServiceWorker);
+//   }
+// }
