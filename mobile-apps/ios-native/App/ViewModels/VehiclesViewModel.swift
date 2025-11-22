@@ -25,7 +25,6 @@ final class VehiclesViewModel: RefreshableViewModel {
     @Published var offlineCount: Int = 0
 
     // MARK: - Private Properties
-    private let mockData = MockDataGenerator.shared
     private var allVehicles: [Vehicle] = []
 
     // MARK: - Filter Options
@@ -88,8 +87,8 @@ final class VehiclesViewModel: RefreshableViewModel {
         // Simulate network delay
         await Task.sleep(200_000_000) // 0.2 seconds
 
-        // Generate mock vehicles
-        allVehicles = mockData.generateVehicles(count: 25)
+        // Initialize with empty data - will be populated from API
+        allVehicles = []
         vehicles = allVehicles
 
         // Update statistics
