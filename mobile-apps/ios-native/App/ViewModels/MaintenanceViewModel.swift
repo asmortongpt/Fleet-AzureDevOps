@@ -284,7 +284,7 @@ final class MaintenanceViewModel: RefreshableViewModel {
         updateStatistics()
     }
 
-    func rescheduleMainten ance(_ record: MaintenanceRecord, newDate: Date) {
+    func rescheduleMaintenance(_ record: MaintenanceRecord, newDate: Date) {
         guard let index = allRecords.firstIndex(where: { $0.id == record.id }) else { return }
 
         var updatedRecord = record
