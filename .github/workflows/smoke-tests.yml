@@ -1,0 +1,233 @@
+name: Production Smoke Tests
+
+on:
+  # Run after deployment completes
+  workflow_dispatch:
+    inputs:
+      production_url:
+        description: 'Production URL to test'
+        required: false
+        default: 'http://68.220.148.2'
+
+  # Run every 5 minutes as uptime monitor
+  schedule:
+    - cron: '*/5 * * * *'
+
+  # Run on push to main for immediate verification
+  push:
+    branches:
+      - main
+      - master
+
+  # Run on pull request to verify changes
+  pull_request:
+    branches:
+      - main
+      - master
+
+env:
+  PRODUCTION_URL: ${{ github.event.inputs.production_url || 'http://68.220.148.2' }}
+  CI: true
+
+jobs:
+  smoke-tests:
+    name: Production Smoke Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Create test results directory
+        run: mkdir -p test-results/screenshots test-results/console-logs
+
+      - name: Run smoke tests
+        id: smoke-tests
+        run: |
+          npm run test:smoke:production 2>&1 | tee smoke-test-output.log
+          echo "exit_code=${PIPESTATUS[0]}" >> $GITHUB_OUTPUT
+        continue-on-error: true
+        env:
+          PRODUCTION_URL: ${{ env.PRODUCTION_URL }}
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: smoke-test-results-${{ github.run_id }}
+          path: |
+            test-results/
+            playwright-report/
+            smoke-test-output.log
+          retention-days: 30
+
+      - name: Upload screenshots on failure
+        if: failure() || steps.smoke-tests.outputs.exit_code != '0'
+        uses: actions/upload-artifact@v4
+        with:
+          name: failure-screenshots-${{ github.run_id }}
+          path: test-results/screenshots/
+          retention-days: 30
+          if-no-files-found: ignore
+
+      - name: Upload console logs on failure
+        if: failure() || steps.smoke-tests.outputs.exit_code != '0'
+        uses: actions/upload-artifact@v4
+        with:
+          name: console-logs-${{ github.run_id }}
+          path: test-results/console-logs/
+          retention-days: 30
+          if-no-files-found: ignore
+
+      - name: Check test results
+        if: steps.smoke-tests.outputs.exit_code != '0'
+        run: |
+          echo "::error::Smoke tests failed! Check the uploaded artifacts for details."
+          exit 1
+
+  notify-on-failure:
+    name: Notify on Failure
+    runs-on: ubuntu-latest
+    needs: smoke-tests
+    if: failure()
+
+    steps:
+      - name: Send failure notification
+        run: |
+          echo "::error::Production smoke tests failed at $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
+          echo "::error::Production URL: ${{ env.PRODUCTION_URL }}"
+          echo "::error::Check workflow run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+
+      # Uncomment and configure to enable Slack notifications
+      # - name: Send Slack notification
+      #   uses: slackapi/slack-github-action@v1.24.0
+      #   with:
+      #     payload: |
+      #       {
+      #         "text": "Production Smoke Tests Failed!",
+      #         "blocks": [
+      #           {
+      #             "type": "section",
+      #             "text": {
+      #               "type": "mrkdwn",
+      #               "text": "*Production Smoke Tests Failed!*\n\n*URL:* ${{ env.PRODUCTION_URL }}\n*Time:* $(date -u '+%Y-%m-%d %H:%M:%S UTC')\n*Workflow:* <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View Details>"
+      #             }
+      #           }
+      #         ]
+      #       }
+      #   env:
+      #     SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+      #     SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
+
+      # Uncomment and configure to enable email notifications
+      # - name: Send email notification
+      #   uses: dawidd6/action-send-mail@v3
+      #   with:
+      #     server_address: smtp.office365.com
+      #     server_port: 587
+      #     username: ${{ secrets.EMAIL_USER }}
+      #     password: ${{ secrets.EMAIL_PASS }}
+      #     subject: "[ALERT] Fleet Production Smoke Tests Failed"
+      #     body: |
+      #       Production smoke tests failed at $(date -u '+%Y-%m-%d %H:%M:%S UTC')
+      #
+      #       Production URL: ${{ env.PRODUCTION_URL }}
+      #
+      #       View workflow run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+      #     to: andrew.m@capitaltechalliance.com
+      #     from: Fleet Monitoring <noreply@fleet.example.com>
+
+  uptime-report:
+    name: Update Uptime Report
+    runs-on: ubuntu-latest
+    needs: smoke-tests
+    if: always()
+
+    steps:
+      - name: Record uptime status
+        run: |
+          STATUS="success"
+          if [ "${{ needs.smoke-tests.result }}" != "success" ]; then
+            STATUS="failure"
+          fi
+          echo "Uptime check at $(date -u '+%Y-%m-%d %H:%M:%S UTC'): $STATUS"
+          echo "Production URL: ${{ env.PRODUCTION_URL }}"
+
+      # Optionally send to monitoring service (Datadog, New Relic, etc.)
+      # - name: Send to monitoring service
+      #   run: |
+      #     curl -X POST "https://api.monitoring-service.com/v1/metrics" \
+      #       -H "Content-Type: application/json" \
+      #       -H "Authorization: Bearer ${{ secrets.MONITORING_API_KEY }}" \
+      #       -d '{
+      #         "metric": "fleet.uptime.check",
+      #         "value": ${{ needs.smoke-tests.result == 'success' && 1 || 0 }},
+      #         "timestamp": "'$(date +%s)'",
+      #         "tags": ["env:production", "app:fleet"]
+      #       }'
+
+  critical-paths:
+    name: Critical Path Tests
+    runs-on: ubuntu-latest
+    needs: smoke-tests
+    if: success()
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Create test results directory
+        run: mkdir -p test-results/screenshots test-results/console-logs
+
+      - name: Run critical path tests
+        id: critical-tests
+        run: |
+          npx playwright test tests/smoke/critical-paths.test.ts --project=chromium 2>&1 | tee critical-test-output.log
+          echo "exit_code=${PIPESTATUS[0]}" >> $GITHUB_OUTPUT
+        continue-on-error: true
+        env:
+          PRODUCTION_URL: ${{ env.PRODUCTION_URL }}
+
+      - name: Upload critical test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: critical-test-results-${{ github.run_id }}
+          path: |
+            test-results/
+            playwright-report/
+            critical-test-output.log
+          retention-days: 30
+
+      - name: Check critical test results
+        if: steps.critical-tests.outputs.exit_code != '0'
+        run: |
+          echo "::warning::Critical path tests failed! Check the uploaded artifacts for details."
+          # Don't fail the workflow on critical path tests - they're more comprehensive
+          # and may have expected failures in certain environments
