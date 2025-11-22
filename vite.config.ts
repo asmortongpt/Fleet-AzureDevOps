@@ -3,6 +3,7 @@ import react from "@vitejs/plugin-react-swc";
 import { defineConfig, PluginOption } from "vite";
 import { visualizer } from "rollup-plugin-visualizer";
 import { resolve } from 'path'
+import { injectBuildVersion } from './plugins/injectBuildVersion'
 
 const projectRoot = process.env.PROJECT_ROOT || import.meta.dirname
 
@@ -11,6 +12,13 @@ export default defineConfig({
   plugins: [
     react(),
     tailwindcss(),
+    // Inject build version into service worker
+    // Format: v1.0.0-{commitSHA}-{timestamp}
+    injectBuildVersion({
+      baseVersion: 'v1.0.0',
+      swPath: 'sw.js',
+      placeholder: '__BUILD_VERSION__',
+    }),
     // Bundle analyzer - generates stats.html after build
     visualizer({
       filename: './dist/stats.html',

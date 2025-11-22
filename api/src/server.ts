@@ -5,12 +5,22 @@ import sdk from './config/telemetry'
 sdk.start()
 console.log('OpenTelemetry instrumentation started')
 
+// Load environment variables FIRST (before validation)
+import dotenv from 'dotenv'
+dotenv.config()
+
+// CRITICAL: Validate ALL environment variables using Zod before any other initialization
+// This implements fail-fast behavior - server will not start with invalid configuration
+// Security: Validates JWT_SECRET, CSRF_SECRET lengths, placeholder detection, and more
+// Reference: CWE-287 (Improper Authentication), CWE-798 (Hard-coded Credentials)
+import { validateEnv } from './config/validateEnv'
+const validatedEnv = validateEnv()
+
 import express from 'express'
 import cors from 'cors'
 import helmet from 'helmet'
-
+import { getCorsConfig, validateCorsConfiguration } from './middleware/corsConfig'
 import cookieParser from 'cookie-parser'
-import dotenv from 'dotenv'
 import { csrfTokenMiddleware, conditionalCsrfProtection, csrfErrorHandler } from './middleware/csrf'
 import { setTenantContext, debugTenantContext } from './middleware/tenant-context'
 import { globalLimiter } from './config/rate-limiters'
@@ -103,49 +113,15 @@ import webhookRenewal from './jobs/webhook-renewal.job'
 import schedulingReminders from './jobs/scheduling-reminders.job'
 import dispatchService from './services/dispatch.service'
 import documentService from './services/document.service'
+// Database connection pool management
+import { initializeDatabase, shutdownDatabase, poolMonitor } from './database'
 
-dotenv.config()
-
-// SECURITY: Validate critical security configuration at startup (fail-fast principle)
-// This prevents the server from starting with insecure configuration that could lead
-// to authentication bypass vulnerabilities (CWE-287, CWE-798)
-console.log('🔒 Validating security configuration...')
-
-// Validate JWT_SECRET is set and meets minimum security requirements
-if (!process.env.JWT_SECRET) {
-  console.error('❌ FATAL SECURITY ERROR: JWT_SECRET environment variable is not set')
-  console.error('❌ JWT_SECRET is required for secure authentication')
-  console.error('❌ Generate a secure secret with: openssl rand -base64 48')
-  console.error('❌ Server startup aborted')
-  process.exit(1)
-}
-
-if (process.env.JWT_SECRET.length < 32) {
-  console.error('❌ FATAL SECURITY ERROR: JWT_SECRET is too short')
-  console.error(`❌ Current length: ${process.env.JWT_SECRET.length} characters`)
-  console.error('❌ Minimum required: 32 characters')
-  console.error('❌ Recommended: 64+ characters')
-  console.error('❌ Generate a secure secret with: openssl rand -base64 48')
-  console.error('❌ Server startup aborted')
-  process.exit(1)
-}
-
-// Warn if using weak/default secrets (common weak patterns)
-const weakSecrets = ['changeme', 'secret', 'password', 'test', 'demo', 'default', 'your-secret-key']
-const lowerSecret = process.env.JWT_SECRET.toLowerCase()
-if (weakSecrets.some(weak => lowerSecret.includes(weak))) {
-  console.error('❌ FATAL SECURITY ERROR: JWT_SECRET appears to contain a weak/default value')
-  console.error('❌ Detected weak pattern in secret')
-  console.error('❌ Generate a secure secret with: openssl rand -base64 48')
-  console.error('❌ Server startup aborted')
-  process.exit(1)
-}
-
-console.log('✅ JWT_SECRET validated successfully')
-console.log(`✅ JWT_SECRET length: ${process.env.JWT_SECRET.length} characters`)
+// NOTE: dotenv.config() is called at the top of the file before validateEnv()
+// NOTE: Environment validation (JWT_SECRET, CSRF_SECRET, etc.) is now handled by validateEnv()
+// See: src/config/validateEnv.ts for comprehensive Zod-based validation
 
 const app = express()
-const PORT = process.env.PORT || 3000
+const PORT = validatedEnv.PORT
 
 // Security middleware with enhanced headers (FedRAMP SC-7, SC-8)
 app.use(helmet({
@@ -172,45 +148,32 @@ app.use(helmet({
   xXssProtection: true
 }))
 
-// CORS configuration - allow frontend deployments
-// Default origins for local development only
-const defaultDevOrigins = [
-  'http://localhost:5173',
-  'http://localhost:3000',
-  'http://localhost:4173'
-]
+// ============================================
+// PRODUCTION-GRADE CORS CONFIGURATION
+// ============================================
+// Security Controls:
+// - FedRAMP SC-7 (Boundary Protection)
+// - FedRAMP AC-4 (Information Flow Enforcement)
+// - CWE-346 (Origin Validation Error prevention)
+// - CWE-942 (Overly Permissive CORS Policy prevention)
+//
+// Features:
+// - Strict origin validation with exact matching (no wildcards in production)
+// - HTTPS enforcement for production origins
+// - Development-only localhost access (NODE_ENV=development required)
+// - Comprehensive CORS rejection logging with timestamp, origin, method
+// - 24-hour preflight cache (maxAge: 86400)
+// - Credentials support enabled
+//
+// Configuration:
+// - Set CORS_ORIGIN environment variable with comma-separated origins
+// - Example: CORS_ORIGIN=https://app.example.com,https://admin.example.com
 
-// In production, CORS_ORIGIN environment variable is REQUIRED
-// Never hardcode production domains in source code
-const allowedOrigins = process.env.NODE_ENV === 'production'
-  ? [] // No default origins in production - must be explicitly configured
-  : [...defaultDevOrigins]
+// Validate CORS configuration at startup (fail-fast principle)
+validateCorsConfiguration()
 
-// Add custom origins from environment variable
-if (process.env.CORS_ORIGIN) {
-  allowedOrigins.push(...process.env.CORS_ORIGIN.split(',').map(origin => origin.trim()))
-}
-
-// Warn if no origins configured in production
-if (process.env.NODE_ENV === 'production' && allowedOrigins.length === 0) {
-  console.warn('⚠️  WARNING: No CORS origins configured! Set CORS_ORIGIN environment variable.')
-}
-
-app.use(cors({
-  origin: (origin, callback) => {
-    // Allow requests with no origin (like mobile apps or curl)
-    if (!origin) return callback(null, true)
-
-    if (allowedOrigins.includes(origin) || process.env.NODE_ENV === 'development') {
-      callback(null, true)
-    } else {
-      callback(new Error(`Origin ${origin} not allowed by CORS`))
-    }
-  },
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-CSRF-Token']
-}))
+// Apply production-grade CORS middleware
+app.use(cors(getCorsConfig()))
 
 // Rate limiting (FedRAMP SI-10)
 // Global rate limiter: 30 requests per minute (reduced from 100 for enhanced security)
@@ -629,10 +592,22 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
   })
 })
 
-const server = app.listen(PORT, () => {
+const server = app.listen(PORT, async () => {
   console.log(`🚀 Fleet API running on port ${PORT}`)
   console.log(`📚 Environment: ${process.env.NODE_ENV}`)
   console.log(`🔒 CORS Origins: ${process.env.CORS_ORIGIN}`)
+
+  // Initialize database connection pool management
+  try {
+    await initializeDatabase({
+      eagerInit: process.env.DB_EAGER_INIT === 'true',
+      startMonitor: process.env.DB_MONITOR_ENABLED !== 'false'
+    })
+    console.log(`🗄️  Database connection pool manager initialized`)
+  } catch (error) {
+    console.error('Failed to initialize database connection pool:', error)
+    // Non-fatal: lazy initialization will still work
+  }
 
   // Initialize dispatch WebSocket server
   try {
@@ -689,6 +664,112 @@ const server = app.listen(PORT, () => {
   } catch (error) {
     console.error('Failed to start scheduling reminders:', error)
   }
+})
+
+// ============================================
+// Graceful Shutdown Handling
+// ============================================
+// Implements proper shutdown sequence:
+// 1. Stop accepting new connections
+// 2. Wait for active requests to complete (max 30 seconds)
+// 3. Close database connection pools
+// 4. Stop background jobs and schedulers
+
+const SHUTDOWN_TIMEOUT_MS = parseInt(process.env.SHUTDOWN_TIMEOUT_MS || '30000')
+
+async function gracefulShutdown(signal: string): Promise<void> {
+  console.log(`\n[Shutdown] Received ${signal} signal, initiating graceful shutdown...`)
+
+  const shutdownStart = Date.now()
+
+  // Stop pool monitor first
+  try {
+    poolMonitor.stop()
+    console.log('[Shutdown] Pool monitor stopped')
+  } catch (error) {
+    console.error('[Shutdown] Error stopping pool monitor:', error)
+  }
+
+  // Stop accepting new connections
+  server.close((err) => {
+    if (err) {
+      console.error('[Shutdown] Error closing HTTP server:', err)
+    } else {
+      console.log('[Shutdown] HTTP server closed - no longer accepting connections')
+    }
+  })
+
+  // Stop background jobs
+  try {
+    maintenanceScheduler.stop()
+    console.log('[Shutdown] Maintenance scheduler stopped')
+  } catch (error) {
+    console.error('[Shutdown] Error stopping maintenance scheduler:', error)
+  }
+
+  try {
+    telematicsSync.stop()
+    console.log('[Shutdown] Telematics sync stopped')
+  } catch (error) {
+    console.error('[Shutdown] Error stopping telematics sync:', error)
+  }
+
+  try {
+    teamsSync.stop()
+    console.log('[Shutdown] Teams sync stopped')
+  } catch (error) {
+    console.error('[Shutdown] Error stopping Teams sync:', error)
+  }
+
+  try {
+    outlookSync.stop()
+    console.log('[Shutdown] Outlook sync stopped')
+  } catch (error) {
+    console.error('[Shutdown] Error stopping Outlook sync:', error)
+  }
+
+  try {
+    webhookRenewal.stop()
+    console.log('[Shutdown] Webhook renewal stopped')
+  } catch (error) {
+    console.error('[Shutdown] Error stopping webhook renewal:', error)
+  }
+
+  try {
+    schedulingReminders.stop()
+    console.log('[Shutdown] Scheduling reminders stopped')
+  } catch (error) {
+    console.error('[Shutdown] Error stopping scheduling reminders:', error)
+  }
+
+  // Shutdown database connections (waits for active queries, max 30 seconds)
+  try {
+    console.log('[Shutdown] Closing database connection pools...')
+    await shutdownDatabase()
+    console.log('[Shutdown] Database connections closed')
+  } catch (error) {
+    console.error('[Shutdown] Error closing database connections:', error)
+  }
+
+  const shutdownDuration = Date.now() - shutdownStart
+  console.log(`[Shutdown] Graceful shutdown completed in ${shutdownDuration}ms`)
+
+  process.exit(0)
+}
+
+// Register shutdown handlers
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM'))
+process.on('SIGINT', () => gracefulShutdown('SIGINT'))
+
+// Handle uncaught exceptions and unhandled rejections
+process.on('uncaughtException', (error) => {
+  console.error('[FATAL] Uncaught Exception:', error)
+  gracefulShutdown('UNCAUGHT_EXCEPTION')
+})
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('[FATAL] Unhandled Rejection at:', promise, 'reason:', reason)
+  // Don't exit for unhandled rejections - just log them
 })
 
 export default app

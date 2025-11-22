@@ -1,11 +1,19 @@
 /**
  * Service Worker for CTAFleet PWA
  * Provides offline support, caching strategies, and background sync
+ *
+ * Cache versioning is automatically managed via build process.
+ * The __BUILD_VERSION__ placeholder is replaced during build with:
+ * Format: v1.0.0-{commitSHA}-{timestamp}
  */
 
-const CACHE_VERSION = 'ctafleet-v1.0.1';
+// Build version placeholder - replaced by Vite plugin during build
+const CACHE_VERSION = '__BUILD_VERSION__';
 const CACHE_NAME = `ctafleet-cache-${CACHE_VERSION}`;
 const DATA_CACHE_NAME = `ctafleet-data-${CACHE_VERSION}`;
+
+// Log the cache version for debugging
+console.log(`[ServiceWorker] Version: ${CACHE_VERSION}`);
 
 // Assets to cache on install
 const STATIC_CACHE_URLS = [
@@ -25,7 +33,7 @@ const API_CACHE_URLS = [
 
 // Install event - cache static assets
 self.addEventListener('install', (event) => {
-  console.log('[ServiceWorker] Installing...');
+  console.log(`[ServiceWorker] Installing version: ${CACHE_VERSION}`);
 
   event.waitUntil(
     caches.open(CACHE_NAME)
@@ -42,25 +50,47 @@ self.addEventListener('install', (event) => {
 
 // Activate event - clean up old caches
 self.addEventListener('activate', (event) => {
-  console.log('[ServiceWorker] Activating...');
+  console.log(`[ServiceWorker] Activating version: ${CACHE_VERSION}`);
 
   event.waitUntil(
     caches.keys()
       .then((cacheNames) => {
+        // Get all ctafleet caches that are NOT the current version
+        const cachesToDelete = cacheNames.filter((cacheName) => {
+          // Only delete caches that belong to ctafleet
+          if (!cacheName.startsWith('ctafleet-')) {
+            return false;
+          }
+          // Keep current caches
+          if (cacheName === CACHE_NAME || cacheName === DATA_CACHE_NAME) {
+            return false;
+          }
+          return true;
+        });
+
+        console.log(`[ServiceWorker] Deleting ${cachesToDelete.length} old cache(s):`, cachesToDelete);
+
         return Promise.all(
-          cacheNames
-            .filter((cacheName) => {
-              return cacheName.startsWith('ctafleet-') && cacheName !== CACHE_NAME && cacheName !== DATA_CACHE_NAME;
-            })
-            .map((cacheName) => {
-              console.log('[ServiceWorker] Deleting old cache:', cacheName);
-              return caches.delete(cacheName);
-            })
+          cachesToDelete.map((cacheName) => {
+            console.log(`[ServiceWorker] Deleting cache: ${cacheName}`);
+            return caches.delete(cacheName);
+          })
         );
       })
       .then(() => {
         console.log('[ServiceWorker] Claiming clients');
         return self.clients.claim();
+      })
+      .then(() => {
+        // Notify all clients that a new version is active
+        return self.clients.matchAll({ type: 'window' }).then((clients) => {
+          clients.forEach((client) => {
+            client.postMessage({
+              type: 'SW_ACTIVATED',
+              version: CACHE_VERSION,
+            });
+          });
+        });
       })
   );
 });
@@ -209,6 +239,13 @@ self.addEventListener('message', (event) => {
 
   if (event.data && event.data.type === 'SKIP_WAITING') {
     self.skipWaiting();
+  }
+
+  if (event.data && event.data.type === 'GET_VERSION') {
+    event.ports[0].postMessage({
+      type: 'VERSION',
+      version: CACHE_VERSION,
+    });
   }
 
   if (event.data && event.data.type === 'CACHE_URLS') {
