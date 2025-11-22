@@ -356,14 +356,14 @@ public class OBD2Service: ObservableObject {
 // MARK: - Vehicle Health Model
 public struct VehicleHealth {
     public let overall: HealthStatus
-    public let engine: HealthStatus
-    public let transmission: HealthStatus
-    public let brakes: HealthStatus
-    public let battery: HealthStatus
-    public let emissions: HealthStatus
+    public let engine: OBD2HealthStatus
+    public let transmission: OBD2HealthStatus
+    public let brakes: OBD2HealthStatus
+    public let battery: OBD2HealthStatus
+    public let emissions: OBD2HealthStatus
 }
 
-public enum HealthStatus: String {
+public enum OBD2HealthStatus: String {
     case excellent = "Excellent"
     case good = "Good"
     case fair = "Fair"
