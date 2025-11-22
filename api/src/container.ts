@@ -82,11 +82,13 @@ export function createDIContainer() {
     injectionMode: InjectionMode.PROXY
   })
 
-  // Register database connections as values (singleton)
+  // Register database connections as functions (lazy singleton)
+  // Using asFunction with SINGLETON ensures the connection is only retrieved
+  // when first accessed, after connectionManager.initialize() has been called
   container.register({
-    db: asValue(connectionManager.getWritePool()),
-    readPool: asValue(connectionManager.getReadPool()),
-    writePool: asValue(connectionManager.getWritePool()),
+    db: asFunction(() => connectionManager.getWritePool(), { lifetime: Lifetime.SINGLETON }),
+    readPool: asFunction(() => connectionManager.getReadPool(), { lifetime: Lifetime.SINGLETON }),
+    writePool: asFunction(() => connectionManager.getWritePool(), { lifetime: Lifetime.SINGLETON }),
     logger: asValue(logger)
   })
 
