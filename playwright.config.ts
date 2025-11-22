@@ -30,6 +30,20 @@ export default defineConfig({
   },
 
   projects: [
+    // ========== Production Smoke Tests ==========
+    // Run smoke tests with: npm run test:smoke or npm run test:smoke:production
+    {
+      name: 'smoke-chromium',
+      testDir: './tests/smoke',
+      use: {
+        ...devices['Desktop Chrome'],
+        viewport: { width: 1920, height: 1080 },
+        baseURL: process.env.PRODUCTION_URL || process.env.APP_URL || 'http://localhost:5173',
+      },
+      timeout: 60000,
+      retries: 1,
+    },
+
     // ========== E2E Testing Projects ==========
     {
       name: 'chromium',
