@@ -1,64 +1,29 @@
-# ============================================================================
-# Fleet Management System - Azure Static Web Apps Pipeline
-# ============================================================================
-# Simplified single-job pipeline for deploying to Azure Static Web Apps
-# ============================================================================
-
+# Fleet Management - Azure Static Web Apps Pipeline
 trigger:
-  branches:
-    include:
-      - main
-  paths:
-    exclude:
-      - README.md
-      - docs/**
-      - '*.md'
-
-pr:
-  branches:
-    include:
-      - main
+  - main
 
 pool:
-  vmImage: 'ubuntu-latest'
+  vmImage: ubuntu-latest
 
-variables:
-  nodeVersion: '20.x'
+steps:
+  - task: NodeTool@0
+    inputs:
+      versionSpec: '20.x'
+    displayName: 'Install Node.js'
 
-jobs:
-  - job: BuildAndDeploy
-    displayName: 'Build and Deploy to Azure Static Web App'
-    steps:
-      - task: NodeTool@0
-        displayName: 'Install Node.js'
-        inputs:
-          versionSpec: $(nodeVersion)
+  - script: npm ci
+    displayName: 'Install dependencies'
 
-      - script: |
-          npm ci
-        displayName: 'Install Dependencies'
+  - script: npm run build
+    displayName: 'Build'
+    env:
+      NODE_ENV: production
 
-      - script: |
-          npm run build
-        displayName: 'Build Production'
-        env:
-          NODE_ENV: production
-
-      - task: AzureStaticWebApp@0
-        displayName: 'Deploy to Azure Static Web Apps'
-        inputs:
-          app_location: 'dist'
-          skip_app_build: true
-          azure_static_web_apps_api_token: '8958e9063a41847d18681ecea6fcd3277793beac070b38f016af1cb382a8d6cf03-d2d7e5b3-bdb3-4c4d-b1d0-48d6997a683000f04210f040980f'
-
-      - script: |
-          echo "Running smoke tests..."
-          sleep 30
-          RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" https://green-pond-0f040980f.3.azurestaticapps.net)
-          if [ "$RESPONSE" = "200" ]; then
-            echo "Smoke test PASSED: Application returned HTTP 200"
-          else
-            echo "Smoke test WARNING: Application returned HTTP $RESPONSE"
-          fi
-        displayName: 'Smoke Test'
-        continueOnError: true
+  - task: AzureStaticWebApp@0
+    inputs:
+      app_location: 'dist'
+      skip_app_build: true
+      azure_static_web_apps_api_token: $(AZURE_STATIC_WEB_APPS_API_TOKEN)
+    displayName: 'Deploy to Azure Static Web Apps'
+    env:
+      AZURE_STATIC_WEB_APPS_API_TOKEN: '8958e9063a41847d18681ecea6fcd3277793beac070b38f016af1cb382a8d6cf03-d2d7e5b3-bdb3-4c4d-b1d0-48d6997a683000f04210f040980f'
