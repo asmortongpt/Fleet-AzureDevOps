@@ -43,6 +43,11 @@ extension VehicleEntity {
 
         let alerts = (alertsData as? [String]) ?? []
 
+        // Convert string dates to Date
+        let dateFormatter = ISO8601DateFormatter()
+        let lastServiceDate = dateFormatter.date(from: lastService) ?? Date()
+        let nextServiceDate = dateFormatter.date(from: nextService) ?? Date()
+
         return Vehicle(
             id: id,
             tenantId: tenantId,
@@ -63,8 +68,8 @@ extension VehicleEntity {
             hoursUsed: hoursUsed == 0 ? nil : hoursUsed,
             assignedDriver: assignedDriver,
             ownership: OwnershipType(rawValue: ownershipRaw) ?? .owned,
-            lastService: lastService,
-            nextService: nextService,
+            lastService: lastServiceDate,
+            nextService: nextServiceDate,
             alerts: alerts,
             customFields: nil,
             tags: tags as? [String]
@@ -94,8 +99,9 @@ extension VehicleEntity {
         self.hoursUsed = vehicle.hoursUsed ?? 0
         self.assignedDriver = vehicle.assignedDriver
         self.ownership = vehicle.ownership.rawValue
-        self.lastService = vehicle.lastService
-        self.nextService = vehicle.nextService
+        let dateFormatter = ISO8601DateFormatter()
+        self.lastService = dateFormatter.string(from: vehicle.lastService)
+        self.nextService = dateFormatter.string(from: vehicle.nextService)
         self.alertsData = vehicle.alerts as NSArray
         self.tags = vehicle.tags as NSArray?
         self.lastModified = Date()
