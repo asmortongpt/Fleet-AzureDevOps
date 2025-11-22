@@ -15,26 +15,20 @@ import MobileEmulatorTestScreen from './components/testing/MobileEmulatorTestScr
 import { startVersionChecker } from './lib/version-checker.ts'
 
 // Telemetry module - STUBBED due to React 19 incompatibility
-// The ApplicationInsights SDK crashes with: "Cannot set properties of undefined (setting 'Activity')"
-// All telemetry functions are now no-op stubs that maintain API compatibility
 import {
   initializeTelemetry,
   trackReactErrorBoundary,
   ErrorCategory,
 } from './telemetry'
 
-// Service worker registration - imported for manual initialization AFTER React mounts
-// DO NOT import './registerServiceWorker.ts' directly as it auto-initializes
+// Service worker registration
 import { registerServiceWorker, showUpdateNotification, skipWaiting } from './registerServiceWorker.ts'
 
 import "./main.css"
 import "./styles/theme.css"
 import "./index.css"
-// TODO: Fix leaflet CSS import - causes Vite serving issues
-// import "leaflet/dist/leaflet.css"
 
-// Error handler for the root error boundary
-// This logs errors to Application Insights
+// Error handler
 function handleRootError(error: Error, info: React.ErrorInfo) {
   trackReactErrorBoundary(error, info, 'RootErrorBoundary');
   console.error('[ROOT_ERROR_BOUNDARY] Error caught:', error, info);
@@ -44,13 +38,10 @@ function handleRootError(error: Error, info: React.ErrorInfo) {
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const authenticated = isAuthenticated()
   console.log('[PROTECTED_ROUTE] isAuthenticated:', authenticated)
-
-  // In DEV mode or test environment, always allow access
   if (import.meta.env.DEV) {
     console.log('[PROTECTED_ROUTE] DEV mode - allowing access')
     return <>{children}</>
   }
-
   return authenticated ? <>{children}</> : <Navigate to="/login" replace />
 }
 
@@ -97,59 +88,40 @@ console.log('[App] React mounted successfully');
 setTimeout(async () => {
   console.log('[App] Initializing background services...');
 
-  // Initialize Azure Application Insights telemetry (non-blocking)
-  // This sets up:
-  // - Auto page view tracking
-  // - AJAX request monitoring
-  // - JavaScript exception tracking
-  // - Performance metrics collection
-  // - Core Web Vitals (LCP, FID/INP, CLS)
-  // - 10% sampling for production
+  // Initialize telemetry (non-blocking)
   initializeTelemetry({
     enableWebVitals: true,
     enableLongTaskObserver: true,
-    // Enable periodic memory monitoring only in production
     enablePerformanceMonitoring: import.meta.env.PROD,
-    performanceMonitoringInterval: 60000, // 1 minute
+    performanceMonitoringInterval: 60000,
   }).catch((err) => {
     console.warn('[Telemetry] Failed to initialize - continuing without telemetry:', err);
   });
 
-  // Start automatic version checking and cache refresh
+  // Start version checker
   try {
     startVersionChecker();
   } catch (err) {
     console.warn('[Version Checker] Failed to start:', err);
   }
 
-  // Register service worker (production only or when explicitly enabled)
-  const shouldRegisterSW =
-    import.meta.env.PROD ||
-    import.meta.env.VITE_ENABLE_SW === 'true';
+  // Register service worker (production only)
+  const shouldRegisterSW = import.meta.env.PROD || import.meta.env.VITE_ENABLE_SW === 'true';
 
   if (shouldRegisterSW && 'serviceWorker' in navigator) {
     try {
       const registration = await registerServiceWorker({
-        onReady: () => {
-          console.log('[App] Service Worker ready');
-        },
+        onReady: () => console.log('[App] Service Worker ready'),
         onUpdate: async () => {
           console.log('[App] New version available');
           const shouldUpdate = await showUpdateNotification();
           if (shouldUpdate) {
             skipWaiting();
-            // Reload after a short delay to allow activation
-            setTimeout(() => {
-              window.location.reload();
-            }, 100);
+            setTimeout(() => window.location.reload(), 100);
           }
         },
-        onSuccess: () => {
-          console.log('[App] Content cached for offline use');
-        },
-        onError: (error) => {
-          console.error('[App] Service Worker error:', error);
-        },
+        onSuccess: () => console.log('[App] Content cached for offline use'),
+        onError: (error) => console.error('[App] Service Worker error:', error),
         onMessage: (event) => {
           if (event.data?.type === 'SW_ACTIVATED') {
             console.log('[App] Service Worker activated with version:', event.data.version);
