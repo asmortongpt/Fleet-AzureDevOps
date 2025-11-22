@@ -9,19 +9,21 @@ WORKDIR /app
 # Install dependencies for native modules
 RUN apk add --no-cache python3 make g++
 
-# Copy package files
-COPY package*.json ./
+# Copy package.json only (not lock file to avoid platform binding issues)
+COPY package.json ./
 
-# Cache buster MUST come after COPY to invalidate npm ci layer
+# Cache buster MUST come after COPY to invalidate npm install layer
 ARG CACHE_BUST=1
 RUN echo "Cache bust: $CACHE_BUST - forcing fresh npm install"
 
-# Install dependencies (use npm install to resolve correct platform deps)
-# npm ci would fail because lock file has macOS bindings
+# Install dependencies (fresh install for correct Linux platform deps)
 RUN npm install
 
-# Copy source code
+# Copy source code (excluding node_modules via .dockerignore)
 COPY . .
+
+# Remove package-lock.json if copied to prevent node_modules conflicts
+RUN rm -f package-lock.json
 
 # Set build-time environment variables for Vite
 # SECURITY: Secrets are injected at runtime, not build-time
