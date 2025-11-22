@@ -44,7 +44,6 @@ final class ReportsViewModel: RefreshableViewModel {
     @Published var performanceData: [DriverScore] = []
 
     // MARK: - Private Properties
-    private let mockData = MockDataGenerator.shared
     private var vehicles: [Vehicle] = []
     private var trips: [Trip] = []
     private var maintenanceRecords: [MaintenanceRecord] = []
@@ -71,11 +70,11 @@ final class ReportsViewModel: RefreshableViewModel {
         // Simulate network delay
         await Task.sleep(300_000_000) // 0.3 seconds
 
-        // Load mock data
-        vehicles = mockData.generateVehicles(count: 25)
-        trips = mockData.generateTrips(count: 50, vehicles: vehicles)
-        maintenanceRecords = mockData.generateMaintenanceRecords(count: 30, vehicles: vehicles)
-        fuelRecords = mockData.generateFuelRecords(count: 40, vehicles: vehicles)
+        // Initialize with empty data - will be populated from API
+        vehicles = []
+        trips = []
+        maintenanceRecords = []
+        fuelRecords = []
 
         // Generate initial reports
         generateFleetUtilizationReport()

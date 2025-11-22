@@ -201,9 +201,7 @@ struct MainTabView: View {
             VehicleDetailViewWrapper(vehicleId: id)
 
         case .tripDetail(let id):
-            Text("Trip Detail View - Coming Soon")
-                .font(.title)
-                .padding()
+            TripDetailViewWrapper(tripId: id)
 
         case .maintenanceDetail(let id):
             MaintenanceDetailView(maintenanceId: id)
@@ -243,10 +241,7 @@ struct VehicleDetailViewWrapper: View {
 
     var body: some View {
         if let vehicle = viewModel.vehicles.first(where: { $0.id == vehicleId }) {
-            // VehicleDetailView removed from build - using simple placeholder
-            Text("Vehicle Detail View - Coming Soon")
-                .font(.title)
-                .padding()
+            VehicleDetailView(vehicle: vehicle)
         } else {
             ProgressView("Loading vehicle...")
                 .onAppear {
@@ -254,6 +249,28 @@ struct VehicleDetailViewWrapper: View {
                         await viewModel.fetchVehicles()
                     }
                 }
+        }
+    }
+}
+
+// MARK: - Trip Detail Wrapper
+/// Wrapper view that loads a trip by ID and passes it to TripDetailView
+struct TripDetailViewWrapper: View {
+    let tripId: String
+    @StateObject private var viewModel = TripsViewModel()
+
+    var body: some View {
+        if let trip = viewModel.trips.first(where: { $0.id.uuidString == tripId }) {
+            TripDetailView(trip: trip)
+        } else {
+            VStack(spacing: 20) {
+                ProgressView("Loading trip...")
+            }
+            .onAppear {
+                Task {
+                    await viewModel.refresh()
+                }
+            }
         }
     }
 }

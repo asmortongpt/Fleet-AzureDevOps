@@ -202,9 +202,9 @@ struct ScheduleView: View {
     }
 }
 
-// MARK: - Stat Card
+// MARK: - Schedule Stat Card
 
-struct StatCard: View {
+struct ScheduleStatCard: View {
     let title: String
     let value: String
     let color: Color

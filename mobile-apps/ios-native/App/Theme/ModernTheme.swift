@@ -361,16 +361,14 @@ extension ShapeStyle where Self == Material {
 extension VehicleStatus {
     var themeColor: Color {
         switch self {
-        case .active:
+        case .active, .moving:
             return ModernTheme.Colors.active
-        case .idle:
+        case .parked:
             return ModernTheme.Colors.idle
-        case .charging:
+        case .inactive:
             return ModernTheme.Colors.charging
-        case .service:
+        case .maintenance:
             return ModernTheme.Colors.service
-        case .emergency:
-            return ModernTheme.Colors.emergency
         case .offline:
             return ModernTheme.Colors.offline
         }
@@ -378,16 +376,14 @@ extension VehicleStatus {
 
     var symbolName: String {
         switch self {
-        case .active:
+        case .active, .moving:
             return ModernTheme.Symbols.active
-        case .idle:
+        case .parked:
             return ModernTheme.Symbols.idle
-        case .charging:
+        case .inactive:
             return ModernTheme.Symbols.charging
-        case .service:
+        case .maintenance:
             return ModernTheme.Symbols.service
-        case .emergency:
-            return ModernTheme.Symbols.emergency
         case .offline:
             return ModernTheme.Symbols.offline
         }

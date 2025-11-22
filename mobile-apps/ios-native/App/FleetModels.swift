@@ -1,4 +1,5 @@
 import Foundation
+import CoreLocation
 
 // MARK: - Fleet Metrics Model
 struct FleetMetrics: Codable, Equatable {
@@ -136,5 +137,98 @@ enum DashboardState: Equatable {
             return message
         }
         return nil
+    }
+}
+
+// MARK: - Activity Item (for Dashboard)
+
+struct ActivityItem: Identifiable {
+    let id = UUID()
+    let timestamp: Date
+    let type: ActivityType
+    let title: String
+    let description: String
+    let vehicleId: String?
+    let driverId: String?
+}
+
+enum ActivityType: String {
+    case tripStarted = "Trip Started"
+    case tripCompleted = "Trip Completed"
+    case maintenanceScheduled = "Maintenance Scheduled"
+    case maintenanceCompleted = "Maintenance Completed"
+    case alert = "Alert"
+    case incident = "Incident"
+}
+
+// MARK: - Dashboard Stats
+
+struct DashboardStats: Codable {
+    let totalVehicles: Int
+    let activeVehicles: Int
+    let totalTrips: Int
+    let todayTrips: Int
+    let alerts: Int
+    let avgFuelLevel: Double
+    let maintenanceDue: Int
+    let totalMileage: Double
+    let totalFuelCost: Double
+    let fleetUtilization: Double
+}
+
+// MARK: - Date Range
+
+struct DateRange: Equatable {
+    let start: Date
+    let end: Date
+}
+
+// MARK: - TripEvent for activity tracking
+
+struct TripEvent {
+    enum EventType: String, CaseIterable {
+        case start = "Start"
+        case stop = "Stop"
+        case hardBraking = "Hard Braking"
+        case rapidAcceleration = "Rapid Acceleration"
+        case speeding = "Speeding"
+        case idle = "Idle"
+        case geofenceEntry = "Geofence Entry"
+        case geofenceExit = "Geofence Exit"
+    }
+
+    enum Severity: String, CaseIterable {
+        case low = "Low"
+        case medium = "Medium"
+        case high = "High"
+    }
+
+    let type: EventType
+    let timestamp: Date
+    let location: CLLocationCoordinate2D
+    let severity: Severity
+    let details: String?
+}
+
+// MARK: - Fuel Record
+
+struct FuelRecord: Identifiable, Codable {
+    let id: String
+    let vehicleId: String
+    let vehicleNumber: String
+    let date: Date
+    let station: String
+    let location: VehicleLocation
+    let gallons: Double
+    let pricePerGallon: Double
+    let totalCost: Double
+    let odometer: Double
+    let fuelType: FuelType
+    let paymentMethod: String
+    let receipt: String?
+    let notes: String?
+
+    var mpg: Double? {
+        nil // Would need previous record to calculate
     }
 }

@@ -70,11 +70,12 @@ public enum TripModels {
     }
 
     // MARK: - Trip Status
-    public enum TripStatus: String, Codable {
+    public enum TripStatus: String, Codable, CaseIterable {
         case active
         case paused
         case completed
         case cancelled
+        case inProgress
 
         public var displayName: String {
             switch self {
@@ -82,6 +83,7 @@ public enum TripModels {
             case .paused: return "Paused"
             case .completed: return "Completed"
             case .cancelled: return "Cancelled"
+            case .inProgress: return "In Progress"
             }
         }
     }
