@@ -59,15 +59,13 @@ struct TripHistoryView: View {
             }
             .searchable(text: $searchText, prompt: "Search trips")
             .sheet(isPresented: $showingStartTrip) {
-                Text("Start Trip View - Coming Soon")
-                    .font(.title)
-                    .padding()
+                StartTripView()
             }
             .sheet(isPresented: $showingTripDetail) {
                 if let trip = selectedTrip {
-                    Text("Trip Detail View - Coming Soon")
-                        .font(.title)
-                        .padding()
+                    NavigationView {
+                        TripDetailView(trip: trip)
+                    }
                 }
             }
             .alert("Delete Trip", isPresented: $showingDeleteAlert) {
@@ -284,7 +282,7 @@ struct TripRowView: View {
 }
 
 // MARK: - Stat Card
-private struct TripStatCard: View {
+struct TripStatCard: View {
     let title: String
     let value: String
     let icon: String
@@ -357,6 +355,8 @@ private struct TripStatusBadge: View {
             return .blue
         case .cancelled:
             return .gray
+        case .inProgress:
+            return .green
         }
     }
 }
