@@ -23,6 +23,15 @@ import { useCallback, useState, useEffect } from 'react'
 import { generateAllDemoData } from '@/lib/demo-data'
 import logger from '@/utils/logger'
 
+// Cache demo mode setting to avoid repeated localStorage reads
+const DEMO_MODE_CACHED = (() => {
+  try {
+    return localStorage.getItem('demo_mode') !== 'false';
+  } catch {
+    return true; // Default to demo mode if localStorage unavailable
+  }
+})();
+
 export function useFleetData() {
   // Fetch data from API using SWR hooks
   const { data: vehiclesData, isLoading: vehiclesLoading, error: vehiclesError } = useVehicles()
@@ -35,12 +44,7 @@ export function useFleetData() {
 
   // Demo data fallback
   const [demoData] = useState(() => generateAllDemoData())
-  const [useDemoData, setUseDemoData] = useState(() => {
-    // Check for demo mode on mount
-    // Enable demo mode by default in production until all APIs are implemented
-    const explicitDemoMode = localStorage.getItem('demo_mode')
-    return explicitDemoMode !== 'false' // Default to true unless explicitly disabled
-  })
+  const [useDemoData, setUseDemoData] = useState(DEMO_MODE_CACHED)
 
   // Check if we should use demo data (API unavailable or demo mode)
   useEffect(() => {
