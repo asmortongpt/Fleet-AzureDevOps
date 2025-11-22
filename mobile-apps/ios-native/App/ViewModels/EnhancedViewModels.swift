@@ -76,7 +76,8 @@ final class EnhancedVehiclesViewModel: SimpleBaseViewModel {
     }
 
     private func loadMockData() {
-        self.vehicles = MockDataGenerator.shared.generateVehicles(count: 25)
+        // Initialize with empty data - will be populated from API
+        self.vehicles = []
         updateFilteredResults()
     }
 
@@ -227,9 +228,9 @@ final class EnhancedTripsViewModel: SimpleBaseViewModel {
     }
 
     private func loadMockData() {
-        // Generate vehicles first for trip generation
-        self.vehicles = MockDataGenerator.shared.generateVehicles(count: 25)
-        self.trips = MockDataGenerator.shared.generateTrips(count: 50, vehicles: vehicles)
+        // Initialize with empty data - will be populated from API
+        self.vehicles = []
+        self.trips = []
 
         // Calculate stats
         self.todayTrips = trips.filter { Calendar.current.isDateInToday($0.startTime) }
@@ -400,8 +401,9 @@ final class EnhancedMaintenanceViewModel: SimpleBaseViewModel {
     }
 
     private func loadMockData() {
-        self.vehicles = MockDataGenerator.shared.generateVehicles(count: 25)
-        self.maintenanceRecords = MockDataGenerator.shared.generateMaintenanceRecords(count: 30, vehicles: vehicles)
+        // Initialize with empty data - will be populated from API
+        self.vehicles = []
+        self.maintenanceRecords = []
         updateFilteredResults()
     }
 
