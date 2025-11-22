@@ -1,14 +1,15 @@
 import SwiftUI
 
 struct MoreView: View {
-    @StateObject private var checklistViewModel = ChecklistViewModel()
+    // Note: ChecklistViewModel will be added when checklist features are complete
+    @State private var pendingChecklistCount: Int = 0
 
     var body: some View {
         NavigationView {
             List {
                 // New Features Section
                 Section(header: Text("Features")) {
-                    NavigationLink(destination: ChecklistManagementView()) {
+                    NavigationLink(destination: ChecklistsPlaceholderView()) {
                         HStack {
                             Image(systemName: "checklist")
                                 .foregroundColor(.blue)
@@ -21,8 +22,8 @@ struct MoreView: View {
                                     .foregroundColor(.secondary)
                             }
                             Spacer()
-                            if checklistViewModel.pendingChecklists.count > 0 {
-                                Text("\(checklistViewModel.pendingChecklists.count)")
+                            if pendingChecklistCount > 0 {
+                                Text("\(pendingChecklistCount)")
                                     .font(.caption)
                                     .fontWeight(.semibold)
                                     .foregroundColor(.white)
@@ -43,6 +44,21 @@ struct MoreView: View {
                                 Text("Schedule")
                                     .font(.body)
                                 Text("Shifts, maintenance & appointments")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                    }
+
+                    NavigationLink(destination: DriverManagementView()) {
+                        HStack {
+                            Image(systemName: "person.2.fill")
+                                .foregroundColor(.purple)
+                                .frame(width: 30)
+                            VStack(alignment: .leading) {
+                                Text("Drivers")
+                                    .font(.body)
+                                Text("Manage drivers and assignments")
                                     .font(.caption)
                                     .foregroundColor(.secondary)
                             }
@@ -70,7 +86,7 @@ struct MoreView: View {
                         }
                     }
 
-                    NavigationLink(destination: DriverPreferencesView()) {
+                    NavigationLink(destination: AppearanceSettingsView()) {
                         HStack {
                             Image(systemName: "paintbrush.fill")
                                 .foregroundColor(.purple)
@@ -104,7 +120,9 @@ struct MoreView: View {
                 // Sign Out Section
                 Section {
                     Button(action: {
-                        AuthenticationManager.shared.logout()
+                        Task {
+                            await AuthenticationManager.shared.logout()
+                        }
                     }) {
                         HStack {
                             Image(systemName: "arrow.right.square.fill")
@@ -119,6 +137,44 @@ struct MoreView: View {
             .navigationTitle("More")
             .listStyle(InsetGroupedListStyle())
         }
+    }
+}
+
+// MARK: - Checklists Placeholder View
+struct ChecklistsPlaceholderView: View {
+    var body: some View {
+        VStack(spacing: 20) {
+            Image(systemName: "checklist")
+                .font(.system(size: 60))
+                .foregroundColor(.gray)
+
+            Text("Checklists")
+                .font(.title2)
+                .fontWeight(.semibold)
+
+            Text("Smart location-based checklists coming soon")
+                .font(.body)
+                .foregroundColor(.secondary)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal)
+
+            Text("Features in development:")
+                .font(.headline)
+                .padding(.top)
+
+            VStack(alignment: .leading, spacing: 10) {
+                Label("Pre-trip inspections", systemImage: "car.fill")
+                Label("OSHA safety checklists", systemImage: "shield.fill")
+                Label("Location-triggered reminders", systemImage: "mappin.circle.fill")
+                Label("Digital signatures", systemImage: "signature")
+                Label("Photo attachments", systemImage: "camera.fill")
+            }
+            .font(.subheadline)
+            .foregroundColor(.secondary)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color(.systemGroupedBackground))
+        .navigationTitle("Checklists")
     }
 }
 

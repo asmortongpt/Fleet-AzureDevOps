@@ -2,7 +2,7 @@
 //  TripsViewModel.swift
 //  Fleet Manager
 //
-//  ViewModel for Trips view with history, tracking, and filtering
+//  ViewModel for Trips view with history, filtering - Simplified for model alignment
 //
 
 import Foundation
@@ -35,10 +35,8 @@ final class TripsViewModel: RefreshableViewModel {
     @Published var currentDistance: Double = 0
 
     // MARK: - Private Properties
-    private let mockData = MockDataGenerator.shared
     private var allTrips: [Trip] = []
     private var vehicles: [Vehicle] = []
-    private var trackingTimer: Timer?
 
     // MARK: - Filter Options
     enum TripFilter: String, CaseIterable {
@@ -68,10 +66,6 @@ final class TripsViewModel: RefreshableViewModel {
         loadTrips()
     }
 
-    deinit {
-        trackingTimer?.invalidate()
-    }
-
     // MARK: - Data Loading
     private func loadTrips() {
         Task {
@@ -86,9 +80,9 @@ final class TripsViewModel: RefreshableViewModel {
         // Simulate network delay
         await Task.sleep(200_000_000) // 0.2 seconds
 
-        // Generate mock data
-        vehicles = mockData.generateVehicles(count: 25)
-        allTrips = mockData.generateTrips(count: 50, vehicles: vehicles)
+        // Initialize with empty data - will be populated from API
+        vehicles = []
+        allTrips = []
         trips = allTrips
 
         // Update statistics
@@ -97,27 +91,17 @@ final class TripsViewModel: RefreshableViewModel {
         // Apply current filter
         applyFilter(selectedFilter)
 
-        // Cache the data
-        cacheTripData()
-
         finishLoading()
-    }
-
-    private func cacheTripData() {
-        if let data = try? JSONEncoder().encode(allTrips) {
-            cacheObject(data as AnyObject, forKey: "trips_cache")
-        }
     }
 
     private func updateStatistics() {
         let calendar = Calendar.current
         let now = Date()
-        let startOfToday = calendar.startOfDay(for: now)
         let startOfWeek = calendar.dateInterval(of: .weekOfYear, for: now)?.start ?? now
 
         todayTrips = allTrips.filter { calendar.isDate($0.startTime, inSameDayAs: now) }.count
         weekTrips = allTrips.filter { $0.startTime >= startOfWeek }.count
-        totalDistance = allTrips.map { $0.distance }.reduce(0, +)
+        totalDistance = allTrips.map { $0.totalDistance }.reduce(0, +)
 
         let totalDuration = allTrips.map { $0.duration }.reduce(0, +)
         avgTripDuration = allTrips.isEmpty ? 0 : totalDuration / Double(allTrips.count)
@@ -155,9 +139,7 @@ final class TripsViewModel: RefreshableViewModel {
         // Apply search filter
         if !searchText.isEmpty {
             result = result.filter { trip in
-                trip.vehicleNumber.localizedCaseInsensitiveContains(searchText) ||
-                trip.driverName.localizedCaseInsensitiveContains(searchText) ||
-                (trip.purpose?.localizedCaseInsensitiveContains(searchText) ?? false)
+                trip.name.localizedCaseInsensitiveContains(searchText)
             }
         }
 
@@ -177,7 +159,7 @@ final class TripsViewModel: RefreshableViewModel {
             let startOfMonth = calendar.dateInterval(of: .month, for: now)?.start ?? now
             result = result.filter { $0.startTime >= startOfMonth }
         case .inProgress:
-            result = result.filter { $0.status == .inProgress }
+            result = result.filter { $0.status == .inProgress || $0.status == .active }
         case .completed:
             result = result.filter { $0.status == .completed }
         }
@@ -197,40 +179,20 @@ final class TripsViewModel: RefreshableViewModel {
         }
     }
 
-    // MARK: - Trip Tracking
+    // MARK: - Trip Tracking (Simplified)
     func startNewTrip(vehicleId: String) {
         guard !isTrackingActive else { return }
 
-        let vehicle = vehicles.first { $0.id == vehicleId } ?? vehicles.first!
-        let newTrip = Trip(
-            id: UUID().uuidString,
-            vehicleId: vehicle.id,
-            vehicleNumber: vehicle.number,
-            driverId: "current_user",
-            driverName: "Current User",
+        let newTrip = TripModels.Trip(
+            name: "New Trip",
             startTime: Date(),
-            endTime: nil,
-            startLocation: vehicle.location,
-            endLocation: nil,
-            distance: 0,
-            duration: 0,
-            averageSpeed: 0,
-            maxSpeed: 0,
-            fuelUsed: 0,
-            status: .inProgress,
-            purpose: nil,
-            route: [],
-            events: [],
-            notes: nil
+            status: .active
         )
 
         activeTrip = newTrip
         isTrackingActive = true
         currentDistance = 0
         currentSpeed = 0
-
-        // Start tracking timer
-        startTrackingTimer()
 
         // Add to trips list
         allTrips.insert(newTrip, at: 0)
@@ -240,91 +202,21 @@ final class TripsViewModel: RefreshableViewModel {
     func stopCurrentTrip() {
         guard isTrackingActive, var trip = activeTrip else { return }
 
-        // Update trip with final data
-        let endTime = Date()
-        let duration = endTime.timeIntervalSince(trip.startTime)
-
-        trip = Trip(
-            id: trip.id,
-            vehicleId: trip.vehicleId,
-            vehicleNumber: trip.vehicleNumber,
-            driverId: trip.driverId,
-            driverName: trip.driverName,
-            startTime: trip.startTime,
-            endTime: endTime,
-            startLocation: trip.startLocation,
-            endLocation: trip.startLocation, // Would use actual GPS location
-            distance: currentDistance,
-            duration: duration,
-            averageSpeed: currentDistance / (duration / 3600),
-            maxSpeed: Double.random(in: 45...75),
-            fuelUsed: currentDistance * 0.08,
-            status: .completed,
-            purpose: trip.purpose,
-            route: trip.route,
-            events: trip.events,
-            notes: "Trip completed successfully"
-        )
-
-        // Update in the list
+        // Mark as completed
         if let index = allTrips.firstIndex(where: { $0.id == trip.id }) {
-            allTrips[index] = trip
+            var updatedTrip = allTrips[index]
+            updatedTrip.status = .completed
+            updatedTrip.endTime = Date()
+            allTrips[index] = updatedTrip
         }
 
         // Stop tracking
         isTrackingActive = false
         activeTrip = nil
-        trackingTimer?.invalidate()
-        trackingTimer = nil
 
         // Update UI
         filterTrips()
         updateStatistics()
-    }
-
-    private func startTrackingTimer() {
-        trackingTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
-            Task { @MainActor in
-                self.updateTrackingData()
-            }
-        }
-    }
-
-    @MainActor
-    private func updateTrackingData() {
-        guard isTrackingActive else { return }
-
-        // Simulate GPS updates
-        currentSpeed = Double.random(in: 25...65)
-        currentDistance += (currentSpeed / 3600) // Add distance based on speed
-
-        // Update active trip distance
-        if var trip = activeTrip,
-           let index = allTrips.firstIndex(where: { $0.id == trip.id }) {
-            trip = Trip(
-                id: trip.id,
-                vehicleId: trip.vehicleId,
-                vehicleNumber: trip.vehicleNumber,
-                driverId: trip.driverId,
-                driverName: trip.driverName,
-                startTime: trip.startTime,
-                endTime: nil,
-                startLocation: trip.startLocation,
-                endLocation: nil,
-                distance: currentDistance,
-                duration: Date().timeIntervalSince(trip.startTime),
-                averageSpeed: currentDistance / (Date().timeIntervalSince(trip.startTime) / 3600),
-                maxSpeed: max(trip.maxSpeed, currentSpeed),
-                fuelUsed: currentDistance * 0.08,
-                status: .inProgress,
-                purpose: trip.purpose,
-                route: trip.route,
-                events: trip.events,
-                notes: nil
-            )
-            allTrips[index] = trip
-            activeTrip = trip
-        }
     }
 
     // MARK: - Refresh

@@ -20,7 +20,6 @@ final class DashboardViewModel: RefreshableViewModel {
     @Published var alerts: [String] = []
 
     // MARK: - Private Properties
-    private let mockData = MockDataGenerator.shared
     private var updateTimer: Timer?
 
     // MARK: - Initialization
@@ -48,11 +47,21 @@ final class DashboardViewModel: RefreshableViewModel {
         // Simulate background loading with mock data
         await Task.sleep(100_000_000) // 0.1 seconds
 
-        // Generate mock data
-        vehicles = mockData.generateVehicles(count: 25)
-        let trips = mockData.generateTrips(count: 50, vehicles: vehicles)
-        todayTrips = trips.filter { Calendar.current.isDateInToday($0.startTime) }
-        stats = mockData.generateDashboardStats(vehicles: vehicles, trips: trips)
+        // Initialize with empty data - will be populated from API
+        vehicles = []
+        todayTrips = []
+        stats = DashboardStats(
+            totalVehicles: 0,
+            activeVehicles: 0,
+            totalTrips: 0,
+            todayTrips: 0,
+            alerts: 0,
+            avgFuelLevel: 0,
+            maintenanceDue: 0,
+            totalMileage: 0,
+            totalFuelCost: 0,
+            fleetUtilization: 0
+        )
 
         // Generate recent activity
         generateRecentActivity()
@@ -71,13 +80,13 @@ final class DashboardViewModel: RefreshableViewModel {
     private func generateRecentActivity() {
         var activities: [ActivityItem] = []
 
-        // Add recent trip activities
+        // Add recent trip activities - using TripModels.Trip properties
         for trip in todayTrips.prefix(3) {
             activities.append(ActivityItem(
                 timestamp: trip.startTime,
                 type: trip.status == .completed ? .tripCompleted : .tripStarted,
                 title: "Trip \(trip.status == .completed ? "Completed" : "Started")",
-                description: "Vehicle \(trip.vehicleNumber) - \(trip.driverName)",
+                description: "Trip: \(trip.name)",
                 vehicleId: trip.vehicleId,
                 driverId: trip.driverId
             ))
