@@ -36,7 +36,7 @@ jobs:
       - name: Verify Deployment
         run: |
           sleep 30
-          RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" https://green-pond-0f040980f.3.azurestaticapps.net)
+          RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" https://purple-river-0f465960f.3.azurestaticapps.net)
           echo "Response code: $RESPONSE"
           if [ "$RESPONSE" = "200" ]; then
             echo "Deployment successful!"
