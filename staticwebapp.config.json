@@ -1,16 +1,12 @@
 {
   "navigationFallback": {
     "rewrite": "/index.html",
-    "exclude": ["/assets/*", "/api/*"]
+    "exclude": ["/assets/*", "/api/*", "*.js", "*.css", "*.png", "*.jpg", "*.svg", "*.woff2", "*.ico", "/sw.js", "/manifest.json", "/offline.html", "/icons/*"]
   },
   "routes": [
     {
       "route": "/api/*",
       "allowedRoles": ["authenticated", "anonymous"]
-    },
-    {
-      "route": "/*",
-      "rewrite": "/index.html"
     }
   ],
   "responseOverrides": {
