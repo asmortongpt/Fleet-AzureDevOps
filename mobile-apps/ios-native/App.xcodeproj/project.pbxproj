@@ -7,6 +7,18 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		5613A8F72FFD48B8B1D673FE /* BaseViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70E5D0DB3DEF4AD692E8B81F /* BaseViewModel.swift */; };
+		475790B05E854D9385BB7B2A /* DashboardViewModelExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CCC0538852F4D12A85FBE40 /* DashboardViewModelExtensions.swift */; };
+		D7F2351B0F3545289031CEFF /* DocumentsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE71ADD4E15B496CA4E39023 /* DocumentsViewModel.swift */; };
+		90843DA9A33B4A72B8F8135E /* DriversViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DA922CE083B4F8785BE6011 /* DriversViewModel.swift */; };
+		C780A0F0024747AAAD06B941 /* EnhancedViewModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4509B1234F4D47358701D86E /* EnhancedViewModels.swift */; };
+		CF5D22FE513943EFA4522840 /* FuelViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E0934549E144930993AEDA4 /* FuelViewModel.swift */; };
+		4B6BE4996C8445CBB3333A81 /* GeofenceViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 250B792A629E48879FD69141 /* GeofenceViewModel.swift */; };
+		CCF96EBA941F4E1492EE014C /* IncidentViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 136AE20361AA4BD58FF34836 /* IncidentViewModel.swift */; };
+		B62A791426334DE997B76D62 /* MaintenanceViewModelExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A739460EAC49A7A6AC018D /* MaintenanceViewModelExtensions.swift */; };
+		B90DBFF197CF49E28E462496 /* NotificationsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 090B93AFB3F9429FBED1A362 /* NotificationsViewModel.swift */; };
+		419A755183A44313BF5E455B /* ReportsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B8AE6DFD58343C8B2219F98 /* ReportsViewModel.swift */; };
+		071DBFFDA0454DCAAD50F282 /* VehiclesViewModelExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = F99DF8DD9AEB434FBE6873E1 /* VehiclesViewModelExtensions.swift */; };
 		139D578CB86D4116976C49C0 /* TripsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4ECC9D5F3714AABA973F612 /* TripsViewModel.swift */; };
 		9CE95C3CB39344E79BCCC40C /* VehiclesViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D140871C05864856889BAA91 /* VehiclesViewModel.swift */; };
 		A1B1B27FAC5347DA8D2DA7CA /* ScheduleViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC0D0E9B626E46529B49FC69 /* ScheduleViewModel.swift */; };
@@ -124,11 +136,23 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		D4ECC9D5F3714AABA973F612 /* TripsViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = TripsViewModel.swift; path = App/ViewModels/TripsViewModel.swift; sourceTree = "<group>"; };
-		D140871C05864856889BAA91 /* VehiclesViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = VehiclesViewModel.swift; path = App/ViewModels/VehiclesViewModel.swift; sourceTree = "<group>"; };
-		CC0D0E9B626E46529B49FC69 /* ScheduleViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ScheduleViewModel.swift; path = App/ViewModels/ScheduleViewModel.swift; sourceTree = "<group>"; };
-		F93144738FB34A8B82D677FE /* ChecklistViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ChecklistViewModel.swift; path = App/ViewModels/ChecklistViewModel.swift; sourceTree = "<group>"; };
-		C1507CDED9014E4F900FCFCA /* MaintenanceViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = MaintenanceViewModel.swift; path = App/ViewModels/MaintenanceViewModel.swift; sourceTree = "<group>"; };
+		70E5D0DB3DEF4AD692E8B81F /* BaseViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = BaseViewModel.swift; path = App/ViewModels/BaseViewModel.swift; sourceTree = SOURCE_ROOT; };
+		0CCC0538852F4D12A85FBE40 /* DashboardViewModelExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = DashboardViewModelExtensions.swift; path = App/ViewModels/DashboardViewModelExtensions.swift; sourceTree = SOURCE_ROOT; };
+		EE71ADD4E15B496CA4E39023 /* DocumentsViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = DocumentsViewModel.swift; path = App/ViewModels/DocumentsViewModel.swift; sourceTree = SOURCE_ROOT; };
+		7DA922CE083B4F8785BE6011 /* DriversViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = DriversViewModel.swift; path = App/ViewModels/DriversViewModel.swift; sourceTree = SOURCE_ROOT; };
+		4509B1234F4D47358701D86E /* EnhancedViewModels.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = EnhancedViewModels.swift; path = App/ViewModels/EnhancedViewModels.swift; sourceTree = SOURCE_ROOT; };
+		4E0934549E144930993AEDA4 /* FuelViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = FuelViewModel.swift; path = App/ViewModels/FuelViewModel.swift; sourceTree = SOURCE_ROOT; };
+		250B792A629E48879FD69141 /* GeofenceViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = GeofenceViewModel.swift; path = App/ViewModels/GeofenceViewModel.swift; sourceTree = SOURCE_ROOT; };
+		136AE20361AA4BD58FF34836 /* IncidentViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = IncidentViewModel.swift; path = App/ViewModels/IncidentViewModel.swift; sourceTree = SOURCE_ROOT; };
+		E1A739460EAC49A7A6AC018D /* MaintenanceViewModelExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = MaintenanceViewModelExtensions.swift; path = App/ViewModels/MaintenanceViewModelExtensions.swift; sourceTree = SOURCE_ROOT; };
+		090B93AFB3F9429FBED1A362 /* NotificationsViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = NotificationsViewModel.swift; path = App/ViewModels/NotificationsViewModel.swift; sourceTree = SOURCE_ROOT; };
+		0B8AE6DFD58343C8B2219F98 /* ReportsViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ReportsViewModel.swift; path = App/ViewModels/ReportsViewModel.swift; sourceTree = SOURCE_ROOT; };
+		F99DF8DD9AEB434FBE6873E1 /* VehiclesViewModelExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = VehiclesViewModelExtensions.swift; path = App/ViewModels/VehiclesViewModelExtensions.swift; sourceTree = SOURCE_ROOT; };
+		D4ECC9D5F3714AABA973F612 /* TripsViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = TripsViewModel.swift; path = App/ViewModels/TripsViewModel.swift; sourceTree = SOURCE_ROOT; };
+		D140871C05864856889BAA91 /* VehiclesViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = VehiclesViewModel.swift; path = App/ViewModels/VehiclesViewModel.swift; sourceTree = SOURCE_ROOT; };
+		CC0D0E9B626E46529B49FC69 /* ScheduleViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ScheduleViewModel.swift; path = App/ViewModels/ScheduleViewModel.swift; sourceTree = SOURCE_ROOT; };
+		F93144738FB34A8B82D677FE /* ChecklistViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ChecklistViewModel.swift; path = App/ViewModels/ChecklistViewModel.swift; sourceTree = SOURCE_ROOT; };
+		C1507CDED9014E4F900FCFCA /* MaintenanceViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = MaintenanceViewModel.swift; path = App/ViewModels/MaintenanceViewModel.swift; sourceTree = SOURCE_ROOT; };
 		07D1943466FCE07ED73040DF /* TripModels.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TripModels.swift; path = TripModels.swift; sourceTree = "<group>"; };
 		09C619BEA37BC33F2BEA6494 /* PhotoCaptureView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PhotoCaptureView.swift; sourceTree = "<group>"; };
 		0A1F000579F31AE84F13F903 /* AddTripView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AddTripView.swift; path = AddTripView.swift; sourceTree = "<group>"; };
@@ -209,7 +233,7 @@
 		6ED2B1C4F4B44A490F2C7123 /* ModernTheme.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ModernTheme.swift; path = Theme/ModernTheme.swift; sourceTree = "<group>"; };
 		70ABDC5F25D24490241D79ED /* UIPerformanceMonitor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = UIPerformanceMonitor.swift; path = Performance/UIPerformanceMonitor.swift; sourceTree = "<group>"; };
 		70E13C35860E1F52F6A5775D /* VehicleDetailView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = VehicleDetailView.swift; path = Views/VehicleDetailView.swift; sourceTree = "<group>"; };
-		70EA0C1860DEFBF739E36113 /* VehicleViewModel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = VehicleViewModel.swift; path = App/ViewModels/VehicleViewModel.swift; sourceTree = "<group>"; };
+		70EA0C1860DEFBF739E36113 /* VehicleViewModel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = VehicleViewModel.swift; path = App/ViewModels/VehicleViewModel.swift; sourceTree = SOURCE_ROOT; };
 		713AB4E4FC6B5609CD33E3AB /* MainTabView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MainTabView.swift; sourceTree = "<group>"; };
 		71B47AA7C2DDBF992B0F00CD /* TripTrackingService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TripTrackingService.swift; sourceTree = "<group>"; };
 		7241B46490E6460B433B2EEA /* TripDetailView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TripDetailView.swift; sourceTree = "<group>"; };
@@ -739,6 +763,18 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5613A8F72FFD48B8B1D673FE /* BaseViewModel.swift in Sources */,
+				475790B05E854D9385BB7B2A /* DashboardViewModelExtensions.swift in Sources */,
+				D7F2351B0F3545289031CEFF /* DocumentsViewModel.swift in Sources */,
+				BC02F8EA9B4A4A8E9C2D55D7 /* DriversViewModel.swift in Sources */,
+				E8D0CBED6D1F41F78E891DDF /* EnhancedViewModels.swift in Sources */,
+				53A8BB2F49804C4FB4F29BD4 /* FuelViewModel.swift in Sources */,
+				68AA51ABCB54424DA6CACE7F /* GeofenceViewModel.swift in Sources */,
+				8E20F6B18D2E4CB087B4C40A /* IncidentViewModel.swift in Sources */,
+				E68C60D755DD4CC2957BFD05 /* MaintenanceViewModelExtensions.swift in Sources */,
+				1C6F5F4834C74B22A7FCAD18 /* NotificationsViewModel.swift in Sources */,
+				53C5B0F6FB1D44BCAF62ECC6 /* ReportsViewModel.swift in Sources */,
+				A97D2D6B56C74EC5B5D8E56F /* VehiclesViewModelExtensions.swift in Sources */,
 				139D578CB86D4116976C49C0 /* TripsViewModel.swift in Sources */,
 				9CE95C3CB39344E79BCCC40C /* VehiclesViewModel.swift in Sources */,
 				A1B1B27FAC5347DA8D2DA7CA /* ScheduleViewModel.swift in Sources */,
