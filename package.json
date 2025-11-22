@@ -144,7 +144,7 @@
     "react-leaflet": "^5.0.0",
     "react-leaflet-cluster": "^4.0.0",
     "react-resizable-panels": "^2.1.7",
-    "react-router-dom": "^7.9.5",
+    "react-router-dom": "^6.28.0",
     "react-window": "^2.2.3",
     "recharts": "^2.15.1",
     "sonner": "^2.0.1",
