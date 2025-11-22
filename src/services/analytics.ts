@@ -426,7 +426,7 @@ export class AnalyticsService {
           this.backends.push(backend);
         }
       } catch (error) {
-        logger.error('Error', { error: `Failed to initialize ${provider} analytics:`, error });
+        logger.error('Error', { message: `Failed to initialize ${provider} analytics:`, details: error });
       }
     }
 

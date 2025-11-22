@@ -65,7 +65,7 @@ export default defineConfig({
     // Increase chunk size warning limit (500kb default is too small for map apps)
     chunkSizeWarningLimit: 1000,
 
-    // Minification settings - use esbuild instead of terser to avoid circular dependency issues
+    // Re-enabled after fixing chunk circular dependency
     minify: 'esbuild',
 
     // Source maps - disable for production, enable for staging
@@ -78,86 +78,11 @@ export default defineConfig({
     rollupOptions: {
       output: {
         // ===================================================================
-        // MANUAL CHUNK STRATEGY
-        // Separates large dependencies into their own chunks for better caching
+        // SIMPLIFIED CHUNK STRATEGY
+        // Let Vite handle most chunking to avoid circular dependency issues
         // ===================================================================
         manualChunks: (id) => {
-          // Core React libraries - changes rarely, cache aggressively
-          if (id.includes('node_modules/react') ||
-              id.includes('node_modules/react-dom') ||
-              id.includes('node_modules/react-router-dom') ||
-              id.includes('node_modules/scheduler')) {
-            return 'react-vendor';
-          }
-
-          // Map libraries - large, load on demand
-          if (id.includes('node_modules/leaflet')) {
-            return 'map-leaflet';
-          }
-          if (id.includes('node_modules/mapbox-gl')) {
-            return 'map-mapbox';
-          }
-          if (id.includes('node_modules/@react-google-maps') ||
-              id.includes('node_modules/google-maps')) {
-            return 'map-google';
-          }
-          if (id.includes('node_modules/azure-maps')) {
-            return 'map-azure';
-          }
-
-          // 3D libraries - very large, load only when needed
-          if (id.includes('node_modules/three')) {
-            return 'three-core';
-          }
-          if (id.includes('node_modules/@react-three')) {
-            return 'three-react';
-          }
-          if (id.includes('node_modules/postprocessing')) {
-            return 'three-postprocessing';
-          }
-
-          // UI component libraries
-          if (id.includes('node_modules/@radix-ui')) {
-            return 'ui-radix';
-          }
-          if (id.includes('node_modules/@phosphor-icons') ||
-              id.includes('node_modules/@heroicons') ||
-              id.includes('node_modules/lucide-react')) {
-            return 'ui-icons';
-          }
-
-          // Data visualization - separate recharts from d3 for better isolation
-          if (id.includes('node_modules/recharts')) {
-            return 'charts-recharts';
-          }
-          if (id.includes('node_modules/d3')) {
-            return 'charts-d3';
-          }
-
-          // Form libraries
-          if (id.includes('node_modules/react-hook-form') ||
-              id.includes('node_modules/@hookform') ||
-              id.includes('node_modules/zod')) {
-            return 'forms';
-          }
-
-          // Large utility libraries
-          if (id.includes('node_modules/date-fns')) {
-            return 'utils-date';
-          }
-          if (id.includes('node_modules/axios')) {
-            return 'utils-http';
-          }
-          if (id.includes('node_modules/lodash')) {
-            return 'utils-lodash';
-          }
-
-          // Animation libraries
-          if (id.includes('node_modules/framer-motion')) {
-            return 'animation';
-          }
-
-          // All other node_modules
+          // All node_modules go to a single vendor chunk to avoid circular deps
           if (id.includes('node_modules')) {
             return 'vendor';
           }
