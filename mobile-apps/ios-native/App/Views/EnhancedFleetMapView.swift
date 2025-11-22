@@ -164,7 +164,6 @@ class FleetMapViewModel: RefreshableViewModel {
     @Published var clusterThreshold: Double = 0.5 // Distance in degrees for clustering
 
     // MARK: - Private Properties
-    private let mockData = MockDataGenerator.shared
     private var trips: [Trip] = []
 
     // MARK: - Data Loading
@@ -182,9 +181,9 @@ class FleetMapViewModel: RefreshableViewModel {
         // Simulate network delay
         await Task.sleep(300_000_000)
 
-        // Generate data
-        vehicles = mockData.generateVehicles(count: 25)
-        trips = mockData.generateTrips(count: 50, vehicles: vehicles)
+        // Initialize with empty data - will be populated from API
+        vehicles = []
+        trips = []
         geofences = generateGeofences()
 
         // Calculate statistics
