@@ -7,11 +7,11 @@ on:
       production_url:
         description: 'Production URL to test'
         required: false
-        default: 'http://68.220.148.2'
+        default: 'https://fleet.capitaltechalliance.com'
 
-  # Run every 5 minutes as uptime monitor
-  schedule:
-    - cron: '*/5 * * * *'
+  # Disabled: Running every 5 minutes exhausts GitHub Actions minutes quota
+  # schedule:
+  #   - cron: '*/5 * * * *'
 
   # Run on push to main for immediate verification
   push:
@@ -26,7 +26,7 @@ on:
       - master
 
 env:
-  PRODUCTION_URL: ${{ github.event.inputs.production_url || 'http://68.220.148.2' }}
+  PRODUCTION_URL: ${{ github.event.inputs.production_url || 'https://fleet.capitaltechalliance.com' }}
   CI: true
 
 jobs:
@@ -208,7 +208,7 @@ jobs:
       - name: Run critical path tests
         id: critical-tests
         run: |
-          npx playwright test tests/smoke/critical-paths.test.ts --project=chromium 2>&1 | tee critical-test-output.log
+          npx playwright test tests/smoke/critical-paths.test.ts --project=smoke-chromium 2>&1 | tee critical-test-output.log
           echo "exit_code=${PIPESTATUS[0]}" >> $GITHUB_OUTPUT
         continue-on-error: true
         env:
