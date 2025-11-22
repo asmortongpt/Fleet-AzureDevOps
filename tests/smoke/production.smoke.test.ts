@@ -179,9 +179,31 @@ test.describe('Production Smoke Tests - Application Health', () => {
         timeout: 30000
       });
 
-      // Wait for React to render
-      await page.waitForSelector('#root', { state: 'attached', timeout: 15000 });
-      await page.waitForTimeout(3000);
+      // Wait for #root to exist
+      await page.waitForSelector('#root', {
+        state: 'attached',
+        timeout: 15000
+      });
+      console.log('[TEST] #root element found');
+
+      // CRITICAL: Wait for React to render content INSIDE #root
+      await page.waitForSelector('#root > *', {
+        state: 'attached',
+        timeout: 30000
+      });
+      console.log('[TEST] React content detected inside #root');
+
+      // Wait for actual UI elements to be present
+      await page.waitForFunction(() => {
+        const root = document.getElementById('root');
+        if (!root) return false;
+
+        const hasContent = root.children.length > 0;
+        const hasText = root.textContent && root.textContent.length > 50;
+
+        return hasContent && hasText;
+      }, { timeout: 30000 });
+      console.log('[TEST] React content fully rendered with text');
 
       // Verify root element has content
       const rootContent = await page.locator('#root').innerHTML();
@@ -217,9 +239,31 @@ test.describe('Production Smoke Tests - Application Health', () => {
       expect(response).not.toBeNull();
       expect(response!.status()).toBeLessThan(500);
 
-      // Wait for page to settle
-      await page.waitForSelector('#root', { state: 'attached', timeout: 15000 });
-      await page.waitForTimeout(3000);
+      // Wait for #root to exist
+      await page.waitForSelector('#root', {
+        state: 'attached',
+        timeout: 15000
+      });
+      console.log('[TEST] #root element found');
+
+      // CRITICAL: Wait for React to render content INSIDE #root
+      await page.waitForSelector('#root > *', {
+        state: 'attached',
+        timeout: 30000
+      });
+      console.log('[TEST] React content detected inside #root');
+
+      // Wait for actual UI elements to be present
+      await page.waitForFunction(() => {
+        const root = document.getElementById('root');
+        if (!root) return false;
+
+        const hasContent = root.children.length > 0;
+        const hasText = root.textContent && root.textContent.length > 50;
+
+        return hasContent && hasText;
+      }, { timeout: 30000 });
+      console.log('[TEST] React content fully rendered with text');
 
       // Check page rendered
       const rootContent = await page.locator('#root').innerHTML();
@@ -251,9 +295,31 @@ test.describe('Production Smoke Tests - Application Health', () => {
       expect(response).not.toBeNull();
       expect(response!.status()).toBeLessThan(500);
 
-      // Wait for page to settle
-      await page.waitForSelector('#root', { state: 'attached', timeout: 15000 });
-      await page.waitForTimeout(3000);
+      // Wait for #root to exist
+      await page.waitForSelector('#root', {
+        state: 'attached',
+        timeout: 15000
+      });
+      console.log('[TEST] #root element found');
+
+      // CRITICAL: Wait for React to render content INSIDE #root
+      await page.waitForSelector('#root > *', {
+        state: 'attached',
+        timeout: 30000
+      });
+      console.log('[TEST] React content detected inside #root');
+
+      // Wait for actual UI elements to be present
+      await page.waitForFunction(() => {
+        const root = document.getElementById('root');
+        if (!root) return false;
+
+        const hasContent = root.children.length > 0;
+        const hasText = root.textContent && root.textContent.length > 50;
+
+        return hasContent && hasText;
+      }, { timeout: 30000 });
+      console.log('[TEST] React content fully rendered with text');
 
       // Check page rendered
       const rootContent = await page.locator('#root').innerHTML();
@@ -291,9 +357,28 @@ test.describe('Production Smoke Tests - Application Health', () => {
         timeout: 30000
       });
 
-      // Wait for app to fully load and stabilize
-      await page.waitForSelector('#root', { state: 'attached', timeout: 15000 });
-      await page.waitForTimeout(5000);
+      // Wait for #root to exist
+      await page.waitForSelector('#root', {
+        state: 'attached',
+        timeout: 15000
+      });
+
+      // CRITICAL: Wait for React to render content INSIDE #root
+      await page.waitForSelector('#root > *', {
+        state: 'attached',
+        timeout: 30000
+      });
+
+      // Wait for actual UI elements to be present and stabilize
+      await page.waitForFunction(() => {
+        const root = document.getElementById('root');
+        if (!root) return false;
+
+        const hasContent = root.children.length > 0;
+        const hasText = root.textContent && root.textContent.length > 50;
+
+        return hasContent && hasText;
+      }, { timeout: 30000 });
 
       // Filter out known benign errors
       const criticalErrors = consoleErrors.filter(err =>
