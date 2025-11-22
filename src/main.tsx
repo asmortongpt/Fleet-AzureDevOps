@@ -39,13 +39,18 @@ import "./index.css"
 // - Performance metrics collection
 // - Core Web Vitals (LCP, FID/INP, CLS)
 // - 10% sampling for production
-initializeTelemetry({
-  enableWebVitals: true,
-  enableLongTaskObserver: true,
-  // Enable periodic memory monitoring only in production
-  enablePerformanceMonitoring: import.meta.env.PROD,
-  performanceMonitoringInterval: 60000, // 1 minute
-});
+// NOTE: Wrapped in try-catch to prevent telemetry from crashing the app
+try {
+  initializeTelemetry({
+    enableWebVitals: true,
+    enableLongTaskObserver: true,
+    // Enable periodic memory monitoring only in production
+    enablePerformanceMonitoring: import.meta.env.PROD,
+    performanceMonitoringInterval: 60000, // 1 minute
+  });
+} catch (error) {
+  console.warn('[Telemetry] Failed to initialize - app will continue without telemetry:', error);
+}
 
 // Start automatic version checking and cache refresh
 startVersionChecker();
