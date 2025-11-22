@@ -45,14 +45,14 @@ struct AccessibilityLabels {
         switch status {
         case .active:
             return "Active - Vehicle is currently in use"
-        case .idle:
-            return "Idle - Vehicle is parked and available"
-        case .charging:
-            return "Charging - Electric vehicle is charging"
-        case .service:
-            return "In Service - Vehicle is being maintained"
-        case .emergency:
-            return "Emergency - Vehicle requires immediate attention"
+        case .moving:
+            return "Moving - Vehicle is in transit"
+        case .parked:
+            return "Parked - Vehicle is parked and available"
+        case .inactive:
+            return "Inactive - Vehicle is not in active use"
+        case .maintenance:
+            return "In Maintenance - Vehicle is being serviced"
         case .offline:
             return "Offline - Vehicle is not connected"
         }

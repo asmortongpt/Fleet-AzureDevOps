@@ -179,6 +179,7 @@ public enum MaintenanceStatus: String, Codable, CaseIterable {
     case cancelled = "Cancelled"
     case delayed = "Delayed"
     case onHold = "On Hold"
+    case overdue = "Overdue"
 
     public var color: String {
         switch self {
@@ -188,6 +189,7 @@ public enum MaintenanceStatus: String, Codable, CaseIterable {
         case .cancelled: return "gray"
         case .delayed: return "red"
         case .onHold: return "yellow"
+        case .overdue: return "red"
         }
     }
 }
