@@ -1,4 +1,5 @@
 import Foundation
+import CoreLocation
 
 // MARK: - Vehicle Model
 public struct Vehicle: Codable, Identifiable, Equatable {
@@ -21,20 +22,19 @@ public struct Vehicle: Codable, Identifiable, Equatable {
     public var hoursUsed: Double?
     public var assignedDriver: String?
     public let ownership: OwnershipType
-    public let lastService: String
-    public let nextService: String
+    public let lastService: Date
+    public let nextService: Date
     public var alerts: [String]
-    public var customFields: [String: AnyCodable]?
+    public var customFields: [String: String]?
     public var tags: [String]?
 
     // Computed properties
     public var statusColor: String {
         switch status {
-        case .active: return "green"
-        case .idle: return "gray"
-        case .charging: return "blue"
-        case .service: return "orange"
-        case .emergency: return "red"
+        case .active, .moving: return "green"
+        case .parked: return "blue"
+        case .inactive: return "gray"
+        case .maintenance: return "orange"
         case .offline: return "darkgray"
         }
     }
@@ -54,21 +54,22 @@ public struct Vehicle: Codable, Identifiable, Equatable {
 
 // MARK: - Vehicle Type
 public enum VehicleType: String, Codable, CaseIterable {
-    case sedan
-    case suv
-    case truck
-    case van
-    case emergency
-    case specialty
-    case tractor
-    case forklift
-    case trailer
-    case construction
-    case bus
-    case motorcycle
+    case sedan = "Sedan"
+    case suv = "SUV"
+    case truck = "Truck"
+    case van = "Van"
+    case bus = "Bus"
+    case equipment = "Equipment"
+    case emergency = "Emergency"
+    case specialty = "Specialty"
+    case tractor = "Tractor"
+    case forklift = "Forklift"
+    case trailer = "Trailer"
+    case construction = "Construction"
+    case motorcycle = "Motorcycle"
 
     public var displayName: String {
-        rawValue.capitalized
+        rawValue
     }
 
     public var icon: String {
@@ -77,13 +78,14 @@ public enum VehicleType: String, Codable, CaseIterable {
         case .suv: return "car.fill"
         case .truck: return "truck.box.fill"
         case .van: return "van.fill"
+        case .bus: return "bus.fill"
+        case .equipment: return "wrench.and.screwdriver"
         case .emergency: return "cross.case.fill"
         case .specialty: return "gearshape.fill"
         case .tractor: return "tractor"
         case .forklift: return "fork.knife"
         case .trailer: return "box.truck.fill"
         case .construction: return "hammer.fill"
-        case .bus: return "bus.fill"
         case .motorcycle: return "bicycle"
         }
     }
@@ -91,40 +93,41 @@ public enum VehicleType: String, Codable, CaseIterable {
 
 // MARK: - Vehicle Status
 public enum VehicleStatus: String, Codable, CaseIterable {
-    case active
-    case idle
-    case charging
-    case service
-    case emergency
-    case offline
+    case active = "Active"
+    case inactive = "Inactive"
+    case maintenance = "Maintenance"
+    case moving = "Moving"
+    case parked = "Parked"
+    case offline = "Offline"
 
     public var displayName: String {
-        rawValue.capitalized
+        rawValue
     }
 }
 
 // MARK: - Fuel Type
 public enum FuelType: String, Codable, CaseIterable {
-    case gasoline
-    case diesel
-    case electric
-    case hybrid
-    case cng
-    case propane
+    case gasoline = "Gasoline"
+    case diesel = "Diesel"
+    case electric = "Electric"
+    case hybrid = "Hybrid"
+    case cng = "CNG"
+    case propane = "Propane"
 
     public var displayName: String {
-        rawValue.capitalized
+        rawValue
     }
 }
 
 // MARK: - Ownership Type
 public enum OwnershipType: String, Codable, CaseIterable {
-    case owned
-    case leased
-    case rented
+    case owned = "Owned"
+    case leased = "Leased"
+    case rental = "Rental"
+    case rented = "Rented"
 
     public var displayName: String {
-        rawValue.capitalized
+        rawValue
     }
 }
 
@@ -133,6 +136,10 @@ public struct VehicleLocation: Codable, Equatable {
     public let lat: Double
     public let lng: Double
     public let address: String
+
+    public var coordinate: CLLocationCoordinate2D {
+        CLLocationCoordinate2D(latitude: lat, longitude: lng)
+    }
 }
 
 // MARK: - Vehicle Inspection

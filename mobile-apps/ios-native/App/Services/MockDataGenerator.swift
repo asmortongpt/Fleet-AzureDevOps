@@ -317,49 +317,5 @@ final class MockDataGenerator {
 }
 
 // MARK: - Model Extensions
-
-enum VehicleType: String, CaseIterable, Codable {
-    case sedan = "Sedan"
-    case suv = "SUV"
-    case truck = "Truck"
-    case van = "Van"
-    case bus = "Bus"
-    case equipment = "Equipment"
-}
-
-enum VehicleStatus: String, CaseIterable, Codable {
-    case active = "Active"
-    case inactive = "Inactive"
-    case maintenance = "Maintenance"
-    case moving = "Moving"
-    case parked = "Parked"
-    case offline = "Offline"
-}
-
-enum FuelType: String, CaseIterable, Codable {
-    case gasoline = "Gasoline"
-    case diesel = "Diesel"
-    case electric = "Electric"
-    case hybrid = "Hybrid"
-}
-
-enum OwnershipType: String, CaseIterable, Codable {
-    case owned = "Owned"
-    case leased = "Leased"
-    case rental = "Rental"
-}
-
-enum TripStatus: String, CaseIterable, Codable {
-    case planned = "Planned"
-    case inProgress = "In Progress"
-    case completed = "Completed"
-    case cancelled = "Cancelled"
-}
-
-enum MaintenanceStatus: String, CaseIterable, Codable {
-    case scheduled = "Scheduled"
-    case inProgress = "In Progress"
-    case completed = "Completed"
-    case overdue = "Overdue"
-    case cancelled = "Cancelled"
-}
+// Note: VehicleType, VehicleStatus, FuelType, OwnershipType are defined in App/Models/Vehicle.swift
+// TripStatus, MaintenanceStatus are defined in App/Models/FleetModels.swift
