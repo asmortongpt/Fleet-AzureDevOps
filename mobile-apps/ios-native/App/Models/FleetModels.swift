@@ -4,72 +4,20 @@
 //
 //  Complete data models for the Fleet Management app
 //
+//  Note: Vehicle, VehicleLocation, VehicleType, VehicleStatus, FuelType, OwnershipType
+//  are defined in App/Models/Vehicle.swift to avoid duplication
+//
+//  Note: Trip, TripStatus, TripCoordinate are defined in TripModels.swift and exposed via
+//  type aliases in MissingTypeStubs.swift to avoid duplication
+//
+//  Note: MaintenanceRecord, MaintenancePart, MaintenanceStatus are defined in MaintenanceModel.swift
+//  to avoid duplication
+//
 
 import Foundation
 import CoreLocation
 
-// MARK: - Vehicle Models
-
-struct Vehicle: Identifiable, Codable, Equatable {
-    let id: String
-    let tenantId: String
-    let number: String
-    let type: VehicleType
-    let make: String
-    let model: String
-    let year: Int
-    let vin: String
-    let licensePlate: String
-    let status: VehicleStatus
-    let location: VehicleLocation
-    let region: String
-    let department: String
-    let fuelLevel: Double
-    let fuelType: FuelType
-    let mileage: Double
-    let hoursUsed: Double?
-    let assignedDriver: String?
-    let ownership: OwnershipType
-    let lastService: Date
-    let nextService: Date
-    let alerts: [String]
-    let customFields: [String: String]?
-    let tags: [String]?
-}
-
-struct VehicleLocation: Codable, Equatable {
-    let lat: Double
-    let lng: Double
-    let address: String
-
-    var coordinate: CLLocationCoordinate2D {
-        CLLocationCoordinate2D(latitude: lat, longitude: lng)
-    }
-}
-
-// MARK: - Trip Models
-
-struct Trip: Identifiable, Codable {
-    let id: String
-    let vehicleId: String
-    let vehicleNumber: String
-    let driverId: String
-    let driverName: String
-    let startTime: Date
-    let endTime: Date?
-    let startLocation: VehicleLocation
-    let endLocation: VehicleLocation?
-    let distance: Double
-    let duration: TimeInterval
-    let averageSpeed: Double
-    let maxSpeed: Double
-    let fuelUsed: Double
-    let status: TripStatus
-    let purpose: String?
-    let route: [CLLocationCoordinate2D]
-    let events: [TripEvent]
-    let notes: String?
-}
+// MARK: - TripEvent for activity tracking (different from TripModels.Trip)
 
 struct TripEvent: Codable {
     enum EventType: String, Codable {
@@ -94,37 +42,6 @@ struct TripEvent: Codable {
     let location: CLLocationCoordinate2D
     let severity: Severity
     let details: String?
-}
-
-// MARK: - Maintenance Models
-
-struct MaintenanceRecord: Identifiable, Codable {
-    let id: String
-    let vehicleId: String
-    let vehicleNumber: String
-    let type: String
-    let scheduledDate: Date
-    let completedDate: Date?
-    let mileageAtService: Double
-    let cost: Double
-    let provider: String
-    let notes: String?
-    let status: MaintenanceStatus
-    let parts: [MaintenancePart]
-    let laborHours: Double
-    let warranty: Bool
-    let nextServiceDue: Date?
-}
-
-struct MaintenancePart: Codable {
-    let name: String
-    let partNumber: String
-    let quantity: Int
-    let unitPrice: Double
-
-    var totalPrice: Double {
-        Double(quantity) * unitPrice
-    }
 }
 
 // MARK: - Fuel Models
@@ -249,6 +166,39 @@ struct DashboardStats {
     let totalMileage: Double
     let totalFuelCost: Double
     let fleetUtilization: Double
+}
+
+// MARK: - Fleet Metrics
+
+struct FleetMetrics: Codable {
+    let totalVehicles: Int
+    let activeVehicles: Int
+    let inactiveVehicles: Int
+    let totalTrips: Int
+    let totalDistance: Double
+    let totalFuelUsed: Double
+    let averageFuelEfficiency: Double
+    let maintenanceScheduled: Int
+    let maintenanceOverdue: Int
+    let alerts: Int
+    let lastUpdated: Date
+
+    init(totalVehicles: Int = 0, activeVehicles: Int = 0, inactiveVehicles: Int = 0,
+         totalTrips: Int = 0, totalDistance: Double = 0, totalFuelUsed: Double = 0,
+         averageFuelEfficiency: Double = 0, maintenanceScheduled: Int = 0,
+         maintenanceOverdue: Int = 0, alerts: Int = 0, lastUpdated: Date = Date()) {
+        self.totalVehicles = totalVehicles
+        self.activeVehicles = activeVehicles
+        self.inactiveVehicles = inactiveVehicles
+        self.totalTrips = totalTrips
+        self.totalDistance = totalDistance
+        self.totalFuelUsed = totalFuelUsed
+        self.averageFuelEfficiency = averageFuelEfficiency
+        self.maintenanceScheduled = maintenanceScheduled
+        self.maintenanceOverdue = maintenanceOverdue
+        self.alerts = alerts
+        self.lastUpdated = lastUpdated
+    }
 }
 
 struct ActivityItem: Identifiable {

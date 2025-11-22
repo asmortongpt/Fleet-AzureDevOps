@@ -272,14 +272,7 @@ struct VehicleCard: View {
     }
 
     private var vehicleIcon: String {
-        switch vehicle.type {
-        case .sedan: return "car"
-        case .suv: return "car.fill"
-        case .truck: return "truck.pickup.side"
-        case .van: return "bus"
-        case .bus: return "bus.fill"
-        case .equipment: return "wrench.and.screwdriver"
-        }
+        vehicle.type.icon
     }
 
     private var statusColor: Color {
@@ -544,14 +537,7 @@ struct VehicleDetailView: View {
     }
 
     private var vehicleIcon: String {
-        switch vehicle.type {
-        case .sedan: return "car"
-        case .suv: return "car.fill"
-        case .truck: return "truck.pickup.side"
-        case .van: return "bus"
-        case .bus: return "bus.fill"
-        case .equipment: return "wrench.and.screwdriver"
-        }
+        vehicle.type.icon
     }
 
     private func formatNumber(_ number: Double) -> String {
