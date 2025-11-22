@@ -89,6 +89,13 @@ spec:
               protocol: TCP
 
           env:
+            # Frontend runtime configuration
+            - name: VITE_API_URL
+              value: "https://fleet.capitaltechalliance.com"
+            - name: VITE_ENVIRONMENT
+              value: "production"
+            - name: VITE_BUILD_VERSION
+              value: "latest"
             - name: NODE_ENV
               valueFrom:
                 configMapKeyRef:
