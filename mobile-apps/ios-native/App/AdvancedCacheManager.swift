@@ -3,7 +3,7 @@ import Foundation
 
 // MARK: - Cache Entry
 /// Generic cache entry with expiration support
-public struct CacheEntry<T> {
+public struct AdvancedAdvancedCacheEntry<T> {
     public let value: T
     public let expirationDate: Date
     public let createdAt: Date
@@ -69,7 +69,7 @@ public class AdvancedCacheManager {
         var result: T?
 
         cacheQueue.sync {
-            guard let entry = cache[key] as? CacheEntry<T> else {
+            guard let entry = cache[key] as? AdvancedCacheEntry<T> else {
                 self.missCount += 1
                 return
             }
