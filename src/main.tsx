@@ -89,14 +89,16 @@ setTimeout(async () => {
   console.log('[App] Initializing background services...');
 
   // Initialize telemetry (non-blocking)
-  initializeTelemetry({
-    enableWebVitals: true,
-    enableLongTaskObserver: true,
-    enablePerformanceMonitoring: import.meta.env.PROD,
-    performanceMonitoringInterval: 60000,
-  }).catch((err) => {
+  try {
+    initializeTelemetry({
+      enableWebVitals: true,
+      enableLongTaskObserver: true,
+      enablePerformanceMonitoring: import.meta.env.PROD,
+      performanceMonitoringInterval: 60000,
+    });
+  } catch (err) {
     console.warn('[Telemetry] Failed to initialize - continuing without telemetry:', err);
-  });
+  }
 
   // Start version checker
   try {
