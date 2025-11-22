@@ -339,25 +339,29 @@ struct TripTrackingOverlayView: View {
                         TripStatCard(
                             title: "Distance",
                             value: String(format: "%.1f mi", tripManager.tripDistance / 1609.34),
-                            icon: "location.fill"
+                            icon: "location.fill",
+                            color: .blue
                         )
 
                         TripStatCard(
                             title: "Duration",
                             value: formatDuration(tripManager.tripDuration),
-                            icon: "clock.fill"
+                            icon: "clock.fill",
+                            color: .green
                         )
 
                         TripStatCard(
                             title: "Avg Speed",
                             value: String(format: "%.0f mph", tripManager.averageSpeed),
-                            icon: "speedometer"
+                            icon: "speedometer",
+                            color: .orange
                         )
 
                         TripStatCard(
                             title: "Max Speed",
                             value: String(format: "%.0f mph", tripManager.currentTrip?.maxSpeed ?? 0),
-                            icon: "gauge"
+                            icon: "gauge",
+                            color: .purple
                         )
                     }
                 }

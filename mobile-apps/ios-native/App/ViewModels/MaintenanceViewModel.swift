@@ -2,7 +2,7 @@
 //  MaintenanceViewModel.swift
 //  Fleet Manager
 //
-//  ViewModel for Maintenance view with scheduling and service history
+//  ViewModel for Maintenance view - Simplified version for model alignment
 //
 
 import Foundation
@@ -13,310 +13,137 @@ import Combine
 final class MaintenanceViewModel: RefreshableViewModel {
 
     // MARK: - Published Properties
-    @Published var maintenanceRecords: [MaintenanceRecord] = []
+    @Published var records: [MaintenanceRecord] = []
     @Published var filteredRecords: [MaintenanceRecord] = []
     @Published var selectedRecord: MaintenanceRecord?
     @Published var selectedFilter: MaintenanceFilter = .all
 
     // Statistics
-    @Published var overdueCount: Int = 0
     @Published var scheduledCount: Int = 0
-    @Published var completedThisMonth: Int = 0
-    @Published var totalCostThisMonth: Double = 0
-
-    // Vehicles for scheduling
-    @Published var vehicles: [Vehicle] = []
+    @Published var inProgressCount: Int = 0
+    @Published var completedCount: Int = 0
+    @Published var overdueCount: Int = 0
 
     // MARK: - Private Properties
-    private let mockData = MockDataGenerator.shared
     private var allRecords: [MaintenanceRecord] = []
 
     // MARK: - Filter Options
     enum MaintenanceFilter: String, CaseIterable {
         case all = "All"
-        case overdue = "Overdue"
         case scheduled = "Scheduled"
+        case inProgress = "In Progress"
         case completed = "Completed"
-        case thisMonth = "This Month"
-        case thisWeek = "This Week"
-
-        var icon: String {
-            switch self {
-            case .all: return "list.bullet"
-            case .overdue: return "exclamationmark.triangle"
-            case .scheduled: return "calendar"
-            case .completed: return "checkmark.circle"
-            case .thisMonth: return "calendar.badge.clock"
-            case .thisWeek: return "calendar.day.timeline.left"
-            }
-        }
-
-        var color: Color {
-            switch self {
-            case .all: return .gray
-            case .overdue: return .red
-            case .scheduled: return .blue
-            case .completed: return .green
-            case .thisMonth: return .purple
-            case .thisWeek: return .orange
-            }
-        }
+        case overdue = "Overdue"
     }
 
-    // MARK: - Initialization
+    // MARK: - Lifecycle
     override init() {
         super.init()
-        setupSearchDebouncer()
-        loadMaintenanceData()
+        loadMaintenanceRecords()
     }
 
     // MARK: - Data Loading
-    private func loadMaintenanceData() {
+    func loadMaintenanceRecords() {
+        loadingState = .loading
+
         Task {
-            await loadData()
-        }
-    }
+            do {
+                try await Task.sleep(nanoseconds: 500_000_000) // Simulate API call
 
-    @MainActor
-    private func loadData() async {
-        startLoading()
+                // Initialize with empty data - will be populated from API
+                allRecords = []
+                records = []
+                applyFilters()
+                updateStatistics()
 
-        // Simulate network delay
-        await Task.sleep(200_000_000) // 0.2 seconds
-
-        // Generate mock data
-        vehicles = mockData.generateVehicles(count: 25)
-        allRecords = mockData.generateMaintenanceRecords(count: 30, vehicles: vehicles)
-        maintenanceRecords = allRecords
-
-        // Update statistics
-        updateStatistics()
-
-        // Apply current filter
-        applyFilter(selectedFilter)
-
-        // Cache the data
-        cacheMaintenanceData()
-
-        finishLoading()
-    }
-
-    private func cacheMaintenanceData() {
-        if let data = try? JSONEncoder().encode(allRecords) {
-            cacheObject(data as AnyObject, forKey: "maintenance_cache")
-        }
-    }
-
-    private func updateStatistics() {
-        let now = Date()
-        let calendar = Calendar.current
-        let startOfMonth = calendar.dateInterval(of: .month, for: now)?.start ?? now
-
-        overdueCount = allRecords.filter { $0.status == .overdue }.count
-        scheduledCount = allRecords.filter { $0.status == .scheduled }.count
-
-        let thisMonthRecords = allRecords.filter { record in
-            guard let completedDate = record.completedDate else { return false }
-            return completedDate >= startOfMonth
-        }
-
-        completedThisMonth = thisMonthRecords.count
-        totalCostThisMonth = thisMonthRecords.map { $0.cost }.reduce(0, +)
-    }
-
-    // MARK: - Search
-    override func performSearch() {
-        filterRecords()
-    }
-
-    private func setupSearchDebouncer() {
-        $searchText
-            .debounce(for: .milliseconds(300), scheduler: RunLoop.main)
-            .removeDuplicates()
-            .sink { [weak self] _ in
-                self?.filterRecords()
+                loadingState = .loaded
+            } catch {
+                loadingState = .error(error.localizedDescription)
             }
-            .store(in: &cancellables)
+        }
+    }
+
+    override func refresh() async {
+        loadMaintenanceRecords()
     }
 
     // MARK: - Filtering
-    func applyFilter(_ filter: MaintenanceFilter) {
-        selectedFilter = filter
-        filterRecords()
-    }
+    func applyFilters() {
+        var filtered = allRecords
 
-    private func filterRecords() {
-        var result = allRecords
-
-        // Apply search filter
-        if !searchText.isEmpty {
-            result = result.filter { record in
-                record.vehicleNumber.localizedCaseInsensitiveContains(searchText) ||
-                record.type.localizedCaseInsensitiveContains(searchText) ||
-                record.provider.localizedCaseInsensitiveContains(searchText) ||
-                (record.notes?.localizedCaseInsensitiveContains(searchText) ?? false)
-            }
-        }
-
-        // Apply status/date filter
-        let calendar = Calendar.current
-        let now = Date()
-
+        // Filter by status
         switch selectedFilter {
         case .all:
             break
-        case .overdue:
-            result = result.filter { $0.status == .overdue }
         case .scheduled:
-            result = result.filter { $0.status == .scheduled }
+            filtered = filtered.filter { $0.status == .scheduled }
+        case .inProgress:
+            filtered = filtered.filter { $0.status == .inProgress }
         case .completed:
-            result = result.filter { $0.status == .completed }
-        case .thisMonth:
-            let startOfMonth = calendar.dateInterval(of: .month, for: now)?.start ?? now
-            result = result.filter { $0.scheduledDate >= startOfMonth }
-        case .thisWeek:
-            let startOfWeek = calendar.dateInterval(of: .weekOfYear, for: now)?.start ?? now
-            result = result.filter { $0.scheduledDate >= startOfWeek }
+            filtered = filtered.filter { $0.status == .completed }
+        case .overdue:
+            filtered = filtered.filter { $0.status == .overdue || $0.isOverdue }
         }
 
-        // Sort by date (urgent first, then by scheduled date)
-        result.sort { first, second in
-            if first.status == .overdue && second.status != .overdue {
-                return true
-            } else if first.status != .overdue && second.status == .overdue {
-                return false
-            } else {
-                return first.scheduledDate < second.scheduledDate
+        // Apply search filter
+        if !searchText.isEmpty {
+            filtered = filtered.filter { record in
+                record.description.localizedCaseInsensitiveContains(searchText) ||
+                record.type.rawValue.localizedCaseInsensitiveContains(searchText) ||
+                (record.vehicleNumber?.localizedCaseInsensitiveContains(searchText) ?? false)
             }
         }
 
-        // Update filtered records with animation
-        withAnimation(.easeInOut(duration: 0.2)) {
-            filteredRecords = result
+        filteredRecords = filtered.sorted { $0.scheduledDate > $1.scheduledDate }
+    }
+
+    // MARK: - Statistics
+    private func updateStatistics() {
+        scheduledCount = allRecords.filter { $0.status == .scheduled }.count
+        inProgressCount = allRecords.filter { $0.status == .inProgress }.count
+        completedCount = allRecords.filter { $0.status == .completed }.count
+        overdueCount = allRecords.filter { $0.status == .overdue || $0.isOverdue }.count
+    }
+
+    // MARK: - Actions
+    func selectFilter(_ filter: MaintenanceFilter) {
+        selectedFilter = filter
+        applyFilters()
+    }
+
+    func scheduleMaintenance(for vehicleId: String, type: MaintenanceType, date: Date, description: String) {
+        let record = MaintenanceRecord(
+            vehicleId: vehicleId,
+            type: type,
+            category: .other,
+            scheduledDate: date,
+            description: description
+        )
+
+        allRecords.insert(record, at: 0)
+        applyFilters()
+        updateStatistics()
+    }
+
+    func updateRecordStatus(_ record: MaintenanceRecord, to status: MaintenanceStatus) {
+        if let index = allRecords.firstIndex(where: { $0.id == record.id }) {
+            var updated = allRecords[index]
+            updated.status = status
+            if status == .completed {
+                updated.completedDate = Date()
+            }
+            allRecords[index] = updated
+            applyFilters()
+            updateStatistics()
         }
     }
 
-    // MARK: - Refresh
-    override func refresh() async {
-        startRefreshing()
-        await loadData()
-        finishRefreshing()
-    }
-
-    // MARK: - Maintenance Actions
-    func scheduleNewMaintenance(vehicleId: String, type: String, date: Date) {
-        guard let vehicle = vehicles.first(where: { $0.id == vehicleId }) else { return }
-
-        let newRecord = MaintenanceRecord(
-            id: UUID().uuidString,
-            vehicleId: vehicle.id,
-            vehicleNumber: vehicle.number,
-            type: type,
-            scheduledDate: date,
-            completedDate: nil,
-            mileageAtService: vehicle.mileage,
-            cost: 0,
-            provider: "To be determined",
-            notes: "Scheduled maintenance",
-            status: .scheduled,
-            parts: [],
-            laborHours: 0,
-            warranty: false,
-            nextServiceDue: date.addingTimeInterval(90 * 24 * 3600)
-        )
-
-        allRecords.insert(newRecord, at: 0)
-        filterRecords()
-        updateStatistics()
-    }
-
-    func markAsCompleted(_ record: MaintenanceRecord) {
-        guard let index = allRecords.firstIndex(where: { $0.id == record.id }) else { return }
-
-        var updatedRecord = record
-        updatedRecord = MaintenanceRecord(
-            id: record.id,
-            vehicleId: record.vehicleId,
-            vehicleNumber: record.vehicleNumber,
-            type: record.type,
-            scheduledDate: record.scheduledDate,
-            completedDate: Date(),
-            mileageAtService: record.mileageAtService,
-            cost: record.cost,
-            provider: record.provider,
-            notes: "Service completed",
-            status: .completed,
-            parts: record.parts,
-            laborHours: record.laborHours,
-            warranty: record.warranty,
-            nextServiceDue: record.nextServiceDue
-        )
-
-        allRecords[index] = updatedRecord
-        filterRecords()
-        updateStatistics()
-    }
-
-    func cancelMaintenance(_ record: MaintenanceRecord) {
-        guard let index = allRecords.firstIndex(where: { $0.id == record.id }) else { return }
-
-        var updatedRecord = record
-        updatedRecord = MaintenanceRecord(
-            id: record.id,
-            vehicleId: record.vehicleId,
-            vehicleNumber: record.vehicleNumber,
-            type: record.type,
-            scheduledDate: record.scheduledDate,
-            completedDate: nil,
-            mileageAtService: record.mileageAtService,
-            cost: 0,
-            provider: record.provider,
-            notes: "Service cancelled",
-            status: .cancelled,
-            parts: [],
-            laborHours: 0,
-            warranty: record.warranty,
-            nextServiceDue: nil
-        )
-
-        allRecords[index] = updatedRecord
-        filterRecords()
-        updateStatistics()
-    }
-
-    func rescheduleMainten ance(_ record: MaintenanceRecord, newDate: Date) {
-        guard let index = allRecords.firstIndex(where: { $0.id == record.id }) else { return }
-
-        var updatedRecord = record
-        updatedRecord = MaintenanceRecord(
-            id: record.id,
-            vehicleId: record.vehicleId,
-            vehicleNumber: record.vehicleNumber,
-            type: record.type,
-            scheduledDate: newDate,
-            completedDate: nil,
-            mileageAtService: record.mileageAtService,
-            cost: record.cost,
-            provider: record.provider,
-            notes: "Rescheduled to \(newDate.formatted(date: .abbreviated, time: .omitted))",
-            status: newDate < Date() ? .overdue : .scheduled,
-            parts: record.parts,
-            laborHours: record.laborHours,
-            warranty: record.warranty,
-            nextServiceDue: record.nextServiceDue
-        )
-
-        allRecords[index] = updatedRecord
-        filterRecords()
-        updateStatistics()
-    }
-
-    func getMaintenanceForVehicle(_ vehicleId: String) -> [MaintenanceRecord] {
-        allRecords.filter { $0.vehicleId == vehicleId }
-    }
-
-    func exportMaintenanceReport() {
-        print("Exporting maintenance report...")
-        // Would export to CSV/PDF
+    func rescheduleMaintenance(_ record: MaintenanceRecord, to date: Date) {
+        if let index = allRecords.firstIndex(where: { $0.id == record.id }) {
+            var updated = allRecords[index]
+            updated.scheduledDate = date
+            allRecords[index] = updated
+            applyFilters()
+        }
     }
 }
