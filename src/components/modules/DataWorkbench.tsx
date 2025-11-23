@@ -576,7 +576,7 @@ export function DataWorkbench({ data }: DataWorkbenchProps) {
   const analyticsMetrics = useMemo(() => {
     const activeVehicles = (vehicles || []).filter(v => v.status === "active")
     const totalMileage = (vehicles || []).reduce((sum, v) => sum + v.mileage, 0)
-    const avgMilesPerDay = totalMileage / vehicles.length / 365
+    const avgMilesPerDay = vehicles.length > 0 ? totalMileage / vehicles.length / 365 : 0
 
     // Calculate costs
     const daysAgo = parseInt(analyticsTimeRange)
@@ -629,7 +629,7 @@ export function DataWorkbench({ data }: DataWorkbenchProps) {
     total: vehicles.length,
     active: (vehicles || []).filter(v => v.status === "active").length,
     maintenance: (vehicles || []).filter(v => v.status === "service").length,
-    avgFuel: Math.round((vehicles || []).reduce((sum, v) => sum + v.fuelLevel, 0) / vehicles.length),
+    avgFuel: vehicles.length > 0 ? Math.round((vehicles || []).reduce((sum, v) => sum + (v.fuelLevel ?? 0), 0) / vehicles.length) : 0,
     alerts: vehicles.filter(v => ((v.alerts || [])).length > 0).length
   }
 
@@ -1185,8 +1185,8 @@ export function DataWorkbench({ data }: DataWorkbenchProps) {
                         <td className="p-4">
                           {new Date(record.date).toLocaleDateString()}
                         </td>
-                        <td className="p-4">{record.gallons.toFixed(1)}</td>
-                        <td className="p-4 font-medium">${record.cost.toFixed(2)}</td>
+                        <td className="p-4">{(record.gallons ?? 0).toFixed(1)}</td>
+                        <td className="p-4 font-medium">${(record.cost ?? 0).toFixed(2)}</td>
                         <td className="p-4">{record.odometer.toLocaleString()} mi</td>
                         <td className="p-4">
                           <Badge variant="outline" className="bg-success/10 text-success border-success/20">
