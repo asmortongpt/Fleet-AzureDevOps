@@ -33,7 +33,7 @@ if (!MICROSOFT_AUTH_CONFIG.clientId || !MICROSOFT_AUTH_CONFIG.tenantId) {
  */
 export function getMicrosoftLoginUrl(tenantId?: string): string {
   // Use the backend endpoint to initiate OAuth - this ensures redirect_uri consistency
-  const apiBaseUrl = import.meta.env.VITE_API_URL || window.location.origin + '/api'
+  const apiBaseUrl = import.meta.env.VITE_API_URL || window.location.origin + '/api/v1'
   const url = `${apiBaseUrl}/auth/microsoft/login`
   return tenantId ? `${url}?tenant_id=${tenantId}` : url
 
