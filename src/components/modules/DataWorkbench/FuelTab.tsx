@@ -253,12 +253,12 @@ export function FuelTab({ fuelRecords, vehicles }: FuelTabProps) {
                     <td className="p-4">
                       {new Date(record.date).toLocaleDateString()}
                     </td>
-                    <td className="p-4">{record.gallons.toFixed(1)}</td>
-                    <td className="p-4 font-medium">${record.cost.toFixed(2)}</td>
-                    <td className="p-4">{record.odometer.toLocaleString()} mi</td>
+                    <td className="p-4">{(record.gallons ?? 0).toFixed(1)}</td>
+                    <td className="p-4 font-medium">${(record.cost ?? 0).toFixed(2)}</td>
+                    <td className="p-4">{(record.odometer ?? 0).toLocaleString()} mi</td>
                     <td className="p-4">
                       <Badge variant="outline" className="bg-success/10 text-success border-success/20" role="status">
-                        {record.mpg.toFixed(1)} MPG
+                        {(record.mpg ?? 0).toFixed(1)} MPG
                       </Badge>
                     </td>
                     <td className="p-4 text-sm text-muted-foreground">
