@@ -25,10 +25,11 @@ export const authenticateJWT = async (
   }
 
   logger.info('🔒 AUTH MIDDLEWARE - CHECKING JWT TOKEN')
-  const token = req.headers.authorization?.split(' ')[1]
+  // Check Authorization header first, then fall back to cookie
+  const token = req.headers.authorization?.split(' ')[1] || req.cookies?.auth_token
 
   if (!token) {
-    logger.info('❌ AUTH MIDDLEWARE - No token provided')
+    logger.info('❌ AUTH MIDDLEWARE - No token provided (checked header and cookie)')
     return res.status(401).json({ error: 'Authentication required' })
   }
 
