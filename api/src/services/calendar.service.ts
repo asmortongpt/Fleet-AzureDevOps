@@ -493,7 +493,7 @@ export async function scheduleDriverTraining(
   try {
     // Get driver details
     const driverResult = await pool.query(
-      'SELECT id, tenant_id, email, first_name, last_name, role, status, phone, created_at, updated_at, deleted_at FROM users WHERE id = $1 AND role = $2',
+      'SELECT id, tenant_id, email, first_name, last_name, role, is_active, phone, created_at, updated_at FROM users WHERE id = $1 AND role = $2',
       [driverId, 'driver']
     )
 
