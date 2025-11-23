@@ -389,6 +389,10 @@ if (process.env.USE_MOCK_DATA === 'true') {
 app.use('/api/v1/auth', authRoutes)
 app.use('/api/v1/auth', microsoftAuthRoutes)
 
+// Also mount at /api/auth for backwards compatibility with frontend
+app.use('/api/auth', authRoutes)
+app.use('/api/auth', microsoftAuthRoutes)
+
 // Core Fleet Management
 app.use('/api/v1/vehicles', vehiclesRoutes)
 app.use('/api/v1/drivers', driversRoutes)
