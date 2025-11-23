@@ -215,9 +215,11 @@ router.get('/microsoft/callback', async (req: Request, res: Response) => {
     })
 
     // SECURITY FIX (CWE-601): Validate frontend URL before redirect
+    // Also pass token in URL for SPA compatibility (hash fragment for security)
     try {
       const frontendUrl = getValidatedFrontendUrl()
-      const safeCallbackUrl = buildSafeRedirectUrl(`${frontendUrl}/auth/callback`)
+      // Pass token as query param for SPA to read and store
+      const safeCallbackUrl = buildSafeRedirectUrl(`${frontendUrl}/auth/callback`, { token })
       res.redirect(safeCallbackUrl)
     } catch (error: any) {
       console.error('Frontend URL validation failed:', error.message)
