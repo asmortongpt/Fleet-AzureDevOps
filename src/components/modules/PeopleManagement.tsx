@@ -18,7 +18,6 @@ import { useState } from "react"
 import { useFleetData } from "@/hooks/use-fleet-data"
 
 interface PeopleManagementProps {
-  data?: any
   data: ReturnType<typeof useFleetData>
 }
 
@@ -98,7 +97,7 @@ export function PeopleManagement({ data }: PeopleManagementProps) {
                           </div>
                         </div>
                         <div className="flex gap-2">
-                          {driver.certifications.map(cert => (
+                          {(driver.certifications || []).map(cert => (
                             <Badge key={cert} variant="outline" className="bg-success/10 text-success border-success/20">
                               <Certificate className="w-3 h-3 mr-1" />
                               {cert}
