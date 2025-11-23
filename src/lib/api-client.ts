@@ -115,7 +115,7 @@ class APIClient {
     this.refreshTokenPromise = (async () => {
       try {
         logger.info('Attempting to refresh access token...')
-        const response = await fetch(`${this.baseURL}/api/auth/refresh`, {
+        const response = await fetch(`${this.baseURL}/api/v1/auth/refresh`, {
           method: 'POST',
           credentials: 'include', // Required for httpOnly cookie
           headers: {
@@ -165,8 +165,15 @@ class APIClient {
       ...options.headers
     }
 
-    if (this.token) {
-      headers['Authorization'] = `Bearer ${this.token}`
+    // Always re-read token from localStorage to handle SSO login flow
+    // The token may have been set after the singleton was constructed
+    const currentToken = this.token || localStorage.getItem('token')
+    if (currentToken) {
+      // Update internal token reference if found in localStorage
+      if (!this.token && currentToken) {
+        this.token = currentToken
+      }
+      headers['Authorization'] = `Bearer ${currentToken}`
     }
 
     // Add CSRF token to headers for state-changing requests
@@ -237,8 +244,10 @@ class APIClient {
               ...options.headers
             }
 
-            if (this.token) {
-              retryHeaders['Authorization'] = `Bearer ${this.token}`
+            // Re-read token from localStorage after refresh
+            const refreshedToken = this.token || localStorage.getItem('token')
+            if (refreshedToken) {
+              retryHeaders['Authorization'] = `Bearer ${refreshedToken}`
             }
 
             // Re-add CSRF token if needed
@@ -311,7 +320,7 @@ class APIClient {
   // Authentication endpoints
   async login(email: string, password: string) {
     const response = await this.post<{ token: string; user: any }>(
-      '/api/auth/login',
+      '/api/v1/auth/login',
       { email, password }
     )
     this.setToken(response.token)
@@ -326,11 +335,11 @@ class APIClient {
     phone?: string
     role?: string
   }) {
-    return this.post('/api/auth/register', data)
+    return this.post('/api/v1/auth/register', data)
   }
 
   async logout() {
-    await this.post('/api/auth/logout', {})
+    await this.post('/api/v1/auth/logout', {})
     this.clearToken()
   }
 
@@ -552,10 +561,12 @@ class APIClient {
       const formData = new FormData()
       formData.append('file', file)
 
+      // Re-read token from localStorage to handle SSO login flow
+      const uploadToken = this.token || localStorage.getItem('token')
       const response = await fetch(`${this.baseURL}/api/teams/${teamId}/channels/${channelId}/files`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${this.token}`
+          'Authorization': `Bearer ${uploadToken}`
         },
         body: formData
       })
@@ -607,10 +618,12 @@ class APIClient {
       const formData = new FormData()
       formData.append('file', file)
 
+      // Re-read token from localStorage to handle SSO login flow
+      const attachToken = this.token || localStorage.getItem('token')
       const response = await fetch(`${this.baseURL}/api/outlook/attachments`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${this.token}`
+          'Authorization': `Bearer ${attachToken}`
         },
         body: formData
       })

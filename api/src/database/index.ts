@@ -48,9 +48,19 @@ export async function initializeDatabase(options?: {
 
   console.log('[Database] Initializing database systems...');
 
-  // Import and initialize connection manager
+  // Import and initialize connection manager (new system)
   const { initializeDatabaseManager } = await import('./connectionManager');
   await initializeDatabaseManager();
+
+  // Also initialize legacy connection manager for backward compatibility
+  // This is needed because 166+ files still import from /config/database
+  try {
+    const { initializeConnectionManager } = await import('../config/connection-manager');
+    await initializeConnectionManager();
+    console.log('[Database] Legacy connection manager initialized');
+  } catch (error) {
+    console.warn('[Database] Failed to initialize legacy connection manager:', error);
+  }
 
   // Start pool monitoring if enabled
   if (startMonitor) {
