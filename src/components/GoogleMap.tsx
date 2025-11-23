@@ -90,8 +90,8 @@ export function GoogleMap({
   showCameras = false,
   showRoutes = false,
   mapStyle = "roadmap",
-  center = [-98.5795, 39.8283],
-  zoom = 4,
+  center = [-84.2807, 30.4383], // Tallahassee, FL [lng, lat]
+  zoom = 12, // Focused on Tallahassee area
   className = "",
   onReady,
   onError,
