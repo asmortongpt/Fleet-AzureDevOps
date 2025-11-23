@@ -242,10 +242,10 @@ const TILE_LAYERS: Record<MapStyle, TileLayerConfig> = {
  * Global map configuration constants
  */
 const MAP_CONFIG = {
-  /** Default map center (geographic center of contiguous USA) */
-  defaultCenter: [39.8283, -98.5795] as [number, number],
-  /** Default zoom level (shows full USA) */
-  defaultZoom: 4,
+  /** Default map center (Tallahassee, FL) */
+  defaultCenter: [30.4383, -84.2807] as [number, number],
+  /** Default zoom level (shows Tallahassee area) */
+  defaultZoom: 12,
   /** Minimum allowed zoom level */
   minZoom: 2,
   /** Maximum allowed zoom level */
