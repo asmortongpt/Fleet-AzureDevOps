@@ -23,6 +23,14 @@ import { useCallback, useState, useEffect } from 'react'
 import { generateAllDemoData } from '@/lib/demo-data'
 import logger from '@/utils/logger'
 
+// Debug flag - set to true in localStorage for verbose logging
+const DEBUG_FLEET_DATA = typeof window !== 'undefined' && localStorage.getItem('debug_fleet_data') === 'true'
+
+// Store API responses for debugging
+if (typeof window !== 'undefined') {
+  (window as any).__FLEET_API_RESPONSES__ = {}
+}
+
 // Cache demo mode setting to avoid repeated localStorage reads
 const DEMO_MODE_CACHED = (() => {
   try {
@@ -41,6 +49,41 @@ export function useFleetData() {
   const { data: facilitiesData, isLoading: facilitiesLoading, error: facilitiesError } = useFacilities()
   const { data: maintenanceData, isLoading: maintenanceLoading, error: maintenanceError } = useMaintenanceSchedules()
   const { data: routesData, isLoading: routesLoading, error: routesError } = useRoutes()
+
+  // Store API responses for debugging
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      (window as any).__FLEET_API_RESPONSES__ = {
+        vehicles: { data: vehiclesData, loading: vehiclesLoading, error: vehiclesError?.message },
+        drivers: { data: driversData, loading: driversLoading, error: driversError?.message },
+        workOrders: { data: workOrdersData, loading: workOrdersLoading, error: workOrdersError?.message },
+        facilities: { data: facilitiesData, loading: facilitiesLoading, error: facilitiesError?.message },
+        lastUpdate: new Date().toISOString()
+      }
+    }
+  }, [vehiclesData, driversData, workOrdersData, facilitiesData, vehiclesError, driversError, workOrdersError, facilitiesError, vehiclesLoading, driversLoading, workOrdersLoading, facilitiesLoading])
+
+  // Log API responses for debugging
+  useEffect(() => {
+    if (vehiclesError) {
+      console.error('[useFleetData] Vehicles API error:', vehiclesError)
+    }
+    if (driversError) {
+      console.error('[useFleetData] Drivers API error:', driversError)
+    }
+    if (facilitiesError) {
+      console.error('[useFleetData] Facilities API error:', facilitiesError)
+    }
+
+    // Log when data arrives
+    if (DEBUG_FLEET_DATA) {
+      console.log('[useFleetData] API Data State:', {
+        vehicles: { count: vehiclesData?.data?.length ?? 'N/A', loading: vehiclesLoading, error: !!vehiclesError },
+        drivers: { count: driversData?.data?.length ?? 'N/A', loading: driversLoading, error: !!driversError },
+        facilities: { count: facilitiesData?.data?.length ?? 'N/A', loading: facilitiesLoading, error: !!facilitiesError }
+      })
+    }
+  }, [vehiclesData, driversData, facilitiesData, vehiclesError, driversError, facilitiesError, vehiclesLoading, driversLoading, facilitiesLoading])
 
   // Demo data fallback
   const [demoData] = useState(() => generateAllDemoData())
@@ -75,13 +118,44 @@ export function useFleetData() {
   const routeMutations = useRouteMutations()
 
   // Extract data arrays from API responses or use demo data
-  const vehicles = useDemoData ? demoData.vehicles : (vehiclesData?.data || [])
-  const drivers = useDemoData ? demoData.drivers : (driversData?.data || [])
-  const workOrders = useDemoData ? demoData.workOrders : (workOrdersData?.data || [])
-  const fuelTransactions = useDemoData ? demoData.fuelTransactions : (fuelTransactionsData?.data || [])
-  const facilities = useDemoData ? demoData.facilities : (facilitiesData?.data || [])
-  const maintenanceSchedules = useDemoData ? demoData.maintenanceSchedules : (maintenanceData?.data || [])
-  const routes = useDemoData ? demoData.routes : (routesData?.data || [])
+  // Add defensive checks to ensure arrays and required properties exist
+  const rawVehicles = useDemoData ? demoData.vehicles : (vehiclesData?.data || [])
+  const vehicles = Array.isArray(rawVehicles) ? rawVehicles.map(v => ({
+    ...v,
+    // Ensure alerts is always an array to prevent .length errors
+    alerts: Array.isArray(v.alerts) ? v.alerts : []
+  })) : []
+
+  const rawDrivers = useDemoData ? demoData.drivers : (driversData?.data || [])
+  const drivers = Array.isArray(rawDrivers) ? rawDrivers : []
+
+  const rawWorkOrders = useDemoData ? demoData.workOrders : (workOrdersData?.data || [])
+  const workOrders = Array.isArray(rawWorkOrders) ? rawWorkOrders : []
+
+  const rawFuelTransactions = useDemoData ? demoData.fuelTransactions : (fuelTransactionsData?.data || [])
+  const fuelTransactions = Array.isArray(rawFuelTransactions) ? rawFuelTransactions : []
+
+  const rawFacilities = useDemoData ? demoData.facilities : (facilitiesData?.data || [])
+  const facilities = Array.isArray(rawFacilities) ? rawFacilities : []
+
+  const rawMaintenanceSchedules = useDemoData ? demoData.maintenanceSchedules : (maintenanceData?.data || [])
+  const maintenanceSchedules = Array.isArray(rawMaintenanceSchedules) ? rawMaintenanceSchedules : []
+
+  const rawRoutes = useDemoData ? demoData.routes : (routesData?.data || [])
+  const routes = Array.isArray(rawRoutes) ? rawRoutes : []
+
+  // Log data extraction results for debugging
+  useEffect(() => {
+    if (DEBUG_FLEET_DATA) {
+      console.log('[useFleetData] Data extracted:', {
+        vehicles: vehicles.length,
+        drivers: drivers.length,
+        facilities: facilities.length,
+        useDemoData,
+        sampleVehicle: vehicles[0] ? { id: vehicles[0].id, alerts: vehicles[0].alerts } : null
+      })
+    }
+  }, [vehicles.length, drivers.length, facilities.length, useDemoData])
 
   // Legacy compatibility - map facilities to serviceBays and staff
   const serviceBays = facilities
