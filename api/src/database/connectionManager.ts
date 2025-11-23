@@ -140,7 +140,10 @@ export class DatabaseConnectionManager {
       host: process.env.DB_HOST || 'fleet-postgres-service',
       port: parseInt(process.env.DB_PORT || '5432'),
       database: process.env.DB_NAME || 'fleetdb',
-      ssl: getDatabaseSSLConfig()
+      ssl: getDatabaseSSLConfig(),
+      // TCP keepalive to prevent idle connection timeouts in AKS/Azure Load Balancer
+      keepAlive: true,
+      keepAliveInitialDelayMillis: 10000, // Start keepalive after 10 seconds of idle
     };
 
     // Admin pool configuration (for migrations and schema changes)

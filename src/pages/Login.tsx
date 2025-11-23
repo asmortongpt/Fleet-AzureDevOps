@@ -27,7 +27,7 @@ export function Login() {
   // Email login mutation using TanStack Query
   const emailLoginMutation = useMutation({
     mutationFn: async (credentials: { email: string; password: string }) => {
-      const apiUrl = import.meta.env.VITE_API_URL || '/api'
+      const apiUrl = import.meta.env.VITE_API_URL || '/api/v1'
       const response = await fetch(`${apiUrl}/auth/login`, {
         method: 'POST',
         headers: {
