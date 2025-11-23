@@ -183,6 +183,16 @@ export function generateDemoDrivers(count: number = 30): Driver[] {
   const drivers: Driver[] = []
   const firstNames = ["James", "Maria", "David", "Jennifer", "Michael", "Sarah", "Robert", "Emily", "John", "Lisa"]
   const lastNames = ["Thompson", "Rodriguez", "Anderson", "Taylor", "Chen", "Williams", "Martinez", "Brown", "Garcia", "Wilson"]
+  const departments = ["Operations", "Logistics", "Field Services", "Transportation", "Maintenance"]
+  const licenseTypes = ["CDL Class A", "CDL Class B", "Standard", "CDL Class C", "Passenger"]
+  const certifications = [
+    ["HAZMAT", "Tanker"],
+    ["Doubles/Triples", "HAZMAT"],
+    ["Passenger", "School Bus"],
+    ["Tanker"],
+    ["HAZMAT", "Doubles/Triples", "Tanker"],
+    []
+  ]
 
   for (let i = 0; i < count; i++) {
     const firstName = firstNames[i % firstNames.length]
@@ -190,16 +200,17 @@ export function generateDemoDrivers(count: number = 30): Driver[] {
 
     drivers.push({
       id: `drv-demo-${2000 + i}`,
+      tenantId: "demo-tenant-001",
+      employeeId: `EMP-${String(1001 + i).padStart(4, '0')}`,
       name: `${firstName} ${lastName}`,
       email: `${firstName.toLowerCase()}${i > 9 ? i - 9 : ''}@demofleet.com`,
       phone: `(555) ${Math.floor(Math.random() * 900 + 100)}-${Math.floor(Math.random() * 9000 + 1000)}`,
-      licenseNumber: `D${1234567 + i}`,
-      licenseState: "FL", // All drivers based in Florida
-      licenseClass: ["A", "B", "C"][i % 3],
+      department: departments[i % departments.length],
+      licenseType: licenseTypes[i % licenseTypes.length],
       licenseExpiry: new Date(Date.now() + (Math.random() * 365 + 365) * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
       status: i < 20 ? "active" : "off-duty",
       safetyScore: Math.floor(Math.random() * 20 + 80),
-      tenantId: "demo-tenant-001"
+      certifications: certifications[i % certifications.length]
     })
   }
 
