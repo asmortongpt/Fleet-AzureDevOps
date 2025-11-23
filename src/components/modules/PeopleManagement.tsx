@@ -27,14 +27,16 @@ export function PeopleManagement({ data }: PeopleManagementProps) {
   const [searchQuery, setSearchQuery] = useState<string>("")
   const [activeTab, setActiveTab] = useState<string>("drivers")
 
-  const filteredDrivers = drivers.filter(d => 
-    !searchQuery || d.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    d.employeeId.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredDrivers = drivers.filter(d =>
+    !searchQuery ||
+    (d.name && d.name.toLowerCase().includes(searchQuery.toLowerCase())) ||
+    (d.employeeId && d.employeeId.toLowerCase().includes(searchQuery.toLowerCase()))
   )
 
-  const filteredStaff = staff.filter(s => 
-    !searchQuery || s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    s.employeeId.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredStaff = staff.filter(s =>
+    !searchQuery ||
+    (s.name && s.name.toLowerCase().includes(searchQuery.toLowerCase())) ||
+    (s.employeeId && s.employeeId.toLowerCase().includes(searchQuery.toLowerCase()))
   )
 
   return (
@@ -75,12 +77,12 @@ export function PeopleManagement({ data }: PeopleManagementProps) {
                   <div className="flex items-start justify-between">
                     <div className="flex gap-4">
                       <div className="w-12 h-12 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-semibold">
-                        {driver.name.split(' ').map(n => n[0]).join('')}
+                        {(driver.name || 'U').split(' ').map(n => n[0] || '').join('').slice(0, 2) || 'U'}
                       </div>
                       <div className="space-y-3">
                         <div>
-                          <h3 className="font-semibold text-lg">{driver.name}</h3>
-                          <p className="text-sm text-muted-foreground">{driver.employeeId} • {driver.department}</p>
+                          <h3 className="font-semibold text-lg">{driver.name || 'Unknown'}</h3>
+                          <p className="text-sm text-muted-foreground">{driver.employeeId || 'N/A'} • {driver.department || 'Unassigned'}</p>
                         </div>
                         <div className="flex flex-wrap gap-4 text-sm">
                           <div className="flex items-center gap-2">
@@ -156,12 +158,12 @@ export function PeopleManagement({ data }: PeopleManagementProps) {
                   <div className="flex items-start justify-between">
                     <div className="flex gap-4">
                       <div className="w-12 h-12 rounded-full bg-secondary text-secondary-foreground flex items-center justify-center font-semibold">
-                        {member.name.split(' ').map(n => n[0]).join('')}
+                        {(member.name || 'U').split(' ').map(n => n[0] || '').join('').slice(0, 2) || 'U'}
                       </div>
                       <div className="space-y-2">
                         <div>
-                          <h3 className="font-semibold text-lg">{member.name}</h3>
-                          <p className="text-sm text-muted-foreground">{member.employeeId}</p>
+                          <h3 className="font-semibold text-lg">{member.name || 'Unknown'}</h3>
+                          <p className="text-sm text-muted-foreground">{member.employeeId || 'N/A'}</p>
                         </div>
                         <div className="flex flex-wrap gap-4 text-sm">
                           <div className="flex items-center gap-2">
