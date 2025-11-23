@@ -34,10 +34,18 @@ export function AuthCallback() {
         return
       }
 
-      // Check if we have a token in the URL (from backend redirect)
+      // Check for URL error parameters (from backend redirect on failure)
       const params = new URLSearchParams(window.location.search)
-      const token = params.get('token')
+      const urlError = params.get('error')
+      const urlMessage = params.get('message')
+      if (urlError) {
+        setStatus('error')
+        setErrorMessage(urlMessage || 'Authentication failed. Please try again.')
+        return
+      }
 
+      // Check if we have a token in the URL (legacy support)
+      const token = params.get('token')
       if (token) {
         // Store token and redirect to dashboard
         setAuthToken(token)
@@ -48,7 +56,31 @@ export function AuthCallback() {
         return
       }
 
-      // If no token, this page was accessed incorrectly
+      // No token in URL - try to get it from the httpOnly cookie via API
+      // The backend sets an httpOnly cookie, so we call /api/auth/me to verify it
+      const apiUrl = import.meta.env.VITE_API_URL || window.location.origin
+      const response = await fetch(`${apiUrl}/api/v1/auth/me`, {
+        method: 'GET',
+        credentials: 'include', // Important: send cookies
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        if (data.token) {
+          // Store the token for future API calls
+          setAuthToken(data.token)
+          setStatus('success')
+          setTimeout(() => {
+            navigate('/')
+          }, 1500)
+          return
+        }
+      }
+
+      // If we get here, no valid authentication found
       setStatus('error')
       setErrorMessage('Invalid authentication callback. Please try signing in again.')
 
