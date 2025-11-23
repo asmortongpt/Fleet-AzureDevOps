@@ -237,7 +237,7 @@ export function FleetDashboard({ data }: FleetDashboardProps) {
     const service = filteredVehicles.filter(v => v.status === "service").length
     const emergency = filteredVehicles.filter(v => v.status === "emergency").length
     const lowFuel = filteredVehicles.filter(v => v.fuelLevel < 25).length
-    const alerts = filteredVehicles.filter(v => v.alerts.length > 0).length
+    const alerts = filteredVehicles.filter(v => (v.alerts?.length || 0) > 0).length
     const avgFuelLevel = total > 0 
       ? Math.round(filteredVehicles.reduce((sum, v) => sum + v.fuelLevel, 0) / total) 
       : 0
@@ -313,7 +313,7 @@ export function FleetDashboard({ data }: FleetDashboardProps) {
   }
 
   const priorityVehicles = filteredVehicles
-    .filter(v => v.type === "emergency" || v.alerts.length > 0)
+    .filter(v => v.type === "emergency" || (v.alerts?.length || 0) > 0)
     .slice(0, 5)
 
   return (
