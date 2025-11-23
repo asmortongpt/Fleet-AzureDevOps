@@ -94,17 +94,18 @@ export function generateDemoVehicles(count: number = 50): Vehicle[] {
 }
 
 export function generateDemoFacilities(): GISFacility[] {
+  // All facilities now located in Tallahassee, FL area
   return [
     {
       id: "fac-demo-1",
-      name: "HQ Depot - New York",
+      name: "CTA Fleet HQ Depot",
       type: "depot",
       location: {
-        lat: 40.7128,
-        lng: -74.0060,
-        address: "123 Fleet Street, New York, NY 10001"
+        lat: 30.4383,
+        lng: -84.2807,
+        address: "1000 Apalachee Pkwy, Tallahassee, FL 32301"
       },
-      address: "123 Fleet Street, New York, NY 10001",
+      address: "1000 Apalachee Pkwy, Tallahassee, FL 32301",
       capacity: 15,
       currentOccupancy: 8,
       status: "operational",
@@ -113,14 +114,14 @@ export function generateDemoFacilities(): GISFacility[] {
     },
     {
       id: "fac-demo-2",
-      name: "West Coast Hub - Los Angeles",
+      name: "North Tallahassee Hub",
       type: "depot",
       location: {
-        lat: 34.0522,
-        lng: -118.2437,
-        address: "456 Harbor Blvd, Los Angeles, CA 90011"
+        lat: 30.4650,
+        lng: -84.2600,
+        address: "2500 N Monroe St, Tallahassee, FL 32303"
       },
-      address: "456 Harbor Blvd, Los Angeles, CA 90011",
+      address: "2500 N Monroe St, Tallahassee, FL 32303",
       capacity: 10,
       currentOccupancy: 6,
       status: "operational",
@@ -129,14 +130,14 @@ export function generateDemoFacilities(): GISFacility[] {
     },
     {
       id: "fac-demo-3",
-      name: "Central Operations - Chicago",
+      name: "Capitol Circle Operations",
       type: "depot",
       location: {
-        lat: 41.8781,
-        lng: -87.6298,
-        address: "789 Logistics Ave, Chicago, IL 60601"
+        lat: 30.4500,
+        lng: -84.2300,
+        address: "3200 Capital Circle NE, Tallahassee, FL 32308"
       },
-      address: "789 Logistics Ave, Chicago, IL 60601",
+      address: "3200 Capital Circle NE, Tallahassee, FL 32308",
       capacity: 10,
       currentOccupancy: 5,
       status: "operational",
@@ -145,14 +146,14 @@ export function generateDemoFacilities(): GISFacility[] {
     },
     {
       id: "fac-demo-4",
-      name: "East Service Center - Atlanta",
+      name: "Southwood Service Center",
       type: "service-center",
       location: {
-        lat: 33.7490,
-        lng: -84.3880,
-        address: "321 Peachtree St, Atlanta, GA 30303"
+        lat: 30.4100,
+        lng: -84.2400,
+        address: "4500 Southwood Blvd, Tallahassee, FL 32311"
       },
-      address: "321 Peachtree St, Atlanta, GA 30303",
+      address: "4500 Southwood Blvd, Tallahassee, FL 32311",
       capacity: 8,
       currentOccupancy: 4,
       status: "operational",
@@ -161,14 +162,14 @@ export function generateDemoFacilities(): GISFacility[] {
     },
     {
       id: "fac-demo-5",
-      name: "Northwest Facility - Seattle",
-      type: "depot",
+      name: "Killearn Fueling Station",
+      type: "fueling-station",
       location: {
-        lat: 47.6062,
-        lng: -122.3321,
-        address: "654 Pacific Way, Seattle, WA 98101"
+        lat: 30.5000,
+        lng: -84.2200,
+        address: "1800 Thomasville Rd, Tallahassee, FL 32303"
       },
-      address: "654 Pacific Way, Seattle, WA 98101",
+      address: "1800 Thomasville Rd, Tallahassee, FL 32303",
       capacity: 7,
       currentOccupancy: 5,
       status: "operational",
@@ -193,7 +194,7 @@ export function generateDemoDrivers(count: number = 30): Driver[] {
       email: `${firstName.toLowerCase()}${i > 9 ? i - 9 : ''}@demofleet.com`,
       phone: `(555) ${Math.floor(Math.random() * 900 + 100)}-${Math.floor(Math.random() * 9000 + 1000)}`,
       licenseNumber: `D${1234567 + i}`,
-      licenseState: ["NY", "CA", "IL", "GA", "WA"][Math.floor(i / 6) % 5],
+      licenseState: "FL", // All drivers based in Florida
       licenseClass: ["A", "B", "C"][i % 3],
       licenseExpiry: new Date(Date.now() + (Math.random() * 365 + 365) * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
       status: i < 20 ? "active" : "off-duty",
@@ -267,11 +268,12 @@ export function generateDemoFuelTransactions(count: number = 100): FuelTransacti
 export function generateDemoRoutes(count: number = 15): Route[] {
   const routes: Route[] = []
   const statuses: Route["status"][] = ["completed", "in-progress", "planned"]
+  // Tallahassee area routes
   const routeNames = [
-    "NYC-PHI Run", "LA-SD Express", "CHI-MIL Route", "ATL-CLT Delivery",
-    "SEA-PORT Route", "NYC-BOS Express", "LA-SF Coastal", "CHI-DET Run",
-    "ATL-JAX Route", "SEA-VAN Border", "NYC-DC Capital", "LA-LV Desert",
-    "CHI-STL Midwest", "ATL-MIA Southeast", "SEA-PDX Northwest"
+    "TLH-JAX Express", "TLH-PNS Route", "Capital Circle Run", "Southwood Delivery",
+    "Killearn Route", "TLH-Thomasville Express", "Midtown Loop", "FSU Campus Run",
+    "Airport Connector", "Mahan Drive Route", "Apalachee Pkwy", "Blairstone Loop",
+    "Capital Region Circuit", "TLH-PAM Coastal", "North Monroe Route"
   ]
 
   for (let i = 0; i < count; i++) {
