@@ -581,4 +581,67 @@ router.post('/logout', async (req: Request, res: Response) => {
   res.json({ message: 'Logged out successfully' })
 })
 
+/**
+ * GET /api/auth/me
+ * Get current authenticated user info from JWT token (header or cookie)
+ */
+router.get('/me', async (req: Request, res: Response) => {
+  try {
+    // Get token from Authorization header or cookie
+    const token = req.headers.authorization?.split(' ')[1] || req.cookies?.auth_token
+
+    if (!token) {
+      return res.status(401).json({ error: 'No authentication token found' })
+    }
+
+    // Validate JWT_SECRET
+    if (!process.env.JWT_SECRET) {
+      return res.status(500).json({ error: 'Server configuration error' })
+    }
+
+    // Verify and decode token
+    const decoded = jwt.verify(token, process.env.JWT_SECRET) as {
+      id: string
+      email: string
+      tenant_id: string
+      role: string
+    }
+
+    // Get fresh user data from database
+    const userResult = await pool.query(
+      `SELECT id, tenant_id, email, first_name, last_name, role, is_active, phone, created_at, updated_at
+       FROM users WHERE id = $1 AND tenant_id = $2 AND is_active = true`,
+      [decoded.id, decoded.tenant_id]
+    )
+
+    if (userResult.rows.length === 0) {
+      return res.status(404).json({ error: 'User not found or inactive' })
+    }
+
+    const user = userResult.rows[0]
+
+    // Return user info and the token (so frontend can store it)
+    res.json({
+      user: {
+        id: user.id,
+        email: user.email,
+        first_name: user.first_name,
+        last_name: user.last_name,
+        role: user.role,
+        tenant_id: user.tenant_id
+      },
+      token // Return the token so frontend can store it for API calls
+    })
+  } catch (error: any) {
+    if (error.name === 'TokenExpiredError') {
+      return res.status(401).json({ error: 'Token expired' })
+    }
+    if (error.name === 'JsonWebTokenError') {
+      return res.status(401).json({ error: 'Invalid token' })
+    }
+    console.error('Error in /auth/me:', error.message)
+    return res.status(500).json({ error: 'Internal server error' })
+  }
+})
+
 export default router

@@ -6,5 +6,5 @@ npm-debug.log
 .gitignore
 README.md
 *.md
-dist
+# dist - keeping pre-built files to avoid TypeScript errors in CI
 .DS_Store

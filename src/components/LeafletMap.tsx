@@ -36,6 +36,7 @@ import { useEffect, useRef, useState, useCallback, useMemo } from "react"
 import type { DependencyList } from "react"
 import { usePerformanceMonitor } from "@/hooks/usePerformanceMonitor"
 import { useAccessibility } from "@/hooks/useAccessibility"
+import { screenReaderOnly } from "@/utils/accessibility"
 import type { Vehicle, GISFacility, TrafficCamera } from "@/lib/types"
 
 // ============================================================================
