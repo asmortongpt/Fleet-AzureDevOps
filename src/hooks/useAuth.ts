@@ -68,7 +68,7 @@ export const useAuthProvider = () => {
   const login = useCallback(async (email: string, password: string) => {
     setIsLoading(true);
     try {
-      const response = await fetch('/api/auth/login', {
+      const response = await fetch('/api/v1/auth/login', {
         method: 'POST',
         credentials: 'include',  // Required to receive cookies
         headers: {
@@ -128,7 +128,7 @@ export const useAuthProvider = () => {
   // The refresh token is automatically sent via cookie, not in the request body
   const refreshToken = useCallback(async () => {
     try {
-      const response = await fetch('/api/auth/refresh', {
+      const response = await fetch('/api/v1/auth/refresh', {
         method: 'POST',
         credentials: 'include',  // Required to send cookies
         headers: {
