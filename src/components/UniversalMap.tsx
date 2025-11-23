@@ -285,6 +285,64 @@ function isValidCoordinates(coords: unknown): coords is [number, number] {
 }
 
 /**
+ * Calculate center coordinates from markers data
+ * Returns the geographic center of all valid markers
+ * Falls back to DEFAULT_CENTER if no valid markers exist
+ * @param vehicles - Array of vehicles
+ * @param facilities - Array of facilities
+ * @param cameras - Array of cameras
+ * @returns Calculated center coordinates [lat, lng]
+ */
+function calculateDynamicCenter(
+  vehicles: Vehicle[] = [],
+  facilities: GISFacility[] = [],
+  cameras: TrafficCamera[] = []
+): [number, number] {
+  const validCoords: [number, number][] = []
+
+  // Collect vehicle coordinates
+  vehicles.forEach(v => {
+    if (v.location?.lat && v.location?.lng &&
+        v.location.lat >= -90 && v.location.lat <= 90 &&
+        v.location.lng >= -180 && v.location.lng <= 180) {
+      validCoords.push([v.location.lat, v.location.lng])
+    }
+  })
+
+  // Collect facility coordinates
+  facilities.forEach(f => {
+    if (f.location?.lat && f.location?.lng &&
+        f.location.lat >= -90 && f.location.lat <= 90 &&
+        f.location.lng >= -180 && f.location.lng <= 180) {
+      validCoords.push([f.location.lat, f.location.lng])
+    }
+  })
+
+  // Collect camera coordinates
+  cameras.forEach(c => {
+    if (c.latitude && c.longitude &&
+        c.latitude >= -90 && c.latitude <= 90 &&
+        c.longitude >= -180 && c.longitude <= 180) {
+      validCoords.push([c.latitude, c.longitude])
+    }
+  })
+
+  // If no valid coordinates, return default
+  if (validCoords.length === 0) {
+    return DEFAULT_CENTER
+  }
+
+  // Calculate average (centroid)
+  const sumLat = validCoords.reduce((sum, [lat]) => sum + lat, 0)
+  const sumLng = validCoords.reduce((sum, [, lng]) => sum + lng, 0)
+
+  return [
+    sumLat / validCoords.length,
+    sumLng / validCoords.length
+  ]
+}
+
+/**
  * Get the current map provider from localStorage or default
  * @param forceProvider - Optional forced provider
  * @returns Active map provider
@@ -412,15 +470,25 @@ export function UniversalMap(props: UniversalMapProps) {
   // --------------------------------------------------------------------------
 
   /**
-   * Validated center coordinates with fallback
+   * Validated center coordinates - dynamically calculated from markers if not provided
+   * Priority: 1) Explicit center prop, 2) Calculated from markers, 3) DEFAULT_CENTER
    */
   const validatedCenter = useMemo(() => {
+    // If explicit center provided, use it
     if (isValidCoordinates(center)) {
       return center
     }
-    console.warn("Invalid center coordinates provided, using default:", DEFAULT_CENTER)
-    return DEFAULT_CENTER
-  }, [center])
+
+    // Calculate center dynamically from markers
+    const dynamicCenter = calculateDynamicCenter(vehicles, facilities, cameras)
+
+    // Log if using dynamic center (only in dev)
+    if (process.env.NODE_ENV === 'development' && (vehicles.length > 0 || facilities.length > 0 || cameras.length > 0)) {
+      console.log("Map center calculated from markers:", dynamicCenter)
+    }
+
+    return dynamicCenter
+  }, [center, vehicles, facilities, cameras])
 
   /**
    * Validated zoom level with bounds
