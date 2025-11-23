@@ -409,6 +409,13 @@ export function LeafletMap({
     announceMarkerChanges: true,
   })
 
+  // ========== Performance Monitoring ==========
+  const perf = usePerformanceMonitor('LeafletMap', {
+    enabled: typeof window !== 'undefined' && import.meta.env.DEV,
+    reportInterval: 0, // Disable auto-reporting to avoid console spam
+    trackMemory: false, // Disable memory tracking for production
+  })
+
   // ========== State Management ==========
   const [mapState, setMapState] = useState<MapState>({
     ready: false,
