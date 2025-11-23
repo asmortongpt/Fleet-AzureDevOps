@@ -37,8 +37,7 @@ import { VendorManagement } from "@/components/modules/VendorManagement"
 import { PartsInventory } from "@/components/modules/PartsInventory"
 import { PurchaseOrders } from "@/components/modules/PurchaseOrders"
 import { Invoices } from "@/components/modules/Invoices"
-// TEMPORARILY DISABLED: AIAssistant requires @mui/material dependency
-// import { AIAssistant } from "@/components/modules/AIAssistant"
+import AIAssistant from "@/components/modules/AIAssistant"
 import { TeamsIntegration } from "@/components/modules/TeamsIntegration"
 import { EmailCenter } from "@/components/modules/EmailCenter"
 import { MaintenanceScheduling } from "@/components/modules/MaintenanceScheduling"
@@ -141,8 +140,7 @@ function App() {
       case "invoices":
         return <Invoices />
       case "ai-assistant":
-        // TEMPORARILY DISABLED: AIAssistant requires @mui/material dependency
-        return <div className="p-6"><Card><CardHeader><CardTitle>AI Assistant (Coming Soon)</CardTitle></CardHeader><CardContent>The AI Assistant feature requires additional dependencies and will be enabled in a future update.</CardContent></Card></div>
+        return <AIAssistant />
       case "teams-integration":
         return <TeamsIntegration />
       case "email-center":
