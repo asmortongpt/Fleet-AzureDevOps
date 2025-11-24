@@ -13,6 +13,7 @@ import {
 } from "@phosphor-icons/react"
 import { Vehicle, GISFacility } from "@/lib/types"
 import { UniversalMap } from "@/components/UniversalMap"
+import { useInspect } from "@/services/inspect/InspectContext"
 
 /**
  * Props for the GPSTracking component
@@ -66,6 +67,9 @@ export function GPSTracking({
   isLoading = false,
   error = null
 }: GPSTrackingProps) {
+  // Inspect drawer for detailed entity views
+  const { openInspect } = useInspect()
+
   // State management
   const [statusFilter, setStatusFilter] = useState<VehicleStatus>("all")
   const [selectedVehicleId, setSelectedVehicleId] = useState<string | null>(null)
@@ -176,9 +180,13 @@ export function GPSTracking({
    * Handle vehicle selection
    */
   const handleVehicleClick = useCallback((vehicleId: string) => {
+    // Open inspect drawer for detailed view
+    openInspect({ type: 'vehicle', id: vehicleId })
+
+    // Also maintain local state and callback
     setSelectedVehicleId(vehicleId)
     onVehicleSelect?.(vehicleId)
-  }, [onVehicleSelect])
+  }, [onVehicleSelect, openInspect])
 
   /**
    * Handle filter change
