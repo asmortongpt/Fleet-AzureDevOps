@@ -1,0 +1,19 @@
+FROM node:18-alpine
+
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+COPY tsconfig.json ./
+
+# Install dependencies
+RUN npm install
+
+# Copy source
+COPY enhanced-fleet-emulator.ts ./
+
+# Compile TypeScript
+RUN npx tsc
+
+# Run the emulator
+CMD ["node", "dist/enhanced-fleet-emulator.js"]
