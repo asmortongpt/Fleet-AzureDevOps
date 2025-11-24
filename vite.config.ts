@@ -78,12 +78,36 @@ export default defineConfig({
     rollupOptions: {
       output: {
         // ===================================================================
-        // SIMPLIFIED CHUNK STRATEGY
-        // Let Vite handle most chunking to avoid circular dependency issues
+        // OPTIMIZED CHUNK STRATEGY
+        // Split vendors into logical groups for better caching and performance
         // ===================================================================
         manualChunks: (id) => {
-          // All node_modules go to a single vendor chunk to avoid circular deps
           if (id.includes('node_modules')) {
+            // React core (most stable, cache longest)
+            if (id.includes('react') || id.includes('react-dom') || id.includes('react-router')) {
+              return 'react-vendor';
+            }
+            // UI components (Radix UI)
+            if (id.includes('@radix-ui') || id.includes('cmdk')) {
+              return 'ui-vendor';
+            }
+            // 3D visualization (large, load only when needed)
+            if (id.includes('three') || id.includes('@react-three') || id.includes('maath') || id.includes('leva')) {
+              return 'three-vendor';
+            }
+            // Map libraries (load only when using maps)
+            if (id.includes('leaflet') || id.includes('mapbox') || id.includes('azure-maps') || id.includes('react-leaflet') || id.includes('@react-google-maps')) {
+              return 'maps-vendor';
+            }
+            // Data visualization
+            if (id.includes('recharts') || id.includes('d3')) {
+              return 'charts-vendor';
+            }
+            // Date/time utilities
+            if (id.includes('date-fns')) {
+              return 'utils-vendor';
+            }
+            // Everything else
             return 'vendor';
           }
         },
@@ -188,5 +212,7 @@ export default defineConfig({
   esbuild: {
     logOverride: { 'this-is-undefined-in-esm': 'silent' },
     legalComments: 'none',
+    // Remove console logs and debugger statements in production
+    drop: process.env.NODE_ENV === 'production' ? ['console', 'debugger'] : [],
   },
 });
