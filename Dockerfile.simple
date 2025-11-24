@@ -3,17 +3,28 @@
 
 FROM nginx:alpine AS production
 
+# Set up directories with proper permissions (nginx user already exists)
+RUN mkdir -p /tmp/nginx /tmp/cache /var/cache/nginx && \
+    touch /tmp/nginx/nginx.pid && \
+    chown -R nginx:nginx /tmp/nginx /tmp/cache /var/cache/nginx /usr/share/nginx/html && \
+    chmod -R 755 /tmp/nginx /tmp/cache
+
 # Copy pre-built dist folder
 COPY dist /usr/share/nginx/html
 
-# Copy nginx configuration
+# Copy nginx configurations
+COPY nginx-main.conf /etc/nginx/nginx.conf
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 # Add healthcheck endpoint
-RUN echo '{"status":"healthy"}' > /usr/share/nginx/html/health.json
+RUN echo '{"status":"healthy"}' > /usr/share/nginx/html/health.json && \
+    chown -R nginx:nginx /usr/share/nginx/html
 
-# Expose port
-EXPOSE 80
+# Expose port 3000 (matching nginx.conf)
+EXPOSE 3000
+
+# Run as non-root user
+USER nginx
 
 # Start nginx
 CMD ["nginx", "-g", "daemon off;"]
