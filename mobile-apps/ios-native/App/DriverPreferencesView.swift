@@ -187,7 +187,7 @@ struct DriverAboutView: View {
                 .scaledToFit()
                 .frame(width: 120, height: 120)
 
-            Text("Capital Tech Alliance Fleet Management")
+            Text("Fleet")
                 .font(.title2)
                 .fontWeight(.bold)
             
