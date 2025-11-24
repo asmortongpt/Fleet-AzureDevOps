@@ -10,10 +10,10 @@ COPY tsconfig.json ./
 RUN npm install
 
 # Copy source
-COPY enhanced-fleet-emulator.ts ./
+COPY enhanced-fleet-emulator-with-samsara.ts ./
 
 # Compile TypeScript
 RUN npx tsc
 
 # Run the emulator
-CMD ["node", "dist/enhanced-fleet-emulator.js"]
+CMD ["node", "dist/enhanced-fleet-emulator-with-samsara.js"]
