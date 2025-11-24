@@ -50,6 +50,15 @@ struct NavigationDestinationView: View {
             case .help:
                 Text("Help View")
 
+            // PTT Radio Dispatch
+            case .pushToTalk:
+                PushToTalkPanel(
+                    signalingUrl: "wss://fleet.capitaltechalliance.com/ptt",
+                    token: "demo-token",
+                    defaultChannelId: "dispatch-1"
+                )
+                .navigationTitle("Push-To-Talk")
+
             // New hardware integration destinations
             case .tripTracking(let vehicleId):
                 EnhancedTripTrackingView(vehicleId: vehicleId)

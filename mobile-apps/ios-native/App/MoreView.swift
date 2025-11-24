@@ -32,6 +32,22 @@ struct MoreView: View {
                 // Mobile Actions Section (Driver-level features)
                 if roleManager.hasPermission(.vehicleViewOwn) || roleManager.hasPermission(.fuelTransactionCreateOwn) {
                     Section(header: Text("Mobile Actions")) {
+                        // Push-To-Talk Radio
+                        NavigationLink(destination: NavigationDestinationView(destination: .pushToTalk)) {
+                            HStack {
+                                Image(systemName: "radio.fill")
+                                    .foregroundColor(.blue)
+                                    .frame(width: 30)
+                                VStack(alignment: .leading) {
+                                    Text("Push-To-Talk Radio")
+                                        .font(.body)
+                                    Text("Dispatch radio communication")
+                                        .font(.caption)
+                                        .foregroundColor(.secondary)
+                                }
+                            }
+                        }
+
                         if roleManager.shouldShowFeature(.captureReceipts) {
                             NavigationLink(destination: ReceiptCaptureView()) {
                                 HStack {
