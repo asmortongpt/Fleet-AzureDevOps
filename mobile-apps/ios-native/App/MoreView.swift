@@ -3,10 +3,50 @@ import SwiftUI
 struct MoreView: View {
     // Note: ChecklistViewModel will be added when checklist features are complete
     @State private var pendingChecklistCount: Int = 0
+    @ObservedObject private var obd2ConnectionManager = OBD2ConnectionManager.shared
 
     var body: some View {
         NavigationView {
             List {
+                // Device Connection Section - Prominent for OBD2
+                Section(header: Text("Devices")) {
+                    NavigationLink(destination: OBD2DiagnosticsView()) {
+                        HStack {
+                            Image(systemName: "antenna.radiowaves.left.and.right")
+                                .foregroundColor(obd2ConnectionManager.connectionState.isActive ? .green : .blue)
+                                .frame(width: 30)
+                            VStack(alignment: .leading) {
+                                Text("Connect OBD2 Device")
+                                    .font(.body)
+                                Text(obd2ConnectionManager.connectionState.displayName)
+                                    .font(.caption)
+                                    .foregroundColor(obd2ConnectionManager.connectionState.isActive ? .green : .secondary)
+                            }
+                            Spacer()
+                            if obd2ConnectionManager.connectionState.isActive {
+                                Circle()
+                                    .fill(Color.green)
+                                    .frame(width: 8, height: 8)
+                            }
+                        }
+                    }
+
+                    NavigationLink(destination: DeviceManagementView()) {
+                        HStack {
+                            Image(systemName: "externaldrive.connected.to.line.below")
+                                .foregroundColor(.purple)
+                                .frame(width: 30)
+                            VStack(alignment: .leading) {
+                                Text("Manage Devices")
+                                    .font(.body)
+                                Text("Bluetooth, sensors & hardware")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                    }
+                }
+
                 // New Features Section
                 Section(header: Text("Features")) {
                     NavigationLink(destination: ChecklistsPlaceholderView()) {
