@@ -10,11 +10,11 @@ struct BuildConfiguration {
     }
 
     static var bundleName: String {
-        return Bundle.main.infoDictionary?["CFBundleName"] as? String ?? "DCF Fleet Management"
+        return Bundle.main.infoDictionary?["CFBundleName"] as? String ?? "Capital Tech Alliance Fleet"
     }
 
     static var displayName: String {
-        return Bundle.main.infoDictionary?["CFBundleDisplayName"] as? String ?? "DCF Fleet Management"
+        return Bundle.main.infoDictionary?["CFBundleDisplayName"] as? String ?? "Capital Tech Alliance Fleet"
     }
 
     // MARK: - Version Information

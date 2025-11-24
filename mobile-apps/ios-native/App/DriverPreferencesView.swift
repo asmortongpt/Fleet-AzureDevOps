@@ -169,8 +169,8 @@ struct PrivacySettingsView: View {
             }
             
             Section(header: Text("Privacy Policy")) {
-                Link("View Privacy Policy", destination: URL(string: "https://dcf.florida.gov/privacy")!)
-                Link("View Terms of Service", destination: URL(string: "https://dcf.florida.gov/terms")!)
+                Link("View Privacy Policy", destination: URL(string: "https://capitaltechalliance.com/privacy")!)
+                Link("View Terms of Service", destination: URL(string: "https://capitaltechalliance.com/terms")!)
             }
         }
         .navigationTitle("Privacy")
@@ -182,12 +182,12 @@ struct PrivacySettingsView: View {
 struct DriverAboutView: View {
     var body: some View {
         VStack(spacing: 20) {
-            Image("DCFFleetLogo")
+            Image("CTAFleetLogo")
                 .resizable()
                 .scaledToFit()
                 .frame(width: 120, height: 120)
-            
-            Text("DCF Fleet Management")
+
+            Text("Capital Tech Alliance Fleet Management")
                 .font(.title2)
                 .fontWeight(.bold)
             
@@ -205,7 +205,7 @@ struct DriverAboutView: View {
             
             Spacer()
             
-            Text("© 2024 Florida Department of Children & Families")
+            Text("© 2025 Capital Tech Alliance")
                 .font(.caption)
                 .foregroundColor(.secondary)
         }
