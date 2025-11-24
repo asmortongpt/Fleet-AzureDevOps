@@ -64,6 +64,21 @@ struct MoreView: View {
                             }
                         }
                     }
+
+                    NavigationLink(destination: DeviceManagementView()) {
+                        HStack {
+                            Image(systemName: "antenna.radiowaves.left.and.right")
+                                .foregroundColor(.orange)
+                                .frame(width: 30)
+                            VStack(alignment: .leading) {
+                                Text("Device Management")
+                                    .font(.body)
+                                Text("OBD2 devices & emulator")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                    }
                 }
 
                 // Settings Section
