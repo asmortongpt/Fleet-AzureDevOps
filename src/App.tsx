@@ -16,8 +16,18 @@ import {
   SignOut,
   List,
   X,
-  CarProfile
+  CarProfile,
+  MagnifyingGlass,
+  Broadcast
 } from "@phosphor-icons/react"
+import { EntityLinkingProvider } from "@/contexts/EntityLinkingContext"
+import { UniversalSearch, SearchTrigger, useGlobalSearch } from "@/components/UniversalSearch"
+import { RealTimeEventHub, EventBadge } from "@/components/RealTimeEventHub"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
 import { navigationItems } from "@/lib/navigation"
 import { FleetDashboard } from "@/components/modules/FleetDashboard"
 import { PeopleManagement } from "@/components/modules/PeopleManagement"
@@ -85,6 +95,7 @@ import { useFacilities } from "@/hooks/use-api"
 function App() {
   const [activeModule, setActiveModule] = useState("dashboard")
   const [sidebarOpen, setSidebarOpen] = useState(true)
+  const { isOpen: searchOpen, setIsOpen: setSearchOpen } = useGlobalSearch()
 
   const fleetData = useFleetData()
   // Use facilities from fleetData (which includes demo data fallback)
@@ -231,6 +242,13 @@ function App() {
 
   return (
     <DrilldownManager>
+      <EntityLinkingProvider
+        vehicles={fleetData.vehicles || []}
+        drivers={fleetData.drivers || []}
+        workOrders={fleetData.workOrders || []}
+        fuelTransactions={fleetData.fuelTransactions || []}
+        maintenanceSchedules={fleetData.maintenanceRequests || []}
+      >
       <div className="min-h-screen bg-background flex">
       <aside 
         className={`fixed left-0 top-0 h-full bg-card border-r transition-all duration-300 z-50 ${
@@ -315,7 +333,24 @@ function App() {
               </div>
             </div>
             <div className="flex items-center gap-3">
+              {/* Universal Search */}
+              <SearchTrigger onClick={() => setSearchOpen(true)} />
+
               <ThemeToggle />
+
+              {/* Real-Time Event Hub */}
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button variant="ghost" size="icon" className="relative">
+                    <Broadcast className="w-5 h-5" />
+                    <EventBadge className="absolute -top-1 -right-1" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent align="end" className="w-[400px] p-0">
+                  <RealTimeEventHub compact maxEvents={20} />
+                </PopoverContent>
+              </Popover>
+
               <Button variant="ghost" size="icon">
                 <Bell className="w-5 h-5" />
               </Button>
@@ -360,7 +395,14 @@ function App() {
 
       {/* Toast notifications */}
       <ToastContainer />
+
+      {/* Universal Search Dialog */}
+      <UniversalSearch
+        open={searchOpen}
+        onOpenChange={setSearchOpen}
+      />
         </div>
+      </EntityLinkingProvider>
     </DrilldownManager>
   )
 }
