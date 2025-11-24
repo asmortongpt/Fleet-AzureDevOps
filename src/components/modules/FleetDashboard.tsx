@@ -33,6 +33,7 @@ import { Vehicle } from "@/lib/types"
 import { useFleetData } from "@/hooks/use-fleet-data"
 import { useVehicleTelemetry } from "@/hooks/useVehicleTelemetry"
 import { useDrilldown } from "@/contexts/DrilldownContext"
+import { useInspect } from "@/services/inspect/InspectContext"
 import apiClient from "@/lib/api-client"
 
 interface FleetDashboardProps {
@@ -71,6 +72,9 @@ export function FleetDashboard({ data }: FleetDashboardProps) {
   // Drilldown navigation for deep data exploration
   const { push: drilldownPush } = useDrilldown()
 
+  // Inspect drawer for detailed entity views
+  const { openInspect } = useInspect()
+
   // Real-time telemetry integration
   const {
     isConnected: isRealtimeConnected,
@@ -90,13 +94,17 @@ export function FleetDashboard({ data }: FleetDashboardProps) {
 
   // Drilldown handlers for deep navigation to original records
   const handleVehicleDrilldown = useCallback((vehicle: Vehicle) => {
+    // Open inspect drawer for detailed view
+    openInspect({ type: 'vehicle', id: vehicle.id })
+
+    // Also maintain drilldown breadcrumb navigation
     drilldownPush({
       id: `vehicle-${vehicle.id}`,
       type: 'vehicle',
       label: `${vehicle.number} - ${vehicle.make} ${vehicle.model}`,
       data: { vehicleId: vehicle.id, vehicle }
     })
-  }, [drilldownPush])
+  }, [drilldownPush, openInspect])
 
   const handleStatusDrilldown = useCallback((status: string, count: number) => {
     drilldownPush({
