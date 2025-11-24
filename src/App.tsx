@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from "react"
+import { useState, useMemo, useEffect, lazy, Suspense } from "react"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { ScrollArea } from "@/components/ui/scroll-area"
@@ -29,61 +29,6 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 import { navigationItems } from "@/lib/navigation"
-import { FleetDashboard } from "@/components/modules/FleetDashboard"
-import { PeopleManagement } from "@/components/modules/PeopleManagement"
-import { GarageService } from "@/components/modules/GarageService"
-import { PredictiveMaintenance } from "@/components/modules/PredictiveMaintenance"
-import { FuelManagement } from "@/components/modules/FuelManagement"
-import { GPSTracking } from "@/components/modules/GPSTracking"
-import { DataWorkbench } from "@/components/modules/DataWorkbench"
-import { MileageReimbursement } from "@/components/modules/MileageReimbursement"
-import { MaintenanceRequest } from "@/components/modules/MaintenanceRequest"
-import { RouteManagement } from "@/components/modules/RouteManagement"
-import { GISCommandCenter } from "@/components/modules/GISCommandCenter"
-import { TrafficCameras } from "@/components/modules/TrafficCameras"
-import { DriverPerformance } from "@/components/modules/DriverPerformance"
-import { FleetAnalytics } from "@/components/modules/FleetAnalytics"
-import { VendorManagement } from "@/components/modules/VendorManagement"
-import { PartsInventory } from "@/components/modules/PartsInventory"
-import { PurchaseOrders } from "@/components/modules/PurchaseOrders"
-import { Invoices } from "@/components/modules/Invoices"
-import AIAssistant from "@/components/modules/AIAssistant"
-import { TeamsIntegration } from "@/components/modules/TeamsIntegration"
-import { EmailCenter } from "@/components/modules/EmailCenter"
-import { MaintenanceScheduling } from "@/components/modules/MaintenanceScheduling"
-import { ReceiptProcessing } from "@/components/modules/ReceiptProcessing"
-import { CommunicationLog } from "@/components/modules/CommunicationLog"
-import { GeofenceManagement } from "@/components/modules/GeofenceManagement"
-import { OSHAForms } from "@/components/modules/OSHAForms"
-import { PolicyEngineWorkbench } from "@/components/modules/PolicyEngineWorkbench"
-import { VideoTelematics } from "@/components/modules/VideoTelematics"
-import { EVChargingManagement } from "@/components/modules/EVChargingManagement"
-import { EnhancedMapLayers } from "@/components/modules/EnhancedMapLayers"
-import { AdvancedRouteOptimization } from "@/components/modules/AdvancedRouteOptimization"
-import { CustomFormBuilder } from "@/components/modules/CustomFormBuilder"
-import { VehicleTelemetry } from "@/components/modules/VehicleTelemetry"
-import { VirtualGarage } from "@/components/modules/VirtualGarage"
-import { PersonalUseDashboard } from "@/components/modules/PersonalUseDashboard"
-import { PersonalUsePolicyConfig } from "@/components/modules/PersonalUsePolicyConfig"
-import { ReimbursementQueue } from "@/pages/PersonalUse/ReimbursementQueue"
-import { ChargesAndBilling } from "@/pages/PersonalUse/ChargesAndBilling"
-import { ArcGISIntegration } from "@/components/modules/ArcGISIntegration"
-import { MapSettings } from "@/components/modules/MapSettings"
-import { ExecutiveDashboard } from "@/components/modules/ExecutiveDashboard"
-import DispatchConsole from "@/components/DispatchConsole"
-import { AssetManagement } from "@/components/modules/AssetManagement"
-import { EquipmentDashboard } from "@/components/modules/EquipmentDashboard"
-import { TaskManagement } from "@/components/modules/TaskManagement"
-import { IncidentManagement } from "@/components/modules/IncidentManagement"
-import { Notifications } from "@/components/modules/Notifications"
-import PushNotificationAdmin from "@/components/modules/PushNotificationAdmin"
-import { DocumentManagement } from "@/components/modules/DocumentManagement"
-import { DocumentQA } from "@/components/modules/DocumentQA"
-import { DriverScorecard } from "@/components/modules/DriverScorecard"
-import { FleetOptimizer } from "@/components/modules/FleetOptimizer"
-import { CostAnalysisCenter } from "@/components/modules/CostAnalysisCenter"
-import { FuelPurchasing } from "@/components/modules/FuelPurchasing"
-import { CustomReportBuilder } from "@/components/modules/CustomReportBuilder"
 import { RoleSwitcher } from "@/components/demo/RoleSwitcher"
 import { ToastContainer } from "@/components/common/ToastContainer"
 import { ErrorBoundary } from "@/components/ErrorBoundary"
@@ -91,7 +36,95 @@ import { ModuleWrapper } from "@/components/common/ModuleWrapper"
 import { ThemeToggle } from "@/components/ThemeToggle"
 import { DrilldownManager } from "@/components/DrilldownManager"
 import { useFleetData } from "@/hooks/use-fleet-data"
-import { useFacilities } from "@/hooks/use-api"
+import { ModuleLoadingSpinner } from "@/components/common/ModuleLoadingSpinner"
+
+// ============================================================================
+// LAZY LOADED MODULES - Performance Optimization
+// Each module is loaded only when needed, reducing initial bundle size
+// ============================================================================
+
+// Fleet Operations
+const FleetDashboard = lazy(() => import("@/components/modules/FleetDashboard"))
+const GPSTracking = lazy(() => import("@/components/modules/GPSTracking"))
+const VehicleTelemetry = lazy(() => import("@/components/modules/VehicleTelemetry"))
+const DispatchConsole = lazy(() => import("@/components/DispatchConsole"))
+
+// Maintenance
+const GarageService = lazy(() => import("@/components/modules/GarageService"))
+const VirtualGarage = lazy(() => import("@/components/modules/VirtualGarage"))
+const PredictiveMaintenance = lazy(() => import("@/components/modules/PredictiveMaintenance"))
+const MaintenanceRequest = lazy(() => import("@/components/modules/MaintenanceRequest"))
+const MaintenanceScheduling = lazy(() => import("@/components/modules/MaintenanceScheduling"))
+
+// People & Drivers
+const PeopleManagement = lazy(() => import("@/components/modules/PeopleManagement"))
+const DriverPerformance = lazy(() => import("@/components/modules/DriverPerformance"))
+const DriverScorecard = lazy(() => import("@/components/modules/DriverScorecard"))
+
+// Financial
+const FuelManagement = lazy(() => import("@/components/modules/FuelManagement"))
+const FuelPurchasing = lazy(() => import("@/components/modules/FuelPurchasing"))
+const MileageReimbursement = lazy(() => import("@/components/modules/MileageReimbursement"))
+const ReceiptProcessing = lazy(() => import("@/components/modules/ReceiptProcessing"))
+const Invoices = lazy(() => import("@/components/modules/Invoices"))
+const PurchaseOrders = lazy(() => import("@/components/modules/PurchaseOrders"))
+const CostAnalysisCenter = lazy(() => import("@/components/modules/CostAnalysisCenter"))
+
+// Procurement
+const VendorManagement = lazy(() => import("@/components/modules/VendorManagement"))
+const PartsInventory = lazy(() => import("@/components/modules/PartsInventory"))
+
+// Communication
+const TeamsIntegration = lazy(() => import("@/components/modules/TeamsIntegration"))
+const EmailCenter = lazy(() => import("@/components/modules/EmailCenter"))
+const CommunicationLog = lazy(() => import("@/components/modules/CommunicationLog"))
+
+// Analytics & Reports
+const FleetAnalytics = lazy(() => import("@/components/modules/FleetAnalytics"))
+const FleetOptimizer = lazy(() => import("@/components/modules/FleetOptimizer"))
+const ExecutiveDashboard = lazy(() => import("@/components/modules/ExecutiveDashboard"))
+const CustomReportBuilder = lazy(() => import("@/components/modules/CustomReportBuilder"))
+
+// Maps & Routes
+const GISCommandCenter = lazy(() => import("@/components/modules/GISCommandCenter"))
+const RouteManagement = lazy(() => import("@/components/modules/RouteManagement"))
+const GeofenceManagement = lazy(() => import("@/components/modules/GeofenceManagement"))
+const TrafficCameras = lazy(() => import("@/components/modules/TrafficCameras"))
+const EnhancedMapLayers = lazy(() => import("@/components/modules/EnhancedMapLayers"))
+const AdvancedRouteOptimization = lazy(() => import("@/components/modules/AdvancedRouteOptimization"))
+const ArcGISIntegration = lazy(() => import("@/components/modules/ArcGISIntegration"))
+const MapSettings = lazy(() => import("@/components/modules/MapSettings"))
+
+// AI & Automation
+const AIAssistant = lazy(() => import("@/components/modules/AIAssistant"))
+const DataWorkbench = lazy(() => import("@/components/modules/DataWorkbench"))
+const DocumentQA = lazy(() => import("@/components/modules/DocumentQA"))
+
+// Safety & Compliance
+const OSHAForms = lazy(() => import("@/components/modules/OSHAForms"))
+const PolicyEngineWorkbench = lazy(() => import("@/components/modules/PolicyEngineWorkbench"))
+const VideoTelematics = lazy(() => import("@/components/modules/VideoTelematics"))
+const IncidentManagement = lazy(() => import("@/components/modules/IncidentManagement"))
+
+// Assets & Equipment
+const AssetManagement = lazy(() => import("@/components/modules/AssetManagement"))
+const EquipmentDashboard = lazy(() => import("@/components/modules/EquipmentDashboard"))
+
+// EV & Sustainability
+const EVChargingManagement = lazy(() => import("@/components/modules/EVChargingManagement"))
+
+// Personal Use
+const PersonalUseDashboard = lazy(() => import("@/components/modules/PersonalUseDashboard"))
+const PersonalUsePolicyConfig = lazy(() => import("@/components/modules/PersonalUsePolicyConfig"))
+const ReimbursementQueue = lazy(() => import("@/pages/PersonalUse/ReimbursementQueue"))
+const ChargesAndBilling = lazy(() => import("@/pages/PersonalUse/ChargesAndBilling"))
+
+// Admin & Configuration
+const DocumentManagement = lazy(() => import("@/components/modules/DocumentManagement"))
+const CustomFormBuilder = lazy(() => import("@/components/modules/CustomFormBuilder"))
+const TaskManagement = lazy(() => import("@/components/modules/TaskManagement"))
+const Notifications = lazy(() => import("@/components/modules/Notifications"))
+const PushNotificationAdmin = lazy(() => import("@/components/modules/PushNotificationAdmin"))
 
 function App() {
   const [activeModule, setActiveModule] = useState("dashboard")
@@ -99,7 +132,6 @@ function App() {
   const { isOpen: searchOpen, setIsOpen: setSearchOpen } = useGlobalSearch()
 
   const fleetData = useFleetData()
-  // Use facilities from fleetData (which includes demo data fallback)
   const facilities = fleetData.facilities || []
 
   useEffect(() => {
@@ -107,303 +139,289 @@ function App() {
   }, [fleetData.initializeData])
 
   const renderModule = () => {
+    // Wrap each module in Suspense for lazy loading
+    const wrapModule = (Component: React.ComponentType<any>, props: any = {}, skeletonType: string = "default") => (
+      <ErrorBoundary>
+        <Suspense fallback={<ModuleLoadingSpinner />}>
+          <ModuleWrapper moduleName={Component.name} skeletonType={skeletonType}>
+            <Component {...props} />
+          </ModuleWrapper>
+        </Suspense>
+      </ErrorBoundary>
+    )
+
     switch (activeModule) {
       case "dashboard":
-        return <ModuleWrapper moduleName="FleetDashboard" skeletonType="dashboard"><FleetDashboard data={fleetData} /></ModuleWrapper>
+        return wrapModule(FleetDashboard, { data: fleetData }, "dashboard")
       case "executive-dashboard":
-        return <ModuleWrapper moduleName="ExecutiveDashboard" skeletonType="dashboard"><ExecutiveDashboard /></ModuleWrapper>
+        return wrapModule(ExecutiveDashboard, {}, "dashboard")
       case "dispatch-console":
-        return <ModuleWrapper moduleName="DispatchConsole" skeletonType="dashboard"><GPSTracking vehicles={fleetData.vehicles || []} facilities={facilities} /></ModuleWrapper>
+        return wrapModule(GPSTracking, { vehicles: fleetData.vehicles || [], facilities }, "dashboard")
       case "people":
-        return <ModuleWrapper moduleName="PeopleManagement" skeletonType="table"><PeopleManagement data={fleetData} /></ModuleWrapper>
+        return wrapModule(PeopleManagement, { data: fleetData }, "table")
       case "garage":
-        return <ModuleWrapper moduleName="GarageService" skeletonType="cards"><GarageService data={fleetData} /></ModuleWrapper>
+        return wrapModule(GarageService, { data: fleetData }, "cards")
       case "virtual-garage":
-        return <ModuleWrapper moduleName="VirtualGarage" skeletonType="cards"><VirtualGarage data={fleetData} /></ModuleWrapper>
+        return wrapModule(VirtualGarage, { data: fleetData }, "cards")
       case "predictive":
-        return <ModuleWrapper moduleName="PredictiveMaintenance" skeletonType="dashboard"><PredictiveMaintenance data={fleetData} /></ModuleWrapper>
+        return wrapModule(PredictiveMaintenance, { data: fleetData }, "dashboard")
       case "fuel":
-        return <ModuleWrapper moduleName="FuelManagement" skeletonType="table"><FuelManagement data={fleetData} /></ModuleWrapper>
+        return wrapModule(FuelManagement, { data: fleetData }, "table")
       case "gps-tracking":
-        return <ModuleWrapper moduleName="GPSTracking" skeletonType="dashboard"><GPSTracking vehicles={fleetData.vehicles || []} facilities={facilities} /></ModuleWrapper>
+        return wrapModule(GPSTracking, { vehicles: fleetData.vehicles || [], facilities }, "dashboard")
       case "workbench":
-        return <ModuleWrapper moduleName="DataWorkbench" skeletonType="table"><DataWorkbench data={fleetData} /></ModuleWrapper>
+        return wrapModule(DataWorkbench, { data: fleetData }, "table")
       case "mileage":
-        return <ModuleWrapper moduleName="MileageReimbursement" skeletonType="table"><MileageReimbursement data={fleetData} /></ModuleWrapper>
+        return wrapModule(MileageReimbursement, { data: fleetData }, "table")
       case "maintenance-request":
-        return <ModuleWrapper moduleName="MaintenanceRequest" skeletonType="form"><MaintenanceRequest data={fleetData} /></ModuleWrapper>
+        return wrapModule(MaintenanceRequest, { data: fleetData }, "form")
       case "routes":
-        return <ModuleWrapper moduleName="RouteManagement" skeletonType="dashboard"><RouteManagement data={fleetData} /></ModuleWrapper>
+        return wrapModule(RouteManagement, { data: fleetData }, "dashboard")
       case "gis-map":
-        return <ModuleWrapper moduleName="GISCommandCenter" skeletonType="dashboard"><GISCommandCenter data={fleetData} /></ModuleWrapper>
+        return wrapModule(GISCommandCenter, { data: fleetData }, "dashboard")
       case "traffic-cameras":
-        return <ModuleWrapper moduleName="TrafficCameras" skeletonType="cards"><TrafficCameras /></ModuleWrapper>
+        return wrapModule(TrafficCameras, {}, "cards")
       case "driver-mgmt":
-        return <ModuleWrapper moduleName="DriverPerformance" skeletonType="table"><DriverPerformance data={fleetData} /></ModuleWrapper>
+        return wrapModule(DriverPerformance, { data: fleetData }, "table")
       case "comprehensive":
-        return <ModuleWrapper moduleName="FleetAnalytics" skeletonType="chart"><FleetAnalytics data={fleetData} /></ModuleWrapper>
+        return wrapModule(FleetAnalytics, { data: fleetData }, "chart")
       case "vendor-management":
-        return <ModuleWrapper moduleName="VendorManagement" skeletonType="table"><VendorManagement /></ModuleWrapper>
+        return wrapModule(VendorManagement, {}, "table")
       case "parts-inventory":
-        return <ModuleWrapper moduleName="PartsInventory" skeletonType="table"><PartsInventory /></ModuleWrapper>
+        return wrapModule(PartsInventory, {}, "table")
       case "purchase-orders":
-        return <ModuleWrapper moduleName="PurchaseOrders" skeletonType="table"><PurchaseOrders /></ModuleWrapper>
+        return wrapModule(PurchaseOrders, {}, "table")
       case "invoices":
-        return <ModuleWrapper moduleName="Invoices" skeletonType="table"><Invoices /></ModuleWrapper>
+        return wrapModule(Invoices, {}, "table")
       case "ai-assistant":
-        return <ModuleWrapper moduleName="AIAssistant" skeletonType="default"><AIAssistant /></ModuleWrapper>
+        return wrapModule(AIAssistant, {}, "default")
       case "teams-integration":
-        return <ModuleWrapper moduleName="TeamsIntegration" skeletonType="default"><TeamsIntegration /></ModuleWrapper>
+        return wrapModule(TeamsIntegration, {}, "default")
       case "email-center":
-        return <ModuleWrapper moduleName="EmailCenter" skeletonType="table"><EmailCenter /></ModuleWrapper>
+        return wrapModule(EmailCenter, {}, "table")
       case "maintenance-scheduling":
-        return <ModuleWrapper moduleName="MaintenanceScheduling" skeletonType="table"><MaintenanceScheduling /></ModuleWrapper>
+        return wrapModule(MaintenanceScheduling, {}, "table")
       case "receipt-processing":
-        return <ModuleWrapper moduleName="ReceiptProcessing" skeletonType="form"><ReceiptProcessing /></ModuleWrapper>
+        return wrapModule(ReceiptProcessing, {}, "form")
       case "communication-log":
-        return <ModuleWrapper moduleName="CommunicationLog" skeletonType="table"><CommunicationLog /></ModuleWrapper>
+        return wrapModule(CommunicationLog, {}, "table")
       case "geofences":
-        return <ModuleWrapper moduleName="GeofenceManagement" skeletonType="dashboard"><GeofenceManagement /></ModuleWrapper>
+        return wrapModule(GeofenceManagement, {}, "dashboard")
       case "osha-forms":
-        return <ModuleWrapper moduleName="OSHAForms" skeletonType="form"><OSHAForms /></ModuleWrapper>
+        return wrapModule(OSHAForms, {}, "form")
       case "policy-engine":
-        return <ModuleWrapper moduleName="PolicyEngineWorkbench" skeletonType="form"><PolicyEngineWorkbench /></ModuleWrapper>
+        return wrapModule(PolicyEngineWorkbench, {}, "form")
       case "video-telematics":
-        return <ModuleWrapper moduleName="VideoTelematics" skeletonType="cards"><VideoTelematics /></ModuleWrapper>
+        return wrapModule(VideoTelematics, {}, "cards")
       case "ev-charging":
-        return <ModuleWrapper moduleName="EVChargingManagement" skeletonType="dashboard"><EVChargingManagement /></ModuleWrapper>
+        return wrapModule(EVChargingManagement, {}, "dashboard")
       case "vehicle-telemetry":
-        return <ModuleWrapper moduleName="VehicleTelemetry" skeletonType="chart"><VehicleTelemetry /></ModuleWrapper>
+        return wrapModule(VehicleTelemetry, {}, "chart")
       case "map-layers":
-        return <ModuleWrapper moduleName="EnhancedMapLayers" skeletonType="dashboard"><EnhancedMapLayers /></ModuleWrapper>
+        return wrapModule(EnhancedMapLayers, {}, "dashboard")
       case "route-optimization":
-        return <ModuleWrapper moduleName="AdvancedRouteOptimization" skeletonType="dashboard"><AdvancedRouteOptimization /></ModuleWrapper>
+        return wrapModule(AdvancedRouteOptimization, {}, "dashboard")
       case "form-builder":
-        return <ModuleWrapper moduleName="CustomFormBuilder" skeletonType="form"><CustomFormBuilder /></ModuleWrapper>
+        return wrapModule(CustomFormBuilder, {}, "form")
       case "personal-use":
-        return <ModuleWrapper moduleName="PersonalUseDashboard" skeletonType="dashboard"><PersonalUseDashboard /></ModuleWrapper>
+        return wrapModule(PersonalUseDashboard, {}, "dashboard")
       case "personal-use-policy":
-        return <ModuleWrapper moduleName="PersonalUsePolicyConfig" skeletonType="form"><PersonalUsePolicyConfig /></ModuleWrapper>
+        return wrapModule(PersonalUsePolicyConfig, {}, "form")
       case "reimbursement-queue":
-        return <ModuleWrapper moduleName="ReimbursementQueue" skeletonType="table"><ReimbursementQueue /></ModuleWrapper>
+        return wrapModule(ReimbursementQueue, {}, "table")
       case "charges-billing":
-        return <ModuleWrapper moduleName="ChargesAndBilling" skeletonType="table"><ChargesAndBilling /></ModuleWrapper>
+        return wrapModule(ChargesAndBilling, {}, "table")
       case "arcgis-integration":
-        return <ModuleWrapper moduleName="ArcGISIntegration" skeletonType="dashboard"><ArcGISIntegration /></ModuleWrapper>
+        return wrapModule(ArcGISIntegration, {}, "dashboard")
       case "map-settings":
-        return <ModuleWrapper moduleName="MapSettings" skeletonType="form"><MapSettings /></ModuleWrapper>
+        return wrapModule(MapSettings, {}, "form")
       case "asset-management":
-        return <ModuleWrapper moduleName="AssetManagement" skeletonType="table"><AssetManagement /></ModuleWrapper>
+        return wrapModule(AssetManagement, {}, "table")
       case "equipment-dashboard":
-        return <ModuleWrapper moduleName="EquipmentDashboard" skeletonType="dashboard"><EquipmentDashboard /></ModuleWrapper>
+        return wrapModule(EquipmentDashboard, {}, "dashboard")
       case "task-management":
-        return <ModuleWrapper moduleName="TaskManagement" skeletonType="table"><TaskManagement /></ModuleWrapper>
+        return wrapModule(TaskManagement, {}, "table")
       case "incident-management":
-        return <ModuleWrapper moduleName="IncidentManagement" skeletonType="table"><IncidentManagement /></ModuleWrapper>
+        return wrapModule(IncidentManagement, {}, "table")
       case "notifications":
-        return <ModuleWrapper moduleName="Notifications" skeletonType="table"><Notifications /></ModuleWrapper>
-      case "push-notification-admin":
-        return <ModuleWrapper moduleName="PushNotificationAdmin" skeletonType="form"><PushNotificationAdmin /></ModuleWrapper>
-      case "documents":
-        return <ModuleWrapper moduleName="DocumentManagement" skeletonType="table"><DocumentManagement /></ModuleWrapper>
+        return wrapModule(Notifications, {}, "default")
+      case "push-notifications":
+        return wrapModule(PushNotificationAdmin, {}, "default")
+      case "document-management":
+        return wrapModule(DocumentManagement, {}, "table")
       case "document-qa":
-        return <ModuleWrapper moduleName="DocumentQA" skeletonType="form"><DocumentQA /></ModuleWrapper>
+        return wrapModule(DocumentQA, {}, "default")
       case "driver-scorecard":
-        return <ModuleWrapper moduleName="DriverScorecard" skeletonType="dashboard"><DriverScorecard /></ModuleWrapper>
+        return wrapModule(DriverScorecard, {}, "table")
       case "fleet-optimizer":
-        return <ModuleWrapper moduleName="FleetOptimizer" skeletonType="dashboard"><FleetOptimizer /></ModuleWrapper>
+        return wrapModule(FleetOptimizer, {}, "dashboard")
       case "cost-analysis":
-        return <ModuleWrapper moduleName="CostAnalysisCenter" skeletonType="chart"><CostAnalysisCenter /></ModuleWrapper>
+        return wrapModule(CostAnalysisCenter, {}, "dashboard")
       case "fuel-purchasing":
-        return <ModuleWrapper moduleName="FuelPurchasing" skeletonType="table"><FuelPurchasing /></ModuleWrapper>
+        return wrapModule(FuelPurchasing, {}, "table")
       case "custom-reports":
-        return <ModuleWrapper moduleName="CustomReportBuilder" skeletonType="form"><CustomReportBuilder /></ModuleWrapper>
+        return wrapModule(CustomReportBuilder, {}, "form")
       default:
-        return <ModuleWrapper moduleName="FleetDashboard" skeletonType="dashboard"><FleetDashboard data={fleetData} /></ModuleWrapper>
+        return wrapModule(FleetDashboard, { data: fleetData }, "dashboard")
     }
   }
 
-  const groupedNav = useMemo(() => {
+  // Group navigation items by category
+  const groupedNavigation = useMemo(() => {
     const groups: Record<string, typeof navigationItems> = {
-      main: [],
-      management: [],
-      procurement: [],
-      communication: [],
-      tools: []
+      'Fleet Operations': [],
+      'Maintenance': [],
+      'People & Drivers': [],
+      'Financial': [],
+      'Communication': [],
+      'Analytics': [],
+      'Maps & Routes': [],
+      'AI & Automation': [],
+      'Admin': [],
     }
-    
+
+    // Categorize navigation items
     navigationItems.forEach(item => {
-      const section = item.section || "main"
-      groups[section].push(item)
+      if (['dashboard', 'executive-dashboard', 'dispatch-console', 'gps-tracking', 'vehicle-telemetry'].includes(item.id)) {
+        groups['Fleet Operations'].push(item)
+      } else if (['garage', 'virtual-garage', 'predictive', 'maintenance-request', 'maintenance-scheduling'].includes(item.id)) {
+        groups['Maintenance'].push(item)
+      } else if (['people', 'driver-mgmt', 'driver-scorecard'].includes(item.id)) {
+        groups['People & Drivers'].push(item)
+      } else if (['fuel', 'fuel-purchasing', 'mileage', 'receipt-processing', 'invoices', 'purchase-orders', 'cost-analysis'].includes(item.id)) {
+        groups['Financial'].push(item)
+      } else if (['teams-integration', 'email-center', 'communication-log'].includes(item.id)) {
+        groups['Communication'].push(item)
+      } else if (['comprehensive', 'fleet-optimizer', 'custom-reports'].includes(item.id)) {
+        groups['Analytics'].push(item)
+      } else if (['gis-map', 'routes', 'geofences', 'traffic-cameras', 'map-layers', 'route-optimization', 'arcgis-integration', 'map-settings'].includes(item.id)) {
+        groups['Maps & Routes'].push(item)
+      } else if (['ai-assistant', 'workbench', 'document-qa'].includes(item.id)) {
+        groups['AI & Automation'].push(item)
+      } else {
+        groups['Admin'].push(item)
+      }
     })
-    
+
     return groups
   }, [])
 
   return (
-    <DrilldownManager>
-      <EntityLinkingProvider
-        vehicles={fleetData.vehicles || []}
-        drivers={fleetData.drivers || []}
-        workOrders={fleetData.workOrders || []}
-        fuelTransactions={fleetData.fuelTransactions || []}
-        maintenanceSchedules={fleetData.maintenanceRequests || []}
-      >
-      <div className="min-h-screen bg-background flex">
-      <aside 
-        className={`fixed left-0 top-0 h-full bg-card border-r transition-all duration-300 z-50 ${
-          sidebarOpen ? "w-64" : "w-0"
-        } overflow-hidden`}
-      >
-        <div className="p-6 flex items-center justify-between border-b">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-primary text-primary-foreground rounded-lg">
-              <CarProfile className="w-6 h-6" weight="bold" />
+    <EntityLinkingProvider>
+      <div className="flex h-screen overflow-hidden bg-background">
+        {/* Sidebar */}
+        <div className={`${sidebarOpen ? "w-64" : "w-0"} transition-all duration-300 bg-card border-r flex flex-col overflow-hidden`}>
+          <div className="p-4 border-b flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <CarProfile size={32} weight="bold" className="text-primary" />
+              <h1 className="font-bold text-lg">Fleet Manager</h1>
             </div>
-            <div>
-              <h1 className="font-semibold tracking-tight">Fleet Manager</h1>
-              <p className="text-xs text-muted-foreground">Enterprise</p>
-            </div>
+            <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(false)}>
+              <X size={20} />
+            </Button>
           </div>
-        </div>
 
-        <ScrollArea className="h-[calc(100vh-140px)]">
-          <div className="p-4 space-y-6">
-            {Object.entries(groupedNav).map(([section, items]) => {
-              if (items.length === 0) return null
-              
-              return (
-                <div key={section}>
-                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 px-2">
-                    {section}
-                  </p>
-                  <div className="space-y-1">
-                    {items.map(item => (
-                      <Button
-                        key={item.id}
-                        variant={activeModule === item.id ? "secondary" : "ghost"}
-                        className="w-full justify-start gap-2"
-                        onClick={() => setActiveModule(item.id)}
-                      >
-                        {item.icon}
-                        <span className="text-sm">{item.label}</span>
-                      </Button>
-                    ))}
+          <ScrollArea className="flex-1 p-4">
+            <div className="space-y-6">
+              {Object.entries(groupedNavigation).map(([category, items]) => {
+                if (items.length === 0) return null
+                return (
+                  <div key={category}>
+                    <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
+                      {category}
+                    </h3>
+                    <div className="space-y-1">
+                      {items.map((item) => (
+                        <Button
+                          key={item.id}
+                          variant={activeModule === item.id ? "secondary" : "ghost"}
+                          className="w-full justify-start gap-2"
+                          onClick={() => setActiveModule(item.id)}
+                        >
+                          {item.icon}
+                          <span className="text-sm">{item.label}</span>
+                        </Button>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              )
-            })}
-          </div>
-        </ScrollArea>
-
-        <div className="absolute bottom-0 left-0 right-0 p-4 border-t bg-card">
-          <Button
-            variant="ghost"
-            size="sm"
-            className="w-full justify-start gap-2"
-            onClick={() => setSidebarOpen(false)}
-          >
-            <X className="w-4 h-4" />
-            <span className="text-sm">Collapse</span>
-          </Button>
+                )
+              })}
+            </div>
+          </ScrollArea>
         </div>
-      </aside>
 
-      <div
-        className={`flex-1 transition-all duration-300 ${
-          sidebarOpen ? "ml-64" : "ml-0"
-        }`}
-      >
-        <header className="border-b bg-card sticky top-0 z-40">
-          <div className="px-6 h-16 flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setSidebarOpen(!sidebarOpen)}
-                title={sidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
-              >
-                <List className="w-5 h-5" />
-              </Button>
-              <div>
-                <h2 className="font-semibold">
-                  {navigationItems.find(item => item.id === activeModule)?.label || "Dashboard"}
-                </h2>
-                <p className="text-xs text-muted-foreground">Fleet Management System</p>
+        {/* Main Content */}
+        <div className="flex-1 flex flex-col overflow-hidden">
+          {/* Header */}
+          <div className="border-b bg-card">
+            <div className="flex items-center justify-between p-4">
+              <div className="flex items-center gap-2">
+                {!sidebarOpen && (
+                  <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(true)}>
+                    <List size={20} />
+                  </Button>
+                )}
+                <SearchTrigger onOpen={() => setSearchOpen(true)} />
+              </div>
+
+              <div className="flex items-center gap-2">
+                <ThemeToggle />
+                <RoleSwitcher />
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button variant="ghost" size="icon" className="relative">
+                      <Bell size={20} />
+                      <EventBadge />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent align="end" className="w-[400px]">
+                    <RealTimeEventHub />
+                  </PopoverContent>
+                </Popover>
+
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon">
+                      <Avatar className="h-8 w-8">
+                        <AvatarFallback>AM</AvatarFallback>
+                      </Avatar>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem>
+                      <Gear size={16} className="mr-2" />
+                      Settings
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem>
+                      <SignOut size={16} className="mr-2" />
+                      Sign Out
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
             </div>
-            <div className="flex items-center gap-3">
-              {/* Universal Search */}
-              <SearchTrigger onClick={() => setSearchOpen(true)} />
-
-              <ThemeToggle />
-
-              {/* Real-Time Event Hub */}
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button variant="ghost" size="icon" className="relative">
-                    <Broadcast className="w-5 h-5" />
-                    <EventBadge className="absolute -top-1 -right-1" />
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent align="end" className="w-[400px] p-0">
-                  <RealTimeEventHub compact maxEvents={20} />
-                </PopoverContent>
-              </Popover>
-
-              <Button variant="ghost" size="icon">
-                <Bell className="w-5 h-5" />
-              </Button>
-              <Button variant="ghost" size="icon">
-                <Gear className="w-5 h-5" />
-              </Button>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="relative h-10 w-10 rounded-full">
-                    <Avatar>
-                      <AvatarFallback className="bg-primary text-primary-foreground">
-                        FM
-                      </AvatarFallback>
-                    </Avatar>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem>
-                    <Gear className="w-4 h-4 mr-2" />
-                    Settings
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem>
-                    <SignOut className="w-4 h-4 mr-2" />
-                    Sign out
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
           </div>
-        </header>
 
-        <main className="p-6">
-          <ErrorBoundary>
+          {/* Module Content */}
+          <div className="flex-1 overflow-auto">
             {renderModule()}
-          </ErrorBoundary>
-        </main>
-      </div>
-
-      {/* Role Switcher FAB button */}
-      <RoleSwitcher />
-
-      {/* Toast notifications */}
-      <ToastContainer />
-
-      {/* Universal Search Dialog */}
-      <UniversalSearch
-        open={searchOpen}
-        onOpenChange={setSearchOpen}
-      />
+          </div>
         </div>
-      </EntityLinkingProvider>
-    </DrilldownManager>
+
+        {/* Universal Search */}
+        <UniversalSearch
+          isOpen={searchOpen}
+          onClose={() => setSearchOpen(false)}
+        />
+
+        {/* Drilldown Manager */}
+        <DrilldownManager />
+
+        {/* Toast Notifications */}
+        <ToastContainer />
+      </div>
+    </EntityLinkingProvider>
   )
 }
 
