@@ -282,6 +282,8 @@ struct VehicleCard: View {
         case .inactive: return .gray
         case .maintenance: return .orange
         case .offline: return .red
+        case .available, .reserved, .inUse: return .blue
+        @unknown default: return .gray
         }
     }
 
@@ -322,6 +324,8 @@ struct StatusBadge: View {
         case .inactive: return .gray.opacity(0.2)
         case .maintenance: return .orange.opacity(0.2)
         case .offline: return .red.opacity(0.2)
+        case .available, .reserved, .inUse: return .blue.opacity(0.2)
+        @unknown default: return .gray.opacity(0.2)
         }
     }
 
@@ -332,6 +336,8 @@ struct StatusBadge: View {
         case .inactive: return .gray
         case .maintenance: return .orange
         case .offline: return .red
+        case .available, .reserved, .inUse: return .blue
+        @unknown default: return .gray
         }
     }
 }
