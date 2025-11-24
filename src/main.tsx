@@ -8,6 +8,7 @@ import { TenantProvider } from './lib/tenantContext.tsx'
 import { AuthProvider } from './components/providers/AuthProvider.tsx'
 import { QueryProvider } from './components/providers/QueryProvider.tsx'
 import { ThemeProvider } from './components/providers/ThemeProvider.tsx'
+import { InspectProvider } from './services/inspect/InspectContext.tsx'
 import { Login } from './pages/Login.tsx'
 import { AuthCallback } from './pages/AuthCallback.tsx'
 import { isAuthenticated } from './lib/microsoft-auth.ts'
@@ -55,26 +56,28 @@ root.render(
   <ErrorBoundary FallbackComponent={ErrorFallback} onError={handleRootError}>
     <QueryProvider>
       <ThemeProvider defaultTheme="system">
-        <BrowserRouter>
-          <TenantProvider>
-            <AuthProvider>
-              <Routes>
-                <Route path="/login" element={<Login />} />
-                <Route path="/auth/callback" element={<AuthCallback />} />
-                <Route path="/auth/success" element={<AuthCallback />} />
-                <Route path="/test/mobile-emulator" element={<MobileEmulatorTestScreen />} />
-                <Route
-                  path="/*"
-                  element={
-                    <ProtectedRoute>
-                      <App />
-                    </ProtectedRoute>
-                  }
-                />
-              </Routes>
-            </AuthProvider>
-          </TenantProvider>
-        </BrowserRouter>
+        <InspectProvider>
+          <BrowserRouter>
+            <TenantProvider>
+              <AuthProvider>
+                <Routes>
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/auth/callback" element={<AuthCallback />} />
+                  <Route path="/auth/success" element={<AuthCallback />} />
+                  <Route path="/test/mobile-emulator" element={<MobileEmulatorTestScreen />} />
+                  <Route
+                    path="/*"
+                    element={
+                      <ProtectedRoute>
+                        <App />
+                      </ProtectedRoute>
+                    }
+                  />
+                </Routes>
+              </AuthProvider>
+            </TenantProvider>
+          </BrowserRouter>
+        </InspectProvider>
       </ThemeProvider>
     </QueryProvider>
   </ErrorBoundary>
