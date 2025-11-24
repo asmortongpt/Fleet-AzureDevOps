@@ -1,6 +1,6 @@
 //
 //  OBD2ConnectionManager.swift
-//  DCF Fleet Management
+//  Capital Tech Alliance Fleet Management
 //
 //  Manages OBD2 device connection states, reconnection logic, and monitoring
 //
