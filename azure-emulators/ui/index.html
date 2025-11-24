@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>City of Tallahassee Fleet Emulator - Admin Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue@3/dist/vue.global.prod.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@microsoft/signalr@7/dist/browser/signalr.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #0f172a;
+            color: #e2e8f0;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .app-container {
+            display: grid;
+            grid-template-columns: 300px 1fr 400px;
+            grid-template-rows: 60px 1fr;
+            height: 100vh;
+            gap: 0;
+        }
+
+        /* Header */
+        .header {
+            grid-column: 1 / -1;
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            border-bottom: 2px solid #3b82f6;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .logo-text h1 {
+            font-size: 18px;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .logo-text p {
+            font-size: 11px;
+            color: #94a3b8;
+        }
+
+        .stats {
+            display: flex;
+            gap: 30px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #3b82f6;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Sidebar - Vehicle List */
+        .sidebar {
+            background: #1e293b;
+            border-right: 1px solid #334155;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-header {
+            padding: 15px;
+            background: #0f172a;
+            border-bottom: 1px solid #334155;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .sidebar-header h2 {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #cbd5e1;
+        }
+
+        .filter-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .filter-controls select {
+            background: #334155;
+            border: 1px solid #475569;
+            color: #e2e8f0;
+            padding: 8px;
+            border-radius: 6px;
+            font-size: 12px;
+        }
+
+        .vehicle-list {
+            padding: 10px;
+        }
+
+        .vehicle-item {
+            background: #334155;
+            border: 1px solid #475569;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .vehicle-item:hover {
+            background: #3b4558;
+            border-color: #3b82f6;
+            transform: translateX(4px);
+        }
+
+        .vehicle-item.selected {
+            background: #1e40af;
+            border-color: #3b82f6;
+        }
+
+        .vehicle-id {
+            font-weight: 600;
+            font-size: 13px;
+            color: #fff;
+            margin-bottom: 4px;
+        }
+
+        .vehicle-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            color: #94a3b8;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-active { background: #10b981; color: #fff; }
+        .status-idle { background: #6b7280; color: #fff; }
+        .status-responding { background: #ef4444; color: #fff; }
+        .status-maintenance { background: #f59e0b; color: #fff; }
+
+        /* Map Area */
+        .map-container {
+            position: relative;
+            background: #0f172a;
+        }
+
+        #map {
+            height: 100%;
+            width: 100%;
+        }
+
+        /* Right Panel - Mobile App View */
+        .mobile-view {
+            background: #1e293b;
+            border-left: 1px solid #334155;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .mobile-header {
+            padding: 15px;
+            background: #0f172a;
+            border-bottom: 1px solid #334155;
+        }
+
+        .mobile-header h2 {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #cbd5e1;
+        }
+
+        .mobile-header p {
+            font-size: 12px;
+            color: #64748b;
+        }
+
+        .mobile-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .mobile-phone {
+            background: #000;
+            border-radius: 30px;
+            padding: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+            max-width: 380px;
+            margin: 0 auto;
+        }
+
+        .phone-screen {
+            background: #fff;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.1);
+        }
+
+        .phone-statusbar {
+            background: #3b82f6;
+            color: #fff;
+            padding: 8px 15px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+        }
+
+        .phone-app {
+            background: #f8fafc;
+            min-height: 600px;
+            color: #1e293b;
+        }
+
+        .app-header {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: #fff;
+            padding: 20px;
+        }
+
+        .app-header h3 {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .app-header p {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+
+        .driver-card {
+            background: #fff;
+            margin: 15px;
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .driver-card h4 {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #1e293b;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #e2e8f0;
+            font-size: 12px;
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        .info-value {
+            color: #1e293b;
+            font-weight: 600;
+        }
+
+        .telemetry-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin: 15px;
+        }
+
+        .telemetry-card {
+            background: #fff;
+            padding: 12px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .telemetry-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #3b82f6;
+            margin-bottom: 4px;
+        }
+
+        .telemetry-label {
+            font-size: 11px;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .action-buttons {
+            padding: 15px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .action-btn {
+            flex: 1;
+            background: #3b82f6;
+            color: #fff;
+            border: none;
+            padding: 12px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .action-btn:hover {
+            background: #2563eb;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+        }
+
+        .action-btn.secondary {
+            background: #64748b;
+        }
+
+        .action-btn.secondary:hover {
+            background: #475569;
+        }
+
+        .no-selection {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: #64748b;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .no-selection-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+            opacity: 0.3;
+        }
+
+        /* Loading */
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            font-size: 14px;
+            color: #64748b;
+        }
+
+        .spinner {
+            border: 3px solid #334155;
+            border-top: 3px solid #3b82f6;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin-right: 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #1e293b;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #475569;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #64748b;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div class="app-container">
+            <!-- Header -->
+            <div class="header">
+                <div class="logo">
+                    <div class="logo-icon">🚗</div>
+                    <div class="logo-text">
+                        <h1>City of Tallahassee Fleet Emulator</h1>
+                        <p>Real-Time Demo Dashboard</p>
+                    </div>
+                </div>
+                <div class="stats">
+                    <div class="stat-item">
+                        <div class="stat-value">{{ totalVehicles }}</div>
+                        <div class="stat-label">Total Vehicles</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" style="color: #10b981">{{ activeCount }}</div>
+                        <div class="stat-label">Active</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" style="color: #ef4444">{{ respondingCount }}</div>
+                        <div class="stat-label">Responding</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" style="color: #6b7280">{{ idleCount }}</div>
+                        <div class="stat-label">Idle</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar - Vehicle List -->
+            <div class="sidebar">
+                <div class="sidebar-header">
+                    <h2>Fleet Vehicles ({{ filteredVehicles.length }})</h2>
+                    <div class="filter-controls">
+                        <select v-model="filterDepartment" @change="applyFilters">
+                            <option value="">All Departments</option>
+                            <option value="police">Police (85)</option>
+                            <option value="fire">Fire/EMS (45)</option>
+                            <option value="publicWorks">Public Works (85)</option>
+                            <option value="transit">Transit (40)</option>
+                            <option value="utilities">Utilities (30)</option>
+                            <option value="parks">Parks (15)</option>
+                        </select>
+                        <select v-model="filterStatus" @change="applyFilters">
+                            <option value="">All Status</option>
+                            <option value="active">Active</option>
+                            <option value="idle">Idle</option>
+                            <option value="responding">Responding</option>
+                            <option value="maintenance">Maintenance</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="vehicle-list">
+                    <div v-for="vehicle in filteredVehicles"
+                         :key="vehicle.vehicleId"
+                         :class="['vehicle-item', { selected: selectedVehicle?.vehicleId === vehicle.vehicleId }]"
+                         @click="selectVehicle(vehicle)">
+                        <div class="vehicle-id">{{ vehicle.vehicleId }}</div>
+                        <div class="vehicle-meta">
+                            <span>{{ vehicle.department }}</span>
+                            <span :class="'status-badge status-' + vehicle.status">{{ vehicle.status }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Map -->
+            <div class="map-container">
+                <div id="map"></div>
+            </div>
+
+            <!-- Right Panel - Mobile App View -->
+            <div class="mobile-view">
+                <div class="mobile-header">
+                    <h2>Mobile App View</h2>
+                    <p>{{ selectedVehicle ? selectedVehicle.vehicleId : 'Select a vehicle to view' }}</p>
+                </div>
+                <div class="mobile-content">
+                    <div v-if="!selectedVehicle" class="no-selection">
+                        <div class="no-selection-icon">📱</div>
+                        <h3>No Vehicle Selected</h3>
+                        <p>Click a vehicle from the list or map to view its mobile app screen</p>
+                    </div>
+                    <div v-else class="mobile-phone">
+                        <div class="phone-screen">
+                            <div class="phone-statusbar">
+                                <span>{{ currentTime }}</span>
+                                <span>📶 ⚡ 100%</span>
+                            </div>
+                            <div class="phone-app">
+                                <div class="app-header">
+                                    <h3>{{ selectedVehicle.vehicleId }}</h3>
+                                    <p>{{ selectedVehicle.vehicle?.model || 'Fleet Vehicle' }}</p>
+                                </div>
+
+                                <!-- Driver Card -->
+                                <div class="driver-card" v-if="selectedVehicle.mobileAppState?.isDriverLoggedIn">
+                                    <h4>👤 Driver Information</h4>
+                                    <div class="info-row">
+                                        <span class="info-label">Name</span>
+                                        <span class="info-value">{{ selectedVehicle.mobileAppState.driverName || 'N/A' }}</span>
+                                    </div>
+                                    <div class="info-row">
+                                        <span class="info-label">Activity</span>
+                                        <span class="info-value">{{ selectedVehicle.mobileAppState.currentActivity || 'On Duty' }}</span>
+                                    </div>
+                                    <div class="info-row">
+                                        <span class="info-label">Trip Status</span>
+                                        <span class="info-value">{{ formatTripStatus(selectedVehicle.mobileAppState.tripStatus) }}</span>
+                                    </div>
+                                    <div class="info-row">
+                                        <span class="info-label">Pre-Trip</span>
+                                        <span class="info-value">{{ selectedVehicle.mobileAppState.preTripComplete ? '✅ Complete' : '⏳ Pending' }}</span>
+                                    </div>
+                                </div>
+
+                                <div class="driver-card" v-else>
+                                    <h4>👤 Driver Information</h4>
+                                    <div class="info-row">
+                                        <span class="info-label">Status</span>
+                                        <span class="info-value" style="color: #ef4444">No Driver Logged In</span>
+                                    </div>
+                                </div>
+
+                                <!-- Telemetry Grid -->
+                                <div class="telemetry-grid">
+                                    <div class="telemetry-card">
+                                        <div class="telemetry-value">{{ selectedVehicle.obd2?.speed || 0 }}</div>
+                                        <div class="telemetry-label">Speed (mph)</div>
+                                    </div>
+                                    <div class="telemetry-card">
+                                        <div class="telemetry-value">{{ selectedVehicle.obd2?.rpm || 0 }}</div>
+                                        <div class="telemetry-label">RPM</div>
+                                    </div>
+                                    <div class="telemetry-card">
+                                        <div class="telemetry-value">{{ selectedVehicle.obd2?.fuelLevel || 0 }}%</div>
+                                        <div class="telemetry-label">Fuel Level</div>
+                                    </div>
+                                    <div class="telemetry-card">
+                                        <div class="telemetry-value">{{ selectedVehicle.obd2?.coolantTemp || 0 }}°F</div>
+                                        <div class="telemetry-label">Coolant Temp</div>
+                                    </div>
+                                </div>
+
+                                <!-- Activity Stats -->
+                                <div class="driver-card">
+                                    <h4>📊 Activity Stats</h4>
+                                    <div class="info-row">
+                                        <span class="info-label">Photos Taken</span>
+                                        <span class="info-value">{{ selectedVehicle.mobileAppState?.photosTaken || 0 }}</span>
+                                    </div>
+                                    <div class="info-row">
+                                        <span class="info-label">Notes Entered</span>
+                                        <span class="info-value">{{ selectedVehicle.mobileAppState?.notesEntered || 0 }}</span>
+                                    </div>
+                                    <div class="info-row">
+                                        <span class="info-label">Incidents Reported</span>
+                                        <span class="info-value">{{ selectedVehicle.mobileAppState?.incidentsReported || 0 }}</span>
+                                    </div>
+                                </div>
+
+                                <!-- Action Buttons -->
+                                <div class="action-buttons">
+                                    <button class="action-btn">📷 Take Photo</button>
+                                    <button class="action-btn secondary">📝 Add Note</button>
+                                </div>
+                                <div class="action-buttons">
+                                    <button class="action-btn">⚠️ Report Incident</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const { createApp } = Vue;
+
+        createApp({
+            data() {
+                return {
+                    vehicles: [],
+                    selectedVehicle: null,
+                    filterDepartment: '',
+                    filterStatus: '',
+                    map: null,
+                    markers: {},
+                    connection: null,
+                    currentTime: new Date().toLocaleTimeString()
+                }
+            },
+            computed: {
+                totalVehicles() {
+                    return this.vehicles.length;
+                },
+                activeCount() {
+                    return this.vehicles.filter(v => v.status === 'active').length;
+                },
+                respondingCount() {
+                    return this.vehicles.filter(v => v.status === 'responding').length;
+                },
+                idleCount() {
+                    return this.vehicles.filter(v => v.status === 'idle').length;
+                },
+                filteredVehicles() {
+                    let filtered = this.vehicles;
+
+                    if (this.filterDepartment) {
+                        filtered = filtered.filter(v => v.department === this.filterDepartment);
+                    }
+
+                    if (this.filterStatus) {
+                        filtered = filtered.filter(v => v.status === this.filterStatus);
+                    }
+
+                    return filtered;
+                }
+            },
+            methods: {
+                async initializeMap() {
+                    // Tallahassee coordinates
+                    this.map = L.map('map').setView([30.4383, -84.2807], 12);
+
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                        attribution: '© OpenStreetMap contributors'
+                    }).addTo(this.map);
+
+                    // Draw Tallahassee boundary
+                    const bounds = [
+                        [30.5500, -84.4000], // NW
+                        [30.5500, -84.1500], // NE
+                        [30.3500, -84.1500], // SE
+                        [30.3500, -84.4000]  // SW
+                    ];
+                    L.polygon(bounds, { color: '#3b82f6', fillColor: '#3b82f6', fillOpacity: 0.1 }).addTo(this.map);
+                },
+
+                async loadVehicles() {
+                    // Simulate loading 300 vehicles
+                    // In production, this would fetch from orchestrator API
+                    const departments = ['police', 'fire', 'publicWorks', 'transit', 'utilities', 'parks'];
+                    const statuses = ['active', 'idle', 'responding', 'maintenance'];
+
+                    for (let i = 1; i <= 300; i++) {
+                        const dept = departments[Math.floor(Math.random() * departments.length)];
+                        const status = statuses[Math.floor(Math.random() * statuses.length)];
+
+                        this.vehicles.push({
+                            vehicleId: `COT-${dept.toUpperCase()}-${String(i).padStart(4, '0')}`,
+                            department: dept,
+                            status: status,
+                            location: {
+                                latitude: 30.4383 + (Math.random() - 0.5) * 0.2,
+                                longitude: -84.2807 + (Math.random() - 0.5) * 0.2
+                            },
+                            obd2: {
+                                speed: status === 'active' ? Math.floor(Math.random() * 50) : 0,
+                                rpm: status === 'active' ? 2000 + Math.floor(Math.random() * 2000) : 750,
+                                fuelLevel: 30 + Math.floor(Math.random() * 60),
+                                coolantTemp: 180 + Math.floor(Math.random() * 20)
+                            },
+                            mobileAppState: {
+                                isDriverLoggedIn: Math.random() > 0.3,
+                                driverName: this.generateDriverName(),
+                                currentActivity: this.getActivityForDept(dept),
+                                tripStatus: status === 'active' ? 'in-transit' : null,
+                                preTripComplete: true,
+                                photosTaken: Math.floor(Math.random() * 5),
+                                notesEntered: Math.floor(Math.random() * 3),
+                                incidentsReported: Math.random() > 0.95 ? 1 : 0
+                            },
+                            vehicle: {
+                                model: this.getModelForDept(dept)
+                            }
+                        });
+                    }
+
+                    this.updateMapMarkers();
+                },
+
+                updateMapMarkers() {
+                    this.vehicles.forEach(vehicle => {
+                        if (!this.markers[vehicle.vehicleId]) {
+                            const color = this.getMarkerColor(vehicle.status);
+                            const marker = L.circleMarker(
+                                [vehicle.location.latitude, vehicle.location.longitude],
+                                {
+                                    radius: 6,
+                                    fillColor: color,
+                                    color: '#fff',
+                                    weight: 2,
+                                    opacity: 1,
+                                    fillOpacity: 0.8
+                                }
+                            );
+
+                            marker.bindPopup(`<b>${vehicle.vehicleId}</b><br>${vehicle.department} - ${vehicle.status}`);
+                            marker.on('click', () => this.selectVehicle(vehicle));
+                            marker.addTo(this.map);
+
+                            this.markers[vehicle.vehicleId] = marker;
+                        }
+                    });
+                },
+
+                getMarkerColor(status) {
+                    const colors = {
+                        active: '#10b981',
+                        idle: '#6b7280',
+                        responding: '#ef4444',
+                        maintenance: '#f59e0b'
+                    };
+                    return colors[status] || '#6b7280';
+                },
+
+                selectVehicle(vehicle) {
+                    this.selectedVehicle = vehicle;
+
+                    // Highlight selected marker
+                    Object.keys(this.markers).forEach(id => {
+                        const marker = this.markers[id];
+                        if (id === vehicle.vehicleId) {
+                            marker.setStyle({ radius: 10, weight: 3 });
+                        } else {
+                            marker.setStyle({ radius: 6, weight: 2 });
+                        }
+                    });
+
+                    // Center map on selected vehicle
+                    this.map.setView([vehicle.location.latitude, vehicle.location.longitude], 14);
+                },
+
+                applyFilters() {
+                    // Filters applied via computed property
+                },
+
+                formatTripStatus(status) {
+                    if (!status) return 'Not on Trip';
+                    return status.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+                },
+
+                generateDriverName() {
+                    const firstNames = ['John', 'Sarah', 'Michael', 'Jennifer', 'David', 'Lisa'];
+                    const lastNames = ['Smith', 'Johnson', 'Williams', 'Brown', 'Jones', 'Garcia'];
+                    return `${firstNames[Math.floor(Math.random() * firstNames.length)]} ${lastNames[Math.floor(Math.random() * lastNames.length)]}`;
+                },
+
+                getActivityForDept(dept) {
+                    const activities = {
+                        police: ['Patrol', 'Traffic Stop', 'Report Writing'],
+                        fire: ['Station Standby', 'Training', 'Emergency Response'],
+                        publicWorks: ['Street Maintenance', 'Waste Collection'],
+                        transit: ['Route Service', 'Break'],
+                        utilities: ['Service Call', 'Meter Reading'],
+                        parks: ['Grounds Maintenance', 'Equipment Setup']
+                    };
+                    const acts = activities[dept] || ['On Duty'];
+                    return acts[Math.floor(Math.random() * acts.length)];
+                },
+
+                getModelForDept(dept) {
+                    const models = {
+                        police: 'Ford Explorer Police Interceptor',
+                        fire: 'Pierce Enforcer Pumper',
+                        publicWorks: 'Ford F-250 Super Duty',
+                        transit: 'New Flyer Xcelsior',
+                        utilities: 'Ford F-550 Bucket Truck',
+                        parks: 'Ford Ranger'
+                    };
+                    return models[dept] || 'Fleet Vehicle';
+                },
+
+                updateClock() {
+                    setInterval(() => {
+                        this.currentTime = new Date().toLocaleTimeString();
+                    }, 1000);
+                },
+
+                simulateRealtime() {
+                    // Simulate real-time updates
+                    setInterval(() => {
+                        this.vehicles.forEach(vehicle => {
+                            if (vehicle.status === 'active') {
+                                // Update speed
+                                vehicle.obd2.speed = Math.max(0, vehicle.obd2.speed + (Math.random() - 0.5) * 10);
+                                vehicle.obd2.rpm = 750 + vehicle.obd2.speed * 60;
+
+                                // Update location slightly
+                                vehicle.location.latitude += (Math.random() - 0.5) * 0.001;
+                                vehicle.location.longitude += (Math.random() - 0.5) * 0.001;
+
+                                // Update marker
+                                const marker = this.markers[vehicle.vehicleId];
+                                if (marker) {
+                                    marker.setLatLng([vehicle.location.latitude, vehicle.location.longitude]);
+                                }
+                            }
+                        });
+                    }, 2000);
+                }
+            },
+            async mounted() {
+                this.initializeMap();
+                await this.loadVehicles();
+                this.updateClock();
+                this.simulateRealtime();
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>
