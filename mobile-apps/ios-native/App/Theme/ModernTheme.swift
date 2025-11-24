@@ -371,6 +371,10 @@ extension VehicleStatus {
             return ModernTheme.Colors.service
         case .offline:
             return ModernTheme.Colors.offline
+        case .available, .reserved, .inUse:
+            return ModernTheme.Colors.active
+        @unknown default:
+            return ModernTheme.Colors.idle
         }
     }
 
@@ -386,6 +390,10 @@ extension VehicleStatus {
             return ModernTheme.Symbols.service
         case .offline:
             return ModernTheme.Symbols.offline
+        case .available, .reserved, .inUse:
+            return ModernTheme.Symbols.active
+        @unknown default:
+            return ModernTheme.Symbols.idle
         }
     }
 }
