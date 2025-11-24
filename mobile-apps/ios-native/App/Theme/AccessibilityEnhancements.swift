@@ -55,6 +55,14 @@ struct AccessibilityLabels {
             return "In Maintenance - Vehicle is being serviced"
         case .offline:
             return "Offline - Vehicle is not connected"
+        case .available:
+            return "Available - Vehicle is ready for use"
+        case .reserved:
+            return "Reserved - Vehicle is reserved for a trip"
+        case .inUse:
+            return "In Use - Vehicle is currently being used"
+        @unknown default:
+            return "Unknown Status"
         }
     }
 
