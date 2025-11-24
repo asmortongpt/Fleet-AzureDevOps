@@ -107,6 +107,8 @@ import mobileMessagingRoutes from './routes/mobile-messaging.routes'
 import reservationsRoutes from './routes/reservations.routes'
 // Vehicle Idling Detection
 import vehicleIdlingRoutes from './routes/vehicle-idling.routes'
+// Crash Detection
+import crashDetectionRoutes from './routes/crash-detection.routes'
 // import aiRoutes from './routes/ai' // Temporarily disabled
 // DI Example Routes
 import exampleDIRoutes from './routes/example-di.routes'
@@ -448,6 +450,7 @@ app.use('/api/v1/telematics', telematicsRoutes)
 app.use('/api/v1/smartcar', smartcarRoutes)
 app.use('/api/v1/video', videoTelematicsRoutes)
 app.use('/api/v1/idling', vehicleIdlingRoutes)
+app.use('/api/v1/incidents', crashDetectionRoutes)
 
 // Geospatial & Mapping
 app.use('/api/v1/arcgis-layers', arcgisLayersRoutes)
