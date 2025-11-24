@@ -68,6 +68,7 @@ import mobileOcrRoutes from './routes/mobile-ocr.routes'
 import mobileTripsRoutes from './routes/mobile-trips.routes'
 import damageRoutes from './routes/damage'
 import emulatorRoutes from './routes/emulator.routes'
+import obd2EmulatorRoutes, { setupOBD2WebSocket } from './routes/obd2-emulator.routes'
 // Enterprise Features
 import oshaComplianceRoutes from './routes/osha-compliance'
 import communicationsRoutes from './routes/communications'
@@ -458,6 +459,7 @@ app.use('/api/v1/damage', damageRoutes)
 
 // Emulators & Testing
 app.use('/api/v1/emulator', emulatorRoutes)
+app.use('/api/obd2-emulator', obd2EmulatorRoutes)
 
 // DevOps & Quality
 app.use('/api/v1/quality-gates', qualityGatesRoutes)
@@ -619,6 +621,14 @@ const server = app.listen(PORT, async () => {
     console.log(`🎙️  Dispatch WebSocket server initialized`)
   } catch (error) {
     console.error('Failed to initialize dispatch WebSocket server:', error)
+  }
+
+  // Initialize OBD2 Emulator WebSocket server
+  try {
+    setupOBD2WebSocket(server)
+    console.log(`🚗 OBD2 Emulator WebSocket server initialized`)
+  } catch (error) {
+    console.error('Failed to initialize OBD2 Emulator WebSocket server:', error)
   }
 
   // Start maintenance scheduler
