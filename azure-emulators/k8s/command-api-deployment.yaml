@@ -1,0 +1,225 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: command-api-config
+  namespace: fleet-management
+data:
+  DB_HOST: "fleet-postgres-service"
+  DB_PORT: "5432"
+  DB_NAME: "fleetdb"
+  DB_USER: "fleetadmin"
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: chat-interface-html
+  namespace: fleet-management
+data:
+  index.html: |
+    # Chat interface HTML will be mounted here
+    # (Content from chat-interface.html)
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: command-api
+  namespace: fleet-management
+  labels:
+    app: command-api
+    component: emulator
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: command-api
+  template:
+    metadata:
+      labels:
+        app: command-api
+        component: emulator
+    spec:
+      containers:
+      - name: command-api
+        image: fleetappregistry.azurecr.io/command-api:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 3005
+          name: http
+        envFrom:
+        - configMapRef:
+            name: command-api-config
+        env:
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: fleet-secrets
+              key: DB_PASSWORD
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "50m"
+          limits:
+            memory: "512Mi"
+            cpu: "250m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3005
+          initialDelaySeconds: 30
+          periodSeconds: 30
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 3005
+          initialDelaySeconds: 10
+          periodSeconds: 10
+      restartPolicy: Always
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: command-api-service
+  namespace: fleet-management
+  labels:
+    app: command-api
+spec:
+  type: ClusterIP
+  ports:
+  - port: 3005
+    targetPort: 3005
+    protocol: TCP
+    name: http
+  selector:
+    app: command-api
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: chat-interface
+  namespace: fleet-management
+  labels:
+    app: chat-interface
+    component: emulator
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: chat-interface
+  template:
+    metadata:
+      labels:
+        app: chat-interface
+        component: emulator
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:alpine
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: chat-html
+          mountPath: /usr/share/nginx/html
+        - name: nginx-config
+          mountPath: /etc/nginx/conf.d
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "25m"
+          limits:
+            memory: "128Mi"
+            cpu: "100m"
+      volumes:
+      - name: chat-html
+        configMap:
+          name: chat-interface-configmap
+      - name: nginx-config
+        configMap:
+          name: chat-nginx-config
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: chat-nginx-config
+  namespace: fleet-management
+data:
+  default.conf: |
+    server {
+      listen 80;
+      server_name _;
+      root /usr/share/nginx/html;
+      index index.html;
+
+      location / {
+        try_files $uri $uri/ /index.html;
+      }
+
+      # Proxy API requests to command API
+      location /api/command/ {
+        proxy_pass http://command-api-service:3005/;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+      }
+
+      # Security headers
+      add_header X-Frame-Options "SAMEORIGIN" always;
+      add_header X-Content-Type-Options "nosniff" always;
+      add_header X-XSS-Protection "1; mode=block" always;
+    }
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: chat-interface-service
+  namespace: fleet-management
+  labels:
+    app: chat-interface
+spec:
+  type: ClusterIP
+  ports:
+  - port: 80
+    targetPort: 80
+    protocol: TCP
+    name: http
+  selector:
+    app: chat-interface
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: chat-ingress
+  namespace: fleet-management
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+    - fleet.capitaltechalliance.com
+    secretName: fleet-tls
+  rules:
+  - host: fleet.capitaltechalliance.com
+    http:
+      paths:
+      - path: /chat
+        pathType: Prefix
+        backend:
+          service:
+            name: chat-interface-service
+            port:
+              number: 80
