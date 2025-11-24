@@ -54,31 +54,31 @@
 
 	<!-- Location Permissions - Always and When In Use -->
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>DCF Fleet Management requires access to your location to track vehicle locations and optimize fleet routes in real-time.</string>
+	<string>Fleet requires access to your location to track vehicle locations and optimize fleet routes in real-time.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>DCF Fleet Management needs your location to track your current vehicle position and provide accurate fleet management services.</string>
+	<string>Fleet needs your location to track your current vehicle position and provide accurate fleet management services.</string>
 	<key>NSLocationAlwaysUsageDescription</key>
-	<string>DCF Fleet Management requires background location access to continuously track vehicle positions for fleet management and compliance purposes.</string>
+	<string>Fleet requires background location access to continuously track vehicle positions for fleet management and compliance purposes.</string>
 
 	<!-- Camera Permission -->
 	<key>NSCameraUsageDescription</key>
-	<string>DCF Fleet Management requires camera access to capture vehicle photos, damage documentation, and inspection images.</string>
+	<string>Fleet requires camera access to capture vehicle photos, damage documentation, and inspection images.</string>
 
 	<!-- Photo Library Permission -->
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>DCF Fleet Management needs access to your photo library to upload vehicle photos, maintenance records, and documentation images.</string>
+	<string>Fleet needs access to your photo library to upload vehicle photos, maintenance records, and documentation images.</string>
 	<key>NSPhotoLibraryAddOnlyUsageDescription</key>
-	<string>DCF Fleet Management requires permission to save vehicle photos and inspection images to your photo library.</string>
+	<string>Fleet requires permission to save vehicle photos and inspection images to your photo library.</string>
 
 	<!-- Bluetooth Permission -->
 	<key>NSBluetoothPeripheralUsageDescription</key>
-	<string>DCF Fleet Management requires Bluetooth access to connect to OBD2 diagnostic devices for vehicle monitoring and performance data collection.</string>
+	<string>Fleet requires Bluetooth access to connect to OBD2 diagnostic devices for vehicle monitoring and performance data collection.</string>
 	<key>NSBluetoothAlwaysUsageDescription</key>
-	<string>DCF Fleet Management uses Bluetooth to connect with OBD2 devices for real-time vehicle diagnostics and telemetry data.</string>
+	<string>Fleet uses Bluetooth to connect with OBD2 devices for real-time vehicle diagnostics and telemetry data.</string>
 
 	<!-- Motion & Fitness Permission -->
 	<key>NSMotionUsageDescription</key>
-	<string>DCF Fleet Management uses motion and fitness data to track vehicle movement patterns and provide improved fleet tracking analytics.</string>
+	<string>Fleet uses motion and fitness data to track vehicle movement patterns and provide improved fleet tracking analytics.</string>
 
 	<!-- Background Execution Modes -->
 	<key>UIBackgroundModes</key>
