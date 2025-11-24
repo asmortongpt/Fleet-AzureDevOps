@@ -1,0 +1,49 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: radio-dispatch-api
+  namespace: fleet-management
+  labels:
+    app: radio-dispatch
+    component: api
+  annotations:
+    service.beta.kubernetes.io/azure-load-balancer-internal: "false"
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8000
+    targetPort: 8000
+    protocol: TCP
+    name: http
+  selector:
+    app: radio-dispatch
+    component: api
+  sessionAffinity: ClientIP
+  sessionAffinityConfig:
+    clientIP:
+      timeoutSeconds: 10800  # 3 hours for Socket.IO connections
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: radio-dispatch-api-external
+  namespace: fleet-management
+  labels:
+    app: radio-dispatch
+    component: api
+  annotations:
+    service.beta.kubernetes.io/azure-load-balancer-health-probe-request-path: /health
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 80
+    targetPort: 8000
+    protocol: TCP
+    name: http
+  selector:
+    app: radio-dispatch
+    component: api
+  sessionAffinity: ClientIP
+  sessionAffinityConfig:
+    clientIP:
+      timeoutSeconds: 10800  # 3 hours for Socket.IO connections

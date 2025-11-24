@@ -44,6 +44,7 @@ import {
 } from "@phosphor-icons/react"
 import { UniversalMap } from "@/components/UniversalMap"
 import { useFleetData } from "@/hooks/use-fleet-data"
+import { useInspect } from "@/services/inspect/InspectContext"
 import { toast } from "sonner"
 
 interface VehicleTelemetry {
@@ -108,6 +109,7 @@ export function VehicleTelemetry() {
   const fleetData = useFleetData()
   const fleetVehicles = fleetData.vehicles || []
   const facilities = fleetData.facilities || []
+  const { openInspect } = useInspect()
 
   const [vehicles, setVehicles] = useState<VehicleTelemetry[]>([])
   const [searchTerm, setSearchTerm] = useState("")
@@ -162,6 +164,14 @@ export function VehicleTelemetry() {
   }
 
   const handleViewDetails = (vehicle: VehicleTelemetry) => {
+    // Open inspect drawer with telemetry tab focused
+    openInspect({
+      type: 'vehicle',
+      id: vehicle.vehicleId,
+      tab: 'telemetry'
+    })
+
+    // Also maintain dialog state for legacy UI
     setSelectedVehicle(vehicle)
     setIsDetailsOpen(true)
   }
