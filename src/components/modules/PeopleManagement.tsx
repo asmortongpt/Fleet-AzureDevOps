@@ -87,15 +87,15 @@ export function PeopleManagement({ data }: PeopleManagementProps) {
                         <div className="flex flex-wrap gap-4 text-sm">
                           <div className="flex items-center gap-2">
                             <Phone className="w-4 h-4 text-muted-foreground" />
-                            <span>{driver.phone}</span>
+                            <span>{driver.phone || 'No phone'}</span>
                           </div>
                           <div className="flex items-center gap-2">
                             <EnvelopeSimple className="w-4 h-4 text-muted-foreground" />
-                            <span>{driver.email}</span>
+                            <span>{driver.email || 'No email'}</span>
                           </div>
                           <div className="flex items-center gap-2">
                             <IdentificationCard className="w-4 h-4 text-muted-foreground" />
-                            <span>{driver.licenseType}</span>
+                            <span>{driver.licenseType || 'N/A'}</span>
                           </div>
                         </div>
                         <div className="flex gap-2">
