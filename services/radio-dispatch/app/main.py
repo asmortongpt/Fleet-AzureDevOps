@@ -31,9 +31,14 @@ async def lifespan(app: FastAPI):
                 debug=settings.DEBUG)
 
     # Startup tasks
+    from app.core.database import init_db, close_db
+    await init_db()
+    logger.info("Database initialized")
+
     yield
 
     # Shutdown tasks
+    await close_db()
     logger.info("Shutting down Radio Dispatch Service")
 
 
