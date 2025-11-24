@@ -68,6 +68,36 @@ struct DeviceManagementView: View {
                 }
             }
 
+            // Emulator Section (for development/testing)
+            Section {
+                NavigationLink(destination: OBD2EmulatorView()) {
+                    HStack {
+                        Image(systemName: "server.rack")
+                            .foregroundColor(.purple)
+                            .frame(width: 30)
+
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("OBD2 Emulator")
+                                .font(.headline)
+                            Text("Connect to virtual device")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
+
+                        Spacer()
+
+                        Image(systemName: "chevron.right")
+                            .foregroundColor(.secondary)
+                            .font(.caption)
+                    }
+                    .padding(.vertical, 4)
+                }
+            } header: {
+                Text("Development Tools")
+            } footer: {
+                Text("Use the emulator to test OBD2 features without a physical device")
+            }
+
             // Supported Devices Info
             Section {
                 NavigationLink(destination: SupportedDevicesView()) {
