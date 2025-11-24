@@ -1264,21 +1264,21 @@ function createVehicleIcon(vehicle: Vehicle): any {
       <div
         style="
           background-color: ${color};
-          width: 36px;
-          height: 36px;
+          width: 24px;
+          height: 24px;
           border-radius: 50%;
-          border: 3px solid white;
-          box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+          border: 2px solid white;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
           display: flex;
           align-items: center;
           justify-content: center;
-          font-size: 18px;
+          font-size: 12px;
           cursor: pointer;
           transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
           position: relative;
         "
-        onmouseover="this.style.transform='scale(1.25)'; this.style.boxShadow='0 10px 15px -3px rgba(0, 0, 0, 0.2), 0 4px 6px -4px rgba(0, 0, 0, 0.1)'"
-        onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1)'"
+        onmouseover="this.style.transform='scale(1.15)'; this.style.boxShadow='0 3px 8px rgba(0, 0, 0, 0.2)'"
+        onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 2px 4px rgba(0, 0, 0, 0.15)'"
         role="button"
         tabindex="0"
         aria-label="Vehicle ${escapeHtml(vehicle.name)}, ${escapeHtml(vehicle.type)}, Status: ${statusLabel}"
@@ -1287,9 +1287,9 @@ function createVehicleIcon(vehicle: Vehicle): any {
       </div>
     `,
     className: "vehicle-marker-icon",
-    iconSize: [36, 36],
-    iconAnchor: [18, 18],
-    popupAnchor: [0, -20],
+    iconSize: [24, 24],
+    iconAnchor: [12, 12],
+    popupAnchor: [0, -14],
   })
 }
 
@@ -1312,20 +1312,20 @@ function createFacilityIcon(facility: GISFacility): any {
       <div
         style="
           background-color: ${color};
-          width: 40px;
-          height: 40px;
-          border-radius: 8px;
-          border: 3px solid white;
-          box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+          width: 28px;
+          height: 28px;
+          border-radius: 6px;
+          border: 2px solid white;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
           display: flex;
           align-items: center;
           justify-content: center;
-          font-size: 20px;
+          font-size: 14px;
           cursor: pointer;
           transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         "
-        onmouseover="this.style.transform='scale(1.2)'"
-        onmouseout="this.style.transform='scale(1)'"
+        onmouseover="this.style.transform='scale(1.15)'; this.style.boxShadow='0 3px 8px rgba(0, 0, 0, 0.2)'"
+        onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 2px 4px rgba(0, 0, 0, 0.15)'"
         role="button"
         tabindex="0"
         aria-label="Facility ${escapeHtml(facility.name)}, Type: ${typeLabel}, Status: ${statusLabel}"
@@ -1334,9 +1334,9 @@ function createFacilityIcon(facility: GISFacility): any {
       </div>
     `,
     className: "facility-marker-icon",
-    iconSize: [40, 40],
-    iconAnchor: [20, 20],
-    popupAnchor: [0, -22],
+    iconSize: [28, 28],
+    iconAnchor: [14, 14],
+    popupAnchor: [0, -16],
   })
 }
 
@@ -1357,21 +1357,21 @@ function createCameraIcon(camera: TrafficCamera): any {
       <div
         style="
           background-color: ${color};
-          width: 34px;
-          height: 34px;
-          border-radius: 6px;
-          border: 3px solid white;
-          box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+          width: 22px;
+          height: 22px;
+          border-radius: 4px;
+          border: 2px solid white;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
           display: flex;
           align-items: center;
           justify-content: center;
-          font-size: 16px;
+          font-size: 11px;
           cursor: pointer;
           transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
           ${camera.operational ? "" : "opacity: 0.7;"}
         "
-        onmouseover="this.style.transform='scale(1.2)'"
-        onmouseout="this.style.transform='scale(1)'"
+        onmouseover="this.style.transform='scale(1.15)'; this.style.boxShadow='0 3px 8px rgba(0, 0, 0, 0.2)'"
+        onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 2px 4px rgba(0, 0, 0, 0.15)'"
         role="button"
         tabindex="0"
         aria-label="Traffic Camera ${escapeHtml(camera.name)}, Status: ${statusLabel}"
@@ -1380,9 +1380,9 @@ function createCameraIcon(camera: TrafficCamera): any {
       </div>
     `,
     className: "camera-marker-icon",
-    iconSize: [34, 34],
-    iconAnchor: [17, 17],
-    popupAnchor: [0, -19],
+    iconSize: [22, 22],
+    iconAnchor: [11, 11],
+    popupAnchor: [0, -13],
   })
 }
 
