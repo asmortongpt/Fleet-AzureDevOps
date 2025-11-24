@@ -1,0 +1,57 @@
+{
+  "vehicles": {
+    "name": "Vehicles Registry",
+    "description": "View and manage vehicle asset registry",
+    "roles": ["Admin", "FleetManager", "MaintenanceManager", "Inspector", "Driver", "Finance", "Safety", "Auditor", "Vendor"]
+  },
+  "garage": {
+    "name": "Garage 3D Viewer",
+    "description": "3D vehicle inspection, damage pins, condition HUD",
+    "roles": ["Admin", "FleetManager", "MaintenanceManager", "Inspector", "Driver", "Finance", "Safety", "Auditor", "Vendor"]
+  },
+  "inspections": {
+    "name": "Inspections Queue",
+    "description": "Create and manage vehicle inspections",
+    "roles": ["Admin", "FleetManager", "MaintenanceManager", "Inspector", "Safety", "Auditor", "Vendor"]
+  },
+  "maintenance": {
+    "name": "Maintenance Records",
+    "description": "Track maintenance history and work orders",
+    "roles": ["Admin", "FleetManager", "MaintenanceManager", "Inspector", "Driver", "Finance", "Safety", "Auditor", "Vendor"]
+  },
+  "recommended_maintenance": {
+    "name": "Recommended Maintenance",
+    "description": "AI-powered predictive maintenance recommendations",
+    "roles": ["Admin", "FleetManager", "MaintenanceManager", "Inspector", "Driver", "Auditor"]
+  },
+  "crashes": {
+    "name": "Crash / Incident History",
+    "description": "Track crashes, incidents, and safety events",
+    "roles": ["Admin", "FleetManager", "Safety", "Auditor"]
+  },
+  "value": {
+    "name": "Value / Depreciation",
+    "description": "Vehicle valuation and depreciation tracking",
+    "roles": ["Admin", "FleetManager", "Finance", "Auditor"]
+  },
+  "reports": {
+    "name": "Reports / Exports",
+    "description": "Generate and export reports",
+    "roles": ["Admin", "FleetManager", "MaintenanceManager", "Inspector", "Finance", "Safety", "Auditor", "Vendor"]
+  },
+  "admin": {
+    "name": "Admin / Org Settings",
+    "description": "Organization settings and configuration",
+    "roles": ["Admin"]
+  },
+  "integrations": {
+    "name": "Integrations / Telematics",
+    "description": "Telematics integrations and live data",
+    "roles": ["Admin", "FleetManager", "MaintenanceManager", "Inspector", "Driver", "Safety", "Auditor"]
+  },
+  "users": {
+    "name": "Users / Roles Management",
+    "description": "Manage users, roles, and permissions",
+    "roles": ["Admin"]
+  }
+}
