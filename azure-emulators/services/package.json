@@ -1,0 +1,24 @@
+{
+  "name": "fleet-radio-emulator",
+  "version": "1.0.0",
+  "description": "Radio Traffic and Task Management Emulator",
+  "type": "module",
+  "main": "radio-traffic-emulator.ts",
+  "scripts": {
+    "start": "ts-node --esm radio-traffic-emulator.ts",
+    "build": "tsc radio-traffic-emulator.ts"
+  },
+  "dependencies": {
+    "pg": "^8.11.3",
+    "@types/pg": "^8.10.9"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.3",
+    "ts-node": "^10.9.2",
+    "@types/node": "^20.10.6"
+  },
+  "ts-node": {
+    "esm": true,
+    "experimentalSpecifierResolution": "node"
+  }
+}

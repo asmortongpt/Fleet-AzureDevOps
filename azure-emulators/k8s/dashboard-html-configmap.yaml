@@ -1,0 +1,368 @@
+apiVersion: v1
+data:
+  index.html: "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta charset=\"UTF-8\">\n
+    \   <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n
+    \   <title>City of Tallahassee Fleet Emulator - Admin Dashboard</title>\n    <script
+    src=\"https://cdn.jsdelivr.net/npm/vue@3/dist/vue.global.prod.js\"></script>\n
+    \   <script src=\"https://cdn.jsdelivr.net/npm/@microsoft/signalr@7/dist/browser/signalr.min.js\"></script>\n
+    \   <script src=\"https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js\"></script>\n
+    \   <script src=\"https://unpkg.com/leaflet@1.9.4/dist/leaflet.js\"></script>\n
+    \   <link rel=\"stylesheet\" href=\"https://unpkg.com/leaflet@1.9.4/dist/leaflet.css\"
+    />\n    <style>\n        * {\n            margin: 0;\n            padding: 0;\n
+    \           box-sizing: border-box;\n        }\n\n        body {\n            font-family:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell,
+    sans-serif;\n            background: #0f172a;\n            color: #e2e8f0;\n            height:
+    100vh;\n            overflow: hidden;\n        }\n\n        .app-container {\n
+    \           display: grid;\n            grid-template-columns: 300px 1fr 400px;\n
+    \           grid-template-rows: 60px 1fr;\n            height: 100vh;\n            gap:
+    0;\n        }\n\n        /* Header */\n        .header {\n            grid-column:
+    1 / -1;\n            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);\n
+    \           border-bottom: 2px solid #3b82f6;\n            display: flex;\n            align-items:
+    center;\n            justify-content: space-between;\n            padding: 0 20px;\n
+    \           box-shadow: 0 2px 10px rgba(0,0,0,0.3);\n        }\n\n        .logo
+    {\n            display: flex;\n            align-items: center;\n            gap:
+    12px;\n        }\n\n        .logo-icon {\n            width: 40px;\n            height:
+    40px;\n            background: linear-gradient(135deg, #3b82f6, #2563eb);\n            border-radius:
+    8px;\n            display: flex;\n            align-items: center;\n            justify-content:
+    center;\n            font-size: 20px;\n        }\n\n        .logo-text h1 {\n
+    \           font-size: 18px;\n            font-weight: 700;\n            color:
+    #fff;\n        }\n\n        .logo-text p {\n            font-size: 11px;\n            color:
+    #94a3b8;\n        }\n\n        .stats {\n            display: flex;\n            gap:
+    30px;\n        }\n\n        .stat-item {\n            text-align: center;\n        }\n\n
+    \       .stat-value {\n            font-size: 24px;\n            font-weight:
+    700;\n            color: #3b82f6;\n        }\n\n        .stat-label {\n            font-size:
+    11px;\n            color: #94a3b8;\n            text-transform: uppercase;\n            letter-spacing:
+    0.5px;\n        }\n\n        /* Sidebar - Vehicle List */\n        .sidebar {\n
+    \           background: #1e293b;\n            border-right: 1px solid #334155;\n
+    \           overflow-y: auto;\n            display: flex;\n            flex-direction:
+    column;\n        }\n\n        .sidebar-header {\n            padding: 15px;\n
+    \           background: #0f172a;\n            border-bottom: 1px solid #334155;\n
+    \           position: sticky;\n            top: 0;\n            z-index: 10;\n
+    \       }\n\n        .sidebar-header h2 {\n            font-size: 14px;\n            font-weight:
+    600;\n            margin-bottom: 10px;\n            color: #cbd5e1;\n        }\n\n
+    \       .filter-controls {\n            display: flex;\n            flex-direction:
+    column;\n            gap: 8px;\n        }\n\n        .filter-controls select {\n
+    \           background: #334155;\n            border: 1px solid #475569;\n            color:
+    #e2e8f0;\n            padding: 8px;\n            border-radius: 6px;\n            font-size:
+    12px;\n        }\n\n        .vehicle-list {\n            padding: 10px;\n        }\n\n
+    \       .vehicle-item {\n            background: #334155;\n            border:
+    1px solid #475569;\n            border-radius: 8px;\n            padding: 12px;\n
+    \           margin-bottom: 8px;\n            cursor: pointer;\n            transition:
+    all 0.2s;\n        }\n\n        .vehicle-item:hover {\n            background:
+    #3b4558;\n            border-color: #3b82f6;\n            transform: translateX(4px);\n
+    \       }\n\n        .vehicle-item.selected {\n            background: #1e40af;\n
+    \           border-color: #3b82f6;\n        }\n\n        .vehicle-id {\n            font-weight:
+    600;\n            font-size: 13px;\n            color: #fff;\n            margin-bottom:
+    4px;\n        }\n\n        .vehicle-meta {\n            display: flex;\n            justify-content:
+    space-between;\n            font-size: 11px;\n            color: #94a3b8;\n        }\n\n
+    \       .status-badge {\n            display: inline-block;\n            padding:
+    2px 8px;\n            border-radius: 12px;\n            font-size: 10px;\n            font-weight:
+    600;\n            text-transform: uppercase;\n        }\n\n        .status-active
+    { background: #10b981; color: #fff; }\n        .status-idle { background: #6b7280;
+    color: #fff; }\n        .status-responding { background: #ef4444; color: #fff;
+    }\n        .status-maintenance { background: #f59e0b; color: #fff; }\n\n        /*
+    Map Area */\n        .map-container {\n            position: relative;\n            background:
+    #0f172a;\n        }\n\n        #map {\n            height: 100%;\n            width:
+    100%;\n        }\n\n        /* Right Panel - Mobile App View */\n        .mobile-view
+    {\n            background: #1e293b;\n            border-left: 1px solid #334155;\n
+    \           display: flex;\n            flex-direction: column;\n            overflow:
+    hidden;\n        }\n\n        .mobile-header {\n            padding: 15px;\n            background:
+    #0f172a;\n            border-bottom: 1px solid #334155;\n        }\n\n        .mobile-header
+    h2 {\n            font-size: 14px;\n            font-weight: 600;\n            margin-bottom:
+    5px;\n            color: #cbd5e1;\n        }\n\n        .mobile-header p {\n            font-size:
+    12px;\n            color: #64748b;\n        }\n\n        .mobile-content {\n            flex:
+    1;\n            overflow-y: auto;\n            padding: 20px;\n        }\n\n        .mobile-phone
+    {\n            background: #000;\n            border-radius: 30px;\n            padding:
+    15px;\n            box-shadow: 0 10px 40px rgba(0,0,0,0.5);\n            max-width:
+    380px;\n            margin: 0 auto;\n        }\n\n        .phone-screen {\n            background:
+    #fff;\n            border-radius: 20px;\n            overflow: hidden;\n            box-shadow:
+    inset 0 0 20px rgba(0,0,0,0.1);\n        }\n\n        .phone-statusbar {\n            background:
+    #3b82f6;\n            color: #fff;\n            padding: 8px 15px;\n            display:
+    flex;\n            justify-content: space-between;\n            font-size: 11px;\n
+    \       }\n\n        .phone-app {\n            background: #f8fafc;\n            min-height:
+    600px;\n            color: #1e293b;\n        }\n\n        .app-header {\n            background:
+    linear-gradient(135deg, #3b82f6, #2563eb);\n            color: #fff;\n            padding:
+    20px;\n        }\n\n        .app-header h3 {\n            font-size: 16px;\n            font-weight:
+    700;\n            margin-bottom: 5px;\n        }\n\n        .app-header p {\n
+    \           font-size: 12px;\n            opacity: 0.9;\n        }\n\n        .driver-card
+    {\n            background: #fff;\n            margin: 15px;\n            padding:
+    15px;\n            border-radius: 12px;\n            box-shadow: 0 2px 8px rgba(0,0,0,0.1);\n
+    \       }\n\n        .driver-card h4 {\n            font-size: 14px;\n            font-weight:
+    600;\n            margin-bottom: 10px;\n            color: #1e293b;\n        }\n\n
+    \       .info-row {\n            display: flex;\n            justify-content:
+    space-between;\n            padding: 8px 0;\n            border-bottom: 1px solid
+    #e2e8f0;\n            font-size: 12px;\n        }\n\n        .info-row:last-child
+    {\n            border-bottom: none;\n        }\n\n        .info-label {\n            color:
+    #64748b;\n            font-weight: 500;\n        }\n\n        .info-value {\n
+    \           color: #1e293b;\n            font-weight: 600;\n        }\n\n        .telemetry-grid
+    {\n            display: grid;\n            grid-template-columns: repeat(2, 1fr);\n
+    \           gap: 10px;\n            margin: 15px;\n        }\n\n        .telemetry-card
+    {\n            background: #fff;\n            padding: 12px;\n            border-radius:
+    10px;\n            box-shadow: 0 2px 8px rgba(0,0,0,0.1);\n            text-align:
+    center;\n        }\n\n        .telemetry-value {\n            font-size: 24px;\n
+    \           font-weight: 700;\n            color: #3b82f6;\n            margin-bottom:
+    4px;\n        }\n\n        .telemetry-label {\n            font-size: 11px;\n
+    \           color: #64748b;\n            text-transform: uppercase;\n            letter-spacing:
+    0.5px;\n        }\n\n        .action-buttons {\n            padding: 15px;\n            display:
+    flex;\n            gap: 10px;\n        }\n\n        .action-btn {\n            flex:
+    1;\n            background: #3b82f6;\n            color: #fff;\n            border:
+    none;\n            padding: 12px;\n            border-radius: 10px;\n            font-weight:
+    600;\n            font-size: 13px;\n            cursor: pointer;\n            transition:
+    all 0.2s;\n        }\n\n        .action-btn:hover {\n            background: #2563eb;\n
+    \           transform: translateY(-2px);\n            box-shadow: 0 4px 12px rgba(59,
+    130, 246, 0.4);\n        }\n\n        .action-btn.secondary {\n            background:
+    #64748b;\n        }\n\n        .action-btn.secondary:hover {\n            background:
+    #475569;\n        }\n\n        .no-selection {\n            display: flex;\n            flex-direction:
+    column;\n            align-items: center;\n            justify-content: center;\n
+    \           height: 100%;\n            color: #64748b;\n            text-align:
+    center;\n            padding: 40px;\n        }\n\n        .no-selection-icon {\n
+    \           font-size: 64px;\n            margin-bottom: 20px;\n            opacity:
+    0.3;\n        }\n\n        /* Loading */\n        .loading {\n            display:
+    flex;\n            align-items: center;\n            justify-content: center;\n
+    \           height: 100%;\n            font-size: 14px;\n            color: #64748b;\n
+    \       }\n\n        .spinner {\n            border: 3px solid #334155;\n            border-top:
+    3px solid #3b82f6;\n            border-radius: 50%;\n            width: 40px;\n
+    \           height: 40px;\n            animation: spin 1s linear infinite;\n            margin-right:
+    15px;\n        }\n\n        @keyframes spin {\n            0% { transform: rotate(0deg);
+    }\n            100% { transform: rotate(360deg); }\n        }\n\n        /* Scrollbar
+    */\n        ::-webkit-scrollbar {\n            width: 8px;\n        }\n\n        ::-webkit-scrollbar-track
+    {\n            background: #1e293b;\n        }\n\n        ::-webkit-scrollbar-thumb
+    {\n            background: #475569;\n            border-radius: 4px;\n        }\n\n
+    \       ::-webkit-scrollbar-thumb:hover {\n            background: #64748b;\n
+    \       }\n    </style>\n</head>\n<body>\n    <div id=\"app\">\n        <div class=\"app-container\">\n
+    \           <!-- Header -->\n            <div class=\"header\">\n                <div
+    class=\"logo\">\n                    <div class=\"logo-icon\">\U0001F697</div>\n
+    \                   <div class=\"logo-text\">\n                        <h1>City
+    of Tallahassee Fleet Emulator</h1>\n                        <p>Real-Time Demo
+    Dashboard</p>\n                    </div>\n                </div>\n                <div
+    class=\"stats\">\n                    <div class=\"stat-item\">\n                        <div
+    class=\"stat-value\">{{ totalVehicles }}</div>\n                        <div class=\"stat-label\">Total
+    Vehicles</div>\n                    </div>\n                    <div class=\"stat-item\">\n
+    \                       <div class=\"stat-value\" style=\"color: #10b981\">{{
+    activeCount }}</div>\n                        <div class=\"stat-label\">Active</div>\n
+    \                   </div>\n                    <div class=\"stat-item\">\n                        <div
+    class=\"stat-value\" style=\"color: #ef4444\">{{ respondingCount }}</div>\n                        <div
+    class=\"stat-label\">Responding</div>\n                    </div>\n                    <div
+    class=\"stat-item\">\n                        <div class=\"stat-value\" style=\"color:
+    #6b7280\">{{ idleCount }}</div>\n                        <div class=\"stat-label\">Idle</div>\n
+    \                   </div>\n                </div>\n            </div>\n\n            <!--
+    Sidebar - Vehicle List -->\n            <div class=\"sidebar\">\n                <div
+    class=\"sidebar-header\">\n                    <h2>Fleet Vehicles ({{ filteredVehicles.length
+    }})</h2>\n                    <div class=\"filter-controls\">\n                        <select
+    v-model=\"filterDepartment\" @change=\"applyFilters\">\n                            <option
+    value=\"\">All Departments</option>\n                            <option value=\"police\">Police
+    (85)</option>\n                            <option value=\"fire\">Fire/EMS (45)</option>\n
+    \                           <option value=\"publicWorks\">Public Works (85)</option>\n
+    \                           <option value=\"transit\">Transit (40)</option>\n
+    \                           <option value=\"utilities\">Utilities (30)</option>\n
+    \                           <option value=\"parks\">Parks (15)</option>\n                        </select>\n
+    \                       <select v-model=\"filterStatus\" @change=\"applyFilters\">\n
+    \                           <option value=\"\">All Status</option>\n                            <option
+    value=\"active\">Active</option>\n                            <option value=\"idle\">Idle</option>\n
+    \                           <option value=\"responding\">Responding</option>\n
+    \                           <option value=\"maintenance\">Maintenance</option>\n
+    \                       </select>\n                    </div>\n                </div>\n
+    \               <div class=\"vehicle-list\">\n                    <div v-for=\"vehicle
+    in filteredVehicles\"\n                         :key=\"vehicle.vehicleId\"\n                         :class=\"['vehicle-item',
+    { selected: selectedVehicle?.vehicleId === vehicle.vehicleId }]\"\n                         @click=\"selectVehicle(vehicle)\">\n
+    \                       <div class=\"vehicle-id\">{{ vehicle.vehicleId }}</div>\n
+    \                       <div class=\"vehicle-meta\">\n                            <span>{{
+    vehicle.department }}</span>\n                            <span :class=\"'status-badge
+    status-' + vehicle.status\">{{ vehicle.status }}</span>\n                        </div>\n
+    \                   </div>\n                </div>\n            </div>\n\n            <!--
+    Map -->\n            <div class=\"map-container\">\n                <div id=\"map\"></div>\n
+    \           </div>\n\n            <!-- Right Panel - Mobile App View -->\n            <div
+    class=\"mobile-view\">\n                <div class=\"mobile-header\">\n                    <h2>Mobile
+    App View</h2>\n                    <p>{{ selectedVehicle ? selectedVehicle.vehicleId
+    : 'Select a vehicle to view' }}</p>\n                </div>\n                <div
+    class=\"mobile-content\">\n                    <div v-if=\"!selectedVehicle\"
+    class=\"no-selection\">\n                        <div class=\"no-selection-icon\">\U0001F4F1</div>\n
+    \                       <h3>No Vehicle Selected</h3>\n                        <p>Click
+    a vehicle from the list or map to view its mobile app screen</p>\n                    </div>\n
+    \                   <div v-else class=\"mobile-phone\">\n                        <div
+    class=\"phone-screen\">\n                            <div class=\"phone-statusbar\">\n
+    \                               <span>{{ currentTime }}</span>\n                                <span>\U0001F4F6
+    ⚡ 100%</span>\n                            </div>\n                            <div
+    class=\"phone-app\">\n                                <div class=\"app-header\">\n
+    \                                   <h3>{{ selectedVehicle.vehicleId }}</h3>\n
+    \                                   <p>{{ selectedVehicle.vehicle?.model || 'Fleet
+    Vehicle' }}</p>\n                                </div>\n\n                                <!--
+    Driver Card -->\n                                <div class=\"driver-card\" v-if=\"selectedVehicle.mobileAppState?.isDriverLoggedIn\">\n
+    \                                   <h4>\U0001F464 Driver Information</h4>\n                                    <div
+    class=\"info-row\">\n                                        <span class=\"info-label\">Name</span>\n
+    \                                       <span class=\"info-value\">{{ selectedVehicle.mobileAppState.driverName
+    || 'N/A' }}</span>\n                                    </div>\n                                    <div
+    class=\"info-row\">\n                                        <span class=\"info-label\">Activity</span>\n
+    \                                       <span class=\"info-value\">{{ selectedVehicle.mobileAppState.currentActivity
+    || 'On Duty' }}</span>\n                                    </div>\n                                    <div
+    class=\"info-row\">\n                                        <span class=\"info-label\">Trip
+    Status</span>\n                                        <span class=\"info-value\">{{
+    formatTripStatus(selectedVehicle.mobileAppState.tripStatus) }}</span>\n                                    </div>\n
+    \                                   <div class=\"info-row\">\n                                        <span
+    class=\"info-label\">Pre-Trip</span>\n                                        <span
+    class=\"info-value\">{{ selectedVehicle.mobileAppState.preTripComplete ? '✅ Complete'
+    : '⏳ Pending' }}</span>\n                                    </div>\n                                </div>\n\n
+    \                               <div class=\"driver-card\" v-else>\n                                    <h4>\U0001F464
+    Driver Information</h4>\n                                    <div class=\"info-row\">\n
+    \                                       <span class=\"info-label\">Status</span>\n
+    \                                       <span class=\"info-value\" style=\"color:
+    #ef4444\">No Driver Logged In</span>\n                                    </div>\n
+    \                               </div>\n\n                                <!--
+    Telemetry Grid -->\n                                <div class=\"telemetry-grid\">\n
+    \                                   <div class=\"telemetry-card\">\n                                        <div
+    class=\"telemetry-value\">{{ selectedVehicle.obd2?.speed || 0 }}</div>\n                                        <div
+    class=\"telemetry-label\">Speed (mph)</div>\n                                    </div>\n
+    \                                   <div class=\"telemetry-card\">\n                                        <div
+    class=\"telemetry-value\">{{ selectedVehicle.obd2?.rpm || 0 }}</div>\n                                        <div
+    class=\"telemetry-label\">RPM</div>\n                                    </div>\n
+    \                                   <div class=\"telemetry-card\">\n                                        <div
+    class=\"telemetry-value\">{{ selectedVehicle.obd2?.fuelLevel || 0 }}%</div>\n
+    \                                       <div class=\"telemetry-label\">Fuel Level</div>\n
+    \                                   </div>\n                                    <div
+    class=\"telemetry-card\">\n                                        <div class=\"telemetry-value\">{{
+    selectedVehicle.obd2?.coolantTemp || 0 }}°F</div>\n                                        <div
+    class=\"telemetry-label\">Coolant Temp</div>\n                                    </div>\n
+    \                               </div>\n\n                                <!--
+    Activity Stats -->\n                                <div class=\"driver-card\">\n
+    \                                   <h4>\U0001F4CA Activity Stats</h4>\n                                    <div
+    class=\"info-row\">\n                                        <span class=\"info-label\">Photos
+    Taken</span>\n                                        <span class=\"info-value\">{{
+    selectedVehicle.mobileAppState?.photosTaken || 0 }}</span>\n                                    </div>\n
+    \                                   <div class=\"info-row\">\n                                        <span
+    class=\"info-label\">Notes Entered</span>\n                                        <span
+    class=\"info-value\">{{ selectedVehicle.mobileAppState?.notesEntered || 0 }}</span>\n
+    \                                   </div>\n                                    <div
+    class=\"info-row\">\n                                        <span class=\"info-label\">Incidents
+    Reported</span>\n                                        <span class=\"info-value\">{{
+    selectedVehicle.mobileAppState?.incidentsReported || 0 }}</span>\n                                    </div>\n
+    \                               </div>\n\n                                <!--
+    Action Buttons -->\n                                <div class=\"action-buttons\">\n
+    \                                   <button class=\"action-btn\">\U0001F4F7 Take
+    Photo</button>\n                                    <button class=\"action-btn
+    secondary\">\U0001F4DD Add Note</button>\n                                </div>\n
+    \                               <div class=\"action-buttons\">\n                                    <button
+    class=\"action-btn\">⚠️ Report Incident</button>\n                                </div>\n
+    \                           </div>\n                        </div>\n                    </div>\n
+    \               </div>\n            </div>\n        </div>\n    </div>\n\n    <script>\n
+    \       const { createApp } = Vue;\n\n        createApp({\n            data()
+    {\n                return {\n                    vehicles: [],\n                    selectedVehicle:
+    null,\n                    filterDepartment: '',\n                    filterStatus:
+    '',\n                    map: null,\n                    markers: {},\n                    connection:
+    null,\n                    currentTime: new Date().toLocaleTimeString()\n                }\n
+    \           },\n            computed: {\n                totalVehicles() {\n                    return
+    this.vehicles.length;\n                },\n                activeCount() {\n                    return
+    this.vehicles.filter(v => v.status === 'active').length;\n                },\n
+    \               respondingCount() {\n                    return this.vehicles.filter(v
+    => v.status === 'responding').length;\n                },\n                idleCount()
+    {\n                    return this.vehicles.filter(v => v.status === 'idle').length;\n
+    \               },\n                filteredVehicles() {\n                    let
+    filtered = this.vehicles;\n\n                    if (this.filterDepartment) {\n
+    \                       filtered = filtered.filter(v => v.department === this.filterDepartment);\n
+    \                   }\n\n                    if (this.filterStatus) {\n                        filtered
+    = filtered.filter(v => v.status === this.filterStatus);\n                    }\n\n
+    \                   return filtered;\n                }\n            },\n            methods:
+    {\n                async initializeMap() {\n                    // Tallahassee
+    coordinates\n                    this.map = L.map('map').setView([30.4383, -84.2807],
+    12);\n\n                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+    {\n                        attribution: '© OpenStreetMap contributors'\n                    }).addTo(this.map);\n\n
+    \                   // Draw Tallahassee boundary\n                    const bounds
+    = [\n                        [30.5500, -84.4000], // NW\n                        [30.5500,
+    -84.1500], // NE\n                        [30.3500, -84.1500], // SE\n                        [30.3500,
+    -84.4000]  // SW\n                    ];\n                    L.polygon(bounds,
+    { color: '#3b82f6', fillColor: '#3b82f6', fillOpacity: 0.1 }).addTo(this.map);\n
+    \               },\n\n                async loadVehicles() {\n                    //
+    Simulate loading 300 vehicles\n                    // In production, this would
+    fetch from orchestrator API\n                    const departments = ['police',
+    'fire', 'publicWorks', 'transit', 'utilities', 'parks'];\n                    const
+    statuses = ['active', 'idle', 'responding', 'maintenance'];\n\n                    for
+    (let i = 1; i <= 300; i++) {\n                        const dept = departments[Math.floor(Math.random()
+    * departments.length)];\n                        const status = statuses[Math.floor(Math.random()
+    * statuses.length)];\n\n                        this.vehicles.push({\n                            vehicleId:
+    `COT-${dept.toUpperCase()}-${String(i).padStart(4, '0')}`,\n                            department:
+    dept,\n                            status: status,\n                            location:
+    {\n                                latitude: 30.4383 + (Math.random() - 0.5) *
+    0.2,\n                                longitude: -84.2807 + (Math.random() - 0.5)
+    * 0.2\n                            },\n                            obd2: {\n                                speed:
+    status === 'active' ? Math.floor(Math.random() * 50) : 0,\n                                rpm:
+    status === 'active' ? 2000 + Math.floor(Math.random() * 2000) : 750,\n                                fuelLevel:
+    30 + Math.floor(Math.random() * 60),\n                                coolantTemp:
+    180 + Math.floor(Math.random() * 20)\n                            },\n                            mobileAppState:
+    {\n                                isDriverLoggedIn: Math.random() > 0.3,\n                                driverName:
+    this.generateDriverName(),\n                                currentActivity: this.getActivityForDept(dept),\n
+    \                               tripStatus: status === 'active' ? 'in-transit'
+    : null,\n                                preTripComplete: true,\n                                photosTaken:
+    Math.floor(Math.random() * 5),\n                                notesEntered:
+    Math.floor(Math.random() * 3),\n                                incidentsReported:
+    Math.random() > 0.95 ? 1 : 0\n                            },\n                            vehicle:
+    {\n                                model: this.getModelForDept(dept)\n                            }\n
+    \                       });\n                    }\n\n                    this.updateMapMarkers();\n
+    \               },\n\n                updateMapMarkers() {\n                    this.vehicles.forEach(vehicle
+    => {\n                        if (!this.markers[vehicle.vehicleId]) {\n                            const
+    color = this.getMarkerColor(vehicle.status);\n                            const
+    marker = L.circleMarker(\n                                [vehicle.location.latitude,
+    vehicle.location.longitude],\n                                {\n                                    radius:
+    6,\n                                    fillColor: color,\n                                    color:
+    '#fff',\n                                    weight: 2,\n                                    opacity:
+    1,\n                                    fillOpacity: 0.8\n                                }\n
+    \                           );\n\n                            marker.bindPopup(`<b>${vehicle.vehicleId}</b><br>${vehicle.department}
+    - ${vehicle.status}`);\n                            marker.on('click', () => this.selectVehicle(vehicle));\n
+    \                           marker.addTo(this.map);\n\n                            this.markers[vehicle.vehicleId]
+    = marker;\n                        }\n                    });\n                },\n\n
+    \               getMarkerColor(status) {\n                    const colors = {\n
+    \                       active: '#10b981',\n                        idle: '#6b7280',\n
+    \                       responding: '#ef4444',\n                        maintenance:
+    '#f59e0b'\n                    };\n                    return colors[status] ||
+    '#6b7280';\n                },\n\n                selectVehicle(vehicle) {\n                    this.selectedVehicle
+    = vehicle;\n\n                    // Highlight selected marker\n                    Object.keys(this.markers).forEach(id
+    => {\n                        const marker = this.markers[id];\n                        if
+    (id === vehicle.vehicleId) {\n                            marker.setStyle({ radius:
+    10, weight: 3 });\n                        } else {\n                            marker.setStyle({
+    radius: 6, weight: 2 });\n                        }\n                    });\n\n
+    \                   // Center map on selected vehicle\n                    this.map.setView([vehicle.location.latitude,
+    vehicle.location.longitude], 14);\n                },\n\n                applyFilters()
+    {\n                    // Filters applied via computed property\n                },\n\n
+    \               formatTripStatus(status) {\n                    if (!status) return
+    'Not on Trip';\n                    return status.split('-').map(w => w.charAt(0).toUpperCase()
+    + w.slice(1)).join(' ');\n                },\n\n                generateDriverName()
+    {\n                    const firstNames = ['John', 'Sarah', 'Michael', 'Jennifer',
+    'David', 'Lisa'];\n                    const lastNames = ['Smith', 'Johnson',
+    'Williams', 'Brown', 'Jones', 'Garcia'];\n                    return `${firstNames[Math.floor(Math.random()
+    * firstNames.length)]} ${lastNames[Math.floor(Math.random() * lastNames.length)]}`;\n
+    \               },\n\n                getActivityForDept(dept) {\n                    const
+    activities = {\n                        police: ['Patrol', 'Traffic Stop', 'Report
+    Writing'],\n                        fire: ['Station Standby', 'Training', 'Emergency
+    Response'],\n                        publicWorks: ['Street Maintenance', 'Waste
+    Collection'],\n                        transit: ['Route Service', 'Break'],\n
+    \                       utilities: ['Service Call', 'Meter Reading'],\n                        parks:
+    ['Grounds Maintenance', 'Equipment Setup']\n                    };\n                    const
+    acts = activities[dept] || ['On Duty'];\n                    return acts[Math.floor(Math.random()
+    * acts.length)];\n                },\n\n                getModelForDept(dept)
+    {\n                    const models = {\n                        police: 'Ford
+    Explorer Police Interceptor',\n                        fire: 'Pierce Enforcer
+    Pumper',\n                        publicWorks: 'Ford F-250 Super Duty',\n                        transit:
+    'New Flyer Xcelsior',\n                        utilities: 'Ford F-550 Bucket Truck',\n
+    \                       parks: 'Ford Ranger'\n                    };\n                    return
+    models[dept] || 'Fleet Vehicle';\n                },\n\n                updateClock()
+    {\n                    setInterval(() => {\n                        this.currentTime
+    = new Date().toLocaleTimeString();\n                    }, 1000);\n                },\n\n
+    \               simulateRealtime() {\n                    // Simulate real-time
+    updates\n                    setInterval(() => {\n                        this.vehicles.forEach(vehicle
+    => {\n                            if (vehicle.status === 'active') {\n                                //
+    Update speed\n                                vehicle.obd2.speed = Math.max(0,
+    vehicle.obd2.speed + (Math.random() - 0.5) * 10);\n                                vehicle.obd2.rpm
+    = 750 + vehicle.obd2.speed * 60;\n\n                                // Update
+    location slightly\n                                vehicle.location.latitude +=
+    (Math.random() - 0.5) * 0.001;\n                                vehicle.location.longitude
+    += (Math.random() - 0.5) * 0.001;\n\n                                // Update
+    marker\n                                const marker = this.markers[vehicle.vehicleId];\n
+    \                               if (marker) {\n                                    marker.setLatLng([vehicle.location.latitude,
+    vehicle.location.longitude]);\n                                }\n                            }\n
+    \                       });\n                    }, 2000);\n                }\n
+    \           },\n            async mounted() {\n                this.initializeMap();\n
+    \               await this.loadVehicles();\n                this.updateClock();\n
+    \               this.simulateRealtime();\n            }\n        }).mount('#app');\n
+    \   </script>\n</body>\n</html>\n"
+kind: ConfigMap
+metadata:
+  name: emulator-dashboard-html
+  namespace: fleet-management
