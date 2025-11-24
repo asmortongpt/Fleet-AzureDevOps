@@ -1,18 +1,81 @@
 import SwiftUI
 
 struct MoreView: View {
-    // Note: ChecklistViewModel will be added when checklist features are complete
+    @StateObject private var checklistViewModel = ChecklistViewModel()
     @State private var pendingChecklistCount: Int = 0
 
     var body: some View {
         NavigationView {
             List {
-                // New Features Section
-                Section(header: Text("Features")) {
-                    NavigationLink(destination: ChecklistsPlaceholderView()) {
+                // Mobile Actions Section (NEW)
+                Section(header: Text("Mobile Actions")) {
+                    NavigationLink(destination: ReceiptCaptureView()) {
+                        HStack {
+                            Image(systemName: "doc.text.viewfinder")
+                                .foregroundColor(.green)
+                                .frame(width: 30)
+                            VStack(alignment: .leading) {
+                                Text("Capture Receipt")
+                                    .font(.body)
+                                Text("Scan fuel & maintenance receipts")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                    }
+
+                    NavigationLink(destination: DamageReportView(vehicleId: "")) {
+                        HStack {
+                            Image(systemName: "exclamationmark.triangle.fill")
+                                .foregroundColor(.orange)
+                                .frame(width: 30)
+                            VStack(alignment: .leading) {
+                                Text("Report Damage")
+                                    .font(.body)
+                                Text("Photos, videos, or 3D LiDAR scans")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                    }
+
+                    NavigationLink(destination: VehicleReservationView()) {
+                        HStack {
+                            Image(systemName: "car.fill")
+                                .foregroundColor(.blue)
+                                .frame(width: 30)
+                            VStack(alignment: .leading) {
+                                Text("Reserve Vehicle")
+                                    .font(.body)
+                                Text("Book vehicles by date/time")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                    }
+
+                    NavigationLink(destination: MapNavigationView()) {
+                        HStack {
+                            Image(systemName: "map.fill")
+                                .foregroundColor(.red)
+                                .frame(width: 30)
+                            VStack(alignment: .leading) {
+                                Text("Navigation")
+                                    .font(.body)
+                                Text("Directions, traffic & route planning")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                    }
+                }
+
+                // Features Section
+                Section(header: Text("Management")) {
+                    NavigationLink(destination: ChecklistManagementView()) {
                         HStack {
                             Image(systemName: "checklist")
-                                .foregroundColor(.blue)
+                                .foregroundColor(.purple)
                                 .frame(width: 30)
                             VStack(alignment: .leading) {
                                 Text("Checklists")
@@ -22,8 +85,8 @@ struct MoreView: View {
                                     .foregroundColor(.secondary)
                             }
                             Spacer()
-                            if pendingChecklistCount > 0 {
-                                Text("\(pendingChecklistCount)")
+                            if checklistViewModel.pendingChecklists.count > 0 {
+                                Text("\(checklistViewModel.pendingChecklists.count)")
                                     .font(.caption)
                                     .fontWeight(.semibold)
                                     .foregroundColor(.white)
@@ -152,44 +215,6 @@ struct MoreView: View {
             .navigationTitle("More")
             .listStyle(InsetGroupedListStyle())
         }
-    }
-}
-
-// MARK: - Checklists Placeholder View
-struct ChecklistsPlaceholderView: View {
-    var body: some View {
-        VStack(spacing: 20) {
-            Image(systemName: "checklist")
-                .font(.system(size: 60))
-                .foregroundColor(.gray)
-
-            Text("Checklists")
-                .font(.title2)
-                .fontWeight(.semibold)
-
-            Text("Smart location-based checklists coming soon")
-                .font(.body)
-                .foregroundColor(.secondary)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal)
-
-            Text("Features in development:")
-                .font(.headline)
-                .padding(.top)
-
-            VStack(alignment: .leading, spacing: 10) {
-                Label("Pre-trip inspections", systemImage: "car.fill")
-                Label("OSHA safety checklists", systemImage: "shield.fill")
-                Label("Location-triggered reminders", systemImage: "mappin.circle.fill")
-                Label("Digital signatures", systemImage: "signature")
-                Label("Photo attachments", systemImage: "camera.fill")
-            }
-            .font(.subheadline)
-            .foregroundColor(.secondary)
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color(.systemGroupedBackground))
-        .navigationTitle("Checklists")
     }
 }
 
