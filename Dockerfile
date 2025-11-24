@@ -30,13 +30,16 @@ RUN rm -f package-lock.json
 ENV VITE_ENVIRONMENT=production
 ENV VITE_API_URL=""
 
+# Increase Node.js memory limit for large builds
+ENV NODE_OPTIONS="--max-old-space-size=4096"
+
 # Generate build version from git commit or timestamp
-RUN BUILD_VERSION=$(git rev-parse --short HEAD 2>/dev/null || date +%s) && \
+RUN BUILD_VERSION=$(date +%s) && \
     echo $BUILD_VERSION > /tmp/build_version.txt && \
     export VITE_BUILD_VERSION=$BUILD_VERSION
 
-# Build application
-RUN npm run build
+# Build application with increased memory
+RUN npm run build:production || npm run build
 
 # Inject build version into HTML for cache busting
 RUN BUILD_VERSION=$(cat /tmp/build_version.txt || date +%s) && \
