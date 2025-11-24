@@ -1,8 +1,8 @@
-import { useState, useMemo, useEffect, lazy, Suspense } from "react"
+import { useState, useEffect, Suspense } from "react"
+import { Routes, Route, Navigate, useNavigate, useLocation } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,8 +17,10 @@ import {
   List,
   X,
   CarProfile,
-  MagnifyingGlass,
-  Broadcast
+  MapTrifold,
+  UsersThree,
+  ClipboardText,
+  ChartBar
 } from "@phosphor-icons/react"
 import { EntityLinkingProvider } from "@/contexts/EntityLinkingContext"
 import { UniversalSearch, SearchTrigger, useGlobalSearch } from "@/components/UniversalSearch"
@@ -28,16 +30,56 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
-import { navigationItems } from "@/lib/navigation"
 import { RoleSwitcher } from "@/components/demo/RoleSwitcher"
 import { ToastContainer } from "@/components/common/ToastContainer"
 import { ErrorBoundary } from "@/components/ErrorBoundary"
-import { ModuleWrapper } from "@/components/common/ModuleWrapper"
 import { ThemeToggle } from "@/components/ThemeToggle"
 import { DrilldownManager } from "@/components/DrilldownManager"
+import { InspectDrawer } from "@/components/inspect/InspectDrawer"
 import { useFleetData } from "@/hooks/use-fleet-data"
 import { ModuleLoadingSpinner } from "@/components/common/ModuleLoadingSpinner"
 import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts"
+
+// Lazy load hub pages
+import OperationsHub from "@/pages/hubs/OperationsHub"
+import FleetHub from "@/pages/hubs/FleetHub"
+import PeopleHub from "@/pages/hubs/PeopleHub"
+import WorkHub from "@/pages/hubs/WorkHub"
+import InsightsHub from "@/pages/hubs/InsightsHub"
+
+// Navigation configuration for 5 hub pages
+const hubNavigation = [
+  {
+    id: 'operations',
+    label: 'Operations',
+    path: '/operations',
+    icon: <MapTrifold size={20} />
+  },
+  {
+    id: 'fleet',
+    label: 'Fleet',
+    path: '/fleet',
+    icon: <CarProfile size={20} />
+  },
+  {
+    id: 'people',
+    label: 'People',
+    path: '/people',
+    icon: <UsersThree size={20} />
+  },
+  {
+    id: 'work',
+    label: 'Work',
+    path: '/work',
+    icon: <ClipboardText size={20} />
+  },
+  {
+    id: 'insights',
+    label: 'Insights',
+    path: '/insights',
+    icon: <ChartBar size={20} />
+  }
+]
 
 // ============================================================================
 // LAZY LOADED MODULES - Performance Optimization
@@ -536,6 +578,9 @@ function App() {
 
         {/* Drilldown Manager */}
         <DrilldownManager />
+
+        {/* Inspect Drawer */}
+        <InspectDrawer />
 
         {/* Toast Notifications */}
         <ToastContainer />
