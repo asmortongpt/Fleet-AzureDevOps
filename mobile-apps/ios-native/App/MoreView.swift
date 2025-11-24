@@ -115,6 +115,22 @@ struct MoreView: View {
                                 }
                             }
                         }
+
+                        // Crash Detection - Available to all drivers
+                        NavigationLink(destination: CrashDetectionView()) {
+                            HStack {
+                                Image(systemName: "exclamationmark.shield.fill")
+                                    .foregroundColor(.red)
+                                    .frame(width: 30)
+                                VStack(alignment: .leading) {
+                                    Text("Crash Detection")
+                                        .font(.body)
+                                    Text("Automatic emergency response")
+                                        .font(.caption)
+                                        .foregroundColor(.secondary)
+                                }
+                            }
+                        }
                     }
                 }
 
