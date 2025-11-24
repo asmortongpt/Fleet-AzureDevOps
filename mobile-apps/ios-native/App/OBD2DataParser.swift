@@ -1,6 +1,6 @@
 //
 //  OBD2DataParser.swift
-//  DCF Fleet Management
+//  Capital Tech Alliance Fleet Management
 //
 //  Parses ELM327 OBD2 protocol responses and extracts vehicle data
 //
