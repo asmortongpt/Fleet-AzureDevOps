@@ -214,6 +214,24 @@ struct MoreView: View {
                             }
                         }
                     }
+
+                    // Vehicle Idling Monitor - Available to managers and admins
+                    if roleManager.hasPermission(.vehicleViewGlobal) {
+                        NavigationLink(destination: VehicleIdlingView()) {
+                            HStack {
+                                Image(systemName: "gauge.with.dots.needle.bottom.50percent")
+                                    .foregroundColor(.red)
+                                    .frame(width: 30)
+                                VStack(alignment: .leading) {
+                                    Text("Idling Monitor")
+                                        .font(.body)
+                                    Text("Track fuel waste & emissions")
+                                        .font(.caption)
+                                        .foregroundColor(.secondary)
+                                }
+                            }
+                        }
+                    }
                 }
 
                 // Settings Section
