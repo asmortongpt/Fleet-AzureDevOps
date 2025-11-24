@@ -1,6 +1,6 @@
 //
 //  OBD2Manager.swift
-//  DCF Fleet Management
+//  Capital Tech Alliance Fleet Management
 //
 //  CoreBluetooth manager for OBD2 ELM327 device communication
 //
