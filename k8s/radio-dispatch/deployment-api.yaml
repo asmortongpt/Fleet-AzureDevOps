@@ -1,0 +1,188 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: radio-dispatch-api
+  namespace: fleet-management
+  labels:
+    app: radio-dispatch
+    component: api
+    version: v1
+spec:
+  replicas: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: radio-dispatch
+      component: api
+  template:
+    metadata:
+      labels:
+        app: radio-dispatch
+        component: api
+        version: v1
+    spec:
+      serviceAccountName: fleet-api-service-account
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1001
+        fsGroup: 1001
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+      - name: radio-dispatch-api
+        image: fleetappregistry.azurecr.io/radio-dispatch-api:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8000
+          name: http
+          protocol: TCP
+        env:
+        # Application Config
+        - name: APP_NAME
+          value: "Radio Dispatch Service"
+        - name: APP_VERSION
+          value: "1.0.0"
+        - name: DEBUG
+          value: "false"
+        - name: LOG_LEVEL
+          value: "INFO"
+
+        # API Config
+        - name: API_V1_PREFIX
+          value: "/api/radio"
+        - name: CORS_ORIGINS
+          value: "https://fleet.capitaltechalliance.com,https://*.capitaltechalliance.com"
+
+        # Socket.IO Config
+        - name: SOCKETIO_ASYNC_MODE
+          value: "asgi"
+        - name: SOCKETIO_CORS_ALLOWED_ORIGINS
+          value: "https://fleet.capitaltechalliance.com"
+
+        # Database Config
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: fleet-secrets
+              key: database-url
+        - name: DB_POOL_SIZE
+          value: "10"
+        - name: DB_MAX_OVERFLOW
+          value: "20"
+
+        # Redis Config
+        - name: REDIS_URL
+          value: "redis://redis-service:6379/0"
+        - name: CELERY_BROKER_URL
+          value: "redis://redis-service:6379/1"
+        - name: CELERY_RESULT_BACKEND
+          value: "redis://redis-service:6379/2"
+
+        # Azure Services
+        - name: AZURE_TENANT_ID
+          valueFrom:
+            secretKeyRef:
+              name: fleet-secrets
+              key: azure-tenant-id
+        - name: AZURE_CLIENT_ID
+          valueFrom:
+            secretKeyRef:
+              name: fleet-secrets
+              key: azure-client-id
+        - name: AZURE_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: fleet-secrets
+              key: azure-client-secret
+
+        # Azure Speech Service
+        - name: AZURE_SPEECH_KEY
+          valueFrom:
+            secretKeyRef:
+              name: fleet-secrets
+              key: azure-speech-key
+              optional: true
+        - name: AZURE_SPEECH_REGION
+          value: "eastus"
+
+        # Azure Blob Storage
+        - name: AZURE_STORAGE_ACCOUNT_NAME
+          value: "fleetappstorage"
+        - name: AZURE_STORAGE_CONTAINER_NAME
+          value: "radio-audio"
+
+        # Fleet API Integration
+        - name: FLEET_API_BASE_URL
+          value: "http://fleet-api-service:3000"
+        - name: FLEET_API_TIMEOUT
+          value: "30"
+
+        # AI Services (optional)
+        - name: ANTHROPIC_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: fleet-secrets
+              key: anthropic-api-key
+              optional: true
+        - name: OPENAI_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: fleet-secrets
+              key: openai-api-key
+              optional: true
+
+        resources:
+          requests:
+            cpu: 250m
+            memory: 256Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 60
+          periodSeconds: 30
+          timeoutSeconds: 10
+          failureThreshold: 3
+
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: false
+          runAsNonRoot: true
+          runAsUser: 1001
+          capabilities:
+            drop:
+            - ALL
+
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - radio-dispatch
+                - key: component
+                  operator: In
+                  values:
+                  - api
+              topologyKey: kubernetes.io/hostname
