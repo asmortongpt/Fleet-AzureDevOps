@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>City of Tallahassee Fleet Command Center</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue@3/dist/vue.global.prod.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0f172a;
+            color: #e2e8f0;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .app-container {
+            display: grid;
+            grid-template-columns: 320px 1fr 400px;
+            grid-template-rows: 70px 1fr 300px;
+            height: 100vh;
+            gap: 0;
+        }
+
+        /* Header */
+        .header {
+            grid-column: 1 / -1;
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            border-bottom: 3px solid #3b82f6;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo-icon {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .logo-text h1 {
+            font-size: 20px;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .logo-text p {
+            font-size: 12px;
+            color: #94a3b8;
+        }
+
+        .stats {
+            display: flex;
+            gap: 40px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 26px;
+            font-weight: 700;
+        }
+
+        .stat-value.active { color: #10b981; }
+        .stat-value.responding { color: #ef4444; }
+        .stat-value.idle { color: #6b7280; }
+        .stat-value.incidents { color: #f59e0b; }
+        .stat-value.tasks { color: #8b5cf6; }
+
+        .stat-label {
+            font-size: 11px;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 4px;
+        }
+
+        /* Tabs */
+        .tab-container {
+            background: #1e293b;
+            border-right: 1px solid #334155;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid #334155;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 12px;
+            background: #1e293b;
+            border: none;
+            color: #94a3b8;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.2s;
+            border-bottom: 2px solid transparent;
+        }
+
+        .tab:hover {
+            background: #334155;
+            color: #e2e8f0;
+        }
+
+        .tab.active {
+            background: #334155;
+            color: #3b82f6;
+            border-bottom-color: #3b82f6;
+        }
+
+        /* Sidebar Content */
+        .tab-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+        }
+
+        .vehicle-list, .incident-list, .task-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .vehicle-item, .incident-item, .task-item {
+            background: #334155;
+            border-radius: 8px;
+            padding: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-left: 3px solid transparent;
+        }
+
+        .vehicle-item:hover, .incident-item:hover, .task-item:hover {
+            background: #3b4555;
+            transform: translateX(3px);
+        }
+
+        .vehicle-item.selected {
+            border-left-color: #3b82f6;
+            background: #3b4555;
+        }
+
+        .vehicle-item.status-active { border-left-color: #10b981; }
+        .vehicle-item.status-responding { border-left-color: #ef4444; }
+        .vehicle-item.status-idle { border-left-color: #6b7280; }
+
+        .incident-item.priority-1 { border-left-color: #ef4444; }
+        .incident-item.priority-2 { border-left-color: #f59e0b; }
+        .incident-item.priority-3 { border-left-color: #3b82f6; }
+
+        .task-item.priority-emergency { border-left-color: #ef4444; }
+        .task-item.priority-high { border-left-color: #f59e0b; }
+        .task-item.priority-normal { border-left-color: #3b82f6; }
+
+        .item-header {
+            font-weight: 600;
+            font-size: 13px;
+            margin-bottom: 6px;
+            color: #e2e8f0;
+        }
+
+        .item-detail {
+            font-size: 11px;
+            color: #94a3b8;
+            margin-top: 4px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-top: 6px;
+        }
+
+        .status-badge.active { background: #10b98120; color: #10b981; }
+        .status-badge.responding { background: #ef444420; color: #ef4444; }
+        .status-badge.idle { background: #6b728020; color: #9ca3af; }
+        .status-badge.dispatched { background: #f59e0b20; color: #f59e0b; }
+        .status-badge.on_scene { background: #8b5cf620; color: #8b5cf6; }
+        .status-badge.in_progress { background: #3b82f620; color: #3b82f6; }
+
+        /* Map */
+        .map-container {
+            position: relative;
+            background: #1a2332;
+        }
+
+        #map {
+            width: 100%;
+            height: 100%;
+        }
+
+        .map-overlay {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            background: rgba(30, 41, 59, 0.95);
+            border-radius: 8px;
+            padding: 15px;
+            z-index: 1000;
+            min-width: 200px;
+        }
+
+        .overlay-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #3b82f6;
+            margin-bottom: 10px;
+        }
+
+        .overlay-item {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            margin-bottom: 6px;
+        }
+
+        .overlay-label {
+            color: #94a3b8;
+        }
+
+        .overlay-value {
+            color: #e2e8f0;
+            font-weight: 600;
+        }
+
+        /* Right Panel */
+        .right-panel {
+            background: #1e293b;
+            border-left: 1px solid #334155;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .panel-tabs {
+            display: flex;
+            border-bottom: 1px solid #334155;
+        }
+
+        .panel-tab {
+            flex: 1;
+            padding: 12px;
+            background: #1e293b;
+            border: none;
+            color: #94a3b8;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .panel-tab:hover {
+            background: #334155;
+        }
+
+        .panel-tab.active {
+            background: #334155;
+            color: #3b82f6;
+            border-bottom: 2px solid #3b82f6;
+        }
+
+        .panel-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+        }
+
+        /* Mobile App Simulation */
+        .mobile-frame {
+            background: #1f2937;
+            border-radius: 20px;
+            padding: 15px;
+            margin: 0 auto;
+            max-width: 320px;
+            border: 8px solid #374151;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .mobile-screen {
+            background: #111827;
+            border-radius: 12px;
+            padding: 15px;
+        }
+
+        .mobile-header {
+            text-align: center;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #374151;
+            margin-bottom: 15px;
+        }
+
+        .mobile-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #3b82f6;
+        }
+
+        .mobile-subtitle {
+            font-size: 11px;
+            color: #9ca3af;
+            margin-top: 4px;
+        }
+
+        .telemetry-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .telemetry-item {
+            background: #1f2937;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #374151;
+        }
+
+        .telemetry-label {
+            font-size: 10px;
+            color: #9ca3af;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+        }
+
+        .telemetry-value {
+            font-size: 20px;
+            font-weight: 700;
+            color: #3b82f6;
+        }
+
+        /* Radio Feed */
+        .radio-feed {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .radio-message {
+            background: #334155;
+            border-radius: 6px;
+            padding: 10px;
+            border-left: 3px solid #3b82f6;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .radio-message.priority { border-left-color: #f59e0b; }
+        .radio-message.emergency { border-left-color: #ef4444; }
+
+        .radio-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 6px;
+        }
+
+        .radio-callsign {
+            font-weight: 700;
+            font-size: 12px;
+            color: #3b82f6;
+        }
+
+        .radio-time {
+            font-size: 10px;
+            color: #6b7280;
+        }
+
+        .radio-text {
+            font-size: 12px;
+            color: #d1d5db;
+        }
+
+        /* Chat Input */
+        .chat-input-area {
+            grid-column: 2 / 3;
+            background: #1e293b;
+            border-top: 1px solid #334155;
+            padding: 20px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 15px 20px;
+            background: #334155;
+            border: 2px solid #3b4555;
+            border-radius: 25px;
+            color: #e2e8f0;
+            font-size: 14px;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        .chat-input:focus {
+            border-color: #3b82f6;
+            background: #3b4555;
+        }
+
+        .chat-input::placeholder {
+            color: #6b7280;
+        }
+
+        .send-button {
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .send-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(59, 130, 246, 0.4);
+        }
+
+        .send-button:active {
+            transform: translateY(0);
+        }
+
+        .send-button:disabled {
+            background: #4b5563;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #1e293b;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #475569;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #64748b;
+        }
+
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #6b7280;
+        }
+
+        .spinner {
+            border: 3px solid #334155;
+            border-top: 3px solid #3b82f6;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div class="app-container">
+            <!-- Header -->
+            <div class="header">
+                <div class="logo">
+                    <div class="logo-icon">🚗</div>
+                    <div class="logo-text">
+                        <h1>City of Tallahassee Fleet Command Center</h1>
+                        <p>Real-time Fleet Management & Emergency Response</p>
+                    </div>
+                </div>
+                <div class="stats">
+                    <div class="stat-item">
+                        <div class="stat-value active">{{ stats.active }}</div>
+                        <div class="stat-label">Active</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value responding">{{ stats.responding }}</div>
+                        <div class="stat-label">Responding</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value idle">{{ stats.idle }}</div>
+                        <div class="stat-label">Idle</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value incidents">{{ stats.incidents }}</div>
+                        <div class="stat-label">Incidents</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value tasks">{{ stats.tasks }}</div>
+                        <div class="stat-label">Tasks</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Left Sidebar with Tabs -->
+            <div class="tab-container">
+                <div class="tabs">
+                    <button class="tab" :class="{active: leftTab === 'vehicles'}" @click="leftTab = 'vehicles'">
+                        Vehicles
+                    </button>
+                    <button class="tab" :class="{active: leftTab === 'incidents'}" @click="leftTab = 'incidents'">
+                        Incidents
+                    </button>
+                    <button class="tab" :class="{active: leftTab === 'tasks'}" @click="leftTab = 'tasks'">
+                        Tasks
+                    </button>
+                </div>
+                <div class="tab-content">
+                    <!-- Vehicles Tab -->
+                    <div v-if="leftTab === 'vehicles'" class="vehicle-list">
+                        <div v-for="vehicle in filteredVehicles" :key="vehicle.vehicleId"
+                             class="vehicle-item"
+                             :class="['status-' + vehicle.status, {selected: selectedVehicle?.vehicleId === vehicle.vehicleId}]"
+                             @click="selectVehicle(vehicle)">
+                            <div class="item-header">{{ vehicle.vehicleId }}</div>
+                            <div class="item-detail">{{ vehicle.department }}</div>
+                            <span class="status-badge" :class="vehicle.status">{{ vehicle.status }}</span>
+                        </div>
+                    </div>
+
+                    <!-- Incidents Tab -->
+                    <div v-if="leftTab === 'incidents'" class="incident-list">
+                        <div v-if="incidents.length === 0" class="loading">
+                            <div class="spinner"></div>
+                            Loading incidents...
+                        </div>
+                        <div v-for="incident in incidents" :key="incident.id"
+                             class="incident-item"
+                             :class="'priority-' + incident.priority"
+                             @click="focusOnLocation(incident.location_lat, incident.location_lng)">
+                            <div class="item-header">{{ incident.incident_type }}</div>
+                            <div class="item-detail">{{ incident.location_address }}</div>
+                            <div class="item-detail">Status: {{ incident.status }}</div>
+                            <span class="status-badge" :class="incident.status">{{ incident.status }}</span>
+                        </div>
+                    </div>
+
+                    <!-- Tasks Tab -->
+                    <div v-if="leftTab === 'tasks'" class="task-list">
+                        <div v-if="tasks.length === 0" class="loading">
+                            <div class="spinner"></div>
+                            Loading tasks...
+                        </div>
+                        <div v-for="task in tasks" :key="task.id"
+                             class="task-item"
+                             :class="'priority-' + task.priority">
+                            <div class="item-header">{{ task.task_type }}</div>
+                            <div class="item-detail">{{ task.location_address }}</div>
+                            <div class="item-detail">Assigned: {{ task.assigned_at ? new Date(task.assigned_at).toLocaleTimeString() : 'N/A' }}</div>
+                            <span class="status-badge" :class="task.status">{{ task.status }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Map -->
+            <div class="map-container">
+                <div id="map"></div>
+                <div class="map-overlay">
+                    <div class="overlay-title">Map Legend</div>
+                    <div class="overlay-item">
+                        <span class="overlay-label">🟢 Active</span>
+                        <span class="overlay-value">{{ stats.active }}</span>
+                    </div>
+                    <div class="overlay-item">
+                        <span class="overlay-label">🔴 Responding</span>
+                        <span class="overlay-value">{{ stats.responding }}</span>
+                    </div>
+                    <div class="overlay-item">
+                        <span class="overlay-label">⚪ Idle</span>
+                        <span class="overlay-value">{{ stats.idle }}</span>
+                    </div>
+                    <div class="overlay-item">
+                        <span class="overlay-label">🚨 Incidents</span>
+                        <span class="overlay-value">{{ stats.incidents }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Panel with Tabs -->
+            <div class="right-panel">
+                <div class="panel-tabs">
+                    <button class="panel-tab" :class="{active: rightTab === 'mobile'}" @click="rightTab = 'mobile'">
+                        Mobile App
+                    </button>
+                    <button class="panel-tab" :class="{active: rightTab === 'radio'}" @click="rightTab = 'radio'">
+                        Radio Feed
+                    </button>
+                </div>
+                <div class="panel-content">
+                    <!-- Mobile App Tab -->
+                    <div v-if="rightTab === 'mobile'">
+                        <div v-if="selectedVehicle" class="mobile-frame">
+                            <div class="mobile-screen">
+                                <div class="mobile-header">
+                                    <div class="mobile-title">{{ selectedVehicle.vehicleId }}</div>
+                                    <div class="mobile-subtitle">{{ selectedVehicle.department }} • {{ selectedVehicle.status }}</div>
+                                </div>
+                                <div class="telemetry-grid">
+                                    <div class="telemetry-item">
+                                        <div class="telemetry-label">Speed</div>
+                                        <div class="telemetry-value">{{ selectedVehicle.obd2.speed }}</div>
+                                    </div>
+                                    <div class="telemetry-item">
+                                        <div class="telemetry-label">RPM</div>
+                                        <div class="telemetry-value">{{ selectedVehicle.obd2.rpm }}</div>
+                                    </div>
+                                    <div class="telemetry-item">
+                                        <div class="telemetry-label">Fuel</div>
+                                        <div class="telemetry-value">{{ selectedVehicle.obd2.fuelLevel }}%</div>
+                                    </div>
+                                    <div class="telemetry-item">
+                                        <div class="telemetry-label">Temp</div>
+                                        <div class="telemetry-value">{{ selectedVehicle.obd2.coolantTemp }}°</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div v-else class="loading">
+                            Select a vehicle to view mobile app
+                        </div>
+                    </div>
+
+                    <!-- Radio Feed Tab -->
+                    <div v-if="rightTab === 'radio'" class="radio-feed">
+                        <div v-if="radioTransmissions.length === 0" class="loading">
+                            <div class="spinner"></div>
+                            Loading radio feed...
+                        </div>
+                        <div v-for="transmission in radioTransmissions" :key="transmission.id"
+                             class="radio-message"
+                             :class="transmission.priority">
+                            <div class="radio-header">
+                                <span class="radio-callsign">{{ transmission.call_sign }}</span>
+                                <span class="radio-time">{{ formatTime(transmission.transmitted_at) }}</span>
+                            </div>
+                            <div class="radio-text">{{ transmission.message }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chat Input Area -->
+            <div class="chat-input-area">
+                <input
+                    type="text"
+                    class="chat-input"
+                    v-model="chatCommand"
+                    @keypress.enter="sendCommand"
+                    placeholder="Type a command... (e.g., 'create a fire at Monroe St')"
+                />
+                <button class="send-button" @click="sendCommand" :disabled="!chatCommand.trim()">
+                    Send Command
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const { createApp } = Vue;
+
+        createApp({
+            data() {
+                return {
+                    leftTab: 'vehicles',
+                    rightTab: 'mobile',
+                    vehicles: [],
+                    incidents: [],
+                    tasks: [],
+                    radioTransmissions: [],
+                    selectedVehicle: null,
+                    map: null,
+                    markers: {},
+                    incidentMarkers: {},
+                    chatCommand: '',
+                    stats: {
+                        active: 0,
+                        responding: 0,
+                        idle: 0,
+                        incidents: 0,
+                        tasks: 0
+                    }
+                };
+            },
+            computed: {
+                filteredVehicles() {
+                    return this.vehicles;
+                }
+            },
+            mounted() {
+                this.initMap();
+                this.generateVehicles();
+                this.startSimulation();
+                this.fetchData();
+                setInterval(() => this.fetchData(), 10000); // Refresh every 10s
+            },
+            methods: {
+                initMap() {
+                    this.map = L.map('map').setView([30.4383, -84.2807], 12);
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                        attribution: '© OpenStreetMap contributors'
+                    }).addTo(this.map);
+
+                    // Tallahassee boundary
+                    const boundary = L.rectangle([
+                        [30.35, -84.40],
+                        [30.55, -84.15]
+                    ], {
+                        color: '#3b82f6',
+                        weight: 2,
+                        fillOpacity: 0.05
+                    }).addTo(this.map);
+                },
+                generateVehicles() {
+                    const departments = {
+                        police: { count: 85, color: '#3b82f6' },
+                        fire: { count: 45, color: '#ef4444' },
+                        publicWorks: { count: 85, color: '#f59e0b' },
+                        transit: { count: 40, color: '#10b981' },
+                        utilities: { count: 30, color: '#8b5cf6' },
+                        parks: { count: 15, color: '#06b6d4' }
+                    };
+
+                    let vehicleId = 1;
+                    Object.entries(departments).forEach(([dept, config]) => {
+                        for (let i = 0; i < config.count; i++) {
+                            const status = Math.random() < 0.70 ? 'active' :
+                                         Math.random() < 0.85 ? 'idle' : 'responding';
+
+                            const vehicle = {
+                                vehicleId: `COT-${dept.toUpperCase().slice(0,3)}-${String(vehicleId++).padStart(4, '0')}`,
+                                department: dept,
+                                status: status,
+                                location: {
+                                    latitude: 30.35 + Math.random() * 0.20,
+                                    longitude: -84.40 + Math.random() * 0.25
+                                },
+                                obd2: {
+                                    speed: status === 'active' ? Math.floor(Math.random() * 45) + 15 : 0,
+                                    rpm: status === 'active' ? Math.floor(Math.random() * 2000) + 1000 : 800,
+                                    fuelLevel: Math.floor(Math.random() * 50) + 50,
+                                    coolantTemp: Math.floor(Math.random() * 20) + 180
+                                }
+                            };
+
+                            this.vehicles.push(vehicle);
+                            this.addVehicleMarker(vehicle);
+                        }
+                    });
+
+                    this.updateStats();
+                },
+                addVehicleMarker(vehicle) {
+                    const color = vehicle.status === 'active' ? 'green' :
+                                vehicle.status === 'responding' ? 'red' : 'gray';
+
+                    const marker = L.circleMarker([vehicle.location.latitude, vehicle.location.longitude], {
+                        radius: 6,
+                        fillColor: color,
+                        color: '#fff',
+                        weight: 2,
+                        opacity: 1,
+                        fillOpacity: 0.8
+                    }).addTo(this.map);
+
+                    marker.bindPopup(`<b>${vehicle.vehicleId}</b><br>${vehicle.department}<br>${vehicle.status}`);
+                    marker.on('click', () => this.selectVehicle(vehicle));
+
+                    this.markers[vehicle.vehicleId] = marker;
+                },
+                selectVehicle(vehicle) {
+                    this.selectedVehicle = vehicle;
+                    this.rightTab = 'mobile';
+                    this.map.setView([vehicle.location.latitude, vehicle.location.longitude], 15);
+                },
+                focusOnLocation(lat, lng) {
+                    this.map.setView([lat, lng], 15);
+                },
+                startSimulation() {
+                    setInterval(() => {
+                        this.vehicles.forEach(vehicle => {
+                            if (vehicle.status === 'active') {
+                                const moveAmount = 0.001;
+                                vehicle.location.latitude += (Math.random() - 0.5) * moveAmount;
+                                vehicle.location.longitude += (Math.random() - 0.5) * moveAmount;
+
+                                // Keep within bounds
+                                vehicle.location.latitude = Math.max(30.35, Math.min(30.55, vehicle.location.latitude));
+                                vehicle.location.longitude = Math.max(-84.40, Math.min(-84.15, vehicle.location.longitude));
+
+                                // Update marker
+                                const marker = this.markers[vehicle.vehicleId];
+                                if (marker) {
+                                    marker.setLatLng([vehicle.location.latitude, vehicle.location.longitude]);
+                                }
+
+                                // Update telemetry
+                                vehicle.obd2.speed = Math.floor(Math.random() * 45) + 15;
+                                vehicle.obd2.rpm = Math.floor(Math.random() * 2000) + 1000;
+                            }
+                        });
+                    }, 2000);
+                },
+                async fetchData() {
+                    try {
+                        // Fetch incidents
+                        const incidentsResponse = await fetch('/api/command/activity');
+                        if (incidentsResponse.ok) {
+                            const data = await incidentsResponse.json();
+                            this.incidents = data.active_incidents || [];
+                            this.tasks = data.active_tasks || [];
+                            this.radioTransmissions = (data.transmissions || []).slice(0, 20);
+
+                            // Update incident markers
+                            this.updateIncidentMarkers();
+
+                            // Update stats
+                            this.stats.incidents = this.incidents.length;
+                            this.stats.tasks = this.tasks.length;
+                        }
+                    } catch (error) {
+                        console.error('Failed to fetch data:', error);
+                    }
+                },
+                updateIncidentMarkers() {
+                    // Clear old markers
+                    Object.values(this.incidentMarkers).forEach(marker => marker.remove());
+                    this.incidentMarkers = {};
+
+                    // Add new markers
+                    this.incidents.forEach(incident => {
+                        const color = incident.priority === 1 ? 'red' :
+                                    incident.priority === 2 ? 'orange' : 'blue';
+
+                        const marker = L.marker([incident.location_lat, incident.location_lng], {
+                            icon: L.divIcon({
+                                className: 'incident-icon',
+                                html: `<div style="background: ${color}; width: 20px; height: 20px; border-radius: 50%; border: 2px solid white;"></div>`
+                            })
+                        }).addTo(this.map);
+
+                        marker.bindPopup(`<b>${incident.incident_type}</b><br>${incident.location_address}<br>Status: ${incident.status}`);
+
+                        this.incidentMarkers[incident.id] = marker;
+                    });
+                },
+                updateStats() {
+                    this.stats.active = this.vehicles.filter(v => v.status === 'active').length;
+                    this.stats.responding = this.vehicles.filter(v => v.status === 'responding').length;
+                    this.stats.idle = this.vehicles.filter(v => v.status === 'idle').length;
+                },
+                async sendCommand() {
+                    if (!this.chatCommand.trim()) return;
+
+                    try {
+                        const response = await fetch('/api/command/command', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ command: this.chatCommand })
+                        });
+
+                        const result = await response.json();
+
+                        if (result.success) {
+                            alert(`✅ ${result.message}`);
+                            this.chatCommand = '';
+                            setTimeout(() => this.fetchData(), 1000);
+                        } else {
+                            alert(`❌ ${result.message}`);
+                        }
+                    } catch (error) {
+                        alert(`❌ Error: ${error.message}`);
+                    }
+                },
+                formatTime(timestamp) {
+                    return new Date(timestamp).toLocaleTimeString();
+                }
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>

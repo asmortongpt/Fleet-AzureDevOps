@@ -35,6 +35,7 @@ import {
   Activity
 } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
+import { useInspect } from '@/services/inspect/InspectContext'
 
 interface DispatchChannel {
   id: number
@@ -83,6 +84,7 @@ interface ActiveListener {
 
 export default function DispatchConsole() {
   const { user, isAuthenticated } = useAuth()
+  const { openInspect } = useInspect()
   const [channels, setChannels] = useState<DispatchChannel[]>([])
   const [selectedChannel, setSelectedChannel] = useState<number | null>(null)
   const [activeListeners, setActiveListeners] = useState<ActiveListener[]>([])
@@ -680,7 +682,15 @@ export default function DispatchConsole() {
                   </div>
                 ) : (
                   emergencyAlerts.map((alert) => (
-                    <Alert key={alert.id} variant="destructive">
+                    <Alert
+                      key={alert.id}
+                      variant="destructive"
+                      className="cursor-pointer hover:bg-destructive/10 transition-colors"
+                      onClick={() => {
+                        // Open inspect drawer for alert details
+                        openInspect({ type: 'alert', id: String(alert.id) })
+                      }}
+                    >
                       <AlertTriangle className="h-4 w-4" />
                       <AlertDescription>
                         <div className="font-medium">{alert.alertType}</div>
@@ -688,6 +698,19 @@ export default function DispatchConsole() {
                         <div className="text-xs mt-1">
                           {new Date(alert.createdAt).toLocaleString()}
                         </div>
+                        {alert.vehicleId && (
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="mt-2 h-6 text-xs"
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              openInspect({ type: 'vehicle', id: String(alert.vehicleId) })
+                            }}
+                          >
+                            View Vehicle
+                          </Button>
+                        )}
                       </AlertDescription>
                     </Alert>
                   ))

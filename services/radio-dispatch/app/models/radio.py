@@ -1,6 +1,6 @@
 """Radio transmission and channel models."""
 
-from sqlalchemy import Column, String, Boolean, Float, Integer, ForeignKey, ARRAY, Text
+from sqlalchemy import Column, String, Boolean, Float, Integer, ForeignKey, ARRAY, Text, DateTime
 from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.orm import relationship
 
