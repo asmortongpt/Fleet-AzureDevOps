@@ -135,15 +135,14 @@ class EnhancedFleetEmulatorWithSamsara {
 
                         await pool.query(`
                             INSERT INTO fuel_transactions
-                            (vehicle_id, fuel_type, quantity, unit_price, total_cost,
+                            (vehicle_id, fuel_type, gallons, price_per_gallon,
                              odometer_reading, location, latitude, longitude, vendor)
-                            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+                            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
                         `, [
                             vehicleId,
                             vehicle.fuel_type,
                             vehicle.fuel_type === 'Electric' ? fuelAdded : fuelAdded / 4,
                             vehicle.fuel_type === 'Electric' ? 0.12 : 3.45,
-                            vehicle.fuel_type === 'Electric' ? fuelAdded * 0.12 : (fuelAdded / 4) * 3.45,
                             vehicle.odometer,
                             'Tallahassee Fuel Station',
                             vehicle.latitude,
@@ -265,8 +264,8 @@ class EnhancedFleetEmulatorWithSamsara {
                     avg_speed = $6, max_speed = $7, fuel_consumed = $8
                 WHERE id = $9
             `, [
-                vehicle.latitude, vehicle.longitude, vehicle.odometer,
-                distanceMiles, trip.duration_minutes,
+                vehicle.latitude, vehicle.longitude, Math.floor(vehicle.odometer),
+                distanceMiles, Math.floor(parseFloat(trip.duration_minutes)),
                 avgSpeed, vehicle.speed + 5, fuelConsumed, tripId
             ]);
 
