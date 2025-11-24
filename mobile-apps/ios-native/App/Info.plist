@@ -103,7 +103,7 @@
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>fleetmgmt</string>
-				<string>dcffleet</string>
+				<string>ctafleet</string>
 			</array>
 		</dict>
 	</array>
@@ -174,29 +174,29 @@
 
 	<!-- Health and Privacy Compliance -->
 	<key>NSUserTrackingUsageDescription</key>
-	<string>DCF Fleet Management respects your privacy. We collect anonymous fleet management data only to improve our services and comply with regulatory requirements.</string>
+	<string>Fleet respects your privacy. We collect anonymous fleet management data only to improve our services and comply with regulatory requirements.</string>
 
 	<!-- Health Records Access (if applicable) -->
 	<key>NSHealthShareUsageDescription</key>
-	<string>DCF Fleet Management may access health data for driver wellness and safety monitoring programs.</string>
+	<string>Fleet may access health data for driver wellness and safety monitoring programs.</string>
 	<key>NSHealthUpdateUsageDescription</key>
-	<string>DCF Fleet Management may record health data related to driver wellness and safety initiatives.</string>
+	<string>Fleet may record health data related to driver wellness and safety initiatives.</string>
 
 	<!-- Contacts Permission (if needed for driver management) -->
 	<key>NSContactsUsageDescription</key>
-	<string>DCF Fleet Management requires access to contacts for emergency contact information and driver communication.</string>
+	<string>Fleet requires access to contacts for emergency contact information and driver communication.</string>
 
 	<!-- Calendar Permission (for scheduling) -->
 	<key>NSCalendarsUsageDescription</key>
-	<string>DCF Fleet Management can access your calendar to schedule maintenance appointments and fleet operations.</string>
+	<string>Fleet can access your calendar to schedule maintenance appointments and fleet operations.</string>
 
 	<!-- Microphone Permission (for voice features) -->
 	<key>NSMicrophoneUsageDescription</key>
-	<string>DCF Fleet Management uses your microphone for voice calls and in-vehicle communication features.</string>
+	<string>Fleet uses your microphone for voice calls and in-vehicle communication features.</string>
 
 	<!-- Network Extension (if applicable for VPN) -->
 	<key>NSLocalNetworkUsageDescription</key>
-	<string>DCF Fleet Management requires access to your local network to communicate with vehicle diagnostic devices.</string>
+	<string>Fleet requires access to your local network to communicate with vehicle diagnostic devices.</string>
 	<key>NSBonjourServices</key>
 	<array>
 		<string>_fleetmgmt._tcp</string>
@@ -233,10 +233,6 @@
 	<!-- Font Features -->
 	<key>UIFontTextStyleHeadline</key>
 	<string>Headline</string>
-
-	<!-- Allow HTTP Localhost -->
-	<key>NSLocalNetworkUsageDescription</key>
-	<string>DCF Fleet Management requires local network access for device discovery and synchronization.</string>
 
 	<!-- Multitasking Support -->
 	<key>UIRequiresFullScreen</key>
