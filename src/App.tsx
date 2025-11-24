@@ -37,6 +37,7 @@ import { ThemeToggle } from "@/components/ThemeToggle"
 import { DrilldownManager } from "@/components/DrilldownManager"
 import { useFleetData } from "@/hooks/use-fleet-data"
 import { ModuleLoadingSpinner } from "@/components/common/ModuleLoadingSpinner"
+import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts"
 
 // ============================================================================
 // LAZY LOADED MODULES - Performance Optimization
@@ -137,6 +138,59 @@ function App() {
   useEffect(() => {
     fleetData.initializeData()
   }, [fleetData.initializeData])
+
+  // Keyboard shortcuts for navigation
+  useKeyboardShortcuts([
+    {
+      key: 'k',
+      meta: true,
+      callback: () => setSearchOpen(true),
+      description: 'Open search'
+    },
+    {
+      key: 'b',
+      meta: true,
+      callback: () => setSidebarOpen(!sidebarOpen),
+      description: 'Toggle sidebar'
+    },
+    {
+      key: 'Escape',
+      callback: () => {
+        if (searchOpen) setSearchOpen(false)
+      },
+      description: 'Close search'
+    },
+    {
+      key: '1',
+      meta: true,
+      callback: () => setActiveModule('dashboard'),
+      description: 'Go to dashboard'
+    },
+    {
+      key: '2',
+      meta: true,
+      callback: () => setActiveModule('gps-tracking'),
+      description: 'Go to GPS tracking'
+    },
+    {
+      key: '3',
+      meta: true,
+      callback: () => setActiveModule('people'),
+      description: 'Go to people management'
+    },
+    {
+      key: '4',
+      meta: true,
+      callback: () => setActiveModule('garage'),
+      description: 'Go to maintenance'
+    },
+    {
+      key: '5',
+      meta: true,
+      callback: () => setActiveModule('fuel'),
+      description: 'Go to fuel management'
+    }
+  ])
 
   const renderModule = () => {
     // Wrap each module in Suspense for lazy loading
