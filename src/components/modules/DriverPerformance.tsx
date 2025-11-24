@@ -29,7 +29,6 @@ import { useState } from "react"
 import { useFleetData } from "@/hooks/use-fleet-data"
 
 interface DriverPerformanceProps {
-  data?: any
   data: ReturnType<typeof useFleetData>
 }
 
