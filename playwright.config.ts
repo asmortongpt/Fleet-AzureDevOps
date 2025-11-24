@@ -20,6 +20,8 @@ export default defineConfig({
     video: 'retain-on-failure',
     // Visual regression testing settings
     ignoreSnapshots: !process.env.UPDATE_SNAPSHOTS,
+    // Ignore HTTPS errors for production testing
+    ignoreHTTPSErrors: true,
   },
   // Visual snapshot configuration
   expect: {
