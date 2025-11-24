@@ -250,7 +250,7 @@ enum LocationError: Error, LocalizedError {
     var recoverySuggestion: String? {
         switch self {
         case .permissionDenied:
-            return "Go to Settings > Privacy > Location Services and enable location access for Capital Tech Alliance Fleet."
+            return "Go to Settings > Privacy > Location Services and enable location access for Fleet."
         case .locationUnavailable:
             return "Make sure you are outdoors or near a window for better GPS signal."
         case .networkError:
