@@ -130,10 +130,26 @@ const PushNotificationAdmin = lazy(() => import("@/components/modules/PushNotifi
 function App() {
   const [activeModule, setActiveModule] = useState("dashboard")
   const [sidebarOpen, setSidebarOpen] = useState(true)
-  const { isOpen: searchOpen, setIsOpen: setSearchOpen } = useGlobalSearch()
+  const { isOpen: searchOpen, setIsOpen: setSearchOpen} = useGlobalSearch()
+  const [isMobile, setIsMobile] = useState(false)
 
   const fleetData = useFleetData()
   const facilities = fleetData.facilities || []
+
+  // Detect mobile viewport
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768)
+      // Auto-close sidebar on mobile by default
+      if (window.innerWidth < 768) {
+        setSidebarOpen(false)
+      }
+    }
+
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
 
   useEffect(() => {
     fleetData.initializeData()
@@ -363,8 +379,21 @@ function App() {
   return (
     <EntityLinkingProvider>
       <div className="flex h-screen overflow-hidden bg-background">
-        {/* Sidebar */}
-        <div className={`${sidebarOpen ? "w-64" : "w-0"} transition-all duration-300 bg-card border-r flex flex-col overflow-hidden`}>
+        {/* Mobile Overlay Background */}
+        {isMobile && sidebarOpen && (
+          <div
+            className="fixed inset-0 bg-black/50 z-40"
+            onClick={() => setSidebarOpen(false)}
+          />
+        )}
+
+        {/* Sidebar - Overlay on mobile, side-by-side on desktop */}
+        <div className={`
+          ${isMobile ? 'fixed left-0 top-0 h-full z-50' : 'relative'}
+          ${sidebarOpen ? "w-64" : "w-0"}
+          transition-all duration-300 bg-card border-r flex flex-col overflow-hidden
+          ${isMobile && !sidebarOpen ? '-translate-x-full' : 'translate-x-0'}
+        `}>
           <div className="p-4 border-b flex items-center justify-between">
             <div className="flex items-center gap-2">
               <CarProfile size={32} weight="bold" className="text-primary" />
@@ -390,7 +419,13 @@ function App() {
                           key={item.id}
                           variant={activeModule === item.id ? "secondary" : "ghost"}
                           className="w-full justify-start gap-2"
-                          onClick={() => setActiveModule(item.id)}
+                          onClick={() => {
+                            setActiveModule(item.id)
+                            // Auto-close sidebar on mobile after selection
+                            if (isMobile) {
+                              setSidebarOpen(false)
+                            }
+                          }}
                         >
                           {item.icon}
                           <span className="text-sm">{item.label}</span>
@@ -406,42 +441,72 @@ function App() {
 
         {/* Main Content */}
         <div className="flex-1 flex flex-col overflow-hidden">
-          {/* Header */}
+          {/* Header - Mobile optimized with larger touch targets */}
           <div className="border-b bg-card">
-            <div className="flex items-center justify-between p-4">
+            <div className="flex items-center justify-between p-3 md:p-4">
               <div className="flex items-center gap-2">
                 {!sidebarOpen && (
-                  <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(true)}>
-                    <List size={20} />
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setSidebarOpen(true)}
+                    className={isMobile ? 'h-10 w-10' : ''}
+                  >
+                    <List size={isMobile ? 24 : 20} />
                   </Button>
                 )}
                 <SearchTrigger onOpen={() => setSearchOpen(true)} />
               </div>
 
-              <div className="flex items-center gap-2">
-                <ThemeToggle />
-                <RoleSwitcher />
+              <div className="flex items-center gap-1 md:gap-2">
+                {/* Hide some buttons on very small screens */}
+                <div className="hidden sm:flex items-center gap-1 md:gap-2">
+                  <ThemeToggle />
+                  <RoleSwitcher />
+                </div>
+
                 <Popover>
                   <PopoverTrigger asChild>
-                    <Button variant="ghost" size="icon" className="relative">
-                      <Bell size={20} />
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className={`relative ${isMobile ? 'h-10 w-10' : ''}`}
+                    >
+                      <Bell size={isMobile ? 24 : 20} />
                       <EventBadge />
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent align="end" className="w-[400px]">
+                  <PopoverContent
+                    align="end"
+                    className={isMobile ? "w-[calc(100vw-2rem)]" : "w-[400px]"}
+                  >
                     <RealTimeEventHub />
                   </PopoverContent>
                 </Popover>
 
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon">
-                      <Avatar className="h-8 w-8">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className={isMobile ? 'h-10 w-10' : ''}
+                    >
+                      <Avatar className={isMobile ? "h-9 w-9" : "h-8 w-8"}>
                         <AvatarFallback>AM</AvatarFallback>
                       </Avatar>
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
+                  <DropdownMenuContent align="end" className={isMobile ? "w-48" : ""}>
+                    {/* Show hidden options on mobile */}
+                    {isMobile && (
+                      <>
+                        <DropdownMenuItem className="sm:hidden">
+                          <Gear size={16} className="mr-2" />
+                          Theme
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator className="sm:hidden" />
+                      </>
+                    )}
                     <DropdownMenuItem>
                       <Gear size={16} className="mr-2" />
                       Settings
