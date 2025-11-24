@@ -217,6 +217,7 @@ enum NavigationDestination: Hashable, Identifiable {
     case notifications
     case about
     case help
+    case pushToTalk
 
     var id: String {
         switch self {
@@ -242,6 +243,8 @@ enum NavigationDestination: Hashable, Identifiable {
             return "about"
         case .help:
             return "help"
+        case .pushToTalk:
+            return "push-to-talk"
         }
     }
 }
