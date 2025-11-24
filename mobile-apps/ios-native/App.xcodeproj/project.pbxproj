@@ -88,6 +88,7 @@
 		AD96906661E1E453647F7E15 /* AuthenticationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57F8AE7882C453D316880215 /* AuthenticationManager.swift */; };
 		B144F1AA908F90CAB55089AA /* DocumentScannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CECD87F73C06F037F4C506F2 /* DocumentScannerView.swift */; };
 		B1931DF8F42B42679360266E /* APIConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F57E119EBBE4898955725AD /* APIConfiguration.swift */; };
+		B242D7FE10A104E248C45ABB /* DeviceManagementView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14C87CF633757851F985C732 /* DeviceManagementView.swift */; };
 		B3A5822CE9CED460C80E1F02 /* AdvancedCacheManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F861807480E0BE116646CB8 /* AdvancedCacheManager.swift */; };
 		B5F6B4B04007F8866B7CE4B2 /* ScheduleMaintenanceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 276FF721F55CEFE4FAB9425D /* ScheduleMaintenanceView.swift */; };
 		B66C142E10D84DFC9D0403F7 /* ManualDataEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0AF9621D4F54B20AA424A31 /* ManualDataEntry.swift */; };
@@ -134,6 +135,7 @@
 		0F57E119EBBE4898955725AD /* APIConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIConfiguration.swift; sourceTree = "<group>"; };
 		0F5ADEF94D0506FA2EAAC608 /* EnvironmentManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = EnvironmentManager.swift; sourceTree = "<group>"; };
 		11876E4ECF760C2C8320A874 /* NIST_INTEGRATION_GUIDE.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = NIST_INTEGRATION_GUIDE.swift; path = NIST_INTEGRATION_GUIDE.swift; sourceTree = "<group>"; };
+		14C87CF633757851F985C732 /* DeviceManagementView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DeviceManagementView.swift; path = App/DeviceManagementView.swift; sourceTree = "<group>"; };
 		158140F54C68E807B0B0A218 /* SupportTicketView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SupportTicketView.swift; path = Views/Support/SupportTicketView.swift; sourceTree = "<group>"; };
 		16D08B1504E08A77D76D613D /* TripTrackingService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TripTrackingService.swift; path = TripTrackingService.swift; sourceTree = "<group>"; };
 		17CD435FCBF1E6C3791DECEC /* MaintenanceModel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MaintenanceModel.swift; sourceTree = "<group>"; };
@@ -574,6 +576,7 @@
 				7F861807480E0BE116646CB8 /* AdvancedCacheManager.swift */,
 				346C66FAA6F8DE25ABE15C8D /* NetworkOptimizer.swift */,
 				740FAAB0ED6F70FB037DFF3F /* PerformanceOptimizer.swift */,
+				14C87CF633757851F985C732 /* DeviceManagementView.swift */,
 			);
 			path = App;
 			sourceTree = "<group>";
@@ -849,6 +852,7 @@
 				39E4D46F185DBA23130EBA75 /* AppearanceSettingsView.swift in Sources */,
 				3D3BF9150C6594D842713B9E /* ScheduleView.swift in Sources */,
 				8414AD46CB98E444FBE12534 /* StartTripView.swift in Sources */,
+				B242D7FE10A104E248C45ABB /* DeviceManagementView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
