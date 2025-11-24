@@ -4,7 +4,7 @@ import Foundation
 struct AzureConfig {
     
     // MARK: - Azure App Service Configuration
-    static let appServiceName = "dcf-fleet-management"
+    static let appServiceName = "cta-fleet-management"
     static let resourceGroup = "fleet-management-rg"
 
     // SECURITY FIX: Externalized from hardcoded value
@@ -22,7 +22,7 @@ struct AzureConfig {
     static let productionAPIURL = "\(productionBaseURL)/api"
     
     // MARK: - Alternative Azure URLs (if using custom domain)
-    static let customDomainURL = "https://fleet.dcf.fl.gov/api"
+    static let customDomainURL = "https://fleet.capitaltechalliance.com/api"
     static let stagingURL = "https://\(appServiceName)-staging.azurewebsites.net/api"
     
     // MARK: - Environment Detection
@@ -57,7 +57,7 @@ struct AzureConfig {
         var headers: [String: String] = [
             "Content-Type": "application/json",
             "Accept": "application/json",
-            "User-Agent": "DCF-Fleet-iOS/1.0",
+            "User-Agent": "CTA-Fleet-iOS/1.0",
             "X-Client-Version": Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0"
         ]
         
