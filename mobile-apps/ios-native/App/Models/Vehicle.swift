@@ -36,6 +36,9 @@ public struct Vehicle: Codable, Identifiable, Equatable {
         case .inactive: return "gray"
         case .maintenance: return "orange"
         case .offline: return "darkgray"
+        case .available: return "green"
+        case .reserved: return "blue"
+        case .inUse: return "orange"
         }
     }
 
@@ -49,6 +52,182 @@ public struct Vehicle: Codable, Identifiable, Equatable {
 
     public var isServiceDue: Bool {
         !alerts.isEmpty
+    }
+
+    public var name: String {
+        "\(number) - \(year) \(make) \(model)"
+    }
+
+    public var displayLocation: String? {
+        location.address
+    }
+
+    // Sample data for previews
+    public static var sampleAvailable: Vehicle {
+        Vehicle(
+            id: "1",
+            tenantId: "tenant-1",
+            number: "FLEET-001",
+            type: .truck,
+            make: "Ford",
+            model: "F-150",
+            year: 2023,
+            vin: "1FTFW1E85PFA12345",
+            licensePlate: "ABC-1234",
+            status: .available,
+            location: VehicleLocation(lat: 30.4383, lng: -84.2807, address: "Main Depot, Tallahassee, FL"),
+            region: "North",
+            department: "Fleet",
+            fuelLevel: 0.75,
+            fuelType: .gasoline,
+            mileage: 15234,
+            hoursUsed: 1250,
+            assignedDriver: nil,
+            ownership: .owned,
+            lastService: Date().addingTimeInterval(-30 * 24 * 60 * 60),
+            nextService: Date().addingTimeInterval(30 * 24 * 60 * 60),
+            alerts: [],
+            customFields: nil,
+            tags: ["pickup", "4wd"]
+        )
+    }
+
+    public static var sampleReserved: Vehicle {
+        Vehicle(
+            id: "2",
+            tenantId: "tenant-1",
+            number: "FLEET-002",
+            type: .sedan,
+            make: "Toyota",
+            model: "Camry",
+            year: 2024,
+            vin: "4T1B11HK5MU123456",
+            licensePlate: "XYZ-5678",
+            status: .reserved,
+            location: VehicleLocation(lat: 30.4383, lng: -84.2807, address: "South Station, Tallahassee, FL"),
+            region: "South",
+            department: "Administration",
+            fuelLevel: 0.90,
+            fuelType: .hybrid,
+            mileage: 8750,
+            hoursUsed: 450,
+            assignedDriver: "John Doe",
+            ownership: .leased,
+            lastService: Date().addingTimeInterval(-10 * 24 * 60 * 60),
+            nextService: Date().addingTimeInterval(90 * 24 * 60 * 60),
+            alerts: [],
+            customFields: nil,
+            tags: ["hybrid", "fuel-efficient"]
+        )
+    }
+
+    public static var samples: [Vehicle] {
+        [
+            Vehicle(
+                id: "1",
+                tenantId: "tenant-1",
+                number: "FLEET-001",
+                type: .truck,
+                make: "Ford",
+                model: "F-150",
+                year: 2023,
+                vin: "1FTFW1E85PFA12345",
+                licensePlate: "ABC-1234",
+                status: .available,
+                location: VehicleLocation(lat: 30.4383, lng: -84.2807, address: "Main Depot"),
+                region: "North",
+                department: "Fleet",
+                fuelLevel: 0.75,
+                fuelType: .gasoline,
+                mileage: 15234,
+                hoursUsed: 1250,
+                assignedDriver: nil,
+                ownership: .owned,
+                lastService: Date().addingTimeInterval(-30 * 24 * 60 * 60),
+                nextService: Date().addingTimeInterval(30 * 24 * 60 * 60),
+                alerts: [],
+                customFields: nil,
+                tags: ["pickup", "4wd"]
+            ),
+            Vehicle(
+                id: "2",
+                tenantId: "tenant-1",
+                number: "FLEET-002",
+                type: .sedan,
+                make: "Toyota",
+                model: "Camry",
+                year: 2024,
+                vin: "4T1B11HK5MU123456",
+                licensePlate: "XYZ-5678",
+                status: .available,
+                location: VehicleLocation(lat: 30.4383, lng: -84.2807, address: "South Station"),
+                region: "South",
+                department: "Administration",
+                fuelLevel: 0.90,
+                fuelType: .hybrid,
+                mileage: 8750,
+                hoursUsed: 450,
+                assignedDriver: nil,
+                ownership: .leased,
+                lastService: Date().addingTimeInterval(-10 * 24 * 60 * 60),
+                nextService: Date().addingTimeInterval(90 * 24 * 60 * 60),
+                alerts: [],
+                customFields: nil,
+                tags: ["hybrid", "fuel-efficient"]
+            ),
+            Vehicle(
+                id: "3",
+                tenantId: "tenant-1",
+                number: "FLEET-003",
+                type: .van,
+                make: "Ram",
+                model: "ProMaster",
+                year: 2023,
+                vin: "3C6TRVBG3ME123456",
+                licensePlate: "GHI-3456",
+                status: .maintenance,
+                location: VehicleLocation(lat: 30.4383, lng: -84.2807, address: "Service Center"),
+                region: "North",
+                department: "Fleet",
+                fuelLevel: 0.20,
+                fuelType: .diesel,
+                mileage: 45890,
+                hoursUsed: 3200,
+                assignedDriver: nil,
+                ownership: .owned,
+                lastService: Date().addingTimeInterval(-1 * 24 * 60 * 60),
+                nextService: Date().addingTimeInterval(7 * 24 * 60 * 60),
+                alerts: ["Oil Change Due"],
+                customFields: nil,
+                tags: ["cargo", "high-roof"]
+            ),
+            Vehicle(
+                id: "4",
+                tenantId: "tenant-1",
+                number: "FLEET-004",
+                type: .truck,
+                make: "Chevrolet",
+                model: "Silverado",
+                year: 2022,
+                vin: "1GCPYBEN5MZ123456",
+                licensePlate: "DEF-9012",
+                status: .reserved,
+                location: VehicleLocation(lat: 30.4383, lng: -84.2807, address: "East Yard"),
+                region: "East",
+                department: "Fleet",
+                fuelLevel: 0.45,
+                fuelType: .gasoline,
+                mileage: 32156,
+                hoursUsed: 2100,
+                assignedDriver: "Jane Smith",
+                ownership: .owned,
+                lastService: Date().addingTimeInterval(-15 * 24 * 60 * 60),
+                nextService: Date().addingTimeInterval(60 * 24 * 60 * 60),
+                alerts: [],
+                customFields: nil,
+                tags: ["heavy-duty"]
+            )
+        ]
     }
 }
 
@@ -99,9 +278,44 @@ public enum VehicleStatus: String, Codable, CaseIterable {
     case moving = "Moving"
     case parked = "Parked"
     case offline = "Offline"
+    case available = "Available"  // For vehicle request system
+    case reserved = "Reserved"    // For vehicle request system
+    case inUse = "InUse"         // For vehicle request system
 
     public var displayName: String {
         rawValue
+    }
+
+    public var color: String {
+        switch self {
+        case .active, .available:
+            return "green"
+        case .moving, .inUse:
+            return "orange"
+        case .parked, .reserved:
+            return "blue"
+        case .maintenance:
+            return "yellow"
+        case .inactive, .offline:
+            return "gray"
+        }
+    }
+
+    public var icon: String {
+        switch self {
+        case .active, .available:
+            return "checkmark.circle.fill"
+        case .moving, .inUse:
+            return "car.fill"
+        case .parked:
+            return "p.circle.fill"
+        case .reserved:
+            return "calendar.badge.clock"
+        case .maintenance:
+            return "wrench.and.screwdriver.fill"
+        case .inactive, .offline:
+            return "exclamationmark.triangle.fill"
+        }
     }
 }
 
