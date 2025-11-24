@@ -25,7 +25,6 @@ import { toast } from "sonner"
 const REIMBURSEMENT_RATE = 0.655
 
 interface MileageReimbursementProps {
-  data?: any
   data: ReturnType<typeof useFleetData>
 }
 
