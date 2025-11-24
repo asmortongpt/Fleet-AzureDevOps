@@ -4,9 +4,9 @@
 <dict>
 	<!-- App Display Information -->
 	<key>CFBundleDisplayName</key>
-	<string>DCF Fleet Management</string>
+	<string>Fleet</string>
 	<key>CFBundleName</key>
-	<string>DCF Fleet Management</string>
+	<string>Fleet</string>
 	<key>CFBundleIdentifier</key>
 	<string>com.capitaltechalliance.fleetmanagement</string>
 
