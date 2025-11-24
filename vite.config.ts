@@ -160,18 +160,23 @@ export default defineConfig({
       'axios',
       'recharts',
       '@phosphor-icons/react',
+      // Three.js and React Three Fiber - must be pre-bundled for ESM compatibility
+      'three',
+      '@react-three/fiber',
+      '@react-three/drei',
+      '@react-three/postprocessing',
+      // Required for React Three Fiber internal dependencies
+      'use-sync-external-store',
+      'use-sync-external-store/shim',
+      'use-sync-external-store/shim/with-selector',
     ],
 
-    // Exclude dependencies that should be loaded dynamically
+    // Exclude dependencies that should be loaded dynamically (map libraries)
     exclude: [
       'leaflet',
       'mapbox-gl',
       '@react-google-maps/api',
       'azure-maps-control',
-      'three',
-      '@react-three/fiber',
-      '@react-three/drei',
-      '@react-three/postprocessing',
     ],
   },
 
