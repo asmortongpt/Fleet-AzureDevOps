@@ -1,0 +1,147 @@
+apiVersion: v1
+data:
+  server.js: "/**\n * Emulator Orchestrator API Server\n * Manages 300 vehicle emulators
+    and provides real-time updates via WebSocket\n */\n\nconst express = require('express');\nconst
+    cors = require('cors');\nconst { WebSocketServer } = require('ws');\nconst { Pool
+    } = require('pg');\n\nconst app = express();\nconst PORT = process.env.PORT ||
+    3002;\nconst WS_PORT = process.env.WS_PORT || 3003;\n\n// Middleware\napp.use(cors());\napp.use(express.json());\n\n//
+    Database connection\nconst pool = new Pool({\n  host: process.env.DB_HOST || 'fleet-postgres-service',\n
+    \ port: parseInt(process.env.DB_PORT || '5432'),\n  database: process.env.DB_NAME
+    || 'fleetdb',\n  user: process.env.DB_USER || 'fleetadmin',\n  password: process.env.DB_PASSWORD
+    || '',\n  max: 20,\n  connectionTimeoutMillis: 10000,\n});\n\n// In-memory vehicle
+    state (will be populated from emulator pods)\nconst vehicles = new Map();\nconst
+    emulatorPods = [];\n\n// Initialize 300 vehicles with realistic data\nfunction
+    initializeVehicles() {\n  console.log('[Orchestrator] Initializing 300 vehicles...');\n\n
+    \ const departments = [\n    { name: 'police', count: 85, models: ['Ford Explorer
+    Police Interceptor', 'Chevrolet Tahoe PPV', 'Harley-Davidson Police'] },\n    {
+    name: 'fire', count: 45, models: ['Pierce Enforcer Pumper', 'Pierce Ascendant
+    Ladder', 'Ford F-450 Ambulance'] },\n    { name: 'publicWorks', count: 85, models:
+    ['Mack Granite Dump Truck', 'Ford F-250 Utility', 'Elgin Pelican Sweeper'] },\n
+    \   { name: 'transit', count: 40, models: ['New Flyer Xcelsior Bus', 'Ford Transit
+    Paratransit'] },\n    { name: 'utilities', count: 30, models: ['Ford F-550 Bucket
+    Truck', 'Peterbilt 567 Tanker'] },\n    { name: 'parks', count: 15, models: ['Ford
+    Ranger', 'John Deere Z997R Mower'] }\n  ];\n\n  const statuses = ['active', 'idle',
+    'responding', 'maintenance'];\n  const activities = {\n    police: ['Patrol',
+    'Traffic Stop', 'Report Writing', 'Emergency Response'],\n    fire: ['Station
+    Standby', 'Training', 'Emergency Response', 'Equipment Check'],\n    publicWorks:
+    ['Street Maintenance', 'Waste Collection', 'Pothole Repair', 'Street Sweeping'],\n
+    \   transit: ['Route Service', 'Break/Layover', 'Transfer Point', 'Passenger Boarding'],\n
+    \   utilities: ['Service Call', 'Meter Reading', 'Emergency Repair', 'Scheduled
+    Maintenance'],\n    parks: ['Grounds Maintenance', 'Equipment Setup', 'Facility
+    Inspection', 'Landscaping']\n  };\n\n  let vehicleNumber = 1;\n\n  departments.forEach(dept
+    => {\n    for (let i = 0; i < dept.count; i++) {\n      const vehicleId = `COT-${dept.name.toUpperCase()}-${String(vehicleNumber).padStart(4,
+    '0')}`;\n      const status = statuses[Math.floor(Math.random() * statuses.length)];\n
+    \     const isActive = status === 'active' || status === 'responding';\n      const
+    hasDriver = Math.random() > 0.2 && isActive;\n\n      // Tallahassee coordinates
+    (30.4383, -84.2807) with random offset\n      const lat = 30.4383 + (Math.random()
+    - 0.5) * 0.2;\n      const lng = -84.2807 + (Math.random() - 0.5) * 0.2;\n\n      vehicles.set(vehicleId,
+    {\n        vehicleId,\n        vehicleNumber,\n        department: dept.name,\n
+    \       vehicleType: dept.models[Math.floor(Math.random() * dept.models.length)].split('
+    ')[0].toLowerCase(),\n        status,\n        vehicle: {\n          model: dept.models[Math.floor(Math.random()
+    * dept.models.length)],\n          year: 2018 + Math.floor(Math.random() * 6),\n
+    \         vin: generateVIN(),\n          licensePlate: `FL-${Math.random().toString(36).substr(2,
+    4).toUpperCase()}${Math.floor(Math.random() * 999)}`\n        },\n        location:
+    {\n          latitude: lat,\n          longitude: lng,\n          altitude: 50
+    + Math.random() * 30,\n          speed: isActive ? Math.floor(Math.random() *
+    50) : 0,\n          heading: Math.random() * 360,\n          timestamp: new Date().toISOString()\n
+    \       },\n        obd2: {\n          timestamp: new Date().toISOString(),\n
+    \         speed: isActive ? Math.floor(Math.random() * 50) : 0,\n          rpm:
+    isActive ? 2000 + Math.floor(Math.random() * 2000) : 750,\n          coolantTemp:
+    180 + Math.floor(Math.random() * 20),\n          fuelLevel: 30 + Math.floor(Math.random()
+    * 60),\n          batteryVoltage: 12.6 + Math.random() * 1.6,\n          engineLoad:
+    isActive ? 40 + Math.floor(Math.random() * 40) : 0,\n          throttlePosition:
+    isActive ? 20 + Math.floor(Math.random() * 40) : 0,\n          checkEngineLight:
+    Math.random() > 0.95,\n          mil: Math.random() > 0.95\n        },\n        mobileAppState:
+    {\n          isDriverLoggedIn: hasDriver,\n          driverName: hasDriver ? generateDriverName()
+    : null,\n          currentActivity: activities[dept.name][Math.floor(Math.random()
+    * activities[dept.name].length)],\n          lastActivityTime: new Date().toISOString(),\n
+    \         tripStatus: isActive ? 'in-transit' : null,\n          preTripComplete:
+    hasDriver,\n          postTripComplete: false,\n          photosTaken: Math.floor(Math.random()
+    * 5),\n          notesEntered: Math.floor(Math.random() * 3),\n          incidentsReported:
+    Math.random() > 0.95 ? 1 : 0\n        },\n        lastUpdate: new Date().toISOString()\n
+    \     });\n\n      vehicleNumber++;\n    }\n  });\n\n  console.log(`[Orchestrator]
+    Initialized ${vehicles.size} vehicles`);\n}\n\nfunction generateVIN() {\n  const
+    chars = 'ABCDEFGHJKLMNPRSTUVWXYZ0123456789';\n  return Array.from({ length: 17
+    }, () => chars[Math.floor(Math.random() * chars.length)]).join('');\n}\n\nfunction
+    generateDriverName() {\n  const firstNames = ['John', 'Sarah', 'Michael', 'Jennifer',
+    'David', 'Lisa', 'James', 'Mary', 'Robert', 'Patricia'];\n  const lastNames =
+    ['Smith', 'Johnson', 'Williams', 'Brown', 'Jones', 'Garcia', 'Miller', 'Davis',
+    'Rodriguez', 'Martinez'];\n  return `${firstNames[Math.floor(Math.random() * firstNames.length)]}
+    ${lastNames[Math.floor(Math.random() * lastNames.length)]}`;\n}\n\n// Health check
+    endpoint\napp.get('/health', (req, res) => {\n  res.json({\n    status: 'healthy',\n
+    \   timestamp: new Date().toISOString(),\n    vehicles: vehicles.size,\n    uptime:
+    process.uptime()\n  });\n});\n\n// Get all vehicles\napp.get('/api/vehicles',
+    (req, res) => {\n  const { department, status } = req.query;\n\n  let filteredVehicles
+    = Array.from(vehicles.values());\n\n  if (department) {\n    filteredVehicles
+    = filteredVehicles.filter(v => v.department === department);\n  }\n\n  if (status)
+    {\n    filteredVehicles = filteredVehicles.filter(v => v.status === status);\n
+    \ }\n\n  res.json({\n    success: true,\n    count: filteredVehicles.length,\n
+    \   total: vehicles.size,\n    vehicles: filteredVehicles\n  });\n});\n\n// Get
+    single vehicle\napp.get('/api/vehicles/:vehicleId', (req, res) => {\n  const vehicle
+    = vehicles.get(req.params.vehicleId);\n\n  if (!vehicle) {\n    return res.status(404).json({\n
+    \     success: false,\n      error: 'Vehicle not found'\n    });\n  }\n\n  res.json({\n
+    \   success: true,\n    vehicle\n  });\n});\n\n// Get vehicle stats\napp.get('/api/stats',
+    (req, res) => {\n  const stats = {\n    total: vehicles.size,\n    byDepartment:
+    {},\n    byStatus: {},\n    active: 0,\n    idle: 0,\n    responding: 0,\n    maintenance:
+    0,\n    driversLoggedIn: 0\n  };\n\n  vehicles.forEach(vehicle => {\n    // By
+    department\n    stats.byDepartment[vehicle.department] = (stats.byDepartment[vehicle.department]
+    || 0) + 1;\n\n    // By status\n    stats.byStatus[vehicle.status] = (stats.byStatus[vehicle.status]
+    || 0) + 1;\n    stats[vehicle.status] = (stats[vehicle.status] || 0) + 1;\n\n
+    \   // Drivers logged in\n    if (vehicle.mobileAppState.isDriverLoggedIn) {\n
+    \     stats.driversLoggedIn++;\n    }\n  });\n\n  res.json({\n    success: true,\n
+    \   stats\n  });\n});\n\n// WebSocket Server for real-time updates\nconst wss
+    = new WebSocketServer({ port: WS_PORT });\n\nconst clients = new Set();\n\nwss.on('connection',
+    (ws) => {\n  console.log('[WebSocket] Client connected. Total clients:', clients.size
+    + 1);\n  clients.add(ws);\n\n  // Send initial vehicle data\n  ws.send(JSON.stringify({\n
+    \   type: 'init',\n    vehicles: Array.from(vehicles.values())\n  }));\n\n  ws.on('close',
+    () => {\n    clients.delete(ws);\n    console.log('[WebSocket] Client disconnected.
+    Total clients:', clients.size);\n  });\n\n  ws.on('error', (error) => {\n    console.error('[WebSocket]
+    Error:', error.message);\n    clients.delete(ws);\n  });\n});\n\n// Broadcast
+    updates to all connected clients\nfunction broadcastUpdate(vehicleId, updates)
+    {\n  const message = JSON.stringify({\n    type: 'vehicleUpdate',\n    vehicleId,\n
+    \   updates,\n    timestamp: new Date().toISOString()\n  });\n\n  clients.forEach(client
+    => {\n    if (client.readyState === 1) { // OPEN\n      client.send(message);\n
+    \   }\n  });\n}\n\n// Simulate real-time updates for demo purposes\nfunction simulateRealTimeUpdates()
+    {\n  setInterval(() => {\n    vehicles.forEach((vehicle, vehicleId) => {\n      if
+    (vehicle.status === 'active' || vehicle.status === 'responding') {\n        //
+    Update speed and position\n        const speedChange = (Math.random() - 0.5) *
+    10;\n        vehicle.obd2.speed = Math.max(0, Math.min(70, vehicle.obd2.speed
+    + speedChange));\n        vehicle.obd2.rpm = 750 + vehicle.obd2.speed * 60;\n
+    \       vehicle.location.speed = vehicle.obd2.speed;\n\n        // Update position
+    (small movement within Tallahassee)\n        const distanceKm = (vehicle.obd2.speed
+    * 1.60934 / 3600) * 2; // 2-second interval\n        const distanceDegrees = distanceKm
+    / 111.32;\n        const headingRad = vehicle.location.heading * Math.PI / 180;\n\n
+    \       let newLat = vehicle.location.latitude + distanceDegrees * Math.cos(headingRad);\n
+    \       let newLng = vehicle.location.longitude + distanceDegrees * Math.sin(headingRad)
+    / Math.cos(vehicle.location.latitude * Math.PI / 180);\n\n        // Keep within
+    Tallahassee bounds\n        const BOUNDS = {\n          north: 30.5500,\n          south:
+    30.3500,\n          east: -84.1500,\n          west: -84.4000\n        };\n\n
+    \       if (newLat > BOUNDS.north || newLat < BOUNDS.south) {\n          vehicle.location.heading
+    = (vehicle.location.heading + 180) % 360;\n          newLat = vehicle.location.latitude;\n
+    \       }\n\n        if (newLng < BOUNDS.west || newLng > BOUNDS.east) {\n          vehicle.location.heading
+    = (vehicle.location.heading + 180) % 360;\n          newLng = vehicle.location.longitude;\n
+    \       }\n\n        vehicle.location.latitude = newLat;\n        vehicle.location.longitude
+    = newLng;\n        vehicle.location.timestamp = new Date().toISOString();\n\n
+    \       // Update fuel\n        vehicle.obd2.fuelLevel = Math.max(10, vehicle.obd2.fuelLevel
+    - 0.001);\n\n        vehicle.lastUpdate = new Date().toISOString();\n\n        //
+    Broadcast update\n        broadcastUpdate(vehicleId, {\n          location: vehicle.location,\n
+    \         obd2: vehicle.obd2\n        });\n      }\n    });\n  }, 2000); // Update
+    every 2 seconds\n}\n\n// Start server\napp.listen(PORT, () => {\n  console.log('');\n
+    \ console.log('\U0001F697 City of Tallahassee Fleet Emulator Orchestrator');\n
+    \ console.log('===================================================');\n  console.log('');\n
+    \ console.log(`✅ API Server:       http://localhost:${PORT}`);\n  console.log(`✅
+    WebSocket Server: ws://localhost:${WS_PORT}`);\n  console.log('');\n  console.log('Endpoints:');\n
+    \ console.log(`  GET  /health                    - Health check`);\n  console.log(`
+    \ GET  /api/vehicles              - Get all vehicles`);\n  console.log(`  GET
+    \ /api/vehicles/:vehicleId   - Get single vehicle`);\n  console.log(`  GET  /api/stats
+    \                - Get fleet statistics`);\n  console.log('');\n  console.log('Real-time
+    Updates:');\n  console.log(`  Connect to ws://localhost:${WS_PORT} for live vehicle
+    updates`);\n  console.log('');\n\n  // Initialize vehicles\n  initializeVehicles();\n\n
+    \ // Start real-time simulation\n  simulateRealTimeUpdates();\n\n  console.log(`\U0001F3AF
+    ${vehicles.size} vehicles initialized and broadcasting updates`);\n  console.log('');\n});\n\n//
+    Graceful shutdown\nprocess.on('SIGTERM', () => {\n  console.log('SIGTERM received,
+    shutting down gracefully...');\n  pool.end();\n  process.exit(0);\n});\n"
+kind: ConfigMap
+metadata:
+  name: emulator-orchestrator-code
+  namespace: fleet-management

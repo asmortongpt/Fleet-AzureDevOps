@@ -53,23 +53,48 @@ export default defineConfig({
         viewport: { width: 1920, height: 1080 }
       }
     },
-    // Only run chromium by default for faster testing
-    // Uncomment other browsers for full cross-browser testing
+
+    // ========== Mobile Testing Projects ==========
+    // Run mobile tests with: npm run test:mobile
+    {
+      name: 'mobile-iphone',
+      testDir: './e2e/mobile',
+      use: {
+        ...devices['iPhone 12'],
+        viewport: { width: 390, height: 844 },
+      },
+      timeout: 90000,
+    },
+    {
+      name: 'mobile-pixel',
+      testDir: './e2e/mobile',
+      use: {
+        ...devices['Pixel 5'],
+        viewport: { width: 393, height: 851 },
+      },
+      timeout: 90000,
+    },
+    {
+      name: 'mobile-ipad',
+      testDir: './e2e/mobile',
+      use: {
+        ...devices['iPad Pro'],
+        viewport: { width: 1024, height: 1366 },
+      },
+      timeout: 90000,
+    },
+
+    // ========== Browser Testing (Optional) ==========
+    // Uncomment for full cross-browser testing
     // {
     //   name: 'firefox',
+    //   testDir: './e2e',
     //   use: { ...devices['Desktop Firefox'] }
     // },
     // {
     //   name: 'webkit',
+    //   testDir: './e2e',
     //   use: { ...devices['Desktop Safari'] }
-    // },
-    // {
-    //   name: 'Mobile Chrome',
-    //   use: { ...devices['Pixel 5'] }
-    // },
-    // {
-    //   name: 'Mobile Safari',
-    //   use: { ...devices['iPhone 12'] }
     // },
 
     // ========== Visual Regression Testing Projects ==========

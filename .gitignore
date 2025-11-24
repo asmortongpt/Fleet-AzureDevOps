@@ -110,3 +110,10 @@ playwright-report/
 
 # Build outputs
 build/
+# Azure provisioning credential files - NEVER commit
+*-credentials-*.txt
+azure-ad-env-*.txt
+monitoring-env-*.txt
+database-credentials-*.txt
+azure-credentials-*-MASTER.txt
+deployment-info-*.txt
