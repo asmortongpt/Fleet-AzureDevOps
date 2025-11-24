@@ -1,10 +1,10 @@
 import express, { Request, Response } from 'express'
-import bcrypt from 'bcrypt'
-import jwt from 'jsonwebtoken'
 import pool from '../config/database'
 import { createAuditLog } from '../middleware/audit'
 import { z } from 'zod'
 import { loginLimiter, registrationLimiter } from '../config/rate-limiters'
+import { FIPSCryptoService } from '../services/fips-crypto.service'
+import { FIPSJWTService } from '../services/fips-jwt.service'
 
 const router = express.Router()
 
@@ -145,8 +145,8 @@ router.post('/login', loginLimiter, async (req: Request, res: Response) => {
       })
     }
 
-    // Verify password
-    const validPassword = await bcrypt.compare(password, user.password_hash)
+    // Verify password using FIPS-compliant PBKDF2
+    const validPassword = await FIPSCryptoService.verifyPassword(password, user.password_hash)
 
     if (!validPassword) {
       // Increment failed attempts
@@ -191,41 +191,20 @@ router.post('/login', loginLimiter, async (req: Request, res: Response) => {
       [user.id]
     )
 
-    // SECURITY: Generate JWT token with validated secret
-    // JWT_SECRET must be set and must be at least 32 characters
-    if (!process.env.JWT_SECRET) {
-      console.error('FATAL: JWT_SECRET environment variable is not set')
-      return res.status(500).json({ error: 'Server configuration error - authentication unavailable' })
-    }
-
-    if (process.env.JWT_SECRET.length < 32) {
-      console.error('FATAL: JWT_SECRET must be at least 32 characters')
-      return res.status(500).json({ error: 'Server configuration error - authentication unavailable' })
-    }
-
+    // SECURITY: Generate FIPS-compliant JWT tokens using RS256
+    // RSA with SHA-256 is FIPS 140-2 approved (FIPS 186-4 + FIPS 180-4)
     // Generate access token (short-lived: 15 minutes)
-    const token = jwt.sign(
-      {
-        id: user.id,
-        email: user.email,
-        role: user.role,
-        tenant_id: user.tenant_id,
-        type: 'access'
-      },
-      process.env.JWT_SECRET,
-      { expiresIn: '15m' }
+    const token = FIPSJWTService.generateAccessToken(
+      user.id,
+      user.email,
+      user.role,
+      user.tenant_id
     )
 
     // Generate refresh token (long-lived: 7 days)
-    const refreshToken = jwt.sign(
-      {
-        id: user.id,
-        tenant_id: user.tenant_id,
-        type: 'refresh',
-        jti: `${user.id}-${Date.now()}-${Math.random().toString(36).substring(7)}` // Unique token ID
-      },
-      process.env.JWT_SECRET,
-      { expiresIn: '7d' }
+    const refreshToken = FIPSJWTService.generateRefreshToken(
+      user.id,
+      user.tenant_id
     )
 
     // Store refresh token in database for rotation tracking
@@ -284,8 +263,8 @@ router.post('/register', registrationLimiter, async (req: Request, res: Response
       return res.status(409).json({ error: 'Email already registered' })
     }
 
-    // Hash password
-    const passwordHash = await bcrypt.hash(data.password, 10)
+    // Hash password using FIPS-compliant PBKDF2
+    const passwordHash = await FIPSCryptoService.hashPassword(data.password)
 
     // Get default tenant (or create one)
     let tenantResult = await pool.query('SELECT id FROM tenants LIMIT 1')
@@ -404,23 +383,12 @@ router.post('/refresh', async (req: Request, res: Response) => {
       return res.status(401).json({ error: 'Refresh token required' })
     }
 
-    // SECURITY: Validate JWT_SECRET
-    if (!process.env.JWT_SECRET) {
-      console.error('FATAL: JWT_SECRET environment variable is not set')
-      return res.status(500).json({ error: 'Server configuration error' })
-    }
-
-    // Verify refresh token
+    // Verify refresh token using FIPS-compliant RS256
     let decoded: any
     try {
-      decoded = jwt.verify(refreshToken, process.env.JWT_SECRET) as any
+      decoded = FIPSJWTService.verifyRefreshToken(refreshToken)
     } catch (error) {
       return res.status(401).json({ error: 'Invalid or expired refresh token' })
-    }
-
-    // Validate token type
-    if (decoded.type !== 'refresh') {
-      return res.status(401).json({ error: 'Invalid token type' })
     }
 
     // Check if refresh token exists in database and is not revoked
@@ -453,29 +421,17 @@ router.post('/refresh', async (req: Request, res: Response) => {
       [tokenHash]
     )
 
-    // Generate new access token
-    const newToken = jwt.sign(
-      {
-        id: user.id,
-        email: user.email,
-        role: user.role,
-        tenant_id: user.tenant_id,
-        type: 'access'
-      },
-      process.env.JWT_SECRET,
-      { expiresIn: '15m' }
+    // Generate new FIPS-compliant tokens using RS256
+    const newToken = FIPSJWTService.generateAccessToken(
+      user.id,
+      user.email,
+      user.role,
+      user.tenant_id
     )
 
-    // Generate new refresh token
-    const newRefreshToken = jwt.sign(
-      {
-        id: user.id,
-        tenant_id: user.tenant_id,
-        type: 'refresh',
-        jti: `${user.id}-${Date.now()}-${Math.random().toString(36).substring(7)}`
-      },
-      process.env.JWT_SECRET,
-      { expiresIn: '7d' }
+    const newRefreshToken = FIPSJWTService.generateRefreshToken(
+      user.id,
+      user.tenant_id
     )
 
     // Store new refresh token
@@ -536,13 +492,8 @@ router.post('/logout', async (req: Request, res: Response) => {
 
   if (token) {
     try {
-      // SECURITY: Validate JWT_SECRET before attempting to verify token
-      if (!process.env.JWT_SECRET) {
-        console.error('FATAL: JWT_SECRET environment variable is not set')
-        return res.status(500).json({ error: 'Server configuration error' })
-      }
-
-      const decoded = jwt.verify(token, process.env.JWT_SECRET) as any
+      // Verify access token using FIPS-compliant RS256
+      const decoded = FIPSJWTService.verifyAccessToken(token)
 
       // Revoke refresh tokens
       if (revokeAllTokens) {
@@ -594,18 +545,8 @@ router.get('/me', async (req: Request, res: Response) => {
       return res.status(401).json({ error: 'No authentication token found' })
     }
 
-    // Validate JWT_SECRET
-    if (!process.env.JWT_SECRET) {
-      return res.status(500).json({ error: 'Server configuration error' })
-    }
-
-    // Verify and decode token
-    const decoded = jwt.verify(token, process.env.JWT_SECRET) as {
-      id: string
-      email: string
-      tenant_id: string
-      role: string
-    }
+    // Verify and decode token using FIPS-compliant RS256
+    const decoded = FIPSJWTService.verifyAccessToken(token)
 
     // Get fresh user data from database
     const userResult = await pool.query(

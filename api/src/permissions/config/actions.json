@@ -123,5 +123,45 @@
     "description": "Export reports to file",
     "roles": ["Admin", "FleetManager", "MaintenanceManager", "Finance", "Safety", "Auditor"],
     "conditions": []
+  },
+  "reservation.create": {
+    "description": "Create vehicle reservations",
+    "roles": ["Admin", "FleetManager", "Driver"],
+    "conditions": []
+  },
+  "reservation.update": {
+    "description": "Update own vehicle reservations",
+    "roles": ["Admin", "FleetManager", "Driver"],
+    "conditions": ["reservation.user_id == user.id OR user.role IN ['Admin', 'FleetManager']"]
+  },
+  "reservation.cancel": {
+    "description": "Cancel vehicle reservations",
+    "roles": ["Admin", "FleetManager", "Driver"],
+    "conditions": ["reservation.user_id == user.id OR user.role IN ['Admin', 'FleetManager']"]
+  },
+  "reservation.approve": {
+    "description": "Approve vehicle reservations",
+    "roles": ["Admin", "FleetManager"],
+    "conditions": []
+  },
+  "reservation.reject": {
+    "description": "Reject vehicle reservations",
+    "roles": ["Admin", "FleetManager"],
+    "conditions": []
+  },
+  "reservation.viewAll": {
+    "description": "View all reservations across fleet",
+    "roles": ["Admin", "FleetManager", "Auditor"],
+    "conditions": []
+  },
+  "reservation.viewOwn": {
+    "description": "View own reservations",
+    "roles": ["Admin", "FleetManager", "MaintenanceManager", "Inspector", "Driver"],
+    "conditions": ["reservation.user_id == user.id"]
+  },
+  "reservation.viewTeam": {
+    "description": "View team reservations",
+    "roles": ["Admin", "FleetManager"],
+    "conditions": ["reservation.org_id == user.org_id"]
   }
 }
