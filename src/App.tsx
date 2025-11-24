@@ -87,6 +87,7 @@ import { CustomReportBuilder } from "@/components/modules/CustomReportBuilder"
 import { RoleSwitcher } from "@/components/demo/RoleSwitcher"
 import { ToastContainer } from "@/components/common/ToastContainer"
 import { ErrorBoundary } from "@/components/ErrorBoundary"
+import { ModuleWrapper } from "@/components/common/ModuleWrapper"
 import { ThemeToggle } from "@/components/ThemeToggle"
 import { DrilldownManager } from "@/components/DrilldownManager"
 import { useFleetData } from "@/hooks/use-fleet-data"
@@ -108,118 +109,117 @@ function App() {
   const renderModule = () => {
     switch (activeModule) {
       case "dashboard":
-        return <FleetDashboard data={fleetData} />
+        return <ModuleWrapper moduleName="FleetDashboard" skeletonType="dashboard"><FleetDashboard data={fleetData} /></ModuleWrapper>
       case "executive-dashboard":
-        return <ExecutiveDashboard data={fleetData} />
+        return <ModuleWrapper moduleName="ExecutiveDashboard" skeletonType="dashboard"><ExecutiveDashboard /></ModuleWrapper>
       case "dispatch-console":
-        // Dispatch console uses GPS tracking with different view
-        return <GPSTracking vehicles={fleetData.vehicles || []} facilities={facilities} />
+        return <ModuleWrapper moduleName="DispatchConsole" skeletonType="dashboard"><GPSTracking vehicles={fleetData.vehicles || []} facilities={facilities} /></ModuleWrapper>
       case "people":
-        return <PeopleManagement data={fleetData} />
+        return <ModuleWrapper moduleName="PeopleManagement" skeletonType="table"><PeopleManagement data={fleetData} /></ModuleWrapper>
       case "garage":
-        return <GarageService data={fleetData} />
+        return <ModuleWrapper moduleName="GarageService" skeletonType="cards"><GarageService data={fleetData} /></ModuleWrapper>
       case "virtual-garage":
-        return <VirtualGarage data={fleetData} />
+        return <ModuleWrapper moduleName="VirtualGarage" skeletonType="cards"><VirtualGarage data={fleetData} /></ModuleWrapper>
       case "predictive":
-        return <PredictiveMaintenance data={fleetData} />
+        return <ModuleWrapper moduleName="PredictiveMaintenance" skeletonType="dashboard"><PredictiveMaintenance data={fleetData} /></ModuleWrapper>
       case "fuel":
-        return <FuelManagement data={fleetData} />
+        return <ModuleWrapper moduleName="FuelManagement" skeletonType="table"><FuelManagement data={fleetData} /></ModuleWrapper>
       case "gps-tracking":
-        return <GPSTracking vehicles={fleetData.vehicles || []} facilities={facilities} />
+        return <ModuleWrapper moduleName="GPSTracking" skeletonType="dashboard"><GPSTracking vehicles={fleetData.vehicles || []} facilities={facilities} /></ModuleWrapper>
       case "workbench":
-        return <DataWorkbench data={fleetData} />
+        return <ModuleWrapper moduleName="DataWorkbench" skeletonType="table"><DataWorkbench data={fleetData} /></ModuleWrapper>
       case "mileage":
-        return <MileageReimbursement data={fleetData} />
+        return <ModuleWrapper moduleName="MileageReimbursement" skeletonType="table"><MileageReimbursement data={fleetData} /></ModuleWrapper>
       case "maintenance-request":
-        return <MaintenanceRequest data={fleetData} />
+        return <ModuleWrapper moduleName="MaintenanceRequest" skeletonType="form"><MaintenanceRequest data={fleetData} /></ModuleWrapper>
       case "routes":
-        return <RouteManagement data={fleetData} />
+        return <ModuleWrapper moduleName="RouteManagement" skeletonType="dashboard"><RouteManagement data={fleetData} /></ModuleWrapper>
       case "gis-map":
-        return <GISCommandCenter data={fleetData} />
+        return <ModuleWrapper moduleName="GISCommandCenter" skeletonType="dashboard"><GISCommandCenter data={fleetData} /></ModuleWrapper>
       case "traffic-cameras":
-        return <TrafficCameras />
+        return <ModuleWrapper moduleName="TrafficCameras" skeletonType="cards"><TrafficCameras /></ModuleWrapper>
       case "driver-mgmt":
-        return <DriverPerformance data={fleetData} />
+        return <ModuleWrapper moduleName="DriverPerformance" skeletonType="table"><DriverPerformance data={fleetData} /></ModuleWrapper>
       case "comprehensive":
-        return <FleetAnalytics data={fleetData} />
+        return <ModuleWrapper moduleName="FleetAnalytics" skeletonType="chart"><FleetAnalytics data={fleetData} /></ModuleWrapper>
       case "vendor-management":
-        return <VendorManagement />
+        return <ModuleWrapper moduleName="VendorManagement" skeletonType="table"><VendorManagement /></ModuleWrapper>
       case "parts-inventory":
-        return <PartsInventory />
+        return <ModuleWrapper moduleName="PartsInventory" skeletonType="table"><PartsInventory /></ModuleWrapper>
       case "purchase-orders":
-        return <PurchaseOrders />
+        return <ModuleWrapper moduleName="PurchaseOrders" skeletonType="table"><PurchaseOrders /></ModuleWrapper>
       case "invoices":
-        return <Invoices />
+        return <ModuleWrapper moduleName="Invoices" skeletonType="table"><Invoices /></ModuleWrapper>
       case "ai-assistant":
-        return <AIAssistant />
+        return <ModuleWrapper moduleName="AIAssistant" skeletonType="default"><AIAssistant /></ModuleWrapper>
       case "teams-integration":
-        return <TeamsIntegration />
+        return <ModuleWrapper moduleName="TeamsIntegration" skeletonType="default"><TeamsIntegration /></ModuleWrapper>
       case "email-center":
-        return <EmailCenter />
+        return <ModuleWrapper moduleName="EmailCenter" skeletonType="table"><EmailCenter /></ModuleWrapper>
       case "maintenance-scheduling":
-        return <MaintenanceScheduling />
+        return <ModuleWrapper moduleName="MaintenanceScheduling" skeletonType="table"><MaintenanceScheduling /></ModuleWrapper>
       case "receipt-processing":
-        return <ReceiptProcessing />
+        return <ModuleWrapper moduleName="ReceiptProcessing" skeletonType="form"><ReceiptProcessing /></ModuleWrapper>
       case "communication-log":
-        return <CommunicationLog />
+        return <ModuleWrapper moduleName="CommunicationLog" skeletonType="table"><CommunicationLog /></ModuleWrapper>
       case "geofences":
-        return <GeofenceManagement />
+        return <ModuleWrapper moduleName="GeofenceManagement" skeletonType="dashboard"><GeofenceManagement /></ModuleWrapper>
       case "osha-forms":
-        return <OSHAForms />
+        return <ModuleWrapper moduleName="OSHAForms" skeletonType="form"><OSHAForms /></ModuleWrapper>
       case "policy-engine":
-        return <PolicyEngineWorkbench />
+        return <ModuleWrapper moduleName="PolicyEngineWorkbench" skeletonType="form"><PolicyEngineWorkbench /></ModuleWrapper>
       case "video-telematics":
-        return <VideoTelematics />
+        return <ModuleWrapper moduleName="VideoTelematics" skeletonType="cards"><VideoTelematics /></ModuleWrapper>
       case "ev-charging":
-        return <EVChargingManagement />
+        return <ModuleWrapper moduleName="EVChargingManagement" skeletonType="dashboard"><EVChargingManagement /></ModuleWrapper>
       case "vehicle-telemetry":
-        return <VehicleTelemetry />
+        return <ModuleWrapper moduleName="VehicleTelemetry" skeletonType="chart"><VehicleTelemetry /></ModuleWrapper>
       case "map-layers":
-        return <EnhancedMapLayers />
+        return <ModuleWrapper moduleName="EnhancedMapLayers" skeletonType="dashboard"><EnhancedMapLayers /></ModuleWrapper>
       case "route-optimization":
-        return <AdvancedRouteOptimization />
+        return <ModuleWrapper moduleName="AdvancedRouteOptimization" skeletonType="dashboard"><AdvancedRouteOptimization /></ModuleWrapper>
       case "form-builder":
-        return <CustomFormBuilder />
+        return <ModuleWrapper moduleName="CustomFormBuilder" skeletonType="form"><CustomFormBuilder /></ModuleWrapper>
       case "personal-use":
-        return <PersonalUseDashboard />
+        return <ModuleWrapper moduleName="PersonalUseDashboard" skeletonType="dashboard"><PersonalUseDashboard /></ModuleWrapper>
       case "personal-use-policy":
-        return <PersonalUsePolicyConfig />
+        return <ModuleWrapper moduleName="PersonalUsePolicyConfig" skeletonType="form"><PersonalUsePolicyConfig /></ModuleWrapper>
       case "reimbursement-queue":
-        return <ReimbursementQueue />
+        return <ModuleWrapper moduleName="ReimbursementQueue" skeletonType="table"><ReimbursementQueue /></ModuleWrapper>
       case "charges-billing":
-        return <ChargesAndBilling />
+        return <ModuleWrapper moduleName="ChargesAndBilling" skeletonType="table"><ChargesAndBilling /></ModuleWrapper>
       case "arcgis-integration":
-        return <ArcGISIntegration />
+        return <ModuleWrapper moduleName="ArcGISIntegration" skeletonType="dashboard"><ArcGISIntegration /></ModuleWrapper>
       case "map-settings":
-        return <MapSettings />
+        return <ModuleWrapper moduleName="MapSettings" skeletonType="form"><MapSettings /></ModuleWrapper>
       case "asset-management":
-        return <AssetManagement data={fleetData} />
+        return <ModuleWrapper moduleName="AssetManagement" skeletonType="table"><AssetManagement /></ModuleWrapper>
       case "equipment-dashboard":
-        return <EquipmentDashboard data={fleetData} />
+        return <ModuleWrapper moduleName="EquipmentDashboard" skeletonType="dashboard"><EquipmentDashboard /></ModuleWrapper>
       case "task-management":
-        return <TaskManagement />
+        return <ModuleWrapper moduleName="TaskManagement" skeletonType="table"><TaskManagement /></ModuleWrapper>
       case "incident-management":
-        return <IncidentManagement />
+        return <ModuleWrapper moduleName="IncidentManagement" skeletonType="table"><IncidentManagement /></ModuleWrapper>
       case "notifications":
-        return <Notifications />
+        return <ModuleWrapper moduleName="Notifications" skeletonType="table"><Notifications /></ModuleWrapper>
       case "push-notification-admin":
-        return <PushNotificationAdmin />
+        return <ModuleWrapper moduleName="PushNotificationAdmin" skeletonType="form"><PushNotificationAdmin /></ModuleWrapper>
       case "documents":
-        return <DocumentManagement />
+        return <ModuleWrapper moduleName="DocumentManagement" skeletonType="table"><DocumentManagement /></ModuleWrapper>
       case "document-qa":
-        return <DocumentQA />
+        return <ModuleWrapper moduleName="DocumentQA" skeletonType="form"><DocumentQA /></ModuleWrapper>
       case "driver-scorecard":
-        return <DriverScorecard />
+        return <ModuleWrapper moduleName="DriverScorecard" skeletonType="dashboard"><DriverScorecard /></ModuleWrapper>
       case "fleet-optimizer":
-        return <FleetOptimizer />
+        return <ModuleWrapper moduleName="FleetOptimizer" skeletonType="dashboard"><FleetOptimizer /></ModuleWrapper>
       case "cost-analysis":
-        return <CostAnalysisCenter />
+        return <ModuleWrapper moduleName="CostAnalysisCenter" skeletonType="chart"><CostAnalysisCenter /></ModuleWrapper>
       case "fuel-purchasing":
-        return <FuelPurchasing />
+        return <ModuleWrapper moduleName="FuelPurchasing" skeletonType="table"><FuelPurchasing /></ModuleWrapper>
       case "custom-reports":
-        return <CustomReportBuilder />
+        return <ModuleWrapper moduleName="CustomReportBuilder" skeletonType="form"><CustomReportBuilder /></ModuleWrapper>
       default:
-        return <FleetDashboard data={fleetData} />
+        return <ModuleWrapper moduleName="FleetDashboard" skeletonType="dashboard"><FleetDashboard data={fleetData} /></ModuleWrapper>
     }
   }
 
