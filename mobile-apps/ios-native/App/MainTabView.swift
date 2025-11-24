@@ -229,6 +229,11 @@ struct MainTabView: View {
 
         case .help:
             HelpView()
+
+        default:
+            Text("Feature Coming Soon")
+                .font(.headline)
+                .foregroundColor(.secondary)
         }
     }
 }
