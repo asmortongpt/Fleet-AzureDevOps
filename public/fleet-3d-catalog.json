@@ -13,8 +13,8 @@
       "dump_truck": 3,
       "trailer": 4
     },
-    "models_with_files": 0,
-    "models_pending": 34,
+    "models_with_files": 34,
+    "models_pending": 0,
     "last_updated": "2025-11-24"
   },
   "models": [
@@ -28,8 +28,8 @@
       "fleet_count": 3,
       "priority": 1,
       "search_query": "Ford F-250 2022 photorealistic",
-      "has_3d_model": false,
-      "model_url": null,
+      "has_3d_model": true,
+      "model_url": "/models/vehicles/trucks/ford_f_250.glb",
       "target_path": "public/models/vehicles/trucks/ford_f_250.glb"
     },
     {
@@ -42,8 +42,8 @@
       "fleet_count": 3,
       "priority": 1,
       "search_query": "Ford Explorer 2023 photorealistic",
-      "has_3d_model": false,
-      "model_url": null,
+      "has_3d_model": true,
+      "model_url": "/models/vehicles/suvs/ford_explorer.glb",
       "target_path": "public/models/vehicles/suvs/ford_explorer.glb"
     },
     {
@@ -56,8 +56,8 @@
       "fleet_count": 3,
       "priority": 1,
       "search_query": "Honda Accord 2022 photorealistic",
-      "has_3d_model": false,
-      "model_url": null,
+      "has_3d_model": true,
+      "model_url": "/models/vehicles/sedans/honda_accord.glb",
       "target_path": "public/models/vehicles/sedans/honda_accord.glb"
     },
     {
@@ -70,8 +70,8 @@
       "fleet_count": 2,
       "priority": 1,
       "search_query": "Chevrolet Colorado 2023 photorealistic",
-      "has_3d_model": false,
-      "model_url": null,
+      "has_3d_model": true,
+      "model_url": "/models/vehicles/trucks/chevrolet_colorado.glb",
       "target_path": "public/models/vehicles/trucks/chevrolet_colorado.glb"
     },
     {
@@ -84,8 +84,8 @@
       "fleet_count": 2,
       "priority": 1,
       "search_query": "Toyota Tacoma 2022 photorealistic",
-      "has_3d_model": false,
-      "model_url": null,
+      "has_3d_model": true,
+      "model_url": "/models/vehicles/trucks/toyota_tacoma.glb",
       "target_path": "public/models/vehicles/trucks/toyota_tacoma.glb"
     },
     {
@@ -98,8 +98,8 @@
       "fleet_count": 2,
       "priority": 1,
       "search_query": "Chevrolet Tahoe 2022 photorealistic",
-      "has_3d_model": false,
-      "model_url": null,
+      "has_3d_model": true,
+      "model_url": "/models/vehicles/suvs/chevrolet_tahoe.glb",
       "target_path": "public/models/vehicles/suvs/chevrolet_tahoe.glb"
     },
     {
@@ -112,8 +112,8 @@
       "fleet_count": 2,
       "priority": 1,
       "search_query": "Jeep Wrangler 2023 photorealistic",
-      "has_3d_model": false,
-      "model_url": null,
+      "has_3d_model": true,
+      "model_url": "/models/vehicles/suvs/jeep_wrangler.glb",
       "target_path": "public/models/vehicles/suvs/jeep_wrangler.glb"
     },
     {
@@ -126,8 +126,8 @@
       "fleet_count": 2,
       "priority": 1,
       "search_query": "Toyota Corolla 2023 photorealistic",
-      "has_3d_model": false,
-      "model_url": null,
+      "has_3d_model": true,
+      "model_url": "/models/vehicles/sedans/toyota_corolla.glb",
       "target_path": "public/models/vehicles/sedans/toyota_corolla.glb"
     },
     {
@@ -140,8 +140,8 @@
       "fleet_count": 2,
       "priority": 1,
       "search_query": "Tesla Model Y 2023 photorealistic",
-      "has_3d_model": false,
-      "model_url": null,
+      "has_3d_model": true,
+      "model_url": "/models/vehicles/electric_suvs/tesla_model_y.glb",
       "target_path": "public/models/vehicles/electric_suvs/tesla_model_y.glb"
     },
     {
@@ -154,8 +154,8 @@
       "fleet_count": 2,
       "priority": 1,
       "search_query": "Chevrolet Bolt EV 2022 photorealistic",
-      "has_3d_model": false,
-      "model_url": null,
+      "has_3d_model": true,
+      "model_url": "/models/vehicles/electric_sedans/chevrolet_bolt_ev.glb",
       "target_path": "public/models/vehicles/electric_sedans/chevrolet_bolt_ev.glb"
     },
     {
@@ -168,8 +168,8 @@
       "fleet_count": 1,
       "priority": 1,
       "search_query": "Ford F-150 2022 photorealistic",
-      "has_3d_model": false,
-      "model_url": null,
+      "has_3d_model": true,
+      "model_url": "/models/vehicles/trucks/ford_f_150.glb",
       "target_path": "public/models/vehicles/trucks/ford_f_150.glb"
     },
     {
@@ -182,8 +182,8 @@
       "fleet_count": 1,
       "priority": 1,
       "search_query": "Chevrolet Silverado 2023 photorealistic",
-      "has_3d_model": false,
-      "model_url": null,
+      "has_3d_model": true,
+      "model_url": "/models/vehicles/trucks/chevrolet_silverado.glb",
       "target_path": "public/models/vehicles/trucks/chevrolet_silverado.glb"
     },
     {
@@ -196,8 +196,8 @@
       "fleet_count": 1,
       "priority": 1,
       "search_query": "Toyota Camry 2021 photorealistic",
-      "has_3d_model": false,
-      "model_url": null,
+      "has_3d_model": true,
+      "model_url": "/models/vehicles/sedans/toyota_camry.glb",
       "target_path": "public/models/vehicles/sedans/toyota_camry.glb"
     },
     {
@@ -210,8 +210,8 @@
       "fleet_count": 1,
       "priority": 1,
       "search_query": "Honda CR-V 2022 photorealistic",
-      "has_3d_model": false,
-      "model_url": null,
+      "has_3d_model": true,
+      "model_url": "/models/vehicles/suvs/honda_cr_v.glb",
       "target_path": "public/models/vehicles/suvs/honda_cr_v.glb"
     },
     {
@@ -224,8 +224,8 @@
       "fleet_count": 1,
       "priority": 1,
       "search_query": "Ram 1500 2022 photorealistic",
-      "has_3d_model": false,
-      "model_url": null,
+      "has_3d_model": true,
+      "model_url": "/models/vehicles/trucks/ram_1500.glb",
       "target_path": "public/models/vehicles/trucks/ram_1500.glb"
     },
     {
@@ -238,8 +238,8 @@
       "fleet_count": 1,
       "priority": 1,
       "search_query": "Tesla Model 3 2023 photorealistic",
-      "has_3d_model": false,
-      "model_url": null,
+      "has_3d_model": true,
+      "model_url": "/models/vehicles/electric_sedans/tesla_model_3.glb",
       "target_path": "public/models/vehicles/electric_sedans/tesla_model_3.glb"
     },
     {
@@ -252,8 +252,8 @@
       "fleet_count": 1,
       "priority": 1,
       "search_query": "Nissan Altima 2021 photorealistic",
-      "has_3d_model": false,
-      "model_url": null,
+      "has_3d_model": true,
+      "model_url": "/models/vehicles/sedans/nissan_altima.glb",
       "target_path": "public/models/vehicles/sedans/nissan_altima.glb"
     },
     {
@@ -266,8 +266,8 @@
       "fleet_count": 1,
       "priority": 1,
       "search_query": "GMC Sierra 2023 photorealistic",
-      "has_3d_model": false,
-      "model_url": null,
+      "has_3d_model": true,
+      "model_url": "/models/vehicles/trucks/gmc_sierra.glb",
       "target_path": "public/models/vehicles/trucks/gmc_sierra.glb"
     },
     {
@@ -280,8 +280,8 @@
       "fleet_count": 3,
       "priority": 2,
       "search_query": "Ram ProMaster 2022 photorealistic",
-      "has_3d_model": false,
-      "model_url": null,
+      "has_3d_model": true,
+      "model_url": "/models/vehicles/vans/ram_promaster.glb",
       "target_path": "public/models/vehicles/vans/ram_promaster.glb"
     },
     {
@@ -294,8 +294,8 @@
       "fleet_count": 2,
       "priority": 2,
       "search_query": "Nissan NV3500 2021 photorealistic",
-      "has_3d_model": false,
-      "model_url": null,
+      "has_3d_model": true,
+      "model_url": "/models/vehicles/vans/nissan_nv3500.glb",
       "target_path": "public/models/vehicles/vans/nissan_nv3500.glb"
     },
     {
@@ -308,8 +308,8 @@
       "fleet_count": 1,
       "priority": 2,
       "search_query": "Mercedes-Benz Sprinter 2023 photorealistic",
-      "has_3d_model": false,
-      "model_url": null,
+      "has_3d_model": true,
+      "model_url": "/models/vehicles/vans/mercedes_benz_sprinter.glb",
       "target_path": "public/models/vehicles/vans/mercedes_benz_sprinter.glb"
     },
     {
@@ -322,8 +322,8 @@
       "fleet_count": 1,
       "priority": 2,
       "search_query": "Ford Transit 2022 photorealistic",
-      "has_3d_model": false,
-      "model_url": null,
+      "has_3d_model": true,
+      "model_url": "/models/vehicles/vans/ford_transit.glb",
       "target_path": "public/models/vehicles/vans/ford_transit.glb"
     },
     {
@@ -336,8 +336,8 @@
       "fleet_count": 1,
       "priority": 3,
       "search_query": "Caterpillar 320 2022 photorealistic",
-      "has_3d_model": false,
-      "model_url": null,
+      "has_3d_model": true,
+      "model_url": "/models/vehicles/construction/caterpillar_320.glb",
       "target_path": "public/models/vehicles/construction/caterpillar_320.glb"
     },
     {
@@ -350,8 +350,8 @@
       "fleet_count": 1,
       "priority": 3,
       "search_query": "John Deere 200G 2023 photorealistic",
-      "has_3d_model": false,
-      "model_url": null,
+      "has_3d_model": true,
+      "model_url": "/models/vehicles/construction/john_deere_200g.glb",
       "target_path": "public/models/vehicles/construction/john_deere_200g.glb"
     },
     {
@@ -364,8 +364,8 @@
       "fleet_count": 1,
       "priority": 3,
       "search_query": "Komatsu PC210 2021 photorealistic",
-      "has_3d_model": false,
-      "model_url": null,
+      "has_3d_model": true,
+      "model_url": "/models/vehicles/construction/komatsu_pc210.glb",
       "target_path": "public/models/vehicles/construction/komatsu_pc210.glb"
     },
     {
@@ -378,8 +378,8 @@
       "fleet_count": 1,
       "priority": 3,
       "search_query": "Volvo EC220 2022 photorealistic",
-      "has_3d_model": false,
-      "model_url": null,
+      "has_3d_model": true,
+      "model_url": "/models/vehicles/construction/volvo_ec220.glb",
       "target_path": "public/models/vehicles/construction/volvo_ec220.glb"
     },
     {
@@ -392,8 +392,8 @@
       "fleet_count": 1,
       "priority": 3,
       "search_query": "Hitachi ZX210 2023 photorealistic",
-      "has_3d_model": false,
-      "model_url": null,
+      "has_3d_model": true,
+      "model_url": "/models/vehicles/construction/hitachi_zx210.glb",
       "target_path": "public/models/vehicles/construction/hitachi_zx210.glb"
     },
     {
@@ -406,8 +406,8 @@
       "fleet_count": 1,
       "priority": 3,
       "search_query": "Mack Granite 2022 photorealistic",
-      "has_3d_model": false,
-      "model_url": null,
+      "has_3d_model": true,
+      "model_url": "/models/vehicles/construction/mack_granite.glb",
       "target_path": "public/models/vehicles/construction/mack_granite.glb"
     },
     {
@@ -420,8 +420,8 @@
       "fleet_count": 1,
       "priority": 3,
       "search_query": "Peterbilt 567 2023 photorealistic",
-      "has_3d_model": false,
-      "model_url": null,
+      "has_3d_model": true,
+      "model_url": "/models/vehicles/construction/peterbilt_567.glb",
       "target_path": "public/models/vehicles/construction/peterbilt_567.glb"
     },
     {
@@ -434,8 +434,8 @@
       "fleet_count": 1,
       "priority": 3,
       "search_query": "Kenworth T880 2021 photorealistic",
-      "has_3d_model": false,
-      "model_url": null,
+      "has_3d_model": true,
+      "model_url": "/models/vehicles/construction/kenworth_t880.glb",
       "target_path": "public/models/vehicles/construction/kenworth_t880.glb"
     },
     {
@@ -448,8 +448,8 @@
       "fleet_count": 1,
       "priority": 4,
       "search_query": "Utility 3000R 2022 photorealistic",
-      "has_3d_model": false,
-      "model_url": null,
+      "has_3d_model": true,
+      "model_url": "/models/vehicles/trailers/utility_3000r.glb",
       "target_path": "public/models/vehicles/trailers/utility_3000r.glb"
     },
     {
@@ -462,8 +462,8 @@
       "fleet_count": 1,
       "priority": 4,
       "search_query": "Great Dane Freedom 2023 photorealistic",
-      "has_3d_model": false,
-      "model_url": null,
+      "has_3d_model": true,
+      "model_url": "/models/vehicles/trailers/great_dane_freedom.glb",
       "target_path": "public/models/vehicles/trailers/great_dane_freedom.glb"
     },
     {
@@ -476,8 +476,8 @@
       "fleet_count": 1,
       "priority": 4,
       "search_query": "Wabash DuraPlate 2021 photorealistic",
-      "has_3d_model": false,
-      "model_url": null,
+      "has_3d_model": true,
+      "model_url": "/models/vehicles/trailers/wabash_duraplate.glb",
       "target_path": "public/models/vehicles/trailers/wabash_duraplate.glb"
     },
     {
@@ -490,8 +490,8 @@
       "fleet_count": 1,
       "priority": 4,
       "search_query": "Stoughton Composite 2022 photorealistic",
-      "has_3d_model": false,
-      "model_url": null,
+      "has_3d_model": true,
+      "model_url": "/models/vehicles/trailers/stoughton_composite.glb",
       "target_path": "public/models/vehicles/trailers/stoughton_composite.glb"
     }
   ]
