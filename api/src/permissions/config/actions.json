@@ -1,0 +1,127 @@
+{
+  "vehicle.read": {
+    "description": "View vehicle details",
+    "roles": ["Admin", "FleetManager", "MaintenanceManager", "Inspector", "Driver", "Finance", "Safety", "Auditor", "Vendor"],
+    "conditions": ["vehicle.org_id == user.org_id OR user.role == 'Admin'"]
+  },
+  "vehicle.create": {
+    "description": "Add new vehicles to fleet",
+    "roles": ["Admin", "FleetManager"],
+    "conditions": []
+  },
+  "vehicle.update": {
+    "description": "Edit vehicle information",
+    "roles": ["Admin", "FleetManager"],
+    "conditions": ["vehicle.org_id == user.org_id"]
+  },
+  "vehicle.assignDriver": {
+    "description": "Assign drivers to vehicles",
+    "roles": ["Admin", "FleetManager"],
+    "conditions": []
+  },
+  "vehicle.archive": {
+    "description": "Archive/delete vehicles",
+    "roles": ["Admin"],
+    "conditions": []
+  },
+  "garage.view": {
+    "description": "View 3D garage viewer",
+    "roles": ["Admin", "FleetManager", "MaintenanceManager", "Inspector", "Driver", "Finance", "Safety", "Auditor", "Vendor"],
+    "conditions": ["vehicle.org_id == user.org_id OR user.role == 'Admin'"]
+  },
+  "scan.create": {
+    "description": "Create new inspection scans",
+    "roles": ["Admin", "FleetManager", "MaintenanceManager", "Inspector"],
+    "conditions": ["vehicle.org_id == user.org_id"]
+  },
+  "scan.delete": {
+    "description": "Delete inspection scans",
+    "roles": ["Admin"],
+    "conditions": []
+  },
+  "damage.autoApprove": {
+    "description": "Auto-approve damage detections",
+    "roles": ["Admin", "FleetManager", "Safety"],
+    "conditions": []
+  },
+  "damage.edit": {
+    "description": "Edit damage pins and annotations",
+    "roles": ["Admin", "FleetManager", "Inspector"],
+    "conditions": ["inspection.created_by == user.id OR user.role != 'Inspector'"]
+  },
+  "damage.addManual": {
+    "description": "Manually add damage pins",
+    "roles": ["Admin", "FleetManager", "Inspector"],
+    "conditions": []
+  },
+  "damage.export": {
+    "description": "Export damage reports",
+    "roles": ["Admin", "FleetManager", "Safety", "Auditor"],
+    "conditions": []
+  },
+  "garage.toggleValuePanel": {
+    "description": "View vehicle value panel in garage",
+    "roles": ["Admin", "Finance", "FleetManager"],
+    "conditions": []
+  },
+  "maint.read": {
+    "description": "View maintenance records",
+    "roles": ["Admin", "FleetManager", "MaintenanceManager", "Inspector", "Driver", "Finance", "Safety", "Auditor", "Vendor"],
+    "conditions": ["maintenance.org_id == user.org_id OR user.role == 'Admin'"]
+  },
+  "maint.addRecord": {
+    "description": "Add maintenance records",
+    "roles": ["MaintenanceManager", "Admin"],
+    "conditions": []
+  },
+  "maint.editRecord": {
+    "description": "Edit maintenance records",
+    "roles": ["MaintenanceManager", "Admin"],
+    "conditions": []
+  },
+  "maint.closeWorkOrder": {
+    "description": "Close work orders",
+    "roles": ["MaintenanceManager", "Admin", "Vendor"],
+    "conditions": ["workorder.assigned_to == user.id OR user.role IN ['Admin', 'MaintenanceManager']"]
+  },
+  "crash.read": {
+    "description": "View crash/incident reports",
+    "roles": ["Admin", "FleetManager", "Safety", "Auditor"],
+    "conditions": []
+  },
+  "crash.create": {
+    "description": "Create crash/incident reports",
+    "roles": ["Safety", "FleetManager", "Admin"],
+    "conditions": []
+  },
+  "crash.edit": {
+    "description": "Edit crash/incident reports",
+    "roles": ["Safety", "Admin"],
+    "conditions": []
+  },
+  "value.read": {
+    "description": "View vehicle valuation data",
+    "roles": ["Admin", "Finance", "FleetManager"],
+    "conditions": []
+  },
+  "value.setPurchase": {
+    "description": "Set purchase price",
+    "roles": ["Admin", "Finance"],
+    "conditions": []
+  },
+  "value.overrideMarket": {
+    "description": "Override market value",
+    "roles": ["Admin", "Finance"],
+    "conditions": []
+  },
+  "reports.generate": {
+    "description": "Generate reports",
+    "roles": ["Admin", "FleetManager", "MaintenanceManager", "Finance", "Safety", "Auditor"],
+    "conditions": []
+  },
+  "reports.export": {
+    "description": "Export reports to file",
+    "roles": ["Admin", "FleetManager", "MaintenanceManager", "Finance", "Safety", "Auditor"],
+    "conditions": []
+  }
+}
