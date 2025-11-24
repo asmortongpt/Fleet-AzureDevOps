@@ -9,7 +9,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
 
-        print("✅ DCF Fleet Management - Minimal MVP")
+        print("✅ Capital Tech Alliance Fleet - Minimal MVP")
         print("✅ NO MOCK DATA - Production First")
 
         // MARK: - Firebase Initialization
@@ -154,7 +154,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         // Add app name label
         let label = UILabel()
-        label.text = "DCF Fleet Management"
+        label.text = "Capital Tech Alliance Fleet"
         label.font = UIFont.systemFont(ofSize: 24, weight: .semibold)
         label.textAlignment = .center
         label.translatesAutoresizingMaskIntoConstraints = false

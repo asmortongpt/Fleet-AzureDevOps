@@ -1,6 +1,6 @@
 //
 //  OBD2DiagnosticsView.swift
-//  DCF Fleet Management
+//  Capital Tech Alliance Fleet Management
 //
 //  SwiftUI view for displaying OBD2 vehicle diagnostics and real-time data
 //
