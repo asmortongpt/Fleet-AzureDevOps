@@ -1,6 +1,6 @@
 //
 //  BluetoothPermissionManager.swift
-//  DCF Fleet Management
+//  Capital Tech Alliance Fleet Management
 //
 //  Manages Bluetooth permissions and authorization states
 //
