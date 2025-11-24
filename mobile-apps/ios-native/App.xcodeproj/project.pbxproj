@@ -12,19 +12,14 @@
 		05FD29B2EBB588775BAA1FE2 /* AddTripView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A1F000579F31AE84F13F903 /* AddTripView.swift */; };
 		068908ED00ABE2CCC99837D2 /* CrashReporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADEA64A38480FA712CF17B0A /* CrashReporter.swift */; };
 		0DD2FA05B7BB88D2A99F8C33 /* JailbreakDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87398F778BFEF7EF2DF86B3E /* JailbreakDetector.swift */; };
-		0EACFD0C8AF16EEB70C47365 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A9F0539B2E38A8166C3FEFC /* LoginView.swift */; };
-		104FBABC12851A340672919B /* SyncQueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9356D12F9A3012CD67D50BE7 /* SyncQueue.swift */; };
 		127510355BDC707C09F83E39 /* EnvironmentManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F5ADEF94D0506FA2EAAC608 /* EnvironmentManager.swift */; };
 		1396EF324AC67AE1F94B80B2 /* CameraManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2B306D6939DFE03C02278BC /* CameraManager.swift */; };
-		1D8E3EC22199FD0081A1FD8B /* QuickActionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A9B4C0A4C1C63335C743B4A /* QuickActionsView.swift */; };
 		1EADECA0585536A9C0A29270 /* VehicleModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2206275B015222D51C57E551 /* VehicleModel.swift */; };
 		1ED689725D32DF24B5DCDA67 /* NotificationsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8EE81C544DA2D674F1A7E9B /* NotificationsView.swift */; };
 		1F3F6273C7F72CC6AB1432EB /* DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A6126F750A72AA7F17EB7F2 /* DashboardView.swift */; };
 		210EB20ADE42FDE6A9971963 /* Pods_App.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 67FD8E952DFF702FEC001451 /* Pods_App.framework */; };
 		2195A10DF19DFCF799102BF4 /* MoreView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D699D4BE291F1EA5F945C74E /* MoreView.swift */; };
 		27F42289AE2C5BE0C05B9969 /* FleetManagementApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B4F1DE72085BC7EE49218FE /* FleetManagementApp.swift */; };
-		2B7F453BC83C54A7586D98F6 /* ImageUploadService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54EA97D78C595961A9512737 /* ImageUploadService.swift */; };
-		2DEC79E5AE28AB4E737D20AE /* TripTrackingService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71B47AA7C2DDBF992B0F00CD /* TripTrackingService.swift */; };
 		2FAD9763203C412B000D30F8 /* config.xml in Resources */ = {isa = PBXBuildFile; fileRef = 2FAD9762203C412B000D30F8 /* config.xml */; };
 		33FF6ED8E6AF45E6A4D59BD2 /* FleetManagementAppView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91FDF103E98F46859122604B /* FleetManagementAppView.swift */; };
 		340EC571F199FDDBA54DF8F9 /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 713AB4E4FC6B5609CD33E3AB /* MainTabView.swift */; };
@@ -40,7 +35,6 @@
 		431C607465CFF42AC08924FF /* FirebaseManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC834984FF378DE275E3836A /* FirebaseManager.swift */; };
 		43641BC24CB5D7DFD7980558 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5953A1033D6F82E599A2D52D /* SettingsView.swift */; };
 		443D9B4B989141FDAAF36D39 /* TripTracking.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E439613C7CF45FD94590B8C /* TripTracking.swift */; };
-		467DD1223B2FBDAB130471F5 /* TelemetryExporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8549A19699C7F183EA1B384 /* TelemetryExporter.swift */; };
 		481F7865097104E4849EAD12 /* FleetModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84C1B663EE2725E43D44BD57 /* FleetModels.swift */; };
 		4B72C13258A942BEB8DFEB9C /* VehicleInspection.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE11154A39164F6F9851447F /* VehicleInspection.swift */; };
 		4C007558067FF7588CB9A046 /* MaintenanceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E365431A12D0E242DC6D206E /* MaintenanceView.swift */; };
@@ -54,7 +48,6 @@
 		5109453DBE82C3016B9338D3 /* FleetMetricsCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = F984287D647965A21C894EEB /* FleetMetricsCard.swift */; };
 		5331ADCD6F5C61AA888F7B58 /* LoggingManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EB06EC47240321127DACE13 /* LoggingManager.swift */; };
 		55E8293496A834B0ED6D7A34 /* PushNotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = D627423AD178CA84B00D882B /* PushNotificationManager.swift */; };
-		56B58911897181E1822C7076 /* SecurityLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FCEFB0546A624293C4FF512 /* SecurityLogger.swift */; };
 		56EED8FD7C3F9154E51D636A /* Vehicle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D3671F1B6E188B39F6BB04E /* Vehicle.swift */; };
 		5768A2EFBCF5F73E5DF8B6BE /* ReportsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA2436A19EC278A5FC3EAACB /* ReportsView.swift */; };
 		5ADC0BBF86A8DF8B9F5668E3 /* LocalizationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE6640635A4B3224A483ABE3 /* LocalizationManager.swift */; };
@@ -65,13 +58,11 @@
 		68274F2DFFA5368AF1FDAAC5 /* PerformanceMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25A30E66C262881FA9E6DC81 /* PerformanceMonitor.swift */; };
 		6989C6B66B5336260C7EA5D3 /* ErrorHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D8FCF9BE9538F8F795FCA9C /* ErrorHandler.swift */; };
 		6A7092747CFB4119B5A587F5 /* AzureConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27DF63BC9B7B43F5B13704F4 /* AzureConfig.swift */; };
-		6F66BDE4B618D6EE03570058 /* VehicleModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9618D77A7C10A819CA4AA14 /* VehicleModel.swift */; };
 		7528A7967C8231B169C30B3C /* BarcodeScannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46BE03AB4DBD36903352BE53 /* BarcodeScannerView.swift */; };
 		753A4288CB098E4CE518DCD8 /* TelemetryExporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35AAABE8F8E6DDFB951EA440 /* TelemetryExporter.swift */; };
 		79EBA4256590FB587268F448 /* HelpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B33E44E3349254D3FBDEAB8 /* HelpView.swift */; };
 		7F691CC70C0097D491CE83CA /* TripTrackingService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16D08B1504E08A77D76D613D /* TripTrackingService.swift */; };
 		7F692B6B8DFA128BF1C46DAC /* CoreDataStubs.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8563CF6B58A033A92B50123 /* CoreDataStubs.swift */; };
-		8114CE871359D23C82448D23 /* PhotoCaptureView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09C619BEA37BC33F2BEA6494 /* PhotoCaptureView.swift */; };
 		81BA0B87E9F824E3CC56B360 /* FIPSCryptoManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44C701A30429F5951D843EBB /* FIPSCryptoManager.swift */; };
 		81DF3DACC7EE13B162332E4F /* LocationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBD83D96E52957761B2D83DF /* LocationManager.swift */; };
 		8414AD46CB98E444FBE12534 /* StartTripView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DF67340829D0EF66B91F6E1 /* StartTripView.swift */; };
@@ -82,9 +73,7 @@
 		9C4E6046E47B4F18AD7FC0DA /* FeatureFlags.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C3BAE7CB2F7FD82B0AEC472 /* FeatureFlags.swift */; };
 		9CE95C3CB39344E79BCCC40C /* VehiclesViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D140871C05864856889BAA91 /* VehiclesViewModel.swift */; };
 		9EA18AED274C082E78EACC37 /* AddVehicleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 571D9CE991CDD3D95EA52350 /* AddVehicleView.swift */; };
-		9EF6F804000171E44B6A8069 /* BarcodeScannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56E6005B3A00C09B25727C98 /* BarcodeScannerView.swift */; };
 		A8BC4C0AC7304388A8DFACEE /* AuthenticationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB0F8E37AEC73DF7634D9E5E /* AuthenticationService.swift */; };
-		AA6F2AC0FBCDAEDDA949A531 /* DocumentScannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B16071194C3CDFC062585B7C /* DocumentScannerView.swift */; };
 		AD96906661E1E453647F7E15 /* AuthenticationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57F8AE7882C453D316880215 /* AuthenticationManager.swift */; };
 		B144F1AA908F90CAB55089AA /* DocumentScannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CECD87F73C06F037F4C506F2 /* DocumentScannerView.swift */; };
 		B1931DF8F42B42679360266E /* APIConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F57E119EBBE4898955725AD /* APIConfiguration.swift */; };
@@ -97,16 +86,12 @@
 		BB555706A7044FCC854F5EC2 /* MaintenanceViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1507CDED9014E4F900FCFCA /* MaintenanceViewModel.swift */; };
 		BF504E78E52591F957474223 /* TripsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 322587B38A8655729F0759EA /* TripsView.swift */; };
 		BSVM000001000000000002 /* BaseViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BSVM000001000000000001 /* BaseViewModel.swift */; };
-		C0082BDA51D4D9DE0DAFED24 /* FeatureFlags.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE7B9ED07B0907C21A042719 /* FeatureFlags.swift */; };
-		C09EA3852F19E8DF65CF6B11 /* DatabaseMigration.swift in Sources */ = {isa = PBXBuildFile; fileRef = BAD4BD7644119DEE395E41C1 /* DatabaseMigration.swift */; };
 		C1CE130B94230DA195C81BAD /* NetworkOptimizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 346C66FAA6F8DE25ABE15C8D /* NetworkOptimizer.swift */; };
 		C8DC9DC076090832E69063DC /* DatabaseMigration.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7EDDBFA4EA484A264FA9B25 /* DatabaseMigration.swift */; };
 		CB115EC312D5F193F28EFB33 /* AccessibilityEnhancements.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E267E82791D05E291BD108A /* AccessibilityEnhancements.swift */; };
 		CD50674436C7F9F07BFE2D58 /* KeychainManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E43AB5490E78BBFF83A5E456 /* KeychainManager.swift */; };
 		CE4575C5140289C0FADB7609 /* RemoteConfigManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45A92EF10DF5D561B6624A91 /* RemoteConfigManager.swift */; };
-		CED6F3841A7B0295737E3B55 /* AuditLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DE133A9EDC93F7437EE02F6 /* AuditLogger.swift */; };
 		D036E2E4ABE5A0A818928E29 /* EncryptionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B7C53095460E1F034B1E77B /* EncryptionManager.swift */; };
-		D432098DDB93B000CB1DB520 /* ErrorHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6913164C95F8AF990EF75826 /* ErrorHandler.swift */; };
 		D692D1E132B24D713EF5E7D6 /* AboutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A055E38F782367163A101332 /* AboutView.swift */; };
 		D75ED85F7F239630A578C03D /* QuickActionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8582D20487251E184F5F4911 /* QuickActionsView.swift */; };
 		D9FB772650EC724B1FB0F26F /* PerformanceOptimizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 740FAAB0ED6F70FB037DFF3F /* PerformanceOptimizer.swift */; };
@@ -135,7 +120,7 @@
 		0F57E119EBBE4898955725AD /* APIConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIConfiguration.swift; sourceTree = "<group>"; };
 		0F5ADEF94D0506FA2EAAC608 /* EnvironmentManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = EnvironmentManager.swift; sourceTree = "<group>"; };
 		11876E4ECF760C2C8320A874 /* NIST_INTEGRATION_GUIDE.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = NIST_INTEGRATION_GUIDE.swift; path = NIST_INTEGRATION_GUIDE.swift; sourceTree = "<group>"; };
-		14C87CF633757851F985C732 /* DeviceManagementView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DeviceManagementView.swift; path = App/DeviceManagementView.swift; sourceTree = "<group>"; };
+		14C87CF633757851F985C732 /* DeviceManagementView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DeviceManagementView.swift; path = DeviceManagementView.swift; sourceTree = "<group>"; };
 		158140F54C68E807B0B0A218 /* SupportTicketView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SupportTicketView.swift; path = Views/Support/SupportTicketView.swift; sourceTree = "<group>"; };
 		16D08B1504E08A77D76D613D /* TripTrackingService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TripTrackingService.swift; path = TripTrackingService.swift; sourceTree = "<group>"; };
 		17CD435FCBF1E6C3791DECEC /* MaintenanceModel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MaintenanceModel.swift; sourceTree = "<group>"; };
@@ -817,23 +802,9 @@
 				1ED689725D32DF24B5DCDA67 /* NotificationsView.swift in Sources */,
 				D692D1E132B24D713EF5E7D6 /* AboutView.swift in Sources */,
 				79EBA4256590FB587268F448 /* HelpView.swift in Sources */,
-				AA6F2AC0FBCDAEDDA949A531 /* DocumentScannerView.swift in Sources */,
-				CED6F3841A7B0295737E3B55 /* AuditLogger.swift in Sources */,
-				104FBABC12851A340672919B /* SyncQueue.swift in Sources */,
 				858D7B99437B46D3FD2BE2F2 /* MaintenanceModel.swift in Sources */,
 				F45953FE0B07EDEA34366949 /* TripHistoryView.swift in Sources */,
-				0EACFD0C8AF16EEB70C47365 /* LoginView.swift in Sources */,
-				9EF6F804000171E44B6A8069 /* BarcodeScannerView.swift in Sources */,
-				6F66BDE4B618D6EE03570058 /* VehicleModel.swift in Sources */,
-				2B7F453BC83C54A7586D98F6 /* ImageUploadService.swift in Sources */,
-				D432098DDB93B000CB1DB520 /* ErrorHandler.swift in Sources */,
-				C09EA3852F19E8DF65CF6B11 /* DatabaseMigration.swift in Sources */,
-				8114CE871359D23C82448D23 /* PhotoCaptureView.swift in Sources */,
-				2DEC79E5AE28AB4E737D20AE /* TripTrackingService.swift in Sources */,
-				56B58911897181E1822C7076 /* SecurityLogger.swift in Sources */,
 				0DD2FA05B7BB88D2A99F8C33 /* JailbreakDetector.swift in Sources */,
-				C0082BDA51D4D9DE0DAFED24 /* FeatureFlags.swift in Sources */,
-				1D8E3EC22199FD0081A1FD8B /* QuickActionsView.swift in Sources */,
 				753A4288CB098E4CE518DCD8 /* TelemetryExporter.swift in Sources */,
 				7F692B6B8DFA128BF1C46DAC /* CoreDataStubs.swift in Sources */,
 				FB33DE676A96B8E46D5FF440 /* PhotoLibraryManager.swift in Sources */,
@@ -841,7 +812,6 @@
 				E28E4E99C46F2434412CC188 /* AlertManager.swift in Sources */,
 				68274F2DFFA5368AF1FDAAC5 /* PerformanceMonitor.swift in Sources */,
 				5C635D536BAE76B681EDAC06 /* MetricsCollector.swift in Sources */,
-				467DD1223B2FBDAB130471F5 /* TelemetryExporter.swift in Sources */,
 				50B3B14E65E4A55DBE332DA9 /* UIPerformanceMonitor.swift in Sources */,
 				5ADC0BBF86A8DF8B9F5668E3 /* LocalizationManager.swift in Sources */,
 				B3A5822CE9CED460C80E1F02 /* AdvancedCacheManager.swift in Sources */,
