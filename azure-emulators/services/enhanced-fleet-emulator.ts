@@ -27,7 +27,7 @@ interface Vehicle {
 
 class EnhancedFleetEmulator {
     private vehicles: Map<string, Vehicle> = new Map();
-    private smartcarVehicles: string[] = [];
+    private smartcarVehicles: Map<string, string> = new Map(); // vehicle_id -> smartcar_vehicle_id
     private runningTrips: Map<string, string> = new Map(); // vehicle_id -> trip_id
 
     async initialize() {
@@ -35,10 +35,8 @@ class EnhancedFleetEmulator {
 
         await this.loadVehicles();
         await this.loadSmartCarVehicles();
-        await this.seedInitialData();
 
         // Start emulation loops
-        this.startMaintenanceEmulation();
         this.startFuelTrackingEmulation();
         this.startTripEmulation();
         this.startSmartCarEmulation();
@@ -46,14 +44,19 @@ class EnhancedFleetEmulator {
 
         console.log('✅ Enhanced Fleet Emulator Running');
         console.log(`📊 Tracking ${this.vehicles.size} vehicles`);
-        console.log(`🚘 SmartCar API: ${this.smartcarVehicles.length} connected vehicles`);
+        console.log(`🚘 SmartCar API: ${this.smartcarVehicles.size} connected vehicles`);
+
+        // Keep process alive
+        setInterval(() => {
+            console.log(`💓 Emulator heartbeat - ${this.vehicles.size} vehicles, ${this.runningTrips.size} active trips`);
+        }, 300000); // Every 5 minutes
     }
 
     private async loadVehicles() {
         const result = await pool.query(`
             SELECT id, vin, make, model, year, fuel_type,
                    COALESCE(fuel_level, 75.0) as fuel_level,
-                   COALESCE(odometer, 50000) as odometer,
+                   COALESCE(odometer::numeric, 50000) as odometer,
                    COALESCE(latitude, 30.4383) as latitude,
                    COALESCE(longitude, -84.2807) as longitude,
                    COALESCE(speed, 0) as speed
@@ -62,8 +65,15 @@ class EnhancedFleetEmulator {
             LIMIT 200
         `);
 
-        result.rows.forEach((row: Vehicle) => {
-            this.vehicles.set(row.id, row);
+        result.rows.forEach((row: any) => {
+            this.vehicles.set(row.id, {
+                ...row,
+                fuel_level: parseFloat(row.fuel_level),
+                odometer: parseInt(row.odometer),
+                latitude: parseFloat(row.latitude),
+                longitude: parseFloat(row.longitude),
+                speed: parseFloat(row.speed)
+            });
         });
 
         console.log(`📋 Loaded ${this.vehicles.size} vehicles`);
@@ -71,125 +81,16 @@ class EnhancedFleetEmulator {
 
     private async loadSmartCarVehicles() {
         const result = await pool.query(`
-            SELECT vehicle_id, smartcar_id
-            FROM smartcar_vehicles
-            WHERE connection_status = 'connected'
+            SELECT sv.id as smartcar_id, sv.vehicle_id
+            FROM smartcar_vehicles sv
+            WHERE sv.connection_status = 'connected'
         `);
 
-        this.smartcarVehicles = result.rows.map(row => row.vehicle_id);
-        console.log(`🔗 SmartCar: ${this.smartcarVehicles.length} vehicles connected`);
-    }
+        result.rows.forEach(row => {
+            this.smartcarVehicles.set(row.vehicle_id, row.smartcar_id);
+        });
 
-    private async seedInitialData() {
-        console.log('🌱 Seeding initial tracking data...');
-
-        // Create driver assignments for all active vehicles
-        await pool.query(`
-            INSERT INTO driver_assignments (vehicle_id, driver_id, assignment_type)
-            SELECT v.id, d.id, 'permanent'
-            FROM vehicles v
-            CROSS JOIN LATERAL (
-                SELECT id FROM drivers
-                WHERE status = 'active'
-                ORDER BY RANDOM()
-                LIMIT 1
-            ) d
-            WHERE v.status = 'active'
-            AND NOT EXISTS (
-                SELECT 1 FROM driver_assignments da
-                WHERE da.vehicle_id = v.id AND da.status = 'active'
-            )
-            LIMIT 200
-        `);
-
-        // Create maintenance schedules for next 6 months
-        const maintenanceTypes = [
-            { type: 'Oil Change', cost: 75, interval: 5000 },
-            { type: 'Tire Rotation', cost: 50, interval: 7500 },
-            { type: 'State Inspection', cost: 40, interval: 12000 },
-            { type: 'Brake Inspection', cost: 120, interval: 15000 },
-            { type: 'Transmission Service', cost: 200, interval: 30000 }
-        ];
-
-        for (const [vehicleId, vehicle] of this.vehicles) {
-            for (const maint of maintenanceTypes) {
-                const dueIn = Math.floor(Math.random() * 180); // 0-180 days
-                await pool.query(`
-                    INSERT INTO maintenance_schedules
-                    (vehicle_id, service_type, scheduled_date, due_mileage, estimated_cost, status, priority)
-                    VALUES ($1, $2, CURRENT_DATE + $3, $4, $5, $6, $7)
-                    ON CONFLICT DO NOTHING
-                `, [
-                    vehicleId,
-                    maint.type,
-                    dueIn,
-                    vehicle.odometer + maint.interval,
-                    maint.cost,
-                    dueIn < 14 ? 'overdue' : 'scheduled',
-                    dueIn < 14 ? 'high' : 'normal'
-                ]);
-            }
-        }
-
-        console.log('✅ Initial data seeded');
-    }
-
-    // MAINTENANCE EMULATION
-    private startMaintenanceEmulation() {
-        // Check for overdue maintenance every hour
-        setInterval(async () => {
-            try {
-                // Mark overdue maintenance
-                await pool.query(`
-                    UPDATE maintenance_schedules
-                    SET status = 'overdue', priority = 'high'
-                    WHERE scheduled_date < CURRENT_DATE
-                    AND status = 'scheduled'
-                `);
-
-                // Randomly complete some maintenance (simulate shop visits)
-                const vehicles = Array.from(this.vehicles.keys());
-                const randomVehicle = vehicles[Math.floor(Math.random() * vehicles.length)];
-
-                const pending = await pool.query(`
-                    SELECT id, service_type, estimated_cost
-                    FROM maintenance_schedules
-                    WHERE vehicle_id = $1 AND status IN ('scheduled', 'overdue')
-                    ORDER BY RANDOM()
-                    LIMIT 1
-                `, [randomVehicle]);
-
-                if (pending.rows.length > 0) {
-                    const schedule = pending.rows[0];
-                    const actualCost = schedule.estimated_cost * (0.9 + Math.random() * 0.3);
-
-                    // Complete the maintenance
-                    await pool.query(`
-                        UPDATE maintenance_schedules
-                        SET status = 'completed', updated_at = NOW()
-                        WHERE id = $1
-                    `, [schedule.id]);
-
-                    // Add to history
-                    await pool.query(`
-                        INSERT INTO maintenance_history
-                        (vehicle_id, service_type, service_date, odometer_reading, cost, vendor, technician)
-                        VALUES ($1, $2, CURRENT_DATE, $3, $4, $5, $6)
-                    `, [
-                        randomVehicle,
-                        schedule.service_type,
-                        this.vehicles.get(randomVehicle)?.odometer || 50000,
-                        actualCost,
-                        'City Fleet Maintenance',
-                        'Tech-' + Math.floor(Math.random() * 20 + 1)
-                    ]);
-
-                    console.log(`🔧 Completed ${schedule.service_type} for vehicle ${randomVehicle.substring(0, 8)}`);
-                }
-            } catch (error) {
-                console.error('Maintenance emulation error:', error);
-            }
-        }, 60000); // Every minute
+        console.log(`🔗 SmartCar: ${this.smartcarVehicles.size} vehicles connected`);
     }
 
     // FUEL TRACKING EMULATION
@@ -197,33 +98,29 @@ class EnhancedFleetEmulator {
         setInterval(async () => {
             try {
                 for (const [vehicleId, vehicle] of this.vehicles) {
-                    // Consume fuel based on activity
+                    // Consume fuel based on speed and vehicle type
                     let consumption = 0;
-
                     if (vehicle.speed > 0) {
-                        // Driving - consume fuel
-                        if (vehicle.fuel_type === 'Electric' || vehicle.fuel_type === 'Hybrid') {
-                            consumption = 0.3 + Math.random() * 0.2; // 0.3-0.5% per update
-                        } else {
-                            consumption = 0.5 + Math.random() * 0.5; // 0.5-1.0% per update
-                        }
+                        // Moving vehicles consume more fuel
+                        consumption = vehicle.fuel_type === 'Electric' ? 0.3 : 0.5;
                     } else {
-                        // Idle - minimal consumption
-                        consumption = 0.05 + Math.random() * 0.05; // 0.05-0.1%
+                        // Idling consumption
+                        consumption = vehicle.fuel_type === 'Electric' ? 0.02 : 0.05;
                     }
 
                     vehicle.fuel_level = Math.max(0, vehicle.fuel_level - consumption);
 
-                    // Refuel if below 20%
+                    // Update database
+                    await pool.query(`
+                        UPDATE vehicles SET fuel_level = $1 WHERE id = $2
+                    `, [vehicle.fuel_level, vehicleId]);
+
+                    // Auto-refuel if below 20%
                     if (vehicle.fuel_level < 20) {
                         const fuelAdded = 100 - vehicle.fuel_level;
                         vehicle.fuel_level = 100;
 
                         // Log fuel transaction
-                        const pricePerUnit = vehicle.fuel_type === 'Electric' ? 0.13 :
-                                           vehicle.fuel_type === 'Diesel' ? 4.20 :
-                                           vehicle.fuel_type === 'CNG' ? 2.50 : 3.80;
-
                         await pool.query(`
                             INSERT INTO fuel_transactions
                             (vehicle_id, fuel_type, quantity, unit_price, total_cost,
@@ -232,28 +129,23 @@ class EnhancedFleetEmulator {
                         `, [
                             vehicleId,
                             vehicle.fuel_type,
-                            fuelAdded,
-                            pricePerUnit,
-                            fuelAdded * pricePerUnit,
+                            vehicle.fuel_type === 'Electric' ? fuelAdded : fuelAdded / 4, // kWh or gallons
+                            vehicle.fuel_type === 'Electric' ? 0.12 : 3.45, // price per unit
+                            vehicle.fuel_type === 'Electric' ? fuelAdded * 0.12 : (fuelAdded / 4) * 3.45,
                             vehicle.odometer,
-                            'City Fleet Fuel Station',
+                            'Tallahassee Fuel Station',
                             vehicle.latitude,
                             vehicle.longitude,
-                            'City Fuel Depot'
+                            vehicle.fuel_type === 'Electric' ? 'ChargePoint' : 'Shell'
                         ]);
 
-                        console.log(`⛽ Refueled ${vehicle.make} ${vehicle.model} (${vehicle.fuel_type}): +${fuelAdded.toFixed(1)}%`);
-                    }
+                        await pool.query(`UPDATE vehicles SET fuel_level = 100 WHERE id = $1`, [vehicleId]);
 
-                    // Update vehicle fuel level
-                    await pool.query(`
-                        UPDATE vehicles
-                        SET fuel_level = $1
-                        WHERE id = $2
-                    `, [vehicle.fuel_level, vehicleId]);
+                        console.log(`⛽ ${vehicle.make} ${vehicle.model} refueled at ${vehicle.fuel_level.toFixed(1)}%`);
+                    }
                 }
             } catch (error) {
-                console.error('Fuel tracking error:', error);
+                console.error('❌ Fuel tracking error:', error);
             }
         }, 10000); // Every 10 seconds
     }
@@ -263,12 +155,12 @@ class EnhancedFleetEmulator {
         setInterval(async () => {
             try {
                 for (const [vehicleId, vehicle] of this.vehicles) {
-                    // 30% chance to start a new trip if not already on one
+                    // 30% chance to start a trip if not already on one
                     if (!this.runningTrips.has(vehicleId) && Math.random() < 0.3) {
                         await this.startTrip(vehicleId, vehicle);
                     }
 
-                    // If on a trip, record breadcrumbs and maybe end trip
+                    // Record GPS breadcrumbs for active trips
                     if (this.runningTrips.has(vehicleId)) {
                         await this.recordBreadcrumb(vehicleId, vehicle);
 
@@ -279,32 +171,34 @@ class EnhancedFleetEmulator {
                     }
                 }
             } catch (error) {
-                console.error('Trip emulation error:', error);
+                console.error('❌ Trip tracking error:', error);
             }
         }, 15000); // Every 15 seconds
     }
 
     private async startTrip(vehicleId: string, vehicle: Vehicle) {
-        const result = await pool.query(`
-            INSERT INTO trip_history
-            (vehicle_id, driver_id, trip_start, start_latitude, start_longitude,
-             start_odometer, purpose)
-            SELECT $1, da.driver_id, NOW(), $2, $3, $4, $5
-            FROM driver_assignments da
-            WHERE da.vehicle_id = $1 AND da.status = 'active'
-            LIMIT 1
-            RETURNING id
-        `, [
-            vehicleId,
-            vehicle.latitude,
-            vehicle.longitude,
-            vehicle.odometer,
-            ['Patrol', 'Response', 'Maintenance', 'Administrative'][Math.floor(Math.random() * 4)]
-        ]);
+        try {
+            const purposes = ['Patrol', 'Response', 'Maintenance', 'Administrative', 'Training'];
+            const purpose = purposes[Math.floor(Math.random() * purposes.length)];
 
-        if (result.rows.length > 0) {
-            this.runningTrips.set(vehicleId, result.rows[0].id);
-            console.log(`🚦 Started trip for ${vehicle.make} ${vehicle.model}`);
+            const result = await pool.query(`
+                INSERT INTO trip_history
+                (vehicle_id, trip_start, start_latitude, start_longitude,
+                 start_odometer, purpose)
+                VALUES ($1, NOW(), $2, $3, $4, $5)
+                RETURNING id
+            `, [vehicleId, vehicle.latitude, vehicle.longitude, vehicle.odometer, purpose]);
+
+            const tripId = result.rows[0].id;
+            this.runningTrips.set(vehicleId, tripId);
+
+            // Set vehicle speed
+            vehicle.speed = 25 + Math.random() * 20; // 25-45 mph
+            await pool.query(`UPDATE vehicles SET speed = $1 WHERE id = $2`, [vehicle.speed, vehicleId]);
+
+            console.log(`🚦 Trip started: ${vehicle.make} ${vehicle.model} - ${purpose}`);
+        } catch (error) {
+            console.error('❌ Error starting trip:', error);
         }
     }
 
@@ -312,59 +206,90 @@ class EnhancedFleetEmulator {
         const tripId = this.runningTrips.get(vehicleId);
         if (!tripId) return;
 
-        await pool.query(`
-            INSERT INTO gps_breadcrumbs
-            (vehicle_id, trip_id, timestamp, latitude, longitude, speed, heading)
-            VALUES ($1, $2, NOW(), $3, $4, $5, $6)
-        `, [vehicleId, tripId, vehicle.latitude, vehicle.longitude, vehicle.speed, Math.random() * 360]);
+        try {
+            // Simulate movement (small random changes)
+            vehicle.latitude += (Math.random() - 0.5) * 0.001;
+            vehicle.longitude += (Math.random() - 0.5) * 0.001;
+            vehicle.odometer += vehicle.speed * 0.004; // Rough miles calculation
+
+            await pool.query(`
+                INSERT INTO gps_breadcrumbs
+                (trip_id, vehicle_id, timestamp, latitude, longitude, speed, heading)
+                VALUES ($1, $2, NOW(), $3, $4, $5, $6)
+            `, [tripId, vehicleId, vehicle.latitude, vehicle.longitude, vehicle.speed, Math.random() * 360]);
+
+            // Update vehicle location
+            await pool.query(`
+                UPDATE vehicles
+                SET latitude = $1, longitude = $2, odometer = $3
+                WHERE id = $4
+            `, [vehicle.latitude, vehicle.longitude, vehicle.odometer, vehicleId]);
+
+        } catch (error) {
+            console.error('❌ Error recording breadcrumb:', error);
+        }
     }
 
     private async endTrip(vehicleId: string, vehicle: Vehicle) {
         const tripId = this.runningTrips.get(vehicleId);
         if (!tripId) return;
 
-        const distance = 5 + Math.random() * 50; // 5-55 miles
-        const duration = 15 + Math.random() * 120; // 15-135 minutes
+        try {
+            // Calculate trip stats
+            const result = await pool.query(`
+                SELECT
+                    start_latitude, start_longitude, start_odometer,
+                    EXTRACT(EPOCH FROM (NOW() - trip_start)) / 60 as duration_minutes
+                FROM trip_history
+                WHERE id = $1
+            `, [tripId]);
 
-        await pool.query(`
-            UPDATE trip_history
-            SET trip_end = NOW(),
-                end_latitude = $1,
-                end_longitude = $2,
-                end_odometer = $3,
-                distance_miles = $4,
-                duration_minutes = $5,
-                avg_speed = $6,
-                max_speed = $7,
-                fuel_consumed = $8,
-                idle_time_minutes = $9
-            WHERE id = $10
-        `, [
-            vehicle.latitude,
-            vehicle.longitude,
-            vehicle.odometer + Math.floor(distance),
-            distance,
-            duration,
-            (distance / duration) * 60,
-            35 + Math.random() * 30,
-            distance * 0.05, // gallons or kWh
-            Math.floor(duration * 0.15), // 15% idle time
-            tripId
-        ]);
+            if (result.rows.length === 0) return;
 
-        // Update vehicle odometer
-        vehicle.odometer += Math.floor(distance);
-        await pool.query(`UPDATE vehicles SET odometer = $1 WHERE id = $2`, [vehicle.odometer, vehicleId]);
+            const trip = result.rows[0];
+            const distanceMiles = vehicle.odometer - trip.start_odometer;
+            const avgSpeed = distanceMiles / (trip.duration_minutes / 60);
+            const fuelConsumed = distanceMiles * (vehicle.fuel_type === 'Electric' ? 0.3 : 0.05);
 
-        this.runningTrips.delete(vehicleId);
-        console.log(`🏁 Ended trip: ${distance.toFixed(1)} miles in ${duration.toFixed(0)} min`);
+            await pool.query(`
+                UPDATE trip_history
+                SET trip_end = NOW(),
+                    end_latitude = $1,
+                    end_longitude = $2,
+                    end_odometer = $3,
+                    distance_miles = $4,
+                    duration_minutes = $5,
+                    avg_speed = $6,
+                    max_speed = $7,
+                    fuel_consumed = $8
+                WHERE id = $9
+            `, [
+                vehicle.latitude,
+                vehicle.longitude,
+                vehicle.odometer,
+                distanceMiles,
+                trip.duration_minutes,
+                avgSpeed,
+                vehicle.speed + 5,
+                fuelConsumed,
+                tripId
+            ]);
+
+            this.runningTrips.delete(vehicleId);
+            vehicle.speed = 0;
+            await pool.query(`UPDATE vehicles SET speed = 0 WHERE id = $1`, [vehicleId]);
+
+            console.log(`🏁 Trip ended: ${vehicle.make} ${vehicle.model} - ${distanceMiles.toFixed(1)} miles`);
+        } catch (error) {
+            console.error('❌ Error ending trip:', error);
+        }
     }
 
     // SMARTCAR API EMULATION
     private startSmartCarEmulation() {
         setInterval(async () => {
             try {
-                for (const vehicleId of this.smartcarVehicles) {
+                for (const [vehicleId, smartcarVehicleId] of this.smartcarVehicles) {
                     const vehicle = this.vehicles.get(vehicleId);
                     if (!vehicle) continue;
 
@@ -376,45 +301,37 @@ class EnhancedFleetEmulator {
                          battery_percent, battery_range_miles,
                          tire_pressure_front_left, tire_pressure_front_right,
                          tire_pressure_rear_left, tire_pressure_rear_right,
-                         engine_oil_life_percent, latitude, longitude, speed, heading,
+                         engine_oil_life_percent, latitude, longitude, speed,
                          is_charging, charge_state)
-                        SELECT
-                            sv.id, $1, $2, $3, $4, $5,
-                            32.0 + random() * 3, 32.0 + random() * 3,
-                            32.0 + random() * 3, 32.0 + random() * 3,
-                            CASE WHEN $6 THEN NULL ELSE 50 + random() * 50 END,
-                            $7, $8, $9, random() * 360,
-                            CASE WHEN $6 AND $2 < 90 AND random() < 0.3 THEN true ELSE false END,
-                            CASE WHEN $6 THEN
-                                CASE WHEN $2 >= 95 THEN 'FULLY_CHARGED'
-                                     WHEN $2 < 90 AND random() < 0.3 THEN 'CHARGING'
-                                     ELSE 'NOT_CHARGING' END
-                            ELSE 'NOT_CHARGING' END
-                        FROM smartcar_vehicles sv
-                        WHERE sv.vehicle_id = $10
+                        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
                     `, [
-                        vehicle.odometer,
-                        vehicle.fuel_level,
-                        vehicle.fuel_level * 2.5, // Approximate range
+                        smartcarVehicleId,
+                        Math.floor(vehicle.odometer),
+                        isEV ? null : vehicle.fuel_level,
+                        isEV ? null : vehicle.fuel_level * 3.5, // Rough range estimate
                         isEV ? vehicle.fuel_level : null,
-                        isEV ? vehicle.fuel_level * 3 : null,
-                        isEV,
+                        isEV ? vehicle.fuel_level * 3.0 : null,
+                        32 + Math.random() * 4, // PSI
+                        32 + Math.random() * 4,
+                        32 + Math.random() * 4,
+                        32 + Math.random() * 4,
+                        isEV ? null : 50 + Math.random() * 40,
                         vehicle.latitude,
                         vehicle.longitude,
                         vehicle.speed,
-                        vehicleId
+                        isEV && vehicle.speed === 0 && vehicle.fuel_level < 90,
+                        isEV && vehicle.speed === 0 && vehicle.fuel_level < 90 ? 'CHARGING' : 'NOT_CHARGING'
                     ]);
+
+                    // Update last_data_update
+                    await pool.query(`
+                        UPDATE smartcar_vehicles
+                        SET last_data_update = NOW()
+                        WHERE id = $1
+                    `, [smartcarVehicleId]);
                 }
-
-                // Update connection status
-                await pool.query(`
-                    UPDATE smartcar_vehicles
-                    SET last_data_update = NOW()
-                    WHERE vehicle_id = ANY($1)
-                `, [this.smartcarVehicles]);
-
             } catch (error) {
-                console.error('SmartCar emulation error:', error);
+                console.error('❌ SmartCar telemetry error:', error);
             }
         }, 30000); // Every 30 seconds
     }
@@ -423,19 +340,9 @@ class EnhancedFleetEmulator {
     private startAlertsEmulation() {
         setInterval(async () => {
             try {
-                // Check for low fuel
-                await pool.query(`
-                    INSERT INTO fleet_alerts
-                    (vehicle_id, alert_type, severity, title, message, metadata)
-                    SELECT
-                        v.id,
-                        'low_fuel',
-                        CASE WHEN v.fuel_level < 10 THEN 'critical'
-                             WHEN v.fuel_level < 20 THEN 'warning'
-                             ELSE 'info' END,
-                        'Low Fuel Alert',
-                        'Fuel level at ' || ROUND(v.fuel_level, 1) || '%',
-                        jsonb_build_object('fuel_level', v.fuel_level, 'make', v.make, 'model', v.model)
+                // Check for low fuel alerts
+                const lowFuelVehicles = await pool.query(`
+                    SELECT v.id, v.make, v.model, v.license_plate, v.fuel_level
                     FROM vehicles v
                     WHERE v.fuel_level < 25
                     AND v.status = 'active'
@@ -444,39 +351,39 @@ class EnhancedFleetEmulator {
                         WHERE fa.vehicle_id = v.id
                         AND fa.alert_type = 'low_fuel'
                         AND fa.status = 'active'
-                        AND fa.triggered_at > NOW() - INTERVAL '1 hour'
                     )
                 `);
 
-                // Check for overdue maintenance
+                for (const vehicle of lowFuelVehicles.rows) {
+                    const severity = vehicle.fuel_level < 10 ? 'critical' : 'warning';
+                    await pool.query(`
+                        INSERT INTO fleet_alerts
+                        (vehicle_id, alert_type, severity, title, message, metadata)
+                        VALUES ($1, 'low_fuel', $2, $3, $4, $5)
+                    `, [
+                        vehicle.id,
+                        severity,
+                        'Low Fuel Alert',
+                        `${vehicle.make} ${vehicle.model} (${vehicle.license_plate}) fuel level at ${vehicle.fuel_level.toFixed(1)}%`,
+                        JSON.stringify({ fuel_level: vehicle.fuel_level })
+                    ]);
+
+                    console.log(`⚠️  Alert: ${vehicle.make} ${vehicle.model} - Low fuel (${vehicle.fuel_level.toFixed(1)}%)`);
+                }
+
+                // Auto-resolve alerts when fuel is refilled
                 await pool.query(`
-                    INSERT INTO fleet_alerts
-                    (vehicle_id, alert_type, severity, title, message, metadata)
-                    SELECT
-                        ms.vehicle_id,
-                        'maintenance_due',
-                        CASE WHEN ms.priority = 'critical' THEN 'critical'
-                             WHEN ms.priority = 'high' THEN 'warning'
-                             ELSE 'info' END,
-                        ms.service_type || ' Due',
-                        'Scheduled for ' || ms.scheduled_date::text,
-                        jsonb_build_object('service_type', ms.service_type, 'due_date', ms.scheduled_date)
-                    FROM maintenance_schedules ms
-                    WHERE ms.status IN ('overdue', 'scheduled')
-                    AND ms.scheduled_date <= CURRENT_DATE + 7
-                    AND NOT EXISTS (
-                        SELECT 1 FROM fleet_alerts fa
-                        WHERE fa.vehicle_id = ms.vehicle_id
-                        AND fa.alert_type = 'maintenance_due'
-                        AND fa.metadata->>'service_type' = ms.service_type
-                        AND fa.status = 'active'
+                    UPDATE fleet_alerts
+                    SET status = 'resolved', resolved_at = NOW()
+                    WHERE alert_type = 'low_fuel'
+                    AND status = 'active'
+                    AND vehicle_id IN (
+                        SELECT id FROM vehicles WHERE fuel_level >= 80
                     )
                 `);
-
-                console.log('🔔 Alerts system checked');
 
             } catch (error) {
-                console.error('Alerts emulation error:', error);
+                console.error('❌ Alerts error:', error);
             }
         }, 60000); // Every minute
     }
@@ -484,10 +391,13 @@ class EnhancedFleetEmulator {
 
 // Start the emulator
 const emulator = new EnhancedFleetEmulator();
-emulator.initialize().catch(console.error);
+emulator.initialize().catch(error => {
+    console.error('💥 Fatal error:', error);
+    process.exit(1);
+});
 
-// Keep process alive
+// Graceful shutdown
 process.on('SIGTERM', () => {
-    console.log('👋 Shutting down Enhanced Fleet Emulator...');
+    console.log('📴 Shutting down gracefully...');
     process.exit(0);
 });
