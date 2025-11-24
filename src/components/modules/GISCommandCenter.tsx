@@ -22,7 +22,6 @@ import { useFacilities } from "@/hooks/use-api"
 import { UniversalMap } from "@/components/UniversalMap"
 
 interface GISCommandCenterProps {
-  data?: any
   data: ReturnType<typeof useFleetData>
 }
 
