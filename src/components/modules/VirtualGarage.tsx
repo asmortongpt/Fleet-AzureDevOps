@@ -474,12 +474,47 @@ function AssetDisplay({
 }
 
 // ============================================================================
+// OBD2 TELEMETRY INTERFACE
+// ============================================================================
+
+interface OBD2Telemetry {
+  vehicleId: string
+  timestamp: Date
+  rpm: number
+  speed: number
+  coolantTemp: number
+  fuelLevel: number
+  batteryVoltage: number
+  engineLoad: number
+  throttlePosition: number
+  maf: number
+  o2Sensor: number
+  dtcCodes: string[]
+  checkEngineLight: boolean
+  mil: boolean
+}
+
+// ============================================================================
 // FETCH FUNCTIONS
 // ============================================================================
 
+/**
+ * Fetch vehicles from OBD2 Emulator API (primary) or database (fallback)
+ * Uses realistic emulated data with real-time telemetry
+ */
 async function fetchAllAssets(): Promise<GarageAsset[]> {
   try {
-    // Fetch from both vehicles and asset-management endpoints
+    // Priority 1: Try OBD2 Emulator API for realistic real-time data
+    const emulatorRes = await fetch("/api/emulator/vehicles")
+    if (emulatorRes.ok) {
+      const emulatorData = await emulatorRes.json()
+      if (emulatorData.success && Array.isArray(emulatorData.data) && emulatorData.data.length > 0) {
+        console.log("[VirtualGarage] Using OBD2 Emulator data:", emulatorData.data.length, "vehicles")
+        return normalizeEmulatorVehicles(emulatorData.data)
+      }
+    }
+
+    // Priority 2: Fetch from database API endpoints
     const [vehiclesRes, assetsRes] = await Promise.allSettled([
       fetch("/api/vehicles").then(r => r.ok ? r.json() : []),
       apiClient.get("/api/asset-management").then(r => r.assets || [])
@@ -530,10 +565,62 @@ async function fetchAllAssets(): Promise<GarageAsset[]> {
       return acc
     }, [])
 
-    return uniqueAssets
+    if (uniqueAssets.length > 0) {
+      console.log("[VirtualGarage] Using database vehicles:", uniqueAssets.length)
+      return uniqueAssets
+    }
+
+    console.log("[VirtualGarage] No vehicles found, returning empty")
+    return []
   } catch (error) {
     console.error("Error fetching assets:", error)
     return []
+  }
+}
+
+/**
+ * Normalize emulator vehicle data to GarageAsset format
+ */
+function normalizeEmulatorVehicles(vehicles: any[]): GarageAsset[] {
+  return vehicles.map((v: any) => ({
+    id: v.id,
+    make: v.make || 'Unknown',
+    model: v.model || 'Unknown',
+    year: v.year || new Date().getFullYear(),
+    vin: v.vin,
+    license_plate: v.licensePlate || v.license_plate,
+    asset_name: v.name || `${v.year} ${v.make} ${v.model}`,
+    asset_tag: v.assetTag || v.id,
+    department: v.department || 'Fleet Operations',
+    vehicle_type: v.type || v.vehicleType,
+    color: v.color,
+    odometer: v.odometer || v.mileage,
+    engine_hours: v.engineHours,
+    asset_category: mapVehicleTypeToCategory(v.type || v.vehicleType),
+    asset_type: mapVehicleTypeToAssetType(v.type || v.vehicleType),
+    operational_status: v.status === 'active' ? 'ACTIVE' as OperationalStatus : 'STANDBY' as OperationalStatus,
+    // Fuel efficiency for telemetry calculations
+    fuelEfficiency: v.fuelEfficiency || 25,
+    tankSize: v.tankSize || 20
+  }))
+}
+
+/**
+ * Fetch real-time OBD2 telemetry for a specific vehicle
+ */
+async function fetchVehicleTelemetry(vehicleId: string): Promise<OBD2Telemetry | null> {
+  if (!vehicleId) return null
+  try {
+    const response = await fetch(`/api/emulator/vehicles/${vehicleId}/telemetry`)
+    if (!response.ok) return null
+    const data = await response.json()
+    if (data.success && data.data) {
+      return data.data as OBD2Telemetry
+    }
+    return null
+  } catch (error) {
+    console.error("Error fetching telemetry:", error)
+    return null
   }
 }
 
@@ -630,7 +717,7 @@ export function VirtualGarage({ data }: { data?: any }) {
   const [damageSeverity, setDamageSeverity] = useState<"minor" | "moderate" | "severe">("moderate")
   const [selectedTripoSRTaskId, setSelectedTripoSRTaskId] = useState<string | null>(null)
 
-  // Queries - use demo assets as fallback when API is unavailable
+  // Queries - fetch from emulator API with real-time polling
   const {
     data: apiAssets = [],
     isLoading: loadingAssets,
@@ -638,13 +725,27 @@ export function VirtualGarage({ data }: { data?: any }) {
   } = useQuery({
     queryKey: ["garage-assets"],
     queryFn: fetchAllAssets,
-    staleTime: 5 * 60 * 1000,
-    gcTime: 10 * 60 * 1000,
-    retry: 1 // Only retry once before falling back to demo
+    staleTime: 5 * 1000, // Consider stale after 5 seconds
+    gcTime: 60 * 1000, // Keep in cache for 1 minute
+    refetchInterval: 10000, // Refetch every 10 seconds for real-time updates
+    retry: 2
   })
 
-  // Use demo assets when API returns empty or fails
-  const assets = (apiAssets.length === 0 || assetsError) ? DEMO_ASSETS : apiAssets
+  // Use demo assets only when API returns empty AND fails
+  const assets = (apiAssets.length === 0 && assetsError) ? DEMO_ASSETS : (apiAssets.length > 0 ? apiAssets : DEMO_ASSETS)
+
+  // Real-time OBD2 telemetry for selected vehicle - polls every 2 seconds
+  const {
+    data: liveTelemetry,
+    isLoading: loadingTelemetry
+  } = useQuery({
+    queryKey: ["vehicle-telemetry", selectedAsset?.id],
+    queryFn: () => fetchVehicleTelemetry(selectedAsset?.id || ""),
+    enabled: !!selectedAsset?.id, // Only run when a vehicle is selected
+    staleTime: 1000, // Consider stale after 1 second
+    refetchInterval: 2000, // Refetch every 2 seconds for real-time feel
+    retry: 1
+  })
 
   const { data: damageReportsData = [] } = useQuery({
     queryKey: ["damage-reports"],
@@ -1029,31 +1130,118 @@ export function VirtualGarage({ data }: { data?: any }) {
               />
             </div>
             {selectedAsset && (
-              <div className="mt-4 p-4 bg-muted rounded-lg">
-                <div className="grid grid-cols-4 gap-4">
-                  <div>
-                    <p className="text-sm text-muted-foreground">Asset</p>
-                    <p className="font-medium">
-                      {selectedAsset.asset_name || `${selectedAsset.year} ${selectedAsset.make} ${selectedAsset.model}`}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">ID / Tag</p>
-                    <p className="font-medium font-mono text-sm">
-                      {selectedAsset.asset_tag || selectedAsset.license_plate || selectedAsset.id?.substring(0, 8)}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Category</p>
-                    <p className="font-medium">
-                      {selectedAsset.asset_category ? getAssetCategoryLabel(selectedAsset.asset_category) : 'Unknown'}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Department</p>
-                    <p className="font-medium">{selectedAsset.department || "N/A"}</p>
+              <div className="mt-4 space-y-4">
+                {/* Asset Info */}
+                <div className="p-4 bg-muted rounded-lg">
+                  <div className="grid grid-cols-4 gap-4">
+                    <div>
+                      <p className="text-sm text-muted-foreground">Asset</p>
+                      <p className="font-medium">
+                        {selectedAsset.asset_name || `${selectedAsset.year} ${selectedAsset.make} ${selectedAsset.model}`}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground">ID / Tag</p>
+                      <p className="font-medium font-mono text-sm">
+                        {selectedAsset.asset_tag || selectedAsset.license_plate || selectedAsset.id?.substring(0, 8)}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground">Category</p>
+                      <p className="font-medium">
+                        {selectedAsset.asset_category ? getAssetCategoryLabel(selectedAsset.asset_category) : 'Unknown'}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground">Department</p>
+                      <p className="font-medium">{selectedAsset.department || "N/A"}</p>
+                    </div>
                   </div>
                 </div>
+
+                {/* Real-time OBD2 Telemetry Panel */}
+                {liveTelemetry && (
+                  <div className="p-4 bg-gradient-to-r from-blue-50 to-green-50 dark:from-blue-950/30 dark:to-green-950/30 rounded-lg border border-blue-200 dark:border-blue-800">
+                    <div className="flex items-center justify-between mb-3">
+                      <h4 className="font-semibold flex items-center gap-2 text-blue-700 dark:text-blue-300">
+                        <Lightning className="w-4 h-4 animate-pulse" />
+                        Live OBD2 Telemetry
+                      </h4>
+                      <Badge variant="outline" className="text-xs bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 border-green-300">
+                        <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse mr-2" />
+                        Real-time
+                      </Badge>
+                    </div>
+                    <div className="grid grid-cols-6 gap-3">
+                      {/* RPM */}
+                      <div className="text-center p-2 bg-white/50 dark:bg-slate-800/50 rounded-lg">
+                        <Gauge className="w-5 h-5 mx-auto mb-1 text-orange-500" />
+                        <p className="text-lg font-bold text-orange-600 dark:text-orange-400">{liveTelemetry.rpm || 0}</p>
+                        <p className="text-[10px] text-muted-foreground uppercase">RPM</p>
+                      </div>
+                      {/* Speed */}
+                      <div className="text-center p-2 bg-white/50 dark:bg-slate-800/50 rounded-lg">
+                        <Car className="w-5 h-5 mx-auto mb-1 text-blue-500" />
+                        <p className="text-lg font-bold text-blue-600 dark:text-blue-400">{liveTelemetry.speed || 0}</p>
+                        <p className="text-[10px] text-muted-foreground uppercase">MPH</p>
+                      </div>
+                      {/* Coolant Temp */}
+                      <div className="text-center p-2 bg-white/50 dark:bg-slate-800/50 rounded-lg">
+                        <GearSix className={`w-5 h-5 mx-auto mb-1 ${(liveTelemetry.coolantTemp || 0) > 100 ? 'text-red-500' : 'text-green-500'}`} />
+                        <p className={`text-lg font-bold ${(liveTelemetry.coolantTemp || 0) > 100 ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400'}`}>
+                          {liveTelemetry.coolantTemp || 0}°
+                        </p>
+                        <p className="text-[10px] text-muted-foreground uppercase">Coolant</p>
+                      </div>
+                      {/* Fuel Level */}
+                      <div className="text-center p-2 bg-white/50 dark:bg-slate-800/50 rounded-lg">
+                        <Gauge className={`w-5 h-5 mx-auto mb-1 ${(liveTelemetry.fuelLevel || 0) < 20 ? 'text-red-500' : 'text-amber-500'}`} />
+                        <p className={`text-lg font-bold ${(liveTelemetry.fuelLevel || 0) < 20 ? 'text-red-600 dark:text-red-400' : 'text-amber-600 dark:text-amber-400'}`}>
+                          {liveTelemetry.fuelLevel || 0}%
+                        </p>
+                        <p className="text-[10px] text-muted-foreground uppercase">Fuel</p>
+                      </div>
+                      {/* Battery */}
+                      <div className="text-center p-2 bg-white/50 dark:bg-slate-800/50 rounded-lg">
+                        <Lightning className="w-5 h-5 mx-auto mb-1 text-yellow-500" />
+                        <p className="text-lg font-bold text-yellow-600 dark:text-yellow-400">{liveTelemetry.batteryVoltage?.toFixed(1) || '0.0'}V</p>
+                        <p className="text-[10px] text-muted-foreground uppercase">Battery</p>
+                      </div>
+                      {/* Engine Load */}
+                      <div className="text-center p-2 bg-white/50 dark:bg-slate-800/50 rounded-lg">
+                        <Engine className="w-5 h-5 mx-auto mb-1 text-purple-500" />
+                        <p className="text-lg font-bold text-purple-600 dark:text-purple-400">{liveTelemetry.engineLoad || 0}%</p>
+                        <p className="text-[10px] text-muted-foreground uppercase">Load</p>
+                      </div>
+                    </div>
+                    {/* Check Engine Light & DTCs */}
+                    {(liveTelemetry.checkEngineLight || (liveTelemetry.dtcCodes && liveTelemetry.dtcCodes.length > 0)) && (
+                      <div className="mt-3 p-2 bg-red-100 dark:bg-red-900/30 rounded-lg border border-red-300 dark:border-red-700">
+                        <div className="flex items-center gap-2 text-red-700 dark:text-red-300">
+                          <Warning className="w-5 h-5" />
+                          <span className="font-medium">Check Engine Light Active</span>
+                        </div>
+                        {liveTelemetry.dtcCodes && liveTelemetry.dtcCodes.length > 0 && (
+                          <div className="mt-2 flex flex-wrap gap-1">
+                            {liveTelemetry.dtcCodes.map((code, idx) => (
+                              <Badge key={idx} variant="destructive" className="text-xs font-mono">
+                                {code}
+                              </Badge>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Loading state for telemetry */}
+                {loadingTelemetry && !liveTelemetry && (
+                  <div className="p-4 bg-muted/50 rounded-lg text-center">
+                    <ArrowsClockwise className="w-6 h-6 mx-auto mb-2 animate-spin text-muted-foreground" />
+                    <p className="text-sm text-muted-foreground">Loading real-time telemetry...</p>
+                  </div>
+                )}
               </div>
             )}
           </CardContent>
