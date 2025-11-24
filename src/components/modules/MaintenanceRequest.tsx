@@ -20,7 +20,6 @@ import { useFleetData } from "@/hooks/use-fleet-data"
 import { toast } from "sonner"
 
 interface MaintenanceRequestProps {
-  data?: any
   data: ReturnType<typeof useFleetData>
 }
 
