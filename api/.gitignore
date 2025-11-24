@@ -127,3 +127,6 @@ desktop.ini
 # - *.example (any file ending in .example)
 # - README.md and other documentation
 # ============================================================================
+# RSA keys for JWT signing (FIPS-compliant RS256)
+jwt-private.pem
+jwt-public.pem
