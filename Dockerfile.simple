@@ -4,10 +4,9 @@
 FROM nginx:alpine AS production
 
 # Set up directories with proper permissions (nginx user already exists)
-RUN mkdir -p /tmp/nginx /tmp/cache /var/cache/nginx && \
-    touch /tmp/nginx/nginx.pid && \
-    chown -R nginx:nginx /tmp/nginx /tmp/cache /var/cache/nginx /usr/share/nginx/html && \
-    chmod -R 755 /tmp/nginx /tmp/cache
+RUN mkdir -p /tmp/cache /var/cache/nginx && \
+    chown -R nginx:nginx /tmp/cache /var/cache/nginx /usr/share/nginx/html && \
+    chmod -R 755 /tmp/cache
 
 # Copy pre-built dist folder
 COPY dist /usr/share/nginx/html
