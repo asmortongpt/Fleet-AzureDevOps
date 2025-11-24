@@ -16,6 +16,12 @@ dotenv.config()
 import { validateEnv } from './config/validateEnv'
 const validatedEnv = validateEnv()
 
+// CRITICAL: Enforce FIPS 140-2 compliance BEFORE starting server
+// In production, this will PREVENT server startup if FIPS mode is not enabled
+// Reference: FIPS 140-2, NIST SP 800-131A, Federal Information Security Management Act (FISMA)
+import { fipsEnforcement } from './config/fips-enforcement'
+fipsEnforcement.enforceFIPS()
+
 import express from 'express'
 import cors from 'cors'
 import helmet from 'helmet'
@@ -97,6 +103,8 @@ import schedulingRoutes from './routes/scheduling.routes'
 import schedulingNotificationsRoutes from './routes/scheduling-notifications.routes'
 import mobileNotificationsRoutes from './routes/mobile-notifications.routes'
 import mobileMessagingRoutes from './routes/mobile-messaging.routes'
+// Vehicle Reservations
+import reservationsRoutes from './routes/reservations.routes'
 // import aiRoutes from './routes/ai' // Temporarily disabled
 // DI Example Routes
 import exampleDIRoutes from './routes/example-di.routes'
@@ -456,6 +464,9 @@ app.use('/api/v1/mobile', mobileMessagingRoutes)
 // 3D Visualization & Damage Assessment
 app.use('/api/v1/vehicles', vehicle3DRoutes)
 app.use('/api/v1/damage', damageRoutes)
+
+// Vehicle Reservations
+app.use('/api/v1/reservations', reservationsRoutes)
 
 // Emulators & Testing
 app.use('/api/v1/emulator', emulatorRoutes)
