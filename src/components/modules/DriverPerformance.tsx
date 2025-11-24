@@ -13,7 +13,7 @@ import {
   DialogTitle,
   DialogFooter
 } from "@/components/ui/dialog"
-import { 
+import {
   CarProfile,
   TrendUp,
   TrendDown,
@@ -27,6 +27,7 @@ import { MetricCard } from "@/components/MetricCard"
 import { ChartCard } from "@/components/ChartCard"
 import { useState } from "react"
 import { useFleetData } from "@/hooks/use-fleet-data"
+import { useInspect } from "@/services/inspect/InspectContext"
 
 interface DriverPerformanceProps {
   data: ReturnType<typeof useFleetData>
@@ -34,6 +35,7 @@ interface DriverPerformanceProps {
 
 export function DriverPerformance({ data }: DriverPerformanceProps) {
   const drivers = data.drivers || []
+  const { openInspect } = useInspect()
   const [activeTab, setActiveTab] = useState<string>("overview")
   const [selectedPeriod, setSelectedPeriod] = useState<string>("month")
   const [selectedDriver, setSelectedDriver] = useState<any>(null)
@@ -268,6 +270,10 @@ export function DriverPerformance({ data }: DriverPerformanceProps) {
                         variant="outline"
                         size="sm"
                         onClick={() => {
+                          // Open inspect drawer for detailed view
+                          openInspect({ type: 'driver', id: driver.id })
+
+                          // Also maintain dialog state for legacy UI
                           setSelectedDriver(driver)
                           setIsDetailsDialogOpen(true)
                         }}

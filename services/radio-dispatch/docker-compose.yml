@@ -1,0 +1,152 @@
+# ==========================================
+# Radio Dispatch Service - Docker Compose
+# For Local Development
+# ==========================================
+
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: radio-dispatch-postgres
+    environment:
+      POSTGRES_DB: radio_dispatch
+      POSTGRES_USER: radiodispatch
+      POSTGRES_PASSWORD: dev_password_change_in_production
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ../../database/migrations/20251124_add_radio_dispatch_schema.sql:/docker-entrypoint-initdb.d/01_schema.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U radiodispatch -d radio_dispatch"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis (for Celery broker and results backend)
+  redis:
+    image: redis:7-alpine
+    container_name: radio-dispatch-redis
+    command: redis-server --appendonly yes
+    ports:
+      - "6380:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  # FastAPI Application
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: radio-dispatch-api
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      # Application
+      DEBUG: "true"
+      LOG_LEVEL: INFO
+
+      # Database
+      DATABASE_URL: postgresql+asyncpg://radiodispatch:dev_password_change_in_production@postgres:5432/radio_dispatch
+
+      # Redis
+      REDIS_URL: redis://redis:6379/0
+      CELERY_BROKER_URL: redis://redis:6379/1
+      CELERY_RESULT_BACKEND: redis://redis:6379/2
+
+      # Azure Services (from environment or .env)
+      AZURE_SPEECH_KEY: ${AZURE_SPEECH_KEY}
+      AZURE_SPEECH_REGION: ${AZURE_SPEECH_REGION:-eastus}
+      AZURE_STORAGE_CONNECTION_STRING: ${AZURE_STORAGE_CONNECTION_STRING}
+      AZURE_STORAGE_CONTAINER: ${AZURE_STORAGE_CONTAINER:-radio-audio}
+
+      # Fleet API
+      FLEET_API_BASE_URL: ${FLEET_API_BASE_URL:-http://host.docker.internal:5000/api}
+      FLEET_API_KEY: ${FLEET_API_KEY}
+
+      # Security
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY:-dev_secret_change_in_production}
+
+      # AI Services (optional)
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./app:/app/app:ro
+      - ./config:/app/config:ro
+    command: uvicorn app.main:app_with_socketio --host 0.0.0.0 --port 8000 --reload
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Celery Worker
+  celery-worker:
+    build:
+      context: .
+      dockerfile: Dockerfile.celery
+    container_name: radio-dispatch-worker
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      # Same environment as API
+      DEBUG: "true"
+      LOG_LEVEL: INFO
+      DATABASE_URL: postgresql+asyncpg://radiodispatch:dev_password_change_in_production@postgres:5432/radio_dispatch
+      REDIS_URL: redis://redis:6379/0
+      CELERY_BROKER_URL: redis://redis:6379/1
+      CELERY_RESULT_BACKEND: redis://redis:6379/2
+      AZURE_SPEECH_KEY: ${AZURE_SPEECH_KEY}
+      AZURE_SPEECH_REGION: ${AZURE_SPEECH_REGION:-eastus}
+      AZURE_STORAGE_CONNECTION_STRING: ${AZURE_STORAGE_CONNECTION_STRING}
+      AZURE_STORAGE_CONTAINER: ${AZURE_STORAGE_CONTAINER:-radio-audio}
+      FLEET_API_BASE_URL: ${FLEET_API_BASE_URL:-http://host.docker.internal:5000/api}
+      FLEET_API_KEY: ${FLEET_API_KEY}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY:-dev_secret_change_in_production}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+    volumes:
+      - ./app:/app/app:ro
+    command: celery -A app.workers.celery_app worker --loglevel=info --concurrency=4
+
+  # Celery Flower (task monitoring)
+  celery-flower:
+    build:
+      context: .
+      dockerfile: Dockerfile.celery
+    container_name: radio-dispatch-flower
+    depends_on:
+      - redis
+      - celery-worker
+    environment:
+      CELERY_BROKER_URL: redis://redis:6379/1
+      CELERY_RESULT_BACKEND: redis://redis:6379/2
+    ports:
+      - "5555:5555"
+    command: celery -A app.workers.celery_app flower --port=5555
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+
+networks:
+  default:
+    name: radio-dispatch-network
