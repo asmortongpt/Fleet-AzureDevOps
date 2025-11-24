@@ -17,7 +17,7 @@
  * Created: 2025-11-24
  */
 
-import { useState, useEffect, useMemo } from "react"
+import { useState, useEffect, useMemo, Suspense, lazy } from "react"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -67,8 +67,13 @@ import {
   Toolbox,
   HardHat,
   Barcode,
-  Factory
+  Factory,
+  ArrowsClockwise,
+  Eye
 } from "@phosphor-icons/react"
+
+// Lazy load the 3D viewer to avoid SSR issues and reduce initial bundle
+const Asset3DViewer = lazy(() => import("@/components/garage/Asset3DViewer").then(m => ({ default: m.Asset3DViewer })))
 import { toast } from "sonner"
 import { apiClient } from "@/lib/api-client"
 import {
@@ -132,6 +137,133 @@ interface Inspection {
 }
 
 // ============================================================================
+// DEMO ASSETS - Used when API is unavailable (for local development/demo)
+// ============================================================================
+
+const DEMO_ASSETS: GarageAsset[] = [
+  {
+    id: "demo-1",
+    make: "Ford",
+    model: "F-150 Lightning",
+    year: 2024,
+    vin: "1FTFW1E82NFA12345",
+    license_plate: "FL-ELEC-01",
+    asset_name: "Fleet Truck #1",
+    asset_tag: "FLT-001",
+    asset_category: "LIGHT_COMMERCIAL" as AssetCategory,
+    asset_type: "PICKUP" as AssetType,
+    color: "#2563eb",
+    department: "Operations",
+    operational_status: "ACTIVE" as OperationalStatus,
+    odometer: 12500
+  },
+  {
+    id: "demo-2",
+    make: "Tesla",
+    model: "Model Y",
+    year: 2024,
+    vin: "5YJSA1E26FF123456",
+    license_plate: "FL-EV-002",
+    asset_name: "Executive Vehicle",
+    asset_tag: "EXEC-002",
+    asset_category: "PASSENGER_VEHICLE" as AssetCategory,
+    asset_type: "SUV" as AssetType,
+    color: "#dc2626",
+    department: "Executive",
+    operational_status: "ACTIVE" as OperationalStatus,
+    odometer: 8200
+  },
+  {
+    id: "demo-3",
+    make: "Caterpillar",
+    model: "320 Excavator",
+    year: 2023,
+    asset_name: "Excavator #3",
+    asset_tag: "EXC-003",
+    asset_category: "HEAVY_EQUIPMENT" as AssetCategory,
+    asset_type: "EXCAVATOR" as AssetType,
+    color: "#f59e0b",
+    department: "Construction",
+    operational_status: "ACTIVE" as OperationalStatus,
+    engine_hours: 3200
+  },
+  {
+    id: "demo-4",
+    make: "Freightliner",
+    model: "Cascadia",
+    year: 2023,
+    vin: "3AKJHHDR8NSJF7890",
+    license_plate: "FL-TRK-04",
+    asset_name: "Heavy Hauler #4",
+    asset_tag: "HVY-004",
+    asset_category: "HEAVY_TRUCK" as AssetCategory,
+    asset_type: "SEMI_TRUCK" as AssetType,
+    color: "#1e40af",
+    department: "Logistics",
+    operational_status: "ACTIVE" as OperationalStatus,
+    odometer: 45600
+  },
+  {
+    id: "demo-5",
+    make: "Toyota",
+    model: "Electric Forklift 8FBE15U",
+    year: 2023,
+    asset_name: "Warehouse Forklift #5",
+    asset_tag: "FKL-005",
+    asset_category: "HEAVY_EQUIPMENT" as AssetCategory,
+    asset_type: "FORKLIFT" as AssetType,
+    color: "#22c55e",
+    department: "Warehouse",
+    operational_status: "ACTIVE" as OperationalStatus,
+    engine_hours: 1850
+  },
+  {
+    id: "demo-6",
+    make: "Generac",
+    model: "Industrial 500kW",
+    year: 2022,
+    asset_name: "Emergency Generator",
+    asset_tag: "GEN-006",
+    asset_category: "SPECIALTY_EQUIPMENT" as AssetCategory,
+    asset_type: "GENERATOR" as AssetType,
+    color: "#64748b",
+    department: "Facilities",
+    operational_status: "STANDBY" as OperationalStatus,
+    engine_hours: 450
+  },
+  {
+    id: "demo-7",
+    make: "Liebherr",
+    model: "LTM 1100-4.2",
+    year: 2023,
+    asset_name: "Mobile Crane #7",
+    asset_tag: "CRN-007",
+    asset_category: "HEAVY_EQUIPMENT" as AssetCategory,
+    asset_type: "CRANE" as AssetType,
+    color: "#f97316",
+    department: "Construction",
+    operational_status: "ACTIVE" as OperationalStatus,
+    engine_hours: 2100
+  },
+  {
+    id: "demo-8",
+    make: "Honda",
+    model: "Accord Hybrid",
+    year: 2024,
+    vin: "1HGCV3F37PA654321",
+    license_plate: "FL-SED-08",
+    asset_name: "Fleet Sedan #8",
+    asset_tag: "SED-008",
+    asset_category: "PASSENGER_VEHICLE" as AssetCategory,
+    asset_type: "SEDAN" as AssetType,
+    color: "#6366f1",
+    department: "Sales",
+    operational_status: "ACTIVE" as OperationalStatus,
+    odometer: 5400
+  }
+]
+
+// ============================================================================
 // CATEGORY ICONS
 // ============================================================================
 
@@ -149,27 +281,140 @@ const CATEGORY_ICONS: Record<AssetCategory | 'ALL', React.ReactNode> = {
 }
 
 // ============================================================================
-// ASSET DISPLAY COMPONENT
+// 3D VIEWER LOADING FALLBACK
+// ============================================================================
+
+function Viewer3DFallback() {
+  return (
+    <div className="flex items-center justify-center h-full bg-gradient-to-br from-slate-900 to-slate-800 rounded-lg">
+      <div className="text-center text-white">
+        <ArrowsClockwise className="w-12 h-12 mx-auto mb-3 animate-spin" />
+        <p className="text-sm">Loading 3D viewer...</p>
+      </div>
+    </div>
+  )
+}
+
+// ============================================================================
+// ASSET DISPLAY COMPONENT WITH 3D RENDERING
 // ============================================================================
 
 function AssetDisplay({
   asset,
-  damageModel
+  damageModel,
+  use3D = true
 }: {
   asset: GarageAsset | null
   damageModel?: string
+  use3D?: boolean
 }) {
+  const [is3DLoaded, setIs3DLoaded] = useState(false)
+
   if (!asset && !damageModel) {
     return (
-      <div className="flex items-center justify-center h-full text-muted-foreground">
+      <div className="flex items-center justify-center h-full text-muted-foreground bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-800 dark:to-slate-900 rounded-lg">
         <div className="text-center">
-          <Package className="w-16 h-16 mx-auto mb-4 opacity-50" />
-          <p>Select an asset to view details</p>
+          <Cube className="w-16 h-16 mx-auto mb-4 opacity-50" />
+          <p className="font-medium">Select an asset to view in 3D</p>
+          <p className="text-sm mt-1">Interactive photorealistic rendering</p>
         </div>
       </div>
     )
   }
 
+  // If we have a damage model URL, show it (this could be a GLTF from Meshy.ai)
+  if (damageModel) {
+    return (
+      <div className="h-full">
+        <Suspense fallback={<Viewer3DFallback />}>
+          <Asset3DViewer
+            customModelUrl={damageModel}
+            autoRotate={true}
+            onLoad={() => setIs3DLoaded(true)}
+          />
+        </Suspense>
+        <div className="absolute top-4 left-4 bg-orange-500/90 text-white px-3 py-1 rounded-full text-sm font-medium flex items-center gap-2">
+          <Warning className="w-4 h-4" />
+          Damage Model
+        </div>
+      </div>
+    )
+  }
+
+  // Show 3D model for the asset
+  if (asset && use3D) {
+    return (
+      <div className="h-full relative">
+        <Suspense fallback={<Viewer3DFallback />}>
+          <Asset3DViewer
+            assetCategory={asset.asset_category}
+            assetType={asset.asset_type}
+            color={asset.color || undefined}
+            make={asset.make}
+            model={asset.model}
+            autoRotate={true}
+            onLoad={() => setIs3DLoaded(true)}
+          />
+        </Suspense>
+
+        {/* Asset info overlay */}
+        <div className="absolute top-4 left-4 bg-background/90 backdrop-blur-sm rounded-lg px-4 py-3 max-w-xs">
+          <h3 className="font-bold text-lg leading-tight">
+            {asset.asset_name || `${asset.year} ${asset.make} ${asset.model}`}
+          </h3>
+          {asset.asset_category && (
+            <Badge variant="secondary" className="mt-2">
+              {getAssetCategoryLabel(asset.asset_category)}
+            </Badge>
+          )}
+        </div>
+
+        {/* Quick stats overlay */}
+        <div className="absolute top-4 right-4 bg-background/90 backdrop-blur-sm rounded-lg px-3 py-2 text-sm">
+          <div className="flex items-center gap-2">
+            <Eye className="w-4 h-4 text-green-500" />
+            <span>Photorealistic 3D</span>
+          </div>
+        </div>
+
+        {/* Bottom info bar */}
+        <div className="absolute bottom-4 left-4 right-4 bg-background/90 backdrop-blur-sm rounded-lg p-3">
+          <div className="flex flex-wrap items-center gap-3">
+            {asset.license_plate && (
+              <Badge variant="outline" className="font-mono">
+                {asset.license_plate}
+              </Badge>
+            )}
+            {asset.asset_tag && (
+              <Badge variant="outline">
+                <Barcode className="w-3 h-3 mr-1" />
+                {asset.asset_tag}
+              </Badge>
+            )}
+            {asset.vin && (
+              <Badge variant="outline" className="font-mono text-xs">
+                VIN: {asset.vin.slice(-8)}
+              </Badge>
+            )}
+            {asset.odometer !== undefined && asset.odometer > 0 && (
+              <Badge variant="secondary">
+                <Gauge className="w-3 h-3 mr-1" />
+                {asset.odometer.toLocaleString()} mi
+              </Badge>
+            )}
+            {asset.engine_hours !== undefined && asset.engine_hours > 0 && (
+              <Badge variant="secondary">
+                <Clock className="w-3 h-3 mr-1" />
+                {asset.engine_hours.toLocaleString()} hrs
+              </Badge>
+            )}
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // Fallback to icon-based display
   const getCategoryIcon = (category?: AssetCategory) => {
     if (!category) return <Package className="w-24 h-24" />
     switch (category) {
@@ -197,14 +442,7 @@ function AssetDisplay({
   return (
     <div className="flex items-center justify-center h-full">
       <div className="text-center p-8">
-        {damageModel ? (
-          <>
-            <Warning className="w-24 h-24 mx-auto mb-4 text-orange-500" />
-            <h3 className="text-xl font-semibold mb-2">Damage Model</h3>
-            <p className="text-muted-foreground">3D visualization available</p>
-            <Badge className="mt-4" variant="outline">{damageModel.substring(0, 50)}...</Badge>
-          </>
-        ) : asset ? (
+        {asset && (
           <>
             <div className="text-primary mx-auto mb-4">
               {getCategoryIcon(asset.asset_category)}
@@ -227,41 +465,9 @@ function AssetDisplay({
                   {asset.asset_tag}
                 </Badge>
               )}
-              {asset.color && (
-                <Badge variant="outline" style={{ backgroundColor: asset.color, color: '#fff' }}>
-                  {asset.color}
-                </Badge>
-              )}
-            </div>
-            {/* Show relevant metrics */}
-            <div className="grid grid-cols-2 gap-4 mt-6 text-left max-w-md mx-auto">
-              {asset.odometer !== undefined && asset.odometer > 0 && (
-                <div className="bg-muted p-3 rounded-lg">
-                  <p className="text-xs text-muted-foreground">Odometer</p>
-                  <p className="font-semibold">{asset.odometer.toLocaleString()} mi</p>
-                </div>
-              )}
-              {asset.engine_hours !== undefined && asset.engine_hours > 0 && (
-                <div className="bg-muted p-3 rounded-lg">
-                  <p className="text-xs text-muted-foreground">Engine Hours</p>
-                  <p className="font-semibold">{asset.engine_hours.toLocaleString()} hrs</p>
-                </div>
-              )}
-              {asset.capacity_tons !== undefined && asset.capacity_tons > 0 && (
-                <div className="bg-muted p-3 rounded-lg">
-                  <p className="text-xs text-muted-foreground">Capacity</p>
-                  <p className="font-semibold">{asset.capacity_tons} tons</p>
-                </div>
-              )}
-              {asset.pto_hours !== undefined && asset.pto_hours > 0 && (
-                <div className="bg-muted p-3 rounded-lg">
-                  <p className="text-xs text-muted-foreground">PTO Hours</p>
-                  <p className="font-semibold">{asset.pto_hours.toLocaleString()} hrs</p>
-                </div>
-              )}
             </div>
           </>
-        ) : null}
+        )}
       </div>
     </div>
   )
@@ -424,17 +630,21 @@ export function VirtualGarage({ data }: { data?: any }) {
   const [damageSeverity, setDamageSeverity] = useState<"minor" | "moderate" | "severe">("moderate")
   const [selectedTripoSRTaskId, setSelectedTripoSRTaskId] = useState<string | null>(null)
 
-  // Queries
+  // Queries - use demo assets as fallback when API is unavailable
   const {
-    data: assets = [],
+    data: apiAssets = [],
     isLoading: loadingAssets,
     error: assetsError
   } = useQuery({
     queryKey: ["garage-assets"],
     queryFn: fetchAllAssets,
     staleTime: 5 * 60 * 1000,
-    gcTime: 10 * 60 * 1000
+    gcTime: 10 * 60 * 1000,
+    retry: 1 // Only retry once before falling back to demo
   })
+
+  // Use demo assets when API returns empty or fails
+  const assets = (apiAssets.length === 0 || assetsError) ? DEMO_ASSETS : apiAssets
 
   const { data: damageReportsData = [] } = useQuery({
     queryKey: ["damage-reports"],
