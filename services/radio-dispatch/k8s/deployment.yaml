@@ -1,0 +1,268 @@
+---
+# Radio Dispatch API Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: radio-dispatch-api
+  namespace: fleet-production
+  labels:
+    app: radio-dispatch-api
+    component: radio-dispatch
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: radio-dispatch-api
+  template:
+    metadata:
+      labels:
+        app: radio-dispatch-api
+        component: radio-dispatch
+    spec:
+      serviceAccountName: fleet-service-account
+      containers:
+      - name: api
+        image: acrcapitaltech.azurecr.io/fleet-radio-dispatch-api:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8000
+          name: http
+          protocol: TCP
+        env:
+        - name: DEBUG
+          value: "false"
+        - name: LOG_LEVEL
+          value: "INFO"
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: fleet-secrets
+              key: database-url
+        - name: REDIS_URL
+          value: "redis://fleet-redis:6379/0"
+        - name: CELERY_BROKER_URL
+          value: "redis://fleet-redis:6379/1"
+        - name: CELERY_RESULT_BACKEND
+          value: "redis://fleet-redis:6379/2"
+        - name: AZURE_SPEECH_KEY
+          valueFrom:
+            secretKeyRef:
+              name: azure-secrets
+              key: speech-key
+        - name: AZURE_SPEECH_REGION
+          value: "eastus"
+        - name: AZURE_STORAGE_CONNECTION_STRING
+          valueFrom:
+            secretKeyRef:
+              name: azure-secrets
+              key: storage-connection-string
+        - name: FLEET_API_BASE_URL
+          value: "http://fleet-api:5000/api"
+        - name: JWT_SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: fleet-secrets
+              key: jwt-secret
+        - name: ANTHROPIC_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: ai-secrets
+              key: anthropic-key
+              optional: true
+        - name: OPENAI_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: ai-secrets
+              key: openai-key
+              optional: true
+        resources:
+          requests:
+            cpu: 500m
+            memory: 512Mi
+          limits:
+            cpu: 2000m
+            memory: 2Gi
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 15
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1001
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: false
+          capabilities:
+            drop:
+            - ALL
+
+---
+# Radio Dispatch Celery Worker Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: radio-dispatch-worker
+  namespace: fleet-production
+  labels:
+    app: radio-dispatch-worker
+    component: radio-dispatch
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: radio-dispatch-worker
+  template:
+    metadata:
+      labels:
+        app: radio-dispatch-worker
+        component: radio-dispatch
+    spec:
+      serviceAccountName: fleet-service-account
+      containers:
+      - name: worker
+        image: acrcapitaltech.azurecr.io/fleet-radio-dispatch-worker:latest
+        imagePullPolicy: Always
+        env:
+        - name: DEBUG
+          value: "false"
+        - name: LOG_LEVEL
+          value: "INFO"
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: fleet-secrets
+              key: database-url
+        - name: REDIS_URL
+          value: "redis://fleet-redis:6379/0"
+        - name: CELERY_BROKER_URL
+          value: "redis://fleet-redis:6379/1"
+        - name: CELERY_RESULT_BACKEND
+          value: "redis://fleet-redis:6379/2"
+        - name: AZURE_SPEECH_KEY
+          valueFrom:
+            secretKeyRef:
+              name: azure-secrets
+              key: speech-key
+        - name: AZURE_SPEECH_REGION
+          value: "eastus"
+        - name: AZURE_STORAGE_CONNECTION_STRING
+          valueFrom:
+            secretKeyRef:
+              name: azure-secrets
+              key: storage-connection-string
+        - name: FLEET_API_BASE_URL
+          value: "http://fleet-api:5000/api"
+        - name: ANTHROPIC_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: ai-secrets
+              key: anthropic-key
+              optional: true
+        - name: OPENAI_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: ai-secrets
+              key: openai-key
+              optional: true
+        resources:
+          requests:
+            cpu: 500m
+            memory: 1Gi
+          limits:
+            cpu: 2000m
+            memory: 3Gi
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1002
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: false
+          capabilities:
+            drop:
+            - ALL
+
+---
+# Radio Dispatch API Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: radio-dispatch-api
+  namespace: fleet-production
+  labels:
+    app: radio-dispatch-api
+    component: radio-dispatch
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8000
+    targetPort: 8000
+    protocol: TCP
+    name: http
+  selector:
+    app: radio-dispatch-api
+
+---
+# Horizontal Pod Autoscaler for API
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: radio-dispatch-api
+  namespace: fleet-production
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: radio-dispatch-api
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80
+
+---
+# Horizontal Pod Autoscaler for Worker
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: radio-dispatch-worker
+  namespace: fleet-production
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: radio-dispatch-worker
+  minReplicas: 3
+  maxReplicas: 20
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 75
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 85
