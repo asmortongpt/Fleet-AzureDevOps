@@ -46,6 +46,7 @@ import {
   Funnel
 } from '@phosphor-icons/react'
 import { apiClient } from '@/lib/api-client'
+import { useInspect } from '@/services/inspect/InspectContext'
 
 interface Alert {
   id: string
@@ -72,6 +73,7 @@ interface AlertStats {
 }
 
 export function Notifications() {
+  const { openInspect } = useInspect()
   const [alerts, setAlerts] = useState<Alert[]>([])
   const [stats, setStats] = useState<AlertStats | null>(null)
   const [isLoading, setIsLoading] = useState(false)
@@ -324,7 +326,14 @@ export function Notifications() {
             ) : (
               <div className="space-y-3">
                 {filteredAlerts.map((alert) => (
-                  <Card key={alert.id} className={`${getSeverityColor(alert.severity)} border-l-4`}>
+                  <Card
+                    key={alert.id}
+                    className={`${getSeverityColor(alert.severity)} border-l-4 cursor-pointer hover:bg-muted/50 transition-colors`}
+                    onClick={() => {
+                      // Open inspect drawer for alert details
+                      openInspect({ type: 'alert', id: alert.id })
+                    }}
+                  >
                     <CardContent className="p-4">
                       <div className="flex items-start justify-between gap-4">
                         <div className="flex items-start gap-3 flex-1">
@@ -369,7 +378,10 @@ export function Notifications() {
                             <Button
                               size="sm"
                               variant="outline"
-                              onClick={() => acknowledgeAlert(alert.id)}
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                acknowledgeAlert(alert.id)
+                              }}
                             >
                               <Check className="w-4 h-4 mr-1" />
                               Acknowledge
@@ -379,7 +391,8 @@ export function Notifications() {
                             <Button
                               size="sm"
                               variant="default"
-                              onClick={() => {
+                              onClick={(e) => {
+                                e.stopPropagation()
                                 setSelectedAlert(alert)
                                 setResolveDialogOpen(true)
                               }}
