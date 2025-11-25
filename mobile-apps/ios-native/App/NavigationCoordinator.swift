@@ -59,6 +59,7 @@ class NavigationCoordinator: ObservableObject {
         // fleet://vehicles/{id}
         // fleet://trips/{id}
         // fleet://maintenance/{id}
+        // fleet://drivers/{id}
         // fleet://dashboard
         // fleet://more/settings
 
@@ -92,6 +93,15 @@ class NavigationCoordinator: ObservableObject {
                 navigate(to: .maintenanceDetail(id: maintenanceId))
             } else {
                 navigate(to: .maintenance)
+            }
+
+        case "drivers":
+            selectTab(.more)
+            let pathComponents = components.path.split(separator: "/").map(String.init)
+            if let driverId = pathComponents.first {
+                navigate(to: .driverDetail(id: driverId))
+            } else {
+                popToRoot()
             }
 
         case "more":
@@ -212,19 +222,102 @@ enum NavigationDestination: Hashable, Identifiable {
     case addVehicle
     case addTrip
     case maintenance
-    case fleetMap
     case settings
     case profile
     case notifications
     case about
     case help
-    case pushToTalk
+
+    // Driver management destinations
+    case driverDetail(id: String)
+    case addDriver
+    case editDriver(id: String)
 
     // Hardware integration destinations
+    case fleetMap
     case tripTracking(vehicleId: String)
     case obd2Diagnostics
     case maintenancePhoto(vehicleId: String, type: String)
     case photoCapture(vehicleId: String, photoType: String)
+
+    // Geofence management destinations
+    case geofenceList
+    case geofenceDetail(id: String)
+    case addGeofence
+    case editGeofence(id: String)
+
+    // GIS Command Center destination
+    case gisCommandCenter
+
+    // Executive dashboard
+    case executiveDashboard
+
+    // Optimization destinations
+    case fleetOptimizer
+    case routeOptimizer
+    case optimizedRoute(routeId: String)
+
+    // Data Workbench destinations
+    case dataWorkbench
+    case queryBuilder
+    case dataGrid
+
+    // Vehicle Assignment destinations
+    case vehicleAssignments
+    case assignmentDetail(id: String)
+    case createAssignment
+    case assignmentRequest
+    case assignmentApproval(requestId: String)
+    case assignmentHistory(assignmentId: String)
+
+    // Compliance destinations
+    case complianceDashboard
+    case complianceScoreCard
+    case violationsList
+    case expiringItems
+    case complianceItemDetail(id: String)
+    case violationDetail(id: String)
+
+    // Shift Management destinations
+    case shiftManagement
+    case shiftDetail(id: String)
+    case createShift
+    case clockInOut
+    case shiftSwaps
+    case shiftReport
+
+    // Telemetry destinations
+    case telemetryDashboard
+    case telemetryDashboardForVehicle(vehicleId: String)
+    case diagnosticCodeDetail(code: String)
+    case vehicleHealthDetail(vehicleId: String)
+    case telemetryHistory(vehicleId: String)
+
+    // Predictive Analytics destinations
+    case predictiveAnalytics
+    case predictionDetail(id: String)
+
+    // Inventory Management destinations
+    case inventoryManagement
+    case inventoryItemDetail(id: String)
+    case stockMovement(itemId: String)
+    case inventoryAlerts
+    case inventoryReports
+    case addInventoryItem
+
+    // Budget Planning destinations
+    case budgetPlanning
+    case budgetDetail(id: String)
+    case budgetEditor(budgetId: String?)
+    case budgetVariance(budgetId: String)
+    case budgetForecast(budgetId: String)
+
+    // Warranty Management destinations
+    case warrantyManagement
+    case warrantyDetail(id: String)
+    case claimSubmission(warrantyId: String)
+    case claimTracking(claimId: String)
+    case addWarranty
 
     var id: String {
         switch self {
@@ -240,8 +333,6 @@ enum NavigationDestination: Hashable, Identifiable {
             return "add-trip"
         case .maintenance:
             return "maintenance"
-        case .fleetMap:
-            return "fleet-map"
         case .settings:
             return "settings"
         case .profile:
@@ -252,8 +343,12 @@ enum NavigationDestination: Hashable, Identifiable {
             return "about"
         case .help:
             return "help"
-        case .pushToTalk:
-            return "push-to-talk"
+        case .driverDetail(let id):
+            return "driver-\(id)"
+        case .addDriver:
+            return "add-driver"
+        case .editDriver(let id):
+            return "edit-driver-\(id)"
         case .fleetMap:
             return "fleet-map"
         case .tripTracking(let vehicleId):
@@ -264,6 +359,112 @@ enum NavigationDestination: Hashable, Identifiable {
             return "maintenance-photo-\(vehicleId)-\(type)"
         case .photoCapture(let vehicleId, let photoType):
             return "photo-capture-\(vehicleId)-\(photoType)"
+        case .geofenceList:
+            return "geofence-list"
+        case .geofenceDetail(let id):
+            return "geofence-\(id)"
+        case .addGeofence:
+            return "add-geofence"
+        case .editGeofence(let id):
+            return "edit-geofence-\(id)"
+        case .gisCommandCenter:
+            return "gis-command-center"
+        case .executiveDashboard:
+            return "executive-dashboard"
+        case .fleetOptimizer:
+            return "fleet-optimizer"
+        case .routeOptimizer:
+            return "route-optimizer"
+        case .optimizedRoute(let routeId):
+            return "optimized-route-\(routeId)"
+        case .dataWorkbench:
+            return "data-workbench"
+        case .queryBuilder:
+            return "query-builder"
+        case .dataGrid:
+            return "data-grid"
+        case .vehicleAssignments:
+            return "vehicle-assignments"
+        case .assignmentDetail(let id):
+            return "assignment-detail-\(id)"
+        case .createAssignment:
+            return "create-assignment"
+        case .assignmentRequest:
+            return "assignment-request"
+        case .assignmentApproval(let requestId):
+            return "assignment-approval-\(requestId)"
+        case .assignmentHistory(let assignmentId):
+            return "assignment-history-\(assignmentId)"
+        case .complianceDashboard:
+            return "compliance-dashboard"
+        case .complianceScoreCard:
+            return "compliance-score-card"
+        case .violationsList:
+            return "violations-list"
+        case .expiringItems:
+            return "expiring-items"
+        case .complianceItemDetail(let id):
+            return "compliance-item-\(id)"
+        case .violationDetail(let id):
+            return "violation-\(id)"
+        case .telemetryDashboard:
+            return "telemetry-dashboard"
+        case .telemetryDashboardForVehicle(let vehicleId):
+            return "telemetry-dashboard-\(vehicleId)"
+        case .diagnosticCodeDetail(let code):
+            return "diagnostic-code-\(code)"
+        case .vehicleHealthDetail(let vehicleId):
+            return "vehicle-health-\(vehicleId)"
+        case .telemetryHistory(let vehicleId):
+            return "telemetry-history-\(vehicleId)"
+        case .shiftManagement:
+            return "shift-management"
+        case .shiftDetail(let id):
+            return "shift-\(id)"
+        case .createShift:
+            return "create-shift"
+        case .clockInOut:
+            return "clock-in-out"
+        case .shiftSwaps:
+            return "shift-swaps"
+        case .shiftReport:
+            return "shift-report"
+        case .predictiveAnalytics:
+            return "predictive-analytics"
+        case .predictionDetail(let id):
+            return "prediction-detail-\(id)"
+        case .inventoryManagement:
+            return "inventory-management"
+        case .inventoryItemDetail(let id):
+            return "inventory-item-\(id)"
+        case .stockMovement(let itemId):
+            return "stock-movement-\(itemId)"
+        case .inventoryAlerts:
+            return "inventory-alerts"
+        case .inventoryReports:
+            return "inventory-reports"
+        case .addInventoryItem:
+            return "add-inventory-item"
+        case .budgetPlanning:
+            return "budget-planning"
+        case .budgetDetail(let id):
+            return "budget-detail-\(id)"
+        case .budgetEditor(let budgetId):
+            return budgetId != nil ? "budget-editor-\(budgetId!)" : "budget-editor-new"
+        case .budgetVariance(let budgetId):
+            return "budget-variance-\(budgetId)"
+        case .budgetForecast(let budgetId):
+            return "budget-forecast-\(budgetId)"
+        case .warrantyManagement:
+            return "warranty-management"
+        case .warrantyDetail(let id):
+            return "warranty-detail-\(id)"
+        case .claimSubmission(let warrantyId):
+            return "claim-submission-\(warrantyId)"
+        case .claimTracking(let claimId):
+            return "claim-tracking-\(claimId)"
+        case .addWarranty:
+            return "add-warranty"
         }
     }
 }

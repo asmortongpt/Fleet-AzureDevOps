@@ -1,34 +1,61 @@
 import SwiftUI
 
 struct SettingsView: View {
+    @State private var showingMapSettings = false
+
     var body: some View {
         NavigationView {
             List {
                 Section(header: Text("Account")) {
-                    HStack {
-                        Image(systemName: "person.circle.fill")
-                            .foregroundColor(.blue)
-                        Text("Profile")
+                    NavigationLink(destination: Text("Profile Settings")) {
+                        HStack {
+                            Image(systemName: "person.circle.fill")
+                                .foregroundColor(.blue)
+                            Text("Profile")
+                        }
                     }
 
-                    HStack {
-                        Image(systemName: "bell.fill")
-                            .foregroundColor(.orange)
-                        Text("Notifications")
+                    NavigationLink(destination: Text("Notification Settings")) {
+                        HStack {
+                            Image(systemName: "bell.fill")
+                                .foregroundColor(.orange)
+                            Text("Notifications")
+                        }
                     }
                 }
 
+                Section(header: Text("Map")) {
+                    Button {
+                        showingMapSettings = true
+                    } label: {
+                        HStack {
+                            Image(systemName: "map.fill")
+                                .foregroundColor(.blue)
+                            Text("Map Provider")
+                            Spacer()
+                            Image(systemName: "chevron.right")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
+                    }
+                    .foregroundColor(.primary)
+                }
+
                 Section(header: Text("App")) {
-                    HStack {
-                        Image(systemName: "paintbrush.fill")
-                            .foregroundColor(.purple)
-                        Text("Appearance")
+                    NavigationLink(destination: Text("Appearance Settings")) {
+                        HStack {
+                            Image(systemName: "paintbrush.fill")
+                                .foregroundColor(.purple)
+                            Text("Appearance")
+                        }
                     }
 
-                    HStack {
-                        Image(systemName: "globe")
-                            .foregroundColor(.green)
-                        Text("Language")
+                    NavigationLink(destination: Text("Language Settings")) {
+                        HStack {
+                            Image(systemName: "globe")
+                                .foregroundColor(.green)
+                            Text("Language")
+                        }
                     }
                 }
 
@@ -59,6 +86,9 @@ struct SettingsView: View {
             }
             .navigationTitle("Settings")
             .listStyle(InsetGroupedListStyle())
+            .sheet(isPresented: $showingMapSettings) {
+                MapProviderSettingsView()
+            }
         }
     }
 }
