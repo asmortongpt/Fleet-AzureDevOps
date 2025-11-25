@@ -319,6 +319,10 @@ enum NavigationDestination: Hashable, Identifiable {
     case claimTracking(claimId: String)
     case addWarranty
 
+    // Benchmarking destinations
+    case benchmarking
+    case benchmarkDetail(category: String)
+
     var id: String {
         switch self {
         case .vehicleDetail(let id):
@@ -465,6 +469,10 @@ enum NavigationDestination: Hashable, Identifiable {
             return "claim-tracking-\(claimId)"
         case .addWarranty:
             return "add-warranty"
+        case .benchmarking:
+            return "benchmarking"
+        case .benchmarkDetail(let category):
+            return "benchmark-detail-\(category)"
         }
     }
 }
