@@ -827,7 +827,28 @@ router.post('/calendar/sync', async (req: Request, res: Response) => {
 
     // Get integration
     const result = await pool.query(
-      'SELECT * FROM calendar_integrations WHERE id = $1 AND user_id = $2',
+      'SELECT 
+      id,
+      tenant_id,
+      user_id,
+      provider,
+      is_primary,
+      is_enabled,
+      access_token,
+      refresh_token,
+      token_expiry,
+      calendar_id,
+      calendar_name,
+      sync_direction,
+      sync_vehicle_reservations,
+      sync_maintenance_appointments,
+      sync_work_orders,
+      last_sync_at,
+      sync_status,
+      sync_errors,
+      settings,
+      created_at,
+      updated_at FROM calendar_integrations WHERE id = $1 AND user_id = $2',
       [integrationId, userId]
     )
 
@@ -875,7 +896,7 @@ router.post('/calendar/sync', async (req: Request, res: Response) => {
 router.get('/appointment-types', async (req: Request, res: Response) => {
   try {
     const result = await pool.query(
-      `SELECT * FROM appointment_types
+      `SELECT id, tenant_id, name, description, duration_minutes, default_resource_id, created_at, updated_at FROM appointment_types
        WHERE is_active = true
        ORDER BY name`
     )

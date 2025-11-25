@@ -4,14 +4,11 @@
  */
 
 import { useState, useEffect } from 'react';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from './ui/card';
-import { Button } from './ui/button';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from './ui/card';import { Button } from './ui/button';
 import { Badge } from './ui/badge';
-import { Input } from './ui/input';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from './ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
-import { AlertCircle, Video, Camera, Eye, AlertTriangle, CheckCircle, XCircle, Play, Download, Shield, Users } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { AlertCircle, Video, Eye, AlertTriangle, CheckCircle, XCircle, Play, Shield, Users } from 'lucide-react';import { cn } from '@/lib/utils';
 
 interface VideoEvent {
   id: number;

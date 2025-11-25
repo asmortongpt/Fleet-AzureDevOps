@@ -230,42 +230,12 @@ struct MainTabView: View {
         case .help:
             HelpView()
 
-<<<<<<< HEAD
         case .pushToTalk:
             Text("Push-To-Talk - Coming Soon")
                 .font(.headline)
                 .foregroundColor(.secondary)
             // TODO: Implement PushToTalkPanel
 
-        case .fleetMap:
-            Text("Fleet Map View - Coming Soon")
-                .font(.headline)
-                .foregroundColor(.secondary)
-
-        case .tripTracking(let vehicleId):
-            Text("Trip Tracking for vehicle \(vehicleId) - Coming Soon")
-                .font(.headline)
-                .foregroundColor(.secondary)
-            // TODO: Implement EnhancedTripTrackingView
-
-        case .obd2Diagnostics:
-            Text("OBD2 Diagnostics - Coming Soon")
-                .font(.headline)
-                .foregroundColor(.secondary)
-            // TODO: Implement OBD2DiagnosticsView
-
-        case .maintenancePhoto(let vehicleId, let type):
-            Text("Maintenance Photo for vehicle \(vehicleId) - Type: \(type)")
-                .font(.headline)
-                .foregroundColor(.secondary)
-            // TODO: Implement VehicleMaintenancePhotoView
-
-        case .photoCapture(let vehicleId, let photoType):
-            Text("Photo Capture for vehicle \(vehicleId) - Type: \(photoType)")
-                .font(.headline)
-                .foregroundColor(.secondary)
-            // TODO: Implement PhotoCaptureView
-=======
         // Hardware integration destinations
         case .fleetMap:
             Text("Fleet Map View - Coming Soon")
@@ -291,7 +261,6 @@ struct MainTabView: View {
             Text("Photo Capture: \(photoType) for Vehicle: \(vehicleId)")
                 .font(.title)
                 .padding()
->>>>>>> stage-a/requirements-inception
         }
     }
 

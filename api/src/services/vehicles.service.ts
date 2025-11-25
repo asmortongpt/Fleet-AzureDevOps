@@ -103,7 +103,36 @@ export class VehiclesService {
       const offset = ((filters.page || 1) - 1) * limit
 
       const result = await pool.query(
-        `SELECT * FROM vehicles WHERE tenant_id = $1 ${assetFilters} ORDER BY created_at DESC LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`,
+        `SELECT 
+      id,
+      tenant_id,
+      vin,
+      make,
+      model,
+      year,
+      license_plate,
+      vehicle_type,
+      fuel_type,
+      status,
+      odometer,
+      engine_hours,
+      purchase_date,
+      purchase_price,
+      current_value,
+      gps_device_id,
+      last_gps_update,
+      latitude,
+      longitude,
+      location,
+      speed,
+      heading,
+      assigned_driver_id,
+      assigned_facility_id,
+      telematics_data,
+      photos,
+      notes,
+      created_at,
+      updated_at FROM vehicles WHERE tenant_id = $1 ${assetFilters} ORDER BY created_at DESC LIMIT ${paramIndex} OFFSET ${paramIndex + 1}`,
         [...scopeParams, limit, offset]
       )
 
