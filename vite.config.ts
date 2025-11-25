@@ -29,9 +29,10 @@ function injectRuntimeConfig(): PluginOption {
 
 // https://vite.dev/config/
 export default defineConfig({
-  // CRITICAL: Base path MUST be '/' for absolute paths
-  // Relative paths ('./') cause module loading failures in production
-  base: '/',
+  // CRITICAL: Base path MUST be './' for Azure Static Web Apps compatibility
+  // Using '/' (absolute paths) causes white screen errors on Azure deployment
+  // This is documented in WHITE_SCREEN_PREVENTION_CHECKLIST.md
+  base: './',
 
   plugins: [
     react(),
