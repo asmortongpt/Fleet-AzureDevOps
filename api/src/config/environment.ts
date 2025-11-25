@@ -145,10 +145,10 @@ class Environment {
     console.log('✅ Environment configuration validated');
     console.log(`   - Environment: ${this.config.NODE_ENV}`);
     console.log(`   - Port: ${this.config.PORT}`);
-    console.log(`   - Database: ${this.config.DATABASE_URL ? 'Configured' : 'Using individual params'}`);
-    console.log(`   - Redis: ${this.config.REDIS_URL ? 'Enabled' : 'Disabled'}`);
-    console.log(`   - JWT Secret: ${this.config.JWT_SECRET ? '✅ Set' : '❌ Missing'}`);
-    console.log(`   - Microsoft OAuth: ${this.config.MICROSOFT_CLIENT_ID ? 'Configured' : 'Not configured'}`);
+    console.log('   - Database: ${this.config.DATABASE_URL ? 'Configured' : 'Using individual params'}`);
+    console.log('   - Redis: ${this.config.REDIS_URL ? 'Enabled' : 'Disabled'}`);
+    console.log('   - JWT Secret: ${this.config.JWT_SECRET ? '✅ Set' : '❌ Missing'}`);
+    console.log('   - Microsoft OAuth: ${this.config.MICROSOFT_CLIENT_ID ? 'Configured' : 'Not configured'}`);
   }
 
   get<K extends keyof EnvironmentConfig>(key: K): EnvironmentConfig[K] {
