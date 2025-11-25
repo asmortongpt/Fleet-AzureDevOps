@@ -64,7 +64,6 @@ final class TripsViewModel: RefreshableViewModel {
     // MARK: - Initialization
     override init() {
         super.init()
-        setupSearchDebouncer()
         loadTrips()
     }
 
@@ -128,15 +127,6 @@ final class TripsViewModel: RefreshableViewModel {
         filterTrips()
     }
 
-    private func setupSearchDebouncer() {
-        $searchText
-            .debounce(for: .milliseconds(300), scheduler: RunLoop.main)
-            .removeDuplicates()
-            .sink { [weak self] _ in
-                self?.filterTrips()
-            }
-            .store(in: &cancellables)
-    }
 
     // MARK: - Filtering
     func applyFilter(_ filter: TripFilter) {
