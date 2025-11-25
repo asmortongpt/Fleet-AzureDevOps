@@ -126,6 +126,12 @@ export const conditionalCsrfProtection = (
     return next()
   }
 
+  // Skip CSRF for login in DEV mode for easier testing
+  if (process.env.NODE_ENV === 'development' && req.path === '/api/auth/login') {
+    console.log('[CSRF] DEV mode - skipping CSRF protection for login endpoint')
+    return next()
+  }
+
   // Skip CSRF in development mock data mode
   if (process.env.USE_MOCK_DATA === 'true' && process.env.NODE_ENV === 'development') {
     return next()

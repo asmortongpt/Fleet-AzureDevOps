@@ -93,9 +93,15 @@ struct APIConfiguration {
         static let refresh = "/auth/refresh"
         static let vehicles = "/vehicles"
         static let drivers = "/drivers"
+        static let assets = "/assets"
         static let maintenance = "/maintenance"
         static let fleetMetrics = "/fleet-metrics"
         static let health = "/health"
+
+        // Map Layer Endpoints
+        static let mapTraffic = "/api/v1/map/traffic"
+        static let mapWeather = "/api/v1/map/weather"
+        static let mapIncidents = "/api/v1/map/incidents"
     }
     
     // MARK: - Request Configuration

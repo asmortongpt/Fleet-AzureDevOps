@@ -59,6 +59,7 @@ class NavigationCoordinator: ObservableObject {
         // fleet://vehicles/{id}
         // fleet://trips/{id}
         // fleet://maintenance/{id}
+        // fleet://drivers/{id}
         // fleet://dashboard
         // fleet://more/settings
 
@@ -92,6 +93,15 @@ class NavigationCoordinator: ObservableObject {
                 navigate(to: .maintenanceDetail(id: maintenanceId))
             } else {
                 navigate(to: .maintenance)
+            }
+
+        case "drivers":
+            selectTab(.more)
+            let pathComponents = components.path.split(separator: "/").map(String.init)
+            if let driverId = pathComponents.first {
+                navigate(to: .driverDetail(id: driverId))
+            } else {
+                popToRoot()
             }
 
         case "more":
@@ -218,12 +228,39 @@ enum NavigationDestination: Hashable, Identifiable {
     case about
     case help
 
+    // Driver management destinations
+    case driverDetail(id: String)
+    case addDriver
+    case editDriver(id: String)
+
     // Hardware integration destinations
     case fleetMap
     case tripTracking(vehicleId: String)
     case obd2Diagnostics
     case maintenancePhoto(vehicleId: String, type: String)
     case photoCapture(vehicleId: String, photoType: String)
+
+    // Geofence management destinations
+    case geofenceList
+    case geofenceDetail(id: String)
+    case addGeofence
+    case editGeofence(id: String)
+
+    // GIS Command Center destination
+    case gisCommandCenter
+
+    // Executive dashboard
+    case executiveDashboard
+
+    // Optimization destinations
+    case fleetOptimizer
+    case routeOptimizer
+    case optimizedRoute(routeId: String)
+
+    // Data Workbench destinations
+    case dataWorkbench
+    case queryBuilder
+    case dataGrid
 
     var id: String {
         switch self {
@@ -249,6 +286,12 @@ enum NavigationDestination: Hashable, Identifiable {
             return "about"
         case .help:
             return "help"
+        case .driverDetail(let id):
+            return "driver-\(id)"
+        case .addDriver:
+            return "add-driver"
+        case .editDriver(let id):
+            return "edit-driver-\(id)"
         case .fleetMap:
             return "fleet-map"
         case .tripTracking(let vehicleId):
@@ -259,6 +302,30 @@ enum NavigationDestination: Hashable, Identifiable {
             return "maintenance-photo-\(vehicleId)-\(type)"
         case .photoCapture(let vehicleId, let photoType):
             return "photo-capture-\(vehicleId)-\(photoType)"
+        case .geofenceList:
+            return "geofence-list"
+        case .geofenceDetail(let id):
+            return "geofence-\(id)"
+        case .addGeofence:
+            return "add-geofence"
+        case .editGeofence(let id):
+            return "edit-geofence-\(id)"
+        case .gisCommandCenter:
+            return "gis-command-center"
+        case .executiveDashboard:
+            return "executive-dashboard"
+        case .fleetOptimizer:
+            return "fleet-optimizer"
+        case .routeOptimizer:
+            return "route-optimizer"
+        case .optimizedRoute(let routeId):
+            return "optimized-route-\(routeId)"
+        case .dataWorkbench:
+            return "data-workbench"
+        case .queryBuilder:
+            return "query-builder"
+        case .dataGrid:
+            return "data-grid"
         }
     }
 }
