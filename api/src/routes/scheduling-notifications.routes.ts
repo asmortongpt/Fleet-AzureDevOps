@@ -19,9 +19,6 @@ router.get('/preferences', async (req: Request, res: Response) => {
     const { userId } = req.user as any
 
     const result = await pool.query(
-<<<<<<< HEAD
-      `SELECT id, user_id, tenant_id, notification_type, enabled, created_at, updated_at FROM scheduling_notification_preferences WHERE user_id = $1`,
-=======
       `SELECT 
       id,
       user_id,
@@ -31,8 +28,7 @@ router.get('/preferences', async (req: Request, res: Response) => {
       schedule_changes,
       shift_reminders,
       created_at,
-      updated_at FROM scheduling_notification_preferences WHERE user_id = $1`,
->>>>>>> feature/devsecops-audit-remediation
+      updated_at FROM scheduling_notification_preferences WHERE user_id = $1',
       [userId]
     )
 
@@ -141,9 +137,6 @@ router.put('/preferences', async (req: Request, res: Response) => {
 
     // Fetch updated preferences
     const result = await pool.query(
-<<<<<<< HEAD
-      `SELECT id, user_id, tenant_id, notification_type, enabled, created_at, updated_at FROM scheduling_notification_preferences WHERE user_id = $1`,
-=======
       `SELECT 
       id,
       user_id,
@@ -153,8 +146,7 @@ router.put('/preferences', async (req: Request, res: Response) => {
       schedule_changes,
       shift_reminders,
       created_at,
-      updated_at FROM scheduling_notification_preferences WHERE user_id = $1`,
->>>>>>> feature/devsecops-audit-remediation
+      updated_at FROM scheduling_notification_preferences WHERE user_id = $1',
       [userId]
     )
 
@@ -261,7 +253,7 @@ router.get('/history', async (req: Request, res: Response) => {
          AND c.communication_type = 'Email'
          AND c.subject LIKE '%Reservation%' OR c.subject LIKE '%Maintenance%'
        ORDER BY c.communication_datetime DESC
-       LIMIT $2 OFFSET $3`,
+       LIMIT $2 OFFSET $3',
       [userEmail, limit, offset]
     )
 
@@ -357,7 +349,7 @@ router.post('/resend/:id', async (req: Request, res: Response) => {
          FROM vehicle_reservations vr
          JOIN vehicles v ON vr.vehicle_id = v.id
          JOIN users u ON vr.reserved_by = u.id
-         WHERE vr.id = $1`,
+         WHERE vr.id = $1',
         [id]
       )
 
@@ -396,7 +388,7 @@ router.post('/resend/:id', async (req: Request, res: Response) => {
          LEFT JOIN appointment_types at ON sbs.appointment_type_id = at.id
          LEFT JOIN service_bays sb ON sbs.service_bay_id = sb.id
          LEFT JOIN users u ON sbs.assigned_technician_id = u.id
-         WHERE sbs.id = $1`,
+         WHERE sbs.id = $1',
         [id]
       )
 

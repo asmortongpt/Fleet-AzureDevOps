@@ -394,7 +394,7 @@ class OCPPService extends EventEmitter {
         `UPDATE charging_sessions
          SET end_time = NOW(), meter_stop = $1, session_status = 'Completed',
              stop_reason = $2
-         WHERE transaction_id = $3`,
+         WHERE transaction_id = $3',
         [meterStop, transactionInfo.stoppedReason, transactionInfo.transactionId]
       );
 
@@ -522,7 +522,7 @@ class OCPPService extends EventEmitter {
       `SELECT cs.transaction_id, cst.station_id
        FROM charging_sessions cs
        JOIN charging_stations cst ON cs.station_id = cst.id
-       WHERE cs.transaction_id = $1`,
+       WHERE cs.transaction_id = $1',
       [transactionId]
     );
 
@@ -563,7 +563,7 @@ class OCPPService extends EventEmitter {
         `UPDATE charging_connectors
          SET status = 'Reserved'
          WHERE station_id = (SELECT id FROM charging_stations WHERE station_id = $1)
-         AND connector_id = $2`,
+         AND connector_id = $2',
         [stationId, connectorId]
       );
     }

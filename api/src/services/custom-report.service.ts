@@ -508,7 +508,7 @@ export class CustomReportService {
         `UPDATE report_executions SET
           status = 'failed',
           error_message = $1
-        WHERE id = $2`,
+        WHERE id = $2',
         [error.message, executionId]
       )
 
@@ -562,7 +562,7 @@ export class CustomReportService {
     }
 
     // Build WHERE clause
-    let whereClause = `WHERE ${primarySchema.alias}.tenant_id = $1`
+    let whereClause = `WHERE ${primarySchema.alias}.tenant_id = $1'
 
     if (config.filters && config.filters.length > 0) {
       config.filters.forEach(filter => {

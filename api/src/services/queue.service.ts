@@ -525,7 +525,7 @@ class QueueService {
       }
 
       await pool.query(
-        `UPDATE job_tracking SET ${setFields.join(', ')} WHERE job_id = $1`,
+        `UPDATE job_tracking SET ${setFields.join(', ')} WHERE job_id = $1',
         values
       );
     } catch (error) {
@@ -541,7 +541,7 @@ class QueueService {
       await pool.query(
         `UPDATE job_tracking
          SET status = $2, result = $3, completed_at = NOW(), updated_at = NOW()
-         WHERE job_id = $1`,
+         WHERE job_id = $1',
         [jobId, JobStatus.COMPLETED, JSON.stringify({ data: result, processingTime })]
       );
     } catch (error) {
@@ -558,7 +558,7 @@ class QueueService {
         `UPDATE job_tracking
          SET status = $2, error = $3, stack_trace = $4, failed_at = NOW(),
              retry_count = retry_count + 1, updated_at = NOW()
-         WHERE job_id = $1`,
+         WHERE job_id = $1',
         [jobId, JobStatus.FAILED, error.message, error.stack]
       );
     } catch (err) {
@@ -644,7 +644,7 @@ class QueueService {
       await pool.query(
         `UPDATE dead_letter_queue
          SET retry_attempted = TRUE, retry_attempted_at = NOW()
-         WHERE job_id = $1`,
+         WHERE job_id = $1',
         [jobId]
       );
 

@@ -507,7 +507,7 @@ export class CustomFieldsService {
          COUNT(DISTINCT entity_id) as unique_entities,
          COUNT(CASE WHEN value IS NULL OR value = 'null' THEN 1 END) as null_count
        FROM custom_field_values
-       WHERE field_id = $1`,
+       WHERE field_id = $1',
       [fieldId]
     )
 

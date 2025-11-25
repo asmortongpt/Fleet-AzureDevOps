@@ -553,7 +553,7 @@ export class AssignmentNotificationService {
          WHERE entity_type = 'vehicle_assignment'
            AND entity_id = $1
            AND tenant_id = $2
-           AND action = $3`,
+           AND action = $3',
         [assignmentId, tenantId, action]
       );
     } catch (error) {

@@ -69,7 +69,7 @@ router.post(
         `SELECT c.*, p.auto_approve_under_amount, p.require_receipt_upload, p.receipt_required_over_amount
          FROM personal_use_charges c
          LEFT JOIN personal_use_policies p ON c.tenant_id = p.tenant_id
-         WHERE c.id = $1 AND c.tenant_id = $2`,
+         WHERE c.id = $1 AND c.tenant_id = $2',
         [charge_id, req.user!.tenant_id]
       )
 
@@ -153,7 +153,7 @@ router.post(
                reimbursement_requested_at = NOW(),
                reimbursement_approved_at = NOW(),
                reimbursement_approved_by = $1
-           WHERE id = $2`,
+           WHERE id = $2',
           [req.user!.id, charge_id]
         )
       } else {
@@ -161,7 +161,7 @@ router.post(
           `UPDATE personal_use_charges
            SET is_reimbursement = true,
                reimbursement_requested_at = NOW()
-           WHERE id = $1`,
+           WHERE id = $1',
           [charge_id]
         )
       }
@@ -266,11 +266,11 @@ router.get('/', async (req: AuthRequest, res: Response) => {
     const result = await pool.query(query, params)
 
     // Get total count
-    let countQuery = `SELECT COUNT(*) FROM reimbursement_requests WHERE tenant_id = $1`
+    let countQuery = `SELECT COUNT(*) FROM reimbursement_requests WHERE tenant_id = $1'
     const countParams = [req.user!.tenant_id]
 
     if (req.user!.role !== 'admin' && req.user!.role !== 'fleet_manager') {
-      countQuery += ` AND driver_id = $2`
+      countQuery += ` AND driver_id = $2'
       countParams.push(req.user!.id)
     }
 
@@ -315,7 +315,7 @@ router.get('/:id', async (req: AuthRequest, res: Response) => {
       LEFT JOIN users d ON r.driver_id = d.id
       LEFT JOIN users rev ON r.reviewed_by_user_id = rev.id
       LEFT JOIN personal_use_charges c ON r.charge_id = c.id
-      WHERE r.id = $1 AND r.tenant_id = $2`,
+      WHERE r.id = $1 AND r.tenant_id = $2',
       [req.params.id, req.user!.tenant_id]
     )
 
@@ -373,7 +373,7 @@ router.patch(
           reviewer_notes, approved_amount, payment_date, payment_method,
           payment_reference, created_at, updated_at, created_by_user_id
         FROM reimbursement_requests
-        WHERE id = $1 AND tenant_id = $2`,
+        WHERE id = $1 AND tenant_id = $2',
         [req.params.id, req.user!.tenant_id]
       )
 
@@ -428,7 +428,7 @@ router.patch(
         `UPDATE personal_use_charges
          SET reimbursement_approved_at = NOW(),
              reimbursement_approved_by = $1
-         WHERE id = $2`,
+         WHERE id = $2',
         [req.user!.id, current.charge_id]
       )
 
@@ -476,7 +476,7 @@ router.patch(
           reviewer_notes, approved_amount, payment_date, payment_method,
           payment_reference, created_at, updated_at, created_by_user_id
         FROM reimbursement_requests
-        WHERE id = $1 AND tenant_id = $2`,
+        WHERE id = $1 AND tenant_id = $2',
         [req.params.id, req.user!.tenant_id]
       )
 
@@ -514,7 +514,7 @@ router.patch(
         `UPDATE personal_use_charges
          SET reimbursement_rejected_at = NOW(),
              reimbursement_rejection_reason = $1
-         WHERE id = $2`,
+         WHERE id = $2',
         [reviewer_notes, current.charge_id]
       )
 
@@ -565,7 +565,7 @@ router.patch(
           reviewer_notes, approved_amount, payment_date, payment_method,
           payment_reference, created_at, updated_at, created_by_user_id
         FROM reimbursement_requests
-        WHERE id = $1 AND tenant_id = $2`,
+        WHERE id = $1 AND tenant_id = $2',
         [req.params.id, req.user!.tenant_id]
       )
 
@@ -604,7 +604,7 @@ router.patch(
          SET reimbursement_paid_at = $1,
              reimbursement_payment_reference = $2,
              charge_status = 'paid'
-         WHERE id = $3`,
+         WHERE id = $3',
         [payment_date, payment_reference, current.charge_id]
       )
 
@@ -701,7 +701,7 @@ router.get('/summary/driver/:driver_id', async (req: AuthRequest, res: Response)
         rejected_requests, paid_requests, total_requested,
         total_approved, total_paid, avg_approval_days
       FROM v_driver_reimbursement_summary
-      WHERE tenant_id = $1 AND driver_id = $2`,
+      WHERE tenant_id = $1 AND driver_id = $2',
       [req.user!.tenant_id, driverId]
     )
 

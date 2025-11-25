@@ -297,7 +297,7 @@ class DriverSafetyAIService {
         `SELECT vse.*, vc.camera_type
          FROM video_safety_events vse
          LEFT JOIN vehicle_cameras vc ON vse.camera_id = vc.id
-         WHERE vse.id = $1`,
+         WHERE vse.id = $1',
         [eventId]
       );
 
@@ -315,7 +315,7 @@ class DriverSafetyAIService {
       await this.db.query(
         `UPDATE video_safety_events
          SET ai_processing_status = 'processing'
-         WHERE id = $1`,
+         WHERE id = $1',
         [eventId]
       );
 
@@ -350,7 +350,7 @@ class DriverSafetyAIService {
         await this.db.query(
           `UPDATE video_safety_events
            SET coaching_required = true
-           WHERE id = $1`,
+           WHERE id = $1',
           [eventId]
         );
       }
@@ -369,7 +369,7 @@ class DriverSafetyAIService {
         `UPDATE video_safety_events
          SET ai_processing_status = 'failed',
              updated_at = NOW()
-         WHERE id = $1`,
+         WHERE id = $1',
         [eventId]
       );
 
@@ -388,7 +388,7 @@ class DriverSafetyAIService {
          SET severity = 'critical',
              coaching_required = true,
              marked_as_evidence = true
-         WHERE id = $1`,
+         WHERE id = $1',
         [eventId]
       );
 
@@ -410,7 +410,7 @@ class DriverSafetyAIService {
        WHERE ai_processing_status = 'pending'
          AND (video_thumbnail_url IS NOT NULL OR video_url IS NOT NULL)
        ORDER BY event_timestamp DESC
-       LIMIT $1`,
+       LIMIT $1',
       [limit]
     );
 
@@ -442,7 +442,7 @@ class DriverSafetyAIService {
          total_detections,
          enabled
        FROM ai_detection_models
-       WHERE model_name = $1`,
+       WHERE model_name = $1',
       [modelName]
     );
 
@@ -498,7 +498,7 @@ class DriverSafetyAIService {
            reviewed_by = $1,
            reviewed_at = NOW(),
            review_notes = $2
-       WHERE id = $3`,
+       WHERE id = $3',
       [userId, reason || 'Marked as false positive', eventId]
     );
 
@@ -506,7 +506,7 @@ class DriverSafetyAIService {
     const eventResult = await this.db.query(
       `SELECT ai_detected_behaviors
        FROM video_safety_events
-       WHERE id = $1`,
+       WHERE id = $1',
       [eventId]
     );
 
@@ -575,7 +575,7 @@ class DriverSafetyAIService {
          )) as sessions
        FROM driver_coaching_sessions
        WHERE driver_id = $1
-         AND conducted_at BETWEEN $2 AND $3`,
+         AND conducted_at BETWEEN $2 AND $3',
       [driverId, startDate, endDate]
     );
 

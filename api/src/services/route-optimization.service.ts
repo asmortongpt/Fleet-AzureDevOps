@@ -647,7 +647,7 @@ async function saveOptimizedRoutes(
         await pool.query(
           `UPDATE route_stops
            SET assigned_route_id = $1, assigned_sequence = $2
-           WHERE id = $3`,
+           WHERE id = $3',
           [routeId, i + 1, stop.id]
         )
       }
@@ -691,7 +691,7 @@ export async function getOptimizationJob(
 ): Promise<any> {
   const result = await pool.query(
     `SELECT id, tenant_id, job_name, job_status, result_data, created_at, updated_at FROM route_optimization_jobs
-     WHERE id = $1 AND tenant_id = $2`,
+     WHERE id = $1 AND tenant_id = $2',
     [jobId, tenantId]
   )
 

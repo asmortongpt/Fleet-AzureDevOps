@@ -213,7 +213,7 @@ async function categorizeNewEmails(): Promise<number> {
         const categories = await categorizeEmail(email)
 
         await pool.query(
-          `UPDATE outlook_emails SET categories = $1 WHERE id = $2`,
+          `UPDATE outlook_emails SET categories = $1 WHERE id = $2',
           [JSON.stringify(categories), email.id]
         )
 

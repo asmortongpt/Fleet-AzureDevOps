@@ -23,7 +23,7 @@ router.get(
         `SELECT id, tenant_id, vehicle_id, driver_id, inspection_type, status,
                 passed, failed_items, odometer_reading, inspector_notes,
                 signature_url, completed_at, created_at, updated_at
-         FROM inspections WHERE tenant_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3`,
+         FROM inspections WHERE tenant_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3',
         [req.user!.tenant_id, limit, offset]
       )
 
@@ -59,7 +59,7 @@ router.get(
         `SELECT id, tenant_id, vehicle_id, driver_id, inspection_type, status,
                 passed, failed_items, checklist_data, odometer_reading,
                 inspector_notes, signature_url, completed_at, created_at, updated_at
-         FROM inspections WHERE id = $1 AND tenant_id = $2`,
+         FROM inspections WHERE id = $1 AND tenant_id = $2',
         [req.params.id, req.user!.tenant_id]
       )
 
