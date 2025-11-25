@@ -471,7 +471,7 @@ export class AttachmentService {
       await pool.query(
         `UPDATE communication_attachments
          SET teams_file_id = $1, storage_url = $2
-         WHERE original_filename = $3`,
+         WHERE original_filename = $3',
         [uploadResult.id, uploadResult.webUrl, file.originalname]
       )
 
@@ -595,7 +595,7 @@ export class AttachmentService {
       await pool.query(
         `UPDATE communication_attachments
          SET outlook_attachment_id = $1
-         WHERE original_filename = $2`,
+         WHERE original_filename = $2',
         [result.id, file.originalname]
       )
 

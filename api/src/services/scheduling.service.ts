@@ -131,7 +131,7 @@ export async function checkVehicleConflicts(
 
     // Check if vehicle is out of service
     const vehicle = await pool.query(
-      'SELECT status FROM vehicles WHERE id = $1`,
+      'SELECT status FROM vehicles WHERE id = $1',
       [vehicleId]
     )
 
@@ -566,9 +566,6 @@ async function syncReservationToCalendars(
   try {
     // Get vehicle details
     const vehicle = await pool.query(
-<<<<<<< HEAD
-      'SELECT id, tenant_id, vin, license_plate, make, model, year, color, current_mileage, status, acquired_date, disposition_date, purchase_price, residual_value, created_at, updated_at, deleted_at FROM vehicles WHERE id = $1',
-=======
       `SELECT
       id,
       tenant_id,
@@ -598,8 +595,7 @@ async function syncReservationToCalendars(
       photos,
       notes,
       created_at,
-      updated_at FROM vehicles WHERE id = $1`,
->>>>>>> feature/devsecops-audit-remediation
+      updated_at FROM vehicles WHERE id = $1',
       [reservation.vehicle_id]
     )
 
@@ -657,7 +653,7 @@ async function syncReservationToCalendars(
             : 'google_event_id'
 
           await pool.query(
-            `UPDATE vehicle_reservations SET ${updateField} = $1 WHERE id = $2`,
+            `UPDATE vehicle_reservations SET ${updateField} = $1 WHERE id = $2',
             [eventId, reservation.id]
           )
         }
@@ -692,7 +688,7 @@ async function syncMaintenanceToCalendars(
        LEFT JOIN appointment_types at ON sbs.appointment_type_id = at.id
        LEFT JOIN service_bays sb ON sbs.service_bay_id = sb.id
        LEFT JOIN users u ON sbs.assigned_technician_id = u.id
-       WHERE sbs.id = $1`,
+       WHERE sbs.id = $1',
       [appointment.id]
     )
 
@@ -755,7 +751,7 @@ async function syncMaintenanceToCalendars(
             : 'google_event_id'
 
           await pool.query(
-            `UPDATE service_bay_schedules SET ${updateField} = $1 WHERE id = $2`,
+            `UPDATE service_bay_schedules SET ${updateField} = $1 WHERE id = $2',
             [eventId, appointment.id]
           )
         }

@@ -121,7 +121,7 @@ router.get(
                 scheduled_start, scheduled_end, actual_start, actual_end,
                 labor_hours, labor_cost, parts_cost, notes, odometer_reading,
                 engine_hours_reading, created_by, created_at, updated_at
-         FROM work_orders WHERE id = $1 AND tenant_id = $2`,
+         FROM work_orders WHERE id = $1 AND tenant_id = $2',
         [req.params.id, req.user!.tenant_id]
       )
 

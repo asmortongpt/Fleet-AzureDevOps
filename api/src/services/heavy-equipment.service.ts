@@ -163,7 +163,7 @@ class HeavyEquipmentService {
       FROM heavy_equipment he
       JOIN assets a ON he.asset_id = a.id
       LEFT JOIN users u ON a.assigned_to = u.id
-      WHERE he.id = $1 AND he.tenant_id = $2`,
+      WHERE he.id = $1 AND he.tenant_id = $2',
       [equipmentId, tenantId]
     )
 
@@ -289,7 +289,7 @@ class HeavyEquipmentService {
       LEFT JOIN drivers d ON ehmr.operator_id = d.id
       WHERE ehmr.equipment_id = $1
       ORDER BY ehmr.reading_date DESC
-      LIMIT $2`,
+      LIMIT $2',
       [equipmentId, limit]
     )
 
@@ -483,7 +483,7 @@ class HeavyEquipmentService {
       LEFT JOIN equipment_checklist_templates ect ON emc.checklist_template_id = ect.id
       WHERE emc.equipment_id = $1
       ORDER BY emc.completed_date DESC
-      LIMIT $2`,
+      LIMIT $2',
       [equipmentId, limit]
     )
 
@@ -566,7 +566,7 @@ class HeavyEquipmentService {
     const params: any[] = [tenantId]
 
     if (equipmentId) {
-      query += ` AND ems.equipment_id = $2`
+      query += ` AND ems.equipment_id = $2'
       params.push(equipmentId)
     }
 
@@ -592,7 +592,7 @@ class HeavyEquipmentService {
       `SELECT id, tenant_id, equipment_id, total_cost, depreciation, maintenance_cost, analysis_date FROM equipment_cost_analysis
        WHERE equipment_id = $1
          AND analysis_period_start = $2
-         AND analysis_period_end = $3`,
+         AND analysis_period_end = $3',
       [equipmentId, startDate, endDate]
     )
 
@@ -609,7 +609,7 @@ class HeavyEquipmentService {
        FROM asset_maintenance am
        JOIN heavy_equipment he ON am.asset_id = he.asset_id
        WHERE he.id = $1
-         AND am.maintenance_date BETWEEN $2 AND $3`,
+         AND am.maintenance_date BETWEEN $2 AND $3',
       [equipmentId, startDate, endDate]
     )
 

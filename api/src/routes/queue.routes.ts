@@ -354,7 +354,7 @@ router.post('/dead-letter/:jobId/review', requireAdmin, async (req: Request, res
            reviewed_by = $1,
            reviewed_at = NOW(),
            resolution_notes = $2
-       WHERE job_id = $3`,
+       WHERE job_id = $3',
       [reviewedBy || 'admin', resolutionNotes || '', jobId]
     );
 

@@ -436,7 +436,7 @@ export class AnalyticsService {
          SUM(CAST(cost AS NUMERIC)) FILTER (WHERE next_maintenance_date BETWEEN NOW() AND NOW() + INTERVAL '90 days') as upcoming_costs
        FROM asset_maintenance am
        JOIN assets a ON am.asset_id = a.id
-       WHERE a.tenant_id = $1`,
+       WHERE a.tenant_id = $1',
       [tenantId]
     )
 

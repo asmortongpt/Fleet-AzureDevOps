@@ -423,7 +423,7 @@ export class DocumentRAGService {
     await pool.query(
       `UPDATE document_rag_queries
        SET feedback_rating = $1, feedback_comment = $2
-       WHERE id = $3`,
+       WHERE id = $3',
       [rating, comment, queryId]
     )
   }
@@ -436,7 +436,7 @@ export class DocumentRAGService {
       pool.query(
         `SELECT COUNT(*) as total, AVG(execution_time_ms) as avg_time
          FROM document_rag_queries
-         WHERE tenant_id = $1`,
+         WHERE tenant_id = $1',
         [tenantId]
       ),
       pool.query(

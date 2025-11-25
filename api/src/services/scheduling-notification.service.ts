@@ -735,7 +735,7 @@ class SchedulingNotificationService {
       schedule_changes,
       shift_reminders,
       created_at,
-      updated_at FROM scheduling_notification_preferences WHERE user_id = $1`,
+      updated_at FROM scheduling_notification_preferences WHERE user_id = $1',
       [userId]
     )
 
