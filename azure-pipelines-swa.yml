@@ -1,5 +1,5 @@
 # Fleet Management - Azure Static Web Apps Pipeline
-# Deploys to: https://purple-river-0f465960f.3.azurestaticapps.net
+# Deploys to: https://green-pond-0f040980f.3.azurestaticapps.net
 trigger:
   - main
 
@@ -7,7 +7,7 @@ pool:
   vmImage: ubuntu-latest
 
 variables:
-  - group: fleet-management-secrets  # Link to Azure Key Vault variable group
+  - group: fleet-production-secrets  # Linked to fleet-secrets-0d326d71 Key Vault
 
 steps:
   - task: NodeTool@0
@@ -22,22 +22,22 @@ steps:
     displayName: 'Build application'
     env:
       NODE_ENV: production
-      VITE_AZURE_AD_CLIENT_ID: $(VITE_AZURE_AD_CLIENT_ID)
-      VITE_AZURE_AD_TENANT_ID: $(VITE_AZURE_AD_TENANT_ID)
-      VITE_AZURE_AD_REDIRECT_URI: $(VITE_AZURE_AD_REDIRECT_URI)
+      VITE_AZURE_AD_CLIENT_ID: $(VITE-AZURE-AD-CLIENT-ID)
+      VITE_AZURE_AD_TENANT_ID: $(VITE-AZURE-AD-TENANT-ID)
+      VITE_AZURE_AD_REDIRECT_URI: $(VITE-AZURE-AD-REDIRECT-URI)
 
   - script: |
       npm install -g @azure/static-web-apps-cli
       swa deploy dist \
-        --deployment-token $(AZURE_STATIC_WEB_APPS_API_TOKEN) \
+        --deployment-token $(AZURE-STATIC-WEB-APPS-API-TOKEN) \
         --env production \
         --no-use-keychain
     displayName: 'Deploy to Azure Static Web Apps'
 
   - script: |
-      echo "Verifying deployment at https://purple-river-0f465960f.3.azurestaticapps.net"
+      echo "Verifying deployment at https://green-pond-0f040980f.3.azurestaticapps.net"
       sleep 30
-      HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" https://purple-river-0f465960f.3.azurestaticapps.net)
+      HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" https://green-pond-0f040980f.3.azurestaticapps.net)
       if [ "$HTTP_CODE" = "200" ]; then
         echo "✅ Deployment successful! Site is live."
       else
