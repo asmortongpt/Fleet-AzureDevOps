@@ -9,6 +9,38 @@ import Foundation
 import Combine
 import SwiftUI
 
+// MARK: - Stub Types (TODO: Implement complete checklist feature)
+struct ChecklistInstance: Identifiable {
+    let id: String = UUID().uuidString
+}
+
+struct ChecklistTemplate: Identifiable {
+    let id: String = UUID().uuidString
+}
+
+enum ChecklistCategory {
+    case general
+}
+
+struct ChecklistResponse: Identifiable {
+    let id: String = UUID().uuidString
+}
+
+enum AttachmentType {
+    case photo
+}
+
+struct ChecklistItemInstance: Identifiable {
+    let id: String = UUID().uuidString
+}
+
+class ChecklistService: ObservableObject {
+    static let shared = ChecklistService()
+    @Published var pendingChecklists: [ChecklistInstance] = []
+    @Published var completedChecklists: [ChecklistInstance] = []
+    private init() {}
+}
+
 @MainActor
 class ChecklistViewModel: ObservableObject {
     // MARK: - Published Properties

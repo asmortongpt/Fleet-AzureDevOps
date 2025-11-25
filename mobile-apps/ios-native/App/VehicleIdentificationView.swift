@@ -919,7 +919,7 @@ struct TroubleshootingStep: Hashable {
     let actionTitle: String
 }
 
-struct Vehicle: Identifiable, Hashable {
+struct IdentifiableVehicle: Identifiable, Hashable {
     let id: String
     let make: String
     let model: String
@@ -928,17 +928,17 @@ struct Vehicle: Identifiable, Hashable {
     let location: String
     let vin: String?
     let obd2SensorID: String?
-    let connectionType: ConnectionType
+    let connectionType: VehicleConnectionType
 }
 
-enum ConnectionType {
+enum VehicleConnectionType {
     case obd2
     case smartcar
     case manual
 }
 
 struct VehicleReservation {
-    let vehicle: Vehicle
+    let vehicle: IdentifiableVehicle
     let startTime: Date
     let endTime: Date
 }
@@ -948,9 +948,9 @@ struct VehicleReservation {
 @MainActor
 class VehicleIdentificationViewModel: NSObject, ObservableObject, CBCentralManagerDelegate {
     // Published Properties
-    @Published var assignedVehicle: Vehicle?
+    @Published var assignedVehicle: IdentifiableVehicle?
     @Published var activeReservation: VehicleReservation?
-    @Published var recentVehicles: [Vehicle] = []
+    @Published var recentVehicles: [IdentifiableVehicle] = []
     @Published var isConnecting = false
     @Published var isConnected = false
     @Published var bluetoothStatus: ConnectionStatus = .disabled
@@ -1125,7 +1125,7 @@ class VehicleIdentificationViewModel: NSObject, ObservableObject, CBCentralManag
 
     // MARK: - AI-Assisted Auto-Connect with Guarantee System
 
-    private let guaranteedService = GuaranteedOBD2Service()
+    // private let guaranteedService = GuaranteedOBD2Service() // TODO: Implement GuaranteedOBD2Service
 
     func initiateAIAssistedConnection() async {
         guard let vehicle = assignedVehicle else { return }
