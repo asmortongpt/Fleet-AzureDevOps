@@ -121,7 +121,7 @@ export async function initializeSecrets(): Promise<void> {
         console.log(`   ✓ Loaded: ${secretName}`)
       } catch (error) {
         console.error(`   ✗ Failed to load: ${secretName}`, error)
-        throw new Error(`Critical secret '${secretName}' not available`)
+        throw new Error('Critical secret '${secretName}' not available`)
       }
     })
 
@@ -209,7 +209,7 @@ export async function getSecret(
     const secret = await secretClient.getSecret(secretName)
 
     if (!secret.value) {
-      throw new Error(`Secret '${secretName}' has no value`)
+      throw new Error('Secret '${secretName}' has no value`)
     }
 
     // Cache the secret
@@ -223,7 +223,7 @@ export async function getSecret(
     return secret.value
 
   } catch (error) {
-    console.error(`Failed to retrieve secret '${secretName}' from Key Vault:`, error)
+    console.error('Failed to retrieve secret '${secretName}' from Key Vault:`, error)
 
     // Try fallback to environment variable
     if (fallbackEnvVar) {
@@ -234,7 +234,7 @@ export async function getSecret(
       }
     }
 
-    throw new Error(`Secret '${secretName}' not available and no fallback provided`)
+    throw new Error('Secret '${secretName}' not available and no fallback provided`)
   }
 }
 
@@ -255,8 +255,8 @@ function getLocalSecret(secretName: string, fallbackEnvVar?: string): string {
 
   if (!value) {
     throw new Error(
-      `Secret '${secretName}' not found in environment. ` +
-      `Expected env var: ${envVarName}${fallbackEnvVar ? ` or ${fallbackEnvVar}` : ''}`
+      'Secret '${secretName}' not found in environment. ` +
+      'Expected env var: ${envVarName}${fallbackEnvVar ? ` or ${fallbackEnvVar}` : ''}`
     )
   }
 
@@ -285,7 +285,7 @@ export async function getSecrets(secretNames: string[]): Promise<Map<string, str
       const value = await getSecret(name)
       results.set(name, value)
     } catch (error) {
-      console.error(`Failed to retrieve secret '${name}':`, error)
+      console.error('Failed to retrieve secret '${name}':`, error)
       throw error
     }
   })

@@ -136,7 +136,7 @@ async function processReservationReminders(): Promise<number> {
 
           // Get user notification preferences
           const prefsResult = await pool.query(
-            `SELECT reminder_times FROM scheduling_notification_preferences WHERE user_id = $1',
+            'SELECT reminder_times FROM scheduling_notification_preferences WHERE user_id = $1',
             [reservation.reserved_by]
           )
 
@@ -243,7 +243,7 @@ async function processMaintenanceReminders(): Promise<number> {
 
           // Get user notification preferences
           const prefsResult = await pool.query(
-            `SELECT reminder_times FROM scheduling_notification_preferences WHERE user_id = $1',
+            'SELECT reminder_times FROM scheduling_notification_preferences WHERE user_id = $1',
             [appointment.assigned_technician_id]
           )
 
