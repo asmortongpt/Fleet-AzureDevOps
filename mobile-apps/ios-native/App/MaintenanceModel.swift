@@ -188,6 +188,7 @@ public enum MaintenanceStatus: String, Codable, CaseIterable {
         case .completed: return "green"
         case .cancelled: return "gray"
         case .delayed: return "red"
+        case .overdue: return "red"
         case .onHold: return "yellow"
         case .overdue: return "red"
         }
