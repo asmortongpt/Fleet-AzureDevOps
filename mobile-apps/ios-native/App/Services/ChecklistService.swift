@@ -36,7 +36,7 @@ class ChecklistService: ObservableObject {
 
     func loadTemplates() {
         // Load predefined templates
-        templates = PredefinedTemplates.allTemplates()
+        templates = [] // TODO: PredefinedTemplates.allTemplates() - currently commented out
 
         // TODO: Load custom templates from API
         // loadCustomTemplates()

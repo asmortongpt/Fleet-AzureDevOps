@@ -8,6 +8,26 @@
 import SwiftUI
 import Charts
 
+// MARK: - Activity Types
+struct ActivityItem: Identifiable {
+    let id = UUID()
+    let timestamp: Date
+    let type: ActivityType
+    let title: String
+    let description: String
+    let vehicleId: String?
+    let driverId: String?
+}
+
+enum ActivityType: String {
+    case tripStarted = "Trip Started"
+    case tripCompleted = "Trip Completed"
+    case maintenanceScheduled = "Maintenance Scheduled"
+    case maintenanceCompleted = "Maintenance Completed"
+    case alert = "Alert"
+    case incident = "Incident"
+}
+
 struct DashboardView: View {
     @StateObject private var viewModel = DashboardViewModel()
     @State private var selectedStatDetail: StatDetailType?

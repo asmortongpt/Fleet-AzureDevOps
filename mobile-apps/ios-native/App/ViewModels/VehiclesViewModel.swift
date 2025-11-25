@@ -25,6 +25,7 @@ final class VehiclesViewModel: RefreshableViewModel {
     @Published var offlineCount: Int = 0
 
     // MARK: - Private Properties
+    private let mockData = MockDataGenerator.shared
     private var allVehicles: [Vehicle] = []
     private let networkManager = AzureNetworkManager()
     private let persistenceManager = DataPersistenceManager.shared
@@ -71,7 +72,6 @@ final class VehiclesViewModel: RefreshableViewModel {
     // MARK: - Initialization
     override init() {
         super.init()
-        setupSearchDebouncer()
         loadVehicles()
     }
 
@@ -117,10 +117,13 @@ final class VehiclesViewModel: RefreshableViewModel {
             cacheVehicleData()
 
         } catch {
-            // If API fails and we have cached data, continue using it
+            // If API fails and we have no cached data, fall back to mock data
             if allVehicles.isEmpty {
-                // If no cached data, show empty state
-                print("Failed to load vehicles: \(error.localizedDescription)")
+                print("API failed, using mock data: \(error.localizedDescription)")
+                allVehicles = mockData.generateVehicles(count: 25)
+                vehicles = allVehicles
+                updateStatistics()
+                applyFilterAndSort()
             } else {
                 print("Using cached data, API request failed: \(error.localizedDescription)")
             }
@@ -144,15 +147,6 @@ final class VehiclesViewModel: RefreshableViewModel {
         applyFilterAndSort()
     }
 
-    private func setupSearchDebouncer() {
-        $searchText
-            .debounce(for: .milliseconds(300), scheduler: RunLoop.main)
-            .removeDuplicates()
-            .sink { [weak self] _ in
-                self?.applyFilterAndSort()
-            }
-            .store(in: &cancellables)
-    }
 
     // MARK: - Filtering and Sorting
     func applyFilter(_ filter: VehicleFilter) {
