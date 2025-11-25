@@ -249,7 +249,7 @@ struct TripCard: View {
                             .font(.headline)
                             .foregroundColor(.primary)
 
-                        Text(trip.driverName)
+                        Text(trip.driverId ?? "Unknown Driver")
                             .font(.caption)
                             .foregroundColor(.secondary)
                     }
@@ -613,7 +613,7 @@ struct TripDetailView: View {
 
                     // Trip Metrics
                     LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 16) {
-                        MetricCard(title: "Distance", value: String(format: "%.1f mi", trip.distance), icon: "location.fill", color: .blue)
+                        MetricCard(title: "Distance", value: String(format: "%.1f mi", trip.distanceMiles ?? 0), icon: "location.fill", color: .blue)
                         MetricCard(title: "Duration", value: formatDuration(trip.duration), icon: "clock.fill", color: .orange)
                         MetricCard(title: "Avg Speed", value: String(format: "%.0f mph", trip.averageSpeed), icon: "speedometer", color: .green)
                         MetricCard(title: "Max Speed", value: String(format: "%.0f mph", trip.maxSpeed), icon: "gauge.high", color: .red)
