@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct MoreView: View {
-    @StateObject private var checklistViewModel = ChecklistViewModel()
+    // @StateObject private var checklistViewModel = ChecklistViewModel() // Disabled until ChecklistViewModel is fixed
 
     var body: some View {
         NavigationView {
@@ -21,16 +21,17 @@ struct MoreView: View {
                                     .foregroundColor(.secondary)
                             }
                             Spacer()
-                            if checklistViewModel.pendingChecklists.count > 0 {
-                                Text("\(checklistViewModel.pendingChecklists.count)")
-                                    .font(.caption)
-                                    .fontWeight(.semibold)
-                                    .foregroundColor(.white)
-                                    .padding(.horizontal, 8)
-                                    .padding(.vertical, 4)
-                                    .background(Color.red)
-                                    .cornerRadius(10)
-                            }
+                            // Badge disabled until ChecklistViewModel is fixed
+                            // if checklistViewModel.pendingChecklists.count > 0 {
+                            //     Text("\(checklistViewModel.pendingChecklists.count)")
+                            //         .font(.caption)
+                            //         .fontWeight(.semibold)
+                            //         .foregroundColor(.white)
+                            //         .padding(.horizontal, 8)
+                            //         .padding(.vertical, 4)
+                            //         .background(Color.red)
+                            //         .cornerRadius(10)
+                            // }
                         }
                     }
 
@@ -104,7 +105,9 @@ struct MoreView: View {
                 // Sign Out Section
                 Section {
                     Button(action: {
-                        AuthenticationManager.shared.logout()
+                        Task {
+                            await AuthenticationManager.shared.logout()
+                        }
                     }) {
                         HStack {
                             Image(systemName: "arrow.right.square.fill")

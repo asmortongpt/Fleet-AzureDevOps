@@ -70,7 +70,6 @@ final class VehiclesViewModel: RefreshableViewModel {
     // MARK: - Initialization
     override init() {
         super.init()
-        setupSearchDebouncer()
         loadVehicles()
     }
 
@@ -121,15 +120,6 @@ final class VehiclesViewModel: RefreshableViewModel {
         applyFilterAndSort()
     }
 
-    private func setupSearchDebouncer() {
-        $searchText
-            .debounce(for: .milliseconds(300), scheduler: RunLoop.main)
-            .removeDuplicates()
-            .sink { [weak self] _ in
-                self?.applyFilterAndSort()
-            }
-            .store(in: &cancellables)
-    }
 
     // MARK: - Filtering and Sorting
     func applyFilter(_ filter: VehicleFilter) {

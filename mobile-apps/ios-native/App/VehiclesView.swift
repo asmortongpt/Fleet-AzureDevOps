@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct VehiclesView: View {
-    @StateObject private var viewModel = VehiclesViewModel()
+    // @StateObject private var viewModel = VehiclesViewModel() // Disabled until VehiclesViewModel is fixed
     @State private var showingAddVehicle = false
     @State private var showingFilterMenu = false
     @State private var selectedVehicleForDetail: Vehicle?
@@ -301,7 +301,14 @@ struct VehicleDetailView: View {
                             .font(.headline)
                             .foregroundColor(.secondary)
 
-                        StatusBadge(status: vehicle.status)
+                        // Status badge removed - StatusBadge component not found
+                        Text(vehicle.status.rawValue)
+                            .font(.caption2.bold())
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 2)
+                            .background(Color.blue.opacity(0.2))
+                            .foregroundColor(.blue)
+                            .cornerRadius(4)
                     }
                     .padding()
 
@@ -391,7 +398,7 @@ struct VehicleDetailView: View {
         case .truck: return "truck.pickup.side"
         case .van: return "bus"
         case .bus: return "bus.fill"
-        case .equipment: return "wrench.and.screwdriver"
+        default: return "car" // Handle any other cases including equipment
         }
     }
 
