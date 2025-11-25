@@ -183,7 +183,7 @@ export class FleetOptimizationModel {
         `SELECT AVG(utilization_rate) as avg_utilization
          FROM utilization_metrics
          WHERE tenant_id = $1
-         AND period_end >= CURRENT_DATE - INTERVAL '90 days'`,
+         AND period_end >= CURRENT_DATE - INTERVAL '90 days'',
         [tenantId]
       )
 

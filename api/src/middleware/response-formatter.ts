@@ -215,7 +215,7 @@ export function responseEnhancer() {
           const { page, limit, total } = paginationOrLinks
           pagination = ResponseFormatter.pagination(page, limit, total)
           links = ResponseFormatter.links(
-            '${req.protocol}://${req.get('host')}${req.baseUrl}${req.path}`,
+            '${req.protocol}://${req.get('host')}${req.baseUrl}${req.path}',
             page,
             limit,
             total,

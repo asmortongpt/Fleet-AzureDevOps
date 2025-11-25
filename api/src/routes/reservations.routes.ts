@@ -110,7 +110,7 @@ async function requiresApproval(purpose: string, userId: string): Promise<boolea
   // Check if user has auto-approval privilege for business reservations
   try {
     const result = await pool.query(
-      'SELECT user_has_any_role($1, ARRAY['Admin', 'FleetManager']) as has_role`,
+      'SELECT user_has_any_role($1, ARRAY['Admin', 'FleetManager']) as has_role',
       [userId]
     );
 
@@ -739,7 +739,7 @@ router.post('/:id/approve', authenticateJWT, async (req: AuthRequest, res: Respo
       });
 
       res.json({
-        message: 'Reservation ${data.action === 'approve' ? 'approved' : 'rejected'} successfully`,
+        message: 'Reservation ${data.action === 'approve' ? 'approved' : 'rejected'} successfully',
         reservation: updatedReservation,
       });
     } catch (error) {

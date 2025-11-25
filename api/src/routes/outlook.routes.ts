@@ -413,7 +413,7 @@ router.post(
 
       res.json({
         success: true,
-        message: 'Email marked as ${isRead ? 'read' : 'unread'}`
+        message: 'Email marked as ${isRead ? 'read' : 'unread'}'
       })
     } catch (error) {
       logger.error('Mark as read error:', error)

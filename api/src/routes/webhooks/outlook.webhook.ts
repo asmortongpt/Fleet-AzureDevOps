@@ -264,7 +264,7 @@ router.get(
     try {
       // Only return subscriptions for user's tenant
       const result = await pool.query(
-        'SELECT ` + (await getTableColumns(pool, 'webhook_subscriptions')).join(', ') + ` FROM webhook_subscriptions
+        'SELECT ' + (await getTableColumns(pool, 'webhook_subscriptions')).join(', ') + ' FROM webhook_subscriptions
          WHERE subscription_type = 'outlook_emails'
          AND status = 'active'
          AND tenant_id = $1
@@ -665,7 +665,7 @@ router.get(
          WHERE communication_type = 'Email'
          AND source_platform = 'Microsoft Outlook'
          AND tenant_id = $1
-         AND communication_datetime > NOW() - INTERVAL '24 hours'`,
+         AND communication_datetime > NOW() - INTERVAL '24 hours'',
         [req.user!.tenant_id]
       )
 
