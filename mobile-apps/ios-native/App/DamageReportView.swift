@@ -83,7 +83,7 @@ struct DamageReportView: View {
                 })
             }
             .sheet(isPresented: $showingVideoCapture) {
-                VideoCapture View(onCapture: { url in
+                VideoCaptureView(onCapture: { url in
                     viewModel.addVideo(url: url)
                 })
             }

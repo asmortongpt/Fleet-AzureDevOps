@@ -230,54 +230,43 @@ struct MainTabView: View {
         case .help:
             HelpView()
 
-        default:
-            Text("Feature Coming Soon")
+        case .pushToTalk:
+            Text("Push-To-Talk - Coming Soon")
                 .font(.headline)
                 .foregroundColor(.secondary)
+            // TODO: Implement PushToTalkPanel
+
+        case .fleetMap:
+            Text("Fleet Map View - Coming Soon")
+                .font(.headline)
+                .foregroundColor(.secondary)
+
+        case .tripTracking(let vehicleId):
+            Text("Trip Tracking for vehicle \(vehicleId) - Coming Soon")
+                .font(.headline)
+                .foregroundColor(.secondary)
+            // TODO: Implement EnhancedTripTrackingView
+
+        case .obd2Diagnostics:
+            Text("OBD2 Diagnostics - Coming Soon")
+                .font(.headline)
+                .foregroundColor(.secondary)
+            // TODO: Implement OBD2DiagnosticsView
+
+        case .maintenancePhoto(let vehicleId, let type):
+            Text("Maintenance Photo for vehicle \(vehicleId) - Type: \(type)")
+                .font(.headline)
+                .foregroundColor(.secondary)
+            // TODO: Implement VehicleMaintenancePhotoView
+
+        case .photoCapture(let vehicleId, let photoType):
+            Text("Photo Capture for vehicle \(vehicleId) - Type: \(photoType)")
+                .font(.headline)
+                .foregroundColor(.secondary)
+            // TODO: Implement PhotoCaptureView
         }
     }
-}
 
-// MARK: - Vehicle Detail Wrapper
-/// Wrapper view that loads a vehicle by ID and passes it to VehicleDetailView
-struct VehicleDetailViewWrapper: View {
-    let vehicleId: String
-    @StateObject private var viewModel = VehicleViewModel()
-
-    var body: some View {
-        if let vehicle = viewModel.vehicles.first(where: { $0.id == vehicleId }) {
-            VehicleDetailView(vehicle: vehicle)
-        } else {
-            ProgressView("Loading vehicle...")
-                .onAppear {
-                    Task {
-                        await viewModel.fetchVehicles()
-                    }
-                }
-        }
-    }
-}
-
-// MARK: - Trip Detail Wrapper
-/// Wrapper view that loads a trip by ID and passes it to TripDetailView
-struct TripDetailViewWrapper: View {
-    let tripId: String
-    @StateObject private var viewModel = TripsViewModel()
-
-    var body: some View {
-        if let trip = viewModel.trips.first(where: { $0.id.uuidString == tripId }) {
-            TripDetailView(trip: trip)
-        } else {
-            VStack(spacing: 20) {
-                ProgressView("Loading trip...")
-            }
-            .onAppear {
-                Task {
-                    await viewModel.refresh()
-                }
-            }
-        }
-    }
 }
 
 // MARK: - Preview Provider
