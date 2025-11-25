@@ -139,6 +139,69 @@ struct MoreView: View {
                     }
                 }
 
+                // Procurement Section
+                Section(header: Text("Procurement")) {
+                    NavigationLink(destination: VendorListView()) {
+                        HStack {
+                            Image(systemName: "building.2.fill")
+                                .foregroundColor(.blue)
+                                .frame(width: 30)
+                            VStack(alignment: .leading) {
+                                Text("Vendors")
+                                    .font(.body)
+                                Text("Manage vendor relationships and performance")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                    }
+
+                    NavigationLink(destination: PartsInventoryView()) {
+                        HStack {
+                            Image(systemName: "cube.box.fill")
+                                .foregroundColor(.purple)
+                                .frame(width: 30)
+                            VStack(alignment: .leading) {
+                                Text("Parts Inventory")
+                                    .font(.body)
+                                Text("Track stock levels and reorder points")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                    }
+
+                    NavigationLink(destination: PurchaseOrderListView()) {
+                        HStack {
+                            Image(systemName: "shippingbox.fill")
+                                .foregroundColor(.orange)
+                                .frame(width: 30)
+                            VStack(alignment: .leading) {
+                                Text("Purchase Orders")
+                                    .font(.body)
+                                Text("Create and track orders with approval workflow")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                    }
+
+                    NavigationLink(destination: InvoiceListView()) {
+                        HStack {
+                            Image(systemName: "doc.text.fill")
+                                .foregroundColor(.green)
+                                .frame(width: 30)
+                            VStack(alignment: .leading) {
+                                Text("Invoices")
+                                    .font(.body)
+                                Text("Manage invoices and payment tracking")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                    }
+                }
+
                 // Communication Section
                 Section(header: Text("Communication")) {
                     NavigationLink(destination: CommunicationCenterView()) {
