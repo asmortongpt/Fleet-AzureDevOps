@@ -1,5 +1,4 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { 
   Warning,
@@ -8,7 +7,6 @@ import {
   TrendUp,
   Lightning
 } from "@phosphor-icons/react"
-import { Vehicle } from "@/lib/types"
 import { useFleetData } from "@/hooks/use-fleet-data"
 
 interface PredictiveMaintenanceProps {

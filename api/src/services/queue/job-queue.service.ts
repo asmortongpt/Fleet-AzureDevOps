@@ -258,7 +258,22 @@ export class JobQueueService {
   async getJobStatus(jobId: string): Promise<any> {
     const columns = 'id, tenant_id, job_name, job_type, status, progress, result_data, created_at, updated_at'
     const result = await pool.query(
+<<<<<<< HEAD
       `SELECT ${columns} FROM job_queue WHERE id = $1`,
+=======
+      'SELECT 
+      id,
+      type,
+      status,
+      payload,
+      progress,
+      error_message,
+      user_id,
+      tenant_id,
+      created_at,
+      updated_at,
+      completed_at FROM job_queue WHERE id = $1',
+>>>>>>> feature/devsecops-audit-remediation
       [jobId]
     )
 
@@ -410,6 +425,7 @@ export class JobQueueService {
     job.progress({ percentage: 50, message: 'Fetching data...' })
 
     const table = entityType === 'task' ? 'tasks' : 'assets'
+<<<<<<< HEAD
 
     // Validate table name against allowlist
     if (!isAllowedJobTable(table)) {
@@ -417,6 +433,14 @@ export class JobQueueService {
     }
 
     const result = await pool.query(`SELECT * FROM ${table} LIMIT 1000`)
+=======
+    const columnMap: Record<string, string> = {
+      'tasks': 'id, tenant_id, title, description, status, priority, due_date, assigned_to, created_by, created_at, updated_at',
+      'assets': 'id, tenant_id, asset_name, asset_type, location, status, acquisition_date, depreciation_rate, created_at, updated_at'
+    }
+    const columns = columnMap[table] || '*'
+    const result = await pool.query(`SELECT ${columns} FROM ${table} LIMIT 1000`)
+>>>>>>> feature/devsecops-audit-remediation
 
     job.progress({ percentage: 100, message: 'Export complete' })
 

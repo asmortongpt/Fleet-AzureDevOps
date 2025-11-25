@@ -11,7 +11,6 @@
 import { useState, useEffect, useMemo } from 'react'
 import { MapContainer, TileLayer, CircleMarker, Popup, useMap } from 'react-leaflet'
 import type { DocumentCluster, DocumentCategory } from '@/lib/types'
-import { DocumentMapPopup } from './DocumentMapPopup'
 
 export interface DocumentMapClusterProps {
   /** Array of document clusters from server */
