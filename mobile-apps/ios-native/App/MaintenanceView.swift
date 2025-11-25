@@ -43,7 +43,7 @@ struct MaintenanceView: View {
                 ScheduleMaintenanceView(viewModel: viewModel)
             }
             .sheet(item: $selectedRecordForDetail) { record in
-                MaintenanceDetailView(record: record, viewModel: viewModel)
+                MaintenanceDetailViewEmbedded(record: record, viewModel: viewModel)
             }
             .sheet(isPresented: $showingFilterOptions) {
                 MaintenanceFilterView(viewModel: viewModel)
@@ -506,10 +506,11 @@ struct ScheduleMaintenanceView: View {
     }
 }
 
-// MARK: - Maintenance Detail View
-struct MaintenanceDetailView: View {
+// MARK: - Maintenance Detail View (Embedded)
+// Note: Renamed to MaintenanceDetailViewEmbedded to avoid conflict with MaintenanceDetailView.swift
+struct MaintenanceDetailViewEmbedded: View {
     let record: MaintenanceRecord
-    @ObservedObject var viewModel: any ObservableObject  // Type-erased to avoid missing MaintenanceViewModel
+    @ObservedObject var viewModel: MaintenanceViewModel
     @Environment(\.dismiss) private var dismiss
     @State private var showingReschedule = false
 
