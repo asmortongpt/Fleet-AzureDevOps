@@ -9,9 +9,10 @@ import re
 PROJECT_FILE = "/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App.xcodeproj/project.pbxproj"
 
 FILES_TO_ADD = [
-    "App/ReceiptCaptureView.swift",
-    "App/DamageReportView.swift",
-    "App/VehicleReservationView.swift",
+    "App/CameraView.swift",
+    "App/VideoCaptureView.swift",
+    "App/LiDARScannerView.swift",
+    "App/MultipleImagePicker.swift",
 ]
 
 def generate_uuid():
