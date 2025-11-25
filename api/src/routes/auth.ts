@@ -158,7 +158,7 @@ router.post('/login', loginLimiter, async (req: Request, res: Response) => {
         `UPDATE users
          SET failed_login_attempts = $1,
              account_locked_until = $2
-         WHERE id = $3',
+         WHERE id = $3`,
         [newAttempts, lockedUntil, user.id]
       )
 
@@ -187,7 +187,7 @@ router.post('/login', loginLimiter, async (req: Request, res: Response) => {
        SET failed_login_attempts = 0,
            account_locked_until = NULL,
            last_login_at = NOW()
-       WHERE id = $1',
+       WHERE id = $1`,
       [user.id]
     )
 
@@ -209,8 +209,7 @@ router.post('/login', loginLimiter, async (req: Request, res: Response) => {
 
     // Store refresh token in database for rotation tracking
     await pool.query(
-      `INSERT INTO refresh_tokens (user_id, token_hash, expires_at, created_at)
-       VALUES ($1, $2, NOW() + INTERVAL '7 days', NOW())`,
+      'INSERT INTO refresh_tokens (user_id, token_hash, expires_at, created_at) VALUES ($1, $2, NOW() + INTERVAL \'7 days\', NOW())',
       [user.id, Buffer.from(refreshToken).toString('base64').substring(0, 64)]
     )
 
@@ -272,7 +271,7 @@ router.post('/register', registrationLimiter, async (req: Request, res: Response
 
     if (tenantResult.rows.length === 0) {
       const newTenant = await pool.query(
-        `INSERT INTO tenants (name, domain) VALUES ($1, $2) RETURNING id',
+        'INSERT INTO tenants (name, domain) VALUES ($1, $2) RETURNING id',
         ['Default Tenant', 'default']
       )
       tenantId = newTenant.rows[0].id
@@ -289,7 +288,7 @@ router.post('/register', registrationLimiter, async (req: Request, res: Response
       `INSERT INTO users (
         tenant_id, email, password_hash, first_name, last_name, phone, role
       ) VALUES ($1, $2, $3, $4, $5, $6, $7)
-      RETURNING id, email, first_name, last_name, role, tenant_id',
+      RETURNING id, email, first_name, last_name, role, tenant_id`,
       [
         tenantId,
         data.email.toLowerCase(),
@@ -417,7 +416,7 @@ router.post('/refresh', async (req: Request, res: Response) => {
 
     // Revoke old refresh token (rotation)
     await pool.query(
-      `UPDATE refresh_tokens SET revoked_at = NOW() WHERE token_hash = $1',
+      'UPDATE refresh_tokens SET revoked_at = NOW() WHERE token_hash = $1',
       [tokenHash]
     )
 
@@ -436,8 +435,7 @@ router.post('/refresh', async (req: Request, res: Response) => {
 
     // Store new refresh token
     await pool.query(
-      `INSERT INTO refresh_tokens (user_id, token_hash, expires_at, created_at)
-       VALUES ($1, $2, NOW() + INTERVAL '7 days', NOW())`,
+      'INSERT INTO refresh_tokens (user_id, token_hash, expires_at, created_at) VALUES ($1, $2, NOW() + INTERVAL \'7 days\', NOW())',
       [user.id, Buffer.from(newRefreshToken).toString('base64').substring(0, 64)]
     )
 

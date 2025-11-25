@@ -82,7 +82,7 @@ export class ForbiddenError extends AppError {
  */
 export class NotFoundError extends AppError {
   constructor(resource: string = 'Resource', details?: ErrorDetails) {
-    super(`${resource} not found`, 404, 'NOT_FOUND', true, details);
+    super('${resource} not found`, 404, 'NOT_FOUND', true, details);
   }
 }
 
@@ -145,7 +145,7 @@ export class DatabaseError extends AppError {
  */
 export class ExternalAPIError extends AppError {
   constructor(service: string, message: string, details?: ErrorDetails) {
-    super(`${service} API error: ${message}`, 502, 'EXTERNAL_API_ERROR', true, details);
+    super('${service} API error: ${message}`, 502, 'EXTERNAL_API_ERROR', true, details);
   }
 }
 

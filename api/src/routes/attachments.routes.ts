@@ -250,7 +250,7 @@ router.get(
 
       // Get attachment metadata
       const result = await pool.query(
-        `SELECT blob_url FROM communication_attachments WHERE id = $1',
+        'SELECT blob_url FROM communication_attachments WHERE id = $1',
         [blobId]
       )
 
@@ -296,7 +296,7 @@ router.delete(
 
       // Get attachment metadata
       const result = await pool.query(
-        `SELECT blob_url FROM communication_attachments WHERE id = $1',
+        'SELECT blob_url FROM communication_attachments WHERE id = $1',
         [blobId]
       )
 
@@ -309,7 +309,7 @@ router.delete(
 
       // Delete from database
       await pool.query(
-        `DELETE FROM communication_attachments WHERE id = $1',
+        'DELETE FROM communication_attachments WHERE id = $1',
         [blobId]
       )
 

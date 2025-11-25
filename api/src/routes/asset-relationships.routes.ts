@@ -257,7 +257,7 @@ router.post(
 
       // Validation: Verify both assets exist and belong to tenant
       const vehicleCheck = await client.query(
-        `SELECT id FROM vehicles WHERE id IN ($1, $2) AND tenant_id = $3',
+        'SELECT id FROM vehicles WHERE id IN ($1, $2) AND tenant_id = $3',
         [parent_asset_id, child_asset_id, req.user!.tenant_id]
       )
 

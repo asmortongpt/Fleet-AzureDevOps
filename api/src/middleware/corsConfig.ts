@@ -255,7 +255,7 @@ export function getCorsConfig(): CorsOptionsDelegate<any> {
 
   // Log configuration at startup
   console.log('[CORS] Configuration initialized:')
-  console.log(`[CORS]   Environment: ${process.env.NODE_ENV || 'development'}`)
+  console.log('[CORS]   Environment: ${process.env.NODE_ENV || 'development'}`)
   console.log(`[CORS]   Configured origins: ${allowedOrigins.length}`)
 
   if (allowedOrigins.length > 0) {
