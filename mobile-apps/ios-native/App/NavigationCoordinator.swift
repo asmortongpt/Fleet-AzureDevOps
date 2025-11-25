@@ -262,6 +262,14 @@ enum NavigationDestination: Hashable, Identifiable {
     case queryBuilder
     case dataGrid
 
+    // Vehicle Assignment destinations
+    case vehicleAssignments
+    case assignmentDetail(id: String)
+    case createAssignment
+    case assignmentRequest
+    case assignmentApproval(requestId: String)
+    case assignmentHistory(assignmentId: String)
+
     var id: String {
         switch self {
         case .vehicleDetail(let id):
@@ -326,6 +334,18 @@ enum NavigationDestination: Hashable, Identifiable {
             return "query-builder"
         case .dataGrid:
             return "data-grid"
+        case .vehicleAssignments:
+            return "vehicle-assignments"
+        case .assignmentDetail(let id):
+            return "assignment-detail-\(id)"
+        case .createAssignment:
+            return "create-assignment"
+        case .assignmentRequest:
+            return "assignment-request"
+        case .assignmentApproval(let requestId):
+            return "assignment-approval-\(requestId)"
+        case .assignmentHistory(let assignmentId):
+            return "assignment-history-\(assignmentId)"
         }
     }
 }

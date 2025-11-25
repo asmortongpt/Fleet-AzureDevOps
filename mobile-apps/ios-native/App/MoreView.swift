@@ -205,6 +205,42 @@ struct MoreView: View {
                     }
                 }
 
+                // Compliance Section
+                Section(header: Text("Compliance")) {
+                    NavigationLink(destination: ComplianceDashboardView()) {
+                        HStack {
+                            Image(systemName: "checkmark.shield.fill")
+                                .foregroundColor(.green)
+                                .frame(width: 30)
+                            VStack(alignment: .leading) {
+                                Text("Compliance Dashboard")
+                                    .font(.body)
+                                Text("Automated tracking, scores, and violations")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                    }
+                }
+
+                // Fleet Operations Section
+                Section(header: Text("Fleet Operations")) {
+                    NavigationLink(destination: VehicleAssignmentView()) {
+                        HStack {
+                            Image(systemName: "person.crop.circle.fill.badge.checkmark")
+                                .foregroundColor(.blue)
+                                .frame(width: 30)
+                            VStack(alignment: .leading) {
+                                Text("Vehicle Assignments")
+                                    .font(.body)
+                                Text("Assign vehicles to drivers, departments, projects")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                    }
+                }
+
                 // Maintenance Section
                 Section(header: Text("Maintenance")) {
                     NavigationLink(destination: WorkOrderListView()) {
