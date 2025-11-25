@@ -101,11 +101,18 @@ export default defineConfig({
         // ===================================================================
         manualChunks: (id) => {
           // Core React libraries - changes rarely, cache aggressively
-          if (id.includes('node_modules/react') ||
-              id.includes('node_modules/react-dom') ||
-              id.includes('node_modules/react-router-dom') ||
-              id.includes('node_modules/scheduler')) {
+          // CRITICAL: Keep react and react-dom together to prevent Children assignment errors
+          if (id.includes('node_modules/react-dom')) {
             return 'react-vendor';
+          }
+          if (id.includes('node_modules/react') && !id.includes('node_modules/react-')) {
+            return 'react-vendor';
+          }
+          if (id.includes('node_modules/scheduler')) {
+            return 'react-vendor';
+          }
+          if (id.includes('node_modules/react-router-dom')) {
+            return 'react-router';
           }
 
           // Map libraries - large, load on demand
