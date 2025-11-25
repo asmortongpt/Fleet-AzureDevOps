@@ -28,6 +28,11 @@ function injectRuntimeConfig(): PluginOption {
 
 // https://vite.dev/config/
 export default defineConfig({
+  // Base path for Azure Static Web Apps deployment
+  // Set to '/' for root deployment (default)
+  // Override with VITE_BASE_PATH env var if deploying to subdirectory
+  base: process.env.VITE_BASE_PATH || '/',
+
   plugins: [
     react(),
     tailwindcss(),
