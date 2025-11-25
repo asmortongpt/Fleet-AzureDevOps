@@ -1,0 +1,18 @@
+{
+  "timestamp": "2025-11-25T03:50:27.908Z",
+  "url": "http://localhost:4175",
+  "appLoaded": true,
+  "rootChildrenCount": 0,
+  "screenshotPath": "/Users/andrewmorton/Documents/GitHub/Fleet/test-screenshots/local-build-1764042627858.png",
+  "consoleErrors": [],
+  "pageErrors": [
+    {
+      "message": "Cannot set properties of undefined (setting 'Children')",
+      "stack": "TypeError: Cannot set properties of undefined (setting 'Children')\n    at vh (http://localhost:4175/assets/js/react-vendor-C-W_IMbH.js:1:4605)\n    at Nu (http://localhost:4175/assets/js/react-vendor-C-W_IMbH.js:1:7447)\n    at bp (http://localhost:4175/assets/js/vendor-BRBfEZAU.js:1:36196)\n    at wp (http://localhost:4175/assets/js/vendor-BRBfEZAU.js:1:36968)\n    at http://localhost:4175/assets/js/vendor-BRBfEZAU.js:1:36992"
+    },
+    {
+      "message": "Cannot set properties of undefined (setting 'Children')",
+      "stack": "TypeError: Cannot set properties of undefined (setting 'Children')\n    at vh (http://localhost:4175/assets/js/react-vendor-C-W_IMbH.js:1:4605)\n    at Nu (http://localhost:4175/assets/js/react-vendor-C-W_IMbH.js:1:7447)\n    at bp (http://localhost:4175/assets/js/vendor-BRBfEZAU.js:1:36196)\n    at wp (http://localhost:4175/assets/js/vendor-BRBfEZAU.js:1:36968)\n    at http://localhost:4175/assets/js/vendor-BRBfEZAU.js:1:36992"
+    }
+  ]
+}
