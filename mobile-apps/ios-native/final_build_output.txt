@@ -1,0 +1,15 @@
+Command line invocation:
+    /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild -workspace App.xcworkspace -scheme App -sdk iphonesimulator -destination "platform=iOS Simulator,name=iPhone 17,OS=26.1" clean build
+
+Build settings from command line:
+    SDKROOT = iphonesimulator26.1
+
+2025-11-24 21:41:07.931 xcodebuild[77055:1103739] Error Domain=NSCocoaErrorDomain Code=3840 "JSON text did not start with array or object and option to allow fragments not set. around line 1, column 0." UserInfo={NSDebugDescription=JSON text did not start with array or object and option to allow fragments not set. around line 1, column 0., NSJSONSerializationErrorIndex=0}
+2025-11-24 21:41:07.931 xcodebuild[77055:1103739] [MT] IDEFileReferenceDebug: [Load] <IDEFileReference, 0x7b7e69e00: name:App path:group:App.xcodeproj> Failed to load container at path: /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App.xcodeproj, Error: Error Domain=Xcode3ProjectErrorDomain Code=2 "The project ‘App’ is damaged and cannot be opened due to a parse error. Examine the project file for invalid edits or unresolved source control conflicts.
+
+Path: /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App.xcodeproj" UserInfo={NSLocalizedDescription=The project ‘App’ is damaged and cannot be opened due to a parse error. Examine the project file for invalid edits or unresolved source control conflicts.
+
+Path: /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App.xcodeproj}
+--- xcodebuild: WARNING: Unable to open project file '/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App.xcodeproj' in workspace 'App.xcworkspace'.
+2025-11-24 21:41:08.254 xcodebuild[77055:1103739] Writing error result bundle to /var/folders/_0/j1d9n4w11wbf72dnmtz7nzsc0000gn/T/ResultBundle_2025-24-11_21-41-0008.xcresult
+xcodebuild: error: The workspace named "App" does not contain a scheme named "App". The "-list" option can be used to find the names of the schemes in the workspace.

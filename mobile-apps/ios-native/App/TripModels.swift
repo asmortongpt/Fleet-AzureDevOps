@@ -16,6 +16,7 @@ public enum TripModels {
     public var maxSpeed: Double // in mph
     public var pausedDuration: TimeInterval
     public var vehicleId: String?
+    public var vehicleNumber: String?  // Added for compatibility
     public var driverId: String?
     public var notes: String?
 
@@ -50,6 +51,7 @@ public enum TripModels {
         maxSpeed: Double = 0,
         pausedDuration: TimeInterval = 0,
         vehicleId: String? = nil,
+        vehicleNumber: String? = nil,
         driverId: String? = nil,
         notes: String? = nil
     ) {
@@ -64,6 +66,7 @@ public enum TripModels {
         self.maxSpeed = maxSpeed
         self.pausedDuration = pausedDuration
         self.vehicleId = vehicleId
+        self.vehicleNumber = vehicleNumber
         self.driverId = driverId
         self.notes = notes
     }
@@ -219,6 +222,46 @@ public enum TripModels {
             self.distance = trip.totalDistance
             self.duration = trip.duration
             self.status = trip.status
+        }
+    }
+
+    // MARK: - Trip Event (for activity tracking)
+    public struct TripEvent: Codable {
+        public enum EventType: String, Codable {
+            case start = "Start"
+            case stop = "Stop"
+            case hardBraking = "Hard Braking"
+            case rapidAcceleration = "Rapid Acceleration"
+            case speeding = "Speeding"
+            case idle = "Idle"
+            case geofenceEntry = "Geofence Entry"
+            case geofenceExit = "Geofence Exit"
+        }
+
+        public enum Severity: String, Codable {
+            case low = "Low"
+            case medium = "Medium"
+            case high = "High"
+        }
+
+        public let type: EventType
+        public let timestamp: Date
+        public let latitude: Double
+        public let longitude: Double
+        public let severity: Severity
+        public let details: String?
+
+        public var location: CLLocationCoordinate2D {
+            CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
+        }
+
+        public init(type: EventType, timestamp: Date, location: CLLocationCoordinate2D, severity: Severity, details: String? = nil) {
+            self.type = type
+            self.timestamp = timestamp
+            self.latitude = location.latitude
+            self.longitude = location.longitude
+            self.severity = severity
+            self.details = details
         }
     }
 }

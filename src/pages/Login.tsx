@@ -1,20 +1,50 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useMutation } from '@tanstack/react-query'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Separator } from '@/components/ui/separator'
 import { signInWithMicrosoft, setAuthToken } from '@/lib/microsoft-auth'
-import { CarProfile, Truck, MapPin, Users, ChartLine, Shield } from '@phosphor-icons/react'
+import { CarProfile } from '@phosphor-icons/react'
 
 /**
  * Login Page Component
- * Enterprise-styled login with Microsoft SSO and email/password support
- * Design inspired by PMO Tool Ultimate
+ * Supports both traditional email/password login and Microsoft SSO
+ *
+ * DEV MODE: Automatically bypasses login with demo credentials
  */
 export function Login() {
   const navigate = useNavigate()
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState('')
+  // Pre-fill credentials in DEV mode for quick access
+  const [email, setEmail] = useState(import.meta.env.DEV ? 'admin@fleet.local' : '')
+  const [password, setPassword] = useState(import.meta.env.DEV ? 'demo123' : '')
+
+  // AUTO-LOGIN in DEV mode (disabled - let user click button instead)
+  useEffect(() => {
+    if (import.meta.env.DEV && false) { // Disabled - user will click button
+      console.log('[LOGIN] DEV mode detected - auto-logging in with demo user')
+
+      // Create a demo JWT token (not validated in DEV mode)
+      const demoToken = btoa(JSON.stringify({
+        header: { alg: 'HS256', typ: 'JWT' },
+        payload: {
+          id: 1,
+          email: 'admin@fleet.local',
+          role: 'admin',
+          tenant_id: 1,
+          auth_provider: 'demo',
+          exp: Date.now() + 86400000 // 24 hours
+        }
+      }))
+
+      setAuthToken(demoToken)
+      console.log('[LOGIN] Demo token set, redirecting to dashboard')
+      navigate('/', { replace: true })
+    }
+  }, [navigate])
 
   // Check for error messages in URL
   const params = new URLSearchParams(window.location.search)
@@ -24,7 +54,7 @@ export function Login() {
   // Email login mutation using TanStack Query
   const emailLoginMutation = useMutation({
     mutationFn: async (credentials: { email: string; password: string }) => {
-      const apiUrl = import.meta.env.VITE_API_URL || '/api/v1'
+      const apiUrl = import.meta.env.VITE_API_URL || '/api'
       const response = await fetch(`${apiUrl}/auth/login`, {
         method: 'POST',
         headers: {
@@ -48,322 +78,122 @@ export function Login() {
 
   async function handleEmailLogin(e: React.FormEvent) {
     e.preventDefault()
-    setError('')
-    setIsLoading(true)
-    try {
-      await emailLoginMutation.mutateAsync({ email, password })
-    } catch (err: any) {
-      setError(err.message || 'Login failed')
-    } finally {
-      setIsLoading(false)
-    }
+    emailLoginMutation.mutate({ email, password })
   }
 
   function handleMicrosoftLogin() {
     signInWithMicrosoft()
   }
 
-  const displayError = error || (urlError ? (urlMessage || 'Authentication failed. Please try again.') : '')
-
   return (
-    <div style={{
-      minHeight: '100vh',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      background: 'linear-gradient(135deg, #1e3a5f 0%, #0d4f8b 50%, #1a365d 100%)',
-      padding: '20px'
-    }}>
-      <div style={{
-        background: 'white',
-        padding: '50px',
-        borderRadius: '20px',
-        boxShadow: '0 25px 80px rgba(0, 0, 0, 0.35)',
-        width: '480px',
-        maxWidth: '100%'
-      }}>
-        {/* Header */}
-        <div style={{ textAlign: 'center', marginBottom: '35px' }}>
-          <div style={{
-            width: '90px',
-            height: '90px',
-            margin: '0 auto 20px',
-            background: 'linear-gradient(135deg, #1e3a5f 0%, #0d4f8b 100%)',
-            borderRadius: '50%',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            boxShadow: '0 8px 30px rgba(30, 58, 95, 0.4)'
-          }}>
-            <CarProfile size={48} weight="bold" color="white" />
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center p-4">
+      <Card className="w-full max-w-md shadow-xl">
+        <CardHeader className="space-y-4">
+          <div className="flex justify-center">
+            <div className="p-4 bg-primary text-primary-foreground rounded-2xl">
+              <CarProfile className="w-12 h-12" weight="bold" />
+            </div>
           </div>
-          <h1 style={{
-            color: '#1e3a5f',
-            marginBottom: '10px',
-            fontSize: '2.5rem',
-            fontWeight: '700',
-            letterSpacing: '-1px'
-          }}>
-            Fleet Manager
-          </h1>
-          <p style={{
-            color: '#4a5568',
-            fontSize: '17px',
-            marginBottom: '8px'
-          }}>
-            Enterprise Fleet Management System
-          </p>
-          <p style={{
-            color: '#718096',
-            fontSize: '14px'
-          }}>
-            Capital Technology Alliance
-          </p>
-        </div>
-
-        {/* Error Display */}
-        {displayError && (
-          <div style={{
-            background: '#fff2f0',
-            color: '#a8071a',
-            padding: '15px 18px',
-            borderRadius: '10px',
-            marginBottom: '25px',
-            fontSize: '14px',
-            border: '1px solid #ffccc7',
-            fontWeight: '500'
-          }}>
-            {displayError}
+          <div className="space-y-2 text-center">
+            <CardTitle className="text-2xl font-bold">Fleet Manager</CardTitle>
+            <CardDescription>
+              Sign in to access your fleet management dashboard
+            </CardDescription>
           </div>
-        )}
+        </CardHeader>
 
-        {/* Microsoft SSO Button */}
-        <button
-          type="button"
-          onClick={handleMicrosoftLogin}
-          style={{
-            width: '100%',
-            padding: '16px',
-            background: 'linear-gradient(135deg, #1e3a5f 0%, #0d4f8b 100%)',
-            color: 'white',
-            border: 'none',
-            borderRadius: '12px',
-            fontSize: '17px',
-            fontWeight: '600',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '12px',
-            boxShadow: '0 8px 25px rgba(30, 58, 95, 0.3)',
-            transition: 'all 0.3s ease',
-            marginBottom: '25px'
-          }}
-          onMouseOver={(e) => {
-            e.currentTarget.style.transform = 'translateY(-2px)';
-            e.currentTarget.style.boxShadow = '0 12px 35px rgba(30, 58, 95, 0.4)';
-          }}
-          onMouseOut={(e) => {
-            e.currentTarget.style.transform = 'translateY(0)';
-            e.currentTarget.style.boxShadow = '0 8px 25px rgba(30, 58, 95, 0.3)';
-          }}
-        >
-          <svg width="21" height="21" viewBox="0 0 23 23">
-            <path fill="#f35325" d="M1 1h10v10H1z" />
-            <path fill="#81bc06" d="M12 1h10v10H12z" />
-            <path fill="#05a6f0" d="M1 12h10v10H1z" />
-            <path fill="#ffba08" d="M12 12h10v10H12z" />
-          </svg>
-          Sign in with Microsoft
-        </button>
+        <CardContent className="space-y-6">
+          {/* Show URL errors */}
+          {urlError && (
+            <Alert variant="destructive">
+              <AlertDescription>
+                {urlMessage || 'Authentication failed. Please try again.'}
+              </AlertDescription>
+            </Alert>
+          )}
 
-        {/* Divider */}
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          margin: '25px 0',
-          gap: '15px'
-        }}>
-          <div style={{ flex: 1, height: '1px', background: '#e2e8f0' }} />
-          <span style={{ color: '#718096', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '1px' }}>
-            Or continue with email
-          </span>
-          <div style={{ flex: 1, height: '1px', background: '#e2e8f0' }} />
-        </div>
+          {/* Show form errors from mutation */}
+          {emailLoginMutation.isError && (
+            <Alert variant="destructive">
+              <AlertDescription>
+                {emailLoginMutation.error instanceof Error
+                  ? emailLoginMutation.error.message
+                  : 'An error occurred during login'}
+              </AlertDescription>
+            </Alert>
+          )}
 
-        {/* Email/Password Form */}
-        <form onSubmit={handleEmailLogin}>
-          <div style={{ marginBottom: '20px' }}>
-            <label style={{
-              display: 'block',
-              marginBottom: '8px',
-              fontWeight: '600',
-              color: '#2d3748',
-              fontSize: '15px'
-            }}>
-              Email Address
-            </label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="admin@demofleet.com"
-              style={{
-                width: '100%',
-                padding: '14px 16px',
-                border: '2px solid #e2e8f0',
-                borderRadius: '10px',
-                fontSize: '16px',
-                transition: 'all 0.3s ease',
-                outline: 'none',
-                boxSizing: 'border-box'
-              }}
-              onFocus={(e) => e.target.style.borderColor = '#0d4f8b'}
-              onBlur={(e) => e.target.style.borderColor = '#e2e8f0'}
-              required
-              disabled={isLoading}
-            />
-          </div>
-
-          <div style={{ marginBottom: '25px' }}>
-            <label style={{
-              display: 'block',
-              marginBottom: '8px',
-              fontWeight: '600',
-              color: '#2d3748',
-              fontSize: '15px'
-            }}>
-              Password
-            </label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Enter your password"
-              style={{
-                width: '100%',
-                padding: '14px 16px',
-                border: '2px solid #e2e8f0',
-                borderRadius: '10px',
-                fontSize: '16px',
-                transition: 'all 0.3s ease',
-                outline: 'none',
-                boxSizing: 'border-box'
-              }}
-              onFocus={(e) => e.target.style.borderColor = '#0d4f8b'}
-              onBlur={(e) => e.target.style.borderColor = '#e2e8f0'}
-              required
-              disabled={isLoading}
-            />
-          </div>
-
-          <button
-            type="submit"
-            disabled={isLoading}
-            style={{
-              width: '100%',
-              padding: '16px',
-              background: isLoading ? '#a0aec0' : 'linear-gradient(135deg, #1e3a5f 0%, #0d4f8b 100%)',
-              color: 'white',
-              border: 'none',
-              borderRadius: '12px',
-              fontSize: '17px',
-              fontWeight: '600',
-              cursor: isLoading ? 'not-allowed' : 'pointer',
-              transition: 'all 0.3s ease',
-              boxShadow: isLoading ? 'none' : '0 8px 25px rgba(30, 58, 95, 0.3)'
-            }}
-            onMouseOver={(e) => {
-              if (!isLoading) {
-                e.currentTarget.style.transform = 'translateY(-2px)';
-                e.currentTarget.style.boxShadow = '0 12px 35px rgba(30, 58, 95, 0.4)';
-              }
-            }}
-            onMouseOut={(e) => {
-              if (!isLoading) {
-                e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.boxShadow = '0 8px 25px rgba(30, 58, 95, 0.3)';
-              }
-            }}
+          {/* Microsoft Sign-In Button */}
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full h-12 text-base font-medium hover:bg-gray-50 dark:hover:bg-gray-800"
+            onClick={handleMicrosoftLogin}
           >
-            {isLoading ? (
-              <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
-                <span style={{
-                  width: '18px',
-                  height: '18px',
-                  border: '2px solid rgba(255,255,255,0.3)',
-                  borderTop: '2px solid white',
-                  borderRadius: '50%',
-                  animation: 'spin 1s linear infinite'
-                }} />
-                Signing In...
+            <svg className="w-5 h-5 mr-3" viewBox="0 0 23 23">
+              <path fill="#f35325" d="M1 1h10v10H1z" />
+              <path fill="#81bc06" d="M12 1h10v10H12z" />
+              <path fill="#05a6f0" d="M1 12h10v10H1z" />
+              <path fill="#ffba08" d="M12 12h10v10H12z" />
+            </svg>
+            Sign in with Microsoft
+          </Button>
+
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <Separator />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-background px-2 text-muted-foreground">
+                Or continue with email
               </span>
-            ) : (
-              'Sign in to Fleet Manager'
-            )}
-          </button>
-        </form>
+            </div>
+          </div>
 
-        {/* Demo Credentials */}
-        <div style={{
-          marginTop: '25px',
-          padding: '18px',
-          background: '#f0f9ff',
-          borderRadius: '12px',
-          fontSize: '14px',
-          color: '#0369a1',
-          border: '1px solid #bae6fd'
-        }}>
-          <div style={{ fontWeight: '600', marginBottom: '8px', color: '#0c4a6e' }}>
-            Demo Mode Available:
-          </div>
-          <div style={{ fontSize: '13px', color: '#0369a1' }}>
-            Use Microsoft SSO or demo credentials to explore the system
-          </div>
-        </div>
+          {/* Email/Password Form */}
+          <form onSubmit={handleEmailLogin} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                type="email"
+                placeholder="admin@fleet.local"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                disabled={emailLoginMutation.isPending}
+              />
+            </div>
 
-        {/* Feature Badges */}
-        <div style={{
-          marginTop: '25px',
-          display: 'grid',
-          gridTemplateColumns: 'repeat(3, 1fr)',
-          gap: '10px',
-          fontSize: '11px',
-          color: '#64748b'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '5px', justifyContent: 'center' }}>
-            <Truck size={14} weight="bold" color="#0d4f8b" />
-            <span>50+ Vehicles</span>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '5px', justifyContent: 'center' }}>
-            <MapPin size={14} weight="bold" color="#0d4f8b" />
-            <span>GPS Tracking</span>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '5px', justifyContent: 'center' }}>
-            <Users size={14} weight="bold" color="#0d4f8b" />
-            <span>30+ Drivers</span>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '5px', justifyContent: 'center' }}>
-            <ChartLine size={14} weight="bold" color="#0d4f8b" />
-            <span>Analytics</span>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '5px', justifyContent: 'center' }}>
-            <Shield size={14} weight="bold" color="#0d4f8b" />
-            <span>Enterprise</span>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '5px', justifyContent: 'center' }}>
-            <CarProfile size={14} weight="bold" color="#0d4f8b" />
-            <span>AI Assistant</span>
-          </div>
-        </div>
-      </div>
+            <div className="space-y-2">
+              <Label htmlFor="password">Password</Label>
+              <Input
+                id="password"
+                type="password"
+                placeholder="demo123"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                disabled={emailLoginMutation.isPending}
+              />
+            </div>
 
-      <style>{`
-        @keyframes spin {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
-        }
-      `}</style>
+            <Button
+              type="submit"
+              className="w-full h-12 text-base font-medium"
+              disabled={emailLoginMutation.isPending}
+            >
+              {emailLoginMutation.isPending ? 'Signing in...' : 'Sign in'}
+            </Button>
+          </form>
+
+          <div className="text-center text-sm text-muted-foreground">
+            <p>
+              Need help? Contact your system administrator for credentials.
+            </p>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   )
 }
