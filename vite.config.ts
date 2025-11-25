@@ -28,10 +28,9 @@ function injectRuntimeConfig(): PluginOption {
 
 // https://vite.dev/config/
 export default defineConfig({
-  // Base path for Azure Static Web Apps deployment
-  // Set to '/' for root deployment (default)
-  // Override with VITE_BASE_PATH env var if deploying to subdirectory
-  base: process.env.VITE_BASE_PATH || '/',
+  // CRITICAL FIX: Azure Static Web Apps REQUIRES relative paths!
+  // DO NOT CHANGE THIS BACK TO '/' - it will cause white screen errors
+  base: './',
 
   plugins: [
     react(),
@@ -182,7 +181,18 @@ export default defineConfig({
             return 'animation';
           }
 
-          // All other node_modules
+          // React utility libraries (MUST load after React)
+          if (id.includes('node_modules/react-error-boundary') ||
+              id.includes('node_modules/react-hot-toast') ||
+              id.includes('node_modules/sonner') ||
+              id.includes('node_modules/next-themes') ||
+              id.includes('node_modules/react-day-picker') ||
+              id.includes('node_modules/react-dropzone') ||
+              id.includes('node_modules/react-window')) {
+            return 'react-utils';
+          }
+
+          // All other node_modules (should NOT include React-dependent code)
           if (id.includes('node_modules')) {
             return 'vendor';
           }
