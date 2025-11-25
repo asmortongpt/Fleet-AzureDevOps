@@ -136,7 +136,7 @@ export function apiVersioning(defaultVersion: string = 'v1') {
 
       return res.status(400).json({
         error: 'Invalid API version',
-        message: `Version '${version}' is not supported`,
+        message: 'Version '${version}' is not supported`,
         supportedVersions: Object.keys(API_VERSIONS),
         hint: 'Use /api/v1/... for current stable version'
       });
@@ -230,7 +230,7 @@ export function requireVersion(...versions: string[]) {
 export function redirectToVersioned(targetPath: string, permanent: boolean = false) {
   return (req: Request, res: Response) => {
     const statusCode = permanent ? 301 : 307; // 301 = Permanent, 307 = Temporary
-    const fullPath = `${targetPath}${req.path}${req.url.includes('?') ? req.url.substring(req.url.indexOf('?')) : ''}`;
+    const fullPath = '${targetPath}${req.path}${req.url.includes('?') ? req.url.substring(req.url.indexOf('?')) : ''}`;
 
     res.setHeader('X-API-Deprecation-Notice', 'Please use versioned endpoints');
     res.redirect(statusCode, fullPath);

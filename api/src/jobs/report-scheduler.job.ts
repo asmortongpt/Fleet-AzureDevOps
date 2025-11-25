@@ -336,7 +336,7 @@ export async function updateSchedule(
   values.push(scheduleId)
 
   await pool.query(
-    `UPDATE report_schedules SET ${fields.join(', ')} WHERE id = $${paramIndex}`,
+    'UPDATE report_schedules SET ${fields.join(', ')} WHERE id = $${paramIndex}`,
     values
   )
 
