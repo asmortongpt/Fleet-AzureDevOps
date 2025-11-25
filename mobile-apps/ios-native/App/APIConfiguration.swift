@@ -93,6 +93,7 @@ struct APIConfiguration {
         static let refresh = "/auth/refresh"
         static let vehicles = "/vehicles"
         static let drivers = "/drivers"
+        static let assets = "/assets"
         static let maintenance = "/maintenance"
         static let fleetMetrics = "/fleet-metrics"
         static let health = "/health"
