@@ -164,8 +164,7 @@ export function useUpdateReservation() {
 
       return { previousReservation }
     },
-    onError: (err, { id }, context) => {
-      if (context?.previousReservation) {
+    onError: (err, { id }, context) => {      if (context?.previousReservation) {
         queryClient.setQueryData(schedulingKeys.reservation(id), context.previousReservation)
       }
     },
@@ -360,8 +359,7 @@ export function useUpdateMaintenanceAppointment() {
 
       return { previousAppointment }
     },
-    onError: (err, { id }, context) => {
-      if (context?.previousAppointment) {
+    onError: (err, { id }, context) => {      if (context?.previousAppointment) {
         queryClient.setQueryData(schedulingKeys.maintenanceItem(id), context.previousAppointment)
       }
     },

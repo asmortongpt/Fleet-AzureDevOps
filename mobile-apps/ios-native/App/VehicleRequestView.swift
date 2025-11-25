@@ -256,7 +256,7 @@ struct VehicleRequestCard: View {
                         .foregroundColor(.secondary)
                 }
                 Spacer()
-                StatusBadge(status: vehicle.status)
+                RequestStatusBadge(status: vehicle.status)
             }
 
             // Vehicle Info
@@ -331,7 +331,7 @@ struct VehicleRequestFormView: View {
                                 .foregroundColor(.secondary)
                         }
                         Spacer()
-                        StatusBadge(status: vehicle.status)
+                        RequestStatusBadge(status: vehicle.status)
                     }
                 }
 
@@ -552,7 +552,7 @@ struct FilterChip: View {
     }
 }
 
-struct StatusBadge: View {
+struct RequestStatusBadge: View {
     let status: VehicleStatus
 
     var body: some View {
