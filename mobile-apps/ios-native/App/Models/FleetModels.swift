@@ -17,7 +17,77 @@
 import Foundation
 import CoreLocation
 
+<<<<<<< HEAD
 // MARK: - TripEvent for activity tracking (different from TripModels.Trip)
+=======
+// MARK: - Vehicle Models
+
+// Note: Renamed from Vehicle to FleetVehicleRecord to avoid conflict with Models/Vehicle.swift
+// This is a read-only data structure for fleet data records
+struct FleetVehicleRecord: Identifiable, Codable, Equatable {
+    let id: String
+    let tenantId: String
+    let number: String
+    let type: VehicleType
+    let make: String
+    let model: String
+    let year: Int
+    let vin: String
+    let licensePlate: String
+    let status: VehicleStatus
+    let location: VehicleLocation
+    let region: String
+    let department: String
+    let fuelLevel: Double
+    let fuelType: FuelType
+    let mileage: Double
+    let hoursUsed: Double?
+    let assignedDriver: String?
+    let ownership: OwnershipType
+    let lastService: Date
+    let nextService: Date
+    let alerts: [String]
+    let customFields: [String: String]?
+    let tags: [String]?
+}
+
+// Temporary typealias for backward compatibility during migration
+typealias CachedVehicle = FleetVehicleRecord
+
+struct VehicleLocation: Codable, Equatable {
+    let lat: Double
+    let lng: Double
+    let address: String
+
+    var coordinate: CLLocationCoordinate2D {
+        CLLocationCoordinate2D(latitude: lat, longitude: lng)
+    }
+}
+
+// MARK: - Trip Models
+
+struct Trip: Identifiable, Codable {
+    let id: String
+    let vehicleId: String
+    let vehicleNumber: String
+    let driverId: String
+    let driverName: String
+    let startTime: Date
+    let endTime: Date?
+    let startLocation: VehicleLocation
+    let endLocation: VehicleLocation?
+    let distance: Double
+    let duration: TimeInterval
+    let averageSpeed: Double
+    let maxSpeed: Double
+    let fuelUsed: Double
+    let status: TripStatus
+    let purpose: String?
+    let route: [CLLocationCoordinate2D]
+    let events: [TripEvent]
+    let notes: String?
+}
+>>>>>>> stage-a/requirements-inception
 
 struct TripEvent: Codable {
     enum EventType: String, Codable {
