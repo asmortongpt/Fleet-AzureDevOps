@@ -303,8 +303,8 @@ struct VehicleCard_Previews: PreviewProvider {
             hoursUsed: nil,
             assignedDriver: "John Doe",
             ownership: .owned,
-            lastService: "2024-01-15",
-            nextService: "2024-04-15",
+            lastService: Date().addingTimeInterval(-30 * 24 * 60 * 60),
+            nextService: Date().addingTimeInterval(30 * 24 * 60 * 60),
             alerts: ["Oil change due", "Tire rotation needed"],
             customFields: nil,
             tags: nil

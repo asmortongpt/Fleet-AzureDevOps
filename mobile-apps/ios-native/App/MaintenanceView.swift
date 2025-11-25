@@ -442,54 +442,6 @@ struct MaintenanceDetailViewEmbedded: View {
     }
 }
 
-// MARK: - Maintenance Detail View (placeholder)
-struct MaintenanceDetailView: View {
-    let record: MaintenanceRecord
-    @StateObject private var viewModel: MaintenanceViewModel
-
-    init(record: MaintenanceRecord) {
-        self.record = record
-        self._viewModel = StateObject(wrappedValue: MaintenanceViewModel())
-    }
-
-    // Convenience initializer for navigation
-    init(maintenanceId: String) {
-        self.record = MaintenanceRecord(
-            id: maintenanceId,
-            vehicleId: "",
-            type: .preventive,
-            category: .oilChange,
-            scheduledDate: Date(),
-            description: "Loading..."
-        )
-        self._viewModel = StateObject(wrappedValue: MaintenanceViewModel())
-    }
-
-    var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 16) {
-                Text(record.type.rawValue)
-                    .font(.title2)
-                    .fontWeight(.bold)
-
-                Text(record.description)
-                    .font(.body)
-
-                if let cost = record.cost {
-                    Text("Cost: $\(cost, specifier: "%.2f")")
-                        .font(.subheadline)
-                }
-
-                Text("Scheduled: \(record.scheduledDate.formatted())")
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
-            }
-            .padding()
-        }
-        .navigationTitle("Details")
-    }
-}
-
 // MARK: - Preview
 struct MaintenanceView_Previews: PreviewProvider {
     static var previews: some View {

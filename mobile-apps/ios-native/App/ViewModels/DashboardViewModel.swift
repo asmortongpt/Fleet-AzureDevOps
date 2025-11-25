@@ -10,7 +10,7 @@ import SwiftUI
 import Combine
 
 @MainActor
-final class DashboardViewModel: RefreshableViewModel {
+final class DashboardViewModel: ObservableObject {
 
     // MARK: - Published Properties
     @Published var stats: DashboardStats?
@@ -18,13 +18,14 @@ final class DashboardViewModel: RefreshableViewModel {
     @Published var vehicles: [Vehicle] = []
     @Published var todayTrips: [Trip] = []
     @Published var alerts: [String] = []
+    @Published var isLoading: Bool = false
+    @Published var isRefreshing: Bool = false
 
     // MARK: - Private Properties
     private var updateTimer: Timer?
 
     // MARK: - Initialization
-    override init() {
-        super.init()
+    init() {
         loadData()
         startRealTimeUpdates()
     }
@@ -42,10 +43,10 @@ final class DashboardViewModel: RefreshableViewModel {
 
     @MainActor
     private func loadDashboardData() async {
-        startLoading()
+        isLoading = true
 
         // Simulate background loading with mock data
-        await Task.sleep(100_000_000) // 0.1 seconds
+        try? await Task.sleep(nanoseconds: 100_000_000) // 0.1 seconds
 
         // Initialize with empty data - will be populated from API
         vehicles = []
@@ -69,12 +70,7 @@ final class DashboardViewModel: RefreshableViewModel {
         // Collect alerts
         alerts = vehicles.flatMap { $0.alerts }.prefix(5).map { String($0) }
 
-        // Cache the data
-        if let statsData = try? JSONEncoder().encode(stats) {
-            cacheObject(statsData as AnyObject, forKey: "dashboard_stats")
-        }
-
-        finishLoading()
+        isLoading = false
     }
 
     private func generateRecentActivity() {
@@ -157,10 +153,10 @@ final class DashboardViewModel: RefreshableViewModel {
     }
 
     // MARK: - Refresh
-    override func refresh() async {
-        startRefreshing()
+    func refresh() async {
+        isRefreshing = true
         await loadDashboardData()
-        finishRefreshing()
+        isRefreshing = false
     }
 
     // MARK: - Quick Actions
