@@ -217,11 +217,11 @@ struct MaintenanceCard: View {
                 // Header
                 HStack {
                     VStack(alignment: .leading, spacing: 4) {
-                        Text(record.vehicleNumber)
+                        Text(record.vehicleNumber ?? "Unknown Vehicle")
                             .font(.headline)
                             .foregroundColor(.primary)
 
-                        Text(record.type)
+                        Text(record.type.rawValue)
                             .font(.subheadline)
                             .foregroundColor(.secondary)
                     }
@@ -524,10 +524,10 @@ struct MaintenanceDetailViewEmbedded: View {
                             .font(.system(size: 60))
                             .foregroundColor(statusColor)
 
-                        Text(record.vehicleNumber)
+                        Text(record.vehicleNumber ?? "Unknown Vehicle")
                             .font(.title.bold())
 
-                        Text(record.type)
+                        Text(record.type.rawValue)
                             .font(.headline)
                             .foregroundColor(.secondary)
 
@@ -687,7 +687,7 @@ struct RescheduleView: View {
                     HStack {
                         Text("Vehicle")
                         Spacer()
-                        Text(record.vehicleNumber)
+                        Text(record.vehicleNumber ?? "Unknown")
                             .foregroundColor(.secondary)
                     }
 

@@ -96,21 +96,21 @@ struct TripHistoryView: View {
 
         return VStack(spacing: 0) {
             HStack(spacing: 20) {
-                TripStatCard(
+                TripHistoryStatCard(
                     title: "Total Trips",
                     value: "\(stats.totalTrips)",
                     icon: "car.fill",
                     color: .blue
                 )
 
-                TripStatCard(
+                TripHistoryStatCard(
                     title: "Distance",
                     value: stats.formattedTotalDistance,
                     icon: "road.lanes",
                     color: .green
                 )
 
-                TripStatCard(
+                TripHistoryStatCard(
                     title: "Duration",
                     value: stats.formattedTotalDuration,
                     icon: "clock.fill",
@@ -283,8 +283,8 @@ struct TripRowView: View {
     }
 }
 
-// MARK: - Stat Card
-private struct TripStatCard: View {
+// MARK: - Trip History Stat Card
+private struct TripHistoryStatCard: View {
     let title: String
     let value: String
     let icon: String
