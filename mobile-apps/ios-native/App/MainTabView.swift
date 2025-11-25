@@ -57,10 +57,10 @@ struct MainTabView: View {
                 .badge(notificationCount)
             }
 
-            // Vehicles Tab - Placeholder until VehiclesView is fixed
+            // Vehicles Tab
             if #available(iOS 16.0, *) {
                 NavigationStack(path: $navigationCoordinator.navigationPath) {
-                    PlaceholderView(title: "Vehicles", icon: "car.2.fill", message: "Vehicles view coming soon")
+                    VehiclesView()
                         .navigationDestination(for: NavigationDestination.self) { destination in
                             destinationView(for: destination)
                         }
@@ -71,7 +71,7 @@ struct MainTabView: View {
                 .tag(TabItem.vehicles)
             } else {
                 NavigationView {
-                    PlaceholderView(title: "Vehicles", icon: "car.2.fill", message: "Vehicles view coming soon")
+                    VehiclesView()
                 }
                 .navigationViewStyle(.stack)
                 .tabItem {
@@ -80,10 +80,10 @@ struct MainTabView: View {
                 .tag(TabItem.vehicles)
             }
 
-            // Trips Tab - Placeholder until TripsView is fixed
+            // Trips Tab
             if #available(iOS 16.0, *) {
                 NavigationStack(path: $navigationCoordinator.navigationPath) {
-                    PlaceholderView(title: "Trips", icon: "map.fill", message: "Trips view coming soon")
+                    TripsView()
                         .navigationDestination(for: NavigationDestination.self) { destination in
                             destinationView(for: destination)
                         }
@@ -94,7 +94,7 @@ struct MainTabView: View {
                 .tag(TabItem.trips)
             } else {
                 NavigationView {
-                    PlaceholderView(title: "Trips", icon: "map.fill", message: "Trips view coming soon")
+                    TripsView()
                 }
                 .navigationViewStyle(.stack)
                 .tabItem {
@@ -201,9 +201,7 @@ struct MainTabView: View {
             VehicleDetailViewWrapper(vehicleId: id)
 
         case .tripDetail(let id):
-            Text("Trip Detail View - Coming Soon")
-                .font(.title)
-                .padding()
+            TripDetailView(tripId: id)
 
         case .maintenanceDetail(let id):
             MaintenanceDetailView(maintenanceId: id)
@@ -268,19 +266,56 @@ struct VehicleDetailViewWrapper: View {
     @StateObject private var viewModel = VehicleViewModel()
 
     var body: some View {
-        if let vehicle = viewModel.vehicles.first(where: { $0.id == vehicleId }) {
-            // VehicleDetailView removed from build - using simple placeholder
-            Text("Vehicle Detail View - Coming Soon")
-                .font(.title)
-                .padding()
-        } else {
-            ProgressView("Loading vehicle...")
-                .onAppear {
-                    Task {
-                        await viewModel.fetchVehicles()
+        Group {
+            if viewModel.isLoading {
+                ProgressView("Loading vehicle...")
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else if let vehicle = viewModel.selectedVehicle {
+                VehicleDetailView(vehicle: vehicle)
+            } else if let error = viewModel.errorMessage {
+                VStack(spacing: 16) {
+                    Image(systemName: "exclamationmark.triangle")
+                        .font(.system(size: 50))
+                        .foregroundColor(.orange)
+
+                    Text("Failed to Load Vehicle")
+                        .font(.title2.bold())
+
+                    Text(error)
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal)
+
+                    Button("Retry") {
+                        Task {
+                            await viewModel.fetchVehicle(id: vehicleId)
+                        }
                     }
+                    .buttonStyle(.borderedProminent)
                 }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else {
+                VStack(spacing: 16) {
+                    Image(systemName: "car.2")
+                        .font(.system(size: 50))
+                        .foregroundColor(.gray)
+
+                    Text("Vehicle Not Found")
+                        .font(.title2.bold())
+
+                    Text("Unable to load vehicle with ID: \(vehicleId)")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            }
         }
+        .task {
+            await viewModel.fetchVehicle(id: vehicleId)
+        }
+        .navigationTitle("Vehicle Details")
+        .navigationBarTitleDisplayMode(.inline)
     }
 }
 
