@@ -168,7 +168,7 @@ async function getCalendarClient(userId: string, calendarIntegrationId?: string)
       await pool.query(
         `UPDATE calendar_integrations
          SET access_token = $1, token_expiry = $2, updated_at = NOW()
-         WHERE id = $3`,
+         WHERE id = $3',
         [
           credentials.access_token,
           credentials.expiry_date ? new Date(credentials.expiry_date) : null,

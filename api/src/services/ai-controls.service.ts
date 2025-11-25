@@ -157,7 +157,7 @@ class AIControlsService {
         `SELECT subscription_tier
          FROM users u
          JOIN tenants t ON u.tenant_id = t.id
-         WHERE u.id = $1 AND t.id = $2`,
+         WHERE u.id = $1 AND t.id = $2',
         [userId, tenantId]
       )
 
@@ -355,7 +355,7 @@ class AIControlsService {
           COALESCE(SUM(cost) FILTER (WHERE created_at > NOW() - INTERVAL '1 day'), 0) as cost_today,
           COALESCE(SUM(cost) FILTER (WHERE created_at > NOW() - INTERVAL '1 month'), 0) as cost_month
          FROM ai_usage_logs
-         WHERE tenant_id = $1 AND user_id = $2`,
+         WHERE tenant_id = $1 AND user_id = $2',
         [tenantId, userId]
       )
 

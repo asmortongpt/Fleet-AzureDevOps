@@ -577,9 +577,6 @@ class LangChainOrchestratorService {
         }),
         func: async ({ vehicleId }) => {
           const result = await pool.query(
-<<<<<<< HEAD
-            'SELECT id, tenant_id, vin, license_plate, make, model, year, color, current_mileage, status, acquired_date, disposition_date, purchase_price, residual_value, created_at, updated_at, deleted_at FROM vehicles WHERE id = $1 AND tenant_id = $2',
-=======
             `SELECT
       id,
       tenant_id,
@@ -609,8 +606,7 @@ class LangChainOrchestratorService {
       photos,
       notes,
       created_at,
-      updated_at FROM vehicles WHERE id = $1 AND tenant_id = $2`,
->>>>>>> feature/devsecops-audit-remediation
+      updated_at FROM vehicles WHERE id = $1 AND tenant_id = $2',
             [vehicleId, context.tenantId]
           )
           return JSON.stringify(result.rows[0] || {})
@@ -657,7 +653,7 @@ class LangChainOrchestratorService {
                SUM(maintenance_cost) as total_maintenance,
                COUNT(*) as transaction_count
              FROM cost_transactions
-             WHERE tenant_id = $1 AND date BETWEEN $2 AND $3`,
+             WHERE tenant_id = $1 AND date BETWEEN $2 AND $3',
             [context.tenantId, startDate, endDate]
           )
           return JSON.stringify(result.rows[0] || {})
@@ -782,7 +778,7 @@ Generate a structured maintenance plan with:
       closed_date,
       metadata,
       created_at,
-      updated_at FROM incidents WHERE id = $1 AND tenant_id = $2`,
+      updated_at FROM incidents WHERE id = $1 AND tenant_id = $2',
       [incidentId, tenantId]
     )
 

@@ -33,7 +33,7 @@ router.get('/me', async (req: AuthRequest, res: Response) => {
     // Get user's scope information
     const userResult = await pool.query(
       `SELECT facility_ids, team_driver_ids, team_vehicle_ids, scope_level, approval_limit
-       FROM users WHERE id = $1`,
+       FROM users WHERE id = $1',
       [req.user.id]
     )
 

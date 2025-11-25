@@ -82,7 +82,7 @@ router.post('/work-order', authenticateJWT, async (req: Request, res: Response) 
        FROM work_orders wo
        LEFT JOIN vehicles v ON wo.vehicle_id = v.id
        LEFT JOIN users u ON wo.assigned_to = u.id
-       WHERE wo.id = $1`,
+       WHERE wo.id = $1',
       [workOrderId]
     )
 
@@ -140,7 +140,7 @@ router.post('/incident', authenticateJWT, async (req: Request, res: Response) =>
        LEFT JOIN vehicles v ON i.vehicle_id = v.id
        LEFT JOIN users d ON i.driver_id = d.id
        LEFT JOIN users r ON i.reported_by = r.id
-       WHERE i.id = $1`,
+       WHERE i.id = $1',
       [incidentId]
     )
 
@@ -194,7 +194,7 @@ router.post('/approval', authenticateJWT, async (req: Request, res: Response) =>
       `SELECT a.*, u.first_name || ' ' || u.last_name as requested_by_name
        FROM approvals a
        LEFT JOIN users u ON a.requested_by = u.id
-       WHERE a.id = $1`,
+       WHERE a.id = $1',
       [approvalId]
     )
 
@@ -298,7 +298,7 @@ router.post('/fuel-receipt', authenticateJWT, async (req: Request, res: Response
        FROM fuel_receipts fr
        LEFT JOIN vehicles v ON fr.vehicle_id = v.id
        LEFT JOIN users u ON fr.driver_id = u.id
-       WHERE fr.id = $1`,
+       WHERE fr.id = $1',
       [receiptId]
     )
 

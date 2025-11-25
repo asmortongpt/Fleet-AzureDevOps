@@ -34,7 +34,7 @@ export class VehicleIdentificationService {
       const vehicleResult = await pool.query(
         `SELECT id, vehicle_number, vin, license_plate, make, model, year
          FROM vehicles
-         WHERE id = $1 AND tenant_id = $2`,
+         WHERE id = $1 AND tenant_id = $2',
         [vehicleId, tenantId]
       )
 
@@ -70,7 +70,7 @@ export class VehicleIdentificationService {
       await pool.query(
         `UPDATE vehicles
          SET qr_code = $1, updated_at = NOW()
-         WHERE id = $2 AND tenant_id = $3`,
+         WHERE id = $2 AND tenant_id = $3',
         [qrIdentifier, vehicleId, tenantId]
       )
 
@@ -97,7 +97,7 @@ export class VehicleIdentificationService {
       const result = await pool.query(
         `SELECT id, vehicle_number, vin, license_plate, make, model, year, qr_code
          FROM vehicles
-         WHERE id = $1 AND tenant_id = $2`,
+         WHERE id = $1 AND tenant_id = $2',
         [parsed.vehicleId, tenantId]
       )
 
@@ -130,7 +130,7 @@ export class VehicleIdentificationService {
       const result = await pool.query(
         `SELECT id, vehicle_number, vin, license_plate, make, model, year, qr_code
          FROM vehicles
-         WHERE UPPER(vin) = UPPER($1) AND tenant_id = $2`,
+         WHERE UPPER(vin) = UPPER($1) AND tenant_id = $2',
         [vin.trim(), tenantId]
       )
 
@@ -170,7 +170,7 @@ export class VehicleIdentificationService {
         `SELECT id, vehicle_number, vin, license_plate, make, model, year, qr_code
          FROM vehicles
          WHERE UPPER(REPLACE(REPLACE(license_plate, ' ', ''), '-', '')) = $1
-         AND tenant_id = $2`,
+         AND tenant_id = $2',
         [normalized, tenantId]
       )
 
@@ -320,7 +320,7 @@ export class VehicleIdentificationService {
       const vehicle = await pool.query(
         `SELECT id, vehicle_number, vin, license_plate, make, model, year, qr_code
          FROM vehicles
-         WHERE id = $1 AND tenant_id = $2`,
+         WHERE id = $1 AND tenant_id = $2',
         [vehicleId, tenantId]
       )
 

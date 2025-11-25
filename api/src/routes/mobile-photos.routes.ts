@@ -548,7 +548,7 @@ router.get(
            ppq.processing_completed_at
          FROM mobile_photos mp
          LEFT JOIN photo_processing_queue ppq ON ppq.photo_id = mp.id
-         WHERE mp.id = $1 AND mp.tenant_id = $2`,
+         WHERE mp.id = $1 AND mp.tenant_id = $2',
         [photoId, tenantId]
       );
 
@@ -607,7 +607,7 @@ router.get(
       photo_url,
       metadata,
       taken_at,
-      created_at FROM mobile_photos WHERE id = $1 AND tenant_id = $2`,
+      created_at FROM mobile_photos WHERE id = $1 AND tenant_id = $2',
         [photoId, tenantId]
       );
 
@@ -669,7 +669,7 @@ router.delete(
       photo_url,
       metadata,
       taken_at,
-      created_at FROM mobile_photos WHERE id = $1 AND tenant_id = $2`,
+      created_at FROM mobile_photos WHERE id = $1 AND tenant_id = $2',
         [photoId, tenantId]
       );
 
@@ -691,7 +691,7 @@ router.delete(
 
       // Delete from database (cascade will delete processing queue entry)
       await pool.query(
-        `DELETE FROM mobile_photos WHERE id = $1`,
+        `DELETE FROM mobile_photos WHERE id = $1',
         [photoId]
       );
 

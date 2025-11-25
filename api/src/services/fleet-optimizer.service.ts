@@ -140,7 +140,7 @@ export class FleetOptimizerService {
     const vehicleResult = await pool.query(
       `SELECT vehicle_number, vehicle_type, purchase_price
        FROM vehicles
-       WHERE id = $1 AND tenant_id = $2`,
+       WHERE id = $1 AND tenant_id = $2',
       [vehicleId, tenantId]
     )
 

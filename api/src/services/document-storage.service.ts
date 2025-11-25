@@ -576,7 +576,7 @@ export class DocumentStorageService {
       await client.query('BEGIN')
 
       const result = await client.query(
-        `SELECT id, tenant_id, document_name, document_type, file_path, created_at, updated_at FROM documents WHERE id = $1 AND tenant_id = $2`,
+        `SELECT id, tenant_id, document_name, document_type, file_path, created_at, updated_at FROM documents WHERE id = $1 AND tenant_id = $2',
         [documentId, tenantId]
       )
 
@@ -601,7 +601,7 @@ export class DocumentStorageService {
 
         // Delete from database
         await client.query(
-          `DELETE FROM documents WHERE id = $1 AND tenant_id = $2`,
+          `DELETE FROM documents WHERE id = $1 AND tenant_id = $2',
           [documentId, tenantId]
         )
 
@@ -617,7 +617,7 @@ export class DocumentStorageService {
         await client.query(
           `UPDATE documents
            SET deleted_at = NOW(), updated_at = NOW()
-           WHERE id = $1 AND tenant_id = $2`,
+           WHERE id = $1 AND tenant_id = $2',
           [documentId, tenantId]
         )
 
@@ -823,7 +823,7 @@ export class DocumentStorageService {
       await pool.query(
         `UPDATE documents
          SET ocr_status = $1, embedding_status = $2, updated_at = NOW()
-         WHERE id = $3`,
+         WHERE id = $3',
         [OCRStatus.NOT_NEEDED, EmbeddingStatus.COMPLETED, documentId]
       )
 
@@ -833,7 +833,7 @@ export class DocumentStorageService {
       await pool.query(
         `UPDATE documents
          SET ocr_status = $1, embedding_status = $2
-         WHERE id = $3`,
+         WHERE id = $3',
         [OCRStatus.FAILED, EmbeddingStatus.FAILED, documentId]
       )
     }
