@@ -1,235 +1,522 @@
 import SwiftUI
 
-// Placeholder for ChecklistViewModel
-class ChecklistViewModel: ObservableObject {
-    @Published var pendingChecklists: [String] = []
-}
-
-// Placeholder for RoleManager
-class RoleManager: ObservableObject {
-    static let shared = RoleManager()
-
-    var currentRole: UserRole = .driver
-
-    func getRoleBadge() -> (color: String, icon: String) {
-        return ("blue", "person")
-    }
-
-    func hasPermission(_ permission: Permission) -> Bool {
-        return true
-    }
-
-    func shouldShowFeature(_ feature: MoreViewFeature) -> Bool {
-        return true
-    }
-}
-
-enum UserRole {
-    case driver
-    case manager
-    case admin
-
-    var displayName: String {
-        switch self {
-        case .driver: return "Driver"
-        case .manager: return "Manager"
-        case .admin: return "Admin"
-        }
-    }
-
-    var description: String {
-        switch self {
-        case .driver: return "Fleet Driver"
-        case .manager: return "Fleet Manager"
-        case .admin: return "System Administrator"
-        }
-    }
-
-    var icon: String {
-        switch self {
-        case .driver: return "person"
-        case .manager: return "person.2"
-        case .admin: return "person.3"
-        }
-    }
-}
-
-enum Permission {
-    case vehicleViewOwn
-    case vehicleViewGlobal
-    case fuelTransactionCreateOwn
-    case userManagement
-}
-
-enum MoreViewFeature {
-    case captureReceipts
-    case reportDamage
-    case reserveVehicles
-    case navigation
-    case vehicleAssignment
-    case scheduling
-    case userManagement
-    case vehicleDiagnostics
-}
-
 struct MoreView: View {
-    @StateObject private var checklistViewModel = ChecklistViewModel()
-    @ObservedObject private var roleManager = RoleManager.shared
-    @State private var pendingChecklistCount: Int = 0
+    // @StateObject private var checklistViewModel = ChecklistViewModel() // Disabled until ChecklistViewModel is fixed
+    @EnvironmentObject private var navigationCoordinator: NavigationCoordinator
 
     var body: some View {
         NavigationView {
             List {
-                // Role Badge Section
-                Section {
-                    HStack {
-                        Image(systemName: roleManager.currentRole.icon)
-                            .foregroundColor(roleColorFromString(roleManager.getRoleBadge().color))
-                            .font(.title2)
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text(roleManager.currentRole.displayName)
-                                .font(.headline)
-                            Text(roleManager.currentRole.description)
-                                .font(.caption)
-                                .foregroundColor(.secondary)
-                        }
-                        Spacer()
-                        Image(systemName: "chevron.right")
-                            .foregroundColor(.gray)
-                            .font(.caption)
-                    }
-                    .padding(.vertical, 4)
-                }
-
-                // Mobile Actions Section (Driver-level features)
-                if roleManager.hasPermission(.vehicleViewOwn) || roleManager.hasPermission(.fuelTransactionCreateOwn) {
-                    Section(header: Text("Mobile Actions")) {
-                        // Push-To-Talk Radio
-                        NavigationLink(destination: NavigationDestinationView(destination: .pushToTalk)) {
-                            HStack {
-                                Image(systemName: "radio.fill")
-                                    .foregroundColor(.blue)
-                                    .frame(width: 30)
-                                VStack(alignment: .leading) {
-                                    Text("Push-To-Talk Radio")
-                                        .font(.body)
-                                    Text("Dispatch radio communication")
-                                        .font(.caption)
-                                        .foregroundColor(.secondary)
-                                }
-                            }
-                        }
-
-                        if roleManager.shouldShowFeature(.captureReceipts) {
-                            NavigationLink(destination: ReceiptCaptureView()) {
-                                HStack {
-                                    Image(systemName: "doc.text.viewfinder")
-                                        .foregroundColor(.green)
-                                        .frame(width: 30)
-                                    VStack(alignment: .leading) {
-                                        Text("Capture Receipt")
-                                            .font(.body)
-                                        Text("Scan fuel & maintenance receipts")
-                                            .font(.caption)
-                                            .foregroundColor(.secondary)
-                                    }
-                                }
-                            }
-                        }
-
-                        if roleManager.shouldShowFeature(.reportDamage) {
-                            NavigationLink(destination: DamageReportView(vehicleId: "")) {
-                                HStack {
-                                    Image(systemName: "exclamationmark.triangle.fill")
-                                        .foregroundColor(.orange)
-                                        .frame(width: 30)
-                                    VStack(alignment: .leading) {
-                                        Text("Report Damage")
-                                            .font(.body)
-                                        Text("Photos, videos, or 3D LiDAR scans")
-                                            .font(.caption)
-                                            .foregroundColor(.secondary)
-                                    }
-                                }
-                            }
-                        }
-
-                        if roleManager.shouldShowFeature(.reserveVehicles) {
-                            NavigationLink(destination: VehicleRequestView()) {
-                                HStack {
-                                    Image(systemName: "car.fill")
-                                        .foregroundColor(.blue)
-                                        .frame(width: 30)
-                                    VStack(alignment: .leading) {
-                                        Text("Request Vehicle")
-                                            .font(.body)
-                                        Text("Book vehicles or request via Microsoft")
-                                            .font(.caption)
-                                            .foregroundColor(.secondary)
-                                    }
-                                }
-                            }
-                        }
-
-                        if roleManager.shouldShowFeature(.navigation) {
-                            NavigationLink(destination: MapNavigationView()) {
-                                HStack {
-                                    Image(systemName: "map.fill")
-                                        .foregroundColor(.red)
-                                        .frame(width: 30)
-                                    VStack(alignment: .leading) {
-                                        Text("Navigation")
-                                            .font(.body)
-                                        Text("Directions, traffic & route planning")
-                                            .font(.caption)
-                                            .foregroundColor(.secondary)
-                                    }
-                                }
-                            }
-                        }
-
-                        // Crash Detection - Available to all drivers
-                        NavigationLink(destination: CrashDetectionView()) {
-                            HStack {
-                                Image(systemName: "exclamationmark.shield.fill")
-                                    .foregroundColor(.red)
-                                    .frame(width: 30)
-                                VStack(alignment: .leading) {
-                                    Text("Crash Detection")
-                                        .font(.body)
-                                    Text("Automatic emergency response")
-                                        .font(.caption)
-                                        .foregroundColor(.secondary)
-                                }
+                // Executive Section
+                Section(header: Text("Executive")) {
+                    NavigationLink(destination: ExecutiveDashboardView()) {
+                        HStack {
+                            Image(systemName: "chart.bar.doc.horizontal.fill")
+                                .foregroundColor(.purple)
+                                .frame(width: 30)
+                            VStack(alignment: .leading) {
+                                Text("Executive Dashboard")
+                                    .font(.body)
+                                Text("KPIs, trends, and strategic insights")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
                             }
                         }
                     }
                 }
 
-                // Management Section (Role-based features)
+                // Vehicle Data Section
+                Section(header: Text("Vehicle Data")) {
+                    NavigationLink(destination: TelemetryDashboardView()) {
+                        HStack {
+                            Image(systemName: "gauge.with.dots.needle.67percent")
+                                .foregroundColor(.red)
+                                .frame(width: 30)
+                            VStack(alignment: .leading) {
+                                Text("Telemetry Dashboard")
+                                    .font(.body)
+                                Text("Real-time OBD-II data, diagnostics, and vehicle health")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                    }
+                }
+
+                // Environmental Section
+                Section(header: Text("Environmental")) {
+                    NavigationLink(destination: EnvironmentalDashboardView()) {
+                        HStack {
+                            Image(systemName: "leaf.fill")
+                                .foregroundColor(.green)
+                                .frame(width: 30)
+                            VStack(alignment: .leading) {
+                                Text("Environmental Impact")
+                                    .font(.body)
+                                Text("Emissions tracking, sustainability metrics, and carbon footprint")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                    }
+                }
+
+                // GPS Features Section
+                Section(header: Text("GPS Features")) {
+                    NavigationLink(destination: GeofenceListView()) {
+                        HStack {
+                            Image(systemName: "mappin.circle.fill")
+                                .foregroundColor(.blue)
+                                .frame(width: 30)
+                            VStack(alignment: .leading) {
+                                Text("Geofences")
+                                    .font(.body)
+                                Text("Create zones and monitor vehicle locations")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                    }
+
+                    NavigationLink(destination: RouteListView()) {
+                        HStack {
+                            Image(systemName: "point.3.connected.trianglepath.dotted")
+                                .foregroundColor(.orange)
+                                .frame(width: 30)
+                            VStack(alignment: .leading) {
+                                Text("Routes")
+                                    .font(.body)
+                                Text("Plan and save common routes with waypoints")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                    }
+
+                    NavigationLink(destination: EnhancedFleetMapView()) {
+                        HStack {
+                            Image(systemName: "map.fill")
+                                .foregroundColor(.green)
+                                .frame(width: 30)
+                            VStack(alignment: .leading) {
+                                Text("Fleet Map")
+                                    .font(.body)
+                                Text("Real-time vehicle location tracking")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                    }
+
+                    NavigationLink(destination: TripTrackingView()) {
+                        HStack {
+                            Image(systemName: "location.fill.viewfinder")
+                                .foregroundColor(.purple)
+                                .frame(width: 30)
+                            VStack(alignment: .leading) {
+                                Text("Trip Tracking")
+                                    .font(.body)
+                                Text("Track and record vehicle trips")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                    }
+
+                    NavigationLink(destination: RouteOptimizerView()) {
+                        HStack {
+                            Image(systemName: "arrow.triangle.branch")
+                                .foregroundColor(.teal)
+                                .frame(width: 30)
+                            VStack(alignment: .leading) {
+                                Text("Route Optimizer")
+                                    .font(.body)
+                                Text("Optimize multi-stop routes with TSP algorithm")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                    }
+                }
+
+                // Financial Section
+                Section(header: Text("Financial")) {
+                    NavigationLink(destination: CostAnalysisCenterView()) {
+                        HStack {
+                            Image(systemName: "dollarsign.circle.fill")
+                                .foregroundColor(.green)
+                                .frame(width: 30)
+                            VStack(alignment: .leading) {
+                                Text("Cost Analysis Center")
+                                    .font(.body)
+                                Text("TCO, cost per mile, and budget tracking")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                    }
+
+                    NavigationLink(destination: BudgetPlanningView()) {
+                        HStack {
+                            Image(systemName: "chart.bar.doc.horizontal.fill")
+                                .foregroundColor(.blue)
+                                .frame(width: 30)
+                            VStack(alignment: .leading) {
+                                Text("Budget Planning")
+                                    .font(.body)
+                                Text("Multi-year budgets with variance analysis")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                    }
+
+                    NavigationLink(destination: PersonalUseDashboardView()) {
+                        HStack {
+                            Image(systemName: "car.circle.fill")
+                                .foregroundColor(.purple)
+                                .frame(width: 30)
+                            VStack(alignment: .leading) {
+                                Text("Personal Use Tracking")
+                                    .font(.body)
+                                Text("Mileage tracking and reimbursement")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                    }
+                }
+
+                // Analytics Section
+                Section(header: Text("Analytics")) {
+                    NavigationLink(destination: PredictiveAnalyticsView()) {
+                        HStack {
+                            Image(systemName: "wand.and.stars")
+                                .foregroundColor(.purple)
+                                .frame(width: 30)
+                            VStack(alignment: .leading) {
+                                Text("Predictive Analytics")
+                                    .font(.body)
+                                Text("AI-powered predictions and insights")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                    }
+
+                    NavigationLink(destination: TripAnalyticsView()) {
+                        HStack {
+                            Image(systemName: "chart.xyaxis.line")
+                                .foregroundColor(.orange)
+                                .frame(width: 30)
+                            VStack(alignment: .leading) {
+                                Text("Trip Analytics")
+                                    .font(.body)
+                                Text("Advanced analytics with anomaly detection")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                    }
+
+                    NavigationLink(destination: FleetAnalyticsView()) {
+                        HStack {
+                            Image(systemName: "chart.bar.fill")
+                                .foregroundColor(.blue)
+                                .frame(width: 30)
+                            VStack(alignment: .leading) {
+                                Text("Fleet Analytics")
+                                    .font(.body)
+                                Text("Usage trends, costs, and efficiency metrics")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                    }
+
+                    NavigationLink(destination: DataWorkbenchView()) {
+                        HStack {
+                            Image(systemName: "tablecells.badge.ellipsis")
+                                .foregroundColor(.purple)
+                                .frame(width: 30)
+                            VStack(alignment: .leading) {
+                                Text("Data Workbench")
+                                    .font(.body)
+                                Text("Custom queries and data analysis")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                    }
+                }
+
+                // Optimization Section
+                Section(header: Text("Optimization")) {
+                    NavigationLink(destination: FleetOptimizerView()) {
+                        HStack {
+                            Image(systemName: "wand.and.stars")
+                                .foregroundColor(.purple)
+                                .frame(width: 30)
+                            VStack(alignment: .leading) {
+                                Text("Fleet Optimizer")
+                                    .font(.body)
+                                Text("AI-powered recommendations and savings analysis")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                    }
+                }
+
+                // Advanced Features Section
+                Section(header: Text("Advanced Features")) {
+                    NavigationLink(destination: GISCommandCenterView()) {
+                        HStack {
+                            Image(systemName: "map.fill")
+                                .foregroundColor(.purple)
+                                .frame(width: 30)
+                            VStack(alignment: .leading) {
+                                Text("GIS Command Center")
+                                    .font(.body)
+                                Text("Heatmaps, clustering, and spatial analysis")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                    }
+                }
+
+                // Compliance Section
+                Section(header: Text("Compliance")) {
+                    NavigationLink(destination: ComplianceDashboardView()) {
+                        HStack {
+                            Image(systemName: "checkmark.shield.fill")
+                                .foregroundColor(.green)
+                                .frame(width: 30)
+                            VStack(alignment: .leading) {
+                                Text("Compliance Dashboard")
+                                    .font(.body)
+                                Text("Automated tracking, scores, and violations")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                    }
+                }
+
+                // Fleet Operations Section
+                Section(header: Text("Fleet Operations")) {
+                    NavigationLink(destination: VehicleAssignmentView()) {
+                        HStack {
+                            Image(systemName: "person.crop.circle.fill.badge.checkmark")
+                                .foregroundColor(.blue)
+                                .frame(width: 30)
+                            VStack(alignment: .leading) {
+                                Text("Vehicle Assignments")
+                                    .font(.body)
+                                Text("Assign vehicles to drivers, departments, projects")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                    }
+
+                    NavigationLink(destination: InventoryManagementView()) {
+                        HStack {
+                            Image(systemName: "cube.box.fill")
+                                .foregroundColor(.purple)
+                                .frame(width: 30)
+                            VStack(alignment: .leading) {
+                                Text("Inventory Management")
+                                    .font(.body)
+                                Text("Track stock levels, movements, and alerts")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                    }
+
+                    NavigationLink(destination: WarrantyManagementView()) {
+                        HStack {
+                            Image(systemName: "shield.fill")
+                                .foregroundColor(.green)
+                                .frame(width: 30)
+                            VStack(alignment: .leading) {
+                                Text("Warranty Management")
+                                    .font(.body)
+                                Text("Track warranties and submit claims")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                    }
+                }
+
+                // Maintenance Section
+                Section(header: Text("Maintenance")) {
+                    NavigationLink(destination: WorkOrderListView()) {
+                        HStack {
+                            Image(systemName: "wrench.and.screwdriver.fill")
+                                .foregroundColor(.orange)
+                                .frame(width: 30)
+                            VStack(alignment: .leading) {
+                                Text("Work Orders")
+                                    .font(.body)
+                                Text("Create, assign, and track work orders")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                    }
+                }
+
+                // Procurement Section
+                Section(header: Text("Procurement")) {
+                    NavigationLink(destination: VendorListView()) {
+                        HStack {
+                            Image(systemName: "building.2.fill")
+                                .foregroundColor(.blue)
+                                .frame(width: 30)
+                            VStack(alignment: .leading) {
+                                Text("Vendors")
+                                    .font(.body)
+                                Text("Manage vendor relationships and performance")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                    }
+
+                    NavigationLink(destination: PartsInventoryView()) {
+                        HStack {
+                            Image(systemName: "cube.box.fill")
+                                .foregroundColor(.purple)
+                                .frame(width: 30)
+                            VStack(alignment: .leading) {
+                                Text("Parts Inventory")
+                                    .font(.body)
+                                Text("Track stock levels and reorder points")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                    }
+
+                    NavigationLink(destination: PurchaseOrderListView()) {
+                        HStack {
+                            Image(systemName: "shippingbox.fill")
+                                .foregroundColor(.orange)
+                                .frame(width: 30)
+                            VStack(alignment: .leading) {
+                                Text("Purchase Orders")
+                                    .font(.body)
+                                Text("Create and track orders with approval workflow")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                    }
+
+                    NavigationLink(destination: InvoiceListView()) {
+                        HStack {
+                            Image(systemName: "doc.text.fill")
+                                .foregroundColor(.green)
+                                .frame(width: 30)
+                            VStack(alignment: .leading) {
+                                Text("Invoices")
+                                    .font(.body)
+                                Text("Manage invoices and payment tracking")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                    }
+                }
+
+                // Communication Section
+                Section(header: Text("Communication")) {
+                    NavigationLink(destination: CommunicationCenterView()) {
+                        HStack {
+                            Image(systemName: "bubble.left.and.bubble.right.fill")
+                                .foregroundColor(.blue)
+                                .frame(width: 30)
+                            VStack(alignment: .leading) {
+                                Text("Communication Center")
+                                    .font(.body)
+                                Text("Messages, email, and notifications")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                    }
+                }
+
+                // Management Section
                 Section(header: Text("Management")) {
-                    if roleManager.shouldShowFeature(.vehicleAssignment) {
-                        NavigationLink(destination: VehicleIdentificationView()) {
-                            HStack {
-                                Image(systemName: "car.circle")
-                                    .foregroundColor(.blue)
-                                    .frame(width: 30)
-                                VStack(alignment: .leading) {
-                                    Text("Vehicle Assignment")
-                                        .font(.body)
-                                    Text("Scan VIN, plate, or QR code")
-                                        .font(.caption)
-                                        .foregroundColor(.secondary)
-                                }
+                    NavigationLink(destination: DispatchConsoleView()) {
+                        HStack {
+                            Image(systemName: "antenna.radiowaves.left.and.right")
+                                .foregroundColor(.red)
+                                .frame(width: 30)
+                            VStack(alignment: .leading) {
+                                Text("Dispatch Console")
+                                    .font(.body)
+                                Text("Real-time fleet management and assignments")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
                             }
                         }
                     }
 
-                    // Checklists - Always visible (internal feature)
-                    NavigationLink(destination: Text("Checklists - Coming Soon")) {
+                    NavigationLink(destination: TaskListView()) {
+                        HStack {
+                            Image(systemName: "list.bullet.clipboard.fill")
+                                .foregroundColor(.indigo)
+                                .frame(width: 30)
+                            VStack(alignment: .leading) {
+                                Text("Tasks")
+                                    .font(.body)
+                                Text("Assign and track tasks with workflow")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                    }
+
+                    NavigationLink(destination: DriverListView()) {
+                        HStack {
+                            Image(systemName: "person.3.fill")
+                                .foregroundColor(.blue)
+                                .frame(width: 30)
+                            VStack(alignment: .leading) {
+                                Text("Drivers")
+                                    .font(.body)
+                                Text("Manage driver roster and performance")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                    }
+
+                    NavigationLink(destination: AssetListView()) {
+                        HStack {
+                            Image(systemName: "cube.box.fill")
+                                .foregroundColor(.purple)
+                                .frame(width: 30)
+                            VStack(alignment: .leading) {
+                                Text("Assets")
+                                    .font(.body)
+                                Text("Track trailers, equipment, and tools")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                    }
+
+                    NavigationLink(destination: Text("Checklists coming soon")) {
                         HStack {
                             Image(systemName: "checklist")
-                                .foregroundColor(.purple)
+                                .foregroundColor(.orange)
                                 .frame(width: 30)
                             VStack(alignment: .leading) {
                                 Text("Checklists")
@@ -239,84 +526,64 @@ struct MoreView: View {
                                     .foregroundColor(.secondary)
                             }
                             Spacer()
-                            if checklistViewModel.pendingChecklists.count > 0 {
-                                Text("\(checklistViewModel.pendingChecklists.count)")
+                            // Badge disabled until ChecklistViewModel is fixed
+                            // if checklistViewModel.pendingChecklists.count > 0 {
+                            //     Text("\(checklistViewModel.pendingChecklists.count)")
+                            //         .font(.caption)
+                            //         .fontWeight(.semibold)
+                            //         .foregroundColor(.white)
+                            //         .padding(.horizontal, 8)
+                            //         .padding(.vertical, 4)
+                            //         .background(Color.red)
+                            //         .cornerRadius(10)
+                            // }
+                        }
+                    }
+
+                    NavigationLink(destination: Text("Schedule coming soon")) {
+                        HStack {
+                            Image(systemName: "calendar")
+                                .foregroundColor(.green)
+                                .frame(width: 30)
+                            VStack(alignment: .leading) {
+                                Text("Schedule")
+                                    .font(.body)
+                                Text("Shifts, maintenance & appointments")
                                     .font(.caption)
-                                    .fontWeight(.semibold)
-                                    .foregroundColor(.white)
-                                    .padding(.horizontal, 8)
-                                    .padding(.vertical, 4)
-                                    .background(Color.red)
-                                    .cornerRadius(10)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                    }
+                }
+
+                // Workforce Section
+                Section(header: Text("Workforce")) {
+                    NavigationLink(destination: ShiftManagementView()) {
+                        HStack {
+                            Image(systemName: "clock.fill")
+                                .foregroundColor(.blue)
+                                .frame(width: 30)
+                            VStack(alignment: .leading) {
+                                Text("Shift Management")
+                                    .font(.body)
+                                Text("Clock in/out, shift scheduling, and overtime")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
                             }
                         }
                     }
 
-                    if roleManager.shouldShowFeature(.scheduling) {
-                        NavigationLink(destination: ScheduleView()) {
-                            HStack {
-                                Image(systemName: "calendar")
-                                    .foregroundColor(.green)
-                                    .frame(width: 30)
-                                VStack(alignment: .leading) {
-                                    Text("Schedule")
-                                        .font(.body)
-                                    Text("Shifts, maintenance & appointments")
-                                        .font(.caption)
-                                        .foregroundColor(.secondary)
-                                }
-                            }
-                        }
-                    }
-
-                    if roleManager.shouldShowFeature(.userManagement) {
-                        NavigationLink(destination: DriverManagementView()) {
-                            HStack {
-                                Image(systemName: "person.2.fill")
-                                    .foregroundColor(.purple)
-                                    .frame(width: 30)
-                                VStack(alignment: .leading) {
-                                    Text("Drivers")
-                                        .font(.body)
-                                    Text("Manage drivers and assignments")
-                                        .font(.caption)
-                                        .foregroundColor(.secondary)
-                                }
-                            }
-                        }
-                    }
-
-                    if roleManager.shouldShowFeature(.vehicleDiagnostics) {
-                        NavigationLink(destination: DeviceManagementView()) {
-                            HStack {
-                                Image(systemName: "antenna.radiowaves.left.and.right")
-                                    .foregroundColor(.orange)
-                                    .frame(width: 30)
-                                VStack(alignment: .leading) {
-                                    Text("Device Management")
-                                        .font(.body)
-                                    Text("OBD2 devices & emulator")
-                                        .font(.caption)
-                                        .foregroundColor(.secondary)
-                                }
-                            }
-                        }
-                    }
-
-                    // Vehicle Idling Monitor - Available to managers and admins
-                    if roleManager.hasPermission(.vehicleViewGlobal) {
-                        NavigationLink(destination: VehicleIdlingView()) {
-                            HStack {
-                                Image(systemName: "gauge.with.dots.needle.bottom.50percent")
-                                    .foregroundColor(.red)
-                                    .frame(width: 30)
-                                VStack(alignment: .leading) {
-                                    Text("Idling Monitor")
-                                        .font(.body)
-                                    Text("Track fuel waste & emissions")
-                                        .font(.caption)
-                                        .foregroundColor(.secondary)
-                                }
+                    NavigationLink(destination: TrainingManagementView()) {
+                        HStack {
+                            Image(systemName: "book.fill")
+                                .foregroundColor(.purple)
+                                .frame(width: 30)
+                            VStack(alignment: .leading) {
+                                Text("Training & Certification")
+                                    .font(.body)
+                                Text("Course catalog, completion tracking, and compliance")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
                             }
                         }
                     }
@@ -342,7 +609,7 @@ struct MoreView: View {
                         }
                     }
 
-                    NavigationLink(destination: AppearanceSettingsView()) {
+                    NavigationLink(destination: Text("Appearance settings coming soon")) {
                         HStack {
                             Image(systemName: "paintbrush.fill")
                                 .foregroundColor(.purple)
@@ -393,95 +660,6 @@ struct MoreView: View {
             .navigationTitle("More")
             .listStyle(InsetGroupedListStyle())
         }
-    }
-
-    // Helper function to convert color string to SwiftUI Color
-    private func roleColorFromString(_ colorString: String) -> Color {
-        switch colorString.lowercased() {
-        case "blue": return .blue
-        case "purple": return .purple
-        case "orange": return .orange
-        case "green": return .green
-        case "red": return .red
-        case "yellow": return .yellow
-        case "indigo": return .indigo
-        case "gray": return .gray
-        case "brown": return .brown
-        default: return .blue
-        }
-    }
-}
-
-// MARK: - Placeholder Views (inline to avoid project configuration issues)
-
-struct NavigationDestinationView: View {
-    enum Destination {
-        case pushToTalk
-    }
-    let destination: Destination
-    var body: some View {
-        Text("Push-To-Talk Coming Soon").navigationTitle("Radio")
-    }
-}
-
-struct ReceiptCaptureView: View {
-    var body: some View {
-        Text("Receipt Capture Coming Soon").navigationTitle("Capture Receipt")
-    }
-}
-
-struct DamageReportView: View {
-    let vehicleId: String
-    var body: some View {
-        Text("Damage Report Coming Soon").navigationTitle("Report Damage")
-    }
-}
-
-struct VehicleRequestView: View {
-    var body: some View {
-        Text("Vehicle Request Coming Soon").navigationTitle("Request Vehicle")
-    }
-}
-
-struct MapNavigationView: View {
-    var body: some View {
-        Text("Navigation Coming Soon").navigationTitle("Navigation")
-    }
-}
-
-struct CrashDetectionView: View {
-    var body: some View {
-        Text("Crash Detection Coming Soon").navigationTitle("Crash Detection")
-    }
-}
-
-struct VehicleIdentificationView: View {
-    var body: some View {
-        Text("Vehicle Assignment Coming Soon").navigationTitle("Vehicle Assignment")
-    }
-}
-
-struct ScheduleView: View {
-    var body: some View {
-        Text("Schedule Coming Soon").navigationTitle("Schedule")
-    }
-}
-
-struct DeviceManagementView: View {
-    var body: some View {
-        Text("Device Management Coming Soon").navigationTitle("Device Management")
-    }
-}
-
-struct VehicleIdlingView: View {
-    var body: some View {
-        Text("Idling Monitor Coming Soon").navigationTitle("Idling Monitor")
-    }
-}
-
-struct AppearanceSettingsView: View {
-    var body: some View {
-        Text("Appearance Settings Coming Soon").navigationTitle("Appearance")
     }
 }
 
