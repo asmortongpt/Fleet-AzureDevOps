@@ -82,15 +82,7 @@ struct TripDetailView: View {
     private var mapSection: some View {
         ZStack(alignment: .bottomTrailing) {
             Map(coordinateRegion: $region, annotationItems: tripAnnotations) { annotation in
-                MapAnnotation(coordinate: annotation.coordinate) {
-                    Circle()
-                        .fill(annotation.isStart ? Color.green : (annotation.isEnd ? Color.red : Color.blue))
-                        .frame(width: annotation.isStart || annotation.isEnd ? 20 : 8, height: annotation.isStart || annotation.isEnd ? 20 : 8)
-                        .overlay(
-                            Circle()
-                                .stroke(Color.white, lineWidth: 2)
-                        )
-                }
+                MapMarker(coordinate: annotation.coordinate, tint: annotation.isStart ? .green : (annotation.isEnd ? .red : .blue))
             }
             .frame(height: 250)
 
