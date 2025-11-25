@@ -47,7 +47,23 @@ export class DriversService {
       const offset = ((options.page || 1) - 1) * limit
 
       const result = await pool.query(
-        `SELECT * FROM users WHERE tenant_id = $1 AND id = ANY($2::uuid[]) ORDER BY created_at DESC LIMIT $3 OFFSET $4`,
+        `SELECT 
+      id,
+      tenant_id,
+      email,
+      password_hash,
+      first_name,
+      last_name,
+      phone,
+      role,
+      is_active,
+      failed_login_attempts,
+      account_locked_until,
+      last_login_at,
+      mfa_enabled,
+      mfa_secret,
+      created_at,
+      updated_at FROM users WHERE tenant_id = $1 AND id = ANY($2::uuid[]) ORDER BY created_at DESC LIMIT $3 OFFSET $4`,
         [tenantId, user.team_driver_ids, limit, offset]
       )
 
