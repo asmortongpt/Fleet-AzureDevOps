@@ -537,7 +537,7 @@ router.get(
            AVG(optimization_score) as avg_optimization_score
          FROM route_optimization_jobs
          WHERE tenant_id = $1
-           AND created_at >= NOW() - INTERVAL '30 days'`,
+           AND created_at >= NOW() - INTERVAL '30 days'',
         [req.user!.tenant_id]
       )
 

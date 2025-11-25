@@ -228,7 +228,7 @@ export function requireRole(...roles: string[]) {
         user_id: user.id,
         action: 'role.check',
         allowed: false,
-        reason: 'Required roles: ${roles.join(', ')}`,
+        reason: 'Required roles: ${roles.join(', ')}',
         ip_address: req.ip,
         user_agent: req.get('user-agent'),
         context: {

@@ -93,7 +93,7 @@ function buildCSPHeader(directives: Record<string, string[]>): string {
       if (values.length === 0) {
         return key
       }
-      return '${key} ${values.join(' ')}`
+      return '${key} ${values.join(' ')}'
     })
     .join('; ')
 }
@@ -107,7 +107,7 @@ function buildPermissionsPolicyHeader(policy: Record<string, string[]>): string 
       if (allowlist.length === 0) {
         return `${feature}=()`
       }
-      return '${feature}=(${allowlist.join(' ')})`
+      return '${feature}=(${allowlist.join(' ')})'
     })
     .join(', ')
 }

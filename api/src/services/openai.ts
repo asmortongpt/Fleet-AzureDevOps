@@ -40,7 +40,7 @@ export async function naturalLanguageQuery(query: string, tenantId: string) {
           content: `You are a SQL expert for a fleet management system. Convert natural language queries to SQL.
 
 Database Schema:
-${(Object.entries(schema) as [string, string[]][]).map(([table, cols]) => `${table}: ${cols.join(', ')}`).join('\n')}
+${(Object.entries(schema) as [string, string[]][]).map(([table, cols]) => '${table}: ${cols.join(', ')}').join('\n')}
 
 Rules:
 - Always include "WHERE tenant_id = '${tenantId}'" for multi-tenant isolation
@@ -95,7 +95,7 @@ export async function aiAssistant(messages: Array<{ role: string, content: strin
 - Safety incident analysis
 - Predictive maintenance insights
 
-Current Context: ${context ? JSON.stringify(context) : 'None'}`
+Current Context: ${context ? JSON.stringify(context) : 'None'}'
         },
         ...messages as any
       ],

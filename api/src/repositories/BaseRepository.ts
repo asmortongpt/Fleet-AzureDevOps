@@ -247,7 +247,7 @@ export abstract class BaseRepository<T extends { id: string | number }> {
       }
 
       const values = Object.values(dataWithTenant);
-      const placeholders = columns.map((_, i) => '$${i + 1}`).join(', ');
+      const placeholders = columns.map((_, i) => '$${i + 1}').join(', ');
 
       // Column names are validated above
       const result = await pool.query(
@@ -291,7 +291,7 @@ export abstract class BaseRepository<T extends { id: string | number }> {
       }
 
       const values = Object.values(dataWithMeta);
-      const setClause = columns.map((col, i) => '${col} = $${i + 1}`).join(', ');
+      const setClause = columns.map((col, i) => '${col} = $${i + 1}').join(', ');
 
       // Column names are validated above
       const result = await pool.query(

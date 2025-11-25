@@ -362,7 +362,7 @@ export class DriverScorecardService {
    */
   async getDriverAchievements(driverId: string, tenantId: string): Promise<Achievement[]> {
     const result = await pool.query(
-      `SELECT ` + (await getTableColumns(pool, 'driver_achievements')).join(', ') + ` FROM driver_achievements
+      'SELECT ' + (await getTableColumns(pool, 'driver_achievements')).join(', ') + ' FROM driver_achievements
        WHERE driver_id = $1 AND tenant_id = $2
        ORDER BY earned_at DESC`,
       [driverId, tenantId]

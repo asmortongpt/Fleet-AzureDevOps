@@ -72,7 +72,7 @@ class MicrosoftGraphService {
       ...options,
       headers: {
         ...options?.headers,
-        'Authorization': `Bearer ${token}`,
+        'Authorization': 'Bearer ${token}`,
         'Content-Type': 'application/json'
       }
     });
@@ -197,7 +197,7 @@ describe('MicrosoftGraphService', () => {
         'https://graph.microsoft.com/v1.0/me',
         expect.objectContaining({
           headers: expect.objectContaining({
-            'Authorization': `Bearer ${mockTokenResponse.access_token}`
+            'Authorization': 'Bearer ${mockTokenResponse.access_token}`
           })
         })
       );

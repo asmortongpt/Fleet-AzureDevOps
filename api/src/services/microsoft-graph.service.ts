@@ -516,7 +516,7 @@ export class MicrosoftGraphService {
     body?: any,
     options?: GraphRequestOptions
   ): Promise<T> {
-    const url = endpoint.startsWith('http') ? endpoint : `${GRAPH_API_BASE_URL}${endpoint}`
+    const url = endpoint.startsWith('http') ? endpoint : '${GRAPH_API_BASE_URL}${endpoint}`
 
     // SSRF Protection: Validate URL before making request
     await validateOutboundUrl(url, {

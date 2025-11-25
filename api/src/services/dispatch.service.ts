@@ -206,7 +206,7 @@ class DispatchService {
         VALUES ($1, $2, $3, $4, $5)
         ON CONFLICT (channel_id, user_id, connection_id)
         DO UPDATE SET last_heartbeat = CURRENT_TIMESTAMP
-      `, [channelId, userId, connectionId, deviceInfo?.type || 'web', deviceInfo])
+      ', [channelId, userId, connectionId, deviceInfo?.type || 'web', deviceInfo])
 
       // Add to in-memory channel listeners
       if (!this.channelListeners.has(channelId)) {

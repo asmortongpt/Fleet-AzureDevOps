@@ -166,7 +166,7 @@ async function sendErrorNotification(errorCount: number): Promise<void> {
     // Get admin users across all tenants
     const adminsResult = await pool.query(
       `SELECT id, email, tenant_id FROM users
-       WHERE role = 'admin' AND is_active = true`
+       WHERE role = 'admin' AND is_active = true'
     )
 
     const message = `⚠️ Telematics Sync Errors: ${errorCount} error(s) occurred during the latest sync. Check logs for details.`
