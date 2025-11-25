@@ -11,6 +11,7 @@ class DataPersistenceManager: ObservableObject {
     // MARK: - Storage Keys
     private enum StorageKeys {
         static let vehicles = "cached_vehicles"
+        static let trips = "cached_trips"
         static let inspections = "cached_inspections"
         static let lastSyncDate = "last_sync_date"
         static let offlineMode = "offline_mode"
@@ -83,6 +84,48 @@ class DataPersistenceManager: ObservableObject {
         }
 
         cacheVehicles(vehicles)
+    }
+
+    // MARK: - Trip Caching
+    func cacheTrips(_ trips: [Trip]) {
+        do {
+            let encoder = JSONEncoder()
+            encoder.dateEncodingStrategy = .iso8601
+            let data = try encoder.encode(trips)
+            userDefaults.set(data, forKey: StorageKeys.trips)
+            updateLastSyncDate()
+        } catch {
+            print("Error caching trips: \(error.localizedDescription)")
+        }
+    }
+
+    func getCachedTrips() -> [Trip]? {
+        guard let data = userDefaults.data(forKey: StorageKeys.trips) else {
+            return nil
+        }
+
+        do {
+            let decoder = JSONDecoder()
+            decoder.dateDecodingStrategy = .iso8601
+            let trips = try decoder.decode([Trip].self, from: data)
+            return trips
+        } catch {
+            print("Error decoding cached trips: \(error.localizedDescription)")
+            return nil
+        }
+    }
+
+    func cacheTrip(_ trip: Trip) {
+        var trips = getCachedTrips() ?? []
+
+        // Update existing trip or add new one
+        if let index = trips.firstIndex(where: { $0.id == trip.id }) {
+            trips[index] = trip
+        } else {
+            trips.append(trip)
+        }
+
+        cacheTrips(trips)
     }
 
     // MARK: - Inspection Caching
@@ -168,6 +211,7 @@ class DataPersistenceManager: ObservableObject {
     // MARK: - Clear Cache
     func clearAllCache() {
         userDefaults.removeObject(forKey: StorageKeys.vehicles)
+        userDefaults.removeObject(forKey: StorageKeys.trips)
         userDefaults.removeObject(forKey: StorageKeys.inspections)
         userDefaults.removeObject(forKey: StorageKeys.lastSyncDate)
 
@@ -184,6 +228,10 @@ class DataPersistenceManager: ObservableObject {
 
     func clearVehicleCache() {
         userDefaults.removeObject(forKey: StorageKeys.vehicles)
+    }
+
+    func clearTripCache() {
+        userDefaults.removeObject(forKey: StorageKeys.trips)
     }
 
     func clearInspectionCache() {
@@ -213,6 +261,9 @@ class DataPersistenceManager: ObservableObject {
         // Add UserDefaults data size estimate
         if let vehiclesData = userDefaults.data(forKey: StorageKeys.vehicles) {
             totalSize += Int64(vehiclesData.count)
+        }
+        if let tripsData = userDefaults.data(forKey: StorageKeys.trips) {
+            totalSize += Int64(tripsData.count)
         }
         if let inspectionsData = userDefaults.data(forKey: StorageKeys.inspections) {
             totalSize += Int64(inspectionsData.count)

@@ -3,6 +3,7 @@ import react from "@vitejs/plugin-react-swc";
 import { defineConfig, PluginOption } from "vite";
 import { visualizer } from "rollup-plugin-visualizer";
 import { resolve } from 'path'
+import { cjsInterop } from 'vite-plugin-cjs-interop'
 
 const projectRoot = process.env.PROJECT_ROOT || import.meta.dirname
 
@@ -28,14 +29,26 @@ function injectRuntimeConfig(): PluginOption {
 
 // https://vite.dev/config/
 export default defineConfig({
-  // Base path for Azure Static Web Apps deployment
-  // Set to '/' for root deployment (default)
-  // Override with VITE_BASE_PATH env var if deploying to subdirectory
-  base: process.env.VITE_BASE_PATH || '/',
+  // CRITICAL: Base path MUST be '/' for absolute paths
+  // Relative paths ('./') cause module loading failures in production
+  base: '/',
 
   plugins: [
     react(),
     tailwindcss(),
+    // FIX: CJS/ESM interop for icon libraries and React Context usage
+    cjsInterop({
+      dependencies: [
+        '@phosphor-icons/react',
+        'lucide-react',
+        '@heroicons/react',
+        '@mui/icons-material',
+        'sonner',
+        'react-hot-toast',
+        '@tanstack/react-query',
+        'next-themes'
+      ]
+    }),
     injectRuntimeConfig(), // CRITICAL: Injects runtime-config.js script tag
     // Bundle analyzer - generates stats.html after build
     visualizer({
@@ -49,7 +62,10 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': resolve(projectRoot, 'src')
-    }
+    },
+    // CRITICAL FIX: Deduplicate React to prevent "Invalid hook call" errors
+    // Forces all React imports to resolve to the same instance
+    dedupe: ['react', 'react-dom', 'scheduler']
   },
   server: {
     port: 5173,
@@ -100,18 +116,15 @@ export default defineConfig({
         // Separates large dependencies into their own chunks for better caching
         // ===================================================================
         manualChunks: (id) => {
-          // Core React libraries - changes rarely, cache aggressively
-          // CRITICAL: Keep react and react-dom together to prevent Children assignment errors
-          if (id.includes('node_modules/react-dom')) {
+          // Core React libraries - CRITICAL: Keep ALL React packages together
+          // to prevent "Cannot read properties of undefined (reading 'createContext')" errors
+          if (id.includes('node_modules/react') ||
+              id.includes('node_modules/scheduler') ||
+              id.includes('node_modules/react-dom')) {
             return 'react-vendor';
           }
-          if (id.includes('node_modules/react') && !id.includes('node_modules/react-')) {
-            return 'react-vendor';
-          }
-          if (id.includes('node_modules/scheduler')) {
-            return 'react-vendor';
-          }
-          if (id.includes('node_modules/react-router-dom')) {
+          if (id.includes('node_modules/react-router-dom') ||
+              id.includes('node_modules/@remix-run')) {
             return 'react-router';
           }
 
@@ -182,7 +195,27 @@ export default defineConfig({
             return 'animation';
           }
 
-          // All other node_modules
+          // React utility libraries (MUST load after React)
+          // These libraries use React.createContext at module level
+          if (id.includes('node_modules/react-error-boundary') ||
+              id.includes('node_modules/react-hot-toast') ||
+              id.includes('node_modules/sonner') ||
+              id.includes('node_modules/next-themes') ||
+              id.includes('node_modules/react-day-picker') ||
+              id.includes('node_modules/react-dropzone') ||
+              id.includes('node_modules/react-window') ||
+              id.includes('node_modules/@tanstack/react-query') ||
+              id.includes('node_modules/swr') ||
+              id.includes('node_modules/use-sync-external-store') ||
+              id.includes('node_modules/embla-carousel-react') ||
+              id.includes('node_modules/vaul') ||
+              id.includes('node_modules/class-variance-authority') ||
+              id.includes('node_modules/clsx') ||
+              id.includes('node_modules/tailwind-merge')) {
+            return 'react-utils';
+          }
+
+          // All other node_modules (should NOT include React-dependent code)
           if (id.includes('node_modules')) {
             return 'vendor';
           }

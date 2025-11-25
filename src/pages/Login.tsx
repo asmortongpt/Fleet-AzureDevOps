@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useMutation } from '@tanstack/react-query'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -13,11 +13,38 @@ import { CarProfile } from '@phosphor-icons/react'
 /**
  * Login Page Component
  * Supports both traditional email/password login and Microsoft SSO
+ *
+ * DEV MODE: Automatically bypasses login with demo credentials
  */
 export function Login() {
   const navigate = useNavigate()
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
+  // Pre-fill credentials in DEV mode for quick access
+  const [email, setEmail] = useState(import.meta.env.DEV ? 'admin@fleet.local' : '')
+  const [password, setPassword] = useState(import.meta.env.DEV ? 'demo123' : '')
+
+  // AUTO-LOGIN in DEV mode (disabled - let user click button instead)
+  useEffect(() => {
+    if (import.meta.env.DEV && false) { // Disabled - user will click button
+      console.log('[LOGIN] DEV mode detected - auto-logging in with demo user')
+
+      // Create a demo JWT token (not validated in DEV mode)
+      const demoToken = btoa(JSON.stringify({
+        header: { alg: 'HS256', typ: 'JWT' },
+        payload: {
+          id: 1,
+          email: 'admin@fleet.local',
+          role: 'admin',
+          tenant_id: 1,
+          auth_provider: 'demo',
+          exp: Date.now() + 86400000 // 24 hours
+        }
+      }))
+
+      setAuthToken(demoToken)
+      console.log('[LOGIN] Demo token set, redirecting to dashboard')
+      navigate('/', { replace: true })
+    }
+  }, [navigate])
 
   // Check for error messages in URL
   const params = new URLSearchParams(window.location.search)
@@ -130,7 +157,7 @@ export function Login() {
               <Input
                 id="email"
                 type="email"
-                placeholder="admin@demofleet.com"
+                placeholder="admin@fleet.local"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -143,7 +170,7 @@ export function Login() {
               <Input
                 id="password"
                 type="password"
-                placeholder="••••••••"
+                placeholder="demo123"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required

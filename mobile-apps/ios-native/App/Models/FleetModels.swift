@@ -52,6 +52,25 @@ struct VehicleLocation: Codable, Equatable {
     }
 }
 
+enum TripStatus: String, Codable {
+    case active = "Active"
+    case completed = "Completed"
+    case cancelled = "Cancelled"
+}
+
+enum MaintenanceStatus: String, Codable {
+    case scheduled = "Scheduled"
+    case inProgress = "In Progress"
+    case completed = "Completed"
+    case cancelled = "Cancelled"
+}
+
+enum OwnershipType: String, Codable {
+    case owned = "Owned"
+    case leased = "Leased"
+    case rented = "Rented"
+}
+
 // MARK: - Trip Models
 
 struct Trip: Identifiable, Codable {
