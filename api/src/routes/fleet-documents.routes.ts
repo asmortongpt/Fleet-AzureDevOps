@@ -446,7 +446,7 @@ router.delete(
         `UPDATE fleet_documents
          SET is_archived = true, updated_at = NOW()
          WHERE id = $1 AND tenant_id = $2 AND is_archived = false
-         RETURNING id`,
+         RETURNING id',
         [req.params.id, req.user!.tenant_id]
       )
 

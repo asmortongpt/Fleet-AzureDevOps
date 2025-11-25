@@ -128,7 +128,7 @@ export class OcrQueueService {
           document_id, tenant_id, user_id, file_path, file_name, file_size,
           mime_type, options, status, priority, progress
         ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
-        RETURNING id`,
+        RETURNING id',
         [
           jobData.documentId,
           jobData.tenantId,
@@ -199,7 +199,7 @@ export class OcrQueueService {
           tenant_id, user_id, total_documents, completed_documents,
           failed_documents, status, options
         ) VALUES ($1, $2, $3, $4, $5, $6, $7)
-        RETURNING id`,
+        RETURNING id',
         [
           tenantId,
           userId,

@@ -272,7 +272,7 @@ export async function generateWorkOrder(
         assigned_to, estimated_cost, estimated_hours,
         parts_used, scheduled_date
       ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
-      RETURNING id`,
+      RETURNING id',
       [
         schedule.tenant_id,
         schedule.vehicle_id,

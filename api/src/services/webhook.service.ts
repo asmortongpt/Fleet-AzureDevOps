@@ -391,7 +391,7 @@ class WebhookService {
         `INSERT INTO webhook_events
          (subscription_id, change_type, resource, resource_data)
          VALUES ($1, $2, $3, $4)
-         RETURNING id`,
+         RETURNING id',
         [subscriptionId, changeType, resource, JSON.stringify(notification)]
       )
 
@@ -425,7 +425,7 @@ class WebhookService {
           communication_datetime, ai_detected_category, source_platform, source_platform_id,
           metadata, requires_follow_up)
          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
-         RETURNING id`,
+         RETURNING id',
         [
           'Teams Message',
           message.from.user.displayName,
@@ -502,7 +502,7 @@ class WebhookService {
         `INSERT INTO webhook_events
          (subscription_id, change_type, resource, resource_data)
          VALUES ($1, $2, $3, $4)
-         RETURNING id`,
+         RETURNING id',
         [subscriptionId, changeType, resource, JSON.stringify(notification)]
       )
 
@@ -535,7 +535,7 @@ class WebhookService {
           communication_datetime, ai_detected_category, ai_detected_priority,
           source_platform, source_platform_id, metadata)
          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
-         RETURNING id`,
+         RETURNING id',
         [
           'Email',
           email.from.emailAddress.name,
