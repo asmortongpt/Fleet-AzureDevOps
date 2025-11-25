@@ -124,10 +124,11 @@
       }
     ],
     "shard": null,
+    "tags": [],
     "updateSnapshots": "missing",
     "updateSourceMethod": "patch",
-    "version": "1.56.1",
-    "workers": 4,
+    "version": "1.57.0",
+    "workers": 1,
     "webServer": {
       "command": "npm run dev",
       "url": "http://localhost:5173",
@@ -137,95 +138,155 @@
   },
   "suites": [
     {
-      "title": "production-deep-diagnosis.spec.ts",
-      "file": "production-deep-diagnosis.spec.ts",
+      "title": "agent-6-insights-hub-validation.spec.ts",
+      "file": "agent-6-insights-hub-validation.spec.ts",
       "column": 0,
       "line": 0,
-      "specs": [
+      "specs": [],
+      "suites": [
         {
-          "title": "Deep diagnosis",
-          "ok": true,
-          "tags": [],
-          "tests": [
+          "title": "Agent 6: Insights Hub & Data Elements Validation",
+          "file": "agent-6-insights-hub-validation.spec.ts",
+          "line": 19,
+          "column": 6,
+          "specs": [],
+          "suites": [
             {
-              "timeout": 60000,
-              "annotations": [],
-              "expectedStatus": "passed",
-              "projectId": "chromium",
-              "projectName": "chromium",
-              "results": [
+              "title": "Module 1: Executive Dashboard - Comprehensive Validation",
+              "file": "agent-6-insights-hub-validation.spec.ts",
+              "line": 29,
+              "column": 8,
+              "specs": [
                 {
-                  "workerIndex": 0,
-                  "parallelIndex": 0,
-                  "status": "passed",
-                  "duration": 4376,
-                  "errors": [],
-                  "stdout": [
+                  "title": "should navigate to Executive Dashboard",
+                  "ok": false,
+                  "tags": [],
+                  "tests": [
                     {
-                      "text": "ROOT: \u001b[33mtrue\u001b[39m Children: \u001b[33m0\u001b[39m\n"
-                    },
-                    {
-                      "text": "Runtime config loaded: \u001b[33mtrue\u001b[39m\n"
-                    },
-                    {
-                      "text": "Config: {\n  \"VITE_AZURE_MAPS_SUBSCRIPTION_KEY\": \"\",\n  \"VITE_API_URL\": \"\",\n  \"VITE_ENVIRONMENT\": \"production\",\n  \"VITE_BUILD_VERSION\": \"latest\"\n}\n"
-                    },
-                    {
-                      "text": "Scripts: \u001b[33m4\u001b[39m\n"
-                    },
-                    {
-                      "text": "  - https://fleet.capitaltechalliance.com/assets/js/index-C9M4iZQ2.js\n"
-                    },
-                    {
-                      "text": "  - https://fleet.capitaltechalliance.com/runtime-config.js\n"
-                    },
-                    {
-                      "text": "  - https://fleet.capitaltechalliance.com/runtime-config.js\n"
-                    },
-                    {
-                      "text": "  - \n"
-                    },
-                    {
-                      "text": "Console messages: \u001b[33m1\u001b[39m\n"
-                    },
-                    {
-                      "text": "  [log] ServiceWorker registered: ServiceWorkerRegistration\n"
-                    },
-                    {
-                      "text": "PAGE ERRORS: \u001b[33m1\u001b[39m\n"
-                    },
-                    {
-                      "text": "  ERROR: Cannot set properties of undefined (setting 'Children')\n"
-                    },
-                    {
-                      "text": "  STACK: TypeError: Cannot set properties of undefined (setting 'Children')\n    at vh (https://fleet.capitaltechalliance.com/assets/js/react-vendor-C-W_IMbH.js:1:4605)\n    at Nu (https://fleet.capitaltechalliance.com/assets/js/react-vendor-C-W_IMbH.js:1:7447)\n    at bp (https://fleet.capitaltechalliance.com/assets/js/vendor-BRBfEZAU.js:1:36196)\n    at wp (https://fleet.capitaltechalliance.com/assets/js/vendor-BRBfEZAU.js:1:36968)\n    at https://fleet.capitaltechalliance.com/assets/js/vendor-BRBfEZAU.js:1:36992\n"
+                      "timeout": 60000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 0,
+                          "parallelIndex": 0,
+                          "status": "timedOut",
+                          "duration": 61342,
+                          "error": {
+                            "message": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m",
+                            "stack": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m"
+                          },
+                          "errors": [
+                            {
+                              "message": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m"
+                            },
+                            {
+                              "location": {
+                                "file": "/Users/andrewmorton/Documents/GitHub/Fleet/e2e/agent-6-insights-hub-validation.spec.ts",
+                                "column": 33,
+                                "line": 33
+                              },
+                              "message": "Error: locator.click: Test timeout of 60000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: /executive dashboard/i })\u001b[22m\n\n\n  31 |       // Find and click Executive Dashboard nav item\n  32 |       const execDashboardButton = page.getByRole('button', { name: /executive dashboard/i })\n> 33 |       await execDashboardButton.click()\n     |                                 ^\n  34 |\n  35 |       // Wait for dashboard to load\n  36 |       await page.waitForTimeout(2000)\n    at /Users/andrewmorton/Documents/GitHub/Fleet/e2e/agent-6-insights-hub-validation.spec.ts:33:33"
+                            }
+                          ],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2025-11-25T21:00:29.446Z",
+                          "annotations": [],
+                          "attachments": [
+                            {
+                              "name": "screenshot",
+                              "contentType": "image/png",
+                              "path": "/Users/andrewmorton/Documents/GitHub/Fleet/test-results/agent-6-insights-hub-valid-ca762-gate-to-Executive-Dashboard-chromium/test-failed-1.png"
+                            },
+                            {
+                              "name": "video",
+                              "contentType": "video/webm",
+                              "path": "/Users/andrewmorton/Documents/GitHub/Fleet/test-results/agent-6-insights-hub-valid-ca762-gate-to-Executive-Dashboard-chromium/video.webm"
+                            },
+                            {
+                              "name": "error-context",
+                              "contentType": "text/markdown",
+                              "path": "/Users/andrewmorton/Documents/GitHub/Fleet/test-results/agent-6-insights-hub-valid-ca762-gate-to-Executive-Dashboard-chromium/error-context.md"
+                            }
+                          ]
+                        },
+                        {
+                          "workerIndex": 1,
+                          "parallelIndex": 0,
+                          "status": "timedOut",
+                          "duration": 61346,
+                          "error": {
+                            "message": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m",
+                            "stack": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m"
+                          },
+                          "errors": [
+                            {
+                              "message": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m"
+                            },
+                            {
+                              "location": {
+                                "file": "/Users/andrewmorton/Documents/GitHub/Fleet/e2e/agent-6-insights-hub-validation.spec.ts",
+                                "column": 33,
+                                "line": 33
+                              },
+                              "message": "Error: locator.click: Test timeout of 60000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: /executive dashboard/i })\u001b[22m\n\n\n  31 |       // Find and click Executive Dashboard nav item\n  32 |       const execDashboardButton = page.getByRole('button', { name: /executive dashboard/i })\n> 33 |       await execDashboardButton.click()\n     |                                 ^\n  34 |\n  35 |       // Wait for dashboard to load\n  36 |       await page.waitForTimeout(2000)\n    at /Users/andrewmorton/Documents/GitHub/Fleet/e2e/agent-6-insights-hub-validation.spec.ts:33:33"
+                            }
+                          ],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 1,
+                          "startTime": "2025-11-25T21:01:31.359Z",
+                          "annotations": [],
+                          "attachments": [
+                            {
+                              "name": "screenshot",
+                              "contentType": "image/png",
+                              "path": "/Users/andrewmorton/Documents/GitHub/Fleet/test-results/agent-6-insights-hub-valid-ca762-gate-to-Executive-Dashboard-chromium-retry1/test-failed-1.png"
+                            },
+                            {
+                              "name": "video",
+                              "contentType": "video/webm",
+                              "path": "/Users/andrewmorton/Documents/GitHub/Fleet/test-results/agent-6-insights-hub-valid-ca762-gate-to-Executive-Dashboard-chromium-retry1/video.webm"
+                            },
+                            {
+                              "name": "error-context",
+                              "contentType": "text/markdown",
+                              "path": "/Users/andrewmorton/Documents/GitHub/Fleet/test-results/agent-6-insights-hub-valid-ca762-gate-to-Executive-Dashboard-chromium-retry1/error-context.md"
+                            },
+                            {
+                              "name": "trace",
+                              "contentType": "application/zip",
+                              "path": "/Users/andrewmorton/Documents/GitHub/Fleet/test-results/agent-6-insights-hub-valid-ca762-gate-to-Executive-Dashboard-chromium-retry1/trace.zip"
+                            }
+                          ]
+                        }
+                      ],
+                      "status": "unexpected"
                     }
                   ],
-                  "stderr": [],
-                  "retry": 0,
-                  "startTime": "2025-11-25T03:40:49.714Z",
-                  "annotations": [],
-                  "attachments": []
+                  "id": "16a6b03deffc24956d4d-f907b4d9059ab9ccb29c",
+                  "file": "agent-6-insights-hub-validation.spec.ts",
+                  "line": 30,
+                  "column": 5
                 }
-              ],
-              "status": "expected"
+              ]
             }
-          ],
-          "id": "a5d048cad0528721ea12-837cacaaaf75ebe16af2",
-          "file": "production-deep-diagnosis.spec.ts",
-          "line": 3,
-          "column": 1
+          ]
         }
       ]
     }
   ],
   "errors": [],
   "stats": {
-    "startTime": "2025-11-25T03:40:48.942Z",
-    "duration": 5627.135,
-    "expected": 1,
+    "startTime": "2025-11-25T21:00:28.868Z",
+    "duration": 124515.003,
+    "expected": 0,
     "skipped": 0,
-    "unexpected": 0,
+    "unexpected": 1,
     "flaky": 0
   }
 }
