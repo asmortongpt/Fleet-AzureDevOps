@@ -7,6 +7,24 @@ struct MoreView: View {
     var body: some View {
         NavigationView {
             List {
+                // Executive Section
+                Section(header: Text("Executive")) {
+                    NavigationLink(destination: ExecutiveDashboardView()) {
+                        HStack {
+                            Image(systemName: "chart.bar.doc.horizontal.fill")
+                                .foregroundColor(.purple)
+                                .frame(width: 30)
+                            VStack(alignment: .leading) {
+                                Text("Executive Dashboard")
+                                    .font(.body)
+                                Text("KPIs, trends, and strategic insights")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                    }
+                }
+
                 // GPS Features Section
                 Section(header: Text("GPS Features")) {
                     NavigationLink(destination: GeofenceListView()) {
@@ -114,6 +132,24 @@ struct MoreView: View {
                                 Text("Fleet Analytics")
                                     .font(.body)
                                 Text("Usage trends, costs, and efficiency metrics")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                    }
+                }
+
+                // Advanced Features Section
+                Section(header: Text("Advanced Features")) {
+                    NavigationLink(destination: GISCommandCenterView()) {
+                        HStack {
+                            Image(systemName: "map.fill")
+                                .foregroundColor(.purple)
+                                .frame(width: 30)
+                            VStack(alignment: .leading) {
+                                Text("GIS Command Center")
+                                    .font(.body)
+                                Text("Heatmaps, clustering, and spatial analysis")
                                     .font(.caption)
                                     .foregroundColor(.secondary)
                             }
