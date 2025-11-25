@@ -43,6 +43,23 @@ struct MoreView: View {
                     }
                 }
 
+                // Environmental Section
+                Section(header: Text("Environmental")) {
+                    NavigationLink(destination: EnvironmentalDashboardView()) {
+                        HStack {
+                            Image(systemName: "leaf.fill")
+                                .foregroundColor(.green)
+                                .frame(width: 30)
+                            VStack(alignment: .leading) {
+                                Text("Environmental Impact")
+                                    .font(.body)
+                                Text("Emissions tracking, sustainability metrics, and carbon footprint")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                    }
+                }
 
                 // GPS Features Section
                 Section(header: Text("GPS Features")) {
@@ -133,6 +150,21 @@ struct MoreView: View {
                                 Text("Cost Analysis Center")
                                     .font(.body)
                                 Text("TCO, cost per mile, and budget tracking")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                    }
+
+                    NavigationLink(destination: BudgetPlanningView()) {
+                        HStack {
+                            Image(systemName: "chart.bar.doc.horizontal.fill")
+                                .foregroundColor(.blue)
+                                .frame(width: 30)
+                            VStack(alignment: .leading) {
+                                Text("Budget Planning")
+                                    .font(.body)
+                                Text("Multi-year budgets with variance analysis")
                                     .font(.caption)
                                     .foregroundColor(.secondary)
                             }
@@ -283,6 +315,36 @@ struct MoreView: View {
                                 Text("Vehicle Assignments")
                                     .font(.body)
                                 Text("Assign vehicles to drivers, departments, projects")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                    }
+
+                    NavigationLink(destination: InventoryManagementView()) {
+                        HStack {
+                            Image(systemName: "cube.box.fill")
+                                .foregroundColor(.purple)
+                                .frame(width: 30)
+                            VStack(alignment: .leading) {
+                                Text("Inventory Management")
+                                    .font(.body)
+                                Text("Track stock levels, movements, and alerts")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                    }
+
+                    NavigationLink(destination: WarrantyManagementView()) {
+                        HStack {
+                            Image(systemName: "shield.fill")
+                                .foregroundColor(.green)
+                                .frame(width: 30)
+                            VStack(alignment: .leading) {
+                                Text("Warranty Management")
+                                    .font(.body)
+                                Text("Track warranties and submit claims")
                                     .font(.caption)
                                     .foregroundColor(.secondary)
                             }
@@ -505,6 +567,21 @@ struct MoreView: View {
                                 Text("Shift Management")
                                     .font(.body)
                                 Text("Clock in/out, shift scheduling, and overtime")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                    }
+
+                    NavigationLink(destination: TrainingManagementView()) {
+                        HStack {
+                            Image(systemName: "book.fill")
+                                .foregroundColor(.purple)
+                                .frame(width: 30)
+                            VStack(alignment: .leading) {
+                                Text("Training & Certification")
+                                    .font(.body)
+                                Text("Course catalog, completion tracking, and compliance")
                                     .font(.caption)
                                     .foregroundColor(.secondary)
                             }
