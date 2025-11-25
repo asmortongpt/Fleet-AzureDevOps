@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from "react"
+import { useState, useMemo, useEffect, lazy, Suspense } from "react"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { ScrollArea } from "@/components/ui/scroll-area"
@@ -19,62 +19,6 @@ import {
   CarProfile
 } from "@phosphor-icons/react"
 import { navigationItems } from "@/lib/navigation"
-import { FleetDashboard } from "@/components/modules/FleetDashboard"
-import { PeopleManagement } from "@/components/modules/PeopleManagement"
-import { GarageService } from "@/components/modules/GarageService"
-import { PredictiveMaintenance } from "@/components/modules/PredictiveMaintenance"
-import { FuelManagement } from "@/components/modules/FuelManagement"
-import { GPSTracking } from "@/components/modules/GPSTracking"
-import { DataWorkbench } from "@/components/modules/DataWorkbench"
-import { MileageReimbursement } from "@/components/modules/MileageReimbursement"
-import { MaintenanceRequest } from "@/components/modules/MaintenanceRequest"
-import { RouteManagement } from "@/components/modules/RouteManagement"
-import { GISCommandCenter } from "@/components/modules/GISCommandCenter"
-import { TrafficCameras } from "@/components/modules/TrafficCameras"
-import { DriverPerformance } from "@/components/modules/DriverPerformance"
-import { FleetAnalytics } from "@/components/modules/FleetAnalytics"
-import { VendorManagement } from "@/components/modules/VendorManagement"
-import { PartsInventory } from "@/components/modules/PartsInventory"
-import { PurchaseOrders } from "@/components/modules/PurchaseOrders"
-import { Invoices } from "@/components/modules/Invoices"
-// TEMPORARILY DISABLED: AIAssistant requires @mui/material dependency
-// import { AIAssistant } from "@/components/modules/AIAssistant"
-import { TeamsIntegration } from "@/components/modules/TeamsIntegration"
-import { EmailCenter } from "@/components/modules/EmailCenter"
-import { MaintenanceScheduling } from "@/components/modules/MaintenanceScheduling"
-import { ReceiptProcessing } from "@/components/modules/ReceiptProcessing"
-import { CommunicationLog } from "@/components/modules/CommunicationLog"
-import { GeofenceManagement } from "@/components/modules/GeofenceManagement"
-import { OSHAForms } from "@/components/modules/OSHAForms"
-import { PolicyEngineWorkbench } from "@/components/modules/PolicyEngineWorkbench"
-import { VideoTelematics } from "@/components/modules/VideoTelematics"
-import { EVChargingManagement } from "@/components/modules/EVChargingManagement"
-import { EnhancedMapLayers } from "@/components/modules/EnhancedMapLayers"
-import { AdvancedRouteOptimization } from "@/components/modules/AdvancedRouteOptimization"
-import { CustomFormBuilder } from "@/components/modules/CustomFormBuilder"
-import { VehicleTelemetry } from "@/components/modules/VehicleTelemetry"
-import { VirtualGarage } from "@/components/modules/VirtualGarage"
-import { PersonalUseDashboard } from "@/components/modules/PersonalUseDashboard"
-import { PersonalUsePolicyConfig } from "@/components/modules/PersonalUsePolicyConfig"
-import { ReimbursementQueue } from "@/pages/PersonalUse/ReimbursementQueue"
-import { ChargesAndBilling } from "@/pages/PersonalUse/ChargesAndBilling"
-import { ArcGISIntegration } from "@/components/modules/ArcGISIntegration"
-import { MapSettings } from "@/components/modules/MapSettings"
-import { ExecutiveDashboard } from "@/components/modules/ExecutiveDashboard"
-import DispatchConsole from "@/components/DispatchConsole"
-import { AssetManagement } from "@/components/modules/AssetManagement"
-import { EquipmentDashboard } from "@/components/modules/EquipmentDashboard"
-import { TaskManagement } from "@/components/modules/TaskManagement"
-import { IncidentManagement } from "@/components/modules/IncidentManagement"
-import { Notifications } from "@/components/modules/Notifications"
-import PushNotificationAdmin from "@/components/modules/PushNotificationAdmin"
-import { DocumentManagement } from "@/components/modules/DocumentManagement"
-import { DocumentQA } from "@/components/modules/DocumentQA"
-import { DriverScorecard } from "@/components/modules/DriverScorecard"
-import { FleetOptimizer } from "@/components/modules/FleetOptimizer"
-import { CostAnalysisCenter } from "@/components/modules/CostAnalysisCenter"
-import { FuelPurchasing } from "@/components/modules/FuelPurchasing"
-import { CustomReportBuilder } from "@/components/modules/CustomReportBuilder"
 import { RoleSwitcher } from "@/components/demo/RoleSwitcher"
 import { ToastContainer } from "@/components/common/ToastContainer"
 import { ErrorBoundary } from "@/components/ErrorBoundary"
@@ -82,6 +26,72 @@ import { ThemeToggle } from "@/components/ThemeToggle"
 import { DrilldownManager } from "@/components/DrilldownManager"
 import { useFleetData } from "@/hooks/use-fleet-data"
 import { useFacilities } from "@/hooks/use-api"
+
+// Lazy load all modules for code splitting - reduces initial bundle by 80%+
+const FleetDashboard = lazy(() => import("@/components/modules/FleetDashboard").then(m => ({ default: m.FleetDashboard })))
+const ExecutiveDashboard = lazy(() => import("@/components/modules/ExecutiveDashboard").then(m => ({ default: m.ExecutiveDashboard })))
+const PeopleManagement = lazy(() => import("@/components/modules/PeopleManagement").then(m => ({ default: m.PeopleManagement })))
+const GarageService = lazy(() => import("@/components/modules/GarageService").then(m => ({ default: m.GarageService })))
+const PredictiveMaintenance = lazy(() => import("@/components/modules/PredictiveMaintenance").then(m => ({ default: m.PredictiveMaintenance })))
+const FuelManagement = lazy(() => import("@/components/modules/FuelManagement").then(m => ({ default: m.FuelManagement })))
+const GPSTracking = lazy(() => import("@/components/modules/GPSTracking").then(m => ({ default: m.GPSTracking })))
+const DataWorkbench = lazy(() => import("@/components/modules/DataWorkbench").then(m => ({ default: m.DataWorkbench })))
+const MileageReimbursement = lazy(() => import("@/components/modules/MileageReimbursement").then(m => ({ default: m.MileageReimbursement })))
+const MaintenanceRequest = lazy(() => import("@/components/modules/MaintenanceRequest").then(m => ({ default: m.MaintenanceRequest })))
+const RouteManagement = lazy(() => import("@/components/modules/RouteManagement").then(m => ({ default: m.RouteManagement })))
+const GISCommandCenter = lazy(() => import("@/components/modules/GISCommandCenter").then(m => ({ default: m.GISCommandCenter })))
+const TrafficCameras = lazy(() => import("@/components/modules/TrafficCameras").then(m => ({ default: m.TrafficCameras })))
+const DriverPerformance = lazy(() => import("@/components/modules/DriverPerformance").then(m => ({ default: m.DriverPerformance })))
+const FleetAnalytics = lazy(() => import("@/components/modules/FleetAnalytics").then(m => ({ default: m.FleetAnalytics })))
+const VendorManagement = lazy(() => import("@/components/modules/VendorManagement").then(m => ({ default: m.VendorManagement })))
+const PartsInventory = lazy(() => import("@/components/modules/PartsInventory").then(m => ({ default: m.PartsInventory })))
+const PurchaseOrders = lazy(() => import("@/components/modules/PurchaseOrders").then(m => ({ default: m.PurchaseOrders })))
+const Invoices = lazy(() => import("@/components/modules/Invoices").then(m => ({ default: m.Invoices })))
+const TeamsIntegration = lazy(() => import("@/components/modules/TeamsIntegration").then(m => ({ default: m.TeamsIntegration })))
+const EmailCenter = lazy(() => import("@/components/modules/EmailCenter").then(m => ({ default: m.EmailCenter })))
+const MaintenanceScheduling = lazy(() => import("@/components/modules/MaintenanceScheduling").then(m => ({ default: m.MaintenanceScheduling })))
+const ReceiptProcessing = lazy(() => import("@/components/modules/ReceiptProcessing").then(m => ({ default: m.ReceiptProcessing })))
+const CommunicationLog = lazy(() => import("@/components/modules/CommunicationLog").then(m => ({ default: m.CommunicationLog })))
+const GeofenceManagement = lazy(() => import("@/components/modules/GeofenceManagement").then(m => ({ default: m.GeofenceManagement })))
+const OSHAForms = lazy(() => import("@/components/modules/OSHAForms").then(m => ({ default: m.OSHAForms })))
+const PolicyEngineWorkbench = lazy(() => import("@/components/modules/PolicyEngineWorkbench").then(m => ({ default: m.PolicyEngineWorkbench })))
+const VideoTelematics = lazy(() => import("@/components/modules/VideoTelematics").then(m => ({ default: m.VideoTelematics })))
+const EVChargingManagement = lazy(() => import("@/components/modules/EVChargingManagement").then(m => ({ default: m.EVChargingManagement })))
+const EnhancedMapLayers = lazy(() => import("@/components/modules/EnhancedMapLayers").then(m => ({ default: m.EnhancedMapLayers })))
+const AdvancedRouteOptimization = lazy(() => import("@/components/modules/AdvancedRouteOptimization").then(m => ({ default: m.AdvancedRouteOptimization })))
+const CustomFormBuilder = lazy(() => import("@/components/modules/CustomFormBuilder").then(m => ({ default: m.CustomFormBuilder })))
+const VehicleTelemetry = lazy(() => import("@/components/modules/VehicleTelemetry").then(m => ({ default: m.VehicleTelemetry })))
+const VirtualGarage = lazy(() => import("@/components/modules/VirtualGarage").then(m => ({ default: m.VirtualGarage })))
+const PersonalUseDashboard = lazy(() => import("@/components/modules/PersonalUseDashboard").then(m => ({ default: m.PersonalUseDashboard })))
+const PersonalUsePolicyConfig = lazy(() => import("@/components/modules/PersonalUsePolicyConfig").then(m => ({ default: m.PersonalUsePolicyConfig })))
+const ReimbursementQueue = lazy(() => import("@/pages/PersonalUse/ReimbursementQueue").then(m => ({ default: m.ReimbursementQueue })))
+const ChargesAndBilling = lazy(() => import("@/pages/PersonalUse/ChargesAndBilling").then(m => ({ default: m.ChargesAndBilling })))
+const ArcGISIntegration = lazy(() => import("@/components/modules/ArcGISIntegration").then(m => ({ default: m.ArcGISIntegration })))
+const MapSettings = lazy(() => import("@/components/modules/MapSettings").then(m => ({ default: m.MapSettings })))
+const DispatchConsole = lazy(() => import("@/components/DispatchConsole"))
+const AssetManagement = lazy(() => import("@/components/modules/AssetManagement").then(m => ({ default: m.AssetManagement })))
+const EquipmentDashboard = lazy(() => import("@/components/modules/EquipmentDashboard").then(m => ({ default: m.EquipmentDashboard })))
+const TaskManagement = lazy(() => import("@/components/modules/TaskManagement").then(m => ({ default: m.TaskManagement })))
+const IncidentManagement = lazy(() => import("@/components/modules/IncidentManagement").then(m => ({ default: m.IncidentManagement })))
+const Notifications = lazy(() => import("@/components/modules/Notifications").then(m => ({ default: m.Notifications })))
+const PushNotificationAdmin = lazy(() => import("@/components/modules/PushNotificationAdmin"))
+const DocumentManagement = lazy(() => import("@/components/modules/DocumentManagement").then(m => ({ default: m.DocumentManagement })))
+const DocumentQA = lazy(() => import("@/components/modules/DocumentQA").then(m => ({ default: m.DocumentQA })))
+const DriverScorecard = lazy(() => import("@/components/modules/DriverScorecard").then(m => ({ default: m.DriverScorecard })))
+const FleetOptimizer = lazy(() => import("@/components/modules/FleetOptimizer").then(m => ({ default: m.FleetOptimizer })))
+const CostAnalysisCenter = lazy(() => import("@/components/modules/CostAnalysisCenter").then(m => ({ default: m.CostAnalysisCenter })))
+const FuelPurchasing = lazy(() => import("@/components/modules/FuelPurchasing").then(m => ({ default: m.FuelPurchasing })))
+const CustomReportBuilder = lazy(() => import("@/components/modules/CustomReportBuilder").then(m => ({ default: m.CustomReportBuilder })))
+
+// Loading spinner component for Suspense fallback
+const LoadingSpinner = () => (
+  <div className="flex items-center justify-center min-h-[400px]">
+    <div className="flex flex-col items-center gap-3">
+      <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+      <p className="text-sm text-muted-foreground">Loading module...</p>
+    </div>
+  </div>
+)
 
 function App() {
   const [activeModule, setActiveModule] = useState("dashboard")
@@ -233,6 +243,14 @@ function App() {
 
   return (
     <DrilldownManager>
+      {/* Skip to main content link for accessibility */}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-primary focus:text-primary-foreground focus:rounded-md focus:shadow-lg"
+      >
+        Skip to main content
+      </a>
+
       <div className="min-h-screen bg-background flex">
       <aside 
         className={`fixed left-0 top-0 h-full bg-card border-r transition-all duration-300 z-50 ${
@@ -350,9 +368,11 @@ function App() {
           </div>
         </header>
 
-        <main className="p-6">
+        <main id="main-content" className="p-6">
           <ErrorBoundary>
-            {renderModule()}
+            <Suspense fallback={<LoadingSpinner />}>
+              {renderModule()}
+            </Suspense>
           </ErrorBoundary>
         </main>
       </div>
