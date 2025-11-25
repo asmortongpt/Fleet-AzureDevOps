@@ -101,7 +101,7 @@ async function verifyData() {
       console.log(`\n   ${tenant.name} (${tenant.domain})`);
 
       const userCount = await client.query(
-        `SELECT COUNT(*) as count FROM users WHERE tenant_id = $1`,
+        `SELECT COUNT(*) as count FROM users WHERE tenant_id = $1',
         [tenant.id]
       );
       console.log(`      └─ Users: ${userCount.rows[0].count}`);
@@ -115,7 +115,7 @@ async function verifyData() {
       }
 
       const vehicleCount = await client.query(
-        `SELECT COUNT(*) as count FROM vehicles WHERE tenant_id = $1`,
+        `SELECT COUNT(*) as count FROM vehicles WHERE tenant_id = $1',
         [tenant.id]
       );
       console.log(`      └─ Vehicles: ${vehicleCount.rows[0].count}`);

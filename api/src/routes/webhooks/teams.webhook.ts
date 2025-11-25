@@ -140,7 +140,7 @@ async function handleMessageUpdate(notification: any): Promise<void> {
     const result = await pool.query(
       `SELECT id FROM communications
        WHERE source_platform = 'Microsoft Teams'
-       AND source_platform_id = $1`,
+       AND source_platform_id = $1',
       [messageId]
     )
 
@@ -189,7 +189,7 @@ async function handleMessageUpdate(notification: any): Promise<void> {
              '{lastModifiedDateTime}',
              $2::jsonb
            )
-       WHERE id = $3`,
+       WHERE id = $3',
       [message.body.content, JSON.stringify(message.lastModifiedDateTime), communicationId]
     )
 

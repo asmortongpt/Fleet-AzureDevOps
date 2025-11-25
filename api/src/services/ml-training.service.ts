@@ -157,7 +157,7 @@ class MLTrainingService {
          '{retraining_schedule}',
          $1::jsonb
        )
-       WHERE id = $2 AND tenant_id = $3`,
+       WHERE id = $2 AND tenant_id = $3',
       [JSON.stringify({ schedule, last_retrain: null }), modelId, tenantId]
     )
 
@@ -223,7 +223,7 @@ class MLTrainingService {
       notes,
       created_by,
       created_at,
-      updated_at FROM model_ab_tests WHERE id = $1 AND tenant_id = $2`,
+      updated_at FROM model_ab_tests WHERE id = $1 AND tenant_id = $2',
       [testId, tenantId]
     )
 
@@ -323,7 +323,7 @@ class MLTrainingService {
          SET is_active = true,
              status = 'deployed',
              deployed_at = NOW()
-         WHERE id = $1 AND tenant_id = $2`,
+         WHERE id = $1 AND tenant_id = $2',
         [modelId, tenantId]
       )
 
@@ -465,7 +465,7 @@ class MLTrainingService {
            started_at = CASE WHEN $1 = 'running' THEN NOW() ELSE started_at END,
            completed_at = CASE WHEN $1 IN ('completed', 'failed') THEN NOW() ELSE completed_at END,
            updated_at = NOW()
-       WHERE id = $3`,
+       WHERE id = $3',
       [status, errorMessage, jobId]
     )
   }
@@ -579,7 +579,7 @@ class MLTrainingService {
     const versionResult = await pool.query(
       `SELECT COALESCE(MAX(CAST(version AS INTEGER)), 0) + 1 as next_version
        FROM ml_models
-       WHERE tenant_id = $1 AND model_name = $2`,
+       WHERE tenant_id = $1 AND model_name = $2',
       [tenantId, config.model_name]
     )
 

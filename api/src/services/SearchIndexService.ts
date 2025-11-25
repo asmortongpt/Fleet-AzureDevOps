@@ -558,7 +558,7 @@ export class SearchIndexService {
            AND status = 'active'
            AND file_name ILIKE $2
          ORDER BY file_name
-         LIMIT $3`,
+         LIMIT $3',
         [tenantId, `${prefix}%`, limit]
       )
 
@@ -582,7 +582,7 @@ export class SearchIndexService {
            )
          GROUP BY tag
          ORDER BY frequency DESC, tag
-         LIMIT $3`,
+         LIMIT $3',
         [tenantId, `${prefix}%`, limit]
       )
 
@@ -604,7 +604,7 @@ export class SearchIndexService {
            AND dc.category_name ILIKE $2
          GROUP BY dc.category_name
          ORDER BY frequency DESC, dc.category_name
-         LIMIT $3`,
+         LIMIT $3',
         [tenantId, `${prefix}%`, limit]
       )
 

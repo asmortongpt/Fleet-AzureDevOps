@@ -49,6 +49,9 @@ docs
 # Temporary directories
 PMO-repo-temp
 
+# API directory (for frontend builds only)
+api/
+
 # Testing artifacts
 playwright-report
 test-results
