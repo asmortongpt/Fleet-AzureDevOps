@@ -152,6 +152,21 @@ struct MoreView: View {
                             }
                         }
                     }
+
+                    NavigationLink(destination: DataWorkbenchView()) {
+                        HStack {
+                            Image(systemName: "tablecells.badge.ellipsis")
+                                .foregroundColor(.purple)
+                                .frame(width: 30)
+                            VStack(alignment: .leading) {
+                                Text("Data Workbench")
+                                    .font(.body)
+                                Text("Custom queries and data analysis")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                    }
                 }
 
                 // Optimization Section
