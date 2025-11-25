@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { HubLayout } from "../../components/layout/HubLayout";
 import { GPSTracking } from "../../components/modules/GPSTracking";
 import DispatchConsole from "../../components/DispatchConsole";
-import { RadioPopover } from "../../components/RadioPopover";
 import { FuelManagement } from "../../components/modules/FuelManagement";
 import { AssetManagement } from "../../components/modules/AssetManagement";
 import { useFleetData } from "../../hooks/use-fleet-data";
@@ -347,10 +346,6 @@ const OperationsHub: React.FC = () => {
                 Asset Management
               </Button>
 
-              {/* Radio Console - Compact Popover */}
-              <div className="pt-4 border-t border-border">
-                <RadioPopover className="w-full" />
-              </div>
             </div>
 
             <div className="mt-8 pt-8 border-t border-border">
