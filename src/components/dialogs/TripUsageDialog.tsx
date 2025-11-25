@@ -11,7 +11,6 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Car, Plus, Info } from "@phosphor-icons/react"
 import { toast } from "sonner"
 import { usePersonalUsePolicies, useCreateTripUsage, type TripUsageData, type Policy } from "@/hooks/usePersonalUseQueries"
-
 interface TripUsageDialogProps {
   trigger?: React.ReactNode
   vehicleId?: string
@@ -59,7 +58,6 @@ export function TripUsageDialog({
 
   // Use TanStack Query for policy data
   const { data: policy, isLoading: policyLoading, error: policyError } = usePersonalUsePolicies()
-
   // Use TanStack Query mutation for creating trip usage
   const createTripMutation = useCreateTripUsage()
 

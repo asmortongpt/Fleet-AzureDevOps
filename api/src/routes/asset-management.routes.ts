@@ -160,7 +160,11 @@ router.get('/:id', requirePermission('vehicle:view:fleet'), async (req: AuthRequ
 
     // Get maintenance records
     const maintenance = await pool.query(
+<<<<<<< HEAD
       `SELECT id, tenant_id, vehicle_id, service_type, description, scheduled_date, completed_date, status, odometer_reading, estimated_cost, actual_cost, assigned_vendor_id, assigned_technician, notes, recurring, recurring_interval_miles, recurring_interval_days, next_service_date, next_service_odometer, priority, created_at, updated_at, deleted_at FROM maintenance_schedules
+=======
+      `SELECT id, tenant_id, vehicle_id, service_type, description, scheduled_date, status FROM maintenance_schedules
+>>>>>>> feature/devsecops-audit-remediation
        WHERE asset_id = $1
        ORDER BY scheduled_date DESC
        LIMIT 20`,
@@ -453,7 +457,37 @@ router.get('/:id/depreciation', requirePermission('vehicle:view:fleet'), async (
     const tenantId = req.user?.tenant_id
 
     const result = await pool.query(
+<<<<<<< HEAD
       `SELECT id, tenant_id, asset_name, asset_type, status, created_at, updated_at FROM assets WHERE id = $1 AND tenant_id = $2`,
+=======
+      `SELECT 
+      id,
+      tenant_id,
+      asset_tag,
+      asset_name,
+      asset_type,
+      category,
+      description,
+      manufacturer,
+      model,
+      serial_number,
+      purchase_date,
+      purchase_price,
+      current_value,
+      depreciation_rate,
+      condition,
+      status,
+      location,
+      assigned_to,
+      warranty_expiration,
+      last_maintenance,
+      qr_code,
+      metadata,
+      created_at,
+      updated_at,
+      created_by,
+      updated_by FROM assets WHERE id = $1 AND tenant_id = $2`,
+>>>>>>> feature/devsecops-audit-remediation
       [id, tenantId]
     )
 

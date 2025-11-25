@@ -121,15 +121,38 @@ router.get('/:id', requirePermission('safety_incident:view:global'), async (req:
         [id, tenantId]
       ),
       pool.query(
-        `SELECT * FROM incident_actions WHERE incident_id = $1 ORDER BY created_at`,
+        `SELECT 
+      id,
+      incident_id,
+      action_type,
+      action_description,
+      assigned_to,
+      due_date,
+      completed_date,
+      status,
+      notes,
+      created_by,
+      created_at FROM incident_actions WHERE incident_id = $1 ORDER BY created_at`,
         [id]
       ),
       pool.query(
-        `SELECT * FROM incident_timeline WHERE incident_id = $1 ORDER BY timestamp`,
+        `SELECT 
+      id,
+      incident_id,
+      event_type,
+      description,
+      performed_by,
+      timestamp FROM incident_timeline WHERE incident_id = $1 ORDER BY timestamp`,
         [id]
       ),
       pool.query(
-        `SELECT * FROM incident_witnesses WHERE incident_id = $1`,
+        `SELECT 
+      id,
+      incident_id,
+      witness_name,
+      contact_info,
+      statement,
+      created_at FROM incident_witnesses WHERE incident_id = $1`,
         [id]
       )
     ])
