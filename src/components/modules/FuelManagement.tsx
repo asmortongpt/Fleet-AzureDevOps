@@ -14,7 +14,6 @@ import {
   MapPin,
   Plus
 } from "@phosphor-icons/react"
-import { FuelTransaction } from "@/lib/types"
 import { useState } from "react"
 import { useFleetData } from "@/hooks/use-fleet-data"
 

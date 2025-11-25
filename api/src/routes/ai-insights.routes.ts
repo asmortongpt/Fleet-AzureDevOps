@@ -59,7 +59,29 @@ router.get(
     try {
       const { severity, insight_type, acknowledged } = req.query
 
-      let query = 'SELECT * FROM cognition_insights WHERE tenant_id = $1'
+      let query = 'SELECT 
+      id,
+      tenant_id,
+      insight_type,
+      severity,
+      title,
+      description,
+      affected_entities,
+      data_sources,
+      confidence_score,
+      recommended_actions,
+      potential_impact,
+      supporting_data,
+      model_ids,
+      is_acknowledged,
+      acknowledged_by,
+      acknowledged_at,
+      is_actioned,
+      action_taken,
+      action_by,
+      action_at,
+      expires_at,
+      created_at FROM cognition_insights WHERE tenant_id = $1'
       const params: any[] = [req.user!.tenant_id]
       let paramCount = 1
 
@@ -202,7 +224,7 @@ router.get(
   async (req: AuthRequest, res: Response) => {
     try {
       const result = await pool.query(
-        `SELECT * FROM detected_patterns
+        `SELECT id, tenant_id, vehicle_id, pattern_type, pattern_data, confidence_score, detected_at FROM detected_patterns
          WHERE tenant_id = $1 AND is_monitored = true
          ORDER BY occurrence_count DESC, last_detected_at DESC
          LIMIT 50`,
@@ -238,7 +260,29 @@ router.get(
     try {
       const { resolved, severity } = req.query
 
-      let query = 'SELECT * FROM anomalies WHERE tenant_id = $1'
+      let query = 'SELECT 
+      id,
+      tenant_id,
+      anomaly_type,
+      entity_type,
+      entity_id,
+      metric_name,
+      expected_value,
+      actual_value,
+      deviation_score,
+      severity,
+      description,
+      detection_method,
+      model_id,
+      root_cause_analysis,
+      recommended_action,
+      is_false_positive,
+      is_resolved,
+      resolved_by,
+      resolved_at,
+      resolution_notes,
+      detected_at,
+      created_at FROM anomalies WHERE tenant_id = $1'
       const params: any[] = [req.user!.tenant_id]
       let paramCount = 1
 
@@ -622,7 +666,26 @@ router.get(
     try {
       const { model_type, is_active } = req.query
 
-      let query = 'SELECT * FROM ml_models WHERE tenant_id = $1'
+      let query = 'SELECT 
+      id,
+      tenant_id,
+      model_name,
+      model_type,
+      version,
+      algorithm,
+      framework,
+      hyperparameters,
+      feature_importance,
+      training_data_size,
+      training_duration_seconds,
+      model_artifacts_url,
+      model_binary,
+      status,
+      is_active,
+      deployed_at,
+      created_by,
+      created_at,
+      updated_at FROM ml_models WHERE tenant_id = $1'
       const params: any[] = [req.user!.tenant_id]
       let paramCount = 1
 
@@ -725,7 +788,7 @@ router.get(
   async (req: AuthRequest, res: Response) => {
     try {
       const result = await pool.query(
-        `SELECT * FROM training_jobs
+        `SELECT id, tenant_id, job_name, job_type, status, progress, start_time, end_time, result_data FROM training_jobs
          WHERE tenant_id = $1
          ORDER BY created_at DESC
          LIMIT 50`,

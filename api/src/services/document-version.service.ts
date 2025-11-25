@@ -37,7 +37,29 @@ export class DocumentVersionService {
 
       // Get current document
       const docResult = await client.query(
-        `SELECT * FROM documents WHERE id = $1`,
+        `SELECT 
+      id,
+      tenant_id,
+      file_name,
+      file_type,
+      file_size,
+      file_url,
+      file_hash,
+      category_id,
+      tags,
+      description,
+      uploaded_by,
+      is_public,
+      version_number,
+      status,
+      metadata,
+      extracted_text,
+      ocr_status,
+      ocr_completed_at,
+      embedding_status,
+      embedding_completed_at,
+      created_at,
+      updated_at FROM documents WHERE id = $1`,
         [options.documentId]
       )
 
@@ -250,7 +272,7 @@ export class DocumentVersionService {
 
       // Get the version to restore
       const versionResult = await client.query(
-        `SELECT * FROM document_versions
+        `SELECT id, tenant_id, document_id, version_number, file_path, created_at, created_by FROM document_versions
          WHERE document_id = $1 AND version_number = $2`,
         [documentId, versionNumber]
       )
@@ -263,7 +285,29 @@ export class DocumentVersionService {
 
       // Get current document
       const docResult = await client.query(
-        `SELECT * FROM documents WHERE id = $1`,
+        `SELECT 
+      id,
+      tenant_id,
+      file_name,
+      file_type,
+      file_size,
+      file_url,
+      file_hash,
+      category_id,
+      tags,
+      description,
+      uploaded_by,
+      is_public,
+      version_number,
+      status,
+      metadata,
+      extracted_text,
+      ocr_status,
+      ocr_completed_at,
+      embedding_status,
+      embedding_completed_at,
+      created_at,
+      updated_at FROM documents WHERE id = $1`,
         [documentId]
       )
 

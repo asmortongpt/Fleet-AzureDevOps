@@ -448,7 +448,7 @@ struct MapNavigationView: View {
     }
 
     // MARK: - Annotation View
-    private func annotationView(for annotation: MapAnnotation) -> some View {
+    private func annotationView(for annotation: NavigationMapAnnotation) -> some View {
         VStack(spacing: 0) {
             Image(systemName: annotation.icon)
                 .padding(8)
@@ -496,7 +496,7 @@ class MapNavigationViewModel: NSObject, ObservableObject, CLLocationManagerDeleg
     @Published var userLocation: CLLocationCoordinate2D?
     @Published var activeRoute: NavigationRoute?
     @Published var alternativeRoutes: [NavigationRoute]?
-    @Published var mapAnnotations: [MapAnnotation] = []
+    @Published var mapAnnotations: [NavigationMapAnnotation] = []
     @Published var showTraffic = false
 
     @Published var searchQuery = ""
@@ -686,7 +686,7 @@ struct MapDestination: Identifiable {
     let icon: String
 }
 
-struct MapAnnotation: Identifiable {
+struct NavigationMapAnnotation: Identifiable {
     let id = UUID()
     let coordinate: CLLocationCoordinate2D
     let type: AnnotationType

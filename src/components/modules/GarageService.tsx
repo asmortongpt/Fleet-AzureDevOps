@@ -12,7 +12,7 @@ import {
   Warning,
   Plus
 } from "@phosphor-icons/react"
-import { ServiceBay, WorkOrder, Technician } from "@/lib/types"
+import { WorkOrder } from "@/lib/types"
 import { useState } from "react"
 import { useFleetData } from "@/hooks/use-fleet-data"
 
