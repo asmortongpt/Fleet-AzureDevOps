@@ -178,7 +178,7 @@ export const securityLogger = {
     reason?: string
     ip?: string
   }) {
-    logger.log('security', `AUTHZ_${granted ? 'GRANTED' : 'DENIED'}`, {
+    logger.log('security', 'AUTHZ_${granted ? 'GRANTED' : 'DENIED'}`, {
       category: 'authorization',
       granted,
       ...data,

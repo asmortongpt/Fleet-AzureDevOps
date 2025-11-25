@@ -180,7 +180,7 @@ export const GRAPH_ENDPOINTS = {
   ME: '/me',
   USERS: '/users',
   USER_BY_ID: (userId: string) => `/users/${userId}`,
-  USER_PHOTO: (userId?: string) => userId ? `/users/${userId}/photo` : '/me/photo',
+  USER_PHOTO: (userId?: string) => userId ? '/users/${userId}/photo` : '/me/photo',
 
   // Calendar endpoints
   MY_CALENDARS: '/me/calendars',
