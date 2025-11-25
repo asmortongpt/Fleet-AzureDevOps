@@ -1,1 +1,41 @@
-Image: fleetappregistry.azurecr.io/fleet-app:vee569b4d-final
+Production Deployment - React 19 + Updated Radix UI
+======================================================
+
+Current Image: fleetappregistry.azurecr.io/fleet-frontend:react19-fixed-20251125-092625
+Deployed: 2025-11-25 14:41:00 UTC
+Build Time: 11m 6s
+Status: ✅ Successfully deployed
+
+Build Details:
+- React: 19.2.0 (upgraded from 18.3.1)
+- @radix-ui: All packages upgraded to latest versions supporting React 19
+- Packages: 1175 (installed with --legacy-peer-deps for @react-three/fiber compatibility)
+- Vite Bundle: 7734 modules transformed
+- Build Output:
+  - react-vendor: 542.42 kB (gzipped: 153.87 kB)
+  - index.js: 386.87 kB (gzipped: 91.03 kB)
+  - charts-vendor: 321.11 kB (gzipped: 81.45 kB)
+  - maps-vendor: 156.03 kB (gzipped: 48.69 kB)
+  - vendor: 294.51 kB (gzipped: 99.50 kB)
+
+Key Fixes:
+1. Upgraded React from 18.3.1 to 19.2.0
+2. Updated all @radix-ui packages to React 19 compatible versions
+3. Added --legacy-peer-deps to Dockerfile for @react-three/fiber peer dependency resolution
+4. Resolved white screen issue caused by React.Children API removal in React 19
+
+Deployment Verification:
+- All 3 pods running successfully (fleet-frontend-564c7998b7-*)
+- HTTPS serving correctly: https://fleet.capitaltechalliance.com/
+- All JavaScript bundles loading with HTTP 200
+- HTML includes build version: 1764081331
+
+Previous Deployments:
+- vee569b4d-final: React 19 (had @radix-ui compatibility issues)
+- react18-final-20251125-072650: React 18.3.1 (safe fallback)
+- emergency-fix-20251125-090650: React 19 without Radix upgrade
+
+Notes:
+- This build uses React 19 with fully updated @radix-ui components
+- Browser cache clearing may be required for users who saw previous white screen
+- All new sessions should load correctly
