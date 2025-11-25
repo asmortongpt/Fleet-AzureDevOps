@@ -55,8 +55,41 @@ struct MoreView: View {
                     }
                 }
 
-                // Features Section
-                Section(header: Text("Features")) {
+                // Analytics Section
+                Section(header: Text("Analytics")) {
+                    NavigationLink(destination: FleetAnalyticsView()) {
+                        HStack {
+                            Image(systemName: "chart.bar.fill")
+                                .foregroundColor(.blue)
+                                .frame(width: 30)
+                            VStack(alignment: .leading) {
+                                Text("Fleet Analytics")
+                                    .font(.body)
+                                Text("Usage trends, costs, and efficiency metrics")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                    }
+                }
+
+                // Management Section
+                Section(header: Text("Management")) {
+                    NavigationLink(destination: DispatchConsoleView()) {
+                        HStack {
+                            Image(systemName: "antenna.radiowaves.left.and.right")
+                                .foregroundColor(.red)
+                                .frame(width: 30)
+                            VStack(alignment: .leading) {
+                                Text("Dispatch Console")
+                                    .font(.body)
+                                Text("Real-time fleet management and assignments")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                    }
+
                     NavigationLink(destination: DriverListView()) {
                         HStack {
                             Image(systemName: "person.3.fill")

@@ -29,9 +29,9 @@ function injectRuntimeConfig(): PluginOption {
 
 // https://vite.dev/config/
 export default defineConfig({
-  // CRITICAL FIX: Azure Static Web Apps REQUIRES relative paths!
-  // DO NOT CHANGE THIS BACK TO '/' - it will cause white screen errors
-  base: './',
+  // CRITICAL: Base path MUST be '/' for absolute paths
+  // Relative paths ('./') cause module loading failures in production
+  base: '/',
 
   plugins: [
     react(),
@@ -62,7 +62,10 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': resolve(projectRoot, 'src')
-    }
+    },
+    // CRITICAL FIX: Deduplicate React to prevent "Invalid hook call" errors
+    // Forces all React imports to resolve to the same instance
+    dedupe: ['react', 'react-dom', 'scheduler']
   },
   server: {
     port: 5173,
