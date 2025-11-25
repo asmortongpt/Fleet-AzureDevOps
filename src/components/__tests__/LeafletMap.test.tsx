@@ -13,7 +13,7 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
-import { render, screen, waitFor, fireEvent } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 import { LeafletMap, isValidCoordinate, calculateDistance } from '../LeafletMap'
 import {
   createMockVehicles,

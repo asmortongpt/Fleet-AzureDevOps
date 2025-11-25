@@ -20,12 +20,30 @@ router.get(
       const offset = (Number(page) - 1) * Number(limit)
 
       const result = await pool.query(
-        `SELECT * FROM facilities WHERE tenant_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3`,
+        `SELECT 
+      id,
+      tenant_id,
+      name,
+      facility_type,
+      address,
+      city,
+      state,
+      zip_code,
+      latitude,
+      longitude,
+      location,
+      phone,
+      capacity,
+      service_bays,
+      is_active,
+      notes,
+      created_at,
+      updated_at FROM facilities WHERE tenant_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3`,
         [req.user!.tenant_id, limit, offset]
       )
 
       const countResult = await pool.query(
-        'SELECT COUNT(*) FROM facilities WHERE tenant_id = $1',
+        'SELECT COUNT(*) FROM facilities WHERE tenant_id = $1`,
         [req.user!.tenant_id]
       )
 
@@ -53,7 +71,25 @@ router.get(
   async (req: AuthRequest, res: Response) => {
     try {
       const result = await pool.query(
-        'SELECT * FROM facilities WHERE id = $1 AND tenant_id = $2',
+        `SELECT
+      id,
+      tenant_id,
+      name,
+      facility_type,
+      address,
+      city,
+      state,
+      zip_code,
+      latitude,
+      longitude,
+      location,
+      phone,
+      capacity,
+      service_bays,
+      is_active,
+      notes,
+      created_at,
+      updated_at FROM facilities WHERE id = $1 AND tenant_id = $2`,
         [req.params.id, req.user!.tenant_id]
       )
 
@@ -132,7 +168,7 @@ router.delete(
   async (req: AuthRequest, res: Response) => {
     try {
       const result = await pool.query(
-        'DELETE FROM facilities WHERE id = $1 AND tenant_id = $2 RETURNING id',
+        'DELETE FROM facilities WHERE id = $1 AND tenant_id = $2 RETURNING id`,
         [req.params.id, req.user!.tenant_id]
       )
 

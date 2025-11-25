@@ -304,7 +304,7 @@ export class AnalyticsService {
          GROUP BY DATE_TRUNC('week', created_at)
          ORDER BY week
        )
-       SELECT * FROM weekly_stats`,
+       SELECT id, tenant_id, stat_week, metric_name, metric_value, created_at FROM weekly_stats`,
       [tenantId]
     )
 
