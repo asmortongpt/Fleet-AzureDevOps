@@ -1,0 +1,32 @@
+<testsuites id="" name="" tests="1" failures="0" skipped="0" errors="0" time="5.627135">
+<testsuite name="production-deep-diagnosis.spec.ts" timestamp="2025-11-25T03:40:49.192Z" hostname="chromium" tests="1" failures="0" skipped="0" time="4.376" errors="0">
+<testcase name="Deep diagnosis" classname="production-deep-diagnosis.spec.ts" time="4.376">
+<system-out>
+<![CDATA[ROOT: [33mtrue[39m Children: [33m0[39m
+Runtime config loaded: [33mtrue[39m
+Config: {
+  "VITE_AZURE_MAPS_SUBSCRIPTION_KEY": "",
+  "VITE_API_URL": "",
+  "VITE_ENVIRONMENT": "production",
+  "VITE_BUILD_VERSION": "latest"
+}
+Scripts: [33m4[39m
+  - https://fleet.capitaltechalliance.com/assets/js/index-C9M4iZQ2.js
+  - https://fleet.capitaltechalliance.com/runtime-config.js
+  - https://fleet.capitaltechalliance.com/runtime-config.js
+  - 
+Console messages: [33m1[39m
+  [log] ServiceWorker registered: ServiceWorkerRegistration
+PAGE ERRORS: [33m1[39m
+  ERROR: Cannot set properties of undefined (setting 'Children')
+  STACK: TypeError: Cannot set properties of undefined (setting 'Children')
+    at vh (https://fleet.capitaltechalliance.com/assets/js/react-vendor-C-W_IMbH.js:1:4605)
+    at Nu (https://fleet.capitaltechalliance.com/assets/js/react-vendor-C-W_IMbH.js:1:7447)
+    at bp (https://fleet.capitaltechalliance.com/assets/js/vendor-BRBfEZAU.js:1:36196)
+    at wp (https://fleet.capitaltechalliance.com/assets/js/vendor-BRBfEZAU.js:1:36968)
+    at https://fleet.capitaltechalliance.com/assets/js/vendor-BRBfEZAU.js:1:36992
+]]>
+</system-out>
+</testcase>
+</testsuite>
+</testsuites>
