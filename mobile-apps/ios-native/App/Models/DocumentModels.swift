@@ -25,6 +25,8 @@ struct FleetDocument: Codable, Identifiable, Equatable {
     let isConfidential: Bool
     let lastModifiedDate: Date?
     let lastModifiedBy: String?
+    let folderId: String?
+    var isFavorite: Bool
 
     // Computed properties
     var isExpired: Bool {
@@ -98,6 +100,8 @@ struct FleetDocument: Codable, Identifiable, Equatable {
         case isConfidential = "is_confidential"
         case lastModifiedDate = "last_modified_date"
         case lastModifiedBy = "last_modified_by"
+        case folderId = "folder_id"
+        case isFavorite = "is_favorite"
     }
 
     static var sample: FleetDocument {
@@ -122,7 +126,9 @@ struct FleetDocument: Codable, Identifiable, Equatable {
             version: 1,
             isConfidential: false,
             lastModifiedDate: nil,
-            lastModifiedBy: nil
+            lastModifiedBy: nil,
+            folderId: nil,
+            isFavorite: false
         )
     }
 }
@@ -460,4 +466,309 @@ struct DocumentUploadResponse: Codable {
     let success: Bool
     let document: FleetDocument
     let message: String
+}
+
+// MARK: - Document Folder
+struct DocumentFolder: Codable, Identifiable, Equatable {
+    let id: String
+    let name: String
+    let color: FolderColor
+    let icon: String?
+    let parentFolderId: String?
+    let path: String
+    let createdDate: Date
+    let createdBy: String
+    let modifiedDate: Date?
+    let modifiedBy: String?
+    var documentCount: Int
+    var subfolderCount: Int
+    let isShared: Bool
+    let permissions: FolderPermissions
+
+    var breadcrumbs: [String] {
+        path.split(separator: "/").map { String($0) }
+    }
+
+    var isRootFolder: Bool {
+        parentFolderId == nil
+    }
+
+    enum CodingKeys: String, CodingKey {
+        case id
+        case name
+        case color
+        case icon
+        case parentFolderId = "parent_folder_id"
+        case path
+        case createdDate = "created_date"
+        case createdBy = "created_by"
+        case modifiedDate = "modified_date"
+        case modifiedBy = "modified_by"
+        case documentCount = "document_count"
+        case subfolderCount = "subfolder_count"
+        case isShared = "is_shared"
+        case permissions
+    }
+
+    static var sample: DocumentFolder {
+        DocumentFolder(
+            id: UUID().uuidString,
+            name: "Vehicle Documents",
+            color: .blue,
+            icon: "car.fill",
+            parentFolderId: nil,
+            path: "/Vehicle Documents",
+            createdDate: Date(),
+            createdBy: "Admin",
+            modifiedDate: nil,
+            modifiedBy: nil,
+            documentCount: 15,
+            subfolderCount: 3,
+            isShared: false,
+            permissions: FolderPermissions.default
+        )
+    }
+}
+
+// MARK: - Folder Color
+enum FolderColor: String, Codable, CaseIterable {
+    case blue = "Blue"
+    case green = "Green"
+    case orange = "Orange"
+    case red = "Red"
+    case purple = "Purple"
+    case pink = "Pink"
+    case teal = "Teal"
+    case gray = "Gray"
+    case yellow = "Yellow"
+    case indigo = "Indigo"
+
+    var color: Color {
+        switch self {
+        case .blue: return .blue
+        case .green: return .green
+        case .orange: return .orange
+        case .red: return .red
+        case .purple: return .purple
+        case .pink: return .pink
+        case .teal: return .teal
+        case .gray: return .gray
+        case .yellow: return .yellow
+        case .indigo: return .indigo
+        }
+    }
+}
+
+// MARK: - Folder Permissions
+struct FolderPermissions: Codable, Equatable {
+    let canRead: Bool
+    let canWrite: Bool
+    let canDelete: Bool
+    let canShare: Bool
+
+    enum CodingKeys: String, CodingKey {
+        case canRead = "can_read"
+        case canWrite = "can_write"
+        case canDelete = "can_delete"
+        case canShare = "can_share"
+    }
+
+    static var `default`: FolderPermissions {
+        FolderPermissions(canRead: true, canWrite: true, canDelete: true, canShare: true)
+    }
+
+    static var readOnly: FolderPermissions {
+        FolderPermissions(canRead: true, canWrite: false, canDelete: false, canShare: false)
+    }
+}
+
+// MARK: - Document Version
+struct DocumentVersion: Codable, Identifiable, Equatable {
+    let id: String
+    let documentId: String
+    let versionNumber: Int
+    let fileName: String
+    let fileSize: Int64
+    let uploadedDate: Date
+    let uploadedBy: String
+    let changeDescription: String?
+    let fileUrl: String?
+
+    var formattedFileSize: String {
+        ByteCountFormatter.string(fromByteCount: fileSize, countStyle: .file)
+    }
+
+    var formattedUploadDate: String {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .short
+        return formatter.string(from: uploadedDate)
+    }
+
+    enum CodingKeys: String, CodingKey {
+        case id
+        case documentId = "document_id"
+        case versionNumber = "version_number"
+        case fileName = "file_name"
+        case fileSize = "file_size"
+        case uploadedDate = "uploaded_date"
+        case uploadedBy = "uploaded_by"
+        case changeDescription = "change_description"
+        case fileUrl = "file_url"
+    }
+}
+
+// MARK: - Document Favorite
+struct DocumentFavorite: Codable, Identifiable {
+    let id: String
+    let documentId: String
+    let userId: String
+    let addedDate: Date
+
+    enum CodingKeys: String, CodingKey {
+        case id
+        case documentId = "document_id"
+        case userId = "user_id"
+        case addedDate = "added_date"
+    }
+}
+
+// MARK: - Recent Document
+struct RecentDocument: Codable, Identifiable {
+    let id: String
+    let documentId: String
+    let userId: String
+    let accessedDate: Date
+    let action: DocumentAction
+
+    enum CodingKeys: String, CodingKey {
+        case id
+        case documentId = "document_id"
+        case userId = "user_id"
+        case accessedDate = "accessed_date"
+        case action
+    }
+}
+
+// MARK: - Document Action
+enum DocumentAction: String, Codable {
+    case viewed = "Viewed"
+    case downloaded = "Downloaded"
+    case edited = "Edited"
+    case shared = "Shared"
+    case annotated = "Annotated"
+}
+
+// MARK: - OCR Result
+struct OCRResult: Codable, Identifiable {
+    let id: String
+    let documentId: String
+    let extractedText: String
+    let confidence: Double
+    let language: String
+    let processedDate: Date
+    let pageNumber: Int?
+
+    var formattedConfidence: String {
+        String(format: "%.1f%%", confidence * 100)
+    }
+
+    enum CodingKeys: String, CodingKey {
+        case id
+        case documentId = "document_id"
+        case extractedText = "extracted_text"
+        case confidence
+        case language
+        case processedDate = "processed_date"
+        case pageNumber = "page_number"
+    }
+}
+
+// MARK: - Document Share
+struct DocumentShare: Codable, Identifiable {
+    let id: String
+    let documentId: String
+    let sharedBy: String
+    let sharedWith: String
+    let sharedDate: Date
+    let expirationDate: Date?
+    let permissions: SharePermissions
+    let message: String?
+
+    enum CodingKeys: String, CodingKey {
+        case id
+        case documentId = "document_id"
+        case sharedBy = "shared_by"
+        case sharedWith = "shared_with"
+        case sharedDate = "shared_date"
+        case expirationDate = "expiration_date"
+        case permissions
+        case message
+    }
+}
+
+// MARK: - Share Permissions
+struct SharePermissions: Codable {
+    let canView: Bool
+    let canDownload: Bool
+    let canAnnotate: Bool
+    let canReshare: Bool
+
+    enum CodingKeys: String, CodingKey {
+        case canView = "can_view"
+        case canDownload = "can_download"
+        case canAnnotate = "can_annotate"
+        case canReshare = "can_reshare"
+    }
+
+    static var viewOnly: SharePermissions {
+        SharePermissions(canView: true, canDownload: false, canAnnotate: false, canReshare: false)
+    }
+
+    static var full: SharePermissions {
+        SharePermissions(canView: true, canDownload: true, canAnnotate: true, canReshare: true)
+    }
+}
+
+// MARK: - Document Annotation
+struct DocumentAnnotation: Codable, Identifiable {
+    let id: String
+    let documentId: String
+    let pageNumber: Int
+    let type: AnnotationType
+    let content: String?
+    let coordinates: AnnotationCoordinates
+    let color: String
+    let createdBy: String
+    let createdDate: Date
+
+    enum CodingKeys: String, CodingKey {
+        case id
+        case documentId = "document_id"
+        case pageNumber = "page_number"
+        case type
+        case content
+        case coordinates
+        case color
+        case createdBy = "created_by"
+        case createdDate = "created_date"
+    }
+}
+
+// MARK: - Annotation Type
+enum AnnotationType: String, Codable {
+    case highlight = "Highlight"
+    case note = "Note"
+    case drawing = "Drawing"
+    case text = "Text"
+    case stamp = "Stamp"
+}
+
+// MARK: - Annotation Coordinates
+struct AnnotationCoordinates: Codable {
+    let x: Double
+    let y: Double
+    let width: Double?
+    let height: Double?
+    let path: [CGPoint]?
 }
