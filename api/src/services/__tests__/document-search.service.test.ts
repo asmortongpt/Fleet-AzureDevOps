@@ -58,7 +58,7 @@ describe('DocumentSearchService', () => {
           description, extracted_text, document_type, tags,
           uploaded_by, status, ocr_status, embedding_status
         ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
-        RETURNING id`,
+        RETURNING id',
         [
           testTenantId,
           doc.file_name,

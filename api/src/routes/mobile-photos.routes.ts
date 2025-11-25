@@ -492,7 +492,7 @@ router.post(
          WHERE id = ANY($2)
            AND tenant_id = $3
            AND user_id = $4
-         RETURNING id`,
+         RETURNING id',
         [validated.deviceId, validated.photoIds, tenantId, userId]
       );
 

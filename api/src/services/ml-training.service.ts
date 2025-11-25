@@ -180,7 +180,7 @@ class MLTrainingService {
         tenant_id, test_name, model_a_id, model_b_id,
         traffic_split_percent, status, start_date, end_date, created_by
       ) VALUES ($1, $2, $3, $4, $5, $6, NOW(), NOW() + ($8::integer * INTERVAL '1 day'), $7)
-      RETURNING id`,
+      RETURNING id',
       [
         tenantId,
         config.test_name,
@@ -430,7 +430,7 @@ class MLTrainingService {
         data_source, data_filters, train_start_date, train_end_date,
         test_split_ratio, validation_split_ratio, created_by
       ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
-      RETURNING id`,
+      RETURNING id',
       [
         tenantId,
         `${config.model_name} Training`,
@@ -591,7 +591,7 @@ class MLTrainingService {
         framework, hyperparameters, feature_importance,
         training_data_size, status, created_by
       ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
-      RETURNING id`,
+      RETURNING id',
       [
         tenantId,
         config.model_name,

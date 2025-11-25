@@ -325,7 +325,7 @@ router.delete(
       const result = await pool.query(
         `DELETE FROM arcgis_layers
          WHERE id = $1 AND tenant_id = $2
-         RETURNING id`,
+         RETURNING id',
         [id, tenantId]
       )
 
