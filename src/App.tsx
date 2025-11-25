@@ -346,7 +346,7 @@ function App() {
 
         {/* Toast Notifications */}
         <ToastContainer />
-        </div>
+      </div>
       </EntityLinkingProvider>
     </DrilldownProvider>
   )

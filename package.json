@@ -188,6 +188,7 @@
     "typescript": "~5.7.2",
     "typescript-eslint": "^8.38.0",
     "vite": "^6.3.5",
+    "vite-plugin-cjs-interop": "^2.3.0",
     "vite-plugin-compression": "^0.5.1",
     "vitest": "^4.0.8"
   },
