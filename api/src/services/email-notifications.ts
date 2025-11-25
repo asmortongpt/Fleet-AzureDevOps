@@ -136,7 +136,7 @@ class EmailNotificationService {
               <td style="padding: 8px 0;"><strong>Purpose:</strong></td>
               <td style="padding: 8px 0;">${notification.purpose}</td>
             </tr>
-            ` : ''}
+            ' : ''}
           </table>
         </div>
 
@@ -160,7 +160,7 @@ class EmailNotificationService {
 
   async sendApprovalResult(notification: ApprovalResultNotification): Promise<boolean> {
     const isApproved = notification.status === 'approved'
-    const subject = `Personal Use Trip ${isApproved ? 'Approved' : 'Rejected'}`
+    const subject = 'Personal Use Trip ${isApproved ? 'Approved' : 'Rejected'}'
     const html = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <h2 style="color: ${isApproved ? '#10b981' : '#ef4444'};">
@@ -192,7 +192,7 @@ class EmailNotificationService {
               <td style="padding: 8px 0;"><strong>Reason:</strong></td>
               <td style="padding: 8px 0;">${notification.rejectionReason}</td>
             </tr>
-            ` : ''}
+            ' : ''}
           </table>
         </div>
 
@@ -240,7 +240,7 @@ class EmailNotificationService {
           <p style="color: #dc2626; font-weight: bold;">
             ⚠️ You have less than 5% of your ${notification.period}ly limit remaining!
           </p>
-        ` : ''}
+        ' : ''}
 
         <p>Please review your upcoming trips and ensure essential personal use only.</p>
 

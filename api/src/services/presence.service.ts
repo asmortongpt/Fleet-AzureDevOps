@@ -182,7 +182,7 @@ export async function subscribeToPresence(userIds: string[], webhookUrl: string)
     const subscription = {
       changeType: 'updated',
       notificationUrl: webhookUrl,
-      resource: `/communications/presences?$filter=id in (${userIds.map(id => `'${id}'`).join(',')})`,
+      resource: '/communications/presences?$filter=id in (${userIds.map(id => ''${id}'').join(',')})',
       expirationDateTime: new Date(Date.now() + 3600000).toISOString(), // 1 hour from now
       clientState: 'fleet-presence-subscription'
     }
@@ -229,7 +229,7 @@ export async function getDriverAvailability(driverId: string): Promise<{
       const assignmentResult = await pool.query(
         `SELECT COUNT(*) as active_count
          FROM work_orders
-         WHERE assigned_to = $1 AND status = 'in_progress'`,
+         WHERE assigned_to = $1 AND status = 'in_progress'',
         [driverId]
       )
 
@@ -329,7 +329,7 @@ export async function getAllDriversAvailability(tenantId?: number): Promise<any[
           const assignmentResult = await pool.query(
             `SELECT COUNT(*) as active_count
              FROM work_orders
-             WHERE assigned_to = $1 AND status = 'in_progress'`,
+             WHERE assigned_to = $1 AND status = 'in_progress'',
             [driver.id]
           )
 

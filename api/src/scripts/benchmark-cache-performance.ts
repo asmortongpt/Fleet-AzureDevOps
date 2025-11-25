@@ -156,7 +156,7 @@ async function runBenchmarks() {
 
   console.log('|-----------------------------------|-----------|-----------|-------------|')
   console.log(
-    '| ${'OVERALL AVERAGE'.padEnd(33)} | ${String(Math.round(avgCold)).padStart(9)} | ${String(Math.round(avgWarm)).padStart(9)} | ${`${overallImprovement}%`.padStart(11)} |`
+    '| ${'OVERALL AVERAGE'.padEnd(33)} | ${String(Math.round(avgCold)).padStart(9)} | ${String(Math.round(avgWarm)).padStart(9)} | ${'${overallImprovement}%`.padStart(11)} |`
   )
   console.log('='.repeat(70))
 

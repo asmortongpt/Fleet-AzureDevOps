@@ -126,7 +126,7 @@ router.post('/crash',
         acceleration: validated.maxAcceleration,
         userCanceled: validated.userCanceled,
         location: validated.latitude && validated.longitude ?
-          '${validated.latitude}, ${validated.longitude}` : 'unknown'
+          '${validated.latitude}, ${validated.longitude}' : 'unknown'
       })
 
       res.status(201).json({
@@ -334,7 +334,7 @@ async function triggerEmergencyResponse(incident: any, client: any) {
       INNER JOIN user_roles ur ON u.id = ur.user_id
       INNER JOIN roles r ON ur.role_id = r.id
       WHERE u.tenant_id = $1
-        AND r.name IN ('fleet_manager', 'admin')`,
+        AND r.name IN ('fleet_manager', 'admin')',
       [
         incident.tenant_id,
         JSON.stringify({

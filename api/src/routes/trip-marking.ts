@@ -512,7 +512,7 @@ router.get('/my-personal', async (req: AuthRequest, res: Response) => {
       `SELECT COUNT(*)
        FROM trip_usage_classification
        WHERE driver_id = $1 AND tenant_id = $2
-         AND (usage_type = 'personal' OR usage_type = 'mixed')`,
+         AND (usage_type = 'personal' OR usage_type = 'mixed')',
       [req.user!.id, req.user!.tenant_id]
     )
 

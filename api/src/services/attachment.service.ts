@@ -530,7 +530,7 @@ export class AttachmentService {
         method: 'PUT',
         headers: {
           'Content-Length': chunk.length.toString(),
-          'Content-Range': `bytes ${start}-${end - 1}/${file.size}`
+          'Content-Range': 'bytes ${start}-${end - 1}/${file.size}`
         },
         body: chunk
       })
@@ -780,7 +780,7 @@ export class AttachmentService {
         `SELECT blob_url
          FROM communication_attachments
          WHERE communication_id IS NULL
-         AND created_at < NOW() - ($1 || ' days')::INTERVAL`,
+         AND created_at < NOW() - ($1 || ' days')::INTERVAL',
         [daysOldNum]
       )
 
@@ -799,7 +799,7 @@ export class AttachmentService {
       await pool.query(
         `DELETE FROM communication_attachments
          WHERE communication_id IS NULL
-         AND created_at < NOW() - ($1 || ' days')::INTERVAL`,
+         AND created_at < NOW() - ($1 || ' days')::INTERVAL',
         [daysOldNum]
       )
 

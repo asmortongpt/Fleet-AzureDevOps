@@ -337,7 +337,7 @@ class HeavyEquipmentService {
     }
 
     if (filters?.expiring_soon) {
-      query += ` AND eoc.expiry_date < CURRENT_DATE + INTERVAL '60 days' AND eoc.expiry_date >= CURRENT_DATE`
+      query += ' AND eoc.expiry_date < CURRENT_DATE + INTERVAL '60 days' AND eoc.expiry_date >= CURRENT_DATE'
     }
 
     query += ` ORDER BY eoc.expiry_date ASC`
@@ -566,7 +566,7 @@ class HeavyEquipmentService {
     const params: any[] = [tenantId]
 
     if (equipmentId) {
-      query += ` AND ems.equipment_id = $2'
+      query += ' AND ems.equipment_id = $2'
       params.push(equipmentId)
     }
 

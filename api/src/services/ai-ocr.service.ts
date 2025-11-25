@@ -514,7 +514,7 @@ class AIOCRService {
           AVG(confidence) as avg_confidence,
           AVG(processing_time_ms) as avg_processing_time
          FROM ocr_results
-         WHERE tenant_id = $1 AND created_at > NOW() - INTERVAL '30 days'`,
+         WHERE tenant_id = $1 AND created_at > NOW() - INTERVAL '30 days'',
         [tenantId]
       )
 

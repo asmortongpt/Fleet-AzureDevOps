@@ -350,7 +350,7 @@ async function seedSupplemental() {
         vendorValues.push(`(
           '${tenant.id}', '${city.name} ${type.replace('_', ' ')} Co.', '${type}',
           'Contact ${randomInt(1, 100)}', 'contact${i}@vendor.com',
-          '${generatePhoneNumber()}', '${randomInt(100, 9999)} Industrial Pkwy`,
+          '${generatePhoneNumber()}', '${randomInt(100, 9999)} Industrial Pkwy',
           '${city.name}', 'FL', '${randomInt(30000, 34999)}', true
         )`);
       }

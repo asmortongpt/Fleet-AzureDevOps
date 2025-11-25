@@ -286,7 +286,7 @@ router.get('/microsoft', async (req: Request, res: Response) => {
       `&response_type=code` +
       `&redirect_uri=${encodeURIComponent(AZURE_AD_CONFIG.redirectUri)}` +
       `&response_mode=query` +
-      '&scope=${encodeURIComponent('openid profile email User.Read')}` +
+      '&scope=${encodeURIComponent('openid profile email User.Read')}' +
       `&state=${state}` +
       `&prompt=select_account`
 
@@ -333,7 +333,7 @@ router.get('/microsoft/login', async (req: Request, res: Response) => {
       `&response_type=code` +
       `&redirect_uri=${encodeURIComponent(AZURE_AD_CONFIG.redirectUri)}` +
       `&response_mode=query` +
-      '&scope=${encodeURIComponent('openid profile email User.Read')}` +
+      '&scope=${encodeURIComponent('openid profile email User.Read')}' +
       `&state=${state}` +
       `&prompt=select_account`
 

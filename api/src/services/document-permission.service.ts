@@ -151,7 +151,7 @@ export class DocumentPermissionService {
 
       // Delete permission
       await client.query(
-        `DELETE FROM document_permissions WHERE id = $1',
+        'DELETE FROM document_permissions WHERE id = $1',
         [permissionId]
       )
 
@@ -228,7 +228,7 @@ export class DocumentPermissionService {
 
       // Check if document is public
       const documentCheck = await pool.query(
-        `SELECT is_public FROM documents WHERE id = $1',
+        'SELECT is_public FROM documents WHERE id = $1',
         [documentId]
       )
 
@@ -459,7 +459,7 @@ export class DocumentPermissionService {
     try {
       if (documentId) {
         const result = await pool.query(
-          `SELECT tenant_id FROM documents WHERE id = $1',
+          'SELECT tenant_id FROM documents WHERE id = $1',
           [documentId]
         )
         return result.rows[0]?.tenant_id || null
@@ -467,7 +467,7 @@ export class DocumentPermissionService {
 
       if (folderId) {
         const result = await pool.query(
-          `SELECT tenant_id FROM document_folders WHERE id = $1',
+          'SELECT tenant_id FROM document_folders WHERE id = $1',
           [folderId]
         )
         return result.rows[0]?.tenant_id || null

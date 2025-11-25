@@ -248,7 +248,7 @@ export class OBD2ServiceBackend {
       // Check if DTC already exists and is active
       const existing = await pool.query(
         `SELECT id, tenant_id, vehicle_id, adapter_id, user_id, dtc_code, dtc_type, description, severity, status, is_mil_on, freeze_frame_data, detected_at, reported_at, cleared_at, cleared_by, resolution_notes, work_order_id, raw_data, metadata FROM obd2_diagnostic_codes
-         WHERE tenant_id = $1 AND vehicle_id = $2 AND dtc_code = $3 AND status = 'active'`,
+         WHERE tenant_id = $1 AND vehicle_id = $2 AND dtc_code = $3 AND status = 'active'',
         [tenantId, vehicleId, dtc.dtc_code]
       )
 
@@ -508,7 +508,7 @@ export class OBD2ServiceBackend {
    */
   async getDTCInfo(dtcCode: string): Promise<any> {
     const result = await pool.query(
-      `SELECT id, dtc_code, description, common_causes, diagnostic_steps, avg_repair_cost_min, avg_repair_cost_max, severity_level FROM obd2_dtc_library WHERE dtc_code = $1',
+      'SELECT id, dtc_code, description, common_causes, diagnostic_steps, avg_repair_cost_min, avg_repair_cost_max, severity_level FROM obd2_dtc_library WHERE dtc_code = $1',
       [dtcCode]
     )
 
