@@ -86,6 +86,21 @@ struct MoreView: View {
                             }
                         }
                     }
+
+                    NavigationLink(destination: PersonalUseDashboardView()) {
+                        HStack {
+                            Image(systemName: "car.circle.fill")
+                                .foregroundColor(.purple)
+                                .frame(width: 30)
+                            VStack(alignment: .leading) {
+                                Text("Personal Use Tracking")
+                                    .font(.body)
+                                Text("Mileage tracking and reimbursement")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                    }
                 }
 
                 // Analytics Section
@@ -124,6 +139,24 @@ struct MoreView: View {
                     }
                 }
 
+                // Communication Section
+                Section(header: Text("Communication")) {
+                    NavigationLink(destination: CommunicationCenterView()) {
+                        HStack {
+                            Image(systemName: "bubble.left.and.bubble.right.fill")
+                                .foregroundColor(.blue)
+                                .frame(width: 30)
+                            VStack(alignment: .leading) {
+                                Text("Communication Center")
+                                    .font(.body)
+                                Text("Messages, email, and notifications")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                    }
+                }
+
                 // Management Section
                 Section(header: Text("Management")) {
                     NavigationLink(destination: DispatchConsoleView()) {
@@ -135,6 +168,21 @@ struct MoreView: View {
                                 Text("Dispatch Console")
                                     .font(.body)
                                 Text("Real-time fleet management and assignments")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                    }
+
+                    NavigationLink(destination: TaskListView()) {
+                        HStack {
+                            Image(systemName: "list.bullet.clipboard.fill")
+                                .foregroundColor(.indigo)
+                                .frame(width: 30)
+                            VStack(alignment: .leading) {
+                                Text("Tasks")
+                                    .font(.body)
+                                Text("Assign and track tasks with workflow")
                                     .font(.caption)
                                     .foregroundColor(.secondary)
                             }
