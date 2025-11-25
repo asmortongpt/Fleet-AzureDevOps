@@ -35,6 +35,7 @@ import { ToastContainer } from "@/components/common/ToastContainer"
 import { ErrorBoundary } from "@/components/ErrorBoundary"
 import { ThemeToggle } from "@/components/ThemeToggle"
 import { DrilldownManager } from "@/components/DrilldownManager"
+import { DrilldownProvider } from "@/contexts/DrilldownContext"
 import { InspectDrawer } from "@/components/inspect/InspectDrawer"
 import { useFleetData } from "@/hooks/use-fleet-data"
 import { ModuleLoadingSpinner } from "@/components/common/ModuleLoadingSpinner"
@@ -162,8 +163,9 @@ function App() {
   ])
 
   return (
-    <EntityLinkingProvider>
-      <div className="flex h-screen overflow-hidden bg-background">
+    <DrilldownProvider>
+      <EntityLinkingProvider>
+        <div className="flex h-screen overflow-hidden bg-background">
         {/* Mobile Overlay Background */}
         {isMobile && sidebarOpen && (
           <div
@@ -345,7 +347,8 @@ function App() {
         {/* Toast Notifications */}
         <ToastContainer />
       </div>
-    </EntityLinkingProvider>
+      </EntityLinkingProvider>
+    </DrilldownProvider>
   )
 }
 
