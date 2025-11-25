@@ -20,12 +20,26 @@ router.get(
       const offset = (Number(page) - 1) * Number(limit)
 
       const result = await pool.query(
+<<<<<<< HEAD
         `SELECT id, tenant_id, geofence_name, center_latitude, center_longitude, radius_meters, geofence_type, status, created_at, updated_at FROM geofences WHERE tenant_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3`,
+=======
+        `SELECT 
+      id,
+      tenant_id,
+      name,
+      description,
+      geometry,
+      type,
+      radius,
+      is_active,
+      created_at,
+      updated_at FROM geofences WHERE tenant_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3`,
+>>>>>>> feature/devsecops-audit-remediation
         [req.user!.tenant_id, limit, offset]
       )
 
       const countResult = await pool.query(
-        'SELECT COUNT(*) FROM geofences WHERE tenant_id = $1',
+        'SELECT COUNT(*) FROM geofences WHERE tenant_id = $1`,
         [req.user!.tenant_id]
       )
 
@@ -53,7 +67,21 @@ router.get(
   async (req: AuthRequest, res: Response) => {
     try {
       const result = await pool.query(
+<<<<<<< HEAD
         'SELECT id, tenant_id, geofence_name, center_latitude, center_longitude, radius_meters, geofence_type, status, created_at, updated_at FROM geofences WHERE id = $1 AND tenant_id = $2',
+=======
+        `SELECT
+      id,
+      tenant_id,
+      name,
+      description,
+      geometry,
+      type,
+      radius,
+      is_active,
+      created_at,
+      updated_at FROM geofences WHERE id = $1 AND tenant_id = $2`,
+>>>>>>> feature/devsecops-audit-remediation
         [req.params.id, req.user!.tenant_id]
       )
 
@@ -132,7 +160,7 @@ router.delete(
   async (req: AuthRequest, res: Response) => {
     try {
       const result = await pool.query(
-        'DELETE FROM geofences WHERE id = $1 AND tenant_id = $2 RETURNING id',
+        'DELETE FROM geofences WHERE id = $1 AND tenant_id = $2 RETURNING id`,
         [req.params.id, req.user!.tenant_id]
       )
 

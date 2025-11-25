@@ -384,7 +384,11 @@ router.get(
       const { type, category } = req.query;
 
       let query = `
+<<<<<<< HEAD
         SELECT id, tenant_id, template_name, subject, body, is_active, created_at, updated_at FROM communication_templates
+=======
+        SELECT id, tenant_id, template_name, template_type, subject, body, active, created_at, updated_at FROM communication_templates
+>>>>>>> feature/devsecops-audit-remediation
         WHERE is_active = TRUE
       `;
       const params: any[] = [];

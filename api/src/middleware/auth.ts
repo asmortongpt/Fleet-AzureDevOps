@@ -48,7 +48,7 @@ export const authenticateJWT = async (
     const decoded = jwt.verify(token, process.env.JWT_SECRET) as any
     req.user = decoded
     logger.info('✅ AUTH MIDDLEWARE - JWT token validated successfully')
-    next()
+    return next()
   } catch (error) {
     logger.info('❌ AUTH MIDDLEWARE - Invalid or expired token')
     return res.status(403).json({ error: 'Invalid or expired token' })
@@ -93,7 +93,7 @@ export const authorize = (...roles: string[]) => {
       role: req.user.role
     })
 
-    next()
+    return next()
   }
 }
 
@@ -125,7 +125,7 @@ export const checkAccountLock = async (
       })
     }
 
-    next()
+    return next()
   } catch (error) {
     logger.error('Account lock check error:', { error: error })
     return res.status(500).json({ error: 'Internal server error' })
