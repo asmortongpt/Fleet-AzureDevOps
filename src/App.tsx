@@ -47,6 +47,7 @@ import FleetHub from "@/pages/hubs/FleetHub"
 import PeopleHub from "@/pages/hubs/PeopleHub"
 import WorkHub from "@/pages/hubs/WorkHub"
 import InsightsHub from "@/pages/hubs/InsightsHub"
+import DispatchConsole from "@/components/DispatchConsole"
 
 // Navigation configuration for 5 hub pages
 const hubNavigation = [
@@ -306,9 +307,12 @@ function App() {
                   <Route path="/work" element={<WorkHub />} />
                   <Route path="/insights" element={<InsightsHub />} />
 
+                  {/* Dedicated Radio Dispatch Route */}
+                  <Route path="/operations/dispatch" element={<DispatchConsole />} />
+
                   {/* Legacy Redirects */}
-                  <Route path="/dispatch" element={<Navigate to="/operations" replace />} />
-                  <Route path="/dispatch-console" element={<Navigate to="/operations" replace />} />
+                  <Route path="/dispatch" element={<Navigate to="/operations/dispatch" replace />} />
+                  <Route path="/dispatch-console" element={<Navigate to="/operations/dispatch" replace />} />
                   <Route path="/gps-tracking" element={<Navigate to="/operations" replace />} />
                   <Route path="/obd2-dashboard" element={<Navigate to="/fleet" replace />} />
                   <Route path="/vehicles" element={<Navigate to="/fleet" replace />} />
