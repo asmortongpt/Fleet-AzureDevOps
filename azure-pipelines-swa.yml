@@ -14,26 +14,10 @@ steps:
   - script: npm ci
     displayName: 'Install dependencies'
 
-  - script: |
-      ls -la public/
-      bash ./scripts/generate-runtime-config.sh
-    displayName: 'Generate runtime configuration'
-    env:
-      VITE_API_URL: $(VITE_API_URL)
-      VITE_AZURE_AD_CLIENT_ID: $(VITE_AZURE_AD_CLIENT_ID)
-      VITE_AZURE_AD_TENANT_ID: $(VITE_AZURE_AD_TENANT_ID)
-      VITE_AZURE_AD_REDIRECT_URI: $(VITE_AZURE_AD_REDIRECT_URI)
-      VITE_ENVIRONMENT: production
-      VITE_BUILD_VERSION: v1.0.0
-
   - script: npm run build
     displayName: 'Build'
     env:
       NODE_ENV: production
-      VITE_API_URL: $(VITE_API_URL)
-      VITE_AZURE_AD_CLIENT_ID: $(VITE_AZURE_AD_CLIENT_ID)
-      VITE_AZURE_AD_TENANT_ID: $(VITE_AZURE_AD_TENANT_ID)
-      VITE_AZURE_AD_REDIRECT_URI: $(VITE_AZURE_AD_REDIRECT_URI)
 
   - script: |
       npm install -g @azure/static-web-apps-cli
