@@ -270,6 +270,29 @@ enum NavigationDestination: Hashable, Identifiable {
     case assignmentApproval(requestId: String)
     case assignmentHistory(assignmentId: String)
 
+    // Compliance destinations
+    case complianceDashboard
+    case complianceScoreCard
+    case violationsList
+    case expiringItems
+    case complianceItemDetail(id: String)
+    case violationDetail(id: String)
+
+    // Shift Management destinations
+    case shiftManagement
+    case shiftDetail(id: String)
+    case createShift
+    case clockInOut
+    case shiftSwaps
+    case shiftReport
+
+    // Telemetry destinations
+    case telemetryDashboard
+    case telemetryDashboardForVehicle(vehicleId: String)
+    case diagnosticCodeDetail(code: String)
+    case vehicleHealthDetail(vehicleId: String)
+    case telemetryHistory(vehicleId: String)
+
     var id: String {
         switch self {
         case .vehicleDetail(let id):
@@ -346,6 +369,40 @@ enum NavigationDestination: Hashable, Identifiable {
             return "assignment-approval-\(requestId)"
         case .assignmentHistory(let assignmentId):
             return "assignment-history-\(assignmentId)"
+        case .complianceDashboard:
+            return "compliance-dashboard"
+        case .complianceScoreCard:
+            return "compliance-score-card"
+        case .violationsList:
+            return "violations-list"
+        case .expiringItems:
+            return "expiring-items"
+        case .complianceItemDetail(let id):
+            return "compliance-item-\(id)"
+        case .violationDetail(let id):
+        case .telemetryDashboard:
+            return "telemetry-dashboard"
+        case .telemetryDashboardForVehicle(let vehicleId):
+            return "telemetry-dashboard-(vehicleId)"
+        case .diagnosticCodeDetail(let code):
+            return "diagnostic-code-(code)"
+        case .vehicleHealthDetail(let vehicleId):
+            return "vehicle-health-(vehicleId)"
+        case .telemetryHistory(let vehicleId):
+            return "telemetry-history-(vehicleId)"
+            return "violation-\(id)"
+        case .shiftManagement:
+            return "shift-management"
+        case .shiftDetail(let id):
+            return "shift-\(id)"
+        case .createShift:
+            return "create-shift"
+        case .clockInOut:
+            return "clock-in-out"
+        case .shiftSwaps:
+            return "shift-swaps"
+        case .shiftReport:
+            return "shift-report"
         }
     }
 }
