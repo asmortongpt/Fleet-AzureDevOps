@@ -1,0 +1,191 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: deployment-validation
+  namespace: fleet-management
+  labels:
+    app: deployment-validation
+    deployment-timestamp: "${DEPLOYMENT_TIMESTAMP}"
+  annotations:
+    deployment.image: "${DEPLOYMENT_IMAGE}"
+spec:
+  # Keep job history for auditing
+  ttlSecondsAfterFinished: 86400  # 24 hours
+  backoffLimit: 0  # No retries - fail fast
+  activeDeadlineSeconds: 900  # 15 minute timeout
+
+  template:
+    metadata:
+      labels:
+        app: deployment-validation
+    spec:
+      restartPolicy: Never
+
+      # SECURITY: Run as non-root user
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
+
+      containers:
+        - name: playwright-validator
+          # Use official Playwright image with Chromium
+          image: mcr.microsoft.com/playwright:v1.40.0-jammy
+          imagePullPolicy: IfNotPresent
+
+          # SECURITY: Container-level security
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: false  # Playwright needs write access for browser profiles
+            runAsNonRoot: true
+            runAsUser: 1000
+            capabilities:
+              drop:
+                - ALL
+
+          env:
+            - name: APP_URL
+              value: "http://fleet-app-internal.fleet-management.svc.cluster.local:3000"
+            - name: CI
+              value: "true"
+            - name: PLAYWRIGHT_BROWSERS_PATH
+              value: "/ms-playwright"
+            - name: NODE_ENV
+              value: "test"
+
+          # Resource limits for validation job
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "200m"
+            limits:
+              memory: "1Gi"
+              cpu: "500m"
+
+          # Mount test scripts
+          volumeMounts:
+            - name: test-scripts
+              mountPath: /tests
+              readOnly: true
+            - name: test-results
+              mountPath: /results
+
+          command:
+            - /bin/bash
+            - -c
+            - |
+              set -e
+
+              echo "=================================="
+              echo "Fleet Deployment Validation Job"
+              echo "=================================="
+              echo "Timestamp: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+              echo "Target: $APP_URL"
+              echo "Image: ${DEPLOYMENT_IMAGE}"
+              echo ""
+
+              # Install Node.js dependencies
+              cd /tests
+              if [ -f package.json ]; then
+                npm install --production
+              fi
+
+              # Run smoke tests
+              echo "Running smoke tests..."
+              npx playwright test \
+                --config=playwright.config.ts \
+                e2e/00-smoke-tests.spec.ts \
+                --reporter=list,json \
+                --output=/results || TEST_RESULT=$?
+
+              if [ ${TEST_RESULT:-0} -eq 0 ]; then
+                echo ""
+                echo "✅ All validation tests PASSED"
+                echo ""
+
+                # Create success report
+                cat > /results/validation-report.json <<REPORT
+              {
+                "status": "SUCCESS",
+                "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+                "image": "${DEPLOYMENT_IMAGE}",
+                "tests_run": "smoke-tests",
+                "duration": "$SECONDS seconds"
+              }
+              REPORT
+
+                exit 0
+              else
+                echo ""
+                echo "❌ Validation tests FAILED"
+                echo ""
+
+                # Create failure report
+                cat > /results/validation-report.json <<REPORT
+              {
+                "status": "FAILED",
+                "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+                "image": "${DEPLOYMENT_IMAGE}",
+                "tests_run": "smoke-tests",
+                "exit_code": ${TEST_RESULT:-1},
+                "duration": "$SECONDS seconds"
+              }
+              REPORT
+
+                # Trigger rollback by exiting with failure
+                exit ${TEST_RESULT:-1}
+              fi
+
+      volumes:
+        - name: test-scripts
+          configMap:
+            name: validation-scripts
+            optional: true
+        - name: test-results
+          emptyDir: {}
+
+---
+# ConfigMap for validation scripts (created by deployment script)
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: validation-scripts
+  namespace: fleet-management
+data:
+  playwright.config.ts: |
+    import { defineConfig, devices } from '@playwright/test';
+
+    export default defineConfig({
+      testDir: './e2e',
+      fullyParallel: false,
+      workers: 1,
+      retries: 2,
+      timeout: 60000,
+      reporter: [
+        ['list'],
+        ['json', { outputFile: '/results/test-results.json' }]
+      ],
+      use: {
+        baseURL: process.env.APP_URL || 'http://localhost:5173',
+        trace: 'on-first-retry',
+        screenshot: 'only-on-failure',
+        video: 'retain-on-failure',
+      },
+      projects: [
+        {
+          name: 'chromium',
+          use: { ...devices['Desktop Chrome'] }
+        }
+      ]
+    });
+
+  package.json: |
+    {
+      "name": "deployment-validation",
+      "version": "1.0.0",
+      "dependencies": {
+        "@playwright/test": "^1.40.0"
+      }
+    }
