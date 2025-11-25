@@ -231,7 +231,7 @@ class SamsaraService {
           const result = await this.db.query(
             `INSERT INTO vehicles (name, vin, make, model, year, license_plate, status)
              VALUES ($1, $2, $3, $4, $5, $6, 'active')
-             RETURNING id`,
+             RETURNING id',
             [vehicle.name, vehicle.vin, vehicle.make, vehicle.model, vehicle.year, vehicle.licensePlate]
           );
           vehicleId = result.rows[0].id;
