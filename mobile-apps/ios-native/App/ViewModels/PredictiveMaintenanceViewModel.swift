@@ -24,7 +24,7 @@ class PredictiveMaintenanceViewModel: RefreshableViewModel {
     @Published var showOnlyCritical = false
 
     // MARK: - Private Properties
-    private let apiService: APIService
+    private let apiClient: APIClient
     private let cacheKey = "predictive_maintenance_cache"
     private var predictionCache: [String: CachedPredictions] = [:]
 
@@ -71,8 +71,8 @@ class PredictiveMaintenanceViewModel: RefreshableViewModel {
     }
 
     // MARK: - Initialization
-    init(apiService: APIService = .shared) {
-        self.apiService = apiService
+    init(apiClient: APIClient = .shared) {
+        self.apiClient = apiClient
         super.init()
         loadCachedData()
     }
@@ -107,21 +107,23 @@ class PredictiveMaintenanceViewModel: RefreshableViewModel {
                 includeHistorical: true
             )
 
-            let response: PredictionResponse = try await apiService.post(
-                "/api/v1/maintenance/predict",
+            let response: PredictionResponse? = try await apiClient.post(
+                endpoint: "/api/v1/maintenance/predict",
                 body: request
             )
 
-            self.predictions = response.predictions
-            self.summary = response.summary
-            self.recommendations = response.recommendations
-            self.trends = response.trends
+            if let response = response {
+                self.predictions = response.predictions
+                self.summary = response.summary
+                self.recommendations = response.recommendations
+                self.trends = response.trends
 
-            // Cache the results
-            cachePredictions(for: vehicleId, response: response)
+                // Cache the results
+                cachePredictions(for: vehicleId, response: response)
 
-            // Load component health
-            await loadComponentHealth(for: vehicleId)
+                // Load component health
+                await loadComponentHealth(for: vehicleId)
+            }
 
             finishLoading()
         } catch {
@@ -136,12 +138,14 @@ class PredictiveMaintenanceViewModel: RefreshableViewModel {
                 component: selectedComponent
             )
 
-            let response: ComponentHealthResponse = try await apiService.post(
-                "/api/v1/maintenance/health",
+            let response: ComponentHealthResponse? = try await apiClient.post(
+                endpoint: "/api/v1/maintenance/health",
                 body: request
             )
 
-            self.componentHealth = response.health
+            if let response = response {
+                self.componentHealth = response.health
+            }
         } catch {
             print("Failed to load component health: \(error)")
         }
