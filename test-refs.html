@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ref Test - Check Console</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-result {
+            background: white;
+            padding: 20px;
+            margin: 10px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .success { color: #22c55e; font-weight: bold; }
+        .error { color: #ef4444; font-weight: bold; }
+        .info { color: #3b82f6; }
+    </style>
+</head>
+<body>
+    <h1>React Ref Warning Fix Verification</h1>
+    <div class="test-result">
+        <h2>Test Instructions:</h2>
+        <ol>
+            <li>Open the main application in your browser</li>
+            <li>Open the browser's Developer Console (F12)</li>
+            <li>Look for any warnings about "Function components cannot be given refs"</li>
+            <li>Interact with buttons, popovers, and dropdown menus</li>
+            <li class="success">✓ If NO warnings appear, the fix is successful!</li>
+            <li class="error">✗ If warnings still appear, additional components may need forwardRef</li>
+        </ol>
+    </div>
+
+    <div class="test-result">
+        <h2>What Was Fixed:</h2>
+        <ul>
+            <li class="info"><strong>Button Component:</strong> Added React.forwardRef with proper ref forwarding for both regular button and Slot (asChild) cases</li>
+            <li class="info"><strong>PopoverTrigger:</strong> Wrapped with React.forwardRef to properly pass refs to Radix UI primitive</li>
+            <li class="info"><strong>DropdownMenuTrigger:</strong> Wrapped with React.forwardRef to properly pass refs to Radix UI primitive</li>
+            <li class="info"><strong>displayName:</strong> Added to all components for better debugging</li>
+        </ul>
+    </div>
+
+    <div class="test-result">
+        <h2>Components Using Refs:</h2>
+        <p>These components now properly forward refs:</p>
+        <ul>
+            <li><code>Button</code> - Used throughout the application</li>
+            <li><code>PopoverTrigger</code> - Used in popover menus</li>
+            <li><code>DropdownMenuTrigger</code> - Used in dropdown menus</li>
+        </ul>
+    </div>
+
+    <div class="test-result">
+        <h2>Expected Behavior:</h2>
+        <ul>
+            <li class="success">✓ All buttons work correctly</li>
+            <li class="success">✓ All popovers open/close properly</li>
+            <li class="success">✓ All dropdown menus work as expected</li>
+            <li class="success">✓ No console warnings about refs</li>
+            <li class="success">✓ All interactive elements respond to clicks</li>
+        </ul>
+    </div>
+
+    <div class="test-result">
+        <h2>Git Commit:</h2>
+        <p><strong>Commit Message:</strong> "fix: Add forwardRef to Button and UI components to resolve ref warnings"</p>
+        <p><strong>Branch:</strong> stage-a/requirements-inception</p>
+        <p><strong>Status:</strong> <span class="success">✓ Committed and Pushed</span></p>
+    </div>
+</body>
+</html>

@@ -87,15 +87,21 @@ struct APIConfiguration {
     
     // MARK: - Endpoint Paths
     struct Endpoints {
-        static let login = "/v1/auth/login"
-        static let logout = "/v1/auth/logout"
-        static let me = "/v1/auth/me"
-        static let refresh = "/v1/auth/refresh"
-        static let vehicles = "/v1/vehicles"
-        static let drivers = "/v1/drivers"
-        static let maintenance = "/v1/maintenance"
-        static let fleetMetrics = "/v1/fleet-metrics"
+        static let login = "/auth/login"
+        static let logout = "/auth/logout"
+        static let me = "/auth/me"
+        static let refresh = "/auth/refresh"
+        static let vehicles = "/vehicles"
+        static let drivers = "/drivers"
+        static let assets = "/assets"
+        static let maintenance = "/maintenance"
+        static let fleetMetrics = "/fleet-metrics"
         static let health = "/health"
+
+        // Map Layer Endpoints
+        static let mapTraffic = "/api/v1/map/traffic"
+        static let mapWeather = "/api/v1/map/weather"
+        static let mapIncidents = "/api/v1/map/incidents"
     }
     
     // MARK: - Request Configuration
