@@ -49,8 +49,8 @@ RUN BUILD_VERSION=$(cat /tmp/build_version.txt || date +%s) && \
 # Stage 2: Production stage with nginx
 FROM nginx:alpine AS production
 
-# Copy custom nginx config
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+# Copy custom nginx server config (server block only)
+COPY server.conf /etc/nginx/conf.d/default.conf
 
 # Copy built application from builder
 COPY --from=builder /app/dist /usr/share/nginx/html
