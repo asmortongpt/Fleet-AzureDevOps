@@ -389,7 +389,7 @@ router.post(
         `SELECT external_vehicle_id FROM vehicle_telematics_connections vtc
          JOIN vehicles v ON vtc.vehicle_id = v.id
          WHERE vtc.vehicle_id = $1 AND v.tenant_id = $2
-         AND vtc.provider_id = (SELECT id FROM telematics_providers WHERE name = 'samsara')`,
+         AND vtc.provider_id = (SELECT id FROM telematics_providers WHERE name = 'samsara')',
         [vehicle_id, req.user!.tenant_id]
       )
 
@@ -473,7 +473,7 @@ router.post(
       await pool.query(
         `INSERT INTO telematics_webhook_events
          (provider_id, event_type, external_id, payload, processed)
-         VALUES ((SELECT id FROM telematics_providers WHERE name = 'samsara'), $1, $2, $3, false)`,
+         VALUES ((SELECT id FROM telematics_providers WHERE name = 'samsara'), $1, $2, $3, false)',
         [req.body.eventType, req.body.id, JSON.stringify(req.body)]
       )
 

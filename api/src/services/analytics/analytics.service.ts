@@ -344,7 +344,7 @@ export class AnalyticsService {
          (SELECT COUNT(*) FROM asset_maintenance WHERE asset_id IN (SELECT id FROM assets WHERE tenant_id = $1)) as maintenance_count,
          (SELECT AVG(CAST(cost AS NUMERIC)) FROM asset_maintenance WHERE asset_id IN (SELECT id FROM assets WHERE tenant_id = $1)) as avg_maintenance_cost
        FROM assets
-       WHERE tenant_id = $1 AND status != 'disposed'`,
+       WHERE tenant_id = $1 AND status != 'disposed'',
       [tenantId]
     )
 
@@ -479,7 +479,7 @@ export class AnalyticsService {
          COUNT(*) FILTER (WHERE status = 'maintenance') as maintenance,
          COUNT(*) as total
        FROM assets
-       WHERE tenant_id = $1 AND status != 'disposed' AND status != 'retired'`,
+       WHERE tenant_id = $1 AND status != 'disposed' AND status != 'retired'',
       [tenantId]
     )
 
@@ -510,14 +510,14 @@ export class AnalyticsService {
     const filters: string[] = []
 
     if (startDate) {
-      filters.push(`created_at >= '${startDate.toISOString()}'`)
+      filters.push('created_at >= '${startDate.toISOString()}'')
     }
 
     if (endDate) {
-      filters.push(`created_at <= '${endDate.toISOString()}'`)
+      filters.push('created_at <= '${endDate.toISOString()}'')
     }
 
-    return filters.length > 0 ? `AND ${filters.join(' AND ')}` : ''
+    return filters.length > 0 ? 'AND ${filters.join(' AND ')}' : ''
   }
 
   /**

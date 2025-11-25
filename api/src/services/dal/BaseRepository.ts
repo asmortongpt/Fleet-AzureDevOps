@@ -67,9 +67,9 @@ export abstract class BaseRepository<T = any> {
       }
     })
 
-    const whereClause = whereConditions.length > 0 ? `WHERE ${whereConditions.join(' AND ')}` : ''
-    const limitClause = limit ? `LIMIT $${paramCount++}` : ''
-    const offsetClause = offset ? `OFFSET $${paramCount}` : ''
+    const whereClause = whereConditions.length > 0 ? 'WHERE ${whereConditions.join(' AND ')}' : ''
+    const limitClause = limit ? 'LIMIT $${paramCount++}' : ''
+    const offsetClause = offset ? 'OFFSET $${paramCount}' : ''
 
     if (limit) values.push(limit)
     if (offset) values.push(offset)
@@ -159,7 +159,7 @@ export abstract class BaseRepository<T = any> {
       }
     })
 
-    const whereClause = whereConditions.length > 0 ? `WHERE ${whereConditions.join(' AND ')}` : ''
+    const whereClause = whereConditions.length > 0 ? 'WHERE ${whereConditions.join(' AND ')}' : ''
 
     const query = `SELECT COUNT(*) as count FROM ${this.tableName} ${whereClause}`
     const result = await this.query<{ count: string }>(query, values, client)
@@ -178,7 +178,7 @@ export abstract class BaseRepository<T = any> {
     }
 
     const columns = keys.join(', ')
-    const placeholders = keys.map((_, i) => `$${i + 1}`).join(', ')
+    const placeholders = keys.map((_, i) => '$${i + 1}').join(', ')
 
     const query = `
       INSERT INTO ${this.tableName} (${columns})
@@ -206,7 +206,7 @@ export abstract class BaseRepository<T = any> {
       throw new ValidationError('No data provided for update')
     }
 
-    const setClause = keys.map((key, i) => `${key} = $${i + 1}`).join(', ')
+    const setClause = keys.map((key, i) => '${key} = $${i + 1}').join(', ')
     const whereConditions = [`id = $${keys.length + 1}`]
     const whereValues = [...values, id]
 
@@ -298,7 +298,7 @@ export abstract class BaseRepository<T = any> {
 
     records.forEach(record => {
       const recordValues = keys.map(key => (record as any)[key])
-      const placeholders = keys.map(() => `$${paramCount++}`).join(', ')
+      const placeholders = keys.map(() => '$${paramCount++}').join(', ')
       valuePlaceholders.push(`(${placeholders})`)
       values.push(...recordValues)
     })

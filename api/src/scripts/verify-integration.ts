@@ -64,7 +64,7 @@ class IntegrationVerifier {
       this.checks.push({
         name: 'Environment Variables',
         status: 'fail',
-        message: 'Missing: ${missing.join(', ')}`,
+        message: 'Missing: ${missing.join(', ')}',
         duration: Date.now() - start
       });
     }
@@ -127,7 +127,7 @@ class IntegrationVerifier {
 
     try {
       const response = await fetch('https://graph.microsoft.com/v1.0/me', {
-        headers: { 'Authorization': `Bearer ${this.accessToken}` }
+        headers: { 'Authorization': 'Bearer ${this.accessToken}` }
       });
 
       if (response.ok || response.status === 403) {
@@ -167,7 +167,7 @@ class IntegrationVerifier {
     try {
       // Try to list teams
       const response = await fetch('https://graph.microsoft.com/v1.0/groups?$filter=resourceProvisioningOptions/Any(x:x eq \'Team\')', {
-        headers: { 'Authorization': `Bearer ${this.accessToken}` }
+        headers: { 'Authorization': 'Bearer ${this.accessToken}` }
       });
 
       if (response.ok) {
@@ -206,7 +206,7 @@ class IntegrationVerifier {
     try {
       // Try to list users
       const response = await fetch('https://graph.microsoft.com/v1.0/users?$top=1', {
-        headers: { 'Authorization': `Bearer ${this.accessToken}` }
+        headers: { 'Authorization': 'Bearer ${this.accessToken}` }
       });
 
       if (response.ok) {
@@ -368,7 +368,7 @@ class IntegrationVerifier {
 
     this.checks.forEach(check => {
       const icon = check.status === 'pass' ? '✓' : check.status === 'fail' ? '✗' : '⚠';
-      const duration = check.duration ? '(${check.duration}ms)` : '';
+      const duration = check.duration ? '(${check.duration}ms)' : '';
       console.log(`${icon} ${check.name}: ${check.message} ${duration}`);
     });
 

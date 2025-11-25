@@ -401,7 +401,7 @@ export class JobQueueService {
       validateColumnNames(columnNames);
 
       await pool.query(
-        `UPDATE ${table} SET ${columnNames.map((k, idx) => `${k} = $${idx + 1}`).join(', ')}
+        'UPDATE ${table} SET ${columnNames.map((k, idx) => '${k} = $${idx + 1}`).join(', ')}
          WHERE id = $${columnNames.length + 1}`,
         [...Object.values(updates), entityId]
       )
@@ -483,7 +483,7 @@ export class JobQueueService {
     const retentionDaysNum = Math.max(1, Math.min(365, retentionDays || 30))
 
     const result = await pool.query(
-      `DELETE FROM notifications WHERE created_at < NOW() - ($1 || ' days')::INTERVAL`,
+      'DELETE FROM notifications WHERE created_at < NOW() - ($1 || ' days')::INTERVAL',
       [retentionDaysNum]
     )
 

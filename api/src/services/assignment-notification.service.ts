@@ -285,7 +285,7 @@ export class AssignmentNotificationService {
       const notification = {
         type: 'on_call_starting',
         title: '🔔 On-Call Period Starting Soon',
-        message: `Your on-call period starts in ${hoursUntilStart} hours. Vehicle: ${periodData.vehicle_description || 'TBD'}`,
+        message: 'Your on-call period starts in ${hoursUntilStart} hours. Vehicle: ${periodData.vehicle_description || 'TBD'}',
         data: {
           on_call_period_id: onCallPeriodId,
           start_datetime: periodData.start_datetime,

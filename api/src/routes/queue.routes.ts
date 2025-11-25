@@ -113,7 +113,7 @@ router.get('/:queueName/jobs', requireAdmin, async (req: Request, res: Response)
 
     // Get total count
     const countResult = await pool.query(
-      'SELECT COUNT(*) as total FROM job_tracking WHERE queue_name = $1${status ? ' AND status = $2' : ''}`,
+      'SELECT COUNT(*) as total FROM job_tracking WHERE queue_name = $1${status ? ' AND status = $2' : ''}',
       status ? [queueName, status] : [queueName]
     );
 

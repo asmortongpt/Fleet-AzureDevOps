@@ -103,7 +103,7 @@ function setupCleanupJobs(): void {
       const result = await pool.query(
         `DELETE FROM job_tracking
          WHERE status = 'completed'
-         AND completed_at < NOW() - INTERVAL '30 days'`
+         AND completed_at < NOW() - INTERVAL '30 days''
       );
 
       console.log(`✅ Deleted ${result.rowCount} old job tracking records`);

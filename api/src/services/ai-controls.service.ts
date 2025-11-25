@@ -198,7 +198,7 @@ class AIControlsService {
         `SELECT COUNT(*) as count
          FROM ai_requests
          WHERE tenant_id = $1 AND user_id = $2
-           AND created_at > NOW() - INTERVAL '${interval}'`,
+           AND created_at > NOW() - INTERVAL '${interval}'',
         [tenantId, userId]
       )
 
@@ -231,7 +231,7 @@ class AIControlsService {
         `SELECT COALESCE(SUM(tokens_used), 0) as total_tokens
          FROM ai_requests
          WHERE tenant_id = $1 AND user_id = $2
-           AND created_at > NOW() - INTERVAL '${interval}'`,
+           AND created_at > NOW() - INTERVAL '${interval}'',
         [tenantId, userId]
       )
 
@@ -473,11 +473,11 @@ class AIControlsService {
       const [auditResult, usageResult] = await Promise.all([
         pool.query(
           `DELETE FROM ai_audit_logs
-           WHERE created_at < NOW() - INTERVAL '${daysToKeep} days'`
+           WHERE created_at < NOW() - INTERVAL '${daysToKeep} days''
         ),
         pool.query(
           `DELETE FROM ai_usage_logs
-           WHERE created_at < NOW() - INTERVAL '${daysToKeep} days'`
+           WHERE created_at < NOW() - INTERVAL '${daysToKeep} days''
         )
       ])
 

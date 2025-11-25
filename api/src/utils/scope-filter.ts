@@ -116,7 +116,7 @@ export function applyScopeFilter(
   }
 
   const whereClause = conditions.length > 0
-    ? 'WHERE ${conditions.join(' AND ')}`
+    ? 'WHERE ${conditions.join(' AND ')}'
     : ''
 
   return {
