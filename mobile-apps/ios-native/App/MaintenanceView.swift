@@ -35,7 +35,7 @@ struct MaintenanceView: View {
                 }
             }
             .sheet(isPresented: $showingScheduleMaintenance) {
-                ScheduleMaintenanceView()
+                ScheduleMaintenanceView(viewModel: viewModel)
             }
             .sheet(item: $selectedRecordForDetail) { record in
                 MaintenanceDetailViewEmbedded(record: record, viewModel: viewModel)
@@ -157,6 +157,8 @@ struct MaintenanceStatusBadge: View {
         case .completed: return .green.opacity(0.2)
         case .overdue: return .red.opacity(0.2)
         case .cancelled: return .gray.opacity(0.2)
+        case .delayed: return .red.opacity(0.2)
+        case .onHold: return .yellow.opacity(0.2)
         }
     }
 
@@ -167,6 +169,8 @@ struct MaintenanceStatusBadge: View {
         case .completed: return .green
         case .overdue: return .red
         case .cancelled: return .gray
+        case .delayed: return .red
+        case .onHold: return .yellow
         }
     }
 }
@@ -307,10 +311,10 @@ struct MaintenanceDetailViewEmbedded: View {
                             .font(.system(size: 60))
                             .foregroundColor(statusColor)
 
-                        Text(record.vehicleNumber)
+                        Text(record.vehicleNumber ?? "Vehicle")
                             .font(.title.bold())
 
-                        Text(record.type)
+                        Text(record.type.rawValue)
                             .font(.headline)
                             .foregroundColor(.secondary)
 
@@ -321,36 +325,38 @@ struct MaintenanceDetailViewEmbedded: View {
                     // Details Grid
                     LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 16) {
                         DetailCard(title: "Scheduled", value: record.scheduledDate.formatted(date: .abbreviated, time: .shortened), icon: "calendar", color: .blue)
-                        DetailCard(title: "Provider", value: record.provider, icon: "building.2", color: .purple)
+                        DetailCard(title: "Provider", value: record.serviceProvider ?? "N/A", icon: "building.2", color: .purple)
                         DetailCard(title: "Mileage", value: formatMileage(record.mileageAtService), icon: "speedometer", color: .orange)
                         DetailCard(title: "Cost", value: formatCurrency(record.cost), icon: "dollarsign.circle", color: .green)
-                        DetailCard(title: "Labor Hours", value: String(format: "%.1f hrs", record.laborHours), icon: "clock.fill", color: .gray)
-                        DetailCard(title: "Warranty", value: record.warranty ? "Yes" : "No", icon: "checkmark.shield", color: record.warranty ? .green : .gray)
+                        DetailCard(title: "Category", value: record.category.rawValue, icon: "tag.fill", color: .gray)
+                        DetailCard(title: "Priority", value: record.priority.rawValue, icon: "exclamationmark.circle", color: priorityColor)
                     }
                     .padding()
 
                     // Parts List
-                    if !record.parts.isEmpty {
+                    if let parts = record.parts, !parts.isEmpty {
                         VStack(alignment: .leading, spacing: 12) {
                             Text("Parts Replaced")
                                 .font(.headline)
                                 .padding(.horizontal)
 
                             VStack(spacing: 8) {
-                                ForEach(record.parts, id: \.partNumber) { part in
+                                ForEach(parts) { part in
                                     HStack {
                                         VStack(alignment: .leading) {
                                             Text(part.name)
                                                 .font(.subheadline)
-                                            Text("Part #\(part.partNumber)")
-                                                .font(.caption)
-                                                .foregroundColor(.secondary)
+                                            if let partNumber = part.partNumber {
+                                                Text("Part #\(partNumber)")
+                                                    .font(.caption)
+                                                    .foregroundColor(.secondary)
+                                            }
                                         }
                                         Spacer()
                                         VStack(alignment: .trailing) {
                                             Text("Qty: \(part.quantity)")
                                                 .font(.caption)
-                                            Text(formatCurrency(part.totalPrice))
+                                            Text(formatCurrency(part.cost))
                                                 .font(.subheadline.bold())
                                         }
                                     }
@@ -431,7 +437,7 @@ struct MaintenanceDetailViewEmbedded: View {
     }
 
     private var statusColor: Color {
-        switch status {
+        switch record.status {
         case .scheduled: return .blue
         case .inProgress: return .orange
         case .completed: return .green
@@ -439,6 +445,95 @@ struct MaintenanceDetailViewEmbedded: View {
         case .delayed: return .red
         case .onHold: return .yellow
         case .overdue: return .red
+        }
+    }
+
+    private var priorityColor: Color {
+        switch record.priority {
+        case .low: return .gray
+        case .normal: return .blue
+        case .high: return .orange
+        case .urgent: return .red
+        case .critical: return .purple
+        }
+    }
+
+    private func formatMileage(_ mileage: Double?) -> String {
+        guard let mileage = mileage else { return "N/A" }
+        return String(format: "%.0f mi", mileage)
+    }
+
+    private func formatCurrency(_ amount: Double?) -> String {
+        guard let amount = amount else { return "N/A" }
+        return String(format: "$%.2f", amount)
+    }
+}
+
+// MARK: - Detail Card
+struct DetailCard: View {
+    let title: String
+    let value: String
+    let icon: String
+    let color: Color
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Image(systemName: icon)
+                    .foregroundColor(color)
+                    .font(.caption)
+                Text(title)
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
+            Text(value)
+                .font(.subheadline)
+                .fontWeight(.semibold)
+        }
+        .padding()
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Color(.secondarySystemGroupedBackground))
+        .cornerRadius(8)
+    }
+}
+
+// MARK: - Reschedule View
+struct RescheduleView: View {
+    let record: MaintenanceRecord
+    @ObservedObject var viewModel: MaintenanceViewModel
+    @Environment(\.dismiss) private var dismiss
+    @State private var newDate = Date()
+
+    var body: some View {
+        NavigationView {
+            Form {
+                Section("Current Schedule") {
+                    Text(record.scheduledDate.formatted(date: .long, time: .shortened))
+                        .foregroundColor(.secondary)
+                }
+
+                Section("New Date") {
+                    DatePicker("Select Date", selection: $newDate, displayedComponents: [.date, .hourAndMinute])
+                }
+            }
+            .navigationTitle("Reschedule")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button("Cancel") {
+                        dismiss()
+                    }
+                }
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("Save") {
+                        viewModel.rescheduleMaintenance(record, newDate: newDate)
+                        dismiss()
+                    }
+                }
+            }
+        }
+        .onAppear {
+            newDate = record.scheduledDate
         }
     }
 }
