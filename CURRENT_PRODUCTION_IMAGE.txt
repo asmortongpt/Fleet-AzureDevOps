@@ -1,1 +1,1 @@
-Image: fleetappregistry.azurecr.io/fleet-frontend:react18-final-20251125-072650
+Image: fleetappregistry.azurecr.io/fleet-app:vee569b4d-final
