@@ -542,7 +542,7 @@ export async function getDocumentsNeedingReview(
   limit: number = 20
 ): Promise<any[]> {
   const result = await pool.query(
-    `SELECT * FROM document_analyses
+    `SELECT ` + (await getTableColumns(pool, 'document_analyses')).join(', ') + ` FROM document_analyses
      WHERE tenant_id = $1 AND needs_review = true AND reviewed = false
      ORDER BY created_at DESC
      LIMIT $2`,

@@ -11,9 +11,7 @@
  *   <Vehicle3DViewer vehicleId={id} />
  * </Suspense>
  */
-import React, { Suspense, useRef, useState, useEffect } from 'react';
-import { Canvas, useFrame, useLoader, useThree } from '@react-three/fiber';
-import {
+import React, { Suspense, useRef, useState, useEffect } from 'react';import { Canvas, useFrame, useThree } from '@react-three/fiber';import {
   OrbitControls,
   Environment,
   ContactShadows,
@@ -37,7 +35,6 @@ import * as THREE from 'three';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Slider } from '@/components/ui/slider';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Maximize2,
@@ -383,8 +380,7 @@ function Scene({
   enablePostProcessing = true,
   showStats = false
 }: any) {
-  const { camera, gl } = useThree();
-
+  const { camera } = useThree();
   useEffect(() => {
     // Apply camera preset with smooth transition
     if (cameraPreset) {
@@ -568,8 +564,7 @@ function Scene({
 
 // Enhanced Loading Placeholder with Progress
 function LoadingPlaceholder() {
-  const { progress, active, loaded, total } = useProgress();
-
+  const { progress, loaded, total } = useProgress();
   return (
     <Html center>
       <div className="flex flex-col items-center gap-3 bg-black/90 backdrop-blur-sm text-white px-6 py-4 rounded-xl shadow-2xl min-w-[200px]">

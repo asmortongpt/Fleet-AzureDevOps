@@ -20,12 +20,28 @@ router.get(
       const offset = (Number(page) - 1) * Number(limit)
 
       const result = await pool.query(
+<<<<<<< HEAD
         `SELECT id, tenant_id, station_name, location, total_chargers, available_chargers, created_at, updated_at FROM charging_stations WHERE tenant_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3`,
+=======
+        `SELECT 
+      id,
+      tenant_id,
+      name,
+      location,
+      latitude,
+      longitude,
+      charger_type,
+      power_output,
+      status,
+      is_active,
+      created_at,
+      updated_at FROM charging_stations WHERE tenant_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3`,
+>>>>>>> feature/devsecops-audit-remediation
         [req.user!.tenant_id, limit, offset]
       )
 
       const countResult = await pool.query(
-        'SELECT COUNT(*) FROM charging_stations WHERE tenant_id = $1',
+        'SELECT COUNT(*) FROM charging_stations WHERE tenant_id = $1`,
         [req.user!.tenant_id]
       )
 
@@ -53,7 +69,23 @@ router.get(
   async (req: AuthRequest, res: Response) => {
     try {
       const result = await pool.query(
+<<<<<<< HEAD
         'SELECT id, tenant_id, station_name, location, total_chargers, available_chargers, created_at, updated_at FROM charging_stations WHERE id = $1 AND tenant_id = $2',
+=======
+        `SELECT
+      id,
+      tenant_id,
+      name,
+      location,
+      latitude,
+      longitude,
+      charger_type,
+      power_output,
+      status,
+      is_active,
+      created_at,
+      updated_at FROM charging_stations WHERE id = $1 AND tenant_id = $2`,
+>>>>>>> feature/devsecops-audit-remediation
         [req.params.id, req.user!.tenant_id]
       )
 
@@ -131,7 +163,7 @@ router.delete(
   async (req: AuthRequest, res: Response) => {
     try {
       const result = await pool.query(
-        'DELETE FROM charging_stations WHERE id = $1 AND tenant_id = $2 RETURNING id',
+        'DELETE FROM charging_stations WHERE id = $1 AND tenant_id = $2 RETURNING id`,
         [req.params.id, req.user!.tenant_id]
       )
 
