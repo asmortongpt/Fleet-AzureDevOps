@@ -113,7 +113,7 @@ class VideoTelematicsService {
       [
         config.vehicleId,
         config.cameraType,
-        `${config.cameraType.replace('_', ' ').toUpperCase()} Camera`,
+        '${config.cameraType.replace('_', ' ').toUpperCase()} Camera',
         config.resolution || '1080p',
         config.recordingMode || 'event_triggered',
         config.preEventBufferSeconds || 10,
@@ -255,7 +255,7 @@ class VideoTelematicsService {
       params.push(filters.markedAsEvidence);
     }
 
-    const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
+    const whereClause = conditions.length > 0 ? 'WHERE ${conditions.join(' AND ')}' : '';
 
     const page = filters.page || 1;
     const limit = filters.limit || 50;
@@ -418,7 +418,7 @@ class VideoTelematicsService {
     // If video is archived in Azure Storage, generate SAS URL
     if (event.video_storage_path && this.containerClient) {
       try {
-        const blobName = event.video_storage_path.replace(`${AZURE_STORAGE_CONTAINER}/`, '');
+        const blobName = event.video_storage_path.replace('${AZURE_STORAGE_CONTAINER}/', '');
         const blockBlobClient = this.containerClient.getBlockBlobClient(blobName);
 
         // Generate SAS token (valid for 1 hour)
@@ -509,7 +509,7 @@ class VideoTelematicsService {
     await this.db.query(
       `INSERT INTO video_privacy_audit
        (video_event_id, accessed_by, access_type, access_reason)
-       VALUES ($1, $2, 'share', 'Added to evidence locker')`,
+       VALUES ($1, $2, 'share', 'Added to evidence locker')',
       [eventId, userId]
     );
 
@@ -585,7 +585,7 @@ class VideoTelematicsService {
       params.push(filters.legalHold);
     }
 
-    const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
+    const whereClause = conditions.length > 0 ? 'WHERE ${conditions.join(' AND ')}' : '';
 
     const page = filters.page || 1;
     const limit = filters.limit || 20;
@@ -712,7 +712,7 @@ class VideoTelematicsService {
       try {
         // Delete from Azure Storage
         if (this.containerClient && event.video_storage_path) {
-          const blobName = event.video_storage_path.replace(`${AZURE_STORAGE_CONTAINER}/`, '');
+          const blobName = event.video_storage_path.replace('${AZURE_STORAGE_CONTAINER}/', '');
           const blockBlobClient = this.containerClient.getBlockBlobClient(blobName);
           await blockBlobClient.deleteIfExists();
         }

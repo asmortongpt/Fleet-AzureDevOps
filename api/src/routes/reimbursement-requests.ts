@@ -654,7 +654,7 @@ router.get(
           SUM(request_amount) as total_amount,
           AVG(EXTRACT(EPOCH FROM (NOW() - submitted_at))/86400) as avg_days_pending
          FROM reimbursement_requests
-         WHERE tenant_id = $1 AND status = 'pending'`,
+         WHERE tenant_id = $1 AND status = 'pending'',
         [req.user!.tenant_id]
       )
 

@@ -276,7 +276,7 @@ Provide accurate, relevant information with proper citations.`,
    */
   private async makeSupervisionDecision(query: string): Promise<SupervisorDecision> {
     const agentDescriptions = Array.from(this.agents.values())
-      .map(agent => `${agent.id}: ${agent.name} - ${agent.capabilities.join(', ')}`)
+      .map(agent => '${agent.id}: ${agent.name} - ${agent.capabilities.join(', ')}')
       .join('\n')
 
     const prompt = `You are a supervisor AI managing a team of specialized fleet management agents.

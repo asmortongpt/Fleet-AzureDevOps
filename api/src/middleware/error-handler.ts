@@ -66,7 +66,7 @@ export class AuthorizationError extends AppError {
 
 export class NotFoundError extends AppError {
   constructor(resource: string = 'Resource') {
-    super('${resource} not found`, 404, 'NOT_FOUND')
+    super('${resource} not found', 404, 'NOT_FOUND')
   }
 }
 
@@ -259,7 +259,7 @@ export function errorHandler(
   next: NextFunction
 ): void {
   // Generate request ID for tracking
-  const requestId = req.headers['x-request-id'] as string || `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+  const requestId = req.headers['x-request-id'] as string || 'req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
 
   // Default error values
   let statusCode = 500

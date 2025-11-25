@@ -112,7 +112,7 @@ export class AlertEngineService {
 
       // Mark as sent
       await client.query(
-        `UPDATE alerts SET status = 'sent' WHERE id = $1',
+        'UPDATE alerts SET status = 'sent' WHERE id = $1',
         [alert.id]
       )
 
@@ -203,7 +203,7 @@ export class AlertEngineService {
     try {
       // Get recipient emails
       const result = await pool.query(
-        `SELECT email FROM users WHERE id = ANY($1) AND tenant_id = $2',
+        'SELECT email FROM users WHERE id = ANY($1) AND tenant_id = $2',
         [recipients, tenantId]
       )
 
@@ -240,7 +240,7 @@ export class AlertEngineService {
             </div>
             <div class="alert-body">
               <p class="alert-message">${alert.message}</p>
-              ${alert.entity_type ? `<p><strong>Related:</strong> ${alert.entity_type} ${alert.entity_id || ''}</p>` : ''}
+              ${alert.entity_type ? '<p><strong>Related:</strong> ${alert.entity_type} ${alert.entity_id || ''}</p>' : ''}
               <p style="margin-top: 20px;">
                 <a href="${process.env.FRONTEND_URL || 'http://localhost:5173'}"
                    style="background: ${severityColor}; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block;">
@@ -423,7 +423,7 @@ export class AlertEngineService {
     }
 
     const module = moduleMap[alert.entity_type] || 'dashboard'
-    return `${baseUrl}?module=${module}&id=${alert.entity_id || ''}`
+    return '${baseUrl}?module=${module}&id=${alert.entity_id || ''}'
   }
 
   /**

@@ -311,7 +311,7 @@ class FleetCognitionService {
        LEFT JOIN work_orders wo ON v.id = wo.vehicle_id
        WHERE v.tenant_id = $1 AND v.status = 'active'
        GROUP BY v.id
-       HAVING COUNT(wo.id) FILTER (WHERE wo.created_at >= INTERVAL '90 days') >= 3`,
+       HAVING COUNT(wo.id) FILTER (WHERE wo.created_at >= INTERVAL '90 days') >= 3',
       [tenantId]
     )
 
@@ -447,7 +447,7 @@ class FleetCognitionService {
        LEFT JOIN trips t ON v.id = t.vehicle_id
        WHERE v.tenant_id = $1 AND v.status = 'active'
        GROUP BY v.id
-       HAVING MAX(t.end_time) < NOW() - INTERVAL '14 days' OR MAX(t.end_time) IS NULL`,
+       HAVING MAX(t.end_time) < NOW() - INTERVAL '14 days' OR MAX(t.end_time) IS NULL',
       [tenantId]
     )
 
@@ -670,7 +670,7 @@ class FleetCognitionService {
       `SELECT
         COUNT(*) as total_vehicles,
         COUNT(*) FILTER (WHERE status = 'maintenance') as in_maintenance
-       FROM vehicles WHERE tenant_id = $1 AND status IN ('active', 'maintenance')`,
+       FROM vehicles WHERE tenant_id = $1 AND status IN ('active', 'maintenance')',
       [tenantId]
     )
 
@@ -684,7 +684,7 @@ class FleetCognitionService {
     const result = await pool.query(
       `SELECT COUNT(*) as incident_count
        FROM safety_incidents
-       WHERE tenant_id = $1 AND incident_date >= NOW() - INTERVAL '90 days'`,
+       WHERE tenant_id = $1 AND incident_date >= NOW() - INTERVAL '90 days'',
       [tenantId]
     )
 
@@ -706,7 +706,7 @@ class FleetCognitionService {
     const result = await pool.query(
       `SELECT COUNT(*) as incident_count
        FROM safety_incidents
-       WHERE tenant_id = $1 AND incident_date >= NOW() - INTERVAL '30 days'`,
+       WHERE tenant_id = $1 AND incident_date >= NOW() - INTERVAL '30 days'',
       [tenantId]
     )
 

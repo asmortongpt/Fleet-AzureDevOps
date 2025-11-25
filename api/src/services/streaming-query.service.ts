@@ -137,7 +137,7 @@ export class StreamingQueryService {
           const strValue = String(value)
           // Escape values containing delimiter or quotes
           if (strValue.includes(delimiter) || strValue.includes('"') || strValue.includes('\n')) {
-            return `"${strValue.replace(/"/g, '""')}"`
+            return '"${strValue.replace(/"/g, '""')}"'
           }
 
           return strValue

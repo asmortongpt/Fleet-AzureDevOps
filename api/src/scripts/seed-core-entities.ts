@@ -120,21 +120,21 @@ async function seedCoreEntities() {
 
       // Admin
       userValues.push(`($${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++})`);
-      userParams.push(tenant.id, 'admin@${tenant.domain}`, defaultPassword, 'Admin', 'User', generatePhoneNumber(), 'admin', true, 0, true);
+      userParams.push(tenant.id, 'admin@${tenant.domain}', defaultPassword, 'Admin', 'User', generatePhoneNumber(), 'admin', true, 0, true);
 
       // Fleet Managers
       const fmCount = tenant.tier === 'enterprise' ? 5 : tenant.tier === 'professional' ? 3 : 2;
       for (let i = 1; i <= fmCount; i++) {
         const isActive = i < fmCount || Math.random() < 0.9;
         userValues.push(`($${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++})`);
-        userParams.push(tenant.id, 'manager${i}@${tenant.domain}`, defaultPassword, 'Fleet', 'Manager ${i}`, generatePhoneNumber(), 'fleet_manager', isActive, isActive ? daysAgo(randomInt(0, 7)) : null);
+        userParams.push(tenant.id, 'manager${i}@${tenant.domain}', defaultPassword, 'Fleet', 'Manager ${i}', generatePhoneNumber(), 'fleet_manager', isActive, isActive ? daysAgo(randomInt(0, 7)) : null);
       }
 
       // Technicians
       const techCount = tenant.tier === 'enterprise' ? 8 : tenant.tier === 'professional' ? 4 : 2;
       for (let i = 1; i <= techCount; i++) {
         userValues.push(`($${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++})`);
-        userParams.push(tenant.id, 'tech${i}@${tenant.domain}`, defaultPassword, 'Technician', '${i}`, generatePhoneNumber(), 'technician', true);
+        userParams.push(tenant.id, 'tech${i}@${tenant.domain}', defaultPassword, 'Technician', '${i}', generatePhoneNumber(), 'technician', true);
       }
 
       // Drivers
@@ -143,25 +143,25 @@ async function seedCoreEntities() {
         const isActive = Math.random() < 0.9;
         const failedLogins = isActive ? 0 : randomInt(0, 5);
         userValues.push(`($${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++})`);
-        userParams.push(tenant.id, 'driver${i}@${tenant.domain}`, defaultPassword, 'Driver', '${i}`, generatePhoneNumber(), 'driver', isActive, failedLogins, isActive ? daysAgo(randomInt(0, 30)) : null, failedLogins >= 5 ? daysFromNow(1) : null);
+        userParams.push(tenant.id, 'driver${i}@${tenant.domain}', defaultPassword, 'Driver', '${i}', generatePhoneNumber(), 'driver', isActive, failedLogins, isActive ? daysAgo(randomInt(0, 30)) : null, failedLogins >= 5 ? daysFromNow(1) : null);
       }
 
       // Viewers
       const viewerCount = tenant.tier === 'enterprise' ? 2 : 1;
       for (let i = 1; i <= viewerCount; i++) {
         userValues.push(`($${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++})`);
-        userParams.push(tenant.id, 'viewer${i}@${tenant.domain}`, defaultPassword, 'Viewer', '${i}`, generatePhoneNumber(), 'viewer', true);
+        userParams.push(tenant.id, 'viewer${i}@${tenant.domain}', defaultPassword, 'Viewer', '${i}', generatePhoneNumber(), 'viewer', true);
       }
 
       // Edge cases
       userValues.push(`($${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++})`);
-      userParams.push(tenant.id, 'newuser@${tenant.domain}`, defaultPassword, 'New', 'User', generatePhoneNumber(), 'driver', true, daysAgo(0));
+      userParams.push(tenant.id, 'newuser@${tenant.domain}', defaultPassword, 'New', 'User', generatePhoneNumber(), 'driver', true, daysAgo(0));
 
       userValues.push(`($${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++})`);
-      userParams.push(tenant.id, 'inactive@${tenant.domain}`, defaultPassword, 'Inactive', 'User', generatePhoneNumber(), 'driver', false, monthsAgo(7));
+      userParams.push(tenant.id, 'inactive@${tenant.domain}', defaultPassword, 'Inactive', 'User', generatePhoneNumber(), 'driver', false, monthsAgo(7));
 
       userValues.push(`($${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++})`);
-      userParams.push(tenant.id, 'suspended@${tenant.domain}`, defaultPassword, 'Suspended', 'User', generatePhoneNumber(), 'driver', false, daysFromNow(30), 5);
+      userParams.push(tenant.id, 'suspended@${tenant.domain}', defaultPassword, 'Suspended', 'User', generatePhoneNumber(), 'driver', false, daysFromNow(30), 5);
 
       // Batch insert users
       const usersResult = await client.query(
@@ -259,9 +259,9 @@ async function seedCoreEntities() {
         facilityValues.push(`($${facilityParamIndex++}, $${facilityParamIndex++}, $${facilityParamIndex++}, $${facilityParamIndex++}, $${facilityParamIndex++}, $${facilityParamIndex++}, $${facilityParamIndex++}, $${facilityParamIndex++}, $${facilityParamIndex++}, $${facilityParamIndex++}, $${facilityParamIndex++}, $${facilityParamIndex++}, $${facilityParamIndex++})`);
         facilityParams.push(
           tenant.id,
-          '${city.name} ${type.charAt(0).toUpperCase() + type.slice(1).replace('_', ' ')}`,
+          '${city.name} ${type.charAt(0).toUpperCase() + type.slice(1).replace('_', ' ')}',
           type,
-          '${randomInt(100, 9999)} ${randomItem(['Main', 'Industrial', 'Commerce', 'Fleet'])} Blvd`,
+          '${randomInt(100, 9999)} ${randomItem(['Main', 'Industrial', 'Commerce', 'Fleet'])} Blvd',
           city.name,
           'FL',
           `${randomInt(30000, 34999)}`,

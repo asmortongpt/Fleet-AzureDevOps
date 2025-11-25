@@ -130,7 +130,7 @@ class AIValidationService {
           })
           return {
             isValid: false,
-            reason: `Content safety violation: ${safetyCheck.flaggedReasons.join(', ')}`
+            reason: 'Content safety violation: ${safetyCheck.flaggedReasons.join(', ')}'
           }
         }
       }

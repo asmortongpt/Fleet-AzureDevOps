@@ -481,25 +481,25 @@ export class DocumentError extends Error {
 
 export class DocumentNotFoundError extends DocumentError {
   constructor(documentId: string) {
-    super('Document not found: ${documentId}`, 'DOCUMENT_NOT_FOUND', 404)
+    super('Document not found: ${documentId}', 'DOCUMENT_NOT_FOUND', 404)
   }
 }
 
 export class FolderNotFoundError extends DocumentError {
   constructor(folderId: string) {
-    super('Folder not found: ${folderId}`, 'FOLDER_NOT_FOUND', 404)
+    super('Folder not found: ${folderId}', 'FOLDER_NOT_FOUND', 404)
   }
 }
 
 export class PermissionDeniedError extends DocumentError {
   constructor(action: string) {
-    super('Permission denied for action: ${action}`, 'PERMISSION_DENIED', 403)
+    super('Permission denied for action: ${action}', 'PERMISSION_DENIED', 403)
   }
 }
 
 export class DuplicateDocumentError extends DocumentError {
   constructor(fileName: string) {
-    super('Duplicate document: ${fileName}`, 'DUPLICATE_DOCUMENT', 409)
+    super('Duplicate document: ${fileName}', 'DUPLICATE_DOCUMENT', 409)
   }
 }
 

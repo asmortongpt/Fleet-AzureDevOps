@@ -314,7 +314,7 @@ router.put('/:id', requirePermission('vehicle:update:fleet'), async (req: AuthRe
       `INSERT INTO asset_history (
         asset_id, action, performed_by, notes
       ) VALUES ($1, $2, $3, $4)`,
-      [id, 'updated', userId, `Updated fields: ${changedFields}`]
+      [id, 'updated', userId, 'Updated fields: ${changedFields}`]
     )
 
     await client.query('COMMIT')
@@ -422,7 +422,7 @@ router.post('/:id/transfer', requirePermission('vehicle:update:fleet'), async (r
       `INSERT INTO asset_history (
         asset_id, action, performed_by, location, notes
       ) VALUES ($1, $2, $3, $4, $5)`,
-      [id, 'transferred', userId, new_location, '${transfer_reason}: ${notes || ''}`]
+      [id, 'transferred', userId, new_location, '${transfer_reason}: ${notes || ''}']
     )
 
     await client.query('COMMIT')
@@ -561,7 +561,7 @@ router.get('/analytics/summary', requirePermission('report:view:global'), async 
            SUM(CAST(current_value AS DECIMAL)) as total_current_value,
            COUNT(*) as total_assets
          FROM assets
-         WHERE tenant_id = $1 AND status != 'disposed'`,
+         WHERE tenant_id = $1 AND status != 'disposed'',
         [tenantId]
       ),
       pool.query(
@@ -627,7 +627,7 @@ router.delete('/:id', requirePermission('vehicle:delete:fleet'), async (req: Aut
       `INSERT INTO asset_history (
         asset_id, action, performed_by, notes
       ) VALUES ($1, $2, $3, $4)`,
-      [id, 'disposed', userId, `Disposed: ${disposal_reason}`]
+      [id, 'disposed', userId, 'Disposed: ${disposal_reason}`]
     )
 
     await client.query('COMMIT')

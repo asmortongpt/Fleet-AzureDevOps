@@ -334,7 +334,7 @@ export class VehicleIdlingService extends EventEmitter {
       }
 
       const durationMinutes = Math.round(durationSeconds / 60);
-      const message = `${severity.toUpperCase()}: Vehicle "${eventData.vehicle_name}" has been idling for ${durationMinutes} minutes. Driver: ${eventData.driver_name || 'Unknown'}`;
+      const message = '${severity.toUpperCase()}: Vehicle "${eventData.vehicle_name}" has been idling for ${durationMinutes} minutes. Driver: ${eventData.driver_name || 'Unknown'}';
 
       // Insert alert log
       await client.query(
@@ -525,7 +525,7 @@ export class VehicleIdlingService extends EventEmitter {
     const client = await this.pool.connect();
     try {
       const result = await client.query(
-        `SELECT * FROM top_idling_vehicles_30d LIMIT $1',
+        'SELECT * FROM top_idling_vehicles_30d LIMIT $1',
         [limit]
       );
       return result.rows;
@@ -541,7 +541,7 @@ export class VehicleIdlingService extends EventEmitter {
     const client = await this.pool.connect();
     try {
       const result = await client.query(
-        `SELECT * FROM driver_idling_performance_30d LIMIT $1',
+        'SELECT * FROM driver_idling_performance_30d LIMIT $1',
         [limit]
       );
       return result.rows;
@@ -595,7 +595,7 @@ export class VehicleIdlingService extends EventEmitter {
     const client = await this.pool.connect();
     try {
       const result = await client.query(
-        `SELECT * FROM active_idling_events WHERE vehicle_id = $1',
+        'SELECT * FROM active_idling_events WHERE vehicle_id = $1',
         [vehicleId]
       );
       return result.rows[0] || null;
@@ -680,7 +680,7 @@ export class VehicleIdlingService extends EventEmitter {
     try {
       // Try to get vehicle-specific thresholds first
       let result = await client.query(
-        `SELECT * FROM vehicle_idling_thresholds WHERE vehicle_id = $1',
+        'SELECT * FROM vehicle_idling_thresholds WHERE vehicle_id = $1',
         [vehicleId]
       );
 
@@ -763,9 +763,9 @@ export class VehicleIdlingService extends EventEmitter {
       values.push(vehicleId);
 
       await client.query(
-        `INSERT INTO vehicle_idling_thresholds (vehicle_id, ${fields.join(', ').replace(/\s*=\s*\$\d+/g, '')})
-         VALUES ($${paramIndex}, ${values.slice(0, -1).map((_, i) => `$${i + 1}`).join(', ')})
-         ON CONFLICT (vehicle_id) DO UPDATE SET ${fields.join(', ')}, updated_at = CURRENT_TIMESTAMP`,
+        'INSERT INTO vehicle_idling_thresholds (vehicle_id, ${fields.join(', ').replace(/\s*=\s*\$\d+/g, '')})
+         VALUES ($${paramIndex}, ${values.slice(0, -1).map((_, i) => '$${i + 1}').join(', ')})
+         ON CONFLICT (vehicle_id) DO UPDATE SET ${fields.join(', ')}, updated_at = CURRENT_TIMESTAMP',
         values
       );
 

@@ -570,7 +570,7 @@ async function handleReportCriticalIssue(action: CardAction, userId: string): Pr
   await pool.query(
     `INSERT INTO alerts (
       vehicle_id, alert_type, severity, message, created_at
-    ) VALUES ($1, 'critical_inspection_issue', 'critical', 'Critical issue reported during inspection', NOW())`,
+    ) VALUES ($1, 'critical_inspection_issue', 'critical', 'Critical issue reported during inspection', NOW())',
     [vehicleId]
   )
 
@@ -607,7 +607,7 @@ async function handleSendRecognition(action: CardAction, userId: string): Promis
   // Create a recognition record
   await pool.query(
     `INSERT INTO driver_recognitions (driver_id, recognized_by, recognition_type, created_at)
-     VALUES ($1, $2, 'excellent_performance', NOW())`,
+     VALUES ($1, $2, 'excellent_performance', NOW())',
     [driverId, userId]
   )
 

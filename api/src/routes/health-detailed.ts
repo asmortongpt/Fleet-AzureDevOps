@@ -474,7 +474,7 @@ router.get('/component/:name', requireAdmin, async (req: Request, res: Response)
   if (!checkFunction) {
     return res.status(404).json({
       error: 'Not Found',
-      message: 'Component '${name}' not found`,
+      message: 'Component '${name}' not found',
       availableComponents: Object.keys(checks)
     });
   }
