@@ -10,7 +10,9 @@ import CoreLocation
 
 // MARK: - Vehicle Models
 
-struct Vehicle: Identifiable, Codable, Equatable {
+// Note: Renamed from Vehicle to FleetVehicleRecord to avoid conflict with Models/Vehicle.swift
+// This is a read-only data structure for fleet data records
+struct FleetVehicleRecord: Identifiable, Codable, Equatable {
     let id: String
     let tenantId: String
     let number: String
@@ -36,6 +38,9 @@ struct Vehicle: Identifiable, Codable, Equatable {
     let customFields: [String: String]?
     let tags: [String]?
 }
+
+// Temporary typealias for backward compatibility during migration
+typealias CachedVehicle = FleetVehicleRecord
 
 struct VehicleLocation: Codable, Equatable {
     let lat: Double
