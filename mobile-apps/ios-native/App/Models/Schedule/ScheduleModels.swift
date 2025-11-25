@@ -407,22 +407,6 @@ struct MaintenanceWindow: Codable, Identifiable, Hashable {
     }
 }
 
-enum MaintenanceType: String, Codable, CaseIterable {
-    case routine = "Routine Maintenance"
-    case repair = "Repair"
-    case inspection = "Inspection"
-    case cleaning = "Cleaning"
-
-    var icon: String {
-        switch self {
-        case .routine: return "wrench.and.screwdriver.fill"
-        case .repair: return "hammer.fill"
-        case .inspection: return "doc.text.magnifyingglass"
-        case .cleaning: return "sparkles"
-        }
-    }
-}
-
 // MARK: - Route Schedule
 
 struct Route: Codable, Identifiable, Hashable {
