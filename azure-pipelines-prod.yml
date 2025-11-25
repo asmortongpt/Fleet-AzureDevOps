@@ -21,16 +21,26 @@ parameters:
 
 variables:
   - group: fleet-prod-vars  # Variable group in Azure DevOps
-  NODE_VERSION: '20.x'
-  ENVIRONMENT: 'production'
-  NAMESPACE: 'fleet-management'
-  REGISTRY: fleetappregistry.azurecr.io
-  IMAGE_NAME_FRONTEND: fleet-frontend
-  IMAGE_NAME_API: fleet-api
-  AKS_CLUSTER: 'fleet-aks-cluster'
-  AKS_RESOURCE_GROUP: 'fleet-management-rg'
-  VERSION: ${{ parameters.version }}
-  ROLLBACK_ENABLED: ${{ parameters.rollback }}
+  - name: NODE_VERSION
+    value: '20.x'
+  - name: ENVIRONMENT
+    value: 'production'
+  - name: NAMESPACE
+    value: 'fleet-management'
+  - name: REGISTRY
+    value: fleetappregistry.azurecr.io
+  - name: IMAGE_NAME_FRONTEND
+    value: fleet-frontend
+  - name: IMAGE_NAME_API
+    value: fleet-api
+  - name: AKS_CLUSTER
+    value: 'fleet-aks-cluster'
+  - name: AKS_RESOURCE_GROUP
+    value: 'fleet-management-rg'
+  - name: VERSION
+    value: ${{ parameters.version }}
+  - name: ROLLBACK_ENABLED
+    value: ${{ parameters.rollback }}
 
 stages:
   # ====================================
@@ -270,18 +280,18 @@ stages:
                     arguments: 'status deployment/fleet-api --timeout=15m'
 
                 - script: |
-                  echo "Running API health checks..."
-                  for i in {1..30}; do
-                    if kubectl exec -n $(NAMESPACE) deployment/fleet-api -- curl -f http://localhost:3000/api/health; then
-                      echo "✅ API health check passed"
-                      break
-                    fi
-                    if [ $i -eq 30 ]; then
-                      echo "❌ API health check failed"
-                      exit 1
-                    fi
-                    sleep 10
-                  done
+                    echo "Running API health checks..."
+                    for i in {1..30}; do
+                      if kubectl exec -n $(NAMESPACE) deployment/fleet-api -- curl -f http://localhost:3000/api/health; then
+                        echo "✅ API health check passed"
+                        break
+                      fi
+                      if [ $i -eq 30 ]; then
+                        echo "❌ API health check failed"
+                        exit 1
+                      fi
+                      sleep 10
+                    done
                   displayName: 'Health check API'
 
                 - task: Kubernetes@1
