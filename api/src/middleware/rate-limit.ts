@@ -288,7 +288,7 @@ export const RateLimits = {
     maxRequests: 500, // Higher limit for webhooks
     keyGenerator: (req) => {
       // Use webhook source identifier
-      return `webhook:${req.get('x-webhook-id') || req.ip}`
+      return 'webhook:${req.get('x-webhook-id') || req.ip}`
     }
   }),
 

@@ -220,7 +220,7 @@ function maskValue(value: any, strategy: MaskingRule['maskingStrategy']): any {
       if (strValue.length <= 4) {
         return '***'
       }
-      return `${strValue.slice(0, 2)}${'*'.repeat(strValue.length - 4)}${strValue.slice(-2)}`
+      return '${strValue.slice(0, 2)}${'*'.repeat(strValue.length - 4)}${strValue.slice(-2)}`
 
     case 'redact':
       // Replace with placeholder

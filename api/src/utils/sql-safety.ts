@@ -24,7 +24,7 @@ export function isValidIdentifier(name: string): boolean {
 export function validateColumnNames(columns: string[]): void {
   const invalidColumns = columns.filter(col => !isValidIdentifier(col))
   if (invalidColumns.length > 0) {
-    throw new Error(`Invalid column names: ${invalidColumns.join(', ')}`)
+    throw new Error('Invalid column names: ${invalidColumns.join(', ')}`)
   }
 }
 
@@ -52,7 +52,7 @@ export function buildUpdateClause(
   const columns = Object.keys(filteredData)
   validateColumnNames(columns)
 
-  const fields = columns.map((key, i) => `${key} = $${i + startIndex}`).join(', ')
+  const fields = columns.map((key, i) => '${key} = $${i + startIndex}`).join(', ')
   const values = Object.values(filteredData)
 
   return { fields, values }
@@ -269,7 +269,7 @@ export function buildOrderByClause(
     return `${sort.column} ${direction}`
   })
 
-  return ` ORDER BY ${orderParts.join(', ')}`
+  return ' ORDER BY ${orderParts.join(', ')}`
 }
 
 /**
@@ -286,7 +286,7 @@ export function buildInClause(
     throw new Error('IN clause requires at least one value')
   }
 
-  const placeholders = values.map((_, i) => `$${i + startIndex}`).join(', ')
+  const placeholders = values.map((_, i) => '$${i + startIndex}`).join(', ')
   const inClause = `${column} IN (${placeholders})`
 
   return { inClause, values }

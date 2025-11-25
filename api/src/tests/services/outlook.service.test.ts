@@ -89,7 +89,7 @@ class OutlookService {
     }
 
     if (filters?.from) {
-      const filterStr = `from/emailAddress/address eq '${filters.from}'`;
+      const filterStr = 'from/emailAddress/address eq '${filters.from}'`;
       queryParams.push(
         queryParams.length > 0
           ? `and ${filterStr}`
@@ -110,7 +110,7 @@ class OutlookService {
       queryParams.push(`$top=${filters.top}`);
     }
 
-    const query = queryParams.length > 0 ? `?${queryParams.join('&')}` : '';
+    const query = queryParams.length > 0 ? '?${queryParams.join('&')}' : '';
     const response = await this.graphService.makeGraphRequest(
       `/me/mailFolders/${folderId}/messages${query}`
     );

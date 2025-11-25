@@ -530,7 +530,7 @@ router.delete(
       }
 
       const result = await pool.query(
-        `DELETE FROM documents WHERE id = $1 RETURNING id',
+        'DELETE FROM documents WHERE id = $1 RETURNING id',
         [req.params.id]
       )
 
@@ -673,7 +673,7 @@ router.put(
 
       // Delete existing line items
       await pool.query(
-        `DELETE FROM receipt_line_items WHERE document_id = $1',
+        'DELETE FROM receipt_line_items WHERE document_id = $1',
         [req.params.id]
       )
 
@@ -781,7 +781,7 @@ router.get(
 
       // Recent uploads
       const recentResult = await pool.query(
-        `SELECT d.*, uploader.first_name || ' ' || uploader.last_name as uploaded_by_name
+        'SELECT d.*, uploader.first_name || ' ' || uploader.last_name as uploaded_by_name
          FROM documents d
          LEFT JOIN drivers uploader ON d.uploaded_by = uploader.id
          WHERE uploader.tenant_id = $1

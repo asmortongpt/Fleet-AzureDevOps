@@ -22,7 +22,7 @@ router.get(
       const offset = (Number(page) - 1) * Number(limit)
 
       const result = await pool.query(
-        `SELECT id, tenant_id, vehicle_id, incident_type, severity, description, location, incident_date, reporter_id, created_at, updated_at FROM safety_incidents WHERE tenant_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3',
+        'SELECT id, tenant_id, vehicle_id, incident_type, severity, description, location, incident_date, reporter_id, created_at, updated_at FROM safety_incidents WHERE tenant_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3',
         [req.user!.tenant_id, limit, offset]
       )
 
@@ -83,12 +83,12 @@ router.post(
 
       // Auto-generate incident_number
       const incidentNumberResult = await pool.query(
-        `SELECT COALESCE(MAX(CAST(SUBSTRING(incident_number FROM '[0-9]+') AS INTEGER)), 0) + 1 as next_num
+        'SELECT COALESCE(MAX(CAST(SUBSTRING(incident_number FROM '[0-9]+') AS INTEGER)), 0) + 1 as next_num
          FROM safety_incidents
          WHERE tenant_id = $1',
         [req.user!.tenant_id]
       )
-      const incidentNumber = `INC-${String(incidentNumberResult.rows[0].next_num).padStart(6, '0')}`
+      const incidentNumber = 'INC-${String(incidentNumberResult.rows[0].next_num).padStart(6, '0')}`
 
       const { columnNames, placeholders, values } = buildInsertClause(
         data,
