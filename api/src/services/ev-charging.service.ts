@@ -303,7 +303,7 @@ class EVChargingService {
       degradation_rate_percent_per_year,
       estimated_cycles_remaining,
       created_at,
-      updated_at FROM ev_specifications WHERE vehicle_id = $1`,
+      updated_at FROM ev_specifications WHERE vehicle_id = $1',
       [vehicleId]
     );
 
@@ -455,7 +455,7 @@ class EVChargingService {
          MAX(odometer_miles) - MIN(odometer_miles) as miles_driven
        FROM vehicle_telemetry
        WHERE vehicle_id = $1
-       AND DATE(timestamp) = $2`,
+       AND DATE(timestamp) = $2',
       [vehicleId, date]
     );
 
@@ -719,7 +719,7 @@ class EVChargingService {
          AVG(carbon_saved_percent) as avg_reduction_percent,
          SUM(ice_equivalent_gallons) as gasoline_avoided_gallons
        FROM carbon_footprint_log
-       WHERE log_date BETWEEN $1 AND $2`,
+       WHERE log_date BETWEEN $1 AND $2',
       [startDate, endDate]
     );
 

@@ -276,7 +276,7 @@ router.post(
         await pool.query(
           `UPDATE vehicle_assignments
            SET cost_benefit_analysis_id = $1
-           WHERE id = $2 AND tenant_id = $3`,
+           WHERE id = $2 AND tenant_id = $3',
           [result.rows[0].id, data.vehicle_assignment_id, tenant_id]
         );
       }

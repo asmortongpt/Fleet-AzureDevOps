@@ -341,7 +341,7 @@ router.post(
       await pool.query(
         `UPDATE vehicles
          SET odometer_reading = $1, last_odometer_update = NOW()
-         WHERE id = $2 AND tenant_id = $3`,
+         WHERE id = $2 AND tenant_id = $3',
         [ocrResult.reading, validatedData.vehicleId, tenantId]
       );
 

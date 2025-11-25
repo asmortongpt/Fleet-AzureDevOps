@@ -309,7 +309,7 @@ export class MicrosoftIntegrationService {
       await this.pool.query(
         `UPDATE vehicle_reservations
          SET microsoft_teams_notification_sent = true
-         WHERE id = $1`,
+         WHERE id = $1',
         [reservation.id]
       );
     } catch (error: any) {

@@ -107,7 +107,7 @@ export class ExampleDIService {
       photos,
       notes,
       created_at,
-      updated_at FROM vehicles WHERE id = $1`, [vehicleId])
+      updated_at FROM vehicles WHERE id = $1', [vehicleId])
 
       if (result.rows.length === 0) {
         return {

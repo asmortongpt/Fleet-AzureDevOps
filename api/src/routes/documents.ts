@@ -147,7 +147,7 @@ router.get(
                 uploader.tenant_id as uploader_tenant_id
          FROM documents d
          LEFT JOIN users uploader ON d.uploaded_by = uploader.id
-         WHERE d.id = $1`,
+         WHERE d.id = $1',
         [req.params.id]
       )
 
@@ -196,7 +196,7 @@ router.get(
       auto_brightness_applied,
       auto_contrast_applied,
       edge_detection_applied,
-      created_at FROM camera_capture_metadata WHERE document_id = $1`,
+      created_at FROM camera_capture_metadata WHERE document_id = $1',
         [req.params.id]
       )
 
@@ -470,7 +470,7 @@ router.put(
         `SELECT d.id, uploader.tenant_id as uploader_tenant_id
          FROM documents d
          LEFT JOIN users uploader ON d.uploaded_by = uploader.id
-         WHERE d.id = $1`,
+         WHERE d.id = $1',
         [req.params.id]
       )
 
@@ -516,7 +516,7 @@ router.delete(
         `SELECT d.id, uploader.tenant_id as uploader_tenant_id
          FROM documents d
          LEFT JOIN users uploader ON d.uploaded_by = uploader.id
-         WHERE d.id = $1`,
+         WHERE d.id = $1',
         [req.params.id]
       )
 
@@ -561,7 +561,7 @@ router.post(
         `SELECT d.*, uploader.tenant_id as uploader_tenant_id
          FROM documents d
          LEFT JOIN users uploader ON d.uploaded_by = uploader.id
-         WHERE d.id = $1`,
+         WHERE d.id = $1',
         [req.params.id]
       )
 
@@ -612,7 +612,7 @@ router.post(
         `SELECT d.*, uploader.tenant_id as uploader_tenant_id
          FROM documents d
          LEFT JOIN users uploader ON d.uploaded_by = uploader.id
-         WHERE d.id = $1`,
+         WHERE d.id = $1',
         [req.params.id]
       )
 
@@ -658,7 +658,7 @@ router.put(
         `SELECT d.id, uploader.tenant_id as uploader_tenant_id
          FROM documents d
          LEFT JOIN users uploader ON d.uploaded_by = uploader.id
-         WHERE d.id = $1`,
+         WHERE d.id = $1',
         [req.params.id]
       )
 
@@ -673,7 +673,7 @@ router.put(
 
       // Delete existing line items
       await pool.query(
-        `DELETE FROM receipt_line_items WHERE document_id = $1`,
+        `DELETE FROM receipt_line_items WHERE document_id = $1',
         [req.params.id]
       )
 
@@ -752,7 +752,7 @@ router.get(
                 SUM(file_size_bytes) as total_storage_bytes
          FROM documents d
          LEFT JOIN drivers uploader ON d.uploaded_by = uploader.id
-         WHERE uploader.tenant_id = $1`,
+         WHERE uploader.tenant_id = $1',
         [req.user!.tenant_id]
       )
 

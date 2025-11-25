@@ -259,7 +259,7 @@ export async function generateWorkOrder(
     // Generate work order number
     const woNumberResult = await client.query(
       `SELECT COALESCE(MAX(CAST(SUBSTRING(work_order_number FROM '[0-9]+') AS INTEGER)), 0) + 1 as next_num
-       FROM work_orders WHERE tenant_id = $1`,
+       FROM work_orders WHERE tenant_id = $1',
       [schedule.tenant_id]
     )
     const workOrderNumber = `WO-${String(woNumberResult.rows[0].next_num).padStart(6, '0')}`

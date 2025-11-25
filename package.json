@@ -118,7 +118,7 @@
     "js-yaml": "^4.1.0",
     "leaflet": "^1.9.4",
     "leva": "^0.10.1",
-    "lucide-react": "^0.484.0",
+    "lucide-react": "^0.554.0",
     "maath": "^0.10.8",
     "mapbox-gl": "^3.10.0",
     "marked": "^15.0.7",
