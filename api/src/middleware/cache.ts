@@ -159,7 +159,7 @@ export function cacheMiddleware(config: CacheConfig = {}) {
         // Set cache metadata headers
         res.setHeader('X-Cache', 'HIT')
         res.setHeader('X-Cache-Key', cacheKey)
-        res.setHeader('X-Response-Time', `${duration}ms`)
+        res.setHeader('X-Response-Time', '${duration}ms`)
 
         // Send cached response
         return res.status(cached.statusCode).json(cached.data)
@@ -206,7 +206,7 @@ export function cacheMiddleware(config: CacheConfig = {}) {
             })
         }
 
-        res.setHeader('X-Response-Time', `${duration}ms`)
+        res.setHeader('X-Response-Time', '${duration}ms`)
         return originalJson(data)
       }
 

@@ -158,7 +158,7 @@ Return ONLY a JSON object with:
   "confidence": 0.0-1.0
 }
 
-Be very confident (>0.9) only if you're certain.`
+Be very confident (>0.9) only if you're certain.'
           },
           {
             type: 'image_url',
@@ -211,7 +211,7 @@ async function extractDocumentData(
         content: [
           {
             type: 'text',
-            text: `Extract all available information from this ${documentType.replace('_', ' ')}.
+            text: 'Extract all available information from this ${documentType.replace('_', ' ')}.
 
 Fields to extract: ${schema.fields.join(', ')}
 
@@ -411,7 +411,7 @@ function validateExtractedData(
       const diff = Math.abs(calculatedTotal - extractedData.total_cost)
 
       if (diff > 2) {
-        issues.push(`Math doesn't match: ${extractedData.gallons} gal × $${extractedData.price_per_gallon}/gal ≠ $${extractedData.total_cost}`)
+        issues.push('Math doesn't match: ${extractedData.gallons} gal × $${extractedData.price_per_gallon}/gal ≠ $${extractedData.total_cost}')
       }
     }
   }
@@ -542,7 +542,7 @@ export async function getDocumentsNeedingReview(
   limit: number = 20
 ): Promise<any[]> {
   const result = await pool.query(
-    `SELECT ` + (await getTableColumns(pool, 'document_analyses')).join(', ') + ` FROM document_analyses
+    'SELECT ' + (await getTableColumns(pool, 'document_analyses')).join(', ') + ' FROM document_analyses
      WHERE tenant_id = $1 AND needs_review = true AND reviewed = false
      ORDER BY created_at DESC
      LIMIT $2',

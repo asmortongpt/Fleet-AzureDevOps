@@ -335,7 +335,7 @@ ${content}`
           {
             role: 'system',
             content: `You are a helpful AI assistant for fleet management. Answer questions accurately based on the provided document context.
-If the context doesn't contain enough information, say so clearly. Always cite which source you're using.`,
+If the context doesn't contain enough information, say so clearly. Always cite which source you're using.',
           },
           {
             role: 'user',
@@ -385,7 +385,7 @@ If the context doesn't contain enough information, say so clearly. Always cite w
     }
 
     try {
-      const prompt = `Analyze this document's content quality. Check for:
+      const prompt = 'Analyze this document's content quality. Check for:
 - Completeness (all necessary information present)
 - Clarity (text is clear and readable)
 - Accuracy (no obvious errors or inconsistencies)

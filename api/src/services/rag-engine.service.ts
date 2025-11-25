@@ -82,7 +82,7 @@ class RAGEngineService {
             chunk,
             index,
             chunks.length,
-            `[${embedding.join(',')}]`, // pgvector format
+            '[${embedding.join(',')}]', // pgvector format
             this.embeddingModel,
             JSON.stringify(document.metadata || {})
           ]
@@ -141,7 +141,7 @@ class RAGEngineService {
       `
 
       const params: any[] = [
-        `[${queryEmbedding.join(',')}]`,
+        '[${queryEmbedding.join(',')}]',
         tenantId,
         similarityThreshold
       ]
@@ -209,7 +209,7 @@ class RAGEngineService {
       .map((chunk, idx) => `[Source ${idx + 1}: ${chunk.document_title}]\n${chunk.content_chunk}`)
       .join('\n\n')
 
-    const systemPrompt = `You are a Fleet Management AI assistant with access to the organization's fleet policies, procedures, maintenance histories, and documentation.
+    const systemPrompt = 'You are a Fleet Management AI assistant with access to the organization's fleet policies, procedures, maintenance histories, and documentation.
 
 Your task is to answer questions accurately based on the provided context from the knowledge base. Always:
 1. Base your answers strictly on the provided context
@@ -331,7 +331,7 @@ ${contextText}`
           tenantId,
           userId || null,
           queryText,
-          `[${queryEmbedding.join(',')}]`,
+          '[${queryEmbedding.join(',')}]',
           contextType || null,
           JSON.stringify(retrievedChunks.map(c => ({ id: c.id, chunk_index: c.chunk_index }))),
           generatedResponse,
@@ -400,7 +400,7 @@ ${contextText}`
         COUNT(*) FILTER (WHERE was_helpful = true) as helpful_queries,
         COUNT(*) FILTER (WHERE was_helpful = false) as unhelpful_queries
        FROM rag_queries
-       WHERE tenant_id = $1 AND created_at >= NOW() - INTERVAL '30 days'`,
+       WHERE tenant_id = $1 AND created_at >= NOW() - INTERVAL '30 days'',
       [tenantId]
     )
 
