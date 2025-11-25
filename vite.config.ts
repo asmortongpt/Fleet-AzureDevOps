@@ -9,6 +9,8 @@ const projectRoot = process.env.PROJECT_ROOT || import.meta.dirname
 
 // https://vite.dev/config/
 export default defineConfig({
+  // Set base path to relative for Azure Static Web Apps
+  base: './',
   plugins: [
     react(),
     tailwindcss(),
