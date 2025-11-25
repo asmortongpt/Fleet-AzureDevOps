@@ -621,7 +621,7 @@ router.delete('/:id', authenticateJWT, async (req: AuthRequest, res: Response) =
       await client.query(
         `UPDATE vehicle_reservations
          SET status = 'cancelled', deleted_at = NOW(), updated_at = NOW()
-         WHERE id = $1`,
+         WHERE id = $1',
         [id]
       );
 

@@ -168,7 +168,7 @@ export class CostAnalysisService {
       `SELECT COALESCE(SUM(amount), 0) as total_cost
        FROM cost_tracking
        WHERE tenant_id = $1
-       AND transaction_date BETWEEN $2 AND $3`,
+       AND transaction_date BETWEEN $2 AND $3',
       [tenantId, startDate, endDate]
     )
 

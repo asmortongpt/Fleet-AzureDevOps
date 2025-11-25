@@ -112,7 +112,7 @@ export class AlertEngineService {
 
       // Mark as sent
       await client.query(
-        `UPDATE alerts SET status = 'sent' WHERE id = $1`,
+        `UPDATE alerts SET status = 'sent' WHERE id = $1',
         [alert.id]
       )
 
@@ -203,7 +203,7 @@ export class AlertEngineService {
     try {
       // Get recipient emails
       const result = await pool.query(
-        `SELECT email FROM users WHERE id = ANY($1) AND tenant_id = $2`,
+        `SELECT email FROM users WHERE id = ANY($1) AND tenant_id = $2',
         [recipients, tenantId]
       )
 
@@ -550,7 +550,7 @@ export class AlertEngineService {
     await pool.query(
       `UPDATE alerts
        SET status = 'acknowledged', acknowledged_at = NOW(), acknowledged_by = $1
-       WHERE id = $2`,
+       WHERE id = $2',
       [userId, alertId]
     )
   }
@@ -562,7 +562,7 @@ export class AlertEngineService {
     await pool.query(
       `UPDATE alerts
        SET status = 'resolved', resolved_at = NOW()
-       WHERE id = $1`,
+       WHERE id = $1',
       [alertId]
     )
   }

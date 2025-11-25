@@ -204,7 +204,7 @@ export class DocumentGeoService {
   private async extractTextLocation(documentId: string): Promise<GeoLocation | null> {
     try {
       const result = await pool.query(
-        `SELECT extracted_text FROM documents WHERE id = $1`,
+        `SELECT extracted_text FROM documents WHERE id = $1',
         [documentId]
       )
 
@@ -964,7 +964,7 @@ export class DocumentGeoService {
          geo_accuracy = $9,
          geo_source = $10,
          geo_extracted_at = NOW()
-       WHERE id = $1`,
+       WHERE id = $1',
       [
         documentId,
         location.lng,

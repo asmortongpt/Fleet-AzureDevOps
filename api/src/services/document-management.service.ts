@@ -185,33 +185,33 @@ export class DocumentManagementService {
       await pool.query(
         `UPDATE documents
          SET extracted_text = $1, ocr_status = 'completed', ocr_completed_at = NOW()
-         WHERE id = $2`,
+         WHERE id = $2',
         [extractedText, documentId]
       )
 
       // Generate embeddings for RAG
       if (extractedText && extractedText.length > 50) {
         await pool.query(
-          `UPDATE documents SET embedding_status = 'processing' WHERE id = $1`,
+          `UPDATE documents SET embedding_status = 'processing' WHERE id = $1',
           [documentId]
         )
 
         await this.ragService.generateDocumentEmbeddings(documentId, extractedText)
 
         await pool.query(
-          `UPDATE documents SET embedding_status = 'completed', embedding_completed_at = NOW() WHERE id = $1`,
+          `UPDATE documents SET embedding_status = 'completed', embedding_completed_at = NOW() WHERE id = $1',
           [documentId]
         )
       } else {
         await pool.query(
-          `UPDATE documents SET embedding_status = 'failed' WHERE id = $1`,
+          `UPDATE documents SET embedding_status = 'failed' WHERE id = $1',
           [documentId]
         )
       }
     } catch (error) {
       console.error('Error processing document:', error)
       await pool.query(
-        `UPDATE documents SET ocr_status = 'failed', embedding_status = 'failed' WHERE id = $1`,
+        `UPDATE documents SET ocr_status = 'failed', embedding_status = 'failed' WHERE id = $1',
         [documentId]
       )
     }
@@ -381,7 +381,7 @@ export class DocumentManagementService {
       FROM documents d
       LEFT JOIN document_categories dc ON d.category_id = dc.id
       LEFT JOIN users u ON d.uploaded_by = u.id
-      WHERE d.id = $1 AND d.tenant_id = $2`,
+      WHERE d.id = $1 AND d.tenant_id = $2',
       [documentId, tenantId]
     )
 

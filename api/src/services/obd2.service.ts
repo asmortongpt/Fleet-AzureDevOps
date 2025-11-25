@@ -201,7 +201,7 @@ export class OBD2ServiceBackend {
   ): Promise<OBD2Adapter | null> {
     const result = await pool.query(
       `SELECT id, tenant_id, user_id, vehicle_id, adapter_type, connection_type, device_id, device_name, mac_address, ip_address, port, supported_protocols, firmware_version, hardware_version, vin, protocol_detected, is_paired, is_active, last_connected_at, last_data_received_at, pairing_metadata, created_at, updated_at FROM obd2_adapters
-       WHERE tenant_id = $1 AND id = $2`,
+       WHERE tenant_id = $1 AND id = $2',
       [tenantId, adapterId]
     )
 
@@ -219,7 +219,7 @@ export class OBD2ServiceBackend {
       `UPDATE obd2_adapters
        SET last_connected_at = CASE WHEN $2 THEN CURRENT_TIMESTAMP ELSE last_connected_at END,
            updated_at = CURRENT_TIMESTAMP
-       WHERE id = $1`,
+       WHERE id = $1',
       [adapterId, connected]
     )
   }
@@ -376,7 +376,7 @@ export class OBD2ServiceBackend {
     await pool.query(
       `UPDATE obd2_adapters
        SET last_data_received_at = CURRENT_TIMESTAMP
-       WHERE id = $1`,
+       WHERE id = $1',
       [adapterId]
     )
 
@@ -480,7 +480,7 @@ export class OBD2ServiceBackend {
   ): Promise<any> {
     const result = await pool.query(
       `SELECT id, tenant_id, vehicle_id, health_score, last_assessed, issues_count, warning_count, dtc_summary, maintenance_due, estimated_repair_cost FROM obd2_vehicle_health_summary
-       WHERE tenant_id = $1 AND vehicle_id = $2`,
+       WHERE tenant_id = $1 AND vehicle_id = $2',
       [tenantId, vehicleId]
     )
 
@@ -496,7 +496,7 @@ export class OBD2ServiceBackend {
   ): Promise<any> {
     const result = await pool.query(
       `SELECT id, tenant_id, adapter_id, success_rate, uptime_percent, last_checked, total_connections, failed_connections FROM obd2_connection_reliability
-       WHERE tenant_id = $1 AND adapter_id = $2`,
+       WHERE tenant_id = $1 AND adapter_id = $2',
       [tenantId, adapterId]
     )
 
@@ -508,7 +508,7 @@ export class OBD2ServiceBackend {
    */
   async getDTCInfo(dtcCode: string): Promise<any> {
     const result = await pool.query(
-      `SELECT id, dtc_code, description, common_causes, diagnostic_steps, avg_repair_cost_min, avg_repair_cost_max, severity_level FROM obd2_dtc_library WHERE dtc_code = $1`,
+      `SELECT id, dtc_code, description, common_causes, diagnostic_steps, avg_repair_cost_min, avg_repair_cost_max, severity_level FROM obd2_dtc_library WHERE dtc_code = $1',
       [dtcCode]
     )
 
@@ -549,7 +549,7 @@ export class OBD2ServiceBackend {
       `SELECT id, tenant_id, vehicle_id, adapter_id, user_id, session_id, session_start, session_end, engine_rpm, vehicle_speed, throttle_position, engine_coolant_temp, intake_air_temp, maf_air_flow_rate, fuel_pressure, intake_manifold_pressure, timing_advance, fuel_level, short_term_fuel_trim, long_term_fuel_trim, fuel_consumption_rate, o2_sensor_voltage, catalyst_temperature, battery_voltage, odometer_reading, location, all_pids, recorded_at FROM obd2_live_data
        WHERE tenant_id = $1 AND vehicle_id = $2
        ORDER BY recorded_at DESC
-       LIMIT $3`,
+       LIMIT $3',
       [tenantId, vehicleId, limit]
     )
 
@@ -592,7 +592,7 @@ export class OBD2ServiceBackend {
         await pool.query(
           `UPDATE obd2_diagnostic_codes
            SET work_order_id = $1
-           WHERE id = $2`,
+           WHERE id = $2',
           [result.rows[0].id, dtcId]
         )
       }

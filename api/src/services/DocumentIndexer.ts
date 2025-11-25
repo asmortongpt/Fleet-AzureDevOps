@@ -73,7 +73,7 @@ export class DocumentIndexer {
         FROM documents d
         LEFT JOIN document_categories dc ON d.category_id = dc.id
         LEFT JOIN users u ON d.uploaded_by = u.id
-        WHERE d.id = $1 AND d.tenant_id = $2`,
+        WHERE d.id = $1 AND d.tenant_id = $2',
         [documentId, tenantId]
       )
 
@@ -93,7 +93,7 @@ export class DocumentIndexer {
            search_vector = to_tsvector('english', $1),
            indexed_at = NOW(),
            index_status = 'indexed'
-         WHERE id = $2`,
+         WHERE id = $2',
         [searchContent, documentId]
       )
 
@@ -191,7 +191,7 @@ export class DocumentIndexer {
            search_vector = NULL,
            indexed_at = NULL,
            index_status = 'deleted'
-         WHERE id = $1 AND tenant_id = $2`,
+         WHERE id = $1 AND tenant_id = $2',
         [documentId, tenantId]
       )
 
@@ -277,7 +277,7 @@ export class DocumentIndexer {
       await pool.query(
         `UPDATE indexing_jobs
          SET status = 'processing', started_at = NOW()
-         WHERE id = $1`,
+         WHERE id = $1',
         [job.id]
       )
 
@@ -340,7 +340,7 @@ export class DocumentIndexer {
         await pool.query(
           `UPDATE indexing_jobs
            SET progress = $1, processed_documents = $2
-           WHERE id = $3`,
+           WHERE id = $3',
           [progress, processedCount, job.id]
         )
 
@@ -355,7 +355,7 @@ export class DocumentIndexer {
            progress = 100,
            processed_documents = $1,
            completed_at = NOW()
-         WHERE id = $2`,
+         WHERE id = $2',
         [processedCount, job.id]
       )
 
@@ -370,7 +370,7 @@ export class DocumentIndexer {
            status = 'failed',
            error_message = $1,
            completed_at = NOW()
-         WHERE id = $2`,
+         WHERE id = $2',
         [error instanceof Error ? error.message : 'Unknown error', job.id]
       )
     }
@@ -406,7 +406,7 @@ export class DocumentIndexer {
          SET
            last_optimization = NOW(),
            optimization_count = optimization_count + 1
-         WHERE tenant_id = $1`,
+         WHERE tenant_id = $1',
         [tenantId]
       )
 
@@ -414,7 +414,7 @@ export class DocumentIndexer {
       await pool.query(
         `UPDATE indexing_jobs
          SET status = 'completed', progress = 100, completed_at = NOW()
-         WHERE id = $1`,
+         WHERE id = $1',
         [jobId]
       )
 
@@ -440,7 +440,7 @@ export class DocumentIndexer {
             COUNT(CASE WHEN index_status = 'failed' THEN 1 END) as failed_documents,
             SUM(file_size) as total_size
           FROM documents
-          WHERE tenant_id = $1`,
+          WHERE tenant_id = $1',
           [tenantId]
         ),
         // Average indexing time
@@ -456,7 +456,7 @@ export class DocumentIndexer {
         pool.query(
           `SELECT last_optimization
           FROM tenant_index_stats
-          WHERE tenant_id = $1`,
+          WHERE tenant_id = $1',
           [tenantId]
         )
       ])
