@@ -78,7 +78,36 @@ export class ExampleDIService {
   async performAction(vehicleId: number): Promise<{ success: boolean; message: string }> {
     try {
       // Use injected dependencies
-      const result = await this.db.query('SELECT * FROM vehicles WHERE id = $1', [vehicleId])
+      const result = await this.db.query(`SELECT
+      id,
+      tenant_id,
+      vin,
+      make,
+      model,
+      year,
+      license_plate,
+      vehicle_type,
+      fuel_type,
+      status,
+      odometer,
+      engine_hours,
+      purchase_date,
+      purchase_price,
+      current_value,
+      gps_device_id,
+      last_gps_update,
+      latitude,
+      longitude,
+      location,
+      speed,
+      heading,
+      assigned_driver_id,
+      assigned_facility_id,
+      telematics_data,
+      photos,
+      notes,
+      created_at,
+      updated_at FROM vehicles WHERE id = $1`, [vehicleId])
 
       if (result.rows.length === 0) {
         return {

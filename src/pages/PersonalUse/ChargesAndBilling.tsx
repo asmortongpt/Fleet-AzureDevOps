@@ -104,8 +104,7 @@ export function ChargesAndBilling() {
     return params.toString()
   }
 
-  const { data: chargesData, isLoading: loading, error: chargesError } = useQuery({
-    queryKey: ['personal-use-charges', selectedPeriod, statusFilter],
+  const { data: chargesData, isLoading: loading, error: chargesError } = useQuery({    queryKey: ['personal-use-charges', selectedPeriod, statusFilter],
     queryFn: () => apiClient(`/api/personal-use-charges?${getChargesParams()}`),
     staleTime: 30000,
     onError: (error: any) => {
