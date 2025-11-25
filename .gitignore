@@ -117,3 +117,4 @@ monitoring-env-*.txt
 database-credentials-*.txt
 azure-credentials-*-MASTER.txt
 deployment-info-*.txt
+diagnose-whitescreen.js
