@@ -77,26 +77,32 @@ export function ConversationalIntake({
     setIsLoading(true)
 
     try {
-      const response = await apiClient.post('/api/ai/intake/conversation', {
+      const response = await apiClient.post<{
+        response: string
+        updatedContext: string
+        suggestions: string[]
+        readyToSubmit?: boolean
+        validatedData?: any
+      }>('/api/ai/intake/conversation', {
         message: input,
         context
       })
 
       const assistantMessage: Message = {
         role: 'assistant',
-        content: response.data?.response,
+        content: response.response,
         timestamp: new Date()
       }
 
       setMessages(prev => [...prev, assistantMessage])
-      setContext(response.data?.updatedContext)
-      setSuggestions(response.data?.suggestions || [])
+      setContext(response.updatedContext)
+      setSuggestions(response.suggestions || [])
 
       // If ready to submit, show confirmation
-      if (response.data?.readyToSubmit && response.data?.validatedData) {
+      if (response.readyToSubmit && response.validatedData) {
         // Auto-submit or show confirmation UI
         if (onSubmit) {
-          onSubmit(response.data?.validatedData)
+          onSubmit(response.validatedData)
         }
       }
     } catch (error: any) {
