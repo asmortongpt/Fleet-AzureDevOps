@@ -3,13 +3,14 @@
  * Shows comprehensive vehicle information with action buttons
  */
 
-import React from 'react'
+import React, { useState } from 'react'
 import { useDrilldown } from '@/contexts/DrilldownContext'
 import { DrilldownContent } from '@/components/DrilldownPanel'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import useSWR from 'swr'
 import {
   Car,
@@ -26,9 +27,13 @@ import {
   RotateCw,
   Settings,
   Link2,
+  History,
+  Play,
 } from 'lucide-react'
 import { MetricCard } from './MetricCard'
 import { AssetRelationshipsList } from './AssetRelationshipsList'
+import { VehicleHistoryTrail } from '@/components/vehicle/VehicleHistoryTrail'
+import { TripPlayback } from '@/components/vehicle/TripPlayback'
 import {
   ExtendedVehicleData,
   ASSET_CATEGORY_LABELS,
@@ -50,6 +55,14 @@ export function VehicleDetailPanel({ vehicleId }: VehicleDetailPanelProps) {
     fetcher
   )
 
+  // State for location history
+  const [showLocationHistory, setShowLocationHistory] = useState(false)
+  const [selectedTripId, setSelectedTripId] = useState<string | null>(null)
+  const [dateRange, setDateRange] = useState({
+    startDate: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(), // Last 7 days
+    endDate: new Date().toISOString()
+  })
+
   const handleViewTrips = () => {
     push({
       id: `vehicle-trips-${vehicleId}`,
@@ -65,6 +78,20 @@ export function VehicleDetailPanel({ vehicleId }: VehicleDetailPanelProps) {
       type: 'vehicle-maintenance',
       label: 'Maintenance History',
       data: { vehicleId, vehicleName: vehicle?.name },
+    })
+  }
+
+  const handleToggleLocationHistory = () => {
+    setShowLocationHistory(!showLocationHistory)
+  }
+
+  const handleDateRangeChange = (range: 'day' | 'week' | 'month') => {
+    const now = new Date()
+    const daysMap = { day: 1, week: 7, month: 30 }
+    const startDate = new Date(now.getTime() - daysMap[range] * 24 * 60 * 60 * 1000)
+    setDateRange({
+      startDate: startDate.toISOString(),
+      endDate: now.toISOString()
     })
   }
 
@@ -449,6 +476,110 @@ export function VehicleDetailPanel({ vehicleId }: VehicleDetailPanelProps) {
               </CardContent>
             </Card>
           )}
+
+          {/* Location History Section */}
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle className="flex items-center gap-2">
+                  <History className="h-5 w-5" />
+                  Location History
+                </CardTitle>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={handleToggleLocationHistory}
+                >
+                  {showLocationHistory ? 'Hide' : 'Show'} History
+                </Button>
+              </div>
+            </CardHeader>
+            {showLocationHistory && (
+              <CardContent>
+                <Tabs defaultValue="trail" className="w-full">
+                  <TabsList className="grid w-full grid-cols-2">
+                    <TabsTrigger value="trail">
+                      <MapPin className="h-4 w-4 mr-2" />
+                      Trail View
+                    </TabsTrigger>
+                    <TabsTrigger value="playback">
+                      <Play className="h-4 w-4 mr-2" />
+                      Trip Playback
+                    </TabsTrigger>
+                  </TabsList>
+
+                  <TabsContent value="trail" className="space-y-4">
+                    {/* Date Range Selector */}
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-muted-foreground">Time Range:</span>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleDateRangeChange('day')}
+                      >
+                        Last 24h
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleDateRangeChange('week')}
+                      >
+                        Last Week
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleDateRangeChange('month')}
+                      >
+                        Last Month
+                      </Button>
+                    </div>
+
+                    {/* Vehicle History Trail Component */}
+                    <VehicleHistoryTrail
+                      vehicleId={vehicleId}
+                      startDate={dateRange.startDate}
+                      endDate={dateRange.endDate}
+                      onPointClick={(point) => {
+                        console.log('Location point clicked:', point)
+                        setSelectedTripId(point.trip_id)
+                      }}
+                    />
+                  </TabsContent>
+
+                  <TabsContent value="playback" className="space-y-4">
+                    {selectedTripId ? (
+                      <>
+                        <div className="flex items-center justify-between">
+                          <p className="text-sm text-muted-foreground">
+                            Playing trip: {selectedTripId}
+                          </p>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => setSelectedTripId(null)}
+                          >
+                            Clear Selection
+                          </Button>
+                        </div>
+                        <TripPlayback tripId={selectedTripId} autoPlay={false} />
+                      </>
+                    ) : (
+                      <div className="p-8 text-center border rounded-md bg-muted/50">
+                        <Play className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                        <p className="text-muted-foreground">
+                          Click on a location point in the Trail View to select a trip for playback
+                        </p>
+                        <p className="text-sm text-muted-foreground mt-2">
+                          Or use the View Trips button below to browse all trips
+                        </p>
+                      </div>
+                    )}
+                  </TabsContent>
+                </Tabs>
+              </CardContent>
+            )}
+          </Card>
 
           {/* Action Buttons */}
           <div className="grid grid-cols-2 gap-3">
