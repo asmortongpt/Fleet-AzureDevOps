@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { HubLayout } from "../../components/layout/HubLayout";
 import { GPSTracking } from "../../components/modules/GPSTracking";
 import DispatchConsole from "../../components/DispatchConsole";
+import { RadioPopover } from "../../components/RadioPopover";
 import { FuelManagement } from "../../components/modules/FuelManagement";
 import { AssetManagement } from "../../components/modules/AssetManagement";
 import { useFleetData } from "../../hooks/use-fleet-data";
@@ -23,7 +24,6 @@ import {
 
 type OperationsModule =
   | "overview"
-  | "dispatch"
   | "tracking"
   | "fuel"
   | "assets";
@@ -34,8 +34,6 @@ const OperationsHub: React.FC = () => {
 
   const renderModule = () => {
     switch (activeModule) {
-      case "dispatch":
-        return <DispatchConsole />;
       case "tracking":
         return (
           <div style={{ height: "100%", padding: "16px" }}>
@@ -323,15 +321,6 @@ const OperationsHub: React.FC = () => {
               </Button>
 
               <Button
-                variant={activeModule === "dispatch" ? "secondary" : "ghost"}
-                className="w-full justify-start"
-                onClick={() => setActiveModule("dispatch")}
-              >
-                <Broadcast className="w-4 h-4 mr-2" />
-                Dispatch Management
-              </Button>
-
-              <Button
                 variant={activeModule === "tracking" ? "secondary" : "ghost"}
                 className="w-full justify-start"
                 onClick={() => setActiveModule("tracking")}
@@ -357,6 +346,11 @@ const OperationsHub: React.FC = () => {
                 <Package className="w-4 h-4 mr-2" />
                 Asset Management
               </Button>
+
+              {/* Radio Console - Compact Popover */}
+              <div className="pt-4 border-t border-border">
+                <RadioPopover className="w-full" />
+              </div>
             </div>
 
             <div className="mt-8 pt-8 border-t border-border">
