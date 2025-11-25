@@ -1,0 +1,89 @@
+# ============================================================================
+# Fleet Management System - Azure DevOps CI/CD Pipeline
+# ============================================================================
+# Simple build and verify pipeline
+# ============================================================================
+
+trigger:
+  branches:
+    include:
+      - main
+      - develop
+  paths:
+    exclude:
+      - README.md
+      - docs/**
+      - '*.md'
+
+pr:
+  branches:
+    include:
+      - main
+      - develop
+
+variables:
+  nodeVersion: '20.x'
+  productionUrl: 'https://fleet.capitaltechalliance.com'
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+stages:
+  - stage: Build
+    displayName: 'Build & Verify'
+    jobs:
+      - job: BuildJob
+        displayName: 'Build Application'
+        steps:
+          - checkout: self
+            clean: true
+
+          - task: NodeTool@0
+            displayName: 'Install Node.js'
+            inputs:
+              versionSpec: $(nodeVersion)
+
+          - script: npm ci
+            displayName: 'Install Dependencies'
+
+          - script: npx vite build
+            displayName: 'Build Frontend'
+
+          - script: |
+              if [ -d "dist" ]; then
+                echo "Build successful - dist folder exists"
+                ls -la dist/
+              else
+                echo "Warning: dist folder not found"
+              fi
+            displayName: 'Verify Build'
+
+          - task: PublishPipelineArtifact@1
+            displayName: 'Publish Artifacts'
+            inputs:
+              targetPath: 'dist'
+              artifact: 'frontend-build'
+            condition: succeededOrFailed()
+
+  - stage: Verify
+    displayName: 'Verify Deployment'
+    dependsOn: Build
+    condition: succeeded()
+    jobs:
+      - job: HealthCheck
+        displayName: 'Health Check'
+        steps:
+          - script: |
+              echo "Checking production health..."
+              HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" $(productionUrl)/api/health || echo "000")
+              echo "API Health: HTTP $HTTP_CODE"
+
+              FRONTEND_CODE=$(curl -s -o /dev/null -w "%{http_code}" $(productionUrl)/ || echo "000")
+              echo "Frontend: HTTP $FRONTEND_CODE"
+
+              if [ "$HTTP_CODE" = "200" ] && [ "$FRONTEND_CODE" = "200" ]; then
+                echo "Production is healthy!"
+              else
+                echo "Warning: Production may have issues"
+              fi
+            displayName: 'Check Production Health'

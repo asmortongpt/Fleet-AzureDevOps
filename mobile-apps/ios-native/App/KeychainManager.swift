@@ -26,6 +26,21 @@ class KeychainManager {
         case userId = "user_id"
         case tokenExpiry = "token_expiry"
         case biometricEnabled = "biometric_enabled"
+        // Map Provider API Keys
+        case mapGoogleAPIKey = "map_api_key_google"
+        case mapMapboxAPIKey = "map_api_key_mapbox"
+
+        // Allow dynamic keys for map providers
+        static func mapAPIKey(for provider: String) -> KeychainKey? {
+            switch provider {
+            case "google":
+                return .mapGoogleAPIKey
+            case "mapbox":
+                return .mapMapboxAPIKey
+            default:
+                return nil
+            }
+        }
     }
 
     // MARK: - Error Types
@@ -306,5 +321,45 @@ extension KeychainManager {
         try delete(for: .tokenExpiry)
         try delete(for: .userEmail)
         try delete(for: .userId)
+    }
+}
+
+// MARK: - Map Provider API Key Extension
+
+extension KeychainManager {
+
+    /// Save API key for a map provider
+    func saveMapAPIKey(_ key: String, for provider: String) throws {
+        guard let keychainKey = KeychainKey.mapAPIKey(for: provider) else {
+            throw KeychainError.invalidData
+        }
+        try save(key, for: keychainKey)
+    }
+
+    /// Retrieve API key for a map provider
+    func getMapAPIKey(for provider: String) async throws -> String? {
+        guard let keychainKey = KeychainKey.mapAPIKey(for: provider) else {
+            return nil
+        }
+
+        do {
+            return try await retrieve(for: keychainKey)
+        } catch KeychainError.itemNotFound {
+            return nil
+        }
+    }
+
+    /// Delete API key for a map provider
+    func deleteMapAPIKey(for provider: String) throws {
+        guard let keychainKey = KeychainKey.mapAPIKey(for: provider) else {
+            return
+        }
+        try delete(for: keychainKey)
+    }
+
+    /// Clear all map API keys
+    func clearAllMapAPIKeys() throws {
+        try? delete(for: .mapGoogleAPIKey)
+        try? delete(for: .mapMapboxAPIKey)
     }
 }
