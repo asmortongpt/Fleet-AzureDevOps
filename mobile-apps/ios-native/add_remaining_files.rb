@@ -9,18 +9,16 @@ project = Xcodeproj::Project.open(project_path)
 target = project.targets.first
 puts "Target: #{target.name}"
 
-# Files to add with their paths relative to the project
+# Additional files to add
 files_to_add = [
-  'App/ViewModels/BaseViewModel.swift',
-  'App/Models/DateRange.swift',
-  'App/MockDataGenerator.swift',
-  'App/CameraView.swift',
-  'App/VideoCaptureView.swift',
-  'App/LiDARScannerView.swift',
-  'App/MultipleImagePicker.swift'
+  'App/Models/Schedule/ScheduleModels.swift',
+  'App/Models/Checklist/ChecklistModels.swift',
+  'App/Models/FuelModels.swift',
+  'App/Services/ScheduleService.swift',
+  'App/Services/ChecklistService.swift'
 ]
 
-# Get the main group (usually the project root)
+# Get the main group
 main_group = project.main_group
 
 puts "\nAdding files to project..."
