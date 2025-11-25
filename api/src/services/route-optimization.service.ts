@@ -690,7 +690,7 @@ export async function getOptimizationJob(
   tenantId: number
 ): Promise<any> {
   const result = await pool.query(
-    `SELECT * FROM route_optimization_jobs
+    `SELECT id, tenant_id, job_name, job_status, result_data, created_at, updated_at FROM route_optimization_jobs
      WHERE id = $1 AND tenant_id = $2`,
     [jobId, tenantId]
   )

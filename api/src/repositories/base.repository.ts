@@ -9,6 +9,7 @@
 
 import { Pool, PoolClient, QueryResult } from 'pg';
 import { logger } from '../utils/logger';
+import { getTableColumns, buildSelectQuery } from '../utils/column-resolver';
 
 /**
  * Base filter interface for queries
@@ -279,8 +280,10 @@ export abstract class BaseRepository<T> implements IRepository<T> {
   // ============================================
 
   async findById(id: string, tenantId: string): Promise<T | null> {
+    const columns = await getTableColumns(this.pool, this.tableName);
+    const columnList = columns.join(', ');
     const query = `
-      SELECT * FROM ${this.tableName}
+      SELECT ${columnList} FROM ${this.tableName}
       ${this.buildWhereClause(tenantId, [`${this.idColumn} = $2`])}
     `;
 
@@ -289,8 +292,10 @@ export abstract class BaseRepository<T> implements IRepository<T> {
   }
 
   async findAll(tenantId: string, filters?: BaseFilter): Promise<T[]> {
+    const columns = await getTableColumns(this.pool, this.tableName);
+    const columnList = columns.join(', ');
     const query = `
-      SELECT * FROM ${this.tableName}
+      SELECT ${columnList} FROM ${this.tableName}
       ${this.buildWhereClause(tenantId)}
       ${this.buildOrderClause(filters)}
       ${this.buildLimitClause(filters)}
@@ -307,6 +312,8 @@ export abstract class BaseRepository<T> implements IRepository<T> {
     filters?: BaseFilter
   ): Promise<PaginatedResult<T>> {
     const offset = (page - 1) * pageSize;
+    const columns = await getTableColumns(this.pool, this.tableName);
+    const columnList = columns.join(', ');
 
     // Get total count
     const countQuery = `
@@ -318,7 +325,7 @@ export abstract class BaseRepository<T> implements IRepository<T> {
 
     // Get paginated data
     const dataQuery = `
-      SELECT * FROM ${this.tableName}
+      SELECT ${columnList} FROM ${this.tableName}
       ${this.buildWhereClause(tenantId)}
       ${this.buildOrderClause(filters)}
       LIMIT ${pageSize} OFFSET ${offset}
@@ -337,9 +344,11 @@ export abstract class BaseRepository<T> implements IRepository<T> {
   async findOne(tenantId: string, filters: Partial<T>): Promise<T | null> {
     const filterKeys = Object.keys(filters);
     const conditions = filterKeys.map((key, idx) => `${key} = $${idx + 2}`);
+    const columns = await getTableColumns(this.pool, this.tableName);
+    const columnList = columns.join(', ');
 
     const query = `
-      SELECT * FROM ${this.tableName}
+      SELECT ${columnList} FROM ${this.tableName}
       ${this.buildWhereClause(tenantId, conditions)}
       LIMIT 1
     `;

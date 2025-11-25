@@ -157,8 +157,9 @@ export class WorkOrderRepository extends BaseRepository<WorkOrder> {
     const total = parseInt(countResult.rows[0].count, 10);
 
     // Get paginated data
+    const columns = 'id, tenant_id, vehicle_id, type, priority, description, estimated_cost, actual_cost, status, created_at, updated_at, deleted_at, metadata, created_by, assigned_to';
     const dataQuery = `
-      SELECT * FROM ${this.tableName}
+      SELECT ${columns} FROM ${this.tableName}
       ${whereClause}
       ORDER BY created_at DESC
       LIMIT ${limit} OFFSET ${offset}
@@ -238,8 +239,9 @@ export class WorkOrderRepository extends BaseRepository<WorkOrder> {
    * Find active work orders (open or in progress)
    */
   async findActive(tenantId: string): Promise<WorkOrder[]> {
+    const columns = 'id, tenant_id, vehicle_id, type, priority, description, estimated_cost, actual_cost, status, created_at, updated_at, deleted_at, metadata, created_by, assigned_to';
     const query = `
-      SELECT * FROM ${this.tableName}
+      SELECT ${columns} FROM ${this.tableName}
       WHERE tenant_id = $1
         AND status IN ('open', 'in_progress')
         AND deleted_at IS NULL
@@ -254,8 +256,9 @@ export class WorkOrderRepository extends BaseRepository<WorkOrder> {
    * Find overdue work orders
    */
   async findOverdue(tenantId: string): Promise<WorkOrder[]> {
+    const columns = 'id, tenant_id, vehicle_id, type, priority, description, estimated_cost, actual_cost, status, created_at, updated_at, deleted_at, metadata, created_by, assigned_to';
     const query = `
-      SELECT * FROM ${this.tableName}
+      SELECT ${columns} FROM ${this.tableName}
       WHERE tenant_id = $1
         AND status IN ('open', 'in_progress')
         AND scheduled_end_date < NOW()
@@ -439,7 +442,29 @@ export class WorkOrderRepository extends BaseRepository<WorkOrder> {
       WHERE tenant_id = $1 AND deleted_at IS NULL
     `;
 
-    const result = await this.query(query, [tenantId]);
+    interface WorkOrderStatsRow {
+      total: string
+      status_open: string
+      status_in_progress: string
+      status_completed: string
+      status_cancelled: string
+      status_on_hold: string
+      priority_low: string
+      priority_medium: string
+      priority_high: string
+      priority_critical: string
+      type_repair: string
+      type_maintenance: string
+      type_inspection: string
+      type_modification: string
+      type_other: string
+      overdue_count: string
+      active_count: string
+      avg_completion_days: string
+      total_cost: string
+    }
+
+    const result = await this.query<WorkOrderStatsRow>(query, [tenantId]);
     const row = result.rows[0];
 
     return {
@@ -494,8 +519,9 @@ export class WorkOrderRepository extends BaseRepository<WorkOrder> {
     minCost: number,
     maxCost: number
   ): Promise<WorkOrder[]> {
+    const columns = 'id, tenant_id, vehicle_id, type, priority, description, estimated_cost, actual_cost, status, created_at, updated_at, deleted_at, metadata, created_by, assigned_to';
     const query = `
-      SELECT * FROM ${this.tableName}
+      SELECT ${columns} FROM ${this.tableName}
       WHERE tenant_id = $1
         AND actual_cost BETWEEN $2 AND $3
         AND deleted_at IS NULL

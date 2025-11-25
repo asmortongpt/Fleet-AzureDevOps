@@ -26,7 +26,7 @@
  * ```
  */
 
-import { useEffect, useRef, useState, useCallback, useMemo } from "react"
+import { useEffect, useRef, useState, useCallback } from "react"
 import { Vehicle, GISFacility, TrafficCamera } from "@/lib/types"
 import { usePerformanceMonitor } from "@/hooks/usePerformanceMonitor"
 

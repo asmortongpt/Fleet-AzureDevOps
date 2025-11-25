@@ -152,12 +152,30 @@ class PushNotificationService {
   async registerDevice(deviceData: Omit<MobileDevice, 'id' | 'lastActive' | 'isActive'>): Promise<MobileDevice> {
     try {
       // Check if device already exists
+<<<<<<< HEAD
       const existing = await db.query(
         `SELECT id, user_id, tenant_id, device_token, platform, device_name,
                 device_model, os_version, app_version, last_active, is_active,
                 created_at, updated_at
          FROM mobile_devices
          WHERE device_token = $1 AND user_id = $2`,
+=======
+      const existing = await pool.query(
+        'SELECT 
+      id,
+      user_id,
+      tenant_id,
+      device_token,
+      platform,
+      device_name,
+      device_model,
+      os_version,
+      app_version,
+      last_active,
+      is_active,
+      created_at,
+      updated_at FROM mobile_devices WHERE device_token = $1 AND user_id = $2',
+>>>>>>> feature/devsecops-audit-remediation
         [deviceData.deviceToken, deviceData.userId]
       );
 
@@ -347,12 +365,17 @@ class PushNotificationService {
    */
   async processScheduledNotifications(): Promise<void> {
     try {
+<<<<<<< HEAD
       const result = await db.query(
         `SELECT id, tenant_id, notification_type, category, priority, title, message,
                 data_payload, action_buttons, image_url, sound, badge_count,
                 scheduled_for, delivery_status, total_recipients, delivered_count,
                 opened_count, clicked_count, failed_count, sent_at, created_by, created_at
          FROM push_notifications
+=======
+      const result = await pool.query(
+        `SELECT id, tenant_id, user_id, title, message, is_read, created_at FROM push_notifications
+>>>>>>> feature/devsecops-audit-remediation
          WHERE delivery_status = 'scheduled'
          AND scheduled_for <= CURRENT_TIMESTAMP
          ORDER BY scheduled_for ASC
@@ -544,11 +567,29 @@ class PushNotificationService {
    */
   async getTemplates(tenantId: string, category?: string) {
     try {
+<<<<<<< HEAD
       let query = `SELECT id, tenant_id, template_name, category, title_template,
                           message_template, data_payload_template, action_buttons,
                           priority, sound, is_active, created_at, updated_at
                    FROM push_notification_templates
                    WHERE tenant_id = $1 AND is_active = true`;
+=======
+      let query = 'SELECT 
+      id,
+      tenant_id,
+      template_name,
+      category,
+      title_template,
+      message_template,
+      data_payload_template,
+      action_buttons,
+      priority,
+      sound,
+      is_active,
+      created_by,
+      created_at,
+      updated_at FROM push_notification_templates WHERE tenant_id = $1 AND is_active = true';
+>>>>>>> feature/devsecops-audit-remediation
       const params: SqlParams = [tenantId];
 
       if (category) {
@@ -575,12 +616,31 @@ class PushNotificationService {
     variables: Record<string, any>
   ): Promise<PushNotification> {
     try {
+<<<<<<< HEAD
       const result = await db.query(
         `SELECT id, tenant_id, template_name, category, title_template,
                 message_template, data_payload_template, action_buttons,
                 priority, sound, is_active, created_at, updated_at
          FROM push_notification_templates
          WHERE tenant_id = $1 AND template_name = $2`,
+=======
+      const result = await pool.query(
+        'SELECT 
+      id,
+      tenant_id,
+      template_name,
+      category,
+      title_template,
+      message_template,
+      data_payload_template,
+      action_buttons,
+      priority,
+      sound,
+      is_active,
+      created_by,
+      created_at,
+      updated_at FROM push_notification_templates WHERE tenant_id = $1 AND template_name = $2',
+>>>>>>> feature/devsecops-audit-remediation
         [tenantId, templateName]
       );
 
@@ -623,12 +683,30 @@ class PushNotificationService {
       );
 
       // Get recipients
+<<<<<<< HEAD
       const recipientsResult = await db.query(
         `SELECT id, push_notification_id, user_id, device_id, device_token,
                 delivery_status, delivered_at, opened_at, clicked_at, action_taken,
                 error_message, created_at
          FROM push_notification_recipients
          WHERE push_notification_id = $1`,
+=======
+      const recipientsResult = await pool.query(
+        'SELECT 
+      id,
+      push_notification_id,
+      user_id,
+      device_id,
+      device_token,
+      delivery_status,
+      error_message,
+      delivered_at,
+      opened_at,
+      clicked_at,
+      action_taken,
+      created_at,
+      updated_at FROM push_notification_recipients WHERE push_notification_id = $1',
+>>>>>>> feature/devsecops-audit-remediation
         [notification.id]
       );
 

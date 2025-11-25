@@ -20,9 +20,10 @@ declare global {
       user?: {
         id: string
         email: string
+        role: string
+        tenant_id: string
         name?: string
-        role?: string
-        tenantId?: string
+        tenantId?: string  // Deprecated: use tenant_id
         permissions?: string[]
       }
 
@@ -67,9 +68,10 @@ declare module 'express-serve-static-core' {
     user?: {
       id: string
       email: string
+      role: string
+      tenant_id: string
       name?: string
-      role?: string
-      tenantId?: string
+      tenantId?: string  // Deprecated: use tenant_id
       permissions?: string[]
     }
     csrfToken?: () => string
