@@ -117,8 +117,7 @@ const AIAssistant: React.FC = () => {
   })
 
   // Fetch workflows using TanStack Query
-  const { data: workflows = [], isLoading: workflowsLoading, error: workflowsError } = useQuery({
-    queryKey: ['workflows'],
+  const { data: workflows = [], isLoading: workflowsLoading, error: workflowsError } = useQuery({    queryKey: ['workflows'],
     queryFn: async () => {
       const response = await axios.get('/api/langchain/workflows', {
         headers: getAuthHeader()
@@ -394,8 +393,7 @@ You can chat with me naturally, or run structured workflows for complex tasks. H
         {/* Main Chat Area */}
         <Grid item xs={12} md={8} sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
           <Paper sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', height: '100%' }}>
-            <Tabs value={activeTab} onChange={(e, v) => setActiveTab(v)} sx={{ borderBottom: 1, borderColor: 'divider' }}>
-              <Tab label="Chat" />
+            <Tabs value={ activeTab } onChange={(e, v) => setActiveTab(v)} sx={{ borderBottom: 1, borderColor: 'divider' }}>              <Tab label="Chat" />
               <Tab label="Workflows" />
             </Tabs>
 

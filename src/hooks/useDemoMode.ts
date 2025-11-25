@@ -1,8 +1,7 @@
 // Demo Mode Hook
 // Manages demo mode state, role switching, and demo user profiles
 
-import { useState, useEffect, useCallback } from 'react';
-import { useAuth } from './useAuth';
+import { useState, useCallback } from 'react';import { useAuth } from './useAuth';
 import logger from '@/utils/logger'
 
 export type UserRole =

@@ -8,7 +8,6 @@ import { Send, Sparkles, FileText, Loader2, Copy, ThumbsUp, ThumbsDown } from 'l
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { ChatMessage, DocumentMetadata } from '@/lib/documents/types';
 

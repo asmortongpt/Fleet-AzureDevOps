@@ -1,7 +1,6 @@
 // Auth Provider Component
 // Wraps the application and provides authentication context
 
-import React, { useEffect } from 'react';
 import { AuthContext, useAuthProvider } from '../../hooks/useAuth';
 
 interface AuthProviderProps {
