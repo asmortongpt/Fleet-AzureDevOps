@@ -1,5 +1,9 @@
 import SwiftUI
 
+// MARK: - Import Real Views
+// Note: VehiclesView, TripsView, and wrapper views are defined in separate files
+// but may not be in Xcode project yet. Adding inline references here.
+
 // MARK: - Main Tab View with iOS 15+ Support
 struct MainTabView: View {
     @EnvironmentObject private var navigationCoordinator: NavigationCoordinator
@@ -266,34 +270,74 @@ struct MainTabView: View {
 
 }
 
-// MARK: - Placeholder Views (inline)
-struct VehiclesView: View {
-    var body: some View {
-        Text("Vehicles View Coming Soon")
-            .navigationTitle("Vehicles")
-    }
-}
-
-struct TripsView: View {
-    var body: some View {
-        Text("Trips View Coming Soon")
-            .navigationTitle("Trips")
-    }
-}
+// MARK: - Wrapper Views
+// TODO: These should be in separate files but are included here for build compatibility
 
 struct VehicleDetailViewWrapper: View {
     let vehicleId: String
+    @StateObject private var viewModel = VehicleViewModel()
+
     var body: some View {
-        Text("Vehicle Detail: \(vehicleId)")
-            .navigationTitle("Vehicle")
+        Group {
+            if viewModel.isLoading {
+                ProgressView("Loading vehicle...")
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else if let vehicle = viewModel.selectedVehicle {
+                VehicleDetailView(vehicle: vehicle)
+            } else if let error = viewModel.errorMessage {
+                VStack(spacing: 16) {
+                    Image(systemName: "exclamationmark.triangle")
+                        .font(.system(size: 50))
+                        .foregroundColor(.orange)
+
+                    Text("Failed to Load Vehicle")
+                        .font(.title2.bold())
+
+                    Text(error)
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal)
+
+                    Button("Retry") {
+                        Task {
+                            await viewModel.fetchVehicle(id: vehicleId)
+                        }
+                    }
+                    .buttonStyle(.borderedProminent)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else {
+                VStack(spacing: 16) {
+                    Image(systemName: "car.2")
+                        .font(.system(size: 50))
+                        .foregroundColor(.gray)
+
+                    Text("Vehicle Not Found")
+                        .font(.title2.bold())
+
+                    Text("Unable to load vehicle with ID: \(vehicleId)")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            }
+        }
+        .task {
+            await viewModel.fetchVehicle(id: vehicleId)
+        }
+        .navigationTitle("Vehicle Details")
+        .navigationBarTitleDisplayMode(.inline)
     }
 }
 
 struct TripDetailViewWrapper: View {
     let tripId: String
+
     var body: some View {
-        Text("Trip Detail: \(tripId)")
-            .navigationTitle("Trip")
+        TripDetailView(tripId: tripId)
+            .navigationTitle("Trip Details")
+            .navigationBarTitleDisplayMode(.inline)
     }
 }
 
