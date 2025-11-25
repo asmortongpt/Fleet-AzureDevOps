@@ -1,10 +1,6 @@
-<<<<<<< HEAD
 import React, { useState } from 'react';
 import { AlertCircle, CheckCircle, DollarSign, Calendar, MapPin, Camera } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
-=======
-import React, { useState } from 'react';import { AlertCircle, CheckCircle, CurrencyDollar, MapPin, Camera } from 'lucide-react';import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
->>>>>>> feature/devsecops-audit-remediation
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
 import { Alert, AlertDescription } from '../ui/alert';
