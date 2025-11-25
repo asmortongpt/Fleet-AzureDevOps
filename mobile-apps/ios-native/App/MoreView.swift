@@ -189,6 +189,21 @@ struct MoreView: View {
 
                 // Analytics Section
                 Section(header: Text("Analytics")) {
+                    NavigationLink(destination: BenchmarkingView()) {
+                        HStack {
+                            Image(systemName: "chart.bar.doc.horizontal")
+                                .foregroundColor(.indigo)
+                                .frame(width: 30)
+                            VStack(alignment: .leading) {
+                                Text("Benchmarking")
+                                    .font(.body)
+                                Text("Compare performance against industry standards")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                    }
+
                     NavigationLink(destination: PredictiveAnalyticsView()) {
                         HStack {
                             Image(systemName: "wand.and.stars")
