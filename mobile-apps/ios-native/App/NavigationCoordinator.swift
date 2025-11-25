@@ -293,6 +293,10 @@ enum NavigationDestination: Hashable, Identifiable {
     case vehicleHealthDetail(vehicleId: String)
     case telemetryHistory(vehicleId: String)
 
+    // Predictive Analytics destinations
+    case predictiveAnalytics
+    case predictionDetail(id: String)
+
     var id: String {
         switch self {
         case .vehicleDetail(let id):
@@ -403,6 +407,10 @@ enum NavigationDestination: Hashable, Identifiable {
             return "shift-swaps"
         case .shiftReport:
             return "shift-report"
+        case .predictiveAnalytics:
+            return "predictive-analytics"
+        case .predictionDetail(let id):
+            return "prediction-detail-\(id)"
         }
     }
 }

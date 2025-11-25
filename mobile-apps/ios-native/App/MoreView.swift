@@ -157,6 +157,21 @@ struct MoreView: View {
 
                 // Analytics Section
                 Section(header: Text("Analytics")) {
+                    NavigationLink(destination: PredictiveAnalyticsView()) {
+                        HStack {
+                            Image(systemName: "wand.and.stars")
+                                .foregroundColor(.purple)
+                                .frame(width: 30)
+                            VStack(alignment: .leading) {
+                                Text("Predictive Analytics")
+                                    .font(.body)
+                                Text("AI-powered predictions and insights")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                    }
+
                     NavigationLink(destination: TripAnalyticsView()) {
                         HStack {
                             Image(systemName: "chart.xyaxis.line")
