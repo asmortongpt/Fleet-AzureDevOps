@@ -464,6 +464,7 @@ struct MapNavigationView: View {
     }
 
     // MARK: - Helper Functions
+    @available(iOS 17.0, *)
     private func mapStyleFromType(_ type: MKMapType) -> MapStyle {
         switch type {
         case .satellite:

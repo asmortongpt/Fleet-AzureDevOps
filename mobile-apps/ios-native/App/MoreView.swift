@@ -154,7 +154,7 @@ struct MoreView: View {
                     }
 
                     // Checklists - Always visible (internal feature)
-                    NavigationLink(destination: ChecklistManagementView()) {
+                    NavigationLink(destination: Text("Checklists - Coming Soon")) {
                         HStack {
                             Image(systemName: "checklist")
                                 .foregroundColor(.purple)

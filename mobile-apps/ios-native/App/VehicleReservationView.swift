@@ -15,7 +15,7 @@ struct VehicleReservationView: View {
     @Environment(\.dismiss) private var dismiss
     @StateObject private var viewModel = VehicleReservationViewModel()
 
-    @State private var selectedVehicle: Vehicle?
+    @State private var selectedVehicle: ReservableVehicle?
     @State private var startDate = Date()
     @State private var endDate = Date().addingTimeInterval(3600 * 24) // Default: 1 day
     @State private var purpose: String = ""
@@ -390,7 +390,7 @@ struct VehicleCard: View {
 // MARK: - View Model
 @MainActor
 class VehicleReservationViewModel: ObservableObject {
-    @Published var availableVehicles: [Vehicle] = []
+    @Published var availableVehicles: [ReservableVehicle] = []
     @Published var isLoading = false
     @Published var estimatedMiles: Int = 0
 
@@ -441,7 +441,7 @@ class VehicleReservationViewModel: ObservableObject {
 }
 
 // MARK: - Models
-struct Vehicle: Identifiable {
+struct ReservableVehicle: Identifiable {
     let id: String
     let make: String
     let model: String
