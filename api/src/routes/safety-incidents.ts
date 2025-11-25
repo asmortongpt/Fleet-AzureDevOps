@@ -88,7 +88,7 @@ router.post(
          WHERE tenant_id = $1',
         [req.user!.tenant_id]
       )
-      const incidentNumber = 'INC-${String(incidentNumberResult.rows[0].next_num).padStart(6, '0')}`
+      const incidentNumber = 'INC-${String(incidentNumberResult.rows[0].next_num).padStart(6, '0')}'
 
       const { columnNames, placeholders, values } = buildInsertClause(
         data,

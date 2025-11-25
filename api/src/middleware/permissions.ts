@@ -324,7 +324,7 @@ export function validateScope(resourceType: 'vehicle' | 'driver' | 'work_order' 
 
         // Return 404 instead of 403 to prevent information disclosure
         // (don't reveal that the resource exists)
-        return res.status(404).json({ error: '${resourceType.charAt(0).toUpperCase() + resourceType.slice(1).replace('_', ' ')} not found` })
+        return res.status(404).json({ error: '${resourceType.charAt(0).toUpperCase() + resourceType.slice(1).replace('_', ' ')} not found' })
       }
 
       next()
@@ -514,7 +514,7 @@ export function requireVehicleStatus(...allowedStatuses: string[]) {
 
       if (!allowedStatuses.includes(status)) {
         return res.status(400).json({
-          error: 'Operation not allowed for vehicle status '${status}'`,
+          error: 'Operation not allowed for vehicle status '${status}'',
           allowed_statuses: allowedStatuses
         })
       }

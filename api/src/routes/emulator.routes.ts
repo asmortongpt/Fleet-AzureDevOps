@@ -203,7 +203,7 @@ router.post('/scenario/:scenarioId', async (req: Request, res: Response) => {
 
     res.json({
       success: true,
-      message: 'Scenario '${scenarioId}' started successfully`,
+      message: 'Scenario '${scenarioId}' started successfully',
       data: orch.getStatus()
     })
   } catch (error: any) {

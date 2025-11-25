@@ -351,7 +351,7 @@ export class QueryPerformanceService extends EventEmitter {
    */
   setEnabled(enabled: boolean): void {
     this.enabled = enabled
-    console.log(`Query performance monitoring ${enabled ? 'enabled' : 'disabled'}`)
+    console.log('Query performance monitoring ${enabled ? 'enabled' : 'disabled'}')
   }
 
   /**

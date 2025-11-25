@@ -168,64 +168,64 @@ async function analyzeEdgeCases(): Promise<EdgeCaseGap[]> {
   // Define edge cases to check
   const edgeCaseChecks = [
     // Vehicles
-    { table: 'vehicles', category: 'boundary', description: 'Vehicle with 0 miles', query: `SELECT EXISTS(SELECT 1 FROM vehicles WHERE current_mileage = 0)` },
-    { table: 'vehicles', category: 'boundary', description: 'Vehicle with >999,999 miles', query: `SELECT EXISTS(SELECT 1 FROM vehicles WHERE current_mileage > 999999)` },
-    { table: 'vehicles', category: 'null', description: 'Vehicle with NULL license plate', query: `SELECT EXISTS(SELECT 1 FROM vehicles WHERE license_plate IS NULL)` },
-    { table: 'vehicles', category: 'edge', description: 'Electric vehicle with 0% battery', query: 'SELECT EXISTS(SELECT 1 FROM vehicles WHERE fuel_type = 'Electric' AND battery_level = 0)` },
-    { table: 'vehicles', category: 'edge', description: 'Vehicle with expired registration', query: `SELECT EXISTS(SELECT 1 FROM vehicles WHERE registration_expiry < CURRENT_DATE)` },
+    { table: 'vehicles', category: 'boundary', description: 'Vehicle with 0 miles', query: 'SELECT EXISTS(SELECT 1 FROM vehicles WHERE current_mileage = 0)` },
+    { table: 'vehicles', category: 'boundary', description: 'Vehicle with >999,999 miles', query: 'SELECT EXISTS(SELECT 1 FROM vehicles WHERE current_mileage > 999999)` },
+    { table: 'vehicles', category: 'null', description: 'Vehicle with NULL license plate', query: 'SELECT EXISTS(SELECT 1 FROM vehicles WHERE license_plate IS NULL)` },
+    { table: 'vehicles', category: 'edge', description: 'Electric vehicle with 0% battery', query: 'SELECT EXISTS(SELECT 1 FROM vehicles WHERE fuel_type = 'Electric' AND battery_level = 0)' },
+    { table: 'vehicles', category: 'edge', description: 'Vehicle with expired registration', query: 'SELECT EXISTS(SELECT 1 FROM vehicles WHERE registration_expiry < CURRENT_DATE)` },
 
     // Drivers
-    { table: 'drivers', category: 'edge', description: 'Driver with expired license', query: `SELECT EXISTS(SELECT 1 FROM drivers WHERE license_expiry < CURRENT_DATE)` },
-    { table: 'drivers', category: 'edge', description: 'Driver with no certifications', query: 'SELECT EXISTS(SELECT 1 FROM drivers WHERE (certifications IS NULL OR certifications = '[]'::jsonb))` },
-    { table: 'drivers', category: 'status', description: 'Driver on leave', query: 'SELECT EXISTS(SELECT 1 FROM drivers WHERE status = 'on_leave')` },
-    { table: 'drivers', category: 'status', description: 'Suspended driver', query: 'SELECT EXISTS(SELECT 1 FROM drivers WHERE status = 'suspended')` },
+    { table: 'drivers', category: 'edge', description: 'Driver with expired license', query: 'SELECT EXISTS(SELECT 1 FROM drivers WHERE license_expiry < CURRENT_DATE)` },
+    { table: 'drivers', category: 'edge', description: 'Driver with no certifications', query: 'SELECT EXISTS(SELECT 1 FROM drivers WHERE (certifications IS NULL OR certifications = '[]'::jsonb))' },
+    { table: 'drivers', category: 'status', description: 'Driver on leave', query: 'SELECT EXISTS(SELECT 1 FROM drivers WHERE status = 'on_leave')' },
+    { table: 'drivers', category: 'status', description: 'Suspended driver', query: 'SELECT EXISTS(SELECT 1 FROM drivers WHERE status = 'suspended')' },
 
     // Work Orders
-    { table: 'work_orders', category: 'boundary', description: 'Work order with $0 cost', query: `SELECT EXISTS(SELECT 1 FROM work_orders WHERE total_cost = 0)` },
-    { table: 'work_orders', category: 'boundary', description: 'Work order with >$100,000 cost', query: `SELECT EXISTS(SELECT 1 FROM work_orders WHERE total_cost > 100000)` },
-    { table: 'work_orders', category: 'time', description: 'Work order open >365 days', query: 'SELECT EXISTS(SELECT 1 FROM work_orders WHERE status IN ('open', 'in_progress') AND created_at < CURRENT_DATE - INTERVAL '365 days')` },
-    { table: 'work_orders', category: 'time', description: 'Work order completed same day', query: `SELECT EXISTS(SELECT 1 FROM work_orders WHERE DATE(created_at) = DATE(completed_at))` },
-    { table: 'work_orders', category: 'status', description: 'Cancelled work order', query: 'SELECT EXISTS(SELECT 1 FROM work_orders WHERE status = 'cancelled')` },
-    { table: 'work_orders', category: 'status', description: 'On hold work order', query: 'SELECT EXISTS(SELECT 1 FROM work_orders WHERE status = 'on_hold')` },
+    { table: 'work_orders', category: 'boundary', description: 'Work order with $0 cost', query: 'SELECT EXISTS(SELECT 1 FROM work_orders WHERE total_cost = 0)` },
+    { table: 'work_orders', category: 'boundary', description: 'Work order with >$100,000 cost', query: 'SELECT EXISTS(SELECT 1 FROM work_orders WHERE total_cost > 100000)` },
+    { table: 'work_orders', category: 'time', description: 'Work order open >365 days', query: 'SELECT EXISTS(SELECT 1 FROM work_orders WHERE status IN ('open', 'in_progress') AND created_at < CURRENT_DATE - INTERVAL '365 days')' },
+    { table: 'work_orders', category: 'time', description: 'Work order completed same day', query: 'SELECT EXISTS(SELECT 1 FROM work_orders WHERE DATE(created_at) = DATE(completed_at))` },
+    { table: 'work_orders', category: 'status', description: 'Cancelled work order', query: 'SELECT EXISTS(SELECT 1 FROM work_orders WHERE status = 'cancelled')' },
+    { table: 'work_orders', category: 'status', description: 'On hold work order', query: 'SELECT EXISTS(SELECT 1 FROM work_orders WHERE status = 'on_hold')' },
 
     // Routes
-    { table: 'routes', category: 'boundary', description: 'Route with 0 miles', query: `SELECT EXISTS(SELECT 1 FROM routes WHERE distance_miles = 0)` },
-    { table: 'routes', category: 'status', description: 'Failed route', query: 'SELECT EXISTS(SELECT 1 FROM routes WHERE status = 'failed')` },
-    { table: 'routes', category: 'status', description: 'Delayed route', query: 'SELECT EXISTS(SELECT 1 FROM routes WHERE status = 'delayed')` },
-    { table: 'routes', category: 'edge', description: 'Multi-day route', query: 'SELECT EXISTS(SELECT 1 FROM routes WHERE end_time > start_time + INTERVAL '24 hours')` },
+    { table: 'routes', category: 'boundary', description: 'Route with 0 miles', query: 'SELECT EXISTS(SELECT 1 FROM routes WHERE distance_miles = 0)` },
+    { table: 'routes', category: 'status', description: 'Failed route', query: 'SELECT EXISTS(SELECT 1 FROM routes WHERE status = 'failed')' },
+    { table: 'routes', category: 'status', description: 'Delayed route', query: 'SELECT EXISTS(SELECT 1 FROM routes WHERE status = 'delayed')' },
+    { table: 'routes', category: 'edge', description: 'Multi-day route', query: 'SELECT EXISTS(SELECT 1 FROM routes WHERE end_time > start_time + INTERVAL '24 hours')' },
 
     // Maintenance
-    { table: 'maintenance_schedules', category: 'time', description: 'Overdue maintenance (1+ days)', query: 'SELECT EXISTS(SELECT 1 FROM maintenance_schedules WHERE status = 'overdue' AND next_due_date < CURRENT_DATE)` },
-    { table: 'maintenance_schedules', category: 'time', description: 'Maintenance overdue >365 days', query: 'SELECT EXISTS(SELECT 1 FROM maintenance_schedules WHERE status = 'overdue' AND next_due_date < CURRENT_DATE - INTERVAL '365 days')` },
-    { table: 'maintenance_schedules', category: 'status', description: 'Skipped maintenance', query: 'SELECT EXISTS(SELECT 1 FROM maintenance_schedules WHERE status = 'skipped')` },
+    { table: 'maintenance_schedules', category: 'time', description: 'Overdue maintenance (1+ days)', query: 'SELECT EXISTS(SELECT 1 FROM maintenance_schedules WHERE status = 'overdue' AND next_due_date < CURRENT_DATE)' },
+    { table: 'maintenance_schedules', category: 'time', description: 'Maintenance overdue >365 days', query: 'SELECT EXISTS(SELECT 1 FROM maintenance_schedules WHERE status = 'overdue' AND next_due_date < CURRENT_DATE - INTERVAL '365 days')' },
+    { table: 'maintenance_schedules', category: 'status', description: 'Skipped maintenance', query: 'SELECT EXISTS(SELECT 1 FROM maintenance_schedules WHERE status = 'skipped')' },
 
     // Inspections
-    { table: 'inspections', category: 'status', description: 'Failed inspection', query: 'SELECT EXISTS(SELECT 1 FROM inspections WHERE status = 'failed')` },
-    { table: 'inspections', category: 'type', description: 'DOT inspection', query: 'SELECT EXISTS(SELECT 1 FROM inspections WHERE inspection_type = 'dot')` },
-    { table: 'inspections', category: 'type', description: 'Emissions inspection', query: 'SELECT EXISTS(SELECT 1 FROM inspections WHERE inspection_type = 'emissions')` },
+    { table: 'inspections', category: 'status', description: 'Failed inspection', query: 'SELECT EXISTS(SELECT 1 FROM inspections WHERE status = 'failed')' },
+    { table: 'inspections', category: 'type', description: 'DOT inspection', query: 'SELECT EXISTS(SELECT 1 FROM inspections WHERE inspection_type = 'dot')' },
+    { table: 'inspections', category: 'type', description: 'Emissions inspection', query: 'SELECT EXISTS(SELECT 1 FROM inspections WHERE inspection_type = 'emissions')' },
 
     // Fuel
-    { table: 'fuel_transactions', category: 'boundary', description: 'Fuel purchase $0', query: `SELECT EXISTS(SELECT 1 FROM fuel_transactions WHERE cost = 0)` },
-    { table: 'fuel_transactions', category: 'boundary', description: 'Fuel purchase >$5000', query: `SELECT EXISTS(SELECT 1 FROM fuel_transactions WHERE cost > 5000)` },
-    { table: 'fuel_transactions', category: 'edge', description: 'Multiple transactions same day', query: `SELECT EXISTS(SELECT 1 FROM (SELECT vehicle_id, DATE(transaction_date) as date FROM fuel_transactions GROUP BY vehicle_id, DATE(transaction_date) HAVING COUNT(*) > 1) sub)` },
+    { table: 'fuel_transactions', category: 'boundary', description: 'Fuel purchase $0', query: 'SELECT EXISTS(SELECT 1 FROM fuel_transactions WHERE cost = 0)` },
+    { table: 'fuel_transactions', category: 'boundary', description: 'Fuel purchase >$5000', query: 'SELECT EXISTS(SELECT 1 FROM fuel_transactions WHERE cost > 5000)` },
+    { table: 'fuel_transactions', category: 'edge', description: 'Multiple transactions same day', query: 'SELECT EXISTS(SELECT 1 FROM (SELECT vehicle_id, DATE(transaction_date) as date FROM fuel_transactions GROUP BY vehicle_id, DATE(transaction_date) HAVING COUNT(*) > 1) sub)` },
 
     // Safety Incidents
-    { table: 'safety_incidents', category: 'severity', description: 'Fatal incident', query: 'SELECT EXISTS(SELECT 1 FROM safety_incidents WHERE severity = 'fatal')` },
-    { table: 'safety_incidents', category: 'type', description: 'Near miss incident', query: 'SELECT EXISTS(SELECT 1 FROM safety_incidents WHERE incident_type = 'near_miss')` },
-    { table: 'safety_incidents', category: 'type', description: 'Environmental incident', query: 'SELECT EXISTS(SELECT 1 FROM safety_incidents WHERE incident_type = 'environmental')` },
+    { table: 'safety_incidents', category: 'severity', description: 'Fatal incident', query: 'SELECT EXISTS(SELECT 1 FROM safety_incidents WHERE severity = 'fatal')' },
+    { table: 'safety_incidents', category: 'type', description: 'Near miss incident', query: 'SELECT EXISTS(SELECT 1 FROM safety_incidents WHERE incident_type = 'near_miss')' },
+    { table: 'safety_incidents', category: 'type', description: 'Environmental incident', query: 'SELECT EXISTS(SELECT 1 FROM safety_incidents WHERE incident_type = 'environmental')' },
 
     // Charging
-    { table: 'charging_sessions', category: 'status', description: 'Interrupted charging session', query: 'SELECT EXISTS(SELECT 1 FROM charging_sessions WHERE status = 'interrupted')` },
-    { table: 'charging_sessions', category: 'status', description: 'Failed charging session', query: 'SELECT EXISTS(SELECT 1 FROM charging_sessions WHERE status = 'failed')` },
+    { table: 'charging_sessions', category: 'status', description: 'Interrupted charging session', query: 'SELECT EXISTS(SELECT 1 FROM charging_sessions WHERE status = 'interrupted')' },
+    { table: 'charging_sessions', category: 'status', description: 'Failed charging session', query: 'SELECT EXISTS(SELECT 1 FROM charging_sessions WHERE status = 'failed')' },
 
     // Notifications
-    { table: 'notifications', category: 'priority', description: 'Critical notification', query: 'SELECT EXISTS(SELECT 1 FROM notifications WHERE priority = 'critical')` },
-    { table: 'notifications', category: 'status', description: 'Acknowledged notification', query: 'SELECT EXISTS(SELECT 1 FROM notifications WHERE status = 'acknowledged')` },
+    { table: 'notifications', category: 'priority', description: 'Critical notification', query: 'SELECT EXISTS(SELECT 1 FROM notifications WHERE priority = 'critical')' },
+    { table: 'notifications', category: 'status', description: 'Acknowledged notification', query: 'SELECT EXISTS(SELECT 1 FROM notifications WHERE status = 'acknowledged')' },
 
     // Users
-    { table: 'users', category: 'role', description: 'Safety manager role', query: 'SELECT EXISTS(SELECT 1 FROM users WHERE role = 'safety_manager')` },
-    { table: 'users', category: 'role', description: 'Accountant role', query: 'SELECT EXISTS(SELECT 1 FROM users WHERE role = 'accountant')` },
-    { table: 'users', category: 'status', description: 'Suspended user', query: 'SELECT EXISTS(SELECT 1 FROM users WHERE status = 'suspended')` },
+    { table: 'users', category: 'role', description: 'Safety manager role', query: 'SELECT EXISTS(SELECT 1 FROM users WHERE role = 'safety_manager')' },
+    { table: 'users', category: 'role', description: 'Accountant role', query: 'SELECT EXISTS(SELECT 1 FROM users WHERE role = 'accountant')' },
+    { table: 'users', category: 'status', description: 'Suspended user', query: 'SELECT EXISTS(SELECT 1 FROM users WHERE status = 'suspended')' },
   ];
 
   for (const check of edgeCaseChecks) {
@@ -260,7 +260,7 @@ async function analyzeNullCoverage() {
       const result = await pool.query(`
         SELECT EXISTS(SELECT 1 FROM ${table} WHERE ${field} IS NULL) as has_null
       `);
-      console.log('${table}.${field}: ${result.rows[0].has_null ? '✓ HAS NULL' : '✗ NO NULL'}`);
+      console.log('${table}.${field}: ${result.rows[0].has_null ? '✓ HAS NULL' : '✗ NO NULL'}');
     } catch (error) {
       console.warn(`Could not check ${table}.${field}`);
     }
@@ -282,12 +282,12 @@ async function main() {
     for (const gap of enumGaps) {
       console.log(`\n${gap.table}.${gap.field}:`);
       if (gap.missing.length > 0) {
-        console.log('  ✗ MISSING: ${gap.missing.join(', ')}`);
+        console.log('  ✗ MISSING: ${gap.missing.join(', ')}');
       }
       if (gap.extra.length > 0) {
-        console.log('  ⚠ EXTRA (not in spec): ${gap.extra.join(', ')}`);
+        console.log('  ⚠ EXTRA (not in spec): ${gap.extra.join(', ')}');
       }
-      console.log('  ✓ PRESENT: ${gap.actual.filter(v => gap.expected.includes(v)).join(', ')}`);
+      console.log('  ✓ PRESENT: ${gap.actual.filter(v => gap.expected.includes(v)).join(', ')}');
     }
   }
 

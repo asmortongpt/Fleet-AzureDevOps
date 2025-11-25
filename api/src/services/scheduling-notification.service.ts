@@ -485,7 +485,7 @@ class SchedulingNotificationService {
         emailSubject: `New Vehicle Reservation Request - ${d.make} ${d.model}`,
         emailBody: this.renderEmailTemplate('reservation_request', d),
         smsText: `New reservation request for ${d.make} ${d.model} from ${d.reserved_by_name}. Approve/reject in Fleet app.`,
-        teamsMessage: `**New Reservation Request**\n\n**Vehicle:** ${d.make} ${d.model} (${d.license_plate})\n**Requested by:** ${d.reserved_by_name}\n**Period:** ${this.formatDateTime(d.start_time)} - ${this.formatDateTime(d.end_time)}\n**Purpose:** ${d.purpose || 'Not specified'}`
+        teamsMessage: '**New Reservation Request**\n\n**Vehicle:** ${d.make} ${d.model} (${d.license_plate})\n**Requested by:** ${d.reserved_by_name}\n**Period:** ${this.formatDateTime(d.start_time)} - ${this.formatDateTime(d.end_time)}\n**Purpose:** ${d.purpose || 'Not specified'}'
       }),
 
       reservation_approved: (d) => ({
@@ -505,8 +505,8 @@ class SchedulingNotificationService {
       reservation_reminder: (d) => ({
         emailSubject: `Reminder: Vehicle Reservation in ${d.hours_until} hour(s)`,
         emailBody: this.renderEmailTemplate('reservation_reminder', d),
-        smsText: `Reminder: Your reservation for ${d.make} ${d.model} starts in ${d.hours_until} hour(s) at ${d.pickup_location || 'facility'}`,
-        teamsMessage: `⏰ **Reservation Reminder**\n\n**Starting in:** ${d.hours_until} hour(s)\n**Vehicle:** ${d.make} ${d.model}\n**Location:** ${d.pickup_location || 'Facility'}`
+        smsText: 'Reminder: Your reservation for ${d.make} ${d.model} starts in ${d.hours_until} hour(s) at ${d.pickup_location || 'facility'}',
+        teamsMessage: '⏰ **Reservation Reminder**\n\n**Starting in:** ${d.hours_until} hour(s)\n**Vehicle:** ${d.make} ${d.model}\n**Location:** ${d.pickup_location || 'Facility'}'
       }),
 
       maintenance_reminder: (d) => ({
@@ -540,14 +540,14 @@ class SchedulingNotificationService {
     const fs = require('fs')
     const path = require('path')
 
-    const templatePath = path.join(__dirname, '../templates/scheduling', `${type}.html`)
+    const templatePath = path.join(__dirname, '../templates/scheduling', '${type}.html`)
 
     try {
       let template = fs.readFileSync(templatePath, 'utf8')
 
       // Replace variables
       for (const [key, value] of Object.entries(data)) {
-        const regex = new RegExp(`{{${key}}}`, 'g')
+        const regex = new RegExp('{{${key}}}', 'g')
         template = template.replace(regex, String(value || ''))
       }
 
@@ -672,7 +672,7 @@ class SchedulingNotificationService {
     const facts = []
 
     if (data.make && data.model) {
-      facts.push({ title: 'Vehicle', value: `${data.make} ${data.model}` })
+      facts.push({ title: 'Vehicle', value: '${data.make} ${data.model}` })
     }
     if (data.start_time) {
       facts.push({ title: 'Start Time', value: this.formatDateTime(data.start_time) })
@@ -831,7 +831,7 @@ class SchedulingNotificationService {
         await pool.query(
           `INSERT INTO communication_entity_links (
             communication_id, entity_type, entity_id, link_type
-          ) VALUES ($1, $2, $3, 'Primary Subject')`,
+          ) VALUES ($1, $2, $3, 'Primary Subject')',
           [communicationId, data.entityType, data.entityId]
         )
       }
@@ -872,7 +872,7 @@ class SchedulingNotificationService {
     const result = await pool.query(
       `SELECT id FROM scheduling_reminders_sent
        WHERE entity_id = $1 AND entity_type = $2 AND hours_before = $3
-       AND sent_at > NOW() - INTERVAL '2 hours'`,
+       AND sent_at > NOW() - INTERVAL '2 hours'',
       [entityId, entityType, hoursUntil]
     )
 

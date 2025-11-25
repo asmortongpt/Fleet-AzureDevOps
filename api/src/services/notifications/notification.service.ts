@@ -253,7 +253,7 @@ export class NotificationService {
     <div class="content">
       <p>Hi ${user.first_name},</p>
       <p>${notification.message}</p>
-      ${notification.actionUrl ? `<a href="${notification.actionUrl}" class="button">View Details</a>` : ''}
+      ${notification.actionUrl ? '<a href="${notification.actionUrl}" class="button">View Details</a>' : ''}
     </div>
     <div class="footer">
       <p>This is an automated notification from Fleet Management System.</p>
@@ -457,7 +457,7 @@ export class NotificationService {
   private replaceVariables(text: string, variables: Record<string, string>): string {
     let result = text
     for (const [key, value] of Object.entries(variables)) {
-      result = result.replace(new RegExp(`{{${key}}}`, 'g'), value)
+      result = result.replace(new RegExp('{{${key}}}', 'g'), value)
     }
     return result
   }
@@ -469,7 +469,7 @@ export class NotificationService {
     // Check quiet hours
     if (preferences.quietHoursStart && preferences.quietHoursEnd) {
       const now = new Date()
-      const currentTime = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`
+      const currentTime = '${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}'
 
       if (currentTime >= preferences.quietHoursStart && currentTime <= preferences.quietHoursEnd) {
         // Don't send during quiet hours unless urgent

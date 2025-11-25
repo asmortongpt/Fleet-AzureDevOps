@@ -89,7 +89,7 @@ class OutlookService {
     }
 
     if (filters?.from) {
-      const filterStr = 'from/emailAddress/address eq '${filters.from}'`;
+      const filterStr = 'from/emailAddress/address eq '${filters.from}'';
       queryParams.push(
         queryParams.length > 0
           ? `and ${filterStr}`

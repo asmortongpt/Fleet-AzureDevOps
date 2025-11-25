@@ -99,7 +99,7 @@ router.get('/payroll-csv/:period',
       const csv = await billingReportsService.generatePayrollCSV(tenantId, period)
 
       res.setHeader('Content-Type', 'text/csv')
-      res.setHeader('Content-Disposition', `attachment; filename="payroll-deductions-${period}.csv"`)
+      res.setHeader('Content-Disposition', 'attachment; filename="payroll-deductions-${period}.csv"`)
       res.send(csv)
     } catch (error: any) {
       logger.error('Failed to generate payroll CSV', {

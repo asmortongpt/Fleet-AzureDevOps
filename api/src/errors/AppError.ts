@@ -50,7 +50,7 @@ export class ForbiddenError extends AppError {
  */
 export class NotFoundError extends AppError {
   constructor(resource: string = 'Resource') {
-    super(404, 'NOT_FOUND', `${resource} not found`);
+    super(404, 'NOT_FOUND', '${resource} not found`);
   }
 }
 
@@ -86,7 +86,7 @@ export class InternalServerError extends AppError {
  */
 export class ServiceUnavailableError extends AppError {
   constructor(service: string) {
-    super(503, 'SERVICE_UNAVAILABLE', `${service} is currently unavailable`);
+    super(503, 'SERVICE_UNAVAILABLE', '${service} is currently unavailable`);
   }
 }
 
@@ -107,6 +107,6 @@ export class DatabaseError extends AppError {
  */
 export class ExternalApiError extends AppError {
   constructor(api: string, message: string) {
-    super(502, 'EXTERNAL_API_ERROR', `${api}: ${message}`);
+    super(502, 'EXTERNAL_API_ERROR', '${api}: ${message}`);
   }
 }
