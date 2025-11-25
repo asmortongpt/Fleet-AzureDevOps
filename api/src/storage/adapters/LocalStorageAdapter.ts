@@ -161,7 +161,7 @@ export class LocalStorageAdapter extends BaseStorageAdapter {
       } catch {}
 
       throw new Error(
-        `Failed to upload file: ${error instanceof Error ? error.message : 'Unknown error'}`
+        'Failed to upload file: ${error instanceof Error ? error.message : 'Unknown error'}`
       );
     }
   }

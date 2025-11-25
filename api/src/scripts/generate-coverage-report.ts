@@ -302,7 +302,7 @@ async function generateCoverageReport() {
     console.log('│ Tenant                   │ Email                              │ Role         │ Active │');
     console.log('├──────────────────────────┼────────────────────────────────────┼──────────────┼────────┤');
     for (const row of sampleUsers.rows) {
-      console.log(`│ ${row.tenant.padEnd(24).substring(0, 24)} │ ${row.email.padEnd(34).substring(0, 34)} │ ${row.role.padEnd(12)} │ ${row.is_active ? '  ✓   ' : '  ✗   '} │`);
+      console.log('│ ${row.tenant.padEnd(24).substring(0, 24)} │ ${row.email.padEnd(34).substring(0, 34)} │ ${row.role.padEnd(12)} │ ${row.is_active ? '  ✓   ' : '  ✗   '} │`);
     }
     console.log('└──────────────────────────┴────────────────────────────────────┴──────────────┴────────┘');
     console.log('\n   Password for all test users: TestPassword123!\n');
