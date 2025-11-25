@@ -4,7 +4,6 @@
  */
 
 // API base URL - defaults to current origin since endpoints already include /api
-import logger from '@/utils/logger'
 const API_BASE_URL = import.meta.env.VITE_API_URL || window.location.origin
 
 export class APIError extends Error {
@@ -20,27 +19,27 @@ export class APIError extends Error {
 
 class APIClient {
   private baseURL: string
-  private token: string | null = null
   private csrfToken: string | null = null
   private csrfTokenPromise: Promise<void> | null = null
-  private refreshTokenPromise: Promise<void> | null = null
-  private isRefreshing: boolean = false
 
   constructor(baseURL: string) {
     this.baseURL = baseURL
-    this.token = localStorage.getItem('token')
     // Initialize CSRF token on construction
     this.initializeCsrfToken()
   }
 
-  setToken(token: string) {
-    this.token = token
-    localStorage.setItem('token', token)
+  // SECURITY: Tokens now managed via httpOnly cookies (CRITICAL-001)
+  // No localStorage token storage to prevent XSS attacks
+  setToken(_token: string) {
+    // Token is now set by backend via Set-Cookie header
+    // This method is kept for API compatibility but does nothing
+    console.warn('setToken() is deprecated - tokens are now httpOnly cookies')
   }
 
   clearToken() {
-    this.token = null
-    localStorage.removeItem('token')
+    // Token cleared by backend on logout
+    // This method is kept for API compatibility but does nothing
+    console.warn('clearToken() is deprecated - tokens are now httpOnly cookies')
   }
 
   /**
@@ -74,12 +73,12 @@ class APIClient {
         if (response.ok) {
           const data = await response.json()
           this.csrfToken = data.csrfToken
-          logger.info('CSRF token initialized successfully')
+          console.log('CSRF token initialized successfully')
         } else {
-          logger.warn('Failed to fetch CSRF token:', { status: response.status })
+          console.warn('Failed to fetch CSRF token:', response.status)
         }
       } catch (error) {
-        logger.error('Error fetching CSRF token:', { error })
+        console.error('Error fetching CSRF token:', error)
       } finally {
         this.csrfTokenPromise = null
       }
@@ -95,56 +94,6 @@ class APIClient {
     this.csrfToken = null
     this.csrfTokenPromise = null
     await this.initializeCsrfToken()
-  }
-
-  /**
-   * Refresh the access token using the httpOnly refresh token cookie
-   * OWASP ASVS 3.0 compliant automatic token refresh
-   */
-  private async refreshAccessToken(): Promise<boolean> {
-    // If already refreshing, wait for that to complete
-    if (this.isRefreshing) {
-      if (this.refreshTokenPromise) {
-        await this.refreshTokenPromise
-        return !!this.token
-      }
-      return false
-    }
-
-    this.isRefreshing = true
-    this.refreshTokenPromise = (async () => {
-      try {
-        logger.info('Attempting to refresh access token...')
-        const response = await fetch(`${this.baseURL}/api/v1/auth/refresh`, {
-          method: 'POST',
-          credentials: 'include', // Required for httpOnly cookie
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        })
-
-        if (response.ok) {
-          const data = await response.json()
-          this.setToken(data.token)
-          logger.info('Access token refreshed successfully')
-          return true
-        } else {
-          logger.warn('Token refresh failed:', { status: response.status })
-          this.clearToken()
-          return false
-        }
-      } catch (error) {
-        logger.error('Token refresh error:', { error })
-        this.clearToken()
-        return false
-      } finally {
-        this.isRefreshing = false
-        this.refreshTokenPromise = null
-      }
-    })()
-
-    const result = await this.refreshTokenPromise
-    return result as boolean
   }
 
   private async request<T>(
@@ -165,16 +114,8 @@ class APIClient {
       ...options.headers
     }
 
-    // Always re-read token from localStorage to handle SSO login flow
-    // The token may have been set after the singleton was constructed
-    const currentToken = this.token || localStorage.getItem('token')
-    if (currentToken) {
-      // Update internal token reference if found in localStorage
-      if (!this.token && currentToken) {
-        this.token = currentToken
-      }
-      headers['Authorization'] = `Bearer ${currentToken}`
-    }
+    // SECURITY: No Authorization header - httpOnly cookies handle authentication (CRITICAL-001)
+    // This prevents XSS attacks from stealing tokens
 
     // Add CSRF token to headers for state-changing requests
     if (isStateChanging && this.csrfToken) {
@@ -187,7 +128,7 @@ class APIClient {
       const response = await fetch(url, {
         ...options,
         headers,
-        credentials: 'include' // Required for CSRF cookies
+        credentials: 'include' // CRITICAL: Include httpOnly cookies with all requests
       })
 
       if (!response.ok) {
@@ -195,7 +136,7 @@ class APIClient {
 
         // If CSRF token is invalid, refresh and retry once
         if (response.status === 403 && error.error?.includes('CSRF')) {
-          logger.warn('CSRF token invalid, refreshing...')
+          console.warn('CSRF token invalid, refreshing...')
           await this.refreshCsrfToken()
 
           // Retry the request with new CSRF token
@@ -231,48 +172,8 @@ class APIClient {
       return await response.json()
     } catch (error) {
       if (error instanceof APIError) {
-        // OWASP ASVS 3.0: Automatic token refresh on 401 Unauthorized
-        if (error.status === 401 && !endpoint.includes('/auth/')) {
-          logger.info('Received 401, attempting token refresh...')
-          const refreshed = await this.refreshAccessToken()
-
-          if (refreshed) {
-            // Retry the original request with new token
-            logger.info('Token refreshed, retrying original request...')
-            const retryHeaders: HeadersInit = {
-              'Content-Type': 'application/json',
-              ...options.headers
-            }
-
-            // Re-read token from localStorage after refresh
-            const refreshedToken = this.token || localStorage.getItem('token')
-            if (refreshedToken) {
-              retryHeaders['Authorization'] = `Bearer ${refreshedToken}`
-            }
-
-            // Re-add CSRF token if needed
-            const isStateChanging = ['POST', 'PUT', 'PATCH', 'DELETE'].includes(
-              options.method?.toUpperCase() || 'GET'
-            )
-            if (isStateChanging && this.csrfToken) {
-              retryHeaders['X-CSRF-Token'] = this.csrfToken
-            }
-
-            const retryResponse = await fetch(url, {
-              ...options,
-              headers: retryHeaders,
-              credentials: 'include'
-            })
-
-            if (retryResponse.ok) {
-              if (retryResponse.status === 204) {
-                return {} as T
-              }
-              return await retryResponse.json()
-            }
-          }
-
-          // If refresh failed or retry failed, logout
+        // Auto-logout on 401
+        if (error.status === 401) {
           this.clearToken()
           window.location.href = '/login'
         }
@@ -320,7 +221,7 @@ class APIClient {
   // Authentication endpoints
   async login(email: string, password: string) {
     const response = await this.post<{ token: string; user: any }>(
-      '/api/v1/auth/login',
+      '/api/auth/login',
       { email, password }
     )
     this.setToken(response.token)
@@ -335,11 +236,11 @@ class APIClient {
     phone?: string
     role?: string
   }) {
-    return this.post('/api/v1/auth/register', data)
+    return this.post('/api/auth/register', data)
   }
 
   async logout() {
-    await this.post('/api/v1/auth/logout', {})
+    await this.post('/api/auth/logout', {})
     this.clearToken()
   }
 
@@ -561,13 +462,9 @@ class APIClient {
       const formData = new FormData()
       formData.append('file', file)
 
-      // Re-read token from localStorage to handle SSO login flow
-      const uploadToken = this.token || localStorage.getItem('token')
       const response = await fetch(`${this.baseURL}/api/teams/${teamId}/channels/${channelId}/files`, {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${uploadToken}`
-        },
+        credentials: 'include', // CRITICAL: Include httpOnly cookies
         body: formData
       })
 
@@ -618,13 +515,9 @@ class APIClient {
       const formData = new FormData()
       formData.append('file', file)
 
-      // Re-read token from localStorage to handle SSO login flow
-      const attachToken = this.token || localStorage.getItem('token')
       const response = await fetch(`${this.baseURL}/api/outlook/attachments`, {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${attachToken}`
-        },
+        credentials: 'include', // CRITICAL: Include httpOnly cookies
         body: formData
       })
 

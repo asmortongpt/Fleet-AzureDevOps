@@ -9,6 +9,44 @@
 import Foundation
 import CoreLocation
 
+// MARK: - Supporting Types
+
+enum UserRole: String, Codable {
+    case admin = "Admin"
+    case fleetManager = "Fleet Manager"
+    case dispatcher = "Dispatcher"
+    case driver = "Driver"
+    case mechanic = "Mechanic"
+    case viewer = "Viewer"
+}
+
+struct Coordinate: Codable, Equatable {
+    let latitude: Double
+    let longitude: Double
+
+    init(latitude: Double, longitude: Double) {
+        self.latitude = latitude
+        self.longitude = longitude
+    }
+
+    init(_ coordinate: CLLocationCoordinate2D) {
+        self.latitude = coordinate.latitude
+        self.longitude = coordinate.longitude
+    }
+
+    var clLocationCoordinate: CLLocationCoordinate2D {
+        CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
+    }
+}
+
+struct Geofence: Identifiable, Codable {
+    let id: String
+    let name: String
+    let center: Coordinate
+    let radius: Double
+    let isActive: Bool
+}
+
 // MARK: - Checklist Template
 
 struct ChecklistTemplate: Codable, Identifiable, Equatable {
@@ -467,442 +505,442 @@ enum AttachmentType: String, Codable {
 
 // MARK: - Predefined Templates
 
-struct PredefinedTemplates {
-    static let oshaChecklist = ChecklistTemplate(
-        id: "osha-site-safety",
-        name: "OSHA Site Safety Checklist",
-        description: "Required safety inspection before entering work site",
-        category: .osha,
-        items: [
-            ChecklistItemTemplate(
-                id: "ppe-hardhat",
-                sequenceNumber: 1,
-                text: "Hard hat available and in good condition",
-                description: nil,
-                type: .checkbox,
-                isRequired: true,
-                options: nil,
-                validationRules: nil,
-                dependencies: nil,
-                conditionalLogic: nil
-            ),
-            ChecklistItemTemplate(
-                id: "ppe-vest",
-                sequenceNumber: 2,
-                text: "High-visibility vest available",
-                description: nil,
-                type: .checkbox,
-                isRequired: true,
-                options: nil,
-                validationRules: nil,
-                dependencies: nil,
-                conditionalLogic: nil
-            ),
-            ChecklistItemTemplate(
-                id: "ppe-boots",
-                sequenceNumber: 3,
-                text: "Steel-toe boots worn",
-                description: nil,
-                type: .checkbox,
-                isRequired: true,
-                options: nil,
-                validationRules: nil,
-                dependencies: nil,
-                conditionalLogic: nil
-            ),
-            ChecklistItemTemplate(
-                id: "hazards-identified",
-                sequenceNumber: 4,
-                text: "Site hazards identified and documented",
-                description: "Document any visible hazards",
-                type: .text,
-                isRequired: true,
-                options: nil,
-                validationRules: ValidationRules(
-                    minValue: nil,
-                    maxValue: nil,
-                    minLength: 10,
-                    maxLength: 500,
-                    pattern: nil,
-                    required: true
-                ),
-                dependencies: nil,
-                conditionalLogic: nil
-            ),
-            ChecklistItemTemplate(
-                id: "emergency-exits",
-                sequenceNumber: 5,
-                text: "Emergency exits identified",
-                description: nil,
-                type: .checkbox,
-                isRequired: true,
-                options: nil,
-                validationRules: nil,
-                dependencies: nil,
-                conditionalLogic: nil
-            ),
-            ChecklistItemTemplate(
-                id: "safety-photo",
-                sequenceNumber: 6,
-                text: "Photo of PPE and work area",
-                description: nil,
-                type: .photo,
-                isRequired: false,
-                options: nil,
-                validationRules: nil,
-                dependencies: nil,
-                conditionalLogic: nil
-            )
-        ],
-        triggers: [
-            ChecklistTrigger(
-                id: "site-entry",
-                type: .geofenceEntry,
-                conditions: [],
-                isEnabled: true
-            )
-        ],
-        isRequired: true,
-        timeoutMinutes: 15,
-        allowSkip: false,
-        requiresApproval: false,
-        approverRoles: [],
-        attachmentTypes: [.photo],
-        createdBy: "system",
-        createdAt: Date(),
-        isActive: true
-    )
-
-    static let mileageReport = ChecklistTemplate(
-        id: "mileage-report",
-        name: "Mileage Report",
-        description: "Record trip mileage and fuel usage",
-        category: .mileageReport,
-        items: [
-            ChecklistItemTemplate(
-                id: "starting-odometer",
-                sequenceNumber: 1,
-                text: "Starting Odometer Reading",
-                description: nil,
-                type: .odometer,
-                isRequired: true,
-                options: nil,
-                validationRules: ValidationRules(
-                    minValue: 0,
-                    maxValue: 999999,
-                    minLength: nil,
-                    maxLength: nil,
-                    pattern: nil,
-                    required: true
-                ),
-                dependencies: nil,
-                conditionalLogic: nil
-            ),
-            ChecklistItemTemplate(
-                id: "ending-odometer",
-                sequenceNumber: 2,
-                text: "Ending Odometer Reading",
-                description: nil,
-                type: .odometer,
-                isRequired: true,
-                options: nil,
-                validationRules: ValidationRules(
-                    minValue: 0,
-                    maxValue: 999999,
-                    minLength: nil,
-                    maxLength: nil,
-                    pattern: nil,
-                    required: true
-                ),
-                dependencies: ["starting-odometer"],
-                conditionalLogic: nil
-            ),
-            ChecklistItemTemplate(
-                id: "trip-purpose",
-                sequenceNumber: 3,
-                text: "Trip Purpose",
-                description: nil,
-                type: .choice,
-                isRequired: true,
-                options: ["Delivery", "Pickup", "Service Call", "Meeting", "Training", "Other"],
-                validationRules: nil,
-                dependencies: nil,
-                conditionalLogic: nil
-            )
-        ],
-        triggers: [
-            ChecklistTrigger(
-                id: "trip-end",
-                type: .taskComplete,
-                conditions: [],
-                isEnabled: true
-            )
-        ],
-        isRequired: true,
-        timeoutMinutes: 30,
-        allowSkip: false,
-        requiresApproval: false,
-        approverRoles: [],
-        attachmentTypes: [],
-        createdBy: "system",
-        createdAt: Date(),
-        isActive: true
-    )
-
-    static let fuelReport = ChecklistTemplate(
-        id: "fuel-report",
-        name: "Fuel Report",
-        description: "Record fuel purchase details",
-        category: .fuelReport,
-        items: [
-            ChecklistItemTemplate(
-                id: "fuel-gallons",
-                sequenceNumber: 1,
-                text: "Gallons Purchased",
-                description: nil,
-                type: .fuelGallons,
-                isRequired: true,
-                options: nil,
-                validationRules: ValidationRules(
-                    minValue: 0.1,
-                    maxValue: 200,
-                    minLength: nil,
-                    maxLength: nil,
-                    pattern: nil,
-                    required: true
-                ),
-                dependencies: nil,
-                conditionalLogic: nil
-            ),
-            ChecklistItemTemplate(
-                id: "price-per-gallon",
-                sequenceNumber: 2,
-                text: "Price Per Gallon ($)",
-                description: nil,
-                type: .number,
-                isRequired: true,
-                options: nil,
-                validationRules: ValidationRules(
-                    minValue: 0.01,
-                    maxValue: 20,
-                    minLength: nil,
-                    maxLength: nil,
-                    pattern: nil,
-                    required: true
-                ),
-                dependencies: nil,
-                conditionalLogic: nil
-            ),
-            ChecklistItemTemplate(
-                id: "fuel-receipt",
-                sequenceNumber: 3,
-                text: "Upload Fuel Receipt",
-                description: nil,
-                type: .photo,
-                isRequired: true,
-                options: nil,
-                validationRules: nil,
-                dependencies: nil,
-                conditionalLogic: nil
-            ),
-            ChecklistItemTemplate(
-                id: "odometer-at-fuel",
-                sequenceNumber: 4,
-                text: "Current Odometer Reading",
-                description: nil,
-                type: .odometer,
-                isRequired: true,
-                options: nil,
-                validationRules: ValidationRules(
-                    minValue: 0,
-                    maxValue: 999999,
-                    minLength: nil,
-                    maxLength: nil,
-                    pattern: nil,
-                    required: true
-                ),
-                dependencies: nil,
-                conditionalLogic: nil
-            )
-        ],
-        triggers: [
-            ChecklistTrigger(
-                id: "fuel-low",
-                type: .fuelLevel,
-                conditions: [
-                    TriggerCondition(
-                        id: "fuel-threshold",
-                        parameter: "fuelLevel",
-                        conditionOperator: .lessThan,
-                        value: "25"
-                    )
-                ],
-                isEnabled: true
-            )
-        ],
-        isRequired: true,
-        timeoutMinutes: 60,
-        allowSkip: false,
-        requiresApproval: false,
-        approverRoles: [],
-        attachmentTypes: [.photo],
-        createdBy: "system",
-        createdAt: Date(),
-        isActive: true
-    )
-
-    static let resourceChecklist = ChecklistTemplate(
-        id: "resource-check",
-        name: "Resource/Equipment Checklist",
-        description: "Verify all required equipment and resources are available",
-        category: .resourceCheck,
-        items: [
-            ChecklistItemTemplate(
-                id: "tools-complete",
-                sequenceNumber: 1,
-                text: "All required tools present",
-                description: nil,
-                type: .checkbox,
-                isRequired: true,
-                options: nil,
-                validationRules: nil,
-                dependencies: nil,
-                conditionalLogic: nil
-            ),
-            ChecklistItemTemplate(
-                id: "materials-complete",
-                sequenceNumber: 2,
-                text: "All materials/supplies loaded",
-                description: nil,
-                type: .checkbox,
-                isRequired: true,
-                options: nil,
-                validationRules: nil,
-                dependencies: nil,
-                conditionalLogic: nil
-            ),
-            ChecklistItemTemplate(
-                id: "missing-items",
-                sequenceNumber: 3,
-                text: "List any missing items",
-                description: "If any items are missing, list them here",
-                type: .text,
-                isRequired: false,
-                options: nil,
-                validationRules: nil,
-                dependencies: nil,
-                conditionalLogic: nil
-            )
-        ],
-        triggers: [
-            ChecklistTrigger(
-                id: "task-start",
-                type: .taskStart,
-                conditions: [],
-                isEnabled: true
-            )
-        ],
-        isRequired: true,
-        timeoutMinutes: 10,
-        allowSkip: false,
-        requiresApproval: false,
-        approverRoles: [],
-        attachmentTypes: [.photo],
-        createdBy: "system",
-        createdAt: Date(),
-        isActive: true
-    )
-
-    static let preTripInspection = ChecklistTemplate(
-        id: "pre-trip-inspection",
-        name: "Pre-Trip Inspection",
-        description: "Vehicle safety inspection before starting trip",
-        category: .preTripInspection,
-        items: [
-            ChecklistItemTemplate(
-                id: "tire-condition",
-                sequenceNumber: 1,
-                text: "Tire condition and pressure",
-                description: nil,
-                type: .checkbox,
-                isRequired: true,
-                options: nil,
-                validationRules: nil,
-                dependencies: nil,
-                conditionalLogic: nil
-            ),
-            ChecklistItemTemplate(
-                id: "lights-working",
-                sequenceNumber: 2,
-                text: "All lights working properly",
-                description: nil,
-                type: .checkbox,
-                isRequired: true,
-                options: nil,
-                validationRules: nil,
-                dependencies: nil,
-                conditionalLogic: nil
-            ),
-            ChecklistItemTemplate(
-                id: "fluid-levels",
-                sequenceNumber: 3,
-                text: "Fluid levels checked",
-                description: nil,
-                type: .checkbox,
-                isRequired: true,
-                options: nil,
-                validationRules: nil,
-                dependencies: nil,
-                conditionalLogic: nil
-            ),
-            ChecklistItemTemplate(
-                id: "brakes-working",
-                sequenceNumber: 4,
-                text: "Brakes functioning properly",
-                description: nil,
-                type: .checkbox,
-                isRequired: true,
-                options: nil,
-                validationRules: nil,
-                dependencies: nil,
-                conditionalLogic: nil
-            ),
-            ChecklistItemTemplate(
-                id: "inspection-signature",
-                sequenceNumber: 5,
-                text: "Inspector Signature",
-                description: nil,
-                type: .signature,
-                isRequired: true,
-                options: nil,
-                validationRules: nil,
-                dependencies: nil,
-                conditionalLogic: nil
-            )
-        ],
-        triggers: [
-            ChecklistTrigger(
-                id: "trip-start",
-                type: .taskStart,
-                conditions: [],
-                isEnabled: true
-            )
-        ],
-        isRequired: true,
-        timeoutMinutes: 20,
-        allowSkip: false,
-        requiresApproval: false,
-        approverRoles: [],
-        attachmentTypes: [.photo],
-        createdBy: "system",
-        createdAt: Date(),
-        isActive: true
-    )
-
-    static func allTemplates() -> [ChecklistTemplate] {
-        return [oshaChecklist, mileageReport, fuelReport, resourceChecklist, preTripInspection]
-    }
-}
+// struct PredefinedTemplates {
+//     static let oshaChecklist = ChecklistTemplate(
+//         id: "osha-site-safety",
+//         name: "OSHA Site Safety Checklist",
+//         description: "Required safety inspection before entering work site",
+//         category: .osha,
+//         items: [
+//             ChecklistItemTemplate(
+//                 id: "ppe-hardhat",
+//                 sequenceNumber: 1,
+//                 text: "Hard hat available and in good condition",
+//                 description: nil,
+//                 type: .checkbox,
+//                 isRequired: true,
+//                 options: nil,
+//                 validationRules: nil,
+//                 dependencies: nil,
+//                 conditionalLogic: nil
+//             ),
+//             ChecklistItemTemplate(
+//                 id: "ppe-vest",
+//                 sequenceNumber: 2,
+//                 text: "High-visibility vest available",
+//                 description: nil,
+//                 type: .checkbox,
+//                 isRequired: true,
+//                 options: nil,
+//                 validationRules: nil,
+//                 dependencies: nil,
+//                 conditionalLogic: nil
+//             ),
+//             ChecklistItemTemplate(
+//                 id: "ppe-boots",
+//                 sequenceNumber: 3,
+//                 text: "Steel-toe boots worn",
+//                 description: nil,
+//                 type: .checkbox,
+//                 isRequired: true,
+//                 options: nil,
+//                 validationRules: nil,
+//                 dependencies: nil,
+//                 conditionalLogic: nil
+//             ),
+//             ChecklistItemTemplate(
+//                 id: "hazards-identified",
+//                 sequenceNumber: 4,
+//                 text: "Site hazards identified and documented",
+//                 description: "Document any visible hazards",
+//                 type: .text,
+//                 isRequired: true,
+//                 options: nil,
+//                 validationRules: ValidationRules(
+//                     minValue: nil,
+//                     maxValue: nil,
+//                     minLength: 10,
+//                     maxLength: 500,
+//                     pattern: nil,
+//                     required: true
+//                 ),
+//                 dependencies: nil,
+//                 conditionalLogic: nil
+//             ),
+//             ChecklistItemTemplate(
+//                 id: "emergency-exits",
+//                 sequenceNumber: 5,
+//                 text: "Emergency exits identified",
+//                 description: nil,
+//                 type: .checkbox,
+//                 isRequired: true,
+//                 options: nil,
+//                 validationRules: nil,
+//                 dependencies: nil,
+//                 conditionalLogic: nil
+//             ),
+//             ChecklistItemTemplate(
+//                 id: "safety-photo",
+//                 sequenceNumber: 6,
+//                 text: "Photo of PPE and work area",
+//                 description: nil,
+//                 type: .photo,
+//                 isRequired: false,
+//                 options: nil,
+//                 validationRules: nil,
+//                 dependencies: nil,
+//                 conditionalLogic: nil
+//             )
+//         ],
+//         triggers: [
+//             ChecklistTrigger(
+//                 id: "site-entry",
+//                 type: .geofenceEntry,
+//                 conditions: [],
+//                 isEnabled: true
+//             )
+//         ],
+//         isRequired: true,
+//         timeoutMinutes: 15,
+//         allowSkip: false,
+//         requiresApproval: false,
+//         approverRoles: [],
+//         attachmentTypes: [.photo],
+//         createdBy: "system",
+//         createdAt: Date(),
+//         isActive: true
+//     )
+// 
+//     static let mileageReport = ChecklistTemplate(
+//         id: "mileage-report",
+//         name: "Mileage Report",
+//         description: "Record trip mileage and fuel usage",
+//         category: .mileageReport,
+//         items: [
+//             ChecklistItemTemplate(
+//                 id: "starting-odometer",
+//                 sequenceNumber: 1,
+//                 text: "Starting Odometer Reading",
+//                 description: nil,
+//                 type: .odometer,
+//                 isRequired: true,
+//                 options: nil,
+//                 validationRules: ValidationRules(
+//                     minValue: 0,
+//                     maxValue: 999999,
+//                     minLength: nil,
+//                     maxLength: nil,
+//                     pattern: nil,
+//                     required: true
+//                 ),
+//                 dependencies: nil,
+//                 conditionalLogic: nil
+//             ),
+//             ChecklistItemTemplate(
+//                 id: "ending-odometer",
+//                 sequenceNumber: 2,
+//                 text: "Ending Odometer Reading",
+//                 description: nil,
+//                 type: .odometer,
+//                 isRequired: true,
+//                 options: nil,
+//                 validationRules: ValidationRules(
+//                     minValue: 0,
+//                     maxValue: 999999,
+//                     minLength: nil,
+//                     maxLength: nil,
+//                     pattern: nil,
+//                     required: true
+//                 ),
+//                 dependencies: ["starting-odometer"],
+//                 conditionalLogic: nil
+//             ),
+//             ChecklistItemTemplate(
+//                 id: "trip-purpose",
+//                 sequenceNumber: 3,
+//                 text: "Trip Purpose",
+//                 description: nil,
+//                 type: .choice,
+//                 isRequired: true,
+//                 options: ["Delivery", "Pickup", "Service Call", "Meeting", "Training", "Other"],
+//                 validationRules: nil,
+//                 dependencies: nil,
+//                 conditionalLogic: nil
+//             )
+//         ],
+//         triggers: [
+//             ChecklistTrigger(
+//                 id: "trip-end",
+//                 type: .taskComplete,
+//                 conditions: [],
+//                 isEnabled: true
+//             )
+//         ],
+//         isRequired: true,
+//         timeoutMinutes: 30,
+//         allowSkip: false,
+//         requiresApproval: false,
+//         approverRoles: [],
+//         attachmentTypes: [],
+//         createdBy: "system",
+//         createdAt: Date(),
+//         isActive: true
+//     )
+// 
+//     static let fuelReport = ChecklistTemplate(
+//         id: "fuel-report",
+//         name: "Fuel Report",
+//         description: "Record fuel purchase details",
+//         category: .fuelReport,
+//         items: [
+//             ChecklistItemTemplate(
+//                 id: "fuel-gallons",
+//                 sequenceNumber: 1,
+//                 text: "Gallons Purchased",
+//                 description: nil,
+//                 type: .fuelGallons,
+//                 isRequired: true,
+//                 options: nil,
+//                 validationRules: ValidationRules(
+//                     minValue: 0.1,
+//                     maxValue: 200,
+//                     minLength: nil,
+//                     maxLength: nil,
+//                     pattern: nil,
+//                     required: true
+//                 ),
+//                 dependencies: nil,
+//                 conditionalLogic: nil
+//             ),
+//             ChecklistItemTemplate(
+//                 id: "price-per-gallon",
+//                 sequenceNumber: 2,
+//                 text: "Price Per Gallon ($)",
+//                 description: nil,
+//                 type: .number,
+//                 isRequired: true,
+//                 options: nil,
+//                 validationRules: ValidationRules(
+//                     minValue: 0.01,
+//                     maxValue: 20,
+//                     minLength: nil,
+//                     maxLength: nil,
+//                     pattern: nil,
+//                     required: true
+//                 ),
+//                 dependencies: nil,
+//                 conditionalLogic: nil
+//             ),
+//             ChecklistItemTemplate(
+//                 id: "fuel-receipt",
+//                 sequenceNumber: 3,
+//                 text: "Upload Fuel Receipt",
+//                 description: nil,
+//                 type: .photo,
+//                 isRequired: true,
+//                 options: nil,
+//                 validationRules: nil,
+//                 dependencies: nil,
+//                 conditionalLogic: nil
+//             ),
+//             ChecklistItemTemplate(
+//                 id: "odometer-at-fuel",
+//                 sequenceNumber: 4,
+//                 text: "Current Odometer Reading",
+//                 description: nil,
+//                 type: .odometer,
+//                 isRequired: true,
+//                 options: nil,
+//                 validationRules: ValidationRules(
+//                     minValue: 0,
+//                     maxValue: 999999,
+//                     minLength: nil,
+//                     maxLength: nil,
+//                     pattern: nil,
+//                     required: true
+//                 ),
+//                 dependencies: nil,
+//                 conditionalLogic: nil
+//             )
+//         ],
+//         triggers: [
+//             ChecklistTrigger(
+//                 id: "fuel-low",
+//                 type: .fuelLevel,
+//                 conditions: [
+//                     TriggerCondition(
+//                         id: "fuel-threshold",
+//                         parameter: "fuelLevel",
+//                         conditionOperator: .lessThan,
+//                         value: "25"
+//                     )
+//                 ],
+//                 isEnabled: true
+//             )
+//         ],
+//         isRequired: true,
+//         timeoutMinutes: 60,
+//         allowSkip: false,
+//         requiresApproval: false,
+//         approverRoles: [],
+//         attachmentTypes: [.photo],
+//         createdBy: "system",
+//         createdAt: Date(),
+//         isActive: true
+//     )
+// 
+//     static let resourceChecklist = ChecklistTemplate(
+//         id: "resource-check",
+//         name: "Resource/Equipment Checklist",
+//         description: "Verify all required equipment and resources are available",
+//         category: .resourceCheck,
+//         items: [
+//             ChecklistItemTemplate(
+//                 id: "tools-complete",
+//                 sequenceNumber: 1,
+//                 text: "All required tools present",
+//                 description: nil,
+//                 type: .checkbox,
+//                 isRequired: true,
+//                 options: nil,
+//                 validationRules: nil,
+//                 dependencies: nil,
+//                 conditionalLogic: nil
+//             ),
+//             ChecklistItemTemplate(
+//                 id: "materials-complete",
+//                 sequenceNumber: 2,
+//                 text: "All materials/supplies loaded",
+//                 description: nil,
+//                 type: .checkbox,
+//                 isRequired: true,
+//                 options: nil,
+//                 validationRules: nil,
+//                 dependencies: nil,
+//                 conditionalLogic: nil
+//             ),
+//             ChecklistItemTemplate(
+//                 id: "missing-items",
+//                 sequenceNumber: 3,
+//                 text: "List any missing items",
+//                 description: "If any items are missing, list them here",
+//                 type: .text,
+//                 isRequired: false,
+//                 options: nil,
+//                 validationRules: nil,
+//                 dependencies: nil,
+//                 conditionalLogic: nil
+//             )
+//         ],
+//         triggers: [
+//             ChecklistTrigger(
+//                 id: "task-start",
+//                 type: .taskStart,
+//                 conditions: [],
+//                 isEnabled: true
+//             )
+//         ],
+//         isRequired: true,
+//         timeoutMinutes: 10,
+//         allowSkip: false,
+//         requiresApproval: false,
+//         approverRoles: [],
+//         attachmentTypes: [.photo],
+//         createdBy: "system",
+//         createdAt: Date(),
+//         isActive: true
+//     )
+// 
+//     static let preTripInspection = ChecklistTemplate(
+//         id: "pre-trip-inspection",
+//         name: "Pre-Trip Inspection",
+//         description: "Vehicle safety inspection before starting trip",
+//         category: .preTripInspection,
+//         items: [
+//             ChecklistItemTemplate(
+//                 id: "tire-condition",
+//                 sequenceNumber: 1,
+//                 text: "Tire condition and pressure",
+//                 description: nil,
+//                 type: .checkbox,
+//                 isRequired: true,
+//                 options: nil,
+//                 validationRules: nil,
+//                 dependencies: nil,
+//                 conditionalLogic: nil
+//             ),
+//             ChecklistItemTemplate(
+//                 id: "lights-working",
+//                 sequenceNumber: 2,
+//                 text: "All lights working properly",
+//                 description: nil,
+//                 type: .checkbox,
+//                 isRequired: true,
+//                 options: nil,
+//                 validationRules: nil,
+//                 dependencies: nil,
+//                 conditionalLogic: nil
+//             ),
+//             ChecklistItemTemplate(
+//                 id: "fluid-levels",
+//                 sequenceNumber: 3,
+//                 text: "Fluid levels checked",
+//                 description: nil,
+//                 type: .checkbox,
+//                 isRequired: true,
+//                 options: nil,
+//                 validationRules: nil,
+//                 dependencies: nil,
+//                 conditionalLogic: nil
+//             ),
+//             ChecklistItemTemplate(
+//                 id: "brakes-working",
+//                 sequenceNumber: 4,
+//                 text: "Brakes functioning properly",
+//                 description: nil,
+//                 type: .checkbox,
+//                 isRequired: true,
+//                 options: nil,
+//                 validationRules: nil,
+//                 dependencies: nil,
+//                 conditionalLogic: nil
+//             ),
+//             ChecklistItemTemplate(
+//                 id: "inspection-signature",
+//                 sequenceNumber: 5,
+//                 text: "Inspector Signature",
+//                 description: nil,
+//                 type: .signature,
+//                 isRequired: true,
+//                 options: nil,
+//                 validationRules: nil,
+//                 dependencies: nil,
+//                 conditionalLogic: nil
+//             )
+//         ],
+//         triggers: [
+//             ChecklistTrigger(
+//                 id: "trip-start",
+//                 type: .taskStart,
+//                 conditions: [],
+//                 isEnabled: true
+//             )
+//         ],
+//         isRequired: true,
+//         timeoutMinutes: 20,
+//         allowSkip: false,
+//         requiresApproval: false,
+//         approverRoles: [],
+//         attachmentTypes: [.photo],
+//         createdBy: "system",
+//         createdAt: Date(),
+//         isActive: true
+//     )
+// 
+//     static func allTemplates() -> [ChecklistTemplate] {
+//         return [oshaChecklist, mileageReport, fuelReport, resourceChecklist, preTripInspection]
+//     }
+// }
 
 // MARK: - API Response Models
 

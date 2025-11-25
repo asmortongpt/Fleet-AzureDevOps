@@ -59,13 +59,15 @@ struct TripHistoryView: View {
             }
             .searchable(text: $searchText, prompt: "Search trips")
             .sheet(isPresented: $showingStartTrip) {
-                StartTripView()
+                Text("Start Trip View - Coming Soon")
+                    .font(.title)
+                    .padding()
             }
             .sheet(isPresented: $showingTripDetail) {
                 if let trip = selectedTrip {
-                    NavigationView {
-                        TripDetailView(trip: trip)
-                    }
+                    Text("Trip Detail View - Coming Soon")
+                        .font(.title)
+                        .padding()
                 }
             }
             .alert("Delete Trip", isPresented: $showingDeleteAlert) {
@@ -94,21 +96,21 @@ struct TripHistoryView: View {
 
         return VStack(spacing: 0) {
             HStack(spacing: 20) {
-                TripStatCard(
+                TripHistoryStatCard(
                     title: "Total Trips",
                     value: "\(stats.totalTrips)",
                     icon: "car.fill",
                     color: .blue
                 )
 
-                TripStatCard(
+                TripHistoryStatCard(
                     title: "Distance",
                     value: stats.formattedTotalDistance,
                     icon: "road.lanes",
                     color: .green
                 )
 
-                TripStatCard(
+                TripHistoryStatCard(
                     title: "Duration",
                     value: stats.formattedTotalDuration,
                     icon: "clock.fill",
@@ -281,8 +283,8 @@ struct TripRowView: View {
     }
 }
 
-// MARK: - Stat Card
-struct TripStatCard: View {
+// MARK: - Trip History Stat Card
+private struct TripHistoryStatCard: View {
     let title: String
     let value: String
     let icon: String
@@ -355,25 +357,7 @@ private struct TripStatusBadge: View {
             return .blue
         case .cancelled:
             return .gray
-        case .inProgress:
-            return .green
         }
-    }
-}
-
-// MARK: - Placeholder Views
-struct StartTripView: View {
-    var body: some View {
-        Text("Start Trip Coming Soon")
-            .navigationTitle("Start Trip")
-    }
-}
-
-struct TripDetailView: View {
-    let trip: Trip
-    var body: some View {
-        Text("Trip Detail: \(trip.id)")
-            .navigationTitle("Trip Details")
     }
 }
 

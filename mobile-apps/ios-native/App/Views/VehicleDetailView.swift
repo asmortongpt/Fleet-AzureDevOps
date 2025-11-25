@@ -6,6 +6,7 @@ struct VehicleDetailView: View {
     let vehicle: Vehicle
     @StateObject private var viewModel = VehicleViewModel()
     @State private var showInspection = false
+    @State private var showAssignment = false
     @Environment(\.dismiss) var dismiss
 
     var body: some View {
@@ -18,6 +19,8 @@ struct VehicleDetailView: View {
                 // Quick Actions
                 QuickActionsBar(vehicle: vehicle, onInspect: {
                     showInspection = true
+                }, onAssign: {
+                    showAssignment = true
                 })
                 .padding(.horizontal)
                 .padding(.bottom)
@@ -77,6 +80,9 @@ struct VehicleDetailView: View {
                 VehicleInspectionView(vehicle: vehicle)
             }
         }
+        .sheet(isPresented: $showAssignment) {
+            CreateAssignmentView(viewModel: VehicleAssignmentViewModel())
+        }
     }
 }
 
@@ -128,36 +134,47 @@ struct VehicleHeaderCard: View {
 struct QuickActionsBar: View {
     let vehicle: Vehicle
     let onInspect: () -> Void
+    let onAssign: () -> Void
 
     var body: some View {
-        HStack(spacing: 12) {
-            QuickActionButton(
-                icon: "checkmark.circle.fill",
-                title: "Inspect",
-                color: .blue,
-                action: onInspect
-            )
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 12) {
+                QuickActionButton(
+                    icon: "person.crop.circle.fill.badge.checkmark",
+                    title: "Assign",
+                    color: .blue,
+                    action: onAssign
+                )
 
-            QuickActionButton(
-                icon: "wrench.fill",
-                title: "Service",
-                color: .orange,
-                action: {}
-            )
+                QuickActionButton(
+                    icon: "checkmark.circle.fill",
+                    title: "Inspect",
+                    color: .teal,
+                    action: onInspect
+                )
 
-            QuickActionButton(
-                icon: "map.fill",
-                title: "Locate",
-                color: .green,
-                action: {}
-            )
+                QuickActionButton(
+                    icon: "wrench.fill",
+                    title: "Service",
+                    color: .orange,
+                    action: {}
+                )
 
-            QuickActionButton(
-                icon: "doc.text.fill",
-                title: "Records",
-                color: .purple,
-                action: {}
-            )
+                QuickActionButton(
+                    icon: "map.fill",
+                    title: "Locate",
+                    color: .green,
+                    action: {}
+                )
+
+                QuickActionButton(
+                    icon: "doc.text.fill",
+                    title: "Records",
+                    color: .purple,
+                    action: {}
+                )
+            }
+            .padding(.horizontal, 4)
         }
     }
 }
