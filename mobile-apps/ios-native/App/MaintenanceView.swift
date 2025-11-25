@@ -247,18 +247,18 @@ struct MaintenanceCard: View {
                         Image(systemName: "building.2")
                             .font(.caption)
                             .foregroundColor(.gray)
-                        Text(record.provider)
+                        Text(record.serviceProvider ?? "N/A")
                             .font(.caption)
                             .lineLimit(1)
                     }
 
                     // Cost
-                    if record.cost > 0 {
+                    if let cost = record.cost, cost > 0 {
                         HStack(spacing: 4) {
                             Image(systemName: "dollarsign.circle")
                                 .font(.caption)
                                 .foregroundColor(.green)
-                            Text(formatCost(record.cost))
+                            Text(formatCost(cost))
                                 .font(.caption)
                         }
                     }
@@ -269,18 +269,20 @@ struct MaintenanceCard: View {
                     Image(systemName: "speedometer")
                         .font(.caption)
                         .foregroundColor(.gray)
-                    Text("At \(formatMileage(record.mileageAtService))")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
+                    if let mileage = record.mileageAtService {
+                        Text("At \(formatMileage(mileage))")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
                 }
 
                 // Parts if any
-                if !record.parts.isEmpty {
+                if let parts = record.parts, !parts.isEmpty {
                     HStack {
                         Image(systemName: "wrench")
                             .font(.caption)
                             .foregroundColor(.orange)
-                        Text("\(record.parts.count) part\(record.parts.count == 1 ? "" : "s") replaced")
+                        Text("\(parts.count) part\(parts.count == 1 ? "" : "s") replaced")
                             .font(.caption)
                             .foregroundColor(.secondary)
                     }
@@ -328,6 +330,8 @@ struct MaintenanceCard: View {
         case .completed: return .green
         case .inProgress: return .orange
         case .cancelled: return .gray
+        case .delayed: return .red
+        case .onHold: return .yellow
         }
     }
 
@@ -374,6 +378,8 @@ struct MaintenanceStatusBadge: View {
         case .completed: return .green.opacity(0.2)
         case .overdue: return .red.opacity(0.2)
         case .cancelled: return .gray.opacity(0.2)
+        case .delayed: return .red.opacity(0.2)
+        case .onHold: return .yellow.opacity(0.2)
         }
     }
 
@@ -384,6 +390,8 @@ struct MaintenanceStatusBadge: View {
         case .completed: return .green
         case .overdue: return .red
         case .cancelled: return .gray
+        case .delayed: return .red
+        case .onHold: return .yellow
         }
     }
 }
@@ -537,37 +545,41 @@ struct MaintenanceDetailViewEmbedded: View {
 
                     // Details Grid
                     LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 16) {
-                        DetailCard(title: "Scheduled", value: record.scheduledDate.formatted(date: .abbreviated, time: .shortened), icon: "calendar", color: .blue)
-                        DetailCard(title: "Provider", value: record.provider, icon: "building.2", color: .purple)
-                        DetailCard(title: "Mileage", value: formatMileage(record.mileageAtService), icon: "speedometer", color: .orange)
-                        DetailCard(title: "Cost", value: formatCurrency(record.cost), icon: "dollarsign.circle", color: .green)
-                        DetailCard(title: "Labor Hours", value: String(format: "%.1f hrs", record.laborHours), icon: "clock.fill", color: .gray)
-                        DetailCard(title: "Warranty", value: record.warranty ? "Yes" : "No", icon: "checkmark.shield", color: record.warranty ? .green : .gray)
+                        DetailCard(title: "Scheduled", value: record.scheduledDate.formatted(date: .abbreviated, time: .shortened), icon: "calendar")
+                        DetailCard(title: "Provider", value: record.serviceProvider ?? "N/A", icon: "building.2")
+                        if let mileage = record.mileageAtService {
+                            DetailCard(title: "Mileage", value: formatMileage(mileage), icon: "speedometer")
+                        }
+                        if let cost = record.cost {
+                            DetailCard(title: "Cost", value: formatCurrency(cost), icon: "dollarsign.circle")
+                        }
                     }
                     .padding()
 
                     // Parts List
-                    if !record.parts.isEmpty {
+                    if let parts = record.parts, !parts.isEmpty {
                         VStack(alignment: .leading, spacing: 12) {
                             Text("Parts Replaced")
                                 .font(.headline)
                                 .padding(.horizontal)
 
                             VStack(spacing: 8) {
-                                ForEach(record.parts, id: \.partNumber) { part in
+                                ForEach(parts, id: \.id) { part in
                                     HStack {
                                         VStack(alignment: .leading) {
                                             Text(part.name)
                                                 .font(.subheadline)
-                                            Text("Part #\(part.partNumber)")
-                                                .font(.caption)
-                                                .foregroundColor(.secondary)
+                                            if let partNumber = part.partNumber {
+                                                Text("Part #\(partNumber)")
+                                                    .font(.caption)
+                                                    .foregroundColor(.secondary)
+                                            }
                                         }
                                         Spacer()
                                         VStack(alignment: .trailing) {
                                             Text("Qty: \(part.quantity)")
                                                 .font(.caption)
-                                            Text(formatCurrency(part.totalPrice))
+                                            Text(formatCurrency(part.totalCost))
                                                 .font(.subheadline.bold())
                                         }
                                     }
@@ -654,6 +666,8 @@ struct MaintenanceDetailViewEmbedded: View {
         case .completed: return .green
         case .overdue: return .red
         case .cancelled: return .gray
+        case .delayed: return .red
+        case .onHold: return .yellow
         }
     }
 
@@ -694,7 +708,7 @@ struct RescheduleView: View {
                     HStack {
                         Text("Service")
                         Spacer()
-                        Text(record.type)
+                        Text(record.type.rawValue)
                             .foregroundColor(.secondary)
                     }
 
