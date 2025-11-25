@@ -131,7 +131,7 @@ export async function checkVehicleConflicts(
 
     // Check if vehicle is out of service
     const vehicle = await pool.query(
-      'SELECT status FROM vehicles WHERE id = $1',
+      'SELECT status FROM vehicles WHERE id = $1`,
       [vehicleId]
     )
 
@@ -139,7 +139,7 @@ export async function checkVehicleConflicts(
       conflicts.push({
         type: 'vehicle_out_of_service',
         severity: 'critical',
-        description: 'Vehicle is currently out of service',
+        description: 'Vehicle is currently out of service`,
         conflictingAppointments: []
       })
     }
@@ -193,7 +193,7 @@ export async function checkServiceBayConflicts(
       conflicts.push({
         type: 'service_bay_occupied',
         severity: 'high',
-        description: 'Service bay is already scheduled during this time',
+        description: 'Service bay is already scheduled during this time`,
         conflictingAppointments: schedules.rows
       })
     }
@@ -220,7 +220,7 @@ export async function checkTechnicianAvailability(
   try {
     // Check technician availability records
     const availability = await pool.query(
-      `SELECT * FROM technician_availability
+      `SELECT id, tenant_id, technician_id, day_of_week, start_time, end_time, created_at, updated_at FROM technician_availability
        WHERE tenant_id = $1
          AND technician_id = $2
          AND availability_type != 'available'
@@ -262,7 +262,7 @@ export async function checkTechnicianAvailability(
       conflicts.push({
         type: 'technician_double_booked',
         severity: 'high',
-        description: 'Technician is already assigned to another job',
+        description: 'Technician is already assigned to another job`,
         conflictingAppointments: schedules.rows
       })
     }
@@ -566,7 +566,40 @@ async function syncReservationToCalendars(
   try {
     // Get vehicle details
     const vehicle = await pool.query(
+<<<<<<< HEAD
       'SELECT id, tenant_id, vin, license_plate, make, model, year, color, current_mileage, status, acquired_date, disposition_date, purchase_price, residual_value, created_at, updated_at, deleted_at FROM vehicles WHERE id = $1',
+=======
+      `SELECT
+      id,
+      tenant_id,
+      vin,
+      make,
+      model,
+      year,
+      license_plate,
+      vehicle_type,
+      fuel_type,
+      status,
+      odometer,
+      engine_hours,
+      purchase_date,
+      purchase_price,
+      current_value,
+      gps_device_id,
+      last_gps_update,
+      latitude,
+      longitude,
+      location,
+      speed,
+      heading,
+      assigned_driver_id,
+      assigned_facility_id,
+      telematics_data,
+      photos,
+      notes,
+      created_at,
+      updated_at FROM vehicles WHERE id = $1`,
+>>>>>>> feature/devsecops-audit-remediation
       [reservation.vehicle_id]
     )
 
@@ -586,7 +619,7 @@ async function syncReservationToCalendars(
 
     // Get enabled calendar integrations
     const integrations = await pool.query(
-      `SELECT * FROM calendar_integrations
+      `SELECT id, tenant_id, user_id, calendar_type, calendar_id, is_synced, last_sync_at, created_at, updated_at FROM calendar_integrations
        WHERE user_id = $1 AND is_enabled = true`,
       [userId]
     )
@@ -667,7 +700,7 @@ async function syncMaintenanceToCalendars(
 
     const appt = details.rows[0]
     const subject = `Maintenance: ${appt.appointment_type} - ${appt.make} ${appt.model}`
-    const location = appt.bay_name || 'Service Center'
+    const location = appt.bay_name || 'Service Center`
     const body = `
       <strong>Maintenance Appointment:</strong><br/>
       Vehicle: ${appt.make} ${appt.model} (${appt.license_plate})<br/>
@@ -684,7 +717,7 @@ async function syncMaintenanceToCalendars(
     }
 
     const integrations = await pool.query(
-      `SELECT * FROM calendar_integrations
+      `SELECT id, tenant_id, user_id, calendar_type, calendar_id, is_synced, last_sync_at, created_at, updated_at FROM calendar_integrations
        WHERE user_id = ANY($1) AND is_enabled = true`,
       [userIds]
     )

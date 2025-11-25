@@ -285,7 +285,10 @@ router.get('/jobs', async (req: Request, res: Response) => {
     const limit = parseInt(req.query.limit as string) || 50
 
     const result = await pool.query(`
-      SELECT *
+      SELECT
+        id, tenant_id, entity_type, sync_direction, status,
+        total_records, processed_records, failed_records, error_message,
+        started_at, completed_at, created_at
       FROM sync_jobs
       ORDER BY started_at DESC
       LIMIT $1

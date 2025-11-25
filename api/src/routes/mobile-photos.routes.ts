@@ -599,7 +599,15 @@ router.get(
       const tenantId = (req as any).user.tenant_id;
 
       const result = await pool.query(
-        `SELECT * FROM mobile_photos WHERE id = $1 AND tenant_id = $2`,
+        `SELECT 
+      id,
+      tenant_id,
+      user_id,
+      mobile_id,
+      photo_url,
+      metadata,
+      taken_at,
+      created_at FROM mobile_photos WHERE id = $1 AND tenant_id = $2`,
         [photoId, tenantId]
       );
 
@@ -653,7 +661,15 @@ router.delete(
 
       // Get photo details first
       const photoResult = await pool.query(
-        `SELECT * FROM mobile_photos WHERE id = $1 AND tenant_id = $2`,
+        `SELECT 
+      id,
+      tenant_id,
+      user_id,
+      mobile_id,
+      photo_url,
+      metadata,
+      taken_at,
+      created_at FROM mobile_photos WHERE id = $1 AND tenant_id = $2`,
         [photoId, tenantId]
       );
 

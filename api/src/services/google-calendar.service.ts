@@ -94,8 +94,50 @@ export async function exchangeCodeForTokens(code: string): Promise<TokenInfo> {
 async function getCalendarClient(userId: string, calendarIntegrationId?: string) {
   // Get user's Google tokens from database
   const query = calendarIntegrationId
-    ? 'SELECT * FROM calendar_integrations WHERE id = $1 AND provider = $2'
-    : 'SELECT * FROM calendar_integrations WHERE user_id = $1 AND provider = $2 AND is_enabled = true LIMIT 1'
+    ? 'SELECT 
+      id,
+      tenant_id,
+      user_id,
+      provider,
+      is_primary,
+      is_enabled,
+      access_token,
+      refresh_token,
+      token_expiry,
+      calendar_id,
+      calendar_name,
+      sync_direction,
+      sync_vehicle_reservations,
+      sync_maintenance_appointments,
+      sync_work_orders,
+      last_sync_at,
+      sync_status,
+      sync_errors,
+      settings,
+      created_at,
+      updated_at FROM calendar_integrations WHERE id = $1 AND provider = $2'
+    : 'SELECT 
+      id,
+      tenant_id,
+      user_id,
+      provider,
+      is_primary,
+      is_enabled,
+      access_token,
+      refresh_token,
+      token_expiry,
+      calendar_id,
+      calendar_name,
+      sync_direction,
+      sync_vehicle_reservations,
+      sync_maintenance_appointments,
+      sync_work_orders,
+      last_sync_at,
+      sync_status,
+      sync_errors,
+      settings,
+      created_at,
+      updated_at FROM calendar_integrations WHERE user_id = $1 AND provider = $2 AND is_enabled = true LIMIT 1'
 
   const params = calendarIntegrationId
     ? [calendarIntegrationId, 'google']
@@ -643,7 +685,28 @@ export async function revokeIntegration(userId: string, integrationId: string): 
   try {
     // Get integration
     const result = await pool.query(
-      'SELECT * FROM calendar_integrations WHERE id = $1 AND user_id = $2 AND provider = $3',
+      'SELECT 
+      id,
+      tenant_id,
+      user_id,
+      provider,
+      is_primary,
+      is_enabled,
+      access_token,
+      refresh_token,
+      token_expiry,
+      calendar_id,
+      calendar_name,
+      sync_direction,
+      sync_vehicle_reservations,
+      sync_maintenance_appointments,
+      sync_work_orders,
+      last_sync_at,
+      sync_status,
+      sync_errors,
+      settings,
+      created_at,
+      updated_at FROM calendar_integrations WHERE id = $1 AND user_id = $2 AND provider = $3',
       [integrationId, userId, 'google']
     )
 
