@@ -7,6 +7,13 @@ import UniformTypeIdentifiers
 class DocumentsViewModel: RefreshableViewModel {
     // MARK: - Published Properties
     @Published var documents: [FleetDocument] = []
+    @Published var folders: [DocumentFolder] = []
+    @Published var currentFolder: DocumentFolder?
+    @Published var favoriteDocuments: [FleetDocument] = []
+    @Published var recentDocuments: [FleetDocument] = []
+    @Published var documentVersions: [String: [DocumentVersion]] = [:]
+    @Published var annotations: [String: [DocumentAnnotation]] = [:]
+    @Published var ocrResults: [String: OCRResult] = [:]
     @Published var expirationAlerts: [DocumentExpirationAlert] = []
     @Published var stats: DocumentLibraryStats?
     @Published var selectedDocument: FleetDocument?
@@ -14,12 +21,32 @@ class DocumentsViewModel: RefreshableViewModel {
     @Published var showingDocumentScanner = false
     @Published var showingFilePicker = false
     @Published var showingExpirationCalendar = false
+    @Published var showingFolderManagement = false
     @Published var searchCriteria = DocumentSearchCriteria()
     @Published var sortOption: DocumentSortOption = .uploadDateDescending
+    @Published var viewMode: ViewMode = .list
+    @Published var uploadProgress: Double = 0.0
+    @Published var isUploading = false
 
     // MARK: - Computed Properties
+    var currentFolderDocuments: [FleetDocument] {
+        if let folderId = currentFolder?.id {
+            return documents.filter { $0.folderId == folderId }
+        } else {
+            return documents.filter { $0.folderId == nil }
+        }
+    }
+
+    var currentFolderSubfolders: [DocumentFolder] {
+        if let folderId = currentFolder?.id {
+            return folders.filter { $0.parentFolderId == folderId }
+        } else {
+            return folders.filter { $0.parentFolderId == nil }
+        }
+    }
+
     var filteredDocuments: [FleetDocument] {
-        var filtered = documents
+        var filtered = currentFolderDocuments
 
         // Apply search criteria
         if !searchCriteria.query.isEmpty {
@@ -122,6 +149,9 @@ class DocumentsViewModel: RefreshableViewModel {
 
         await withTaskGroup(of: Void.self) { group in
             group.addTask { await self.loadDocuments() }
+            group.addTask { await self.loadFolders() }
+            group.addTask { await self.loadFavorites() }
+            group.addTask { await self.loadRecentDocuments() }
             group.addTask { await self.loadStats() }
         }
 
@@ -406,7 +436,9 @@ class DocumentsViewModel: RefreshableViewModel {
                 version: 1,
                 isConfidential: i % 5 == 0,
                 lastModifiedDate: nil,
-                lastModifiedBy: nil
+                lastModifiedBy: nil,
+                folderId: i % 4 == 0 ? "folder-\((i % 3) + 1)" : nil,
+                isFavorite: i % 7 == 0
             )
 
             documents.append(document)
@@ -437,6 +469,416 @@ class DocumentsViewModel: RefreshableViewModel {
             }.count,
             pendingReview: documents.filter { $0.status == .pending }.count
         )
+    }
+
+    // MARK: - Folder Management
+    func loadFolders() async {
+        do {
+            try await Task.sleep(nanoseconds: 300_000_000)
+            let mockFolders = generateMockFolders()
+            await MainActor.run {
+                self.folders = mockFolders
+            }
+        } catch {
+            print("Error loading folders: \(error)")
+        }
+    }
+
+    func createFolder(name: String, color: FolderColor, icon: String?, parentFolderId: String?) async {
+        do {
+            startLoading()
+            try await Task.sleep(nanoseconds: 300_000_000)
+
+            let parentPath = folders.first(where: { $0.id == parentFolderId })?.path ?? ""
+            let newPath = parentPath.isEmpty ? "/\(name)" : "\(parentPath)/\(name)"
+
+            let newFolder = DocumentFolder(
+                id: UUID().uuidString,
+                name: name,
+                color: color,
+                icon: icon,
+                parentFolderId: parentFolderId,
+                path: newPath,
+                createdDate: Date(),
+                createdBy: "Current User",
+                modifiedDate: nil,
+                modifiedBy: nil,
+                documentCount: 0,
+                subfolderCount: 0,
+                isShared: false,
+                permissions: .default
+            )
+
+            await MainActor.run {
+                self.folders.append(newFolder)
+                self.finishLoading()
+                ModernTheme.Haptics.success()
+            }
+        } catch {
+            handleError(error)
+        }
+    }
+
+    func renameFolder(_ folder: DocumentFolder, newName: String) async {
+        do {
+            startLoading()
+            try await Task.sleep(nanoseconds: 300_000_000)
+
+            await MainActor.run {
+                if let index = self.folders.firstIndex(where: { $0.id == folder.id }) {
+                    var updated = folder
+                    updated = DocumentFolder(
+                        id: folder.id,
+                        name: newName,
+                        color: folder.color,
+                        icon: folder.icon,
+                        parentFolderId: folder.parentFolderId,
+                        path: folder.path.replacingOccurrences(of: folder.name, with: newName),
+                        createdDate: folder.createdDate,
+                        createdBy: folder.createdBy,
+                        modifiedDate: Date(),
+                        modifiedBy: "Current User",
+                        documentCount: folder.documentCount,
+                        subfolderCount: folder.subfolderCount,
+                        isShared: folder.isShared,
+                        permissions: folder.permissions
+                    )
+                    self.folders[index] = updated
+                }
+                self.finishLoading()
+                ModernTheme.Haptics.success()
+            }
+        } catch {
+            handleError(error)
+        }
+    }
+
+    func deleteFolder(_ folder: DocumentFolder) async {
+        do {
+            startLoading()
+            try await Task.sleep(nanoseconds: 300_000_000)
+
+            await MainActor.run {
+                self.folders.removeAll { $0.id == folder.id || $0.parentFolderId == folder.id }
+                self.documents.removeAll { $0.folderId == folder.id }
+                self.finishLoading()
+                ModernTheme.Haptics.success()
+            }
+        } catch {
+            handleError(error)
+        }
+    }
+
+    func moveDocument(_ document: FleetDocument, toFolder folder: DocumentFolder?) async {
+        do {
+            startLoading()
+            try await Task.sleep(nanoseconds: 200_000_000)
+
+            await MainActor.run {
+                if let index = self.documents.firstIndex(where: { $0.id == document.id }) {
+                    var updated = document
+                    updated = FleetDocument(
+                        id: document.id,
+                        name: document.name,
+                        type: document.type,
+                        category: document.category,
+                        description: document.description,
+                        fileUrl: document.fileUrl,
+                        fileData: document.fileData,
+                        fileSize: document.fileSize,
+                        mimeType: document.mimeType,
+                        uploadedDate: document.uploadedDate,
+                        uploadedBy: document.uploadedBy,
+                        expirationDate: document.expirationDate,
+                        reminderDate: document.reminderDate,
+                        relatedEntityType: document.relatedEntityType,
+                        relatedEntityId: document.relatedEntityId,
+                        relatedEntityName: document.relatedEntityName,
+                        tags: document.tags,
+                        status: document.status,
+                        version: document.version,
+                        isConfidential: document.isConfidential,
+                        lastModifiedDate: Date(),
+                        lastModifiedBy: "Current User",
+                        folderId: folder?.id,
+                        isFavorite: document.isFavorite
+                    )
+                    self.documents[index] = updated
+                }
+                self.finishLoading()
+                ModernTheme.Haptics.success()
+            }
+        } catch {
+            handleError(error)
+        }
+    }
+
+    func navigateToFolder(_ folder: DocumentFolder?) {
+        currentFolder = folder
+        ModernTheme.Haptics.light()
+    }
+
+    func navigateUp() {
+        if let current = currentFolder, let parentId = current.parentFolderId {
+            currentFolder = folders.first(where: { $0.id == parentId })
+        } else {
+            currentFolder = nil
+        }
+        ModernTheme.Haptics.light()
+    }
+
+    private func generateMockFolders() -> [DocumentFolder] {
+        [
+            DocumentFolder(
+                id: "folder-1",
+                name: "Vehicle Documents",
+                color: .blue,
+                icon: "car.fill",
+                parentFolderId: nil,
+                path: "/Vehicle Documents",
+                createdDate: Date().addingTimeInterval(-86400 * 60),
+                createdBy: "Admin",
+                modifiedDate: nil,
+                modifiedBy: nil,
+                documentCount: 12,
+                subfolderCount: 2,
+                isShared: false,
+                permissions: .default
+            ),
+            DocumentFolder(
+                id: "folder-2",
+                name: "Driver Records",
+                color: .green,
+                icon: "person.fill",
+                parentFolderId: nil,
+                path: "/Driver Records",
+                createdDate: Date().addingTimeInterval(-86400 * 45),
+                createdBy: "Admin",
+                modifiedDate: nil,
+                modifiedBy: nil,
+                documentCount: 8,
+                subfolderCount: 1,
+                isShared: false,
+                permissions: .default
+            ),
+            DocumentFolder(
+                id: "folder-3",
+                name: "Insurance",
+                color: .purple,
+                icon: "shield.fill",
+                parentFolderId: nil,
+                path: "/Insurance",
+                createdDate: Date().addingTimeInterval(-86400 * 30),
+                createdBy: "Admin",
+                modifiedDate: nil,
+                modifiedBy: nil,
+                documentCount: 5,
+                subfolderCount: 0,
+                isShared: true,
+                permissions: .default
+            )
+        ]
+    }
+
+    // MARK: - Favorites
+    func loadFavorites() async {
+        favoriteDocuments = documents.filter { $0.isFavorite }
+    }
+
+    func toggleFavorite(_ document: FleetDocument) async {
+        do {
+            startLoading()
+            try await Task.sleep(nanoseconds: 200_000_000)
+
+            await MainActor.run {
+                if let index = self.documents.firstIndex(where: { $0.id == document.id }) {
+                    var updated = document
+                    updated = FleetDocument(
+                        id: document.id,
+                        name: document.name,
+                        type: document.type,
+                        category: document.category,
+                        description: document.description,
+                        fileUrl: document.fileUrl,
+                        fileData: document.fileData,
+                        fileSize: document.fileSize,
+                        mimeType: document.mimeType,
+                        uploadedDate: document.uploadedDate,
+                        uploadedBy: document.uploadedBy,
+                        expirationDate: document.expirationDate,
+                        reminderDate: document.reminderDate,
+                        relatedEntityType: document.relatedEntityType,
+                        relatedEntityId: document.relatedEntityId,
+                        relatedEntityName: document.relatedEntityName,
+                        tags: document.tags,
+                        status: document.status,
+                        version: document.version,
+                        isConfidential: document.isConfidential,
+                        lastModifiedDate: document.lastModifiedDate,
+                        lastModifiedBy: document.lastModifiedBy,
+                        folderId: document.folderId,
+                        isFavorite: !document.isFavorite
+                    )
+                    self.documents[index] = updated
+                }
+                self.finishLoading()
+                ModernTheme.Haptics.light()
+            }
+
+            await loadFavorites()
+        } catch {
+            handleError(error)
+        }
+    }
+
+    // MARK: - Recent Documents
+    func loadRecentDocuments() async {
+        recentDocuments = documents.sorted { $0.uploadedDate > $1.uploadedDate }.prefix(10).map { $0 }
+    }
+
+    func recordDocumentAccess(_ document: FleetDocument, action: DocumentAction) async {
+        // In production, this would record to backend
+        await loadRecentDocuments()
+    }
+
+    // MARK: - Version Control
+    func loadVersionHistory(for document: FleetDocument) async {
+        do {
+            try await Task.sleep(nanoseconds: 300_000_000)
+
+            let mockVersions = generateMockVersions(for: document)
+
+            await MainActor.run {
+                self.documentVersions[document.id] = mockVersions
+            }
+        } catch {
+            print("Error loading version history: \(error)")
+        }
+    }
+
+    func uploadNewVersion(_ document: FleetDocument, fileData: Data, changeDescription: String?) async {
+        do {
+            startLoading()
+            try await Task.sleep(nanoseconds: 500_000_000)
+
+            let nextVersion = (documentVersions[document.id]?.count ?? 0) + 1
+
+            let newVersion = DocumentVersion(
+                id: UUID().uuidString,
+                documentId: document.id,
+                versionNumber: nextVersion,
+                fileName: document.name,
+                fileSize: Int64(fileData.count),
+                uploadedDate: Date(),
+                uploadedBy: "Current User",
+                changeDescription: changeDescription,
+                fileUrl: nil
+            )
+
+            await MainActor.run {
+                if self.documentVersions[document.id] != nil {
+                    self.documentVersions[document.id]?.insert(newVersion, at: 0)
+                } else {
+                    self.documentVersions[document.id] = [newVersion]
+                }
+                self.finishLoading()
+                ModernTheme.Haptics.success()
+            }
+        } catch {
+            handleError(error)
+        }
+    }
+
+    private func generateMockVersions(for document: FleetDocument) -> [DocumentVersion] {
+        (1...3).map { i in
+            DocumentVersion(
+                id: "version-\(document.id)-\(i)",
+                documentId: document.id,
+                versionNumber: 4 - i,
+                fileName: document.name,
+                fileSize: document.fileSize,
+                uploadedDate: Date().addingTimeInterval(-Double(i * 86400 * 7)),
+                uploadedBy: i == 1 ? "Current User" : "Admin",
+                changeDescription: i == 1 ? "Updated compliance info" : nil,
+                fileUrl: nil
+            )
+        }
+    }
+
+    // MARK: - OCR Text Extraction
+    func performOCR(on document: FleetDocument) async {
+        do {
+            startLoading()
+            try await Task.sleep(nanoseconds: 1_000_000_000)
+
+            let mockOCR = OCRResult(
+                id: UUID().uuidString,
+                documentId: document.id,
+                extractedText: "Sample extracted text from \(document.name). This is where OCR results would appear.",
+                confidence: 0.95,
+                language: "en",
+                processedDate: Date(),
+                pageNumber: 1
+            )
+
+            await MainActor.run {
+                self.ocrResults[document.id] = mockOCR
+                self.finishLoading()
+                ModernTheme.Haptics.success()
+            }
+        } catch {
+            handleError(error)
+        }
+    }
+
+    // MARK: - Annotations
+    func loadAnnotations(for document: FleetDocument) async {
+        do {
+            try await Task.sleep(nanoseconds: 200_000_000)
+
+            let mockAnnotations = generateMockAnnotations(for: document)
+
+            await MainActor.run {
+                self.annotations[document.id] = mockAnnotations
+            }
+        } catch {
+            print("Error loading annotations: \(error)")
+        }
+    }
+
+    func addAnnotation(_ annotation: DocumentAnnotation) async {
+        do {
+            startLoading()
+            try await Task.sleep(nanoseconds: 200_000_000)
+
+            await MainActor.run {
+                if self.annotations[annotation.documentId] != nil {
+                    self.annotations[annotation.documentId]?.append(annotation)
+                } else {
+                    self.annotations[annotation.documentId] = [annotation]
+                }
+                self.finishLoading()
+                ModernTheme.Haptics.light()
+            }
+        } catch {
+            handleError(error)
+        }
+    }
+
+    private func generateMockAnnotations(for document: FleetDocument) -> [DocumentAnnotation] {
+        [
+            DocumentAnnotation(
+                id: UUID().uuidString,
+                documentId: document.id,
+                pageNumber: 1,
+                type: .highlight,
+                content: nil,
+                coordinates: AnnotationCoordinates(x: 100, y: 200, width: 200, height: 20, path: nil),
+                color: "yellow",
+                createdBy: "Current User",
+                createdDate: Date()
+            )
+        ]
     }
 }
 
@@ -491,6 +933,18 @@ enum QuickFilter: String, CaseIterable {
         case .expired: return ModernTheme.Colors.error
         case .active: return ModernTheme.Colors.success
         case .pendingReview: return ModernTheme.Colors.info
+        }
+    }
+}
+
+enum ViewMode: String, CaseIterable {
+    case list = "List"
+    case grid = "Grid"
+
+    var icon: String {
+        switch self {
+        case .list: return "list.bullet"
+        case .grid: return "square.grid.2x2"
         }
     }
 }
