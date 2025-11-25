@@ -1,87 +1,85 @@
+#!/usr/bin/env ruby
+
 require 'xcodeproj'
 
 project_path = '/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App.xcodeproj'
 project = Xcodeproj::Project.open(project_path)
 
-# Find the main target
+# Get the main target
 target = project.targets.first
+puts "Target: #{target.name}"
 
-# Find or create the App group
-app_group = project.main_group['App'] || project.main_group.new_group('App')
-monitoring_group = app_group['Monitoring'] || app_group.new_group('Monitoring')
-
-# Files to add
+# Files to add with their paths relative to the project
 files_to_add = [
-  {
-    path: '/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/Monitoring/PerformanceMonitor.swift',
-    group: monitoring_group
-  },
-  {
-    path: '/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/Monitoring/MetricsCollector.swift',
-    group: monitoring_group
-  },
-  {
-    path: '/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/Monitoring/TelemetryExporter.swift',
-    group: monitoring_group
-  },
-  {
-    path: '/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/Monitoring/UIPerformanceMonitor.swift',
-    group: monitoring_group
-  },
-  {
-    path: '/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/LocalizationManager.swift',
-    group: app_group
-  },
-  {
-    path: '/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/AdvancedCacheManager.swift',
-    group: app_group
-  },
-  {
-    path: '/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/NetworkOptimizer.swift',
-    group: app_group
-  },
-  {
-    path: '/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/PerformanceOptimizer.swift',
-    group: app_group
-  },
-  {
-    path: '/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/TripModel.swift',
-    group: app_group
-  },
-  {
-    path: '/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/TripTrackingView.swift',
-    group: app_group
-  }
+  'App/ViewModels/BaseViewModel.swift',
+  'App/Models/DateRange.swift',
+  'App/MockDataGenerator.swift',
+  'App/CameraView.swift',
+  'App/VideoCaptureView.swift',
+  'App/LiDARScannerView.swift',
+  'App/MultipleImagePicker.swift'
 ]
 
-# Add each file
-files_to_add.each do |file_info|
-  file_path = file_info[:path]
-  group = file_info[:group]
-  
-  # Check if file exists
-  unless File.exist?(file_path)
-    puts "⚠️  File not found: #{file_path}"
+# Get the main group (usually the project root)
+main_group = project.main_group
+
+puts "\nAdding files to project..."
+
+files_to_add.each do |file_path|
+  absolute_path = File.join('/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native', file_path)
+
+  unless File.exist?(absolute_path)
+    puts "WARNING: File does not exist: #{absolute_path}"
     next
   end
-  
-  # Check if already in project
-  file_ref = group.files.find { |f| f.path == File.basename(file_path) }
-  
-  if file_ref
-    puts "ℹ️  File already in project: #{File.basename(file_path)}"
+
+  # Parse the path to find/create appropriate groups
+  path_components = file_path.split('/')
+  file_name = path_components.last
+  dir_components = path_components[0..-2]
+
+  # Navigate/create group hierarchy
+  current_group = main_group
+  dir_components.each do |dir_name|
+    existing_group = current_group.children.find { |child| child.is_a?(Xcodeproj::Project::Object::PBXGroup) && child.display_name == dir_name }
+
+    if existing_group
+      current_group = existing_group
+    else
+      # Create new group
+      new_group = current_group.new_group(dir_name, dir_name)
+      current_group = new_group
+    end
+  end
+
+  # Check if file already exists in project
+  existing_file = current_group.children.find { |child| child.respond_to?(:display_name) && child.display_name == file_name }
+
+  if existing_file
+    puts "File already in project: #{file_path}"
+
+    # Make sure it's in the build phase
+    build_file = target.source_build_phase.files.find { |bf| bf.file_ref == existing_file }
+    if build_file.nil?
+      target.source_build_phase.add_file_reference(existing_file)
+      puts "  -> Added to build phase"
+    else
+      puts "  -> Already in build phase"
+    end
   else
-    # Add file reference
-    file_ref = group.new_file(file_path)
-    
-    # Add to target
-    target.add_file_references([file_ref])
-    
-    puts "✅ Added: #{File.basename(file_path)}"
+    # Add new file reference
+    file_ref = current_group.new_file(file_name)
+    puts "Added file reference: #{file_path}"
+
+    # Add to build phase (compile sources)
+    if file_name.end_with?('.swift', '.m', '.mm', '.cpp', '.c')
+      target.source_build_phase.add_file_reference(file_ref)
+      puts "  -> Added to build phase"
+    end
   end
 end
 
-# Save project
+# Save the project
 project.save
-
-puts "\n✨ Project updated successfully!"
+puts "\nProject saved successfully!"
+puts "Added files are now part of the Xcode project."
