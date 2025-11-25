@@ -267,7 +267,7 @@ export class DriverScoringModel {
         `SELECT COUNT(*) as total_drivers,
                 COUNT(CASE WHEN overall_score < $1 THEN 1 END) as drivers_below
          FROM driver_scores
-         WHERE tenant_id = $2 AND period_end = $3`,
+         WHERE tenant_id = $2 AND period_end = $3',
         [score, tenantId, periodEnd]
       )
 

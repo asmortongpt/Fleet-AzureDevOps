@@ -21,7 +21,7 @@ router.get(
       const offset = (Number(page) - 1) * Number(limit)
 
       const result = await pool.query(
-        `SELECT ` + (await getTableColumns(pool, 'telemetry_data')).join(', ') + ` FROM telemetry_data WHERE tenant_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3`,
+        `SELECT ` + (await getTableColumns(pool, 'telemetry_data')).join(', ') + ` FROM telemetry_data WHERE tenant_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3',
         [req.user!.tenant_id, limit, offset]
       )
 

@@ -158,7 +158,7 @@ router.post('/login', loginLimiter, async (req: Request, res: Response) => {
         `UPDATE users
          SET failed_login_attempts = $1,
              account_locked_until = $2
-         WHERE id = $3`,
+         WHERE id = $3',
         [newAttempts, lockedUntil, user.id]
       )
 
@@ -187,7 +187,7 @@ router.post('/login', loginLimiter, async (req: Request, res: Response) => {
        SET failed_login_attempts = 0,
            account_locked_until = NULL,
            last_login_at = NOW()
-       WHERE id = $1`,
+       WHERE id = $1',
       [user.id]
     )
 
@@ -417,7 +417,7 @@ router.post('/refresh', async (req: Request, res: Response) => {
 
     // Revoke old refresh token (rotation)
     await pool.query(
-      `UPDATE refresh_tokens SET revoked_at = NOW() WHERE token_hash = $1`,
+      `UPDATE refresh_tokens SET revoked_at = NOW() WHERE token_hash = $1',
       [tokenHash]
     )
 

@@ -265,7 +265,7 @@ router.post(
       await pool.query(
         `UPDATE policy_acknowledgments
          SET is_current = FALSE
-         WHERE policy_id = $1 AND employee_id = $2`,
+         WHERE policy_id = $1 AND employee_id = $2',
         [req.params.id, req.user!.id]
       )
 
@@ -293,7 +293,7 @@ router.post(
         `UPDATE policy_templates
          SET times_acknowledged = times_acknowledged + 1,
              last_acknowledged_at = NOW()
-         WHERE id = $1`,
+         WHERE id = $1',
         [req.params.id]
       )
 

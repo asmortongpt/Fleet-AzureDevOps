@@ -173,11 +173,11 @@ export class TaskAssetConfigManager {
    * Get all business rules
    */
   async getBusinessRules(entity?: 'task' | 'asset'): Promise<BusinessRule[]> {
-    let query = `SELECT id, tenant_id, rule_name, rule_condition, action, is_active, created_at, updated_at FROM business_rules WHERE tenant_id = $1`
+    let query = `SELECT id, tenant_id, rule_name, rule_condition, action, is_active, created_at, updated_at FROM business_rules WHERE tenant_id = $1'
     const params: any[] = [this.tenantId]
 
     if (entity) {
-      query += ` AND entity = $2`
+      query += ` AND entity = $2'
       params.push(entity)
     }
 
@@ -456,11 +456,11 @@ export class TaskAssetConfigManager {
    * Get SLA configurations
    */
   async getSLAConfigs(entity?: 'task' | 'asset'): Promise<SLAConfig[]> {
-    let query = `SELECT id, tenant_id, sla_name, metric_name, target_value, warning_threshold, created_at, updated_at FROM sla_configs WHERE tenant_id = $1`
+    let query = `SELECT id, tenant_id, sla_name, metric_name, target_value, warning_threshold, created_at, updated_at FROM sla_configs WHERE tenant_id = $1'
     const params: any[] = [this.tenantId]
 
     if (entity) {
-      query += ` AND entity = $2`
+      query += ` AND entity = $2'
       params.push(entity)
     }
 
