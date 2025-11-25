@@ -76,6 +76,7 @@ struct Trip: Identifiable, Codable {
     let notes: String?
 }
 
+// MARK: - TripEvent for activity tracking
 struct TripEvent: Codable {
     enum EventType: String, Codable {
         case start = "Start"
