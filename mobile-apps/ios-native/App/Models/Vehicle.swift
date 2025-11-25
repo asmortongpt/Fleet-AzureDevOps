@@ -31,14 +31,14 @@ public struct Vehicle: Codable, Identifiable, Equatable {
     // Computed properties
     public var statusColor: String {
         switch status {
-        case .active, .moving: return "green"
-        case .parked: return "blue"
-        case .inactive: return "gray"
-        case .maintenance: return "orange"
-        case .offline: return "darkgray"
-        case .available: return "green"
-        case .reserved: return "blue"
+        case .active, .moving, .available: return "green"
+        case .parked, .reserved: return "blue"
+        case .inactive, .offline: return "gray"
+        case .maintenance, .service: return "orange"
         case .inUse: return "orange"
+        case .idle: return "gray"
+        case .charging: return "blue"
+        case .emergency: return "red"
         }
     }
 
