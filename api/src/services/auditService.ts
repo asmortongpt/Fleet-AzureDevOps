@@ -189,7 +189,7 @@ class AuditService {
          COUNT(*) FILTER (WHERE allowed = false) as failed_attempts,
          MAX(timestamp) as last_accessed
        FROM permission_audit_log
-       WHERE resource_type = $1 AND resource_id = $2`,
+       WHERE resource_type = $1 AND resource_id = $2',
       [resourceType, resourceId]
     );
 
@@ -209,7 +209,7 @@ class AuditService {
 
     const result = await pool.query(
       `DELETE FROM permission_audit_log
-       WHERE timestamp < $1`,
+       WHERE timestamp < $1',
       [cutoffDate]
     );
 

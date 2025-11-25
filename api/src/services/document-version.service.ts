@@ -59,7 +59,7 @@ export class DocumentVersionService {
       embedding_status,
       embedding_completed_at,
       created_at,
-      updated_at FROM documents WHERE id = $1`,
+      updated_at FROM documents WHERE id = $1',
         [options.documentId]
       )
 
@@ -75,7 +75,7 @@ export class DocumentVersionService {
       // Check if this version already exists
       const existingVersion = await client.query(
         `SELECT id FROM document_versions
-         WHERE document_id = $1 AND file_hash = $2`,
+         WHERE document_id = $1 AND file_hash = $2',
         [options.documentId, fileHash]
       )
 
@@ -202,7 +202,7 @@ export class DocumentVersionService {
           u.first_name || ' ' || u.last_name as uploaded_by_name
         FROM documents d
         LEFT JOIN users u ON d.uploaded_by = u.id
-        WHERE d.id = $1`,
+        WHERE d.id = $1',
         [documentId]
       )
 
@@ -246,7 +246,7 @@ export class DocumentVersionService {
           u.first_name || ' ' || u.last_name as uploaded_by_name
         FROM document_versions dv
         LEFT JOIN users u ON dv.uploaded_by = u.id
-        WHERE dv.document_id = $1 AND dv.version_number = $2`,
+        WHERE dv.document_id = $1 AND dv.version_number = $2',
         [documentId, versionNumber]
       )
 
@@ -273,7 +273,7 @@ export class DocumentVersionService {
       // Get the version to restore
       const versionResult = await client.query(
         `SELECT id, tenant_id, document_id, version_number, file_path, created_at, created_by FROM document_versions
-         WHERE document_id = $1 AND version_number = $2`,
+         WHERE document_id = $1 AND version_number = $2',
         [documentId, versionNumber]
       )
 
@@ -307,7 +307,7 @@ export class DocumentVersionService {
       embedding_status,
       embedding_completed_at,
       created_at,
-      updated_at FROM documents WHERE id = $1`,
+      updated_at FROM documents WHERE id = $1',
         [documentId]
       )
 
@@ -489,7 +489,7 @@ export class DocumentVersionService {
          FROM document_versions dv
          WHERE dv.document_id = $1
          ORDER BY dv.version_number DESC
-         OFFSET $2`,
+         OFFSET $2',
         [documentId, keepVersions]
       )
 
@@ -550,7 +550,7 @@ export class DocumentVersionService {
           MAX(created_at) as newest_version,
           AVG(file_size) as average_size_bytes
         FROM document_versions
-        WHERE document_id = $1`,
+        WHERE document_id = $1',
         [documentId]
       )
 

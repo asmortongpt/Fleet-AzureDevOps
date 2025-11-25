@@ -252,7 +252,7 @@ router.post(
       const user_id = req.user!.id;
 
       // Get driver_id for this user
-      const driverQuery = `SELECT id FROM drivers WHERE user_id = $1 AND tenant_id = $2`;
+      const driverQuery = `SELECT id FROM drivers WHERE user_id = $1 AND tenant_id = $2';
       const driverResult = await pool.query(driverQuery, [user_id, tenant_id]);
 
       if (driverResult.rows.length === 0) {
@@ -305,7 +305,7 @@ router.post(
       await pool.query(
         `UPDATE on_call_periods
          SET callback_count = callback_count + 1
-         WHERE id = $1 AND tenant_id = $2`,
+         WHERE id = $1 AND tenant_id = $2',
         [data.on_call_period_id, tenant_id]
       );
 
@@ -543,7 +543,7 @@ router.get(
       const tenant_id = req.user!.tenant_id;
 
       // Get driver_id
-      const driverQuery = `SELECT id FROM drivers WHERE user_id = $1 AND tenant_id = $2`;
+      const driverQuery = `SELECT id FROM drivers WHERE user_id = $1 AND tenant_id = $2';
       const driverResult = await pool.query(driverQuery, [user_id, tenant_id]);
 
       if (driverResult.rows.length === 0) {

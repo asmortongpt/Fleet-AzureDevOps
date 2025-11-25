@@ -21,14 +21,10 @@ router.get(
 
       // Row-level filtering: check if user is a driver
       const userResult = await pool.query(
-        'SELECT id FROM drivers WHERE user_id = $1 AND tenant_id = $2`,
+        'SELECT id FROM drivers WHERE user_id = $1 AND tenant_id = $2',
         [req.user!.id, req.user!.tenant_id]
       )
 
-<<<<<<< HEAD
-      let query = 'SELECT id, tenant_id, route_name, description, start_location, end_location, distance_miles, estimated_duration, status, created_at, updated_at, deleted_at FROM routes WHERE tenant_id = $1'
-      let countQuery = 'SELECT COUNT(*) FROM routes WHERE tenant_id = $1'
-=======
       let query = `SELECT
       id,
       tenant_id,
@@ -50,9 +46,8 @@ router.get(
       route_geometry,
       notes,
       created_at,
-      updated_at FROM routes WHERE tenant_id = $1`
-      let countQuery = 'SELECT COUNT(*) FROM routes WHERE tenant_id = $1`
->>>>>>> feature/devsecops-audit-remediation
+      updated_at FROM routes WHERE tenant_id = $1'
+      let countQuery = 'SELECT COUNT(*) FROM routes WHERE tenant_id = $1'
       const params: any[] = [req.user!.tenant_id]
 
       // If user is a driver, filter to only their routes
@@ -96,7 +91,7 @@ router.get(
     customCheck: async (req: AuthRequest) => {
       // IDOR check: verify the route belongs to the user if they're a driver
       const driverResult = await pool.query(
-        'SELECT id FROM drivers WHERE user_id = $1 AND tenant_id = $2`,
+        'SELECT id FROM drivers WHERE user_id = $1 AND tenant_id = $2',
         [req.user!.id, req.user!.tenant_id]
       )
 
@@ -107,7 +102,7 @@ router.get(
 
       // If user is a driver, verify the route belongs to them
       const routeResult = await pool.query(
-        'SELECT id FROM routes WHERE id = $1 AND driver_id = $2 AND tenant_id = $3`,
+        'SELECT id FROM routes WHERE id = $1 AND driver_id = $2 AND tenant_id = $3',
         [req.params.id, driverResult.rows[0].id, req.user!.tenant_id]
       )
 
@@ -118,9 +113,6 @@ router.get(
   async (req: AuthRequest, res: Response) => {
     try {
       const result = await pool.query(
-<<<<<<< HEAD
-        'SELECT id, tenant_id, route_name, description, start_location, end_location, distance_miles, estimated_duration, status, created_at, updated_at, deleted_at FROM routes WHERE id = $1 AND tenant_id = $2',
-=======
         `SELECT
       id,
       tenant_id,
@@ -142,8 +134,7 @@ router.get(
       route_geometry,
       notes,
       created_at,
-      updated_at FROM routes WHERE id = $1 AND tenant_id = $2`,
->>>>>>> feature/devsecops-audit-remediation
+      updated_at FROM routes WHERE id = $1 AND tenant_id = $2',
         [req.params.id, req.user!.tenant_id]
       )
 
@@ -194,7 +185,7 @@ router.put(
     customCheck: async (req: AuthRequest) => {
       // Prevent modifying completed routes
       const routeResult = await pool.query(
-        'SELECT status FROM routes WHERE id = $1 AND tenant_id = $2`,
+        'SELECT status FROM routes WHERE id = $1 AND tenant_id = $2',
         [req.params.id, req.user!.tenant_id]
       )
 

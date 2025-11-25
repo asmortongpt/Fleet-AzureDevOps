@@ -228,7 +228,7 @@ router.get('/:id',
         u.first_name || ' ' || u.last_name as deployed_by_name
       FROM deployments d
       LEFT JOIN users u ON d.deployed_by_user_id = u.id
-      WHERE d.id = $1`,
+      WHERE d.id = $1',
       [id]
     )
 

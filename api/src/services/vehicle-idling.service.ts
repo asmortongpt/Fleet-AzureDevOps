@@ -325,7 +325,7 @@ export class VehicleIdlingService extends EventEmitter {
       // Check if alert already sent for this severity level
       const existing = await client.query(
         `SELECT id FROM vehicle_idling_alerts
-         WHERE idling_event_id = $1 AND alert_level = $2`,
+         WHERE idling_event_id = $1 AND alert_level = $2',
         [eventId, severity]
       );
 
@@ -348,7 +348,7 @@ export class VehicleIdlingService extends EventEmitter {
       await client.query(
         `UPDATE vehicle_idling_events
          SET alert_triggered = true, alert_sent_at = NOW()
-         WHERE id = $1`,
+         WHERE id = $1',
         [eventId]
       );
 
@@ -423,7 +423,7 @@ export class VehicleIdlingService extends EventEmitter {
       await client.query(
         `UPDATE vehicle_idling_events
          SET location_name = $1
-         WHERE id = $2`,
+         WHERE id = $2',
         [locationName, eventId]
       );
     } finally {
@@ -525,7 +525,7 @@ export class VehicleIdlingService extends EventEmitter {
     const client = await this.pool.connect();
     try {
       const result = await client.query(
-        `SELECT * FROM top_idling_vehicles_30d LIMIT $1`,
+        `SELECT * FROM top_idling_vehicles_30d LIMIT $1',
         [limit]
       );
       return result.rows;
@@ -541,7 +541,7 @@ export class VehicleIdlingService extends EventEmitter {
     const client = await this.pool.connect();
     try {
       const result = await client.query(
-        `SELECT * FROM driver_idling_performance_30d LIMIT $1`,
+        `SELECT * FROM driver_idling_performance_30d LIMIT $1',
         [limit]
       );
       return result.rows;
@@ -595,7 +595,7 @@ export class VehicleIdlingService extends EventEmitter {
     const client = await this.pool.connect();
     try {
       const result = await client.query(
-        `SELECT * FROM active_idling_events WHERE vehicle_id = $1`,
+        `SELECT * FROM active_idling_events WHERE vehicle_id = $1',
         [vehicleId]
       );
       return result.rows[0] || null;
@@ -620,7 +620,7 @@ export class VehicleIdlingService extends EventEmitter {
          WHERE vehicle_id = $1
            AND start_time >= NOW() - INTERVAL '${days} days'
          ORDER BY start_time DESC
-         LIMIT $2 OFFSET $3`,
+         LIMIT $2 OFFSET $3',
         [vehicleId, limit, offset]
       );
       return result.rows;
@@ -645,7 +645,7 @@ export class VehicleIdlingService extends EventEmitter {
          WHERE driver_id = $1
            AND start_time >= NOW() - INTERVAL '${days} days'
          ORDER BY start_time DESC
-         LIMIT $2 OFFSET $3`,
+         LIMIT $2 OFFSET $3',
         [driverId, limit, offset]
       );
       return result.rows;
@@ -680,7 +680,7 @@ export class VehicleIdlingService extends EventEmitter {
     try {
       // Try to get vehicle-specific thresholds first
       let result = await client.query(
-        `SELECT * FROM vehicle_idling_thresholds WHERE vehicle_id = $1`,
+        `SELECT * FROM vehicle_idling_thresholds WHERE vehicle_id = $1',
         [vehicleId]
       );
 
@@ -805,7 +805,7 @@ export class VehicleIdlingService extends EventEmitter {
          SET acknowledged = true,
              acknowledged_by = $1,
              acknowledged_at = CURRENT_TIMESTAMP
-         WHERE id = $2`,
+         WHERE id = $2',
         [userId, alertId]
       );
 

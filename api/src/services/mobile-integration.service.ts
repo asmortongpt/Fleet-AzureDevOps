@@ -202,7 +202,7 @@ export class MobileIntegrationService {
     await pool.query(
       `UPDATE mobile_devices
        SET last_sync_at = $1, updated_at = $1
-       WHERE device_id = $2`,
+       WHERE device_id = $2',
       [syncedAt, request.device_id]
     )
 
@@ -273,9 +273,6 @@ export class MobileIntegrationService {
 
     // 1. Get vehicle info
     const vehicleResult = await pool.query(
-<<<<<<< HEAD
-      `SELECT id, tenant_id, vin, license_plate, make, model, year, color, current_mileage, status, acquired_date, disposition_date, purchase_price, residual_value, created_at, updated_at, deleted_at FROM vehicles WHERE tenant_id = $1 AND id = $2`,
-=======
       `SELECT 
       id,
       tenant_id,
@@ -305,8 +302,7 @@ export class MobileIntegrationService {
       photos,
       notes,
       created_at,
-      updated_at FROM vehicles WHERE tenant_id = $1 AND id = $2`,
->>>>>>> feature/devsecops-audit-remediation
+      updated_at FROM vehicles WHERE tenant_id = $1 AND id = $2',
       [tenantId, data.vehicle_id]
     )
     result.vehicle = vehicleResult.rows[0]
@@ -346,7 +342,7 @@ export class MobileIntegrationService {
       status,
       notes,
       created_at,
-      updated_at FROM optimized_routes WHERE id = $1`,
+      updated_at FROM optimized_routes WHERE id = $1',
         [data.route_id]
       )
       result.route = routeResult.rows[0]
@@ -376,11 +372,7 @@ export class MobileIntegrationService {
     // 4. Get active geofences if requested
     if (data.include_geofences) {
       const geofencesResult = await pool.query(
-<<<<<<< HEAD
-        `SELECT id, tenant_id, geofence_name, center_latitude, center_longitude, radius_meters, geofence_type, status, created_at, updated_at FROM geofences
-=======
         `SELECT id, tenant_id, geofence_name, latitude, longitude, radius_meters, created_at, updated_at FROM geofences
->>>>>>> feature/devsecops-audit-remediation
          WHERE tenant_id = $1 AND is_active = true`,
         [tenantId]
       )
@@ -578,7 +570,7 @@ export class MobileIntegrationService {
   ): Promise<boolean> {
     // Get device push token
     const deviceResult = await pool.query(
-      `SELECT push_token, device_type FROM mobile_devices WHERE device_id = $1`,
+      `SELECT push_token, device_type FROM mobile_devices WHERE device_id = $1',
       [deviceId]
     )
 
@@ -606,7 +598,7 @@ export class MobileIntegrationService {
     // Check for conflicts
     const existing = await pool.query(
       `SELECT id, tenant_id, vehicle_id, inspection_type, inspection_date, status, notes, created_at FROM vehicle_inspections
-       WHERE mobile_id = $1`,
+       WHERE mobile_id = $1',
       [inspection.id]
     )
 
