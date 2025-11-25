@@ -10,7 +10,16 @@
 		0495F5DFD62AD3C497DE7092 /* ImageUploadService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB7FB32F6586627934CB3AFA /* ImageUploadService.swift */; };
 		0537E0BFB791487988E78493 /* AdminApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = C907237E021C4DC5AA0E7961 /* AdminApp.swift */; };
 		05FD29B2EBB588775BAA1FE2 /* AddTripView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A1F000579F31AE84F13F903 /* AddTripView.swift */; };
-		068908ED00ABE2CCC99837D2 /* CrashReporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADEA64A38480FA712CF17B0A /* CrashReporter.swift */; };
+		068908ED00ABE2CCC99837D2 /* CrashReporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADEA
+		B9BE890F8BC346BBABB55C5B /* ReceiptCaptureView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F52AC1BDE5A49FF8D901D3B /* ReceiptCaptureView.swift *
+		5841B5090C154941A7AB89DA /* CameraView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C477574BE3E4177B6E8EAF9 /* CameraView.swift */; };
+		309780188992497FB69EC275 /* VideoCaptureView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9CE8B44DFB94CF9822DA22C /* VideoCaptureView.swift */; };
+		6F0F1E1A05EB4C14A0D15F11 /* LiDARScannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E02E60FD01D44BA698A43300 /* LiDARScannerView.swift */; };
+		0F82CAC15E754780A44F4910 /* MultipleImagePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31575A901A5540CDB880BA99 /* MultipleImagePicker.swift */; };
+/; };
+		D9574BB0F59C42D08DFEBA86 /* DamageReportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8DC5C020518B4164A8E4A226 /* DamageReportView.swift */; };
+		B21D36776588479583D1CDA1 /* VehicleReservationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB33BDD1AE5F4FC48EC2C808 /* VehicleReservationView.swift */; };
+64A38480FA712CF17B0A /* CrashReporter.swift */; };
 		0DD2FA05B7BB88D2A99F8C33 /* JailbreakDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87398F778BFEF7EF2DF86B3E /* JailbreakDetector.swift */; };
 		127510355BDC707C09F83E39 /* EnvironmentManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F5ADEF94D0506FA2EAAC608 /* EnvironmentManager.swift */; };
 		1396EF324AC67AE1F94B80B2 /* CameraManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2B306D6939DFE03C02278BC /* CameraManager.swift */; };
@@ -126,7 +135,16 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		062A5618B98E102055AF7BD6 /* ChecklistViewModel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ChecklistViewModel.swift; path = App/ViewModels/ChecklistViewModel.swift; sourceTree = "<group>"; };
+		1C477574BE3E4177B6E8EAF9 /* CameraView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraView.swift; sourceTree = "<group>"; };
+		C9CE8B44DFB94CF9822DA22C /* VideoCaptureView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoCaptureView.swift; sourceTree = "<group>"; };
+		E02E60FD01D44BA698A43300 /* LiDARScannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiDARScannerView.swift; sourceTree = "<group>"; };
+		31575A901A5540CDB880BA99 /* MultipleImagePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultipleImagePicker.swift; sourceTree = "<group>"; };
+
+		1F52AC1BDE5A49FF8D901D3B /* ReceiptCaptureView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReceiptCaptureView.swift; sourceTree = "<group>"; };
+		8DC5C020518B4164A8E4A226 /* DamageReportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DamageReportView.swift; sourceTree = "<group>"; };
+		BB33BDD1AE5F4FC48EC2C808 /* VehicleReservationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VehicleReservationView.swift; sourceTree = "<group>"; };
+
+		062A5618B98E102055AF7BD6 /* ChecklistViewModel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ChecklistViewModel.swift; path = ChecklistViewModel.swift; sourceTree = "<group>"; };
 		07D1943466FCE07ED73040DF /* TripModels.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TripModels.swift; path = TripModels.swift; sourceTree = "<group>"; };
 		07F888104B32CCDD11038A00 /* OBD2EmulatorView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = OBD2EmulatorView.swift; sourceTree = "<group>"; };
 		09C619BEA37BC33F2BEA6494 /* PhotoCaptureView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PhotoCaptureView.swift; sourceTree = "<group>"; };
@@ -303,7 +321,7 @@
 		EA371CA2F6EDEB0A203CFD97 /* PhotoLibraryManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PhotoLibraryManager.swift; sourceTree = "<group>"; };
 		ED69BBD9B42D719C46846D31 /* AdvancedCacheManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AdvancedCacheManager.swift; path = Performance/AdvancedCacheManager.swift; sourceTree = "<group>"; };
 		EE11154A39164F6F9851447F /* VehicleInspection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VehicleInspection.swift; sourceTree = "<group>"; };
-		EF751A40CCD1468E6AA7C9F8 /* VehicleIdlingViewModel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = VehicleIdlingViewModel.swift; path = App/ViewModels/VehicleIdlingViewModel.swift; sourceTree = "<group>"; };
+		EF751A40CCD1468E6AA7C9F8 /* VehicleIdlingViewModel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = VehicleIdlingViewModel.swift; path = VehicleIdlingViewModel.swift; sourceTree = "<group>"; };
 		F146D4D705C7AB16FD9F29EA /* PerformanceMonitor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PerformanceMonitor.swift; sourceTree = "<group>"; };
 		F2B306D6939DFE03C02278BC /* CameraManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CameraManager.swift; sourceTree = "<group>"; };
 		F34ECBC86983BEC6438C51D8 /* AccessibilityManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AccessibilityManager.swift; path = Utilities/AccessibilityManager.swift; sourceTree = "<group>"; };
@@ -780,7 +798,16 @@
 				33FF6ED8E6AF45E6A4D59BD2 /* FleetManagementAppView.swift in Sources */,
 				0537E0BFB791487988E78493 /* AdminApp.swift in Sources */,
 				B66C142E10D84DFC9D0403F7 /* ManualDataEntry.swift in Sources */,
-				443D9B4B989141FDAAF36D39 /* TripTracking.swift in Sources */,
+				443D
+				B9BE890F8BC346BBABB55C5B /* ReceiptCaptureView.swift in Sources */,
+				D9574BB0F59C42D08DFEBA86 /* DamageReportView.swift in Sourc
+				5841B5090C154941A7AB89DA /* CameraView.swift in Sources */,
+				309780188992497FB69EC275 /* VideoCaptureView.swift in Sources */,
+				6F0F1E1A05EB4C14A0D15F11 /* LiDARScannerView.swift in Sources */,
+				0F82CAC15E754780A44F4910 /* MultipleImagePicker.swift in Sources */,
+es */,
+				B21D36776588479583D1CDA1 /* VehicleReservationView.swift in Sources */,
+9B4B989141FDAAF36D39 /* TripTracking.swift in Sources */,
 				4B72C13258A942BEB8DFEB9C /* VehicleInspection.swift in Sources */,
 				6A7092747CFB4119B5A587F5 /* AzureConfig.swift in Sources */,
 				B1931DF8F42B42679360266E /* APIConfiguration.swift in Sources */,
