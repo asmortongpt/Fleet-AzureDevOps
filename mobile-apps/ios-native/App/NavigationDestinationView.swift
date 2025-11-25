@@ -91,6 +91,10 @@ struct NavigationDestinationView: View {
 
             case .editDriver(let id):
                 Text("Edit Driver: \(id)")
+
+            // GIS Command Center destination
+            case .gisCommandCenter:
+                GISCommandCenterView()
             }
         }
     }
