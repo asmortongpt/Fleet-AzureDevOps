@@ -1,5 +1,77 @@
 import SwiftUI
 
+// Placeholder for ChecklistViewModel
+class ChecklistViewModel: ObservableObject {
+    @Published var pendingChecklists: [String] = []
+}
+
+// Placeholder for RoleManager
+class RoleManager: ObservableObject {
+    static let shared = RoleManager()
+
+    var currentRole: UserRole = .driver
+
+    func getRoleBadge() -> (color: String, icon: String) {
+        return ("blue", "person")
+    }
+
+    func hasPermission(_ permission: Permission) -> Bool {
+        return true
+    }
+
+    func shouldShowFeature(_ feature: Feature) -> Bool {
+        return true
+    }
+}
+
+enum UserRole {
+    case driver
+    case manager
+    case admin
+
+    var displayName: String {
+        switch self {
+        case .driver: return "Driver"
+        case .manager: return "Manager"
+        case .admin: return "Admin"
+        }
+    }
+
+    var description: String {
+        switch self {
+        case .driver: return "Fleet Driver"
+        case .manager: return "Fleet Manager"
+        case .admin: return "System Administrator"
+        }
+    }
+
+    var icon: String {
+        switch self {
+        case .driver: return "person"
+        case .manager: return "person.2"
+        case .admin: return "person.3"
+        }
+    }
+}
+
+enum Permission {
+    case vehicleViewOwn
+    case vehicleViewGlobal
+    case fuelTransactionCreateOwn
+    case userManagement
+}
+
+enum Feature {
+    case captureReceipts
+    case reportDamage
+    case reserveVehicles
+    case navigation
+    case vehicleAssignment
+    case scheduling
+    case userManagement
+    case vehicleDiagnostics
+}
+
 struct MoreView: View {
     @StateObject private var checklistViewModel = ChecklistViewModel()
     @ObservedObject private var roleManager = RoleManager.shared
