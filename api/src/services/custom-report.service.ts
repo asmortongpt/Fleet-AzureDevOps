@@ -376,7 +376,24 @@ export class CustomReportService {
    */
   async getReportById(reportId: string, tenantId: string): Promise<CustomReport | null> {
     const result = await pool.query(
-      'SELECT * FROM custom_reports WHERE id = $1 AND tenant_id = $2',
+      'SELECT 
+      id,
+      tenant_id,
+      report_name,
+      description,
+      data_sources,
+      filters,
+      columns,
+      grouping,
+      sorting,
+      aggregations,
+      joins,
+      created_by,
+      updated_by,
+      is_public,
+      is_template,
+      created_at,
+      updated_at FROM custom_reports WHERE id = $1 AND tenant_id = $2',
       [reportId, tenantId]
     )
 
@@ -388,7 +405,7 @@ export class CustomReportService {
    */
   async listReports(tenantId: string, userId: string): Promise<CustomReport[]> {
     const result = await pool.query(
-      `SELECT * FROM custom_reports
+      `SELECT id, tenant_id, report_name, report_type, query_config, created_at, updated_at FROM custom_reports
        WHERE tenant_id = $1
        AND (created_by = $2 OR is_public = true OR id IN (
          SELECT report_id FROM report_shares WHERE shared_with_user_id = $2
@@ -680,7 +697,19 @@ export class CustomReportService {
    * Get report templates
    */
   async getTemplates(tenantId?: string): Promise<any[]> {
-    let query = 'SELECT * FROM report_templates WHERE is_system_template = true'
+    let query = 'SELECT 
+      id,
+      tenant_id,
+      template_name,
+      description,
+      category,
+      preview_image,
+      config,
+      is_system_template,
+      usage_count,
+      created_by,
+      created_at,
+      updated_at FROM report_templates WHERE is_system_template = true'
     const params: any[] = []
 
     if (tenantId) {
@@ -708,7 +737,19 @@ export class CustomReportService {
     reportName: string
   ): Promise<CustomReport> {
     const template = await pool.query(
-      'SELECT * FROM report_templates WHERE id = $1',
+      'SELECT 
+      id,
+      tenant_id,
+      template_name,
+      description,
+      category,
+      preview_image,
+      config,
+      is_system_template,
+      usage_count,
+      created_by,
+      created_at,
+      updated_at FROM report_templates WHERE id = $1',
       [templateId]
     )
 
@@ -742,7 +783,20 @@ export class CustomReportService {
     reportName: string
   ): Promise<void> {
     const execution = await pool.query(
-      'SELECT * FROM report_executions WHERE id = $1',
+      'SELECT 
+      id,
+      report_id,
+      schedule_id,
+      executed_by,
+      execution_time,
+      execution_duration_ms,
+      row_count,
+      file_url,
+      file_size_bytes,
+      format,
+      status,
+      error_message,
+      metadata FROM report_executions WHERE id = $1',
       [executionId]
     )
 

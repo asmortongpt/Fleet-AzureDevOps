@@ -223,7 +223,7 @@ class FleetCognitionService {
     try {
       // Get feedback that hasn't been incorporated into training
       const feedbackResult = await pool.query(
-        `SELECT * FROM feedback_loops
+        `SELECT id, tenant_id, feedback_type, feedback_data, created_at FROM feedback_loops
          WHERE tenant_id = $1
            AND incorporated_into_training = false
            AND should_retrain = true
@@ -572,7 +572,7 @@ class FleetCognitionService {
 
   private async getRecentInsights(tenantId: string, days: number): Promise<any[]> {
     const result = await pool.query(
-      `SELECT * FROM cognition_insights
+      `SELECT id, tenant_id, insight_type, insight_data, confidence_score, created_at FROM cognition_insights
        WHERE tenant_id = $1 AND created_at >= NOW() - INTERVAL '${days} days'
        ORDER BY created_at DESC`,
       [tenantId]
@@ -582,7 +582,7 @@ class FleetCognitionService {
 
   private async getRecentPatterns(tenantId: string, days: number): Promise<any[]> {
     const result = await pool.query(
-      `SELECT * FROM detected_patterns
+      `SELECT id, tenant_id, vehicle_id, pattern_type, pattern_data, confidence_score, detected_at FROM detected_patterns
        WHERE tenant_id = $1 AND last_detected_at >= NOW() - INTERVAL '${days} days'
        ORDER BY occurrence_count DESC`,
       [tenantId]
@@ -592,7 +592,7 @@ class FleetCognitionService {
 
   private async getUnresolvedAnomalies(tenantId: string): Promise<any[]> {
     const result = await pool.query(
-      `SELECT * FROM anomalies
+      `SELECT id, tenant_id, vehicle_id, anomaly_type, anomaly_data, detected_at FROM anomalies
        WHERE tenant_id = $1 AND is_resolved = false
        ORDER BY severity DESC, detected_at DESC`,
       [tenantId]

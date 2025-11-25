@@ -44,16 +44,90 @@ async function seedSupplemental() {
     let totalRecords = 0;
 
     // Fetch existing data
-    const tenantsResult = await client.query('SELECT * FROM tenants WHERE is_active = true');
+    const tenantsResult = await client.query(`SELECT
+      id,
+      name,
+      domain,
+      settings,
+      is_active,
+      created_at,
+      updated_at FROM tenants WHERE is_active = true');
     const tenants = tenantsResult.rows;
 
-    const vehiclesResult = await client.query('SELECT * FROM vehicles WHERE assigned_driver_id IS NOT NULL LIMIT 100');
+    const vehiclesResult = await client.query(`SELECT
+      id,
+      tenant_id,
+      vin,
+      make,
+      model,
+      year,
+      license_plate,
+      vehicle_type,
+      fuel_type,
+      status,
+      odometer,
+      engine_hours,
+      purchase_date,
+      purchase_price,
+      current_value,
+      gps_device_id,
+      last_gps_update,
+      latitude,
+      longitude,
+      location,
+      speed,
+      heading,
+      assigned_driver_id,
+      assigned_facility_id,
+      telematics_data,
+      photos,
+      notes,
+      created_at,
+      updated_at FROM vehicles WHERE assigned_driver_id IS NOT NULL LIMIT 100');
     const vehicles = vehiclesResult.rows;
 
-    const usersResult = await client.query('SELECT * FROM users WHERE is_active = true');
+    const usersResult = await client.query(`SELECT
+      id,
+      tenant_id,
+      email,
+      password_hash,
+      first_name,
+      last_name,
+      phone,
+      role,
+      is_active,
+      failed_login_attempts,
+      account_locked_until,
+      last_login_at,
+      mfa_enabled,
+      mfa_secret,
+      created_at,
+      updated_at FROM users WHERE is_active = true');
     const users = usersResult.rows;
 
-    const driversResult = await client.query('SELECT * FROM drivers WHERE status = \'active\'');
+    const driversResult = await client.query(`SELECT
+      id,
+      tenant_id,
+      user_id,
+      license_number,
+      license_state,
+      license_expiration,
+      cdl_class,
+      cdl_endorsements,
+      medical_card_expiration,
+      hire_date,
+      termination_date,
+      status,
+      safety_score,
+      total_miles_driven,
+      total_hours_driven,
+      incidents_count,
+      violations_count,
+      emergency_contact_name,
+      emergency_contact_phone,
+      notes,
+      created_at,
+      updated_at FROM drivers WHERE status = \'active\'');
     const drivers = driversResult.rows;
 
     // ========== CHARGING STATIONS ==========
@@ -276,7 +350,7 @@ async function seedSupplemental() {
         vendorValues.push(`(
           '${tenant.id}', '${city.name} ${type.replace('_', ' ')} Co.', '${type}',
           'Contact ${randomInt(1, 100)}', 'contact${i}@vendor.com',
-          '${generatePhoneNumber()}', '${randomInt(100, 9999)} Industrial Pkwy',
+          '${generatePhoneNumber()}', '${randomInt(100, 9999)} Industrial Pkwy`,
           '${city.name}', 'FL', '${randomInt(30000, 34999)}', true
         )`);
       }
