@@ -14,7 +14,9 @@ steps:
   - script: npm ci
     displayName: 'Install dependencies'
 
-  - script: ./scripts/generate-runtime-config.sh
+  - script: |
+      ls -la public/
+      bash ./scripts/generate-runtime-config.sh
     displayName: 'Generate runtime configuration'
     env:
       VITE_API_URL: $(VITE_API_URL)
