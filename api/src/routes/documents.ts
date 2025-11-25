@@ -530,7 +530,7 @@ router.delete(
       }
 
       const result = await pool.query(
-        `DELETE FROM documents WHERE id = $1 RETURNING id`,
+        `DELETE FROM documents WHERE id = $1 RETURNING id',
         [req.params.id]
       )
 

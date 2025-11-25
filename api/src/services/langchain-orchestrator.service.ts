@@ -672,7 +672,7 @@ class LangChainOrchestratorService {
        FROM vehicles v
        LEFT JOIN tasks t ON t.related_asset_id = v.id AND t.task_type = 'maintenance'
        WHERE v.id = $1 AND v.tenant_id = $2
-       GROUP BY v.id`,
+       GROUP BY v.id',
       [vehicleId, tenantId]
     )
 

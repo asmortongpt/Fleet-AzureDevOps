@@ -325,7 +325,7 @@ export class DocumentSearchService {
            WHERE user_id = $1
              AND created_at > NOW() - INTERVAL '30 days'
          ) interactions
-         GROUP BY document_id`,
+         GROUP BY document_id',
         [userId]
       )
 

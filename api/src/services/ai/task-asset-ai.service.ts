@@ -221,7 +221,7 @@ export async function predictAssetMaintenance(
       FROM assets a
       LEFT JOIN asset_maintenance am ON a.id = am.asset_id
       WHERE a.id = $1 AND a.tenant_id = $2
-      GROUP BY a.id`,
+      GROUP BY a.id',
       [assetId, tenant_id]
     )
 

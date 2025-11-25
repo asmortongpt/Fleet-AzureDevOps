@@ -141,7 +141,7 @@ class EVChargingService {
       FROM charging_stations cs
       LEFT JOIN charging_connectors cc ON cs.id = cc.station_id
       WHERE cs.id = $1
-      GROUP BY cs.id`,
+      GROUP BY cs.id',
       [stationId]
     );
 
