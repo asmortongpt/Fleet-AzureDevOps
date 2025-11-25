@@ -42,7 +42,7 @@ class WebhookSetup {
     const missing = required.filter(key => !this[key as keyof this]);
 
     if (missing.length > 0) {
-      throw new Error(`Missing required configuration: ${missing.join(', ')}`);
+      throw new Error('Missing required configuration: ${missing.join(', ')}`);
     }
 
     if (!this.webhookUrl.startsWith('https://')) {

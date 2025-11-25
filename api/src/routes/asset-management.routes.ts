@@ -422,7 +422,7 @@ router.post('/:id/transfer', requirePermission('vehicle:update:fleet'), async (r
       `INSERT INTO asset_history (
         asset_id, action, performed_by, location, notes
       ) VALUES ($1, $2, $3, $4, $5)`,
-      [id, 'transferred', userId, new_location, `${transfer_reason}: ${notes || ''}`]
+      [id, 'transferred', userId, new_location, '${transfer_reason}: ${notes || ''}`]
     )
 
     await client.query('COMMIT')

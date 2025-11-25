@@ -187,7 +187,7 @@ router.post(
 
         if (driverInfo.rows.length > 0 && managerInfo.rows.length > 0) {
           const driver = driverInfo.rows[0]
-          const approvalUrl = `${process.env.FRONTEND_URL || 'http://fleet.capitaltechalliance.com'}/personal-use/approvals/${tripUsage.id}`
+          const approvalUrl = '${process.env.FRONTEND_URL || 'http://fleet.capitaltechalliance.com'}/personal-use/approvals/${tripUsage.id}`
 
           emailNotificationService.sendTripApprovalRequest({
             driverEmail: managerInfo.rows[0].email,
@@ -292,7 +292,7 @@ router.get(
 
     if (month) {
       paramCount++
-      query += ` AND TO_CHAR(t.trip_date, 'YYYY-MM') = $${paramCount}`
+      query += ' AND TO_CHAR(t.trip_date, 'YYYY-MM') = $${paramCount}`
       params.push(month)
     }
 

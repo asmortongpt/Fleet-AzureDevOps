@@ -386,7 +386,7 @@ router.get(
   async (req: AuthRequest, res: Response) => {
     try {
       const routeResult = await pool.query(
-        `SELECT r.*, v.name as vehicle_name, d.first_name || ' ' || d.last_name as driver_name
+        'SELECT r.*, v.name as vehicle_name, d.first_name || ' ' || d.last_name as driver_name
          FROM optimized_routes r
          LEFT JOIN vehicles v ON r.vehicle_id = v.id
          LEFT JOIN drivers d ON r.driver_id = d.id
