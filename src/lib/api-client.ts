@@ -19,25 +19,27 @@ export class APIError extends Error {
 
 class APIClient {
   private baseURL: string
-  private token: string | null = null
   private csrfToken: string | null = null
   private csrfTokenPromise: Promise<void> | null = null
 
   constructor(baseURL: string) {
     this.baseURL = baseURL
-    this.token = localStorage.getItem('token')
     // Initialize CSRF token on construction
     this.initializeCsrfToken()
   }
 
-  setToken(token: string) {
-    this.token = token
-    localStorage.setItem('token', token)
+  // SECURITY: Tokens now managed via httpOnly cookies (CRITICAL-001)
+  // No localStorage token storage to prevent XSS attacks
+  setToken(_token: string) {
+    // Token is now set by backend via Set-Cookie header
+    // This method is kept for API compatibility but does nothing
+    console.warn('setToken() is deprecated - tokens are now httpOnly cookies')
   }
 
   clearToken() {
-    this.token = null
-    localStorage.removeItem('token')
+    // Token cleared by backend on logout
+    // This method is kept for API compatibility but does nothing
+    console.warn('clearToken() is deprecated - tokens are now httpOnly cookies')
   }
 
   /**
@@ -112,9 +114,8 @@ class APIClient {
       ...options.headers
     }
 
-    if (this.token) {
-      headers['Authorization'] = `Bearer ${this.token}`
-    }
+    // SECURITY: No Authorization header - httpOnly cookies handle authentication (CRITICAL-001)
+    // This prevents XSS attacks from stealing tokens
 
     // Add CSRF token to headers for state-changing requests
     if (isStateChanging && this.csrfToken) {
@@ -127,7 +128,7 @@ class APIClient {
       const response = await fetch(url, {
         ...options,
         headers,
-        credentials: 'include' // Required for CSRF cookies
+        credentials: 'include' // CRITICAL: Include httpOnly cookies with all requests
       })
 
       if (!response.ok) {
@@ -463,9 +464,7 @@ class APIClient {
 
       const response = await fetch(`${this.baseURL}/api/teams/${teamId}/channels/${channelId}/files`, {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${this.token}`
-        },
+        credentials: 'include', // CRITICAL: Include httpOnly cookies
         body: formData
       })
 
@@ -518,9 +517,7 @@ class APIClient {
 
       const response = await fetch(`${this.baseURL}/api/outlook/attachments`, {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${this.token}`
-        },
+        credentials: 'include', // CRITICAL: Include httpOnly cookies
         body: formData
       })
 
