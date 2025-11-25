@@ -160,7 +160,7 @@ export function validateFileType(
   if (!isAllowed) {
     return {
       valid: false,
-      error: 'File type ${mimeType} is not allowed. Allowed types: ${allowedTypes.join(', ')}`
+      error: 'File type ${mimeType} is not allowed. Allowed types: ${allowedTypes.join(', ')}'
     }
   }
 

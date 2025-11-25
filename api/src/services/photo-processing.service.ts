@@ -139,7 +139,7 @@ class PhotoProcessingService {
       await pool.query(
         `INSERT INTO photo_processing_queue
          (id, tenant_id, user_id, photo_id, blob_url, status, priority, retry_count, max_retries)
-         VALUES ($1, $2, $3, $4, $5, 'pending', $6, 0, 3)`,
+         VALUES ($1, $2, $3, $4, $5, 'pending', $6, 0, 3)',
         [jobId, tenantId, userId, photoId, blobUrl, priority]
       );
 
@@ -362,7 +362,7 @@ class PhotoProcessingService {
     try {
       // Get pending jobs with priority ordering
       const result = await pool.query(
-        `SELECT ` + (await getTableColumns(pool, 'photo_processing_queue')).join(', ') + ` FROM photo_processing_queue
+        'SELECT ' + (await getTableColumns(pool, 'photo_processing_queue')).join(', ') + ' FROM photo_processing_queue
          WHERE status = 'pending'
            AND retry_count < max_retries
          ORDER BY

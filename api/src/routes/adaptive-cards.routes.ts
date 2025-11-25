@@ -191,7 +191,7 @@ router.post('/approval', authenticateJWT, async (req: Request, res: Response) =>
 
     // Get approval request data
     const approvalResult = await pool.query(
-      `SELECT a.*, u.first_name || ' ' || u.last_name as requested_by_name
+      'SELECT a.*, u.first_name || ' ' || u.last_name as requested_by_name
        FROM approvals a
        LEFT JOIN users u ON a.requested_by = u.id
        WHERE a.id = $1',

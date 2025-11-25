@@ -216,7 +216,7 @@ router.get(
 
       // Set response headers
       res.setHeader('Content-Type', attachment.mime_type)
-      res.setHeader('Content-Disposition', `attachment; filename="${attachment.original_filename}"`)
+      res.setHeader('Content-Disposition', 'attachment; filename="${attachment.original_filename}"`)
       res.setHeader('Content-Length', fileBuffer.length)
 
       res.send(fileBuffer)

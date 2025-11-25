@@ -142,7 +142,7 @@ router.post(
 
       // Insert document record
       // Generate blob URL (in production, this would be Azure Blob Storage)
-      const blobUrl = '${process.env.API_URL || 'http://localhost:3000'}/uploads/${req.file.filename}`
+      const blobUrl = '${process.env.API_URL || 'http://localhost:3000'}/uploads/${req.file.filename}'
       const storagePath = `uploads/${req.file.filename}`
 
       const result = await pool.query(

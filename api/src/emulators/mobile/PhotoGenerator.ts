@@ -201,7 +201,7 @@ export class PhotoGenerator extends EventEmitter {
     const url = `https://via.placeholder.com/1200x800/${color}/ffffff?text=${encodeURIComponent(text)}`
 
     const metadata: PhotoMetadata = {
-      filename: 'inspection_${inspectionType}_${itemName.replace(/\s+/g, '_').toLowerCase()}_${timestamp.getTime()}.jpg`,
+      filename: 'inspection_${inspectionType}_${itemName.replace(/\s+/g, '_').toLowerCase()}_${timestamp.getTime()}.jpg',
       mime_type: 'image/jpeg',
       file_size_bytes: Math.floor(Math.random() * (600000 - 300000) + 300000), // 300KB-600KB
       width: 1200,

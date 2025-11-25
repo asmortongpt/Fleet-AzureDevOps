@@ -350,7 +350,7 @@ export class QueueMonitor {
 
       const result = await pool.query(
         `DELETE FROM queue_statistics
-         WHERE created_at < NOW() - ($1 || ' days')::INTERVAL`,
+         WHERE created_at < NOW() - ($1 || ' days')::INTERVAL',
         [daysToKeepNum]
       );
 

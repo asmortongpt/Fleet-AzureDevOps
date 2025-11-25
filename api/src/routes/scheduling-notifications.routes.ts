@@ -198,7 +198,7 @@ router.post('/test', async (req: Request, res: Response) => {
       if (!validChannels.includes(channel)) {
         return res.status(400).json({
           success: false,
-          error: 'Invalid channel: ${channel}. Must be one of: ${validChannels.join(', ')}`
+          error: 'Invalid channel: ${channel}. Must be one of: ${validChannels.join(', ')}'
         })
       }
     }
@@ -209,7 +209,7 @@ router.post('/test', async (req: Request, res: Response) => {
 
     res.json({
       success: true,
-      message: 'Test notifications sent via: ${channels.join(', ')}`,
+      message: 'Test notifications sent via: ${channels.join(', ')}',
       channels
     })
   } catch (error) {

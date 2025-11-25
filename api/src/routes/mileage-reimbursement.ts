@@ -36,7 +36,7 @@ router.get('/rates', async (req: Request, res: Response) => {
       try {
         const response = await axios.get(MILEAGE_CONFIG.externalApiEndpoint, {
           headers: {
-            'Authorization': `Bearer ${MILEAGE_CONFIG.externalApiKey}`
+            'Authorization': 'Bearer ${MILEAGE_CONFIG.externalApiKey}`
           },
           timeout: 5000
         })
@@ -60,7 +60,7 @@ router.get('/rates', async (req: Request, res: Response) => {
           'SELECT settings->>'mileage_rate' as rate,
                   settings->>'rate_effective_date' as effective_date
            FROM tenants
-           WHERE id = $1 AND settings->>'mileage_rate' IS NOT NULL`,
+           WHERE id = $1 AND settings->>'mileage_rate' IS NOT NULL',
           [tenant_id]
         )
 

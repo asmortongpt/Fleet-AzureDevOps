@@ -102,7 +102,7 @@ export class DocumentManagementService {
       // Check for duplicate files
       const duplicateCheck = await client.query(
         `SELECT id, file_name FROM documents
-         WHERE tenant_id = $1 AND file_hash = $2 AND status = 'active'`,
+         WHERE tenant_id = $1 AND file_hash = $2 AND status = 'active'',
         [options.tenantId, fileHash]
       )
 
@@ -113,7 +113,7 @@ export class DocumentManagementService {
 
       // Generate unique filename
       const fileExt = path.extname(options.file.originalname)
-      const fileName = `${crypto.randomBytes(16).toString('hex')}${fileExt}`
+      const fileName = '${crypto.randomBytes(16).toString('hex')}${fileExt}'
       const filePath = path.join(this.uploadDir, options.tenantId, fileName)
 
       // Ensure tenant directory exists
@@ -192,26 +192,26 @@ export class DocumentManagementService {
       // Generate embeddings for RAG
       if (extractedText && extractedText.length > 50) {
         await pool.query(
-          `UPDATE documents SET embedding_status = 'processing' WHERE id = $1',
+          'UPDATE documents SET embedding_status = 'processing' WHERE id = $1',
           [documentId]
         )
 
         await this.ragService.generateDocumentEmbeddings(documentId, extractedText)
 
         await pool.query(
-          `UPDATE documents SET embedding_status = 'completed', embedding_completed_at = NOW() WHERE id = $1',
+          'UPDATE documents SET embedding_status = 'completed', embedding_completed_at = NOW() WHERE id = $1',
           [documentId]
         )
       } else {
         await pool.query(
-          `UPDATE documents SET embedding_status = 'failed' WHERE id = $1',
+          'UPDATE documents SET embedding_status = 'failed' WHERE id = $1',
           [documentId]
         )
       }
     } catch (error) {
       console.error('Error processing document:', error)
       await pool.query(
-        `UPDATE documents SET ocr_status = 'failed', embedding_status = 'failed' WHERE id = $1',
+        'UPDATE documents SET ocr_status = 'failed', embedding_status = 'failed' WHERE id = $1',
         [documentId]
       )
     }
@@ -307,7 +307,7 @@ export class DocumentManagementService {
       query += ` AND d.status = $${paramCount}`
       params.push(filters.status)
     } else {
-      query += ` AND d.status = 'active'`
+      query += ' AND d.status = 'active''
     }
 
     if (filters?.categoryId) {
@@ -581,7 +581,7 @@ export class DocumentManagementService {
           COUNT(*) as total_documents,
           SUM(file_size) as total_size_bytes
         FROM documents
-        WHERE tenant_id = $1 AND status = 'active'`,
+        WHERE tenant_id = $1 AND status = 'active'',
         [tenantId]
       ),
       pool.query(
@@ -611,7 +611,7 @@ export class DocumentManagementService {
         `SELECT COUNT(*) as count
         FROM documents
         WHERE tenant_id = $1 AND status = 'active'
-        AND created_at > NOW() - INTERVAL '7 days'`,
+        AND created_at > NOW() - INTERVAL '7 days'',
         [tenantId]
       )
     ])
