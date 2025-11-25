@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from "react"
+import { useState, useRef } from "react"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -115,8 +115,7 @@ export function DocumentManagement() {
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   // TanStack Query hooks
-  const { data: documents = [], isLoading: documentsLoading, error: documentsError } = useQuery({
-    queryKey: ["documents"],
+  const { data: documents = [], isLoading: documentsLoading, error: documentsError } = useQuery({    queryKey: ["documents"],
     queryFn: async () => {
       const response = await apiClient.get<{ documents: Document[]; total: number }>('/documents')
       return response.documents || []

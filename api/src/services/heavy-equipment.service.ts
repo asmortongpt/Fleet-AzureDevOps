@@ -373,7 +373,7 @@ class HeavyEquipmentService {
    */
   async getEquipmentAttachments(equipmentId: string) {
     const result = await pool.query(
-      `SELECT * FROM equipment_attachments
+      `SELECT id, tenant_id, equipment_id, attachment_type, attachment_data, created_at FROM equipment_attachments
        WHERE equipment_id = $1
        ORDER BY is_currently_attached DESC, attachment_name`,
       [equipmentId]
@@ -589,7 +589,7 @@ class HeavyEquipmentService {
   async getEquipmentCostAnalysis(equipmentId: string, startDate: string, endDate: string) {
     // Get existing analysis if available
     const existingAnalysis = await pool.query(
-      `SELECT * FROM equipment_cost_analysis
+      `SELECT id, tenant_id, equipment_id, total_cost, depreciation, maintenance_cost, analysis_date FROM equipment_cost_analysis
        WHERE equipment_id = $1
          AND analysis_period_start = $2
          AND analysis_period_end = $3`,

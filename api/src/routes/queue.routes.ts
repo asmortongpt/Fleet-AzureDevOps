@@ -96,7 +96,7 @@ router.get('/:queueName/jobs', requireAdmin, async (req: Request, res: Response)
     const { status, limit = 50, offset = 0 } = req.query;
 
     let query = `
-      SELECT * FROM job_tracking
+      SELECT id, tenant_id, job_name, job_type, status, progress, result_data, created_at, updated_at FROM job_tracking
       WHERE queue_name = $1
     `;
     const params: any[] = [queueName];
@@ -144,7 +144,7 @@ router.get('/:queueName/failed', requireAdmin, async (req: Request, res: Respons
     const { limit = 50, offset = 0 } = req.query;
 
     const result = await pool.query(
-      `SELECT * FROM job_tracking
+      `SELECT id, tenant_id, job_name, job_type, status, progress, result_data, created_at, updated_at FROM job_tracking
        WHERE queue_name = $1 AND status = $2
        ORDER BY failed_at DESC
        LIMIT $3 OFFSET $4`,
@@ -181,7 +181,24 @@ router.get('/dead-letter', requireAdmin, async (req: Request, res: Response) => 
   try {
     const { reviewed, limit = 50, offset = 0 } = req.query;
 
-    let query = 'SELECT * FROM dead_letter_queue';
+    let query = 'SELECT 
+      id,
+      job_id,
+      queue_name,
+      job_type,
+      payload,
+      error,
+      stack_trace,
+      retry_count,
+      original_created_at,
+      moved_to_dlq_at,
+      reviewed,
+      reviewed_by,
+      reviewed_at,
+      resolution_notes,
+      retry_attempted,
+      retry_attempted_at,
+      created_at FROM dead_letter_queue';
     const params: any[] = [];
 
     if (reviewed !== undefined) {
@@ -437,7 +454,24 @@ router.get('/:queueName/job/:jobId', requireAdmin, async (req: Request, res: Res
     const { jobId } = req.params;
 
     const result = await pool.query(
-      'SELECT * FROM job_tracking WHERE job_id = $1',
+      'SELECT 
+      id,
+      job_id,
+      queue_name,
+      job_type,
+      status,
+      priority,
+      payload,
+      result,
+      error,
+      stack_trace,
+      retry_count,
+      max_retries,
+      started_at,
+      completed_at,
+      failed_at,
+      created_at,
+      updated_at FROM job_tracking WHERE job_id = $1',
       [jobId]
     );
 
