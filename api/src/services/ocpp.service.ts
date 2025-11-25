@@ -690,7 +690,7 @@ class OCPPService extends EventEmitter {
     values.push(stationId);
 
     await this.db.query(
-      `UPDATE charging_stations SET ${setClauses.join(', ')}, updated_at = NOW() WHERE station_id = $${paramIndex}`,
+      'UPDATE charging_stations SET ${setClauses.join(', ')}, updated_at = NOW() WHERE station_id = $${paramIndex}',
       values
     );
   }

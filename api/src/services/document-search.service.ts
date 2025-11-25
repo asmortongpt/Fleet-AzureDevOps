@@ -117,7 +117,7 @@ export class DocumentSearchService {
       }
     } catch (error) {
       console.error('Error searching documents:', error)
-      throw new Error(`Document search failed: ${error instanceof Error ? error.message : 'Unknown error'}`)
+      throw new Error('Document search failed: ${error instanceof Error ? error.message : 'Unknown error'}')
     }
   }
 
@@ -207,7 +207,7 @@ export class DocumentSearchService {
       console.log(`✅ Indexed document: ${result.rows[0].file_name}`)
     } catch (error) {
       console.error('Error indexing document:', error)
-      throw new Error(`Failed to index document: ${error instanceof Error ? error.message : 'Unknown error'}`)
+      throw new Error('Failed to index document: ${error instanceof Error ? error.message : 'Unknown error'}')
     }
   }
 
@@ -329,7 +329,7 @@ export class DocumentSearchService {
       sql += ` AND d.status = $${++paramCount}`
       params.push(filters.status)
     } else {
-      sql += ` AND d.status = 'active'`
+      sql += ' AND d.status = 'active''
     }
 
     // Add vehicle filter

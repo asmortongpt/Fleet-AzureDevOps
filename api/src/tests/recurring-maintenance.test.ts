@@ -173,7 +173,7 @@ describe('Check Due Schedules', () => {
       `INSERT INTO maintenance_schedules (
         tenant_id, vehicle_id, service_type, next_due,
         is_recurring, auto_create_work_order, priority, estimated_cost, status
-      ) VALUES ($1, $2, $3, $4, true, true, 'medium', 100, 'scheduled')`,
+      ) VALUES ($1, $2, $3, $4, true, true, 'medium', 100, 'scheduled')',
       [testTenantId, testVehicleId, 'Test Service', dueDate]
     )
 
@@ -191,7 +191,7 @@ describe('Check Due Schedules', () => {
       `INSERT INTO maintenance_schedules (
         tenant_id, vehicle_id, service_type, next_due,
         is_recurring, auto_create_work_order, priority, estimated_cost, status
-      ) VALUES ($1, $2, $3, $4, true, true, 'medium', 100, 'scheduled')`,
+      ) VALUES ($1, $2, $3, $4, true, true, 'medium', 100, 'scheduled')',
       [testTenantId, testVehicleId, 'Future Service', dueDate]
     )
 
@@ -208,7 +208,7 @@ describe('Check Due Schedules', () => {
       `INSERT INTO maintenance_schedules (
         tenant_id, vehicle_id, service_type, next_due,
         is_recurring, auto_create_work_order, priority, estimated_cost, status
-      ) VALUES ($1, $2, $3, $4, true, true, 'high', 150, 'scheduled')`,
+      ) VALUES ($1, $2, $3, $4, true, true, 'high', 150, 'scheduled')',
       [testTenantId, testVehicleId, 'Overdue Service', dueDate]
     )
 
@@ -226,7 +226,7 @@ describe('Work Order Generation', () => {
         tenant_id, vehicle_id, service_type, next_due, priority,
         is_recurring, auto_create_work_order, estimated_cost,
         recurrence_pattern, work_order_template, status
-      ) VALUES ($1, $2, $3, NOW(), $4, true, true, $5, $6, $7, 'scheduled') RETURNING *`,
+      ) VALUES ($1, $2, $3, NOW(), $4, true, true, $5, $6, $7, 'scheduled') RETURNING *',
       [
         testTenantId,
         testVehicleId,
@@ -330,7 +330,7 @@ describe('Recurring Schedule Statistics', () => {
       ) VALUES
         ($1, $2, 'Service 1', NOW() + INTERVAL '5 days', 'medium', true, true, 100, 'scheduled'),
         ($1, $2, 'Service 2', NOW() + INTERVAL '20 days', 'high', true, true, 200, 'scheduled'),
-        ($1, $2, 'Service 3', NOW() - INTERVAL '5 days', 'urgent', true, true, 300, 'scheduled')`,
+        ($1, $2, 'Service 3', NOW() - INTERVAL '5 days', 'urgent', true, true, 300, 'scheduled')',
       [testTenantId, testVehicleId]
     )
 
@@ -352,7 +352,7 @@ describe('Process Recurring Schedules', () => {
         tenant_id, vehicle_id, service_type, next_due, priority,
         is_recurring, auto_create_work_order, estimated_cost,
         recurrence_pattern, work_order_template, status
-      ) VALUES ($1, $2, $3, NOW() - INTERVAL '1 day', $4, true, true, $5, $6, $7, 'scheduled')`,
+      ) VALUES ($1, $2, $3, NOW() - INTERVAL '1 day', $4, true, true, $5, $6, $7, 'scheduled')',
       [
         testTenantId,
         testVehicleId,

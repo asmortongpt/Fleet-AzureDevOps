@@ -576,7 +576,7 @@ export class DocumentStorageService {
       await client.query('BEGIN')
 
       const result = await client.query(
-        `SELECT id, tenant_id, document_name, document_type, file_path, created_at, updated_at FROM documents WHERE id = $1 AND tenant_id = $2',
+        'SELECT id, tenant_id, document_name, document_type, file_path, created_at, updated_at FROM documents WHERE id = $1 AND tenant_id = $2',
         [documentId, tenantId]
       )
 
@@ -601,7 +601,7 @@ export class DocumentStorageService {
 
         // Delete from database
         await client.query(
-          `DELETE FROM documents WHERE id = $1 AND tenant_id = $2',
+          'DELETE FROM documents WHERE id = $1 AND tenant_id = $2',
           [documentId, tenantId]
         )
 

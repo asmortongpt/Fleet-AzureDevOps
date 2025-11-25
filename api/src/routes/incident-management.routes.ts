@@ -290,7 +290,7 @@ router.put('/:id', requirePermission('safety_incident:update:global'), async (re
     await client.query(
       `INSERT INTO incident_timeline (incident_id, event_type, description, performed_by)
        VALUES ($1, $2, $3, $4)`,
-      [id, 'updated', `Updated: ${changedFields}`, userId]
+      [id, 'updated', 'Updated: ${changedFields}`, userId]
     )
 
     await client.query('COMMIT')
@@ -330,7 +330,7 @@ router.post('/:id/actions', requirePermission('safety_incident:update:global'), 
     await client.query(
       `INSERT INTO incident_timeline (incident_id, event_type, description, performed_by)
        VALUES ($1, $2, $3, $4)`,
-      [id, 'action_added', `Corrective action assigned: ${action_description}`, userId]
+      [id, 'action_added', 'Corrective action assigned: ${action_description}`, userId]
     )
 
     await client.query('COMMIT')

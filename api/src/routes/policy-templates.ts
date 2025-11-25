@@ -548,7 +548,7 @@ router.get(
                 COUNT(CASE WHEN next_review_date < CURRENT_DATE THEN 1 END) as overdue_reviews,
                 COUNT(CASE WHEN next_review_date BETWEEN CURRENT_DATE AND CURRENT_DATE + INTERVAL '30 days' THEN 1 END) as upcoming_reviews
          FROM policy_templates
-         WHERE status = 'Active'`
+         WHERE status = 'Active''
       )
 
       // Compliance rate

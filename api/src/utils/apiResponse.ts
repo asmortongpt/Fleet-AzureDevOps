@@ -63,7 +63,7 @@ export class ApiResponse {
   }
 
   static notFound(res: Response, resource: string = 'Resource'): Response {
-    return this.error(res, '${resource} not found`, 'NOT_FOUND', 404);
+    return this.error(res, '${resource} not found', 'NOT_FOUND', 404);
   }
 
   static conflict(res: Response, message: string): Response {

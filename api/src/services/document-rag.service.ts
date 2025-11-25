@@ -302,7 +302,7 @@ export class DocumentRAGService {
       // Build context from search results
       const context = searchResults
         .map((result, idx) => {
-          return `[Source ${idx + 1}: ${result.document_name}${result.page_number ? `, Page ${result.page_number}` : ''}]\n${result.chunk_text}`
+          return '[Source ${idx + 1}: ${result.document_name}${result.page_number ? ', Page ${result.page_number}` : ''}]\n${result.chunk_text}'
         })
         .join('\n\n')
 
@@ -312,7 +312,7 @@ export class DocumentRAGService {
 
       if (!this.openai) {
         // Mock answer for development
-        answer = `Based on the documents, here's what I found: ${searchResults[0].chunk_text.substring(0, 200)}... (Note: Using mock AI response - configure OpenAI API key for full functionality)`
+        answer = 'Based on the documents, here's what I found: ${searchResults[0].chunk_text.substring(0, 200)}... (Note: Using mock AI response - configure OpenAI API key for full functionality)'
         confidence = 0.5
       } else {
         const response = await this.openai.chat.completions.create({
@@ -322,7 +322,7 @@ export class DocumentRAGService {
               role: 'system',
               content: `You are a helpful assistant that answers questions based on fleet management documents.
               Use the provided context to answer questions accurately. If the context doesn't contain enough information,
-              say so clearly. Always cite which source you're using in your answer.`
+              say so clearly. Always cite which source you're using in your answer.'
             },
             {
               role: 'user',
@@ -457,7 +457,7 @@ export class DocumentRAGService {
       pool.query(
         `SELECT COUNT(*) as count
          FROM document_rag_queries
-         WHERE tenant_id = $1 AND created_at > NOW() - INTERVAL '7 days'`,
+         WHERE tenant_id = $1 AND created_at > NOW() - INTERVAL '7 days'',
         [tenantId]
       )
     ])

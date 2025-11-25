@@ -115,7 +115,7 @@ describe('Auth Integration Tests', () => {
 
       const response = await request(app)
         .get('/api/auth/me')
-        .set('Authorization', `Bearer ${token}`);
+        .set('Authorization', 'Bearer ${token}`);
 
       // Should return user data or 404 if endpoint doesn't exist
       expect([200, 404, 500]).toContain(response.status);
@@ -144,7 +144,7 @@ describe('Auth Integration Tests', () => {
 
       const response = await request(app)
         .post('/api/auth/logout')
-        .set('Authorization', `Bearer ${token}`);
+        .set('Authorization', 'Bearer ${token}`);
 
       expect([200, 204, 404, 500]).toContain(response.status);
     });
@@ -156,7 +156,7 @@ describe('Auth Integration Tests', () => {
 
       const response = await request(app)
         .post('/api/auth/refresh')
-        .set('Authorization', `Bearer ${token}`);
+        .set('Authorization', 'Bearer ${token}`);
 
       expect([200, 404, 500]).toContain(response.status);
 
