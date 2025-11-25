@@ -139,7 +139,7 @@ export async function checkVehicleConflicts(
       conflicts.push({
         type: 'vehicle_out_of_service',
         severity: 'critical',
-        description: 'Vehicle is currently out of service`,
+        description: 'Vehicle is currently out of service',
         conflictingAppointments: []
       })
     }
@@ -193,7 +193,7 @@ export async function checkServiceBayConflicts(
       conflicts.push({
         type: 'service_bay_occupied',
         severity: 'high',
-        description: 'Service bay is already scheduled during this time`,
+        description: 'Service bay is already scheduled during this time',
         conflictingAppointments: schedules.rows
       })
     }
@@ -262,7 +262,7 @@ export async function checkTechnicianAvailability(
       conflicts.push({
         type: 'technician_double_booked',
         severity: 'high',
-        description: 'Technician is already assigned to another job`,
+        description: 'Technician is already assigned to another job',
         conflictingAppointments: schedules.rows
       })
     }
@@ -608,9 +608,9 @@ async function syncReservationToCalendars(
       Vehicle: ${vehicleInfo.make} ${vehicleInfo.model}<br/>
       License Plate: ${vehicleInfo.license_plate}<br/>
       Type: ${reservation.reservation_type}<br/>
-      ${reservation.pickup_location ? `Pickup: ${reservation.pickup_location}<br/>` : ''}
-      ${reservation.dropoff_location ? `Dropoff: ${reservation.dropoff_location}<br/>` : ''}
-      ${reservation.purpose ? `Purpose: ${reservation.purpose}<br/>` : ''}
+      ${reservation.pickup_location ? 'Pickup: ${reservation.pickup_location}<br/>' : ''}
+      ${reservation.dropoff_location ? 'Dropoff: ${reservation.dropoff_location}<br/>' : ''}
+      ${reservation.purpose ? 'Purpose: ${reservation.purpose}<br/>' : ''}
     `
 
     // Get enabled calendar integrations
@@ -653,7 +653,7 @@ async function syncReservationToCalendars(
             : 'google_event_id'
 
           await pool.query(
-            `UPDATE vehicle_reservations SET ${updateField} = $1 WHERE id = $2',
+            'UPDATE vehicle_reservations SET ${updateField} = $1 WHERE id = $2',
             [eventId, reservation.id]
           )
         }
@@ -696,14 +696,14 @@ async function syncMaintenanceToCalendars(
 
     const appt = details.rows[0]
     const subject = `Maintenance: ${appt.appointment_type} - ${appt.make} ${appt.model}`
-    const location = appt.bay_name || 'Service Center`
+    const location = appt.bay_name || 'Service Center'
     const body = `
       <strong>Maintenance Appointment:</strong><br/>
       Vehicle: ${appt.make} ${appt.model} (${appt.license_plate})<br/>
       VIN: ${appt.vin}<br/>
       Service Type: ${appt.appointment_type}<br/>
-      ${appt.bay_name ? `Service Bay: ${appt.bay_name}<br/>` : ''}
-      ${appt.technician_name ? `Technician: ${appt.technician_name}<br/>` : ''}
+      ${appt.bay_name ? 'Service Bay: ${appt.bay_name}<br/>' : ''}
+      ${appt.technician_name ? 'Technician: ${appt.technician_name}<br/>' : ''}
     `
 
     // Get enabled calendar integrations for relevant users
@@ -751,7 +751,7 @@ async function syncMaintenanceToCalendars(
             : 'google_event_id'
 
           await pool.query(
-            `UPDATE service_bay_schedules SET ${updateField} = $1 WHERE id = $2',
+            'UPDATE service_bay_schedules SET ${updateField} = $1 WHERE id = $2',
             [eventId, appointment.id]
           )
         }
@@ -814,7 +814,7 @@ export async function getVehicleSchedule(
   try {
     // Get reservations
     const reservations = await pool.query(
-      `SELECT vr.*, u.first_name || ' ' || u.last_name as reserved_by_name,
+      'SELECT vr.*, u.first_name || ' ' || u.last_name as reserved_by_name,
               du.first_name || ' ' || du.last_name as driver_name
        FROM vehicle_reservations vr
        JOIN users u ON vr.reserved_by = u.id

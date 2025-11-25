@@ -234,7 +234,7 @@ export class InspectionGenerator extends EventEmitter {
     const inspectorNotes = this.generateInspectorNotes(overallResult, defectsFound, criticalDefects)
 
     // Digital signature simulation
-    const digitalSignature = 'SIG-${inspectorName.replace(/\s+/g, '')}-${Date.now()}`
+    const digitalSignature = 'SIG-${inspectorName.replace(/\s+/g, '')}-${Date.now()}'
 
     // Next inspection due (for annual: +1 year, for pre-trip: +1 day, post-trip: not applicable)
     let nextInspectionDue: Date | undefined
@@ -293,13 +293,13 @@ export class InspectionGenerator extends EventEmitter {
     }
 
     const itemSpecificNotes: Record<string, string> = {
-      'Tire Condition & Tread Depth': 'Tread depth below ${severity === 'critical' ? '2/32"' : '4/32"'}. ${severityDescriptions[severity as keyof typeof severityDescriptions]}`,
-      'Headlights (High/Low Beam)': '${severity === 'critical' ? 'Both' : 'One'} headlight not functioning. ${severityDescriptions[severity as keyof typeof severityDescriptions]}`,
-      'Brake Lights': `Brake light(s) not working. ${severityDescriptions[severity as keyof typeof severityDescriptions]}`,
-      'Windshield (No Cracks)': 'Crack in windshield ${severity === 'critical' ? 'obstructing driver view' : 'spreading'}. ${severityDescriptions[severity as keyof typeof severityDescriptions]}`,
-      'Brake Pedal Feel': 'Brake pedal feels ${severity === 'critical' ? 'spongy/goes to floor' : 'soft'}. ${severityDescriptions[severity as keyof typeof severityDescriptions]}`,
-      'Engine Oil Level': 'Oil level ${severity === 'critical' ? 'critically low' : 'below minimum'}. ${severityDescriptions[severity as keyof typeof severityDescriptions]}`,
-      'Check for Fluid Leaks': '${severity === 'critical' ? 'Active' : 'Minor'} fluid leak detected under vehicle. ${severityDescriptions[severity as keyof typeof severityDescriptions]}`
+      'Tire Condition & Tread Depth': 'Tread depth below ${severity === 'critical' ? '2/32"' : '4/32"'}. ${severityDescriptions[severity as keyof typeof severityDescriptions]}',
+      'Headlights (High/Low Beam)': '${severity === 'critical' ? 'Both' : 'One'} headlight not functioning. ${severityDescriptions[severity as keyof typeof severityDescriptions]}',
+      'Brake Lights': 'Brake light(s) not working. ${severityDescriptions[severity as keyof typeof severityDescriptions]}`,
+      'Windshield (No Cracks)': 'Crack in windshield ${severity === 'critical' ? 'obstructing driver view' : 'spreading'}. ${severityDescriptions[severity as keyof typeof severityDescriptions]}',
+      'Brake Pedal Feel': 'Brake pedal feels ${severity === 'critical' ? 'spongy/goes to floor' : 'soft'}. ${severityDescriptions[severity as keyof typeof severityDescriptions]}',
+      'Engine Oil Level': 'Oil level ${severity === 'critical' ? 'critically low' : 'below minimum'}. ${severityDescriptions[severity as keyof typeof severityDescriptions]}',
+      'Check for Fluid Leaks': '${severity === 'critical' ? 'Active' : 'Minor'} fluid leak detected under vehicle. ${severityDescriptions[severity as keyof typeof severityDescriptions]}'
     }
 
     return itemSpecificNotes[itemName] || `${itemName} failed inspection. ${severityDescriptions[severity as keyof typeof severityDescriptions]}`

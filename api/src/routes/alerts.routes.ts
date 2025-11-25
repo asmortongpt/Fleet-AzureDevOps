@@ -204,7 +204,7 @@ router.get('/stats', requirePermission('report:view:global'), async (req: AuthRe
          FROM alerts
          WHERE tenant_id = $1
          AND status IN ('pending', 'sent')
-         AND severity IN ('critical', 'emergency')`,
+         AND severity IN ('critical', 'emergency')',
         [tenantId]
       ),
       // 7-day trend

@@ -83,7 +83,7 @@ class LangChainOrchestratorService {
       const step1Start = Date.now()
       const vehicleAnalysis = await this.analyzeVehicleCondition(vehicleId, context.tenantId)
       steps.push({
-        stepName: 'Analyze Vehicle Condition`,
+        stepName: 'Analyze Vehicle Condition',
         stepNumber: 1,
         input: { vehicleId },
         output: vehicleAnalysis,
@@ -97,7 +97,7 @@ class LangChainOrchestratorService {
       const step2Start = Date.now()
       const maintenanceHistory = await this.getMaintenanceHistory(vehicleId, context.tenantId)
       steps.push({
-        stepName: 'Check Maintenance History`,
+        stepName: 'Check Maintenance History',
         stepNumber: 2,
         input: { vehicleId },
         output: maintenanceHistory,
@@ -114,7 +114,7 @@ class LangChainOrchestratorService {
         context
       )
       steps.push({
-        stepName: 'Generate Maintenance Plan`,
+        stepName: 'Generate Maintenance Plan',
         stepNumber: 3,
         input: { vehicleAnalysis, maintenanceHistory },
         output: maintenancePlan,
@@ -131,7 +131,7 @@ class LangChainOrchestratorService {
         context.tenantId
       )
       steps.push({
-        stepName: 'Assign Technician`,
+        stepName: 'Assign Technician',
         stepNumber: 4,
         input: { maintenancePlan },
         output: assignment,
@@ -187,7 +187,7 @@ class LangChainOrchestratorService {
       const step1Start = Date.now()
       const incidentReport = await this.getIncidentReport(incidentId, context.tenantId)
       steps.push({
-        stepName: 'Retrieve Incident Report`,
+        stepName: 'Retrieve Incident Report',
         stepNumber: 1,
         input: { incidentId },
         output: incidentReport,
@@ -200,7 +200,7 @@ class LangChainOrchestratorService {
       const step2Start = Date.now()
       const analysis = await this.analyzeIncident(incidentReport, context)
       steps.push({
-        stepName: 'AI Incident Analysis`,
+        stepName: 'AI Incident Analysis',
         stepNumber: 2,
         input: { incidentReport },
         output: analysis,
@@ -218,7 +218,7 @@ class LangChainOrchestratorService {
         context
       )
       steps.push({
-        stepName: 'Generate Recommendations`,
+        stepName: 'Generate Recommendations',
         stepNumber: 3,
         input: { incidentReport, analysis },
         output: recommendations,
@@ -237,7 +237,7 @@ class LangChainOrchestratorService {
         context.tenantId
       )
       steps.push({
-        stepName: 'Update Safety Records`,
+        stepName: 'Update Safety Records',
         stepNumber: 4,
         input: { incidentId, analysis, recommendations },
         output: safetyUpdate,
@@ -293,7 +293,7 @@ class LangChainOrchestratorService {
       const step1Start = Date.now()
       const currentRoutes = await this.getCurrentRoutes(routeIds, context.tenantId)
       steps.push({
-        stepName: 'Retrieve Current Routes`,
+        stepName: 'Retrieve Current Routes',
         stepNumber: 1,
         input: { routeIds },
         output: currentRoutes,
@@ -306,7 +306,7 @@ class LangChainOrchestratorService {
       const step2Start = Date.now()
       const trafficData = await this.getTrafficData(currentRoutes)
       steps.push({
-        stepName: 'Fetch Traffic Data`,
+        stepName: 'Fetch Traffic Data',
         stepNumber: 2,
         input: { currentRoutes },
         output: trafficData,
@@ -319,7 +319,7 @@ class LangChainOrchestratorService {
       const step3Start = Date.now()
       const weatherData = await this.getWeatherData(currentRoutes)
       steps.push({
-        stepName: 'Fetch Weather Data`,
+        stepName: 'Fetch Weather Data',
         stepNumber: 3,
         input: { currentRoutes },
         output: weatherData,
@@ -337,7 +337,7 @@ class LangChainOrchestratorService {
         context
       )
       steps.push({
-        stepName: 'AI Route Optimization`,
+        stepName: 'AI Route Optimization',
         stepNumber: 4,
         input: { currentRoutes, trafficData, weatherData },
         output: optimizedRoutes,
@@ -354,7 +354,7 @@ class LangChainOrchestratorService {
         context.tenantId
       )
       steps.push({
-        stepName: 'Update Dispatch`,
+        stepName: 'Update Dispatch',
         stepNumber: 5,
         input: { optimizedRoutes },
         output: dispatchUpdate,
@@ -409,7 +409,7 @@ class LangChainOrchestratorService {
       const step1Start = Date.now()
       const spendingAnalysis = await this.analyzeSpending(timeRange, context.tenantId)
       steps.push({
-        stepName: 'Analyze Spending Patterns`,
+        stepName: 'Analyze Spending Patterns',
         stepNumber: 1,
         input: { timeRange },
         output: spendingAnalysis,
@@ -425,7 +425,7 @@ class LangChainOrchestratorService {
         context
       )
       steps.push({
-        stepName: 'Identify Savings Opportunities`,
+        stepName: 'Identify Savings Opportunities',
         stepNumber: 2,
         input: { spendingAnalysis },
         output: savingsOpportunities,
@@ -443,7 +443,7 @@ class LangChainOrchestratorService {
         context
       )
       steps.push({
-        stepName: 'Generate Recommendations`,
+        stepName: 'Generate Recommendations',
         stepNumber: 3,
         input: { spendingAnalysis, savingsOpportunities },
         output: recommendations,
@@ -571,7 +571,7 @@ class LangChainOrchestratorService {
     return [
       new DynamicStructuredTool({
         name: 'get_vehicle_info',
-        description: 'Get detailed information about a vehicle including status, location, and maintenance history`,
+        description: 'Get detailed information about a vehicle including status, location, and maintenance history',
         schema: z.object({
           vehicleId: z.string().describe('The vehicle ID to look up')
         }),
@@ -614,7 +614,7 @@ class LangChainOrchestratorService {
       }),
       new DynamicStructuredTool({
         name: 'schedule_maintenance',
-        description: 'Schedule maintenance for a vehicle`,
+        description: 'Schedule maintenance for a vehicle',
         schema: z.object({
           vehicleId: z.string().describe('The vehicle ID'),
           maintenanceType: z.string().describe('Type of maintenance'),
@@ -641,7 +641,7 @@ class LangChainOrchestratorService {
       }),
       new DynamicStructuredTool({
         name: 'get_cost_summary',
-        description: 'Get cost summary for a specific time period`,
+        description: 'Get cost summary for a specific time period',
         schema: z.object({
           startDate: z.string().describe('Start date in ISO format'),
           endDate: z.string().describe('End date in ISO format')
@@ -852,8 +852,8 @@ Generate:
     return {
       routes: routeIds.map(id => ({
         id,
-        origin: 'Location A`,
-        destination: 'Location B`,
+        origin: 'Location A',
+        destination: 'Location B',
         estimatedTime: 60
       }))
     }

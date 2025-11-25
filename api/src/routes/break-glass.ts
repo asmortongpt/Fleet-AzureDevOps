@@ -59,7 +59,7 @@ router.post(
       const activeResult = await pool.query(
         `SELECT id FROM break_glass_sessions
          WHERE user_id = $1
-         AND status IN ('pending', 'active')`,
+         AND status IN ('pending', 'active')',
         [req.user!.id]
       )
 
@@ -211,7 +211,7 @@ router.post(
           `INSERT INTO notifications (tenant_id, user_id, notification_type, title, message, priority)
            VALUES ($1, $2, 'alert', 'Break-Glass Access Approved',
                    'Your emergency access request has been approved and is now active for ${session.max_duration_minutes} minutes. Ticket: ${session.ticket_reference}',
-                   'urgent')`,
+                   'urgent')',
           [session.tenant_id, session.user_id]
         )
 
@@ -236,7 +236,7 @@ router.post(
           `INSERT INTO notifications (tenant_id, user_id, notification_type, title, message, priority)
            VALUES ($1, $2, 'alert', 'Break-Glass Access Denied',
                    'Your emergency access request has been denied. Reason: ${validated.notes || 'Not provided'}',
-                   'high')`,
+                   'high')',
           [session.tenant_id, session.user_id]
         )
 
@@ -378,7 +378,7 @@ async function notifyApprovers(
                  'Break-Glass Access Request Pending',
                  'User ${details.requester} has requested emergency access to role ${details.role}. Reason: ${details.reason}. Ticket: ${details.ticket}',
                  '/break-glass/requests/${sessionId}',
-                 'urgent')`,
+                 'urgent')',
         [tenantId, row.id]
       )
     )
