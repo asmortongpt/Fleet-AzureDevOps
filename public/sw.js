@@ -3,7 +3,7 @@
  * Provides offline support, caching strategies, and background sync
  */
 
-const CACHE_VERSION = 'ctafleet-v1.0.0';
+const CACHE_VERSION = 'ctafleet-v1.0.1-fix-white-screen';
 const CACHE_NAME = `ctafleet-cache-${CACHE_VERSION}`;
 const DATA_CACHE_NAME = `ctafleet-data-${CACHE_VERSION}`;
 
