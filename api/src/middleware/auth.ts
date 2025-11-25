@@ -109,7 +109,7 @@ export const checkAccountLock = async (
 
   try {
     const result = await pool.query(
-      `SELECT account_locked_until FROM users WHERE id = $1`,
+      `SELECT account_locked_until FROM users WHERE id = $1',
       [req.user.id]
     )
 

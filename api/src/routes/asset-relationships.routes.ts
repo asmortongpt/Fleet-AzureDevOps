@@ -213,7 +213,7 @@ router.get(
         LEFT JOIN vehicles vp ON ar.parent_asset_id = vp.id
         LEFT JOIN vehicles vc ON ar.child_asset_id = vc.id
         LEFT JOIN users u ON ar.created_by = u.id
-        WHERE ar.id = $1 AND vp.tenant_id = $2`,
+        WHERE ar.id = $1 AND vp.tenant_id = $2',
         [req.params.id, req.user!.tenant_id]
       )
 
@@ -257,7 +257,7 @@ router.post(
 
       // Validation: Verify both assets exist and belong to tenant
       const vehicleCheck = await client.query(
-        `SELECT id FROM vehicles WHERE id IN ($1, $2) AND tenant_id = $3`,
+        `SELECT id FROM vehicles WHERE id IN ($1, $2) AND tenant_id = $3',
         [parent_asset_id, child_asset_id, req.user!.tenant_id]
       )
 
@@ -344,7 +344,7 @@ router.put(
       const existsCheck = await client.query(
         `SELECT ar.id FROM asset_relationships ar
          LEFT JOIN vehicles v ON ar.parent_asset_id = v.id
-         WHERE ar.id = $1 AND v.tenant_id = $2`,
+         WHERE ar.id = $1 AND v.tenant_id = $2',
         [req.params.id, req.user!.tenant_id]
       )
 

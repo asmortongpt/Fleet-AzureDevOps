@@ -102,7 +102,7 @@ router.get(
                 estimated_cost, is_recurring, recurrence_pattern,
                 auto_create_work_order, work_order_template, parts,
                 notes, created_at, updated_at
-         FROM maintenance_schedules WHERE id = $1 AND tenant_id = $2`,
+         FROM maintenance_schedules WHERE id = $1 AND tenant_id = $2',
         [req.params.id, req.user!.tenant_id]
       )
 

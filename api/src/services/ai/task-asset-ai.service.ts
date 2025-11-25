@@ -309,7 +309,7 @@ export async function suggestWorkflow(
       FROM tasks t
       LEFT JOIN vehicles v ON t.vehicle_id = v.id
       LEFT JOIN users u ON t.assigned_to = u.id
-      WHERE t.id = $1 AND t.tenant_id = $2`,
+      WHERE t.id = $1 AND t.tenant_id = $2',
       [taskId, tenant_id]
     )
 
@@ -321,9 +321,6 @@ export async function suggestWorkflow(
 
     // Get subtasks and dependencies
     const subtasks = await pool.query(
-<<<<<<< HEAD
-      `SELECT id, tenant_id, title, description, status, priority, due_date, assigned_to, created_by, created_at, updated_at FROM tasks WHERE parent_task_id = $1`,
-=======
       `SELECT 
       id,
       tenant_id,
@@ -346,8 +343,7 @@ export async function suggestWorkflow(
       tags,
       metadata,
       created_at,
-      updated_at FROM tasks WHERE parent_task_id = $1`,
->>>>>>> feature/devsecops-audit-remediation
+      updated_at FROM tasks WHERE parent_task_id = $1',
       [taskId]
     )
 
@@ -459,7 +455,7 @@ export async function answerQuestionAboutAssetOrTask(
           (SELECT json_agg(am.* ORDER BY am.maintenance_date DESC)
            FROM asset_maintenance am WHERE am.asset_id = a.id) as maintenance_history
         FROM assets a
-        WHERE a.id = $1 AND a.tenant_id = $2`,
+        WHERE a.id = $1 AND a.tenant_id = $2',
         [contextId, tenant_id]
       )
 
@@ -472,7 +468,7 @@ export async function answerQuestionAboutAssetOrTask(
           (SELECT json_agg(tc.*) FROM task_comments tc WHERE tc.task_id = t.id) as comments,
           (SELECT json_agg(tci.*) FROM task_checklist_items tci WHERE tci.task_id = t.id) as checklist
         FROM tasks t
-        WHERE t.id = $1 AND t.tenant_id = $2`,
+        WHERE t.id = $1 AND t.tenant_id = $2',
         [contextId, tenant_id]
       )
 
