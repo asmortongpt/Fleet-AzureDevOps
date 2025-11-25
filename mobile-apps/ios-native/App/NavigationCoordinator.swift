@@ -297,6 +297,28 @@ enum NavigationDestination: Hashable, Identifiable {
     case predictiveAnalytics
     case predictionDetail(id: String)
 
+    // Inventory Management destinations
+    case inventoryManagement
+    case inventoryItemDetail(id: String)
+    case stockMovement(itemId: String)
+    case inventoryAlerts
+    case inventoryReports
+    case addInventoryItem
+
+    // Budget Planning destinations
+    case budgetPlanning
+    case budgetDetail(id: String)
+    case budgetEditor(budgetId: String?)
+    case budgetVariance(budgetId: String)
+    case budgetForecast(budgetId: String)
+
+    // Warranty Management destinations
+    case warrantyManagement
+    case warrantyDetail(id: String)
+    case claimSubmission(warrantyId: String)
+    case claimTracking(claimId: String)
+    case addWarranty
+
     var id: String {
         switch self {
         case .vehicleDetail(let id):
@@ -411,6 +433,38 @@ enum NavigationDestination: Hashable, Identifiable {
             return "predictive-analytics"
         case .predictionDetail(let id):
             return "prediction-detail-\(id)"
+        case .inventoryManagement:
+            return "inventory-management"
+        case .inventoryItemDetail(let id):
+            return "inventory-item-\(id)"
+        case .stockMovement(let itemId):
+            return "stock-movement-\(itemId)"
+        case .inventoryAlerts:
+            return "inventory-alerts"
+        case .inventoryReports:
+            return "inventory-reports"
+        case .addInventoryItem:
+            return "add-inventory-item"
+        case .budgetPlanning:
+            return "budget-planning"
+        case .budgetDetail(let id):
+            return "budget-detail-\(id)"
+        case .budgetEditor(let budgetId):
+            return budgetId != nil ? "budget-editor-\(budgetId!)" : "budget-editor-new"
+        case .budgetVariance(let budgetId):
+            return "budget-variance-\(budgetId)"
+        case .budgetForecast(let budgetId):
+            return "budget-forecast-\(budgetId)"
+        case .warrantyManagement:
+            return "warranty-management"
+        case .warrantyDetail(let id):
+            return "warranty-detail-\(id)"
+        case .claimSubmission(let warrantyId):
+            return "claim-submission-\(warrantyId)"
+        case .claimTracking(let claimId):
+            return "claim-tracking-\(claimId)"
+        case .addWarranty:
+            return "add-warranty"
         }
     }
 }
