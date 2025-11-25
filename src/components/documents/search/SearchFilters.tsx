@@ -4,8 +4,7 @@
  */
 
 import { useState, useTransition } from 'react';
-import { Calendar, Tag, FileType, HardDrive, User, Sparkles, X } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Calendar, Tag, FileType, Sparkles } from 'lucide-react';import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
@@ -14,7 +13,6 @@ import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { SearchFilters as Filters, DocumentType, FileCategory } from '@/lib/documents/types';
-import { formatFileSize } from '@/lib/documents/utils';
 
 interface SearchFiltersProps {
   filters: Filters;

@@ -3,7 +3,6 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useAuth } from '../../hooks/useAuth';
 import { useDemoMode } from '../../hooks/useDemoMode';
 import { showToast } from '../../utils/toast';
 import { trackEvent } from '../../utils/analytics';

@@ -152,7 +152,12 @@ export function apiVersioning(defaultVersion: string = 'v1') {
 
     // Handle deprecated versions
     if (req.isDeprecatedVersion && version in DEPRECATED_VERSIONS) {
-      const deprecatedInfo = DEPRECATED_VERSIONS[version as DeprecatedVersion];
+      const deprecatedInfo = DEPRECATED_VERSIONS[version as DeprecatedVersion] as {
+        version: string;
+        deprecated: boolean;
+        sunsetDate?: Date;
+        migrationGuide?: string;
+      };
 
       // Set deprecation headers
       res.setHeader('X-API-Deprecated', 'true');
@@ -245,12 +250,20 @@ export function getApiVersionInfo() {
       releaseDate: value.releaseDate,
       description: value.description
     })),
-    deprecatedVersions: Object.entries(DEPRECATED_VERSIONS).map(([key, value]) => ({
-      version: value.version,
-      deprecated: value.deprecated,
-      sunsetDate: value.sunsetDate,
-      migrationGuide: value.migrationGuide
-    })),
+    deprecatedVersions: Object.entries(DEPRECATED_VERSIONS).map(([key, value]) => {
+      const deprecatedInfo = value as {
+        version: string;
+        deprecated: boolean;
+        sunsetDate?: Date;
+        migrationGuide?: string;
+      };
+      return {
+        version: deprecatedInfo.version,
+        deprecated: deprecatedInfo.deprecated,
+        sunsetDate: deprecatedInfo.sunsetDate,
+        migrationGuide: deprecatedInfo.migrationGuide
+      };
+    }),
     documentation: '/api/docs',
     changelog: '/api/docs/changelog'
   };

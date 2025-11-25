@@ -185,7 +185,18 @@ router.get(
 
       // Get attachment metadata from database
       const result = await pool.query(
+<<<<<<< HEAD
         `SELECT id, tenant_id, communication_id, file_name, file_url, created_at FROM communication_attachments WHERE id = $1`,
+=======
+        `SELECT 
+      id,
+      communication_id,
+      file_name,
+      file_path,
+      file_type,
+      file_size,
+      created_at FROM communication_attachments WHERE id = $1`,
+>>>>>>> feature/devsecops-audit-remediation
         [blobId]
       )
 

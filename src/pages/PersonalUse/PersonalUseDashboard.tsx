@@ -85,26 +85,22 @@ const apiClient = async (url: string) => {
 export function PersonalUseDashboard() {
   const [selectedTrip, setSelectedTrip] = useState<PersonalTrip | null>(null)
 
-  const { data: dashboardRes, isLoading: dashboardLoading, error: dashboardError } = useQuery({
-    queryKey: ['personal-use-dashboard'],
+  const { data: dashboardRes, isLoading: dashboardLoading, error: dashboardError } = useQuery({    queryKey: ['personal-use-dashboard'],
     queryFn: () => apiClient('/api/personal-use-dashboard'),
     staleTime: 30000
   })
 
-  const { data: tripsRes, error: tripsError } = useQuery({
-    queryKey: ['personal-trips'],
+  const { data: tripsRes, error: tripsError } = useQuery({    queryKey: ['personal-trips'],
     queryFn: () => apiClient('/api/trips/my-personal?limit=10'),
     staleTime: 30000
   })
 
-  const { data: chargesRes, error: chargesError } = useQuery({
-    queryKey: ['personal-use-charges-dashboard'],
+  const { data: chargesRes, error: chargesError } = useQuery({    queryKey: ['personal-use-charges-dashboard'],
     queryFn: () => apiClient('/api/personal-use-charges?charge_status=pending&charge_status=invoiced&charge_status=billed'),
     staleTime: 30000
   })
 
-  const { data: reimbursementsRes, error: reimbursementsError, refetch: refetchDashboard } = useQuery({
-    queryKey: ['reimbursements-dashboard'],
+  const { data: reimbursementsRes, error: reimbursementsError, refetch: refetchDashboard } = useQuery({    queryKey: ['reimbursements-dashboard'],
     queryFn: () => apiClient('/api/reimbursements?status=pending&status=approved'),
     staleTime: 30000,
     onError: (error: any) => {
