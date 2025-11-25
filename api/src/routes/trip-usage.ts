@@ -70,13 +70,13 @@ router.post(
       // Validation: business percentage required for mixed trips
       if (validated.usage_type === UsageType.MIXED && validated.business_percentage === undefined) {
         return res.status(400).json({
-          error: 'Business percentage is required for mixed trips'
+          error: 'Business percentage is required for mixed trips`
         })
       }
 
       // Check if driver belongs to tenant
       const driverCheck = await pool.query(
-        'SELECT id FROM users WHERE id = $1 AND tenant_id = $2',
+        'SELECT id FROM users WHERE id = $1 AND tenant_id = $2`,
         [validated.driver_id, req.user!.tenant_id]
       )
 
@@ -86,7 +86,7 @@ router.post(
 
       // Check if vehicle belongs to tenant
       const vehicleCheck = await pool.query(
-        'SELECT id FROM vehicles WHERE id = $1 AND tenant_id = $2',
+        'SELECT id FROM vehicles WHERE id = $1 AND tenant_id = $2`,
         [validated.vehicle_id, req.user!.tenant_id]
       )
 
@@ -96,7 +96,22 @@ router.post(
 
       // Get tenant policy to determine approval requirements
       const policyResult = await pool.query(
+<<<<<<< HEAD
         'SELECT id, tenant_id, policy_name, deduction_percent, reimbursement_method, created_at, updated_at FROM personal_use_policies WHERE tenant_id = $1',
+=======
+        `SELECT
+      id,
+      tenant_id,
+      name,
+      description,
+      rate_per_mile,
+      rate_type,
+      effective_date,
+      expiry_date,
+      is_active,
+      created_at,
+      updated_at FROM personal_use_policies WHERE tenant_id = $1`,
+>>>>>>> feature/devsecops-audit-remediation
         [req.user!.tenant_id]
       )
 
@@ -162,7 +177,7 @@ router.post(
 
         // Get driver and manager info for notification
         const driverInfo = await pool.query(
-          'SELECT first_name, last_name, email FROM users WHERE id = $1',
+          'SELECT first_name, last_name, email FROM users WHERE id = $1`,
           [validated.driver_id]
         )
 
@@ -197,7 +212,7 @@ router.post(
         data: tripUsage,
         message: approvalStatus === ApprovalStatus.AUTO_APPROVED
           ? 'Trip usage recorded and auto-approved'
-          : 'Trip usage recorded and pending approval'
+          : 'Trip usage recorded and pending approval`
       })
     } catch (error: any) {
       console.error('Create trip usage error:', error)
@@ -336,7 +351,7 @@ router.get(
     validateScope: async (req: AuthRequest) => {
       // Allow viewing if user is the driver or has fleet-wide access
       const result = await pool.query(
-        'SELECT driver_id FROM trip_usage_classification WHERE id = $1 AND tenant_id = $2',
+        'SELECT driver_id FROM trip_usage_classification WHERE id = $1 AND tenant_id = $2`,
         [req.params.id, req.user!.tenant_id]
       )
 
@@ -390,7 +405,21 @@ router.patch(
 
       // Get existing record
       const existing = await pool.query(
+<<<<<<< HEAD
         'SELECT id, tenant_id, trip_id, usage_type, percentage, notes, created_at, updated_at FROM trip_usage_classification WHERE id = $1 AND tenant_id = $2',
+=======
+        `SELECT
+      id,
+      tenant_id,
+      trip_id,
+      classification,
+      reason,
+      classified_by,
+      classified_at,
+      notes,
+      created_at,
+      updated_at FROM trip_usage_classification WHERE id = $1 AND tenant_id = $2`,
+>>>>>>> feature/devsecops-audit-remediation
         [req.params.id, req.user!.tenant_id]
       )
 
@@ -450,7 +479,7 @@ router.patch(
       res.json({
         success: true,
         data: result.rows[0],
-        message: 'Trip usage updated successfully'
+        message: 'Trip usage updated successfully`
       })
     } catch (error: any) {
       console.error('Update trip usage error:', error)
@@ -490,7 +519,7 @@ router.get(
       )
 
       const countResult = await pool.query(
-        'SELECT COUNT(*) FROM trip_usage_classification WHERE tenant_id = $1 AND approval_status = $2',
+        'SELECT COUNT(*) FROM trip_usage_classification WHERE tenant_id = $1 AND approval_status = $2`,
         [req.user!.tenant_id, ApprovalStatus.PENDING]
       )
 
@@ -551,7 +580,7 @@ router.post(
 
       // Send notification to driver
       const driverInfo = await pool.query(
-        'SELECT first_name, last_name, email FROM users WHERE id = $1',
+        'SELECT first_name, last_name, email FROM users WHERE id = $1`,
         [trip.driver_id]
       )
 
@@ -571,7 +600,7 @@ router.post(
       res.json({
         success: true,
         data: trip,
-        message: 'Trip usage approved successfully'
+        message: 'Trip usage approved successfully`
       })
     } catch (error: any) {
       console.error('Approve trip error:', error)
@@ -624,7 +653,7 @@ router.post(
 
       // Send notification to driver
       const driverInfo = await pool.query(
-        'SELECT first_name, last_name, email FROM users WHERE id = $1',
+        'SELECT first_name, last_name, email FROM users WHERE id = $1`,
         [trip.driver_id]
       )
 
@@ -645,7 +674,7 @@ router.post(
       res.json({
         success: true,
         data: trip,
-        message: 'Trip usage rejected'
+        message: 'Trip usage rejected`
       })
     } catch (error: any) {
       console.error('Reject trip error:', error)

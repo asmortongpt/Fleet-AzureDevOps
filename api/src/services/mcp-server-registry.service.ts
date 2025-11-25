@@ -319,7 +319,25 @@ class MCPServerRegistryService {
     try {
       // Get server info from database
       const result = await pool.query(
-        'SELECT * FROM mcp_servers WHERE id = $1',
+        'SELECT 
+      id,
+      tenant_id,
+      server_name,
+      server_type,
+      connection_url,
+      api_key_encrypted,
+      configuration,
+      capabilities,
+      is_active,
+      last_connected_at,
+      connection_status,
+      health_check_url,
+      last_health_check,
+      health_status,
+      error_message,
+      created_by,
+      created_at,
+      updated_at FROM mcp_servers WHERE id = $1',
         [serverId]
       )
 

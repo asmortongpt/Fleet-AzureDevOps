@@ -1,5 +1,4 @@
-import React, { useEffect, useState } from 'react';
-
+import React, { useEffect } from 'react';
 interface ToastProps {
   message: string;
   type?: 'success' | 'error' | 'info' | 'warning';

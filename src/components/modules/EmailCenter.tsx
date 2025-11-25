@@ -16,7 +16,6 @@ import {
   DialogFooter
 } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
-import { Checkbox } from "@/components/ui/checkbox"
 import { Envelope, PaperPlaneTilt, Paperclip, Star, ArrowLeft } from "@phosphor-icons/react"
 import { MSOutlookEmail } from "@/lib/types"
 import { msOfficeService } from "@/lib/msOfficeIntegration"

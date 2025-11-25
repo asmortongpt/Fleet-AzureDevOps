@@ -23,7 +23,42 @@ router.get(
       const { page = 1, limit = 50, category, status } = req.query
       const offset = (Number(page) - 1) * Number(limit)
 
-      let query = `SELECT * FROM policy_templates WHERE 1=1`
+      let query = `SELECT 
+      id,
+      policy_code,
+      policy_name,
+      policy_category,
+      sub_category,
+      policy_objective,
+      policy_scope,
+      policy_content,
+      procedures,
+      regulatory_references,
+      industry_standards,
+      responsible_roles,
+      approval_required_from,
+      version,
+      effective_date,
+      review_cycle_months,
+      next_review_date,
+      expiration_date,
+      supersedes_policy_id,
+      status,
+      is_mandatory,
+      applies_to_roles,
+      requires_training,
+      requires_test,
+      test_questions,
+      related_forms,
+      attachments,
+      times_acknowledged,
+      last_acknowledged_at,
+      created_at,
+      created_by,
+      updated_at,
+      updated_by,
+      approved_at,
+      approved_by FROM policy_templates WHERE 1=1`
       const params: any[] = []
       let paramIndex = 1
 
@@ -71,7 +106,42 @@ router.get(
   async (req: AuthRequest, res: Response) => {
     try {
       const result = await pool.query(
-        'SELECT * FROM policy_templates WHERE id = $1',
+        'SELECT 
+      id,
+      policy_code,
+      policy_name,
+      policy_category,
+      sub_category,
+      policy_objective,
+      policy_scope,
+      policy_content,
+      procedures,
+      regulatory_references,
+      industry_standards,
+      responsible_roles,
+      approval_required_from,
+      version,
+      effective_date,
+      review_cycle_months,
+      next_review_date,
+      expiration_date,
+      supersedes_policy_id,
+      status,
+      is_mandatory,
+      applies_to_roles,
+      requires_training,
+      requires_test,
+      test_questions,
+      related_forms,
+      attachments,
+      times_acknowledged,
+      last_acknowledged_at,
+      created_at,
+      created_by,
+      updated_at,
+      updated_by,
+      approved_at,
+      approved_by FROM policy_templates WHERE id = $1',
         [req.params.id]
       )
 

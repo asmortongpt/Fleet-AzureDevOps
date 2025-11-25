@@ -49,6 +49,7 @@ export function useFleetData() {
   const { data: facilitiesData, isLoading: facilitiesLoading, error: facilitiesError } = useFacilities()
   const { data: maintenanceData, isLoading: maintenanceLoading, error: maintenanceError } = useMaintenanceSchedules()
   const { data: routesData, isLoading: routesLoading, error: routesError } = useRoutes()
+<<<<<<< HEAD
 
   // Store API responses for debugging
   useEffect(() => {
@@ -85,6 +86,8 @@ export function useFleetData() {
     }
   }, [vehiclesData, driversData, facilitiesData, vehiclesError, driversError, facilitiesError, vehiclesLoading, driversLoading, facilitiesLoading])
 
+=======
+>>>>>>> feature/devsecops-audit-remediation
   // Demo data fallback
   const [demoData] = useState(() => generateAllDemoData())
   const [useDemoData, setUseDemoData] = useState(DEMO_MODE_CACHED)

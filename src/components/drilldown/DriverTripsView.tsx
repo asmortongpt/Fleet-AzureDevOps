@@ -3,7 +3,6 @@
  * Shows individual trips with performance data and safety incidents
  */
 
-import React from 'react'
 import { DrilldownContent } from '@/components/DrilldownPanel'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'

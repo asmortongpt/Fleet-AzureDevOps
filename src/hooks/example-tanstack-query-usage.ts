@@ -117,15 +117,13 @@ export function useUpdateVehicle() {
     },
 
     // On error, roll back
-    onError: (err, { id }, context) => {
-      if (context?.previousVehicle) {
+    onError: (err, { id }, context) => {      if (context?.previousVehicle) {
         queryClient.setQueryData(queryKeys.vehicles.detail(id), context.previousVehicle)
       }
     },
 
     // Always refetch after error or success
-    onSettled: (data, error, { id }) => {
-      // Invalidate and refetch
+    onSettled: (data, error, { id }) => {      // Invalidate and refetch
       queryClient.invalidateQueries({ queryKey: queryKeys.vehicles.detail(id) })
       queryClient.invalidateQueries({ queryKey: queryKeys.vehicles.lists() })
     },

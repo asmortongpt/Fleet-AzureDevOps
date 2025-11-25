@@ -470,8 +470,7 @@ export class CostAnalysisService {
     expectedRange: { min: number; max: number }
   }>> {
     const result = await pool.query(
-      `SELECT *
-       FROM cost_tracking
+      `SELECT ` + (await getTableColumns(pool, 'cost_tracking')).join(', ') + ` FROM cost_tracking
        WHERE tenant_id = $1
        AND transaction_date BETWEEN $2 AND $3
        AND is_anomaly = true
