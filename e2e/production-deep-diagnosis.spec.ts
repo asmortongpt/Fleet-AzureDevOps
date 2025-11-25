@@ -2,7 +2,9 @@ import { test } from '@playwright/test';
 
 test('Deep diagnosis', async ({ page }) => {
   const logs: any[] = [];
+  const errors: any[] = [];
   page.on('console', msg => logs.push({ type: msg.type(), text: msg.text() }));
+  page.on('pageerror', err => errors.push({ message: err.message, stack: err.stack }));
 
   await page.goto('https://fleet.capitaltechalliance.com', { 
     waitUntil: 'networkidle',
@@ -30,6 +32,11 @@ test('Deep diagnosis', async ({ page }) => {
   diagnostics.documentScripts.forEach(s => console.log('  -', s));
   console.log('Console messages:', logs.length);
   logs.forEach(l => console.log('  [' + l.type + ']', l.text));
+  console.log('PAGE ERRORS:', errors.length);
+  errors.forEach(e => {
+    console.log('  ERROR:', e.message);
+    console.log('  STACK:', e.stack);
+  });
 
   await page.screenshot({ path: 'test-results/deep-diagnosis.png', fullPage: true });
 });
