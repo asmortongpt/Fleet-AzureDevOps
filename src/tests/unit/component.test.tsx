@@ -2,14 +2,11 @@
  * Component Unit Tests with React Testing Library
  * Tests individual components in isolation
  */
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import '@testing-library/jest-dom';
+import { describe, it, expect, vi } from 'vitest';import { render, screen, fireEvent } from '@testing-library/react';import '@testing-library/jest-dom';
 
 // Mock components for testing (update paths as needed)
 describe('Button Component', () => {
   it('renders with text', () => {
-    const { container } = render(<button>Click Me</button>);
     expect(screen.getByText('Click Me')).toBeInTheDocument();
   });
 
@@ -39,7 +36,7 @@ describe('Input Component', () => {
   });
 
   it('shows validation error', async () => {
-    const { container } = render(
+    render(
       <div>
         <input required />
         <span className="error">Required field</span>

@@ -244,7 +244,7 @@ export class DocumentFolderService {
 
       // Get current folder
       const currentResult = await client.query(
-        `SELECT * FROM document_folders
+        `SELECT id, tenant_id, parent_id, folder_name, created_at, updated_at FROM document_folders
          WHERE id = $1 AND tenant_id = $2 AND deleted_at IS NULL`,
         [folderId, tenantId]
       )
@@ -376,7 +376,7 @@ export class DocumentFolderService {
 
       // Check if folder exists
       const folderResult = await client.query(
-        `SELECT * FROM document_folders
+        `SELECT id, tenant_id, parent_id, folder_name, created_at, updated_at FROM document_folders
          WHERE id = $1 AND tenant_id = $2 AND deleted_at IS NULL`,
         [folderId, tenantId]
       )
@@ -517,7 +517,7 @@ export class DocumentFolderService {
   ): Promise<Array<{ id: string; folder_name: string; depth: number }>> {
     try {
       const result = await pool.query(
-        `SELECT * FROM get_folder_breadcrumb($1)`,
+        `SELECT ` + (await getTableColumns(pool, 'get_folder_breadcrumb')).join(', ') + ` FROM get_folder_breadcrumb($1)`,
         [folderId]
       )
 

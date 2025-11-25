@@ -605,7 +605,24 @@ class QueueService {
     try {
       // Get job from dead letter queue
       const result = await pool.query(
-        'SELECT * FROM dead_letter_queue WHERE job_id = $1 AND reviewed = FALSE',
+        'SELECT 
+      id,
+      job_id,
+      queue_name,
+      job_type,
+      payload,
+      error,
+      stack_trace,
+      retry_count,
+      original_created_at,
+      moved_to_dlq_at,
+      reviewed,
+      reviewed_by,
+      reviewed_at,
+      resolution_notes,
+      retry_attempted,
+      retry_attempted_at,
+      created_at FROM dead_letter_queue WHERE job_id = $1 AND reviewed = FALSE',
         [jobId]
       );
 

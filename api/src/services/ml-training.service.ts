@@ -205,7 +205,25 @@ class MLTrainingService {
    */
   async getABTestResults(testId: string, tenantId: string): Promise<any> {
     const result = await pool.query(
-      `SELECT * FROM model_ab_tests WHERE id = $1 AND tenant_id = $2`,
+      `SELECT 
+      id,
+      tenant_id,
+      test_name,
+      model_a_id,
+      model_b_id,
+      traffic_split_percent,
+      status,
+      start_date,
+      end_date,
+      model_a_predictions,
+      model_b_predictions,
+      model_a_metrics,
+      model_b_metrics,
+      winner,
+      notes,
+      created_by,
+      created_at,
+      updated_at FROM model_ab_tests WHERE id = $1 AND tenant_id = $2`,
       [testId, tenantId]
     )
 
@@ -357,7 +375,7 @@ class MLTrainingService {
     tenantId: string
   ): Promise<any[]> {
     const result = await pool.query(
-      `SELECT * FROM model_performance
+      `SELECT id, tenant_id, model_name, metric_name, metric_value, evaluation_date FROM model_performance
        WHERE model_id = $1 AND tenant_id = $2
        ORDER BY evaluation_date DESC`,
       [modelId, tenantId]
