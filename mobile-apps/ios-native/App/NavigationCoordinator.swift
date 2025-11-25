@@ -380,17 +380,17 @@ enum NavigationDestination: Hashable, Identifiable {
         case .complianceItemDetail(let id):
             return "compliance-item-\(id)"
         case .violationDetail(let id):
+            return "violation-\(id)"
         case .telemetryDashboard:
             return "telemetry-dashboard"
         case .telemetryDashboardForVehicle(let vehicleId):
-            return "telemetry-dashboard-(vehicleId)"
+            return "telemetry-dashboard-\(vehicleId)"
         case .diagnosticCodeDetail(let code):
-            return "diagnostic-code-(code)"
+            return "diagnostic-code-\(code)"
         case .vehicleHealthDetail(let vehicleId):
-            return "vehicle-health-(vehicleId)"
+            return "vehicle-health-\(vehicleId)"
         case .telemetryHistory(let vehicleId):
-            return "telemetry-history-(vehicleId)"
-            return "violation-\(id)"
+            return "telemetry-history-\(vehicleId)"
         case .shiftManagement:
             return "shift-management"
         case .shiftDetail(let id):
