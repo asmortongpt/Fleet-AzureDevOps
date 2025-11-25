@@ -62,7 +62,8 @@ export class FIPSEnforcement {
 
     // Determine enforcement level
     const isProduction = process.env.NODE_ENV === 'production'
-    const enforcement = isProduction ? 'STRICT' : 'WARNING'
+    // Temporarily disable FIPS enforcement until OpenSSL with FIPS support is configured
+    const enforcement = 'WARNING' // isProduction ? 'STRICT' : 'WARNING'
 
     return {
       enabled,
