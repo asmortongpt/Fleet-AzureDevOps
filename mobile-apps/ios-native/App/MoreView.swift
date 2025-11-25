@@ -19,7 +19,7 @@ class RoleManager: ObservableObject {
         return true
     }
 
-    func shouldShowFeature(_ feature: Feature) -> Bool {
+    func shouldShowFeature(_ feature: MoreViewFeature) -> Bool {
         return true
     }
 }
@@ -61,7 +61,7 @@ enum Permission {
     case userManagement
 }
 
-enum Feature {
+enum MoreViewFeature {
     case captureReceipts
     case reportDamage
     case reserveVehicles
@@ -409,6 +409,79 @@ struct MoreView: View {
         case "brown": return .brown
         default: return .blue
         }
+    }
+}
+
+// MARK: - Placeholder Views (inline to avoid project configuration issues)
+
+struct NavigationDestinationView: View {
+    enum Destination {
+        case pushToTalk
+    }
+    let destination: Destination
+    var body: some View {
+        Text("Push-To-Talk Coming Soon").navigationTitle("Radio")
+    }
+}
+
+struct ReceiptCaptureView: View {
+    var body: some View {
+        Text("Receipt Capture Coming Soon").navigationTitle("Capture Receipt")
+    }
+}
+
+struct DamageReportView: View {
+    let vehicleId: String
+    var body: some View {
+        Text("Damage Report Coming Soon").navigationTitle("Report Damage")
+    }
+}
+
+struct VehicleRequestView: View {
+    var body: some View {
+        Text("Vehicle Request Coming Soon").navigationTitle("Request Vehicle")
+    }
+}
+
+struct MapNavigationView: View {
+    var body: some View {
+        Text("Navigation Coming Soon").navigationTitle("Navigation")
+    }
+}
+
+struct CrashDetectionView: View {
+    var body: some View {
+        Text("Crash Detection Coming Soon").navigationTitle("Crash Detection")
+    }
+}
+
+struct VehicleIdentificationView: View {
+    var body: some View {
+        Text("Vehicle Assignment Coming Soon").navigationTitle("Vehicle Assignment")
+    }
+}
+
+struct ScheduleView: View {
+    var body: some View {
+        Text("Schedule Coming Soon").navigationTitle("Schedule")
+    }
+}
+
+struct DeviceManagementView: View {
+    var body: some View {
+        Text("Device Management Coming Soon").navigationTitle("Device Management")
+    }
+}
+
+struct VehicleIdlingView: View {
+    var body: some View {
+        Text("Idling Monitor Coming Soon").navigationTitle("Idling Monitor")
+    }
+}
+
+struct AppearanceSettingsView: View {
+    var body: some View {
+        Text("Appearance Settings Coming Soon").navigationTitle("Appearance")
     }
 }
 

@@ -361,6 +361,22 @@ private struct TripStatusBadge: View {
     }
 }
 
+// MARK: - Placeholder Views
+struct StartTripView: View {
+    var body: some View {
+        Text("Start Trip Coming Soon")
+            .navigationTitle("Start Trip")
+    }
+}
+
+struct TripDetailView: View {
+    let trip: Trip
+    var body: some View {
+        Text("Trip Detail: \(trip.id)")
+            .navigationTitle("Trip Details")
+    }
+}
+
 // MARK: - Preview
 struct TripHistoryView_Previews: PreviewProvider {
     static var previews: some View {
