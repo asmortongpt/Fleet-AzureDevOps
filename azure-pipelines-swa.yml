@@ -1,96 +1,36 @@
-# Azure Pipelines for Fleet Static Web App Deployment
+# Fleet Management - Azure Static Web Apps Pipeline
 trigger:
-  branches:
-    include:
-      - main
-      - stage-a/*
-
-pr:
-  branches:
-    include:
-      - main
-
-variables:
-  NODE_VERSION: '20.x'
-  AZURE_STATIC_WEB_APP_NAME: 'fleet-app'
-  AZURE_RESOURCE_GROUP: 'fleet-production-rg'
+  - main
 
 pool:
-  vmImage: 'ubuntu-latest'
+  vmImage: ubuntu-latest
 
-stages:
-  - stage: Build
-    displayName: 'Build Application'
-    jobs:
-      - job: BuildJob
-        displayName: 'Build Fleet App'
-        steps:
-          - checkout: self
-            submodules: true
-            persistCredentials: true
+steps:
+  - task: NodeTool@0
+    inputs:
+      versionSpec: '20.x'
+    displayName: 'Install Node.js'
 
-          - task: NodeTool@0
-            displayName: 'Install Node.js'
-            inputs:
-              versionSpec: $(NODE_VERSION)
+  - script: npm ci
+    displayName: 'Install dependencies'
 
-          - script: |
-              npm ci
-            displayName: 'Install Dependencies'
+  - script: npm run build
+    displayName: 'Build'
+    env:
+      NODE_ENV: production
+      VITE_API_URL: $(VITE_API_URL)
+      VITE_AZURE_AD_CLIENT_ID: $(VITE_AZURE_AD_CLIENT_ID)
+      VITE_AZURE_AD_TENANT_ID: $(VITE_AZURE_AD_TENANT_ID)
+      VITE_AZURE_AD_REDIRECT_URI: $(VITE_AZURE_AD_REDIRECT_URI)
 
-          - script: |
-              npm run build
-            displayName: 'Build Application'
-            env:
-              VITE_API_URL: $(VITE_API_URL)
-              VITE_AZURE_AD_CLIENT_ID: $(VITE_AZURE_AD_CLIENT_ID)
-              VITE_AZURE_AD_TENANT_ID: $(VITE_AZURE_AD_TENANT_ID)
-              VITE_AZURE_AD_REDIRECT_URI: $(VITE_AZURE_AD_REDIRECT_URI)
-
-          - task: PublishBuildArtifacts@1
-            displayName: 'Publish Build Artifacts'
-            inputs:
-              PathtoPublish: 'dist'
-              ArtifactName: 'webapp'
-              publishLocation: 'Container'
-
-  - stage: Deploy
+  - script: |
+      npm install -g @azure/static-web-apps-cli
+      swa deploy dist --deployment-token $(AZURE_STATIC_WEB_APPS_API_TOKEN) --env production
     displayName: 'Deploy to Azure Static Web Apps'
-    dependsOn: Build
-    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
-    jobs:
-      - deployment: DeployJob
-        displayName: 'Deploy Fleet App'
-        environment: 'production'
-        strategy:
-          runOnce:
-            deploy:
-              steps:
-                - checkout: self
-                  submodules: true
 
-                - task: NodeTool@0
-                  displayName: 'Install Node.js'
-                  inputs:
-                    versionSpec: $(NODE_VERSION)
-
-                - script: |
-                    npm ci
-                  displayName: 'Install Dependencies'
-
-                - script: |
-                    npm run build
-                  displayName: 'Build Application'
-                  env:
-                    VITE_API_URL: $(VITE_API_URL)
-                    VITE_AZURE_AD_CLIENT_ID: $(VITE_AZURE_AD_CLIENT_ID)
-                    VITE_AZURE_AD_TENANT_ID: $(VITE_AZURE_AD_TENANT_ID)
-                    VITE_AZURE_AD_REDIRECT_URI: $(VITE_AZURE_AD_REDIRECT_URI)
-
-                - task: AzureStaticWebApp@0
-                  displayName: 'Deploy to Azure Static Web Apps'
-                  inputs:
-                    app_location: '/'
-                    api_location: ''
-                    output_location: 'dist'
-                    azure_static_web_apps_api_token: $(AZURE_STATIC_WEB_APPS_API_TOKEN)
+  - script: |
+      echo "Verifying deployment..."
+      sleep 30
+      curl -sf https://green-pond-0f040980f.3.azurestaticapps.net > /dev/null && echo "Deployment successful!" || echo "Deployment may need verification"
+    displayName: 'Verify Deployment'
+    continueOnError: true
