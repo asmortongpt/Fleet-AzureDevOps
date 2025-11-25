@@ -36,13 +36,11 @@ struct MaintenanceView: View {
             .sheet(isPresented: $showingScheduleMaintenance) {
                 ScheduleMaintenanceView()
             }
-<<<<<<< HEAD
-            .onAppear {
-                viewModel.loadMaintenanceRecords()
-=======
             .sheet(item: $selectedRecordForDetail) { record in
                 MaintenanceDetailViewEmbedded(record: record, viewModel: viewModel)
->>>>>>> stage-a/requirements-inception
+            }
+            .onAppear {
+                viewModel.loadMaintenanceRecords()
             }
             .refreshable {
                 viewModel.loadMaintenanceRecords()
@@ -143,15 +141,6 @@ struct MaintenanceStatusBadge: View {
 
     var body: some View {
         Text(status.rawValue)
-<<<<<<< HEAD
-            .font(.caption)
-            .fontWeight(.semibold)
-            .foregroundColor(.white)
-            .padding(.horizontal, 10)
-            .padding(.vertical, 4)
-            .background(statusColor)
-            .cornerRadius(8)
-=======
             .font(.caption2.bold())
             .padding(.horizontal, 8)
             .padding(.vertical, 2)
@@ -438,7 +427,6 @@ struct MaintenanceDetailViewEmbedded: View {
                 RescheduleView(record: record, viewModel: viewModel)
             }
         }
->>>>>>> stage-a/requirements-inception
     }
 
     private var statusColor: Color {

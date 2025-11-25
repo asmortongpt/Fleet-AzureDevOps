@@ -264,8 +264,7 @@ router.get(
     try {
       // Only return subscriptions for user's tenant
       const result = await pool.query(
-        `SELECT *
-         FROM webhook_subscriptions
+        `SELECT ` + (await getTableColumns(pool, 'webhook_subscriptions')).join(', ') + ` FROM webhook_subscriptions
          WHERE subscription_type = 'outlook_emails'
          AND status = 'active'
          AND tenant_id = $1
@@ -505,7 +504,48 @@ router.post(
 
       // Get communication with tenant validation
       const result = await pool.query(
-        `SELECT * FROM communications WHERE id = $1 AND tenant_id = $2`,
+        `SELECT 
+      id,
+      communication_type,
+      direction,
+      subject,
+      body,
+      from_user_id,
+      from_contact_name,
+      from_contact_email,
+      from_contact_phone,
+      to_user_ids,
+      to_contact_names,
+      to_contact_emails,
+      to_contact_phones,
+      cc_emails,
+      bcc_emails,
+      communication_datetime,
+      duration_seconds,
+      ai_detected_category,
+      ai_detected_priority,
+      ai_detected_sentiment,
+      ai_confidence_score,
+      ai_extracted_keywords,
+      ai_summary,
+      ai_suggested_actions,
+      manual_category,
+      manual_priority,
+      manual_tags,
+      status,
+      requires_follow_up,
+      follow_up_by_date,
+      follow_up_completed,
+      follow_up_completed_date,
+      attachments,
+      parent_communication_id,
+      thread_id,
+      is_thread_start,
+      full_text_search,
+      created_at,
+      created_by,
+      updated_at,
+      updated_by FROM communications WHERE id = $1 AND tenant_id = $2`,
         [communicationId, req.user!.tenant_id]
       )
 

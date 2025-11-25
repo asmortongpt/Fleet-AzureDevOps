@@ -3,7 +3,10 @@
  * Shows comprehensive vehicle information with action buttons
  */
 
+<<<<<<< HEAD
 import React, { useState } from 'react'
+=======
+>>>>>>> feature/devsecops-audit-remediation
 import { useDrilldown } from '@/contexts/DrilldownContext'
 import { DrilldownContent } from '@/components/DrilldownPanel'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'

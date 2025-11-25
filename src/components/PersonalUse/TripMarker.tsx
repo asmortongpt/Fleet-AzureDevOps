@@ -43,7 +43,6 @@ export function TripMarker({
 
   // Use TanStack Query for policy data
   const { data: policy, isLoading: policyLoading } = usePersonalUsePolicies()
-
   // Use TanStack Query mutation for marking trip
   const markTripMutation = useMarkTrip()
 
