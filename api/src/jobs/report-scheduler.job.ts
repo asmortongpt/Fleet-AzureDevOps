@@ -163,7 +163,7 @@ async function updateScheduleAfterExecution(
   await pool.query(
     `UPDATE report_schedules
      SET last_run = $1, next_run = $2
-     WHERE id = $3`,
+     WHERE id = $3',
     [now, nextRun, scheduleId]
   )
 
@@ -318,7 +318,7 @@ export async function updateSchedule(
   // Recalculate next run if schedule changed
   if (updates.scheduleType || updates.scheduleConfig) {
     const schedule = await pool.query(
-      'SELECT schedule_type, schedule_config FROM report_schedules WHERE id = $1`,
+      'SELECT schedule_type, schedule_config FROM report_schedules WHERE id = $1',
       [scheduleId]
     )
 
@@ -347,7 +347,7 @@ export async function updateSchedule(
  * Delete a schedule
  */
 export async function deleteSchedule(scheduleId: string): Promise<void> {
-  await pool.query('DELETE FROM report_schedules WHERE id = $1`, [scheduleId])
+  await pool.query('DELETE FROM report_schedules WHERE id = $1', [scheduleId])
   logger.info('Schedule deleted', { scheduleId })
 }
 
@@ -356,22 +356,7 @@ export async function deleteSchedule(scheduleId: string): Promise<void> {
  */
 export async function getSchedulesForReport(reportId: string): Promise<any[]> {
   const result = await pool.query(
-<<<<<<< HEAD
-    'SELECT id, tenant_id, report_id, schedule_frequency, last_run, next_run, created_at, updated_at FROM report_schedules WHERE report_id = $1 ORDER BY created_at DESC',
-=======
-    `SELECT
-      id,
-      tenant_id,
-      report_id,
-      name,
-      schedule_type,
-      schedule_config,
-      last_run,
-      next_run,
-      is_active,
-      created_at,
-      updated_at FROM report_schedules WHERE report_id = $1 ORDER BY created_at DESC`,
->>>>>>> feature/devsecops-audit-remediation
+    'SELECT id, tenant_id, report_id, name, schedule_type, schedule_config, last_run, next_run, is_active, created_at, updated_at FROM report_schedules WHERE report_id = $1 ORDER BY created_at DESC',
     [reportId]
   )
 

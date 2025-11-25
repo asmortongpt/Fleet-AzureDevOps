@@ -140,7 +140,7 @@ async function handleEmailUpdate(notification: any): Promise<void> {
     const result = await pool.query(
       `SELECT id FROM communications
        WHERE source_platform = 'Microsoft Outlook'
-       AND source_platform_id = $1`,
+       AND source_platform_id = $1',
       [messageId]
     )
 
@@ -545,7 +545,7 @@ router.post(
       created_at,
       created_by,
       updated_at,
-      updated_by FROM communications WHERE id = $1 AND tenant_id = $2`,
+      updated_by FROM communications WHERE id = $1 AND tenant_id = $2',
         [communicationId, req.user!.tenant_id]
       )
 
@@ -581,7 +581,7 @@ router.post(
       await pool.query(
         `UPDATE communications
          SET ai_detected_category = $1
-         WHERE id = $2`,
+         WHERE id = $2',
         [category, communicationId]
       )
 
@@ -629,7 +629,7 @@ router.get(
          FROM communications
          WHERE communication_type = 'Email'
          AND source_platform = 'Microsoft Outlook'
-         AND tenant_id = $1`,
+         AND tenant_id = $1',
         [req.user!.tenant_id]
       )
 

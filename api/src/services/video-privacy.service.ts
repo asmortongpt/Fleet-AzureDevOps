@@ -157,7 +157,7 @@ class VideoPrivacyService {
 
       // Get video event
       const eventResult = await this.db.query(
-        `SELECT video_url, video_thumbnail_url FROM video_safety_events WHERE id = $1`,
+        `SELECT video_url, video_thumbnail_url FROM video_safety_events WHERE id = $1',
         [request.eventId]
       );
 
@@ -220,7 +220,7 @@ class VideoPrivacyService {
         `UPDATE video_safety_events
          SET privacy_processing_status = 'failed',
              updated_at = NOW()
-         WHERE id = $1`,
+         WHERE id = $1',
         [request.eventId]
       );
 
@@ -241,7 +241,7 @@ class VideoPrivacyService {
          WHERE vpq.task_type = 'privacy_blur'
            AND vpq.status = 'pending'
          ORDER BY vpq.priority, vpq.created_at
-         LIMIT $1`,
+         LIMIT $1',
         [limit]
       );
 
@@ -253,7 +253,7 @@ class VideoPrivacyService {
           await this.db.query(
             `UPDATE video_processing_queue
              SET status = 'processing', started_at = NOW()
-             WHERE id = $1`,
+             WHERE id = $1',
             [task.id]
           );
 
@@ -264,7 +264,7 @@ class VideoPrivacyService {
                COALESCE(privacy_blur_plates, false) as blur_plates,
                COALESCE(privacy_audio_redaction, false) as redact_audio
              FROM video_safety_events
-             WHERE id = $1`,
+             WHERE id = $1',
             [task.video_event_id]
           );
 
@@ -287,7 +287,7 @@ class VideoPrivacyService {
                  SET status = 'completed',
                      completed_at = NOW(),
                      processing_time_seconds = EXTRACT(EPOCH FROM (NOW() - started_at))
-                 WHERE id = $1`,
+                 WHERE id = $1',
                 [task.id]
               );
               processed++;
@@ -297,7 +297,7 @@ class VideoPrivacyService {
                  SET status = 'failed',
                      attempts = attempts + 1,
                      error_message = 'Privacy filter application failed'
-                 WHERE id = $1`,
+                 WHERE id = $1',
                 [task.id]
               );
             }
@@ -310,7 +310,7 @@ class VideoPrivacyService {
              SET status = 'failed',
                  attempts = attempts + 1,
                  error_message = $1
-             WHERE id = $2`,
+             WHERE id = $2',
             [error.message, task.id]
           );
         }
@@ -374,7 +374,7 @@ class VideoPrivacyService {
          SUM(CASE WHEN privacy_processing_status = 'completed' THEN 1 ELSE 0 END) as processing_completed,
          SUM(CASE WHEN privacy_processing_status = 'failed' THEN 1 ELSE 0 END) as processing_failed
        FROM video_safety_events
-       WHERE event_timestamp BETWEEN $1 AND $2`,
+       WHERE event_timestamp BETWEEN $1 AND $2',
       [startDate, endDate]
     );
 

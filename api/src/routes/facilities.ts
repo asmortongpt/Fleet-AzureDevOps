@@ -38,12 +38,12 @@ router.get(
       is_active,
       notes,
       created_at,
-      updated_at FROM facilities WHERE tenant_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3`,
+      updated_at FROM facilities WHERE tenant_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3',
         [req.user!.tenant_id, limit, offset]
       )
 
       const countResult = await pool.query(
-        'SELECT COUNT(*) FROM facilities WHERE tenant_id = $1`,
+        'SELECT COUNT(*) FROM facilities WHERE tenant_id = $1',
         [req.user!.tenant_id]
       )
 
@@ -89,7 +89,7 @@ router.get(
       is_active,
       notes,
       created_at,
-      updated_at FROM facilities WHERE id = $1 AND tenant_id = $2`,
+      updated_at FROM facilities WHERE id = $1 AND tenant_id = $2',
         [req.params.id, req.user!.tenant_id]
       )
 

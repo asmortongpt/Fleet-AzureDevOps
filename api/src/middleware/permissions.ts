@@ -369,7 +369,7 @@ export function preventSelfApproval(createdByField: string = 'created_by') {
 
       // Table and field are validated, safe to use in query
       const result = await pool.query(
-        `SELECT ${createdByField} FROM ${table} WHERE id = $1`,
+        `SELECT ${createdByField} FROM ${table} WHERE id = $1',
         [resourceId]
       )
 

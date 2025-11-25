@@ -176,7 +176,7 @@ router.get(
        JOIN users u ON c.driver_id = u.id
        LEFT JOIN users waiver ON c.waived_by_user_id = waiver.id
        LEFT JOIN trip_usage_classification t ON c.trip_usage_id = t.id
-       WHERE c.id = $1 AND c.tenant_id = $2`,
+       WHERE c.id = $1 AND c.tenant_id = $2',
       [req.params.id, req.user!.tenant_id]
     )
 
@@ -222,9 +222,6 @@ router.post(
 
       // Get policy to determine rate
       const policyResult = await pool.query(
-<<<<<<< HEAD
-        'SELECT id, tenant_id, policy_name, deduction_percent, reimbursement_method, created_at, updated_at FROM personal_use_policies WHERE tenant_id = $1',
-=======
         `SELECT
       id,
       tenant_id,
@@ -236,8 +233,7 @@ router.post(
       expiry_date,
       is_active,
       created_at,
-      updated_at FROM personal_use_policies WHERE tenant_id = $1`,
->>>>>>> feature/devsecops-audit-remediation
+      updated_at FROM personal_use_policies WHERE tenant_id = $1',
         [req.user!.tenant_id]
       )
 
@@ -385,9 +381,6 @@ router.post(
 
       // Check usage limits and send warnings if needed
       const policyResult = await pool.query(
-<<<<<<< HEAD
-        'SELECT id, tenant_id, policy_name, deduction_percent, reimbursement_method, created_at, updated_at FROM personal_use_policies WHERE tenant_id = $1',
-=======
         `SELECT
       id,
       tenant_id,
@@ -399,8 +392,7 @@ router.post(
       expiry_date,
       is_active,
       created_at,
-      updated_at FROM personal_use_policies WHERE tenant_id = $1`,
->>>>>>> feature/devsecops-audit-remediation
+      updated_at FROM personal_use_policies WHERE tenant_id = $1',
         [req.user!.tenant_id]
       )
 
@@ -428,7 +420,7 @@ router.post(
 
             // Send email warning
             const driverInfo = await pool.query(
-              'SELECT first_name, last_name, email FROM users WHERE id = $1`,
+              'SELECT first_name, last_name, email FROM users WHERE id = $1',
               [validated.driver_id]
             )
 
@@ -487,9 +479,6 @@ router.patch(
 
       // Get existing charge
       const existing = await pool.query(
-<<<<<<< HEAD
-        'SELECT id, tenant_id, trip_id, driver_id, charge_date, charge_amount, status, created_at, updated_at FROM personal_use_charges WHERE id = $1 AND tenant_id = $2',
-=======
         `SELECT
       id,
       tenant_id,
@@ -503,8 +492,7 @@ router.patch(
       status,
       notes,
       created_at,
-      updated_at FROM personal_use_charges WHERE id = $1 AND tenant_id = $2`,
->>>>>>> feature/devsecops-audit-remediation
+      updated_at FROM personal_use_charges WHERE id = $1 AND tenant_id = $2',
         [req.params.id, req.user!.tenant_id]
       )
 
@@ -622,7 +610,7 @@ router.get(
     try {
       const { charge_period } = req.query
 
-      let whereClause = 'WHERE tenant_id = $1`
+      let whereClause = 'WHERE tenant_id = $1'
       const params: any[] = [req.user!.tenant_id]
 
       if (charge_period) {
@@ -689,9 +677,6 @@ router.post(
 
       // Get policy
       const policyResult = await pool.query(
-<<<<<<< HEAD
-        'SELECT id, tenant_id, policy_name, deduction_percent, reimbursement_method, created_at, updated_at FROM personal_use_policies WHERE tenant_id = $1',
-=======
         `SELECT
       id,
       tenant_id,
@@ -703,8 +688,7 @@ router.post(
       expiry_date,
       is_active,
       created_at,
-      updated_at FROM personal_use_policies WHERE tenant_id = $1`,
->>>>>>> feature/devsecops-audit-remediation
+      updated_at FROM personal_use_policies WHERE tenant_id = $1',
         [req.user!.tenant_id]
       )
 
