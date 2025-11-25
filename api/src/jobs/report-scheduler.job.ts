@@ -243,7 +243,7 @@ export async function createSchedule(
       report_id, schedule_type, schedule_config,
       recipients, format, is_active, next_run, created_by
     ) VALUES ($1, $2, $3, $4, $5, true, $6, $7)
-    RETURNING id`,
+    RETURNING id',
     [
       reportId,
       scheduleType,

@@ -549,7 +549,7 @@ async function handleSubmitInspection(action: CardAction, userId: string): Promi
     `INSERT INTO vehicle_inspections (
       vehicle_id, driver_id, inspection_data, vehicle_condition, status, created_at
     ) VALUES ($1, $2, $3, $4, 'submitted', NOW())
-    RETURNING id`,
+    RETURNING id',
     [vehicleId, driverId, JSON.stringify(checklistData), checklistData.vehicleCondition]
   )
 
