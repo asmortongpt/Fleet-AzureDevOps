@@ -17,7 +17,8 @@ ARG CACHE_BUST=1
 RUN echo "Cache bust: $CACHE_BUST - forcing fresh npm install"
 
 # Install dependencies (fresh install for correct Linux platform deps)
-RUN npm install
+# Use --legacy-peer-deps for React 19 compatibility with older packages
+RUN npm install --legacy-peer-deps
 
 # Copy source code (excluding node_modules via .dockerignore)
 COPY . .
