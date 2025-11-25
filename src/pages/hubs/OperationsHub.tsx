@@ -24,6 +24,7 @@ import {
 type OperationsModule =
   | "overview"
   | "tracking"
+  | "dispatch"
   | "fuel"
   | "assets";
 
@@ -40,6 +41,12 @@ const OperationsHub: React.FC = () => {
               vehicles={fleetData.vehicles || []}
               facilities={fleetData.facilities || []}
             />
+          </div>
+        );
+      case "dispatch":
+        return (
+          <div style={{ height: "100%", overflow: "auto" }}>
+            <DispatchConsole />
           </div>
         );
       case "fuel":
@@ -329,6 +336,15 @@ const OperationsHub: React.FC = () => {
               </Button>
 
               <Button
+                variant={activeModule === "dispatch" ? "secondary" : "ghost"}
+                className="w-full justify-start"
+                onClick={() => setActiveModule("dispatch")}
+              >
+                <Broadcast className="w-4 h-4 mr-2" />
+                Radio Dispatch
+              </Button>
+
+              <Button
                 variant={activeModule === "fuel" ? "secondary" : "ghost"}
                 className="w-full justify-start"
                 onClick={() => setActiveModule("fuel")}
@@ -379,9 +395,14 @@ const OperationsHub: React.FC = () => {
                 Quick Actions
               </h3>
               <div className="space-y-2">
-                <Button variant="outline" className="w-full justify-start">
+                <Button
+                  variant="outline"
+                  className="w-full justify-start"
+                  onClick={() => window.open('/operations/dispatch', '_blank', 'width=1400,height=900')}
+                  title="Open Radio Dispatch in new window for multi-tasking"
+                >
                   <Broadcast className="w-4 h-4 mr-2" />
-                  Quick Dispatch
+                  Open Radio in New Window
                 </Button>
                 <Button variant="outline" className="w-full justify-start">
                   <MapPin className="w-4 h-4 mr-2" />
