@@ -15,7 +15,7 @@ import {
   Package,
   ChartLine,
   Truck,
-  Navigation,
+  NavigationArrow,
   Warning,
   CheckCircle,
   Clock,
@@ -74,7 +74,7 @@ const OperationsHub: React.FC = () => {
               <Card className="hover:bg-accent/5 cursor-pointer transition-colors">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <Navigation className="w-5 h-5 text-green-500" />
+                    <NavigationArrow className="w-5 h-5 text-green-500" />
                     Pending Dispatches
                   </CardTitle>
                 </CardHeader>
