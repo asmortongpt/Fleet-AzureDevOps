@@ -59,7 +59,7 @@ export class CameraSyncService {
                  last_sync_status = 'failed',
                  last_sync_error = $1,
                  updated_at = NOW()
-             WHERE id = $2`,
+             WHERE id = $2',
             [error.message, source.id]
           )
         }
@@ -112,7 +112,7 @@ export class CameraSyncService {
            last_sync_error = NULL,
            total_cameras_synced = $1,
            updated_at = NOW()
-       WHERE id = $2`,
+       WHERE id = $2',
       [successCount, source.id]
     )
 

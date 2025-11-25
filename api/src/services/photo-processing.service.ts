@@ -334,7 +334,7 @@ class PhotoProcessingService {
       const result = await pool.query(
         `DELETE FROM photo_processing_queue
          WHERE status = 'completed'
-           AND processing_completed_at < NOW() - INTERVAL '1 day' * $1`,
+           AND processing_completed_at < NOW() - INTERVAL '1 day' * $1',
         [daysOld]
       );
 
@@ -404,7 +404,7 @@ class PhotoProcessingService {
         `UPDATE photo_processing_queue
          SET status = 'processing',
              processing_started_at = NOW()
-         WHERE id = $1`,
+         WHERE id = $1',
         [job.id]
       );
 
@@ -418,7 +418,7 @@ class PhotoProcessingService {
       photo_url,
       metadata,
       taken_at,
-      created_at FROM mobile_photos WHERE id = $1`,
+      created_at FROM mobile_photos WHERE id = $1',
         [job.photo_id]
       );
 
@@ -458,7 +458,7 @@ class PhotoProcessingService {
           `UPDATE photo_processing_queue
            SET status = 'completed',
                processing_completed_at = NOW()
-           WHERE id = $1`,
+           WHERE id = $1',
           [job.id]
         );
 
@@ -560,7 +560,7 @@ class PhotoProcessingService {
            SET processed_photo_url = $1,
                thumbnail_url = $2,
                updated_at = NOW()
-           WHERE id = $3`,
+           WHERE id = $3',
           [result.compressed_url || photo.photo_url, result.thumbnail_url, metadata.damageReportId]
         );
       }
@@ -571,7 +571,7 @@ class PhotoProcessingService {
           `UPDATE vehicle_inspections
            SET photo_urls = COALESCE(photo_urls, '[]'::jsonb) || $1::jsonb,
                updated_at = NOW()
-           WHERE id = $2`,
+           WHERE id = $2',
           [JSON.stringify([{ url: result.compressed_url || photo.photo_url, thumbnail: result.thumbnail_url }]), metadata.inspectionId]
         );
       }
@@ -583,7 +583,7 @@ class PhotoProcessingService {
            SET receipt_url = $1,
                receipt_ocr_text = $2,
                updated_at = NOW()
-           WHERE id = $3`,
+           WHERE id = $3',
           [result.compressed_url || photo.photo_url, result.ocr_text, metadata.fuelTransactionId]
         );
       }

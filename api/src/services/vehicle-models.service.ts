@@ -378,13 +378,8 @@ class VehicleModelsService {
     const daysNum = Math.max(1, Math.min(365, days || 30))
 
     const query = `
-<<<<<<< HEAD
-      SELECT * FROM ar_session_analytics
-      WHERE session_date >= CURRENT_DATE - ($1 || ' days')::INTERVAL
-=======
       SELECT id, tenant_id, session_date, total_sessions, avg_session_duration, unique_users FROM ar_session_analytics
       WHERE session_date >= CURRENT_DATE - INTERVAL '${days} days'
->>>>>>> feature/devsecops-audit-remediation
       ORDER BY session_date DESC
     `;
 

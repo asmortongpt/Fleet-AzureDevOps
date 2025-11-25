@@ -684,7 +684,7 @@ router.get('/vehicles/:id/charging-history', authenticateJWT, requirePermission(
        LEFT JOIN users u ON cs.driver_id = u.id
        WHERE cs.vehicle_id = $1
        ORDER BY cs.start_time DESC
-       LIMIT $2`,
+       LIMIT $2',
       [vehicleId, limit]
     );
 

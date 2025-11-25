@@ -231,7 +231,7 @@ export async function updateEvent(
     await pool.query(
       `UPDATE calendar_events
        SET updated_at = NOW()
-       WHERE event_id = $1`,
+       WHERE event_id = $1',
       [eventId]
     )
 
@@ -258,7 +258,7 @@ export async function deleteEvent(userId: string, eventId: string): Promise<void
     await pool.query(
       `UPDATE calendar_events
        SET status = 'cancelled', updated_at = NOW()
-       WHERE event_id = $1`,
+       WHERE event_id = $1',
       [eventId]
     )
 
@@ -434,9 +434,6 @@ export async function scheduleMaintenance(
   try {
     // Get vehicle details
     const vehicleResult = await pool.query(
-<<<<<<< HEAD
-      'SELECT id, tenant_id, vin, license_plate, make, model, year, color, current_mileage, status, acquired_date, disposition_date, purchase_price, residual_value, created_at, updated_at, deleted_at FROM vehicles WHERE id = $1',
-=======
       `SELECT
       id,
       tenant_id,
@@ -466,8 +463,7 @@ export async function scheduleMaintenance(
       photos,
       notes,
       created_at,
-      updated_at FROM vehicles WHERE id = $1`,
->>>>>>> feature/devsecops-audit-remediation
+      updated_at FROM vehicles WHERE id = $1',
       [vehicleId]
     )
 
@@ -502,7 +498,7 @@ export async function scheduleMaintenance(
     await pool.query(
       `UPDATE calendar_events
        SET entity_type = 'vehicle', entity_id = $1
-       WHERE event_id = $2`,
+       WHERE event_id = $2',
       [vehicleId, event.id]
     )
 
@@ -526,9 +522,6 @@ export async function scheduleDriverTraining(
   try {
     // Get driver details
     const driverResult = await pool.query(
-<<<<<<< HEAD
-      'SELECT id, tenant_id, email, first_name, last_name, role, is_active, phone, created_at, updated_at FROM users WHERE id = $1 AND role = $2',
-=======
       `SELECT
       id,
       tenant_id,
@@ -545,8 +538,7 @@ export async function scheduleDriverTraining(
       mfa_enabled,
       mfa_secret,
       created_at,
-      updated_at FROM users WHERE id = $1 AND role = $2`,
->>>>>>> feature/devsecops-audit-remediation
+      updated_at FROM users WHERE id = $1 AND role = $2',
       [driverId, 'driver']
     )
 
@@ -583,7 +575,7 @@ export async function scheduleDriverTraining(
     await pool.query(
       `UPDATE calendar_events
        SET entity_type = 'driver_training', entity_id = $1
-       WHERE event_id = $2`,
+       WHERE event_id = $2',
       [driverId, event.id]
     )
 

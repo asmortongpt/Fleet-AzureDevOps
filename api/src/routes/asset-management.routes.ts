@@ -137,7 +137,7 @@ router.get('/:id', requirePermission('vehicle:view:fleet'), async (req: AuthRequ
         u.email as assigned_to_email
       FROM assets a
       LEFT JOIN users u ON a.assigned_to = u.id
-      WHERE a.id = $1 AND a.tenant_id = $2`,
+      WHERE a.id = $1 AND a.tenant_id = $2',
       [id, tenantId]
     )
 
@@ -160,11 +160,7 @@ router.get('/:id', requirePermission('vehicle:view:fleet'), async (req: AuthRequ
 
     // Get maintenance records
     const maintenance = await pool.query(
-<<<<<<< HEAD
-      `SELECT id, tenant_id, vehicle_id, service_type, description, scheduled_date, completed_date, status, odometer_reading, estimated_cost, actual_cost, assigned_vendor_id, assigned_technician, notes, recurring, recurring_interval_miles, recurring_interval_days, next_service_date, next_service_odometer, priority, created_at, updated_at, deleted_at FROM maintenance_schedules
-=======
       `SELECT id, tenant_id, vehicle_id, service_type, description, scheduled_date, status FROM maintenance_schedules
->>>>>>> feature/devsecops-audit-remediation
        WHERE asset_id = $1
        ORDER BY scheduled_date DESC
        LIMIT 20`,
@@ -457,9 +453,6 @@ router.get('/:id/depreciation', requirePermission('vehicle:view:fleet'), async (
     const tenantId = req.user?.tenant_id
 
     const result = await pool.query(
-<<<<<<< HEAD
-      `SELECT id, tenant_id, asset_name, asset_type, status, created_at, updated_at FROM assets WHERE id = $1 AND tenant_id = $2`,
-=======
       `SELECT 
       id,
       tenant_id,
@@ -486,8 +479,7 @@ router.get('/:id/depreciation', requirePermission('vehicle:view:fleet'), async (
       created_at,
       updated_at,
       created_by,
-      updated_by FROM assets WHERE id = $1 AND tenant_id = $2`,
->>>>>>> feature/devsecops-audit-remediation
+      updated_by FROM assets WHERE id = $1 AND tenant_id = $2',
       [id, tenantId]
     )
 
@@ -576,7 +568,7 @@ router.get('/analytics/summary', requirePermission('report:view:global'), async 
         `SELECT
            SUM(CAST(purchase_price AS DECIMAL) - CAST(current_value AS DECIMAL)) as total_depreciation
          FROM assets
-         WHERE tenant_id = $1`,
+         WHERE tenant_id = $1',
         [tenantId]
       )
     ])
