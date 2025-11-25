@@ -73,7 +73,7 @@ router.get('/:id', requirePermission('geofence:view:fleet'), async (req: AuthReq
         cds.service_url
       FROM traffic_cameras tc
       LEFT JOIN camera_data_sources cds ON tc.source_id = cds.id
-      WHERE tc.id = $1`,
+      WHERE tc.id = $1',
       [id]
     )
 
@@ -155,7 +155,7 @@ router.post(
       const result = await pool.query(
         `SELECT id, name, source_type, service_url, field_mapping, authentication
          FROM camera_data_sources
-         WHERE id = $1`,
+         WHERE id = $1',
         [id]
       )
 

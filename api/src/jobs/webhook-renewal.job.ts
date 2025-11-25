@@ -87,7 +87,7 @@ async function runWebhookRenewal(): Promise<void> {
 
         // Check if renewal has failed too many times
         const failureResult = await pool.query(
-          `SELECT renewal_failure_count FROM webhook_subscriptions WHERE subscription_id = $1`,
+          `SELECT renewal_failure_count FROM webhook_subscriptions WHERE subscription_id = $1',
           [subscription.subscription_id]
         )
 
@@ -97,7 +97,7 @@ async function runWebhookRenewal(): Promise<void> {
           logger.error(`Subscription ${subscription.subscription_id} has failed renewal 3 times, marking as failed`)
 
           await pool.query(
-            `UPDATE webhook_subscriptions SET status = 'failed' WHERE subscription_id = $1`,
+            `UPDATE webhook_subscriptions SET status = 'failed' WHERE subscription_id = $1',
             [subscription.subscription_id]
           )
 
@@ -108,7 +108,7 @@ async function runWebhookRenewal(): Promise<void> {
             try {
               // Get tenant ID from database
               const tenantResult = await pool.query(
-                `SELECT tenant_id FROM webhook_subscriptions WHERE subscription_id = $1`,
+                `SELECT tenant_id FROM webhook_subscriptions WHERE subscription_id = $1',
                 [subscription.subscription_id]
               )
 
@@ -130,7 +130,7 @@ async function runWebhookRenewal(): Promise<void> {
 
             try {
               const tenantResult = await pool.query(
-                `SELECT tenant_id, folder_id FROM webhook_subscriptions WHERE subscription_id = $1`,
+                `SELECT tenant_id, folder_id FROM webhook_subscriptions WHERE subscription_id = $1',
                 [subscription.subscription_id]
               )
 

@@ -276,7 +276,7 @@ class WebhookService {
                 tenant_id, team_id, channel_id, user_email, folder_id,
                 renewal_failure_count, last_renewed_at, created_at
          FROM webhook_subscriptions
-         WHERE subscription_id = $1`,
+         WHERE subscription_id = $1',
         [subscriptionId]
       )
 
@@ -308,7 +308,7 @@ class WebhookService {
              last_renewed_at = NOW(),
              renewal_failure_count = 0,
              status = 'active'
-         WHERE subscription_id = $2`,
+         WHERE subscription_id = $2',
         [expirationDateTime, subscriptionId]
       )
 
@@ -320,7 +320,7 @@ class WebhookService {
       await pool.query(
         `UPDATE webhook_subscriptions
          SET renewal_failure_count = renewal_failure_count + 1
-         WHERE subscription_id = $1`,
+         WHERE subscription_id = $1',
         [subscriptionId]
       )
 
@@ -346,7 +346,7 @@ class WebhookService {
       await pool.query(
         `UPDATE webhook_subscriptions
          SET status = 'deleted'
-         WHERE subscription_id = $1`,
+         WHERE subscription_id = $1',
         [subscriptionId]
       )
 
@@ -458,7 +458,7 @@ class WebhookService {
       await pool.query(
         `UPDATE webhook_events
          SET processed = true, processed_at = NOW(), communication_id = $1
-         WHERE id = $2`,
+         WHERE id = $2',
         [communicationId, eventId]
       )
 
@@ -480,7 +480,7 @@ class WebhookService {
       await pool.query(
         `UPDATE webhook_events
          SET error = $1
-         WHERE subscription_id = $2 AND resource = $3`,
+         WHERE subscription_id = $2 AND resource = $3',
         [error.message, subscriptionId, resource]
       )
 
@@ -573,7 +573,7 @@ class WebhookService {
       await pool.query(
         `UPDATE webhook_events
          SET processed = true, processed_at = NOW(), communication_id = $1
-         WHERE id = $2`,
+         WHERE id = $2',
         [communicationId, eventId]
       )
 
@@ -594,7 +594,7 @@ class WebhookService {
       await pool.query(
         `UPDATE webhook_events
          SET error = $1
-         WHERE subscription_id = $2 AND resource = $3`,
+         WHERE subscription_id = $2 AND resource = $3',
         [error.message, subscriptionId, resource]
       )
 
@@ -814,7 +814,7 @@ class WebhookService {
       await pool.query(
         `UPDATE communications
          SET metadata = jsonb_set(COALESCE(metadata, '{}'::jsonb), '{extracted_data}', $1::jsonb)
-         WHERE id = $2`,
+         WHERE id = $2',
         [JSON.stringify(extracted), communicationId]
       )
 

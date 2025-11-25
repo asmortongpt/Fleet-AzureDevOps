@@ -104,7 +104,7 @@ router.get(
          FROM osha_300_log o
          LEFT JOIN drivers d ON o.employee_id = d.id
          LEFT JOIN vehicles v ON o.vehicle_id = v.id
-         WHERE o.id = $1 AND d.tenant_id = $2`,
+         WHERE o.id = $1 AND d.tenant_id = $2',
         [req.params.id, req.user!.tenant_id]
       )
 

@@ -346,7 +346,7 @@ export class FuelPurchasingService {
       const params: any[] = [tenantId]
 
       if (status) {
-        query += ` AND status = $2`
+        query += ` AND status = $2'
         params.push(status)
       }
 

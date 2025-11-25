@@ -605,7 +605,7 @@ router.post(
            '"pending"'
          ),
          updated_at = NOW()
-         WHERE id = $1`,
+         WHERE id = $1',
         [req.params.id]
       )
 

@@ -270,7 +270,7 @@ export class OcrQueueService {
       await pool.query(
         `UPDATE documents
          SET ocr_status = 'completed', ocr_completed_at = NOW(), extracted_text = $1
-         WHERE id = $2`,
+         WHERE id = $2',
         [result.fullText, documentId]
       );
 
@@ -293,7 +293,7 @@ export class OcrQueueService {
 
       // Update document status
       await pool.query(
-        `UPDATE documents SET ocr_status = 'failed' WHERE id = $1`,
+        `UPDATE documents SET ocr_status = 'failed' WHERE id = $1',
         [documentId]
       );
 
@@ -349,14 +349,14 @@ export class OcrQueueService {
       await pool.query(
         `UPDATE ocr_batch_jobs
          SET completed_documents = $1, failed_documents = $2, updated_at = NOW()
-         WHERE id = $3`,
+         WHERE id = $3',
         [results.completed, results.failed, batchId]
       );
     }
 
     // Mark batch as completed
     await pool.query(
-      `UPDATE ocr_batch_jobs SET status = $1, updated_at = NOW() WHERE id = $2`,
+      `UPDATE ocr_batch_jobs SET status = $1, updated_at = NOW() WHERE id = $2',
       [OcrJobStatus.COMPLETED, batchId]
     );
 
@@ -402,7 +402,7 @@ export class OcrQueueService {
       }
 
       await pool.query(
-        `UPDATE ocr_jobs SET ${updates.join(', ')} WHERE id = $1`,
+        `UPDATE ocr_jobs SET ${updates.join(', ')} WHERE id = $1',
         values
       );
     } catch (error) {
@@ -432,14 +432,14 @@ export class OcrQueueService {
         await pool.query(
           `UPDATE ocr_batch_jobs
            SET failed_documents = failed_documents + 1, updated_at = NOW()
-           WHERE id = $1`,
+           WHERE id = $1',
           [batchId]
         );
       } else {
         await pool.query(
           `UPDATE ocr_batch_jobs
            SET completed_documents = completed_documents + 1, updated_at = NOW()
-           WHERE id = $1`,
+           WHERE id = $1',
           [batchId]
         );
       }
@@ -447,7 +447,7 @@ export class OcrQueueService {
       // Check if batch is complete
       const batchResult = await pool.query(
         `SELECT total_documents, completed_documents, failed_documents
-         FROM ocr_batch_jobs WHERE id = $1`,
+         FROM ocr_batch_jobs WHERE id = $1',
         [batchId]
       );
 
@@ -458,7 +458,7 @@ export class OcrQueueService {
         if (totalProcessed >= batch.total_documents) {
           // Batch is complete
           await pool.query(
-            `UPDATE ocr_batch_jobs SET status = $1, updated_at = NOW() WHERE id = $2`,
+            `UPDATE ocr_batch_jobs SET status = $1, updated_at = NOW() WHERE id = $2',
             [OcrJobStatus.COMPLETED, batchId]
           );
           console.log(`✅ Batch ${batchId} completed`);
@@ -479,7 +479,7 @@ export class OcrQueueService {
           id, document_id, status, progress, result, error,
           started_at, completed_at, processing_time
         FROM ocr_jobs
-        WHERE id = $1`,
+        WHERE id = $1',
         [jobId]
       );
 
@@ -525,7 +525,7 @@ export class OcrQueueService {
       REFERENCES,
       ON,
       REFERENCES,
-      ON FROM ocr_batch_jobs WHERE id = $1`,
+      ON FROM ocr_batch_jobs WHERE id = $1',
         [batchId]
       );
 
@@ -607,7 +607,7 @@ export class OcrQueueService {
       REFERENCES,
       ON,
       REFERENCES,
-      ON FROM ocr_jobs WHERE id = $1`,
+      ON FROM ocr_jobs WHERE id = $1',
         [jobId]
       );
 
@@ -725,7 +725,7 @@ export class OcrQueueService {
             AVG(processing_time) as avg_processing_time,
             COUNT(*) FILTER (WHERE created_at > NOW() - INTERVAL '24 hours') as jobs_24h
            FROM ocr_jobs
-           WHERE tenant_id = $1`
+           WHERE tenant_id = $1'
         : `SELECT
             COUNT(*) FILTER (WHERE status = 'pending') as pending,
             COUNT(*) FILTER (WHERE status = 'processing') as processing,

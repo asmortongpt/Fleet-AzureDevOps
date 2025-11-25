@@ -156,7 +156,7 @@ async function handleAcceptWorkOrder(action: CardAction, userId: string): Promis
   await pool.query(
     `UPDATE work_orders
      SET status = 'accepted', assigned_to = $1, updated_at = NOW()
-     WHERE id = $2`,
+     WHERE id = $2',
     [userId, workOrderId]
   )
 
@@ -177,7 +177,7 @@ async function handleRejectWorkOrder(action: CardAction, userId: string): Promis
   await pool.query(
     `UPDATE work_orders
      SET status = 'rejected', rejection_reason = $1, updated_at = NOW()
-     WHERE id = $2`,
+     WHERE id = $2',
     [rejectionReason || 'No reason provided', workOrderId]
   )
 
@@ -198,7 +198,7 @@ async function handleStartWork(action: CardAction, userId: string): Promise<any>
   await pool.query(
     `UPDATE work_orders
      SET status = 'in_progress', started_at = NOW(), updated_at = NOW()
-     WHERE id = $1`,
+     WHERE id = $1',
     [workOrderId]
   )
 
@@ -218,7 +218,7 @@ async function handleCompleteWork(action: CardAction, userId: string): Promise<a
   await pool.query(
     `UPDATE work_orders
      SET status = 'completed', completed_at = NOW(), updated_at = NOW()
-     WHERE id = $1`,
+     WHERE id = $1',
     [workOrderId]
   )
 
@@ -239,7 +239,7 @@ async function handleUpdateProgress(action: CardAction, userId: string): Promise
   await pool.query(
     `UPDATE work_orders
      SET progress_percentage = $1, progress_notes = $2, updated_at = NOW()
-     WHERE id = $3`,
+     WHERE id = $3',
     [progressPercentage, progressNote, workOrderId]
   )
 
@@ -263,7 +263,7 @@ async function handleApprove(action: CardAction, userId: string): Promise<any> {
   await pool.query(
     `UPDATE approvals
      SET status = 'approved', approved_by = $1, approved_at = NOW(), updated_at = NOW()
-     WHERE id = $2`,
+     WHERE id = $2',
     [userId, approvalId]
   )
 
@@ -303,7 +303,7 @@ async function handleReject(action: CardAction, userId: string): Promise<any> {
   await pool.query(
     `UPDATE approvals
      SET status = 'rejected', approved_by = $1, rejection_reason = $2, approved_at = NOW(), updated_at = NOW()
-     WHERE id = $3`,
+     WHERE id = $3',
     [userId, rejectionReason || 'No reason provided', approvalId]
   )
 
@@ -367,7 +367,7 @@ async function handleRequestInfo(action: CardAction, userId: string): Promise<an
      SET status = 'info_requested',
          info_requested = $1,
          updated_at = NOW()
-     WHERE id = $2`,
+     WHERE id = $2',
     [infoRequest, approvalId]
   )
 
@@ -388,7 +388,7 @@ async function handleApproveIncident(action: CardAction, userId: string): Promis
   await pool.query(
     `UPDATE incidents
      SET status = 'approved', reviewed_by = $1, reviewed_at = NOW(), updated_at = NOW()
-     WHERE id = $2`,
+     WHERE id = $2',
     [userId, incidentId]
   )
 
@@ -408,7 +408,7 @@ async function handleAssignInvestigator(action: CardAction, userId: string): Pro
   await pool.query(
     `UPDATE incidents
      SET investigator_id = $1, investigation_notes = $2, status = 'investigating', updated_at = NOW()
-     WHERE id = $3`,
+     WHERE id = $3',
     [investigatorId, investigationNotes, incidentId]
   )
 
@@ -429,7 +429,7 @@ async function handleCloseIncident(action: CardAction, userId: string): Promise<
   await pool.query(
     `UPDATE incidents
      SET status = 'closed', resolution = $1, closure_notes = $2, closed_at = NOW(), updated_at = NOW()
-     WHERE id = $3`,
+     WHERE id = $3',
     [resolution, closureNotes, incidentId]
   )
 
@@ -465,7 +465,7 @@ async function handleAcknowledge(action: CardAction, userId: string): Promise<an
   await pool.query(
     `UPDATE alerts
      SET acknowledged = true, acknowledged_by = $1, acknowledged_at = NOW()
-     WHERE id = $2`,
+     WHERE id = $2',
     [userId, alertId]
   )
 
@@ -506,7 +506,7 @@ async function handleApproveReceipt(action: CardAction, userId: string): Promise
   await pool.query(
     `UPDATE fuel_receipts
      SET status = 'approved', approved_by = $1, approved_at = NOW()
-     WHERE id = $2`,
+     WHERE id = $2',
     [userId, receiptId]
   )
 
@@ -526,7 +526,7 @@ async function handleFlagReceipt(action: CardAction, userId: string): Promise<an
   await pool.query(
     `UPDATE fuel_receipts
      SET status = 'flagged', flagged_by = $1, flagged_at = NOW()
-     WHERE id = $2`,
+     WHERE id = $2',
     [userId, receiptId]
   )
 

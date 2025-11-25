@@ -109,7 +109,7 @@ router.get('/:id', requirePermission('geofence:view:fleet'), async (req: AuthReq
   try {
     const result = await pool.query(
       `SELECT id, tenant_id, layer_name, layer_type, layer_config, is_active, created_at FROM arcgis_layers
-       WHERE id = $1 AND tenant_id = $2`,
+       WHERE id = $1 AND tenant_id = $2',
       [id, tenantId]
     )
 
