@@ -314,6 +314,261 @@ final class MockDataGenerator {
             fleetUtilization: Double(activeVehicles.count) / Double(vehicles.count) * 100
         )
     }
+
+    // MARK: - Technician Data
+
+    func generateTechnicians(count: Int = 8) -> [Technician] {
+        let firstNames = ["Mike", "Sarah", "David", "Emily", "Robert", "Lisa", "James", "Maria"]
+        let lastNames = ["Johnson", "Williams", "Brown", "Davis", "Martinez", "Garcia", "Miller", "Wilson"]
+        let specializations = [
+            ["Engine Repair", "Transmission"],
+            ["Electrical Systems", "Diagnostics"],
+            ["Brakes", "Suspension"],
+            ["HVAC", "Fluid Systems"],
+            ["Body Work", "Paint"],
+            ["Tires", "Alignment"],
+            ["Preventive Maintenance"],
+            ["Diesel Engines", "Heavy Duty"]
+        ]
+        let certifications = ["ASE Master", "ASE Certified", "Manufacturer Certified", "State Licensed"]
+
+        return (0..<count).map { index in
+            let firstName = firstNames[index % firstNames.count]
+            let lastName = lastNames[index % lastNames.count]
+
+            return Technician(
+                id: UUID().uuidString,
+                name: "\(firstName) \(lastName)",
+                email: "\(firstName.lowercased()).\(lastName.lowercased())@fleet.com",
+                phone: String(format: "(%03d) %03d-%04d", Int.random(in: 200...999), Int.random(in: 200...999), Int.random(in: 1000...9999)),
+                specialization: specializations[index % specializations.count],
+                certifications: [certifications.randomElement()!],
+                activeWorkOrders: Int.random(in: 0...5),
+                isAvailable: Bool.random()
+            )
+        }
+    }
+
+    // MARK: - Work Order Data
+
+    func generateWorkOrders(count: Int = 35, vehicles: [Vehicle], technicians: [Technician]) -> [WorkOrder] {
+        guard !vehicles.isEmpty, !technicians.isEmpty else { return [] }
+
+        var workOrders: [WorkOrder] = []
+        let startWONumber = 1000
+
+        for index in 0..<count {
+            let vehicle = vehicles.randomElement()!
+            let type = WorkOrderType.allCases.randomElement()!
+            let priority = WorkOrderPriority.allCases.randomElement()!
+            let status = WorkOrderStatus.allCases.randomElement()!
+            let createdDate = Date().addingTimeInterval(-Double.random(in: 0...60) * 24 * 3600)
+
+            var scheduledDate: Date? = nil
+            var startedDate: Date? = nil
+            var completedDate: Date? = nil
+            var dueDate: Date? = nil
+
+            // Set dates based on status
+            switch status {
+            case .open:
+                dueDate = createdDate.addingTimeInterval(Double.random(in: 3...14) * 24 * 3600)
+            case .assigned:
+                scheduledDate = createdDate.addingTimeInterval(Double.random(in: 1...7) * 24 * 3600)
+                dueDate = scheduledDate?.addingTimeInterval(Double.random(in: 1...7) * 24 * 3600)
+            case .inProgress:
+                scheduledDate = createdDate.addingTimeInterval(Double.random(in: 1...3) * 24 * 3600)
+                startedDate = scheduledDate?.addingTimeInterval(Double.random(in: 0...2) * 24 * 3600)
+                dueDate = startedDate?.addingTimeInterval(Double.random(in: 1...5) * 24 * 3600)
+            case .onHold, .awaitingParts:
+                scheduledDate = createdDate.addingTimeInterval(Double.random(in: 1...3) * 24 * 3600)
+                startedDate = scheduledDate?.addingTimeInterval(Double.random(in: 0...1) * 24 * 3600)
+            case .completed:
+                scheduledDate = createdDate.addingTimeInterval(Double.random(in: 1...3) * 24 * 3600)
+                startedDate = scheduledDate?.addingTimeInterval(Double.random(in: 0...1) * 24 * 3600)
+                completedDate = startedDate?.addingTimeInterval(Double.random(in: 1...8) * 3600)
+            case .cancelled:
+                scheduledDate = createdDate.addingTimeInterval(Double.random(in: 1...7) * 24 * 3600)
+            }
+
+            let tech = status != .open ? technicians.randomElement() : nil
+            let woNumber = String(format: "WO-%06d", startWONumber + index)
+
+            let workOrder = WorkOrder(
+                woNumber: woNumber,
+                vehicleId: vehicle.id,
+                vehicleNumber: vehicle.number,
+                vehicleMake: vehicle.make,
+                vehicleModel: vehicle.model,
+                type: type,
+                status: status,
+                priority: priority,
+                description: generateWorkOrderDescription(type: type),
+                assignedTechId: tech?.id,
+                assignedTechName: tech?.name,
+                createdDate: createdDate,
+                scheduledDate: scheduledDate,
+                startedDate: startedDate,
+                completedDate: completedDate,
+                dueDate: dueDate,
+                mileageAtStart: vehicle.mileage,
+                mileageAtComplete: status == .completed ? vehicle.mileage + Double.random(in: 10...100) : nil,
+                hoursWorked: status == .completed ? Double.random(in: 0.5...8.0) : Double.random(in: 0...4),
+                laborRate: Double.random(in: 65...95),
+                parts: generateWorkOrderParts(for: type),
+                photos: [],
+                notes: generateWorkOrderNotes(status: status),
+                createdBy: "System Admin"
+            )
+
+            workOrders.append(workOrder)
+        }
+
+        return workOrders
+    }
+
+    private func generateWorkOrderDescription(type: WorkOrderType) -> String {
+        switch type {
+        case .preventiveMaintenance:
+            return ["Scheduled 5,000 mile service", "Annual inspection and service", "Quarterly preventive maintenance"].randomElement()!
+        case .repair:
+            return ["Customer reported unusual noise", "Repair needed after inspection", "Emergency repair required"].randomElement()!
+        case .inspection:
+            return ["Pre-trip safety inspection", "DOT compliance inspection", "Annual vehicle inspection"].randomElement()!
+        case .diagnostics:
+            return ["Check engine light diagnostic", "Performance issue diagnosis", "Electrical system diagnostic"].randomElement()!
+        case .bodyWork:
+            return ["Minor body damage repair", "Paint touch-up needed", "Dent removal and paint"].randomElement()!
+        case .electrical:
+            return ["Electrical system malfunction", "Battery replacement needed", "Alternator repair"].randomElement()!
+        case .engineWork:
+            return ["Engine overheating issue", "Oil leak repair", "Engine performance tune-up"].randomElement()!
+        case .transmission:
+            return ["Transmission slipping", "Fluid leak repair", "Transmission service"].randomElement()!
+        case .brakes:
+            return ["Brake pad replacement", "Rotor resurfacing", "Brake system inspection"].randomElement()!
+        case .tires:
+            return ["Tire rotation and balance", "Replace worn tires", "Tire pressure monitoring"].randomElement()!
+        case .hvac:
+            return ["A/C not cooling properly", "Heater malfunction", "HVAC system service"].randomElement()!
+        case .suspension:
+            return ["Suspension noise investigation", "Shock absorber replacement", "Alignment needed"].randomElement()!
+        case .recall:
+            return ["Manufacturer recall - safety issue", "Recall service notification", "Factory recall repair"].randomElement()!
+        case .modification:
+            return ["Install equipment package", "Upfit modification", "Custom modification request"].randomElement()!
+        case .other:
+            return ["General maintenance", "Custom service request", "Miscellaneous repair"].randomElement()!
+        }
+    }
+
+    private func generateWorkOrderParts(for type: WorkOrderType) -> [WorkOrderPart] {
+        let partTemplates: [(String, String, Double)] = [
+            ("OF-1234", "Oil Filter", 15.99),
+            ("AF-5678", "Air Filter", 25.99),
+            ("BP-9012", "Brake Pads (Front)", 89.99),
+            ("BP-9013", "Brake Pads (Rear)", 79.99),
+            ("BR-3456", "Brake Rotors", 125.99),
+            ("BT-7890", "Battery", 145.99),
+            ("WB-2345", "Wiper Blades", 29.99),
+            ("SP-6789", "Spark Plugs (Set)", 65.99),
+            ("TH-4567", "Thermostat", 45.99),
+            ("WP-8901", "Water Pump", 185.99),
+            ("AL-2468", "Alternator", 295.99),
+            ("ST-1357", "Starter Motor", 225.99),
+            ("TB-9753", "Timing Belt", 95.99),
+            ("SS-8642", "Shock Absorber", 135.99)
+        ]
+
+        let partCount = Int.random(in: 0...4)
+        var parts: [WorkOrderPart] = []
+
+        for _ in 0..<partCount {
+            let template = partTemplates.randomElement()!
+            parts.append(WorkOrderPart(
+                partNumber: template.0,
+                name: template.1,
+                description: "\(template.1) for vehicle",
+                quantity: Int.random(in: 1...2),
+                unitCost: template.2,
+                supplier: ["AutoZone", "NAPA", "O'Reilly", "Advance Auto", "Dealer Parts"].randomElement()!,
+                orderDate: Bool.random() ? Date().addingTimeInterval(-Double.random(in: 1...5) * 24 * 3600) : nil,
+                receivedDate: Bool.random() ? Date().addingTimeInterval(-Double.random(in: 0...3) * 24 * 3600) : nil,
+                warranty: Bool.random() ? "1 year / 12,000 miles" : nil
+            ))
+        }
+
+        return parts
+    }
+
+    private func generateWorkOrderNotes(status: WorkOrderStatus) -> [WorkOrderNote] {
+        var notes: [WorkOrderNote] = []
+
+        switch status {
+        case .open:
+            notes.append(WorkOrderNote(
+                text: "Work order created and pending assignment",
+                author: "System",
+                isSystemNote: true
+            ))
+        case .assigned:
+            notes.append(WorkOrderNote(
+                text: "Work order assigned to technician",
+                timestamp: Date().addingTimeInterval(-Double.random(in: 1...3) * 24 * 3600),
+                author: "System",
+                isSystemNote: true
+            ))
+        case .inProgress:
+            notes.append(WorkOrderNote(
+                text: "Work started on vehicle",
+                timestamp: Date().addingTimeInterval(-Double.random(in: 1...5) * 3600),
+                author: "System",
+                isSystemNote: true
+            ))
+            if Bool.random() {
+                notes.append(WorkOrderNote(
+                    text: "Additional issues found during inspection",
+                    timestamp: Date().addingTimeInterval(-Double.random(in: 0...2) * 3600),
+                    author: generateDriverName()
+                ))
+            }
+        case .onHold:
+            notes.append(WorkOrderNote(
+                text: "Work paused - awaiting approval",
+                timestamp: Date().addingTimeInterval(-Double.random(in: 1...24) * 3600),
+                author: "System",
+                isSystemNote: true
+            ))
+        case .awaitingParts:
+            notes.append(WorkOrderNote(
+                text: "Parts ordered and awaiting delivery",
+                timestamp: Date().addingTimeInterval(-Double.random(in: 1...48) * 3600),
+                author: "System",
+                isSystemNote: true
+            ))
+        case .completed:
+            notes.append(WorkOrderNote(
+                text: "Work order completed successfully",
+                timestamp: Date().addingTimeInterval(-Double.random(in: 1...24) * 3600),
+                author: "System",
+                isSystemNote: true
+            ))
+            notes.append(WorkOrderNote(
+                text: "Vehicle test driven and verified",
+                timestamp: Date().addingTimeInterval(-Double.random(in: 0...12) * 3600),
+                author: generateDriverName()
+            ))
+        case .cancelled:
+            notes.append(WorkOrderNote(
+                text: "Work order cancelled - duplicate entry",
+                timestamp: Date().addingTimeInterval(-Double.random(in: 1...24) * 3600),
+                author: "System",
+                isSystemNote: true
+            ))
+        }
+
+        return notes
+    }
 }
 
 // MARK: - Model Extensions
