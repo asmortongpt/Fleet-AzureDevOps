@@ -244,3 +244,15 @@ private struct CoordinateData: Codable {
         self.longitude = coordinate.longitude
     }
 }
+
+// MARK: - API Response Types
+struct TripsResponse: Codable {
+    public let trips: [Trip]
+    public let total: Int
+    public let page: Int?
+    public let limit: Int?
+}
+
+struct TripResponse: Codable {
+    public let trip: Trip
+}
