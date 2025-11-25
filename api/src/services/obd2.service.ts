@@ -334,7 +334,7 @@ export class OBD2ServiceBackend {
            cleared_by = $3,
            updated_at = CURRENT_TIMESTAMP
        WHERE tenant_id = $1 AND vehicle_id = $2 AND status = 'active'
-       RETURNING id`,
+       RETURNING id',
       [tenantId, vehicleId, userId]
     )
 
@@ -576,7 +576,7 @@ export class OBD2ServiceBackend {
         `INSERT INTO work_orders
          (tenant_id, vehicle_id, type, priority, description, estimated_cost, status, metadata)
          VALUES ($1, $2, 'diagnostic', $3, $4, $5, 'open', $6)
-         RETURNING id`,
+         RETURNING id',
         [
           tenantId,
           vehicleId,
