@@ -231,6 +231,32 @@ struct MainTabView: View {
 
         case .help:
             HelpView()
+
+        // Hardware integration destinations
+        case .fleetMap:
+            Text("Fleet Map View - Coming Soon")
+                .font(.title)
+                .padding()
+
+        case .tripTracking(let vehicleId):
+            Text("Trip Tracking for Vehicle: \(vehicleId)")
+                .font(.title)
+                .padding()
+
+        case .obd2Diagnostics:
+            Text("OBD-II Diagnostics - Coming Soon")
+                .font(.title)
+                .padding()
+
+        case .maintenancePhoto(let vehicleId, let type):
+            Text("Maintenance Photo: \(type) for Vehicle: \(vehicleId)")
+                .font(.title)
+                .padding()
+
+        case .photoCapture(let vehicleId, let photoType):
+            Text("Photo Capture: \(photoType) for Vehicle: \(vehicleId)")
+                .font(.title)
+                .padding()
         }
     }
 }
