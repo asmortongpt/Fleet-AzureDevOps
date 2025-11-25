@@ -75,7 +75,7 @@ export class PermissionEngine implements IPermissionEngine {
     if (!hasRole) {
       return {
         allowed: false,
-        reason: 'User roles [${user.roles.join(', ')}] not authorized for action: ${action}`
+        reason: 'User roles [${user.roles.join(', ')}] not authorized for action: ${action}'
       };
     }
 

@@ -493,7 +493,7 @@ router.get(
          FROM communications c
          LEFT JOIN drivers from_user ON c.from_user_id = from_user.id
          WHERE (from_user.tenant_id = $1 OR from_user.tenant_id IS NULL)
-         AND c.communication_datetime >= DATE_TRUNC('month', CURRENT_DATE)`,
+         AND c.communication_datetime >= DATE_TRUNC('month', CURRENT_DATE)',
         [req.user!.tenant_id]
       )
 

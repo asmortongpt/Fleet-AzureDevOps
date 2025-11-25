@@ -306,11 +306,11 @@ export class SearchIndexService {
       const weight = boost[field] || 1.0
       if (field === 'tags') {
         searchVectorParts.push(
-          `setweight(to_tsvector('english', COALESCE(array_to_string(d.tags, ' '), '')), 'A') * ${weight}`
+          'setweight(to_tsvector('english', COALESCE(array_to_string(d.tags, ' '), '')), 'A') * ${weight}'
         )
       } else {
         searchVectorParts.push(
-          `setweight(to_tsvector('english', COALESCE(d.${field}, '')), 'A') * ${weight}`
+          'setweight(to_tsvector('english', COALESCE(d.${field}, '')), 'A') * ${weight}'
         )
       }
     })
@@ -389,11 +389,11 @@ export class SearchIndexService {
         query += ` AND d.status = $${++paramCount}`
         params.push(searchQuery.filters.status)
       } else {
-        query += ` AND d.status = 'active'`
+        query += ' AND d.status = 'active''
       }
 
       if (searchQuery.filters.minScore) {
-        query += ` AND ts_rank_cd(${searchVector}, to_tsquery('english', $1), 32) >= $${++paramCount}`
+        query += ' AND ts_rank_cd(${searchVector}, to_tsquery('english', $1), 32) >= $${++paramCount}'
         params.push(searchQuery.filters.minScore)
       }
     }
@@ -454,11 +454,11 @@ export class SearchIndexService {
       const weight = boost[field] || 1.0
       if (field === 'tags') {
         searchVectorParts.push(
-          `setweight(to_tsvector('english', COALESCE(array_to_string(d.tags, ' '), '')), 'A') * ${weight}`
+          'setweight(to_tsvector('english', COALESCE(array_to_string(d.tags, ' '), '')), 'A') * ${weight}'
         )
       } else {
         searchVectorParts.push(
-          `setweight(to_tsvector('english', COALESCE(d.${field}, '')), 'A') * ${weight}`
+          'setweight(to_tsvector('english', COALESCE(d.${field}, '')), 'A') * ${weight}'
         )
       }
     })
@@ -510,7 +510,7 @@ export class SearchIndexService {
         query += ` AND d.status = $${++paramCount}`
         params.push(searchQuery.filters.status)
       } else {
-        query += ` AND d.status = 'active'`
+        query += ' AND d.status = 'active''
       }
     }
 
@@ -748,7 +748,7 @@ export class SearchIndexService {
           `SELECT AVG(search_time_ms) as avg_time_ms
            FROM search_query_log
            WHERE tenant_id = $1
-             AND created_at > NOW() - INTERVAL '${days} days'`,
+             AND created_at > NOW() - INTERVAL '${days} days'',
           [tenantId]
         ),
         // Total searches
@@ -756,7 +756,7 @@ export class SearchIndexService {
           `SELECT COUNT(*) as total
            FROM search_query_log
            WHERE tenant_id = $1
-             AND created_at > NOW() - INTERVAL '${days} days'`,
+             AND created_at > NOW() - INTERVAL '${days} days'',
           [tenantId]
         )
       ])

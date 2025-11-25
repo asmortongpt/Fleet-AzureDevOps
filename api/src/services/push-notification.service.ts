@@ -825,7 +825,7 @@ class PushNotificationService {
     // Update notification counts
     const countField = status === 'delivered' ? 'delivered_count' : 'failed_count';
     await db.query(
-      `UPDATE push_notifications SET ${countField} = ${countField} + 1 WHERE id = $1',
+      'UPDATE push_notifications SET ${countField} = ${countField} + 1 WHERE id = $1',
       [notificationId]
     );
   }
@@ -837,7 +837,7 @@ class PushNotificationService {
   private replaceVariables(template: string, variables: Record<string, any>): string {
     let result = template;
     for (const [key, value] of Object.entries(variables)) {
-      result = result.replace(new RegExp(`{{${key}}}`, 'g'), String(value));
+      result = result.replace(new RegExp('{{${key}}}`, 'g'), String(value));
     }
     return result;
   }

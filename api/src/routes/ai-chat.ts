@@ -184,7 +184,7 @@ router.delete(
   async (req: AuthRequest, res: Response) => {
     try {
       // Delete messages first
-      await pool.query('DELETE FROM chat_messages WHERE session_id = $1`, [req.params.id])
+      await pool.query('DELETE FROM chat_messages WHERE session_id = $1', [req.params.id])
 
       // Delete session
       await pool.query(
@@ -460,7 +460,7 @@ router.post(
       )
 
       if (sessionResult.rows.length === 0) {
-        res.write('data: ${JSON.stringify({ error: 'Session not found' })}\n\n`)
+        res.write('data: ${JSON.stringify({ error: 'Session not found' })}\n\n')
         res.end()
         return
       }
@@ -595,7 +595,7 @@ Guidelines:
 - Use bullet points for lists
 - Include relevant metrics and numbers when available
 
-You have access to the fleet's document repository and can search through maintenance records, compliance documents, driver information, and operational data.`
+You have access to the fleet's document repository and can search through maintenance records, compliance documents, driver information, and operational data.'
 }
 
 // ============================================================================

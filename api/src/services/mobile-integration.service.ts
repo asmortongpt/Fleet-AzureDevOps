@@ -470,7 +470,7 @@ export class MobileIntegrationService {
       await pool.query(
         `INSERT INTO work_orders
          (tenant_id, vehicle_id, type, priority, description, estimated_cost, status)
-         VALUES ($1, $2, 'damage_repair', 'high', $3, $4, 'open')`,
+         VALUES ($1, $2, 'damage_repair', 'high', $3, $4, 'open')',
         [
           tenantId,
           data.vehicle_id,
@@ -570,7 +570,7 @@ export class MobileIntegrationService {
   ): Promise<boolean> {
     // Get device push token
     const deviceResult = await pool.query(
-      `SELECT push_token, device_type FROM mobile_devices WHERE device_id = $1',
+      'SELECT push_token, device_type FROM mobile_devices WHERE device_id = $1',
       [deviceId]
     )
 

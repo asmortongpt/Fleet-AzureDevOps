@@ -259,7 +259,7 @@ router.get(
     try {
       const { resolved, severity } = req.query
 
-      let query = 'SELECT id, tenant_id, anomaly_type, entity_type, entity_id, metric_name, expected_value, actual_value, deviation_score, severity, description, detection_method, model_id, root_cause_analysis, recommended_action, is_false_positive, is_resolved, resolved_by, resolved_at, resolution_notes, detected_at, created_at FROM anomalies WHERE tenant_id = $1`
+      let query = 'SELECT id, tenant_id, anomaly_type, entity_type, entity_id, metric_name, expected_value, actual_value, deviation_score, severity, description, detection_method, model_id, root_cause_analysis, recommended_action, is_false_positive, is_resolved, resolved_by, resolved_at, resolution_notes, detected_at, created_at FROM anomalies WHERE tenant_id = $1'
       const params: any[] = [req.user!.tenant_id]
       let paramCount = 1
 
@@ -643,7 +643,7 @@ router.get(
     try {
       const { model_type, is_active } = req.query
 
-      let query = 'SELECT id, tenant_id, model_name, model_type, version, algorithm, framework, hyperparameters, feature_importance, training_data_size, training_duration_seconds, model_artifacts_url, model_binary, status, is_active, deployed_at, created_by, created_at, updated_at FROM ml_models WHERE tenant_id = $1`
+      let query = 'SELECT id, tenant_id, model_name, model_type, version, algorithm, framework, hyperparameters, feature_importance, training_data_size, training_duration_seconds, model_artifacts_url, model_binary, status, is_active, deployed_at, created_by, created_at, updated_at FROM ml_models WHERE tenant_id = $1'
       const params: any[] = [req.user!.tenant_id]
       let paramCount = 1
 

@@ -144,7 +144,7 @@ router.get('/download/:key(*)', async (req: Request, res: Response) => {
     res.setHeader('Content-Length', result.contentLength);
 
     if (result.metadata.filename) {
-      res.setHeader('Content-Disposition', `attachment; filename="${result.metadata.filename}"`);
+      res.setHeader('Content-Disposition', 'attachment; filename="${result.metadata.filename}"`);
     }
 
     // Pipe stream to response

@@ -157,7 +157,7 @@ class VideoPrivacyService {
 
       // Get video event
       const eventResult = await this.db.query(
-        `SELECT video_url, video_thumbnail_url FROM video_safety_events WHERE id = $1',
+        'SELECT video_url, video_thumbnail_url FROM video_safety_events WHERE id = $1',
         [request.eventId]
       );
 

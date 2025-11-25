@@ -112,7 +112,7 @@ router.put(
       // Validation: if charging for personal use, rate must be provided
       if (validated.charge_personal_use && !validated.personal_use_rate_per_mile) {
         return res.status(400).json({
-          error: 'Personal use rate per mile is required when charge_personal_use is enabled`
+          error: 'Personal use rate per mile is required when charge_personal_use is enabled'
         })
       }
 
@@ -121,7 +121,7 @@ router.put(
           validated.max_personal_miles_per_month &&
           validated.max_personal_miles_per_year < validated.max_personal_miles_per_month) {
         return res.status(400).json({
-          error: 'Annual limit must be greater than or equal to monthly limit`
+          error: 'Annual limit must be greater than or equal to monthly limit'
         })
       }
 
@@ -203,8 +203,8 @@ router.put(
         success: true,
         data: result.rows[0],
         message: existingResult.rows.length > 0
-          ? 'Personal use policy updated successfully`
-          : 'Personal use policy created successfully`
+          ? 'Personal use policy updated successfully'
+          : 'Personal use policy created successfully'
       })
     } catch (error: any) {
       console.error('Update policy error:', error)
@@ -264,7 +264,7 @@ router.get(
        WHERE driver_id = $1
          AND tenant_id = $2
          AND TO_CHAR(trip_date, 'YYYY-MM') = $3
-         AND approval_status != 'rejected'`,
+         AND approval_status != 'rejected'',
       [driver_id, req.user!.tenant_id, currentMonth]
     )
 
@@ -278,7 +278,7 @@ router.get(
        WHERE driver_id = $1
          AND tenant_id = $2
          AND EXTRACT(YEAR FROM trip_date) = $3
-         AND approval_status != 'rejected'`,
+         AND approval_status != 'rejected'',
       [driver_id, req.user!.tenant_id, currentYear]
     )
 
@@ -385,7 +385,7 @@ router.get(
         return res.json({
           success: true,
           data: [],
-          message: 'No usage limits configured`
+          message: 'No usage limits configured'
         })
       }
 
