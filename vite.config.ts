@@ -4,6 +4,7 @@ import { defineConfig, PluginOption } from "vite";
 import { visualizer } from "rollup-plugin-visualizer";
 import { resolve } from 'path'
 import { injectBuildVersion } from './plugins/injectBuildVersion'
+import { cjsInterop } from 'vite-plugin-cjs-interop'
 
 const projectRoot = process.env.PROJECT_ROOT || import.meta.dirname
 
@@ -14,6 +15,15 @@ export default defineConfig({
   plugins: [
     react(),
     tailwindcss(),
+    // Fix CJS/ESM interop issues with icon libraries
+    cjsInterop({
+      dependencies: [
+        '@phosphor-icons/react',
+        'lucide-react',
+        '@heroicons/react',
+        '@mui/icons-material'
+      ]
+    }),
     // Inject build version into service worker
     // Format: v1.0.0-{commitSHA}-{timestamp}
     injectBuildVersion({
@@ -89,8 +99,10 @@ export default defineConfig({
             if (id.includes('react') || id.includes('react-dom') || id.includes('react-router')) {
               return 'react-vendor';
             }
-            // UI components (Radix UI)
-            if (id.includes('@radix-ui') || id.includes('cmdk')) {
+            // UI components (Radix UI) and Icon libraries (must be together)
+            if (id.includes('@radix-ui') || id.includes('cmdk') ||
+                id.includes('@phosphor-icons') || id.includes('lucide-react') ||
+                id.includes('@heroicons') || id.includes('@mui/icons-material')) {
               return 'ui-vendor';
             }
             // 3D visualization (large, load only when needed)
@@ -185,7 +197,9 @@ export default defineConfig({
       'date-fns',
       'axios',
       'recharts',
+      // Icon libraries - explicitly include to avoid circular deps
       '@phosphor-icons/react',
+      'lucide-react',
       // Three.js and React Three Fiber - must be pre-bundled for ESM compatibility
       'three',
       '@react-three/fiber',
