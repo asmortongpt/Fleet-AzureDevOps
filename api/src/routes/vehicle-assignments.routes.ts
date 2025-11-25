@@ -587,7 +587,7 @@ router.post(
       }
 
       res.json({
-        message: `Assignment ${data.action === 'approve' ? 'approved' : 'denied'} successfully`,
+        message: 'Assignment ${data.action === 'approve' ? 'approved' : 'denied'} successfully`,
         assignment: result.rows[0],
       });
     } catch (error: any) {

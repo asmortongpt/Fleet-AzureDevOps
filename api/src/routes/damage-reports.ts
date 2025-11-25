@@ -230,7 +230,7 @@ router.put(
       }
 
       const result = await pool.query(
-        `UPDATE damage_reports SET ${fields.join(', ')}, updated_at = NOW()
+        'UPDATE damage_reports SET ${fields.join(', ')}, updated_at = NOW()
          WHERE id = $1 AND tenant_id = $2 RETURNING *`,
         [req.params.id, req.user!.tenant_id, ...values]
       )

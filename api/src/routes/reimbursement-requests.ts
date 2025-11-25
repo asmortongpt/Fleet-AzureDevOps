@@ -266,11 +266,11 @@ router.get('/', async (req: AuthRequest, res: Response) => {
     const result = await pool.query(query, params)
 
     // Get total count
-    let countQuery = `SELECT COUNT(*) FROM reimbursement_requests WHERE tenant_id = $1'
+    let countQuery = 'SELECT COUNT(*) FROM reimbursement_requests WHERE tenant_id = $1'
     const countParams = [req.user!.tenant_id]
 
     if (req.user!.role !== 'admin' && req.user!.role !== 'fleet_manager') {
-      countQuery += ` AND driver_id = $2'
+      countQuery += ' AND driver_id = $2'
       countParams.push(req.user!.id)
     }
 

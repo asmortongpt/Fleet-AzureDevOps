@@ -66,7 +66,7 @@ export abstract class BaseRepository<T extends { id: string | number }> {
     try {
       const pool = this.getPool(context);
       const result = await pool.query(
-        `SELECT * FROM ${this.tableName} WHERE ${this.idColumn} = $1 AND tenant_id = $2',
+        'SELECT * FROM ${this.tableName} WHERE ${this.idColumn} = $1 AND tenant_id = $2',
         [id, context.tenantId]
       );
 
@@ -117,7 +117,7 @@ export abstract class BaseRepository<T extends { id: string | number }> {
 
       // Get total count
       const countResult = await pool.query(
-        `SELECT COUNT(*) as count FROM ${this.tableName} WHERE tenant_id = $1',
+        'SELECT COUNT(*) as count FROM ${this.tableName} WHERE tenant_id = $1',
         [context.tenantId]
       );
       const total = parseInt(countResult.rows[0].count, 10);
@@ -247,11 +247,11 @@ export abstract class BaseRepository<T extends { id: string | number }> {
       }
 
       const values = Object.values(dataWithTenant);
-      const placeholders = columns.map((_, i) => `$${i + 1}`).join(', ');
+      const placeholders = columns.map((_, i) => '$${i + 1}`).join(', ');
 
       // Column names are validated above
       const result = await pool.query(
-        `INSERT INTO ${this.tableName} (${columns.join(', ')})
+        'INSERT INTO ${this.tableName} (${columns.join(', ')})
          VALUES (${placeholders})
          RETURNING *`,
         values
@@ -291,7 +291,7 @@ export abstract class BaseRepository<T extends { id: string | number }> {
       }
 
       const values = Object.values(dataWithMeta);
-      const setClause = columns.map((col, i) => `${col} = $${i + 1}`).join(', ');
+      const setClause = columns.map((col, i) => '${col} = $${i + 1}`).join(', ');
 
       // Column names are validated above
       const result = await pool.query(
