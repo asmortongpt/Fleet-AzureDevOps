@@ -95,7 +95,7 @@ class VehicleViewModel: ObservableObject {
 
     // MARK: - Data Loading
     private func loadCachedData() {
-        if let cachedVehicles = persistenceManager.getCachedVehicles() {
+        if let cachedVehicles: [Vehicle] = persistenceManager.getCachedVehicles() {
             vehicles = cachedVehicles
         }
     }
@@ -120,7 +120,7 @@ class VehicleViewModel: ObservableObject {
             handleError(error)
 
             // Fall back to cached data if available
-            if let cachedVehicles = persistenceManager.getCachedVehicles() {
+            if let cachedVehicles: [Vehicle] = persistenceManager.getCachedVehicles() {
                 vehicles = cachedVehicles
                 errorMessage = "Using cached data. \(error.localizedDescription)"
             }
