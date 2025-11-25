@@ -33,6 +33,7 @@ import { globalLimiter } from './config/rate-limiters'
 import authRoutes from './routes/auth'
 import microsoftAuthRoutes from './routes/microsoft-auth'
 import vehiclesRoutes from './routes/vehicles'
+import vehicleHistoryRoutes from './routes/vehicle-history.routes'
 import driversRoutes from './routes/drivers'
 import workOrdersRoutes from './routes/work-orders'
 import maintenanceSchedulesRoutes from './routes/maintenance-schedules'
@@ -408,6 +409,7 @@ app.use('/api/auth', microsoftAuthRoutes)
 
 // Core Fleet Management
 app.use('/api/v1/vehicles', vehiclesRoutes)
+app.use('/api/v1/vehicles', vehicleHistoryRoutes)
 app.use('/api/v1/drivers', driversRoutes)
 app.use('/api/v1/work-orders', workOrdersRoutes)
 app.use('/api/v1/maintenance-schedules', maintenanceSchedulesRoutes)
