@@ -43,7 +43,7 @@ struct VehiclesView: View {
                 AddVehicleView()
             }
             .sheet(item: $selectedVehicleForDetail) { vehicle in
-                VehicleDetailView(vehicle: vehicle)
+                VehiclesViewDetailView(vehicle: vehicle)
             }
             .sheet(isPresented: $showingFilterMenu) {
                 FilterMenuView(viewModel: viewModel)
@@ -107,7 +107,7 @@ struct VehiclesView: View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 8) {
                 ForEach(VehiclesViewModel.VehicleFilter.allCases, id: \.self) { filter in
-                    FilterChip(
+                    VehiclesViewFilterChip(
                         title: filter.rawValue,
                         icon: filter.icon,
                         isSelected: viewModel.selectedFilter == filter
@@ -216,7 +216,7 @@ struct VehicleCard: View {
 
                         Spacer()
 
-                        StatusBadge(status: vehicle.status)
+                        VehiclesViewStatusBadge(status: vehicle.status)
                     }
 
                     Text("\(vehicle.make) \(vehicle.model) • \(vehicle.year)")
@@ -303,8 +303,8 @@ struct VehicleCard: View {
     }
 }
 
-// MARK: - Status Badge
-struct StatusBadge: View {
+// MARK: - Status Badge (VehiclesView)
+fileprivate struct VehiclesViewStatusBadge: View {
     let status: VehicleStatus
 
     var body: some View {
@@ -368,8 +368,8 @@ struct StatisticPill: View {
     }
 }
 
-// MARK: - Filter Chip
-struct FilterChip: View {
+// MARK: - Filter Chip (VehiclesView)
+fileprivate struct VehiclesViewFilterChip: View {
     let title: String
     let icon: String
     let isSelected: Bool
@@ -437,8 +437,8 @@ struct FilterMenuView: View {
     }
 }
 
-// MARK: - Vehicle Detail View
-struct VehicleDetailView: View {
+// MARK: - Vehicle Detail View (VehiclesView)
+fileprivate struct VehiclesViewDetailView: View {
     let vehicle: Vehicle
     @Environment(\.dismiss) private var dismiss
 
@@ -459,7 +459,7 @@ struct VehicleDetailView: View {
                             .font(.headline)
                             .foregroundColor(.secondary)
 
-                        StatusBadge(status: vehicle.status)
+                        VehiclesViewStatusBadge(status: vehicle.status)
                     }
                     .padding()
 

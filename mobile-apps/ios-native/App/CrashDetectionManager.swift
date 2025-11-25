@@ -577,4 +577,14 @@ struct CrashReportData: Codable {
         try container.encode(userCanceled, forKey: .userCanceled)
         // Note: telemetry encoding would need custom handling in production
     }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        timestamp = try container.decode(Date.self, forKey: .timestamp)
+        latitude = try container.decodeIfPresent(Double.self, forKey: .latitude)
+        longitude = try container.decodeIfPresent(Double.self, forKey: .longitude)
+        maxAcceleration = try container.decode(Double.self, forKey: .maxAcceleration)
+        userCanceled = try container.decode(Bool.self, forKey: .userCanceled)
+        telemetry = [:] // Default empty telemetry for decoding
+    }
 }
