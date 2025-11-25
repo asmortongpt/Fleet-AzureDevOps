@@ -227,7 +227,7 @@ class AIIntakeService {
         return {
           request_id: '',
           status: 'failed',
-          message: `Validation error: ${error.errors.map((e: any) => e.message).join(', ')}`
+          message: 'Validation error: ${error.errors.map((e: any) => e.message).join(', ')}'
         }
       }
 
@@ -271,7 +271,7 @@ class AIIntakeService {
         `UPDATE ai_requests
          SET status = 'cancelled', completed_at = NOW()
          WHERE id = $1 AND tenant_id = $2 AND user_id = $3
-           AND status IN ('queued', 'processing')`,
+           AND status IN ('queued', 'processing')',
         [requestId, tenantId, userId]
       )
 
@@ -349,7 +349,7 @@ class AIIntakeService {
           COUNT(*) FILTER (WHERE status = 'completed') as completed,
           COUNT(*) FILTER (WHERE status = 'failed') as failed
          FROM ai_requests
-         WHERE created_at > NOW() - INTERVAL '1 hour'`
+         WHERE created_at > NOW() - INTERVAL '1 hour''
       )
 
       return result.rows[0]
@@ -413,7 +413,7 @@ class AIIntakeService {
       const result = await pool.query(
         `DELETE FROM ai_requests
          WHERE completed_at < NOW() - INTERVAL '${daysToKeep} days'
-           AND status IN ('completed', 'failed', 'cancelled')`
+           AND status IN ('completed', 'failed', 'cancelled')'
       )
 
       logger.info(`Cleaned up ${result.rowCount} old AI requests`)

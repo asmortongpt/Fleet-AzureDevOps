@@ -45,7 +45,7 @@ async function getGraphClient(): Promise<Client> {
  * Load and parse an Adaptive Card template
  */
 function loadTemplate(templateName: string): any {
-  const templatePath = path.join(__dirname, '../templates/adaptive-cards', `${templateName}.json`)
+  const templatePath = path.join(__dirname, '../templates/adaptive-cards', '${templateName}.json`)
   const templateContent = fs.readFileSync(templatePath, 'utf-8')
   return JSON.parse(templateContent)
 }
@@ -58,7 +58,7 @@ function replaceTemplateVariables(template: any, data: Record<string, any>): any
 
   // Replace all ${variable} patterns with actual values
   for (const [key, value] of Object.entries(data)) {
-    const regex = new RegExp(`\\$\\{${key}\\}`, 'g')
+    const regex = new RegExp('\\$\\{${key}\\}', 'g')
     const replacement = typeof value === 'string' ? value : JSON.stringify(value)
     templateString = templateString.replace(regex, replacement)
   }
@@ -85,7 +85,7 @@ export async function createVehicleMaintenanceCard(vehicle: any, maintenance: an
     priority: maintenance.priority.toUpperCase(),
     description: maintenance.description || 'Scheduled maintenance required',
     recommendedAction: maintenance.recommended_action || 'Please schedule service at your earliest convenience',
-    vehicleUrl: `${process.env.FRONTEND_URL || 'http://68.220.148.2'}/vehicles/${vehicle.id}`,
+    vehicleUrl: '${process.env.FRONTEND_URL || 'http://68.220.148.2'}/vehicles/${vehicle.id}',
     vehicleId: vehicle.id,
     alertId: maintenance.id
   }
@@ -132,7 +132,7 @@ export async function createWorkOrderCard(workOrder: any): Promise<any> {
     description: workOrder.description || 'No description provided',
     partsRequired: workOrder.parts_required || 'None specified',
     hasPartsRequired: !!workOrder.parts_required,
-    workOrderUrl: `${process.env.FRONTEND_URL || 'http://68.220.148.2'}/work-orders/${workOrder.id}`,
+    workOrderUrl: '${process.env.FRONTEND_URL || 'http://68.220.148.2'}/work-orders/${workOrder.id}',
     workOrderId: workOrder.id,
     canStartWork: workOrder.status === 'pending' || workOrder.status === 'assigned',
     canCompleteWork: workOrder.status === 'in_progress'
@@ -185,7 +185,7 @@ export async function createIncidentCard(incident: any): Promise<any> {
     witnesses: incident.witnesses || 'None reported',
     hasWitnesses: !!incident.witnesses,
     photos: photoImages,
-    incidentUrl: `${process.env.FRONTEND_URL || 'http://68.220.148.2'}/incidents/${incident.id}`,
+    incidentUrl: '${process.env.FRONTEND_URL || 'http://68.220.148.2'}/incidents/${incident.id}',
     incidentId: incident.id,
     investigators: [] // This should be populated with actual investigators from DB
   }
@@ -213,7 +213,7 @@ export async function createApprovalCard(item: any, approver: any): Promise<any>
     spentToDate: item.spent_to_date?.toLocaleString() || '0',
     remaining: item.remaining_budget?.toLocaleString() || '0',
     afterApproval: item.after_approval_budget?.toLocaleString() || '0',
-    detailsUrl: `${process.env.FRONTEND_URL || 'http://68.220.148.2'}/approvals/${item.id}`,
+    detailsUrl: '${process.env.FRONTEND_URL || 'http://68.220.148.2'}/approvals/${item.id}',
     approvalId: item.id,
     itemType: item.item_type || 'purchase',
     itemId: item.item_id || item.id
@@ -262,7 +262,7 @@ export async function createDriverPerformanceCard(driver: any, metrics: any): Pr
     distractedDriving: metrics.distractedDriving || 0,
     distractedColor: metrics.distractedDriving > 3 ? 'attention' : 'good',
     recommendations: metrics.recommendations || 'Continue safe driving practices.',
-    dashboardUrl: `${process.env.FRONTEND_URL || 'http://68.220.148.2'}/drivers/${driver.id}/performance`,
+    dashboardUrl: '${process.env.FRONTEND_URL || 'http://68.220.148.2'}/drivers/${driver.id}/performance',
     driverId: driver.id,
     needsTraining: metrics.safetyScore < 75,
     excellentPerformance: metrics.safetyScore >= 95
@@ -307,7 +307,7 @@ export async function createFuelReceiptCard(receipt: any): Promise<any> {
     differenceColor,
     receiptImageUrl: receipt.image_url || '',
     hasReceiptImage: !!receipt.image_url,
-    receiptUrl: `${process.env.FRONTEND_URL || 'http://68.220.148.2'}/fuel-receipts/${receipt.id}`,
+    receiptUrl: '${process.env.FRONTEND_URL || 'http://68.220.148.2'}/fuel-receipts/${receipt.id}',
     receiptId: receipt.id
   }
 
@@ -434,7 +434,7 @@ export async function sendAdaptiveCardToUser(
           {
             '@odata.type': '#microsoft.graph.aadUserConversationMember',
             roles: ['owner'],
-            'user@odata.bind': `https://graph.microsoft.com/v1.0/users('${userId}')`
+            'user@odata.bind': 'https://graph.microsoft.com/v1.0/users('${userId}')'
           }
         ]
       })

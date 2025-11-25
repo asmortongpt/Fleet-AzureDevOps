@@ -177,7 +177,7 @@ export function validateAIBusConfig(config: AIBusConfig): { valid: boolean; erro
   // Check primary provider is configured
   const primaryConfig = config.providers[config.primaryProvider]
   if (!primaryConfig) {
-    errors.push(`Primary provider '${config.primaryProvider}' not configured`)
+    errors.push('Primary provider '${config.primaryProvider}' not configured')
   }
 
   // Check provider-specific requirements

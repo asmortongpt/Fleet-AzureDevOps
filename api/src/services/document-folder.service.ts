@@ -44,7 +44,7 @@ export class DocumentFolderService {
 
       if (duplicateCheck.rows.length > 0) {
         throw new Error(
-          `Folder '${options.folder_name}' already exists in this location`
+          'Folder '${options.folder_name}' already exists in this location'
         )
       }
 
@@ -517,7 +517,7 @@ export class DocumentFolderService {
   ): Promise<Array<{ id: string; folder_name: string; depth: number }>> {
     try {
       const result = await pool.query(
-        `SELECT ` + (await getTableColumns(pool, 'get_folder_breadcrumb')).join(', ') + ` FROM get_folder_breadcrumb($1)`,
+        'SELECT ' + (await getTableColumns(pool, 'get_folder_breadcrumb')).join(', ') + ' FROM get_folder_breadcrumb($1)`,
         [folderId]
       )
 
@@ -637,7 +637,7 @@ export class DocumentFolderService {
       query += ` ORDER BY df.folder_name ASC`
 
       if (options?.limit) {
-        query += ` LIMIT $3'
+        query += ' LIMIT $3'
         params.push(options.limit)
       }
 

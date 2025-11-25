@@ -281,7 +281,7 @@ router.get(
 
         // Send file
         res.setHeader('Content-Type', contentType)
-        res.setHeader('Content-Disposition', `attachment; filename="${executionRecord.id}.${extension}"`)
+        res.setHeader('Content-Disposition', 'attachment; filename="${executionRecord.id}.${extension}"`)
         res.send(fileBuffer)
       } catch (error) {
         if (error instanceof PathTraversalError) {

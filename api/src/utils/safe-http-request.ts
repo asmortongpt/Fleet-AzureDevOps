@@ -315,7 +315,7 @@ export function createSafeAxiosInstance(
     const url = config.url
     if (url) {
       // Construct full URL
-      const fullURL = url.startsWith('http') ? url : `${baseURL}${url}`
+      const fullURL = url.startsWith('http') ? url : '${baseURL}${url}`
       validateURL(fullURL, { allowedDomains, allowPrivateIPs })
     }
     return config

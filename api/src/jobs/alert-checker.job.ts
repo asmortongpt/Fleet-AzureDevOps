@@ -80,7 +80,7 @@ async function runAlertChecker(): Promise<void> {
         const countResult = await pool.query(
           `SELECT COUNT(*) as count FROM alerts
            WHERE tenant_id = $1
-           AND created_at >= NOW() - INTERVAL '5 minutes'`,
+           AND created_at >= NOW() - INTERVAL '5 minutes'',
           [tenant.id]
         )
 
