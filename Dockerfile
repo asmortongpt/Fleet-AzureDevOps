@@ -17,7 +17,7 @@ ARG CACHE_BUST=1
 RUN echo "Cache bust: $CACHE_BUST - forcing fresh npm install"
 
 # Install dependencies (fresh install for correct Linux platform deps)
-# Use --legacy-peer-deps for React 19 compatibility with older packages
+# Use --legacy-peer-deps for React 18 compatibility with older packages
 RUN npm install --legacy-peer-deps
 
 # Copy source code (excluding node_modules via .dockerignore)
@@ -50,8 +50,13 @@ RUN BUILD_VERSION=$(cat /tmp/build_version.txt || date +%s) && \
 # Stage 2: Production stage with nginx
 FROM nginx:alpine AS production
 
+<<<<<<< HEAD
 # Copy complete nginx config (replaces default)
 COPY nginx.conf /etc/nginx/nginx.conf
+=======
+# Copy custom nginx server config (server block only)
+COPY server.conf /etc/nginx/conf.d/default.conf
+>>>>>>> afda398fce98d93021a3db390aa04ed481b5845d
 
 # Copy built application from builder
 COPY --from=builder /app/dist /usr/share/nginx/html
