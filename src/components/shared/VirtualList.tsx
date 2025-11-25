@@ -1,5 +1,4 @@
-import { useRef, useState, useEffect, ReactNode, CSSProperties } from 'react';
-
+import { useRef, useState, useEffect, ReactNode } from 'react';
 interface VirtualListProps<T> {
   items: T[];
   itemHeight: number;

@@ -146,9 +146,6 @@ final class MaintenanceViewModel: RefreshableViewModel {
             applyFilters()
         }
     }
-<<<<<<< HEAD
-}
-=======
 
     // MARK: - Maintenance Actions
     func scheduleNewMaintenance(vehicleId: String, type: String, date: Date) {
@@ -267,4 +264,3 @@ final class MaintenanceViewModel: RefreshableViewModel {
         // Would export to CSV/PDF
     }
 }
->>>>>>> stage-a/requirements-inception

@@ -277,8 +277,30 @@ export class DocumentService {
 
     try {
       const query = tenantId
-        ? 'SELECT * FROM fleet_documents WHERE id = $1 AND tenant_id = $2'
-        : 'SELECT * FROM fleet_documents WHERE id = $1'
+        ? 'SELECT 
+      id,
+      tenant_id,
+      vehicle_id,
+      driver_id,
+      work_order_id,
+      document_type,
+      title,
+      description,
+      file_name,
+      original_file_name,
+      file_size,
+      mime_type,
+      storage_path,
+      blob_url,
+      ocr_text,
+      metadata,
+      uploaded_by,
+      uploaded_at,
+      expires_at,
+      is_archived,
+      created_at,
+      updated_at FROM fleet_documents WHERE id = $1 AND tenant_id = $2'
+        : 'SELECT id, tenant_id, document_name, document_type, file_path, created_at, updated_at FROM fleet_documents WHERE id = $1'
 
       const params = tenantId ? [documentId, tenantId] : [documentId]
 
@@ -325,7 +347,29 @@ export class DocumentService {
    */
   async listDocuments(filters: DocumentFilters = {}, tenantId?: number): Promise<DocumentRecord[]> {
     try {
-      let query = 'SELECT * FROM fleet_documents WHERE 1=1'
+      let query = 'SELECT 
+      id,
+      tenant_id,
+      vehicle_id,
+      driver_id,
+      work_order_id,
+      document_type,
+      title,
+      description,
+      file_name,
+      original_file_name,
+      file_size,
+      mime_type,
+      storage_path,
+      blob_url,
+      ocr_text,
+      metadata,
+      uploaded_by,
+      uploaded_at,
+      expires_at,
+      is_archived,
+      created_at,
+      updated_at FROM fleet_documents WHERE 1=1'
       const params: any[] = []
       let paramIndex = 1
 
@@ -445,14 +489,14 @@ export class DocumentService {
       const daysThresholdNum = Math.max(1, Math.min(365, daysThreshold || 30))
 
       const query = tenantId
-        ? `SELECT * FROM fleet_documents
+        ? `SELECT id, tenant_id, document_name, document_type, file_path, created_at, updated_at FROM fleet_documents
            WHERE expires_at IS NOT NULL
            AND expires_at <= NOW() + ($2 || ' days')::INTERVAL
            AND expires_at > NOW()
            AND is_archived = false
            AND tenant_id = $1
            ORDER BY expires_at ASC`
-        : `SELECT * FROM fleet_documents
+        : `SELECT id, tenant_id, document_name, document_type, file_path, created_at, updated_at FROM fleet_documents
            WHERE expires_at IS NOT NULL
            AND expires_at <= NOW() + ($1 || ' days')::INTERVAL
            AND expires_at > NOW()

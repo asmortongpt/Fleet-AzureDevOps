@@ -209,7 +209,7 @@ router.get('/latest/:gate_type',
     const { gate_type } = req.params
 
     const result = await pool.query(
-      `SELECT * FROM quality_gates
+      `SELECT id, tenant_id, name, description, criteria, threshold, metric_type, is_active, created_at, updated_at FROM quality_gates
       WHERE gate_type = $1
       ORDER BY executed_at DESC
       LIMIT 1`,
