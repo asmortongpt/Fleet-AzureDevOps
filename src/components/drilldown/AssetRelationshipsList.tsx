@@ -3,7 +3,6 @@
  * Shows trailers attached to tractors, equipment attachments, etc.
  */
 
-import React from 'react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'

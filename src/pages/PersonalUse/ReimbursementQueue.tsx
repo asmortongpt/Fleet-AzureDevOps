@@ -99,8 +99,7 @@ export function ReimbursementQueue() {
     return params.toString()
   }
 
-  const { data: queueData, isLoading: loading, error: queueError } = useQuery({
-    queryKey: ['reimbursement-queue', statusFilter, categoryFilter],
+  const { data: queueData, isLoading: loading, error: queueError } = useQuery({    queryKey: ['reimbursement-queue', statusFilter, categoryFilter],
     queryFn: () => apiClient(`/api/reimbursements?${getQueueParams()}`),
     staleTime: 30000,
     onError: (error: any) => {
@@ -144,8 +143,7 @@ export function ReimbursementQueue() {
     setApprovedAmount(request.request_amount.toString())
   }
 
-  const { mutate: reviewRequest, isPending: isReviewingPending } = useMutation({
-    mutationFn: async () => {
+  const { mutate: reviewRequest, isPending: isReviewingPending } = useMutation({    mutationFn: async () => {
       if (!reviewingRequest) throw new Error('No request selected')
 
       const endpoint = reviewAction === 'approve'
@@ -179,8 +177,7 @@ export function ReimbursementQueue() {
     }
   })
 
-  const { mutate: bulkApprove, isPending: isBulkApprovePending } = useMutation({
-    mutationFn: async () => {
+  const { mutate: bulkApprove, isPending: isBulkApprovePending } = useMutation({    mutationFn: async () => {
       if (selectedRequests.size === 0) throw new Error('No requests selected')
 
       const promises = Array.from(selectedRequests).map(id =>

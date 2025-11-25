@@ -121,7 +121,7 @@ router.get(
     // Get total count
     const countResult = await pool.query(
       query.replace(
-        'SELECT c.*, u.name as driver_name, u.email as driver_email',
+        'SELECT c.*, u.name as driver_name, u.email as driver_email`,
         'SELECT COUNT(*)'
       ),
       params
@@ -222,13 +222,28 @@ router.post(
 
       // Get policy to determine rate
       const policyResult = await pool.query(
+<<<<<<< HEAD
         'SELECT id, tenant_id, policy_name, deduction_percent, reimbursement_method, created_at, updated_at FROM personal_use_policies WHERE tenant_id = $1',
+=======
+        `SELECT
+      id,
+      tenant_id,
+      name,
+      description,
+      rate_per_mile,
+      rate_type,
+      effective_date,
+      expiry_date,
+      is_active,
+      created_at,
+      updated_at FROM personal_use_policies WHERE tenant_id = $1`,
+>>>>>>> feature/devsecops-audit-remediation
         [req.user!.tenant_id]
       )
 
       if (policyResult.rows.length === 0 || !policyResult.rows[0].charge_personal_use) {
         return res.status(400).json({
-          error: 'Personal use charging is not enabled for this organization'
+          error: 'Personal use charging is not enabled for this organization`
         })
       }
 
@@ -237,7 +252,7 @@ router.post(
 
       if (!ratePerMile) {
         return res.status(400).json({
-          error: 'Personal use rate per mile is not configured'
+          error: 'Personal use rate per mile is not configured`
         })
       }
 
@@ -266,7 +281,7 @@ router.post(
             trips_included: 0,
             charge_breakdown: []
           },
-          message: 'No personal use trips found for this period'
+          message: 'No personal use trips found for this period`
         })
       }
 
@@ -370,7 +385,22 @@ router.post(
 
       // Check usage limits and send warnings if needed
       const policyResult = await pool.query(
+<<<<<<< HEAD
         'SELECT id, tenant_id, policy_name, deduction_percent, reimbursement_method, created_at, updated_at FROM personal_use_policies WHERE tenant_id = $1',
+=======
+        `SELECT
+      id,
+      tenant_id,
+      name,
+      description,
+      rate_per_mile,
+      rate_type,
+      effective_date,
+      expiry_date,
+      is_active,
+      created_at,
+      updated_at FROM personal_use_policies WHERE tenant_id = $1`,
+>>>>>>> feature/devsecops-audit-remediation
         [req.user!.tenant_id]
       )
 
@@ -398,7 +428,7 @@ router.post(
 
             // Send email warning
             const driverInfo = await pool.query(
-              'SELECT first_name, last_name, email FROM users WHERE id = $1',
+              'SELECT first_name, last_name, email FROM users WHERE id = $1`,
               [validated.driver_id]
             )
 
@@ -457,7 +487,24 @@ router.patch(
 
       // Get existing charge
       const existing = await pool.query(
+<<<<<<< HEAD
         'SELECT id, tenant_id, trip_id, driver_id, charge_date, charge_amount, status, created_at, updated_at FROM personal_use_charges WHERE id = $1 AND tenant_id = $2',
+=======
+        `SELECT
+      id,
+      tenant_id,
+      user_id,
+      vehicle_id,
+      trip_id,
+      charge_date,
+      distance,
+      rate,
+      amount,
+      status,
+      notes,
+      created_at,
+      updated_at FROM personal_use_charges WHERE id = $1 AND tenant_id = $2`,
+>>>>>>> feature/devsecops-audit-remediation
         [req.params.id, req.user!.tenant_id]
       )
 
@@ -552,7 +599,7 @@ router.patch(
       res.json({
         success: true,
         data: result.rows[0],
-        message: 'Charge updated successfully'
+        message: 'Charge updated successfully`
       })
     } catch (error: any) {
       console.error('Update charge error:', error)
@@ -575,7 +622,7 @@ router.get(
     try {
       const { charge_period } = req.query
 
-      let whereClause = 'WHERE tenant_id = $1'
+      let whereClause = 'WHERE tenant_id = $1`
       const params: any[] = [req.user!.tenant_id]
 
       if (charge_period) {
@@ -642,13 +689,28 @@ router.post(
 
       // Get policy
       const policyResult = await pool.query(
+<<<<<<< HEAD
         'SELECT id, tenant_id, policy_name, deduction_percent, reimbursement_method, created_at, updated_at FROM personal_use_policies WHERE tenant_id = $1',
+=======
+        `SELECT
+      id,
+      tenant_id,
+      name,
+      description,
+      rate_per_mile,
+      rate_type,
+      effective_date,
+      expiry_date,
+      is_active,
+      created_at,
+      updated_at FROM personal_use_policies WHERE tenant_id = $1`,
+>>>>>>> feature/devsecops-audit-remediation
         [req.user!.tenant_id]
       )
 
       if (policyResult.rows.length === 0 || !policyResult.rows[0].charge_personal_use) {
         return res.status(400).json({
-          error: 'Personal use charging is not enabled'
+          error: 'Personal use charging is not enabled`
         })
       }
 

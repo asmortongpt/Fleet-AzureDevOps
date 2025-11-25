@@ -244,7 +244,7 @@ export class MobileIntegrationService {
 
     // Get route waypoints with turn-by-turn directions
     const waypoints = await pool.query(
-      `SELECT * FROM route_waypoints
+      `SELECT id, tenant_id, route_id, waypoint_order, latitude, longitude, address, created_at FROM route_waypoints
        WHERE route_id = $1
        ORDER BY sequence`,
       [route.id]
@@ -273,7 +273,40 @@ export class MobileIntegrationService {
 
     // 1. Get vehicle info
     const vehicleResult = await pool.query(
+<<<<<<< HEAD
       `SELECT id, tenant_id, vin, license_plate, make, model, year, color, current_mileage, status, acquired_date, disposition_date, purchase_price, residual_value, created_at, updated_at, deleted_at FROM vehicles WHERE tenant_id = $1 AND id = $2`,
+=======
+      `SELECT 
+      id,
+      tenant_id,
+      vin,
+      make,
+      model,
+      year,
+      license_plate,
+      vehicle_type,
+      fuel_type,
+      status,
+      odometer,
+      engine_hours,
+      purchase_date,
+      purchase_price,
+      current_value,
+      gps_device_id,
+      last_gps_update,
+      latitude,
+      longitude,
+      location,
+      speed,
+      heading,
+      assigned_driver_id,
+      assigned_facility_id,
+      telematics_data,
+      photos,
+      notes,
+      created_at,
+      updated_at FROM vehicles WHERE tenant_id = $1 AND id = $2`,
+>>>>>>> feature/devsecops-audit-remediation
       [tenantId, data.vehicle_id]
     )
     result.vehicle = vehicleResult.rows[0]
@@ -281,14 +314,46 @@ export class MobileIntegrationService {
     // 2. Get active route if route_id provided
     if (data.route_id) {
       const routeResult = await pool.query(
-        `SELECT * FROM optimized_routes WHERE id = $1`,
+        `SELECT 
+      id,
+      job_id,
+      tenant_id,
+      route_number,
+      route_name,
+      vehicle_id,
+      driver_id,
+      total_stops,
+      total_distance_miles,
+      total_duration_minutes,
+      driving_duration_minutes,
+      service_duration_minutes,
+      total_weight_lbs,
+      total_volume_cuft,
+      total_packages,
+      capacity_utilization_percent,
+      fuel_cost,
+      labor_cost,
+      total_cost,
+      planned_start_time,
+      planned_end_time,
+      actual_start_time,
+      actual_end_time,
+      route_geometry,
+      route_polyline,
+      waypoints,
+      traffic_factor,
+      alternative_routes_count,
+      status,
+      notes,
+      created_at,
+      updated_at FROM optimized_routes WHERE id = $1`,
         [data.route_id]
       )
       result.route = routeResult.rows[0]
 
       // Get next stop
       const nextStopResult = await pool.query(
-        `SELECT * FROM route_stops
+        `SELECT id, tenant_id, route_id, stop_order, stop_name, latitude, longitude, created_at FROM route_stops
          WHERE route_id = $1
            AND (status = 'pending' OR status = 'in_progress')
          ORDER BY sequence
@@ -311,7 +376,11 @@ export class MobileIntegrationService {
     // 4. Get active geofences if requested
     if (data.include_geofences) {
       const geofencesResult = await pool.query(
+<<<<<<< HEAD
         `SELECT id, tenant_id, geofence_name, center_latitude, center_longitude, radius_meters, geofence_type, status, created_at, updated_at FROM geofences
+=======
+        `SELECT id, tenant_id, geofence_name, latitude, longitude, radius_meters, created_at, updated_at FROM geofences
+>>>>>>> feature/devsecops-audit-remediation
          WHERE tenant_id = $1 AND is_active = true`,
         [tenantId]
       )
@@ -536,7 +605,7 @@ export class MobileIntegrationService {
   ): Promise<any | null> {
     // Check for conflicts
     const existing = await pool.query(
-      `SELECT * FROM vehicle_inspections
+      `SELECT id, tenant_id, vehicle_id, inspection_type, inspection_date, status, notes, created_at FROM vehicle_inspections
        WHERE mobile_id = $1`,
       [inspection.id]
     )
@@ -676,7 +745,7 @@ export class MobileIntegrationService {
 
     // Get active routes
     const routes = await pool.query(
-      `SELECT * FROM optimized_routes
+      `SELECT id, tenant_id, route_name, total_distance, estimated_duration, waypoint_count, created_at FROM optimized_routes
        WHERE tenant_id = $1 AND driver_id = $2 AND status = 'active'
        ORDER BY created_at DESC`,
       [tenantId, userId]
@@ -697,7 +766,7 @@ export class MobileIntegrationService {
 
     // Get recent safety events
     const safetyEvents = await pool.query(
-      `SELECT * FROM driver_safety_events
+      `SELECT id, tenant_id, driver_id, event_type, severity, event_data, event_date, created_at FROM driver_safety_events
        WHERE tenant_id = $1 AND driver_id = $2
        ORDER BY event_time DESC
        LIMIT 10`,

@@ -221,7 +221,22 @@ class EVChargingService {
    */
   async cancelReservation(reservationId: number): Promise<void> {
     const reservation = await this.db.query(
-      'SELECT * FROM charging_reservations WHERE id = $1',
+      'SELECT 
+      id,
+      station_id,
+      connector_id,
+      vehicle_id,
+      driver_id,
+      reservation_start,
+      reservation_end,
+      duration_minutes,
+      ocpp_reservation_id,
+      status,
+      charging_session_id,
+      reminder_sent,
+      notes,
+      created_at,
+      updated_at FROM charging_reservations WHERE id = $1',
       [reservationId]
     );
 
@@ -265,7 +280,30 @@ class EVChargingService {
 
     // Get vehicle EV specs
     const evSpec = await this.db.query(
-      `SELECT * FROM ev_specifications WHERE vehicle_id = $1`,
+      `SELECT 
+      id,
+      vehicle_id,
+      battery_capacity_kwh,
+      usable_capacity_kwh,
+      battery_chemistry,
+      battery_warranty_years,
+      battery_warranty_miles,
+      max_ac_charge_rate_kw,
+      max_dc_charge_rate_kw,
+      charge_port_type,
+      supports_v2g,
+      supports_bidirectional_charging,
+      epa_range_miles,
+      real_world_range_miles,
+      efficiency_mpge,
+      efficiency_kwh_per_100mi,
+      has_active_thermal_management,
+      preconditioning_supported,
+      current_battery_health_percent,
+      degradation_rate_percent_per_year,
+      estimated_cycles_remaining,
+      created_at,
+      updated_at FROM ev_specifications WHERE vehicle_id = $1`,
       [vehicleId]
     );
 
@@ -586,7 +624,30 @@ class EVChargingService {
   async monitorBatteryHealth(vehicleId: number): Promise<BatteryHealthReport> {
     // Get EV specs
     const specResult = await this.db.query(
-      'SELECT * FROM ev_specifications WHERE vehicle_id = $1',
+      'SELECT 
+      id,
+      vehicle_id,
+      battery_capacity_kwh,
+      usable_capacity_kwh,
+      battery_chemistry,
+      battery_warranty_years,
+      battery_warranty_miles,
+      max_ac_charge_rate_kw,
+      max_dc_charge_rate_kw,
+      charge_port_type,
+      supports_v2g,
+      supports_bidirectional_charging,
+      epa_range_miles,
+      real_world_range_miles,
+      efficiency_mpge,
+      efficiency_kwh_per_100mi,
+      has_active_thermal_management,
+      preconditioning_supported,
+      current_battery_health_percent,
+      degradation_rate_percent_per_year,
+      estimated_cycles_remaining,
+      created_at,
+      updated_at FROM ev_specifications WHERE vehicle_id = $1',
       [vehicleId]
     );
 
@@ -598,7 +659,7 @@ class EVChargingService {
 
     // Get latest battery health log
     const healthResult = await this.db.query(
-      `SELECT * FROM battery_health_logs
+      `SELECT id, tenant_id, vehicle_id, state_of_health, state_of_charge, temperature, voltage, current, recorded_at FROM battery_health_logs
        WHERE vehicle_id = $1
        ORDER BY timestamp DESC
        LIMIT 1`,
