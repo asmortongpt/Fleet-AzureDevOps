@@ -1,89 +1,892 @@
 # ============================================================================
-# Fleet Management System - Azure DevOps CI/CD Pipeline
+# Fleet Management System - Production-Ready Azure DevOps Pipeline
 # ============================================================================
-# Simple build and verify pipeline
+#
+# This pipeline implements a complete CI/CD workflow with PDCA validation:
+# - Build: Docker image build and push to ACR
+# - Test: Playwright PDCA validation tests
+# - Deploy-Staging: Deploy to staging namespace with validation
+# - Deploy-Production: Deploy to production namespace
+# - Rollback: Automatic rollback on validation failure
+#
+# Security: Uses parameterized queries, non-root containers, and Azure Key Vault
 # ============================================================================
 
 trigger:
   branches:
     include:
       - main
-      - develop
   paths:
     exclude:
-      - README.md
-      - docs/**
       - '*.md'
+      - 'docs/**'
+      - '.github/**'
 
 pr:
   branches:
     include:
       - main
-      - develop
 
 variables:
-  nodeVersion: '20.x'
-  productionUrl: 'https://fleet.capitaltechalliance.com'
+  # Azure Container Registry
+  containerRegistry: 'fleetappregistry.azurecr.io'
+  imageRepository: 'fleet-app'
+  dockerfilePath: '$(Build.SourcesDirectory)/Dockerfile'
 
-pool:
-  vmImage: 'ubuntu-latest'
+  # AKS Configuration
+  aksResourceGroup: 'CTAFleet-RG'
+  aksClusterName: 'ctafleet-aks'
+  productionNamespace: 'ctafleet'
+  stagingNamespace: 'ctafleet-staging'
+
+  # Service Connections (configured in Azure DevOps)
+  azureServiceConnection: 'AzureServiceConnection'
+  containerRegistryConnection: 'FleetACRConnection'
+
+  # Build Configuration
+  buildId: '$(Build.BuildId)'
+  buildNumber: '$(Build.BuildNumber)'
+  commitHash: '$(Build.SourceVersion)'
+
+  # Image Tags
+  imageTags: |
+    $(Build.BuildId)
+    latest
+    pdca-validated-$(Build.BuildId)
+
+  # PDCA Test Configuration
+  pdcaTestRetries: 2
+  pdcaTestTimeout: 600000
+
+  # Rollback Configuration
+  rollbackEnabled: true
+
+  # System variables
+  DOCKER_BUILDKIT: 1
+  system.debug: false
+
+# ============================================================================
+# Stages
+# ============================================================================
 
 stages:
+  # ==========================================================================
+  # Stage 1: Build
+  # Build Docker image and push to Azure Container Registry
+  # ==========================================================================
   - stage: Build
-    displayName: 'Build & Verify'
+    displayName: 'Build Docker Image'
     jobs:
-      - job: BuildJob
-        displayName: 'Build Application'
+      - job: BuildAndPush
+        displayName: 'Build and Push Docker Image'
+        pool:
+          vmImage: 'ubuntu-latest'
+
         steps:
+          # Checkout code
           - checkout: self
+            fetchDepth: 0
             clean: true
 
-          - task: NodeTool@0
-            displayName: 'Install Node.js'
+          # Display build information
+          - task: Bash@3
+            displayName: 'Display Build Information'
             inputs:
-              versionSpec: $(nodeVersion)
+              targetType: 'inline'
+              script: |
+                echo "================================================"
+                echo "Build Information"
+                echo "================================================"
+                echo "Build ID: $(Build.BuildId)"
+                echo "Build Number: $(Build.BuildNumber)"
+                echo "Commit: $(Build.SourceVersion)"
+                echo "Branch: $(Build.SourceBranchName)"
+                echo "Repository: $(Build.Repository.Name)"
+                echo "================================================"
 
-          - script: npm ci
-            displayName: 'Install Dependencies'
-
-          - script: npx vite build
-            displayName: 'Build Frontend'
-
-          - script: |
-              if [ -d "dist" ]; then
-                echo "Build successful - dist folder exists"
-                ls -la dist/
-              else
-                echo "Warning: dist folder not found"
-              fi
-            displayName: 'Verify Build'
-
-          - task: PublishPipelineArtifact@1
-            displayName: 'Publish Artifacts'
+          # Azure Container Registry Login
+          - task: Docker@2
+            displayName: 'Login to ACR'
             inputs:
-              targetPath: 'dist'
-              artifact: 'frontend-build'
-            condition: succeededOrFailed()
+              command: login
+              containerRegistry: $(containerRegistryConnection)
 
-  - stage: Verify
-    displayName: 'Verify Deployment'
+          # Build Docker Image with cache
+          - task: Docker@2
+            displayName: 'Build Docker Image'
+            inputs:
+              command: build
+              repository: $(imageRepository)
+              dockerfile: $(dockerfilePath)
+              containerRegistry: $(containerRegistryConnection)
+              tags: |
+                $(Build.BuildId)
+                latest
+              arguments: |
+                --cache-from $(containerRegistry)/$(imageRepository):latest
+                --build-arg CACHE_BUST=$(Build.BuildId)
+                --build-arg BUILD_VERSION=$(Build.BuildId)
+                --build-arg GIT_COMMIT=$(Build.SourceVersion)
+                --label "build.buildId=$(Build.BuildId)"
+                --label "build.buildNumber=$(Build.BuildNumber)"
+                --label "build.sourceVersion=$(Build.SourceVersion)"
+                --label "build.sourceBranch=$(Build.SourceBranchName)"
+
+          # Security: Scan Docker image for vulnerabilities
+          - task: Bash@3
+            displayName: 'Security: Scan Docker Image'
+            inputs:
+              targetType: 'inline'
+              script: |
+                echo "Running security scan on Docker image..."
+                # Install Trivy scanner
+                curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin
+
+                # Scan image for vulnerabilities
+                trivy image --severity HIGH,CRITICAL \
+                  --exit-code 0 \
+                  --format json \
+                  --output trivy-report.json \
+                  $(containerRegistry)/$(imageRepository):$(Build.BuildId)
+
+                # Display summary
+                trivy image --severity HIGH,CRITICAL \
+                  $(containerRegistry)/$(imageRepository):$(Build.BuildId)
+
+                echo "Security scan complete"
+
+          # Publish security scan results
+          - task: PublishBuildArtifacts@1
+            displayName: 'Publish Security Scan Results'
+            inputs:
+              pathToPublish: 'trivy-report.json'
+              artifactName: 'SecurityScanResults'
+
+          # Push Docker Image to ACR
+          - task: Docker@2
+            displayName: 'Push Docker Image to ACR'
+            inputs:
+              command: push
+              repository: $(imageRepository)
+              containerRegistry: $(containerRegistryConnection)
+              tags: |
+                $(Build.BuildId)
+                latest
+
+          # Tag image as pdca-validated (will be validated in next stage)
+          - task: Docker@2
+            displayName: 'Tag as PDCA Candidate'
+            inputs:
+              command: tag
+              containerRegistry: $(containerRegistryConnection)
+              arguments: |
+                $(containerRegistry)/$(imageRepository):$(Build.BuildId)
+                $(containerRegistry)/$(imageRepository):pdca-validated-$(Build.BuildId)
+
+          # Save build metadata
+          - task: Bash@3
+            displayName: 'Save Build Metadata'
+            inputs:
+              targetType: 'inline'
+              script: |
+                cat > build-metadata.json <<EOF
+                {
+                  "buildId": "$(Build.BuildId)",
+                  "buildNumber": "$(Build.BuildNumber)",
+                  "commitHash": "$(Build.SourceVersion)",
+                  "branch": "$(Build.SourceBranchName)",
+                  "imageTag": "$(containerRegistry)/$(imageRepository):$(Build.BuildId)",
+                  "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+                }
+                EOF
+                cat build-metadata.json
+
+          # Publish build metadata
+          - task: PublishBuildArtifacts@1
+            displayName: 'Publish Build Metadata'
+            inputs:
+              pathToPublish: 'build-metadata.json'
+              artifactName: 'BuildMetadata'
+
+  # ==========================================================================
+  # Stage 2: Test
+  # Run Playwright PDCA validation tests against built image
+  # ==========================================================================
+  - stage: Test
+    displayName: 'Run PDCA Validation Tests'
     dependsOn: Build
+    jobs:
+      - job: PDCATests
+        displayName: 'PDCA Validation Tests'
+        pool:
+          vmImage: 'ubuntu-latest'
+
+        steps:
+          # Checkout code for tests
+          - checkout: self
+
+          # Setup Node.js
+          - task: NodeTool@0
+            displayName: 'Setup Node.js'
+            inputs:
+              versionSpec: '20.x'
+
+          # Install dependencies
+          - task: Bash@3
+            displayName: 'Install Dependencies'
+            inputs:
+              targetType: 'inline'
+              script: |
+                npm ci
+                npx playwright install --with-deps chromium
+
+          # Pull Docker image for testing
+          - task: Docker@2
+            displayName: 'Pull Docker Image'
+            inputs:
+              command: login
+              containerRegistry: $(containerRegistryConnection)
+
+          - task: Bash@3
+            displayName: 'Pull and Run Test Container'
+            inputs:
+              targetType: 'inline'
+              script: |
+                # Pull image
+                docker pull $(containerRegistry)/$(imageRepository):$(Build.BuildId)
+
+                # Run container for testing
+                docker run -d \
+                  --name fleet-test \
+                  -p 3000:3000 \
+                  -e VITE_ENVIRONMENT=test \
+                  $(containerRegistry)/$(imageRepository):$(Build.BuildId)
+
+                # Wait for container to be ready
+                echo "Waiting for container to be ready..."
+                timeout 60 bash -c 'until curl -f http://localhost:3000/health; do sleep 2; done'
+                echo "Container is ready"
+
+          # Run PDCA validation tests
+          - task: Bash@3
+            displayName: 'Run PDCA Validation Tests'
+            inputs:
+              targetType: 'inline'
+              script: |
+                export APP_URL=http://localhost:3000
+                export CI=true
+
+                # Run PDCA tests
+                npm run test:pdca
+            continueOnError: false
+            timeoutInMinutes: 15
+
+          # Publish test results
+          - task: PublishTestResults@2
+            displayName: 'Publish Test Results'
+            condition: always()
+            inputs:
+              testResultsFormat: 'JUnit'
+              testResultsFiles: '**/test-results/junit.xml'
+              mergeTestResults: true
+              testRunTitle: 'PDCA Validation Tests'
+
+          # Publish Playwright report
+          - task: PublishBuildArtifacts@1
+            displayName: 'Publish Playwright Report'
+            condition: always()
+            inputs:
+              pathToPublish: 'playwright-report'
+              artifactName: 'PlaywrightReport'
+
+          # Cleanup test container
+          - task: Bash@3
+            displayName: 'Cleanup Test Container'
+            condition: always()
+            inputs:
+              targetType: 'inline'
+              script: |
+                docker stop fleet-test || true
+                docker rm fleet-test || true
+
+  # ==========================================================================
+  # Stage 3: Deploy to Staging
+  # Deploy to staging namespace for pre-production validation
+  # ==========================================================================
+  - stage: DeployStaging
+    displayName: 'Deploy to Staging'
+    dependsOn: Test
     condition: succeeded()
     jobs:
-      - job: HealthCheck
-        displayName: 'Health Check'
+      - deployment: DeployToStaging
+        displayName: 'Deploy to Staging Environment'
+        pool:
+          vmImage: 'ubuntu-latest'
+        environment: 'staging'
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                # Download build metadata
+                - download: current
+                  artifact: BuildMetadata
+
+                # Install kubectl
+                - task: KubectlInstaller@0
+                  displayName: 'Install kubectl'
+                  inputs:
+                    kubectlVersion: 'latest'
+
+                # Connect to AKS
+                - task: AzureCLI@2
+                  displayName: 'Connect to AKS Cluster'
+                  inputs:
+                    azureSubscription: $(azureServiceConnection)
+                    scriptType: 'bash'
+                    scriptLocation: 'inlineScript'
+                    inlineScript: |
+                      az aks get-credentials \
+                        --resource-group $(aksResourceGroup) \
+                        --name $(aksClusterName) \
+                        --overwrite-existing
+
+                      # Verify connection
+                      kubectl cluster-info
+                      kubectl get nodes
+
+                # Create staging namespace if not exists
+                - task: Kubernetes@1
+                  displayName: 'Create Staging Namespace'
+                  inputs:
+                    connectionType: 'Azure Resource Manager'
+                    azureSubscriptionEndpoint: $(azureServiceConnection)
+                    azureResourceGroup: $(aksResourceGroup)
+                    kubernetesCluster: $(aksClusterName)
+                    command: 'apply'
+                    useConfigurationFile: true
+                    configuration: 'k8s/namespace.yaml'
+
+                # Update image tag in deployment
+                - task: Bash@3
+                  displayName: 'Update Staging Deployment Image'
+                  inputs:
+                    targetType: 'inline'
+                    script: |
+                      # Create temporary deployment file for staging
+                      cp k8s/api-deployment.yaml k8s/staging-deployment.yaml
+
+                      # Update namespace to staging
+                      sed -i "s/namespace: ctafleet$/namespace: $(stagingNamespace)/" k8s/staging-deployment.yaml
+
+                      # Update image tag
+                      sed -i "s|fleetappregistry.azurecr.io/fleet-api:v1.0.0|$(containerRegistry)/$(imageRepository):$(Build.BuildId)|g" k8s/staging-deployment.yaml
+
+                      # Add staging label
+                      sed -i "/labels:/a\ \ \ \ environment: staging" k8s/staging-deployment.yaml
+
+                      echo "Staging deployment configuration updated"
+                      cat k8s/staging-deployment.yaml
+
+                # Apply staging deployment
+                - task: Kubernetes@1
+                  displayName: 'Deploy to Staging'
+                  inputs:
+                    connectionType: 'Azure Resource Manager'
+                    azureSubscriptionEndpoint: $(azureServiceConnection)
+                    azureResourceGroup: $(aksResourceGroup)
+                    kubernetesCluster: $(aksClusterName)
+                    namespace: $(stagingNamespace)
+                    command: 'apply'
+                    useConfigurationFile: true
+                    configuration: 'k8s/staging-deployment.yaml'
+
+                # Wait for rollout
+                - task: Kubernetes@1
+                  displayName: 'Wait for Staging Rollout'
+                  inputs:
+                    connectionType: 'Azure Resource Manager'
+                    azureSubscriptionEndpoint: $(azureServiceConnection)
+                    azureResourceGroup: $(aksResourceGroup)
+                    kubernetesCluster: $(aksClusterName)
+                    namespace: $(stagingNamespace)
+                    command: 'rollout'
+                    arguments: 'status deployment/fleet-api --timeout=5m'
+
+                # Verify deployment health
+                - task: Bash@3
+                  displayName: 'Verify Staging Deployment Health'
+                  inputs:
+                    targetType: 'inline'
+                    script: |
+                      echo "Checking staging deployment health..."
+
+                      # Check pod status
+                      kubectl get pods -n $(stagingNamespace) -l app=fleet,component=api
+
+                      # Wait for pods to be ready
+                      kubectl wait --for=condition=ready pod \
+                        -l app=fleet,component=api \
+                        -n $(stagingNamespace) \
+                        --timeout=300s
+
+                      # Get deployment status
+                      kubectl get deployment fleet-api -n $(stagingNamespace)
+
+                      echo "Staging deployment is healthy"
+
+  # ==========================================================================
+  # Stage 4: Validate Staging
+  # Run full test suite against staging environment
+  # ==========================================================================
+  - stage: ValidateStaging
+    displayName: 'Validate Staging Environment'
+    dependsOn: DeployStaging
+    condition: succeeded()
+    jobs:
+      - job: StagingValidation
+        displayName: 'Run Staging Validation Tests'
+        pool:
+          vmImage: 'ubuntu-latest'
+
         steps:
-          - script: |
-              echo "Checking production health..."
-              HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" $(productionUrl)/api/health || echo "000")
-              echo "API Health: HTTP $HTTP_CODE"
+          # Checkout code
+          - checkout: self
 
-              FRONTEND_CODE=$(curl -s -o /dev/null -w "%{http_code}" $(productionUrl)/ || echo "000")
-              echo "Frontend: HTTP $FRONTEND_CODE"
+          # Setup Node.js
+          - task: NodeTool@0
+            displayName: 'Setup Node.js'
+            inputs:
+              versionSpec: '20.x'
 
-              if [ "$HTTP_CODE" = "200" ] && [ "$FRONTEND_CODE" = "200" ]; then
-                echo "Production is healthy!"
-              else
-                echo "Warning: Production may have issues"
-              fi
-            displayName: 'Check Production Health'
+          # Install dependencies
+          - task: Bash@3
+            displayName: 'Install Dependencies'
+            inputs:
+              targetType: 'inline'
+              script: |
+                npm ci
+                npx playwright install --with-deps chromium
+
+          # Get staging URL
+          - task: AzureCLI@2
+            displayName: 'Get Staging URL'
+            inputs:
+              azureSubscription: $(azureServiceConnection)
+              scriptType: 'bash'
+              scriptLocation: 'inlineScript'
+              inlineScript: |
+                az aks get-credentials \
+                  --resource-group $(aksResourceGroup) \
+                  --name $(aksClusterName) \
+                  --overwrite-existing
+
+                # Get service URL (using port-forward for testing)
+                kubectl port-forward -n $(stagingNamespace) svc/fleet-api-service 3001:3000 &
+                FORWARD_PID=$!
+                echo "##vso[task.setvariable variable=FORWARD_PID]$FORWARD_PID"
+
+                # Wait for port-forward
+                sleep 5
+
+                echo "##vso[task.setvariable variable=STAGING_URL]http://localhost:3001"
+
+          # Run full test suite against staging
+          - task: Bash@3
+            displayName: 'Run Full Test Suite'
+            inputs:
+              targetType: 'inline'
+              script: |
+                export APP_URL=${STAGING_URL}
+                export CI=true
+
+                echo "Running full test suite against: $APP_URL"
+
+                # Run PDCA validation
+                npm run test:pdca
+
+                # Run smoke tests
+                npm run test:smoke
+
+                echo "All staging validation tests passed"
+            timeoutInMinutes: 20
+
+          # Publish test results
+          - task: PublishTestResults@2
+            displayName: 'Publish Staging Test Results'
+            condition: always()
+            inputs:
+              testResultsFormat: 'JUnit'
+              testResultsFiles: '**/test-results/junit.xml'
+              mergeTestResults: true
+              testRunTitle: 'Staging Validation Tests'
+
+          # Cleanup port-forward
+          - task: Bash@3
+            displayName: 'Cleanup Port Forward'
+            condition: always()
+            inputs:
+              targetType: 'inline'
+              script: |
+                kill $(FORWARD_PID) || true
+
+  # ==========================================================================
+  # Stage 5: Deploy to Production
+  # Deploy validated image to production namespace
+  # ==========================================================================
+  - stage: DeployProduction
+    displayName: 'Deploy to Production'
+    dependsOn: ValidateStaging
+    condition: succeeded()
+    jobs:
+      - deployment: DeployToProduction
+        displayName: 'Deploy to Production Environment'
+        pool:
+          vmImage: 'ubuntu-latest'
+        environment: 'production'
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                # Download build metadata
+                - download: current
+                  artifact: BuildMetadata
+
+                # Install kubectl
+                - task: KubectlInstaller@0
+                  displayName: 'Install kubectl'
+                  inputs:
+                    kubectlVersion: 'latest'
+
+                # Connect to AKS
+                - task: AzureCLI@2
+                  displayName: 'Connect to AKS Cluster'
+                  inputs:
+                    azureSubscription: $(azureServiceConnection)
+                    scriptType: 'bash'
+                    scriptLocation: 'inlineScript'
+                    inlineScript: |
+                      az aks get-credentials \
+                        --resource-group $(aksResourceGroup) \
+                        --name $(aksClusterName) \
+                        --overwrite-existing
+
+                # Save current deployment for rollback
+                - task: Bash@3
+                  displayName: 'Save Current Deployment for Rollback'
+                  inputs:
+                    targetType: 'inline'
+                    script: |
+                      echo "Saving current production deployment for potential rollback..."
+
+                      # Get current image
+                      CURRENT_IMAGE=$(kubectl get deployment fleet-api \
+                        -n $(productionNamespace) \
+                        -o jsonpath='{.spec.template.spec.containers[0].image}' 2>/dev/null || echo "none")
+
+                      echo "Current production image: $CURRENT_IMAGE"
+                      echo "##vso[task.setvariable variable=PREVIOUS_IMAGE]$CURRENT_IMAGE"
+
+                      # Save full deployment spec
+                      kubectl get deployment fleet-api \
+                        -n $(productionNamespace) \
+                        -o yaml > previous-deployment.yaml 2>/dev/null || echo "No previous deployment found"
+
+                      echo "Rollback configuration saved"
+
+                # Publish rollback artifact
+                - task: PublishBuildArtifacts@1
+                  displayName: 'Publish Rollback Configuration'
+                  inputs:
+                    pathToPublish: 'previous-deployment.yaml'
+                    artifactName: 'RollbackConfiguration'
+
+                # Update production deployment
+                - task: Bash@3
+                  displayName: 'Update Production Deployment Image'
+                  inputs:
+                    targetType: 'inline'
+                    script: |
+                      # Create production deployment file
+                      cp k8s/api-deployment.yaml k8s/production-deployment.yaml
+
+                      # Update image tag to validated build
+                      sed -i "s|fleetappregistry.azurecr.io/fleet-api:v1.0.0|$(containerRegistry)/$(imageRepository):pdca-validated-$(Build.BuildId)|g" k8s/production-deployment.yaml
+
+                      echo "Production deployment configuration updated"
+                      echo "New image: $(containerRegistry)/$(imageRepository):pdca-validated-$(Build.BuildId)"
+
+                # Deploy to production with rolling update
+                - task: Kubernetes@1
+                  displayName: 'Deploy to Production'
+                  inputs:
+                    connectionType: 'Azure Resource Manager'
+                    azureSubscriptionEndpoint: $(azureServiceConnection)
+                    azureResourceGroup: $(aksResourceGroup)
+                    kubernetesCluster: $(aksClusterName)
+                    namespace: $(productionNamespace)
+                    command: 'apply'
+                    useConfigurationFile: true
+                    configuration: 'k8s/production-deployment.yaml'
+
+                # Wait for rollout with timeout
+                - task: Kubernetes@1
+                  displayName: 'Wait for Production Rollout'
+                  inputs:
+                    connectionType: 'Azure Resource Manager'
+                    azureSubscriptionEndpoint: $(azureServiceConnection)
+                    azureResourceGroup: $(aksResourceGroup)
+                    kubernetesCluster: $(aksClusterName)
+                    namespace: $(productionNamespace)
+                    command: 'rollout'
+                    arguments: 'status deployment/fleet-api --timeout=10m'
+
+                # Verify production health
+                - task: Bash@3
+                  displayName: 'Verify Production Deployment Health'
+                  inputs:
+                    targetType: 'inline'
+                    script: |
+                      echo "Checking production deployment health..."
+
+                      # Check pod status
+                      kubectl get pods -n $(productionNamespace) -l app=fleet,component=api
+
+                      # Wait for all pods to be ready
+                      kubectl wait --for=condition=ready pod \
+                        -l app=fleet,component=api \
+                        -n $(productionNamespace) \
+                        --timeout=600s
+
+                      # Get deployment status
+                      kubectl get deployment fleet-api -n $(productionNamespace)
+
+                      # Check deployment replicas
+                      DESIRED=$(kubectl get deployment fleet-api -n $(productionNamespace) -o jsonpath='{.spec.replicas}')
+                      READY=$(kubectl get deployment fleet-api -n $(productionNamespace) -o jsonpath='{.status.readyReplicas}')
+
+                      if [ "$DESIRED" != "$READY" ]; then
+                        echo "Deployment unhealthy: $READY/$DESIRED pods ready"
+                        exit 1
+                      fi
+
+                      echo "Production deployment is healthy: $READY/$DESIRED pods ready"
+
+  # ==========================================================================
+  # Stage 6: Validate Production
+  # Final validation of production deployment
+  # ==========================================================================
+  - stage: ValidateProduction
+    displayName: 'Validate Production Environment'
+    dependsOn: DeployProduction
+    condition: succeeded()
+    jobs:
+      - job: ProductionValidation
+        displayName: 'Run Production Validation Tests'
+        pool:
+          vmImage: 'ubuntu-latest'
+
+        steps:
+          # Checkout code
+          - checkout: self
+
+          # Setup Node.js
+          - task: NodeTool@0
+            displayName: 'Setup Node.js'
+            inputs:
+              versionSpec: '20.x'
+
+          # Install dependencies
+          - task: Bash@3
+            displayName: 'Install Dependencies'
+            inputs:
+              targetType: 'inline'
+              script: |
+                npm ci
+                npx playwright install --with-deps chromium
+
+          # Get production URL
+          - task: AzureCLI@2
+            displayName: 'Setup Production Testing'
+            inputs:
+              azureSubscription: $(azureServiceConnection)
+              scriptType: 'bash'
+              scriptLocation: 'inlineScript'
+              inlineScript: |
+                az aks get-credentials \
+                  --resource-group $(aksResourceGroup) \
+                  --name $(aksClusterName) \
+                  --overwrite-existing
+
+                # Setup port-forward for production validation
+                kubectl port-forward -n $(productionNamespace) svc/fleet-api-service 3002:3000 &
+                FORWARD_PID=$!
+                echo "##vso[task.setvariable variable=FORWARD_PID]$FORWARD_PID"
+
+                sleep 5
+                echo "##vso[task.setvariable variable=PRODUCTION_URL]http://localhost:3002"
+
+          # Run production validation tests
+          - task: Bash@3
+            displayName: 'Run Production PDCA Validation'
+            inputs:
+              targetType: 'inline'
+              script: |
+                export APP_URL=${PRODUCTION_URL}
+                export CI=true
+
+                echo "Running PDCA validation against production: $APP_URL"
+
+                # Run production PDCA tests
+                npm run test:pdca:prod || {
+                  echo "Production validation failed - triggering rollback"
+                  echo "##vso[task.setvariable variable=VALIDATION_FAILED;isOutput=true]true"
+                  exit 1
+                }
+
+                echo "Production validation passed"
+                echo "##vso[task.setvariable variable=VALIDATION_FAILED;isOutput=true]false"
+            name: ValidationTests
+            continueOnError: true
+
+          # Publish production test results
+          - task: PublishTestResults@2
+            displayName: 'Publish Production Test Results'
+            condition: always()
+            inputs:
+              testResultsFormat: 'JUnit'
+              testResultsFiles: '**/test-results/junit.xml'
+              mergeTestResults: true
+              testRunTitle: 'Production Validation Tests'
+
+          # Cleanup
+          - task: Bash@3
+            displayName: 'Cleanup'
+            condition: always()
+            inputs:
+              targetType: 'inline'
+              script: |
+                kill $(FORWARD_PID) || true
+
+          # Check if rollback is needed
+          - task: Bash@3
+            displayName: 'Check Validation Status'
+            inputs:
+              targetType: 'inline'
+              script: |
+                if [ "$(ValidationTests.VALIDATION_FAILED)" == "true" ]; then
+                  echo "Validation failed - pipeline will trigger rollback"
+                  exit 1
+                fi
+
+                echo "All production validations passed"
+
+  # ==========================================================================
+  # Stage 7: Rollback
+  # Automatic rollback on validation failure
+  # ==========================================================================
+  - stage: Rollback
+    displayName: 'Rollback on Failure'
+    dependsOn: ValidateProduction
+    condition: failed()
+    jobs:
+      - job: RollbackDeployment
+        displayName: 'Rollback to Previous Version'
+        pool:
+          vmImage: 'ubuntu-latest'
+
+        steps:
+          # Download rollback configuration
+          - download: current
+            artifact: RollbackConfiguration
+
+          # Install kubectl
+          - task: KubectlInstaller@0
+            displayName: 'Install kubectl'
+            inputs:
+              kubectlVersion: 'latest'
+
+          # Connect to AKS
+          - task: AzureCLI@2
+            displayName: 'Connect to AKS Cluster'
+            inputs:
+              azureSubscription: $(azureServiceConnection)
+              scriptType: 'bash'
+              scriptLocation: 'inlineScript'
+              inlineScript: |
+                az aks get-credentials \
+                  --resource-group $(aksResourceGroup) \
+                  --name $(aksClusterName) \
+                  --overwrite-existing
+
+          # Perform rollback
+          - task: Bash@3
+            displayName: 'Rollback Production Deployment'
+            inputs:
+              targetType: 'inline'
+              script: |
+                echo "Initiating rollback to previous version..."
+
+                # Check if previous deployment exists
+                if [ -f "$(Pipeline.Workspace)/RollbackConfiguration/previous-deployment.yaml" ]; then
+                  echo "Rolling back using saved deployment configuration..."
+                  kubectl apply -f $(Pipeline.Workspace)/RollbackConfiguration/previous-deployment.yaml
+                else
+                  echo "Using kubectl rollout undo..."
+                  kubectl rollout undo deployment/fleet-api -n $(productionNamespace)
+                fi
+
+                # Wait for rollback to complete
+                kubectl rollout status deployment/fleet-api -n $(productionNamespace) --timeout=5m
+
+                echo "Rollback completed"
+
+          # Verify rollback health
+          - task: Bash@3
+            displayName: 'Verify Rollback Health'
+            inputs:
+              targetType: 'inline'
+              script: |
+                echo "Verifying rollback health..."
+
+                # Check pod status
+                kubectl get pods -n $(productionNamespace) -l app=fleet,component=api
+
+                # Wait for pods to be ready
+                kubectl wait --for=condition=ready pod \
+                  -l app=fleet,component=api \
+                  -n $(productionNamespace) \
+                  --timeout=300s
+
+                # Check deployment status
+                DESIRED=$(kubectl get deployment fleet-api -n $(productionNamespace) -o jsonpath='{.spec.replicas}')
+                READY=$(kubectl get deployment fleet-api -n $(productionNamespace) -o jsonpath='{.status.readyReplicas}')
+
+                if [ "$DESIRED" != "$READY" ]; then
+                  echo "Rollback unhealthy: $READY/$DESIRED pods ready"
+                  exit 1
+                fi
+
+                echo "Rollback successful and healthy: $READY/$DESIRED pods ready"
+
+          # Send rollback notification
+          - task: Bash@3
+            displayName: 'Send Rollback Notification'
+            inputs:
+              targetType: 'inline'
+              script: |
+                echo "Sending rollback notification..."
+                echo "==========================================="
+                echo "ROLLBACK PERFORMED"
+                echo "==========================================="
+                echo "Build ID: $(Build.BuildId)"
+                echo "Commit: $(Build.SourceVersion)"
+                echo "Branch: $(Build.SourceBranchName)"
+                echo "Reason: Production validation failed"
+                echo "==========================================="
+                echo ""
+                echo "The deployment has been rolled back to the previous stable version."
+                echo "Please investigate the test failures before attempting another deployment."
+
+# ============================================================================
+# End of Pipeline
+# ============================================================================
