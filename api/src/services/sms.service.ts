@@ -583,7 +583,7 @@ class SMSService {
       sets.push('updated_at = CURRENT_TIMESTAMP');
 
       params.push(id);
-      const query = `UPDATE sms_logs SET ${sets.join(', ')} WHERE id = $${paramIndex}`;
+      const query = 'UPDATE sms_logs SET ${sets.join(', ')} WHERE id = $${paramIndex}';
 
       await db.query(query, params);
     } catch (error) {
@@ -598,7 +598,7 @@ class SMSService {
     let result = template;
 
     for (const [key, value] of Object.entries(variables)) {
-      const regex = new RegExp(`{{${key}}}`, 'g');
+      const regex = new RegExp('{{${key}}}', 'g');
       result = result.replace(regex, String(value));
     }
 

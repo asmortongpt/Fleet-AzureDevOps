@@ -138,7 +138,7 @@ class AdaptiveCardsService {
           facts: [
             { title: 'Maintenance Type:', value: data.maintenanceType },
             { title: 'Due Date:', value: new Date(data.dueDate).toLocaleDateString() },
-            { title: 'Current Mileage:', value: `${data.mileage.toLocaleString()} mi` }
+            { title: 'Current Mileage:', value: '${data.mileage.toLocaleString()} mi` }
           ]
         }
       ],
@@ -230,9 +230,9 @@ class AdaptiveCardsService {
         {
           type: 'FactSet',
           facts: [
-            { title: 'Distance Saved:', value: `${savings} mi (${savingsPercent}%)` },
-            { title: 'Time Saved:', value: `${data.timeSaved} min` },
-            { title: 'Fuel Saved:', value: `${data.fuelSaved} gal` },
+            { title: 'Distance Saved:', value: '${savings} mi (${savingsPercent}%)` },
+            { title: 'Time Saved:', value: '${data.timeSaved} min` },
+            { title: 'Fuel Saved:', value: '${data.fuelSaved} gal` },
             { title: 'Total Stops:', value: data.stops.length.toString() }
           ]
         }

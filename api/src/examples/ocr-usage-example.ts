@@ -131,7 +131,7 @@ export async function batchProcessingExample() {
   // Poll for completion
   let batchStatus = await ocrQueueService.getBatchStatus(batchId);
   console.log('Status:', batchStatus?.status);
-  console.log('Progress:', `${batchStatus?.completedDocuments}/${batchStatus?.totalDocuments}`);
+  console.log('Progress:', '${batchStatus?.completedDocuments}/${batchStatus?.totalDocuments}`);
 }
 
 // ============================================

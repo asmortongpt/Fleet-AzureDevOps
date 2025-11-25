@@ -42,7 +42,7 @@ class WebhookSetup {
     const missing = required.filter(key => !this[key as keyof this]);
 
     if (missing.length > 0) {
-      throw new Error('Missing required configuration: ${missing.join(', ')}`);
+      throw new Error('Missing required configuration: ${missing.join(', ')}');
     }
 
     if (!this.webhookUrl.startsWith('https://')) {
@@ -83,7 +83,7 @@ class WebhookSetup {
     const response = await fetch('https://graph.microsoft.com/v1.0/subscriptions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${this.accessToken}`,
+        'Authorization': 'Bearer ${this.accessToken}`,
         'Content-Type': 'application/json'
       },
       body: JSON.stringify(subscription)
@@ -104,7 +104,7 @@ class WebhookSetup {
 
     const response = await fetch('https://graph.microsoft.com/v1.0/subscriptions', {
       headers: {
-        'Authorization': `Bearer ${this.accessToken}`
+        'Authorization': 'Bearer ${this.accessToken}`
       }
     });
 
@@ -126,7 +126,7 @@ class WebhookSetup {
       {
         method: 'DELETE',
         headers: {
-          'Authorization': `Bearer ${this.accessToken}`
+          'Authorization': 'Bearer ${this.accessToken}`
         }
       }
     );

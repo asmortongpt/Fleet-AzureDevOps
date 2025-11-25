@@ -271,7 +271,7 @@ export class LocalStorageAdapter extends StorageAdapter {
 
     // This is a simplified version - in production, you'd store these tokens
     // and validate them in your download endpoint
-    return `${this.publicUrlBase || ''}/download/${filePath}?token=${token}&expires=${expiry}`
+    return '${this.publicUrlBase || ''}/download/${filePath}?token=${token}&expires=${expiry}'
   }
 
   getPublicUrl(filePath: string): string {

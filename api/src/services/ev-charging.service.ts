@@ -445,7 +445,7 @@ class EVChargingService {
        FROM charging_sessions
        WHERE vehicle_id = $1
        AND DATE(start_time) = $2
-       AND session_status = 'Completed'`,
+       AND session_status = 'Completed'',
       [vehicleId, date]
     );
 
@@ -536,12 +536,12 @@ class EVChargingService {
     const sessionResult = await this.db.query(
       `SELECT COUNT(*) as session_count
        FROM charging_sessions
-       WHERE session_status = 'Completed' ${dateFilter.replace('log_date', 'DATE(start_time)')}`
+       WHERE session_status = 'Completed' ${dateFilter.replace('log_date', 'DATE(start_time)')}'
     );
 
     // Get total fleet count
     const fleetResult = await this.db.query(
-      `SELECT COUNT(*) as total_count FROM vehicles WHERE status = 'active'`
+      'SELECT COUNT(*) as total_count FROM vehicles WHERE status = 'active''
     );
 
     const totalFleet = fleetResult.rows[0].total_count;

@@ -212,21 +212,21 @@ export async function getRenewalStats(): Promise<any> {
       `SELECT COUNT(*) as count
        FROM webhook_subscriptions
        WHERE status = 'active'
-       AND expiration_date_time < NOW() + INTERVAL '24 hours'`
+       AND expiration_date_time < NOW() + INTERVAL '24 hours''
     )
 
     // Failed subscriptions
     const failedResult = await pool.query(
       `SELECT COUNT(*) as count
        FROM webhook_subscriptions
-       WHERE status = 'failed'`
+       WHERE status = 'failed''
     )
 
     // Recent renewal activity
     const activityResult = await pool.query(
       `SELECT COUNT(*) as count
        FROM webhook_subscriptions
-       WHERE last_renewed_at > NOW() - INTERVAL '24 hours'`
+       WHERE last_renewed_at > NOW() - INTERVAL '24 hours''
     )
 
     return {

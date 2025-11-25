@@ -175,7 +175,7 @@ export class MicrosoftIntegrationService {
       const targetEmail = userEmail || reservation.reserved_by_email;
 
       const event: CalendarEvent = {
-        subject: `Vehicle Reservation: ${reservation.unit_number || 'Vehicle'} ${reservation.make || ''} ${reservation.model || ''}`.trim(),
+        subject: 'Vehicle Reservation: ${reservation.unit_number || 'Vehicle'} ${reservation.make || ''} ${reservation.model || ''}'.trim(),
         body: {
           contentType: 'HTML',
           content: this.formatReservationEmailBody(reservation, 'created'),
@@ -231,7 +231,7 @@ export class MicrosoftIntegrationService {
       const targetEmail = userEmail || reservation.reserved_by_email;
 
       const event: Partial<CalendarEvent> = {
-        subject: `Vehicle Reservation: ${reservation.unit_number || 'Vehicle'} ${reservation.make || ''} ${reservation.model || ''}`.trim(),
+        subject: 'Vehicle Reservation: ${reservation.unit_number || 'Vehicle'} ${reservation.make || ''} ${reservation.model || ''}'.trim(),
         body: {
           contentType: 'HTML',
           content: this.formatReservationEmailBody(reservation, 'updated'),
@@ -393,7 +393,7 @@ export class MicrosoftIntegrationService {
    * Format email subject based on action
    */
   private getEmailSubject(reservation: Reservation, action: string): string {
-    const vehicle = `${reservation.unit_number || ''} ${reservation.make || ''} ${reservation.model || ''}`.trim();
+    const vehicle = '${reservation.unit_number || ''} ${reservation.make || ''} ${reservation.model || ''}'.trim();
 
     switch (action) {
       case 'created':
@@ -415,7 +415,7 @@ export class MicrosoftIntegrationService {
    * Format email body with reservation details
    */
   private formatReservationEmailBody(reservation: Reservation, action: string): string {
-    const vehicle = `${reservation.unit_number || 'N/A'} - ${reservation.make || ''} ${reservation.model || ''} ${reservation.year || ''}`.trim();
+    const vehicle = '${reservation.unit_number || 'N/A'} - ${reservation.make || ''} ${reservation.model || ''} ${reservation.year || ''}'.trim();
     const startDate = new Date(reservation.start_datetime).toLocaleString();
     const endDate = new Date(reservation.end_datetime).toLocaleString();
 
@@ -462,7 +462,7 @@ export class MicrosoftIntegrationService {
               <p><strong>End:</strong> ${endDate}</p>
               <p><strong>Status:</strong> <span style="background-color: ${this.getStatusColor(reservation.status)}; color: white; padding: 3px 8px; border-radius: 3px;">${reservation.status.toUpperCase()}</span></p>
 
-              ${reservation.notes ? `<p><strong>Notes:</strong> ${reservation.notes}</p>` : ''}
+              ${reservation.notes ? '<p><strong>Notes:</strong> ${reservation.notes}</p>' : ''}
             </div>
 
             <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd; font-size: 12px; color: #666;">
@@ -479,7 +479,7 @@ export class MicrosoftIntegrationService {
    * Format Teams message with reservation details
    */
   private formatTeamsMessage(reservation: Reservation, action: string): string {
-    const vehicle = `${reservation.unit_number || 'N/A'} - ${reservation.make || ''} ${reservation.model || ''}`.trim();
+    const vehicle = '${reservation.unit_number || 'N/A'} - ${reservation.make || ''} ${reservation.model || ''}'.trim();
     const startDate = new Date(reservation.start_datetime).toLocaleString();
     const endDate = new Date(reservation.end_datetime).toLocaleString();
 
@@ -492,7 +492,7 @@ export class MicrosoftIntegrationService {
       <p><strong>Purpose:</strong> ${reservation.purpose === 'business' ? '💼 Business' : '👤 Personal'}</p>
       <p><strong>Period:</strong> ${startDate} - ${endDate}</p>
       <p><strong>Status:</strong> ${reservation.status.toUpperCase()}</p>
-      ${reservation.notes ? `<p><strong>Notes:</strong> ${reservation.notes}</p>` : ''}
+      ${reservation.notes ? '<p><strong>Notes:</strong> ${reservation.notes}</p>' : ''}
     `;
   }
 

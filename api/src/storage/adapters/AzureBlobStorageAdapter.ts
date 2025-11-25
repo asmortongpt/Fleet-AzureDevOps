@@ -472,7 +472,7 @@ export class AzureBlobStorageAdapter extends BaseStorageAdapter {
         expiresOn,
         contentType: options?.contentType,
         contentDisposition: options?.contentDisposition
-          ? '${options.contentDisposition}${options.filename ? `; filename="${options.filename}"` : ''}`
+          ? '${options.contentDisposition}${options.filename ? '; filename="${options.filename}"' : ''}'
           : undefined
       },
       this.credential

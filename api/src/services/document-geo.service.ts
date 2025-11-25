@@ -204,7 +204,7 @@ export class DocumentGeoService {
   private async extractTextLocation(documentId: string): Promise<GeoLocation | null> {
     try {
       const result = await pool.query(
-        `SELECT extracted_text FROM documents WHERE id = $1',
+        'SELECT extracted_text FROM documents WHERE id = $1',
         [documentId]
       )
 
@@ -793,7 +793,7 @@ export class DocumentGeoService {
     const bufferMeters = options?.bufferMeters || 1000
 
     // Create LineString from waypoints
-    const coordinates = waypoints.map(wp => `${wp.lng} ${wp.lat}`).join(', ')
+    const coordinates = waypoints.map(wp => '${wp.lng} ${wp.lat}`).join(', ')
     const linestring = `LINESTRING(${coordinates})`
 
     let query = `

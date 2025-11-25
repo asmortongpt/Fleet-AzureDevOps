@@ -562,7 +562,7 @@ export class CustomReportService {
     }
 
     // Build WHERE clause
-    let whereClause = `WHERE ${primarySchema.alias}.tenant_id = $1'
+    let whereClause = 'WHERE ${primarySchema.alias}.tenant_id = $1'
 
     if (config.filters && config.filters.length > 0) {
       config.filters.forEach(filter => {
@@ -582,7 +582,7 @@ export class CustomReportService {
     // Build ORDER BY clause
     let orderByClause = ''
     if (config.sorting && config.sorting.length > 0) {
-      const sortFields = config.sorting.map(s => `${s.field} ${s.direction.toUpperCase()}`).join(', ')
+      const sortFields = config.sorting.map(s => '${s.field} ${s.direction.toUpperCase()}`).join(', ')
       orderByClause = `ORDER BY ${sortFields}`
     }
 
@@ -646,13 +646,13 @@ export class CustomReportService {
         paramCount = 2
         break
       case 'in':
-        const inPlaceholders = filter.value.map((_: any, i: number) => `$${paramIndex + i}`).join(', ')
+        const inPlaceholders = filter.value.map((_: any, i: number) => '$${paramIndex + i}`).join(', ')
         sql = `${filter.field} IN (${inPlaceholders})`
         params.push(...filter.value)
         paramCount = filter.value.length
         break
       case 'not_in':
-        const notInPlaceholders = filter.value.map((_: any, i: number) => `$${paramIndex + i}`).join(', ')
+        const notInPlaceholders = filter.value.map((_: any, i: number) => '$${paramIndex + i}`).join(', ')
         sql = `${filter.field} NOT IN (${notInPlaceholders})`
         params.push(...filter.value)
         paramCount = filter.value.length
