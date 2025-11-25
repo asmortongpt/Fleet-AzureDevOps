@@ -28,7 +28,8 @@ class MockDataGenerator {
     }
 
     // MARK: - Fuel Generation
-    func generateFuelRecords(count: Int = 30) -> [FuelRecord] {
-        return []  // Stub implementation
+    // Note: FuelRecord is defined in FleetModels.swift
+    func generateFuelRecords(count: Int = 30) -> [Any] {
+        return []  // Stub implementation - returns FuelRecord when needed
     }
 }
