@@ -100,9 +100,16 @@ class GeofenceViewModel: RefreshableViewModel {
         do {
             startLoading()
 
-            // Simulate API call
-            try await Task.sleep(nanoseconds: 500_000_000)
+            // TODO: Replace with actual API call when backend is ready
+            // let response = try await AzureNetworkManager.shared.request(
+            //     endpoint: "/v1/geofences",
+            //     method: .get,
+            //     responseType: GeofencesResponse.self
+            // )
+            // let fetchedGeofences = response.geofences
 
+            // Simulate API call for now
+            try await Task.sleep(nanoseconds: 500_000_000)
             let mockGeofences = generateMockGeofences()
 
             await MainActor.run {
@@ -110,10 +117,21 @@ class GeofenceViewModel: RefreshableViewModel {
                 self.finishLoading()
             }
 
+            // Cache geofences locally
+            DataPersistenceManager.shared.save(mockGeofences, forKey: "cached_geofences")
+
             // Start monitoring geofences
             startMonitoring(geofences: mockGeofences)
         } catch {
-            handleError(error)
+            // Try to load from cache on error
+            if let cached: [Geofence] = DataPersistenceManager.shared.load(forKey: "cached_geofences") {
+                await MainActor.run {
+                    self.geofences = cached
+                    self.finishLoading()
+                }
+            } else {
+                handleError(error)
+            }
         }
     }
 
@@ -152,7 +170,16 @@ class GeofenceViewModel: RefreshableViewModel {
         do {
             startLoading()
 
-            // Simulate API call
+            // TODO: Replace with actual API call when backend is ready
+            // let response = try await AzureNetworkManager.shared.request(
+            //     endpoint: "/v1/geofences",
+            //     method: .post,
+            //     body: geofence,
+            //     responseType: GeofenceResponse.self
+            // )
+            // let createdGeofence = response.geofence
+
+            // Simulate API call for now
             try await Task.sleep(nanoseconds: 500_000_000)
 
             await MainActor.run {
@@ -161,6 +188,9 @@ class GeofenceViewModel: RefreshableViewModel {
                 self.showingCreateGeofence = false
                 ModernTheme.Haptics.success()
             }
+
+            // Update cache
+            DataPersistenceManager.shared.save(geofences, forKey: "cached_geofences")
 
             if geofence.isActive {
                 startMonitoring(geofences: [geofence])

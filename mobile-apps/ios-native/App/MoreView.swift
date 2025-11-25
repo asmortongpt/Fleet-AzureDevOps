@@ -2,11 +2,60 @@ import SwiftUI
 
 struct MoreView: View {
     // @StateObject private var checklistViewModel = ChecklistViewModel() // Disabled until ChecklistViewModel is fixed
+    @EnvironmentObject private var navigationCoordinator: NavigationCoordinator
 
     var body: some View {
         NavigationView {
             List {
-                // New Features Section
+                // GPS Features Section
+                Section(header: Text("GPS Features")) {
+                    NavigationLink(destination: GeofenceListView()) {
+                        HStack {
+                            Image(systemName: "mappin.circle.fill")
+                                .foregroundColor(.blue)
+                                .frame(width: 30)
+                            VStack(alignment: .leading) {
+                                Text("Geofences")
+                                    .font(.body)
+                                Text("Create zones and monitor vehicle locations")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                    }
+
+                    NavigationLink(destination: EnhancedFleetMapView()) {
+                        HStack {
+                            Image(systemName: "map.fill")
+                                .foregroundColor(.green)
+                                .frame(width: 30)
+                            VStack(alignment: .leading) {
+                                Text("Fleet Map")
+                                    .font(.body)
+                                Text("Real-time vehicle location tracking")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                    }
+
+                    NavigationLink(destination: TripTrackingView()) {
+                        HStack {
+                            Image(systemName: "location.fill.viewfinder")
+                                .foregroundColor(.purple)
+                                .frame(width: 30)
+                            VStack(alignment: .leading) {
+                                Text("Trip Tracking")
+                                    .font(.body)
+                                Text("Track and record vehicle trips")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                    }
+                }
+
+                // Features Section
                 Section(header: Text("Features")) {
                     NavigationLink(destination: DriverListView()) {
                         HStack {
