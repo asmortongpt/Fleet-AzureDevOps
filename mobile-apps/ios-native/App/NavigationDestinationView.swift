@@ -67,10 +67,9 @@ struct NavigationDestinationView: View {
                 OBD2DiagnosticsView()
 
             case .maintenancePhoto(let vehicleId, let type):
-                VehicleMaintenancePhotoView(
-                    vehicleId: vehicleId,
-                    maintenanceType: parseMaintenancePhotoType(type)
-                )
+                Text("Maintenance Photo for vehicle \(vehicleId) - Type: \(type)")
+                    .navigationTitle("Maintenance Photo")
+                // TODO: Implement when MaintenancePhotoType is defined
 
             case .photoCapture(let vehicleId, let photoType):
                 PhotoCaptureViewWrapper(
@@ -82,19 +81,6 @@ struct NavigationDestinationView: View {
     }
 
     // MARK: - Helper Parsers
-
-    private func parseMaintenancePhotoType(_ type: String) -> MaintenancePhotoType {
-        switch type.lowercased() {
-        case "odometer":
-            return .odometer
-        case "fuel", "fuellevel":
-            return .fuelLevel
-        case "damage":
-            return .damage
-        default:
-            return .general
-        }
-    }
 
     private func parsePhotoType(_ type: String) -> PhotoType {
         switch type.lowercased() {
@@ -129,12 +115,45 @@ struct VehicleDetailView: View {
     }
 }
 
-struct TripDetailViewWrapper: View {
-    let tripId: String
+// MARK: - Vehicle Detail Wrapper
+/// Wrapper view that loads a vehicle by ID and passes it to VehicleDetailView
+struct VehicleDetailViewWrapper: View {
+    let vehicleId: String
+    @StateObject private var viewModel = VehicleViewModel()
 
     var body: some View {
-        Text("Trip Detail: \(tripId)")
-            .navigationTitle("Trip")
+        if let vehicle = viewModel.vehicles.first(where: { $0.id == vehicleId }) {
+            VehicleDetailView(vehicle: vehicle)
+        } else {
+            ProgressView("Loading vehicle...")
+                .onAppear {
+                    Task {
+                        await viewModel.fetchVehicles()
+                    }
+                }
+        }
+    }
+}
+
+// MARK: - Trip Detail Wrapper
+/// Wrapper view that loads a trip by ID and passes it to TripDetailView
+struct TripDetailViewWrapper: View {
+    let tripId: String
+    @StateObject private var viewModel = TripsViewModel()
+
+    var body: some View {
+        if let trip = viewModel.trips.first(where: { $0.id.uuidString == tripId }) {
+            TripDetailView(trip: trip)
+        } else {
+            VStack(spacing: 20) {
+                ProgressView("Loading trip...")
+            }
+            .onAppear {
+                Task {
+                    await viewModel.refresh()
+                }
+            }
+        }
     }
 }
 
