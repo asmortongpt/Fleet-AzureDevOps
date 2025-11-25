@@ -354,7 +354,7 @@ class MCPServerRegistryService {
            SUM(CASE WHEN status = 'error' THEN 1 ELSE 0 END) as failed_requests,
            AVG(execution_time_ms) as avg_response_time
          FROM mcp_tool_executions
-         WHERE server_id = $1 AND created_at > NOW() - INTERVAL '15 minutes'`,
+         WHERE server_id = $1 AND created_at > NOW() - INTERVAL '15 minutes'',
         [serverId]
       )
 

@@ -92,7 +92,7 @@ export class VectorSearchService {
     try {
       // Check if pgvector extension is installed
       const result = await pool.query(
-        "SELECT ` + (await getTableColumns(pool, 'pg_extension')).join(', ') + ` FROM pg_extension WHERE extname = 'vector'"
+        "SELECT ' + (await getTableColumns(pool, 'pg_extension')).join(', ') + ' FROM pg_extension WHERE extname = 'vector'"
       )
 
       if (result.rows.length === 0) {
@@ -383,7 +383,7 @@ export class VectorSearchService {
         const filterConditions = Object.entries(filter)
           .map(([key, value], index) => {
             params.push(value)
-            return `metadata->>'${key}' = $${params.length}`
+            return 'metadata->>'${key}' = $${params.length}'
           })
           .join(' AND ')
 

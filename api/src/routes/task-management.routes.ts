@@ -277,7 +277,7 @@ router.get('/analytics/summary', requirePermission('report:view:global'), async 
            COUNT(*) FILTER (WHERE status = 'completed') as completed,
            COUNT(*) as total
          FROM tasks
-         WHERE tenant_id = $1 AND created_at >= NOW() - INTERVAL '30 days'`,
+         WHERE tenant_id = $1 AND created_at >= NOW() - INTERVAL '30 days'',
         [tenantId]
       )
     ])

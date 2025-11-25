@@ -70,7 +70,7 @@ router.post(
       // Validation: business percentage required for mixed trips
       if (validated.usage_type === UsageType.MIXED && validated.business_percentage === undefined) {
         return res.status(400).json({
-          error: 'Business percentage is required for mixed trips`
+          error: 'Business percentage is required for mixed trips'
         })
       }
 
@@ -187,7 +187,7 @@ router.post(
 
         if (driverInfo.rows.length > 0 && managerInfo.rows.length > 0) {
           const driver = driverInfo.rows[0]
-          const approvalUrl = '${process.env.FRONTEND_URL || 'http://fleet.capitaltechalliance.com'}/personal-use/approvals/${tripUsage.id}`
+          const approvalUrl = '${process.env.FRONTEND_URL || 'http://fleet.capitaltechalliance.com'}/personal-use/approvals/${tripUsage.id}'
 
           emailNotificationService.sendTripApprovalRequest({
             driverEmail: managerInfo.rows[0].email,
@@ -208,7 +208,7 @@ router.post(
         data: tripUsage,
         message: approvalStatus === ApprovalStatus.AUTO_APPROVED
           ? 'Trip usage recorded and auto-approved'
-          : 'Trip usage recorded and pending approval`
+          : 'Trip usage recorded and pending approval'
       })
     } catch (error: any) {
       console.error('Create trip usage error:', error)
@@ -292,7 +292,7 @@ router.get(
 
     if (month) {
       paramCount++
-      query += ' AND TO_CHAR(t.trip_date, 'YYYY-MM') = $${paramCount}`
+      query += ' AND TO_CHAR(t.trip_date, 'YYYY-MM') = $${paramCount}'
       params.push(month)
     }
 
@@ -471,7 +471,7 @@ router.patch(
       res.json({
         success: true,
         data: result.rows[0],
-        message: 'Trip usage updated successfully`
+        message: 'Trip usage updated successfully'
       })
     } catch (error: any) {
       console.error('Update trip usage error:', error)
@@ -592,7 +592,7 @@ router.post(
       res.json({
         success: true,
         data: trip,
-        message: 'Trip usage approved successfully`
+        message: 'Trip usage approved successfully'
       })
     } catch (error: any) {
       console.error('Approve trip error:', error)
@@ -666,7 +666,7 @@ router.post(
       res.json({
         success: true,
         data: trip,
-        message: 'Trip usage rejected`
+        message: 'Trip usage rejected'
       })
     } catch (error: any) {
       console.error('Reject trip error:', error)
