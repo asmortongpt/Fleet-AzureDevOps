@@ -57,10 +57,10 @@ struct MainTabView: View {
                 .badge(notificationCount)
             }
 
-            // Vehicles Tab
+            // Vehicles Tab - Placeholder until VehiclesView is fixed
             if #available(iOS 16.0, *) {
                 NavigationStack(path: $navigationCoordinator.navigationPath) {
-                    VehiclesView()
+                    PlaceholderView(title: "Vehicles", icon: "car.2.fill", message: "Vehicles view coming soon")
                         .navigationDestination(for: NavigationDestination.self) { destination in
                             destinationView(for: destination)
                         }
@@ -71,7 +71,7 @@ struct MainTabView: View {
                 .tag(TabItem.vehicles)
             } else {
                 NavigationView {
-                    VehiclesView()
+                    PlaceholderView(title: "Vehicles", icon: "car.2.fill", message: "Vehicles view coming soon")
                 }
                 .navigationViewStyle(.stack)
                 .tabItem {
@@ -80,10 +80,10 @@ struct MainTabView: View {
                 .tag(TabItem.vehicles)
             }
 
-            // Trips Tab
+            // Trips Tab - Placeholder until TripsView is fixed
             if #available(iOS 16.0, *) {
                 NavigationStack(path: $navigationCoordinator.navigationPath) {
-                    TripsView()
+                    PlaceholderView(title: "Trips", icon: "map.fill", message: "Trips view coming soon")
                         .navigationDestination(for: NavigationDestination.self) { destination in
                             destinationView(for: destination)
                         }
@@ -94,7 +94,7 @@ struct MainTabView: View {
                 .tag(TabItem.trips)
             } else {
                 NavigationView {
-                    TripsView()
+                    PlaceholderView(title: "Trips", icon: "map.fill", message: "Trips view coming soon")
                 }
                 .navigationViewStyle(.stack)
                 .tabItem {
@@ -281,6 +281,82 @@ struct VehicleDetailViewWrapper: View {
                     }
                 }
         }
+    }
+}
+
+// MARK: - Shared Components
+
+// Placeholder View
+struct PlaceholderView: View {
+    let title: String
+    let icon: String
+    let message: String
+
+    var body: some View {
+        VStack(spacing: 20) {
+            Image(systemName: icon)
+                .font(.system(size: 60))
+                .foregroundColor(.gray)
+
+            Text(title)
+                .font(.title.bold())
+
+            Text(message)
+                .font(.subheadline)
+                .foregroundColor(.secondary)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .navigationTitle(title)
+    }
+}
+
+// Filter Chip (used by MaintenanceView)
+struct FilterChip: View {
+    let title: String
+    let icon: String
+    let isSelected: Bool
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            Label(title, systemImage: icon)
+                .font(.caption)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 6)
+                .background(isSelected ? Color.blue : Color(.secondarySystemGroupedBackground))
+                .foregroundColor(isSelected ? .white : .primary)
+                .cornerRadius(20)
+        }
+    }
+}
+
+// Detail Card (used by MaintenanceView)
+struct DetailCard: View {
+    let title: String
+    let value: String
+    let icon: String
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Image(systemName: icon)
+                    .font(.caption)
+                    .foregroundColor(.blue)
+                Text(title)
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
+
+            Text(value)
+                .font(.subheadline.bold())
+                .foregroundColor(.primary)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding()
+        .background(Color(.secondarySystemGroupedBackground))
+        .cornerRadius(12)
     }
 }
 
