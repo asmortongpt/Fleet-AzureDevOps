@@ -146,4 +146,125 @@ final class MaintenanceViewModel: RefreshableViewModel {
             applyFilters()
         }
     }
+<<<<<<< HEAD
 }
+=======
+
+    // MARK: - Maintenance Actions
+    func scheduleNewMaintenance(vehicleId: String, type: String, date: Date) {
+        guard let vehicle = vehicles.first(where: { $0.id == vehicleId }) else { return }
+
+        let newRecord = MaintenanceRecord(
+            id: UUID().uuidString,
+            vehicleId: vehicle.id,
+            vehicleNumber: vehicle.number,
+            type: type,
+            scheduledDate: date,
+            completedDate: nil,
+            mileageAtService: vehicle.mileage,
+            cost: 0,
+            provider: "To be determined",
+            notes: "Scheduled maintenance",
+            status: .scheduled,
+            parts: [],
+            laborHours: 0,
+            warranty: false,
+            nextServiceDue: date.addingTimeInterval(90 * 24 * 3600)
+        )
+
+        allRecords.insert(newRecord, at: 0)
+        filterRecords()
+        updateStatistics()
+    }
+
+    func markAsCompleted(_ record: MaintenanceRecord) {
+        guard let index = allRecords.firstIndex(where: { $0.id == record.id }) else { return }
+
+        var updatedRecord = record
+        updatedRecord = MaintenanceRecord(
+            id: record.id,
+            vehicleId: record.vehicleId,
+            vehicleNumber: record.vehicleNumber,
+            type: record.type,
+            scheduledDate: record.scheduledDate,
+            completedDate: Date(),
+            mileageAtService: record.mileageAtService,
+            cost: record.cost,
+            provider: record.provider,
+            notes: "Service completed",
+            status: .completed,
+            parts: record.parts,
+            laborHours: record.laborHours,
+            warranty: record.warranty,
+            nextServiceDue: record.nextServiceDue
+        )
+
+        allRecords[index] = updatedRecord
+        filterRecords()
+        updateStatistics()
+    }
+
+    func cancelMaintenance(_ record: MaintenanceRecord) {
+        guard let index = allRecords.firstIndex(where: { $0.id == record.id }) else { return }
+
+        var updatedRecord = record
+        updatedRecord = MaintenanceRecord(
+            id: record.id,
+            vehicleId: record.vehicleId,
+            vehicleNumber: record.vehicleNumber,
+            type: record.type,
+            scheduledDate: record.scheduledDate,
+            completedDate: nil,
+            mileageAtService: record.mileageAtService,
+            cost: 0,
+            provider: record.provider,
+            notes: "Service cancelled",
+            status: .cancelled,
+            parts: [],
+            laborHours: 0,
+            warranty: record.warranty,
+            nextServiceDue: nil
+        )
+
+        allRecords[index] = updatedRecord
+        filterRecords()
+        updateStatistics()
+    }
+
+    func rescheduleMaintenance(_ record: MaintenanceRecord, newDate: Date) {
+        guard let index = allRecords.firstIndex(where: { $0.id == record.id }) else { return }
+
+        var updatedRecord = record
+        updatedRecord = MaintenanceRecord(
+            id: record.id,
+            vehicleId: record.vehicleId,
+            vehicleNumber: record.vehicleNumber,
+            type: record.type,
+            scheduledDate: newDate,
+            completedDate: nil,
+            mileageAtService: record.mileageAtService,
+            cost: record.cost,
+            provider: record.provider,
+            notes: "Rescheduled to \(newDate.formatted(date: .abbreviated, time: .omitted))",
+            status: newDate < Date() ? .overdue : .scheduled,
+            parts: record.parts,
+            laborHours: record.laborHours,
+            warranty: record.warranty,
+            nextServiceDue: record.nextServiceDue
+        )
+
+        allRecords[index] = updatedRecord
+        filterRecords()
+        updateStatistics()
+    }
+
+    func getMaintenanceForVehicle(_ vehicleId: String) -> [MaintenanceRecord] {
+        allRecords.filter { $0.vehicleId == vehicleId }
+    }
+
+    func exportMaintenanceReport() {
+        print("Exporting maintenance report...")
+        // Would export to CSV/PDF
+    }
+}
+>>>>>>> stage-a/requirements-inception
