@@ -226,6 +226,13 @@ enum NavigationDestination: Hashable, Identifiable {
     case maintenancePhoto(vehicleId: String, type: String)
     case photoCapture(vehicleId: String, photoType: String)
 
+    // Hardware integration destinations
+    case fleetMap
+    case tripTracking(vehicleId: String)
+    case obd2Diagnostics
+    case maintenancePhoto(vehicleId: String, type: String)
+    case photoCapture(vehicleId: String, photoType: String)
+
     var id: String {
         switch self {
         case .vehicleDetail(let id):
@@ -252,8 +259,13 @@ enum NavigationDestination: Hashable, Identifiable {
             return "about"
         case .help:
             return "help"
+<<<<<<< HEAD
         case .pushToTalk:
             return "push-to-talk"
+=======
+        case .fleetMap:
+            return "fleet-map"
+>>>>>>> stage-a/requirements-inception
         case .tripTracking(let vehicleId):
             return "trip-tracking-\(vehicleId)"
         case .obd2Diagnostics:
