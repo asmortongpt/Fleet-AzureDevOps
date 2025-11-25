@@ -257,6 +257,11 @@ enum NavigationDestination: Hashable, Identifiable {
     case routeOptimizer
     case optimizedRoute(routeId: String)
 
+    // Data Workbench destinations
+    case dataWorkbench
+    case queryBuilder
+    case dataGrid
+
     var id: String {
         switch self {
         case .vehicleDetail(let id):
@@ -311,6 +316,16 @@ enum NavigationDestination: Hashable, Identifiable {
             return "executive-dashboard"
         case .fleetOptimizer:
             return "fleet-optimizer"
+        case .routeOptimizer:
+            return "route-optimizer"
+        case .optimizedRoute(let routeId):
+            return "optimized-route-\(routeId)"
+        case .dataWorkbench:
+            return "data-workbench"
+        case .queryBuilder:
+            return "query-builder"
+        case .dataGrid:
+            return "data-grid"
         }
     }
 }
