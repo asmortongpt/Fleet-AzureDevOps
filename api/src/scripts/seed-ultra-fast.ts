@@ -76,7 +76,7 @@ async function seedUltraFast() {
     console.log('\n🚀 ULTRA-FAST SEED STARTING...\n');
     await client.query('BEGIN');
 
-    const defaultPassword = await bcrypt.hash('TestPassword123!', 10);
+    const defaultPassword = await bcrypt.hash('TestPassword123!', 12);
     let totalRecords = 0;
 
     // ========== TENANTS ==========

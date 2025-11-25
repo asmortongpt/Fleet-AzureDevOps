@@ -129,7 +129,7 @@ router.get(
 
       // Use the pre-built view for compliance exceptions
       const query = `
-        SELECT * FROM v_policy_compliance_exceptions
+        SELECT id, tenant_id, policy_id, entity_id, exception_type, approved_date FROM v_policy_compliance_exceptions
         WHERE tenant_id = $1
         ORDER BY exception_type, department_name, driver_name
       `;

@@ -244,21 +244,75 @@ describe('Work Order Generation', () => {
     const workOrderId = await generateWorkOrder(schedule)
 
     // Verify work order was created
-    const woResult = await testPool.query('SELECT * FROM work_orders WHERE id = $1', [workOrderId])
+    const woResult = await testPool.query('SELECT 
+      id,
+      tenant_id,
+      work_order_number,
+      vehicle_id,
+      facility_id,
+      assigned_technician_id,
+      type,
+      priority,
+      status,
+      description,
+      odometer_reading,
+      engine_hours_reading,
+      scheduled_start,
+      scheduled_end,
+      actual_start,
+      actual_end,
+      labor_hours,
+      labor_cost,
+      parts_cost,
+      total_cost,
+      photos,
+      attachments,
+      notes,
+      created_by,
+      created_at,
+      updated_at FROM work_orders WHERE id = $1', [workOrderId])
     expect(woResult.rows.length).toBe(1)
     expect(woResult.rows[0].schedule_id).toBe(schedule.id)
     expect(woResult.rows[0].status).toBe('open')
 
     // Verify schedule was updated
     const updatedSchedule = await testPool.query(
-      'SELECT * FROM maintenance_schedules WHERE id = $1',
+      'SELECT 
+      id,
+      tenant_id,
+      vehicle_id,
+      service_type,
+      interval_type,
+      interval_value,
+      last_service_date,
+      last_service_odometer,
+      last_service_engine_hours,
+      next_service_due_date,
+      next_service_due_odometer,
+      next_service_due_engine_hours,
+      is_overdue,
+      is_active,
+      notes,
+      created_at,
+      updated_at FROM maintenance_schedules WHERE id = $1',
       [schedule.id]
     )
     expect(updatedSchedule.rows[0].last_work_order_created_at).not.toBeNull()
 
     // Verify history was created
     const historyResult = await testPool.query(
-      'SELECT * FROM maintenance_schedule_history WHERE schedule_id = $1',
+      'SELECT 
+      id,
+      schedule_id,
+      tenant_id,
+      vehicle_id,
+      service_type,
+      service_date,
+      odometer_reading,
+      engine_hours_reading,
+      work_order_id,
+      notes,
+      created_at FROM maintenance_schedule_history WHERE schedule_id = $1',
       [schedule.id]
     )
     expect(historyResult.rows.length).toBe(1)
