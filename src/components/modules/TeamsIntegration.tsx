@@ -23,7 +23,7 @@ import {
   SelectTrigger,
   SelectValue
 } from "@/components/ui/select"
-import { ChatsCircle, PaperPlaneTilt, Users, Bell, CheckCircle } from "@phosphor-icons/react"
+import { ChatsCircle, PaperPlaneTilt, Users, Bell } from "@phosphor-icons/react"
 import { MSTeamsMessage } from "@/lib/types"
 import { msOfficeService } from "@/lib/msOfficeIntegration"
 import { toast } from "sonner"

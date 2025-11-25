@@ -345,7 +345,7 @@ export class FleetOptimizerService {
     status?: string
   ): Promise<OptimizationRecommendation[]> {
     let query = `
-      SELECT * FROM fleet_optimization_recommendations
+      SELECT id, tenant_id, recommendation_type, title, description, priority, estimated_savings, created_at FROM fleet_optimization_recommendations
       WHERE tenant_id = $1
     `
 

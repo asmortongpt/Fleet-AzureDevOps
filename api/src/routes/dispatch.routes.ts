@@ -108,7 +108,17 @@ router.get('/channels/:id', requirePermission('route:view:fleet'), async (req: R
     const { id } = req.params
 
     const result = await pool.query(
-      'SELECT * FROM dispatch_channels WHERE id = $1 AND is_active = true',
+      'SELECT 
+      id,
+      name,
+      description,
+      channel_type,
+      is_active,
+      priority_level,
+      color_code,
+      created_at,
+      updated_at,
+      created_by FROM dispatch_channels WHERE id = $1 AND is_active = true',
       [id]
     )
 
@@ -383,7 +393,23 @@ router.get('/emergency', requirePermission('route:view:fleet'), async (req: Requ
     const status = req.query.status as string
     const limit = parseInt(req.query.limit as string) || 50
 
-    let query = 'SELECT * FROM dispatch_emergency_alerts'
+    let query = 'SELECT 
+      id,
+      user_id,
+      vehicle_id,
+      alert_type,
+      alert_status,
+      location_lat,
+      location_lng,
+      location_address,
+      description,
+      acknowledged_by,
+      acknowledged_at,
+      resolved_by,
+      resolved_at,
+      response_time_seconds,
+      created_at,
+      updated_at FROM dispatch_emergency_alerts'
     const params: any[] = []
 
     if (status) {
@@ -548,7 +574,18 @@ router.get('/metrics', requirePermission('route:view:fleet'), async (req: Reques
   try {
     const { startDate, endDate, channelId } = req.query
 
-    let query = 'SELECT * FROM dispatch_metrics WHERE 1=1'
+    let query = 'SELECT 
+      id,
+      metric_date,
+      channel_id,
+      total_transmissions,
+      total_duration_seconds,
+      emergency_transmissions,
+      average_response_time_seconds,
+      unique_users,
+      peak_concurrent_users,
+      transcription_accuracy,
+      created_at FROM dispatch_metrics WHERE 1=1'
     const params: any[] = []
 
     if (startDate) {

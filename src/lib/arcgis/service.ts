@@ -3,7 +3,7 @@
  * Handles ArcGIS REST API interactions and layer management
  */
 
-import { ArcGISLayerConfig, ArcGISServiceCapabilities } from './types'
+import { ArcGISServiceCapabilities } from './types'
 import logger from '@/utils/logger'
 
 // GeoJSON type definitions
