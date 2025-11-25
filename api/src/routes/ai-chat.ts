@@ -140,7 +140,7 @@ router.get(
       // Get session
       const sessionResult = await pool.query(
         `SELECT id, tenant_id, user_id, title, created_at, updated_at, closed_at FROM chat_sessions
-         WHERE id = $1 AND tenant_id = $2`,
+         WHERE id = $1 AND tenant_id = $2',
         [req.params.id, req.user!.tenant_id]
       )
 
@@ -285,7 +285,7 @@ router.post(
           `SELECT role, content FROM chat_messages
            WHERE session_id = $1
            ORDER BY created_at DESC
-           LIMIT $2`,
+           LIMIT $2',
           [chatData.sessionId, chatData.maxHistoryMessages]
         )
         conversationHistory = historyResult.rows.reverse()

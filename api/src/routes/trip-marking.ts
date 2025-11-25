@@ -70,7 +70,7 @@ router.post(
         `SELECT t.*, v.id as vehicle_id
          FROM trips t
          LEFT JOIN vehicles v ON t.vehicle_id = v.id
-         WHERE t.id = $1 AND t.tenant_id = $2`,
+         WHERE t.id = $1 AND t.tenant_id = $2',
         [tripId, req.user!.tenant_id]
       )
 
@@ -93,9 +93,6 @@ router.post(
 
       // Get policy for cost preview
       const policyResult = await pool.query(
-<<<<<<< HEAD
-        `SELECT id, tenant_id, policy_name, deduction_percent, reimbursement_method, created_at, updated_at FROM personal_use_policies WHERE tenant_id = $1`,
-=======
         `SELECT 
       id,
       tenant_id,
@@ -107,8 +104,7 @@ router.post(
       expiry_date,
       is_active,
       created_at,
-      updated_at FROM personal_use_policies WHERE tenant_id = $1`,
->>>>>>> feature/devsecops-audit-remediation
+      updated_at FROM personal_use_policies WHERE tenant_id = $1',
         [req.user!.tenant_id]
       )
 
@@ -127,7 +123,7 @@ router.post(
       const autoApproveResult = await pool.query(
         `SELECT auto_approve_under_miles, require_approval
          FROM personal_use_policies
-         WHERE tenant_id = $1`,
+         WHERE tenant_id = $1',
         [req.user!.tenant_id]
       )
 
@@ -145,7 +141,7 @@ router.post(
 
       // Create or update trip usage classification
       const existingUsage = await pool.query(
-        `SELECT id FROM trip_usage_classification WHERE trip_id = $1`,
+        `SELECT id FROM trip_usage_classification WHERE trip_id = $1',
         [tripId]
       )
 
@@ -216,9 +212,6 @@ router.post(
 
       // Get complete usage record
       const usageResult = await pool.query(
-<<<<<<< HEAD
-        `SELECT id, tenant_id, trip_id, usage_type, percentage, notes, created_at, updated_at FROM trip_usage_classification WHERE id = $1`,
-=======
         `SELECT 
       id,
       tenant_id,
@@ -229,8 +222,7 @@ router.post(
       classified_at,
       notes,
       created_at,
-      updated_at FROM trip_usage_classification WHERE id = $1`,
->>>>>>> feature/devsecops-audit-remediation
+      updated_at FROM trip_usage_classification WHERE id = $1',
         [usageId]
       )
 
@@ -278,7 +270,7 @@ router.post(
 
       // Verify vehicle belongs to tenant
       const vehicleResult = await pool.query(
-        `SELECT id FROM vehicles WHERE id = $1 AND tenant_id = $2`,
+        `SELECT id FROM vehicles WHERE id = $1 AND tenant_id = $2',
         [vehicle_id, req.user!.tenant_id]
       )
 
@@ -358,7 +350,7 @@ router.patch(
         `SELECT t.*, v.id as vehicle_id
          FROM trips t
          LEFT JOIN vehicles v ON t.vehicle_id = v.id
-         WHERE t.id = $1 AND t.tenant_id = $2`,
+         WHERE t.id = $1 AND t.tenant_id = $2',
         [tripId, req.user!.tenant_id]
       )
 
@@ -381,9 +373,6 @@ router.patch(
 
       // Get policy for cost preview
       const policyResult = await pool.query(
-<<<<<<< HEAD
-        `SELECT id, tenant_id, policy_name, deduction_percent, reimbursement_method, created_at, updated_at FROM personal_use_policies WHERE tenant_id = $1`,
-=======
         `SELECT 
       id,
       tenant_id,
@@ -395,8 +384,7 @@ router.patch(
       expiry_date,
       is_active,
       created_at,
-      updated_at FROM personal_use_policies WHERE tenant_id = $1`,
->>>>>>> feature/devsecops-audit-remediation
+      updated_at FROM personal_use_policies WHERE tenant_id = $1',
         [req.user!.tenant_id]
       )
 
@@ -566,7 +554,7 @@ router.get('/:id/usage', async (req: AuthRequest, res: Response) => {
       LEFT JOIN users u ON t.created_by_user_id = u.id
       LEFT JOIN users a ON t.approved_by_user_id = a.id
       LEFT JOIN vehicles v ON t.vehicle_id = v.id
-      WHERE t.trip_id = $1 AND t.tenant_id = $2`,
+      WHERE t.trip_id = $1 AND t.tenant_id = $2',
       [tripId, req.user!.tenant_id]
     )
 
@@ -579,9 +567,6 @@ router.get('/:id/usage', async (req: AuthRequest, res: Response) => {
 
     // Get cost preview
     const policyResult = await pool.query(
-<<<<<<< HEAD
-      `SELECT id, tenant_id, policy_name, deduction_percent, reimbursement_method, created_at, updated_at FROM personal_use_policies WHERE tenant_id = $1`,
-=======
       `SELECT 
       id,
       tenant_id,
@@ -593,8 +578,7 @@ router.get('/:id/usage', async (req: AuthRequest, res: Response) => {
       expiry_date,
       is_active,
       created_at,
-      updated_at FROM personal_use_policies WHERE tenant_id = $1`,
->>>>>>> feature/devsecops-audit-remediation
+      updated_at FROM personal_use_policies WHERE tenant_id = $1',
       [req.user!.tenant_id]
     )
 

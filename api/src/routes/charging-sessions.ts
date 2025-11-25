@@ -52,7 +52,7 @@ router.get(
       meter_stop,
       raw_ocpp_data,
       created_at,
-      updated_at FROM charging_sessions WHERE tenant_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3`,
+      updated_at FROM charging_sessions WHERE tenant_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3',
         [req.user!.tenant_id, limit, offset]
       )
 
@@ -85,39 +85,7 @@ router.get(
   async (req: AuthRequest, res: Response) => {
     try {
       const result = await pool.query(
-        'SELECT 
-      id,
-      transaction_id,
-      station_id,
-      connector_id,
-      vehicle_id,
-      driver_id,
-      start_time,
-      end_time,
-      duration_minutes,
-      start_soc_percent,
-      end_soc_percent,
-      energy_delivered_kwh,
-      max_power_kw,
-      avg_power_kw,
-      energy_cost,
-      idle_fee,
-      total_cost,
-      session_status,
-      stop_reason,
-      scheduled_start_time,
-      scheduled_end_time,
-      charging_profile,
-      is_smart_charging,
-      target_soc_percent,
-      reservation_id,
-      rfid_tag,
-      authorization_method,
-      meter_start,
-      meter_stop,
-      raw_ocpp_data,
-      created_at,
-      updated_at FROM charging_sessions WHERE id = $1 AND tenant_id = $2',
+        'SELECT id, transaction_id, station_id, connector_id, vehicle_id, driver_id, start_time, end_time, duration_minutes, start_soc_percent, end_soc_percent, energy_delivered_kwh, max_power_kw, avg_power_kw, energy_cost, idle_fee, total_cost, session_status, stop_reason, scheduled_start_time, scheduled_end_time, charging_profile, is_smart_charging, target_soc_percent, reservation_id, rfid_tag, authorization_method, meter_start, meter_stop, raw_ocpp_data, created_at, updated_at FROM charging_sessions WHERE id = $1 AND tenant_id = $2',
         [req.params.id, req.user!.tenant_id]
       )
 

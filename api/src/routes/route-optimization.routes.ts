@@ -121,7 +121,7 @@ router.post(
           `SELECT v.*, vp.*
            FROM vehicles v
            LEFT JOIN vehicle_optimization_profiles vp ON v.id = vp.vehicle_id
-           WHERE v.id = ANY($1) AND v.tenant_id = $2`,
+           WHERE v.id = ANY($1) AND v.tenant_id = $2',
           [validatedData.vehicleIds, req.user!.tenant_id]
         )
         vehicles = vehicleResult.rows
@@ -149,7 +149,7 @@ router.post(
           `SELECT d.*, dp.*
            FROM drivers d
            LEFT JOIN driver_optimization_profiles dp ON d.id = dp.driver_id
-           WHERE d.id = ANY($1) AND d.tenant_id = $2`,
+           WHERE d.id = ANY($1) AND d.tenant_id = $2',
           [validatedData.driverIds, req.user!.tenant_id]
         )
         drivers = driverResult.rows
@@ -234,7 +234,7 @@ router.get(
         estimated_fuel_cost, estimated_time_saved_minutes, estimated_cost_savings,
         solver_runtime_seconds, solver_status, optimization_score, created_by,
         created_at, started_at, completed_at, error_message
-      FROM route_optimization_jobs WHERE tenant_id = $1`
+      FROM route_optimization_jobs WHERE tenant_id = $1'
       const params: any[] = [req.user!.tenant_id]
 
       if (status) {
@@ -390,7 +390,7 @@ router.get(
          FROM optimized_routes r
          LEFT JOIN vehicles v ON r.vehicle_id = v.id
          LEFT JOIN drivers d ON r.driver_id = d.id
-         WHERE r.id = $1 AND r.tenant_id = $2`,
+         WHERE r.id = $1 AND r.tenant_id = $2',
         [req.params.id, req.user!.tenant_id]
       )
 

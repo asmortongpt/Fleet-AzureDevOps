@@ -562,7 +562,7 @@ router.get('/:id', requirePermission('route:view:own'), async (req: Request, res
       FROM trips t
       LEFT JOIN vehicles v ON t.vehicle_id = v.id
       LEFT JOIN users u ON t.driver_id = u.id
-      WHERE t.id = $1 AND t.tenant_id = $2`,
+      WHERE t.id = $1 AND t.tenant_id = $2',
       [tripId, tenantId]
     );
 
@@ -597,11 +597,7 @@ router.get('/:id', requirePermission('route:view:own'), async (req: Request, res
     // Get events
     if (includeEvents) {
       const eventsResult = await pool.query(
-<<<<<<< HEAD
-        `SELECT id, tenant_id, trip_id, event_type, event_data, event_timestamp, created_at FROM trip_events
-=======
         `SELECT id, tenant_id, trip_id, event_type, event_data, recorded_at FROM trip_events
->>>>>>> feature/devsecops-audit-remediation
          WHERE trip_id = $1
          ORDER BY timestamp ASC`,
         [tripId]

@@ -162,7 +162,7 @@ router.post(
         `SELECT bg.*, u.tenant_id
          FROM break_glass_sessions bg
          JOIN users u ON bg.user_id = u.id
-         WHERE bg.id = $1`,
+         WHERE bg.id = $1',
         [sessionId]
       )
 
@@ -195,7 +195,7 @@ router.post(
                approved_at = NOW(),
                start_time = NOW(),
                end_time = $2
-           WHERE id = $3`,
+           WHERE id = $3',
           [req.user!.id, endTime, sessionId]
         )
 
@@ -227,7 +227,7 @@ router.post(
            SET status = 'revoked',
                approved_by = $1,
                approved_at = NOW()
-           WHERE id = $2`,
+           WHERE id = $2',
           [req.user!.id, sessionId]
         )
 
@@ -267,7 +267,7 @@ router.post(
         `SELECT bg.*, u.tenant_id
          FROM break_glass_sessions bg
          JOIN users u ON bg.user_id = u.id
-         WHERE bg.id = $1`,
+         WHERE bg.id = $1',
         [sessionId]
       )
 
@@ -291,7 +291,7 @@ router.post(
         `UPDATE break_glass_sessions
          SET status = 'revoked',
              end_time = NOW()
-         WHERE id = $1`,
+         WHERE id = $1',
         [sessionId]
       )
 

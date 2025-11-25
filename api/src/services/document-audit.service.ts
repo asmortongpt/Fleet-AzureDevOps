@@ -451,7 +451,7 @@ export class DocumentAuditService {
 
       const result = await pool.query(
         `DELETE FROM document_audit_log
-         WHERE created_at < $1`,
+         WHERE created_at < $1',
         [cutoffDate]
       )
 

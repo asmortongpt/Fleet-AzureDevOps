@@ -208,7 +208,7 @@ export async function processDocument(documentId: string): Promise<void> {
     const result = await pool.query(
       `SELECT id, blob_url, mime_type, file_name
        FROM documents
-       WHERE id = $1`,
+       WHERE id = $1',
       [documentId]
     )
 
@@ -229,7 +229,7 @@ export async function processDocument(documentId: string): Promise<void> {
            ocr_confidence = $2,
            ocr_processed_at = CURRENT_TIMESTAMP,
            updated_at = CURRENT_TIMESTAMP
-       WHERE id = $3`,
+       WHERE id = $3',
       [ocrResult.text, ocrResult.confidence, documentId]
     )
 
@@ -243,7 +243,7 @@ export async function processDocument(documentId: string): Promise<void> {
        SET ocr_error = $1,
            ocr_processed_at = CURRENT_TIMESTAMP,
            updated_at = CURRENT_TIMESTAMP
-       WHERE id = $2`,
+       WHERE id = $2',
       [error instanceof Error ? error.message : 'Unknown error', documentId]
     )
 
@@ -308,14 +308,14 @@ export async function getDocumentsPendingOcr(
          AND ocr_error IS NULL
          AND mime_type = ANY($2)
        ORDER BY created_at ASC
-       LIMIT $3`
+       LIMIT $3'
     : `SELECT id, file_name, mime_type, blob_url, created_at
        FROM documents
        WHERE ocr_text IS NULL
          AND ocr_error IS NULL
          AND mime_type = ANY($1)
        ORDER BY created_at ASC
-       LIMIT $2`
+       LIMIT $2'
 
   const params = tenantId
     ? [tenantId, SUPPORTED_MIME_TYPES, limit]

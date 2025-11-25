@@ -93,7 +93,7 @@ router.post(
         await pool.query(
           `UPDATE communication_attachments
            SET is_scanned = true, scan_result = $1, virus_scan_status = $2
-           WHERE id = $3`,
+           WHERE id = $3',
           [scanResult === 'clean' ? 'Clean' : 'Threat Detected', scanResult, result.id]
         )
       }).catch(err => {
@@ -185,9 +185,6 @@ router.get(
 
       // Get attachment metadata from database
       const result = await pool.query(
-<<<<<<< HEAD
-        `SELECT id, tenant_id, communication_id, file_name, file_url, created_at FROM communication_attachments WHERE id = $1`,
-=======
         `SELECT 
       id,
       communication_id,
@@ -195,8 +192,7 @@ router.get(
       file_path,
       file_type,
       file_size,
-      created_at FROM communication_attachments WHERE id = $1`,
->>>>>>> feature/devsecops-audit-remediation
+      created_at FROM communication_attachments WHERE id = $1',
         [blobId]
       )
 
@@ -214,7 +210,7 @@ router.get(
         `UPDATE communication_attachments
          SET download_count = COALESCE(download_count, 0) + 1,
              last_accessed_at = NOW()
-         WHERE id = $1`,
+         WHERE id = $1',
         [blobId]
       )
 
@@ -254,7 +250,7 @@ router.get(
 
       // Get attachment metadata
       const result = await pool.query(
-        `SELECT blob_url FROM communication_attachments WHERE id = $1`,
+        `SELECT blob_url FROM communication_attachments WHERE id = $1',
         [blobId]
       )
 
@@ -300,7 +296,7 @@ router.delete(
 
       // Get attachment metadata
       const result = await pool.query(
-        `SELECT blob_url FROM communication_attachments WHERE id = $1`,
+        `SELECT blob_url FROM communication_attachments WHERE id = $1',
         [blobId]
       )
 
@@ -313,7 +309,7 @@ router.delete(
 
       // Delete from database
       await pool.query(
-        `DELETE FROM communication_attachments WHERE id = $1`,
+        `DELETE FROM communication_attachments WHERE id = $1',
         [blobId]
       )
 
@@ -643,7 +639,7 @@ router.get(
           c.communication_type
         FROM communication_attachments ca
         LEFT JOIN communications c ON ca.communication_id = c.id
-        WHERE ca.id = $1`,
+        WHERE ca.id = $1',
         [id]
       )
 
