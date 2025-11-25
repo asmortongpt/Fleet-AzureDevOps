@@ -19,7 +19,7 @@ import {
   useRoutes,
   useRouteMutations
 } from '@/hooks/use-api'
-import { useCallback, useState, useEffect } from 'react'
+import { useCallback, useState, useEffect, useMemo } from 'react'
 import { generateAllDemoData } from '@/lib/demo-data'
 import logger from '@/utils/logger'
 
@@ -119,30 +119,45 @@ export function useFleetData() {
 
   // Extract data arrays from API responses or use demo data
   // Add defensive checks to ensure arrays and required properties exist
-  const rawVehicles = useDemoData ? demoData.vehicles : (vehiclesData?.data || [])
-  const vehicles = Array.isArray(rawVehicles) ? rawVehicles.map(v => ({
-    ...v,
-    // Ensure alerts is always an array to prevent .length errors
-    alerts: Array.isArray(v.alerts) ? v.alerts : []
-  })) : []
+  // Use useMemo to stabilize references and prevent infinite loops in dependent hooks
+  const vehicles = useMemo(() => {
+    const rawVehicles = useDemoData ? demoData.vehicles : (vehiclesData?.data || [])
+    return Array.isArray(rawVehicles) ? rawVehicles.map(v => ({
+      ...v,
+      // Ensure alerts is always an array to prevent .length errors
+      alerts: Array.isArray(v.alerts) ? v.alerts : []
+    })) : []
+  }, [useDemoData, demoData.vehicles, vehiclesData?.data])
 
-  const rawDrivers = useDemoData ? demoData.drivers : (driversData?.data || [])
-  const drivers = Array.isArray(rawDrivers) ? rawDrivers : []
+  const drivers = useMemo(() => {
+    const rawDrivers = useDemoData ? demoData.drivers : (driversData?.data || [])
+    return Array.isArray(rawDrivers) ? rawDrivers : []
+  }, [useDemoData, demoData.drivers, driversData?.data])
 
-  const rawWorkOrders = useDemoData ? demoData.workOrders : (workOrdersData?.data || [])
-  const workOrders = Array.isArray(rawWorkOrders) ? rawWorkOrders : []
+  const workOrders = useMemo(() => {
+    const rawWorkOrders = useDemoData ? demoData.workOrders : (workOrdersData?.data || [])
+    return Array.isArray(rawWorkOrders) ? rawWorkOrders : []
+  }, [useDemoData, demoData.workOrders, workOrdersData?.data])
 
-  const rawFuelTransactions = useDemoData ? demoData.fuelTransactions : (fuelTransactionsData?.data || [])
-  const fuelTransactions = Array.isArray(rawFuelTransactions) ? rawFuelTransactions : []
+  const fuelTransactions = useMemo(() => {
+    const rawFuelTransactions = useDemoData ? demoData.fuelTransactions : (fuelTransactionsData?.data || [])
+    return Array.isArray(rawFuelTransactions) ? rawFuelTransactions : []
+  }, [useDemoData, demoData.fuelTransactions, fuelTransactionsData?.data])
 
-  const rawFacilities = useDemoData ? demoData.facilities : (facilitiesData?.data || [])
-  const facilities = Array.isArray(rawFacilities) ? rawFacilities : []
+  const facilities = useMemo(() => {
+    const rawFacilities = useDemoData ? demoData.facilities : (facilitiesData?.data || [])
+    return Array.isArray(rawFacilities) ? rawFacilities : []
+  }, [useDemoData, demoData.facilities, facilitiesData?.data])
 
-  const rawMaintenanceSchedules = useDemoData ? demoData.maintenanceSchedules : (maintenanceData?.data || [])
-  const maintenanceSchedules = Array.isArray(rawMaintenanceSchedules) ? rawMaintenanceSchedules : []
+  const maintenanceSchedules = useMemo(() => {
+    const rawMaintenanceSchedules = useDemoData ? demoData.maintenanceSchedules : (maintenanceData?.data || [])
+    return Array.isArray(rawMaintenanceSchedules) ? rawMaintenanceSchedules : []
+  }, [useDemoData, demoData.maintenanceSchedules, maintenanceData?.data])
 
-  const rawRoutes = useDemoData ? demoData.routes : (routesData?.data || [])
-  const routes = Array.isArray(rawRoutes) ? rawRoutes : []
+  const routes = useMemo(() => {
+    const rawRoutes = useDemoData ? demoData.routes : (routesData?.data || [])
+    return Array.isArray(rawRoutes) ? rawRoutes : []
+  }, [useDemoData, demoData.routes, routesData?.data])
 
   // Log data extraction results for debugging
   useEffect(() => {
@@ -158,9 +173,16 @@ export function useFleetData() {
   }, [vehicles.length, drivers.length, facilities.length, useDemoData])
 
   // Legacy compatibility - map facilities to serviceBays and staff
-  const serviceBays = facilities
-  const staff = drivers.filter((d: any) => d.role === 'technician' || d.role === 'fleet_manager')
-  const technicians = drivers.filter((d: any) => d.role === 'technician')
+  // Use useMemo to prevent creating new arrays on every render
+  const serviceBays = useMemo(() => facilities, [facilities])
+  const staff = useMemo(() =>
+    drivers.filter((d: any) => d.role === 'technician' || d.role === 'fleet_manager'),
+    [drivers]
+  )
+  const technicians = useMemo(() =>
+    drivers.filter((d: any) => d.role === 'technician'),
+    [drivers]
+  )
 
   // Data initialization
   const initializeData = useCallback(() => {
