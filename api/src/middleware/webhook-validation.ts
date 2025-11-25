@@ -72,7 +72,7 @@ export const validateClientState = async (
 
       // Verify client state matches our database
       const result = await pool.query(
-        `SELECT client_state, status FROM webhook_subscriptions WHERE subscription_id = $1',
+        'SELECT client_state, status FROM webhook_subscriptions WHERE subscription_id = $1',
         [subscriptionId]
       )
 

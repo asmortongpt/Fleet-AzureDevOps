@@ -163,7 +163,7 @@ export function buildWhereClause(
   }
 
   return {
-    where: conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '',
+    where: conditions.length > 0 ? 'WHERE ${conditions.join(' AND ')}' : '',
     values
   };
 }
@@ -184,7 +184,7 @@ export function buildInClause(
     return { clause: 'FALSE', nextIndex: paramIndex };
   }
 
-  const placeholders = values.map((_, i) => `$${paramIndex + i}`).join(', ');
+  const placeholders = values.map((_, i) => '$${paramIndex + i}`).join(', ');
   return {
     clause: `${column} IN (${placeholders})`,
     nextIndex: paramIndex + values.length

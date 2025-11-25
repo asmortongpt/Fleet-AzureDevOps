@@ -691,7 +691,7 @@ router.delete(
 
       // Delete from database (cascade will delete processing queue entry)
       await pool.query(
-        `DELETE FROM mobile_photos WHERE id = $1',
+        'DELETE FROM mobile_photos WHERE id = $1',
         [photoId]
       );
 

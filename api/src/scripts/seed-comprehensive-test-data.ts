@@ -428,7 +428,7 @@ async function seedDatabase() {
          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
          ON CONFLICT (email) DO UPDATE SET first_name = EXCLUDED.first_name
          RETURNING *`,
-        [tenant.id, `admin@${tenant.domain}`, defaultPassword, 'Admin', 'User', generatePhoneNumber(), 'admin', true, 0, true]
+        [tenant.id, 'admin@${tenant.domain}`, defaultPassword, 'Admin', 'User', generatePhoneNumber(), 'admin', true, 0, true]
       );
       users.push(admin.rows[0]);
       counters.users++;
@@ -442,7 +442,7 @@ async function seedDatabase() {
            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
            ON CONFLICT (email) DO UPDATE SET first_name = EXCLUDED.first_name
            RETURNING *`,
-          [tenant.id, `manager${i}@${tenant.domain}`, defaultPassword, 'Fleet', `Manager ${i}`, generatePhoneNumber(), 'fleet_manager', isActive, isActive ? daysAgo(randomInt(0, 7)) : null]
+          [tenant.id, 'manager${i}@${tenant.domain}`, defaultPassword, 'Fleet', 'Manager ${i}`, generatePhoneNumber(), 'fleet_manager', isActive, isActive ? daysAgo(randomInt(0, 7)) : null]
         );
         users.push(fm.rows[0]);
         counters.users++;
@@ -456,7 +456,7 @@ async function seedDatabase() {
            VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
            ON CONFLICT (email) DO UPDATE SET first_name = EXCLUDED.first_name
            RETURNING *`,
-          [tenant.id, `tech${i}@${tenant.domain}`, defaultPassword, 'Technician', `${i}`, generatePhoneNumber(), 'technician', true]
+          [tenant.id, 'tech${i}@${tenant.domain}`, defaultPassword, 'Technician', '${i}`, generatePhoneNumber(), 'technician', true]
         );
         users.push(tech.rows[0]);
         counters.users++;
@@ -498,7 +498,7 @@ async function seedDatabase() {
            VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
            ON CONFLICT (email) DO UPDATE SET first_name = EXCLUDED.first_name
            RETURNING *`,
-          [tenant.id, `viewer${i}@${tenant.domain}`, defaultPassword, 'Viewer', `${i}`, generatePhoneNumber(), 'viewer', true]
+          [tenant.id, 'viewer${i}@${tenant.domain}`, defaultPassword, 'Viewer', '${i}`, generatePhoneNumber(), 'viewer', true]
         );
         users.push(viewer.rows[0]);
         counters.users++;
@@ -510,7 +510,7 @@ async function seedDatabase() {
          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
          ON CONFLICT (email) DO UPDATE SET first_name = EXCLUDED.first_name
          RETURNING *`,
-        [tenant.id, `newuser@${tenant.domain}`, defaultPassword, 'New', 'User', generatePhoneNumber(), 'driver', true, daysAgo(0)]
+        [tenant.id, 'newuser@${tenant.domain}`, defaultPassword, 'New', 'User', generatePhoneNumber(), 'driver', true, daysAgo(0)]
       );
       users.push(newUser.rows[0]);
       counters.users++;
@@ -521,7 +521,7 @@ async function seedDatabase() {
          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
          ON CONFLICT (email) DO UPDATE SET first_name = EXCLUDED.first_name
          RETURNING *`,
-        [tenant.id, `inactive@${tenant.domain}`, defaultPassword, 'Inactive', 'User', generatePhoneNumber(), 'driver', false, monthsAgo(7)]
+        [tenant.id, 'inactive@${tenant.domain}`, defaultPassword, 'Inactive', 'User', generatePhoneNumber(), 'driver', false, monthsAgo(7)]
       );
       users.push(inactiveUser.rows[0]);
       counters.users++;
@@ -532,7 +532,7 @@ async function seedDatabase() {
          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
          ON CONFLICT (email) DO UPDATE SET first_name = EXCLUDED.first_name
          RETURNING *`,
-        [tenant.id, `suspended@${tenant.domain}`, defaultPassword, 'Suspended', 'User', generatePhoneNumber(), 'driver', false, daysFromNow(30), 5]
+        [tenant.id, 'suspended@${tenant.domain}`, defaultPassword, 'Suspended', 'User', generatePhoneNumber(), 'driver', false, daysFromNow(30), 5]
       );
       users.push(suspendedUser.rows[0]);
       counters.users++;
@@ -618,9 +618,9 @@ async function seedDatabase() {
           RETURNING *`,
           [
             tenant.id,
-            `${city.name} ${type.charAt(0).toUpperCase() + type.slice(1).replace('_', ' ')}`,
+            '${city.name} ${type.charAt(0).toUpperCase() + type.slice(1).replace('_', ' ')}`,
             type,
-            `${randomInt(100, 9999)} ${randomItem(['Main', 'Industrial', 'Commerce', 'Fleet'])} Blvd`,
+            '${randomInt(100, 9999)} ${randomItem(['Main', 'Industrial', 'Commerce', 'Fleet'])} Blvd`,
             city.name,
             'FL',
             `${randomInt(30000, 34999)}`,
@@ -1268,7 +1268,7 @@ async function seedDatabase() {
           RETURNING *`,
           [
             tenant.id,
-            `${city.name} ${vendorType.replace('_', ' ').split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')} Co.`,
+            '${city.name} ${vendorType.replace('_', ' ').split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')} Co.`,
             vendorType,
             `Contact ${randomInt(1, 100)}`,
             `contact${i}@vendor${randomInt(1, 1000)}.com`,
@@ -1307,7 +1307,7 @@ async function seedDatabase() {
               tax,
               shipping,
               JSON.stringify([
-                { part_number: `PART${randomInt(1000, 9999)}`, description: 'Brake pads', quantity: randomInt(1, 10), unit_price: randomFloat(50, 500) }
+                { part_number: 'PART${randomInt(1000, 9999)}`, description: 'Brake pads', quantity: randomInt(1, 10), unit_price: randomFloat(50, 500) }
               ])
             ]
           );

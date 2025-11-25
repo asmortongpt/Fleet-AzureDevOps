@@ -196,7 +196,7 @@ router.post('/channels', requirePermission('route:create:fleet'), async (req: Re
       (name, description, channel_type, priority_level, color_code, created_by)
       VALUES ($1, $2, $3, $4, $5, $6)
       RETURNING *
-    `, [name, description, channelType, priorityLevel || 5, colorCode || '#3B82F6', userId])
+    ', [name, description, channelType, priorityLevel || 5, colorCode || '#3B82F6', userId])
 
     res.status(201).json({
       success: true,

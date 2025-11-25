@@ -33,7 +33,7 @@ router.get('/health', authenticateJWT, async (req: Request, res: Response) => {
       database: {
         health: dbHealth,
         pools: poolStats,
-        replicaLag: replicaLag ? `${replicaLag}ms` : 'N/A'
+        replicaLag: replicaLag ? '${replicaLag}ms` : 'N/A'
       },
       queries: {
         summary: queryStats.summary,
