@@ -19,8 +19,7 @@ interface MobileDamageCaptureProps {
   onAnalysisComplete: (analysis: any) => void;
 }
 
-export function MobileDamageCapture({ vehicleId, onAnalysisComplete }: MobileDamageCaptureProps) {
-  const [captureMode, setCaptureMode] = useState<'photo' | 'video' | 'lidar' | null>(null);
+export function MobileDamageCapture({ onAnalysisComplete }: MobileDamageCaptureProps) {  const [captureMode, setCaptureMode] = useState<'photo' | 'video' | 'lidar' | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisProgress, setAnalysisProgress] = useState(0);
   const [capturedFiles, setCapturedFiles] = useState<File[]>([]);
