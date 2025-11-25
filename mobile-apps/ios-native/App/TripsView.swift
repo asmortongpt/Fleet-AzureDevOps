@@ -245,7 +245,7 @@ struct TripCard: View {
                 // Header
                 HStack {
                     VStack(alignment: .leading, spacing: 4) {
-                        Text(trip.vehicleNumber)
+                        Text(trip.vehicleNumber ?? "Unknown Vehicle")
                             .font(.headline)
                             .foregroundColor(.primary)
 
@@ -582,7 +582,7 @@ struct TripDetailView: View {
                             .font(.system(size: 60))
                             .foregroundColor(.blue)
 
-                        Text(trip.vehicleNumber)
+                        Text(trip.vehicleNumber ?? "Unknown Vehicle")
                             .font(.title.bold())
 
                         TripStatusBadge(status: trip.status)
@@ -696,7 +696,7 @@ struct TripDetailView: View {
         }
     }
 
-    private func eventIcon(for type: TripEvent.EventType) -> String {
+    private func eventIcon(for type: TripModels.TripEvent.EventType) -> String {
         switch type {
         case .start: return "play.circle"
         case .stop: return "stop.circle"
@@ -709,7 +709,7 @@ struct TripDetailView: View {
         }
     }
 
-    private func eventColor(for severity: TripEvent.Severity) -> Color {
+    private func eventColor(for severity: TripModels.TripEvent.Severity) -> Color {
         switch severity {
         case .low: return .green
         case .medium: return .orange
@@ -746,6 +746,35 @@ struct MetricCard: View {
         .padding()
         .background(Color(.secondarySystemGroupedBackground))
         .cornerRadius(12)
+    }
+}
+
+// MARK: - Trip Status Badge
+private struct TripStatusBadge: View {
+    let status: TripModels.TripStatus
+
+    var body: some View {
+        Text(status.displayName)
+            .font(.caption)
+            .fontWeight(.semibold)
+            .foregroundColor(.white)
+            .padding(.horizontal, 10)
+            .padding(.vertical, 4)
+            .background(statusColor)
+            .cornerRadius(8)
+    }
+
+    private var statusColor: Color {
+        switch status {
+        case .active:
+            return .green
+        case .paused:
+            return .orange
+        case .completed:
+            return .blue
+        case .cancelled:
+            return .gray
+        }
     }
 }
 

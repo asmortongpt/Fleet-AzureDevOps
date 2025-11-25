@@ -6,11 +6,32 @@ import { resolve } from 'path'
 
 const projectRoot = process.env.PROJECT_ROOT || import.meta.dirname
 
+/**
+ * Inject runtime-config.js script tag
+ * This ensures the runtime configuration is loaded before the main app
+ * CRITICAL: Required for production deployment
+ */
+function injectRuntimeConfig(): PluginOption {
+  return {
+    name: 'inject-runtime-config',
+    enforce: 'post',
+    transformIndexHtml(html) {
+      // Ensure runtime-config.js is loaded before the main app
+      // This file is created at container startup with actual environment values
+      return html.replace(
+        '<div id="root"></div>',
+        '<div id="root"></div>\n    <script src="/runtime-config.js"></script>'
+      );
+    },
+  };
+}
+
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [
     react(),
     tailwindcss(),
+    injectRuntimeConfig(), // CRITICAL: Injects runtime-config.js script tag
     // Bundle analyzer - generates stats.html after build
     visualizer({
       filename: './dist/stats.html',

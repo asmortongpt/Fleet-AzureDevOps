@@ -8,7 +8,7 @@ struct MoreView: View {
             List {
                 // New Features Section
                 Section(header: Text("Features")) {
-                    NavigationLink(destination: ChecklistManagementView()) {
+                    NavigationLink(destination: Text("Checklists coming soon")) {
                         HStack {
                             Image(systemName: "checklist")
                                 .foregroundColor(.blue)
@@ -34,7 +34,7 @@ struct MoreView: View {
                         }
                     }
 
-                    NavigationLink(destination: ScheduleView()) {
+                    NavigationLink(destination: Text("Schedule coming soon")) {
                         HStack {
                             Image(systemName: "calendar")
                                 .foregroundColor(.green)
@@ -70,7 +70,7 @@ struct MoreView: View {
                         }
                     }
 
-                    NavigationLink(destination: DriverPreferencesView()) {
+                    NavigationLink(destination: Text("Appearance settings coming soon")) {
                         HStack {
                             Image(systemName: "paintbrush.fill")
                                 .foregroundColor(.purple)
