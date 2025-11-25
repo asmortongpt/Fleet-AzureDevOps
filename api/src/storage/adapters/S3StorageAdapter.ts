@@ -208,7 +208,7 @@ export class S3StorageAdapter extends BaseStorageAdapter {
       };
     } catch (error) {
       throw new Error(
-        `Failed to upload file to S3: ${error instanceof Error ? error.message : 'Unknown error'}`
+        'Failed to upload file to S3: ${error instanceof Error ? error.message : 'Unknown error'}`
       );
     }
   }
@@ -341,7 +341,7 @@ export class S3StorageAdapter extends BaseStorageAdapter {
       }
 
       throw new Error(
-        `Failed to upload file via multipart: ${error instanceof Error ? error.message : 'Unknown error'}`
+        'Failed to upload file via multipart: ${error instanceof Error ? error.message : 'Unknown error'}`
       );
     }
   }
@@ -356,7 +356,7 @@ export class S3StorageAdapter extends BaseStorageAdapter {
         Bucket: this.bucket,
         Key: normalizedKey,
         Range: options?.range
-          ? `bytes=${options.range.start}-${options.range.end || ''}`
+          ? 'bytes=${options.range.start}-${options.range.end || ''}`
           : undefined,
         IfModifiedSince: options?.ifModifiedSince,
         IfMatch: options?.ifMatch
@@ -404,7 +404,7 @@ export class S3StorageAdapter extends BaseStorageAdapter {
         throw new FileNotFoundError(normalizedKey);
       }
       throw new Error(
-        `Failed to download file from S3: ${error instanceof Error ? error.message : 'Unknown error'}`
+        'Failed to download file from S3: ${error instanceof Error ? error.message : 'Unknown error'}`
       );
     }
   }
@@ -488,7 +488,7 @@ export class S3StorageAdapter extends BaseStorageAdapter {
       };
     } catch (error) {
       throw new Error(
-        `Failed to list files in S3: ${error instanceof Error ? error.message : 'Unknown error'}`
+        'Failed to list files in S3: ${error instanceof Error ? error.message : 'Unknown error'}`
       );
     }
   }
@@ -594,7 +594,7 @@ export class S3StorageAdapter extends BaseStorageAdapter {
       Key: normalizedKey,
       ResponseContentType: options?.contentType,
       ResponseContentDisposition: options?.contentDisposition
-        ? `${options.contentDisposition}${options.filename ? `; filename="${options.filename}"` : ''}`
+        ? '${options.contentDisposition}${options.filename ? `; filename="${options.filename}"` : ''}`
         : undefined
     });
 

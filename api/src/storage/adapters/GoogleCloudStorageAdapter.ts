@@ -176,7 +176,7 @@ export class GoogleCloudStorageAdapter extends BaseStorageAdapter {
       };
     } catch (error) {
       throw new Error(
-        `Failed to upload file to GCS: ${error instanceof Error ? error.message : 'Unknown error'}`
+        'Failed to upload file to GCS: ${error instanceof Error ? error.message : 'Unknown error'}`
       );
     }
   }
@@ -293,7 +293,7 @@ export class GoogleCloudStorageAdapter extends BaseStorageAdapter {
       };
     } catch (error) {
       throw new Error(
-        `Failed to list files in GCS: ${error instanceof Error ? error.message : 'Unknown error'}`
+        'Failed to list files in GCS: ${error instanceof Error ? error.message : 'Unknown error'}`
       );
     }
   }
@@ -387,7 +387,7 @@ export class GoogleCloudStorageAdapter extends BaseStorageAdapter {
       expires,
       contentType: options?.contentType,
       responseDisposition: options?.contentDisposition
-        ? `${options.contentDisposition}${options.filename ? `; filename="${options.filename}"` : ''}`
+        ? '${options.contentDisposition}${options.filename ? `; filename="${options.filename}"` : ''}`
         : undefined
     });
 
