@@ -1,71 +1,90 @@
 /**
  * Service Worker for CTAFleet PWA
  * Provides offline support, caching strategies, and background sync
+ *
+ * CACHE STRATEGY:
+ * - index.html: Network-first (CRITICAL - prevents cache poisoning)
+ * - JS/CSS bundles: Stale-while-revalidate (fast load + auto-update)
+ * - API data: Network-first with cache fallback
+ * - Static assets: Cache-first for offline support
  */
 
-const CACHE_VERSION = 'ctafleet-v1.0.1-fix-white-screen';
+const CACHE_VERSION = 'ctafleet-v1.0.2';
 const CACHE_NAME = `ctafleet-cache-${CACHE_VERSION}`;
 const DATA_CACHE_NAME = `ctafleet-data-${CACHE_VERSION}`;
 
-// Assets to cache on install
-const STATIC_CACHE_URLS = [
-  '/',
+// Critical assets that MUST NOT be cached (always fetch fresh)
+const NEVER_CACHE = [
   '/index.html',
+  '/',
+  '/runtime-config.js',
+];
+
+// Assets to cache on install (offline fallback only)
+const STATIC_CACHE_URLS = [
   '/manifest.json',
   '/offline.html',
 ];
 
-// API endpoints to cache with network-first strategy
-const API_CACHE_URLS = [
-  '/api/vehicles',
-  '/api/drivers',
-  '/api/facilities',
-  '/api/workorders',
-];
-
 // Install event - cache static assets
 self.addEventListener('install', (event) => {
-  console.log('[ServiceWorker] Installing...');
+  console.log('[ServiceWorker] Installing version:', CACHE_VERSION);
 
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then((cache) => {
-        console.log('[ServiceWorker] Caching static assets');
+        console.log('[ServiceWorker] Caching offline fallback assets');
         return cache.addAll(STATIC_CACHE_URLS);
       })
       .then(() => {
-        console.log('[ServiceWorker] Skip waiting');
+        console.log('[ServiceWorker] Skip waiting to activate immediately');
         return self.skipWaiting();
       })
   );
 });
 
-// Activate event - clean up old caches
+// Activate event - clean up old caches aggressively
 self.addEventListener('activate', (event) => {
-  console.log('[ServiceWorker] Activating...');
+  console.log('[ServiceWorker] Activating version:', CACHE_VERSION);
 
   event.waitUntil(
-    caches.keys()
-      .then((cacheNames) => {
+    Promise.all([
+      // Delete ALL old caches
+      caches.keys().then((cacheNames) => {
         return Promise.all(
           cacheNames
             .filter((cacheName) => {
-              return cacheName.startsWith('ctafleet-') && cacheName !== CACHE_NAME && cacheName !== DATA_CACHE_NAME;
+              // Delete any ctafleet cache that's not current version
+              return cacheName.startsWith('ctafleet-') &&
+                     cacheName !== CACHE_NAME &&
+                     cacheName !== DATA_CACHE_NAME;
             })
             .map((cacheName) => {
               console.log('[ServiceWorker] Deleting old cache:', cacheName);
               return caches.delete(cacheName);
             })
         );
+      }),
+      // Take control of all clients immediately (force reload of cached pages)
+      self.clients.claim().then(() => {
+        console.log('[ServiceWorker] Claimed all clients');
+        // Notify all clients to reload
+        return self.clients.matchAll().then((clients) => {
+          clients.forEach((client) => {
+            console.log('[ServiceWorker] Notifying client to reload:', client.url);
+            client.postMessage({
+              type: 'SW_UPDATED',
+              version: CACHE_VERSION,
+              message: 'New version available - page will reload'
+            });
+          });
+        });
       })
-      .then(() => {
-        console.log('[ServiceWorker] Claiming clients');
-        return self.clients.claim();
-      })
+    ])
   );
 });
 
-// Fetch event - implement caching strategies
+// Fetch event - implement smart caching strategies
 self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
@@ -75,19 +94,35 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
+  // CRITICAL: NEVER cache index.html or runtime-config.js - always fetch fresh
+  if (NEVER_CACHE.some(path => url.pathname === path || url.pathname === path + 'index.html')) {
+    console.log('[ServiceWorker] Network-only (never cache):', url.pathname);
+    event.respondWith(
+      fetch(request, { cache: 'no-store' })
+        .catch(() => {
+          // Only if truly offline, serve cached offline page for navigation
+          if (request.mode === 'navigate') {
+            return caches.match('/offline.html');
+          }
+          return new Response('Offline', { status: 503 });
+        })
+    );
+    return;
+  }
+
   // API requests - Network first, fallback to cache
   if (url.pathname.startsWith('/api/')) {
     event.respondWith(
       fetch(request)
         .then((response) => {
-          // Clone the response
-          const responseToCache = response.clone();
-
-          caches.open(DATA_CACHE_NAME)
-            .then((cache) => {
-              cache.put(request, responseToCache);
-            });
-
+          // Clone and cache successful responses
+          if (response && response.status === 200) {
+            const responseToCache = response.clone();
+            caches.open(DATA_CACHE_NAME)
+              .then((cache) => {
+                cache.put(request, responseToCache);
+              });
+          }
           return response;
         })
         .catch(() => {
@@ -95,9 +130,10 @@ self.addEventListener('fetch', (event) => {
           return caches.match(request)
             .then((response) => {
               if (response) {
+                console.log('[ServiceWorker] Serving API from cache:', url.pathname);
                 return response;
               }
-              // Return offline page for failed API requests
+              // Return offline error for failed API requests
               return new Response(
                 JSON.stringify({ error: 'Offline', offline: true }),
                 {
@@ -111,7 +147,33 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Static assets - Cache first, fallback to network
+  // JavaScript/CSS bundles - Stale-while-revalidate for fast load + auto-update
+  if (url.pathname.startsWith('/assets/')) {
+    event.respondWith(
+      caches.open(CACHE_NAME).then((cache) => {
+        return cache.match(request).then((cachedResponse) => {
+          const fetchPromise = fetch(request)
+            .then((networkResponse) => {
+              // Update cache with fresh version
+              if (networkResponse && networkResponse.status === 200) {
+                cache.put(request, networkResponse.clone());
+              }
+              return networkResponse;
+            })
+            .catch(() => {
+              // Network failed - return cached version if available
+              return cachedResponse;
+            });
+
+          // Return cached version immediately if available, update in background
+          return cachedResponse || fetchPromise;
+        });
+      })
+    );
+    return;
+  }
+
+  // All other static assets - Cache first with network fallback
   event.respondWith(
     caches.match(request)
       .then((response) => {
@@ -121,19 +183,14 @@ self.addEventListener('fetch', (event) => {
 
         return fetch(request)
           .then((response) => {
-            // Don't cache non-successful responses
-            if (!response || response.status !== 200 || response.type !== 'basic') {
-              return response;
+            // Cache successful responses
+            if (response && response.status === 200 && response.type === 'basic') {
+              const responseToCache = response.clone();
+              caches.open(CACHE_NAME)
+                .then((cache) => {
+                  cache.put(request, responseToCache);
+                });
             }
-
-            // Clone the response
-            const responseToCache = response.clone();
-
-            caches.open(CACHE_NAME)
-              .then((cache) => {
-                cache.put(request, responseToCache);
-              });
-
             return response;
           })
           .catch(() => {
