@@ -281,6 +281,10 @@ public enum VehicleStatus: String, Codable, CaseIterable {
     case available = "Available"  // For vehicle request system
     case reserved = "Reserved"    // For vehicle request system
     case inUse = "InUse"         // For vehicle request system
+    case idle = "Idle"
+    case charging = "Charging"
+    case service = "Service"
+    case emergency = "Emergency"
 
     public var displayName: String {
         rawValue
@@ -294,10 +298,16 @@ public enum VehicleStatus: String, Codable, CaseIterable {
             return "orange"
         case .parked, .reserved:
             return "blue"
-        case .maintenance:
+        case .maintenance, .service:
             return "yellow"
         case .inactive, .offline:
             return "gray"
+        case .idle:
+            return "gray"
+        case .charging:
+            return "blue"
+        case .emergency:
+            return "red"
         }
     }
 
@@ -311,10 +321,16 @@ public enum VehicleStatus: String, Codable, CaseIterable {
             return "p.circle.fill"
         case .reserved:
             return "calendar.badge.clock"
-        case .maintenance:
+        case .maintenance, .service:
             return "wrench.and.screwdriver.fill"
         case .inactive, .offline:
             return "exclamationmark.triangle.fill"
+        case .idle:
+            return "pause.circle.fill"
+        case .charging:
+            return "bolt.fill"
+        case .emergency:
+            return "exclamationmark.shield.fill"
         }
     }
 }
