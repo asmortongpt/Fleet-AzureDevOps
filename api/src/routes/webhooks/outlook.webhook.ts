@@ -235,7 +235,7 @@ async function handleEmailDelete(notification: any): Promise<void> {
            )
        WHERE source_platform = 'Microsoft Outlook'
        AND source_platform_id = $2
-       RETURNING id`,
+       RETURNING id',
       [JSON.stringify(new Date().toISOString()), messageId]
     )
 

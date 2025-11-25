@@ -435,7 +435,7 @@ router.delete(
         `DELETE FROM asset_relationships ar
          USING vehicles v
          WHERE ar.id = $1 AND ar.parent_asset_id = v.id AND v.tenant_id = $2
-         RETURNING ar.id`,
+         RETURNING ar.id',
         [req.params.id, req.user!.tenant_id]
       )
 

@@ -347,7 +347,7 @@ export class DocumentRAGService {
           response_text, matched_documents, matched_chunks,
           relevance_scores, execution_time_ms
         ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-        RETURNING id`,
+        RETURNING id',
         [
           tenantId,
           userId,
