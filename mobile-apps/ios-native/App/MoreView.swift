@@ -24,6 +24,21 @@ struct MoreView: View {
                         }
                     }
 
+                    NavigationLink(destination: RouteListView()) {
+                        HStack {
+                            Image(systemName: "point.3.connected.trianglepath.dotted")
+                                .foregroundColor(.orange)
+                                .frame(width: 30)
+                            VStack(alignment: .leading) {
+                                Text("Routes")
+                                    .font(.body)
+                                Text("Plan and save common routes with waypoints")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                    }
+
                     NavigationLink(destination: EnhancedFleetMapView()) {
                         HStack {
                             Image(systemName: "map.fill")
@@ -55,6 +70,24 @@ struct MoreView: View {
                     }
                 }
 
+                // Financial Section
+                Section(header: Text("Financial")) {
+                    NavigationLink(destination: CostAnalysisCenterView()) {
+                        HStack {
+                            Image(systemName: "dollarsign.circle.fill")
+                                .foregroundColor(.green)
+                                .frame(width: 30)
+                            VStack(alignment: .leading) {
+                                Text("Cost Analysis Center")
+                                    .font(.body)
+                                Text("TCO, cost per mile, and budget tracking")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                    }
+                }
+
                 // Analytics Section
                 Section(header: Text("Analytics")) {
                     NavigationLink(destination: FleetAnalyticsView()) {
@@ -66,6 +99,24 @@ struct MoreView: View {
                                 Text("Fleet Analytics")
                                     .font(.body)
                                 Text("Usage trends, costs, and efficiency metrics")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                    }
+                }
+
+                // Maintenance Section
+                Section(header: Text("Maintenance")) {
+                    NavigationLink(destination: WorkOrderListView()) {
+                        HStack {
+                            Image(systemName: "wrench.and.screwdriver.fill")
+                                .foregroundColor(.orange)
+                                .frame(width: 30)
+                            VStack(alignment: .leading) {
+                                Text("Work Orders")
+                                    .font(.body)
+                                Text("Create, assign, and track work orders")
                                     .font(.caption)
                                     .foregroundColor(.secondary)
                             }
