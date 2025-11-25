@@ -31,13 +31,10 @@ import {
 } from "@phosphor-icons/react"
 import { Vehicle } from "@/lib/types"
 import { useFleetData } from "@/hooks/use-fleet-data"
-<<<<<<< HEAD
 import { useVehicleTelemetry } from "@/hooks/useVehicleTelemetry"
 import { useDrilldown } from "@/contexts/DrilldownContext"
 import { useInspect } from "@/services/inspect/InspectContext"
 import apiClient from "@/lib/api-client"
-=======
->>>>>>> feature/devsecops-audit-remediation
 
 interface FleetDashboardProps {
   data: ReturnType<typeof useFleetData>
