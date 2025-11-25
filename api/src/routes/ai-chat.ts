@@ -184,7 +184,7 @@ router.delete(
   async (req: AuthRequest, res: Response) => {
     try {
       // Delete messages first
-      await pool.query('DELETE FROM chat_messages WHERE session_id = $1', [req.params.id])
+      await pool.query('DELETE FROM chat_messages WHERE session_id = $1`, [req.params.id])
 
       // Delete session
       await pool.query(
@@ -243,8 +243,7 @@ router.post(
 
       // Get session
       const sessionResult = await pool.query(
-        'SELECT 
-      id,
+        `SELECT      id,
       tenant_id,
       user_id,
       title,
@@ -439,8 +438,7 @@ router.post(
 
       // Get session and prepare context (similar to regular chat)
       const sessionResult = await pool.query(
-        'SELECT 
-      id,
+        `SELECT      id,
       tenant_id,
       user_id,
       title,

@@ -209,7 +209,7 @@ export class DriverScorecardService {
        LEFT JOIN video_events ve ON d.id = ve.driver_id
          AND ve.event_timestamp BETWEEN $2 AND $3
        WHERE d.id = $1 AND d.tenant_id = $4
-       GROUP BY d.id`,
+       GROUP BY d.id',
       [driverId, periodStart, periodEnd, tenantId]
     )
 
@@ -225,7 +225,7 @@ export class DriverScorecardService {
        LEFT JOIN fuel_transactions ft ON d.vehicle_id = ft.vehicle_id
          AND ft.transaction_date BETWEEN $2 AND $3
        WHERE d.id = $1 AND d.tenant_id = $4
-       GROUP BY d.id`,
+       GROUP BY d.id',
       [driverId, periodStart, periodEnd, tenantId]
     )
 
@@ -241,7 +241,7 @@ export class DriverScorecardService {
        LEFT JOIN inspections i ON d.vehicle_id = i.vehicle_id
          AND i.inspection_date BETWEEN $2 AND $3
        WHERE d.id = $1 AND d.tenant_id = $4
-       GROUP BY d.id`,
+       GROUP BY d.id',
       [driverId, periodStart, periodEnd, tenantId]
     )
 
@@ -288,7 +288,7 @@ export class DriverScorecardService {
       UPDATE driver_scores ds
       SET rank_position = rd.rank
       FROM ranked_drivers rd
-      WHERE ds.id = rd.id`,
+      WHERE ds.id = rd.id',
       [tenantId, periodEnd]
     )
   }
