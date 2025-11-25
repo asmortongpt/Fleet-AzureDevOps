@@ -173,7 +173,7 @@ export class DocumentIndexer {
     tenantId: string,
     updatedFields: string[]
   ): Promise<void> {
-    console.log(`Updating index for document ${documentId} (fields: ${updatedFields.join(', ')})`)
+    console.log('Updating index for document ${documentId} (fields: ${updatedFields.join(', ')})')
 
     // For now, just reindex the entire document
     // In production, this could be optimized to only update specific fields
@@ -305,7 +305,7 @@ export class DocumentIndexer {
       }
 
       if (!metadata.fullReindex) {
-        query += ` AND (index_status IS NULL OR index_status != 'indexed')`
+        query += ' AND (index_status IS NULL OR index_status != 'indexed')'
       }
 
       query += ' ORDER BY created_at DESC'
@@ -449,7 +449,7 @@ export class DocumentIndexer {
           FROM document_indexing_log
           WHERE tenant_id = $1
             AND created_at > NOW() - INTERVAL '7 days'
-            AND status = 'success'`,
+            AND status = 'success'',
           [tenantId]
         ),
         // Last optimization
@@ -484,7 +484,7 @@ export class DocumentIndexer {
     options?: { status?: string; limit?: number }
   ): Promise<IndexingJob[]> {
     let query = `
-      SELECT ` + (await getTableColumns(pool, 'indexing_jobs')).join(', ') + ` FROM indexing_jobs
+      SELECT ' + (await getTableColumns(pool, 'indexing_jobs')).join(', ') + ' FROM indexing_jobs
       WHERE tenant_id = $1
     `
     const params: any[] = [tenantId]
@@ -517,7 +517,7 @@ export class DocumentIndexer {
       try {
         // Get next pending job
         const result = await pool.query(
-          `SELECT ` + (await getTableColumns(pool, 'indexing_jobs')).join(', ') + ` FROM indexing_jobs
+          'SELECT ' + (await getTableColumns(pool, 'indexing_jobs')).join(', ') + ' FROM indexing_jobs
            WHERE status = 'pending'
            ORDER BY created_at ASC
            LIMIT 1

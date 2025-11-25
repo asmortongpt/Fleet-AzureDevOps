@@ -589,7 +589,7 @@ async function seedPolicyEdgeCases(tenantId: string) {
       ON CONFLICT (id) DO NOTHING
     `, [
       policyId, tenantId, `${p.type.toUpperCase()} Policy`, p.type,
-      p.status, '1.0', `This is a ${p.type} policy in ${p.status} status`
+      p.status, '1.0', 'This is a ${p.type} policy in ${p.status} status`
     ]);
   }
 

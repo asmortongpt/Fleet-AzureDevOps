@@ -121,7 +121,7 @@ router.get(
     // Get total count
     const countResult = await pool.query(
       query.replace(
-        'SELECT c.*, u.name as driver_name, u.email as driver_email`,
+        'SELECT c.*, u.name as driver_name, u.email as driver_email',
         'SELECT COUNT(*)'
       ),
       params
@@ -239,7 +239,7 @@ router.post(
 
       if (policyResult.rows.length === 0 || !policyResult.rows[0].charge_personal_use) {
         return res.status(400).json({
-          error: 'Personal use charging is not enabled for this organization`
+          error: 'Personal use charging is not enabled for this organization'
         })
       }
 
@@ -248,7 +248,7 @@ router.post(
 
       if (!ratePerMile) {
         return res.status(400).json({
-          error: 'Personal use rate per mile is not configured`
+          error: 'Personal use rate per mile is not configured'
         })
       }
 
@@ -277,7 +277,7 @@ router.post(
             trips_included: 0,
             charge_breakdown: []
           },
-          message: 'No personal use trips found for this period`
+          message: 'No personal use trips found for this period'
         })
       }
 
@@ -405,7 +405,7 @@ router.post(
            FROM trip_usage_classification
            WHERE driver_id = $1 AND tenant_id = $2
              AND TO_CHAR(trip_date, 'YYYY-MM') = $3
-             AND approval_status = 'approved'`,
+             AND approval_status = 'approved'',
           [validated.driver_id, req.user!.tenant_id, validated.charge_period]
         )
 
@@ -587,7 +587,7 @@ router.patch(
       res.json({
         success: true,
         data: result.rows[0],
-        message: 'Charge updated successfully`
+        message: 'Charge updated successfully'
       })
     } catch (error: any) {
       console.error('Update charge error:', error)
@@ -694,7 +694,7 @@ router.post(
 
       if (policyResult.rows.length === 0 || !policyResult.rows[0].charge_personal_use) {
         return res.status(400).json({
-          error: 'Personal use charging is not enabled`
+          error: 'Personal use charging is not enabled'
         })
       }
 

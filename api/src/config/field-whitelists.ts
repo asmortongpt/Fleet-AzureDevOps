@@ -594,8 +594,8 @@ export function validateNoForbiddenFields(
 
   if (forbiddenFields.length > 0) {
     throw new Error(
-      'Forbidden fields detected: ${forbiddenFields.join(', ')}. ` +
-      'Allowed fields for ${operation} on ${resourceType}: ${allowedFields.join(', ')}`
+      'Forbidden fields detected: ${forbiddenFields.join(', ')}. ' +
+      'Allowed fields for ${operation} on ${resourceType}: ${allowedFields.join(', ')}'
     )
   }
 }

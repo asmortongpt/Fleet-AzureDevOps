@@ -233,7 +233,7 @@ class QueueService {
       }
     };
 
-    const singletonKey = `sync-${resource.resourceType}-${resource.userId || 'all'}`;
+    const singletonKey = 'sync-${resource.resourceType}-${resource.userId || 'all'}';
 
     return this.enqueueJob(QueueName.SYNC, jobData, {
       priority: JobPriority.LOW,
@@ -525,7 +525,7 @@ class QueueService {
       }
 
       await pool.query(
-        `UPDATE job_tracking SET ${setFields.join(', ')} WHERE job_id = $1',
+        'UPDATE job_tracking SET ${setFields.join(', ')} WHERE job_id = $1',
         values
       );
     } catch (error) {
@@ -676,7 +676,7 @@ class QueueService {
             FILTER (WHERE completed_at IS NOT NULL) as avg_processing_time_ms,
           COUNT(*) FILTER (WHERE created_at > NOW() - INTERVAL '1 minute') as jobs_last_minute
          FROM job_tracking
-         WHERE queue_name = $1 AND created_at > NOW() - INTERVAL '24 hours'`,
+         WHERE queue_name = $1 AND created_at > NOW() - INTERVAL '24 hours'',
         [queueName]
       );
 

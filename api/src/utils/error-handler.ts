@@ -62,7 +62,7 @@ export class AuthorizationError extends ApplicationError {
  */
 export class NotFoundError extends ApplicationError {
   constructor(resource: string = 'Resource') {
-    super('${resource} not found`, 404, 'NOT_FOUND');
+    super('${resource} not found', 404, 'NOT_FOUND');
   }
 }
 

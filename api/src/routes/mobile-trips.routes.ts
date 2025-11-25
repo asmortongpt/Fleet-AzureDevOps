@@ -415,7 +415,7 @@ router.post('/:id/metrics', requirePermission('route:update:own'), async (req: R
             m.dtc_count,
             m.mil_status
           ];
-          const placeholders = params.map((_, i) => '$${i + 1}`).join(', ');
+          const placeholders = params.map((_, i) => '$${i + 1}').join(', ');
           return { query: `(${placeholders})`, params };
         });
 

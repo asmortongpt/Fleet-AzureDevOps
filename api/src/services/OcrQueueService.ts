@@ -293,7 +293,7 @@ export class OcrQueueService {
 
       // Update document status
       await pool.query(
-        `UPDATE documents SET ocr_status = 'failed' WHERE id = $1',
+        'UPDATE documents SET ocr_status = 'failed' WHERE id = $1',
         [documentId]
       );
 
@@ -356,7 +356,7 @@ export class OcrQueueService {
 
     // Mark batch as completed
     await pool.query(
-      `UPDATE ocr_batch_jobs SET status = $1, updated_at = NOW() WHERE id = $2',
+      'UPDATE ocr_batch_jobs SET status = $1, updated_at = NOW() WHERE id = $2',
       [OcrJobStatus.COMPLETED, batchId]
     );
 
@@ -402,7 +402,7 @@ export class OcrQueueService {
       }
 
       await pool.query(
-        `UPDATE ocr_jobs SET ${updates.join(', ')} WHERE id = $1',
+        'UPDATE ocr_jobs SET ${updates.join(', ')} WHERE id = $1',
         values
       );
     } catch (error) {
@@ -458,7 +458,7 @@ export class OcrQueueService {
         if (totalProcessed >= batch.total_documents) {
           // Batch is complete
           await pool.query(
-            `UPDATE ocr_batch_jobs SET status = $1, updated_at = NOW() WHERE id = $2',
+            'UPDATE ocr_batch_jobs SET status = $1, updated_at = NOW() WHERE id = $2',
             [OcrJobStatus.COMPLETED, batchId]
           );
           console.log(`✅ Batch ${batchId} completed`);
@@ -699,7 +699,7 @@ export class OcrQueueService {
       const result = await pool.query(
         `DELETE FROM ocr_jobs
          WHERE status IN ($1, $2)
-         AND completed_at < NOW() - ($3 || ' days')::INTERVAL`,
+         AND completed_at < NOW() - ($3 || ' days')::INTERVAL',
         [OcrJobStatus.COMPLETED, OcrJobStatus.FAILED, daysOldNum]
       );
 

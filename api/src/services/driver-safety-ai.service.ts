@@ -392,7 +392,7 @@ class DriverSafetyAIService {
         [eventId]
       );
 
-      logger.warn(`Event ${eventId} escalated to critical due to: ${criticalBehaviors.map(b => b.behavior).join(', ')}`);
+      logger.warn('Event ${eventId} escalated to critical due to: ${criticalBehaviors.map(b => b.behavior).join(', ')}');
 
       // Could send notifications here (email, SMS, etc.)
     } catch (error: any) {
@@ -532,7 +532,7 @@ class DriverSafetyAIService {
        FROM video_safety_events
        WHERE driver_id = $1
          AND event_timestamp >= CURRENT_DATE - ($2::integer * INTERVAL '1 day')
-         AND ai_processing_status = 'completed'`,
+         AND ai_processing_status = 'completed'',
       [driverId, days]
     );
 
