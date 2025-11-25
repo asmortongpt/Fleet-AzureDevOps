@@ -1,5 +1,6 @@
 import Foundation
 import Combine
+import CoreLocation
 
 @MainActor
 class ScheduleService: ObservableObject {
@@ -280,8 +281,8 @@ class ScheduleService: ObservableObject {
         let maintenanceWindows = vehicleEntries.compactMap { entry -> MaintenanceWindow? in
             guard entry.type == .maintenance else { return nil }
 
-            let typeString = entry.metadata["maintenanceType"] ?? "routine"
-            let type = MaintenanceType(rawValue: typeString.capitalized) ?? .routine
+            let typeString = entry.metadata["maintenanceType"] ?? "preventive"
+            let type = MaintenanceType(rawValue: typeString.capitalized) ?? .preventive
 
             return MaintenanceWindow(
                 id: entry.id,
