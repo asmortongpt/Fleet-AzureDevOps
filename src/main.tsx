@@ -25,14 +25,15 @@ startVersionChecker();
 
 // Protected Route Component
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const authenticated = isAuthenticated()
-  console.log('[PROTECTED_ROUTE] isAuthenticated:', authenticated)
-
-  // In DEV mode or test environment, always allow access
+  // CRITICAL FIX: Always bypass authentication in DEV mode
+  // Check DEV mode FIRST before calling isAuthenticated
   if (import.meta.env.DEV) {
-    console.log('[PROTECTED_ROUTE] DEV mode - allowing access')
+    console.log('[PROTECTED_ROUTE] DEV mode detected - bypassing authentication')
     return <>{children}</>
   }
+
+  const authenticated = isAuthenticated()
+  console.log('[PROTECTED_ROUTE] Production mode - isAuthenticated:', authenticated)
 
   return authenticated ? <>{children}</> : <Navigate to="/login" replace />
 }
