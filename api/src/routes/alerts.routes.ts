@@ -624,7 +624,7 @@ router.delete('/rules/:id', requirePermission('report:generate:global'), async (
     const result = await pool.query(
       `DELETE FROM alert_rules
        WHERE id = $1 AND tenant_id = $2
-       RETURNING id`,
+       RETURNING id',
       [id, tenantId]
     )
 
@@ -784,7 +784,7 @@ router.post('/notifications/read-all', requirePermission('report:view:global'), 
       `UPDATE notifications
        SET is_read = true, read_at = NOW()
        WHERE user_id = $1 AND is_read = false
-       RETURNING id`,
+       RETURNING id',
       [userId]
     )
 

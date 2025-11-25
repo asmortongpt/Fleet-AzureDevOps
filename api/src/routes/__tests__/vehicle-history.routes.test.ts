@@ -42,7 +42,7 @@ describe('Vehicle History Routes', () => {
     const vehicleResult = await pool.query(
       `INSERT INTO vehicles (tenant_id, unit_number, make, model, year, vin, status)
        VALUES ($1, $2, $3, $4, $5, $6, $7)
-       RETURNING id`,
+       RETURNING id',
       ['1', 'TEST-001', 'Ford', 'F-150', 2023, 'TEST123VIN', 'active']
     );
     testVehicleId = vehicleResult.rows[0].id;
@@ -54,7 +54,7 @@ describe('Vehicle History Routes', () => {
         distance_miles, duration_seconds, avg_speed_mph, max_speed_mph
       )
       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
-      RETURNING id`,
+      RETURNING id',
       [
         '1',
         testVehicleId,
