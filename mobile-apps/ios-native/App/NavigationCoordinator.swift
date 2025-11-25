@@ -254,6 +254,8 @@ enum NavigationDestination: Hashable, Identifiable {
 
     // Optimization destinations
     case fleetOptimizer
+    case routeOptimizer
+    case optimizedRoute(routeId: String)
 
     var id: String {
         switch self {
@@ -307,6 +309,8 @@ enum NavigationDestination: Hashable, Identifiable {
             return "gis-command-center"
         case .executiveDashboard:
             return "executive-dashboard"
+        case .fleetOptimizer:
+            return "fleet-optimizer"
         }
     }
 }
