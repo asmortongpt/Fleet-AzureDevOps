@@ -106,7 +106,7 @@ export class TaskAssetConfigManager {
    */
   async getWorkflowTemplates(): Promise<WorkflowTemplate[]> {
     const result = await pool.query(
-      `SELECT * FROM workflow_templates WHERE tenant_id = $1 OR tenant_id IS NULL ORDER BY name`,
+      `SELECT id, tenant_id, name, description, workflow_config, is_active, created_at, updated_at FROM workflow_templates WHERE tenant_id = $1 OR tenant_id IS NULL ORDER BY name`,
       [this.tenantId]
     )
     return result.rows
@@ -173,7 +173,7 @@ export class TaskAssetConfigManager {
    * Get all business rules
    */
   async getBusinessRules(entity?: 'task' | 'asset'): Promise<BusinessRule[]> {
-    let query = `SELECT * FROM business_rules WHERE tenant_id = $1`
+    let query = `SELECT id, tenant_id, rule_name, rule_condition, action, is_active, created_at, updated_at FROM business_rules WHERE tenant_id = $1`
     const params: any[] = [this.tenantId]
 
     if (entity) {
@@ -456,7 +456,7 @@ export class TaskAssetConfigManager {
    * Get SLA configurations
    */
   async getSLAConfigs(entity?: 'task' | 'asset'): Promise<SLAConfig[]> {
-    let query = `SELECT * FROM sla_configs WHERE tenant_id = $1`
+    let query = `SELECT id, tenant_id, sla_name, metric_name, target_value, warning_threshold, created_at, updated_at FROM sla_configs WHERE tenant_id = $1`
     const params: any[] = [this.tenantId]
 
     if (entity) {
@@ -475,7 +475,7 @@ export class TaskAssetConfigManager {
    */
   async getAutomationRules(): Promise<AutomationRule[]> {
     const result = await pool.query(
-      `SELECT * FROM automation_rules WHERE tenant_id = $1 AND is_active = true ORDER BY name`,
+      `SELECT id, tenant_id, rule_name, trigger_condition, action, is_active, created_at, updated_at FROM automation_rules WHERE tenant_id = $1 AND is_active = true ORDER BY name`,
       [this.tenantId]
     )
     return result.rows

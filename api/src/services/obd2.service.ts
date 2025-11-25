@@ -479,7 +479,7 @@ export class OBD2ServiceBackend {
     vehicleId: number
   ): Promise<any> {
     const result = await pool.query(
-      `SELECT * FROM obd2_vehicle_health_summary
+      `SELECT id, tenant_id, vehicle_id, health_score, last_assessed, issues_count, warning_count, dtc_summary, maintenance_due, estimated_repair_cost FROM obd2_vehicle_health_summary
        WHERE tenant_id = $1 AND vehicle_id = $2`,
       [tenantId, vehicleId]
     )
@@ -495,7 +495,7 @@ export class OBD2ServiceBackend {
     adapterId: number
   ): Promise<any> {
     const result = await pool.query(
-      `SELECT * FROM obd2_connection_reliability
+      `SELECT id, tenant_id, adapter_id, success_rate, uptime_percent, last_checked, total_connections, failed_connections FROM obd2_connection_reliability
        WHERE tenant_id = $1 AND adapter_id = $2`,
       [tenantId, adapterId]
     )
@@ -508,7 +508,7 @@ export class OBD2ServiceBackend {
    */
   async getDTCInfo(dtcCode: string): Promise<any> {
     const result = await pool.query(
-      `SELECT * FROM obd2_dtc_library WHERE dtc_code = $1`,
+      `SELECT id, dtc_code, description, common_causes, diagnostic_steps, avg_repair_cost_min, avg_repair_cost_max, severity_level FROM obd2_dtc_library WHERE dtc_code = $1`,
       [dtcCode]
     )
 
@@ -527,8 +527,7 @@ export class OBD2ServiceBackend {
     const daysNum = Math.max(1, Math.min(365, days || 30))
 
     const result = await pool.query(
-      `SELECT *
-       FROM obd2_fuel_economy_trends
+      `SELECT id, tenant_id, vehicle_id, date, avg_mpg, estimated_cost_per_mile, driving_pattern, efficiency_score FROM obd2_fuel_economy_trends
        WHERE tenant_id = $1 AND vehicle_id = $2
          AND date >= CURRENT_DATE - ($3 || ' days')::INTERVAL
        ORDER BY date DESC`,

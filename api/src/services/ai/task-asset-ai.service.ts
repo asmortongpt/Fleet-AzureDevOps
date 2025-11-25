@@ -233,7 +233,7 @@ export async function predictAssetMaintenance(
 
     // Get maintenance history
     const maintenanceHistory = await pool.query(
-      `SELECT * FROM asset_maintenance
+      `SELECT id, tenant_id, asset_id, maintenance_type, maintenance_date, status, created_at FROM asset_maintenance
        WHERE asset_id = $1
        ORDER BY maintenance_date DESC
        LIMIT 10`,
@@ -321,7 +321,33 @@ export async function suggestWorkflow(
 
     // Get subtasks and dependencies
     const subtasks = await pool.query(
+<<<<<<< HEAD
       `SELECT id, tenant_id, title, description, status, priority, due_date, assigned_to, created_by, created_at, updated_at FROM tasks WHERE parent_task_id = $1`,
+=======
+      `SELECT 
+      id,
+      tenant_id,
+      task_title,
+      description,
+      task_type,
+      priority,
+      status,
+      assigned_to,
+      created_by,
+      due_date,
+      start_date,
+      completed_date,
+      estimated_hours,
+      actual_hours,
+      completion_percentage,
+      vehicle_id,
+      work_order_id,
+      parent_task_id,
+      tags,
+      metadata,
+      created_at,
+      updated_at FROM tasks WHERE parent_task_id = $1`,
+>>>>>>> feature/devsecops-audit-remediation
       [taskId]
     )
 
