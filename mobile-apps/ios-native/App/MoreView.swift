@@ -23,6 +23,21 @@ struct MoreView: View {
                         }
                     }
 
+                    NavigationLink(destination: AssetListView()) {
+                        HStack {
+                            Image(systemName: "cube.box.fill")
+                                .foregroundColor(.purple)
+                                .frame(width: 30)
+                            VStack(alignment: .leading) {
+                                Text("Assets")
+                                    .font(.body)
+                                Text("Track trailers, equipment, and tools")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                    }
+
                     NavigationLink(destination: Text("Checklists coming soon")) {
                         HStack {
                             Image(systemName: "checklist")
