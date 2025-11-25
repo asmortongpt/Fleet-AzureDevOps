@@ -25,6 +25,25 @@ struct MoreView: View {
                     }
                 }
 
+                // Vehicle Data Section
+                Section(header: Text("Vehicle Data")) {
+                    NavigationLink(destination: TelemetryDashboardView()) {
+                        HStack {
+                            Image(systemName: "gauge.with.dots.needle.67percent")
+                                .foregroundColor(.red)
+                                .frame(width: 30)
+                            VStack(alignment: .leading) {
+                                Text("Telemetry Dashboard")
+                                    .font(.body)
+                                Text("Real-time OBD-II data, diagnostics, and vehicle health")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                    }
+                }
+
+
                 // GPS Features Section
                 Section(header: Text("GPS Features")) {
                     NavigationLink(destination: GeofenceListView()) {
@@ -138,6 +157,21 @@ struct MoreView: View {
 
                 // Analytics Section
                 Section(header: Text("Analytics")) {
+                    NavigationLink(destination: TripAnalyticsView()) {
+                        HStack {
+                            Image(systemName: "chart.xyaxis.line")
+                                .foregroundColor(.orange)
+                                .frame(width: 30)
+                            VStack(alignment: .leading) {
+                                Text("Trip Analytics")
+                                    .font(.body)
+                                Text("Advanced analytics with anomaly detection")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                    }
+
                     NavigationLink(destination: FleetAnalyticsView()) {
                         HStack {
                             Image(systemName: "chart.bar.fill")
@@ -438,6 +472,24 @@ struct MoreView: View {
                                 Text("Schedule")
                                     .font(.body)
                                 Text("Shifts, maintenance & appointments")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                    }
+                }
+
+                // Workforce Section
+                Section(header: Text("Workforce")) {
+                    NavigationLink(destination: ShiftManagementView()) {
+                        HStack {
+                            Image(systemName: "clock.fill")
+                                .foregroundColor(.blue)
+                                .frame(width: 30)
+                            VStack(alignment: .leading) {
+                                Text("Shift Management")
+                                    .font(.body)
+                                Text("Clock in/out, shift scheduling, and overtime")
                                     .font(.caption)
                                     .foregroundColor(.secondary)
                             }
