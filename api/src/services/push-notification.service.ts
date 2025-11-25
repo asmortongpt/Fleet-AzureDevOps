@@ -247,7 +247,7 @@ class PushNotificationService {
           data_payload, action_buttons, image_url, sound, badge_count,
           total_recipients, delivery_status, created_by)
          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
-         RETURNING id`,
+         RETURNING id',
         [
           notification.tenantId,
           notification.notificationType,
@@ -318,7 +318,7 @@ class PushNotificationService {
           data_payload, action_buttons, image_url, sound, badge_count,
           scheduled_for, total_recipients, delivery_status, created_by)
          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
-         RETURNING id`,
+         RETURNING id',
         [
           notification.tenantId,
           notification.notificationType,

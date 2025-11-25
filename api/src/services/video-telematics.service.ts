@@ -109,7 +109,7 @@ class VideoTelematicsService {
          privacy_blur_faces = EXCLUDED.privacy_blur_faces,
          privacy_blur_plates = EXCLUDED.privacy_blur_plates,
          updated_at = NOW()
-       RETURNING id`,
+       RETURNING id',
       [
         config.vehicleId,
         config.cameraType,
@@ -173,7 +173,7 @@ class VideoTelematicsService {
         event_timestamp, video_request_id, video_url, video_thumbnail_url,
         marked_as_evidence, retention_policy, retention_expires_at, delete_after_days)
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)
-       RETURNING id`,
+       RETURNING id',
       [
         event.vehicleId,
         event.driverId,
@@ -459,7 +459,7 @@ class VideoTelematicsService {
        (locker_name, locker_type, case_number, incident_date, incident_description,
         created_by, assigned_to, legal_hold, legal_hold_reason)
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-       RETURNING id`,
+       RETURNING id',
       [
         data.lockerName,
         data.lockerType,
@@ -642,7 +642,7 @@ class VideoTelematicsService {
       `INSERT INTO driver_coaching_sessions
        (driver_id, video_event_id, session_type, coaching_topic, coach_id, coach_notes, scheduled_at)
        VALUES ($1, $2, $3, $4, $5, $6, $7)
-       RETURNING id`,
+       RETURNING id',
       [
         data.driverId,
         data.videoEventId,
