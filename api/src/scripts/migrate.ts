@@ -154,8 +154,8 @@ const runMigration = async (migration: Migration): Promise<boolean> => {
 // Main migration function
 const runMigrations = async () => {
   console.log('🚀 Starting database migrations...\n')
-  console.log(`📍 Database: ${process.env.DB_HOST || 'localhost'}:${process.env.DB_PORT || '5432'}/${process.env.DB_NAME || 'fleetdb'}`)
-  console.log(`👤 User: ${process.env.DB_USER || process.env.DB_USERNAME || 'fleetadmin'}\n`)
+  console.log('📍 Database: ${process.env.DB_HOST || 'localhost'}:${process.env.DB_PORT || '5432'}/${process.env.DB_NAME || 'fleetdb'}`)
+  console.log('👤 User: ${process.env.DB_USER || process.env.DB_USERNAME || 'fleetadmin'}\n`)
 
   try {
     // Test connection

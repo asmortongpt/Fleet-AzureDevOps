@@ -216,11 +216,11 @@ async function seedSupplemental() {
 
         routeValues.push(`(
           '${vehicle.tenant_id}', '${origin.name} to ${destination.name}',
-          '${vehicle.id}', ${assignedDriver ? `'${assignedDriver.id}'` : 'NULL'}, '${status}',
+          '${vehicle.id}', ${assignedDriver ? ''${assignedDriver.id}'' : 'NULL'}, '${status}',
           '${origin.name}, FL', '${destination.name}, FL',
           '${plannedStart.toISOString()}', '${plannedEnd.toISOString()}',
-          ${status === 'completed' || status === 'in_progress' ? `'${plannedStart.toISOString()}'` : 'NULL'},
-          ${status === 'completed' ? `'${plannedEnd.toISOString()}'` : 'NULL'},
+          ${status === 'completed' || status === 'in_progress' ? ''${plannedStart.toISOString()}'' : 'NULL'},
+          ${status === 'completed' ? ''${plannedEnd.toISOString()}'' : 'NULL'},
           ${distance}, ${estimatedDuration},
           ${status === 'completed' ? estimatedDuration + randomInt(-30, 30) : 'NULL'}
         )`);
@@ -280,11 +280,11 @@ async function seedSupplemental() {
         const result = randomItem(results);
 
         inspectionValues.push(`(
-          '${vehicle.tenant_id}', '${vehicle.id}', ${driver ? `'${driver.id}'` : 'NULL'},
+          '${vehicle.tenant_id}', '${vehicle.id}', ${driver ? ''${driver.id}'' : 'NULL'},
           '${daysAgo(randomInt(1, 365)).toISOString()}', '${type}',
           ${vehicle.odometer - randomInt(0, 5000)}, '${result}',
           '{"completed":true,"notes":"Inspection complete"}'::jsonb,
-          ${result !== 'pass' ? `'Minor issues found'` : 'NULL'}
+          ${result !== 'pass' ? ''Minor issues found'' : 'NULL'}
         )`);
       }
     }
@@ -314,7 +314,7 @@ async function seedSupplemental() {
 
       incidentValues.push(`(
         '${vehicle.tenant_id}', 'INC-2025-${randomInt(10000, 99999)}',
-        '${vehicle.id}', ${driver ? `'${driver.id}'` : 'NULL'},
+        '${vehicle.id}', ${driver ? ''${driver.id}'' : 'NULL'},
         '${daysAgo(randomInt(1, 365)).toISOString()}', '${type}', '${severity}',
         '${city.name}, FL', ${city.lat}, ${city.lng},
         '${type} incident - ${severity} severity',
@@ -416,7 +416,7 @@ async function seedSupplemental() {
         notifValues.push(`(
           '${user.tenant_id}', '${user.id}', '${template.type}',
           '${template.title}', '${template.message}', '${template.priority}',
-          ${isRead}, ${isRead ? `'${daysAgo(daysBack - randomInt(0, 3)).toISOString()}'` : 'NULL'},
+          ${isRead}, ${isRead ? ''${daysAgo(daysBack - randomInt(0, 3)).toISOString()}'' : 'NULL'},
           '${daysAgo(daysBack).toISOString()}'
         )`);
       }

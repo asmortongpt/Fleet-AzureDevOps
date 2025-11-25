@@ -495,7 +495,7 @@ router.get(
       const { type, limit = 50, offset = 0 } = req.query;
 
       let query = `
-        SELECT ` + (await getTableColumns(pool, 'mobile_ocr_captures')).join(', ') + ` FROM mobile_ocr_captures
+        SELECT ' + (await getTableColumns(pool, 'mobile_ocr_captures')).join(', ') + ` FROM mobile_ocr_captures
         WHERE tenant_id = $1 AND user_id = $2
       `;
       const params: any[] = [tenantId, userId];

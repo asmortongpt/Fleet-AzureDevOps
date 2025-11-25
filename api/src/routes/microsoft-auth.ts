@@ -68,7 +68,7 @@ router.get('/microsoft/callback', async (req: Request, res: Response) => {
     if (state && state !== '1') {
       // Validate that the provided tenant_id actually exists in database
       const tenantCheckResult = await pool.query(
-        `SELECT id FROM tenants WHERE id = $1',
+        'SELECT id FROM tenants WHERE id = $1',
         [state]
       )
 
@@ -103,7 +103,7 @@ router.get('/microsoft/callback', async (req: Request, res: Response) => {
 
     // Check if user exists
     let userResult = await pool.query(
-      `SELECT 
+      `SELECT
       id,
       tenant_id,
       email,
@@ -119,7 +119,7 @@ router.get('/microsoft/callback', async (req: Request, res: Response) => {
       mfa_enabled,
       mfa_secret,
       created_at,
-      updated_at FROM users WHERE email = $1 AND tenant_id = $2',
+      updated_at FROM users WHERE email = $1 AND tenant_id = $2`,
       [email.toLowerCase(), tenantId]
     )
 
@@ -160,7 +160,7 @@ router.get('/microsoft/callback', async (req: Request, res: Response) => {
 
       // Update last login
       await pool.query(
-        `UPDATE users SET last_login_at = NOW() WHERE id = $1',
+        'UPDATE users SET last_login_at = NOW() WHERE id = $1',
         [user.id]
       )
     }
@@ -286,7 +286,7 @@ router.get('/microsoft', async (req: Request, res: Response) => {
       `&response_type=code` +
       `&redirect_uri=${encodeURIComponent(AZURE_AD_CONFIG.redirectUri)}` +
       `&response_mode=query` +
-      `&scope=${encodeURIComponent('openid profile email User.Read')}` +
+      '&scope=${encodeURIComponent('openid profile email User.Read')}` +
       `&state=${state}` +
       `&prompt=select_account`
 
@@ -333,7 +333,7 @@ router.get('/microsoft/login', async (req: Request, res: Response) => {
       `&response_type=code` +
       `&redirect_uri=${encodeURIComponent(AZURE_AD_CONFIG.redirectUri)}` +
       `&response_mode=query` +
-      `&scope=${encodeURIComponent('openid profile email User.Read')}` +
+      '&scope=${encodeURIComponent('openid profile email User.Read')}` +
       `&state=${state}` +
       `&prompt=select_account`
 

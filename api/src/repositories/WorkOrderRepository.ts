@@ -149,7 +149,7 @@ export class WorkOrderRepository extends BaseRepository<WorkOrder> {
       }
     });
 
-    const whereClause = `WHERE ${conditions.join(' AND ')}`;
+    const whereClause = 'WHERE ${conditions.join(' AND ')}`;
 
     // Get total count
     const countQuery = `SELECT COUNT(*) as count FROM ${this.tableName} ${whereClause}`;
@@ -542,7 +542,7 @@ export class WorkOrderRepository extends BaseRepository<WorkOrder> {
   ): Promise<number> {
     if (workOrderIds.length === 0) return 0;
 
-    const idPlaceholders = workOrderIds.map((_, idx) => `$${3 + idx}`).join(', ');
+    const idPlaceholders = workOrderIds.map((_, idx) => '$${3 + idx}`).join(', ');
 
     const query = `
       UPDATE ${this.tableName}
@@ -566,7 +566,7 @@ export class WorkOrderRepository extends BaseRepository<WorkOrder> {
   ): Promise<number> {
     if (workOrderIds.length === 0) return 0;
 
-    const idPlaceholders = workOrderIds.map((_, idx) => `$${3 + idx}`).join(', ');
+    const idPlaceholders = workOrderIds.map((_, idx) => '$${3 + idx}`).join(', ');
 
     const query = `
       UPDATE ${this.tableName}

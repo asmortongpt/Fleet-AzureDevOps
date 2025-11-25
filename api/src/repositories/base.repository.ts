@@ -196,7 +196,7 @@ export abstract class BaseRepository<T> implements IRepository<T> {
     // Add additional conditions
     conditions.push(...additionalConditions);
 
-    return `WHERE ${conditions.join(' AND ')}`;
+    return 'WHERE ${conditions.join(' AND ')}`;
   }
 
   /**
@@ -385,7 +385,7 @@ export abstract class BaseRepository<T> implements IRepository<T> {
     const keys = Object.keys(row);
     const values = keys.map(key => row[key]);
 
-    const setClause = keys.map((key, idx) => `${key} = $${idx + 1}`).join(', ');
+    const setClause = keys.map((key, idx) => '${key} = $${idx + 1}`).join(', ');
 
     const query = `
       UPDATE ${this.tableName}
@@ -469,7 +469,7 @@ export abstract class BaseRepository<T> implements IRepository<T> {
       const placeholders = keys.map((_, colIdx) =>
         `$${rowIdx * keys.length + colIdx + 1}`
       );
-      return `(${placeholders.join(', ')})`;
+      return '(${placeholders.join(', ')})`;
     });
 
     const allValues = rows.flatMap(row => [...Object.values(row), tenantId]);
@@ -491,15 +491,15 @@ export abstract class BaseRepository<T> implements IRepository<T> {
     const keys = Object.keys(row);
     const values = keys.map(key => row[key]);
 
-    const setClause = keys.map((key, idx) => `${key} = $${idx + 1}`).join(', ');
-    const idPlaceholders = ids.map((_, idx) => `$${keys.length + 2 + idx}`).join(', ');
+    const setClause = keys.map((key, idx) => '${key} = $${idx + 1}`).join(', ');
+    const idPlaceholders = ids.map((_, idx) => '$${keys.length + 2 + idx}`).join(', ');
 
     const query = `
       UPDATE ${this.tableName}
       SET ${setClause}, updated_at = NOW()
       WHERE ${this.tenantColumn} = $${keys.length + 1}
         AND ${this.idColumn} IN (${idPlaceholders})
-        ${this.softDelete ? `AND ${this.deletedAtColumn} IS NULL` : ''}
+        ${this.softDelete ? 'AND ${this.deletedAtColumn} IS NULL` : ''}
     `;
 
     const params = [...values, tenantId, ...ids];
@@ -512,7 +512,7 @@ export abstract class BaseRepository<T> implements IRepository<T> {
     if (ids.length === 0) return 0;
 
     if (this.softDelete) {
-      const idPlaceholders = ids.map((_, idx) => `$${2 + idx}`).join(', ');
+      const idPlaceholders = ids.map((_, idx) => '$${2 + idx}`).join(', ');
 
       const query = `
         UPDATE ${this.tableName}
@@ -524,7 +524,7 @@ export abstract class BaseRepository<T> implements IRepository<T> {
       const result = await this.executeQuery(query, [tenantId, ...ids], 'bulkSoftDelete');
       return result.rowCount || 0;
     } else {
-      const idPlaceholders = ids.map((_, idx) => `$${2 + idx}`).join(', ');
+      const idPlaceholders = ids.map((_, idx) => '$${2 + idx}`).join(', ');
 
       const query = `
         DELETE FROM ${this.tableName}

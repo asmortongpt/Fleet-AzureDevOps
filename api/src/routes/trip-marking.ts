@@ -141,7 +141,7 @@ router.post(
 
       // Create or update trip usage classification
       const existingUsage = await pool.query(
-        `SELECT id FROM trip_usage_classification WHERE trip_id = $1',
+        'SELECT id FROM trip_usage_classification WHERE trip_id = $1',
         [tripId]
       )
 
@@ -270,7 +270,7 @@ router.post(
 
       // Verify vehicle belongs to tenant
       const vehicleResult = await pool.query(
-        `SELECT id FROM vehicles WHERE id = $1 AND tenant_id = $2',
+        'SELECT id FROM vehicles WHERE id = $1 AND tenant_id = $2',
         [vehicle_id, req.user!.tenant_id]
       )
 

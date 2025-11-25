@@ -64,7 +64,7 @@ class IntegrationVerifier {
       this.checks.push({
         name: 'Environment Variables',
         status: 'fail',
-        message: `Missing: ${missing.join(', ')}`,
+        message: 'Missing: ${missing.join(', ')}`,
         duration: Date.now() - start
       });
     }
@@ -368,7 +368,7 @@ class IntegrationVerifier {
 
     this.checks.forEach(check => {
       const icon = check.status === 'pass' ? '✓' : check.status === 'fail' ? '✗' : '⚠';
-      const duration = check.duration ? `(${check.duration}ms)` : '';
+      const duration = check.duration ? '(${check.duration}ms)` : '';
       console.log(`${icon} ${check.name}: ${check.message} ${duration}`);
     });
 
