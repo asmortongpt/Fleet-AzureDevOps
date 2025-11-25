@@ -126,7 +126,7 @@ router.post('/crash',
         acceleration: validated.maxAcceleration,
         userCanceled: validated.userCanceled,
         location: validated.latitude && validated.longitude ?
-          `${validated.latitude}, ${validated.longitude}` : 'unknown'
+          '${validated.latitude}, ${validated.longitude}` : 'unknown'
       })
 
       res.status(201).json({

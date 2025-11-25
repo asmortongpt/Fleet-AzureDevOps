@@ -168,7 +168,7 @@ export function notFoundResponse(
   res: Response,
   resource: string = 'Resource'
 ): Response {
-  return errorResponse(res, 404, `${resource} not found`, 'NOT_FOUND');
+  return errorResponse(res, 404, '${resource} not found`, 'NOT_FOUND');
 }
 
 /**

@@ -269,7 +269,7 @@ function exportToCSV(dataset: any[], options: any): string {
       const value = row[header]
       // Escape values containing delimiter or quotes
       if (typeof value === 'string' && (value.includes(delimiter) || value.includes('"'))) {
-        return `"${value.replace(/"/g, '""')}"`
+        return '"${value.replace(/"/g, '""')}"`
       }
       return value
     })

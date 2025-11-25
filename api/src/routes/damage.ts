@@ -107,7 +107,7 @@ router.post(
     });
 
     // Convert buffer to base64 data URL
-    const base64Image = `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`;
+    const base64Image = 'data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`;
 
     // Parse metadata from request body
     const metadata = req.body.metadata ? JSON.parse(req.body.metadata) : {};
@@ -179,7 +179,7 @@ router.post(
 
     // Convert photos to MobilePhotoData format
     const photos: MobilePhotoData[] = (req.files as Express.Multer.File[]).map((file, index) => {
-      const base64Image = `data:${file.mimetype};base64,${file.buffer.toString('base64')}`;
+      const base64Image = 'data:${file.mimetype};base64,${file.buffer.toString('base64')}`;
       const photoMetadata = req.body[`metadata_${index}`] ? JSON.parse(req.body[`metadata_${index}`]) : {};
 
       return {
@@ -303,7 +303,7 @@ router.post(
 
     // Parse photos
     const photos: MobilePhotoData[] = (req.files as Express.Multer.File[]).map((file, index) => {
-      const base64Image = `data:${file.mimetype};base64,${file.buffer.toString('base64')}`;
+      const base64Image = 'data:${file.mimetype};base64,${file.buffer.toString('base64')}`;
       const photoMetadata = req.body[`metadata_${index}`] ? JSON.parse(req.body[`metadata_${index}`]) : {};
 
       return {
@@ -580,7 +580,7 @@ router.get(
       });
 
       const result = await pool.query(
-        `SELECT vehicle_id, damage_type, severity, repair_cost, incident_date FROM v_vehicle_damage_summary WHERE vehicle_id = $1',
+        'SELECT vehicle_id, damage_type, severity, repair_cost, incident_date FROM v_vehicle_damage_summary WHERE vehicle_id = $1',
         [vehicleId]
       );
 

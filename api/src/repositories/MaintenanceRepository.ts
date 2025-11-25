@@ -133,7 +133,7 @@ export class MaintenanceRepository extends BaseRepository<MaintenanceSchedule> {
       }
     });
 
-    const whereClause = `WHERE ${conditions.join(' AND ')}`;
+    const whereClause = 'WHERE ${conditions.join(' AND ')}`;
 
     // Get total count
     const countQuery = `SELECT COUNT(*) as count FROM ${this.tableName} ${whereClause}`;

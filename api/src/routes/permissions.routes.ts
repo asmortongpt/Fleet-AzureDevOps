@@ -157,7 +157,7 @@ router.post('/roles', requireAdmin, async (req: Request, res: Response) => {
       user_id: user.id,
       event_type: 'role.created',
       severity: 'medium',
-      description: `Role '${name}' created`,
+      description: 'Role '${name}' created`,
       ip_address: req.ip,
       user_agent: req.get('user-agent'),
       context: { role_name: name }
@@ -319,7 +319,7 @@ router.delete('/users/:userId/roles/:roleName', requireAdmin, async (req: Reques
       user_id: user.id,
       event_type: 'user.role_removed',
       severity: 'medium',
-      description: `Role '${roleName}' removed from user ${userId}`,
+      description: 'Role '${roleName}' removed from user ${userId}`,
       ip_address: req.ip,
       user_agent: req.get('user-agent'),
       context: {

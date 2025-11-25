@@ -340,7 +340,7 @@ export async function validateOutboundUrl(
 
   // Check blocked hostnames
   if (isBlockedHostname(hostname)) {
-    throw new SSRFError(`Blocked hostname: ${hostname}`, urlString, 'blocked_hostname');
+    throw new SSRFError('Blocked hostname: ${hostname}`, urlString, 'blocked_hostname');
   }
 
   // Check private IPs in hostname (unless explicitly allowed)
@@ -397,7 +397,7 @@ export function validateOutboundUrlSync(
   const hostname = url.hostname.toLowerCase();
 
   if (isBlockedHostname(hostname)) {
-    throw new SSRFError(`Blocked hostname: ${hostname}`, urlString, 'blocked_hostname');
+    throw new SSRFError('Blocked hostname: ${hostname}`, urlString, 'blocked_hostname');
   }
 
   if (!allowPrivateIPs && isBlockedIP(hostname)) {
