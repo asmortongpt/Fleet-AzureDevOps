@@ -62,7 +62,7 @@ export class InspectionGenerator extends EventEmitter {
   private photoGenerator: PhotoGenerator
 
   // Standard DOT pre-trip inspection checklist
-  private preTrip Checklist = [
+  private preTripChecklist = [
     { category: 'Exterior', item: 'Tire Condition & Tread Depth', photoRequired: false },
     { category: 'Exterior', item: 'Tire Pressure', photoRequired: false },
     { category: 'Exterior', item: 'Wheel Lug Nuts & Rims', photoRequired: false },
