@@ -27,6 +27,8 @@ final class VehiclesViewModel: RefreshableViewModel {
     // MARK: - Private Properties
     private let mockData = MockDataGenerator.shared
     private var allVehicles: [Vehicle] = []
+    private let networkManager = AzureNetworkManager()
+    private let persistenceManager = DataPersistenceManager.shared
 
     // MARK: - Filter Options
     enum VehicleFilter: String, CaseIterable {
@@ -84,29 +86,54 @@ final class VehiclesViewModel: RefreshableViewModel {
     private func loadVehicleData() async {
         startLoading()
 
-        // Simulate network delay
-        await Task.sleep(200_000_000) // 0.2 seconds
+        do {
+            // Try to load from cache first for quick display
+            if let cachedVehicles: [Vehicle] = persistenceManager.getCachedVehicles() {
+                allVehicles = cachedVehicles
+                vehicles = allVehicles
+                updateStatistics()
+                applyFilterAndSort()
+            }
 
-        // Generate mock vehicles
-        allVehicles = mockData.generateVehicles(count: 25)
-        vehicles = allVehicles
+            // Fetch fresh data from API
+            let response = try await networkManager.performRequest(
+                endpoint: APIConfiguration.Endpoints.vehicles,
+                method: .GET,
+                token: nil, // Token will be added by AuthenticationManager if needed
+                responseType: VehiclesResponse.self
+            )
 
-        // Update statistics
-        updateStatistics()
+            // Update with fresh data
+            allVehicles = response.vehicles
+            vehicles = allVehicles
 
-        // Apply current filter and sort
-        applyFilterAndSort()
+            // Update statistics
+            updateStatistics()
 
-        // Cache the data
-        cacheVehicleData()
+            // Apply current filter and sort
+            applyFilterAndSort()
+
+            // Cache the fresh data
+            cacheVehicleData()
+
+        } catch {
+            // If API fails and we have no cached data, fall back to mock data
+            if allVehicles.isEmpty {
+                print("API failed, using mock data: \(error.localizedDescription)")
+                allVehicles = mockData.generateVehicles(count: 25)
+                vehicles = allVehicles
+                updateStatistics()
+                applyFilterAndSort()
+            } else {
+                print("Using cached data, API request failed: \(error.localizedDescription)")
+            }
+        }
 
         finishLoading()
     }
 
     private func cacheVehicleData() {
-        if let data = try? JSONEncoder().encode(allVehicles) {
-            cacheObject(data as AnyObject, forKey: "vehicles_cache")
-        }
+        persistenceManager.cacheVehicles(allVehicles)
     }
 
     private func updateStatistics() {
