@@ -10,7 +10,21 @@
     ],
     "module": "ESNext",
     "skipLibCheck": true,
+    /* CRITICAL: Full Strict Mode Enabled for 100% Compliance */
+    "strict": true,
     "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "strictBindCallApply": true,
+    "strictPropertyInitialization": true,
+    "noImplicitThis": true,
+    "noImplicitAny": true,
+    "alwaysStrict": true,
+    /* Code Quality Checks - ALL ENABLED */
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedIndexedAccess": true,
     /* Bundler mode */
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
@@ -18,14 +32,15 @@
     "moduleDetection": "force",
     "noEmit": true,
     "jsx": "react-jsx",
-    /* Linting */
-    "noFallthroughCasesInSwitch": true,
+    /* Error on emit */
+    "noEmitOnError": true,
+    /* Additional Safety */
     "noUncheckedSideEffectImports": true,
     "paths": {
       "@/*": [
         "./src/*"
       ]
-    },
+    }
   },
   "include": [
     "src"

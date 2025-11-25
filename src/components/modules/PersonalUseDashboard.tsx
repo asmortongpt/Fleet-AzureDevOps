@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react'
+import React, { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -8,7 +8,6 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Skeleton } from '@/components/ui/skeleton'
 import {
   Car,
   Warning,
@@ -175,8 +174,7 @@ export const PersonalUseDashboard: React.FC<PersonalUseDashboardProps> = ({
     : approvalsLoading
   const error = approvalsError
 
-  const { mutate: approveTrip, isPending: isApprovingTrip } = useMutation({
-    mutationFn: async (tripId: string) => {
+  const { mutate: approveTrip, isPending: isApprovingTrip } = useMutation({    mutationFn: async (tripId: string) => {
       return apiMutation(`/api/trip-usage/${tripId}/approve`, 'POST', {})
     },
     onSuccess: () => {
@@ -188,8 +186,7 @@ export const PersonalUseDashboard: React.FC<PersonalUseDashboardProps> = ({
     }
   })
 
-  const { mutate: rejectTrip, isPending: isRejectingTrip } = useMutation({
-    mutationFn: async (tripId: string, reason: string) => {
+  const { mutate: rejectTrip, isPending: isRejectingTrip } = useMutation({    mutationFn: async (tripId: string, reason: string) => {
       return apiMutation(`/api/trip-usage/${tripId}/reject`, 'POST', { rejection_reason: reason })
     },
     onSuccess: () => {
