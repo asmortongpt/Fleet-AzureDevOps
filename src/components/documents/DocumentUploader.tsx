@@ -23,8 +23,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { UploadProgress } from '@/lib/documents/types';
-import { formatFileSize, getDocumentType, validateFile } from '@/lib/documents/utils';
-
+import { formatFileSize, validateFile } from '@/lib/documents/utils';
 interface DocumentUploaderProps {
   onUpload?: (files: File[]) => void;
   onClose: () => void;
