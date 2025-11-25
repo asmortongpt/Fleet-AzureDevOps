@@ -32,6 +32,7 @@ class RoleManager: ObservableObject {
     // MARK: - Types
 
     enum UserRole: String, Codable, CaseIterable {
+        case user = "User"  // Alias for driver role
         case driver = "Driver"
         case fleetManager = "FleetManager"
         case maintenanceManager = "MaintenanceManager"
@@ -44,6 +45,7 @@ class RoleManager: ObservableObject {
 
         var displayName: String {
             switch self {
+            case .user: return "User"
             case .driver: return "Driver"
             case .fleetManager: return "Fleet Manager"
             case .maintenanceManager: return "Maintenance Manager"
@@ -58,6 +60,8 @@ class RoleManager: ObservableObject {
 
         var description: String {
             switch self {
+            case .user:
+                return "Standard user with basic access"
             case .driver:
                 return "Vehicle operator with self-service access to own records, inspections, and fuel logging"
             case .fleetManager:
@@ -81,6 +85,7 @@ class RoleManager: ObservableObject {
 
         var icon: String {
             switch self {
+            case .user: return "person"
             case .driver: return "person.fill"
             case .fleetManager: return "person.badge.key.fill"
             case .maintenanceManager: return "wrench.and.screwdriver.fill"
@@ -95,6 +100,7 @@ class RoleManager: ObservableObject {
 
         var priority: Int {
             switch self {
+            case .user: return 0
             case .driver: return 1
             case .vendor: return 2
             case .inspector: return 3
@@ -110,7 +116,7 @@ class RoleManager: ObservableObject {
         /// Check if this role is mobile-appropriate (shown in mobile app)
         var isMobileRole: Bool {
             switch self {
-            case .driver, .fleetManager, .maintenanceManager, .inspector:
+            case .user, .driver, .fleetManager, .maintenanceManager, .inspector:
                 return true
             case .admin, .finance, .safety, .auditor, .vendor:
                 return false // Desktop-only or limited mobile use
@@ -487,6 +493,7 @@ class RoleManager: ObservableObject {
 
     private func getRoleColor() -> String {
         switch currentRole {
+        case .user: return "gray"
         case .driver: return "blue"
         case .fleetManager: return "purple"
         case .maintenanceManager: return "orange"

@@ -82,7 +82,8 @@ class DataPersistenceManager: ObservableObject {
     }
 
     // MARK: - Vehicle Caching
-    func cacheVehicles(_ vehicles: [Vehicle]) {
+    // Note: Using the Vehicle type from Models/Vehicle.swift
+    func cacheVehicles<T: Codable & Identifiable>(_ vehicles: [T]) where T.ID == String {
         do {
             let encoder = JSONEncoder()
             encoder.dateEncodingStrategy = .iso8601
@@ -94,7 +95,7 @@ class DataPersistenceManager: ObservableObject {
         }
     }
 
-    func getCachedVehicles() -> [Vehicle]? {
+    func getCachedVehicles<T: Codable>() -> [T]? {
         guard let data = userDefaults.data(forKey: StorageKeys.vehicles) else {
             return nil
         }
@@ -102,7 +103,7 @@ class DataPersistenceManager: ObservableObject {
         do {
             let decoder = JSONDecoder()
             decoder.dateDecodingStrategy = .iso8601
-            let vehicles = try decoder.decode([Vehicle].self, from: data)
+            let vehicles = try decoder.decode([T].self, from: data)
             return vehicles
         } catch {
             print("Error decoding cached vehicles: \(error.localizedDescription)")
@@ -110,8 +111,8 @@ class DataPersistenceManager: ObservableObject {
         }
     }
 
-    func cacheVehicle(_ vehicle: Vehicle) {
-        var vehicles = getCachedVehicles() ?? []
+    func cacheVehicle<T: Codable & Identifiable>(_ vehicle: T) where T.ID == String {
+        var vehicles: [T] = getCachedVehicles() ?? []
 
         // Update existing vehicle or add new one
         if let index = vehicles.firstIndex(where: { $0.id == vehicle.id }) {
