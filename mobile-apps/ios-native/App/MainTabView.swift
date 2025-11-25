@@ -230,6 +230,20 @@ struct MainTabView: View {
         case .help:
             HelpView()
 
+        // Driver management destinations
+        case .driverDetail(let id):
+            DriverDetailView(driverId: id)
+
+        case .addDriver:
+            Text("Add Driver View - Coming Soon")
+                .font(.title)
+                .padding()
+
+        case .editDriver(let id):
+            Text("Edit Driver View - Coming Soon")
+                .font(.title)
+                .padding()
+
         // Hardware integration destinations
         case .fleetMap:
             FleetMapView()
