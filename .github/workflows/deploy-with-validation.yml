@@ -1,0 +1,261 @@
+name: Deploy with Automatic Validation & Rollback
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy to'
+        required: true
+        type: choice
+        options:
+          - staging
+          - production
+      image_tag:
+        description: 'Image tag to deploy'
+        required: true
+        type: string
+
+env:
+  NAMESPACE: fleet-management
+  DEPLOYMENT_NAME: fleet-app
+
+jobs:
+  deploy:
+    name: Deploy Application
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.environment }}
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Azure Login
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Set up kubectl
+      uses: azure/setup-kubectl@v3
+      with:
+        version: 'v1.28.0'
+
+    - name: Get AKS credentials
+      run: |
+        az aks get-credentials \
+          --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} \
+          --name ${{ secrets.AKS_CLUSTER_NAME }} \
+          --overwrite-existing
+
+    - name: Update deployment image
+      run: |
+        kubectl set image deployment/${{ env.DEPLOYMENT_NAME }} \
+          fleet-app=${{ secrets.ACR_LOGIN_SERVER }}/fleet-app:${{ github.event.inputs.image_tag }} \
+          -n ${{ env.NAMESPACE }}
+
+    - name: Wait for rollout to complete
+      run: |
+        kubectl rollout status deployment/${{ env.DEPLOYMENT_NAME }} \
+          -n ${{ env.NAMESPACE }} \
+          --timeout=10m
+
+  validate:
+    name: Run Validation Tests
+    runs-on: ubuntu-latest
+    needs: deploy
+    environment: ${{ github.event.inputs.environment }}
+
+    outputs:
+      validation_status: ${{ steps.validation.outputs.status }}
+      incident_report: ${{ steps.validation.outputs.incident_report }}
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Azure Login
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Set up kubectl
+      uses: azure/setup-kubectl@v3
+      with:
+        version: 'v1.28.0'
+
+    - name: Get AKS credentials
+      run: |
+        az aks get-credentials \
+          --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} \
+          --name ${{ secrets.AKS_CLUSTER_NAME }} \
+          --overwrite-existing
+
+    - name: Install dependencies
+      run: |
+        # Install jq
+        sudo apt-get update && sudo apt-get install -y jq curl
+
+        # Install Playwright for visual regression tests
+        npm install -g playwright
+        playwright install chromium
+
+        # Install k6 for performance tests
+        sudo gpg -k
+        sudo gpg --no-default-keyring --keyring /usr/share/keyrings/k6-archive-keyring.gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C5AD17C747E3415A3642D57D77C6C491D6AC1D69
+        echo "deb [signed-by=/usr/share/keyrings/k6-archive-keyring.gpg] https://dl.k6.io/deb stable main" | sudo tee /etc/apt/sources.list.d/k6.list
+        sudo apt-get update
+        sudo apt-get install k6
+
+    - name: Upload validation scripts to ConfigMap
+      run: |
+        kubectl create configmap validation-scripts \
+          --from-file=./scripts/ \
+          -n ${{ env.NAMESPACE }} \
+          --dry-run=client -o yaml | kubectl apply -f -
+
+    - name: Create validation job
+      run: |
+        # Update job manifest with current deployment info
+        export DEPLOYMENT_TIMESTAMP=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+        export DEPLOYMENT_IMAGE="${{ secrets.ACR_LOGIN_SERVER }}/fleet-app:${{ github.event.inputs.image_tag }}"
+
+        envsubst < k8s/deployment-validation-job.yaml | kubectl apply -f -
+
+    - name: Wait for validation job
+      id: validation
+      timeout-minutes: 15
+      run: |
+        echo "Waiting for validation job to complete..."
+
+        # Wait for job to complete
+        kubectl wait --for=condition=complete \
+          job/deployment-validation \
+          -n ${{ env.NAMESPACE }} \
+          --timeout=15m && validation_result=0 || validation_result=$?
+
+        echo "Validation job exit code: $validation_result"
+
+        # Get job logs
+        echo "::group::Validation Logs"
+        kubectl logs job/deployment-validation -n ${{ env.NAMESPACE }}
+        echo "::endgroup::"
+
+        # Check validation status
+        if [ $validation_result -eq 0 ]; then
+          echo "status=SUCCESS" >> $GITHUB_OUTPUT
+          echo "✅ Deployment validation PASSED"
+        else
+          echo "status=ROLLBACK" >> $GITHUB_OUTPUT
+          echo "❌ Deployment validation FAILED - Rollback executed"
+
+          # Try to get incident report from job logs
+          incident_report=$(kubectl logs job/deployment-validation -n ${{ env.NAMESPACE }} \
+            | grep -oP 'Incident report: \K.*' || echo "No incident report found")
+          echo "incident_report=$incident_report" >> $GITHUB_OUTPUT
+        fi
+
+        exit $validation_result
+
+    - name: Upload validation results
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: validation-results-${{ github.event.inputs.environment }}
+        path: |
+          validation-results/
+          incident-reports/
+        retention-days: 30
+
+    - name: Upload incident report
+      if: failure()
+      uses: actions/upload-artifact@v3
+      with:
+        name: incident-report-${{ github.run_number }}
+        path: incident-reports/
+        retention-days: 90
+
+  notify:
+    name: Notify Results
+    runs-on: ubuntu-latest
+    needs: validate
+    if: always()
+
+    steps:
+    - name: Send success notification
+      if: needs.validate.outputs.validation_status == 'SUCCESS'
+      run: |
+        echo "::notice::🎉 Deployment to ${{ github.event.inputs.environment }} successful!"
+        echo "::notice::Image: ${{ github.event.inputs.image_tag }}"
+        echo "::notice::All validation tests passed"
+
+    - name: Send failure notification
+      if: needs.validate.outputs.validation_status == 'ROLLBACK'
+      run: |
+        echo "::error::❌ Deployment to ${{ github.event.inputs.environment }} failed and was rolled back"
+        echo "::error::Image: ${{ github.event.inputs.image_tag }}"
+        echo "::error::Incident report: ${{ needs.validate.outputs.incident_report }}"
+
+    - name: Create GitHub issue on failure
+      if: needs.validate.outputs.validation_status == 'ROLLBACK' && github.event.inputs.environment == 'production'
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const issue = await github.rest.issues.create({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            title: `🚨 Production Deployment Rollback - ${new Date().toISOString()}`,
+            body: `## Deployment Failure Report
+
+            **Environment:** ${{ github.event.inputs.environment }}
+            **Image Tag:** ${{ github.event.inputs.image_tag }}
+            **Workflow Run:** https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+            **Incident Report:** ${{ needs.validate.outputs.incident_report }}
+
+            ## Summary
+
+            A production deployment was automatically rolled back due to failed validation tests.
+
+            ## Next Steps
+
+            1. Review the validation results in the workflow artifacts
+            2. Check the incident report for detailed failure information
+            3. Fix the identified issues
+            4. Re-run tests in staging before attempting production deployment again
+
+            ## Artifacts
+
+            - [Validation Results](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
+            - [Incident Report](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
+            `,
+            labels: ['deployment-failure', 'production', 'auto-rollback']
+          });
+
+          console.log(`Created issue #${issue.data.number}`);
+
+  cleanup:
+    name: Cleanup Validation Job
+    runs-on: ubuntu-latest
+    needs: validate
+    if: always()
+
+    steps:
+    - name: Azure Login
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Set up kubectl
+      uses: azure/setup-kubectl@v3
+      with:
+        version: 'v1.28.0'
+
+    - name: Get AKS credentials
+      run: |
+        az aks get-credentials \
+          --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} \
+          --name ${{ secrets.AKS_CLUSTER_NAME }} \
+          --overwrite-existing
+
+    - name: Delete validation job
+      run: |
+        kubectl delete job deployment-validation -n ${{ env.NAMESPACE }} --ignore-not-found=true
+        echo "Validation job cleaned up"
