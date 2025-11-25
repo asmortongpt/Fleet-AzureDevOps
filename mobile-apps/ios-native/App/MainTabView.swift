@@ -232,9 +232,7 @@ struct MainTabView: View {
 
         // Hardware integration destinations
         case .fleetMap:
-            Text("Fleet Map View - Coming Soon")
-                .font(.title)
-                .padding()
+            FleetMapView()
 
         case .tripTracking(let vehicleId):
             Text("Trip Tracking for Vehicle: \(vehicleId)")
