@@ -575,7 +575,7 @@ router.get('/:id', requirePermission('route:view:own'), async (req: Request, res
     // Get breadcrumbs
     if (includeBreadcrumbs) {
       const breadcrumbsResult = await pool.query(
-        `SELECT * FROM trip_gps_breadcrumbs
+        `SELECT id, tenant_id, trip_id, latitude, longitude, accuracy, recorded_at FROM trip_gps_breadcrumbs
          WHERE trip_id = $1
          ORDER BY timestamp ASC`,
         [tripId]
@@ -586,7 +586,7 @@ router.get('/:id', requirePermission('route:view:own'), async (req: Request, res
     // Get metrics
     if (includeMetrics) {
       const metricsResult = await pool.query(
-        `SELECT * FROM trip_obd2_metrics
+        `SELECT id, tenant_id, trip_id, metric_name, metric_value, recorded_at FROM trip_obd2_metrics
          WHERE trip_id = $1
          ORDER BY timestamp ASC`,
         [tripId]
@@ -597,7 +597,11 @@ router.get('/:id', requirePermission('route:view:own'), async (req: Request, res
     // Get events
     if (includeEvents) {
       const eventsResult = await pool.query(
+<<<<<<< HEAD
         `SELECT id, tenant_id, trip_id, event_type, event_data, event_timestamp, created_at FROM trip_events
+=======
+        `SELECT id, tenant_id, trip_id, event_type, event_data, recorded_at FROM trip_events
+>>>>>>> feature/devsecops-audit-remediation
          WHERE trip_id = $1
          ORDER BY timestamp ASC`,
         [tripId]

@@ -259,13 +259,10 @@ enum NavigationDestination: Hashable, Identifiable {
             return "about"
         case .help:
             return "help"
-<<<<<<< HEAD
         case .pushToTalk:
             return "push-to-talk"
-=======
         case .fleetMap:
             return "fleet-map"
->>>>>>> stage-a/requirements-inception
         case .tripTracking(let vehicleId):
             return "trip-tracking-\(vehicleId)"
         case .obd2Diagnostics:

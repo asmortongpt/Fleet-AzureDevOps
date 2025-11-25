@@ -22,6 +22,7 @@ import {
   ClipboardText,
   ChartBar
 } from "@phosphor-icons/react"
+<<<<<<< HEAD
 import { EntityLinkingProvider } from "@/contexts/EntityLinkingContext"
 import { DrilldownProvider } from "@/contexts/DrilldownContext"
 import { UniversalSearch, SearchTrigger, useGlobalSearch } from "@/components/UniversalSearch"
@@ -31,6 +32,64 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
+=======
+import { navigationItems } from "@/lib/navigation"
+import { FleetDashboard } from "@/components/modules/FleetDashboard"
+import { PeopleManagement } from "@/components/modules/PeopleManagement"
+import { GarageService } from "@/components/modules/GarageService"
+import { PredictiveMaintenance } from "@/components/modules/PredictiveMaintenance"
+import { FuelManagement } from "@/components/modules/FuelManagement"
+import { GPSTracking } from "@/components/modules/GPSTracking"
+import { DataWorkbench } from "@/components/modules/DataWorkbench"
+import { MileageReimbursement } from "@/components/modules/MileageReimbursement"
+import { MaintenanceRequest } from "@/components/modules/MaintenanceRequest"
+import { RouteManagement } from "@/components/modules/RouteManagement"
+import { GISCommandCenter } from "@/components/modules/GISCommandCenter"
+import { TrafficCameras } from "@/components/modules/TrafficCameras"
+import { DriverPerformance } from "@/components/modules/DriverPerformance"
+import { FleetAnalytics } from "@/components/modules/FleetAnalytics"
+import { VendorManagement } from "@/components/modules/VendorManagement"
+import { PartsInventory } from "@/components/modules/PartsInventory"
+import { PurchaseOrders } from "@/components/modules/PurchaseOrders"
+import { Invoices } from "@/components/modules/Invoices"
+// TEMPORARILY DISABLED: AIAssistant requires @mui/material dependency
+// import { AIAssistant } from "@/components/modules/AIAssistant"
+import { TeamsIntegration } from "@/components/modules/TeamsIntegration"
+import { EmailCenter } from "@/components/modules/EmailCenter"
+import { MaintenanceScheduling } from "@/components/modules/MaintenanceScheduling"
+import { ReceiptProcessing } from "@/components/modules/ReceiptProcessing"
+import { CommunicationLog } from "@/components/modules/CommunicationLog"
+import { GeofenceManagement } from "@/components/modules/GeofenceManagement"
+import { OSHAForms } from "@/components/modules/OSHAForms"
+import { PolicyEngineWorkbench } from "@/components/modules/PolicyEngineWorkbench"
+import { VideoTelematics } from "@/components/modules/VideoTelematics"
+import { EVChargingManagement } from "@/components/modules/EVChargingManagement"
+import { EnhancedMapLayers } from "@/components/modules/EnhancedMapLayers"
+import { AdvancedRouteOptimization } from "@/components/modules/AdvancedRouteOptimization"
+import { CustomFormBuilder } from "@/components/modules/CustomFormBuilder"
+import { VehicleTelemetry } from "@/components/modules/VehicleTelemetry"
+import { VirtualGarage } from "@/components/modules/VirtualGarage"
+import { PersonalUseDashboard } from "@/components/modules/PersonalUseDashboard"
+import { PersonalUsePolicyConfig } from "@/components/modules/PersonalUsePolicyConfig"
+import { ReimbursementQueue } from "@/pages/PersonalUse/ReimbursementQueue"
+import { ChargesAndBilling } from "@/pages/PersonalUse/ChargesAndBilling"
+import { ArcGISIntegration } from "@/components/modules/ArcGISIntegration"
+import { MapSettings } from "@/components/modules/MapSettings"
+import { ExecutiveDashboard } from "@/components/modules/ExecutiveDashboard"
+import { AssetManagement } from "@/components/modules/AssetManagement"
+import { EquipmentDashboard } from "@/components/modules/EquipmentDashboard"
+import { TaskManagement } from "@/components/modules/TaskManagement"
+import { IncidentManagement } from "@/components/modules/IncidentManagement"
+import { Notifications } from "@/components/modules/Notifications"
+import PushNotificationAdmin from "@/components/modules/PushNotificationAdmin"
+import { DocumentManagement } from "@/components/modules/DocumentManagement"
+import { DocumentQA } from "@/components/modules/DocumentQA"
+import { DriverScorecard } from "@/components/modules/DriverScorecard"
+import { FleetOptimizer } from "@/components/modules/FleetOptimizer"
+import { CostAnalysisCenter } from "@/components/modules/CostAnalysisCenter"
+import { FuelPurchasing } from "@/components/modules/FuelPurchasing"
+import { CustomReportBuilder } from "@/components/modules/CustomReportBuilder"
+>>>>>>> feature/devsecops-audit-remediation
 import { RoleSwitcher } from "@/components/demo/RoleSwitcher"
 import { ToastContainer } from "@/components/common/ToastContainer"
 import { ErrorBoundary } from "@/components/ErrorBoundary"
@@ -38,6 +97,7 @@ import { ThemeToggle } from "@/components/ThemeToggle"
 import { DrilldownManager } from "@/components/DrilldownManager"
 import { InspectDrawer } from "@/components/inspect/InspectDrawer"
 import { useFleetData } from "@/hooks/use-fleet-data"
+<<<<<<< HEAD
 import { ModuleLoadingSpinner } from "@/components/common/ModuleLoadingSpinner"
 import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts"
 
@@ -81,6 +141,8 @@ const hubNavigation = [
     icon: <ChartBar size={20} />
   }
 ]
+=======
+>>>>>>> feature/devsecops-audit-remediation
 
 function App() {
   const [sidebarOpen, setSidebarOpen] = useState(true)

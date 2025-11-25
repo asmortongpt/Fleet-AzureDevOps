@@ -143,19 +143,19 @@ struct TripDetailView: View {
         }
     }
     
-    private var mapAnnotations: [MapAnnotation] {
-        var annotations: [MapAnnotation] = []
-        
+    private var mapAnnotations: [TripMapAnnotation] {
+        var annotations: [TripMapAnnotation] = []
+
         if let first = trip.coordinates.first {
-            annotations.append(MapAnnotation(
+            annotations.append(TripMapAnnotation(
                 coordinate: CLLocationCoordinate2D(latitude: first.latitude, longitude: first.longitude),
                 color: .green,
                 label: "Start"
             ))
         }
-        
+
         if let last = trip.coordinates.last, trip.coordinates.count > 1 {
-            annotations.append(MapAnnotation(
+            annotations.append(TripMapAnnotation(
                 coordinate: CLLocationCoordinate2D(latitude: last.latitude, longitude: last.longitude),
                 color: .red,
                 label: "End"
@@ -451,7 +451,7 @@ struct RoutePointCard: View {
     }
 }
 
-struct MapAnnotation: Identifiable {
+struct TripMapAnnotation: Identifiable {
     let id = UUID()
     let coordinate: CLLocationCoordinate2D
     let color: Color
