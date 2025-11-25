@@ -11,8 +11,7 @@ import { Input } from './ui/input';
 import { Textarea } from './ui/textarea';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from './ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from './ui/dialog';
-import { Shield, Lock, AlertTriangle, FileText, Video, Plus, Search, Eye, Download, Folder } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { Shield, Lock, AlertTriangle, FileText, Video, Plus, Search, Eye, Folder } from 'lucide-react';import { cn } from '@/lib/utils';
 
 interface EvidenceLocker {
   id: number;

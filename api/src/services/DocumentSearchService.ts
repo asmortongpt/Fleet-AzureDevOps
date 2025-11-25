@@ -654,7 +654,7 @@ export class DocumentSearchService {
    */
   async getSavedSearches(userId: string): Promise<SavedSearch[]> {
     const result = await pool.query(
-      `SELECT * FROM saved_searches
+      `SELECT id, tenant_id, user_id, search_name, search_query, created_at, updated_at FROM saved_searches
        WHERE user_id = $1
        ORDER BY created_at DESC`,
       [userId]
@@ -682,7 +682,7 @@ export class DocumentSearchService {
     limit: number = 50
   ): Promise<SearchHistory[]> {
     const result = await pool.query(
-      `SELECT * FROM search_history
+      `SELECT id, tenant_id, user_id, search_query, result_count, created_at FROM search_history
        WHERE user_id = $1
        ORDER BY created_at DESC
        LIMIT $2`,

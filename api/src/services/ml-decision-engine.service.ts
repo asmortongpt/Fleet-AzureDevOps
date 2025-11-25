@@ -63,7 +63,7 @@ class MLDecisionEngineService {
     try {
       // Get active maintenance prediction model
       const modelResult = await pool.query(
-        `SELECT * FROM ml_models
+        `SELECT id, tenant_id, model_name, model_type, version, status, accuracy, created_at, updated_at FROM ml_models
          WHERE tenant_id = $1
            AND model_type = 'predictive_maintenance'
            AND is_active = true
@@ -263,7 +263,24 @@ class MLDecisionEngineService {
 
       // Get prediction details
       const predResult = await pool.query(
-        `SELECT * FROM predictions WHERE id = $1`,
+        `SELECT 
+      id,
+      tenant_id,
+      model_id,
+      prediction_type,
+      entity_type,
+      entity_id,
+      input_features,
+      prediction_value,
+      confidence_score,
+      probability_distribution,
+      prediction_date,
+      actual_outcome,
+      outcome_date,
+      is_correct,
+      error_magnitude,
+      metadata,
+      created_at FROM predictions WHERE id = $1`,
         [predictionId]
       )
 
@@ -598,7 +615,7 @@ class MLDecisionEngineService {
 
   private async getActiveModel(tenantId: string, modelType: string): Promise<any> {
     const result = await pool.query(
-      `SELECT * FROM ml_models
+      `SELECT id, tenant_id, model_name, model_type, version, status, accuracy, created_at, updated_at FROM ml_models
        WHERE tenant_id = $1 AND model_type = $2 AND is_active = true
        ORDER BY created_at DESC LIMIT 1`,
       [tenantId, modelType]
