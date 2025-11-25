@@ -10,7 +10,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { analytics } from '../services/analytics';
 import { getTelemetryConfig } from '../config/telemetry';
-import { PrivacyManager } from '../utils/privacy';
 import analyticsService from '../utils/analytics';
 
 interface TelemetryEvent {

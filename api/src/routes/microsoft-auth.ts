@@ -103,7 +103,27 @@ router.get('/microsoft/callback', async (req: Request, res: Response) => {
 
     // Check if user exists
     let userResult = await pool.query(
+<<<<<<< HEAD
       `SELECT id, tenant_id, email, first_name, last_name, role, is_active, phone, created_at, updated_at FROM users WHERE email = $1 AND tenant_id = $2`,
+=======
+      `SELECT 
+      id,
+      tenant_id,
+      email,
+      password_hash,
+      first_name,
+      last_name,
+      phone,
+      role,
+      is_active,
+      failed_login_attempts,
+      account_locked_until,
+      last_login_at,
+      mfa_enabled,
+      mfa_secret,
+      created_at,
+      updated_at FROM users WHERE email = $1 AND tenant_id = $2`,
+>>>>>>> feature/devsecops-audit-remediation
       [email.toLowerCase(), tenantId]
     )
 

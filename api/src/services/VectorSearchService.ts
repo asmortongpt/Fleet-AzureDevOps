@@ -92,7 +92,7 @@ export class VectorSearchService {
     try {
       // Check if pgvector extension is installed
       const result = await pool.query(
-        "SELECT * FROM pg_extension WHERE extname = 'vector'"
+        "SELECT ` + (await getTableColumns(pool, 'pg_extension')).join(', ') + ` FROM pg_extension WHERE extname = 'vector'"
       )
 
       if (result.rows.length === 0) {

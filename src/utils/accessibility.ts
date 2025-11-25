@@ -15,7 +15,6 @@
 /**
  * ARIA live region politeness levels
  */
-import logger from '@/utils/logger'
 export type AriaLive = 'off' | 'polite' | 'assertive'
 
 /**
