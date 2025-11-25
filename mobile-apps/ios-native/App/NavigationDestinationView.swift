@@ -68,6 +68,33 @@ struct NavigationDestinationView: View {
                     vehicleId: vehicleId,
                     photoType: parsePhotoType(photoType)
                 )
+
+            // Geofence management destinations
+            case .geofenceList:
+                GeofenceListView()
+
+            case .geofenceDetail(let id):
+                GeofenceDetailView(geofenceId: id)
+
+            case .addGeofence:
+                Text("Add Geofence - Use sheet from GeofenceListView")
+
+            case .editGeofence(let id):
+                Text("Edit Geofence: \(id) - Use sheet from GeofenceListView")
+
+            // Driver management destinations
+            case .driverDetail(let id):
+                DriverDetailView(driverId: id)
+
+            case .addDriver:
+                Text("Add Driver View")
+
+            case .editDriver(let id):
+                Text("Edit Driver: \(id)")
+
+            // GIS Command Center destination
+            case .gisCommandCenter:
+                GISCommandCenterView()
             }
         }
     }
