@@ -1,9 +1,5 @@
 import SwiftUI
 
-// MARK: - Import Real Views
-// Note: VehiclesView, TripsView, and wrapper views are defined in separate files
-// but may not be in Xcode project yet. Adding inline references here.
-
 // MARK: - Main Tab View with iOS 15+ Support
 struct MainTabView: View {
     @EnvironmentObject private var navigationCoordinator: NavigationCoordinator
@@ -205,7 +201,7 @@ struct MainTabView: View {
             VehicleDetailViewWrapper(vehicleId: id)
 
         case .tripDetail(let id):
-            TripDetailViewWrapper(tripId: id)
+            TripDetailView(tripId: id)
 
         case .maintenanceDetail(let id):
             MaintenanceDetailView(maintenanceId: id)
@@ -234,17 +230,23 @@ struct MainTabView: View {
         case .help:
             HelpView()
 
-        case .pushToTalk:
-            Text("Push-To-Talk - Coming Soon")
-                .font(.headline)
-                .foregroundColor(.secondary)
-            // TODO: Implement PushToTalkPanel
+        // Driver management destinations
+        case .driverDetail(let id):
+            DriverDetailView(driverId: id)
+
+        case .addDriver:
+            Text("Add Driver View - Coming Soon")
+                .font(.title)
+                .padding()
+
+        case .editDriver(let id):
+            Text("Edit Driver View - Coming Soon")
+                .font(.title)
+                .padding()
 
         // Hardware integration destinations
         case .fleetMap:
-            Text("Fleet Map View - Coming Soon")
-                .font(.title)
-                .padding()
+            FleetMapView()
 
         case .tripTracking(let vehicleId):
             Text("Trip Tracking for Vehicle: \(vehicleId)")
@@ -267,12 +269,10 @@ struct MainTabView: View {
                 .padding()
         }
     }
-
 }
 
-// MARK: - Wrapper Views
-// TODO: These should be in separate files but are included here for build compatibility
-
+// MARK: - Vehicle Detail Wrapper
+/// Wrapper view that loads a vehicle by ID and passes it to VehicleDetailView
 struct VehicleDetailViewWrapper: View {
     let vehicleId: String
     @StateObject private var viewModel = VehicleViewModel()
@@ -331,13 +331,79 @@ struct VehicleDetailViewWrapper: View {
     }
 }
 
-struct TripDetailViewWrapper: View {
-    let tripId: String
+// MARK: - Shared Components
+
+// Placeholder View
+struct PlaceholderView: View {
+    let title: String
+    let icon: String
+    let message: String
 
     var body: some View {
-        TripDetailView(tripId: tripId)
-            .navigationTitle("Trip Details")
-            .navigationBarTitleDisplayMode(.inline)
+        VStack(spacing: 20) {
+            Image(systemName: icon)
+                .font(.system(size: 60))
+                .foregroundColor(.gray)
+
+            Text(title)
+                .font(.title.bold())
+
+            Text(message)
+                .font(.subheadline)
+                .foregroundColor(.secondary)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .navigationTitle(title)
+    }
+}
+
+// Filter Chip (used by MaintenanceView)
+struct FilterChip: View {
+    let title: String
+    let icon: String
+    let isSelected: Bool
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            Label(title, systemImage: icon)
+                .font(.caption)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 6)
+                .background(isSelected ? Color.blue : Color(.secondarySystemGroupedBackground))
+                .foregroundColor(isSelected ? .white : .primary)
+                .cornerRadius(20)
+        }
+    }
+}
+
+// Detail Card (used by MaintenanceView)
+struct DetailCard: View {
+    let title: String
+    let value: String
+    let icon: String
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Image(systemName: icon)
+                    .font(.caption)
+                    .foregroundColor(.blue)
+                Text(title)
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
+
+            Text(value)
+                .font(.subheadline.bold())
+                .foregroundColor(.primary)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding()
+        .background(Color(.secondarySystemGroupedBackground))
+        .cornerRadius(12)
     }
 }
 

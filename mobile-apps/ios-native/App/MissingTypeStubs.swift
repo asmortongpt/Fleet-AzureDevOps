@@ -213,3 +213,276 @@ public class ConflictResolver {
         return ConflictStatistics()
     }
 }
+
+// MARK: - Date Range
+
+public struct DateRange {
+    public var start: Date
+    public var end: Date
+
+    public init(start: Date, end: Date) {
+        self.start = start
+        self.end = end
+    }
+}
+
+// MARK: - Dashboard Models
+
+public struct DashboardStats: Codable {
+    public let totalVehicles: Int
+    public let activeVehicles: Int
+    public let totalTrips: Int
+    public let todayTrips: Int
+    public let alerts: Int
+    public let avgFuelLevel: Double
+    public let maintenanceDue: Int
+    public let totalMileage: Double
+    public let totalFuelCost: Double
+    public let fleetUtilization: Double
+
+    public init(totalVehicles: Int, activeVehicles: Int, totalTrips: Int, todayTrips: Int, alerts: Int, avgFuelLevel: Double, maintenanceDue: Int, totalMileage: Double, totalFuelCost: Double, fleetUtilization: Double) {
+        self.totalVehicles = totalVehicles
+        self.activeVehicles = activeVehicles
+        self.totalTrips = totalTrips
+        self.todayTrips = todayTrips
+        self.alerts = alerts
+        self.avgFuelLevel = avgFuelLevel
+        self.maintenanceDue = maintenanceDue
+        self.totalMileage = totalMileage
+        self.totalFuelCost = totalFuelCost
+        self.fleetUtilization = fleetUtilization
+    }
+}
+
+// NOTE: ActivityItem and ActivityType are defined in Models/FleetModels.swift
+
+// MARK: - MockDataGenerator Stub
+
+public class MockDataGenerator {
+    public static let shared = MockDataGenerator()
+
+    private init() {}
+
+    public func generateVehicles(count: Int) -> [Vehicle] {
+        return []
+    }
+
+    public func generateTrips(count: Int, vehicles: [Vehicle]) -> [Trip] {
+        return []
+    }
+
+    public func generateMaintenanceRecords(count: Int, vehicles: [Vehicle]) -> [MaintenanceRecord] {
+        return []
+    }
+
+    public func generateDashboardStats(vehicles: [Vehicle], trips: [Trip]) -> DashboardStats {
+        let totalVehicles = vehicles.count
+        let activeVehicles = vehicles.filter { $0.status == .active }.count
+        let totalTrips = trips.count
+        let todayTrips = trips.filter { Calendar.current.isDateInToday($0.startTime) }.count
+        let alerts = vehicles.reduce(0) { total, vehicle in total + vehicle.alerts.count }
+        let avgFuelLevel = vehicles.isEmpty ? 0 : vehicles.reduce(0.0, { total, vehicle in total + vehicle.fuelLevel }) / Double(vehicles.count)
+        // maintenanceDue - simplified check since nextService is a String
+        let maintenanceDue = vehicles.filter { !$0.nextService.isEmpty }.count
+        let totalMileage = vehicles.reduce(0.0, { total, vehicle in total + vehicle.mileage })
+        // totalFuelCost - estimated from total distance * average cost per mile
+        let totalFuelCost = trips.reduce(0.0, { total, trip in total + (trip.totalDistance * 0.15) })
+        let fleetUtilization = totalVehicles > 0 ? (Double(activeVehicles) / Double(totalVehicles)) * 100 : 0
+
+        return DashboardStats(
+            totalVehicles: totalVehicles,
+            activeVehicles: activeVehicles,
+            totalTrips: totalTrips,
+            todayTrips: todayTrips,
+            alerts: alerts,
+            avgFuelLevel: avgFuelLevel,
+            maintenanceDue: maintenanceDue,
+            totalMileage: totalMileage,
+            totalFuelCost: totalFuelCost,
+            fleetUtilization: fleetUtilization
+        )
+    }
+}
+
+// MARK: - Schedule Model Stubs
+
+public struct ScheduleEntry: Identifiable, Codable {
+    public let id: String
+    public var title: String
+    public var description: String?
+    public var startDate: Date
+    public var endDate: Date
+
+    public init(id: String = UUID().uuidString, title: String, description: String? = nil, startDate: Date, endDate: Date) {
+        self.id = id
+        self.title = title
+        self.description = description
+        self.startDate = startDate
+        self.endDate = endDate
+    }
+}
+
+public enum ScheduleType: String, Codable {
+    case shift
+    case maintenance
+    case other
+}
+
+public struct ScheduleFilter {
+    public init() {}
+}
+
+public struct ScheduleConflict: Identifiable {
+    public let id: String
+    public var description: String
+
+    public init(id: String = UUID().uuidString, description: String = "") {
+        self.id = id
+        self.description = description
+    }
+}
+
+public struct ScheduleStatistics {
+    public var totalScheduled: Int = 0
+    public var completed: Int = 0
+
+    public init() {}
+}
+
+public struct DriverSchedule: Identifiable, Codable {
+    public let id: String
+    public var driverName: String
+
+    public init(id: String = UUID().uuidString, driverName: String) {
+        self.id = id
+        self.driverName = driverName
+    }
+}
+
+public struct VehicleSchedule: Identifiable, Codable {
+    public let id: String
+    public var vehicleNumber: String
+
+    public init(id: String = UUID().uuidString, vehicleNumber: String) {
+        self.id = id
+        self.vehicleNumber = vehicleNumber
+    }
+}
+
+public struct ShiftSchedule: Identifiable, Codable {
+    public let id: String
+    public var startTime: Date
+    public var endTime: Date
+
+    public init(id: String = UUID().uuidString, startTime: Date, endTime: Date) {
+        self.id = id
+        self.startTime = startTime
+        self.endTime = endTime
+    }
+}
+
+public struct MaintenanceWindow: Identifiable, Codable {
+    public let id: String
+    public var scheduledDate: Date
+
+    public init(id: String = UUID().uuidString, scheduledDate: Date) {
+        self.id = id
+        self.scheduledDate = scheduledDate
+    }
+}
+
+public enum Resolution: String, Codable {
+    case keepLocal
+    case keepRemote
+    case merge
+}
+
+public class ScheduleService {
+    public static let shared = ScheduleService()
+    private init() {}
+}
+
+// MARK: - Checklist Model Stubs
+
+public struct ChecklistInstance: Identifiable, Codable {
+    public let id: String
+    public var templateName: String
+    public var status: String
+
+    public init(id: String = UUID().uuidString, templateName: String, status: String = "pending") {
+        self.id = id
+        self.templateName = templateName
+        self.status = status
+    }
+}
+
+public struct ChecklistTemplate: Identifiable, Codable {
+    public let id: String
+    public var name: String
+    public var description: String
+
+    public init(id: String = UUID().uuidString, name: String, description: String = "") {
+        self.id = id
+        self.name = name
+        self.description = description
+    }
+}
+
+public enum ChecklistCategory: String, Codable {
+    case osha
+    case preTripInspection
+    case maintenance
+    case custom
+}
+
+public struct ChecklistItemInstance: Identifiable, Codable {
+    public let id: String
+    public var text: String
+
+    public init(id: String = UUID().uuidString, text: String) {
+        self.id = id
+        self.text = text
+    }
+}
+
+public enum ChecklistResponse: Codable {
+    case boolean(Bool)
+    case text(String)
+    case number(Double)
+
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        if let bool = try? container.decode(Bool.self) {
+            self = .boolean(bool)
+        } else if let text = try? container.decode(String.self) {
+            self = .text(text)
+        } else if let number = try? container.decode(Double.self) {
+            self = .number(number)
+        } else {
+            self = .boolean(false)
+        }
+    }
+
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.singleValueContainer()
+        switch self {
+        case .boolean(let value):
+            try container.encode(value)
+        case .text(let value):
+            try container.encode(value)
+        case .number(let value):
+            try container.encode(value)
+        }
+    }
+}
+
+public enum AttachmentType: String, Codable {
+    case photo
+    case video
+    case document
+}
+
+public class ChecklistService {
+    public static let shared = ChecklistService()
+    private init() {}
+}

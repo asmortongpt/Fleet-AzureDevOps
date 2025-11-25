@@ -2,7 +2,7 @@
 //  MaintenanceView.swift
 //  Fleet Manager
 //
-//  Maintenance view placeholder - Full implementation pending model alignment
+//  Complete Maintenance view with scheduling, service history, and maintenance cards
 //
 
 import SwiftUI
@@ -11,13 +11,16 @@ struct MaintenanceView: View {
     @StateObject private var viewModel = MaintenanceViewModel()
     @State private var showingScheduleMaintenance = false
     @State private var selectedRecordForDetail: MaintenanceRecord?
+    @State private var showingFilterOptions = false
 
     var body: some View {
         NavigationView {
             ZStack {
-                if viewModel.loadingState == .loading {
+                if viewModel.loadingState == .loading && viewModel.filteredRecords.isEmpty {
                     ProgressView("Loading maintenance records...")
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
+                } else if viewModel.filteredRecords.isEmpty && !viewModel.searchText.isEmpty {
+                    emptySearchState
                 } else if viewModel.filteredRecords.isEmpty {
                     emptyState
                 } else {
@@ -26,13 +29,15 @@ struct MaintenanceView: View {
             }
             .navigationTitle("Maintenance")
             .navigationBarTitleDisplayMode(.large)
+            .searchable(text: $viewModel.searchText, prompt: "Search maintenance...")
             .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(action: { showingScheduleMaintenance = true }) {
-                        Image(systemName: "plus.circle.fill")
-                            .font(.title2)
-                    }
+                ToolbarItemGroup(placement: .navigationBarTrailing) {
+                    filterButton
+                    scheduleButton
                 }
+            }
+            .refreshable {
+                await viewModel.refresh()
             }
             .sheet(isPresented: $showingScheduleMaintenance) {
                 ScheduleMaintenanceView(viewModel: viewModel)
@@ -40,99 +45,315 @@ struct MaintenanceView: View {
             .sheet(item: $selectedRecordForDetail) { record in
                 MaintenanceDetailViewEmbedded(record: record, viewModel: viewModel)
             }
-            .onAppear {
-                viewModel.loadMaintenanceRecords()
+            .sheet(isPresented: $showingFilterOptions) {
+                MaintenanceFilterView(viewModel: viewModel)
             }
-            .refreshable {
-                viewModel.loadMaintenanceRecords()
+        }
+        .navigationViewStyle(.stack)
+    }
+
+    // MARK: - Maintenance List
+    private var maintenanceList: some View {
+        ScrollView {
+            // Statistics Bar
+            statisticsBar
+
+            // Filter Chips
+            filterChips
+
+            // Maintenance Cards
+            LazyVStack(spacing: 12) {
+                ForEach(viewModel.filteredRecords) { record in
+                    MaintenanceCard(record: record) {
+                        selectedRecordForDetail = record
+                    }
+                    .transition(.asymmetric(
+                        insertion: .slide.combined(with: .opacity),
+                        removal: .opacity
+                    ))
+                }
             }
+            .padding(.horizontal)
+            .padding(.bottom, 20)
+        }
+        .background(Color(.systemGroupedBackground))
+    }
+
+    // MARK: - Statistics Bar
+    private var statisticsBar: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 16) {
+                MaintenanceStatCard(
+                    title: "Overdue",
+                    value: "\(viewModel.overdueCount)",
+                    icon: "exclamationmark.triangle.fill",
+                    color: .red
+                )
+
+                MaintenanceStatCard(
+                    title: "Scheduled",
+                    value: "\(viewModel.scheduledCount)",
+                    icon: "calendar",
+                    color: .blue
+                )
+
+                MaintenanceStatCard(
+                    title: "This Month",
+                    value: "\(viewModel.completedThisMonth)",
+                    icon: "checkmark.circle.fill",
+                    color: .green
+                )
+
+                MaintenanceStatCard(
+                    title: "Monthly Cost",
+                    value: formatCurrency(viewModel.totalCostThisMonth),
+                    icon: "dollarsign.circle.fill",
+                    color: .purple
+                )
+            }
+            .padding(.horizontal)
+        }
+        .padding(.vertical, 8)
+    }
+
+    // MARK: - Filter Chips
+    private var filterChips: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 8) {
+                ForEach(MaintenanceViewModel.MaintenanceFilter.allCases, id: \.self) { filter in
+                    FilterChip(
+                        title: filter.rawValue,
+                        icon: filter.icon,
+                        isSelected: viewModel.selectedFilter == filter
+                    ) {
+                        viewModel.applyFilter(filter)
+                    }
+                }
+            }
+            .padding(.horizontal)
+            .padding(.vertical, 8)
         }
     }
 
-    // MARK: - Empty State
+    // MARK: - Toolbar Items
+    private var filterButton: some View {
+        Button(action: { showingFilterOptions = true }) {
+            Image(systemName: "line.3.horizontal.decrease.circle")
+        }
+    }
+
+    private var scheduleButton: some View {
+        Button(action: { showingScheduleMaintenance = true }) {
+            Image(systemName: "plus.circle.fill")
+                .foregroundColor(.blue)
+        }
+    }
+
+    // MARK: - Empty States
     private var emptyState: some View {
-        VStack(spacing: 20) {
+        VStack(spacing: 16) {
             Image(systemName: "wrench.and.screwdriver")
                 .font(.system(size: 60))
                 .foregroundColor(.gray)
 
             Text("No Maintenance Records")
-                .font(.title2)
-                .fontWeight(.semibold)
+                .font(.title2.bold())
 
-            Text("Schedule maintenance to keep your fleet running smoothly")
-                .font(.body)
-                .foregroundColor(.secondary)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal)
-
-            Button(action: { showingScheduleMaintenance = true }) {
-                HStack {
-                    Image(systemName: "plus.circle.fill")
-                    Text("Schedule Maintenance")
-                }
-                .font(.headline)
-                .foregroundColor(.white)
-                .padding(.horizontal, 30)
-                .padding(.vertical, 15)
-                .background(Color.blue)
-                .cornerRadius(12)
-            }
-            .padding(.top, 10)
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color(.systemGroupedBackground))
-    }
-
-    // MARK: - Maintenance List
-    private var maintenanceList: some View {
-        List {
-            ForEach(viewModel.filteredRecords) { record in
-                MaintenanceRowView(record: record)
-            }
-        }
-        .listStyle(.plain)
-        .searchable(text: $viewModel.searchText, prompt: "Search maintenance")
-    }
-}
-
-// MARK: - Maintenance Row View
-struct MaintenanceRowView: View {
-    let record: MaintenanceRecord
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack {
-                Image(systemName: record.type.icon)
-                    .foregroundColor(.blue)
-
-                Text(record.type.rawValue)
-                    .font(.headline)
-
-                Spacer()
-
-                MaintenanceStatusBadge(status: record.status)
-            }
-
-            Text(record.description)
+            Text("Schedule your first maintenance")
                 .font(.subheadline)
                 .foregroundColor(.secondary)
 
-            HStack {
-                if let vehicleNumber = record.vehicleNumber {
-                    Label(vehicleNumber, systemImage: "car.fill")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                }
-
-                Spacer()
-
-                Text(record.scheduledDate.formatted(date: .abbreviated, time: .omitted))
-                    .font(.caption)
-                    .foregroundColor(.secondary)
+            Button(action: { showingScheduleMaintenance = true }) {
+                Label("Schedule Maintenance", systemImage: "plus")
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 10)
+                    .background(Color.blue)
+                    .foregroundColor(.white)
+                    .cornerRadius(10)
             }
         }
-        .padding(.vertical, 4)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
+    private var emptySearchState: some View {
+        VStack(spacing: 16) {
+            Image(systemName: "magnifyingglass")
+                .font(.system(size: 50))
+                .foregroundColor(.gray)
+
+            Text("No Results")
+                .font(.title2.bold())
+
+            Text("No maintenance records match '\(viewModel.searchText)'")
+                .font(.subheadline)
+                .foregroundColor(.secondary)
+
+            Button("Clear Search") {
+                viewModel.searchText = ""
+            }
+            .foregroundColor(.blue)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
+    // MARK: - Helper Functions
+    private func formatCurrency(_ amount: Double) -> String {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .currency
+        formatter.currencyCode = "USD"
+        formatter.maximumFractionDigits = 0
+        return formatter.string(from: NSNumber(value: amount)) ?? "$0"
+    }
+}
+
+// MARK: - Maintenance Card Component
+struct MaintenanceCard: View {
+    let record: MaintenanceRecord
+    let onTap: () -> Void
+
+    var body: some View {
+        Button(action: onTap) {
+            VStack(alignment: .leading, spacing: 12) {
+                // Header
+                HStack {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(record.vehicleNumber ?? "Unknown Vehicle")
+                            .font(.headline)
+                            .foregroundColor(.primary)
+
+                        Text(record.type.rawValue)
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                    }
+
+                    Spacer()
+
+                    MaintenanceStatusBadge(status: record.status)
+                }
+
+                // Service Details
+                HStack(spacing: 20) {
+                    // Date
+                    HStack(spacing: 4) {
+                        Image(systemName: "calendar")
+                            .font(.caption)
+                            .foregroundColor(dateColor(for: record.status))
+                        Text(record.scheduledDate, style: .date)
+                            .font(.caption)
+                    }
+
+                    // Provider
+                    HStack(spacing: 4) {
+                        Image(systemName: "building.2")
+                            .font(.caption)
+                            .foregroundColor(.gray)
+                        Text(record.serviceProvider ?? "N/A")
+                            .font(.caption)
+                            .lineLimit(1)
+                    }
+
+                    // Cost
+                    if let cost = record.cost, cost > 0 {
+                        HStack(spacing: 4) {
+                            Image(systemName: "dollarsign.circle")
+                                .font(.caption)
+                                .foregroundColor(.green)
+                            Text(formatCost(cost))
+                                .font(.caption)
+                        }
+                    }
+                }
+
+                // Mileage
+                HStack {
+                    Image(systemName: "speedometer")
+                        .font(.caption)
+                        .foregroundColor(.gray)
+                    if let mileage = record.mileageAtService {
+                        Text("At \(formatMileage(mileage))")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                }
+
+                // Parts if any
+                if let parts = record.parts, !parts.isEmpty {
+                    HStack {
+                        Image(systemName: "wrench")
+                            .font(.caption)
+                            .foregroundColor(.orange)
+                        Text("\(parts.count) part\(parts.count == 1 ? "" : "s") replaced")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                }
+
+                // Notes if any
+                if let notes = record.notes {
+                    HStack(alignment: .top) {
+                        Image(systemName: "note.text")
+                            .font(.caption)
+                            .foregroundColor(.gray)
+                        Text(notes)
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                            .lineLimit(2)
+                    }
+                }
+
+                // Overdue Warning
+                if record.status == .overdue {
+                    HStack {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .font(.caption)
+                            .foregroundColor(.red)
+                        Text("Overdue by \(daysSince(record.scheduledDate)) days")
+                            .font(.caption.bold())
+                            .foregroundColor(.red)
+                    }
+                    .padding(8)
+                    .background(Color.red.opacity(0.1))
+                    .cornerRadius(8)
+                }
+            }
+            .padding()
+            .background(Color(.secondarySystemGroupedBackground))
+            .cornerRadius(12)
+        }
+        .buttonStyle(PlainButtonStyle())
+    }
+
+    private func dateColor(for status: MaintenanceStatus) -> Color {
+        switch status {
+        case .overdue: return .red
+        case .scheduled: return .blue
+        case .completed: return .green
+        case .inProgress: return .orange
+        case .cancelled: return .gray
+        case .delayed: return .red
+        case .onHold: return .yellow
+        }
+    }
+
+    private func formatCost(_ cost: Double) -> String {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .currency
+        formatter.currencyCode = "USD"
+        formatter.maximumFractionDigits = 0
+        return formatter.string(from: NSNumber(value: cost)) ?? "$0"
+    }
+
+    private func formatMileage(_ mileage: Double) -> String {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .decimal
+        formatter.maximumFractionDigits = 0
+        return (formatter.string(from: NSNumber(value: mileage)) ?? "0") + " mi"
+    }
+
+    private func daysSince(_ date: Date) -> Int {
+        let calendar = Calendar.current
+        let components = calendar.dateComponents([.day], from: date, to: Date())
+        return components.day ?? 0
     }
 }
 
@@ -311,7 +532,7 @@ struct MaintenanceDetailViewEmbedded: View {
                             .font(.system(size: 60))
                             .foregroundColor(statusColor)
 
-                        Text(record.vehicleNumber ?? "Vehicle")
+                        Text(record.vehicleNumber ?? "Unknown Vehicle")
                             .font(.title.bold())
 
                         Text(record.type.rawValue)
@@ -324,12 +545,14 @@ struct MaintenanceDetailViewEmbedded: View {
 
                     // Details Grid
                     LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 16) {
-                        DetailCard(title: "Scheduled", value: record.scheduledDate.formatted(date: .abbreviated, time: .shortened), icon: "calendar", color: .blue)
-                        DetailCard(title: "Provider", value: record.serviceProvider ?? "N/A", icon: "building.2", color: .purple)
-                        DetailCard(title: "Mileage", value: formatMileage(record.mileageAtService), icon: "speedometer", color: .orange)
-                        DetailCard(title: "Cost", value: formatCurrency(record.cost), icon: "dollarsign.circle", color: .green)
-                        DetailCard(title: "Category", value: record.category.rawValue, icon: "tag.fill", color: .gray)
-                        DetailCard(title: "Priority", value: record.priority.rawValue, icon: "exclamationmark.circle", color: priorityColor)
+                        DetailCard(title: "Scheduled", value: record.scheduledDate.formatted(date: .abbreviated, time: .shortened), icon: "calendar")
+                        DetailCard(title: "Provider", value: record.serviceProvider ?? "N/A", icon: "building.2")
+                        if let mileage = record.mileageAtService {
+                            DetailCard(title: "Mileage", value: formatMileage(mileage), icon: "speedometer")
+                        }
+                        if let cost = record.cost {
+                            DetailCard(title: "Cost", value: formatCurrency(cost), icon: "dollarsign.circle")
+                        }
                     }
                     .padding()
 
@@ -341,7 +564,7 @@ struct MaintenanceDetailViewEmbedded: View {
                                 .padding(.horizontal)
 
                             VStack(spacing: 8) {
-                                ForEach(parts) { part in
+                                ForEach(parts, id: \.id) { part in
                                     HStack {
                                         VStack(alignment: .leading) {
                                             Text(part.name)
@@ -356,7 +579,7 @@ struct MaintenanceDetailViewEmbedded: View {
                                         VStack(alignment: .trailing) {
                                             Text("Qty: \(part.quantity)")
                                                 .font(.caption)
-                                            Text(formatCurrency(part.cost))
+                                            Text(formatCurrency(part.totalCost))
                                                 .font(.subheadline.bold())
                                         }
                                     }
@@ -441,59 +664,26 @@ struct MaintenanceDetailViewEmbedded: View {
         case .scheduled: return .blue
         case .inProgress: return .orange
         case .completed: return .green
+        case .overdue: return .red
         case .cancelled: return .gray
         case .delayed: return .red
         case .onHold: return .yellow
-        case .overdue: return .red
         }
     }
 
-    private var priorityColor: Color {
-        switch record.priority {
-        case .low: return .gray
-        case .normal: return .blue
-        case .high: return .orange
-        case .urgent: return .red
-        case .critical: return .purple
-        }
+    private func formatMileage(_ mileage: Double) -> String {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .decimal
+        formatter.maximumFractionDigits = 0
+        return (formatter.string(from: NSNumber(value: mileage)) ?? "0") + " mi"
     }
 
-    private func formatMileage(_ mileage: Double?) -> String {
-        guard let mileage = mileage else { return "N/A" }
-        return String(format: "%.0f mi", mileage)
-    }
-
-    private func formatCurrency(_ amount: Double?) -> String {
-        guard let amount = amount else { return "N/A" }
-        return String(format: "$%.2f", amount)
-    }
-}
-
-// MARK: - Detail Card
-struct DetailCard: View {
-    let title: String
-    let value: String
-    let icon: String
-    let color: Color
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack {
-                Image(systemName: icon)
-                    .foregroundColor(color)
-                    .font(.caption)
-                Text(title)
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-            }
-            Text(value)
-                .font(.subheadline)
-                .fontWeight(.semibold)
-        }
-        .padding()
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color(.secondarySystemGroupedBackground))
-        .cornerRadius(8)
+    private func formatCurrency(_ amount: Double) -> String {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .currency
+        formatter.currencyCode = "USD"
+        formatter.maximumFractionDigits = amount == floor(amount) ? 0 : 2
+        return formatter.string(from: NSNumber(value: amount)) ?? "$0"
     }
 }
 
@@ -508,15 +698,42 @@ struct RescheduleView: View {
         NavigationView {
             Form {
                 Section("Current Schedule") {
-                    Text(record.scheduledDate.formatted(date: .long, time: .shortened))
-                        .foregroundColor(.secondary)
+                    HStack {
+                        Text("Vehicle")
+                        Spacer()
+                        Text(record.vehicleNumber ?? "Unknown")
+                            .foregroundColor(.secondary)
+                    }
+
+                    HStack {
+                        Text("Service")
+                        Spacer()
+                        Text(record.type.rawValue)
+                            .foregroundColor(.secondary)
+                    }
+
+                    HStack {
+                        Text("Original Date")
+                        Spacer()
+                        Text(record.scheduledDate, style: .date)
+                            .foregroundColor(.secondary)
+                    }
                 }
 
-                Section("New Date") {
-                    DatePicker("Select Date", selection: $newDate, displayedComponents: [.date, .hourAndMinute])
+                Section("New Schedule") {
+                    DatePicker("New Date", selection: $newDate, displayedComponents: [.date, .hourAndMinute])
+                }
+
+                Section {
+                    Button(action: reschedule) {
+                        Label("Confirm Reschedule", systemImage: "calendar.badge.clock")
+                            .frame(maxWidth: .infinity)
+                            .foregroundColor(.white)
+                    }
+                    .listRowBackground(Color.blue)
                 }
             }
-            .navigationTitle("Reschedule")
+            .navigationTitle("Reschedule Maintenance")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
@@ -524,23 +741,64 @@ struct RescheduleView: View {
                         dismiss()
                     }
                 }
+            }
+        }
+    }
+
+    private func reschedule() {
+        viewModel.rescheduleMaintenance(record, newDate: newDate)
+        dismiss()
+    }
+}
+
+// MARK: - Maintenance Filter View
+struct MaintenanceFilterView: View {
+    @ObservedObject var viewModel: MaintenanceViewModel
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        NavigationView {
+            List {
+                Section("Filter By Status") {
+                    ForEach(MaintenanceViewModel.MaintenanceFilter.allCases, id: \.self) { filter in
+                        Button(action: {
+                            viewModel.applyFilter(filter)
+                            dismiss()
+                        }) {
+                            HStack {
+                                Label(filter.rawValue, systemImage: filter.icon)
+                                    .foregroundColor(filter.color)
+                                Spacer()
+                                if viewModel.selectedFilter == filter {
+                                    Image(systemName: "checkmark")
+                                        .foregroundColor(.blue)
+                                }
+                            }
+                        }
+                        .foregroundColor(.primary)
+                    }
+                }
+
+                Section("Actions") {
+                    Button(action: viewModel.exportMaintenanceReport) {
+                        Label("Export Report", systemImage: "square.and.arrow.up")
+                    }
+                }
+            }
+            .navigationTitle("Filter Options")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Save") {
-                        viewModel.rescheduleMaintenance(record, newDate: newDate)
+                    Button("Done") {
                         dismiss()
                     }
                 }
             }
         }
-        .onAppear {
-            newDate = record.scheduledDate
-        }
     }
 }
 
 // MARK: - Preview
-struct MaintenanceView_Previews: PreviewProvider {
-    static var previews: some View {
-        MaintenanceView()
-    }
+#Preview {
+    MaintenanceView()
 }
