@@ -111,6 +111,7 @@ function useUniversalSearch(query: string, enabled: boolean = true) {
   useEffect(() => {
     if (!enabled || !debouncedQuery || debouncedQuery.length < 2) {
       setResults([])
+      setIsSearching(false)
       return
     }
 
