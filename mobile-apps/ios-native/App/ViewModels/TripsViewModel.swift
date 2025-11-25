@@ -3,6 +3,7 @@
 //  Fleet Manager
 //
 //  ViewModel for Trips view with history, tracking, and filtering
+//  Updated: 2025-01-25 - Added real API integration with cache-first strategy
 //
 
 import Foundation
@@ -35,6 +36,8 @@ final class TripsViewModel: RefreshableViewModel {
     @Published var currentDistance: Double = 0
 
     // MARK: - Private Properties
+    private let networkManager = AzureNetworkManager()
+    private let persistenceManager = DataPersistenceManager.shared
     private let mockData = MockDataGenerator.shared
     private var allTrips: [Trip] = []
     private var vehicles: [Vehicle] = []
@@ -82,30 +85,52 @@ final class TripsViewModel: RefreshableViewModel {
     private func loadTripData() async {
         startLoading()
 
-        // Simulate network delay
-        await Task.sleep(200_000_000) // 0.2 seconds
+        // 1. Try loading from cache first (instant UI)
+        if let cachedTrips = persistenceManager.getCachedTrips() {
+            allTrips = cachedTrips
+            trips = allTrips
+            updateStatistics()
+            applyFilter(selectedFilter)
+        }
 
-        // Generate mock data
-        vehicles = mockData.generateVehicles(count: 25)
-        allTrips = mockData.generateTrips(count: 50, vehicles: vehicles)
-        trips = allTrips
+        // 2. Fetch from API in background
+        do {
+            let response: TripsResponse = try await networkManager.get("/v1/trips")
 
-        // Update statistics
-        updateStatistics()
+            await MainActor.run {
+                allTrips = response.trips
+                trips = allTrips
 
-        // Apply current filter
-        applyFilter(selectedFilter)
+                // Update statistics
+                updateStatistics()
 
-        // Cache the data
-        cacheTripData()
+                // Apply current filter
+                applyFilter(selectedFilter)
+
+                // Cache the fresh data
+                persistenceManager.cacheTrips(response.trips)
+            }
+
+        } catch {
+            // 3. Fallback: If API fails and no cache, use mock data
+            print("⚠️ API Error loading trips: \(error.localizedDescription)")
+
+            if allTrips.isEmpty {
+                // Generate mock data as last resort
+                vehicles = mockData.generateVehicles(count: 25)
+                allTrips = mockData.generateTrips(count: 50, vehicles: vehicles)
+                trips = allTrips
+
+                updateStatistics()
+                applyFilter(selectedFilter)
+            }
+        }
 
         finishLoading()
     }
 
     private func cacheTripData() {
-        if let data = try? JSONEncoder().encode(allTrips) {
-            cacheObject(data as AnyObject, forKey: "trips_cache")
-        }
+        persistenceManager.cacheTrips(allTrips)
     }
 
     private func updateStatistics() {
