@@ -99,7 +99,7 @@ async function runOutlookSync(): Promise<void> {
     const jobRecordResult = await pool.query(
       `INSERT INTO sync_jobs (job_type, status, started_at)
        VALUES ('outlook_sync', 'running', NOW())
-       RETURNING id`,
+       RETURNING id',
       []
     )
     const jobRecordId = jobRecordResult.rows[0].id

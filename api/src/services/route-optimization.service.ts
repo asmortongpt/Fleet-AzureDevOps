@@ -542,7 +542,7 @@ async function createOptimizationJob(
       consider_traffic, consider_time_windows, consider_vehicle_capacity,
       max_vehicles, max_stops_per_route, scheduled_date, scheduled_time, status
     ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
-    RETURNING id`,
+    RETURNING id',
     [
       tenantId,
       userId,
@@ -618,7 +618,7 @@ async function saveOptimizedRoutes(
         total_cost, capacity_utilization_percent,
         route_geometry, status
       ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
-      RETURNING id`,
+      RETURNING id',
       [
         jobId,
         tenantId,
