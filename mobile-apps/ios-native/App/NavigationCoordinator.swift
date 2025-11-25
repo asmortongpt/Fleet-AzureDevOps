@@ -240,6 +240,12 @@ enum NavigationDestination: Hashable, Identifiable {
     case maintenancePhoto(vehicleId: String, type: String)
     case photoCapture(vehicleId: String, photoType: String)
 
+    // Geofence management destinations
+    case geofenceList
+    case geofenceDetail(id: String)
+    case addGeofence
+    case editGeofence(id: String)
+
     var id: String {
         switch self {
         case .vehicleDetail(let id):
@@ -280,6 +286,14 @@ enum NavigationDestination: Hashable, Identifiable {
             return "maintenance-photo-\(vehicleId)-\(type)"
         case .photoCapture(let vehicleId, let photoType):
             return "photo-capture-\(vehicleId)-\(photoType)"
+        case .geofenceList:
+            return "geofence-list"
+        case .geofenceDetail(let id):
+            return "geofence-\(id)"
+        case .addGeofence:
+            return "add-geofence"
+        case .editGeofence(let id):
+            return "edit-geofence-\(id)"
         }
     }
 }
