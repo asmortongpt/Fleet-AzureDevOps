@@ -23,6 +23,7 @@ import {
   ChartBar
 } from "@phosphor-icons/react"
 import { EntityLinkingProvider } from "@/contexts/EntityLinkingContext"
+import { DrilldownProvider } from "@/contexts/DrilldownContext"
 import { UniversalSearch, SearchTrigger, useGlobalSearch } from "@/components/UniversalSearch"
 import { RealTimeEventHub, EventBadge } from "@/components/RealTimeEventHub"
 import {
@@ -162,8 +163,9 @@ function App() {
   ])
 
   return (
-    <EntityLinkingProvider>
-      <div className="flex h-screen overflow-hidden bg-background">
+    <DrilldownProvider>
+      <EntityLinkingProvider>
+        <div className="flex h-screen overflow-hidden bg-background">
         {/* Mobile Overlay Background */}
         {isMobile && sidebarOpen && (
           <div
@@ -344,8 +346,9 @@ function App() {
 
         {/* Toast Notifications */}
         <ToastContainer />
-      </div>
-    </EntityLinkingProvider>
+        </div>
+      </EntityLinkingProvider>
+    </DrilldownProvider>
   )
 }
 
