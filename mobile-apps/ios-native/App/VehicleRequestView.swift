@@ -12,6 +12,112 @@
 
 import SwiftUI
 
+// MARK: - Inline VehicleRequestViewModel (TODO: Move to separate file when Xcode project is updated)
+@MainActor
+class VehicleRequestViewModel: ObservableObject {
+    @Published var vehicles: [Vehicle] = []
+    @Published var isLoading: Bool = false
+    @Published var errorMessage: String?
+    @Published var filterStatus: FilterStatus?
+    @Published var showMicrosoftIntegration: Bool = false
+
+    enum FilterStatus: Equatable {
+        case available
+        case myRequests
+        case allRequests
+    }
+
+    var filteredVehicles: [Vehicle] {
+        guard let filter = filterStatus else { return vehicles }
+        switch filter {
+        case .available:
+            return vehicles.filter { $0.status == .available }
+        case .myRequests:
+            return vehicles.filter { $0.status == .reserved && $0.assignedDriver == AuthenticationManager.shared.currentUser?.id }
+        case .allRequests:
+            return vehicles.filter { $0.status == .reserved || $0.status == .inUse }
+        }
+    }
+
+    init() {
+        self.vehicles = Vehicle.samples
+    }
+
+    func loadVehicles() async {
+        isLoading = true
+        errorMessage = nil
+        do {
+            try await Task.sleep(nanoseconds: 500_000_000)
+            self.vehicles = Vehicle.samples
+            isLoading = false
+        } catch {
+            errorMessage = "Failed to load vehicles: \(error.localizedDescription)"
+            isLoading = false
+        }
+    }
+
+    func submitRequest(vehicleId: String, startDate: Date, endDate: Date, purpose: String, notes: String) async {
+        isLoading = true
+        errorMessage = nil
+        do {
+            try await Task.sleep(nanoseconds: 500_000_000)
+            if let index = vehicles.firstIndex(where: { $0.id == vehicleId }) {
+                var updatedVehicle = vehicles[index]
+                updatedVehicle.status = .reserved
+                updatedVehicle.assignedDriver = AuthenticationManager.shared.currentUser?.id
+                vehicles[index] = updatedVehicle
+            }
+            isLoading = false
+        } catch {
+            errorMessage = "Failed to submit request: \(error.localizedDescription)"
+            isLoading = false
+        }
+    }
+
+    func openTeamsIntegration() {
+        let message = "I would like to request a fleet vehicle."
+        let encodedMessage = message.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
+        let fleetManagerEmail = "fleet@capitaltechalliance.com"
+        let encodedEmail = fleetManagerEmail.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
+        let teamsURL = "msteams://teams.microsoft.com/l/chat/0/0?users=\(encodedEmail)&message=\(encodedMessage)"
+        if let url = URL(string: teamsURL) {
+            UIApplication.shared.open(url) { success in
+                if !success {
+                    let webURL = "https://teams.microsoft.com"
+                    if let webURL = URL(string: webURL) {
+                        UIApplication.shared.open(webURL)
+                    }
+                }
+            }
+        }
+    }
+
+    func openOutlookIntegration() {
+        let fleetManagerEmail = "fleet@capitaltechalliance.com"
+        let encodedEmail = fleetManagerEmail.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
+        let subject = "Vehicle Request"
+        let encodedSubject = subject.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
+        let body = "Hello,\n\nI would like to request a fleet vehicle."
+        let encodedBody = body.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
+        let outlookURL = "ms-outlook://compose?to=\(encodedEmail)&subject=\(encodedSubject)&body=\(encodedBody)"
+        if let url = URL(string: outlookURL) {
+            UIApplication.shared.open(url) { success in
+                if !success {
+                    let mailtoURL = "mailto:\(fleetManagerEmail)?subject=\(encodedSubject)&body=\(encodedBody)"
+                    if let mailtoURL = URL(string: mailtoURL) {
+                        UIApplication.shared.open(mailtoURL)
+                    }
+                }
+            }
+        }
+    }
+
+    func exportRequests() {
+        let myRequests = vehicles.filter { $0.status == .reserved && $0.assignedDriver == AuthenticationManager.shared.currentUser?.id }
+        print("📄 Exporting \(myRequests.count) requests...")
+    }
+}
+
 struct VehicleRequestView: View {
     @StateObject private var viewModel = VehicleRequestViewModel()
     @ObservedObject private var roleManager = RoleManager.shared
