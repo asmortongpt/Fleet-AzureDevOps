@@ -669,7 +669,7 @@ export class DocumentSearchService {
   async deleteSavedSearch(searchId: string, userId: string): Promise<void> {
     await pool.query(
       `DELETE FROM saved_searches
-       WHERE id = $1 AND user_id = $2`,
+       WHERE id = $1 AND user_id = $2',
       [searchId, userId]
     )
   }
@@ -685,7 +685,7 @@ export class DocumentSearchService {
       `SELECT id, tenant_id, user_id, search_query, result_count, created_at FROM search_history
        WHERE user_id = $1
        ORDER BY created_at DESC
-       LIMIT $2`,
+       LIMIT $2',
       [userId, limit]
     )
 

@@ -390,7 +390,7 @@ export class NotificationService {
       `SELECT id, tenant_id, user_id, notification_type, title, message, is_read, created_at FROM notifications
        WHERE user_id = $1 AND read_at IS NULL
        ORDER BY created_at DESC
-       LIMIT $2`,
+       LIMIT $2',
       [userId, limit]
     )
 

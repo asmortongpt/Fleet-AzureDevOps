@@ -322,7 +322,7 @@ export class VectorSearchService {
       await pool.query(
         `UPDATE document_embeddings
          SET metadata = $1, updated_at = NOW()
-         WHERE document_id = $2 AND tenant_id = $3`,
+         WHERE document_id = $2 AND tenant_id = $3',
         [JSON.stringify(metadata), documentId, tenantId]
       )
       return true
@@ -629,7 +629,7 @@ export class VectorSearchService {
         WHERE tenant_id = $1
           AND to_tsvector('english', content) @@ plainto_tsquery('english', $2)
         ORDER BY score DESC
-        LIMIT $3`,
+        LIMIT $3',
         [tenantId, query, options.limit]
       )
 
@@ -705,7 +705,7 @@ export class VectorSearchService {
           MIN(created_at) as oldest_document,
           MAX(created_at) as newest_document
         FROM document_embeddings
-        WHERE tenant_id = $1`,
+        WHERE tenant_id = $1',
         [tenantId]
       )
 

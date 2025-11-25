@@ -24,7 +24,7 @@ router.get(
 
       const result = await pool.query(
         `SELECT id, tenant_id, po_number, vendor_id, status, total_amount, created_by, created_at, updated_at
-         FROM purchase_orders WHERE tenant_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3`,
+         FROM purchase_orders WHERE tenant_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3',
         [req.user!.tenant_id, limit, offset]
       )
 

@@ -265,7 +265,7 @@ class SyncService {
       // Check if message was deleted
       if (message['@removed']) {
         await client.query(
-          `UPDATE teams_messages SET deleted_at = NOW() WHERE message_id = $1`,
+          `UPDATE teams_messages SET deleted_at = NOW() WHERE message_id = $1',
           [message.id]
         )
         await client.query('COMMIT')
@@ -434,7 +434,7 @@ class SyncService {
       // Check if email was deleted
       if (email['@removed']) {
         await client.query(
-          `UPDATE outlook_emails SET deleted_at = NOW() WHERE message_id = $1`,
+          `UPDATE outlook_emails SET deleted_at = NOW() WHERE message_id = $1',
           [email.id]
         )
         await client.query('COMMIT')
@@ -611,7 +611,7 @@ class SyncService {
   async getLastSyncTimestamp(resourceId: string, resourceType: string): Promise<Date | null> {
     try {
       const result = await pool.query(
-        `SELECT last_sync_at FROM sync_state WHERE resource_id = $1 AND resource_type = $2`,
+        `SELECT last_sync_at FROM sync_state WHERE resource_id = $1 AND resource_type = $2',
         [resourceId, resourceType]
       )
 
@@ -659,9 +659,9 @@ class SyncService {
 
       if (resourceType === 'teams_channel') {
         const [_, teamId, channelId] = resourceId.split(':')
-        query += `team_id = $1 AND channel_id = $2`
+        query += `team_id = $1 AND channel_id = $2'
         if (lastSync) {
-          query += ` AND created_at > $3`
+          query += ` AND created_at > $3'
           const result = await pool.query(query, [teamId, channelId, lastSync])
           return parseInt(result.rows[0].count) || 0
         } else {
@@ -670,9 +670,9 @@ class SyncService {
         }
       } else {
         const [_, folderId] = resourceId.split(':')
-        query += `folder_id = $1`
+        query += `folder_id = $1'
         if (lastSync) {
-          query += ` AND received_at > $2`
+          query += ` AND received_at > $2'
           const result = await pool.query(query, [folderId, lastSync])
           return parseInt(result.rows[0].count) || 0
         } else {
@@ -707,12 +707,12 @@ class SyncService {
 
       if (resourceType === 'teams_channel') {
         const [_, teamId, channelId] = resourceId.split(':')
-        query += `team_id = $1 AND channel_id = $2 AND last_modified_at > $3 AND created_at <= $3`
+        query += `team_id = $1 AND channel_id = $2 AND last_modified_at > $3 AND created_at <= $3'
         const result = await pool.query(query, [teamId, channelId, lastSync])
         return parseInt(result.rows[0].count) || 0
       } else {
         const [_, folderId] = resourceId.split(':')
-        query += `folder_id = $1 AND updated_at > $2 AND received_at <= $2`
+        query += `folder_id = $1 AND updated_at > $2 AND received_at <= $2'
         const result = await pool.query(query, [folderId, lastSync])
         return parseInt(result.rows[0].count) || 0
       }
@@ -739,7 +739,7 @@ class SyncService {
       }
 
       // Table name is validated, safe to use in query
-      let query = `SELECT COUNT(*) as count FROM ${tableName} WHERE deleted_at IS NOT NULL AND deleted_at > $1`
+      let query = `SELECT COUNT(*) as count FROM ${tableName} WHERE deleted_at IS NOT NULL AND deleted_at > $1'
 
       const result = await pool.query(query, [lastSync])
       return parseInt(result.rows[0].count) || 0
@@ -808,7 +808,7 @@ class SyncService {
         `SELECT id, resource_type, resource_id, last_sync_at, delta_token,
                 sync_status, error_message, items_synced, created_at, updated_at
          FROM sync_state
-         WHERE resource_id = $1 AND resource_type = $2`,
+         WHERE resource_id = $1 AND resource_type = $2',
         [resourceId, resourceType]
       )
 
@@ -868,7 +868,7 @@ class SyncService {
   private async clearDeltaToken(resourceId: string, resourceType: string): Promise<void> {
     try {
       await pool.query(
-        `UPDATE sync_state SET delta_token = NULL WHERE resource_id = $1 AND resource_type = $2`,
+        `UPDATE sync_state SET delta_token = NULL WHERE resource_id = $1 AND resource_type = $2',
         [resourceId, resourceType]
       )
     } catch (error: any) {
