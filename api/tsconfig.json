@@ -5,23 +5,22 @@
     "lib": ["ES2022"],
     "outDir": "./dist",
     "rootDir": "./src",
-    // Enable strict mode for type safety
+    // Enable strict mode for type safety - ALL CHECKS ENABLED
     "strict": true,
-    // Fail on errors - re-enabled after fixing critical errors
-    "noEmitOnError": false,
-    // Relax specific strict checks to allow existing code to compile
-    // These will be enabled incrementally in future iterations
-    "strictNullChecks": false,
-    "strictFunctionTypes": false,
-    "strictBindCallApply": false,
-    "strictPropertyInitialization": false,
-    "noImplicitThis": false,
-    "noImplicitAny": false,
+    // CRITICAL: Fail on errors - ENABLED FOR 100% COMPLIANCE
+    "noEmitOnError": true,
+    // ALL strict checks enabled for full type safety
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "strictBindCallApply": true,
+    "strictPropertyInitialization": true,
+    "noImplicitThis": true,
+    "noImplicitAny": true,
     "alwaysStrict": true,
-    // Code quality checks - disabled to allow existing patterns
-    "noUnusedLocals": false,
-    "noUnusedParameters": false,
-    "noImplicitReturns": false,
+    // Code quality checks - ALL ENABLED FOR 100% COMPLIANCE
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     // Module resolution and interop
     "esModuleInterop": true,
