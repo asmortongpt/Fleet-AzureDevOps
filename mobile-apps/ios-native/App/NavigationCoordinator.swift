@@ -59,6 +59,7 @@ class NavigationCoordinator: ObservableObject {
         // fleet://vehicles/{id}
         // fleet://trips/{id}
         // fleet://maintenance/{id}
+        // fleet://drivers/{id}
         // fleet://dashboard
         // fleet://more/settings
 
@@ -92,6 +93,15 @@ class NavigationCoordinator: ObservableObject {
                 navigate(to: .maintenanceDetail(id: maintenanceId))
             } else {
                 navigate(to: .maintenance)
+            }
+
+        case "drivers":
+            selectTab(.more)
+            let pathComponents = components.path.split(separator: "/").map(String.init)
+            if let driverId = pathComponents.first {
+                navigate(to: .driverDetail(id: driverId))
+            } else {
+                popToRoot()
             }
 
         case "more":
@@ -218,6 +228,11 @@ enum NavigationDestination: Hashable, Identifiable {
     case about
     case help
 
+    // Driver management destinations
+    case driverDetail(id: String)
+    case addDriver
+    case editDriver(id: String)
+
     // Hardware integration destinations
     case fleetMap
     case tripTracking(vehicleId: String)
@@ -249,6 +264,12 @@ enum NavigationDestination: Hashable, Identifiable {
             return "about"
         case .help:
             return "help"
+        case .driverDetail(let id):
+            return "driver-\(id)"
+        case .addDriver:
+            return "add-driver"
+        case .editDriver(let id):
+            return "edit-driver-\(id)"
         case .fleetMap:
             return "fleet-map"
         case .tripTracking(let vehicleId):
