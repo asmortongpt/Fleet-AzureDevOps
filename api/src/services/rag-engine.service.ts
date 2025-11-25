@@ -72,7 +72,7 @@ class RAGEngineService {
             document_source, content_chunk, chunk_index, chunk_total,
             embedding, embedding_model, metadata
           ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
-          RETURNING id`,
+          RETURNING id',
           [
             tenantId,
             document.document_type,

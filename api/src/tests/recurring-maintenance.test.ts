@@ -37,7 +37,7 @@ beforeAll(async () => {
   // Create test vehicle
   const vehicleResult = await testPool.query(
     `INSERT INTO vehicles (tenant_id, vehicle_number, make, model, year, vin, status)
-     VALUES ($1, 'TEST-001', 'Test', 'Vehicle', 2023, 'TEST123456789', 'active') RETURNING id`,
+     VALUES ($1, 'TEST-001', 'Test', 'Vehicle', 2023, 'TEST123456789', 'active') RETURNING id',
     [testTenantId]
   )
   testVehicleId = vehicleResult.rows[0].id

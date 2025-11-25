@@ -369,7 +369,7 @@ class OCPPService extends EventEmitter {
           meter_start, session_status, raw_ocpp_data)
          VALUES ($1, (SELECT id FROM charging_stations WHERE station_id = $2),
                  $3, $4, $5, NOW(), $6, 'Active', $7)
-         RETURNING id`,
+         RETURNING id',
         [
           transactionInfo.transactionId,
           stationId,

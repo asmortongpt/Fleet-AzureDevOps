@@ -272,7 +272,7 @@ router.post('/register', registrationLimiter, async (req: Request, res: Response
 
     if (tenantResult.rows.length === 0) {
       const newTenant = await pool.query(
-        `INSERT INTO tenants (name, domain) VALUES ($1, $2) RETURNING id`,
+        `INSERT INTO tenants (name, domain) VALUES ($1, $2) RETURNING id',
         ['Default Tenant', 'default']
       )
       tenantId = newTenant.rows[0].id
@@ -289,7 +289,7 @@ router.post('/register', registrationLimiter, async (req: Request, res: Response
       `INSERT INTO users (
         tenant_id, email, password_hash, first_name, last_name, phone, role
       ) VALUES ($1, $2, $3, $4, $5, $6, $7)
-      RETURNING id, email, first_name, last_name, role, tenant_id`,
+      RETURNING id, email, first_name, last_name, role, tenant_id',
       [
         tenantId,
         data.email.toLowerCase(),

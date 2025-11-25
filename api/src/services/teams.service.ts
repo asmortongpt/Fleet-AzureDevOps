@@ -533,7 +533,7 @@ class TeamsService {
           communication_datetime, thread_id, parent_communication_id,
           is_thread_start, attachments, created_at
         ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, CURRENT_TIMESTAMP)
-        RETURNING id`,
+        RETURNING id',
         [
           communication.communication_type,
           communication.direction,

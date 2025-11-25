@@ -98,7 +98,7 @@ router.post(
               to_contact_emails, cc_emails, bcc_emails,
               created_by, communication_datetime
             ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW())
-            RETURNING id`,
+            RETURNING id',
             [
               'Email',
               'Outbound',
@@ -231,7 +231,7 @@ router.post(
           external_message_id, status,
           created_by, communication_datetime
         ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW())
-        RETURNING id`,
+        RETURNING id',
         [
           'SMS',
           'Outbound',
