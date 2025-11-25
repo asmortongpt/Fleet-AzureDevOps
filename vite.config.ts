@@ -3,34 +3,54 @@ import react from "@vitejs/plugin-react-swc";
 import { defineConfig, PluginOption } from "vite";
 import { visualizer } from "rollup-plugin-visualizer";
 import { resolve } from 'path'
-import { injectBuildVersion } from './plugins/injectBuildVersion'
 import { cjsInterop } from 'vite-plugin-cjs-interop'
 
 const projectRoot = process.env.PROJECT_ROOT || import.meta.dirname
 
+/**
+ * Inject runtime-config.js script tag
+ * This ensures the runtime configuration is loaded before the main app
+ * CRITICAL: Required for production deployment
+ */
+function injectRuntimeConfig(): PluginOption {
+  return {
+    name: 'inject-runtime-config',
+    enforce: 'post',
+    transformIndexHtml(html) {
+      // Ensure runtime-config.js is loaded before the main app
+      // This file is created at container startup with actual environment values
+      return html.replace(
+        '<div id="root"></div>',
+        '<div id="root"></div>\n    <script src="/runtime-config.js"></script>'
+      );
+    },
+  };
+}
+
 // https://vite.dev/config/
 export default defineConfig({
-  // Set base path to relative for Azure Static Web Apps
+  // CRITICAL: Base path MUST be './' for Azure Static Web Apps compatibility
+  // Using '/' (absolute paths) causes white screen errors on Azure deployment
+  // This is documented in WHITE_SCREEN_PREVENTION_CHECKLIST.md
   base: './',
+
   plugins: [
     react(),
     tailwindcss(),
-    // Fix CJS/ESM interop issues with icon libraries
+    // FIX: CJS/ESM interop for icon libraries and React Context usage
     cjsInterop({
       dependencies: [
         '@phosphor-icons/react',
         'lucide-react',
         '@heroicons/react',
-        '@mui/icons-material'
+        '@mui/icons-material',
+        'sonner',
+        'react-hot-toast',
+        '@tanstack/react-query',
+        'next-themes'
       ]
     }),
-    // Inject build version into service worker
-    // Format: v1.0.0-{commitSHA}-{timestamp}
-    injectBuildVersion({
-      baseVersion: 'v1.0.0',
-      swPath: 'sw.js',
-      placeholder: '__BUILD_VERSION__',
-    }),
+    injectRuntimeConfig(), // CRITICAL: Injects runtime-config.js script tag
     // Bundle analyzer - generates stats.html after build
     visualizer({
       filename: './dist/stats.html',
@@ -43,7 +63,10 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': resolve(projectRoot, 'src')
-    }
+    },
+    // CRITICAL FIX: Deduplicate React to prevent "Invalid hook call" errors
+    // Forces all React imports to resolve to the same instance
+    dedupe: ['react', 'react-dom', 'scheduler']
   },
   server: {
     port: 5173,
@@ -77,7 +100,7 @@ export default defineConfig({
     // Increase chunk size warning limit (500kb default is too small for map apps)
     chunkSizeWarningLimit: 1000,
 
-    // Re-enabled after fixing chunk circular dependency
+    // Minification settings - use esbuild instead of terser to avoid circular dependency issues
     minify: 'esbuild',
 
     // Source maps - disable for production, enable for staging
@@ -90,38 +113,111 @@ export default defineConfig({
     rollupOptions: {
       output: {
         // ===================================================================
-        // OPTIMIZED CHUNK STRATEGY
-        // Split vendors into logical groups for better caching and performance
+        // MANUAL CHUNK STRATEGY
+        // Separates large dependencies into their own chunks for better caching
         // ===================================================================
         manualChunks: (id) => {
+          // Core React libraries - CRITICAL: Keep ALL React packages together
+          // to prevent "Cannot read properties of undefined (reading 'createContext')" errors
+          if (id.includes('node_modules/react') ||
+              id.includes('node_modules/scheduler') ||
+              id.includes('node_modules/react-dom')) {
+            return 'react-vendor';
+          }
+          if (id.includes('node_modules/react-router-dom') ||
+              id.includes('node_modules/@remix-run')) {
+            return 'react-router';
+          }
+
+          // Map libraries - large, load on demand
+          if (id.includes('node_modules/leaflet')) {
+            return 'map-leaflet';
+          }
+          if (id.includes('node_modules/mapbox-gl')) {
+            return 'map-mapbox';
+          }
+          if (id.includes('node_modules/@react-google-maps') ||
+              id.includes('node_modules/google-maps')) {
+            return 'map-google';
+          }
+          if (id.includes('node_modules/azure-maps')) {
+            return 'map-azure';
+          }
+
+          // 3D libraries - very large, load only when needed
+          if (id.includes('node_modules/three')) {
+            return 'three-core';
+          }
+          if (id.includes('node_modules/@react-three')) {
+            return 'three-react';
+          }
+          if (id.includes('node_modules/postprocessing')) {
+            return 'three-postprocessing';
+          }
+
+          // UI component libraries
+          if (id.includes('node_modules/@radix-ui')) {
+            return 'ui-radix';
+          }
+          if (id.includes('node_modules/@phosphor-icons') ||
+              id.includes('node_modules/@heroicons') ||
+              id.includes('node_modules/lucide-react')) {
+            return 'ui-icons';
+          }
+
+          // Data visualization - separate recharts from d3 for better isolation
+          if (id.includes('node_modules/recharts')) {
+            return 'charts-recharts';
+          }
+          if (id.includes('node_modules/d3')) {
+            return 'charts-d3';
+          }
+
+          // Form libraries
+          if (id.includes('node_modules/react-hook-form') ||
+              id.includes('node_modules/@hookform') ||
+              id.includes('node_modules/zod')) {
+            return 'forms';
+          }
+
+          // Large utility libraries
+          if (id.includes('node_modules/date-fns')) {
+            return 'utils-date';
+          }
+          if (id.includes('node_modules/axios')) {
+            return 'utils-http';
+          }
+          if (id.includes('node_modules/lodash')) {
+            return 'utils-lodash';
+          }
+
+          // Animation libraries
+          if (id.includes('node_modules/framer-motion')) {
+            return 'animation';
+          }
+
+          // React utility libraries (MUST load after React)
+          // These libraries use React.createContext at module level
+          if (id.includes('node_modules/react-error-boundary') ||
+              id.includes('node_modules/react-hot-toast') ||
+              id.includes('node_modules/sonner') ||
+              id.includes('node_modules/next-themes') ||
+              id.includes('node_modules/react-day-picker') ||
+              id.includes('node_modules/react-dropzone') ||
+              id.includes('node_modules/react-window') ||
+              id.includes('node_modules/@tanstack/react-query') ||
+              id.includes('node_modules/swr') ||
+              id.includes('node_modules/use-sync-external-store') ||
+              id.includes('node_modules/embla-carousel-react') ||
+              id.includes('node_modules/vaul') ||
+              id.includes('node_modules/class-variance-authority') ||
+              id.includes('node_modules/clsx') ||
+              id.includes('node_modules/tailwind-merge')) {
+            return 'react-utils';
+          }
+
+          // All other node_modules (should NOT include React-dependent code)
           if (id.includes('node_modules')) {
-            // React core (most stable, cache longest)
-            if (id.includes('react') || id.includes('react-dom') || id.includes('react-router')) {
-              return 'react-vendor';
-            }
-            // UI components (Radix UI) and Icon libraries (must be together)
-            if (id.includes('@radix-ui') || id.includes('cmdk') ||
-                id.includes('@phosphor-icons') || id.includes('lucide-react') ||
-                id.includes('@heroicons') || id.includes('@mui/icons-material')) {
-              return 'ui-vendor';
-            }
-            // 3D visualization (large, load only when needed)
-            if (id.includes('three') || id.includes('@react-three') || id.includes('maath') || id.includes('leva')) {
-              return 'three-vendor';
-            }
-            // Map libraries (load only when using maps)
-            if (id.includes('leaflet') || id.includes('mapbox') || id.includes('azure-maps') || id.includes('react-leaflet') || id.includes('@react-google-maps')) {
-              return 'maps-vendor';
-            }
-            // Data visualization
-            if (id.includes('recharts') || id.includes('d3')) {
-              return 'charts-vendor';
-            }
-            // Date/time utilities
-            if (id.includes('date-fns')) {
-              return 'utils-vendor';
-            }
-            // Everything else
             return 'vendor';
           }
         },
@@ -197,26 +293,19 @@ export default defineConfig({
       'date-fns',
       'axios',
       'recharts',
-      // Icon libraries - explicitly include to avoid circular deps
       '@phosphor-icons/react',
-      'lucide-react',
-      // Three.js and React Three Fiber - must be pre-bundled for ESM compatibility
-      'three',
-      '@react-three/fiber',
-      '@react-three/drei',
-      '@react-three/postprocessing',
-      // Required for React Three Fiber internal dependencies
-      'use-sync-external-store',
-      'use-sync-external-store/shim',
-      'use-sync-external-store/shim/with-selector',
     ],
 
-    // Exclude dependencies that should be loaded dynamically (map libraries)
+    // Exclude dependencies that should be loaded dynamically
     exclude: [
       'leaflet',
       'mapbox-gl',
       '@react-google-maps/api',
       'azure-maps-control',
+      'three',
+      '@react-three/fiber',
+      '@react-three/drei',
+      '@react-three/postprocessing',
     ],
   },
 
@@ -228,7 +317,5 @@ export default defineConfig({
   esbuild: {
     logOverride: { 'this-is-undefined-in-esm': 'silent' },
     legalComments: 'none',
-    // Remove console logs and debugger statements in production
-    drop: process.env.NODE_ENV === 'production' ? ['console', 'debugger'] : [],
   },
 });

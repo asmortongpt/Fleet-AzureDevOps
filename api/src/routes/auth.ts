@@ -101,6 +101,37 @@ router.post('/login', loginLimiter, async (req: Request, res: Response) => {
   try {
     const { email, password } = loginSchema.parse(req.body)
 
+    // DEV MODE: Accept demo credentials without database check
+    if (process.env.NODE_ENV === 'development' &&
+        email === 'admin@fleet.local' &&
+        password === 'demo123') {
+      console.log('[AUTH] DEV mode - accepting demo credentials')
+
+      const demoUser = {
+        id: 1,
+        tenant_id: 1,
+        email: 'admin@fleet.local',
+        first_name: 'Demo',
+        last_name: 'Admin',
+        role: 'admin',
+        phone: null
+      }
+
+      const token = jwt.sign(
+        {
+          id: demoUser.id,
+          email: demoUser.email,
+          role: demoUser.role,
+          tenant_id: demoUser.tenant_id,
+          auth_provider: 'demo'
+        },
+        process.env.JWT_SECRET || 'dev-secret-key',
+        { expiresIn: '24h' }
+      )
+
+      return res.json({ token, user: demoUser })
+    }
+
     // Get user
     const userResult = await pool.query(
       `SELECT id, tenant_id, email, first_name, last_name, role, is_active, phone, created_at, updated_at FROM users WHERE email = $1 AND is_active = true`,
