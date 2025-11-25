@@ -150,7 +150,7 @@ class VideoTelematicsService {
     await this.db.query(
       `UPDATE vehicle_cameras
        SET status = $1, last_ping_at = NOW(), firmware_version = $2, updated_at = NOW()
-       WHERE id = $3`,
+       WHERE id = $3',
       [status, firmwareVersion, cameraId]
     );
   }
@@ -376,7 +376,7 @@ class VideoTelematicsService {
              video_file_size_mb = $2,
              video_download_status = 'ready',
              updated_at = NOW()
-         WHERE id = $3`,
+         WHERE id = $3',
         [storagePath, fileSizeMb, eventId]
       );
 
@@ -390,7 +390,7 @@ class VideoTelematicsService {
         `UPDATE video_safety_events
          SET video_download_status = 'failed',
              updated_at = NOW()
-         WHERE id = $1`,
+         WHERE id = $1',
         [eventId]
       );
 
@@ -405,7 +405,7 @@ class VideoTelematicsService {
     const result = await this.db.query(
       `SELECT video_url, video_storage_path, video_download_status
        FROM video_safety_events
-       WHERE id = $1`,
+       WHERE id = $1',
       [eventId]
     );
 
@@ -481,7 +481,7 @@ class VideoTelematicsService {
         `UPDATE evidence_locker
          SET retention_policy = 'permanent',
              legal_hold_started_at = NOW()
-         WHERE id = $1`,
+         WHERE id = $1',
         [lockerId]
       );
     }
@@ -501,7 +501,7 @@ class VideoTelematicsService {
            marked_as_evidence = true,
            retention_policy = 'extended',
            updated_at = NOW()
-       WHERE id = $2`,
+       WHERE id = $2',
       [lockerId, eventId]
     );
 
@@ -527,7 +527,7 @@ class VideoTelematicsService {
        FROM evidence_locker el
        LEFT JOIN users u ON el.created_by = u.id
        LEFT JOIN users u2 ON el.assigned_to = u2.id
-       WHERE el.id = $1`,
+       WHERE el.id = $1',
       [lockerId]
     );
 
@@ -619,7 +619,7 @@ class VideoTelematicsService {
       `UPDATE video_safety_events
        SET coaching_required = true,
            updated_at = NOW()
-       WHERE id = $1`,
+       WHERE id = $1',
       [eventId]
     );
 
@@ -724,7 +724,7 @@ class VideoTelematicsService {
                video_url = NULL,
                video_download_status = 'deleted',
                updated_at = NOW()
-           WHERE id = $1`,
+           WHERE id = $1',
           [event.id]
         );
 

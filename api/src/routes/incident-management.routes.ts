@@ -117,7 +117,7 @@ router.get('/:id', requirePermission('safety_incident:view:global'), async (req:
         LEFT JOIN users u_assigned ON i.assigned_investigator = u_assigned.id
         LEFT JOIN vehicles v ON i.vehicle_id = v.id
         LEFT JOIN drivers d ON i.driver_id = d.id
-        WHERE i.id = $1 AND i.tenant_id = $2`,
+        WHERE i.id = $1 AND i.tenant_id = $2',
         [id, tenantId]
       ),
       pool.query(
@@ -152,7 +152,7 @@ router.get('/:id', requirePermission('safety_incident:view:global'), async (req:
       witness_name,
       contact_info,
       statement,
-      created_at FROM incident_witnesses WHERE incident_id = $1`,
+      created_at FROM incident_witnesses WHERE incident_id = $1',
         [id]
       )
     ])

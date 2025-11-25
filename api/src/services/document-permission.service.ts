@@ -139,7 +139,7 @@ export class DocumentPermissionService {
       permission_type,
       granted_by,
       granted_at,
-      expires_at FROM document_permissions WHERE id = $1`,
+      expires_at FROM document_permissions WHERE id = $1',
         [permissionId]
       )
 
@@ -151,7 +151,7 @@ export class DocumentPermissionService {
 
       // Delete permission
       await client.query(
-        `DELETE FROM document_permissions WHERE id = $1`,
+        `DELETE FROM document_permissions WHERE id = $1',
         [permissionId]
       )
 
@@ -228,7 +228,7 @@ export class DocumentPermissionService {
 
       // Check if document is public
       const documentCheck = await pool.query(
-        `SELECT is_public FROM documents WHERE id = $1`,
+        `SELECT is_public FROM documents WHERE id = $1',
         [documentId]
       )
 
@@ -336,7 +336,7 @@ export class DocumentPermissionService {
       // Get direct permissions
       const userPermissions = await pool.query(
         `SELECT id, tenant_id, document_id, user_id, permission_type, granted_at FROM document_permissions
-         WHERE document_id = $1 AND user_id = $2`,
+         WHERE document_id = $1 AND user_id = $2',
         [documentId, userId]
       )
 
@@ -345,7 +345,7 @@ export class DocumentPermissionService {
         `SELECT dp.*
          FROM documents d
          JOIN document_permissions dp ON d.parent_folder_id = dp.folder_id
-         WHERE d.id = $1 AND dp.user_id = $2`,
+         WHERE d.id = $1 AND dp.user_id = $2',
         [documentId, userId]
       )
 
@@ -459,7 +459,7 @@ export class DocumentPermissionService {
     try {
       if (documentId) {
         const result = await pool.query(
-          `SELECT tenant_id FROM documents WHERE id = $1`,
+          `SELECT tenant_id FROM documents WHERE id = $1',
           [documentId]
         )
         return result.rows[0]?.tenant_id || null
@@ -467,7 +467,7 @@ export class DocumentPermissionService {
 
       if (folderId) {
         const result = await pool.query(
-          `SELECT tenant_id FROM document_folders WHERE id = $1`,
+          `SELECT tenant_id FROM document_folders WHERE id = $1',
           [folderId]
         )
         return result.rows[0]?.tenant_id || null

@@ -122,7 +122,7 @@ router.get(
                 from_user.first_name || ' ' || from_user.last_name as from_user_name
          FROM communications c
          LEFT JOIN drivers from_user ON c.from_user_id = from_user.id
-         WHERE c.id = $1`,
+         WHERE c.id = $1',
         [req.params.id]
       )
 
@@ -141,9 +141,6 @@ router.get(
 
       // Get attachments
       const attachmentsResult = await pool.query(
-<<<<<<< HEAD
-        `SELECT id, tenant_id, communication_id, file_name, file_url, created_at FROM communication_attachments WHERE communication_id = $1`,
-=======
         `SELECT 
       id,
       communication_id,
@@ -151,8 +148,7 @@ router.get(
       file_path,
       file_type,
       file_size,
-      created_at FROM communication_attachments WHERE communication_id = $1`,
->>>>>>> feature/devsecops-audit-remediation
+      created_at FROM communication_attachments WHERE communication_id = $1',
         [req.params.id]
       )
 
@@ -347,7 +343,7 @@ router.get(
       const countResult = await pool.query(
         `SELECT COUNT(*)
          FROM communication_entity_links
-         WHERE entity_type = $1 AND entity_id = $2`,
+         WHERE entity_type = $1 AND entity_id = $2',
         [entity_type, entity_id]
       )
 
@@ -421,9 +417,6 @@ router.get(
     try {
       const { category } = req.query
 
-<<<<<<< HEAD
-      let query = `SELECT id, tenant_id, template_name, subject, body, is_active, created_at, updated_at FROM communication_templates WHERE is_active = TRUE`
-=======
       let query = `SELECT 
       id,
       tenant_id,
@@ -435,11 +428,10 @@ router.get(
       is_active,
       created_at,
       updated_at FROM communication_templates WHERE is_active = TRUE`
->>>>>>> feature/devsecops-audit-remediation
       const params: any[] = []
 
       if (category) {
-        query += ` AND template_category = $1`
+        query += ` AND template_category = $1'
         params.push(category)
       }
 
