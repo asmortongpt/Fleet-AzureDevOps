@@ -8,10 +8,25 @@ struct MoreView: View {
             List {
                 // New Features Section
                 Section(header: Text("Features")) {
+                    NavigationLink(destination: DriverListView()) {
+                        HStack {
+                            Image(systemName: "person.3.fill")
+                                .foregroundColor(.blue)
+                                .frame(width: 30)
+                            VStack(alignment: .leading) {
+                                Text("Drivers")
+                                    .font(.body)
+                                Text("Manage driver roster and performance")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                    }
+
                     NavigationLink(destination: Text("Checklists coming soon")) {
                         HStack {
                             Image(systemName: "checklist")
-                                .foregroundColor(.blue)
+                                .foregroundColor(.orange)
                                 .frame(width: 30)
                             VStack(alignment: .leading) {
                                 Text("Checklists")
