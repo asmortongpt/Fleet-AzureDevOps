@@ -163,8 +163,8 @@ function App() {
   ])
 
   return (
-    <DrilldownProvider>
-      <EntityLinkingProvider>
+    <EntityLinkingProvider>
+      <DrilldownProvider>
         <div className="flex h-screen overflow-hidden bg-background">
         {/* Mobile Overlay Background */}
         {isMobile && sidebarOpen && (
@@ -347,8 +347,8 @@ function App() {
         {/* Toast Notifications */}
         <ToastContainer />
       </div>
-      </EntityLinkingProvider>
-    </DrilldownProvider>
+      </DrilldownProvider>
+    </EntityLinkingProvider>
   )
 }
 
