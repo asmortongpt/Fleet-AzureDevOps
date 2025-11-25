@@ -1,0 +1,842 @@
+Command line invocation:
+    /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild -workspace App.xcworkspace -scheme App -sdk iphonesimulator build
+
+Build settings from command line:
+    SDKROOT = iphonesimulator26.1
+
+2025-11-24 20:41:30.505 xcodebuild[51829:903038] [MT] IDERunDestination: Supported platforms for the buildables in the current scheme is empty.
+--- xcodebuild: WARNING: Using the first of multiple matching destinations:
+{ platform:iOS Simulator, id:dvtdevice-DVTiOSDeviceSimulatorPlaceholder-iphonesimulator:placeholder, name:Any iOS Simulator Device }
+{ platform:iOS Simulator, arch:arm64, id:8CCA75AF-8DBB-4100-B5AC-355F723D3286, OS:26.0, name:iPad (A16) }
+{ platform:iOS Simulator, arch:arm64, id:5ACC9093-6514-4903-97D2-78AB8640B23C, OS:26.1, name:iPad (A16) }
+{ platform:iOS Simulator, arch:arm64, id:6C64E8A5-5753-4927-A78E-7A05B6E15A35, OS:26.0, name:iPad Air 11-inch (M3) }
+{ platform:iOS Simulator, arch:arm64, id:99B8AE2B-F671-43DA-906D-6C1031924245, OS:26.1, name:iPad Air 11-inch (M3) }
+{ platform:iOS Simulator, arch:arm64, id:88840F1D-E5A5-4C74-8373-F548CBEFE6C9, OS:26.0, name:iPad Air 13-inch (M3) }
+{ platform:iOS Simulator, arch:arm64, id:82E757A0-63E4-4F7D-ABCD-07AF0EDAC609, OS:26.1, name:iPad Air 13-inch (M3) }
+{ platform:iOS Simulator, arch:arm64, id:8F3E38D3-C371-4DEE-B864-999800492488, OS:26.0, name:iPad Pro 11-inch (M4) }
+{ platform:iOS Simulator, arch:arm64, id:3BD1BABA-3721-4F67-BE84-A8E19FF5CC8F, OS:26.0, name:iPad Pro 11-inch (M5) }
+{ platform:iOS Simulator, arch:arm64, id:E3026FD0-AD8E-4E7A-8289-67A51EA7836F, OS:26.1, name:iPad Pro 11-inch (M5) }
+{ platform:iOS Simulator, arch:arm64, id:CC0BB21E-59F9-414F-AE8C-34D280072D99, OS:26.0, name:iPad Pro 13-inch (M4) }
+{ platform:iOS Simulator, arch:arm64, id:9C909ADD-64DB-42E4-B02D-9D66FDB4C98B, OS:26.0, name:iPad Pro 13-inch (M5) }
+{ platform:iOS Simulator, arch:arm64, id:F1146E59-142C-48AF-9FF4-B5BE0B76A744, OS:26.1, name:iPad Pro 13-inch (M5) }
+{ platform:iOS Simulator, arch:arm64, id:503CD2DC-F8FC-4A59-A9AE-B0097A2C3290, OS:26.0, name:iPad mini (A17 Pro) }
+{ platform:iOS Simulator, arch:arm64, id:3E5305C4-F527-4768-94C6-62767209C0C8, OS:26.1, name:iPad mini (A17 Pro) }
+{ platform:iOS Simulator, arch:arm64, id:679488E3-B0F6-430C-ADC9-2C83E73637D6, OS:26.0, name:iPhone 16e }
+{ platform:iOS Simulator, arch:arm64, id:0EC7581E-B64A-4895-91D7-5EF37238B70D, OS:26.1, name:iPhone 16e }
+{ platform:iOS Simulator, arch:arm64, id:4A6DE14C-C8B1-4F11-B04E-A1CEBD45EE46, OS:26.0, name:iPhone 17 }
+{ platform:iOS Simulator, arch:arm64, id:071BEECD-F030-4832-BA0D-54155575C115, OS:26.1, name:iPhone 17 }
+{ platform:iOS Simulator, arch:arm64, id:3658687E-BC5E-4575-A652-7D64C8F08D18, OS:26.0, name:iPhone 17 Pro }
+{ platform:iOS Simulator, arch:arm64, id:FE11428A-D469-4C43-8951-E3E05A0C1701, OS:26.1, name:iPhone 17 Pro }
+{ platform:iOS Simulator, arch:arm64, id:05CED7AC-BEA6-42FC-9858-135DF2C8E399, OS:26.0, name:iPhone 17 Pro Max }
+{ platform:iOS Simulator, arch:arm64, id:DBB5AC18-CD41-421B-8CB9-2938998AB769, OS:26.1, name:iPhone 17 Pro Max }
+{ platform:iOS Simulator, arch:arm64, id:EF48E612-1D30-4894-9716-637750B152FE, OS:26.0, name:iPhone Air }
+{ platform:iOS Simulator, arch:arm64, id:935BA506-CD71-45D0-8599-4763ED60E4FA, OS:26.1, name:iPhone Air }
+{ platform:macOS, arch:arm64, variant:Designed for [iPad,iPhone], id:00006030-000E38913428001C, name:My Mac }
+{ platform:iOS, id:dvtdevice-DVTiPhonePlaceholder-iphoneos:placeholder, name:Any iOS Device }
+{ platform:iOS, arch:arm64, id:00008150-001625183A80401C, name:iPhone }
+ComputePackagePrebuildTargetDependencyGraph
+
+Prepare packages
+
+CreateBuildRequest
+
+SendProjectDescription
+
+CreateBuildOperation
+
+ComputeTargetDependencyGraph
+note: Building targets in dependency order
+note: Target dependency graph (24 targets)
+    Target 'App' in project 'App'
+        ➜ Implicit dependency on target 'Pods-App' in project 'Pods' via file 'Pods_App.framework' in build phase 'Link Binary'
+        ➜ Implicit dependency on target 'PromisesObjC' in project 'Pods' via options '-framework FBLPromises' in build setting 'OTHER_LDFLAGS'
+        ➜ Implicit dependency on target 'FirebaseCore' in project 'Pods' via options '-framework FirebaseCore' in build setting 'OTHER_LDFLAGS'
+        ➜ Implicit dependency on target 'FirebaseCoreInternal' in project 'Pods' via options '-framework FirebaseCoreInternal' in build setting 'OTHER_LDFLAGS'
+        ➜ Implicit dependency on target 'FirebaseInstallations' in project 'Pods' via options '-framework FirebaseInstallations' in build setting 'OTHER_LDFLAGS'
+        ➜ Implicit dependency on target 'FirebaseMessaging' in project 'Pods' via options '-framework FirebaseMessaging' in build setting 'OTHER_LDFLAGS'
+        ➜ Implicit dependency on target 'GoogleDataTransport' in project 'Pods' via options '-framework GoogleDataTransport' in build setting 'OTHER_LDFLAGS'
+        ➜ Implicit dependency on target 'GoogleUtilities' in project 'Pods' via options '-framework GoogleUtilities' in build setting 'OTHER_LDFLAGS'
+        ➜ Implicit dependency on target 'KeychainSwift' in project 'Pods' via options '-framework KeychainSwift' in build setting 'OTHER_LDFLAGS'
+        ➜ Implicit dependency on target 'Sentry' in project 'Pods' via options '-framework Sentry' in build setting 'OTHER_LDFLAGS'
+        ➜ Implicit dependency on target 'nanopb' in project 'Pods' via options '-framework nanopb' in build setting 'OTHER_LDFLAGS'
+    Target 'Pods-App' in project 'Pods'
+        ➜ Explicit dependency on target 'Firebase' in project 'Pods'
+        ➜ Explicit dependency on target 'FirebaseAnalytics' in project 'Pods'
+        ➜ Explicit dependency on target 'FirebaseCore' in project 'Pods'
+        ➜ Explicit dependency on target 'FirebaseCoreInternal' in project 'Pods'
+        ➜ Explicit dependency on target 'FirebaseInstallations' in project 'Pods'
+        ➜ Explicit dependency on target 'FirebaseMessaging' in project 'Pods'
+        ➜ Explicit dependency on target 'GoogleAppMeasurement' in project 'Pods'
+        ➜ Explicit dependency on target 'GoogleDataTransport' in project 'Pods'
+        ➜ Explicit dependency on target 'GoogleUtilities' in project 'Pods'
+        ➜ Explicit dependency on target 'KeychainSwift' in project 'Pods'
+        ➜ Explicit dependency on target 'PromisesObjC' in project 'Pods'
+        ➜ Explicit dependency on target 'Sentry' in project 'Pods'
+        ➜ Explicit dependency on target 'nanopb' in project 'Pods'
+    Target 'Sentry' in project 'Pods'
+        ➜ Explicit dependency on target 'Sentry-Sentry' in project 'Pods'
+    Target 'Sentry-Sentry' in project 'Pods' (no dependencies)
+    Target 'KeychainSwift' in project 'Pods' (no dependencies)
+    Target 'Firebase' in project 'Pods'
+        ➜ Explicit dependency on target 'FirebaseAnalytics' in project 'Pods'
+        ➜ Explicit dependency on target 'FirebaseCore' in project 'Pods'
+        ➜ Explicit dependency on target 'FirebaseMessaging' in project 'Pods'
+    Target 'FirebaseMessaging' in project 'Pods'
+        ➜ Explicit dependency on target 'FirebaseCore' in project 'Pods'
+        ➜ Explicit dependency on target 'FirebaseInstallations' in project 'Pods'
+        ➜ Explicit dependency on target 'FirebaseMessaging-FirebaseMessaging_Privacy' in project 'Pods'
+        ➜ Explicit dependency on target 'GoogleDataTransport' in project 'Pods'
+        ➜ Explicit dependency on target 'GoogleUtilities' in project 'Pods'
+        ➜ Explicit dependency on target 'nanopb' in project 'Pods'
+    Target 'FirebaseMessaging-FirebaseMessaging_Privacy' in project 'Pods'
+        ➜ Implicit dependency on target 'FirebaseCore' in project 'Pods' via options '-framework FirebaseCore' in build setting 'OTHER_LDFLAGS'
+        ➜ Implicit dependency on target 'FirebaseInstallations' in project 'Pods' via options '-framework FirebaseInstallations' in build setting 'OTHER_LDFLAGS'
+        ➜ Implicit dependency on target 'GoogleDataTransport' in project 'Pods' via options '-framework GoogleDataTransport' in build setting 'OTHER_LDFLAGS'
+        ➜ Implicit dependency on target 'GoogleUtilities' in project 'Pods' via options '-framework GoogleUtilities' in build setting 'OTHER_LDFLAGS'
+        ➜ Implicit dependency on target 'nanopb' in project 'Pods' via options '-framework nanopb' in build setting 'OTHER_LDFLAGS'
+    Target 'GoogleDataTransport' in project 'Pods'
+        ➜ Explicit dependency on target 'GoogleDataTransport-GoogleDataTransport_Privacy' in project 'Pods'
+        ➜ Explicit dependency on target 'GoogleUtilities' in project 'Pods'
+        ➜ Explicit dependency on target 'PromisesObjC' in project 'Pods'
+        ➜ Explicit dependency on target 'nanopb' in project 'Pods'
+    Target 'GoogleDataTransport-GoogleDataTransport_Privacy' in project 'Pods'
+        ➜ Implicit dependency on target 'PromisesObjC' in project 'Pods' via options '-framework FBLPromises' in build setting 'OTHER_LDFLAGS'
+        ➜ Implicit dependency on target 'GoogleUtilities' in project 'Pods' via options '-framework GoogleUtilities' in build setting 'OTHER_LDFLAGS'
+        ➜ Implicit dependency on target 'nanopb' in project 'Pods' via options '-framework nanopb' in build setting 'OTHER_LDFLAGS'
+    Target 'FirebaseAnalytics' in project 'Pods'
+        ➜ Explicit dependency on target 'FirebaseCore' in project 'Pods'
+        ➜ Explicit dependency on target 'FirebaseInstallations' in project 'Pods'
+        ➜ Explicit dependency on target 'GoogleAppMeasurement' in project 'Pods'
+        ➜ Explicit dependency on target 'GoogleUtilities' in project 'Pods'
+        ➜ Explicit dependency on target 'nanopb' in project 'Pods'
+    Target 'GoogleAppMeasurement' in project 'Pods'
+        ➜ Explicit dependency on target 'GoogleUtilities' in project 'Pods'
+        ➜ Explicit dependency on target 'nanopb' in project 'Pods'
+    Target 'nanopb' in project 'Pods'
+        ➜ Explicit dependency on target 'nanopb-nanopb_Privacy' in project 'Pods'
+    Target 'nanopb-nanopb_Privacy' in project 'Pods' (no dependencies)
+    Target 'FirebaseInstallations' in project 'Pods'
+        ➜ Explicit dependency on target 'FirebaseCore' in project 'Pods'
+        ➜ Explicit dependency on target 'FirebaseInstallations-FirebaseInstallations_Privacy' in project 'Pods'
+        ➜ Explicit dependency on target 'GoogleUtilities' in project 'Pods'
+        ➜ Explicit dependency on target 'PromisesObjC' in project 'Pods'
+    Target 'FirebaseInstallations-FirebaseInstallations_Privacy' in project 'Pods'
+        ➜ Implicit dependency on target 'PromisesObjC' in project 'Pods' via options '-framework FBLPromises' in build setting 'OTHER_LDFLAGS'
+        ➜ Implicit dependency on target 'FirebaseCore' in project 'Pods' via options '-framework FirebaseCore' in build setting 'OTHER_LDFLAGS'
+        ➜ Implicit dependency on target 'GoogleUtilities' in project 'Pods' via options '-framework GoogleUtilities' in build setting 'OTHER_LDFLAGS'
+    Target 'FirebaseCore' in project 'Pods'
+        ➜ Explicit dependency on target 'FirebaseCore-FirebaseCore_Privacy' in project 'Pods'
+        ➜ Explicit dependency on target 'FirebaseCoreInternal' in project 'Pods'
+        ➜ Explicit dependency on target 'GoogleUtilities' in project 'Pods'
+    Target 'FirebaseCore-FirebaseCore_Privacy' in project 'Pods'
+        ➜ Implicit dependency on target 'FirebaseCoreInternal' in project 'Pods' via options '-framework FirebaseCoreInternal' in build setting 'OTHER_LDFLAGS'
+        ➜ Implicit dependency on target 'GoogleUtilities' in project 'Pods' via options '-framework GoogleUtilities' in build setting 'OTHER_LDFLAGS'
+    Target 'FirebaseCoreInternal' in project 'Pods'
+        ➜ Explicit dependency on target 'FirebaseCoreInternal-FirebaseCoreInternal_Privacy' in project 'Pods'
+        ➜ Explicit dependency on target 'GoogleUtilities' in project 'Pods'
+    Target 'FirebaseCoreInternal-FirebaseCoreInternal_Privacy' in project 'Pods'
+        ➜ Implicit dependency on target 'GoogleUtilities' in project 'Pods' via options '-framework GoogleUtilities' in build setting 'OTHER_LDFLAGS'
+    Target 'GoogleUtilities' in project 'Pods'
+        ➜ Explicit dependency on target 'GoogleUtilities-GoogleUtilities_Privacy' in project 'Pods'
+        ➜ Explicit dependency on target 'PromisesObjC' in project 'Pods'
+    Target 'GoogleUtilities-GoogleUtilities_Privacy' in project 'Pods'
+        ➜ Implicit dependency on target 'PromisesObjC' in project 'Pods' via options '-framework FBLPromises' in build setting 'OTHER_LDFLAGS'
+    Target 'PromisesObjC' in project 'Pods'
+        ➜ Explicit dependency on target 'PromisesObjC-FBLPromises_Privacy' in project 'Pods'
+    Target 'PromisesObjC-FBLPromises_Privacy' in project 'Pods' (no dependencies)
+
+GatherProvisioningInputs
+
+CreateBuildDescription
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -v -E -dM -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.1.sdk -x c -c /dev/null
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -v -E -dM -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.1.sdk -x c -c /dev/null
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/usr/bin/ibtool --version --output-format xml1
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/usr/bin/actool --print-asset-tag-combinations --output-format xml1 /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/Assets.xcassets
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/usr/bin/actool --version --output-format xml1
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc --version
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -v -E -dM -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.1.sdk -x objective-c -c /dev/null
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld -version_details
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/libtool -V
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -v -E -dM -arch x86_64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.1.sdk -x c -c /dev/null
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -v -E -dM -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.1.sdk -x c++ -c /dev/null
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -v -E -dM -arch x86_64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.1.sdk -x objective-c -c /dev/null
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -v -E -dM -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.1.sdk -x objective-c++ -c /dev/null
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -v -E -dM -arch x86_64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.1.sdk -x c++ -c /dev/null
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -v -E -dM -arch x86_64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.1.sdk -x objective-c++ -c /dev/null
+
+Build description signature: d238be4df476ecf8299ebe512a8c30f3
+Build description path: /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Intermediates.noindex/XCBuildData/d238be4df476ecf8299ebe512a8c30f3.xcbuilddata
+ClangStatCache /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang-stat-cache /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.1.sdk /Users/andrewmorton/Library/Developer/Xcode/DerivedData/SDKStatCaches.noindex/iphonesimulator26.1-23B77-90cf18a4295e390e64c810bc6bd7acbc.sdkstatcache
+    cd /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang-stat-cache /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.1.sdk -o /Users/andrewmorton/Library/Developer/Xcode/DerivedData/SDKStatCaches.noindex/iphonesimulator26.1-23B77-90cf18a4295e390e64c810bc6bd7acbc.sdkstatcache
+
+ProcessInfoPlistFile /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Products/Debug-iphonesimulator/PromisesObjC/FBLPromises_Privacy.bundle/Info.plist /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/Pods/Target\ Support\ Files/PromisesObjC/ResourceBundle-FBLPromises_Privacy-PromisesObjC-Info.plist (in target 'PromisesObjC-FBLPromises_Privacy' from project 'Pods')
+    cd /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/Pods
+    builtin-infoPlistUtility /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/Pods/Target\ Support\ Files/PromisesObjC/ResourceBundle-FBLPromises_Privacy-PromisesObjC-Info.plist -producttype com.apple.product-type.bundle -expandbuildsettings -format binary -platform iphonesimulator -o /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Products/Debug-iphonesimulator/PromisesObjC/FBLPromises_Privacy.bundle/Info.plist
+
+ProcessInfoPlistFile /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Products/Debug-iphonesimulator/nanopb/nanopb_Privacy.bundle/Info.plist /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/Pods/Target\ Support\ Files/nanopb/ResourceBundle-nanopb_Privacy-nanopb-Info.plist (in target 'nanopb-nanopb_Privacy' from project 'Pods')
+    cd /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/Pods
+    builtin-infoPlistUtility /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/Pods/Target\ Support\ Files/nanopb/ResourceBundle-nanopb_Privacy-nanopb-Info.plist -producttype com.apple.product-type.bundle -expandbuildsettings -format binary -platform iphonesimulator -o /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Products/Debug-iphonesimulator/nanopb/nanopb_Privacy.bundle/Info.plist
+
+ProcessInfoPlistFile /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Products/Debug-iphonesimulator/KeychainSwift/KeychainSwift.framework/Info.plist /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/Pods/Target\ Support\ Files/KeychainSwift/KeychainSwift-Info.plist (in target 'KeychainSwift' from project 'Pods')
+    cd /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/Pods
+    builtin-infoPlistUtility /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/Pods/Target\ Support\ Files/KeychainSwift/KeychainSwift-Info.plist -producttype com.apple.product-type.framework -expandbuildsettings -format binary -platform iphonesimulator -o /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Products/Debug-iphonesimulator/KeychainSwift/KeychainSwift.framework/Info.plist
+
+ProcessInfoPlistFile /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Products/Debug-iphonesimulator/Sentry/Sentry.bundle/Info.plist /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/Pods/Target\ Support\ Files/Sentry/ResourceBundle-Sentry-Sentry-Info.plist (in target 'Sentry-Sentry' from project 'Pods')
+    cd /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/Pods
+    builtin-infoPlistUtility /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/Pods/Target\ Support\ Files/Sentry/ResourceBundle-Sentry-Sentry-Info.plist -producttype com.apple.product-type.bundle -expandbuildsettings -format binary -platform iphonesimulator -o /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Products/Debug-iphonesimulator/Sentry/Sentry.bundle/Info.plist
+
+WriteAuxiliaryFile /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Intermediates.noindex/App.build/Debug-iphonesimulator/App.build/Objects-normal/x86_64/App.SwiftFileList (in target 'App' from project 'App')
+    cd /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native
+    write-file /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Intermediates.noindex/App.build/Debug-iphonesimulator/App.build/Objects-normal/x86_64/App.SwiftFileList
+
+WriteAuxiliaryFile /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Intermediates.noindex/App.build/Debug-iphonesimulator/App.build/Objects-normal/x86_64/App.SwiftConstValuesFileList (in target 'App' from project 'App')
+    cd /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native
+    write-file /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Intermediates.noindex/App.build/Debug-iphonesimulator/App.build/Objects-normal/x86_64/App.SwiftConstValuesFileList
+
+WriteAuxiliaryFile /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Intermediates.noindex/App.build/Debug-iphonesimulator/App.build/Objects-normal/arm64/App.SwiftConstValuesFileList (in target 'App' from project 'App')
+    cd /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native
+    write-file /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Intermediates.noindex/App.build/Debug-iphonesimulator/App.build/Objects-normal/arm64/App.SwiftConstValuesFileList
+
+WriteAuxiliaryFile /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Intermediates.noindex/App.build/Debug-iphonesimulator/App.build/Objects-normal/arm64/App.SwiftFileList (in target 'App' from project 'App')
+    cd /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native
+    write-file /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Intermediates.noindex/App.build/Debug-iphonesimulator/App.build/Objects-normal/arm64/App.SwiftFileList
+
+ProcessInfoPlistFile /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Products/Debug-iphonesimulator/nanopb/nanopb.framework/Info.plist /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/Pods/Target\ Support\ Files/nanopb/nanopb-Info.plist (in target 'nanopb' from project 'Pods')
+    cd /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/Pods
+    builtin-infoPlistUtility /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/Pods/Target\ Support\ Files/nanopb/nanopb-Info.plist -producttype com.apple.product-type.framework -expandbuildsettings -format binary -platform iphonesimulator -o /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Products/Debug-iphonesimulator/nanopb/nanopb.framework/Info.plist
+
+ProcessInfoPlistFile /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Products/Debug-iphonesimulator/Sentry/Sentry.framework/Info.plist /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/Pods/Target\ Support\ Files/Sentry/Sentry-Info.plist (in target 'Sentry' from project 'Pods')
+    cd /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/Pods
+    builtin-infoPlistUtility /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/Pods/Target\ Support\ Files/Sentry/Sentry-Info.plist -producttype com.apple.product-type.framework -expandbuildsettings -format binary -platform iphonesimulator -o /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Products/Debug-iphonesimulator/Sentry/Sentry.framework/Info.plist
+
+WriteAuxiliaryFile /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Intermediates.noindex/App.build/Debug-iphonesimulator/App.build/Objects-normal/x86_64/App.LinkFileList (in target 'App' from project 'App')
+    cd /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native
+    write-file /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Intermediates.noindex/App.build/Debug-iphonesimulator/App.build/Objects-normal/x86_64/App.LinkFileList
+
+WriteAuxiliaryFile /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Intermediates.noindex/App.build/Debug-iphonesimulator/App.build/Objects-normal/x86_64/App-OutputFileMap.json (in target 'App' from project 'App')
+    cd /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native
+    write-file /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Intermediates.noindex/App.build/Debug-iphonesimulator/App.build/Objects-normal/x86_64/App-OutputFileMap.json
+
+WriteAuxiliaryFile /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Intermediates.noindex/App.build/Debug-iphonesimulator/App.build/Objects-normal/arm64/App.LinkFileList (in target 'App' from project 'App')
+    cd /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native
+    write-file /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Intermediates.noindex/App.build/Debug-iphonesimulator/App.build/Objects-normal/arm64/App.LinkFileList
+
+WriteAuxiliaryFile /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Intermediates.noindex/App.build/Debug-iphonesimulator/App.build/Objects-normal/arm64/App-OutputFileMap.json (in target 'App' from project 'App')
+    cd /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native
+    write-file /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Intermediates.noindex/App.build/Debug-iphonesimulator/App.build/Objects-normal/arm64/App-OutputFileMap.json
+
+ProcessInfoPlistFile /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Products/Debug-iphonesimulator/PromisesObjC/FBLPromises.framework/Info.plist /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/Pods/Target\ Support\ Files/PromisesObjC/PromisesObjC-Info.plist (in target 'PromisesObjC' from project 'Pods')
+    cd /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/Pods
+    builtin-infoPlistUtility /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/Pods/Target\ Support\ Files/PromisesObjC/PromisesObjC-Info.plist -producttype com.apple.product-type.framework -expandbuildsettings -format binary -platform iphonesimulator -o /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Products/Debug-iphonesimulator/PromisesObjC/FBLPromises.framework/Info.plist
+
+ProcessInfoPlistFile /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Products/Debug-iphonesimulator/GoogleUtilities/GoogleUtilities_Privacy.bundle/Info.plist /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/Pods/Target\ Support\ Files/GoogleUtilities/ResourceBundle-GoogleUtilities_Privacy-GoogleUtilities-Info.plist (in target 'GoogleUtilities-GoogleUtilities_Privacy' from project 'Pods')
+    cd /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/Pods
+    builtin-infoPlistUtility /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/Pods/Target\ Support\ Files/GoogleUtilities/ResourceBundle-GoogleUtilities_Privacy-GoogleUtilities-Info.plist -producttype com.apple.product-type.bundle -expandbuildsettings -format binary -platform iphonesimulator -o /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Products/Debug-iphonesimulator/GoogleUtilities/GoogleUtilities_Privacy.bundle/Info.plist
+
+ProcessInfoPlistFile /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Products/Debug-iphonesimulator/GoogleUtilities/GoogleUtilities.framework/Info.plist /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/Pods/Target\ Support\ Files/GoogleUtilities/GoogleUtilities-Info.plist (in target 'GoogleUtilities' from project 'Pods')
+    cd /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/Pods
+    builtin-infoPlistUtility /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/Pods/Target\ Support\ Files/GoogleUtilities/GoogleUtilities-Info.plist -producttype com.apple.product-type.framework -expandbuildsettings -format binary -platform iphonesimulator -o /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Products/Debug-iphonesimulator/GoogleUtilities/GoogleUtilities.framework/Info.plist
+
+ProcessInfoPlistFile /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Products/Debug-iphonesimulator/FirebaseCoreInternal/FirebaseCoreInternal_Privacy.bundle/Info.plist /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/Pods/Target\ Support\ Files/FirebaseCoreInternal/ResourceBundle-FirebaseCoreInternal_Privacy-FirebaseCoreInternal-Info.plist (in target 'FirebaseCoreInternal-FirebaseCoreInternal_Privacy' from project 'Pods')
+    cd /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/Pods
+    builtin-infoPlistUtility /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/Pods/Target\ Support\ Files/FirebaseCoreInternal/ResourceBundle-FirebaseCoreInternal_Privacy-FirebaseCoreInternal-Info.plist -producttype com.apple.product-type.bundle -expandbuildsettings -format binary -platform iphonesimulator -o /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Products/Debug-iphonesimulator/FirebaseCoreInternal/FirebaseCoreInternal_Privacy.bundle/Info.plist
+
+ProcessInfoPlistFile /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Products/Debug-iphonesimulator/GoogleDataTransport/GoogleDataTransport_Privacy.bundle/Info.plist /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/Pods/Target\ Support\ Files/GoogleDataTransport/ResourceBundle-GoogleDataTransport_Privacy-GoogleDataTransport-Info.plist (in target 'GoogleDataTransport-GoogleDataTransport_Privacy' from project 'Pods')
+    cd /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/Pods
+    builtin-infoPlistUtility /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/Pods/Target\ Support\ Files/GoogleDataTransport/ResourceBundle-GoogleDataTransport_Privacy-GoogleDataTransport-Info.plist -producttype com.apple.product-type.bundle -expandbuildsettings -format binary -platform iphonesimulator -o /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Products/Debug-iphonesimulator/GoogleDataTransport/GoogleDataTransport_Privacy.bundle/Info.plist
+
+ProcessInfoPlistFile /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Products/Debug-iphonesimulator/GoogleDataTransport/GoogleDataTransport.framework/Info.plist /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/Pods/Target\ Support\ Files/GoogleDataTransport/GoogleDataTransport-Info.plist (in target 'GoogleDataTransport' from project 'Pods')
+    cd /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/Pods
+    builtin-infoPlistUtility /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/Pods/Target\ Support\ Files/GoogleDataTransport/GoogleDataTransport-Info.plist -producttype com.apple.product-type.framework -expandbuildsettings -format binary -platform iphonesimulator -o /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Products/Debug-iphonesimulator/GoogleDataTransport/GoogleDataTransport.framework/Info.plist
+
+ProcessInfoPlistFile /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Products/Debug-iphonesimulator/FirebaseCoreInternal/FirebaseCoreInternal.framework/Info.plist /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/Pods/Target\ Support\ Files/FirebaseCoreInternal/FirebaseCoreInternal-Info.plist (in target 'FirebaseCoreInternal' from project 'Pods')
+    cd /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/Pods
+    builtin-infoPlistUtility /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/Pods/Target\ Support\ Files/FirebaseCoreInternal/FirebaseCoreInternal-Info.plist -producttype com.apple.product-type.framework -expandbuildsettings -format binary -platform iphonesimulator -o /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Products/Debug-iphonesimulator/FirebaseCoreInternal/FirebaseCoreInternal.framework/Info.plist
+
+ProcessInfoPlistFile /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Products/Debug-iphonesimulator/FirebaseCore/FirebaseCore_Privacy.bundle/Info.plist /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/Pods/Target\ Support\ Files/FirebaseCore/ResourceBundle-FirebaseCore_Privacy-FirebaseCore-Info.plist (in target 'FirebaseCore-FirebaseCore_Privacy' from project 'Pods')
+    cd /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/Pods
+    builtin-infoPlistUtility /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/Pods/Target\ Support\ Files/FirebaseCore/ResourceBundle-FirebaseCore_Privacy-FirebaseCore-Info.plist -producttype com.apple.product-type.bundle -expandbuildsettings -format binary -platform iphonesimulator -o /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Products/Debug-iphonesimulator/FirebaseCore/FirebaseCore_Privacy.bundle/Info.plist
+
+ProcessInfoPlistFile /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Products/Debug-iphonesimulator/FirebaseCore/FirebaseCore.framework/Info.plist /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/Pods/Target\ Support\ Files/FirebaseCore/FirebaseCore-Info.plist (in target 'FirebaseCore' from project 'Pods')
+    cd /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/Pods
+    builtin-infoPlistUtility /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/Pods/Target\ Support\ Files/FirebaseCore/FirebaseCore-Info.plist -producttype com.apple.product-type.framework -expandbuildsettings -format binary -platform iphonesimulator -o /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Products/Debug-iphonesimulator/FirebaseCore/FirebaseCore.framework/Info.plist
+
+ProcessInfoPlistFile /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Products/Debug-iphonesimulator/FirebaseInstallations/FirebaseInstallations_Privacy.bundle/Info.plist /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/Pods/Target\ Support\ Files/FirebaseInstallations/ResourceBundle-FirebaseInstallations_Privacy-FirebaseInstallations-Info.plist (in target 'FirebaseInstallations-FirebaseInstallations_Privacy' from project 'Pods')
+    cd /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/Pods
+    builtin-infoPlistUtility /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/Pods/Target\ Support\ Files/FirebaseInstallations/ResourceBundle-FirebaseInstallations_Privacy-FirebaseInstallations-Info.plist -producttype com.apple.product-type.bundle -expandbuildsettings -format binary -platform iphonesimulator -o /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Products/Debug-iphonesimulator/FirebaseInstallations/FirebaseInstallations_Privacy.bundle/Info.plist
+
+ProcessInfoPlistFile /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Products/Debug-iphonesimulator/FirebaseInstallations/FirebaseInstallations.framework/Info.plist /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/Pods/Target\ Support\ Files/FirebaseInstallations/FirebaseInstallations-Info.plist (in target 'FirebaseInstallations' from project 'Pods')
+    cd /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/Pods
+    builtin-infoPlistUtility /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/Pods/Target\ Support\ Files/FirebaseInstallations/FirebaseInstallations-Info.plist -producttype com.apple.product-type.framework -expandbuildsettings -format binary -platform iphonesimulator -o /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Products/Debug-iphonesimulator/FirebaseInstallations/FirebaseInstallations.framework/Info.plist
+
+ProcessInfoPlistFile /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Products/Debug-iphonesimulator/FirebaseMessaging/FirebaseMessaging_Privacy.bundle/Info.plist /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/Pods/Target\ Support\ Files/FirebaseMessaging/ResourceBundle-FirebaseMessaging_Privacy-FirebaseMessaging-Info.plist (in target 'FirebaseMessaging-FirebaseMessaging_Privacy' from project 'Pods')
+    cd /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/Pods
+    builtin-infoPlistUtility /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/Pods/Target\ Support\ Files/FirebaseMessaging/ResourceBundle-FirebaseMessaging_Privacy-FirebaseMessaging-Info.plist -producttype com.apple.product-type.bundle -expandbuildsettings -format binary -platform iphonesimulator -o /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Products/Debug-iphonesimulator/FirebaseMessaging/FirebaseMessaging_Privacy.bundle/Info.plist
+
+ProcessInfoPlistFile /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Products/Debug-iphonesimulator/FirebaseMessaging/FirebaseMessaging.framework/Info.plist /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/Pods/Target\ Support\ Files/FirebaseMessaging/FirebaseMessaging-Info.plist (in target 'FirebaseMessaging' from project 'Pods')
+    cd /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/Pods
+    builtin-infoPlistUtility /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/Pods/Target\ Support\ Files/FirebaseMessaging/FirebaseMessaging-Info.plist -producttype com.apple.product-type.framework -expandbuildsettings -format binary -platform iphonesimulator -o /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Products/Debug-iphonesimulator/FirebaseMessaging/FirebaseMessaging.framework/Info.plist
+
+ProcessInfoPlistFile /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Products/Debug-iphonesimulator/Pods_App.framework/Info.plist /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/Pods/Target\ Support\ Files/Pods-App/Pods-App-Info.plist (in target 'Pods-App' from project 'Pods')
+    cd /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/Pods
+    builtin-infoPlistUtility /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/Pods/Target\ Support\ Files/Pods-App/Pods-App-Info.plist -producttype com.apple.product-type.framework -expandbuildsettings -format binary -platform iphonesimulator -o /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Products/Debug-iphonesimulator/Pods_App.framework/Info.plist
+
+SwiftDriver App normal arm64 com.apple.xcode.tools.swift.compiler (in target 'App' from project 'App')
+    cd /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native
+    builtin-SwiftDriver -- /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name App -Onone -enforce-exclusivity\=checked @/Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Intermediates.noindex/App.build/Debug-iphonesimulator/App.build/Objects-normal/arm64/App.SwiftFileList -DDEBUG -D COCOAPODS -D COCOAPODS -DDEBUG -enable-bare-slash-regex -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.1.sdk -target arm64-apple-ios15.0-simulator -g -module-cache-path /Users/andrewmorton/Library/Developer/Xcode/DerivedData/ModuleCache.noindex -Xfrontend -serialize-debugging-options -enable-testing -index-store-path /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Index.noindex/DataStore -Xcc -D_LIBCPP_HARDENING_MODE\=_LIBCPP_HARDENING_MODE_DEBUG -swift-version 5 -I /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Products/Debug-iphonesimulator -F /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Products/Debug-iphonesimulator -F /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Products/Debug-iphonesimulator/FirebaseCore -F /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Products/Debug-iphonesimulator/FirebaseCoreInternal -F /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Products/Debug-iphonesimulator/FirebaseInstallations -F /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Products/Debug-iphonesimulator/FirebaseMessaging -F /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Products/Debug-iphonesimulator/GoogleDataTransport -F /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Products/Debug-iphonesimulator/GoogleUtilities -F /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Products/Debug-iphonesimulator/KeychainSwift -F /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Products/Debug-iphonesimulator/PromisesObjC -F /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Products/Debug-iphonesimulator/Sentry -F /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Products/Debug-iphonesimulator/nanopb -F /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/Pods/FirebaseAnalytics/Frameworks -F /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/Pods/GoogleAppMeasurement/Frameworks -F /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Products/Debug-iphonesimulator/XCFrameworkIntermediates/FirebaseAnalytics/AdIdSupport -F /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Products/Debug-iphonesimulator/XCFrameworkIntermediates/GoogleAppMeasurement/AdIdSupport -F /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Products/Debug-iphonesimulator/XCFrameworkIntermediates/GoogleAppMeasurement/WithoutAdIdSupport -c -j12 -enable-batch-mode -incremental -Xcc -ivfsstatcache -Xcc /Users/andrewmorton/Library/Developer/Xcode/DerivedData/SDKStatCaches.noindex/iphonesimulator26.1-23B77-90cf18a4295e390e64c810bc6bd7acbc.sdkstatcache -output-file-map /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Intermediates.noindex/App.build/Debug-iphonesimulator/App.build/Objects-normal/arm64/App-OutputFileMap.json -use-frontend-parseable-output -save-temps -no-color-diagnostics -explicit-module-build -module-cache-path /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules -clang-scanner-module-cache-path /Users/andrewmorton/Library/Developer/Xcode/DerivedData/ModuleCache.noindex -sdk-module-cache-path /Users/andrewmorton/Library/Developer/Xcode/DerivedData/ModuleCache.noindex -serialize-diagnostics -emit-dependencies -emit-module -emit-module-path /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Intermediates.noindex/App.build/Debug-iphonesimulator/App.build/Objects-normal/arm64/App.swiftmodule -validate-clang-modules-once -clang-build-session-file /Users/andrewmorton/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/Session.modulevalidation -Xcc -I/Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Intermediates.noindex/App.build/Debug-iphonesimulator/App.build/swift-overrides.hmap -emit-const-values -Xfrontend -const-gather-protocols-file -Xfrontend /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Intermediates.noindex/App.build/Debug-iphonesimulator/App.build/Objects-normal/arm64/App_const_extract_protocols.json -Xcc -iquote -Xcc /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Intermediates.noindex/App.build/Debug-iphonesimulator/App.build/App-generated-files.hmap -Xcc -I/Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Intermediates.noindex/App.build/Debug-iphonesimulator/App.build/App-own-target-headers.hmap -Xcc -I/Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Intermediates.noindex/App.build/Debug-iphonesimulator/App.build/App-all-non-framework-target-headers.hmap -Xcc -ivfsoverlay -Xcc /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Intermediates.noindex/App.build/Debug-iphonesimulator/App-0ca3007d900a678c2b4d53418799ee3d-VFS-iphonesimulator/all-product-headers.yaml -Xcc -iquote -Xcc /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Intermediates.noindex/App.build/Debug-iphonesimulator/App.build/App-project-headers.hmap -Xcc -I/Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Products/Debug-iphonesimulator/include -Xcc -I/Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Products/Debug-iphonesimulator/FirebaseCore/FirebaseCore.framework/Headers -Xcc -I/Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Products/Debug-iphonesimulator/FirebaseCoreInternal/FirebaseCoreInternal.framework/Headers -Xcc -I/Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Products/Debug-iphonesimulator/FirebaseInstallations/FirebaseInstallations.framework/Headers -Xcc -I/Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Products/Debug-iphonesimulator/FirebaseMessaging/FirebaseMessaging.framework/Headers -Xcc -I/Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Products/Debug-iphonesimulator/GoogleDataTransport/GoogleDataTransport.framework/Headers -Xcc -I/Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Products/Debug-iphonesimulator/GoogleUtilities/GoogleUtilities.framework/Headers -Xcc -I/Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Products/Debug-iphonesimulator/KeychainSwift/KeychainSwift.framework/Headers -Xcc -I/Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Products/Debug-iphonesimulator/PromisesObjC/FBLPromises.framework/Headers -Xcc -I/Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Products/Debug-iphonesimulator/Sentry/Sentry.framework/Headers -Xcc -I/Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Products/Debug-iphonesimulator/nanopb/nanopb.framework/Headers -Xcc -I/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/Pods/Headers/Public -Xcc -I/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/Pods/Headers/Public/Firebase -Xcc -I/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/Pods/Firebase/CoreOnly/Sources -Xcc -I/Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Intermediates.noindex/App.build/Debug-iphonesimulator/App.build/DerivedSources-normal/arm64 -Xcc -I/Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Intermediates.noindex/App.build/Debug-iphonesimulator/App.build/DerivedSources/arm64 -Xcc -I/Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Intermediates.noindex/App.build/Debug-iphonesimulator/App.build/DerivedSources -Xcc -DDEBUG\=1 -Xcc -DCOCOAPODS\=1 -Xcc -DDEBUG\=1 -Xcc -DPB_FIELD_32BIT\=1 -Xcc -DPB_NO_PACKED_STRUCTS\=1 -Xcc -DPB_ENABLE_MALLOC\=1 -emit-objc-header -emit-objc-header-path /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Intermediates.noindex/App.build/Debug-iphonesimulator/App.build/Objects-normal/arm64/App-Swift.h -working-directory /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native -experimental-emit-module-separately -disable-cmo
+
+SwiftDriver App normal x86_64 com.apple.xcode.tools.swift.compiler (in target 'App' from project 'App')
+    cd /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native
+    builtin-SwiftDriver -- /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name App -Onone -enforce-exclusivity\=checked @/Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Intermediates.noindex/App.build/Debug-iphonesimulator/App.build/Objects-normal/x86_64/App.SwiftFileList -DDEBUG -D COCOAPODS -D COCOAPODS -DDEBUG -enable-bare-slash-regex -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.1.sdk -target x86_64-apple-ios15.0-simulator -g -module-cache-path /Users/andrewmorton/Library/Developer/Xcode/DerivedData/ModuleCache.noindex -Xfrontend -serialize-debugging-options -enable-testing -index-store-path /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Index.noindex/DataStore -Xcc -D_LIBCPP_HARDENING_MODE\=_LIBCPP_HARDENING_MODE_DEBUG -swift-version 5 -I /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Products/Debug-iphonesimulator -F /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Products/Debug-iphonesimulator -F /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Products/Debug-iphonesimulator/FirebaseCore -F /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Products/Debug-iphonesimulator/FirebaseCoreInternal -F /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Products/Debug-iphonesimulator/FirebaseInstallations -F /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Products/Debug-iphonesimulator/FirebaseMessaging -F /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Products/Debug-iphonesimulator/GoogleDataTransport -F /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Products/Debug-iphonesimulator/GoogleUtilities -F /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Products/Debug-iphonesimulator/KeychainSwift -F /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Products/Debug-iphonesimulator/PromisesObjC -F /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Products/Debug-iphonesimulator/Sentry -F /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Products/Debug-iphonesimulator/nanopb -F /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/Pods/FirebaseAnalytics/Frameworks -F /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/Pods/GoogleAppMeasurement/Frameworks -F /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Products/Debug-iphonesimulator/XCFrameworkIntermediates/FirebaseAnalytics/AdIdSupport -F /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Products/Debug-iphonesimulator/XCFrameworkIntermediates/GoogleAppMeasurement/AdIdSupport -F /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Products/Debug-iphonesimulator/XCFrameworkIntermediates/GoogleAppMeasurement/WithoutAdIdSupport -c -j12 -enable-batch-mode -incremental -Xcc -ivfsstatcache -Xcc /Users/andrewmorton/Library/Developer/Xcode/DerivedData/SDKStatCaches.noindex/iphonesimulator26.1-23B77-90cf18a4295e390e64c810bc6bd7acbc.sdkstatcache -output-file-map /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Intermediates.noindex/App.build/Debug-iphonesimulator/App.build/Objects-normal/x86_64/App-OutputFileMap.json -use-frontend-parseable-output -save-temps -no-color-diagnostics -explicit-module-build -module-cache-path /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules -clang-scanner-module-cache-path /Users/andrewmorton/Library/Developer/Xcode/DerivedData/ModuleCache.noindex -sdk-module-cache-path /Users/andrewmorton/Library/Developer/Xcode/DerivedData/ModuleCache.noindex -serialize-diagnostics -emit-dependencies -emit-module -emit-module-path /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Intermediates.noindex/App.build/Debug-iphonesimulator/App.build/Objects-normal/x86_64/App.swiftmodule -validate-clang-modules-once -clang-build-session-file /Users/andrewmorton/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/Session.modulevalidation -Xcc -I/Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Intermediates.noindex/App.build/Debug-iphonesimulator/App.build/swift-overrides.hmap -emit-const-values -Xfrontend -const-gather-protocols-file -Xfrontend /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Intermediates.noindex/App.build/Debug-iphonesimulator/App.build/Objects-normal/x86_64/App_const_extract_protocols.json -Xcc -iquote -Xcc /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Intermediates.noindex/App.build/Debug-iphonesimulator/App.build/App-generated-files.hmap -Xcc -I/Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Intermediates.noindex/App.build/Debug-iphonesimulator/App.build/App-own-target-headers.hmap -Xcc -I/Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Intermediates.noindex/App.build/Debug-iphonesimulator/App.build/App-all-non-framework-target-headers.hmap -Xcc -ivfsoverlay -Xcc /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Intermediates.noindex/App.build/Debug-iphonesimulator/App-0ca3007d900a678c2b4d53418799ee3d-VFS-iphonesimulator/all-product-headers.yaml -Xcc -iquote -Xcc /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Intermediates.noindex/App.build/Debug-iphonesimulator/App.build/App-project-headers.hmap -Xcc -I/Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Products/Debug-iphonesimulator/include -Xcc -I/Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Products/Debug-iphonesimulator/FirebaseCore/FirebaseCore.framework/Headers -Xcc -I/Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Products/Debug-iphonesimulator/FirebaseCoreInternal/FirebaseCoreInternal.framework/Headers -Xcc -I/Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Products/Debug-iphonesimulator/FirebaseInstallations/FirebaseInstallations.framework/Headers -Xcc -I/Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Products/Debug-iphonesimulator/FirebaseMessaging/FirebaseMessaging.framework/Headers -Xcc -I/Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Products/Debug-iphonesimulator/GoogleDataTransport/GoogleDataTransport.framework/Headers -Xcc -I/Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Products/Debug-iphonesimulator/GoogleUtilities/GoogleUtilities.framework/Headers -Xcc -I/Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Products/Debug-iphonesimulator/KeychainSwift/KeychainSwift.framework/Headers -Xcc -I/Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Products/Debug-iphonesimulator/PromisesObjC/FBLPromises.framework/Headers -Xcc -I/Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Products/Debug-iphonesimulator/Sentry/Sentry.framework/Headers -Xcc -I/Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Products/Debug-iphonesimulator/nanopb/nanopb.framework/Headers -Xcc -I/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/Pods/Headers/Public -Xcc -I/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/Pods/Headers/Public/Firebase -Xcc -I/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/Pods/Firebase/CoreOnly/Sources -Xcc -I/Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Intermediates.noindex/App.build/Debug-iphonesimulator/App.build/DerivedSources-normal/x86_64 -Xcc -I/Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Intermediates.noindex/App.build/Debug-iphonesimulator/App.build/DerivedSources/x86_64 -Xcc -I/Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Intermediates.noindex/App.build/Debug-iphonesimulator/App.build/DerivedSources -Xcc -DDEBUG\=1 -Xcc -DCOCOAPODS\=1 -Xcc -DDEBUG\=1 -Xcc -DPB_FIELD_32BIT\=1 -Xcc -DPB_NO_PACKED_STRUCTS\=1 -Xcc -DPB_ENABLE_MALLOC\=1 -emit-objc-header -emit-objc-header-path /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Intermediates.noindex/App.build/Debug-iphonesimulator/App.build/Objects-normal/x86_64/App-Swift.h -working-directory /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native -experimental-emit-module-separately -disable-cmo
+
+CompileAssetCatalogVariant thinned /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Products/Debug-iphonesimulator/App.app /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/Assets.xcassets (in target 'App' from project 'App')
+    cd /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native
+    /Applications/Xcode.app/Contents/Developer/usr/bin/actool /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/Assets.xcassets --compile /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Intermediates.noindex/App.build/Debug-iphonesimulator/App.build/assetcatalog_output/thinned --output-format human-readable-text --notices --warnings --export-dependency-info /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Intermediates.noindex/App.build/Debug-iphonesimulator/App.build/assetcatalog_dependencies_thinned --output-partial-info-plist /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Intermediates.noindex/App.build/Debug-iphonesimulator/App.build/assetcatalog_generated_info.plist_thinned --app-icon AppIcon --compress-pngs --enable-on-demand-resources YES --development-region en --target-device iphone --target-device ipad --minimum-deployment-target 15.0 --platform iphonesimulator
+
+SwiftExplicitDependencyGeneratePcm x86_64 /Users/andrewmorton/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/os_object-BNUHKJ0SN34U6FVYQHVXR4QA9.pcm
+
+SwiftCompile normal arm64 Compiling\ KeychainManager.swift,\ LocationManager.swift,\ LoggingManager.swift,\ PushNotificationManager.swift,\ RemoteConfigManager.swift,\ ModernTheme.swift,\ Animations.swift,\ AccessibilityEnhancements.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/KeychainManager.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/LocationManager.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/LoggingManager.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/PushNotificationManager.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/RemoteConfigManager.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/Theme/ModernTheme.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/Theme/Animations.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/Theme/AccessibilityEnhancements.swift (in target 'App' from project 'App')
+SwiftCompile normal arm64 /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/KeychainManager.swift (in target 'App' from project 'App')
+    cd /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native
+    
+
+SwiftCompile normal arm64 /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/LocationManager.swift (in target 'App' from project 'App')
+    cd /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native
+    
+
+SwiftCompile normal arm64 /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/LoggingManager.swift (in target 'App' from project 'App')
+    cd /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native
+    
+
+SwiftCompile normal arm64 /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/PushNotificationManager.swift (in target 'App' from project 'App')
+    cd /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native
+    
+
+SwiftCompile normal arm64 /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/RemoteConfigManager.swift (in target 'App' from project 'App')
+    cd /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native
+    
+
+SwiftCompile normal arm64 /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/Theme/ModernTheme.swift (in target 'App' from project 'App')
+    cd /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native
+    
+
+SwiftCompile normal arm64 /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/Theme/Animations.swift (in target 'App' from project 'App')
+    cd /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native
+    
+
+SwiftCompile normal arm64 /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/Theme/AccessibilityEnhancements.swift (in target 'App' from project 'App')
+    cd /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native
+    
+
+SwiftCompile normal arm64 Compiling\ MaintenanceView.swift,\ DriverManagementView.swift,\ SettingsView.swift,\ ProfileView.swift,\ ReportsView.swift,\ AnalyticsManager.swift,\ AuthenticationManager.swift,\ BluetoothPermissionManager.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/MaintenanceView.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/DriverManagementView.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/SettingsView.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/ProfileView.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/ReportsView.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/AnalyticsManager.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/AuthenticationManager.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/BluetoothPermissionManager.swift (in target 'App' from project 'App')
+
+SwiftCompile normal arm64 /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/MaintenanceView.swift (in target 'App' from project 'App')
+    cd /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native
+    
+
+SwiftCompile normal arm64 /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/DriverManagementView.swift (in target 'App' from project 'App')
+    cd /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native
+    
+
+SwiftCompile normal arm64 /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/SettingsView.swift (in target 'App' from project 'App')
+    cd /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native
+    
+
+SwiftCompile normal arm64 /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/ProfileView.swift (in target 'App' from project 'App')
+    cd /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native
+    
+
+SwiftCompile normal arm64 /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/ReportsView.swift (in target 'App' from project 'App')
+    cd /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native
+    
+
+SwiftCompile normal arm64 /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/AnalyticsManager.swift (in target 'App' from project 'App')
+    cd /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native
+    
+
+SwiftCompile normal arm64 /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/AuthenticationManager.swift (in target 'App' from project 'App')
+    cd /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native
+    
+
+SwiftCompile normal arm64 /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/BluetoothPermissionManager.swift (in target 'App' from project 'App')
+    cd /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native
+    
+
+SwiftCompile normal arm64 Compiling\ TripsViewModel.swift,\ VehiclesViewModel.swift,\ ScheduleViewModel.swift,\ ChecklistViewModel.swift,\ MaintenanceViewModel.swift,\ AppDelegate.swift,\ FleetManagementAppView.swift,\ AdminApp.swift,\ ManualDataEntry.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/ViewModels/TripsViewModel.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/ViewModels/VehiclesViewModel.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/ViewModels/ScheduleViewModel.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/ViewModels/ChecklistViewModel.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/ViewModels/MaintenanceViewModel.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/AppDelegate.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/FleetManagementAppView.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/AdminApp.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/ManualDataEntry.swift (in target 'App' from project 'App')
+
+SwiftCompile normal arm64 /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/ViewModels/TripsViewModel.swift (in target 'App' from project 'App')
+    cd /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native
+    
+
+SwiftCompile normal arm64 /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/ViewModels/VehiclesViewModel.swift (in target 'App' from project 'App')
+    cd /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native
+    
+
+SwiftCompile normal arm64 /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/ViewModels/ScheduleViewModel.swift (in target 'App' from project 'App')
+    cd /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native
+    
+
+SwiftCompile normal arm64 /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/ViewModels/ChecklistViewModel.swift (in target 'App' from project 'App')
+    cd /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native
+    
+
+SwiftCompile normal arm64 /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/ViewModels/MaintenanceViewModel.swift (in target 'App' from project 'App')
+    cd /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native
+    
+
+SwiftCompile normal arm64 /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/AppDelegate.swift (in target 'App' from project 'App')
+    cd /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native
+    
+
+SwiftCompile normal arm64 /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/FleetManagementAppView.swift (in target 'App' from project 'App')
+    cd /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native
+    
+
+SwiftCompile normal arm64 /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/AdminApp.swift (in target 'App' from project 'App')
+    cd /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native
+    
+
+SwiftCompile normal arm64 /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/ManualDataEntry.swift (in target 'App' from project 'App')
+    cd /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native
+    
+
+SwiftCompile normal arm64 Compiling\ TripTracking.swift,\ VehicleInspection.swift,\ AzureConfig.swift,\ APIConfiguration.swift,\ NavigationCoordinator.swift,\ OBD2DataParser.swift,\ RootView.swift,\ Vehicle.swift,\ DashboardView.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/TripTracking.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/VehicleInspection.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/AzureConfig.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/APIConfiguration.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/NavigationCoordinator.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/OBD2DataParser.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/RootView.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/Models/Vehicle.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/DashboardView.swift (in target 'App' from project 'App')
+
+SwiftCompile normal arm64 /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/TripTracking.swift (in target 'App' from project 'App')
+    cd /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native
+    
+
+SwiftCompile normal arm64 /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/VehicleInspection.swift (in target 'App' from project 'App')
+    cd /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native
+    
+
+SwiftCompile normal arm64 /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/AzureConfig.swift (in target 'App' from project 'App')
+    cd /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native
+    
+
+SwiftCompile normal arm64 /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/APIConfiguration.swift (in target 'App' from project 'App')
+    cd /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native
+    
+
+SwiftCompile normal arm64 /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/NavigationCoordinator.swift (in target 'App' from project 'App')
+    cd /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native
+    
+
+SwiftCompile normal arm64 /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/OBD2DataParser.swift (in target 'App' from project 'App')
+    cd /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native
+    
+
+SwiftCompile normal arm64 /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/RootView.swift (in target 'App' from project 'App')
+    cd /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native
+    
+
+SwiftCompile normal arm64 /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/Models/Vehicle.swift (in target 'App' from project 'App')
+    cd /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native
+    
+
+SwiftCompile normal arm64 /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/DashboardView.swift (in target 'App' from project 'App')
+    cd /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native
+    
+
+SwiftCompile normal arm64 Compiling\ FleetModels.swift,\ FleetMetricsCard.swift,\ DashboardViewModel.swift,\ MainTabView.swift,\ FleetManagementApp.swift,\ CrashReporter.swift,\ AuthenticationService.swift,\ NetworkMonitor.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/FleetModels.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/FleetMetricsCard.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/DashboardViewModel.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/MainTabView.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/FleetManagementApp.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/CrashReporter.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/AuthenticationService.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/NetworkMonitor.swift (in target 'App' from project 'App')
+
+SwiftCompile normal arm64 /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/FleetModels.swift (in target 'App' from project 'App')
+    cd /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native
+    
+
+SwiftCompile normal arm64 /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/FleetMetricsCard.swift (in target 'App' from project 'App')
+    cd /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native
+    
+
+SwiftCompile normal arm64 /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/DashboardViewModel.swift (in target 'App' from project 'App')
+    cd /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native
+    
+
+SwiftCompile normal arm64 /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/MainTabView.swift (in target 'App' from project 'App')
+    cd /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native
+    
+
+SwiftCompile normal arm64 /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/FleetManagementApp.swift (in target 'App' from project 'App')
+    cd /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native
+    
+
+SwiftCompile normal arm64 /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/CrashReporter.swift (in target 'App' from project 'App')
+    cd /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native
+    
+
+SwiftCompile normal arm64 /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/AuthenticationService.swift (in target 'App' from project 'App')
+    cd /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native
+    
+
+SwiftCompile normal arm64 /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/NetworkMonitor.swift (in target 'App' from project 'App')
+    cd /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native
+    
+
+SwiftCompile normal arm64 Compiling\ CameraManager.swift,\ CertificatePinningManager.swift,\ DataPersistenceManager.swift,\ EncryptionManager.swift,\ EnvironmentManager.swift,\ FIPSCryptoManager.swift,\ FirebaseManager.swift,\ HealthCheckManager.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/CameraManager.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/CertificatePinningManager.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/DataPersistenceManager.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/EncryptionManager.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/EnvironmentManager.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/FIPSCryptoManager.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/FirebaseManager.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/HealthCheckManager.swift (in target 'App' from project 'App')
+
+SwiftCompile normal arm64 /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/CameraManager.swift (in target 'App' from project 'App')
+    cd /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native
+    
+
+SwiftCompile normal arm64 /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/CertificatePinningManager.swift (in target 'App' from project 'App')
+    cd /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native
+    
+
+SwiftCompile normal arm64 /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/DataPersistenceManager.swift (in target 'App' from project 'App')
+    cd /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native
+    
+
+SwiftCompile normal arm64 /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/EncryptionManager.swift (in target 'App' from project 'App')
+    cd /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native
+    
+
+SwiftCompile normal arm64 /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/EnvironmentManager.swift (in target 'App' from project 'App')
+    cd /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native
+    
+
+SwiftCompile normal arm64 /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/FIPSCryptoManager.swift (in target 'App' from project 'App')
+    cd /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native
+    
+
+SwiftCompile normal arm64 /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/FirebaseManager.swift (in target 'App' from project 'App')
+    cd /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native
+    
+
+SwiftCompile normal arm64 /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/HealthCheckManager.swift (in target 'App' from project 'App')
+    cd /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native
+    
+
+SwiftEmitModule normal arm64 Emitting\ module\ for\ App (in target 'App' from project 'App')
+
+EmitSwiftModule normal arm64 (in target 'App' from project 'App')
+    cd /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native
+    
+
+SwiftCompile normal arm64 Compiling\ VehicleModel.swift,\ ImageUploadService.swift,\ ErrorHandler.swift,\ DatabaseMigration.swift,\ PhotoCaptureView.swift,\ TripTrackingService.swift,\ SecurityLogger.swift,\ FeatureFlags.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/VehicleModel.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/ImageUploadService.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/ErrorHandler.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/DatabaseMigration.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/PhotoCaptureView.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/TripTrackingService.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/SecurityLogger.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/FeatureFlags.swift (in target 'App' from project 'App')
+
+SwiftCompile normal arm64 /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/VehicleModel.swift (in target 'App' from project 'App')
+    cd /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native
+    
+
+SwiftCompile normal arm64 /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/ImageUploadService.swift (in target 'App' from project 'App')
+    cd /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native
+    
+
+SwiftCompile normal arm64 /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/ErrorHandler.swift (in target 'App' from project 'App')
+    cd /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native
+    
+
+SwiftCompile normal arm64 /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/DatabaseMigration.swift (in target 'App' from project 'App')
+    cd /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native
+    
+
+SwiftCompile normal arm64 /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/PhotoCaptureView.swift (in target 'App' from project 'App')
+    cd /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native
+    
+
+SwiftCompile normal arm64 /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/TripTrackingService.swift (in target 'App' from project 'App')
+    cd /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native
+    
+
+SwiftCompile normal arm64 /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/SecurityLogger.swift (in target 'App' from project 'App')
+    cd /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native
+    
+
+SwiftCompile normal arm64 /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/FeatureFlags.swift (in target 'App' from project 'App')
+    cd /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native
+    
+
+SwiftCompile normal arm64 Compiling\ NotificationsView.swift,\ AboutView.swift,\ HelpView.swift,\ MaintenanceModel.swift,\ TripHistoryView.swift,\ JailbreakDetector.swift,\ TelemetryExporter.swift,\ CoreDataStubs.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/NotificationsView.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/AboutView.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/HelpView.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/MaintenanceModel.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/TripHistoryView.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/JailbreakDetector.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/Monitoring/TelemetryExporter.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/CoreDataStubs.swift (in target 'App' from project 'App')
+
+SwiftCompile normal arm64 /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/NotificationsView.swift (in target 'App' from project 'App')
+    cd /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native
+    
+
+SwiftCompile normal arm64 /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/AboutView.swift (in target 'App' from project 'App')
+    cd /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native
+    
+
+SwiftCompile normal arm64 /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/HelpView.swift (in target 'App' from project 'App')
+    cd /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native
+    
+
+SwiftCompile normal arm64 /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/MaintenanceModel.swift (in target 'App' from project 'App')
+    cd /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native
+    
+
+SwiftCompile normal arm64 /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/TripHistoryView.swift (in target 'App' from project 'App')
+    cd /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native
+    
+
+SwiftCompile normal arm64 /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/JailbreakDetector.swift (in target 'App' from project 'App')
+    cd /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native
+    
+
+SwiftCompile normal arm64 /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/Monitoring/TelemetryExporter.swift (in target 'App' from project 'App')
+    cd /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native
+    
+
+SwiftCompile normal arm64 /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/CoreDataStubs.swift (in target 'App' from project 'App')
+    cd /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native
+    
+
+SwiftCompile normal arm64 Compiling\ PhotoLibraryManager.swift,\ MissingTypeStubs.swift,\ AlertManager.swift,\ PerformanceMonitor.swift,\ BaseViewModel.swift,\ DateRange.swift,\ MockDataGenerator.swift,\ CameraView.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/PhotoLibraryManager.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/MissingTypeStubs.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/Monitoring/AlertManager.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/Monitoring/PerformanceMonitor.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/ViewModels/BaseViewModel.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/Models/DateRange.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/MockDataGenerator.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/CameraView.swift (in target 'App' from project 'App')
+Failed frontend command:
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swift-frontend -frontend -c /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/ViewModels/TripsViewModel.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/ViewModels/VehiclesViewModel.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/ViewModels/ScheduleViewModel.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/ViewModels/ChecklistViewModel.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/ViewModels/MaintenanceViewModel.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/AppDelegate.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/FleetManagementAppView.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/AdminApp.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/ManualDataEntry.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/TripTracking.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/VehicleInspection.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/AzureConfig.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/APIConfiguration.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/NavigationCoordinator.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/OBD2DataParser.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/RootView.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/Models/Vehicle.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/DashboardView.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/MaintenanceView.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/DriverManagementView.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/SettingsView.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/ProfileView.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/ReportsView.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/AnalyticsManager.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/AuthenticationManager.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/BluetoothPermissionManager.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/CameraManager.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/CertificatePinningManager.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/DataPersistenceManager.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/EncryptionManager.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/EnvironmentManager.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/FIPSCryptoManager.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/FirebaseManager.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/HealthCheckManager.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/KeychainManager.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/LocationManager.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/LoggingManager.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/PushNotificationManager.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/RemoteConfigManager.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/Theme/ModernTheme.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/Theme/Animations.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/Theme/AccessibilityEnhancements.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/FleetModels.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/FleetMetricsCard.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/DashboardViewModel.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/MainTabView.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/FleetManagementApp.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/CrashReporter.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/AuthenticationService.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/NetworkMonitor.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/TripModels.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/ViewModels/VehicleViewModel.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/DocumentScannerView.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/AuditLogger.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/SyncQueue.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/NISTCompliance.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/LoginView.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/BarcodeScannerView.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/VehicleModel.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/ImageUploadService.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/ErrorHandler.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/DatabaseMigration.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/PhotoCaptureView.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/TripTrackingService.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/SecurityLogger.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/FeatureFlags.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/QuickActionsView.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/Components/VehicleCard.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/VehiclesView.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/TripsView.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/MoreView.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/MaintenanceDetailView.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/AddVehicleView.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/AddTripView.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/NotificationsView.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/AboutView.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/HelpView.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/MaintenanceModel.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/TripHistoryView.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/JailbreakDetector.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/Monitoring/TelemetryExporter.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/CoreDataStubs.swift -primary-file /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/PhotoLibraryManager.swift -primary-file /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/MissingTypeStubs.swift -primary-file /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/Monitoring/AlertManager.swift -primary-file /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/Monitoring/PerformanceMonitor.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/Monitoring/MetricsCollector.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/Monitoring/UIPerformanceMonitor.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/LocalizationManager.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/AdvancedCacheManager.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/NetworkOptimizer.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/PerformanceOptimizer.swift -primary-file /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/ViewModels/BaseViewModel.swift -primary-file /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/Models/DateRange.swift -primary-file /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/MockDataGenerator.swift -primary-file /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/CameraView.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/VideoCaptureView.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/LiDARScannerView.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/MultipleImagePicker.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/Models/Schedule/ScheduleModels.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/Models/Checklist/ChecklistModels.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/Models/FuelModels.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/Services/ScheduleService.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/Services/ChecklistService.swift /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Intermediates.noindex/App.build/Debug-iphonesimulator/App.build/DerivedSources/GeneratedAssetSymbols.swift -supplementary-output-file-map /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Intermediates.noindex/App.build/Debug-iphonesimulator/App.build/Objects-normal/arm64/supplementaryOutputs-23 -target arm64-apple-ios15.0-simulator -module-can-import-version DeveloperToolsSupport 23.0.4 23.0.4 -module-can-import-version SwiftUI 7.1.13.1 7.1.13 -module-can-import-version UIKit 9126.1.12.1 9126.1.12 -disable-cross-import-overlay-search -swift-module-cross-import CoreData /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/Frameworks/CoreData.framework/Modules/CoreData.swiftcrossimport/CloudKit.swiftoverlay -swift-module-cross-import CoreData /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.1.sdk/System/Library/Frameworks/CoreData.framework/Modules/CoreData.swiftcrossimport/CloudKit.swiftoverlay -swift-module-cross-import MapKit /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/Frameworks/MapKit.framework/Modules/MapKit.swiftcrossimport/SwiftUI.swiftoverlay -swift-module-cross-import PhotosUI /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/Frameworks/PhotosUI.framework/Modules/PhotosUI.swiftcrossimport/SwiftUI.swiftoverlay -swift-module-cross-import PhotosUI /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/Frameworks/PhotosUI.framework/Modules/PhotosUI.swiftcrossimport/WidgetKit.swiftoverlay -swift-module-cross-import PhotosUI /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.1.sdk/System/Library/Frameworks/PhotosUI.framework/Modules/PhotosUI.swiftcrossimport/SwiftUI.swiftoverlay -swift-module-cross-import PhotosUI /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.1.sdk/System/Library/Frameworks/PhotosUI.framework/Modules/PhotosUI.swiftcrossimport/WidgetKit.swiftoverlay -swift-module-cross-import RealityKit /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.1.sdk/System/Library/Frameworks/RealityKit.framework/Modules/RealityKit.swiftcrossimport/SwiftUI.swiftoverlay -load-resolved-plugin /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/usr/lib/swift/host/plugins/libFoundationMacros.dylib\#/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/swift-plugin-server\#FoundationMacros -load-resolved-plugin /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/usr/lib/swift/host/plugins/libObservationMacros.dylib\#/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/swift-plugin-server\#ObservationMacros -load-resolved-plugin /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/usr/lib/swift/host/plugins/libPreviewsMacros.dylib\#/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/swift-plugin-server\#PreviewsMacros -load-resolved-plugin /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/usr/lib/swift/host/plugins/libSwiftMacros.dylib\#/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/swift-plugin-server\#SwiftMacros -load-resolved-plugin /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/usr/lib/swift/host/plugins/libSwiftUIMacros.dylib\#/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/swift-plugin-server\#SwiftUIMacros -disable-implicit-swift-modules -Xcc -fno-implicit-modules -Xcc -fno-implicit-module-maps -explicit-swift-module-map-file /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Intermediates.noindex/App.build/Debug-iphonesimulator/App.build/Objects-normal/arm64/App-dependencies-2.json -Xllvm -aarch64-use-tbi -enable-objc-interop -sdk /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.1.sdk -I /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Products/Debug-iphonesimulator -F /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Products/Debug-iphonesimulator -F /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Products/Debug-iphonesimulator/FirebaseCore -F /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Products/Debug-iphonesimulator/FirebaseCoreInternal -F /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Products/Debug-iphonesimulator/FirebaseInstallations -F /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Products/Debug-iphonesimulator/FirebaseMessaging -F /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Products/Debug-iphonesimulator/GoogleDataTransport -F /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Products/Debug-iphonesimulator/GoogleUtilities -F /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Products/Debug-iphonesimulator/KeychainSwift -F /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Products/Debug-iphonesimulator/PromisesObjC -F /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Products/Debug-iphonesimulator/Sentry -F /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Products/Debug-iphonesimulator/nanopb -F /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/Pods/FirebaseAnalytics/Frameworks -F /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/Pods/GoogleAppMeasurement/Frameworks -F /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Products/Debug-iphonesimulator/XCFrameworkIntermediates/FirebaseAnalytics/AdIdSupport -F /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Products/Debug-iphonesimulator/XCFrameworkIntermediates/GoogleAppMeasurement/AdIdSupport -F /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Products/Debug-iphonesimulator/XCFrameworkIntermediates/GoogleAppMeasurement/WithoutAdIdSupport -no-color-diagnostics -Xcc -fno-color-diagnostics -enable-testing -g -debug-info-format\=dwarf -dwarf-version\=4 -module-cache-path /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules -swift-version 5 -enforce-exclusivity\=checked -Onone -D DEBUG -D COCOAPODS -D COCOAPODS -D DEBUG -serialize-debugging-options -const-gather-protocols-file /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Intermediates.noindex/App.build/Debug-iphonesimulator/App.build/Objects-normal/arm64/App_const_extract_protocols.json -enable-experimental-feature DebugDescriptionMacro -enable-bare-slash-regex -empty-abi-descriptor -validate-clang-modules-once -clang-build-session-file /Users/andrewmorton/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/Session.modulevalidation -Xcc -working-directory -Xcc /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native -enable-anonymous-context-mangled-names -file-compilation-dir /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native -Xcc -D_LIBCPP_HARDENING_MODE\=_LIBCPP_HARDENING_MODE_DEBUG -Xcc -ivfsstatcache -Xcc /Users/andrewmorton/Library/Developer/Xcode/DerivedData/SDKStatCaches.noindex/iphonesimulator26.1-23B77-90cf18a4295e390e64c810bc6bd7acbc.sdkstatcache -Xcc -I/Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Intermediates.noindex/App.build/Debug-iphonesimulator/App.build/swift-overrides.hmap -Xcc -iquote -Xcc /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Intermediates.noindex/App.build/Debug-iphonesimulator/App.build/App-generated-files.hmap -Xcc -I/Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Intermediates.noindex/App.build/Debug-iphonesimulator/App.build/App-own-target-headers.hmap -Xcc -I/Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Intermediates.noindex/App.build/Debug-iphonesimulator/App.build/App-all-non-framework-target-headers.hmap -Xcc -ivfsoverlay -Xcc /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Intermediates.noindex/App.build/Debug-iphonesimulator/App-0ca3007d900a678c2b4d53418799ee3d-VFS-iphonesimulator/all-product-headers.yaml -Xcc -iquote -Xcc /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Intermediates.noindex/App.build/Debug-iphonesimulator/App.build/App-project-headers.hmap -Xcc -I/Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Products/Debug-iphonesimulator/include -Xcc -I/Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Products/Debug-iphonesimulator/FirebaseCore/FirebaseCore.framework/Headers -Xcc -I/Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Products/Debug-iphonesimulator/FirebaseCoreInternal/FirebaseCoreInternal.framework/Headers -Xcc -I/Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Products/Debug-iphonesimulator/FirebaseInstallations/FirebaseInstallations.framework/Headers -Xcc -I/Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Products/Debug-iphonesimulator/FirebaseMessaging/FirebaseMessaging.framework/Headers -Xcc -I/Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Products/Debug-iphonesimulator/GoogleDataTransport/GoogleDataTransport.framework/Headers -Xcc -I/Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Products/Debug-iphonesimulator/GoogleUtilities/GoogleUtilities.framework/Headers -Xcc -I/Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Products/Debug-iphonesimulator/KeychainSwift/KeychainSwift.framework/Headers -Xcc -I/Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Products/Debug-iphonesimulator/PromisesObjC/FBLPromises.framework/Headers -Xcc -I/Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Products/Debug-iphonesimulator/Sentry/Sentry.framework/Headers -Xcc -I/Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Products/Debug-iphonesimulator/nanopb/nanopb.framework/Headers -Xcc -I/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/Pods/Headers/Public -Xcc -I/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/Pods/Headers/Public/Firebase -Xcc -I/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/Pods/Firebase/CoreOnly/Sources -Xcc -I/Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Intermediates.noindex/App.build/Debug-iphonesimulator/App.build/DerivedSources-normal/arm64 -Xcc -I/Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Intermediates.noindex/App.build/Debug-iphonesimulator/App.build/DerivedSources/arm64 -Xcc -I/Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Intermediates.noindex/App.build/Debug-iphonesimulator/App.build/DerivedSources -Xcc -DDEBUG\=1 -Xcc -DCOCOAPODS\=1 -Xcc -DDEBUG\=1 -Xcc -DPB_FIELD_32BIT\=1 -Xcc -DPB_NO_PACKED_STRUCTS\=1 -Xcc -DPB_ENABLE_MALLOC\=1 -no-auto-bridging-header-chaining -module-name App -frontend-parseable-output -disable-clang-spi -target-sdk-version 26.1 -target-sdk-name iphonesimulator26.1 -clang-target arm64-apple-ios26.1-simulator -in-process-plugin-server-path /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/libSwiftInProcPluginServer.dylib -o /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Intermediates.noindex/App.build/Debug-iphonesimulator/App.build/Objects-normal/arm64/PhotoLibraryManager.o -o /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Intermediates.noindex/App.build/Debug-iphonesimulator/App.build/Objects-normal/arm64/MissingTypeStubs.o -o /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Intermediates.noindex/App.build/Debug-iphonesimulator/App.build/Objects-normal/arm64/AlertManager.o -o /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Intermediates.noindex/App.build/Debug-iphonesimulator/App.build/Objects-normal/arm64/PerformanceMonitor.o -o /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Intermediates.noindex/App.build/Debug-iphonesimulator/App.build/Objects-normal/arm64/BaseViewModel.o -o /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Intermediates.noindex/App.build/Debug-iphonesimulator/App.build/Objects-normal/arm64/DateRange.o -o /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Intermediates.noindex/App.build/Debug-iphonesimulator/App.build/Objects-normal/arm64/MockDataGenerator.o -o /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Build/Intermediates.noindex/App.build/Debug-iphonesimulator/App.build/Objects-normal/arm64/CameraView.o -index-unit-output-path /App.build/Debug-iphonesimulator/App.build/Objects-normal/arm64/PhotoLibraryManager.o -index-unit-output-path /App.build/Debug-iphonesimulator/App.build/Objects-normal/arm64/MissingTypeStubs.o -index-unit-output-path /App.build/Debug-iphonesimulator/App.build/Objects-normal/arm64/AlertManager.o -index-unit-output-path /App.build/Debug-iphonesimulator/App.build/Objects-normal/arm64/PerformanceMonitor.o -index-unit-output-path /App.build/Debug-iphonesimulator/App.build/Objects-normal/arm64/BaseViewModel.o -index-unit-output-path /App.build/Debug-iphonesimulator/App.build/Objects-normal/arm64/DateRange.o -index-unit-output-path /App.build/Debug-iphonesimulator/App.build/Objects-normal/arm64/MockDataGenerator.o -index-unit-output-path /App.build/Debug-iphonesimulator/App.build/Objects-normal/arm64/CameraView.o -index-store-path /Users/andrewmorton/Library/Developer/Xcode/DerivedData/App-fcdbbkamyiwpqdgywtlodrvtfhci/Index.noindex/DataStore -index-system-modules
+
+SwiftCompile normal arm64 /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/PhotoLibraryManager.swift (in target 'App' from project 'App')
+    cd /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native
+    
+
+SwiftCompile normal arm64 /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/MissingTypeStubs.swift (in target 'App' from project 'App')
+    cd /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native
+    
+
+SwiftCompile normal arm64 /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/Monitoring/AlertManager.swift (in target 'App' from project 'App')
+    cd /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native
+    
+
+SwiftCompile normal arm64 /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/Monitoring/PerformanceMonitor.swift (in target 'App' from project 'App')
+    cd /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native
+    
+/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/Monitoring/PerformanceMonitor.swift:37:14: warning: capture of 'self' in a closure that outlives deinit; this is an error in the Swift 6 language mode
+        Task { @MainActor in
+             ^
+
+SwiftCompile normal arm64 /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/ViewModels/BaseViewModel.swift (in target 'App' from project 'App')
+    cd /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native
+    
+/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/ViewModels/BaseViewModel.swift:157:44: warning: conformance of 'PaginatableViewModel' to protocol 'Paginatable' crosses into main actor-isolated code and can cause data races; this is an error in the Swift 6 language mode
+class PaginatableViewModel: BaseViewModel, Paginatable {
+                                           ^
+/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/ViewModels/BaseViewModel.swift:157:44: note: isolate this conformance to the main actor with '@MainActor'
+class PaginatableViewModel: BaseViewModel, Paginatable {
+                                           ^
+                                           @MainActor 
+/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/ViewModels/BaseViewModel.swift:157:7: note: mark all declarations used in the conformance 'nonisolated'
+class PaginatableViewModel: BaseViewModel, Paginatable {
+      ^
+/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/ViewModels/BaseViewModel.swift:157:44: note: turn data races into runtime errors with '@preconcurrency'
+class PaginatableViewModel: BaseViewModel, Paginatable {
+                                           ^
+                                           @preconcurrency 
+/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/ViewModels/BaseViewModel.swift:158:20: note: main actor-isolated property 'currentPage' cannot satisfy nonisolated requirement
+    @Published var currentPage = 1
+                   ^
+/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/ViewModels/BaseViewModel.swift:159:20: note: main actor-isolated property 'hasMorePages' cannot satisfy nonisolated requirement
+    @Published var hasMorePages = true
+                   ^
+/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/ViewModels/BaseViewModel.swift:160:20: note: main actor-isolated property 'isLoadingMore' cannot satisfy nonisolated requirement
+    @Published var isLoadingMore = false
+                   ^
+/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/ViewModels/BaseViewModel.swift:168:10: note: main actor-isolated instance method 'resetPagination()' cannot satisfy nonisolated requirement
+    func resetPagination() {
+         ^
+/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/ViewModels/BaseViewModel.swift:196:50: warning: conformance of 'SearchableViewModel' to protocol 'Searchable' crosses into main actor-isolated code and can cause data races; this is an error in the Swift 6 language mode
+class SearchableViewModel: PaginatableViewModel, Searchable {
+                                                 ^
+/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/ViewModels/BaseViewModel.swift:196:50: note: isolate this conformance to the main actor with '@MainActor'
+class SearchableViewModel: PaginatableViewModel, Searchable {
+                                                 ^
+                                                 @MainActor 
+/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/ViewModels/BaseViewModel.swift:196:7: note: mark all declarations used in the conformance 'nonisolated'
+class SearchableViewModel: PaginatableViewModel, Searchable {
+      ^
+/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/ViewModels/BaseViewModel.swift:196:50: note: turn data races into runtime errors with '@preconcurrency'
+class SearchableViewModel: PaginatableViewModel, Searchable {
+                                                 ^
+                                                 @preconcurrency 
+/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/ViewModels/BaseViewModel.swift:197:20: note: main actor-isolated property 'searchText' cannot satisfy nonisolated requirement
+    @Published var searchText = ""
+                   ^
+/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/ViewModels/BaseViewModel.swift:198:20: note: main actor-isolated property 'isSearching' cannot satisfy nonisolated requirement
+    @Published var isSearching = false
+                   ^
+/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/ViewModels/BaseViewModel.swift:216:10: note: main actor-isolated instance method 'performSearch()' cannot satisfy nonisolated requirement
+    func performSearch() {
+         ^
+/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/ViewModels/BaseViewModel.swift:220:10: note: main actor-isolated instance method 'clearSearch()' cannot satisfy nonisolated requirement
+    func clearSearch() {
+         ^
+/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/ViewModels/BaseViewModel.swift:60:18: warning: main actor-isolated property 'cache' can not be referenced from a Sendable closure
+            self.cache.setObject(object, forKey: NSString(string: key))
+                 ^
+/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/ViewModels/BaseViewModel.swift:38:17: note: property declared here
+    private var cache = NSCache<NSString, AnyObject>()
+                ^
+/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/ViewModels/BaseViewModel.swift:74:18: warning: main actor-isolated property 'cache' can not be referenced from a Sendable closure
+            self.cache.removeAllObjects()
+                 ^
+/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/ViewModels/BaseViewModel.swift:38:17: note: property declared here
+    private var cache = NSCache<NSString, AnyObject>()
+                ^
+
+SwiftCompile normal arm64 /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/Models/DateRange.swift (in target 'App' from project 'App')
+    cd /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native
+    
+/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/Models/DateRange.swift:23:23: error: 'DateRange' is ambiguous for type lookup in this context
+    static var today: DateRange {
+                      ^~~~~~~~~
+/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/Models/DateRange.swift:10:8: note: found this candidate
+struct DateRange: Codable, Equatable {
+       ^
+/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/Models/Schedule/ScheduleModels.swift:605:8: note: found this candidate
+struct DateRange {
+       ^
+/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/Models/DateRange.swift:29:27: error: 'DateRange' is ambiguous for type lookup in this context
+    static var yesterday: DateRange {
+                          ^~~~~~~~~
+/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/Models/DateRange.swift:10:8: note: found this candidate
+struct DateRange: Codable, Equatable {
+       ^
+/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/Models/Schedule/ScheduleModels.swift:605:8: note: found this candidate
+struct DateRange {
+       ^
+/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/Models/DateRange.swift:37:26: error: 'DateRange' is ambiguous for type lookup in this context
+    static var thisWeek: DateRange {
+                         ^~~~~~~~~
+/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/Models/DateRange.swift:10:8: note: found this candidate
+struct DateRange: Codable, Equatable {
+       ^
+/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/Models/Schedule/ScheduleModels.swift:605:8: note: found this candidate
+struct DateRange {
+       ^
+/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/Models/DateRange.swift:44:27: error: 'DateRange' is ambiguous for type lookup in this context
+    static var thisMonth: DateRange {
+                          ^~~~~~~~~
+/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/Models/DateRange.swift:10:8: note: found this candidate
+struct DateRange: Codable, Equatable {
+       ^
+/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/Models/Schedule/ScheduleModels.swift:605:8: note: found this candidate
+struct DateRange {
+       ^
+/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/Models/DateRange.swift:51:28: error: 'DateRange' is ambiguous for type lookup in this context
+    static var last30Days: DateRange {
+                           ^~~~~~~~~
+/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/Models/DateRange.swift:10:8: note: found this candidate
+struct DateRange: Codable, Equatable {
+       ^
+/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/Models/Schedule/ScheduleModels.swift:605:8: note: found this candidate
+struct DateRange {
+       ^
+/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/Models/DateRange.swift:57:28: error: 'DateRange' is ambiguous for type lookup in this context
+    static var last90Days: DateRange {
+                           ^~~~~~~~~
+/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/Models/DateRange.swift:10:8: note: found this candidate
+struct DateRange: Codable, Equatable {
+       ^
+/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/Models/Schedule/ScheduleModels.swift:605:8: note: found this candidate
+struct DateRange {
+       ^
+/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/Models/DateRange.swift:10:8: error: invalid redeclaration of 'DateRange'
+struct DateRange: Codable, Equatable {
+       ^
+/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/Models/Schedule/ScheduleModels.swift:605:8: note: 'DateRange' previously declared here
+struct DateRange {
+       ^
+/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/Models/Schedule/ScheduleModels.swift:605:8: note: 'DateRange' previously declared here
+struct DateRange {
+       ^
+
+SwiftCompile normal arm64 /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/MockDataGenerator.swift (in target 'App' from project 'App')
+    cd /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native
+    
+/Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/MockDataGenerator.swift:31:51: error: cannot find type 'FuelRecord' in scope
+    func generateFuelRecords(count: Int = 30) -> [FuelRecord] {
+                                                  ^~~~~~~~~~
+
+SwiftCompile normal arm64 /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/CameraView.swift (in target 'App' from project 'App')
+    cd /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native
+    
+
+SwiftCompile normal arm64 Compiling\ QuickActionsView.swift,\ VehicleCard.swift,\ VehiclesView.swift,\ TripsView.swift,\ MoreView.swift,\ MaintenanceDetailView.swift,\ AddVehicleView.swift,\ AddTripView.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/QuickActionsView.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/Components/VehicleCard.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/VehiclesView.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/TripsView.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/MoreView.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/MaintenanceDetailView.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/AddVehicleView.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/AddTripView.swift (in target 'App' from project 'App')
+
+SwiftCompile normal arm64 /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/QuickActionsView.swift (in target 'App' from project 'App')
+    cd /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native
+    
+
+SwiftCompile normal arm64 /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/Components/VehicleCard.swift (in target 'App' from project 'App')
+    cd /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native
+    
+
+SwiftCompile normal arm64 /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/VehiclesView.swift (in target 'App' from project 'App')
+    cd /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native
+    
+
+SwiftCompile normal arm64 /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/TripsView.swift (in target 'App' from project 'App')
+    cd /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native
+    
+
+SwiftCompile normal arm64 /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/MoreView.swift (in target 'App' from project 'App')
+    cd /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native
+    
+
+SwiftCompile normal arm64 /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/MaintenanceDetailView.swift (in target 'App' from project 'App')
+    cd /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native
+    
+
+SwiftCompile normal arm64 /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/AddVehicleView.swift (in target 'App' from project 'App')
+    cd /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native
+    
+
+SwiftCompile normal arm64 /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/AddTripView.swift (in target 'App' from project 'App')
+    cd /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native
+    
+
+warning: Skipping duplicate build file in Compile Sources build phase: /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/DocumentScannerView.swift (in target 'App' from project 'App')
+warning: Skipping duplicate build file in Compile Sources build phase: /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/AuditLogger.swift (in target 'App' from project 'App')
+warning: Skipping duplicate build file in Compile Sources build phase: /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/SyncQueue.swift (in target 'App' from project 'App')
+warning: Skipping duplicate build file in Compile Sources build phase: /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/LoginView.swift (in target 'App' from project 'App')
+warning: Skipping duplicate build file in Compile Sources build phase: /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/BarcodeScannerView.swift (in target 'App' from project 'App')
+warning: Skipping duplicate build file in Compile Sources build phase: /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/VehicleModel.swift (in target 'App' from project 'App')
+warning: Skipping duplicate build file in Compile Sources build phase: /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/ImageUploadService.swift (in target 'App' from project 'App')
+warning: Skipping duplicate build file in Compile Sources build phase: /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/ErrorHandler.swift (in target 'App' from project 'App')
+warning: Skipping duplicate build file in Compile Sources build phase: /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/DatabaseMigration.swift (in target 'App' from project 'App')
+warning: Skipping duplicate build file in Compile Sources build phase: /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/PhotoCaptureView.swift (in target 'App' from project 'App')
+warning: Skipping duplicate build file in Compile Sources build phase: /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/TripTrackingService.swift (in target 'App' from project 'App')
+warning: Skipping duplicate build file in Compile Sources build phase: /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/SecurityLogger.swift (in target 'App' from project 'App')
+warning: Skipping duplicate build file in Compile Sources build phase: /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/FeatureFlags.swift (in target 'App' from project 'App')
+warning: Skipping duplicate build file in Compile Sources build phase: /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/QuickActionsView.swift (in target 'App' from project 'App')
+warning: Skipping duplicate build file in Compile Sources build phase: /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/Components/VehicleCard.swift (in target 'App' from project 'App')
+warning: Skipping duplicate build file in Compile Sources build phase: /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/Monitoring/TelemetryExporter.swift (in target 'App' from project 'App')
+warning: Skipping duplicate build file in Compile Sources build phase: /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/DocumentScannerView.swift (in target 'App' from project 'App')
+warning: Skipping duplicate build file in Compile Sources build phase: /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/AuditLogger.swift (in target 'App' from project 'App')
+warning: Skipping duplicate build file in Compile Sources build phase: /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/SyncQueue.swift (in target 'App' from project 'App')
+warning: Skipping duplicate build file in Compile Sources build phase: /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/LoginView.swift (in target 'App' from project 'App')
+warning: Skipping duplicate build file in Compile Sources build phase: /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/BarcodeScannerView.swift (in target 'App' from project 'App')
+warning: Skipping duplicate build file in Compile Sources build phase: /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/VehicleModel.swift (in target 'App' from project 'App')
+warning: Skipping duplicate build file in Compile Sources build phase: /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/ImageUploadService.swift (in target 'App' from project 'App')
+warning: Skipping duplicate build file in Compile Sources build phase: /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/ErrorHandler.swift (in target 'App' from project 'App')
+warning: Skipping duplicate build file in Compile Sources build phase: /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/DatabaseMigration.swift (in target 'App' from project 'App')
+warning: Skipping duplicate build file in Compile Sources build phase: /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/PhotoCaptureView.swift (in target 'App' from project 'App')
+warning: Skipping duplicate build file in Compile Sources build phase: /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/TripTrackingService.swift (in target 'App' from project 'App')
+warning: Skipping duplicate build file in Compile Sources build phase: /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/SecurityLogger.swift (in target 'App' from project 'App')
+warning: Skipping duplicate build file in Compile Sources build phase: /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/FeatureFlags.swift (in target 'App' from project 'App')
+warning: Skipping duplicate build file in Compile Sources build phase: /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/QuickActionsView.swift (in target 'App' from project 'App')
+warning: Skipping duplicate build file in Compile Sources build phase: /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/Components/VehicleCard.swift (in target 'App' from project 'App')
+warning: Skipping duplicate build file in Compile Sources build phase: /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/Monitoring/TelemetryExporter.swift (in target 'App' from project 'App')
+** BUILD FAILED **
+
+
+The following build commands failed:
+	SwiftCompile normal arm64 Compiling\ PhotoLibraryManager.swift,\ MissingTypeStubs.swift,\ AlertManager.swift,\ PerformanceMonitor.swift,\ BaseViewModel.swift,\ DateRange.swift,\ MockDataGenerator.swift,\ CameraView.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/PhotoLibraryManager.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/MissingTypeStubs.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/Monitoring/AlertManager.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/Monitoring/PerformanceMonitor.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/ViewModels/BaseViewModel.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/Models/DateRange.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/MockDataGenerator.swift /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/CameraView.swift (in target 'App' from project 'App')
+	SwiftCompile normal arm64 /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/Models/DateRange.swift (in target 'App' from project 'App')
+	SwiftCompile normal arm64 /Users/andrewmorton/Documents/GitHub/Fleet/mobile-apps/ios-native/App/MockDataGenerator.swift (in target 'App' from project 'App')
+	Building workspace App with scheme App
+(4 failures)
