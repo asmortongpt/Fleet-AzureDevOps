@@ -58,13 +58,10 @@
     "build-storybook": "storybook build"
   },
   "dependencies": {
-<<<<<<< HEAD
-    "@emotion/react": "^11.14.0",
-    "@emotion/styled": "^11.14.1",
-=======
     "@azure/ms-rest-azure-js": "^2.1.0",
     "@azure/ms-rest-js": "^2.7.0",
->>>>>>> feature/devsecops-audit-remediation
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
     "@heroicons/react": "^2.2.0",
     "@hookform/resolvers": "^4.1.3",
     "@mui/icons-material": "^7.3.5",
