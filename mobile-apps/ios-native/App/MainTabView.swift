@@ -266,6 +266,37 @@ struct MainTabView: View {
 
 }
 
+// MARK: - Placeholder Views (inline)
+struct VehiclesView: View {
+    var body: some View {
+        Text("Vehicles View Coming Soon")
+            .navigationTitle("Vehicles")
+    }
+}
+
+struct TripsView: View {
+    var body: some View {
+        Text("Trips View Coming Soon")
+            .navigationTitle("Trips")
+    }
+}
+
+struct VehicleDetailViewWrapper: View {
+    let vehicleId: String
+    var body: some View {
+        Text("Vehicle Detail: \(vehicleId)")
+            .navigationTitle("Vehicle")
+    }
+}
+
+struct TripDetailViewWrapper: View {
+    let tripId: String
+    var body: some View {
+        Text("Trip Detail: \(tripId)")
+            .navigationTitle("Trip")
+    }
+}
+
 // MARK: - Preview Provider
 struct MainTabView_Previews: PreviewProvider {
     static var previews: some View {

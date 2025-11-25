@@ -10,6 +10,7 @@ import SwiftUI
 struct MaintenanceView: View {
     @StateObject private var viewModel = MaintenanceViewModel()
     @State private var showingScheduleMaintenance = false
+    @State private var selectedRecordForDetail: MaintenanceRecord?
 
     var body: some View {
         NavigationView {
