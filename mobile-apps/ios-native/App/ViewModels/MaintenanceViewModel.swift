@@ -14,6 +14,17 @@ enum LoadingState: Equatable {
     case loading
     case loaded
     case error(String)
+
+    static func == (lhs: LoadingState, rhs: LoadingState) -> Bool {
+        switch (lhs, rhs) {
+        case (.idle, .idle), (.loading, .loading), (.loaded, .loaded):
+            return true
+        case let (.error(lhsMsg), .error(rhsMsg)):
+            return lhsMsg == rhsMsg
+        default:
+            return false
+        }
+    }
 }
 
 @MainActor
@@ -26,6 +37,7 @@ final class MaintenanceViewModel: ObservableObject {
     @Published var selectedFilter: MaintenanceFilter = .all
     @Published var loadingState: LoadingState = .idle
     @Published var searchText: String = ""
+    @Published var vehicles: [Vehicle] = []
 
     // Statistics
     @Published var scheduledCount: Int = 0
