@@ -13,6 +13,8 @@ class DataPersistenceManager: ObservableObject {
         static let vehicles = "cached_vehicles"
         static let trips = "cached_trips"
         static let inspections = "cached_inspections"
+        static let predictions = "cached_predictions"
+        static let predictionTimestamp = "cached_predictions_timestamp"
         static let lastSyncDate = "last_sync_date"
         static let offlineMode = "offline_mode"
     }
@@ -215,6 +217,9 @@ class DataPersistenceManager: ObservableObject {
         userDefaults.removeObject(forKey: StorageKeys.inspections)
         userDefaults.removeObject(forKey: StorageKeys.lastSyncDate)
 
+        // Clear all prediction caches
+        clearAllPredictionCaches()
+
         // Clear all inspection photos
         let documentsURL = getDocumentsDirectory()
         if let files = try? fileManager.contentsOfDirectory(at: documentsURL, includingPropertiesForKeys: nil) {
@@ -236,6 +241,65 @@ class DataPersistenceManager: ObservableObject {
 
     func clearInspectionCache() {
         userDefaults.removeObject(forKey: StorageKeys.inspections)
+    }
+
+    // MARK: - Prediction Caching
+
+    func cachePredictions<T: Codable>(_ predictions: [T], forType type: String) {
+        do {
+            let encoder = JSONEncoder()
+            encoder.dateEncodingStrategy = .iso8601
+            let data = try encoder.encode(predictions)
+            let key = "\(StorageKeys.predictions)_\(type)"
+            let timestampKey = "\(StorageKeys.predictionTimestamp)_\(type)"
+            userDefaults.set(data, forKey: key)
+            userDefaults.set(Date(), forKey: timestampKey)
+        } catch {
+            print("Error caching predictions: \(error.localizedDescription)")
+        }
+    }
+
+    func getCachedPredictions<T: Codable>(forType type: String, cacheExpiration: TimeInterval = 3600) -> [T]? {
+        let key = "\(StorageKeys.predictions)_\(type)"
+        let timestampKey = "\(StorageKeys.predictionTimestamp)_\(type)"
+
+        // Check cache expiration
+        if let timestamp = userDefaults.object(forKey: timestampKey) as? Date {
+            let elapsed = Date().timeIntervalSince(timestamp)
+            if elapsed > cacheExpiration {
+                clearPredictionCache(forType: type)
+                return nil
+            }
+        }
+
+        guard let data = userDefaults.data(forKey: key) else {
+            return nil
+        }
+
+        do {
+            let decoder = JSONDecoder()
+            decoder.dateDecodingStrategy = .iso8601
+            let predictions = try decoder.decode([T].self, from: data)
+            return predictions
+        } catch {
+            print("Error decoding cached predictions: \(error.localizedDescription)")
+            return nil
+        }
+    }
+
+    func clearPredictionCache(forType type: String) {
+        let key = "\(StorageKeys.predictions)_\(type)"
+        let timestampKey = "\(StorageKeys.predictionTimestamp)_\(type)"
+        userDefaults.removeObject(forKey: key)
+        userDefaults.removeObject(forKey: timestampKey)
+    }
+
+    func clearAllPredictionCaches() {
+        // Clear all prediction-related keys
+        let predictionTypes = ["maintenance", "breakdown", "cost", "utilization", "driverBehavior"]
+        for type in predictionTypes {
+            clearPredictionCache(forType: type)
+        }
     }
 
     // MARK: - Sync Status
