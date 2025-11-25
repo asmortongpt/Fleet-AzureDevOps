@@ -317,7 +317,7 @@ export class FleetOptimizerService {
             potential_savings, implementation_cost, payback_period_months,
             confidence_score, vehicle_ids, status
           ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, 'pending')
-          RETURNING id`,
+          RETURNING id',
           [
             tenantId, rec.type, rec.title, rec.description, rec.priority,
             rec.potentialSavings, rec.implementationCost, rec.paybackPeriodMonths,

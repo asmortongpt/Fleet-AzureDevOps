@@ -295,7 +295,7 @@ router.delete(
       const result = await pool.query(
         `DELETE FROM communication_entity_links
          WHERE id = $1 AND communication_id = $2
-         RETURNING id`,
+         RETURNING id',
         [req.params.link_id, req.params.id]
       )
 
