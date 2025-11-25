@@ -431,7 +431,7 @@ router.get(
       const params: any[] = []
 
       if (category) {
-        query += ` AND template_category = $1'
+        query += ' AND template_category = $1'
         params.push(category)
       }
 
@@ -511,7 +511,7 @@ router.get(
 
       // By priority
       const byPriorityResult = await pool.query(
-        `SELECT COALESCE(ai_detected_priority, manual_priority, 'Unassigned') as priority,
+        'SELECT COALESCE(ai_detected_priority, manual_priority, 'Unassigned') as priority,
                 COUNT(*) as count
          FROM communications c
          LEFT JOIN drivers from_user ON c.from_user_id = from_user.id

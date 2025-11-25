@@ -460,7 +460,7 @@ router.post(
       )
 
       if (sessionResult.rows.length === 0) {
-        res.write(`data: ${JSON.stringify({ error: 'Session not found' })}\n\n`)
+        res.write('data: ${JSON.stringify({ error: 'Session not found' })}\n\n`)
         res.end()
         return
       }

@@ -108,7 +108,7 @@ async function seedUltraFast() {
         userValues.push(`(
           '${tenant.id}', '${email}', '${defaultPassword}',
           '${role.charAt(0).toUpperCase() + role.slice(1)}', 'User${i}', '${generatePhoneNumber()}',
-          '${role}', ${isActive}, 0, ${isActive ? `'${daysAgo(randomInt(0, 30)).toISOString()}'` : 'NULL'}
+          '${role}', ${isActive}, 0, ${isActive ? ''${daysAgo(randomInt(0, 30)).toISOString()}'' : 'NULL'}
         )`);
       }
 
@@ -135,7 +135,7 @@ async function seedUltraFast() {
       const cdlClass = randomItem(cdlClasses);
       driverValues.push(`(
         '${driverUser.tenant_id}', '${driverUser.id}', 'FL${randomInt(100000000, 999999999)}', 'FL',
-        '${daysFromNow(randomInt(30, 730)).toISOString()}', ${cdlClass ? `'${cdlClass}'` : 'NULL'},
+        '${daysFromNow(randomInt(30, 730)).toISOString()}', ${cdlClass ? ''${cdlClass}'' : 'NULL'},
         '{}', '${daysFromNow(randomInt(30, 365)).toISOString()}', '${yearsAgo(randomInt(1, 10)).toISOString()}',
         NULL, '${status}', ${randomFloat(75, 100)}, ${randomFloat(10000, 200000)},
         ${randomFloat(500, 5000)}, ${randomInt(0, 2)}, ${randomInt(0, 1)},
@@ -213,12 +213,12 @@ async function seedUltraFast() {
           ${year}, '${generatePlate()}', '${template.type}', '${template.fuelType}',
           '${status}', ${odometer}, ${template.fuelType === 'Diesel' ? randomFloat(1000, 5000) : 0},
           '${yearsAgo(2025 - year).toISOString()}', ${randomInt(30000, 80000)}, ${randomInt(15000, 60000)},
-          ${status === 'active' ? `'GPS-${randomInt(100000, 999999)}'` : 'NULL'},
-          ${status === 'active' ? `'${daysAgo(0).toISOString()}'` : 'NULL'},
+          ${status === 'active' ? ''GPS-${randomInt(100000, 999999)}'' : 'NULL'},
+          ${status === 'active' ? ''${daysAgo(0).toISOString()}'' : 'NULL'},
           ${city.lat}, ${city.lng},
           ${status === 'active' && Math.random() < 0.3 ? randomFloat(0, 75) : 'NULL'},
           ${status === 'active' && Math.random() < 0.3 ? randomInt(0, 359) : 'NULL'},
-          ${assignedDriver ? `'${assignedDriver}'` : 'NULL'}, NULL, NULL
+          ${assignedDriver ? ''${assignedDriver}'' : 'NULL'}, NULL, NULL
         )`);
       }
 
@@ -255,11 +255,11 @@ async function seedUltraFast() {
 
         workOrderValues.push(`(
           '${vehicle.tenant_id}', 'WO-2025-${randomInt(10000, 99999)}', '${vehicle.id}',
-          NULL, ${tech ? `'${tech}'` : 'NULL'}, 'corrective', '${randomItem(priorities)}',
+          NULL, ${tech ? ''${tech}'' : 'NULL'}, 'corrective', '${randomItem(priorities)}',
           '${status}', '${serviceType}', ${vehicle.odometer - randomInt(0, 1000)}, ${vehicle.engine_hours},
           '${daysAgo(randomInt(1, 30)).toISOString()}', '${daysFromNow(randomInt(1, 30)).toISOString()}',
-          ${status !== 'open' ? `'${daysAgo(randomInt(0, 10)).toISOString()}'` : 'NULL'},
-          ${status === 'completed' ? `'${daysAgo(randomInt(0, 5)).toISOString()}'` : 'NULL'},
+          ${status !== 'open' ? ''${daysAgo(randomInt(0, 10)).toISOString()}'' : 'NULL'},
+          ${status === 'completed' ? ''${daysAgo(randomInt(0, 5)).toISOString()}'' : 'NULL'},
           ${laborHours}, ${laborCost}, ${status === 'completed' ? randomFloat(50, 2000) : 0},
           '${daysAgo(randomInt(1, 60)).toISOString()}'
         )`);
@@ -308,7 +308,7 @@ async function seedUltraFast() {
             '${vehicle.tenant_id}', '${vehicle.id}', '${daysAgo(daysBack).toISOString()}',
             ${gallons}, ${pricePerGallon}, ${Math.max(0, vehicle.odometer - daysBack * randomInt(30, 100))},
             '${vehicle.fuel_type}', '${randomItem(fuelStations)} - ${city.name}',
-            ${city.lat}, ${city.lng}, ${Math.random() < 0.8 ? `'FC${randomInt(1000000, 9999999)}'` : 'NULL'}
+            ${city.lat}, ${city.lng}, ${Math.random() < 0.8 ? ''FC${randomInt(1000000, 9999999)}'' : 'NULL'}
           )`);
         }
       }
