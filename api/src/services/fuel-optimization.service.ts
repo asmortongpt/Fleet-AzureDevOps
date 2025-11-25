@@ -138,7 +138,7 @@ export class FuelOptimizationService {
         `SELECT AVG(price_per_gallon) as avg_price
          FROM fuel_purchase_orders
          WHERE tenant_id = $1
-         AND purchase_date >= CURRENT_DATE - INTERVAL '30 days'`,
+         AND purchase_date >= CURRENT_DATE - INTERVAL '30 days'',
         [tenantId]
       )
 
@@ -225,7 +225,7 @@ export class FuelOptimizationService {
 
       // Get number of vehicles
       const vehicleResult = await pool.query(
-        `SELECT COUNT(*) as count FROM vehicles WHERE tenant_id = $1 AND status = 'active'`,
+        'SELECT COUNT(*) as count FROM vehicles WHERE tenant_id = $1 AND status = 'active'',
         [tenantId]
       )
 
@@ -317,7 +317,7 @@ export class FuelOptimizationService {
       const worthwhileStates = nearbyStates.filter(s => s.worthwhile)
 
       const recommendation = worthwhileStates.length > 0
-        ? `Consider cross-border refueling in ${worthwhileStates.map(s => s.state).join(', ')}. Potential savings of $${worthwhileStates[0].avgPriceDiff}/gallon.`
+        ? 'Consider cross-border refueling in ${worthwhileStates.map(s => s.state).join(', ')}. Potential savings of $${worthwhileStates[0].avgPriceDiff}/gallon.'
         : 'Current state offers competitive pricing. Cross-border refueling not recommended.'
 
       return {

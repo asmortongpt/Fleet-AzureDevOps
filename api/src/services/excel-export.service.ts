@@ -91,7 +91,7 @@ export class ExcelExportService {
 
     // Add title
     if (options.title) {
-      worksheet.mergeCells('A1', `${String.fromCharCode(64 + options.columns.length)}1`)
+      worksheet.mergeCells('A1', '${String.fromCharCode(64 + options.columns.length)}1`)
       const titleCell = worksheet.getCell('A1')
       titleCell.value = options.title
       titleCell.font = { size: 16, bold: true, color: { argb: 'FF1F4788' } }
@@ -228,7 +228,7 @@ export class ExcelExportService {
     }
 
     // Add header
-    lines.push(options.columns.map(col => `"${col.label}"`).join(','))
+    lines.push(options.columns.map(col => '"${col.label}"').join(','))
 
     // Add data rows
     options.data.forEach(row => {
@@ -246,7 +246,7 @@ export class ExcelExportService {
       if (options.footer.columns) {
         const footerValues = options.columns.map(col => {
           const footerCol = options.footer!.columns!.find(fc => fc.label === col.label)
-          return footerCol ? `"${footerCol.value}"` : '""'
+          return footerCol ? '"${footerCol.value}"' : '""'
         })
         lines.push(footerValues.join(','))
       }
@@ -388,7 +388,7 @@ export class ExcelExportService {
 
     // Escape quotes and wrap in quotes if contains comma or quote
     if (formatted.includes(',') || formatted.includes('"') || formatted.includes('\n')) {
-      formatted = `"${formatted.replace(/"/g, '""')}"`
+      formatted = '"${formatted.replace(/"/g, '""')}"'
     } else {
       formatted = `"${formatted}"`
     }

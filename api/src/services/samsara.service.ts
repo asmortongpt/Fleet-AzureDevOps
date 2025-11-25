@@ -79,7 +79,7 @@ class SamsaraService {
     // SSRF Protection: Use safe axios instance with domain allowlist
     this.api = createSafeAxiosInstance(SAMSARA_BASE_URL, {
       headers: {
-        'Authorization': `Bearer ${SAMSARA_API_TOKEN}`,
+        'Authorization': 'Bearer ${SAMSARA_API_TOKEN}`,
         'Content-Type': 'application/json'
       },
       timeout: 30000,
@@ -247,7 +247,7 @@ class SamsaraService {
              external_vehicle_id = EXCLUDED.external_vehicle_id,
              metadata = EXCLUDED.metadata,
              last_sync_at = NOW(),
-             sync_status = 'active'`,
+             sync_status = 'active'',
           [vehicleId, vehicle.id, JSON.stringify(vehicle)]
         );
 
@@ -272,7 +272,7 @@ class SamsaraService {
       `SELECT vtc.vehicle_id, vtc.external_vehicle_id
        FROM vehicle_telematics_connections vtc
        JOIN telematics_providers tp ON vtc.provider_id = tp.id
-       WHERE tp.name = 'samsara' AND vtc.sync_status = 'active'`
+       WHERE tp.name = 'samsara' AND vtc.sync_status = 'active''
     );
 
     if (connections.rows.length === 0) {
@@ -366,7 +366,7 @@ class SamsaraService {
         const vehicleResult = await this.db.query(
           `SELECT vehicle_id FROM vehicle_telematics_connections
            WHERE external_vehicle_id = $1
-           AND provider_id = (SELECT id FROM telematics_providers WHERE name = 'samsara')`,
+           AND provider_id = (SELECT id FROM telematics_providers WHERE name = 'samsara')',
           [event.vehicleId]
         );
 

@@ -321,7 +321,7 @@ export async function tentativelyAcceptEvent(userId: string, eventId: string, co
     await client
       .api(`/users/${userId}/calendar/events/${eventId}/tentativelyAccept`)
       .post({
-        comment: comment || 'Tentatively accepted`,
+        comment: comment || 'Tentatively accepted',
         sendResponse: true
       })
 
@@ -552,7 +552,7 @@ export async function scheduleDriverTraining(
     const startTime = preferredDate || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // Next week
     const endTime = new Date(startTime.getTime() + durationMinutes * 60 * 1000)
 
-    const subject = `Driver Training: ${trainingType || 'Safety Training'} - ${driver.first_name} ${driver.last_name}`
+    const subject = 'Driver Training: ${trainingType || 'Safety Training'} - ${driver.first_name} ${driver.last_name}'
     const body = `Scheduled training session for ${driver.first_name} ${driver.last_name} (${driver.email})`
     const location = 'Training Room'
 
@@ -634,8 +634,8 @@ export async function sendCalendarInviteEmail(
         html: `
           <h2>You're invited to: ${subject}</h2>
           <p><strong>When:</strong> ${start.toLocaleString()} - ${end.toLocaleString()}</p>
-          ${location ? `<p><strong>Where:</strong> ${location}</p>` : ''}
-          ${description ? `<p><strong>Details:</strong> ${description}</p>` : ''}
+          ${location ? '<p><strong>Where:</strong> ${location}</p>' : ''}
+          ${description ? '<p><strong>Details:</strong> ${description}</p>' : ''}
           <p>Please find the calendar invite attached.</p>
         `,
         icalEvent: {

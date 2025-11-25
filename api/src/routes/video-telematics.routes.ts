@@ -185,7 +185,7 @@ router.get(
       await pool.query(
         `INSERT INTO video_privacy_audit
          (video_event_id, accessed_by, access_type, ip_address)
-         VALUES ($1, $2, 'view', $3)`,
+         VALUES ($1, $2, 'view', $3)',
         [req.params.id, req.user!.id, req.ip]
       );
 
@@ -218,7 +218,7 @@ router.get(
       await pool.query(
         `INSERT INTO video_privacy_audit
          (video_event_id, accessed_by, access_type, ip_address)
-         VALUES ($1, $2, 'view', $3)`,
+         VALUES ($1, $2, 'view', $3)',
         [req.params.id, req.user!.id, req.ip]
       );
 
@@ -589,7 +589,7 @@ router.post(
       // Queue privacy processing
       await pool.query(
         `INSERT INTO video_processing_queue (video_event_id, task_type, priority)
-         VALUES ($1, 'privacy_blur', 2)`,
+         VALUES ($1, 'privacy_blur', 2)',
         [eventId]
       );
 
@@ -607,7 +607,7 @@ router.post(
       await pool.query(
         `INSERT INTO video_privacy_audit
          (video_event_id, accessed_by, access_type, privacy_action)
-         VALUES ($1, $2, 'privacy_filter', $3)`,
+         VALUES ($1, $2, 'privacy_filter', $3)',
         [
           eventId,
           req.user!.id,

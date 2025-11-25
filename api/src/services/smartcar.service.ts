@@ -439,7 +439,7 @@ class SmartcarService {
        FROM vehicle_telematics_connections
        WHERE vehicle_id = $1
        AND provider_id = (SELECT id FROM telematics_providers WHERE name = 'smartcar')
-       AND sync_status = 'active'`,
+       AND sync_status = 'active'',
       [vehicleId]
     )
 
@@ -473,7 +473,7 @@ class SmartcarService {
         `UPDATE vehicle_telematics_connections
          SET access_token = $1, refresh_token = $2, token_expires_at = $3, updated_at = NOW()
          WHERE vehicle_id = $4
-         AND provider_id = (SELECT id FROM telematics_providers WHERE name = 'smartcar')`,
+         AND provider_id = (SELECT id FROM telematics_providers WHERE name = 'smartcar')',
         [refreshed.access_token, refreshed.refresh_token, newExpiresAt, vehicleId]
       )
 
@@ -540,7 +540,7 @@ class SmartcarService {
         `UPDATE vehicle_telematics_connections
          SET sync_status = 'error', sync_error = $1
          WHERE vehicle_id = $2
-         AND provider_id = (SELECT id FROM telematics_providers WHERE name = 'smartcar')`,
+         AND provider_id = (SELECT id FROM telematics_providers WHERE name = 'smartcar')',
         [error.message, vehicleId]
       )
     }
