@@ -15,7 +15,7 @@ struct DashboardView: View {
     var body: some View {
         NavigationView {
             ZStack {
-                if viewModel.loadingState == .loading && viewModel.stats == nil {
+                if viewModel.isLoading && viewModel.stats == nil {
                     ProgressView("Loading Dashboard...")
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                 } else {

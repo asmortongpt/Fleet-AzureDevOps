@@ -152,18 +152,22 @@ struct VehicleStatusBadge: View {
 
     private var statusColor: Color {
         switch status {
-        case .active:
+        case .active, .available:
             return .green
-        case .idle:
+        case .inactive, .idle:
             return .gray
         case .charging:
             return .blue
-        case .service:
+        case .service, .maintenance:
             return .orange
         case .emergency:
             return .red
         case .offline:
             return .black
+        case .moving, .inUse:
+            return .orange
+        case .parked, .reserved:
+            return .blue
         }
     }
 }
