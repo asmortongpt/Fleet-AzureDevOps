@@ -362,8 +362,7 @@ class PhotoProcessingService {
     try {
       // Get pending jobs with priority ordering
       const result = await pool.query(
-        `SELECT *
-         FROM photo_processing_queue
+        `SELECT ` + (await getTableColumns(pool, 'photo_processing_queue')).join(', ') + ` FROM photo_processing_queue
          WHERE status = 'pending'
            AND retry_count < max_retries
          ORDER BY
@@ -411,7 +410,15 @@ class PhotoProcessingService {
 
       // Get photo details
       const photoResult = await pool.query(
-        `SELECT * FROM mobile_photos WHERE id = $1`,
+        `SELECT 
+      id,
+      tenant_id,
+      user_id,
+      mobile_id,
+      photo_url,
+      metadata,
+      taken_at,
+      created_at FROM mobile_photos WHERE id = $1`,
         [job.photo_id]
       );
 

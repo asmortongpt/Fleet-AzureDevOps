@@ -9,7 +9,8 @@
     "plugin:@typescript-eslint/recommended",
     "plugin:react-hooks/recommended",
     "plugin:react/recommended",
-    "plugin:storybook/recommended"
+    "plugin:storybook/recommended",
+    "plugin:security/recommended"
   ],
   "ignorePatterns": [
     "dist",
@@ -27,7 +28,8 @@
     "react-refresh",
     "@typescript-eslint",
     "react",
-    "react-hooks"
+    "react-hooks",
+    "security"
   ],
   "rules": {
     "react-refresh/only-export-components": [
