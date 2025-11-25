@@ -9,14 +9,23 @@ import Foundation
 import SwiftUI
 import Combine
 
+enum LoadingState {
+    case idle
+    case loading
+    case loaded
+    case error(String)
+}
+
 @MainActor
-final class MaintenanceViewModel: RefreshableViewModel {
+final class MaintenanceViewModel: ObservableObject {
 
     // MARK: - Published Properties
     @Published var records: [MaintenanceRecord] = []
     @Published var filteredRecords: [MaintenanceRecord] = []
     @Published var selectedRecord: MaintenanceRecord?
     @Published var selectedFilter: MaintenanceFilter = .all
+    @Published var loadingState: LoadingState = .idle
+    @Published var searchText: String = ""
 
     // Statistics
     @Published var scheduledCount: Int = 0
@@ -37,8 +46,7 @@ final class MaintenanceViewModel: RefreshableViewModel {
     }
 
     // MARK: - Lifecycle
-    override init() {
-        super.init()
+    init() {
         loadMaintenanceRecords()
     }
 
@@ -63,7 +71,7 @@ final class MaintenanceViewModel: RefreshableViewModel {
         }
     }
 
-    override func refresh() async {
+    func refresh() async {
         loadMaintenanceRecords()
     }
 
@@ -95,6 +103,11 @@ final class MaintenanceViewModel: RefreshableViewModel {
         }
 
         filteredRecords = filtered.sorted { $0.scheduledDate > $1.scheduledDate }
+    }
+
+    // Alias for consistency
+    func filterRecords() {
+        applyFilters()
     }
 
     // MARK: - Statistics
@@ -149,16 +162,14 @@ final class MaintenanceViewModel: RefreshableViewModel {
 
     // MARK: - Maintenance Actions
     func scheduleNewMaintenance(vehicleId: String, type: String, date: Date) {
-        guard let vehicle = vehicles.first(where: { $0.id == vehicleId }) else { return }
-
         let newRecord = MaintenanceRecord(
             id: UUID().uuidString,
-            vehicleId: vehicle.id,
-            vehicleNumber: vehicle.number,
+            vehicleId: vehicleId,
+            vehicleNumber: nil,
             type: type,
             scheduledDate: date,
             completedDate: nil,
-            mileageAtService: vehicle.mileage,
+            mileageAtService: 0,
             cost: 0,
             provider: "To be determined",
             notes: "Scheduled maintenance",
