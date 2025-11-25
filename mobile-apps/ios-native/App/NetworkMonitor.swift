@@ -16,6 +16,19 @@ public enum NetworkStatus: Equatable {
     case disconnected
     case connecting
 
+    public static func == (lhs: NetworkStatus, rhs: NetworkStatus) -> Bool {
+        switch (lhs, rhs) {
+        case (.connected(let ltype), .connected(let rtype)):
+            return ltype == rtype
+        case (.disconnected, .disconnected):
+            return true
+        case (.connecting, .connecting):
+            return true
+        default:
+            return false
+        }
+    }
+
     public var isConnected: Bool {
         if case .connected = self {
             return true
