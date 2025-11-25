@@ -86,6 +86,21 @@ struct MoreView: View {
                             }
                         }
                     }
+
+                    NavigationLink(destination: RouteOptimizerView()) {
+                        HStack {
+                            Image(systemName: "arrow.triangle.branch")
+                                .foregroundColor(.teal)
+                                .frame(width: 30)
+                            VStack(alignment: .leading) {
+                                Text("Route Optimizer")
+                                    .font(.body)
+                                Text("Optimize multi-stop routes with TSP algorithm")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                    }
                 }
 
                 // Financial Section
@@ -132,6 +147,24 @@ struct MoreView: View {
                                 Text("Fleet Analytics")
                                     .font(.body)
                                 Text("Usage trends, costs, and efficiency metrics")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                    }
+                }
+
+                // Optimization Section
+                Section(header: Text("Optimization")) {
+                    NavigationLink(destination: FleetOptimizerView()) {
+                        HStack {
+                            Image(systemName: "wand.and.stars")
+                                .foregroundColor(.purple)
+                                .frame(width: 30)
+                            VStack(alignment: .leading) {
+                                Text("Fleet Optimizer")
+                                    .font(.body)
+                                Text("AI-powered recommendations and savings analysis")
                                     .font(.caption)
                                     .foregroundColor(.secondary)
                             }

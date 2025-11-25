@@ -249,6 +249,12 @@ enum NavigationDestination: Hashable, Identifiable {
     // GIS Command Center destination
     case gisCommandCenter
 
+    // Executive dashboard
+    case executiveDashboard
+
+    // Optimization destinations
+    case fleetOptimizer
+
     var id: String {
         switch self {
         case .vehicleDetail(let id):
@@ -299,6 +305,8 @@ enum NavigationDestination: Hashable, Identifiable {
             return "edit-geofence-\(id)"
         case .gisCommandCenter:
             return "gis-command-center"
+        case .executiveDashboard:
+            return "executive-dashboard"
         }
     }
 }
