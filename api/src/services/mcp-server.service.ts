@@ -291,7 +291,7 @@ class MCPServerService {
            error_message = $2,
            last_connected_at = CASE WHEN $1 = 'connected' THEN NOW() ELSE last_connected_at END,
            updated_at = NOW()
-       WHERE id = $3`,
+       WHERE id = $3',
       [status, errorMessage, serverId]
     )
   }

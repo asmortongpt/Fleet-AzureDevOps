@@ -542,7 +542,7 @@ router.get(
            AVG(results_count) as avg_results,
            AVG(feedback_rating) as avg_rating
            FROM rag_queries
-           WHERE tenant_id = $1`,
+           WHERE tenant_id = $1',
           [req.user!.tenant_id]
         ),
       ])

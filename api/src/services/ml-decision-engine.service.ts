@@ -280,7 +280,7 @@ class MLDecisionEngineService {
       is_correct,
       error_magnitude,
       metadata,
-      created_at FROM predictions WHERE id = $1`,
+      created_at FROM predictions WHERE id = $1',
         [predictionId]
       )
 

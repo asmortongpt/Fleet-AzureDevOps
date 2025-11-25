@@ -417,7 +417,7 @@ export class DocumentFolderService {
       await client.query(
         `UPDATE document_folders
          SET deleted_at = NOW(), updated_at = NOW()
-         WHERE id = $1 AND tenant_id = $2`,
+         WHERE id = $1 AND tenant_id = $2',
         [folderId, tenantId]
       )
 
@@ -592,7 +592,7 @@ export class DocumentFolderService {
     await client.query(
       `UPDATE document_folders
        SET deleted_at = NOW(), updated_at = NOW()
-       WHERE id = $1 AND tenant_id = $2`,
+       WHERE id = $1 AND tenant_id = $2',
       [folderId, tenantId]
     )
   }
@@ -637,7 +637,7 @@ export class DocumentFolderService {
       query += ` ORDER BY df.folder_name ASC`
 
       if (options?.limit) {
-        query += ` LIMIT $3`
+        query += ` LIMIT $3'
         params.push(options.limit)
       }
 

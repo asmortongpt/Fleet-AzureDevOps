@@ -370,7 +370,7 @@ ${contextText}`
   async deleteDocument(tenantId: string, documentId: string): Promise<number> {
     const result = await pool.query(
       `DELETE FROM embedding_vectors
-       WHERE tenant_id = $1 AND document_id = $2`,
+       WHERE tenant_id = $1 AND document_id = $2',
       [tenantId, documentId]
     )
 
@@ -389,7 +389,7 @@ ${contextText}`
         COUNT(DISTINCT document_type) as document_types,
         AVG(LENGTH(content_chunk)) as avg_chunk_size
        FROM embedding_vectors
-       WHERE tenant_id = $1`,
+       WHERE tenant_id = $1',
       [tenantId]
     )
 

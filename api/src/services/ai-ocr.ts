@@ -545,7 +545,7 @@ export async function getDocumentsNeedingReview(
     `SELECT ` + (await getTableColumns(pool, 'document_analyses')).join(', ') + ` FROM document_analyses
      WHERE tenant_id = $1 AND needs_review = true AND reviewed = false
      ORDER BY created_at DESC
-     LIMIT $2`,
+     LIMIT $2',
     [tenantId, limit]
   )
 
@@ -566,7 +566,7 @@ export async function markDocumentReviewed(
          reviewed_by = $2,
          reviewed_at = CURRENT_TIMESTAMP,
          extracted_data = COALESCE($3, extracted_data)
-     WHERE id = $1`,
+     WHERE id = $1',
     [documentId, reviewedBy, corrections ? JSON.stringify(corrections) : null]
   )
 }

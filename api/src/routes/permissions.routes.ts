@@ -247,7 +247,7 @@ router.put('/users/:userId/roles', requireAdmin, async (req: Request, res: Respo
       await client.query(
         `UPDATE user_module_roles
          SET is_active = false
-         WHERE user_id = $1`,
+         WHERE user_id = $1',
         [userId]
       );
 
@@ -310,7 +310,7 @@ router.delete('/users/:userId/roles/:roleName', requireAdmin, async (req: Reques
     await pool.query(
       `UPDATE user_module_roles
        SET is_active = false
-       WHERE user_id = $1 AND role_name = $2`,
+       WHERE user_id = $1 AND role_name = $2',
       [userId, roleName]
     );
 

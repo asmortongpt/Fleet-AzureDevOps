@@ -243,7 +243,7 @@ router.post('/reservations/:id/approve', async (req: Request, res: Response) => 
        FROM vehicle_reservations vr
        JOIN vehicles v ON vr.vehicle_id = v.id
        JOIN users u ON vr.reserved_by = u.id
-       WHERE vr.tenant_id = $1 AND vr.id = $2`,
+       WHERE vr.tenant_id = $1 AND vr.id = $2',
       [tenantId, id]
     )
 
@@ -303,7 +303,7 @@ router.post('/reservations/:id/reject', async (req: Request, res: Response) => {
        FROM vehicle_reservations vr
        JOIN vehicles v ON vr.vehicle_id = v.id
        JOIN users u ON vr.reserved_by = u.id
-       WHERE vr.tenant_id = $1 AND vr.id = $2`,
+       WHERE vr.tenant_id = $1 AND vr.id = $2',
       [tenantId, id]
     )
 

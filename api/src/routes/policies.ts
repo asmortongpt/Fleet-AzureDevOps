@@ -20,9 +20,6 @@ router.get(
       const offset = (Number(page) - 1) * Number(limit)
 
       const result = await pool.query(
-<<<<<<< HEAD
-        `SELECT id, tenant_id, policy_name, policy_content, is_active, created_at, updated_at FROM policies WHERE tenant_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3`,
-=======
         `SELECT 
       id,
       tenant_id,
@@ -35,13 +32,12 @@ router.get(
       effective_date,
       created_by,
       created_at,
-      updated_at FROM policies WHERE tenant_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3`,
->>>>>>> feature/devsecops-audit-remediation
+      updated_at FROM policies WHERE tenant_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3',
         [req.user!.tenant_id, limit, offset]
       )
 
       const countResult = await pool.query(
-        'SELECT COUNT(*) FROM policies WHERE tenant_id = $1`,
+        'SELECT COUNT(*) FROM policies WHERE tenant_id = $1',
         [req.user!.tenant_id]
       )
 
@@ -69,9 +65,6 @@ router.get(
   async (req: AuthRequest, res: Response) => {
     try {
       const result = await pool.query(
-<<<<<<< HEAD
-        'SELECT id, tenant_id, policy_name, policy_content, is_active, created_at, updated_at FROM policies WHERE id = $1 AND tenant_id = $2',
-=======
         `SELECT
       id,
       tenant_id,
@@ -84,8 +77,7 @@ router.get(
       effective_date,
       created_by,
       created_at,
-      updated_at FROM policies WHERE id = $1 AND tenant_id = $2`,
->>>>>>> feature/devsecops-audit-remediation
+      updated_at FROM policies WHERE id = $1 AND tenant_id = $2',
         [req.params.id, req.user!.tenant_id]
       )
 

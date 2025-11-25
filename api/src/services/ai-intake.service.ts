@@ -250,7 +250,7 @@ class AIIntakeService {
     try {
       const result = await pool.query<AIRequestRecord>(
         `SELECT * FROM ai_requests
-         WHERE id = $1 AND tenant_id = $2 AND user_id = $3`,
+         WHERE id = $1 AND tenant_id = $2 AND user_id = $3',
         [requestId, tenantId, userId]
       )
 
@@ -310,7 +310,7 @@ class AIIntakeService {
          FROM ai_requests
          WHERE tenant_id = $1 AND user_id = $2
          ORDER BY created_at DESC
-         LIMIT $3`,
+         LIMIT $3',
         [tenantId, userId, limit]
       )
 

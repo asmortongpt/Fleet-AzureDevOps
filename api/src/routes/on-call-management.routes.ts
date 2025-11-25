@@ -571,7 +571,7 @@ router.post(
       await pool.query(
         `UPDATE on_call_periods
          SET callback_count = callback_count + 1
-         WHERE id = $1 AND tenant_id = $2`,
+         WHERE id = $1 AND tenant_id = $2',
         [data.on_call_period_id, tenant_id]
       );
 

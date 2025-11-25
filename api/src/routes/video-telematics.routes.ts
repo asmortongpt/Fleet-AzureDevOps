@@ -173,7 +173,7 @@ router.get(
          JOIN vehicles v ON vse.vehicle_id = v.id
          LEFT JOIN drivers d ON vse.driver_id = d.id
          LEFT JOIN vehicle_cameras vc ON vse.camera_id = vc.id
-         WHERE vse.id = $1 AND v.tenant_id = $2`,
+         WHERE vse.id = $1 AND v.tenant_id = $2',
         [req.params.id, req.user!.tenant_id]
       );
 
@@ -492,11 +492,7 @@ router.get(
   async (req: AuthRequest, res: Response) => {
     try {
       const result = await pool.query(
-<<<<<<< HEAD
-        `SELECT id, tenant_id, vehicle_id, driver_id, event_type, severity, event_timestamp, created_at FROM events_requiring_coaching
-=======
         `SELECT id, tenant_id, vehicle_id, driver_id, event_type, severity, date_time FROM events_requiring_coaching
->>>>>>> feature/devsecops-audit-remediation
          WHERE vehicle_id IN (SELECT id FROM vehicles WHERE tenant_id = $1)
          LIMIT 100`,
         [req.user!.tenant_id]
@@ -603,7 +599,7 @@ router.post(
          SET privacy_faces_blurred = $1,
              privacy_plates_blurred = $2,
              privacy_processing_status = 'pending'
-         WHERE id = $3`,
+         WHERE id = $3',
         [blurFaces, blurPlates, eventId]
       );
 
@@ -669,11 +665,7 @@ router.get(
   async (req: AuthRequest, res: Response) => {
     try {
       const result = await pool.query(
-<<<<<<< HEAD
-        `SELECT id, tenant_id, driver_id, score, total_events, safe_events, violation_events, last_updated FROM driver_video_scorecard
-=======
         `SELECT id, tenant_id, driver_id, score, total_events, safe_events, violation_events FROM driver_video_scorecard
->>>>>>> feature/devsecops-audit-remediation
          WHERE driver_id IN (
            SELECT id FROM drivers WHERE tenant_id = $1
          )
@@ -702,11 +694,7 @@ router.get(
   async (req: AuthRequest, res: Response) => {
     try {
       const result = await pool.query(
-<<<<<<< HEAD
-        `SELECT id, tenant_id, vehicle_id, camera_status, last_sync, battery_level, signal_strength FROM camera_health_status
-=======
         `SELECT id, tenant_id, vehicle_id, camera_status, last_sync, battery_level FROM camera_health_status
->>>>>>> feature/devsecops-audit-remediation
          WHERE vehicle_id IN (
            SELECT id FROM vehicles WHERE tenant_id = $1
          )
