@@ -156,7 +156,7 @@ router.delete(
   async (req: AuthRequest, res: Response) => {
     try {
       const result = await pool.query(
-        'DELETE FROM policies WHERE id = $1 AND tenant_id = $2 RETURNING id`,
+        'DELETE FROM policies WHERE id = $1 AND tenant_id = $2 RETURNING id',
         [req.params.id, req.user!.tenant_id]
       )
 

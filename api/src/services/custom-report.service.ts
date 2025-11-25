@@ -439,7 +439,7 @@ export class CustomReportService {
       `INSERT INTO report_executions (
         report_id, executed_by, format, status
       ) VALUES ($1, $2, $3, 'running')
-      RETURNING id`,
+      RETURNING id',
       [reportId, userId, format]
     )
 
