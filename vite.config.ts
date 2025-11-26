@@ -223,10 +223,7 @@ export default defineConfig({
             return 'three-postprocessing';
           }
 
-          // UI component libraries
-          if (id.includes('node_modules/@radix-ui')) {
-            return 'ui-radix';
-          }
+          // UI component libraries (icons only - Radix moved to react-utils)
           if (id.includes('node_modules/@phosphor-icons') ||
               id.includes('node_modules/@heroicons') ||
               id.includes('node_modules/lucide-react')) {
@@ -261,7 +258,9 @@ export default defineConfig({
 
           // React utility libraries (MUST load after React)
           // These libraries use React.createContext or useLayoutEffect at module level
-          if (id.includes('node_modules/react-error-boundary') ||
+          // CRITICAL FIX: @radix-ui MUST be here because it uses hooks at module initialization
+          if (id.includes('node_modules/@radix-ui') ||
+              id.includes('node_modules/react-error-boundary') ||
               id.includes('node_modules/react-hot-toast') ||
               id.includes('node_modules/sonner') ||
               id.includes('node_modules/next-themes') ||
