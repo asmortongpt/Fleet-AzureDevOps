@@ -141,10 +141,9 @@
 		346C66FAA6F8DE25ABE15C8D /* NetworkOptimizer.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NetworkOptimizer.swift; sourceTree = "<group>"; };
 		35AAABE8F8E6DDFB951EA440 /* TelemetryExporter.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TelemetryExporter.swift; path = Monitoring/TelemetryExporter.swift; sourceTree = "<group>"; };
 		3626031863A4DDF6DB723410 /* TripHistoryView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TripHistoryView.swift; sourceTree = "<group>"; };
-		363DE8A1059408E70A9ABE3C /* DriverDetailView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DriverDetailView.swift; path = App/Views/Driver/DriverDetailView.swift; sourceTree = "<group>"; };
+		363DE8A1059408E70A9ABE3C /* DriverDetailView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DriverDetailView.swift; path = Views/Driver/DriverDetailView.swift; sourceTree = "<group>"; };
 		3BBA46DB1D32C25AAA94AB6E /* NavigationCoordinator.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NavigationCoordinator.swift; sourceTree = "<group>"; };
 		3F2A394F01EDBA755BFE16C2 /* HealthCheckManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = HealthCheckManager.swift; sourceTree = "<group>"; };
-		3F6EE710CE87994F14F239CB /* TripDetailView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TripDetailView.swift; path = TripDetailView.swift; sourceTree = "<group>"; };
 		40E16F42F6ED5EF42AE44D2C /* NetworkOptimizer.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = NetworkOptimizer.swift; path = Performance/NetworkOptimizer.swift; sourceTree = "<group>"; };
 		40E238F20052C368232063A6 /* BackgroundSyncManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BackgroundSyncManager.swift; sourceTree = "<group>"; };
 		4219DC638C71B3AAF3C5E73A /* UIPerformanceMonitor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = UIPerformanceMonitor.swift; path = Performance/UIPerformanceMonitor.swift; sourceTree = "<group>"; };
@@ -193,7 +192,6 @@
 		70EA0C1860DEFBF739E36113 /* VehicleViewModel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = VehicleViewModel.swift; path = ViewModels/VehicleViewModel.swift; sourceTree = "<group>"; };
 		713AB4E4FC6B5609CD33E3AB /* MainTabView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MainTabView.swift; sourceTree = "<group>"; };
 		71B47AA7C2DDBF992B0F00CD /* TripTrackingService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TripTrackingService.swift; sourceTree = "<group>"; };
-		7241B46490E6460B433B2EEA /* TripDetailView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TripDetailView.swift; sourceTree = "<group>"; };
 		740FAAB0ED6F70FB037DFF3F /* PerformanceOptimizer.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PerformanceOptimizer.swift; sourceTree = "<group>"; };
 		745B2E96DF38259ECA851CD0 /* OnboardingView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = OnboardingView.swift; path = Views/Help/OnboardingView.swift; sourceTree = "<group>"; };
 		77CE56E5D36E1D83A6A57AA4 /* Animations.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Animations.swift; path = Theme/Animations.swift; sourceTree = "<group>"; };
@@ -223,7 +221,7 @@
 		AABBCCDD2233445566778899 /* MaintenanceSubmissionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MaintenanceSubmissionView.swift; sourceTree = "<group>"; };
 		AB7FB32F6586627934CB3AFA /* ImageUploadService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ImageUploadService.swift; path = ImageUploadService.swift; sourceTree = "<group>"; };
 		ADBE25CFB42A441A691F9205 /* VehicleDetailView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = VehicleDetailView.swift; path = Views/VehicleDetailView.swift; sourceTree = "<group>"; };
-		ADE78928E931F2D8F9D76D8B /* PushToTalkService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = PushToTalkService.swift; path = App/Services/PushToTalkService.swift; sourceTree = "<group>"; };
+		ADE78928E931F2D8F9D76D8B /* PushToTalkService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = PushToTalkService.swift; path = Services/PushToTalkService.swift; sourceTree = "<group>"; };
 		ADEA64A38480FA712CF17B0A /* CrashReporter.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = CrashReporter.swift; path = CrashReporter.swift; sourceTree = "<group>"; };
 		AE6640635A4B3224A483ABE3 /* LocalizationManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LocalizationManager.swift; sourceTree = "<group>"; };
 		AE9C9DD71F2C937AFB38CFAE /* BuildConfiguration.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = BuildConfiguration.swift; path = BuildConfiguration.swift; sourceTree = "<group>"; };
@@ -275,7 +273,7 @@
 		EE11154A39164F6F9851447F /* VehicleInspection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VehicleInspection.swift; sourceTree = "<group>"; };
 		EFBEC6B34D07608DBEF173C0 /* VehicleCard.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = VehicleCard.swift; path = Components/VehicleCard.swift; sourceTree = "<group>"; };
 		F146D4D705C7AB16FD9F29EA /* PerformanceMonitor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PerformanceMonitor.swift; sourceTree = "<group>"; };
-		F19517AEB6FFEB798630BFF9 /* TripDetailView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TripDetailView.swift; path = App/Views/TripDetailView.swift; sourceTree = "<group>"; };
+		F19517AEB6FFEB798630BFF9 /* TripDetailView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TripDetailView.swift; path = Views/TripDetailView.swift; sourceTree = "<group>"; };
 		F2B306D6939DFE03C02278BC /* CameraManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CameraManager.swift; sourceTree = "<group>"; };
 		F34ECBC86983BEC6438C51D8 /* AccessibilityManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AccessibilityManager.swift; path = Utilities/AccessibilityManager.swift; sourceTree = "<group>"; };
 		F7CC4692F8829295A37DEB2E /* RootView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
@@ -494,7 +492,6 @@
 				AB7FB32F6586627934CB3AFA /* ImageUploadService.swift */,
 				4D8FCF9BE9538F8F795FCA9C /* ErrorHandler.swift */,
 				C7EDDBFA4EA484A264FA9B25 /* DatabaseMigration.swift */,
-				3F6EE710CE87994F14F239CB /* TripDetailView.swift */,
 				0C38520069FC58F103DE1707 /* PhotoCaptureView.swift */,
 				16D08B1504E08A77D76D613D /* TripTrackingService.swift */,
 				838963176F4A74F195806866 /* SecurityLogger.swift */,
@@ -527,7 +524,6 @@
 				54EA97D78C595961A9512737 /* ImageUploadService.swift */,
 				6913164C95F8AF990EF75826 /* ErrorHandler.swift */,
 				BAD4BD7644119DEE395E41C1 /* DatabaseMigration.swift */,
-				7241B46490E6460B433B2EEA /* TripDetailView.swift */,
 				09C619BEA37BC33F2BEA6494 /* PhotoCaptureView.swift */,
 				71B47AA7C2DDBF992B0F00CD /* TripTrackingService.swift */,
 				F146D4D705C7AB16FD9F29EA /* PerformanceMonitor.swift */,
@@ -563,7 +559,8 @@
 				BAED9DF255C360212B77D5FF /* ViewModels */,
 				69EE714BEFFB85AFAD1F07AB /* Services */,
 			);
-			path = App;
+		path = App;
+
 			sourceTree = "<group>";
 		};
 		69EE714BEFFB85AFAD1F07AB /* Services */ = {
@@ -572,7 +569,6 @@
 				ADE78928E931F2D8F9D76D8B /* PushToTalkService.swift */,
 			);
 			name = Services;
-			path = App/Services;
 			sourceTree = "<group>";
 		};
 		782EFB332BAB87AA75E7BAF9 /* Help */ = {
@@ -623,7 +619,6 @@
 				363DE8A1059408E70A9ABE3C /* DriverDetailView.swift */,
 			);
 			name = Driver;
-			path = Driver;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
