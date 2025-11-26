@@ -34,12 +34,12 @@ export class VehicleIdentificationService {
       const vehicleResult = await pool.query(
         `SELECT id, vehicle_number, vin, license_plate, make, model, year
          FROM vehicles
-         WHERE id = $1 AND tenant_id = $2',
+         WHERE id = $1 AND tenant_id = $2`,
         [vehicleId, tenantId]
       )
 
       if (vehicleResult.rows.length === 0) {
-        throw new Error('Vehicle not found')
+        throw new Error(`Vehicle not found`)
       }
 
       const vehicle = vehicleResult.rows[0]
@@ -241,7 +241,7 @@ export class VehicleIdentificationService {
       return await this.identifyByLicensePlate(licensePlate, tenantId)
       */
     } catch (error) {
-      console.error('Error processing license plate image:', error)
+      console.error(`Error processing license plate image:`, error)
       throw error
     }
   }
@@ -281,7 +281,7 @@ export class VehicleIdentificationService {
         qrCode: vehicle.qr_code
       }))
     } catch (error) {
-      console.error('Error searching vehicles:', error)
+      console.error(`Error searching vehicles:`, error)
       return []
     }
   }

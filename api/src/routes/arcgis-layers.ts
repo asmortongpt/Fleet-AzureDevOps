@@ -202,7 +202,7 @@ router.post(
  */
 router.put(
   '/:id',
-  requirePermission('geofence:create:fleet'),
+  requirePermission(`geofence:create:fleet`),
   async (req: AuthRequest, res: Response) => {
     const tenantId = req.user!.tenant_id
     const { id } = req.params
@@ -265,7 +265,7 @@ router.put(
       }
 
       if (updates.length === 0) {
-        return res.status(400).json({ error: 'No fields to update' })
+        return res.status(400).json({ error: `No fields to update` })
       }
 
       updates.push(`updated_at = NOW()`)
@@ -280,7 +280,7 @@ router.put(
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'Layer not found' })
+        return res.status(404).json({ error: `Layer not found` })
       }
 
       logger.info('ArcGIS layer updated', {

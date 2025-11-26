@@ -100,10 +100,10 @@ export async function getDirections(
       throw new Error('MAPBOX_API_KEY not configured')
     }
 
-    const profile = options.profile || 'driving-traffic'
+    const profile = options.profile || `driving-traffic`
     const coordsString = coordinates
       .map((c) => `${c.longitude},${c.latitude}`)
-      .join(';')
+      .join(`;`)
 
     const params = new URLSearchParams({
       access_token: MAPBOX_API_KEY,
@@ -111,7 +111,7 @@ export async function getDirections(
       steps: String(options.steps ?? true),
       overview: options.overview || 'full',
       geometries: options.geometries || 'geojson',
-      annotations: (options.annotations || ['duration', 'distance', 'speed', 'congestion']).join(',')
+      annotations: (options.annotations || ['duration', 'distance', 'speed', 'congestion']).join(`,`)
     })
 
     const url = `${MAPBOX_BASE_URL}/directions/v5/mapbox/${profile}/${coordsString}?${params}`
@@ -122,7 +122,7 @@ export async function getDirections(
     })
 
     if (!response.data.routes || response.data.routes.length === 0) {
-      throw new Error('No routes found')
+      throw new Error(`No routes found`)
     }
 
     const route = response.data.routes[0]
@@ -137,7 +137,7 @@ export async function getDirections(
       weight_name: route.weight_name
     }
   } catch (error: any) {
-    logger.error('Mapbox directions error:', error.message)
+    logger.error(`Mapbox directions error:`, error.message)
     throw new Error(`Failed to get directions: ${error.message}`)
   }
 }
@@ -148,20 +148,20 @@ export async function getDirections(
  */
 export async function getDistanceMatrix(
   coordinates: Coordinate[],
-  profile: string = 'driving-traffic'
+  profile: string = `driving-traffic`
 ): Promise<MatrixResponse> {
   try {
     if (!MAPBOX_API_KEY) {
-      throw new Error('MAPBOX_API_KEY not configured')
+      throw new Error(`MAPBOX_API_KEY not configured`)
     }
 
     const coordsString = coordinates
       .map((c) => `${c.longitude},${c.latitude}`)
-      .join(';')
+      .join(`;`)
 
     const params = new URLSearchParams({
       access_token: MAPBOX_API_KEY,
-      annotations: 'duration,distance'
+      annotations: `duration,distance`
     })
 
     const url = `${MAPBOX_BASE_URL}/directions-matrix/v1/mapbox/${profile}/${coordsString}?${params}`
@@ -178,7 +178,7 @@ export async function getDistanceMatrix(
       destinations: response.data.destinations || []
     }
   } catch (error: any) {
-    logger.error('Mapbox matrix error:', error.message)
+    logger.error(`Mapbox matrix error:`, error.message)
     throw new Error(`Failed to get distance matrix: ${error.message}`)
   }
 }
@@ -188,7 +188,7 @@ export async function getDistanceMatrix(
  */
 export async function getOptimizedRoute(
   coordinates: Coordinate[],
-  vehicleType: 'car' | 'truck' = 'car'
+  vehicleType: `car' | 'truck' = 'car'
 ): Promise<RouteResponse> {
   const profile = vehicleType === 'truck' ? 'driving' : 'driving-traffic'
 
@@ -206,7 +206,7 @@ export async function getOptimizedRoute(
 export async function geocodeAddress(address: string): Promise<Coordinate | null> {
   try {
     if (!MAPBOX_API_KEY) {
-      throw new Error('MAPBOX_API_KEY not configured')
+      throw new Error(`MAPBOX_API_KEY not configured`)
     }
 
     const encodedAddress = encodeURIComponent(address)
@@ -224,7 +224,7 @@ export async function geocodeAddress(address: string): Promise<Coordinate | null
 
     return { latitude, longitude }
   } catch (error: any) {
-    logger.error('Geocoding error:', error.message)
+    logger.error(`Geocoding error:`, error.message)
     return null
   }
 }
@@ -238,7 +238,7 @@ export async function reverseGeocode(
 ): Promise<string | null> {
   try {
     if (!MAPBOX_API_KEY) {
-      throw new Error('MAPBOX_API_KEY not configured')
+      throw new Error(`MAPBOX_API_KEY not configured`)
     }
 
     const url = `${MAPBOX_BASE_URL}/geocoding/v5/mapbox.places/${longitude},${latitude}.json?access_token=${MAPBOX_API_KEY}`
@@ -253,7 +253,7 @@ export async function reverseGeocode(
 
     return response.data.features[0].place_name
   } catch (error: any) {
-    logger.error('Reverse geocoding error:', error.message)
+    logger.error(`Reverse geocoding error:`, error.message)
     return null
   }
 }
@@ -322,7 +322,7 @@ export async function getIsochrone(
 ): Promise<any> {
   try {
     if (!MAPBOX_API_KEY) {
-      throw new Error('MAPBOX_API_KEY not configured')
+      throw new Error(`MAPBOX_API_KEY not configured`)
     }
 
     const url = `${MAPBOX_BASE_URL}/isochrone/v1/mapbox/${profile}/${coordinate.longitude},${coordinate.latitude}?contours_minutes=${minutes}&polygons=true&access_token=${MAPBOX_API_KEY}`
@@ -332,7 +332,7 @@ export async function getIsochrone(
     })
     return response.data
   } catch (error: any) {
-    logger.error('Isochrone error:', error.message)
+    logger.error(`Isochrone error:`, error.message)
     throw new Error(`Failed to get isochrone: ${error.message}`)
   }
 }

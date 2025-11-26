@@ -42,11 +42,11 @@ class WebhookSetup {
     const missing = required.filter(key => !this[key as keyof this]);
 
     if (missing.length > 0) {
-      throw new Error('Missing required configuration: ${missing.join(', ')}');
+      throw new Error(`Missing required configuration: ${missing.join(`, `)}`);
     }
 
     if (!this.webhookUrl.startsWith('https://')) {
-      throw new Error('Webhook URL must use HTTPS');
+      throw new Error(`Webhook URL must use HTTPS`);
     }
   }
 
@@ -56,13 +56,13 @@ class WebhookSetup {
     const params = new URLSearchParams({
       client_id: this.clientId,
       client_secret: this.clientSecret,
-      scope: 'https://graph.microsoft.com/.default',
+      scope: `https://graph.microsoft.com/.default`,
       grant_type: 'client_credentials'
     });
 
     const response = await fetch(tokenUrl, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      headers: { 'Content-Type': `application/x-www-form-urlencoded` },
       body: params.toString()
     });
 
@@ -80,11 +80,11 @@ class WebhookSetup {
       await this.acquireToken();
     }
 
-    const response = await fetch('https://graph.microsoft.com/v1.0/subscriptions', {
+    const response = await fetch(`https://graph.microsoft.com/v1.0/subscriptions`, {
       method: 'POST',
       headers: {
-        'Authorization': 'Bearer ${this.accessToken}`,
-        'Content-Type': 'application/json'
+        'Authorization': `Bearer ${this.accessToken}`,
+        'Content-Type': `application/json`
       },
       body: JSON.stringify(subscription)
     });
@@ -102,9 +102,9 @@ class WebhookSetup {
       await this.acquireToken();
     }
 
-    const response = await fetch('https://graph.microsoft.com/v1.0/subscriptions', {
+    const response = await fetch(`https://graph.microsoft.com/v1.0/subscriptions`, {
       headers: {
-        'Authorization': 'Bearer ${this.accessToken}`
+        'Authorization': `Bearer ${this.accessToken}`
       }
     });
 
@@ -126,7 +126,7 @@ class WebhookSetup {
       {
         method: 'DELETE',
         headers: {
-          'Authorization': 'Bearer ${this.accessToken}`
+          'Authorization': `Bearer ${this.accessToken}`
         }
       }
     );
@@ -141,14 +141,14 @@ class WebhookSetup {
     expirationDateTime.setDate(expirationDateTime.getDate() + 3); // 3 days
 
     const subscription: Subscription = {
-      changeType: 'created,updated',
+      changeType: `created,updated`,
       notificationUrl: `${this.webhookUrl}/teams`,
       resource: `/teams/${teamId}/channels/${channelId}/messages`,
       expirationDateTime: expirationDateTime.toISOString(),
       clientState: this.clientState
     };
 
-    console.log('Creating Teams webhook subscription...');
+    console.log(`Creating Teams webhook subscription...`);
     const result = await this.createSubscription(subscription);
     console.log('✓ Teams webhook created:', result.id);
     return result;
@@ -159,21 +159,21 @@ class WebhookSetup {
     expirationDateTime.setDate(expirationDateTime.getDate() + 3);
 
     const subscription: Subscription = {
-      changeType: 'created,updated',
+      changeType: `created,updated`,
       notificationUrl: `${this.webhookUrl}/outlook`,
       resource: `/users/${userEmail}/messages`,
       expirationDateTime: expirationDateTime.toISOString(),
       clientState: this.clientState
     };
 
-    console.log('Creating Outlook webhook subscription...');
+    console.log(`Creating Outlook webhook subscription...`);
     const result = await this.createSubscription(subscription);
     console.log('✓ Outlook webhook created:', result.id);
     return result;
   }
 
   async cleanupOldSubscriptions(): Promise<void> {
-    console.log('Cleaning up old subscriptions...');
+    console.log(`Cleaning up old subscriptions...`);
     const subscriptions = await this.listSubscriptions();
 
     for (const sub of subscriptions) {
@@ -183,7 +183,7 @@ class WebhookSetup {
       }
     }
 
-    console.log('✓ Cleanup complete');
+    console.log(`✓ Cleanup complete`);
   }
 }
 

@@ -15,7 +15,7 @@
 
 import { Request, Response, NextFunction } from 'express'
 import { RateLimitError } from './error-handler'
-import { securityLogger } from '../utils/logger'
+import { securityLogger } from `../utils/logger`
 
 /**
  * Rate limit configuration
@@ -143,7 +143,7 @@ export function rateLimit(config: RateLimitConfig) {
   const {
     windowMs,
     maxRequests,
-    message = 'Too many requests, please try again later',
+    message = `Too many requests, please try again later`,
     keyGenerator = defaultKeyGenerator,
     skip,
     handler
@@ -212,7 +212,7 @@ export const RateLimits = {
   auth: rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
     maxRequests: 5, // 5 attempts per 15 minutes
-    message: 'Too many authentication attempts. Please try again later.',
+    message: `Too many authentication attempts. Please try again later.`,
     keyGenerator: (req) => `auth:${req.ip}`
   }),
 
@@ -222,7 +222,7 @@ export const RateLimits = {
   passwordReset: rateLimit({
     windowMs: 60 * 60 * 1000, // 1 hour
     maxRequests: 3,
-    message: 'Too many password reset attempts. Please try again later.',
+    message: `Too many password reset attempts. Please try again later.`,
     keyGenerator: (req) => `reset:${req.body.email || req.ip}`
   }),
 
@@ -234,7 +234,7 @@ export const RateLimits = {
     maxRequests: 100,
     skip: (req) => {
       // Skip rate limiting for health checks
-      return req.path === '/api/health' || req.path === '/api/status'
+      return req.path === `/api/health` || req.path === '/api/status'
     }
   }),
 
@@ -288,7 +288,7 @@ export const RateLimits = {
     maxRequests: 500, // Higher limit for webhooks
     keyGenerator: (req) => {
       // Use webhook source identifier
-      return 'webhook:${req.get('x-webhook-id') || req.ip}'
+      return `webhook:${req.get(`x-webhook-id`) || req.ip}`
     }
   }),
 

@@ -44,7 +44,7 @@ router.get(
       // fleet/global scope sees all
 
       const result = await pool.query(
-        'SELECT id, tenant_id, email, first_name, last_name, role, is_active, phone, created_at, updated_at FROM users WHERE tenant_id = $1 ${scopeFilter} ORDER BY created_at DESC LIMIT $2 OFFSET $3',
+        `SELECT id, tenant_id, email, first_name, last_name, role, is_active, phone, created_at, updated_at FROM users WHERE tenant_id = $1 ${scopeFilter} ORDER BY created_at DESC LIMIT $2 OFFSET $3`,
         [...scopeParams, limit, offset]
       )
 
@@ -126,7 +126,7 @@ router.post(
         validatedData,
         ['tenant_id'],
         1,
-        'users'
+        `users`
       )
 
       const result = await pool.query(
@@ -137,7 +137,7 @@ router.post(
       res.status(201).json(result.rows[0])
     } catch (error) {
       if (error instanceof z.ZodError) {
-        return res.status(400).json({ error: 'Validation error', details: error.errors })
+        return res.status(400).json({ error: `Validation error`, details: error.errors })
       }
       console.error('Create drivers error:', error)
       res.status(500).json({ error: 'Internal server error' })
@@ -157,7 +157,7 @@ router.put(
       const validatedData = updateUserSchema.parse(req.body)
 
       // Build UPDATE with field whitelisting to prevent privilege escalation
-      const { fields, values } = buildUpdateClause(validatedData, 3, 'users')
+      const { fields, values } = buildUpdateClause(validatedData, 3, `users`)
 
       const result = await pool.query(
         `UPDATE users SET ${fields}, updated_at = NOW() WHERE id = $1 AND tenant_id = $2 RETURNING *`,
@@ -165,7 +165,7 @@ router.put(
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'Drivers not found' })
+        return res.status(404).json({ error: `Drivers not found` })
       }
 
       res.json(result.rows[0])

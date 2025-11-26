@@ -27,7 +27,7 @@ const ENDPOINTS_TO_TEST = [
   '/drivers',
   '/telematics/providers',
   '/executive-dashboard/kpis',
-  '/executive-dashboard/trends?days=30',
+  `/executive-dashboard/trends?days=30`,
 ]
 
 /**
@@ -60,7 +60,7 @@ async function benchmarkEndpoint(
 
   // Clear cache to get cold start times
   await cacheInvalidation.clearAll()
-  console.log('  Cache cleared...')
+  console.log(`  Cache cleared...`)
 
   // Cold start measurements (no cache)
   const coldTimes: number[] = []
@@ -109,13 +109,13 @@ async function benchmarkEndpoint(
  * Main benchmark runner
  */
 async function runBenchmarks() {
-  console.log('='.repeat(70))
+  console.log(`=`.repeat(70))
   console.log('REDIS CACHE PERFORMANCE BENCHMARK')
   console.log('='.repeat(70))
 
   if (!AUTH_TOKEN) {
     console.error('ERROR: BENCHMARK_AUTH_TOKEN environment variable not set')
-    console.log('Please set a valid JWT token for benchmarking')
+    console.log(`Please set a valid JWT token for benchmarking`)
     process.exit(1)
   }
 
@@ -131,13 +131,13 @@ async function runBenchmarks() {
   }
 
   // Print summary table
-  console.log('\n' + '='.repeat(70))
+  console.log(`\n` + '='.repeat(70))
   console.log('BENCHMARK RESULTS SUMMARY')
   console.log('='.repeat(70))
   console.log(
     '\n| Endpoint                          | Cold (ms) | Warm (ms) | Improvement |'
   )
-  console.log('|-----------------------------------|-----------|-----------|-------------|')
+  console.log(`|-----------------------------------|-----------|-----------|-------------|`)
 
   results.forEach((result) => {
     const endpoint = result.endpoint.padEnd(33)
@@ -154,26 +154,26 @@ async function runBenchmarks() {
   const avgWarm = totalWarm / results.length
   const overallImprovement = (((avgCold - avgWarm) / avgCold) * 100).toFixed(1)
 
-  console.log('|-----------------------------------|-----------|-----------|-------------|')
+  console.log(`|-----------------------------------|-----------|-----------|-------------|`)
   console.log(
-    '| ${'OVERALL AVERAGE'.padEnd(33)} | ${String(Math.round(avgCold)).padStart(9)} | ${String(Math.round(avgWarm)).padStart(9)} | ${'${overallImprovement}%`.padStart(11)} |`
+    `| ${`OVERALL AVERAGE`.padEnd(33)} | ${String(Math.round(avgCold)).padStart(9)} | ${String(Math.round(avgWarm)).padStart(9)} | ${`${overallImprovement}%`.padStart(11)} |`
   )
   console.log('='.repeat(70))
 
   // Cache stats
   const cacheStats = await cacheInvalidation.stats()
   if (cacheStats) {
-    console.log('\nCACHE STATISTICS:')
+    console.log(`\nCACHE STATISTICS:`)
     console.log(`  Keys cached: ${cacheStats.keyCount}`)
     console.log(`  Hit rate: ${cacheStats.hitRate}`)
     console.log(`  Memory used: ${cacheStats.memoryUsed}`)
   }
 
-  console.log('\n' + '='.repeat(70))
+  console.log(`\n` + `=`.repeat(70))
   console.log(
     `✅ Benchmark complete! Average improvement: ${overallImprovement}%`
   )
-  console.log('='.repeat(70) + '\n')
+  console.log(`='.repeat(70) + '\n')
 
   process.exit(0)
 }

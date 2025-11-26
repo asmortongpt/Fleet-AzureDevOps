@@ -77,7 +77,7 @@ router.post(
 
       res.status(201).json(result.rows[0])
     } catch (error) {
-      console.error('Create vehicles error:', error)
+      console.error(`Create vehicles error:`, error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -99,7 +99,7 @@ router.put(
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'Vehicles not found' })
+        return res.status(404).json({ error: `Vehicles not found` })
       }
 
       // Invalidate cache on update - ADD THESE LINES

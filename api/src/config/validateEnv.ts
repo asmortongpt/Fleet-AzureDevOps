@@ -119,7 +119,7 @@ const baseEnvSchema = z.object({
   // ==========================================
   NODE_ENV: z.enum(VALID_NODE_ENVS, {
     errorMap: () => ({
-      message: 'NODE_ENV must be one of: ${VALID_NODE_ENVS.join(', ')}'
+      message: `NODE_ENV must be one of: ${VALID_NODE_ENVS.join(', ')}`
     })
   }),
 
@@ -139,7 +139,7 @@ const baseEnvSchema = z.object({
       message: `JWT_SECRET must be at least ${MIN_SECRET_LENGTH} characters. Current minimum is for cryptographic security. Generate with: openssl rand -base64 64`
     })
     .refine(isNotWeakSecret, {
-      message: 'JWT_SECRET contains a weak/placeholder pattern. Generate a secure secret with: openssl rand -base64 64'
+      message: `JWT_SECRET contains a weak/placeholder pattern. Generate a secure secret with: openssl rand -base64 64`
     }),
 
   JWT_EXPIRY: z.string().optional().default('24h'),
@@ -155,7 +155,7 @@ const baseEnvSchema = z.object({
       message: `CSRF_SECRET must be at least ${MIN_SECRET_LENGTH} characters. Generate with: openssl rand -base64 64`
     })
     .refine(isNotWeakSecret, {
-      message: 'CSRF_SECRET contains a weak/placeholder pattern. Generate a secure secret with: openssl rand -base64 64'
+      message: `CSRF_SECRET contains a weak/placeholder pattern. Generate a secure secret with: openssl rand -base64 64`
     }),
 
   // ==========================================
@@ -375,10 +375,10 @@ export function validateEnv(): ValidatedEnv {
   console.log(`  PORT:                        ${result.data.PORT}`);
   console.log(`  JWT_SECRET:                  [SET] (${result.data.JWT_SECRET.length} characters)`);
   console.log(`  CSRF_SECRET:                 [SET] (${result.data.CSRF_SECRET.length} characters)`);
-  console.log('  DATABASE_CONNECTION_STRING:  ${result.data.DATABASE_CONNECTION_STRING ? '[SET]' : '[NOT SET - using individual params]'}');
-  console.log('  CORS_ORIGIN:                 ${result.data.CORS_ORIGIN || '[NOT SET]'}');
-  console.log('  REDIS_URL:                   ${result.data.REDIS_URL ? '[SET]' : '[NOT SET]'}');
-  console.log('  USE_MOCK_DATA:               ${result.data.USE_MOCK_DATA || 'false'}');
+  console.log(`  DATABASE_CONNECTION_STRING:  ${result.data.DATABASE_CONNECTION_STRING ? '[SET]' : '[NOT SET - using individual params]'}`);
+  console.log(`  CORS_ORIGIN:                 ${result.data.CORS_ORIGIN || '[NOT SET]'}`);
+  console.log(`  REDIS_URL:                   ${result.data.REDIS_URL ? '[SET]' : '[NOT SET]'}`);
+  console.log(`  USE_MOCK_DATA:               ${result.data.USE_MOCK_DATA || 'false'}`);
   console.log('');
   console.log('========================================');
   console.log('Environment validation PASSED');

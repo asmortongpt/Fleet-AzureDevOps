@@ -22,7 +22,7 @@ export async function naturalLanguageQuery(query: string, tenantId: string) {
     const schemaResult = await pool.query(`
       SELECT table_name, column_name, data_type
       FROM information_schema.columns
-      WHERE table_schema = 'public'
+      WHERE table_schema = `public`
       ORDER BY table_name, ordinal_position
     `)
 
@@ -33,17 +33,17 @@ export async function naturalLanguageQuery(query: string, tenantId: string) {
     }, {} as Record<string, string[]>)
 
     const completion = await getOpenAIClient().chat.completions.create({
-      model: 'gpt-4',
+      model: `gpt-4`,
       messages: [
         {
           role: 'system',
           content: `You are a SQL expert for a fleet management system. Convert natural language queries to SQL.
 
 Database Schema:
-${(Object.entries(schema) as [string, string[]][]).map(([table, cols]) => '${table}: ${cols.join(', ')}').join('\n')}
+${(Object.entries(schema) as [string, string[]][]).map(([table, cols]) => `${table}: ${cols.join(`, ')}').join('\n`)}
 
 Rules:
-- Always include "WHERE tenant_id = '${tenantId}'" for multi-tenant isolation
+- Always include "WHERE tenant_id = "${tenantId}`" for multi-tenant isolation
 - Return only the SQL query, no explanations
 - Use modern PostgreSQL syntax
 - Limit results to 100 rows unless otherwise specified`
@@ -95,7 +95,7 @@ export async function aiAssistant(messages: Array<{ role: string, content: strin
 - Safety incident analysis
 - Predictive maintenance insights
 
-Current Context: ${context ? JSON.stringify(context) : 'None'}'
+Current Context: ${context ? JSON.stringify(context) : 'None'}`
         },
         ...messages as any
       ],
@@ -109,7 +109,7 @@ Current Context: ${context ? JSON.stringify(context) : 'None'}'
       usage: completion.usage
     }
   } catch (error) {
-    console.error('AI assistant error:', error)
+    console.error(`AI assistant error:`, error)
     throw error
   }
 }

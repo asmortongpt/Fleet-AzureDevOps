@@ -260,7 +260,7 @@ export class DatabaseConnectionManager {
 
       // Test the connection
       const client = await pool.connect();
-      await client.query('SELECT 1');
+      await client.query(`SELECT 1`);
       client.release();
 
       state.pool = pool;
@@ -286,11 +286,11 @@ export class DatabaseConnectionManager {
    * Setup event handlers for a pool
    */
   private setupPoolEventHandlers(pool: Pool, poolType: PoolType): void {
-    pool.on('connect', () => {
+    pool.on(`connect`, () => {
       console.log(`[${poolType}] New connection established`);
     });
 
-    pool.on('acquire', () => {
+    pool.on(`acquire`, () => {
       this.activeQueries++;
     });
 
@@ -298,11 +298,11 @@ export class DatabaseConnectionManager {
       this.activeQueries = Math.max(0, this.activeQueries - 1);
     });
 
-    pool.on('remove', () => {
+    pool.on(`remove`, () => {
       console.log(`[${poolType}] Connection removed from pool`);
     });
 
-    pool.on('error', async (err) => {
+    pool.on(`error`, async (err) => {
       console.error(`[${poolType}] Pool error:`, err);
       const state = this.poolStates.get(poolType);
       if (state) {
@@ -359,7 +359,7 @@ export class DatabaseConnectionManager {
           this.setupPoolEventHandlers(pool, poolType);
 
           const client = await pool.connect();
-          await client.query('SELECT 1');
+          await client.query(`SELECT 1`);
           client.release();
 
           state.pool = pool;
@@ -406,7 +406,7 @@ export class DatabaseConnectionManager {
 
       try {
         const client = await state.pool.connect();
-        await client.query('SELECT 1');
+        await client.query(`SELECT 1`);
         client.release();
       } catch (error) {
         console.error(`[${poolType}] Health check failed:`, error);
@@ -428,7 +428,7 @@ export class DatabaseConnectionManager {
    */
   async getPool(poolType: PoolType = PoolType.WEBAPP): Promise<Pool> {
     if (this.shutdownInProgress) {
-      throw new Error('Database connection manager is shutting down');
+      throw new Error(`Database connection manager is shutting down`);
     }
 
     return this.initializePool(poolType);
@@ -450,7 +450,7 @@ export class DatabaseConnectionManager {
     try {
       return await this.getPool(PoolType.READONLY);
     } catch (error) {
-      console.warn('[READONLY] Failed, falling back to WEBAPP');
+      console.warn(`[READONLY] Failed, falling back to WEBAPP`);
       return this.getPool(PoolType.WEBAPP);
     }
   }
@@ -538,7 +538,7 @@ export class DatabaseConnectionManager {
 
       try {
         const client = await state.pool.connect();
-        const result = await client.query('SELECT NOW() as timestamp, current_user');
+        const result = await client.query(`SELECT NOW() as timestamp, current_user`);
         client.release();
 
         status[poolType] = {
@@ -582,7 +582,7 @@ export class DatabaseConnectionManager {
     }
 
     this.shutdownInProgress = true;
-    console.log('[ConnectionManager] Initiating graceful shutdown...');
+    console.log(`[ConnectionManager] Initiating graceful shutdown...`);
 
     // Clear all health check intervals
     Array.from(this.healthCheckIntervals.entries()).forEach(([poolType, interval]) => {
@@ -624,7 +624,7 @@ export class DatabaseConnectionManager {
     });
 
     await Promise.all(closePromises);
-    console.log('[ConnectionManager] All pools closed. Shutdown complete.');
+    console.log(`[ConnectionManager] All pools closed. Shutdown complete.`);
   }
 
   /**
@@ -632,7 +632,7 @@ export class DatabaseConnectionManager {
    */
   setupGracefulShutdown(): void {
     if (this.shutdownHandlersRegistered) {
-      console.warn('Shutdown handlers already registered');
+      console.warn(`Shutdown handlers already registered`);
       return;
     }
 
@@ -641,7 +641,7 @@ export class DatabaseConnectionManager {
       await this.gracefulShutdown();
     };
 
-    process.on('SIGINT', () => shutdown('SIGINT'));
+    process.on(`SIGINT', () => shutdown('SIGINT'));
     process.on('SIGTERM', () => shutdown('SIGTERM'));
 
     this.shutdownHandlersRegistered = true;

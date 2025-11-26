@@ -57,7 +57,7 @@ async function verifyData() {
       'vehicles',
       'fuel_transactions',
       'work_orders',
-      'maintenance_records'
+      `maintenance_records`
     ];
 
     const counts: Record<string, number> = {};
@@ -71,8 +71,8 @@ async function verifyData() {
       counts[table] = parseInt(result.rows[0].count);
     }
 
-    console.log('\n📊 RECORD COUNTS');
-    console.log('-'.repeat(80));
+    console.log(`\n📊 RECORD COUNTS`);
+    console.log(`-`.repeat(80));
     console.log(`   Tenants:                ${counts.tenants.toString().padStart(6)}`);
     console.log(`   Users:                  ${counts.users.toString().padStart(6)}`);
     console.log(`   Vehicles:               ${counts.vehicles.toString().padStart(6)}`);
@@ -82,7 +82,7 @@ async function verifyData() {
 
     // Check routes table if exists
     const routesCheck = await client.query(
-      'SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'routes')'
+      `SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = `routes`)`
     );
     if (routesCheck.rows[0].exists) {
       const routesCount = await client.query(`SELECT COUNT(*) as count FROM routes`);
@@ -92,8 +92,8 @@ async function verifyData() {
     // ========================================
     // 2. Breakdown by Tenant
     // ========================================
-    console.log('\n\n📦 BREAKDOWN BY TENANT');
-    console.log('-'.repeat(80));
+    console.log(`\n\n📦 BREAKDOWN BY TENANT`);
+    console.log(`-`.repeat(80));
 
     const tenants = await client.query(`SELECT id, name, domain FROM tenants ORDER BY name`);
 
@@ -101,7 +101,7 @@ async function verifyData() {
       console.log(`\n   ${tenant.name} (${tenant.domain})`);
 
       const userCount = await client.query(
-        'SELECT COUNT(*) as count FROM users WHERE tenant_id = $1',
+        `SELECT COUNT(*) as count FROM users WHERE tenant_id = $1`,
         [tenant.id]
       );
       console.log(`      └─ Users: ${userCount.rows[0].count}`);
@@ -115,7 +115,7 @@ async function verifyData() {
       }
 
       const vehicleCount = await client.query(
-        'SELECT COUNT(*) as count FROM vehicles WHERE tenant_id = $1',
+        `SELECT COUNT(*) as count FROM vehicles WHERE tenant_id = $1`,
         [tenant.id]
       );
       console.log(`      └─ Vehicles: ${vehicleCount.rows[0].count}`);
@@ -132,37 +132,37 @@ async function verifyData() {
     // ========================================
     // 3. Data Quality Checks
     // ========================================
-    console.log('\n\n✅ DATA QUALITY CHECKS');
+    console.log(`\n\n✅ DATA QUALITY CHECKS`);
     console.log('-'.repeat(80));
 
     // Check for vehicles without VIN
-    const noVin = await client.query('SELECT COUNT(*) FROM vehicles WHERE vin IS NULL OR vin = ''');
-    console.log('   Vehicles without VIN:             ${noVin.rows[0].count === '0' ? '✅ None' : '❌ ' + noVin.rows[0].count}');
+    const noVin = await client.query('SELECT COUNT(*) FROM vehicles WHERE vin IS NULL OR vin = ''`);
+    console.log(`   Vehicles without VIN:             ${noVin.rows[0].count === '0' ? '✅ None' : '❌ ' + noVin.rows[0].count}`);
 
     // Check for users without email
-    const noEmail = await client.query('SELECT COUNT(*) FROM users WHERE email IS NULL OR email = ''');
-    console.log('   Users without email:              ${noEmail.rows[0].count === '0' ? '✅ None' : '❌ ' + noEmail.rows[0].count}');
+    const noEmail = await client.query('SELECT COUNT(*) FROM users WHERE email IS NULL OR email = ''`);
+    console.log(`   Users without email:              ${noEmail.rows[0].count === '0' ? '✅ None' : '❌ ' + noEmail.rows[0].count}`);
 
     // Check for orphaned fuel transactions
     const orphanedFuel = await client.query(
       `SELECT COUNT(*) FROM fuel_transactions ft
        WHERE NOT EXISTS (SELECT 1 FROM vehicles v WHERE v.id = ft.vehicle_id)`
     );
-    console.log('   Orphaned fuel transactions:       ${orphanedFuel.rows[0].count === '0' ? '✅ None' : '❌ ' + orphanedFuel.rows[0].count}');
+    console.log(`   Orphaned fuel transactions:       ${orphanedFuel.rows[0].count === '0' ? '✅ None' : '❌ ` + orphanedFuel.rows[0].count}`);
 
     // Check for orphaned work orders
     const orphanedWO = await client.query(
       `SELECT COUNT(*) FROM work_orders wo
        WHERE NOT EXISTS (SELECT 1 FROM vehicles v WHERE v.id = wo.vehicle_id)`
     );
-    console.log('   Orphaned work orders:             ${orphanedWO.rows[0].count === '0' ? '✅ None' : '❌ ' + orphanedWO.rows[0].count}');
+    console.log(`   Orphaned work orders:             ${orphanedWO.rows[0].count === '0' ? '✅ None' : '❌ ' + orphanedWO.rows[0].count}`);
 
     // Check tenant isolation
     const crossTenantUsers = await client.query(
       `SELECT COUNT(*) FROM users u
        WHERE NOT EXISTS (SELECT 1 FROM tenants t WHERE t.id = u.tenant_id)`
     );
-    console.log('   Users with invalid tenant:        ${crossTenantUsers.rows[0].count === '0' ? '✅ None' : '❌ ' + crossTenantUsers.rows[0].count}');
+    console.log(`   Users with invalid tenant:        ${crossTenantUsers.rows[0].count === '0' ? '✅ None' : '❌ ' + crossTenantUsers.rows[0].count}`);
 
     // ========================================
     // 4. Sample Data Preview
@@ -177,7 +177,7 @@ async function verifyData() {
        JOIN tenants t ON v.tenant_id = t.id
        LIMIT 5`
     );
-    console.log('\n   Sample Vehicles:');
+    console.log(`\n   Sample Vehicles:`);
     for (const vehicle of sampleVehicles.rows) {
       console.log(`      • ${vehicle.year} ${vehicle.make} ${vehicle.model} (${vehicle.license_plate}) - ${vehicle.status} - ${vehicle.tenant}`);
     }
@@ -190,7 +190,7 @@ async function verifyData() {
        ORDER BY wo.created_at DESC
        LIMIT 5`
     );
-    console.log('\n   Recent Work Orders:');
+    console.log(`\n   Recent Work Orders:`);
     for (const wo of sampleWorkOrders.rows) {
       console.log(`      • ${wo.title} - ${wo.status} (${wo.priority}) - ${wo.make} ${wo.model}`);
     }
@@ -204,7 +204,7 @@ async function verifyData() {
          AVG(price_per_gallon)::NUMERIC(10,2) as avg_price
        FROM fuel_transactions`
     );
-    console.log('\n   Fuel Statistics:');
+    console.log(`\n   Fuel Statistics:`);
     const stats = fuelStats.rows[0];
     console.log(`      • Total Transactions: ${stats.total_transactions}`);
     console.log(`      • Total Gallons: ${stats.total_gallons}`);
@@ -214,7 +214,7 @@ async function verifyData() {
     // ========================================
     // 5. Test Credentials
     // ========================================
-    console.log('\n\n🔐 TEST CREDENTIALS');
+    console.log(`\n\n🔐 TEST CREDENTIALS`);
     console.log('-'.repeat(80));
 
     const testUsers = await client.query(
@@ -225,12 +225,12 @@ async function verifyData() {
        ORDER BY t.name`
     );
 
-    console.log('\n   Login with any of these admin accounts:');
+    console.log(`\n   Login with any of these admin accounts:`);
     for (const user of testUsers.rows) {
       console.log(`      • Email: ${user.email}`);
       console.log(`        Password: TestPassword123!`);
       console.log(`        Tenant: ${user.tenant_name}`);
-      console.log('');
+      console.log(``);
     }
 
     // ========================================

@@ -90,7 +90,7 @@ class AIControlsService {
       const limits = this.RATE_LIMITS[userTier as keyof typeof this.RATE_LIMITS] || this.RATE_LIMITS.free
 
       // Check hourly limit
-      const hourlyCount = await this.getRequestCount(tenantId, userId, 'hour')
+      const hourlyCount = await this.getRequestCount(tenantId, userId, `hour`)
       if (hourlyCount >= limits.hourly) {
         return {
           allowed: false,
@@ -102,7 +102,7 @@ class AIControlsService {
       }
 
       // Check daily limit
-      const dailyCount = await this.getRequestCount(tenantId, userId, 'day')
+      const dailyCount = await this.getRequestCount(tenantId, userId, `day`)
       if (dailyCount >= limits.daily) {
         return {
           allowed: false,
@@ -114,7 +114,7 @@ class AIControlsService {
       }
 
       // Check token limit
-      const tokensToday = await this.getTokenCount(tenantId, userId, 'day')
+      const tokensToday = await this.getTokenCount(tenantId, userId, `day`)
       if (tokensToday >= limits.tokensDaily) {
         return {
           allowed: false,
@@ -132,7 +132,7 @@ class AIControlsService {
         userTier
       }
     } catch (error) {
-      logger.error('Rate limit check failed:', error)
+      logger.error(`Rate limit check failed:`, error)
       // Fail open to avoid blocking legitimate requests
       return {
         allowed: true,
@@ -157,7 +157,7 @@ class AIControlsService {
         `SELECT subscription_tier
          FROM users u
          JOIN tenants t ON u.tenant_id = t.id
-         WHERE u.id = $1 AND t.id = $2',
+         WHERE u.id = $1 AND t.id = $2`,
         [userId, tenantId]
       )
 
@@ -170,7 +170,7 @@ class AIControlsService {
 
       return tier
     } catch (error) {
-      logger.error('Failed to get user tier:', error)
+      logger.error(`Failed to get user tier:`, error)
       return 'free'
     }
   }
@@ -198,7 +198,7 @@ class AIControlsService {
         `SELECT COUNT(*) as count
          FROM ai_requests
          WHERE tenant_id = $1 AND user_id = $2
-           AND created_at > NOW() - INTERVAL '${interval}'',
+           AND created_at > NOW() - INTERVAL `${interval}``,
         [tenantId, userId]
       )
 
@@ -231,13 +231,13 @@ class AIControlsService {
         `SELECT COALESCE(SUM(tokens_used), 0) as total_tokens
          FROM ai_requests
          WHERE tenant_id = $1 AND user_id = $2
-           AND created_at > NOW() - INTERVAL '${interval}'',
+           AND created_at > NOW() - INTERVAL `${interval}``,
         [tenantId, userId]
       )
 
       return parseInt(result.rows[0].total_tokens) || 0
     } catch (error) {
-      logger.error('Failed to get token count:', error)
+      logger.error(`Failed to get token count:`, error)
       return 0
     }
   }
@@ -274,7 +274,7 @@ class AIControlsService {
         [tenantId, userId, requestType, tokensUsed, cost]
       )
     } catch (error) {
-      logger.error('Failed to record usage:', error)
+      logger.error(`Failed to record usage:`, error)
     }
   }
 
@@ -299,7 +299,7 @@ class AIControlsService {
 
       return result.rows[0]?.has_permission || false
     } catch (error) {
-      logger.error('Permission check failed:', error)
+      logger.error(`Permission check failed:`, error)
       return false
     }
   }
@@ -402,7 +402,7 @@ class AIControlsService {
     }
   ): Promise<AuditLogEntry[]> {
     try {
-      let query = 'SELECT * FROM ai_audit_logs WHERE tenant_id = $1'
+      let query = `SELECT * FROM ai_audit_logs WHERE tenant_id = $1`
       const params: any[] = [tenantId]
       let paramCount = 1
 
@@ -430,13 +430,13 @@ class AIControlsService {
         params.push(filters.endDate)
       }
 
-      query += ' ORDER BY created_at DESC LIMIT $' + (paramCount + 1)
+      query += ` ORDER BY created_at DESC LIMIT $` + (paramCount + 1)
       params.push(filters.limit || 100)
 
       const result = await pool.query<AuditLogEntry>(query, params)
       return result.rows
     } catch (error) {
-      logger.error('Failed to get audit logs:', error)
+      logger.error(`Failed to get audit logs:`, error)
       return []
     }
   }
@@ -473,11 +473,11 @@ class AIControlsService {
       const [auditResult, usageResult] = await Promise.all([
         pool.query(
           `DELETE FROM ai_audit_logs
-           WHERE created_at < NOW() - INTERVAL '${daysToKeep} days''
+           WHERE created_at < NOW() - INTERVAL `${daysToKeep} days``
         ),
         pool.query(
           `DELETE FROM ai_usage_logs
-           WHERE created_at < NOW() - INTERVAL '${daysToKeep} days''
+           WHERE created_at < NOW() - INTERVAL `${daysToKeep} days``
         )
       ])
 
@@ -488,7 +488,7 @@ class AIControlsService {
         usageLogs: usageResult.rowCount || 0
       }
     } catch (error) {
-      logger.error('Failed to cleanup old logs:', error)
+      logger.error(`Failed to cleanup old logs:`, error)
       return { auditLogs: 0, usageLogs: 0 }
     }
   }
