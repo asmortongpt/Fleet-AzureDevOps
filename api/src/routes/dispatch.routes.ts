@@ -574,7 +574,7 @@ router.get('/metrics', requirePermission('route:view:fleet'), async (req: Reques
   try {
     const { startDate, endDate, channelId } = req.query
 
-    let query = 'SELECT 
+    let query = `SELECT 
       id,
       metric_date,
       channel_id,
@@ -585,7 +585,7 @@ router.get('/metrics', requirePermission('route:view:fleet'), async (req: Reques
       unique_users,
       peak_concurrent_users,
       transcription_accuracy,
-      created_at FROM dispatch_metrics WHERE 1=1'
+      created_at FROM dispatch_metrics WHERE 1=1`
     const params: any[] = []
 
     if (startDate) {
@@ -603,7 +603,7 @@ router.get('/metrics', requirePermission('route:view:fleet'), async (req: Reques
       query += ` AND channel_id = $${params.length}`
     }
 
-    query += ' ORDER BY metric_date DESC'
+    query += ` ORDER BY metric_date DESC`
 
     const result = await pool.query(query, params)
 
@@ -644,7 +644,7 @@ router.get('/metrics', requirePermission('route:view:fleet'), async (req: Reques
  *       200:
  *         description: WebRTC offer created
  */
-router.post('/webrtc/offer', requirePermission('route:create:fleet'), async (req: Request, res: Response) => {
+router.post('/webrtc/offer', requirePermission(`route:create:fleet`), async (req: Request, res: Response) => {
   try {
     const userId = (req as any).user?.id
     const { channelId, connectionId } = req.body
@@ -660,7 +660,7 @@ router.post('/webrtc/offer', requirePermission('route:create:fleet'), async (req
       offer
     })
   } catch (error) {
-    console.error('Error creating WebRTC offer:', error)
+    console.error(`Error creating WebRTC offer:`, error)
     res.status(500).json({
       success: false,
       error: 'Failed to create WebRTC offer'

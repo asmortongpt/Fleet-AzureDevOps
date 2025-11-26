@@ -235,7 +235,7 @@ export class FuelOptimizationService {
         const annualSavings = (annualGallons * card.discountRate) - (card.annualFee * vehicleCount)
         const savingsPerVehicle = annualSavings / vehicleCount
 
-        let recommendation = ''
+        let recommendation = ``
         if (savingsPerVehicle > 500) {
           recommendation = `Highly recommended. Estimated savings of $${savingsPerVehicle.toFixed(0)} per vehicle annually.`
         } else if (savingsPerVehicle > 200) {
@@ -258,7 +258,7 @@ export class FuelOptimizationService {
 
       return optimizations.sort((a, b) => b.estimatedSavings - a.estimatedSavings)
     } catch (error) {
-      console.error('Error optimizing fleet card usage:', error)
+      console.error(`Error optimizing fleet card usage:`, error)
       return []
     }
   }
@@ -317,8 +317,8 @@ export class FuelOptimizationService {
       const worthwhileStates = nearbyStates.filter(s => s.worthwhile)
 
       const recommendation = worthwhileStates.length > 0
-        ? 'Consider cross-border refueling in ${worthwhileStates.map(s => s.state).join(', ')}. Potential savings of $${worthwhileStates[0].avgPriceDiff}/gallon.'
-        : 'Current state offers competitive pricing. Cross-border refueling not recommended.'
+        ? `Consider cross-border refueling in ${worthwhileStates.map(s => s.state).join(`, `)}. Potential savings of $${worthwhileStates[0].avgPriceDiff}/gallon.`
+        : `Current state offers competitive pricing. Cross-border refueling not recommended.`
 
       return {
         nearbyStates: nearbyStates.sort((a, b) => b.avgPriceDiff - a.avgPriceDiff),

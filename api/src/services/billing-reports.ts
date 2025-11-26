@@ -62,9 +62,9 @@ class BillingReportsService {
    */
   async generateMonthlyReport(tenantId: string, period: string): Promise<MonthlyBillingReport> {
     try {
-      const [year, month] = period.split('-')
+      const [year, month] = period.split(`-`)
       const periodStart = `${year}-${month}-01`
-      const periodEnd = new Date(parseInt(year), parseInt(month), 0).toISOString().split('T')[0]
+      const periodEnd = new Date(parseInt(year), parseInt(month), 0).toISOString().split(`T`)[0]
 
       logger.info('Generating monthly billing report', { tenantId, period })
 
@@ -216,7 +216,7 @@ class BillingReportsService {
         line_items: lineItems
       }
 
-      logger.info('Payroll export generated successfully', {
+      logger.info(`Payroll export generated successfully`, {
         period,
         totalDeductions: payrollExport.total_deductions,
         employeeCount: lineItems.length
@@ -310,8 +310,8 @@ class BillingReportsService {
     ])
 
     const csv = [
-      headers.join(','),
-      ...rows.map(row => row.map(cell => '"${cell}"`).join(','))
+      headers.join(`,`),
+      ...rows.map(row => row.map(cell => `"${cell}"`).join(`,`))
     ].join('\n')
 
     return csv

@@ -542,12 +542,12 @@ const coreRoutes = [
 coreRoutes.forEach(route => {
   app.use(`/api/${route}`, (req, res) => {
     const newPath = `/api/v1/${route}${req.url}`
-    res.setHeader('X-API-Deprecation', 'This endpoint is deprecated. Please use /api/v1/* instead')
-    res.setHeader('Location', newPath)
+    res.setHeader(`X-API-Deprecation`, `This endpoint is deprecated. Please use /api/v1/* instead`)
+    res.setHeader(`Location`, newPath)
     res.status(307).json({
       message: `This endpoint has moved to ${newPath}`,
       redirectTo: newPath,
-      hint: 'Update your API client to use /api/v1/* endpoints'
+      hint: `Update your API client to use /api/v1/* endpoints`
     })
   })
 })
@@ -625,7 +625,7 @@ const server = app.listen(PORT, async () => {
   // Initialize database connection pool management
   try {
     await initializeDatabase({
-      eagerInit: process.env.DB_EAGER_INIT === 'true',
+      eagerInit: process.env.DB_EAGER_INIT === `true`,
       startMonitor: process.env.DB_MONITOR_ENABLED !== 'false'
     })
     console.log(`🗄️  Database connection pool manager initialized`)
@@ -718,7 +718,7 @@ async function gracefulShutdown(signal: string): Promise<void> {
   // Stop pool monitor first
   try {
     poolMonitor.stop()
-    console.log('[Shutdown] Pool monitor stopped')
+    console.log(`[Shutdown] Pool monitor stopped`)
   } catch (error) {
     console.error('[Shutdown] Error stopping pool monitor:', error)
   }

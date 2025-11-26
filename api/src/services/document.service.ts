@@ -99,8 +99,7 @@ export class DocumentService {
 
       if (!accountNameMatch || !accountKeyMatch) {
         console.error('Invalid Azure Storage connection string format')
-        return
-      }
+        return }
 
       this.accountName = accountNameMatch[1]
       this.accountKey = accountKeyMatch[1]
@@ -158,8 +157,8 @@ export class DocumentService {
   private generateDatePath(): string {
     const now = new Date()
     const year = now.getFullYear()
-    const month = String(now.getMonth() + 1).padStart(2, '0')
-    const day = String(now.getDate()).padStart(2, '0')
+    const month = String(now.getMonth() + 1).padStart(2, `0`)
+    const day = String(now.getDate()).padStart(2, `0`)
     return `${year}/${month}/${day}`
   }
 
@@ -167,8 +166,8 @@ export class DocumentService {
    * Generate unique filename
    */
   private generateUniqueFilename(originalFilename: string): string {
-    const extension = originalFilename.substring(originalFilename.lastIndexOf('.'))
-    const hash = crypto.randomBytes(16).toString('hex')
+    const extension = originalFilename.substring(originalFilename.lastIndexOf(`.`))
+    const hash = crypto.randomBytes(16).toString(`hex`)
     return `${hash}${extension}`
   }
 
@@ -264,7 +263,7 @@ export class DocumentService {
 
       return result.rows[0] as DocumentRecord
     } catch (error) {
-      console.error('Error uploading document:', error)
+      console.error(`Error uploading document:`, error)
       throw error
     }
   }
@@ -347,7 +346,7 @@ export class DocumentService {
    */
   async listDocuments(filters: DocumentFilters = {}, tenantId?: number): Promise<DocumentRecord[]> {
     try {
-      let query = 'SELECT 
+      let query = `SELECT 
       id,
       tenant_id,
       vehicle_id,
@@ -369,7 +368,7 @@ export class DocumentService {
       expires_at,
       is_archived,
       created_at,
-      updated_at FROM fleet_documents WHERE 1=1'
+      updated_at FROM fleet_documents WHERE 1=1`
       const params: any[] = []
       let paramIndex = 1
 
@@ -409,7 +408,7 @@ export class DocumentService {
         paramIndex++
       }
 
-      query += ' ORDER BY uploaded_at DESC'
+      query += ` ORDER BY uploaded_at DESC`
 
       const result = await pool.query(query, params)
 
@@ -434,7 +433,7 @@ export class DocumentService {
         tenantId: doc.tenant_id
       }))
     } catch (error) {
-      console.error('Error listing documents:', error)
+      console.error(`Error listing documents:`, error)
       throw error
     }
   }
@@ -456,7 +455,7 @@ export class DocumentService {
       // Delete from Azure Blob Storage
       const url = new URL(doc.storagePath ?
         `https://${this.accountName}.blob.core.windows.net/${this.CONTAINER_NAME}/${doc.storagePath}` :
-        doc.downloadUrl || '')
+        doc.downloadUrl || ``)
       const pathParts = url.pathname.split('/')
       const blobName = pathParts.slice(2).join('/')
 
@@ -467,7 +466,7 @@ export class DocumentService {
       // Delete from database
       const deleteQuery = tenantId
         ? 'DELETE FROM fleet_documents WHERE id = $1 AND tenant_id = $2 RETURNING id'
-        : 'DELETE FROM fleet_documents WHERE id = $1 RETURNING id'
+        : `DELETE FROM fleet_documents WHERE id = $1 RETURNING id`
 
       const deleteParams = tenantId ? [documentId, tenantId] : [documentId]
       const result = await pool.query(deleteQuery, deleteParams)
@@ -475,7 +474,7 @@ export class DocumentService {
       console.log(`✅ Deleted document: ${documentId}`)
       return result.rows.length > 0
     } catch (error) {
-      console.error('Error deleting document:', error)
+      console.error(`Error deleting document:`, error)
       throw error
     }
   }
@@ -546,7 +545,7 @@ export class DocumentService {
       const sasOptions = {
         containerName: this.CONTAINER_NAME,
         blobName,
-        permissions: BlobSASPermissions.parse('r'), // Read-only
+        permissions: BlobSASPermissions.parse(`r`), // Read-only
         startsOn: new Date(),
         expiresOn: new Date(Date.now() + expiryMinutes * 60 * 1000)
       }
@@ -554,7 +553,7 @@ export class DocumentService {
       const sasToken = generateBlobSASQueryParameters(sasOptions, sharedKeyCredential).toString()
       return `${blobUrl}?${sasToken}`
     } catch (error) {
-      console.error('Error generating SAS URL:', error)
+      console.error(`Error generating SAS URL:`, error)
       throw error
     }
   }

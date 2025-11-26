@@ -36,7 +36,7 @@ router.get('/stats',
       const tenantId = req.user!.tenant_id
 
       // Generate cache key specific to this tenant
-      const cacheKey = cache.getCacheKey(tenantId, 'dashboard:stats')
+      const cacheKey = cache.getCacheKey(tenantId, `dashboard:stats`)
 
       // Try to get from cache first
       const cached = await cache.get(cacheKey)
@@ -57,7 +57,7 @@ router.get('/stats',
           SELECT
             -- Vehicle statistics
             COUNT(DISTINCT v.id) as total_vehicles,
-            COUNT(DISTINCT CASE WHEN v.status = 'active' THEN v.id END) as active_vehicles,
+            COUNT(DISTINCT CASE WHEN v.status = `active` THEN v.id END) as active_vehicles,
             COUNT(DISTINCT CASE WHEN v.status = 'maintenance' THEN v.id END) as vehicles_in_maintenance,
             COUNT(DISTINCT CASE WHEN v.status = 'retired' THEN v.id END) as retired_vehicles,
 

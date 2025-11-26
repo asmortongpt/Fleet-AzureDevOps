@@ -104,12 +104,12 @@ export class DocumentPermissionService {
         })
       }
 
-      await client.query('COMMIT')
+      await client.query(`COMMIT`)
 
       console.log(`✅ Permission granted: ${options.permissionType} to user ${options.userId}`)
       return permission
     } catch (error) {
-      await client.query('ROLLBACK')
+      await client.query(`ROLLBACK`)
       console.error('❌ Failed to grant permission:', error)
       throw error
     } finally {
@@ -175,11 +175,11 @@ export class DocumentPermissionService {
         })
       }
 
-      await client.query('COMMIT')
+      await client.query(`COMMIT`)
 
       console.log(`✅ Permission revoked: ${permissionId}`)
     } catch (error) {
-      await client.query('ROLLBACK')
+      await client.query(`ROLLBACK`)
       console.error('❌ Failed to revoke permission:', error)
       throw error
     } finally {
@@ -410,7 +410,7 @@ export class DocumentPermissionService {
 
       return result.rows
     } catch (error) {
-      console.error('❌ Failed to get user permissions:', error)
+      console.error(`❌ Failed to get user permissions:`, error)
       throw error
     }
   }
@@ -428,7 +428,7 @@ export class DocumentPermissionService {
       console.log(`✅ Cleaned up ${result.rowCount} expired permissions`)
       return result.rowCount || 0
     } catch (error) {
-      console.error('❌ Failed to cleanup expired permissions:', error)
+      console.error(`❌ Failed to cleanup expired permissions:`, error)
       throw error
     }
   }
@@ -497,12 +497,12 @@ export class DocumentPermissionService {
         results.push(result)
       }
 
-      await client.query('COMMIT')
+      await client.query(`COMMIT`)
 
       console.log(`✅ Bulk granted ${results.length} permissions`)
       return results
     } catch (error) {
-      await client.query('ROLLBACK')
+      await client.query(`ROLLBACK`)
       console.error('❌ Failed to bulk grant permissions:', error)
       throw error
     } finally {
@@ -543,12 +543,12 @@ export class DocumentPermissionService {
         results.push(newPerm)
       }
 
-      await client.query('COMMIT')
+      await client.query(`COMMIT`)
 
       console.log(`✅ Copied ${results.length} permissions`)
       return results
     } catch (error) {
-      await client.query('ROLLBACK')
+      await client.query(`ROLLBACK`)
       console.error('❌ Failed to copy permissions:', error)
       throw error
     } finally {

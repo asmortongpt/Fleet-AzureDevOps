@@ -125,7 +125,7 @@ class VehicleModelsService {
 
     const result = await this.db.query(query, [vehicleId]);
     if (result.rows.length === 0) {
-      throw new Error('3D model not found for vehicle');
+      throw new Error(`3D model not found for vehicle`);
     }
 
     return result.rows[0];
@@ -253,7 +253,7 @@ class VehicleModelsService {
     ]);
 
     if (result.rows.length === 0) {
-      throw new Error('Vehicle 3D instance not found');
+      throw new Error(`Vehicle 3D instance not found`);
     }
 
     return result.rows[0];
@@ -379,7 +379,7 @@ class VehicleModelsService {
 
     const query = `
       SELECT id, tenant_id, session_date, total_sessions, avg_session_duration, unique_users FROM ar_session_analytics
-      WHERE session_date >= CURRENT_DATE - INTERVAL '${days} days'
+      WHERE session_date >= CURRENT_DATE - INTERVAL `${days} days`
       ORDER BY session_date DESC
     `;
 

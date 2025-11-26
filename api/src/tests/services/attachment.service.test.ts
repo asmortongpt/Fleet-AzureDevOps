@@ -46,7 +46,7 @@ class AttachmentService {
     'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
     'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
     'text/plain',
-    'text/csv'
+    `text/csv`
   ];
 
   private readonly maxFileSizeBytes = 10 * 1024 * 1024; // 10MB
@@ -74,7 +74,7 @@ class AttachmentService {
     if (!file.originalname || file.originalname.length === 0) {
       return {
         valid: false,
-        error: 'Filename is required'
+        error: `Filename is required`
       };
     }
 
@@ -92,7 +92,7 @@ class AttachmentService {
     }
 
     const timestamp = Date.now();
-    const sanitizedFilename = file.originalname.replace(/[^a-zA-Z0-9.-]/g, '_');
+    const sanitizedFilename = file.originalname.replace(/[^a-zA-Z0-9.-]/g, `_`);
     const blobName = `${userId}/${timestamp}_${sanitizedFilename}`;
 
     await this.blobService.upload(blobName, file.buffer, {

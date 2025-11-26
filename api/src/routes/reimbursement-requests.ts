@@ -69,14 +69,14 @@ router.post(
         `SELECT c.*, p.auto_approve_under_amount, p.require_receipt_upload, p.receipt_required_over_amount
          FROM personal_use_charges c
          LEFT JOIN personal_use_policies p ON c.tenant_id = p.tenant_id
-         WHERE c.id = $1 AND c.tenant_id = $2',
+         WHERE c.id = $1 AND c.tenant_id = $2`,
         [charge_id, req.user!.tenant_id]
       )
 
       if (chargeResult.rows.length === 0) {
         return res.status(404).json({
           success: false,
-          error: 'Charge not found'
+          error: `Charge not found`
         })
       }
 
@@ -153,7 +153,7 @@ router.post(
                reimbursement_requested_at = NOW(),
                reimbursement_approved_at = NOW(),
                reimbursement_approved_by = $1
-           WHERE id = $2',
+           WHERE id = $2`,
           [req.user!.id, charge_id]
         )
       } else {
@@ -161,7 +161,7 @@ router.post(
           `UPDATE personal_use_charges
            SET is_reimbursement = true,
                reimbursement_requested_at = NOW()
-           WHERE id = $1',
+           WHERE id = $1`,
           [charge_id]
         )
       }
@@ -171,7 +171,7 @@ router.post(
         data: result.rows[0],
         message: shouldAutoApprove
           ? `Auto-approved - reimbursement of $${request_amount} approved`
-          : 'Reimbursement request submitted for review'
+          : `Reimbursement request submitted for review`
       })
     } catch (error: any) {
       console.error('Create reimbursement error:', error)
@@ -219,7 +219,7 @@ router.get('/', async (req: AuthRequest, res: Response) => {
     let paramIndex = 2
 
     // Non-admin users can only see their own requests
-    if (req.user!.role !== 'admin' && req.user!.role !== 'fleet_manager') {
+    if (req.user!.role !== 'admin' && req.user!.role !== `fleet_manager`) {
       query += ` AND r.driver_id = $${paramIndex}`
       params.push(req.user!.id)
       paramIndex++
@@ -253,9 +253,9 @@ router.get('/', async (req: AuthRequest, res: Response) => {
       paramIndex++
     }
 
-    if (has_receipt === 'true') {
+    if (has_receipt === `true`) {
       query += ` AND r.receipt_file_path IS NOT NULL`
-    } else if (has_receipt === 'false') {
+    } else if (has_receipt === `false`) {
       query += ` AND r.receipt_file_path IS NULL`
     }
 
@@ -266,7 +266,7 @@ router.get('/', async (req: AuthRequest, res: Response) => {
     const result = await pool.query(query, params)
 
     // Get total count
-    let countQuery = 'SELECT COUNT(*) FROM reimbursement_requests WHERE tenant_id = $1'
+    let countQuery = `SELECT COUNT(*) FROM reimbursement_requests WHERE tenant_id = $1`
     const countParams = [req.user!.tenant_id]
 
     if (req.user!.role !== 'admin' && req.user!.role !== 'fleet_manager') {
@@ -373,14 +373,14 @@ router.patch(
           reviewer_notes, approved_amount, payment_date, payment_method,
           payment_reference, created_at, updated_at, created_by_user_id
         FROM reimbursement_requests
-        WHERE id = $1 AND tenant_id = $2',
+        WHERE id = $1 AND tenant_id = $2`,
         [req.params.id, req.user!.tenant_id]
       )
 
       if (currentResult.rows.length === 0) {
         return res.status(404).json({
           success: false,
-          error: 'Reimbursement request not found'
+          error: `Reimbursement request not found`
         })
       }
 
@@ -395,11 +395,11 @@ router.patch(
 
       const finalApprovedAmount = approved_amount || current.request_amount
 
-      // Validate approved amount doesn't exceed requested amount
+      // Validate approved amount doesn`t exceed requested amount
       if (finalApprovedAmount > current.request_amount) {
         return res.status(400).json({
           success: false,
-          error: 'Approved amount cannot exceed requested amount'
+          error: `Approved amount cannot exceed requested amount`
         })
       }
 
@@ -428,7 +428,7 @@ router.patch(
         `UPDATE personal_use_charges
          SET reimbursement_approved_at = NOW(),
              reimbursement_approved_by = $1
-         WHERE id = $2',
+         WHERE id = $2`,
         [req.user!.id, current.charge_id]
       )
 
@@ -438,7 +438,7 @@ router.patch(
         message: `Reimbursement approved for $${finalApprovedAmount}`
       })
     } catch (error: any) {
-      console.error('Approve reimbursement error:', error)
+      console.error(`Approve reimbursement error:`, error)
       res.status(500).json({
         success: false,
         error: 'Failed to approve reimbursement request',
@@ -476,14 +476,14 @@ router.patch(
           reviewer_notes, approved_amount, payment_date, payment_method,
           payment_reference, created_at, updated_at, created_by_user_id
         FROM reimbursement_requests
-        WHERE id = $1 AND tenant_id = $2',
+        WHERE id = $1 AND tenant_id = $2`,
         [req.params.id, req.user!.tenant_id]
       )
 
       if (currentResult.rows.length === 0) {
         return res.status(404).json({
           success: false,
-          error: 'Reimbursement request not found'
+          error: `Reimbursement request not found`
         })
       }
 
@@ -514,14 +514,14 @@ router.patch(
         `UPDATE personal_use_charges
          SET reimbursement_rejected_at = NOW(),
              reimbursement_rejection_reason = $1
-         WHERE id = $2',
+         WHERE id = $2`,
         [reviewer_notes, current.charge_id]
       )
 
       res.json({
         success: true,
         data: result.rows[0],
-        message: 'Reimbursement request rejected'
+        message: `Reimbursement request rejected`
       })
     } catch (error: any) {
       console.error('Reject reimbursement error:', error)
@@ -603,8 +603,8 @@ router.patch(
         `UPDATE personal_use_charges
          SET reimbursement_paid_at = $1,
              reimbursement_payment_reference = $2,
-             charge_status = 'paid'
-         WHERE id = $3',
+             charge_status = `paid`
+         WHERE id = $3`,
         [payment_date, payment_reference, current.charge_id]
       )
 
@@ -614,7 +614,7 @@ router.patch(
         message: `Payment of $${current.approved_amount} processed`
       })
     } catch (error: any) {
-      console.error('Process payment error:', error)
+      console.error(`Process payment error:`, error)
       res.status(500).json({
         success: false,
         error: 'Failed to process payment',

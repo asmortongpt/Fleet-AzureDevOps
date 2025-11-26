@@ -171,14 +171,14 @@ export class OcrQueueService {
 
       // Update with queue job ID
       await pool.query(
-        'UPDATE ocr_jobs SET queue_job_id = $1 WHERE id = $2',
+        `UPDATE ocr_jobs SET queue_job_id = $1 WHERE id = $2`,
         [queueJobId, jobId]
       );
 
       console.log(`✅ OCR job enqueued: ${jobId} (queue: ${queueJobId})`);
       return jobId;
     } catch (error) {
-      console.error('❌ Failed to enqueue OCR job:', error);
+      console.error(`❌ Failed to enqueue OCR job:`, error);
       throw error;
     }
   }
@@ -199,7 +199,7 @@ export class OcrQueueService {
           tenant_id, user_id, total_documents, completed_documents,
           failed_documents, status, options
         ) VALUES ($1, $2, $3, $4, $5, $6, $7)
-        RETURNING id',
+        RETURNING id`,
         [
           tenantId,
           userId,
@@ -223,7 +223,7 @@ export class OcrQueueService {
           filePath: doc.filePath,
           fileName: doc.fileName,
           fileSize: 0, // Will be determined during processing
-          mimeType: '',
+          mimeType: ``,
           options,
           priority: JobPriority.LOW,
           metadata: { batchId }
@@ -240,7 +240,7 @@ export class OcrQueueService {
       console.log(`✅ Batch OCR job enqueued: ${batchId} (${documents.length} documents)`);
       return batchId;
     } catch (error) {
-      console.error('❌ Failed to enqueue batch OCR job:', error);
+      console.error(`❌ Failed to enqueue batch OCR job:`, error);
       throw error;
     }
   }
@@ -269,8 +269,8 @@ export class OcrQueueService {
       // Update document status
       await pool.query(
         `UPDATE documents
-         SET ocr_status = 'completed', ocr_completed_at = NOW(), extracted_text = $1
-         WHERE id = $2',
+         SET ocr_status = `completed`, ocr_completed_at = NOW(), extracted_text = $1
+         WHERE id = $2`,
         [result.fullText, documentId]
       );
 
@@ -293,7 +293,7 @@ export class OcrQueueService {
 
       // Update document status
       await pool.query(
-        'UPDATE documents SET ocr_status = 'failed' WHERE id = $1',
+        `UPDATE documents SET ocr_status = `failed` WHERE id = $1`,
         [documentId]
       );
 
@@ -328,7 +328,7 @@ export class OcrQueueService {
       );
 
       batchResults.forEach((result, idx) => {
-        if (result.status === 'fulfilled') {
+        if (result.status === `fulfilled`) {
           results.completed++;
           results.results.push({
             documentId: batch[idx].documentId,
@@ -349,14 +349,14 @@ export class OcrQueueService {
       await pool.query(
         `UPDATE ocr_batch_jobs
          SET completed_documents = $1, failed_documents = $2, updated_at = NOW()
-         WHERE id = $3',
+         WHERE id = $3`,
         [results.completed, results.failed, batchId]
       );
     }
 
     // Mark batch as completed
     await pool.query(
-      'UPDATE ocr_batch_jobs SET status = $1, updated_at = NOW() WHERE id = $2',
+      `UPDATE ocr_batch_jobs SET status = $1, updated_at = NOW() WHERE id = $2`,
       [OcrJobStatus.COMPLETED, batchId]
     );
 
@@ -376,7 +376,7 @@ export class OcrQueueService {
     error?: string
   ): Promise<void> {
     try {
-      const updates: string[] = ['status = $2', 'progress = $3', 'updated_at = NOW()'];
+      const updates: string[] = [`status = $2', 'progress = $3', `updated_at = NOW()`];
       const values: any[] = [jobId, status, progress];
       let paramCount = 3;
 
@@ -402,7 +402,7 @@ export class OcrQueueService {
       }
 
       await pool.query(
-        'UPDATE ocr_jobs SET ${updates.join(', ')} WHERE id = $1',
+        `UPDATE ocr_jobs SET ${updates.join(', ')} WHERE id = $1',
         values
       );
     } catch (error) {
@@ -447,7 +447,7 @@ export class OcrQueueService {
       // Check if batch is complete
       const batchResult = await pool.query(
         `SELECT total_documents, completed_documents, failed_documents
-         FROM ocr_batch_jobs WHERE id = $1',
+         FROM ocr_batch_jobs WHERE id = $1`,
         [batchId]
       );
 
@@ -458,14 +458,14 @@ export class OcrQueueService {
         if (totalProcessed >= batch.total_documents) {
           // Batch is complete
           await pool.query(
-            'UPDATE ocr_batch_jobs SET status = $1, updated_at = NOW() WHERE id = $2',
+            `UPDATE ocr_batch_jobs SET status = $1, updated_at = NOW() WHERE id = $2`,
             [OcrJobStatus.COMPLETED, batchId]
           );
           console.log(`✅ Batch ${batchId} completed`);
         }
       }
     } catch (error) {
-      console.error('Error updating batch progress:', error);
+      console.error(`Error updating batch progress:`, error);
     }
   }
 
@@ -525,7 +525,7 @@ export class OcrQueueService {
       REFERENCES,
       ON,
       REFERENCES,
-      ON FROM ocr_batch_jobs WHERE id = $1',
+      ON FROM ocr_batch_jobs WHERE id = $1`,
         [batchId]
       );
 
@@ -548,7 +548,7 @@ export class OcrQueueService {
         updatedAt: batch.updated_at
       };
     } catch (error) {
-      console.error('Error getting batch status:', error);
+      console.error(`Error getting batch status:`, error);
       throw error;
     }
   }
@@ -567,7 +567,7 @@ export class OcrQueueService {
 
       console.log(`⏹️ OCR job ${jobId} cancelled`);
     } catch (error) {
-      console.error('Error cancelling job:', error);
+      console.error(`Error cancelling job:`, error);
       throw error;
     }
   }
@@ -607,12 +607,12 @@ export class OcrQueueService {
       REFERENCES,
       ON,
       REFERENCES,
-      ON FROM ocr_jobs WHERE id = $1',
+      ON FROM ocr_jobs WHERE id = $1`,
         [jobId]
       );
 
       if (jobResult.rows.length === 0) {
-        throw new Error('Job not found');
+        throw new Error(`Job not found`);
       }
 
       const job = jobResult.rows[0];
@@ -633,7 +633,7 @@ export class OcrQueueService {
       console.log(`🔄 Retrying OCR job ${jobId} as ${newJobId}`);
       return newJobId;
     } catch (error) {
-      console.error('Error retrying job:', error);
+      console.error(`Error retrying job:`, error);
       throw error;
     }
   }
@@ -666,7 +666,7 @@ export class OcrQueueService {
       const result = await pool.query(
         `SELECT id FROM ocr_jobs
          WHERE status IN ($1, $2)
-         AND created_at > NOW() - INTERVAL '24 hours'
+         AND created_at > NOW() - INTERVAL `24 hours`
          ORDER BY priority ASC, created_at ASC
          LIMIT 100`,
         [OcrJobStatus.PENDING, OcrJobStatus.PROCESSING]
@@ -678,7 +678,7 @@ export class OcrQueueService {
         for (const job of result.rows) {
           // Reset status to pending
           await pool.query(
-            'UPDATE ocr_jobs SET status = $1, progress = 0 WHERE id = $2',
+            `UPDATE ocr_jobs SET status = $1, progress = 0 WHERE id = $2`,
             [OcrJobStatus.PENDING, job.id]
           );
         }
@@ -699,14 +699,14 @@ export class OcrQueueService {
       const result = await pool.query(
         `DELETE FROM ocr_jobs
          WHERE status IN ($1, $2)
-         AND completed_at < NOW() - ($3 || ' days')::INTERVAL',
+         AND completed_at < NOW() - ($3 || ' days')::INTERVAL`,
         [OcrJobStatus.COMPLETED, OcrJobStatus.FAILED, daysOldNum]
       );
 
       console.log(`Cleaned up ${result.rowCount} old OCR jobs`);
       return result.rowCount || 0;
     } catch (error) {
-      console.error('Error cleaning up old jobs:', error);
+      console.error(`Error cleaning up old jobs:`, error);
       throw error;
     }
   }

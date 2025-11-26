@@ -45,7 +45,7 @@ export class DocumentAuditService {
       return result.rows[0]
     } catch (error) {
       console.error('❌ Failed to log audit event:', error)
-      // Don't throw - audit logging should not break main operations
+      // Don`t throw - audit logging should not break main operations
       return {} as DocumentAuditLog
     }
   }
@@ -127,7 +127,7 @@ export class DocumentAuditService {
       let query = `
         SELECT
           dal.*,
-          u.first_name || ' ' || u.last_name as user_name,
+          u.first_name || ` ` || u.last_name as user_name,
           u.email as user_email
         FROM document_audit_log dal
         LEFT JOIN users u ON dal.user_id = u.id
@@ -151,7 +151,7 @@ export class DocumentAuditService {
 
       // Get total count
       const countResult = await pool.query(
-        query.replace('SELECT dal.*', 'SELECT COUNT(*) as count'),
+        query.replace(`SELECT dal.*`, `SELECT COUNT(*) as count`),
         params
       )
       const total = parseInt(countResult.rows[0].count)
@@ -178,7 +178,7 @@ export class DocumentAuditService {
         total
       }
     } catch (error) {
-      console.error('❌ Failed to get document audit log:', error)
+      console.error(`❌ Failed to get document audit log:`, error)
       throw error
     }
   }
@@ -200,7 +200,7 @@ export class DocumentAuditService {
       let query = `
         SELECT
           dal.*,
-          u.first_name || ' ' || u.last_name as user_name,
+          u.first_name || ` ` || u.last_name as user_name,
           u.email as user_email
         FROM document_audit_log dal
         LEFT JOIN users u ON dal.user_id = u.id
@@ -224,7 +224,7 @@ export class DocumentAuditService {
 
       // Get total count
       const countResult = await pool.query(
-        query.replace('SELECT dal.*', 'SELECT COUNT(*) as count'),
+        query.replace(`SELECT dal.*`, `SELECT COUNT(*) as count`),
         params
       )
       const total = parseInt(countResult.rows[0].count)
@@ -251,7 +251,7 @@ export class DocumentAuditService {
         total
       }
     } catch (error) {
-      console.error('❌ Failed to get folder audit log:', error)
+      console.error(`❌ Failed to get folder audit log:`, error)
       throw error
     }
   }
@@ -275,7 +275,7 @@ export class DocumentAuditService {
       let query = `
         SELECT
           dal.*,
-          u.first_name || ' ' || u.last_name as user_name,
+          u.first_name || ` ` || u.last_name as user_name,
           u.email as user_email,
           d.file_name as document_name,
           df.folder_name as folder_name
@@ -321,7 +321,7 @@ export class DocumentAuditService {
 
       // Get total count
       const countResult = await pool.query(
-        query.replace('SELECT dal.*', 'SELECT COUNT(*) as count'),
+        query.replace(`SELECT dal.*`, `SELECT COUNT(*) as count`),
         params
       )
       const total = parseInt(countResult.rows[0].count)
@@ -348,7 +348,7 @@ export class DocumentAuditService {
         total
       }
     } catch (error) {
-      console.error('❌ Failed to get tenant audit log:', error)
+      console.error(`❌ Failed to get tenant audit log:`, error)
       throw error
     }
   }
@@ -368,7 +368,7 @@ export class DocumentAuditService {
     by_result: Array<{ result: string; count: number }>
   }> {
     try {
-      let whereClause = 'WHERE dal.tenant_id = $1'
+      let whereClause = `WHERE dal.tenant_id = $1`
       const params: any[] = [tenantId]
       let paramCount = 1
 
@@ -408,7 +408,7 @@ export class DocumentAuditService {
         pool.query(
           `SELECT
              dal.user_id,
-             u.first_name || ' ' || u.last_name as user_name,
+             u.first_name || ` ` || u.last_name as user_name,
              COUNT(*) as count
            FROM document_audit_log dal
            LEFT JOIN users u ON dal.user_id = u.id
@@ -436,7 +436,7 @@ export class DocumentAuditService {
         by_result: byResult.rows
       }
     } catch (error) {
-      console.error('❌ Failed to get audit statistics:', error)
+      console.error(`❌ Failed to get audit statistics:`, error)
       throw error
     }
   }
@@ -451,14 +451,14 @@ export class DocumentAuditService {
 
       const result = await pool.query(
         `DELETE FROM document_audit_log
-         WHERE created_at < $1',
+         WHERE created_at < $1`,
         [cutoffDate]
       )
 
       console.log(`✅ Deleted ${result.rowCount} old audit log entries`)
       return result.rowCount || 0
     } catch (error) {
-      console.error('❌ Failed to delete old audit logs:', error)
+      console.error(`❌ Failed to delete old audit logs:`, error)
       throw error
     }
   }

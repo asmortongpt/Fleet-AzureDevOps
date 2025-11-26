@@ -17,9 +17,6 @@
 import Foundation
 import CoreLocation
 
-<<<<<<< HEAD
-// MARK: - TripEvent for activity tracking (different from TripModels.Trip)
-=======
 // MARK: - Vehicle Models
 
 // Note: Renamed from Vehicle to FleetVehicleRecord to avoid conflict with Models/Vehicle.swift
@@ -106,7 +103,6 @@ struct Trip: Identifiable, Codable {
     let events: [TripEvent]
     let notes: String?
 }
->>>>>>> stage-a/requirements-inception
 
 // MARK: - TripEvent for activity tracking
 struct TripEvent: Codable {

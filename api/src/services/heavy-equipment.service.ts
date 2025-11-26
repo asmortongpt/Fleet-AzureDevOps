@@ -110,7 +110,7 @@ class HeavyEquipmentService {
         a.condition,
         a.location,
         a.assigned_to,
-        u.first_name || ' ' || u.last_name as assigned_to_name
+        u.first_name || ` ` || u.last_name as assigned_to_name
       FROM heavy_equipment he
       JOIN assets a ON he.asset_id = a.id
       LEFT JOIN users u ON a.assigned_to = u.id
@@ -159,7 +159,7 @@ class HeavyEquipmentService {
         a.purchase_date,
         a.purchase_price,
         a.assigned_to,
-        u.first_name || ' ' || u.last_name as assigned_to_name
+        u.first_name || ` ` || u.last_name as assigned_to_name
       FROM heavy_equipment he
       JOIN assets a ON he.asset_id = a.id
       LEFT JOIN users u ON a.assigned_to = u.id
@@ -221,7 +221,7 @@ class HeavyEquipmentService {
     let paramCount = 1
 
     Object.keys(updates).forEach(key => {
-      if (updates[key as keyof HeavyEquipment] !== undefined && key !== 'id' && key !== 'tenant_id') {
+      if (updates[key as keyof HeavyEquipment] !== undefined && key !== `id` && key !== `tenant_id`) {
         setClauses.push(`${key} = $${paramCount}`)
         values.push(updates[key as keyof HeavyEquipment])
         paramCount++
@@ -229,7 +229,7 @@ class HeavyEquipmentService {
     })
 
     if (setClauses.length === 0) {
-      throw new Error('No fields to update')
+      throw new Error(`No fields to update`)
     }
 
     setClauses.push(`updated_at = NOW()`)
@@ -248,7 +248,7 @@ class HeavyEquipmentService {
     )
 
     if (result.rows.length === 0) {
-      throw new Error('Equipment not found')
+      throw new Error(`Equipment not found`)
     }
 
     return result.rows[0]
@@ -308,7 +308,7 @@ class HeavyEquipmentService {
         CASE
           WHEN eoc.expiry_date < CURRENT_DATE THEN 'expired'
           WHEN eoc.expiry_date < CURRENT_DATE + INTERVAL '30 days' THEN 'expiring_soon'
-          ELSE 'valid'
+          ELSE `valid`
         END as expiration_status
       FROM equipment_operator_certifications eoc
       JOIN drivers d ON eoc.driver_id = d.id
@@ -337,7 +337,7 @@ class HeavyEquipmentService {
     }
 
     if (filters?.expiring_soon) {
-      query += ' AND eoc.expiry_date < CURRENT_DATE + INTERVAL '60 days' AND eoc.expiry_date >= CURRENT_DATE'
+      query += ` AND eoc.expiry_date < CURRENT_DATE + INTERVAL `60 days' AND eoc.expiry_date >= CURRENT_DATE'
     }
 
     query += ` ORDER BY eoc.expiry_date ASC`

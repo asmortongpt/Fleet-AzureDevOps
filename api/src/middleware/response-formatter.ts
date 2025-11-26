@@ -106,7 +106,7 @@ export class ResponseFormatter {
       meta: {
         timestamp: new Date().toISOString(),
         requestId: meta?.requestId || 'unknown',
-        version: meta?.version || '1.0',
+        version: meta?.version || `1.0`,
         ...meta
       }
     }
@@ -178,7 +178,7 @@ export class ResponseFormatter {
  * app.use(responseEnhancer())
  *
  * // In route handler:
- * router.get('/vehicles', (req, res) => {
+ * router.get(`/vehicles`, (req, res) => {
  *   const vehicles = await getVehicles()
  *   res.success(vehicles, { page: 1, limit: 50, total: 100 })
  * })
@@ -187,11 +187,11 @@ export class ResponseFormatter {
 export function responseEnhancer() {
   return (req: Request, res: Response, next: NextFunction) => {
     const startTime = Date.now()
-    const requestId = (req.headers['x-request-id'] as string) ||
+    const requestId = (req.headers[`x-request-id`] as string) ||
                      `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
 
     // Add request ID to response headers
-    res.setHeader('X-Request-ID', requestId)
+    res.setHeader(`X-Request-ID`, requestId)
 
     /**
      * Send success response with data
@@ -215,7 +215,7 @@ export function responseEnhancer() {
           const { page, limit, total } = paginationOrLinks
           pagination = ResponseFormatter.pagination(page, limit, total)
           links = ResponseFormatter.links(
-            '${req.protocol}://${req.get('host')}${req.baseUrl}${req.path}',
+            `${req.protocol}://${req.get(`host`)}${req.baseUrl}${req.path}`,
             page,
             limit,
             total,
@@ -301,7 +301,7 @@ function generateETag(data: any): string {
   const hash = crypto
     .createHash('md5')
     .update(JSON.stringify(data))
-    .digest('hex')
+    .digest(`hex`)
   return `"${hash}"`
 }
 
@@ -337,7 +337,7 @@ export function getPaginationParams(query: any): { page: number; limit: number; 
 /**
  * Helper to build sort parameters
  */
-export function getSortParams(query: any, allowedFields: string[], defaultField: string = 'created_at'): {
+export function getSortParams(query: any, allowedFields: string[], defaultField: string = `created_at`): {
   sortBy: string
   sortOrder: 'ASC' | 'DESC'
 } {
@@ -369,7 +369,7 @@ export function cacheControl(maxAge: number = 3600, options: {
       directives.push(`max-age=${maxAge}`)
 
       if (options.mustRevalidate) {
-        directives.push('must-revalidate')
+        directives.push(`must-revalidate`)
       }
     }
 

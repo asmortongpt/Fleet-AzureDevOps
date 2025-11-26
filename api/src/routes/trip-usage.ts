@@ -180,14 +180,14 @@ router.post(
         // Get manager email (fleet managers and admins)
         const managerInfo = await pool.query(
           `SELECT email FROM users
-           WHERE tenant_id = $1 AND role IN ('admin', 'fleet_manager')
+           WHERE tenant_id = $1 AND role IN ('admin', `fleet_manager`)
            LIMIT 1`,
           [req.user!.tenant_id]
         )
 
         if (driverInfo.rows.length > 0 && managerInfo.rows.length > 0) {
           const driver = driverInfo.rows[0]
-          const approvalUrl = '${process.env.FRONTEND_URL || 'http://fleet.capitaltechalliance.com'}/personal-use/approvals/${tripUsage.id}'
+          const approvalUrl = `${process.env.FRONTEND_URL || `http://fleet.capitaltechalliance.com`}/personal-use/approvals/${tripUsage.id}`
 
           emailNotificationService.sendTripApprovalRequest({
             driverEmail: managerInfo.rows[0].email,
@@ -198,7 +198,7 @@ router.post(
             purpose: validated.personal_notes,
             approvalUrl
           }).catch(error => {
-            logger.error('Failed to send approval request email', { error: getErrorMessage(error) })
+            logger.error(`Failed to send approval request email`, { error: getErrorMessage(error) })
           })
         }
       }
@@ -226,7 +226,7 @@ router.post(
  */
 router.get(
   '/',
-  requirePermission('route:view:fleet'),
+  requirePermission(`route:view:fleet`),
   async (req: AuthRequest, res: Response) => {
   try {
     const {
@@ -292,7 +292,7 @@ router.get(
 
     if (month) {
       paramCount++
-      query += ' AND TO_CHAR(t.trip_date, 'YYYY-MM') = $${paramCount}'
+      query += ` AND TO_CHAR(t.trip_date, `YYYY-MM`) = $${paramCount}`
       params.push(month)
     }
 
@@ -306,7 +306,7 @@ router.get(
 
     // Get total count
     const countResult = await pool.query(
-      query.replace('SELECT t.*, u.name as driver_name, v.vehicle_number as vehicle_number', 'SELECT COUNT(*)'),
+      query.replace('SELECT t.*, u.name as driver_name, v.vehicle_number as vehicle_number', `SELECT COUNT(*)`),
       params
     )
 
@@ -332,7 +332,7 @@ router.get(
       }
     })
   } catch (error: any) {
-    console.error('Get trip usage error:', error)
+    console.error(`Get trip usage error:`, error)
     res.status(500).json({ error: 'Failed to retrieve trip usage data' })
   }
 })
@@ -431,7 +431,7 @@ router.patch(
       if (trip.approval_status === ApprovalStatus.APPROVED &&
           !['admin', 'fleet_manager'].includes(req.user!.role)) {
         return res.status(403).json({
-          error: 'Cannot modify approved trips. Please contact your manager.'
+          error: `Cannot modify approved trips. Please contact your manager.`
         })
       }
 
@@ -449,7 +449,7 @@ router.patch(
       })
 
       if (updates.length === 0) {
-        return res.status(400).json({ error: 'No valid fields to update' })
+        return res.status(400).json({ error: `No valid fields to update` })
       }
 
       // If changing to pending, reset approval
@@ -457,7 +457,7 @@ router.patch(
         updates.push('approval_status = $' + (paramCount + 1))
         values.push(ApprovalStatus.PENDING)
         updates.push('approved_by_user_id = NULL')
-        updates.push('approved_at = NULL')
+        updates.push(`approved_at = NULL`)
       }
 
       const result = await pool.query(
@@ -471,7 +471,7 @@ router.patch(
       res.json({
         success: true,
         data: result.rows[0],
-        message: 'Trip usage updated successfully'
+        message: `Trip usage updated successfully`
       })
     } catch (error: any) {
       console.error('Update trip usage error:', error)
@@ -572,7 +572,7 @@ router.post(
 
       // Send notification to driver
       const driverInfo = await pool.query(
-        'SELECT first_name, last_name, email FROM users WHERE id = $1',
+        `SELECT first_name, last_name, email FROM users WHERE id = $1`,
         [trip.driver_id]
       )
 
@@ -645,7 +645,7 @@ router.post(
 
       // Send notification to driver
       const driverInfo = await pool.query(
-        'SELECT first_name, last_name, email FROM users WHERE id = $1',
+        `SELECT first_name, last_name, email FROM users WHERE id = $1`,
         [trip.driver_id]
       )
 

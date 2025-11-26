@@ -24,7 +24,7 @@ export class LocalStorageAdapter extends StorageAdapter {
 
   constructor(config: LocalStorageConfig) {
     super(config)
-    this.basePath = config.basePath || '/var/fleet/documents'
+    this.basePath = config.basePath || `/var/fleet/documents`
     this.maxFileSize = config.maxFileSize || 100 * 1024 * 1024 // 100MB
     this.publicUrlBase = config.publicUrlBase
   }
@@ -34,7 +34,7 @@ export class LocalStorageAdapter extends StorageAdapter {
       await fs.mkdir(this.basePath, { recursive: true })
       console.log(`✅ Local storage initialized at: ${this.basePath}`)
     } catch (error) {
-      console.error('❌ Failed to initialize local storage:', error)
+      console.error(`❌ Failed to initialize local storage:`, error)
       throw new Error(`Failed to initialize local storage: ${error}`)
     }
   }
@@ -78,7 +78,7 @@ export class LocalStorageAdapter extends StorageAdapter {
       console.log(`✅ File uploaded to local storage: ${filePath}`)
       return filePath
     } catch (error) {
-      console.error('❌ Failed to upload file:', error)
+      console.error(`❌ Failed to upload file:`, error)
       throw new Error(`Failed to upload file: ${error}`)
     }
   }
@@ -95,7 +95,7 @@ export class LocalStorageAdapter extends StorageAdapter {
       console.log(`✅ File downloaded from local storage: ${filePath}`)
       return buffer
     } catch (error) {
-      console.error('❌ Failed to download file:', error)
+      console.error(`❌ Failed to download file:`, error)
       throw new Error(`Failed to download file: ${error}`)
     }
   }
@@ -118,7 +118,7 @@ export class LocalStorageAdapter extends StorageAdapter {
         console.log(`✅ File deleted from local storage: ${filePath}`)
       }
     } catch (error) {
-      console.error('❌ Failed to delete file:', error)
+      console.error(`❌ Failed to delete file:`, error)
       throw new Error(`Failed to delete file: ${error}`)
     }
   }
@@ -147,10 +147,10 @@ export class LocalStorageAdapter extends StorageAdapter {
       let customMetadata: Record<string, any> = {}
       const metadataPath = `${fullPath}.meta.json`
       try {
-        const metadataContent = await fs.readFile(metadataPath, 'utf-8')
+        const metadataContent = await fs.readFile(metadataPath, `utf-8`)
         customMetadata = JSON.parse(metadataContent)
       } catch (error) {
-        // Metadata file doesn't exist
+        // Metadata file doesn`t exist
       }
 
       return {
@@ -159,7 +159,7 @@ export class LocalStorageAdapter extends StorageAdapter {
         ...customMetadata
       }
     } catch (error) {
-      console.error('❌ Failed to get metadata:', error)
+      console.error(`❌ Failed to get metadata:`, error)
       throw new Error(`Failed to get metadata: ${error}`)
     }
   }
@@ -191,7 +191,7 @@ export class LocalStorageAdapter extends StorageAdapter {
       console.log(`✅ File copied: ${sourcePath} -> ${destPath}`)
       return destPath
     } catch (error) {
-      console.error('❌ Failed to copy file:', error)
+      console.error(`❌ Failed to copy file:`, error)
       throw new Error(`Failed to copy file: ${error}`)
     }
   }
@@ -223,7 +223,7 @@ export class LocalStorageAdapter extends StorageAdapter {
       console.log(`✅ File moved: ${sourcePath} -> ${destPath}`)
       return destPath
     } catch (error) {
-      console.error('❌ Failed to move file:', error)
+      console.error(`❌ Failed to move file:`, error)
       throw new Error(`Failed to move file: ${error}`)
     }
   }
@@ -239,7 +239,7 @@ export class LocalStorageAdapter extends StorageAdapter {
       const entries = await fs.readdir(fullPath, { withFileTypes: true })
 
       for (const entry of entries) {
-        if (entry.isFile() && !entry.name.endsWith('.meta.json')) {
+        if (entry.isFile() && !entry.name.endsWith(`.meta.json`)) {
           if (prefix && !entry.name.startsWith(prefix)) {
             continue
           }
@@ -258,7 +258,7 @@ export class LocalStorageAdapter extends StorageAdapter {
 
       return files
     } catch (error) {
-      console.error('❌ Failed to list files:', error)
+      console.error(`❌ Failed to list files:`, error)
       return []
     }
   }
@@ -269,9 +269,9 @@ export class LocalStorageAdapter extends StorageAdapter {
     const token = crypto.randomBytes(32).toString('hex')
     const expiry = Date.now() + expiresIn * 1000
 
-    // This is a simplified version - in production, you'd store these tokens
+    // This is a simplified version - in production, you`d store these tokens
     // and validate them in your download endpoint
-    return '${this.publicUrlBase || ''}/download/${filePath}?token=${token}&expires=${expiry}'
+    return `${this.publicUrlBase || ``}/download/${filePath}?token=${token}&expires=${expiry}`
   }
 
   getPublicUrl(filePath: string): string {
@@ -304,7 +304,7 @@ export class LocalStorageAdapter extends StorageAdapter {
         available: 0 // Would need platform-specific code
       }
     } catch (error) {
-      console.error('❌ Failed to get disk usage:', error)
+      console.error(`❌ Failed to get disk usage:`, error)
       throw error
     }
   }

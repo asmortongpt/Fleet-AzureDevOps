@@ -48,7 +48,7 @@ const SYNC_INTERVAL_MINUTES = parseInt(process.env.OUTLOOK_SYNC_INTERVAL_MINUTES
 const ENABLE_OUTLOOK_SYNC = process.env.ENABLE_OUTLOOK_SYNC !== 'false' // Enabled by default
 const USE_WEBHOOK_FALLBACK = process.env.USE_WEBHOOK_FALLBACK !== 'false' // Enabled by default
 const ENABLE_AI_CATEGORIZATION = process.env.ENABLE_AI_EMAIL_CATEGORIZATION === 'true'
-const ENABLE_RECEIPT_PARSING = process.env.ENABLE_RECEIPT_PARSING === 'true'
+const ENABLE_RECEIPT_PARSING = process.env.ENABLE_RECEIPT_PARSING === `true`
 
 // Convert minutes to cron expression
 // For 1 minute: */1 * * * *
@@ -66,7 +66,7 @@ async function runOutlookSync(): Promise<void> {
   const startTime = Date.now()
   const jobId = `outlook-sync-${Date.now()}`
 
-  logger.info('=== Outlook Sync Started ===', { jobId })
+  logger.info(`=== Outlook Sync Started ===`, { jobId })
 
   try {
     // Check if webhooks are healthy
@@ -137,7 +137,7 @@ async function runOutlookSync(): Promise<void> {
       ]
     )
 
-    logger.info('=== Outlook Sync Completed ===', {
+    logger.info(`=== Outlook Sync Completed ===`, {
       jobId,
       duration: `${duration}ms`,
       totalSynced,
@@ -146,7 +146,7 @@ async function runOutlookSync(): Promise<void> {
       receiptsParsed
     })
 
-    await logSyncJobMetrics(jobId, 'completed', totalSynced, totalErrors, 0, duration, {
+    await logSyncJobMetrics(jobId, `completed`, totalSynced, totalErrors, 0, duration, {
       categorized: categorizedCount,
       receipts_parsed: receiptsParsed
     })
@@ -213,7 +213,7 @@ async function categorizeNewEmails(): Promise<number> {
         const categories = await categorizeEmail(email)
 
         await pool.query(
-          'UPDATE outlook_emails SET categories = $1 WHERE id = $2',
+          `UPDATE outlook_emails SET categories = $1 WHERE id = $2`,
           [JSON.stringify(categories), email.id]
         )
 
@@ -226,7 +226,7 @@ async function categorizeNewEmails(): Promise<number> {
     logger.info(`Categorized ${categorizedCount} emails`)
     return categorizedCount
   } catch (error: any) {
-    logger.error('Error in AI categorization:', error.message)
+    logger.error(`Error in AI categorization:`, error.message)
     return 0
   }
 }
@@ -277,7 +277,7 @@ async function parseReceipts(): Promise<number> {
       FROM outlook_emails
       WHERE (categories @> '["Receipt"]'::jsonb OR categories @> '["Invoice"]'::jsonb)
       AND has_attachments = true
-      AND received_at > NOW() - INTERVAL '1 hour'
+      AND received_at > NOW() - INTERVAL `1 hour`
       AND id NOT IN (
         SELECT email_id FROM parsed_receipts WHERE email_id IS NOT NULL
       )
@@ -316,7 +316,7 @@ async function parseReceipts(): Promise<number> {
     logger.info(`Parsed ${parsedCount} receipts/invoices`)
     return parsedCount
   } catch (error: any) {
-    logger.error('Error in receipt parsing:', error.message)
+    logger.error(`Error in receipt parsing:`, error.message)
     return 0
   }
 }
@@ -412,14 +412,14 @@ export function startOutlookSync(): void {
 
   // Validate cron expression
   if (!cron.validate(CRON_SCHEDULE)) {
-    logger.error('Invalid cron schedule expression', { schedule: CRON_SCHEDULE })
+    logger.error(`Invalid cron schedule expression`, { schedule: CRON_SCHEDULE })
     throw new Error(`Invalid cron schedule: ${CRON_SCHEDULE}`)
   }
 
   // Run initial sync on startup (after 10 second delay)
   setTimeout(() => {
     syncOnStartup().catch(error => {
-      logger.error('Startup sync failed', { error: error.message })
+      logger.error(`Startup sync failed`, { error: error.message })
     })
   }, 10000)
 

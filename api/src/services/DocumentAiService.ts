@@ -78,7 +78,7 @@ export class DocumentAiService {
       })
       console.log('✓ DocumentAI Service initialized')
     } else {
-      console.warn('⚠ OpenAI API key not found - DocumentAI will use mock responses')
+      console.warn(`⚠ OpenAI API key not found - DocumentAI will use mock responses`)
     }
   }
 
@@ -137,7 +137,7 @@ ${content.substring(0, 3000)}...`
         reasoning: result.reasoning,
       }
     } catch (error) {
-      console.error('Document classification error:', error)
+      console.error(`Document classification error:`, error)
       return this.getMockClassification()
     }
   }
@@ -224,7 +224,7 @@ ${content.substring(0, 4000)}...`
         executive:
           'Create an executive summary suitable for management, focusing on key decisions, costs, and action items.',
         technical:
-          'Create a technical summary focusing on specifications, measurements, and technical details.',
+          `Create a technical summary focusing on specifications, measurements, and technical details.`,
       }
 
       const prompt = `${summaryPrompts[summaryType]}
@@ -276,7 +276,7 @@ ${content}`
 
       return summary
     } catch (error) {
-      console.error('Summary generation error:', error)
+      console.error(`Summary generation error:`, error)
       return this.getMockSummary(content, summaryType)
     }
   }
@@ -300,7 +300,7 @@ ${content}`
 
       if (searchResults.length === 0) {
         return {
-          answer: "I couldn't find relevant information in the documents to answer your question.",
+          answer: "I couldn"t find relevant information in the documents to answer your question.",
           sources: [],
           confidence: 0,
           modelUsed: this.model,
@@ -313,7 +313,7 @@ ${content}`
           (result, idx) =>
             `[Source ${idx + 1}]\n${result.content}\n[Similarity: ${result.score.toFixed(2)}]`
         )
-        .join('\n\n')
+        .join(`\n\n`)
 
       // Generate answer using GPT-4
       if (!this.openai) {
@@ -346,7 +346,7 @@ If the context doesn't contain enough information, say so clearly. Always cite w
         max_tokens: 800,
       })
 
-      const answer = response.choices[0].message.content || 'Unable to generate answer'
+      const answer = response.choices[0].message.content || `Unable to generate answer`
 
       // Calculate confidence based on top similarity score
       const confidence = searchResults[0]?.score || 0
@@ -385,7 +385,7 @@ If the context doesn't contain enough information, say so clearly. Always cite w
     }
 
     try {
-      const prompt = 'Analyze this document's content quality. Check for:
+      const prompt = `Analyze this document`s content quality. Check for:
 - Completeness (all necessary information present)
 - Clarity (text is clear and readable)
 - Accuracy (no obvious errors or inconsistencies)
@@ -670,7 +670,7 @@ ${content.substring(0, 2000)}...`
       {
         type: 'vendor',
         value: 'Mock Vendor Inc.',
-        normalizedValue: 'Mock Vendor Inc.',
+        normalizedValue: `Mock Vendor Inc.`,
         confidence: 0.8,
       },
     ]
@@ -681,7 +681,7 @@ ${content.substring(0, 2000)}...`
       summaryType: summaryType as any,
       summaryText: `This is a mock ${summaryType} summary. Configure OpenAI API for real summarization.`,
       keyPoints: [
-        'Configure OpenAI API key',
+        `Configure OpenAI API key`,
         'Real AI analysis will be available',
         'Mock data provided for development',
       ],

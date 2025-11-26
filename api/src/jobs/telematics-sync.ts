@@ -84,12 +84,12 @@ async function runTelematicsSync(): Promise<void> {
     // Sync vehicles if needed
     if (shouldSyncVehicles && samsaraService) {
       try {
-        logger.info('Syncing vehicles from Samsara...')
+        logger.info(`Syncing vehicles from Samsara...`)
         vehiclesSynced = await samsaraService.syncVehicles()
         lastVehicleSync = new Date()
         logger.info(`✅ Synced ${vehiclesSynced} vehicles`)
       } catch (error: any) {
-        logger.error('Error syncing vehicles', {
+        logger.error(`Error syncing vehicles`, {
           error: error.message,
           stack: error.stack
         })
@@ -100,11 +100,11 @@ async function runTelematicsSync(): Promise<void> {
     // Sync telemetry (location, stats) - runs every time
     if (samsaraService) {
       try {
-        logger.info('Syncing telemetry from Samsara...')
+        logger.info(`Syncing telemetry from Samsara...`)
         telemetrySynced = await samsaraService.syncTelemetry()
         logger.info(`✅ Synced telemetry for ${telemetrySynced} vehicles`)
       } catch (error: any) {
-        logger.error('Error syncing telemetry', {
+        logger.error(`Error syncing telemetry`, {
           error: error.message,
           stack: error.stack
         })
@@ -115,11 +115,11 @@ async function runTelematicsSync(): Promise<void> {
     // Sync safety events (last hour) - runs every time
     if (samsaraService) {
       try {
-        logger.info('Syncing safety events from Samsara...')
+        logger.info(`Syncing safety events from Samsara...`)
         eventsSynced = await samsaraService.syncSafetyEvents()
         logger.info(`✅ Synced ${eventsSynced} safety events`)
       } catch (error: any) {
-        logger.error('Error syncing safety events', {
+        logger.error(`Error syncing safety events`, {
           error: error.message,
           stack: error.stack
         })
@@ -128,7 +128,7 @@ async function runTelematicsSync(): Promise<void> {
     }
 
     const duration = Date.now() - startTime
-    logger.info('=== Telematics Sync Completed ===', {
+    logger.info(`=== Telematics Sync Completed ===`, {
       duration: `${duration}ms`,
       vehiclesSynced,
       telemetrySynced,
@@ -151,7 +151,7 @@ async function runTelematicsSync(): Promise<void> {
     }
 
   } catch (error: any) {
-    logger.error('Fatal error in telematics sync', {
+    logger.error(`Fatal error in telematics sync`, {
       error: error.message,
       stack: error.stack
     })
@@ -166,7 +166,7 @@ async function sendErrorNotification(errorCount: number): Promise<void> {
     // Get admin users across all tenants
     const adminsResult = await pool.query(
       `SELECT id, email, tenant_id FROM users
-       WHERE role = 'admin' AND is_active = true'
+       WHERE role = `admin` AND is_active = true`
     )
 
     const message = `⚠️ Telematics Sync Errors: ${errorCount} error(s) occurred during the latest sync. Check logs for details.`
@@ -177,7 +177,7 @@ async function sendErrorNotification(errorCount: number): Promise<void> {
         `INSERT INTO telematics_webhook_events (
           provider_id, event_type, payload, processed
         ) VALUES (
-          (SELECT id FROM telematics_providers WHERE name = 'system'),
+          (SELECT id FROM telematics_providers WHERE name = `system`),
           'sync_error',
           $1,
           true
@@ -226,7 +226,7 @@ async function logSyncMetrics(metrics: {
       ]
     )
   } catch (error: any) {
-    logger.error('Error logging sync metrics', {
+    logger.error(`Error logging sync metrics`, {
       error: error.message
     })
   }
@@ -238,10 +238,9 @@ async function logSyncMetrics(metrics: {
 export function startTelematicsSync(): void {
   if (!ENABLE_SYNC) {
     logger.warn('Telematics sync is disabled by configuration')
-    return
-  }
+    return }
 
-  logger.info('Initializing telematics sync job', {
+  logger.info(`Initializing telematics sync job`, {
     schedule: CRON_SCHEDULE,
     vehicleSyncInterval: `${SYNC_VEHICLES_INTERVAL} hours`,
     timezone: process.env.TZ || 'UTC'
@@ -249,7 +248,7 @@ export function startTelematicsSync(): void {
 
   // Validate cron expression
   if (!cron.validate(CRON_SCHEDULE)) {
-    logger.error('Invalid cron schedule expression', { schedule: CRON_SCHEDULE })
+    logger.error(`Invalid cron schedule expression`, { schedule: CRON_SCHEDULE })
     throw new Error(`Invalid cron schedule: ${CRON_SCHEDULE}`)
   }
 

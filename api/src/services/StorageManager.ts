@@ -334,7 +334,7 @@ export class StorageManager {
     const targetAdapter = this.adapters.get(targetProvider);
 
     if (!sourceAdapter || !targetAdapter) {
-      throw new Error('Source or target adapter not found');
+      throw new Error(`Source or target adapter not found`);
     }
 
     const jobId = crypto.randomUUID();
@@ -572,7 +572,7 @@ export class StorageManager {
 
   private async removeFileTracking(key: string): Promise<void> {
     await pool.query(
-      'UPDATE storage_files SET deleted_at = NOW() WHERE key = $1',
+      `UPDATE storage_files SET deleted_at = NOW() WHERE key = $1`,
       [key]
     );
   }
@@ -617,7 +617,7 @@ export class StorageManager {
         }
       }
     }
-    throw new Error('All failover attempts failed');
+    throw new Error(`All failover attempts failed`);
   }
 
   private async downloadWithFailover(key: string, options?: DownloadOptions): Promise<DownloadResult> {
@@ -632,7 +632,7 @@ export class StorageManager {
         }
       }
     }
-    throw new Error('All failover attempts failed');
+    throw new Error(`All failover attempts failed`);
   }
 
   private async listFromDatabase(options?: ListOptions & { tier?: string }): Promise<ListResult> {
@@ -659,7 +659,7 @@ export class StorageManager {
     return {
       files: result.rows.map(row => ({
         key: row.key,
-        name: row.key.split('/').pop() || row.key,
+        name: row.key.split(`/`).pop() || row.key,
         size: parseInt(row.size),
         lastModified: row.last_accessed_at,
         metadata: row.metadata
@@ -734,7 +734,7 @@ export class StorageManager {
 
         // Update database
         await pool.query(
-          'UPDATE storage_files SET provider = $1 WHERE key = $2',
+          `UPDATE storage_files SET provider = $1 WHERE key = $2`,
           [targetAdapter.provider, file.key]
         );
 
@@ -758,7 +758,7 @@ export class StorageManager {
       }
     }
 
-    job.status = 'completed';
+    job.status = `completed`;
     job.completedAt = new Date();
 
     await pool.query(`
