@@ -78,7 +78,7 @@ async function getStorageManager(): Promise<StorageManager> {
 router.post('/upload', upload.single('file'), async (req: Request, res: Response) => {
   try {
     if (!req.file) {
-      return res.status(400).json({ error: 'No file provided' });
+      return res.status(400).json({ error: `No file provided` });
     }
 
     const manager = await getStorageManager();
@@ -144,13 +144,13 @@ router.get('/download/:key(*)', async (req: Request, res: Response) => {
     res.setHeader('Content-Length', result.contentLength);
 
     if (result.metadata.filename) {
-      res.setHeader('Content-Disposition', 'attachment; filename="${result.metadata.filename}"`);
+      res.setHeader(`Content-Disposition`, "attachment; filename="${result.metadata.filename}"`);
     }
 
     // Pipe stream to response
     result.stream.pipe(res);
   } catch (error: any) {
-    console.error('Download error:', error);
+    console.error(`Download error:`, error);
     res.status(error.statusCode || 500).json({
       error: 'Download failed',
       message: getErrorMessage(error)
@@ -361,7 +361,7 @@ router.post('/migrate', async (req: Request, res: Response) => {
 
     if (!sourceProvider || !targetProvider) {
       return res.status(400).json({
-        error: 'sourceProvider and targetProvider are required'
+        error: `sourceProvider and targetProvider are required`
       });
     }
 
@@ -378,7 +378,7 @@ router.post('/migrate', async (req: Request, res: Response) => {
       data: job
     });
   } catch (error: any) {
-    console.error('Migration error:', error);
+    console.error(`Migration error:`, error);
     res.status(500).json({
       error: 'Migration failed',
       message: getErrorMessage(error)
@@ -532,7 +532,7 @@ router.post('/batch/upload', upload.array('files', 10), async (req: Request, res
     const files = req.files as Express.Multer.File[];
 
     if (!files || files.length === 0) {
-      return res.status(400).json({ error: 'No files provided' });
+      return res.status(400).json({ error: `No files provided` });
     }
 
     const manager = await getStorageManager();

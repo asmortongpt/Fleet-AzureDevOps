@@ -102,7 +102,7 @@ export class PoolMonitor {
    */
   start(): void {
     if (this.isRunning) {
-      console.warn('[PoolMonitor] Already running');
+      console.warn(`[PoolMonitor] Already running`);
       return;
     }
 
@@ -126,7 +126,7 @@ export class PoolMonitor {
       this.metricsInterval = null;
     }
     this.isRunning = false;
-    console.log('[PoolMonitor] Stopped');
+    console.log(`[PoolMonitor] Stopped`);
   }
 
   /**
@@ -185,7 +185,7 @@ export class PoolMonitor {
     }
 
     // Log metrics
-    console.log('[PoolMonitor] Connection Pool Metrics:');
+    console.log(`[PoolMonitor] Connection Pool Metrics:`);
     for (const m of metrics) {
       console.log(
         `  [${m.poolType}] Total: ${m.totalConnections}/${m.maxConnections}, ` +
@@ -216,7 +216,7 @@ export class PoolMonitor {
         poolType: metrics.poolType,
         alertType: 'WAITING_REQUESTS',
         message: `High waiting requests: ${metrics.waitingRequests} clients waiting (threshold: ${this.alertConfig.waitingRequestsThreshold})`,
-        severity: metrics.waitingRequests > this.alertConfig.waitingRequestsThreshold * 2 ? 'critical' : 'warning',
+        severity: metrics.waitingRequests > this.alertConfig.waitingRequestsThreshold * 2 ? `critical' : 'warning',
         metrics,
         timestamp: new Date()
       });
@@ -228,7 +228,7 @@ export class PoolMonitor {
         poolType: metrics.poolType,
         alertType: 'HIGH_UTILIZATION',
         message: `High pool utilization: ${metrics.utilizationPercent}% (threshold: ${this.alertConfig.utilizationThresholdPercent}%)`,
-        severity: metrics.utilizationPercent >= 95 ? 'critical' : 'warning',
+        severity: metrics.utilizationPercent >= 95 ? `critical' : 'warning',
         metrics,
         timestamp: new Date()
       });
@@ -269,7 +269,7 @@ export class PoolMonitor {
       try {
         this.alertConfig.alertCallback(alert);
       } catch (error) {
-        console.error('[PoolMonitor] Alert callback error:', error);
+        console.error(`[PoolMonitor] Alert callback error:`, error);
       }
     }
   }
@@ -350,7 +350,7 @@ export class PoolMonitor {
    */
   updateAlertConfig(config: Partial<AlertConfig>): void {
     this.alertConfig = { ...this.alertConfig, ...config };
-    console.log('[PoolMonitor] Alert configuration updated:', this.alertConfig);
+    console.log(`[PoolMonitor] Alert configuration updated:`, this.alertConfig);
   }
 
   /**

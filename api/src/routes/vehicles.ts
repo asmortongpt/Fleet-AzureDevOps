@@ -57,7 +57,7 @@ router.get(
       // fleet/global scope sees all
 
       // Build multi-asset filters
-      let assetFilters = ''
+      let assetFilters = ``
       let paramIndex = scopeParams.length + 1
 
       if (asset_category) {
@@ -87,7 +87,7 @@ router.get(
 
       if (is_road_legal !== undefined) {
         assetFilters += ` AND is_road_legal = $${paramIndex++}`
-        scopeParams.push(is_road_legal === 'true')
+        scopeParams.push(is_road_legal === `true`)
       }
 
       if (location_id) {
@@ -125,7 +125,7 @@ router.get(
         }
       })
     } catch (error) {
-      console.error('Get vehicles error:', error)
+      console.error(`Get vehicles error:`, error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -200,7 +200,7 @@ router.post(
         validatedData,
         ['tenant_id'],
         1,
-        'vehicles'
+        `vehicles`
       )
 
       const result = await pool.query(
@@ -211,7 +211,7 @@ router.post(
       res.status(201).json(result.rows[0])
     } catch (error) {
       if (error instanceof z.ZodError) {
-        return res.status(400).json({ error: 'Validation error', details: error.errors })
+        return res.status(400).json({ error: `Validation error`, details: error.errors })
       }
       console.error('Create vehicles error:', error)
       res.status(500).json({ error: 'Internal server error' })
@@ -230,7 +230,7 @@ router.put(
       const validatedData = updateVehicleSchema.parse(req.body)
 
       // Build UPDATE with field whitelisting to prevent mass assignment
-      const { fields, values } = buildUpdateClause(validatedData, 3, 'vehicles')
+      const { fields, values } = buildUpdateClause(validatedData, 3, `vehicles`)
 
       const result = await pool.query(
         `UPDATE vehicles SET ${fields}, updated_at = NOW() WHERE id = $1 AND tenant_id = $2 RETURNING *`,
@@ -238,7 +238,7 @@ router.put(
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'Vehicles not found' })
+        return res.status(404).json({ error: `Vehicles not found` })
       }
 
       res.json(result.rows[0])

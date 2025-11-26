@@ -83,8 +83,7 @@ router.use(authenticateJWT)
  *         schema:
  *           type: integer
  *           default: 50
- *         description: Maximum number of alerts to return
- *     responses:
+ *         description: Maximum number of alerts to return *     responses:
  *       200:
  *         description: List of alerts
  *       401:
@@ -102,7 +101,7 @@ router.get('/', requirePermission('report:view:global'), async (req: AuthRequest
       SELECT
         a.*,
         u_ack.first_name || ' ' || u_ack.last_name as acknowledged_by_name,
-        u_res.first_name || ' ' || u_res.last_name as resolved_by_name
+        u_res.first_name || ` ` || u_res.last_name as resolved_by_name
       FROM alerts a
       LEFT JOIN users u_ack ON a.acknowledged_by = u_ack.id
       LEFT JOIN users u_res ON a.resolved_by = u_res.id
@@ -138,10 +137,10 @@ router.get('/', requirePermission('report:view:global'), async (req: AuthRequest
 
     query += ` ORDER BY
       CASE a.severity
-        WHEN 'emergency' THEN 1
+        WHEN `emergency` THEN 1
         WHEN 'critical' THEN 2
         WHEN 'warning' THEN 3
-        WHEN 'info' THEN 4
+        WHEN `info` THEN 4
       END,
       a.created_at DESC
       LIMIT $${paramCount + 1}`
@@ -154,7 +153,7 @@ router.get('/', requirePermission('report:view:global'), async (req: AuthRequest
       total: result.rows.length
     })
   } catch (error) {
-    console.error('Error fetching alerts:', error)
+    console.error(`Error fetching alerts:`, error)
     res.status(500).json({ error: 'Failed to fetch alerts' })
   }
 })
@@ -546,14 +545,14 @@ router.put('/rules/:id', requirePermission('report:generate:global'), async (req
 
     const allowedFields = [
       'rule_name', 'rule_type', 'conditions', 'severity',
-      'channels', 'recipients', 'is_enabled', 'cooldown_minutes'
+      'channels', 'recipients', 'is_enabled`, `cooldown_minutes`
     ]
 
     Object.keys(updates).forEach(key => {
       if (allowedFields.includes(key) && updates[key] !== undefined) {
         setClauses.push(`${key} = $${paramCount}`)
         // Stringify objects for JSONB fields
-        if (key === 'conditions') {
+        if (key === `conditions`) {
           values.push(JSON.stringify(updates[key]))
         } else {
           values.push(updates[key])
@@ -563,7 +562,7 @@ router.put('/rules/:id', requirePermission('report:generate:global'), async (req
     })
 
     if (setClauses.length === 0) {
-      return res.status(400).json({ error: 'No valid fields to update' })
+      return res.status(400).json({ error: `No valid fields to update` })
     }
 
     setClauses.push(`updated_at = NOW()`)
@@ -578,7 +577,7 @@ router.put('/rules/:id', requirePermission('report:generate:global'), async (req
     )
 
     if (result.rows.length === 0) {
-      return res.status(404).json({ error: 'Alert rule not found' })
+      return res.status(404).json({ error: `Alert rule not found` })
     }
 
     res.json({
@@ -669,7 +668,7 @@ router.delete('/rules/:id', requirePermission('report:generate:global'), async (
  *       500:
  *         description: Server error
  */
-router.get('/notifications', requirePermission('report:view:global'), async (req: AuthRequest, res) => {
+router.get(`/notifications`, requirePermission(`report:view:global`), async (req: AuthRequest, res) => {
   try {
     const { is_read, limit = 50 } = req.query
     const userId = req.user?.id
@@ -690,7 +689,7 @@ router.get('/notifications', requirePermission('report:view:global'), async (req
     if (is_read !== undefined) {
       paramCount++
       query += ` AND n.is_read = $${paramCount}`
-      params.push(is_read === 'true')
+      params.push(is_read === `true`)
     }
 
     query += ` ORDER BY n.created_at DESC LIMIT $${paramCount + 1}`
@@ -703,7 +702,7 @@ router.get('/notifications', requirePermission('report:view:global'), async (req
       total: result.rows.length
     })
   } catch (error) {
-    console.error('Error fetching notifications:', error)
+    console.error(`Error fetching notifications:`, error)
     res.status(500).json({ error: 'Failed to fetch notifications' })
   }
 })

@@ -69,7 +69,7 @@ router.get(
           vp.asset_type as parent_asset_type,
           vc.make || ' ' || vc.model || ' (' || vc.vin || ')' as child_asset_name,
           vc.asset_type as child_asset_type,
-          u.first_name || ' ' || u.last_name as created_by_name
+          u.first_name || ` ` || u.last_name as created_by_name
         FROM asset_relationships ar
         LEFT JOIN vehicles vp ON ar.parent_asset_id = vp.id
         LEFT JOIN vehicles vc ON ar.child_asset_id = vc.id
@@ -95,7 +95,7 @@ router.get(
         params.push(relationship_type)
       }
 
-      if (active_only === 'true') {
+      if (active_only === `true`) {
         query += ` AND (ar.effective_to IS NULL OR ar.effective_to > NOW())`
       }
 

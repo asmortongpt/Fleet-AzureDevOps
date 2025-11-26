@@ -63,7 +63,7 @@ export class WorkerPool extends EventEmitter {
       maxWorkers: config.maxWorkers || Math.max(4, os.cpus().length - 1),
       idleTimeout: config.idleTimeout || 300000, // 5 minutes
       taskTimeout: config.taskTimeout || 120000, // 2 minutes
-      workerScript: config.workerScript || path.join(__dirname, '../workers/task-worker.js')
+      workerScript: config.workerScript || path.join(__dirname, `../workers/task-worker.js`)
     }
 
     // Initialize minimum workers
@@ -98,7 +98,7 @@ export class WorkerPool extends EventEmitter {
     }
 
     // Setup worker event handlers
-    worker.on('message', (result) => {
+    worker.on(`message`, (result) => {
       const task = workerInfo.currentTask
       if (task) {
         task.resolve(result)
@@ -121,7 +121,7 @@ export class WorkerPool extends EventEmitter {
         task.reject(error)
         workerInfo.errors++
         this.totalErrors++
-        this.emit('taskError', { taskId: task.id, workerId, error })
+        this.emit(`taskError`, { taskId: task.id, workerId, error })
       }
 
       // Mark worker as available
@@ -135,18 +135,18 @@ export class WorkerPool extends EventEmitter {
       this.processNextTask()
     })
 
-    worker.on('exit', (code) => {
+    worker.on(`exit`, (code) => {
       console.log(`[Worker ${workerId}] Exited with code ${code}`)
       this.workers.delete(workerId)
 
-      // If we're below minimum workers, create a new one
+      // If we`re below minimum workers, create a new one
       if (this.workers.size < this.config.minWorkers) {
         this.createWorker()
       }
     })
 
     this.workers.set(workerId, workerInfo)
-    this.emit('workerCreated', { workerId, totalWorkers: this.workers.size })
+    this.emit(`workerCreated`, { workerId, totalWorkers: this.workers.size })
 
     return worker
   }
@@ -171,7 +171,7 @@ export class WorkerPool extends EventEmitter {
       this.taskQueue.push(task)
       this.taskQueue.sort((a, b) => b.priority - a.priority)
 
-      this.emit('taskQueued', { taskId: task.id, queueLength: this.taskQueue.length })
+      this.emit(`taskQueued`, { taskId: task.id, queueLength: this.taskQueue.length })
 
       // Try to process immediately
       this.processNextTask()
@@ -239,7 +239,7 @@ export class WorkerPool extends EventEmitter {
       data: task.data
     })
 
-    this.emit('taskStarted', { taskId: task.id, workerId, queueLength: this.taskQueue.length })
+    this.emit(`taskStarted`, { taskId: task.id, workerId, queueLength: this.taskQueue.length })
   }
 
   /**

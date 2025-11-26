@@ -33,7 +33,7 @@ router.get(
 
       if (user.scope_level === 'own' && user.driver_id) {
         // Drivers only see their own fuel transactions
-        scopeFilter = 'AND driver_id = $2'
+        scopeFilter = `AND driver_id = $2`
         scopeParams.push(user.driver_id)
       }
       // fleet/global scope sees all
@@ -62,7 +62,7 @@ router.get(
         }
       })
     } catch (error) {
-      console.error('Get fuel-transactions error:', error)
+      console.error(`Get fuel-transactions error:`, error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -118,14 +118,14 @@ router.post(
         })
       }
 
-      // If not provided, use user's driver_id
+      // If not provided, use user`s driver_id
       if (!data.driver_id && userDriverId) {
         data.driver_id = userDriverId
       }
 
       const { columnNames, placeholders, values } = buildInsertClause(
         data,
-        ['tenant_id'],
+        [`tenant_id`],
         1
       )
 
@@ -136,7 +136,7 @@ router.post(
 
       res.status(201).json(result.rows[0])
     } catch (error) {
-      console.error('Create fuel-transactions error:', error)
+      console.error(`Create fuel-transactions error:`, error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }

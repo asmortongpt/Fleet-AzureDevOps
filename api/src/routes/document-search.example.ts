@@ -228,7 +228,7 @@ router.post('/index/batch', async (req: Request, res: Response) => {
 
     if (!Array.isArray(documentIds) || documentIds.length === 0) {
       return res.status(400).json({
-        error: 'documentIds must be a non-empty array'
+        error: `documentIds must be a non-empty array`
       })
     }
 
@@ -240,7 +240,7 @@ router.post('/index/batch', async (req: Request, res: Response) => {
       count: documentIds.length
     })
   } catch (error) {
-    console.error('Batch indexing error:', error)
+    console.error(`Batch indexing error:`, error)
     return res.status(500).json({
       error: 'Failed to batch index documents',
       message: error instanceof Error ? getErrorMessage(error) : 'Unknown error'

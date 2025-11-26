@@ -86,7 +86,7 @@ router.get(
       const offset = (parseInt(page as string) - 1) * parseInt(limit as string);
       const tenant_id = req.user!.tenant_id;
 
-      let whereConditions = ['cba.tenant_id = $1'];
+      let whereConditions = [`cba.tenant_id = $1`];
       let params: any[] = [tenant_id];
       let paramIndex = 2;
 
@@ -99,7 +99,7 @@ router.get(
         params.push(approval_status);
       }
 
-      const whereClause = whereConditions.join(' AND ');
+      const whereClause = whereConditions.join(` AND `);
 
       const query = `
         SELECT
@@ -144,7 +144,7 @@ router.get(
         },
       });
     } catch (error: any) {
-      console.error('Error fetching cost/benefit analyses:', error);
+      console.error(`Error fetching cost/benefit analyses:`, error);
       res.status(500).json({
         error: 'Failed to fetch cost/benefit analyses',
         details: getErrorMessage(error),
@@ -309,7 +309,7 @@ router.post(
 router.put(
   '/:id',
   authenticateJWT,
-  requirePermission('cost_benefit:create:team'),
+  requirePermission(`cost_benefit:create:team`),
   async (req: AuthRequest, res: Response) => {
     try {
       const { id } = req.params;
@@ -328,7 +328,7 @@ router.put(
       });
 
       if (updates.length === 0) {
-        return res.status(400).json({ error: 'No fields to update' });
+        return res.status(400).json({ error: `No fields to update` });
       }
 
       updates.push(`updated_at = NOW()`);
@@ -344,7 +344,7 @@ router.put(
       const result = await pool.query(query, params);
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'Cost/benefit analysis not found' });
+        return res.status(404).json({ error: `Cost/benefit analysis not found` });
       }
 
       res.json({
@@ -402,7 +402,7 @@ router.post(
       ]);
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'Cost/benefit analysis not found' });
+        return res.status(404).json({ error: `Cost/benefit analysis not found` });
       }
 
       res.json({
@@ -410,7 +410,7 @@ router.post(
         analysis: result.rows[0],
       });
     } catch (error: any) {
-      console.error('Error reviewing cost/benefit analysis:', error);
+      console.error(`Error reviewing cost/benefit analysis:`, error);
       if (error instanceof z.ZodError) {
         return res.status(400).json({
           error: 'Validation error',

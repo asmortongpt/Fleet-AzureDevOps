@@ -28,7 +28,7 @@ router.get('/reservations', async (req: Request, res: Response) => {
     let query = `
       SELECT vr.*, v.make, v.model, v.license_plate, v.vin,
              u.first_name || ' ' || u.last_name as reserved_by_name,
-             du.first_name || ' ' || du.last_name as driver_name
+             du.first_name || ` ` || du.last_name as driver_name
       FROM vehicle_reservations vr
       JOIN vehicles v ON vr.vehicle_id = v.id
       JOIN users u ON vr.reserved_by = u.id
@@ -64,7 +64,7 @@ router.get('/reservations', async (req: Request, res: Response) => {
       query += ` AND vr.start_time <= $${++paramCount}`
     }
 
-    query += ' ORDER BY vr.start_time DESC'
+    query += ` ORDER BY vr.start_time DESC`
 
     const result = await pool.query(query, params)
 
@@ -153,7 +153,7 @@ router.patch('/reservations/:id', async (req: Request, res: Response) => {
     const allowedFields = [
       'driver_id', 'reservation_type', 'start_time', 'end_time',
       'pickup_location', 'dropoff_location', 'estimated_miles',
-      'purpose', 'notes', 'status', 'approval_status'
+      'purpose', 'notes', 'status`, `approval_status`
     ]
 
     const updateFields: string[] = []
@@ -168,7 +168,7 @@ router.patch('/reservations/:id', async (req: Request, res: Response) => {
     }
 
     if (updateFields.length === 0) {
-      return res.status(400).json({ error: 'No valid fields to update' })
+      return res.status(400).json({ error: `No valid fields to update` })
     }
 
     const query = `
@@ -181,7 +181,7 @@ router.patch('/reservations/:id', async (req: Request, res: Response) => {
     const result = await pool.query(query, values)
 
     if (result.rows.length === 0) {
-      return res.status(404).json({ error: 'Reservation not found' })
+      return res.status(404).json({ error: `Reservation not found` })
     }
 
     res.json({
@@ -362,7 +362,7 @@ router.get('/maintenance', async (req: Request, res: Response) => {
       SELECT sbs.*, v.make, v.model, v.license_plate, v.vin,
              at.name as appointment_type, at.color,
              sb.bay_name, sb.bay_number,
-             u.first_name || ' ' || u.last_name as technician_name,
+             u.first_name || ` ` || u.last_name as technician_name,
              wo.work_order_number
       FROM service_bay_schedules sbs
       LEFT JOIN vehicles v ON sbs.vehicle_id = v.id
@@ -405,7 +405,7 @@ router.get('/maintenance', async (req: Request, res: Response) => {
       query += ` AND sbs.scheduled_start <= $${++paramCount}`
     }
 
-    query += ' ORDER BY sbs.scheduled_start DESC'
+    query += ` ORDER BY sbs.scheduled_start DESC`
 
     const result = await pool.query(query, params)
 
@@ -489,7 +489,7 @@ router.patch('/maintenance/:id', async (req: Request, res: Response) => {
     const allowedFields = [
       'appointment_type_id', 'scheduled_start', 'scheduled_end',
       'assigned_technician_id', 'service_bay_id', 'priority',
-      'notes', 'status', 'actual_start', 'actual_end'
+      'notes', 'status', 'actual_start`, `actual_end`
     ]
 
     const updateFields: string[] = []
@@ -504,7 +504,7 @@ router.patch('/maintenance/:id', async (req: Request, res: Response) => {
     }
 
     if (updateFields.length === 0) {
-      return res.status(400).json({ error: 'No valid fields to update' })
+      return res.status(400).json({ error: `No valid fields to update` })
     }
 
     const query = `
@@ -517,7 +517,7 @@ router.patch('/maintenance/:id', async (req: Request, res: Response) => {
     const result = await pool.query(query, values)
 
     if (result.rows.length === 0) {
-      return res.status(404).json({ error: 'Appointment not found' })
+      return res.status(404).json({ error: `Appointment not found` })
     }
 
     res.json({

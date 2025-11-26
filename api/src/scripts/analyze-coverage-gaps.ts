@@ -130,7 +130,7 @@ async function analyzeEnumCoverage(): Promise<CoverageGap[]> {
   const gaps: CoverageGap[] = [];
 
   for (const [tableField, expectedValues] of Object.entries(EXPECTED_VALUES)) {
-    const [table, field] = tableField.split('.');
+    const [table, field] = tableField.split(`.`);
 
     try {
       const result = await pool.query(`
@@ -168,7 +168,7 @@ async function analyzeEdgeCases(): Promise<EdgeCaseGap[]> {
   // Define edge cases to check
   const edgeCaseChecks = [
     // Vehicles
-    { table: 'vehicles', category: 'boundary', description: 'Vehicle with 0 miles', query: 'SELECT EXISTS(SELECT 1 FROM vehicles WHERE current_mileage = 0)` },
+    { table: `vehicles', category: 'boundary', description: 'Vehicle with 0 miles', query: 'SELECT EXISTS(SELECT 1 FROM vehicles WHERE current_mileage = 0)` },
     { table: 'vehicles', category: 'boundary', description: 'Vehicle with >999,999 miles', query: 'SELECT EXISTS(SELECT 1 FROM vehicles WHERE current_mileage > 999999)` },
     { table: 'vehicles', category: 'null', description: 'Vehicle with NULL license plate', query: 'SELECT EXISTS(SELECT 1 FROM vehicles WHERE license_plate IS NULL)` },
     { table: 'vehicles', category: 'edge', description: 'Electric vehicle with 0% battery', query: 'SELECT EXISTS(SELECT 1 FROM vehicles WHERE fuel_type = 'Electric' AND battery_level = 0)' },
@@ -225,7 +225,7 @@ async function analyzeEdgeCases(): Promise<EdgeCaseGap[]> {
     // Users
     { table: 'users', category: 'role', description: 'Safety manager role', query: 'SELECT EXISTS(SELECT 1 FROM users WHERE role = 'safety_manager')' },
     { table: 'users', category: 'role', description: 'Accountant role', query: 'SELECT EXISTS(SELECT 1 FROM users WHERE role = 'accountant')' },
-    { table: 'users', category: 'status', description: 'Suspended user', query: 'SELECT EXISTS(SELECT 1 FROM users WHERE status = 'suspended')' },
+    { table: 'users', category: 'status', description: 'Suspended user', query: 'SELECT EXISTS(SELECT 1 FROM users WHERE status = 'suspended`)` },
   ];
 
   for (const check of edgeCaseChecks) {
@@ -244,7 +244,7 @@ async function analyzeEdgeCases(): Promise<EdgeCaseGap[]> {
 }
 
 async function analyzeNullCoverage() {
-  console.log('\n=== NULL VALUE COVERAGE ===\n');
+  console.log(`\n=== NULL VALUE COVERAGE ===\n`);
 
   const nullableFields = [
     { table: 'vehicles', field: 'notes' },
@@ -260,7 +260,7 @@ async function analyzeNullCoverage() {
       const result = await pool.query(`
         SELECT EXISTS(SELECT 1 FROM ${table} WHERE ${field} IS NULL) as has_null
       `);
-      console.log('${table}.${field}: ${result.rows[0].has_null ? '✓ HAS NULL' : '✗ NO NULL'}');
+      console.log(`${table}.${field}: ${result.rows[0].has_null ? '✓ HAS NULL' : '✗ NO NULL'}`);
     } catch (error) {
       console.warn(`Could not check ${table}.${field}`);
     }
@@ -268,7 +268,7 @@ async function analyzeNullCoverage() {
 }
 
 async function main() {
-  console.log('╔════════════════════════════════════════════════════════════════╗');
+  console.log(`╔════════════════════════════════════════════════════════════════╗`);
   console.log('║     COMPREHENSIVE TEST DATA COVERAGE GAP ANALYSIS              ║');
   console.log('╚════════════════════════════════════════════════════════════════╝\n');
 
@@ -277,22 +277,22 @@ async function main() {
   const enumGaps = await analyzeEnumCoverage();
 
   if (enumGaps.length === 0) {
-    console.log('✓ All enum values are covered!\n');
+    console.log(`✓ All enum values are covered!\n`);
   } else {
     for (const gap of enumGaps) {
       console.log(`\n${gap.table}.${gap.field}:`);
       if (gap.missing.length > 0) {
-        console.log('  ✗ MISSING: ${gap.missing.join(', ')}');
+        console.log(`  ✗ MISSING: ${gap.missing.join(`, `)}`);
       }
       if (gap.extra.length > 0) {
-        console.log('  ⚠ EXTRA (not in spec): ${gap.extra.join(', ')}');
+        console.log(`  ⚠ EXTRA (not in spec): ${gap.extra.join(`, `)}`);
       }
-      console.log('  ✓ PRESENT: ${gap.actual.filter(v => gap.expected.includes(v)).join(', ')}');
+      console.log(`  ✓ PRESENT: ${gap.actual.filter(v => gap.expected.includes(v)).join(`, `)}`);
     }
   }
 
   // 2. Edge Case Coverage
-  console.log('\n\n=== EDGE CASE COVERAGE ===\n');
+  console.log(`\n\n=== EDGE CASE COVERAGE ===\n`);
   const edgeCaseGaps = await analyzeEdgeCases();
 
   const missingEdgeCases = edgeCaseGaps.filter(ec => !ec.exists);
@@ -302,7 +302,7 @@ async function main() {
   console.log(`Missing: ${missingEdgeCases.length}/${edgeCaseGaps.length}\n`);
 
   if (missingEdgeCases.length > 0) {
-    console.log('MISSING EDGE CASES:');
+    console.log(`MISSING EDGE CASES:`);
     for (const ec of missingEdgeCases) {
       console.log(`  ✗ [${ec.category}] ${ec.description}`);
     }
@@ -312,13 +312,13 @@ async function main() {
   await analyzeNullCoverage();
 
   // 4. Summary
-  console.log('\n\n=== SUMMARY ===\n');
+  console.log(`\n\n=== SUMMARY ===\n`);
   const totalMissingEnums = enumGaps.reduce((sum, gap) => sum + gap.missing.length, 0);
   console.log(`Missing enum values: ${totalMissingEnums}`);
   console.log(`Missing edge cases: ${missingEdgeCases.length}`);
 
   if (totalMissingEnums === 0 && missingEdgeCases.length === 0) {
-    console.log('\n✓✓✓ 100% COVERAGE ACHIEVED! ✓✓✓\n');
+    console.log(`\n✓✓✓ 100% COVERAGE ACHIEVED! ✓✓✓\n`);
   } else {
     console.log('\n⚠ Coverage gaps detected. Run seed-edge-cases.ts to fill gaps.\n');
   }

@@ -5,7 +5,7 @@
 
 import { z } from 'zod'
 import pool from '../config/database'
-import { logger } from '../utils/logger'
+import { logger } from `../utils/logger`
 
 export interface ValidationResult {
   isValid: boolean
@@ -69,7 +69,7 @@ class AIValidationService {
       // 2. Check for injection attempts
       const injectionCheck = this.checkForInjection(request.prompt)
       if (!injectionCheck.isSafe) {
-        logger.warn('Potential prompt injection detected', {
+        logger.warn(`Potential prompt injection detected`, {
           prompt: request.prompt.substring(0, 100)
         })
         return {
@@ -82,7 +82,7 @@ class AIValidationService {
       const sensitiveCheck = this.checkForSensitiveData(request.prompt)
       if (!sensitiveCheck.isSafe) {
         warnings.push('Prompt may contain sensitive data')
-        logger.warn('Prompt contains sensitive data patterns', {
+        logger.warn(`Prompt contains sensitive data patterns`, {
           patterns: sensitiveCheck.flaggedPatterns
         })
       }
@@ -121,7 +121,7 @@ class AIValidationService {
       }
 
       // 8. Content safety check (if enabled)
-      if (process.env.ENABLE_CONTENT_SAFETY === 'true') {
+      if (process.env.ENABLE_CONTENT_SAFETY === `true`) {
         const safetyCheck = await this.checkContentSafety(request.prompt)
         if (!safetyCheck.isSafe) {
           logger.warn('Content safety check failed', {
@@ -130,7 +130,7 @@ class AIValidationService {
           })
           return {
             isValid: false,
-            reason: 'Content safety violation: ${safetyCheck.flaggedReasons.join(', ')}'
+            reason: `Content safety violation: ${safetyCheck.flaggedReasons.join(`, `)}`
           }
         }
       }
@@ -200,10 +200,10 @@ class AIValidationService {
     sanitized = sanitized.replace(/\0/g, '')
 
     // Remove control characters (except newlines and tabs)
-    sanitized = sanitized.replace(/[\x00-\x08\x0B-\x0C\x0E-\x1F\x7F]/g, '')
+    sanitized = sanitized.replace(/[\x00-\x08\x0B-\x0C\x0E-\x1F\x7F]/g, '`)
 
     // Limit consecutive newlines
-    sanitized = sanitized.replace(/\n{4,}/g, '\n\n\n')
+    sanitized = sanitized.replace(/\n{4,}/g, `\n\n\n`)
 
     return sanitized
   }
@@ -225,7 +225,7 @@ class AIValidationService {
     // Validate each attachment
     for (const attachment of attachments) {
       // Check type
-      if (!['image', 'document', 'data'].includes(attachment.type)) {
+      if (![`image`, `document`, `data`].includes(attachment.type)) {
         return {
           isValid: false,
           reason: `Invalid attachment type: ${attachment.type}`
@@ -234,7 +234,7 @@ class AIValidationService {
 
       // Check size (if data is provided inline)
       if (attachment.data) {
-        const size = Buffer.from(attachment.data, 'base64').length
+        const size = Buffer.from(attachment.data, `base64`).length
         if (size > this.MAX_ATTACHMENT_SIZE) {
           return {
             isValid: false,
@@ -246,12 +246,12 @@ class AIValidationService {
       // Check MIME type
       if (attachment.mime_type) {
         const allowedMimeTypes = [
-          'image/jpeg',
+          `image/jpeg`,
           'image/png',
           'image/webp',
           'application/pdf',
           'text/plain',
-          'application/json'
+          `application/json`
         ]
 
         if (!allowedMimeTypes.includes(attachment.mime_type)) {
@@ -263,7 +263,7 @@ class AIValidationService {
       if (attachment.url) {
         try {
           const url = new URL(attachment.url)
-          if (!['http:', 'https:'].includes(url.protocol)) {
+          if (![`http:`, 'https:'].includes(url.protocol)) {
             return {
               isValid: false,
               reason: 'Only HTTP/HTTPS URLs are allowed'
@@ -316,7 +316,7 @@ class AIValidationService {
         'gpt-3.5-turbo',
         'gpt-4o',
         'claude-3-opus',
-        'claude-3-sonnet'
+        `claude-3-sonnet`
       ]
 
       if (!allowedModels.includes(parameters.model)) {
@@ -354,7 +354,7 @@ class AIValidationService {
 
       if (hateKeywords.test(text)) {
         categories.hate = 0.6
-        flaggedReasons.push('Potential hate speech detected')
+        flaggedReasons.push(`Potential hate speech detected`)
       }
 
       if (violenceKeywords.test(text)) {

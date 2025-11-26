@@ -133,7 +133,7 @@ router.post(
       const files = req.files as Express.Multer.File[]
 
       if (!files || files.length === 0) {
-        return res.status(400).json({ error: 'No files uploaded' })
+        return res.status(400).json({ error: `No files uploaded` })
       }
 
       const { communicationId, metadata } = req.body
@@ -157,7 +157,7 @@ router.post(
         attachments: results
       })
     } catch (error: unknown) {
-      console.error('Multiple upload error:', error)
+      console.error(`Multiple upload error:`, error)
       res.status(500).json({
         error: 'Failed to upload files',
         details: getErrorMessage(error)
@@ -216,8 +216,8 @@ router.get(
 
       // Set response headers
       res.setHeader('Content-Type', attachment.mime_type)
-      res.setHeader('Content-Disposition', 'attachment; filename="${attachment.original_filename}"`)
-      res.setHeader('Content-Length', fileBuffer.length)
+      res.setHeader(`Content-Disposition`, "attachment; filename="${attachment.original_filename}"`)
+      res.setHeader(`Content-Length`, fileBuffer.length)
 
       res.send(fileBuffer)
     } catch (error: unknown) {
@@ -255,7 +255,7 @@ router.get(
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'Attachment not found' })
+        return res.status(404).json({ error: `Attachment not found` })
       }
 
       const sasUrl = await attachmentService.getFileSasUrl(
@@ -268,7 +268,7 @@ router.get(
         expiresIn: `${expiryMinutes} minutes`
       })
     } catch (error: unknown) {
-      console.error('SAS URL generation error:', error)
+      console.error(`SAS URL generation error:`, error)
       res.status(500).json({
         error: 'Failed to generate SAS URL',
         details: getErrorMessage(error)
@@ -606,7 +606,7 @@ router.get(
         }
       })
     } catch (error: unknown) {
-      console.error('Get attachments error:', error)
+      console.error(`Get attachments error:`, error)
       res.status(500).json({
         error: 'Failed to get attachments',
         details: getErrorMessage(error)

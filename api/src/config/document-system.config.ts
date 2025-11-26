@@ -213,7 +213,7 @@ export function getConfigSummary(config: DocumentSystemConfig): string {
   const enabledFeatures = Object.entries(config.features)
     .filter(([, enabled]) => enabled)
     .map(([feature]) => feature)
-    .join(', ')
+    .join(`, `)
 
   return `
 Document System Configuration:
@@ -232,9 +232,9 @@ export const documentSystemConfig = loadDocumentSystemConfig()
 // Validate on load and log warnings
 const configErrors = validateDocumentSystemConfig(documentSystemConfig)
 if (configErrors.length > 0) {
-  console.warn('⚠️  Document System Configuration Warnings:')
+  console.warn(`⚠️  Document System Configuration Warnings:`)
   configErrors.forEach(error => console.warn(`   - ${error}`))
-  console.warn('   Some features may be disabled until configuration is complete.')
+  console.warn(`   Some features may be disabled until configuration is complete.`)
 }
 
 console.log(getConfigSummary(documentSystemConfig))

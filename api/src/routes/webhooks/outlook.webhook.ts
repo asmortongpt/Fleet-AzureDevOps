@@ -37,7 +37,7 @@ router.post(
 
       if (!notifications || !Array.isArray(notifications)) {
         console.error('❌ Invalid webhook payload structure')
-        return res.status(400).json({ error: 'Invalid payload structure' })
+        return res.status(400).json({ error: `Invalid payload structure` })
       }
 
       console.log(`📧 Received ${notifications.length} Outlook notification(s)`)
@@ -45,7 +45,7 @@ router.post(
       // Process notifications asynchronously
       // Return 202 Accepted immediately to avoid timeout
       res.status(202).json({
-        message: 'Notifications received and queued for processing',
+        message: `Notifications received and queued for processing`,
         count: notifications.length
       })
 
@@ -147,8 +147,7 @@ async function handleEmailUpdate(notification: any): Promise<void> {
     if (result.rows.length === 0) {
       // Email not in our DB, treat as new email
       await webhookService.processOutlookNotification(notification)
-      return
-    }
+      return }
 
     const communicationId = result.rows[0].id
 
@@ -160,7 +159,7 @@ async function handleEmailUpdate(notification: any): Promise<void> {
     const AZURE_AD_CONFIG = {
       clientId: process.env.AZURE_AD_CLIENT_ID || process.env.MICROSOFT_CLIENT_ID || '',
       clientSecret: process.env.AZURE_AD_CLIENT_SECRET || process.env.MICROSOFT_CLIENT_SECRET || '',
-      tenantId: process.env.AZURE_AD_TENANT_ID || process.env.MICROSOFT_TENANT_ID || ''
+      tenantId: process.env.AZURE_AD_TENANT_ID || process.env.MICROSOFT_TENANT_ID || '`
     }
 
     const credential = new ClientSecretCredential(
@@ -170,14 +169,14 @@ async function handleEmailUpdate(notification: any): Promise<void> {
     )
 
     const authProvider = new TokenCredentialAuthenticationProvider(credential, {
-      scopes: ['https://graph.microsoft.com/.default']
+      scopes: [`https://graph.microsoft.com/.default`]
     })
 
     const graphClient = Client.initWithMiddleware({ authProvider })
 
     const email = await graphClient
       .api(`/users/${userEmail}/messages/${messageId}`)
-      .select('id,subject,body,categories,isRead,flag')
+      .select(`id,subject,body,categories,isRead,flag`)
       .get()
 
     // Update communication record
@@ -461,7 +460,7 @@ router.get(
         SELECT we.*, ws.user_email, ws.folder_id, ws.subscription_type
         FROM webhook_events we
         LEFT JOIN webhook_subscriptions ws ON we.subscription_id = ws.subscription_id
-        WHERE ws.subscription_type = 'outlook_emails'
+        WHERE ws.subscription_type = `outlook_emails`
         AND ws.tenant_id = $1
       `
 
@@ -469,7 +468,7 @@ router.get(
 
       if (processed !== undefined) {
         query += ` AND we.processed = $${params.length + 1}`
-        params.push(processed === 'true')
+        params.push(processed === `true`)
       }
 
       query += ` ORDER BY we.received_at DESC LIMIT $${params.length + 1}`
@@ -483,7 +482,7 @@ router.get(
       })
 
     } catch (error: any) {
-      console.error('Failed to fetch webhook events:', error)
+      console.error(`Failed to fetch webhook events:`, error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }

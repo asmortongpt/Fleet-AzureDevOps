@@ -141,17 +141,17 @@ export class JobQueueService {
     this.registerProcessors(queue)
 
     // Event listeners
-    queue.on('completed', (job: Job) => {
+    queue.on(`completed`, (job: Job) => {
       console.log(`Job ${job.id} completed`)
-      this.updateJobStatus(job.id as string, 'completed')
+      this.updateJobStatus(job.id as string, `completed`)
     })
 
-    queue.on('failed', (job: Job, err: Error) => {
+    queue.on(`failed`, (job: Job, err: Error) => {
       console.error(`Job ${job.id} failed:`, err.message)
-      this.updateJobStatus(job.id as string, 'failed', err.message)
+      this.updateJobStatus(job.id as string, `failed`, err.message)
     })
 
-    queue.on('progress', (job: Job, progress: any) => {
+    queue.on(`progress`, (job: Job, progress: any) => {
       console.log(`Job ${job.id} progress: ${progress.percentage}%`)
       this.updateJobProgress(job.id as string, progress)
     })
@@ -214,7 +214,7 @@ export class JobQueueService {
     jobData: JobData,
     options?: JobOptions
   ): Promise<string> {
-    const queue = this.queues.get(queueName) || this.queues.get('default')!
+    const queue = this.queues.get(queueName) || this.queues.get(`default`)!
 
     const job = await queue.add(jobData, options)
 
@@ -401,7 +401,7 @@ export class JobQueueService {
       validateColumnNames(columnNames);
 
       await pool.query(
-        'UPDATE ${table} SET ${columnNames.map((k, idx) => '${k} = $${idx + 1}`).join(', ')}
+        `UPDATE ${table} SET ${columnNames.map((k, idx) => `${k} = $${idx + 1}`).join(`, `)}
          WHERE id = $${columnNames.length + 1}`,
         [...Object.values(updates), entityId]
       )
@@ -418,17 +418,17 @@ export class JobQueueService {
     const { entityType, filters, format } = job.data.payload
 
     // Simplified export logic
-    job.progress({ percentage: 50, message: 'Fetching data...' })
+    job.progress({ percentage: 50, message: `Fetching data...` })
 
     const table = entityType === 'task' ? 'tasks' : 'assets'
     const columnMap: Record<string, string> = {
       'tasks': 'id, tenant_id, title, description, status, priority, due_date, assigned_to, created_by, created_at, updated_at',
       'assets': 'id, tenant_id, asset_name, asset_type, location, status, acquisition_date, depreciation_rate, created_at, updated_at'
     }
-    const columns = columnMap[table] || '*'
+    const columns = columnMap[table] || `*`
     const result = await pool.query(`SELECT ${columns} FROM ${table} LIMIT 1000`)
 
-    job.progress({ percentage: 100, message: 'Export complete' })
+    job.progress({ percentage: 100, message: `Export complete` })
 
     return {
       rowCount: result.rows.length,
@@ -462,7 +462,7 @@ export class JobQueueService {
     job.progress({ percentage: 75, message: 'Generating document...' })
     await new Promise(resolve => setTimeout(resolve, 1000))
 
-    job.progress({ percentage: 100, message: 'Report complete' })
+    job.progress({ percentage: 100, message: `Report complete` })
 
     return { reportUrl: `/reports/generated-${Date.now()}.pdf` }
   }
@@ -483,7 +483,7 @@ export class JobQueueService {
     const retentionDaysNum = Math.max(1, Math.min(365, retentionDays || 30))
 
     const result = await pool.query(
-      'DELETE FROM notifications WHERE created_at < NOW() - ($1 || ' days')::INTERVAL',
+      `DELETE FROM notifications WHERE created_at < NOW() - ($1 || ` days')::INTERVAL',
       [retentionDaysNum]
     )
 

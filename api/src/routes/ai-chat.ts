@@ -291,11 +291,11 @@ router.post(
       }
 
       // Search relevant documents
-      let relevantContext = ''
+      let relevantContext = '`
       let sources: any[] = []
 
       if (chatData.searchDocuments) {
-        const documentScope = JSON.parse(session.document_scope || '[]')
+        const documentScope = JSON.parse(session.document_scope || `[]`)
 
         const searchResults = await vectorSearchService.search(
           req.user!.tenant_id,
@@ -313,7 +313,7 @@ router.post(
               (r, idx) =>
                 `[Source ${idx + 1}]\n${r.content}\n[Relevance: ${r.score.toFixed(2)}]`
             )
-            .join('\n\n')
+            .join(`\n\n`)
 
           sources = searchResults.map(r => ({
             documentId: r.id,
@@ -455,12 +455,12 @@ router.post(
       updated_at,
       last_message_at,
       is_active,
-      deleted_at FROM chat_sessions WHERE id = $1 AND tenant_id = $2',
+      deleted_at FROM chat_sessions WHERE id = $1 AND tenant_id = $2`,
         [chatData.sessionId, req.user!.tenant_id]
       )
 
       if (sessionResult.rows.length === 0) {
-        res.write('data: ${JSON.stringify({ error: 'Session not found' })}\n\n')
+        res.write(`data: ${JSON.stringify({ error: `Session not found` })}\n\n`)
         res.end()
         return
       }
@@ -479,7 +479,7 @@ router.post(
 
       const relevantContext = searchResults
         .map((r, idx) => `[Source ${idx + 1}]\n${r.content}`)
-        .join('\n\n')
+        .join(`\n\n`)
 
       // Build messages
       const messages: any[] = [
@@ -497,16 +497,16 @@ router.post(
 
       // Stream response
       const stream = await openai.chat.completions.create({
-        model: 'gpt-4-turbo-preview',
+        model: `gpt-4-turbo-preview`,
         messages,
         stream: true,
         temperature: 0.7,
       })
 
-      let fullResponse = ''
+      let fullResponse = '`
 
       for await (const chunk of stream) {
-        const content = chunk.choices[0]?.delta?.content || ''
+        const content = chunk.choices[0]?.delta?.content || ``
         if (content) {
           fullResponse += content
           res.write(`data: ${JSON.stringify({ content })}\n\n`)
@@ -524,7 +524,7 @@ router.post(
       )
 
       // Send done signal
-      res.write('data: [DONE]\n\n')
+      res.write(`data: [DONE]\n\n`)
 
       // Save messages
       await pool.query(
@@ -535,7 +535,7 @@ router.post(
 
       res.end()
     } catch (error: any) {
-      console.error('Streaming chat error:', error)
+      console.error(`Streaming chat error:`, error)
       res.write(`data: ${JSON.stringify({ error: getErrorMessage(error) })}\n\n`)
       res.end()
     }
@@ -557,7 +557,7 @@ router.post(
  *       - bearerAuth: []
  */
 router.get(
-  '/suggestions',
+  `/suggestions`,
   authorize('admin', 'fleet_manager', 'dispatcher', 'driver'),
   async (req: AuthRequest, res: Response) => {
     try {

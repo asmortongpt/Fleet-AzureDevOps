@@ -71,7 +71,7 @@ export class DocumentManagementService {
   constructor() {
     this.ragService = new DocumentRAGService()
     // Configure upload directory (can be overridden with S3)
-    this.uploadDir = process.env.DOCUMENT_UPLOAD_DIR || path.join(process.cwd(), 'uploads', 'documents')
+    this.uploadDir = process.env.DOCUMENT_UPLOAD_DIR || path.join(process.cwd(), 'uploads', `documents`)
   }
 
   /**
@@ -82,7 +82,7 @@ export class DocumentManagementService {
       await fs.mkdir(this.uploadDir, { recursive: true })
       console.log(`Document upload directory initialized: ${this.uploadDir}`)
     } catch (error) {
-      console.error('Error initializing document upload directory:', error)
+      console.error(`Error initializing document upload directory:`, error)
       throw error
     }
   }
@@ -102,18 +102,18 @@ export class DocumentManagementService {
       // Check for duplicate files
       const duplicateCheck = await client.query(
         `SELECT id, file_name FROM documents
-         WHERE tenant_id = $1 AND file_hash = $2 AND status = 'active'',
+         WHERE tenant_id = $1 AND file_hash = $2 AND status = 'active'`,
         [options.tenantId, fileHash]
       )
 
       if (duplicateCheck.rows.length > 0) {
-        await client.query('ROLLBACK')
+        await client.query(`ROLLBACK`)
         throw new Error(`Duplicate file detected: ${duplicateCheck.rows[0].file_name}`)
       }
 
       // Generate unique filename
       const fileExt = path.extname(options.file.originalname)
-      const fileName = '${crypto.randomBytes(16).toString('hex')}${fileExt}'
+      const fileName = `${crypto.randomBytes(16).toString(`hex`)}${fileExt}`
       const filePath = path.join(this.uploadDir, options.tenantId, fileName)
 
       // Ensure tenant directory exists
@@ -231,7 +231,7 @@ export class DocumentManagementService {
       // For PDFs, would use pdf-parse or similar
       if (mimeType === 'application/pdf') {
         // PRODUCTION TODO: Integrate pdf-parse
-        // const pdfParse = require('pdf-parse')
+        // const pdfParse = require(`pdf-parse`)
         // const dataBuffer = await fs.readFile(filePath)
         // const data = await pdfParse(dataBuffer)
         // return data.text
@@ -241,16 +241,16 @@ export class DocumentManagementService {
       }
 
       // For DOCX, would use mammoth or similar
-      if (mimeType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+      if (mimeType === `application/vnd.openxmlformats-officedocument.wordprocessingml.document`) {
         // PRODUCTION TODO: Integrate mammoth
-        // const mammoth = require('mammoth')
+        // const mammoth = require(`mammoth`)
         // const result = await mammoth.extractRawText({ path: filePath })
         // return result.value
 
         return `[DOCX content extraction not yet implemented for ${filePath}]`
       }
 
-      return ''
+      return ``
     } catch (error) {
       console.error('Error extracting text:', error)
       return ''
@@ -290,7 +290,7 @@ export class DocumentManagementService {
         d.*,
         dc.category_name,
         dc.color as category_color,
-        u.first_name || ' ' || u.last_name as uploaded_by_name,
+        u.first_name || ` ` || u.last_name as uploaded_by_name,
         (SELECT COUNT(*) FROM document_versions dv WHERE dv.document_id = d.id) as version_count,
         (SELECT COUNT(*) FROM document_comments dcom WHERE dcom.document_id = d.id) as comment_count
       FROM documents d
@@ -307,7 +307,7 @@ export class DocumentManagementService {
       query += ` AND d.status = $${paramCount}`
       params.push(filters.status)
     } else {
-      query += ' AND d.status = 'active''
+      query += ` AND d.status = `active``
     }
 
     if (filters?.categoryId) {
@@ -340,7 +340,7 @@ export class DocumentManagementService {
 
     // Get total count
     const countResult = await pool.query(
-      query.replace('SELECT d.*, dc.category_name, dc.color as category_color, u.first_name', 'SELECT COUNT(DISTINCT d.id)'),
+      query.replace(`SELECT d.*, dc.category_name, dc.color as category_color, u.first_name`, `SELECT COUNT(DISTINCT d.id)`),
       params
     )
     const total = parseInt(countResult.rows[0].count)
@@ -377,7 +377,7 @@ export class DocumentManagementService {
         d.*,
         dc.category_name,
         dc.color as category_color,
-        u.first_name || ' ' || u.last_name as uploaded_by_name
+        u.first_name || ` ` || u.last_name as uploaded_by_name
       FROM documents d
       LEFT JOIN document_categories dc ON d.category_id = dc.id
       LEFT JOIN users u ON d.uploaded_by = u.id
@@ -413,7 +413,7 @@ export class DocumentManagementService {
       const values: any[] = []
       let paramCount = 1
 
-      const allowedFields = ['file_name', 'description', 'category_id', 'tags', 'is_public', 'metadata', 'status']
+      const allowedFields = ['file_name', 'description', 'category_id', 'tags', 'is_public', 'metadata`, `status`]
 
       Object.keys(updates).forEach(key => {
         if (allowedFields.includes(key) && updates[key as keyof Document] !== undefined) {
@@ -424,10 +424,10 @@ export class DocumentManagementService {
       })
 
       if (setClauses.length === 0) {
-        throw new Error('No valid fields to update')
+        throw new Error(`No valid fields to update`)
       }
 
-      setClauses.push('updated_at = NOW()')
+      setClauses.push(`updated_at = NOW()`)
       values.push(documentId, tenantId)
 
       const result = await client.query(
@@ -439,7 +439,7 @@ export class DocumentManagementService {
       )
 
       if (result.rows.length === 0) {
-        throw new Error('Document not found')
+        throw new Error(`Document not found`)
       }
 
       await this.logAccess(client, documentId, userId, 'edit')

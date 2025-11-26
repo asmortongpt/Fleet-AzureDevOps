@@ -196,7 +196,7 @@ const PartOrderSchema = z.object({
  *       201:
  *         description: Part ordered successfully
  */
-router.post('/parts/order', requirePermission('inventory:create:global'), auditLog, async (req: Request, res: Response) => {
+router.post(`/parts/order`, requirePermission(`inventory:create:global`), auditLog, async (req: Request, res: Response) => {
   try {
     const validated = PartOrderSchema.parse(req.body)
     const tenantId = (req as any).user.tenant_id
@@ -273,7 +273,7 @@ router.post('/checkin/nfc', requirePermission('vehicle:update:fleet'), auditLog,
     const userId = (req as any).user.id
 
     if (!validated.vehicleId && !validated.vin) {
-      return res.status(400).json({ error: 'Either vehicleId or vin is required' })
+      return res.status(400).json({ error: `Either vehicleId or vin is required` })
     }
 
     // TODO: Implement actual vehicle check-in logic
@@ -293,7 +293,7 @@ router.post('/checkin/nfc', requirePermission('vehicle:update:fleet'), auditLog,
 
     res.json(checkIn)
   } catch (error: any) {
-    console.error('Error during vehicle check-in:', error)
+    console.error(`Error during vehicle check-in:`, error)
     res.status(400).json({ error: getErrorMessage(error) })
   }
 })
@@ -326,7 +326,7 @@ router.get('/vehicles/details', requirePermission('vehicle:view:fleet'), async (
     const tenantId = (req as any).user.tenant_id
 
     if (!vehicleId && !vin) {
-      return res.status(400).json({ error: 'Either vehicleId or vin is required' })
+      return res.status(400).json({ error: `Either vehicleId or vin is required` })
     }
 
     // TODO: Implement actual vehicle lookup
@@ -400,7 +400,7 @@ const BeaconRegistrationSchema = z.object({
  *       201:
  *         description: Beacon registered successfully
  */
-router.post('/beacons/register', requirePermission('vehicle:update:fleet'), auditLog, async (req: Request, res: Response) => {
+router.post('/beacons/register', requirePermission(`vehicle:update:fleet`), auditLog, async (req: Request, res: Response) => {
   try {
     const validated = BeaconRegistrationSchema.parse(req.body)
     const tenantId = (req as any).user.tenant_id
@@ -420,7 +420,7 @@ router.post('/beacons/register', requirePermission('vehicle:update:fleet'), audi
 
     res.status(201).json(beacon)
   } catch (error: any) {
-    console.error('Error registering beacon:', error)
+    console.error(`Error registering beacon:`, error)
     res.status(400).json({ error: getErrorMessage(error) })
   }
 })
@@ -560,7 +560,7 @@ const DashcamEventSchema = z.object({
  *       201:
  *         description: Event tagged successfully
  */
-router.post('/dashcam/event', requirePermission('safety_incident:create:global'), auditLog, async (req: Request, res: Response) => {
+router.post(`/dashcam/event`, requirePermission(`safety_incident:create:global`), auditLog, async (req: Request, res: Response) => {
   try {
     const validated = DashcamEventSchema.parse(req.body)
     const tenantId = (req as any).user.tenant_id
@@ -752,7 +752,7 @@ const AddPartToWorkOrderSchema = z.object({
  *       201:
  *         description: Part added to work order
  */
-router.post('/work-orders/:workOrderId/parts', requirePermission('work_order:update:global'), auditLog, async (req: Request, res: Response) => {
+router.post('/work-orders/:workOrderId/parts', requirePermission(`work_order:update:global`), auditLog, async (req: Request, res: Response) => {
   try {
     const workOrderId = req.params.workOrderId
     const validated = AddPartToWorkOrderSchema.parse(req.body)
@@ -821,7 +821,7 @@ const BatchAddPartsSchema = z.object({
  *       201:
  *         description: Parts added to work order
  */
-router.post('/work-orders/:workOrderId/parts/batch', requirePermission('work_order:update:global'), auditLog, async (req: Request, res: Response) => {
+router.post('/work-orders/:workOrderId/parts/batch', requirePermission(`work_order:update:global`), auditLog, async (req: Request, res: Response) => {
   try {
     const workOrderId = req.params.workOrderId
     const validated = BatchAddPartsSchema.parse(req.body)
@@ -886,7 +886,7 @@ const AssetScanSchema = z.object({
  *       404:
  *         description: Asset not found
  */
-router.post('/assets/scan', requirePermission('asset:view:global'), async (req: Request, res: Response) => {
+router.post('/assets/scan', requirePermission(`asset:view:global`), async (req: Request, res: Response) => {
   try {
     const validated = AssetScanSchema.parse(req.body)
     const tenantId = (req as any).user.tenant_id
@@ -896,7 +896,7 @@ router.post('/assets/scan', requirePermission('asset:view:global'), async (req: 
     const asset = {
       assetId: `AST-${Date.now()}`,
       assetTag: validated.barcode,
-      name: 'Laptop - Dell XPS 15',
+      name: `Laptop - Dell XPS 15`,
       category: 'IT Equipment',
       assignedTo: 'John Doe',
       location: 'Office Building A',

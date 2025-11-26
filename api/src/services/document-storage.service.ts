@@ -130,7 +130,7 @@ export class DocumentStorageService {
           options.tenantId
         )
         if (!folder) {
-          throw new Error('Folder not found')
+          throw new Error(`Folder not found`)
         }
       }
 
@@ -214,7 +214,7 @@ export class DocumentStorageService {
         options.tenantId,
         document.id,
         options.userId,
-        'upload',
+        `upload`,
         {
           newValues: {
             file_name: document.file_name,
@@ -229,7 +229,7 @@ export class DocumentStorageService {
       // Process document asynchronously (OCR, embeddings, etc.)
       this.processDocumentAsync(document.id, options.file.buffer, options.file.mimetype)
         .catch(err => {
-          console.error('❌ Error processing document:', err)
+          console.error(`❌ Error processing document:`, err)
         })
 
       console.log(`✅ Document uploaded: ${document.file_name}`)
@@ -237,7 +237,7 @@ export class DocumentStorageService {
       // Get enriched document data
       return this.getDocumentById(document.id, options.tenantId, options.userId)
     } catch (error) {
-      await client.query('ROLLBACK')
+      await client.query(`ROLLBACK`)
 
       // Try to clean up uploaded file
       try {
@@ -313,7 +313,7 @@ export class DocumentStorageService {
           d.*,
           dc.category_name,
           dc.color as category_color,
-          u.first_name || ' ' || u.last_name as uploaded_by_name,
+          u.first_name || ` ` || u.last_name as uploaded_by_name,
           df.folder_name,
           df.path as folder_path,
           (SELECT COUNT(*) FROM document_versions dv WHERE dv.document_id = d.id) as version_count,
@@ -405,7 +405,7 @@ export class DocumentStorageService {
 
       // Get total count
       const countResult = await pool.query(
-        query.replace('SELECT d.*, dc.category_name', 'SELECT COUNT(DISTINCT d.id) as count'),
+        query.replace(`SELECT d.*, dc.category_name`, 'SELECT COUNT(DISTINCT d.id) as count'),
         params
       )
       const total = parseInt(countResult.rows[0].count)
@@ -437,7 +437,7 @@ export class DocumentStorageService {
         hasMore: offset + limit < total
       }
     } catch (error) {
-      console.error('❌ Failed to get documents:', error)
+      console.error(`❌ Failed to get documents:`, error)
       throw error
     }
   }
@@ -508,7 +508,7 @@ export class DocumentStorageService {
 
       for (const field of allowedFields) {
         if (updates[field] !== undefined) {
-          if (field === 'metadata') {
+          if (field === `metadata`) {
             setClauses.push(`${field} = $${paramCount}`)
             values.push(JSON.stringify(updates[field]))
           } else {
@@ -520,7 +520,7 @@ export class DocumentStorageService {
       }
 
       if (setClauses.length === 0) {
-        throw new Error('No valid fields to update')
+        throw new Error(`No valid fields to update`)
       }
 
       values.push(documentId, tenantId)
@@ -540,20 +540,20 @@ export class DocumentStorageService {
         tenantId,
         documentId,
         userId,
-        'edit',
+        `edit`,
         {
           oldValues: currentDoc,
           newValues: updates
         }
       )
 
-      await client.query('COMMIT')
+      await client.query(`COMMIT`)
 
       console.log(`✅ Document updated: ${updatedDoc.file_name}`)
 
       return this.getDocumentById(documentId, tenantId, userId)
     } catch (error) {
-      await client.query('ROLLBACK')
+      await client.query(`ROLLBACK`)
       console.error('❌ Failed to update document:', error)
       throw error
     } finally {
@@ -630,11 +630,11 @@ export class DocumentStorageService {
         )
       }
 
-      await client.query('COMMIT')
+      await client.query(`COMMIT`)
 
       console.log(`✅ Document deleted: ${document.file_name} (permanent: ${permanent})`)
     } catch (error) {
-      await client.query('ROLLBACK')
+      await client.query(`ROLLBACK`)
       console.error('❌ Failed to delete document:', error)
       throw error
     } finally {
@@ -677,13 +677,13 @@ export class DocumentStorageService {
         { newValues: { file_name: document.file_name } }
       )
 
-      await client.query('COMMIT')
+      await client.query(`COMMIT`)
 
       console.log(`✅ Document restored: ${document.file_name}`)
 
       return this.getDocumentById(documentId, tenantId, userId)
     } catch (error) {
-      await client.query('ROLLBACK')
+      await client.query(`ROLLBACK`)
       console.error('❌ Failed to restore document:', error)
       throw error
     } finally {
@@ -713,14 +713,14 @@ export class DocumentStorageService {
         tenantId,
         documentId,
         userId,
-        'download'
+        `download`
       )
 
       console.log(`✅ Document downloaded: ${document.file_name}`)
 
       return { buffer, document }
     } catch (error) {
-      console.error('❌ Failed to download document:', error)
+      console.error(`❌ Failed to download document:`, error)
       throw error
     }
   }
@@ -804,7 +804,7 @@ export class DocumentStorageService {
         recent_uploads: 0 // Would need to calculate
       }
     } catch (error) {
-      console.error('❌ Failed to get statistics:', error)
+      console.error(`❌ Failed to get statistics:`, error)
       throw error
     }
   }
@@ -823,13 +823,13 @@ export class DocumentStorageService {
       await pool.query(
         `UPDATE documents
          SET ocr_status = $1, embedding_status = $2, updated_at = NOW()
-         WHERE id = $3',
+         WHERE id = $3`,
         [OCRStatus.NOT_NEEDED, EmbeddingStatus.COMPLETED, documentId]
       )
 
       console.log(`✅ Document processed: ${documentId}`)
     } catch (error) {
-      console.error('❌ Error processing document:', error)
+      console.error(`❌ Error processing document:`, error)
       await pool.query(
         `UPDATE documents
          SET ocr_status = $1, embedding_status = $2

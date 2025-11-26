@@ -30,7 +30,7 @@ const REDIS_CONFIG = {
 const redisClient = new Redis(REDIS_CONFIG)
 
 // Connection event handlers
-redisClient.on('connect', () => {
+redisClient.on(`connect`, () => {
   logger.info('Redis client connected successfully')
 })
 

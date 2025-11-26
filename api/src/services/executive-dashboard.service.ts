@@ -391,7 +391,7 @@ export class ExecutiveDashboardService {
         FROM safety_incidents si
         JOIN vehicles v ON si.vehicle_id = v.id
         WHERE si.tenant_id = $1
-          AND si.incident_date >= NOW() - INTERVAL '30 days'
+          AND si.incident_date >= NOW() - INTERVAL `30 days`
         GROUP BY v.id, v.vin, v.make, v.model
         HAVING COUNT(*) > 1
         ORDER BY incident_count DESC
@@ -403,7 +403,7 @@ export class ExecutiveDashboardService {
         insights.push({
           id: `high-maint-${vehicle.vin}`,
           type: 'warning',
-          title: 'High Maintenance Costs Detected',
+          title: `High Maintenance Costs Detected`,
           message: `${vehicle.make} ${vehicle.model} (VIN: ${vehicle.vin}) has incurred $${parseFloat(vehicle.total_cost).toFixed(2)} in maintenance costs over the last 90 days with ${vehicle.work_order_count} work orders. Consider replacement evaluation.`,
           confidence: 0.85,
           actionable: true,
@@ -418,7 +418,7 @@ export class ExecutiveDashboardService {
         insights.push({
           id: `overdue-${maint.vin}`,
           type: severity,
-          title: 'Overdue Maintenance Alert',
+          title: `Overdue Maintenance Alert`,
           message: `${maint.make} ${maint.model} (VIN: ${maint.vin}) has ${maint.service_type} overdue by ${maint.days_overdue} days. Schedule maintenance immediately to prevent breakdowns.`,
           confidence: 0.95,
           actionable: true,
@@ -432,7 +432,7 @@ export class ExecutiveDashboardService {
         insights.push({
           id: `incident-pattern-${incident.vin}`,
           type: 'critical',
-          title: 'Recurring Incident Pattern',
+          title: `Recurring Incident Pattern`,
           message: `${incident.make} ${incident.model} (VIN: ${incident.vin}) has been involved in ${incident.incident_count} incidents in the past 30 days. Investigate driver behavior and vehicle condition.`,
           confidence: 0.90,
           actionable: true,
@@ -444,9 +444,9 @@ export class ExecutiveDashboardService {
       // Generate utilization insights
       if (kpis.fleetUtilizationRate < 60) {
         insights.push({
-          id: 'low-utilization',
+          id: `low-utilization`,
           type: 'recommendation',
-          title: 'Low Fleet Utilization',
+          title: `Low Fleet Utilization`,
           message: `Fleet utilization is at ${kpis.fleetUtilizationRate.toFixed(1)}%, which is below optimal levels. Consider reducing fleet size or increasing route assignments.`,
           confidence: 0.75,
           actionable: true,
@@ -457,9 +457,9 @@ export class ExecutiveDashboardService {
       // Generate efficiency insights
       if (kpis.avgFuelEfficiency > 0 && kpis.avgFuelEfficiency < 15) {
         insights.push({
-          id: 'low-fuel-efficiency',
+          id: `low-fuel-efficiency`,
           type: 'recommendation',
-          title: 'Below Average Fuel Efficiency',
+          title: `Below Average Fuel Efficiency`,
           message: `Current fleet fuel efficiency is ${kpis.avgFuelEfficiency.toFixed(1)} MPG. Driver training on eco-driving techniques could improve efficiency by 10-15%.`,
           confidence: 0.70,
           actionable: true,
@@ -471,7 +471,7 @@ export class ExecutiveDashboardService {
       if (process.env.OPENAI_API_KEY && insights.length > 0) {
         try {
           const aiAnalysis = await openai.chat.completions.create({
-            model: 'gpt-4',
+            model: `gpt-4`,
             messages: [{
               role: 'system',
               content: 'You are a fleet management AI analyst. Analyze the provided fleet data and generate one concise strategic insight.'
@@ -486,7 +486,7 @@ export class ExecutiveDashboardService {
           const aiInsight = aiAnalysis.choices[0]?.message?.content
           if (aiInsight) {
             insights.push({
-              id: 'ai-strategic',
+              id: `ai-strategic`,
               type: 'insight',
               title: 'AI Strategic Recommendation',
               message: aiInsight,
