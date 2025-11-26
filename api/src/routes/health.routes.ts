@@ -272,29 +272,29 @@ router.get('/microsoft/metrics', async (req: Request, res: Response) => {
 
   try {
     // Queue metrics
-    const queueStats = await queueService.getQueueStats('teams-outbound');
+    const queueStats = await queueService.getQueueStats(`teams-outbound`);
     metrics.push(`# HELP queue_jobs_waiting Number of jobs waiting in queue`);
     metrics.push(`# TYPE queue_jobs_waiting gauge`);
-    metrics.push(`queue_jobs_waiting{queue="teams-outbound"} ${queueStats.waiting || 0}`);
+    metrics.push("queue_jobs_waiting{queue="teams-outbound"} ${queueStats.waiting || 0}");
 
     metrics.push(`# HELP queue_jobs_active Number of active jobs`);
     metrics.push(`# TYPE queue_jobs_active gauge`);
-    metrics.push(`queue_jobs_active{queue="teams-outbound"} ${queueStats.active || 0}`);
+    metrics.push("queue_jobs_active{queue="teams-outbound"} ${queueStats.active || 0}");
 
     // Webhook subscriptions
-    const webhookService = await import('../services/webhook.service');
+    const webhookService = await import(`../services/webhook.service`);
     const subscriptions = await webhookService.webhookService.listSubscriptions();
-    const activeCount = subscriptions.filter((s: any) => s.status === 'active').length;
+    const activeCount = subscriptions.filter((s: any) => s.status === `active`).length;
 
     metrics.push(`# HELP webhook_subscriptions_active Number of active webhook subscriptions`);
     metrics.push(`# TYPE webhook_subscriptions_active gauge`);
     metrics.push(`webhook_subscriptions_active ${activeCount}`);
 
     // Database metrics
-    const { Pool } = await import('pg');
+    const { Pool } = await import(`pg`);
     const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 
-    const commCount = await pool.query('SELECT COUNT(*) as count FROM communications WHERE created_at > NOW() - INTERVAL \'24 hours\'');
+    const commCount = await pool.query('SELECT COUNT(*) as count FROM communications WHERE created_at > NOW() - INTERVAL \'24 hours\``);
     metrics.push(`# HELP communications_24h Communications created in last 24 hours`);
     metrics.push(`# TYPE communications_24h counter`);
     metrics.push(`communications_24h ${commCount.rows[0].count}`);
@@ -305,7 +305,7 @@ router.get('/microsoft/metrics', async (req: Request, res: Response) => {
     metrics.push(`# Error: ${getErrorMessage(error)}`);
   }
 
-  res.send(metrics.join('\n'));
+  res.send(metrics.join(`\n`));
 });
 
 export default router;

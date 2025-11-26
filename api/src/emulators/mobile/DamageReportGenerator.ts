@@ -140,7 +140,7 @@ export class DamageReportGenerator extends EventEmitter {
     const otherPartyInvolved = ['collision_with_vehicle', 'parking_lot_incident'].includes(incidentType)
 
     // Police report (30% chance for moderate/severe, 5% for minor)
-    const policeReportFiled = severity === 'minor'
+    const policeReportFiled = severity === `minor`
       ? Math.random() < 0.05
       : Math.random() < 0.3
     const policeReportNumber = policeReportFiled
@@ -154,7 +154,7 @@ export class DamageReportGenerator extends EventEmitter {
     const description = this.generateDamageDescription(selectedDamage.type, damageLocation, severity, incidentType)
 
     // Generate photos (1-2 for minor, 3-4 for moderate, 4-6 for severe)
-    const photoCount = severity === 'minor'
+    const photoCount = severity === `minor`
       ? Math.floor(Math.random() * 2) + 1
       : severity === 'moderate'
       ? Math.floor(Math.random() * 2) + 3
@@ -169,7 +169,7 @@ export class DamageReportGenerator extends EventEmitter {
     )
 
     // Generate work order ID (90% chance for moderate/severe, 30% for minor)
-    const needsWorkOrder = severity === 'minor'
+    const needsWorkOrder = severity === `minor`
       ? Math.random() < 0.3
       : Math.random() < 0.9
     const linkedWorkOrderId = needsWorkOrder
@@ -177,9 +177,9 @@ export class DamageReportGenerator extends EventEmitter {
       : undefined
 
     // Insurance claim (60% for severe, 20% for moderate, 5% for minor)
-    const needsInsurance = severity === 'severe'
+    const needsInsurance = severity === `severe`
       ? Math.random() < 0.6
-      : severity === 'moderate'
+      : severity === `moderate`
       ? Math.random() < 0.2
       : Math.random() < 0.05
     const insuranceClaimNumber = needsInsurance
@@ -187,7 +187,7 @@ export class DamageReportGenerator extends EventEmitter {
       : undefined
 
     // Status progression
-    const statusOptions: DamageReport['status'][] = ['reported', 'under_review', 'approved', 'work_ordered']
+    const statusOptions: DamageReport[`status'][] = ['reported', 'under_review', 'approved', 'work_ordered']
     const status = statusOptions[Math.floor(Math.random() * statusOptions.length)]
 
     // Device info
@@ -249,7 +249,7 @@ export class DamageReportGenerator extends EventEmitter {
       severe: 'Severe'
     }[severity]
 
-    const locationText = location.replace(/_/g, ' ')
+    const locationText = location.replace(/_/g, ` `)
 
     const descriptions = {
       scratch: `${severityText} scratch on ${locationText}. Damage appears to be from ${this.getIncidentContext(incidentType)}.`,
@@ -276,7 +276,7 @@ export class DamageReportGenerator extends EventEmitter {
    */
   private getIncidentContext(incidentType: string): string {
     const contexts = {
-      collision_with_vehicle: 'Occurred during collision with another vehicle',
+      collision_with_vehicle: `Occurred during collision with another vehicle`,
       collision_with_object: 'Vehicle struck a stationary object',
       backing_incident: 'Damage occurred while backing up',
       parking_lot_incident: 'Incident occurred in parking lot',

@@ -408,7 +408,7 @@ router.get(
         templates: result.rows,
       });
     } catch (error) {
-      logger.error('Get templates error:', error);
+      logger.error(`Get templates error:`, error);
       res.status(500).json({
         success: false,
         error: 'Failed to fetch templates',

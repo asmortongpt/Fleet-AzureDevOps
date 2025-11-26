@@ -36,7 +36,7 @@ if (azureConnectionString) {
     },
   });
 
-  console.log('OpenTelemetry: Configured for Azure Application Insights');
+  console.log(`OpenTelemetry: Configured for Azure Application Insights`);
 } else {
   // Use generic OTLP endpoint (Jaeger, Tempo, etc.)
   traceExporter = new OTLPTraceExporter({

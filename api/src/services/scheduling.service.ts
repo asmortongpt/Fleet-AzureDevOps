@@ -249,7 +249,7 @@ export async function checkTechnicianAvailability(
        LEFT JOIN service_bays sb ON sbs.service_bay_id = sb.id
        WHERE sbs.tenant_id = $1
          AND sbs.assigned_technician_id = $2
-         AND sbs.status NOT IN ('cancelled', 'completed')
+         AND sbs.status NOT IN (`cancelled', 'completed')
          AND (
            ($3 BETWEEN sbs.scheduled_start AND sbs.scheduled_end) OR
            ($4 BETWEEN sbs.scheduled_start AND sbs.scheduled_end) OR
@@ -300,7 +300,7 @@ export async function createVehicleReservation(
     )
 
     // If critical conflicts exist, throw error
-    const criticalConflicts = conflicts.filter(c => c.severity === 'critical' || c.severity === 'high')
+    const criticalConflicts = conflicts.filter(c => c.severity === `critical` || c.severity === `high`)
     if (criticalConflicts.length > 0) {
       throw new Error(`Cannot create reservation: ${criticalConflicts[0].description}`)
     }
@@ -326,7 +326,7 @@ export async function createVehicleReservation(
         reservation.estimatedMiles,
         reservation.purpose,
         reservation.notes,
-        'pending',
+        `pending`,
         'pending'
       ]
     )
@@ -377,7 +377,7 @@ export async function createMaintenanceAppointment(
       appointment.scheduledEnd
     )
 
-    if (vehicleConflicts.some(c => c.severity === 'critical' || c.severity === 'high')) {
+    if (vehicleConflicts.some(c => c.severity === `critical` || c.severity === `high`)) {
       throw new Error(`Vehicle conflict: ${vehicleConflicts[0].description}`)
     }
 
@@ -550,7 +550,7 @@ export async function findAvailableVehicles(
 
     return result.rows
   } catch (error) {
-    console.error('Error finding available vehicles:', error)
+    console.error(`Error finding available vehicles:`, error)
     throw error
   }
 }
@@ -595,7 +595,7 @@ async function syncReservationToCalendars(
       photos,
       notes,
       created_at,
-      updated_at FROM vehicles WHERE id = $1',
+      updated_at FROM vehicles WHERE id = $1`,
       [reservation.vehicle_id]
     )
 
@@ -608,9 +608,9 @@ async function syncReservationToCalendars(
       Vehicle: ${vehicleInfo.make} ${vehicleInfo.model}<br/>
       License Plate: ${vehicleInfo.license_plate}<br/>
       Type: ${reservation.reservation_type}<br/>
-      ${reservation.pickup_location ? 'Pickup: ${reservation.pickup_location}<br/>' : ''}
-      ${reservation.dropoff_location ? 'Dropoff: ${reservation.dropoff_location}<br/>' : ''}
-      ${reservation.purpose ? 'Purpose: ${reservation.purpose}<br/>' : ''}
+      ${reservation.pickup_location ? `Pickup: ${reservation.pickup_location}<br/>` : ``}
+      ${reservation.dropoff_location ? `Dropoff: ${reservation.dropoff_location}<br/>` : ``}
+      ${reservation.purpose ? `Purpose: ${reservation.purpose}<br/>' : ''}
     `
 
     // Get enabled calendar integrations
@@ -653,7 +653,7 @@ async function syncReservationToCalendars(
             : 'google_event_id'
 
           await pool.query(
-            'UPDATE vehicle_reservations SET ${updateField} = $1 WHERE id = $2',
+            `UPDATE vehicle_reservations SET ${updateField} = $1 WHERE id = $2`,
             [eventId, reservation.id]
           )
         }
@@ -688,22 +688,20 @@ async function syncMaintenanceToCalendars(
        LEFT JOIN appointment_types at ON sbs.appointment_type_id = at.id
        LEFT JOIN service_bays sb ON sbs.service_bay_id = sb.id
        LEFT JOIN users u ON sbs.assigned_technician_id = u.id
-       WHERE sbs.id = $1',
+       WHERE sbs.id = $1`,
       [appointment.id]
     )
 
-    if (details.rows.length === 0) return
-
-    const appt = details.rows[0]
+    if (details.rows.length === 0) return const appt = details.rows[0]
     const subject = `Maintenance: ${appt.appointment_type} - ${appt.make} ${appt.model}`
-    const location = appt.bay_name || 'Service Center'
+    const location = appt.bay_name || `Service Center`
     const body = `
       <strong>Maintenance Appointment:</strong><br/>
       Vehicle: ${appt.make} ${appt.model} (${appt.license_plate})<br/>
       VIN: ${appt.vin}<br/>
       Service Type: ${appt.appointment_type}<br/>
-      ${appt.bay_name ? 'Service Bay: ${appt.bay_name}<br/>' : ''}
-      ${appt.technician_name ? 'Technician: ${appt.technician_name}<br/>' : ''}
+      ${appt.bay_name ? `Service Bay: ${appt.bay_name}<br/>` : ``}
+      ${appt.technician_name ? `Technician: ${appt.technician_name}<br/>' : ''}
     `
 
     // Get enabled calendar integrations for relevant users
@@ -751,7 +749,7 @@ async function syncMaintenanceToCalendars(
             : 'google_event_id'
 
           await pool.query(
-            'UPDATE service_bay_schedules SET ${updateField} = $1 WHERE id = $2',
+            `UPDATE service_bay_schedules SET ${updateField} = $1 WHERE id = $2`,
             [eventId, appointment.id]
           )
         }

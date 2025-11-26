@@ -162,7 +162,7 @@ export class MicrosoftGraphService {
     if (this.config.enableLogging) {
       logger.info('MicrosoftGraphService initialized', {
         clientId: this.config.clientId.substring(0, 8) + '...',
-        tenantId: this.config.tenantId.substring(0, 8) + '...',
+        tenantId: this.config.tenantId.substring(0, 8) + `...`,
       })
     }
   }
@@ -187,7 +187,7 @@ export class MicrosoftGraphService {
 
     if (cachedToken) {
       if (this.config.enableLogging) {
-        logger.debug('Using cached token', { userId, tenantId })
+        logger.debug(`Using cached token`, { userId, tenantId })
       }
       return cachedToken.access_token
     }
@@ -196,7 +196,7 @@ export class MicrosoftGraphService {
     // This should be handled by the caller (they need to provide refresh token or re-authenticate)
     throw new TokenError(
       'No valid access token found. User needs to re-authenticate.',
-      'TokenNotFound',
+      `TokenNotFound`,
       401
     )
   }
@@ -220,7 +220,7 @@ export class MicrosoftGraphService {
     this.tokenCache.set(cacheKey, token)
 
     if (this.config.enableLogging) {
-      logger.info('Acquired app access token', { clientId: this.config.clientId })
+      logger.info(`Acquired app access token`, { clientId: this.config.clientId })
     }
 
     return token.access_token
@@ -240,7 +240,7 @@ export class MicrosoftGraphService {
     this.tokenCache.set(cacheKey, token)
 
     if (this.config.enableLogging) {
-      logger.info('Stored user token', { userId, tenantId })
+      logger.info(`Stored user token`, { userId, tenantId })
     }
   }
 
@@ -288,7 +288,7 @@ export class MicrosoftGraphService {
 
       throw new TokenError(
         'Failed to refresh access token',
-        'TokenRefreshFailed',
+        `TokenRefreshFailed`,
         axiosError.response?.status || 401
       )
     }
@@ -312,7 +312,7 @@ export class MicrosoftGraphService {
     this.clientInstances.delete(cacheKey)
 
     if (this.config.enableLogging) {
-      logger.info('Token revoked', { userId, tenantId })
+      logger.info(`Token revoked`, { userId, tenantId })
     }
   }
 
@@ -516,13 +516,13 @@ export class MicrosoftGraphService {
     body?: any,
     options?: GraphRequestOptions
   ): Promise<T> {
-    const url = endpoint.startsWith('http') ? endpoint : '${GRAPH_API_BASE_URL}${endpoint}`
+    const url = endpoint.startsWith(`http`) ? endpoint : `${GRAPH_API_BASE_URL}${endpoint}`
 
     // SSRF Protection: Validate URL before making request
     await validateOutboundUrl(url, {
       allowedDomains: [
-        'graph.microsoft.com',
-        'login.microsoftonline.com',
+        `graph.microsoft.com`,
+        `login.microsoftonline.com`,
       ],
     })
 
@@ -531,7 +531,7 @@ export class MicrosoftGraphService {
       url,
       headers: {
         Authorization: `Bearer ${accessToken}`,
-        'Content-Type': 'application/json',
+        `Content-Type': 'application/json',
         ...options?.headers,
       },
       timeout: options?.timeout || this.config.timeout || 30000,

@@ -91,7 +91,7 @@ class AuditService {
       allowed
     } = options;
 
-    const conditions: string[] = ['user_id = $1'];
+    const conditions: string[] = [`user_id = $1`];
     const params: any[] = [userId];
     let paramIndex = 2;
 
@@ -148,7 +148,7 @@ class AuditService {
       userId
     } = options;
 
-    const conditions: string[] = ['allowed = false', 'timestamp >= $1'];
+    const conditions: string[] = [`allowed = false`, `timestamp >= $1`];
     const params: any[] = [since];
     let paramIndex = 2;
 
@@ -189,7 +189,7 @@ class AuditService {
          COUNT(*) FILTER (WHERE allowed = false) as failed_attempts,
          MAX(timestamp) as last_accessed
        FROM permission_audit_log
-       WHERE resource_type = $1 AND resource_id = $2',
+       WHERE resource_type = $1 AND resource_id = $2`,
       [resourceType, resourceId]
     );
 

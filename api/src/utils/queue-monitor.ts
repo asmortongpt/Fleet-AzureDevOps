@@ -148,7 +148,7 @@ export class QueueMonitor {
 
       return health;
     } catch (error) {
-      console.error('Failed to check queue health:', error);
+      console.error(`Failed to check queue health:`, error);
       throw error;
     }
   }
@@ -195,13 +195,13 @@ export class QueueMonitor {
       // - Trigger PagerDuty incident
       // - Send push notifications
 
-      const criticalAlerts = this.alerts.filter(a => a.level === 'critical');
+      const criticalAlerts = this.alerts.filter(a => a.level === `critical`);
       if (criticalAlerts.length > 0) {
         console.error(`🚨 ${criticalAlerts.length} CRITICAL ALERTS detected!`);
         // await sendCriticalAlertNotifications(criticalAlerts);
       }
     } catch (error) {
-      console.error('Failed to send alerts:', error);
+      console.error(`Failed to send alerts:`, error);
     }
   }
 
@@ -350,13 +350,13 @@ export class QueueMonitor {
 
       const result = await pool.query(
         `DELETE FROM queue_statistics
-         WHERE created_at < NOW() - ($1 || ' days')::INTERVAL',
+         WHERE created_at < NOW() - ($1 || ' days')::INTERVAL`,
         [daysToKeepNum]
       );
 
       console.log(`🧹 Cleaned up ${result.rowCount} old statistics records`);
     } catch (error) {
-      console.error('Failed to cleanup old statistics:', error);
+      console.error(`Failed to cleanup old statistics:`, error);
     }
   }
 

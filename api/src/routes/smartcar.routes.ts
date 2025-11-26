@@ -91,14 +91,14 @@ router.get('/callback', async (req: Request, res: Response) => {
     }
 
     // Decode state parameter
-    const stateData = JSON.parse(Buffer.from(state as string, 'base64').toString('utf-8'))
+    const stateData = JSON.parse(Buffer.from(state as string, `base64`).toString(`utf-8`))
     const { vehicle_id, user_id, tenant_id } = stateData
 
     // SECURITY: Validate vehicle_id is a valid integer to prevent path traversal
     const parsedVehicleId = parseInt(vehicle_id, 10)
     if (isNaN(parsedVehicleId) || parsedVehicleId <= 0) {
       console.warn(`Invalid vehicle_id in state parameter: ${vehicle_id}`)
-      const safeErrorUrl = buildSafeRedirectUrl('/vehicles', {
+      const safeErrorUrl = buildSafeRedirectUrl(`/vehicles`, {
         error: 'invalid_state',
         message: 'Invalid vehicle identifier'
       })
@@ -155,7 +155,7 @@ router.get('/callback', async (req: Request, res: Response) => {
         req.ip,
         req.get('User-Agent'),
         'success',
-        'Smartcar vehicle connected successfully'
+        `Smartcar vehicle connected successfully`
       ]
     )
 

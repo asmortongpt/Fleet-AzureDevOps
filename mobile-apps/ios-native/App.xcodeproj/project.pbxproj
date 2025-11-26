@@ -11,6 +11,7 @@
 		0537E0BFB791487988E78493 /* AdminApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = C907237E021C4DC5AA0E7961 /* AdminApp.swift */; };
 		05FD29B2EBB588775BAA1FE2 /* AddTripView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A1F000579F31AE84F13F903 /* AddTripView.swift */; };
 		068908ED00ABE2CCC99837D2 /* CrashReporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADEA64A38480FA712CF17B0A /* CrashReporter.swift */; };
+		07239C892137A050E4C8612A /* AddTripViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55FD9494B6A38D4E5906B993 /* AddTripViewModel.swift */; };
 		0DD2FA05B7BB88D2A99F8C33 /* JailbreakDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87398F778BFEF7EF2DF86B3E /* JailbreakDetector.swift */; };
 		0EACFD0C8AF16EEB70C47365 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A9F0539B2E38A8166C3FEFC /* LoginView.swift */; };
 		104FBABC12851A340672919B /* SyncQueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9356D12F9A3012CD67D50BE7 /* SyncQueue.swift */; };
@@ -40,7 +41,6 @@
 		43641BC24CB5D7DFD7980558 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5953A1033D6F82E599A2D52D /* SettingsView.swift */; };
 		443D9B4B989141FDAAF36D39 /* TripTracking.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E439613C7CF45FD94590B8C /* TripTracking.swift */; };
 		467DD1223B2FBDAB130471F5 /* TelemetryExporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8549A19699C7F183EA1B384 /* TelemetryExporter.swift */; };
-		481F7865097104E4849EAD12 /* FleetModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84C1B663EE2725E43D44BD57 /* FleetModels.swift */; };
 		4B72C13258A942BEB8DFEB9C /* VehicleInspection.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE11154A39164F6F9851447F /* VehicleInspection.swift */; };
 		4C007558067FF7588CB9A046 /* MaintenanceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E365431A12D0E242DC6D206E /* MaintenanceView.swift */; };
 		4FCBE3746AEBD033727E30FC /* BluetoothPermissionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A654643DD537A0A5B2523CA8 /* BluetoothPermissionManager.swift */; };
@@ -76,6 +76,7 @@
 		858D7B99437B46D3FD2BE2F2 /* MaintenanceModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17CD435FCBF1E6C3791DECEC /* MaintenanceModel.swift */; };
 		8EA02B9DC5D057019A4EC4A7 /* SecurityLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 838963176F4A74F195806866 /* SecurityLogger.swift */; };
 		93BE71FF7B0B2B2CFC39762A /* NetworkMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97FDE84822515E597067B0FC /* NetworkMonitor.swift */; };
+		9B96C900C8A34B89D1873262 /* TripsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51FD4E3DE9102870822B84B2 /* TripsViewModel.swift */; };
 		9BF8828693D953B8784E5B38 /* HealthCheckManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F2A394F01EDBA755BFE16C2 /* HealthCheckManager.swift */; };
 		9C4E6046E47B4F18AD7FC0DA /* FeatureFlags.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C3BAE7CB2F7FD82B0AEC472 /* FeatureFlags.swift */; };
 		9E92C16AA2BC63D55E644206 /* VehicleCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC2809B8199A7B5700E6A233 /* VehicleCard.swift */; };
@@ -176,10 +177,12 @@
 		504EC3111FED79650016851F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		504EC3131FED79650016851F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		50B271D01FEDC1A000F3C39B /* public */ = {isa = PBXFileReference; lastKnownFileType = folder; path = public; sourceTree = "<group>"; };
+		51FD4E3DE9102870822B84B2 /* TripsViewModel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TripsViewModel.swift; path = ../../ViewModels/TripsViewModel.swift; sourceTree = "<absolute>"; };
 		528B535AC89DE43F06C0C752 /* LoginView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = LoginView.swift; path = LoginView.swift; sourceTree = "<group>"; };
 		53B3E738C0AB9A4957FDB5F2 /* MetricsCollector.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = MetricsCollector.swift; path = Monitoring/MetricsCollector.swift; sourceTree = "<group>"; };
 		54CCDF6182703A7ADFC44FC6 /* AccessibleLoginView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AccessibleLoginView.swift; path = Views/AccessibleLoginView.swift; sourceTree = "<group>"; };
 		54EA97D78C595961A9512737 /* ImageUploadService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ImageUploadService.swift; sourceTree = "<group>"; };
+		55FD9494B6A38D4E5906B993 /* AddTripViewModel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AddTripViewModel.swift; path = ../../ViewModels/AddTripViewModel.swift; sourceTree = "<absolute>"; };
 		56E6005B3A00C09B25727C98 /* BarcodeScannerView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BarcodeScannerView.swift; sourceTree = "<group>"; };
 		571D9CE991CDD3D95EA52350 /* AddVehicleView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AddVehicleView.swift; path = AddVehicleView.swift; sourceTree = "<group>"; };
 		57F8AE7882C453D316880215 /* AuthenticationManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AuthenticationManager.swift; sourceTree = "<group>"; };
@@ -210,7 +213,6 @@
 		7DB9C689CF57247BF9A8284C /* AccessibilityManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AccessibilityManager.swift; path = Utilities/AccessibilityManager.swift; sourceTree = "<group>"; };
 		7F861807480E0BE116646CB8 /* AdvancedCacheManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AdvancedCacheManager.swift; sourceTree = "<group>"; };
 		838963176F4A74F195806866 /* SecurityLogger.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SecurityLogger.swift; path = SecurityLogger.swift; sourceTree = "<group>"; };
-		84C1B663EE2725E43D44BD57 /* FleetModels.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = FleetModels.swift; sourceTree = "<group>"; };
 		8582D20487251E184F5F4911 /* QuickActionsView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = QuickActionsView.swift; path = QuickActionsView.swift; sourceTree = "<group>"; };
 		87398F778BFEF7EF2DF86B3E /* JailbreakDetector.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = JailbreakDetector.swift; sourceTree = "<group>"; };
 		8B33E44E3349254D3FBDEAB8 /* HelpView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = HelpView.swift; path = HelpView.swift; sourceTree = "<group>"; };
@@ -464,7 +466,6 @@
 				D627423AD178CA84B00D882B /* PushNotificationManager.swift */,
 				45A92EF10DF5D561B6624A91 /* RemoteConfigManager.swift */,
 				1DFF5CF011486F4B2C4515A7 /* Theme */,
-				84C1B663EE2725E43D44BD57 /* FleetModels.swift */,
 				F984287D647965A21C894EEB /* FleetMetricsCard.swift */,
 				FE668E65EFBA651D83C0C179 /* DashboardViewModel.swift */,
 				713AB4E4FC6B5609CD33E3AB /* MainTabView.swift */,
@@ -563,6 +564,7 @@
 				7F861807480E0BE116646CB8 /* AdvancedCacheManager.swift */,
 				346C66FAA6F8DE25ABE15C8D /* NetworkOptimizer.swift */,
 				740FAAB0ED6F70FB037DFF3F /* PerformanceOptimizer.swift */,
+				BAED9DF255C360212B77D5FF /* ViewModels */,
 			);
 			path = App;
 			sourceTree = "<group>";
@@ -574,6 +576,16 @@
 				DEEB434961611C611BC78183 /* OnboardingView.swift */,
 			);
 			name = Help;
+			sourceTree = "<group>";
+		};
+		BAED9DF255C360212B77D5FF /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				51FD4E3DE9102870822B84B2 /* TripsViewModel.swift */,
+				55FD9494B6A38D4E5906B993 /* AddTripViewModel.swift */,
+			);
+			name = ViewModels;
+			path = App/ViewModels;
 			sourceTree = "<group>";
 		};
 		CF8D471222DFED6E2F8A1850 /* Support */ = {
@@ -767,7 +779,6 @@
 				E641D7862F149E307B75DA13 /* ModernTheme.swift in Sources */,
 				F097904D1FA1EE2E3E1F74B3 /* Animations.swift in Sources */,
 				CB115EC312D5F193F28EFB33 /* AccessibilityEnhancements.swift in Sources */,
-				481F7865097104E4849EAD12 /* FleetModels.swift in Sources */,
 				5109453DBE82C3016B9338D3 /* FleetMetricsCard.swift in Sources */,
 				35BB4B8EEFCCB0C078D2AED2 /* DashboardViewModel.swift in Sources */,
 				340EC571F199FDDBA54DF8F9 /* MainTabView.swift in Sources */,
@@ -831,6 +842,8 @@
 				B3A5822CE9CED460C80E1F02 /* AdvancedCacheManager.swift in Sources */,
 				C1CE130B94230DA195C81BAD /* NetworkOptimizer.swift in Sources */,
 				D9FB772650EC724B1FB0F26F /* PerformanceOptimizer.swift in Sources */,
+				9B96C900C8A34B89D1873262 /* TripsViewModel.swift in Sources */,
+				07239C892137A050E4C8612A /* AddTripViewModel.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

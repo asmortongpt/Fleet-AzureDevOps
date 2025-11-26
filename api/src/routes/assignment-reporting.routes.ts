@@ -36,7 +36,7 @@ router.get(
       const tenant_id = req.user!.tenant_id;
       const { department_id, assignment_type, format = 'json' } = req.query;
 
-      let whereConditions = ['va.tenant_id = $1'];
+      let whereConditions = [`va.tenant_id = $1`];
       let params: any[] = [tenant_id];
       let paramIndex = 2;
 
@@ -49,7 +49,7 @@ router.get(
         params.push(assignment_type);
       }
 
-      const whereClause = whereConditions.join(' AND ');
+      const whereClause = whereConditions.join(` AND `);
 
       const query = `
         SELECT
@@ -66,7 +66,7 @@ router.get(
           va.commuting_authorized,
           dr.home_county,
           dr.residence_region,
-          CASE WHEN va.secured_parking_location_id IS NOT NULL THEN 'Yes' ELSE 'No' END AS has_secured_parking,
+          CASE WHEN va.secured_parking_location_id IS NOT NULL THEN 'Yes' ELSE `No` END AS has_secured_parking,
           sp.name AS secured_parking_location
         FROM vehicle_assignments va
         JOIN vehicles v ON va.vehicle_id = v.id
@@ -96,7 +96,7 @@ router.get(
       const statsResult = await pool.query(statsQuery, params);
 
       res.json({
-        report_name: 'Vehicle Assignment Inventory',
+        report_name: `Vehicle Assignment Inventory`,
         generated_at: new Date().toISOString(),
         generated_by: req.user!.email,
         filters: { department_id, assignment_type },
@@ -181,7 +181,7 @@ router.get(
       const tenant_id = req.user!.tenant_id;
       const { start_date, end_date, assignment_id, change_type } = req.query;
 
-      let whereConditions = ['vah.tenant_id = $1'];
+      let whereConditions = [`vah.tenant_id = $1`];
       let params: any[] = [tenant_id];
       let paramIndex = 2;
 
@@ -202,7 +202,7 @@ router.get(
         params.push(change_type);
       }
 
-      const whereClause = whereConditions.join(' AND ');
+      const whereClause = whereConditions.join(` AND `);
 
       const query = `
         SELECT
@@ -213,7 +213,7 @@ router.get(
           v.unit_number,
           v.make || ' ' || v.model AS vehicle,
           dr.employee_number,
-          emp.first_name || ' ' || emp.last_name AS driver_name
+          emp.first_name || ` ` || emp.last_name AS driver_name
         FROM vehicle_assignment_history vah
         LEFT JOIN users u ON vah.changed_by_user_id = u.id
         LEFT JOIN vehicle_assignments va ON vah.vehicle_assignment_id = va.id
@@ -242,7 +242,7 @@ router.get(
       const summaryResult = await pool.query(summaryQuery, params);
 
       res.json({
-        report_name: 'Vehicle Assignment Change History',
+        report_name: `Vehicle Assignment Change History`,
         generated_at: new Date().toISOString(),
         generated_by: req.user!.email,
         filters: { start_date, end_date, assignment_id, change_type },
@@ -373,7 +373,7 @@ router.get(
       const tenant_id = req.user!.tenant_id;
       const { start_date, end_date } = req.query;
 
-      let whereConditions = ['ocp.tenant_id = $1'];
+      let whereConditions = [`ocp.tenant_id = $1`];
       let params: any[] = [tenant_id];
       let paramIndex = 2;
 
@@ -386,12 +386,12 @@ router.get(
         params.push(end_date);
       }
 
-      const whereClause = whereConditions.join(' AND ');
+      const whereClause = whereConditions.join(` AND `);
 
       const query = `
         SELECT
           dept.name AS department,
-          u.first_name || ' ' || u.last_name AS driver_name,
+          u.first_name || ` ` || u.last_name AS driver_name,
           dr.employee_number,
           COUNT(DISTINCT ocp.id) as on_call_periods,
           SUM(ocp.callback_count) as total_callbacks,
@@ -422,7 +422,7 @@ router.get(
       const result = await pool.query(query, params);
 
       res.json({
-        report_name: 'On-Call Summary Report',
+        report_name: `On-Call Summary Report`,
         generated_at: new Date().toISOString(),
         generated_by: req.user!.email,
         filters: { start_date, end_date },

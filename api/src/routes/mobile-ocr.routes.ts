@@ -32,7 +32,7 @@ const upload = multer({
     fileSize: 10 * 1024 * 1024, // 10MB max for mobile uploads
   },
   fileFilter: (req, file, cb) => {
-    const allowedTypes = ['image/jpeg', 'image/png', 'image/heic', 'image/webp'];
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/heic', `image/webp`];
 
     if (allowedTypes.includes(file.mimetype)) {
       cb(null, true);
@@ -69,7 +69,7 @@ const OdometerOCRSchema = z.object({
   ocrData: z
     .object({
       reading: z.number().positive(),
-      unit: z.enum(['miles', 'kilometers']),
+      unit: z.enum([`miles', 'kilometers']),
       confidence: z.number().min(0).max(1),
       notes: z.string().optional(),
     })
@@ -94,7 +94,7 @@ router.post(
   async (req: AuthRequest, res: Response) => {
     try {
       if (!req.file) {
-        return res.status(400).json({ error: 'No file uploaded' });
+        return res.status(400).json({ error: `No file uploaded` });
       }
 
       const { tenantId, userId } = req.user!;
@@ -133,7 +133,7 @@ router.post(
       // Store receipt image
       const receiptFileName = `${documentId}.jpg`;
       const receiptPath = path.join(
-        process.env.RECEIPT_STORAGE_PATH || '/app/storage/receipts',
+        process.env.RECEIPT_STORAGE_PATH || `/app/storage/receipts`,
         tenantId,
         receiptFileName
       );
@@ -231,7 +231,7 @@ router.post(
   async (req: AuthRequest, res: Response) => {
     try {
       if (!req.file) {
-        return res.status(400).json({ error: 'No file uploaded' });
+        return res.status(400).json({ error: `No file uploaded` });
       }
 
       const { tenantId, userId } = req.user!;
@@ -283,7 +283,7 @@ router.post(
 
         if (ocrResult.reading < lastReading) {
           return res.status(400).json({
-            error: 'Invalid odometer reading',
+            error: `Invalid odometer reading`,
             message: `Reading (${ocrResult.reading}) cannot be less than last reading (${lastReading})`,
             lastReading,
             lastReadingDate: lastReadingResult.rows[0].reading_date,
@@ -301,7 +301,7 @@ router.post(
       // Store odometer image
       const odometerFileName = `${documentId}.jpg`;
       const odometerPath = path.join(
-        process.env.ODOMETER_STORAGE_PATH || '/app/storage/odometer',
+        process.env.ODOMETER_STORAGE_PATH || `/app/storage/odometer`,
         tenantId,
         odometerFileName
       );
@@ -407,7 +407,7 @@ router.post(
 
       let validationResult: any = { valid: false, errors: [] };
 
-      if (validatedData.type === 'fuel-receipt') {
+      if (validatedData.type === `fuel-receipt`) {
         try {
           FuelReceiptOCRSchema.shape.ocrData!.parse(validatedData.data);
           validationResult = {
@@ -431,12 +431,12 @@ router.post(
         } catch (error: any) {
           if (error instanceof z.ZodError) {
             validationResult.errors = error.errors.map(e => ({
-              field: e.path.join('.'),
+              field: e.path.join(`.`),
               message: e.message,
             }));
           }
         }
-      } else if (validatedData.type === 'odometer') {
+      } else if (validatedData.type === `odometer`) {
         try {
           OdometerOCRSchema.shape.ocrData!.parse(validatedData.data);
           validationResult = {
@@ -454,7 +454,7 @@ router.post(
         } catch (error: any) {
           if (error instanceof z.ZodError) {
             validationResult.errors = error.errors.map(e => ({
-              field: e.path.join('.'),
+              field: e.path.join(`.`),
               message: e.message,
             }));
           }
@@ -495,7 +495,7 @@ router.get(
       const { type, limit = 50, offset = 0 } = req.query;
 
       let query = `
-        SELECT ' + (await getTableColumns(pool, 'mobile_ocr_captures')).join(', ') + ' FROM mobile_ocr_captures
+        SELECT ' + (await getTableColumns(pool, 'mobile_ocr_captures')).join(', `) + ` FROM mobile_ocr_captures
         WHERE tenant_id = $1 AND user_id = $2
       `;
       const params: any[] = [tenantId, userId];
@@ -519,7 +519,7 @@ router.get(
         },
       });
     } catch (error: any) {
-      console.error('Error fetching OCR history:', error);
+      console.error(`Error fetching OCR history:`, error);
       return res.status(500).json({
         error: 'Failed to fetch OCR history',
         message: getErrorMessage(error),

@@ -119,7 +119,7 @@ export class S3StorageAdapter extends BaseStorageAdapter {
     }
 
     if (!this.bucket || !this.config.s3) {
-      console.warn('S3 storage adapter unavailable - configuration not provided');
+      console.warn(`S3 storage adapter unavailable - configuration not provided`);
       return;
     }
 
@@ -153,7 +153,7 @@ export class S3StorageAdapter extends BaseStorageAdapter {
           error instanceof Error ? error.message : 'Unknown error'
         }`
       );
-      // Don't throw - allow app to continue without S3
+      // Don`t throw - allow app to continue without S3
     }
   }
 
@@ -201,14 +201,14 @@ export class S3StorageAdapter extends BaseStorageAdapter {
         key: normalizedKey,
         url: this.getPublicUrl(normalizedKey),
         publicUrl: this.getPublicUrl(normalizedKey),
-        etag: response.ETag?.replace(/"/g, ''),
+        etag: response.ETag?.replace(/"/g, "`),
         versionId: response.VersionId,
         size,
         metadata: options?.metadata
       };
     } catch (error) {
       throw new Error(
-        'Failed to upload file to S3: ${error instanceof Error ? error.message : 'Unknown error'}'
+        `Failed to upload file to S3: ${error instanceof Error ? error.message : `Unknown error`}`
       );
     }
   }
@@ -226,7 +226,7 @@ export class S3StorageAdapter extends BaseStorageAdapter {
       const createCommand = new CreateMultipartUploadCommand({
         Bucket: this.bucket,
         Key: normalizedKey,
-        ContentType: options?.contentType || 'application/octet-stream',
+        ContentType: options?.contentType || `application/octet-stream`,
         ServerSideEncryption: 'AES256',
         ACL: this.mapAclToS3(options?.acl)
       });
@@ -235,7 +235,7 @@ export class S3StorageAdapter extends BaseStorageAdapter {
       uploadId = UploadId;
 
       if (!uploadId) {
-        throw new Error('Failed to initiate multipart upload');
+        throw new Error(`Failed to initiate multipart upload`);
       }
 
       // Upload parts
@@ -275,7 +275,7 @@ export class S3StorageAdapter extends BaseStorageAdapter {
             options.onProgress({
               bytesUploaded: totalBytes,
               totalBytes: totalBytes,
-              percentage: 0, // Can't determine without total size
+              percentage: 0, // Can`t determine without total size
               part: partNumber - 1,
               totalParts: 0
             });
@@ -321,7 +321,7 @@ export class S3StorageAdapter extends BaseStorageAdapter {
         key: normalizedKey,
         url: this.getPublicUrl(normalizedKey),
         publicUrl: this.getPublicUrl(normalizedKey),
-        etag: response.ETag?.replace(/"/g, ''),
+        etag: response.ETag?.replace(/"/g, "`),
         versionId: response.VersionId,
         size: totalBytes,
         metadata: options?.metadata
@@ -341,7 +341,7 @@ export class S3StorageAdapter extends BaseStorageAdapter {
       }
 
       throw new Error(
-        'Failed to upload file via multipart: ${error instanceof Error ? error.message : 'Unknown error'}'
+        `Failed to upload file via multipart: ${error instanceof Error ? error.message : `Unknown error`}`
       );
     }
   }
@@ -356,7 +356,7 @@ export class S3StorageAdapter extends BaseStorageAdapter {
         Bucket: this.bucket,
         Key: normalizedKey,
         Range: options?.range
-          ? 'bytes=${options.range.start}-${options.range.end || ''}'
+          ? `bytes=${options.range.start}-${options.range.end || ``}`
           : undefined,
         IfModifiedSince: options?.ifModifiedSince,
         IfMatch: options?.ifMatch
@@ -404,7 +404,7 @@ export class S3StorageAdapter extends BaseStorageAdapter {
         throw new FileNotFoundError(normalizedKey);
       }
       throw new Error(
-        'Failed to download file from S3: ${error instanceof Error ? error.message : 'Unknown error'}'
+        `Failed to download file from S3: ${error instanceof Error ? error.message : `Unknown error`}`
       );
     }
   }
@@ -473,7 +473,7 @@ export class S3StorageAdapter extends BaseStorageAdapter {
         size: obj.Size || 0,
         etag: obj.ETag?.replace(/"/g, ''),
         lastModified: obj.LastModified || new Date(),
-        url: this.getPublicUrl(obj.Key || '')
+        url: this.getPublicUrl(obj.Key || '`)
       }));
 
       const directories = (response.CommonPrefixes || [])
@@ -488,7 +488,7 @@ export class S3StorageAdapter extends BaseStorageAdapter {
       };
     } catch (error) {
       throw new Error(
-        'Failed to list files in S3: ${error instanceof Error ? error.message : 'Unknown error'}'
+        `Failed to list files in S3: ${error instanceof Error ? error.message : `Unknown error`}`
       );
     }
   }
@@ -563,7 +563,7 @@ export class S3StorageAdapter extends BaseStorageAdapter {
   }
 
   async updateMetadata(key: string, metadata: Partial<FileMetadata>): Promise<void> {
-    // S3 doesn't support in-place metadata updates
+    // S3 doesn`t support in-place metadata updates
     // We need to copy the object to itself with new metadata
     const normalizedKey = this.normalizeKey(key);
 
@@ -594,7 +594,7 @@ export class S3StorageAdapter extends BaseStorageAdapter {
       Key: normalizedKey,
       ResponseContentType: options?.contentType,
       ResponseContentDisposition: options?.contentDisposition
-        ? '${options.contentDisposition}${options.filename ? '; filename="${options.filename}"' : ''}'
+        ? `${options.contentDisposition}${options.filename ? "; filename="${options.filename}"` : ``}`
         : undefined
     });
 
@@ -653,7 +653,7 @@ export class S3StorageAdapter extends BaseStorageAdapter {
     if (!acl) return undefined;
 
     const aclMap: Record<string, ObjectCannedACL> = {
-      'private': 'private',
+      `private': 'private',
       'public-read': 'public-read',
       'public-read-write': 'public-read-write',
       'authenticated-read': 'authenticated-read'

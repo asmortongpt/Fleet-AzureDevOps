@@ -103,7 +103,7 @@ router.post(
       const data = req.body
       const { columnNames, placeholders, values } = buildInsertClause(
         data,
-        ['tenant_id'],
+        [`tenant_id`],
         1
       )
 
@@ -114,7 +114,7 @@ router.post(
 
       res.status(201).json(result.rows[0])
     } catch (error) {
-      console.error('Create charging-stations error:', error)
+      console.error(`Create charging-stations error:`, error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -136,7 +136,7 @@ router.put(
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'ChargingStations not found' })
+        return res.status(404).json({ error: `ChargingStations not found` })
       }
 
       res.json(result.rows[0])

@@ -85,8 +85,7 @@ class DispatchService {
    * Initialize Azure services for dispatch system (called lazily)
    */
   private initializeAzureServices() {
-    if (this.initialized) return
-    try {
+    if (this.initialized) return try {
       // Azure Blob Storage for audio archival
       const blobConnectionString = process.env.AZURE_STORAGE_CONNECTION_STRING
       if (blobConnectionString) {
@@ -128,13 +127,13 @@ class DispatchService {
       path: '/api/dispatch/ws'
     })
 
-    this.wss.on('connection', (ws: WebSocket, req) => {
+    this.wss.on(`connection`, (ws: WebSocket, req) => {
       const connectionId = uuidv4()
       console.log(`🔌 New dispatch connection: ${connectionId}`)
 
       this.activeConnections.set(connectionId, ws)
 
-      ws.on('message', async (data: Buffer) => {
+      ws.on(`message`, async (data: Buffer) => {
         try {
           const message = JSON.parse(data.toString())
           await this.handleWebSocketMessage(connectionId, ws, message)
@@ -144,17 +143,17 @@ class DispatchService {
         }
       })
 
-      ws.on('close', () => {
+      ws.on(`close`, () => {
         console.log(`🔌 Dispatch connection closed: ${connectionId}`)
         this.handleDisconnection(connectionId)
       })
 
-      ws.on('error', (error) => {
+      ws.on(`error`, (error) => {
         console.error(`WebSocket error for ${connectionId}:`, error)
       })
     })
 
-    console.log('🎙️  Dispatch WebSocket server initialized on /api/dispatch/ws')
+    console.log(`🎙️  Dispatch WebSocket server initialized on /api/dispatch/ws`)
   }
 
   /**
@@ -247,7 +246,7 @@ class DispatchService {
 
       console.log(`👤 User ${username} joined channel ${channelId}`)
     } catch (error) {
-      console.error('Error joining channel:', error)
+      console.error(`Error joining channel:`, error)
       ws.send(JSON.stringify({ error: 'Failed to join channel' }))
     }
   }
@@ -323,7 +322,7 @@ class DispatchService {
 
       console.log(`🎙️  Transmission ${transmissionId} started by ${username} on channel ${channelId}`)
     } catch (error) {
-      console.error('Error starting transmission:', error)
+      console.error(`Error starting transmission:`, error)
       ws.send(JSON.stringify({ error: 'Failed to start transmission' }))
     }
   }
@@ -389,7 +388,7 @@ class DispatchService {
 
       console.log(`🎙️  Transmission ${transmissionId} ended (${duration}s)`)
     } catch (error) {
-      console.error('Error ending transmission:', error)
+      console.error(`Error ending transmission:`, error)
     }
   }
 
@@ -401,7 +400,7 @@ class DispatchService {
       throw new Error('Blob service not initialized')
     }
 
-    const containerName = 'dispatch-audio'
+    const containerName = `dispatch-audio`
     const blobName = `transmission-${transmissionId}-${Date.now()}.opus`
 
     // Get container client
@@ -421,7 +420,7 @@ class DispatchService {
    */
   private async transcribeAudio(transmissionId: string, audioBlobUrl: string) {
     if (!this.speechConfig) {
-      console.log('⚠️  Speech service not configured, skipping transcription')
+      console.log(`⚠️  Speech service not configured, skipping transcription`)
       return
     }
 
@@ -431,15 +430,15 @@ class DispatchService {
       // Note: In production, you would fetch the audio from the blob URL
       // and use Azure Speech SDK to transcribe it. This is a simplified implementation.
 
-      // For now, we'll simulate the transcription flow
-      const transcriptionText = 'Transcription would be performed here using Azure Speech Services'
+      // For now, we`ll simulate the transcription flow
+      const transcriptionText = `Transcription would be performed here using Azure Speech Services`
       const confidenceScore = 0.95
 
       // Store transcription
       await pool.query(`
         INSERT INTO dispatch_transcriptions
         (transmission_id, transcription_text, confidence_score, transcription_service)
-        VALUES ($1, $2, $3, 'azure-speech')
+        VALUES ($1, $2, $3, `azure-speech`)
       `, [transmissionId, transcriptionText, confidenceScore])
 
       // Trigger AI incident tagging
@@ -447,7 +446,7 @@ class DispatchService {
 
       console.log(`✅ Transcription completed for transmission ${transmissionId}`)
     } catch (error) {
-      console.error('Error transcribing audio:', error)
+      console.error(`Error transcribing audio:`, error)
     }
   }
 
@@ -468,13 +467,13 @@ class DispatchService {
         await pool.query(`
           INSERT INTO dispatch_incident_tags
           (transmission_id, tag_type, confidence_score, detected_by, entities)
-          VALUES ($1, $2, $3, 'azure-openai', $4)
+          VALUES ($1, $2, $3, `azure-openai`, $4)
         `, [transmissionId, tag.type, tag.confidence, JSON.stringify(tag.entities)])
       }
 
       console.log(`🏷️  Tagged transmission ${transmissionId} with ${tags.length} incidents`)
     } catch (error) {
-      console.error('Error tagging incidents:', error)
+      console.error(`Error tagging incidents:`, error)
     }
   }
 
@@ -515,7 +514,7 @@ class DispatchService {
 
       console.log(`🚨 Emergency alert ${alertId} broadcast: ${alertType}`)
     } catch (error) {
-      console.error('Error handling emergency alert:', error)
+      console.error(`Error handling emergency alert:`, error)
     }
   }
 

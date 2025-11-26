@@ -18,8 +18,7 @@ class ApplicationInsightsService {
 
     if (!connectionString) {
       logger.warn('Application Insights connection string not configured')
-      return
-    }
+      return }
 
     try {
       appInsights.setup(connectionString)
@@ -181,9 +180,7 @@ class ApplicationInsightsService {
    * Track quality gates and deployments
    */
   trackQualityGate(gateType: string, status: string, executionTime: number) {
-    if (!this.isConfigured || !this.client) return
-
-    this.client.trackEvent({
+    if (!this.isConfigured || !this.client) return this.client.trackEvent({
       name: 'QualityGateExecuted',
       properties: {
         gateType,

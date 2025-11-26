@@ -3,7 +3,7 @@
  */
 
 import { EventEmitter } from 'events'
-import { Vehicle, CostRecord, EmulatorConfig } from '../types'
+import { Vehicle, CostRecord, EmulatorConfig } from `../types`
 
 export class CostEmulator extends EventEmitter {
   private vehicle: Vehicle
@@ -41,7 +41,7 @@ export class CostEmulator extends EventEmitter {
       invoiceNumber: `INV-${Date.now()}`
     }
 
-    this.emit('data', record)
+    this.emit(`data`, record)
   }
 
   public getCurrentState(): any {

@@ -35,7 +35,7 @@ router.get(
 
       let query = `
         SELECT c.*,
-               from_user.first_name || ' ' || from_user.last_name as from_user_name,
+               from_user.first_name || ` ` || from_user.last_name as from_user_name,
                COUNT(DISTINCT cel.id) as linked_entities_count
         FROM communications c
         LEFT JOIN drivers from_user ON c.from_user_id = from_user.id
@@ -103,7 +103,7 @@ router.get(
         }
       })
     } catch (error) {
-      console.error('Get communications error:', error)
+      console.error(`Get communications error:`, error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -176,7 +176,7 @@ router.post(
 
       const { columnNames, placeholders, values } = buildInsertClause(
         data,
-        ['created_by'],
+        [`created_by`],
         1
       )
 
@@ -215,7 +215,7 @@ router.post(
 
       res.status(201).json(result.rows[0])
     } catch (error) {
-      console.error('Create communication error:', error)
+      console.error(`Create communication error:`, error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -232,7 +232,7 @@ router.put(
       const data = req.body
       const fields = Object.keys(data)
         .map((key, i) => `${key} = $${i + 3}`)
-        .join(', ')
+        .join(`, `)
       const values = Object.values(data)
 
       const result = await pool.query(
@@ -244,7 +244,7 @@ router.put(
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'Communication not found' })
+        return res.status(404).json({ error: `Communication not found` })
       }
 
       res.json(result.rows[0])
@@ -457,7 +457,7 @@ router.post(
 
       const { columnNames, placeholders, values } = buildInsertClause(
         data,
-        ['created_by'],
+        [`created_by`],
         1
       )
 
@@ -468,7 +468,7 @@ router.post(
 
       res.status(201).json(result.rows[0])
     } catch (error) {
-      console.error('Create communication template error:', error)
+      console.error(`Create communication template error:`, error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }

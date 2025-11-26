@@ -54,7 +54,7 @@ function secondsToCronExpression(seconds: number): string {
   if (seconds < 60) {
     return `*/${seconds} * * * * *`
   } else if (seconds === 60) {
-    return '0 * * * * *'
+    return `0 * * * * *`
   } else {
     const minutes = Math.floor(seconds / 60)
     return `0 */${minutes} * * * *`
@@ -70,7 +70,7 @@ async function runTeamsSync(): Promise<void> {
   const startTime = Date.now()
   const jobId = `teams-sync-${Date.now()}`
 
-  logger.info('=== Teams Sync Started ===', { jobId })
+  logger.info(`=== Teams Sync Started ===`, { jobId })
 
   try {
     // Check if webhooks are healthy
@@ -121,14 +121,14 @@ async function runTeamsSync(): Promise<void> {
       [totalErrors > 0 ? 'completed_with_errors' : 'completed', duration, totalSynced, totalErrors, jobRecordId]
     )
 
-    logger.info('=== Teams Sync Completed ===', {
+    logger.info(`=== Teams Sync Completed ===`, {
       jobId,
       duration: `${duration}ms`,
       totalSynced,
       totalErrors
     })
 
-    await logSyncJobMetrics(jobId, 'completed', totalSynced, totalErrors, 0, duration)
+    await logSyncJobMetrics(jobId, `completed`, totalSynced, totalErrors, 0, duration)
   } catch (error: any) {
     const duration = Date.now() - startTime
 
@@ -241,13 +241,13 @@ export function startTeamsSync(): void {
 
   // Validate cron expression
   if (!cron.validate(CRON_SCHEDULE)) {
-    logger.error('Invalid cron schedule expression', { schedule: CRON_SCHEDULE })
+    logger.error(`Invalid cron schedule expression`, { schedule: CRON_SCHEDULE })
     throw new Error(`Invalid cron schedule: ${CRON_SCHEDULE}`)
   }
 
   // Run initial sync on startup
   syncOnStartup().catch(error => {
-    logger.error('Startup sync failed', { error: error.message })
+    logger.error(`Startup sync failed`, { error: error.message })
   })
 
   // Schedule the job
