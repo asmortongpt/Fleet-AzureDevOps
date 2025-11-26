@@ -256,37 +256,11 @@ export default defineConfig({
             return 'utils-lodash';
           }
 
-          // React utility libraries (MUST load after React)
-          // These libraries use React.createContext or useLayoutEffect at module level
-          // CRITICAL FIX: @radix-ui MUST be here because it uses hooks at module initialization
-          if (id.includes('node_modules/@radix-ui') ||
-              id.includes('node_modules/react-error-boundary') ||
-              id.includes('node_modules/react-hot-toast') ||
-              id.includes('node_modules/sonner') ||
-              id.includes('node_modules/next-themes') ||
-              id.includes('node_modules/react-day-picker') ||
-              id.includes('node_modules/react-dropzone') ||
-              id.includes('node_modules/react-window') ||
-              id.includes('node_modules/@tanstack/react-query') ||
-              id.includes('node_modules/swr') ||
-              id.includes('node_modules/use-sync-external-store') ||
-              id.includes('node_modules/embla-carousel-react') ||
-              id.includes('node_modules/vaul') ||
-              id.includes('node_modules/class-variance-authority') ||
-              id.includes('node_modules/clsx') ||
-              id.includes('node_modules/tailwind-merge') ||
-              id.includes('node_modules/@floating-ui') ||
-              id.includes('node_modules/framer-motion') ||
-              id.includes('node_modules/cmdk')) {
-            return 'react-utils';
-          }
-
-          // Animation libraries (non-React dependent)
-          // Note: framer-motion moved to react-utils above due to useLayoutEffect usage
-
-          // All other node_modules (should NOT include React-dependent code)
+          // CRITICAL FIX: Put ALL node_modules in react-utils to ensure they load after React
+          // This prevents "Cannot read properties of undefined (reading 'useLayoutEffect')" errors
+          // caused by libraries using React hooks before React is available
           if (id.includes('node_modules')) {
-            return 'vendor';
+            return 'react-utils';
           }
         },
 
