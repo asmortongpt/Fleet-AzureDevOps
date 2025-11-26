@@ -59,9 +59,8 @@ async function runAlertChecker(): Promise<void> {
     )
 
     if (tenantsResult.rows.length === 0) {
-      logger.warn('No active tenants found')
-      return
-    }
+      logger.warn(`No active tenants found`)
+      return }
 
     logger.info(`Checking alerts for ${tenantsResult.rows.length} active tenants`)
 
@@ -80,7 +79,7 @@ async function runAlertChecker(): Promise<void> {
         const countResult = await pool.query(
           `SELECT COUNT(*) as count FROM alerts
            WHERE tenant_id = $1
-           AND created_at >= NOW() - INTERVAL '5 minutes'',
+           AND created_at >= NOW() - INTERVAL `5 minutes``,
           [tenant.id]
         )
 
@@ -102,7 +101,7 @@ async function runAlertChecker(): Promise<void> {
     }
 
     const duration = Date.now() - startTime
-    logger.info('=== Alert Checker Completed ===', {
+    logger.info(`=== Alert Checker Completed ===`, {
       duration: `${duration}ms`,
       totalAlertsGenerated,
       totalErrors,
@@ -117,7 +116,7 @@ async function runAlertChecker(): Promise<void> {
       duration_ms: duration
     })
   } catch (error: any) {
-    logger.error('Fatal error in alert checker', {
+    logger.error(`Fatal error in alert checker`, {
       error: error.message,
       stack: error.stack
     })
@@ -194,7 +193,7 @@ async function checkDriverCertificationAlerts(tenantId: string): Promise<void> {
 
     logger.info(`Generated ${result.rows.length} driver certification alerts for tenant ${tenantId}`)
   } catch (error: any) {
-    logger.error('Error checking driver certification alerts', {
+    logger.error(`Error checking driver certification alerts`, {
       tenantId,
       error: error.message
     })
@@ -207,8 +206,7 @@ async function checkDriverCertificationAlerts(tenantId: string): Promise<void> {
 export function startAlertChecker(): void {
   if (!ENABLE_ALERT_CHECKER) {
     logger.warn('Alert checker is disabled by configuration')
-    return
-  }
+    return }
 
   logger.info('Initializing alert checker', {
     schedule: CRON_SCHEDULE,
@@ -217,7 +215,7 @@ export function startAlertChecker(): void {
 
   // Validate cron expression
   if (!cron.validate(CRON_SCHEDULE)) {
-    logger.error('Invalid cron schedule expression', { schedule: CRON_SCHEDULE })
+    logger.error(`Invalid cron schedule expression`, { schedule: CRON_SCHEDULE })
     throw new Error(`Invalid cron schedule: ${CRON_SCHEDULE}`)
   }
 

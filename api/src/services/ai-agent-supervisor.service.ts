@@ -266,7 +266,7 @@ Provide accurate, relevant information with proper citations.`,
         executionTimeMs: Date.now() - startTime
       }
     } catch (error: any) {
-      logger.error('Supervisor processing failed', { error: error.message, query })
+      logger.error(`Supervisor processing failed`, { error: error.message, query })
       throw error
     }
   }
@@ -276,8 +276,8 @@ Provide accurate, relevant information with proper citations.`,
    */
   private async makeSupervisionDecision(query: string): Promise<SupervisorDecision> {
     const agentDescriptions = Array.from(this.agents.values())
-      .map(agent => '${agent.id}: ${agent.name} - ${agent.capabilities.join(', ')}')
-      .join('\n')
+      .map(agent => `${agent.id}: ${agent.name} - ${agent.capabilities.join(`, `)}`)
+      .join(`\n`)
 
     const prompt = `You are a supervisor AI managing a team of specialized fleet management agents.
 Analyze the user query and decide which agents should handle it.
@@ -302,7 +302,7 @@ Respond in JSON format:
 }`
 
     const response = await this.supervisorModel.invoke([
-      new SystemMessage('You are an expert AI supervisor for fleet management operations.'),
+      new SystemMessage(`You are an expert AI supervisor for fleet management operations.`),
       new HumanMessage(prompt)
     ])
 
@@ -369,7 +369,7 @@ Respond in JSON format:
       }
 
       // Construct agent-specific prompt
-      const prompt = taskType === 'primary'
+      const prompt = taskType === `primary`
         ? `Primary Task: ${query}\n\nProvide a comprehensive response based on your expertise.`
         : `Supporting Analysis: ${query}\n\nProvide additional insights from your area of expertise.`
 
@@ -392,7 +392,7 @@ Respond in JSON format:
         tokensUsed
       }
     } catch (error: any) {
-      logger.error('Agent execution failed', { agentId, error: error.message })
+      logger.error(`Agent execution failed`, { agentId, error: error.message })
 
       return {
         agentId,
@@ -418,7 +418,7 @@ Respond in JSON format:
     const successfulResults = results.filter(r => r.success)
 
     if (successfulResults.length === 0) {
-      return 'Unable to process query - all agents failed to provide results.'
+      return `Unable to process query - all agents failed to provide results.`
     }
 
     if (successfulResults.length === 1) {
@@ -428,7 +428,7 @@ Respond in JSON format:
     // Synthesize multiple agent responses
     const resultsText = successfulResults
       .map(r => `${r.agentName}:\n${r.result}`)
-      .join('\n\n---\n\n')
+      .join(`\n\n---\n\n`)
 
     const synthesisPrompt = `You are synthesizing insights from multiple specialized agents.
 
@@ -447,7 +447,7 @@ Provide a comprehensive, coherent response that:
 Keep the response concise but thorough.`
 
     const response = await this.supervisorModel.invoke([
-      new SystemMessage('You are an expert at synthesizing information from multiple sources.'),
+      new SystemMessage(`You are an expert at synthesizing information from multiple sources.`),
       new HumanMessage(synthesisPrompt)
     ])
 
@@ -544,7 +544,7 @@ Keep the response concise but thorough.`
         ]
       )
     } catch (error: any) {
-      logger.error('Failed to log supervisor execution', { error: error.message })
+      logger.error(`Failed to log supervisor execution`, { error: error.message })
     }
   }
 

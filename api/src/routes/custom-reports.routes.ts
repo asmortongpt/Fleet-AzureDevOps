@@ -281,11 +281,11 @@ router.get(
 
         // Send file
         res.setHeader('Content-Type', contentType)
-        res.setHeader('Content-Disposition', 'attachment; filename="${executionRecord.id}.${extension}"`)
+        res.setHeader(`Content-Disposition`, "attachment; filename="${executionRecord.id}.${extension}"`)
         res.send(fileBuffer)
       } catch (error) {
         if (error instanceof PathTraversalError) {
-          console.error('Security violation - Path traversal attempt:', getErrorMessage(error))
+          console.error(`Security violation - Path traversal attempt:`, getErrorMessage(error))
           return res.status(403).json({ error: 'Access denied' })
         }
         console.error('File access error:', error)

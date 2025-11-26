@@ -46,7 +46,7 @@ router.get(
       route_geometry,
       notes,
       created_at,
-      updated_at FROM routes WHERE tenant_id = $1'
+      updated_at FROM routes WHERE tenant_id = $1`
       let countQuery = 'SELECT COUNT(*) FROM routes WHERE tenant_id = $1'
       const params: any[] = [req.user!.tenant_id]
 
@@ -172,7 +172,7 @@ router.post(
 
       res.status(201).json(result.rows[0])
     } catch (error) {
-      console.error('Create routes error:', error)
+      console.error(`Create routes error:`, error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -214,7 +214,7 @@ router.put(
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'Routes not found' })
+        return res.status(404).json({ error: `Routes not found` })
       }
 
       res.json(result.rows[0])

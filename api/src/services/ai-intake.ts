@@ -119,7 +119,7 @@ Examples:
 "I filled up truck 101 with gas" -> fuel_entry
 "Need to schedule maintenance on vehicle ABC-123" -> work_order
 "Had an accident this morning" -> incident_report
-"Did the safety inspection on van 505" -> inspection`
+"Did the safety inspection on van 505" -> inspection"
       },
       {
         role: 'user',
@@ -158,7 +158,7 @@ async function extractEntities(
     [tenantId]
   )
   const driversResult = await pool.query(
-    'SELECT id, first_name, last_name FROM drivers WHERE tenant_id = $1 LIMIT 20',
+    `SELECT id, first_name, last_name FROM drivers WHERE tenant_id = $1 LIMIT 20`,
     [tenantId]
   )
 
@@ -172,8 +172,8 @@ Drivers: ${JSON.stringify(driversResult.rows.map(d => ({ id: d.id, name: `${d.fi
 
 Current Data: ${JSON.stringify(currentData)}
 
-Required Fields: ${schema.required.join(', ')}
-Optional Fields: ${schema.optional.join(', ')}
+Required Fields: ${schema.required.join(`, `)}
+Optional Fields: ${schema.optional.join(`, `)}
 
 Extract data and return as JSON with this structure:
 {
@@ -186,7 +186,7 @@ Rules:
 - Parse dates naturally (e.g., "yesterday", "last Tuesday", "3/15/24")
 - Extract numbers and currencies correctly
 - Match vendor names to vendor IDs
-- Only include fields you're confident about (>0.6 confidence)
+- Only include fields you`re confident about (>0.6 confidence)
 - Return empty objects if nothing can be extracted confidently`
 
   const completion = await openai.chat.completions.create({
@@ -220,7 +220,7 @@ function calculateCompleteness(extractedData: Record<string, any>, intent: strin
 
   const requiredFields = schema.required
   const filledRequired = requiredFields.filter(field =>
-    extractedData[field] !== undefined && extractedData[field] !== null && extractedData[field] !== ''
+    extractedData[field] !== undefined && extractedData[field] !== null && extractedData[field] !== '`
   )
 
   return Math.round((filledRequired.length / requiredFields.length) * 100)
@@ -234,7 +234,7 @@ function getMissingFields(extractedData: Record<string, any>, intent: string): s
   if (!schema) return []
 
   return schema.required.filter(field =>
-    extractedData[field] === undefined || extractedData[field] === null || extractedData[field] === ''
+    extractedData[field] === undefined || extractedData[field] === null || extractedData[field] === ``
   )
 }
 
@@ -267,9 +267,9 @@ Make it natural and helpful. Be brief.`
 
     return ragResponse.response.trim() || `What is the ${missingField}?`
   } catch (error) {
-    console.error('RAG error in follow-up question:', error)
+    console.error(`RAG error in follow-up question:`, error)
     // Fallback to direct generation
-    return `What is the ${missingField.replace(/_/g, ' ')}?`
+    return `What is the ${missingField.replace(/_/g, ` `)}?`
   }
 }
 
@@ -293,7 +293,7 @@ export async function processNaturalLanguageInput(
     if (isSubmitting) {
       // Final validation before submission
       return {
-        response: 'Perfect! Submitting your data now...',
+        response: `Perfect! Submitting your data now...`,
         updatedContext: context,
         readyToSubmit: true,
         validatedData: context.extractedData
@@ -383,7 +383,7 @@ export async function processNaturalLanguageInput(
       suggestions: generateSmartSuggestions(context)
     }
   } catch (error) {
-    console.error('Natural language processing error:', error)
+    console.error(`Natural language processing error: `, error)
     throw error
   }
 }
@@ -395,11 +395,11 @@ function formatDataSummary(data: Record<string, any>, intent: string): string {
   const lines: string[] = []
 
   for (const [key, value] of Object.entries(data)) {
-    const label = key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
+    const label = key.replace(/_/g, ` `).replace(/\b\w/g, l => l.toUpperCase())
     lines.push(`• ${label}: ${value}`)
   }
 
-  return lines.join('\n')
+  return lines.join(`\n`)
 }
 
 /**
@@ -414,7 +414,7 @@ function generateSmartSuggestions(context: ConversationContext): Array<{
   const suggestions: Array<any> = []
 
   // Example: Suggest fuel type based on vehicle
-  if (context.intent === 'fuel_entry' && context.extractedData.vehicle_id && !context.extractedData.fuel_type) {
+  if (context.intent === `fuel_entry` && context.extractedData.vehicle_id && !context.extractedData.fuel_type) {
     suggestions.push({
       field: 'fuel_type',
       value: 'diesel',

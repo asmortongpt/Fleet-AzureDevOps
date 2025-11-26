@@ -161,7 +161,7 @@ class OCPPService extends EventEmitter {
   async connectStation(stationId: string): Promise<boolean> {
     try {
       const result = await this.db.query(
-        'SELECT id, station_id, name, ws_url FROM charging_stations WHERE station_id = $1',
+        `SELECT id, station_id, name, ws_url FROM charging_stations WHERE station_id = $1`,
         [stationId]
       );
 
@@ -184,32 +184,32 @@ class OCPPService extends EventEmitter {
       }
 
       // Create WebSocket connection
-      const ws = new WebSocket(station.ws_url, 'ocpp2.0.1');
+      const ws = new WebSocket(station.ws_url, `ocpp2.0.1`);
 
-      ws.on('open', () => {
+      ws.on(`open`, () => {
         console.log(`✅ Connected to station ${stationId}`);
         this.connections.set(stationId, ws);
         this.updateStationStatus(stationId, { is_online: true, last_heartbeat: new Date() });
-        this.emit('stationConnected', stationId);
+        this.emit(`stationConnected`, stationId);
       });
 
       ws.on('message', (data: Buffer) => {
         this.handleMessage(stationId, data.toString());
       });
 
-      ws.on('close', () => {
+      ws.on(`close`, () => {
         console.log(`❌ Disconnected from station ${stationId}`);
         this.connections.delete(stationId);
         this.updateStationStatus(stationId, { is_online: false });
-        this.emit('stationDisconnected', stationId);
+        this.emit(`stationDisconnected`, stationId);
 
         // Attempt reconnection after 30 seconds
         setTimeout(() => this.connectStation(stationId), 30000);
       });
 
-      ws.on('error', (error) => {
+      ws.on(`error`, (error) => {
         console.error(`WebSocket error for station ${stationId}:`, error.message);
-        this.emit('stationError', { stationId, error: error.message });
+        this.emit(`stationError`, { stationId, error: error.message });
       });
 
       return true;
@@ -228,7 +228,7 @@ class OCPPService extends EventEmitter {
       const [messageTypeId, messageId, actionOrErrorCode, payload] = message;
 
       // Log message
-      await this.logOCPPMessage(stationId, 'Inbound', messageTypeId, actionOrErrorCode, payload);
+      await this.logOCPPMessage(stationId, `Inbound`, messageTypeId, actionOrErrorCode, payload);
 
       switch (messageTypeId) {
         case MessageType.CALL:
@@ -288,7 +288,7 @@ class OCPPService extends EventEmitter {
       this.sendCallResult(stationId, messageId, response);
     } catch (error: any) {
       // Send CALLERROR
-      this.sendCallError(stationId, messageId, 'InternalError', error.message);
+      this.sendCallError(stationId, messageId, `InternalError`, error.message);
     }
   }
 
@@ -319,7 +319,7 @@ class OCPPService extends EventEmitter {
    */
   private async handleHeartbeat(stationId: string): Promise<any> {
     await this.db.query(
-      'UPDATE charging_stations SET last_heartbeat = NOW() WHERE station_id = $1',
+      `UPDATE charging_stations SET last_heartbeat = NOW() WHERE station_id = $1`,
       [stationId]
     );
 
@@ -348,7 +348,7 @@ class OCPPService extends EventEmitter {
     // Update station status (use worst connector status)
     await this.updateStationOverallStatus(stationId);
 
-    this.emit('statusUpdate', { stationId, connectorId, status: connectorStatus });
+    this.emit(`statusUpdate`, { stationId, connectorId, status: connectorStatus });
 
     return {};
   }
@@ -361,7 +361,7 @@ class OCPPService extends EventEmitter {
 
     console.log(`💳 Transaction event from ${stationId}: ${eventType}`, transactionInfo);
 
-    if (eventType === 'Started') {
+    if (eventType === `Started`) {
       // Start new charging session
       const result = await this.db.query(
         `INSERT INTO charging_sessions
@@ -503,7 +503,7 @@ class OCPPService extends EventEmitter {
 
     const response = await this.sendCall(stationId, OCPPAction.RemoteStartTransaction, payload);
 
-    if (response.status === 'Accepted') {
+    if (response.status === `Accepted`) {
       // Will create session when TransactionEvent is received
       console.log(`✅ Remote start accepted for station ${stationId}`);
     }
@@ -522,7 +522,7 @@ class OCPPService extends EventEmitter {
       `SELECT cs.transaction_id, cst.station_id
        FROM charging_sessions cs
        JOIN charging_stations cst ON cs.station_id = cst.id
-       WHERE cs.transaction_id = $1',
+       WHERE cs.transaction_id = $1`,
       [transactionId]
     );
 
@@ -563,7 +563,7 @@ class OCPPService extends EventEmitter {
         `UPDATE charging_connectors
          SET status = 'Reserved'
          WHERE station_id = (SELECT id FROM charging_stations WHERE station_id = $1)
-         AND connector_id = $2',
+         AND connector_id = $2`,
         [stationId, connectorId]
       );
     }
@@ -620,7 +620,7 @@ class OCPPService extends EventEmitter {
       ws.send(JSON.stringify(message));
 
       // Log message
-      this.logOCPPMessage(stationId, 'Outbound', MessageType.CALL, action, payload, messageId);
+      this.logOCPPMessage(stationId, `Outbound`, MessageType.CALL, action, payload, messageId);
     });
   }
 
@@ -634,7 +634,7 @@ class OCPPService extends EventEmitter {
     const message = [MessageType.CALLRESULT, messageId, payload];
     ws.send(JSON.stringify(message));
 
-    this.logOCPPMessage(stationId, 'Outbound', MessageType.CALLRESULT, '', payload, messageId);
+    this.logOCPPMessage(stationId, 'Outbound', MessageType.CALLRESULT, '`, payload, messageId);
   }
 
   /**
@@ -647,7 +647,7 @@ class OCPPService extends EventEmitter {
     const message = [MessageType.CALLERROR, messageId, errorCode, errorDescription, {}];
     ws.send(JSON.stringify(message));
 
-    this.logOCPPMessage(stationId, 'Outbound', MessageType.CALLERROR, errorCode, { errorDescription }, messageId);
+    this.logOCPPMessage(stationId, `Outbound`, MessageType.CALLERROR, errorCode, { errorDescription }, messageId);
   }
 
   /**
@@ -690,7 +690,7 @@ class OCPPService extends EventEmitter {
     values.push(stationId);
 
     await this.db.query(
-      'UPDATE charging_stations SET ${setClauses.join(', ')}, updated_at = NOW() WHERE station_id = $${paramIndex}',
+      `UPDATE charging_stations SET ${setClauses.join(`, `)}, updated_at = NOW() WHERE station_id = $${paramIndex}`,
       values
     );
   }

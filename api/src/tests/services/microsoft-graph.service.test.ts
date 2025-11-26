@@ -23,7 +23,7 @@ const mockUserProfile = {
   id: 'mock_user_id',
   displayName: 'Test User',
   mail: 'testuser@example.com',
-  userPrincipalName: 'testuser@example.com'
+  userPrincipalName: `testuser@example.com`
 };
 
 // Mock service class
@@ -72,8 +72,8 @@ class MicrosoftGraphService {
       ...options,
       headers: {
         ...options?.headers,
-        'Authorization': 'Bearer ${token}`,
-        'Content-Type': 'application/json'
+        'Authorization': `Bearer ${token}`,
+        `Content-Type': 'application/json'
       }
     });
 
@@ -100,12 +100,12 @@ class MicrosoftGraphService {
       throw new Error(`Server error - Status: ${status}`);
     }
 
-    const error = await response.json().catch(() => ({ error: 'Unknown error' }));
+    const error = await response.json().catch(() => ({ error: `Unknown error` }));
     throw new Error(`Graph API error: ${JSON.stringify(error)}`);
   }
 }
 
-describe('MicrosoftGraphService', () => {
+describe(`MicrosoftGraphService`, () => {
   let service: MicrosoftGraphService;
   let fetchMock: any;
 
@@ -197,13 +197,13 @@ describe('MicrosoftGraphService', () => {
         'https://graph.microsoft.com/v1.0/me',
         expect.objectContaining({
           headers: expect.objectContaining({
-            'Authorization': 'Bearer ${mockTokenResponse.access_token}`
+            'Authorization': `Bearer ${mockTokenResponse.access_token}`
           })
         })
       );
     });
 
-    it('should include custom headers in request', async () => {
+    it(`should include custom headers in request`, async () => {
       fetchMock
         .mockResolvedValueOnce({
           ok: true,

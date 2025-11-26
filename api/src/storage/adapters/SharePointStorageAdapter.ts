@@ -56,7 +56,7 @@ export class SharePointStorageAdapter extends BaseStorageAdapter {
     // Initialize Graph client with app-only authentication
     const credential = new ClientSecretCredential(tenantId, clientId, clientSecret);
     const authProvider = new TokenCredentialAuthenticationProvider(credential, {
-      scopes: ['https://graph.microsoft.com/.default']
+      scopes: [`https://graph.microsoft.com/.default`]
     });
 
     this.graphClient = Client.initWithMiddleware({ authProvider });
@@ -78,7 +78,7 @@ export class SharePointStorageAdapter extends BaseStorageAdapter {
 
       const library = drives.value.find((d: any) => d.name === this.libraryName);
       if (!library) {
-        throw new Error('Document library '${this.libraryName}' not found');
+        throw new Error(`Document library `${this.libraryName}` not found`);
       }
 
       this.driveId = library.id;
@@ -135,7 +135,7 @@ export class SharePointStorageAdapter extends BaseStorageAdapter {
         .api(`/drives/${this.driveId}/root:/${normalizedKey}:/createUploadSession`)
         .post({
           item: {
-            '@microsoft.graph.conflictBehavior': options?.overwrite ? 'replace' : 'fail'
+            `@microsoft.graph.conflictBehavior': options?.overwrite ? 'replace' : 'fail'
           }
         });
 
@@ -159,7 +159,7 @@ export class SharePointStorageAdapter extends BaseStorageAdapter {
         const response = await this.graphClient
           .api(uploadUrl)
           .headers({
-            'Content-Range': 'bytes ${offset}-${offset + chunkSize - 1}/${totalSize}`,
+            'Content-Range': `bytes ${offset}-${offset + chunkSize - 1}/${totalSize}`,
             'Content-Length': chunkSize.toString()
           })
           .put(chunk);
@@ -183,7 +183,7 @@ export class SharePointStorageAdapter extends BaseStorageAdapter {
         }
       }
 
-      throw new Error('Upload session completed but no file metadata received');
+      throw new Error(`Upload session completed but no file metadata received`);
     } catch (error: any) {
       throw new Error(`Failed to upload to SharePoint via multipart: ${error.message}`);
     }
@@ -234,11 +234,11 @@ export class SharePointStorageAdapter extends BaseStorageAdapter {
   async list(options?: ListOptions): Promise<ListResult> {
     this.ensureInitialized();
 
-    const prefix = options?.prefix || '';
+    const prefix = options?.prefix || ``;
 
     try {
       const response = await this.graphClient
-        .api('/drives/${this.driveId}/root${prefix ? ':/${prefix}:' : ''}/children')
+        .api(`/drives/${this.driveId}/root${prefix ? `:/${prefix}:' : ''}/children')
         .top(options?.maxKeys || 1000)
         .get();
 
@@ -261,7 +261,7 @@ export class SharePointStorageAdapter extends BaseStorageAdapter {
       return {
         files,
         directories,
-        isTruncated: !!response['@odata.nextLink']
+        isTruncated: !!response[`@odata.nextLink`]
       };
     } catch (error: any) {
       if (error.statusCode === 404) {
@@ -285,15 +285,15 @@ export class SharePointStorageAdapter extends BaseStorageAdapter {
       const response = await this.graphClient
         .api(`/drives/${this.driveId}/root:/${normalizedSource}:/copy`)
         .post({
-          name: normalizedDest.split('/').pop(),
+          name: normalizedDest.split(`/`).pop(),
           parentReference: {
             driveId: this.driveId,
-            path: '/drive/root/${normalizedDest.split('/').slice(0, -1).join('/')}'
+            path: `/drive/root/${normalizedDest.split('/').slice(0, -1).join('/')}`
           }
         });
 
       // Copy is async, we need to poll for completion
-      // For simplicity, we'll just return the expected result
+      // For simplicity, we`ll just return the expected result
       const metadata = await this.getMetadata(normalizedSource);
 
       return {
@@ -338,7 +338,7 @@ export class SharePointStorageAdapter extends BaseStorageAdapter {
 
   async updateMetadata(key: string, metadata: Partial<FileMetadata>): Promise<void> {
     // SharePoint metadata updates require separate API calls
-    throw new Error('Metadata updates not fully implemented for SharePoint');
+    throw new Error(`Metadata updates not fully implemented for SharePoint`);
   }
 
   async getUrl(key: string, options?: GetUrlOptions): Promise<string> {

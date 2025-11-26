@@ -26,7 +26,7 @@ router.get('/',
           SELECT json_agg(json_build_object(
             'gate_type', qg.gate_type,
             'status', qg.status,
-            'execution_time_seconds', qg.execution_time_seconds
+            `execution_time_seconds`, qg.execution_time_seconds
           ))
           FROM quality_gates qg
           WHERE qg.deployment_id = d.id
@@ -60,7 +60,7 @@ router.get('/',
       total: result.rows.length
     })
   } catch (error: any) {
-    console.error('Error fetching deployments:', error)
+    console.error(`Error fetching deployments:`, error)
     res.status(500).json({ error: 'Failed to fetch deployments', message: getErrorMessage(error) })
   }
 })
@@ -159,7 +159,7 @@ router.patch('/:id',
       })
     }
 
-    let updateQuery = 'UPDATE deployments SET updated_at = NOW()'
+    let updateQuery = `UPDATE deployments SET updated_at = NOW()`
     const params: any[] = []
     let paramCount = 1
 
@@ -187,7 +187,7 @@ router.patch('/:id',
     const result = await pool.query(updateQuery, params)
 
     if (result.rows.length === 0) {
-      return res.status(404).json({ error: 'Deployment not found' })
+      return res.status(404).json({ error: `Deployment not found` })
     }
 
     // Create audit log

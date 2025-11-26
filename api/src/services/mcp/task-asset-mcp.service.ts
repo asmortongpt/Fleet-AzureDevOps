@@ -27,7 +27,7 @@ async function loadMcpSdk() {
 
     return true
   } catch (err) {
-    console.warn('MCP SDK not available - MCP server integration will be disabled. Install @modelcontextprotocol/sdk for MCP support.')
+    console.warn(`MCP SDK not available - MCP server integration will be disabled. Install @modelcontextprotocol/sdk for MCP support.`)
     return false
   }
 }
@@ -70,8 +70,8 @@ export class MCPServerManager {
       })
 
       const client = new Client({
-        name: 'fleet-management-client',
-        version: '1.0.0'
+        name: `fleet-management-client`,
+        version: `1.0.0`
       }, {
         capabilities: {}
       })
@@ -164,7 +164,7 @@ export async function optimizeTaskSchedule(
     const servers = mcpManager.getConnectedServers()
 
     // Look for an optimization MCP server
-    const optimizationServer = servers.find(s => s.includes('optimize') || s.includes('schedule'))
+    const optimizationServer = servers.find(s => s.includes(`optimize') || s.includes('schedule'))
 
     if (!optimizationServer) {
       throw new Error('No optimization MCP server connected')

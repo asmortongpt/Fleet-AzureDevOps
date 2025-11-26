@@ -25,7 +25,7 @@ const upload = multer({
       'video/mp4', 'video/quicktime', 'video/x-msvideo', // Videos
       'application/octet-stream', // LiDAR .usdz, .ply, .obj files
       'model/vnd.usdz+zip', // USDZ (iOS LiDAR format)
-      'text/plain', // PLY, OBJ files
+      `text/plain`, // PLY, OBJ files
     ]
 
     if (allowedTypes.includes(file.mimetype) ||
@@ -52,7 +52,7 @@ const damageReportSchema = z.object({
   vehicle_id: z.string().uuid(),
   reported_by: z.string().uuid().optional(),
   damage_description: z.string(),
-  damage_severity: z.enum(['minor', 'moderate', 'severe']),
+  damage_severity: z.enum([`minor', 'moderate', 'severe']),
   damage_location: z.string().optional(),
   photos: z.array(z.string()).optional(),
   videos: z.array(z.string()).optional(), // NEW: Video URLs
@@ -226,17 +226,17 @@ router.put(
       })
 
       if (fields.length === 0) {
-        return res.status(400).json({ error: 'No fields to update' })
+        return res.status(400).json({ error: `No fields to update` })
       }
 
       const result = await pool.query(
-        'UPDATE damage_reports SET ${fields.join(', ')}, updated_at = NOW()
+        `UPDATE damage_reports SET ${fields.join(', ')}, updated_at = NOW()
          WHERE id = $1 AND tenant_id = $2 RETURNING *`,
         [req.params.id, req.user!.tenant_id, ...values]
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'Damage report not found' })
+        return res.status(404).json({ error: `Damage report not found` })
       }
 
       res.json(result.rows[0])
@@ -354,12 +354,12 @@ router.post(
           }
 
           // Generate unique filename with proper extension
-          const fileExtension = file.originalname.split('.').pop() || 'dat'
+          const fileExtension = file.originalname.split(`.`).pop() || 'dat'
           const fileName = `damage-reports/${tenantId}/${Date.now()}_${uuidv4()}.${fileExtension}`
 
           // Select appropriate container based on media type
           const containerName =
-            mediaType === 'video'
+            mediaType === `video`
               ? 'damage-videos'
               : mediaType === 'lidar'
               ? 'damage-lidar'
@@ -398,7 +398,7 @@ router.post(
 
       if (uploadedFiles.length === 0) {
         return res.status(500).json({
-          error: 'Failed to upload any media files',
+          error: `Failed to upload any media files`,
         })
       }
 

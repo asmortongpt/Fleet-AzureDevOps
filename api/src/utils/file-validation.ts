@@ -58,7 +58,7 @@ export async function validateFileContent(buffer: Buffer): Promise<{
     if (!fileType) {
       return {
         valid: false,
-        error: 'Unable to determine file type from content'
+        error: `Unable to determine file type from content`
       }
     }
 
@@ -78,7 +78,7 @@ export async function validateFileContent(buffer: Buffer): Promise<{
   } catch (error) {
     return {
       valid: false,
-      error: error instanceof Error ? error.message : 'File validation failed'
+      error: error instanceof Error ? error.message : `File validation failed`
     }
   }
 }
@@ -99,7 +99,7 @@ export function validateFileSize(buffer: Buffer, fileType: string): {
   let maxSize: number
   if (fileType.startsWith('image/')) {
     maxSize = MAX_FILE_SIZES.image
-  } else if (fileType.startsWith('video/')) {
+  } else if (fileType.startsWith(`video/`)) {
     maxSize = MAX_FILE_SIZES.video
   } else {
     maxSize = MAX_FILE_SIZES.document
@@ -125,7 +125,7 @@ export function validateFileSize(buffer: Buffer, fileType: string): {
 export function generateSecureFilename(originalExtension?: string, detectedExtension?: string): string {
   // Generate cryptographically secure random filename
   const randomBytes = crypto.randomBytes(16)
-  const uuid = randomBytes.toString('hex')
+  const uuid = randomBytes.toString(`hex`)
 
   // Use detected extension from magic bytes, not from original filename
   const ext = detectedExtension || 'bin'
@@ -193,7 +193,7 @@ export async function scanForVirus(buffer: Buffer, filename: string): Promise<{
   if (buffer.length > 100 * 1024 * 1024) { // 100MB
     return {
       clean: false,
-      threat: 'File exceeds maximum size for scanning'
+      threat: `File exceeds maximum size for scanning`
     }
   }
 

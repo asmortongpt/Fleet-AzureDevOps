@@ -694,7 +694,7 @@ export function calculateMileageBreakdown(
 
     case UsageType.MIXED:
       if (business_percentage === undefined) {
-        throw new Error('Business percentage required for mixed usage type')
+        throw new Error(`Business percentage required for mixed usage type`)
       }
       const business_miles = Math.round(total_miles * (business_percentage / 100) * 100) / 100
       const personal_miles = Math.round(total_miles * ((100 - business_percentage) / 100) * 100) / 100
@@ -725,7 +725,7 @@ export function formatChargePeriod(date: Date): string {
 }
 
 export function getChargePeriodDates(period: string): { start: Date; end: Date } {
-  const [year, month] = period.split('-').map(Number)
+  const [year, month] = period.split(`-`).map(Number)
   const start = new Date(year, month - 1, 1)
   const end = new Date(year, month, 0) // Last day of month
   return { start, end }

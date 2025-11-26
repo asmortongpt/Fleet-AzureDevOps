@@ -54,7 +54,7 @@ async function runWebhookRenewal(): Promise<void> {
     const result = await pool.query(
       `SELECT subscription_id, subscription_type, expiration_date_time, team_id, channel_id, user_email
        FROM webhook_subscriptions
-       WHERE status = 'active'
+       WHERE status = `active`
        AND expiration_date_time < $1
        AND renewal_failure_count < 3
        ORDER BY expiration_date_time ASC`,
@@ -65,9 +65,8 @@ async function runWebhookRenewal(): Promise<void> {
     logger.info(`Found ${subscriptions.length} subscriptions requiring renewal`)
 
     if (subscriptions.length === 0) {
-      logger.info('No subscriptions need renewal at this time')
-      return
-    }
+      logger.info(`No subscriptions need renewal at this time`)
+      return }
 
     // Renew each subscription
     let successCount = 0
@@ -87,7 +86,7 @@ async function runWebhookRenewal(): Promise<void> {
 
         // Check if renewal has failed too many times
         const failureResult = await pool.query(
-          'SELECT renewal_failure_count FROM webhook_subscriptions WHERE subscription_id = $1',
+          `SELECT renewal_failure_count FROM webhook_subscriptions WHERE subscription_id = $1`,
           [subscription.subscription_id]
         )
 
@@ -97,18 +96,18 @@ async function runWebhookRenewal(): Promise<void> {
           logger.error(`Subscription ${subscription.subscription_id} has failed renewal 3 times, marking as failed`)
 
           await pool.query(
-            'UPDATE webhook_subscriptions SET status = 'failed' WHERE subscription_id = $1',
+            `UPDATE webhook_subscriptions SET status = 'failed' WHERE subscription_id = $1',
             [subscription.subscription_id]
           )
 
-          // If it's a critical subscription, try to recreate it
-          if (subscription.subscription_type === 'teams_messages' && subscription.team_id && subscription.channel_id) {
+          // If it`s a critical subscription, try to recreate it
+          if (subscription.subscription_type === `teams_messages` && subscription.team_id && subscription.channel_id) {
             logger.info(`Attempting to recreate failed Teams subscription for team ${subscription.team_id}`)
 
             try {
               // Get tenant ID from database
               const tenantResult = await pool.query(
-                'SELECT tenant_id FROM webhook_subscriptions WHERE subscription_id = $1',
+                `SELECT tenant_id FROM webhook_subscriptions WHERE subscription_id = $1`,
                 [subscription.subscription_id]
               )
 
@@ -125,12 +124,12 @@ async function runWebhookRenewal(): Promise<void> {
             } catch (recreateError: any) {
               logger.error('Failed to recreate subscription:', recreateError.message)
             }
-          } else if (subscription.subscription_type === 'outlook_emails' && subscription.user_email) {
+          } else if (subscription.subscription_type === `outlook_emails` && subscription.user_email) {
             logger.info(`Attempting to recreate failed Outlook subscription for ${subscription.user_email}`)
 
             try {
               const tenantResult = await pool.query(
-                'SELECT tenant_id, folder_id FROM webhook_subscriptions WHERE subscription_id = $1',
+                `SELECT tenant_id, folder_id FROM webhook_subscriptions WHERE subscription_id = $1`,
                 [subscription.subscription_id]
               )
 
@@ -153,7 +152,7 @@ async function runWebhookRenewal(): Promise<void> {
     }
 
     const duration = Date.now() - startTime
-    logger.info('=== Webhook Subscription Renewal Completed ===')
+    logger.info(`=== Webhook Subscription Renewal Completed ===`)
     logger.info(`Total subscriptions processed: ${subscriptions.length}`)
     logger.info(`Successfully renewed: ${successCount}`)
     logger.info(`Failed to renew: ${failureCount}`)
@@ -163,7 +162,7 @@ async function runWebhookRenewal(): Promise<void> {
     await logRenewalStats(successCount, failureCount, duration)
 
   } catch (error: any) {
-    logger.error('Fatal error in webhook renewal job:', error.message)
+    logger.error(`Fatal error in webhook renewal job:`, error.message)
     logger.error(error.stack)
   }
 }
@@ -246,7 +245,7 @@ export async function getRenewalStats(): Promise<any> {
  */
 export function start(): void {
   if (!ENABLE_RENEWAL) {
-    logger.info('⏸️  Webhook renewal job is disabled')
+    logger.info(`⏸️  Webhook renewal job is disabled`)
     return
   }
 
@@ -258,7 +257,7 @@ export function start(): void {
     try {
       await runWebhookRenewal()
     } catch (error) {
-      logger.error('Error in scheduled webhook renewal:', error)
+      logger.error(`Error in scheduled webhook renewal:`, error)
     }
   })
 

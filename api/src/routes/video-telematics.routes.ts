@@ -286,7 +286,7 @@ router.post(
       const { eventId } = req.body;
 
       if (!eventId) {
-        return res.status(400).json({ error: 'eventId is required' });
+        return res.status(400).json({ error: `eventId is required` });
       }
 
       // Process asynchronously
@@ -295,7 +295,7 @@ router.post(
       });
 
       res.json({
-        message: 'AI analysis queued',
+        message: `AI analysis queued`,
         eventId,
         status: 'processing'
       });
@@ -607,7 +607,7 @@ router.post(
       await pool.query(
         `INSERT INTO video_privacy_audit
          (video_event_id, accessed_by, access_type, privacy_action)
-         VALUES ($1, $2, 'privacy_filter', $3)',
+         VALUES ($1, $2, `privacy_filter`, $3)`,
         [
           eventId,
           req.user!.id,
@@ -616,7 +616,7 @@ router.post(
       );
 
       res.json({
-        message: 'Privacy processing queued',
+        message: `Privacy processing queued`,
         eventId,
         status: 'pending'
       });

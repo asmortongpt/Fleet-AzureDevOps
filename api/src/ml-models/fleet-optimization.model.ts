@@ -156,7 +156,7 @@ export class FleetOptimizationModel {
     // Optimal utilization
     else {
       recommendation = `Vehicle ${data.vehicleNumber} is performing within optimal parameters (${utilizationRate.toFixed(1)}% utilization, $${costPerMile.toFixed(2)}/mile). Continue current operations.`
-      type = 'maintain'
+      type = `maintain`
       potentialSavings = 0
       confidenceScore = 90
     }
@@ -195,7 +195,7 @@ export class FleetOptimizationModel {
       const optimalSize = Math.ceil((avgDailyDemand * peakDemandMultiplier) / (targetUtilization / 100))
 
       const difference = currentFleetSize - optimalSize
-      let recommendation = ''
+      let recommendation = ``
       let potentialSavings = 0
 
       if (difference > 2) {
@@ -205,7 +205,7 @@ export class FleetOptimizationModel {
         recommendation = `Fleet is undersized by approximately ${Math.abs(difference)} vehicles. Consider expanding to meet demand and reduce vehicle wear.`
         potentialSavings = 0
       } else {
-        recommendation = 'Fleet size is optimal for current demand levels.'
+        recommendation = `Fleet size is optimal for current demand levels.`
         potentialSavings = 0
       }
 
@@ -261,7 +261,7 @@ export class FleetOptimizationModel {
 
       recommendations.push({
         type: 'fleet_rightsizing',
-        title: 'Retire Underutilized Vehicles',
+        title: `Retire Underutilized Vehicles`,
         description: `${underutilizedVehicles.length} vehicle(s) are significantly underutilized. Consider retirement, sale, or redeployment to reduce operational costs.`,
         priority: totalSavings > 50000 ? 'high' : 'medium',
         potentialSavings: totalSavings,
@@ -281,7 +281,7 @@ export class FleetOptimizationModel {
 
       recommendations.push({
         type: 'vehicle_replacement',
-        title: 'Replace High-Cost Vehicles',
+        title: `Replace High-Cost Vehicles`,
         description: `${highCostVehicles.length} vehicle(s) have high operating costs. Replacing with more efficient models could significantly reduce expenses.`,
         priority: 'medium',
         potentialSavings: totalSavings,
@@ -296,7 +296,7 @@ export class FleetOptimizationModel {
     if (overutilizedVehicles.length > 3) {
       recommendations.push({
         type: 'fleet_expansion',
-        title: 'Expand Fleet Capacity',
+        title: `Expand Fleet Capacity`,
         description: `${overutilizedVehicles.length} vehicle(s) are operating at >90% utilization. Consider adding vehicles to prevent excessive wear and improve service quality.`,
         priority: 'medium',
         potentialSavings: 0,
@@ -315,7 +315,7 @@ export class FleetOptimizationModel {
     if (inefficientRoutes.length > 0) {
       recommendations.push({
         type: 'route_optimization',
-        title: 'Optimize Short-Trip Routes',
+        title: `Optimize Short-Trip Routes`,
         description: `${inefficientRoutes.length} vehicle(s) are making many short trips. Route consolidation could improve efficiency.`,
         priority: 'low',
         potentialSavings: inefficientRoutes.length * 5000,

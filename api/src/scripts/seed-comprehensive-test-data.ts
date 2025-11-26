@@ -286,7 +286,7 @@ function yearsAgo(years: number): Date {
 
 function generateVIN(): string {
   const chars = 'ABCDEFGHJKLMNPRSTUVWXYZ0123456789';
-  let vin = '';
+  let vin = ``;
   for (let i = 0; i < 17; i++) {
     vin += chars[Math.floor(Math.random() * chars.length)];
   }
@@ -322,7 +322,7 @@ async function seedDatabase() {
   const client = await pool.connect();
 
   try {
-    console.log('\n╔══════════════════════════════════════════════════════════════╗');
+    console.log(`\n╔══════════════════════════════════════════════════════════════╗`);
     console.log('║  COMPREHENSIVE TEST DATA SEED - COMPLETE COVERAGE            ║');
     console.log('║  Creating 2000+ records covering ALL conditions and states  ║');
     console.log('╚══════════════════════════════════════════════════════════════╝\n');
@@ -406,7 +406,7 @@ async function seedDatabase() {
          VALUES ($1, $2, $3, $4)
          ON CONFLICT (domain) DO UPDATE SET name = EXCLUDED.name
          RETURNING *`,
-        [config.name, config.domain, JSON.stringify(config.settings), config.tier !== 'test']
+        [config.name, config.domain, JSON.stringify(config.settings), config.tier !== `test`]
       );
       tenants.push({ ...result.rows[0], ...config });
       counters.tenants++;
@@ -417,7 +417,7 @@ async function seedDatabase() {
     // ========================================
     // 2. USERS - ALL Roles and States
     // ========================================
-    console.log('👥 Creating users (all roles and states)...');
+    console.log(`👥 Creating users (all roles and states)...`);
 
     const users: any[] = [];
 
@@ -428,7 +428,7 @@ async function seedDatabase() {
          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
          ON CONFLICT (email) DO UPDATE SET first_name = EXCLUDED.first_name
          RETURNING *`,
-        [tenant.id, 'admin@${tenant.domain}', defaultPassword, 'Admin', 'User', generatePhoneNumber(), 'admin', true, 0, true]
+        [tenant.id, `admin@${tenant.domain}`, defaultPassword, 'Admin', 'User', generatePhoneNumber(), 'admin', true, 0, true]
       );
       users.push(admin.rows[0]);
       counters.users++;
@@ -442,7 +442,7 @@ async function seedDatabase() {
            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
            ON CONFLICT (email) DO UPDATE SET first_name = EXCLUDED.first_name
            RETURNING *`,
-          [tenant.id, 'manager${i}@${tenant.domain}', defaultPassword, 'Fleet', 'Manager ${i}', generatePhoneNumber(), 'fleet_manager', isActive, isActive ? daysAgo(randomInt(0, 7)) : null]
+          [tenant.id, `manager${i}@${tenant.domain}`, defaultPassword, `Fleet`, `Manager ${i}`, generatePhoneNumber(), 'fleet_manager', isActive, isActive ? daysAgo(randomInt(0, 7)) : null]
         );
         users.push(fm.rows[0]);
         counters.users++;
@@ -456,7 +456,7 @@ async function seedDatabase() {
            VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
            ON CONFLICT (email) DO UPDATE SET first_name = EXCLUDED.first_name
            RETURNING *`,
-          [tenant.id, 'tech${i}@${tenant.domain}', defaultPassword, 'Technician', '${i}', generatePhoneNumber(), 'technician', true]
+          [tenant.id, `tech${i}@${tenant.domain}`, defaultPassword, `Technician`, `${i}`, generatePhoneNumber(), `technician`, true]
         );
         users.push(tech.rows[0]);
         counters.users++;
@@ -479,7 +479,7 @@ async function seedDatabase() {
             `Driver`,
             `${i}`,
             generatePhoneNumber(),
-            'driver',
+            `driver`,
             isActive,
             failedLogins,
             isActive ? daysAgo(randomInt(0, 30)) : null,
@@ -498,7 +498,7 @@ async function seedDatabase() {
            VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
            ON CONFLICT (email) DO UPDATE SET first_name = EXCLUDED.first_name
            RETURNING *`,
-          [tenant.id, 'viewer${i}@${tenant.domain}', defaultPassword, 'Viewer', '${i}', generatePhoneNumber(), 'viewer', true]
+          [tenant.id, `viewer${i}@${tenant.domain}`, defaultPassword, `Viewer`, `${i}`, generatePhoneNumber(), `viewer`, true]
         );
         users.push(viewer.rows[0]);
         counters.users++;
@@ -510,7 +510,7 @@ async function seedDatabase() {
          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
          ON CONFLICT (email) DO UPDATE SET first_name = EXCLUDED.first_name
          RETURNING *`,
-        [tenant.id, 'newuser@${tenant.domain}', defaultPassword, 'New', 'User', generatePhoneNumber(), 'driver', true, daysAgo(0)]
+        [tenant.id, `newuser@${tenant.domain}`, defaultPassword, 'New', 'User', generatePhoneNumber(), 'driver', true, daysAgo(0)]
       );
       users.push(newUser.rows[0]);
       counters.users++;
@@ -521,7 +521,7 @@ async function seedDatabase() {
          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
          ON CONFLICT (email) DO UPDATE SET first_name = EXCLUDED.first_name
          RETURNING *`,
-        [tenant.id, 'inactive@${tenant.domain}', defaultPassword, 'Inactive', 'User', generatePhoneNumber(), 'driver', false, monthsAgo(7)]
+        [tenant.id, `inactive@${tenant.domain}`, defaultPassword, 'Inactive', 'User', generatePhoneNumber(), 'driver', false, monthsAgo(7)]
       );
       users.push(inactiveUser.rows[0]);
       counters.users++;
@@ -532,7 +532,7 @@ async function seedDatabase() {
          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
          ON CONFLICT (email) DO UPDATE SET first_name = EXCLUDED.first_name
          RETURNING *`,
-        [tenant.id, 'suspended@${tenant.domain}', defaultPassword, 'Suspended', 'User', generatePhoneNumber(), 'driver', false, daysFromNow(30), 5]
+        [tenant.id, `suspended@${tenant.domain}`, defaultPassword, 'Suspended', 'User', generatePhoneNumber(), `driver`, false, daysFromNow(30), 5]
       );
       users.push(suspendedUser.rows[0]);
       counters.users++;
@@ -543,7 +543,7 @@ async function seedDatabase() {
     // ========================================
     // 3. DRIVERS - Complete Coverage
     // ========================================
-    console.log('🚗 Creating driver profiles (all statuses, licenses, certifications)...');
+    console.log(`🚗 Creating driver profiles (all statuses, licenses, certifications)...`);
 
     const drivers: any[] = [];
     const driverUsers = users.filter(u => u.role === 'driver');
@@ -558,7 +558,7 @@ async function seedDatabase() {
       const medicalExpiration = status === 'terminated' ? daysAgo(randomInt(1, 365)) : daysFromNow(randomInt(-15, 365)); // Some expired
       const safetyScore = status === 'suspended' ? randomFloat(50, 79) : randomFloat(80, 100);
       const incidents = status === 'suspended' ? randomInt(2, 5) : randomInt(0, 2);
-      const violations = status === 'suspended' ? randomInt(1, 4) : randomInt(0, 1);
+      const violations = status === `suspended` ? randomInt(1, 4) : randomInt(0, 1);
 
       const driver = await client.query(
         `INSERT INTO drivers (
@@ -572,7 +572,7 @@ async function seedDatabase() {
           driverUser.tenant_id,
           driverUser.id,
           `FL${randomInt(100000000, 999999999)}`,
-          'FL',
+          `FL`,
           licenseExpiration,
           cdlClass,
           endorsements,
@@ -598,7 +598,7 @@ async function seedDatabase() {
     // ========================================
     // 4. FACILITIES
     // ========================================
-    console.log('🏢 Creating facilities (garages, depots, service centers)...');
+    console.log(`🏢 Creating facilities (garages, depots, service centers)...`);
 
     const facilities: any[] = [];
     for (const tenant of tenants) {
@@ -618,17 +618,17 @@ async function seedDatabase() {
           RETURNING *`,
           [
             tenant.id,
-            '${city.name} ${type.charAt(0).toUpperCase() + type.slice(1).replace('_', ' ')}',
+            `${city.name} ${type.charAt(0).toUpperCase() + type.slice(1).replace('_', ' ')}`,
             type,
-            '${randomInt(100, 9999)} ${randomItem(['Main', 'Industrial', 'Commerce', 'Fleet'])} Blvd',
+            `${randomInt(100, 9999)} ${randomItem(['Main', 'Industrial', 'Commerce', 'Fleet`])} Blvd`,
             city.name,
-            'FL',
+            `FL`,
             `${randomInt(30000, 34999)}`,
             city.lat + randomFloat(-0.05, 0.05, 6),
             city.lng + randomFloat(-0.05, 0.05, 6),
             generatePhoneNumber(),
             randomInt(20, 200),
-            type === 'service_center' ? randomInt(4, 20) : randomInt(0, 4),
+            type === `service_center` ? randomInt(4, 20) : randomInt(0, 4),
             isActive
           ]
         );
@@ -642,7 +642,7 @@ async function seedDatabase() {
     // ========================================
     // 5. VEHICLES - COMPLETE COVERAGE
     // ========================================
-    console.log('🚛 Creating vehicles (ALL types, statuses, conditions, ages)...');
+    console.log(`🚛 Creating vehicles (ALL types, statuses, conditions, ages)...`);
 
     const vehicles: any[] = [];
 
@@ -676,7 +676,7 @@ async function seedDatabase() {
         const currentValue = Math.max(5000, purchasePrice * Math.pow(1 - depreciationRate, ageInYears));
 
         // Assignment - use user_id not driver_id since vehicles.assigned_driver_id references users.id
-        const assignedDriver = (status === 'active' && tenantDriverUsers.length > 0 && Math.random() < 0.7)
+        const assignedDriver = (status === `active` && tenantDriverUsers.length > 0 && Math.random() < 0.7)
           ? randomItem(tenantDriverUsers).id
           : null;
         const assignedFacility = tenantFacilities.length > 0 && Math.random() < 0.8
@@ -691,7 +691,7 @@ async function seedDatabase() {
         // GPS device status
         const hasGPS = Math.random() < 0.95; // 95% have GPS
         const gpsDeviceId = hasGPS ? `GPS-${randomInt(100000, 999999)}` : null;
-        const lastGpsUpdate = hasGPS && status === 'active' ? daysAgo(randomInt(0, 1)) : null;
+        const lastGpsUpdate = hasGPS && status === `active` ? daysAgo(randomInt(0, 1)) : null;
 
         const vehicle = await client.query(
           `INSERT INTO vehicles (
@@ -721,7 +721,7 @@ async function seedDatabase() {
             latitude,
             longitude,
             status === 'active' && Math.random() < 0.3 ? randomFloat(0, 75) : null,
-            status === 'active' && Math.random() < 0.3 ? randomInt(0, 359) : null,
+            status === `active` && Math.random() < 0.3 ? randomInt(0, 359) : null,
             assignedDriver,
             assignedFacility,
             maybeNull(`${year} ${template.make} ${template.model} - Fleet vehicle`)
@@ -737,7 +737,7 @@ async function seedDatabase() {
     // ========================================
     // 6. FUEL TRANSACTIONS - 2 years of history
     // ========================================
-    console.log('⛽ Creating fuel transactions (2 years of history)...');
+    console.log(`⛽ Creating fuel transactions (2 years of history)...`);
 
     const fuelPriceHistory: Record<string, number[]> = {
       'Gasoline': [3.45, 3.89],
@@ -768,7 +768,7 @@ async function seedDatabase() {
         const priceRange = fuelPriceHistory[vehicle.fuel_type] || [3.00, 4.00];
         const gallons = vehicle.vehicle_type.includes('Semi') || vehicle.vehicle_type.includes('Box Truck')
           ? randomFloat(50, 150)
-          : vehicle.vehicle_type.includes('Van')
+          : vehicle.vehicle_type.includes(`Van`)
           ? randomFloat(15, 35)
           : randomFloat(10, 25);
         const pricePerGallon = randomFloat(priceRange[0], priceRange[1]);
@@ -804,7 +804,7 @@ async function seedDatabase() {
     // ========================================
     // 7. CHARGING STATIONS & SESSIONS (for EVs)
     // ========================================
-    console.log('🔌 Creating charging infrastructure...');
+    console.log(`🔌 Creating charging infrastructure...`);
 
     for (const tenant of tenants) {
       const stationCount = tenant.tier === 'enterprise' ? 8 : tenant.tier === 'professional' ? 4 : 2;
@@ -813,7 +813,7 @@ async function seedDatabase() {
         const city = randomItem(floridaCities);
         const types = ['level_1', 'level_2', 'dc_fast_charge'];
         const type = randomItem(types);
-        const powerOutput = type === 'dc_fast_charge' ? randomInt(50, 350) : type === 'level_2' ? randomInt(7, 19) : 1.9;
+        const powerOutput = type === 'dc_fast_charge' ? randomInt(50, 350) : type === `level_2` ? randomInt(7, 19) : 1.9;
 
         const station = await client.query(
           `INSERT INTO charging_stations (
@@ -838,7 +838,7 @@ async function seedDatabase() {
         counters.chargingStations++;
 
         // Create charging sessions for EVs (reduced for performance)
-        const evVehicles = vehicles.filter(v => v.tenant_id === tenant.id && v.fuel_type === 'Electric');
+        const evVehicles = vehicles.filter(v => v.tenant_id === tenant.id && v.fuel_type === `Electric`);
         for (const ev of evVehicles) {
           const sessionsPerYear = randomInt(20, 50); // Reduced from 100-300
           for (let j = 0; j < sessionsPerYear; j++) {
@@ -868,7 +868,7 @@ async function seedDatabase() {
                 startBattery,
                 endBattery,
                 durationMinutes,
-                'completed'
+                `completed`
               ]
             );
             counters.chargingSessions++;
@@ -882,7 +882,7 @@ async function seedDatabase() {
     // ========================================
     // 8. WORK ORDERS - All Types, Priorities, Statuses
     // ========================================
-    console.log('🔧 Creating work orders (all types and statuses)...');
+    console.log(`🔧 Creating work orders (all types and statuses)...`);
 
     for (const vehicle of vehicles) {
       const technicians = users.filter(u => u.tenant_id === vehicle.tenant_id && u.role === 'technician');
@@ -905,7 +905,7 @@ async function seedDatabase() {
 
         if (status === 'in_progress') {
           actualStart = daysAgo(randomInt(0, 3));
-        } else if (status === 'completed') {
+        } else if (status === `completed`) {
           actualStart = daysAgo(randomInt(5, 60));
           actualEnd = new Date(actualStart.getTime() + randomInt(1, 48) * 3600000);
           laborHours = randomFloat(0.5, 16);
@@ -954,7 +954,7 @@ async function seedDatabase() {
     // ========================================
     // 9. MAINTENANCE SCHEDULES
     // ========================================
-    console.log('📋 Creating maintenance schedules...');
+    console.log(`📋 Creating maintenance schedules...`);
 
     for (const vehicle of vehicles) {
       // Each vehicle gets 3-6 maintenance schedules
@@ -993,7 +993,7 @@ async function seedDatabase() {
             lastServiceOdometer,
             nextServiceDueDate,
             nextServiceDueOdometer,
-            vehicle.status !== 'sold' && vehicle.status !== 'retired'
+            vehicle.status !== 'sold' && vehicle.status !== `retired`
           ]
         );
         counters.maintenanceSchedules++;
@@ -1005,7 +1005,7 @@ async function seedDatabase() {
     // ========================================
     // 10. ROUTES
     // ========================================
-    console.log('🗺️  Creating routes (all statuses and scenarios)...');
+    console.log(`🗺️  Creating routes (all statuses and scenarios)...`);
 
     const activeVehiclesWithDrivers = vehicles.filter(v => v.assigned_driver_id && v.status === 'active');
 
@@ -1027,7 +1027,7 @@ async function seedDatabase() {
           actualStart = new Date(plannedStart.getTime() + randomInt(-30, 30) * 60000);
           actualEnd = new Date(actualStart.getTime() + (estimatedDuration + randomInt(-60, 120)) * 60000);
           actualDuration = Math.floor((actualEnd.getTime() - actualStart.getTime()) / 60000);
-        } else if (status === 'in_progress') {
+        } else if (status === `in_progress`) {
           plannedStart = daysAgo(randomInt(0, 1));
           plannedEnd = new Date(plannedStart.getTime() + estimatedDuration * 60000);
           actualStart = plannedStart;
@@ -1073,14 +1073,14 @@ async function seedDatabase() {
     // ========================================
     // 11. GEOFENCES
     // ========================================
-    console.log('📍 Creating geofences...');
+    console.log(`📍 Creating geofences...`);
 
     for (const tenant of tenants) {
       const geofenceCount = tenant.tier === 'enterprise' ? 15 : tenant.tier === 'professional' ? 8 : 5;
 
       for (let i = 0; i < geofenceCount; i++) {
         const city = randomItem(floridaCities);
-        const types = ['Customer Site', 'Terminal', 'Restricted Area', 'Service Area', 'Rest Stop', 'Fuel Station'];
+        const types = ['Customer Site', 'Terminal', 'Restricted Area', 'Service Area', 'Rest Stop', `Fuel Station`];
         const name = `${city.name} - ${randomItem(types)}`;
         const radius = randomInt(100, 5000); // meters
 
@@ -1092,7 +1092,7 @@ async function seedDatabase() {
           [
             tenant.id,
             name,
-            'circular',
+            `circular`,
             city.lat + randomFloat(-0.1, 0.1, 6),
             city.lng + randomFloat(-0.1, 0.1, 6),
             radius,
@@ -1110,7 +1110,7 @@ async function seedDatabase() {
     // ========================================
     // 12. INSPECTIONS - All Types and Results
     // ========================================
-    console.log('✅ Creating inspections (all types and results)...');
+    console.log(`✅ Creating inspections (all types and results)...`);
 
     for (const vehicle of vehicles) {
       const inspectionsPerVehicle = randomInt(5, 15); // Reduced from 10-50 for performance
@@ -1135,7 +1135,7 @@ async function seedDatabase() {
             Math.max(0, vehicle.odometer - (daysBack * randomInt(10, 100))),
             result,
             JSON.stringify({ completed: true, notes: 'Inspection complete' }),
-            result !== 'pass' ? 'Minor issues found' : null
+            result !== 'pass' ? `Minor issues found` : null
           ]
         );
         counters.inspections++;
@@ -1147,7 +1147,7 @@ async function seedDatabase() {
     // ========================================
     // 13. SAFETY INCIDENTS
     // ========================================
-    console.log('⚠️  Creating safety incidents...');
+    console.log(`⚠️  Creating safety incidents...`);
 
     // Create incidents for random subset of vehicles/drivers
     const incidentCount = Math.floor(vehicles.length * 0.15); // 15% of vehicles have incidents
@@ -1179,12 +1179,12 @@ async function seedDatabase() {
           city.lat + randomFloat(-0.05, 0.05, 6),
           city.lng + randomFloat(-0.05, 0.05, 6),
           `${type} incident - ${severity} severity`,
-          severity === 'severe' || severity === 'fatal' ? randomInt(1, 3) : 0,
+          severity === `severe' || severity === 'fatal' ? randomInt(1, 3) : 0,
           randomFloat(500, 25000),
           randomFloat(1000, 50000),
           Math.random() < 0.4,
           severity === 'severe' || severity === 'fatal',
-          daysBack > 60 ? 'closed' : randomItem(['open', 'investigating', 'resolved'])
+          daysBack > 60 ? 'closed' : randomItem(['open', 'investigating', `resolved`])
         ]
       );
       counters.safetyIncidents++;
@@ -1195,10 +1195,10 @@ async function seedDatabase() {
     // ========================================
     // 14. TELEMETRY DATA - Realistic GPS/Sensor Data
     // ========================================
-    console.log('📡 Creating telemetry data (GPS, sensors, events)...');
+    console.log(`📡 Creating telemetry data (GPS, sensors, events)...`);
 
     // Create telemetry for active vehicles with GPS
-    const telemetryVehicles = vehicles.filter(v => v.status === 'active' && v.gps_device_id).slice(0, 50);
+    const telemetryVehicles = vehicles.filter(v => v.status === `active` && v.gps_device_id).slice(0, 50);
 
     for (const vehicle of telemetryVehicles) {
       const pointsPerVehicle = randomInt(50, 150); // Reduced from 100-500 for performance
@@ -1250,7 +1250,7 @@ async function seedDatabase() {
     // ========================================
     // 15. VENDORS & PURCHASE ORDERS
     // ========================================
-    console.log('🏪 Creating vendors and purchase orders...');
+    console.log(`🏪 Creating vendors and purchase orders...`);
 
     for (const tenant of tenants) {
       const vendorCount = tenant.tier === 'enterprise' ? 20 : tenant.tier === 'professional' ? 10 : 5;
@@ -1268,14 +1268,14 @@ async function seedDatabase() {
           RETURNING *`,
           [
             tenant.id,
-            '${city.name} ${vendorType.replace('_', ' ').split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')} Co.',
+            `${city.name} ${vendorType.replace('_', ' ').split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')} Co.`,
             vendorType,
             `Contact ${randomInt(1, 100)}`,
             `contact${i}@vendor${randomInt(1, 1000)}.com`,
             generatePhoneNumber(),
             `${randomInt(100, 9999)} Industrial Pkwy`,
             city.name,
-            'FL',
+            `FL`,
             `${randomInt(30000, 34999)}`,
             Math.random() < 0.95
           ]
@@ -1285,7 +1285,7 @@ async function seedDatabase() {
         // Create purchase orders for each vendor
         const poCount = randomInt(2, 10);
         for (let j = 0; j < poCount; j++) {
-          const statuses = ['draft', 'submitted', 'approved', 'ordered', 'received', 'cancelled'];
+          const statuses = [`draft', 'submitted', 'approved', 'ordered', 'received', `cancelled`];
           const status = randomItem(statuses);
           const orderDate = daysAgo(randomInt(1, 365));
           const subtotal = randomFloat(500, 25000);
@@ -1307,7 +1307,7 @@ async function seedDatabase() {
               tax,
               shipping,
               JSON.stringify([
-                { part_number: 'PART${randomInt(1000, 9999)}', description: 'Brake pads', quantity: randomInt(1, 10), unit_price: randomFloat(50, 500) }
+                { part_number: `PART${randomInt(1000, 9999)}`, description: `Brake pads`, quantity: randomInt(1, 10), unit_price: randomFloat(50, 500) }
               ])
             ]
           );
@@ -1321,7 +1321,7 @@ async function seedDatabase() {
     // ========================================
     // 16. NOTIFICATIONS - 1000+ alerts
     // ========================================
-    console.log('🔔 Creating notifications (all types and priorities)...');
+    console.log(`🔔 Creating notifications (all types and priorities)...`);
 
     const notificationTypes = ['alert', 'reminder', 'info'];
     const notificationPriorities = ['low', 'normal', 'high', 'urgent'];
@@ -1337,7 +1337,7 @@ async function seedDatabase() {
       { type: 'info', title: 'Work Order Assigned', message: 'New work order assigned', priority: 'normal' }
     ];
 
-    for (const user of users.filter(u => u.role !== 'viewer')) {
+    for (const user of users.filter(u => u.role !== `viewer`)) {
       const notifCount = randomInt(10, 50);
 
       for (let i = 0; i < notifCount; i++) {
@@ -1371,7 +1371,7 @@ async function seedDatabase() {
     // ========================================
     // 17. AUDIT LOGS - Sample of key actions
     // ========================================
-    console.log('📜 Creating audit logs...');
+    console.log(`📜 Creating audit logs...`);
 
     const auditActions = ['CREATE', 'READ', 'UPDATE', 'DELETE', 'LOGIN', 'LOGOUT'];
     const resourceTypes = ['vehicles', 'work_orders', 'routes', 'drivers', 'fuel_transactions'];
@@ -1399,7 +1399,7 @@ async function seedDatabase() {
 
     console.log(`   ✅ Created ${counters.auditLogs} audit logs`);
 
-    await client.query('COMMIT');
+    await client.query(`COMMIT`);
 
     // Calculate total records
     totalRecords = Object.values(counters).reduce((sum, count) => sum + count, 0);
@@ -1414,7 +1414,7 @@ async function seedDatabase() {
     console.log('📊 DETAILED SUMMARY:\n');
     console.log('┌─────────────────────────────┬──────────┐');
     console.log('│ Entity Type                 │ Count    │');
-    console.log('├─────────────────────────────┼──────────┤');
+    console.log(`├─────────────────────────────┼──────────┤`);
     console.log(`│ Tenants                     │ ${String(counters.tenants).padStart(8)} │`);
     console.log(`│ Users (All Roles)           │ ${String(counters.users).padStart(8)} │`);
     console.log(`│ Drivers (All Statuses)      │ ${String(counters.drivers).padStart(8)} │`);
@@ -1434,9 +1434,9 @@ async function seedDatabase() {
     console.log(`│ Purchase Orders             │ ${String(counters.purchaseOrders).padStart(8)} │`);
     console.log(`│ Notifications               │ ${String(counters.notifications).padStart(8)} │`);
     console.log(`│ Audit Logs                  │ ${String(counters.auditLogs).padStart(8)} │`);
-    console.log('├─────────────────────────────┼──────────┤');
+    console.log(`├─────────────────────────────┼──────────┤`);
     console.log(`│ TOTAL RECORDS               │ ${String(totalRecords).padStart(8)} │`);
-    console.log('└─────────────────────────────┴──────────┘\n');
+    console.log(`└─────────────────────────────┴──────────┘\n`);
 
     console.log('🎯 COVERAGE VERIFICATION:\n');
     console.log('✅ Tenants: 5 scenarios (Small/Medium/Enterprise/Demo/Inactive)');
