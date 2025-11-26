@@ -131,7 +131,7 @@ export class VendorRepository extends BaseRepository<Vendor> {
    * Search vendors by name
    */
   async searchByName(tenantId: string, searchTerm: string): Promise<Vendor[]> {
-    const columns = 'id, tenant_id, vendor_name, contact_person, email, phone, address, city, state, zip, specialties, rating, is_active, created_at, updated_at';
+    const columns = `id, tenant_id, vendor_name, contact_person, email, phone, address, city, state, zip, specialties, rating, is_active, created_at, updated_at`;
     const query = `
       SELECT ${columns} FROM ${this.tableName}
       WHERE tenant_id = $1 AND name ILIKE $2
@@ -147,7 +147,7 @@ export class VendorRepository extends BaseRepository<Vendor> {
   async findByType(tenantId: string, vendorType: string): Promise<Vendor[]> {
     return this.findAll({
       where: { tenant_id: tenantId, vendor_type: vendorType },
-      orderBy: 'name ASC'
+      orderBy: `name ASC`
     })
   }
 

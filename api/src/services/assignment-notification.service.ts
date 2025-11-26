@@ -51,7 +51,7 @@ export class AssignmentNotificationService {
 
       const notification = {
         type: 'assignment_created',
-        title: 'New Vehicle Assignment Created',
+        title: `New Vehicle Assignment Created`,
         message: `A new ${assignmentData.assignment_type} assignment has been created for ${assignmentData.driver_name} (${assignmentData.vehicle_description})`,
         data: assignmentData,
         priority: 'normal' as const,
@@ -83,7 +83,7 @@ export class AssignmentNotificationService {
 
       const notification = {
         type: 'assignment_recommended',
-        title: 'Vehicle Assignment Pending Approval',
+        title: `Vehicle Assignment Pending Approval`,
         message: `${assignmentData.action_by} has recommended a ${assignmentData.assignment_type} assignment for ${assignmentData.driver_name} requiring your approval`,
         data: {
           ...assignmentData,
@@ -123,7 +123,7 @@ export class AssignmentNotificationService {
 
       const notification = {
         type: 'assignment_approved',
-        title: '✅ Vehicle Assignment Approved',
+        title: `✅ Vehicle Assignment Approved`,
         message: `Your ${assignmentData.assignment_type} vehicle assignment has been approved by ${assignmentData.action_by}`,
         data: {
           ...assignmentData,
@@ -165,7 +165,7 @@ export class AssignmentNotificationService {
 
       const notification = {
         type: 'assignment_denied',
-        title: '❌ Vehicle Assignment Denied',
+        title: `❌ Vehicle Assignment Denied`,
         message: `Your ${assignmentData.assignment_type} vehicle assignment has been denied by ${assignmentData.action_by}`,
         data: {
           ...assignmentData,
@@ -207,7 +207,7 @@ export class AssignmentNotificationService {
 
       const notification = {
         type: 'assignment_activated',
-        title: '🚗 Vehicle Assignment Active',
+        title: `🚗 Vehicle Assignment Active`,
         message: `Your vehicle assignment for ${assignmentData.vehicle_description} is now active`,
         data: {
           ...assignmentData,
@@ -247,7 +247,7 @@ export class AssignmentNotificationService {
 
       const notification = {
         type: 'assignment_terminated',
-        title: '⚠️ Vehicle Assignment Terminated',
+        title: `⚠️ Vehicle Assignment Terminated`,
         message: `Vehicle assignment for ${assignmentData.vehicle_description} has been terminated`,
         data: {
           ...assignmentData,
@@ -285,7 +285,7 @@ export class AssignmentNotificationService {
       const notification = {
         type: 'on_call_starting',
         title: '🔔 On-Call Period Starting Soon',
-        message: 'Your on-call period starts in ${hoursUntilStart} hours. Vehicle: ${periodData.vehicle_description || 'TBD'}',
+        message: `Your on-call period starts in ${hoursUntilStart} hours. Vehicle: ${periodData.vehicle_description || 'TBD'}`,
         data: {
           on_call_period_id: onCallPeriodId,
           start_datetime: periodData.start_datetime,
@@ -520,7 +520,7 @@ export class AssignmentNotificationService {
         // Queue email (integrate with existing email service)
         if (includeEmail && recipient.email) {
           // This would integrate with the existing NotificationService
-          // For now, we'll just log it
+          // For now, we`ll just log it
           console.log(`Email notification queued for ${recipient.email}`);
         }
 
@@ -550,7 +550,7 @@ export class AssignmentNotificationService {
       await this.pool.query(
         `UPDATE approval_tracking
          SET notification_sent = true, notification_sent_at = NOW()
-         WHERE entity_type = 'vehicle_assignment'
+         WHERE entity_type = `vehicle_assignment`
            AND entity_id = $1
            AND tenant_id = $2
            AND action = $3',

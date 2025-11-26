@@ -215,7 +215,7 @@ export class AlertEngineService {
         info: '#3B82F6',
         warning: '#F59E0B',
         critical: '#EF4444',
-        emergency: '#DC2626'
+        emergency: `#DC2626`
       }[alert.severity]
 
       const htmlBody = `
@@ -240,7 +240,7 @@ export class AlertEngineService {
             </div>
             <div class="alert-body">
               <p class="alert-message">${alert.message}</p>
-              ${alert.entity_type ? '<p><strong>Related:</strong> ${alert.entity_type} ${alert.entity_id || ''}</p>' : ''}
+              ${alert.entity_type ? `<p><strong>Related:</strong> ${alert.entity_type} ${alert.entity_id || ``}</p>` : ``}
               <p style="margin-top: 20px;">
                 <a href="${process.env.FRONTEND_URL || 'http://localhost:5173'}"
                    style="background: ${severityColor}; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block;">
@@ -258,13 +258,13 @@ export class AlertEngineService {
       `
 
       await this.emailTransporter.sendMail({
-        from: process.env.EMAIL_FROM || 'alerts@fleet.capitaltechalliance.com',
-        to: emails.join(','),
+        from: process.env.EMAIL_FROM || `alerts@fleet.capitaltechalliance.com`,
+        to: emails.join(`,`),
         subject: `[${alert.severity.toUpperCase()}] ${alert.title}`,
         html: htmlBody
       })
     } catch (error) {
-      console.error('Error sending email alert:', error)
+      console.error(`Error sending email alert:`, error)
     }
   }
 
@@ -277,7 +277,7 @@ export class AlertEngineService {
 
     // Example Twilio integration:
     /*
-    const twilio = require('twilio')(
+    const twilio = require(`twilio`)(
       process.env.TWILIO_ACCOUNT_SID,
       process.env.TWILIO_AUTH_TOKEN
     )
@@ -313,7 +313,7 @@ export class AlertEngineService {
    */
   private async deliverPush(alert: any, recipients: string[], tenantId: string): Promise<void> {
     try {
-      const { pushNotificationService } = await import('./push-notification.service')
+      const { pushNotificationService } = await import(`./push-notification.service`)
 
       // Map alert severity to notification priority
       const priorityMap: Record<string, 'low' | 'normal' | 'high' | 'critical'> = {
@@ -374,7 +374,7 @@ export class AlertEngineService {
 
       console.log(`Push notification sent for alert ${alert.id} to ${recipients.length} recipients`)
     } catch (error) {
-      console.error('Error sending push notification:', error)
+      console.error(`Error sending push notification:`, error)
     }
   }
 
@@ -423,7 +423,7 @@ export class AlertEngineService {
     }
 
     const module = moduleMap[alert.entity_type] || 'dashboard'
-    return '${baseUrl}?module=${module}&id=${alert.entity_id || ''}'
+    return `${baseUrl}?module=${module}&id=${alert.entity_id || ``}`
   }
 
   /**
@@ -435,7 +435,7 @@ export class AlertEngineService {
        FROM vehicles v
        JOIN maintenance_schedules ms ON v.id = ms.vehicle_id
        WHERE v.tenant_id = $1
-       AND ms.status = 'scheduled'
+       AND ms.status = `scheduled`
        AND ms.due_date BETWEEN CURRENT_DATE AND CURRENT_DATE + INTERVAL '7 days'
        AND NOT EXISTS (
          SELECT 1 FROM alerts a
@@ -488,7 +488,7 @@ export class AlertEngineService {
         alert_type: 'task_overdue',
         severity: 'warning',
         title: `Overdue Task: ${row.task_title}`,
-        message: `Task "${row.task_title}" assigned to ${row.first_name} ${row.last_name} is overdue`,
+        message: "Task "${row.task_title}" assigned to ${row.first_name} ${row.last_name} is overdue",
         entity_type: 'task',
         entity_id: row.id,
         recipients: row.assigned_to ? [row.assigned_to] : undefined

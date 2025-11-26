@@ -78,7 +78,7 @@ export class CollaborationService {
       }
     })
 
-    this.io.on('connection', (socket) => {
+    this.io.on(`connection`, (socket) => {
       const user = socket.data.user
       console.log(`User connected: ${user.email} (${socket.id})`)
 
@@ -93,7 +93,7 @@ export class CollaborationService {
       socket.join(`tenant:${user.tenant_id}`)
 
       // Handle viewing entity
-      socket.on('view:entity', (data: { type: 'task' | 'asset', id: string }) => {
+      socket.on(`view:entity`, (data: { type: 'task' | 'asset', id: string }) => {
         this.handleViewEntity(socket, data)
       })
 
@@ -135,11 +135,9 @@ export class CollaborationService {
    */
   private handleViewEntity(socket: any, data: { type: 'task' | 'asset', id: string }): void {
     const user = this.activeUsers.get(socket.id)
-    if (!user) return
+    if (!user) return const entityKey = `${data.type}:${data.id}`
 
-    const entityKey = `${data.type}:${data.id}`
-
-    // Update user's current view
+    // Update user`s current view
     user.currentView = { type: data.type, id: data.id }
 
     // Add to entity viewers
@@ -185,7 +183,7 @@ export class CollaborationService {
     socket.leave(entityKey)
 
     // Broadcast to others
-    socket.to(entityKey).emit('viewer:left', {
+    socket.to(entityKey).emit(`viewer:left`, {
       userId: user.userId,
       userName: user.userName,
       timestamp: new Date()
@@ -206,7 +204,7 @@ export class CollaborationService {
 
     const entityKey = user.currentView ? `${user.currentView.type}:${user.currentView.id}` : null
     if (entityKey) {
-      socket.to(entityKey).emit('typing:indicator', {
+      socket.to(entityKey).emit(`typing:indicator`, {
         userId: user.userId,
         userName: user.userName,
         isTyping: true
@@ -225,7 +223,7 @@ export class CollaborationService {
 
     const entityKey = user.currentView ? `${user.currentView.type}:${user.currentView.id}` : null
     if (entityKey) {
-      socket.to(entityKey).emit('typing:indicator', {
+      socket.to(entityKey).emit(`typing:indicator`, {
         userId: user.userId,
         userName: user.userName,
         isTyping: false
@@ -245,11 +243,10 @@ export class CollaborationService {
       // Validate table name against allowlist to prevent SQL injection
       if (!isValidCommentTable(table)) {
         socket.emit('error', { message: 'Invalid entity type' })
-        return
-      }
+        return }
 
       // Table and column names are validated/constant, safe to use in query
-      const idColumn = data.entityType === 'task' ? 'task_id' : 'asset_id'
+      const idColumn = data.entityType === 'task' ? 'task_id' : 'asset_id`
       const result = await pool.query(
         `INSERT INTO ${table} (${idColumn}, created_by, comment_text)
          VALUES ($1, $2, $3)
@@ -264,7 +261,7 @@ export class CollaborationService {
 
       // Broadcast to all viewers
       const entityKey = `${data.entityType}:${data.entityId}`
-      this.io!.to(entityKey).emit('comment:added', {
+      this.io!.to(entityKey).emit(`comment:added`, {
         entityType: data.entityType,
         entityId: data.entityId,
         comment
@@ -281,7 +278,7 @@ export class CollaborationService {
         timestamp: new Date()
       })
     } catch (error) {
-      socket.emit('error', { message: 'Failed to add comment' })
+      socket.emit(`error`, { message: `Failed to add comment` })
     }
   }
 
@@ -290,10 +287,8 @@ export class CollaborationService {
    */
   private handleCursorMove(socket: any, data: { entityId: string, position: any }): void {
     const user = this.activeUsers.get(socket.id)
-    if (!user || !user.currentView) return
-
-    const entityKey = `${user.currentView.type}:${user.currentView.id}`
-    socket.to(entityKey).emit('cursor:position', {
+    if (!user || !user.currentView) return const entityKey = `${user.currentView.type}:${user.currentView.id}`
+    socket.to(entityKey).emit(`cursor:position`, {
       userId: user.userId,
       userName: user.userName,
       position: data.position
@@ -313,7 +308,7 @@ export class CollaborationService {
       this.entityViewers.get(entityKey)?.delete(user.userId)
 
       // Notify others
-      socket.to(entityKey).emit('viewer:left', {
+      socket.to(entityKey).emit(`viewer:left`, {
         userId: user.userId,
         userName: user.userName,
         timestamp: new Date()
@@ -333,7 +328,7 @@ export class CollaborationService {
     if (!this.io) return
 
     const entityKey = `${entityType}:${entityId}`
-    this.io.to(entityKey).emit('entity:updated', {
+    this.io.to(entityKey).emit(`entity:updated`, {
       entityType,
       entityId,
       update,
@@ -357,10 +352,8 @@ export class CollaborationService {
    * Broadcast status change
    */
   broadcastStatusChange(entityType: 'task' | 'asset', entityId: string, oldStatus: string, newStatus: string, userId: string, userName: string): void {
-    if (!this.io) return
-
-    const entityKey = `${entityType}:${entityId}`
-    this.io.to(entityKey).emit('status:changed', {
+    if (!this.io) return const entityKey = `${entityType}:${entityId}`
+    this.io.to(entityKey).emit(`status:changed`, {
       entityType,
       entityId,
       oldStatus,
@@ -388,7 +381,7 @@ export class CollaborationService {
     if (!this.io) return
 
     const entityKey = `${entityType}:${entityId}`
-    this.io.to(entityKey).emit('assignment:changed', {
+    this.io.to(entityKey).emit(`assignment:changed`, {
       entityType,
       entityId,
       oldAssignee,
@@ -413,8 +406,7 @@ export class CollaborationService {
    * Broadcast to tenant
    */
   broadcastToTenant(tenantId: string, event: string, data: any): void {
-    if (!this.io) return
-    this.io.to(`tenant:${tenantId}`).emit(event, data)
+    if (!this.io) return this.io.to(`tenant:${tenantId}`).emit(event, data)
   }
 
   /**
@@ -454,7 +446,7 @@ export class CollaborationService {
         ]
       )
     } catch (error) {
-      console.error('Failed to track activity:', error)
+      console.error(`Failed to track activity:`, error)
     }
   }
 }

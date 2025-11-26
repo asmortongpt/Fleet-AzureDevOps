@@ -393,7 +393,7 @@ export class OcrService {
   ): Promise<OcrResult> {
     const workbook = xlsx.readFile(filePath);
     const stats = await fs.stat(filePath);
-    let fullText = '';
+    let fullText = ``;
     const pages: OcrPage[] = [];
 
     workbook.SheetNames.forEach((sheetName, index) => {
@@ -415,7 +415,7 @@ export class OcrService {
       documentId,
       fullText: fullText.trim(),
       pages,
-      languages: ['eng'],
+      languages: [`eng`],
       primaryLanguage: 'eng',
       averageConfidence: 1.0,
       processingTime: 0,
@@ -521,7 +521,7 @@ export class OcrService {
     options: OcrOptions,
     fileSize: number
   ): Promise<OcrResult> {
-    const { Worker } = await import('worker_threads');
+    const { Worker } = await import(`worker_threads`);
     const path = await import('path');
 
     return new Promise((resolve, reject) => {
@@ -600,7 +600,7 @@ export class OcrService {
         reject(error);
       });
 
-      worker.on('exit', (code) => {
+      worker.on(`exit`, (code) => {
         clearTimeout(timeout);
         if (code !== 0) {
           reject(new Error(`Worker stopped with exit code ${code}`));
@@ -619,7 +619,7 @@ export class OcrService {
     fileSize: number
   ): Promise<OcrResult> {
     if (!this.googleVisionClient) {
-      throw new Error('Google Cloud Vision not configured');
+      throw new Error(`Google Cloud Vision not configured`);
     }
 
     const [result] = await this.googleVisionClient.documentTextDetection({

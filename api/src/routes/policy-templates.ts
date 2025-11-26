@@ -92,7 +92,7 @@ router.get(
         }
       })
     } catch (error) {
-      console.error('Get policy templates error:', error)
+      console.error(`Get policy templates error:`, error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -168,7 +168,7 @@ router.post(
 
       const { columnNames, placeholders, values } = buildInsertClause(
         data,
-        ['created_by'],
+        [`created_by`],
         1
       )
 
@@ -179,7 +179,7 @@ router.post(
 
       res.status(201).json(result.rows[0])
     } catch (error) {
-      console.error('Create policy template error:', error)
+      console.error(`Create policy template error:`, error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -204,7 +204,7 @@ router.put(
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'Policy template not found' })
+        return res.status(404).json({ error: `Policy template not found` })
       }
 
       res.json(result.rows[0])
@@ -364,7 +364,7 @@ router.get(
       let query = `
         SELECT pv.*,
                pt.policy_name,
-               d.first_name || ' ' || d.last_name as employee_name,
+               d.first_name || ` ` || d.last_name as employee_name,
                d.employee_id as employee_number
         FROM policy_violations pv
         JOIN policy_templates pt ON pv.policy_id = pt.id
@@ -415,7 +415,7 @@ router.get(
         }
       })
     } catch (error) {
-      console.error('Get policy violations error:', error)
+      console.error(`Get policy violations error:`, error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -432,7 +432,7 @@ router.post(
 
       const { columnNames, placeholders, values } = buildInsertClause(
         data,
-        ['created_by'],
+        [`created_by`],
         1
       )
 
@@ -443,7 +443,7 @@ router.post(
 
       res.status(201).json(result.rows[0])
     } catch (error) {
-      console.error('Create policy violation error:', error)
+      console.error(`Create policy violation error:`, error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -497,7 +497,7 @@ router.get(
         }
       })
     } catch (error) {
-      console.error('Get policy compliance audits error:', error)
+      console.error(`Get policy compliance audits error:`, error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -514,7 +514,7 @@ router.post(
 
       const { columnNames, placeholders, values } = buildInsertClause(
         data,
-        ['created_by'],
+        [`created_by`],
         1
       )
 
@@ -525,7 +525,7 @@ router.post(
 
       res.status(201).json(result.rows[0])
     } catch (error) {
-      console.error('Create policy compliance audit error:', error)
+      console.error(`Create policy compliance audit error:`, error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }

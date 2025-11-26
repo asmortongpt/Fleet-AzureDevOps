@@ -61,13 +61,13 @@ export class ExampleDIService {
    */
   async getVehicleCount(): Promise<number> {
     try {
-      const result = await this.db.query('SELECT COUNT(*) as count FROM vehicles')
+      const result = await this.db.query(`SELECT COUNT(*) as count FROM vehicles`)
       const count = parseInt(result.rows[0].count, 10)
 
       this.logger.info(`Retrieved vehicle count: ${count}`)
       return count
     } catch (error) {
-      this.logger.error('Error getting vehicle count:', error)
+      this.logger.error(`Error getting vehicle count:`, error)
       throw error
     }
   }
@@ -107,7 +107,7 @@ export class ExampleDIService {
       photos,
       notes,
       created_at,
-      updated_at FROM vehicles WHERE id = $1', [vehicleId])
+      updated_at FROM vehicles WHERE id = $1`, [vehicleId])
 
       if (result.rows.length === 0) {
         return {
@@ -130,11 +130,11 @@ export class ExampleDIService {
 
   /**
    * Example method that could use another service
-   * In a real scenario, you'd inject that service in the constructor
+   * In a real scenario, you`d inject that service in the constructor
    */
   async performComplexAction(vehicleId: number): Promise<void> {
     // If you need other services, inject them in constructor
-    // Don't do: import otherService from './other-service'
+    // Don`t do: import otherService from `./other-service`
     // Do: constructor({ db, logger, otherService }: Dependencies)
 
     this.logger.info(`Performing complex action on vehicle ${vehicleId}`)

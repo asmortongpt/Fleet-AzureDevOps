@@ -111,7 +111,7 @@ export class MicrosoftIntegrationService {
     this.graphClient = axios.create({
       baseURL: 'https://graph.microsoft.com/v1.0',
       headers: {
-        'Content-Type': 'application/json',
+        'Content-Type': `application/json`,
       },
     });
 
@@ -143,7 +143,7 @@ export class MicrosoftIntegrationService {
         new URLSearchParams({
           client_id: this.config.clientId,
           client_secret: this.config.clientSecret,
-          scope: 'https://graph.microsoft.com/.default',
+          scope: `https://graph.microsoft.com/.default`,
           grant_type: 'client_credentials',
         }),
         {
@@ -175,7 +175,7 @@ export class MicrosoftIntegrationService {
       const targetEmail = userEmail || reservation.reserved_by_email;
 
       const event: CalendarEvent = {
-        subject: 'Vehicle Reservation: ${reservation.unit_number || 'Vehicle'} ${reservation.make || ''} ${reservation.model || ''}'.trim(),
+        subject: `Vehicle Reservation: ${reservation.unit_number || 'Vehicle'} ${reservation.make || ``} ${reservation.model || ``}`.trim(),
         body: {
           contentType: 'HTML',
           content: this.formatReservationEmailBody(reservation, 'created'),
@@ -210,8 +210,8 @@ export class MicrosoftIntegrationService {
       console.log(`✅ Calendar event created: ${response.data.id}`);
       return response.data.id;
     } catch (error: any) {
-      console.error('Error creating calendar event:', error.response?.data || error.message);
-      // Don't throw error - calendar creation is not critical
+      console.error(`Error creating calendar event:`, error.response?.data || error.message);
+      // Don`t throw error - calendar creation is not critical
       return null;
     }
   }
@@ -231,7 +231,7 @@ export class MicrosoftIntegrationService {
       const targetEmail = userEmail || reservation.reserved_by_email;
 
       const event: Partial<CalendarEvent> = {
-        subject: 'Vehicle Reservation: ${reservation.unit_number || 'Vehicle'} ${reservation.make || ''} ${reservation.model || ''}'.trim(),
+        subject: `Vehicle Reservation: ${reservation.unit_number || 'Vehicle'} ${reservation.make || ``} ${reservation.model || ``}`.trim(),
         body: {
           contentType: 'HTML',
           content: this.formatReservationEmailBody(reservation, 'updated'),
@@ -253,8 +253,8 @@ export class MicrosoftIntegrationService {
 
       console.log(`✅ Calendar event updated: ${eventId}`);
     } catch (error: any) {
-      console.error('Error updating calendar event:', error.response?.data || error.message);
-      // Don't throw error - calendar update is not critical
+      console.error(`Error updating calendar event:`, error.response?.data || error.message);
+      // Don`t throw error - calendar update is not critical
     }
   }
 
@@ -271,7 +271,7 @@ export class MicrosoftIntegrationService {
 
       console.log(`✅ Calendar event deleted: ${eventId}`);
     } catch (error: any) {
-      console.error('Error deleting calendar event:', error.response?.data || error.message);
+      console.error(`Error deleting calendar event:`, error.response?.data || error.message);
       // Don't throw error - calendar deletion is not critical
     }
   }
@@ -309,7 +309,7 @@ export class MicrosoftIntegrationService {
       await this.pool.query(
         `UPDATE vehicle_reservations
          SET microsoft_teams_notification_sent = true
-         WHERE id = $1',
+         WHERE id = $1`,
         [reservation.id]
       );
     } catch (error: any) {
@@ -350,11 +350,11 @@ export class MicrosoftIntegrationService {
       };
 
       // Send from the service account
-      await this.graphClient.post('/me/sendMail', email);
+      await this.graphClient.post(`/me/sendMail`, email);
 
       console.log(`✅ Email confirmation sent to ${recipientEmail || reservation.reserved_by_email}`);
     } catch (error: any) {
-      console.error('Error sending Outlook email:', error.response?.data || error.message);
+      console.error(`Error sending Outlook email:`, error.response?.data || error.message);
       // Don't throw error - email notification is not critical
     }
   }
@@ -380,12 +380,12 @@ export class MicrosoftIntegrationService {
       }
 
       // Send Teams notification
-      await this.sendTeamsNotification(reservation, 'created');
+      await this.sendTeamsNotification(reservation, `created`);
 
       console.log(`✅ Notified ${result.rows.length} fleet managers`);
     } catch (error: any) {
-      console.error('Error notifying fleet managers:', error);
-      // Don't throw error - notifications are not critical
+      console.error(`Error notifying fleet managers:`, error);
+      // Don`t throw error - notifications are not critical
     }
   }
 
@@ -393,7 +393,7 @@ export class MicrosoftIntegrationService {
    * Format email subject based on action
    */
   private getEmailSubject(reservation: Reservation, action: string): string {
-    const vehicle = '${reservation.unit_number || ''} ${reservation.make || ''} ${reservation.model || ''}'.trim();
+    const vehicle = `${reservation.unit_number || ``} ${reservation.make || ``} ${reservation.model || ``}`.trim();
 
     switch (action) {
       case 'created':
@@ -415,7 +415,7 @@ export class MicrosoftIntegrationService {
    * Format email body with reservation details
    */
   private formatReservationEmailBody(reservation: Reservation, action: string): string {
-    const vehicle = '${reservation.unit_number || 'N/A'} - ${reservation.make || ''} ${reservation.model || ''} ${reservation.year || ''}'.trim();
+    const vehicle = `${reservation.unit_number || `N/A`} - ${reservation.make || ``} ${reservation.model || ``} ${reservation.year || ``}`.trim();
     const startDate = new Date(reservation.start_datetime).toLocaleString();
     const endDate = new Date(reservation.end_datetime).toLocaleString();
 
@@ -437,7 +437,7 @@ export class MicrosoftIntegrationService {
         actionMessage = 'Your vehicle reservation has been completed. Thank you for using our fleet!';
         break;
       default:
-        actionMessage = 'Your vehicle reservation has been updated.';
+        actionMessage = `Your vehicle reservation has been updated.`;
     }
 
     return `
@@ -462,7 +462,7 @@ export class MicrosoftIntegrationService {
               <p><strong>End:</strong> ${endDate}</p>
               <p><strong>Status:</strong> <span style="background-color: ${this.getStatusColor(reservation.status)}; color: white; padding: 3px 8px; border-radius: 3px;">${reservation.status.toUpperCase()}</span></p>
 
-              ${reservation.notes ? '<p><strong>Notes:</strong> ${reservation.notes}</p>' : ''}
+              ${reservation.notes ? `<p><strong>Notes:</strong> ${reservation.notes}</p>' : '`}
             </div>
 
             <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd; font-size: 12px; color: #666;">
@@ -479,20 +479,20 @@ export class MicrosoftIntegrationService {
    * Format Teams message with reservation details
    */
   private formatTeamsMessage(reservation: Reservation, action: string): string {
-    const vehicle = '${reservation.unit_number || 'N/A'} - ${reservation.make || ''} ${reservation.model || ''}'.trim();
+    const vehicle = `${reservation.unit_number || `N/A`} - ${reservation.make || ``} ${reservation.model || ``}`.trim();
     const startDate = new Date(reservation.start_datetime).toLocaleString();
     const endDate = new Date(reservation.end_datetime).toLocaleString();
 
-    const emoji = action === 'approved' ? '✅' : action === 'rejected' ? '❌' : action === 'cancelled' ? '🚫' : '🚗';
+    const emoji = action === 'approved' ? '✅' : action === 'rejected' ? '❌' : action === 'cancelled' ? '🚫' : `🚗`;
 
     return `
       <h3>${emoji} Vehicle Reservation ${action.charAt(0).toUpperCase() + action.slice(1)}</h3>
       <p><strong>Vehicle:</strong> ${vehicle}</p>
       <p><strong>Reserved By:</strong> ${reservation.reserved_by_name} (${reservation.reserved_by_email})</p>
-      <p><strong>Purpose:</strong> ${reservation.purpose === 'business' ? '💼 Business' : '👤 Personal'}</p>
+      <p><strong>Purpose:</strong> ${reservation.purpose === 'business' ? '💼 Business' : `👤 Personal`}</p>
       <p><strong>Period:</strong> ${startDate} - ${endDate}</p>
       <p><strong>Status:</strong> ${reservation.status.toUpperCase()}</p>
-      ${reservation.notes ? '<p><strong>Notes:</strong> ${reservation.notes}</p>' : ''}
+      ${reservation.notes ? `<p><strong>Notes:</strong> ${reservation.notes}</p>` : `'}
     `;
   }
 

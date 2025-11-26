@@ -359,8 +359,7 @@ class SchedulingNotificationService {
 
       if (userResult.rows.length === 0) {
         logger.warn('User not found for email notification', { userId })
-        return
-      }
+        return }
 
       const user = userResult.rows[0]
 
@@ -472,7 +471,7 @@ class SchedulingNotificationService {
       logger.info('Teams notification sent successfully', { userId })
     } catch (error) {
       logger.error('Error sending Teams notification', { error, userId })
-      // Don't throw - Teams failures shouldn't block other notifications
+      // Don`t throw - Teams failures shouldn`t block other notifications
     }
   }
 
@@ -483,42 +482,42 @@ class SchedulingNotificationService {
     const templates: Record<string, (data: any) => NotificationTemplate> = {
       reservation_request: (d) => ({
         emailSubject: `New Vehicle Reservation Request - ${d.make} ${d.model}`,
-        emailBody: this.renderEmailTemplate('reservation_request', d),
+        emailBody: this.renderEmailTemplate(`reservation_request`, d),
         smsText: `New reservation request for ${d.make} ${d.model} from ${d.reserved_by_name}. Approve/reject in Fleet app.`,
-        teamsMessage: '**New Reservation Request**\n\n**Vehicle:** ${d.make} ${d.model} (${d.license_plate})\n**Requested by:** ${d.reserved_by_name}\n**Period:** ${this.formatDateTime(d.start_time)} - ${this.formatDateTime(d.end_time)}\n**Purpose:** ${d.purpose || 'Not specified'}'
+        teamsMessage: `**New Reservation Request**\n\n**Vehicle:** ${d.make} ${d.model} (${d.license_plate})\n**Requested by:** ${d.reserved_by_name}\n**Period:** ${this.formatDateTime(d.start_time)} - ${this.formatDateTime(d.end_time)}\n**Purpose:** ${d.purpose || `Not specified`}`
       }),
 
       reservation_approved: (d) => ({
         emailSubject: `Reservation Approved - ${d.make} ${d.model}`,
-        emailBody: this.renderEmailTemplate('reservation_approved', d),
+        emailBody: this.renderEmailTemplate(`reservation_approved`, d),
         smsText: `Your reservation for ${d.make} ${d.model} has been approved. Pickup: ${this.formatDateTime(d.start_time)}`,
         teamsMessage: `✅ **Reservation Approved**\n\n**Vehicle:** ${d.make} ${d.model}\n**Pickup:** ${this.formatDateTime(d.start_time)}\n**Return:** ${this.formatDateTime(d.end_time)}`
       }),
 
       reservation_rejected: (d) => ({
         emailSubject: `Reservation Declined - ${d.make} ${d.model}`,
-        emailBody: this.renderEmailTemplate('reservation_rejected', d),
+        emailBody: this.renderEmailTemplate(`reservation_rejected`, d),
         smsText: `Your reservation for ${d.make} ${d.model} was declined. Reason: ${d.rejection_reason}`,
         teamsMessage: `❌ **Reservation Declined**\n\n**Vehicle:** ${d.make} ${d.model}\n**Reason:** ${d.rejection_reason}`
       }),
 
       reservation_reminder: (d) => ({
         emailSubject: `Reminder: Vehicle Reservation in ${d.hours_until} hour(s)`,
-        emailBody: this.renderEmailTemplate('reservation_reminder', d),
-        smsText: 'Reminder: Your reservation for ${d.make} ${d.model} starts in ${d.hours_until} hour(s) at ${d.pickup_location || 'facility'}',
-        teamsMessage: '⏰ **Reservation Reminder**\n\n**Starting in:** ${d.hours_until} hour(s)\n**Vehicle:** ${d.make} ${d.model}\n**Location:** ${d.pickup_location || 'Facility'}'
+        emailBody: this.renderEmailTemplate(`reservation_reminder`, d),
+        smsText: `Reminder: Your reservation for ${d.make} ${d.model} starts in ${d.hours_until} hour(s) at ${d.pickup_location || 'facility'}`,
+        teamsMessage: `⏰ **Reservation Reminder**\n\n**Starting in:** ${d.hours_until} hour(s)\n**Vehicle:** ${d.make} ${d.model}\n**Location:** ${d.pickup_location || 'Facility'}`
       }),
 
       maintenance_reminder: (d) => ({
         emailSubject: `Reminder: Maintenance Appointment in ${d.hours_until} hour(s)`,
-        emailBody: this.renderEmailTemplate('maintenance_reminder', d),
+        emailBody: this.renderEmailTemplate(`maintenance_reminder`, d),
         smsText: `Reminder: Maintenance for ${d.make} ${d.model} in ${d.hours_until} hour(s) at ${d.bay_name}`,
         teamsMessage: `🔧 **Maintenance Reminder**\n\n**Starting in:** ${d.hours_until} hour(s)\n**Vehicle:** ${d.make} ${d.model}\n**Service:** ${d.appointment_type}\n**Bay:** ${d.bay_name}`
       }),
 
       conflict_detected: (d) => ({
         emailSubject: `Scheduling Conflict Detected - ${d.description}`,
-        emailBody: this.renderEmailTemplate('conflict_detected', d),
+        emailBody: this.renderEmailTemplate(`conflict_detected`, d),
         smsText: `Scheduling conflict: ${d.description}. Please check Fleet app.`,
         teamsMessage: `⚠️ **Scheduling Conflict**\n\n**Type:** ${d.type}\n**Severity:** ${d.severity}\n**Description:** ${d.description}`
       })
@@ -537,23 +536,23 @@ class SchedulingNotificationService {
    */
   private renderEmailTemplate(type: string, data: any): string {
     // Load and render HTML template
-    const fs = require('fs')
+    const fs = require(`fs`)
     const path = require('path')
 
-    const templatePath = path.join(__dirname, '../templates/scheduling', '${type}.html`)
+    const templatePath = path.join(__dirname, `../templates/scheduling`, `${type}.html`)
 
     try {
-      let template = fs.readFileSync(templatePath, 'utf8')
+      let template = fs.readFileSync(templatePath, `utf8`)
 
       // Replace variables
       for (const [key, value] of Object.entries(data)) {
-        const regex = new RegExp('{{${key}}}', 'g')
-        template = template.replace(regex, String(value || ''))
+        const regex = new RegExp(`{{${key}}}`, 'g')
+        template = template.replace(regex, String(value || '`))
       }
 
       return template
     } catch (error) {
-      logger.warn('Template file not found, using fallback', { type })
+      logger.warn(`Template file not found, using fallback`, { type })
       return this.getFallbackTemplate(type, data)
     }
   }
@@ -635,7 +634,7 @@ class SchedulingNotificationService {
    */
   private formatTeamsCard(type: string, data: any): any {
     return {
-      contentType: 'application/vnd.microsoft.card.adaptive',
+      contentType: `application/vnd.microsoft.card.adaptive`,
       content: {
         type: 'AdaptiveCard',
         version: '1.4',
@@ -672,10 +671,10 @@ class SchedulingNotificationService {
     const facts = []
 
     if (data.make && data.model) {
-      facts.push({ title: 'Vehicle', value: '${data.make} ${data.model}` })
+      facts.push({ title: 'Vehicle', value: `${data.make} ${data.model}` })
     }
     if (data.start_time) {
-      facts.push({ title: 'Start Time', value: this.formatDateTime(data.start_time) })
+      facts.push({ title: `Start Time`, value: this.formatDateTime(data.start_time) })
     }
     if (data.end_time) {
       facts.push({ title: 'End Time', value: this.formatDateTime(data.end_time) })
@@ -701,8 +700,8 @@ class SchedulingNotificationService {
           url: `${baseUrl}/scheduling/reservations/${data.id}/approve`
         },
         {
-          type: 'Action.OpenUrl',
-          title: 'View Details',
+          type: `Action.OpenUrl`,
+          title: `View Details`,
           url: `${baseUrl}/scheduling/reservations/${data.id}`
         }
       ]
@@ -711,8 +710,8 @@ class SchedulingNotificationService {
     if (data.id) {
       return [
         {
-          type: 'Action.OpenUrl',
-          title: 'View Details',
+          type: `Action.OpenUrl`,
+          title: `View Details`,
           url: `${baseUrl}/scheduling/reservations/${data.id}`
         }
       ]
@@ -735,7 +734,7 @@ class SchedulingNotificationService {
       schedule_changes,
       shift_reminders,
       created_at,
-      updated_at FROM scheduling_notification_preferences WHERE user_id = $1',
+      updated_at FROM scheduling_notification_preferences WHERE user_id = $1`,
       [userId]
     )
 
@@ -813,7 +812,7 @@ class SchedulingNotificationService {
         `INSERT INTO communications (
           communication_type, direction, subject, body,
           to_contact_emails, communication_datetime, status
-        ) VALUES ($1, $2, $3, $4, $5, NOW(), 'Sent')
+        ) VALUES ($1, $2, $3, $4, $5, NOW(), `Sent`)
         RETURNING id',
         [
           data.communicationType,

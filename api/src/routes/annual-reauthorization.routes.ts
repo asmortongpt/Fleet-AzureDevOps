@@ -63,7 +63,7 @@ router.get(
       const offset = (parseInt(page as string) - 1) * parseInt(limit as string);
       const tenant_id = req.user!.tenant_id;
 
-      let whereConditions = ['arc.tenant_id = $1'];
+      let whereConditions = [`arc.tenant_id = $1`];
       let params: any[] = [tenant_id];
       let paramIndex = 2;
 
@@ -76,7 +76,7 @@ router.get(
         params.push(status);
       }
 
-      const whereClause = whereConditions.join(' AND ');
+      const whereClause = whereConditions.join(` AND `);
 
       const query = `
         SELECT
@@ -112,7 +112,7 @@ router.get(
         },
       });
     } catch (error: any) {
-      console.error('Error fetching reauthorization cycles:', error);
+      console.error(`Error fetching reauthorization cycles:`, error);
       res.status(500).json({
         error: 'Failed to fetch reauthorization cycles',
         details: getErrorMessage(error),
@@ -129,7 +129,7 @@ router.get(
 router.post(
   '/',
   authenticateJWT,
-  requirePermission('reauthorization:submit:global'),
+  requirePermission(`reauthorization:submit:global`),
   async (req: AuthRequest, res: Response) => {
     try {
       const data = createReauthCycleSchema.parse(req.body);
@@ -154,7 +154,7 @@ router.post(
         SELECT COUNT(*) as total
         FROM vehicle_assignments
         WHERE tenant_id = $1
-          AND lifecycle_state = 'active'
+          AND lifecycle_state = `active`
           AND (assignment_type = 'designated' OR assignment_type = 'on_call')
       `;
       const countResult = await pool.query(countQuery, [tenant_id]);
@@ -165,7 +165,7 @@ router.post(
           tenant_id, year, cycle_name, start_date, deadline_date,
           total_assignments_count, notes, created_by_user_id, status
         ) VALUES (
-          $1, $2, $3, $4, $5, $6, $7, $8, 'initiated'
+          $1, $2, $3, $4, $5, $6, $7, $8, `initiated`
         )
         RETURNING *
       `;
@@ -184,7 +184,7 @@ router.post(
       const result = await pool.query(query, params);
 
       res.status(201).json({
-        message: 'Annual reauthorization cycle created successfully',
+        message: `Annual reauthorization cycle created successfully`,
         cycle: result.rows[0],
       });
     } catch (error: any) {
@@ -221,7 +221,7 @@ router.get(
       let whereConditions = [
         'va.tenant_id = $1',
         'va.lifecycle_state = \'active\'',
-        '(va.assignment_type = \'designated\' OR va.assignment_type = \'on_call\')',
+        '(va.assignment_type = \'designated\' OR va.assignment_type = \'on_call\`)`,
       ];
       let params: any[] = [tenant_id];
       let paramIndex = 2;
@@ -235,7 +235,7 @@ router.get(
         params.push(assignment_type);
       }
 
-      const whereClause = whereConditions.join(' AND ');
+      const whereClause = whereConditions.join(` AND `);
 
       const query = `
         SELECT
@@ -264,7 +264,7 @@ router.get(
 
       res.json(result.rows);
     } catch (error: any) {
-      console.error('Error fetching assignments for review:', error);
+      console.error(`Error fetching assignments for review:`, error);
       res.status(500).json({
         error: 'Failed to fetch assignments for review',
         details: getErrorMessage(error),
@@ -383,7 +383,7 @@ router.post(
         FROM vehicle_assignments va
         WHERE va.tenant_id = $1
           AND va.lifecycle_state = 'active'
-          AND (va.assignment_type = 'designated' OR va.assignment_type = 'on_call')
+          AND (va.assignment_type = 'designated' OR va.assignment_type = `on_call`)
           AND NOT EXISTS (
             SELECT 1 FROM reauthorization_decisions rd
             WHERE rd.vehicle_assignment_id = va.id
@@ -403,7 +403,7 @@ router.post(
       const query = `
         UPDATE annual_reauthorization_cycles
         SET
-          status = 'completed',
+          status = `completed`,
           submitted_to_fleet = true,
           submitted_at = NOW(),
           submitted_by_user_id = $1,

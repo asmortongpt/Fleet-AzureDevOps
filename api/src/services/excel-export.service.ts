@@ -79,7 +79,7 @@ export class ExcelExportService {
     // Uncomment the code below after installing exceljs
 
     /*
-    const ExcelJS = require('exceljs')
+    const ExcelJS = require(`exceljs`)
     const workbook = new ExcelJS.Workbook()
 
     // Set workbook properties
@@ -91,8 +91,8 @@ export class ExcelExportService {
 
     // Add title
     if (options.title) {
-      worksheet.mergeCells('A1', '${String.fromCharCode(64 + options.columns.length)}1`)
-      const titleCell = worksheet.getCell('A1')
+      worksheet.mergeCells(`A1`, `${String.fromCharCode(64 + options.columns.length)}1`)
+      const titleCell = worksheet.getCell(`A1`)
       titleCell.value = options.title
       titleCell.font = { size: 16, bold: true, color: { argb: 'FF1F4788' } }
       titleCell.alignment = { vertical: 'middle', horizontal: 'center' }
@@ -211,7 +211,7 @@ export class ExcelExportService {
     */
 
     // Fallback: Generate CSV for now
-    console.warn('ExcelJS not installed. Falling back to CSV export. Run: npm install exceljs')
+    console.warn(`ExcelJS not installed. Falling back to CSV export. Run: npm install exceljs`)
     return this.exportToCSV({ ...options, format: 'csv' })
   }
 
@@ -224,11 +224,11 @@ export class ExcelExportService {
     // Add title
     if (options.title) {
       lines.push(`"${options.title}"`)
-      lines.push('') // Empty line
+      lines.push(``) // Empty line
     }
 
     // Add header
-    lines.push(options.columns.map(col => '"${col.label}"').join(','))
+    lines.push(options.columns.map(col => `"${col.label}"`).join(','))
 
     // Add data rows
     options.data.forEach(row => {
@@ -241,18 +241,18 @@ export class ExcelExportService {
 
     // Add footer
     if (options.footer) {
-      lines.push('') // Empty line
+      lines.push(``) // Empty line
 
       if (options.footer.columns) {
         const footerValues = options.columns.map(col => {
           const footerCol = options.footer!.columns!.find(fc => fc.label === col.label)
-          return footerCol ? '"${footerCol.value}"' : '""'
+          return footerCol ? `"${footerCol.value}"` : `""`
         })
         lines.push(footerValues.join(','))
       }
 
       if (options.footer.text) {
-        lines.push('') // Empty line
+        lines.push(``) // Empty line
         lines.push(`"${options.footer.text}"`)
       }
     }
@@ -261,7 +261,7 @@ export class ExcelExportService {
     const filename = `${this.sanitizeFilename(options.title)}_${Date.now()}.csv`
     const filepath = path.join(this.OUTPUT_DIR, filename)
 
-    await fs.writeFile(filepath, lines.join('\n'), 'utf-8')
+    await fs.writeFile(filepath, lines.join(`\n'), 'utf-8')
 
     return filepath
   }
@@ -274,7 +274,7 @@ export class ExcelExportService {
     // Or use puppeteer to generate PDF from HTML
 
     /*
-    const PDFDocument = require('pdfkit')
+    const PDFDocument = require(`pdfkit`)
     const doc = new PDFDocument({ margin: 50 })
 
     const filename = `${this.sanitizeFilename(options.title)}_${Date.now()}.pdf`
@@ -388,7 +388,7 @@ export class ExcelExportService {
 
     // Escape quotes and wrap in quotes if contains comma or quote
     if (formatted.includes(',') || formatted.includes('"') || formatted.includes('\n')) {
-      formatted = '"${formatted.replace(/"/g, '""')}"'
+      formatted = `"${formatted.replace(/"/g, """")}"`
     } else {
       formatted = `"${formatted}"`
     }

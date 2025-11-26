@@ -87,7 +87,8 @@ struct SettingsView: View {
             .navigationTitle("Settings")
             .listStyle(InsetGroupedListStyle())
             .sheet(isPresented: $showingMapSettings) {
-                MapProviderSettingsView()
+                Text("Map Provider Settings - Available on web platform")
+                    .padding()
             }
         }
     }

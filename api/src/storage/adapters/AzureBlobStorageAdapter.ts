@@ -60,7 +60,7 @@ export class AzureBlobStorageAdapter extends BaseStorageAdapter {
     const { connectionString, accountName, accountKey, containerName, sasToken } = config.azure;
 
     if (!containerName) {
-      throw new Error('Azure container name is required');
+      throw new Error(`Azure container name is required`);
     }
 
     this.containerName = containerName;
@@ -78,7 +78,7 @@ export class AzureBlobStorageAdapter extends BaseStorageAdapter {
         `https://${accountName}.blob.core.windows.net?${sasToken}`
       );
     } else {
-      throw new Error('Azure credentials are required (connectionString or accountName/accountKey or accountName/sasToken)');
+      throw new Error(`Azure credentials are required (connectionString or accountName/accountKey or accountName/sasToken)`);
     }
 
     this.containerClient = this.blobServiceClient.getContainerClient(containerName);
@@ -86,7 +86,7 @@ export class AzureBlobStorageAdapter extends BaseStorageAdapter {
 
   async initialize(): Promise<void> {
     try {
-      // Create container if it doesn't exist
+      // Create container if it doesn`t exist
       await this.containerClient.createIfNotExists();
 
       // Verify access
@@ -126,7 +126,7 @@ export class AzureBlobStorageAdapter extends BaseStorageAdapter {
         size = data.length;
         response = await blobClient.upload(data, size, {
           blobHTTPHeaders: {
-            blobContentType: options?.contentType || options?.metadata?.mimeType || 'application/octet-stream',
+            blobContentType: options?.contentType || options?.metadata?.mimeType || `application/octet-stream`,
             blobContentEncoding: options?.contentEncoding,
             blobCacheControl: options?.cacheControl
           },
@@ -168,7 +168,7 @@ export class AzureBlobStorageAdapter extends BaseStorageAdapter {
         key: normalizedKey,
         url: blobClient.url,
         publicUrl: this.getPublicUrl(normalizedKey),
-        etag: response.etag?.replace(/"/g, ''),
+        etag: response.etag?.replace(/"/g, "`),
         versionId: response.versionId,
         size,
         metadata: options?.metadata
@@ -223,7 +223,7 @@ export class AzureBlobStorageAdapter extends BaseStorageAdapter {
       );
 
       if (!response.readableStreamBody) {
-        throw new Error('No data received from Azure Blob Storage');
+        throw new Error(`No data received from Azure Blob Storage`);
       }
 
       const stream = response.readableStreamBody;
@@ -253,7 +253,7 @@ export class AzureBlobStorageAdapter extends BaseStorageAdapter {
       return {
         stream,
         metadata,
-        etag: response.etag?.replace(/"/g, ''),
+        etag: response.etag?.replace(/"/g, "`),
         lastModified: response.lastModified,
         contentLength: response.contentLength || 0
       };
@@ -290,7 +290,7 @@ export class AzureBlobStorageAdapter extends BaseStorageAdapter {
 
     if (keys.length === 0) return;
 
-    // Azure doesn't have bulk delete, so we delete in parallel
+    // Azure doesn`t have bulk delete, so we delete in parallel
     await Promise.all(keys.map(key => this.delete(key).catch(() => {})));
   }
 
@@ -318,13 +318,13 @@ export class AzureBlobStorageAdapter extends BaseStorageAdapter {
         for (const blob of page.value.segment.blobItems) {
           files.push({
             key: blob.name,
-            name: blob.name.split('/').pop() || blob.name,
+            name: blob.name.split(`/`).pop() || blob.name,
             size: blob.properties.contentLength || 0,
             mimeType: blob.properties.contentType,
-            etag: blob.properties.etag?.replace(/"/g, ''),
+            etag: blob.properties.etag?.replace(/"/g, '"),
             lastModified: blob.properties.lastModified || new Date(),
             metadata: {
-              filename: blob.name.split('/').pop() || blob.name,
+              filename: blob.name.split(`/`).pop() || blob.name,
               mimeType: blob.properties.contentType,
               size: blob.properties.contentLength,
               customMetadata: blob.metadata as Record<string, string>
@@ -385,7 +385,7 @@ export class AzureBlobStorageAdapter extends BaseStorageAdapter {
       const props = await destBlobClient.getProperties();
 
       const metadata: FileMetadata = {
-        filename: normalizedDest.split('/').pop() || normalizedDest,
+        filename: normalizedDest.split(`/`).pop() || normalizedDest,
         mimeType: props.contentType,
         size: props.contentLength,
         customMetadata: props.metadata as Record<string, string>
@@ -472,7 +472,7 @@ export class AzureBlobStorageAdapter extends BaseStorageAdapter {
         expiresOn,
         contentType: options?.contentType,
         contentDisposition: options?.contentDisposition
-          ? '${options.contentDisposition}${options.filename ? '; filename="${options.filename}"' : ''}'
+          ? `${options.contentDisposition}${options.filename ? "; filename="${options.filename}"` : `'}'
           : undefined
       },
       this.credential

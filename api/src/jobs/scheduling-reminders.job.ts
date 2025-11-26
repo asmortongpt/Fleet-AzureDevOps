@@ -63,7 +63,7 @@ async function runSchedulingReminders(): Promise<void> {
     totalReminders += maintenanceReminders
 
     const duration = Date.now() - startTime
-    logger.info('=== Scheduling Reminders Job Completed ===', {
+    logger.info(`=== Scheduling Reminders Job Completed ===`, {
       duration: `${duration}ms`,
       totalReminders,
       reservationReminders,
@@ -78,7 +78,7 @@ async function runSchedulingReminders(): Promise<void> {
       duration_ms: duration
     })
   } catch (error: any) {
-    logger.error('Fatal error in scheduling reminders job', {
+    logger.error(`Fatal error in scheduling reminders job`, {
       error: error.message,
       stack: error.stack
     })
@@ -109,7 +109,7 @@ async function processReservationReminders(): Promise<number> {
         FROM vehicle_reservations vr
         JOIN vehicles v ON vr.vehicle_id = v.id
         JOIN users u ON vr.reserved_by = u.id
-        WHERE vr.status IN ('confirmed', 'pending')
+        WHERE vr.status IN ('confirmed', `pending`)
           AND vr.start_time BETWEEN $1 AND $2
         ORDER BY vr.start_time`,
         [windowStart, windowEnd]
@@ -122,7 +122,7 @@ async function processReservationReminders(): Promise<number> {
           // Check if reminder already sent
           const alreadySent = await schedulingNotificationService.isReminderSent(
             reservation.id,
-            'reservation',
+            `reservation`,
             hours
           )
 
@@ -168,7 +168,7 @@ async function processReservationReminders(): Promise<number> {
             hours
           })
         } catch (error: any) {
-          logger.error('Error sending reservation reminder', {
+          logger.error(`Error sending reservation reminder`, {
             reservationId: reservation.id,
             error: error.message
           })
@@ -179,7 +179,7 @@ async function processReservationReminders(): Promise<number> {
     logger.info(`Reservation reminders completed: ${remindersSent} sent`)
     return remindersSent
   } catch (error: any) {
-    logger.error('Error processing reservation reminders', {
+    logger.error(`Error processing reservation reminders`, {
       error: error.message,
       stack: error.stack
     })
@@ -215,7 +215,7 @@ async function processMaintenanceReminders(): Promise<number> {
         LEFT JOIN appointment_types at ON sbs.appointment_type_id = at.id
         LEFT JOIN service_bays sb ON sbs.service_bay_id = sb.id
         LEFT JOIN users u ON sbs.assigned_technician_id = u.id
-        WHERE sbs.status IN ('scheduled', 'in_progress')
+        WHERE sbs.status IN (`scheduled`, `in_progress`)
           AND sbs.scheduled_start BETWEEN $1 AND $2
           AND sbs.assigned_technician_id IS NOT NULL
         ORDER BY sbs.scheduled_start`,
@@ -229,7 +229,7 @@ async function processMaintenanceReminders(): Promise<number> {
           // Check if reminder already sent
           const alreadySent = await schedulingNotificationService.isReminderSent(
             appointment.id,
-            'maintenance',
+            `maintenance`,
             hours
           )
 
@@ -275,7 +275,7 @@ async function processMaintenanceReminders(): Promise<number> {
             hours
           })
         } catch (error: any) {
-          logger.error('Error sending maintenance reminder', {
+          logger.error(`Error sending maintenance reminder`, {
             appointmentId: appointment.id,
             error: error.message
           })
@@ -286,7 +286,7 @@ async function processMaintenanceReminders(): Promise<number> {
     logger.info(`Maintenance reminders completed: ${remindersSent} sent`)
     return remindersSent
   } catch (error: any) {
-    logger.error('Error processing maintenance reminders', {
+    logger.error(`Error processing maintenance reminders`, {
       error: error.message,
       stack: error.stack
     })
@@ -344,7 +344,7 @@ async function checkForConflicts(): Promise<void> {
       FROM vehicles v
       JOIN vehicle_reservations vr ON v.id = vr.vehicle_id
       WHERE vr.status IN ('confirmed', 'pending')
-        AND vr.start_time < NOW() + INTERVAL '7 days'
+        AND vr.start_time < NOW() + INTERVAL `7 days`
         AND vr.end_time > NOW()
       GROUP BY v.id, v.make, v.model, v.license_plate
       HAVING COUNT(*) > 1`
@@ -364,7 +364,7 @@ async function checkForConflicts(): Promise<void> {
 
         // Notify affected users
         await schedulingNotificationService.sendConflictDetected(
-          '', // tenant_id will be fetched from users
+          ``, // tenant_id will be fetched from users
           conflictData,
           conflict.user_ids
         )
@@ -383,8 +383,7 @@ async function checkForConflicts(): Promise<void> {
 export function startSchedulingReminders(): void {
   if (!ENABLE_REMINDERS) {
     logger.warn('Scheduling reminders job is disabled by configuration')
-    return
-  }
+    return }
 
   logger.info('Initializing scheduling reminders job', {
     schedule: CRON_SCHEDULE,
@@ -394,7 +393,7 @@ export function startSchedulingReminders(): void {
 
   // Validate cron expression
   if (!cron.validate(CRON_SCHEDULE)) {
-    logger.error('Invalid cron schedule expression', { schedule: CRON_SCHEDULE })
+    logger.error(`Invalid cron schedule expression`, { schedule: CRON_SCHEDULE })
     throw new Error(`Invalid cron schedule: ${CRON_SCHEDULE}`)
   }
 

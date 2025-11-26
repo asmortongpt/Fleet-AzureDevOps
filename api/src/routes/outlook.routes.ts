@@ -413,10 +413,10 @@ router.post(
 
       res.json({
         success: true,
-        message: 'Email marked as ${isRead ? 'read' : 'unread'}'
+        message: `Email marked as ${isRead ? 'read' : 'unread'}`
       })
     } catch (error) {
-      logger.error('Mark as read error:', error)
+      logger.error(`Mark as read error:`, error)
       res.status(500).json({
         success: false,
         error: error instanceof Error ? getErrorMessage(error) : 'Internal server error'

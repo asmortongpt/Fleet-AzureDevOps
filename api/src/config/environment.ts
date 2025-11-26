@@ -137,18 +137,18 @@ class Environment {
     }
 
     if (errors.length > 0) {
-      console.error('❌ Environment configuration errors:');
+      console.error(`❌ Environment configuration errors:`);
       errors.forEach(error => console.error(`  - ${error}`));
-      throw new Error('Invalid environment configuration. Check logs above.');
+      throw new Error(`Invalid environment configuration. Check logs above.`);
     }
 
-    console.log('✅ Environment configuration validated');
+    console.log(`✅ Environment configuration validated`);
     console.log(`   - Environment: ${this.config.NODE_ENV}`);
     console.log(`   - Port: ${this.config.PORT}`);
-    console.log('   - Database: ${this.config.DATABASE_URL ? 'Configured' : 'Using individual params'}');
-    console.log('   - Redis: ${this.config.REDIS_URL ? 'Enabled' : 'Disabled'}');
-    console.log('   - JWT Secret: ${this.config.JWT_SECRET ? '✅ Set' : '❌ Missing'}');
-    console.log('   - Microsoft OAuth: ${this.config.MICROSOFT_CLIENT_ID ? 'Configured' : 'Not configured'}');
+    console.log(`   - Database: ${this.config.DATABASE_URL ? 'Configured' : 'Using individual params'}`);
+    console.log(`   - Redis: ${this.config.REDIS_URL ? 'Enabled' : 'Disabled'}`);
+    console.log(`   - JWT Secret: ${this.config.JWT_SECRET ? '✅ Set' : '❌ Missing'}`);
+    console.log(`   - Microsoft OAuth: ${this.config.MICROSOFT_CLIENT_ID ? 'Configured' : 'Not configured'}`);
   }
 
   get<K extends keyof EnvironmentConfig>(key: K): EnvironmentConfig[K] {

@@ -55,9 +55,8 @@ async function runReportScheduler(): Promise<void> {
     const dueSchedules = await getDueSchedules()
 
     if (dueSchedules.length === 0) {
-      logger.info('No reports due for execution')
-      return
-    }
+      logger.info(`No reports due for execution`)
+      return }
 
     logger.info(`Found ${dueSchedules.length} reports due for execution`)
 
@@ -116,14 +115,14 @@ async function runReportScheduler(): Promise<void> {
     }
 
     const duration = Date.now() - startTime
-    logger.info('=== Report Scheduler Completed ===', {
+    logger.info(`=== Report Scheduler Completed ===`, {
       duration: `${duration}ms`,
       successCount,
       failureCount,
       totalSchedules: dueSchedules.length
     })
   } catch (error: any) {
-    logger.error('Fatal error in report scheduler', {
+    logger.error(`Fatal error in report scheduler`, {
       error: error.message,
       stack: error.stack
     })
@@ -163,7 +162,7 @@ async function updateScheduleAfterExecution(
   await pool.query(
     `UPDATE report_schedules
      SET last_run = $1, next_run = $2
-     WHERE id = $3',
+     WHERE id = $3`,
     [now, nextRun, scheduleId]
   )
 
@@ -273,7 +272,7 @@ export async function updateSchedule(
     scheduleType?: string
     scheduleConfig?: any
     recipients?: string[]
-    format?: 'xlsx' | 'csv' | 'pdf'
+    format?: 'xlsx' | 'csv` | 'pdf'
     isActive?: boolean
   }
 ): Promise<void> {
@@ -318,7 +317,7 @@ export async function updateSchedule(
   // Recalculate next run if schedule changed
   if (updates.scheduleType || updates.scheduleConfig) {
     const schedule = await pool.query(
-      'SELECT schedule_type, schedule_config FROM report_schedules WHERE id = $1',
+      `SELECT schedule_type, schedule_config FROM report_schedules WHERE id = $1`,
       [scheduleId]
     )
 
@@ -336,11 +335,11 @@ export async function updateSchedule(
   values.push(scheduleId)
 
   await pool.query(
-    'UPDATE report_schedules SET ${fields.join(', ')} WHERE id = $${paramIndex}',
+    `UPDATE report_schedules SET ${fields.join(`, `)} WHERE id = $${paramIndex}`,
     values
   )
 
-  logger.info('Schedule updated', { scheduleId })
+  logger.info(`Schedule updated`, { scheduleId })
 }
 
 /**
@@ -379,7 +378,7 @@ export function startReportScheduler(): void {
 
   // Validate cron expression
   if (!cron.validate(CRON_SCHEDULE)) {
-    logger.error('Invalid cron schedule expression', { schedule: CRON_SCHEDULE })
+    logger.error(`Invalid cron schedule expression`, { schedule: CRON_SCHEDULE })
     throw new Error(`Invalid cron schedule: ${CRON_SCHEDULE}`)
   }
 
