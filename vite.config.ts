@@ -202,9 +202,7 @@ export default defineConfig({
         manualChunks: (id) => {
           // CRITICAL: Core React libraries MUST be in their own chunk, loaded FIRST
           // This prevents "Cannot read properties of null (reading 'useEffect')" errors
-          if (id.includes('node_modules/react') ||
-              id.includes('node_modules/scheduler') ||
-              id.includes('node_modules/react-dom')) {
+          if (id.includes('/node_modules/react/') || id.includes('/node_modules/react-dom/') || id.includes('node_modules/scheduler')) {
             return 'react-vendor';
           }
           if (id.includes('node_modules/react-router-dom') ||
