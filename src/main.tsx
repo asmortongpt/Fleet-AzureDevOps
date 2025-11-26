@@ -1,4 +1,9 @@
-import { createRoot } from 'react-dom/client'
+// CRITICAL: Import React and ReactDOM FIRST before any other library
+import React from 'react'
+import ReactDOM from 'react-dom/client'
+const { createRoot } = ReactDOM
+
+// Now import other React-dependent libraries
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { ErrorBoundary } from "react-error-boundary";
 
