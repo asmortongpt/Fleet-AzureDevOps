@@ -11,9 +11,6 @@ struct VehiclesView: View {
                 }
             }
             .navigationTitle("Vehicles")
-            .refreshable {
-                await viewModel.loadVehicles()
-            }
         }
     }
 }
