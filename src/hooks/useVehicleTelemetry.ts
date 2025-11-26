@@ -8,6 +8,9 @@ import { useWebSocket, WebSocketMessage } from './useWebSocket'
 import { Vehicle } from '@/lib/types'
 import logger from '@/utils/logger'
 
+// CRITICAL: Preserve native Map before Leaflet pollutes global namespace
+const NativeMap = globalThis.Map;
+
 export interface TelemetryUpdate {
   vehicleId: string
   timestamp: Date
@@ -67,10 +70,10 @@ export function useVehicleTelemetry(options: UseVehicleTelemetryOptions = {}) {
   } = options
 
   // Vehicle state with real-time updates
-  const [vehicles, setVehicles] = useState<Map<string, Vehicle>>(
-    new Map(initialVehicles.map(v => [v.id, v]))
+  const [vehicles, setVehicles] = useState<NativeMap<string, Vehicle>>(
+    new NativeMap(initialVehicles.map(v => [v.id, v]))
   )
-  const [telemetryHistory, setTelemetryHistory] = useState<Map<string, TelemetryUpdate[]>>(new Map())
+  const [telemetryHistory, setTelemetryHistory] = useState<NativeMap<string, TelemetryUpdate[]>>(new NativeMap())
   const [emulatorStats, setEmulatorStats] = useState<EmulatorStats | null>(null)
   const [isEmulatorRunning, setIsEmulatorRunning] = useState(false)
   const [lastUpdate, setLastUpdate] = useState<Date | null>(null)
