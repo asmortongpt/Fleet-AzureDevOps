@@ -418,12 +418,13 @@ export function LeafletMap({
   })
 
   // ========== State Management ==========
-  const [mapState, setMapState] = useState<MapState>({
-    ready: false,
-    loading: true,
-    error: null,
-    libraryLoaded: false,
-  })
+  // FIX: Split mapState into individual state variables to prevent infinite loop
+  // Issue: When mapState object updates, it creates a new reference, triggering
+  // all effects that depend on isReady, which can cause an infinite loop
+  const [isReady, setIsReady] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
+  const [mapError, setMapError] = useState<string | null>(null)
+  const [libraryLoaded, setLibraryLoaded] = useState(false)
 
   // ========== Refs for Leaflet Instances ==========
   const mapContainerRef = useRef<HTMLDivElement>(null)
@@ -452,27 +453,20 @@ export function LeafletMap({
   // ========== State Update Helpers ==========
 
   /**
-   * Safely update map state (only if component is mounted)
-   */
-  const updateMapState = useCallback((updates: Partial<MapState>) => {
-    if (isMountedRef.current) {
-      setMapState((prev) => ({ ...prev, ...updates }))
-    }
-  }, [])
-
-  /**
    * Set error state with logging
    */
   const setError = useCallback(
     (error: string) => {
+      if (!isMountedRef.current) return
       console.error("❌ LeafletMap Error:", error)
-      updateMapState({ error, loading: false })
+      setMapError(error)
+      setIsLoading(false)
       // Notify parent component
       if (onError) {
         onError(new Error(error))
       }
     },
-    [updateMapState, onError]
+    [onError]
   )
 
   // ========== Map Initialization ==========
@@ -509,7 +503,7 @@ export function LeafletMap({
         }
         perf.endMetric("leafletLibraryLoad", libraryLoadStart)
 
-        updateMapState({ libraryLoaded: true })
+        setLibraryLoaded(true)
 
         // Guard: Component unmounted during async load
         if (!isMountedRef.current || !mapContainerRef.current) {
@@ -561,7 +555,7 @@ export function LeafletMap({
 
         // Step 6: Set loading timeout
         loadingTimeoutRef.current = setTimeout(() => {
-          if (!mapState.ready && isMountedRef.current) {
+          if (!isReady && isMountedRef.current) {
             console.warn("⚠️  Map loading timeout exceeded")
             setError("Map took too long to load. Please check your internet connection and refresh.")
           }
@@ -582,7 +576,8 @@ export function LeafletMap({
             clustering: enableClustering,
           })
 
-          updateMapState({ ready: true, loading: false })
+          setIsReady(true)
+          setIsLoading(false)
 
           // Announce to screen readers
           announceMapChange({
@@ -682,7 +677,7 @@ export function LeafletMap({
    * Removes old layer and adds new one without recreating entire map.
    */
   useSafeEffect(() => {
-    if (!mapInstanceRef.current || !mapState.ready || !L) return
+    if (!mapInstanceRef.current || !isReady || !L) return
 
     console.log(`🎨 Updating map style to: ${mapStyle}`)
 
@@ -712,7 +707,7 @@ export function LeafletMap({
       console.error("❌ Error updating tile layer:", err)
       // Non-fatal: keep existing layer if update fails
     }
-  }, [mapStyle, mapState.ready, tileConfig])
+  }, [mapStyle, isReady, tileConfig])
 
   // ========== Vehicle Markers ==========
 
@@ -721,7 +716,7 @@ export function LeafletMap({
    * Creates custom icons based on vehicle type and status.
    */
   const updateVehicleMarkers = useDebouncedCallback(() => {
-    if (!vehicleLayerRef.current || !mapState.ready || !L) return
+    if (!vehicleLayerRef.current || !isReady || !L) return
 
     try {
       vehicleLayerRef.current.clearLayers()
@@ -811,7 +806,7 @@ export function LeafletMap({
 
   useSafeEffect(() => {
     updateVehicleMarkers()
-  }, [vehicles, showVehicles, mapState.ready, onMarkerClick])
+  }, [vehicles, showVehicles, isReady, onMarkerClick])
 
   // ========== Facility Markers ==========
 
@@ -820,7 +815,7 @@ export function LeafletMap({
    * Creates custom icons based on facility type and status.
    */
   const updateFacilityMarkers = useDebouncedCallback(() => {
-    if (!facilityLayerRef.current || !mapState.ready || !L) return
+    if (!facilityLayerRef.current || !isReady || !L) return
 
     try {
       facilityLayerRef.current.clearLayers()
@@ -901,7 +896,7 @@ export function LeafletMap({
 
   useSafeEffect(() => {
     updateFacilityMarkers()
-  }, [facilities, showFacilities, mapState.ready, onMarkerClick])
+  }, [facilities, showFacilities, isReady, onMarkerClick])
 
   // ========== Camera Markers ==========
 
@@ -910,7 +905,7 @@ export function LeafletMap({
    * Creates custom icons based on camera operational status.
    */
   const updateCameraMarkers = useDebouncedCallback(() => {
-    if (!cameraLayerRef.current || !mapState.ready || !L) return
+    if (!cameraLayerRef.current || !isReady || !L) return
 
     try {
       cameraLayerRef.current.clearLayers()
@@ -1002,7 +997,7 @@ export function LeafletMap({
 
   useSafeEffect(() => {
     updateCameraMarkers()
-  }, [cameras, showCameras, mapState.ready, onMarkerClick])
+  }, [cameras, showCameras, isReady, onMarkerClick])
 
   // ========== Auto-fit Bounds ==========
 
@@ -1011,7 +1006,7 @@ export function LeafletMap({
    * Uses debouncing to prevent excessive map movements.
    */
   const fitMapBounds = useDebouncedCallback(() => {
-    if (!mapInstanceRef.current || !mapState.ready || !autoFitBounds || !L) return
+    if (!mapInstanceRef.current || !isReady || !autoFitBounds || !L) return
 
     try {
       const bounds: any[] = []
@@ -1069,14 +1064,14 @@ export function LeafletMap({
 
   useSafeEffect(() => {
     fitMapBounds()
-  }, [vehicles, facilities, cameras, showVehicles, showFacilities, showCameras, mapState.ready, autoFitBounds])
+  }, [vehicles, facilities, cameras, showVehicles, showFacilities, showCameras, isReady, autoFitBounds])
 
   // ========== Render ==========
 
   /**
    * Error boundary UI - shown when map initialization fails
    */
-  if (mapState.error) {
+  if (mapError) {
     return (
       <div
         className={`flex items-center justify-center bg-muted/50 border border-destructive/20 rounded-lg ${className}`}
@@ -1090,7 +1085,7 @@ export function LeafletMap({
             🗺️❌
           </div>
           <h3 className="text-lg font-semibold text-destructive mb-3">Map Error</h3>
-          <p className="text-sm text-muted-foreground mb-1">{mapState.error}</p>
+          <p className="text-sm text-muted-foreground mb-1">{mapError}</p>
           <p className="text-xs text-muted-foreground/70 mb-6">
             This may be due to network issues, browser compatibility, or missing dependencies.
           </p>
@@ -1103,9 +1098,14 @@ export function LeafletMap({
           </button>
           <div className="mt-4">
             <button
-              onClick={() => updateMapState({ error: null, loading: true })}
+              onClick={() => {
+                setMapError(null)
+                setIsLoading(true)
+                // Trigger re-initialization by reloading the page
+                window.location.reload()
+              }}
               className="text-xs text-muted-foreground hover:text-foreground underline"
-              aria-label="Retry map initialization without reloading"
+              aria-label="Retry map initialization by reloading page"
             >
               Try Again Without Reloading
             </button>
@@ -1124,7 +1124,7 @@ export function LeafletMap({
       style={{ minHeight: `${minHeight}px` }}
       role="region"
       aria-label={ariaLabel}
-      aria-busy={mapState.loading}
+      aria-busy={isLoading}
       aria-describedby={visibleMarkerCount > 0 ? "map-marker-count" : undefined}
     >
       {/* Skip Link for keyboard navigation */}
@@ -1141,15 +1141,15 @@ export function LeafletMap({
         ref={mapContainerRef}
         className="absolute inset-0 w-full h-full bg-muted/30 rounded-lg overflow-hidden"
         style={{
-          opacity: mapState.loading ? 0 : 1,
+          opacity: isLoading ? 0 : 1,
           transition: "opacity 300ms ease-in-out",
         }}
-        aria-hidden={mapState.loading}
-        tabIndex={mapState.loading ? -1 : 0}
+        aria-hidden={isLoading}
+        tabIndex={isLoading ? -1 : 0}
       />
 
       {/* Loading State Overlay */}
-      {mapState.loading && (
+      {isLoading && (
         <div
           className="absolute inset-0 w-full h-full flex flex-col items-center justify-center bg-background/95 backdrop-blur-sm rounded-lg"
           role="status"
@@ -1166,10 +1166,10 @@ export function LeafletMap({
 
             {/* Loading message */}
             <h3 className="text-base font-semibold text-foreground mb-2">
-              {mapState.libraryLoaded ? "Initializing Map..." : "Loading Map Library..."}
+              {libraryLoaded ? "Initializing Map..." : "Loading Map Library..."}
             </h3>
             <p className="text-sm text-muted-foreground mb-1">
-              {mapState.libraryLoaded ? "Setting up interactive map view" : "Downloading OpenStreetMap components"}
+              {libraryLoaded ? "Setting up interactive map view" : "Downloading OpenStreetMap components"}
             </p>
             <p className="text-xs text-muted-foreground/70 mt-4">
               100% Free • No API Key Required • Powered by OpenStreetMap
@@ -1180,7 +1180,7 @@ export function LeafletMap({
               <div
                 className="bg-primary h-full rounded-full animate-pulse"
                 style={{
-                  width: mapState.libraryLoaded ? "80%" : "40%",
+                  width: libraryLoaded ? "80%" : "40%",
                   transition: "width 300ms ease-in-out",
                 }}
               />
@@ -1190,7 +1190,7 @@ export function LeafletMap({
       )}
 
       {/* Marker Count Badge (shown when ready) */}
-      {mapState.ready && !mapState.loading && visibleMarkerCount > 0 && (
+      {isReady && !isLoading && visibleMarkerCount > 0 && (
         <div
           id="map-marker-count"
           className="absolute top-4 right-4 bg-background/95 backdrop-blur-md px-4 py-2.5 rounded-lg shadow-lg border border-border z-[1000] transition-all hover:shadow-xl"
@@ -1228,7 +1228,7 @@ export function LeafletMap({
       )}
 
       {/* Map Style Indicator (optional debug info) */}
-      {mapState.ready && !mapState.loading && process.env.NODE_ENV === "development" && (
+      {isReady && !isLoading && process.env.NODE_ENV === "development" && (
         <div
           className="absolute bottom-4 left-4 bg-background/80 backdrop-blur-sm px-3 py-1.5 rounded text-xs text-muted-foreground z-[1000] font-mono"
           role="status"
