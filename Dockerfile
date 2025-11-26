@@ -60,25 +60,12 @@ COPY --from=builder /app/dist /usr/share/nginx/html
 COPY scripts/runtime-config.sh /docker-entrypoint.d/01-runtime-config.sh
 RUN chmod +x /docker-entrypoint.d/01-runtime-config.sh
 
-# SECURITY: Use nginx user (uid=101) instead of custom user to avoid permission conflicts
-# nginx:alpine already has nginx user configured properly
-RUN chown -R nginx:nginx /usr/share/nginx/html && \
-    chown -R nginx:nginx /var/cache/nginx && \
-    chown -R nginx:nginx /var/log/nginx && \
-    mkdir -p /tmp && \
-    chown -R nginx:nginx /tmp && \
-    touch /var/run/nginx.pid && \
-    chown -R nginx:nginx /var/run/nginx.pid
-
-# Switch to non-root user
-USER nginx
-
-# Expose port 80 (standard HTTP port for production)
-EXPOSE 80
+# Expose port 3000
+EXPOSE 3000
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
-  CMD wget --no-verbose --tries=1 --spider http://localhost:80/health || exit 1
+  CMD wget --no-verbose --tries=1 --spider http://localhost:3000/health || exit 1
 
 # Start nginx
 CMD ["nginx", "-g", "daemon off;"]
