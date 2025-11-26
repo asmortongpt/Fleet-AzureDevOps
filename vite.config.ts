@@ -187,9 +187,9 @@ export default defineConfig({
         manualChunks: (id) => {
           // Core React libraries - CRITICAL: Keep ALL React packages together
           // to prevent "Cannot read properties of undefined (reading 'createContext')" errors
-          if (id.includes('node_modules/react') ||
-              id.includes('node_modules/scheduler') ||
-              id.includes('node_modules/react-dom')) {
+          if (id.includes('/node_modules/react/') ||
+              id.includes('/node_modules/scheduler/') ||
+              id.includes('/node_modules/react-dom/')) {
             return 'react-vendor';
           }
           if (id.includes('node_modules/react-router-dom') ||
