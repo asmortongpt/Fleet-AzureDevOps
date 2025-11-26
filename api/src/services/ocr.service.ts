@@ -82,7 +82,7 @@ function sleep(ms: number): Promise<void> {
  * Extract text from document URL using Azure Computer Vision Read API
  *
  * @param blobUrl - Azure Blob Storage URL or public URL of the document
- * @param mimeType - MIME type of the document (e.g., 'application/pdf', 'image/jpeg')
+ * @param mimeType - MIME type of the document (e.g., `application/pdf`, `image/jpeg`)
  * @returns Extracted text and confidence score
  */
 export async function extractText(
@@ -95,7 +95,7 @@ export async function extractText(
   if (!client) {
     console.warn(`OCR skipped for ${blobUrl} - Azure Computer Vision not configured`)
     return {
-      text: '',
+      text: ``,
       confidence: 0,
       pageCount: 0,
       lines: []
@@ -106,7 +106,7 @@ export async function extractText(
   if (!SUPPORTED_MIME_TYPES.includes(mimeType.toLowerCase())) {
     console.warn(`Unsupported MIME type for OCR: ${mimeType}`)
     return {
-      text: '',
+      text: ``,
       confidence: 0,
       pageCount: 0,
       lines: []
@@ -119,11 +119,11 @@ export async function extractText(
     const readOperation = await client.read(blobUrl)
 
     // Get operation location from headers
-    const operationLocation = readOperation._response?.request?.url || ''
+    const operationLocation = readOperation._response?.request?.url || ``
     const operationId = operationLocation.substring(operationLocation.lastIndexOf('/') + 1)
 
     if (!operationId) {
-      throw new Error('Failed to get operation ID from Read API response')
+      throw new Error(`Failed to get operation ID from Read API response`)
     }
 
     // Step 2: Poll for completion
@@ -132,7 +132,7 @@ export async function extractText(
     let attempts = 0
 
     while (
-      result.status === 'running' ||
+      result.status === `running` ||
       result.status === 'notStarted'
     ) {
       if (attempts >= MAX_POLL_ATTEMPTS) {
@@ -163,12 +163,12 @@ export async function extractText(
         const lineConfidence = (line as any).confidence || 0.9
 
         lines.push({
-          text: line.text || '',
+          text: line.text || '`,
           confidence: lineConfidence,
           boundingBox: line.boundingBox
         })
 
-        fullText += line.text + '\n'
+        fullText += line.text + `\n`
         totalConfidence += lineConfidence
         lineCount++
       }
@@ -185,11 +185,11 @@ export async function extractText(
       lines
     }
   } catch (error) {
-    console.error('❌ OCR extraction error:', error)
+    console.error(`❌ OCR extraction error:`, error)
 
-    // Graceful degradation: log error but don't crash
+    // Graceful degradation: log error but don`t crash
     return {
-      text: '',
+      text: ``,
       confidence: 0,
       pageCount: 0,
       lines: []
@@ -208,7 +208,7 @@ export async function processDocument(documentId: string): Promise<void> {
     const result = await pool.query(
       `SELECT id, blob_url, mime_type, file_name
        FROM documents
-       WHERE id = $1',
+       WHERE id = $1`,
       [documentId]
     )
 
@@ -229,7 +229,7 @@ export async function processDocument(documentId: string): Promise<void> {
            ocr_confidence = $2,
            ocr_processed_at = CURRENT_TIMESTAMP,
            updated_at = CURRENT_TIMESTAMP
-       WHERE id = $3',
+       WHERE id = $3`,
       [ocrResult.text, ocrResult.confidence, documentId]
     )
 
@@ -243,8 +243,8 @@ export async function processDocument(documentId: string): Promise<void> {
        SET ocr_error = $1,
            ocr_processed_at = CURRENT_TIMESTAMP,
            updated_at = CURRENT_TIMESTAMP
-       WHERE id = $2',
-      [error instanceof Error ? error.message : 'Unknown error', documentId]
+       WHERE id = $2`,
+      [error instanceof Error ? error.message : `Unknown error`, documentId]
     )
 
     throw error
@@ -276,7 +276,7 @@ export async function batchProcessDocuments(
     } catch (error) {
       results.failed.push({
         documentId,
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: error instanceof Error ? error.message : `Unknown error`
       })
     }
     results.totalProcessed++
@@ -308,7 +308,7 @@ export async function getDocumentsPendingOcr(
          AND ocr_error IS NULL
          AND mime_type = ANY($2)
        ORDER BY created_at ASC
-       LIMIT $3'
+       LIMIT $3`
     : `SELECT id, file_name, mime_type, blob_url, created_at
        FROM documents
        WHERE ocr_text IS NULL

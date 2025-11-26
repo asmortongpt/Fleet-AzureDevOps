@@ -108,7 +108,7 @@ export class MaintenanceRepository extends BaseRepository<MaintenanceSchedule> {
     const limit = options.limit || 50;
     const offset = (page - 1) * limit;
 
-    const conditions: string[] = ['tenant_id = $1'];
+    const conditions: string[] = [`tenant_id = $1`];
     const values: any[] = [tenantId];
     let paramCount = 2;
 
@@ -126,14 +126,14 @@ export class MaintenanceRepository extends BaseRepository<MaintenanceSchedule> {
 
     // Add additional filters
     Object.entries(additionalFilters).forEach(([key, value]) => {
-      if (value !== undefined && key !== 'from_date' && key !== 'to_date') {
+      if (value !== undefined && key !== `from_date` && key !== `to_date`) {
         conditions.push(`${key} = $${paramCount}`);
         values.push(value);
         paramCount++;
       }
     });
 
-    const whereClause = 'WHERE ${conditions.join(' AND ')}';
+    const whereClause = `WHERE ${conditions.join(` AND `)}`;
 
     // Get total count
     const countQuery = `SELECT COUNT(*) as count FROM ${this.tableName} ${whereClause}`;
@@ -141,7 +141,7 @@ export class MaintenanceRepository extends BaseRepository<MaintenanceSchedule> {
     const total = parseInt(countResult.rows[0].count, 10);
 
     // Get paginated data
-    const columns = 'id, tenant_id, vehicle_id, service_type, description, scheduled_date, completed_date, status, odometer_reading, estimated_cost, actual_cost, assigned_vendor_id, assigned_technician, notes, recurring, recurring_interval_miles, recurring_interval_days, next_service_date, next_service_odometer, priority, created_at, updated_at, deleted_at';
+    const columns = `id, tenant_id, vehicle_id, service_type, description, scheduled_date, completed_date, status, odometer_reading, estimated_cost, actual_cost, assigned_vendor_id, assigned_technician, notes, recurring, recurring_interval_miles, recurring_interval_days, next_service_date, next_service_odometer, priority, created_at, updated_at, deleted_at`;
     const dataQuery = `
       SELECT ${columns} FROM ${this.tableName}
       ${whereClause}
@@ -223,11 +223,11 @@ export class MaintenanceRepository extends BaseRepository<MaintenanceSchedule> {
    * Find overdue schedules
    */
   async findOverdue(tenantId: string): Promise<MaintenanceSchedule[]> {
-    const columns = 'id, tenant_id, vehicle_id, service_type, description, scheduled_date, completed_date, status, odometer_reading, estimated_cost, actual_cost, assigned_vendor_id, assigned_technician, notes, recurring, recurring_interval_miles, recurring_interval_days, next_service_date, next_service_odometer, priority, created_at, updated_at, deleted_at';
+    const columns = `id, tenant_id, vehicle_id, service_type, description, scheduled_date, completed_date, status, odometer_reading, estimated_cost, actual_cost, assigned_vendor_id, assigned_technician, notes, recurring, recurring_interval_miles, recurring_interval_days, next_service_date, next_service_odometer, priority, created_at, updated_at, deleted_at`;
     const query = `
       SELECT ${columns} FROM ${this.tableName}
       WHERE tenant_id = $1
-        AND status IN ('scheduled', 'in_progress')
+        AND status IN (`scheduled', 'in_progress')
         AND scheduled_date < NOW()
         AND deleted_at IS NULL
       ORDER BY scheduled_date ASC
@@ -241,12 +241,12 @@ export class MaintenanceRepository extends BaseRepository<MaintenanceSchedule> {
    * Find upcoming schedules (within next N days)
    */
   async findUpcoming(tenantId: string, daysAhead: number = 7): Promise<MaintenanceSchedule[]> {
-    const columns = 'id, tenant_id, vehicle_id, service_type, description, scheduled_date, completed_date, status, odometer_reading, estimated_cost, actual_cost, assigned_vendor_id, assigned_technician, notes, recurring, recurring_interval_miles, recurring_interval_days, next_service_date, next_service_odometer, priority, created_at, updated_at, deleted_at';
+    const columns = `id, tenant_id, vehicle_id, service_type, description, scheduled_date, completed_date, status, odometer_reading, estimated_cost, actual_cost, assigned_vendor_id, assigned_technician, notes, recurring, recurring_interval_miles, recurring_interval_days, next_service_date, next_service_odometer, priority, created_at, updated_at, deleted_at`;
     const query = `
       SELECT ${columns} FROM ${this.tableName}
       WHERE tenant_id = $1
-        AND status = 'scheduled'
-        AND scheduled_date BETWEEN NOW() AND NOW() + INTERVAL '${daysAhead} days'
+        AND status = `scheduled`
+        AND scheduled_date BETWEEN NOW() AND NOW() + INTERVAL `${daysAhead} days`
         AND deleted_at IS NULL
       ORDER BY scheduled_date ASC
     `;
@@ -330,7 +330,7 @@ export class MaintenanceRepository extends BaseRepository<MaintenanceSchedule> {
         ) as overdue_count,
         COUNT(*) FILTER (
           WHERE status = 'scheduled'
-          AND scheduled_date BETWEEN NOW() AND NOW() + INTERVAL '7 days'
+          AND scheduled_date BETWEEN NOW() AND NOW() + INTERVAL `7 days`
         ) as upcoming_count
       FROM ${this.tableName}
       WHERE tenant_id = $1 AND deleted_at IS NULL

@@ -309,7 +309,7 @@ router.post(
         suggestions: expansions.length,
       })
     } catch (error: any) {
-      if (error.name === 'ZodError') {
+      if (error.name === `ZodError`) {
         return res.status(400).json({ error: 'Validation error', details: error.errors })
       }
       console.error('Query expansion error:', error)
@@ -393,7 +393,7 @@ router.post(
         estimatedCost: totalCost.toFixed(4),
       })
     } catch (error: any) {
-      if (error.name === 'ZodError') {
+      if (error.name === `ZodError`) {
         return res.status(400).json({ error: 'Validation error', details: error.errors })
       }
       console.error('Document indexing error:', error)
@@ -481,7 +481,7 @@ router.post(
         estimatedCost: totalCost.toFixed(4),
       })
     } catch (error: any) {
-      if (error.name === 'ZodError') {
+      if (error.name === `ZodError`) {
         return res.status(400).json({ error: 'Validation error', details: error.errors })
       }
       console.error('Batch indexing error:', error)

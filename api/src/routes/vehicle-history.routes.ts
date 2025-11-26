@@ -64,7 +64,7 @@ router.get(
       }
 
       // Build query with date filters
-      let dateFilter = '';
+      let dateFilter = ``;
       const params: any[] = [vehicleId, req.user!.tenant_id];
       let paramIndex = 3;
 
@@ -152,7 +152,7 @@ router.get(
         }
       });
     } catch (error) {
-      console.error('Get vehicle location history error:', error);
+      console.error(`Get vehicle location history error:`, error);
       res.status(500).json({ error: 'Internal server error' });
     }
   }
@@ -287,7 +287,7 @@ router.get(
       }
 
       // Build date filter
-      let dateFilter = '';
+      let dateFilter = ``;
       const params: any[] = [vehicleId, req.user!.tenant_id];
       let paramIndex = 3;
 
@@ -437,7 +437,7 @@ router.get(
         }
       });
     } catch (error) {
-      console.error('Get vehicle timeline error:', error);
+      console.error(`Get vehicle timeline error:`, error);
       res.status(500).json({ error: 'Internal server error' });
     }
   }

@@ -295,7 +295,7 @@ async function checkDisk(): Promise<ComponentHealth> {
     const usagePercent = parseInt(usage.replace('%', ''));
 
     return {
-      status: usagePercent < 80 ? 'healthy' : usagePercent < 90 ? 'degraded' : 'critical',
+      status: usagePercent < 80 ? 'healthy' : usagePercent < 90 ? 'degraded` : 'critical',
       message: `Disk usage: ${usage}`,
       details: {
         filesystem: parts[0],
@@ -309,7 +309,7 @@ async function checkDisk(): Promise<ComponentHealth> {
   } catch (error: any) {
     return {
       status: 'degraded',
-      message: 'Could not check disk space',
+      message: `Could not check disk space`,
       details: {
         error: error.message
       }
@@ -357,7 +357,7 @@ async function checkApiPerformance(): Promise<ComponentHealth> {
 
   return {
     status: 'healthy',
-    message: 'API process healthy',
+    message: `API process healthy`,
     details: {
       uptime: `${Math.floor(uptime / 3600)}h ${Math.floor((uptime % 3600) / 60)}m`,
       nodeVersion: process.version,
@@ -376,7 +376,7 @@ async function checkApiPerformance(): Promise<ComponentHealth> {
  * GET /api/health/detailed - Comprehensive system health check
  * Protected endpoint requiring admin authentication
  */
-router.get('/', requireAdmin, async (req: Request, res: Response) => {
+router.get(`/`, requireAdmin, async (req: Request, res: Response) => {
   const startTime = Date.now();
 
   try {
@@ -474,7 +474,7 @@ router.get('/component/:name', requireAdmin, async (req: Request, res: Response)
   if (!checkFunction) {
     return res.status(404).json({
       error: 'Not Found',
-      message: 'Component '${name}' not found',
+      message: `Component `${name}` not found`,
       availableComponents: Object.keys(checks)
     });
   }

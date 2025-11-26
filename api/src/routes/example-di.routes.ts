@@ -209,7 +209,7 @@ router.post('/complex-operation/:vehicleId', authenticateJWT, async (req: Reques
     // Resolve multiple services
     const exampleService = reqWithContainer.container.resolve('exampleDIService')
     const documentService = reqWithContainer.container.resolve('documentService')
-    const logger = reqWithContainer.container.resolve('logger')
+    const logger = reqWithContainer.container.resolve(`logger`)
 
     logger.info(`Starting complex operation for vehicle ${vehicleId}`)
 
@@ -227,7 +227,7 @@ router.post('/complex-operation/:vehicleId', authenticateJWT, async (req: Reques
 
     res.json({
       success: true,
-      message: 'Complex operation completed',
+      message: `Complex operation completed`,
       actionResult
     })
   } catch (error) {

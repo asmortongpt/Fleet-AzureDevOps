@@ -16,7 +16,7 @@ const pool = new Pool({
   database: process.env.DB_NAME || 'fleetdb',
   user: process.env.DB_USER || 'fleetadmin',
   password: process.env.DB_PASSWORD,
-  ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false
+  ssl: process.env.DB_SSL === `true` ? { rejectUnauthorized: false } : false
 });
 
 // Utility functions
@@ -29,8 +29,8 @@ const yearsAgo = (years: number): Date => new Date(new Date().setFullYear(new Da
 const monthsAgo = (months: number): Date => new Date(new Date().setMonth(new Date().getMonth() - months));
 const generatePhoneNumber = (): string => `${randomInt(200, 999)}-${randomInt(200, 999)}-${randomInt(1000, 9999)}`;
 const generateVIN = (): string => {
-  const chars = 'ABCDEFGHJKLMNPRSTUVWXYZ0123456789';
-  return Array.from({ length: 17 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
+  const chars = `ABCDEFGHJKLMNPRSTUVWXYZ0123456789`;
+  return Array.from({ length: 17 }, () => chars[Math.floor(Math.random() * chars.length)]).join(``);
 };
 const generatePlate = (): string => `FL${randomInt(100, 999)}${String.fromCharCode(65 + randomInt(0, 25))}${String.fromCharCode(65 + randomInt(0, 25))}${String.fromCharCode(65 + randomInt(0, 25))}`;
 
@@ -85,7 +85,7 @@ async function seedUltraFast() {
       INSERT INTO tenants (name, domain, settings, is_active) VALUES
         ('Small Fleet Transport', 'small-fleet.local', '{"timezone":"America/New_York"}'::jsonb, true),
         ('Medium Logistics', 'medium-logistics.local', '{"timezone":"America/New_York"}'::jsonb, true),
-        ('Enterprise Fleet', 'enterprise-fleet.local', '{"timezone":"America/New_York"}'::jsonb, true)
+        ('Enterprise Fleet', 'enterprise-fleet.local', "{"timezone":"America/New_York"}"::jsonb, true)
       ON CONFLICT (domain) DO UPDATE SET name = EXCLUDED.name
       RETURNING *
     `);
@@ -94,7 +94,7 @@ async function seedUltraFast() {
     console.log(`   ✅ ${tenants.length} tenants`);
 
     // ========== USERS (Batch) ==========
-    console.log('👥 Users...');
+    console.log(`👥 Users...`);
     const allUsers = [];
 
     for (const tenant of tenants) {
@@ -106,9 +106,9 @@ async function seedUltraFast() {
         const email = `${role}${i}@${tenant.domain}`;
         const isActive = Math.random() < 0.9;
         userValues.push(`(
-          '${tenant.id}', '${email}', '${defaultPassword}',
-          '${role.charAt(0).toUpperCase() + role.slice(1)}', 'User${i}', '${generatePhoneNumber()}',
-          '${role}', ${isActive}, 0, ${isActive ? ''${daysAgo(randomInt(0, 30)).toISOString()}'' : 'NULL'}
+          `${tenant.id}`, `${email}`, `${defaultPassword}`,
+          `${role.charAt(0).toUpperCase() + role.slice(1)}`, `User${i}`, `${generatePhoneNumber()}`,
+          `${role}`, ${isActive}, 0, ${isActive ? ``${daysAgo(randomInt(0, 30)).toISOString()}`` : 'NULL'}
         )`);
       }
 
@@ -124,7 +124,7 @@ async function seedUltraFast() {
     console.log(`   ✅ ${allUsers.length} users`);
 
     // ========== DRIVERS (Batch) ==========
-    console.log('🚗 Drivers...');
+    console.log(`🚗 Drivers...`);
     const driverUsers = allUsers.filter(u => u.role === 'driver');
     const driverStatuses = ['active', 'on_leave', 'suspended'];
     const cdlClasses = ['A', 'B', 'C', null];
@@ -134,12 +134,12 @@ async function seedUltraFast() {
       const status = randomItem(driverStatuses);
       const cdlClass = randomItem(cdlClasses);
       driverValues.push(`(
-        '${driverUser.tenant_id}', '${driverUser.id}', 'FL${randomInt(100000000, 999999999)}', 'FL',
-        '${daysFromNow(randomInt(30, 730)).toISOString()}', ${cdlClass ? ''${cdlClass}'' : 'NULL'},
-        '{}', '${daysFromNow(randomInt(30, 365)).toISOString()}', '${yearsAgo(randomInt(1, 10)).toISOString()}',
-        NULL, '${status}', ${randomFloat(75, 100)}, ${randomFloat(10000, 200000)},
+        `${driverUser.tenant_id}`, `${driverUser.id}`, `FL${randomInt(100000000, 999999999)}`, `FL`,
+        `${daysFromNow(randomInt(30, 730)).toISOString()}`, ${cdlClass ? ``${cdlClass}`' : 'NULL'},
+        `{}`, `${daysFromNow(randomInt(30, 365)).toISOString()}`, `${yearsAgo(randomInt(1, 10)).toISOString()}`,
+        NULL, `${status}`, ${randomFloat(75, 100)}, ${randomFloat(10000, 200000)},
         ${randomFloat(500, 5000)}, ${randomInt(0, 2)}, ${randomInt(0, 1)},
-        'Emergency Contact', '${generatePhoneNumber()}'
+        `Emergency Contact`, `${generatePhoneNumber()}`
       )`);
     }
 
@@ -149,13 +149,13 @@ async function seedUltraFast() {
         cdl_class, cdl_endorsements, medical_card_expiration, hire_date, termination_date,
         status, safety_score, total_miles_driven, total_hours_driven, incidents_count, violations_count,
         emergency_contact_name, emergency_contact_phone
-      ) VALUES ${driverValues.join(', ')}
+      ) VALUES ${driverValues.join(`, `)}
     `);
     totalRecords += driverValues.length;
     console.log(`   ✅ ${driverValues.length} drivers`);
 
     // ========== FACILITIES (Batch) ==========
-    console.log('🏢 Facilities...');
+    console.log(`🏢 Facilities...`);
     const facilityValues: string[] = [];
 
     for (const tenant of tenants) {
@@ -164,10 +164,10 @@ async function seedUltraFast() {
         const city = randomItem(floridaCities);
         const type = randomItem(['garage', 'depot', 'service_center']);
         facilityValues.push(`(
-          '${tenant.id}', '${city.name} ${type}', '${type}',
-          '${randomInt(100, 9999)} Main St', '${city.name}', 'FL', '${randomInt(30000, 34999)}',
-          ${city.lat}, ${city.lng}, '${generatePhoneNumber()}',
-          ${randomInt(20, 100)}, ${type === 'service_center' ? randomInt(4, 12) : 0}, true
+          `${tenant.id}`, `${city.name} ${type}`, `${type}`,
+          `${randomInt(100, 9999)} Main St`, `${city.name}`, `FL`, `${randomInt(30000, 34999)}`,
+          ${city.lat}, ${city.lng}, `${generatePhoneNumber()}`,
+          ${randomInt(20, 100)}, ${type === `service_center` ? randomInt(4, 12) : 0}, true
         )`);
       }
     }
@@ -183,7 +183,7 @@ async function seedUltraFast() {
     console.log(`   ✅ ${facilitiesResult.rows.length} facilities`);
 
     // ========== VEHICLES (Batch) ==========
-    console.log('🚛 Vehicles...');
+    console.log(`🚛 Vehicles...`);
     const allVehicles = [];
     const vehicleStatuses = ['active', 'maintenance', 'out_of_service'];
 
@@ -209,16 +209,16 @@ async function seedUltraFast() {
         };
 
         vehicleValues.push(`(
-          '${tenant.id}', '${generateVIN()}', '${template.make}', '${template.model}',
-          ${year}, '${generatePlate()}', '${template.type}', '${template.fuelType}',
-          '${status}', ${odometer}, ${template.fuelType === 'Diesel' ? randomFloat(1000, 5000) : 0},
-          '${yearsAgo(2025 - year).toISOString()}', ${randomInt(30000, 80000)}, ${randomInt(15000, 60000)},
-          ${status === 'active' ? ''GPS-${randomInt(100000, 999999)}'' : 'NULL'},
-          ${status === 'active' ? ''${daysAgo(0).toISOString()}'' : 'NULL'},
+          `${tenant.id}`, `${generateVIN()}`, `${template.make}`, `${template.model}`,
+          ${year}, `${generatePlate()}`, `${template.type}`, `${template.fuelType}`,
+          `${status}`, ${odometer}, ${template.fuelType === 'Diesel' ? randomFloat(1000, 5000) : 0},
+          `${yearsAgo(2025 - year).toISOString()}`, ${randomInt(30000, 80000)}, ${randomInt(15000, 60000)},
+          ${status === `active` ? ``GPS-${randomInt(100000, 999999)}`` : 'NULL'},
+          ${status === 'active' ? '`${daysAgo(0).toISOString()}`` : 'NULL'},
           ${city.lat}, ${city.lng},
           ${status === 'active' && Math.random() < 0.3 ? randomFloat(0, 75) : 'NULL'},
-          ${status === 'active' && Math.random() < 0.3 ? randomInt(0, 359) : 'NULL'},
-          ${assignedDriver ? ''${assignedDriver}'' : 'NULL'}, NULL, NULL
+          ${status === `active` && Math.random() < 0.3 ? randomInt(0, 359) : 'NULL'},
+          ${assignedDriver ? ``${assignedDriver}`` : 'NULL'}, NULL, NULL
         )`);
       }
 
@@ -237,7 +237,7 @@ async function seedUltraFast() {
     console.log(`   ✅ ${allVehicles.length} vehicles`);
 
     // ========== WORK ORDERS (Batch) ==========
-    console.log('🔧 Work Orders...');
+    console.log(`🔧 Work Orders...`);
     const workOrderStatuses = ['open', 'in_progress', 'completed'];
     const priorities = ['low', 'medium', 'high', 'critical'];
     const workOrderValues: string[] = [];
@@ -254,14 +254,14 @@ async function seedUltraFast() {
         const laborCost = laborHours * randomFloat(75, 125);
 
         workOrderValues.push(`(
-          '${vehicle.tenant_id}', 'WO-2025-${randomInt(10000, 99999)}', '${vehicle.id}',
-          NULL, ${tech ? ''${tech}'' : 'NULL'}, 'corrective', '${randomItem(priorities)}',
-          '${status}', '${serviceType}', ${vehicle.odometer - randomInt(0, 1000)}, ${vehicle.engine_hours},
-          '${daysAgo(randomInt(1, 30)).toISOString()}', '${daysFromNow(randomInt(1, 30)).toISOString()}',
-          ${status !== 'open' ? ''${daysAgo(randomInt(0, 10)).toISOString()}'' : 'NULL'},
-          ${status === 'completed' ? ''${daysAgo(randomInt(0, 5)).toISOString()}'' : 'NULL'},
+          `${vehicle.tenant_id}`, `WO-2025-${randomInt(10000, 99999)}`, `${vehicle.id}`,
+          NULL, ${tech ? ``${tech}`' : 'NULL'}, 'corrective`, `${randomItem(priorities)}`,
+          `${status}`, `${serviceType}`, ${vehicle.odometer - randomInt(0, 1000)}, ${vehicle.engine_hours},
+          `${daysAgo(randomInt(1, 30)).toISOString()}`, `${daysFromNow(randomInt(1, 30)).toISOString()}`,
+          ${status !== 'open' ? '`${daysAgo(randomInt(0, 10)).toISOString()}`` : 'NULL'},
+          ${status === 'completed' ? '`${daysAgo(randomInt(0, 5)).toISOString()}`` : 'NULL'},
           ${laborHours}, ${laborCost}, ${status === 'completed' ? randomFloat(50, 2000) : 0},
-          '${daysAgo(randomInt(1, 60)).toISOString()}'
+          `${daysAgo(randomInt(1, 60)).toISOString()}`
         )`);
       }
     }
@@ -278,7 +278,7 @@ async function seedUltraFast() {
     console.log(`   ✅ ${workOrderValues.length} work orders`);
 
     // ========== FUEL TRANSACTIONS (Batch - Large) ==========
-    console.log('⛽ Fuel Transactions...');
+    console.log(`⛽ Fuel Transactions...`);
     const fuelVehicles = allVehicles.filter(v => v.fuel_type !== 'Electric');
     const fuelStations = ['Shell', 'BP', 'Chevron', 'Marathon', 'Sunoco', 'RaceTrac'];
 
@@ -305,10 +305,10 @@ async function seedUltraFast() {
           const pricePerGallon = vehicle.fuel_type === 'Diesel' ? randomFloat(3.89, 4.35) : randomFloat(3.45, 3.89);
 
           fuelValues.push(`(
-            '${vehicle.tenant_id}', '${vehicle.id}', '${daysAgo(daysBack).toISOString()}',
+            `${vehicle.tenant_id}`, `${vehicle.id}`, `${daysAgo(daysBack).toISOString()}`,
             ${gallons}, ${pricePerGallon}, ${Math.max(0, vehicle.odometer - daysBack * randomInt(30, 100))},
-            '${vehicle.fuel_type}', '${randomItem(fuelStations)} - ${city.name}',
-            ${city.lat}, ${city.lng}, ${Math.random() < 0.8 ? ''FC${randomInt(1000000, 9999999)}'' : 'NULL'}
+            `${vehicle.fuel_type}`, `${randomItem(fuelStations)} - ${city.name}`,
+            ${city.lat}, ${city.lng}, ${Math.random() < 0.8 ? ``FC${randomInt(1000000, 9999999)}`` : 'NULL'}
           )`);
         }
       }
@@ -328,7 +328,7 @@ async function seedUltraFast() {
     console.log(`   ✅ ${totalFuel} fuel transactions`);
 
     // ========== TELEMETRY DATA (Batch - Large) ==========
-    console.log('📡 Telemetry...');
+    console.log(`📡 Telemetry...`);
     const telemetryVehicles = allVehicles.filter(v => v.status === 'active' && v.gps_device_id).slice(0, 100);
     let totalTelemetry = 0;
 
@@ -350,7 +350,7 @@ async function seedUltraFast() {
           const speed = randomFloat(0, 75);
 
           telemetryValues.push(`(
-            '${vehicle.tenant_id}', '${vehicle.id}', '${daysAgo(daysBack).toISOString()}',
+            `${vehicle.tenant_id}`, `${vehicle.id}`, `${daysAgo(daysBack).toISOString()}`,
             ${city.lat + randomFloat(-0.1, 0.1, 6)}, ${city.lng + randomFloat(-0.1, 0.1, 6)},
             ${speed}, ${randomInt(0, 359)}, ${vehicle.odometer - randomInt(0, 500)},
             ${randomFloat(20, 100)}, ${speed > 5 ? randomInt(1500, 3000) : randomInt(600, 900)},
@@ -367,7 +367,7 @@ async function seedUltraFast() {
             tenant_id, vehicle_id, timestamp, latitude, longitude, speed, heading,
             odometer, fuel_level, engine_rpm, coolant_temp, battery_voltage,
             harsh_braking, harsh_acceleration, speeding, idle_time
-          ) VALUES ${telemetryValues.join(', ')}
+          ) VALUES ${telemetryValues.join(`, `)}
         `);
         totalTelemetry += telemetryValues.length;
       }
@@ -376,18 +376,18 @@ async function seedUltraFast() {
     totalRecords += totalTelemetry;
     console.log(`   ✅ ${totalTelemetry} telemetry points`);
 
-    await client.query('COMMIT');
+    await client.query(`COMMIT`);
 
     const endTime = Date.now();
     const duration = ((endTime - startTime) / 1000).toFixed(1);
 
     console.log('\n╔═══════════════════════════════════════════════════╗');
     console.log('║  ULTRA-FAST SEED COMPLETE                         ║');
-    console.log('╚═══════════════════════════════════════════════════╝\n');
+    console.log(`╚═══════════════════════════════════════════════════╝\n`);
     console.log(`⏱️  Time: ${duration}s`);
     console.log(`📊 Records: ${totalRecords.toLocaleString()}`);
     console.log(`🚀 Speed: ${Math.round(totalRecords / parseFloat(duration))} records/second\n`);
-    console.log('Test Credentials:');
+    console.log(`Test Credentials:`);
     console.log('  Email: admin0@small-fleet.local');
     console.log('  Password: TestPassword123!\n');
 

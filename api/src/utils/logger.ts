@@ -51,7 +51,7 @@ winston.addColors(customLevels.colors)
  * Custom format for development (readable)
  */
 const devFormat = winston.format.combine(
-  winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
+  winston.format.timestamp({ format: `YYYY-MM-DD HH:mm:ss` }),
   winston.format.colorize({ all: true }),
   winston.format.errors({ stack: true }),
   winston.format.printf((info) => {
@@ -79,7 +79,7 @@ const prodFormat = winston.format.combine(
  * Create console transport
  */
 const consoleTransport = new winston.transports.Console({
-  format: process.env.NODE_ENV === 'production' ? prodFormat : devFormat
+  format: process.env.NODE_ENV === `production` ? prodFormat : devFormat
 })
 
 /**
@@ -158,7 +158,7 @@ export const securityLogger = {
     tenantId?: string
     reason?: string
   }) {
-    logger.log('security', 'AUTH_${event.toUpperCase()}`, {
+    logger.log('security', `AUTH_${event.toUpperCase()}`, {
       category: 'authentication',
       event,
       ...data,
@@ -178,7 +178,7 @@ export const securityLogger = {
     reason?: string
     ip?: string
   }) {
-    logger.log('security', 'AUTHZ_${granted ? 'GRANTED' : 'DENIED'}', {
+    logger.log('security', `AUTHZ_${granted ? 'GRANTED' : 'DENIED'}`, {
       category: 'authorization',
       granted,
       ...data,
@@ -198,7 +198,7 @@ export const securityLogger = {
     ip?: string
     userAgent?: string
   }) {
-    logger.log('security', 'DATA_${action.toUpperCase()}`, {
+    logger.log(`security`, `DATA_${action.toUpperCase()}`, {
       category: 'data_access',
       action,
       ...data,
@@ -217,7 +217,7 @@ export const securityLogger = {
     details?: any
     severity?: 'low' | 'medium' | 'high' | 'critical'
   }) {
-    logger.log('security', 'INCIDENT_${type.toUpperCase()}`, {
+    logger.log(`security`, `INCIDENT_${type.toUpperCase()}`, {
       category: 'security_incident',
       type,
       severity: data.severity || 'medium',

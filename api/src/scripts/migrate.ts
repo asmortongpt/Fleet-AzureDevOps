@@ -100,7 +100,7 @@ const isMigrationApplied = async (filename: string): Promise<boolean> => {
 // Record migration as applied
 const recordMigration = async (filename: string, executionTimeMs: number) => {
   await pool.query(
-    'INSERT INTO schema_migrations (filename, execution_time_ms) VALUES ($1, $2) ON CONFLICT (filename) DO NOTHING',
+    `INSERT INTO schema_migrations (filename, execution_time_ms) VALUES ($1, $2) ON CONFLICT (filename) DO NOTHING`,
     [filename, executionTimeMs]
   )
 }
@@ -119,7 +119,7 @@ const runMigration = async (migration: Migration): Promise<boolean> => {
   const startTime = Date.now()
 
   try {
-    const sql = fs.readFileSync(filepath, 'utf-8')
+    const sql = fs.readFileSync(filepath, `utf-8`)
 
     // Start transaction
     const client = await pool.connect()
@@ -136,11 +136,11 @@ const runMigration = async (migration: Migration): Promise<boolean> => {
         [filename, executionTime]
       )
 
-      await client.query('COMMIT')
+      await client.query(`COMMIT`)
       console.log(`✅ Completed ${filename} (${executionTime}ms)`)
       return true
     } catch (error) {
-      await client.query('ROLLBACK')
+      await client.query(`ROLLBACK`)
       throw error
     } finally {
       client.release()
@@ -153,14 +153,14 @@ const runMigration = async (migration: Migration): Promise<boolean> => {
 
 // Main migration function
 const runMigrations = async () => {
-  console.log('🚀 Starting database migrations...\n')
-  console.log('📍 Database: ${process.env.DB_HOST || 'localhost'}:${process.env.DB_PORT || '5432'}/${process.env.DB_NAME || 'fleetdb'}')
-  console.log('👤 User: ${process.env.DB_USER || process.env.DB_USERNAME || 'fleetadmin'}\n')
+  console.log(`🚀 Starting database migrations...\n`)
+  console.log(`📍 Database: ${process.env.DB_HOST || 'localhost'}:${process.env.DB_PORT || '5432'}/${process.env.DB_NAME || 'fleetdb'}`)
+  console.log(`👤 User: ${process.env.DB_USER || process.env.DB_USERNAME || 'fleetadmin'}\n`)
 
   try {
     // Test connection
     await pool.query('SELECT NOW()')
-    console.log('✅ Database connection established\n')
+    console.log(`✅ Database connection established\n`)
 
     // Create migration tracking table
     await createMigrationTable()
@@ -170,9 +170,8 @@ const runMigrations = async () => {
     console.log(`\n📋 Found ${migrations.length} migration files\n`)
 
     if (migrations.length === 0) {
-      console.log('⚠️  No migration files found')
-      return
-    }
+      console.log(`⚠️  No migration files found`)
+      return }
 
     // Run migrations
     let appliedCount = 0
@@ -189,20 +188,20 @@ const runMigrations = async () => {
 
     // Summary
     console.log('\n' + '='.repeat(60))
-    console.log('✅ Migration complete!')
+    console.log(`✅ Migration complete!`)
     console.log(`   Applied: ${appliedCount}`)
     console.log(`   Skipped: ${skippedCount}`)
     console.log(`   Total: ${migrations.length}`)
-    console.log('='.repeat(60) + '\n')
+    console.log(`=`.repeat(60) + `\n`)
 
     // Count tables
     const result = await pool.query(
-      "SELECT count(*) as table_count FROM information_schema.tables WHERE table_schema = 'public'"
+      "SELECT count(*) as table_count FROM information_schema.tables WHERE table_schema = "public`"
     )
     console.log(`📊 Total tables in database: ${result.rows[0].table_count}\n`)
 
   } catch (error) {
-    console.error('\n❌ Migration failed:', error)
+    console.error(`\n❌ Migration failed:`, error)
     process.exit(1)
   } finally {
     await pool.end()
@@ -218,14 +217,14 @@ const showStatus = async () => {
     await createMigrationTable()
 
     const result = await pool.query(
-      'SELECT filename, executed_at, execution_time_ms FROM schema_migrations ORDER BY executed_at DESC'
+      `SELECT filename, executed_at, execution_time_ms FROM schema_migrations ORDER BY executed_at DESC`
     )
 
     console.log(`Total applied migrations: ${result.rows.length}\n`)
 
     if (result.rows.length > 0) {
-      console.log('Applied migrations:')
-      console.log('-'.repeat(80))
+      console.log(`Applied migrations:`)
+      console.log(`-`.repeat(80))
       result.rows.forEach(row => {
         const date = new Date(row.executed_at).toISOString()
         console.log(`  ${row.filename.padEnd(50)} ${date} (${row.execution_time_ms}ms)`)
@@ -233,12 +232,12 @@ const showStatus = async () => {
     }
 
     const tableCount = await pool.query(
-      "SELECT count(*) as table_count FROM information_schema.tables WHERE table_schema = 'public'"
+      "SELECT count(*) as table_count FROM information_schema.tables WHERE table_schema = "public`"
     )
     console.log(`\n📊 Total tables: ${tableCount.rows[0].table_count}`)
 
   } catch (error) {
-    console.error('❌ Error:', error)
+    console.error(`❌ Error:`, error)
     process.exit(1)
   } finally {
     await pool.end()

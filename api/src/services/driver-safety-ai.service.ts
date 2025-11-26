@@ -195,7 +195,7 @@ class DriverSafetyAIService {
         confidenceScore
       };
     } catch (error: any) {
-      logger.error('AI analysis failed:', error.message);
+      logger.error(`AI analysis failed:`, error.message);
       throw error;
     }
   }
@@ -214,7 +214,7 @@ class DriverSafetyAIService {
         { url: imageUrl },
         {
           params: {
-            returnFaceAttributes: 'headPose,facialHair,glasses,emotion',
+            returnFaceAttributes: `headPose,facialHair,glasses,emotion`,
             detectionModel: 'detection_03',
             recognitionModel: 'recognition_04'
           },
@@ -258,7 +258,7 @@ class DriverSafetyAIService {
         distractionScore
       };
     } catch (error: any) {
-      logger.error('Face analysis failed:', error.message);
+      logger.error(`Face analysis failed:`, error.message);
       return null;
     }
   }
@@ -297,7 +297,7 @@ class DriverSafetyAIService {
         `SELECT vse.*, vc.camera_type
          FROM video_safety_events vse
          LEFT JOIN vehicle_cameras vc ON vse.camera_id = vc.id
-         WHERE vse.id = $1',
+         WHERE vse.id = $1`,
         [eventId]
       );
 
@@ -350,13 +350,13 @@ class DriverSafetyAIService {
         await this.db.query(
           `UPDATE video_safety_events
            SET coaching_required = true
-           WHERE id = $1',
+           WHERE id = $1`,
           [eventId]
         );
       }
 
       // Check if event should be escalated based on AI findings
-      const criticalBehaviors = analysis.detectedBehaviors.filter(b => b.severity === 'critical');
+      const criticalBehaviors = analysis.detectedBehaviors.filter(b => b.severity === `critical`);
       if (criticalBehaviors.length > 0) {
         await this.escalateEvent(eventId, criticalBehaviors);
       }
@@ -367,7 +367,7 @@ class DriverSafetyAIService {
 
       await this.db.query(
         `UPDATE video_safety_events
-         SET ai_processing_status = 'failed',
+         SET ai_processing_status = `failed`,
              updated_at = NOW()
          WHERE id = $1',
         [eventId]
@@ -388,11 +388,11 @@ class DriverSafetyAIService {
          SET severity = 'critical',
              coaching_required = true,
              marked_as_evidence = true
-         WHERE id = $1',
+         WHERE id = $1`,
         [eventId]
       );
 
-      logger.warn('Event ${eventId} escalated to critical due to: ${criticalBehaviors.map(b => b.behavior).join(', ')}');
+      logger.warn(`Event ${eventId} escalated to critical due to: ${criticalBehaviors.map(b => b.behavior).join(`, `)}`);
 
       // Could send notifications here (email, SMS, etc.)
     } catch (error: any) {
@@ -410,7 +410,7 @@ class DriverSafetyAIService {
        WHERE ai_processing_status = 'pending'
          AND (video_thumbnail_url IS NOT NULL OR video_url IS NOT NULL)
        ORDER BY event_timestamp DESC
-       LIMIT $1',
+       LIMIT $1`,
       [limit]
     );
 
@@ -442,7 +442,7 @@ class DriverSafetyAIService {
          total_detections,
          enabled
        FROM ai_detection_models
-       WHERE model_name = $1',
+       WHERE model_name = $1`,
       [modelName]
     );
 
@@ -481,7 +481,7 @@ class DriverSafetyAIService {
 
     await this.db.query(
       `UPDATE ai_detection_models
-       SET ${updates.join(', ')}, updated_at = NOW()
+       SET ${updates.join(`, `)}, updated_at = NOW()
        WHERE model_name = $${paramIndex}`,
       params
     );
@@ -498,7 +498,7 @@ class DriverSafetyAIService {
            reviewed_by = $1,
            reviewed_at = NOW(),
            review_notes = $2
-       WHERE id = $3',
+       WHERE id = $3`,
       [userId, reason || 'Marked as false positive', eventId]
     );
 
@@ -506,7 +506,7 @@ class DriverSafetyAIService {
     const eventResult = await this.db.query(
       `SELECT ai_detected_behaviors
        FROM video_safety_events
-       WHERE id = $1',
+       WHERE id = $1`,
       [eventId]
     );
 
@@ -524,7 +524,7 @@ class DriverSafetyAIService {
     const result = await this.db.query(
       `SELECT
          COUNT(*) as total_events,
-         SUM(CASE WHEN severity = 'critical' THEN 1 ELSE 0 END) as critical_count,
+         SUM(CASE WHEN severity = `critical` THEN 1 ELSE 0 END) as critical_count,
          SUM(CASE WHEN severity = 'severe' THEN 1 ELSE 0 END) as severe_count,
          SUM(CASE WHEN false_positive THEN 1 ELSE 0 END) as false_positive_count,
          AVG(confidence_score) as avg_confidence,

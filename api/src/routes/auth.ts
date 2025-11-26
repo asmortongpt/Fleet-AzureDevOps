@@ -202,12 +202,12 @@ router.post('/login', loginLimiter, async (req: Request, res: Response) => {
         { email, attempts: newAttempts },
         req.ip || null,
         req.get('User-Agent') || null,
-        'failure',
+        `failure`,
         `Invalid password (attempt ${newAttempts}/3)`
       )
 
       return res.status(401).json({
-        error: 'Invalid credentials',
+        error: `Invalid credentials`,
         attempts_remaining: Math.max(0, 3 - newAttempts)
       })
     }
