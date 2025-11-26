@@ -6,6 +6,9 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
 import logger from '@/utils/logger'
 
+// CRITICAL: Preserve native Map before Leaflet pollutes global namespace
+const NativeMap = globalThis.Map;
+
 export interface WebSocketMessage {
   type: string
   [key: string]: any
@@ -36,7 +39,7 @@ export function useWebSocket(options: UseWebSocketOptions = {}) {
   const [lastMessage, setLastMessage] = useState<WebSocketMessage | null>(null)
   const wsRef = useRef<WebSocket | null>(null)
   const reconnectCountRef = useRef(0)
-  const listenersRef = useRef<Map<string, Set<(data: any) => void>>>(new Map())
+  const listenersRef = useRef<NativeMap<string, Set<(data: any) => void>>>(new NativeMap())
 
   const connect = useCallback(() => {
     if (wsRef.current?.readyState === WebSocket.OPEN) {
