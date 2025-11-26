@@ -28,6 +28,57 @@ function injectRuntimeConfig(): PluginOption {
   };
 }
 
+/**
+ * Fix module preload order to ensure React loads before libraries that depend on it
+ * CRITICAL FIX: Prevents "Cannot read properties of undefined (reading 'useLayoutEffect')" error
+ *
+ * The issue: @floating-ui/react uses React hooks at module initialization time, but Vite's
+ * default preload order loads vendor chunks before react-vendor, causing undefined errors.
+ *
+ * This plugin reorders modulepreload links to ensure correct dependency order:
+ * 1. react-vendor (React core)
+ * 2. react-utils (libraries that use React at module level like @floating-ui)
+ * 3. vendor (other third-party libraries)
+ */
+function fixModulePreloadOrder(): PluginOption {
+  return {
+    name: 'fix-module-preload-order',
+    enforce: 'post',
+    transformIndexHtml(html) {
+      // Extract all modulepreload link tags
+      const preloadRegex = /<link rel="modulepreload"[^>]*>/g;
+      const preloads = html.match(preloadRegex) || [];
+
+      // Separate React-dependent chunks that MUST load after React
+      const reactVendorPreloads = preloads.filter(link => link.includes('react-vendor'));
+      const reactUtilsPreloads = preloads.filter(link => link.includes('react-utils'));
+      const vendorPreloads = preloads.filter(link => link.includes('vendor') && !link.includes('react-vendor'));
+      const otherPreloads = preloads.filter(link =>
+        !link.includes('vendor') && !link.includes('react-utils')
+      );
+
+      // Remove all modulepreload links from HTML
+      let newHtml = html.replace(preloadRegex, '');
+
+      // Re-insert in correct order: react-vendor -> react-utils -> vendor -> others
+      const orderedPreloads = [
+        ...reactVendorPreloads,  // React MUST load first
+        ...reactUtilsPreloads,   // Then React-dependent utilities like @floating-ui
+        ...vendorPreloads,       // Then general vendor code
+        ...otherPreloads         // Then everything else
+      ].join('\n  ');
+
+      // Insert ordered preloads after the main script tag
+      newHtml = newHtml.replace(
+        /(<script type="module"[^>]*><\/script>)/,
+        `$1\n  ${orderedPreloads}`
+      );
+
+      return newHtml;
+    },
+  };
+}
+
 // https://vite.dev/config/
 export default defineConfig({
   // CRITICAL: Base path MUST be '/' for Kubernetes/production deployment
@@ -52,6 +103,7 @@ export default defineConfig({
       ]
     }),
     injectRuntimeConfig(), // CRITICAL: Injects runtime-config.js script tag
+    fixModulePreloadOrder(), // CRITICAL FIX: Reorder modulepreload tags to ensure React loads first
     // Bundle analyzer - generates stats.html after build
     visualizer({
       filename: './dist/stats.html',
@@ -198,7 +250,7 @@ export default defineConfig({
           }
 
           // React utility libraries (MUST load after React)
-          // These libraries use React.createContext at module level
+          // These libraries use React.createContext or useLayoutEffect at module level
           if (id.includes('node_modules/react-error-boundary') ||
               id.includes('node_modules/react-hot-toast') ||
               id.includes('node_modules/sonner') ||
@@ -213,7 +265,8 @@ export default defineConfig({
               id.includes('node_modules/vaul') ||
               id.includes('node_modules/class-variance-authority') ||
               id.includes('node_modules/clsx') ||
-              id.includes('node_modules/tailwind-merge')) {
+              id.includes('node_modules/tailwind-merge') ||
+              id.includes('node_modules/@floating-ui')) {
             return 'react-utils';
           }
 
