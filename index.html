@@ -46,6 +46,22 @@
     <script>
         // Register service worker for PWA support
         if ('serviceWorker' in navigator) {
+            // Track if we've already reloaded to prevent infinite loops
+            const SW_RELOAD_KEY = 'sw-reload-timestamp';
+            const RELOAD_COOLDOWN = 10000; // 10 seconds cooldown between reloads
+
+            function canReload() {
+                const lastReload = localStorage.getItem(SW_RELOAD_KEY);
+                if (!lastReload) return true;
+
+                const timeSinceReload = Date.now() - parseInt(lastReload, 10);
+                return timeSinceReload > RELOAD_COOLDOWN;
+            }
+
+            function markReloaded() {
+                localStorage.setItem(SW_RELOAD_KEY, Date.now().toString());
+            }
+
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('/sw.js')
                     .then((registration) => {
@@ -59,31 +75,26 @@
                             newWorker.addEventListener('statechange', () => {
                                 if (newWorker.state === 'activated') {
                                     console.log('ServiceWorker updated and activated!');
-                                    // New service worker activated - reload to get fresh content
-                                    if (!navigator.serviceWorker.controller) {
+                                    // Only reload if:
+                                    // 1. There's an existing controller (not first install)
+                                    // 2. We haven't reloaded recently (prevent loops)
+                                    if (navigator.serviceWorker.controller && canReload()) {
+                                        console.log('ServiceWorker updated - reloading page...');
+                                        markReloaded();
+                                        window.location.reload();
+                                    } else if (!navigator.serviceWorker.controller) {
                                         console.log('ServiceWorker controlling for first time - no reload needed');
                                     } else {
-                                        console.log('ServiceWorker updated - reloading page...');
-                                        window.location.reload();
+                                        console.log('ServiceWorker update detected but skipping reload (cooldown active)');
                                     }
                                 }
                             });
                         });
 
-                        // Check for updates periodically
+                        // Check for updates periodically (less aggressive)
                         setInterval(() => {
                             registration.update();
-                        }, 60000); // Check every minute
-
-                        // Manual update check every 10 seconds for first 2 minutes (critical for deployments)
-                        let quickCheckCount = 0;
-                        const quickCheckInterval = setInterval(() => {
-                            registration.update();
-                            quickCheckCount++;
-                            if (quickCheckCount >= 12) {
-                                clearInterval(quickCheckInterval);
-                            }
-                        }, 10000);
+                        }, 300000); // Check every 5 minutes (not every minute)
                     })
                     .catch((error) => {
                         console.log('ServiceWorker registration failed:', error);
@@ -95,18 +106,24 @@
 
                     if (event.data && event.data.type === 'SW_UPDATED') {
                         console.log('ServiceWorker reports update:', event.data.message);
-                        // Force reload to get fresh content
-                        setTimeout(() => {
+                        // Only reload if we haven't reloaded recently
+                        if (canReload()) {
                             console.log('Reloading page to apply ServiceWorker update...');
-                            window.location.reload();
-                        }, 1000);
+                            markReloaded();
+                            setTimeout(() => {
+                                window.location.reload();
+                            }, 1000);
+                        } else {
+                            console.log('ServiceWorker update detected but skipping reload (cooldown active)');
+                        }
                     }
                 });
 
                 // If there's a waiting service worker, activate it immediately
+                // BUT don't reload if we just reloaded
                 if (navigator.serviceWorker.controller) {
                     navigator.serviceWorker.getRegistration().then((registration) => {
-                        if (registration && registration.waiting) {
+                        if (registration && registration.waiting && canReload()) {
                             console.log('Waiting ServiceWorker found - activating...');
                             registration.waiting.postMessage({ type: 'SKIP_WAITING' });
                         }
