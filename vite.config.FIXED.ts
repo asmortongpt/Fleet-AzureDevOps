@@ -143,7 +143,7 @@ export default defineConfig({
     dedupe: ['react', 'react-dom', 'scheduler']
   },
   server: {
-    port: 5174,  // Changed port to force browser cache bypass
+    port: 5173,
     strictPort: false,
     host: true,
     proxy: {
