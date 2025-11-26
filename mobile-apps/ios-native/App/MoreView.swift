@@ -450,6 +450,21 @@ struct MoreView: View {
 
                 // Communication Section
                 Section(header: Text("Communication")) {
+                    NavigationLink(destination: PushToTalkView()) {
+                        HStack {
+                            Image(systemName: "mic.fill")
+                                .foregroundColor(.red)
+                                .frame(width: 30)
+                            VStack(alignment: .leading) {
+                                Text("Push-to-Talk")
+                                    .font(.body)
+                                Text("Radio communication with your fleet")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                    }
+
                     NavigationLink(destination: Text("Communication Center - Available on web platform")) {
                         HStack {
                             Image(systemName: "bubble.left.and.bubble.right.fill")
