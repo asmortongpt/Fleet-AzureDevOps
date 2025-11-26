@@ -1,5 +1,23 @@
 FROM nginx:alpine
-COPY dist /usr/share/nginx/html
-COPY nginx.conf /etc/nginx/nginx.conf
-EXPOSE 80
+
+# Copy pre-built dist folder
+COPY dist/ /usr/share/nginx/html/
+
+# Copy production nginx configuration
+COPY nginx.prod.conf /etc/nginx/nginx.conf
+
+# Ensure runtime config exists
+RUN echo 'window.RUNTIME_CONFIG = {};' > /usr/share/nginx/html/runtime-config.js
+
+# Create necessary temp directories for nginx
+RUN mkdir -p /tmp/client_body_temp /tmp/proxy_temp /tmp/fastcgi_temp /tmp/uwsgi_temp /tmp/scgi_temp && \
+    chown -R nginx:nginx /tmp/client_body_temp /tmp/proxy_temp /tmp/fastcgi_temp /tmp/uwsgi_temp /tmp/scgi_temp && \
+    chown -R nginx:nginx /usr/share/nginx/html && \
+    chown -R nginx:nginx /var/log/nginx
+
+# Run as non-root user
+USER nginx
+
+EXPOSE 3000
+
 CMD ["nginx", "-g", "daemon off;"]
