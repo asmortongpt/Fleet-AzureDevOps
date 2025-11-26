@@ -272,14 +272,14 @@ describe('Redirect Validator - Security Tests', () => {
   describe('Integration with OAuth flows', () => {
     test('Microsoft OAuth callback - safe redirect', () => {
       const frontendUrl = 'https://fleet.capitaltechalliance.com'
-      const callbackPath = '/auth/callback'
+      const callbackPath = `/auth/callback`
       const fullUrl = `${frontendUrl}${callbackPath}`
 
       expect(validateRedirectUrl(fullUrl)).toBe(true)
       expect(buildSafeRedirectUrl(fullUrl)).toBe(fullUrl)
     })
 
-    test('Smartcar OAuth callback - validates vehicle_id', () => {
+    test(`Smartcar OAuth callback - validates vehicle_id`, () => {
       const vehicleId = 123
       const validPath = `/vehicles/${vehicleId}`
 

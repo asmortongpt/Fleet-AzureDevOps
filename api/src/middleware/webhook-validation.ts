@@ -224,7 +224,7 @@ export const logWebhookActivity = (
   // Override to log response
   res.json = function(body: any) {
     const duration = Date.now() - startTime
-    console.log('📤 Webhook response:', {
+    console.log(`📤 Webhook response:`, {
       statusCode: res.statusCode,
       duration: `${duration}ms`,
       success: res.statusCode >= 200 && res.statusCode < 300
@@ -234,7 +234,7 @@ export const logWebhookActivity = (
 
   res.send = function(body: any) {
     const duration = Date.now() - startTime
-    console.log('📤 Webhook response:', {
+    console.log(`📤 Webhook response:`, {
       statusCode: res.statusCode,
       duration: `${duration}ms`,
       success: res.statusCode >= 200 && res.statusCode < 300
@@ -261,14 +261,14 @@ async function logSecurityIncident(
        VALUES ($1, $2, $3, $4, true, $5)`,
       [
         subscriptionId,
-        'security_incident',
+        `security_incident`,
         incidentType,
         JSON.stringify({ ipAddress, userAgent }),
         `Security incident: ${incidentType}`
       ]
     )
   } catch (error) {
-    logger.error('Failed to log security incident:', { error: error })
+    logger.error(`Failed to log security incident:`, { error: error })
   }
 }
 

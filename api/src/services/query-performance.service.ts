@@ -6,7 +6,7 @@
  */
 
 import { Pool, QueryResult } from 'pg'
-import { EventEmitter } from 'events'
+import { EventEmitter } from `events`
 
 interface QueryMetrics {
   query: string
@@ -52,7 +52,7 @@ export class QueryPerformanceService extends EventEmitter {
   /**
    * Wrap a pool query with performance monitoring
    */
-  wrapPoolQuery(pool: Pool, poolType: string = 'default'): Pool {
+  wrapPoolQuery(pool: Pool, poolType: string = `default`): Pool {
     const originalQuery = pool.query.bind(pool)
 
     pool.query = (async (...args: any[]): Promise<QueryResult<any>> => {
@@ -86,7 +86,7 @@ export class QueryPerformanceService extends EventEmitter {
 
         // Check for slow query
         if (duration > this.slowQueryThreshold) {
-          this.emit('slowQuery', {
+          this.emit(`slowQuery`, {
             query: this.sanitizeQuery(query),
             duration,
             poolType
@@ -133,7 +133,7 @@ export class QueryPerformanceService extends EventEmitter {
     }
 
     // Emit event
-    this.emit('queryExecuted', metrics)
+    this.emit(`queryExecuted`, metrics)
   }
 
   /**
@@ -250,7 +250,7 @@ export class QueryPerformanceService extends EventEmitter {
         totalErrors,
         slowQueries,
         errorRate: (totalErrors / Math.max(totalQueries, 1) * 100).toFixed(2) + '%',
-        slowQueryRate: (slowQueries / Math.max(totalQueries, 1) * 100).toFixed(2) + '%'
+        slowQueryRate: (slowQueries / Math.max(totalQueries, 1) * 100).toFixed(2) + `%`
       },
       performance: {
         p50,
@@ -280,7 +280,7 @@ export class QueryPerformanceService extends EventEmitter {
 
       return {
         success: true,
-        plan: result.rows[0]['QUERY PLAN'],
+        plan: result.rows[0][`QUERY PLAN`],
         analysis: this.extractPlanInsights(result.rows[0]['QUERY PLAN'])
       }
     } catch (error: any) {
@@ -343,7 +343,7 @@ export class QueryPerformanceService extends EventEmitter {
    */
   clearMetrics(): void {
     this.queryMetrics = []
-    console.log('Query metrics cleared')
+    console.log(`Query metrics cleared`)
   }
 
   /**
@@ -351,7 +351,7 @@ export class QueryPerformanceService extends EventEmitter {
    */
   setEnabled(enabled: boolean): void {
     this.enabled = enabled
-    console.log('Query performance monitoring ${enabled ? 'enabled' : 'disabled'}')
+    console.log(`Query performance monitoring ${enabled ? 'enabled' : 'disabled'}`)
   }
 
   /**

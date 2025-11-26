@@ -13,7 +13,7 @@ export class RouteEmulator extends EventEmitter {
   private isPaused: boolean = false
 
   private currentRoute: Route | null = null
-  private trafficLevel: string = 'moderate'
+  private trafficLevel: string = `moderate`
 
   constructor(vehicle: Vehicle, config: EmulatorConfig, routes: Map<string, Route>) {
     super()
@@ -45,7 +45,7 @@ export class RouteEmulator extends EventEmitter {
     const route = this.routes.get(routeId)
     if (route) {
       this.currentRoute = route
-      this.emit('data', { vehicleId: this.vehicle.id, route, timestamp: new Date() })
+      this.emit(`data`, { vehicleId: this.vehicle.id, route, timestamp: new Date() })
     }
   }
 

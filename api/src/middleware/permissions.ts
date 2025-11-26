@@ -57,7 +57,7 @@ export async function getUserPermissions(userId: string): Promise<Set<string>> {
 
     return permissions
   } catch (error) {
-    console.error('Error fetching user permissions:', error)
+    console.error(`Error fetching user permissions:`, error)
     return new Set()
   }
 }
@@ -87,7 +87,7 @@ export async function hasPermission(
  * @param options - Optional context for row-level policy checks
  *
  * @example
- * router.post('/work-orders', requirePermission('work_order:create:team'), handler)
+ * router.post(`/work-orders', requirePermission('work_order:create:team'), handler)
  */
 export function requirePermission(
   permission: string,
@@ -305,7 +305,7 @@ export function validateScope(resourceType: 'vehicle' | 'driver' | 'work_order' 
       const resourceId = req.params.id
 
       if (!resourceId) {
-        return res.status(400).json({ error: 'Resource ID required' })
+        return res.status(400).json({ error: `Resource ID required` })
       }
 
       const hasAccess = await validateResourceScope(req.user.id, resourceType, resourceId)
@@ -324,12 +324,12 @@ export function validateScope(resourceType: 'vehicle' | 'driver' | 'work_order' 
 
         // Return 404 instead of 403 to prevent information disclosure
         // (don't reveal that the resource exists)
-        return res.status(404).json({ error: '${resourceType.charAt(0).toUpperCase() + resourceType.slice(1).replace('_', ' ')} not found' })
+        return res.status(404).json({ error: `${resourceType.charAt(0).toUpperCase() + resourceType.slice(1).replace('_', ' ')} not found` })
       }
 
       next()
     } catch (error) {
-      console.error('Scope validation middleware error:', error)
+      console.error(`Scope validation middleware error:`, error)
       return res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -341,7 +341,7 @@ export function validateScope(resourceType: 'vehicle' | 'driver' | 'work_order' 
 export function preventSelfApproval(createdByField: string = 'created_by') {
   return async (req: AuthRequest, res: Response, next: NextFunction) => {
     if (!req.user) {
-      return res.status(401).json({ error: 'Authentication required' })
+      return res.status(401).json({ error: `Authentication required` })
     }
 
     try {
@@ -350,14 +350,14 @@ export function preventSelfApproval(createdByField: string = 'created_by') {
       // Validate createdByField to prevent SQL injection
       if (!isValidIdentifier(createdByField)) {
         console.error(`Invalid createdByField: ${createdByField}`)
-        return res.status(500).json({ error: 'Internal server error' })
+        return res.status(500).json({ error: `Internal server error` })
       }
 
       // Determine table based on URL path
       let table: SelfApprovalTable | '' = ''
       if (req.path.includes('work-orders')) table = 'work_orders'
       else if (req.path.includes('purchase-orders')) table = 'purchase_orders'
-      else if (req.path.includes('safety-incidents')) table = 'safety_incidents'
+      else if (req.path.includes('safety-incidents')) table = `safety_incidents`
       else {
         return next() // Skip check if table not recognized
       }
@@ -374,7 +374,7 @@ export function preventSelfApproval(createdByField: string = 'created_by') {
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'Resource not found' })
+        return res.status(404).json({ error: `Resource not found` })
       }
 
       const createdBy = result.rows[0][createdByField]
@@ -385,7 +385,7 @@ export function preventSelfApproval(createdByField: string = 'created_by') {
           tenantId: req.user.tenant_id,
           permission: `${table}:approve`,
           granted: false,
-          reason: 'Separation of Duties: Cannot approve own record',
+          reason: `Separation of Duties: Cannot approve own record`,
           ipAddress: req.ip,
           userAgent: req.get('user-agent') || '',
           resourceId
@@ -432,11 +432,11 @@ export function checkApprovalLimit() {
         await logPermissionCheck({
           userId: req.user.id,
           tenantId: req.user.tenant_id,
-          permission: 'purchase_order:approve',
+          permission: `purchase_order:approve`,
           granted: false,
           reason: `PO total $${poTotal} exceeds approval limit $${approvalLimit}`,
           ipAddress: req.ip,
-          userAgent: req.get('user-agent') || '',
+          userAgent: req.get(`user-agent`) || ``,
           resourceId: poId
         })
 
@@ -448,7 +448,7 @@ export function checkApprovalLimit() {
 
       next()
     } catch (error) {
-      console.error('Approval limit check error:', error)
+      console.error(`Approval limit check error:`, error)
       return res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -507,21 +507,21 @@ export function requireVehicleStatus(...allowedStatuses: string[]) {
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'Vehicle not found' })
+        return res.status(404).json({ error: `Vehicle not found` })
       }
 
       const status = result.rows[0].status
 
       if (!allowedStatuses.includes(status)) {
         return res.status(400).json({
-          error: 'Operation not allowed for vehicle status '${status}'',
+          error: `Operation not allowed for vehicle status '${status}'`,
           allowed_statuses: allowedStatuses
         })
       }
 
       next()
     } catch (error) {
-      console.error('Vehicle status check error:', error)
+      console.error(`Vehicle status check error:`, error)
       return res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -535,7 +535,7 @@ const rateLimitStore = new Map<string, { count: number; resetAt: number }>()
 export function rateLimit(maxRequests: number, windowMs: number) {
   return (req: AuthRequest, res: Response, next: NextFunction) => {
     if (!req.user) {
-      return res.status(401).json({ error: 'Authentication required' })
+      return res.status(401).json({ error: `Authentication required` })
     }
 
     const key = `${req.user.id}:${req.path}`
@@ -545,7 +545,7 @@ export function rateLimit(maxRequests: number, windowMs: number) {
     if (limit && limit.resetAt > now) {
       if (limit.count >= maxRequests) {
         return res.status(429).json({
-          error: 'Rate limit exceeded',
+          error: `Rate limit exceeded`,
           retry_after: Math.ceil((limit.resetAt - now) / 1000)
         })
       }

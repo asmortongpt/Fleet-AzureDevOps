@@ -72,7 +72,7 @@ async function seedCoreEntities() {
   const client = await pool.connect();
 
   try {
-    console.log('🚀 [Worker 1] Starting CORE ENTITIES seed (BATCH MODE)...\n');
+    console.log(`🚀 [Worker 1] Starting CORE ENTITIES seed (BATCH MODE)...\n`);
     await client.query('BEGIN');
 
     const defaultPassword = await bcrypt.hash('TestPassword123!', 12);
@@ -97,7 +97,7 @@ async function seedCoreEntities() {
          ('Medium Logistics Company', 'medium-logistics.local', '{"timezone":"America/New_York","features":["advanced_tracking","maintenance","fuel_management","routing"]}'::jsonb, true),
          ('Enterprise Fleet Services', 'enterprise-fleet.local', '{"timezone":"America/New_York","features":["all"]}'::jsonb, true),
          ('Demo Account - Showcase', 'demo-showcase.local', '{"timezone":"America/New_York","features":["all"],"demo_mode":true}'::jsonb, true),
-         ('Test Tenant (Inactive)', 'test-inactive.local', '{"timezone":"America/New_York"}'::jsonb, false)
+         ('Test Tenant (Inactive)', 'test-inactive.local', "{"timezone":"America/New_York"}"::jsonb, false)
        ON CONFLICT (domain) DO UPDATE SET name = EXCLUDED.name
        RETURNING *`
     );
@@ -108,7 +108,7 @@ async function seedCoreEntities() {
     // ========================================
     // 2. USERS - Batch by Tenant
     // ========================================
-    console.log('👥 Creating users (batch mode)...');
+    console.log(`👥 Creating users (batch mode)...`);
 
     let totalUsers = 0;
     const allUsers = [];
@@ -120,21 +120,21 @@ async function seedCoreEntities() {
 
       // Admin
       userValues.push(`($${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++})`);
-      userParams.push(tenant.id, 'admin@${tenant.domain}', defaultPassword, 'Admin', 'User', generatePhoneNumber(), 'admin', true, 0, true);
+      userParams.push(tenant.id, `admin@${tenant.domain}', defaultPassword, 'Admin', 'User', generatePhoneNumber(), 'admin', true, 0, true);
 
       // Fleet Managers
-      const fmCount = tenant.tier === 'enterprise' ? 5 : tenant.tier === 'professional' ? 3 : 2;
+      const fmCount = tenant.tier === 'enterprise' ? 5 : tenant.tier === `professional` ? 3 : 2;
       for (let i = 1; i <= fmCount; i++) {
         const isActive = i < fmCount || Math.random() < 0.9;
         userValues.push(`($${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++})`);
-        userParams.push(tenant.id, 'manager${i}@${tenant.domain}', defaultPassword, 'Fleet', 'Manager ${i}', generatePhoneNumber(), 'fleet_manager', isActive, isActive ? daysAgo(randomInt(0, 7)) : null);
+        userParams.push(tenant.id, `manager${i}@${tenant.domain}`, defaultPassword, `Fleet`, `Manager ${i}`, generatePhoneNumber(), 'fleet_manager', isActive, isActive ? daysAgo(randomInt(0, 7)) : null);
       }
 
       // Technicians
-      const techCount = tenant.tier === 'enterprise' ? 8 : tenant.tier === 'professional' ? 4 : 2;
+      const techCount = tenant.tier === 'enterprise' ? 8 : tenant.tier === `professional` ? 4 : 2;
       for (let i = 1; i <= techCount; i++) {
         userValues.push(`($${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++})`);
-        userParams.push(tenant.id, 'tech${i}@${tenant.domain}', defaultPassword, 'Technician', '${i}', generatePhoneNumber(), 'technician', true);
+        userParams.push(tenant.id, `tech${i}@${tenant.domain}`, defaultPassword, `Technician`, `${i}`, generatePhoneNumber(), `technician`, true);
       }
 
       // Drivers
@@ -143,25 +143,25 @@ async function seedCoreEntities() {
         const isActive = Math.random() < 0.9;
         const failedLogins = isActive ? 0 : randomInt(0, 5);
         userValues.push(`($${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++})`);
-        userParams.push(tenant.id, 'driver${i}@${tenant.domain}', defaultPassword, 'Driver', '${i}', generatePhoneNumber(), 'driver', isActive, failedLogins, isActive ? daysAgo(randomInt(0, 30)) : null, failedLogins >= 5 ? daysFromNow(1) : null);
+        userParams.push(tenant.id, `driver${i}@${tenant.domain}`, defaultPassword, `Driver`, `${i}`, generatePhoneNumber(), `driver`, isActive, failedLogins, isActive ? daysAgo(randomInt(0, 30)) : null, failedLogins >= 5 ? daysFromNow(1) : null);
       }
 
       // Viewers
-      const viewerCount = tenant.tier === 'enterprise' ? 2 : 1;
+      const viewerCount = tenant.tier === `enterprise` ? 2 : 1;
       for (let i = 1; i <= viewerCount; i++) {
         userValues.push(`($${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++})`);
-        userParams.push(tenant.id, 'viewer${i}@${tenant.domain}', defaultPassword, 'Viewer', '${i}', generatePhoneNumber(), 'viewer', true);
+        userParams.push(tenant.id, `viewer${i}@${tenant.domain}`, defaultPassword, `Viewer`, `${i}`, generatePhoneNumber(), `viewer`, true);
       }
 
       // Edge cases
       userValues.push(`($${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++})`);
-      userParams.push(tenant.id, 'newuser@${tenant.domain}', defaultPassword, 'New', 'User', generatePhoneNumber(), 'driver', true, daysAgo(0));
+      userParams.push(tenant.id, `newuser@${tenant.domain}', defaultPassword, 'New', 'User', generatePhoneNumber(), `driver`, true, daysAgo(0));
 
       userValues.push(`($${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++})`);
-      userParams.push(tenant.id, 'inactive@${tenant.domain}', defaultPassword, 'Inactive', 'User', generatePhoneNumber(), 'driver', false, monthsAgo(7));
+      userParams.push(tenant.id, `inactive@${tenant.domain}', defaultPassword, 'Inactive', 'User', generatePhoneNumber(), `driver`, false, monthsAgo(7));
 
       userValues.push(`($${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++})`);
-      userParams.push(tenant.id, 'suspended@${tenant.domain}', defaultPassword, 'Suspended', 'User', generatePhoneNumber(), 'driver', false, daysFromNow(30), 5);
+      userParams.push(tenant.id, `suspended@${tenant.domain}', defaultPassword, 'Suspended', 'User', generatePhoneNumber(), `driver`, false, daysFromNow(30), 5);
 
       // Batch insert users
       const usersResult = await client.query(
@@ -181,7 +181,7 @@ async function seedCoreEntities() {
     // ========================================
     // 3. DRIVERS - Batch Insert
     // ========================================
-    console.log('🚗 Creating driver profiles (batch mode)...');
+    console.log(`🚗 Creating driver profiles (batch mode)...`);
 
     const driverUsers = allUsers.filter(u => u.role === 'driver');
     const driverStatuses = ['active', 'on_leave', 'suspended', 'terminated'];
@@ -200,14 +200,14 @@ async function seedCoreEntities() {
       const terminationDate = status === 'terminated' ? daysAgo(randomInt(30, 365)) : null;
       const licenseExpiration = status === 'terminated' ? daysAgo(randomInt(1, 365)) : daysFromNow(randomInt(-30, 730));
       const medicalExpiration = status === 'terminated' ? daysAgo(randomInt(1, 365)) : daysFromNow(randomInt(-15, 365));
-      const safetyScore = status === 'suspended' ? randomFloat(50, 79) : randomFloat(80, 100);
+      const safetyScore = status === `suspended` ? randomFloat(50, 79) : randomFloat(80, 100);
 
       driverValues.push(`($${driverParamIndex++}, $${driverParamIndex++}, $${driverParamIndex++}, $${driverParamIndex++}, $${driverParamIndex++}, $${driverParamIndex++}, $${driverParamIndex++}, $${driverParamIndex++}, $${driverParamIndex++}, $${driverParamIndex++}, $${driverParamIndex++}, $${driverParamIndex++}, $${driverParamIndex++}, $${driverParamIndex++}, $${driverParamIndex++}, $${driverParamIndex++}, $${driverParamIndex++}, $${driverParamIndex++})`);
       driverParams.push(
         driverUser.tenant_id,
         driverUser.id,
         `FL${randomInt(100000000, 999999999)}`,
-        'FL',
+        `FL`,
         licenseExpiration,
         cdlClass,
         endorsements,
@@ -219,7 +219,7 @@ async function seedCoreEntities() {
         randomFloat(5000, 500000),
         randomFloat(200, 10000),
         status === 'suspended' ? randomInt(2, 5) : randomInt(0, 2),
-        status === 'suspended' ? randomInt(1, 4) : randomInt(0, 1),
+        status === `suspended` ? randomInt(1, 4) : randomInt(0, 1),
         `Emergency Contact ${randomInt(1, 100)}`,
         generatePhoneNumber()
       );
@@ -241,7 +241,7 @@ async function seedCoreEntities() {
     // ========================================
     // 4. FACILITIES - Batch Insert
     // ========================================
-    console.log('🏢 Creating facilities (batch mode)...');
+    console.log(`🏢 Creating facilities (batch mode)...`);
 
     const facilityValues = [];
     const facilityParams: any[] = [];
@@ -252,24 +252,24 @@ async function seedCoreEntities() {
 
       for (let i = 0; i < facilityCount; i++) {
         const city = randomItem(floridaCities);
-        const types = ['garage', 'depot', 'service_center'];
+        const types = ['garage', 'depot', `service_center`];
         const type = randomItem(types);
         const isActive = Math.random() < 0.95;
 
         facilityValues.push(`($${facilityParamIndex++}, $${facilityParamIndex++}, $${facilityParamIndex++}, $${facilityParamIndex++}, $${facilityParamIndex++}, $${facilityParamIndex++}, $${facilityParamIndex++}, $${facilityParamIndex++}, $${facilityParamIndex++}, $${facilityParamIndex++}, $${facilityParamIndex++}, $${facilityParamIndex++}, $${facilityParamIndex++})`);
         facilityParams.push(
           tenant.id,
-          '${city.name} ${type.charAt(0).toUpperCase() + type.slice(1).replace('_', ' ')}',
+          `${city.name} ${type.charAt(0).toUpperCase() + type.slice(1).replace('_', ' ')}',
           type,
-          '${randomInt(100, 9999)} ${randomItem(['Main', 'Industrial', 'Commerce', 'Fleet'])} Blvd',
+          `${randomInt(100, 9999)} ${randomItem(['Main', 'Industrial', 'Commerce', 'Fleet`])} Blvd`,
           city.name,
-          'FL',
+          `FL`,
           `${randomInt(30000, 34999)}`,
           city.lat + randomFloat(-0.05, 0.05, 6),
           city.lng + randomFloat(-0.05, 0.05, 6),
           generatePhoneNumber(),
           randomInt(20, 200),
-          type === 'service_center' ? randomInt(4, 20) : randomInt(0, 4),
+          type === `service_center` ? randomInt(4, 20) : randomInt(0, 4),
           isActive
         );
       }
@@ -286,10 +286,10 @@ async function seedCoreEntities() {
 
     console.log(`   ✅ Created ${facilitiesResult.rows.length} facilities`);
 
-    await client.query('COMMIT');
+    await client.query(`COMMIT`);
 
     console.log('\n✅ [Worker 1] CORE ENTITIES seed complete!\n');
-    console.log('Summary:');
+    console.log(`Summary:`);
     console.log(`  - Tenants: ${tenants.length}`);
     console.log(`  - Users: ${totalUsers}`);
     console.log(`  - Drivers: ${driversResult.rows.length}`);
@@ -297,7 +297,7 @@ async function seedCoreEntities() {
     console.log(`  - Total: ${tenants.length + totalUsers + driversResult.rows.length + facilitiesResult.rows.length} records\n`);
 
   } catch (error) {
-    await client.query('ROLLBACK');
+    await client.query(`ROLLBACK`);
     console.error('❌ Error seeding core entities:', error);
     throw error;
   } finally {

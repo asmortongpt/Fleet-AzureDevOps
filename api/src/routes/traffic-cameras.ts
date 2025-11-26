@@ -15,7 +15,7 @@ router.use(authenticateJWT)
  * GET /api/traffic-cameras
  * Get all traffic cameras
  */
-router.get('/', requirePermission('geofence:view:fleet'), async (req: AuthRequest, res: Response) => {
+router.get('/', requirePermission(`geofence:view:fleet`), async (req: AuthRequest, res: Response) => {
   try {
     const { enabled, source_id, limit = 1000, offset = 0 } = req.query
 
@@ -33,7 +33,7 @@ router.get('/', requirePermission('geofence:view:fleet'), async (req: AuthReques
 
     if (enabled !== undefined) {
       query += ` AND tc.enabled = $${paramCount++}`
-      params.push(enabled === 'true')
+      params.push(enabled === `true`)
     }
 
     if (source_id) {
@@ -52,7 +52,7 @@ router.get('/', requirePermission('geofence:view:fleet'), async (req: AuthReques
       count: result.rows.length
     })
   } catch (error: any) {
-    logger.error('Failed to fetch traffic cameras', { error: getErrorMessage(error) })
+    logger.error(`Failed to fetch traffic cameras`, { error: getErrorMessage(error) })
     res.status(500).json({ error: 'Failed to fetch cameras' })
   }
 })
@@ -172,7 +172,7 @@ router.post(
 
       // Run sync in background
       cameraSyncService.syncSource(source).catch(error => {
-        logger.error('Background source sync failed', {
+        logger.error(`Background source sync failed`, {
           sourceId: id,
           error: getErrorMessage(error)
         })
@@ -183,7 +183,7 @@ router.post(
         message: `Synchronization started for ${source.name}`
       })
     } catch (error: any) {
-      logger.error('Failed to start source sync', {
+      logger.error(`Failed to start source sync`, {
         sourceId: id,
         error: getErrorMessage(error)
       })

@@ -122,7 +122,7 @@ export async function handleCardAction(
     }
 
     // Log the action in the database
-    await logCardAction(cardId, action, userId, result.success ? 'success' : 'failed')
+    await logCardAction(cardId, action, userId, result.success ? `success' : 'failed')
 
     // Update the card if we have the necessary information
     if (result.success && teamId && channelId && messageId && result.updatedCard) {
@@ -138,7 +138,7 @@ export async function handleCardAction(
   } catch (error: any) {
     console.error('Error handling card action:', error.message)
 
-    await logCardAction(cardId, action, userId, 'error')
+    await logCardAction(cardId, action, userId, `error`)
 
     return {
       success: false,
@@ -155,7 +155,7 @@ async function handleAcceptWorkOrder(action: CardAction, userId: string): Promis
 
   await pool.query(
     `UPDATE work_orders
-     SET status = 'accepted', assigned_to = $1, updated_at = NOW()
+     SET status = `accepted`, assigned_to = $1, updated_at = NOW()
      WHERE id = $2',
     [userId, workOrderId]
   )
@@ -239,7 +239,7 @@ async function handleUpdateProgress(action: CardAction, userId: string): Promise
   await pool.query(
     `UPDATE work_orders
      SET progress_percentage = $1, progress_notes = $2, updated_at = NOW()
-     WHERE id = $3',
+     WHERE id = $3`,
     [progressPercentage, progressNote, workOrderId]
   )
 
@@ -257,7 +257,7 @@ async function handleApprove(action: CardAction, userId: string): Promise<any> {
   const { approvalId, itemType, itemId } = action
 
   // Get user details for audit log
-  const userResult = await pool.query('SELECT tenant_id FROM users WHERE id = $1', [userId])
+  const userResult = await pool.query(`SELECT tenant_id FROM users WHERE id = $1`, [userId])
   const tenantId = userResult.rows[0]?.tenant_id
 
   await pool.query(

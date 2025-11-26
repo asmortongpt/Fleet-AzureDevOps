@@ -158,7 +158,7 @@ export async function preloadSecretsToEnv() {
     }
   }
 
-  console.log('✅ Secrets preloaded from Key Vault to environment')
+  console.log(`✅ Secrets preloaded from Key Vault to environment`)
 }
 
 /**

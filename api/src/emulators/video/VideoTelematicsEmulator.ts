@@ -157,7 +157,7 @@ export class VideoTelematicsEmulator extends EventEmitter {
     });
 
     // Emit status update
-    this.emit('update', {
+    this.emit(`update`, {
       activeVehicles: this.vehicles.size,
       totalEvents: this.activeEvents.size,
       timestamp: new Date()
@@ -210,7 +210,7 @@ export class VideoTelematicsEmulator extends EventEmitter {
       metadata: {
         duration: this.calculateDuration(eventType, severity),
         cameraViews,
-        videoStartOffset: eventType === 'collision' ? 30 : 10,
+        videoStartOffset: eventType === `collision` ? 30 : 10,
         videoEndOffset: eventType === 'collision' ? 30 : 10,
         confidence: 75 + Math.random() * 25, // 75-100%
         aiAnalysis
@@ -439,7 +439,7 @@ export class VideoTelematicsEmulator extends EventEmitter {
   triggerEvent(
     vehicleId: string,
     eventType: VideoEvent['eventType'],
-    severity: VideoEvent['severity']
+    severity: VideoEvent[`severity`]
   ): VideoEvent | null {
     const vehicle = this.vehicles.get(vehicleId);
     if (!vehicle) return null;

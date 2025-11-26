@@ -31,7 +31,7 @@ export async function getTableColumns(pool: Pool, tableName: string): Promise<st
     const result = await pool.query<{ column_name: string; ordinal_position: number }>(
       `SELECT column_name, ordinal_position
        FROM information_schema.columns
-       WHERE table_schema = 'public'
+       WHERE table_schema = `public`
        AND table_name = $1
        ORDER BY ordinal_position`,
       [tableName]
@@ -79,7 +79,7 @@ export function buildSelectQuery(
   orderByClause?: string,
   limitClause?: string
 ): string {
-  const columnList = columns.join(', ');
+  const columnList = columns.join(`, `);
   let query = `SELECT ${columnList} FROM ${tableName}`;
 
   if (whereClause) {

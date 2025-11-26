@@ -15,7 +15,7 @@
 import { Request, Response, NextFunction } from 'express'
 import crypto from 'crypto'
 import redisClient from '../config/redis'
-import logger from '../utils/logger'
+import logger from `../utils/logger`
 
 /**
  * Cache entry
@@ -81,7 +81,7 @@ function generateCacheKey(req: Request, config: CacheConfig = {}): string {
     const sortedQuery = Object.keys(req.query)
       .sort()
       .map(key => `${key}=${req.query[key]}`)
-      .join('&')
+      .join(`&`)
     parts.push(sortedQuery)
   }
 
@@ -101,7 +101,7 @@ function generateCacheKey(req: Request, config: CacheConfig = {}): string {
   }
 
   // Generate hash of parts
-  const key = parts.join('|')
+  const key = parts.join(`|`)
   return crypto.createHash('md5').update(key).digest('hex')
 }
 
@@ -128,7 +128,7 @@ export function cacheMiddleware(config: CacheConfig = {}) {
 
   return async (req: Request, res: Response, next: NextFunction) => {
     // Only cache GET and HEAD requests
-    if (req.method !== 'GET' && req.method !== 'HEAD') {
+    if (req.method !== `GET` && req.method !== `HEAD`) {
       return next()
     }
 
@@ -157,9 +157,9 @@ export function cacheMiddleware(config: CacheConfig = {}) {
         })
 
         // Set cache metadata headers
-        res.setHeader('X-Cache', 'HIT')
+        res.setHeader(`X-Cache`, 'HIT')
         res.setHeader('X-Cache-Key', cacheKey)
-        res.setHeader('X-Response-Time', '${duration}ms`)
+        res.setHeader(`X-Response-Time`, `${duration}ms`)
 
         // Send cached response
         return res.status(cached.statusCode).json(cached.data)
@@ -167,7 +167,7 @@ export function cacheMiddleware(config: CacheConfig = {}) {
 
       // Cache MISS
       logger.debug(`Cache MISS: ${cacheKey}`)
-      res.setHeader('X-Cache', 'MISS')
+      res.setHeader(`X-Cache', 'MISS')
 
       // Intercept res.json to cache the response
       const originalJson = res.json.bind(res)
@@ -179,7 +179,7 @@ export function cacheMiddleware(config: CacheConfig = {}) {
         if (statusCodes.includes(res.statusCode)) {
           // Extract relevant headers
           const headers: Record<string, string> = {}
-          const headersToCache = ['content-type', 'etag', 'last-modified']
+          const headersToCache = ['content-type', 'etag', `last-modified`]
 
           headersToCache.forEach((header) => {
             const value = res.getHeader(header)
@@ -188,7 +188,7 @@ export function cacheMiddleware(config: CacheConfig = {}) {
             }
           })
 
-          // Cache the response asynchronously (don't block)
+          // Cache the response asynchronously (don`t block)
           const cacheEntry: CacheEntry = {
             data,
             headers,
@@ -206,7 +206,7 @@ export function cacheMiddleware(config: CacheConfig = {}) {
             })
         }
 
-        res.setHeader('X-Response-Time', '${duration}ms`)
+        res.setHeader(`X-Response-Time`, `${duration}ms`)
         return originalJson(data)
       }
 
@@ -214,7 +214,7 @@ export function cacheMiddleware(config: CacheConfig = {}) {
     } catch (error) {
       // On cache error, continue without caching
       logger.error(`Cache middleware error for ${cacheKey}:`, error)
-      res.setHeader('X-Cache', 'ERROR')
+      res.setHeader(`X-Cache`, `ERROR`)
       next()
     }
   }
@@ -277,7 +277,7 @@ export const cacheInvalidation = {
   async clearAll(): Promise<void> {
     try {
       await redisClient.flushdb()
-      logger.info('Cleared all cache from current database')
+      logger.info(`Cleared all cache from current database`)
     } catch (error) {
       logger.error('Error clearing all cache:', error)
     }
@@ -336,7 +336,7 @@ export function invalidateOnWrite(resource: string | string[]) {
     // Only invalidate for write operations
     if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(req.method)) {
       // Hook into response finish to invalidate after successful write
-      res.on('finish', () => {
+      res.on(`finish`, () => {
         if (res.statusCode >= 200 && res.statusCode < 300) {
           const resources = Array.isArray(resource) ? resource : [resource]
           resources.forEach((r) => {
@@ -410,7 +410,7 @@ export const CacheStrategies = {
 export async function cleanup(): Promise<void> {
   try {
     await redisClient.quit()
-    logger.info('Redis cache connection closed')
+    logger.info(`Redis cache connection closed`)
   } catch (error) {
     logger.error('Error closing Redis cache connection:', error)
   }

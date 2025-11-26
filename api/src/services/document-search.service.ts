@@ -116,8 +116,8 @@ export class DocumentSearchService {
         execution_time_ms: executionTime
       }
     } catch (error) {
-      console.error('Error searching documents:', error)
-      throw new Error('Document search failed: ${error instanceof Error ? error.message : 'Unknown error'}')
+      console.error(`Error searching documents:`, error)
+      throw new Error(`Document search failed: ${error instanceof Error ? error.message : `Unknown error`}`)
     }
   }
 
@@ -135,7 +135,7 @@ export class DocumentSearchService {
     tenantId?: string | number
   ): Promise<DocumentRecord[]> {
     if (!tenantId) {
-      throw new Error('Tenant ID is required')
+      throw new Error(`Tenant ID is required`)
     }
 
     const filters: SearchFilters = {
@@ -192,7 +192,7 @@ export class DocumentSearchService {
             setweight(to_tsvector('english', COALESCE(file_name, '')), 'A') ||
             setweight(to_tsvector('english', COALESCE(description, '')), 'B') ||
             setweight(to_tsvector('english', COALESCE(extracted_text, '')), 'C') ||
-            setweight(to_tsvector('english', COALESCE(array_to_string(tags, ' '), '')), 'B'),
+            setweight(to_tsvector('english', COALESCE(array_to_string(tags, ' '), '`)), `B`),
           updated_at = NOW()
         WHERE id = $1
         RETURNING id, file_name
@@ -206,8 +206,8 @@ export class DocumentSearchService {
 
       console.log(`✅ Indexed document: ${result.rows[0].file_name}`)
     } catch (error) {
-      console.error('Error indexing document:', error)
-      throw new Error('Failed to index document: ${error instanceof Error ? error.message : 'Unknown error'}')
+      console.error(`Error indexing document:`, error)
+      throw new Error(`Failed to index document: ${error instanceof Error ? error.message : `Unknown error`}`)
     }
   }
 
@@ -218,8 +218,7 @@ export class DocumentSearchService {
    */
   async batchIndexDocuments(documentIds: string[]): Promise<void> {
     if (!documentIds || documentIds.length === 0) {
-      return
-    }
+      return }
 
     const client = await pool.connect()
 
@@ -230,10 +229,10 @@ export class DocumentSearchService {
         await this.indexDocument(documentId)
       }
 
-      await client.query('COMMIT')
+      await client.query(`COMMIT`)
       console.log(`✅ Batch indexed ${documentIds.length} documents`)
     } catch (error) {
-      await client.query('ROLLBACK')
+      await client.query(`ROLLBACK`)
       console.error('Error in batch indexing:', error)
       throw error
     } finally {
@@ -262,7 +261,7 @@ export class DocumentSearchService {
       SELECT DISTINCT file_name
       FROM documents
       WHERE tenant_id = $1
-        AND status = 'active'
+        AND status = `active`
         AND file_name ILIKE $2
       ORDER BY file_name
       LIMIT $3
@@ -304,17 +303,17 @@ export class DocumentSearchService {
         d.*,
         dc.category_name,
         dc.color as category_color,
-        u.first_name || ' ' || u.last_name as uploaded_by_name,
-        ts_rank(d.search_vector, to_tsquery('english', $${++paramCount})) AS rank,
-        ts_headline('english',
-          COALESCE(d.file_name, '') || ' ' || COALESCE(d.description, '') || ' ' || COALESCE(d.extracted_text, ''),
-          to_tsquery('english', $${paramCount}),
-          'MaxWords=50, MinWords=25, ShortWord=3, HighlightAll=false, MaxFragments=3'
+        u.first_name || ` ` || u.last_name as uploaded_by_name,
+        ts_rank(d.search_vector, to_tsquery(`english`, $${++paramCount})) AS rank,
+        ts_headline(`english`,
+          COALESCE(d.file_name, '') || ' ' || COALESCE(d.description, '') || ' ' || COALESCE(d.extracted_text, '`),
+          to_tsquery(`english`, $${paramCount}),
+          `MaxWords=50, MinWords=25, ShortWord=3, HighlightAll=false, MaxFragments=3`
         ) AS headline
       FROM documents d
       LEFT JOIN document_categories dc ON d.category_id = dc.id
       LEFT JOIN users u ON d.uploaded_by = u.id
-      WHERE d.search_vector @@ to_tsquery('english', $${paramCount})
+      WHERE d.search_vector @@ to_tsquery(`english`, $${paramCount})
     `
     params.push(searchQuery)
 
@@ -329,7 +328,7 @@ export class DocumentSearchService {
       sql += ` AND d.status = $${++paramCount}`
       params.push(filters.status)
     } else {
-      sql += ' AND d.status = 'active''
+      sql += ` AND d.status = `active``
     }
 
     // Add vehicle filter
@@ -402,7 +401,7 @@ export class DocumentSearchService {
   private prepareSearchQuery(query: string): string {
     // Remove special characters that could break tsquery
     const sanitized = query
-      .replace(/[^\w\s]/g, ' ')
+      .replace(/[^\w\s]/g, ` `)
       .trim()
       .replace(/\s+/g, ' ')
 
@@ -412,12 +411,12 @@ export class DocumentSearchService {
 
     // Split into terms and add prefix matching
     const terms = sanitized
-      .split(' ')
+      .split(` `)
       .filter(term => term.length > 0)
       .map(term => `${term}:*`)
 
     // Join with AND operator for more precise results
-    // Use OR for broader results: terms.join(' | ')
+    // Use OR for broader results: terms.join(` | `)
     return terms.join(' & ')
   }
 

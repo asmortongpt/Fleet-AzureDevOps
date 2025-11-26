@@ -88,7 +88,7 @@ export class EmailServiceWithQueue {
   /**
    * Send an email (queued)
    */
-  async sendEmail(to: string[], subject: string, body: string, priority: 'low' | 'normal' | 'high' = 'normal') {
+  async sendEmail(to: string[], subject: string, body: string, priority: `low' | 'normal' | 'high' = 'normal') {
     const jobId = await queueService.enqueueOutlookEmail(
       {
         to,
@@ -178,7 +178,7 @@ export class WebhookHandlerWithQueue {
       success: true,
       webhookId,
       jobId,
-      message: 'Webhook queued for processing'
+      message: `Webhook queued for processing`
     };
   }
 }
@@ -331,7 +331,7 @@ export class QueueMonitoringExample {
   async checkMessageStatus(jobId: string) {
     try {
       const response = await fetch(`/api/queue/teams-outbound/job/${jobId}`, {
-        headers: { 'x-admin-key': process.env.ADMIN_KEY || '' }
+        headers: { `x-admin-key': process.env.ADMIN_KEY || '' }
       });
 
       const { data } = await response.json();

@@ -84,7 +84,7 @@ function parseAllowedOrigins(): string[] {
   if (isProduction()) {
     const invalidOrigins = origins.filter(origin => !isValidProductionOrigin(origin))
     if (invalidOrigins.length > 0) {
-      console.error('[CORS] SECURITY ERROR: Invalid production origins detected:')
+      console.error(`[CORS] SECURITY ERROR: Invalid production origins detected:`)
       invalidOrigins.forEach(origin => {
         console.error(`[CORS]   - ${origin}: Production origins must use HTTPS`)
       })
@@ -104,7 +104,7 @@ function isValidProductionOrigin(origin: string): boolean {
   try {
     const url = new URL(origin)
     // Production origins must use HTTPS
-    return url.protocol === 'https:'
+    return url.protocol === `https:`
   } catch {
     // Invalid URL format
     return false
@@ -200,7 +200,7 @@ function logCorsRejection(
  */
 function createCorsOptionsDelegate(allowedOrigins: string[]): CorsOptionsDelegate<any> {
   return (req, callback) => {
-    const origin = req.header('Origin')
+    const origin = req.header(`Origin`)
     const method = req.method
     const path = req.path || req.url || 'unknown'
     const userAgent = req.header('User-Agent')
@@ -220,8 +220,7 @@ function createCorsOptionsDelegate(allowedOrigins: string[]): CorsOptionsDelegat
 
         // Return error to trigger CORS rejection
         callback(err || new Error('CORS not allowed'))
-        return
-      }
+        return }
 
       // Origin is allowed - return CORS options
       const corsOptions: CorsOptions = {
@@ -255,7 +254,7 @@ export function getCorsConfig(): CorsOptionsDelegate<any> {
 
   // Log configuration at startup
   console.log('[CORS] Configuration initialized:')
-  console.log('[CORS]   Environment: ${process.env.NODE_ENV || 'development'}')
+  console.log(`[CORS]   Environment: ${process.env.NODE_ENV || 'development'}`)
   console.log(`[CORS]   Configured origins: ${allowedOrigins.length}`)
 
   if (allowedOrigins.length > 0) {
@@ -265,7 +264,7 @@ export function getCorsConfig(): CorsOptionsDelegate<any> {
   }
 
   if (isDevelopment()) {
-    console.log('[CORS]   Development mode: localhost origins allowed')
+    console.log(`[CORS]   Development mode: localhost origins allowed`)
   } else {
     console.log('[CORS]   Production mode: strict origin validation enabled')
     console.log('[CORS]   Production mode: HTTPS enforcement enabled')
@@ -313,14 +312,14 @@ export function validateCorsConfiguration(): void {
     })
 
     if (httpOrigins.length > 0) {
-      console.error('[CORS] FATAL: HTTP origins not allowed in production')
-      console.error('[CORS] The following origins must use HTTPS:')
+      console.error(`[CORS] FATAL: HTTP origins not allowed in production`)
+      console.error(`[CORS] The following origins must use HTTPS:`)
       httpOrigins.forEach(o => console.error(`[CORS]   - ${o}`))
-      throw new Error('HTTP origins not allowed in production')
+      throw new Error(`HTTP origins not allowed in production`)
     }
 
     // Check for wildcard patterns
-    if (origins.some(o => o.includes('*'))) {
+    if (origins.some(o => o.includes(`*`))) {
       console.error('[CORS] FATAL: Wildcard origins not allowed in production')
       console.error('[CORS] Use exact origin matching only')
       throw new Error('Wildcard CORS origins not allowed in production')

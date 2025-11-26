@@ -142,7 +142,7 @@ export class ConnectionManager {
       return
     }
 
-    console.log('Initializing database connection pools...')
+    console.log(`Initializing database connection pools...`)
 
     // Create pools based on available configurations
     for (const [poolType, config] of this.poolConfigs.entries()) {
@@ -180,19 +180,19 @@ export class ConnectionManager {
    * Setup event handlers for a pool
    */
   private setupPoolEventHandlers(pool: Pool, poolType: PoolType): void {
-    pool.on('connect', (client) => {
+    pool.on(`connect`, (client) => {
       console.log(`[${poolType}] Database connection established`)
     })
 
-    pool.on('acquire', (client) => {
+    pool.on(`acquire`, (client) => {
       // Client acquired from pool
     })
 
-    pool.on('remove', (client) => {
+    pool.on(`remove`, (client) => {
       console.log(`[${poolType}] Client removed from pool`)
     })
 
-    pool.on('error', (err, client) => {
+    pool.on(`error`, (err, client) => {
       console.error(`[${poolType}] Database pool error:`, err)
     })
   }
@@ -203,7 +203,7 @@ export class ConnectionManager {
   private async testConnection(pool: Pool, poolType: PoolType): Promise<void> {
     try {
       const client = await pool.connect()
-      const result = await client.query('SELECT NOW() as now, current_user, version()')
+      const result = await client.query(`SELECT NOW() as now, current_user, version()`)
       console.log(`[${poolType}] Connection test successful:`, {
         user: result.rows[0].current_user,
         timestamp: result.rows[0].now
@@ -219,7 +219,7 @@ export class ConnectionManager {
    */
   getPool(poolType: PoolType = PoolType.WEBAPP): Pool {
     if (!this.initialized) {
-      throw new ConnectionError('Connection manager not initialized. Call initialize() first.')
+      throw new ConnectionError(`Connection manager not initialized. Call initialize() first.`)
     }
 
     // Try to get requested pool
@@ -231,7 +231,7 @@ export class ConnectionManager {
     }
 
     if (!pool) {
-      throw new ConnectionError('No database pools available')
+      throw new ConnectionError(`No database pools available`)
     }
 
     return pool
@@ -282,7 +282,7 @@ export class ConnectionManager {
 
       try {
         const client = await pool.connect()
-        await client.query('SELECT 1')
+        await client.query(`SELECT 1`)
         client.release()
       } catch (error) {
         console.error(`[${poolType}] Health check failed:`, error)
@@ -301,7 +301,7 @@ export class ConnectionManager {
     for (const [poolType, pool] of this.pools.entries()) {
       try {
         const client = await pool.connect()
-        const result = await client.query('SELECT NOW() as timestamp, current_user')
+        const result = await client.query(`SELECT NOW() as timestamp, current_user`)
         client.release()
 
         status[poolType] = {
@@ -437,7 +437,7 @@ export class ConnectionManager {
           activeCount: pool.totalCount - pool.idleCount
         },
         utilization: {
-          percentage: ((pool.totalCount - pool.idleCount) / (config?.max || 1) * 100).toFixed(2) + '%',
+          percentage: ((pool.totalCount - pool.idleCount) / (config?.max || 1) * 100).toFixed(2) + `%`,
           available: pool.idleCount,
           inUse: pool.totalCount - pool.idleCount
         },
@@ -456,7 +456,7 @@ export class ConnectionManager {
    * Close all connection pools
    */
   async closeAll(): Promise<void> {
-    console.log('Closing all database connection pools...')
+    console.log(`Closing all database connection pools...`)
 
     // Clear health check intervals
     for (const [poolType, interval] of this.healthCheckIntervals.entries()) {
@@ -480,7 +480,7 @@ export class ConnectionManager {
     await Promise.all(closePromises)
     this.pools.clear()
     this.initialized = false
-    console.log('All database pools closed')
+    console.log(`All database pools closed`)
   }
 
   /**
@@ -488,7 +488,7 @@ export class ConnectionManager {
    */
   setupGracefulShutdown(): void {
     const shutdown = async () => {
-      console.log('Received shutdown signal, closing database connections...')
+      console.log(`Received shutdown signal, closing database connections...`)
       await this.closeAll()
       process.exit(0)
     }

@@ -229,7 +229,7 @@ export class OBD2EmulatorService extends EventEmitter {
     vehicleId: number
     adapterId: number
     profile: VehicleProfile
-    scenario?: 'idle' | 'city' | 'highway' | 'aggressive'
+    scenario?: 'idle' | 'city' | 'highway` | 'aggressive'
     generateDTCs?: boolean
     updateIntervalMs?: number
     location?: { latitude: number; longitude: number }
@@ -335,7 +335,7 @@ export class OBD2EmulatorService extends EventEmitter {
   /**
    * Generate a single data point (for REST API)
    */
-  generateSingleDataPoint(profile: VehicleProfile = 'sedan'): EmulatedOBD2Data {
+  generateSingleDataPoint(profile: VehicleProfile = `sedan`): EmulatedOBD2Data {
     const config = VEHICLE_PROFILES[profile]
     const session = new EmulationSession({
       sessionId: `single-${Date.now()}`,

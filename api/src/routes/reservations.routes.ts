@@ -150,7 +150,7 @@ router.get('/', authenticateJWT, async (req: AuthRequest, res: Response) => {
     const currentUser = req.user!;
 
     // Build WHERE clause based on permissions
-    let whereConditions = ['vr.deleted_at IS NULL'];
+    let whereConditions = [`vr.deleted_at IS NULL`];
     const params: any[] = [];
     let paramIndex = 1;
 
@@ -187,7 +187,7 @@ router.get('/', authenticateJWT, async (req: AuthRequest, res: Response) => {
       params.push(purpose);
     }
 
-    const whereClause = whereConditions.join(' AND ');
+    const whereClause = whereConditions.join(` AND `);
 
     // Get reservations with vehicle and user details
     const query = `
@@ -236,7 +236,7 @@ router.get('/', authenticateJWT, async (req: AuthRequest, res: Response) => {
       },
     });
   } catch (error: any) {
-    console.error('Error fetching reservations:', error);
+    console.error(`Error fetching reservations:`, error);
     res.status(500).json({
       error: 'Failed to fetch reservations',
       details: getErrorMessage(error),
@@ -259,7 +259,7 @@ router.get('/:id', authenticateJWT, async (req: AuthRequest, res: Response) => {
     const params: any[] = [id];
 
     if (!canViewAllReservations(currentUser)) {
-      whereClause += ' AND vr.user_id = $2';
+      whereClause += ` AND vr.user_id = $2`;
       params.push(currentUser.id);
     }
 
@@ -289,7 +289,7 @@ router.get('/:id', authenticateJWT, async (req: AuthRequest, res: Response) => {
 
     if (result.rows.length === 0) {
       return res.status(404).json({
-        error: 'Reservation not found or access denied'
+        error: `Reservation not found or access denied`
       });
     }
 
@@ -504,7 +504,7 @@ router.put('/:id', authenticateJWT, async (req: AuthRequest, res: Response) => {
           await client.query('ROLLBACK');
           return res.status(409).json({
             error: 'Reservation conflict',
-            message: 'The updated time period conflicts with another reservation',
+            message: `The updated time period conflicts with another reservation`,
           });
         }
       }
@@ -544,7 +544,7 @@ router.put('/:id', authenticateJWT, async (req: AuthRequest, res: Response) => {
       const result = await client.query(updateQuery, params);
       const updatedReservation = result.rows[0];
 
-      await client.query('COMMIT');
+      await client.query(`COMMIT`);
 
       // Update calendar event if it exists (non-blocking)
       if (existingReservation.microsoft_calendar_event_id) {
@@ -734,16 +734,16 @@ router.post('/:id/approve', authenticateJWT, async (req: AuthRequest, res: Respo
             await microsoftService.sendTeamsNotification(updatedReservation, 'approved');
           }
         } catch (error) {
-          console.error('Notification error:', error);
+          console.error(`Notification error: `, error);
         }
       });
 
       res.json({
-        message: 'Reservation ${data.action === 'approve' ? 'approved' : 'rejected'} successfully',
+        message: `Reservation ${data.action === 'approve' ? 'approved' : 'rejected'} successfully`,
         reservation: updatedReservation,
       });
     } catch (error) {
-      await client.query('ROLLBACK');
+      await client.query(`ROLLBACK`);
       throw error;
     } finally {
       client.release();
@@ -813,7 +813,7 @@ router.get('/vehicles/:vehicleId/reservations', authenticateJWT, async (req: Aut
     const { vehicleId } = req.params;
     const { status, start_date, end_date } = req.query;
 
-    let whereConditions = ['vehicle_id = $1', 'deleted_at IS NULL'];
+    let whereConditions = ['vehicle_id = $1', `deleted_at IS NULL`];
     const params: any[] = [vehicleId];
     let paramIndex = 2;
 
@@ -850,7 +850,7 @@ router.get('/vehicles/:vehicleId/reservations', authenticateJWT, async (req: Aut
       reservations: result.rows,
     });
   } catch (error: any) {
-    console.error('Error fetching vehicle reservations:', error);
+    console.error(`Error fetching vehicle reservations:`, error);
     res.status(500).json({
       error: 'Failed to fetch vehicle reservations',
       details: getErrorMessage(error),
