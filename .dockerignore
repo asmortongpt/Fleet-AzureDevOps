@@ -32,8 +32,8 @@ README.md
 *.md
 docs
 
-# Build artifacts (keep dist for local testing)
-# dist
+# Build artifacts - MUST exclude dist to force fresh builds in Docker
+dist
 
 # Environment files (these should not be in the image)
 .env.local
