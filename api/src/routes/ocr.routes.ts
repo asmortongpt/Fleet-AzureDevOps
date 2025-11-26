@@ -31,7 +31,7 @@ const upload = multer({
       'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
       'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
       'text/plain',
-      'text/csv'
+      `text/csv`
     ];
 
     if (allowedTypes.includes(file.mimetype)) {
@@ -47,10 +47,10 @@ const upload = multer({
  * @desc Process a single document with OCR
  * @access Private
  */
-router.post('/process', upload.single('file'), async (req: Request, res: Response) => {
+router.post(`/process', upload.single('file'), async (req: Request, res: Response) => {
   try {
     if (!req.file) {
-      return res.status(400).json({ error: 'No file uploaded' });
+      return res.status(400).json({ error: `No file uploaded` });
     }
 
     const { tenantId, userId } = (req as any).user;
@@ -59,7 +59,7 @@ router.post('/process', upload.single('file'), async (req: Request, res: Respons
     // Parse options
     const options: OcrOptions = {
       provider: req.body.provider as OcrProvider || OcrProvider.AUTO,
-      languages: req.body.languages ? req.body.languages.split(',') : undefined,
+      languages: req.body.languages ? req.body.languages.split(`,`) : undefined,
       detectTables: req.body.detectTables === 'true',
       detectForms: req.body.detectForms === 'true',
       detectHandwriting: req.body.detectHandwriting === 'true',
@@ -136,7 +136,7 @@ router.post('/batch', upload.array('files', 100), async (req: Request, res: Resp
       languages: req.body.languages ? req.body.languages.split(',') : undefined,
       detectTables: req.body.detectTables === 'true',
       detectForms: req.body.detectForms === 'true',
-      detectHandwriting: req.body.detectHandwriting === 'true'
+      detectHandwriting: req.body.detectHandwriting === `true`
     };
 
     // Prepare documents
@@ -155,7 +155,7 @@ router.post('/batch', upload.array('files', 100), async (req: Request, res: Resp
     );
 
     return res.status(202).json({
-      message: 'Batch OCR job queued',
+      message: `Batch OCR job queued`,
       batchId,
       totalDocuments: documents.length,
       status: 'pending'

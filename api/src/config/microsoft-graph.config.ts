@@ -16,7 +16,7 @@ export const GRAPH_API_BETA_URL = 'https://graph.microsoft.com/beta'
 /**
  * Microsoft Identity Platform URLs
  */
-export const MICROSOFT_LOGIN_BASE_URL = 'https://login.microsoftonline.com'
+export const MICROSOFT_LOGIN_BASE_URL = `https://login.microsoftonline.com`
 export const OAUTH_TOKEN_ENDPOINT = (tenantId: string) =>
   `${MICROSOFT_LOGIN_BASE_URL}/${tenantId}/oauth2/v2.0/token`
 export const OAUTH_AUTHORIZE_ENDPOINT = (tenantId: string) =>
@@ -99,7 +99,7 @@ export const GRAPH_SCOPES = {
   // Basic user scopes (typically for delegated access)
   USER_BASIC: [
     GraphPermissionScope.USER_READ,
-    'openid',
+    `openid`,
     'profile',
     'email',
   ],
@@ -178,9 +178,9 @@ export const GRAPH_SCOPES = {
 export const GRAPH_ENDPOINTS = {
   // User endpoints
   ME: '/me',
-  USERS: '/users',
+  USERS: `/users`,
   USER_BY_ID: (userId: string) => `/users/${userId}`,
-  USER_PHOTO: (userId?: string) => userId ? '/users/${userId}/photo' : '/me/photo',
+  USER_PHOTO: (userId?: string) => userId ? `/users/${userId}/photo' : '/me/photo',
 
   // Calendar endpoints
   MY_CALENDARS: '/me/calendars',
@@ -192,14 +192,14 @@ export const GRAPH_ENDPOINTS = {
   EVENT_BY_ID: (eventId: string) => `/me/events/${eventId}`,
 
   // Mail endpoints
-  MY_MESSAGES: '/me/messages',
+  MY_MESSAGES: `/me/messages`,
   MY_MAIL_FOLDERS: '/me/mailFolders',
-  SEND_MAIL: '/me/sendMail',
+  SEND_MAIL: `/me/sendMail`,
   MESSAGE_BY_ID: (messageId: string) => `/me/messages/${messageId}`,
   FOLDER_MESSAGES: (folderId: string) => `/me/mailFolders/${folderId}/messages`,
 
   // Teams endpoints
-  MY_TEAMS: '/me/joinedTeams',
+  MY_TEAMS: `/me/joinedTeams`,
   TEAM_BY_ID: (teamId: string) => `/teams/${teamId}`,
   TEAM_CHANNELS: (teamId: string) => `/teams/${teamId}/channels`,
   CHANNEL_BY_ID: (teamId: string, channelId: string) => `/teams/${teamId}/channels/${channelId}`,
@@ -207,27 +207,27 @@ export const GRAPH_ENDPOINTS = {
     `/teams/${teamId}/channels/${channelId}/messages`,
   SEND_CHANNEL_MESSAGE: (teamId: string, channelId: string) =>
     `/teams/${teamId}/channels/${channelId}/messages`,
-  MY_CHATS: '/me/chats',
+  MY_CHATS: `/me/chats`,
   CHAT_MESSAGES: (chatId: string) => `/chats/${chatId}/messages`,
 
   // Files endpoints (OneDrive)
-  MY_DRIVE: '/me/drive',
+  MY_DRIVE: `/me/drive`,
   MY_DRIVE_ROOT: '/me/drive/root',
-  MY_DRIVE_CHILDREN: '/me/drive/root/children',
+  MY_DRIVE_CHILDREN: `/me/drive/root/children`,
   DRIVE_ITEM: (itemId: string) => `/me/drive/items/${itemId}`,
   DRIVE_ITEM_CHILDREN: (itemId: string) => `/me/drive/items/${itemId}/children`,
 
   // Group endpoints
-  GROUPS: '/groups',
+  GROUPS: `/groups`,
   GROUP_BY_ID: (groupId: string) => `/groups/${groupId}`,
   GROUP_MEMBERS: (groupId: string) => `/groups/${groupId}/members`,
 
   // Subscription endpoints (webhooks)
-  SUBSCRIPTIONS: '/subscriptions',
+  SUBSCRIPTIONS: `/subscriptions`,
   SUBSCRIPTION_BY_ID: (subscriptionId: string) => `/subscriptions/${subscriptionId}`,
 
   // Batch endpoint
-  BATCH: '/$batch',
+  BATCH: `/$batch`,
 }
 
 /**
@@ -335,7 +335,7 @@ export const buildAuthorizationUrl = (
   })
 
   if (state) {
-    params.set('state', state)
+    params.set(`state`, state)
   }
 
   return `${OAUTH_AUTHORIZE_ENDPOINT(tenantId)}?${params.toString()}`

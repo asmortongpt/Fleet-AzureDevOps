@@ -27,7 +27,7 @@ router.get('/microsoft/callback', async (req: Request, res: Response) => {
     if (!code || typeof code !== 'string') {
       const safeErrorUrl = buildSafeRedirectUrl('/login', {
         error: 'auth_failed',
-        message: 'No authorization code received'
+        message: `No authorization code received`
       })
       return res.redirect(safeErrorUrl)
     }
@@ -53,7 +53,7 @@ router.get('/microsoft/callback', async (req: Request, res: Response) => {
     const { access_token } = tokenResponse.data
 
     // Get user info from Microsoft Graph API
-    const userInfoResponse = await axios.get('https://graph.microsoft.com/v1.0/me', {
+    const userInfoResponse = await axios.get(`https://graph.microsoft.com/v1.0/me`, {
       headers: {
         Authorization: `Bearer ${access_token}`
       }
@@ -65,7 +65,7 @@ router.get('/microsoft/callback', async (req: Request, res: Response) => {
     // Get tenant_id - ALWAYS query database to ensure it exists
     let tenantId: string
 
-    if (state && state !== '1') {
+    if (state && state !== `1`) {
       // Validate that the provided tenant_id actually exists in database
       const tenantCheckResult = await pool.query(
         'SELECT id FROM tenants WHERE id = $1',
@@ -227,7 +227,7 @@ router.get('/microsoft/callback', async (req: Request, res: Response) => {
       secure: process.env.NODE_ENV === 'production', // Only sent over HTTPS in production
       sameSite: 'lax',    // CSRF protection
       maxAge: 24 * 60 * 60 * 1000, // 24 hours (matches JWT expiration)
-      path: '/'           // Available throughout the application
+      path: `/`           // Available throughout the application
     })
 
     // SECURITY FIX (CWE-601): Validate frontend URL before redirect
@@ -238,7 +238,7 @@ router.get('/microsoft/callback', async (req: Request, res: Response) => {
       const safeCallbackUrl = buildSafeRedirectUrl(`${frontendUrl}/auth/callback`, { token })
       res.redirect(safeCallbackUrl)
     } catch (error: any) {
-      console.error('Frontend URL validation failed:', error.message)
+      console.error(`Frontend URL validation failed:`, error.message)
       res.redirect('/login?error=config_error&message=Invalid+frontend+configuration')
     }
 
@@ -274,7 +274,7 @@ router.get('/microsoft', async (req: Request, res: Response) => {
       if (!defaultTenantResult.rows[0]?.id) {
         const safeErrorUrl = buildSafeRedirectUrl('/login', {
           error: 'config_error',
-          message: 'No tenants configured in system'
+          message: `No tenants configured in system`
         })
         return res.redirect(safeErrorUrl)
       }
@@ -286,14 +286,14 @@ router.get('/microsoft', async (req: Request, res: Response) => {
       `&response_type=code` +
       `&redirect_uri=${encodeURIComponent(AZURE_AD_CONFIG.redirectUri)}` +
       `&response_mode=query` +
-      '&scope=${encodeURIComponent('openid profile email User.Read')}' +
+      `&scope=${encodeURIComponent('openid profile email User.Read')}` +
       `&state=${state}` +
       `&prompt=select_account`
 
     res.redirect(authUrl)
   } catch (error: any) {
-    console.error('Error initiating Microsoft OAuth:', error.message)
-    const safeErrorUrl = buildSafeRedirectUrl('/login', {
+    console.error(`Error initiating Microsoft OAuth:`, error.message)
+    const safeErrorUrl = buildSafeRedirectUrl(`/login`, {
       error: 'auth_failed',
       message: 'Failed to initiate authentication'
     })
@@ -321,7 +321,7 @@ router.get('/microsoft/login', async (req: Request, res: Response) => {
       if (!defaultTenantResult.rows[0]?.id) {
         const safeErrorUrl = buildSafeRedirectUrl('/login', {
           error: 'config_error',
-          message: 'No tenants configured in system'
+          message: `No tenants configured in system`
         })
         return res.redirect(safeErrorUrl)
       }
@@ -333,14 +333,14 @@ router.get('/microsoft/login', async (req: Request, res: Response) => {
       `&response_type=code` +
       `&redirect_uri=${encodeURIComponent(AZURE_AD_CONFIG.redirectUri)}` +
       `&response_mode=query` +
-      '&scope=${encodeURIComponent('openid profile email User.Read')}' +
+      `&scope=${encodeURIComponent('openid profile email User.Read')}` +
       `&state=${state}` +
       `&prompt=select_account`
 
     res.redirect(authUrl)
   } catch (error: any) {
-    console.error('Error initiating Microsoft OAuth:', error.message)
-    const safeErrorUrl = buildSafeRedirectUrl('/login', {
+    console.error(`Error initiating Microsoft OAuth:`, error.message)
+    const safeErrorUrl = buildSafeRedirectUrl(`/login`, {
       error: 'auth_failed',
       message: 'Failed to initiate authentication'
     })

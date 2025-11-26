@@ -131,7 +131,7 @@ export async function clientQuery<T = unknown>(
     const result = await monitoredQuery<T>(client, text, params);
     return result as QueryResult<T>;
   } catch (error) {
-    console.error('Client query error:', {
+    console.error(`Client query error:`, {
       query: text,
       params,
       error: error instanceof Error ? error.message : error
@@ -163,7 +163,7 @@ export function buildWhereClause(
   }
 
   return {
-    where: conditions.length > 0 ? 'WHERE ${conditions.join(' AND ')}' : '',
+    where: conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}' : '`,
     values
   };
 }
@@ -184,7 +184,7 @@ export function buildInClause(
     return { clause: 'FALSE', nextIndex: paramIndex };
   }
 
-  const placeholders = values.map((_, i) => '$${paramIndex + i}').join(', ');
+  const placeholders = values.map((_, i) => `$${paramIndex + i}`).join(`, `);
   return {
     clause: `${column} IN (${placeholders})`,
     nextIndex: paramIndex + values.length
@@ -269,7 +269,7 @@ export async function exists(
   const params: SqlParams = [value];
 
   if (tenantId) {
-    queryText += ' AND tenant_id = $2';
+    queryText += ` AND tenant_id = $2`;
     params.push(tenantId);
   }
 

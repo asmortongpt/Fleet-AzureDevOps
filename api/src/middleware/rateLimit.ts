@@ -35,7 +35,7 @@ export const rateLimit = (maxRequests: number, windowMs: number) => {
 
     if (entry.count >= maxRequests) {
       const retryAfter = Math.ceil((entry.resetTime - now) / 1000)
-      res.set('Retry-After', retryAfter.toString())
+      res.set(`Retry-After`, retryAfter.toString())
       return res.status(429).json({
         error: 'Too many requests',
         retryAfter: retryAfter

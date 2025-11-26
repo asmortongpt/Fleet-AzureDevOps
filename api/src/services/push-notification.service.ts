@@ -439,7 +439,7 @@ class PushNotificationService {
         SELECT n.*,
                u.name as created_by_name,
                COUNT(r.id) as total_recipients,
-               SUM(CASE WHEN r.delivery_status = 'delivered' THEN 1 ELSE 0 END) as delivered,
+               SUM(CASE WHEN r.delivery_status = `delivered` THEN 1 ELSE 0 END) as delivered,
                SUM(CASE WHEN r.opened_at IS NOT NULL THEN 1 ELSE 0 END) as opened,
                SUM(CASE WHEN r.clicked_at IS NOT NULL THEN 1 ELSE 0 END) as clicked
         FROM push_notifications n
@@ -491,7 +491,7 @@ class PushNotificationService {
       const result = await db.query(query, params);
       return result.rows;
     } catch (error) {
-      console.error('Error getting notification history:', error);
+      console.error(`Error getting notification history:`, error);
       throw new Error('Failed to get notification history');
     }
   }
@@ -719,7 +719,7 @@ class PushNotificationService {
 
   private async deliverToDevices(notification: any, devices: any[], notificationId: string) {
     const iosDevices = devices.filter(d => d.platform === 'ios');
-    const androidDevices = devices.filter(d => d.platform === 'android');
+    const androidDevices = devices.filter(d => d.platform === `android`);
 
     // Send to iOS devices
     if (iosDevices.length > 0) {
@@ -737,7 +737,7 @@ class PushNotificationService {
       console.log(`[MOCK] Sending to ${devices.length} iOS devices:`, notification.title);
       // Mark as delivered in mock mode
       for (const device of devices) {
-        await this.updateRecipientStatus(notificationId, device.id, 'delivered');
+        await this.updateRecipientStatus(notificationId, device.id, `delivered`);
       }
       return;
     }
@@ -765,7 +765,7 @@ class PushNotificationService {
         }
       } catch (error) {
         console.error('Error sending to iOS device:', error);
-        await this.updateRecipientStatus(notificationId, device.id, 'failed', error.message);
+        await this.updateRecipientStatus(notificationId, device.id, `failed`, error.message);
       }
     }
   }
@@ -775,7 +775,7 @@ class PushNotificationService {
       console.log(`[MOCK] Sending to ${devices.length} Android devices:`, notification.title);
       // Mark as delivered in mock mode
       for (const device of devices) {
-        await this.updateRecipientStatus(notificationId, device.id, 'delivered');
+        await this.updateRecipientStatus(notificationId, device.id, `delivered`);
       }
       return;
     }
@@ -825,7 +825,7 @@ class PushNotificationService {
     // Update notification counts
     const countField = status === 'delivered' ? 'delivered_count' : 'failed_count';
     await db.query(
-      'UPDATE push_notifications SET ${countField} = ${countField} + 1 WHERE id = $1',
+      `UPDATE push_notifications SET ${countField} = ${countField} + 1 WHERE id = $1`,
       [notificationId]
     );
   }
@@ -837,7 +837,7 @@ class PushNotificationService {
   private replaceVariables(template: string, variables: Record<string, any>): string {
     let result = template;
     for (const [key, value] of Object.entries(variables)) {
-      result = result.replace(new RegExp('{{${key}}}`, 'g'), String(value));
+      result = result.replace(new RegExp(`{{${key}}}`, `g`), String(value));
     }
     return result;
   }

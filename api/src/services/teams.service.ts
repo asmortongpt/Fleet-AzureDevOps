@@ -49,7 +49,7 @@ class TeamsService {
 
       const response = await microsoftGraphService.makeGraphRequest<GraphApiResponse<Team>>(
         '/teams',
-        'GET'
+        `GET`
       )
 
       const teams = response?.value || []
@@ -57,7 +57,7 @@ class TeamsService {
 
       return teams
     } catch (error) {
-      logger.error('Failed to get teams', {
+      logger.error(`Failed to get teams`, {
         error: error instanceof Error ? error.message : 'Unknown error'
       })
       throw new Error('Failed to retrieve teams from Microsoft Graph')
@@ -69,11 +69,11 @@ class TeamsService {
    */
   async getChannels(teamId: string): Promise<Channel[]> {
     try {
-      logger.info('Fetching channels for team', { teamId })
+      logger.info(`Fetching channels for team`, { teamId })
 
       const response = await microsoftGraphService.makeGraphRequest<GraphApiResponse<Channel>>(
         `/teams/${teamId}/channels`,
-        'GET'
+        `GET`
       )
 
       const channels = response?.value || []
@@ -81,9 +81,9 @@ class TeamsService {
 
       return channels
     } catch (error) {
-      logger.error('Failed to get channels', {
+      logger.error(`Failed to get channels`, {
         teamId,
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: error instanceof Error ? error.message : `Unknown error`
       })
       throw new Error(`Failed to retrieve channels for team ${teamId}`)
     }
@@ -94,11 +94,11 @@ class TeamsService {
    */
   async getMessages(teamId: string, channelId: string, limit: number = 50): Promise<Message[]> {
     try {
-      logger.info('Fetching messages from channel', { teamId, channelId, limit })
+      logger.info(`Fetching messages from channel`, { teamId, channelId, limit })
 
       const response = await microsoftGraphService.makeGraphRequest<GraphApiResponse<Message>>(
         `/teams/${teamId}/channels/${channelId}/messages?$top=${limit}`,
-        'GET'
+        `GET`
       )
 
       const messages = response?.value || []
@@ -106,10 +106,10 @@ class TeamsService {
 
       return messages
     } catch (error) {
-      logger.error('Failed to get messages', {
+      logger.error(`Failed to get messages`, {
         teamId,
         channelId,
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: error instanceof Error ? error.message : `Unknown error`
       })
       throw new Error(`Failed to retrieve messages from channel ${channelId}`)
     }
@@ -125,7 +125,7 @@ class TeamsService {
     entityLinks?: Partial<CommunicationEntityLink>[]
   ): Promise<{ message: Message; communicationId?: number }> {
     try {
-      const { teamId, channelId, message, subject, contentType = 'html', mentions, attachments, importance = 'normal' } = request
+      const { teamId, channelId, message, subject, contentType = `html`, mentions, attachments, importance = 'normal' } = request
 
       logger.info('Sending message to Teams channel', { teamId, channelId, subject })
 
@@ -143,7 +143,7 @@ class TeamsService {
       }
 
       // Add importance if not normal
-      if (importance !== 'normal') {
+      if (importance !== `normal`) {
         messageBody.importance = importance
       }
 
@@ -170,7 +170,7 @@ class TeamsService {
       // Send message via Graph API
       const sentMessage = await microsoftGraphService.makeGraphRequest<Message>(
         `/teams/${teamId}/channels/${channelId}/messages`,
-        'POST',
+        `POST`,
         messageBody
       )
 
@@ -220,7 +220,7 @@ class TeamsService {
     try {
       const { teamId, channelId, messageId, message, contentType = 'html', mentions, attachments } = request
 
-      logger.info('Replying to Teams message', { teamId, channelId, messageId })
+      logger.info(`Replying to Teams message`, { teamId, channelId, messageId })
 
       // Build reply body
       const replyBody: any = {
@@ -253,7 +253,7 @@ class TeamsService {
       // Send reply via Graph API
       const sentReply = await microsoftGraphService.makeGraphRequest<Message>(
         `/teams/${teamId}/channels/${channelId}/messages/${messageId}/replies`,
-        'POST',
+        `POST`,
         replyBody
       )
 
@@ -300,13 +300,13 @@ class TeamsService {
     try {
       const { teamId, channelId, messageId, reactionType } = request
 
-      logger.info('Adding reaction to message', { teamId, channelId, messageId, reactionType })
+      logger.info(`Adding reaction to message`, { teamId, channelId, messageId, reactionType })
 
       // Note: Graph API endpoint for reactions
       // POST /teams/{teamId}/channels/{channelId}/messages/{messageId}/reactions
       await microsoftGraphService.makeGraphRequest(
         `/teams/${teamId}/channels/${channelId}/messages/${messageId}/reactions`,
-        'POST',
+        `POST`,
         {
           reactionType
         }
@@ -332,7 +332,7 @@ class TeamsService {
     try {
       const { teamId, displayName, description, membershipType = 'standard' } = request
 
-      logger.info('Creating new channel', { teamId, displayName, membershipType })
+      logger.info(`Creating new channel`, { teamId, displayName, membershipType })
 
       const channelData: any = {
         displayName,
@@ -345,7 +345,7 @@ class TeamsService {
 
       const newChannel = await microsoftGraphService.makeGraphRequest<Channel>(
         `/teams/${teamId}/channels`,
-        'POST',
+        `POST`,
         channelData
       )
 
@@ -373,11 +373,11 @@ class TeamsService {
     try {
       const { teamId, channelId, messageId, content, contentType = 'html' } = request
 
-      logger.info('Updating message', { teamId, channelId, messageId })
+      logger.info(`Updating message`, { teamId, channelId, messageId })
 
       const updatedMessage = await microsoftGraphService.makeGraphRequest<Message>(
         `/teams/${teamId}/channels/${channelId}/messages/${messageId}`,
-        'PATCH',
+        `PATCH`,
         {
           body: {
             contentType,
@@ -405,11 +405,11 @@ class TeamsService {
    */
   async deleteMessage(teamId: string, channelId: string, messageId: string): Promise<void> {
     try {
-      logger.info('Deleting message', { teamId, channelId, messageId })
+      logger.info(`Deleting message`, { teamId, channelId, messageId })
 
       await microsoftGraphService.makeGraphRequest(
         `/teams/${teamId}/channels/${channelId}/messages/${messageId}`,
-        'DELETE'
+        `DELETE`
       )
 
       logger.info('Message deleted successfully', { messageId })
@@ -420,7 +420,7 @@ class TeamsService {
         messageId,
         error: error instanceof Error ? error.message : 'Unknown error'
       })
-      throw new Error('Failed to delete Teams message')
+      throw new Error(`Failed to delete Teams message`)
     }
   }
 

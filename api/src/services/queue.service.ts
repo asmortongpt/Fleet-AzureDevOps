@@ -233,7 +233,7 @@ class QueueService {
       }
     };
 
-    const singletonKey = 'sync-${resource.resourceType}-${resource.userId || 'all'}';
+    const singletonKey = `sync-${resource.resourceType}-${resource.userId || 'all'}`;
 
     return this.enqueueJob(QueueName.SYNC, jobData, {
       priority: JobPriority.LOW,
@@ -270,7 +270,7 @@ class QueueService {
       });
 
       if (!jobId) {
-        throw new Error('Failed to enqueue job - no job ID returned');
+        throw new Error(`Failed to enqueue job - no job ID returned`);
       }
 
       // Track job in database
@@ -279,7 +279,7 @@ class QueueService {
       console.log(`✅ Job enqueued: ${jobId} in queue: ${queueName}`);
       return jobId;
     } catch (error) {
-      console.error('❌ Failed to enqueue job:', error);
+      console.error(`❌ Failed to enqueue job:`, error);
       throw error;
     }
   }
@@ -293,7 +293,7 @@ class QueueService {
     delay: number | Date
   ): Promise<string> {
     if (!this.boss) {
-      throw new Error('Queue service not initialized');
+      throw new Error(`Queue service not initialized`);
     }
 
     const startAfter = delay instanceof Date ? delay : new Date(Date.now() + delay);
@@ -315,7 +315,7 @@ class QueueService {
    */
   async processQueue(queueName: string, handler: (job: any) => Promise<any>): Promise<void> {
     if (!this.boss) {
-      throw new Error('Queue service not initialized');
+      throw new Error(`Queue service not initialized`);
     }
 
     const rateLimiterKey = this.getRateLimiterKey(queueName);
@@ -376,7 +376,7 @@ class QueueService {
       return {
         shouldRetry: false,
         delayMs: 0,
-        reason: 'Max retries reached',
+        reason: `Max retries reached`,
         errorType
       };
     }
@@ -525,7 +525,7 @@ class QueueService {
       }
 
       await pool.query(
-        'UPDATE job_tracking SET ${setFields.join(', ')} WHERE job_id = $1',
+        `UPDATE job_tracking SET ${setFields.join(`, `)} WHERE job_id = $1`,
         values
       );
     } catch (error) {
@@ -590,7 +590,7 @@ class QueueService {
       await this.updateJobStatus(job.id, JobStatus.DEAD_LETTER);
       console.log(`📪 Job ${job.id} moved to dead letter queue`);
     } catch (err) {
-      console.error('Failed to move job to dead letter queue:', err);
+      console.error(`Failed to move job to dead letter queue:`, err);
     }
   }
 
@@ -644,14 +644,14 @@ class QueueService {
       await pool.query(
         `UPDATE dead_letter_queue
          SET retry_attempted = TRUE, retry_attempted_at = NOW()
-         WHERE job_id = $1',
+         WHERE job_id = $1`,
         [jobId]
       );
 
       console.log(`🔄 Retried job ${jobId}, new job ID: ${newJobId}`);
       return newJobId;
     } catch (error) {
-      console.error('Failed to retry job:', error);
+      console.error(`Failed to retry job:`, error);
       throw error;
     }
   }
@@ -703,14 +703,14 @@ class QueueService {
    */
   async clearQueue(queueName: string): Promise<void> {
     if (!this.boss) {
-      throw new Error('Queue service not initialized');
+      throw new Error(`Queue service not initialized`);
     }
 
     try {
       await this.boss.deleteQueue(queueName);
       console.log(`🗑️ Queue ${queueName} cleared`);
     } catch (error) {
-      console.error('Failed to clear queue:', error);
+      console.error(`Failed to clear queue:`, error);
       throw error;
     }
   }
@@ -720,14 +720,14 @@ class QueueService {
    */
   async pauseQueue(queueName: string): Promise<void> {
     if (!this.boss) {
-      throw new Error('Queue service not initialized');
+      throw new Error(`Queue service not initialized`);
     }
 
     try {
       await this.boss.pause();
       console.log(`⏸️ Queue ${queueName} paused`);
     } catch (error) {
-      console.error('Failed to pause queue:', error);
+      console.error(`Failed to pause queue:`, error);
       throw error;
     }
   }
@@ -737,14 +737,14 @@ class QueueService {
    */
   async resumeQueue(queueName: string): Promise<void> {
     if (!this.boss) {
-      throw new Error('Queue service not initialized');
+      throw new Error(`Queue service not initialized`);
     }
 
     try {
       await this.boss.resume();
       console.log(`▶️ Queue ${queueName} resumed`);
     } catch (error) {
-      console.error('Failed to resume queue:', error);
+      console.error(`Failed to resume queue:`, error);
       throw error;
     }
   }
@@ -788,7 +788,7 @@ class QueueService {
         lastChecked: new Date()
       };
     } catch (error) {
-      console.error('Failed to get queue health:', error);
+      console.error(`Failed to get queue health:`, error);
       throw error;
     }
   }
@@ -805,7 +805,7 @@ class QueueService {
    */
   async shutdown(): Promise<void> {
     if (this.boss) {
-      console.log('🛑 Shutting down queue service...');
+      console.log(`🛑 Shutting down queue service...`);
       await this.boss.stop();
       this.isInitialized = false;
       console.log('✅ Queue service stopped');

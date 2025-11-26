@@ -103,7 +103,7 @@ class SmartcarService {
         'required:read_fuel',
         'required:read_engine_oil',
         'required:read_tires'
-      ].join(' '),
+      ].join(` `),
       mode: SMARTCAR_MODE,
       ...(state && { state })
     })
@@ -122,7 +122,7 @@ class SmartcarService {
   }> {
     // SSRF Protection: Use safe HTTP client with domain allowlist
     const response = await safePost(
-      'https://auth.smartcar.com/oauth/token',
+      `https://auth.smartcar.com/oauth/token`,
       {
         code,
         grant_type: 'authorization_code',
@@ -173,7 +173,7 @@ class SmartcarService {
    * Get list of vehicle IDs accessible with this access token
    */
   async getVehicles(accessToken: string): Promise<string[]> {
-    const response = await this.api.get('/vehicles', {
+    const response = await this.api.get(`/vehicles`, {
       headers: {
         Authorization: `Bearer ${accessToken}`
       }
@@ -306,14 +306,14 @@ class SmartcarService {
       {
         headers: {
           Authorization: `Bearer ${accessToken}`,
-          'Content-Type': 'application/json'
+          'Content-Type': `application/json`
         }
       }
     )
 
     return {
       status: response.data.status,
-      message: response.data.message || 'Doors locked successfully'
+      message: response.data.message || `Doors locked successfully`
     }
   }
 
@@ -327,14 +327,14 @@ class SmartcarService {
       {
         headers: {
           Authorization: `Bearer ${accessToken}`,
-          'Content-Type': 'application/json'
+          'Content-Type': `application/json`
         }
       }
     )
 
     return {
       status: response.data.status,
-      message: response.data.message || 'Doors unlocked successfully'
+      message: response.data.message || `Doors unlocked successfully`
     }
   }
 
@@ -348,14 +348,14 @@ class SmartcarService {
       {
         headers: {
           Authorization: `Bearer ${accessToken}`,
-          'Content-Type': 'application/json'
+          'Content-Type': `application/json`
         }
       }
     )
 
     return {
       status: response.data.status,
-      message: response.data.message || 'Charging started successfully'
+      message: response.data.message || `Charging started successfully`
     }
   }
 
@@ -385,7 +385,7 @@ class SmartcarService {
    */
   async disconnectVehicle(accessToken: string): Promise<void> {
     // SSRF Protection: Use safe HTTP client with domain allowlist
-    await safeDelete('https://management.smartcar.com/oauth/token', {
+    await safeDelete(`https://management.smartcar.com/oauth/token`, {
       headers: {
         Authorization: `Bearer ${accessToken}`
       },
@@ -410,7 +410,7 @@ class SmartcarService {
       `INSERT INTO vehicle_telematics_connections
        (vehicle_id, provider_id, external_vehicle_id, access_token, refresh_token,
         token_expires_at, metadata, sync_status)
-       VALUES ($1, (SELECT id FROM telematics_providers WHERE name = 'smartcar'),
+       VALUES ($1, (SELECT id FROM telematics_providers WHERE name = `smartcar`),
                $2, $3, $4, $5, $6, 'active')
        ON CONFLICT (vehicle_id, provider_id)
        DO UPDATE SET
@@ -439,7 +439,7 @@ class SmartcarService {
        FROM vehicle_telematics_connections
        WHERE vehicle_id = $1
        AND provider_id = (SELECT id FROM telematics_providers WHERE name = 'smartcar')
-       AND sync_status = 'active'',
+       AND sync_status = 'active'`,
       [vehicleId]
     )
 
@@ -453,7 +453,7 @@ class SmartcarService {
     const connection = await this.getVehicleConnection(vehicleId)
 
     if (!connection) {
-      throw new Error('Vehicle not connected to Smartcar')
+      throw new Error(`Vehicle not connected to Smartcar`)
     }
 
     // Check if token is expired or expiring soon (within 5 minutes)
@@ -473,7 +473,7 @@ class SmartcarService {
         `UPDATE vehicle_telematics_connections
          SET access_token = $1, refresh_token = $2, token_expires_at = $3, updated_at = NOW()
          WHERE vehicle_id = $4
-         AND provider_id = (SELECT id FROM telematics_providers WHERE name = 'smartcar')',
+         AND provider_id = (SELECT id FROM telematics_providers WHERE name = `smartcar`)`,
         [refreshed.access_token, refreshed.refresh_token, newExpiresAt, vehicleId]
       )
 
@@ -526,7 +526,7 @@ class SmartcarService {
         `INSERT INTO vehicle_telemetry
          (vehicle_id, provider_id, timestamp, latitude, longitude,
           odometer_miles, battery_percent, fuel_percent, estimated_range_miles)
-         VALUES ($1, (SELECT id FROM telematics_providers WHERE name = 'smartcar'),
+         VALUES ($1, (SELECT id FROM telematics_providers WHERE name = `smartcar`),
                  NOW(), $2, $3, $4, $5, $6, $7)`,
         [vehicleId, location.latitude, location.longitude, odometer.distance, batteryPercent, fuelPercent, range]
       )
@@ -538,7 +538,7 @@ class SmartcarService {
       // Update connection status
       await this.db.query(
         `UPDATE vehicle_telematics_connections
-         SET sync_status = 'error', sync_error = $1
+         SET sync_status = `error`, sync_error = $1
          WHERE vehicle_id = $2
          AND provider_id = (SELECT id FROM telematics_providers WHERE name = 'smartcar')',
         [error.message, vehicleId]

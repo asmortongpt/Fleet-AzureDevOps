@@ -99,10 +99,10 @@ router.get(
       let paramIndex = 2;
 
       // Apply scope filtering
-      if (user_scope === 'own') {
+      if (user_scope === `own`) {
         whereConditions.push(`dr.user_id = $${paramIndex++}`);
         params.push(req.user!.id);
-      } else if (user_scope === 'team' && req.user!.team_driver_ids) {
+      } else if (user_scope === `team` && req.user!.team_driver_ids) {
         whereConditions.push(`va.driver_id = ANY($${paramIndex++}::uuid[])`);
         params.push(req.user!.team_driver_ids);
       }
@@ -129,7 +129,7 @@ router.get(
         params.push(department_id);
       }
 
-      const whereClause = whereConditions.join(' AND ');
+      const whereClause = whereConditions.join(` AND `);
 
       // Get assignments
       const query = `
@@ -183,7 +183,7 @@ router.get(
         },
       });
     } catch (error: any) {
-      console.error('Error fetching vehicle assignments:', error);
+      console.error(`Error fetching vehicle assignments:`, error);
       res.status(500).json({
         error: 'Failed to fetch vehicle assignments',
         details: getErrorMessage(error),
@@ -363,7 +363,7 @@ router.post(
 router.put(
   '/:id',
   authenticateJWT,
-  requirePermission('vehicle_assignment:create:team'),
+  requirePermission(`vehicle_assignment:create:team`),
   async (req: AuthRequest, res: Response) => {
     try {
       const { id } = req.params;
@@ -378,12 +378,12 @@ router.put(
       Object.entries(data).forEach(([key, value]) => {
         if (value !== undefined) {
           updates.push(`${key} = $${paramIndex++}`);
-          params.push(key === 'geographic_constraints' ? JSON.stringify(value) : value);
+          params.push(key === `geographic_constraints` ? JSON.stringify(value) : value);
         }
       });
 
       if (updates.length === 0) {
-        return res.status(400).json({ error: 'No fields to update' });
+        return res.status(400).json({ error: `No fields to update` });
       }
 
       updates.push(`updated_at = NOW()`);
@@ -399,7 +399,7 @@ router.put(
       const result = await pool.query(query, params);
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'Vehicle assignment not found' });
+        return res.status(404).json({ error: `Vehicle assignment not found` });
       }
 
       res.json({
@@ -448,7 +448,7 @@ router.post(
       const result = await pool.query(query, [data.lifecycle_state, id, tenant_id]);
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'Vehicle assignment not found' });
+        return res.status(404).json({ error: `Vehicle assignment not found` });
       }
 
       res.json({
@@ -456,7 +456,7 @@ router.post(
         assignment: result.rows[0],
       });
     } catch (error: any) {
-      console.error('Error updating lifecycle state:', error);
+      console.error(`Error updating lifecycle state:`, error);
       if (error instanceof z.ZodError) {
         return res.status(400).json({
           error: 'Validation error',
@@ -587,7 +587,7 @@ router.post(
       }
 
       res.json({
-        message: 'Assignment ${data.action === 'approve' ? 'approved' : 'denied'} successfully',
+        message: `Assignment ${data.action === 'approve' ? 'approved' : 'denied'} successfully`,
         assignment: result.rows[0],
       });
     } catch (error: any) {

@@ -151,7 +151,7 @@ export class VehicleIdlingService extends EventEmitter {
           latitude, longitude, engine_rpm, speed_mph,
           data_source
         ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-        RETURNING id',
+        RETURNING id`,
         [
           state.vehicle_id,
           state.driver_id,
@@ -160,7 +160,7 @@ export class VehicleIdlingService extends EventEmitter {
           state.longitude,
           state.engine_rpm,
           state.speed_mph,
-          'gps_telematics'
+          `gps_telematics`
         ]
       );
 
@@ -170,7 +170,7 @@ export class VehicleIdlingService extends EventEmitter {
       console.log(`[IdlingService] Started idling event ${eventId} for vehicle ${state.vehicle_id}`);
 
       // Emit event for real-time updates
-      this.emit('idling:started', {
+      this.emit(`idling:started`, {
         event_id: eventId,
         vehicle_id: state.vehicle_id,
         driver_id: state.driver_id,
@@ -180,7 +180,7 @@ export class VehicleIdlingService extends EventEmitter {
       // Reverse geocode location if coordinates provided
       if (state.latitude && state.longitude) {
         this.reverseGeocodeLocation(eventId, state.latitude, state.longitude).catch(err => {
-          console.error('[IdlingService] Error reverse geocoding:', err);
+          console.error(`[IdlingService] Error reverse geocoding:`, err);
         });
       }
 
@@ -217,7 +217,7 @@ export class VehicleIdlingService extends EventEmitter {
         console.log(`[IdlingService] Ended idling event ${eventId} for vehicle ${vehicleId}. Duration: ${event.duration_seconds}s`);
 
         // Emit event for real-time updates
-        this.emit('idling:ended', {
+        this.emit(`idling:ended`, {
           event_id: eventId,
           vehicle_id: event.vehicle_id,
           driver_id: event.driver_id,
@@ -325,7 +325,7 @@ export class VehicleIdlingService extends EventEmitter {
       // Check if alert already sent for this severity level
       const existing = await client.query(
         `SELECT id FROM vehicle_idling_alerts
-         WHERE idling_event_id = $1 AND alert_level = $2',
+         WHERE idling_event_id = $1 AND alert_level = $2`,
         [eventId, severity]
       );
 
@@ -334,7 +334,7 @@ export class VehicleIdlingService extends EventEmitter {
       }
 
       const durationMinutes = Math.round(durationSeconds / 60);
-      const message = '${severity.toUpperCase()}: Vehicle "${eventData.vehicle_name}" has been idling for ${durationMinutes} minutes. Driver: ${eventData.driver_name || 'Unknown'}';
+      const message = "${severity.toUpperCase()}: Vehicle "${eventData.vehicle_name}" has been idling for ${durationMinutes} minutes. Driver: ${eventData.driver_name || "Unknown`}`;
 
       // Insert alert log
       await client.query(
@@ -348,14 +348,14 @@ export class VehicleIdlingService extends EventEmitter {
       await client.query(
         `UPDATE vehicle_idling_events
          SET alert_triggered = true, alert_sent_at = NOW()
-         WHERE id = $1',
+         WHERE id = $1`,
         [eventId]
       );
 
       console.log(`[IdlingService] ${severity.toUpperCase()} alert triggered for event ${eventId}`);
 
       // Emit for real-time notifications
-      this.emit('idling:alert', {
+      this.emit(`idling:alert`, {
         event_id: eventId,
         vehicle_id: vehicleId,
         driver_id: driverId,
@@ -423,7 +423,7 @@ export class VehicleIdlingService extends EventEmitter {
       await client.query(
         `UPDATE vehicle_idling_events
          SET location_name = $1
-         WHERE id = $2',
+         WHERE id = $2`,
         [locationName, eventId]
       );
     } finally {
@@ -453,7 +453,7 @@ export class VehicleIdlingService extends EventEmitter {
       const result = await client.query(
         `SELECT * FROM vehicle_idling_events
          WHERE vehicle_id = $1
-           AND start_time >= CURRENT_DATE - INTERVAL '${days} days'
+           AND start_time >= CURRENT_DATE - INTERVAL `${days} days`
          ORDER BY start_time DESC`,
         [vehicleId]
       );
@@ -481,7 +481,7 @@ export class VehicleIdlingService extends EventEmitter {
           ROUND(SUM(estimated_co2_kg)::NUMERIC, 2) AS total_co2_kg
         FROM vehicle_idling_events
         WHERE vehicle_id = $1
-          AND start_time >= CURRENT_DATE - INTERVAL '${days} days'
+          AND start_time >= CURRENT_DATE - INTERVAL `${days} days`
           AND duration_seconds IS NOT NULL`,
         [vehicleId]
       );
@@ -509,7 +509,7 @@ export class VehicleIdlingService extends EventEmitter {
           ROUND(SUM(estimated_fuel_cost_usd)::NUMERIC, 2) AS total_fuel_cost_usd,
           ROUND(SUM(estimated_co2_kg)::NUMERIC, 2) AS total_co2_kg
         FROM vehicle_idling_events
-        WHERE start_time >= CURRENT_DATE - INTERVAL '${days} days'
+        WHERE start_time >= CURRENT_DATE - INTERVAL `${days} days`
           AND duration_seconds IS NOT NULL`
       );
       return result.rows[0] || null;
@@ -575,7 +575,7 @@ export class VehicleIdlingService extends EventEmitter {
           event.idle_type || 'unknown',
           event.is_authorized || false,
           event.driver_notes,
-          'manual'
+          `manual`
         ]
       );
 
@@ -595,7 +595,7 @@ export class VehicleIdlingService extends EventEmitter {
     const client = await this.pool.connect();
     try {
       const result = await client.query(
-        'SELECT * FROM active_idling_events WHERE vehicle_id = $1',
+        `SELECT * FROM active_idling_events WHERE vehicle_id = $1`,
         [vehicleId]
       );
       return result.rows[0] || null;
@@ -618,9 +618,9 @@ export class VehicleIdlingService extends EventEmitter {
       const result = await client.query(
         `SELECT * FROM vehicle_idling_events
          WHERE vehicle_id = $1
-           AND start_time >= NOW() - INTERVAL '${days} days'
+           AND start_time >= NOW() - INTERVAL `${days} days`
          ORDER BY start_time DESC
-         LIMIT $2 OFFSET $3',
+         LIMIT $2 OFFSET $3`,
         [vehicleId, limit, offset]
       );
       return result.rows;
@@ -643,9 +643,9 @@ export class VehicleIdlingService extends EventEmitter {
       const result = await client.query(
         `SELECT * FROM vehicle_idling_events
          WHERE driver_id = $1
-           AND start_time >= NOW() - INTERVAL '${days} days'
+           AND start_time >= NOW() - INTERVAL `${days} days`
          ORDER BY start_time DESC
-         LIMIT $2 OFFSET $3',
+         LIMIT $2 OFFSET $3`,
         [driverId, limit, offset]
       );
       return result.rows;
@@ -680,7 +680,7 @@ export class VehicleIdlingService extends EventEmitter {
     try {
       // Try to get vehicle-specific thresholds first
       let result = await client.query(
-        'SELECT * FROM vehicle_idling_thresholds WHERE vehicle_id = $1',
+        `SELECT * FROM vehicle_idling_thresholds WHERE vehicle_id = $1`,
         [vehicleId]
       );
 
@@ -763,9 +763,9 @@ export class VehicleIdlingService extends EventEmitter {
       values.push(vehicleId);
 
       await client.query(
-        'INSERT INTO vehicle_idling_thresholds (vehicle_id, ${fields.join(', ').replace(/\s*=\s*\$\d+/g, '')})
-         VALUES ($${paramIndex}, ${values.slice(0, -1).map((_, i) => '$${i + 1}').join(', ')})
-         ON CONFLICT (vehicle_id) DO UPDATE SET ${fields.join(', ')}, updated_at = CURRENT_TIMESTAMP',
+        `INSERT INTO vehicle_idling_thresholds (vehicle_id, ${fields.join(', ').replace(/\s*=\s*\$\d+/g, '`)})
+         VALUES ($${paramIndex}, ${values.slice(0, -1).map((_, i) => `$${i + 1}`).join(`, `)})
+         ON CONFLICT (vehicle_id) DO UPDATE SET ${fields.join(`, `)}, updated_at = CURRENT_TIMESTAMP`,
         values
       );
 
@@ -805,7 +805,7 @@ export class VehicleIdlingService extends EventEmitter {
          SET acknowledged = true,
              acknowledged_by = $1,
              acknowledged_at = CURRENT_TIMESTAMP
-         WHERE id = $2',
+         WHERE id = $2`,
         [userId, alertId]
       );
 
@@ -823,7 +823,7 @@ export class VehicleIdlingService extends EventEmitter {
     try {
       const result = await client.query(
         `SELECT * FROM fleet_idling_costs_monthly
-         WHERE month >= DATE_TRUNC('month', NOW() - INTERVAL '${months} months')
+         WHERE month >= DATE_TRUNC(`month`, NOW() - INTERVAL `${months} months`)
          ORDER BY month DESC`
       );
       return result.rows;

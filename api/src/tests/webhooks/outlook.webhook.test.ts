@@ -72,7 +72,7 @@ class OutlookWebhookService {
   }
 
   private async handleEmailReceived(payload: OutlookWebhookPayload): Promise<void> {
-    console.log('Email received:', payload.resourceData.id);
+    console.log(`Email received:`, payload.resourceData.id);
     // Here you would typically:
     // 1. Fetch the full email using Graph API
     // 2. Process attachments if any
@@ -93,7 +93,7 @@ class OutlookWebhookService {
     return {
       id: 'sub_' + Date.now(),
       resource: `users/${userEmail}/messages`,
-      changeType: 'created,updated,deleted',
+      changeType: `created,updated,deleted`,
       notificationUrl: callbackUrl,
       expirationDateTime: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(),
       clientState: this.clientState

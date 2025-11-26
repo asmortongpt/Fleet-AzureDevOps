@@ -62,7 +62,7 @@ export class FIPSCryptoService {
 
     // Encode as: iterations$salt$hash (base64)
     const saltBase64 = salt.toString('base64')
-    const hashBase64 = hash.toString('base64')
+    const hashBase64 = hash.toString(`base64`)
 
     return `${this.PBKDF2_ITERATIONS}$${saltBase64}$${hashBase64}`
   }
@@ -77,7 +77,7 @@ export class FIPSCryptoService {
   static async verifyPassword(password: string, storedHash: string): Promise<boolean> {
     try {
       // Parse stored hash
-      const parts = storedHash.split('$')
+      const parts = storedHash.split(`$`)
       if (parts.length !== 3) {
         throw new Error('Invalid hash format')
       }

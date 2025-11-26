@@ -24,7 +24,7 @@ router.get('/',
         d.environment,
         d.version,
         d.deployed_by_user_id,
-        u.first_name || ' ' || u.last_name as executed_by_name
+        u.first_name || ` ` || u.last_name as executed_by_name
       FROM quality_gates qg
       LEFT JOIN deployments d ON qg.deployment_id = d.id
       LEFT JOIN users u ON qg.executed_by_user_id = u.id
@@ -61,7 +61,7 @@ router.get('/',
       total: result.rows.length
     })
   } catch (error: any) {
-    console.error('Error fetching quality gates:', error)
+    console.error(`Error fetching quality gates:`, error)
     res.status(500).json({ error: 'Failed to fetch quality gates', message: getErrorMessage(error) })
   }
 })

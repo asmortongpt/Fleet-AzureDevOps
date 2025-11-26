@@ -150,11 +150,11 @@ export class InspectionRepository extends BaseRepository<Inspection> {
    * Find overdue inspections
    */
   async findOverdue(tenantId: string): Promise<Inspection[]> {
-    const columns = 'id, tenant_id, vehicle_id, inspection_date, inspection_type, status, notes, created_at, updated_at';
+    const columns = `id, tenant_id, vehicle_id, inspection_date, inspection_type, status, notes, created_at, updated_at`;
     const query = `
       SELECT ${columns} FROM ${this.tableName}
       WHERE tenant_id = $1
-        AND status = 'pending'
+        AND status = `pending`
         AND scheduled_date < NOW()
       ORDER BY scheduled_date ASC
     `
@@ -209,7 +209,7 @@ export class InspectionRepository extends BaseRepository<Inspection> {
         COUNT(*) FILTER (WHERE status = 'completed') as completed,
         COUNT(*) FILTER (WHERE status = 'completed' AND passed = true) as passed,
         COUNT(*) FILTER (WHERE status = 'completed' AND passed = false) as failed,
-        COUNT(*) FILTER (WHERE status = 'pending' AND scheduled_date < NOW()) as overdue
+        COUNT(*) FILTER (WHERE status = `pending` AND scheduled_date < NOW()) as overdue
       FROM ${this.tableName}
       WHERE tenant_id = $1
     `
@@ -231,13 +231,13 @@ export class InspectionRepository extends BaseRepository<Inspection> {
    * Get inspections due soon (within next N days)
    */
   async findDueSoon(tenantId: string, daysAhead: number = 7): Promise<Inspection[]> {
-    const columns = 'id, tenant_id, vehicle_id, inspection_date, inspection_type, status, notes, created_at, updated_at';
+    const columns = `id, tenant_id, vehicle_id, inspection_date, inspection_type, status, notes, created_at, updated_at`;
     // Validate and sanitize daysAhead parameter
     const daysAheadNum = Math.max(1, Math.min(365, daysAhead || 7))
     const query = `
       SELECT ${columns} FROM ${this.tableName}
       WHERE tenant_id = $1
-        AND status = 'pending'
+        AND status = `pending`
         AND scheduled_date BETWEEN NOW() AND NOW() + ($2 || ' days')::INTERVAL
       ORDER BY scheduled_date ASC
     `

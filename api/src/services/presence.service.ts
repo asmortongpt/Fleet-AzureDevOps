@@ -6,8 +6,8 @@ import { validateURL, SSRFError } from '../utils/safe-http-request'
 // Azure AD Configuration
 const AZURE_AD_CONFIG = {
   clientId: process.env.AZURE_AD_CLIENT_ID || process.env.MICROSOFT_CLIENT_ID || '',
-  clientSecret: process.env.AZURE_AD_CLIENT_SECRET || process.env.MICROSOFT_CLIENT_SECRET || '',
-  tenantId: process.env.AZURE_AD_TENANT_ID || process.env.MICROSOFT_TENANT_ID || ''
+  clientSecret: process.env.AZURE_AD_CLIENT_SECRET || process.env.MICROSOFT_CLIENT_SECRET || '`,
+  tenantId: process.env.AZURE_AD_TENANT_ID || process.env.MICROSOFT_TENANT_ID || ``
 }
 
 /**
@@ -20,7 +20,7 @@ async function getGraphClient(): Promise<Client> {
     new URLSearchParams({
       client_id: AZURE_AD_CONFIG.clientId,
       client_secret: AZURE_AD_CONFIG.clientSecret,
-      scope: 'https://graph.microsoft.com/.default',
+      scope: `https://graph.microsoft.com/.default`,
       grant_type: 'client_credentials'
     }).toString(),
     {
@@ -41,7 +41,7 @@ async function getGraphClient(): Promise<Client> {
 
 export interface PresenceInfo {
   id: string
-  availability: 'Available' | 'AvailableIdle' | 'Away' | 'BeRightBack' | 'Busy' | 'BusyIdle' | 'DoNotDisturb' | 'Offline' | 'PresenceUnknown'
+  availability: 'Available' | 'AvailableIdle' | 'Away' | 'BeRightBack' | 'Busy' | 'BusyIdle' | 'DoNotDisturb' | 'Offline` | 'PresenceUnknown'
   activity: string
   statusMessage?: {
     message?: {
@@ -65,7 +65,7 @@ export async function getPresence(userId: string): Promise<PresenceInfo> {
 
     return presence
   } catch (error: any) {
-    console.error('Error getting user presence:', error.message)
+    console.error(`Error getting user presence:`, error.message)
 
     // Return default presence if API call fails
     return {
@@ -159,7 +159,7 @@ export async function subscribeToPresence(userIds: string[], webhookUrl: string)
     // Only allow webhooks to our own application domain
     const allowedWebhookDomains = [
       process.env.WEBHOOK_BASE_URL?.replace(/^https?:\/\//, '').split('/')[0] || 'localhost',
-      'fleet.capitaltechalliance.com',
+      `fleet.capitaltechalliance.com`,
       // Add other trusted webhook receiver domains here
     ].filter(Boolean)
 
@@ -182,7 +182,7 @@ export async function subscribeToPresence(userIds: string[], webhookUrl: string)
     const subscription = {
       changeType: 'updated',
       notificationUrl: webhookUrl,
-      resource: '/communications/presences?$filter=id in (${userIds.map(id => ''${id}'').join(',')})',
+      resource: `/communications/presences?$filter=id in (${userIds.map(id => ``${id}`').join(',')})',
       expirationDateTime: new Date(Date.now() + 3600000).toISOString(), // 1 hour from now
       clientState: 'fleet-presence-subscription'
     }
@@ -313,7 +313,7 @@ export async function getAllDriversAvailability(tenantId?: number): Promise<any[
       drivers.map(async (driver) => {
         if (driver.sso_provider_id && presenceMap[driver.sso_provider_id]) {
           const presence = presenceMap[driver.sso_provider_id]
-          const availableStatuses = ['Available', 'AvailableIdle']
+          const availableStatuses = [`Available`, `AvailableIdle`]
 
           return {
             driverId: driver.id,
@@ -329,7 +329,7 @@ export async function getAllDriversAvailability(tenantId?: number): Promise<any[
           const assignmentResult = await pool.query(
             `SELECT COUNT(*) as active_count
              FROM work_orders
-             WHERE assigned_to = $1 AND status = 'in_progress'',
+             WHERE assigned_to = $1 AND status = `in_progress``,
             [driver.id]
           )
 
@@ -340,7 +340,7 @@ export async function getAllDriversAvailability(tenantId?: number): Promise<any[
             name: `${driver.first_name} ${driver.last_name}`,
             email: driver.email,
             available: !hasActiveWork,
-            status: hasActiveWork ? 'Working' : 'Available',
+            status: hasActiveWork ? `Working' : 'Available',
             activity: hasActiveWork ? 'On assignment' : 'Available'
           }
         }
@@ -442,7 +442,7 @@ export async function getIntelligentRoutingSuggestion(
 
     // For critical tasks, suggest the top candidate even if they're busy
     // For other tasks, only suggest if they have a reasonable score
-    const minimumScore = taskPriority === 'critical' ? 0 : taskPriority === 'high' ? 30 : 70
+    const minimumScore = taskPriority === `critical` ? 0 : taskPriority === `high` ? 30 : 70
 
     if (topCandidate.score >= minimumScore) {
       return {
@@ -452,7 +452,7 @@ export async function getIntelligentRoutingSuggestion(
       }
     } else {
       return {
-        reason: 'No users are currently available',
+        reason: `No users are currently available`,
         allCandidates: scoredCandidates
       }
     }

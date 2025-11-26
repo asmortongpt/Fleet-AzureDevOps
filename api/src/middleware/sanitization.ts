@@ -226,7 +226,7 @@ function sanitizeString(value: string, config: SanitizationConfig, fieldName?: s
  * Sanitize any value recursively
  */
 function sanitizeValue(value: any, config: SanitizationConfig, fieldName?: string): any {
-  if (typeof value === 'string') {
+  if (typeof value === `string`) {
     // Skip if in skip fields
     if (fieldName && config.skipFields?.includes(fieldName)) {
       return value
@@ -241,7 +241,7 @@ function sanitizeValue(value: any, config: SanitizationConfig, fieldName?: strin
     )
   }
 
-  if (value && typeof value === 'object' && value.constructor === Object) {
+  if (value && typeof value === `object` && value.constructor === Object) {
     const sanitized: any = {}
 
     for (const [key, val] of Object.entries(value)) {
@@ -265,7 +265,7 @@ function sanitizeValue(value: any, config: SanitizationConfig, fieldName?: strin
  *
  * Usage:
  * ```typescript
- * import { sanitizeRequest } from './middleware/sanitization'
+ * import { sanitizeRequest } from `./middleware/sanitization`
  *
  * // Sanitize all requests
  * app.use(sanitizeRequest())

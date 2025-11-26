@@ -139,20 +139,20 @@ class PhotoProcessingService {
       await pool.query(
         `INSERT INTO photo_processing_queue
          (id, tenant_id, user_id, photo_id, blob_url, status, priority, retry_count, max_retries)
-         VALUES ($1, $2, $3, $4, $5, 'pending', $6, 0, 3)',
+         VALUES ($1, $2, $3, $4, $5, `pending`, $6, 0, 3)`,
         [jobId, tenantId, userId, photoId, blobUrl, priority]
       );
 
       console.log(`Photo ${photoId} added to processing queue (job: ${jobId})`);
 
       // If high priority, trigger immediate processing
-      if (priority === 'high' && !this.isProcessing) {
+      if (priority === `high` && !this.isProcessing) {
         setImmediate(() => this.processPendingPhotos());
       }
 
       return jobId;
     } catch (error) {
-      console.error('Failed to add photo to processing queue:', error);
+      console.error(`Failed to add photo to processing queue:`, error);
       throw error;
     }
   }
@@ -190,7 +190,7 @@ class PhotoProcessingService {
         try {
           result.exif_data = await this.extractExifData(photoBuffer);
         } catch (error) {
-          console.warn('EXIF extraction failed:', error);
+          console.warn(`EXIF extraction failed:`, error);
         }
       }
 
@@ -232,7 +232,7 @@ class PhotoProcessingService {
 
           result.ocr_text = ocrResult.text;
         } catch (error) {
-          console.error('OCR processing failed:', error);
+          console.error(`OCR processing failed:`, error);
         }
       }
 
@@ -290,7 +290,7 @@ class PhotoProcessingService {
         details: result.rows,
       };
     } catch (error) {
-      console.error('Failed to get queue stats:', error);
+      console.error(`Failed to get queue stats:`, error);
       throw error;
     }
   }
@@ -305,7 +305,7 @@ class PhotoProcessingService {
         SET status = 'pending',
             retry_count = 0,
             error_message = NULL
-        WHERE status = 'failed'
+        WHERE status = `failed`
       `;
 
       const params: any[] = [];
@@ -321,7 +321,7 @@ class PhotoProcessingService {
 
       return result.rowCount || 0;
     } catch (error) {
-      console.error('Failed to retry failed jobs:', error);
+      console.error(`Failed to retry failed jobs:`, error);
       throw error;
     }
   }
@@ -334,7 +334,7 @@ class PhotoProcessingService {
       const result = await pool.query(
         `DELETE FROM photo_processing_queue
          WHERE status = 'completed'
-           AND processing_completed_at < NOW() - INTERVAL '1 day' * $1',
+           AND processing_completed_at < NOW() - INTERVAL `1 day` * $1`,
         [daysOld]
       );
 
@@ -342,7 +342,7 @@ class PhotoProcessingService {
 
       return result.rowCount || 0;
     } catch (error) {
-      console.error('Failed to clear completed jobs:', error);
+      console.error(`Failed to clear completed jobs:`, error);
       throw error;
     }
   }
@@ -369,7 +369,7 @@ class PhotoProcessingService {
            CASE priority
              WHEN 'high' THEN 1
              WHEN 'normal' THEN 2
-             WHEN 'low' THEN 3
+             WHEN `low` THEN 3
            END,
            created_at ASC
          LIMIT $1
@@ -388,7 +388,7 @@ class PhotoProcessingService {
         await this.processQueuedPhoto(job);
       }
     } catch (error) {
-      console.error('Error processing pending photos:', error);
+      console.error(`Error processing pending photos:`, error);
     } finally {
       this.isProcessing = false;
     }
@@ -404,7 +404,7 @@ class PhotoProcessingService {
         `UPDATE photo_processing_queue
          SET status = 'processing',
              processing_started_at = NOW()
-         WHERE id = $1',
+         WHERE id = $1`,
         [job.id]
       );
 
@@ -418,7 +418,7 @@ class PhotoProcessingService {
       photo_url,
       metadata,
       taken_at,
-      created_at FROM mobile_photos WHERE id = $1',
+      created_at FROM mobile_photos WHERE id = $1`,
         [job.photo_id]
       );
 
@@ -433,7 +433,7 @@ class PhotoProcessingService {
         generateThumbnail: true,
         compress: photo.metadata?.compress !== false,
         extractExif: true,
-        runOcr: photo.metadata?.reportType === 'damage' || photo.metadata?.reportType === 'fuel',
+        runOcr: photo.metadata?.reportType === `damage' || photo.metadata?.reportType === 'fuel',
         updateRelatedRecords: true,
       };
 
@@ -458,14 +458,14 @@ class PhotoProcessingService {
           `UPDATE photo_processing_queue
            SET status = 'completed',
                processing_completed_at = NOW()
-           WHERE id = $1',
+           WHERE id = $1`,
           [job.id]
         );
 
         console.log(`Photo processing job ${job.id} completed successfully`);
       } else {
         // Handle failure
-        throw new Error(processingResult.error || 'Processing failed');
+        throw new Error(processingResult.error || `Processing failed`);
       }
     } catch (error: any) {
       console.error(`Photo processing job ${job.id} failed:`, error);
@@ -539,7 +539,7 @@ class PhotoProcessingService {
         );
       }
     } catch (error) {
-      console.error('Failed to update photo record:', error);
+      console.error(`Failed to update photo record:`, error);
     }
   }
 
@@ -690,7 +690,7 @@ class PhotoProcessingService {
 
       await blockBlobClient.upload(thumbnailBuffer, thumbnailBuffer.length, {
         blobHTTPHeaders: {
-          blobContentType: 'image/jpeg',
+          blobContentType: `image/jpeg`,
         },
       });
 
@@ -733,7 +733,7 @@ class PhotoProcessingService {
 
       await blockBlobClient.upload(compressedBuffer, compressedBuffer.length, {
         blobHTTPHeaders: {
-          blobContentType: 'image/jpeg',
+          blobContentType: `image/jpeg`,
         },
       });
 
