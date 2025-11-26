@@ -58,8 +58,9 @@ async function ensureLeafletLoaded(): Promise<typeof import("leaflet")> {
 
   try {
     // Dynamic import of Leaflet library
+    // Leaflet uses named exports, not default export
     const leafletModule = await import("leaflet")
-    L = leafletModule.default || leafletModule
+    L = leafletModule as any as typeof import("leaflet")
 
     if (!L || typeof L.map !== "function") {
       throw new Error("Leaflet library loaded but is missing core functionality")
