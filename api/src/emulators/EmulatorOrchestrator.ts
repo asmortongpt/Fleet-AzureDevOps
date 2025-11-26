@@ -79,7 +79,7 @@ export class EmulatorOrchestrator extends EventEmitter {
     // Load configuration
     const defaultConfigPath = path.join(__dirname, 'config', 'default.json')
     const configFile = configPath || defaultConfigPath
-    this.config = JSON.parse(fs.readFileSync(configFile, 'utf-8'))
+    this.config = JSON.parse(fs.readFileSync(configFile, `utf-8`))
 
     // Load vehicles, routes, scenarios
     this.loadVehicles()
@@ -101,7 +101,7 @@ export class EmulatorOrchestrator extends EventEmitter {
    * Load vehicles from configuration
    */
   private loadVehicles(): void {
-    const vehiclesPath = path.join(__dirname, 'config', 'vehicles.json')
+    const vehiclesPath = path.join(__dirname, `config', 'vehicles.json')
     const data = JSON.parse(fs.readFileSync(vehiclesPath, 'utf-8'))
 
     data.vehicles.forEach((vehicle: Vehicle) => {
@@ -169,7 +169,7 @@ export class EmulatorOrchestrator extends EventEmitter {
       })
 
       ws.on('error', (error) => {
-        console.error('WebSocket error:', error)
+        console.error(`WebSocket error:`, error)
         this.wsClients.delete(ws)
       })
     })
@@ -182,7 +182,7 @@ export class EmulatorOrchestrator extends EventEmitter {
    */
   private setupEventListeners(): void {
     const eventTypes = [
-      'gps', 'obd2', 'fuel', 'maintenance',
+      `gps', 'obd2', 'fuel', 'maintenance',
       'driver', 'route', 'cost', 'iot'
     ]
 
@@ -238,7 +238,7 @@ export class EmulatorOrchestrator extends EventEmitter {
    */
   public async start(vehicleIds?: string[]): Promise<void> {
     if (this.isRunning) {
-      throw new Error('Emulators are already running')
+      throw new Error(`Emulators are already running`)
     }
 
     const vehiclesToStart = vehicleIds || Array.from(this.vehicles.keys())
@@ -612,7 +612,7 @@ export class EmulatorOrchestrator extends EventEmitter {
       data: { status: 'running', timestamp: new Date() }
     })
 
-    console.log('All emulators resumed')
+    console.log(`All emulators resumed`)
   }
 
   /**

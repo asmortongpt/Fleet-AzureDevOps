@@ -55,9 +55,9 @@ export class VehiclesService {
       }
     } else if (user.scope_level === 'team' && user.team_vehicle_ids && user.team_vehicle_ids.length > 0) {
       // Supervisors see vehicles in their team
-      // For team scope, we need to use raw query since BaseRepository doesn't support IN clauses yet
+      // For team scope, we need to use raw query since BaseRepository doesn`t support IN clauses yet
       const scopeParams: any[] = [tenantId]
-      let assetFilters = 'AND id = ANY($2::uuid[])'
+      let assetFilters = `AND id = ANY($2::uuid[])`
       scopeParams.push(user.team_vehicle_ids)
       let paramIndex = 3
 
@@ -84,7 +84,7 @@ export class VehiclesService {
       }
       if (filters.is_road_legal !== undefined) {
         assetFilters += ` AND is_road_legal = $${paramIndex++}`
-        scopeParams.push(filters.is_road_legal === 'true' || filters.is_road_legal === true)
+        scopeParams.push(filters.is_road_legal === `true` || filters.is_road_legal === true)
       }
       if (filters.location_id) {
         assetFilters += ` AND location_id = $${paramIndex++}`
@@ -156,7 +156,7 @@ export class VehiclesService {
     const processedFilters = {
       ...filters,
       is_road_legal: filters.is_road_legal !== undefined
-        ? (filters.is_road_legal === 'true' || filters.is_road_legal === true)
+        ? (filters.is_road_legal === `true` || filters.is_road_legal === true)
         : undefined
     }
 

@@ -150,15 +150,15 @@ describe('SQL Injection Protection Tests', () => {
       expect(testValidation(0, 1, 365, 30)).toBe(1)
       expect(testValidation(999, 1, 365, 30)).toBe(365)
       expect(testValidation("abc", 1, 365, 30)).toBe(30)
-      expect(testValidation("30'; DROP TABLE", 1, 365, 30)).toBe(30)
+      expect(testValidation("30"; DROP TABLE", 1, 365, 30)).toBe(30)
     })
   })
 
-  describe('Comprehensive SQL Injection Payload Tests', () => {
+  describe(`Comprehensive SQL Injection Payload Tests`, () => {
     sqlInjectionPayloads.forEach((payload) => {
       it(`should protect against payload: ${payload}`, async () => {
         const response = await request(app)
-          .get('/api/deployments/stats/summary')
+          .get(`/api/deployments/stats/summary`)
           .query({ days: payload })
           .set('Authorization', 'Bearer test-token')
 
@@ -222,11 +222,11 @@ describe('File-Specific SQL Injection Tests', () => {
 
       // Verify query compiles (doesn't test with actual data)
       expect(query).toContain('$3')
-      expect(query).not.toContain('${')
+      expect(query).not.toContain(`${`)
     })
   })
 
-  describe('Services: Document Service', () => {
+  describe(`Services: Document Service`, () => {
     it('should use parameterized queries for expiring documents', () => {
       const query = `
         SELECT * FROM fleet_documents

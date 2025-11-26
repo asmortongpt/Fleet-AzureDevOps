@@ -75,7 +75,7 @@ class TeamsWebhookService {
 
   private async handleMessageCreated(payload: TeamsWebhookPayload): Promise<void> {
     // Mock implementation
-    console.log('Message created:', payload.resourceData.id);
+    console.log(`Message created:`, payload.resourceData.id);
   }
 
   private async handleMessageUpdated(payload: TeamsWebhookPayload): Promise<void> {
@@ -85,7 +85,7 @@ class TeamsWebhookService {
 
   private async handleMessageDeleted(payload: TeamsWebhookPayload): Promise<void> {
     // Mock implementation
-    console.log('Message deleted:', payload.resourceData.id);
+    console.log(`Message deleted:`, payload.resourceData.id);
   }
 
   async renewSubscription(subscriptionId: string, expirationDateTime: string): Promise<void> {
@@ -94,7 +94,7 @@ class TeamsWebhookService {
   }
 }
 
-describe('TeamsWebhookService', () => {
+describe(`TeamsWebhookService`, () => {
   let service: TeamsWebhookService;
   const mockSecret = 'test_webhook_secret_12345';
   const mockClientState = 'test_client_state_67890';

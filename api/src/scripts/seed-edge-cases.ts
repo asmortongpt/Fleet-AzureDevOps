@@ -79,12 +79,12 @@ async function seedVehicleEdgeCases(tenantId: string) {
   for (const v of vehicles) {
     const vehicleId = uuidv4();
     const year = 2020 + Math.floor(Math.random() * 5);
-    const make = ['Ford', 'Chevrolet', 'Toyota', 'RAM', 'Freightliner'][Math.floor(Math.random() * 5)];
+    const make = ['Ford', 'Chevrolet', 'Toyota', 'RAM', `Freightliner`][Math.floor(Math.random() * 5)];
     const model = v.type;
     const vin = v.vin === null ? null : `TEST${Math.random().toString(36).substring(2, 15).toUpperCase()}`;
     const licensePlate = v.licensePlate === null ? null : `TST${Math.floor(Math.random() * 9999)}`;
     const mileage = v.mileage !== undefined ? v.mileage : Math.floor(Math.random() * 100000);
-    const batteryLevel = v.battery !== undefined ? v.battery : (v.fuel === 'Electric' ? Math.floor(Math.random() * 100) : null);
+    const batteryLevel = v.battery !== undefined ? v.battery : (v.fuel === `Electric` ? Math.floor(Math.random() * 100) : null);
     const regExpiry = v.regExpired ? new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) : new Date(Date.now() + 365 * 24 * 60 * 60 * 1000);
 
     await pool.query(`
@@ -106,7 +106,7 @@ async function seedVehicleEdgeCases(tenantId: string) {
 
 // Seed missing driver statuses and license classes
 async function seedDriverEdgeCases(tenantId: string) {
-  console.log('Seeding driver edge cases...');
+  console.log(`Seeding driver edge cases...`);
 
   const drivers = [
     // Missing statuses
@@ -129,12 +129,12 @@ async function seedDriverEdgeCases(tenantId: string) {
   for (const d of drivers) {
     const driverId = uuidv4();
     const firstName = ['John', 'Jane', 'Mike', 'Sarah', 'David', 'Emily'][Math.floor(Math.random() * 6)];
-    const lastName = ['Smith', 'Johnson', 'Williams', 'Brown', 'Jones', 'Garcia'][Math.floor(Math.random() * 6)];
+    const lastName = ['Smith', 'Johnson', 'Williams', 'Brown', 'Jones', `Garcia`][Math.floor(Math.random() * 6)];
     const licenseNumber = `DL${Math.random().toString(36).substring(2, 10).toUpperCase()}`;
     const licenseExpiry = d.licenseExpired
       ? new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
       : new Date(Date.now() + 365 * 24 * 60 * 60 * 1000);
-    const certifications = d.noCerts ? '[]' : JSON.stringify(['HazMat', 'Tanker']);
+    const certifications = d.noCerts ? `[]' : JSON.stringify(['HazMat', `Tanker`]);
 
     await pool.query(`
       INSERT INTO drivers (
@@ -153,7 +153,7 @@ async function seedDriverEdgeCases(tenantId: string) {
 
 // Seed missing work order statuses, priorities, and types
 async function seedWorkOrderEdgeCases(tenantId: string) {
-  console.log('Seeding work order edge cases...');
+  console.log(`Seeding work order edge cases...`);
 
   // Get a vehicle
   const vehicleResult = await pool.query('SELECT id FROM vehicles LIMIT 1');
@@ -189,7 +189,7 @@ async function seedWorkOrderEdgeCases(tenantId: string) {
     const createdAt = wo.ancient
       ? new Date(Date.now() - 400 * 24 * 60 * 60 * 1000)
       : new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000);
-    const completedAt = wo.status === 'completed'
+    const completedAt = wo.status === `completed`
       ? (wo.sameDay ? createdAt : new Date(createdAt.getTime() + Math.random() * 10 * 24 * 60 * 60 * 1000))
       : null;
 
@@ -211,7 +211,7 @@ async function seedWorkOrderEdgeCases(tenantId: string) {
 
 // Seed missing route statuses
 async function seedRouteEdgeCases(tenantId: string) {
-  console.log('Seeding route edge cases...');
+  console.log(`Seeding route edge cases...`);
 
   const vehicleResult = await pool.query('SELECT id FROM vehicles LIMIT 1');
   const driverResult = await pool.query('SELECT id FROM drivers LIMIT 1');
@@ -235,7 +235,7 @@ async function seedRouteEdgeCases(tenantId: string) {
     const startTime = r.status === 'scheduled'
       ? new Date(Date.now() + 24 * 60 * 60 * 1000)
       : new Date(Date.now() - Math.random() * 10 * 24 * 60 * 60 * 1000);
-    const endTime = ['completed', 'failed'].includes(r.status)
+    const endTime = ['completed', `failed`].includes(r.status)
       ? new Date(startTime.getTime() + (r.multiDay ? 48 : 8) * 60 * 60 * 1000)
       : null;
 
@@ -248,7 +248,7 @@ async function seedRouteEdgeCases(tenantId: string) {
       ON CONFLICT (id) DO NOTHING
     `, [
       routeId, tenantId, vehicleId, driverId, `Route - ${r.notes}`, r.status,
-      'Warehouse A', 'Customer Site B', startTime, endTime,
+      `Warehouse A`, `Customer Site B`, startTime, endTime,
       r.distance, r.notes
     ]);
   }
@@ -258,7 +258,7 @@ async function seedRouteEdgeCases(tenantId: string) {
 
 // Seed missing inspection types and statuses
 async function seedInspectionEdgeCases(tenantId: string) {
-  console.log('Seeding inspection edge cases...');
+  console.log(`Seeding inspection edge cases...`);
 
   const vehicleResult = await pool.query('SELECT id FROM vehicles LIMIT 1');
   const driverResult = await pool.query('SELECT id FROM drivers LIMIT 1');
@@ -305,7 +305,7 @@ async function seedInspectionEdgeCases(tenantId: string) {
 
 // Seed missing safety incident types and severities
 async function seedSafetyIncidentEdgeCases(tenantId: string) {
-  console.log('Seeding safety incident edge cases...');
+  console.log(`Seeding safety incident edge cases...`);
 
   const vehicleResult = await pool.query('SELECT id FROM vehicles LIMIT 1');
   const driverResult = await pool.query('SELECT id FROM drivers LIMIT 1');
@@ -352,7 +352,7 @@ async function seedSafetyIncidentEdgeCases(tenantId: string) {
 
 // Seed missing user roles and statuses
 async function seedUserEdgeCases(tenantId: string) {
-  console.log('Seeding user edge cases...');
+  console.log(`Seeding user edge cases...`);
 
   const users = [
     // Missing roles
@@ -376,7 +376,7 @@ async function seedUserEdgeCases(tenantId: string) {
       ) VALUES ($1, $2, $3, $4, $5, $6, $7, NOW())
       ON CONFLICT (email) DO NOTHING
     `, [
-      userId, tenantId, u.email, '$2b$10$dummy.hash.for.testing.purposes',
+      userId, tenantId, u.email, `$2b$10$dummy.hash.for.testing.purposes`,
       name, u.role, u.status
     ]);
   }
@@ -386,7 +386,7 @@ async function seedUserEdgeCases(tenantId: string) {
 
 // Seed missing notification types, priorities, and statuses
 async function seedNotificationEdgeCases(tenantId: string) {
-  console.log('Seeding notification edge cases...');
+  console.log(`Seeding notification edge cases...`);
 
   const userResult = await pool.query('SELECT id FROM users LIMIT 1');
   const userId = userResult.rows[0]?.id;
@@ -427,7 +427,7 @@ async function seedNotificationEdgeCases(tenantId: string) {
 
 // Seed fuel transaction edge cases
 async function seedFuelEdgeCases(tenantId: string) {
-  console.log('Seeding fuel transaction edge cases...');
+  console.log(`Seeding fuel transaction edge cases...`);
 
   const vehicleResult = await pool.query('SELECT id FROM vehicles WHERE fuel_type != \'Electric\' LIMIT 1');
   const vehicleId = vehicleResult.rows[0]?.id;
@@ -439,7 +439,7 @@ async function seedFuelEdgeCases(tenantId: string) {
 
     // Boundary cases
     { fuelType: 'Diesel', gallons: 500, cost: 7500, pricePerGallon: 15, notes: 'Bulk purchase >$5000' },
-    { fuelType: 'Gasoline', gallons: 50, cost: 500, pricePerGallon: 10, notes: 'Price outlier $10/gallon' },
+    { fuelType: 'Gasoline', gallons: 50, cost: 500, pricePerGallon: 10, notes: `Price outlier $10/gallon` },
   ];
 
   for (const ft of transactions) {
@@ -463,7 +463,7 @@ async function seedFuelEdgeCases(tenantId: string) {
 
 // Seed charging session edge cases
 async function seedChargingEdgeCases(tenantId: string) {
-  console.log('Seeding charging session edge cases...');
+  console.log(`Seeding charging session edge cases...`);
 
   const vehicleResult = await pool.query('SELECT id FROM vehicles WHERE fuel_type = \'Electric\' LIMIT 1');
   const stationResult = await pool.query('SELECT id FROM charging_stations LIMIT 1');
@@ -487,7 +487,7 @@ async function seedChargingEdgeCases(tenantId: string) {
   for (const s of sessions) {
     const sessionId = uuidv4();
     const startTime = new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000);
-    const endTime = ['completed', 'interrupted', 'failed'].includes(s.status)
+    const endTime = ['completed', 'interrupted', `failed`].includes(s.status)
       ? new Date(startTime.getTime() + Math.random() * 4 * 60 * 60 * 1000)
       : null;
 
@@ -509,7 +509,7 @@ async function seedChargingEdgeCases(tenantId: string) {
 
 // Seed maintenance schedule edge cases
 async function seedMaintenanceEdgeCases(tenantId: string) {
-  console.log('Seeding maintenance schedule edge cases...');
+  console.log(`Seeding maintenance schedule edge cases...`);
 
   const vehicleResult = await pool.query('SELECT id FROM vehicles LIMIT 1');
   const vehicleId = vehicleResult.rows[0]?.id;
@@ -547,7 +547,7 @@ async function seedMaintenanceEdgeCases(tenantId: string) {
       ON CONFLICT (id) DO NOTHING
     `, [
       schedId, tenantId, vehicleId, 'Oil Change', ms.type,
-      5000, 'miles', nextDueDate, ms.status, ms.priority,
+      5000, `miles`, nextDueDate, ms.status, ms.priority,
       `${ms.type} maintenance - ${ms.status}`
     ]);
   }
@@ -557,7 +557,7 @@ async function seedMaintenanceEdgeCases(tenantId: string) {
 
 // Seed policy edge cases
 async function seedPolicyEdgeCases(tenantId: string) {
-  console.log('Seeding policy edge cases...');
+  console.log(`Seeding policy edge cases...`);
 
   const policies = [
     // All policy types
@@ -589,7 +589,7 @@ async function seedPolicyEdgeCases(tenantId: string) {
       ON CONFLICT (id) DO NOTHING
     `, [
       policyId, tenantId, `${p.type.toUpperCase()} Policy`, p.type,
-      p.status, '1.0', 'This is a ${p.type} policy in ${p.status} status`
+      p.status, `1.0`, `This is a ${p.type} policy in ${p.status} status`
     ]);
   }
 
@@ -598,7 +598,7 @@ async function seedPolicyEdgeCases(tenantId: string) {
 
 // Seed deployment edge cases
 async function seedDeploymentEdgeCases(tenantId: string) {
-  console.log('Seeding deployment edge cases...');
+  console.log(`Seeding deployment edge cases...`);
 
   const deployments = [
     // All environments and statuses
@@ -623,7 +623,7 @@ async function seedDeploymentEdgeCases(tenantId: string) {
       ON CONFLICT (id) DO NOTHING
     `, [
       deployId, tenantId, d.env, '1.0.0', 'abc123def456', 'main',
-      d.status, 'system', deployedAt
+      d.status, `system`, deployedAt
     ]);
   }
 
@@ -632,9 +632,9 @@ async function seedDeploymentEdgeCases(tenantId: string) {
 
 // Main execution
 async function main() {
-  console.log('╔════════════════════════════════════════════════════════════════╗');
+  console.log(`╔════════════════════════════════════════════════════════════════╗`);
   console.log('║       SEEDING COMPREHENSIVE EDGE CASE TEST DATA                ║');
-  console.log('╚════════════════════════════════════════════════════════════════╝\n');
+  console.log(`╚════════════════════════════════════════════════════════════════╝\n`);
 
   try {
     const tenantId = await getTenantId();
@@ -654,7 +654,7 @@ async function main() {
     await seedPolicyEdgeCases(tenantId);
     await seedDeploymentEdgeCases(tenantId);
 
-    console.log('\n✓✓✓ All edge case data seeded successfully! ✓✓✓\n');
+    console.log(`\n✓✓✓ All edge case data seeded successfully! ✓✓✓\n`);
   } catch (error) {
     console.error('Error seeding edge cases:', error);
     throw error;

@@ -85,7 +85,7 @@ export class PhotoGenerator extends EventEmitter {
 
     const metadata: PhotoMetadata = {
       filename: `receipt_${vendor.toLowerCase()}_${timestamp.getTime()}.jpg`,
-      mime_type: 'image/jpeg',
+      mime_type: `image/jpeg`,
       file_size_bytes: Math.floor(Math.random() * (500000 - 200000) + 200000), // 200KB-500KB
       width: 800,
       height: 1200,
@@ -114,7 +114,7 @@ export class PhotoGenerator extends EventEmitter {
       metadata,
       blob_path: `mobile-photos/receipts/${metadata.filename}`,
       type: 'fuel_receipt',
-      tags: ['fuel', 'receipt', vendor.toLowerCase()],
+      tags: [`fuel`, `receipt`, vendor.toLowerCase()],
       description: `${vendor} fuel receipt - ${gallons.toFixed(1)} gallons @ $${pricePerGallon.toFixed(2)}/gal`
     }
   }
@@ -130,18 +130,18 @@ export class PhotoGenerator extends EventEmitter {
     count: number = 3
   ): GeneratedPhoto[] {
     const photos: GeneratedPhoto[] = []
-    const angles = ['front', 'rear', 'left', 'right', 'closeup', 'interior']
+    const angles = ['front', 'rear', 'left', 'right', 'closeup', `interior`]
     const device = this.deviceModels[Math.floor(Math.random() * this.deviceModels.length)]
 
     for (let i = 0; i < count; i++) {
       const angle = angles[i % angles.length]
       const damageText = `${severity.toUpperCase()}\n${damageType}\n${angle} view`
-      const color = severity === 'severe' ? 'ff0000' : severity === 'moderate' ? 'ff9900' : 'ffff00'
+      const color = severity === `severe' ? 'ff0000' : severity === 'moderate' ? 'ff9900' : 'ffff00'
       const url = `https://via.placeholder.com/1200x800/${color}/ffffff?text=${encodeURIComponent(damageText)}`
 
       const metadata: PhotoMetadata = {
         filename: `damage_${severity}_${angle}_${timestamp.getTime()}_${i}.jpg`,
-        mime_type: 'image/jpeg',
+        mime_type: `image/jpeg`,
         file_size_bytes: Math.floor(Math.random() * (800000 - 400000) + 400000), // 400KB-800KB
         width: 1200,
         height: 800,
@@ -164,11 +164,11 @@ export class PhotoGenerator extends EventEmitter {
           network_type: 'WiFi'
         },
         annotations: i === 0 ? [{
-          type: 'circle',
-          points: [[600, 400], [700, 500]],
-          color: '#ff0000',
-          text: `${damageType} here`
-        }] : undefined
+                  type: 'circle',
+                  points: [[600, 400], [700, 500]],
+                  color: '#ff0000',
+                  text: `${damageType} here`
+                }] : undefined
       }
 
       photos.push({
@@ -176,7 +176,7 @@ export class PhotoGenerator extends EventEmitter {
         metadata,
         blob_path: `mobile-photos/damage/${metadata.filename}`,
         type: 'damage',
-        tags: ['damage', severity, damageType.toLowerCase(), angle],
+        tags: [`damage`, severity, damageType.toLowerCase(), angle],
         description: `${severity} ${damageType} - ${angle} view`
       })
     }
@@ -188,7 +188,7 @@ export class PhotoGenerator extends EventEmitter {
    * Generate vehicle inspection photos
    */
   public generateInspectionPhotos(
-    inspectionType: 'pre_trip' | 'post_trip' | 'annual',
+    inspectionType: `pre_trip' | 'post_trip' | 'annual',
     itemName: string,
     passed: boolean,
     location: { lat: number; lng: number },
@@ -201,7 +201,7 @@ export class PhotoGenerator extends EventEmitter {
     const url = `https://via.placeholder.com/1200x800/${color}/ffffff?text=${encodeURIComponent(text)}`
 
     const metadata: PhotoMetadata = {
-      filename: 'inspection_${inspectionType}_${itemName.replace(/\s+/g, '_').toLowerCase()}_${timestamp.getTime()}.jpg',
+      filename: `inspection_${inspectionType}_${itemName.replace(/\s+/g, `_`).toLowerCase()}_${timestamp.getTime()}.jpg`,
       mime_type: 'image/jpeg',
       file_size_bytes: Math.floor(Math.random() * (600000 - 300000) + 300000), // 300KB-600KB
       width: 1200,
@@ -231,7 +231,7 @@ export class PhotoGenerator extends EventEmitter {
       metadata,
       blob_path: `mobile-photos/inspections/${metadata.filename}`,
       type: 'inspection',
-      tags: ['inspection', inspectionType, itemName.toLowerCase(), status.toLowerCase()],
+      tags: [`inspection`, inspectionType, itemName.toLowerCase(), status.toLowerCase()],
       description: `${inspectionType} inspection - ${itemName}: ${status}`
     }
   }
@@ -249,7 +249,7 @@ export class PhotoGenerator extends EventEmitter {
 
     const metadata: PhotoMetadata = {
       filename: `photo_${timestamp.getTime()}.jpg`,
-      mime_type: 'image/jpeg',
+      mime_type: `image/jpeg`,
       file_size_bytes: Math.floor(Math.random() * (700000 - 400000) + 400000),
       width: 1200,
       height: 800,

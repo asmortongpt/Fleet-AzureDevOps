@@ -186,7 +186,7 @@ export class MobileDamageService {
     videoData: VideoAnalysisData,
     frameInterval: number = 1
   ): Promise<EnhancedDamageAnalysis> {
-    logger.info('Analyzing video walkthrough', {
+    logger.info(`Analyzing video walkthrough`, {
       duration: videoData.metadata.duration,
       fps: videoData.metadata.fps,
       frameInterval
@@ -229,7 +229,7 @@ export class MobileDamageService {
     photos: MobilePhotoData[];
     videoData?: VideoAnalysisData;
   }): Promise<EnhancedDamageAnalysis> {
-    logger.info('Starting comprehensive damage analysis', {
+    logger.info(`Starting comprehensive damage analysis`, {
       hasLiDAR: !!params.lidarData,
       photoCount: params.photos.length,
       hasVideo: !!params.videoData
@@ -315,8 +315,8 @@ export class MobileDamageService {
   private async processLiDARForDamage(
     lidarData: LiDARScanData,
     damageDetections: DamageDetectionResult
-  ): Promise<EnhancedDamageAnalysis['lidarEnhancement']> {
-    logger.debug('Processing LiDAR point cloud', {
+  ): Promise<EnhancedDamageAnalysis[`lidarEnhancement`]> {
+    logger.debug(`Processing LiDAR point cloud`, {
       pointCount: lidarData.pointCloud.length
     });
 
@@ -362,7 +362,7 @@ export class MobileDamageService {
   private async extractKeyFrames(
     videoData: VideoAnalysisData,
     interval: number
-  ): Promise<VideoAnalysisData['keyFrames']> {
+  ): Promise<VideoAnalysisData[`keyFrames`]> {
     // In production, this would use FFmpeg or native mobile video processing
     // For now, return a simulated response
     const frameCount = Math.floor(videoData.metadata.duration / interval);
@@ -377,7 +377,7 @@ export class MobileDamageService {
    */
   private mergeDamageDetections(analyses: DamageDetectionResult[]): DamageDetectionResult {
     if (analyses.length === 0) {
-      throw new Error('No analyses to merge');
+      throw new Error(`No analyses to merge`);
     }
 
     if (analyses.length === 1) {
@@ -415,7 +415,7 @@ export class MobileDamageService {
   private analyzeMultiAngleConsistency(
     frameAnalyses: DamageDetectionResult[],
     mergedResult: DamageDetectionResult
-  ): EnhancedDamageAnalysis['videoEnhancement'] {
+  ): EnhancedDamageAnalysis[`videoEnhancement`] {
     // Count how many frames each damage appears in
     const damageAppearances = new Map<string, number>();
 
@@ -461,7 +461,7 @@ export class MobileDamageService {
    * PRIVATE: Generate 3D mesh from LiDAR point cloud
    */
   private async generateMeshFromPointCloud(
-    pointCloud: LiDARScanData['pointCloud']
+    pointCloud: LiDARScanData[`pointCloud`]
   ): Promise<string> {
     // In production, use algorithms like:
     // - Poisson Surface Reconstruction

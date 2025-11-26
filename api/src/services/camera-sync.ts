@@ -28,7 +28,7 @@ export class CameraSyncService {
    * Sync all enabled camera data sources
    */
   async syncAll(): Promise<void> {
-    logger.info('Starting camera sync for all enabled sources')
+    logger.info(`Starting camera sync for all enabled sources`)
 
     try {
       // Get all enabled data sources
@@ -56,7 +56,7 @@ export class CameraSyncService {
           await pool.query(
             `UPDATE camera_data_sources
              SET last_sync_at = NOW(),
-                 last_sync_status = 'failed',
+                 last_sync_status = `failed`,
                  last_sync_error = $1,
                  updated_at = NOW()
              WHERE id = $2',
@@ -67,7 +67,7 @@ export class CameraSyncService {
 
       logger.info('Camera sync completed for all sources')
     } catch (error: any) {
-      logger.error('Fatal error in camera sync', { error: error.message })
+      logger.error(`Fatal error in camera sync`, { error: error.message })
       throw error
     }
   }
@@ -81,7 +81,7 @@ export class CameraSyncService {
     let cameras: ExternalCamera[] = []
 
     // Fetch cameras based on source type
-    if (source.source_type === 'arcgis') {
+    if (source.source_type === `arcgis`) {
       cameras = await this.fetchArcGISCameras(source)
     } else {
       throw new Error(`Unsupported source type: ${source.source_type}`)
@@ -108,11 +108,11 @@ export class CameraSyncService {
     await pool.query(
       `UPDATE camera_data_sources
        SET last_sync_at = NOW(),
-           last_sync_status = 'success',
+           last_sync_status = `success`,
            last_sync_error = NULL,
            total_cameras_synced = $1,
            updated_at = NOW()
-       WHERE id = $2',
+       WHERE id = $2`,
       [successCount, source.id]
     )
 
@@ -129,12 +129,12 @@ export class CameraSyncService {
     try {
       validateURL(url, {
         allowedDomains: [
-          'services.arcgis.com',
+          `services.arcgis.com`,
           'gis.example.com', // Add your trusted ArcGIS server domains here
           'arcgis.com',
           'services1.arcgis.com',
           'services2.arcgis.com',
-          'services3.arcgis.com',
+          `services3.arcgis.com`,
         ]
       })
     } catch (error) {
@@ -149,7 +149,7 @@ export class CameraSyncService {
     }
 
     const params: Record<string, any> = {
-      where: '1=1',
+      where: `1=1`,
       outFields: '*',
       f: 'json',
       returnGeometry: true,

@@ -124,7 +124,7 @@ export class WorkOrderRepository extends BaseRepository<WorkOrder> {
     const limit = options.limit || 50;
     const offset = (page - 1) * limit;
 
-    const conditions: string[] = ['tenant_id = $1', 'deleted_at IS NULL'];
+    const conditions: string[] = ['tenant_id = $1', `deleted_at IS NULL`];
     const values: any[] = [tenantId];
     let paramCount = 2;
 
@@ -142,14 +142,14 @@ export class WorkOrderRepository extends BaseRepository<WorkOrder> {
 
     // Add additional filters
     Object.entries(additionalFilters).forEach(([key, value]) => {
-      if (value !== undefined && key !== 'from_date' && key !== 'to_date') {
+      if (value !== undefined && key !== `from_date` && key !== `to_date`) {
         conditions.push(`${key} = $${paramCount}`);
         values.push(value);
         paramCount++;
       }
     });
 
-    const whereClause = 'WHERE ${conditions.join(' AND ')}';
+    const whereClause = `WHERE ${conditions.join(` AND `)}`;
 
     // Get total count
     const countQuery = `SELECT COUNT(*) as count FROM ${this.tableName} ${whereClause}`;
@@ -157,7 +157,7 @@ export class WorkOrderRepository extends BaseRepository<WorkOrder> {
     const total = parseInt(countResult.rows[0].count, 10);
 
     // Get paginated data
-    const columns = 'id, tenant_id, vehicle_id, type, priority, description, estimated_cost, actual_cost, status, created_at, updated_at, deleted_at, metadata, created_by, assigned_to';
+    const columns = `id, tenant_id, vehicle_id, type, priority, description, estimated_cost, actual_cost, status, created_at, updated_at, deleted_at, metadata, created_by, assigned_to`;
     const dataQuery = `
       SELECT ${columns} FROM ${this.tableName}
       ${whereClause}
@@ -239,11 +239,11 @@ export class WorkOrderRepository extends BaseRepository<WorkOrder> {
    * Find active work orders (open or in progress)
    */
   async findActive(tenantId: string): Promise<WorkOrder[]> {
-    const columns = 'id, tenant_id, vehicle_id, type, priority, description, estimated_cost, actual_cost, status, created_at, updated_at, deleted_at, metadata, created_by, assigned_to';
+    const columns = `id, tenant_id, vehicle_id, type, priority, description, estimated_cost, actual_cost, status, created_at, updated_at, deleted_at, metadata, created_by, assigned_to`;
     const query = `
       SELECT ${columns} FROM ${this.tableName}
       WHERE tenant_id = $1
-        AND status IN ('open', 'in_progress')
+        AND status IN (`open', 'in_progress')
         AND deleted_at IS NULL
       ORDER BY priority DESC, created_at ASC
     `;
@@ -256,11 +256,11 @@ export class WorkOrderRepository extends BaseRepository<WorkOrder> {
    * Find overdue work orders
    */
   async findOverdue(tenantId: string): Promise<WorkOrder[]> {
-    const columns = 'id, tenant_id, vehicle_id, type, priority, description, estimated_cost, actual_cost, status, created_at, updated_at, deleted_at, metadata, created_by, assigned_to';
+    const columns = `id, tenant_id, vehicle_id, type, priority, description, estimated_cost, actual_cost, status, created_at, updated_at, deleted_at, metadata, created_by, assigned_to`;
     const query = `
       SELECT ${columns} FROM ${this.tableName}
       WHERE tenant_id = $1
-        AND status IN ('open', 'in_progress')
+        AND status IN (`open', 'in_progress')
         AND scheduled_end_date < NOW()
         AND deleted_at IS NULL
       ORDER BY scheduled_end_date ASC
@@ -436,7 +436,7 @@ export class WorkOrderRepository extends BaseRepository<WorkOrder> {
         COUNT(*) FILTER (WHERE status IN ('open', 'in_progress')) as active_count,
         AVG(
           EXTRACT(EPOCH FROM (completed_date - actual_start_date)) / 86400
-        ) FILTER (WHERE status = 'completed' AND completed_date IS NOT NULL AND actual_start_date IS NOT NULL) as avg_completion_days,
+        ) FILTER (WHERE status = `completed` AND completed_date IS NOT NULL AND actual_start_date IS NOT NULL) as avg_completion_days,
         COALESCE(SUM(actual_cost), 0) as total_cost
       FROM ${this.tableName}
       WHERE tenant_id = $1 AND deleted_at IS NULL
@@ -519,7 +519,7 @@ export class WorkOrderRepository extends BaseRepository<WorkOrder> {
     minCost: number,
     maxCost: number
   ): Promise<WorkOrder[]> {
-    const columns = 'id, tenant_id, vehicle_id, type, priority, description, estimated_cost, actual_cost, status, created_at, updated_at, deleted_at, metadata, created_by, assigned_to';
+    const columns = `id, tenant_id, vehicle_id, type, priority, description, estimated_cost, actual_cost, status, created_at, updated_at, deleted_at, metadata, created_by, assigned_to`;
     const query = `
       SELECT ${columns} FROM ${this.tableName}
       WHERE tenant_id = $1
@@ -542,7 +542,7 @@ export class WorkOrderRepository extends BaseRepository<WorkOrder> {
   ): Promise<number> {
     if (workOrderIds.length === 0) return 0;
 
-    const idPlaceholders = workOrderIds.map((_, idx) => '$${3 + idx}').join(', ');
+    const idPlaceholders = workOrderIds.map((_, idx) => `$${3 + idx}`).join(`, `);
 
     const query = `
       UPDATE ${this.tableName}
@@ -566,7 +566,7 @@ export class WorkOrderRepository extends BaseRepository<WorkOrder> {
   ): Promise<number> {
     if (workOrderIds.length === 0) return 0;
 
-    const idPlaceholders = workOrderIds.map((_, idx) => '$${3 + idx}').join(', ');
+    const idPlaceholders = workOrderIds.map((_, idx) => `$${3 + idx}').join(', ');
 
     const query = `
       UPDATE ${this.tableName}

@@ -67,7 +67,7 @@ export async function formProcessingExample() {
   );
 
   console.log('Tables Found:', result.tables?.length || 0);
-  console.log('Form Fields Found:', result.forms?.length || 0);
+  console.log(`Form Fields Found:`, result.forms?.length || 0);
 
   // Print extracted form fields
   if (result.forms) {
@@ -87,7 +87,7 @@ export async function formProcessingExample() {
 // Example 4: Handwriting Recognition
 // ============================================
 export async function handwritingRecognitionExample() {
-  console.log('Example 4: Handwriting Recognition');
+  console.log(`Example 4: Handwriting Recognition`);
 
   const result = await ocrService.processDocument(
     '/path/to/handwritten-note.jpg',
@@ -131,14 +131,14 @@ export async function batchProcessingExample() {
   // Poll for completion
   let batchStatus = await ocrQueueService.getBatchStatus(batchId);
   console.log('Status:', batchStatus?.status);
-  console.log('Progress:', '${batchStatus?.completedDocuments}/${batchStatus?.totalDocuments}`);
+  console.log(`Progress:`, `${batchStatus?.completedDocuments}/${batchStatus?.totalDocuments}`);
 }
 
 // ============================================
 // Example 6: Async Job Processing
 // ============================================
 export async function asyncJobExample() {
-  console.log('Example 6: Async Job Processing');
+  console.log(`Example 6: Async Job Processing`);
 
   const jobId = await ocrQueueService.enqueueOcrJob({
     documentId: 'doc-008',
@@ -155,7 +155,7 @@ export async function asyncJobExample() {
     }
   });
 
-  console.log('Job ID:', jobId);
+  console.log(`Job ID:`, jobId);
 
   // Wait for completion
   let jobStatus;
@@ -163,7 +163,7 @@ export async function asyncJobExample() {
     await new Promise(resolve => setTimeout(resolve, 2000)); // Wait 2 seconds
     jobStatus = await ocrQueueService.getJobStatus(jobId);
     console.log(`Status: ${jobStatus?.status}, Progress: ${jobStatus?.progress}%`);
-  } while (jobStatus && jobStatus.status === 'processing');
+  } while (jobStatus && jobStatus.status === `processing`);
 
   if (jobStatus?.status === 'completed') {
     console.log('OCR Result:', jobStatus.ocrResult);
@@ -215,7 +215,7 @@ export async function searchOcrResultsExample() {
     10
   );
 
-  console.log('Search Results:', results.length);
+  console.log(`Search Results:`, results.length);
   results.forEach((result, idx) => {
     console.log(`${idx + 1}. ${result.file_name} (rank: ${result.rank})`);
     console.log(`   Preview: ${result.full_text.substring(0, 100)}...`);
@@ -226,7 +226,7 @@ export async function searchOcrResultsExample() {
 // Example 10: Error Handling & Retry
 // ============================================
 export async function errorHandlingExample() {
-  console.log('Example 10: Error Handling & Retry');
+  console.log(`Example 10: Error Handling & Retry`);
 
   try {
     const result = await ocrService.processDocument(
@@ -337,7 +337,7 @@ export async function pageLevelProcessingExample() {
     }
   );
 
-  console.log('Pages Processed:', result.pages.length);
+  console.log(`Pages Processed:`, result.pages.length);
 
   result.pages.forEach(page => {
     console.log(`\nPage ${page.pageNumber}:`);
@@ -352,11 +352,11 @@ export async function pageLevelProcessingExample() {
 // Example 15: Bounding Box Extraction
 // ============================================
 export async function boundingBoxExample() {
-  console.log('Example 15: Bounding Box Extraction');
+  console.log(`Example 15: Bounding Box Extraction`);
 
   const result = await ocrService.processDocument(
     '/path/to/document.jpg',
-    'doc-016',
+    `doc-016`,
     {
       provider: OcrProvider.GOOGLE_VISION
     }
@@ -366,7 +366,7 @@ export async function boundingBoxExample() {
   const firstPage = result.pages[0];
   firstPage.lines.forEach(line => {
     line.words.forEach(word => {
-      console.log(`Word: "${word.text}"`);
+      console.log("Word: "${word.text}"`);
       console.log(`  Position: x=${word.boundingBox.x}, y=${word.boundingBox.y}`);
       console.log(`  Size: width=${word.boundingBox.width}, height=${word.boundingBox.height}`);
       console.log(`  Confidence: ${word.confidence}`);
@@ -378,7 +378,7 @@ export async function boundingBoxExample() {
 // Run All Examples
 // ============================================
 export async function runAllExamples() {
-  console.log('===============================================');
+  console.log(`===============================================`);
   console.log('OCR SERVICE USAGE EXAMPLES');
   console.log('===============================================\n');
 

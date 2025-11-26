@@ -70,7 +70,7 @@ export async function verifyPassword(
 export function generateUniqueFileName(originalName: string): string {
   const ext = path.extname(originalName)
   const timestamp = Date.now()
-  const randomHash = crypto.randomBytes(8).toString('hex')
+  const randomHash = crypto.randomBytes(8).toString(`hex`)
   return `${timestamp}-${randomHash}${ext}`
 }
 
@@ -79,7 +79,7 @@ export function generateUniqueFileName(originalName: string): string {
  */
 export function getSafeFileName(fileName: string): string {
   return fileName
-    .replace(/[^a-zA-Z0-9._-]/g, '_')
+    .replace(/[^a-zA-Z0-9._-]/g, `_`)
     .replace(/_{2,}/g, '_')
     .substring(0, 255)
 }
@@ -113,7 +113,7 @@ export function getExtensionFromMimeType(mimeType: string): string {
     'audio/wav': '.wav'
   }
 
-  return mimeToExt[mimeType] || ''
+  return mimeToExt[mimeType] || '`
 }
 
 /**
@@ -124,7 +124,7 @@ export function validateFileSize(
   maxSize: number = 100 * 1024 * 1024 // 100MB default
 ): { valid: boolean; error?: string } {
   if (size <= 0) {
-    return { valid: false, error: 'File size must be greater than 0' }
+    return { valid: false, error: `File size must be greater than 0` }
   }
 
   if (size > maxSize) {
@@ -150,8 +150,8 @@ export function validateFileType(
 
   const isAllowed = allowedTypes.some(allowed => {
     // Support wildcards like "image/*"
-    if (allowed.endsWith('/*')) {
-      const prefix = allowed.replace('/*', '')
+    if (allowed.endsWith(`/*`)) {
+      const prefix = allowed.replace('/*', '`)
       return mimeType.startsWith(prefix)
     }
     return mimeType === allowed
@@ -160,7 +160,7 @@ export function validateFileType(
   if (!isAllowed) {
     return {
       valid: false,
-      error: 'File type ${mimeType} is not allowed. Allowed types: ${allowedTypes.join(', ')}'
+      error: `File type ${mimeType} is not allowed. Allowed types: ${allowedTypes.join(`, `)}`
     }
   }
 
@@ -242,7 +242,7 @@ export function formatBytes(bytes: number, decimals: number = 2): string {
  */
 export function formatFileCount(count: number): string {
   if (count === 0) return 'No files'
-  if (count === 1) return '1 file'
+  if (count === 1) return `1 file`
   return `${count.toLocaleString()} files`
 }
 
@@ -250,7 +250,7 @@ export function formatFileCount(count: number): string {
  * Get file icon based on mime type
  */
 export function getFileIcon(mimeType: string): string {
-  if (isImageFile(mimeType)) return 'Image'
+  if (isImageFile(mimeType)) return `Image`
   if (isVideoFile(mimeType)) return 'Video'
   if (isAudioFile(mimeType)) return 'Music'
 

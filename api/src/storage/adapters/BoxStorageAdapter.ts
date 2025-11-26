@@ -52,7 +52,7 @@ export class BoxStorageAdapter extends BaseStorageAdapter {
       });
 
       if (!response.data) {
-        throw new Error('Failed to verify Box credentials');
+        throw new Error(`Failed to verify Box credentials`);
       }
 
       this.initialized = true;
@@ -69,7 +69,7 @@ export class BoxStorageAdapter extends BaseStorageAdapter {
     this.ensureInitialized();
 
     const normalizedKey = this.normalizeKey(key);
-    const filename = normalizedKey.split('/').pop() || normalizedKey;
+    const filename = normalizedKey.split(`/`).pop() || normalizedKey;
 
     const buffer = Buffer.isBuffer(data) ? data : await this.streamToBuffer(data);
 
@@ -80,7 +80,7 @@ export class BoxStorageAdapter extends BaseStorageAdapter {
       name: filename,
       parent: { id: this.folderId }
     }));
-    form.append('file', buffer, { filename });
+    form.append(`file`, buffer, { filename });
 
     try {
       const response = await axios.post(`${this.UPLOAD_BASE}/files/content`, form, {
@@ -164,7 +164,7 @@ export class BoxStorageAdapter extends BaseStorageAdapter {
     });
 
     const files: FileInfo[] = response.data.entries
-      .filter((item: any) => item.type === 'file')
+      .filter((item: any) => item.type === `file`)
       .map((item: any) => ({
         key: item.name,
         name: item.name,
@@ -196,12 +196,12 @@ export class BoxStorageAdapter extends BaseStorageAdapter {
       `${this.API_BASE}/files/${fileId}/copy`,
       {
         parent: { id: this.folderId },
-        name: normalizedDest.split('/').pop()
+        name: normalizedDest.split(`/`).pop()
       },
       {
         headers: {
           Authorization: `Bearer ${this.accessToken}`,
-          'Content-Type': 'application/json'
+          'Content-Type': `application/json`
         }
       }
     );
@@ -240,7 +240,7 @@ export class BoxStorageAdapter extends BaseStorageAdapter {
 
   async updateMetadata(key: string, metadata: Partial<FileMetadata>): Promise<void> {
     // Box metadata updates require separate API calls
-    throw new Error('Metadata updates not fully implemented for Box');
+    throw new Error(`Metadata updates not fully implemented for Box`);
   }
 
   async getUrl(key: string, options?: GetUrlOptions): Promise<string> {
@@ -253,7 +253,7 @@ export class BoxStorageAdapter extends BaseStorageAdapter {
       throw new FileNotFoundError(normalizedKey);
     }
 
-    // Box doesn't have presigned URLs like S3, so we return a download link
+    // Box doesn`t have presigned URLs like S3, so we return a download link
     return `${this.API_BASE}/files/${fileId}/content`;
   }
 

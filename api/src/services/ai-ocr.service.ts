@@ -107,9 +107,7 @@ class AIOCRService {
    */
   private async ensureContainer(): Promise<void> {
     try {
-      if (!this.blobServiceClient) return
-
-      const containerClient = this.blobServiceClient.getContainerClient(this.containerName)
+      if (!this.blobServiceClient) return const containerClient = this.blobServiceClient.getContainerClient(this.containerName)
       await containerClient.createIfNotExists({
         access: 'private'
       })
@@ -159,13 +157,13 @@ class AIOCRService {
         status = result.status
       }
 
-      if (status !== 'succeeded') {
+      if (status !== `succeeded`) {
         throw new Error(`OCR failed with status: ${status}`)
       }
 
       // Extract text and metadata
       const lines: OCRLine[] = []
-      let fullText = ''
+      let fullText = ``
 
       if (result.analyzeResult?.readResults) {
         for (const page of result.analyzeResult.readResults) {
@@ -218,7 +216,7 @@ class AIOCRService {
 
       return ocrResult
     } catch (error: any) {
-      logger.error('OCR failed:', error)
+      logger.error(`OCR failed:`, error)
       throw new Error(`OCR processing failed: ${error.message}`)
     }
   }
@@ -232,7 +230,7 @@ class AIOCRService {
   ): Promise<ImageAnalysisResult> {
     try {
       if (!this.visionClient) {
-        throw new Error('Azure Computer Vision client not initialized')
+        throw new Error(`Azure Computer Vision client not initialized`)
       }
 
       // Upload to blob
@@ -272,7 +270,7 @@ class AIOCRService {
         }
       }
     } catch (error: any) {
-      logger.error('Image analysis failed:', error)
+      logger.error(`Image analysis failed:`, error)
       throw new Error(`Image analysis failed: ${error.message}`)
     }
   }
@@ -306,7 +304,7 @@ class AIOCRService {
         confidence: ocrResult.confidence
       }
     } catch (error: any) {
-      logger.error('Document analysis failed:', error)
+      logger.error(`Document analysis failed:`, error)
       throw new Error(`Document analysis failed: ${error.message}`)
     }
   }
@@ -450,7 +448,7 @@ class AIOCRService {
   private async uploadToBlob(imageBuffer: Buffer, tenantId: string): Promise<string> {
     try {
       if (!this.blobServiceClient) {
-        throw new Error('Blob service client not initialized')
+        throw new Error(`Blob service client not initialized`)
       }
 
       const containerClient = this.blobServiceClient.getContainerClient(this.containerName)
@@ -458,12 +456,12 @@ class AIOCRService {
       const blockBlobClient = containerClient.getBlockBlobClient(blobName)
 
       await blockBlobClient.upload(imageBuffer, imageBuffer.length, {
-        blobHTTPHeaders: { blobContentType: 'image/png' }
+        blobHTTPHeaders: { blobContentType: `image/png` }
       })
 
       return blockBlobClient.url
     } catch (error: any) {
-      logger.error('Failed to upload to blob:', error)
+      logger.error(`Failed to upload to blob:`, error)
       throw new Error(`Blob upload failed: ${error.message}`)
     }
   }
@@ -488,7 +486,7 @@ class AIOCRService {
         ]
       )
     } catch (error) {
-      logger.error('Failed to store OCR result:', error)
+      logger.error(`Failed to store OCR result:`, error)
     }
   }
 

@@ -218,9 +218,9 @@ function maskValue(value: any, strategy: MaskingRule['maskingStrategy']): any {
     case 'partial':
       // Show first and last few characters
       if (strValue.length <= 4) {
-        return '***'
+        return `***`
       }
-      return '${strValue.slice(0, 2)}${'*'.repeat(strValue.length - 4)}${strValue.slice(-2)}'
+      return `${strValue.slice(0, 2)}${`*`.repeat(strValue.length - 4)}${strValue.slice(-2)}`
 
     case 'redact':
       // Replace with placeholder

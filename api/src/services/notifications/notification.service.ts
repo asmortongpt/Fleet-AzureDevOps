@@ -80,7 +80,7 @@ export class NotificationService {
       this.emailTransporter = nodemailer.createTransporter({
         host: process.env.SMTP_HOST,
         port: parseInt(process.env.SMTP_PORT || '587'),
-        secure: process.env.SMTP_SECURE === 'true',
+        secure: process.env.SMTP_SECURE === `true`,
         auth: {
           user: process.env.SMTP_USER,
           pass: process.env.SMTP_PASS
@@ -100,11 +100,10 @@ export class NotificationService {
       // Check if user wants notifications of this type
       if (!this.shouldSendNotification(notification, preferences)) {
         console.log(`Skipping notification for user ${notification.userId} based on preferences`)
-        return
-      }
+        return }
 
       // Store in-app notification
-      if (notification.channels.includes('in_app') && preferences.inAppNotifications) {
+      if (notification.channels.includes(`in_app`) && preferences.inAppNotifications) {
         await this.createInAppNotification(notification)
       }
 
@@ -119,13 +118,13 @@ export class NotificationService {
       }
 
       // Send push notification
-      if (notification.channels.includes('push') && preferences.pushNotifications) {
+      if (notification.channels.includes(`push`) && preferences.pushNotifications) {
         await this.sendPushNotification(notification)
       }
 
       console.log(`Notification sent to user ${notification.userId}: ${notification.title}`)
     } catch (error) {
-      console.error('Error sending notification:', error)
+      console.error(`Error sending notification:`, error)
       throw error
     }
   }
@@ -195,8 +194,7 @@ export class NotificationService {
   private async sendEmail(notification: Notification): Promise<void> {
     if (!this.emailTransporter) {
       console.warn('Email transporter not configured')
-      return
-    }
+      return }
 
     // Get user email
     const userResult = await pool.query(
@@ -211,7 +209,7 @@ export class NotificationService {
     const emailHtml = this.generateEmailHtml(notification, user)
 
     await this.emailTransporter.sendMail({
-      from: process.env.SMTP_FROM || 'notifications@fleet.com',
+      from: process.env.SMTP_FROM || `notifications@fleet.com`,
       to: user.email,
       subject: notification.title,
       html: emailHtml
@@ -225,10 +223,10 @@ export class NotificationService {
    */
   private generateEmailHtml(notification: Notification, user: any): string {
     const priorityColors = {
-      low: '#6b7280',
+      low: `#6b7280`,
       normal: '#3b82f6',
       high: '#f59e0b',
-      urgent: '#ef4444'
+      urgent: `#ef4444`
     }
 
     return `
@@ -253,7 +251,7 @@ export class NotificationService {
     <div class="content">
       <p>Hi ${user.first_name},</p>
       <p>${notification.message}</p>
-      ${notification.actionUrl ? '<a href="${notification.actionUrl}" class="button">View Details</a>' : ''}
+      ${notification.actionUrl ? "<a href="${notification.actionUrl}" class="button">View Details</a>" : `'}
     </div>
     <div class="footer">
       <p>This is an automated notification from Fleet Management System.</p>
@@ -271,8 +269,7 @@ export class NotificationService {
   private async sendSMS(notification: Notification): Promise<void> {
     if (!process.env.TWILIO_ACCOUNT_SID) {
       console.warn('Twilio not configured')
-      return
-    }
+      return }
 
     // Get user phone
     const userResult = await pool.query(
@@ -283,7 +280,7 @@ export class NotificationService {
     if (userResult.rows.length === 0 || !userResult.rows[0].phone) return
 
     // Here you would integrate with Twilio
-    // const twilio = require('twilio')
+    // const twilio = require(`twilio`)
     // const client = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN)
     // await client.messages.create({
     //   body: `${notification.title}: ${notification.message}`,
@@ -308,7 +305,7 @@ export class NotificationService {
    */
   async getUserPreferences(userId: string): Promise<NotificationPreferences> {
     const result = await pool.query(
-      'SELECT 
+      `SELECT 
       id,
       user_id,
       email_notifications,
@@ -320,7 +317,7 @@ export class NotificationService {
       quiet_hours_end,
       timezone,
       created_at,
-      updated_at FROM notification_preferences WHERE user_id = $1',
+      updated_at FROM notification_preferences WHERE user_id = $1`,
       [userId]
     )
 
@@ -432,7 +429,7 @@ export class NotificationService {
    */
   private async getTemplate(templateId: string): Promise<NotificationTemplate | null> {
     const result = await pool.query(
-      'SELECT 
+      `SELECT 
       id,
       name,
       type,
@@ -444,7 +441,7 @@ export class NotificationService {
       in_app_title,
       in_app_message,
       variables,
-      created_at FROM notification_templates WHERE id = $1',
+      created_at FROM notification_templates WHERE id = $1`,
       [templateId]
     )
 
@@ -457,7 +454,7 @@ export class NotificationService {
   private replaceVariables(text: string, variables: Record<string, string>): string {
     let result = text
     for (const [key, value] of Object.entries(variables)) {
-      result = result.replace(new RegExp('{{${key}}}', 'g'), value)
+      result = result.replace(new RegExp(`{{${key}}}`, `g`), value)
     }
     return result
   }
@@ -469,7 +466,7 @@ export class NotificationService {
     // Check quiet hours
     if (preferences.quietHoursStart && preferences.quietHoursEnd) {
       const now = new Date()
-      const currentTime = '${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}'
+      const currentTime = `${now.getHours().toString().padStart(2, `0`)}:${now.getMinutes().toString().padStart(2, `0`)}`
 
       if (currentTime >= preferences.quietHoursStart && currentTime <= preferences.quietHoursEnd) {
         // Don't send during quiet hours unless urgent
