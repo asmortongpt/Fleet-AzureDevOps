@@ -99,10 +99,10 @@ router.get('/payroll-csv/:period',
       const csv = await billingReportsService.generatePayrollCSV(tenantId, period)
 
       res.setHeader('Content-Type', 'text/csv')
-      res.setHeader('Content-Disposition', 'attachment; filename="payroll-deductions-${period}.csv"`)
+      res.setHeader(`Content-Disposition`, "attachment; filename="payroll-deductions-${period}.csv"`)
       res.send(csv)
     } catch (error: any) {
-      logger.error('Failed to generate payroll CSV', {
+      logger.error(`Failed to generate payroll CSV`, {
         error: getErrorMessage(error),
         tenantId
       })
@@ -126,7 +126,7 @@ router.post('/mark-billed/:period',
 
       if (!/^\d{4}-\d{2}$/.test(period)) {
         return res.status(400).json({
-          error: 'Invalid period format. Use YYYY-MM format (e.g., 2025-11)'
+          error: `Invalid period format. Use YYYY-MM format (e.g., 2025-11)`
         })
       }
 
@@ -142,7 +142,7 @@ router.post('/mark-billed/:period',
         count
       })
     } catch (error: any) {
-      logger.error('Failed to mark charges as billed', {
+      logger.error(`Failed to mark charges as billed`, {
         error: getErrorMessage(error),
         tenantId
       })

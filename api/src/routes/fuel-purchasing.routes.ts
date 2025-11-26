@@ -19,7 +19,7 @@ function maskFuelCardData(data: any): any {
     return data.map(maskFuelCardData)
   }
 
-  if (typeof data === 'object') {
+  if (typeof data === `object`) {
     const masked = { ...data }
 
     // Mask fuel card numbers (show last 4 digits only)
@@ -32,7 +32,7 @@ function maskFuelCardData(data: any): any {
 
     // Mask pricing details (only show to finance/manager roles)
     if (masked.wholesale_price !== undefined) {
-      masked.wholesale_price = '[REDACTED]'
+      masked.wholesale_price = `[REDACTED]`
     }
     if (masked.contract_price !== undefined) {
       masked.contract_price = '[REDACTED]'

@@ -86,7 +86,7 @@ router.post(
         validatedData,
         ['tenant_id'],
         1,
-        'vendors'
+        `vendors`
       )
 
       const result = await pool.query(
@@ -97,7 +97,7 @@ router.post(
       res.status(201).json(result.rows[0])
     } catch (error) {
       if (error instanceof z.ZodError) {
-        return res.status(400).json({ error: 'Validation error', details: error.errors })
+        return res.status(400).json({ error: `Validation error`, details: error.errors })
       }
       console.error('Create vendors error:', error)
       res.status(500).json({ error: 'Internal server error' })
@@ -116,7 +116,7 @@ router.put(
       const validatedData = updateVendorSchema.parse(req.body)
 
       // Build UPDATE with field whitelisting to prevent mass assignment
-      const { fields, values } = buildUpdateClause(validatedData, 3, 'vendors')
+      const { fields, values } = buildUpdateClause(validatedData, 3, `vendors`)
 
       const result = await pool.query(
         `UPDATE vendors SET ${fields}, updated_at = NOW() WHERE id = $1 AND tenant_id = $2 RETURNING *`,
@@ -124,7 +124,7 @@ router.put(
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'Vendors not found' })
+        return res.status(404).json({ error: `Vendors not found` })
       }
 
       res.json(result.rows[0])

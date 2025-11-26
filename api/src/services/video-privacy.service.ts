@@ -47,7 +47,7 @@ class VideoPrivacyService {
    */
   async detectFaces(imageUrl: string): Promise<DetectedFace[]> {
     if (!AZURE_COMPUTER_VISION_KEY || !AZURE_COMPUTER_VISION_ENDPOINT) {
-      logger.warn('Azure Computer Vision not configured - face detection disabled');
+      logger.warn(`Azure Computer Vision not configured - face detection disabled`);
       return [];
     }
 
@@ -88,7 +88,7 @@ class VideoPrivacyService {
    */
   async detectLicensePlates(imageUrl: string): Promise<DetectedPlate[]> {
     if (!AZURE_COMPUTER_VISION_KEY || !AZURE_COMPUTER_VISION_ENDPOINT) {
-      logger.warn('Azure Computer Vision not configured - plate detection disabled');
+      logger.warn(`Azure Computer Vision not configured - plate detection disabled`);
       return [];
     }
 
@@ -141,7 +141,7 @@ class VideoPrivacyService {
 
       return plates;
     } catch (error: any) {
-      logger.error('License plate detection failed:', error.message);
+      logger.error(`License plate detection failed:`, error.message);
       return [];
     }
   }
@@ -157,7 +157,7 @@ class VideoPrivacyService {
 
       // Get video event
       const eventResult = await this.db.query(
-        'SELECT video_url, video_thumbnail_url FROM video_safety_events WHERE id = $1',
+        `SELECT video_url, video_thumbnail_url FROM video_safety_events WHERE id = $1`,
         [request.eventId]
       );
 
@@ -187,7 +187,7 @@ class VideoPrivacyService {
       // 3. Upload the processed video back to storage
       // 4. Update the video URL
 
-      // For now, we'll just mark the privacy filters as applied
+      // For now, we`ll just mark the privacy filters as applied
       await this.db.query(
         `UPDATE video_safety_events
          SET privacy_faces_blurred = $1,
@@ -196,7 +196,7 @@ class VideoPrivacyService {
              privacy_processing_status = 'completed',
              metadata = COALESCE(metadata, '{}'::jsonb) || jsonb_build_object(
                'detected_faces', $4,
-               'detected_plates', $5
+               `detected_plates`, $5
              ),
              updated_at = NOW()
          WHERE id = $6`,
@@ -218,7 +218,7 @@ class VideoPrivacyService {
 
       await this.db.query(
         `UPDATE video_safety_events
-         SET privacy_processing_status = 'failed',
+         SET privacy_processing_status = `failed`,
              updated_at = NOW()
          WHERE id = $1',
         [request.eventId]
@@ -297,7 +297,7 @@ class VideoPrivacyService {
                  SET status = 'failed',
                      attempts = attempts + 1,
                      error_message = 'Privacy filter application failed'
-                 WHERE id = $1',
+                 WHERE id = $1`,
                 [task.id]
               );
             }
@@ -307,10 +307,10 @@ class VideoPrivacyService {
 
           await this.db.query(
             `UPDATE video_processing_queue
-             SET status = 'failed',
+             SET status = `failed`,
                  attempts = attempts + 1,
                  error_message = $1
-             WHERE id = $2',
+             WHERE id = $2`,
             [error.message, task.id]
           );
         }
@@ -320,7 +320,7 @@ class VideoPrivacyService {
 
       return processed;
     } catch (error: any) {
-      logger.error('Privacy queue processing failed:', error.message);
+      logger.error(`Privacy queue processing failed:`, error.message);
       return 0;
     }
   }

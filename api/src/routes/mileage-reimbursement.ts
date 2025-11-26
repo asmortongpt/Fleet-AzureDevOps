@@ -36,7 +36,7 @@ router.get('/rates', async (req: Request, res: Response) => {
       try {
         const response = await axios.get(MILEAGE_CONFIG.externalApiEndpoint, {
           headers: {
-            'Authorization': 'Bearer ${MILEAGE_CONFIG.externalApiKey}`
+            'Authorization': `Bearer ${MILEAGE_CONFIG.externalApiKey}`
           },
           timeout: 5000
         })

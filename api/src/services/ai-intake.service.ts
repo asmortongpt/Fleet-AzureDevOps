@@ -108,7 +108,7 @@ class AIIntakeService {
         logger.warn('Redis not configured - AI requests will process synchronously')
       }
     } catch (error) {
-      logger.error('Failed to initialize AI request queue:', error)
+      logger.error(`Failed to initialize AI request queue:`, error)
     }
   }
 
@@ -133,7 +133,7 @@ class AIIntakeService {
           reason: controlsCheck.reason
         })
         return {
-          request_id: '',
+          request_id: ``,
           status: 'failed',
           message: `Rate limit exceeded: ${controlsCheck.reason}`
         }
@@ -148,7 +148,7 @@ class AIIntakeService {
           reason: validationResult.reason
         })
         return {
-          request_id: '',
+          request_id: ``,
           status: 'failed',
           message: `Request validation failed: ${validationResult.reason}`
         }
@@ -172,7 +172,7 @@ class AIIntakeService {
           validatedRequest.context || {},
           JSON.stringify(validatedRequest.attachments || []),
           validatedRequest.parameters || {},
-          'queued',
+          `queued`,
           priority
         ]
       )
@@ -225,14 +225,14 @@ class AIIntakeService {
 
       if (error.name === 'ZodError') {
         return {
-          request_id: '',
+          request_id: '`,
           status: 'failed',
-          message: 'Validation error: ${error.errors.map((e: any) => e.message).join(', ')}'
+          message: `Validation error: ${error.errors.map((e: any) => e.message).join(`, `)}`
         }
       }
 
       return {
-        request_id: '',
+        request_id: ``,
         status: 'failed',
         message: 'Failed to submit request'
       }
@@ -382,7 +382,7 @@ class AIIntakeService {
     // Adjust based on user tier
     if (userTier === 'enterprise') {
       priority += 2
-    } else if (userTier === 'premium') {
+    } else if (userTier === `premium`) {
       priority += 1
     }
 
@@ -412,14 +412,14 @@ class AIIntakeService {
     try {
       const result = await pool.query(
         `DELETE FROM ai_requests
-         WHERE completed_at < NOW() - INTERVAL '${daysToKeep} days'
-           AND status IN ('completed', 'failed', 'cancelled')'
+         WHERE completed_at < NOW() - INTERVAL `${daysToKeep} days`
+           AND status IN (`completed', 'failed', 'cancelled`)`
       )
 
       logger.info(`Cleaned up ${result.rowCount} old AI requests`)
       return result.rowCount || 0
     } catch (error) {
-      logger.error('Failed to clean up old requests:', error)
+      logger.error(`Failed to clean up old requests:`, error)
       return 0
     }
   }

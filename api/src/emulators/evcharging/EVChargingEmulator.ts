@@ -157,7 +157,7 @@ export class EVChargingEmulator extends EventEmitter {
    * Check which vehicles need charging and start sessions
    */
   private checkVehiclesNeedingCharge(): void {
-    // Don't start new sessions if at max capacity
+    // Don`t start new sessions if at max capacity
     if (this.activeSessions.size >= this.config.maxConcurrentSessions) {
       return;
     }
@@ -189,7 +189,7 @@ export class EVChargingEmulator extends EventEmitter {
     // Find available station
     const availableStations = this.getAvailableStations();
     if (availableStations.length === 0) {
-      this.emit('no-stations-available', { vehicleId, timestamp: new Date() });
+      this.emit(`no-stations-available`, { vehicleId, timestamp: new Date() });
       return;
     }
 

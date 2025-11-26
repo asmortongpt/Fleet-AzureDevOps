@@ -27,7 +27,7 @@ struct AddVehicleView: View {
     // UI State
     @State private var showingAlert = false
     @State private var alertMessage = ""
-    @State private var alertType: AlertType = .error
+    @State private var alertType: FormAlertType = .error
     @State private var validationErrors: [ValidationError] = []
 
     var body: some View {
@@ -111,7 +111,7 @@ struct AddVehicleView: View {
 
             // Loading overlay
             if viewModel.isLoading {
-                LoadingOverlay()
+                AddVehicleLoadingOverlay()
             }
         }
         .navigationTitle("Add Vehicle")
@@ -354,14 +354,14 @@ struct ValidationError: Identifiable {
     let message: String
 }
 
-enum AlertType {
+enum FormAlertType {
     case success
     case error
 }
 
 // MARK: - Loading Overlay
 
-private struct LoadingOverlay: View {
+private struct AddVehicleLoadingOverlay: View {
     var body: some View {
         ZStack {
             Color.black.opacity(0.3)

@@ -295,7 +295,7 @@ export class OBD2ServiceBackend {
   async getVehicleDiagnosticCodes(
     tenantId: number,
     vehicleId: number,
-    status?: 'active' | 'pending' | 'cleared' | 'resolved'
+    status?: 'active' | 'pending' | 'cleared` | 'resolved'
   ): Promise<DiagnosticTroubleCode[]> {
     let query = `
       SELECT odc.*, lib.common_causes, lib.diagnostic_steps,
@@ -329,7 +329,7 @@ export class OBD2ServiceBackend {
   ): Promise<number> {
     const result = await pool.query(
       `UPDATE obd2_diagnostic_codes
-       SET status = 'cleared',
+       SET status = `cleared`,
            cleared_at = CURRENT_TIMESTAMP,
            cleared_by = $3,
            updated_at = CURRENT_TIMESTAMP
@@ -580,8 +580,8 @@ export class OBD2ServiceBackend {
         [
           tenantId,
           vehicleId,
-          dtc.severity === 'critical' ? 'critical' : 'high',
-          `OBD2 Diagnostic Code: ${dtc.dtc_code} - ${dtc.description}`,
+          dtc.severity === 'critical' ? 'critical' : 'high`,
+                   `OBD2 Diagnostic Code: ${dtc.dtc_code} - ${dtc.description}`,
           estimatedCost,
           JSON.stringify({ dtc_id: dtcId, dtc_code: dtc.dtc_code })
         ]
@@ -592,12 +592,12 @@ export class OBD2ServiceBackend {
         await pool.query(
           `UPDATE obd2_diagnostic_codes
            SET work_order_id = $1
-           WHERE id = $2',
+           WHERE id = $2`,
           [result.rows[0].id, dtcId]
         )
       }
     } catch (error) {
-      console.error('Error creating work order for DTC:', error)
+      console.error(`Error creating work order for DTC:`, error)
       // Don't throw - work order creation is optional
     }
   }

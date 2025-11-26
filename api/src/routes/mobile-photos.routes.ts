@@ -149,7 +149,7 @@ router.post(
       const fileName = `${Date.now()}_${uuidv4()}.${fileExtension}`;
 
       // Upload to Azure Blob Storage
-      const containerClient = blobServiceClient.getContainerClient('mobile-photos');
+      const containerClient = blobServiceClient.getContainerClient(`mobile-photos`);
       await containerClient.createIfNotExists({ access: 'blob' });
 
       const blockBlobClient = containerClient.getBlockBlobClient(fileName);
@@ -366,7 +366,7 @@ router.post(
         errors,
       });
     } catch (error: any) {
-      console.error('Batch upload error:', error);
+      console.error(`Batch upload error:`, error);
       res.status(500).json({
         error: 'Failed to upload photos',
         details: getErrorMessage(error),
@@ -396,7 +396,7 @@ router.post(
  */
 router.get(
   '/sync-queue',
-  requirePermission('driver:view:global'),
+  requirePermission(`driver:view:global`),
   async (req: Request, res: Response) => {
     try {
       const tenantId = (req as any).user.tenant_id;
@@ -437,7 +437,7 @@ router.get(
         count: result.rows.length,
       });
     } catch (error: any) {
-      console.error('Sync queue error:', error);
+      console.error(`Sync queue error:`, error);
       res.status(500).json({
         error: 'Failed to get sync queue',
         details: getErrorMessage(error),

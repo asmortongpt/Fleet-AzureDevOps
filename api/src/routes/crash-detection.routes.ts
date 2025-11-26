@@ -71,7 +71,7 @@ const CrashReportSchema = z.object({
  *         description: Invalid request data
  */
 router.post('/crash',
-  auditLog('crash_report_submitted'),
+  auditLog(`crash_report_submitted`),
   async (req: Request, res: Response) => {
     const client = await pool.connect()
 
@@ -126,7 +126,7 @@ router.post('/crash',
         acceleration: validated.maxAcceleration,
         userCanceled: validated.userCanceled,
         location: validated.latitude && validated.longitude ?
-          '${validated.latitude}, ${validated.longitude}' : 'unknown'
+          `${validated.latitude}, ${validated.longitude}' : 'unknown'
       })
 
       res.status(201).json({
@@ -185,7 +185,7 @@ router.get('/crash/history', async (req: Request, res: Response) => {
       FROM crash_incidents
       WHERE tenant_id = $1
         AND user_id = $2
-        AND timestamp >= NOW() - INTERVAL '${days} days'
+        AND timestamp >= NOW() - INTERVAL `${days} days`
       ORDER BY timestamp DESC`,
       [tenantId, userId]
     )
@@ -243,7 +243,7 @@ router.get('/crash/fleet', async (req: Request, res: Response) => {
       FROM crash_incidents ci
       LEFT JOIN users u ON ci.user_id = u.id
       WHERE ci.tenant_id = $1
-        AND ci.timestamp >= NOW() - INTERVAL '${days} days'
+        AND ci.timestamp >= NOW() - INTERVAL `${days} days`
       ORDER BY ci.timestamp DESC`,
       [tenantId]
     )
@@ -299,7 +299,7 @@ async function triggerEmergencyResponse(incident: any, client: any) {
         null, // vehicle_id (unknown from mobile crash detection)
         'crash_detected',
         'critical',
-        '🚨 CRASH DETECTED',
+        `🚨 CRASH DETECTED`,
         `Vehicle crash detected with ${incident.max_acceleration}G impact. Emergency services have been notified.`,
         incident.latitude,
         incident.longitude,
@@ -325,7 +325,7 @@ async function triggerEmergencyResponse(incident: any, client: any) {
       SELECT
         $1,
         u.id,
-        'crash_alert',
+        `crash_alert`,
         '🚨 Emergency: Crash Detected',
         'A driver has been in a crash. Emergency services notified.',
         'high',
@@ -334,7 +334,7 @@ async function triggerEmergencyResponse(incident: any, client: any) {
       INNER JOIN user_roles ur ON u.id = ur.user_id
       INNER JOIN roles r ON ur.role_id = r.id
       WHERE u.tenant_id = $1
-        AND r.name IN ('fleet_manager', 'admin')',
+        AND r.name IN ('fleet_manager', 'admin`)`,
       [
         incident.tenant_id,
         JSON.stringify({
@@ -356,7 +356,7 @@ async function triggerEmergencyResponse(incident: any, client: any) {
     // - Company safety coordinator
 
   } catch (error) {
-    console.error('Error triggering emergency response:', error)
+    console.error(`Error triggering emergency response:`, error)
   }
 }
 

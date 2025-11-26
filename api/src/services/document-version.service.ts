@@ -75,12 +75,12 @@ export class DocumentVersionService {
       // Check if this version already exists
       const existingVersion = await client.query(
         `SELECT id FROM document_versions
-         WHERE document_id = $1 AND file_hash = $2',
+         WHERE document_id = $1 AND file_hash = $2`,
         [options.documentId, fileHash]
       )
 
       if (existingVersion.rows.length > 0) {
-        throw new Error('This version already exists')
+        throw new Error(`This version already exists`)
       }
 
       // Get storage adapter
@@ -115,7 +115,7 @@ export class DocumentVersionService {
           currentDoc.file_size,
           currentDoc.file_hash,
           currentDoc.uploaded_by,
-          'Previous version',
+          `Previous version`,
           JSON.stringify(currentDoc.metadata || {})
         ]
       )
@@ -168,12 +168,12 @@ export class DocumentVersionService {
         }
       )
 
-      await client.query('COMMIT')
+      await client.query(`COMMIT`)
 
       console.log(`✅ Version created: v${updatedDoc.rows[0].version_number}`)
       return versionResult.rows[0]
     } catch (error) {
-      await client.query('ROLLBACK')
+      await client.query(`ROLLBACK`)
       console.error('❌ Failed to create version:', error)
       throw error
     } finally {
@@ -268,12 +268,12 @@ export class DocumentVersionService {
     const client = await pool.connect()
 
     try {
-      await client.query('BEGIN')
+      await client.query(`BEGIN`)
 
       // Get the version to restore
       const versionResult = await client.query(
         `SELECT id, tenant_id, document_id, version_number, file_path, created_at, created_by FROM document_versions
-         WHERE document_id = $1 AND version_number = $2',
+         WHERE document_id = $1 AND version_number = $2`,
         [documentId, versionNumber]
       )
 
@@ -307,7 +307,7 @@ export class DocumentVersionService {
       embedding_status,
       embedding_completed_at,
       created_at,
-      updated_at FROM documents WHERE id = $1',
+      updated_at FROM documents WHERE id = $1`,
         [documentId]
       )
 
@@ -376,7 +376,7 @@ export class DocumentVersionService {
         currentDoc.tenant_id,
         documentId,
         userId,
-        'restore_version',
+        `restore_version`,
         {
           oldValues: { version_number: currentDoc.version_number },
           newValues: {
@@ -386,13 +386,13 @@ export class DocumentVersionService {
         }
       )
 
-      await client.query('COMMIT')
+      await client.query(`COMMIT`)
 
       console.log(`✅ Restored version ${versionNumber}`)
       return newVersionResult.rows[0]
     } catch (error) {
-      await client.query('ROLLBACK')
-      console.error('❌ Failed to restore version:', error)
+      await client.query(`ROLLBACK`)
+      console.error(`❌ Failed to restore version:`, error)
       throw error
     } finally {
       client.release()
@@ -421,7 +421,7 @@ export class DocumentVersionService {
       console.log(`✅ Downloaded version ${versionNumber}`)
       return buffer
     } catch (error) {
-      console.error('❌ Failed to download version:', error)
+      console.error(`❌ Failed to download version:`, error)
       throw error
     }
   }
@@ -489,12 +489,12 @@ export class DocumentVersionService {
          FROM document_versions dv
          WHERE dv.document_id = $1
          ORDER BY dv.version_number DESC
-         OFFSET $2',
+         OFFSET $2`,
         [documentId, keepVersions]
       )
 
       if (versionsToDelete.rows.length === 0) {
-        await client.query('COMMIT')
+        await client.query(`COMMIT`)
         return 0
       }
 
@@ -518,12 +518,12 @@ export class DocumentVersionService {
         [versionIds]
       )
 
-      await client.query('COMMIT')
+      await client.query(`COMMIT`)
 
       console.log(`✅ Pruned ${versionsToDelete.rows.length} old versions`)
       return versionsToDelete.rows.length
     } catch (error) {
-      await client.query('ROLLBACK')
+      await client.query(`ROLLBACK`)
       console.error('❌ Failed to prune version history:', error)
       throw error
     } finally {

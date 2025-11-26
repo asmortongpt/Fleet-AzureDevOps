@@ -183,7 +183,7 @@ export class VehicleRepository extends BaseRepository<Vehicle> {
           status_count
         ) FILTER (WHERE status IS NOT NULL) as by_status,
         json_object_agg(
-          COALESCE(asset_type, 'unknown'),
+          COALESCE(asset_type, `unknown`),
           asset_type_count
         ) FILTER (WHERE asset_type IS NOT NULL) as by_asset_type
       FROM (

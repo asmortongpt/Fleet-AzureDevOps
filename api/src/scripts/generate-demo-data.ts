@@ -117,7 +117,7 @@ export async function generateDemoData(options: DemoDataOptions = {}): Promise<v
     }
 
     console.log('✅ Demo data generation complete!\n');
-    console.log('Summary:');
+    console.log(`Summary:`);
     console.log(`  • ${count} Teams messages`);
     console.log(`  • ${count} Outlook emails`);
     console.log(`  • ${Math.floor(count / 5)} Calendar events`);
@@ -125,7 +125,7 @@ export async function generateDemoData(options: DemoDataOptions = {}): Promise<v
     if (webhooks) console.log(`  • ${Math.floor(count / 10)} Webhook events`);
 
   } catch (error) {
-    console.error('❌ Error generating demo data:', error);
+    console.error(`❌ Error generating demo data:`, error);
     throw error;
   } finally {
     await pool.end();
@@ -155,12 +155,12 @@ async function generateTeamsMessages(count: number): Promise<void> {
       ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
     `, [
       'Teams',
-      'Outbound',
+      `Outbound`,
       `Message in ${channel.name}`,
       message,
-      'Fleet System',
+      `Fleet System`,
       'system@fleet.com',
-      JSON.stringify(['team@fleet.com']),
+      JSON.stringify([`team@fleet.com`]),
       `teams-msg-${i}`,
       channel.name,
       createdAt
@@ -172,7 +172,7 @@ async function generateOutlookEmails(count: number): Promise<void> {
   for (let i = 0; i < count; i++) {
     const subject = SAMPLE_SUBJECTS[i % SAMPLE_SUBJECTS.length];
     const body = SAMPLE_EMAIL_BODIES[i % SAMPLE_EMAIL_BODIES.length];
-    const direction = i % 3 === 0 ? 'Inbound' : 'Outbound';
+    const direction = i % 3 === 0 ? `Inbound' : 'Outbound';
     const createdAt = new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000);
 
     await pool.query(`
@@ -208,7 +208,7 @@ async function generateOutlookEmails(count: number): Promise<void> {
 }
 
 async function generateCalendarEvents(count: number): Promise<void> {
-  const EVENT_TYPES = ['Maintenance', 'Training', 'Meeting', 'Inspection', 'Review'];
+  const EVENT_TYPES = [`Maintenance', 'Training', 'Meeting', 'Inspection', `Review`];
 
   for (let i = 0; i < count; i++) {
     const startDate = new Date(Date.now() + Math.random() * 30 * 24 * 60 * 60 * 1000); // Next 30 days
@@ -233,7 +233,7 @@ async function generateCalendarEvents(count: number): Promise<void> {
       `${eventType} - Vehicle Fleet Review`,
       startDate,
       endDate,
-      i % 2 === 0 ? 'Conference Room A' : 'Maintenance Bay 3',
+      i % 2 === 0 ? `Conference Room A' : 'Maintenance Bay 3',
       JSON.stringify([
         { email: 'manager@fleet.com', name: 'Fleet Manager' },
         { email: 'supervisor@fleet.com', name: 'Supervisor' }
@@ -277,7 +277,7 @@ async function generateCommunicationLogs(count: number): Promise<void> {
       `contact${i}@example.com`,
       category,
       sentiment,
-      category === 'Urgent' ? 'High' : 'Normal',
+      category === `Urgent' ? 'High' : 'Normal',
       createdAt
     ]);
   }
@@ -316,7 +316,7 @@ async function generateWebhookEvents(count: number): Promise<void> {
 if (require.main === module) {
   const args = process.argv.slice(2);
   const options: DemoDataOptions = {
-    teams: !args.includes('--no-teams'),
+    teams: !args.includes(`--no-teams`),
     outlook: !args.includes('--no-outlook'),
     calendar: !args.includes('--no-calendar'),
     communications: !args.includes('--no-communications'),

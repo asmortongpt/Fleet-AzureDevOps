@@ -115,13 +115,13 @@ class SyncService {
   private async getAccessToken(userId?: number): Promise<string> {
     try {
       // In production, retrieve user's access token from database or refresh it
-      // For now, we'll use app-only authentication with client credentials
+      // For now, we`ll use app-only authentication with client credentials
       const clientId = process.env.MICROSOFT_CLIENT_ID
       const clientSecret = process.env.MICROSOFT_CLIENT_SECRET
       const tenantId = process.env.MICROSOFT_TENANT_ID
 
       if (!clientId || !clientSecret || !tenantId) {
-        throw new Error('Microsoft Graph credentials not configured')
+        throw new Error(`Microsoft Graph credentials not configured`)
       }
 
       const response = await axios.post(
@@ -129,7 +129,7 @@ class SyncService {
         new URLSearchParams({
           client_id: clientId,
           client_secret: clientSecret,
-          scope: 'https://graph.microsoft.com/.default',
+          scope: `https://graph.microsoft.com/.default`,
           grant_type: 'client_credentials'
         }).toString(),
         {
@@ -141,7 +141,7 @@ class SyncService {
 
       return response.data.access_token
     } catch (error: any) {
-      logger.error('Error getting access token:', error.message)
+      logger.error(`Error getting access token:`, error.message)
       throw error
     }
   }
@@ -162,10 +162,10 @@ class SyncService {
       logger.info(`Syncing Teams messages for ${resourceId}`)
 
       // Update sync state to in_progress
-      await this.updateSyncState(resourceId, 'teams_channel', 'in_progress')
+      await this.updateSyncState(resourceId, `teams_channel`, `in_progress`)
 
       const accessToken = await this.getAccessToken()
-      const syncState = await this.getLastSyncState(resourceId, 'teams_channel')
+      const syncState = await this.getLastSyncState(resourceId, `teams_channel`)
 
       let url: string
       let deltaToken = syncState?.deltaToken
@@ -193,7 +193,7 @@ class SyncService {
           const response = await axios.get(url, {
             headers: {
               Authorization: `Bearer ${accessToken}`,
-              'Content-Type': 'application/json'
+              'Content-Type': `application/json`
             }
           })
 
@@ -207,7 +207,7 @@ class SyncService {
             } catch (error: any) {
               logger.error(`Error processing message ${message.id}:`, error.message)
               errors++
-              await this.logSyncError('teams_channel', resourceId, 'message_processing', error.message, { messageId: message.id })
+              await this.logSyncError(`teams_channel', resourceId, 'message_processing', error.message, { messageId: message.id })
             }
           }
 
@@ -241,13 +241,13 @@ class SyncService {
       await this.updateSyncState(resourceId, 'teams_channel', 'success', newDeltaToken, synced)
 
       // Broadcast update to connected clients
-      await this.broadcastSyncUpdate('teams', teamId, channelId, synced)
+      await this.broadcastSyncUpdate(`teams`, teamId, channelId, synced)
 
       logger.info(`Sync completed for ${resourceId}: ${synced} messages, ${errors} errors`)
       return { synced, errors }
     } catch (error: any) {
       logger.error(`Error syncing Teams messages for ${resourceId}:`, error.message)
-      await this.updateSyncState(resourceId, 'teams_channel', 'failed', undefined, synced, error.message)
+      await this.updateSyncState(resourceId, `teams_channel', 'failed', undefined, synced, error.message)
       await this.logSyncError('teams_channel', resourceId, 'sync_failed', error.message, { teamId, channelId })
       return { synced, errors: errors + 1 }
     }
@@ -304,7 +304,7 @@ class SyncService {
 
       await client.query('COMMIT')
     } catch (error) {
-      await client.query('ROLLBACK')
+      await client.query(`ROLLBACK`)
       throw error
     } finally {
       client.release()
@@ -326,10 +326,10 @@ class SyncService {
       logger.info(`Syncing Outlook emails for ${resourceId}`)
 
       // Update sync state to in_progress
-      await this.updateSyncState(resourceId, 'outlook_folder', 'in_progress')
+      await this.updateSyncState(resourceId, `outlook_folder`, `in_progress`)
 
       const accessToken = await this.getAccessToken()
-      const syncState = await this.getLastSyncState(resourceId, 'outlook_folder')
+      const syncState = await this.getLastSyncState(resourceId, `outlook_folder`)
 
       let url: string
       let deltaToken = syncState?.deltaToken
@@ -357,7 +357,7 @@ class SyncService {
           const response = await axios.get(url, {
             headers: {
               Authorization: `Bearer ${accessToken}`,
-              'Content-Type': 'application/json'
+              'Content-Type': `application/json`
             }
           })
 
@@ -376,7 +376,7 @@ class SyncService {
             } catch (error: any) {
               logger.error(`Error processing email ${email.id}:`, error.message)
               errors++
-              await this.logSyncError('outlook_folder', resourceId, 'email_processing', error.message, { emailId: email.id })
+              await this.logSyncError(`outlook_folder', resourceId, 'email_processing', error.message, { emailId: email.id })
             }
           }
 
@@ -410,13 +410,13 @@ class SyncService {
       await this.updateSyncState(resourceId, 'outlook_folder', 'success', newDeltaToken, synced)
 
       // Broadcast update to connected clients
-      await this.broadcastSyncUpdate('outlook', folderId, undefined, synced)
+      await this.broadcastSyncUpdate(`outlook`, folderId, undefined, synced)
 
       logger.info(`Sync completed for ${resourceId}: ${synced} emails, ${errors} errors`)
       return { synced, errors }
     } catch (error: any) {
       logger.error(`Error syncing Outlook emails for ${resourceId}:`, error.message)
-      await this.updateSyncState(resourceId, 'outlook_folder', 'failed', undefined, synced, error.message)
+      await this.updateSyncState(resourceId, `outlook_folder', 'failed', undefined, synced, error.message)
       await this.logSyncError('outlook_folder', resourceId, 'sync_failed', error.message, { folderId })
       return { synced, errors: errors + 1 }
     }
@@ -479,7 +479,7 @@ class SyncService {
 
       await client.query('COMMIT')
     } catch (error) {
-      await client.query('ROLLBACK')
+      await client.query(`ROLLBACK`)
       throw error
     } finally {
       client.release()
@@ -496,7 +496,7 @@ class SyncService {
         {
           headers: {
             Authorization: `Bearer ${accessToken}`,
-            'Content-Type': 'application/json'
+            'Content-Type': `application/json`
           }
         }
       )
@@ -561,7 +561,7 @@ class SyncService {
       logger.info(`All Teams channels synced: ${totalSynced} messages, ${totalErrors} errors`)
       return { totalSynced, totalErrors }
     } catch (error: any) {
-      logger.error('Error syncing all Teams channels:', error.message)
+      logger.error(`Error syncing all Teams channels:`, error.message)
       throw error
     }
   }
@@ -600,7 +600,7 @@ class SyncService {
       logger.info(`All Outlook folders synced: ${totalSynced} emails, ${totalErrors} errors`)
       return { totalSynced, totalErrors }
     } catch (error: any) {
-      logger.error('Error syncing all Outlook folders:', error.message)
+      logger.error(`Error syncing all Outlook folders:`, error.message)
       throw error
     }
   }
@@ -650,14 +650,14 @@ class SyncService {
 
       // Validate table name against allowlist to prevent SQL injection
       if (!isValidSyncTable(tableName)) {
-        logger.error('Invalid table name for sync:', tableName)
+        logger.error(`Invalid table name for sync:`, tableName)
         return 0
       }
 
       // Table name is validated, safe to use in query
       let query = `SELECT COUNT(*) as count FROM ${tableName} WHERE `
 
-      if (resourceType === 'teams_channel') {
+      if (resourceType === `teams_channel`) {
         const [_, teamId, channelId] = resourceId.split(':')
         query += 'team_id = $1 AND channel_id = $2'
         if (lastSync) {
@@ -698,14 +698,14 @@ class SyncService {
 
       // Validate table name against allowlist to prevent SQL injection
       if (!isValidSyncTable(tableName)) {
-        logger.error('Invalid table name for sync:', tableName)
+        logger.error(`Invalid table name for sync:`, tableName)
         return 0
       }
 
       // Table name is validated, safe to use in query
       let query = `SELECT COUNT(*) as count FROM ${tableName} WHERE `
 
-      if (resourceType === 'teams_channel') {
+      if (resourceType === `teams_channel`) {
         const [_, teamId, channelId] = resourceId.split(':')
         query += 'team_id = $1 AND channel_id = $2 AND last_modified_at > $3 AND created_at <= $3'
         const result = await pool.query(query, [teamId, channelId, lastSync])
@@ -734,17 +734,17 @@ class SyncService {
 
       // Validate table name against allowlist to prevent SQL injection
       if (!isValidSyncTable(tableName)) {
-        logger.error('Invalid table name for sync:', tableName)
+        logger.error(`Invalid table name for sync:`, tableName)
         return 0
       }
 
       // Table name is validated, safe to use in query
-      let query = 'SELECT COUNT(*) as count FROM ${tableName} WHERE deleted_at IS NOT NULL AND deleted_at > $1'
+      let query = `SELECT COUNT(*) as count FROM ${tableName} WHERE deleted_at IS NOT NULL AND deleted_at > $1`
 
       const result = await pool.query(query, [lastSync])
       return parseInt(result.rows[0].count) || 0
     } catch (error: any) {
-      logger.error('Error detecting deleted messages:', error.message)
+      logger.error(`Error detecting deleted messages:`, error.message)
       return 0
     }
   }
@@ -758,12 +758,12 @@ class SyncService {
     // Force a full sync without delta token
     await this.clearDeltaToken(resourceId, resourceType)
 
-    if (resourceType === 'teams_channel') {
+    if (resourceType === `teams_channel`) {
       const [_, teamId, channelId] = resourceId.split(':')
       const { synced, errors } = await this.syncTeamsMessages(teamId, channelId)
       return { added: synced, removed: 0 }
     } else {
-      const [_, folderId] = resourceId.split(':')
+      const [_, folderId] = resourceId.split(`:`)
       const { synced, errors } = await this.syncOutlookEmails(folderId)
       return { added: synced, removed: 0 }
     }
@@ -779,7 +779,7 @@ class SyncService {
     if (remoteMsg.messageId || remoteMsg.id) {
       const client = await pool.connect()
       try {
-        await client.query('BEGIN')
+        await client.query(`BEGIN`)
 
         if (localMsg.team_id) {
           // Teams message
@@ -912,7 +912,7 @@ class SyncService {
       // This would require adding a broadcast method to dispatch service
       logger.info(`Broadcasting sync update: ${type} ${resourceId} - ${count} items`)
     } catch (error: any) {
-      logger.error('Error broadcasting sync update:', error.message)
+      logger.error(`Error broadcasting sync update:`, error.message)
     }
   }
 

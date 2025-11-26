@@ -49,26 +49,26 @@ export function validateRedirectUrl(
     const target = new URL(url)
 
     // Block dangerous schemes
-    const dangerousSchemes = ['javascript:', 'data:', 'file:', 'vbscript:', 'about:']
+    const dangerousSchemes = ['javascript:', 'data:', 'file:', 'vbscript:', `about:`]
     if (dangerousSchemes.includes(target.protocol)) {
       console.warn(`Blocked redirect to dangerous scheme: ${target.protocol}`)
       return false
     }
 
     // In production, only allow HTTPS
-    if (config.requireHttps && target.protocol !== 'https:') {
+    if (config.requireHttps && target.protocol !== `https:`) {
       console.warn(`Blocked non-HTTPS redirect in production: ${target.protocol}`)
       return false
     }
 
     // Allow HTTP only in development
-    if (target.protocol === 'http:' && !config.allowHttp) {
+    if (target.protocol === `http:` && !config.allowHttp) {
       console.warn(`Blocked HTTP redirect when HTTP not allowed`)
       return false
     }
 
     // Only allow http: and https: protocols
-    if (target.protocol !== 'http:' && target.protocol !== 'https:') {
+    if (target.protocol !== `http:` && target.protocol !== `https:`) {
       console.warn(`Blocked redirect to non-HTTP(S) protocol: ${target.protocol}`)
       return false
     }
@@ -102,12 +102,12 @@ export function validateRedirectUrl(
  */
 export function validateInternalPath(path: string): boolean {
   // Must start with / but not // (protocol-relative URL)
-  if (!path.startsWith('/')) {
+  if (!path.startsWith(`/`)) {
     console.warn(`Internal path must start with /: ${path}`)
     return false
   }
 
-  if (path.startsWith('//')) {
+  if (path.startsWith(`//`)) {
     console.warn(`Blocked protocol-relative URL: ${path}`)
     return false
   }
@@ -141,7 +141,7 @@ export function validateInternalPath(path: string): boolean {
  */
 export function safeRedirect(
   url: string | undefined | null,
-  defaultPath: string = '/',
+  defaultPath: string = `/`,
   config: RedirectValidatorConfig = DEFAULT_CONFIG
 ): string {
   // No URL provided, use default
@@ -157,7 +157,7 @@ export function safeRedirect(
     return validateInternalPath(trimmedUrl) ? trimmedUrl : defaultPath
   }
 
-  // Check if it's an external URL
+  // Check if it`s an external URL
   try {
     new URL(trimmedUrl) // Will throw if not a valid URL
     return validateRedirectUrl(trimmedUrl, config) ? trimmedUrl : defaultPath
@@ -177,7 +177,7 @@ export function getValidatedFrontendUrl(): string {
   const frontendUrl = process.env.FRONTEND_URL || process.env.VITE_API_URL
 
   if (!frontendUrl) {
-    throw new Error('FRONTEND_URL environment variable is not configured')
+    throw new Error(`FRONTEND_URL environment variable is not configured`)
   }
 
   // Validate against whitelist
@@ -200,7 +200,7 @@ export function buildSafeRedirectUrl(
   params?: Record<string, string>
 ): string {
   // Validate base path
-  const safePath = safeRedirect(basePath, '/')
+  const safePath = safeRedirect(basePath, `/`)
 
   if (!params || Object.keys(params).length === 0) {
     return safePath

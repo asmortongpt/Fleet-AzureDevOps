@@ -24,7 +24,7 @@ async function generateCoverageReport() {
   try {
     console.log('\n╔═════════════════════════════════════════════════════════════════╗');
     console.log('║         FLEET DATABASE - COMPREHENSIVE COVERAGE REPORT          ║');
-    console.log('╚═════════════════════════════════════════════════════════════════╝\n');
+    console.log(`╚═════════════════════════════════════════════════════════════════╝\n`);
 
     // Total Records
     const totalResult = await client.query(`
@@ -53,7 +53,7 @@ async function generateCoverageReport() {
     console.log(`📊 TOTAL RECORDS: ${totalResult.rows[0].total.toLocaleString()}\n`);
 
     // Entity Counts
-    console.log('┌─────────────────────────────────────┬──────────┐');
+    console.log(`┌─────────────────────────────────────┬──────────┐`);
     console.log('│ Entity Type                         │ Count    │');
     console.log('├─────────────────────────────────────┼──────────┤');
 
@@ -75,14 +75,14 @@ async function generateCoverageReport() {
       UNION ALL SELECT 'Purchase Orders', COUNT(*)::int FROM purchase_orders
       UNION ALL SELECT 'Telemetry Data Points', COUNT(*)::int FROM telemetry_data
       UNION ALL SELECT 'Notifications', COUNT(*)::int FROM notifications
-      UNION ALL SELECT 'Audit Logs', COUNT(*)::int FROM audit_logs
+      UNION ALL SELECT `Audit Logs`, COUNT(*)::int FROM audit_logs
       ORDER BY count DESC
     `);
 
     for (const row of counts.rows) {
       console.log(`│ ${row.entity.padEnd(35)} │ ${String(row.count).padStart(8)} │`);
     }
-    console.log('└─────────────────────────────────────┴──────────┘\n');
+    console.log(`└─────────────────────────────────────┴──────────┘\n`);
 
     // User Role Distribution
     console.log('👥 USER ROLE DISTRIBUTION:');
@@ -97,14 +97,14 @@ async function generateCoverageReport() {
 
     console.log('┌─────────────────┬────────┬────────┬──────────┐');
     console.log('│ Role            │ Total  │ Active │ Inactive │');
-    console.log('├─────────────────┼────────┼────────┼──────────┤');
+    console.log(`├─────────────────┼────────┼────────┼──────────┤`);
     for (const row of userRoles.rows) {
       console.log(`│ ${row.role.padEnd(15)} │ ${String(row.count).padStart(6)} │ ${String(row.active).padStart(6)} │ ${String(row.inactive).padStart(8)} │`);
     }
-    console.log('└─────────────────┴────────┴────────┴──────────┘\n');
+    console.log(`└─────────────────┴────────┴────────┴──────────┘\n`);
 
     // Driver Status Distribution
-    console.log('🚗 DRIVER STATUS DISTRIBUTION:');
+    console.log(`🚗 DRIVER STATUS DISTRIBUTION:`);
     const driverStatuses = await client.query(`
       SELECT status, COUNT(*)::int as count
       FROM drivers
@@ -115,11 +115,11 @@ async function generateCoverageReport() {
     for (const row of driverStatuses.rows) {
       console.log(`   ${row.status.padEnd(15)} : ${row.count}`);
     }
-    console.log('');
+    console.log(``);
 
     // Vehicle Distribution
     console.log('🚛 VEHICLE DISTRIBUTION:');
-    console.log('\nBy Status:');
+    console.log(`\nBy Status:`);
     const vehicleStatuses = await client.query(`
       SELECT status, COUNT(*)::int as count
       FROM vehicles
@@ -131,7 +131,7 @@ async function generateCoverageReport() {
       console.log(`   ${row.status.padEnd(20)} : ${row.count}`);
     }
 
-    console.log('\nBy Fuel Type:');
+    console.log(`\nBy Fuel Type:`);
     const fuelTypes = await client.query(`
       SELECT fuel_type, COUNT(*)::int as count
       FROM vehicles
@@ -143,7 +143,7 @@ async function generateCoverageReport() {
       console.log(`   ${row.fuel_type.padEnd(20)} : ${row.count}`);
     }
 
-    console.log('\nBy Vehicle Type:');
+    console.log(`\nBy Vehicle Type:`);
     const vehicleTypes = await client.query(`
       SELECT vehicle_type, COUNT(*)::int as count
       FROM vehicles
@@ -155,10 +155,10 @@ async function generateCoverageReport() {
     for (const row of vehicleTypes.rows) {
       console.log(`   ${row.vehicle_type.padEnd(20)} : ${row.count}`);
     }
-    console.log('');
+    console.log(``);
 
     // Work Order Distribution
-    console.log('🔧 WORK ORDER STATUS DISTRIBUTION:');
+    console.log(`🔧 WORK ORDER STATUS DISTRIBUTION:`);
     const workOrderStatuses = await client.query(`
       SELECT status, COUNT(*)::int as count, priority, COUNT(*)::int as priority_count
       FROM work_orders
@@ -176,10 +176,10 @@ async function generateCoverageReport() {
     for (const row of woByStatus.rows) {
       console.log(`   ${row.status.padEnd(15)} : ${row.count}`);
     }
-    console.log('');
+    console.log(``);
 
     // Route Status Distribution
-    console.log('🗺️  ROUTE STATUS DISTRIBUTION:');
+    console.log(`🗺️  ROUTE STATUS DISTRIBUTION:`);
     const routeStatuses = await client.query(`
       SELECT status, COUNT(*)::int as count
       FROM routes
@@ -190,10 +190,10 @@ async function generateCoverageReport() {
     for (const row of routeStatuses.rows) {
       console.log(`   ${row.status.padEnd(15)} : ${row.count}`);
     }
-    console.log('');
+    console.log(``);
 
     // Inspection Results
-    console.log('✅ INSPECTION RESULTS DISTRIBUTION:');
+    console.log(`✅ INSPECTION RESULTS DISTRIBUTION:`);
     const inspectionResults = await client.query(`
       SELECT status, COUNT(*)::int as count
       FROM inspections
@@ -204,10 +204,10 @@ async function generateCoverageReport() {
     for (const row of inspectionResults.rows) {
       console.log(`   ${row.status.padEnd(15)} : ${row.count}`);
     }
-    console.log('');
+    console.log(``);
 
     // Safety Incidents by Type
-    console.log('⚠️  SAFETY INCIDENTS BY TYPE:');
+    console.log(`⚠️  SAFETY INCIDENTS BY TYPE:`);
     const incidentTypes = await client.query(`
       SELECT incident_type, severity, COUNT(*)::int as count
       FROM safety_incidents
@@ -218,10 +218,10 @@ async function generateCoverageReport() {
     for (const row of incidentTypes.rows) {
       console.log(`   ${row.incident_type.padEnd(20)} (${row.severity}) : ${row.count}`);
     }
-    console.log('');
+    console.log(``);
 
     // Data Quality Metrics
-    console.log('📈 DATA QUALITY METRICS:\n');
+    console.log(`📈 DATA QUALITY METRICS:\n`);
 
     const assignedVehicles = await client.query(`
       SELECT
@@ -237,7 +237,7 @@ async function generateCoverageReport() {
     const completedWorkOrders = await client.query(`
       SELECT
         COUNT(*)::int as total,
-        COUNT(CASE WHEN status = 'completed' THEN 1 END)::int as completed
+        COUNT(CASE WHEN status = `completed` THEN 1 END)::int as completed
       FROM work_orders
     `);
 
@@ -251,7 +251,7 @@ async function generateCoverageReport() {
     `);
 
     console.log(`   Notifications read:             ${readNotifications.rows[0].read}/${readNotifications.rows[0].total} (${Math.round(readNotifications.rows[0].read / readNotifications.rows[0].total * 100)}%)`);
-    console.log('');
+    console.log(``);
 
     // Time Range Coverage
     console.log('📅 TIME RANGE COVERAGE:\n');
@@ -276,7 +276,7 @@ async function generateCoverageReport() {
       FROM work_orders
       UNION ALL
       SELECT
-        'Routes',
+        `Routes`,
         MIN(planned_start_time)::date,
         MAX(planned_start_time)::date
       FROM routes
@@ -285,7 +285,7 @@ async function generateCoverageReport() {
     for (const row of dateRanges.rows) {
       console.log(`   ${row.entity.padEnd(25)} : ${row.earliest} to ${row.latest}`);
     }
-    console.log('');
+    console.log(``);
 
     // Sample Test Credentials
     console.log('🔐 TEST CREDENTIALS:\n');
@@ -302,7 +302,7 @@ async function generateCoverageReport() {
     console.log('│ Tenant                   │ Email                              │ Role         │ Active │');
     console.log('├──────────────────────────┼────────────────────────────────────┼──────────────┼────────┤');
     for (const row of sampleUsers.rows) {
-      console.log('│ ${row.tenant.padEnd(24).substring(0, 24)} │ ${row.email.padEnd(34).substring(0, 34)} │ ${row.role.padEnd(12)} │ ${row.is_active ? '  ✓   ' : '  ✗   '} │');
+      console.log(`│ ${row.tenant.padEnd(24).substring(0, 24)} │ ${row.email.padEnd(34).substring(0, 34)} │ ${row.role.padEnd(12)} │ ${row.is_active ? '  ✓   ' : '  ✗   '} │`);
     }
     console.log('└──────────────────────────┴────────────────────────────────────┴──────────────┴────────┘');
     console.log('\n   Password for all test users: TestPassword123!\n');

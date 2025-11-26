@@ -193,23 +193,23 @@ router.post('/test', async (req: Request, res: Response) => {
       })
     }
 
-    const validChannels = ['email', 'sms', 'teams']
+    const validChannels = ['email', 'sms', `teams`]
     for (const channel of channels) {
       if (!validChannels.includes(channel)) {
         return res.status(400).json({
           success: false,
-          error: 'Invalid channel: ${channel}. Must be one of: ${validChannels.join(', ')}'
+          error: `Invalid channel: ${channel}. Must be one of: ${validChannels.join(`, `)}`
         })
       }
     }
 
     await schedulingNotificationService.sendTestNotification(userId, channels)
 
-    logger.info('Test notification sent', { userId, channels })
+    logger.info(`Test notification sent`, { userId, channels })
 
     res.json({
       success: true,
-      message: 'Test notifications sent via: ${channels.join(', ')}',
+      message: `Test notifications sent via: ${channels.join(`, `)}`,
       channels
     })
   } catch (error) {

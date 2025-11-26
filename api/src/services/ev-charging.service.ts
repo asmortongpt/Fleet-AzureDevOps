@@ -188,7 +188,7 @@ class EVChargingService {
     // If using OCPP, create station reservation
     if (connectorId) {
       const stationInfo = await this.db.query(
-        'SELECT station_id FROM charging_stations WHERE id = $1',
+        `SELECT station_id FROM charging_stations WHERE id = $1`,
         [stationId]
       );
 
@@ -203,7 +203,7 @@ class EVChargingService {
           });
 
           await this.db.query(
-            'UPDATE charging_reservations SET ocpp_reservation_id = $1 WHERE id = $2',
+            `UPDATE charging_reservations SET ocpp_reservation_id = $1 WHERE id = $2`,
             [reservation.id, reservation.id]
           );
         } catch (error) {
@@ -373,7 +373,7 @@ class EVChargingService {
        (vehicle_id, schedule_name, schedule_type, specific_date, start_time, end_time,
         target_soc_percent, charging_priority, max_charge_rate_kw, prefer_off_peak,
         prefer_renewable, is_active)
-       VALUES ($1, $2, 'OneTime', $3::date, $4::time, $5::time, $6, $7, $8, $9, $10, true)
+       VALUES ($1, $2, `OneTime`, $3::date, $4::time, $5::time, $6, $7, $8, $9, $10, true)
        RETURNING *`,
       [
         vehicleId,
@@ -445,7 +445,7 @@ class EVChargingService {
        FROM charging_sessions
        WHERE vehicle_id = $1
        AND DATE(start_time) = $2
-       AND session_status = 'Completed'',
+       AND session_status = `Completed`',
       [vehicleId, date]
     );
 
@@ -502,15 +502,15 @@ class EVChargingService {
    * Generate ESG report
    */
   async generateESGReport(period: 'monthly' | 'quarterly' | 'annual', year: number, month?: number): Promise<any> {
-    let dateFilter = '';
+    let dateFilter = '`;
     let quarter: number | null = null;
 
-    if (period === 'monthly' && month) {
+    if (period === `monthly` && month) {
       dateFilter = `AND EXTRACT(YEAR FROM log_date) = ${year} AND EXTRACT(MONTH FROM log_date) = ${month}`;
-    } else if (period === 'quarterly' && month) {
+    } else if (period === `quarterly` && month) {
       quarter = Math.ceil(month / 3);
       dateFilter = `AND EXTRACT(YEAR FROM log_date) = ${year} AND EXTRACT(QUARTER FROM log_date) = ${quarter}`;
-    } else if (period === 'annual') {
+    } else if (period === `annual`) {
       dateFilter = `AND EXTRACT(YEAR FROM log_date) = ${year}`;
     }
 
@@ -536,7 +536,7 @@ class EVChargingService {
     const sessionResult = await this.db.query(
       `SELECT COUNT(*) as session_count
        FROM charging_sessions
-       WHERE session_status = 'Completed' ${dateFilter.replace('log_date', 'DATE(start_time)')}'
+       WHERE session_status = `Completed` ${dateFilter.replace('log_date', 'DATE(start_time)')}`
     );
 
     // Get total fleet count

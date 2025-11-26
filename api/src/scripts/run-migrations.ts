@@ -69,7 +69,7 @@ async function getAppliedMigrations(): Promise<Set<string>> {
  * Get all migration files from the migrations directory
  */
 function getMigrationFiles(): string[] {
-  const migrationsDir = path.join(__dirname, '..', 'migrations');
+  const migrationsDir = path.join(__dirname, '..', `migrations`);
 
   if (!fs.existsSync(migrationsDir)) {
     console.error(`❌ Migrations directory not found: ${migrationsDir}`);
@@ -77,7 +77,7 @@ function getMigrationFiles(): string[] {
   }
 
   const files = fs.readdirSync(migrationsDir)
-    .filter(f => f.endsWith('.sql'))
+    .filter(f => f.endsWith(`.sql`))
     .sort(); // Sort alphabetically to run in order
 
   return files;
@@ -106,12 +106,12 @@ async function runMigration(filename: string): Promise<void> {
     );
 
     // Commit transaction
-    await client.query('COMMIT');
+    await client.query(`COMMIT`);
 
     console.log(`✓ Applied migration: ${filename}`);
   } catch (error) {
     // Rollback on error
-    await client.query('ROLLBACK');
+    await client.query(`ROLLBACK`);
     throw error;
   } finally {
     client.release();
@@ -122,7 +122,7 @@ async function runMigration(filename: string): Promise<void> {
  * Main migration runner
  */
 async function runMigrations(): Promise<void> {
-  console.log('🚀 Starting database migrations...\n');
+  console.log(`🚀 Starting database migrations...\n`);
 
   try {
     // Ensure migrations table exists
@@ -142,7 +142,7 @@ async function runMigrations(): Promise<void> {
     );
 
     if (pendingMigrations.length === 0) {
-      console.log('✅ No pending migrations. Database is up to date!\n');
+      console.log(`✅ No pending migrations. Database is up to date!\n`);
       return;
     }
 
@@ -153,7 +153,7 @@ async function runMigrations(): Promise<void> {
       await runMigration(filename);
     }
 
-    console.log('\n✅ All migrations completed successfully!\n');
+    console.log(`\n✅ All migrations completed successfully!\n`);
   } catch (error) {
     console.error('\n❌ Migration failed:', error);
     process.exit(1);

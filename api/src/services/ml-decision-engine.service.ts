@@ -220,7 +220,7 @@ class MLDecisionEngineService {
         tenantId,
         model?.id,
         'route_optimization',
-        'route',
+        `route`,
         `${startLocation.lat},${startLocation.lng}-${endLocation.lat},${endLocation.lng}`,
         { start: startLocation, end: endLocation, constraints },
         optimizedRoute,
@@ -229,7 +229,7 @@ class MLDecisionEngineService {
 
       return optimizedRoute
     } catch (error: any) {
-      logger.error('Route optimization error', { error: error.message })
+      logger.error(`Route optimization error`, { error: error.message })
       throw error
     }
   }

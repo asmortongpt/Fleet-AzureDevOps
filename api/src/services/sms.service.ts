@@ -186,7 +186,7 @@ class SMSService {
 
       return result.sid;
     } catch (error: any) {
-      console.error('Error sending MMS:', error);
+      console.error(`Error sending MMS:`, error);
       throw error;
     }
   }
@@ -262,7 +262,7 @@ class SMSService {
         createdBy
       );
     } catch (error) {
-      console.error('Error sending from template:', error);
+      console.error(`Error sending from template:`, error);
       throw error;
     }
   }
@@ -280,7 +280,7 @@ class SMSService {
          SET status = $1,
              error_code = $2,
              error_message = $3,
-             delivered_at = CASE WHEN $1 = 'delivered' THEN CURRENT_TIMESTAMP ELSE delivered_at END,
+             delivered_at = CASE WHEN $1 = `delivered` THEN CURRENT_TIMESTAMP ELSE delivered_at END,
              updated_at = CURRENT_TIMESTAMP
          WHERE message_sid = $4`,
         [MessageStatus, ErrorCode, ErrorMessage, MessageSid]
@@ -288,7 +288,7 @@ class SMSService {
 
       console.log(`SMS status updated: ${MessageSid} -> ${MessageStatus}`);
     } catch (error) {
-      console.error('Error handling webhook:', error);
+      console.error(`Error handling webhook:`, error);
     }
   }
 
@@ -351,7 +351,7 @@ class SMSService {
       const result = await db.query(query, params);
       return result.rows;
     } catch (error) {
-      console.error('Error getting SMS history:', error);
+      console.error(`Error getting SMS history:`, error);
       throw error;
     }
   }
@@ -464,7 +464,7 @@ class SMSService {
         deliveryRate: totalSent > 0 ? (delivered / totalSent) * 100 : 0,
       };
     } catch (error) {
-      console.error('Error getting statistics:', error);
+      console.error(`Error getting statistics:`, error);
       throw error;
     }
   }
@@ -514,13 +514,13 @@ class SMSService {
       const result = await db.query(
         `INSERT INTO sms_logs (tenant_id, to_number, from_number, body, status, created_by)
          VALUES ($1, $2, $3, $4, $5, $6)
-         RETURNING id',
+         RETURNING id`,
         [data.tenantId, data.to, data.from, data.body, data.status, data.createdBy]
       );
 
       return result.rows[0].id;
     } catch (error) {
-      console.error('Error logging message:', error);
+      console.error(`Error logging message:`, error);
       throw error;
     }
   }
@@ -580,10 +580,10 @@ class SMSService {
         paramIndex++;
       }
 
-      sets.push('updated_at = CURRENT_TIMESTAMP');
+      sets.push(`updated_at = CURRENT_TIMESTAMP`);
 
       params.push(id);
-      const query = 'UPDATE sms_logs SET ${sets.join(', ')} WHERE id = $${paramIndex}';
+      const query = `UPDATE sms_logs SET ${sets.join(`, `)} WHERE id = $${paramIndex}`;
 
       await db.query(query, params);
     } catch (error) {
@@ -598,7 +598,7 @@ class SMSService {
     let result = template;
 
     for (const [key, value] of Object.entries(variables)) {
-      const regex = new RegExp('{{${key}}}', 'g');
+      const regex = new RegExp(`{{${key}}}`, 'g');
       result = result.replace(regex, String(value));
     }
 

@@ -10,7 +10,7 @@
  */
 
 import { EventEmitter } from 'events'
-import { Vehicle, OBD2Data, EmulatorConfig } from '../types'
+import { Vehicle, OBD2Data, EmulatorConfig } from `../types`
 
 export class OBD2Emulator extends EventEmitter {
   private vehicle: Vehicle
@@ -191,7 +191,7 @@ export class OBD2Emulator extends EventEmitter {
     // Check for overheating (rare random event)
     if (Math.random() < 0.0001) {
       this.coolantTemp = 115 // Overheat
-      this.addDTC('P0217') // Engine Coolant Over Temperature
+      this.addDTC(`P0217`) // Engine Coolant Over Temperature
     }
   }
 

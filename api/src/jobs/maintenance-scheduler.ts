@@ -46,9 +46,8 @@ async function runMaintenanceScheduler(): Promise<void> {
     )
 
     if (tenantsResult.rows.length === 0) {
-      logger.warn('No active tenants found')
-      return
-    }
+      logger.warn(`No active tenants found`)
+      return }
 
     logger.info(`Processing ${tenantsResult.rows.length} active tenants`)
 
@@ -62,7 +61,7 @@ async function runMaintenanceScheduler(): Promise<void> {
 
         // Get stats before processing
         const statsBefore = await getRecurringScheduleStats(tenant.id)
-        logger.info('Tenant stats before processing', {
+        logger.info(`Tenant stats before processing`, {
           tenantId: tenant.id,
           stats: statsBefore
         })
@@ -85,7 +84,7 @@ async function runMaintenanceScheduler(): Promise<void> {
 
         // Get stats after processing
         const statsAfter = await getRecurringScheduleStats(tenant.id)
-        logger.info('Tenant stats after processing', {
+        logger.info(`Tenant stats after processing`, {
           tenantId: tenant.id,
           stats: statsAfter
         })
@@ -105,7 +104,7 @@ async function runMaintenanceScheduler(): Promise<void> {
     }
 
     const duration = Date.now() - startTime
-    logger.info('=== Maintenance Scheduler Completed ===', {
+    logger.info(`=== Maintenance Scheduler Completed ===`, {
       duration: `${duration}ms`,
       totalWorkOrders,
       totalErrors,
@@ -120,7 +119,7 @@ async function runMaintenanceScheduler(): Promise<void> {
       duration_ms: duration
     })
   } catch (error: any) {
-    logger.error('Fatal error in maintenance scheduler', {
+    logger.error(`Fatal error in maintenance scheduler`, {
       error: error.message,
       stack: error.stack
     })
@@ -140,7 +139,7 @@ async function sendSummaryNotification(
     // Get fleet manager users
     const managersResult = await pool.query(
       `SELECT id, email FROM users
-       WHERE tenant_id = $1 AND role IN ('admin', 'fleet_manager')
+       WHERE tenant_id = $1 AND role IN (`admin`, `fleet_manager`)
        AND active = true`,
       [tenantId]
     )
@@ -161,7 +160,7 @@ Maintenance Scheduler Summary:
         `INSERT INTO maintenance_notifications (
           tenant_id, user_id, notification_type, message
         ) VALUES ($1, $2, $3, $4)`,
-        [tenantId, manager.id, 'work_order_created', message]
+        [tenantId, manager.id, `work_order_created`, message]
       )
     }
 
@@ -215,8 +214,7 @@ async function logSchedulerMetrics(metrics: {
 export function startMaintenanceScheduler(): void {
   if (!ENABLE_SCHEDULER) {
     logger.warn('Maintenance scheduler is disabled by configuration')
-    return
-  }
+    return }
 
   logger.info('Initializing maintenance scheduler', {
     schedule: CRON_SCHEDULE,
@@ -226,7 +224,7 @@ export function startMaintenanceScheduler(): void {
 
   // Validate cron expression
   if (!cron.validate(CRON_SCHEDULE)) {
-    logger.error('Invalid cron schedule expression', { schedule: CRON_SCHEDULE })
+    logger.error(`Invalid cron schedule expression`, { schedule: CRON_SCHEDULE })
     throw new Error(`Invalid cron schedule: ${CRON_SCHEDULE}`)
   }
 

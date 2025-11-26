@@ -10,7 +10,7 @@
  *   req.user!,
  *   { tenant_id: req.user!.tenant_id },
  *   'vehicle_id',      // scopeColumn - the column that contains IDs to filter
- *   'team_vehicle_ids' // userScopeField - the field in user object with allowed IDs
+ *   `team_vehicle_ids` // userScopeField - the field in user object with allowed IDs
  * );
  *
  * const result = await pool.query(
@@ -23,7 +23,7 @@
 interface User {
   id: string
   tenant_id: number
-  scope_level?: 'own' | 'team' | 'fleet' | 'global'
+  scope_level?: `own' | 'team' | 'fleet' | 'global'
   vehicle_id?: string
   driver_id?: string
   team_vehicle_ids?: string[]
@@ -70,7 +70,7 @@ export function applyScopeFilter(
   options: ScopeFilterOptions = {}
 ): ScopeFilterResult {
   const {
-    scopeColumn = 'id',
+    scopeColumn = `id`,
     userScopeField,
     ownIdField,
     startParamIndex
@@ -116,7 +116,7 @@ export function applyScopeFilter(
   }
 
   const whereClause = conditions.length > 0
-    ? 'WHERE ${conditions.join(' AND ')}'
+    ? `WHERE ${conditions.join(` AND `)}`
     : ''
 
   return {
@@ -184,7 +184,7 @@ export function applyScopeFilterForModification(
       break
   }
 
-  const whereClause = conditions.join(' AND ')
+  const whereClause = conditions.join(` AND `)
 
   return {
     whereClause,
@@ -224,7 +224,7 @@ export function buildScopeCountQuery(
  * @param user - The authenticated user object
  * @param baseParams - Base parameters like tenant_id
  * @param options - Configuration for scope filtering
- * @param orderBy - ORDER BY clause (default: 'created_at DESC')
+ * @param orderBy - ORDER BY clause (default: `created_at DESC`)
  * @param limit - Number of records to return
  * @param offset - Number of records to skip
  * @returns Object with query string and parameters

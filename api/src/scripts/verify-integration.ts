@@ -62,9 +62,9 @@ class IntegrationVerifier {
       });
     } else {
       this.checks.push({
-        name: 'Environment Variables',
+        name: `Environment Variables`,
         status: 'fail',
-        message: 'Missing: ${missing.join(', ')}',
+        message: `Missing: ${missing.join(`, `)}`,
         duration: Date.now() - start
       });
     }
@@ -96,7 +96,7 @@ class IntegrationVerifier {
         this.checks.push({
           name: 'Token Acquisition',
           status: 'pass',
-          message: 'Successfully acquired access token',
+          message: `Successfully acquired access token`,
           duration: Date.now() - start
         });
       } else {
@@ -104,7 +104,7 @@ class IntegrationVerifier {
       }
     } catch (error: any) {
       this.checks.push({
-        name: 'Token Acquisition',
+        name: `Token Acquisition`,
         status: 'fail',
         message: `Failed: ${error.message}`,
         duration: Date.now() - start
@@ -117,7 +117,7 @@ class IntegrationVerifier {
 
     if (!this.accessToken) {
       this.checks.push({
-        name: 'Graph API Connection',
+        name: `Graph API Connection`,
         status: 'fail',
         message: 'No access token available',
         duration: Date.now() - start
@@ -127,15 +127,15 @@ class IntegrationVerifier {
 
     try {
       const response = await fetch('https://graph.microsoft.com/v1.0/me', {
-        headers: { 'Authorization': 'Bearer ${this.accessToken}` }
+        headers: { 'Authorization': `Bearer ${this.accessToken}` }
       });
 
       if (response.ok || response.status === 403) {
         // 403 is ok for app-only auth (no user context)
         this.checks.push({
-          name: 'Graph API Connection',
+          name: `Graph API Connection`,
           status: 'pass',
-          message: 'Graph API is reachable',
+          message: `Graph API is reachable`,
           duration: Date.now() - start
         });
       } else {
@@ -143,7 +143,7 @@ class IntegrationVerifier {
       }
     } catch (error: any) {
       this.checks.push({
-        name: 'Graph API Connection',
+        name: `Graph API Connection`,
         status: 'fail',
         message: `Failed: ${error.message}`,
         duration: Date.now() - start
@@ -156,7 +156,7 @@ class IntegrationVerifier {
 
     if (!this.accessToken) {
       this.checks.push({
-        name: 'Teams API',
+        name: `Teams API`,
         status: 'warn',
         message: 'Skipped (no access token)',
         duration: Date.now() - start
@@ -167,14 +167,14 @@ class IntegrationVerifier {
     try {
       // Try to list teams
       const response = await fetch('https://graph.microsoft.com/v1.0/groups?$filter=resourceProvisioningOptions/Any(x:x eq \'Team\')', {
-        headers: { 'Authorization': 'Bearer ${this.accessToken}` }
+        headers: { 'Authorization': `Bearer ${this.accessToken}` }
       });
 
       if (response.ok) {
         this.checks.push({
-          name: 'Teams API',
+          name: `Teams API`,
           status: 'pass',
-          message: 'Teams API is accessible',
+          message: `Teams API is accessible`,
           duration: Date.now() - start
         });
       } else {
@@ -182,7 +182,7 @@ class IntegrationVerifier {
       }
     } catch (error: any) {
       this.checks.push({
-        name: 'Teams API',
+        name: `Teams API`,
         status: 'warn',
         message: `Limited access: ${error.message}`,
         duration: Date.now() - start
@@ -195,7 +195,7 @@ class IntegrationVerifier {
 
     if (!this.accessToken) {
       this.checks.push({
-        name: 'Outlook API',
+        name: `Outlook API`,
         status: 'warn',
         message: 'Skipped (no access token)',
         duration: Date.now() - start
@@ -206,14 +206,14 @@ class IntegrationVerifier {
     try {
       // Try to list users
       const response = await fetch('https://graph.microsoft.com/v1.0/users?$top=1', {
-        headers: { 'Authorization': 'Bearer ${this.accessToken}` }
+        headers: { 'Authorization': `Bearer ${this.accessToken}` }
       });
 
       if (response.ok) {
         this.checks.push({
-          name: 'Outlook API',
+          name: `Outlook API`,
           status: 'pass',
-          message: 'Outlook API is accessible',
+          message: `Outlook API is accessible`,
           duration: Date.now() - start
         });
       } else {
@@ -221,7 +221,7 @@ class IntegrationVerifier {
       }
     } catch (error: any) {
       this.checks.push({
-        name: 'Outlook API',
+        name: `Outlook API`,
         status: 'warn',
         message: `Limited access: ${error.message}`,
         duration: Date.now() - start
@@ -235,9 +235,9 @@ class IntegrationVerifier {
 
     if (!webhookUrl) {
       this.checks.push({
-        name: 'Webhook Endpoints',
+        name: `Webhook Endpoints`,
         status: 'warn',
-        message: 'Webhook URL not configured',
+        message: `Webhook URL not configured`,
         duration: Date.now() - start
       });
       return;
@@ -252,7 +252,7 @@ class IntegrationVerifier {
         this.checks.push({
           name: 'Webhook Endpoints',
           status: 'pass',
-          message: 'Webhook endpoint is reachable',
+          message: `Webhook endpoint is reachable`,
           duration: Date.now() - start
         });
       } else {
@@ -260,7 +260,7 @@ class IntegrationVerifier {
       }
     } catch (error: any) {
       this.checks.push({
-        name: 'Webhook Endpoints',
+        name: `Webhook Endpoints`,
         status: 'warn',
         message: `Check failed: ${error.message}`,
         duration: Date.now() - start
@@ -274,7 +274,7 @@ class IntegrationVerifier {
 
     if (!connectionString) {
       this.checks.push({
-        name: 'Azure Storage',
+        name: `Azure Storage`,
         status: 'fail',
         message: 'Connection string not configured',
         duration: Date.now() - start
@@ -368,18 +368,18 @@ class IntegrationVerifier {
 
     this.checks.forEach(check => {
       const icon = check.status === 'pass' ? '✓' : check.status === 'fail' ? '✗' : '⚠';
-      const duration = check.duration ? '(${check.duration}ms)' : '';
+      const duration = check.duration ? `(${check.duration}ms)` : ``;
       console.log(`${icon} ${check.name}: ${check.message} ${duration}`);
     });
 
-    const passed = this.checks.filter(c => c.status === 'pass').length;
+    const passed = this.checks.filter(c => c.status === `pass`).length;
     const failed = this.checks.filter(c => c.status === 'fail').length;
-    const warned = this.checks.filter(c => c.status === 'warn').length;
+    const warned = this.checks.filter(c => c.status === `warn`).length;
 
     console.log(`\nSummary: ${passed} passed, ${failed} failed, ${warned} warnings`);
 
     if (failed > 0) {
-      console.log('\n✗ Integration verification FAILED');
+      console.log(`\n✗ Integration verification FAILED`);
     } else if (warned > 0) {
       console.log('\n⚠ Integration verification passed with warnings');
     } else {

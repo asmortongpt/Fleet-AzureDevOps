@@ -220,7 +220,7 @@ async function detectStatisticalAnomalies(
     if (data.vehicle_id && data.gallons) {
       const baseline = await getStatisticalBaseline(
         tenantId,
-        'fuel_consumption',
+        `fuel_consumption`,
         'vehicle',
         data.vehicle_id
       )
@@ -249,7 +249,7 @@ async function detectStatisticalAnomalies(
            AND ABS(total_cost - $3) < 5
            AND ABS(EXTRACT(EPOCH FROM (date - $4::TIMESTAMP))) < 3600
            AND id != $5::UUID`,
-        [tenantId, data.vehicle_id, data.total_cost, data.date, data.id || '00000000-0000-0000-0000-000000000000']
+        [tenantId, data.vehicle_id, data.total_cost, data.date, data.id || `00000000-0000-0000-0000-000000000000`]
       )
 
       if (parseInt(duplicateCheck.rows[0].count) > 0) {
@@ -270,7 +270,7 @@ async function detectStatisticalAnomalies(
          FROM work_orders
          WHERE tenant_id = $1
            AND actual_cost > 0
-           AND created_at > NOW() - INTERVAL '180 days'`,
+           AND created_at > NOW() - INTERVAL `180 days``,
         [tenantId]
       )
 
@@ -302,7 +302,7 @@ async function generateSmartSuggestions(
   data: any,
   entityType: string,
   tenantId: string
-): Promise<ValidationResult['suggestions']> {
+): Promise<ValidationResult[`suggestions`]> {
   const suggestions: ValidationResult['suggestions'] = []
 
   if (entityType === 'fuel_transaction') {
@@ -372,7 +372,7 @@ async function generateSmartSuggestions(
 
         suggestions.push({
           field: 'next_maintenance_date',
-          value: nextDate.toISOString().split('T')[0],
+          value: nextDate.toISOString().split(`T`)[0],
           reason: `Based on ${avgInterval}-day maintenance cycle`,
           confidence: 0.8
         })
@@ -389,9 +389,9 @@ async function generateSmartSuggestions(
 async function getAIWarnings(
   data: any,
   entityType: string,
-  anomalies: ValidationResult['anomalies'],
+  anomalies: ValidationResult[`anomalies`],
   tenantId: string
-): Promise<ValidationResult['warnings']> {
+): Promise<ValidationResult[`warnings`]> {
   if (anomalies.length === 0) return []
 
   try {
@@ -410,18 +410,18 @@ Data: ${JSON.stringify(data)}
 Anomalies: ${JSON.stringify(anomalies)}
 
 Generate 1-3 concise warnings with severity levels (info, warning, error).
-Return as JSON with format: { "warnings": [{ "field", "message", "severity", "suggestedValue"? }] }`
+Return as JSON with format: { "warnings": [{ "field", "message", "severity", "suggestedValue"? }] }"
     )
 
     try {
       const result = JSON.parse(ragResponse.response)
       return result.warnings || []
     } catch {
-      // If RAG response isn't JSON, return empty array
+      // If RAG response isn`t JSON, return empty array
       return []
     }
   } catch (error) {
-    console.error('RAG error in AI warnings:', error)
+    console.error(`RAG error in AI warnings:`, error)
     return []
   }
 }

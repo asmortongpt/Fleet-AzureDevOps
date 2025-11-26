@@ -107,7 +107,7 @@ router.post(
     });
 
     // Convert buffer to base64 data URL
-    const base64Image = 'data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}';
+    const base64Image = `data:${req.file.mimetype};base64,${req.file.buffer.toString(`base64`)}`;
 
     // Parse metadata from request body
     const metadata = req.body.metadata ? JSON.parse(req.body.metadata) : {};
@@ -179,7 +179,7 @@ router.post(
 
     // Convert photos to MobilePhotoData format
     const photos: MobilePhotoData[] = (req.files as Express.Multer.File[]).map((file, index) => {
-      const base64Image = 'data:${file.mimetype};base64,${file.buffer.toString('base64')}';
+      const base64Image = `data:${file.mimetype};base64,${file.buffer.toString(`base64`)}`;
       const photoMetadata = req.body[`metadata_${index}`] ? JSON.parse(req.body[`metadata_${index}`]) : {};
 
       return {
@@ -241,7 +241,7 @@ router.post(
     });
 
     // In production, upload video to Azure Blob Storage and process asynchronously
-    // For now, we'll return a placeholder response
+    // For now, we`ll return a placeholder response
     const videoData: VideoAnalysisData = {
       videoUrl: `temp://${req.file.originalname}`,
       metadata: {
@@ -303,7 +303,7 @@ router.post(
 
     // Parse photos
     const photos: MobilePhotoData[] = (req.files as Express.Multer.File[]).map((file, index) => {
-      const base64Image = 'data:${file.mimetype};base64,${file.buffer.toString('base64')}';
+      const base64Image = `data:${file.mimetype};base64,${file.buffer.toString(`base64`)}`;
       const photoMetadata = req.body[`metadata_${index}`] ? JSON.parse(req.body[`metadata_${index}`]) : {};
 
       return {
@@ -455,7 +455,7 @@ router.post(
 
         await client.query('COMMIT');
 
-        logger.info('Damage records saved successfully', {
+        logger.info(`Damage records saved successfully`, {
           vehicleId,
           insertedCount: insertedIds.length
         });
@@ -466,7 +466,7 @@ router.post(
           message: `${insertedIds.length} damage records saved successfully`
         });
       } catch (error) {
-        await client.query('ROLLBACK');
+        await client.query(`ROLLBACK`);
         throw error;
       } finally {
         client.release();

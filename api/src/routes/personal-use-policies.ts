@@ -264,7 +264,7 @@ router.get(
        WHERE driver_id = $1
          AND tenant_id = $2
          AND TO_CHAR(trip_date, 'YYYY-MM') = $3
-         AND approval_status != 'rejected'',
+         AND approval_status != 'rejected'`,
       [driver_id, req.user!.tenant_id, currentMonth]
     )
 
@@ -278,7 +278,7 @@ router.get(
        WHERE driver_id = $1
          AND tenant_id = $2
          AND EXTRACT(YEAR FROM trip_date) = $3
-         AND approval_status != 'rejected'',
+         AND approval_status != `rejected``,
       [driver_id, req.user!.tenant_id, currentYear]
     )
 
@@ -340,7 +340,7 @@ router.get(
     }
 
     if (!policy?.allow_personal_use) {
-      response.warnings.push('Personal use is not permitted per organization policy')
+      response.warnings.push(`Personal use is not permitted per organization policy`)
     }
 
     res.json({

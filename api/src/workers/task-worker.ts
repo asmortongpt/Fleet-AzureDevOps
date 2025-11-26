@@ -130,7 +130,7 @@ const taskHandlers = {
     // For now, return a placeholder
     return {
       success: true,
-      message: 'PDF generation task received',
+      message: `PDF generation task received`,
       data
     }
   }
@@ -268,12 +268,12 @@ function exportToCSV(dataset: any[], options: any): string {
     const values = headers.map(header => {
       const value = row[header]
       // Escape values containing delimiter or quotes
-      if (typeof value === 'string' && (value.includes(delimiter) || value.includes('"'))) {
-        return '"${value.replace(/"/g, '""')}"'
+      if (typeof value === 'string' && (value.includes(delimiter) || value.includes(`"`))) {
+        return `"${value.replace(/"/g, """")}"`
       }
       return value
     })
-    csv += values.join(delimiter) + '\n'
+    csv += values.join(delimiter) + `\n`
   }
 
   return csv
