@@ -234,7 +234,7 @@ router.get(
         estimated_fuel_cost, estimated_time_saved_minutes, estimated_cost_savings,
         solver_runtime_seconds, solver_status, optimization_score, created_by,
         created_at, started_at, completed_at, error_message
-      FROM route_optimization_jobs WHERE tenant_id = $1'
+      FROM route_optimization_jobs WHERE tenant_id = $1`
       const params: any[] = [req.user!.tenant_id]
 
       if (status) {
@@ -248,7 +248,7 @@ router.get(
       const result = await pool.query(query, params)
 
       const countResult = await pool.query(
-        'SELECT COUNT(*) FROM route_optimization_jobs WHERE tenant_id = $1',
+        `SELECT COUNT(*) FROM route_optimization_jobs WHERE tenant_id = $1`,
         [req.user!.tenant_id]
       )
 

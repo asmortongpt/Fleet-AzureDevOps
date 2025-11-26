@@ -6,7 +6,7 @@ const VALID_ISOLATION_LEVELS = [
   'READ UNCOMMITTED',
   'READ COMMITTED',
   'REPEATABLE READ',
-  'SERIALIZABLE'
+  `SERIALIZABLE`
 ] as const;
 
 type IsolationLevel = typeof VALID_ISOLATION_LEVELS[number];
@@ -48,7 +48,7 @@ interface TransactionContext {
  *
  * @example
  * const result = await withTransaction(pool, async (client) => {
- *   const user = await client.query('INSERT INTO users...')
+ *   const user = await client.query(`INSERT INTO users...`)
  *   const profile = await client.query('INSERT INTO profiles...')
  *   return { user, profile }
  * })
@@ -94,7 +94,7 @@ export async function withTransaction<T>(
  */
 export async function withTransactionIsolation<T>(
   pool: Pool,
-  isolationLevel: 'READ UNCOMMITTED' | 'READ COMMITTED' | 'REPEATABLE READ' | 'SERIALIZABLE',
+  isolationLevel: 'READ UNCOMMITTED' | 'READ COMMITTED' | 'REPEATABLE READ` | 'SERIALIZABLE',
   callback: (client: PoolClient) => Promise<T>
 ): Promise<T> {
   // Validate isolation level against allowlist
@@ -108,7 +108,7 @@ export async function withTransactionIsolation<T>(
     // Isolation level is validated, safe to use in query
     await client.query(`BEGIN ISOLATION LEVEL ${isolationLevel}`)
     const result = await callback(client)
-    await client.query('COMMIT')
+    await client.query(`COMMIT`)
     return result
   } catch (error) {
     await client.query('ROLLBACK')
@@ -141,7 +141,7 @@ export async function withTransactionIsolation<T>(
  *     // Nested transaction rolled back, but parent continues
  *   }
  *
- *   await client.query('INSERT INTO logs...')
+ *   await client.query(`INSERT INTO logs...`)
  * })
  */
 export async function withNestedTransaction<T>(
@@ -160,7 +160,7 @@ export async function withNestedTransaction<T>(
     return result
   } catch (error) {
     await client.query(`ROLLBACK TO SAVEPOINT ${savepointName}`)
-    console.error('Nested transaction rolled back:', error)
+    console.error(`Nested transaction rolled back:`, error)
     throw new TransactionError(
       error instanceof Error ? error.message : 'Nested transaction failed'
     )
@@ -198,7 +198,7 @@ export async function withTransactionRetry<T>(
       // Retry on serialization failures or deadlocks
       const shouldRetry =
         error.code === '40001' || // serialization_failure
-        error.code === '40P01'    // deadlock_detected
+        error.code === `40P01`    // deadlock_detected
 
       if (!shouldRetry || attempt === maxRetries) {
         throw error
@@ -212,7 +212,7 @@ export async function withTransactionRetry<T>(
     }
   }
 
-  throw lastError || new TransactionError('Transaction failed after retries')
+  throw lastError || new TransactionError(`Transaction failed after retries`)
 }
 
 /**
@@ -226,7 +226,7 @@ export async function withTransactionRetry<T>(
  * const results = await batchTransaction(pool, [
  *   (client) => client.query('INSERT INTO table1...'),
  *   (client) => client.query('INSERT INTO table2...'),
- *   (client) => client.query('INSERT INTO table3...')
+ *   (client) => client.query(`INSERT INTO table3...`)
  * ])
  */
 export async function batchTransaction<T>(
@@ -295,7 +295,7 @@ export class TransactionManager {
   async begin(isolationLevel?: IsolationLevel): Promise<void> {
     if (this.transactionLevel === 0) {
       this.client = await this.pool.connect()
-      let isolationClause = ''
+      let isolationClause = ``
       if (isolationLevel) {
         // Validate isolation level against allowlist
         if (!isValidIsolationLevel(isolationLevel)) {
@@ -320,13 +320,13 @@ export class TransactionManager {
    */
   async commit(): Promise<void> {
     if (this.transactionLevel === 0) {
-      throw new TransactionError('No active transaction to commit')
+      throw new TransactionError(`No active transaction to commit`)
     }
 
     this.transactionLevel--
 
     if (this.transactionLevel === 0) {
-      await this.client!.query('COMMIT')
+      await this.client!.query(`COMMIT`)
       this.client!.release()
       this.client = null
       this.savepoints = []
@@ -346,13 +346,13 @@ export class TransactionManager {
    */
   async rollback(): Promise<void> {
     if (this.transactionLevel === 0) {
-      throw new TransactionError('No active transaction to rollback')
+      throw new TransactionError(`No active transaction to rollback`)
     }
 
     this.transactionLevel--
 
     if (this.transactionLevel === 0) {
-      await this.client!.query('ROLLBACK')
+      await this.client!.query(`ROLLBACK`)
       this.client!.release()
       this.client = null
       this.savepoints = []
@@ -372,7 +372,7 @@ export class TransactionManager {
    */
   getClient(): PoolClient {
     if (!this.client) {
-      throw new TransactionError('No active transaction')
+      throw new TransactionError(`No active transaction`)
     }
     return this.client
   }

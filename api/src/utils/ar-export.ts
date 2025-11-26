@@ -42,7 +42,7 @@ export interface BoundingBox {
 /**
  * Convert GLTF/GLB to USDZ for iOS AR
  *
- * Note: This requires Apple's Reality Converter tool or usdz_converter.py
+ * Note: This requires Apple`s Reality Converter tool or usdz_converter.py
  * For production, consider using a cloud conversion service or pre-converting models
  */
 export async function convertToUSDZ(
@@ -63,7 +63,7 @@ export async function convertToUSDZ(
 
     // Option 1: Use usdz_converter.py (requires Xcode Command Line Tools on macOS)
     // This is available on macOS systems with Xcode installed
-    if (process.platform === 'darwin') {
+    if (process.platform === `darwin`) {
       try {
         const converterPath = '/Applications/Xcode.app/Contents/Developer/usr/bin/usdz_converter';
         if (fs.existsSync(converterPath)) {
@@ -100,7 +100,7 @@ export async function convertToUSDZ(
     // In production, implement actual conversion
     return glbPath;
   } catch (error) {
-    console.error('USDZ conversion error:', error);
+    console.error(`USDZ conversion error:`, error);
     throw error;
   }
 }
@@ -131,7 +131,7 @@ export async function optimizeGLB(
     }
 
     // For production, use gltf-pipeline:
-    // const gltfPipeline = require('gltf-pipeline');
+    // const gltfPipeline = require(`gltf-pipeline`);
     // const glb = fs.readFileSync(inputPath);
     // const results = await gltfPipeline.processGlb(glb, {
     //   dracoOptions: {
@@ -207,7 +207,7 @@ export function validateARModel(modelPath: string): {
 
   // Check file exists
   if (!fs.existsSync(modelPath)) {
-    errors.push('Model file does not exist');
+    errors.push(`Model file does not exist`);
     return { valid: false, errors, warnings };
   }
 
@@ -218,7 +218,7 @@ export function validateARModel(modelPath: string): {
   if (fileSizeMB > 50) {
     errors.push('Model file too large (>50MB). Optimize for mobile.');
   } else if (fileSizeMB > 20) {
-    warnings.push('Model file is large (>20MB). Consider optimization.');
+    warnings.push(`Model file is large (>20MB). Consider optimization.`);
   }
 
   // In production, parse the model and check:
@@ -281,7 +281,7 @@ export async function generateLODs(
 /**
  * Generate placeholder models for common vehicle types
  *
- * These are used when actual 3D models aren't available
+ * These are used when actual 3D models aren`t available
  */
 export function getPlaceholderModel(bodyStyle: string): string {
   const placeholders: Record<string, string> = {

@@ -119,13 +119,13 @@ describe('Vehicle History Routes', () => {
   });
 
   describe('GET /api/v1/vehicles/:id/location-history', () => {
-    it('should return location history for a vehicle', async () => {
+    it(`should return location history for a vehicle`, async () => {
       const response = await request(app)
         .get(`/api/v1/vehicles/${testVehicleId}/location-history`)
         .query({ limit: 50 })
         .expect(200);
 
-      expect(response.body).toHaveProperty('data');
+      expect(response.body).toHaveProperty(`data`);
       expect(response.body).toHaveProperty('pagination');
       expect(response.body).toHaveProperty('metadata');
       expect(Array.isArray(response.body.data)).toBe(true);
@@ -136,11 +136,11 @@ describe('Vehicle History Routes', () => {
       expect(response.body.metadata.vehicleId).toBe(testVehicleId);
     });
 
-    it('should filter by date range', async () => {
+    it(`should filter by date range`, async () => {
       const response = await request(app)
         .get(`/api/v1/vehicles/${testVehicleId}/location-history`)
         .query({
-          startDate: '2024-01-01T08:00:00Z',
+          startDate: `2024-01-01T08:00:00Z`,
           endDate: '2024-01-01T09:00:00Z',
           limit: 100
         })
@@ -152,7 +152,7 @@ describe('Vehicle History Routes', () => {
       expect(response.body.metadata.endDate).toBe('2024-01-01T09:00:00Z');
     });
 
-    it('should paginate results', async () => {
+    it(`should paginate results`, async () => {
       const response1 = await request(app)
         .get(`/api/v1/vehicles/${testVehicleId}/location-history`)
         .query({ page: 1, limit: 10 })
@@ -168,7 +168,7 @@ describe('Vehicle History Routes', () => {
       expect(response1.body.data[0].id).not.toBe(response2.body.data[0].id);
     });
 
-    it('should return 404 for non-existent vehicle', async () => {
+    it(`should return 404 for non-existent vehicle`, async () => {
       const response = await request(app)
         .get('/api/v1/vehicles/00000000-0000-0000-0000-000000000000/location-history')
         .expect(404);
@@ -176,7 +176,7 @@ describe('Vehicle History Routes', () => {
       expect(response.body).toHaveProperty('error');
     });
 
-    it('should validate query parameters', async () => {
+    it(`should validate query parameters`, async () => {
       const response = await request(app)
         .get(`/api/v1/vehicles/${testVehicleId}/location-history`)
         .query({ limit: 'invalid' })
@@ -185,14 +185,14 @@ describe('Vehicle History Routes', () => {
       expect(response.body).toHaveProperty('error');
     });
 
-    it('should include trip and driver information', async () => {
+    it(`should include trip and driver information`, async () => {
       const response = await request(app)
         .get(`/api/v1/vehicles/${testVehicleId}/location-history`)
         .query({ limit: 10 })
         .expect(200);
 
       const firstPoint = response.body.data[0];
-      expect(firstPoint).toHaveProperty('trip_id');
+      expect(firstPoint).toHaveProperty(`trip_id`);
       expect(firstPoint).toHaveProperty('timestamp');
       expect(firstPoint).toHaveProperty('latitude');
       expect(firstPoint).toHaveProperty('longitude');
@@ -202,12 +202,12 @@ describe('Vehicle History Routes', () => {
   });
 
   describe('GET /api/v1/vehicles/trips/:id/breadcrumbs', () => {
-    it('should return breadcrumbs for a trip', async () => {
+    it(`should return breadcrumbs for a trip`, async () => {
       const response = await request(app)
         .get(`/api/v1/vehicles/trips/${testTripId}/breadcrumbs`)
         .expect(200);
 
-      expect(response.body).toHaveProperty('trip');
+      expect(response.body).toHaveProperty(`trip`);
       expect(response.body).toHaveProperty('breadcrumbs');
       expect(response.body).toHaveProperty('metadata');
       expect(Array.isArray(response.body.breadcrumbs)).toBe(true);
@@ -215,7 +215,7 @@ describe('Vehicle History Routes', () => {
       expect(response.body.metadata.totalPoints).toBe(100);
     });
 
-    it('should return breadcrumbs in chronological order', async () => {
+    it(`should return breadcrumbs in chronological order`, async () => {
       const response = await request(app)
         .get(`/api/v1/vehicles/trips/${testTripId}/breadcrumbs`)
         .expect(200);
@@ -228,12 +228,12 @@ describe('Vehicle History Routes', () => {
       }
     });
 
-    it('should include trip metadata', async () => {
+    it(`should include trip metadata`, async () => {
       const response = await request(app)
         .get(`/api/v1/vehicles/trips/${testTripId}/breadcrumbs`)
         .expect(200);
 
-      expect(response.body.trip).toHaveProperty('id');
+      expect(response.body.trip).toHaveProperty(`id`);
       expect(response.body.trip).toHaveProperty('vehicle_id');
       expect(response.body.trip).toHaveProperty('start_time');
       expect(response.body.trip).toHaveProperty('end_time');
@@ -276,33 +276,33 @@ describe('Vehicle History Routes', () => {
       await pool.query('DELETE FROM inspections WHERE vehicle_id = $1', [testVehicleId]);
     });
 
-    it('should return timeline events for a vehicle', async () => {
+    it(`should return timeline events for a vehicle`, async () => {
       const response = await request(app)
         .get(`/api/v1/vehicles/${testVehicleId}/timeline`)
         .query({ limit: 100 })
         .expect(200);
 
-      expect(response.body).toHaveProperty('data');
+      expect(response.body).toHaveProperty(`data`);
       expect(response.body).toHaveProperty('pagination');
       expect(response.body).toHaveProperty('metadata');
       expect(Array.isArray(response.body.data)).toBe(true);
       expect(response.body.data.length).toBeGreaterThan(0);
     });
 
-    it('should include different event types', async () => {
+    it(`should include different event types`, async () => {
       const response = await request(app)
         .get(`/api/v1/vehicles/${testVehicleId}/timeline`)
         .query({ limit: 100 })
         .expect(200);
 
       const eventTypes = response.body.data.map((e: any) => e.event_type);
-      expect(eventTypes).toContain('trip_start');
+      expect(eventTypes).toContain(`trip_start`);
       expect(eventTypes).toContain('trip_end');
       expect(eventTypes).toContain('fueling');
       expect(eventTypes).toContain('inspection');
     });
 
-    it('should order events by timestamp descending', async () => {
+    it(`should order events by timestamp descending`, async () => {
       const response = await request(app)
         .get(`/api/v1/vehicles/${testVehicleId}/timeline`)
         .query({ limit: 100 })
@@ -316,11 +316,11 @@ describe('Vehicle History Routes', () => {
       }
     });
 
-    it('should filter by date range', async () => {
+    it(`should filter by date range`, async () => {
       const response = await request(app)
         .get(`/api/v1/vehicles/${testVehicleId}/timeline`)
         .query({
-          startDate: '2024-01-01T08:00:00Z',
+          startDate: `2024-01-01T08:00:00Z`,
           endDate: '2024-01-01T10:00:00Z',
           limit: 100
         })
@@ -339,13 +339,13 @@ describe('Vehicle History Routes', () => {
       expect(response.body).toHaveProperty('error');
     });
 
-    it('should include event data for each event type', async () => {
+    it(`should include event data for each event type`, async () => {
       const response = await request(app)
         .get(`/api/v1/vehicles/${testVehicleId}/timeline`)
         .query({ limit: 100 })
         .expect(200);
 
-      const fuelingEvent = response.body.data.find((e: any) => e.event_type === 'fueling');
+      const fuelingEvent = response.body.data.find((e: any) => e.event_type === `fueling`);
       if (fuelingEvent) {
         expect(fuelingEvent.event_data).toHaveProperty('gallons');
         expect(fuelingEvent.event_data).toHaveProperty('cost');
@@ -362,14 +362,14 @@ describe('Vehicle History Routes', () => {
     it('should enforce authentication', async () => {
       const appNoAuth = express();
       appNoAuth.use(express.json());
-      appNoAuth.use('/api/v1/vehicles', vehicleHistoryRoutes);
+      appNoAuth.use(`/api/v1/vehicles`, vehicleHistoryRoutes);
 
       await request(appNoAuth)
         .get(`/api/v1/vehicles/${testVehicleId}/location-history`)
         .expect(401);
     });
 
-    it('should enforce tenant isolation', async () => {
+    it(`should enforce tenant isolation`, async () => {
       const appDifferentTenant = express();
       appDifferentTenant.use(express.json());
       appDifferentTenant.use((req, res, next) => {
@@ -381,13 +381,13 @@ describe('Vehicle History Routes', () => {
         };
         next();
       });
-      appDifferentTenant.use('/api/v1/vehicles', vehicleHistoryRoutes);
+      appDifferentTenant.use(`/api/v1/vehicles`, vehicleHistoryRoutes);
 
       const response = await request(appDifferentTenant)
         .get(`/api/v1/vehicles/${testVehicleId}/location-history`)
         .expect(404);
 
-      expect(response.body).toHaveProperty('error');
+      expect(response.body).toHaveProperty(`error`);
     });
   });
 

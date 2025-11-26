@@ -53,7 +53,7 @@ router.get(
         scopeParams.push(req.user!.id)
       } else if (user.scope_level === 'team' && user.facility_ids && user.facility_ids.length > 0) {
         // Supervisors see work orders in their facilities
-        scopeFilter = 'AND facility_id = ANY($2::uuid[])'
+        scopeFilter = `AND facility_id = ANY($2::uuid[])`
         scopeParams.push(user.facility_ids)
       }
       // fleet/global scope sees all
@@ -100,7 +100,7 @@ router.get(
         }
       })
     } catch (error) {
-      console.error('Get work-orders error:', error)
+      console.error(`Get work-orders error:`, error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -121,7 +121,7 @@ router.get(
                 scheduled_start, scheduled_end, actual_start, actual_end,
                 labor_hours, labor_cost, parts_cost, notes, odometer_reading,
                 engine_hours_reading, created_by, created_at, updated_at
-         FROM work_orders WHERE id = $1 AND tenant_id = $2',
+         FROM work_orders WHERE id = $1 AND tenant_id = $2`,
         [req.params.id, req.user!.tenant_id]
       )
 

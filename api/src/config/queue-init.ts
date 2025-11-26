@@ -103,12 +103,12 @@ function setupCleanupJobs(): void {
       const result = await pool.query(
         `DELETE FROM job_tracking
          WHERE status = 'completed'
-         AND completed_at < NOW() - INTERVAL '30 days''
+         AND completed_at < NOW() - INTERVAL `30 days``
       );
 
       console.log(`✅ Deleted ${result.rowCount} old job tracking records`);
     } catch (error) {
-      console.error('Failed to cleanup old job tracking records:', error);
+      console.error(`Failed to cleanup old job tracking records:`, error);
     }
   });
 }
@@ -123,7 +123,7 @@ function setupGracefulShutdown(): void {
     try {
       // Stop accepting new jobs and wait for current jobs to finish
       await queueService.shutdown();
-      console.log('✅ Queue service stopped gracefully');
+      console.log(`✅ Queue service stopped gracefully`);
 
       // Exit process
       process.exit(0);

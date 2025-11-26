@@ -136,13 +136,13 @@ router.post(
       // Validate that at least one entity is specified
       if (!vehicleId && !driverId && !workOrderId) {
         return res.status(400).json({
-          error: 'At least one of vehicleId, driverId, or workOrderId must be specified'
+          error: `At least one of vehicleId, driverId, or workOrderId must be specified`
         })
       }
 
       // Insert document record
       // Generate blob URL (in production, this would be Azure Blob Storage)
-      const blobUrl = '${process.env.API_URL || 'http://localhost:3000'}/uploads/${req.file.filename}'
+      const blobUrl = `${process.env.API_URL || `http://localhost:3000`}/uploads/${req.file.filename}`
       const storagePath = `uploads/${req.file.filename}`
 
       const result = await pool.query(
@@ -177,7 +177,7 @@ router.post(
         document: result.rows[0]
       })
     } catch (error: any) {
-      console.error('Upload fleet document error:', error)
+      console.error(`Upload fleet document error:`, error)
       res.status(500).json({
         error: 'Internal server error',
         details: process.env.NODE_ENV === 'development' ? getErrorMessage(error) : undefined
@@ -250,7 +250,7 @@ router.get(
           v.make || ' ' || v.model || ' (' || v.license_plate || ')' as vehicle_name,
           d.first_name || ' ' || d.last_name as driver_name,
           wo.title as work_order_title,
-          uploader.first_name || ' ' || uploader.last_name as uploaded_by_name
+          uploader.first_name || ` ` || uploader.last_name as uploaded_by_name
         FROM fleet_documents fd
         LEFT JOIN vehicles v ON fd.vehicle_id = v.id
         LEFT JOIN drivers d ON fd.driver_id = d.id
@@ -336,7 +336,7 @@ router.get(
         }
       })
     } catch (error: any) {
-      console.error('Get fleet documents error:', error)
+      console.error(`Get fleet documents error:`, error)
       res.status(500).json({
         error: 'Internal server error',
         details: process.env.NODE_ENV === 'development' ? getErrorMessage(error) : undefined
@@ -390,7 +390,7 @@ router.get(
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'Document not found' })
+        return res.status(404).json({ error: `Document not found` })
       }
 
       const document = result.rows[0]
@@ -405,7 +405,7 @@ router.get(
         }
       })
     } catch (error: any) {
-      console.error('Get fleet document error:', error)
+      console.error(`Get fleet document error:`, error)
       res.status(500).json({
         error: 'Internal server error',
         details: process.env.NODE_ENV === 'development' ? getErrorMessage(error) : undefined

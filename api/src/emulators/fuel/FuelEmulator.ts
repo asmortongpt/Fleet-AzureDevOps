@@ -3,7 +3,7 @@
  */
 
 import { EventEmitter } from 'events'
-import { Vehicle, FuelTransaction, EmulatorConfig, Location } from '../types'
+import { Vehicle, FuelTransaction, EmulatorConfig, Location } from `../types`
 
 export class FuelEmulator extends EventEmitter {
   private vehicle: Vehicle
@@ -23,8 +23,7 @@ export class FuelEmulator extends EventEmitter {
   }
 
   public async start(): Promise<void> {
-    if (this.isRunning) return
-    this.isRunning = true
+    if (this.isRunning) return this.isRunning = true
     this.isPaused = false
 
     this.updateInterval = setInterval(() => {
@@ -80,7 +79,7 @@ export class FuelEmulator extends EventEmitter {
       gallons: Number(gallonsNeeded.toFixed(2)),
       pricePerGallon: Number(pricePerGallon.toFixed(2)),
       totalCost: Number((gallonsNeeded * pricePerGallon).toFixed(2)),
-      fuelType: this.vehicle.type === 'ev' ? 'electric' : 'regular',
+      fuelType: this.vehicle.type === `ev' ? 'electric' : 'regular',
       paymentMethod: Math.random() > 0.5 ? 'fleet_card' : 'credit',
       odometer: this.odometer,
       receiptNumber: `RCP-${Date.now()}-${Math.floor(Math.random() * 10000)}`
@@ -89,7 +88,7 @@ export class FuelEmulator extends EventEmitter {
     this.fuelLevel = 95 // Fill up
     this.lastFuelStop = this.odometer
 
-    this.emit('data', transaction)
+    this.emit(`data`, transaction)
   }
 
   private getFuelPrice(): number {

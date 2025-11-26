@@ -62,7 +62,7 @@ router.get('/', requirePermission('vehicle:view:fleet'), async (req: AuthRequest
       FROM assets a
       LEFT JOIN users u ON a.assigned_to = u.id
       LEFT JOIN asset_history ah ON a.id = ah.asset_id
-      LEFT JOIN maintenance_schedules m ON a.id = m.asset_id AND m.status = 'scheduled'
+      LEFT JOIN maintenance_schedules m ON a.id = m.asset_id AND m.status = `scheduled`
       WHERE a.tenant_id = $1
     `
 
@@ -113,7 +113,7 @@ router.get('/', requirePermission('vehicle:view:fleet'), async (req: AuthRequest
       total: result.rows.length
     })
   } catch (error) {
-    console.error('Error fetching assets:', error)
+    console.error(`Error fetching assets:`, error)
     res.status(500).json({ error: 'Failed to fetch assets' })
   }
 })
@@ -189,7 +189,7 @@ router.post('/', requirePermission('vehicle:create:fleet'), async (req: AuthRequ
   const client = await pool.connect()
 
   try {
-    await client.query('BEGIN')
+    await client.query(`BEGIN`)
 
     const {
       asset_name,
@@ -281,7 +281,7 @@ router.put('/:id', requirePermission('vehicle:update:fleet'), async (req: AuthRe
     let paramCount = 1
 
     Object.keys(updates).forEach(key => {
-      if (updates[key] !== undefined && key !== 'id' && key !== 'tenant_id') {
+      if (updates[key] !== undefined && key !== 'id' && key !== `tenant_id`) {
         setClauses.push(`${key} = $${paramCount}`)
         values.push(updates[key])
         paramCount++
@@ -289,7 +289,7 @@ router.put('/:id', requirePermission('vehicle:update:fleet'), async (req: AuthRe
     })
 
     if (setClauses.length === 0) {
-      return res.status(400).json({ error: 'No fields to update' })
+      return res.status(400).json({ error: `No fields to update` })
     }
 
     setClauses.push(`updated_at = NOW()`)
@@ -297,14 +297,14 @@ router.put('/:id', requirePermission('vehicle:update:fleet'), async (req: AuthRe
 
     const result = await client.query(
       `UPDATE assets
-       SET ${setClauses.join(', ')}
+       SET ${setClauses.join(`, `)}
        WHERE id = $${paramCount} AND tenant_id = $${paramCount + 1}
        RETURNING *`,
       values
     )
 
     if (result.rows.length === 0) {
-      await client.query('ROLLBACK')
+      await client.query(`ROLLBACK`)
       return res.status(404).json({ error: 'Asset not found' })
     }
 
@@ -314,10 +314,10 @@ router.put('/:id', requirePermission('vehicle:update:fleet'), async (req: AuthRe
       `INSERT INTO asset_history (
         asset_id, action, performed_by, notes
       ) VALUES ($1, $2, $3, $4)`,
-      [id, 'updated', userId, 'Updated fields: ${changedFields}`]
+      [id, `updated`, userId, `Updated fields: ${changedFields}`]
     )
 
-    await client.query('COMMIT')
+    await client.query(`COMMIT`)
 
     res.json({
       asset: result.rows[0],
@@ -422,10 +422,10 @@ router.post('/:id/transfer', requirePermission('vehicle:update:fleet'), async (r
       `INSERT INTO asset_history (
         asset_id, action, performed_by, location, notes
       ) VALUES ($1, $2, $3, $4, $5)`,
-      [id, 'transferred', userId, new_location, '${transfer_reason}: ${notes || ''}']
+      [id, `transferred`, userId, new_location, `${transfer_reason}: ${notes || ``}`]
     )
 
-    await client.query('COMMIT')
+    await client.query(`COMMIT`)
 
     res.json({
       asset: result.rows[0],
@@ -627,10 +627,10 @@ router.delete('/:id', requirePermission('vehicle:delete:fleet'), async (req: Aut
       `INSERT INTO asset_history (
         asset_id, action, performed_by, notes
       ) VALUES ($1, $2, $3, $4)`,
-      [id, 'disposed', userId, 'Disposed: ${disposal_reason}`]
+      [id, `disposed`, userId, `Disposed: ${disposal_reason}`]
     )
 
-    await client.query('COMMIT')
+    await client.query(`COMMIT`)
 
     res.json({
       asset: result.rows[0],

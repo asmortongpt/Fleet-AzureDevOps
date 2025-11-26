@@ -60,7 +60,7 @@ export class LocalStorageAdapter extends BaseStorageAdapter {
 
       // Test write permissions
       const testFile = path.join(this.storagePath, '.write-test');
-      await fs.writeFile(testFile, 'test');
+      await fs.writeFile(testFile, `test`);
       await fs.unlink(testFile);
 
       this.initialized = true;
@@ -90,7 +90,7 @@ export class LocalStorageAdapter extends BaseStorageAdapter {
     await fs.mkdir(path.dirname(metadataFilePath), { recursive: true });
 
     let size = 0;
-    let etag = '';
+    let etag = ``;
 
     try {
       if (Buffer.isBuffer(data)) {
@@ -118,7 +118,7 @@ export class LocalStorageAdapter extends BaseStorageAdapter {
                 options.onProgress({
                   bytesUploaded: bytesWritten,
                   totalBytes: bytesWritten,
-                  percentage: 0 // Can't determine percentage without total size
+                  percentage: 0 // Can`t determine percentage without total size
                 });
               }
 
@@ -129,7 +129,7 @@ export class LocalStorageAdapter extends BaseStorageAdapter {
         );
 
         size = bytesWritten;
-        etag = hash.digest('hex');
+        etag = hash.digest(`hex`);
       }
 
       // Save metadata
@@ -161,7 +161,7 @@ export class LocalStorageAdapter extends BaseStorageAdapter {
       } catch {}
 
       throw new Error(
-        'Failed to upload file: ${error instanceof Error ? error.message : 'Unknown error'}'
+        `Failed to upload file: ${error instanceof Error ? error.message : 'Unknown error'}'
       );
     }
   }
@@ -252,7 +252,7 @@ export class LocalStorageAdapter extends BaseStorageAdapter {
   async list(options?: ListOptions): Promise<ListResult> {
     this.ensureInitialized();
 
-    const prefix = options?.prefix ? this.normalizeKey(options.prefix) : '';
+    const prefix = options?.prefix ? this.normalizeKey(options.prefix) : ``;
     const searchPath = prefix ? this.getFilePath(prefix) : this.storagePath;
 
     const files: FileInfo[] = [];
@@ -261,7 +261,7 @@ export class LocalStorageAdapter extends BaseStorageAdapter {
     try {
       await this.listDirectory(searchPath, prefix, files, directories, options);
     } catch (error: any) {
-      if (error.code === 'ENOENT') {
+      if (error.code === `ENOENT`) {
         return {
           files: [],
           directories: [],
@@ -335,10 +335,10 @@ export class LocalStorageAdapter extends BaseStorageAdapter {
 
     try {
       // Try to read metadata file
-      const metadataContent = await fs.readFile(metadataFilePath, 'utf-8');
+      const metadataContent = await fs.readFile(metadataFilePath, `utf-8`);
       return JSON.parse(metadataContent);
     } catch {
-      // If metadata file doesn't exist, create from file stats
+      // If metadata file doesn`t exist, create from file stats
       try {
         const stats = await fs.stat(filePath);
         return {
@@ -348,7 +348,7 @@ export class LocalStorageAdapter extends BaseStorageAdapter {
           updatedAt: stats.mtime
         };
       } catch (error: any) {
-        if (error.code === 'ENOENT') {
+        if (error.code === `ENOENT`) {
           throw new FileNotFoundError(normalizedKey);
         }
         throw error;
@@ -424,7 +424,7 @@ export class LocalStorageAdapter extends BaseStorageAdapter {
 
   private async calculateETag(filePath: string): Promise<string> {
     return new Promise((resolve, reject) => {
-      const hash = crypto.createHash('md5');
+      const hash = crypto.createHash(`md5`);
       const stream = fsSync.createReadStream(filePath);
 
       stream.on('data', (chunk) => hash.update(chunk));

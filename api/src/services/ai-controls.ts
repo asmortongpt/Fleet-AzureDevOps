@@ -323,7 +323,7 @@ async function checkCostControls(
     }
 
     // Check monthly budget
-    if (transactionType === 'fuel_transaction') {
+    if (transactionType === `fuel_transaction`) {
       const monthlySpend = await pool.query(
         `SELECT COALESCE(SUM(total_cost), 0) as total
          FROM fuel_transactions
@@ -447,7 +447,7 @@ Initial Fraud Indicators: ${basicFraudCheck.reasons.join(', ')}
 Base Probability: ${(basicFraudCheck.probability * 100).toFixed(1)}%
 
 Provide additional fraud analysis and return JSON:
-{ "additionalRisk": 0-0.3, "additionalReasons": ["reason1", "reason2"] }`
+{ "additionalRisk": 0-0.3, "additionalReasons": ["reason1", "reason2"] }"
     )
 
     try {
@@ -463,7 +463,7 @@ Provide additional fraud analysis and return JSON:
       }
     }
   } catch (error) {
-    console.error('RAG enhanced fraud analysis error:', error)
+    console.error(`RAG enhanced fraud analysis error:`, error)
     return {
       enhancedProbability: basicFraudCheck.probability,
       additionalReasons: []
@@ -504,7 +504,7 @@ export async function checkControls(
       allViolations.push({
         rule: 'fraud_detected',
         severity: 'critical',
-        message: `Potential fraud detected (${(finalFraudProbability * 100).toFixed(0)}% probability): ${allFraudReasons.join(', ')}`,
+        message: `Potential fraud detected (${(finalFraudProbability * 100).toFixed(0)}% probability): ${allFraudReasons.join(`, `)}`,
         action: 'block',
         suggestedResolution: 'Review transaction details and verify authenticity'
       })
@@ -512,7 +512,7 @@ export async function checkControls(
       allViolations.push({
         rule: 'fraud_warning',
         severity: 'medium',
-        message: `Suspicious transaction pattern detected: ${allFraudReasons.join(', ')}`,
+        message: `Suspicious transaction pattern detected: ${allFraudReasons.join(`, `)}`,
         action: 'warn'
       })
     }
@@ -591,7 +591,7 @@ export async function getControlCheckHistory(
     limit?: number
   }
 ): Promise<any[]> {
-  let query = 'SELECT * FROM ai_control_checks WHERE tenant_id = $1'
+  let query = `SELECT * FROM ai_control_checks WHERE tenant_id = $1`
   const params: any[] = [tenantId]
   let paramIndex = 2
 
@@ -613,7 +613,7 @@ export async function getControlCheckHistory(
     paramIndex++
   }
 
-  query += ' ORDER BY created_at DESC'
+  query += ` ORDER BY created_at DESC`
 
   if (filters?.limit) {
     query += ` LIMIT $${paramIndex}`

@@ -121,7 +121,7 @@ export function getVersionMetadata(version: string) {
  *
  * @param defaultVersion - Default version to use if none specified (default: 'v1')
  */
-export function apiVersioning(defaultVersion: string = 'v1') {
+export function apiVersioning(defaultVersion: string = `v1`) {
   return (req: Request, res: Response, next: NextFunction) => {
     // Extract version from request
     let version = extractApiVersion(req) || defaultVersion;
@@ -131,12 +131,12 @@ export function apiVersioning(defaultVersion: string = 'v1') {
       logger.warn(`Invalid API version requested: ${version}`, {
         path: req.path,
         ip: req.ip,
-        userAgent: req.get('User-Agent')
+        userAgent: req.get(`User-Agent`)
       });
 
       return res.status(400).json({
         error: 'Invalid API version',
-        message: 'Version '${version}' is not supported',
+        message: `Version '${version}' is not supported`,
         supportedVersions: Object.keys(API_VERSIONS),
         hint: 'Use /api/v1/... for current stable version'
       });
@@ -167,7 +167,7 @@ export function apiVersioning(defaultVersion: string = 'v1') {
       }
 
       if (deprecatedInfo.migrationGuide) {
-        res.setHeader('X-API-Migration-Guide', deprecatedInfo.migrationGuide);
+        res.setHeader(`X-API-Migration-Guide`, deprecatedInfo.migrationGuide);
       }
 
       // Log deprecation warning
@@ -176,7 +176,7 @@ export function apiVersioning(defaultVersion: string = 'v1') {
         sunsetDate: deprecatedInfo.sunsetDate,
         migrationGuide: deprecatedInfo.migrationGuide,
         ip: req.ip,
-        userAgent: req.get('User-Agent')
+        userAgent: req.get(`User-Agent`)
       });
 
       // Add deprecation warning to response body (optional)
@@ -202,7 +202,7 @@ export function apiVersioning(defaultVersion: string = 'v1') {
  * Ensures a route only responds to specific API versions
  *
  * @example
- * router.get('/users', requireVersion('v1', 'v2'), getUsersHandler);
+ * router.get(`/users', requireVersion('v1', 'v2'), getUsersHandler);
  */
 export function requireVersion(...versions: string[]) {
   return (req: Request, res: Response, next: NextFunction) => {
@@ -210,7 +210,7 @@ export function requireVersion(...versions: string[]) {
 
     if (!versions.includes(currentVersion)) {
       return res.status(404).json({
-        error: 'Endpoint not available in this API version',
+        error: `Endpoint not available in this API version`,
         message: `This endpoint is not available in version ${currentVersion}`,
         availableVersions: versions,
         currentVersion: currentVersion
@@ -225,12 +225,12 @@ export function requireVersion(...versions: string[]) {
  * Middleware to redirect legacy routes to versioned routes
  *
  * @example
- * app.use('/api/vehicles', redirectToVersioned('/api/v1/vehicles'));
+ * app.use(`/api/vehicles`, redirectToVersioned(`/api/v1/vehicles`));
  */
 export function redirectToVersioned(targetPath: string, permanent: boolean = false) {
   return (req: Request, res: Response) => {
     const statusCode = permanent ? 301 : 307; // 301 = Permanent, 307 = Temporary
-    const fullPath = '${targetPath}${req.path}${req.url.includes('?') ? req.url.substring(req.url.indexOf('?')) : ''}';
+    const fullPath = `${targetPath}${req.path}${req.url.includes('?') ? req.url.substring(req.url.indexOf('?')) : ''}`;
 
     res.setHeader('X-API-Deprecation-Notice', 'Please use versioned endpoints');
     res.redirect(statusCode, fullPath);

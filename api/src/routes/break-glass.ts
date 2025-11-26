@@ -178,7 +178,7 @@ router.post(
       }
 
       // Verify status is pending
-      if (session.status !== 'pending') {
+      if (session.status !== `pending`) {
         return res.status(400).json({
           error: `Request cannot be approved. Current status: ${session.status}`
         })
@@ -190,7 +190,7 @@ router.post(
 
         await pool.query(
           `UPDATE break_glass_sessions
-           SET status = 'active',
+           SET status = `active`,
                approved_by = $1,
                approved_at = NOW(),
                start_time = NOW(),
@@ -210,7 +210,7 @@ router.post(
         await pool.query(
           `INSERT INTO notifications (tenant_id, user_id, notification_type, title, message, priority)
            VALUES ($1, $2, 'alert', 'Break-Glass Access Approved',
-                   'Your emergency access request has been approved and is now active for ${session.max_duration_minutes} minutes. Ticket: ${session.ticket_reference}',
+                   `Your emergency access request has been approved and is now active for ${session.max_duration_minutes} minutes. Ticket: ${session.ticket_reference}`,
                    'urgent')',
           [session.tenant_id, session.user_id]
         )
@@ -235,7 +235,7 @@ router.post(
         await pool.query(
           `INSERT INTO notifications (tenant_id, user_id, notification_type, title, message, priority)
            VALUES ($1, $2, 'alert', 'Break-Glass Access Denied',
-                   'Your emergency access request has been denied. Reason: ${validated.notes || 'Not provided'}',
+                   `Your emergency access request has been denied. Reason: ${validated.notes || `Not provided`}`,
                    'high')',
           [session.tenant_id, session.user_id]
         )
@@ -375,10 +375,10 @@ async function notifyApprovers(
       pool.query(
         `INSERT INTO notifications (tenant_id, user_id, notification_type, title, message, link, priority)
          VALUES ($1, $2, 'alert',
-                 'Break-Glass Access Request Pending',
-                 'User ${details.requester} has requested emergency access to role ${details.role}. Reason: ${details.reason}. Ticket: ${details.ticket}',
-                 '/break-glass/requests/${sessionId}',
-                 'urgent')',
+                 `Break-Glass Access Request Pending`,
+                 `User ${details.requester} has requested emergency access to role ${details.role}. Reason: ${details.reason}. Ticket: ${details.ticket}`,
+                 `/break-glass/requests/${sessionId}`,
+                 `urgent')',
         [tenantId, row.id]
       )
     )

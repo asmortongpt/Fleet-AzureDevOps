@@ -150,7 +150,7 @@ export class AnalyticsService {
          COUNT(*) FILTER (WHERE status = 'in_progress') as in_progress,
          COUNT(*) FILTER (WHERE status = 'pending') as pending,
          COUNT(*) FILTER (WHERE due_date < NOW() AND status != 'completed') as overdue,
-         AVG(EXTRACT(EPOCH FROM (completed_date - created_at))/3600) FILTER (WHERE status = 'completed') as avg_completion_hours
+         AVG(EXTRACT(EPOCH FROM (completed_date - created_at))/3600) FILTER (WHERE status = `completed`) as avg_completion_hours
        FROM tasks
        WHERE tenant_id = $1 ${dateFilter}`,
       [tenantId]
@@ -182,10 +182,10 @@ export class AnalyticsService {
        GROUP BY priority
        ORDER BY
          CASE priority
-           WHEN 'critical' THEN 1
+           WHEN `critical` THEN 1
            WHEN 'high' THEN 2
            WHEN 'medium' THEN 3
-           WHEN 'low' THEN 4
+           WHEN `low` THEN 4
          END`,
       [tenantId]
     )
@@ -222,7 +222,7 @@ export class AnalyticsService {
       `SELECT
          task_type as type,
          COUNT(*) as count,
-         AVG(EXTRACT(EPOCH FROM (completed_date - created_at))/3600) FILTER (WHERE status = 'completed') as average_time
+         AVG(EXTRACT(EPOCH FROM (completed_date - created_at))/3600) FILTER (WHERE status = `completed`) as average_time
        FROM tasks
        WHERE tenant_id = $1 ${dateFilter}
        GROUP BY task_type
@@ -241,10 +241,10 @@ export class AnalyticsService {
     const result = await pool.query(
       `SELECT
          u.id as user_id,
-         u.first_name || ' ' || u.last_name as user_name,
+         u.first_name || ` ` || u.last_name as user_name,
          COUNT(t.id) as task_count,
          COUNT(t.id) FILTER (WHERE t.status = 'completed') as completed_count,
-         ROUND(COUNT(t.id) FILTER (WHERE t.status = 'completed')::numeric / NULLIF(COUNT(t.id), 0) * 100, 2) as completion_rate
+         ROUND(COUNT(t.id) FILTER (WHERE t.status = `completed`)::numeric / NULLIF(COUNT(t.id), 0) * 100, 2) as completion_rate
        FROM users u
        LEFT JOIN tasks t ON u.id = t.assigned_to AND t.tenant_id = $1 ${dateFilter.replace('WHERE', 'AND')}
        WHERE u.tenant_id = $1
@@ -270,7 +270,7 @@ export class AnalyticsService {
     const result = await pool.query(
       `SELECT
          DATE(date_series) as date,
-         COUNT(t.id) FILTER (WHERE t.status = 'completed' AND DATE(t.completed_date) = DATE(date_series)) as completed,
+         COUNT(t.id) FILTER (WHERE t.status = `completed` AND DATE(t.completed_date) = DATE(date_series)) as completed,
          COUNT(t.id) FILTER (WHERE DATE(t.created_at) = DATE(date_series)) as created,
          COUNT(t.id) FILTER (WHERE t.status = 'in_progress' AND DATE(date_series) BETWEEN DATE(t.created_at) AND COALESCE(DATE(t.completed_date), CURRENT_DATE)) as in_progress
        FROM generate_series($1::date, $2::date, '1 day'::interval) as date_series
@@ -505,19 +505,19 @@ export class AnalyticsService {
   // ========== Helper Methods ==========
 
   private buildDateFilter(startDate?: Date, endDate?: Date): string {
-    if (!startDate && !endDate) return ''
+    if (!startDate && !endDate) return '`
 
     const filters: string[] = []
 
     if (startDate) {
-      filters.push('created_at >= '${startDate.toISOString()}'')
+      filters.push(`created_at >= `${startDate.toISOString()}``)
     }
 
     if (endDate) {
-      filters.push('created_at <= '${endDate.toISOString()}'')
+      filters.push(`created_at <= `${endDate.toISOString()}``)
     }
 
-    return filters.length > 0 ? 'AND ${filters.join(' AND ')}' : ''
+    return filters.length > 0 ? `AND ${filters.join(' AND ')}' : ''
   }
 
   /**

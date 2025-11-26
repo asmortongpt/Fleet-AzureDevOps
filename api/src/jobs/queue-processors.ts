@@ -11,7 +11,7 @@ import {
   WebhookPayload,
   SyncPayload,
   JobData
-} from '../types/queue.types';
+} from `../types/queue.types`;
 
 /**
  * Process outbound Teams message
@@ -25,16 +25,16 @@ export async function processTeamsOutbound(job: any): Promise<any> {
 
   try {
     // In production, this would call the Microsoft Graph API
-    // For now, we'll simulate the API call and store in database
+    // For now, we`ll simulate the API call and store in database
 
     // Determine the endpoint based on chat type
-    let endpoint = '';
+    let endpoint = ``;
     if (payload.chatId) {
       endpoint = `/chats/${payload.chatId}/messages`;
     } else if (payload.channelId && payload.teamId) {
       endpoint = `/teams/${payload.teamId}/channels/${payload.channelId}/messages`;
     } else {
-      throw new Error('Either chatId or channelId/teamId must be provided');
+      throw new Error(`Either chatId or channelId/teamId must be provided`);
     }
 
     // Construct message body
@@ -76,7 +76,7 @@ export async function processTeamsOutbound(job: any): Promise<any> {
         'teams',
         'outbound',
         payload.content,
-        'sent',
+        `sent`,
         JSON.stringify({ endpoint, importance: payload.importance, ...data.metadata })
       ]
     );
@@ -92,10 +92,10 @@ export async function processTeamsOutbound(job: any): Promise<any> {
        (channel, direction, content, status, error, metadata, created_at)
        VALUES ($1, $2, $3, $4, $5, $6, NOW())`,
       [
-        'teams',
+        `teams`,
         'outbound',
         payload.content,
-        'failed',
+        `failed`,
         error.message,
         JSON.stringify(data.metadata)
       ]
@@ -143,7 +143,7 @@ export async function processOutlookOutbound(job: any): Promise<any> {
 
     // TODO: Replace with actual Microsoft Graph API call
     // const graphClient = getGraphClient();
-    // const result = await graphClient.api('/me/sendMail').post(emailMessage);
+    // const result = await graphClient.api(`/me/sendMail`).post(emailMessage);
 
     // Simulate successful send
     const result = {
@@ -160,10 +160,10 @@ export async function processOutlookOutbound(job: any): Promise<any> {
        VALUES ($1, $2, $3, $4, $5, $6, NOW())`,
       [
         result.id,
-        'outlook',
+        `outlook`,
         'outbound',
         payload.subject,
-        'sent',
+        `sent`,
         JSON.stringify({
           to: payload.to,
           cc: payload.cc,
@@ -184,10 +184,10 @@ export async function processOutlookOutbound(job: any): Promise<any> {
        (channel, direction, content, status, error, metadata, created_at)
        VALUES ($1, $2, $3, $4, $5, $6, NOW())`,
       [
-        'outlook',
+        `outlook`,
         'outbound',
         payload.subject,
-        'failed',
+        `failed`,
         error.message,
         JSON.stringify({ to: payload.to, ...data.metadata })
       ]
@@ -216,10 +216,10 @@ export async function processTeamsInbound(job: any): Promise<any> {
        RETURNING *`,
       [
         `teams_${Date.now()}`,
-        'teams',
+        `teams`,
         'inbound',
         payload.content,
-        'received',
+        `received`,
         JSON.stringify({
           chatId: payload.chatId,
           channelId: payload.channelId,
@@ -259,10 +259,10 @@ export async function processOutlookInbound(job: any): Promise<any> {
        RETURNING *`,
       [
         `outlook_${Date.now()}`,
-        'outlook',
+        `outlook`,
         'inbound',
         payload.subject,
-        'received',
+        `received`,
         JSON.stringify({
           from: payload.to[0], // Simplified
           subject: payload.subject,
@@ -399,7 +399,7 @@ async function handleAttachmentScan(payload: AttachmentPayload): Promise<any> {
     scannedAt: new Date(),
     results: {
       malwareDetected: false,
-      ocrText: payload.contentType.includes('pdf') ? 'Sample OCR text...' : null,
+      ocrText: payload.contentType.includes(`pdf`) ? `Sample OCR text...` : null,
       fileType: payload.contentType,
       safe: true
     }
@@ -461,7 +461,7 @@ export async function processWebhook(job: any): Promise<any> {
 
     // Mark as processed
     await pool.query(
-      'UPDATE webhook_events SET processed = TRUE WHERE webhook_id = $1',
+      `UPDATE webhook_events SET processed = TRUE WHERE webhook_id = $1`,
       [payload.webhookId]
     );
 
@@ -515,7 +515,7 @@ export async function processSync(job: any): Promise<any> {
         payload.resourceType,
         payload.userId,
         payload.teamId,
-        'completed',
+        `completed`,
         result.nextDeltaToken,
         result.itemsSynced || 0
       ]
@@ -535,7 +535,7 @@ export async function processSync(job: any): Promise<any> {
         payload.resourceType,
         payload.userId,
         payload.teamId,
-        'failed',
+        `failed`,
         error.message
       ]
     );
@@ -623,7 +623,7 @@ async function syncFiles(payload: SyncPayload): Promise<any> {
  * Initialize all queue processors
  */
 export async function initializeQueueProcessors(queueService: any): Promise<void> {
-  console.log('🔧 Initializing queue processors...');
+  console.log(`🔧 Initializing queue processors...`);
 
   // Register processors for each queue type
   await queueService.processQueue('teams-outbound', processTeamsOutbound);

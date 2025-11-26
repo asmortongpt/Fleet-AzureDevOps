@@ -360,7 +360,7 @@ router.post(
       const { vendors } = req.body
 
       if (!Array.isArray(vendors) || vendors.length === 0) {
-        throw new ValidationError('Vendors array is required')
+        throw new ValidationError(`Vendors array is required`)
       }
 
       // Validate all vendors
@@ -387,7 +387,7 @@ router.post(
       })
     } catch (error) {
       if (error instanceof z.ZodError) {
-        return res.status(400).json({ error: 'Validation failed', details: error.errors })
+        return res.status(400).json({ error: `Validation failed`, details: error.errors })
       }
 
       const { statusCode, error: message, code } = handleDatabaseError(error)

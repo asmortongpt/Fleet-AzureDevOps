@@ -195,7 +195,7 @@ export async function checkDueSchedules(
       AND ms.is_recurring = true
       AND ms.auto_create_work_order = true
       AND (
-        ms.next_due <= NOW() + ($2 || ' days')::INTERVAL
+        ms.next_due <= NOW() + make_interval(days => $2::integer)
         ${includeOverdue ? '' : 'AND ms.next_due >= NOW()'}
       )
       AND (
@@ -258,11 +258,11 @@ export async function generateWorkOrder(
 
     // Generate work order number
     const woNumberResult = await client.query(
-      'SELECT COALESCE(MAX(CAST(SUBSTRING(work_order_number FROM '[0-9]+') AS INTEGER)), 0) + 1 as next_num
-       FROM work_orders WHERE tenant_id = $1',
+      `SELECT COALESCE(MAX(CAST(SUBSTRING(work_order_number FROM '[0-9]+') AS INTEGER)), 0) + 1 as next_num
+       FROM work_orders WHERE tenant_id = $1`,
       [schedule.tenant_id]
     )
-    const workOrderNumber = 'WO-${String(woNumberResult.rows[0].next_num).padStart(6, '0')}'
+    const workOrderNumber = `WO-${String(woNumberResult.rows[0].next_num).padStart(6, '0')}`
 
     // Create work order
     const workOrderResult = await client.query(
@@ -272,7 +272,7 @@ export async function generateWorkOrder(
         assigned_to, estimated_cost, estimated_hours,
         parts_used, scheduled_date
       ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
-      RETURNING id',
+      RETURNING id`,
       [
         schedule.tenant_id,
         schedule.vehicle_id,
@@ -280,7 +280,7 @@ export async function generateWorkOrder(
         workOrderNumber,
         `${schedule.service_type} - Scheduled Maintenance`,
         template?.description || `Recurring ${schedule.service_type} for vehicle`,
-        'open',
+        `open`,
         template?.priority || schedule.priority,
         template?.assigned_technician,
         template?.estimated_cost || schedule.estimated_cost,
@@ -345,14 +345,14 @@ export async function generateWorkOrder(
             schedule.id,
             workOrderId,
             techResult.rows[0].id,
-            'work_order_created',
+            `work_order_created`,
             `New work order ${workOrderNumber} created for ${schedule.service_type}`
           ]
         )
       }
     }
 
-    await client.query('COMMIT')
+    await client.query(`COMMIT`)
 
     logger.info('Work order generated successfully', {
       scheduleId: schedule.id,
@@ -385,7 +385,7 @@ export async function processRecurringSchedules(
     // Get all tenants if not specified
     const tenants = tenantId
       ? [{ id: tenantId }]
-      : (await pool.query('SELECT id FROM tenants WHERE active = true')).rows
+      : (await pool.query(`SELECT id FROM tenants WHERE active = true`)).rows
 
     const results: ScheduleGenerationResult[] = []
 
@@ -412,7 +412,7 @@ export async function processRecurringSchedules(
             schedule_id: dueSchedule.schedule.id,
             work_order_id: workOrderId,
             next_due_date: nextDueDate,
-            history_id: '' // This would be populated from the history insert
+            history_id: `` // This would be populated from the history insert
           })
         } catch (error: any) {
           logger.error('Failed to generate work order', {

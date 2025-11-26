@@ -439,7 +439,7 @@ export class CustomReportService {
       `INSERT INTO report_executions (
         report_id, executed_by, format, status
       ) VALUES ($1, $2, $3, 'running')
-      RETURNING id',
+      RETURNING id`,
       [reportId, userId, format]
     )
 
@@ -488,7 +488,7 @@ export class CustomReportService {
       // Update execution record
       await pool.query(
         `UPDATE report_executions SET
-          status = 'completed',
+          status = `completed`,
           execution_duration_ms = $1,
           row_count = $2,
           file_url = $3,
@@ -506,9 +506,9 @@ export class CustomReportService {
       // Update execution record with error
       await pool.query(
         `UPDATE report_executions SET
-          status = 'failed',
+          status = `failed`,
           error_message = $1
-        WHERE id = $2',
+        WHERE id = $2`,
         [error.message, executionId]
       )
 
@@ -562,7 +562,7 @@ export class CustomReportService {
     }
 
     // Build WHERE clause
-    let whereClause = 'WHERE ${primarySchema.alias}.tenant_id = $1'
+    let whereClause = `WHERE ${primarySchema.alias}.tenant_id = $1`
 
     if (config.filters && config.filters.length > 0) {
       config.filters.forEach(filter => {
@@ -573,16 +573,16 @@ export class CustomReportService {
     }
 
     // Build GROUP BY clause
-    let groupByClause = ''
+    let groupByClause = ``
     if (hasAggregation && config.grouping && config.grouping.length > 0) {
-      const groupFields = config.grouping.map(g => g.field).join(', ')
+      const groupFields = config.grouping.map(g => g.field).join(`, `)
       groupByClause = `GROUP BY ${groupFields}`
     }
 
     // Build ORDER BY clause
-    let orderByClause = ''
+    let orderByClause = ``
     if (config.sorting && config.sorting.length > 0) {
-      const sortFields = config.sorting.map(s => '${s.field} ${s.direction.toUpperCase()}`).join(', ')
+      const sortFields = config.sorting.map(s => `${s.field} ${s.direction.toUpperCase()}`).join(`, `)
       orderByClause = `ORDER BY ${sortFields}`
     }
 
@@ -606,7 +606,7 @@ export class CustomReportService {
     paramIndex: number,
     params: any[]
   ): { sql: string; paramCount: number } {
-    let sql = ''
+    let sql = ``
     let paramCount = 0
 
     switch (filter.operator) {
@@ -646,13 +646,13 @@ export class CustomReportService {
         paramCount = 2
         break
       case 'in':
-        const inPlaceholders = filter.value.map((_: any, i: number) => '$${paramIndex + i}`).join(', ')
+        const inPlaceholders = filter.value.map((_: any, i: number) => `$${paramIndex + i}`).join(`, `)
         sql = `${filter.field} IN (${inPlaceholders})`
         params.push(...filter.value)
         paramCount = filter.value.length
         break
       case 'not_in':
-        const notInPlaceholders = filter.value.map((_: any, i: number) => '$${paramIndex + i}`).join(', ')
+        const notInPlaceholders = filter.value.map((_: any, i: number) => `$${paramIndex + i}`).join(`, `)
         sql = `${filter.field} NOT IN (${notInPlaceholders})`
         params.push(...filter.value)
         paramCount = filter.value.length
@@ -697,7 +697,7 @@ export class CustomReportService {
    * Get report templates
    */
   async getTemplates(tenantId?: string): Promise<any[]> {
-    let query = 'SELECT 
+    let query = `SELECT 
       id,
       tenant_id,
       template_name,
