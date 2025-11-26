@@ -68,11 +68,26 @@ function fixModulePreloadOrder(): PluginOption {
         ...otherPreloads         // Then everything else
       ].join('\n  ');
 
-      // Insert ordered preloads after the main script tag
-      newHtml = newHtml.replace(
-        /(<script type="module"[^>]*><\/script>)/,
-        `$1\n  ${orderedPreloads}`
-      );
+      // CRITICAL FIX: Insert modulepreloads BEFORE the main script tag
+      // The browser needs to see modulepreload hints BEFORE it starts executing the script
+      // This regex matches both self-closing <script /> and <script></script> patterns
+      const scriptTagRegex = /<script type="module"[^>]*(?:crossorigin[^>]*)?(?:src="[^"]*")?[^>]*>/;
+      const mainScriptMatch = newHtml.match(scriptTagRegex);
+
+      if (mainScriptMatch) {
+        // Insert preloads immediately before the main script tag
+        newHtml = newHtml.replace(
+          scriptTagRegex,
+          `${orderedPreloads}\n  ${mainScriptMatch[0]}`
+        );
+      } else {
+        // Fallback: insert before </head> if we can't find the script tag
+        console.warn('[vite-config] Could not find main script tag, inserting preloads before </head>');
+        newHtml = newHtml.replace(
+          '</head>',
+          `  ${orderedPreloads}\n</head>`
+        );
+      }
 
       return newHtml;
     },
