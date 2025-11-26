@@ -263,12 +263,14 @@ public struct MetricCardData {
     public let value: String
     public let icon: String
     public let color: String
+    public let accessibilityLabel: String
 
-    public init(title: String, value: String, icon: String, color: String) {
+    public init(title: String, value: String, icon: String, color: String, accessibilityLabel: String) {
         self.title = title
         self.value = value
         self.icon = icon
         self.color = color
+        self.accessibilityLabel = accessibilityLabel
     }
 }
 
