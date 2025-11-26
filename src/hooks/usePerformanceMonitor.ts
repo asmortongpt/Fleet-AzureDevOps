@@ -38,6 +38,9 @@
 import { useEffect, useRef, useState, useCallback, useMemo } from "react"
 import logger from '@/utils/logger'
 
+// CRITICAL: Preserve native Map before Leaflet pollutes global namespace
+const NativeMap = globalThis.Map;
+
 // ============================================================================
 // Types & Interfaces
 // ============================================================================
@@ -347,7 +350,7 @@ export function usePerformanceMonitor(
   const mountTimeRef = useRef<number>(Date.now())
   const renderCountRef = useRef<number>(0)
   const reportIntervalRef = useRef<NodeJS.Timeout | null>(null)
-  const metricStartTimesRef = useRef<Map<string, number>>(new Map())
+  const metricStartTimesRef = useRef<NativeMap<string, number>>(new NativeMap())
 
   // -------------------------------------------------------------------------
   // Memory Tracking
