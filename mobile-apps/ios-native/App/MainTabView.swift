@@ -201,7 +201,7 @@ struct MainTabView: View {
             VehicleDetailViewWrapper(vehicleId: id)
 
         case .tripDetail(let id):
-            TripDetailView(tripId: id)
+            TripDetailViewWrapper(tripId: id)
 
         case .maintenanceDetail(let id):
             MaintenanceDetailView(maintenanceId: id)
