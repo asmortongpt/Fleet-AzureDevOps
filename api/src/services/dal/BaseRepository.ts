@@ -53,7 +53,7 @@ export abstract class BaseRepository<T = any> {
     const { where = {}, orderBy = 'created_at DESC', limit, offset, client } = options
 
     const columns = await getTableColumns(this.pool, this.tableName)
-    const columnList = columns.join(', ')
+    const columnList = columns.join(`, `)
 
     const whereConditions: string[] = []
     const values: any[] = []
@@ -67,9 +67,9 @@ export abstract class BaseRepository<T = any> {
       }
     })
 
-    const whereClause = whereConditions.length > 0 ? 'WHERE ${whereConditions.join(' AND ')}' : ''
-    const limitClause = limit ? 'LIMIT $${paramCount++}' : ''
-    const offsetClause = offset ? 'OFFSET $${paramCount}' : ''
+    const whereClause = whereConditions.length > 0 ? `WHERE ${whereConditions.join(` AND `)}` : ``
+    const limitClause = limit ? `LIMIT $${paramCount++}` : ``
+    const offsetClause = offset ? `OFFSET $${paramCount}` : ``
 
     if (limit) values.push(limit)
     if (offset) values.push(offset)
@@ -90,13 +90,13 @@ export abstract class BaseRepository<T = any> {
    */
   async findById(id: string | number, tenantId?: string, client?: PoolClient): Promise<T | null> {
     const columns = await getTableColumns(this.pool, this.tableName)
-    const columnList = columns.join(', ')
+    const columnList = columns.join(`, `)
 
     const whereConditions = ['id = $1']
     const values: any[] = [id]
 
     if (tenantId !== undefined) {
-      whereConditions.push('tenant_id = $2')
+      whereConditions.push(`tenant_id = $2`)
       values.push(tenantId)
     }
 
@@ -115,7 +115,7 @@ export abstract class BaseRepository<T = any> {
    */
   async findOne(where: Record<string, any>, client?: PoolClient): Promise<T | null> {
     const columns = await getTableColumns(this.pool, this.tableName)
-    const columnList = columns.join(', ')
+    const columnList = columns.join(`, `)
 
     const whereConditions: string[] = []
     const values: any[] = []
@@ -130,12 +130,12 @@ export abstract class BaseRepository<T = any> {
     })
 
     if (whereConditions.length === 0) {
-      throw new ValidationError('At least one condition must be provided')
+      throw new ValidationError(`At least one condition must be provided`)
     }
 
     const query = `
       SELECT ${columnList} FROM ${this.tableName}
-      WHERE ${whereConditions.join(' AND ')}
+      WHERE ${whereConditions.join(` AND `)}
       LIMIT 1
     `
 
@@ -159,7 +159,7 @@ export abstract class BaseRepository<T = any> {
       }
     })
 
-    const whereClause = whereConditions.length > 0 ? 'WHERE ${whereConditions.join(' AND ')}' : ''
+    const whereClause = whereConditions.length > 0 ? `WHERE ${whereConditions.join(` AND `)}` : ``
 
     const query = `SELECT COUNT(*) as count FROM ${this.tableName} ${whereClause}`
     const result = await this.query<{ count: string }>(query, values, client)
@@ -174,11 +174,11 @@ export abstract class BaseRepository<T = any> {
     const values = Object.values(data)
 
     if (keys.length === 0) {
-      throw new ValidationError('No data provided for creation')
+      throw new ValidationError(`No data provided for creation`)
     }
 
     const columns = keys.join(', ')
-    const placeholders = keys.map((_, i) => '$${i + 1}').join(', ')
+    const placeholders = keys.map((_, i) => `$${i + 1}`).join(`, `)
 
     const query = `
       INSERT INTO ${this.tableName} (${columns})
@@ -199,14 +199,14 @@ export abstract class BaseRepository<T = any> {
     tenantId?: string,
     client?: PoolClient
   ): Promise<T> {
-    const keys = Object.keys(data).filter(key => key !== 'id')
+    const keys = Object.keys(data).filter(key => key !== `id`)
     const values = keys.map(key => (data as any)[key])
 
     if (keys.length === 0) {
-      throw new ValidationError('No data provided for update')
+      throw new ValidationError(`No data provided for update`)
     }
 
-    const setClause = keys.map((key, i) => '${key} = $${i + 1}').join(', ')
+    const setClause = keys.map((key, i) => `${key} = $${i + 1}`).join(`, `)
     const whereConditions = [`id = $${keys.length + 1}`]
     const whereValues = [...values, id]
 
@@ -235,17 +235,17 @@ export abstract class BaseRepository<T = any> {
    * Delete a record by ID
    */
   async delete(id: string | number, tenantId?: string, client?: PoolClient): Promise<boolean> {
-    const whereConditions = ['id = $1']
+    const whereConditions = [`id = $1`]
     const values: any[] = [id]
 
     if (tenantId !== undefined) {
-      whereConditions.push('tenant_id = $2')
+      whereConditions.push(`tenant_id = $2`)
       values.push(tenantId)
     }
 
     const query = `
       DELETE FROM ${this.tableName}
-      WHERE ${whereConditions.join(' AND ')}
+      WHERE ${whereConditions.join(` AND `)}
       RETURNING id
     `
 
@@ -257,11 +257,11 @@ export abstract class BaseRepository<T = any> {
    * Soft delete a record (requires deleted_at column)
    */
   async softDelete(id: string | number, tenantId?: string, client?: PoolClient): Promise<T> {
-    const whereConditions = ['id = $1']
+    const whereConditions = [`id = $1`]
     const values: any[] = [id]
 
     if (tenantId !== undefined) {
-      whereConditions.push('tenant_id = $2')
+      whereConditions.push(`tenant_id = $2`)
       values.push(tenantId)
     }
 
@@ -290,7 +290,7 @@ export abstract class BaseRepository<T = any> {
     }
 
     const keys = Object.keys(records[0])
-    const columns = keys.join(', ')
+    const columns = keys.join(`, `)
 
     const valuePlaceholders: string[] = []
     const values: any[] = []
@@ -298,14 +298,14 @@ export abstract class BaseRepository<T = any> {
 
     records.forEach(record => {
       const recordValues = keys.map(key => (record as any)[key])
-      const placeholders = keys.map(() => '$${paramCount++}').join(', ')
+      const placeholders = keys.map(() => `$${paramCount++}`).join(`, `)
       valuePlaceholders.push(`(${placeholders})`)
       values.push(...recordValues)
     })
 
     const query = `
       INSERT INTO ${this.tableName} (${columns})
-      VALUES ${valuePlaceholders.join(', ')}
+      VALUES ${valuePlaceholders.join(`, `)}
       RETURNING *
     `
 
@@ -331,7 +331,7 @@ export abstract class BaseRepository<T = any> {
     limit?: number
     client?: PoolClient
   }) {
-    const { where = {}, orderBy = 'created_at DESC', page = 1, limit = 50, client } = options
+    const { where = {}, orderBy = `created_at DESC`, page = 1, limit = 50, client } = options
 
     const offset = (page - 1) * limit
     const [data, total] = await Promise.all([

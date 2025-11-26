@@ -39,7 +39,7 @@ router.get(
 
       let query = `
         SELECT o.*,
-               d.first_name || ' ' || d.last_name as employee_full_name,
+               d.first_name || ` ` || d.last_name as employee_full_name,
                v.unit_number as vehicle_unit
         FROM osha_300_log o
         LEFT JOIN drivers d ON o.employee_id = d.id
@@ -84,7 +84,7 @@ router.get(
         }
       })
     } catch (error) {
-      console.error('Get OSHA 300 log error:', error)
+      console.error(`Get OSHA 300 log error:`, error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -131,7 +131,7 @@ router.post(
 
       const { columnNames, placeholders, values } = buildInsertClause(
         data,
-        ['created_by'],
+        [`created_by`],
         1
       )
 
@@ -142,7 +142,7 @@ router.post(
 
       res.status(201).json(result.rows[0])
     } catch (error) {
-      console.error('Create OSHA 300 log entry error:', error)
+      console.error(`Create OSHA 300 log entry error:`, error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -167,7 +167,7 @@ router.put(
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'OSHA 300 log entry not found' })
+        return res.status(404).json({ error: `OSHA 300 log entry not found` })
       }
 
       res.json(result.rows[0])
@@ -195,7 +195,7 @@ router.get(
       let query = `
         SELECT vsi.*,
                v.unit_number,
-               d.first_name || ' ' || d.last_name as driver_name
+               d.first_name || ` ` || d.last_name as driver_name
         FROM vehicle_safety_inspections vsi
         JOIN vehicles v ON vsi.vehicle_id = v.id
         JOIN drivers d ON vsi.driver_id = d.id
@@ -245,7 +245,7 @@ router.get(
         }
       })
     } catch (error) {
-      console.error('Get safety inspections error:', error)
+      console.error(`Get safety inspections error:`, error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -269,7 +269,7 @@ router.post(
 
       res.status(201).json(result.rows[0])
     } catch (error) {
-      console.error('Create safety inspection error:', error)
+      console.error(`Create safety inspection error:`, error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -291,7 +291,7 @@ router.get(
 
       let query = `
         SELECT str.*,
-               d.first_name || ' ' || d.last_name as employee_name
+               d.first_name || ` ` || d.last_name as employee_name
         FROM safety_training_records str
         JOIN drivers d ON str.employee_id = d.id
         WHERE d.tenant_id = $1
@@ -334,7 +334,7 @@ router.get(
         }
       })
     } catch (error) {
-      console.error('Get training records error:', error)
+      console.error(`Get training records error:`, error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -358,7 +358,7 @@ router.post(
 
       res.status(201).json(result.rows[0])
     } catch (error) {
-      console.error('Create training record error:', error)
+      console.error(`Create training record error:`, error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -381,7 +381,7 @@ router.get(
       let query = `
         SELECT ai.*,
                v.unit_number,
-               d.first_name || ' ' || d.last_name as driver_name
+               d.first_name || ` ` || d.last_name as driver_name
         FROM accident_investigations ai
         LEFT JOIN vehicles v ON ai.vehicle_id = v.id
         LEFT JOIN drivers d ON ai.driver_id = d.id
@@ -419,7 +419,7 @@ router.get(
         }
       })
     } catch (error) {
-      console.error('Get accident investigations error:', error)
+      console.error(`Get accident investigations error:`, error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -443,7 +443,7 @@ router.post(
 
       res.status(201).json(result.rows[0])
     } catch (error) {
-      console.error('Create accident investigation error:', error)
+      console.error(`Create accident investigation error:`, error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }

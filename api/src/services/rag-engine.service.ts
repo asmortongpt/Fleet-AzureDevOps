@@ -72,7 +72,7 @@ class RAGEngineService {
             document_source, content_chunk, chunk_index, chunk_total,
             embedding, embedding_model, metadata
           ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
-          RETURNING id',
+          RETURNING id`,
           [
             tenantId,
             document.document_type,
@@ -82,7 +82,7 @@ class RAGEngineService {
             chunk,
             index,
             chunks.length,
-            '[${embedding.join(',')}]', // pgvector format
+            `[${embedding.join(`,`)}]`, // pgvector format
             this.embeddingModel,
             JSON.stringify(document.metadata || {})
           ]
@@ -92,7 +92,7 @@ class RAGEngineService {
       await Promise.all(embeddingsPromises)
 
       const processingTime = Date.now() - startTime
-      logger.info('Document indexed successfully', {
+      logger.info(`Document indexed successfully`, {
         title: document.document_title,
         chunks: chunks.length,
         processingTime
@@ -103,7 +103,7 @@ class RAGEngineService {
         document_id: document.document_id || 'generated'
       }
     } catch (error: any) {
-      logger.error('Error indexing document', { error: error.message, document: document.document_title })
+      logger.error(`Error indexing document`, { error: error.message, document: document.document_title })
       throw error
     }
   }
@@ -141,7 +141,7 @@ class RAGEngineService {
       `
 
       const params: any[] = [
-        '[${queryEmbedding.join(',')}]',
+        `[${queryEmbedding.join(`,`)}]`,
         tenantId,
         similarityThreshold
       ]
@@ -158,7 +158,7 @@ class RAGEngineService {
       const retrievedChunks: EmbeddingChunk[] = result.rows
 
       if (retrievedChunks.length === 0) {
-        logger.warn('No relevant chunks found for query', { query: query.query })
+        logger.warn(`No relevant chunks found for query`, { query: query.query })
         return {
           answer: 'I could not find relevant information in the fleet knowledge base to answer your question.',
           confidence_score: 0,
@@ -196,7 +196,7 @@ class RAGEngineService {
         processing_time_ms: processingTime
       }
     } catch (error: any) {
-      logger.error('RAG query error', { error: error.message, query: query.query })
+      logger.error(`RAG query error`, { error: error.message, query: query.query })
       throw error
     }
   }
@@ -207,14 +207,14 @@ class RAGEngineService {
   private async generateAnswer(query: string, context: EmbeddingChunk[]): Promise<string> {
     const contextText = context
       .map((chunk, idx) => `[Source ${idx + 1}: ${chunk.document_title}]\n${chunk.content_chunk}`)
-      .join('\n\n')
+      .join(`\n\n`)
 
     const systemPrompt = 'You are a Fleet Management AI assistant with access to the organization's fleet policies, procedures, maintenance histories, and documentation.
 
 Your task is to answer questions accurately based on the provided context from the knowledge base. Always:
 1. Base your answers strictly on the provided context
 2. Cite specific sources when possible
-3. If the context doesn't contain the answer, say so clearly
+3. If the context doesn`t contain the answer, say so clearly
 4. Be concise but thorough
 5. Focus on practical, actionable information
 
@@ -279,7 +279,7 @@ ${contextText}`
 
           for (const sentence of sentences) {
             if ((currentChunk + sentence).length <= maxChars) {
-              currentChunk += (currentChunk ? '. ' : '') + sentence
+              currentChunk += (currentChunk ? '. ' : ``) + sentence
             } else {
               if (currentChunk) {
                 chunks.push(currentChunk.trim())
@@ -331,7 +331,7 @@ ${contextText}`
           tenantId,
           userId || null,
           queryText,
-          '[${queryEmbedding.join(',')}]',
+          `[${queryEmbedding.join(`,`)}]`,
           contextType || null,
           JSON.stringify(retrievedChunks.map(c => ({ id: c.id, chunk_index: c.chunk_index }))),
           generatedResponse,
@@ -341,7 +341,7 @@ ${contextText}`
         ]
       )
     } catch (error) {
-      logger.warn('Failed to log RAG query', { error })
+      logger.warn(`Failed to log RAG query`, { error })
     }
   }
 

@@ -15,7 +15,7 @@ const pool = new Pool({
   database: process.env.DB_NAME || 'fleetdb',
   user: process.env.DB_USER || 'fleetadmin',
   password: process.env.DB_PASSWORD,
-  ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false
+  ssl: process.env.DB_SSL === `true` ? { rejectUnauthorized: false } : false
 });
 
 const randomItem = <T,>(arr: T[]): T => arr[Math.floor(Math.random() * arr.length)];
@@ -141,8 +141,8 @@ async function seedSupplemental() {
         const powerOutput = type === 'dc_fast_charge' ? randomInt(50, 150) : randomInt(7, 19);
 
         stationValues.push(`(
-          '${tenant.id}', '${city.name} Charging ${i + 1}', '${type}',
-          '${randomInt(100, 9999)} ${city.name} Blvd', ${city.lat}, ${city.lng},
+          `${tenant.id}`, `${city.name} Charging ${i + 1}`, `${type}`,
+          `${randomInt(100, 9999)} ${city.name} Blvd`, ${city.lat}, ${city.lng},
           ${randomInt(2, 8)}, ${powerOutput}, ${randomFloat(0.12, 0.25, 4)}, ${Math.random() < 0.3}, true
         )`);
       }
@@ -152,14 +152,14 @@ async function seedSupplemental() {
       INSERT INTO charging_stations (
         tenant_id, station_name, station_type, location, latitude, longitude,
         number_of_ports, power_output_kw, cost_per_kwh, is_public, is_operational
-      ) VALUES ${stationValues.join(', ')}
+      ) VALUES ${stationValues.join(`, `)}
       RETURNING *
     `);
     totalRecords += stationsResult.rows.length;
     console.log(`   ✅ ${stationsResult.rows.length} charging stations`);
 
     // ========== CHARGING SESSIONS ==========
-    console.log('⚡ Charging Sessions...');
+    console.log(`⚡ Charging Sessions...`);
     const evVehicles = vehicles.filter(v => v.fuel_type === 'Electric');
     const sessionValues: string[] = [];
 
@@ -175,11 +175,11 @@ async function seedSupplemental() {
         const startBattery = randomFloat(10, 40);
 
         sessionValues.push(`(
-          '${ev.tenant_id}', '${ev.id}', '${station.id}',
-          '${startTime.toISOString()}', '${endTime.toISOString()}',
+          `${ev.tenant_id}`, `${ev.id}`, `${station.id}`,
+          `${startTime.toISOString()}`, `${endTime.toISOString()}`,
           ${energy}, ${energy * randomFloat(0.12, 0.25)},
           ${startBattery}, ${Math.min(100, startBattery + randomFloat(40, 60))},
-          ${duration}, 'completed'
+          ${duration}, `completed`
         )`);
       }
     }
@@ -197,7 +197,7 @@ async function seedSupplemental() {
     }
 
     // ========== ROUTES ==========
-    console.log('🗺️  Routes...');
+    console.log(`🗺️  Routes...`);
     const routeValues: string[] = [];
 
     for (const vehicle of vehicles.slice(0, 50)) {
@@ -215,12 +215,12 @@ async function seedSupplemental() {
         const plannedEnd = new Date(plannedStart.getTime() + estimatedDuration * 60000);
 
         routeValues.push(`(
-          '${vehicle.tenant_id}', '${origin.name} to ${destination.name}',
-          '${vehicle.id}', ${assignedDriver ? ''${assignedDriver.id}'' : 'NULL'}, '${status}',
-          '${origin.name}, FL', '${destination.name}, FL',
-          '${plannedStart.toISOString()}', '${plannedEnd.toISOString()}',
-          ${status === 'completed' || status === 'in_progress' ? ''${plannedStart.toISOString()}'' : 'NULL'},
-          ${status === 'completed' ? ''${plannedEnd.toISOString()}'' : 'NULL'},
+          `${vehicle.tenant_id}`, `${origin.name} to ${destination.name}`,
+          `${vehicle.id}`, ${assignedDriver ? ``${assignedDriver.id}`` : 'NULL'}, `${status}`,
+          `${origin.name}, FL`, `${destination.name}, FL`,
+          `${plannedStart.toISOString()}`, `${plannedEnd.toISOString()}`,
+          ${status === 'completed' || status === 'in_progress' ? '`${plannedStart.toISOString()}`' : 'NULL`},
+          ${status === 'completed' ? '`${plannedEnd.toISOString()}`' : 'NULL`},
           ${distance}, ${estimatedDuration},
           ${status === 'completed' ? estimatedDuration + randomInt(-30, 30) : 'NULL'}
         )`);
@@ -232,13 +232,13 @@ async function seedSupplemental() {
         tenant_id, route_name, vehicle_id, driver_id, status,
         start_location, end_location, planned_start_time, planned_end_time,
         actual_start_time, actual_end_time, total_distance, estimated_duration, actual_duration
-      ) VALUES ${routeValues.join(', ')}
+      ) VALUES ${routeValues.join(`, `)}
     `);
     totalRecords += routeValues.length;
     console.log(`   ✅ ${routeValues.length} routes`);
 
     // ========== GEOFENCES ==========
-    console.log('📍 Geofences...');
+    console.log(`📍 Geofences...`);
     const geofenceValues: string[] = [];
 
     for (const tenant of tenants) {
@@ -249,7 +249,7 @@ async function seedSupplemental() {
         const type = randomItem(['Customer Site', 'Terminal', 'Restricted Area', 'Service Area', 'Rest Stop']);
 
         geofenceValues.push(`(
-          '${tenant.id}', '${city.name} - ${type}', 'circular',
+          `${tenant.id}`, `${city.name} - ${type}`, `circular`,
           ${city.lat + randomFloat(-0.1, 0.1, 6)}, ${city.lng + randomFloat(-0.1, 0.1, 6)},
           ${randomInt(200, 3000)}, ${Math.random() < 0.5}, ${Math.random() < 0.5}, true
         )`);
@@ -266,7 +266,7 @@ async function seedSupplemental() {
     console.log(`   ✅ ${geofenceValues.length} geofences`);
 
     // ========== INSPECTIONS ==========
-    console.log('✅ Inspections...');
+    console.log(`✅ Inspections...`);
     const inspectionValues: string[] = [];
     const inspectionTypes = ['pre_trip', 'post_trip', 'safety', 'dot', 'state'];
     const results = ['pass', 'fail', 'needs_repair'];
@@ -280,10 +280,10 @@ async function seedSupplemental() {
         const result = randomItem(results);
 
         inspectionValues.push(`(
-          '${vehicle.tenant_id}', '${vehicle.id}', ${driver ? ''${driver.id}'' : 'NULL'},
-          '${daysAgo(randomInt(1, 365)).toISOString()}', '${type}',
-          ${vehicle.odometer - randomInt(0, 5000)}, '${result}',
-          '{"completed":true,"notes":"Inspection complete"}'::jsonb,
+          `${vehicle.tenant_id}`, `${vehicle.id}`, ${driver ? ``${driver.id}`' : 'NULL'},
+          `${daysAgo(randomInt(1, 365)).toISOString()}`, `${type}`,
+          ${vehicle.odometer - randomInt(0, 5000)}, `${result}`,
+          "{"completed":true,"notes":"Inspection complete"}"::jsonb,
           ${result !== 'pass' ? ''Minor issues found'' : 'NULL'}
         )`);
       }
@@ -293,13 +293,13 @@ async function seedSupplemental() {
       INSERT INTO inspections (
         tenant_id, vehicle_id, driver_id, inspection_date, inspection_type,
         odometer_reading, status, form_data, defects_found
-      ) VALUES ${inspectionValues.join(', ')}
+      ) VALUES ${inspectionValues.join(`, `)}
     `);
     totalRecords += inspectionValues.length;
     console.log(`   ✅ ${inspectionValues.length} inspections`);
 
     // ========== SAFETY INCIDENTS ==========
-    console.log('⚠️  Safety Incidents...');
+    console.log(`⚠️  Safety Incidents...`);
     const incidentValues: string[] = [];
     const incidentTypes = ['accident', 'injury', 'near_miss', 'property_damage', 'citation'];
     const severities = ['minor', 'moderate', 'severe'];
@@ -313,15 +313,15 @@ async function seedSupplemental() {
       const city = randomItem(floridaCities);
 
       incidentValues.push(`(
-        '${vehicle.tenant_id}', 'INC-2025-${randomInt(10000, 99999)}',
-        '${vehicle.id}', ${driver ? ''${driver.id}'' : 'NULL'},
-        '${daysAgo(randomInt(1, 365)).toISOString()}', '${type}', '${severity}',
-        '${city.name}, FL', ${city.lat}, ${city.lng},
-        '${type} incident - ${severity} severity',
-        ${severity === 'severe' ? randomInt(1, 3) : 0},
+        `${vehicle.tenant_id}`, `INC-2025-${randomInt(10000, 99999)}`,
+        `${vehicle.id}`, ${driver ? ``${driver.id}`' : 'NULL'},
+        `${daysAgo(randomInt(1, 365)).toISOString()}`, `${type}`, `${severity}`,
+        `${city.name}, FL`, ${city.lat}, ${city.lng},
+        `${type} incident - ${severity} severity`,
+        ${severity === `severe` ? randomInt(1, 3) : 0},
         ${randomFloat(500, 15000)}, ${randomFloat(1000, 30000)},
         ${Math.random() < 0.4}, ${severity === 'severe'},
-        '${randomItem(['open', 'investigating', 'resolved', 'closed'])}'
+        `${randomItem(['open', 'investigating', 'resolved', 'closed`])}`
       )`);
     }
 
@@ -337,7 +337,7 @@ async function seedSupplemental() {
     console.log(`   ✅ ${incidentValues.length} safety incidents`);
 
     // ========== VENDORS ==========
-    console.log('🏪 Vendors...');
+    console.log(`🏪 Vendors...`);
     const vendorValues: string[] = [];
 
     for (const tenant of tenants) {
@@ -348,10 +348,10 @@ async function seedSupplemental() {
         const type = randomItem(['parts_supplier', 'fuel_provider', 'service_provider']);
 
         vendorValues.push(`(
-          '${tenant.id}', '${city.name} ${type.replace('_', ' ')} Co.', '${type}',
-          'Contact ${randomInt(1, 100)}', 'contact${i}@vendor.com',
-          '${generatePhoneNumber()}', '${randomInt(100, 9999)} Industrial Pkwy',
-          '${city.name}', 'FL', '${randomInt(30000, 34999)}', true
+          `${tenant.id}`, `${city.name} ${type.replace('_', ' ')} Co.`, `${type}`,
+          `Contact ${randomInt(1, 100)}`, `contact${i}@vendor.com`,
+          `${generatePhoneNumber()}`, `${randomInt(100, 9999)} Industrial Pkwy`,
+          `${city.name}`, `FL`, `${randomInt(30000, 34999)}`, true
         )`);
       }
     }
@@ -360,14 +360,14 @@ async function seedSupplemental() {
       INSERT INTO vendors (
         tenant_id, vendor_name, vendor_type, contact_name, contact_email,
         contact_phone, address, city, state, zip_code, is_active
-      ) VALUES ${vendorValues.join(', ')}
+      ) VALUES ${vendorValues.join(`, `)}
       RETURNING *
     `);
     totalRecords += vendorsResult.rows.length;
     console.log(`   ✅ ${vendorsResult.rows.length} vendors`);
 
     // ========== PURCHASE ORDERS ==========
-    console.log('📝 Purchase Orders...');
+    console.log(`📝 Purchase Orders...`);
     const poValues: string[] = [];
 
     for (const vendor of vendorsResult.rows) {
@@ -378,10 +378,10 @@ async function seedSupplemental() {
         const subtotal = randomFloat(500, 10000);
 
         poValues.push(`(
-          '${vendor.tenant_id}', 'PO-2025-${randomInt(10000, 99999)}',
-          '${vendor.id}', '${daysAgo(randomInt(1, 180)).toISOString()}',
-          '${status}', ${subtotal}, ${subtotal * 0.07}, ${randomFloat(50, 200)},
-          '[{"part_number":"PART${randomInt(1000, 9999)}","description":"Parts","quantity":${randomInt(1, 10)},"unit_price":${randomFloat(50, 500)}}]'::jsonb
+          `${vendor.tenant_id}`, `PO-2025-${randomInt(10000, 99999)}`,
+          `${vendor.id}`, `${daysAgo(randomInt(1, 180)).toISOString()}`,
+          `${status}`, ${subtotal}, ${subtotal * 0.07}, ${randomFloat(50, 200)},
+          "[{"part_number":"PART${randomInt(1000, 9999)}","description":"Parts","quantity":${randomInt(1, 10)},"unit_price":${randomFloat(50, 500)}}]"::jsonb
         )`);
       }
     }
@@ -390,13 +390,13 @@ async function seedSupplemental() {
       INSERT INTO purchase_orders (
         tenant_id, po_number, vendor_id, order_date, status,
         subtotal, tax, shipping, line_items
-      ) VALUES ${poValues.join(', ')}
+      ) VALUES ${poValues.join(`, `)}
     `);
     totalRecords += poValues.length;
     console.log(`   ✅ ${poValues.length} purchase orders`);
 
     // ========== NOTIFICATIONS ==========
-    console.log('🔔 Notifications...');
+    console.log(`🔔 Notifications...`);
     const notifValues: string[] = [];
     const notifTemplates = [
       { type: 'alert', title: 'Maintenance Due', message: 'Vehicle maintenance due soon', priority: 'high' },
@@ -414,10 +414,10 @@ async function seedSupplemental() {
         const isRead = daysBack > 7 ? Math.random() < 0.7 : Math.random() < 0.3;
 
         notifValues.push(`(
-          '${user.tenant_id}', '${user.id}', '${template.type}',
-          '${template.title}', '${template.message}', '${template.priority}',
-          ${isRead}, ${isRead ? ''${daysAgo(daysBack - randomInt(0, 3)).toISOString()}'' : 'NULL'},
-          '${daysAgo(daysBack).toISOString()}'
+          `${user.tenant_id}`, `${user.id}`, `${template.type}`,
+          `${template.title}`, `${template.message}`, `${template.priority}`,
+          ${isRead}, ${isRead ? ``${daysAgo(daysBack - randomInt(0, 3)).toISOString()}`' : 'NULL'},
+          `${daysAgo(daysBack).toISOString()}`
         )`);
       }
     }
@@ -426,13 +426,13 @@ async function seedSupplemental() {
       INSERT INTO notifications (
         tenant_id, user_id, notification_type, title, message, priority,
         is_read, read_at, created_at
-      ) VALUES ${notifValues.join(', ')}
+      ) VALUES ${notifValues.join(`, `)}
     `);
     totalRecords += notifValues.length;
     console.log(`   ✅ ${notifValues.length} notifications`);
 
     // ========== AUDIT LOGS ==========
-    console.log('📜 Audit Logs...');
+    console.log(`📜 Audit Logs...`);
     const auditValues: string[] = [];
     const actions = ['CREATE', 'READ', 'UPDATE', 'DELETE', 'LOGIN'];
     const resourceTypes = ['vehicles', 'work_orders', 'routes', 'drivers'];
@@ -441,33 +441,33 @@ async function seedSupplemental() {
       const user = randomItem(users.filter(u => u.is_active));
 
       auditValues.push(`(
-        '${user.tenant_id}', '${user.id}', '${randomItem(actions)}',
-        '${randomItem(resourceTypes)}', '${Math.random() < 0.98 ? 'success' : 'failure'}',
-        '${daysAgo(randomInt(0, 90)).toISOString()}'
+        `${user.tenant_id}`, `${user.id}`, `${randomItem(actions)}`,
+        `${randomItem(resourceTypes)}`, `${Math.random() < 0.98 ? 'success' : 'failure'}`,
+        `${daysAgo(randomInt(0, 90)).toISOString()}`
       )`);
     }
 
     await client.query(`
       INSERT INTO audit_logs (
         tenant_id, user_id, action, resource_type, outcome, created_at
-      ) VALUES ${auditValues.join(', ')}
+      ) VALUES ${auditValues.join(`, `)}
     `);
     totalRecords += auditValues.length;
     console.log(`   ✅ ${auditValues.length} audit logs`);
 
-    await client.query('COMMIT');
+    await client.query(`COMMIT`);
 
     const endTime = Date.now();
     const duration = ((endTime - startTime) / 1000).toFixed(1);
 
     console.log('\n╔═══════════════════════════════════════════════════╗');
     console.log('║  SUPPLEMENTAL SEED COMPLETE                       ║');
-    console.log('╚═══════════════════════════════════════════════════╝\n');
+    console.log(`╚═══════════════════════════════════════════════════╝\n`);
     console.log(`⏱️  Time: ${duration}s`);
     console.log(`📊 New Records: ${totalRecords.toLocaleString()}\n`);
 
   } catch (error) {
-    await client.query('ROLLBACK');
+    await client.query(`ROLLBACK`);
     console.error('❌ Error:', error);
     throw error;
   } finally {

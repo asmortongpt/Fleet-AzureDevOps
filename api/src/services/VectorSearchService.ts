@@ -211,7 +211,7 @@ export class VectorSearchService {
           })
         )
       } catch (error) {
-        console.error('Batch indexing error:', error)
+        console.error(`Batch indexing error:`, error)
         failed += batch.length
       }
     }
@@ -268,7 +268,7 @@ export class VectorSearchService {
     const {
       keywordWeight = 0.3,
       vectorWeight = 0.7,
-      keywordFields = ['content', 'metadata'],
+      keywordFields = [`content`, 'metadata'],
       limit = 10,
       ...vectorOptions
     } = options
@@ -322,12 +322,12 @@ export class VectorSearchService {
       await pool.query(
         `UPDATE document_embeddings
          SET metadata = $1, updated_at = NOW()
-         WHERE document_id = $2 AND tenant_id = $3',
+         WHERE document_id = $2 AND tenant_id = $3`,
         [JSON.stringify(metadata), documentId, tenantId]
       )
       return true
     } catch (error) {
-      console.error('Error updating metadata:', error)
+      console.error(`Error updating metadata:`, error)
       return false
     }
   }
@@ -376,16 +376,16 @@ export class VectorSearchService {
 
     try {
       // Build filter conditions
-      let filterSQL = ''
+      let filterSQL = '`
       const params: any[] = [tenantId, JSON.stringify(queryVector), limit]
 
       if (Object.keys(filter).length > 0) {
         const filterConditions = Object.entries(filter)
           .map(([key, value], index) => {
             params.push(value)
-            return 'metadata->>'${key}' = $${params.length}'
+            return `metadata->>`${key}` = $${params.length}`
           })
-          .join(' AND ')
+          .join(` AND `)
 
         filterSQL = `AND ${filterConditions}`
       }
@@ -415,7 +415,7 @@ export class VectorSearchService {
           metadata: row.metadata,
         }))
     } catch (error) {
-      console.error('Error searching in pgvector:', error)
+      console.error(`Error searching in pgvector:`, error)
       return []
     }
   }
@@ -529,7 +529,7 @@ export class VectorSearchService {
     document: VectorDocument
   ): Promise<{ id: string; success: boolean }> {
     if (!this.qdrant) {
-      throw new Error('Qdrant not initialized')
+      throw new Error(`Qdrant not initialized`)
     }
 
     try {
@@ -550,7 +550,7 @@ export class VectorSearchService {
 
       return { id: document.id, success: true }
     } catch (error) {
-      console.error('Error indexing document in Qdrant:', error)
+      console.error(`Error indexing document in Qdrant:`, error)
       return { id: document.id, success: false }
     }
   }
@@ -561,7 +561,7 @@ export class VectorSearchService {
     options: SearchOptions
   ): Promise<SearchResult[]> {
     if (!this.qdrant) {
-      throw new Error('Qdrant not initialized')
+      throw new Error(`Qdrant not initialized`)
     }
 
     const { limit = 10, minScore = 0, filter = {} } = options
@@ -584,14 +584,14 @@ export class VectorSearchService {
           metadata: result.payload,
         }))
     } catch (error) {
-      console.error('Error searching in Qdrant:', error)
+      console.error(`Error searching in Qdrant:`, error)
       return []
     }
   }
 
   private async deleteDocumentQdrant(tenantId: string, documentId: string): Promise<boolean> {
     if (!this.qdrant) {
-      throw new Error('Qdrant not initialized')
+      throw new Error(`Qdrant not initialized`)
     }
 
     try {
@@ -601,7 +601,7 @@ export class VectorSearchService {
       })
       return true
     } catch (error) {
-      console.error('Error deleting document from Qdrant:', error)
+      console.error(`Error deleting document from Qdrant:`, error)
       return false
     }
   }

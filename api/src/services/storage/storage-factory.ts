@@ -38,7 +38,7 @@ export class StorageFactory {
         })
 
       case 'gcp_storage':
-        throw new Error('GCP Storage not yet implemented')
+        throw new Error(`GCP Storage not yet implemented`)
 
       default:
         throw new Error(`Unknown storage type: ${(config as any).type}`)
@@ -55,7 +55,7 @@ export class StorageFactory {
     switch (location.location_type) {
       case StorageLocationType.LOCAL:
         return new LocalStorageAdapter({
-          basePath: location.configuration.base_path || '/var/fleet/documents',
+          basePath: location.configuration.base_path || `/var/fleet/documents`,
           maxFileSize: location.configuration.max_file_size,
           publicUrlBase: location.configuration.public_url_base
         })
@@ -81,7 +81,7 @@ export class StorageFactory {
         })
 
       case StorageLocationType.GCP_STORAGE:
-        throw new Error('GCP Storage not yet implemented')
+        throw new Error(`GCP Storage not yet implemented`)
 
       default:
         throw new Error(`Unknown storage location type: ${location.location_type}`)
@@ -93,7 +93,7 @@ export class StorageFactory {
    */
   static createDefault(): StorageAdapter {
     return new LocalStorageAdapter({
-      basePath: process.env.DOCUMENT_UPLOAD_DIR || '/var/fleet/documents',
+      basePath: process.env.DOCUMENT_UPLOAD_DIR || `/var/fleet/documents`,
       maxFileSize: parseInt(process.env.MAX_FILE_SIZE || '104857600'), // 100MB
       publicUrlBase: process.env.PUBLIC_URL_BASE
     })

@@ -55,7 +55,7 @@ export async function analyzeTaskAndSuggest(taskData: {
   try {
     // TODO: Re-enable embeddings when import is fixed
     // Find similar tasks using embeddings
-    // const taskText = '${taskData.title} ${taskData.description || ''}'
+    // const taskText = `${taskData.title} ${taskData.description || ``}`
     // const embedding = await embed(taskText)
 
     // Temporarily disabled - embedding service import needs fixing
@@ -69,7 +69,7 @@ export async function analyzeTaskAndSuggest(taskData: {
     //   FROM tasks
     //   WHERE tenant_id = $2
     //     AND embedding IS NOT NULL
-    //     AND status = 'completed'
+    //     AND status = `completed`
     //   ORDER BY similarity ASC
     //   LIMIT 5`,
     //   [JSON.stringify(embedding), taskData.tenant_id]
@@ -86,9 +86,9 @@ Similar Completed Tasks:
 ${similarTasks.rows.map((t, idx) => `
 ${idx + 1}. ${t.task_title}
    - Priority: ${t.priority}
-   - Time taken: ${t.actual_hours || 'N/A'} hours
+   - Time taken: ${t.actual_hours || `N/A`} hours
    - Status: ${t.status}
-').join('\n')}
+`).join('\n')}
 
 Based on this information, provide:
 1. Suggested priority level (low, medium, high, critical)
@@ -147,7 +147,7 @@ export async function suggestTaskAssignee(taskData: {
         u.role,
         COUNT(t.id) FILTER (WHERE t.status IN ('pending', 'in_progress')) as active_tasks,
         AVG(t.actual_hours) FILTER (WHERE t.status = 'completed') as avg_completion_time,
-        COUNT(t.id) FILTER (WHERE t.status = 'completed' AND t.task_type = $2) as similar_task_count
+        COUNT(t.id) FILTER (WHERE t.status = `completed` AND t.task_type = $2) as similar_task_count
       FROM users u
       LEFT JOIN tasks t ON u.id = t.assigned_to AND t.tenant_id = $1
       WHERE u.tenant_id = $1 AND u.is_active = true
@@ -166,9 +166,9 @@ Available Users:
 ${users.rows.map(u => `
 - ${u.name} (${u.role})
   Active tasks: ${u.active_tasks}
-  Average completion time: ${u.avg_completion_time || 'N/A'} hours
+  Average completion time: ${u.avg_completion_time || `N/A`} hours
   Similar tasks completed: ${u.similar_task_count}
-').join('\n')}
+`).join('\n')}
 
 Recommend the top 3 assignees with:
 1. User ID
@@ -198,7 +198,7 @@ Return as JSON array: [{ userId, confidence, reason }]`
       }
     })
   } catch (error) {
-    console.error('Error suggesting assignee:', error)
+    console.error(`Error suggesting assignee:`, error)
     return []
   }
 }
@@ -221,7 +221,7 @@ export async function predictAssetMaintenance(
       FROM assets a
       LEFT JOIN asset_maintenance am ON a.id = am.asset_id
       WHERE a.id = $1 AND a.tenant_id = $2
-      GROUP BY a.id',
+      GROUP BY a.id`,
       [assetId, tenant_id]
     )
 
@@ -255,7 +255,7 @@ ${maintenanceHistory.rows.map(m => `
 - Date: ${m.maintenance_date}
   Type: ${m.maintenance_type}
   Cost: $${m.cost}
-').join('\n')}
+`).join(`\n`)}
 
 Predict:
 1. Next maintenance date
@@ -309,7 +309,7 @@ export async function suggestWorkflow(
       FROM tasks t
       LEFT JOIN vehicles v ON t.vehicle_id = v.id
       LEFT JOIN users u ON t.assigned_to = u.id
-      WHERE t.id = $1 AND t.tenant_id = $2',
+      WHERE t.id = $1 AND t.tenant_id = $2`,
       [taskId, tenant_id]
     )
 
@@ -343,7 +343,7 @@ export async function suggestWorkflow(
       tags,
       metadata,
       created_at,
-      updated_at FROM tasks WHERE parent_task_id = $1',
+      updated_at FROM tasks WHERE parent_task_id = $1`,
       [taskId]
     )
 
@@ -356,7 +356,7 @@ Priority: ${taskData.priority}
 Estimated Hours: ${taskData.estimated_hours || 'Unknown'}
 
 Current Subtasks:
-${subtasks.rows.map(st => '- ${st.task_title} (${st.status})').join('\n') || 'None'}
+${subtasks.rows.map(st => `- ${st.task_title} (${st.status})`).join('\n') || 'None'}
 
 Suggest:
 1. Next actionable steps (in order)
@@ -385,7 +385,7 @@ Return as JSON: { nextActions (array), dependencies (array), estimatedCompletion
       riskFactors: workflow.riskFactors || []
     }
   } catch (error) {
-    console.error('Error suggesting workflow:', error)
+    console.error(`Error suggesting workflow:`, error)
     return null
   }
 }
@@ -420,7 +420,7 @@ Extract and return as JSON:
 }`
 
     const message = await anthropic.messages.create({
-      model: 'claude-sonnet-4-20250514',
+      model: `claude-sonnet-4-20250514`,
       max_tokens: 512,
       messages: [{
         role: 'user',

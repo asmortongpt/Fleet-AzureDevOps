@@ -52,25 +52,25 @@ export class DropboxStorageAdapter extends BaseStorageAdapter {
     }
 
     this.accessToken = config.dropbox.accessToken;
-    this.basePath = config.dropbox.basePath || '';
+    this.basePath = config.dropbox.basePath || '`;
   }
 
   async initialize(): Promise<void> {
     try {
       // Verify access token by getting account info
       const response = await axios.post(
-        'https://api.dropboxapi.com/2/users/get_current_account',
+        `https://api.dropboxapi.com/2/users/get_current_account`,
         null,
         {
           headers: {
             Authorization: `Bearer ${this.accessToken}`,
-            'Content-Type': 'application/json'
+            `Content-Type': 'application/json'
           }
         }
       );
 
       if (!response.data) {
-        throw new Error('Failed to verify Dropbox credentials');
+        throw new Error(`Failed to verify Dropbox credentials`);
       }
 
       this.initialized = true;
@@ -100,7 +100,7 @@ export class DropboxStorageAdapter extends BaseStorageAdapter {
       const response = await axios.post(this.API_UPLOAD, buffer, {
         headers: {
           Authorization: `Bearer ${this.accessToken}`,
-          'Content-Type': 'application/octet-stream',
+          `Content-Type': 'application/octet-stream',
           'Dropbox-API-Arg': JSON.stringify({
             path: dropboxPath,
             mode: options?.overwrite ? 'overwrite' : 'add',
@@ -119,7 +119,7 @@ export class DropboxStorageAdapter extends BaseStorageAdapter {
         metadata: options?.metadata
       };
     } catch (error: any) {
-      if (error.response?.data?.error_summary?.includes('conflict')) {
+      if (error.response?.data?.error_summary?.includes(`conflict`)) {
         throw new FileAlreadyExistsError(normalizedKey);
       }
       throw new Error(`Failed to upload to Dropbox: ${error.message}`);
@@ -137,7 +137,7 @@ export class DropboxStorageAdapter extends BaseStorageAdapter {
       const startResponse = await axios.post(this.API_UPLOAD_SESSION_START, Buffer.alloc(0), {
         headers: {
           Authorization: `Bearer ${this.accessToken}`,
-          'Content-Type': 'application/octet-stream',
+          `Content-Type': 'application/octet-stream',
           'Dropbox-API-Arg': JSON.stringify({ close: false })
         }
       });
@@ -161,7 +161,7 @@ export class DropboxStorageAdapter extends BaseStorageAdapter {
         await axios.post(this.API_UPLOAD_SESSION_APPEND, chunk, {
           headers: {
             Authorization: `Bearer ${this.accessToken}`,
-            'Content-Type': 'application/octet-stream',
+            `Content-Type': 'application/octet-stream',
             'Dropbox-API-Arg': JSON.stringify({
               cursor: { session_id: sessionId, offset },
               close: false
@@ -180,7 +180,7 @@ export class DropboxStorageAdapter extends BaseStorageAdapter {
       const finishResponse = await axios.post(this.API_UPLOAD_SESSION_FINISH, Buffer.alloc(0), {
         headers: {
           Authorization: `Bearer ${this.accessToken}`,
-          'Content-Type': 'application/octet-stream',
+          `Content-Type': 'application/octet-stream',
           'Dropbox-API-Arg': JSON.stringify({
             cursor: { session_id: sessionId, offset },
             commit: {
@@ -229,7 +229,7 @@ export class DropboxStorageAdapter extends BaseStorageAdapter {
         metadata: {
           filename: metadata.name,
           size: metadata.size,
-          mimeType: 'application/octet-stream'
+          mimeType: `application/octet-stream`
         },
         etag: metadata.content_hash,
         lastModified: new Date(metadata.server_modified),
@@ -273,19 +273,19 @@ export class DropboxStorageAdapter extends BaseStorageAdapter {
 
     const path = options?.prefix
       ? this.getDropboxPath(this.normalizeKey(options.prefix))
-      : this.getDropboxPath('');
+      : this.getDropboxPath('`);
 
     const response = await axios.post(
       this.API_LIST,
       {
-        path: path || '',
+        path: path || ``,
         recursive: options?.recursive !== false,
         limit: options?.maxKeys || 1000
       },
       {
         headers: {
           Authorization: `Bearer ${this.accessToken}`,
-          'Content-Type': 'application/json'
+          `Content-Type': 'application/json'
         }
       }
     );
@@ -293,7 +293,7 @@ export class DropboxStorageAdapter extends BaseStorageAdapter {
     const files: FileInfo[] = response.data.entries
       .filter((entry: any) => entry['.tag'] === 'file')
       .map((entry: any) => ({
-        key: entry.path_display.replace(this.basePath, '').replace(/^\//, ''),
+        key: entry.path_display.replace(this.basePath, '`).replace(/^\//, ``),
         name: entry.name,
         size: entry.size,
         lastModified: new Date(entry.server_modified),
@@ -324,7 +324,7 @@ export class DropboxStorageAdapter extends BaseStorageAdapter {
       {
         headers: {
           Authorization: `Bearer ${this.accessToken}`,
-          'Content-Type': 'application/json'
+          'Content-Type': `application/json`
         }
       }
     );
@@ -352,7 +352,7 @@ export class DropboxStorageAdapter extends BaseStorageAdapter {
         {
           headers: {
             Authorization: `Bearer ${this.accessToken}`,
-            'Content-Type': 'application/json'
+            `Content-Type': 'application/json'
           }
         }
       );
@@ -372,8 +372,8 @@ export class DropboxStorageAdapter extends BaseStorageAdapter {
   }
 
   async updateMetadata(key: string, metadata: Partial<FileMetadata>): Promise<void> {
-    // Dropbox doesn't support custom metadata updates via standard API
-    throw new Error('Metadata updates not supported for Dropbox');
+    // Dropbox doesn`t support custom metadata updates via standard API
+    throw new Error(`Metadata updates not supported for Dropbox`);
   }
 
   async getUrl(key: string, options?: GetUrlOptions): Promise<string> {
@@ -388,7 +388,7 @@ export class DropboxStorageAdapter extends BaseStorageAdapter {
       {
         headers: {
           Authorization: `Bearer ${this.accessToken}`,
-          'Content-Type': 'application/json'
+          'Content-Type': `application/json`
         }
       }
     );
@@ -417,7 +417,7 @@ export class DropboxStorageAdapter extends BaseStorageAdapter {
 
   private getDropboxPath(key: string): string {
     const fullPath = this.basePath ? `${this.basePath}/${key}` : `/${key}`;
-    return fullPath.replace(/\/+/g, '/');
+    return fullPath.replace(/\/+/g, `/`);
   }
 
   private async streamToBuffer(stream: Readable): Promise<Buffer> {

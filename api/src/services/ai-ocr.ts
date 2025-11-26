@@ -211,9 +211,9 @@ async function extractDocumentData(
         content: [
           {
             type: 'text',
-            text: 'Extract all available information from this ${documentType.replace('_', ' ')}.
+            text: `Extract all available information from this ${documentType.replace('_', ' ')}.
 
-Fields to extract: ${schema.fields.join(', ')}
+Fields to extract: ${schema.fields.join(`, `)}
 
 Return as JSON with this structure:
 {
@@ -272,7 +272,7 @@ async function matchEntitiesToDatabase(
   extractedData: Record<string, any>,
   tenantId: string
 ): Promise<DocumentAnalysis['suggestedMatches']> {
-  const matches: DocumentAnalysis['suggestedMatches'] = {}
+  const matches: DocumentAnalysis[`suggestedMatches`] = {}
 
   // Match vehicle by identifier (fleet number, license plate, VIN)
   if (extractedData.vehicle_identifier) {
@@ -389,7 +389,7 @@ function validateExtractedData(
 
   // Check required fields
   for (const field of schema.required) {
-    if (!extractedData[field] || extractedData[field] === '') {
+    if (!extractedData[field] || extractedData[field] === ``) {
       issues.push(`Missing required field: ${field}`)
     } else if (confidenceScores[field] < 0.7) {
       issues.push(`Low confidence (${(confidenceScores[field] * 100).toFixed(0)}%) for required field: ${field}`)
@@ -397,7 +397,7 @@ function validateExtractedData(
   }
 
   // Data sanity checks
-  if (documentType === 'fuel_receipt') {
+  if (documentType === `fuel_receipt`) {
     if (extractedData.price_per_gallon && (extractedData.price_per_gallon < 1 || extractedData.price_per_gallon > 20)) {
       issues.push(`Unusual price per gallon: $${extractedData.price_per_gallon}`)
     }
@@ -411,7 +411,7 @@ function validateExtractedData(
       const diff = Math.abs(calculatedTotal - extractedData.total_cost)
 
       if (diff > 2) {
-        issues.push('Math doesn't match: ${extractedData.gallons} gal × $${extractedData.price_per_gallon}/gal ≠ $${extractedData.total_cost}')
+        issues.push(`Math doesn`t match: ${extractedData.gallons} gal × $${extractedData.price_per_gallon}/gal ≠ $${extractedData.total_cost}`)
       }
     }
   }
@@ -424,7 +424,7 @@ function validateExtractedData(
     oneYearAgo.setFullYear(now.getFullYear() - 1)
 
     if (date > now) {
-      issues.push('Date is in the future')
+      issues.push(`Date is in the future`)
     } else if (date < oneYearAgo) {
       issues.push('Date is more than 1 year ago')
     }

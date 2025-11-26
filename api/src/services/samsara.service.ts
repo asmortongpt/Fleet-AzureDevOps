@@ -79,8 +79,8 @@ class SamsaraService {
     // SSRF Protection: Use safe axios instance with domain allowlist
     this.api = createSafeAxiosInstance(SAMSARA_BASE_URL, {
       headers: {
-        'Authorization': 'Bearer ${SAMSARA_API_TOKEN}`,
-        'Content-Type': 'application/json'
+        'Authorization': `Bearer ${SAMSARA_API_TOKEN}`,
+        `Content-Type': 'application/json'
       },
       timeout: 30000,
       allowedDomains: SAMSARA_ALLOWED_DOMAINS,
@@ -94,13 +94,13 @@ class SamsaraService {
    */
   async testConnection(): Promise<boolean> {
     try {
-      const response = await this.api.get('/fleet/vehicles', {
+      const response = await this.api.get(`/fleet/vehicles`, {
         params: { limit: 1 }
       });
       console.log(`✅ Samsara connected: ${response.data.data?.length || 0} vehicles accessible`);
       return true;
     } catch (error: any) {
-      console.error('❌ Samsara connection failed:', error.message);
+      console.error(`❌ Samsara connection failed:`, error.message);
       return false;
     }
   }
@@ -200,7 +200,7 @@ class SamsaraService {
     const data = response.data.data;
     return {
       status: data.state,
-      downloadUrl: data.state === 'ready' ? data.downloadUrl : null,
+      downloadUrl: data.state === `ready` ? data.downloadUrl : null,
       thumbnailUrl: data.state === 'ready' ? data.thumbnailUrl : null
     };
   }
@@ -247,7 +247,7 @@ class SamsaraService {
              external_vehicle_id = EXCLUDED.external_vehicle_id,
              metadata = EXCLUDED.metadata,
              last_sync_at = NOW(),
-             sync_status = 'active'',
+             sync_status = `active``,
           [vehicleId, vehicle.id, JSON.stringify(vehicle)]
         );
 
@@ -265,7 +265,7 @@ class SamsaraService {
    * Sync telemetry data for all connected vehicles
    */
   async syncTelemetry(): Promise<number> {
-    console.log('🔄 Syncing telemetry from Samsara...');
+    console.log(`🔄 Syncing telemetry from Samsara...`);
 
     // Get all Samsara-connected vehicles
     const connections = await this.db.query(
@@ -328,7 +328,7 @@ class SamsaraService {
 
         // Update last sync time
         await this.db.query(
-          'UPDATE vehicle_telematics_connections SET last_sync_at = NOW() WHERE vehicle_id = $1',
+          `UPDATE vehicle_telematics_connections SET last_sync_at = NOW() WHERE vehicle_id = $1`,
           [conn.vehicle_id]
         );
 
@@ -338,8 +338,8 @@ class SamsaraService {
 
         // Mark connection as error
         await this.db.query(
-          'UPDATE vehicle_telematics_connections SET sync_status = $1, sync_error = $2 WHERE vehicle_id = $3',
-          ['error', error.message, conn.vehicle_id]
+          `UPDATE vehicle_telematics_connections SET sync_status = $1, sync_error = $2 WHERE vehicle_id = $3`,
+          [`error`, error.message, conn.vehicle_id]
         );
       }
     }
@@ -352,7 +352,7 @@ class SamsaraService {
    * Sync safety events from the last hour
    */
   async syncSafetyEvents(): Promise<number> {
-    console.log('🔄 Syncing safety events from Samsara...');
+    console.log(`🔄 Syncing safety events from Samsara...`);
 
     const oneHourAgo = new Date(Date.now() - 3600000).toISOString();
     const now = new Date().toISOString();
@@ -384,7 +384,7 @@ class SamsaraService {
           `INSERT INTO driver_safety_events
            (external_event_id, vehicle_id, provider_id, event_type, severity,
             latitude, longitude, address, speed_mph, g_force, timestamp)
-           VALUES ($1, $2, (SELECT id FROM telematics_providers WHERE name = 'samsara'),
+           VALUES ($1, $2, (SELECT id FROM telematics_providers WHERE name = `samsara`),
                    $3, $4, $5, $6, $7, $8, $9, $10)
            ON CONFLICT (external_event_id) DO NOTHING`,
           [
@@ -415,7 +415,7 @@ class SamsaraService {
    * Full sync: vehicles, telemetry, and safety events
    */
   async fullSync(): Promise<{ vehicles: number; telemetry: number; events: number }> {
-    console.log('🔄 Starting full Samsara sync...');
+    console.log(`🔄 Starting full Samsara sync...`);
 
     const vehicles = await this.syncVehicles();
     const telemetry = await this.syncTelemetry();

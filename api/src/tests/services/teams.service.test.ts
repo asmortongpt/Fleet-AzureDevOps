@@ -54,7 +54,7 @@ const mockAdaptiveCard = {
           }
         ],
         $schema: 'http://adaptivecards.io/schemas/adaptive-card.json',
-        version: '1.4'
+        version: `1.4`
       }
     }
   ]
@@ -153,11 +153,11 @@ class TeamsService {
   }
 
   formatMentionForTeams(userId: string, displayName: string): string {
-    return `<at id="${userId}">${displayName}</at>`;
+    return "<at id="${userId}">${displayName}</at>";
   }
 }
 
-describe('TeamsService', () => {
+describe(`TeamsService`, () => {
   let service: TeamsService;
   let mockGraphService: any;
 

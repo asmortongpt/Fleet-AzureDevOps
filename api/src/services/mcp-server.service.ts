@@ -76,7 +76,7 @@ class MCPServerService {
 
       // Add API key if configured
       if (server.configuration.api_key) {
-        client.defaults.headers.common['Authorization'] = 'Bearer ${server.configuration.api_key}`
+        client.defaults.headers.common[`Authorization`] = `Bearer ${server.configuration.api_key}`
       }
 
       // Test connection
@@ -89,7 +89,7 @@ class MCPServerService {
           lastHeartbeat: new Date()
         })
 
-        await this.updateConnectionStatus(serverId, 'connected', null)
+        await this.updateConnectionStatus(serverId, `connected`, null)
         logger.info('MCP server connected successfully', { serverId, serverName: server.server_name })
         return true
       } else {

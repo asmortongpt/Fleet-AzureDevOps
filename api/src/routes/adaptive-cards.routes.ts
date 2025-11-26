@@ -352,7 +352,7 @@ router.post('/inspection-checklist', authenticateJWT, async (req: Request, res: 
     const driverResult = await pool.query('SELECT id, tenant_id, email, first_name, last_name, role, is_active, phone, created_at, updated_at FROM users WHERE id = $1', [driverId])
 
     if (vehicleResult.rows.length === 0 || driverResult.rows.length === 0) {
-      return res.status(404).json({ error: 'Vehicle or driver not found' })
+      return res.status(404).json({ error: `Vehicle or driver not found` })
     }
 
     const inspection = {
@@ -370,7 +370,7 @@ router.post('/inspection-checklist', authenticateJWT, async (req: Request, res: 
     // Validate the card
     const validation = validateAdaptiveCard(card)
     if (!validation.valid) {
-      return res.status(400).json({ error: 'Invalid card schema', errors: validation.errors })
+      return res.status(400).json({ error: `Invalid card schema`, errors: validation.errors })
     }
 
     // Send the card

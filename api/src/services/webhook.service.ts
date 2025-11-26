@@ -142,11 +142,11 @@ class WebhookService {
    */
   async subscribeToTeamsMessages(params: SubscriptionParams): Promise<any> {
     if (!this.graphClient) {
-      throw new Error('Graph client not initialized')
+      throw new Error(`Graph client not initialized`)
     }
 
     if (!params.teamId || !params.channelId) {
-      throw new Error('teamId and channelId are required for Teams subscriptions')
+      throw new Error(`teamId and channelId are required for Teams subscriptions`)
     }
 
     const clientState = this.generateClientState()
@@ -158,9 +158,9 @@ class WebhookService {
 
     try {
       const subscription = await this.graphClient
-        .api('/subscriptions')
+        .api(`/subscriptions`)
         .post({
-          changeType: 'created,updated',
+          changeType: `created,updated`,
           notificationUrl,
           resource,
           expirationDateTime: expirationDateTime.toISOString(),
@@ -220,7 +220,7 @@ class WebhookService {
 
     try {
       const subscription = await this.graphClient
-        .api('/subscriptions')
+        .api(`/subscriptions`)
         .post({
           changeType: 'created',
           notificationUrl,
@@ -265,7 +265,7 @@ class WebhookService {
    */
   async renewSubscription(subscriptionId: string): Promise<void> {
     if (!this.graphClient) {
-      throw new Error('Graph client not initialized')
+      throw new Error(`Graph client not initialized`)
     }
 
     try {
@@ -276,7 +276,7 @@ class WebhookService {
                 tenant_id, team_id, channel_id, user_email, folder_id,
                 renewal_failure_count, last_renewed_at, created_at
          FROM webhook_subscriptions
-         WHERE subscription_id = $1',
+         WHERE subscription_id = $1`,
         [subscriptionId]
       )
 
@@ -288,7 +288,7 @@ class WebhookService {
 
       // Calculate new expiration based on subscription type
       let expirationDateTime: Date
-      if (subscription.subscription_type === 'teams_messages') {
+      if (subscription.subscription_type === `teams_messages`) {
         expirationDateTime = new Date(Date.now() + 60 * 60 * 1000) // 1 hour
       } else {
         expirationDateTime = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000) // 3 days
@@ -307,7 +307,7 @@ class WebhookService {
          SET expiration_date_time = $1,
              last_renewed_at = NOW(),
              renewal_failure_count = 0,
-             status = 'active'
+             status = `active`
          WHERE subscription_id = $2',
         [expirationDateTime, subscriptionId]
       )
@@ -320,7 +320,7 @@ class WebhookService {
       await pool.query(
         `UPDATE webhook_subscriptions
          SET renewal_failure_count = renewal_failure_count + 1
-         WHERE subscription_id = $1',
+         WHERE subscription_id = $1`,
         [subscriptionId]
       )
 
@@ -333,7 +333,7 @@ class WebhookService {
    */
   async deleteSubscription(subscriptionId: string): Promise<void> {
     if (!this.graphClient) {
-      throw new Error('Graph client not initialized')
+      throw new Error(`Graph client not initialized`)
     }
 
     try {
@@ -345,7 +345,7 @@ class WebhookService {
       // Update database
       await pool.query(
         `UPDATE webhook_subscriptions
-         SET status = 'deleted'
+         SET status = `deleted`
          WHERE subscription_id = $1',
         [subscriptionId]
       )
@@ -391,7 +391,7 @@ class WebhookService {
         `INSERT INTO webhook_events
          (subscription_id, change_type, resource, resource_data)
          VALUES ($1, $2, $3, $4)
-         RETURNING id',
+         RETURNING id`,
         [subscriptionId, changeType, resource, JSON.stringify(notification)]
       )
 
@@ -400,7 +400,7 @@ class WebhookService {
       // Extract team and channel IDs from resource
       const resourceMatch = resource.match(/teams\/([^/]+)\/channels\/([^/]+)\/messages\/(.+)/)
       if (!resourceMatch) {
-        throw new Error('Invalid Teams resource format')
+        throw new Error(`Invalid Teams resource format`)
       }
 
       const [, teamId, channelId, messageId] = resourceMatch
@@ -425,9 +425,9 @@ class WebhookService {
           communication_datetime, ai_detected_category, source_platform, source_platform_id,
           metadata, requires_follow_up)
          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
-         RETURNING id',
+         RETURNING id`,
         [
-          'Teams Message',
+          `Teams Message`,
           message.from.user.displayName,
           message.from.user.userIdentifier || message.from.user.id,
           message.subject || 'Teams Message',
@@ -502,7 +502,7 @@ class WebhookService {
         `INSERT INTO webhook_events
          (subscription_id, change_type, resource, resource_data)
          VALUES ($1, $2, $3, $4)
-         RETURNING id',
+         RETURNING id`,
         [subscriptionId, changeType, resource, JSON.stringify(notification)]
       )
 
@@ -511,7 +511,7 @@ class WebhookService {
       // Extract user email and message ID from resource
       const resourceMatch = resource.match(/users\/([^/]+)\/messages\/(.+)/)
       if (!resourceMatch) {
-        throw new Error('Invalid Outlook resource format')
+        throw new Error(`Invalid Outlook resource format`)
       }
 
       const [, userEmail, messageId] = resourceMatch
@@ -519,7 +519,7 @@ class WebhookService {
       // Fetch full email from Graph API
       const email: OutlookEmail = await this.graphClient!
         .api(`/users/${userEmail}/messages/${messageId}`)
-        .select('id,subject,body,from,receivedDateTime,hasAttachments,importance,categories,toRecipients')
+        .select(`id,subject,body,from,receivedDateTime,hasAttachments,importance,categories,toRecipients`)
         .get()
 
       // Auto-categorize email with AI
@@ -622,14 +622,14 @@ class WebhookService {
           },
           {
             role: 'user',
-            content: `Categorize this Teams message: "${content}"\n\nReturn only the category name.`
+            content: "Categorize this Teams message: "${content}"\n\nReturn only the category name."
           }
         ],
         max_tokens: 20,
         temperature: 0.3
       })
 
-      return completion.choices[0].message.content?.trim() || 'General Discussion'
+      return completion.choices[0].message.content?.trim() || `General Discussion`
     } catch (error) {
       console.error('AI categorization failed:', error)
       return 'Uncategorized'
@@ -693,7 +693,7 @@ class WebhookService {
                 'onedrive.live.com',
                 '*.onedrive.com',
                 'teams.microsoft.com',
-                '*.office.com'
+                `*.office.com`
               ]
             })
           } catch (error) {
@@ -721,7 +721,7 @@ class WebhookService {
           )
         }
       } catch (error) {
-        console.error('Failed to process attachment:', error)
+        console.error(`Failed to process attachment:`, error)
       }
     }
   }
@@ -753,13 +753,13 @@ class WebhookService {
           ]
         )
 
-        // If it's an image, run OCR
-        if (attachment.contentType?.startsWith('image/')) {
+        // If it`s an image, run OCR
+        if (attachment.contentType?.startsWith(`image/`)) {
           await this.processImageAttachment(communicationId, attachment)
         }
       }
     } catch (error) {
-      console.error('Failed to process email attachments:', error)
+      console.error(`Failed to process email attachments:`, error)
     }
   }
 
@@ -772,7 +772,7 @@ class WebhookService {
       const dataUrl = `data:${attachment.contentType};base64,${attachment.contentBytes}`
 
       // Run OCR analysis (using existing AI OCR service)
-      // Note: In production, you'd upload to blob storage first
+      // Note: In production, you`d upload to blob storage first
       // For now, we'll skip the actual OCR to avoid issues with base64 URLs
       console.log('📸 Image attachment detected, OCR would run here:', attachment.name)
     } catch (error) {
@@ -788,8 +788,7 @@ class WebhookService {
       const client = getOpenAIClient()
       if (!client) {
         console.log('AI receipt extraction disabled (no API key) - skipping structured data extraction')
-        return
-      }
+        return }
 
       // Use AI to extract structured data from email body
       const completion = await client.chat.completions.create({
@@ -808,7 +807,7 @@ class WebhookService {
         temperature: 0.1
       })
 
-      const extracted = JSON.parse(completion.choices[0].message.content || '{}')
+      const extracted = JSON.parse(completion.choices[0].message.content || `{}`)
 
       // Store extracted data in metadata
       await pool.query(
@@ -852,7 +851,7 @@ class WebhookService {
         `SELECT subscription_id, subscription_type
          FROM webhook_subscriptions
          WHERE status = 'active'
-         AND expiration_date_time < NOW() + INTERVAL '12 hours'
+         AND expiration_date_time < NOW() + INTERVAL `12 hours`
          AND renewal_failure_count < 3`
       )
 
@@ -866,7 +865,7 @@ class WebhookService {
         }
       }
     } catch (error) {
-      console.error('Failed to renew expiring subscriptions:', error)
+      console.error(`Failed to renew expiring subscriptions:`, error)
     }
   }
 

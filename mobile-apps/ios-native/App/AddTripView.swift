@@ -51,7 +51,7 @@ struct AddTripView: View {
 
                 // Loading Overlay
                 if viewModel.isLoading {
-                    LoadingOverlay()
+                    AddTripLoadingOverlay()
                 }
             }
             .navigationTitle("Start New Trip")
@@ -494,7 +494,7 @@ struct LocationPermissionPromptView: View {
 }
 
 // MARK: - Loading Overlay
-struct LoadingOverlay: View {
+private struct AddTripLoadingOverlay: View {
     var body: some View {
         ZStack {
             Color.black.opacity(0.4)

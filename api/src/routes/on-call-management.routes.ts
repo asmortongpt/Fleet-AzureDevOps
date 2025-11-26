@@ -94,10 +94,10 @@ router.get(
       let paramIndex = 2;
 
       // Apply scope filtering
-      if (user_scope === 'own') {
+      if (user_scope === `own`) {
         whereConditions.push(`dr.user_id = $${paramIndex++}`);
         params.push(req.user!.id);
-      } else if (user_scope === 'team' && req.user!.team_driver_ids) {
+      } else if (user_scope === `team` && req.user!.team_driver_ids) {
         whereConditions.push(`ocp.driver_id = ANY($${paramIndex++}::uuid[])`);
         params.push(req.user!.team_driver_ids);
       }
@@ -112,7 +112,7 @@ router.get(
       }
       if (is_active !== undefined) {
         whereConditions.push(`ocp.is_active = $${paramIndex++}`);
-        params.push(is_active === 'true');
+        params.push(is_active === `true`);
       }
       if (start_date) {
         whereConditions.push(`ocp.start_datetime >= $${paramIndex++}`);
@@ -123,7 +123,7 @@ router.get(
         params.push(end_date);
       }
 
-      const whereClause = whereConditions.join(' AND ');
+      const whereClause = whereConditions.join(` AND `);
 
       const query = `
         SELECT
@@ -168,7 +168,7 @@ router.get(
         },
       });
     } catch (error: any) {
-      console.error('Error fetching on-call periods:', error);
+      console.error(`Error fetching on-call periods:`, error);
       res.status(500).json({
         error: 'Failed to fetch on-call periods',
         details: getErrorMessage(error),
@@ -309,7 +309,7 @@ router.post(
 router.put(
   '/:id',
   authenticateJWT,
-  requirePermission('on_call:create:team'),
+  requirePermission(`on_call:create:team`),
   async (req: AuthRequest, res: Response) => {
     try {
       const { id } = req.params;
@@ -323,12 +323,12 @@ router.put(
       Object.entries(data).forEach(([key, value]) => {
         if (value !== undefined) {
           updates.push(`${key} = $${paramIndex++}`);
-          params.push(key === 'commuting_constraints' ? JSON.stringify(value) : value);
+          params.push(key === `commuting_constraints` ? JSON.stringify(value) : value);
         }
       });
 
       if (updates.length === 0) {
-        return res.status(400).json({ error: 'No fields to update' });
+        return res.status(400).json({ error: `No fields to update` });
       }
 
       updates.push(`updated_at = NOW()`);
@@ -344,7 +344,7 @@ router.put(
       const result = await pool.query(query, params);
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'On-call period not found' });
+        return res.status(404).json({ error: `On-call period not found` });
       }
 
       res.json({
@@ -438,7 +438,7 @@ router.get(
         'ocp.tenant_id = $1',
         'ocp.is_active = true',
         'ocp.start_datetime <= NOW()',
-        'ocp.end_datetime >= NOW()',
+        `ocp.end_datetime >= NOW()`,
       ];
       let params: any[] = [tenant_id];
       let paramIndex = 2;
@@ -452,7 +452,7 @@ router.get(
         params.push(department_id);
       }
 
-      const whereClause = whereConditions.join(' AND ');
+      const whereClause = whereConditions.join(` AND `);
 
       const query = `
         SELECT
@@ -476,7 +476,7 @@ router.get(
 
       res.json(result.rows);
     } catch (error: any) {
-      console.error('Error fetching current on-call periods:', error);
+      console.error(`Error fetching current on-call periods:`, error);
       res.status(500).json({
         error: 'Failed to fetch current on-call periods',
         details: getErrorMessage(error),

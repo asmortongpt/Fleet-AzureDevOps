@@ -366,7 +366,7 @@ class WebRTCService extends EventEmitter {
       console.log(`📞 Created WebRTC offer for connection ${connectionId}`)
       return offer
     } catch (error) {
-      console.error('Error creating WebRTC offer:', error)
+      console.error(`Error creating WebRTC offer:`, error)
       throw error
     }
   }
@@ -385,10 +385,10 @@ class WebRTCService extends EventEmitter {
       }
 
       // In production, this would set the remote description on RTCPeerConnection
-      connection.state = 'connecting'
+      connection.state = `connecting`
 
       console.log(`📞 Received WebRTC answer for connection ${connectionId}`)
-      this.emit('answer', { connectionId, answer })
+      this.emit(`answer`, { connectionId, answer })
     } catch (error) {
       console.error('Error handling WebRTC answer:', error)
       throw error
@@ -405,12 +405,12 @@ class WebRTCService extends EventEmitter {
     try {
       const connection = this.connections.get(connectionId)
       if (!connection) {
-        throw new Error('Connection not found')
+        throw new Error(`Connection not found`)
       }
 
       // In production, this would add the ICE candidate to RTCPeerConnection
       console.log(`🧊 Added ICE candidate for connection ${connectionId}`)
-      this.emit('icecandidate', { connectionId, candidate })
+      this.emit(`icecandidate`, { connectionId, candidate })
     } catch (error) {
       console.error('Error adding ICE candidate:', error)
       throw error
@@ -429,9 +429,9 @@ class WebRTCService extends EventEmitter {
       connection.state = state
       this.emit('connectionStateChange', { connectionId, state })
 
-      if (state === 'connected') {
+      if (state === `connected`) {
         console.log(`✅ WebRTC connection ${connectionId} established`)
-      } else if (state === 'failed' || state === 'closed') {
+      } else if (state === `failed` || state === `closed`) {
         console.log(`❌ WebRTC connection ${connectionId} ${state}`)
         this.closeConnection(connectionId)
       }
@@ -460,7 +460,7 @@ class WebRTCService extends EventEmitter {
       const processedAudio = this.applyAudioProcessing(audioData, metadata)
 
       // Emit event for audio received
-      this.emit('audioData', {
+      this.emit(`audioData`, {
         connectionId,
         audioData: processedAudio,
         metadata
@@ -468,7 +468,7 @@ class WebRTCService extends EventEmitter {
 
       return processedAudio
     } catch (error) {
-      console.error('Error processing audio data:', error)
+      console.error(`Error processing audio data:`, error)
       throw error
     }
   }
@@ -533,7 +533,7 @@ class WebRTCService extends EventEmitter {
       this.connections.delete(connectionId)
 
       console.log(`🔌 Closed WebRTC connection ${connectionId}`)
-      this.emit('connectionClosed', { connectionId })
+      this.emit(`connectionClosed`, { connectionId })
     } catch (error) {
       console.error('Error closing connection:', error)
     }
@@ -551,7 +551,7 @@ class WebRTCService extends EventEmitter {
    */
   getChannelConnections(channelId: number): WebRTCConnection[] {
     return Array.from(this.connections.values()).filter(
-      conn => conn.channelId === channelId && conn.state === 'connected'
+      conn => conn.channelId === channelId && conn.state === `connected`
     )
   }
 
@@ -613,7 +613,7 @@ a=ssrc:${Math.floor(Math.random() * 1000000000)} label:audio`
    * Generate random string for SDP
    */
   private generateRandomString(length: number): string {
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+    const chars = `ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789`
     let result = ''
     for (let i = 0; i < length; i++) {
       result += chars.charAt(Math.floor(Math.random() * chars.length))
@@ -681,7 +681,7 @@ a=ssrc:${Math.floor(Math.random() * 1000000000)} label:audio`
 
     this.connections.forEach((connection, connectionId) => {
       const age = now - connection.createdAt.getTime()
-      if (age > maxAge && connection.state !== 'connected') {
+      if (age > maxAge && connection.state !== `connected`) {
         toRemove.push(connectionId)
       }
     })
@@ -712,7 +712,7 @@ a=ssrc:${Math.floor(Math.random() * 1000000000)} label:audio`
     }
 
     this.connections.forEach(connection => {
-      if (connection.state === 'connected') {
+      if (connection.state === `connected`) {
         stats.activeConnections++
       }
 

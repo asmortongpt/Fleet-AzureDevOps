@@ -42,7 +42,7 @@ const upload = multer({
       'image/png',
       'image/gif',
       'application/vnd.ms-excel', // XLS
-      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' // XLSX
+      `application/vnd.openxmlformats-officedocument.spreadsheetml.sheet` // XLSX
     ]
 
     if (allowedTypes.includes(file.mimetype)) {
@@ -82,7 +82,7 @@ router.use(authenticateJWT)
  *               isPublic:
  *                 type: boolean
  */
-router.post('/upload',
+router.post(`/upload`,
   requirePermission('document:create:fleet'),
   auditLog({ action: 'UPLOAD', resourceType: 'documents' }),
   upload.single('file'),

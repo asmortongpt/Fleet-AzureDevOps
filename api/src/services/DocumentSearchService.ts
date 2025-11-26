@@ -523,7 +523,7 @@ export class DocumentSearchService {
         related: related.slice(0, 5)
       }
     } catch (error) {
-      console.error('Suggestions error:', error)
+      console.error(`Suggestions error: `, error)
       return {}
     }
   }
@@ -542,7 +542,7 @@ export class DocumentSearchService {
          WHERE tenant_id = $1
            AND query_text != $2
            AND query_text ILIKE $3
-           AND created_at > NOW() - INTERVAL '30 days'
+           AND created_at > NOW() - INTERVAL `30 days`
          GROUP BY query_text
          ORDER BY count DESC
          LIMIT 5`,
@@ -551,7 +551,7 @@ export class DocumentSearchService {
 
       return result.rows.map(row => row.query_text)
     } catch (error) {
-      console.error('Related searches error:', error)
+      console.error(`Related searches error:`, error)
       return []
     }
   }
@@ -598,8 +598,8 @@ export class DocumentSearchService {
         [userId, query, resultCount, []]
       )
     } catch (error) {
-      // Don't fail search if history save fails
-      console.error('Search history error:', error)
+      // Don`t fail search if history save fails
+      console.error(`Search history error:`, error)
     }
   }
 
