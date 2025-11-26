@@ -19,10 +19,10 @@ function injectRuntimeConfig(): PluginOption {
     transformIndexHtml(html) {
       // Ensure runtime-config.js is loaded before the main app
       // This file is created at container startup with actual environment values
-      // CRITICAL: Use relative path (./) for Azure Static Web Apps compatibility
+      // CRITICAL: Use absolute path (/) for Kubernetes/production deployment
       return html.replace(
         '<div id="root"></div>',
-        '<div id="root"></div>\n    <script src="./runtime-config.js"></script>'
+        '<div id="root"></div>\n    <script src="/runtime-config.js"></script>'
       );
     },
   };
@@ -30,10 +30,10 @@ function injectRuntimeConfig(): PluginOption {
 
 // https://vite.dev/config/
 export default defineConfig({
-  // CRITICAL: Base path MUST be './' for Azure Static Web Apps compatibility
-  // Using '/' (absolute paths) causes white screen errors on Azure deployment
-  // This is documented in WHITE_SCREEN_PREVENTION_CHECKLIST.md
-  base: './',
+  // CRITICAL: Base path MUST be '/' for Kubernetes/production deployment
+  // Using './' (relative paths) causes asset loading issues in production
+  // This is documented in WHITE_SCREEN_DIAGNOSTIC_REPORT.md
+  base: '/',
 
   plugins: [
     react(),
