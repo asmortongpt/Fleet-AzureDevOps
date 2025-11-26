@@ -228,12 +228,11 @@ export default defineConfig({
           }
 
           // 3D libraries - very large, load only when needed
-          if (id.includes('node_modules/three')) {
+          if (id.includes('node_modules/three') && !id.includes('@react-three')) {
             return 'three-core';
           }
-          if (id.includes('node_modules/@react-three')) {
-            return 'three-react';
-          }
+          // CRITICAL: @react-three uses React hooks at module level, MUST be in react-utils
+          // DO NOT create separate three-react chunk - it will load before React
           if (id.includes('node_modules/postprocessing')) {
             return 'three-postprocessing';
           }
@@ -293,7 +292,8 @@ export default defineConfig({
               id.includes('node_modules/tailwind-merge') ||
               id.includes('node_modules/@floating-ui') ||
               id.includes('node_modules/framer-motion') ||
-              id.includes('node_modules/cmdk')) {
+              id.includes('node_modules/cmdk') ||
+              id.includes('node_modules/@react-three')) {  // CRITICAL: @react-three uses React hooks
             return 'react-utils';
           }
 
