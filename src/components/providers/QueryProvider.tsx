@@ -1,4 +1,5 @@
-import { ReactNode } from 'react';
+// CRITICAL: Import React explicitly to ensure it's available
+import React, { ReactNode } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 
