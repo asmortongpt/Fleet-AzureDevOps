@@ -40,10 +40,11 @@ steps:
   - script: |
       npm install -g @azure/static-web-apps-cli
       swa deploy dist \
+        --api-location api \
         --deployment-token $(AZURE-STATIC-WEB-APPS-API-TOKEN) \
         --env production \
         --no-use-keychain
-    displayName: 'Deploy to Azure Static Web Apps'
+    displayName: 'Deploy to Azure Static Web Apps with API'
 
   - script: |
       echo "Verifying deployment at https://green-pond-0f040980f.3.azurestaticapps.net"
