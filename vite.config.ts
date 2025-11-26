@@ -19,9 +19,10 @@ function injectRuntimeConfig(): PluginOption {
     transformIndexHtml(html) {
       // Ensure runtime-config.js is loaded before the main app
       // This file is created at container startup with actual environment values
+      // CRITICAL: Use relative path (./) for Azure Static Web Apps compatibility
       return html.replace(
         '<div id="root"></div>',
-        '<div id="root"></div>\n    <script src="/runtime-config.js"></script>'
+        '<div id="root"></div>\n    <script src="./runtime-config.js"></script>'
       );
     },
   };
