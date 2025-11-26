@@ -56,8 +56,9 @@ const configs = {
     VITE_AZURE_AD_CLIENT_ID: process.env.VITE_AZURE_AD_CLIENT_ID || "baae0851-0c24-4214-8587-e3fabc46bd4a",
     VITE_AZURE_AD_TENANT_ID: process.env.VITE_AZURE_AD_TENANT_ID || "0ec14b81-7b82-45ee-8f3d-cbc31ced5347",
     VITE_AZURE_AD_REDIRECT_URI: process.env.VITE_AZURE_AD_REDIRECT_URI || "https://fleet.capitaltechalliance.com/auth/callback",
-    VITE_API_BASE_URL: process.env.VITE_API_BASE_URL || "https://fleet.capitaltechalliance.com/api",
-    VITE_API_URL: process.env.VITE_API_URL || "https://fleet.capitaltechalliance.com/api",
+    // Use relative /api path for Azure Static Web Apps managed API
+    VITE_API_BASE_URL: process.env.VITE_API_BASE_URL || "/api",
+    VITE_API_URL: process.env.VITE_API_URL || "/api",
     VITE_AZURE_MAPS_SUBSCRIPTION_KEY: process.env.VITE_AZURE_MAPS_SUBSCRIPTION_KEY || "",
     VITE_ENVIRONMENT: "production",
     VITE_BUILD_VERSION: process.env.BUILD_BUILDID || new Date().toISOString(),
