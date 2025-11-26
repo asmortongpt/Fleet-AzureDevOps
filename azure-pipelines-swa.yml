@@ -7,7 +7,8 @@ pool:
   vmImage: ubuntu-latest
 
 variables:
-  - group: fleet-production-secrets  # Linked to fleet-secrets-0d326d71 Key Vault
+  - group: fleet-secrets  # Azure DevOps variable group
+  - group: fleet-production-vars  # Production-specific variables
 
 steps:
   - task: NodeTool@0
