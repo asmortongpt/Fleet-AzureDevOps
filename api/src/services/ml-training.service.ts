@@ -362,7 +362,7 @@ class MLTrainingService {
     // Deploy previous version
     await this.deployModel(previousModelId, tenantId, 'system')
 
-    logger.info('Model rolled back', { previousModelId, modelType })
+    logger.info(`Model rolled back`, { previousModelId, modelType })
 
     return previousModelId
   }
@@ -430,12 +430,12 @@ class MLTrainingService {
         data_source, data_filters, train_start_date, train_end_date,
         test_split_ratio, validation_split_ratio, created_by
       ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
-      RETURNING id',
+      RETURNING id`,
       [
         tenantId,
         `${config.model_name} Training`,
         config.model_type,
-        'queued',
+        `queued`,
         JSON.stringify({
           algorithm: config.algorithm,
           hyperparameters: config.hyperparameters
@@ -678,18 +678,18 @@ class MLTrainingService {
     modelAMetrics: any,
     modelBMetrics: any
   ): string {
-    if (winner === 'model_a') {
+    if (winner === `model_a`) {
       return `Model A performs better with ${(modelAMetrics.accuracy * 100).toFixed(1)}% accuracy vs ${(modelBMetrics.accuracy * 100).toFixed(1)}%. Recommend deploying Model A.`
-    } else if (winner === 'model_b') {
+    } else if (winner === `model_b`) {
       return `Model B performs better with ${(modelBMetrics.accuracy * 100).toFixed(1)}% accuracy vs ${(modelAMetrics.accuracy * 100).toFixed(1)}%. Recommend deploying Model B.`
     } else {
-      return 'Models perform similarly. Consider other factors such as computational cost.'
+      return `Models perform similarly. Consider other factors such as computational cost.`
     }
   }
 
   private generateComparisonRecommendation(models: any[]): string {
     if (models.length === 0) {
-      return 'No models to compare'
+      return `No models to compare`
     }
 
     const sortedByAccuracy = models.sort((a, b) => {
@@ -706,7 +706,7 @@ class MLTrainingService {
     // Check for scheduled retraining every 24 hours
     this.trainingSchedule = setInterval(async () => {
       try {
-        logger.info('Checking for scheduled model retraining')
+        logger.info(`Checking for scheduled model retraining`)
 
         const result = await pool.query(`
           SELECT id, tenant_id, model_name, model_type, hyperparameters

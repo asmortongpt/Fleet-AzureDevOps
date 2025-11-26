@@ -34,10 +34,10 @@ async function main() {
 
   // Example 1: Extract text from a single document
   console.log('2. Single Document OCR:')
-  const samplePdfUrl = 'https://example.com/sample-invoice.pdf'
+  const samplePdfUrl = `https://example.com/sample-invoice.pdf`
   console.log(`Processing: ${samplePdfUrl}`)
 
-  const result = await extractText(samplePdfUrl, 'application/pdf')
+  const result = await extractText(samplePdfUrl, `application/pdf`)
   console.log('Result:', {
     textLength: result.text.length,
     confidence: result.confidence,

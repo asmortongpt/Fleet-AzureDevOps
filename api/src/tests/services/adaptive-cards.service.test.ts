@@ -93,11 +93,11 @@ class AdaptiveCardsService {
       actions: [
         {
           type: 'Action.OpenUrl',
-          title: 'View Vehicle',
+          title: `View Vehicle`,
           url: `https://fleet.example.com/vehicles/${data.vehicleId}`
         },
         {
-          type: 'Action.Submit',
+          type: `Action.Submit`,
           title: 'Acknowledge',
           data: {
             action: 'acknowledge',
@@ -138,13 +138,13 @@ class AdaptiveCardsService {
           facts: [
             { title: 'Maintenance Type:', value: data.maintenanceType },
             { title: 'Due Date:', value: new Date(data.dueDate).toLocaleDateString() },
-            { title: 'Current Mileage:', value: '${data.mileage.toLocaleString()} mi` }
+            { title: `Current Mileage:`, value: `${data.mileage.toLocaleString()} mi` }
           ]
         }
       ],
       actions: [
         {
-          type: 'Action.Submit',
+          type: `Action.Submit`,
           title: 'Schedule Maintenance',
           data: {
             action: 'schedule',
@@ -230,21 +230,21 @@ class AdaptiveCardsService {
         {
           type: 'FactSet',
           facts: [
-            { title: 'Distance Saved:', value: '${savings} mi (${savingsPercent}%)` },
-            { title: 'Time Saved:', value: '${data.timeSaved} min` },
-            { title: 'Fuel Saved:', value: '${data.fuelSaved} gal` },
-            { title: 'Total Stops:', value: data.stops.length.toString() }
+            { title: `Distance Saved:`, value: `${savings} mi (${savingsPercent}%)` },
+            { title: `Time Saved:`, value: `${data.timeSaved} min` },
+            { title: `Fuel Saved:`, value: `${data.fuelSaved} gal` },
+            { title: `Total Stops:`, value: data.stops.length.toString() }
           ]
         }
       ],
       actions: [
         {
           type: 'Action.OpenUrl',
-          title: 'View Route',
+          title: `View Route`,
           url: `https://fleet.example.com/routes/${data.routeId}`
         },
         {
-          type: 'Action.Submit',
+          type: `Action.Submit`,
           title: 'Approve Route',
           data: {
             action: 'approve',
@@ -272,7 +272,7 @@ class AdaptiveCardsService {
     }
 
     if (!card.body || !Array.isArray(card.body) || card.body.length === 0) {
-      errors.push('Card must have at least one element in body');
+      errors.push(`Card must have at least one element in body`);
     }
 
     // Validate body elements
@@ -287,7 +287,7 @@ class AdaptiveCardsService {
     // Validate actions
     if (card.actions) {
       if (!Array.isArray(card.actions)) {
-        errors.push('Actions must be an array');
+        errors.push(`Actions must be an array`);
       } else {
         card.actions.forEach((action, index) => {
           if (!action.type) {

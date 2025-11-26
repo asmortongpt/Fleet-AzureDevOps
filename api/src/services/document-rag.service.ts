@@ -103,10 +103,10 @@ export class DocumentRAGService {
         )
       }
 
-      await client.query('COMMIT')
+      await client.query(`COMMIT`)
       console.log(`Generated ${chunks.length} embeddings for document ${documentId}`)
     } catch (error) {
-      await client.query('ROLLBACK')
+      await client.query(`ROLLBACK`)
       console.error('Error generating document embeddings:', error)
       throw error
     } finally {
@@ -230,7 +230,7 @@ export class DocumentRAGService {
         FROM document_embeddings de
         JOIN documents d ON de.document_id = d.id
         LEFT JOIN document_categories dc ON d.category_id = dc.id
-        WHERE d.tenant_id = $2 AND d.status = 'active'
+        WHERE d.tenant_id = $2 AND d.status = `active`
       `
 
       const params: any[] = [JSON.stringify(queryEmbedding), tenantId]
@@ -261,7 +261,7 @@ export class DocumentRAGService {
 
       return result.rows
     } catch (error) {
-      console.error('Error performing semantic search:', error)
+      console.error(`Error performing semantic search:`, error)
       throw error
     }
   }
@@ -292,19 +292,19 @@ export class DocumentRAGService {
 
       if (searchResults.length === 0) {
         return {
-          answer: "I couldn't find any relevant information in the documents to answer your question.",
+          answer: "I couldn"t find any relevant information in the documents to answer your question.",
           sources: [],
           confidence: 0,
-          query_id: ''
+          query_id: ``
         }
       }
 
       // Build context from search results
       const context = searchResults
         .map((result, idx) => {
-          return '[Source ${idx + 1}: ${result.document_name}${result.page_number ? ', Page ${result.page_number}` : ''}]\n${result.chunk_text}'
+          return `[Source ${idx + 1}: ${result.document_name}${result.page_number ? `, Page ${result.page_number}` : ``}]\n${result.chunk_text}`
         })
-        .join('\n\n')
+        .join(`\n\n`)
 
       // Generate answer using OpenAI
       let answer: string
@@ -312,7 +312,7 @@ export class DocumentRAGService {
 
       if (!this.openai) {
         // Mock answer for development
-        answer = 'Based on the documents, here's what I found: ${searchResults[0].chunk_text.substring(0, 200)}... (Note: Using mock AI response - configure OpenAI API key for full functionality)'
+        answer = `Based on the documents, here`s what I found: ${searchResults[0].chunk_text.substring(0, 200)}... (Note: Using mock AI response - configure OpenAI API key for full functionality)`
         confidence = 0.5
       } else {
         const response = await this.openai.chat.completions.create({
@@ -333,7 +333,7 @@ export class DocumentRAGService {
           max_tokens: 500
         })
 
-        answer = response.choices[0].message.content || 'Unable to generate answer'
+        answer = response.choices[0].message.content || `Unable to generate answer`
         confidence = 0.85 // Could be calculated based on search scores
       }
 
@@ -387,7 +387,7 @@ export class DocumentRAGService {
         drq.*,
         u.first_name || ' ' || u.last_name as user_name,
         (
-          SELECT json_agg(json_build_object('id', d.id, 'name', d.file_name))
+          SELECT json_agg(json_build_object('id', d.id, `name`, d.file_name))
           FROM documents d
           WHERE d.id = ANY(drq.matched_documents)
         ) as documents
@@ -423,7 +423,7 @@ export class DocumentRAGService {
     await pool.query(
       `UPDATE document_rag_queries
        SET feedback_rating = $1, feedback_comment = $2
-       WHERE id = $3',
+       WHERE id = $3`,
       [rating, comment, queryId]
     )
   }

@@ -36,9 +36,7 @@ export class QueryLogger {
    * Log a query execution
    */
   logQuery(query: string, params?: any[]): void {
-    if (!this.enabled) return
-
-    const log: QueryLog = {
+    if (!this.enabled) return const log: QueryLog = {
       query: this.sanitizeQuery(query),
       params: this.sanitizeParams(params),
       timestamp: new Date(),
@@ -48,7 +46,7 @@ export class QueryLogger {
     this.addLog(log)
 
     if (process.env.DB_LOG_QUERIES === 'true') {
-      console.log('[DB Query]', {
+      console.log(`[DB Query]`, {
         query: log.query,
         params: log.params,
         timestamp: log.timestamp.toISOString()
@@ -75,15 +73,15 @@ export class QueryLogger {
 
     // Warn on slow queries (> 1 second)
     if (duration > 1000) {
-      console.warn('[DB Slow Query]', {
+      console.warn(`[DB Slow Query]`, {
         query: log.query,
         duration: `${duration}ms`,
         rowCount
       })
     }
 
-    if (process.env.DB_LOG_QUERIES === 'true') {
-      console.log('[DB Success]', {
+    if (process.env.DB_LOG_QUERIES === `true`) {
+      console.log(`[DB Success]`, {
         query: log.query,
         duration: `${duration}ms`,
         rowCount
@@ -110,7 +108,7 @@ export class QueryLogger {
 
     this.addLog(log)
 
-    console.error('[DB Error]', {
+    console.error(`[DB Error]`, {
       query: log.query,
       params: log.params,
       duration: `${duration}ms`,
@@ -134,7 +132,7 @@ export class QueryLogger {
    * Sanitize query for logging (remove extra whitespace)
    */
   private sanitizeQuery(query: string): string {
-    return query.replace(/\s+/g, ' ').trim()
+    return query.replace(/\s+/g, ` `).trim()
   }
 
   /**
@@ -144,7 +142,7 @@ export class QueryLogger {
     if (!params) return undefined
 
     return params.map(param => {
-      if (typeof param === 'string') {
+      if (typeof param === `string`) {
         // Hide potential passwords, tokens, etc.
         if (param.length > 50) {
           return `${param.substring(0, 20)}...[${param.length} chars]`

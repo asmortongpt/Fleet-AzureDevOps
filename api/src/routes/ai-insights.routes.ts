@@ -99,7 +99,7 @@ router.get(
       if (acknowledged !== undefined) {
         paramCount++
         query += ` AND is_acknowledged = $${paramCount}`
-        params.push(acknowledged === 'true')
+        params.push(acknowledged === `true`)
       }
 
       query += ' ORDER BY created_at DESC LIMIT 100'
@@ -259,14 +259,14 @@ router.get(
     try {
       const { resolved, severity } = req.query
 
-      let query = 'SELECT id, tenant_id, anomaly_type, entity_type, entity_id, metric_name, expected_value, actual_value, deviation_score, severity, description, detection_method, model_id, root_cause_analysis, recommended_action, is_false_positive, is_resolved, resolved_by, resolved_at, resolution_notes, detected_at, created_at FROM anomalies WHERE tenant_id = $1'
+      let query = `SELECT id, tenant_id, anomaly_type, entity_type, entity_id, metric_name, expected_value, actual_value, deviation_score, severity, description, detection_method, model_id, root_cause_analysis, recommended_action, is_false_positive, is_resolved, resolved_by, resolved_at, resolution_notes, detected_at, created_at FROM anomalies WHERE tenant_id = $1`
       const params: any[] = [req.user!.tenant_id]
       let paramCount = 1
 
       if (resolved !== undefined) {
         paramCount++
         query += ` AND is_resolved = $${paramCount}`
-        params.push(resolved === 'true')
+        params.push(resolved === `true`)
       }
 
       if (severity) {
@@ -275,7 +275,7 @@ router.get(
         params.push(severity)
       }
 
-      query += ' ORDER BY detected_at DESC LIMIT 100'
+      query += ` ORDER BY detected_at DESC LIMIT 100`
 
       const result = await pool.query(query, params)
 
@@ -643,7 +643,7 @@ router.get(
     try {
       const { model_type, is_active } = req.query
 
-      let query = 'SELECT id, tenant_id, model_name, model_type, version, algorithm, framework, hyperparameters, feature_importance, training_data_size, training_duration_seconds, model_artifacts_url, model_binary, status, is_active, deployed_at, created_by, created_at, updated_at FROM ml_models WHERE tenant_id = $1'
+      let query = `SELECT id, tenant_id, model_name, model_type, version, algorithm, framework, hyperparameters, feature_importance, training_data_size, training_duration_seconds, model_artifacts_url, model_binary, status, is_active, deployed_at, created_by, created_at, updated_at FROM ml_models WHERE tenant_id = $1`
       const params: any[] = [req.user!.tenant_id]
       let paramCount = 1
 
@@ -656,7 +656,7 @@ router.get(
       if (is_active !== undefined) {
         paramCount++
         query += ` AND is_active = $${paramCount}`
-        params.push(is_active === 'true')
+        params.push(is_active === `true`)
       }
 
       query += ' ORDER BY created_at DESC'

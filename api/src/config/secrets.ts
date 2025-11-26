@@ -86,17 +86,16 @@ const secretAccessLog = new Map<string, number>() // Track access count for moni
 export async function initializeSecrets(): Promise<void> {
   if (isInitialized) {
     console.log('⚠️  Secret client already initialized')
-    return
-  }
+    return }
 
-  console.log('🔐 Initializing Azure Key Vault secret management...')
+  console.log(`🔐 Initializing Azure Key Vault secret management...`)
   console.log(`   Vault URI: ${VAULT_URI}`)
   console.log(`   Environment: ${process.env.NODE_ENV}`)
   console.log(`   Local secrets mode: ${USE_LOCAL_SECRETS}`)
 
   try {
     if (USE_LOCAL_SECRETS) {
-      console.log('⚠️  Using local .env secrets (development mode)')
+      console.log(`⚠️  Using local .env secrets (development mode)`)
       isInitialized = true
       return
     }
@@ -111,33 +110,33 @@ export async function initializeSecrets(): Promise<void> {
     const secretsIterator = secretClient.listPropertiesOfSecrets()
     await secretsIterator.next() // Just get first secret to verify access
 
-    console.log('✅ Connected to Azure Key Vault')
+    console.log(`✅ Connected to Azure Key Vault`)
 
     // Pre-load critical secrets
-    console.log('🔄 Pre-loading critical secrets...')
+    console.log(`🔄 Pre-loading critical secrets...`)
     const loadPromises = CRITICAL_SECRETS.map(async (secretName) => {
       try {
         await getSecret(secretName)
         console.log(`   ✓ Loaded: ${secretName}`)
       } catch (error) {
         console.error(`   ✗ Failed to load: ${secretName}`, error)
-        throw new Error('Critical secret '${secretName}' not available')
+        throw new Error(`Critical secret `${secretName}` not available`)
       }
     })
 
     await Promise.all(loadPromises)
 
     isInitialized = true
-    console.log('✅ Secret initialization complete')
+    console.log(`✅ Secret initialization complete`)
 
   } catch (error) {
     initializationError = error as Error
     console.error('❌ Secret initialization failed:', error)
 
-    if (process.env.NODE_ENV === 'production') {
+    if (process.env.NODE_ENV === `production`) {
       throw new Error(`Failed to initialize secrets in production: ${initializationError.message}`)
     } else {
-      console.warn('⚠️  Falling back to local secrets due to initialization failure')
+      console.warn(`⚠️  Falling back to local secrets due to initialization failure`)
       isInitialized = true // Allow startup with local secrets
     }
   }
@@ -203,13 +202,13 @@ export async function getSecret(
   // Fetch from Key Vault
   try {
     if (!secretClient) {
-      throw new Error('Secret client not initialized. Call initializeSecrets() first.')
+      throw new Error(`Secret client not initialized. Call initializeSecrets() first.`)
     }
 
     const secret = await secretClient.getSecret(secretName)
 
     if (!secret.value) {
-      throw new Error('Secret '${secretName}' has no value')
+      throw new Error(`Secret `${secretName}` has no value`)
     }
 
     // Cache the secret
@@ -223,7 +222,7 @@ export async function getSecret(
     return secret.value
 
   } catch (error) {
-    console.error('Failed to retrieve secret '${secretName}' from Key Vault:', error)
+    console.error(`Failed to retrieve secret `${secretName}` from Key Vault:`, error)
 
     // Try fallback to environment variable
     if (fallbackEnvVar) {
@@ -234,7 +233,7 @@ export async function getSecret(
       }
     }
 
-    throw new Error('Secret '${secretName}' not available and no fallback provided')
+    throw new Error(`Secret `${secretName}` not available and no fallback provided`)
   }
 }
 
@@ -250,13 +249,13 @@ function getLocalSecret(secretName: string, fallbackEnvVar?: string): string {
   }
 
   // Convert secret-name to SECRET_NAME
-  const envVarName = secretName.toUpperCase().replace(/-/g, '_')
+  const envVarName = secretName.toUpperCase().replace(/-/g, `_`)
   const value = process.env[envVarName]
 
   if (!value) {
     throw new Error(
-      'Secret '${secretName}' not found in environment. ' +
-      'Expected env var: ${envVarName}${fallbackEnvVar ? ' or ${fallbackEnvVar}' : ''}'
+      `Secret `${secretName}` not found in environment. ` +
+      `Expected env var: ${envVarName}${fallbackEnvVar ? ` or ${fallbackEnvVar}' : ''}'
     )
   }
 
@@ -275,7 +274,7 @@ function getLocalSecret(secretName: string, fallbackEnvVar?: string): string {
  *
  * @example
  * const secrets = await getSecrets(['db-password', 'jwt-secret', 'api-key'])
- * const dbPassword = secrets.get('db-password')
+ * const dbPassword = secrets.get(`db-password`)
  */
 export async function getSecrets(secretNames: string[]): Promise<Map<string, string>> {
   const results = new Map<string, string>()
@@ -285,7 +284,7 @@ export async function getSecrets(secretNames: string[]): Promise<Map<string, str
       const value = await getSecret(name)
       results.set(name, value)
     } catch (error) {
-      console.error('Failed to retrieve secret '${name}':', error)
+      console.error(`Failed to retrieve secret `${name}`:`, error)
       throw error
     }
   })
@@ -309,7 +308,7 @@ export function clearSecretCache(secretName?: string): void {
     console.log(`🔄 Cleared cache for secret: ${secretName}`)
   } else {
     secretCache.clear()
-    console.log('🔄 Cleared all secret cache')
+    console.log(`🔄 Cleared all secret cache`)
   }
 }
 
@@ -375,7 +374,7 @@ export function getCachedSecretNames(): string[] {
  * @returns Normalized name for Key Vault
  *
  * @example
- * normalizeSecretName('DB_PASSWORD') // 'db-password'
+ * normalizeSecretName(`DB_PASSWORD') // 'db-password'
  * normalizeSecretName('db-password') // 'db-password'
  */
 export function normalizeSecretName(name: string): string {

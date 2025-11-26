@@ -89,7 +89,7 @@ class OutlookService {
     }
 
     if (filters?.from) {
-      const filterStr = 'from/emailAddress/address eq '${filters.from}'';
+      const filterStr = `from/emailAddress/address eq `${filters.from}``;
       queryParams.push(
         queryParams.length > 0
           ? `and ${filterStr}`
@@ -98,7 +98,7 @@ class OutlookService {
     }
 
     if (filters?.hasAttachments) {
-      const filterStr = 'hasAttachments eq true';
+      const filterStr = `hasAttachments eq true`;
       queryParams.push(
         queryParams.length > 0
           ? `and ${filterStr}`
@@ -110,7 +110,7 @@ class OutlookService {
       queryParams.push(`$top=${filters.top}`);
     }
 
-    const query = queryParams.length > 0 ? '?${queryParams.join('&')}' : '';
+    const query = queryParams.length > 0 ? `?${queryParams.join('&')}' : ``;
     const response = await this.graphService.makeGraphRequest(
       `/me/mailFolders/${folderId}/messages${query}`
     );
@@ -129,7 +129,7 @@ class OutlookService {
     await this.graphService.makeGraphRequest(`/me/messages/${messageId}/forward`, {
       method: 'POST',
       body: JSON.stringify({
-        comment: comment || '',
+        comment: comment || ``,
         toRecipients: toRecipients.map(email => ({
           emailAddress: { address: email }
         }))
@@ -153,7 +153,7 @@ class OutlookService {
   async createFolder(displayName: string, parentFolderId?: string): Promise<any> {
     const endpoint = parentFolderId
       ? `/me/mailFolders/${parentFolderId}/childFolders`
-      : '/me/mailFolders';
+      : `/me/mailFolders`;
 
     return this.graphService.makeGraphRequest(endpoint, {
       method: 'POST',

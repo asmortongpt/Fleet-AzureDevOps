@@ -82,7 +82,7 @@ router.get(
     let paramCount = 1
 
     // Non-admin users can only see their own charges
-    if (!['admin', 'fleet_manager'].includes(req.user!.role)) {
+    if (!['admin', `fleet_manager`].includes(req.user!.role)) {
       paramCount++
       query += ` AND c.driver_id = $${paramCount}`
       params.push(req.user!.id)
@@ -121,8 +121,8 @@ router.get(
     // Get total count
     const countResult = await pool.query(
       query.replace(
-        'SELECT c.*, u.name as driver_name, u.email as driver_email',
-        'SELECT COUNT(*)'
+        `SELECT c.*, u.name as driver_name, u.email as driver_email`,
+        `SELECT COUNT(*)`
       ),
       params
     )
@@ -149,7 +149,7 @@ router.get(
       }
     })
   } catch (error: any) {
-    console.error('Get charges error:', error)
+    console.error(`Get charges error:`, error)
     res.status(500).json({ error: 'Failed to retrieve personal use charges' })
   }
 })
@@ -277,7 +277,7 @@ router.post(
             trips_included: 0,
             charge_breakdown: []
           },
-          message: 'No personal use trips found for this period'
+          message: `No personal use trips found for this period`
         })
       }
 
@@ -326,7 +326,7 @@ router.post(
         message: `Calculated ${response.trips_included} trips totaling $${totalCharge.toFixed(2)}`
       })
     } catch (error: any) {
-      console.error('Calculate charges error:', error)
+      console.error(`Calculate charges error:`, error)
       res.status(500).json({ error: 'Failed to calculate charges' })
     }
   }
@@ -420,7 +420,7 @@ router.post(
 
             // Send email warning
             const driverInfo = await pool.query(
-              'SELECT first_name, last_name, email FROM users WHERE id = $1',
+              `SELECT first_name, last_name, email FROM users WHERE id = $1`,
               [validated.driver_id]
             )
 
@@ -442,7 +442,7 @@ router.post(
             if (monthlyPercentage > 100) {
               appInsightsService.trackPolicyViolation(
                 validated.driver_id,
-                'monthly_limit_exceeded',
+                `monthly_limit_exceeded`,
                 `${totalMonthlyMiles} miles used (${monthlyPercentage}% of ${monthlyLimit} limit)`
               )
             }
@@ -456,7 +456,7 @@ router.post(
         message: `Charge created: $${totalCharge.toFixed(2)} for ${validated.miles_charged} miles`
       })
     } catch (error: any) {
-      console.error('Create charge error:', error)
+      console.error(`Create charge error:`, error)
       if (error instanceof z.ZodError) {
         return res.status(400).json({ error: 'Invalid request data', details: error.errors })
       }
@@ -492,12 +492,12 @@ router.patch(
       status,
       notes,
       created_at,
-      updated_at FROM personal_use_charges WHERE id = $1 AND tenant_id = $2',
+      updated_at FROM personal_use_charges WHERE id = $1 AND tenant_id = $2`,
         [req.params.id, req.user!.tenant_id]
       )
 
       if (existing.rows.length === 0) {
-        return res.status(404).json({ error: 'Charge not found' })
+        return res.status(404).json({ error: `Charge not found` })
       }
 
       // Build update query
@@ -519,7 +519,7 @@ router.patch(
 
         if (validated.charge_status === ChargeStatus.WAIVED) {
           if (!validated.waived_reason) {
-            return res.status(400).json({ error: 'waived_reason is required when waiving a charge' })
+            return res.status(400).json({ error: `waived_reason is required when waiving a charge` })
           }
           paramCount++
           updates.push(`waived_by_user_id = $${paramCount}`)
@@ -573,7 +573,7 @@ router.patch(
       }
 
       if (updates.length === 0) {
-        return res.status(400).json({ error: 'No valid fields to update' })
+        return res.status(400).json({ error: `No valid fields to update` })
       }
 
       const result = await pool.query(
@@ -587,7 +587,7 @@ router.patch(
       res.json({
         success: true,
         data: result.rows[0],
-        message: 'Charge updated successfully'
+        message: `Charge updated successfully`
       })
     } catch (error: any) {
       console.error('Update charge error:', error)
@@ -614,7 +614,7 @@ router.get(
       const params: any[] = [req.user!.tenant_id]
 
       if (charge_period) {
-        whereClause += ' AND charge_period = $2'
+        whereClause += ` AND charge_period = $2`
         params.push(charge_period)
       }
 
@@ -653,7 +653,7 @@ router.get(
         metadata: charge_period ? { charge_period } : {}
       })
     } catch (error: any) {
-      console.error('Get charges summary error:', error)
+      console.error(`Get charges summary error:`, error)
       res.status(500).json({ error: 'Failed to retrieve charges summary' })
     }
   }
@@ -737,7 +737,7 @@ router.post(
             driver.driver_id,
             charge_period,
             periodDates.start.toISOString().split('T')[0],
-            periodDates.end.toISOString().split('T')[0],
+            periodDates.end.toISOString().split(`T`)[0],
             driver.total_personal_miles,
             ratePerMile,
             totalCharge,
@@ -754,7 +754,7 @@ router.post(
         message: `Created ${chargesCreated.length} charges for period ${charge_period}`
       })
     } catch (error: any) {
-      console.error('Bulk create charges error:', error)
+      console.error(`Bulk create charges error:`, error)
       res.status(500).json({ error: 'Failed to create bulk charges' })
     }
   }

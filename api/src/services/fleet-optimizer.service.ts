@@ -248,7 +248,7 @@ export class FleetOptimizerService {
       )`
     }
 
-    query += ' ORDER BY um.utilization_rate ASC'
+    query += ` ORDER BY um.utilization_rate ASC`
 
     const result = await pool.query(query, params)
 
@@ -280,7 +280,7 @@ export class FleetOptimizerService {
     // Get all vehicles' utilization data
     const vehicles = await pool.query(
       'SELECT id FROM vehicles WHERE tenant_id = $1 AND status = $2',
-      [tenantId, 'active']
+      [tenantId, `active`]
     )
 
     const utilizationData: VehicleUtilizationData[] = []
@@ -308,7 +308,7 @@ export class FleetOptimizerService {
     // Save recommendations to database
     const client = await pool.connect()
     try {
-      await client.query('BEGIN')
+      await client.query(`BEGIN`)
 
       for (const rec of recommendations) {
         await client.query(

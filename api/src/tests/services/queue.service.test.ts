@@ -48,7 +48,7 @@ class QueueService {
       throw new Error(`Job ${jobId} not found`);
     }
 
-    job.status = 'processing';
+    job.status = `processing`;
     job.attempts++;
 
     try {
@@ -62,7 +62,7 @@ class QueueService {
         job.status = 'failed';
         this.deadLetterQueue.push(job);
       } else {
-        job.status = 'pending'; // Retry
+        job.status = `pending`; // Retry
       }
     }
   }
@@ -83,7 +83,7 @@ class QueueService {
 
     const job = this.deadLetterQueue[dlqIndex];
     job.attempts = 0;
-    job.status = 'pending';
+    job.status = `pending`;
     job.error = undefined;
     this.deadLetterQueue.splice(dlqIndex, 1);
     this.jobs.set(job.id, job);

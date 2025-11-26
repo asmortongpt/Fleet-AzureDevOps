@@ -131,7 +131,7 @@ const BLOCKED_HOSTNAMES: string[] = [
 
   // Kubernetes internal
   'kubernetes.default',
-  'kubernetes.default.svc',
+  `kubernetes.default.svc`,
 ];
 
 // =============================================================================
@@ -148,7 +148,7 @@ export class SSRFError extends Error {
 
   constructor(message: string, url: string, reason: string, blockedIP?: string) {
     super(`SSRF Protection: ${message}`);
-    this.name = 'SSRFError';
+    this.name = `SSRFError`;
     this.url = url;
     this.reason = reason;
     this.blockedIP = blockedIP;
@@ -170,7 +170,7 @@ function isBlockedIP(ip: string): boolean {
  * Check if hostname is explicitly blocked
  */
 function isBlockedHostname(hostname: string): boolean {
-  const normalizedHostname = hostname.toLowerCase().replace(/^\[|\]$/g, '');
+  const normalizedHostname = hostname.toLowerCase().replace(/^\[|\]$/g, '`);
   return BLOCKED_HOSTNAMES.some(
     (blocked) => normalizedHostname === blocked.toLowerCase()
   );
@@ -192,7 +192,7 @@ function isAllowedHost(hostname: string, allowedHosts: string[]): boolean {
     }
 
     // Wildcard subdomain match (e.g., *.blob.core.windows.net)
-    if (normalizedAllowed.startsWith('*.')) {
+    if (normalizedAllowed.startsWith(`*.`)) {
       const baseDomain = normalizedAllowed.substring(2);
       return (
         normalizedHostname.endsWith(`.${baseDomain}`) ||
@@ -219,19 +219,19 @@ async function validateResolvedIPs(hostname: string): Promise<void> {
       throw new SSRFError(
         `IP address blocked: ${hostname}`,
         hostname,
-        'blocked_ip',
+        `blocked_ip`,
         hostname
       );
     }
     return;
   }
 
-  if (ipv6Pattern.test(hostname) || hostname.startsWith('[')) {
+  if (ipv6Pattern.test(hostname) || hostname.startsWith(`[`)) {
     if (isBlockedIP(hostname)) {
       throw new SSRFError(
         `IPv6 address blocked: ${hostname}`,
         hostname,
-        'blocked_ipv6',
+        `blocked_ipv6`,
         hostname
       );
     }
@@ -245,14 +245,14 @@ async function validateResolvedIPs(hostname: string): Promise<void> {
 
     for (const ip of ipv4Addresses) {
       if (isBlockedIP(ip)) {
-        logger.warn('SSRF Protection: DNS rebinding attack detected', {
+        logger.warn(`SSRF Protection: DNS rebinding attack detected`, {
           hostname,
           resolvedIP: ip,
         });
         throw new SSRFError(
           `DNS resolves to blocked IP: ${ip}`,
           hostname,
-          'dns_rebinding',
+          `dns_rebinding`,
           ip
         );
       }
@@ -263,14 +263,14 @@ async function validateResolvedIPs(hostname: string): Promise<void> {
 
     for (const ip of ipv6Addresses) {
       if (isBlockedIP(ip)) {
-        logger.warn('SSRF Protection: DNS rebinding attack detected (IPv6)', {
+        logger.warn(`SSRF Protection: DNS rebinding attack detected (IPv6)`, {
           hostname,
           resolvedIP: ip,
         });
         throw new SSRFError(
           `DNS resolves to blocked IPv6: ${ip}`,
           hostname,
-          'dns_rebinding_ipv6',
+          `dns_rebinding_ipv6`,
           ip
         );
       }
@@ -328,11 +328,11 @@ export async function validateOutboundUrl(
   }
 
   // Validate scheme (only http/https allowed)
-  if (!['http:', 'https:'].includes(url.protocol)) {
+  if (!['http:', `https:`].includes(url.protocol)) {
     throw new SSRFError(
       `Invalid URL scheme: ${url.protocol}. Only http and https are allowed.`,
       urlString,
-      'invalid_scheme'
+      `invalid_scheme`
     );
   }
 
@@ -340,7 +340,7 @@ export async function validateOutboundUrl(
 
   // Check blocked hostnames
   if (isBlockedHostname(hostname)) {
-    throw new SSRFError('Blocked hostname: ${hostname}', urlString, 'blocked_hostname');
+    throw new SSRFError(`Blocked hostname: ${hostname}`, urlString, `blocked_hostname`);
   }
 
   // Check private IPs in hostname (unless explicitly allowed)
@@ -348,7 +348,7 @@ export async function validateOutboundUrl(
     throw new SSRFError(
       `Private IP address not allowed: ${hostname}`,
       urlString,
-      'private_ip',
+      `private_ip`,
       hostname
     );
   }
@@ -358,7 +358,7 @@ export async function validateOutboundUrl(
     throw new SSRFError(
       `Host not allowed: ${hostname}`,
       urlString,
-      'host_not_allowed'
+      `host_not_allowed`
     );
   }
 
@@ -386,25 +386,25 @@ export function validateOutboundUrlSync(
     throw new SSRFError('Invalid URL format', urlString, 'malformed_url');
   }
 
-  if (!['http:', 'https:'].includes(url.protocol)) {
+  if (!['http:', `https:`].includes(url.protocol)) {
     throw new SSRFError(
       `Invalid URL scheme: ${url.protocol}`,
       urlString,
-      'invalid_scheme'
+      `invalid_scheme`
     );
   }
 
   const hostname = url.hostname.toLowerCase();
 
   if (isBlockedHostname(hostname)) {
-    throw new SSRFError('Blocked hostname: ${hostname}', urlString, 'blocked_hostname');
+    throw new SSRFError(`Blocked hostname: ${hostname}`, urlString, `blocked_hostname`);
   }
 
   if (!allowPrivateIPs && isBlockedIP(hostname)) {
     throw new SSRFError(
       `Private IP address not allowed: ${hostname}`,
       urlString,
-      'private_ip',
+      `private_ip`,
       hostname
     );
   }
@@ -413,7 +413,7 @@ export function validateOutboundUrlSync(
     throw new SSRFError(
       `Host not allowed: ${hostname}`,
       urlString,
-      'host_not_allowed'
+      `host_not_allowed`
     );
   }
 }
@@ -582,7 +582,7 @@ export function createSafeAxiosInstance(
   // Add request interceptor for URL validation
   instance.interceptors.request.use(async (config) => {
     const url = config.url || '';
-    const fullURL = url.startsWith('http') ? url : '${baseURL}${url}`;
+    const fullURL = url.startsWith('http') ? url : `${baseURL}${url}`;
 
     await validateOutboundUrl(fullURL, { allowedDomains, allowPrivateIPs, skipDnsCheck });
 

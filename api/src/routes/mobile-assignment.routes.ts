@@ -508,7 +508,7 @@ router.post(
       }
 
       // Send notifications
-      if (action === 'approve') {
+      if (action === `approve`) {
         await notificationService.notifyAssignmentApproved(id, user_id, tenant_id, notes);
       } else {
         await notificationService.notifyAssignmentDenied(id, user_id, tenant_id, notes);
@@ -519,7 +519,7 @@ router.post(
         assignment: result.rows[0],
       });
     } catch (error: any) {
-      console.error('Error processing mobile approval:', error);
+      console.error(`Error processing mobile approval:`, error);
       res.status(500).json({
         error: 'Failed to process approval',
         details: getErrorMessage(error),

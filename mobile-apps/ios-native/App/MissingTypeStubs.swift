@@ -256,6 +256,55 @@ public struct DashboardStats: Codable {
 
 // NOTE: ActivityItem and ActivityType are defined in Models/FleetModels.swift
 
+// MARK: - MetricCardData
+
+public struct MetricCardData {
+    public let title: String
+    public let value: String
+    public let icon: String
+    public let color: String
+
+    public init(title: String, value: String, icon: String, color: String) {
+        self.title = title
+        self.value = value
+        self.icon = icon
+        self.color = color
+    }
+}
+
+// MARK: - Fleet Metrics
+
+public struct FleetMetrics: Codable {
+    public let totalVehicles: Int
+    public let activeVehicles: Int
+    public let inactiveVehicles: Int
+    public let totalTrips: Int
+    public let totalDistance: Double
+    public let totalFuelUsed: Double
+    public let averageFuelEfficiency: Double
+    public let maintenanceScheduled: Int
+    public let maintenanceOverdue: Int
+    public let alerts: Int
+    public let lastUpdated: Date
+
+    public init(totalVehicles: Int = 0, activeVehicles: Int = 0, inactiveVehicles: Int = 0,
+         totalTrips: Int = 0, totalDistance: Double = 0, totalFuelUsed: Double = 0,
+         averageFuelEfficiency: Double = 0, maintenanceScheduled: Int = 0,
+         maintenanceOverdue: Int = 0, alerts: Int = 0, lastUpdated: Date = Date()) {
+        self.totalVehicles = totalVehicles
+        self.activeVehicles = activeVehicles
+        self.inactiveVehicles = inactiveVehicles
+        self.totalTrips = totalTrips
+        self.totalDistance = totalDistance
+        self.totalFuelUsed = totalFuelUsed
+        self.averageFuelEfficiency = averageFuelEfficiency
+        self.maintenanceScheduled = maintenanceScheduled
+        self.maintenanceOverdue = maintenanceOverdue
+        self.alerts = alerts
+        self.lastUpdated = lastUpdated
+    }
+}
+
 // MARK: - MockDataGenerator Stub
 
 public class MockDataGenerator {
@@ -282,8 +331,8 @@ public class MockDataGenerator {
         let todayTrips = trips.filter { Calendar.current.isDateInToday($0.startTime) }.count
         let alerts = vehicles.reduce(0) { total, vehicle in total + vehicle.alerts.count }
         let avgFuelLevel = vehicles.isEmpty ? 0 : vehicles.reduce(0.0, { total, vehicle in total + vehicle.fuelLevel }) / Double(vehicles.count)
-        // maintenanceDue - simplified check since nextService is a String
-        let maintenanceDue = vehicles.filter { !$0.nextService.isEmpty }.count
+        // maintenanceDue - count vehicles with future service dates
+        let maintenanceDue = vehicles.filter { $0.nextService > Date() }.count
         let totalMileage = vehicles.reduce(0.0, { total, vehicle in total + vehicle.mileage })
         // totalFuelCost - estimated from total distance * average cost per mile
         let totalFuelCost = trips.reduce(0.0, { total, trip in total + (trip.totalDistance * 0.15) })
@@ -485,4 +534,37 @@ public enum AttachmentType: String, Codable {
 public class ChecklistService {
     public static let shared = ChecklistService()
     private init() {}
+}
+
+// MARK: - Quick Action Types
+
+public enum QuickActionType: String, Codable {
+    case addVehicle
+    case startTrip
+    case maintenance
+    case reports
+    case dispatch
+    case communication
+
+    public var title: String {
+        switch self {
+        case .addVehicle: return "Add Vehicle"
+        case .startTrip: return "Start Trip"
+        case .maintenance: return "Maintenance"
+        case .reports: return "Reports"
+        case .dispatch: return "Dispatch"
+        case .communication: return "Communication"
+        }
+    }
+
+    public var icon: String {
+        switch self {
+        case .addVehicle: return "car.fill"
+        case .startTrip: return "location.fill"
+        case .maintenance: return "wrench.fill"
+        case .reports: return "chart.bar.fill"
+        case .dispatch: return "phone.fill"
+        case .communication: return "message.fill"
+        }
+    }
 }

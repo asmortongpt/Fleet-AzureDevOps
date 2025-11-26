@@ -618,7 +618,7 @@ class LangChainOrchestratorService {
         schema: z.object({
           vehicleId: z.string().describe('The vehicle ID'),
           maintenanceType: z.string().describe('Type of maintenance'),
-          scheduledDate: z.string().describe('Scheduled date in ISO format')
+          scheduledDate: z.string().describe(`Scheduled date in ISO format`)
         }),
         func: async ({ vehicleId, maintenanceType, scheduledDate }) => {
           const result = await pool.query(
@@ -628,7 +628,7 @@ class LangChainOrchestratorService {
               context.tenantId,
               `${maintenanceType} - Vehicle ${vehicleId}`,
               `Scheduled maintenance: ${maintenanceType}`,
-              'maintenance',
+              `maintenance`,
               vehicleId,
               'medium',
               scheduledDate,
@@ -653,7 +653,7 @@ class LangChainOrchestratorService {
                SUM(maintenance_cost) as total_maintenance,
                COUNT(*) as transaction_count
              FROM cost_transactions
-             WHERE tenant_id = $1 AND date BETWEEN $2 AND $3',
+             WHERE tenant_id = $1 AND date BETWEEN $2 AND $3`,
             [context.tenantId, startDate, endDate]
           )
           return JSON.stringify(result.rows[0] || {})
@@ -670,9 +670,9 @@ class LangChainOrchestratorService {
               COUNT(t.id) as pending_tasks,
               MAX(t.updated_at) as last_maintenance
        FROM vehicles v
-       LEFT JOIN tasks t ON t.related_asset_id = v.id AND t.task_type = 'maintenance'
+       LEFT JOIN tasks t ON t.related_asset_id = v.id AND t.task_type = `maintenance`
        WHERE v.id = $1 AND v.tenant_id = $2
-       GROUP BY v.id',
+       GROUP BY v.id`,
       [vehicleId, tenantId]
     )
 
@@ -701,7 +701,7 @@ Provide a brief analysis of the vehicle condition and any immediate concerns.`
   private async getMaintenanceHistory(vehicleId: string, tenantId: string): Promise<any> {
     const result = await pool.query(
       `SELECT id, tenant_id, title, description, status, priority, due_date, assigned_to, created_by, created_at, updated_at FROM tasks
-       WHERE related_asset_id = $1 AND tenant_id = $2 AND task_type = 'maintenance'
+       WHERE related_asset_id = $1 AND tenant_id = $2 AND task_type = `maintenance`
        ORDER BY created_at DESC LIMIT 10`,
       [vehicleId, tenantId]
     )
@@ -740,7 +740,7 @@ Generate a structured maintenance plan with:
     // In a real system, this would query available technicians
     // For now, return a placeholder
     return {
-      technician: 'Auto-assigned',
+      technician: `Auto-assigned`,
       status: 'pending_assignment',
       estimatedStartDate: new Date(Date.now() + 86400000).toISOString()
     }
@@ -778,7 +778,7 @@ Generate a structured maintenance plan with:
       closed_date,
       metadata,
       created_at,
-      updated_at FROM incidents WHERE id = $1 AND tenant_id = $2',
+      updated_at FROM incidents WHERE id = $1 AND tenant_id = $2`,
       [incidentId, tenantId]
     )
 
@@ -852,7 +852,7 @@ Generate:
     return {
       routes: routeIds.map(id => ({
         id,
-        origin: 'Location A',
+        origin: `Location A`,
         destination: 'Location B',
         estimatedTime: 60
       }))

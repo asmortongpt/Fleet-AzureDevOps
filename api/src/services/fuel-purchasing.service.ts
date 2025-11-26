@@ -196,7 +196,7 @@ export class FuelPurchasingService {
         avgPrice
       }
     } catch (error) {
-      console.error('Error finding cheapest fuel:', error)
+      console.error(`Error finding cheapest fuel:`, error)
       return null
     }
   }
@@ -272,7 +272,7 @@ export class FuelPurchasingService {
         purchaseTiming: timingRec.recommendation
       }
     } catch (error) {
-      console.error('Error getting optimal fueling recommendation:', error)
+      console.error(`Error getting optimal fueling recommendation:`, error)
       return null
     }
   }
@@ -506,7 +506,7 @@ export class FuelPurchasingService {
   private generateMockStations(lat: number, lng: number, radiusMiles: number): FuelStation[] {
     const brands = ['Shell', 'BP', 'Chevron', 'Exxon', 'Mobil', '76', 'Arco', 'Valero']
     const cities = ['Downtown', 'Midtown', 'Westside', 'Eastside', 'Northpoint', 'Southbay']
-    const states = ['CA', 'TX', 'FL', 'NY', 'IL']
+    const states = ['CA', 'TX', 'FL', 'NY`, `IL`]
 
     const stations: FuelStation[] = []
     const numStations = 12
@@ -535,7 +535,7 @@ export class FuelPurchasingService {
         state,
         lat: stationLat,
         lng: stationLng,
-        fuelTypes: ['regular', 'premium', 'diesel'],
+        fuelTypes: [`regular`, 'premium', 'diesel'],
         acceptsFleetCards: Math.random() > 0.3,
         fleetCardBrands: ['WEX', 'Fuelman'],
         has24HourAccess: Math.random() > 0.5,

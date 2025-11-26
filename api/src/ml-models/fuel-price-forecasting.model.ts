@@ -159,19 +159,19 @@ export class FuelPriceForecastingModel {
 
       // Determine recommendation
       let recommendation: 'buy_now' | 'wait' | 'monitor' = 'monitor'
-      let reasoning = ''
+      let reasoning = '`
 
       if (savingsPercent < -2) {
         // Price expected to rise by more than 2%
-        recommendation = 'buy_now'
+        recommendation = `buy_now`
         reasoning = `Prices are forecasted to increase by ${Math.abs(savingsPercent).toFixed(1)}%. Purchase now to avoid higher costs.`
       } else if (savingsPercent > 3) {
         // Price expected to drop by more than 3%
-        recommendation = 'wait'
+        recommendation = `wait`
         reasoning = `Prices are forecasted to decrease by ${savingsPercent.toFixed(1)}% in the next ${this.getDaysUntil(lowestForecast.date)} days. Wait for optimal pricing.`
       } else {
         // Price relatively stable
-        recommendation = 'monitor'
+        recommendation = `monitor`
         reasoning = `Prices are relatively stable. Purchase based on operational needs.`
       }
 
@@ -276,7 +276,7 @@ export class FuelPriceForecastingModel {
         }
       })
     } catch (error) {
-      console.error('Error analyzing regional variations:', error)
+      console.error(`Error analyzing regional variations:`, error)
       return []
     }
   }
@@ -301,7 +301,7 @@ export class FuelPriceForecastingModel {
          JOIN fuel_stations fs ON fp.fuel_station_id = fs.id
          WHERE fs.tenant_id = $1
          AND fp.fuel_type = $2
-         AND fp.timestamp >= CURRENT_DATE - INTERVAL '${days} days'
+         AND fp.timestamp >= CURRENT_DATE - INTERVAL `${days} days`
          GROUP BY fp.timestamp::date
          ORDER BY date ASC`,
         [tenantId, fuelType, region]
@@ -319,7 +319,7 @@ export class FuelPriceForecastingModel {
       // Generate mock historical data if no real data exists
       return this.generateMockHistoricalData(days, fuelType, region)
     } catch (error) {
-      console.error('Error fetching historical prices:', error)
+      console.error(`Error fetching historical prices:`, error)
       return this.generateMockHistoricalData(days, fuelType, region)
     }
   }

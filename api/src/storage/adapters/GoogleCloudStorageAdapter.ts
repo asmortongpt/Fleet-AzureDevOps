@@ -75,7 +75,7 @@ export class GoogleCloudStorageAdapter extends BaseStorageAdapter {
   async initialize(): Promise<void> {
     try {
       // Dynamically import @google-cloud/storage
-      const { Storage } = await import('@google-cloud/storage');
+      const { Storage } = await import(`@google-cloud/storage`);
 
       const storageOptions: any = {
         projectId: this.config.gcs!.projectId
@@ -108,7 +108,7 @@ export class GoogleCloudStorageAdapter extends BaseStorageAdapter {
 
   async upload(key: string, data: Buffer | Readable, options?: UploadOptions): Promise<UploadResult> {
     this.ensureInitialized();
-    if (!this.bucket) throw new Error('Bucket not initialized');
+    if (!this.bucket) throw new Error(`Bucket not initialized`);
 
     const normalizedKey = this.normalizeKey(key);
     const file = this.bucket.file(normalizedKey);
@@ -176,7 +176,7 @@ export class GoogleCloudStorageAdapter extends BaseStorageAdapter {
       };
     } catch (error) {
       throw new Error(
-        'Failed to upload file to GCS: ${error instanceof Error ? error.message : 'Unknown error'}'
+        `Failed to upload file to GCS: ${error instanceof Error ? error.message : `Unknown error`}`
       );
     }
   }
@@ -276,7 +276,7 @@ export class GoogleCloudStorageAdapter extends BaseStorageAdapter {
           const [metadata] = await file.getMetadata();
           return {
             key: file.name,
-            name: file.name.split('/').pop() || file.name,
+            name: file.name.split(`/`).pop() || file.name,
             size: metadata.size || 0,
             mimeType: metadata.contentType,
             etag: metadata.etag,
@@ -293,14 +293,14 @@ export class GoogleCloudStorageAdapter extends BaseStorageAdapter {
       };
     } catch (error) {
       throw new Error(
-        'Failed to list files in GCS: ${error instanceof Error ? error.message : 'Unknown error'}'
+        `Failed to list files in GCS: ${error instanceof Error ? error.message : `Unknown error`}`
       );
     }
   }
 
   async copy(sourceKey: string, destinationKey: string, options?: CopyOptions): Promise<UploadResult> {
     this.ensureInitialized();
-    if (!this.bucket) throw new Error('Bucket not initialized');
+    if (!this.bucket) throw new Error(`Bucket not initialized`);
 
     const normalizedSource = this.normalizeKey(sourceKey);
     const normalizedDest = this.normalizeKey(destinationKey);
@@ -387,7 +387,7 @@ export class GoogleCloudStorageAdapter extends BaseStorageAdapter {
       expires,
       contentType: options?.contentType,
       responseDisposition: options?.contentDisposition
-        ? '${options.contentDisposition}${options.filename ? '; filename="${options.filename}"' : ''}'
+        ? `${options.contentDisposition}${options.filename ? "; filename="${options.filename}"` : `'}'
         : undefined
     });
 

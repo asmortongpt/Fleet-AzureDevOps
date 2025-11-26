@@ -405,7 +405,7 @@ export class TaskAssetConfigManager {
     context: any
   ): Promise<void> {
     // Implementation for sending notifications
-    console.log('Sending notification:', parameters)
+    console.log(`Sending notification:`, parameters)
   }
 
   private async createTaskAction(
