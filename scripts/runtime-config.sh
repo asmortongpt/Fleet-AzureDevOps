@@ -15,7 +15,9 @@ CONFIG_DIR="/usr/share/nginx/html"
 CONFIG_FILE="${CONFIG_DIR}/runtime-config.js"
 
 # Create runtime configuration file
-cat > "${CONFIG_FILE}" <<EOF
+# CRITICAL: Use temp file and atomic move to handle read-only filesystems
+TEMP_CONFIG="/tmp/runtime-config.js"
+cat > "${TEMP_CONFIG}" <<EOF
 // Runtime configuration injected at container startup
 window.__RUNTIME_CONFIG__ = {
   // Azure AD Authentication
@@ -42,7 +44,15 @@ window.__RUNTIME_CONFIG__ = {
 };
 EOF
 
-echo "✓ Runtime configuration created at ${CONFIG_FILE}"
+# Move temp config to final location (handles read-only filesystem scenarios)
+if [ -w "${CONFIG_DIR}" ]; then
+  mv "${TEMP_CONFIG}" "${CONFIG_FILE}" 2>/dev/null || cp "${TEMP_CONFIG}" "${CONFIG_FILE}"
+  echo "✓ Runtime configuration created at ${CONFIG_FILE}"
+else
+  echo "⚠ Warning: ${CONFIG_DIR} is read-only, keeping config at ${TEMP_CONFIG}"
+  CONFIG_FILE="${TEMP_CONFIG}"
+fi
+
 echo ""
 
 # Inject runtime-config.js script tag into index.html if not already present
@@ -50,9 +60,20 @@ INDEX_FILE="${CONFIG_DIR}/index.html"
 if [ -f "${INDEX_FILE}" ]; then
   if ! grep -q "runtime-config.js" "${INDEX_FILE}"; then
     echo "Injecting runtime-config.js script tag into index.html..."
+    # Create temp copy for read-only filesystem compatibility
+    TEMP_INDEX="/tmp/index.html"
+    cp "${INDEX_FILE}" "${TEMP_INDEX}"
     # Insert script tag before the first <script> tag
-    sed -i 's|<script |<script src="/runtime-config.js"></script>\n  <script |' "${INDEX_FILE}"
-    echo "✓ Script tag injected into index.html"
+    sed -i 's|<script |<script src="/runtime-config.js"></script>\n  <script |' "${TEMP_INDEX}" 2>/dev/null || \
+      sed 's|<script |<script src="/runtime-config.js"></script>\n  <script |' "${INDEX_FILE}" > "${TEMP_INDEX}"
+
+    # Move back if writable
+    if [ -w "${CONFIG_DIR}" ]; then
+      mv "${TEMP_INDEX}" "${INDEX_FILE}" 2>/dev/null || cp "${TEMP_INDEX}" "${INDEX_FILE}"
+      echo "✓ Script tag injected into index.html"
+    else
+      echo "⚠ Warning: Cannot modify index.html (read-only filesystem)"
+    fi
   else
     echo "✓ Script tag already present in index.html"
   fi
