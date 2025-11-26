@@ -29,6 +29,7 @@ const configs = {
     VITE_API_BASE_URL: process.env.VITE_API_BASE_URL || "http://localhost:3000",
     VITE_API_URL: process.env.VITE_API_URL || "http://localhost:3000",
     VITE_AZURE_MAPS_SUBSCRIPTION_KEY: process.env.VITE_AZURE_MAPS_SUBSCRIPTION_KEY || "",
+    VITE_MAP_PROVIDER: "leaflet", // Use FREE Leaflet/OpenStreetMap
     VITE_ENVIRONMENT: "development",
     VITE_BUILD_VERSION: process.env.BUILD_BUILDID || "dev",
     ENABLE_AI_AGENTS: true,
@@ -44,6 +45,7 @@ const configs = {
     VITE_API_BASE_URL: process.env.VITE_API_BASE_URL || "https://green-pond-0f040980f.3.azurestaticapps.net/api",
     VITE_API_URL: process.env.VITE_API_URL || "https://green-pond-0f040980f.3.azurestaticapps.net/api",
     VITE_AZURE_MAPS_SUBSCRIPTION_KEY: process.env.VITE_AZURE_MAPS_SUBSCRIPTION_KEY || "",
+    VITE_MAP_PROVIDER: "leaflet", // Use FREE Leaflet/OpenStreetMap
     VITE_ENVIRONMENT: "staging",
     VITE_BUILD_VERSION: process.env.BUILD_BUILDID || "staging",
     ENABLE_AI_AGENTS: true,
@@ -60,6 +62,7 @@ const configs = {
     VITE_API_BASE_URL: process.env.VITE_API_BASE_URL || "/api",
     VITE_API_URL: process.env.VITE_API_URL || "/api",
     VITE_AZURE_MAPS_SUBSCRIPTION_KEY: process.env.VITE_AZURE_MAPS_SUBSCRIPTION_KEY || "",
+    VITE_MAP_PROVIDER: "leaflet", // Use FREE Leaflet/OpenStreetMap
     VITE_ENVIRONMENT: "production",
     VITE_BUILD_VERSION: process.env.BUILD_BUILDID || new Date().toISOString(),
     ENABLE_AI_AGENTS: true,
