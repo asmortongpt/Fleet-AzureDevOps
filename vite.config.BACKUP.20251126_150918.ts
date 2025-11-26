@@ -132,7 +132,6 @@ export default defineConfig({
     alias: {
       '@': resolve(projectRoot, 'src'),
       // CRITICAL FIX: Force all React imports to resolve to the same instance
-      // This prevents "Cannot read properties of null (reading 'useEffect')" errors
       'react': resolve(projectRoot, 'node_modules/react'),
       'react-dom': resolve(projectRoot, 'node_modules/react-dom'),
       'react/jsx-runtime': resolve(projectRoot, 'node_modules/react/jsx-runtime'),
@@ -143,7 +142,7 @@ export default defineConfig({
     dedupe: ['react', 'react-dom', 'scheduler']
   },
   server: {
-    port: 5174,  // Changed port to force browser cache bypass
+    port: 5173,
     strictPort: false,
     host: true,
     proxy: {
@@ -162,16 +161,13 @@ export default defineConfig({
         '../node_modules'
       ]
     },
-    // Force cache bust on dev server
+    // Force cache bust
     headers: {
       'Cache-Control': 'no-cache, no-store, must-revalidate',
-      'Pragma': 'no-cache',
-      'Expires': '0'
     }
   },
-  // REMOVED: Custom cache directory - use default to avoid confusion
-  // The custom cacheDir was causing issues with stale pre-bundled deps
-  // cacheDir: 'node_modules/.vite-fleet',  // REMOVED
+  // Change cache directory to force fresh build
+  cacheDir: 'node_modules/.vite-fleet',
   build: {
     // ========================================================================
     // CODE SPLITTING & CHUNK OPTIMIZATION
@@ -200,8 +196,8 @@ export default defineConfig({
         // Separates large dependencies into their own chunks for better caching
         // ===================================================================
         manualChunks: (id) => {
-          // CRITICAL: Core React libraries MUST be in their own chunk, loaded FIRST
-          // This prevents "Cannot read properties of null (reading 'useEffect')" errors
+          // Core React libraries - CRITICAL: Keep ALL React packages together
+          // to prevent "Cannot read properties of undefined (reading 'createContext')" errors
           if (id.includes('node_modules/react') ||
               id.includes('node_modules/scheduler') ||
               id.includes('node_modules/react-dom')) {
@@ -238,7 +234,10 @@ export default defineConfig({
             return 'three-postprocessing';
           }
 
-          // UI component libraries (icons only - Radix moved to react-utils)
+          // UI component libraries
+          if (id.includes('node_modules/@radix-ui')) {
+            return 'ui-radix';
+          }
           if (id.includes('node_modules/@phosphor-icons') ||
               id.includes('node_modules/@heroicons') ||
               id.includes('node_modules/lucide-react')) {
@@ -271,11 +270,35 @@ export default defineConfig({
             return 'utils-lodash';
           }
 
-          // CRITICAL FIX: Put ALL node_modules in react-utils to ensure they load after React
-          // This prevents "Cannot read properties of undefined (reading 'useLayoutEffect')" errors
-          // caused by libraries using React hooks before React is available
-          if (id.includes('node_modules')) {
+          // React utility libraries (MUST load after React)
+          // These libraries use React.createContext or useLayoutEffect at module level
+          if (id.includes('node_modules/react-error-boundary') ||
+              id.includes('node_modules/react-hot-toast') ||
+              id.includes('node_modules/sonner') ||
+              id.includes('node_modules/next-themes') ||
+              id.includes('node_modules/react-day-picker') ||
+              id.includes('node_modules/react-dropzone') ||
+              id.includes('node_modules/react-window') ||
+              id.includes('node_modules/@tanstack/react-query') ||
+              id.includes('node_modules/swr') ||
+              id.includes('node_modules/use-sync-external-store') ||
+              id.includes('node_modules/embla-carousel-react') ||
+              id.includes('node_modules/vaul') ||
+              id.includes('node_modules/class-variance-authority') ||
+              id.includes('node_modules/clsx') ||
+              id.includes('node_modules/tailwind-merge') ||
+              id.includes('node_modules/@floating-ui') ||
+              id.includes('node_modules/framer-motion') ||
+              id.includes('node_modules/cmdk')) {
             return 'react-utils';
+          }
+
+          // Animation libraries (non-React dependent)
+          // Note: framer-motion moved to react-utils above due to useLayoutEffect usage
+
+          // All other node_modules (should NOT include React-dependent code)
+          if (id.includes('node_modules')) {
+            return 'vendor';
           }
         },
 
@@ -335,20 +358,16 @@ export default defineConfig({
 
   // ========================================================================
   // OPTIMIZATION - DEP PRE-BUNDLING
-  // CRITICAL FIX: This section is the key to solving React Query errors
   // ========================================================================
   optimizeDeps: {
-    // CRITICAL FIX: Include React AND React Query together
-    // This ensures React Query is pre-bundled WITH React, not before it
+    // CRITICAL FIX: Force React Query to be bundled WITH React
+    // This prevents "Cannot read properties of null (reading 'useEffect')" error
     include: [
       'react',
       'react-dom',
       'react/jsx-runtime',
       'react/jsx-dev-runtime',
       'react-router-dom',
-      // CHANGED: Include React Query instead of excluding it
-      // This forces Vite to pre-bundle it WITH React, ensuring React is available
-      '@tanstack/react-query',
       '@radix-ui/react-accordion',
       '@radix-ui/react-dialog',
       '@radix-ui/react-dropdown-menu',
@@ -370,25 +389,21 @@ export default defineConfig({
       '@react-three/fiber',
       '@react-three/drei',
       '@react-three/postprocessing',
-      // REMOVED: Don't exclude React Query anymore
-      // '@tanstack/react-query',  // REMOVED
-      // Keep devtools excluded (it's a dev-only tool)
+      // TEMP FIX: Exclude React Query from pre-bundling to avoid React resolution issues
+      '@tanstack/react-query',
       '@tanstack/react-query-devtools',
     ],
 
     // CRITICAL: Ensure React is always available as a singleton
+    // Force esbuild to treat React as external during dep optimization
     esbuildOptions: {
       define: {
         global: 'globalThis'
-      },
-      // ADDED: Preserve React as external during pre-bundling to prevent duplication
-      // This ensures all pre-bundled deps see the same React instance
-      plugins: []
+      }
     },
 
-    // CHANGED: Force optimization on first run to clear stale caches
-    // After running nuclear_cache_clear.py, this ensures a fresh build
-    force: true,
+    // Force optimization even if deps are in cache
+    force: false,
 
     // Disable dependency pre-bundling for problematic packages
     needsInterop: []
