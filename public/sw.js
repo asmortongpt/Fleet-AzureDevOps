@@ -9,7 +9,7 @@
  * - Static assets: Cache-first for offline support
  */
 
-const CACHE_VERSION = 'ctafleet-v1.0.12-preload-before-script';
+const CACHE_VERSION = 'ctafleet-v1.0.13-no-reload-loop';
 const CACHE_NAME = `ctafleet-cache-${CACHE_VERSION}`;
 const DATA_CACHE_NAME = `ctafleet-data-${CACHE_VERSION}`;
 
@@ -51,27 +51,34 @@ self.addEventListener('activate', (event) => {
     Promise.all([
       // Delete ALL old caches
       caches.keys().then((cacheNames) => {
+        const oldCaches = cacheNames.filter((cacheName) => {
+          // Delete any ctafleet cache that's not current version
+          return cacheName.startsWith('ctafleet-') &&
+                 cacheName !== CACHE_NAME &&
+                 cacheName !== DATA_CACHE_NAME;
+        });
+
+        // Only notify clients if there were old caches (meaning this is an update, not first install)
+        const isUpdate = oldCaches.length > 0;
+
         return Promise.all(
-          cacheNames
-            .filter((cacheName) => {
-              // Delete any ctafleet cache that's not current version
-              return cacheName.startsWith('ctafleet-') &&
-                     cacheName !== CACHE_NAME &&
-                     cacheName !== DATA_CACHE_NAME;
-            })
-            .map((cacheName) => {
-              console.log('[ServiceWorker] Deleting old cache:', cacheName);
-              return caches.delete(cacheName);
-            })
-        );
+          oldCaches.map((cacheName) => {
+            console.log('[ServiceWorker] Deleting old cache:', cacheName);
+            return caches.delete(cacheName);
+          })
+        ).then(() => isUpdate);
       }),
-      // Take control of all clients immediately (force reload of cached pages)
-      self.clients.claim().then(() => {
-        console.log('[ServiceWorker] Claimed all clients');
-        // Notify all clients to reload
+      // Take control of all clients immediately
+      self.clients.claim()
+    ]).then(([isUpdate]) => {
+      console.log('[ServiceWorker] Claimed all clients, isUpdate:', isUpdate);
+
+      // ONLY notify clients to reload if this is an actual update
+      // (not first install - prevents infinite reload loop)
+      if (isUpdate) {
         return self.clients.matchAll().then((clients) => {
           clients.forEach((client) => {
-            console.log('[ServiceWorker] Notifying client to reload:', client.url);
+            console.log('[ServiceWorker] Notifying client of update:', client.url);
             client.postMessage({
               type: 'SW_UPDATED',
               version: CACHE_VERSION,
@@ -79,8 +86,10 @@ self.addEventListener('activate', (event) => {
             });
           });
         });
-      })
-    ])
+      } else {
+        console.log('[ServiceWorker] First install - no reload notification needed');
+      }
+    })
   );
 });
 
