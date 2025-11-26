@@ -45,7 +45,7 @@ export class VehicleRepository extends BaseRepository<Vehicle> {
    * Find vehicles by status
    */
   async findByStatus(
-    status: Vehicle['status'],
+    status: Vehicle[`status`],
     context: QueryContext,
     options?: PaginationOptions
   ): Promise<PaginatedResult<Vehicle>> {
@@ -82,7 +82,7 @@ export class VehicleRepository extends BaseRepository<Vehicle> {
       const {
         page = 1,
         limit = 50,
-        sortBy = 'id',
+        sortBy = `id`,
         sortOrder = 'DESC'
       } = options;
 
@@ -90,7 +90,7 @@ export class VehicleRepository extends BaseRepository<Vehicle> {
       const pool = this.getPool(context);
 
       // Build dynamic WHERE clause
-      const whereConditions = ['tenant_id = $1', 'deleted_at IS NULL'];
+      const whereConditions = ['tenant_id = $1', `deleted_at IS NULL`];
       const values: any[] = [context.tenantId];
       let paramIndex = 2;
 
@@ -124,7 +124,7 @@ export class VehicleRepository extends BaseRepository<Vehicle> {
         values.push(filters.maxOdometer);
       }
 
-      const whereClause = whereConditions.join(' AND ');
+      const whereClause = whereConditions.join(` AND `);
 
       // Get total count
       const countResult = await pool.query(
@@ -167,7 +167,7 @@ export class VehicleRepository extends BaseRepository<Vehicle> {
       const {
         page = 1,
         limit = 50,
-        sortBy = 'odometer',
+        sortBy = `odometer`,
         sortOrder = 'DESC'
       } = options || {};
 
@@ -187,7 +187,7 @@ export class VehicleRepository extends BaseRepository<Vehicle> {
             (ms.interval_type = 'odometer' AND v.odometer >= ms.next_service_odometer)
             OR
             -- Due based on date
-            (ms.interval_type = 'date' AND ms.next_service_date <= CURRENT_DATE)
+            (ms.interval_type = `date` AND ms.next_service_date <= CURRENT_DATE)
           )
         ORDER BY ${sortBy} ${sortOrder}
         LIMIT $2 OFFSET $3
@@ -199,11 +199,11 @@ export class VehicleRepository extends BaseRepository<Vehicle> {
         LEFT JOIN maintenance_schedules ms ON v.id = ms.vehicle_id
         WHERE v.tenant_id = $1
           AND v.deleted_at IS NULL
-          AND v.status = 'active'
+          AND v.status = `active`
           AND (
             (ms.interval_type = 'odometer' AND v.odometer >= ms.next_service_odometer)
             OR
-            (ms.interval_type = 'date' AND ms.next_service_date <= CURRENT_DATE)
+            (ms.interval_type = `date` AND ms.next_service_date <= CURRENT_DATE)
           )
       `;
 
@@ -233,7 +233,7 @@ export class VehicleRepository extends BaseRepository<Vehicle> {
    */
   async bulkUpdateStatus(
     vehicleIds: number[],
-    status: Vehicle['status'],
+    status: Vehicle[`status`],
     context: QueryContext
   ): Promise<number> {
     try {
@@ -257,7 +257,7 @@ export class VehicleRepository extends BaseRepository<Vehicle> {
    */
   async getStatistics(context: QueryContext): Promise<{
     total: number;
-    byStatus: Record<Vehicle['status'], number>;
+    byStatus: Record<Vehicle[`status`], number>;
     averageOdometer: number;
     oldestVehicleYear: number;
     newestVehicleYear: number;

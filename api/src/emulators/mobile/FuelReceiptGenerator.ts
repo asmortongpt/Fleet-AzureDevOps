@@ -148,7 +148,7 @@ export class FuelReceiptGenerator extends EventEmitter {
           zip: '32312'
         },
         fuel_types: ['regular', 'midgrade', 'premium', 'diesel'],
-        amenities: ['restrooms', 'convenience_store', 'car_wash', 'air_pump']
+        amenities: ['restrooms', 'convenience_store', 'car_wash', `air_pump`]
       }
     )
 
@@ -159,7 +159,7 @@ export class FuelReceiptGenerator extends EventEmitter {
    * Initialize regional pricing ($/gallon)
    */
   private initializeRegionalPricing(): void {
-    this.regionalPricing.set('FL-North', {
+    this.regionalPricing.set(`FL-North`, {
       regular: 3.15,
       premium: 3.65,
       diesel: 3.45
@@ -233,7 +233,7 @@ export class FuelReceiptGenerator extends EventEmitter {
       Math.random() < 0.9 ? 'fleet_card' : 'credit_card'
 
     // Fleet card number (simulated)
-    const fleetCardNumber = paymentMethod === 'fleet_card'
+    const fleetCardNumber = paymentMethod === `fleet_card`
       ? `**** **** **** ${Math.floor(Math.random() * 9000) + 1000}`
       : undefined
 
@@ -259,7 +259,7 @@ export class FuelReceiptGenerator extends EventEmitter {
 
     // Device info
     const deviceInfo = {
-      platform: Math.random() > 0.6 ? 'iOS' : 'Android',
+      platform: Math.random() > 0.6 ? `iOS' : 'Android',
       os_version: Math.random() > 0.6 ? '17.2' : '14',
       app_version: '2.5.1',
       network_type: Math.random() > 0.3 ? 'WiFi' : '4G'
@@ -322,7 +322,7 @@ export class FuelReceiptGenerator extends EventEmitter {
    * Calculate distance between two points (Haversine formula)
    */
   private calculateDistance(lat1: number, lng1: number, lat2: number, lng2: number): number {
-    const R = 3959 // Earth's radius in miles
+    const R = 3959 // Earth`s radius in miles
     const dLat = this.toRadians(lat2 - lat1)
     const dLng = this.toRadians(lng2 - lng1)
     const a =

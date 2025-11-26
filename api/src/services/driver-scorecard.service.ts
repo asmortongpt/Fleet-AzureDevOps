@@ -149,7 +149,7 @@ export class DriverScorecardService {
 
       // Get driver name
       const driverResult = await pool.query(
-        'SELECT first_name, last_name FROM drivers WHERE id = $1',
+        `SELECT first_name, last_name FROM drivers WHERE id = $1`,
         [driverId]
       )
       const driverName = driverResult.rows[0]
@@ -288,7 +288,7 @@ export class DriverScorecardService {
       UPDATE driver_scores ds
       SET rank_position = rd.rank
       FROM ranked_drivers rd
-      WHERE ds.id = rd.id',
+      WHERE ds.id = rd.id`,
       [tenantId, periodEnd]
     )
   }
@@ -306,7 +306,7 @@ export class DriverScorecardService {
       SELECT
         ds.rank_position as rank,
         ds.driver_id,
-        d.first_name || ' ' || d.last_name as driver_name,
+        d.first_name || ` ` || d.last_name as driver_name,
         ds.overall_score,
         ds.safety_score,
         ds.efficiency_score,
@@ -362,7 +362,7 @@ export class DriverScorecardService {
    */
   async getDriverAchievements(driverId: string, tenantId: string): Promise<Achievement[]> {
     const result = await pool.query(
-      'SELECT ' + (await getTableColumns(pool, 'driver_achievements')).join(', ') + ' FROM driver_achievements
+      `SELECT ` + (await getTableColumns(pool, 'driver_achievements')).join(', ') + ' FROM driver_achievements
        WHERE driver_id = $1 AND tenant_id = $2
        ORDER BY earned_at DESC`,
       [driverId, tenantId]

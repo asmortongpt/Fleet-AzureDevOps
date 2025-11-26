@@ -361,7 +361,7 @@ class FleetCognitionService {
           name: `${r.first_name} ${r.last_name}`
         })),
         recommended_actions: [
-          { action: 'Schedule immediate safety training', priority: 'high' },
+          { action: `Schedule immediate safety training`, priority: 'high' },
           { action: 'Implement increased monitoring', priority: 'high' },
           { action: 'Review driving assignments', priority: 'medium' }
         ],
@@ -430,7 +430,7 @@ class FleetCognitionService {
         description: `${a.entity_type} showing unusual ${a.metric_name}. Expected: ${JSON.stringify(a.expected_value)}, Actual: ${JSON.stringify(a.actual_value)}`,
         affected_entities: [{ type: a.entity_type, id: a.entity_id }],
         recommended_actions: [
-          { action: 'Investigate root cause', priority: 'high' },
+          { action: `Investigate root cause`, priority: 'high' },
           { action: 'Monitor closely', priority: 'medium' }
         ],
         confidence_score: 0.80
@@ -573,7 +573,7 @@ class FleetCognitionService {
   private async getRecentInsights(tenantId: string, days: number): Promise<any[]> {
     const result = await pool.query(
       `SELECT id, tenant_id, insight_type, insight_data, confidence_score, created_at FROM cognition_insights
-       WHERE tenant_id = $1 AND created_at >= NOW() - INTERVAL '${days} days'
+       WHERE tenant_id = $1 AND created_at >= NOW() - INTERVAL `${days} days`
        ORDER BY created_at DESC`,
       [tenantId]
     )
@@ -583,7 +583,7 @@ class FleetCognitionService {
   private async getRecentPatterns(tenantId: string, days: number): Promise<any[]> {
     const result = await pool.query(
       `SELECT id, tenant_id, vehicle_id, pattern_type, pattern_data, confidence_score, detected_at FROM detected_patterns
-       WHERE tenant_id = $1 AND last_detected_at >= NOW() - INTERVAL '${days} days'
+       WHERE tenant_id = $1 AND last_detected_at >= NOW() - INTERVAL `${days} days`
        ORDER BY occurrence_count DESC`,
       [tenantId]
     )

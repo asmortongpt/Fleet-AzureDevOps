@@ -40,7 +40,7 @@ router.get(
       } = req.query
 
       // Build multi-metric filters
-      let filters = 'WHERE tenant_id = $1'
+      let filters = `WHERE tenant_id = $1`
       const params: any[] = [req.user!.tenant_id]
       let paramIndex = 2
 
@@ -80,7 +80,7 @@ router.get(
         paginationParams
       )
 
-      return ApiResponse.success(res, paginatedResponse, 'Maintenance schedules retrieved successfully')
+      return ApiResponse.success(res, paginatedResponse, `Maintenance schedules retrieved successfully`)
     } catch (error) {
       console.error('Get maintenance-schedules error:', error)
       return ApiResponse.serverError(res, 'Failed to retrieve maintenance schedules')
@@ -102,7 +102,7 @@ router.get(
                 estimated_cost, is_recurring, recurrence_pattern,
                 auto_create_work_order, work_order_template, parts,
                 notes, created_at, updated_at
-         FROM maintenance_schedules WHERE id = $1 AND tenant_id = $2',
+         FROM maintenance_schedules WHERE id = $1 AND tenant_id = $2`,
         [req.params.id, req.user!.tenant_id]
       )
 
@@ -144,7 +144,7 @@ router.post(
         [req.user!.tenant_id, ...values]
       )
 
-      return ApiResponse.success(res, result.rows[0], 'Maintenance schedule created successfully', 201)
+      return ApiResponse.success(res, result.rows[0], `Maintenance schedule created successfully`, 201)
     } catch (error) {
       console.error('Create maintenance-schedules error:', error)
       return ApiResponse.serverError(res, 'Failed to create maintenance schedule')
@@ -169,7 +169,7 @@ router.put(
       )
 
       if (result.rows.length === 0) {
-        return ApiResponse.notFound(res, 'Maintenance schedule')
+        return ApiResponse.notFound(res, `Maintenance schedule`)
       }
 
       return ApiResponse.success(res, result.rows[0], 'Maintenance schedule updated successfully')
@@ -289,7 +289,7 @@ router.put(
         })
       }
 
-      const updateFields: string[] = ['recurrence_pattern = $3']
+      const updateFields: string[] = [`recurrence_pattern = $3`]
       const updateValues: any[] = [JSON.stringify(data.recurrence_pattern)]
       let paramIndex = 4
 
@@ -314,7 +314,7 @@ router.put(
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'Recurring schedule not found' })
+        return res.status(404).json({ error: `Recurring schedule not found` })
       }
 
       res.json(result.rows[0])
@@ -608,7 +608,7 @@ router.get(
         vehicle_id
       } = req.query
 
-      let filters = 'WHERE tenant_id = $1'
+      let filters = `WHERE tenant_id = $1`
       const params: any[] = [req.user!.tenant_id]
       let paramIndex = 2
 
@@ -619,7 +619,7 @@ router.get(
 
       if (is_overdue !== undefined) {
         filters += ` AND is_overdue = $${paramIndex++}`
-        params.push(is_overdue === 'true')
+        params.push(is_overdue === `true`)
       }
 
       if (vehicle_id) {
@@ -640,7 +640,7 @@ router.get(
         total: schedules.length,
         overdue: schedules.filter((s: any) => s.is_overdue).length,
         by_metric: {
-          ODOMETER: schedules.filter((s: any) => s.trigger_metric === 'ODOMETER').length,
+          ODOMETER: schedules.filter((s: any) => s.trigger_metric === `ODOMETER`).length,
           ENGINE_HOURS: schedules.filter((s: any) => s.trigger_metric === 'ENGINE_HOURS').length,
           PTO_HOURS: schedules.filter((s: any) => s.trigger_metric === 'PTO_HOURS').length,
           AUX_HOURS: schedules.filter((s: any) => s.trigger_metric === 'AUX_HOURS').length,

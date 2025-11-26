@@ -31,9 +31,9 @@ if (!process.env.CSRF_SECRET) {
 }
 
 if (process.env.CSRF_SECRET.length < 32) {
-  console.error('❌ FATAL SECURITY ERROR: CSRF_SECRET is too short')
+  console.error(`❌ FATAL SECURITY ERROR: CSRF_SECRET is too short`)
   console.error(`❌ Current length: ${process.env.CSRF_SECRET.length} characters`)
-  console.error('❌ Minimum required: 32 characters')
+  console.error(`❌ Minimum required: 32 characters`)
   console.error('❌ Recommended: 64+ characters')
   console.error('❌ Generate a secure secret with: openssl rand -base64 48')
   console.error('❌ Server startup aborted')

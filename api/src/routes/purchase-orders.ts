@@ -89,12 +89,12 @@ router.post(
         validatedData,
         ['tenant_id', 'status', 'created_by'],
         1,
-        'purchase_orders'
+        `purchase_orders`
       )
 
       const result = await pool.query(
         `INSERT INTO purchase_orders (${columnNames}) VALUES (${placeholders}) RETURNING *`,
-        [req.user!.tenant_id, 'draft', req.user!.id, ...values]
+        [req.user!.tenant_id, `draft`, req.user!.id, ...values]
       )
 
       res.status(201).json(result.rows[0])

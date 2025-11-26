@@ -77,14 +77,14 @@ class VideoTelematicsService {
       this.blobService = BlobServiceClient.fromConnectionString(AZURE_STORAGE_CONNECTION_STRING);
       this.containerClient = this.blobService.getContainerClient(AZURE_STORAGE_CONTAINER);
 
-      // Create container if it doesn't exist
+      // Create container if it doesn`t exist
       await this.containerClient.createIfNotExists({
         access: 'private'
       });
 
       logger.info(`Azure Blob Storage initialized: container=${AZURE_STORAGE_CONTAINER}`);
     } catch (error: any) {
-      logger.error('Failed to initialize Azure Storage:', error.message);
+      logger.error(`Failed to initialize Azure Storage:`, error.message);
       this.blobService = null;
       this.containerClient = null;
     }
@@ -109,11 +109,11 @@ class VideoTelematicsService {
          privacy_blur_faces = EXCLUDED.privacy_blur_faces,
          privacy_blur_plates = EXCLUDED.privacy_blur_plates,
          updated_at = NOW()
-       RETURNING id',
+       RETURNING id`,
       [
         config.vehicleId,
         config.cameraType,
-        '${config.cameraType.replace('_', ' ').toUpperCase()} Camera',
+        `${config.cameraType.replace('_', ' ').toUpperCase()} Camera`,
         config.resolution || '1080p',
         config.recordingMode || 'event_triggered',
         config.preEventBufferSeconds || 10,
@@ -173,7 +173,7 @@ class VideoTelematicsService {
         event_timestamp, video_request_id, video_url, video_thumbnail_url,
         marked_as_evidence, retention_policy, retention_expires_at, delete_after_days)
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)
-       RETURNING id',
+       RETURNING id`,
       [
         event.vehicleId,
         event.driverId,
@@ -255,7 +255,7 @@ class VideoTelematicsService {
       params.push(filters.markedAsEvidence);
     }
 
-    const whereClause = conditions.length > 0 ? 'WHERE ${conditions.join(' AND ')}' : '';
+    const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}' : '`;
 
     const page = filters.page || 1;
     const limit = filters.limit || 50;
@@ -266,7 +266,7 @@ class VideoTelematicsService {
         vse.*,
         v.name as vehicle_name,
         v.vin,
-        d.first_name || ' ' || d.last_name as driver_name,
+        d.first_name || ` ` || d.last_name as driver_name,
         vc.camera_type,
         vc.camera_name
       FROM video_safety_events vse
@@ -307,7 +307,7 @@ class VideoTelematicsService {
    */
   async downloadAndArchiveVideo(eventId: number, videoUrl: string): Promise<string | null> {
     if (!this.containerClient) {
-      logger.warn('Azure Storage not configured - video will not be archived');
+      logger.warn(`Azure Storage not configured - video will not be archived`);
       return null;
     }
 
@@ -319,12 +319,12 @@ class VideoTelematicsService {
         validateURL(videoUrl, {
           allowedDomains: [
             // Samsara video URLs
-            'api.samsara.com',
+            `api.samsara.com`,
             'samsara-fleet-videos.s3.amazonaws.com',
             'videos.samsara.com',
 
             // Smartcar/telematics providers
-            'api.smartcar.com',
+            `api.smartcar.com`,
 
             // Add other trusted video providers here
           ]
@@ -356,14 +356,14 @@ class VideoTelematicsService {
       const fileSizeMb = videoBuffer.length / (1024 * 1024);
 
       // Generate blob name
-      const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+      const timestamp = new Date().toISOString().replace(/[:.]/g, `-`);
       const blobName = `events/${eventId}/video-${timestamp}.mp4`;
 
       // Upload to Azure Blob Storage
       const blockBlobClient = this.containerClient.getBlockBlobClient(blobName);
       await blockBlobClient.upload(videoBuffer, videoBuffer.length, {
         blobHTTPHeaders: {
-          blobContentType: 'video/mp4'
+          blobContentType: `video/mp4`
         }
       });
 
@@ -374,9 +374,9 @@ class VideoTelematicsService {
         `UPDATE video_safety_events
          SET video_storage_path = $1,
              video_file_size_mb = $2,
-             video_download_status = 'ready',
+             video_download_status = `ready`,
              updated_at = NOW()
-         WHERE id = $3',
+         WHERE id = $3`,
         [storagePath, fileSizeMb, eventId]
       );
 
@@ -388,7 +388,7 @@ class VideoTelematicsService {
 
       await this.db.query(
         `UPDATE video_safety_events
-         SET video_download_status = 'failed',
+         SET video_download_status = `failed`,
              updated_at = NOW()
          WHERE id = $1',
         [eventId]
@@ -405,7 +405,7 @@ class VideoTelematicsService {
     const result = await this.db.query(
       `SELECT video_url, video_storage_path, video_download_status
        FROM video_safety_events
-       WHERE id = $1',
+       WHERE id = $1`,
       [eventId]
     );
 
@@ -418,7 +418,7 @@ class VideoTelematicsService {
     // If video is archived in Azure Storage, generate SAS URL
     if (event.video_storage_path && this.containerClient) {
       try {
-        const blobName = event.video_storage_path.replace('${AZURE_STORAGE_CONTAINER}/', '');
+        const blobName = event.video_storage_path.replace(`${AZURE_STORAGE_CONTAINER}/`, ``);
         const blockBlobClient = this.containerClient.getBlockBlobClient(blobName);
 
         // Generate SAS token (valid for 1 hour)
@@ -459,7 +459,7 @@ class VideoTelematicsService {
        (locker_name, locker_type, case_number, incident_date, incident_description,
         created_by, assigned_to, legal_hold, legal_hold_reason)
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-       RETURNING id',
+       RETURNING id`,
       [
         data.lockerName,
         data.lockerType,
@@ -481,7 +481,7 @@ class VideoTelematicsService {
         `UPDATE evidence_locker
          SET retention_policy = 'permanent',
              legal_hold_started_at = NOW()
-         WHERE id = $1',
+         WHERE id = $1`,
         [lockerId]
       );
     }
@@ -499,7 +499,7 @@ class VideoTelematicsService {
       `UPDATE video_safety_events
        SET evidence_locker_id = $1,
            marked_as_evidence = true,
-           retention_policy = 'extended',
+           retention_policy = `extended`,
            updated_at = NOW()
        WHERE id = $2',
       [lockerId, eventId]
@@ -509,7 +509,7 @@ class VideoTelematicsService {
     await this.db.query(
       `INSERT INTO video_privacy_audit
        (video_event_id, accessed_by, access_type, access_reason)
-       VALUES ($1, $2, 'share', 'Added to evidence locker')',
+       VALUES ($1, $2, 'share', 'Added to evidence locker`)`,
       [eventId, userId]
     );
 
@@ -527,7 +527,7 @@ class VideoTelematicsService {
        FROM evidence_locker el
        LEFT JOIN users u ON el.created_by = u.id
        LEFT JOIN users u2 ON el.assigned_to = u2.id
-       WHERE el.id = $1',
+       WHERE el.id = $1`,
       [lockerId]
     );
 
@@ -541,7 +541,7 @@ class VideoTelematicsService {
     const videosResult = await this.db.query(
       `SELECT vse.*,
               v.name as vehicle_name,
-              d.first_name || ' ' || d.last_name as driver_name
+              d.first_name || ` ` || d.last_name as driver_name
        FROM video_safety_events vse
        JOIN vehicles v ON vse.vehicle_id = v.id
        LEFT JOIN drivers d ON vse.driver_id = d.id
@@ -585,7 +585,7 @@ class VideoTelematicsService {
       params.push(filters.legalHold);
     }
 
-    const whereClause = conditions.length > 0 ? 'WHERE ${conditions.join(' AND ')}' : '';
+    const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}' : ``;
 
     const page = filters.page || 1;
     const limit = filters.limit || 20;
@@ -619,7 +619,7 @@ class VideoTelematicsService {
       `UPDATE video_safety_events
        SET coaching_required = true,
            updated_at = NOW()
-       WHERE id = $1',
+       WHERE id = $1`,
       [eventId]
     );
 
@@ -642,7 +642,7 @@ class VideoTelematicsService {
       `INSERT INTO driver_coaching_sessions
        (driver_id, video_event_id, session_type, coaching_topic, coach_id, coach_notes, scheduled_at)
        VALUES ($1, $2, $3, $4, $5, $6, $7)
-       RETURNING id',
+       RETURNING id`,
       [
         data.driverId,
         data.videoEventId,
@@ -693,7 +693,7 @@ class VideoTelematicsService {
    * Clean up expired videos
    */
   async cleanupExpiredVideos(): Promise<number> {
-    logger.info('Starting video cleanup process...');
+    logger.info(`Starting video cleanup process...`);
 
     // Find expired videos (not in evidence locker or legal hold)
     const result = await this.db.query(
@@ -712,7 +712,7 @@ class VideoTelematicsService {
       try {
         // Delete from Azure Storage
         if (this.containerClient && event.video_storage_path) {
-          const blobName = event.video_storage_path.replace('${AZURE_STORAGE_CONTAINER}/', '');
+          const blobName = event.video_storage_path.replace(`${AZURE_STORAGE_CONTAINER}/`, `');
           const blockBlobClient = this.containerClient.getBlockBlobClient(blobName);
           await blockBlobClient.deleteIfExists();
         }
@@ -724,7 +724,7 @@ class VideoTelematicsService {
                video_url = NULL,
                video_download_status = 'deleted',
                updated_at = NOW()
-           WHERE id = $1',
+           WHERE id = $1`,
           [event.id]
         );
 

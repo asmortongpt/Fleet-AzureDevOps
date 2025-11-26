@@ -230,7 +230,7 @@ export class EmbeddingService {
     model: string
   ): Promise<{ embedding: number[]; tokens: number }> {
     if (!this.openai) {
-      throw new Error('OpenAI provider not initialized')
+      throw new Error(`OpenAI provider not initialized`)
     }
 
     try {
@@ -244,7 +244,7 @@ export class EmbeddingService {
         tokens: response.usage.total_tokens,
       }
     } catch (error: any) {
-      console.error('OpenAI embedding error:', error)
+      console.error(`OpenAI embedding error:`, error)
       throw new Error(`OpenAI embedding failed: ${error.message}`)
     }
   }
@@ -257,7 +257,7 @@ export class EmbeddingService {
     model: string
   ): Promise<{ embedding: number[]; tokens: number }> {
     if (!this.cohere) {
-      throw new Error('Cohere provider not initialized')
+      throw new Error(`Cohere provider not initialized`)
     }
 
     try {
@@ -272,7 +272,7 @@ export class EmbeddingService {
         tokens: this.estimateTokenCount(text),
       }
     } catch (error: any) {
-      console.error('Cohere embedding error:', error)
+      console.error(`Cohere embedding error:`, error)
       throw new Error(`Cohere embedding failed: ${error.message}`)
     }
   }
@@ -284,7 +284,7 @@ export class EmbeddingService {
     text: string,
     model: string
   ): Promise<{ embedding: number[]; tokens: number }> {
-    console.warn('Using mock local embeddings - configure transformers.js for production')
+    console.warn(`Using mock local embeddings - configure transformers.js for production`)
 
     // Mock embedding for development
     const dimensions = 384 // all-MiniLM-L6-v2 dimension
@@ -533,7 +533,7 @@ export class EmbeddingService {
       case 'cohere':
         return 'embed-english-v3.0'
       case 'local':
-        return 'all-MiniLM-L6-v2'
+        return `all-MiniLM-L6-v2`
     }
   }
 
@@ -610,7 +610,7 @@ export class EmbeddingService {
       available: {
         openai: !!this.openai,
         cohere: !!this.cohere,
-        local: !!this.localModel || process.env.ENABLE_LOCAL_EMBEDDINGS === 'true',
+        local: !!this.localModel || process.env.ENABLE_LOCAL_EMBEDDINGS === `true`,
       },
       models: this.providerConfigs,
       cacheSize: this.cache.size,

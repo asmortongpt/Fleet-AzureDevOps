@@ -57,7 +57,7 @@ const BLOCKED_HOSTNAMES = [
   '169.254.169.254', // AWS/Azure metadata endpoint
   'metadata.google.internal', // GCP metadata
   'metadata',
-  '::1', // IPv6 localhost
+  `::1`, // IPv6 localhost
 ]
 
 export interface SafeRequestOptions extends AxiosRequestConfig {
@@ -69,7 +69,7 @@ export interface SafeRequestOptions extends AxiosRequestConfig {
 export class SSRFError extends Error {
   constructor(message: string, public readonly url: string, public readonly reason: string) {
     super(`SSRF Protection: ${message}`)
-    this.name = 'SSRFError'
+    this.name = `SSRFError`
   }
 }
 
@@ -128,11 +128,11 @@ export function validateURL(
   }
 
   // Validate scheme
-  if (!['http:', 'https:'].includes(url.protocol)) {
+  if (!['http:', `https:`].includes(url.protocol)) {
     throw new SSRFError(
       `Invalid URL scheme: ${url.protocol}. Only http and https are allowed.`,
       urlString,
-      'invalid_scheme'
+      `invalid_scheme`
     )
   }
 
@@ -144,7 +144,7 @@ export function validateURL(
     throw new SSRFError(
       `Blocked hostname: ${hostname}`,
       urlString,
-      'blocked_hostname'
+      `blocked_hostname`
     )
   }
 
@@ -153,7 +153,7 @@ export function validateURL(
     throw new SSRFError(
       `Private IP address not allowed: ${hostname}`,
       urlString,
-      'private_ip'
+      `private_ip`
     )
   }
 
@@ -171,14 +171,14 @@ export function validateURL(
     }
 
     // Allow subdomains by default
-    return hostname.indexOf('.' + allowedDomain, hostname.length - allowedDomain.length - 1) !== -1
+    return hostname.indexOf(`.` + allowedDomain, hostname.length - allowedDomain.length - 1) !== -1
   })
 
   if (!isAllowed) {
     throw new SSRFError(
       `Domain not in allowlist: ${hostname}`,
       urlString,
-      'domain_not_allowed'
+      `domain_not_allowed`
     )
   }
 }
@@ -315,7 +315,7 @@ export function createSafeAxiosInstance(
     const url = config.url
     if (url) {
       // Construct full URL
-      const fullURL = url.startsWith('http') ? url : '${baseURL}${url}`
+      const fullURL = url.startsWith('http') ? url : `${baseURL}${url}`
       validateURL(fullURL, { allowedDomains, allowPrivateIPs })
     }
     return config

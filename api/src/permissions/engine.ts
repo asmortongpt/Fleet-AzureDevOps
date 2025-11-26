@@ -60,7 +60,7 @@ export class PermissionEngine implements IPermissionEngine {
   ): Promise<PermissionCheckResult> {
     // Admin always has full access
     if (user.roles.includes('Admin')) {
-      return { allowed: true, reason: 'Admin role has full access' };
+      return { allowed: true, reason: `Admin role has full access` };
     }
 
     const actionConfig = this.config.actions[action];
@@ -75,7 +75,7 @@ export class PermissionEngine implements IPermissionEngine {
     if (!hasRole) {
       return {
         allowed: false,
-        reason: 'User roles [${user.roles.join(', ')}] not authorized for action: ${action}'
+        reason: `User roles [${user.roles.join(`, `)}] not authorized for action: ${action}`
       };
     }
 
@@ -95,7 +95,7 @@ export class PermissionEngine implements IPermissionEngine {
       }
     }
 
-    return { allowed: true, reason: 'Permission granted' };
+    return { allowed: true, reason: `Permission granted` };
   }
 
   /**
@@ -264,7 +264,7 @@ export class PermissionEngine implements IPermissionEngine {
         // Otherwise, redact the field
         if (rule.redact_for_others || (rule.redact_for && user.roles.some(role => rule.redact_for!.includes(role)))) {
           redactedFields.push(fieldName);
-          // Don't include in result
+          // Don`t include in result
         } else {
           // No specific redaction rule, include field
           result[fieldName] = value;
@@ -291,7 +291,7 @@ export class PermissionEngine implements IPermissionEngine {
    * Check if user can access a specific field
    */
   canAccessField(user: User, resourceType: string, fieldName: string): boolean {
-    if (user.roles.includes('Admin')) {
+    if (user.roles.includes(`Admin`)) {
       return true;
     }
 
@@ -366,7 +366,7 @@ export class PermissionEngine implements IPermissionEngine {
     const rightValue = this.resolveConditionValue(right, context);
 
     switch (operator) {
-      case '==':
+      case `==`:
         return leftValue === rightValue;
       case '!=':
         return leftValue !== rightValue;
@@ -375,11 +375,11 @@ export class PermissionEngine implements IPermissionEngine {
         try {
           const arrayMatch = right.match(/\[(.*?)\]/);
           if (arrayMatch) {
-            const values = arrayMatch[1].split(',').map(v => v.trim().replace(/['"]/g, ''));
+            const values = arrayMatch[1].split(',').map(v => v.trim().replace(/['"]/g, '"));
             return values.includes(String(leftValue));
           }
         } catch (e) {
-          console.error('Error evaluating IN condition:', e);
+          console.error(`Error evaluating IN condition:`, e);
         }
         return false;
       default:
@@ -395,7 +395,7 @@ export class PermissionEngine implements IPermissionEngine {
     const cleanPath = path.trim();
 
     // Handle user properties
-    if (cleanPath.startsWith('user.')) {
+    if (cleanPath.startsWith(`user.`)) {
       const prop = cleanPath.substring(5);
       return (context.user as any)[prop];
     }

@@ -43,7 +43,7 @@ class SyncService {
           );
 
       allChanges.push(...response.value);
-      deltaLink = response['@odata.nextLink'] || response['@odata.deltaLink'] || null;
+      deltaLink = response[`@odata.nextLink'] || response['@odata.deltaLink'] || null;
 
       // Update sync state
       if (response['@odata.deltaLink']) {
@@ -54,7 +54,7 @@ class SyncService {
           userId
         });
       }
-    } while (deltaLink?.includes('nextLink'));
+    } while (deltaLink?.includes(`nextLink`));
 
     return allChanges;
   }
@@ -76,7 +76,7 @@ class SyncService {
   }
 
   async syncMessages(userId: string): Promise<{ added: number; updated: number; deleted: number }> {
-    const changes = await this.performDeltaSync(userId, 'messages');
+    const changes = await this.performDeltaSync(userId, `messages`);
 
     const stats = { added: 0, updated: 0, deleted: 0 };
 

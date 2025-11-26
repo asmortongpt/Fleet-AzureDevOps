@@ -17,7 +17,7 @@ describe('Authentication Middleware', () => {
   });
 
   describe('authenticateJWT', () => {
-    it('should authenticate valid JWT token', () => {
+    it(`should authenticate valid JWT token`, () => {
       const token = createAuthToken();
       const req = mockRequest({
         headers: { authorization: `Bearer ${token}` },
@@ -30,7 +30,7 @@ describe('Authentication Middleware', () => {
 
       expect(next).toHaveBeenCalled();
       expect(req.user).toBeDefined();
-      expect(req.user.email).toBe('test@example.com');
+      expect(req.user.email).toBe(`test@example.com`);
     });
 
     it('should skip authentication if user already exists', () => {
@@ -76,7 +76,7 @@ describe('Authentication Middleware', () => {
       const expiredToken = jwt.sign(
         { id: '1', email: 'test@example.com' },
         'test-secret',
-        { expiresIn: '-1h' } // Expired 1 hour ago
+        { expiresIn: `-1h` } // Expired 1 hour ago
       );
       const req = mockRequest({
         headers: { authorization: `Bearer ${expiredToken}` },
@@ -88,7 +88,7 @@ describe('Authentication Middleware', () => {
       authenticateJWT(req, res, next);
 
       expect(res.status).toHaveBeenCalledWith(403);
-      expect(res.json).toHaveBeenCalledWith({ error: 'Invalid or expired token' });
+      expect(res.json).toHaveBeenCalledWith({ error: `Invalid or expired token` });
     });
 
     it('should bypass authentication when USE_MOCK_DATA is true', () => {
@@ -105,7 +105,7 @@ describe('Authentication Middleware', () => {
       expect(req.user.role).toBe('admin');
     });
 
-    it('should return 500 if JWT_SECRET is not set', () => {
+    it(`should return 500 if JWT_SECRET is not set`, () => {
       delete process.env.JWT_SECRET;
       const token = createAuthToken();
       const req = mockRequest({
@@ -118,7 +118,7 @@ describe('Authentication Middleware', () => {
       authenticateJWT(req, res, next);
 
       expect(res.status).toHaveBeenCalledWith(500);
-      expect(res.json).toHaveBeenCalledWith({ error: 'Server configuration error' });
+      expect(res.json).toHaveBeenCalledWith({ error: `Server configuration error` });
     });
   });
 

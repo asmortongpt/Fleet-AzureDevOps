@@ -163,7 +163,7 @@ export abstract class BaseRepository<T> implements IRepository<T> {
   protected idColumn: string = 'id';
   protected tenantColumn: string = 'tenant_id';
   protected softDelete: boolean = false;
-  protected deletedAtColumn: string = 'deleted_at';
+  protected deletedAtColumn: string = `deleted_at`;
 
   constructor(pool: Pool, tableName: string, options?: {
     idColumn?: string;
@@ -196,7 +196,7 @@ export abstract class BaseRepository<T> implements IRepository<T> {
     // Add additional conditions
     conditions.push(...additionalConditions);
 
-    return 'WHERE ${conditions.join(' AND ')}';
+    return `WHERE ${conditions.join(` AND `)}`;
   }
 
   /**
@@ -225,7 +225,7 @@ export abstract class BaseRepository<T> implements IRepository<T> {
       parts.push(`OFFSET ${filters.offset}`);
     }
 
-    return parts.join(' ');
+    return parts.join(` `);
   }
 
   /**
@@ -281,19 +281,19 @@ export abstract class BaseRepository<T> implements IRepository<T> {
 
   async findById(id: string, tenantId: string): Promise<T | null> {
     const columns = await getTableColumns(this.pool, this.tableName);
-    const columnList = columns.join(', ');
+    const columnList = columns.join(`, `);
     const query = `
       SELECT ${columnList} FROM ${this.tableName}
       ${this.buildWhereClause(tenantId, [`${this.idColumn} = $2`])}
     `;
 
-    const result = await this.executeQuery(query, [tenantId, id], 'findById');
+    const result = await this.executeQuery(query, [tenantId, id], `findById`);
     return result.rows.length > 0 ? this.mapToEntity(result.rows[0]) : null;
   }
 
   async findAll(tenantId: string, filters?: BaseFilter): Promise<T[]> {
     const columns = await getTableColumns(this.pool, this.tableName);
-    const columnList = columns.join(', ');
+    const columnList = columns.join(`, `);
     const query = `
       SELECT ${columnList} FROM ${this.tableName}
       ${this.buildWhereClause(tenantId)}
@@ -301,7 +301,7 @@ export abstract class BaseRepository<T> implements IRepository<T> {
       ${this.buildLimitClause(filters)}
     `;
 
-    const result = await this.executeQuery(query, [tenantId], 'findAll');
+    const result = await this.executeQuery(query, [tenantId], `findAll`);
     return result.rows.map(row => this.mapToEntity(row));
   }
 
@@ -313,14 +313,14 @@ export abstract class BaseRepository<T> implements IRepository<T> {
   ): Promise<PaginatedResult<T>> {
     const offset = (page - 1) * pageSize;
     const columns = await getTableColumns(this.pool, this.tableName);
-    const columnList = columns.join(', ');
+    const columnList = columns.join(`, `);
 
     // Get total count
     const countQuery = `
       SELECT COUNT(*) as total FROM ${this.tableName}
       ${this.buildWhereClause(tenantId)}
     `;
-    const countResult = await this.executeQuery(countQuery, [tenantId], 'count');
+    const countResult = await this.executeQuery(countQuery, [tenantId], `count`);
     const total = parseInt(countResult.rows[0].total);
 
     // Get paginated data
@@ -330,7 +330,7 @@ export abstract class BaseRepository<T> implements IRepository<T> {
       ${this.buildOrderClause(filters)}
       LIMIT ${pageSize} OFFSET ${offset}
     `;
-    const dataResult = await this.executeQuery(dataQuery, [tenantId], 'findPaginated');
+    const dataResult = await this.executeQuery(dataQuery, [tenantId], `findPaginated`);
 
     return {
       data: dataResult.rows.map(row => this.mapToEntity(row)),
@@ -345,7 +345,7 @@ export abstract class BaseRepository<T> implements IRepository<T> {
     const filterKeys = Object.keys(filters);
     const conditions = filterKeys.map((key, idx) => `${key} = $${idx + 2}`);
     const columns = await getTableColumns(this.pool, this.tableName);
-    const columnList = columns.join(', ');
+    const columnList = columns.join(`, `);
 
     const query = `
       SELECT ${columnList} FROM ${this.tableName}
@@ -354,7 +354,7 @@ export abstract class BaseRepository<T> implements IRepository<T> {
     `;
 
     const params = [tenantId, ...filterKeys.map(key => (filters as any)[key])];
-    const result = await this.executeQuery(query, params, 'findOne');
+    const result = await this.executeQuery(query, params, `findOne`);
 
     return result.rows.length > 0 ? this.mapToEntity(result.rows[0]) : null;
   }
@@ -372,7 +372,7 @@ export abstract class BaseRepository<T> implements IRepository<T> {
 
     const query = `
       INSERT INTO ${this.tableName} (${keys.join(', ')})
-      VALUES (${placeholders.join(', ')})
+      VALUES (${placeholders.join(`, `)})
       RETURNING *
     `;
 
@@ -385,7 +385,7 @@ export abstract class BaseRepository<T> implements IRepository<T> {
     const keys = Object.keys(row);
     const values = keys.map(key => row[key]);
 
-    const setClause = keys.map((key, idx) => '${key} = $${idx + 1}').join(', ');
+    const setClause = keys.map((key, idx) => `${key} = $${idx + 1}`).join(`, `);
 
     const query = `
       UPDATE ${this.tableName}
@@ -395,7 +395,7 @@ export abstract class BaseRepository<T> implements IRepository<T> {
     `;
 
     const params = [...values, tenantId, id];
-    const result = await this.executeQuery(query, params, 'update');
+    const result = await this.executeQuery(query, params, `update`);
 
     if (result.rows.length === 0) {
       throw new Error(`Record not found: ${id}`);
@@ -412,7 +412,7 @@ export abstract class BaseRepository<T> implements IRepository<T> {
         SET ${this.deletedAtColumn} = NOW()
         ${this.buildWhereClause(tenantId, [`${this.idColumn} = $2`])}
       `;
-      await this.executeQuery(query, [tenantId, id], 'softDelete');
+      await this.executeQuery(query, [tenantId, id], `softDelete`);
     } else {
       // Hard delete
       await this.hardDelete(id, tenantId);
@@ -424,7 +424,7 @@ export abstract class BaseRepository<T> implements IRepository<T> {
       DELETE FROM ${this.tableName}
       WHERE ${this.tenantColumn} = $1 AND ${this.idColumn} = $2
     `;
-    await this.executeQuery(query, [tenantId, id], 'hardDelete');
+    await this.executeQuery(query, [tenantId, id], `hardDelete`);
   }
 
   async count(tenantId: string, filters?: Partial<T>): Promise<number> {
@@ -442,7 +442,7 @@ export abstract class BaseRepository<T> implements IRepository<T> {
       ${this.buildWhereClause(tenantId, conditions)}
     `;
 
-    const result = await this.executeQuery(query, params, 'count');
+    const result = await this.executeQuery(query, params, `count`);
     return parseInt(result.rows[0].total);
   }
 
@@ -453,7 +453,7 @@ export abstract class BaseRepository<T> implements IRepository<T> {
       LIMIT 1
     `;
 
-    const result = await this.executeQuery(query, [tenantId, id], 'exists');
+    const result = await this.executeQuery(query, [tenantId, id], `exists`);
     return result.rows.length > 0;
   }
 
@@ -469,14 +469,14 @@ export abstract class BaseRepository<T> implements IRepository<T> {
       const placeholders = keys.map((_, colIdx) =>
         `$${rowIdx * keys.length + colIdx + 1}`
       );
-      return '(${placeholders.join(', ')})';
+      return `(${placeholders.join(`, `)})`;
     });
 
     const allValues = rows.flatMap(row => [...Object.values(row), tenantId]);
 
     const query = `
       INSERT INTO ${this.tableName} (${keys.join(', ')})
-      VALUES ${valueSets.join(', ')}
+      VALUES ${valueSets.join(`, `)}
       RETURNING *
     `;
 
@@ -491,15 +491,15 @@ export abstract class BaseRepository<T> implements IRepository<T> {
     const keys = Object.keys(row);
     const values = keys.map(key => row[key]);
 
-    const setClause = keys.map((key, idx) => '${key} = $${idx + 1}').join(', ');
-    const idPlaceholders = ids.map((_, idx) => '$${keys.length + 2 + idx}').join(', ');
+    const setClause = keys.map((key, idx) => `${key} = $${idx + 1}`).join(`, `);
+    const idPlaceholders = ids.map((_, idx) => `$${keys.length + 2 + idx}`).join(`, `);
 
     const query = `
       UPDATE ${this.tableName}
       SET ${setClause}, updated_at = NOW()
       WHERE ${this.tenantColumn} = $${keys.length + 1}
         AND ${this.idColumn} IN (${idPlaceholders})
-        ${this.softDelete ? 'AND ${this.deletedAtColumn} IS NULL' : ''}
+        ${this.softDelete ? `AND ${this.deletedAtColumn} IS NULL' : ''}
     `;
 
     const params = [...values, tenantId, ...ids];
@@ -512,7 +512,7 @@ export abstract class BaseRepository<T> implements IRepository<T> {
     if (ids.length === 0) return 0;
 
     if (this.softDelete) {
-      const idPlaceholders = ids.map((_, idx) => '$${2 + idx}').join(', ');
+      const idPlaceholders = ids.map((_, idx) => `$${2 + idx}`).join(`, `);
 
       const query = `
         UPDATE ${this.tableName}
@@ -521,17 +521,17 @@ export abstract class BaseRepository<T> implements IRepository<T> {
           AND ${this.idColumn} IN (${idPlaceholders})
       `;
 
-      const result = await this.executeQuery(query, [tenantId, ...ids], 'bulkSoftDelete');
+      const result = await this.executeQuery(query, [tenantId, ...ids], `bulkSoftDelete`);
       return result.rowCount || 0;
     } else {
-      const idPlaceholders = ids.map((_, idx) => '$${2 + idx}').join(', ');
+      const idPlaceholders = ids.map((_, idx) => `$${2 + idx}`).join(`, `);
 
       const query = `
         DELETE FROM ${this.tableName}
         WHERE ${this.tenantColumn} = $1 AND ${this.idColumn} IN (${idPlaceholders})
       `;
 
-      const result = await this.executeQuery(query, [tenantId, ...ids], 'bulkDelete');
+      const result = await this.executeQuery(query, [tenantId, ...ids], `bulkDelete`);
       return result.rowCount || 0;
     }
   }

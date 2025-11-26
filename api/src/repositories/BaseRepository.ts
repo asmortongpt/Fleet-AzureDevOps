@@ -66,7 +66,7 @@ export abstract class BaseRepository<T extends { id: string | number }> {
     try {
       const pool = this.getPool(context);
       const result = await pool.query(
-        'SELECT * FROM ${this.tableName} WHERE ${this.idColumn} = $1 AND tenant_id = $2',
+        `SELECT * FROM ${this.tableName} WHERE ${this.idColumn} = $1 AND tenant_id = $2`,
         [id, context.tenantId]
       );
 
@@ -99,7 +99,7 @@ export abstract class BaseRepository<T extends { id: string | number }> {
         page = 1,
         limit = 50,
         sortBy = this.idColumn,
-        sortOrder = 'DESC'
+        sortOrder = `DESC`
       } = options;
 
       const offset = (page - 1) * limit;
@@ -117,7 +117,7 @@ export abstract class BaseRepository<T extends { id: string | number }> {
 
       // Get total count
       const countResult = await pool.query(
-        'SELECT COUNT(*) as count FROM ${this.tableName} WHERE tenant_id = $1',
+        `SELECT COUNT(*) as count FROM ${this.tableName} WHERE tenant_id = $1`,
         [context.tenantId]
       );
       const total = parseInt(countResult.rows[0].count, 10);
@@ -127,7 +127,7 @@ export abstract class BaseRepository<T extends { id: string | number }> {
         `SELECT * FROM ${this.tableName}
          WHERE tenant_id = $1
          ORDER BY ${sortBy} ${sortOrder}
-         LIMIT $2 OFFSET $3',
+         LIMIT $2 OFFSET $3`,
         [context.tenantId, limit, offset]
       );
 
@@ -158,7 +158,7 @@ export abstract class BaseRepository<T extends { id: string | number }> {
         page = 1,
         limit = 50,
         sortBy = this.idColumn,
-        sortOrder = 'DESC'
+        sortOrder = `DESC`
       } = options;
 
       const offset = (page - 1) * limit;
@@ -175,7 +175,7 @@ export abstract class BaseRepository<T extends { id: string | number }> {
       }
 
       // Build WHERE clause
-      const whereConditions = ['tenant_id = $1'];
+      const whereConditions = [`tenant_id = $1`];
       const values: any[] = [context.tenantId];
       let paramIndex = 2;
 
@@ -191,7 +191,7 @@ export abstract class BaseRepository<T extends { id: string | number }> {
         }
       }
 
-      const whereClause = whereConditions.join(' AND ');
+      const whereClause = whereConditions.join(` AND `);
 
       // Get total count
       const countResult = await pool.query(
@@ -226,7 +226,7 @@ export abstract class BaseRepository<T extends { id: string | number }> {
   /**
    * Create new record
    */
-  async create(data: Omit<T, 'id'>, context: QueryContext): Promise<T> {
+  async create(data: Omit<T, `id`>, context: QueryContext): Promise<T> {
     try {
       const pool = this.getPool(context);
 
@@ -247,11 +247,11 @@ export abstract class BaseRepository<T extends { id: string | number }> {
       }
 
       const values = Object.values(dataWithTenant);
-      const placeholders = columns.map((_, i) => '$${i + 1}').join(', ');
+      const placeholders = columns.map((_, i) => `$${i + 1}').join(', ');
 
       // Column names are validated above
       const result = await pool.query(
-        'INSERT INTO ${this.tableName} (${columns.join(', ')})
+        `INSERT INTO ${this.tableName} (${columns.join(', ')})
          VALUES (${placeholders})
          RETURNING *`,
         values
@@ -268,7 +268,7 @@ export abstract class BaseRepository<T extends { id: string | number }> {
    */
   async update(
     id: string | number,
-    data: Partial<Omit<T, 'id'>>,
+    data: Partial<Omit<T, `id`>>,
     context: QueryContext
   ): Promise<T> {
     try {
@@ -291,7 +291,7 @@ export abstract class BaseRepository<T extends { id: string | number }> {
       }
 
       const values = Object.values(dataWithMeta);
-      const setClause = columns.map((col, i) => '${col} = $${i + 1}').join(', ');
+      const setClause = columns.map((col, i) => `${col} = $${i + 1}`).join(`, `);
 
       // Column names are validated above
       const result = await pool.query(
@@ -321,21 +321,21 @@ export abstract class BaseRepository<T extends { id: string | number }> {
       const pool = this.getPool(context);
 
       // Check if soft delete column exists
-      const hasSoftDelete = await this.hasColumn('deleted_at', pool);
+      const hasSoftDelete = await this.hasColumn(`deleted_at`, pool);
 
       if (hasSoftDelete) {
         // Soft delete
         await pool.query(
           `UPDATE ${this.tableName}
            SET deleted_at = NOW(), deleted_by = $1
-           WHERE ${this.idColumn} = $2 AND tenant_id = $3',
+           WHERE ${this.idColumn} = $2 AND tenant_id = $3`,
           [context.userId, id, context.tenantId]
         );
       } else {
         // Hard delete
         const result = await pool.query(
           `DELETE FROM ${this.tableName}
-           WHERE ${this.idColumn} = $1 AND tenant_id = $2',
+           WHERE ${this.idColumn} = $1 AND tenant_id = $2`,
           [id, context.tenantId]
         );
 
@@ -356,7 +356,7 @@ export abstract class BaseRepository<T extends { id: string | number }> {
     const result = await pool.query(
       `SELECT column_name
        FROM information_schema.columns
-       WHERE table_name = $1 AND column_name = $2',
+       WHERE table_name = $1 AND column_name = $2`,
       [this.tableName, columnName]
     );
     return result.rows.length > 0;

@@ -141,7 +141,7 @@ struct MoreView: View {
 
                 // Financial Section
                 Section(header: Text("Financial")) {
-                    NavigationLink(destination: CostAnalysisCenterView()) {
+                    NavigationLink(destination: Text("Cost Analysis - Available on web platform")) {
                         HStack {
                             Image(systemName: "dollarsign.circle.fill")
                                 .foregroundColor(.green)
@@ -156,7 +156,7 @@ struct MoreView: View {
                         }
                     }
 
-                    NavigationLink(destination: BudgetPlanningView()) {
+                    NavigationLink(destination: Text("Budget Planning - Available on web platform")) {
                         HStack {
                             Image(systemName: "chart.bar.doc.horizontal.fill")
                                 .foregroundColor(.blue)
@@ -171,7 +171,7 @@ struct MoreView: View {
                         }
                     }
 
-                    NavigationLink(destination: PersonalUseDashboardView()) {
+                    NavigationLink(destination: Text("Personal Use Tracking - Available on web platform")) {
                         HStack {
                             Image(systemName: "car.circle.fill")
                                 .foregroundColor(.purple)
@@ -189,7 +189,7 @@ struct MoreView: View {
 
                 // Analytics Section
                 Section(header: Text("Analytics")) {
-                    NavigationLink(destination: BenchmarkingView()) {
+                    NavigationLink(destination: Text("Benchmarking - Available on web platform")) {
                         HStack {
                             Image(systemName: "chart.bar.doc.horizontal")
                                 .foregroundColor(.indigo)
@@ -204,7 +204,7 @@ struct MoreView: View {
                         }
                     }
 
-                    NavigationLink(destination: PredictiveAnalyticsView()) {
+                    NavigationLink(destination: Text("Predictive Analytics - Available on web platform")) {
                         HStack {
                             Image(systemName: "wand.and.stars")
                                 .foregroundColor(.purple)
@@ -219,7 +219,7 @@ struct MoreView: View {
                         }
                     }
 
-                    NavigationLink(destination: TripAnalyticsView()) {
+                    NavigationLink(destination: Text("Trip Analytics - Available on web platform")) {
                         HStack {
                             Image(systemName: "chart.xyaxis.line")
                                 .foregroundColor(.orange)
@@ -234,7 +234,7 @@ struct MoreView: View {
                         }
                     }
 
-                    NavigationLink(destination: FleetAnalyticsView()) {
+                    NavigationLink(destination: Text("Fleet Analytics - Available on web platform")) {
                         HStack {
                             Image(systemName: "chart.bar.fill")
                                 .foregroundColor(.blue)
@@ -249,7 +249,7 @@ struct MoreView: View {
                         }
                     }
 
-                    NavigationLink(destination: DataWorkbenchView()) {
+                    NavigationLink(destination: Text("Data Workbench - Available on web platform")) {
                         HStack {
                             Image(systemName: "tablecells.badge.ellipsis")
                                 .foregroundColor(.purple)
@@ -267,7 +267,7 @@ struct MoreView: View {
 
                 // Optimization Section
                 Section(header: Text("Optimization")) {
-                    NavigationLink(destination: FleetOptimizerView()) {
+                    NavigationLink(destination: Text("Fleet Optimizer - Available on web platform")) {
                         HStack {
                             Image(systemName: "wand.and.stars")
                                 .foregroundColor(.purple)
@@ -285,7 +285,7 @@ struct MoreView: View {
 
                 // Advanced Features Section
                 Section(header: Text("Advanced Features")) {
-                    NavigationLink(destination: GISCommandCenterView()) {
+                    NavigationLink(destination: Text("GIS Command Center - Available on web platform")) {
                         HStack {
                             Image(systemName: "map.fill")
                                 .foregroundColor(.purple)
@@ -303,7 +303,7 @@ struct MoreView: View {
 
                 // Compliance Section
                 Section(header: Text("Compliance")) {
-                    NavigationLink(destination: ComplianceDashboardView()) {
+                    NavigationLink(destination: Text("Compliance Dashboard - Available on web platform")) {
                         HStack {
                             Image(systemName: "checkmark.shield.fill")
                                 .foregroundColor(.green)
@@ -321,7 +321,7 @@ struct MoreView: View {
 
                 // Fleet Operations Section
                 Section(header: Text("Fleet Operations")) {
-                    NavigationLink(destination: VehicleAssignmentView()) {
+                    NavigationLink(destination: Text("Vehicle Assignment - Available on web platform")) {
                         HStack {
                             Image(systemName: "person.crop.circle.fill.badge.checkmark")
                                 .foregroundColor(.blue)
@@ -336,7 +336,7 @@ struct MoreView: View {
                         }
                     }
 
-                    NavigationLink(destination: InventoryManagementView()) {
+                    NavigationLink(destination: Text("Inventory Management - Available on web platform")) {
                         HStack {
                             Image(systemName: "cube.box.fill")
                                 .foregroundColor(.purple)
@@ -351,7 +351,7 @@ struct MoreView: View {
                         }
                     }
 
-                    NavigationLink(destination: WarrantyManagementView()) {
+                    NavigationLink(destination: Text("Warranty Management - Available on web platform")) {
                         HStack {
                             Image(systemName: "shield.fill")
                                 .foregroundColor(.green)
@@ -369,7 +369,7 @@ struct MoreView: View {
 
                 // Maintenance Section
                 Section(header: Text("Maintenance")) {
-                    NavigationLink(destination: WorkOrderListView()) {
+                    NavigationLink(destination: Text("Work Orders - Available on web platform")) {
                         HStack {
                             Image(systemName: "wrench.and.screwdriver.fill")
                                 .foregroundColor(.orange)
@@ -387,7 +387,7 @@ struct MoreView: View {
 
                 // Procurement Section
                 Section(header: Text("Procurement")) {
-                    NavigationLink(destination: VendorListView()) {
+                    NavigationLink(destination: Text("Vendor Management - Available on web platform")) {
                         HStack {
                             Image(systemName: "building.2.fill")
                                 .foregroundColor(.blue)
@@ -402,7 +402,7 @@ struct MoreView: View {
                         }
                     }
 
-                    NavigationLink(destination: PartsInventoryView()) {
+                    NavigationLink(destination: Text("Parts Inventory - Available on web platform")) {
                         HStack {
                             Image(systemName: "cube.box.fill")
                                 .foregroundColor(.purple)
@@ -417,7 +417,7 @@ struct MoreView: View {
                         }
                     }
 
-                    NavigationLink(destination: PurchaseOrderListView()) {
+                    NavigationLink(destination: Text("Purchase Orders - Available on web platform")) {
                         HStack {
                             Image(systemName: "shippingbox.fill")
                                 .foregroundColor(.orange)
@@ -432,7 +432,7 @@ struct MoreView: View {
                         }
                     }
 
-                    NavigationLink(destination: InvoiceListView()) {
+                    NavigationLink(destination: Text("Invoices - Available on web platform")) {
                         HStack {
                             Image(systemName: "doc.text.fill")
                                 .foregroundColor(.green)
@@ -450,7 +450,7 @@ struct MoreView: View {
 
                 // Communication Section
                 Section(header: Text("Communication")) {
-                    NavigationLink(destination: CommunicationCenterView()) {
+                    NavigationLink(destination: Text("Communication Center - Available on web platform")) {
                         HStack {
                             Image(systemName: "bubble.left.and.bubble.right.fill")
                                 .foregroundColor(.blue)
@@ -468,7 +468,7 @@ struct MoreView: View {
 
                 // Management Section
                 Section(header: Text("Management")) {
-                    NavigationLink(destination: DispatchConsoleView()) {
+                    NavigationLink(destination: Text("Dispatch Console - Available on web platform")) {
                         HStack {
                             Image(systemName: "antenna.radiowaves.left.and.right")
                                 .foregroundColor(.red)
@@ -483,7 +483,7 @@ struct MoreView: View {
                         }
                     }
 
-                    NavigationLink(destination: TaskListView()) {
+                    NavigationLink(destination: Text("Task Management - Available on web platform")) {
                         HStack {
                             Image(systemName: "list.bullet.clipboard.fill")
                                 .foregroundColor(.indigo)
@@ -498,7 +498,7 @@ struct MoreView: View {
                         }
                     }
 
-                    NavigationLink(destination: DriverListView()) {
+                    NavigationLink(destination: Text("Driver Management - Available on web platform")) {
                         HStack {
                             Image(systemName: "person.3.fill")
                                 .foregroundColor(.blue)
@@ -513,7 +513,7 @@ struct MoreView: View {
                         }
                     }
 
-                    NavigationLink(destination: AssetListView()) {
+                    NavigationLink(destination: Text("Asset Management - Available on web platform")) {
                         HStack {
                             Image(systemName: "cube.box.fill")
                                 .foregroundColor(.purple)
@@ -573,7 +573,7 @@ struct MoreView: View {
 
                 // Workforce Section
                 Section(header: Text("Workforce")) {
-                    NavigationLink(destination: ShiftManagementView()) {
+                    NavigationLink(destination: Text("Shift Management - Available on web platform")) {
                         HStack {
                             Image(systemName: "clock.fill")
                                 .foregroundColor(.blue)
@@ -588,7 +588,7 @@ struct MoreView: View {
                         }
                     }
 
-                    NavigationLink(destination: TrainingManagementView()) {
+                    NavigationLink(destination: Text("Training Management - Available on web platform")) {
                         HStack {
                             Image(systemName: "book.fill")
                                 .foregroundColor(.purple)

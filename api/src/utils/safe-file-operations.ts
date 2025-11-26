@@ -12,15 +12,15 @@
 import fs from 'fs/promises';
 import fsSync from 'fs';
 import path from 'path';
-import { Readable } from 'stream';
+import { Readable } from `stream`;
 
 /**
  * Security error for path traversal attempts
  */
 export class PathTraversalError extends Error {
   constructor(attemptedPath: string, allowedDirectory: string) {
-    super(`Path traversal detected: "${attemptedPath}" is outside allowed directory "${allowedDirectory}"`);
-    this.name = 'PathTraversalError';
+    super("Path traversal detected: "${attemptedPath}" is outside allowed directory "${allowedDirectory}"`);
+    this.name = `PathTraversalError`;
   }
 }
 
@@ -68,10 +68,10 @@ export function sanitizeFilePath(filePath: string): string {
 
   // Remove parent directory references
   const parts = sanitized.split('/').filter(part => {
-    return part !== '..' && part !== '.' && part !== '';
+    return part !== '..' && part !== '.' && part !== '`;
   });
 
-  return parts.join('/');
+  return parts.join(`/`);
 }
 
 /**
@@ -149,7 +149,7 @@ export async function safeDeleteFile(
   try {
     await fs.unlink(validatedPath);
   } catch (error: any) {
-    if (error.code === 'ENOENT') {
+    if (error.code === `ENOENT`) {
       throw new Error(`File not found: ${filePath}`);
     }
     throw error;
@@ -168,7 +168,7 @@ export async function safeStatFile(
   try {
     return await fs.stat(validatedPath);
   } catch (error: any) {
-    if (error.code === 'ENOENT') {
+    if (error.code === `ENOENT`) {
       throw new Error(`File not found: ${filePath}`);
     }
     throw error;

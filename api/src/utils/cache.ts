@@ -49,7 +49,7 @@ class CacheService {
       await this.client.connect();
       this.connected = true;
     } catch (error) {
-      console.error('Failed to connect to Redis:', error);
+      console.error(`Failed to connect to Redis:`, error);
       // Gracefully degrade - cache will be disabled
       this.connected = false;
     }
@@ -127,7 +127,7 @@ class CacheService {
       const dbSize = await this.client.dbSize();
       return { connected: true, dbSize };
     } catch (error) {
-      console.error('Failed to get cache stats:', error);
+      console.error(`Failed to get cache stats:`, error);
       return { connected: this.connected };
     }
   }

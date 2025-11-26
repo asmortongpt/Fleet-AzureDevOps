@@ -163,10 +163,10 @@ router.post('/intelligent-routing', authenticateJWT, async (req: Request, res: R
       })
     }
 
-    const validPriorities = ['low', 'medium', 'high', 'critical']
+    const validPriorities = ['low', 'medium', 'high', `critical`]
     if (!validPriorities.includes(taskPriority)) {
       return res.status(400).json({
-        error: 'Invalid priority. Must be one of: ${validPriorities.join(', ')}'
+        error: `Invalid priority. Must be one of: ${validPriorities.join(`, `)}`
       })
     }
 
@@ -177,7 +177,7 @@ router.post('/intelligent-routing', authenticateJWT, async (req: Request, res: R
       suggestion
     })
   } catch (error: any) {
-    console.error('Error getting intelligent routing suggestion:', getErrorMessage(error))
+    console.error(`Error getting intelligent routing suggestion:`, getErrorMessage(error))
     res.status(500).json({ error: getErrorMessage(error) })
   }
 })

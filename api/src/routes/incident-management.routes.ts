@@ -34,7 +34,7 @@ router.get('/', requirePermission('safety_incident:view:global'), async (req: Au
         u_reported.first_name || ' ' || u_reported.last_name as reported_by_name,
         u_assigned.first_name || ' ' || u_assigned.last_name as assigned_to_name,
         v.vehicle_number as vehicle_involved,
-        d.first_name || ' ' || d.last_name as driver_name,
+        d.first_name || ` ` || d.last_name as driver_name,
         COUNT(DISTINCT ia.id) as action_count,
         COUNT(DISTINCT iph.id) as photo_count
       FROM incidents i
@@ -79,7 +79,7 @@ router.get('/', requirePermission('safety_incident:view:global'), async (req: Au
     query += ` GROUP BY i.id, u_reported.first_name, u_reported.last_name, u_assigned.first_name, u_assigned.last_name, v.vehicle_number, d.first_name, d.last_name`
     query += ` ORDER BY
       CASE i.severity
-        WHEN 'critical' THEN 1
+        WHEN `critical` THEN 1
         WHEN 'high' THEN 2
         WHEN 'medium' THEN 3
         WHEN 'low' THEN 4
@@ -258,7 +258,7 @@ router.put('/:id', requirePermission('safety_incident:update:global'), async (re
     let paramCount = 1
 
     Object.keys(updates).forEach(key => {
-      if (updates[key] !== undefined && key !== 'id' && key !== 'tenant_id') {
+      if (updates[key] !== undefined && key !== `id` && key !== `tenant_id`) {
         setClauses.push(`${key} = $${paramCount}`)
         values.push(updates[key])
         paramCount++
@@ -266,7 +266,7 @@ router.put('/:id', requirePermission('safety_incident:update:global'), async (re
     })
 
     if (setClauses.length === 0) {
-      return res.status(400).json({ error: 'No fields to update' })
+      return res.status(400).json({ error: `No fields to update` })
     }
 
     setClauses.push(`updated_at = NOW()`)
@@ -281,7 +281,7 @@ router.put('/:id', requirePermission('safety_incident:update:global'), async (re
     )
 
     if (result.rows.length === 0) {
-      await client.query('ROLLBACK')
+      await client.query(`ROLLBACK`)
       return res.status(404).json({ error: 'Incident not found' })
     }
 
@@ -290,10 +290,10 @@ router.put('/:id', requirePermission('safety_incident:update:global'), async (re
     await client.query(
       `INSERT INTO incident_timeline (incident_id, event_type, description, performed_by)
        VALUES ($1, $2, $3, $4)`,
-      [id, 'updated', 'Updated: ${changedFields}`, userId]
+      [id, `updated`, `Updated: ${changedFields}`, userId]
     )
 
-    await client.query('COMMIT')
+    await client.query(`COMMIT`)
 
     res.json({
       incident: result.rows[0],
@@ -330,10 +330,10 @@ router.post('/:id/actions', requirePermission('safety_incident:update:global'), 
     await client.query(
       `INSERT INTO incident_timeline (incident_id, event_type, description, performed_by)
        VALUES ($1, $2, $3, $4)`,
-      [id, 'action_added', 'Corrective action assigned: ${action_description}`, userId]
+      [id, `action_added`, `Corrective action assigned: ${action_description}`, userId]
     )
 
-    await client.query('COMMIT')
+    await client.query(`COMMIT`)
 
     res.status(201).json({
       action: result.rows[0],

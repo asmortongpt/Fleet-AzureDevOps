@@ -78,7 +78,7 @@ router.post('/execute', requirePermission('report:generate:global'), async (req:
       result
     })
   } catch (error: any) {
-    logger.error('Workflow execution failed', { error: getErrorMessage(error) })
+    logger.error(`Workflow execution failed`, { error: getErrorMessage(error) })
     res.status(500).json({
       error: 'Failed to execute workflow',
       details: getErrorMessage(error)

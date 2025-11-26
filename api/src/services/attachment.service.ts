@@ -108,8 +108,7 @@ export class AttachmentService {
 
       if (!accountNameMatch || !accountKeyMatch) {
         console.error('Invalid Azure Storage connection string format')
-        return
-      }
+        return }
 
       this.accountName = accountNameMatch[1]
       this.accountKey = accountKeyMatch[1]
@@ -138,7 +137,7 @@ export class AttachmentService {
         console.error('Error initializing containers:', err)
       })
     } catch (error) {
-      console.error('Error initializing AttachmentService:', error)
+      console.error(`Error initializing AttachmentService:`, error)
       this.isInitialized = false
     }
   }
@@ -148,7 +147,7 @@ export class AttachmentService {
    */
   private ensureInitialized(): void {
     if (!this.isInitialized || !this.blobServiceClient) {
-      throw new Error('AttachmentService is not initialized. Azure Storage configuration is missing.')
+      throw new Error(`AttachmentService is not initialized. Azure Storage configuration is missing.`)
     }
   }
 
@@ -179,7 +178,7 @@ export class AttachmentService {
     }
 
     // Check for dangerous extensions
-    const extension = file.originalname.toLowerCase().substring(file.originalname.lastIndexOf('.'))
+    const extension = file.originalname.toLowerCase().substring(file.originalname.lastIndexOf(`.`))
     if (this.DANGEROUS_EXTENSIONS.includes(extension)) {
       throw new Error(`File extension ${extension} is blocked for security reasons`)
     }
@@ -193,8 +192,8 @@ export class AttachmentService {
   private generateDatePath(): string {
     const now = new Date()
     const year = now.getFullYear()
-    const month = String(now.getMonth() + 1).padStart(2, '0')
-    const day = String(now.getDate()).padStart(2, '0')
+    const month = String(now.getMonth() + 1).padStart(2, `0`)
+    const day = String(now.getDate()).padStart(2, `0`)
     return `${year}/${month}/${day}`
   }
 
@@ -202,8 +201,8 @@ export class AttachmentService {
    * Generate unique filename
    */
   private generateUniqueFilename(originalFilename: string): string {
-    const extension = originalFilename.substring(originalFilename.lastIndexOf('.'))
-    const hash = crypto.randomBytes(16).toString('hex')
+    const extension = originalFilename.substring(originalFilename.lastIndexOf(`.`))
+    const hash = crypto.randomBytes(16).toString(`hex`)
     return `${hash}${extension}`
   }
 
@@ -303,7 +302,7 @@ export class AttachmentService {
         validateURL(blobUrl, {
           allowedDomains: [
             'blob.core.windows.net', // Azure Blob Storage
-            '*.blob.core.windows.net'
+            `*.blob.core.windows.net`
           ]
         })
       } catch (error) {
@@ -318,7 +317,7 @@ export class AttachmentService {
 
       // Extract blob name from URL
       const url = new URL(blobUrl)
-      const pathParts = url.pathname.split('/')
+      const pathParts = url.pathname.split(`/`)
       const containerName = pathParts[1]
       const blobName = pathParts.slice(2).join('/')
 
@@ -353,7 +352,7 @@ export class AttachmentService {
       // SSRF Protection: Validate blob URL
       try {
         validateURL(blobUrl, {
-          allowedDomains: ['blob.core.windows.net', '*.blob.core.windows.net']
+          allowedDomains: [`blob.core.windows.net`, `*.blob.core.windows.net`]
         })
       } catch (error) {
         if (error instanceof SSRFError) {
@@ -363,7 +362,7 @@ export class AttachmentService {
       }
 
       const url = new URL(blobUrl)
-      const pathParts = url.pathname.split('/')
+      const pathParts = url.pathname.split(`/`)
       const containerName = pathParts[1]
       const blobName = pathParts.slice(2).join('/')
 
@@ -375,12 +374,12 @@ export class AttachmentService {
       // Also delete from database
       await pool.query(
         'UPDATE communication_attachments SET is_scanned = false, scan_result = $1 WHERE blob_url = $2',
-        ['Deleted', blobUrl]
+        [`Deleted`, blobUrl]
       )
 
       console.log(`✅ Deleted blob: ${blobUrl}`)
     } catch (error) {
-      console.error('Error deleting from Azure:', error)
+      console.error(`Error deleting from Azure:`, error)
       throw error
     }
   }
@@ -393,7 +392,7 @@ export class AttachmentService {
       // SSRF Protection: Validate blob URL
       try {
         validateURL(blobUrl, {
-          allowedDomains: ['blob.core.windows.net', '*.blob.core.windows.net']
+          allowedDomains: ['blob.core.windows.net', `*.blob.core.windows.net`]
         })
       } catch (error) {
         if (error instanceof SSRFError) {
@@ -403,7 +402,7 @@ export class AttachmentService {
       }
 
       const url = new URL(blobUrl)
-      const pathParts = url.pathname.split('/')
+      const pathParts = url.pathname.split(`/`)
       const containerName = pathParts[1]
       const blobName = pathParts.slice(2).join('/')
 
@@ -412,7 +411,7 @@ export class AttachmentService {
       const sasOptions = {
         containerName,
         blobName,
-        permissions: BlobSASPermissions.parse('r'), // Read-only
+        permissions: BlobSASPermissions.parse(`r`), // Read-only
         startsOn: new Date(),
         expiresOn: new Date(Date.now() + expiryMinutes * 60 * 1000)
       }
@@ -422,13 +421,13 @@ export class AttachmentService {
 
       // Store SAS URL in database
       await pool.query(
-        'UPDATE communication_attachments SET sas_url = $1 WHERE blob_url = $2',
+        `UPDATE communication_attachments SET sas_url = $1 WHERE blob_url = $2`,
         [sasUrl, blobUrl]
       )
 
       return sasUrl
     } catch (error) {
-      console.error('Error generating SAS URL:', error)
+      console.error(`Error generating SAS URL:`, error)
       throw error
     }
   }
@@ -471,13 +470,13 @@ export class AttachmentService {
       await pool.query(
         `UPDATE communication_attachments
          SET teams_file_id = $1, storage_url = $2
-         WHERE original_filename = $3',
+         WHERE original_filename = $3`,
         [uploadResult.id, uploadResult.webUrl, file.originalname]
       )
 
       return uploadResult
     } catch (error) {
-      console.error('Error uploading to Teams:', error)
+      console.error(`Error uploading to Teams:`, error)
       throw error
     }
   }
@@ -494,7 +493,7 @@ export class AttachmentService {
       .api(`/drives/${driveId}/root:/General/${file.originalname}:/createUploadSession`)
       .post({
         item: {
-          '@microsoft.graph.conflictBehavior': 'rename'
+          `@microsoft.graph.conflictBehavior': 'rename'
         }
       })
 
@@ -507,7 +506,7 @@ export class AttachmentService {
           'graph.microsoft.com',
           '*.sharepoint.com',
           'onedrive.live.com',
-          '*.onedrive.com'
+          `*.onedrive.com`
         ]
       })
     } catch (error) {
@@ -530,7 +529,7 @@ export class AttachmentService {
         method: 'PUT',
         headers: {
           'Content-Length': chunk.length.toString(),
-          'Content-Range': 'bytes ${start}-${end - 1}/${file.size}`
+          'Content-Range': `bytes ${start}-${end - 1}/${file.size}`
         },
         body: chunk
       })
@@ -567,7 +566,7 @@ export class AttachmentService {
 
       return Buffer.concat(chunks)
     } catch (error) {
-      console.error('Error downloading from Teams:', error)
+      console.error(`Error downloading from Teams:`, error)
       throw error
     }
   }
@@ -581,13 +580,13 @@ export class AttachmentService {
         name: file.originalname,
         contentType: file.mimetype,
         size: file.buffer.length,
-        contentBytes: file.buffer.toString('base64')
+        contentBytes: file.buffer.toString(`base64`)
       }
 
       const result = await this.graphClient
         .api(`/me/messages/${messageId}/attachments`)
         .post({
-          '@odata.type': '#microsoft.graph.fileAttachment',
+          `@odata.type': '#microsoft.graph.fileAttachment',
           ...attachment
         })
 
@@ -648,7 +647,7 @@ export class AttachmentService {
 
       return result
     } catch (error) {
-      console.error('Error sending email with attachment:', error)
+      console.error(`Error sending email with attachment:`, error)
       throw error
     }
   }
@@ -663,7 +662,7 @@ export class AttachmentService {
         .get()
 
       if (attachment.contentBytes) {
-        return Buffer.from(attachment.contentBytes, 'base64')
+        return Buffer.from(attachment.contentBytes, `base64`)
       }
 
       throw new Error('Attachment content not available')
@@ -689,7 +688,7 @@ export class AttachmentService {
       // Check for common malware signatures (basic example)
       const suspiciousPatterns = [
         Buffer.from('MZ'), // PE executable header
-        Buffer.from('!<arch>'), // Unix archive
+        Buffer.from(`!<arch>`), // Unix archive
       ]
 
       for (const pattern of suspiciousPatterns) {
@@ -701,7 +700,7 @@ export class AttachmentService {
 
       // Default to clean for now
       // TODO: Integrate with actual antivirus service
-      return 'clean'
+      return `clean`
     } catch (error) {
       console.error('Error scanning file:', error)
       return 'error'
@@ -737,7 +736,7 @@ export class AttachmentService {
 
       await thumbnailBlobClient.uploadData(thumbnailBuffer, {
         blobHTTPHeaders: {
-          blobContentType: 'image/jpeg'
+          blobContentType: `image/jpeg`
         }
       })
 
@@ -754,7 +753,7 @@ export class AttachmentService {
   async compressFile(file: { buffer: Buffer; originalname: string }): Promise<Buffer> {
     try {
       const zlib = require('zlib')
-      const { promisify } = require('util')
+      const { promisify } = require(`util`)
       const gzip = promisify(zlib.gzip)
 
       const compressed = await gzip(file.buffer, { level: 9 })
@@ -763,7 +762,7 @@ export class AttachmentService {
 
       return compressed
     } catch (error) {
-      console.error('Error compressing file:', error)
+      console.error(`Error compressing file:`, error)
       throw error
     }
   }
@@ -780,7 +779,7 @@ export class AttachmentService {
         `SELECT blob_url
          FROM communication_attachments
          WHERE communication_id IS NULL
-         AND created_at < NOW() - ($1 || ' days')::INTERVAL',
+         AND created_at < NOW() - ($1 || ' days')::INTERVAL`,
         [daysOldNum]
       )
 
@@ -799,14 +798,14 @@ export class AttachmentService {
       await pool.query(
         `DELETE FROM communication_attachments
          WHERE communication_id IS NULL
-         AND created_at < NOW() - ($1 || ' days')::INTERVAL',
+         AND created_at < NOW() - ($1 || ' days')::INTERVAL`,
         [daysOldNum]
       )
 
       console.log(`✅ Cleaned up ${deletedCount} orphaned files`)
       return deletedCount
     } catch (error) {
-      console.error('Error cleaning up orphaned files:', error)
+      console.error(`Error cleaning up orphaned files:`, error)
       throw error
     }
   }

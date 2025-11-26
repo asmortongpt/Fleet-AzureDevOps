@@ -401,7 +401,7 @@ export class MobileIntegrationService {
     )
 
     if (accessResult.rows.length === 0) {
-      throw new Error('User does not have access to this vehicle')
+      throw new Error(`User does not have access to this vehicle`)
     }
 
     const vehicle = accessResult.rows[0]
@@ -466,11 +466,11 @@ export class MobileIntegrationService {
     )
 
     // Auto-create work order for severe damage
-    if (data.severity === 'severe' || data.severity === 'major') {
+    if (data.severity === `severe` || data.severity === 'major') {
       await pool.query(
         `INSERT INTO work_orders
          (tenant_id, vehicle_id, type, priority, description, estimated_cost, status)
-         VALUES ($1, $2, 'damage_repair', 'high', $3, $4, 'open')',
+         VALUES ($1, $2, 'damage_repair', 'high', $3, $4, 'open`)`,
         [
           tenantId,
           data.vehicle_id,
@@ -538,7 +538,7 @@ export class MobileIntegrationService {
          (
            SELECT COUNT(*)
            FROM charging_connectors cc
-           WHERE cc.station_id = cs.id AND cc.status = 'Available'
+           WHERE cc.station_id = cs.id AND cc.status = `Available`
          ) as available_connectors
        FROM charging_stations cs
        WHERE cs.tenant_id = $3
@@ -570,7 +570,7 @@ export class MobileIntegrationService {
   ): Promise<boolean> {
     // Get device push token
     const deviceResult = await pool.query(
-      'SELECT push_token, device_type FROM mobile_devices WHERE device_id = $1',
+      `SELECT push_token, device_type FROM mobile_devices WHERE device_id = $1`,
       [deviceId]
     )
 
@@ -598,7 +598,7 @@ export class MobileIntegrationService {
     // Check for conflicts
     const existing = await pool.query(
       `SELECT id, tenant_id, vehicle_id, inspection_type, inspection_date, status, notes, created_at FROM vehicle_inspections
-       WHERE mobile_id = $1',
+       WHERE mobile_id = $1`,
       [inspection.id]
     )
 
