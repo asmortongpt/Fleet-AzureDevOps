@@ -244,11 +244,6 @@ export default defineConfig({
             return 'utils-lodash';
           }
 
-          // Animation libraries
-          if (id.includes('node_modules/framer-motion')) {
-            return 'animation';
-          }
-
           // React utility libraries (MUST load after React)
           // These libraries use React.createContext or useLayoutEffect at module level
           if (id.includes('node_modules/react-error-boundary') ||
@@ -266,9 +261,14 @@ export default defineConfig({
               id.includes('node_modules/class-variance-authority') ||
               id.includes('node_modules/clsx') ||
               id.includes('node_modules/tailwind-merge') ||
-              id.includes('node_modules/@floating-ui')) {
+              id.includes('node_modules/@floating-ui') ||
+              id.includes('node_modules/framer-motion') ||
+              id.includes('node_modules/cmdk')) {
             return 'react-utils';
           }
+
+          // Animation libraries (non-React dependent)
+          // Note: framer-motion moved to react-utils above due to useLayoutEffect usage
 
           // All other node_modules (should NOT include React-dependent code)
           if (id.includes('node_modules')) {
