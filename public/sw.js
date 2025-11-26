@@ -9,7 +9,7 @@
  * - Static assets: Cache-first for offline support
  */
 
-const CACHE_VERSION = 'ctafleet-v1.0.2';
+const CACHE_VERSION = 'ctafleet-v1.0.7-native-map-fix';
 const CACHE_NAME = `ctafleet-cache-${CACHE_VERSION}`;
 const DATA_CACHE_NAME = `ctafleet-data-${CACHE_VERSION}`;
 
