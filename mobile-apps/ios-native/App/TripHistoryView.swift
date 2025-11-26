@@ -351,6 +351,8 @@ private struct TripStatusBadge: View {
         switch status {
         case .active:
             return .green
+        case .inProgress:
+            return .green
         case .paused:
             return .orange
         case .completed:
