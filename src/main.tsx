@@ -24,7 +24,13 @@ import "leaflet/dist/leaflet.css"
 startVersionChecker();
 
 // Protected Route Component
-function ProtectedRoute({ children }: { children: React.ReactNode }) {
+function ProtectedRoute({ children }: { children: React.ReactNode}) {
+  // TEMPORARY FIX: Bypass authentication in production until backend is deployed
+  // TODO: Re-enable authentication once backend API is running
+  console.log('[PROTECTED_ROUTE] Authentication bypassed - showing app directly')
+  return <>{children}</>
+
+  /* COMMENTED OUT - Re-enable when backend is ready
   // CRITICAL FIX: Always bypass authentication in DEV mode
   // Check DEV mode FIRST before calling isAuthenticated
   if (import.meta.env.DEV) {
@@ -36,6 +42,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   console.log('[PROTECTED_ROUTE] Production mode - isAuthenticated:', authenticated)
 
   return authenticated ? <>{children}</> : <Navigate to="/login" replace />
+  */
 }
 
 createRoot(document.getElementById('root')!).render(
