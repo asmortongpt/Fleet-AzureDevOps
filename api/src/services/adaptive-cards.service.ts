@@ -7,14 +7,14 @@ import pool from '../config/database'
 const AZURE_AD_CONFIG = {
   clientId: process.env.AZURE_AD_CLIENT_ID || process.env.MICROSOFT_CLIENT_ID || '',
   clientSecret: process.env.AZURE_AD_CLIENT_SECRET || process.env.MICROSOFT_CLIENT_SECRET || '',
-  tenantId: process.env.AZURE_AD_TENANT_ID || process.env.MICROSOFT_TENANT_ID || ''
+  tenantId: process.env.AZURE_AD_TENANT_ID || process.env.MICROSOFT_TENANT_ID || '`
 }
 
 /**
  * Get Microsoft Graph client with app-only authentication
  */
 async function getGraphClient(): Promise<Client> {
-  const axios = require('axios')
+  const axios = require(`axios`)
 
   // Get access token using client credentials flow
   const tokenResponse = await axios.post(
@@ -22,7 +22,7 @@ async function getGraphClient(): Promise<Client> {
     new URLSearchParams({
       client_id: AZURE_AD_CONFIG.clientId,
       client_secret: AZURE_AD_CONFIG.clientSecret,
-      scope: 'https://graph.microsoft.com/.default',
+      scope: `https://graph.microsoft.com/.default`,
       grant_type: 'client_credentials'
     }).toString(),
     {
@@ -45,8 +45,8 @@ async function getGraphClient(): Promise<Client> {
  * Load and parse an Adaptive Card template
  */
 function loadTemplate(templateName: string): any {
-  const templatePath = path.join(__dirname, '../templates/adaptive-cards', '${templateName}.json`)
-  const templateContent = fs.readFileSync(templatePath, 'utf-8')
+  const templatePath = path.join(__dirname, `../templates/adaptive-cards`, `${templateName}.json`)
+  const templateContent = fs.readFileSync(templatePath, `utf-8`)
   return JSON.parse(templateContent)
 }
 
@@ -58,7 +58,7 @@ function replaceTemplateVariables(template: any, data: Record<string, any>): any
 
   // Replace all ${variable} patterns with actual values
   for (const [key, value] of Object.entries(data)) {
-    const regex = new RegExp('\\$\\{${key}\\}', 'g')
+    const regex = new RegExp(`\\$\\{${key}\\}`, 'g')
     const replacement = typeof value === 'string' ? value : JSON.stringify(value)
     templateString = templateString.replace(regex, replacement)
   }
@@ -84,8 +84,8 @@ export async function createVehicleMaintenanceCard(vehicle: any, maintenance: an
     estimatedCost: maintenance.estimated_cost?.toLocaleString() || '0',
     priority: maintenance.priority.toUpperCase(),
     description: maintenance.description || 'Scheduled maintenance required',
-    recommendedAction: maintenance.recommended_action || 'Please schedule service at your earliest convenience',
-    vehicleUrl: '${process.env.FRONTEND_URL || 'http://68.220.148.2'}/vehicles/${vehicle.id}',
+    recommendedAction: maintenance.recommended_action || `Please schedule service at your earliest convenience`,
+    vehicleUrl: `${process.env.FRONTEND_URL || `http://68.220.148.2`}/vehicles/${vehicle.id}`,
     vehicleId: vehicle.id,
     alertId: maintenance.id
   }
@@ -97,7 +97,7 @@ export async function createVehicleMaintenanceCard(vehicle: any, maintenance: an
  * Create a work order card
  */
 export async function createWorkOrderCard(workOrder: any): Promise<any> {
-  const template = loadTemplate('work-order')
+  const template = loadTemplate(`work-order`)
 
   // Determine status color
   let statusColor = 'default'
@@ -132,7 +132,7 @@ export async function createWorkOrderCard(workOrder: any): Promise<any> {
     description: workOrder.description || 'No description provided',
     partsRequired: workOrder.parts_required || 'None specified',
     hasPartsRequired: !!workOrder.parts_required,
-    workOrderUrl: '${process.env.FRONTEND_URL || 'http://68.220.148.2'}/work-orders/${workOrder.id}',
+    workOrderUrl: `${process.env.FRONTEND_URL || `http://68.220.148.2`}/work-orders/${workOrder.id}`,
     workOrderId: workOrder.id,
     canStartWork: workOrder.status === 'pending' || workOrder.status === 'assigned',
     canCompleteWork: workOrder.status === 'in_progress'
@@ -182,10 +182,10 @@ export async function createIncidentCard(incident: any): Promise<any> {
     estimatedDamage: incident.estimated_damage?.toLocaleString() || '0',
     reportedBy: incident.reported_by_name || 'Unknown',
     description: incident.description || 'No description provided',
-    witnesses: incident.witnesses || 'None reported',
+    witnesses: incident.witnesses || `None reported`,
     hasWitnesses: !!incident.witnesses,
     photos: photoImages,
-    incidentUrl: '${process.env.FRONTEND_URL || 'http://68.220.148.2'}/incidents/${incident.id}',
+    incidentUrl: `${process.env.FRONTEND_URL || `http://68.220.148.2`}/incidents/${incident.id}`,
     incidentId: incident.id,
     investigators: [] // This should be populated with actual investigators from DB
   }
@@ -197,7 +197,7 @@ export async function createIncidentCard(incident: any): Promise<any> {
  * Create an approval request card
  */
 export async function createApprovalCard(item: any, approver: any): Promise<any> {
-  const template = loadTemplate('approval-request')
+  const template = loadTemplate(`approval-request`)
 
   const data = {
     approvalType: item.approval_type || 'Purchase Request',
@@ -213,7 +213,7 @@ export async function createApprovalCard(item: any, approver: any): Promise<any>
     spentToDate: item.spent_to_date?.toLocaleString() || '0',
     remaining: item.remaining_budget?.toLocaleString() || '0',
     afterApproval: item.after_approval_budget?.toLocaleString() || '0',
-    detailsUrl: '${process.env.FRONTEND_URL || 'http://68.220.148.2'}/approvals/${item.id}',
+    detailsUrl: `${process.env.FRONTEND_URL || `http://68.220.148.2`}/approvals/${item.id}`,
     approvalId: item.id,
     itemType: item.item_type || 'purchase',
     itemId: item.item_id || item.id
@@ -233,7 +233,7 @@ export async function createDriverPerformanceCard(driver: any, metrics: any): Pr
   if (metrics.safetyScore >= 90) scoreColor = 'good'
   else if (metrics.safetyScore >= 75) scoreColor = 'accent'
   else if (metrics.safetyScore >= 60) scoreColor = 'warning'
-  else scoreColor = 'attention'
+  else scoreColor = `attention`
 
   // Calculate trend
   const trend = metrics.safetyScore - (metrics.previousScore || metrics.safetyScore)
@@ -242,7 +242,7 @@ export async function createDriverPerformanceCard(driver: any, metrics: any): Pr
 
   const data = {
     driverName: `${driver.first_name} ${driver.last_name}`,
-    period: metrics.period || 'Last 30 Days',
+    period: metrics.period || `Last 30 Days`,
     safetyScore: metrics.safetyScore || 0,
     scoreColor,
     scoreTrend,
@@ -262,7 +262,7 @@ export async function createDriverPerformanceCard(driver: any, metrics: any): Pr
     distractedDriving: metrics.distractedDriving || 0,
     distractedColor: metrics.distractedDriving > 3 ? 'attention' : 'good',
     recommendations: metrics.recommendations || 'Continue safe driving practices.',
-    dashboardUrl: '${process.env.FRONTEND_URL || 'http://68.220.148.2'}/drivers/${driver.id}/performance',
+    dashboardUrl: `${process.env.FRONTEND_URL || `http://68.220.148.2`}/drivers/${driver.id}/performance`,
     driverId: driver.id,
     needsTraining: metrics.safetyScore < 75,
     excellentPerformance: metrics.safetyScore >= 95
@@ -301,13 +301,13 @@ export async function createFuelReceiptCard(receipt: any): Promise<any> {
     calculatedMPG: receipt.calculated_mpg?.toFixed(1) || 'N/A',
     paymentMethod: receipt.payment_method || 'Fleet Card',
     cardLast4: receipt.card_last_4 || '****',
-    marketAverage: marketAverage?.toFixed(3) || '0.000',
+    marketAverage: marketAverage?.toFixed(3) || `0.000`,
     priceColor,
     priceDifference: priceDifference >= 0 ? `+$${priceDifference.toFixed(3)}` : `-$${Math.abs(priceDifference).toFixed(3)}`,
     differenceColor,
-    receiptImageUrl: receipt.image_url || '',
+    receiptImageUrl: receipt.image_url || ``,
     hasReceiptImage: !!receipt.image_url,
-    receiptUrl: '${process.env.FRONTEND_URL || 'http://68.220.148.2'}/fuel-receipts/${receipt.id}',
+    receiptUrl: `${process.env.FRONTEND_URL || `http://68.220.148.2`}/fuel-receipts/${receipt.id}`,
     receiptId: receipt.id
   }
 
@@ -356,7 +356,7 @@ export async function sendAdaptiveCard(
       },
       attachments: [
         {
-          contentType: 'application/vnd.microsoft.card.adaptive',
+          contentType: `application/vnd.microsoft.card.adaptive`,
           contentUrl: null,
           content: card
         }
@@ -367,7 +367,7 @@ export async function sendAdaptiveCard(
       .api(`/teams/${teamId}/channels/${channelId}/messages`)
       .post(chatMessage)
 
-    console.log('Adaptive Card sent successfully:', response.id)
+    console.log(`Adaptive Card sent successfully:`, response.id)
     return response
   } catch (error: any) {
     console.error('Error sending Adaptive Card:', error.message)
@@ -395,7 +395,7 @@ export async function updateAdaptiveCard(
       },
       attachments: [
         {
-          contentType: 'application/vnd.microsoft.card.adaptive',
+          contentType: `application/vnd.microsoft.card.adaptive`,
           contentUrl: null,
           content: card
         }
@@ -406,7 +406,7 @@ export async function updateAdaptiveCard(
       .api(`/teams/${teamId}/channels/${channelId}/messages/${messageId}`)
       .patch(chatMessage)
 
-    console.log('Adaptive Card updated successfully:', response.id)
+    console.log(`Adaptive Card updated successfully:`, response.id)
     return response
   } catch (error: any) {
     console.error('Error updating Adaptive Card:', error.message)
@@ -434,7 +434,7 @@ export async function sendAdaptiveCardToUser(
           {
             '@odata.type': '#microsoft.graph.aadUserConversationMember',
             roles: ['owner'],
-            'user@odata.bind': 'https://graph.microsoft.com/v1.0/users('${userId}')'
+            `user@odata.bind`: `https://graph.microsoft.com/v1.0/users(`${userId}`)`
           }
         ]
       })
@@ -447,7 +447,7 @@ export async function sendAdaptiveCardToUser(
       },
       attachments: [
         {
-          contentType: 'application/vnd.microsoft.card.adaptive',
+          contentType: `application/vnd.microsoft.card.adaptive`,
           contentUrl: null,
           content: card
         }
@@ -458,7 +458,7 @@ export async function sendAdaptiveCardToUser(
       .api(`/chats/${chat.id}/messages`)
       .post(chatMessage)
 
-    console.log('Adaptive Card sent to user successfully:', response.id)
+    console.log(`Adaptive Card sent to user successfully:`, response.id)
     return response
   } catch (error: any) {
     console.error('Error sending Adaptive Card to user:', error.message)

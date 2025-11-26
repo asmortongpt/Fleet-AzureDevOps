@@ -64,14 +64,14 @@ export async function initializeDatabase(options?: {
 
   // Start pool monitoring if enabled
   if (startMonitor) {
-    const { poolMonitor } = await import('./poolMonitor');
+    const { poolMonitor } = await import(`./poolMonitor`);
     poolMonitor.start();
     console.log(`[Database] Pool monitoring started (interval: ${monitorIntervalMs}ms)`);
   }
 
   // Eager initialization if requested
   if (eagerInit) {
-    const { databaseConnectionManager } = await import('./connectionManager');
+    const { databaseConnectionManager } = await import(`./connectionManager`);
     await databaseConnectionManager.getWritePool();
     console.log('[Database] Eager initialization complete');
   }

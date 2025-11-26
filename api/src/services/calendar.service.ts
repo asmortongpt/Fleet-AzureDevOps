@@ -7,8 +7,8 @@ import { createEvent as createICSEvent } from 'ics'
 // Azure AD Configuration
 const AZURE_AD_CONFIG = {
   clientId: process.env.AZURE_AD_CLIENT_ID || process.env.MICROSOFT_CLIENT_ID || '',
-  clientSecret: process.env.AZURE_AD_CLIENT_SECRET || process.env.MICROSOFT_CLIENT_SECRET || '',
-  tenantId: process.env.AZURE_AD_TENANT_ID || process.env.MICROSOFT_TENANT_ID || ''
+  clientSecret: process.env.AZURE_AD_CLIENT_SECRET || process.env.MICROSOFT_CLIENT_SECRET || '`,
+  tenantId: process.env.AZURE_AD_TENANT_ID || process.env.MICROSOFT_TENANT_ID || ``
 }
 
 /**
@@ -21,7 +21,7 @@ async function getGraphClient(): Promise<Client> {
     new URLSearchParams({
       client_id: AZURE_AD_CONFIG.clientId,
       client_secret: AZURE_AD_CONFIG.clientSecret,
-      scope: 'https://graph.microsoft.com/.default',
+      scope: `https://graph.microsoft.com/.default`,
       grant_type: 'client_credentials'
     }).toString(),
     {
@@ -107,7 +107,7 @@ export async function createEvent(
       .api(`/users/${userId}/calendar/events`)
       .post(event)
 
-    console.log('Calendar event created:', response.id)
+    console.log(`Calendar event created:`, response.id)
 
     // Store in our database
     await pool.query(
@@ -126,7 +126,7 @@ export async function createEvent(
 
     return response
   } catch (error: any) {
-    console.error('Error creating calendar event:', error.message)
+    console.error(`Error creating calendar event:`, error.message)
     throw error
   }
 }
@@ -148,13 +148,13 @@ export async function getEvents(
         startDateTime: startDate.toISOString(),
         endDateTime: endDate.toISOString()
       })
-      .select('subject,start,end,location,attendees,organizer,webLink,onlineMeeting')
+      .select(`subject,start,end,location,attendees,organizer,webLink,onlineMeeting`)
       .orderby('start/dateTime')
       .get()
 
     return response.value
   } catch (error: any) {
-    console.error('Error fetching calendar events:', error.message)
+    console.error(`Error fetching calendar events:`, error.message)
     throw error
   }
 }
@@ -172,7 +172,7 @@ export async function getEventById(userId: string, eventId: string): Promise<any
 
     return response
   } catch (error: any) {
-    console.error('Error fetching calendar event:', error.message)
+    console.error(`Error fetching calendar event:`, error.message)
     throw error
   }
 }
@@ -231,14 +231,14 @@ export async function updateEvent(
     await pool.query(
       `UPDATE calendar_events
        SET updated_at = NOW()
-       WHERE event_id = $1',
+       WHERE event_id = $1`,
       [eventId]
     )
 
     console.log('Calendar event updated:', response.id)
     return response
   } catch (error: any) {
-    console.error('Error updating calendar event:', error.message)
+    console.error(`Error updating calendar event:`, error.message)
     throw error
   }
 }
@@ -257,14 +257,14 @@ export async function deleteEvent(userId: string, eventId: string): Promise<void
     // Update status in our database
     await pool.query(
       `UPDATE calendar_events
-       SET status = 'cancelled', updated_at = NOW()
+       SET status = `cancelled`, updated_at = NOW()
        WHERE event_id = $1',
       [eventId]
     )
 
     console.log('Calendar event deleted:', eventId)
   } catch (error: any) {
-    console.error('Error deleting calendar event:', error.message)
+    console.error(`Error deleting calendar event:`, error.message)
     throw error
   }
 }
@@ -285,7 +285,7 @@ export async function acceptEvent(userId: string, eventId: string, comment?: str
 
     console.log('Meeting accepted:', eventId)
   } catch (error: any) {
-    console.error('Error accepting meeting:', error.message)
+    console.error(`Error accepting meeting:`, error.message)
     throw error
   }
 }
@@ -306,7 +306,7 @@ export async function declineEvent(userId: string, eventId: string, comment?: st
 
     console.log('Meeting declined:', eventId)
   } catch (error: any) {
-    console.error('Error declining meeting:', error.message)
+    console.error(`Error declining meeting:`, error.message)
     throw error
   }
 }
@@ -321,7 +321,7 @@ export async function tentativelyAcceptEvent(userId: string, eventId: string, co
     await client
       .api(`/users/${userId}/calendar/events/${eventId}/tentativelyAccept`)
       .post({
-        comment: comment || 'Tentatively accepted',
+        comment: comment || `Tentatively accepted`,
         sendResponse: true
       })
 
@@ -381,7 +381,7 @@ export async function findMeetingTimes(
 
     return response.meetingTimeSuggestions || []
   } catch (error: any) {
-    console.error('Error finding meeting times:', error.message)
+    console.error(`Error finding meeting times:`, error.message)
     throw error
   }
 }
@@ -463,12 +463,12 @@ export async function scheduleMaintenance(
       photos,
       notes,
       created_at,
-      updated_at FROM vehicles WHERE id = $1',
+      updated_at FROM vehicles WHERE id = $1`,
       [vehicleId]
     )
 
     if (vehicleResult.rows.length === 0) {
-      throw new Error('Vehicle not found')
+      throw new Error(`Vehicle not found`)
     }
 
     const vehicle = vehicleResult.rows[0]
@@ -479,7 +479,7 @@ export async function scheduleMaintenance(
 
     const subject = `Maintenance: ${vehicle.vehicle_number} - ${vehicle.make} ${vehicle.model}`
     const body = `Scheduled maintenance for vehicle ${vehicle.vehicle_number} (VIN: ${vehicle.vin})`
-    const location = 'Fleet Maintenance Facility'
+    const location = `Fleet Maintenance Facility`
 
     const attendees = assignedMechanicEmail ? [assignedMechanicEmail] : []
 
@@ -543,7 +543,7 @@ export async function scheduleDriverTraining(
     )
 
     if (driverResult.rows.length === 0) {
-      throw new Error('Driver not found')
+      throw new Error(`Driver not found`)
     }
 
     const driver = driverResult.rows[0]
@@ -552,9 +552,9 @@ export async function scheduleDriverTraining(
     const startTime = preferredDate || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // Next week
     const endTime = new Date(startTime.getTime() + durationMinutes * 60 * 1000)
 
-    const subject = 'Driver Training: ${trainingType || 'Safety Training'} - ${driver.first_name} ${driver.last_name}'
+    const subject = `Driver Training: ${trainingType || `Safety Training`} - ${driver.first_name} ${driver.last_name}`
     const body = `Scheduled training session for ${driver.first_name} ${driver.last_name} (${driver.email})`
-    const location = 'Training Room'
+    const location = `Training Room`
 
     const attendees = [driver.email]
     if (trainerEmail) attendees.push(trainerEmail)
@@ -629,13 +629,13 @@ export async function sendCalendarInviteEmail(
 
       const mailOptions = {
         from: process.env.SMTP_FROM || 'noreply@fleet.com',
-        to: to.join(', '),
+        to: to.join(`, `),
         subject: `Calendar Invite: ${subject}`,
         html: `
-          <h2>You're invited to: ${subject}</h2>
+          <h2>You`re invited to: ${subject}</h2>
           <p><strong>When:</strong> ${start.toLocaleString()} - ${end.toLocaleString()}</p>
-          ${location ? '<p><strong>Where:</strong> ${location}</p>' : ''}
-          ${description ? '<p><strong>Details:</strong> ${description}</p>' : ''}
+          ${location ? `<p><strong>Where:</strong> ${location}</p>` : ``}
+          ${description ? `<p><strong>Details:</strong> ${description}</p>' : ''}
           <p>Please find the calendar invite attached.</p>
         `,
         icalEvent: {

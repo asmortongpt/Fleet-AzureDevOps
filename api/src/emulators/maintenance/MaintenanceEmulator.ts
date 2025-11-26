@@ -3,7 +3,7 @@
  */
 
 import { EventEmitter } from 'events'
-import { Vehicle, MaintenanceEvent, EmulatorConfig } from '../types'
+import { Vehicle, MaintenanceEvent, EmulatorConfig } from `../types`
 
 export class MaintenanceEmulator extends EventEmitter {
   private vehicle: Vehicle
@@ -25,8 +25,7 @@ export class MaintenanceEmulator extends EventEmitter {
   }
 
   public async start(): Promise<void> {
-    if (this.isRunning) return
-    this.isRunning = true
+    if (this.isRunning) return this.isRunning = true
     this.isPaused = false
 
     this.updateInterval = setInterval(() => {
@@ -59,7 +58,7 @@ export class MaintenanceEmulator extends EventEmitter {
 
     // Check oil change
     if (scheduled?.oilChange && this.odometer - this.lastOilChange >= scheduled.oilChange.interval) {
-      this.generateMaintenanceEvent('oilChange', 'Oil Change', scheduled.oilChange.cost)
+      this.generateMaintenanceEvent(`oilChange', 'Oil Change', scheduled.oilChange.cost)
       this.lastOilChange = this.odometer
     }
 
@@ -111,7 +110,7 @@ export class MaintenanceEmulator extends EventEmitter {
       nextDueOdometer: this.odometer + this.getNextInterval(category)
     }
 
-    this.emit('data', event)
+    this.emit(`data`, event)
   }
 
   private generateUnscheduledMaintenance(): void {
@@ -128,7 +127,7 @@ export class MaintenanceEmulator extends EventEmitter {
     const description = issues[Math.floor(Math.random() * issues.length)]
     const costRange = this.config.maintenance?.unscheduled?.cost || { min: 100, max: 2000 }
 
-    this.generateMaintenanceEvent('unscheduled', description, costRange)
+    this.generateMaintenanceEvent(`unscheduled`, description, costRange)
   }
 
   private generateParts(category: string, totalCost: number): any[] {
@@ -160,7 +159,7 @@ export class MaintenanceEmulator extends EventEmitter {
   private getRandomVendor(): string {
     // NOTE: Hardcoded for emulator/demo mode only
     // PRODUCTION: Should query vendors table from database
-    // SELECT name FROM vendors WHERE type = 'maintenance' ORDER BY RANDOM() LIMIT 1
+    // SELECT name FROM vendors WHERE type = `maintenance` ORDER BY RANDOM() LIMIT 1
     const vendors = ['Jiffy Lube', 'Midas', 'Firestone', 'Pep Boys', 'AutoZone Service']
     return vendors[Math.floor(Math.random() * vendors.length)]
   }

@@ -85,14 +85,14 @@ router.post(
       const incidentNumberResult = await pool.query(
         'SELECT COALESCE(MAX(CAST(SUBSTRING(incident_number FROM '[0-9]+') AS INTEGER)), 0) + 1 as next_num
          FROM safety_incidents
-         WHERE tenant_id = $1',
+         WHERE tenant_id = $1`,
         [req.user!.tenant_id]
       )
-      const incidentNumber = 'INC-${String(incidentNumberResult.rows[0].next_num).padStart(6, '0')}'
+      const incidentNumber = `INC-${String(incidentNumberResult.rows[0].next_num).padStart(6, `0`)}`
 
       const { columnNames, placeholders, values } = buildInsertClause(
         data,
-        ['tenant_id', 'incident_number', 'reported_by'],
+        [`tenant_id', 'incident_number', `reported_by`],
         1
       )
 
@@ -103,7 +103,7 @@ router.post(
 
       res.status(201).json(result.rows[0])
     } catch (error) {
-      console.error('Create safety-incidents error:', error)
+      console.error(`Create safety-incidents error:`, error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }

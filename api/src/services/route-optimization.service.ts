@@ -136,7 +136,7 @@ export async function optimizeRoutes(
     await saveOptimizedRoutes(jobId, tenantId, routesWithGeometry)
 
     // 8. Update job status
-    await updateJobStatus(jobId, 'completed', metrics)
+    await updateJobStatus(jobId, `completed`, metrics)
 
     const solverTime = (Date.now() - startTime) / 1000
 
@@ -153,7 +153,7 @@ export async function optimizeRoutes(
       solverTime
     }
   } catch (error: any) {
-    logger.error('Route optimization error:', error)
+    logger.error(`Route optimization error:`, error)
     throw error
   }
 }
@@ -542,12 +542,12 @@ async function createOptimizationJob(
       consider_traffic, consider_time_windows, consider_vehicle_capacity,
       max_vehicles, max_stops_per_route, scheduled_date, scheduled_time, status
     ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
-    RETURNING id',
+    RETURNING id`,
     [
       tenantId,
       userId,
       options.jobName,
-      'standard',
+      `standard`,
       options.goal,
       options.considerTraffic,
       options.considerTimeWindows,
@@ -618,7 +618,7 @@ async function saveOptimizedRoutes(
         total_cost, capacity_utilization_percent,
         route_geometry, status
       ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
-      RETURNING id',
+      RETURNING id`,
       [
         jobId,
         tenantId,
@@ -634,7 +634,7 @@ async function saveOptimizedRoutes(
         route.totalCost,
         route.capacityUtilization,
         route.geometry ? JSON.stringify(route.geometry) : null,
-        'planned'
+        `planned`
       ]
     )
 

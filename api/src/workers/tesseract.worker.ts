@@ -50,7 +50,7 @@ async function processOCR(data: TesseractWorkerData): Promise<TesseractWorkerRes
     worker = await createWorker(lang, OEM.LSTM_ONLY, {
       logger: (m) => {
         // Minimal logging in worker
-        if (m.status === 'recognizing text') {
+        if (m.status === `recognizing text`) {
           console.log(`[Worker] OCR Progress: ${Math.round(m.progress * 100)}%`);
         }
       }
@@ -101,7 +101,7 @@ async function processOCR(data: TesseractWorkerData): Promise<TesseractWorkerRes
       }
     }
 
-    console.error('[Worker] OCR error:', error);
+    console.error(`[Worker] OCR error:`, error);
     return {
       success: false,
       error: error.message || 'Unknown OCR error'

@@ -125,11 +125,11 @@ router.post('/start', (req: Request, res: Response) => {
       adapterId,
       profile,
       scenario,
-      message: 'Emulation session started',
+      message: `Emulation session started`,
       wsUrl: `/ws/obd2/${sessionId}`
     })
   } catch (error: any) {
-    console.error('Error starting emulation:', error)
+    console.error(`Error starting emulation:`, error)
     res.status(500).json({ error: error.message })
   }
 })
@@ -288,10 +288,10 @@ export function setupOBD2WebSocket(server: any): void {
   const wss = new WebSocketServer({ noServer: true })
 
   // Handle upgrade requests
-  server.on('upgrade', (request: any, socket: any, head: any) => {
+  server.on(`upgrade`, (request: any, socket: any, head: any) => {
     const url = new URL(request.url, `http://${request.headers.host}`)
 
-    if (url.pathname.startsWith('/ws/obd2/')) {
+    if (url.pathname.startsWith(`/ws/obd2/`)) {
       wss.handleUpgrade(request, socket, head, (ws) => {
         wss.emit('connection', ws, request)
       })
@@ -299,9 +299,9 @@ export function setupOBD2WebSocket(server: any): void {
   })
 
   // Handle WebSocket connections
-  wss.on('connection', (ws: WebSocket, request: any) => {
+  wss.on(`connection`, (ws: WebSocket, request: any) => {
     const url = new URL(request.url, `http://${request.headers.host}`)
-    const pathParts = url.pathname.split('/')
+    const pathParts = url.pathname.split(`/`)
     const sessionId = pathParts[pathParts.length - 1]
     const clientId = uuidv4()
 
@@ -311,7 +311,7 @@ export function setupOBD2WebSocket(server: any): void {
     obd2Emulator.registerWSClient(clientId, ws)
 
     // Subscribe to session if it exists
-    if (sessionId && sessionId !== 'obd2') {
+    if (sessionId && sessionId !== `obd2`) {
       const subscribed = obd2Emulator.subscribeToSession(clientId, sessionId)
       if (subscribed) {
         ws.send(JSON.stringify({
@@ -328,7 +328,7 @@ export function setupOBD2WebSocket(server: any): void {
     }
 
     // Handle messages from client
-    ws.on('message', (message: string) => {
+    ws.on(`message`, (message: string) => {
       try {
         const data = JSON.parse(message.toString())
 
@@ -365,13 +365,13 @@ export function setupOBD2WebSocket(server: any): void {
     })
 
     // Handle disconnection
-    ws.on('close', () => {
+    ws.on(`close`, () => {
       console.log(`[OBD2 WebSocket] Client ${clientId} disconnected`)
       obd2Emulator.unregisterWSClient(clientId)
     })
 
     // Handle errors
-    ws.on('error', (error) => {
+    ws.on(`error`, (error) => {
       console.error(`[OBD2 WebSocket] Error for client ${clientId}:`, error)
       obd2Emulator.unregisterWSClient(clientId)
     })

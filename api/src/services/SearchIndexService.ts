@@ -209,7 +209,7 @@ export class SearchIndexService {
     }
 
     // Remove excluded terms
-    cleanQuery = cleanQuery.replace(excludeRegex, '')
+    cleanQuery = cleanQuery.replace(excludeRegex, '`)
 
     // Extract boolean operators
     const operatorRegex = /\b(AND|OR|NOT)\b/gi
@@ -218,7 +218,7 @@ export class SearchIndexService {
     }
 
     // Remove operators
-    cleanQuery = cleanQuery.replace(operatorRegex, '')
+    cleanQuery = cleanQuery.replace(operatorRegex, ``)
 
     // Extract remaining terms
     const remainingTerms = cleanQuery
@@ -245,7 +245,7 @@ export class SearchIndexService {
       const phraseParts = phrase
         .split(/\s+/)
         .map(word => `${word}:*`)
-        .join(' <-> ')
+        .join(` <-> `)
       queryParts.push(`(${phraseParts})`)
     })
 
@@ -306,11 +306,11 @@ export class SearchIndexService {
       const weight = boost[field] || 1.0
       if (field === 'tags') {
         searchVectorParts.push(
-          'setweight(to_tsvector('english', COALESCE(array_to_string(d.tags, ' '), '')), 'A') * ${weight}'
+          'setweight(to_tsvector('english', COALESCE(array_to_string(d.tags, ' '), '`)), `A`) * ${weight}`
         )
       } else {
         searchVectorParts.push(
-          'setweight(to_tsvector('english', COALESCE(d.${field}, '')), 'A') * ${weight}'
+          `setweight(to_tsvector(`english`, COALESCE(d.${field}, ``)), `A`) * ${weight}`
         )
       }
     })
@@ -329,26 +329,26 @@ export class SearchIndexService {
         d.created_at,
         d.metadata,
         dc.category_name,
-        u.first_name || ' ' || u.last_name as uploaded_by_name,
-        ts_rank_cd(${searchVector}, to_tsquery('english', $${++paramCount}), 32) as relevance_score,
+        u.first_name || ` ` || u.last_name as uploaded_by_name,
+        ts_rank_cd(${searchVector}, to_tsquery(`english`, $${++paramCount}), 32) as relevance_score,
         ts_headline(
-          'english',
+          `english`,
           COALESCE(d.extracted_text, d.description, d.file_name),
-          to_tsquery('english', $${paramCount}),
-          'MaxWords=50, MinWords=25, MaxFragments=3'
+          to_tsquery(`english`, $${paramCount}),
+          `MaxWords=50, MinWords=25, MaxFragments=3`
         ) as snippet,
         ts_headline(
           'english',
           COALESCE(d.extracted_text, d.description, d.file_name),
-          to_tsquery('english', $${paramCount}),
-          'StartSel=<mark>, StopSel=</mark>, MaxWords=50, MinWords=25'
+          to_tsquery(`english`, $${paramCount}),
+          `StartSel=<mark>, StopSel=</mark>, MaxWords=50, MinWords=25`
         ) as highlighted_snippet,
-        (${searchVector}) @@ to_tsquery('english', $${paramCount}) as match_positions
+        (${searchVector}) @@ to_tsquery(`english`, $${paramCount}) as match_positions
       FROM documents d
       LEFT JOIN document_categories dc ON d.category_id = dc.id
       LEFT JOIN users u ON d.uploaded_by = u.id
       WHERE d.tenant_id = $${++paramCount}
-        AND (${searchVector}) @@ to_tsquery('english', $${paramCount - 1})
+        AND (${searchVector}) @@ to_tsquery(`english`, $${paramCount - 1})
     `
 
     params.push(tsquery, searchQuery.filters?.tenantId)
@@ -389,11 +389,11 @@ export class SearchIndexService {
         query += ` AND d.status = $${++paramCount}`
         params.push(searchQuery.filters.status)
       } else {
-        query += ' AND d.status = 'active''
+        query += ` AND d.status = 'active'`
       }
 
       if (searchQuery.filters.minScore) {
-        query += ' AND ts_rank_cd(${searchVector}, to_tsquery('english', $1), 32) >= $${++paramCount}'
+        query += ` AND ts_rank_cd(${searchVector}, to_tsquery(`english`, $1), 32) >= $${++paramCount}`
         params.push(searchQuery.filters.minScore)
       }
     }
@@ -402,16 +402,16 @@ export class SearchIndexService {
     const sortBy = options?.sortBy || 'relevance'
     const sortOrder = options?.sortOrder || 'desc'
 
-    if (sortBy === 'relevance') {
+    if (sortBy === `relevance`) {
       query += ` ORDER BY relevance_score ${sortOrder.toUpperCase()}`
-    } else if (sortBy === 'date') {
+    } else if (sortBy === `date`) {
       query += ` ORDER BY d.created_at ${sortOrder.toUpperCase()}`
-    } else if (sortBy === 'popularity') {
+    } else if (sortBy === `popularity`) {
       query += ` ORDER BY d.view_count ${sortOrder.toUpperCase()} NULLS LAST`
     }
 
     // Add secondary sort by relevance
-    if (sortBy !== 'relevance') {
+    if (sortBy !== `relevance`) {
       query += `, relevance_score DESC`
     }
 
@@ -436,7 +436,7 @@ export class SearchIndexService {
     let paramCount = 0
 
     const searchFields = searchQuery.fields || [
-      'file_name',
+      `file_name`,
       'description',
       'extracted_text',
       'tags'
@@ -454,22 +454,22 @@ export class SearchIndexService {
       const weight = boost[field] || 1.0
       if (field === 'tags') {
         searchVectorParts.push(
-          'setweight(to_tsvector('english', COALESCE(array_to_string(d.tags, ' '), '')), 'A') * ${weight}'
+          'setweight(to_tsvector('english', COALESCE(array_to_string(d.tags, ' '), '`)), `A`) * ${weight}`
         )
       } else {
         searchVectorParts.push(
-          'setweight(to_tsvector('english', COALESCE(d.${field}, '')), 'A') * ${weight}'
+          `setweight(to_tsvector(`english`, COALESCE(d.${field}, ``)), `A`) * ${weight}`
         )
       }
     })
 
-    const searchVector = searchVectorParts.join(' || ')
+    const searchVector = searchVectorParts.join(` || `)
 
     let query = `
       SELECT COUNT(*) as count
       FROM documents d
       WHERE d.tenant_id = $${++paramCount}
-        AND (${searchVector}) @@ to_tsquery('english', $${++paramCount})
+        AND (${searchVector}) @@ to_tsquery(`english`, $${++paramCount})
     `
 
     params.push(searchQuery.filters?.tenantId, tsquery)
@@ -510,7 +510,7 @@ export class SearchIndexService {
         query += ` AND d.status = $${++paramCount}`
         params.push(searchQuery.filters.status)
       } else {
-        query += ' AND d.status = 'active''
+        query += ` AND d.status = 'active''
       }
     }
 
@@ -555,10 +555,10 @@ export class SearchIndexService {
         `SELECT DISTINCT file_name, COUNT(*) OVER() as frequency
          FROM documents
          WHERE tenant_id = $1
-           AND status = 'active'
+           AND status = `active`
            AND file_name ILIKE $2
          ORDER BY file_name
-         LIMIT $3',
+         LIMIT $3`,
         [tenantId, `${prefix}%`, limit]
       )
 
@@ -582,7 +582,7 @@ export class SearchIndexService {
            )
          GROUP BY tag
          ORDER BY frequency DESC, tag
-         LIMIT $3',
+         LIMIT $3`,
         [tenantId, `${prefix}%`, limit]
       )
 
@@ -604,7 +604,7 @@ export class SearchIndexService {
            AND dc.category_name ILIKE $2
          GROUP BY dc.category_name
          ORDER BY frequency DESC, dc.category_name
-         LIMIT $3',
+         LIMIT $3`,
         [tenantId, `${prefix}%`, limit]
       )
 
@@ -668,7 +668,7 @@ export class SearchIndexService {
 
       return suggestions
     } catch (error) {
-      console.error('Spelling suggestion error:', error)
+      console.error(`Spelling suggestion error:`, error)
       return []
     }
   }
@@ -706,8 +706,8 @@ export class SearchIndexService {
         ]
       )
     } catch (error) {
-      // Don't fail search if logging fails
-      console.error('Search logging error:', error)
+      // Don`t fail search if logging fails
+      console.error(`Search logging error: `, error)
     }
   }
 
@@ -725,7 +725,7 @@ export class SearchIndexService {
           `SELECT query_text, COUNT(*) as count, AVG(result_count) as avg_results
            FROM search_query_log
            WHERE tenant_id = $1
-             AND created_at > NOW() - INTERVAL '${days} days'
+             AND created_at > NOW() - INTERVAL `${days} days`
            GROUP BY query_text
            ORDER BY count DESC
            LIMIT 10`,
@@ -737,7 +737,7 @@ export class SearchIndexService {
            FROM search_query_log
            WHERE tenant_id = $1
              AND result_count = 0
-             AND created_at > NOW() - INTERVAL '${days} days'
+             AND created_at > NOW() - INTERVAL `${days} days`
            GROUP BY query_text
            ORDER BY count DESC
            LIMIT 10`,
@@ -748,7 +748,7 @@ export class SearchIndexService {
           `SELECT AVG(search_time_ms) as avg_time_ms
            FROM search_query_log
            WHERE tenant_id = $1
-             AND created_at > NOW() - INTERVAL '${days} days'',
+             AND created_at > NOW() - INTERVAL `${days} days``,
           [tenantId]
         ),
         // Total searches
@@ -756,7 +756,7 @@ export class SearchIndexService {
           `SELECT COUNT(*) as total
            FROM search_query_log
            WHERE tenant_id = $1
-             AND created_at > NOW() - INTERVAL '${days} days'',
+             AND created_at > NOW() - INTERVAL `${days} days``,
           [tenantId]
         )
       ])
@@ -805,13 +805,13 @@ export class SearchIndexService {
             filters: { tenantId, ...filters }
           })
         } catch (error) {
-          console.error('Cache warming error for query:', row.query_text, error)
+          console.error(`Cache warming error for query:`, row.query_text, error)
         }
       }
 
       console.log(`Cache warmed with ${result.rows.length} queries`)
     } catch (error) {
-      console.error('Cache warming error:', error)
+      console.error(`Cache warming error:`, error)
     }
   }
 }

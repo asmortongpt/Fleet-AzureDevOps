@@ -32,7 +32,7 @@ const requireAdmin = (req: Request, res: Response, next: any) => {
  * GET /api/queue/stats
  * Get statistics for all queues
  */
-router.get('/stats', requireAdmin, async (req: Request, res: Response) => {
+router.get(`/stats`, requireAdmin, async (req: Request, res: Response) => {
   try {
     const queues = Object.values(QueueName).filter(q => q !== QueueName.DEAD_LETTER);
     const stats = await Promise.all(
@@ -63,7 +63,7 @@ router.get('/stats', requireAdmin, async (req: Request, res: Response) => {
       }
     });
   } catch (error: any) {
-    console.error('Error getting queue stats:', error);
+    console.error(`Error getting queue stats:`, error);
     res.status(500).json({ error: 'Failed to get queue statistics', message: getErrorMessage(error) });
   }
 });
@@ -90,7 +90,7 @@ router.get('/health', async (req: Request, res: Response) => {
  * GET /api/queue/:queueName/jobs
  * List jobs in a specific queue
  */
-router.get('/:queueName/jobs', requireAdmin, async (req: Request, res: Response) => {
+router.get(`/:queueName/jobs`, requireAdmin, async (req: Request, res: Response) => {
   try {
     const { queueName } = req.params;
     const { status, limit = 50, offset = 0 } = req.query;
@@ -113,7 +113,7 @@ router.get('/:queueName/jobs', requireAdmin, async (req: Request, res: Response)
 
     // Get total count
     const countResult = await pool.query(
-      'SELECT COUNT(*) as total FROM job_tracking WHERE queue_name = $1${status ? ' AND status = $2' : ''}',
+      `SELECT COUNT(*) as total FROM job_tracking WHERE queue_name = $1${status ? ' AND status = $2' : ''}',
       status ? [queueName, status] : [queueName]
     );
 
@@ -203,7 +203,7 @@ router.get('/dead-letter', requireAdmin, async (req: Request, res: Response) => 
 
     if (reviewed !== undefined) {
       query += ' WHERE reviewed = $1';
-      params.push(reviewed === 'true');
+      params.push(reviewed === `true`);
     }
 
     query += ` ORDER BY moved_to_dlq_at DESC LIMIT $${params.length + 1} OFFSET $${params.length + 2}`;
@@ -212,7 +212,7 @@ router.get('/dead-letter', requireAdmin, async (req: Request, res: Response) => 
     const result = await pool.query(query, params);
 
     const countQuery = reviewed !== undefined
-      ? 'SELECT COUNT(*) as total FROM dead_letter_queue WHERE reviewed = $1'
+      ? `SELECT COUNT(*) as total FROM dead_letter_queue WHERE reviewed = $1`
       : 'SELECT COUNT(*) as total FROM dead_letter_queue';
     const countParams = reviewed !== undefined ? [reviewed === 'true'] : [];
     const countResult = await pool.query(countQuery, countParams);
@@ -262,7 +262,7 @@ router.post('/:queueName/retry/:jobId', requireAdmin, async (req: Request, res: 
  * POST /api/queue/:queueName/pause
  * Pause queue processing
  */
-router.post('/:queueName/pause', requireAdmin, async (req: Request, res: Response) => {
+router.post(`/:queueName/pause`, requireAdmin, async (req: Request, res: Response) => {
   try {
     const { queueName } = req.params;
 
@@ -277,7 +277,7 @@ router.post('/:queueName/pause', requireAdmin, async (req: Request, res: Respons
       }
     });
   } catch (error: any) {
-    console.error('Error pausing queue:', error);
+    console.error(`Error pausing queue:`, error);
     res.status(500).json({ error: 'Failed to pause queue', message: getErrorMessage(error) });
   }
 });
@@ -286,7 +286,7 @@ router.post('/:queueName/pause', requireAdmin, async (req: Request, res: Respons
  * POST /api/queue/:queueName/resume
  * Resume queue processing
  */
-router.post('/:queueName/resume', requireAdmin, async (req: Request, res: Response) => {
+router.post(`/:queueName/resume`, requireAdmin, async (req: Request, res: Response) => {
   try {
     const { queueName } = req.params;
 
@@ -301,7 +301,7 @@ router.post('/:queueName/resume', requireAdmin, async (req: Request, res: Respon
       }
     });
   } catch (error: any) {
-    console.error('Error resuming queue:', error);
+    console.error(`Error resuming queue:`, error);
     res.status(500).json({ error: 'Failed to resume queue', message: getErrorMessage(error) });
   }
 });
@@ -319,7 +319,7 @@ router.delete('/:queueName/clear', requireAdmin, async (req: Request, res: Respo
     if (confirm !== 'yes') {
       return res.status(400).json({
         error: 'Confirmation required',
-        message: 'Add ?confirm=yes to the URL to confirm this dangerous operation'
+        message: `Add ?confirm=yes to the URL to confirm this dangerous operation`
       });
     }
 
@@ -334,7 +334,7 @@ router.delete('/:queueName/clear', requireAdmin, async (req: Request, res: Respo
       }
     });
   } catch (error: any) {
-    console.error('Error clearing queue:', error);
+    console.error(`Error clearing queue:`, error);
     res.status(500).json({ error: 'Failed to clear queue', message: getErrorMessage(error) });
   }
 });

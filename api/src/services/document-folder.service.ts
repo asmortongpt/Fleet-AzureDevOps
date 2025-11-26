@@ -44,7 +44,7 @@ export class DocumentFolderService {
 
       if (duplicateCheck.rows.length > 0) {
         throw new Error(
-          'Folder '${options.folder_name}' already exists in this location'
+          `Folder `${options.folder_name}` already exists in this location`
         )
       }
 
@@ -93,12 +93,12 @@ export class DocumentFolderService {
         }
       )
 
-      await client.query('COMMIT')
+      await client.query(`COMMIT`)
 
       console.log(`✅ Folder created: ${folder.folder_name}`)
       return folder
     } catch (error) {
-      await client.query('ROLLBACK')
+      await client.query(`ROLLBACK`)
       console.error('❌ Failed to create folder:', error)
       throw error
     } finally {
@@ -240,7 +240,7 @@ export class DocumentFolderService {
     const client = await pool.connect()
 
     try {
-      await client.query('BEGIN')
+      await client.query(`BEGIN`)
 
       // Get current folder
       const currentResult = await client.query(
@@ -298,7 +298,7 @@ export class DocumentFolderService {
       if (updates.parent_folder_id !== undefined) {
         // Validate move operation
         if (updates.parent_folder_id === folderId) {
-          throw new InvalidFolderHierarchyError('Cannot move folder to itself')
+          throw new InvalidFolderHierarchyError(`Cannot move folder to itself`)
         }
 
         // Check if target is a descendant
@@ -309,7 +309,7 @@ export class DocumentFolderService {
           )
           if (isDescendant) {
             throw new InvalidFolderHierarchyError(
-              'Cannot move folder to its own descendant'
+              `Cannot move folder to its own descendant`
             )
           }
         }
@@ -320,7 +320,7 @@ export class DocumentFolderService {
       }
 
       if (setClauses.length === 0) {
-        throw new Error('No valid fields to update')
+        throw new Error(`No valid fields to update`)
       }
 
       values.push(folderId, tenantId)
@@ -340,19 +340,19 @@ export class DocumentFolderService {
         tenantId,
         folderId,
         userId,
-        'update',
+        `update`,
         {
           oldValues: currentFolder,
           newValues: updates
         }
       )
 
-      await client.query('COMMIT')
+      await client.query(`COMMIT`)
 
       console.log(`✅ Folder updated: ${updatedFolder.folder_name}`)
       return updatedFolder
     } catch (error) {
-      await client.query('ROLLBACK')
+      await client.query(`ROLLBACK`)
       console.error('❌ Failed to update folder:', error)
       throw error
     } finally {
@@ -432,11 +432,11 @@ export class DocumentFolderService {
         }
       )
 
-      await client.query('COMMIT')
+      await client.query(`COMMIT`)
 
       console.log(`✅ Folder deleted: ${folder.folder_name}`)
     } catch (error) {
-      await client.query('ROLLBACK')
+      await client.query(`ROLLBACK`)
       console.error('❌ Failed to delete folder:', error)
       throw error
     } finally {
@@ -482,12 +482,12 @@ export class DocumentFolderService {
         }
       )
 
-      await client.query('COMMIT')
+      await client.query(`COMMIT`)
 
       console.log(`✅ Folder restored: ${folder.folder_name}`)
       return folder
     } catch (error) {
-      await client.query('ROLLBACK')
+      await client.query(`ROLLBACK`)
       console.error('❌ Failed to restore folder:', error)
       throw error
     } finally {
@@ -554,7 +554,7 @@ export class DocumentFolderService {
 
       return result.rows[0].is_descendant
     } catch (error) {
-      console.error('❌ Failed to check folder hierarchy:', error)
+      console.error(`❌ Failed to check folder hierarchy:`, error)
       return false
     }
   }
@@ -592,7 +592,7 @@ export class DocumentFolderService {
     await client.query(
       `UPDATE document_folders
        SET deleted_at = NOW(), updated_at = NOW()
-       WHERE id = $1 AND tenant_id = $2',
+       WHERE id = $1 AND tenant_id = $2`,
       [folderId, tenantId]
     )
   }
@@ -628,7 +628,7 @@ export class DocumentFolderService {
 
       // Get total count
       const countResult = await pool.query(
-        query.replace('SELECT df.*', 'SELECT COUNT(*) as count'),
+        query.replace(`SELECT df.*`, `SELECT COUNT(*) as count`),
         params
       )
       const total = parseInt(countResult.rows[0].count)
@@ -637,7 +637,7 @@ export class DocumentFolderService {
       query += ` ORDER BY df.folder_name ASC`
 
       if (options?.limit) {
-        query += ' LIMIT $3'
+        query += ` LIMIT $3`
         params.push(options.limit)
       }
 
@@ -653,7 +653,7 @@ export class DocumentFolderService {
         total
       }
     } catch (error) {
-      console.error('❌ Failed to search folders:', error)
+      console.error(`❌ Failed to search folders:`, error)
       throw error
     }
   }

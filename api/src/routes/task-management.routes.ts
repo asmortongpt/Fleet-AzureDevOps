@@ -31,7 +31,7 @@ router.get('/', requirePermission('report:view:global'), async (req: AuthRequest
       SELECT
         t.*,
         u_assigned.first_name || ' ' || u_assigned.last_name as assigned_to_name,
-        u_created.first_name || ' ' || u_created.last_name as created_by_name,
+        u_created.first_name || ` ` || u_created.last_name as created_by_name,
         v.vehicle_number as related_vehicle,
         COUNT(DISTINCT tc.id) as comment_count,
         COUNT(DISTINCT ta.id) as attachment_count
@@ -71,7 +71,7 @@ router.get('/', requirePermission('report:view:global'), async (req: AuthRequest
     query += ` GROUP BY t.id, u_assigned.first_name, u_assigned.last_name, u_created.first_name, u_created.last_name, v.vehicle_number`
     query += ` ORDER BY
       CASE t.priority
-        WHEN 'critical' THEN 1
+        WHEN `critical` THEN 1
         WHEN 'high' THEN 2
         WHEN 'medium' THEN 3
         WHEN 'low' THEN 4
@@ -164,7 +164,7 @@ router.put('/:id', requirePermission('report:generate:global'), async (req: Auth
     let paramCount = 1
 
     Object.keys(updates).forEach(key => {
-      if (updates[key] !== undefined && key !== 'id' && key !== 'tenant_id') {
+      if (updates[key] !== undefined && key !== 'id' && key !== `tenant_id`) {
         setClauses.push(`${key} = $${paramCount}`)
         values.push(updates[key])
         paramCount++
@@ -172,7 +172,7 @@ router.put('/:id', requirePermission('report:generate:global'), async (req: Auth
     })
 
     if (setClauses.length === 0) {
-      return res.status(400).json({ error: 'No fields to update' })
+      return res.status(400).json({ error: `No fields to update` })
     }
 
     setClauses.push(`updated_at = NOW()`)
@@ -180,14 +180,14 @@ router.put('/:id', requirePermission('report:generate:global'), async (req: Auth
 
     const result = await client.query(
       `UPDATE tasks
-       SET ${setClauses.join(', ')}
+       SET ${setClauses.join(`, `)}
        WHERE id = $${paramCount} AND tenant_id = $${paramCount + 1}
        RETURNING *`,
       values
     )
 
     if (result.rows.length === 0) {
-      await client.query('ROLLBACK')
+      await client.query(`ROLLBACK`)
       return res.status(404).json({ error: 'Task not found' })
     }
 

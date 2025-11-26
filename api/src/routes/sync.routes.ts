@@ -52,7 +52,7 @@ const router = Router()
  *       500:
  *         description: Sync failed
  */
-router.post('/teams/:teamId/channels/:channelId', async (req: Request, res: Response) => {
+router.post(`/teams/:teamId/channels/:channelId`, async (req: Request, res: Response) => {
   try {
     const { teamId, channelId } = req.params
     const userId = (req as any).user?.id
@@ -68,7 +68,7 @@ router.post('/teams/:teamId/channels/:channelId', async (req: Request, res: Resp
       message: `Synced ${result.synced} messages with ${result.errors} errors`
     })
   } catch (error: any) {
-    console.error('Error syncing Teams channel:', error)
+    console.error(`Error syncing Teams channel:`, error)
     res.status(500).json({
       success: false,
       error: 'Failed to sync Teams channel',
@@ -100,7 +100,7 @@ router.post('/teams/:teamId/channels/:channelId', async (req: Request, res: Resp
  *       500:
  *         description: Sync failed
  */
-router.post('/outlook/folders/:folderId', async (req: Request, res: Response) => {
+router.post(`/outlook/folders/:folderId`, async (req: Request, res: Response) => {
   try {
     const { folderId } = req.params
     const userId = (req as any).user?.id
@@ -116,7 +116,7 @@ router.post('/outlook/folders/:folderId', async (req: Request, res: Response) =>
       message: `Synced ${result.synced} emails with ${result.errors} errors`
     })
   } catch (error: any) {
-    console.error('Error syncing Outlook folder:', error)
+    console.error(`Error syncing Outlook folder:`, error)
     res.status(500).json({
       success: false,
       error: 'Failed to sync Outlook folder',
@@ -182,14 +182,14 @@ router.post('/full', async (req: Request, res: Response) => {
     if (userRole !== 'admin' && userRole !== 'fleet_manager') {
       return res.status(403).json({
         success: false,
-        error: 'Insufficient permissions. Only admins can trigger full re-sync.'
+        error: `Insufficient permissions. Only admins can trigger full re-sync.`
       })
     }
 
     console.log(`Full re-sync requested by ${(req as any).user?.email}`)
 
     // Clear all delta tokens
-    await pool.query('UPDATE sync_state SET delta_token = NULL')
+    await pool.query(`UPDATE sync_state SET delta_token = NULL`)
 
     // Trigger both sync jobs
     const teamsResult = await syncService.syncAllTeamsChannels()
@@ -233,8 +233,7 @@ router.post('/full', async (req: Request, res: Response) => {
  *         schema:
  *           type: integer
  *           default: 50
- *         description: Maximum number of errors to return
- *     responses:
+ *         description: Maximum number of errors to return *     responses:
  *       200:
  *         description: Sync errors retrieved successfully
  */
@@ -323,7 +322,7 @@ router.get('/jobs', async (req: Request, res: Response) => {
  *       200:
  *         description: Sync completed successfully
  */
-router.post('/teams/all', async (req: Request, res: Response) => {
+router.post(`/teams/all`, async (req: Request, res: Response) => {
   try {
     const userId = (req as any).user?.id
 
@@ -338,7 +337,7 @@ router.post('/teams/all', async (req: Request, res: Response) => {
       message: `Synced ${result.totalSynced} messages with ${result.totalErrors} errors`
     })
   } catch (error: any) {
-    console.error('Error syncing all Teams channels:', error)
+    console.error(`Error syncing all Teams channels:`, error)
     res.status(500).json({
       success: false,
       error: 'Failed to sync Teams channels',
@@ -361,7 +360,7 @@ router.post('/teams/all', async (req: Request, res: Response) => {
  *       200:
  *         description: Sync completed successfully
  */
-router.post('/outlook/all', async (req: Request, res: Response) => {
+router.post(`/outlook/all`, async (req: Request, res: Response) => {
   try {
     const userId = (req as any).user?.id
 
@@ -376,7 +375,7 @@ router.post('/outlook/all', async (req: Request, res: Response) => {
       message: `Synced ${result.totalSynced} emails with ${result.totalErrors} errors`
     })
   } catch (error: any) {
-    console.error('Error syncing all Outlook folders:', error)
+    console.error(`Error syncing all Outlook folders:`, error)
     res.status(500).json({
       success: false,
       error: 'Failed to sync Outlook folders',

@@ -59,7 +59,7 @@ struct LoginView: View {
 
             // Loading overlay
             if authManager.isLoading {
-                LoadingOverlay()
+                LoginLoadingOverlay()
             }
         }
         .onAppear {
@@ -347,7 +347,7 @@ struct ErrorBanner: View {
 
 // MARK: - Loading Overlay
 
-struct LoadingOverlay: View {
+private struct LoginLoadingOverlay: View {
     var body: some View {
         ZStack {
             Color.black.opacity(0.4)

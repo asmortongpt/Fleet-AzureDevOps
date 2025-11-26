@@ -76,8 +76,7 @@ class EmailNotificationService {
 
       if (!emailHost || !emailUser || !emailPass) {
         logger.warn('Email configuration missing, notifications will be logged only')
-        return
-      }
+        return }
 
       const config: EmailConfig = {
         host: emailHost,
@@ -102,7 +101,7 @@ class EmailNotificationService {
       })
     } catch (error) {
       logger.error('Failed to initialize email transporter', {
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: error instanceof Error ? error.message : `Unknown error`
       })
     }
   }
@@ -136,7 +135,7 @@ class EmailNotificationService {
               <td style="padding: 8px 0;"><strong>Purpose:</strong></td>
               <td style="padding: 8px 0;">${notification.purpose}</td>
             </tr>
-            ' : ''}
+            ` : ``}
           </table>
         </div>
 
@@ -155,16 +154,16 @@ class EmailNotificationService {
       </div>
     `
 
-    return this.sendEmail(notification.driverEmail, subject, html, 'trip_approval_request')
+    return this.sendEmail(notification.driverEmail, subject, html, `trip_approval_request`)
   }
 
   async sendApprovalResult(notification: ApprovalResultNotification): Promise<boolean> {
-    const isApproved = notification.status === 'approved'
-    const subject = 'Personal Use Trip ${isApproved ? 'Approved' : 'Rejected'}'
+    const isApproved = notification.status === `approved`
+    const subject = `Personal Use Trip ${isApproved ? 'Approved' : 'Rejected'}`
     const html = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h2 style="color: ${isApproved ? '#10b981' : '#ef4444'};">
-          Trip ${isApproved ? 'Approved' : 'Rejected'}
+        <h2 style="color: ${isApproved ? "#10b981` : `#ef4444"};">
+          Trip ${isApproved ? 'Approved' : 'Rejected`}
         </h2>
 
         <p>Hello ${notification.driverName},</p>
@@ -183,7 +182,7 @@ class EmailNotificationService {
             </tr>
             <tr>
               <td style="padding: 8px 0;"><strong>Status:</strong></td>
-              <td style="padding: 8px 0; color: ${isApproved ? '#10b981' : '#ef4444'};">
+              <td style="padding: 8px 0; color: ${isApproved ? "#10b981` : `#ef4444"};">
                 <strong>${notification.status.toUpperCase()}</strong>
               </td>
             </tr>
@@ -192,7 +191,7 @@ class EmailNotificationService {
               <td style="padding: 8px 0;"><strong>Reason:</strong></td>
               <td style="padding: 8px 0;">${notification.rejectionReason}</td>
             </tr>
-            ' : ''}
+            ` : ``}
           </table>
         </div>
 
@@ -211,7 +210,7 @@ class EmailNotificationService {
       </div>
     `
 
-    return this.sendEmail(notification.driverEmail, subject, html, 'approval_result')
+    return this.sendEmail(notification.driverEmail, subject, html, `approval_result`)
   }
 
   async sendLimitWarning(notification: LimitWarningNotification): Promise<boolean> {
@@ -240,7 +239,7 @@ class EmailNotificationService {
           <p style="color: #dc2626; font-weight: bold;">
             ⚠️ You have less than 5% of your ${notification.period}ly limit remaining!
           </p>
-        ' : ''}
+        ` : ``}
 
         <p>Please review your upcoming trips and ensure essential personal use only.</p>
 
@@ -259,7 +258,7 @@ class EmailNotificationService {
       </div>
     `
 
-    return this.sendEmail(notification.driverEmail, subject, html, 'limit_warning')
+    return this.sendEmail(notification.driverEmail, subject, html, `limit_warning`)
   }
 
   /**

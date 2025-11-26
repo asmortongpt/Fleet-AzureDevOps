@@ -362,7 +362,7 @@ router.post(
       if (!message) {
         return res.status(400).json({
           success: false,
-          error: 'Message is required',
+          error: `Message is required`,
         });
       }
 
@@ -382,7 +382,7 @@ router.post(
         message: `Sent ${results.successful} messages, ${results.failed} failed`,
       });
     } catch (error) {
-      console.error('Error sending bulk SMS:', error);
+      console.error(`Error sending bulk SMS:`, error);
       res.status(500).json({
         success: false,
         error: 'Failed to send bulk SMS',

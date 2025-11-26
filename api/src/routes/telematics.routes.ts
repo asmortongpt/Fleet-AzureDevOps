@@ -274,7 +274,7 @@ router.get(
         count: result.rows.length
       })
     } catch (error) {
-      console.error('Get vehicle history error:', error)
+      console.error(`Get vehicle history error:`, error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -300,7 +300,7 @@ router.get(
           dse.address, dse.speed_mph, dse.g_force, dse.timestamp,
           dse.video_url, dse.video_thumbnail_url,
           v.name as vehicle_name, v.vin,
-          d.first_name || ' ' || d.last_name as driver_name,
+          d.first_name || ` ` || d.last_name as driver_name,
           tp.display_name as provider
         FROM driver_safety_events dse
         JOIN vehicles v ON dse.vehicle_id = v.id
@@ -345,7 +345,7 @@ router.get(
 
       const result = await pool.query(query, params)
 
-      const countQuery = query.split('ORDER BY')[0].replace(/SELECT .* FROM/, 'SELECT COUNT(*) FROM')
+      const countQuery = query.split(`ORDER BY')[0].replace(/SELECT .* FROM/, 'SELECT COUNT(*) FROM')
       const countResult = await pool.query(countQuery, params.slice(0, -2))
 
       res.json({

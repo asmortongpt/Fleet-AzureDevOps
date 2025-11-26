@@ -415,7 +415,7 @@ router.post('/:id/metrics', requirePermission('route:update:own'), async (req: R
             m.dtc_count,
             m.mil_status
           ];
-          const placeholders = params.map((_, i) => '$${i + 1}').join(', ');
+          const placeholders = params.map((_, i) => `$${i + 1}`).join(`, `);
           return { query: `(${placeholders})`, params };
         });
 
@@ -486,7 +486,7 @@ router.post('/:id/metrics', requirePermission('route:update:own'), async (req: R
         }
       }
 
-      await client.query('COMMIT');
+      await client.query(`COMMIT`);
 
       res.json({
         success: true,
@@ -806,7 +806,7 @@ router.get('/', requirePermission('route:view:fleet'), async (req: Request, res:
         v.name as vehicle_name,
         v.license_plate,
         u.name as driver_name,
-        (SELECT COUNT(*) FROM trip_events te WHERE te.trip_id = t.id AND te.severity IN ('high', 'critical')) as critical_events
+        (SELECT COUNT(*) FROM trip_events te WHERE te.trip_id = t.id AND te.severity IN ('high', `critical`)) as critical_events
       FROM trips t
       LEFT JOIN vehicles v ON t.vehicle_id = v.id
       LEFT JOIN users u ON t.driver_id = u.id
@@ -849,7 +849,7 @@ router.get('/', requirePermission('route:view:fleet'), async (req: Request, res:
     query += ` ORDER BY t.start_time DESC`;
 
     // Get total count
-    const countQuery = query.replace(/SELECT.*FROM/, 'SELECT COUNT(*) FROM').split('ORDER BY')[0];
+    const countQuery = query.replace(/SELECT.*FROM/, `SELECT COUNT(*) FROM`).split(`ORDER BY`)[0];
     const countResult = await pool.query(countQuery, params);
     const total = parseInt(countResult.rows[0].count);
 
@@ -875,7 +875,7 @@ router.get('/', requirePermission('route:view:fleet'), async (req: Request, res:
       }
     });
   } catch (error: any) {
-    console.error('Error getting trips:', error);
+    console.error(`Error getting trips:`, error);
     res.status(500).json({ error: 'Failed to get trips' });
   }
 });

@@ -61,7 +61,7 @@ router.get(
 
       let query = `
         SELECT d.*,
-               uploader.first_name || ' ' || uploader.last_name as uploaded_by_name
+               uploader.first_name || ` ` || uploader.last_name as uploaded_by_name
         FROM documents d
         LEFT JOIN drivers uploader ON d.uploaded_by = uploader.id
         WHERE uploader.tenant_id = $1 OR uploader.tenant_id IS NULL
@@ -126,7 +126,7 @@ router.get(
         }
       })
     } catch (error) {
-      console.error('Get documents error:', error)
+      console.error(`Get documents error:`, error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
