@@ -12,6 +12,12 @@
  */
 
 // ============================================================================
+// PRESERVE NATIVE MAP CONSTRUCTOR
+// CRITICAL: Must capture native Map before Leaflet pollutes global namespace
+// ============================================================================
+const NativeMap = globalThis.Map;
+
+// ============================================================================
 // LOG LEVELS
 // ============================================================================
 
@@ -58,7 +64,7 @@ interface ValidationResult {
 
 class ModuleLoggerClass {
   private logs: LogEntry[] = []
-  private metrics: Map<string, ModuleMetrics> = new Map()
+  private metrics: NativeMap<string, ModuleMetrics> = new NativeMap()
   private maxLogs = 1000
   private isEnabled = true
   private logToConsole = process.env.NODE_ENV === 'development'
@@ -264,7 +270,7 @@ class ModuleLoggerClass {
   // REPORTING
   // -------------------------------------------------------------------------
 
-  getModuleMetrics(module?: string): Map<string, ModuleMetrics> | ModuleMetrics | undefined {
+  getModuleMetrics(module?: string): NativeMap<string, ModuleMetrics> | ModuleMetrics | undefined {
     if (module) {
       return this.metrics.get(module)
     }
