@@ -21,7 +21,7 @@ router.get(
 
       // Row-level filtering: check if user is a driver
       const userResult = await pool.query(
-        'SELECT id FROM drivers WHERE user_id = $1 AND tenant_id = $2',
+        `SELECT id FROM drivers WHERE user_id = $1 AND tenant_id = $2`,
         [req.user!.id, req.user!.tenant_id]
       )
 
@@ -47,14 +47,14 @@ router.get(
       notes,
       created_at,
       updated_at FROM routes WHERE tenant_id = $1`
-      let countQuery = 'SELECT COUNT(*) FROM routes WHERE tenant_id = $1'
+      let countQuery = `SELECT COUNT(*) FROM routes WHERE tenant_id = $1`
       const params: any[] = [req.user!.tenant_id]
 
       // If user is a driver, filter to only their routes
       if (userResult.rows.length > 0) {
         const driverId = userResult.rows[0].id
-        query += ' AND driver_id = $2 ORDER BY created_at DESC LIMIT $3 OFFSET $4'
-        countQuery += ' AND driver_id = $2'
+        query += ` AND driver_id = $2 ORDER BY created_at DESC LIMIT $3 OFFSET $4`
+        countQuery += ` AND driver_id = $2'
         params.push(driverId, limit, offset)
       } else {
         query += ' ORDER BY created_at DESC LIMIT $2 OFFSET $3'
@@ -91,7 +91,7 @@ router.get(
     customCheck: async (req: AuthRequest) => {
       // IDOR check: verify the route belongs to the user if they're a driver
       const driverResult = await pool.query(
-        'SELECT id FROM drivers WHERE user_id = $1 AND tenant_id = $2',
+        `SELECT id FROM drivers WHERE user_id = $1 AND tenant_id = $2`,
         [req.user!.id, req.user!.tenant_id]
       )
 
@@ -102,14 +102,14 @@ router.get(
 
       // If user is a driver, verify the route belongs to them
       const routeResult = await pool.query(
-        'SELECT id FROM routes WHERE id = $1 AND driver_id = $2 AND tenant_id = $3',
+        `SELECT id FROM routes WHERE id = $1 AND driver_id = $2 AND tenant_id = $3`,
         [req.params.id, driverResult.rows[0].id, req.user!.tenant_id]
       )
 
       return routeResult.rows.length > 0
     }
   }),
-  auditLog({ action: 'READ', resourceType: 'routes' }),
+  auditLog({ action: `READ`, resourceType: 'routes' }),
   async (req: AuthRequest, res: Response) => {
     try {
       const result = await pool.query(
@@ -134,17 +134,17 @@ router.get(
       route_geometry,
       notes,
       created_at,
-      updated_at FROM routes WHERE id = $1 AND tenant_id = $2',
+      updated_at FROM routes WHERE id = $1 AND tenant_id = $2`,
         [req.params.id, req.user!.tenant_id]
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'Routes not found' })
+        return res.status(404).json({ error: `Routes not found` })
       }
 
       res.json(result.rows[0])
     } catch (error) {
-      console.error('Get routes error:', error)
+      console.error(`Get routes error:', error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -173,19 +173,19 @@ router.post(
       res.status(201).json(result.rows[0])
     } catch (error) {
       console.error(`Create routes error:`, error)
-      res.status(500).json({ error: 'Internal server error' })
+      res.status(500).json({ error: `Internal server error` })
     }
   }
 )
 
 // PUT /routes/:id
 router.put(
-  '/:id',
+  `/:id`,
   requirePermission('route:update:fleet', {
     customCheck: async (req: AuthRequest) => {
       // Prevent modifying completed routes
       const routeResult = await pool.query(
-        'SELECT status FROM routes WHERE id = $1 AND tenant_id = $2',
+        `SELECT status FROM routes WHERE id = $1 AND tenant_id = $2`,
         [req.params.id, req.user!.tenant_id]
       )
 
@@ -195,14 +195,14 @@ router.put(
 
       // Block updates to completed routes
       const status = routeResult.rows[0].status
-      if (status === 'completed') {
+      if (status === `completed`) {
         return false
       }
 
       return true
     }
   }),
-  auditLog({ action: 'UPDATE', resourceType: 'routes' }),
+  auditLog({ action: `UPDATE`, resourceType: 'routes' }),
   async (req: AuthRequest, res: Response) => {
     try {
       const data = req.body
@@ -219,8 +219,8 @@ router.put(
 
       res.json(result.rows[0])
     } catch (error) {
-      console.error('Update routes error:', error)
-      res.status(500).json({ error: 'Internal server error' })
+      console.error(`Update routes error:`, error)
+      res.status(500).json({ error: `Internal server error` })
     }
   }
 )
@@ -233,7 +233,7 @@ router.delete(
   async (req: AuthRequest, res: Response) => {
     try {
       const result = await pool.query(
-        'DELETE FROM routes WHERE id = $1 AND tenant_id = $2 RETURNING id',
+        'DELETE FROM routes WHERE id = $1 AND tenant_id = $2 RETURNING id`,
         [req.params.id, req.user!.tenant_id]
       )
 

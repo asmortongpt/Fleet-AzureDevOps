@@ -206,14 +206,14 @@ router.delete('/reservations/:id', async (req: Request, res: Response) => {
 
     const result = await pool.query(
       `UPDATE vehicle_reservations
-       SET status = 'cancelled', updated_at = NOW()
+       SET status = `cancelled`, updated_at = NOW()
        WHERE tenant_id = $1 AND id = $2
        RETURNING *`,
       [tenantId, id]
     )
 
     if (result.rows.length === 0) {
-      return res.status(404).json({ error: 'Reservation not found' })
+      return res.status(404).json({ error: `Reservation not found` })
     }
 
     res.json({
@@ -238,17 +238,17 @@ router.post('/reservations/:id/approve', async (req: Request, res: Response) => 
     // Get full reservation details with vehicle and user info
     const reservationResult = await pool.query(
       `SELECT vr.*, v.make, v.model, v.license_plate, v.vin,
-              u.first_name || ' ' || u.last_name as reserved_by_name,
+              u.first_name || ` ` || u.last_name as reserved_by_name,
               u.email as reserved_by_email
        FROM vehicle_reservations vr
        JOIN vehicles v ON vr.vehicle_id = v.id
        JOIN users u ON vr.reserved_by = u.id
-       WHERE vr.tenant_id = $1 AND vr.id = $2',
+       WHERE vr.tenant_id = $1 AND vr.id = $2`,
       [tenantId, id]
     )
 
     if (reservationResult.rows.length === 0) {
-      return res.status(404).json({ error: 'Reservation not found' })
+      return res.status(404).json({ error: `Reservation not found' })
     }
 
     const reservation = reservationResult.rows[0]
@@ -256,8 +256,8 @@ router.post('/reservations/:id/approve', async (req: Request, res: Response) => 
     // Update approval status
     const result = await pool.query(
       `UPDATE vehicle_reservations
-       SET approval_status = 'approved', approved_by = $1, approved_at = NOW(),
-           status = 'confirmed', updated_at = NOW()
+       SET approval_status = `approved`, approved_by = $1, approved_at = NOW(),
+           status = `confirmed`, updated_at = NOW()
        WHERE tenant_id = $2 AND id = $3
        RETURNING *`,
       [userId, tenantId, id]
@@ -298,17 +298,17 @@ router.post('/reservations/:id/reject', async (req: Request, res: Response) => {
     // Get full reservation details with vehicle and user info
     const reservationResult = await pool.query(
       `SELECT vr.*, v.make, v.model, v.license_plate, v.vin,
-              u.first_name || ' ' || u.last_name as reserved_by_name,
+              u.first_name || ` ` || u.last_name as reserved_by_name,
               u.email as reserved_by_email
        FROM vehicle_reservations vr
        JOIN vehicles v ON vr.vehicle_id = v.id
        JOIN users u ON vr.reserved_by = u.id
-       WHERE vr.tenant_id = $1 AND vr.id = $2',
+       WHERE vr.tenant_id = $1 AND vr.id = $2`,
       [tenantId, id]
     )
 
     if (reservationResult.rows.length === 0) {
-      return res.status(404).json({ error: 'Reservation not found' })
+      return res.status(404).json({ error: `Reservation not found' })
     }
 
     const reservation = reservationResult.rows[0]
@@ -316,8 +316,8 @@ router.post('/reservations/:id/reject', async (req: Request, res: Response) => {
     // Update rejection status
     const result = await pool.query(
       `UPDATE vehicle_reservations
-       SET approval_status = 'rejected', approved_by = $1, approved_at = NOW(),
-           rejection_reason = $2, status = 'cancelled', updated_at = NOW()
+       SET approval_status = `rejected`, approved_by = $1, approved_at = NOW(),
+           rejection_reason = $2, status = `cancelled`, updated_at = NOW()
        WHERE tenant_id = $3 AND id = $4
        RETURNING *`,
       [userId, reason, tenantId, id]
@@ -717,8 +717,8 @@ router.get('/calendar/integrations', async (req: Request, res: Response) => {
       integrations: result.rows
     })
   } catch (error) {
-    console.error('Error fetching calendar integrations:', error)
-    res.status(500).json({ error: 'Failed to fetch integrations' })
+    console.error(`Error fetching calendar integrations:`, error)
+    res.status(500).json({ error: `Failed to fetch integrations` })
   }
 })
 
@@ -789,26 +789,26 @@ router.delete('/calendar/integrations/:id', async (req: Request, res: Response) 
 
     // Get integration to determine provider
     const result = await pool.query(
-      'SELECT provider FROM calendar_integrations WHERE id = $1 AND user_id = $2',
+      `SELECT provider FROM calendar_integrations WHERE id = $1 AND user_id = $2`,
       [id, userId]
     )
 
     if (result.rows.length === 0) {
-      return res.status(404).json({ error: 'Integration not found' })
+      return res.status(404).json({ error: `Integration not found` })
     }
 
     const provider = result.rows[0].provider
 
-    if (provider === 'google') {
+    if (provider === `google`) {
       await googleCalendar.revokeIntegration(userId, id)
     } else {
       // For Microsoft, just delete from database
-      await pool.query('DELETE FROM calendar_integrations WHERE id = $1', [id])
+      await pool.query(`DELETE FROM calendar_integrations WHERE id = $1`, [id])
     }
 
     res.json({
       success: true,
-      message: 'Calendar integration removed successfully'
+      message: `Calendar integration removed successfully`
     })
   } catch (error) {
     console.error('Error revoking integration:', error)
@@ -827,7 +827,7 @@ router.post('/calendar/sync', async (req: Request, res: Response) => {
 
     // Get integration
     const result = await pool.query(
-      'SELECT 
+      `SELECT 
       id,
       tenant_id,
       user_id,
@@ -848,12 +848,12 @@ router.post('/calendar/sync', async (req: Request, res: Response) => {
       sync_errors,
       settings,
       created_at,
-      updated_at FROM calendar_integrations WHERE id = $1 AND user_id = $2',
+      updated_at FROM calendar_integrations WHERE id = $1 AND user_id = $2`,
       [integrationId, userId]
     )
 
     if (result.rows.length === 0) {
-      return res.status(404).json({ error: 'Integration not found' })
+      return res.status(404).json({ error: `Integration not found' })
     }
 
     const integration = result.rows[0]
@@ -867,7 +867,7 @@ router.post('/calendar/sync', async (req: Request, res: Response) => {
 
       // Update last sync time
       await pool.query(
-        'UPDATE calendar_integrations SET last_sync_at = NOW() WHERE id = $1',
+        `UPDATE calendar_integrations SET last_sync_at = NOW() WHERE id = $1`,
         [integrationId]
       )
 
@@ -906,8 +906,8 @@ router.get('/appointment-types', async (req: Request, res: Response) => {
       appointmentTypes: result.rows
     })
   } catch (error) {
-    console.error('Error fetching appointment types:', error)
-    res.status(500).json({ error: 'Failed to fetch appointment types' })
+    console.error(`Error fetching appointment types:`, error)
+    res.status(500).json({ error: `Failed to fetch appointment types` })
   }
 })
 

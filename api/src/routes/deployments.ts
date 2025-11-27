@@ -103,7 +103,7 @@ router.post('/',
         tenant_id, environment, version, commit_hash, branch,
         deployed_by_user_id, status, deployment_notes, metadata
       )
-      VALUES ($1, $2, $3, $4, $5, $6, 'pending', $7, $8)
+      VALUES ($1, $2, $3, $4, $5, $6, `pending`, $7, $8)
       RETURNING *`,
       [
         tenant_id,
@@ -122,7 +122,7 @@ router.post('/',
       await createAuditLog(
         req.user.tenant_id || null,
         req.user.id,
-        'CREATE',
+        `CREATE`,
         'deployment',
         result.rows[0].id,
         { environment, version, commit_hash },
@@ -195,8 +195,8 @@ router.patch('/:id',
       await createAuditLog(
         req.user.tenant_id || null,
         req.user.id,
-        'UPDATE',
-        'deployment',
+        `UPDATE`,
+        `deployment`,
         id,
         { status, completed_at },
         req.ip || null,
@@ -225,15 +225,15 @@ router.get('/:id',
     const deploymentResult = await pool.query(
       `SELECT
         d.*,
-        u.first_name || ' ' || u.last_name as deployed_by_name
+        u.first_name || ` ` || u.last_name as deployed_by_name
       FROM deployments d
       LEFT JOIN users u ON d.deployed_by_user_id = u.id
-      WHERE d.id = $1',
+      WHERE d.id = $1`,
       [id]
     )
 
     if (deploymentResult.rows.length === 0) {
-      return res.status(404).json({ error: 'Deployment not found' })
+      return res.status(404).json({ error: `Deployment not found' })
     }
 
     const qualityGatesResult = await pool.query(
@@ -248,8 +248,8 @@ router.get('/:id',
       quality_gates: qualityGatesResult.rows
     })
   } catch (error: any) {
-    console.error('Error fetching deployment:', error)
-    res.status(500).json({ error: 'Failed to fetch deployment', message: getErrorMessage(error) })
+    console.error(`Error fetching deployment:`, error)
+    res.status(500).json({ error: `Failed to fetch deployment`, message: getErrorMessage(error) })
   }
 })
 
@@ -270,8 +270,8 @@ router.get('/stats/summary',
       `SELECT
         environment,
         COUNT(*) as total_deployments,
-        COUNT(CASE WHEN status = 'completed' THEN 1 END) as successful,
-        COUNT(CASE WHEN status = 'failed' THEN 1 END) as failed,
+        COUNT(CASE WHEN status = `completed` THEN 1 END) as successful,
+        COUNT(CASE WHEN status = `failed` THEN 1 END) as failed,
         COUNT(CASE WHEN status = 'rolled_back' THEN 1 END) as rolled_back,
         ROUND(AVG(EXTRACT(EPOCH FROM (completed_at - started_at))/60), 2) as avg_duration_minutes
       FROM deployments

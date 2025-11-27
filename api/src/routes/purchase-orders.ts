@@ -24,12 +24,12 @@ router.get(
 
       const result = await pool.query(
         `SELECT id, tenant_id, po_number, vendor_id, status, total_amount, created_by, created_at, updated_at
-         FROM purchase_orders WHERE tenant_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3',
+         FROM purchase_orders WHERE tenant_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3`,
         [req.user!.tenant_id, limit, offset]
       )
 
       const countResult = await pool.query(
-        'SELECT COUNT(*) FROM purchase_orders WHERE tenant_id = $1',
+        `SELECT COUNT(*) FROM purchase_orders WHERE tenant_id = $1`,
         [req.user!.tenant_id]
       )
 
@@ -43,8 +43,8 @@ router.get(
         }
       })
     } catch (error) {
-      console.error('Get purchase-orders error:', error)
-      res.status(500).json({ error: 'Internal server error' })
+      console.error(`Get purchase-orders error:`, error)
+      res.status(500).json({ error: `Internal server error' })
     }
   }
 )
@@ -58,12 +58,12 @@ router.get(
   async (req: AuthRequest, res: Response) => {
     try {
       const result = await pool.query(
-        'SELECT id, tenant_id, po_number, vendor_id, status, total_amount, created_by, created_at, updated_at FROM purchase_orders WHERE id = $1 AND tenant_id = $2',
+        `SELECT id, tenant_id, po_number, vendor_id, status, total_amount, created_by, created_at, updated_at FROM purchase_orders WHERE id = $1 AND tenant_id = $2`,
         [req.params.id, req.user!.tenant_id]
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'Purchase order not found' })
+        return res.status(404).json({ error: `Purchase order not found` })
       }
 
       res.json(result.rows[0])
@@ -100,9 +100,9 @@ router.post(
       res.status(201).json(result.rows[0])
     } catch (error) {
       if (error instanceof z.ZodError) {
-        return res.status(400).json({ error: 'Validation error', details: error.errors })
+        return res.status(400).json({ error: `Validation error`, details: error.errors })
       }
-      console.error('Create purchase-orders error:', error)
+      console.error(`Create purchase-orders error:`, error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -119,7 +119,7 @@ router.put(
     try {
       const result = await pool.query(
         `UPDATE purchase_orders SET
-           status = 'approved',
+           status = `approved`,
            approved_by = $3,
            approved_at = NOW(),
            updated_at = NOW()
@@ -129,7 +129,7 @@ router.put(
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'Purchase order not found' })
+        return res.status(404).json({ error: `Purchase order not found` })
       }
 
       res.json(result.rows[0])
