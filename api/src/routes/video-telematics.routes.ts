@@ -618,7 +618,7 @@ router.post(
       res.json({
         message: `Privacy processing queued`,
         eventId,
-        status: `pending`
+        status: 'pending'
       });
     } catch (error: any) {
       console.error(`Apply privacy blur error:`, error);
