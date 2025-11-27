@@ -1,0 +1,78 @@
+environments:
+  staging:
+    azure_static_web_app_name: fleet-management-staging
+    deployment_token_secret: AZURE_STATIC_WEB_APPS_API_TOKEN
+    health_endpoint: https://purple-river-0f465960f.3.azurestaticapps.net
+  prod:
+    azure_static_web_app_name: fleet-management-prod
+    deployment_token_secret: AZURE_STATIC_WEB_APPS_API_TOKEN_PROD
+    health_endpoint: https://fleet.capitaltechalliance.com
+
+quality_gates:
+  - name: build
+    command: npm run build
+    success_pattern: "✓ built in"
+    timeout: 300
+  - name: no_errors
+    command: npm run build
+    fail_pattern: "error|ERROR|Error"
+    timeout: 300
+  - name: health_check
+    url: "${health_endpoint}"
+    expect_status: 200
+    timeout: 30
+  - name: no_console_errors
+    playwright_check: true
+    fail_patterns:
+      - "useLayoutEffect"
+      - "Uncaught"
+      - "TypeError"
+      - "Cannot read properties of undefined"
+      - "Cannot read properties of null"
+    timeout: 60
+
+max_iterations: 5
+stop_conditions:
+  - all_gates_pass
+  - no_diff_twice
+  - max_iterations_reached
+
+secrets_required:
+  - OPENAI_API_KEY
+  - GEMINI_API_KEY
+  - AZURE_STATIC_WEB_APPS_API_TOKEN
+
+agent_config:
+  codex:
+    model: gpt-4-turbo-preview
+    temperature: 0.2
+    max_tokens: 4000
+  jules:
+    model: gemini-1.5-pro
+    temperature: 0.1
+    max_tokens: 2000
+
+safety:
+  protected_files:
+    - "*.env"
+    - "*.env.*"
+    - "**/secrets/**"
+    - "**/.azure/**"
+  protected_operations:
+    - delete_azure_resources
+    - modify_secrets
+    - force_push_main
+  require_approval_for:
+    - prod_deployment
+    - infrastructure_changes
+    - secret_modifications
+
+logging:
+  level: INFO
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  file: agent_orch/logs/orchestrator.log
+
+retry_config:
+  max_retries: 3
+  backoff_factor: 2
+  retry_status_codes: [429, 500, 502, 503, 504]

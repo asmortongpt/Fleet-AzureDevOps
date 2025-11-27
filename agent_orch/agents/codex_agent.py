@@ -1,0 +1,250 @@
+#!/usr/bin/env python3
+"""
+Codex Agent - Uses OpenAI GPT-4 to analyze errors and generate fixes.
+This agent is responsible for diagnosing React module loading issues and
+creating unified git patches for vite.config.ts, package.json, etc.
+"""
+
+import os
+import json
+import logging
+from typing import Dict, List, Optional, Tuple
+from openai import OpenAI
+from tenacity import retry, stop_after_attempt, wait_exponential
+
+logger = logging.getLogger(__name__)
+
+
+class CodexAgent:
+    """OpenAI-powered agent that analyzes errors and generates code fixes."""
+
+    def __init__(self, api_key: str, model: str = "gpt-4-turbo-preview", temperature: float = 0.2):
+        """
+        Initialize the Codex Agent.
+
+        Args:
+            api_key: OpenAI API key
+            model: Model to use (default: gpt-4-turbo-preview)
+            temperature: Sampling temperature (default: 0.2 for focused fixes)
+        """
+        self.client = OpenAI(api_key=api_key)
+        self.model = model
+        self.temperature = temperature
+        logger.info(f"Initialized CodexAgent with model={model}, temperature={temperature}")
+
+    @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=2, max=10))
+    def analyze_error(self, error_log: str, context: Dict[str, str]) -> Dict[str, any]:
+        """
+        Analyze error logs and repository context to diagnose issues.
+
+        Args:
+            error_log: Error messages and stack traces
+            context: Repository context (vite.config.ts, package.json, etc.)
+
+        Returns:
+            Dictionary with diagnosis and recommended fixes
+        """
+        logger.info("Analyzing error with OpenAI GPT-4...")
+
+        system_prompt = """You are an expert React + Vite build engineer specializing in module loading issues.
+Your task is to analyze errors and provide precise, minimal fixes.
+
+Focus areas:
+- React module loading order (useLayoutEffect errors)
+- Vite chunk configuration (manualChunks, modulePreload)
+- ESM/CJS interop issues
+- Circular dependencies
+
+Provide:
+1. Root cause analysis
+2. Specific file changes (unified diff format)
+3. Explanation of why the fix works
+4. Risk assessment
+
+CRITICAL: Only suggest changes that are:
+- Minimal and surgical
+- Well-tested patterns
+- Safe for production
+- Do NOT delete files or Azure resources
+"""
+
+        user_prompt = f"""## Error Log
+```
+{error_log}
+```
+
+## Repository Context
+
+### vite.config.ts
+```typescript
+{context.get('vite.config.ts', 'Not provided')}
+```
+
+### package.json
+```json
+{context.get('package.json', 'Not provided')}
+```
+
+### Build Output
+```
+{context.get('build_output', 'Not provided')}
+```
+
+Analyze this error and provide:
+1. Root cause (be specific)
+2. Git patch (unified diff format) for fixes
+3. Explanation of the fix
+4. Risk level (LOW/MEDIUM/HIGH)
+
+Return response as JSON:
+{{
+  "root_cause": "...",
+  "fixes": [
+    {{
+      "file": "vite.config.ts",
+      "patch": "unified diff here",
+      "reason": "why this fixes the issue"
+    }}
+  ],
+  "explanation": "detailed explanation",
+  "risk_level": "LOW|MEDIUM|HIGH",
+  "confidence": 0.0-1.0
+}}
+"""
+
+        try:
+            response = self.client.chat.completions.create(
+                model=self.model,
+                messages=[
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": user_prompt}
+                ],
+                temperature=self.temperature,
+                max_tokens=4000,
+                response_format={"type": "json_object"}
+            )
+
+            result = json.loads(response.choices[0].message.content)
+            logger.info(f"Analysis complete. Root cause: {result.get('root_cause', 'Unknown')}")
+            return result
+
+        except Exception as e:
+            logger.error(f"Error during analysis: {str(e)}")
+            raise
+
+    def generate_fix(self, diagnosis: Dict[str, any]) -> List[Tuple[str, str]]:
+        """
+        Generate file patches from diagnosis.
+
+        Args:
+            diagnosis: Output from analyze_error()
+
+        Returns:
+            List of (filename, patch) tuples
+        """
+        fixes = []
+        for fix in diagnosis.get('fixes', []):
+            filename = fix.get('file')
+            patch = fix.get('patch')
+            if filename and patch:
+                fixes.append((filename, patch))
+                logger.info(f"Generated fix for {filename}")
+        return fixes
+
+    def create_commit_message(self, diagnosis: Dict[str, any]) -> str:
+        """
+        Create a descriptive commit message from the diagnosis.
+
+        Args:
+            diagnosis: Output from analyze_error()
+
+        Returns:
+            Commit message string
+        """
+        root_cause = diagnosis.get('root_cause', 'Unknown issue')
+        explanation = diagnosis.get('explanation', '')
+
+        message = f"""fix: {root_cause}
+
+{explanation}
+
+Risk Level: {diagnosis.get('risk_level', 'UNKNOWN')}
+Confidence: {diagnosis.get('confidence', 0.0):.0%}
+
+Generated by Multi-Agent Orchestrator (Codex Agent)
+"""
+        return message
+
+    def validate_fix_safety(self, diagnosis: Dict[str, any], protected_files: List[str]) -> Tuple[bool, List[str]]:
+        """
+        Validate that the proposed fix is safe to apply.
+
+        Args:
+            diagnosis: Output from analyze_error()
+            protected_files: List of file patterns that should not be modified
+
+        Returns:
+            (is_safe, warnings) tuple
+        """
+        warnings = []
+        is_safe = True
+
+        # Check risk level
+        risk = diagnosis.get('risk_level', 'UNKNOWN')
+        if risk == 'HIGH':
+            warnings.append(f"High risk fix detected: {diagnosis.get('root_cause')}")
+            is_safe = False
+
+        # Check confidence
+        confidence = diagnosis.get('confidence', 0.0)
+        if confidence < 0.6:
+            warnings.append(f"Low confidence fix: {confidence:.0%}")
+            is_safe = False
+
+        # Check protected files
+        for fix in diagnosis.get('fixes', []):
+            filename = fix.get('file', '')
+            for pattern in protected_files:
+                if pattern in filename or filename.endswith(pattern):
+                    warnings.append(f"Attempting to modify protected file: {filename}")
+                    is_safe = False
+
+        if is_safe:
+            logger.info("Fix validation passed")
+        else:
+            logger.warning(f"Fix validation failed: {', '.join(warnings)}")
+
+        return is_safe, warnings
+
+
+if __name__ == "__main__":
+    # Test the agent
+    import sys
+    logging.basicConfig(level=logging.INFO)
+
+    api_key = os.getenv("OPENAI_API_KEY")
+    if not api_key:
+        print("ERROR: OPENAI_API_KEY not set")
+        sys.exit(1)
+
+    agent = CodexAgent(api_key)
+
+    # Test error
+    error_log = """
+    Uncaught TypeError: Cannot read properties of undefined (reading 'useLayoutEffect')
+        at index-BwZojry1.js:35203:24
+    """
+
+    context = {
+        "vite.config.ts": "// vite config here",
+        "package.json": "{}",
+        "build_output": "Build completed with errors"
+    }
+
+    diagnosis = agent.analyze_error(error_log, context)
+    print(json.dumps(diagnosis, indent=2))
+
+    is_safe, warnings = agent.validate_fix_safety(diagnosis, [".env", "secrets"])
+    print(f"\nSafe: {is_safe}")
+    if warnings:
+        print(f"Warnings: {', '.join(warnings)}")
