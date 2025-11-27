@@ -109,7 +109,7 @@ router.get(
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: `OSHA 300 log entry not found' })
+        return res.status(404).json({ error: 'OSHA 300 log entry not found' })
       }
 
       res.json(result.rows[0])
@@ -479,8 +479,8 @@ router.get(
          FROM vehicle_safety_inspections vsi
          JOIN vehicles v ON vsi.vehicle_id = v.id
          WHERE v.tenant_id = $1
-         AND vsi.overall_status = `Fail`
-         AND vsi.inspection_date >= CURRENT_DATE - INTERVAL `30 days`',
+         AND vsi.overall_status = 'Fail'
+         AND vsi.inspection_date >= CURRENT_DATE - INTERVAL '30 days'',
         [req.user!.tenant_id]
       )
 
@@ -490,7 +490,7 @@ router.get(
          FROM safety_training_records str
          JOIN drivers d ON str.employee_id = d.id
          WHERE d.tenant_id = $1
-         AND str.certification_expiry_date BETWEEN CURRENT_DATE AND CURRENT_DATE + INTERVAL `60 days``,
+         AND str.certification_expiry_date BETWEEN CURRENT_DATE AND CURRENT_DATE + INTERVAL '60 days``,
         [req.user!.tenant_id]
       )
 
@@ -500,7 +500,7 @@ router.get(
          FROM accident_investigations ai
          JOIN vehicles v ON ai.vehicle_id = v.id
          WHERE v.tenant_id = $1
-         AND ai.accident_date >= CURRENT_DATE - INTERVAL `90 days`
+         AND ai.accident_date >= CURRENT_DATE - INTERVAL '90 days'
          GROUP BY severity`,
         [req.user!.tenant_id]
       )

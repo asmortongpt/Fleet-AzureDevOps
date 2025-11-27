@@ -56,7 +56,7 @@ const upload = multer({
   },
   fileFilter: (req, file, cb) => {
     // Accept images and videos
-    if (file.mimetype.startsWith(`image/') || file.mimetype.startsWith('video/')) {
+    if (file.mimetype.startsWith('image/') || file.mimetype.startsWith('video/')) {
       cb(null, true);
     } else {
       cb(new Error('Only image and video files are allowed'));

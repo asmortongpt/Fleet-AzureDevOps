@@ -82,7 +82,7 @@ router.get(
     let paramCount = 1
 
     // Non-admin users can only see their own charges
-    if (!['admin', `fleet_manager`].includes(req.user!.role)) {
+    if (!['admin', 'fleet_manager'].includes(req.user!.role)) {
       paramCount++
       query += ` AND c.driver_id = $${paramCount}`
       params.push(req.user!.id)
@@ -187,7 +187,7 @@ router.get(
     const charge = result.rows[0]
 
     // Non-admin users can only see their own charges
-    if (![`admin`, 'fleet_manager'].includes(req.user!.role) &&
+    if (!['admin', 'fleet_manager'].includes(req.user!.role) &&
         charge.driver_id !== req.user!.id) {
       return res.status(403).json({ error: 'Access denied' })
     }
@@ -248,7 +248,7 @@ router.post(
 
       if (!ratePerMile) {
         return res.status(400).json({
-          error: `Personal use rate per mile is not configured'
+          error: 'Personal use rate per mile is not configured'
         })
       }
 
@@ -259,7 +259,7 @@ router.post(
          WHERE driver_id = $1
            AND tenant_id = $2
            AND TO_CHAR(trip_date, `YYYY-MM`) = $3
-           AND approval_status = `approved`
+           AND approval_status = 'approved'
            AND miles_personal > 0
          ORDER BY trip_date ASC`,
         [driver_id, req.user!.tenant_id, charge_period]
@@ -405,7 +405,7 @@ router.post(
            FROM trip_usage_classification
            WHERE driver_id = $1 AND tenant_id = $2
              AND TO_CHAR(trip_date, `YYYY-MM`) = $3
-             AND approval_status = `approved`',
+             AND approval_status = 'approved'',
           [validated.driver_id, req.user!.tenant_id, validated.charge_period]
         )
 
@@ -712,7 +712,7 @@ router.post(
          FROM trip_usage_classification
          WHERE tenant_id = $1
            AND TO_CHAR(trip_date, `YYYY-MM`) = $2
-           AND approval_status = `approved`
+           AND approval_status = 'approved'
            AND miles_personal > 0
          GROUP BY driver_id
          HAVING SUM(miles_personal) > 0`,

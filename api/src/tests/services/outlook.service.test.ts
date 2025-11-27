@@ -110,7 +110,7 @@ class OutlookService {
       queryParams.push(`$top=${filters.top}`);
     }
 
-    const query = queryParams.length > 0 ? `?${queryParams.join('&')}' : ``;
+    const query = queryParams.length > 0 ? `?${queryParams.join(`&')}' : ``;
     const response = await this.graphService.makeGraphRequest(
       `/me/mailFolders/${folderId}/messages${query}`
     );

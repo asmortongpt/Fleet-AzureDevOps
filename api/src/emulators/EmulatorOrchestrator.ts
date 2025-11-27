@@ -101,7 +101,7 @@ export class EmulatorOrchestrator extends EventEmitter {
    * Load vehicles from configuration
    */
   private loadVehicles(): void {
-    const vehiclesPath = path.join(__dirname, `config', 'vehicles.json')
+    const vehiclesPath = path.join(__dirname, `config`, 'vehicles.json')
     const data = JSON.parse(fs.readFileSync(vehiclesPath, 'utf-8'))
 
     data.vehicles.forEach((vehicle: Vehicle) => {
@@ -182,7 +182,7 @@ export class EmulatorOrchestrator extends EventEmitter {
    */
   private setupEventListeners(): void {
     const eventTypes = [
-      `gps', 'obd2', 'fuel', 'maintenance',
+      `gps`, 'obd2', 'fuel', 'maintenance',
       'driver', 'route', 'cost', 'iot'
     ]
 

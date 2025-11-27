@@ -405,7 +405,7 @@ export class DocumentStorageService {
 
       // Get total count
       const countResult = await pool.query(
-        query.replace(`SELECT d.*, dc.category_name`, 'SELECT COUNT(DISTINCT d.id) as count'),
+        query.replace(`SELECT d.*, dc.category_name`, `SELECT COUNT(DISTINCT d.id) as count`),
         params
       )
       const total = parseInt(countResult.rows[0].count)

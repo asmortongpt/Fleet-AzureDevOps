@@ -152,7 +152,7 @@ router.get(
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: `Document not found' })
+        return res.status(404).json({ error: 'Document not found' })
       }
 
       // CRITICAL: Enforce tenant isolation
@@ -480,7 +480,7 @@ router.put(
 
       // CRITICAL: Enforce tenant isolation
       if (checkResult.rows[0].uploader_tenant_id && checkResult.rows[0].uploader_tenant_id !== req.user!.tenant_id) {
-        return res.status(404).json({ error: `Document not found' })
+        return res.status(404).json({ error: 'Document not found' })
       }
 
       const result = await pool.query(
@@ -526,7 +526,7 @@ router.delete(
 
       // CRITICAL: Enforce tenant isolation
       if (checkResult.rows[0].uploader_tenant_id && checkResult.rows[0].uploader_tenant_id !== req.user!.tenant_id) {
-        return res.status(404).json({ error: `Document not found' })
+        return res.status(404).json({ error: 'Document not found' })
       }
 
       const result = await pool.query(
@@ -538,7 +538,7 @@ router.delete(
 
       res.json({ message: `Document deleted successfully` })
     } catch (error) {
-      console.error(`Delete document error:', error)
+      console.error('Delete document error:', error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -572,7 +572,7 @@ router.post(
       // CRITICAL: Enforce tenant isolation
       const document = docResult.rows[0]
       if (document.uploader_tenant_id && document.uploader_tenant_id !== req.user!.tenant_id) {
-        return res.status(404).json({ error: `Document not found' })
+        return res.status(404).json({ error: 'Document not found' })
       }
 
       // TODO: Call actual OCR service (Azure Computer Vision, Google Cloud Vision, AWS Textract, etc.)
@@ -580,7 +580,7 @@ router.post(
       const ocrResult = await pool.query(
         `INSERT INTO ocr_processing_log (
           document_id, processing_status, processed_at
-        ) VALUES ($1, `pending`, NOW())
+        ) VALUES ($1, 'pending', NOW())
         RETURNING *`,
         [req.params.id]
       )
@@ -623,7 +623,7 @@ router.post(
       // CRITICAL: Enforce tenant isolation
       const document = docResult.rows[0]
       if (document.uploader_tenant_id && document.uploader_tenant_id !== req.user!.tenant_id) {
-        return res.status(404).json({ error: `Document not found' })
+        return res.status(404).json({ error: 'Document not found' })
       }
 
       // TODO: Call receipt parsing service
@@ -668,7 +668,7 @@ router.put(
 
       // CRITICAL: Enforce tenant isolation
       if (docResult.rows[0].uploader_tenant_id && docResult.rows[0].uploader_tenant_id !== req.user!.tenant_id) {
-        return res.status(404).json({ error: `Document not found' })
+        return res.status(404).json({ error: 'Document not found' })
       }
 
       // Delete existing line items

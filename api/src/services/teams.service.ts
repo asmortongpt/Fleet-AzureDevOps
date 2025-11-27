@@ -125,7 +125,7 @@ class TeamsService {
     entityLinks?: Partial<CommunicationEntityLink>[]
   ): Promise<{ message: Message; communicationId?: number }> {
     try {
-      const { teamId, channelId, message, subject, contentType = `html`, mentions, attachments, importance = 'normal' } = request
+      const { teamId, channelId, message, subject, contentType = `html`, mentions, attachments, importance = `normal` } = request
 
       logger.info('Sending message to Teams channel', { teamId, channelId, subject })
 

@@ -96,7 +96,7 @@ async function runWebhookRenewal(): Promise<void> {
           logger.error(`Subscription ${subscription.subscription_id} has failed renewal 3 times, marking as failed`)
 
           await pool.query(
-            `UPDATE webhook_subscriptions SET status = 'failed' WHERE subscription_id = $1',
+            `UPDATE webhook_subscriptions SET status = `failed' WHERE subscription_id = $1',
             [subscription.subscription_id]
           )
 

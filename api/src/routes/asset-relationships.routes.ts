@@ -204,7 +204,7 @@ router.get(
       const result = await pool.query(
         `SELECT
           ar.*,
-          vp.make || ` ` || vp.model || ` (` || vp.vin || ')' as parent_asset_name,
+          vp.make || ' ` || vp.model || ` (` || vp.vin || ')' as parent_asset_name,
           vp.asset_type as parent_asset_type,
           vc.make || ' ' || vc.model || ' (' || vc.vin || ')' as child_asset_name,
           vc.asset_type as child_asset_type,
@@ -264,7 +264,7 @@ router.post(
       if (vehicleCheck.rows.length !== 2) {
         await client.query(`ROLLBACK`)
         return res.status(400).json({
-          error: `One or both assets not found or do not belong to your organization'
+          error: 'One or both assets not found or do not belong to your organization'
         })
       }
 
@@ -350,7 +350,7 @@ router.put(
 
       if (existsCheck.rows.length === 0) {
         await client.query(`ROLLBACK`)
-        return res.status(404).json({ error: `Relationship not found' })
+        return res.status(404).json({ error: 'Relationship not found' })
       }
 
       const result = await client.query(
@@ -443,7 +443,7 @@ router.delete(
         return res.status(404).json({ error: `Relationship not found` })
       }
 
-      res.json({ message: `Relationship deleted successfully' })
+      res.json({ message: 'Relationship deleted successfully' })
     } catch (error) {
       console.error('Error deleting relationship:', error)
       res.status(500).json({ error: 'Failed to delete relationship' })
@@ -468,7 +468,7 @@ router.get(
       const result = await pool.query(
         `SELECT
           ar.*,
-          vp.make || ` ` || vp.model || ` (` || vp.vin || ')' as parent_asset_name,
+          vp.make || ' ` || vp.model || ` (` || vp.vin || ')' as parent_asset_name,
           vc.make || ' ' || vc.model || ' (' || vc.vin || ')' as child_asset_name,
           u.first_name || ' ' || u.last_name as created_by_name
         FROM asset_relationships ar

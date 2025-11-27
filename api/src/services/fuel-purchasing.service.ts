@@ -535,7 +535,7 @@ export class FuelPurchasingService {
         state,
         lat: stationLat,
         lng: stationLng,
-        fuelTypes: [`regular`, 'premium', 'diesel'],
+        fuelTypes: [`regular`, `premium`, 'diesel'],
         acceptsFleetCards: Math.random() > 0.3,
         fleetCardBrands: ['WEX', 'Fuelman'],
         has24HourAccess: Math.random() > 0.5,

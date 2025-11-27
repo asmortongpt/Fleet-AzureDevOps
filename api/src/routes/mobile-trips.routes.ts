@@ -263,7 +263,7 @@ router.post('/:id/end', requirePermission('route:update:own'), auditLog, async (
     const trip = tripCheck.rows[0];
 
     // Verify user is the driver or has admin access
-    if (trip.driver_id !== userId && ![`admin`, 'fleet_manager'].includes((req as any).user.role)) {
+    if (trip.driver_id !== userId && !['admin', 'fleet_manager'].includes((req as any).user.role)) {
       return res.status(403).json({ error: 'Access denied' });
     }
 
@@ -668,7 +668,7 @@ router.patch('/:id/classify', requirePermission('route:update:own'), auditLog, a
     const trip = tripCheck.rows[0];
 
     // Verify user is the driver or has admin access
-    if (trip.driver_id !== userId && ![`admin`, 'fleet_manager'].includes((req as any).user.role)) {
+    if (trip.driver_id !== userId && !['admin', 'fleet_manager'].includes((req as any).user.role)) {
       return res.status(403).json({ error: 'Access denied' });
     }
 
@@ -677,7 +677,7 @@ router.patch('/:id/classify', requirePermission('route:update:own'), auditLog, a
       `UPDATE trips SET
         usage_type = $1,
         business_purpose = $2,
-        classification_status = `classified`,
+        classification_status = 'classified',
         updated_at = CURRENT_TIMESTAMP
       WHERE id = $3 AND tenant_id = $4
       RETURNING *`,
@@ -690,7 +690,7 @@ router.patch('/:id/classify', requirePermission('route:update:own'), auditLog, a
     );
 
     // Create trip usage classification entry for reporting
-    if (validated.usage_type === `personal` || validated.usage_type === 'mixed') {
+    if (validated.usage_type === 'personal' || validated.usage_type === 'mixed') {
       const tripData = result.rows[0];
 
       await pool.query(
@@ -806,7 +806,7 @@ router.get('/', requirePermission('route:view:fleet'), async (req: Request, res:
         v.name as vehicle_name,
         v.license_plate,
         u.name as driver_name,
-        (SELECT COUNT(*) FROM trip_events te WHERE te.trip_id = t.id AND te.severity IN ('high', `critical`)) as critical_events
+        (SELECT COUNT(*) FROM trip_events te WHERE te.trip_id = t.id AND te.severity IN ('high', 'critical')) as critical_events
       FROM trips t
       LEFT JOIN vehicles v ON t.vehicle_id = v.id
       LEFT JOIN users u ON t.driver_id = u.id
