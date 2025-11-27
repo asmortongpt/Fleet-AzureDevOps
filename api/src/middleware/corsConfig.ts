@@ -104,7 +104,7 @@ function isValidProductionOrigin(origin: string): boolean {
   try {
     const url = new URL(origin)
     // Production origins must use HTTPS
-    return url.protocol === `https:`
+    return url.protocol === 'https:'
   } catch {
     // Invalid URL format
     return false
@@ -200,7 +200,7 @@ function logCorsRejection(
  */
 function createCorsOptionsDelegate(allowedOrigins: string[]): CorsOptionsDelegate<any> {
   return (req, callback) => {
-    const origin = req.header(`Origin`)
+    const origin = req.header('Origin')
     const method = req.method
     const path = req.path || req.url || 'unknown'
     const userAgent = req.header('User-Agent')
@@ -319,7 +319,7 @@ export function validateCorsConfiguration(): void {
     }
 
     // Check for wildcard patterns
-    if (origins.some(o => o.includes(`*`))) {
+    if (origins.some(o => o.includes('*'))) {
       console.error('[CORS] FATAL: Wildcard origins not allowed in production')
       console.error('[CORS] Use exact origin matching only')
       throw new Error('Wildcard CORS origins not allowed in production')

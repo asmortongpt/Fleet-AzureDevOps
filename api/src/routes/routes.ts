@@ -54,7 +54,7 @@ router.get(
       if (userResult.rows.length > 0) {
         const driverId = userResult.rows[0].id
         query += ` AND driver_id = $2 ORDER BY created_at DESC LIMIT $3 OFFSET $4`
-        countQuery += ` AND driver_id = $2'
+        countQuery += ' AND driver_id = $2'
         params.push(driverId, limit, offset)
       } else {
         query += ' ORDER BY created_at DESC LIMIT $2 OFFSET $3'
@@ -109,7 +109,7 @@ router.get(
       return routeResult.rows.length > 0
     }
   }),
-  auditLog({ action: `READ`, resourceType: 'routes' }),
+  auditLog({ action: 'READ', resourceType: 'routes' }),
   async (req: AuthRequest, res: Response) => {
     try {
       const result = await pool.query(
@@ -144,7 +144,7 @@ router.get(
 
       res.json(result.rows[0])
     } catch (error) {
-      console.error(`Get routes error:', error)
+      console.error('Get routes error:', error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -202,7 +202,7 @@ router.put(
       return true
     }
   }),
-  auditLog({ action: `UPDATE`, resourceType: 'routes' }),
+  auditLog({ action: 'UPDATE', resourceType: 'routes' }),
   async (req: AuthRequest, res: Response) => {
     try {
       const data = req.body
@@ -233,7 +233,7 @@ router.delete(
   async (req: AuthRequest, res: Response) => {
     try {
       const result = await pool.query(
-        'DELETE FROM routes WHERE id = $1 AND tenant_id = $2 RETURNING id`,
+        'DELETE FROM routes WHERE id = $1 AND tenant_id = $2 RETURNING id',
         [req.params.id, req.user!.tenant_id]
       )
 

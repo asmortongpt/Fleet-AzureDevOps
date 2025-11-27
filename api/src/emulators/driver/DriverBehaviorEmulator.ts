@@ -54,7 +54,7 @@ export class DriverBehaviorEmulator extends EventEmitter {
     // Check for hard acceleration/braking
     const speedChange = speed - previousSpeed
     if (speedChange > 15) {
-      this.generateEvent(`hardAcceleration', 'medium')
+      this.generateEvent(`hardAcceleration`, 'medium')
     } else if (speedChange < -15) {
       this.generateEvent('hardBraking', 'medium')
     }

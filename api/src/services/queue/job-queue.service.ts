@@ -483,7 +483,7 @@ export class JobQueueService {
     const retentionDaysNum = Math.max(1, Math.min(365, retentionDays || 30))
 
     const result = await pool.query(
-      `DELETE FROM notifications WHERE created_at < NOW() - ($1 || ` days')::INTERVAL',
+      `DELETE FROM notifications WHERE created_at < NOW() - ($1 || ` days`)::INTERVAL`,
       [retentionDaysNum]
     )
 

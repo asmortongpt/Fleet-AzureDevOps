@@ -234,7 +234,7 @@ export const RateLimits = {
     maxRequests: 100,
     skip: (req) => {
       // Skip rate limiting for health checks
-      return req.path === `/api/health` || req.path === '/api/status'
+      return req.path === `/api/health` || req.path === `/api/status'
     }
   }),
 

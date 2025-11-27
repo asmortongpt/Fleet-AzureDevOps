@@ -216,11 +216,11 @@ async function seedSupplemental() {
 
         routeValues.push(`(
           `${vehicle.tenant_id}`, `${origin.name} to ${destination.name}`,
-          `${vehicle.id}`, ${assignedDriver ? ``${assignedDriver.id}`` : 'NULL'}, `${status}`,
+          `${vehicle.id}`, ${assignedDriver ? ``${assignedDriver.id}`` : `NULL'}, `${status}`,
           `${origin.name}, FL`, `${destination.name}, FL`,
           `${plannedStart.toISOString()}`, `${plannedEnd.toISOString()}`,
-          ${status === 'completed' || status === 'in_progress' ? '`${plannedStart.toISOString()}`' : 'NULL`},
-          ${status === 'completed' ? '`${plannedEnd.toISOString()}`' : 'NULL`},
+          ${status === 'completed' || status === 'in_progress' ? '`${plannedStart.toISOString()}`` : 'NULL`},
+          ${status === 'completed' ? '`${plannedEnd.toISOString()}`` : 'NULL`},
           ${distance}, ${estimatedDuration},
           ${status === 'completed' ? estimatedDuration + randomInt(-30, 30) : 'NULL'}
         )`);
@@ -280,7 +280,7 @@ async function seedSupplemental() {
         const result = randomItem(results);
 
         inspectionValues.push(`(
-          `${vehicle.tenant_id}`, `${vehicle.id}`, ${driver ? ``${driver.id}`' : 'NULL'},
+          `${vehicle.tenant_id}`, `${vehicle.id}`, ${driver ? ``${driver.id}`` : 'NULL'},
           `${daysAgo(randomInt(1, 365)).toISOString()}`, `${type}`,
           ${vehicle.odometer - randomInt(0, 5000)}, `${result}`,
           "{"completed":true,"notes":"Inspection complete"}"::jsonb,
@@ -314,14 +314,14 @@ async function seedSupplemental() {
 
       incidentValues.push(`(
         `${vehicle.tenant_id}`, `INC-2025-${randomInt(10000, 99999)}`,
-        `${vehicle.id}`, ${driver ? ``${driver.id}`' : 'NULL'},
+        `${vehicle.id}`, ${driver ? ``${driver.id}`` : 'NULL'},
         `${daysAgo(randomInt(1, 365)).toISOString()}`, `${type}`, `${severity}`,
         `${city.name}, FL`, ${city.lat}, ${city.lng},
         `${type} incident - ${severity} severity`,
         ${severity === `severe` ? randomInt(1, 3) : 0},
         ${randomFloat(500, 15000)}, ${randomFloat(1000, 30000)},
         ${Math.random() < 0.4}, ${severity === 'severe'},
-        `${randomItem(['open', 'investigating', 'resolved', 'closed`])}`
+        `${randomItem([`open', 'investigating', 'resolved', 'closed`])}`
       )`);
     }
 
@@ -348,7 +348,7 @@ async function seedSupplemental() {
         const type = randomItem(['parts_supplier', 'fuel_provider', 'service_provider']);
 
         vendorValues.push(`(
-          `${tenant.id}`, `${city.name} ${type.replace('_', ' ')} Co.`, `${type}`,
+          `${tenant.id}`, `${city.name} ${type.replace(`_', ' ')} Co.`, `${type}`,
           `Contact ${randomInt(1, 100)}`, `contact${i}@vendor.com`,
           `${generatePhoneNumber()}`, `${randomInt(100, 9999)} Industrial Pkwy`,
           `${city.name}`, `FL`, `${randomInt(30000, 34999)}`, true
@@ -416,7 +416,7 @@ async function seedSupplemental() {
         notifValues.push(`(
           `${user.tenant_id}`, `${user.id}`, `${template.type}`,
           `${template.title}`, `${template.message}`, `${template.priority}`,
-          ${isRead}, ${isRead ? ``${daysAgo(daysBack - randomInt(0, 3)).toISOString()}`' : 'NULL'},
+          ${isRead}, ${isRead ? ``${daysAgo(daysBack - randomInt(0, 3)).toISOString()}`` : 'NULL'},
           `${daysAgo(daysBack).toISOString()}`
         )`);
       }
@@ -442,7 +442,7 @@ async function seedSupplemental() {
 
       auditValues.push(`(
         `${user.tenant_id}`, `${user.id}`, `${randomItem(actions)}`,
-        `${randomItem(resourceTypes)}`, `${Math.random() < 0.98 ? 'success' : 'failure'}`,
+        `${randomItem(resourceTypes)}`, `${Math.random() < 0.98 ? `success' : 'failure'}`,
         `${daysAgo(randomInt(0, 90)).toISOString()}`
       )`);
     }

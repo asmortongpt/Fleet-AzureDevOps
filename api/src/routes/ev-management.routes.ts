@@ -694,7 +694,7 @@ router.get('/vehicles/:id/charging-history', authenticateJWT, requirePermission(
       count: result.rows.length
     });
   } catch (error: any) {
-    console.error(`Error fetching charging history:', error);
+    console.error('Error fetching charging history:', error);
     res.status(500).json({
       success: false,
       error: 'Failed to fetch charging history',

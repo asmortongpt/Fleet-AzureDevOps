@@ -136,7 +136,7 @@ export class PhotoGenerator extends EventEmitter {
     for (let i = 0; i < count; i++) {
       const angle = angles[i % angles.length]
       const damageText = `${severity.toUpperCase()}\n${damageType}\n${angle} view`
-      const color = severity === `severe' ? 'ff0000' : severity === 'moderate' ? 'ff9900' : 'ffff00'
+      const color = severity === `severe` ? 'ff0000' : severity === 'moderate' ? 'ff9900' : 'ffff00'
       const url = `https://via.placeholder.com/1200x800/${color}/ffffff?text=${encodeURIComponent(damageText)}`
 
       const metadata: PhotoMetadata = {
@@ -188,7 +188,7 @@ export class PhotoGenerator extends EventEmitter {
    * Generate vehicle inspection photos
    */
   public generateInspectionPhotos(
-    inspectionType: `pre_trip' | 'post_trip' | 'annual',
+    inspectionType: `pre_trip` | 'post_trip' | 'annual',
     itemName: string,
     passed: boolean,
     location: { lat: number; lng: number },

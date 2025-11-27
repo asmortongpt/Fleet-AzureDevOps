@@ -1,0 +1,10 @@
+// Generated code for: Create production docker-compose.yml:
+- Extends base docker-compose.yml
+- Use pre-built images from ACR (not build from source)
+- Nginx reverse proxy (port 80/443)
+- Let's Encrypt SSL certificates
+- Replicas: 3 API instances for load balancing
+- Production logging (JSON format to stdout)
+- No exposed database ports (internal network only)
+Include health checks, auto-restart policies.
+// TODO: Implement using OpenAI Codex
