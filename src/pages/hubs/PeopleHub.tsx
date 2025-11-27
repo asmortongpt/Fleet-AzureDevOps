@@ -1,391 +1,555 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { HubLayout } from "../../components/layout/HubLayout";
-import { PeopleManagement } from "../../components/modules/PeopleManagement";
-import { DriverPerformance } from "../../components/modules/DriverPerformance";
-import { DriverScorecard } from "../../components/modules/DriverScorecard";
-import MobileEmployeeDashboard from "../../components/modules/MobileEmployeeDashboard";
-import MobileManagerView from "../../components/modules/MobileManagerView";
-import { useFleetData } from "../../hooks/use-fleet-data";
+import { DataGrid } from "../../components/common/DataGrid";
+import { KPIStrip, KPIMetric } from "../../components/common/KPIStrip";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/card";
-import { Button } from "../../components/ui/button";
 import { Badge } from "../../components/ui/badge";
+import { Button } from "../../components/ui/button";
+import { useInspect } from "@/services/inspect/InspectContext";
+import { ColumnDef } from "@tanstack/react-table";
 import {
-  Users,
   User,
-  ChartLine,
-  IdentificationCard,
-  DeviceMobile,
-  UsersFour,
-  Warning,
-  CheckCircle,
+  Users,
+  Shield,
   Clock,
-} from "@phosphor-icons/react";
+  CheckCircle,
+  Warning,
+  TrendUp,
+  Calendar,
+  Download,
+  Plus,
+} from "lucide-react";
 
-type PeopleModule =
-  | "overview"
-  | "management"
-  | "performance"
-  | "scorecard"
-  | "employee-mobile"
-  | "manager-mobile";
+interface Driver {
+  id: string;
+  name: string;
+  status: "active" | "on-duty" | "off-duty" | "on-leave";
+  licenseClass: string;
+  safetyScore: number;
+  hoursThisWeek: number;
+  nextShift: string;
+  email: string;
+  phone: string;
+  experience: string;
+  violations: number;
+  certifications: string[];
+  performance: {
+    trips: number;
+    onTimeRate: number;
+    fuelEfficiency: number;
+  };
+}
 
 const PeopleHub: React.FC = () => {
-  const [activeModule, setActiveModule] = useState<PeopleModule>("overview");
-  const fleetData = useFleetData();
+  const { openInspect } = useInspect();
 
-  const renderModule = () => {
-    switch (activeModule) {
-      case "management":
-        return <PeopleManagement data={fleetData} />;
-      case "performance":
-        return <DriverPerformance />;
-      case "scorecard":
-        return <DriverScorecard />;
-      case "employee-mobile":
-        return <MobileEmployeeDashboard />;
-      case "manager-mobile":
-        return <MobileManagerView />;
-      case "overview":
-      default:
+  // Mock data for drivers
+  const drivers: Driver[] = useMemo(() => [
+    {
+      id: "DRV001",
+      name: "John Martinez",
+      status: "on-duty",
+      licenseClass: "CDL-A",
+      safetyScore: 98,
+      hoursThisWeek: 42,
+      nextShift: "Today, 2:00 PM",
+      email: "j.martinez@fleet.com",
+      phone: "(555) 123-4567",
+      experience: "8 years",
+      violations: 0,
+      certifications: ["HAZMAT", "Tanker", "Double/Triple"],
+      performance: {
+        trips: 156,
+        onTimeRate: 98,
+        fuelEfficiency: 92,
+      },
+    },
+    {
+      id: "DRV002",
+      name: "Sarah Johnson",
+      status: "active",
+      licenseClass: "CDL-A",
+      safetyScore: 96,
+      hoursThisWeek: 38,
+      nextShift: "Tomorrow, 6:00 AM",
+      email: "s.johnson@fleet.com",
+      phone: "(555) 234-5678",
+      experience: "5 years",
+      violations: 0,
+      certifications: ["HAZMAT", "Tanker"],
+      performance: {
+        trips: 142,
+        onTimeRate: 96,
+        fuelEfficiency: 88,
+      },
+    },
+    {
+      id: "DRV003",
+      name: "Michael Chen",
+      status: "on-duty",
+      licenseClass: "CDL-B",
+      safetyScore: 94,
+      hoursThisWeek: 45,
+      nextShift: "Today, 6:00 PM",
+      email: "m.chen@fleet.com",
+      phone: "(555) 345-6789",
+      experience: "12 years",
+      violations: 1,
+      certifications: ["Passenger", "School Bus"],
+      performance: {
+        trips: 138,
+        onTimeRate: 94,
+        fuelEfficiency: 90,
+      },
+    },
+    {
+      id: "DRV004",
+      name: "Emily Rodriguez",
+      status: "off-duty",
+      licenseClass: "CDL-A",
+      safetyScore: 92,
+      hoursThisWeek: 36,
+      nextShift: "Tomorrow, 8:00 AM",
+      email: "e.rodriguez@fleet.com",
+      phone: "(555) 456-7890",
+      experience: "3 years",
+      violations: 0,
+      certifications: ["HAZMAT"],
+      performance: {
+        trips: 134,
+        onTimeRate: 92,
+        fuelEfficiency: 85,
+      },
+    },
+    {
+      id: "DRV005",
+      name: "David Thompson",
+      status: "on-leave",
+      licenseClass: "CDL-A",
+      safetyScore: 91,
+      hoursThisWeek: 0,
+      nextShift: "Monday, 6:00 AM",
+      email: "d.thompson@fleet.com",
+      phone: "(555) 567-8901",
+      experience: "7 years",
+      violations: 1,
+      certifications: ["Tanker", "Double/Triple"],
+      performance: {
+        trips: 128,
+        onTimeRate: 89,
+        fuelEfficiency: 87,
+      },
+    },
+    {
+      id: "DRV006",
+      name: "Lisa Anderson",
+      status: "active",
+      licenseClass: "CDL-B",
+      safetyScore: 89,
+      hoursThisWeek: 40,
+      nextShift: "Today, 10:00 AM",
+      email: "l.anderson@fleet.com",
+      phone: "(555) 678-9012",
+      experience: "2 years",
+      violations: 2,
+      certifications: ["Passenger"],
+      performance: {
+        trips: 98,
+        onTimeRate: 88,
+        fuelEfficiency: 82,
+      },
+    },
+    {
+      id: "DRV007",
+      name: "James Wilson",
+      status: "on-duty",
+      licenseClass: "CDL-A",
+      safetyScore: 95,
+      hoursThisWeek: 44,
+      nextShift: "Today, 4:00 PM",
+      email: "j.wilson@fleet.com",
+      phone: "(555) 789-0123",
+      experience: "10 years",
+      violations: 0,
+      certifications: ["HAZMAT", "Tanker", "Double/Triple"],
+      performance: {
+        trips: 189,
+        onTimeRate: 97,
+        fuelEfficiency: 93,
+      },
+    },
+    {
+      id: "DRV008",
+      name: "Maria Garcia",
+      status: "off-duty",
+      licenseClass: "CDL-A",
+      safetyScore: 93,
+      hoursThisWeek: 35,
+      nextShift: "Tomorrow, 5:00 AM",
+      email: "m.garcia@fleet.com",
+      phone: "(555) 890-1234",
+      experience: "6 years",
+      violations: 0,
+      certifications: ["HAZMAT", "Tanker"],
+      performance: {
+        trips: 145,
+        onTimeRate: 95,
+        fuelEfficiency: 89,
+      },
+    },
+  ], []);
+
+  // Calculate KPI metrics
+  const kpiMetrics: KPIMetric[] = useMemo(() => {
+    const totalDrivers = drivers.length;
+    const activeDrivers = drivers.filter(d => d.status === "on-duty").length;
+    const onLeave = drivers.filter(d => d.status === "on-leave").length;
+    const avgSafetyScore = Math.round(
+      drivers.reduce((sum, d) => sum + d.safetyScore, 0) / totalDrivers
+    );
+
+    return [
+      {
+        id: "total-drivers",
+        icon: <Users className="w-4 h-4" />,
+        label: "Total Drivers",
+        value: totalDrivers,
+        color: "text-blue-500",
+      },
+      {
+        id: "active-drivers",
+        icon: <CheckCircle className="w-4 h-4" />,
+        label: "Active Drivers",
+        value: activeDrivers,
+        color: "text-green-500",
+        trend: {
+          value: 5,
+          direction: "up",
+          isPositive: true,
+        },
+      },
+      {
+        id: "on-leave",
+        icon: <Clock className="w-4 h-4" />,
+        label: "On Leave",
+        value: onLeave,
+        color: "text-orange-500",
+      },
+      {
+        id: "safety-score",
+        icon: <Shield className="w-4 h-4" />,
+        label: "Avg Safety Score",
+        value: `${avgSafetyScore}%`,
+        color: "text-purple-500",
+        trend: {
+          value: 3,
+          direction: "up",
+          isPositive: true,
+        },
+      },
+    ];
+  }, [drivers]);
+
+  // Define columns for the DataGrid
+  const columns: ColumnDef<Driver>[] = useMemo(() => [
+    {
+      accessorKey: "name",
+      header: "Name",
+      cell: ({ row }) => (
+        <div className="flex items-center gap-2">
+          <User className="w-3 h-3 text-muted-foreground" />
+          <span className="font-medium">{row.original.name}</span>
+        </div>
+      ),
+    },
+    {
+      accessorKey: "status",
+      header: "Status",
+      cell: ({ row }) => {
+        const status = row.original.status;
+        const variant =
+          status === "on-duty" ? "default" :
+          status === "active" ? "secondary" :
+          status === "off-duty" ? "outline" :
+          "destructive";
+        return <Badge variant={variant}>{status}</Badge>;
+      },
+    },
+    {
+      accessorKey: "licenseClass",
+      header: "License Class",
+    },
+    {
+      accessorKey: "safetyScore",
+      header: "Safety Score",
+      cell: ({ row }) => {
+        const score = row.original.safetyScore;
+        const color = score >= 95 ? "text-green-500" : score >= 90 ? "text-blue-500" : score >= 85 ? "text-orange-500" : "text-red-500";
         return (
-          <div className="space-y-6 p-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <Card className="hover:bg-accent/5 cursor-pointer transition-colors">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Users className="w-5 h-5 text-blue-500" />
-                    Total Drivers
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-3xl font-bold">48</div>
-                  <p className="text-sm text-muted-foreground mt-2">
-                    42 active, 6 inactive
-                  </p>
-                </CardContent>
-              </Card>
-
-              <Card className="hover:bg-accent/5 cursor-pointer transition-colors">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <CheckCircle className="w-5 h-5 text-green-500" />
-                    Licensed & Certified
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-3xl font-bold">45</div>
-                  <p className="text-sm text-muted-foreground mt-2">
-                    3 expiring soon
-                  </p>
-                </CardContent>
-              </Card>
-
-              <Card className="hover:bg-accent/5 cursor-pointer transition-colors">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <ChartLine className="w-5 h-5 text-purple-500" />
-                    Avg Performance
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-3xl font-bold">87%</div>
-                  <p className="text-sm text-muted-foreground mt-2">
-                    Up 5% from last month
-                  </p>
-                </CardContent>
-              </Card>
-
-              <Card className="hover:bg-accent/5 cursor-pointer transition-colors">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Warning className="w-5 h-5 text-orange-500" />
-                    Needs Attention
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-3xl font-bold">5</div>
-                  <p className="text-sm text-muted-foreground mt-2">
-                    3 training, 2 review
-                  </p>
-                </CardContent>
-              </Card>
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Top Performers This Month</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    {[
-                      {
-                        name: "John Martinez",
-                        score: 98,
-                        trips: 156,
-                        rating: "Excellent",
-                      },
-                      {
-                        name: "Sarah Johnson",
-                        score: 96,
-                        trips: 142,
-                        rating: "Excellent",
-                      },
-                      {
-                        name: "Michael Chen",
-                        score: 94,
-                        trips: 138,
-                        rating: "Excellent",
-                      },
-                      {
-                        name: "Emily Rodriguez",
-                        score: 92,
-                        trips: 134,
-                        rating: "Very Good",
-                      },
-                      {
-                        name: "David Thompson",
-                        score: 91,
-                        trips: 128,
-                        rating: "Very Good",
-                      },
-                    ].map((driver, i) => (
-                      <div
-                        key={i}
-                        className="flex items-center justify-between p-3 rounded-lg bg-accent/5 hover:bg-accent/10 transition-colors"
-                      >
-                        <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center font-bold text-primary">
-                            {i + 1}
-                          </div>
-                          <div>
-                            <div className="font-medium">{driver.name}</div>
-                            <div className="text-sm text-muted-foreground">
-                              {driver.trips} trips
-                            </div>
-                          </div>
-                        </div>
-                        <div className="text-right">
-                          <div className="font-bold text-lg">{driver.score}</div>
-                          <Badge
-                            variant={
-                              driver.score >= 95 ? "default" : "secondary"
-                            }
-                          >
-                            {driver.rating}
-                          </Badge>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle>Recent Activity</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    {[
-                      {
-                        title: "License renewed",
-                        driver: "James Wilson",
-                        time: "1 hour ago",
-                        type: "certification",
-                      },
-                      {
-                        title: "Safety training completed",
-                        driver: "Maria Garcia",
-                        time: "3 hours ago",
-                        type: "training",
-                      },
-                      {
-                        title: "Performance review scheduled",
-                        driver: "Robert Lee",
-                        time: "4 hours ago",
-                        type: "review",
-                      },
-                      {
-                        title: "New driver onboarded",
-                        driver: "Lisa Anderson",
-                        time: "6 hours ago",
-                        type: "onboarding",
-                      },
-                      {
-                        title: "Medical certification updated",
-                        driver: "Chris Taylor",
-                        time: "8 hours ago",
-                        type: "certification",
-                      },
-                    ].map((activity, i) => (
-                      <div
-                        key={i}
-                        className="flex items-center justify-between p-3 rounded-lg bg-accent/5 hover:bg-accent/10 transition-colors"
-                      >
-                        <div className="flex items-center gap-3">
-                          {activity.type === "certification" && (
-                            <IdentificationCard className="w-4 h-4 text-blue-500" />
-                          )}
-                          {activity.type === "training" && (
-                            <CheckCircle className="w-4 h-4 text-green-500" />
-                          )}
-                          {activity.type === "review" && (
-                            <Clock className="w-4 h-4 text-orange-500" />
-                          )}
-                          {activity.type === "onboarding" && (
-                            <User className="w-4 h-4 text-purple-500" />
-                          )}
-                          <div>
-                            <div className="font-medium">{activity.title}</div>
-                            <div className="text-sm text-muted-foreground">
-                              {activity.driver}
-                            </div>
-                          </div>
-                        </div>
-                        <div className="text-sm text-muted-foreground">
-                          {activity.time}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
+          <span className={`font-bold ${color}`}>
+            {score}%
+          </span>
         );
-    }
+      },
+    },
+    {
+      accessorKey: "hoursThisWeek",
+      header: "Hours This Week",
+      cell: ({ row }) => `${row.original.hoursThisWeek}h`,
+    },
+    {
+      accessorKey: "nextShift",
+      header: "Next Shift",
+      cell: ({ row }) => (
+        <div className="flex items-center gap-1">
+          <Calendar className="w-3 h-3 text-muted-foreground" />
+          <span className="text-sm">{row.original.nextShift}</span>
+        </div>
+      ),
+    },
+  ], []);
+
+  const handleDriverClick = (driver: Driver) => {
+    openInspect({
+      type: "driver",
+      id: driver.id,
+      data: driver,
+      tabs: [
+        {
+          id: "profile",
+          label: "Profile",
+          content: (
+            <div className="space-y-6">
+              <div>
+                <h3 className="font-semibold mb-3">Basic Information</h3>
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Name:</span>
+                    <span>{driver.name}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">License:</span>
+                    <span>{driver.licenseClass}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Experience:</span>
+                    <span>{driver.experience}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Email:</span>
+                    <span>{driver.email}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Phone:</span>
+                    <span>{driver.phone}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ),
+        },
+        {
+          id: "performance",
+          label: "Performance",
+          content: (
+            <div className="space-y-6">
+              <div>
+                <h3 className="font-semibold mb-3">Performance Metrics</h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <Card>
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-sm">Total Trips</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold">{driver.performance.trips}</div>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-sm">On-Time Rate</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold">{driver.performance.onTimeRate}%</div>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-sm">Fuel Efficiency</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold">{driver.performance.fuelEfficiency}%</div>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-sm">Violations</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold">{driver.violations}</div>
+                    </CardContent>
+                  </Card>
+                </div>
+              </div>
+            </div>
+          ),
+        },
+        {
+          id: "scorecard",
+          label: "Scorecard",
+          content: (
+            <div className="space-y-6">
+              <div>
+                <h3 className="font-semibold mb-3">Safety Scorecard</h3>
+                <div className="space-y-4">
+                  <div>
+                    <div className="flex justify-between mb-1">
+                      <span>Overall Safety Score</span>
+                      <span className="font-bold">{driver.safetyScore}%</span>
+                    </div>
+                    <div className="w-full bg-muted rounded-full h-2">
+                      <div
+                        className="bg-primary h-2 rounded-full"
+                        style={{ width: `${driver.safetyScore}%` }}
+                      />
+                    </div>
+                  </div>
+                  <div className="pt-3 border-t">
+                    <h4 className="text-sm font-medium mb-2">Incident History</h4>
+                    <p className="text-sm text-muted-foreground">
+                      {driver.violations === 0
+                        ? "No violations or incidents on record"
+                        : `${driver.violations} minor violation(s) in the past year`}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ),
+        },
+        {
+          id: "training",
+          label: "Training",
+          content: (
+            <div className="space-y-6">
+              <div>
+                <h3 className="font-semibold mb-3">Certifications</h3>
+                <div className="flex flex-wrap gap-2">
+                  {driver.certifications.map((cert) => (
+                    <Badge key={cert} variant="secondary">
+                      {cert}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <h3 className="font-semibold mb-3">Required Training</h3>
+                <p className="text-sm text-muted-foreground">
+                  All training requirements are up to date
+                </p>
+              </div>
+            </div>
+          ),
+        },
+        {
+          id: "schedule",
+          label: "Schedule",
+          content: (
+            <div className="space-y-6">
+              <div>
+                <h3 className="font-semibold mb-3">Current Schedule</h3>
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Status:</span>
+                    <Badge>{driver.status}</Badge>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Hours This Week:</span>
+                    <span>{driver.hoursThisWeek}h</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Next Shift:</span>
+                    <span>{driver.nextShift}</span>
+                  </div>
+                </div>
+              </div>
+              <div>
+                <h3 className="font-semibold mb-3">Availability</h3>
+                <p className="text-sm text-muted-foreground">
+                  Available for regular shifts Monday through Friday
+                </p>
+              </div>
+            </div>
+          ),
+        },
+      ],
+    });
   };
 
   return (
     <HubLayout title="People">
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "1fr 320px",
-          height: "100%",
-          gap: 0,
-        }}
-      >
-        <div style={{ minHeight: 0, overflow: "auto" }}>{renderModule()}</div>
+      <div className="flex flex-col h-full p-6 gap-4">
+        {/* KPI Strip */}
+        <KPIStrip metrics={kpiMetrics} className="flex-shrink-0" />
 
-        <div
-          style={{
-            borderLeft: "1px solid #1e232a",
-            minHeight: 0,
-            overflow: "auto",
-            background: "#0b0f14",
-          }}
-        >
-          <div style={{ padding: "16px" }}>
-            <div className="space-y-2">
-              <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-4">
-                People Modules
-              </h3>
-
-              <Button
-                variant={activeModule === "overview" ? "secondary" : "ghost"}
-                className="w-full justify-start"
-                onClick={() => setActiveModule("overview")}
-              >
-                <ChartLine className="w-4 h-4 mr-2" />
-                Overview
-              </Button>
-
-              <Button
-                variant={activeModule === "management" ? "secondary" : "ghost"}
-                className="w-full justify-start"
-                onClick={() => setActiveModule("management")}
-              >
-                <Users className="w-4 h-4 mr-2" />
-                People Management
-              </Button>
-
-              <Button
-                variant={activeModule === "performance" ? "secondary" : "ghost"}
-                className="w-full justify-start"
-                onClick={() => setActiveModule("performance")}
-              >
-                <ChartLine className="w-4 h-4 mr-2" />
-                Driver Performance
-              </Button>
-
-              <Button
-                variant={activeModule === "scorecard" ? "secondary" : "ghost"}
-                className="w-full justify-start"
-                onClick={() => setActiveModule("scorecard")}
-              >
-                <IdentificationCard className="w-4 h-4 mr-2" />
-                Driver Scorecard
-              </Button>
-
-              <Button
-                variant={
-                  activeModule === "employee-mobile" ? "secondary" : "ghost"
-                }
-                className="w-full justify-start"
-                onClick={() => setActiveModule("employee-mobile")}
-              >
-                <DeviceMobile className="w-4 h-4 mr-2" />
-                Employee Mobile
-              </Button>
-
-              <Button
-                variant={
-                  activeModule === "manager-mobile" ? "secondary" : "ghost"
-                }
-                className="w-full justify-start"
-                onClick={() => setActiveModule("manager-mobile")}
-              >
-                <UsersFour className="w-4 h-4 mr-2" />
-                Manager Mobile
-              </Button>
-            </div>
-
-            <div className="mt-8 pt-8 border-t border-border">
-              <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-4">
-                Quick Stats
-              </h3>
-              <div className="space-y-3">
-                <div className="flex items-center justify-between p-3 rounded-lg bg-blue-500/10">
-                  <span className="text-sm">Active Drivers</span>
-                  <Badge variant="secondary">42</Badge>
-                </div>
-                <div className="flex items-center justify-between p-3 rounded-lg bg-green-500/10">
-                  <span className="text-sm">Certified</span>
-                  <Badge variant="secondary">45</Badge>
-                </div>
-                <div className="flex items-center justify-between p-3 rounded-lg bg-orange-500/10">
-                  <span className="text-sm">In Training</span>
-                  <Badge variant="secondary">3</Badge>
-                </div>
-                <div className="flex items-center justify-between p-3 rounded-lg bg-purple-500/10">
-                  <span className="text-sm">Avg Score</span>
-                  <Badge variant="secondary">87%</Badge>
-                </div>
-              </div>
-            </div>
-
-            <div className="mt-6 pt-6 border-t border-border">
-              <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-4">
-                Actions
-              </h3>
-              <div className="space-y-2">
-                <Button variant="outline" className="w-full justify-start">
-                  <User className="w-4 h-4 mr-2" />
+        {/* Driver Roster DataGrid */}
+        <div className="flex-1 min-h-0">
+          <Card className="h-full flex flex-col">
+            <CardHeader className="flex-shrink-0 flex flex-row items-center justify-between pb-4">
+              <CardTitle>Driver Roster</CardTitle>
+              <div className="flex gap-2">
+                <Button variant="outline" size="sm">
+                  <Download className="w-4 h-4 mr-2" />
+                  Export
+                </Button>
+                <Button size="sm">
+                  <Plus className="w-4 h-4 mr-2" />
                   Add Driver
                 </Button>
-                <Button variant="outline" className="w-full justify-start">
-                  <IdentificationCard className="w-4 h-4 mr-2" />
-                  Check Certifications
-                </Button>
-                <Button variant="outline" className="w-full justify-start">
-                  <Clock className="w-4 h-4 mr-2" />
-                  Schedule Training
-                </Button>
               </div>
-            </div>
-          </div>
+            </CardHeader>
+            <CardContent className="flex-1 min-h-0 pb-4">
+              <DataGrid
+                data={drivers}
+                columns={columns}
+                onRowClick={handleDriverClick}
+                enableInspector={false}
+                compactMode={true}
+                pageSize={20}
+                className="h-full"
+              />
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Recent Activity Section */}
+        <div className="flex-shrink-0">
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base">Recent Activity</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex gap-4 overflow-x-auto pb-2">
+                {[
+                  { text: "License renewed - James Wilson", time: "1h ago", type: "success" },
+                  { text: "Safety training completed - Maria Garcia", time: "3h ago", type: "info" },
+                  { text: "Performance review scheduled - Robert Lee", time: "4h ago", type: "warning" },
+                  { text: "New driver onboarded - Lisa Anderson", time: "6h ago", type: "success" },
+                ].map((activity, i) => (
+                  <div
+                    key={i}
+                    className="flex items-center gap-2 px-3 py-2 bg-muted/50 rounded-lg min-w-fit"
+                  >
+                    {activity.type === "success" && <CheckCircle className="w-3 h-3 text-green-500" />}
+                    {activity.type === "warning" && <Warning className="w-3 h-3 text-orange-500" />}
+                    {activity.type === "info" && <TrendUp className="w-3 h-3 text-blue-500" />}
+                    <span className="text-sm">{activity.text}</span>
+                    <span className="text-xs text-muted-foreground">• {activity.time}</span>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </HubLayout>
