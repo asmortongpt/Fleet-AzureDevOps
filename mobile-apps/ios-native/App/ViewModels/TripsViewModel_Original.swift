@@ -141,7 +141,7 @@ final class TripsViewModel: RefreshableViewModel {
 
         todayTrips = allTrips.filter { calendar.isDate($0.startTime, inSameDayAs: now) }.count
         weekTrips = allTrips.filter { $0.startTime >= startOfWeek }.count
-        totalDistance = allTrips.map { $0.distance }.reduce(0, +)
+        totalDistance = allTrips.map { $0.totalDistance }.reduce(0, +)
 
         let totalDuration = allTrips.map { $0.duration }.reduce(0, +)
         avgTripDuration = allTrips.isEmpty ? 0 : totalDuration / Double(allTrips.count)
