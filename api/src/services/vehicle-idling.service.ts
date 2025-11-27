@@ -763,7 +763,7 @@ export class VehicleIdlingService extends EventEmitter {
       values.push(vehicleId);
 
       await client.query(
-        `INSERT INTO vehicle_idling_thresholds (vehicle_id, ${fields.join(', ').replace(/\s*=\s*\$\d+/g, '`)})
+        `INSERT INTO vehicle_idling_thresholds (vehicle_id, ${fields.join(`, `).replace(/\s*=\s*\$\d+/g, '`)})
          VALUES ($${paramIndex}, ${values.slice(0, -1).map((_, i) => `$${i + 1}`).join(`, `)})
          ON CONFLICT (vehicle_id) DO UPDATE SET ${fields.join(`, `)}, updated_at = CURRENT_TIMESTAMP`,
         values

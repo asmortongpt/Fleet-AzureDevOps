@@ -43,7 +43,7 @@ class SyncService {
           );
 
       allChanges.push(...response.value);
-      deltaLink = response[`@odata.nextLink'] || response['@odata.deltaLink'] || null;
+      deltaLink = response[`@odata.nextLink`] || response['@odata.deltaLink'] || null;
 
       // Update sync state
       if (response['@odata.deltaLink']) {

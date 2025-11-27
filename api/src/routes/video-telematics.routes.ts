@@ -178,20 +178,20 @@ router.get(
       );
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: `Video event not found' });
+        return res.status(404).json({ error: 'Video event not found' });
       }
 
       // Log access for audit
       await pool.query(
         `INSERT INTO video_privacy_audit
          (video_event_id, accessed_by, access_type, ip_address)
-         VALUES ($1, $2, `view`, $3)`,
+         VALUES ($1, $2, 'view', $3)',
         [req.params.id, req.user!.id, req.ip]
       );
 
       res.json(result.rows[0]);
     } catch (error: any) {
-      console.error(`Get video event error:', error);
+      console.error('Get video event error:', error);
       res.status(500).json({ error: 'Failed to fetch video event' });
     }
   }
@@ -218,13 +218,13 @@ router.get(
       await pool.query(
         `INSERT INTO video_privacy_audit
          (video_event_id, accessed_by, access_type, ip_address)
-         VALUES ($1, $2, `view`, $3)`,
+         VALUES ($1, $2, 'view', $3)',
         [req.params.id, req.user!.id, req.ip]
       );
 
       res.json({ url: playbackUrl });
     } catch (error: any) {
-      console.error(`Get video clip error:', error);
+      console.error('Get video clip error:', error);
       res.status(500).json({ error: 'Failed to get video clip' });
     }
   }
@@ -589,7 +589,7 @@ router.post(
       // Queue privacy processing
       await pool.query(
         `INSERT INTO video_processing_queue (video_event_id, task_type, priority)
-         VALUES ($1, `privacy_blur`, 2)`,
+         VALUES ($1, 'privacy_blur', 2)',
         [eventId]
       );
 
@@ -598,7 +598,7 @@ router.post(
         `UPDATE video_safety_events
          SET privacy_faces_blurred = $1,
              privacy_plates_blurred = $2,
-             privacy_processing_status = `pending`
+             privacy_processing_status = 'pending'
          WHERE id = $3`,
         [blurFaces, blurPlates, eventId]
       );
@@ -607,7 +607,7 @@ router.post(
       await pool.query(
         `INSERT INTO video_privacy_audit
          (video_event_id, accessed_by, access_type, privacy_action)
-         VALUES ($1, $2, `privacy_filter`, $3)`,
+         VALUES ($1, $2, 'privacy_filter', $3)',
         [
           eventId,
           req.user!.id,

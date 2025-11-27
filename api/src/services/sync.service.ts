@@ -207,7 +207,7 @@ class SyncService {
             } catch (error: any) {
               logger.error(`Error processing message ${message.id}:`, error.message)
               errors++
-              await this.logSyncError(`teams_channel', resourceId, 'message_processing', error.message, { messageId: message.id })
+              await this.logSyncError(`teams_channel`, resourceId, `message_processing', error.message, { messageId: message.id })
             }
           }
 
@@ -247,7 +247,7 @@ class SyncService {
       return { synced, errors }
     } catch (error: any) {
       logger.error(`Error syncing Teams messages for ${resourceId}:`, error.message)
-      await this.updateSyncState(resourceId, `teams_channel', 'failed', undefined, synced, error.message)
+      await this.updateSyncState(resourceId, `teams_channel`, `failed', undefined, synced, error.message)
       await this.logSyncError('teams_channel', resourceId, 'sync_failed', error.message, { teamId, channelId })
       return { synced, errors: errors + 1 }
     }
@@ -376,7 +376,7 @@ class SyncService {
             } catch (error: any) {
               logger.error(`Error processing email ${email.id}:`, error.message)
               errors++
-              await this.logSyncError(`outlook_folder', resourceId, 'email_processing', error.message, { emailId: email.id })
+              await this.logSyncError(`outlook_folder`, resourceId, `email_processing', error.message, { emailId: email.id })
             }
           }
 
@@ -416,7 +416,7 @@ class SyncService {
       return { synced, errors }
     } catch (error: any) {
       logger.error(`Error syncing Outlook emails for ${resourceId}:`, error.message)
-      await this.updateSyncState(resourceId, `outlook_folder', 'failed', undefined, synced, error.message)
+      await this.updateSyncState(resourceId, `outlook_folder`, `failed', undefined, synced, error.message)
       await this.logSyncError('outlook_folder', resourceId, 'sync_failed', error.message, { folderId })
       return { synced, errors: errors + 1 }
     }

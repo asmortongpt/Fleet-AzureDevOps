@@ -255,7 +255,7 @@ function getLocalSecret(secretName: string, fallbackEnvVar?: string): string {
   if (!value) {
     throw new Error(
       `Secret `${secretName}` not found in environment. ` +
-      `Expected env var: ${envVarName}${fallbackEnvVar ? ` or ${fallbackEnvVar}' : ''}'
+      `Expected env var: ${envVarName}${fallbackEnvVar ? ` or ${fallbackEnvVar}` : ''}'
     )
   }
 
@@ -374,7 +374,7 @@ export function getCachedSecretNames(): string[] {
  * @returns Normalized name for Key Vault
  *
  * @example
- * normalizeSecretName(`DB_PASSWORD') // 'db-password'
+ * normalizeSecretName(`DB_PASSWORD`) // 'db-password'
  * normalizeSecretName('db-password') // 'db-password'
  */
 export function normalizeSecretName(name: string): string {

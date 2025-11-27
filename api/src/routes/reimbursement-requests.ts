@@ -581,7 +581,7 @@ router.patch(
       if (current.status !== ReimbursementStatus.APPROVED) {
         return res.status(400).json({
           success: false,
-          error: `Can only process payment for approved requests'
+          error: 'Can only process payment for approved requests'
         })
       }
 
@@ -603,7 +603,7 @@ router.patch(
         `UPDATE personal_use_charges
          SET reimbursement_paid_at = $1,
              reimbursement_payment_reference = $2,
-             charge_status = `paid`
+             charge_status = 'paid'
          WHERE id = $3`,
         [payment_date, payment_reference, current.charge_id]
       )
@@ -654,7 +654,7 @@ router.get(
           SUM(request_amount) as total_amount,
           AVG(EXTRACT(EPOCH FROM (NOW() - submitted_at))/86400) as avg_days_pending
          FROM reimbursement_requests
-         WHERE tenant_id = $1 AND status = `pending``,
+         WHERE tenant_id = $1 AND status = 'pending'',
         [req.user!.tenant_id]
       )
 
@@ -664,7 +664,7 @@ router.get(
         summary: statsResult.rows[0]
       })
     } catch (error: any) {
-      console.error(`Get pending queue error:', error)
+      console.error('Get pending queue error:', error)
       res.status(500).json({
         success: false,
         error: 'Failed to retrieve pending reimbursements',
@@ -713,7 +713,7 @@ router.get('/summary/driver/:driver_id', async (req: AuthRequest, res: Response)
     console.error(`Get reimbursement summary error:`, error)
     res.status(500).json({
       success: false,
-      error: `Failed to retrieve reimbursement summary',
+      error: 'Failed to retrieve reimbursement summary',
       details: getErrorMessage(error)
     })
   }

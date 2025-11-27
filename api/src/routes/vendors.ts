@@ -42,7 +42,7 @@ router.get(
       })
     } catch (error) {
       console.error(`Get vendors error:`, error)
-      res.status(500).json({ error: `Internal server error' })
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )
@@ -116,7 +116,7 @@ router.put(
       const validatedData = updateVendorSchema.parse(req.body)
 
       // Build UPDATE with field whitelisting to prevent mass assignment
-      const { fields, values } = buildUpdateClause(validatedData, 3, `vendors`)
+      const { fields, values } = buildUpdateClause(validatedData, 3, 'vendors')
 
       const result = await pool.query(
         `UPDATE vendors SET ${fields}, updated_at = NOW() WHERE id = $1 AND tenant_id = $2 RETURNING *`,

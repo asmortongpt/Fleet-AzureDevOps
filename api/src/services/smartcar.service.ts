@@ -410,7 +410,7 @@ class SmartcarService {
       `INSERT INTO vehicle_telematics_connections
        (vehicle_id, provider_id, external_vehicle_id, access_token, refresh_token,
         token_expires_at, metadata, sync_status)
-       VALUES ($1, (SELECT id FROM telematics_providers WHERE name = `smartcar`),
+       VALUES ($1, (SELECT id FROM telematics_providers WHERE name = 'smartcar'),
                $2, $3, $4, $5, $6, 'active')
        ON CONFLICT (vehicle_id, provider_id)
        DO UPDATE SET
@@ -473,7 +473,7 @@ class SmartcarService {
         `UPDATE vehicle_telematics_connections
          SET access_token = $1, refresh_token = $2, token_expires_at = $3, updated_at = NOW()
          WHERE vehicle_id = $4
-         AND provider_id = (SELECT id FROM telematics_providers WHERE name = `smartcar`)`,
+         AND provider_id = (SELECT id FROM telematics_providers WHERE name = 'smartcar')`,
         [refreshed.access_token, refreshed.refresh_token, newExpiresAt, vehicleId]
       )
 
@@ -526,7 +526,7 @@ class SmartcarService {
         `INSERT INTO vehicle_telemetry
          (vehicle_id, provider_id, timestamp, latitude, longitude,
           odometer_miles, battery_percent, fuel_percent, estimated_range_miles)
-         VALUES ($1, (SELECT id FROM telematics_providers WHERE name = `smartcar`),
+         VALUES ($1, (SELECT id FROM telematics_providers WHERE name = 'smartcar'),
                  NOW(), $2, $3, $4, $5, $6, $7)`,
         [vehicleId, location.latitude, location.longitude, odometer.distance, batteryPercent, fuelPercent, range]
       )
@@ -538,9 +538,9 @@ class SmartcarService {
       // Update connection status
       await this.db.query(
         `UPDATE vehicle_telematics_connections
-         SET sync_status = `error`, sync_error = $1
+         SET sync_status = 'error', sync_error = $1
          WHERE vehicle_id = $2
-         AND provider_id = (SELECT id FROM telematics_providers WHERE name = 'smartcar')',
+         AND provider_id = (SELECT id FROM telematics_providers WHERE name = 'smartcar')`,
         [error.message, vehicleId]
       )
     }

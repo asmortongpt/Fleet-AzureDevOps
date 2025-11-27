@@ -437,7 +437,7 @@ export abstract class BaseStorageAdapter implements IStorageAdapter {
 
     if (allowedMimeTypes && metadata.mimeType && !allowedMimeTypes.includes(metadata.mimeType)) {
       throw new Error(
-        `MIME type ${metadata.mimeType} is not allowed. Allowed types: ${allowedMimeTypes.join(', ')}'
+        `MIME type ${metadata.mimeType} is not allowed. Allowed types: ${allowedMimeTypes.join(`, ')}'
       );
     }
   }
@@ -499,14 +499,14 @@ export class StorageError extends Error {
 
 export class FileNotFoundError extends StorageError {
   constructor(key: string) {
-    super(`File not found: ${key}`, 'FILE_NOT_FOUND', 404);
+    super(`File not found: ${key}`, `FILE_NOT_FOUND', 404);
     this.name = 'FileNotFoundError';
   }
 }
 
 export class FileAlreadyExistsError extends StorageError {
   constructor(key: string) {
-    super(`File already exists: ${key}`, 'FILE_ALREADY_EXISTS', 409);
+    super(`File already exists: ${key}`, `FILE_ALREADY_EXISTS', 409);
     this.name = 'FileAlreadyExistsError';
   }
 }
@@ -520,7 +520,7 @@ export class QuotaExceededError extends StorageError {
 
 export class InvalidFileTypeError extends StorageError {
   constructor(mimeType: string) {
-    super(`Invalid file type: ${mimeType}`, 'INVALID_FILE_TYPE', 400);
+    super(`Invalid file type: ${mimeType}`, `INVALID_FILE_TYPE', 400);
     this.name = 'InvalidFileTypeError';
   }
 }
