@@ -101,8 +101,39 @@ Use Azure CLI for ACR authentication, exit on any error.`
 }
 
 async function generateCode(prompt: string): Promise<string> {
-  // TODO: Call OpenAI API to generate production code
-  return `// Generated code for: ${prompt}\n// TODO: Implement using OpenAI Codex\n`;
+  if (!OPENAI_API_KEY) {
+    throw new Error('OPENAI_API_KEY environment variable is required');
+  }
+
+  const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${OPENAI_API_KEY}`
+    },
+    body: JSON.stringify({
+      model: 'gpt-4',
+      messages: [
+        {
+          role: 'system',
+          content: 'You are an expert in Docker and DevOps. Generate production-ready Dockerfiles and docker-compose configurations following best practices: 1) Multi-stage builds, 2) Non-root users, 3) Minimal attack surface, 4) Health checks, 5) Proper security settings.'
+        },
+        {
+          role: 'user',
+          content: prompt
+        }
+      ],
+      temperature: 0.2,
+      max_tokens: 2000
+    })
+  });
+
+  if (!response.ok) {
+    throw new Error(`OpenAI API error: ${response.status} ${response.statusText}`);
+  }
+
+  const data = await response.json();
+  return data.choices[0].message.content;
 }
 
 main().catch(console.error);
