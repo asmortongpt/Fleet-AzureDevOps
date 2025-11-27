@@ -1,676 +1,624 @@
 import SwiftUI
 
 struct MoreView: View {
-    // @StateObject private var checklistViewModel = ChecklistViewModel() // Disabled until ChecklistViewModel is fixed
     @EnvironmentObject private var navigationCoordinator: NavigationCoordinator
 
     var body: some View {
         NavigationView {
             List {
-                // Executive Section
-                Section(header: Text("Executive")) {
-                    NavigationLink(destination: ExecutiveDashboardView()) {
-                        HStack {
-                            Image(systemName: "chart.bar.doc.horizontal.fill")
-                                .foregroundColor(.purple)
-                                .frame(width: 30)
-                            VStack(alignment: .leading) {
-                                Text("Executive Dashboard")
-                                    .font(.body)
-                                Text("KPIs, trends, and strategic insights")
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
-                            }
-                        }
+                // MARK: - Data Capture & Documentation
+                Section(header: Text("Data Capture & Documentation")) {
+                    NavigationLink(destination: VehicleInspectionView()) {
+                        FeatureRow(
+                            icon: "checklist",
+                            iconColor: .blue,
+                            title: "Vehicle Inspection",
+                            subtitle: "Complete pre-trip and post-trip inspections"
+                        )
+                    }
+
+                    NavigationLink(destination: PhotoCaptureView()) {
+                        FeatureRow(
+                            icon: "camera.fill",
+                            iconColor: .purple,
+                            title: "Photo Capture",
+                            subtitle: "Capture photos for inspections and incidents"
+                        )
+                    }
+
+                    NavigationLink(destination: VideoCaptureView()) {
+                        FeatureRow(
+                            icon: "video.fill",
+                            iconColor: .red,
+                            title: "Video Recording",
+                            subtitle: "Record video documentation"
+                        )
+                    }
+
+                    NavigationLink(destination: BarcodeScannerView()) {
+                        FeatureRow(
+                            icon: "barcode.viewfinder",
+                            iconColor: .orange,
+                            title: "Barcode Scanner",
+                            subtitle: "Scan barcodes and QR codes"
+                        )
+                    }
+
+                    NavigationLink(destination: VINScannerView()) {
+                        FeatureRow(
+                            icon: "doc.text.viewfinder",
+                            iconColor: .indigo,
+                            title: "VIN Scanner",
+                            subtitle: "Scan vehicle identification numbers"
+                        )
+                    }
+
+                    NavigationLink(destination: DocumentScannerView()) {
+                        FeatureRow(
+                            icon: "doc.text.magnifyingglass",
+                            iconColor: .green,
+                            title: "Document Scanner",
+                            subtitle: "Scan and digitize documents"
+                        )
+                    }
+
+                    NavigationLink(destination: ReceiptCaptureView()) {
+                        FeatureRow(
+                            icon: "receipt.fill",
+                            iconColor: .cyan,
+                            title: "Receipt Capture",
+                            subtitle: "Capture fuel and maintenance receipts"
+                        )
+                    }
+
+                    NavigationLink(destination: SignaturePadView()) {
+                        FeatureRow(
+                            icon: "signature",
+                            iconColor: .brown,
+                            title: "Digital Signature",
+                            subtitle: "Capture digital signatures"
+                        )
+                    }
+
+                    NavigationLink(destination: DamageReportView()) {
+                        FeatureRow(
+                            icon: "exclamationmark.triangle.fill",
+                            iconColor: .orange,
+                            title: "Damage Report",
+                            subtitle: "Document vehicle damage"
+                        )
+                    }
+
+                    NavigationLink(destination: IncidentReportView()) {
+                        FeatureRow(
+                            icon: "exclamationmark.octagon.fill",
+                            iconColor: .red,
+                            title: "Incident Report",
+                            subtitle: "Report accidents and incidents"
+                        )
                     }
                 }
 
-                // Vehicle Data Section
-                Section(header: Text("Vehicle Data")) {
-                    NavigationLink(destination: TelemetryDashboardView()) {
-                        HStack {
-                            Image(systemName: "gauge.with.dots.needle.67percent")
-                                .foregroundColor(.red)
-                                .frame(width: 30)
-                            VStack(alignment: .leading) {
-                                Text("Telemetry Dashboard")
-                                    .font(.body)
-                                Text("Real-time OBD-II data, diagnostics, and vehicle health")
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
-                            }
-                        }
-                    }
-                }
-
-                // Environmental Section
-                Section(header: Text("Environmental")) {
-                    NavigationLink(destination: EnvironmentalDashboardView()) {
-                        HStack {
-                            Image(systemName: "leaf.fill")
-                                .foregroundColor(.green)
-                                .frame(width: 30)
-                            VStack(alignment: .leading) {
-                                Text("Environmental Impact")
-                                    .font(.body)
-                                Text("Emissions tracking, sustainability metrics, and carbon footprint")
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
-                            }
-                        }
-                    }
-                }
-
-                // GPS Features Section
-                Section(header: Text("GPS Features")) {
-                    NavigationLink(destination: GeofenceListView()) {
-                        HStack {
-                            Image(systemName: "mappin.circle.fill")
-                                .foregroundColor(.blue)
-                                .frame(width: 30)
-                            VStack(alignment: .leading) {
-                                Text("Geofences")
-                                    .font(.body)
-                                Text("Create zones and monitor vehicle locations")
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
-                            }
-                        }
-                    }
-
-                    NavigationLink(destination: RouteListView()) {
-                        HStack {
-                            Image(systemName: "point.3.connected.trianglepath.dotted")
-                                .foregroundColor(.orange)
-                                .frame(width: 30)
-                            VStack(alignment: .leading) {
-                                Text("Routes")
-                                    .font(.body)
-                                Text("Plan and save common routes with waypoints")
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
-                            }
-                        }
-                    }
-
-                    NavigationLink(destination: EnhancedFleetMapView()) {
-                        HStack {
-                            Image(systemName: "map.fill")
-                                .foregroundColor(.green)
-                                .frame(width: 30)
-                            VStack(alignment: .leading) {
-                                Text("Fleet Map")
-                                    .font(.body)
-                                Text("Real-time vehicle location tracking")
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
-                            }
-                        }
-                    }
-
+                // MARK: - Trip & Location Tracking
+                Section(header: Text("Trip & Location Tracking")) {
                     NavigationLink(destination: TripTrackingView()) {
-                        HStack {
-                            Image(systemName: "location.fill.viewfinder")
-                                .foregroundColor(.purple)
-                                .frame(width: 30)
-                            VStack(alignment: .leading) {
-                                Text("Trip Tracking")
-                                    .font(.body)
-                                Text("Track and record vehicle trips")
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
-                            }
-                        }
+                        FeatureRow(
+                            icon: "location.fill",
+                            iconColor: .blue,
+                            title: "Trip Tracking",
+                            subtitle: "Track trips with GPS"
+                        )
                     }
 
-                    NavigationLink(destination: RouteOptimizerView()) {
-                        HStack {
-                            Image(systemName: "arrow.triangle.branch")
-                                .foregroundColor(.teal)
-                                .frame(width: 30)
-                            VStack(alignment: .leading) {
-                                Text("Route Optimizer")
-                                    .font(.body)
-                                Text("Optimize multi-stop routes with TSP algorithm")
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
-                            }
-                        }
-                    }
-                }
-
-                // Financial Section
-                Section(header: Text("Financial")) {
-                    NavigationLink(destination: Text("Cost Analysis - Available on web platform")) {
-                        HStack {
-                            Image(systemName: "dollarsign.circle.fill")
-                                .foregroundColor(.green)
-                                .frame(width: 30)
-                            VStack(alignment: .leading) {
-                                Text("Cost Analysis Center")
-                                    .font(.body)
-                                Text("TCO, cost per mile, and budget tracking")
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
-                            }
-                        }
+                    NavigationLink(destination: EnhancedTripTrackingView()) {
+                        FeatureRow(
+                            icon: "map.fill",
+                            iconColor: .green,
+                            title: "Enhanced Trip Tracking",
+                            subtitle: "Advanced trip tracking and analytics"
+                        )
                     }
 
-                    NavigationLink(destination: Text("Budget Planning - Available on web platform")) {
-                        HStack {
-                            Image(systemName: "chart.bar.doc.horizontal.fill")
-                                .foregroundColor(.blue)
-                                .frame(width: 30)
-                            VStack(alignment: .leading) {
-                                Text("Budget Planning")
-                                    .font(.body)
-                                Text("Multi-year budgets with variance analysis")
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
-                            }
-                        }
+                    NavigationLink(destination: StartTripView()) {
+                        FeatureRow(
+                            icon: "play.circle.fill",
+                            iconColor: .green,
+                            title: "Start Trip",
+                            subtitle: "Quick trip start"
+                        )
                     }
 
-                    NavigationLink(destination: Text("Personal Use Tracking - Available on web platform")) {
-                        HStack {
-                            Image(systemName: "car.circle.fill")
-                                .foregroundColor(.purple)
-                                .frame(width: 30)
-                            VStack(alignment: .leading) {
-                                Text("Personal Use Tracking")
-                                    .font(.body)
-                                Text("Mileage tracking and reimbursement")
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
-                            }
-                        }
+                    NavigationLink(destination: TripHistoryView()) {
+                        FeatureRow(
+                            icon: "clock.fill",
+                            iconColor: .purple,
+                            title: "Trip History",
+                            subtitle: "View past trips and routes"
+                        )
+                    }
+
+                    NavigationLink(destination: GeofencingView()) {
+                        FeatureRow(
+                            icon: "circle.dotted",
+                            iconColor: .cyan,
+                            title: "Geofencing",
+                            subtitle: "Manage geofence alerts"
+                        )
+                    }
+
+                    NavigationLink(destination: MapNavigationView()) {
+                        FeatureRow(
+                            icon: "arrow.triangle.turn.up.right.circle.fill",
+                            iconColor: .blue,
+                            title: "Navigation",
+                            subtitle: "Turn-by-turn directions"
+                        )
                     }
                 }
 
-                // Analytics Section
-                Section(header: Text("Analytics")) {
-                    NavigationLink(destination: Text("Benchmarking - Available on web platform")) {
-                        HStack {
-                            Image(systemName: "chart.bar.doc.horizontal")
-                                .foregroundColor(.indigo)
-                                .frame(width: 30)
-                            VStack(alignment: .leading) {
-                                Text("Benchmarking")
-                                    .font(.body)
-                                Text("Compare performance against industry standards")
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
-                            }
-                        }
+                // MARK: - Vehicle Management
+                Section(header: Text("Vehicle Management")) {
+                    NavigationLink(destination: VehicleListView()) {
+                        FeatureRow(
+                            icon: "car.2.fill",
+                            iconColor: .blue,
+                            title: "Vehicle List",
+                            subtitle: "Browse all vehicles"
+                        )
                     }
 
-                    NavigationLink(destination: Text("Predictive Analytics - Available on web platform")) {
-                        HStack {
-                            Image(systemName: "wand.and.stars")
-                                .foregroundColor(.purple)
-                                .frame(width: 30)
-                            VStack(alignment: .leading) {
-                                Text("Predictive Analytics")
-                                    .font(.body)
-                                Text("AI-powered predictions and insights")
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
-                            }
-                        }
+                    NavigationLink(destination: VehicleDetailsView()) {
+                        FeatureRow(
+                            icon: "car.fill",
+                            iconColor: .green,
+                            title: "Vehicle Details",
+                            subtitle: "View vehicle information"
+                        )
                     }
 
-                    NavigationLink(destination: Text("Trip Analytics - Available on web platform")) {
-                        HStack {
-                            Image(systemName: "chart.xyaxis.line")
-                                .foregroundColor(.orange)
-                                .frame(width: 30)
-                            VStack(alignment: .leading) {
-                                Text("Trip Analytics")
-                                    .font(.body)
-                                Text("Advanced analytics with anomaly detection")
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
-                            }
-                        }
+                    NavigationLink(destination: VehicleIdentificationView()) {
+                        FeatureRow(
+                            icon: "magnifyingglass.circle.fill",
+                            iconColor: .purple,
+                            title: "Vehicle Identification",
+                            subtitle: "Identify and verify vehicles"
+                        )
                     }
 
-                    NavigationLink(destination: Text("Fleet Analytics - Available on web platform")) {
-                        HStack {
-                            Image(systemName: "chart.bar.fill")
-                                .foregroundColor(.blue)
-                                .frame(width: 30)
-                            VStack(alignment: .leading) {
-                                Text("Fleet Analytics")
-                                    .font(.body)
-                                Text("Usage trends, costs, and efficiency metrics")
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
-                            }
-                        }
+                    NavigationLink(destination: VehicleRequestView()) {
+                        FeatureRow(
+                            icon: "hand.raised.fill",
+                            iconColor: .orange,
+                            title: "Vehicle Request",
+                            subtitle: "Request vehicle assignment"
+                        )
                     }
 
-                    NavigationLink(destination: Text("Data Workbench - Available on web platform")) {
-                        HStack {
-                            Image(systemName: "tablecells.badge.ellipsis")
-                                .foregroundColor(.purple)
-                                .frame(width: 30)
-                            VStack(alignment: .leading) {
-                                Text("Data Workbench")
-                                    .font(.body)
-                                Text("Custom queries and data analysis")
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
-                            }
-                        }
+                    NavigationLink(destination: VehicleReservationView()) {
+                        FeatureRow(
+                            icon: "calendar.badge.plus",
+                            iconColor: .cyan,
+                            title: "Vehicle Reservation",
+                            subtitle: "Reserve vehicles in advance"
+                        )
+                    }
+
+                    NavigationLink(destination: AddVehicleView()) {
+                        FeatureRow(
+                            icon: "plus.circle.fill",
+                            iconColor: .green,
+                            title: "Add Vehicle",
+                            subtitle: "Add new vehicle to fleet"
+                        )
+                    }
+
+                    NavigationLink(destination: FuelManagementView()) {
+                        FeatureRow(
+                            icon: "fuelpump.fill",
+                            iconColor: .red,
+                            title: "Fuel Management",
+                            subtitle: "Log fuel purchases and track consumption"
+                        )
+                    }
+
+                    NavigationLink(destination: VehicleIdlingView()) {
+                        FeatureRow(
+                            icon: "gauge.with.dots.needle.67percent",
+                            iconColor: .yellow,
+                            title: "Vehicle Idling",
+                            subtitle: "Monitor excessive idling"
+                        )
                     }
                 }
 
-                // Optimization Section
-                Section(header: Text("Optimization")) {
-                    NavigationLink(destination: Text("Fleet Optimizer - Available on web platform")) {
-                        HStack {
-                            Image(systemName: "wand.and.stars")
-                                .foregroundColor(.purple)
-                                .frame(width: 30)
-                            VStack(alignment: .leading) {
-                                Text("Fleet Optimizer")
-                                    .font(.body)
-                                Text("AI-powered recommendations and savings analysis")
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
-                            }
-                        }
+                // MARK: - Maintenance & Diagnostics
+                Section(header: Text("Maintenance & Diagnostics")) {
+                    NavigationLink(destination: MaintenanceSubmissionView()) {
+                        FeatureRow(
+                            icon: "wrench.fill",
+                            iconColor: .orange,
+                            title: "Submit Maintenance",
+                            subtitle: "Report maintenance needs"
+                        )
+                    }
+
+                    NavigationLink(destination: ScheduleMaintenanceView()) {
+                        FeatureRow(
+                            icon: "calendar.badge.clock",
+                            iconColor: .blue,
+                            title: "Schedule Maintenance",
+                            subtitle: "Schedule service appointments"
+                        )
+                    }
+
+                    NavigationLink(destination: VehicleMaintenancePhotoView()) {
+                        FeatureRow(
+                            icon: "camera.metering.center.weighted",
+                            iconColor: .purple,
+                            title: "Maintenance Photos",
+                            subtitle: "Document maintenance with photos"
+                        )
+                    }
+
+                    NavigationLink(destination: OBD2DiagnosticsView()) {
+                        FeatureRow(
+                            icon: "cable.connector",
+                            iconColor: .green,
+                            title: "OBD-II Diagnostics",
+                            subtitle: "Read vehicle diagnostic codes"
+                        )
+                    }
+
+                    NavigationLink(destination: OBD2EmulatorView()) {
+                        FeatureRow(
+                            icon: "antenna.radiowaves.left.and.right",
+                            iconColor: .cyan,
+                            title: "OBD-II Emulator",
+                            subtitle: "Test OBD-II connections"
+                        )
+                    }
+
+                    NavigationLink(destination: DeviceManagementView()) {
+                        FeatureRow(
+                            icon: "sensor.fill",
+                            iconColor: .indigo,
+                            title: "Device Management",
+                            subtitle: "Manage OBD-II and tracking devices"
+                        )
                     }
                 }
 
-                // Advanced Features Section
-                Section(header: Text("Advanced Features")) {
-                    NavigationLink(destination: Text("GIS Command Center - Available on web platform")) {
-                        HStack {
-                            Image(systemName: "map.fill")
-                                .foregroundColor(.purple)
-                                .frame(width: 30)
-                            VStack(alignment: .leading) {
-                                Text("GIS Command Center")
-                                    .font(.body)
-                                Text("Heatmaps, clustering, and spatial analysis")
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
-                            }
-                        }
+                // MARK: - Checklists
+                Section(header: Text("Checklists & Inspections")) {
+                    NavigationLink(destination: ChecklistManagementView()) {
+                        FeatureRow(
+                            icon: "checklist",
+                            iconColor: .blue,
+                            title: "Checklist Management",
+                            subtitle: "Manage inspection checklists"
+                        )
+                    }
+
+                    NavigationLink(destination: ActiveChecklistView()) {
+                        FeatureRow(
+                            icon: "list.bullet.clipboard.fill",
+                            iconColor: .green,
+                            title: "Active Checklists",
+                            subtitle: "View and complete active checklists"
+                        )
+                    }
+
+                    NavigationLink(destination: ChecklistHistoryView()) {
+                        FeatureRow(
+                            icon: "clock.arrow.circlepath",
+                            iconColor: .purple,
+                            title: "Checklist History",
+                            subtitle: "View completed checklists"
+                        )
+                    }
+
+                    NavigationLink(destination: ChecklistTemplateEditorView()) {
+                        FeatureRow(
+                            icon: "square.and.pencil",
+                            iconColor: .orange,
+                            title: "Template Editor",
+                            subtitle: "Create and edit checklist templates"
+                        )
+                    }
+
+                    NavigationLink(destination: VehicleChecklistMetricsView()) {
+                        FeatureRow(
+                            icon: "chart.bar.fill",
+                            iconColor: .cyan,
+                            title: "Vehicle Checklist Metrics",
+                            subtitle: "View vehicle checklist statistics"
+                        )
+                    }
+
+                    NavigationLink(destination: DriverChecklistMetricsView()) {
+                        FeatureRow(
+                            icon: "person.text.rectangle.fill",
+                            iconColor: .indigo,
+                            title: "Driver Checklist Metrics",
+                            subtitle: "View driver checklist performance"
+                        )
                     }
                 }
 
-                // Compliance Section
-                Section(header: Text("Compliance")) {
-                    NavigationLink(destination: Text("Compliance Dashboard - Available on web platform")) {
-                        HStack {
-                            Image(systemName: "checkmark.shield.fill")
-                                .foregroundColor(.green)
-                                .frame(width: 30)
-                            VStack(alignment: .leading) {
-                                Text("Compliance Dashboard")
-                                    .font(.body)
-                                Text("Automated tracking, scores, and violations")
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
-                            }
-                        }
+                // MARK: - Driver Features
+                Section(header: Text("Driver Features")) {
+                    NavigationLink(destination: DriverManagementView()) {
+                        FeatureRow(
+                            icon: "person.3.fill",
+                            iconColor: .blue,
+                            title: "Driver Management",
+                            subtitle: "Manage driver roster"
+                        )
+                    }
+
+                    NavigationLink(destination: DriverPreferencesView()) {
+                        FeatureRow(
+                            icon: "person.crop.circle.badge.checkmark",
+                            iconColor: .green,
+                            title: "Driver Preferences",
+                            subtitle: "Configure driver settings"
+                        )
+                    }
+
+                    NavigationLink(destination: CrashDetectionView()) {
+                        FeatureRow(
+                            icon: "sensor.tag.radiowaves.forward.fill",
+                            iconColor: .red,
+                            title: "Crash Detection",
+                            subtitle: "Automatic crash detection and reporting"
+                        )
                     }
                 }
 
-                // Fleet Operations Section
-                Section(header: Text("Fleet Operations")) {
-                    NavigationLink(destination: Text("Vehicle Assignment - Available on web platform")) {
-                        HStack {
-                            Image(systemName: "person.crop.circle.fill.badge.checkmark")
-                                .foregroundColor(.blue)
-                                .frame(width: 30)
-                            VStack(alignment: .leading) {
-                                Text("Vehicle Assignments")
-                                    .font(.body)
-                                Text("Assign vehicles to drivers, departments, projects")
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
-                            }
-                        }
+                // MARK: - Schedule & Tasks
+                Section(header: Text("Schedule & Tasks")) {
+                    NavigationLink(destination: ScheduleView()) {
+                        FeatureRow(
+                            icon: "calendar",
+                            iconColor: .blue,
+                            title: "Schedule",
+                            subtitle: "View your schedule"
+                        )
                     }
 
-                    NavigationLink(destination: Text("Inventory Management - Available on web platform")) {
-                        HStack {
-                            Image(systemName: "cube.box.fill")
-                                .foregroundColor(.purple)
-                                .frame(width: 30)
-                            VStack(alignment: .leading) {
-                                Text("Inventory Management")
-                                    .font(.body)
-                                Text("Track stock levels, movements, and alerts")
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
-                            }
-                        }
+                    NavigationLink(destination: DayScheduleView()) {
+                        FeatureRow(
+                            icon: "calendar.day.timeline.left",
+                            iconColor: .green,
+                            title: "Day View",
+                            subtitle: "View daily schedule"
+                        )
                     }
 
-                    NavigationLink(destination: Text("Warranty Management - Available on web platform")) {
-                        HStack {
-                            Image(systemName: "shield.fill")
-                                .foregroundColor(.green)
-                                .frame(width: 30)
-                            VStack(alignment: .leading) {
-                                Text("Warranty Management")
-                                    .font(.body)
-                                Text("Track warranties and submit claims")
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
-                            }
-                        }
-                    }
-                }
-
-                // Maintenance Section
-                Section(header: Text("Maintenance")) {
-                    NavigationLink(destination: Text("Work Orders - Available on web platform")) {
-                        HStack {
-                            Image(systemName: "wrench.and.screwdriver.fill")
-                                .foregroundColor(.orange)
-                                .frame(width: 30)
-                            VStack(alignment: .leading) {
-                                Text("Work Orders")
-                                    .font(.body)
-                                Text("Create, assign, and track work orders")
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
-                            }
-                        }
-                    }
-                }
-
-                // Procurement Section
-                Section(header: Text("Procurement")) {
-                    NavigationLink(destination: Text("Vendor Management - Available on web platform")) {
-                        HStack {
-                            Image(systemName: "building.2.fill")
-                                .foregroundColor(.blue)
-                                .frame(width: 30)
-                            VStack(alignment: .leading) {
-                                Text("Vendors")
-                                    .font(.body)
-                                Text("Manage vendor relationships and performance")
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
-                            }
-                        }
+                    NavigationLink(destination: WeekScheduleView()) {
+                        FeatureRow(
+                            icon: "calendar.day.timeline.leading",
+                            iconColor: .purple,
+                            title: "Week View",
+                            subtitle: "View weekly schedule"
+                        )
                     }
 
-                    NavigationLink(destination: Text("Parts Inventory - Available on web platform")) {
-                        HStack {
-                            Image(systemName: "cube.box.fill")
-                                .foregroundColor(.purple)
-                                .frame(width: 30)
-                            VStack(alignment: .leading) {
-                                Text("Parts Inventory")
-                                    .font(.body)
-                                Text("Track stock levels and reorder points")
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
-                            }
-                        }
+                    NavigationLink(destination: MonthScheduleView()) {
+                        FeatureRow(
+                            icon: "calendar",
+                            iconColor: .orange,
+                            title: "Month View",
+                            subtitle: "View monthly schedule"
+                        )
                     }
 
-                    NavigationLink(destination: Text("Purchase Orders - Available on web platform")) {
-                        HStack {
-                            Image(systemName: "shippingbox.fill")
-                                .foregroundColor(.orange)
-                                .frame(width: 30)
-                            VStack(alignment: .leading) {
-                                Text("Purchase Orders")
-                                    .font(.body)
-                                Text("Create and track orders with approval workflow")
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
-                            }
-                        }
+                    NavigationLink(destination: AgendaScheduleView()) {
+                        FeatureRow(
+                            icon: "list.bullet.rectangle",
+                            iconColor: .cyan,
+                            title: "Agenda View",
+                            subtitle: "View schedule in agenda format"
+                        )
                     }
 
-                    NavigationLink(destination: Text("Invoices - Available on web platform")) {
-                        HStack {
-                            Image(systemName: "doc.text.fill")
-                                .foregroundColor(.green)
-                                .frame(width: 30)
-                            VStack(alignment: .leading) {
-                                Text("Invoices")
-                                    .font(.body)
-                                Text("Manage invoices and payment tracking")
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
-                            }
-                        }
+                    NavigationLink(destination: AddScheduleView()) {
+                        FeatureRow(
+                            icon: "calendar.badge.plus",
+                            iconColor: .green,
+                            title: "Add Appointment",
+                            subtitle: "Schedule new appointments"
+                        )
+                    }
+
+                    NavigationLink(destination: TaskListView()) {
+                        FeatureRow(
+                            icon: "list.bullet",
+                            iconColor: .blue,
+                            title: "Task List",
+                            subtitle: "Manage your tasks"
+                        )
+                    }
+
+                    NavigationLink(destination: CreateTaskView()) {
+                        FeatureRow(
+                            icon: "plus.square.fill",
+                            iconColor: .green,
+                            title: "Create Task",
+                            subtitle: "Add new tasks"
+                        )
                     }
                 }
 
-                // Communication Section
+                // MARK: - Communication
                 Section(header: Text("Communication")) {
                     NavigationLink(destination: PushToTalkView()) {
-                        HStack {
-                            Image(systemName: "mic.fill")
-                                .foregroundColor(.red)
-                                .frame(width: 30)
-                            VStack(alignment: .leading) {
-                                Text("Push-to-Talk")
-                                    .font(.body)
-                                Text("Radio communication with your fleet")
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
-                            }
-                        }
+                        FeatureRow(
+                            icon: "mic.fill",
+                            iconColor: .red,
+                            title: "Push-to-Talk",
+                            subtitle: "Radio communication with fleet"
+                        )
                     }
 
-                    NavigationLink(destination: Text("Communication Center - Available on web platform")) {
-                        HStack {
-                            Image(systemName: "bubble.left.and.bubble.right.fill")
-                                .foregroundColor(.blue)
-                                .frame(width: 30)
-                            VStack(alignment: .leading) {
-                                Text("Communication Center")
-                                    .font(.body)
-                                Text("Messages, email, and notifications")
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
-                            }
-                        }
+                    NavigationLink(destination: MessagesView()) {
+                        FeatureRow(
+                            icon: "message.fill",
+                            iconColor: .blue,
+                            title: "Messages",
+                            subtitle: "Send and receive messages"
+                        )
+                    }
+
+                    NavigationLink(destination: AnnouncementView()) {
+                        FeatureRow(
+                            icon: "megaphone.fill",
+                            iconColor: .orange,
+                            title: "Announcements",
+                            subtitle: "View fleet announcements"
+                        )
                     }
                 }
 
-                // Management Section
-                Section(header: Text("Management")) {
-                    NavigationLink(destination: Text("Dispatch Console - Available on web platform")) {
-                        HStack {
-                            Image(systemName: "antenna.radiowaves.left.and.right")
-                                .foregroundColor(.red)
-                                .frame(width: 30)
-                            VStack(alignment: .leading) {
-                                Text("Dispatch Console")
-                                    .font(.body)
-                                Text("Real-time fleet management and assignments")
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
-                            }
-                        }
+                // MARK: - Reports & Analytics
+                Section(header: Text("Reports & Analytics")) {
+                    NavigationLink(destination: ReportsView()) {
+                        FeatureRow(
+                            icon: "chart.bar.doc.horizontal.fill",
+                            iconColor: .blue,
+                            title: "Reports",
+                            subtitle: "Generate and view reports"
+                        )
                     }
 
-                    NavigationLink(destination: Text("Task Management - Available on web platform")) {
-                        HStack {
-                            Image(systemName: "list.bullet.clipboard.fill")
-                                .foregroundColor(.indigo)
-                                .frame(width: 30)
-                            VStack(alignment: .leading) {
-                                Text("Tasks")
-                                    .font(.body)
-                                Text("Assign and track tasks with workflow")
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
-                            }
-                        }
+                    NavigationLink(destination: ChecklistReportsView()) {
+                        FeatureRow(
+                            icon: "doc.text.fill",
+                            iconColor: .green,
+                            title: "Checklist Reports",
+                            subtitle: "View checklist completion reports"
+                        )
                     }
 
-                    NavigationLink(destination: Text("Driver Management - Available on web platform")) {
-                        HStack {
-                            Image(systemName: "person.3.fill")
-                                .foregroundColor(.blue)
-                                .frame(width: 30)
-                            VStack(alignment: .leading) {
-                                Text("Drivers")
-                                    .font(.body)
-                                Text("Manage driver roster and performance")
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
-                            }
-                        }
-                    }
-
-                    NavigationLink(destination: Text("Asset Management - Available on web platform")) {
-                        HStack {
-                            Image(systemName: "cube.box.fill")
-                                .foregroundColor(.purple)
-                                .frame(width: 30)
-                            VStack(alignment: .leading) {
-                                Text("Assets")
-                                    .font(.body)
-                                Text("Track trailers, equipment, and tools")
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
-                            }
-                        }
-                    }
-
-                    NavigationLink(destination: Text("Checklists coming soon")) {
-                        HStack {
-                            Image(systemName: "checklist")
-                                .foregroundColor(.orange)
-                                .frame(width: 30)
-                            VStack(alignment: .leading) {
-                                Text("Checklists")
-                                    .font(.body)
-                                Text("Smart location-based checklists")
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
-                            }
-                            Spacer()
-                            // Badge disabled until ChecklistViewModel is fixed
-                            // if checklistViewModel.pendingChecklists.count > 0 {
-                            //     Text("\(checklistViewModel.pendingChecklists.count)")
-                            //         .font(.caption)
-                            //         .fontWeight(.semibold)
-                            //         .foregroundColor(.white)
-                            //         .padding(.horizontal, 8)
-                            //         .padding(.vertical, 4)
-                            //         .background(Color.red)
-                            //         .cornerRadius(10)
-                            // }
-                        }
-                    }
-
-                    NavigationLink(destination: Text("Schedule coming soon")) {
-                        HStack {
-                            Image(systemName: "calendar")
-                                .foregroundColor(.green)
-                                .frame(width: 30)
-                            VStack(alignment: .leading) {
-                                Text("Schedule")
-                                    .font(.body)
-                                Text("Shifts, maintenance & appointments")
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
-                            }
-                        }
+                    NavigationLink(destination: CustomReportBuilderView()) {
+                        FeatureRow(
+                            icon: "wand.and.stars",
+                            iconColor: .purple,
+                            title: "Custom Report Builder",
+                            subtitle: "Create custom reports"
+                        )
                     }
                 }
 
-                // Workforce Section
-                Section(header: Text("Workforce")) {
-                    NavigationLink(destination: Text("Shift Management - Available on web platform")) {
-                        HStack {
-                            Image(systemName: "clock.fill")
-                                .foregroundColor(.blue)
-                                .frame(width: 30)
-                            VStack(alignment: .leading) {
-                                Text("Shift Management")
-                                    .font(.body)
-                                Text("Clock in/out, shift scheduling, and overtime")
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
-                            }
-                        }
+                // MARK: - Hardware Features
+                Section(header: Text("Hardware Features")) {
+                    NavigationLink(destination: LiDARScannerView()) {
+                        FeatureRow(
+                            icon: "lidar.fill",
+                            iconColor: .purple,
+                            title: "LiDAR Scanner",
+                            subtitle: "3D scanning with LiDAR"
+                        )
                     }
 
-                    NavigationLink(destination: Text("Training Management - Available on web platform")) {
-                        HStack {
-                            Image(systemName: "book.fill")
-                                .foregroundColor(.purple)
-                                .frame(width: 30)
-                            VStack(alignment: .leading) {
-                                Text("Training & Certification")
-                                    .font(.body)
-                                Text("Course catalog, completion tracking, and compliance")
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
-                            }
-                        }
+                    NavigationLink(destination: CameraView()) {
+                        FeatureRow(
+                            icon: "camera.fill",
+                            iconColor: .blue,
+                            title: "Camera",
+                            subtitle: "Access device camera"
+                        )
+                    }
+
+                    NavigationLink(destination: HardwareQuickActionsView()) {
+                        FeatureRow(
+                            icon: "bolt.fill",
+                            iconColor: .yellow,
+                            title: "Hardware Quick Actions",
+                            subtitle: "Quick access to hardware features"
+                        )
                     }
                 }
 
-                // Settings Section
-                Section(header: Text("Settings")) {
+                // MARK: - Account & Settings
+                Section(header: Text("Account & Settings")) {
                     NavigationLink(destination: ProfileView()) {
-                        HStack {
-                            Image(systemName: "person.circle.fill")
-                                .foregroundColor(.blue)
-                                .frame(width: 30)
-                            Text("Profile")
-                        }
+                        FeatureRow(
+                            icon: "person.circle.fill",
+                            iconColor: .blue,
+                            title: "Profile",
+                            subtitle: "View and edit your profile"
+                        )
                     }
 
                     NavigationLink(destination: NotificationsView()) {
-                        HStack {
-                            Image(systemName: "bell.fill")
-                                .foregroundColor(.orange)
-                                .frame(width: 30)
-                            Text("Notifications")
-                        }
+                        FeatureRow(
+                            icon: "bell.fill",
+                            iconColor: .orange,
+                            title: "Notifications",
+                            subtitle: "Manage notification settings"
+                        )
                     }
 
-                    NavigationLink(destination: Text("Appearance settings coming soon")) {
-                        HStack {
-                            Image(systemName: "paintbrush.fill")
-                                .foregroundColor(.purple)
-                                .frame(width: 30)
-                            Text("Appearance")
-                        }
+                    NavigationLink(destination: SettingsView()) {
+                        FeatureRow(
+                            icon: "gear",
+                            iconColor: .gray,
+                            title: "Settings",
+                            subtitle: "App settings and preferences"
+                        )
+                    }
+
+                    NavigationLink(destination: AppearanceSettingsView()) {
+                        FeatureRow(
+                            icon: "paintbrush.fill",
+                            iconColor: .purple,
+                            title: "Appearance",
+                            subtitle: "Customize app appearance"
+                        )
                     }
                 }
 
-                // About Section
-                Section(header: Text("About")) {
+                // MARK: - Help & Support
+                Section(header: Text("Help & Support")) {
+                    NavigationLink(destination: HelpCenterView()) {
+                        FeatureRow(
+                            icon: "questionmark.circle.fill",
+                            iconColor: .green,
+                            title: "Help Center",
+                            subtitle: "Get help and support"
+                        )
+                    }
+
+                    NavigationLink(destination: OnboardingView()) {
+                        FeatureRow(
+                            icon: "book.fill",
+                            iconColor: .blue,
+                            title: "Onboarding",
+                            subtitle: "View app tutorial"
+                        )
+                    }
+
+                    NavigationLink(destination: SupportTicketView()) {
+                        FeatureRow(
+                            icon: "ticket.fill",
+                            iconColor: .orange,
+                            title: "Support Ticket",
+                            subtitle: "Submit support requests"
+                        )
+                    }
+
                     NavigationLink(destination: AboutView()) {
-                        HStack {
-                            Image(systemName: "info.circle.fill")
-                                .foregroundColor(.blue)
-                                .frame(width: 30)
-                            Text("App Info")
-                        }
-                    }
-
-                    NavigationLink(destination: HelpView()) {
-                        HStack {
-                            Image(systemName: "questionmark.circle.fill")
-                                .foregroundColor(.green)
-                                .frame(width: 30)
-                            Text("Help & Support")
-                        }
+                        FeatureRow(
+                            icon: "info.circle.fill",
+                            iconColor: .blue,
+                            title: "About",
+                            subtitle: "App version and information"
+                        )
                     }
                 }
 
-                // Sign Out Section
+                // MARK: - Sign Out
                 Section {
                     Button(action: {
                         Task {
@@ -693,6 +641,34 @@ struct MoreView: View {
     }
 }
 
+// MARK: - Feature Row Component
+struct FeatureRow: View {
+    let icon: String
+    let iconColor: Color
+    let title: String
+    let subtitle: String
+
+    var body: some View {
+        HStack(spacing: 12) {
+            Image(systemName: icon)
+                .foregroundColor(iconColor)
+                .frame(width: 30)
+                .font(.title3)
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text(title)
+                    .font(.body)
+                    .fontWeight(.medium)
+                Text(subtitle)
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
+        }
+        .padding(.vertical, 2)
+    }
+}
+
 #Preview {
     MoreView()
+        .environmentObject(NavigationCoordinator())
 }
