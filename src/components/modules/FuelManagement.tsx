@@ -3,10 +3,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { MetricCard } from "@/components/MetricCard"
+import { KPIStrip, KPIMetric } from "@/components/common/KPIStrip"
+import { DataGrid } from "@/components/common/DataGrid"
 import { ChartCard } from "@/components/ChartCard"
-import { 
-  GasPump, 
+import {
+  GasPump,
   CurrencyDollar,
   Gauge,
   TrendUp,
@@ -16,6 +17,8 @@ import {
 } from "@phosphor-icons/react"
 import { useState } from "react"
 import { useFleetData } from "@/hooks/use-fleet-data"
+import { ColumnDef } from "@tanstack/react-table"
+import { FuelTransaction } from "@/lib/types"
 
 interface FuelManagementProps {
   data: ReturnType<typeof useFleetData>
@@ -29,12 +32,88 @@ export function FuelManagement({ data }: FuelManagementProps) {
     const totalCost = transactions.reduce((sum, t) => sum + t.totalCost, 0)
     const totalGallons = transactions.reduce((sum, t) => sum + t.gallons, 0)
     const avgPrice = totalGallons > 0 ? totalCost / totalGallons : 0
-    const avgMpg = transactions.length > 0 
-      ? transactions.reduce((sum, t) => sum + t.mpg, 0) / transactions.length 
+    const avgMpg = transactions.length > 0
+      ? transactions.reduce((sum, t) => sum + t.mpg, 0) / transactions.length
       : 0
 
     return { totalCost, totalGallons, avgPrice, avgMpg }
   }, [transactions])
+
+  const fuelColumns: ColumnDef<FuelTransaction>[] = useMemo(
+    () => [
+      {
+        accessorKey: "vehicleNumber",
+        header: "Vehicle",
+        cell: ({ row }) => (
+          <div className="font-medium">{row.original.vehicleNumber}</div>
+        ),
+      },
+      {
+        accessorKey: "date",
+        header: "Date",
+        cell: ({ row }) => (
+          <div className="text-sm">
+            {new Date(row.original.date).toLocaleDateString()}
+          </div>
+        ),
+      },
+      {
+        accessorKey: "station",
+        header: "Station",
+        cell: ({ row }) => (
+          <div className="text-sm text-muted-foreground">
+            {row.original.station}
+          </div>
+        ),
+      },
+      {
+        accessorKey: "totalCost",
+        header: "Total Cost",
+        cell: ({ row }) => (
+          <div className="font-semibold">
+            ${row.original.totalCost.toFixed(2)}
+          </div>
+        ),
+      },
+      {
+        accessorKey: "gallons",
+        header: "Gallons",
+        cell: ({ row }) => (
+          <div className="text-sm">
+            {row.original.gallons.toFixed(1)} gal
+          </div>
+        ),
+      },
+      {
+        accessorKey: "pricePerGallon",
+        header: "Price/Gal",
+        cell: ({ row }) => (
+          <div className="text-sm">
+            ${row.original.pricePerGallon.toFixed(2)}
+          </div>
+        ),
+      },
+      {
+        accessorKey: "mpg",
+        header: "MPG",
+        cell: ({ row }) => (
+          <div className="text-sm font-medium">
+            {row.original.mpg.toFixed(1)}
+          </div>
+        ),
+      },
+      {
+        accessorKey: "paymentMethod",
+        header: "Payment",
+        cell: ({ row }) => (
+          <Badge variant="outline" className="text-xs">
+            {row.original.paymentMethod}
+          </Badge>
+        ),
+      },
+    ],
+    []
+  )
 
   const monthlyData = useMemo(() => {
     const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun"]
@@ -50,8 +129,6 @@ export function FuelManagement({ data }: FuelManagementProps) {
     }).filter(d => d.cost > 0)
   }, [transactions])
 
-  const recentTransactions = transactions.slice(0, 20)
-
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -62,44 +139,59 @@ export function FuelManagement({ data }: FuelManagementProps) {
         </Button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <MetricCard
-          title="Total Fuel Cost"
-          value={`$${metrics.totalCost.toLocaleString(undefined, { maximumFractionDigits: 0 })}`}
-          change={8.3}
-          trend="up"
-          subtitle="last 90 days"
-          icon={<CurrencyDollar className="w-5 h-5" />}
-          status="info"
-        />
-        <MetricCard
-          title="Total Gallons"
-          value={`${Math.round(metrics.totalGallons).toLocaleString()}`}
-          change={5.1}
-          trend="up"
-          subtitle="consumed"
-          icon={<GasPump className="w-5 h-5" />}
-          status="info"
-        />
-        <MetricCard
-          title="Avg Price/Gallon"
-          value={`$${metrics.avgPrice.toFixed(2)}`}
-          change={2.4}
-          trend="down"
-          subtitle="trending down"
-          icon={<TrendUp className="w-5 h-5" />}
-          status="success"
-        />
-        <MetricCard
-          title="Fleet Avg MPG"
-          value={`${metrics.avgMpg.toFixed(1)}`}
-          change={1.8}
-          trend="up"
-          subtitle="improving"
-          icon={<Gauge className="w-5 h-5" />}
-          status="success"
-        />
-      </div>
+      <KPIStrip
+        metrics={[
+          {
+            id: "total-cost",
+            icon: <CurrencyDollar className="w-5 h-5 text-blue-500" />,
+            label: "Total Fuel Cost (90d)",
+            value: `$${metrics.totalCost.toLocaleString(undefined, { maximumFractionDigits: 0 })}`,
+            trend: {
+              value: 8.3,
+              direction: "up",
+              isPositive: false
+            },
+            color: "text-blue-500"
+          },
+          {
+            id: "total-gallons",
+            icon: <GasPump className="w-5 h-5 text-green-500" />,
+            label: "Total Gallons",
+            value: Math.round(metrics.totalGallons).toLocaleString(),
+            trend: {
+              value: 5.1,
+              direction: "up",
+              isPositive: false
+            },
+            color: "text-green-500"
+          },
+          {
+            id: "avg-price",
+            icon: <TrendUp className="w-5 h-5 text-orange-500" />,
+            label: "Avg Price/Gallon",
+            value: `$${metrics.avgPrice.toFixed(2)}`,
+            trend: {
+              value: 2.4,
+              direction: "down",
+              isPositive: true
+            },
+            color: "text-orange-500"
+          },
+          {
+            id: "fleet-mpg",
+            icon: <Gauge className="w-5 h-5 text-purple-500" />,
+            label: "Fleet Avg MPG",
+            value: `${metrics.avgMpg.toFixed(1)}`,
+            trend: {
+              value: 1.8,
+              direction: "up",
+              isPositive: true
+            },
+            color: "text-purple-500"
+          }
+        ]}
+        compact={true}
+      />
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="grid w-full grid-cols-5">
@@ -125,39 +217,17 @@ export function FuelManagement({ data }: FuelManagementProps) {
             <CardHeader>
               <CardTitle>Recent Fuel Transactions</CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                {recentTransactions.map(transaction => (
-                  <div 
-                    key={transaction.id} 
-                    className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 transition-colors"
-                  >
-                    <div className="flex items-center gap-4">
-                      <div className="p-2 rounded-lg bg-accent/10 text-accent">
-                        <GasPump className="w-5 h-5" />
-                      </div>
-                      <div>
-                        <p className="font-medium">{transaction.vehicleNumber}</p>
-                        <p className="text-sm text-muted-foreground">
-                          {new Date(transaction.date).toLocaleDateString()} • {transaction.station}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <p className="font-semibold">${transaction.totalCost.toFixed(2)}</p>
-                      <p className="text-sm text-muted-foreground">
-                        {transaction.gallons.toFixed(1)} gal @ ${transaction.pricePerGallon.toFixed(2)}
-                      </p>
-                    </div>
-                    <div className="text-right min-w-[80px]">
-                      <p className="text-sm font-medium">{transaction.mpg.toFixed(1)} MPG</p>
-                      <Badge variant="outline" className="text-xs mt-1">
-                        {transaction.paymentMethod}
-                      </Badge>
-                    </div>
-                  </div>
-                ))}
-              </div>
+            <CardContent className="p-0">
+              <DataGrid
+                data={transactions}
+                columns={fuelColumns}
+                enableSearch={true}
+                searchPlaceholder="Search transactions..."
+                enablePagination={true}
+                pageSize={20}
+                emptyMessage="No fuel transactions found"
+                className="border-0"
+              />
             </CardContent>
           </Card>
         </TabsContent>
