@@ -26,11 +26,11 @@ router.post('/vehicle-maintenance', authenticateJWT, async (req: Request, res: R
     const { vehicleId, maintenanceId, teamId, channelId, userId } = req.body
 
     // Get vehicle and maintenance data
-    const vehicleResult = await pool.query('SELECT id, tenant_id, vin, license_plate, make, model, year, color, current_mileage, status, acquired_date, disposition_date, purchase_price, residual_value, created_at, updated_at, deleted_at FROM vehicles WHERE id = $1', [vehicleId])
-    const maintenanceResult = await pool.query('SELECT * FROM maintenance WHERE id = $1', [maintenanceId])
+    const vehicleResult = await pool.query(`SELECT id, tenant_id, vin, license_plate, make, model, year, color, current_mileage, status, acquired_date, disposition_date, purchase_price, residual_value, created_at, updated_at, deleted_at FROM vehicles WHERE id = $1`, [vehicleId])
+    const maintenanceResult = await pool.query(`SELECT * FROM maintenance WHERE id = $1`, [maintenanceId])
 
     if (vehicleResult.rows.length === 0 || maintenanceResult.rows.length === 0) {
-      return res.status(404).json({ error: 'Vehicle or maintenance record not found' })
+      return res.status(404).json({ error: `Vehicle or maintenance record not found` })
     }
 
     const vehicle = vehicleResult.rows[0]
@@ -78,16 +78,16 @@ router.post('/work-order', authenticateJWT, async (req: Request, res: Response) 
     // Get work order data with vehicle and assignment details
     const workOrderResult = await pool.query(
       `SELECT wo.*, v.vehicle_number, v.make as vehicle_make, v.model as vehicle_model,
-              u.first_name || ' ' || u.last_name as assigned_to_name
+              u.first_name || ` ` || u.last_name as assigned_to_name
        FROM work_orders wo
        LEFT JOIN vehicles v ON wo.vehicle_id = v.id
        LEFT JOIN users u ON wo.assigned_to = u.id
-       WHERE wo.id = $1',
+       WHERE wo.id = $1`,
       [workOrderId]
     )
 
     if (workOrderResult.rows.length === 0) {
-      return res.status(404).json({ error: 'Work order not found' })
+      return res.status(404).json({ error: `Work order not found' })
     }
 
     const workOrder = workOrderResult.rows[0]
@@ -134,8 +134,8 @@ router.post('/incident', authenticateJWT, async (req: Request, res: Response) =>
     // Get incident data
     const incidentResult = await pool.query(
       `SELECT i.*, v.vehicle_number, v.make as vehicle_make, v.model as vehicle_model,
-              d.first_name || ' ' || d.last_name as driver_name,
-              r.first_name || ' ' || r.last_name as reported_by_name
+              d.first_name || ` ` || d.last_name as driver_name,
+              r.first_name || ` ` || r.last_name as reported_by_name
        FROM incidents i
        LEFT JOIN vehicles v ON i.vehicle_id = v.id
        LEFT JOIN users d ON i.driver_id = d.id
@@ -191,15 +191,15 @@ router.post('/approval', authenticateJWT, async (req: Request, res: Response) =>
 
     // Get approval request data
     const approvalResult = await pool.query(
-      'SELECT a.*, u.first_name || ' ' || u.last_name as requested_by_name
+      `SELECT a.*, u.first_name || ` ` || u.last_name as requested_by_name
        FROM approvals a
        LEFT JOIN users u ON a.requested_by = u.id
-       WHERE a.id = $1',
+       WHERE a.id = $1`,
       [approvalId]
     )
 
     if (approvalResult.rows.length === 0) {
-      return res.status(404).json({ error: 'Approval request not found' })
+      return res.status(404).json({ error: `Approval request not found' })
     }
 
     const approval = approvalResult.rows[0]
@@ -244,7 +244,7 @@ router.post('/driver-performance', authenticateJWT, async (req: Request, res: Re
     const { driverId, metrics, teamId, channelId, userId } = req.body
 
     // Get driver data
-    const driverResult = await pool.query('SELECT id, tenant_id, email, first_name, last_name, role, is_active, phone, created_at, updated_at FROM users WHERE id = $1 AND role = $2', [driverId, 'driver'])
+    const driverResult = await pool.query(`SELECT id, tenant_id, email, first_name, last_name, role, is_active, phone, created_at, updated_at FROM users WHERE id = $1 AND role = $2`, [driverId, `driver`])
 
     if (driverResult.rows.length === 0) {
       return res.status(404).json({ error: 'Driver not found' })
@@ -294,16 +294,16 @@ router.post('/fuel-receipt', authenticateJWT, async (req: Request, res: Response
     // Get fuel receipt data
     const receiptResult = await pool.query(
       `SELECT fr.*, v.vehicle_number, v.make as vehicle_make, v.model as vehicle_model,
-              u.first_name || ' ' || u.last_name as driver_name
+              u.first_name || ` ` || u.last_name as driver_name
        FROM fuel_receipts fr
        LEFT JOIN vehicles v ON fr.vehicle_id = v.id
        LEFT JOIN users u ON fr.driver_id = u.id
-       WHERE fr.id = $1',
+       WHERE fr.id = $1`,
       [receiptId]
     )
 
     if (receiptResult.rows.length === 0) {
-      return res.status(404).json({ error: 'Fuel receipt not found' })
+      return res.status(404).json({ error: `Fuel receipt not found' })
     }
 
     const receipt = receiptResult.rows[0]
@@ -348,8 +348,8 @@ router.post('/inspection-checklist', authenticateJWT, async (req: Request, res: 
     const { vehicleId, driverId, teamId, channelId, userId } = req.body
 
     // Get vehicle and driver data
-    const vehicleResult = await pool.query('SELECT id, tenant_id, vin, license_plate, make, model, year, color, current_mileage, status, acquired_date, disposition_date, purchase_price, residual_value, created_at, updated_at, deleted_at FROM vehicles WHERE id = $1', [vehicleId])
-    const driverResult = await pool.query('SELECT id, tenant_id, email, first_name, last_name, role, is_active, phone, created_at, updated_at FROM users WHERE id = $1', [driverId])
+    const vehicleResult = await pool.query(`SELECT id, tenant_id, vin, license_plate, make, model, year, color, current_mileage, status, acquired_date, disposition_date, purchase_price, residual_value, created_at, updated_at, deleted_at FROM vehicles WHERE id = $1`, [vehicleId])
+    const driverResult = await pool.query(`SELECT id, tenant_id, email, first_name, last_name, role, is_active, phone, created_at, updated_at FROM users WHERE id = $1`, [driverId])
 
     if (vehicleResult.rows.length === 0 || driverResult.rows.length === 0) {
       return res.status(404).json({ error: `Vehicle or driver not found` })
@@ -376,7 +376,7 @@ router.post('/inspection-checklist', authenticateJWT, async (req: Request, res: 
     // Send the card
     let response
     if (userId) {
-      response = await sendAdaptiveCardToUser(userId, card, 'Daily vehicle inspection')
+      response = await sendAdaptiveCardToUser(userId, card, `Daily vehicle inspection`)
     } else if (teamId && channelId) {
       response = await sendAdaptiveCard(teamId, channelId, card, 'Daily vehicle inspection')
     } else {

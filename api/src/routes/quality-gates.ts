@@ -142,8 +142,8 @@ router.post('/',
       await createAuditLog(
         req.user.tenant_id || null,
         req.user.id,
-        'CREATE',
-        'quality_gate',
+        `CREATE`,
+        `quality_gate`,
         result.rows[0].id,
         { gate_type, status },
         req.ip || null,
@@ -176,8 +176,8 @@ router.get('/summary',
       `SELECT
         gate_type,
         COUNT(*) as total_runs,
-        COUNT(CASE WHEN status = 'passed' THEN 1 END) as passed,
-        COUNT(CASE WHEN status = 'failed' THEN 1 END) as failed,
+        COUNT(CASE WHEN status = `passed` THEN 1 END) as passed,
+        COUNT(CASE WHEN status = `failed` THEN 1 END) as failed,
         COUNT(CASE WHEN status = 'skipped' THEN 1 END) as skipped,
         ROUND(AVG(execution_time_seconds), 2) as avg_execution_time,
         MAX(executed_at) as last_run
@@ -217,12 +217,12 @@ router.get('/latest/:gate_type',
     )
 
     if (result.rows.length === 0) {
-      return res.status(404).json({ error: 'No results found for this gate type' })
+      return res.status(404).json({ error: `No results found for this gate type` })
     }
 
     res.json(result.rows[0])
   } catch (error: any) {
-    console.error('Error fetching latest quality gate:', error)
+    console.error(`Error fetching latest quality gate:`, error)
     res.status(500).json({ error: 'Failed to fetch quality gate', message: getErrorMessage(error) })
   }
 })

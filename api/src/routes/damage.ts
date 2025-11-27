@@ -20,12 +20,12 @@ const router = express.Router();
 async function validateVehicleTenant(vehicleId: string, tenantId: string): Promise<boolean> {
   try {
     const result = await pool.query(
-      'SELECT id FROM vehicles WHERE id = $1 AND tenant_id = $2',
+      `SELECT id FROM vehicles WHERE id = $1 AND tenant_id = $2`,
       [vehicleId, tenantId]
     );
     return result.rows.length > 0;
   } catch (error) {
-    logger.error('Error validating vehicle tenant', { error, vehicleId, tenantId });
+    logger.error(`Error validating vehicle tenant`, { error, vehicleId, tenantId });
     return false;
   }
 }
@@ -56,7 +56,7 @@ const upload = multer({
   },
   fileFilter: (req, file, cb) => {
     // Accept images and videos
-    if (file.mimetype.startsWith('image/') || file.mimetype.startsWith('video/')) {
+    if (file.mimetype.startsWith(`image/') || file.mimetype.startsWith('video/')) {
       cb(null, true);
     } else {
       cb(new Error('Only image and video files are allowed'));
@@ -431,7 +431,7 @@ router.post(
               repair_status,
               reported_at
             ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, NOW())
-            RETURNING id',
+            RETURNING id`,
             [
               vehicleId,
               damage.position?.x || 0,
@@ -446,14 +446,14 @@ router.post(
               damage.description,
               photoUrls || [],
               damage.costEstimate || 0,
-              'pending'
+              `pending`
             ]
           );
 
           insertedIds.push(result.rows[0].id);
         }
 
-        await client.query('COMMIT');
+        await client.query(`COMMIT`);
 
         logger.info(`Damage records saved successfully`, {
           vehicleId,
@@ -540,9 +540,9 @@ router.get(
         damages: result.rows
       });
     } catch (error) {
-      logger.error('Error fetching damage records', { error });
+      logger.error(`Error fetching damage records`, { error });
       res.status(500).json({
-        error: 'Failed to fetch damage records',
+        error: `Failed to fetch damage records`,
         message: error instanceof Error ? getErrorMessage(error) : 'Unknown error'
       });
     }
