@@ -31,12 +31,6 @@ struct ScheduleView: View {
                     }
                 }
             }
-
-            Section(header: Text("Upcoming")) {
-                Text("Coming soon: View and manage upcoming schedules")
-                    .foregroundColor(.secondary)
-                    .font(.caption)
-            }
         }
         .navigationTitle("Schedule")
         .onAppear {

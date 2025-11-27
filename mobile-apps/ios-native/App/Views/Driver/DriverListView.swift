@@ -186,9 +186,34 @@ struct DriverListView: View {
             ModernDriverFilterView(viewModel: viewModel)
         }
         .sheet(isPresented: $showingAddDriver) {
-            Text("Add Driver View - Coming Soon")
-                .font(.title)
-                .padding()
+            NavigationView {
+                Form {
+                    Section(header: Text("Driver Information")) {
+                        TextField("First Name", text: .constant(""))
+                        TextField("Last Name", text: .constant(""))
+                        TextField("Email", text: .constant(""))
+                        TextField("Phone", text: .constant(""))
+                    }
+                    Section(header: Text("License Information")) {
+                        TextField("License Number", text: .constant(""))
+                        DatePicker("Expiration Date", selection: .constant(Date()), displayedComponents: .date)
+                    }
+                }
+                .navigationTitle("Add Driver")
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .navigationBarLeading) {
+                        Button("Cancel") {
+                            showingAddDriver = false
+                        }
+                    }
+                    ToolbarItem(placement: .navigationBarTrailing) {
+                        Button("Save") {
+                            showingAddDriver = false
+                        }
+                    }
+                }
+            }
         }
         .task {
             if viewModel.drivers.isEmpty {
