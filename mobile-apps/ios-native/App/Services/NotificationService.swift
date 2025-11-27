@@ -26,6 +26,9 @@ class NotificationService: NSObject {
     private let lowFuelCategory = "LOW_FUEL"
     private let serviceCategory = "SERVICE_DUE"
     private let tripCategory = "TRIP_COMPLETE"
+    private let scheduleCategory = "SCHEDULE"
+    private let shiftCategory = "SHIFT"
+    private let meetingCategory = "MEETING"
 
     override init() {
         super.init()
