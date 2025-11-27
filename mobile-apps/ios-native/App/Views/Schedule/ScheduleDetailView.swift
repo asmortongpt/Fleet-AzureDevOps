@@ -8,6 +8,7 @@ struct ScheduleDetailView: View {
 
     @State private var showingEditView = false
     @State private var showingDeleteAlert = false
+    @State private var showingExportSuccess = false
     @State private var updatedSchedule: ScheduleEntry?
 
     var body: some View {
@@ -66,6 +67,14 @@ struct ScheduleDetailView: View {
                         }
                         .disabled(schedule.status == .completed)
 
+                        Button {
+                            Task {
+                                await exportToCalendar()
+                            }
+                        } label: {
+                            Label("Export to Calendar", systemImage: "calendar.badge.plus")
+                        }
+
                         Divider()
 
                         Button(role: .destructive) {
@@ -87,6 +96,11 @@ struct ScheduleDetailView: View {
                 }
             } message: {
                 Text("Are you sure you want to delete this schedule? This action cannot be undone.")
+            }
+            .alert("Exported to Calendar", isPresented: $showingExportSuccess) {
+                Button("OK") { }
+            } message: {
+                Text("This schedule has been successfully added to your device calendar.")
             }
         }
     }
@@ -432,6 +446,16 @@ struct ScheduleDetailView: View {
     private func deleteSchedule() async {
         await viewModel.deleteSchedule(schedule.id)
         dismiss()
+    }
+
+    private func exportToCalendar() async {
+        do {
+            try await viewModel.exportScheduleToCalendar(schedule)
+            showingExportSuccess = true
+        } catch {
+            // Handle error - could show error alert
+            print("Error exporting to calendar: \(error.localizedDescription)")
+        }
     }
 
     private func openInMaps(_ location: ScheduleLocation) {
