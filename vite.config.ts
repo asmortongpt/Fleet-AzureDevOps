@@ -177,8 +177,8 @@ export default defineConfig({
     // CODE SPLITTING & CHUNK OPTIMIZATION
     // ========================================================================
 
-    // Target modern browsers for smaller bundles
-    target: 'es2020',
+    // Target modern browsers for smaller bundles - use esnext for better module support
+    target: 'esnext',
 
     // Increase chunk size warning limit (500kb default is too small for map apps)
     chunkSizeWarningLimit: 1000,
@@ -195,10 +195,16 @@ export default defineConfig({
     // Rollup options for advanced chunking
     rollupOptions: {
       output: {
+        // CRITICAL: Force ES module format to prevent CJS/ESM interop issues
+        format: 'es',
         // ===================================================================
-        // MANUAL CHUNK STRATEGY
-        // Separates large dependencies into their own chunks for better caching
+        // MANUAL CHUNK STRATEGY - TEMPORARILY DISABLED
+        // Disabling code splitting to fix module resolution issues in production
+        // The error "Cannot read properties of undefined (reading 'exports')"
+        // is caused by improper CJS/ESM interop between chunks
         // ===================================================================
+        manualChunks: undefined, // DISABLED - was causing cross-chunk module resolution errors
+        /*
         manualChunks: (id) => {
           // CRITICAL: Core React libraries MUST be in their own chunk, loaded FIRST
           // This prevents "Cannot read properties of null (reading 'useEffect')" errors
@@ -304,7 +310,7 @@ export default defineConfig({
           if (id.includes('node_modules')) {
             return 'vendor';
           }
-        },
+        }, */
 
         // Chunk file naming with content hash for cache busting
         chunkFileNames: (chunkInfo) => {

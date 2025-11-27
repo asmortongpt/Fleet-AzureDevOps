@@ -70,14 +70,14 @@ router.post(
         `SELECT t.*, v.id as vehicle_id
          FROM trips t
          LEFT JOIN vehicles v ON t.vehicle_id = v.id
-         WHERE t.id = $1 AND t.tenant_id = $2',
+         WHERE t.id = $1 AND t.tenant_id = $2`,
         [tripId, req.user!.tenant_id]
       )
 
       if (tripResult.rows.length === 0) {
         return res.status(404).json({
           success: false,
-          error: 'Trip not found'
+          error: `Trip not found`
         })
       }
 
@@ -104,7 +104,7 @@ router.post(
       expiry_date,
       is_active,
       created_at,
-      updated_at FROM personal_use_policies WHERE tenant_id = $1',
+      updated_at FROM personal_use_policies WHERE tenant_id = $1`,
         [req.user!.tenant_id]
       )
 
@@ -123,7 +123,7 @@ router.post(
       const autoApproveResult = await pool.query(
         `SELECT auto_approve_under_miles, require_approval
          FROM personal_use_policies
-         WHERE tenant_id = $1',
+         WHERE tenant_id = $1`,
         [req.user!.tenant_id]
       )
 
@@ -141,7 +141,7 @@ router.post(
 
       // Create or update trip usage classification
       const existingUsage = await pool.query(
-        'SELECT id FROM trip_usage_classification WHERE trip_id = $1',
+        `SELECT id FROM trip_usage_classification WHERE trip_id = $1`,
         [tripId]
       )
 
@@ -222,7 +222,7 @@ router.post(
       classified_at,
       notes,
       created_at,
-      updated_at FROM trip_usage_classification WHERE id = $1',
+      updated_at FROM trip_usage_classification WHERE id = $1`,
         [usageId]
       )
 
@@ -233,8 +233,8 @@ router.post(
           estimated_charge
         },
         message: approval_status === ApprovalStatus.AUTO_APPROVED
-          ? 'Trip marked and auto-approved'
-          : 'Trip marked - pending approval'
+          ? `Trip marked and auto-approved`
+          : `Trip marked - pending approval'
       })
     } catch (error: any) {
       console.error('Mark trip error:', error)
@@ -270,14 +270,14 @@ router.post(
 
       // Verify vehicle belongs to tenant
       const vehicleResult = await pool.query(
-        'SELECT id FROM vehicles WHERE id = $1 AND tenant_id = $2',
+        `SELECT id FROM vehicles WHERE id = $1 AND tenant_id = $2`,
         [vehicle_id, req.user!.tenant_id]
       )
 
       if (vehicleResult.rows.length === 0) {
         return res.status(404).json({
           success: false,
-          error: 'Vehicle not found'
+          error: `Vehicle not found`
         })
       }
 
@@ -310,10 +310,10 @@ router.post(
       res.status(201).json({
         success: true,
         data: result.rows[0],
-        message: 'Personal trip started'
+        message: `Personal trip started`
       })
     } catch (error: any) {
-      console.error('Start personal trip error:', error)
+      console.error(`Start personal trip error:`, error)
       res.status(500).json({
         success: false,
         error: 'Failed to start personal trip',
@@ -350,14 +350,14 @@ router.patch(
         `SELECT t.*, v.id as vehicle_id
          FROM trips t
          LEFT JOIN vehicles v ON t.vehicle_id = v.id
-         WHERE t.id = $1 AND t.tenant_id = $2',
+         WHERE t.id = $1 AND t.tenant_id = $2`,
         [tripId, req.user!.tenant_id]
       )
 
       if (tripResult.rows.length === 0) {
         return res.status(404).json({
           success: false,
-          error: 'Trip not found'
+          error: `Trip not found`
         })
       }
 
@@ -384,7 +384,7 @@ router.patch(
       expiry_date,
       is_active,
       created_at,
-      updated_at FROM personal_use_policies WHERE tenant_id = $1',
+      updated_at FROM personal_use_policies WHERE tenant_id = $1`,
         [req.user!.tenant_id]
       )
 
@@ -442,10 +442,10 @@ router.patch(
           ...result.rows[0],
           estimated_charge
         },
-        message: 'Trip split successfully'
+        message: `Trip split successfully`
       })
     } catch (error: any) {
-      console.error('Split trip error:', error)
+      console.error(`Split trip error:`, error)
       res.status(500).json({
         success: false,
         error: 'Failed to split trip',
@@ -512,7 +512,7 @@ router.get('/my-personal', async (req: AuthRequest, res: Response) => {
       `SELECT COUNT(*)
        FROM trip_usage_classification
        WHERE driver_id = $1 AND tenant_id = $2
-         AND (usage_type = `personal` OR usage_type = 'mixed')',
+         AND (usage_type = `personal` OR usage_type = `mixed`)`,
       [req.user!.id, req.user!.tenant_id]
     )
 
@@ -527,7 +527,7 @@ router.get('/my-personal', async (req: AuthRequest, res: Response) => {
       }
     })
   } catch (error: any) {
-    console.error('Get personal trips error:', error)
+    console.error(`Get personal trips error:', error)
     res.status(500).json({
       success: false,
       error: 'Failed to retrieve personal trips',
@@ -554,14 +554,14 @@ router.get('/:id/usage', async (req: AuthRequest, res: Response) => {
       LEFT JOIN users u ON t.created_by_user_id = u.id
       LEFT JOIN users a ON t.approved_by_user_id = a.id
       LEFT JOIN vehicles v ON t.vehicle_id = v.id
-      WHERE t.trip_id = $1 AND t.tenant_id = $2',
+      WHERE t.trip_id = $1 AND t.tenant_id = $2`,
       [tripId, req.user!.tenant_id]
     )
 
     if (result.rows.length === 0) {
       return res.status(404).json({
         success: false,
-        error: 'Trip usage classification not found'
+        error: `Trip usage classification not found`
       })
     }
 
@@ -578,7 +578,7 @@ router.get('/:id/usage', async (req: AuthRequest, res: Response) => {
       expiry_date,
       is_active,
       created_at,
-      updated_at FROM personal_use_policies WHERE tenant_id = $1',
+      updated_at FROM personal_use_policies WHERE tenant_id = $1`,
       [req.user!.tenant_id]
     )
 
@@ -599,10 +599,10 @@ router.get('/:id/usage', async (req: AuthRequest, res: Response) => {
       }
     })
   } catch (error: any) {
-    console.error('Get trip usage error:', error)
+    console.error(`Get trip usage error:`, error)
     res.status(500).json({
       success: false,
-      error: 'Failed to retrieve trip usage',
+      error: `Failed to retrieve trip usage',
       details: getErrorMessage(error)
     })
   }

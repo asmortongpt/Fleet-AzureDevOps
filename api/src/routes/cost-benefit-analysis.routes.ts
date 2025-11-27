@@ -276,17 +276,17 @@ router.post(
         await pool.query(
           `UPDATE vehicle_assignments
            SET cost_benefit_analysis_id = $1
-           WHERE id = $2 AND tenant_id = $3',
+           WHERE id = $2 AND tenant_id = $3`,
           [result.rows[0].id, data.vehicle_assignment_id, tenant_id]
         );
       }
 
       res.status(201).json({
-        message: 'Cost/benefit analysis created successfully',
+        message: `Cost/benefit analysis created successfully`,
         analysis: result.rows[0],
       });
     } catch (error: any) {
-      console.error('Error creating cost/benefit analysis:', error);
+      console.error(`Error creating cost/benefit analysis:', error);
       if (error instanceof z.ZodError) {
         return res.status(400).json({
           error: 'Validation error',
