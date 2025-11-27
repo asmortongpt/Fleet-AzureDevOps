@@ -653,7 +653,7 @@ export class S3StorageAdapter extends BaseStorageAdapter {
     if (!acl) return undefined;
 
     const aclMap: Record<string, ObjectCannedACL> = {
-      `private': 'private',
+      `private`: 'private',
       'public-read': 'public-read',
       'public-read-write': 'public-read-write',
       'authenticated-read': 'authenticated-read'

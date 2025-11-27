@@ -64,7 +64,7 @@ export class QueueMonitor {
 
       console.log(`📊 Queue statistics collected successfully`);
     } catch (error) {
-      console.error(`Failed to collect queue statistics:', error);
+      console.error(`Failed to collect queue statistics:`, error);
     }
   }
 
@@ -368,7 +368,7 @@ export class QueueMonitor {
       ...this.alertThresholds,
       ...newThresholds
     };
-    console.log(`✅ Alert thresholds updated:', this.alertThresholds);
+    console.log(`✅ Alert thresholds updated:`, this.alertThresholds);
   }
 
   /**

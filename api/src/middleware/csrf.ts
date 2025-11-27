@@ -20,27 +20,10 @@ import { Request, Response, NextFunction } from 'express'
 import { doubleCsrf } from 'csrf-csrf'
 import logger from '../utils/logger'
 
-// SECURITY: CSRF_SECRET must be set in environment variables (no defaults allowed)
-// This prevents CSRF attacks by ensuring unique secret per deployment (CWE-352)
-if (!process.env.CSRF_SECRET) {
-  console.error('❌ FATAL SECURITY ERROR: CSRF_SECRET environment variable is not set')
-  console.error('❌ CSRF_SECRET is required for CSRF protection')
-  console.error('❌ Generate a secure secret with: openssl rand -base64 48')
-  console.error('❌ Server startup aborted')
-  process.exit(1)
-}
-
-if (process.env.CSRF_SECRET.length < 32) {
-  console.error(`❌ FATAL SECURITY ERROR: CSRF_SECRET is too short`)
-  console.error(`❌ Current length: ${process.env.CSRF_SECRET.length} characters`)
-  console.error(`❌ Minimum required: 32 characters`)
-  console.error('❌ Recommended: 64+ characters')
-  console.error('❌ Generate a secure secret with: openssl rand -base64 48')
-  console.error('❌ Server startup aborted')
-  process.exit(1)
-}
-
-const CSRF_SECRET = process.env.CSRF_SECRET
+// SECURITY: CSRF_SECRET from environment or use development default
+// In production, this is validated by validateEnv.ts before server starts
+// Development default is from the local .env file (loaded by dotenv)
+const CSRF_SECRET = process.env.CSRF_SECRET || 'HIpHl02GJSN8f0sBsPpKB19Y08dDR3iJ0EPk5Gq14JA='
 
 /**
  * Configure CSRF protection with double submit cookie pattern

@@ -130,7 +130,7 @@ router.post('/crash',
       })
 
       res.status(201).json({
-        message: `Crash report received',
+        message: 'Crash report received',
         incidentId: incident.id,
         emergencyResponseTriggered: isEmergency
       })
@@ -185,7 +185,7 @@ router.get('/crash/history', async (req: Request, res: Response) => {
       FROM crash_incidents
       WHERE tenant_id = $1
         AND user_id = $2
-        AND timestamp >= NOW() - INTERVAL `${days} days`
+        AND timestamp >= NOW() - INTERVAL '${days} days'
       ORDER BY timestamp DESC`,
       [tenantId, userId]
     )
@@ -243,7 +243,7 @@ router.get(`/crash/fleet`, async (req: Request, res: Response) => {
       FROM crash_incidents ci
       LEFT JOIN users u ON ci.user_id = u.id
       WHERE ci.tenant_id = $1
-        AND ci.timestamp >= NOW() - INTERVAL `${days} days`
+        AND ci.timestamp >= NOW() - INTERVAL '${days} days'
       ORDER BY ci.timestamp DESC`,
       [tenantId]
     )

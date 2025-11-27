@@ -79,7 +79,7 @@ router.get('/', requirePermission('safety_incident:view:global'), async (req: Au
     query += ` GROUP BY i.id, u_reported.first_name, u_reported.last_name, u_assigned.first_name, u_assigned.last_name, v.vehicle_number, d.first_name, d.last_name`
     query += ` ORDER BY
       CASE i.severity
-        WHEN `critical` THEN 1
+        WHEN 'critical' THEN 1
         WHEN 'high' THEN 2
         WHEN 'medium' THEN 3
         WHEN 'low' THEN 4
@@ -168,7 +168,7 @@ router.get('/:id', requirePermission('safety_incident:view:global'), async (req:
       witnesses: witnesses.rows
     })
   } catch (error) {
-    console.error(`Error fetching incident:', error)
+    console.error('Error fetching incident:', error)
     res.status(500).json({ error: 'Failed to fetch incident' })
   }
 })
@@ -199,7 +199,7 @@ router.post('/', requirePermission('safety_incident:create:global'), async (req:
       ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19)
       RETURNING *`,
       [
-        tenantId, incident_title, incident_type, severity, `open`,
+        tenantId, incident_title, incident_type, severity, 'open',
         incident_date, incident_time, location, description,
         vehicle_id, driver_id, injuries_reported, injury_details,
         property_damage, damage_estimate, weather_conditions,
@@ -224,7 +224,7 @@ router.post('/', requirePermission('safety_incident:create:global'), async (req:
     await client.query(
       `INSERT INTO incident_timeline (incident_id, event_type, description, performed_by)
        VALUES ($1, $2, $3, $4)`,
-      [incidentId, `created`, `Incident reported`, userId]
+      [incidentId, 'created', `Incident reported`, userId]
     )
 
     await client.query('COMMIT')
@@ -290,7 +290,7 @@ router.put('/:id', requirePermission('safety_incident:update:global'), async (re
     await client.query(
       `INSERT INTO incident_timeline (incident_id, event_type, description, performed_by)
        VALUES ($1, $2, $3, $4)`,
-      [id, `updated`, `Updated: ${changedFields}`, userId]
+      [id, 'updated', `Updated: ${changedFields}`, userId]
     )
 
     await client.query(`COMMIT`)
@@ -330,7 +330,7 @@ router.post('/:id/actions', requirePermission('safety_incident:update:global'), 
     await client.query(
       `INSERT INTO incident_timeline (incident_id, event_type, description, performed_by)
        VALUES ($1, $2, $3, $4)`,
-      [id, `action_added`, `Corrective action assigned: ${action_description}`, userId]
+      [id, 'action_added', `Corrective action assigned: ${action_description}`, userId]
     )
 
     await client.query(`COMMIT`)
@@ -361,7 +361,7 @@ router.post('/:id/close', requirePermission('safety_incident:update:global'), as
 
     const result = await client.query(
       `UPDATE incidents
-       SET status = `closed`,
+       SET status = 'closed',
            closed_date = NOW(),
            resolution_notes = $1,
            root_cause = $2,
@@ -381,7 +381,7 @@ router.post('/:id/close', requirePermission('safety_incident:update:global'), as
     await client.query(
       `INSERT INTO incident_timeline (incident_id, event_type, description, performed_by)
        VALUES ($1, $2, $3, $4)`,
-      [id, `closed`, `Incident investigation completed and closed`, userId]
+      [id, 'closed', `Incident investigation completed and closed`, userId]
     )
 
     await client.query('COMMIT')
@@ -422,7 +422,7 @@ router.get('/analytics/summary', requirePermission('safety_incident:view:global'
            DATE_TRUNC(`month`, incident_date) as month,
            COUNT(*) as count
          FROM incidents
-         WHERE tenant_id = $1 AND incident_date >= NOW() - INTERVAL `12 months`
+         WHERE tenant_id = $1 AND incident_date >= NOW() - INTERVAL '12 months'
          GROUP BY DATE_TRUNC('month', incident_date)
          ORDER BY month`,
         [tenantId]

@@ -122,7 +122,7 @@ router.get('/:id', requirePermission('geofence:view:fleet'), async (req: AuthReq
       layer: result.rows[0]
     })
   } catch (error: any) {
-    logger.error(`Failed to fetch ArcGIS layer', {
+    logger.error('Failed to fetch ArcGIS layer', {
       error: getErrorMessage(error),
       layerId: id
     })
@@ -333,7 +333,7 @@ router.delete(
         return res.status(404).json({ error: `Layer not found` })
       }
 
-      logger.info(`ArcGIS layer deleted', {
+      logger.info('ArcGIS layer deleted', {
         layerId: id,
         tenantId
       })

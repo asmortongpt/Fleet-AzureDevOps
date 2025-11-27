@@ -286,7 +286,7 @@ router.post(
         analysis: result.rows[0],
       });
     } catch (error: any) {
-      console.error(`Error creating cost/benefit analysis:', error);
+      console.error('Error creating cost/benefit analysis:', error);
       if (error instanceof z.ZodError) {
         return res.status(400).json({
           error: 'Validation error',

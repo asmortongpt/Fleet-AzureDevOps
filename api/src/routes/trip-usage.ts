@@ -180,7 +180,7 @@ router.post(
         // Get manager email (fleet managers and admins)
         const managerInfo = await pool.query(
           `SELECT email FROM users
-           WHERE tenant_id = $1 AND role IN (`admin`, `fleet_manager`)
+           WHERE tenant_id = $1 AND role IN ('admin', 'fleet_manager')
            LIMIT 1`,
           [req.user!.tenant_id]
         )
@@ -292,7 +292,7 @@ router.get(
 
     if (month) {
       paramCount++
-      query += ` AND TO_CHAR(t.trip_date, `YYYY-MM`) = $${paramCount}`
+      query += ` AND TO_CHAR(t.trip_date, 'YYYY-MM') = $${paramCount}`
       params.push(month)
     }
 
@@ -358,7 +358,7 @@ router.get(
       const driverId = result.rows[0].driver_id
 
       // Allow if user is the driver or has admin/manager role
-      return driverId === req.user!.id || [`admin`, `fleet_manager`, 'manager'].includes(req.user!.role)
+      return driverId === req.user!.id || ['admin', 'fleet_manager', 'manager'].includes(req.user!.role)
     }
   }),
   async (req: AuthRequest, res: Response) => {
@@ -382,7 +382,7 @@ router.get(
 
     res.json({ success: true, data: result.rows[0] })
   } catch (error: any) {
-    console.error(`Get trip usage error:', error)
+    console.error('Get trip usage error:', error)
     res.status(500).json({ error: 'Failed to retrieve trip usage data' })
   }
 })
@@ -423,7 +423,7 @@ router.patch(
 
       // Check permissions - only driver or admin/manager can update
       if (trip.driver_id !== req.user!.id &&
-          ![`admin`, 'fleet_manager'].includes(req.user!.role)) {
+          !['admin', 'fleet_manager'].includes(req.user!.role)) {
         return res.status(403).json({ error: 'Insufficient permissions to update this trip' })
       }
 
@@ -527,7 +527,7 @@ router.get(
       })
     } catch (error: any) {
       console.error(`Get pending approvals error:`, error)
-      res.status(500).json({ error: `Failed to retrieve pending approvals' })
+      res.status(500).json({ error: 'Failed to retrieve pending approvals' })
     }
   }
 )
@@ -549,11 +549,11 @@ router.post(
          SET approval_status = $1,
              approved_by_user_id = $2,
              approved_at = NOW(),
-             metadata = metadata || jsonb_build_object(`approver_notes`, $3),
+             metadata = metadata || jsonb_build_object('approver_notes', $3),
              updated_at = NOW()
          WHERE id = $4 AND tenant_id = $5
          RETURNING *`,
-        [ApprovalStatus.APPROVED, req.user!.id, approver_notes || ``, req.params.id, req.user!.tenant_id]
+        [ApprovalStatus.APPROVED, req.user!.id, approver_notes || '', req.params.id, req.user!.tenant_id]
       )
 
       if (result.rows.length === 0) {
@@ -583,9 +583,9 @@ router.post(
           driverName: `${driver.first_name} ${driver.last_name}`,
           tripDate: trip.trip_date,
           miles: trip.miles_total,
-          status: `approved`
+          status: 'approved'
         }).catch(error => {
-          logger.error(`Failed to send approval notification email`, { error: getErrorMessage(error) })
+          logger.error('Failed to send approval notification email', { error: getErrorMessage(error) })
         })
       }
 
@@ -639,7 +639,7 @@ router.post(
       appInsightsService.trackTripApproval(
         req.user!.id,
         trip.id,
-        `rejected`,
+        'rejected',
         { miles: trip.miles_total, usageType: trip.usage_type }
       )
 
@@ -656,10 +656,10 @@ router.post(
           driverName: `${driver.first_name} ${driver.last_name}`,
           tripDate: trip.trip_date,
           miles: trip.miles_total,
-          status: `rejected`,
+          status: 'rejected',
           rejectionReason: rejection_reason
         }).catch(error => {
-          logger.error(`Failed to send rejection notification email`, { error: getErrorMessage(error) })
+          logger.error('Failed to send rejection notification email', { error: getErrorMessage(error) })
         })
       }
 

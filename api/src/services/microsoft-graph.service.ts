@@ -531,7 +531,7 @@ export class MicrosoftGraphService {
       url,
       headers: {
         Authorization: `Bearer ${accessToken}`,
-        `Content-Type': 'application/json',
+        'Content-Type': 'application/json',
         ...options?.headers,
       },
       timeout: options?.timeout || this.config.timeout || 30000,

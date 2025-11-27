@@ -180,7 +180,7 @@ export const GRAPH_ENDPOINTS = {
   ME: '/me',
   USERS: `/users`,
   USER_BY_ID: (userId: string) => `/users/${userId}`,
-  USER_PHOTO: (userId?: string) => userId ? `/users/${userId}/photo' : '/me/photo',
+  USER_PHOTO: (userId?: string) => userId ? `/users/${userId}/photo` : '/me/photo',
 
   // Calendar endpoints
   MY_CALENDARS: '/me/calendars',
@@ -271,10 +271,25 @@ export const getGraphServiceConfig = (): GraphServiceConfig => {
   const tenantId = process.env.AZURE_AD_TENANT_ID || process.env.MICROSOFT_TENANT_ID
   const redirectUri = process.env.AZURE_AD_REDIRECT_URI || process.env.MICROSOFT_REDIRECT_URI
 
+  // In development, allow Microsoft Graph to be optional (for local testing without Azure AD)
   if (!clientId || !clientSecret || !tenantId) {
-    throw new Error(
-      'Missing required Microsoft Graph configuration. Please set AZURE_AD_CLIENT_ID, AZURE_AD_CLIENT_SECRET, and AZURE_AD_TENANT_ID environment variables.'
-    )
+    if (process.env.NODE_ENV === 'production') {
+      throw new Error(
+        'Missing required Microsoft Graph configuration. Please set AZURE_AD_CLIENT_ID, AZURE_AD_CLIENT_SECRET, and AZURE_AD_TENANT_ID environment variables.'
+      )
+    }
+    // Return mock configuration for development
+    console.warn('⚠️  Microsoft Graph credentials not configured - using development mode (SSO disabled)')
+    return {
+      clientId: 'dev-client-id',
+      clientSecret: 'dev-client-secret',
+      tenantId: 'dev-tenant-id',
+      redirectUri: redirectUri || 'http://localhost:3000/auth/callback',
+      scopes: GRAPH_SCOPES.USER_BASIC,
+      retryPolicy: DEFAULT_RETRY_POLICY,
+      timeout: DEFAULT_REQUEST_TIMEOUT,
+      enableLogging: true,
+    }
   }
 
   return {

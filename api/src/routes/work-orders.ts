@@ -44,7 +44,7 @@ router.get(
       )
 
       const user = userResult.rows[0]
-      let scopeFilter = ``
+      let scopeFilter = ''
       let scopeParams: any[] = [req.user!.tenant_id]
 
       if (user.scope_level === `own`) {
@@ -157,7 +157,7 @@ router.post(
         if (user.scope_level === `team` && user.facility_ids) {
           if (!user.facility_ids.includes(validated.facility_id)) {
             return res.status(403).json({
-              error: `Cannot create work order for facility outside your scope'
+              error: 'Cannot create work order for facility outside your scope'
             })
           }
         }
@@ -221,18 +221,18 @@ router.put(
 
       if (checkResult.rows[0].assigned_technician_id !== req.user!.id) {
         return res.status(403).json({
-          error: `You can only complete work orders assigned to you'
+          error: 'You can only complete work orders assigned to you'
         })
       }
 
       const result = await pool.query(
         `UPDATE work_orders SET
-           status = `completed`,
+           status = 'completed',
            actual_end = NOW(),
            labor_hours = $3,
            labor_cost = $4,
            parts_cost = $5,
-           notes = COALESCE(notes, ``) || ' ' || COALESCE($6, ''),
+           notes = COALESCE(notes, '') || ' ' || COALESCE($6, ''),
            updated_at = NOW()
          WHERE id = $1 AND tenant_id = $2
          RETURNING *`,
@@ -266,13 +266,13 @@ router.put(
 
       if (checkResult.rows[0].created_by === req.user!.id) {
         return res.status(403).json({
-          error: `Separation of Duties violation: You cannot approve work orders you created'
+          error: 'Separation of Duties violation: You cannot approve work orders you created'
         })
       }
 
       const result = await pool.query(
         `UPDATE work_orders SET
-           status = `approved`,
+           status = 'approved',
            updated_at = NOW()
          WHERE id = $1 AND tenant_id = $2
          RETURNING *`,

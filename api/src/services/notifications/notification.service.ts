@@ -251,7 +251,7 @@ export class NotificationService {
     <div class="content">
       <p>Hi ${user.first_name},</p>
       <p>${notification.message}</p>
-      ${notification.actionUrl ? "<a href="${notification.actionUrl}" class="button">View Details</a>" : `'}
+      ${notification.actionUrl ? "<a href="${notification.actionUrl}" class="button">View Details</a>" : ``}
     </div>
     <div class="footer">
       <p>This is an automated notification from Fleet Management System.</p>

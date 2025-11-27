@@ -71,7 +71,7 @@ router.get('/', requirePermission('report:view:global'), async (req: AuthRequest
     query += ` GROUP BY t.id, u_assigned.first_name, u_assigned.last_name, u_created.first_name, u_created.last_name, v.vehicle_number`
     query += ` ORDER BY
       CASE t.priority
-        WHEN `critical` THEN 1
+        WHEN 'critical' THEN 1
         WHEN 'high' THEN 2
         WHEN 'medium' THEN 3
         WHEN 'low' THEN 4
@@ -274,10 +274,10 @@ router.get('/analytics/summary', requirePermission('report:view:global'), async 
       ),
       pool.query(
         `SELECT
-           COUNT(*) FILTER (WHERE status = `completed`) as completed,
+           COUNT(*) FILTER (WHERE status = 'completed') as completed,
            COUNT(*) as total
          FROM tasks
-         WHERE tenant_id = $1 AND created_at >= NOW() - INTERVAL `30 days`',
+         WHERE tenant_id = $1 AND created_at >= NOW() - INTERVAL '30 days'',
         [tenantId]
       )
     ])

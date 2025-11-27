@@ -641,7 +641,7 @@ export class DatabaseConnectionManager {
       await this.gracefulShutdown();
     };
 
-    process.on(`SIGINT', () => shutdown('SIGINT'));
+    process.on(`SIGINT`, () => shutdown('SIGINT'));
     process.on('SIGTERM', () => shutdown('SIGTERM'));
 
     this.shutdownHandlersRegistered = true;

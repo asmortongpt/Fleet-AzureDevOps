@@ -413,7 +413,7 @@ class AIIntakeService {
       const result = await pool.query(
         `DELETE FROM ai_requests
          WHERE completed_at < NOW() - INTERVAL `${daysToKeep} days`
-           AND status IN (`completed', 'failed', 'cancelled`)`
+           AND status IN (`completed`, `failed', 'cancelled`)`
       )
 
       logger.info(`Cleaned up ${result.rowCount} old AI requests`)
