@@ -42,27 +42,6 @@ struct ProfileView: View {
                         .padding(.horizontal)
                     }
 
-                    // Coming Soon Badge
-                    VStack(spacing: 12) {
-                        Image(systemName: "hammer.fill")
-                            .font(.system(size: 40))
-                            .foregroundColor(.orange)
-
-                        Text("Full Profile Features Coming Soon")
-                            .font(.headline)
-                            .foregroundColor(.secondary)
-
-                        Text("Edit profile, update preferences, and more")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                            .multilineTextAlignment(.center)
-                    }
-                    .padding()
-                    .background(Color(.secondarySystemBackground))
-                    .cornerRadius(12)
-                    .padding(.horizontal)
-                    .padding(.top, 20)
-
                     Spacer()
                 }
             }
