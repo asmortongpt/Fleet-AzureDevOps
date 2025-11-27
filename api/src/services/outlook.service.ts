@@ -35,7 +35,7 @@ class OutlookService {
 
   constructor() {
     // Default user email for sending emails (can be overridden per request)
-    this.defaultUserId = process.env.OUTLOOK_DEFAULT_USER_EMAIL || process.env.EMAIL_FROM || '`
+    this.defaultUserId = process.env.OUTLOOK_DEFAULT_USER_EMAIL || process.env.EMAIL_FROM || ''
   }
 
   /**
@@ -121,7 +121,7 @@ class OutlookService {
       }
 
       // Build endpoint with folder if specified
-      const folderPath = request.folderId ? `/mailFolders/${request.folderId}` : ``
+      const folderPath = request.folderId ? `/mailFolders/${request.folderId}` : ''
       const endpoint = `/users/${user}${folderPath}/messages`
 
       // Build query parameters
@@ -132,7 +132,7 @@ class OutlookService {
       }
 
       if (request.search) {
-        params.push("$search="${encodeURIComponent(request.search)}"`)
+        params.push(`$search="${encodeURIComponent(request.search)}"`)
       }
 
       if (request.orderBy) {
@@ -142,7 +142,7 @@ class OutlookService {
       }
 
       if (request.select && request.select.length > 0) {
-        params.push(`$select=${request.select.join(`,`)}`)
+        params.push(`$select=${request.select.join(',')}`)
       }
 
       if (request.top) {
@@ -157,7 +157,7 @@ class OutlookService {
         params.push('$expand=attachments')
       }
 
-      const queryString = params.length > 0 ? `?${params.join(`&`)}` : ``
+      const queryString = params.length > 0 ? `?${params.join('&')}` : ''
       const fullEndpoint = `${endpoint}${queryString}`
 
       const response = await microsoftGraphService.makeGraphRequest<EmailListResponse>(fullEndpoint, `GET`)
@@ -256,7 +256,7 @@ class OutlookService {
       const originalEmail = await this.getEmail(messageId, user)
       await this.logEmailToCommunications({
         direction: 'Outbound',
-        subject: originalEmail.subject ? `RE: ${originalEmail.subject}` : 'RE: (no subject)',
+        subject: originalEmail.subject ? `RE: ${originalEmail.subject}` : `RE: (no subject)`,
         body: request.body,
         to_contact_emails: originalEmail.from?.emailAddress.address ? [originalEmail.from.emailAddress.address] : [],
         from_contact_email: user,
@@ -317,7 +317,7 @@ class OutlookService {
       const originalEmail = await this.getEmail(messageId, user)
       await this.logEmailToCommunications({
         direction: 'Outbound',
-        subject: originalEmail.subject ? `FW: ${originalEmail.subject}` : 'FW: (no subject)',
+        subject: originalEmail.subject ? `FW: ${originalEmail.subject}` : `FW: (no subject)`,
         body: request.body || originalEmail.body?.content || '',
         to_contact_emails: toRecipients,
         cc_emails: ccRecipients.length > 0 ? ccRecipients : undefined,
@@ -586,11 +586,11 @@ class OutlookService {
         throw new Error(`No user email specified for searching emails`)
       }
 
-      const folderPath = request.folderId ? `/mailFolders/${request.folderId}` : ``
+      const folderPath = request.folderId ? `/mailFolders/${request.folderId}` : ''
       const endpoint = `/users/${user}${folderPath}/messages`
 
       const params: string[] = [
-        "$search="${encodeURIComponent(request.query)}"`
+        `$search="${encodeURIComponent(request.query)}"`
       ]
 
       if (request.top) {
@@ -716,15 +716,15 @@ class OutlookService {
     }
 
     if (filter.importance) {
-      conditions.push(`importance eq `${filter.importance}``)
+      conditions.push(`importance eq '${filter.importance}'`)
     }
 
     if (filter.from) {
-      conditions.push(`from/emailAddress/address eq `${filter.from}``)
+      conditions.push(`from/emailAddress/address eq '${filter.from}'`)
     }
 
     if (filter.subject) {
-      conditions.push(`contains(subject, `${filter.subject}`)`)
+      conditions.push(`contains(subject, '${filter.subject}')`)
     }
 
     if (filter.receivedAfter) {
@@ -736,11 +736,11 @@ class OutlookService {
     }
 
     if (filter.categories && filter.categories.length > 0) {
-      const categoryConditions = filter.categories.map(cat => `categories/any(c:c eq `${cat}`)`).join(` or `)
+      const categoryConditions = filter.categories.map(cat => `categories/any(c:c eq '${cat}')`).join(' or ')
       conditions.push(`(${categoryConditions})`)
     }
 
-    return conditions.join(` and `)
+    return conditions.join(' and ')
   }
 
   /**

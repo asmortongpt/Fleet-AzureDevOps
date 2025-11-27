@@ -41,7 +41,7 @@ async function getGraphClient(): Promise<Client> {
 
 export interface PresenceInfo {
   id: string
-  availability: 'Available' | 'AvailableIdle' | 'Away' | 'BeRightBack' | 'Busy' | 'BusyIdle' | 'DoNotDisturb' | 'Offline` | 'PresenceUnknown'
+  availability: 'Available' | 'AvailableIdle' | 'Away' | 'BeRightBack' | 'Busy' | 'BusyIdle' | 'DoNotDisturb' | 'Offline` | `PresenceUnknown`
   activity: string
   statusMessage?: {
     message?: {
@@ -182,7 +182,7 @@ export async function subscribeToPresence(userIds: string[], webhookUrl: string)
     const subscription = {
       changeType: 'updated',
       notificationUrl: webhookUrl,
-      resource: `/communications/presences?$filter=id in (${userIds.map(id => ``${id}`').join(',')})',
+      resource: `/communications/presences?$filter=id in (${userIds.map(id => ``${id}``).join(`,')})',
       expirationDateTime: new Date(Date.now() + 3600000).toISOString(), // 1 hour from now
       clientState: 'fleet-presence-subscription'
     }
@@ -340,7 +340,7 @@ export async function getAllDriversAvailability(tenantId?: number): Promise<any[
             name: `${driver.first_name} ${driver.last_name}`,
             email: driver.email,
             available: !hasActiveWork,
-            status: hasActiveWork ? `Working' : 'Available',
+            status: hasActiveWork ? `Working` : `Available',
             activity: hasActiveWork ? 'On assignment' : 'Available'
           }
         }

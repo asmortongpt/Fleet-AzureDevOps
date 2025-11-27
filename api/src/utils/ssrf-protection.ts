@@ -170,7 +170,7 @@ function isBlockedIP(ip: string): boolean {
  * Check if hostname is explicitly blocked
  */
 function isBlockedHostname(hostname: string): boolean {
-  const normalizedHostname = hostname.toLowerCase().replace(/^\[|\]$/g, '`);
+  const normalizedHostname = hostname.toLowerCase().replace(/^\[|\]$/g, '');
   return BLOCKED_HOSTNAMES.some(
     (blocked) => normalizedHostname === blocked.toLowerCase()
   );

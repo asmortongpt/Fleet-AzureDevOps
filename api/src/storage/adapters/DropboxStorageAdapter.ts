@@ -64,7 +64,7 @@ export class DropboxStorageAdapter extends BaseStorageAdapter {
         {
           headers: {
             Authorization: `Bearer ${this.accessToken}`,
-            `Content-Type': 'application/json'
+            `Content-Type`: 'application/json'
           }
         }
       );
@@ -100,7 +100,7 @@ export class DropboxStorageAdapter extends BaseStorageAdapter {
       const response = await axios.post(this.API_UPLOAD, buffer, {
         headers: {
           Authorization: `Bearer ${this.accessToken}`,
-          `Content-Type': 'application/octet-stream',
+          `Content-Type`: 'application/octet-stream',
           'Dropbox-API-Arg': JSON.stringify({
             path: dropboxPath,
             mode: options?.overwrite ? 'overwrite' : 'add',
@@ -137,7 +137,7 @@ export class DropboxStorageAdapter extends BaseStorageAdapter {
       const startResponse = await axios.post(this.API_UPLOAD_SESSION_START, Buffer.alloc(0), {
         headers: {
           Authorization: `Bearer ${this.accessToken}`,
-          `Content-Type': 'application/octet-stream',
+          `Content-Type`: 'application/octet-stream',
           'Dropbox-API-Arg': JSON.stringify({ close: false })
         }
       });
@@ -161,7 +161,7 @@ export class DropboxStorageAdapter extends BaseStorageAdapter {
         await axios.post(this.API_UPLOAD_SESSION_APPEND, chunk, {
           headers: {
             Authorization: `Bearer ${this.accessToken}`,
-            `Content-Type': 'application/octet-stream',
+            `Content-Type`: 'application/octet-stream',
             'Dropbox-API-Arg': JSON.stringify({
               cursor: { session_id: sessionId, offset },
               close: false
@@ -180,7 +180,7 @@ export class DropboxStorageAdapter extends BaseStorageAdapter {
       const finishResponse = await axios.post(this.API_UPLOAD_SESSION_FINISH, Buffer.alloc(0), {
         headers: {
           Authorization: `Bearer ${this.accessToken}`,
-          `Content-Type': 'application/octet-stream',
+          `Content-Type`: 'application/octet-stream',
           'Dropbox-API-Arg': JSON.stringify({
             cursor: { session_id: sessionId, offset },
             commit: {
@@ -285,7 +285,7 @@ export class DropboxStorageAdapter extends BaseStorageAdapter {
       {
         headers: {
           Authorization: `Bearer ${this.accessToken}`,
-          `Content-Type': 'application/json'
+          `Content-Type`: 'application/json'
         }
       }
     );
@@ -352,7 +352,7 @@ export class DropboxStorageAdapter extends BaseStorageAdapter {
         {
           headers: {
             Authorization: `Bearer ${this.accessToken}`,
-            `Content-Type': 'application/json'
+            `Content-Type`: 'application/json'
           }
         }
       );

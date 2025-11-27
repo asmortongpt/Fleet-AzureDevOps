@@ -19,7 +19,7 @@ echo ""
 # Configuration
 RESOURCE_GROUP="fleet-ai-agents"
 LOCATION="eastus2"
-SUBSCRIPTION_ID="002d93e1-5cc6-46c3-bce5-9dc49b223274"
+SUBSCRIPTION_ID="021415c2-2f52-4a73-ae77-f8363165a5e1"
 
 # Set active subscription
 echo "1️⃣ Setting Azure subscription..."
@@ -38,7 +38,7 @@ echo ""
 
 # Create Azure Key Vault for API keys
 echo "3️⃣ Creating Azure Key Vault..."
-VAULT_NAME="fleet-ai-vault-$(date +%s)"
+VAULT_NAME="fleetai$(date +%s | tail -c 10)"
 az keyvault create \
   --name "$VAULT_NAME" \
   --resource-group "$RESOURCE_GROUP" \

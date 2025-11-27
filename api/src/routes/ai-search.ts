@@ -554,7 +554,7 @@ router.get(
       })
     } catch (error: any) {
       console.error(`Analytics error:`, error)
-      res.status(500).json({ error: `Failed to get analytics', message: getErrorMessage(error) })
+      res.status(500).json({ error: 'Failed to get analytics', message: getErrorMessage(error) })
     }
   }
 )
@@ -633,7 +633,7 @@ async function logSearch(
         tenant_id, user_id, query_text, query_type, search_strategy,
         results_count, search_time_ms, total_time_ms
       ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
-      [tenantId, userId, query, `search`, strategy, resultsCount, searchTimeMs, searchTimeMs]
+      [tenantId, userId, query, 'search', strategy, resultsCount, searchTimeMs, searchTimeMs]
     )
   } catch (error) {
     console.error(`Error logging search:`, error)

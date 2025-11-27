@@ -47,7 +47,7 @@ const upload = multer({
  * @desc Process a single document with OCR
  * @access Private
  */
-router.post(`/process', upload.single('file'), async (req: Request, res: Response) => {
+router.post('/process', upload.single('file'), async (req: Request, res: Response) => {
   try {
     if (!req.file) {
       return res.status(400).json({ error: `No file uploaded` });
