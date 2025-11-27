@@ -131,7 +131,7 @@ async function runBenchmarks() {
   }
 
   // Print summary table
-  console.log(`\n` + '='.repeat(70))
+  console.log(`\n` + `='.repeat(70))
   console.log('BENCHMARK RESULTS SUMMARY')
   console.log('='.repeat(70))
   console.log(
@@ -173,7 +173,7 @@ async function runBenchmarks() {
   console.log(
     `✅ Benchmark complete! Average improvement: ${overallImprovement}%`
   )
-  console.log(`='.repeat(70) + '\n')
+  console.log(`=`.repeat(70) + '\n')
 
   process.exit(0)
 }

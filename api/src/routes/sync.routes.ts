@@ -419,7 +419,7 @@ router.delete('/errors/:id', async (req: Request, res: Response) => {
       message: `Error marked as resolved`
     })
   } catch (error: any) {
-    console.error(`Error resolving sync error:', error)
+    console.error('Error resolving sync error:', error)
     res.status(500).json({
       success: false,
       error: 'Failed to resolve error',

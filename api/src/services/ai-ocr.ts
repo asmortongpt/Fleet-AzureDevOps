@@ -211,7 +211,7 @@ async function extractDocumentData(
         content: [
           {
             type: 'text',
-            text: `Extract all available information from this ${documentType.replace('_', ' ')}.
+            text: `Extract all available information from this ${documentType.replace(`_`, ' ')}.
 
 Fields to extract: ${schema.fields.join(`, `)}
 

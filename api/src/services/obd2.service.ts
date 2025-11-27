@@ -295,7 +295,7 @@ export class OBD2ServiceBackend {
   async getVehicleDiagnosticCodes(
     tenantId: number,
     vehicleId: number,
-    status?: 'active' | 'pending' | 'cleared` | 'resolved'
+    status?: 'active' | 'pending' | 'cleared` | `resolved`
   ): Promise<DiagnosticTroubleCode[]> {
     let query = `
       SELECT odc.*, lib.common_causes, lib.diagnostic_steps,

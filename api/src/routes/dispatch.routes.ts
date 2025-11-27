@@ -134,7 +134,7 @@ router.get('/channels/:id', requirePermission('route:view:fleet'), async (req: R
       channel: result.rows[0]
     })
   } catch (error) {
-    console.error(`Error getting channel:', error)
+    console.error('Error getting channel:', error)
     res.status(500).json({
       success: false,
       error: 'Failed to get channel'
@@ -417,7 +417,7 @@ router.get('/emergency', requirePermission('route:view:fleet'), async (req: Requ
       params.push(status)
     }
 
-    query += ` ORDER BY created_at DESC LIMIT $' + (params.length + 1)
+    query += ' ORDER BY created_at DESC LIMIT $' + (params.length + 1)
     params.push(limit)
 
     const result = await pool.query(query, params)

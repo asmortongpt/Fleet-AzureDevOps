@@ -58,7 +58,7 @@ export class MaintenanceEmulator extends EventEmitter {
 
     // Check oil change
     if (scheduled?.oilChange && this.odometer - this.lastOilChange >= scheduled.oilChange.interval) {
-      this.generateMaintenanceEvent(`oilChange', 'Oil Change', scheduled.oilChange.cost)
+      this.generateMaintenanceEvent(`oilChange`, 'Oil Change', scheduled.oilChange.cost)
       this.lastOilChange = this.odometer
     }
 

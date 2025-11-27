@@ -227,7 +227,7 @@ export class MaintenanceRepository extends BaseRepository<MaintenanceSchedule> {
     const query = `
       SELECT ${columns} FROM ${this.tableName}
       WHERE tenant_id = $1
-        AND status IN (`scheduled', 'in_progress')
+        AND status IN (`scheduled`, 'in_progress')
         AND scheduled_date < NOW()
         AND deleted_at IS NULL
       ORDER BY scheduled_date ASC

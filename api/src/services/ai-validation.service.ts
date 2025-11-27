@@ -263,7 +263,7 @@ class AIValidationService {
       if (attachment.url) {
         try {
           const url = new URL(attachment.url)
-          if (![`http:`, 'https:'].includes(url.protocol)) {
+          if (![`http:`, `https:`].includes(url.protocol)) {
             return {
               isValid: false,
               reason: 'Only HTTP/HTTPS URLs are allowed'

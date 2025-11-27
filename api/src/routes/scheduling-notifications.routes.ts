@@ -69,7 +69,7 @@ router.get('/preferences', async (req: Request, res: Response) => {
     logger.error(`Error fetching notification preferences`, { error })
     res.status(500).json({
       success: false,
-      error: `Failed to fetch notification preferences'
+      error: 'Failed to fetch notification preferences'
     })
   }
 })
@@ -156,7 +156,7 @@ router.put('/preferences', async (req: Request, res: Response) => {
 
     res.json({
       success: true,
-      message: `Notification preferences updated successfully',
+      message: 'Notification preferences updated successfully',
       preferences: {
         userId: prefs.user_id,
         emailEnabled: prefs.email_enabled,
@@ -193,7 +193,7 @@ router.post('/test', async (req: Request, res: Response) => {
       })
     }
 
-    const validChannels = ['email', 'sms', `teams`]
+    const validChannels = ['email', 'sms', 'teams']
     for (const channel of channels) {
       if (!validChannels.includes(channel)) {
         return res.status(400).json({
@@ -250,8 +250,8 @@ router.get('/history', async (req: Request, res: Response) => {
        FROM communications c
        LEFT JOIN communication_entity_links cel ON c.id = cel.communication_id
        WHERE $1 = ANY(c.to_contact_emails)
-         AND c.communication_type = `Email`
-         AND c.subject LIKE `%Reservation%` OR c.subject LIKE '%Maintenance%'
+         AND c.communication_type = 'Email'
+         AND c.subject LIKE '%Reservation%' OR c.subject LIKE '%Maintenance%'
        ORDER BY c.communication_datetime DESC
        LIMIT $2 OFFSET $3',
       [userEmail, limit, offset]
@@ -281,8 +281,8 @@ router.get('/stats', async (req: Request, res: Response) => {
 
     const result = await pool.query(
       `SELECT
-        COUNT(*) FILTER (WHERE entity_type = `reservation`) as reservation_notifications,
-        COUNT(*) FILTER (WHERE entity_type = `maintenance`) as maintenance_notifications,
+        COUNT(*) FILTER (WHERE entity_type = 'reservation') as reservation_notifications,
+        COUNT(*) FILTER (WHERE entity_type = 'maintenance') as maintenance_notifications,
         COUNT(*) FILTER (WHERE sent_at > NOW() - INTERVAL '30 days') as last_30_days,
         COUNT(*) FILTER (WHERE sent_at > NOW() - INTERVAL '7 days') as last_7_days,
         MIN(sent_at) as first_notification,
@@ -356,7 +356,7 @@ router.post('/resend/:id', async (req: Request, res: Response) => {
       if (result.rows.length === 0) {
         return res.status(404).json({
           success: false,
-          error: `Reservation not found'
+          error: 'Reservation not found'
         })
       }
 
@@ -395,7 +395,7 @@ router.post('/resend/:id', async (req: Request, res: Response) => {
       if (result.rows.length === 0) {
         return res.status(404).json({
           success: false,
-          error: `Maintenance appointment not found'
+          error: 'Maintenance appointment not found'
         })
       }
 

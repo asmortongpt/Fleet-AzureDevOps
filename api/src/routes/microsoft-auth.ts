@@ -77,7 +77,7 @@ router.get('/microsoft/callback', async (req: Request, res: Response) => {
         console.log(`Using validated tenant_id from state parameter:`, tenantId)
       } else {
         // Invalid tenant_id provided, fall back to default
-        console.log(`Invalid tenant_id in state parameter:', state, '- using default')
+        console.log(`Invalid tenant_id in state parameter:`, state, `- using default`)
         const defaultTenantResult = await pool.query(
           `SELECT id FROM tenants ORDER BY created_at LIMIT 1`
         )
@@ -130,7 +130,7 @@ router.get('/microsoft/callback', async (req: Request, res: Response) => {
         `INSERT INTO users (
           tenant_id, email, first_name, last_name,
           role, is_active, password_hash, sso_provider, sso_provider_id
-        ) VALUES ($1, $2, $3, $4, $5, true, `SSO`, `microsoft`, $6)
+        ) VALUES ($1, $2, $3, $4, $5, true, 'SSO', 'microsoft', $6)
         RETURNING *`,
         [
           tenantId,

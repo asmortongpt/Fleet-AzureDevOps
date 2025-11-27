@@ -56,7 +56,7 @@ router.get('/me', async (req: AuthRequest, res: Response) => {
       }
     })
   } catch (error) {
-    console.error(`Get user permissions error:', error)
+    console.error('Get user permissions error:', error)
     res.status(500).json({ error: 'Internal server error' })
   }
 })

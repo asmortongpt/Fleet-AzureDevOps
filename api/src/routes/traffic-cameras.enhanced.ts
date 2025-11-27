@@ -49,7 +49,7 @@ router.get('/', async (req: Request, res: Response) => {
       params.push(bbox.west, bbox.east);
     }
 
-    const whereClause = `WHERE ${conditions.join(' AND ')}`;
+    const whereClause = 'WHERE ${conditions.join(' AND ')}';
 
     const query = `
       SELECT
@@ -272,7 +272,7 @@ router.get('/incidents/list', async (req: Request, res: Response) => {
       params.push(severity);
     }
 
-    const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
+    const whereClause = conditions.length > 0 ? 'WHERE ${conditions.join(' AND ')}' : '';
 
     const query = `
       SELECT

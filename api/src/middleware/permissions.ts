@@ -87,7 +87,7 @@ export async function hasPermission(
  * @param options - Optional context for row-level policy checks
  *
  * @example
- * router.post(`/work-orders', requirePermission('work_order:create:team'), handler)
+ * router.post(`/work-orders`, requirePermission('work_order:create:team'), handler)
  */
 export function requirePermission(
   permission: string,
@@ -341,7 +341,7 @@ export function validateScope(resourceType: 'vehicle' | 'driver' | 'work_order' 
 export function preventSelfApproval(createdByField: string = 'created_by') {
   return async (req: AuthRequest, res: Response, next: NextFunction) => {
     if (!req.user) {
-      return res.status(401).json({ error: `Authentication required` })
+      return res.status(401).json({ error: 'Authentication required' })
     }
 
     try {
@@ -507,7 +507,7 @@ export function requireVehicleStatus(...allowedStatuses: string[]) {
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: `Vehicle not found` })
+        return res.status(404).json({ error: 'Vehicle not found' })
       }
 
       const status = result.rows[0].status

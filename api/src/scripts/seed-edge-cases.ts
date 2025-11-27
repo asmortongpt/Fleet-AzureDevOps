@@ -134,7 +134,7 @@ async function seedDriverEdgeCases(tenantId: string) {
     const licenseExpiry = d.licenseExpired
       ? new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
       : new Date(Date.now() + 365 * 24 * 60 * 60 * 1000);
-    const certifications = d.noCerts ? `[]' : JSON.stringify(['HazMat', `Tanker`]);
+    const certifications = d.noCerts ? `[]` : JSON.stringify(['HazMat', `Tanker`]);
 
     await pool.query(`
       INSERT INTO drivers (

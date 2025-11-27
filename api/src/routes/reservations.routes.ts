@@ -110,7 +110,7 @@ async function requiresApproval(purpose: string, userId: string): Promise<boolea
   // Check if user has auto-approval privilege for business reservations
   try {
     const result = await pool.query(
-      `SELECT user_has_any_role($1, ARRAY[`Admin`, `FleetManager`]) as has_role',
+      'SELECT user_has_any_role($1, ARRAY[`Admin`, 'FleetManager']) as has_role',
       [userId]
     );
 
@@ -326,7 +326,7 @@ router.post('/', authenticateJWT, async (req: AuthRequest, res: Response) => {
 
       if (vehicleCheck.rows.length === 0) {
         await client.query(`ROLLBACK`);
-        return res.status(404).json({ error: `Vehicle not found' });
+        return res.status(404).json({ error: 'Vehicle not found' });
       }
 
       const vehicle = vehicleCheck.rows[0];
@@ -418,7 +418,7 @@ router.post('/', authenticateJWT, async (req: AuthRequest, res: Response) => {
             await microsoftService.notifyFleetManagers({ ...reservation, ...vehicle });
           }
         } catch (integrationError) {
-          console.error(`Microsoft integration error:', integrationError);
+          console.error('Microsoft integration error:', integrationError);
           // Don't fail the request if integration fails
         }
       });
@@ -620,7 +620,7 @@ router.delete('/:id', authenticateJWT, async (req: AuthRequest, res: Response) =
       // Update status to cancelled (soft delete)
       await client.query(
         `UPDATE vehicle_reservations
-         SET status = `cancelled`, deleted_at = NOW(), updated_at = NOW()
+         SET status = 'cancelled', deleted_at = NOW(), updated_at = NOW()
          WHERE id = $1`,
         [id]
       );
@@ -691,7 +691,7 @@ router.post('/:id/approve', authenticateJWT, async (req: AuthRequest, res: Respo
 
       if (reservationResult.rows.length === 0) {
         await client.query(`ROLLBACK`);
-        return res.status(404).json({ error: `Reservation not found' });
+        return res.status(404).json({ error: 'Reservation not found' });
       }
 
       const reservation = reservationResult.rows[0];
@@ -739,7 +739,7 @@ router.post('/:id/approve', authenticateJWT, async (req: AuthRequest, res: Respo
       });
 
       res.json({
-        message: `Reservation ${data.action === 'approve' ? 'approved' : 'rejected'} successfully`,
+        message: 'Reservation ${data.action === 'approve' ? 'approved' : 'rejected'} successfully',
         reservation: updatedReservation,
       });
     } catch (error) {
