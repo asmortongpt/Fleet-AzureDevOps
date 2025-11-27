@@ -110,7 +110,7 @@ function App() {
       case "dashboard":
         return <FleetDashboard data={fleetData} />
       case "executive-dashboard":
-        return <ExecutiveDashboard data={fleetData} />
+        return <ExecutiveDashboard />
       case "dispatch-console":
         // Dispatch console uses GPS tracking with different view
         return <GPSTracking vehicles={fleetData.vehicles || []} facilities={facilities} />
@@ -194,9 +194,9 @@ function App() {
       case "map-settings":
         return <MapSettings />
       case "asset-management":
-        return <AssetManagement data={fleetData} />
+        return <AssetManagement />
       case "equipment-dashboard":
-        return <EquipmentDashboard data={fleetData} />
+        return <EquipmentDashboard />
       case "task-management":
         return <TaskManagement />
       case "incident-management":
