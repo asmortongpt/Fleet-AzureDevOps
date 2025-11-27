@@ -168,7 +168,7 @@ async function analyzeEdgeCases(): Promise<EdgeCaseGap[]> {
   // Define edge cases to check
   const edgeCaseChecks = [
     // Vehicles
-    { table: `vehicles', category: 'boundary', description: 'Vehicle with 0 miles', query: 'SELECT EXISTS(SELECT 1 FROM vehicles WHERE current_mileage = 0)` },
+    { table: `vehicles`, category: 'boundary', description: 'Vehicle with 0 miles', query: 'SELECT EXISTS(SELECT 1 FROM vehicles WHERE current_mileage = 0)` },
     { table: 'vehicles', category: 'boundary', description: 'Vehicle with >999,999 miles', query: 'SELECT EXISTS(SELECT 1 FROM vehicles WHERE current_mileage > 999999)` },
     { table: 'vehicles', category: 'null', description: 'Vehicle with NULL license plate', query: 'SELECT EXISTS(SELECT 1 FROM vehicles WHERE license_plate IS NULL)` },
     { table: 'vehicles', category: 'edge', description: 'Electric vehicle with 0% battery', query: 'SELECT EXISTS(SELECT 1 FROM vehicles WHERE fuel_type = 'Electric' AND battery_level = 0)' },
@@ -260,7 +260,7 @@ async function analyzeNullCoverage() {
       const result = await pool.query(`
         SELECT EXISTS(SELECT 1 FROM ${table} WHERE ${field} IS NULL) as has_null
       `);
-      console.log(`${table}.${field}: ${result.rows[0].has_null ? '✓ HAS NULL' : '✗ NO NULL'}`);
+      console.log(`${table}.${field}: ${result.rows[0].has_null ? `✓ HAS NULL' : '✗ NO NULL'}`);
     } catch (error) {
       console.warn(`Could not check ${table}.${field}`);
     }

@@ -72,7 +72,7 @@ router.get(
       })
     } catch (error) {
       console.error(`Get charging-sessions error:`, error)
-      res.status(500).json({ error: `Internal server error' })
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )

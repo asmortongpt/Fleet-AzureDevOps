@@ -127,7 +127,7 @@ router.get(
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: `Communication not found' })
+        return res.status(404).json({ error: 'Communication not found' })
       }
 
       // Get linked entities
@@ -159,7 +159,7 @@ router.get(
       })
     } catch (error) {
       console.error(`Get communication error:`, error)
-      res.status(500).json({ error: `Internal server error' })
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )
@@ -303,7 +303,7 @@ router.delete(
         return res.status(404).json({ error: `Link not found` })
       }
 
-      res.json({ message: `Link deleted successfully' })
+      res.json({ message: 'Link deleted successfully' })
     } catch (error) {
       console.error('Delete communication link error:', error)
       res.status(500).json({ error: 'Internal server error' })
@@ -358,7 +358,7 @@ router.get(
       })
     } catch (error) {
       console.error(`Get entity communications error:`, error)
-      res.status(500).json({ error: `Internal server error' })
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )
@@ -511,7 +511,7 @@ router.get(
 
       // By priority
       const byPriorityResult = await pool.query(
-        `SELECT COALESCE(ai_detected_priority, manual_priority, `Unassigned`) as priority,
+        'SELECT COALESCE(ai_detected_priority, manual_priority, 'Unassigned') as priority,
                 COUNT(*) as count
          FROM communications c
          LEFT JOIN drivers from_user ON c.from_user_id = from_user.id

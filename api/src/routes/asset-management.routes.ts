@@ -62,7 +62,7 @@ router.get('/', requirePermission('vehicle:view:fleet'), async (req: AuthRequest
       FROM assets a
       LEFT JOIN users u ON a.assigned_to = u.id
       LEFT JOIN asset_history ah ON a.id = ah.asset_id
-      LEFT JOIN maintenance_schedules m ON a.id = m.asset_id AND m.status = `scheduled`
+      LEFT JOIN maintenance_schedules m ON a.id = m.asset_id AND m.status = 'scheduled'
       WHERE a.tenant_id = $1
     `
 
@@ -142,7 +142,7 @@ router.get('/:id', requirePermission('vehicle:view:fleet'), async (req: AuthRequ
     )
 
     if (result.rows.length === 0) {
-      return res.status(404).json({ error: `Asset not found' })
+      return res.status(404).json({ error: 'Asset not found' })
     }
 
     // Get asset history
@@ -239,7 +239,7 @@ router.post('/', requirePermission('vehicle:create:fleet'), async (req: AuthRequ
       `INSERT INTO asset_history (
         asset_id, action, performed_by, notes
       ) VALUES ($1, $2, $3, $4)`,
-      [result.rows[0].id, `created`, userId, `Asset created`]
+      [result.rows[0].id, 'created', userId, `Asset created`]
     )
 
     await client.query('COMMIT')
@@ -314,7 +314,7 @@ router.put('/:id', requirePermission('vehicle:update:fleet'), async (req: AuthRe
       `INSERT INTO asset_history (
         asset_id, action, performed_by, notes
       ) VALUES ($1, $2, $3, $4)`,
-      [id, `updated`, userId, `Updated fields: ${changedFields}`]
+      [id, 'updated', userId, `Updated fields: ${changedFields}`]
     )
 
     await client.query(`COMMIT`)
@@ -368,7 +368,7 @@ router.post('/:id/assign', requirePermission('vehicle:update:fleet'), async (req
       `INSERT INTO asset_history (
         asset_id, action, performed_by, assigned_to, notes
       ) VALUES ($1, $2, $3, $4, $5)`,
-      [id, `assigned`, userId, assigned_to, notes || `Asset assigned`]
+      [id, 'assigned', userId, assigned_to, notes || `Asset assigned`]
     )
 
     await client.query('COMMIT')
@@ -422,7 +422,7 @@ router.post('/:id/transfer', requirePermission('vehicle:update:fleet'), async (r
       `INSERT INTO asset_history (
         asset_id, action, performed_by, location, notes
       ) VALUES ($1, $2, $3, $4, $5)`,
-      [id, `transferred`, userId, new_location, `${transfer_reason}: ${notes || ``}`]
+      [id, 'transferred', userId, new_location, `${transfer_reason}: ${notes || ``}`]
     )
 
     await client.query(`COMMIT`)
@@ -524,7 +524,7 @@ router.get('/:id/depreciation', requirePermission('vehicle:view:fleet'), async (
       projections
     })
   } catch (error) {
-    console.error(`Error calculating depreciation:', error)
+    console.error('Error calculating depreciation:', error)
     res.status(500).json({ error: 'Failed to calculate depreciation' })
   }
 })
@@ -583,7 +583,7 @@ router.get('/analytics/summary', requirePermission('report:view:global'), async 
     })
   } catch (error) {
     console.error(`Error fetching asset analytics:`, error)
-    res.status(500).json({ error: `Failed to fetch analytics' })
+    res.status(500).json({ error: 'Failed to fetch analytics' })
   }
 })
 
@@ -607,7 +607,7 @@ router.delete('/:id', requirePermission('vehicle:delete:fleet'), async (req: Aut
 
     const result = await client.query(
       `UPDATE assets
-       SET status = `disposed`,
+       SET status = 'disposed',
            disposal_date = NOW(),
            disposal_reason = $1,
            disposal_value = $2,
@@ -627,7 +627,7 @@ router.delete('/:id', requirePermission('vehicle:delete:fleet'), async (req: Aut
       `INSERT INTO asset_history (
         asset_id, action, performed_by, notes
       ) VALUES ($1, $2, $3, $4)`,
-      [id, `disposed`, userId, `Disposed: ${disposal_reason}`]
+      [id, 'disposed', userId, `Disposed: ${disposal_reason}`]
     )
 
     await client.query(`COMMIT`)

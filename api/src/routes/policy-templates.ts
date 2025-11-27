@@ -151,7 +151,7 @@ router.get(
 
       res.json(result.rows[0])
     } catch (error) {
-      console.error(`Get policy template error:', error)
+      console.error('Get policy template error:', error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -300,7 +300,7 @@ router.post(
       res.status(201).json(result.rows[0])
     } catch (error) {
       console.error(`Create policy acknowledgment error:`, error)
-      res.status(500).json({ error: `Internal server error' })
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )
@@ -329,7 +329,7 @@ router.get(
          LEFT JOIN policy_acknowledgments pa ON d.id = pa.employee_id AND pt.id = pa.policy_id AND pa.is_current = TRUE
          WHERE d.id = $1
            AND d.tenant_id = $2
-           AND pt.status = `Active`
+           AND pt.status = 'Active'
            AND (pt.applies_to_roles IS NULL OR d.role = ANY(pt.applies_to_roles))
          GROUP BY d.id, d.first_name, d.last_name`,
         [req.params.employee_id, req.user!.tenant_id]
@@ -546,9 +546,9 @@ router.get(
       const policiesResult = await pool.query(
         `SELECT COUNT(*) as active_policies,
                 COUNT(CASE WHEN next_review_date < CURRENT_DATE THEN 1 END) as overdue_reviews,
-                COUNT(CASE WHEN next_review_date BETWEEN CURRENT_DATE AND CURRENT_DATE + INTERVAL `30 days` THEN 1 END) as upcoming_reviews
+                COUNT(CASE WHEN next_review_date BETWEEN CURRENT_DATE AND CURRENT_DATE + INTERVAL '30 days' THEN 1 END) as upcoming_reviews
          FROM policy_templates
-         WHERE status = `Active`'
+         WHERE status = 'Active''
       )
 
       // Compliance rate
@@ -560,7 +560,7 @@ router.get(
          CROSS JOIN policy_templates pt
          LEFT JOIN policy_acknowledgments pa ON d.id = pa.employee_id AND pt.id = pa.policy_id AND pa.is_current = TRUE
          WHERE d.tenant_id = $1
-         AND pt.status = `Active`
+         AND pt.status = 'Active'
          AND pt.is_mandatory = TRUE`,
         [req.user!.tenant_id]
       )
