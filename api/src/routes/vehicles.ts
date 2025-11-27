@@ -1,8 +1,12 @@
 import { Router } from "express"
-import { db } from "../db/connection"
 import { vehicles } from "../db/schema"
 import { eq, like, or, and, desc } from "drizzle-orm"
 import { authenticateToken, requireRole } from "../middleware/auth"
+import { drizzle } from "drizzle-orm/node-postgres"
+import { pool } from "../config/database"
+
+// Lazy-load db connection to avoid initialization issues
+const getDb = () => drizzle(pool)
 
 const router = Router()
 
@@ -10,7 +14,7 @@ const router = Router()
 router.get("/", authenticateToken, async (req, res) => {
   try {
     const { page = 1, pageSize = 20, search, status, make, sortBy = 'vehicleNumber', sortOrder = 'asc' } = req.query
-
+    const db = getDb()
     let query = db.select().from(vehicles)
 
     // Apply filters
