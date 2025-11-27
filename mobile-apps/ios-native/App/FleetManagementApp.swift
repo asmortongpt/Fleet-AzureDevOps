@@ -6,6 +6,7 @@ struct FleetManagementApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     @StateObject private var navigationCoordinator = NavigationCoordinator()
     @StateObject private var networkManager = AzureNetworkManager()
+    @StateObject private var authManager = AuthenticationManager()
 
     init() {
         configureAppearance()
@@ -16,6 +17,7 @@ struct FleetManagementApp: App {
             RootView()
                 .environmentObject(navigationCoordinator)
                 .environmentObject(networkManager)
+                .environmentObject(authManager)
                 .preferredColorScheme(navigationCoordinator.colorScheme)
                 .onOpenURL { url in
                     navigationCoordinator.handleDeepLink(url)
