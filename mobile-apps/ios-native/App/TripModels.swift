@@ -19,6 +19,7 @@ public enum TripModels {
     public var vehicleNumber: String?  // Added for compatibility
     public var driverId: String?
     public var notes: String?
+    public var purpose: String?
 
     public var duration: TimeInterval {
         let end = endTime ?? Date()
@@ -39,6 +40,25 @@ public enum TripModels {
         String(format: "%.1f mph", averageSpeed)
     }
 
+    // Computed properties for start/end locations
+    public var startLocation: TripLocation? {
+        guard let first = coordinates.first else { return nil }
+        return TripLocation(
+            lat: first.latitude,
+            lng: first.longitude,
+            address: "Starting Location"
+        )
+    }
+
+    public var endLocation: TripLocation? {
+        guard let last = coordinates.last, coordinates.count > 1 else { return nil }
+        return TripLocation(
+            lat: last.latitude,
+            lng: last.longitude,
+            address: "Ending Location"
+        )
+    }
+
     init(
         id: UUID = UUID(),
         name: String = "Trip",
@@ -53,7 +73,8 @@ public enum TripModels {
         vehicleId: String? = nil,
         vehicleNumber: String? = nil,
         driverId: String? = nil,
-        notes: String? = nil
+        notes: String? = nil,
+        purpose: String? = nil
     ) {
         self.id = id
         self.name = name
@@ -69,6 +90,7 @@ public enum TripModels {
         self.vehicleNumber = vehicleNumber
         self.driverId = driverId
         self.notes = notes
+        self.purpose = purpose
     }
     }
 
@@ -201,6 +223,19 @@ public enum TripModels {
             case .kilometer: return "Low"
             case .threeKilometers: return "Very Low"
             }
+        }
+    }
+
+    // MARK: - Trip Location
+    public struct TripLocation: Codable {
+        public let lat: Double
+        public let lng: Double
+        public let address: String
+
+        public init(lat: Double, lng: Double, address: String) {
+            self.lat = lat
+            self.lng = lng
+            self.address = address
         }
     }
 

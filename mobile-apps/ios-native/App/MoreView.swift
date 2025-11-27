@@ -9,7 +9,7 @@ struct MoreView: View {
             List {
                 // Executive Section
                 Section(header: Text("Executive")) {
-                    NavigationLink(destination: ExecutiveDashboardView()) {
+                    NavigationLink(destination: Text("Executive Dashboard - Coming Soon").font(.title).padding()) {
                         HStack {
                             Image(systemName: "chart.bar.doc.horizontal.fill")
                                 .foregroundColor(.purple)
@@ -27,7 +27,7 @@ struct MoreView: View {
 
                 // Vehicle Data Section
                 Section(header: Text("Vehicle Data")) {
-                    NavigationLink(destination: TelemetryDashboardView()) {
+                    NavigationLink(destination: Text("Telemetry Dashboard - Coming Soon").font(.title).padding()) {
                         HStack {
                             Image(systemName: "gauge.with.dots.needle.67percent")
                                 .foregroundColor(.red)
@@ -45,7 +45,7 @@ struct MoreView: View {
 
                 // Environmental Section
                 Section(header: Text("Environmental")) {
-                    NavigationLink(destination: EnvironmentalDashboardView()) {
+                    NavigationLink(destination: Text("Environmental Dashboard - Coming Soon").font(.title).padding()) {
                         HStack {
                             Image(systemName: "leaf.fill")
                                 .foregroundColor(.green)
@@ -63,7 +63,7 @@ struct MoreView: View {
 
                 // GPS Features Section
                 Section(header: Text("GPS Features")) {
-                    NavigationLink(destination: GeofenceListView()) {
+                    NavigationLink(destination: Text("Geofence List - Coming Soon").font(.title).padding()) {
                         HStack {
                             Image(systemName: "mappin.circle.fill")
                                 .foregroundColor(.blue)
@@ -78,7 +78,7 @@ struct MoreView: View {
                         }
                     }
 
-                    NavigationLink(destination: RouteListView()) {
+                    NavigationLink(destination: Text("Route List - Coming Soon").font(.title).padding()) {
                         HStack {
                             Image(systemName: "point.3.connected.trianglepath.dotted")
                                 .foregroundColor(.orange)
@@ -93,7 +93,7 @@ struct MoreView: View {
                         }
                     }
 
-                    NavigationLink(destination: EnhancedFleetMapView()) {
+                    NavigationLink(destination: Text("Enhanced Fleet Map - Coming Soon").font(.title).padding()) {
                         HStack {
                             Image(systemName: "map.fill")
                                 .foregroundColor(.green)
@@ -108,35 +108,37 @@ struct MoreView: View {
                         }
                     }
 
-                    NavigationLink(destination: TripTrackingView()) {
-                        HStack {
-                            Image(systemName: "location.fill.viewfinder")
-                                .foregroundColor(.purple)
-                                .frame(width: 30)
-                            VStack(alignment: .leading) {
-                                Text("Trip Tracking")
-                                    .font(.body)
-                                Text("Track and record vehicle trips")
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
-                            }
-                        }
-                    }
+                    // TODO: Re-enable when TripTrackingView is implemented
+                    // NavigationLink(destination: TripTrackingView()) {
+                    //     HStack {
+                    //         Image(systemName: "location.fill.viewfinder")
+                    //             .foregroundColor(.purple)
+                    //             .frame(width: 30)
+                    //         VStack(alignment: .leading) {
+                    //             Text("Trip Tracking")
+                    //                 .font(.body)
+                    //             Text("Track and record vehicle trips")
+                    //                 .font(.caption)
+                    //                 .foregroundColor(.secondary)
+                    //         }
+                    //     }
+                    // }
 
-                    NavigationLink(destination: RouteOptimizerView()) {
-                        HStack {
-                            Image(systemName: "arrow.triangle.branch")
-                                .foregroundColor(.teal)
-                                .frame(width: 30)
-                            VStack(alignment: .leading) {
-                                Text("Route Optimizer")
-                                    .font(.body)
-                                Text("Optimize multi-stop routes with TSP algorithm")
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
-                            }
-                        }
-                    }
+                    // TODO: Re-enable when RouteOptimizerView is implemented
+                    // NavigationLink(destination: RouteOptimizerView()) {
+                    //     HStack {
+                    //         Image(systemName: "arrow.triangle.branch")
+                    //             .foregroundColor(.teal)
+                    //             .frame(width: 30)
+                    //         VStack(alignment: .leading) {
+                    //             Text("Route Optimizer")
+                    //                 .font(.body)
+                    //             Text("Optimize multi-stop routes with TSP algorithm")
+                    //                 .font(.caption)
+                    //                 .foregroundColor(.secondary)
+                    //         }
+                    //     }
+                    // }
                 }
 
                 // Financial Section
