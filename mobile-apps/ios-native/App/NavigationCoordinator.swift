@@ -323,6 +323,36 @@ enum NavigationDestination: Hashable, Identifiable {
     case benchmarking
     case benchmarkDetail(category: String)
 
+    // Schedule Management destinations
+    case schedule
+    case scheduleDetail(id: String)
+    case addSchedule
+
+    // Checklist Management destinations
+    case checklistManagement
+    case activeChecklist
+    case checklistHistory
+    case checklistTemplateEditor
+
+    // Vehicle Inspection destinations
+    case vehicleInspection(vehicleId: String)
+
+    // Reports destinations
+    case reports
+    case customReportBuilder
+
+    // Fuel Management destinations
+    case fuelManagement
+    case fuelEntry
+
+    // Document Management destinations
+    case documentManagement
+    case documentScanner
+
+    // Incident Reports destinations
+    case incidentReport(vehicleId: String)
+    case damageReport(vehicleId: String)
+
     var id: String {
         switch self {
         case .vehicleDetail(let id):
@@ -473,6 +503,38 @@ enum NavigationDestination: Hashable, Identifiable {
             return "benchmarking"
         case .benchmarkDetail(let category):
             return "benchmark-detail-\(category)"
+        case .schedule:
+            return "schedule"
+        case .scheduleDetail(let id):
+            return "schedule-detail-\(id)"
+        case .addSchedule:
+            return "add-schedule"
+        case .checklistManagement:
+            return "checklist-management"
+        case .activeChecklist:
+            return "active-checklist"
+        case .checklistHistory:
+            return "checklist-history"
+        case .checklistTemplateEditor:
+            return "checklist-template-editor"
+        case .vehicleInspection(let vehicleId):
+            return "vehicle-inspection-\(vehicleId)"
+        case .reports:
+            return "reports"
+        case .customReportBuilder:
+            return "custom-report-builder"
+        case .fuelManagement:
+            return "fuel-management"
+        case .fuelEntry:
+            return "fuel-entry"
+        case .documentManagement:
+            return "document-management"
+        case .documentScanner:
+            return "document-scanner"
+        case .incidentReport(let vehicleId):
+            return "incident-report-\(vehicleId)"
+        case .damageReport(let vehicleId):
+            return "damage-report-\(vehicleId)"
         }
     }
 }
