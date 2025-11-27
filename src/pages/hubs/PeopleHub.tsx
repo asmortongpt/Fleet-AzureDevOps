@@ -6,6 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../components/ui/ta
 import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/card";
 import { Badge } from "../../components/ui/badge";
 import { Button } from "../../components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "../../components/ui/avatar";
 import { useInspect } from "@/services/inspect/InspectContext";
 import { ColumnDef } from "@tanstack/react-table";
 import {
@@ -34,6 +35,7 @@ interface Driver {
   experience: string;
   violations: number;
   certifications: string[];
+  photoUrl?: string; // Microsoft AD profile photo URL
   performance: {
     trips: number;
     onTimeRate: number;
@@ -256,12 +258,22 @@ const PeopleHub: React.FC = () => {
     {
       accessorKey: "name",
       header: "Name",
-      cell: ({ row }) => (
-        <div className="flex items-center gap-2">
-          <User className="w-3 h-3 text-muted-foreground" />
-          <span className="font-medium">{row.original.name}</span>
-        </div>
-      ),
+      cell: ({ row }) => {
+        const initials = row.original.name
+          .split(" ")
+          .map((n) => n[0])
+          .join("")
+          .toUpperCase();
+        return (
+          <div className="flex items-center gap-2">
+            <Avatar className="h-6 w-6">
+              <AvatarImage src={row.original.photoUrl} alt={row.original.name} />
+              <AvatarFallback className="text-xs">{initials}</AvatarFallback>
+            </Avatar>
+            <span className="font-medium">{row.original.name}</span>
+          </div>
+        );
+      },
     },
     {
       accessorKey: "status",
