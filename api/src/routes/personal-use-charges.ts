@@ -150,7 +150,7 @@ router.get(
     })
   } catch (error: any) {
     console.error(`Get charges error:`, error)
-    res.status(500).json({ error: 'Failed to retrieve personal use charges' })
+    res.status(500).json({ error: `Failed to retrieve personal use charges` })
   }
 })
 
@@ -159,7 +159,7 @@ router.get(
  * Get specific charge details
  */
 router.get(
-  '/:id',
+  `/:id`,
   requirePermission('fuel_transaction:view:fleet'),
   async (req: AuthRequest, res: Response) => {
   try {
@@ -176,18 +176,18 @@ router.get(
        JOIN users u ON c.driver_id = u.id
        LEFT JOIN users waiver ON c.waived_by_user_id = waiver.id
        LEFT JOIN trip_usage_classification t ON c.trip_usage_id = t.id
-       WHERE c.id = $1 AND c.tenant_id = $2',
+       WHERE c.id = $1 AND c.tenant_id = $2`,
       [req.params.id, req.user!.tenant_id]
     )
 
     if (result.rows.length === 0) {
-      return res.status(404).json({ error: 'Charge not found' })
+      return res.status(404).json({ error: `Charge not found` })
     }
 
     const charge = result.rows[0]
 
     // Non-admin users can only see their own charges
-    if (!['admin', 'fleet_manager'].includes(req.user!.role) &&
+    if (![`admin`, 'fleet_manager'].includes(req.user!.role) &&
         charge.driver_id !== req.user!.id) {
       return res.status(403).json({ error: 'Access denied' })
     }
@@ -233,13 +233,13 @@ router.post(
       expiry_date,
       is_active,
       created_at,
-      updated_at FROM personal_use_policies WHERE tenant_id = $1',
+      updated_at FROM personal_use_policies WHERE tenant_id = $1`,
         [req.user!.tenant_id]
       )
 
       if (policyResult.rows.length === 0 || !policyResult.rows[0].charge_personal_use) {
         return res.status(400).json({
-          error: 'Personal use charging is not enabled for this organization'
+          error: `Personal use charging is not enabled for this organization`
         })
       }
 
@@ -248,7 +248,7 @@ router.post(
 
       if (!ratePerMile) {
         return res.status(400).json({
-          error: 'Personal use rate per mile is not configured'
+          error: `Personal use rate per mile is not configured'
         })
       }
 
@@ -258,8 +258,8 @@ router.post(
          FROM trip_usage_classification
          WHERE driver_id = $1
            AND tenant_id = $2
-           AND TO_CHAR(trip_date, 'YYYY-MM') = $3
-           AND approval_status = 'approved'
+           AND TO_CHAR(trip_date, `YYYY-MM`) = $3
+           AND approval_status = `approved`
            AND miles_personal > 0
          ORDER BY trip_date ASC`,
         [driver_id, req.user!.tenant_id, charge_period]
@@ -392,7 +392,7 @@ router.post(
       expiry_date,
       is_active,
       created_at,
-      updated_at FROM personal_use_policies WHERE tenant_id = $1',
+      updated_at FROM personal_use_policies WHERE tenant_id = $1`,
         [req.user!.tenant_id]
       )
 
@@ -404,8 +404,8 @@ router.post(
           `SELECT SUM(miles_personal) as total_miles
            FROM trip_usage_classification
            WHERE driver_id = $1 AND tenant_id = $2
-             AND TO_CHAR(trip_date, 'YYYY-MM') = $3
-             AND approval_status = 'approved'',
+             AND TO_CHAR(trip_date, `YYYY-MM`) = $3
+             AND approval_status = `approved`',
           [validated.driver_id, req.user!.tenant_id, validated.charge_period]
         )
 
@@ -432,9 +432,9 @@ router.post(
                 currentMiles: totalMonthlyMiles,
                 limitMiles: monthlyLimit,
                 percentageUsed: monthlyPercentage,
-                period: 'month'
+                period: `month`
               }).catch(error => {
-                logger.error('Failed to send limit warning email', { error: getErrorMessage(error) })
+                logger.error(`Failed to send limit warning email`, { error: getErrorMessage(error) })
               })
             }
 
@@ -578,7 +578,7 @@ router.patch(
 
       const result = await pool.query(
         `UPDATE personal_use_charges
-         SET ${updates.join(', ')}, updated_at = NOW()
+         SET ${updates.join(`, `)}, updated_at = NOW()
          WHERE id = $1 AND tenant_id = $2
          RETURNING *`,
         [req.params.id, req.user!.tenant_id, ...values]
@@ -590,7 +590,7 @@ router.patch(
         message: `Charge updated successfully`
       })
     } catch (error: any) {
-      console.error('Update charge error:', error)
+      console.error(`Update charge error:`, error)
       if (error instanceof z.ZodError) {
         return res.status(400).json({ error: 'Invalid request data', details: error.errors })
       }
@@ -654,7 +654,7 @@ router.get(
       })
     } catch (error: any) {
       console.error(`Get charges summary error:`, error)
-      res.status(500).json({ error: 'Failed to retrieve charges summary' })
+      res.status(500).json({ error: `Failed to retrieve charges summary` })
     }
   }
 )
@@ -664,7 +664,7 @@ router.get(
  * Create charges for all drivers for a specific period (admin only)
  */
 router.post(
-  '/bulk-create',
+  `/bulk-create`,
   requirePermission('fuel_transaction:create:global'),
   auditLog({ action: 'BULK_CREATE', resourceType: 'personal_use_charges' }),
   async (req: AuthRequest, res: Response) => {
@@ -688,13 +688,13 @@ router.post(
       expiry_date,
       is_active,
       created_at,
-      updated_at FROM personal_use_policies WHERE tenant_id = $1',
+      updated_at FROM personal_use_policies WHERE tenant_id = $1`,
         [req.user!.tenant_id]
       )
 
       if (policyResult.rows.length === 0 || !policyResult.rows[0].charge_personal_use) {
         return res.status(400).json({
-          error: 'Personal use charging is not enabled'
+          error: `Personal use charging is not enabled`
         })
       }
 
@@ -711,8 +711,8 @@ router.post(
            SUM(miles_personal) as total_personal_miles
          FROM trip_usage_classification
          WHERE tenant_id = $1
-           AND TO_CHAR(trip_date, 'YYYY-MM') = $2
-           AND approval_status = 'approved'
+           AND TO_CHAR(trip_date, `YYYY-MM`) = $2
+           AND approval_status = `approved`
            AND miles_personal > 0
          GROUP BY driver_id
          HAVING SUM(miles_personal) > 0`,
@@ -736,7 +736,7 @@ router.post(
             req.user!.tenant_id,
             driver.driver_id,
             charge_period,
-            periodDates.start.toISOString().split('T')[0],
+            periodDates.start.toISOString().split(`T`)[0],
             periodDates.end.toISOString().split(`T`)[0],
             driver.total_personal_miles,
             ratePerMile,
@@ -755,7 +755,7 @@ router.post(
       })
     } catch (error: any) {
       console.error(`Bulk create charges error:`, error)
-      res.status(500).json({ error: 'Failed to create bulk charges' })
+      res.status(500).json({ error: `Failed to create bulk charges` })
     }
   }
 )

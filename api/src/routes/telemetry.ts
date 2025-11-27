@@ -21,12 +21,12 @@ router.get(
       const offset = (Number(page) - 1) * Number(limit)
 
       const result = await pool.query(
-        'SELECT ' + (await getTableColumns(pool, 'telemetry_data')).join(', ') + ' FROM telemetry_data WHERE tenant_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3',
+        `SELECT ` + (await getTableColumns(pool, `telemetry_data`)).join(`, ') + ' FROM telemetry_data WHERE tenant_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3',
         [req.user!.tenant_id, limit, offset]
       )
 
       const countResult = await pool.query(
-        'SELECT COUNT(*) FROM telemetry_data WHERE tenant_id = $1',
+        `SELECT COUNT(*) FROM telemetry_data WHERE tenant_id = $1`,
         [req.user!.tenant_id]
       )
 
@@ -40,7 +40,7 @@ router.get(
         }
       })
     } catch (error) {
-      console.error('Get telemetry error:', error)
+      console.error(`Get telemetry error:`, error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -55,7 +55,7 @@ router.get(
   async (req: AuthRequest, res: Response) => {
     try {
       const result = await pool.query(
-        'SELECT ' + (await getTableColumns(pool, 'telemetry_data')).join(', ') + ' FROM telemetry_data WHERE id = $1 AND tenant_id = $2',
+        `SELECT ` + (await getTableColumns(pool, `telemetry_data`)).join(', ') + ' FROM telemetry_data WHERE id = $1 AND tenant_id = $2',
         [req.params.id, req.user!.tenant_id]
       )
 
@@ -95,14 +95,14 @@ router.post(
       res.status(201).json(result.rows[0])
     } catch (error) {
       console.error(`Create telemetry error:`, error)
-      res.status(500).json({ error: 'Internal server error' })
+      res.status(500).json({ error: `Internal server error` })
     }
   }
 )
 
 // PUT /telemetry/:id
 router.put(
-  '/:id',
+  `/:id`,
   requirePermission('telemetry:view:fleet'),
   rateLimit(10, 60000),
   auditLog({ action: 'UPDATE', resourceType: 'telemetry_data' }),
@@ -122,8 +122,8 @@ router.put(
 
       res.json(result.rows[0])
     } catch (error) {
-      console.error('Update telemetry error:', error)
-      res.status(500).json({ error: 'Internal server error' })
+      console.error(`Update telemetry error:`, error)
+      res.status(500).json({ error: `Internal server error` })
     }
   }
 )

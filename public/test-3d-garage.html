@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>3D Garage Test</title>
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+            "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+        }
+    }
+    </script>
+    <style>
+        body { margin: 0; font-family: Arial, sans-serif; }
+        #container { width: 100%; height: 100vh; }
+        #info {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            max-width: 400px;
+        }
+        .success { color: #4CAF50; }
+        .vehicle-card {
+            background: rgba(255,255,255,0.1);
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div id="container"></div>
+    <div id="info">
+        <h2>🚗 3D Garage - Fleet Vehicles</h2>
+        <div id="status">Loading...</div>
+        <div id="vehicles"></div>
+    </div>
+
+    <script type="module">
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+        import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+
+        const statusDiv = document.getElementById('status');
+        const vehiclesDiv = document.getElementById('vehicles');
+
+        // Scene setup
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x1a1a2e);
+
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(10, 5, 10);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.shadowMap.enabled = true;
+        document.getElementById('container').appendChild(renderer.domElement);
+
+        // Lighting
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+        scene.add(ambientLight);
+
+        const spotLight = new THREE.SpotLight(0xffffff, 1);
+        spotLight.position.set(10, 20, 10);
+        spotLight.castShadow = true;
+        scene.add(spotLight);
+
+        // Floor
+        const floorGeometry = new THREE.PlaneGeometry(30, 30);
+        const floorMaterial = new THREE.MeshStandardMaterial({
+            color: 0x2d2d44,
+            roughness: 0.8,
+            metalness: 0.2
+        });
+        const floor = new THREE.Mesh(floorGeometry, floorMaterial);
+        floor.rotation.x = -Math.PI / 2;
+        floor.receiveShadow = true;
+        scene.add(floor);
+
+        // Grid
+        const gridHelper = new THREE.GridHelper(30, 30, 0x444444, 0x222222);
+        scene.add(gridHelper);
+
+        // Controls
+        const controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+
+        // Create simple vehicle models (boxes for now)
+        const vehicles = [
+            { name: 'Fleet Sedan #1', color: 0x3498db, pos: [-8, 0.5, 0] },
+            { name: 'Fleet Truck #2', color: 0xe74c3c, pos: [-4, 0.8, 0] },
+            { name: 'Fleet Van #3', color: 0x2ecc71, pos: [0, 0.6, 0] },
+            { name: 'Fleet SUV #4', color: 0xf39c12, pos: [4, 0.7, 0] },
+            { name: 'Fleet Sports #5', color: 0x9b59b6, pos: [8, 0.4, 0] }
+        ];
+
+        let vehicleHTML = '';
+
+        vehicles.forEach((vehicle, index) => {
+            // Create vehicle body
+            const geometry = new THREE.BoxGeometry(2, 1, 1);
+            const material = new THREE.MeshStandardMaterial({
+                color: vehicle.color,
+                roughness: 0.3,
+                metalness: 0.7
+            });
+            const mesh = new THREE.Mesh(geometry, material);
+            mesh.position.set(...vehicle.pos);
+            mesh.castShadow = true;
+            scene.add(mesh);
+
+            // Add wheels
+            const wheelGeometry = new THREE.CylinderGeometry(0.2, 0.2, 0.1, 16);
+            const wheelMaterial = new THREE.MeshStandardMaterial({ color: 0x333333 });
+
+            const wheelPositions = [
+                [vehicle.pos[0] + 0.7, 0, vehicle.pos[2] + 0.6],
+                [vehicle.pos[0] + 0.7, 0, vehicle.pos[2] - 0.6],
+                [vehicle.pos[0] - 0.7, 0, vehicle.pos[2] + 0.6],
+                [vehicle.pos[0] - 0.7, 0, vehicle.pos[2] - 0.6]
+            ];
+
+            wheelPositions.forEach(pos => {
+                const wheel = new THREE.Mesh(wheelGeometry, wheelMaterial);
+                wheel.position.set(...pos);
+                wheel.rotation.z = Math.PI / 2;
+                scene.add(wheel);
+            });
+
+            vehicleHTML += `
+                <div class="vehicle-card">
+                    <strong>${vehicle.name}</strong><br>
+                    <span class="success">✓ 3D Model Loaded</span>
+                </div>
+            `;
+        });
+
+        vehiclesDiv.innerHTML = vehicleHTML;
+        statusDiv.innerHTML = '<span class="success">✅ 3D Garage Active - 5 Vehicles Loaded</span>';
+
+        // Animation loop
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update();
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
+</body>
+</html>
