@@ -446,7 +446,7 @@ router.post(
               damage.description,
               photoUrls || [],
               damage.costEstimate || 0,
-              `pending`
+              'pending'
             ]
           );
 

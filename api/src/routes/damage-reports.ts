@@ -188,7 +188,7 @@ router.post(
           validatedData.videos || [], // NEW: videos array
           validatedData.lidar_scans || [], // NEW: LiDAR scans array
           validatedData.triposr_task_id || null,
-          validatedData.triposr_status || `pending`,
+          validatedData.triposr_status || 'pending',
           validatedData.triposr_model_url || null,
           validatedData.linked_work_order_id || null,
           validatedData.inspection_id || null
