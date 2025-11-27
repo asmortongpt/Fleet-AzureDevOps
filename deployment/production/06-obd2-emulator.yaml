@@ -19,6 +19,8 @@ spec:
         tier: emulator
         environment: production
     spec:
+      imagePullSecrets:
+      - name: acr-secret
       securityContext:
         runAsNonRoot: true
         runAsUser: 1001
