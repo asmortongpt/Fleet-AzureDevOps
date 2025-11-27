@@ -1,279 +1,353 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { HubLayout } from "../../components/layout/HubLayout";
 import { TaskManagement } from "../../components/modules/TaskManagement";
 import { MaintenanceScheduling } from "../../components/modules/MaintenanceScheduling";
 import { RouteManagement } from "../../components/modules/RouteManagement";
-import { EnhancedTaskManagement } from "../../components/modules/EnhancedTaskManagement";
-import { MaintenanceRequest } from "../../components/modules/MaintenanceRequest";
 import { useFleetData } from "../../hooks/use-fleet-data";
-import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/card";
-import { Button } from "../../components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../components/ui/tabs";
+import { KPIStrip, KPIMetric } from "../../components/common/KPIStrip";
+import { DataGrid } from "../../components/common/DataGrid";
+import { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "../../components/ui/badge";
 import {
   ListChecks,
   Wrench,
   MapTrifold,
-  CalendarDots,
   ClipboardText,
-  ChartLine,
+  Clock,
+  CheckCircle,
+  XCircle,
+  AlertTriangle,
 } from "@phosphor-icons/react";
 
-type WorkModule =
-  | "tasks"
-  | "maintenance"
-  | "routes"
-  | "enhanced-tasks"
-  | "maintenance-requests"
-  | "overview";
+type WorkModule = "tasks" | "maintenance" | "routes";
+
+interface TaskData {
+  id: string;
+  title: string;
+  status: "pending" | "in-progress" | "completed" | "overdue";
+  priority: "high" | "medium" | "low";
+  assignee: string;
+  dueDate: string;
+}
+
+interface MaintenanceData {
+  id: string;
+  vehicle: string;
+  type: string;
+  scheduledDate: string;
+  status: "scheduled" | "in-progress" | "completed" | "overdue";
+  technician: string;
+}
 
 const WorkHub: React.FC = () => {
-  const [activeModule, setActiveModule] = useState<WorkModule>("overview");
+  const [activeModule, setActiveModule] = useState<WorkModule>("tasks");
   const fleetData = useFleetData();
 
-  const renderModule = () => {
-    switch (activeModule) {
-      case "tasks":
-        return <TaskManagement />;
-      case "maintenance":
-        return <MaintenanceScheduling />;
-      case "routes":
-        return <RouteManagement data={fleetData} />;
-      case "enhanced-tasks":
-        return <EnhancedTaskManagement />;
-      case "maintenance-requests":
-        return <MaintenanceRequest />;
-      case "overview":
-      default:
-        return (
-          <div className="space-y-6 p-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              <Card className="hover:bg-accent/5 cursor-pointer transition-colors">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <ListChecks className="w-5 h-5 text-blue-500" />
-                    Active Tasks
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-3xl font-bold">24</div>
-                  <p className="text-sm text-muted-foreground mt-2">
-                    12 in progress, 8 pending, 4 overdue
-                  </p>
-                </CardContent>
-              </Card>
+  // Sample data for the consolidated view
+  const taskData: TaskData[] = useMemo(
+    () => [
+      {
+        id: "1",
+        title: "Pre-trip inspection - Unit 45",
+        status: "in-progress",
+        priority: "high",
+        assignee: "John Smith",
+        dueDate: "2025-11-27",
+      },
+      {
+        id: "2",
+        title: "Update driver records",
+        status: "pending",
+        priority: "medium",
+        assignee: "Jane Doe",
+        dueDate: "2025-11-28",
+      },
+      {
+        id: "3",
+        title: "Route optimization review",
+        status: "overdue",
+        priority: "high",
+        assignee: "Mike Johnson",
+        dueDate: "2025-11-26",
+      },
+    ],
+    []
+  );
 
-              <Card className="hover:bg-accent/5 cursor-pointer transition-colors">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Wrench className="w-5 h-5 text-orange-500" />
-                    Maintenance Scheduled
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-3xl font-bold">15</div>
-                  <p className="text-sm text-muted-foreground mt-2">
-                    8 this week, 7 next week
-                  </p>
-                </CardContent>
-              </Card>
+  const maintenanceData: MaintenanceData[] = useMemo(
+    () => [
+      {
+        id: "1",
+        vehicle: "Unit 45",
+        type: "Oil Change",
+        scheduledDate: "2025-11-28",
+        status: "scheduled",
+        technician: "Tom Wilson",
+      },
+      {
+        id: "2",
+        vehicle: "Unit 23",
+        type: "Tire Rotation",
+        scheduledDate: "2025-11-29",
+        status: "scheduled",
+        technician: "Sarah Lee",
+      },
+      {
+        id: "3",
+        vehicle: "Unit 67",
+        type: "Brake Inspection",
+        scheduledDate: "2025-11-27",
+        status: "in-progress",
+        technician: "Tom Wilson",
+      },
+    ],
+    []
+  );
 
-              <Card className="hover:bg-accent/5 cursor-pointer transition-colors">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <MapTrifold className="w-5 h-5 text-green-500" />
-                    Active Routes
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-3xl font-bold">18</div>
-                  <p className="text-sm text-muted-foreground mt-2">
-                    14 on schedule, 4 delayed
-                  </p>
-                </CardContent>
-              </Card>
-            </div>
+  // KPI metrics for the strip
+  const kpiMetrics: KPIMetric[] = useMemo(
+    () => [
+      {
+        id: "active-tasks",
+        icon: <ListChecks className="w-5 h-5" />,
+        label: "Active Tasks",
+        value: 24,
+        trend: { value: 12, direction: "up", isPositive: false },
+        color: "text-blue-500",
+      },
+      {
+        id: "in-progress",
+        icon: <Clock className="w-5 h-5" />,
+        label: "In Progress",
+        value: 12,
+        trend: { value: 5, direction: "up", isPositive: true },
+        color: "text-orange-500",
+      },
+      {
+        id: "maintenance-due",
+        icon: <Wrench className="w-5 h-5" />,
+        label: "Maintenance Due",
+        value: 15,
+        trend: { value: 8, direction: "down", isPositive: true },
+        color: "text-purple-500",
+      },
+      {
+        id: "route-efficiency",
+        icon: <MapTrifold className="w-5 h-5" />,
+        label: "Route Efficiency",
+        value: "94%",
+        trend: { value: 3, direction: "up", isPositive: true },
+        color: "text-green-500",
+      },
+    ],
+    []
+  );
 
-            <Card>
-              <CardHeader>
-                <CardTitle>Recent Work Activity</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {[
-                    {
-                      title: "Oil change completed",
-                      vehicle: "V-1023",
-                      time: "2 hours ago",
-                      type: "maintenance",
-                    },
-                    {
-                      title: "Route optimization updated",
-                      vehicle: "V-2045",
-                      time: "4 hours ago",
-                      type: "route",
-                    },
-                    {
-                      title: "Safety inspection scheduled",
-                      vehicle: "V-3012",
-                      time: "5 hours ago",
-                      type: "task",
-                    },
-                    {
-                      title: "Tire replacement completed",
-                      vehicle: "V-4028",
-                      time: "6 hours ago",
-                      type: "maintenance",
-                    },
-                    {
-                      title: "Route delivery confirmed",
-                      vehicle: "V-1056",
-                      time: "7 hours ago",
-                      type: "route",
-                    },
-                  ].map((activity, i) => (
-                    <div
-                      key={i}
-                      className="flex items-center justify-between p-3 rounded-lg bg-accent/5 hover:bg-accent/10 transition-colors"
-                    >
-                      <div className="flex items-center gap-3">
-                        {activity.type === "maintenance" && (
-                          <Wrench className="w-4 h-4 text-orange-500" />
-                        )}
-                        {activity.type === "route" && (
-                          <MapTrifold className="w-4 h-4 text-green-500" />
-                        )}
-                        {activity.type === "task" && (
-                          <ListChecks className="w-4 h-4 text-blue-500" />
-                        )}
-                        <div>
-                          <div className="font-medium">{activity.title}</div>
-                          <div className="text-sm text-muted-foreground">
-                            {activity.vehicle}
-                          </div>
-                        </div>
-                      </div>
-                      <div className="text-sm text-muted-foreground">
-                        {activity.time}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        );
-    }
-  };
+  // Column definitions for task grid
+  const taskColumns: ColumnDef<TaskData>[] = useMemo(
+    () => [
+      {
+        accessorKey: "title",
+        header: "Task",
+        cell: ({ row }) => (
+          <div className="font-medium">{row.original.title}</div>
+        ),
+      },
+      {
+        accessorKey: "status",
+        header: "Status",
+        cell: ({ row }) => {
+          const status = row.original.status;
+          const variant =
+            status === "completed"
+              ? "success"
+              : status === "in-progress"
+                ? "secondary"
+                : status === "overdue"
+                  ? "destructive"
+                  : "outline";
+          return <Badge variant={variant as any}>{status}</Badge>;
+        },
+      },
+      {
+        accessorKey: "priority",
+        header: "Priority",
+        cell: ({ row }) => {
+          const priority = row.original.priority;
+          const variant =
+            priority === "high"
+              ? "destructive"
+              : priority === "medium"
+                ? "secondary"
+                : "outline";
+          return <Badge variant={variant as any}>{priority}</Badge>;
+        },
+      },
+      {
+        accessorKey: "assignee",
+        header: "Assignee",
+        cell: ({ row }) => row.original.assignee,
+      },
+      {
+        accessorKey: "dueDate",
+        header: "Due Date",
+        cell: ({ row }) => new Date(row.original.dueDate).toLocaleDateString(),
+      },
+    ],
+    []
+  );
+
+  // Column definitions for maintenance grid
+  const maintenanceColumns: ColumnDef<MaintenanceData>[] = useMemo(
+    () => [
+      {
+        accessorKey: "vehicle",
+        header: "Vehicle",
+        cell: ({ row }) => (
+          <div className="font-medium">{row.original.vehicle}</div>
+        ),
+      },
+      {
+        accessorKey: "type",
+        header: "Service Type",
+        cell: ({ row }) => row.original.type,
+      },
+      {
+        accessorKey: "scheduledDate",
+        header: "Scheduled",
+        cell: ({ row }) =>
+          new Date(row.original.scheduledDate).toLocaleDateString(),
+      },
+      {
+        accessorKey: "status",
+        header: "Status",
+        cell: ({ row }) => {
+          const status = row.original.status;
+          const variant =
+            status === "completed"
+              ? "success"
+              : status === "in-progress"
+                ? "secondary"
+                : status === "overdue"
+                  ? "destructive"
+                  : "outline";
+          return <Badge variant={variant as any}>{status}</Badge>;
+        },
+      },
+      {
+        accessorKey: "technician",
+        header: "Technician",
+        cell: ({ row }) => row.original.technician,
+      },
+    ],
+    []
+  );
 
   return (
-    <HubLayout title="Work">
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "1fr 320px",
-          height: "100%",
-          gap: 0,
-        }}
-      >
-        <div style={{ minHeight: 0, overflow: "auto" }}>{renderModule()}</div>
+    <HubLayout title="Work Management" icon={ClipboardText}>
+      <div className="h-full flex flex-col gap-4 p-4">
+        {/* KPI Strip at the top */}
+        <KPIStrip metrics={kpiMetrics} />
 
-        <div
-          style={{
-            borderLeft: "1px solid #1e232a",
-            minHeight: 0,
-            overflow: "auto",
-            background: "#0b0f14",
-          }}
-        >
-          <div style={{ padding: "16px" }}>
-            <div className="space-y-2">
-              <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-4">
-                Work Modules
-              </h3>
+        {/* Consolidated Tabs for all work modules */}
+        <div className="flex-1 min-h-0">
+          <Tabs
+            value={activeModule}
+            onValueChange={(value) => setActiveModule(value as WorkModule)}
+            className="h-full flex flex-col"
+          >
+            <TabsList className="grid w-full max-w-md grid-cols-3">
+              <TabsTrigger value="tasks" className="flex items-center gap-1">
+                <ListChecks className="w-4 h-4" />
+                Tasks
+              </TabsTrigger>
+              <TabsTrigger value="maintenance" className="flex items-center gap-1">
+                <Wrench className="w-4 h-4" />
+                Maintenance
+              </TabsTrigger>
+              <TabsTrigger value="routes" className="flex items-center gap-1">
+                <MapTrifold className="w-4 h-4" />
+                Routes
+              </TabsTrigger>
+            </TabsList>
 
-              <Button
-                variant={activeModule === "overview" ? "secondary" : "ghost"}
-                className="w-full justify-start"
-                onClick={() => setActiveModule("overview")}
-              >
-                <ChartLine className="w-4 h-4 mr-2" />
-                Overview
-              </Button>
+            <div className="flex-1 mt-4 min-h-0">
+              <TabsContent value="tasks" className="h-full mt-0">
+                <div className="h-full flex flex-col gap-4">
+                  {/* Sub-tabs for task views */}
+                  <Tabs defaultValue="active" className="h-full flex flex-col">
+                    <TabsList className="grid w-fit grid-cols-3">
+                      <TabsTrigger value="active">Active Tasks</TabsTrigger>
+                      <TabsTrigger value="completed">Completed</TabsTrigger>
+                      <TabsTrigger value="analytics">Analytics</TabsTrigger>
+                    </TabsList>
 
-              <Button
-                variant={activeModule === "tasks" ? "secondary" : "ghost"}
-                className="w-full justify-start"
-                onClick={() => setActiveModule("tasks")}
-              >
-                <ListChecks className="w-4 h-4 mr-2" />
-                Task Management
-              </Button>
+                    <TabsContent value="active" className="flex-1 mt-4">
+                      <DataGrid
+                        data={taskData}
+                        columns={taskColumns}
+                        inspectorType="task"
+                        className="h-full"
+                      />
+                    </TabsContent>
 
-              <Button
-                variant={
-                  activeModule === "enhanced-tasks" ? "secondary" : "ghost"
-                }
-                className="w-full justify-start"
-                onClick={() => setActiveModule("enhanced-tasks")}
-              >
-                <ClipboardText className="w-4 h-4 mr-2" />
-                Enhanced Tasks
-              </Button>
+                    <TabsContent value="completed" className="flex-1 mt-4">
+                      <DataGrid
+                        data={taskData.filter((t) => t.status === "completed")}
+                        columns={taskColumns}
+                        inspectorType="task"
+                        className="h-full"
+                      />
+                    </TabsContent>
 
-              <Button
-                variant={activeModule === "routes" ? "secondary" : "ghost"}
-                className="w-full justify-start"
-                onClick={() => setActiveModule("routes")}
-              >
-                <MapTrifold className="w-4 h-4 mr-2" />
-                Route Management
-              </Button>
+                    <TabsContent value="analytics" className="flex-1 mt-4">
+                      <TaskManagement />
+                    </TabsContent>
+                  </Tabs>
+                </div>
+              </TabsContent>
 
-              <Button
-                variant={activeModule === "maintenance" ? "secondary" : "ghost"}
-                className="w-full justify-start"
-                onClick={() => setActiveModule("maintenance")}
-              >
-                <Wrench className="w-4 h-4 mr-2" />
-                Maintenance Scheduling
-              </Button>
+              <TabsContent value="maintenance" className="h-full mt-0">
+                <div className="h-full flex flex-col gap-4">
+                  {/* Sub-tabs for maintenance views */}
+                  <Tabs defaultValue="schedule" className="h-full flex flex-col">
+                    <TabsList className="grid w-fit grid-cols-3">
+                      <TabsTrigger value="schedule">Schedule</TabsTrigger>
+                      <TabsTrigger value="requests">Requests</TabsTrigger>
+                      <TabsTrigger value="history">History</TabsTrigger>
+                    </TabsList>
 
-              <Button
-                variant={
-                  activeModule === "maintenance-requests" ? "secondary" : "ghost"
-                }
-                className="w-full justify-start"
-                onClick={() => setActiveModule("maintenance-requests")}
-              >
-                <CalendarDots className="w-4 h-4 mr-2" />
-                Maintenance Requests
-              </Button>
+                    <TabsContent value="schedule" className="flex-1 mt-4">
+                      <DataGrid
+                        data={maintenanceData}
+                        columns={maintenanceColumns}
+                        inspectorType="maintenance"
+                        className="h-full"
+                      />
+                    </TabsContent>
+
+                    <TabsContent value="requests" className="flex-1 mt-4">
+                      <DataGrid
+                        data={maintenanceData.filter((m) => m.status === "scheduled")}
+                        columns={maintenanceColumns}
+                        inspectorType="maintenance"
+                        className="h-full"
+                      />
+                    </TabsContent>
+
+                    <TabsContent value="history" className="flex-1 mt-4">
+                      <MaintenanceScheduling />
+                    </TabsContent>
+                  </Tabs>
+                </div>
+              </TabsContent>
+
+              <TabsContent value="routes" className="h-full mt-0">
+                <RouteManagement data={fleetData} />
+              </TabsContent>
             </div>
-
-            <div className="mt-8 pt-8 border-t border-border">
-              <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-4">
-                Quick Stats
-              </h3>
-              <div className="space-y-3">
-                <div className="flex items-center justify-between p-3 rounded-lg bg-blue-500/10">
-                  <span className="text-sm">Tasks Today</span>
-                  <Badge variant="secondary">12</Badge>
-                </div>
-                <div className="flex items-center justify-between p-3 rounded-lg bg-orange-500/10">
-                  <span className="text-sm">Pending Maintenance</span>
-                  <Badge variant="secondary">5</Badge>
-                </div>
-                <div className="flex items-center justify-between p-3 rounded-lg bg-green-500/10">
-                  <span className="text-sm">Active Routes</span>
-                  <Badge variant="secondary">18</Badge>
-                </div>
-                <div className="flex items-center justify-between p-3 rounded-lg bg-red-500/10">
-                  <span className="text-sm">Overdue Items</span>
-                  <Badge variant="destructive">4</Badge>
-                </div>
-              </div>
-            </div>
-          </div>
+          </Tabs>
         </div>
       </div>
     </HubLayout>
