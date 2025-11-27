@@ -1,13 +1,13 @@
-// IMPORTANT: OpenTelemetry must be initialized BEFORE any other imports
+// CRITICAL: Load environment variables FIRST (before ANY imports that use process.env)
+import dotenv from 'dotenv'
+dotenv.config()
+
+// IMPORTANT: OpenTelemetry must be initialized BEFORE any other imports (but AFTER dotenv)
 import sdk from './config/telemetry'
 
 // Start OpenTelemetry SDK
 sdk.start()
 console.log('OpenTelemetry instrumentation started')
-
-// Load environment variables FIRST (before validation)
-import dotenv from 'dotenv'
-dotenv.config()
 
 // CRITICAL: Validate ALL environment variables using Zod before any other initialization
 // This implements fail-fast behavior - server will not start with invalid configuration

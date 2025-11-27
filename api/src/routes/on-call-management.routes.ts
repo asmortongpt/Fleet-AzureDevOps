@@ -571,16 +571,16 @@ router.post(
       await pool.query(
         `UPDATE on_call_periods
          SET callback_count = callback_count + 1
-         WHERE id = $1 AND tenant_id = $2',
+         WHERE id = $1 AND tenant_id = $2`,
         [data.on_call_period_id, tenant_id]
       );
 
       res.status(201).json({
-        message: 'Callback trip logged successfully',
+        message: `Callback trip logged successfully`,
         trip: result.rows[0],
       });
     } catch (error: any) {
-      console.error('Error creating callback trip:', error);
+      console.error(`Error creating callback trip:', error);
       if (error instanceof z.ZodError) {
         return res.status(400).json({
           error: 'Validation error',

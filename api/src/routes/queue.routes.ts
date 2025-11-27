@@ -113,7 +113,7 @@ router.get(`/:queueName/jobs`, requireAdmin, async (req: Request, res: Response)
 
     // Get total count
     const countResult = await pool.query(
-      `SELECT COUNT(*) as total FROM job_tracking WHERE queue_name = $1${status ? ' AND status = $2' : ''}',
+      `SELECT COUNT(*) as total FROM job_tracking WHERE queue_name = $1${status ? ` AND status = $2` : ``}',
       status ? [queueName, status] : [queueName]
     );
 
@@ -152,7 +152,7 @@ router.get('/:queueName/failed', requireAdmin, async (req: Request, res: Respons
     );
 
     const countResult = await pool.query(
-      'SELECT COUNT(*) as total FROM job_tracking WHERE queue_name = $1 AND status = $2',
+      `SELECT COUNT(*) as total FROM job_tracking WHERE queue_name = $1 AND status = $2`,
       [queueName, JobStatus.FAILED]
     );
 
@@ -168,8 +168,8 @@ router.get('/:queueName/failed', requireAdmin, async (req: Request, res: Respons
       }
     });
   } catch (error: any) {
-    console.error('Error getting failed jobs:', error);
-    res.status(500).json({ error: 'Failed to get failed jobs', message: getErrorMessage(error) });
+    console.error(`Error getting failed jobs:`, error);
+    res.status(500).json({ error: `Failed to get failed jobs', message: getErrorMessage(error) });
   }
 });
 
@@ -181,7 +181,7 @@ router.get('/dead-letter', requireAdmin, async (req: Request, res: Response) => 
   try {
     const { reviewed, limit = 50, offset = 0 } = req.query;
 
-    let query = 'SELECT 
+    let query = `SELECT 
       id,
       job_id,
       queue_name,
@@ -198,11 +198,11 @@ router.get('/dead-letter', requireAdmin, async (req: Request, res: Response) => 
       resolution_notes,
       retry_attempted,
       retry_attempted_at,
-      created_at FROM dead_letter_queue';
+      created_at FROM dead_letter_queue`;
     const params: any[] = [];
 
     if (reviewed !== undefined) {
-      query += ' WHERE reviewed = $1';
+      query += ` WHERE reviewed = $1`;
       params.push(reviewed === `true`);
     }
 
@@ -213,8 +213,8 @@ router.get('/dead-letter', requireAdmin, async (req: Request, res: Response) => 
 
     const countQuery = reviewed !== undefined
       ? `SELECT COUNT(*) as total FROM dead_letter_queue WHERE reviewed = $1`
-      : 'SELECT COUNT(*) as total FROM dead_letter_queue';
-    const countParams = reviewed !== undefined ? [reviewed === 'true'] : [];
+      : `SELECT COUNT(*) as total FROM dead_letter_queue`;
+    const countParams = reviewed !== undefined ? [reviewed === `true`] : [];
     const countResult = await pool.query(countQuery, countParams);
 
     res.json({
@@ -229,7 +229,7 @@ router.get('/dead-letter', requireAdmin, async (req: Request, res: Response) => 
       }
     });
   } catch (error: any) {
-    console.error('Error getting dead letter jobs:', error);
+    console.error(`Error getting dead letter jobs:', error);
     res.status(500).json({ error: 'Failed to get dead letter jobs', message: getErrorMessage(error) });
   }
 });
@@ -354,8 +354,8 @@ router.post('/dead-letter/:jobId/review', requireAdmin, async (req: Request, res
            reviewed_by = $1,
            reviewed_at = NOW(),
            resolution_notes = $2
-       WHERE job_id = $3',
-      [reviewedBy || 'admin', resolutionNotes || '', jobId]
+       WHERE job_id = $3`,
+      [reviewedBy || `admin`, resolutionNotes || `', jobId]
     );
 
     res.json({
@@ -396,8 +396,8 @@ router.get('/metrics', requireAdmin, async (req: Request, res: Response) => {
       `SELECT
         queue_name,
         COUNT(*) as total_jobs,
-        COUNT(*) FILTER (WHERE status = 'completed') as completed_jobs,
-        COUNT(*) FILTER (WHERE status = 'failed') as failed_jobs,
+        COUNT(*) FILTER (WHERE status = `completed`) as completed_jobs,
+        COUNT(*) FILTER (WHERE status = `failed`) as failed_jobs,
         COUNT(*) FILTER (WHERE status = 'pending') as pending_jobs,
         COUNT(*) FILTER (WHERE status = 'active') as active_jobs,
         AVG(EXTRACT(EPOCH FROM (completed_at - started_at)) * 1000)

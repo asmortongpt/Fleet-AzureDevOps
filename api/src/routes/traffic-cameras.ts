@@ -73,12 +73,12 @@ router.get('/:id', requirePermission('geofence:view:fleet'), async (req: AuthReq
         cds.service_url
       FROM traffic_cameras tc
       LEFT JOIN camera_data_sources cds ON tc.source_id = cds.id
-      WHERE tc.id = $1',
+      WHERE tc.id = $1`,
       [id]
     )
 
     if (result.rows.length === 0) {
-      return res.status(404).json({ error: 'Camera not found' })
+      return res.status(404).json({ error: `Camera not found` })
     }
 
     res.json({
@@ -86,7 +86,7 @@ router.get('/:id', requirePermission('geofence:view:fleet'), async (req: AuthReq
       camera: result.rows[0]
     })
   } catch (error: any) {
-    logger.error('Failed to fetch traffic camera', {
+    logger.error(`Failed to fetch traffic camera', {
       error: getErrorMessage(error),
       cameraId: id
     })
@@ -155,16 +155,16 @@ router.post(
       const result = await pool.query(
         `SELECT id, name, source_type, service_url, field_mapping, authentication
          FROM camera_data_sources
-         WHERE id = $1',
+         WHERE id = $1`,
         [id]
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'Data source not found' })
+        return res.status(404).json({ error: `Data source not found` })
       }
 
       const source = result.rows[0]
-      logger.info('Manual source sync triggered', {
+      logger.info(`Manual source sync triggered', {
         userId: req.user!.id,
         sourceId: id,
         sourceName: source.name
