@@ -384,11 +384,40 @@ class ScheduleViewModel: ObservableObject {
         }
     }
 
+    // MARK: - Calendar Sync
+
+    var calendarSyncEnabled: Bool {
+        CalendarSyncService.shared.syncEnabled
+    }
+
+    func enableCalendarSync() async throws {
+        try await CalendarSyncService.shared.enableSync()
+    }
+
+    func disableCalendarSync() {
+        CalendarSyncService.shared.disableSync()
+    }
+
+    func exportScheduleToCalendar(_ schedule: ScheduleEntry) async throws {
+        try await CalendarSyncService.shared.exportSchedule(schedule)
+    }
+
+    func exportAllSchedulesToCalendar() async throws {
+        try await CalendarSyncService.shared.exportSchedules(schedules)
+    }
+
+    func syncWithDeviceCalendar() async throws {
+        try await CalendarSyncService.shared.syncWithCalendar(schedules)
+    }
+
     // MARK: - Export
 
     func exportSchedulesToCalendar() async {
-        // Implementation would use CalendarSyncService
-        // await CalendarSyncService.shared.exportSchedules(schedules)
+        do {
+            try await CalendarSyncService.shared.exportSchedules(schedules)
+        } catch {
+            errorMessage = error.localizedDescription
+        }
     }
 
     func exportScheduleToPDF() async -> Data? {
