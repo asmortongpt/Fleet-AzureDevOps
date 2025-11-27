@@ -131,7 +131,7 @@ export class CustomFieldsService {
         setClauses.push(`${snakeKey} = $${paramCount}`)
 
         let value = (updates as any)[camelKey]
-        if ([`options`, 'validation', 'conditional'].includes(snakeKey)) {
+        if ([`options`, `validation`, 'conditional'].includes(snakeKey)) {
           value = JSON.stringify(value)
         }
         values.push(value)
@@ -160,7 +160,7 @@ export class CustomFieldsService {
   /**
    * Get field definitions for entity type
    */
-  async getFieldDefinitions(tenantId: string, entityType: `task' | 'asset', includeInactive: boolean = false): Promise<CustomFieldDefinition[]> {
+  async getFieldDefinitions(tenantId: string, entityType: `task` | `asset', includeInactive: boolean = false): Promise<CustomFieldDefinition[]> {
     let query = `
       SELECT id, tenant_id, field_name, field_type, required, created_at, updated_at FROM custom_field_definitions
       WHERE tenant_id = $1 AND entity_type = $2
@@ -419,7 +419,7 @@ export class CustomFieldsService {
   /**
    * Export field definitions as JSON
    */
-  async exportFieldDefinitions(tenantId: string, entityType: `task' | 'asset'): Promise<string> {
+  async exportFieldDefinitions(tenantId: string, entityType: `task` | `asset'): Promise<string> {
     const definitions = await this.getFieldDefinitions(tenantId, entityType, true)
     const groups = await this.getFieldGroups(tenantId, entityType)
 

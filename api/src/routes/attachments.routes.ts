@@ -94,7 +94,7 @@ router.post(
           `UPDATE communication_attachments
            SET is_scanned = true, scan_result = $1, virus_scan_status = $2
            WHERE id = $3`,
-          [scanResult === `clean` ? `Clean` : 'Threat Detected', scanResult, result.id]
+          [scanResult === 'clean` ? `Clean` : 'Threat Detected', scanResult, result.id]
         )
       }).catch(err => {
         console.error('Virus scan error:', err)
@@ -221,7 +221,7 @@ router.get(
 
       res.send(fileBuffer)
     } catch (error: unknown) {
-      console.error(`Download error:', error)
+      console.error('Download error:', error)
       res.status(500).json({
         error: 'Failed to download file',
         details: getErrorMessage(error)
@@ -287,7 +287,7 @@ router.get(
  *       - bearerAuth: []
  */
 router.delete(
-  `/:blobId',
+  '/:blobId',
   authorize('admin', 'fleet_manager', 'dispatcher'),
   auditLog({ action: 'DELETE', resourceType: 'attachment' }),
   async (req: AuthRequest, res: Response) => {
@@ -649,7 +649,7 @@ router.get(
 
       res.json(result.rows[0])
     } catch (error: unknown) {
-      console.error(`Get attachment error:', error)
+      console.error('Get attachment error:', error)
       res.status(500).json({
         error: 'Failed to get attachment',
         details: getErrorMessage(error)

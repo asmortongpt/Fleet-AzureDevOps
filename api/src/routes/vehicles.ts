@@ -42,7 +42,7 @@ router.get(
       )
 
       const user = userResult.rows[0]
-      let scopeFilter = ``
+      let scopeFilter = ''
       let scopeParams: any[] = [req.user!.tenant_id]
 
       if (user.scope_level === `own` && user.vehicle_id) {
@@ -57,7 +57,7 @@ router.get(
       // fleet/global scope sees all
 
       // Build multi-asset filters
-      let assetFilters = ``
+      let assetFilters = ''
       let paramIndex = scopeParams.length + 1
 
       if (asset_category) {
@@ -189,7 +189,7 @@ router.post(
       )
 
       if (vinCheck.rows.length > 0) {
-        return res.status(409).json({ error: `VIN already exists in the system' })
+        return res.status(409).json({ error: 'VIN already exists in the system' })
       }
 
       // Normalize VIN to uppercase
@@ -230,7 +230,7 @@ router.put(
       const validatedData = updateVehicleSchema.parse(req.body)
 
       // Build UPDATE with field whitelisting to prevent mass assignment
-      const { fields, values } = buildUpdateClause(validatedData, 3, `vehicles`)
+      const { fields, values } = buildUpdateClause(validatedData, 3, 'vehicles')
 
       const result = await pool.query(
         `UPDATE vehicles SET ${fields}, updated_at = NOW() WHERE id = $1 AND tenant_id = $2 RETURNING *`,

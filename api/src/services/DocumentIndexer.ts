@@ -389,7 +389,7 @@ export class DocumentIndexer {
           tenant_id, job_type, status, progress, created_at
         ) VALUES ($1, $2, $3, $4, NOW())
         RETURNING *`,
-        [tenantId, `optimize', 'processing', 0]
+        [tenantId, `optimize`, `processing', 0]
       )
 
       const jobId = job.rows[0].id
@@ -517,7 +517,7 @@ export class DocumentIndexer {
       try {
         // Get next pending job
         const result = await pool.query(
-          `SELECT ' + (await getTableColumns(pool, 'indexing_jobs')).join(', ') + ' FROM indexing_jobs
+          `SELECT ` + (await getTableColumns(pool, `indexing_jobs')).join(', ') + ' FROM indexing_jobs
            WHERE status = 'pending'
            ORDER BY created_at ASC
            LIMIT 1

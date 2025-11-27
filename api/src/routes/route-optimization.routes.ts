@@ -159,7 +159,7 @@ router.post(
           `SELECT d.*, dp.*
            FROM drivers d
            LEFT JOIN driver_optimization_profiles dp ON d.id = dp.driver_id
-           WHERE d.tenant_id = $1 AND d.status = `active`
+           WHERE d.tenant_id = $1 AND d.status = 'active'
            LIMIT 20`,
           [req.user!.tenant_id]
         )
@@ -395,7 +395,7 @@ router.get(
       )
 
       if (routeResult.rows.length === 0) {
-        return res.status(404).json({ error: `Route not found' })
+        return res.status(404).json({ error: 'Route not found' })
       }
 
       const route = routeResult.rows[0]
@@ -489,7 +489,7 @@ router.post(
 
       const result = await pool.query(
         `UPDATE route_stops
-         SET status = `completed`,
+         SET status = 'completed',
              actual_arrival_time = COALESCE($1, NOW()),
              actual_departure_time = COALESCE($2, NOW()),
              completion_notes = $3,
@@ -531,13 +531,13 @@ router.get(
       const statsResult = await pool.query(
         `SELECT
            COUNT(*) as total_jobs,
-           COUNT(*) FILTER (WHERE status = `completed`) as completed_jobs,
+           COUNT(*) FILTER (WHERE status = 'completed') as completed_jobs,
            SUM(total_distance_miles) as total_distance,
            SUM(estimated_cost_savings) as total_savings,
            AVG(optimization_score) as avg_optimization_score
          FROM route_optimization_jobs
          WHERE tenant_id = $1
-           AND created_at >= NOW() - INTERVAL `30 days`',
+           AND created_at >= NOW() - INTERVAL '30 days'',
         [req.user!.tenant_id]
       )
 

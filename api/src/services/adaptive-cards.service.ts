@@ -58,7 +58,7 @@ function replaceTemplateVariables(template: any, data: Record<string, any>): any
 
   // Replace all ${variable} patterns with actual values
   for (const [key, value] of Object.entries(data)) {
-    const regex = new RegExp(`\\$\\{${key}\\}`, 'g')
+    const regex = new RegExp(`\\$\\{${key}\\}`, `g`)
     const replacement = typeof value === 'string' ? value : JSON.stringify(value)
     templateString = templateString.replace(regex, replacement)
   }

@@ -24,7 +24,7 @@ export function isValidIdentifier(name: string): boolean {
 export function validateColumnNames(columns: string[]): void {
   const invalidColumns = columns.filter(col => !isValidIdentifier(col))
   if (invalidColumns.length > 0) {
-    throw new Error(`Invalid column names: ${invalidColumns.join(', ')}`)
+    throw new Error('Invalid column names: ' + invalidColumns.join(', '))
   }
 }
 
@@ -45,14 +45,14 @@ export function buildUpdateClause(
   if (resourceType) {
     filteredData = filterToWhitelist(data, resourceType, 'update')
     if (Object.keys(filteredData).length === 0) {
-      throw new Error(`No valid fields provided for update operation on ${resourceType}`)
+      throw new Error('No valid fields provided for update operation on ' + resourceType)
     }
   }
 
   const columns = Object.keys(filteredData)
   validateColumnNames(columns)
 
-  const fields = columns.map((key, i) => `${key} = $${i + startIndex}`).join(', ')
+  const fields = columns.map((key, i) => key + ' = $' + (i + startIndex)).join(', ')
   const values = Object.values(filteredData)
 
   return { fields, values }
@@ -77,7 +77,7 @@ export function buildInsertClause(
   if (resourceType) {
     filteredData = filterToWhitelist(data, resourceType, 'create')
     if (Object.keys(filteredData).length === 0) {
-      throw new Error(`No valid fields provided for create operation on ${resourceType}`)
+      throw new Error('No valid fields provided for create operation on ' + resourceType)
     }
   }
 
@@ -89,7 +89,7 @@ export function buildInsertClause(
   const columnNames = allColumns.join(', ')
 
   const placeholders = allColumns
-    .map((_, i) => `$${i + startIndex}`)
+    .map((_, i) => '$' + (i + startIndex))
     .join(', ')
 
   const values = Object.values(filteredData)
@@ -111,8 +111,8 @@ export function buildWhereClause(
   validateColumnNames(columns)
 
   const whereClause = columns
-    .map((key, i) => `${key} = $${i + startIndex}`)
-    .join(` AND `)
+    .map((key, i) => key + ' = $' + (i + startIndex))
+    .join(' AND ')
 
   const values = Object.values(conditions)
 
@@ -125,7 +125,7 @@ export function buildWhereClause(
  */
 export function validateTableName(tableName: string): string {
   if (!isValidIdentifier(tableName)) {
-    throw new Error(`Invalid table name: ${tableName}`)
+    throw new Error('Invalid table name: ' + tableName)
   }
   return tableName
 }
@@ -181,7 +181,7 @@ export function buildSelectQuery(options: QueryBuilderOptions): {
   let joinClauses = ''
   for (const join of joins) {
     validateTableName(join.table)
-    joinClauses += ` ${join.type} JOIN ${join.table} ON ${join.on}`
+    joinClauses += ' ' + join.type + ' JOIN ' + join.table + ' ON ' + join.on
   }
 
   // Build WHERE clause
@@ -189,7 +189,7 @@ export function buildSelectQuery(options: QueryBuilderOptions): {
   const values: any[] = []
   if (where) {
     const { whereClause: wc, values: wv } = buildWhereClause(where)
-    whereClause = ` WHERE ${wc}`
+    whereClause = ' WHERE ' + wc
     values.push(...wv)
   }
 
@@ -198,24 +198,24 @@ export function buildSelectQuery(options: QueryBuilderOptions): {
   if (orderBy) {
     validateColumnNames([orderBy])
     const direction = orderDirection === 'ASC' ? 'ASC' : 'DESC'
-    orderClause = ` ORDER BY ${orderBy} ${direction}`
+    orderClause = ' ORDER BY ' + orderBy + ' ' + direction
   }
 
   // Build LIMIT and OFFSET
   let limitClause = ''
   if (limit !== undefined) {
-    limitClause = ` LIMIT $${values.length + 1}`
+    limitClause = ' LIMIT $' + (values.length + 1)
     values.push(limit)
   }
 
   let offsetClause = ''
   if (offset !== undefined) {
-    offsetClause = ` OFFSET $${values.length + 1}`
+    offsetClause = ' OFFSET $' + (values.length + 1)
     values.push(offset)
   }
 
   // Construct final query
-  const query = `SELECT ${selectClause} FROM ${table}${joinClauses}${whereClause}${orderClause}${limitClause}${offsetClause}`
+  const query = 'SELECT ' + selectClause + ' FROM ' + table + joinClauses + whereClause + orderClause + limitClause + offsetClause
 
   return { query, values }
 }
@@ -227,7 +227,7 @@ export function buildSelectQuery(options: QueryBuilderOptions): {
 export function sanitizeInput(input: string): string {
   // Remove potential SQL injection patterns
   return input
-    .replace(/[`";\\]/g, ``) // Remove quotes and backslashes
+    .replace(/[`";\\]/g, '') // Remove quotes and backslashes
     .replace(/--/g, '') // Remove SQL comments
     .replace(/\/\*/g, '') // Remove multi-line comment start
     .replace(/\*\//g, '') // Remove multi-line comment end
@@ -266,10 +266,10 @@ export function buildOrderByClause(
 
   const orderParts = sorts.map(sort => {
     const direction = sort.direction === 'ASC' ? 'ASC' : 'DESC'
-    return `${sort.column} ${direction}`
+    return sort.column + ' ' + direction
   })
 
-  return ` ORDER BY ${orderParts.join(', ')}`
+  return ' ORDER BY ' + orderParts.join(', ')
 }
 
 /**
@@ -286,8 +286,8 @@ export function buildInClause(
     throw new Error('IN clause requires at least one value')
   }
 
-  const placeholders = values.map((_, i) => `$${i + startIndex}`).join(', ')
-  const inClause = `${column} IN (${placeholders})`
+  const placeholders = values.map((_, i) => '$' + (i + startIndex)).join(', ')
+  const inClause = column + ' IN (' + placeholders + ')'
 
   return { inClause, values }
 }
@@ -297,7 +297,7 @@ export function buildInClause(
  */
 export function escapeLikePattern(pattern: string): string {
   return pattern
-    .replace(/\\/g, `\\\\`)
+    .replace(/\\/g, '\\\\')
     .replace(/%/g, '\\%')
     .replace(/_/g, '\\_')
 }
@@ -317,13 +317,13 @@ export function buildLikeClause(
   }
 
   const escapedTerm = escapeLikePattern(searchTerm.trim())
-  const pattern = `%${escapedTerm}%`
+  const pattern = '%' + escapedTerm + '%'
 
   const likeParts = columns.map((col, i) => {
-    return `${col} ILIKE $${startIndex + i}`
+    return col + ' ILIKE $' + (startIndex + i)
   })
 
-  const likeClause = likeParts.join(` OR `)
+  const likeClause = likeParts.join(' OR ')
   const values = columns.map(() => pattern)
 
   return { likeClause, values }

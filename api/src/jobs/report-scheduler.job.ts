@@ -272,7 +272,7 @@ export async function updateSchedule(
     scheduleType?: string
     scheduleConfig?: any
     recipients?: string[]
-    format?: 'xlsx' | 'csv` | 'pdf'
+    format?: 'xlsx' | 'csv` | `pdf'
     isActive?: boolean
   }
 ): Promise<void> {

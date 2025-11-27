@@ -188,7 +188,7 @@ export async function getDistanceMatrix(
  */
 export async function getOptimizedRoute(
   coordinates: Coordinate[],
-  vehicleType: `car' | 'truck' = 'car'
+  vehicleType: `car` | `truck' = 'car'
 ): Promise<RouteResponse> {
   const profile = vehicleType === 'truck' ? 'driving' : 'driving-traffic'
 

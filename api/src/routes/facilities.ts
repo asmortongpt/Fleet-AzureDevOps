@@ -58,7 +58,7 @@ router.get(
       })
     } catch (error) {
       console.error(`Get facilities error:`, error)
-      res.status(500).json({ error: `Internal server error' })
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )
@@ -99,7 +99,7 @@ router.get(
 
       res.json(result.rows[0])
     } catch (error) {
-      console.error(`Get facilities error:', error)
+      console.error('Get facilities error:', error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }

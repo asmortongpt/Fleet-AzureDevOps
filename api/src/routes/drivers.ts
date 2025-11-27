@@ -29,7 +29,7 @@ router.get(
       )
 
       const user = userResult.rows[0]
-      let scopeFilter = ``
+      let scopeFilter = ''
       let scopeParams: any[] = [req.user!.tenant_id]
 
       if (user.scope_level === `own` && user.driver_id) {
@@ -157,7 +157,7 @@ router.put(
       const validatedData = updateUserSchema.parse(req.body)
 
       // Build UPDATE with field whitelisting to prevent privilege escalation
-      const { fields, values } = buildUpdateClause(validatedData, 3, `users`)
+      const { fields, values } = buildUpdateClause(validatedData, 3, 'users')
 
       const result = await pool.query(
         `UPDATE users SET ${fields}, updated_at = NOW() WHERE id = $1 AND tenant_id = $2 RETURNING *`,
@@ -197,7 +197,7 @@ router.put(
 
       const result = await pool.query(
         `UPDATE users SET
-           certification_status = `certified`,
+           certification_status = 'certified',
            certification_type = $3,
            certification_expiry = $4,
            certified_by = $5,
