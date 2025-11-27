@@ -326,6 +326,7 @@ class ReceiptCaptureViewModel: ObservableObject {
     @Published var showManualEntry = false
     @Published var ocrResults: ReceiptOCRResults?
     @Published var manualData = ManualReceiptData()
+    @Published var processedImage: UIImage?
 
     var canSave: Bool {
         if isProcessed, let results = ocrResults {
@@ -335,11 +336,9 @@ class ReceiptCaptureViewModel: ObservableObject {
     }
 
     func processReceipt(image: UIImage) async {
-        // Call OCR API endpoint
-        guard let imageData = image.jpegData(compressionQuality: 0.8) else { return }
-
         do {
-            let results = try await APIService.shared.processReceiptOCR(imageData: imageData)
+            // Use local OCR service with Vision framework
+            let results = try await ReceiptOCRService.shared.processReceipt(image: image)
             self.ocrResults = results
             self.isProcessed = true
 
@@ -348,6 +347,9 @@ class ReceiptCaptureViewModel: ObservableObject {
             self.manualData.merchant = results.merchant
             self.manualData.amount = results.totalAmount
             self.manualData.category = results.category
+
+            // Save image for upload queue
+            self.processedImage = image
         } catch {
             print("OCR processing failed: \(error)")
             self.showManualEntry = true
@@ -355,18 +357,23 @@ class ReceiptCaptureViewModel: ObservableObject {
     }
 
     func saveReceipt() async {
-        let receiptData: [String: Any] = [
-            "date": ocrResults?.date ?? manualData.date,
-            "merchant": ocrResults?.merchant ?? manualData.merchant,
-            "amount": ocrResults?.totalAmount ?? manualData.amount,
-            "category": ocrResults?.category ?? manualData.category,
-            "notes": manualData.notes
-        ]
+        // Queue receipt for upload (works offline)
+        if let image = processedImage, let results = ocrResults {
+            let metadata: [String: String] = [
+                "date": results.date,
+                "merchant": results.merchant,
+                "amount": String(results.totalAmount),
+                "category": results.category,
+                "notes": manualData.notes
+            ]
 
-        do {
-            try await APIService.shared.saveReceipt(data: receiptData)
-        } catch {
-            print("Failed to save receipt: \(error)")
+            MediaUploadQueue.shared.queueReceipt(
+                image: image,
+                ocrResults: results,
+                metadata: metadata
+            )
+        } else {
+            print("No image or OCR results to save")
         }
     }
 
