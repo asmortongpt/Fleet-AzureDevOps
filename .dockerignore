@@ -1,80 +1,30 @@
-# Dependencies
+# Minimal dockerignore for hotfix deployment
+# We NEED dist folder for this build, so only exclude truly unnecessary files
+
+# Dependencies (will be in dist already)
 node_modules
 package-lock.json
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
 
-# Testing
-coverage
+# Git
+.git
 
 # IDE
 .vscode
 .idea
-*.swp
-*.swo
-*~
 
 # OS
 .DS_Store
-Thumbs.db
 
-# Git
-.git
-.gitignore
-.gitattributes
-
-# CI/CD
-.github
-
-# Documentation
-README.md
-*.md
-docs
-
-# Build artifacts - ALLOWING dist for production deployment with fixed React chunks
-# dist
-
-# Environment files (these should not be in the image)
-.env.local
-.env.development
-.env.test
-.env.production
-
-# Misc
-.eslintrc*
-.prettierrc*
-*.log
-
-# Temporary directories
-PMO-repo-temp
-
-# API directory (for frontend builds only)
-api/
-
-# Testing artifacts
+# Large test directories
 playwright-report
 test-results
 benchmarks
-e2e
-tests
-__tests__
-*.test.ts
-*.test.tsx
-*.spec.ts
-*.spec.tsx
+e2e/videos
+e2e/screenshots
 
-# Storybook
-.storybook
-storybook-static
+# Documentation
+docs
 
-# Build artifacts from previous builds
-dist-old
-build
-
-# Large dependencies we'll reinstall
-.pnpm-store
-
-# Temporary files
+# Temporary
 /tmp
-*.tar.gz
+*.log
