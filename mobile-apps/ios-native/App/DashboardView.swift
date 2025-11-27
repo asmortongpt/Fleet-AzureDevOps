@@ -29,6 +29,26 @@ enum ActivityType: String {
 }
 
 struct DashboardView: View {
+    @EnvironmentObject private var authManager: AuthenticationManager
+
+    var body: some View {
+        Group {
+            switch authManager.userRole {
+            case .admin:
+                AdminDashboardView()
+            case .manager, .fleetManager:
+                ManagerDashboardView()
+            case .driver:
+                DriverDashboardView()
+            case .viewer:
+                ViewerDashboardView()
+            }
+        }
+    }
+}
+
+// MARK: - Legacy Dashboard (kept for reference)
+struct LegacyDashboardView: View {
     @StateObject private var viewModel = DashboardViewModel()
     @State private var selectedStatDetail: StatDetailType?
 
