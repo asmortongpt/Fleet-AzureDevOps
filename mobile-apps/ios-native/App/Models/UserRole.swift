@@ -11,52 +11,103 @@ import Foundation
 // MARK: - User Role Enum
 
 enum UserRole: String, Codable, CaseIterable {
-    case driver = "driver"
-    case fleetManager = "fleet_manager"
     case admin = "admin"
+    case manager = "manager"
+    case driver = "driver"
+    case viewer = "viewer"
+    case fleetManager = "fleet_manager" // Backwards compatibility
 
     var displayName: String {
         switch self {
-        case .driver:
-            return "Driver"
-        case .fleetManager:
-            return "Fleet Manager"
         case .admin:
             return "Administrator"
+        case .manager, .fleetManager:
+            return "Manager"
+        case .driver:
+            return "Driver"
+        case .viewer:
+            return "Viewer"
         }
     }
 
     var description: String {
         switch self {
+        case .admin:
+            return "Complete system administration access with user management"
+        case .manager, .fleetManager:
+            return "Fleet management access including analytics and reporting"
         case .driver:
             return "Access to assigned vehicles, trip tracking, and maintenance reporting"
-        case .fleetManager:
-            return "Full fleet management access including analytics and administration"
-        case .admin:
-            return "Complete system administration access"
+        case .viewer:
+            return "Read-only access to fleet data and reports"
         }
     }
 
     var iconName: String {
         switch self {
-        case .driver:
-            return "person.fill"
-        case .fleetManager:
-            return "person.badge.key.fill"
         case .admin:
             return "person.badge.shield.checkmark.fill"
+        case .manager, .fleetManager:
+            return "person.badge.key.fill"
+        case .driver:
+            return "person.fill"
+        case .viewer:
+            return "eye.fill"
         }
     }
 
     var color: String {
         switch self {
-        case .driver:
-            return "blue"
-        case .fleetManager:
-            return "purple"
         case .admin:
             return "red"
+        case .manager, .fleetManager:
+            return "purple"
+        case .driver:
+            return "blue"
+        case .viewer:
+            return "green"
         }
+    }
+
+    // Permission properties
+    var canManageVehicles: Bool {
+        self == .admin || self == .manager || self == .fleetManager
+    }
+
+    var canManageDrivers: Bool {
+        self == .admin || self == .manager || self == .fleetManager
+    }
+
+    var canRecordTrips: Bool {
+        self == .admin || self == .manager || self == .fleetManager || self == .driver
+    }
+
+    var canViewAllVehicles: Bool {
+        self == .admin || self == .manager || self == .fleetManager || self == .viewer
+    }
+
+    var canViewReports: Bool {
+        self == .admin || self == .manager || self == .fleetManager
+    }
+
+    var canScheduleMaintenance: Bool {
+        self == .admin || self == .manager || self == .fleetManager
+    }
+
+    var canReportIssues: Bool {
+        true // All roles can report issues
+    }
+
+    var canAccessSettings: Bool {
+        self == .admin
+    }
+
+    var canManageUsers: Bool {
+        self == .admin
+    }
+
+    var canApproveTrips: Bool {
+        self == .admin || self == .manager || self == .fleetManager
     }
 }
 
@@ -213,23 +264,18 @@ struct RoleNavigation {
 
     var availableTabs: [TabItem] {
         switch role {
+        case .admin, .manager, .fleetManager:
+            return [.dashboard, .vehicles, .trips, .maintenance, .more]
         case .driver:
             return [.dashboard, .trips, .more]
-        case .fleetManager, .admin:
-            return [.dashboard, .vehicles, .trips, .maintenance, .more]
+        case .viewer:
+            return [.dashboard, .vehicles, .more]
         }
     }
 
     var dashboardWidgets: [DashboardWidget] {
         switch role {
-        case .driver:
-            return [
-                .myVehicles,
-                .recentTrips,
-                .upcomingMaintenance,
-                .myPerformance
-            ]
-        case .fleetManager, .admin:
+        case .admin, .manager, .fleetManager:
             return [
                 .fleetOverview,
                 .activeVehicles,
@@ -238,11 +284,33 @@ struct RoleNavigation {
                 .fuelAnalytics,
                 .driverPerformance
             ]
+        case .driver:
+            return [
+                .myVehicles,
+                .recentTrips,
+                .upcomingMaintenance,
+                .myPerformance
+            ]
+        case .viewer:
+            return [
+                .fleetOverview,
+                .activeVehicles,
+                .recentTrips,
+                .alerts
+            ]
         }
     }
 
     var quickActions: [QuickAction] {
         switch role {
+        case .admin, .manager, .fleetManager:
+            return [
+                .addVehicle,
+                .startTrip,
+                .scheduleMaintenance,
+                .generateReport,
+                .viewAnalytics
+            ]
         case .driver:
             return [
                 .startTrip,
@@ -250,12 +318,8 @@ struct RoleNavigation {
                 .viewSchedule,
                 .checkInspection
             ]
-        case .fleetManager, .admin:
+        case .viewer:
             return [
-                .addVehicle,
-                .startTrip,
-                .scheduleMaintenance,
-                .generateReport,
                 .viewAnalytics
             ]
         }
