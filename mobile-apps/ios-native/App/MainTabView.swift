@@ -8,6 +8,7 @@ struct MainTabView: View {
 
     @State private var searchText = ""
     @State private var notificationCount = 0
+    @StateObject private var tripsViewModel = TripsViewModel()
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass: UserInterfaceSizeClass?
     @Environment(\.accessibilityReduceMotion) private var reduceMotion: Bool
 
@@ -197,6 +198,7 @@ struct MainTabView: View {
     @ViewBuilder
     private func destinationView(for destination: NavigationDestination) -> some View {
         switch destination {
+        // Core destinations
         case .vehicleDetail(let id):
             VehicleDetailViewWrapper(vehicleId: id)
 
@@ -210,7 +212,7 @@ struct MainTabView: View {
             AddVehicleView()
 
         case .addTrip:
-            AddTripView()
+            AddTripView(tripsViewModel: tripsViewModel)
 
         case .maintenance:
             MaintenanceView()
@@ -232,42 +234,273 @@ struct MainTabView: View {
 
         // Driver management destinations
         case .driverDetail(let id):
-            DriverDetailView(driverId: id)
+            DriverManagementView()
 
         case .addDriver:
-            Text("Add Driver View - Coming Soon")
-                .font(.title)
-                .padding()
+            DriverManagementView()
 
         case .editDriver(let id):
-            Text("Edit Driver View - Coming Soon")
-                .font(.title)
-                .padding()
+            DriverManagementView()
 
         // Hardware integration destinations
         case .fleetMap:
             FleetMapView()
 
         case .tripTracking(let vehicleId):
-            Text("Trip Tracking for Vehicle: \(vehicleId)")
-                .font(.title)
-                .padding()
+            TripTrackingView()
 
         case .obd2Diagnostics:
-            Text("OBD-II Diagnostics - Coming Soon")
-                .font(.title)
-                .padding()
+            OBD2DiagnosticsView()
 
         case .maintenancePhoto(let vehicleId, let type):
-            Text("Maintenance Photo: \(type) for Vehicle: \(vehicleId)")
-                .font(.title)
-                .padding()
+            VehicleMaintenancePhotoView()
 
         case .photoCapture(let vehicleId, let photoType):
-            Text("Photo Capture: \(photoType) for Vehicle: \(vehicleId)")
-                .font(.title)
-                .padding()
+            PhotoCaptureView()
+
+        // Geofence management
+        case .geofenceList:
+            GeofencingView()
+
+        case .geofenceDetail(let id):
+            GeofenceDetailView()
+
+        case .addGeofence:
+            AddGeofenceView()
+
+        case .editGeofence(let id):
+            GeofenceDetailView()
+
+        // GIS and Executive
+        case .gisCommandCenter:
+            GISCommandCenterView()
+
+        case .executiveDashboard:
+            ExecutiveDashboardView()
+
+        // Optimization
+        case .fleetOptimizer:
+            FleetOptimizerView()
+
+        case .routeOptimizer:
+            RouteOptimizerView()
+
+        case .optimizedRoute(let routeId):
+            OptimizedRouteView()
+
+        // Data Workbench
+        case .dataWorkbench:
+            DataWorkbenchView()
+
+        case .queryBuilder:
+            QueryBuilderView()
+
+        case .dataGrid:
+            DataGridView()
+
+        // Vehicle Assignment
+        case .vehicleAssignments:
+            VehicleAssignmentView()
+
+        case .assignmentDetail(let id):
+            VehicleAssignmentView()
+
+        case .createAssignment:
+            CreateAssignmentView()
+
+        case .assignmentRequest:
+            AssignmentRequestView()
+
+        case .assignmentApproval(let requestId):
+            AssignmentApprovalView()
+
+        case .assignmentHistory(let assignmentId):
+            AssignmentHistoryView()
+
+        // Compliance
+        case .complianceDashboard:
+            ComplianceDashboardView()
+
+        case .complianceScoreCard:
+            ComplianceScoreCardView()
+
+        case .violationsList:
+            ViolationsListView()
+
+        case .expiringItems:
+            ExpiringItemsView()
+
+        case .complianceItemDetail(let id):
+            CertificationManagementView()
+
+        case .violationDetail(let id):
+            ViolationsListView()
+
+        // Shift Management
+        case .shiftManagement:
+            ShiftManagementView()
+
+        case .shiftDetail(let id):
+            ShiftManagementView()
+
+        case .createShift:
+            CreateShiftView()
+
+        case .clockInOut:
+            ClockInOutView()
+
+        case .shiftSwaps:
+            ShiftSwapView()
+
+        case .shiftReport:
+            ShiftReportView()
+
+        // Telemetry
+        case .telemetryDashboard:
+            TelemetryDashboardView()
+
+        case .telemetryDashboardForVehicle(let vehicleId):
+            TelemetryDashboardView()
+
+        case .diagnosticCodeDetail(let code):
+            DTCListView()
+
+        case .vehicleHealthDetail(let vehicleId):
+            ComponentHealthView()
+
+        case .telemetryHistory(let vehicleId):
+            HistoricalChartsView()
+
+        // Predictive Analytics
+        case .predictiveAnalytics:
+            PredictiveAnalyticsView()
+
+        case .predictionDetail(let id):
+            PredictionDetailView()
+
+        // Inventory Management
+        case .inventoryManagement:
+            InventoryManagementView()
+
+        case .inventoryItemDetail(let id):
+            InventoryManagementView()
+
+        case .stockMovement(let itemId):
+            StockMovementView()
+
+        case .inventoryAlerts:
+            InventoryAlertsView()
+
+        case .inventoryReports:
+            InventoryReportView()
+
+        case .addInventoryItem:
+            InventoryManagementView()
+
+        // Budget Planning
+        case .budgetPlanning:
+            BudgetPlanningView()
+
+        case .budgetDetail(let id):
+            BudgetPlanningView()
+
+        case .budgetEditor(let budgetId):
+            BudgetEditorView()
+
+        case .budgetVariance(let budgetId):
+            BudgetVarianceView()
+
+        case .budgetForecast(let budgetId):
+            BudgetForecastView()
+
+        // Warranty Management
+        case .warrantyManagement:
+            WarrantyManagementView()
+
+        case .warrantyDetail(let id):
+            WarrantyDetailView()
+
+        case .claimSubmission(let warrantyId):
+            ClaimSubmissionView()
+
+        case .claimTracking(let claimId):
+            ClaimTrackingView()
+
+        case .addWarranty:
+            WarrantyManagementView()
+
+        // Benchmarking
+        case .benchmarking:
+            BenchmarkingView()
+
+        case .benchmarkDetail(let category):
+            BenchmarkDetailView()
+
+        // Schedule Management
+        case .schedule:
+            ScheduleView()
+
+        case .scheduleDetail(let id):
+            ScheduleView()
+
+        case .addSchedule:
+            ScheduleView()
+
+        // Checklist Management
+        case .checklistManagement:
+            ChecklistManagementView()
+
+        case .activeChecklist:
+            ActiveChecklistView()
+
+        case .checklistHistory:
+            ChecklistHistoryView()
+
+        case .checklistTemplateEditor:
+            ChecklistTemplateEditorView()
+
+        // Vehicle Inspection
+        case .vehicleInspection(let vehicleId):
+            if let vehicle = getVehicle(vehicleId) {
+                VehicleInspectionView(vehicle: vehicle)
+            } else {
+                Text("Loading vehicle...")
+            }
+
+        // Reports
+        case .reports:
+            ReportsView()
+
+        case .customReportBuilder:
+            CustomReportBuilderView()
+
+        // Fuel Management
+        case .fuelManagement:
+            FuelManagementView()
+
+        case .fuelEntry:
+            FuelManagementView()
+
+        // Document Management
+        case .documentManagement:
+            DocumentManagementView()
+
+        case .documentScanner:
+            DocumentScannerView()
+
+        // Incident Reports
+        case .incidentReport(let vehicleId):
+            IncidentReportView()
+
+        case .damageReport(let vehicleId):
+            DamageReportView()
         }
+    }
+
+    // Helper function to get vehicle by ID (stub for now)
+    private func getVehicle(_ id: String) -> Vehicle? {
+        // TODO: Implement actual vehicle fetching
+        return nil
     }
 }
 
