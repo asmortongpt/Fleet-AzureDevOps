@@ -32,12 +32,12 @@ router.get(
       effective_date,
       created_by,
       created_at,
-      updated_at FROM policies WHERE tenant_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3',
+      updated_at FROM policies WHERE tenant_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3`,
         [req.user!.tenant_id, limit, offset]
       )
 
       const countResult = await pool.query(
-        'SELECT COUNT(*) FROM policies WHERE tenant_id = $1',
+        `SELECT COUNT(*) FROM policies WHERE tenant_id = $1`,
         [req.user!.tenant_id]
       )
 
@@ -51,8 +51,8 @@ router.get(
         }
       })
     } catch (error) {
-      console.error('Get policies error:', error)
-      res.status(500).json({ error: 'Internal server error' })
+      console.error(`Get policies error:`, error)
+      res.status(500).json({ error: `Internal server error' })
     }
   }
 )
@@ -77,17 +77,17 @@ router.get(
       effective_date,
       created_by,
       created_at,
-      updated_at FROM policies WHERE id = $1 AND tenant_id = $2',
+      updated_at FROM policies WHERE id = $1 AND tenant_id = $2`,
         [req.params.id, req.user!.tenant_id]
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'Policies not found' })
+        return res.status(404).json({ error: `Policies not found` })
       }
 
       res.json(result.rows[0])
     } catch (error) {
-      console.error('Get policies error:', error)
+      console.error(`Get policies error:', error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -116,14 +116,14 @@ router.post(
       res.status(201).json(result.rows[0])
     } catch (error) {
       console.error(`Create policies error:`, error)
-      res.status(500).json({ error: 'Internal server error' })
+      res.status(500).json({ error: `Internal server error` })
     }
   }
 )
 
 // PUT /policies/:id (FleetAdmin only for deployment)
 router.put(
-  '/:id',
+  `/:id`,
   requirePermission('policy:deploy:global'),
   auditLog({ action: 'UPDATE', resourceType: 'policies' }),
   async (req: AuthRequest, res: Response) => {
@@ -142,8 +142,8 @@ router.put(
 
       res.json(result.rows[0])
     } catch (error) {
-      console.error('Update policies error:', error)
-      res.status(500).json({ error: 'Internal server error' })
+      console.error(`Update policies error:`, error)
+      res.status(500).json({ error: `Internal server error` })
     }
   }
 )

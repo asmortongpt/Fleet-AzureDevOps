@@ -129,7 +129,7 @@ export const useAppStore = create<AppState>()(
         selectedVehicleId: null,
         selectedDriverId: null,
         selectedWorkOrderId: null,
-        mapProvider: 'azure',
+        mapProvider: 'google',
         chartType: 'bar',
         dashboardLayout: 'default',
         globalFilters: initialGlobalFilters,
