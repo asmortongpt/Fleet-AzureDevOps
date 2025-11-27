@@ -371,32 +371,6 @@ struct StatCard: View {
     }
 }
 
-// MARK: - Quick Action Button
-struct QuickActionButton: View {
-    let title: String
-    let icon: String
-    let color: Color
-    let action: () -> Void
-
-    var body: some View {
-        Button(action: action) {
-            VStack(spacing: 8) {
-                Image(systemName: icon)
-                    .font(.title2)
-                    .foregroundColor(color)
-
-                Text(title)
-                    .font(.caption)
-                    .foregroundColor(.primary)
-            }
-            .frame(maxWidth: .infinity)
-            .padding()
-            .background(Color(.secondarySystemGroupedBackground))
-            .cornerRadius(12)
-        }
-    }
-}
-
 // MARK: - Activity Row
 struct ActivityRow: View {
     let activity: ActivityItem
@@ -475,69 +449,12 @@ struct AlertRow: View {
     }
 }
 
-// MARK: - Empty State Card
-struct EmptyStateCard: View {
-    let title: String
-    let subtitle: String
-
-    var body: some View {
-        VStack(spacing: 8) {
-            Text(title)
-                .font(.subheadline.weight(.medium))
-                .foregroundColor(.secondary)
-
-            Text(subtitle)
-                .font(.caption)
-                .foregroundColor(.secondary)
-        }
-        .frame(maxWidth: .infinity)
-        .padding()
-        .background(Color(.secondarySystemGroupedBackground))
-        .cornerRadius(12)
-    }
-}
-
 // MARK: - Stat Detail Type
 enum StatDetailType {
     case vehicles
     case trips
     case alerts
     case fuel
-}
-
-// MARK: - Shimmer Modifier
-struct ShimmerModifier: ViewModifier {
-    @State private var phase: CGFloat = 0
-
-    func body(content: Content) -> some View {
-        content
-            .overlay(
-                LinearGradient(
-                    colors: [
-                        Color.gray.opacity(0.3),
-                        Color.gray.opacity(0.1),
-                        Color.gray.opacity(0.3)
-                    ],
-                    startPoint: .leading,
-                    endPoint: .trailing
-                )
-                .offset(x: phase * 200 - 100)
-                .animation(
-                    Animation.linear(duration: 1.5)
-                        .repeatForever(autoreverses: false),
-                    value: phase
-                )
-            )
-            .onAppear {
-                phase = 1
-            }
-    }
-}
-
-extension View {
-    func shimmering() -> some View {
-        modifier(ShimmerModifier())
-    }
 }
 
 // MARK: - Preview
