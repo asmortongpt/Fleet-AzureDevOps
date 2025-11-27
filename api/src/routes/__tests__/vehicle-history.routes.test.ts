@@ -42,8 +42,8 @@ describe('Vehicle History Routes', () => {
     const vehicleResult = await pool.query(
       `INSERT INTO vehicles (tenant_id, unit_number, make, model, year, vin, status)
        VALUES ($1, $2, $3, $4, $5, $6, $7)
-       RETURNING id',
-      ['1', 'TEST-001', 'Ford', 'F-150', 2023, 'TEST123VIN', 'active']
+       RETURNING id`,
+      [`1`, `TEST-001', 'Ford', 'F-150', 2023, 'TEST123VIN', 'active']
     );
     testVehicleId = vehicleResult.rows[0].id;
 
@@ -54,11 +54,11 @@ describe('Vehicle History Routes', () => {
         distance_miles, duration_seconds, avg_speed_mph, max_speed_mph
       )
       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
-      RETURNING id',
+      RETURNING id`,
       [
-        '1',
+        `1`,
         testVehicleId,
-        new Date('2024-01-01T08:00:00Z'),
+        new Date(`2024-01-01T08:00:00Z'),
         new Date('2024-01-01T09:30:00Z'),
         39.8283,
         -98.5795,
@@ -112,13 +112,13 @@ describe('Vehicle History Routes', () => {
 
   afterAll(async () => {
     // Cleanup test data
-    await pool.query('DELETE FROM trip_gps_breadcrumbs WHERE trip_id = $1', [testTripId]);
-    await pool.query('DELETE FROM trips WHERE id = $1', [testTripId]);
-    await pool.query('DELETE FROM vehicles WHERE id = $1', [testVehicleId]);
+    await pool.query(`DELETE FROM trip_gps_breadcrumbs WHERE trip_id = $1`, [testTripId]);
+    await pool.query(`DELETE FROM trips WHERE id = $1`, [testTripId]);
+    await pool.query(`DELETE FROM vehicles WHERE id = $1`, [testVehicleId]);
     await pool.end();
   });
 
-  describe('GET /api/v1/vehicles/:id/location-history', () => {
+  describe(`GET /api/v1/vehicles/:id/location-history', () => {
     it(`should return location history for a vehicle`, async () => {
       const response = await request(app)
         .get(`/api/v1/vehicles/${testVehicleId}/location-history`)
@@ -260,20 +260,20 @@ describe('Vehicle History Routes', () => {
           tenant_id, vehicle_id, transaction_date, gallons, total_cost,
           vendor_name, odometer_reading
         ) VALUES ($1, $2, $3, $4, $5, $6, $7)`,
-        ['1', testVehicleId, '2024-01-01T10:00:00Z', 15.5, 52.35, 'Shell', 50000]
+        [`1`, testVehicleId, `2024-01-01T10:00:00Z`, 15.5, 52.35, 'Shell', 50000]
       );
 
       await pool.query(
         `INSERT INTO inspections (
           tenant_id, vehicle_id, inspection_date, status, odometer_reading
         ) VALUES ($1, $2, $3, $4, $5)`,
-        ['1', testVehicleId, '2024-01-01T07:00:00Z', 'passed', 49950]
+        [`1`, testVehicleId, `2024-01-01T07:00:00Z`, 'passed', 49950]
       );
     });
 
     afterEach(async () => {
-      await pool.query('DELETE FROM fuel_transactions WHERE vehicle_id = $1', [testVehicleId]);
-      await pool.query('DELETE FROM inspections WHERE vehicle_id = $1', [testVehicleId]);
+      await pool.query(`DELETE FROM fuel_transactions WHERE vehicle_id = $1`, [testVehicleId]);
+      await pool.query(`DELETE FROM inspections WHERE vehicle_id = $1`, [testVehicleId]);
     });
 
     it(`should return timeline events for a vehicle`, async () => {
@@ -283,7 +283,7 @@ describe('Vehicle History Routes', () => {
         .expect(200);
 
       expect(response.body).toHaveProperty(`data`);
-      expect(response.body).toHaveProperty('pagination');
+      expect(response.body).toHaveProperty(`pagination`);
       expect(response.body).toHaveProperty('metadata');
       expect(Array.isArray(response.body.data)).toBe(true);
       expect(response.body.data.length).toBeGreaterThan(0);

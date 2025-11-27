@@ -114,8 +114,8 @@ router.post('/', requirePermission('report:generate:global'), async (req: AuthRe
       ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
       RETURNING *`,
       [
-        tenantId, title, description, category, priority || 'medium',
-        status || 'todo', assigned_to, userId, due_date, estimated_hours,
+        tenantId, title, description, category, priority || `medium`,
+        status || `todo`, assigned_to, userId, due_date, estimated_hours,
         related_vehicle_id, related_work_order_id,
         tags ? JSON.stringify(tags) : null
       ]
@@ -134,11 +134,11 @@ router.post('/', requirePermission('report:generate:global'), async (req: AuthRe
       }
     }
 
-    await client.query('COMMIT')
+    await client.query(`COMMIT`)
 
     res.status(201).json({
       task: result.rows[0],
-      message: 'Task created successfully'
+      message: `Task created successfully`
     })
   } catch (error) {
     await client.query('ROLLBACK')
@@ -188,10 +188,10 @@ router.put('/:id', requirePermission('report:generate:global'), async (req: Auth
 
     if (result.rows.length === 0) {
       await client.query(`ROLLBACK`)
-      return res.status(404).json({ error: 'Task not found' })
+      return res.status(404).json({ error: `Task not found` })
     }
 
-    await client.query('COMMIT')
+    await client.query(`COMMIT`)
 
     res.json({
       task: result.rows[0],
@@ -222,10 +222,10 @@ router.post('/:id/comments', requirePermission('report:generate:global'), async 
 
     res.status(201).json({
       comment: result.rows[0],
-      message: 'Comment added successfully'
+      message: `Comment added successfully`
     })
   } catch (error) {
-    console.error('Error adding comment:', error)
+    console.error(`Error adding comment:`, error)
     res.status(500).json({ error: 'Failed to add comment' })
   }
 })
@@ -246,10 +246,10 @@ router.post('/:id/time-entries', requirePermission('report:generate:global'), as
 
     res.status(201).json({
       time_entry: result.rows[0],
-      message: 'Time logged successfully'
+      message: `Time logged successfully`
     })
   } catch (error) {
-    console.error('Error logging time:', error)
+    console.error(`Error logging time:`, error)
     res.status(500).json({ error: 'Failed to log time' })
   }
 })
@@ -274,10 +274,10 @@ router.get('/analytics/summary', requirePermission('report:view:global'), async 
       ),
       pool.query(
         `SELECT
-           COUNT(*) FILTER (WHERE status = 'completed') as completed,
+           COUNT(*) FILTER (WHERE status = `completed`) as completed,
            COUNT(*) as total
          FROM tasks
-         WHERE tenant_id = $1 AND created_at >= NOW() - INTERVAL '30 days'',
+         WHERE tenant_id = $1 AND created_at >= NOW() - INTERVAL `30 days`',
         [tenantId]
       )
     ])

@@ -119,15 +119,15 @@ router.get(
     try {
       const result = await pool.query(
         `SELECT c.*,
-                from_user.first_name || ' ' || from_user.last_name as from_user_name
+                from_user.first_name || ` ` || from_user.last_name as from_user_name
          FROM communications c
          LEFT JOIN drivers from_user ON c.from_user_id = from_user.id
-         WHERE c.id = $1',
+         WHERE c.id = $1`,
         [req.params.id]
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'Communication not found' })
+        return res.status(404).json({ error: `Communication not found' })
       }
 
       // Get linked entities
@@ -148,7 +148,7 @@ router.get(
       file_path,
       file_type,
       file_size,
-      created_at FROM communication_attachments WHERE communication_id = $1',
+      created_at FROM communication_attachments WHERE communication_id = $1`,
         [req.params.id]
       )
 
@@ -158,8 +158,8 @@ router.get(
         attachments: attachmentsResult.rows
       })
     } catch (error) {
-      console.error('Get communication error:', error)
-      res.status(500).json({ error: 'Internal server error' })
+      console.error(`Get communication error:`, error)
+      res.status(500).json({ error: `Internal server error' })
     }
   }
 )
@@ -200,14 +200,14 @@ router.post(
             communicationId,
             link.entity_type,
             link.entity_id,
-            link.link_type || 'Related'
+            link.link_type || `Related`
           )
         })
 
         // Single batch insert instead of N queries
         await pool.query(
           `INSERT INTO communication_entity_links (communication_id, entity_type, entity_id, link_type, manually_added)
-           VALUES ${placeholders.join(', ')}
+           VALUES ${placeholders.join(`, `)}
            ON CONFLICT (communication_id, entity_type, entity_id) DO NOTHING`,
           values
         )
@@ -216,7 +216,7 @@ router.post(
       res.status(201).json(result.rows[0])
     } catch (error) {
       console.error(`Create communication error:`, error)
-      res.status(500).json({ error: 'Internal server error' })
+      res.status(500).json({ error: `Internal server error` })
     }
   }
 )
@@ -249,8 +249,8 @@ router.put(
 
       res.json(result.rows[0])
     } catch (error) {
-      console.error('Update communication error:', error)
-      res.status(500).json({ error: 'Internal server error' })
+      console.error(`Update communication error:`, error)
+      res.status(500).json({ error: `Internal server error` })
     }
   }
 )
@@ -279,8 +279,8 @@ router.post(
 
       res.status(201).json(result.rows[0])
     } catch (error) {
-      console.error('Link communication to entity error:', error)
-      res.status(500).json({ error: 'Internal server error' })
+      console.error(`Link communication to entity error:`, error)
+      res.status(500).json({ error: `Internal server error` })
     }
   }
 )
@@ -295,15 +295,15 @@ router.delete(
       const result = await pool.query(
         `DELETE FROM communication_entity_links
          WHERE id = $1 AND communication_id = $2
-         RETURNING id',
+         RETURNING id`,
         [req.params.link_id, req.params.id]
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'Link not found' })
+        return res.status(404).json({ error: `Link not found` })
       }
 
-      res.json({ message: 'Link deleted successfully' })
+      res.json({ message: `Link deleted successfully' })
     } catch (error) {
       console.error('Delete communication link error:', error)
       res.status(500).json({ error: 'Internal server error' })
@@ -330,7 +330,7 @@ router.get(
         `SELECT c.*,
                 cel.link_type,
                 cel.relevance_score,
-                from_user.first_name || ' ' || from_user.last_name as from_user_name
+                from_user.first_name || ` ` || from_user.last_name as from_user_name
          FROM communications c
          JOIN communication_entity_links cel ON c.id = cel.communication_id
          LEFT JOIN drivers from_user ON c.from_user_id = from_user.id
@@ -343,7 +343,7 @@ router.get(
       const countResult = await pool.query(
         `SELECT COUNT(*)
          FROM communication_entity_links
-         WHERE entity_type = $1 AND entity_id = $2',
+         WHERE entity_type = $1 AND entity_id = $2`,
         [entity_type, entity_id]
       )
 
@@ -357,8 +357,8 @@ router.get(
         }
       })
     } catch (error) {
-      console.error('Get entity communications error:', error)
-      res.status(500).json({ error: 'Internal server error' })
+      console.error(`Get entity communications error:`, error)
+      res.status(500).json({ error: `Internal server error' })
     }
   }
 )
@@ -377,9 +377,9 @@ router.get(
     try {
       const result = await pool.query(
         `SELECT c.*,
-                from_user.first_name || ' ' || from_user.last_name as from_user_name,
+                from_user.first_name || ` ` || from_user.last_name as from_user_name,
                 CASE
-                  WHEN c.follow_up_by_date < CURRENT_DATE THEN 'Overdue'
+                  WHEN c.follow_up_by_date < CURRENT_DATE THEN `Overdue`
                   WHEN c.follow_up_by_date = CURRENT_DATE THEN 'Due Today'
                   ELSE 'Upcoming'
                 END AS follow_up_status,
@@ -431,7 +431,7 @@ router.get(
       const params: any[] = []
 
       if (category) {
-        query += ' AND template_category = $1'
+        query += ` AND template_category = $1`
         params.push(category)
       }
 
@@ -440,7 +440,7 @@ router.get(
       const result = await pool.query(query, params)
       res.json({ data: result.rows })
     } catch (error) {
-      console.error('Get communication templates error:', error)
+      console.error(`Get communication templates error:`, error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -469,7 +469,7 @@ router.post(
       res.status(201).json(result.rows[0])
     } catch (error) {
       console.error(`Create communication template error:`, error)
-      res.status(500).json({ error: 'Internal server error' })
+      res.status(500).json({ error: `Internal server error` })
     }
   }
 )
@@ -480,7 +480,7 @@ router.post(
 
 // GET /communications/dashboard (CACHED: 2 minutes for performance)
 router.get(
-  '/dashboard',
+  `/dashboard`,
   requirePermission('communication:view:global'),
   cacheMiddleware({ ttl: 120000, varyByTenant: true }),
   auditLog({ action: 'READ', resourceType: 'communications_dashboard' }),
@@ -493,7 +493,7 @@ router.get(
          FROM communications c
          LEFT JOIN drivers from_user ON c.from_user_id = from_user.id
          WHERE (from_user.tenant_id = $1 OR from_user.tenant_id IS NULL)
-         AND c.communication_datetime >= DATE_TRUNC('month', CURRENT_DATE)',
+         AND c.communication_datetime >= DATE_TRUNC(`month`, CURRENT_DATE)`,
         [req.user!.tenant_id]
       )
 
@@ -503,7 +503,7 @@ router.get(
          FROM communications c
          LEFT JOIN drivers from_user ON c.from_user_id = from_user.id
          WHERE (from_user.tenant_id = $1 OR from_user.tenant_id IS NULL)
-         AND c.communication_datetime >= DATE_TRUNC('month', CURRENT_DATE)
+         AND c.communication_datetime >= DATE_TRUNC(`month`, CURRENT_DATE)
          GROUP BY communication_type
          ORDER BY count DESC`,
         [req.user!.tenant_id]
@@ -511,12 +511,12 @@ router.get(
 
       // By priority
       const byPriorityResult = await pool.query(
-        'SELECT COALESCE(ai_detected_priority, manual_priority, 'Unassigned') as priority,
+        `SELECT COALESCE(ai_detected_priority, manual_priority, `Unassigned`) as priority,
                 COUNT(*) as count
          FROM communications c
          LEFT JOIN drivers from_user ON c.from_user_id = from_user.id
          WHERE (from_user.tenant_id = $1 OR from_user.tenant_id IS NULL)
-         AND c.communication_datetime >= DATE_TRUNC('month', CURRENT_DATE)
+         AND c.communication_datetime >= DATE_TRUNC(`month`, CURRENT_DATE)
          GROUP BY priority
          ORDER BY count DESC`,
         [req.user!.tenant_id]
@@ -541,8 +541,8 @@ router.get(
         overdue: overdueResult.rows[0]
       })
     } catch (error) {
-      console.error('Get communications dashboard error:', error)
-      res.status(500).json({ error: 'Internal server error' })
+      console.error(`Get communications dashboard error:`, error)
+      res.status(500).json({ error: `Internal server error` })
     }
   }
 )

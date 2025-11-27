@@ -22,12 +22,12 @@ router.get(
       const offset = (Number(page) - 1) * Number(limit)
 
       const result = await pool.query(
-        'SELECT id, tenant_id, vehicle_id, incident_type, severity, description, location, incident_date, reporter_id, created_at, updated_at FROM safety_incidents WHERE tenant_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3',
+        `SELECT id, tenant_id, vehicle_id, incident_type, severity, description, location, incident_date, reporter_id, created_at, updated_at FROM safety_incidents WHERE tenant_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3`,
         [req.user!.tenant_id, limit, offset]
       )
 
       const countResult = await pool.query(
-        'SELECT COUNT(*) FROM safety_incidents WHERE tenant_id = $1',
+        `SELECT COUNT(*) FROM safety_incidents WHERE tenant_id = $1`,
         [req.user!.tenant_id]
       )
 
@@ -41,7 +41,7 @@ router.get(
         }
       })
     } catch (error) {
-      console.error('Get safety-incidents error:', error)
+      console.error(`Get safety-incidents error:`, error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -56,12 +56,12 @@ router.get(
   async (req: AuthRequest, res: Response) => {
     try {
       const result = await pool.query(
-        'SELECT id, tenant_id, vehicle_id, incident_type, severity, description, location, incident_date, reporter_id, created_at, updated_at FROM safety_incidents WHERE id = $1 AND tenant_id = $2',
+        `SELECT id, tenant_id, vehicle_id, incident_type, severity, description, location, incident_date, reporter_id, created_at, updated_at FROM safety_incidents WHERE id = $1 AND tenant_id = $2`,
         [req.params.id, req.user!.tenant_id]
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'SafetyIncidents not found' })
+        return res.status(404).json({ error: `SafetyIncidents not found' })
       }
 
       res.json(result.rows[0])
@@ -83,7 +83,7 @@ router.post(
 
       // Auto-generate incident_number
       const incidentNumberResult = await pool.query(
-        'SELECT COALESCE(MAX(CAST(SUBSTRING(incident_number FROM '[0-9]+') AS INTEGER)), 0) + 1 as next_num
+        `SELECT COALESCE(MAX(CAST(SUBSTRING(incident_number FROM `[0-9]+') AS INTEGER)), 0) + 1 as next_num
          FROM safety_incidents
          WHERE tenant_id = $1`,
         [req.user!.tenant_id]
@@ -92,7 +92,7 @@ router.post(
 
       const { columnNames, placeholders, values } = buildInsertClause(
         data,
-        [`tenant_id', 'incident_number', `reported_by`],
+        [`tenant_id`, 'incident_number', `reported_by`],
         1
       )
 
@@ -104,37 +104,37 @@ router.post(
       res.status(201).json(result.rows[0])
     } catch (error) {
       console.error(`Create safety-incidents error:`, error)
-      res.status(500).json({ error: 'Internal server error' })
+      res.status(500).json({ error: `Internal server error` })
     }
   }
 )
 
 // PUT /safety-incidents/:id/approve
 router.put(
-  '/:id/approve',
+  `/:id/approve`,
   requirePermission('safety_incident:approve:global'),
   auditLog({ action: 'APPROVE', resourceType: 'safety_incidents' }),
   async (req: AuthRequest, res: Response) => {
     try {
       // Prevent self-approval (Separation of Duties)
       const checkResult = await pool.query(
-        'SELECT reported_by FROM safety_incidents WHERE id = $1 AND tenant_id = $2',
+        `SELECT reported_by FROM safety_incidents WHERE id = $1 AND tenant_id = $2`,
         [req.params.id, req.user!.tenant_id]
       )
 
       if (checkResult.rows.length === 0) {
-        return res.status(404).json({ error: 'Safety incident not found' })
+        return res.status(404).json({ error: `Safety incident not found` })
       }
 
       if (checkResult.rows[0].reported_by === req.user!.id) {
         return res.status(403).json({
-          error: 'Separation of Duties violation: You cannot approve incidents you reported'
+          error: `Separation of Duties violation: You cannot approve incidents you reported'
         })
       }
 
       const result = await pool.query(
         `UPDATE safety_incidents SET
-           status = 'approved',
+           status = `approved`,
            approved_by = $3,
            approved_at = NOW(),
            updated_at = NOW()
@@ -145,7 +145,7 @@ router.put(
 
       res.json(result.rows[0])
     } catch (error) {
-      console.error('Approve safety-incident error:', error)
+      console.error(`Approve safety-incident error:`, error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
