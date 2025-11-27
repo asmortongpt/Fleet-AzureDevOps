@@ -139,6 +139,8 @@ import dispatchService from './services/dispatch.service'
 import documentService from './services/document.service'
 // Database connection pool management
 import { initializeDatabase, shutdownDatabase, poolMonitor } from './database'
+// Task Real-Time WebSocket Server
+import { initializeWebSocketServer } from './websocket/task-realtime.server'
 
 // NOTE: dotenv.config() is called at the top of the file before validateEnv()
 // NOTE: Environment validation (JWT_SECRET, CSRF_SECRET, etc.) is now handled by validateEnv()
@@ -658,6 +660,14 @@ const server = app.listen(PORT, async () => {
     console.log(`🚗 OBD2 Emulator WebSocket server initialized`)
   } catch (error) {
     console.error('Failed to initialize OBD2 Emulator WebSocket server:', error)
+  }
+
+  // Initialize Task Real-Time WebSocket server
+  try {
+    initializeWebSocketServer(server)
+    console.log(`📋 Task Real-Time WebSocket server initialized`)
+  } catch (error) {
+    console.error('Failed to initialize Task Real-Time WebSocket server:', error)
   }
 
   // Start maintenance scheduler
