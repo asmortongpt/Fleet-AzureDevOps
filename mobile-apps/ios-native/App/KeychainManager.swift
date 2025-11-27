@@ -24,6 +24,7 @@ class KeychainManager {
         case refreshToken = "refresh_token"
         case userEmail = "user_email"
         case userId = "user_id"
+        case userRole = "user_role"
         case tokenExpiry = "token_expiry"
         case biometricEnabled = "biometric_enabled"
         // Map Provider API Keys
