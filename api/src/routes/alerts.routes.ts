@@ -193,7 +193,7 @@ router.get('/stats', requirePermission('report:view:global'), async (req: AuthRe
       pool.query(
         `SELECT severity, COUNT(*) as count
          FROM alerts
-         WHERE tenant_id = $1 AND created_at >= NOW() - INTERVAL '7 days'
+         WHERE tenant_id = $1 AND created_at >= NOW() - INTERVAL `7 days`
          GROUP BY severity`,
         [tenantId]
       ),
@@ -202,7 +202,7 @@ router.get('/stats', requirePermission('report:view:global'), async (req: AuthRe
         `SELECT COUNT(*) as count
          FROM alerts
          WHERE tenant_id = $1
-         AND status IN ('pending', 'sent')
+         AND status IN (`pending`, `sent`)
          AND severity IN ('critical', 'emergency')',
         [tenantId]
       ),
@@ -211,7 +211,7 @@ router.get('/stats', requirePermission('report:view:global'), async (req: AuthRe
         `SELECT
            DATE(created_at) as date,
            COUNT(*) as count,
-           COUNT(*) FILTER (WHERE severity IN ('critical', 'emergency')) as critical_count
+           COUNT(*) FILTER (WHERE severity IN (`critical`, `emergency`)) as critical_count
          FROM alerts
          WHERE tenant_id = $1
          AND created_at >= NOW() - INTERVAL '7 days'
@@ -266,7 +266,7 @@ router.post('/:id/acknowledge', requirePermission('report:view:global'), async (
 
     const result = await pool.query(
       `UPDATE alerts
-       SET status = 'acknowledged',
+       SET status = `acknowledged`,
            acknowledged_at = NOW(),
            acknowledged_by = $1,
            updated_at = NOW()
@@ -276,7 +276,7 @@ router.post('/:id/acknowledge', requirePermission('report:view:global'), async (
     )
 
     if (result.rows.length === 0) {
-      return res.status(404).json({ error: 'Alert not found' })
+      return res.status(404).json({ error: `Alert not found` })
     }
 
     res.json({
@@ -333,7 +333,7 @@ router.post('/:id/resolve', requirePermission('report:view:global'), async (req:
 
     const result = await pool.query(
       `UPDATE alerts
-       SET status = 'resolved',
+       SET status = `resolved`,
            resolved_at = NOW(),
            resolved_by = $1,
            resolution_notes = $2,
@@ -344,7 +344,7 @@ router.post('/:id/resolve', requirePermission('report:view:global'), async (req:
     )
 
     if (result.rows.length === 0) {
-      return res.status(404).json({ error: 'Alert not found' })
+      return res.status(404).json({ error: `Alert not found` })
     }
 
     res.json({
@@ -380,7 +380,7 @@ router.get('/rules', requirePermission('report:view:global'), async (req: AuthRe
     const result = await pool.query(
       `SELECT
          ar.*,
-         u.first_name || ' ' || u.last_name as created_by_name
+         u.first_name || ` ` || u.last_name as created_by_name
        FROM alert_rules ar
        LEFT JOIN users u ON ar.created_by = u.id
        WHERE ar.tenant_id = $1
@@ -393,7 +393,7 @@ router.get('/rules', requirePermission('report:view:global'), async (req: AuthRe
       total: result.rows.length
     })
   } catch (error) {
-    console.error('Error fetching alert rules:', error)
+    console.error(`Error fetching alert rules:`, error)
     res.status(500).json({ error: 'Failed to fetch alert rules' })
   }
 })
@@ -478,7 +478,7 @@ router.post('/rules', requirePermission('report:generate:global'), async (req: A
         rule_type,
         JSON.stringify(conditions),
         severity,
-        channels || ['in_app'],
+        channels || [`in_app`],
         recipients || [],
         is_enabled !== false,
         cooldown_minutes || 60,
@@ -488,7 +488,7 @@ router.post('/rules', requirePermission('report:generate:global'), async (req: A
 
     res.status(201).json({
       rule: result.rows[0],
-      message: 'Alert rule created successfully'
+      message: `Alert rule created successfully`
     })
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -570,7 +570,7 @@ router.put('/rules/:id', requirePermission('report:generate:global'), async (req
 
     const result = await pool.query(
       `UPDATE alert_rules
-       SET ${setClauses.join(', ')}
+       SET ${setClauses.join(`, `)}
        WHERE id = $${paramCount} AND tenant_id = $${paramCount + 1}
        RETURNING *`,
       values
@@ -582,7 +582,7 @@ router.put('/rules/:id', requirePermission('report:generate:global'), async (req
 
     res.json({
       rule: result.rows[0],
-      message: 'Alert rule updated successfully'
+      message: `Alert rule updated successfully`
     })
   } catch (error) {
     console.error('Error updating alert rule:', error)
@@ -623,16 +623,16 @@ router.delete('/rules/:id', requirePermission('report:generate:global'), async (
     const result = await pool.query(
       `DELETE FROM alert_rules
        WHERE id = $1 AND tenant_id = $2
-       RETURNING id',
+       RETURNING id`,
       [id, tenantId]
     )
 
     if (result.rows.length === 0) {
-      return res.status(404).json({ error: 'Alert rule not found' })
+      return res.status(404).json({ error: `Alert rule not found` })
     }
 
     res.json({
-      message: 'Alert rule deleted successfully'
+      message: `Alert rule deleted successfully'
     })
   } catch (error) {
     console.error('Error deleting alert rule:', error)
@@ -746,12 +746,12 @@ router.post('/notifications/:id/read', requirePermission('report:view:global'), 
     )
 
     if (result.rows.length === 0) {
-      return res.status(404).json({ error: 'Notification not found' })
+      return res.status(404).json({ error: `Notification not found` })
     }
 
     res.json({
       notification: result.rows[0],
-      message: 'Notification marked as read'
+      message: `Notification marked as read`
     })
   } catch (error) {
     console.error('Error marking notification as read:', error)
@@ -783,16 +783,16 @@ router.post('/notifications/read-all', requirePermission('report:view:global'), 
       `UPDATE notifications
        SET is_read = true, read_at = NOW()
        WHERE user_id = $1 AND is_read = false
-       RETURNING id',
+       RETURNING id`,
       [userId]
     )
 
     res.json({
-      message: 'All notifications marked as read',
+      message: `All notifications marked as read`,
       count: result.rows.length
     })
   } catch (error) {
-    console.error('Error marking all notifications as read:', error)
+    console.error(`Error marking all notifications as read:', error)
     res.status(500).json({ error: 'Failed to mark all notifications as read' })
   }
 })
