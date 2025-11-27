@@ -37,11 +37,9 @@ const FuelManagement = lazy(() => import("@/components/modules/FuelManagement").
 const GPSTracking = lazy(() => import("@/components/modules/GPSTracking").then(m => ({ default: m.GPSTracking })))
 const DataWorkbench = lazy(() => import("@/components/modules/DataWorkbench").then(m => ({ default: m.DataWorkbench })))
 const MileageReimbursement = lazy(() => import("@/components/modules/MileageReimbursement").then(m => ({ default: m.MileageReimbursement })))
-const MaintenanceRequest = lazy(() => import("@/components/modules/MaintenanceRequest").then(m => ({ default: m.MaintenanceRequest })))
 const RouteManagement = lazy(() => import("@/components/modules/RouteManagement").then(m => ({ default: m.RouteManagement })))
 const GISCommandCenter = lazy(() => import("@/components/modules/GISCommandCenter").then(m => ({ default: m.GISCommandCenter })))
 const TrafficCameras = lazy(() => import("@/components/modules/TrafficCameras").then(m => ({ default: m.TrafficCameras })))
-const DriverPerformance = lazy(() => import("@/components/modules/DriverPerformance").then(m => ({ default: m.DriverPerformance })))
 const FleetAnalytics = lazy(() => import("@/components/modules/FleetAnalytics").then(m => ({ default: m.FleetAnalytics })))
 const VendorManagement = lazy(() => import("@/components/modules/VendorManagement").then(m => ({ default: m.VendorManagement })))
 const PartsInventory = lazy(() => import("@/components/modules/PartsInventory").then(m => ({ default: m.PartsInventory })))
@@ -77,11 +75,7 @@ const Notifications = lazy(() => import("@/components/modules/Notifications").th
 const PushNotificationAdmin = lazy(() => import("@/components/modules/PushNotificationAdmin"))
 const DocumentManagement = lazy(() => import("@/components/modules/DocumentManagement").then(m => ({ default: m.DocumentManagement })))
 const DocumentQA = lazy(() => import("@/components/modules/DocumentQA").then(m => ({ default: m.DocumentQA })))
-const DriverScorecard = lazy(() => import("@/components/modules/DriverScorecard").then(m => ({ default: m.DriverScorecard })))
-const FleetOptimizer = lazy(() => import("@/components/modules/FleetOptimizer").then(m => ({ default: m.FleetOptimizer })))
-const CostAnalysisCenter = lazy(() => import("@/components/modules/CostAnalysisCenter").then(m => ({ default: m.CostAnalysisCenter })))
 const FuelPurchasing = lazy(() => import("@/components/modules/FuelPurchasing").then(m => ({ default: m.FuelPurchasing })))
-const CustomReportBuilder = lazy(() => import("@/components/modules/CustomReportBuilder").then(m => ({ default: m.CustomReportBuilder })))
 
 // Loading spinner component for Suspense fallback
 const LoadingSpinner = () => (
@@ -130,16 +124,12 @@ function App() {
         return <DataWorkbench data={fleetData} />
       case "mileage":
         return <MileageReimbursement data={fleetData} />
-      case "maintenance-request":
-        return <MaintenanceRequest data={fleetData} />
       case "routes":
         return <RouteManagement data={fleetData} />
       case "gis-map":
         return <GISCommandCenter data={fleetData} />
       case "traffic-cameras":
         return <TrafficCameras />
-      case "driver-mgmt":
-        return <DriverPerformance data={fleetData} />
       case "comprehensive":
         return <FleetAnalytics data={fleetData} />
       case "vendor-management":
@@ -209,16 +199,8 @@ function App() {
         return <DocumentManagement />
       case "document-qa":
         return <DocumentQA />
-      case "driver-scorecard":
-        return <DriverScorecard />
-      case "fleet-optimizer":
-        return <FleetOptimizer />
-      case "cost-analysis":
-        return <CostAnalysisCenter />
       case "fuel-purchasing":
         return <FuelPurchasing />
-      case "custom-reports":
-        return <CustomReportBuilder />
       default:
         return <FleetDashboard data={fleetData} />
     }
