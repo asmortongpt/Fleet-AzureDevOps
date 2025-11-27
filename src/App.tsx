@@ -241,13 +241,11 @@ function App() {
       >
         <div className="p-6 flex items-center justify-between border-b">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-primary text-primary-foreground rounded-lg">
-              <CarProfile className="w-6 h-6" weight="bold" />
-            </div>
-            <div>
-              <h1 className="font-semibold tracking-tight">Fleet Manager</h1>
-              <p className="text-xs text-muted-foreground">Enterprise</p>
-            </div>
+            <img
+              src="/logos/logo-horizontal.svg"
+              alt="Fleet Management"
+              className="h-8 w-auto"
+            />
           </div>
         </div>
 
