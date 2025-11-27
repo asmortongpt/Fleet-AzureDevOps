@@ -621,10 +621,32 @@ struct RouteShareSheet: View {
                     .foregroundColor(ModernTheme.Colors.secondaryText)
                     .multilineTextAlignment(.center)
 
-                // Share options would go here
-                Text("Sharing functionality coming soon")
-                    .font(ModernTheme.Typography.caption1)
-                    .foregroundColor(ModernTheme.Colors.tertiaryText)
+                // Share options
+                VStack(spacing: ModernTheme.Spacing.md) {
+                    Button(action: {}) {
+                        HStack {
+                            Image(systemName: "mail")
+                            Text("Share via Email")
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(ModernTheme.Colors.primary)
+                        .foregroundColor(.white)
+                        .cornerRadius(ModernTheme.CornerRadius.md)
+                    }
+
+                    Button(action: {}) {
+                        HStack {
+                            Image(systemName: "message")
+                            Text("Share via Message")
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(ModernTheme.Colors.primary)
+                        .foregroundColor(.white)
+                        .cornerRadius(ModernTheme.CornerRadius.md)
+                    }
+                }
 
                 Spacer()
             }

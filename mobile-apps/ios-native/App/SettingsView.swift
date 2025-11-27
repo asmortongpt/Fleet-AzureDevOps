@@ -87,8 +87,23 @@ struct SettingsView: View {
             .navigationTitle("Settings")
             .listStyle(InsetGroupedListStyle())
             .sheet(isPresented: $showingMapSettings) {
-                Text("Map Provider Settings - Available on web platform")
-                    .padding()
+                NavigationView {
+                    Form {
+                        Section(header: Text("Map Provider")) {
+                            Text("Map provider settings")
+                                .foregroundColor(.secondary)
+                        }
+                    }
+                    .navigationTitle("Map Settings")
+                    .navigationBarTitleDisplayMode(.inline)
+                    .toolbar {
+                        ToolbarItem(placement: .navigationBarTrailing) {
+                            Button("Done") {
+                                showingMapSettings = false
+                            }
+                        }
+                    }
+                }
             }
         }
     }

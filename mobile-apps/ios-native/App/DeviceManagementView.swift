@@ -407,22 +407,97 @@ struct TroubleshootingItem: View {
     }
 }
 
-// MARK: - Placeholder Views for Diagnostics
+// MARK: - Diagnostic Views
 struct LiveDataView: View {
     let device: OBDDevice
+    @State private var isMonitoring = false
 
     var body: some View {
-        Text("Live Data View - Coming Soon")
-            .navigationTitle("Live Data")
+        List {
+            Section(header: Text("Engine Metrics")) {
+                HStack {
+                    Text("RPM")
+                    Spacer()
+                    Text("--")
+                        .foregroundColor(.secondary)
+                }
+
+                HStack {
+                    Text("Speed")
+                    Spacer()
+                    Text("--")
+                        .foregroundColor(.secondary)
+                }
+
+                HStack {
+                    Text("Coolant Temp")
+                    Spacer()
+                    Text("--")
+                        .foregroundColor(.secondary)
+                }
+            }
+
+            Section(header: Text("Monitoring")) {
+                Toggle("Real-time Updates", isOn: $isMonitoring)
+            }
+
+            Section {
+                Text("Connect device and start engine to view live data")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
+        }
+        .navigationTitle("Live Data")
     }
 }
 
 struct DiagnosticCodesView: View {
     let device: OBDDevice
+    @State private var codes: [(code: String, description: String)] = []
 
     var body: some View {
-        Text("Diagnostic Codes View - Coming Soon")
-            .navigationTitle("Diagnostic Codes")
+        List {
+            if codes.isEmpty {
+                Section {
+                    VStack(spacing: 12) {
+                        Image(systemName: "checkmark.circle.fill")
+                            .font(.system(size: 50))
+                            .foregroundColor(.green)
+
+                        Text("No Diagnostic Codes")
+                            .font(.headline)
+
+                        Text("Your vehicle is not reporting any error codes")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                            .multilineTextAlignment(.center)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 30)
+                }
+            } else {
+                Section(header: Text("Active Codes")) {
+                    ForEach(codes, id: \.code) { item in
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(item.code)
+                                .font(.headline)
+                                .foregroundColor(.red)
+                            Text(item.description)
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
+                        .padding(.vertical, 4)
+                    }
+                }
+            }
+
+            Section {
+                Button("Scan for Codes") {
+                    // Trigger OBD scan
+                }
+            }
+        }
+        .navigationTitle("Diagnostic Codes")
     }
 }
 
@@ -430,8 +505,28 @@ struct FreezeFrameView: View {
     let device: OBDDevice
 
     var body: some View {
-        Text("Freeze Frame View - Coming Soon")
-            .navigationTitle("Freeze Frame")
+        List {
+            Section(header: Text("Freeze Frame Data")) {
+                Text("Freeze frame data shows the vehicle state when a diagnostic code was triggered")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
+
+            Section(header: Text("Available Frames")) {
+                VStack(spacing: 12) {
+                    Image(systemName: "camera.filters")
+                        .font(.system(size: 40))
+                        .foregroundColor(.gray)
+
+                    Text("No freeze frames stored")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 20)
+            }
+        }
+        .navigationTitle("Freeze Frame")
     }
 }
 
