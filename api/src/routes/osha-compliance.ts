@@ -99,17 +99,17 @@ router.get(
     try {
       const result = await pool.query(
         `SELECT o.*,
-                d.first_name || ' ' || d.last_name as employee_full_name,
+                d.first_name || ` ` || d.last_name as employee_full_name,
                 v.unit_number as vehicle_unit
          FROM osha_300_log o
          LEFT JOIN drivers d ON o.employee_id = d.id
          LEFT JOIN vehicles v ON o.vehicle_id = v.id
-         WHERE o.id = $1 AND d.tenant_id = $2',
+         WHERE o.id = $1 AND d.tenant_id = $2`,
         [req.params.id, req.user!.tenant_id]
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'OSHA 300 log entry not found' })
+        return res.status(404).json({ error: `OSHA 300 log entry not found' })
       }
 
       res.json(result.rows[0])
@@ -143,14 +143,14 @@ router.post(
       res.status(201).json(result.rows[0])
     } catch (error) {
       console.error(`Create OSHA 300 log entry error:`, error)
-      res.status(500).json({ error: 'Internal server error' })
+      res.status(500).json({ error: `Internal server error` })
     }
   }
 )
 
 // PUT /osha-compliance/300-log/:id
 router.put(
-  '/300-log/:id',
+  `/300-log/:id`,
   requirePermission('osha:submit:global'),
   auditLog({ action: 'UPDATE', resourceType: 'osha_300_log' }),
   async (req: AuthRequest, res: Response) => {
@@ -172,8 +172,8 @@ router.put(
 
       res.json(result.rows[0])
     } catch (error) {
-      console.error('Update OSHA 300 log entry error:', error)
-      res.status(500).json({ error: 'Internal server error' })
+      console.error(`Update OSHA 300 log entry error:`, error)
+      res.status(500).json({ error: `Internal server error` })
     }
   }
 )
@@ -270,7 +270,7 @@ router.post(
       res.status(201).json(result.rows[0])
     } catch (error) {
       console.error(`Create safety inspection error:`, error)
-      res.status(500).json({ error: 'Internal server error' })
+      res.status(500).json({ error: `Internal server error` })
     }
   }
 )
@@ -281,7 +281,7 @@ router.post(
 
 // GET /osha-compliance/training-records
 router.get(
-  '/training-records',
+  `/training-records`,
   requirePermission('osha:view:global'),
   auditLog({ action: 'READ', resourceType: 'safety_training_records' }),
   async (req: AuthRequest, res: Response) => {
@@ -359,7 +359,7 @@ router.post(
       res.status(201).json(result.rows[0])
     } catch (error) {
       console.error(`Create training record error:`, error)
-      res.status(500).json({ error: 'Internal server error' })
+      res.status(500).json({ error: `Internal server error` })
     }
   }
 )
@@ -370,7 +370,7 @@ router.post(
 
 // GET /osha-compliance/accident-investigations
 router.get(
-  '/accident-investigations',
+  `/accident-investigations`,
   requirePermission('osha:view:global'),
   auditLog({ action: 'READ', resourceType: 'accident_investigations' }),
   async (req: AuthRequest, res: Response) => {
@@ -444,7 +444,7 @@ router.post(
       res.status(201).json(result.rows[0])
     } catch (error) {
       console.error(`Create accident investigation error:`, error)
-      res.status(500).json({ error: 'Internal server error' })
+      res.status(500).json({ error: `Internal server error` })
     }
   }
 )
@@ -455,7 +455,7 @@ router.post(
 
 // GET /osha-compliance/dashboard
 router.get(
-  '/dashboard',
+  `/dashboard`,
   requirePermission('osha:view:global'),
   auditLog({ action: 'READ', resourceType: 'osha_compliance_dashboard' }),
   async (req: AuthRequest, res: Response) => {
@@ -479,8 +479,8 @@ router.get(
          FROM vehicle_safety_inspections vsi
          JOIN vehicles v ON vsi.vehicle_id = v.id
          WHERE v.tenant_id = $1
-         AND vsi.overall_status = 'Fail'
-         AND vsi.inspection_date >= CURRENT_DATE - INTERVAL '30 days'',
+         AND vsi.overall_status = `Fail`
+         AND vsi.inspection_date >= CURRENT_DATE - INTERVAL `30 days`',
         [req.user!.tenant_id]
       )
 
@@ -490,7 +490,7 @@ router.get(
          FROM safety_training_records str
          JOIN drivers d ON str.employee_id = d.id
          WHERE d.tenant_id = $1
-         AND str.certification_expiry_date BETWEEN CURRENT_DATE AND CURRENT_DATE + INTERVAL '60 days'',
+         AND str.certification_expiry_date BETWEEN CURRENT_DATE AND CURRENT_DATE + INTERVAL `60 days``,
         [req.user!.tenant_id]
       )
 
@@ -500,7 +500,7 @@ router.get(
          FROM accident_investigations ai
          JOIN vehicles v ON ai.vehicle_id = v.id
          WHERE v.tenant_id = $1
-         AND ai.accident_date >= CURRENT_DATE - INTERVAL '90 days'
+         AND ai.accident_date >= CURRENT_DATE - INTERVAL `90 days`
          GROUP BY severity`,
         [req.user!.tenant_id]
       )
@@ -512,7 +512,7 @@ router.get(
         accidents: accidentsResult.rows
       })
     } catch (error) {
-      console.error('Get OSHA compliance dashboard error:', error)
+      console.error(`Get OSHA compliance dashboard error:`, error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }

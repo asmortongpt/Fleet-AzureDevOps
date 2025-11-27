@@ -285,7 +285,7 @@ router.post('/register', registrationLimiter, async (req: Request, res: Response
 
     // Check if user already exists
     const existing = await pool.query(
-      'SELECT id FROM users WHERE email = $1',
+      'SELECT id FROM users WHERE email = $1`,
       [data.email.toLowerCase()]
     )
 
@@ -447,7 +447,7 @@ router.post('/refresh', async (req: Request, res: Response) => {
 
     // Revoke old refresh token (rotation)
     await pool.query(
-      'UPDATE refresh_tokens SET revoked_at = NOW() WHERE token_hash = $1',
+      'UPDATE refresh_tokens SET revoked_at = NOW() WHERE token_hash = $1`,
       [tokenHash]
     )
 
