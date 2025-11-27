@@ -1,15 +1,16 @@
-import { useMemo, useState } from "react"
+import React, { useState } from "react";
 import {
   useReactTable,
   getCoreRowModel,
-  getSortedRowModel,
   getPaginationRowModel,
+  getSortedRowModel,
   getFilteredRowModel,
-  ColumnDef,
   flexRender,
+  ColumnDef,
   SortingState,
   ColumnFiltersState,
-} from "@tanstack/react-table"
+  PaginationState,
+} from "@tanstack/react-table";
 import {
   Table,
   TableBody,
@@ -17,116 +18,113 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
+} from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
 import {
-  CaretLeft,
-  CaretRight,
-  CaretDoubleLeft,
-  CaretDoubleRight,
-  CaretUp,
-  CaretDown,
-  MagnifyingGlass,
-} from "@phosphor-icons/react"
-import { cn } from "@/lib/utils"
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
+  ArrowUp,
+  ArrowDown,
+  ArrowUpDown,
+} from "lucide-react";
+import { useInspect } from "@/services/inspect/InspectContext";
+import { cn } from "@/lib/utils";
 
-export interface DataGridProps<TData> {
-  data: TData[]
-  columns: ColumnDef<TData, any>[]
-  enableSearch?: boolean
-  searchPlaceholder?: string
-  enablePagination?: boolean
-  pageSize?: number
-  onRowClick?: (row: TData) => void
-  className?: string
-  emptyMessage?: string
+interface DataGridProps<TData> {
+  data: TData[];
+  columns: ColumnDef<TData>[];
+  pageSize?: number;
+  onRowClick?: (row: TData) => void;
+  enableInspector?: boolean;
+  inspectorType?: string;
+  className?: string;
+  compactMode?: boolean;
+  stickyHeader?: boolean;
 }
 
-export function DataGrid<TData>({
+export function DataGrid<TData extends { id?: string | number }>({
   data,
   columns,
-  enableSearch = false,
-  searchPlaceholder = "Search...",
-  enablePagination = true,
-  pageSize = 20,
+  pageSize = 15,
   onRowClick,
+  enableInspector = true,
+  inspectorType,
   className,
-  emptyMessage = "No results found",
+  compactMode = true,
+  stickyHeader = true,
 }: DataGridProps<TData>) {
-  const [sorting, setSorting] = useState<SortingState>([])
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
-  const [globalFilter, setGlobalFilter] = useState("")
+  const [sorting, setSorting] = useState<SortingState>([]);
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [pagination, setPagination] = useState<PaginationState>({
+    pageIndex: 0,
+    pageSize,
+  });
+  const [selectedRow, setSelectedRow] = useState<string | null>(null);
+  const { openInspect } = useInspect();
 
   const table = useReactTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
-    getPaginationRowModel: enablePagination ? getPaginationRowModel() : undefined,
     getFilteredRowModel: getFilteredRowModel(),
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
-    onGlobalFilterChange: setGlobalFilter,
+    onPaginationChange: setPagination,
     state: {
       sorting,
       columnFilters,
-      globalFilter,
+      pagination,
     },
-    initialState: {
-      pagination: {
-        pageSize,
-      },
-    },
-  })
+  });
+
+  const handleRowClick = (row: TData) => {
+    const rowId = row.id?.toString() || "";
+    setSelectedRow(rowId);
+
+    if (onRowClick) {
+      onRowClick(row);
+    } else if (enableInspector && inspectorType && row.id) {
+      openInspect({
+        type: inspectorType,
+        id: row.id.toString(),
+        data: row,
+      });
+    }
+  };
 
   return (
-    <div className={cn("space-y-4", className)}>
-      {enableSearch && (
-        <div className="flex items-center gap-2">
-          <div className="relative flex-1 max-w-sm">
-            <MagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input
-              placeholder={searchPlaceholder}
-              value={globalFilter ?? ""}
-              onChange={(e) => setGlobalFilter(e.target.value)}
-              className="pl-9"
-            />
-          </div>
-        </div>
-      )}
-
-      <div className="rounded-lg border overflow-hidden">
+    <div className={cn("flex flex-col h-full", className)}>
+      {/* Table Container with Excel-style dense layout */}
+      <div className="flex-1 border rounded-md overflow-hidden">
         <Table>
-          <TableHeader className="bg-muted/50 sticky top-0 z-10">
+          <TableHeader className={cn(stickyHeader && "sticky top-0 z-10 bg-background")}>
             {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id} className="hover:bg-muted/50">
+              <TableRow key={headerGroup.id} className="hover:bg-transparent">
                 {headerGroup.headers.map((header) => (
                   <TableHead
                     key={header.id}
                     className={cn(
-                      "h-10 font-semibold",
-                      header.column.getCanSort() && "cursor-pointer select-none"
+                      "h-8 px-2 font-medium bg-muted/50 border-r last:border-r-0",
+                      header.column.getCanSort() && "cursor-pointer select-none hover:bg-muted"
                     )}
                     onClick={header.column.getToggleSortingHandler()}
                   >
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center justify-between">
                       {header.isPlaceholder
                         ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
+                        : flexRender(header.column.columnDef.header, header.getContext())}
                       {header.column.getCanSort() && (
-                        <div className="ml-auto">
-                          {{
-                            asc: <CaretUp className="w-4 h-4" />,
-                            desc: <CaretDown className="w-4 h-4" />,
-                          }[header.column.getIsSorted() as string] ?? (
-                            <div className="w-4 h-4 opacity-30">
-                              <CaretUp className="w-3 h-3 -mb-1" />
-                              <CaretDown className="w-3 h-3" />
-                            </div>
+                        <div className="ml-1">
+                          {header.column.getIsSorted() === "asc" ? (
+                            <ArrowUp className="h-3 w-3" />
+                          ) : header.column.getIsSorted() === "desc" ? (
+                            <ArrowDown className="h-3 w-3" />
+                          ) : (
+                            <ArrowUpDown className="h-3 w-3 opacity-50" />
                           )}
                         </div>
                       )}
@@ -138,33 +136,37 @@ export function DataGrid<TData>({
           </TableHeader>
           <TableBody>
             {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
+              table.getRowModel().rows.map((row, index) => (
                 <TableRow
                   key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
                   className={cn(
-                    "h-8 transition-colors",
-                    onRowClick && "cursor-pointer hover:bg-muted/50"
+                    "cursor-pointer transition-colors",
+                    compactMode ? "h-8" : "h-10",
+                    index % 2 === 0 ? "bg-background" : "bg-muted/20",
+                    selectedRow === row.original.id?.toString() && "bg-primary/10",
+                    "hover:bg-primary/5"
                   )}
-                  onClick={() => onRowClick?.(row.original)}
+                  onClick={() => handleRowClick(row.original)}
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id} className="py-2">
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
+                    <TableCell
+                      key={cell.id}
+                      className={cn(
+                        "px-2 border-r last:border-r-0",
+                        compactMode ? "py-0 h-8" : "py-1"
                       )}
+                    >
+                      <div className="truncate">
+                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      </div>
                     </TableCell>
                   ))}
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center text-muted-foreground"
-                >
-                  {emptyMessage}
+                <TableCell colSpan={columns.length} className="h-24 text-center">
+                  No results found.
                 </TableCell>
               </TableRow>
             )}
@@ -172,60 +174,63 @@ export function DataGrid<TData>({
         </Table>
       </div>
 
-      {enablePagination && table.getPageCount() > 1 && (
-        <div className="flex items-center justify-between px-2">
-          <div className="text-sm text-muted-foreground">
+      {/* Pagination Controls */}
+      <div className="flex items-center justify-between px-2 py-2 border-t">
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <span>
             Showing {table.getState().pagination.pageIndex * pageSize + 1} to{" "}
             {Math.min(
               (table.getState().pagination.pageIndex + 1) * pageSize,
               data.length
             )}{" "}
-            of {data.length} results
-          </div>
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => table.setPageIndex(0)}
-              disabled={!table.getCanPreviousPage()}
-            >
-              <CaretDoubleLeft className="w-4 h-4" />
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => table.previousPage()}
-              disabled={!table.getCanPreviousPage()}
-            >
-              <CaretLeft className="w-4 h-4" />
-            </Button>
-            <div className="flex items-center gap-2 text-sm">
-              <span className="text-muted-foreground">Page</span>
-              <span className="font-medium">
-                {table.getState().pagination.pageIndex + 1}
-              </span>
-              <span className="text-muted-foreground">of</span>
-              <span className="font-medium">{table.getPageCount()}</span>
-            </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => table.nextPage()}
-              disabled={!table.getCanNextPage()}
-            >
-              <CaretRight className="w-4 h-4" />
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => table.setPageIndex(table.getPageCount() - 1)}
-              disabled={!table.getCanNextPage()}
-            >
-              <CaretDoubleRight className="w-4 h-4" />
-            </Button>
-          </div>
+            of {data.length} rows
+          </span>
         </div>
-      )}
+        <div className="flex items-center gap-1">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => table.setPageIndex(0)}
+            disabled={!table.getCanPreviousPage()}
+            className="h-8 w-8"
+          >
+            <ChevronsLeft className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => table.previousPage()}
+            disabled={!table.getCanPreviousPage()}
+            className="h-8 w-8"
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </Button>
+          <span className="flex items-center gap-1 text-sm">
+            Page{" "}
+            <strong>
+              {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
+            </strong>
+          </span>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => table.nextPage()}
+            disabled={!table.getCanNextPage()}
+            className="h-8 w-8"
+          >
+            <ChevronRight className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => table.setPageIndex(table.getPageCount() - 1)}
+            disabled={!table.getCanNextPage()}
+            className="h-8 w-8"
+          >
+            <ChevronsRight className="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
     </div>
-  )
+  );
 }
