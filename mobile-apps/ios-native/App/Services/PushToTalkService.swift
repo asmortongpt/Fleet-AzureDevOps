@@ -2,12 +2,19 @@ import Foundation
 import AVFoundation
 import Combine
 
+/// Simple PTT State for UI
+enum SimplePTTState {
+    case idle
+    case listening
+    case speaking
+}
+
 /// Service for Push-to-Talk (PTT) functionality
 class PushToTalkService: ObservableObject {
     static let shared = PushToTalkService()
 
     @Published var currentChannel: PTTChannel?
-    @Published var state: PTTState = .idle
+    @Published var state: SimplePTTState = .idle
     @Published var currentSpeaker: String?
     @Published var availableChannels: [PTTChannel] = []
 
@@ -160,23 +167,20 @@ class PushToTalkService: ObservableObject {
             PTTChannel(
                 id: "ptt-1",
                 name: "Fleet Wide",
-                members: [],
-                isActive: true,
-                frequency: "Channel 1"
+                type: .general,
+                memberCount: 0
             ),
             PTTChannel(
                 id: "ptt-2",
                 name: "Route 95 Team",
-                members: [],
-                isActive: true,
-                frequency: "Channel 2"
+                type: .operations,
+                memberCount: 0
             ),
             PTTChannel(
                 id: "ptt-3",
                 name: "Dispatch",
-                members: [],
-                isActive: true,
-                frequency: "Channel 3"
+                type: .emergency,
+                memberCount: 0
             )
         ]
     }

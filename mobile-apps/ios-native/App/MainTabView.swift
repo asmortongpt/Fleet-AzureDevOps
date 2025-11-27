@@ -8,6 +8,7 @@ struct MainTabView: View {
 
     @State private var searchText = ""
     @State private var notificationCount = 0
+    @StateObject private var tripsViewModel = TripsViewModel()
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass: UserInterfaceSizeClass?
     @Environment(\.accessibilityReduceMotion) private var reduceMotion: Bool
 
@@ -210,7 +211,7 @@ struct MainTabView: View {
             AddVehicleView()
 
         case .addTrip:
-            AddTripView()
+            AddTripView(tripsViewModel: tripsViewModel)
 
         case .maintenance:
             MaintenanceView()
@@ -232,7 +233,10 @@ struct MainTabView: View {
 
         // Driver management destinations
         case .driverDetail(let id):
-            DriverDetailView(driverId: id)
+            // TODO: Fix DriverDetailView parameters
+            Text("Driver Detail View - Coming Soon for ID: \(id)")
+                .font(.title)
+                .padding()
 
         case .addDriver:
             Text("Add Driver View - Coming Soon")
@@ -265,6 +269,12 @@ struct MainTabView: View {
 
         case .photoCapture(let vehicleId, let photoType):
             Text("Photo Capture: \(photoType) for Vehicle: \(vehicleId)")
+                .font(.title)
+                .padding()
+
+        default:
+            // Handle all other navigation destinations
+            Text("Feature Coming Soon")
                 .font(.title)
                 .padding()
         }

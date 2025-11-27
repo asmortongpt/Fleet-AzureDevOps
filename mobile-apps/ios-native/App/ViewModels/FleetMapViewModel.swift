@@ -64,7 +64,9 @@ final class FleetMapViewModel: ObservableObject {
     }
 
     deinit {
-        stopAutoRefresh()
+        Task { @MainActor in
+            stopAutoRefresh()
+        }
     }
 
     // MARK: - Location Manager Setup
@@ -129,7 +131,7 @@ final class FleetMapViewModel: ObservableObject {
 
     // MARK: - Data Loading
     private func loadCachedData() {
-        if let cachedVehicles = persistenceManager.getCachedVehicles() {
+        if let cachedVehicles: [Vehicle] = persistenceManager.getCachedVehicles() {
             vehicles = cachedVehicles
             updateStatistics()
         }
@@ -164,7 +166,7 @@ final class FleetMapViewModel: ObservableObject {
             handleError(error)
 
             // Fall back to cached data if available
-            if let cachedVehicles = persistenceManager.getCachedVehicles() {
+            if let cachedVehicles: [Vehicle] = persistenceManager.getCachedVehicles() {
                 vehicles = cachedVehicles
                 updateStatistics()
                 if showLoading {
@@ -299,6 +301,8 @@ final class FleetMapViewModel: ObservableObject {
         case .emergency:
             return ModernTheme.Colors.emergency
         case .offline:
+            return ModernTheme.Colors.offline
+        @unknown default:
             return ModernTheme.Colors.offline
         }
     }
