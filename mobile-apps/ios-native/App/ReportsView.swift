@@ -61,27 +61,6 @@ struct ReportsView: View {
                     }
                     .padding(.horizontal)
 
-                    // Coming Soon Notice
-                    VStack(spacing: 12) {
-                        Image(systemName: "clock.fill")
-                            .font(.system(size: 40))
-                            .foregroundColor(.secondary)
-
-                        Text("Advanced Reporting Coming Soon")
-                            .font(.headline)
-                            .foregroundColor(.secondary)
-
-                        Text("Export to PDF, schedule reports, and more")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                            .multilineTextAlignment(.center)
-                    }
-                    .padding()
-                    .background(Color(.secondarySystemBackground))
-                    .cornerRadius(12)
-                    .padding(.horizontal)
-                    .padding(.top, 20)
-
                     Spacer()
                 }
             }
