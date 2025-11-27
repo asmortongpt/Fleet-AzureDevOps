@@ -122,7 +122,7 @@ export async function handleCardAction(
     }
 
     // Log the action in the database
-    await logCardAction(cardId, action, userId, result.success ? `success' : 'failed')
+    await logCardAction(cardId, action, userId, result.success ? `success` : `failed')
 
     // Update the card if we have the necessary information
     if (result.success && teamId && channelId && messageId && result.updatedCard) {

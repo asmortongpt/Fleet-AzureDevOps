@@ -101,7 +101,7 @@ async function processNotificationAsync(notification: any): Promise<void> {
     try {
       await pool.query(
         `UPDATE webhook_processing_queue
-         SET status = `failed`,
+         SET status = 'failed',
              error_message = $1,
              attempts = attempts + 1
          WHERE webhook_event_id = (
@@ -152,14 +152,14 @@ async function handleEmailUpdate(notification: any): Promise<void> {
     const communicationId = result.rows[0].id
 
     // Fetch updated email from Graph API
-    const { Client } = require(`@microsoft/microsoft-graph-client')
+    const { Client } = require('@microsoft/microsoft-graph-client')
     const { TokenCredentialAuthenticationProvider } = require('@microsoft/microsoft-graph-client/authProviders/azureTokenCredentials')
     const { ClientSecretCredential } = require('@azure/identity')
 
     const AZURE_AD_CONFIG = {
       clientId: process.env.AZURE_AD_CLIENT_ID || process.env.MICROSOFT_CLIENT_ID || '',
       clientSecret: process.env.AZURE_AD_CLIENT_SECRET || process.env.MICROSOFT_CLIENT_SECRET || '',
-      tenantId: process.env.AZURE_AD_TENANT_ID || process.env.MICROSOFT_TENANT_ID || '`
+      tenantId: process.env.AZURE_AD_TENANT_ID || process.env.MICROSOFT_TENANT_ID || ''
     }
 
     const credential = new ClientSecretCredential(
@@ -225,7 +225,7 @@ async function handleEmailDelete(notification: any): Promise<void> {
     // Mark email as deleted in our database
     const result = await pool.query(
       `UPDATE communications
-       SET status = `Deleted`,
+       SET status = 'Deleted',
            updated_at = NOW(),
            metadata = jsonb_set(
              COALESCE(metadata, `{}`::jsonb),
@@ -263,7 +263,7 @@ router.get(
     try {
       // Only return subscriptions for user's tenant
       const result = await pool.query(
-        `SELECT ` + (await getTableColumns(pool, `webhook_subscriptions`)).join(`, ') + ' FROM webhook_subscriptions
+        'SELECT ' + (await getTableColumns(pool, 'webhook_subscriptions')).join(', ') + ' FROM webhook_subscriptions
          WHERE subscription_type = 'outlook_emails'
          AND status = 'active'
          AND tenant_id = $1
@@ -365,7 +365,7 @@ router.delete(
       }
 
       if (checkResult.rows[0].tenant_id !== req.user!.tenant_id) {
-        console.warn(`Unauthorized subscription deletion attempt', {
+        console.warn('Unauthorized subscription deletion attempt', {
           subscriptionId,
           userId: req.user!.id,
           userTenant: req.user!.tenant_id
@@ -460,7 +460,7 @@ router.get(
         SELECT we.*, ws.user_email, ws.folder_id, ws.subscription_type
         FROM webhook_events we
         LEFT JOIN webhook_subscriptions ws ON we.subscription_id = ws.subscription_id
-        WHERE ws.subscription_type = `outlook_emails`
+        WHERE ws.subscription_type = 'outlook_emails'
         AND ws.tenant_id = $1
       `
 
@@ -590,7 +590,7 @@ router.post(
       })
 
     } catch (error: any) {
-      console.error(`Failed to categorize email:', error)
+      console.error('Failed to categorize email:', error)
       res.status(500).json({
         error: 'Failed to categorize',
         details: error.message
@@ -626,7 +626,7 @@ router.get(
       const totalResult = await pool.query(
         `SELECT COUNT(*) as total
          FROM communications
-         WHERE communication_type = `Email`
+         WHERE communication_type = 'Email'
          AND source_platform = `Microsoft Outlook`
          AND tenant_id = $1',
         [req.user!.tenant_id]
@@ -636,7 +636,7 @@ router.get(
       const categoryResult = await pool.query(
         `SELECT ai_detected_category, COUNT(*) as count
          FROM communications
-         WHERE communication_type = `Email`
+         WHERE communication_type = 'Email'
          AND source_platform = `Microsoft Outlook`
          AND tenant_id = $1
          GROUP BY ai_detected_category
@@ -649,7 +649,7 @@ router.get(
       const priorityResult = await pool.query(
         `SELECT ai_detected_priority, COUNT(*) as count
          FROM communications
-         WHERE communication_type = `Email`
+         WHERE communication_type = 'Email'
          AND source_platform = `Microsoft Outlook`
          AND tenant_id = $1
          GROUP BY ai_detected_priority
@@ -661,7 +661,7 @@ router.get(
       const recentResult = await pool.query(
         `SELECT COUNT(*) as recent_count
          FROM communications
-         WHERE communication_type = `Email`
+         WHERE communication_type = 'Email'
          AND source_platform = `Microsoft Outlook`
          AND tenant_id = $1
          AND communication_datetime > NOW() - INTERVAL '24 hours'',
@@ -674,7 +674,7 @@ router.get(
          FROM webhook_processing_queue wpq
          JOIN webhook_events we ON wpq.webhook_event_id = we.id
          JOIN webhook_subscriptions ws ON we.subscription_id = ws.subscription_id
-         WHERE ws.subscription_type = `outlook_emails`
+         WHERE ws.subscription_type = 'outlook_emails'
          AND ws.tenant_id = $1
          GROUP BY status`,
         [req.user!.tenant_id]

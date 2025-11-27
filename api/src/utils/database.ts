@@ -163,7 +163,7 @@ export function buildWhereClause(
   }
 
   return {
-    where: conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}' : '`,
+    where: conditions.length > 0 ? `WHERE ${conditions.join(` AND ')}' : '`,
     values
   };
 }
@@ -292,7 +292,7 @@ export function getPool(): Pool {
  */
 export async function testConnection(): Promise<boolean> {
   try {
-    await query(`SELECT 1');
+    await query(`SELECT 1`);
     return true;
   } catch (error) {
     console.error('Database connection test failed:', error);

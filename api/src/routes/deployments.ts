@@ -26,7 +26,7 @@ router.get('/',
           SELECT json_agg(json_build_object(
             'gate_type', qg.gate_type,
             'status', qg.status,
-            `execution_time_seconds`, qg.execution_time_seconds
+            'execution_time_seconds', qg.execution_time_seconds
           ))
           FROM quality_gates qg
           WHERE qg.deployment_id = d.id
@@ -103,7 +103,7 @@ router.post('/',
         tenant_id, environment, version, commit_hash, branch,
         deployed_by_user_id, status, deployment_notes, metadata
       )
-      VALUES ($1, $2, $3, $4, $5, $6, `pending`, $7, $8)
+      VALUES ($1, $2, $3, $4, $5, $6, 'pending', $7, $8)
       RETURNING *`,
       [
         tenant_id,
@@ -233,7 +233,7 @@ router.get('/:id',
     )
 
     if (deploymentResult.rows.length === 0) {
-      return res.status(404).json({ error: `Deployment not found' })
+      return res.status(404).json({ error: 'Deployment not found' })
     }
 
     const qualityGatesResult = await pool.query(
@@ -270,8 +270,8 @@ router.get('/stats/summary',
       `SELECT
         environment,
         COUNT(*) as total_deployments,
-        COUNT(CASE WHEN status = `completed` THEN 1 END) as successful,
-        COUNT(CASE WHEN status = `failed` THEN 1 END) as failed,
+        COUNT(CASE WHEN status = 'completed' THEN 1 END) as successful,
+        COUNT(CASE WHEN status = 'failed' THEN 1 END) as failed,
         COUNT(CASE WHEN status = 'rolled_back' THEN 1 END) as rolled_back,
         ROUND(AVG(EXTRACT(EPOCH FROM (completed_at - started_at))/60), 2) as avg_duration_minutes
       FROM deployments

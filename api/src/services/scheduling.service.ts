@@ -249,7 +249,7 @@ export async function checkTechnicianAvailability(
        LEFT JOIN service_bays sb ON sbs.service_bay_id = sb.id
        WHERE sbs.tenant_id = $1
          AND sbs.assigned_technician_id = $2
-         AND sbs.status NOT IN (`cancelled', 'completed')
+         AND sbs.status NOT IN (`cancelled`, `completed')
          AND (
            ($3 BETWEEN sbs.scheduled_start AND sbs.scheduled_end) OR
            ($4 BETWEEN sbs.scheduled_start AND sbs.scheduled_end) OR
@@ -610,7 +610,7 @@ async function syncReservationToCalendars(
       Type: ${reservation.reservation_type}<br/>
       ${reservation.pickup_location ? `Pickup: ${reservation.pickup_location}<br/>` : ``}
       ${reservation.dropoff_location ? `Dropoff: ${reservation.dropoff_location}<br/>` : ``}
-      ${reservation.purpose ? `Purpose: ${reservation.purpose}<br/>' : ''}
+      ${reservation.purpose ? `Purpose: ${reservation.purpose}<br/>` : `'}
     `
 
     // Get enabled calendar integrations
@@ -701,7 +701,7 @@ async function syncMaintenanceToCalendars(
       VIN: ${appt.vin}<br/>
       Service Type: ${appt.appointment_type}<br/>
       ${appt.bay_name ? `Service Bay: ${appt.bay_name}<br/>` : ``}
-      ${appt.technician_name ? `Technician: ${appt.technician_name}<br/>' : ''}
+      ${appt.technician_name ? `Technician: ${appt.technician_name}<br/>` : `'}
     `
 
     // Get enabled calendar integrations for relevant users

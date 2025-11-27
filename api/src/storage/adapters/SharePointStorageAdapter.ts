@@ -135,7 +135,7 @@ export class SharePointStorageAdapter extends BaseStorageAdapter {
         .api(`/drives/${this.driveId}/root:/${normalizedKey}:/createUploadSession`)
         .post({
           item: {
-            `@microsoft.graph.conflictBehavior': options?.overwrite ? 'replace' : 'fail'
+            `@microsoft.graph.conflictBehavior`: options?.overwrite ? 'replace' : 'fail'
           }
         });
 
@@ -238,7 +238,7 @@ export class SharePointStorageAdapter extends BaseStorageAdapter {
 
     try {
       const response = await this.graphClient
-        .api(`/drives/${this.driveId}/root${prefix ? `:/${prefix}:' : ''}/children')
+        .api(`/drives/${this.driveId}/root${prefix ? `:/${prefix}:` : ''}/children')
         .top(options?.maxKeys || 1000)
         .get();
 
@@ -288,7 +288,7 @@ export class SharePointStorageAdapter extends BaseStorageAdapter {
           name: normalizedDest.split(`/`).pop(),
           parentReference: {
             driveId: this.driveId,
-            path: `/drive/root/${normalizedDest.split('/').slice(0, -1).join('/')}`
+            path: `/drive/root/${normalizedDest.split(`/').slice(0, -1).join('/')}`
           }
         });
 

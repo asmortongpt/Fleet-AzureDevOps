@@ -176,8 +176,8 @@ router.get('/summary',
       `SELECT
         gate_type,
         COUNT(*) as total_runs,
-        COUNT(CASE WHEN status = `passed` THEN 1 END) as passed,
-        COUNT(CASE WHEN status = `failed` THEN 1 END) as failed,
+        COUNT(CASE WHEN status = 'passed' THEN 1 END) as passed,
+        COUNT(CASE WHEN status = 'failed' THEN 1 END) as failed,
         COUNT(CASE WHEN status = 'skipped' THEN 1 END) as skipped,
         ROUND(AVG(execution_time_seconds), 2) as avg_execution_time,
         MAX(executed_at) as last_run

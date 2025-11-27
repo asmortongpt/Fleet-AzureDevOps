@@ -433,9 +433,9 @@ router.delete(
       // Update database
       await pool.query(
         `UPDATE vehicle_telematics_connections
-         SET sync_status = `disconnected`, updated_at = NOW()
+         SET sync_status = 'disconnected', updated_at = NOW()
          WHERE vehicle_id = $1
-         AND provider_id = (SELECT id FROM telematics_providers WHERE name = `smartcar`)',
+         AND provider_id = (SELECT id FROM telematics_providers WHERE name = 'smartcar')`,
         [vehicleId]
       )
 

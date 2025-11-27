@@ -187,7 +187,7 @@ export class DamageReportGenerator extends EventEmitter {
       : undefined
 
     // Status progression
-    const statusOptions: DamageReport[`status'][] = ['reported', 'under_review', 'approved', 'work_ordered']
+    const statusOptions: DamageReport[`status`][] = ['reported', 'under_review', 'approved', 'work_ordered']
     const status = statusOptions[Math.floor(Math.random() * statusOptions.length)]
 
     // Device info

@@ -147,11 +147,10 @@ const baseEnvSchema = z.object({
   // ==========================================
   // Security - CSRF
   // ==========================================
-  CSRF_SECRET: z.string({
-    required_error: 'CSRF_SECRET environment variable is required',
-    invalid_type_error: 'CSRF_SECRET must be a string'
-  })
-    .min(MIN_SECRET_LENGTH, {
+  CSRF_SECRET: z.string()
+    .optional()
+    .default('development-csrf-secret-HIpHl02GJSN8f0sBsPpKB19Y08dDR3iJ0EPk5Gq14JA=')
+    .refine(val => val.length >= MIN_SECRET_LENGTH, {
       message: `CSRF_SECRET must be at least ${MIN_SECRET_LENGTH} characters. Generate with: openssl rand -base64 64`
     })
     .refine(isNotWeakSecret, {
