@@ -267,7 +267,7 @@ struct TripCard: View {
                             Image(systemName: "location.fill")
                                 .font(.caption)
                                 .foregroundColor(.blue)
-                            Text(String(format: "%.1f mi", trip.distance))
+                            Text(String(format: "%.1f mi", trip.totalDistance))
                                 .font(.subheadline)
                         }
                     }
@@ -297,11 +297,19 @@ struct TripCard: View {
 
                 // Locations
                 VStack(alignment: .leading, spacing: 8) {
-                    LocationRow(
-                        type: .start,
-                        location: trip.startLocation.address,
-                        time: trip.startTime
-                    )
+                    if let startLocation = trip.startLocation {
+                        LocationRow(
+                            type: .start,
+                            location: startLocation.address,
+                            time: trip.startTime
+                        )
+                    } else {
+                        LocationRow(
+                            type: .start,
+                            location: "Location not available",
+                            time: trip.startTime
+                        )
+                    }
 
                     if let endLocation = trip.endLocation {
                         LocationRow(
@@ -567,156 +575,7 @@ struct DateRangePickerView: View {
     }
 }
 
-// MARK: - Trip Detail View
-struct TripDetailView: View {
-    let trip: Trip
-    @Environment(\.dismiss) private var dismiss
-
-    var body: some View {
-        NavigationView {
-            ScrollView {
-                VStack(spacing: 20) {
-                    // Header
-                    VStack(spacing: 8) {
-                        Image(systemName: "location.circle.fill")
-                            .font(.system(size: 60))
-                            .foregroundColor(.blue)
-
-                        Text(trip.vehicleNumber ?? "Unknown Vehicle")
-                            .font(.title.bold())
-
-                        TripStatusBadge(status: trip.status)
-                    }
-                    .padding()
-
-                    // Map View (placeholder)
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("Trip Route")
-                            .font(.headline)
-                            .padding(.horizontal)
-
-                        RoundedRectangle(cornerRadius: 12)
-                            .fill(Color(.systemGray5))
-                            .frame(height: 200)
-                            .overlay(
-                                VStack {
-                                    Image(systemName: "map")
-                                        .font(.largeTitle)
-                                        .foregroundColor(.gray)
-                                    Text("Route visualization")
-                                        .font(.caption)
-                                        .foregroundColor(.secondary)
-                                }
-                            )
-                            .padding(.horizontal)
-                    }
-
-                    // Trip Metrics
-                    LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 16) {
-                        MetricCard(title: "Distance", value: String(format: "%.1f mi", trip.distanceMiles ?? 0), icon: "location.fill", color: .blue)
-                        MetricCard(title: "Duration", value: formatDuration(trip.duration), icon: "clock.fill", color: .orange)
-                        MetricCard(title: "Avg Speed", value: String(format: "%.0f mph", trip.averageSpeed), icon: "speedometer", color: .green)
-                        MetricCard(title: "Max Speed", value: String(format: "%.0f mph", trip.maxSpeed), icon: "gauge.high", color: .red)
-                        MetricCard(title: "Fuel Used", value: String(format: "%.1f gal", trip.fuelUsed), icon: "fuelpump.fill", color: .purple)
-                        MetricCard(title: "Driver", value: trip.driverName, icon: "person.fill", color: .gray)
-                    }
-                    .padding()
-
-                    // Events
-                    if !trip.events.isEmpty {
-                        VStack(alignment: .leading, spacing: 12) {
-                            Text("Trip Events")
-                                .font(.headline)
-                                .padding(.horizontal)
-
-                            VStack(spacing: 8) {
-                                ForEach(Array(trip.events.enumerated()), id: \.offset) { _, event in
-                                    HStack {
-                                        Image(systemName: eventIcon(for: event.type))
-                                            .foregroundColor(eventColor(for: event.severity))
-                                        Text(event.type.rawValue)
-                                            .font(.subheadline)
-                                        Spacer()
-                                        Text(event.timestamp, style: .time)
-                                            .font(.caption)
-                                            .foregroundColor(.secondary)
-                                    }
-                                    .padding()
-                                    .background(Color(.secondarySystemGroupedBackground))
-                                    .cornerRadius(8)
-                                }
-                            }
-                            .padding(.horizontal)
-                        }
-                    }
-
-                    // Actions
-                    VStack(spacing: 12) {
-                        Button(action: {}) {
-                            Label("Export Trip", systemImage: "square.and.arrow.up")
-                                .frame(maxWidth: .infinity)
-                                .padding()
-                                .background(Color.blue)
-                                .foregroundColor(.white)
-                                .cornerRadius(10)
-                        }
-
-                        Button(action: {}) {
-                            Label("View Vehicle", systemImage: "car")
-                                .frame(maxWidth: .infinity)
-                                .padding()
-                                .background(Color.green)
-                                .foregroundColor(.white)
-                                .cornerRadius(10)
-                        }
-                    }
-                    .padding()
-                }
-            }
-            .navigationTitle("Trip Details")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Done") {
-                        dismiss()
-                    }
-                }
-            }
-        }
-    }
-
-    private func formatDuration(_ duration: TimeInterval) -> String {
-        let hours = Int(duration) / 3600
-        let minutes = (Int(duration) % 3600) / 60
-
-        if hours > 0 {
-            return "\(hours)h \(minutes)m"
-        } else {
-            return "\(minutes) min"
-        }
-    }
-
-    private func eventIcon(for type: TripModels.TripEvent.EventType) -> String {
-        switch type {
-        case .start: return "play.circle"
-        case .stop: return "stop.circle"
-        case .hardBraking: return "exclamationmark.triangle"
-        case .rapidAcceleration: return "hare"
-        case .speeding: return "gauge.high"
-        case .idle: return "pause.circle"
-        case .geofenceEntry: return "location.circle"
-        case .geofenceExit: return "location.slash.circle"
-        }
-    }
-
-    private func eventColor(for severity: TripModels.TripEvent.Severity) -> Color {
-        switch severity {
-        case .low: return .green
-        case .medium: return .orange
-        case .high: return .red
-        }
-    }
-}
+// NOTE: TripDetailView is now defined in TripDetailView.swift (standalone file)
 
 // MARK: - Metric Card
 struct MetricCard: View {
@@ -774,6 +633,8 @@ private struct TripStatusBadge: View {
             return .blue
         case .cancelled:
             return .gray
+        case .inProgress:
+            return .green
         }
     }
 }
