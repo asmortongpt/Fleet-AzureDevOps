@@ -38,6 +38,29 @@ struct PresenceUser: Codable, Identifiable {
     }
 }
 
+// MARK: - PTT Channel
+
+struct PTTChannel: Identifiable, Codable {
+    let id: String
+    let name: String
+    let type: ChannelType
+    let memberCount: Int
+
+    enum ChannelType: String, Codable {
+        case dispatch = "Dispatch"
+        case operations = "Operations"
+        case emergency = "Emergency"
+        case general = "General"
+    }
+
+    init(id: String, name: String, type: ChannelType = .general, memberCount: Int = 0) {
+        self.id = id
+        self.name = name
+        self.type = type
+        self.memberCount = memberCount
+    }
+}
+
 // MARK: - PTT State
 
 struct PTTState {
@@ -79,6 +102,35 @@ enum DispatchClientEvent: Codable {
         case token
         case channelId
         case on
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        let type = try container.decode(String.self, forKey: .type)
+
+        switch type {
+        case "auth":
+            let token = try container.decode(String.self, forKey: .token)
+            self = .auth(token: token)
+        case "joinChannel":
+            let channelId = try container.decode(ChannelId.self, forKey: .channelId)
+            self = .joinChannel(channelId: channelId)
+        case "leaveChannel":
+            let channelId = try container.decode(ChannelId.self, forKey: .channelId)
+            self = .leaveChannel(channelId: channelId)
+        case "requestFloor":
+            let channelId = try container.decode(ChannelId.self, forKey: .channelId)
+            self = .requestFloor(channelId: channelId)
+        case "releaseFloor":
+            let channelId = try container.decode(ChannelId.self, forKey: .channelId)
+            self = .releaseFloor(channelId: channelId)
+        case "speaking":
+            let channelId = try container.decode(ChannelId.self, forKey: .channelId)
+            let on = try container.decode(Bool.self, forKey: .on)
+            self = .speaking(channelId: channelId, on: on)
+        default:
+            throw DecodingError.dataCorruptedError(forKey: .type, in: container, debugDescription: "Unknown event type: \(type)")
+        }
     }
 
     func encode(to encoder: Encoder) throws {
@@ -181,6 +233,49 @@ enum DispatchServerEvent: Codable {
 
         default:
             throw DecodingError.dataCorruptedError(forKey: .type, in: container, debugDescription: "Unknown event type: \(type)")
+        }
+    }
+
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+
+        switch self {
+        case .authOk:
+            try container.encode("authOk", forKey: .type)
+
+        case .authError(let message):
+            try container.encode("authError", forKey: .type)
+            try container.encode(message, forKey: .message)
+
+        case .floorGranted(let channelId, let holderUserId, let expiresAt):
+            try container.encode("floorGranted", forKey: .type)
+            try container.encode(channelId, forKey: .channelId)
+            try container.encode(holderUserId, forKey: .holderUserId)
+            try container.encode(expiresAt, forKey: .expiresAt)
+
+        case .floorDenied(let channelId, let reason):
+            try container.encode("floorDenied", forKey: .type)
+            try container.encode(channelId, forKey: .channelId)
+            try container.encode(reason, forKey: .reason)
+
+        case .floorReleased(let channelId):
+            try container.encode("floorReleased", forKey: .type)
+            try container.encode(channelId, forKey: .channelId)
+
+        case .speakerUpdate(let channelId, let userId, let on):
+            try container.encode("speakerUpdate", forKey: .type)
+            try container.encode(channelId, forKey: .channelId)
+            try container.encodeIfPresent(userId, forKey: .userId)
+            try container.encode(on, forKey: .on)
+
+        case .presenceUpdate(let channelId, let users):
+            try container.encode("presenceUpdate", forKey: .type)
+            try container.encode(channelId, forKey: .channelId)
+            try container.encode(users, forKey: .users)
+
+        case .error(let message):
+            try container.encode("error", forKey: .type)
+            try container.encode(message, forKey: .message)
         }
     }
 }
