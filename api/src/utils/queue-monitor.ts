@@ -62,9 +62,9 @@ export class QueueMonitor {
         );
       }
 
-      console.log('📊 Queue statistics collected successfully');
+      console.log(`📊 Queue statistics collected successfully`);
     } catch (error) {
-      console.error('Failed to collect queue statistics:', error);
+      console.error(`Failed to collect queue statistics:', error);
     }
   }
 
@@ -216,7 +216,7 @@ export class QueueMonitor {
       message, severity, acknowledged, created_at, updated_at
     FROM queue_alerts
          ORDER BY created_at DESC
-         LIMIT $1',
+         LIMIT $1`,
         [limit]
       );
 
@@ -230,7 +230,7 @@ export class QueueMonitor {
         timestamp: row.created_at
       }));
     } catch (error) {
-      console.error('Failed to get recent alerts:', error);
+      console.error(`Failed to get recent alerts:`, error);
       return [];
     }
   }
@@ -254,7 +254,7 @@ export class QueueMonitor {
 
       const result = await pool.query(
         `SELECT
-          DATE_TRUNC('hour', timestamp) as hour,
+          DATE_TRUNC(`hour`, timestamp) as hour,
           AVG(jobs_pending) as avg_pending,
           AVG(jobs_active) as avg_active,
           AVG(jobs_completed) as avg_completed,
@@ -263,7 +263,7 @@ export class QueueMonitor {
           AVG(jobs_per_minute) as avg_jobs_per_minute
          FROM queue_statistics
          WHERE queue_name = $1 AND timestamp > NOW() - $2::INTERVAL
-         GROUP BY DATE_TRUNC('hour', timestamp)
+         GROUP BY DATE_TRUNC(`hour`, timestamp)
          ORDER BY hour DESC`,
         [queueName, interval]
       );
@@ -335,7 +335,7 @@ export class QueueMonitor {
 
       return report;
     } catch (error) {
-      console.error('Failed to generate performance report:', error);
+      console.error(`Failed to generate performance report:`, error);
       throw error;
     }
   }
@@ -350,7 +350,7 @@ export class QueueMonitor {
 
       const result = await pool.query(
         `DELETE FROM queue_statistics
-         WHERE created_at < NOW() - ($1 || ' days')::INTERVAL`,
+         WHERE created_at < NOW() - ($1 || ` days`)::INTERVAL`,
         [daysToKeepNum]
       );
 
@@ -368,7 +368,7 @@ export class QueueMonitor {
       ...this.alertThresholds,
       ...newThresholds
     };
-    console.log('✅ Alert thresholds updated:', this.alertThresholds);
+    console.log(`✅ Alert thresholds updated:', this.alertThresholds);
   }
 
   /**

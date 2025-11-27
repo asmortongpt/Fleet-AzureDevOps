@@ -181,7 +181,7 @@ router.post('/start', requirePermission('route:create:own'), auditLog, async (re
         tenantId,
         validated.vehicle_id || null,
         driverId,
-        'in_progress',
+        `in_progress`,
         validated.start_time,
         JSON.stringify(validated.start_location),
         validated.start_odometer_miles || null,
@@ -193,7 +193,7 @@ router.post('/start', requirePermission('route:create:own'), auditLog, async (re
 
     res.status(201).json({
       success: true,
-      message: 'Trip started',
+      message: `Trip started`,
       trip_id: trip.id,
       trip
     });
@@ -252,18 +252,18 @@ router.post('/:id/end', requirePermission('route:update:own'), auditLog, async (
 
     // Verify trip exists and user has access
     const tripCheck = await pool.query(
-      'SELECT id, driver_id FROM trips WHERE id = $1 AND tenant_id = $2',
+      `SELECT id, driver_id FROM trips WHERE id = $1 AND tenant_id = $2`,
       [tripId, tenantId]
     );
 
     if (tripCheck.rows.length === 0) {
-      return res.status(404).json({ error: 'Trip not found' });
+      return res.status(404).json({ error: `Trip not found` });
     }
 
     const trip = tripCheck.rows[0];
 
     // Verify user is the driver or has admin access
-    if (trip.driver_id !== userId && !['admin', 'fleet_manager'].includes((req as any).user.role)) {
+    if (trip.driver_id !== userId && ![`admin`, 'fleet_manager'].includes((req as any).user.role)) {
       return res.status(403).json({ error: 'Access denied' });
     }
 
@@ -271,7 +271,7 @@ router.post('/:id/end', requirePermission('route:update:own'), auditLog, async (
     let distanceMiles = validated.distance_miles;
     if (!distanceMiles && validated.end_odometer_miles) {
       const startOdometer = await pool.query(
-        'SELECT start_odometer_miles FROM trips WHERE id = $1',
+        `SELECT start_odometer_miles FROM trips WHERE id = $1`,
         [tripId]
       );
       if (startOdometer.rows[0]?.start_odometer_miles) {
@@ -280,7 +280,7 @@ router.post('/:id/end', requirePermission('route:update:own'), auditLog, async (
     }
 
     // Update trip
-    const status = validated.status || 'completed';
+    const status = validated.status || `completed`;
     const result = await pool.query(
       `UPDATE trips SET
         status = $1,
@@ -326,11 +326,11 @@ router.post('/:id/end', requirePermission('route:update:own'), auditLog, async (
 
     res.json({
       success: true,
-      message: 'Trip ended',
+      message: `Trip ended`,
       trip: result.rows[0]
     });
   } catch (error: any) {
-    console.error('Error ending trip:', error);
+    console.error(`Error ending trip:`, error);
     if (error instanceof z.ZodError) {
       return res.status(400).json({ error: 'Invalid request data', details: error.errors });
     }
@@ -384,18 +384,18 @@ router.post('/:id/metrics', requirePermission('route:update:own'), async (req: R
 
     // Verify trip exists
     const tripCheck = await pool.query(
-      'SELECT id FROM trips WHERE id = $1 AND tenant_id = $2',
+      `SELECT id FROM trips WHERE id = $1 AND tenant_id = $2`,
       [tripId, tenantId]
     );
 
     if (tripCheck.rows.length === 0) {
-      return res.status(404).json({ error: 'Trip not found' });
+      return res.status(404).json({ error: `Trip not found` });
     }
 
     const client = await pool.connect();
 
     try {
-      await client.query('BEGIN');
+      await client.query(`BEGIN`);
 
       // Insert OBD2 metrics
       if (validated.metrics && validated.metrics.length > 0) {
@@ -490,7 +490,7 @@ router.post('/:id/metrics', requirePermission('route:update:own'), async (req: R
 
       res.json({
         success: true,
-        message: 'Metrics saved',
+        message: `Metrics saved`,
         counts: {
           metrics: validated.metrics?.length || 0,
           breadcrumbs: validated.breadcrumbs?.length || 0,
@@ -498,7 +498,7 @@ router.post('/:id/metrics', requirePermission('route:update:own'), async (req: R
         }
       });
     } catch (error) {
-      await client.query('ROLLBACK');
+      await client.query(`ROLLBACK`);
       throw error;
     } finally {
       client.release();
@@ -562,12 +562,12 @@ router.get('/:id', requirePermission('route:view:own'), async (req: Request, res
       FROM trips t
       LEFT JOIN vehicles v ON t.vehicle_id = v.id
       LEFT JOIN users u ON t.driver_id = u.id
-      WHERE t.id = $1 AND t.tenant_id = $2',
+      WHERE t.id = $1 AND t.tenant_id = $2`,
       [tripId, tenantId]
     );
 
     if (tripResult.rows.length === 0) {
-      return res.status(404).json({ error: 'Trip not found' });
+      return res.status(404).json({ error: `Trip not found` });
     }
 
     const trip = tripResult.rows[0];
@@ -610,8 +610,8 @@ router.get('/:id', requirePermission('route:view:own'), async (req: Request, res
       trip
     });
   } catch (error: any) {
-    console.error('Error getting trip:', error);
-    res.status(500).json({ error: 'Failed to get trip' });
+    console.error(`Error getting trip:`, error);
+    res.status(500).json({ error: `Failed to get trip` });
   }
 });
 
@@ -657,18 +657,18 @@ router.patch('/:id/classify', requirePermission('route:update:own'), auditLog, a
 
     // Verify trip exists and user has access
     const tripCheck = await pool.query(
-      'SELECT id, driver_id FROM trips WHERE id = $1 AND tenant_id = $2',
+      `SELECT id, driver_id FROM trips WHERE id = $1 AND tenant_id = $2`,
       [tripId, tenantId]
     );
 
     if (tripCheck.rows.length === 0) {
-      return res.status(404).json({ error: 'Trip not found' });
+      return res.status(404).json({ error: `Trip not found` });
     }
 
     const trip = tripCheck.rows[0];
 
     // Verify user is the driver or has admin access
-    if (trip.driver_id !== userId && !['admin', 'fleet_manager'].includes((req as any).user.role)) {
+    if (trip.driver_id !== userId && ![`admin`, 'fleet_manager'].includes((req as any).user.role)) {
       return res.status(403).json({ error: 'Access denied' });
     }
 
@@ -677,7 +677,7 @@ router.patch('/:id/classify', requirePermission('route:update:own'), auditLog, a
       `UPDATE trips SET
         usage_type = $1,
         business_purpose = $2,
-        classification_status = 'classified',
+        classification_status = `classified`,
         updated_at = CURRENT_TIMESTAMP
       WHERE id = $3 AND tenant_id = $4
       RETURNING *`,
@@ -690,7 +690,7 @@ router.patch('/:id/classify', requirePermission('route:update:own'), auditLog, a
     );
 
     // Create trip usage classification entry for reporting
-    if (validated.usage_type === 'personal' || validated.usage_type === 'mixed') {
+    if (validated.usage_type === `personal` || validated.usage_type === 'mixed') {
       const tripData = result.rows[0];
 
       await pool.query(
@@ -713,9 +713,9 @@ router.patch('/:id/classify', requirePermission('route:update:own'), auditLog, a
           tripData.driver_id,
           validated.usage_type,
           validated.business_purpose || null,
-          validated.business_percentage || (validated.usage_type === 'personal' ? 0 : 100),
+          validated.business_percentage || (validated.usage_type === `personal` ? 0 : 100),
           tripData.distance_miles || 0,
-          validated.usage_type === 'business' ? tripData.distance_miles :
+          validated.usage_type === `business` ? tripData.distance_miles :
             (validated.business_percentage ? tripData.distance_miles * validated.business_percentage / 100 : 0),
           validated.usage_type === 'personal' ? tripData.distance_miles :
             (validated.business_percentage ? tripData.distance_miles * (100 - validated.business_percentage) / 100 : 0),
@@ -876,7 +876,7 @@ router.get('/', requirePermission('route:view:fleet'), async (req: Request, res:
     });
   } catch (error: any) {
     console.error(`Error getting trips:`, error);
-    res.status(500).json({ error: 'Failed to get trips' });
+    res.status(500).json({ error: `Failed to get trips` });
   }
 });
 
