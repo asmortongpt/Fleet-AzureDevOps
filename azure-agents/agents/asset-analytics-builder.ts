@@ -97,7 +97,7 @@ async function generateWithOpenAI(prompt: string): Promise<string> {
         { role: 'user', content: prompt }
       ],
       temperature: 0.2,
-      max_tokens: 8000
+      max_tokens: 4000
     })
   });
 
