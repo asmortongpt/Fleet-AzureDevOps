@@ -379,9 +379,21 @@ struct MoreView: View {
                     }
                 }
 
+                // MARK: - System Health (AI Error Recovery)
+                Section(header: Text("System Health")) {
+                    NavigationLink(destination: ErrorRecoveryView()) {
+                        FeatureRow(
+                            icon: "heart.circle.fill",
+                            iconColor: .green,
+                            title: "System Health",
+                            subtitle: "AI-powered error recovery and diagnostics"
+                        )
+                    }
+                }
+
                 // MARK: - Personal Use
                 Section(header: Text("Personal Use")) {
-                    NavigationLink(destination: PersonalUseDashboardView()) {
+                    NavigationLink(destination: Text("Personal Use Dashboard\nComing Soon").multilineTextAlignment(.center)) {
                         FeatureRow(
                             icon: "person.crop.circle.fill",
                             iconColor: .cyan,
@@ -390,7 +402,7 @@ struct MoreView: View {
                         )
                     }
 
-                    NavigationLink(destination: ReimbursementQueueView()) {
+                    NavigationLink(destination: Text("Reimbursement Queue\nComing Soon").multilineTextAlignment(.center)) {
                         FeatureRow(
                             icon: "dollarsign.circle.fill",
                             iconColor: .green,
@@ -402,7 +414,7 @@ struct MoreView: View {
 
                 // MARK: - Support & Help
                 Section(header: Text("Help & Support")) {
-                    NavigationLink(destination: HelpCenterView()) {
+                    NavigationLink(destination: Text("Help Center\nComing Soon").multilineTextAlignment(.center)) {
                         FeatureRow(
                             icon: "questionmark.circle.fill",
                             iconColor: .blue,
@@ -411,7 +423,7 @@ struct MoreView: View {
                         )
                     }
 
-                    NavigationLink(destination: SupportTicketView()) {
+                    NavigationLink(destination: Text("Support Tickets\nComing Soon").multilineTextAlignment(.center)) {
                         FeatureRow(
                             icon: "lifepreserver.fill",
                             iconColor: .orange,
