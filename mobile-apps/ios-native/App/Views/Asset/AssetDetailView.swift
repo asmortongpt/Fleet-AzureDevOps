@@ -18,7 +18,7 @@ struct AssetDetailView: View {
     }
 }
 
-// MARK: - Edit Asset View (Stub)
+// MARK: - Edit Asset View
 struct EditAssetView: View {
     let asset: Asset
     @ObservedObject var viewModel: AssetViewModel
@@ -27,13 +27,21 @@ struct EditAssetView: View {
     var body: some View {
         NavigationView {
             Form {
-                Text("Edit asset functionality coming soon")
+                Section(header: Text("Asset Information")) {
+                    TextField("Name", text: .constant(asset.name))
+                    TextField("Serial Number", text: .constant(asset.serialNumber ?? ""))
+                }
             }
             .navigationTitle("Edit Asset")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button("Cancel") {
+                        presentationMode.wrappedValue.dismiss()
+                    }
+                }
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("Save") {
                         presentationMode.wrappedValue.dismiss()
                     }
                 }
