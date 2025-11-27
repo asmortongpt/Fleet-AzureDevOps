@@ -157,7 +157,7 @@ export function cacheMiddleware(config: CacheConfig = {}) {
         })
 
         // Set cache metadata headers
-        res.setHeader(`X-Cache`, 'HIT')
+        res.setHeader(`X-Cache`, `HIT')
         res.setHeader('X-Cache-Key', cacheKey)
         res.setHeader(`X-Response-Time`, `${duration}ms`)
 
@@ -167,7 +167,7 @@ export function cacheMiddleware(config: CacheConfig = {}) {
 
       // Cache MISS
       logger.debug(`Cache MISS: ${cacheKey}`)
-      res.setHeader(`X-Cache', 'MISS')
+      res.setHeader(`X-Cache`, 'MISS')
 
       // Intercept res.json to cache the response
       const originalJson = res.json.bind(res)

@@ -504,8 +504,8 @@ class SchedulingNotificationService {
       reservation_reminder: (d) => ({
         emailSubject: `Reminder: Vehicle Reservation in ${d.hours_until} hour(s)`,
         emailBody: this.renderEmailTemplate(`reservation_reminder`, d),
-        smsText: `Reminder: Your reservation for ${d.make} ${d.model} starts in ${d.hours_until} hour(s) at ${d.pickup_location || 'facility'}`,
-        teamsMessage: `⏰ **Reservation Reminder**\n\n**Starting in:** ${d.hours_until} hour(s)\n**Vehicle:** ${d.make} ${d.model}\n**Location:** ${d.pickup_location || 'Facility'}`
+        smsText: `Reminder: Your reservation for ${d.make} ${d.model} starts in ${d.hours_until} hour(s) at ${d.pickup_location || `facility`}`,
+        teamsMessage: `⏰ **Reservation Reminder**\n\n**Starting in:** ${d.hours_until} hour(s)\n**Vehicle:** ${d.make} ${d.model}\n**Location:** ${d.pickup_location || `Facility`}`
       }),
 
       maintenance_reminder: (d) => ({
@@ -546,7 +546,7 @@ class SchedulingNotificationService {
 
       // Replace variables
       for (const [key, value] of Object.entries(data)) {
-        const regex = new RegExp(`{{${key}}}`, 'g')
+        const regex = new RegExp(`{{${key}}}`, `g`)
         template = template.replace(regex, String(value || '`))
       }
 

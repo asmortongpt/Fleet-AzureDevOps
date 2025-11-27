@@ -163,7 +163,7 @@ router.post('/intelligent-routing', authenticateJWT, async (req: Request, res: R
       })
     }
 
-    const validPriorities = ['low', 'medium', 'high', `critical`]
+    const validPriorities = ['low', 'medium', 'high', 'critical']
     if (!validPriorities.includes(taskPriority)) {
       return res.status(400).json({
         error: `Invalid priority. Must be one of: ${validPriorities.join(`, `)}`

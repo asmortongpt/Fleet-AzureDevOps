@@ -158,12 +158,12 @@ class EmailNotificationService {
   }
 
   async sendApprovalResult(notification: ApprovalResultNotification): Promise<boolean> {
-    const isApproved = notification.status === `approved`
+    const isApproved = notification.status === 'approved'
     const subject = `Personal Use Trip ${isApproved ? 'Approved' : 'Rejected'}`
     const html = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h2 style="color: ${isApproved ? "#10b981` : `#ef4444"};">
-          Trip ${isApproved ? 'Approved' : 'Rejected`}
+        <h2 style="color: ${isApproved ? '#10b981' : '#ef4444'};">
+          Trip ${isApproved ? 'Approved' : 'Rejected'}
         </h2>
 
         <p>Hello ${notification.driverName},</p>
@@ -182,7 +182,7 @@ class EmailNotificationService {
             </tr>
             <tr>
               <td style="padding: 8px 0;"><strong>Status:</strong></td>
-              <td style="padding: 8px 0; color: ${isApproved ? "#10b981` : `#ef4444"};">
+              <td style="padding: 8px 0; color: ${isApproved ? '#10b981' : '#ef4444'};">
                 <strong>${notification.status.toUpperCase()}</strong>
               </td>
             </tr>
@@ -191,7 +191,7 @@ class EmailNotificationService {
               <td style="padding: 8px 0;"><strong>Reason:</strong></td>
               <td style="padding: 8px 0;">${notification.rejectionReason}</td>
             </tr>
-            ` : ``}
+            ` : ''}
           </table>
         </div>
 

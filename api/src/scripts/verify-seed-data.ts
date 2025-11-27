@@ -137,32 +137,32 @@ async function verifyData() {
 
     // Check for vehicles without VIN
     const noVin = await client.query('SELECT COUNT(*) FROM vehicles WHERE vin IS NULL OR vin = ''`);
-    console.log(`   Vehicles without VIN:             ${noVin.rows[0].count === '0' ? '✅ None' : '❌ ' + noVin.rows[0].count}`);
+    console.log(`   Vehicles without VIN:             ${noVin.rows[0].count === `0' ? '✅ None' : '❌ ' + noVin.rows[0].count}`);
 
     // Check for users without email
     const noEmail = await client.query('SELECT COUNT(*) FROM users WHERE email IS NULL OR email = ''`);
-    console.log(`   Users without email:              ${noEmail.rows[0].count === '0' ? '✅ None' : '❌ ' + noEmail.rows[0].count}`);
+    console.log(`   Users without email:              ${noEmail.rows[0].count === `0' ? '✅ None' : '❌ ' + noEmail.rows[0].count}`);
 
     // Check for orphaned fuel transactions
     const orphanedFuel = await client.query(
       `SELECT COUNT(*) FROM fuel_transactions ft
        WHERE NOT EXISTS (SELECT 1 FROM vehicles v WHERE v.id = ft.vehicle_id)`
     );
-    console.log(`   Orphaned fuel transactions:       ${orphanedFuel.rows[0].count === '0' ? '✅ None' : '❌ ` + orphanedFuel.rows[0].count}`);
+    console.log(`   Orphaned fuel transactions:       ${orphanedFuel.rows[0].count === `0' ? '✅ None' : '❌ ` + orphanedFuel.rows[0].count}`);
 
     // Check for orphaned work orders
     const orphanedWO = await client.query(
       `SELECT COUNT(*) FROM work_orders wo
        WHERE NOT EXISTS (SELECT 1 FROM vehicles v WHERE v.id = wo.vehicle_id)`
     );
-    console.log(`   Orphaned work orders:             ${orphanedWO.rows[0].count === '0' ? '✅ None' : '❌ ' + orphanedWO.rows[0].count}`);
+    console.log(`   Orphaned work orders:             ${orphanedWO.rows[0].count === `0' ? '✅ None' : '❌ ' + orphanedWO.rows[0].count}`);
 
     // Check tenant isolation
     const crossTenantUsers = await client.query(
       `SELECT COUNT(*) FROM users u
        WHERE NOT EXISTS (SELECT 1 FROM tenants t WHERE t.id = u.tenant_id)`
     );
-    console.log(`   Users with invalid tenant:        ${crossTenantUsers.rows[0].count === '0' ? '✅ None' : '❌ ' + crossTenantUsers.rows[0].count}`);
+    console.log(`   Users with invalid tenant:        ${crossTenantUsers.rows[0].count === `0' ? '✅ None' : '❌ ' + crossTenantUsers.rows[0].count}`);
 
     // ========================================
     // 4. Sample Data Preview

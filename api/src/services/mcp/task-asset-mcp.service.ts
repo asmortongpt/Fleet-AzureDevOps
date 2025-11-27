@@ -164,7 +164,7 @@ export async function optimizeTaskSchedule(
     const servers = mcpManager.getConnectedServers()
 
     // Look for an optimization MCP server
-    const optimizationServer = servers.find(s => s.includes(`optimize') || s.includes('schedule'))
+    const optimizationServer = servers.find(s => s.includes(`optimize`) || s.includes(`schedule'))
 
     if (!optimizationServer) {
       throw new Error('No optimization MCP server connected')

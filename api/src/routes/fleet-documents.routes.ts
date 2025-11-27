@@ -376,7 +376,7 @@ router.get(
       const result = await pool.query(
         `SELECT
           fd.*,
-          v.make || ` ` || v.model || ` (` || v.license_plate || ')' as vehicle_name,
+          v.make || ' ` || v.model || ` (` || v.license_plate || ')' as vehicle_name,
           d.first_name || ' ' || d.last_name as driver_name,
           wo.title as work_order_title,
           uploader.first_name || ' ' || uploader.last_name as uploaded_by_name
@@ -456,7 +456,7 @@ router.delete(
 
       res.json({
         success: true,
-        message: `Document archived successfully'
+        message: 'Document archived successfully'
       })
     } catch (error: any) {
       console.error('Delete fleet document error:', error)
@@ -504,7 +504,7 @@ router.get(
       const result = await pool.query(
         `SELECT
           fd.*,
-          v.make || ` ` || v.model || ` (` || v.license_plate || ')' as vehicle_name,
+          v.make || ' ` || v.model || ` (` || v.license_plate || ')' as vehicle_name,
           d.first_name || ' ' || d.last_name as driver_name,
           wo.title as work_order_title,
           EXTRACT(DAY FROM (fd.expires_at - NOW())) as days_until_expiry

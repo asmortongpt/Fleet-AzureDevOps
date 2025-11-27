@@ -64,7 +64,7 @@ router.get(
       }
 
       // Build query with date filters
-      let dateFilter = ``;
+      let dateFilter = '';
       const params: any[] = [vehicleId, req.user!.tenant_id];
       let paramIndex = 3;
 
@@ -153,7 +153,7 @@ router.get(
       });
     } catch (error) {
       console.error(`Get vehicle location history error:`, error);
-      res.status(500).json({ error: `Internal server error' });
+      res.status(500).json({ error: 'Internal server error' });
     }
   }
 );
@@ -287,7 +287,7 @@ router.get(
       }
 
       // Build date filter
-      let dateFilter = ``;
+      let dateFilter = '';
       const params: any[] = [vehicleId, req.user!.tenant_id];
       let paramIndex = 3;
 
@@ -309,7 +309,7 @@ router.get(
           -- Trip start/end events
           (
             SELECT
-              `trip_start` as event_type,
+              'trip_start' as event_type,
               start_time as timestamp,
               start_latitude as latitude,
               start_longitude as longitude,

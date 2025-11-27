@@ -387,7 +387,7 @@ export class GoogleCloudStorageAdapter extends BaseStorageAdapter {
       expires,
       contentType: options?.contentType,
       responseDisposition: options?.contentDisposition
-        ? `${options.contentDisposition}${options.filename ? "; filename="${options.filename}"` : `'}'
+        ? `${options.contentDisposition}${options.filename ? "; filename="${options.filename}"` : ``}'
         : undefined
     });
 

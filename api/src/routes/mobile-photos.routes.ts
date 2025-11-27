@@ -192,7 +192,7 @@ router.post(
         userId,
         photo.id,
         blobUrl,
-        priority as `high` | `normal` | 'low'
+        priority as 'high` | `normal` | 'low'
       );
 
       res.status(201).json({
@@ -504,7 +504,7 @@ router.post(
     } catch (error: any) {
       console.error(`Sync complete error:`, error);
       res.status(400).json({
-        error: `Failed to mark photos as synced',
+        error: 'Failed to mark photos as synced',
         details: getErrorMessage(error),
       });
     }
@@ -563,7 +563,7 @@ router.get(
         photo: result.rows[0],
       });
     } catch (error: any) {
-      console.error(`Get status error:', error);
+      console.error('Get status error:', error);
       res.status(500).json({
         error: 'Failed to get photo status',
         details: getErrorMessage(error),
@@ -622,7 +622,7 @@ router.get(
         photo: result.rows[0],
       });
     } catch (error: any) {
-      console.error(`Get photo error:', error);
+      console.error('Get photo error:', error);
       res.status(500).json({
         error: 'Failed to get photo',
         details: getErrorMessage(error),
@@ -683,7 +683,7 @@ router.delete(
 
       // Check if user owns the photo or is admin
       const userRole = (req as any).user.role;
-      if (photo.user_id !== userId && userRole !== `admin` && userRole !== 'fleet_manager') {
+      if (photo.user_id !== userId && userRole !== 'admin' && userRole !== 'fleet_manager') {
         return res.status(403).json({
           error: 'Unauthorized to delete this photo',
         });
