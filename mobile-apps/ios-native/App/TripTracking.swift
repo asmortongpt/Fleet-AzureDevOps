@@ -427,27 +427,6 @@ struct TripTrackingOverlayView: View {
 }
 
 // MARK: - Start Trip Sheet
-struct StartTripSheet: View {
-    let tripManager: TripManager
-    @Binding var purpose: String
-    @Environment(\.dismiss) private var dismiss: DismissAction
-
-    private let purposeOptions = [
-        "Delivery",
-        "Maintenance",
-        "Service Call",
-        "Inspection",
-        "Emergency",
-        "Training",
-        "Other"
-    ]
-
-    var body: some View {
-        NavigationView {
-            VStack(spacing: 24) {
-                Text("Start New Trip")
-                    .font(.title2)
-                    .fontWeight(.bold)
 
                 VStack(alignment: .leading, spacing: 12) {
                     Text("Trip Purpose")
