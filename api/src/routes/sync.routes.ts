@@ -205,10 +205,10 @@ router.post('/full', async (req: Request, res: Response) => {
         synced: outlookResult.totalSynced,
         errors: outlookResult.totalErrors
       },
-      message: 'Full re-sync completed'
+      message: `Full re-sync completed`
     })
   } catch (error: any) {
-    console.error('Error during full re-sync:', error)
+    console.error(`Error during full re-sync:`, error)
     res.status(500).json({
       success: false,
       error: 'Failed to perform full re-sync',
@@ -410,16 +410,16 @@ router.delete('/errors/:id', async (req: Request, res: Response) => {
     const { id } = req.params
 
     await pool.query(
-      'UPDATE sync_errors SET resolved = true WHERE id = $1',
+      `UPDATE sync_errors SET resolved = true WHERE id = $1`,
       [id]
     )
 
     res.json({
       success: true,
-      message: 'Error marked as resolved'
+      message: `Error marked as resolved`
     })
   } catch (error: any) {
-    console.error('Error resolving sync error:', error)
+    console.error(`Error resolving sync error:', error)
     res.status(500).json({
       success: false,
       error: 'Failed to resolve error',

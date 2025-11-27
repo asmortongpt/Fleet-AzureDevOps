@@ -32,8 +32,8 @@ README.md
 *.md
 docs
 
-# Build artifacts - MUST exclude dist to force fresh builds in Docker
-dist
+# Build artifacts - ALLOWING dist for production deployment with fixed React chunks
+# dist
 
 # Environment files (these should not be in the image)
 .env.local
