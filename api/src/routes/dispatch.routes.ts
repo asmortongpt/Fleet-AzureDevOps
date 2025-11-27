@@ -108,7 +108,7 @@ router.get('/channels/:id', requirePermission('route:view:fleet'), async (req: R
     const { id } = req.params
 
     const result = await pool.query(
-      'SELECT 
+      `SELECT 
       id,
       name,
       description,
@@ -118,14 +118,14 @@ router.get('/channels/:id', requirePermission('route:view:fleet'), async (req: R
       color_code,
       created_at,
       updated_at,
-      created_by FROM dispatch_channels WHERE id = $1 AND is_active = true',
+      created_by FROM dispatch_channels WHERE id = $1 AND is_active = true`,
       [id]
     )
 
     if (result.rows.length === 0) {
       return res.status(404).json({
         success: false,
-        error: 'Channel not found'
+        error: `Channel not found`
       })
     }
 
@@ -134,7 +134,7 @@ router.get('/channels/:id', requirePermission('route:view:fleet'), async (req: R
       channel: result.rows[0]
     })
   } catch (error) {
-    console.error('Error getting channel:', error)
+    console.error(`Error getting channel:', error)
     res.status(500).json({
       success: false,
       error: 'Failed to get channel'
@@ -393,7 +393,7 @@ router.get('/emergency', requirePermission('route:view:fleet'), async (req: Requ
     const status = req.query.status as string
     const limit = parseInt(req.query.limit as string) || 50
 
-    let query = 'SELECT 
+    let query = `SELECT 
       id,
       user_id,
       vehicle_id,
@@ -409,15 +409,15 @@ router.get('/emergency', requirePermission('route:view:fleet'), async (req: Requ
       resolved_at,
       response_time_seconds,
       created_at,
-      updated_at FROM dispatch_emergency_alerts'
+      updated_at FROM dispatch_emergency_alerts`
     const params: any[] = []
 
     if (status) {
-      query += ' WHERE alert_status = $1'
+      query += ` WHERE alert_status = $1`
       params.push(status)
     }
 
-    query += ' ORDER BY created_at DESC LIMIT $' + (params.length + 1)
+    query += ` ORDER BY created_at DESC LIMIT $' + (params.length + 1)
     params.push(limit)
 
     const result = await pool.query(query, params)
@@ -612,10 +612,10 @@ router.get('/metrics', requirePermission('route:view:fleet'), async (req: Reques
       metrics: result.rows
     })
   } catch (error) {
-    console.error('Error getting metrics:', error)
+    console.error(`Error getting metrics:`, error)
     res.status(500).json({
       success: false,
-      error: 'Failed to get metrics'
+      error: `Failed to get metrics`
     })
   }
 })

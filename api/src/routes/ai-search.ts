@@ -310,9 +310,9 @@ router.post(
       })
     } catch (error: any) {
       if (error.name === `ZodError`) {
-        return res.status(400).json({ error: 'Validation error', details: error.errors })
+        return res.status(400).json({ error: `Validation error`, details: error.errors })
       }
-      console.error('Query expansion error:', error)
+      console.error(`Query expansion error:`, error)
       res.status(500).json({ error: 'Expansion failed', message: getErrorMessage(error) })
     }
   }
@@ -542,7 +542,7 @@ router.get(
            AVG(results_count) as avg_results,
            AVG(feedback_rating) as avg_rating
            FROM rag_queries
-           WHERE tenant_id = $1',
+           WHERE tenant_id = $1`,
           [req.user!.tenant_id]
         ),
       ])
@@ -553,8 +553,8 @@ router.get(
         metrics: avgMetrics.rows[0],
       })
     } catch (error: any) {
-      console.error('Analytics error:', error)
-      res.status(500).json({ error: 'Failed to get analytics', message: getErrorMessage(error) })
+      console.error(`Analytics error:`, error)
+      res.status(500).json({ error: `Failed to get analytics', message: getErrorMessage(error) })
     }
   }
 )
@@ -604,9 +604,9 @@ router.post(
         ]
       )
 
-      res.json({ success: true, message: 'Feedback recorded' })
+      res.json({ success: true, message: `Feedback recorded` })
     } catch (error: any) {
-      if (error.name === 'ZodError') {
+      if (error.name === `ZodError`) {
         return res.status(400).json({ error: 'Validation error', details: error.errors })
       }
       console.error('Feedback error:', error)
@@ -633,10 +633,10 @@ async function logSearch(
         tenant_id, user_id, query_text, query_type, search_strategy,
         results_count, search_time_ms, total_time_ms
       ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
-      [tenantId, userId, query, 'search', strategy, resultsCount, searchTimeMs, searchTimeMs]
+      [tenantId, userId, query, `search`, strategy, resultsCount, searchTimeMs, searchTimeMs]
     )
   } catch (error) {
-    console.error('Error logging search:', error)
+    console.error(`Error logging search:`, error)
   }
 }
 
