@@ -356,7 +356,7 @@ export const PersonalUseDashboard: React.FC<PersonalUseDashboardProps> = ({
                     <div className="space-y-2">
                       <div className="flex justify-between text-sm">
                         <span>
-                          {usageLimits?.current_month.personal_miles?.toFixed(1) || 0} miles
+                          {(usageLimits?.current_month?.personal_miles ?? 0).toFixed(1)} miles
                         </span>
                         <span className="text-muted-foreground">
                           {usageLimits?.current_month.limit
@@ -375,7 +375,7 @@ export const PersonalUseDashboard: React.FC<PersonalUseDashboardProps> = ({
                         }
                       />
                       <div className="text-xs text-muted-foreground text-right">
-                        {usageLimits?.current_month.percentage_used?.toFixed(1) || 0}% used
+                        {(usageLimits?.current_month?.percentage_used ?? 0).toFixed(1)}% used
                       </div>
                     </div>
 
@@ -393,7 +393,7 @@ export const PersonalUseDashboard: React.FC<PersonalUseDashboardProps> = ({
                       <Alert>
                         <Warning className="h-4 w-4" />
                         <AlertDescription>
-                          Approaching monthly limit ({usageLimits?.current_month.percentage_used?.toFixed(0)}% used)
+                          Approaching monthly limit ({(usageLimits?.current_month?.percentage_used ?? 0).toFixed(0)}% used)
                         </AlertDescription>
                       </Alert>
                     )}
@@ -415,7 +415,7 @@ export const PersonalUseDashboard: React.FC<PersonalUseDashboardProps> = ({
                     <div className="space-y-2">
                       <div className="flex justify-between text-sm">
                         <span>
-                          {usageLimits?.current_year.personal_miles?.toFixed(1) || 0} miles
+                          {(usageLimits?.current_year?.personal_miles ?? 0).toFixed(1)} miles
                         </span>
                         <span className="text-muted-foreground">
                           {usageLimits?.current_year.limit
@@ -434,7 +434,7 @@ export const PersonalUseDashboard: React.FC<PersonalUseDashboardProps> = ({
                         }
                       />
                       <div className="text-xs text-muted-foreground text-right">
-                        {usageLimits?.current_year.percentage_used?.toFixed(1) || 0}% used
+                        {(usageLimits?.current_year?.percentage_used ?? 0).toFixed(1)}% used
                       </div>
                     </div>
 
@@ -645,9 +645,9 @@ export const PersonalUseDashboard: React.FC<PersonalUseDashboardProps> = ({
                           <TableRow key={charge.id}>
                             <TableCell>{charge.charge_period}</TableCell>
                             <TableCell>{charge.miles_charged}</TableCell>
-                            <TableCell>${charge.rate_per_mile.toFixed(2)}/mi</TableCell>
+                            <TableCell>${(charge?.rate_per_mile ?? 0).toFixed(2)}/mi</TableCell>
                             <TableCell className="font-semibold">
-                              ${charge.total_charge.toFixed(2)}
+                              ${(charge?.total_charge ?? 0).toFixed(2)}
                             </TableCell>
                             <TableCell>
                               <Badge>{charge.charge_status}</Badge>
@@ -714,7 +714,7 @@ export const PersonalUseDashboard: React.FC<PersonalUseDashboardProps> = ({
                   </CardHeader>
                   <CardContent>
                     <div className="text-2xl font-bold">
-                      ${teamSummary?.total_charges_this_month?.toFixed(2) || '0.00'}
+                      ${(teamSummary?.total_charges_this_month ?? 0).toFixed(2)}
                     </div>
                   </CardContent>
                 </Card>
