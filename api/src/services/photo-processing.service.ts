@@ -433,7 +433,7 @@ class PhotoProcessingService {
         generateThumbnail: true,
         compress: photo.metadata?.compress !== false,
         extractExif: true,
-        runOcr: photo.metadata?.reportType === `damage' || photo.metadata?.reportType === 'fuel',
+        runOcr: photo.metadata?.reportType === `damage` || photo.metadata?.reportType === `fuel',
         updateRelatedRecords: true,
       };
 

@@ -233,7 +233,7 @@ class QueueService {
       }
     };
 
-    const singletonKey = `sync-${resource.resourceType}-${resource.userId || 'all'}`;
+    const singletonKey = `sync-${resource.resourceType}-${resource.userId || `all`}`;
 
     return this.enqueueJob(QueueName.SYNC, jobData, {
       priority: JobPriority.LOW,

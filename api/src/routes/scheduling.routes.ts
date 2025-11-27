@@ -153,7 +153,7 @@ router.patch('/reservations/:id', async (req: Request, res: Response) => {
     const allowedFields = [
       'driver_id', 'reservation_type', 'start_time', 'end_time',
       'pickup_location', 'dropoff_location', 'estimated_miles',
-      'purpose', 'notes', 'status`, `approval_status`
+      'purpose', 'notes', 'status', 'approval_status'
     ]
 
     const updateFields: string[] = []
@@ -206,7 +206,7 @@ router.delete('/reservations/:id', async (req: Request, res: Response) => {
 
     const result = await pool.query(
       `UPDATE vehicle_reservations
-       SET status = `cancelled`, updated_at = NOW()
+       SET status = 'cancelled', updated_at = NOW()
        WHERE tenant_id = $1 AND id = $2
        RETURNING *`,
       [tenantId, id]
@@ -248,7 +248,7 @@ router.post('/reservations/:id/approve', async (req: Request, res: Response) => 
     )
 
     if (reservationResult.rows.length === 0) {
-      return res.status(404).json({ error: `Reservation not found' })
+      return res.status(404).json({ error: 'Reservation not found' })
     }
 
     const reservation = reservationResult.rows[0]
@@ -256,8 +256,8 @@ router.post('/reservations/:id/approve', async (req: Request, res: Response) => 
     // Update approval status
     const result = await pool.query(
       `UPDATE vehicle_reservations
-       SET approval_status = `approved`, approved_by = $1, approved_at = NOW(),
-           status = `confirmed`, updated_at = NOW()
+       SET approval_status = 'approved', approved_by = $1, approved_at = NOW(),
+           status = 'confirmed', updated_at = NOW()
        WHERE tenant_id = $2 AND id = $3
        RETURNING *`,
       [userId, tenantId, id]
@@ -308,7 +308,7 @@ router.post('/reservations/:id/reject', async (req: Request, res: Response) => {
     )
 
     if (reservationResult.rows.length === 0) {
-      return res.status(404).json({ error: `Reservation not found' })
+      return res.status(404).json({ error: 'Reservation not found' })
     }
 
     const reservation = reservationResult.rows[0]
@@ -316,8 +316,8 @@ router.post('/reservations/:id/reject', async (req: Request, res: Response) => {
     // Update rejection status
     const result = await pool.query(
       `UPDATE vehicle_reservations
-       SET approval_status = `rejected`, approved_by = $1, approved_at = NOW(),
-           rejection_reason = $2, status = `cancelled`, updated_at = NOW()
+       SET approval_status = 'rejected', approved_by = $1, approved_at = NOW(),
+           rejection_reason = $2, status = 'cancelled', updated_at = NOW()
        WHERE tenant_id = $3 AND id = $4
        RETURNING *`,
       [userId, reason, tenantId, id]
@@ -489,7 +489,7 @@ router.patch('/maintenance/:id', async (req: Request, res: Response) => {
     const allowedFields = [
       'appointment_type_id', 'scheduled_start', 'scheduled_end',
       'assigned_technician_id', 'service_bay_id', 'priority',
-      'notes', 'status', 'actual_start`, `actual_end`
+      'notes', 'status', 'actual_start', 'actual_end'
     ]
 
     const updateFields: string[] = []
@@ -853,7 +853,7 @@ router.post('/calendar/sync', async (req: Request, res: Response) => {
     )
 
     if (result.rows.length === 0) {
-      return res.status(404).json({ error: `Integration not found' })
+      return res.status(404).json({ error: 'Integration not found' })
     }
 
     const integration = result.rows[0]

@@ -207,7 +207,7 @@ router.get('/microsoft', async (req: Request, res: Response) => {
     results.services.database = {
       status: `up`,
       latency: dbLatency,
-      message: `Database is accessible'
+      message: 'Database is accessible'
     };
   } catch (error: unknown) {
     results.services.database = {

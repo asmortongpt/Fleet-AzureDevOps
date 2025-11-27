@@ -28,7 +28,7 @@ router.get(
       )
 
       const user = userResult.rows[0]
-      let scopeFilter = ``
+      let scopeFilter = ''
       let scopeParams: any[] = [req.user!.tenant_id]
 
       if (user.scope_level === `own` && user.driver_id) {
@@ -88,7 +88,7 @@ router.get(
 
       res.json(result.rows[0])
     } catch (error) {
-      console.error(`Get fuel-transactions error:', error)
+      console.error('Get fuel-transactions error:', error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -114,7 +114,7 @@ router.post(
       // Validate that driver_id matches user`s driver_id (for own scope)
       if (data.driver_id && userDriverId && data.driver_id !== userDriverId) {
         return res.status(403).json({
-          error: `You can only create fuel transactions for yourself'
+          error: 'You can only create fuel transactions for yourself'
         })
       }
 

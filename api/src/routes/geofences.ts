@@ -50,7 +50,7 @@ router.get(
       })
     } catch (error) {
       console.error(`Get geofences error:`, error)
-      res.status(500).json({ error: `Internal server error' })
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )
@@ -83,7 +83,7 @@ router.get(
 
       res.json(result.rows[0])
     } catch (error) {
-      console.error(`Get geofences error:', error)
+      console.error('Get geofences error:', error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -152,7 +152,7 @@ router.delete(
   async (req: AuthRequest, res: Response) => {
     try {
       const result = await pool.query(
-        'DELETE FROM geofences WHERE id = $1 AND tenant_id = $2 RETURNING id`,
+        'DELETE FROM geofences WHERE id = $1 AND tenant_id = $2 RETURNING id',
         [req.params.id, req.user!.tenant_id]
       )
 

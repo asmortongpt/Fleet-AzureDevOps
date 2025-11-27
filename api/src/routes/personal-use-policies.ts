@@ -78,7 +78,7 @@ router.get(
           effective_date: new Date().toISOString().split(`T`)[0],
           is_default: true
         },
-        message: `No policy configured - using defaults. Create a policy to customize.'
+        message: 'No policy configured - using defaults. Create a policy to customize.'
       })
     }
 
