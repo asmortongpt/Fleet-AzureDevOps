@@ -162,7 +162,21 @@ struct ScheduleDetailView: View {
     @ObservedObject var viewModel: TrainingManagementViewModel
 
     var body: some View {
-        Text("Schedule Detail - Coming Soon")
+        ScrollView {
+            VStack(alignment: .leading, spacing: 16) {
+                Text("Schedule Details")
+                    .font(.title2)
+                    .fontWeight(.bold)
+
+                VStack(alignment: .leading, spacing: 8) {
+                    DetailRow(label: "Title", value: schedule.title)
+                    DetailRow(label: "Type", value: schedule.trainingType)
+                    DetailRow(label: "Status", value: schedule.status.rawValue)
+                }
+            }
+            .padding()
+        }
+        .navigationTitle("Schedule Detail")
     }
 }
 
