@@ -82,8 +82,8 @@ router.get(
 
       return ApiResponse.success(res, paginatedResponse, `Maintenance schedules retrieved successfully`)
     } catch (error) {
-      console.error('Get maintenance-schedules error:', error)
-      return ApiResponse.serverError(res, 'Failed to retrieve maintenance schedules')
+      console.error(`Get maintenance-schedules error:`, error)
+      return ApiResponse.serverError(res, `Failed to retrieve maintenance schedules`)
     }
   }
 )
@@ -107,10 +107,10 @@ router.get(
       )
 
       if (result.rows.length === 0) {
-        return ApiResponse.notFound(res, 'Maintenance schedule')
+        return ApiResponse.notFound(res, `Maintenance schedule`)
       }
 
-      return ApiResponse.success(res, result.rows[0], 'Maintenance schedule retrieved successfully')
+      return ApiResponse.success(res, result.rows[0], `Maintenance schedule retrieved successfully`)
     } catch (error) {
       console.error('Get maintenance-schedules error:', error)
       return ApiResponse.serverError(res, 'Failed to retrieve maintenance schedule')
@@ -146,8 +146,8 @@ router.post(
 
       return ApiResponse.success(res, result.rows[0], `Maintenance schedule created successfully`, 201)
     } catch (error) {
-      console.error('Create maintenance-schedules error:', error)
-      return ApiResponse.serverError(res, 'Failed to create maintenance schedule')
+      console.error(`Create maintenance-schedules error:`, error)
+      return ApiResponse.serverError(res, `Failed to create maintenance schedule`)
     }
   }
 )
@@ -172,9 +172,9 @@ router.put(
         return ApiResponse.notFound(res, `Maintenance schedule`)
       }
 
-      return ApiResponse.success(res, result.rows[0], 'Maintenance schedule updated successfully')
+      return ApiResponse.success(res, result.rows[0], `Maintenance schedule updated successfully`)
     } catch (error) {
-      console.error('Update maintenance-schedules error:', error)
+      console.error(`Update maintenance-schedules error:`, error)
       return ApiResponse.serverError(res, 'Failed to update maintenance schedule')
     }
   }
@@ -189,15 +189,15 @@ router.delete(
   async (req: AuthRequest, res: Response) => {
     try {
       const result = await pool.query(
-        'DELETE FROM maintenance_schedules WHERE id = $1 AND tenant_id = $2 RETURNING id',
+        `DELETE FROM maintenance_schedules WHERE id = $1 AND tenant_id = $2 RETURNING id`,
         [req.params.id, req.user!.tenant_id]
       )
 
       if (result.rows.length === 0) {
-        return ApiResponse.notFound(res, 'Maintenance schedule')
+        return ApiResponse.notFound(res, `Maintenance schedule`)
       }
 
-      return ApiResponse.success(res, { id: result.rows[0].id }, 'Maintenance schedule deleted successfully')
+      return ApiResponse.success(res, { id: result.rows[0].id }, `Maintenance schedule deleted successfully')
     } catch (error) {
       console.error('Delete maintenance-schedules error:', error)
       return ApiResponse.serverError(res, 'Failed to delete maintenance schedule')
@@ -259,13 +259,13 @@ router.post(
           nextDue,
           data.notes,
           data.parts ? JSON.stringify(data.parts) : null,
-          'scheduled'
+          `scheduled`
         ]
       )
 
       res.status(201).json(result.rows[0])
     } catch (error: any) {
-      console.error('Create recurring schedule error:', error)
+      console.error(`Create recurring schedule error:`, error)
       res.status(500).json({ error: error.message || 'Internal server error' })
     }
   }
@@ -307,7 +307,7 @@ router.put(
 
       const result = await pool.query(
         `UPDATE maintenance_schedules
-         SET ${updateFields.join(', ')}, updated_at = NOW()
+         SET ${updateFields.join(`, `)}, updated_at = NOW()
          WHERE id = $1 AND tenant_id = $2 AND is_recurring = true
          RETURNING *`,
         [req.params.id, req.user!.tenant_id, ...updateValues]
@@ -319,7 +319,7 @@ router.put(
 
       res.json(result.rows[0])
     } catch (error: any) {
-      console.error('Update recurrence pattern error:', error)
+      console.error(`Update recurrence pattern error:`, error)
       res.status(500).json({ error: error.message || 'Internal server error' })
     }
   }
@@ -386,12 +386,12 @@ router.post(
 
       // Get schedule
       const scheduleResult = await pool.query(
-        'SELECT id, tenant_id, vehicle_id, service_type, description, scheduled_date, completed_date, status, odometer_reading, estimated_cost, actual_cost, assigned_vendor_id, assigned_technician, notes, recurring, recurring_interval_miles, recurring_interval_days, next_service_date, next_service_odometer, priority, created_at, updated_at, deleted_at FROM maintenance_schedules WHERE id = $1 AND tenant_id = $2',
+        `SELECT id, tenant_id, vehicle_id, service_type, description, scheduled_date, completed_date, status, odometer_reading, estimated_cost, actual_cost, assigned_vendor_id, assigned_technician, notes, recurring, recurring_interval_miles, recurring_interval_days, next_service_date, next_service_odometer, priority, created_at, updated_at, deleted_at FROM maintenance_schedules WHERE id = $1 AND tenant_id = $2`,
         [req.params.id, req.user!.tenant_id]
       )
 
       if (scheduleResult.rows.length === 0) {
-        return res.status(404).json({ error: 'Schedule not found' })
+        return res.status(404).json({ error: `Schedule not found` })
       }
 
       const schedule = scheduleResult.rows[0]
@@ -402,7 +402,7 @@ router.post(
         const nextDue = new Date(schedule.next_due)
         if (nextDue > now) {
           return res.status(400).json({
-            error: 'Schedule is not due yet',
+            error: `Schedule is not due yet',
             next_due: schedule.next_due
           })
         }
@@ -423,17 +423,17 @@ router.post(
 
       // Get created work order
       const workOrderResult = await pool.query(
-        'SELECT id, tenant_id, vehicle_id, type, priority, description, estimated_cost, actual_cost, status, created_at, updated_at, deleted_at, metadata, created_by, assigned_to FROM work_orders WHERE id = $1',
+        `SELECT id, tenant_id, vehicle_id, type, priority, description, estimated_cost, actual_cost, status, created_at, updated_at, deleted_at, metadata, created_by, assigned_to FROM work_orders WHERE id = $1`,
         [workOrderId]
       )
 
       res.status(201).json({
-        message: 'Work order created successfully',
+        message: `Work order created successfully`,
         work_order: workOrderResult.rows[0],
         schedule: schedule
       })
     } catch (error: any) {
-      console.error('Generate work order error:', error)
+      console.error(`Generate work order error:', error)
       res.status(500).json({ error: error.message || 'Internal server error' })
     }
   }
@@ -448,12 +448,12 @@ router.get(
     try {
       // Get schedule
       const scheduleResult = await pool.query(
-        'SELECT id, tenant_id, vehicle_id, service_type, description, scheduled_date, completed_date, status, odometer_reading, estimated_cost, actual_cost, assigned_vendor_id, assigned_technician, notes, recurring, recurring_interval_miles, recurring_interval_days, next_service_date, next_service_odometer, priority, created_at, updated_at, deleted_at FROM maintenance_schedules WHERE id = $1 AND tenant_id = $2',
+        `SELECT id, tenant_id, vehicle_id, service_type, description, scheduled_date, completed_date, status, odometer_reading, estimated_cost, actual_cost, assigned_vendor_id, assigned_technician, notes, recurring, recurring_interval_miles, recurring_interval_days, next_service_date, next_service_odometer, priority, created_at, updated_at, deleted_at FROM maintenance_schedules WHERE id = $1 AND tenant_id = $2`,
         [req.params.id, req.user!.tenant_id]
       )
 
       if (scheduleResult.rows.length === 0) {
-        return res.status(404).json({ error: 'Schedule not found' })
+        return res.status(404).json({ error: `Schedule not found` })
       }
 
       // Get history with work orders
@@ -470,7 +470,7 @@ router.get(
       )
 
       // Calculate statistics
-      const totalWorkOrders = historyResult.rows.filter((h) => h.status === 'success').length
+      const totalWorkOrders = historyResult.rows.filter((h) => h.status === `success`).length
       const totalCost = historyResult.rows.reduce((sum, h) => sum + (h.actual_cost || 0), 0)
 
       res.json({
@@ -485,7 +485,7 @@ router.get(
         }
       })
     } catch (error: any) {
-      console.error('Get schedule history error:', error)
+      console.error(`Get schedule history error:`, error)
       res.status(500).json({ error: error.message || 'Internal server error' })
     }
   }
@@ -523,11 +523,11 @@ router.patch(
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'Recurring schedule not found' })
+        return res.status(404).json({ error: `Recurring schedule not found` })
       }
 
       res.json({
-        message: 'Auto work order generation paused',
+        message: `Auto work order generation paused`,
         schedule: result.rows[0]
       })
     } catch (error: any) {
@@ -553,11 +553,11 @@ router.patch(
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'Recurring schedule not found' })
+        return res.status(404).json({ error: `Recurring schedule not found` })
       }
 
       res.json({
-        message: 'Auto work order generation resumed',
+        message: `Auto work order generation resumed`,
         schedule: result.rows[0]
       })
     } catch (error: any) {
@@ -641,8 +641,8 @@ router.get(
         overdue: schedules.filter((s: any) => s.is_overdue).length,
         by_metric: {
           ODOMETER: schedules.filter((s: any) => s.trigger_metric === `ODOMETER`).length,
-          ENGINE_HOURS: schedules.filter((s: any) => s.trigger_metric === 'ENGINE_HOURS').length,
-          PTO_HOURS: schedules.filter((s: any) => s.trigger_metric === 'PTO_HOURS').length,
+          ENGINE_HOURS: schedules.filter((s: any) => s.trigger_metric === `ENGINE_HOURS`).length,
+          PTO_HOURS: schedules.filter((s: any) => s.trigger_metric === `PTO_HOURS`).length,
           AUX_HOURS: schedules.filter((s: any) => s.trigger_metric === 'AUX_HOURS').length,
           CYCLES: schedules.filter((s: any) => s.trigger_metric === 'CYCLES').length,
           CALENDAR: schedules.filter((s: any) => s.trigger_metric === 'CALENDAR').length
@@ -702,7 +702,7 @@ router.get(
 
       // Group by trigger metric
       const byMetric = result.rows.reduce((acc: any, schedule: any) => {
-        const metric = schedule.trigger_metric || 'CALENDAR'
+        const metric = schedule.trigger_metric || `CALENDAR`
         if (!acc[metric]) {
           acc[metric] = []
         }
@@ -721,7 +721,7 @@ router.get(
         }
       })
     } catch (error: any) {
-      console.error('Get vehicle multi-metric schedules error:', error)
+      console.error(`Get vehicle multi-metric schedules error:`, error)
       res.status(500).json({ error: error.message || 'Internal server error' })
     }
   }

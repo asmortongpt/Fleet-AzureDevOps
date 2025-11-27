@@ -200,14 +200,14 @@ router.get('/microsoft', async (req: Request, res: Response) => {
     const { Pool } = await import('pg');
     const pool = new Pool({ connectionString: process.env.DATABASE_URL });
     const dbStart = Date.now();
-    await pool.query('SELECT 1');
+    await pool.query(`SELECT 1`);
     const dbLatency = Date.now() - dbStart;
     await pool.end();
 
     results.services.database = {
-      status: 'up',
+      status: `up`,
       latency: dbLatency,
-      message: 'Database is accessible'
+      message: `Database is accessible'
     };
   } catch (error: unknown) {
     results.services.database = {
@@ -246,11 +246,11 @@ router.get('/microsoft/simple', async (req: Request, res: Response) => {
     // Quick database check
     const { Pool } = await import('pg');
     const pool = new Pool({ connectionString: process.env.DATABASE_URL });
-    await pool.query('SELECT 1');
+    await pool.query(`SELECT 1`);
     await pool.end();
 
     res.json({
-      status: 'ok',
+      status: `ok`,
       timestamp: new Date().toISOString()
     });
   } catch (error: unknown) {
@@ -294,7 +294,7 @@ router.get('/microsoft/metrics', async (req: Request, res: Response) => {
     const { Pool } = await import(`pg`);
     const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 
-    const commCount = await pool.query('SELECT COUNT(*) as count FROM communications WHERE created_at > NOW() - INTERVAL \'24 hours\``);
+    const commCount = await pool.query(`SELECT COUNT(*) as count FROM communications WHERE created_at > NOW() - INTERVAL \`24 hours\``);
     metrics.push(`# HELP communications_24h Communications created in last 24 hours`);
     metrics.push(`# TYPE communications_24h counter`);
     metrics.push(`communications_24h ${commCount.rows[0].count}`);

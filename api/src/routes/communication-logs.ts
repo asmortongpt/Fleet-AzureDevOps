@@ -21,12 +21,12 @@ router.get(
 
       const result = await pool.query(
         `SELECT id, tenant_id, communication_id, log_type, message, metadata, created_at
-         FROM communication_logs WHERE tenant_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3',
+         FROM communication_logs WHERE tenant_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3`,
         [req.user!.tenant_id, limit, offset]
       )
 
       const countResult = await pool.query(
-        'SELECT COUNT(*) FROM communication_logs WHERE tenant_id = $1',
+        `SELECT COUNT(*) FROM communication_logs WHERE tenant_id = $1`,
         [req.user!.tenant_id]
       )
 
@@ -40,8 +40,8 @@ router.get(
         }
       })
     } catch (error) {
-      console.error('Get communication-logs error:', error)
-      res.status(500).json({ error: 'Internal server error' })
+      console.error(`Get communication-logs error:`, error)
+      res.status(500).json({ error: `Internal server error' })
     }
   }
 )
@@ -54,12 +54,12 @@ router.get(
   async (req: AuthRequest, res: Response) => {
     try {
       const result = await pool.query(
-        'SELECT id, tenant_id, communication_id, log_type, message, metadata, created_at FROM communication_logs WHERE id = $1 AND tenant_id = $2',
+        `SELECT id, tenant_id, communication_id, log_type, message, metadata, created_at FROM communication_logs WHERE id = $1 AND tenant_id = $2`,
         [req.params.id, req.user!.tenant_id]
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'CommunicationLogs not found' })
+        return res.status(404).json({ error: `CommunicationLogs not found` })
       }
 
       res.json(result.rows[0])
@@ -93,14 +93,14 @@ router.post(
       res.status(201).json(result.rows[0])
     } catch (error) {
       console.error(`Create communication-logs error:`, error)
-      res.status(500).json({ error: 'Internal server error' })
+      res.status(500).json({ error: `Internal server error` })
     }
   }
 )
 
 // PUT /communication-logs/:id (system-generated only)
 router.put(
-  '/:id',
+  `/:id`,
   requirePermission('communication:update:global'),
   auditLog({ action: 'UPDATE', resourceType: 'communication_logs' }),
   async (req: AuthRequest, res: Response) => {
@@ -119,8 +119,8 @@ router.put(
 
       res.json(result.rows[0])
     } catch (error) {
-      console.error('Update communication-logs error:', error)
-      res.status(500).json({ error: 'Internal server error' })
+      console.error(`Update communication-logs error:`, error)
+      res.status(500).json({ error: `Internal server error` })
     }
   }
 )

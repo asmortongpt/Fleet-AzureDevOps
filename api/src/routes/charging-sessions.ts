@@ -52,12 +52,12 @@ router.get(
       meter_stop,
       raw_ocpp_data,
       created_at,
-      updated_at FROM charging_sessions WHERE tenant_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3',
+      updated_at FROM charging_sessions WHERE tenant_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3`,
         [req.user!.tenant_id, limit, offset]
       )
 
       const countResult = await pool.query(
-        'SELECT COUNT(*) FROM charging_sessions WHERE tenant_id = $1',
+        `SELECT COUNT(*) FROM charging_sessions WHERE tenant_id = $1`,
         [req.user!.tenant_id]
       )
 
@@ -71,8 +71,8 @@ router.get(
         }
       })
     } catch (error) {
-      console.error('Get charging-sessions error:', error)
-      res.status(500).json({ error: 'Internal server error' })
+      console.error(`Get charging-sessions error:`, error)
+      res.status(500).json({ error: `Internal server error' })
     }
   }
 )
@@ -85,12 +85,12 @@ router.get(
   async (req: AuthRequest, res: Response) => {
     try {
       const result = await pool.query(
-        'SELECT id, transaction_id, station_id, connector_id, vehicle_id, driver_id, start_time, end_time, duration_minutes, start_soc_percent, end_soc_percent, energy_delivered_kwh, max_power_kw, avg_power_kw, energy_cost, idle_fee, total_cost, session_status, stop_reason, scheduled_start_time, scheduled_end_time, charging_profile, is_smart_charging, target_soc_percent, reservation_id, rfid_tag, authorization_method, meter_start, meter_stop, raw_ocpp_data, created_at, updated_at FROM charging_sessions WHERE id = $1 AND tenant_id = $2',
+        `SELECT id, transaction_id, station_id, connector_id, vehicle_id, driver_id, start_time, end_time, duration_minutes, start_soc_percent, end_soc_percent, energy_delivered_kwh, max_power_kw, avg_power_kw, energy_cost, idle_fee, total_cost, session_status, stop_reason, scheduled_start_time, scheduled_end_time, charging_profile, is_smart_charging, target_soc_percent, reservation_id, rfid_tag, authorization_method, meter_start, meter_stop, raw_ocpp_data, created_at, updated_at FROM charging_sessions WHERE id = $1 AND tenant_id = $2`,
         [req.params.id, req.user!.tenant_id]
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'ChargingSessions not found' })
+        return res.status(404).json({ error: `ChargingSessions not found` })
       }
 
       res.json(result.rows[0])
@@ -124,14 +124,14 @@ router.post(
       res.status(201).json(result.rows[0])
     } catch (error) {
       console.error(`Create charging-sessions error:`, error)
-      res.status(500).json({ error: 'Internal server error' })
+      res.status(500).json({ error: `Internal server error` })
     }
   }
 )
 
 // PUT /charging-sessions/:id
 router.put(
-  '/:id',
+  `/:id`,
   requirePermission('charging_session:update:own'),
   auditLog({ action: 'UPDATE', resourceType: 'charging_sessions' }),
   async (req: AuthRequest, res: Response) => {
@@ -150,8 +150,8 @@ router.put(
 
       res.json(result.rows[0])
     } catch (error) {
-      console.error('Update charging-sessions error:', error)
-      res.status(500).json({ error: 'Internal server error' })
+      console.error(`Update charging-sessions error:`, error)
+      res.status(500).json({ error: `Internal server error` })
     }
   }
 )
