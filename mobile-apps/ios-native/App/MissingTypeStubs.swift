@@ -265,12 +265,12 @@ public struct MetricCardData {
     public let color: String
     public let accessibilityLabel: String
 
-    public init(title: String, value: String, icon: String, color: String, accessibilityLabel: String) {
+    public init(title: String, value: String, icon: String, color: String, accessibilityLabel: String? = nil) {
         self.title = title
         self.value = value
         self.icon = icon
         self.color = color
-        self.accessibilityLabel = accessibilityLabel
+        self.accessibilityLabel = accessibilityLabel ?? "\(title): \(value)"
     }
 }
 
@@ -568,89 +568,5 @@ public enum QuickActionType: String, Codable, CaseIterable {
         case .dispatch: return "phone.fill"
         case .communication: return "message.fill"
         }
-    }
-}
-
-// MARK: - Trip Repository
-
-public class TripRepository {
-    public static let shared = TripRepository()
-
-    private init() {}
-
-    public func fetchTrip(id: String) async throws -> Trip {
-        // Stub implementation
-        throw NSError(domain: "TripRepository", code: 404, userInfo: [NSLocalizedDescriptionKey: "Trip not found"])
-    }
-
-    public func fetchTrips() async throws -> [Trip] {
-        // Stub implementation - return empty array
-        return []
-    }
-
-    public func saveTrip(_ trip: Trip) async throws {
-        // Stub implementation
-    }
-
-    public func deleteTrip(id: String) async throws {
-        // Stub implementation
-    }
-}
-
-// MARK: - Jailbreak Detection
-
-public enum JailbreakDetectionError: Error {
-    case deviceCompromised
-    case checkFailed
-
-    public var localizedDescription: String {
-        switch self {
-        case .deviceCompromised: return "Device security compromised"
-        case .checkFailed: return "Security check failed"
-        }
-    }
-}
-
-public class JailbreakDetector {
-    public static let shared = JailbreakDetector()
-
-    private init() {}
-
-    public func enforcePolicy() throws {
-        // Stub implementation - always passes in development
-        // In production, this would check for jailbreak indicators
-        #if DEBUG
-        // Allow in debug mode
-        return
-        #else
-        // In release mode, perform actual checks
-        if isJailbroken() {
-            throw JailbreakDetectionError.deviceCompromised
-        }
-        #endif
-    }
-
-    public func isJailbroken() -> Bool {
-        // Stub implementation - always returns false in development
-        #if DEBUG
-        return false
-        #else
-        // Check common jailbreak indicators
-        let jailbreakPaths = [
-            "/Applications/Cydia.app",
-            "/Library/MobileSubstrate/MobileSubstrate.dylib",
-            "/bin/bash",
-            "/usr/sbin/sshd",
-            "/etc/apt"
-        ]
-
-        for path in jailbreakPaths {
-            if FileManager.default.fileExists(atPath: path) {
-                return true
-            }
-        }
-
-        return false
-        #endif
     }
 }
