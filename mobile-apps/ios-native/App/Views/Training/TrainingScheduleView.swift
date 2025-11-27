@@ -650,7 +650,23 @@ struct SessionDetailView: View {
     @ObservedObject var viewModel: TrainingManagementViewModel
 
     var body: some View {
-        Text("Session Detail - Coming Soon")
+        ScrollView {
+            VStack(alignment: .leading, spacing: 16) {
+                Text("Training Session Details")
+                    .font(.title2)
+                    .fontWeight(.bold)
+
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Session Information")
+                        .font(.headline)
+                    Text("View session details, participants, and materials")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                }
+            }
+            .padding()
+        }
+        .navigationTitle("Session Detail")
     }
 }
 
@@ -662,8 +678,14 @@ struct AddTrainingSessionSheet: View {
     var body: some View {
         NavigationView {
             Form {
-                Section {
-                    Text("Add Training Session - Coming Soon")
+                Section(header: Text("Session Information")) {
+                    TextField("Session Title", text: .constant(""))
+                    TextField("Instructor", text: .constant(""))
+                    DatePicker("Date", selection: .constant(Date()), displayedComponents: [.date, .hourAndMinute])
+                }
+                Section(header: Text("Details")) {
+                    TextField("Location", text: .constant(""))
+                    TextField("Duration (hours)", text: .constant(""))
                 }
             }
             .navigationTitle("New Training Session")

@@ -12,9 +12,7 @@ struct AdminApp: View {
                     Label("Dashboard", systemImage: "chart.bar")
                 }
 
-            Text("Vehicle List View - Coming Soon")
-                .font(.title)
-                .padding()
+            VehiclesView()
                 .tabItem {
                     Label("Vehicles", systemImage: "car.2")
                 }
