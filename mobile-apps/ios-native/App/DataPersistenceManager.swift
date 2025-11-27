@@ -208,6 +208,7 @@ class DataPersistenceManager: ObservableObject {
     func clearAllCache() {
         userDefaults.removeObject(forKey: StorageKeys.vehicles)
         userDefaults.removeObject(forKey: StorageKeys.inspections)
+        userDefaults.removeObject(forKey: "cached_trips")
         userDefaults.removeObject(forKey: StorageKeys.lastSyncDate)
 
         // Clear all inspection photos
@@ -261,20 +262,8 @@ class DataPersistenceManager: ObservableObject {
     }
 
     // MARK: - Inspection Photo Methods (Stubs)
-    func saveInspectionPhoto(_ photo: InspectionPhoto, for vehicleId: String) -> String {
-        // Stub implementation - return mock photo ID
-        return "photo_\(UUID().uuidString)"
-    }
-
-    func deleteInspectionPhoto(_ photoId: String) async throws {
-        // Stub implementation
-        print("DataPersistenceManager: deleteInspectionPhoto called (stub)")
-    }
-
-    func cacheInspection(_ inspection: VehicleInspection) async throws {
-        // Stub implementation
-        print("DataPersistenceManager: cacheInspection called (stub)")
-    }
+    // Note: These methods are implemented synchronously in Services/DataPersistenceManager.swift
+    // The stub methods have been removed to avoid conflicts
 
     // MARK: - Fleet Metrics Methods (Stubs)
     func loadFleetMetrics() -> FleetMetrics? {
@@ -302,6 +291,52 @@ class DataPersistenceManager: ObservableObject {
         print("DataPersistenceManager: clearCache called (stub)")
     }
 
+    // MARK: - Trip Caching
+    func cacheTrips(_ trips: [Trip]) {
+        do {
+            let encoder = JSONEncoder()
+            encoder.dateEncodingStrategy = .iso8601
+            let data = try encoder.encode(trips)
+            userDefaults.set(data, forKey: "cached_trips")
+            updateLastSyncDate()
+        } catch {
+            print("Error caching trips: \(error.localizedDescription)")
+        }
+    }
+
+    func getCachedTrips() -> [Trip]? {
+        guard let data = userDefaults.data(forKey: "cached_trips") else {
+            return nil
+        }
+
+        do {
+            let decoder = JSONDecoder()
+            decoder.dateDecodingStrategy = .iso8601
+            let trips = try decoder.decode([Trip].self, from: data)
+            return trips
+        } catch {
+            print("Error decoding cached trips: \(error.localizedDescription)")
+            return nil
+        }
+    }
+
+    func cacheTrip(_ trip: Trip) {
+        var trips = getCachedTrips() ?? []
+
+        // Update existing trip or add new one
+        if let index = trips.firstIndex(where: { $0.id == trip.id }) {
+            trips[index] = trip
+        } else {
+            trips.append(trip)
+        }
+
+        cacheTrips(trips)
+    }
+
+    func clearTripCache() {
+        userDefaults.removeObject(forKey: "cached_trips")
+    }
+
     // MARK: - Trip Export Methods (Stubs)
     func exportTrip(_ trip: Trip, format: ExportFormat) throws -> URL {
         // Stub implementation - create a temporary file
@@ -318,13 +353,13 @@ class DataPersistenceManager: ObservableObject {
 
     // MARK: - Trip Management Methods (Stubs)
     func getAllTrips() -> [Trip] {
-        // Stub implementation - return empty array
-        return []
+        return getCachedTrips() ?? []
     }
 
     func deleteTrip(_ trip: Trip) {
-        // Stub implementation
-        print("DataPersistenceManager: deleteTrip called (stub)")
+        var trips = getCachedTrips() ?? []
+        trips.removeAll { $0.id == trip.id }
+        cacheTrips(trips)
     }
 
     func getTripStatistics() -> TripStatistics? {
@@ -338,8 +373,7 @@ class DataPersistenceManager: ObservableObject {
     }
 
     func saveTrip(_ trip: Trip) throws {
-        // Stub implementation
-        print("DataPersistenceManager: saveTrip called (stub)")
+        cacheTrip(trip)
     }
 
     func clearActiveTrip() {
@@ -348,8 +382,7 @@ class DataPersistenceManager: ObservableObject {
     }
 
     func saveActiveTrip(_ trip: Trip) throws {
-        // Stub implementation
-        print("DataPersistenceManager: saveActiveTrip called (stub)")
+        cacheTrip(trip)
     }
 
     func getTripSettings() -> TripSettings {
