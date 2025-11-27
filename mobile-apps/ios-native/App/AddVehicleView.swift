@@ -106,7 +106,6 @@ struct AddVehicleView: View {
                 }
             }
             .disabled(viewModel.isLoading)
-            .scrollContentBackground(.hidden)
             .background(ModernTheme.Colors.groupedBackground)
 
             // Loading overlay
@@ -412,7 +411,7 @@ class AddVehicleViewModel: ObservableObject {
         }
 
         do {
-            logger.log(.info, "Adding new vehicle: \(vehicleData["number"] ?? "unknown")", category: .api)
+            logger.log(.info, "Adding new vehicle: \(vehicleData["number"] ?? "unknown")", category: .network)
 
             // Get authentication token
             let token = try await KeychainManager.shared.getAccessToken()
@@ -429,17 +428,17 @@ class AddVehicleViewModel: ObservableObject {
             // Cache the new vehicle
             persistenceManager.cacheVehicle(response.vehicle)
 
-            logger.log(.info, "Vehicle added successfully: \(response.vehicle.number)", category: .api)
+            logger.log(.info, "Vehicle added successfully: \(response.vehicle.number)", category: .network)
 
             // Post notification to refresh vehicle list
             NotificationCenter.default.post(name: .vehicleAdded, object: response.vehicle)
 
         } catch let error as APIError {
-            logger.log(.error, "Failed to add vehicle: \(error.localizedDescription)", category: .api)
+            logger.log(.error, "Failed to add vehicle: \(error.localizedDescription)", category: .network)
             errorMessage = error.errorDescription
             throw error
         } catch {
-            logger.log(.error, "Unexpected error adding vehicle: \(error.localizedDescription)", category: .api)
+            logger.log(.error, "Unexpected error adding vehicle: \(error.localizedDescription)", category: .network)
             errorMessage = "An unexpected error occurred. Please try again."
             throw APIError.unknown(0)
         }
