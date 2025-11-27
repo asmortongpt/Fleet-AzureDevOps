@@ -2,13 +2,19 @@
 import dotenv from 'dotenv'
 import path from 'path'
 import { fileURLToPath } from 'url'
+import { homedir } from 'os'
 
 // Load global env file first (contains API keys per user instruction)
-const globalResult = dotenv.config({ path: '/Users/andrewmorton/.env' })
+const globalEnvPath = path.join(homedir(), '.env')
+const globalResult = dotenv.config({ path: globalEnvPath })
 console.log('[DOTENV] Global .env loaded:', globalResult.error ? `ERROR: ${globalResult.error}` : `✅ ${Object.keys(globalResult.parsed || {}).length} vars`)
 
 // Then load local env file (can override globals)
-const localResult = dotenv.config({ path: '/Users/andrewmorton/Documents/GitHub/fleet-local/api/.env' })
+// Note: dotenv npm script already loads .env, but we do it here for safety
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
+const localEnvPath = path.join(__dirname, '..', '.env')
+const localResult = dotenv.config({ path: localEnvPath })
 console.log('[DOTENV] Local .env loaded:', localResult.error ? `ERROR: ${localResult.error}` : `✅ ${Object.keys(localResult.parsed || {}).length} vars`)
 console.log('[DOTENV] CSRF_SECRET present:', !!process.env.CSRF_SECRET)
 
