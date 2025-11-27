@@ -117,11 +117,56 @@ class NotificationService: NSObject {
             options: []
         )
 
+        // Schedule category
+        let viewScheduleAction = UNNotificationAction(
+            identifier: "VIEW_SCHEDULE",
+            title: "View Schedule",
+            options: [.foreground]
+        )
+
+        let scheduleCategoryObj = UNNotificationCategory(
+            identifier: scheduleCategory,
+            actions: [viewScheduleAction, snoozeAction],
+            intentIdentifiers: [],
+            options: []
+        )
+
+        // Shift category
+        let startShiftAction = UNNotificationAction(
+            identifier: "START_SHIFT",
+            title: "Start Shift",
+            options: [.foreground]
+        )
+
+        let shiftCategoryObj = UNNotificationCategory(
+            identifier: shiftCategory,
+            actions: [startShiftAction, viewScheduleAction],
+            intentIdentifiers: [],
+            options: []
+        )
+
+        // Meeting category
+        let joinMeetingAction = UNNotificationAction(
+            identifier: "JOIN_MEETING",
+            title: "Join Meeting",
+            options: [.foreground]
+        )
+
+        let meetingCategoryObj = UNNotificationCategory(
+            identifier: meetingCategory,
+            actions: [joinMeetingAction, viewScheduleAction],
+            intentIdentifiers: [],
+            options: []
+        )
+
         // Register categories
         notificationCenter.setNotificationCategories([
             maintenanceCategoryObj,
             lowFuelCategoryObj,
-            serviceCategoryObj
+            serviceCategoryObj,
+            scheduleCategoryObj,
+            shiftCategoryObj,
+            meetingCategoryObj
         ])
     }
 
@@ -459,6 +504,36 @@ extension NotificationService: UNUserNotificationCenterDelegate {
         case UNNotificationDefaultActionIdentifier:
             // User tapped the notification
             print("User tapped notification")
+
+        case "VIEW_SCHEDULE":
+            if let scheduleId = userInfo["scheduleId"] as? String {
+                print("Navigate to schedule: \(scheduleId)")
+                NotificationCenter.default.post(
+                    name: NSNotification.Name("NavigateToSchedule"),
+                    object: nil,
+                    userInfo: ["scheduleId": scheduleId]
+                )
+            }
+
+        case "START_SHIFT":
+            if let scheduleId = userInfo["scheduleId"] as? String {
+                print("Start shift: \(scheduleId)")
+                NotificationCenter.default.post(
+                    name: NSNotification.Name("StartShift"),
+                    object: nil,
+                    userInfo: ["scheduleId": scheduleId]
+                )
+            }
+
+        case "JOIN_MEETING":
+            if let scheduleId = userInfo["scheduleId"] as? String {
+                print("Join meeting: \(scheduleId)")
+                NotificationCenter.default.post(
+                    name: NSNotification.Name("JoinMeeting"),
+                    object: nil,
+                    userInfo: ["scheduleId": scheduleId]
+                )
+            }
 
         case UNNotificationDismissActionIdentifier:
             // User dismissed the notification

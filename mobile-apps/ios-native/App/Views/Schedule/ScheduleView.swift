@@ -4,6 +4,7 @@ struct ScheduleView: View {
     @StateObject private var viewModel = ScheduleViewModel()
     @State private var showingAddSchedule = false
     @State private var showingFilters = false
+    @State private var showingSettings = false
     @State private var selectedSchedule: ScheduleEntry?
 
     var body: some View {
@@ -57,6 +58,12 @@ struct ScheduleView: View {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     HStack(spacing: 12) {
                         Button {
+                            showingSettings = true
+                        } label: {
+                            Image(systemName: "gear")
+                        }
+
+                        Button {
                             showingFilters = true
                         } label: {
                             Image(systemName: viewModel.filter.types.isEmpty ? "line.3.horizontal.decrease.circle" : "line.3.horizontal.decrease.circle.fill")
@@ -79,6 +86,9 @@ struct ScheduleView: View {
             }
             .sheet(isPresented: $showingFilters) {
                 ScheduleFilterView(filter: $viewModel.filter)
+            }
+            .sheet(isPresented: $showingSettings) {
+                ScheduleSettingsView(viewModel: viewModel)
             }
             .task {
                 await viewModel.loadSchedules()

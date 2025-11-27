@@ -573,4 +573,53 @@ final class MaintenanceViewModel: RefreshableViewModel {
         print("Exporting maintenance report...")
         // Would export to CSV/PDF
     }
+
+    // MARK: - Schedule Maintenance (Enhanced for MaintenanceRequestView)
+
+    func scheduleMaintenance(
+        for vehicleId: String,
+        type: MaintenanceType,
+        date: Date,
+        description: String
+    ) {
+        guard let vehicle = vehicles.first(where: { $0.id == vehicleId }) else {
+            print("❌ Vehicle not found: \(vehicleId)")
+            return
+        }
+
+        let newRecord = MaintenanceRecord(
+            id: UUID().uuidString,
+            vehicleId: vehicle.id,
+            vehicleNumber: vehicle.number,
+            type: type,
+            category: .other,
+            scheduledDate: date,
+            completedDate: nil,
+            status: date < Date() ? .overdue : .scheduled,
+            priority: .normal,
+            description: description,
+            cost: nil,
+            mileageAtService: vehicle.mileage,
+            hoursAtService: nil,
+            servicedBy: nil,
+            serviceProvider: "To be determined",
+            location: nil,
+            notes: "Scheduled via maintenance request",
+            parts: nil,
+            attachments: nil,
+            nextServiceMileage: nil,
+            nextServiceDate: date.addingTimeInterval(90 * 24 * 3600),
+            createdAt: Date(),
+            lastModified: Date()
+        )
+
+        allRecords.insert(newRecord, at: 0)
+        filterRecords()
+        updateStatistics()
+
+        print("✅ Maintenance scheduled: \(newRecord.id)")
+        print("   Vehicle: \(vehicle.number)")
+        print("   Type: \(type.rawValue)")
+        print("   Date: \(date)")
+    }
 }
