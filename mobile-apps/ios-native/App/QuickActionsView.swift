@@ -1,7 +1,7 @@
 import SwiftUI
 
-// MARK: - Quick Actions View
-struct QuickActionsView: View {
+// MARK: - Dashboard Quick Actions View
+struct DashboardQuickActionsView: View {
     // MARK: - Properties
     let onActionTap: (QuickActionType) -> Void
 
@@ -47,9 +47,9 @@ struct QuickActionsView: View {
 }
 
 // MARK: - Preview
-struct QuickActionsView_Previews: PreviewProvider {
+struct DashboardQuickActionsView_Previews: PreviewProvider {
     static var previews: some View {
-        QuickActionsView { action in
+        DashboardQuickActionsView { action in
             print("Action tapped: \(action.rawValue)")
         }
         .padding()

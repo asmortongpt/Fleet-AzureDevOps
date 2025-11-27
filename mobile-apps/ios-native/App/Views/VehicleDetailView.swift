@@ -4,277 +4,121 @@ import MapKit
 // MARK: - Vehicle Detail View
 struct VehicleDetailView: View {
     let vehicle: Vehicle
-    @StateObject private var viewModel = VehicleViewModel()
-    @State private var showInspection = false
-    @State private var showAssignment = false
     @Environment(\.dismiss) var dismiss
 
     var body: some View {
         ScrollView {
-            VStack(spacing: 0) {
+            VStack(spacing: ModernTheme.Spacing.lg) {
                 // Header Card
-                VehicleHeaderCard(vehicle: vehicle)
-                    .padding()
+                VStack(alignment: .leading, spacing: ModernTheme.Spacing.md) {
+                    HStack {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(vehicle.number)
+                                .font(ModernTheme.Typography.title1)
+                                .foregroundColor(ModernTheme.Colors.primaryText)
 
-                // Quick Actions
-                QuickActionsBar(vehicle: vehicle, onInspect: {
-                    showInspection = true
-                }, onAssign: {
-                    showAssignment = true
-                })
-                .padding(.horizontal)
-                .padding(.bottom)
-
-                // Details Sections
-                VStack(spacing: 16) {
-                    // Vehicle Information
-                    DetailSection(title: "Vehicle Information", icon: "info.circle.fill") {
-                        VehicleInfoSection(vehicle: vehicle)
-                    }
-
-                    // Location
-                    DetailSection(title: "Current Location", icon: "location.fill") {
-                        VehicleLocationSection(vehicle: vehicle)
-                    }
-
-                    // Status & Metrics
-                    DetailSection(title: "Status & Metrics", icon: "chart.bar.fill") {
-                        VehicleMetricsSection(vehicle: vehicle)
-                    }
-
-                    // Maintenance
-                    DetailSection(title: "Maintenance", icon: "wrench.fill") {
-                        MaintenanceSection(vehicle: vehicle)
-                    }
-
-                    // Alerts
-                    if !vehicle.alerts.isEmpty {
-                        DetailSection(title: "Alerts", icon: "exclamationmark.triangle.fill") {
-                            AlertsSection(alerts: vehicle.alerts)
+                            Text("\(vehicle.year) \(vehicle.make) \(vehicle.model)")
+                                .font(ModernTheme.Typography.title3)
+                                .foregroundColor(ModernTheme.Colors.secondaryText)
                         }
+
+                        Spacer()
+
+                        // Status Badge
+                        HStack {
+                            Image(systemName: vehicle.status.symbolName)
+                                .foregroundColor(.white)
+                            Text(vehicle.status.displayName)
+                                .font(.caption.weight(.semibold))
+                                .foregroundColor(.white)
+                        }
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 6)
+                        .background(vehicle.status.themeColor)
+                        .cornerRadius(12)
                     }
 
-                    // Tags
-                    if let tags = vehicle.tags, !tags.isEmpty {
-                        DetailSection(title: "Tags", icon: "tag.fill") {
-                            TagsSection(tags: tags)
+                    // VIN and License
+                    VStack(alignment: .leading, spacing: 8) {
+                        HStack {
+                            Text("VIN:")
+                                .font(.caption)
+                                .foregroundColor(ModernTheme.Colors.secondaryText)
+                            Text(vehicle.vin)
+                                .font(.caption.weight(.medium))
+                        }
+
+                        HStack {
+                            Text("License Plate:")
+                                .font(.caption)
+                                .foregroundColor(ModernTheme.Colors.secondaryText)
+                            Text(vehicle.licensePlate)
+                                .font(.caption.weight(.medium))
                         }
                     }
                 }
-                .padding()
+                .padding(ModernTheme.Spacing.lg)
+                .background(ModernTheme.Colors.secondaryBackground)
+                .cornerRadius(ModernTheme.CornerRadius.lg)
+
+                // Location Section
+                VStack(alignment: .leading, spacing: ModernTheme.Spacing.md) {
+                    Text("Location")
+                        .font(ModernTheme.Typography.headline)
+                    VehicleLocationSection(vehicle: vehicle)
+                }
+                .padding(ModernTheme.Spacing.lg)
+                .background(ModernTheme.Colors.background)
+                .cornerRadius(ModernTheme.CornerRadius.lg)
+
+                // Metrics Section
+                VStack(alignment: .leading, spacing: ModernTheme.Spacing.md) {
+                    Text("Vehicle Metrics")
+                        .font(ModernTheme.Typography.headline)
+                    VehicleMetricsSection(vehicle: vehicle)
+                }
+                .padding(ModernTheme.Spacing.lg)
+                .background(ModernTheme.Colors.background)
+                .cornerRadius(ModernTheme.CornerRadius.lg)
+
+                // Maintenance Section
+                VStack(alignment: .leading, spacing: ModernTheme.Spacing.md) {
+                    Text("Maintenance")
+                        .font(ModernTheme.Typography.headline)
+                    MaintenanceSection(vehicle: vehicle)
+                }
+                .padding(ModernTheme.Spacing.lg)
+                .background(ModernTheme.Colors.background)
+                .cornerRadius(ModernTheme.CornerRadius.lg)
+
+                // Alerts Section (if any)
+                if !vehicle.alerts.isEmpty {
+                    VStack(alignment: .leading, spacing: ModernTheme.Spacing.md) {
+                        Text("Active Alerts")
+                            .font(ModernTheme.Typography.headline)
+                        AlertsSection(alerts: vehicle.alerts)
+                    }
+                    .padding(ModernTheme.Spacing.lg)
+                    .background(ModernTheme.Colors.background)
+                    .cornerRadius(ModernTheme.CornerRadius.lg)
+                }
+
+                // Tags Section (if any)
+                if let tags = vehicle.tags, !tags.isEmpty {
+                    VStack(alignment: .leading, spacing: ModernTheme.Spacing.md) {
+                        Text("Tags")
+                            .font(ModernTheme.Typography.headline)
+                        TagsSection(tags: vehicle.tags)
+                    }
+                    .padding(ModernTheme.Spacing.lg)
+                    .background(ModernTheme.Colors.background)
+                    .cornerRadius(ModernTheme.CornerRadius.lg)
+                }
             }
+            .padding()
         }
         .navigationTitle(vehicle.number)
         .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
-                Button(action: {
-                    // Share or more options
-                }) {
-                    Image(systemName: "ellipsis.circle")
-                }
-            }
-        }
-        .sheet(isPresented: $showInspection) {
-            NavigationView {
-                VehicleInspectionView(vehicle: vehicle)
-            }
-        }
-        .sheet(isPresented: $showAssignment) {
-            CreateAssignmentView(viewModel: VehicleAssignmentViewModel())
-        }
-    }
-}
-
-// MARK: - Vehicle Header Card
-struct VehicleHeaderCard: View {
-    let vehicle: Vehicle
-
-    var body: some View {
-        VStack(spacing: 16) {
-            // Vehicle Type Icon
-            ZStack {
-                Circle()
-                    .fill(
-                        LinearGradient(
-                            gradient: Gradient(colors: [Color.blue, Color.blue.opacity(0.7)]),
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                    )
-                    .frame(width: 100, height: 100)
-
-                Image(systemName: vehicle.type.icon)
-                    .font(.system(size: 50))
-                    .foregroundColor(.white)
-            }
-
-            // Vehicle Info
-            VStack(spacing: 4) {
-                Text("\(vehicle.year) \(vehicle.make) \(vehicle.model)")
-                    .font(.title2)
-                    .fontWeight(.bold)
-
-                Text(vehicle.type.displayName)
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
-
-                VehicleStatusBadge(status: vehicle.status)
-                    .padding(.top, 4)
-            }
-        }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical)
-        .background(Color(.systemGray6))
-        .cornerRadius(16)
-    }
-}
-
-// MARK: - Quick Actions Bar
-struct QuickActionsBar: View {
-    let vehicle: Vehicle
-    let onInspect: () -> Void
-    let onAssign: () -> Void
-
-    var body: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 12) {
-                QuickActionButton(
-                    icon: "person.crop.circle.fill.badge.checkmark",
-                    title: "Assign",
-                    color: .blue,
-                    action: onAssign
-                )
-
-                QuickActionButton(
-                    icon: "checkmark.circle.fill",
-                    title: "Inspect",
-                    color: .teal,
-                    action: onInspect
-                )
-
-                QuickActionButton(
-                    icon: "wrench.fill",
-                    title: "Service",
-                    color: .orange,
-                    action: {}
-                )
-
-                QuickActionButton(
-                    icon: "map.fill",
-                    title: "Locate",
-                    color: .green,
-                    action: {}
-                )
-
-                QuickActionButton(
-                    icon: "doc.text.fill",
-                    title: "Records",
-                    color: .purple,
-                    action: {}
-                )
-            }
-            .padding(.horizontal, 4)
-        }
-    }
-}
-
-// MARK: - Quick Action Button
-struct QuickActionButton: View {
-    let icon: String
-    let title: String
-    let color: Color
-    let action: () -> Void
-
-    var body: some View {
-        Button(action: action) {
-            VStack(spacing: 8) {
-                Image(systemName: icon)
-                    .font(.title2)
-                    .foregroundColor(color)
-                    .frame(width: 50, height: 50)
-                    .background(color.opacity(0.15))
-                    .clipShape(Circle())
-
-                Text(title)
-                    .font(.caption)
-                    .foregroundColor(.primary)
-            }
-            .frame(maxWidth: .infinity)
-        }
-    }
-}
-
-// MARK: - Detail Section
-struct DetailSection<Content: View>: View {
-    let title: String
-    let icon: String
-    @ViewBuilder let content: Content
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Label(title, systemImage: icon)
-                .font(.headline)
-                .foregroundColor(.primary)
-
-            content
-        }
-        .padding()
-        .background(Color(.systemBackground))
-        .cornerRadius(12)
-        .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
-    }
-}
-
-// MARK: - Vehicle Info Section
-struct VehicleInfoSection: View {
-    let vehicle: Vehicle
-
-    var body: some View {
-        VStack(spacing: 12) {
-            InfoRow(label: "VIN", value: vehicle.vin, icon: "barcode")
-            Divider()
-            InfoRow(label: "License Plate", value: vehicle.licensePlate, icon: "doc.text.fill")
-            Divider()
-            InfoRow(label: "Department", value: vehicle.department, icon: "building.2.fill")
-            Divider()
-            InfoRow(label: "Region", value: vehicle.region, icon: "map.fill")
-            Divider()
-            InfoRow(label: "Ownership", value: vehicle.ownership.displayName, icon: "key.fill")
-            Divider()
-            InfoRow(label: "Fuel Type", value: vehicle.fuelType.displayName, icon: "fuelpump.fill")
-
-            if let driver = vehicle.assignedDriver {
-                Divider()
-                InfoRow(label: "Assigned Driver", value: driver, icon: "person.fill")
-            }
-        }
-    }
-}
-
-// MARK: - Info Row
-struct InfoRow: View {
-    let label: String
-    let value: String
-    let icon: String
-
-    var body: some View {
-        HStack {
-            Image(systemName: icon)
-                .foregroundColor(.blue)
-                .frame(width: 24)
-
-            Text(label)
-                .font(.subheadline)
-                .foregroundColor(.secondary)
-
-            Spacer()
-
-            Text(value)
-                .font(.subheadline)
-                .fontWeight(.medium)
-                .foregroundColor(.primary)
-        }
     }
 }
 
@@ -440,14 +284,10 @@ struct MaintenanceSection: View {
         }
     }
 
-    private func formatDate(_ dateString: String) -> String {
+    private func formatDate(_ date: Date) -> String {
         let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd"
-        if let date = formatter.date(from: dateString) {
-            formatter.dateStyle = .medium
-            return formatter.string(from: date)
-        }
-        return dateString
+        formatter.dateStyle = .medium
+        return formatter.string(from: date)
     }
 }
 
@@ -477,63 +317,36 @@ struct AlertsSection: View {
 
 // MARK: - Tags Section
 struct TagsSection: View {
-    let tags: [String]
+    let tags: [String]?
 
     var body: some View {
-        FlowLayout(spacing: 8) {
-            ForEach(tags, id: \.self) { tag in
-                Text(tag)
-                    .font(.caption)
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 6)
-                    .background(Color.blue.opacity(0.15))
-                    .foregroundColor(.blue)
-                    .cornerRadius(16)
-            }
-        }
-    }
-}
-
-// MARK: - Flow Layout for Tags
-struct FlowLayout: Layout {
-    var spacing: CGFloat = 8
-
-    func sizeThatFits(proposal: CGSize, subviews: Subviews, cache: inout ()) -> CGSize {
-        let result = FlowResult(in: proposal.replacingUnspecifiedDimensions().width, subviews: subviews, spacing: spacing)
-        return result.size
-    }
-
-    func placeSubviews(in bounds: CGRect, proposal: CGSize, subviews: Subviews, cache: inout ()) {
-        let result = FlowResult(in: bounds.width, subviews: subviews, spacing: spacing)
-        for (index, subview) in subviews.enumerated() {
-            subview.place(at: CGPoint(x: bounds.minX + result.frames[index].minX, y: bounds.minY + result.frames[index].minY), proposal: .unspecified)
-        }
-    }
-
-    struct FlowResult {
-        var frames: [CGRect] = []
-        var size: CGSize = .zero
-
-        init(in maxWidth: CGFloat, subviews: Subviews, spacing: CGFloat) {
-            var currentX: CGFloat = 0
-            var currentY: CGFloat = 0
-            var lineHeight: CGFloat = 0
-
-            for subview in subviews {
-                let size = subview.sizeThatFits(.unspecified)
-
-                if currentX + size.width > maxWidth && currentX > 0 {
-                    currentX = 0
-                    currentY += lineHeight + spacing
-                    lineHeight = 0
+        if #available(iOS 16.0, *) {
+            FlowLayout(spacing: 8) {
+                ForEach(tags ?? [], id: \.self) { tag in
+                    Text(tag)
+                        .font(.caption)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 6)
+                        .background(Color.blue.opacity(0.15))
+                        .foregroundColor(.blue)
+                        .cornerRadius(16)
                 }
-
-                frames.append(CGRect(origin: CGPoint(x: currentX, y: currentY), size: size))
-                currentX += size.width + spacing
-                lineHeight = max(lineHeight, size.height)
             }
-
-            self.size = CGSize(width: maxWidth, height: currentY + lineHeight)
+        } else {
+            // Fallback for iOS 15
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 8) {
+                    ForEach(tags ?? [], id: \.self) { tag in
+                        Text(tag)
+                            .font(.caption)
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 6)
+                            .background(Color.blue.opacity(0.15))
+                            .foregroundColor(.blue)
+                            .cornerRadius(16)
+                    }
+                }
+            }
         }
     }
 }
@@ -542,6 +355,7 @@ struct FlowLayout: Layout {
 #if DEBUG
 struct VehicleDetailView_Previews: PreviewProvider {
     static var previews: some View {
+        let dateFormatter = ISO8601DateFormatter()
         let sampleVehicle = Vehicle(
             id: "1",
             tenantId: "tenant1",
@@ -562,8 +376,8 @@ struct VehicleDetailView_Previews: PreviewProvider {
             hoursUsed: 2500,
             assignedDriver: "John Doe",
             ownership: .owned,
-            lastService: "2024-01-15",
-            nextService: "2024-04-15",
+            lastService: dateFormatter.date(from: "2024-01-15T00:00:00Z") ?? Date(),
+            nextService: dateFormatter.date(from: "2024-04-15T00:00:00Z") ?? Date(),
             alerts: ["Oil change due", "Tire rotation needed"],
             customFields: nil,
             tags: ["Heavy Duty", "Winter Ready", "4WD"]
