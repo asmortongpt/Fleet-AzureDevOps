@@ -1,28 +1,14 @@
-import { useState, useMemo } from "react"
+import { useMemo } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { DataGrid } from "@/components/common/DataGrid"
 import { ColumnDef } from "@tanstack/react-table"
 import { Car, Plus, Edit, Trash, MapPin } from "@phosphor-icons/react"
-
-interface Vehicle {
-  id: string
-  vehicleNumber: string
-  make: string
-  model: string
-  year: number
-  vin: string
-  licensePlate: string
-  status: "active" | "maintenance" | "retired"
-  mileage: number
-  fuelType: string
-  location: string
-  assignedDriver?: string
-}
+import { useVehicles, Vehicle } from "@/hooks/useVehicles"
 
 export function VehicleManagement() {
-  const [vehicles, setVehicles] = useState<Vehicle[]>([])
+  const { data, isLoading } = useVehicles()
 
   const columns: ColumnDef<Vehicle>[] = useMemo(() => [
     {
@@ -99,13 +85,13 @@ export function VehicleManagement() {
         </CardHeader>
         <CardContent className="p-0">
           <DataGrid
-            data={vehicles}
+            data={data?.data || []}
             columns={columns}
             enableSearch={true}
             searchPlaceholder="Search vehicles..."
             enablePagination={true}
             pageSize={20}
-            emptyMessage="No vehicles found"
+            emptyMessage={isLoading ? "Loading vehicles..." : "No vehicles found"}
           />
         </CardContent>
       </Card>
