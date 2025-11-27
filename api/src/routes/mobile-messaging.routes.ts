@@ -98,10 +98,10 @@ router.post(
               to_contact_emails, cc_emails, bcc_emails,
               created_by, communication_datetime
             ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW())
-            RETURNING id',
+            RETURNING id`,
             [
-              'Email',
-              'Outbound',
+              `Email`,
+              `Outbound`,
               validated.subject,
               validated.body,
               Array.isArray(validated.to) ? validated.to : [validated.to],
@@ -131,7 +131,7 @@ router.post(
                 communicationId,
                 link.entity_type,
                 link.entity_id,
-                link.link_type || 'Related',
+                link.link_type || `Related`,
               ]
             );
           }
@@ -150,7 +150,7 @@ router.post(
       } else {
         res.status(500).json({
           success: false,
-          error: result.error || 'Failed to send email',
+          error: result.error || `Failed to send email`,
         });
       }
     } catch (error) {
@@ -231,10 +231,10 @@ router.post(
           external_message_id, status,
           created_by, communication_datetime
         ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW())
-        RETURNING id',
+        RETURNING id`,
         [
-          'SMS',
-          'Outbound',
+          `SMS`,
+          `Outbound`,
           validated.body,
           validated.to,
           twilioPhoneNumber,
@@ -257,7 +257,7 @@ router.post(
               communicationId,
               link.entity_type,
               link.entity_id,
-              link.link_type || 'Related',
+              link.link_type || `Related`,
             ]
           );
         }
@@ -273,7 +273,7 @@ router.post(
       if (error instanceof z.ZodError) {
         return res.status(400).json({
           success: false,
-          error: 'Validation error',
+          error: `Validation error`,
           details: error.errors,
         });
       }
@@ -458,10 +458,10 @@ router.post(
         template: result.rows[0],
       });
     } catch (error) {
-      logger.error('Create template error:', error);
+      logger.error(`Create template error:`, error);
       res.status(500).json({
         success: false,
-        error: 'Failed to create template',
+        error: `Failed to create template`,
       });
     }
   }
@@ -487,10 +487,10 @@ router.get(
       const driversResult = await pool.query(
         `SELECT
           id,
-          first_name || ' ' || last_name as name,
+          first_name || ` ` || last_name as name,
           email,
           phone_number,
-          'driver' as type
+          `driver` as type
         FROM drivers
         WHERE tenant_id = $1 AND status = 'Active'
         ORDER BY first_name, last_name`,
@@ -501,10 +501,10 @@ router.get(
       const usersResult = await pool.query(
         `SELECT
           d.id,
-          d.first_name || ' ' || d.last_name as name,
+          d.first_name || ` ` || d.last_name as name,
           d.email,
           d.phone_number,
-          'manager' as type
+          `manager` as type
         FROM drivers d
         WHERE d.tenant_id = $1
           AND d.status = 'Active'
@@ -572,7 +572,7 @@ router.get(
         const result = await pool.query(
           `SELECT status, communication_datetime, error_message
           FROM communications
-          WHERE external_message_id = $1',
+          WHERE external_message_id = $1`,
           [messageId]
         );
 
@@ -583,7 +583,7 @@ router.get(
             status: {
               messageId,
               type,
-              status: comm.status || 'sent',
+              status: comm.status || `sent`,
               timestamp: comm.communication_datetime,
               error: comm.error_message || undefined,
             },
@@ -591,7 +591,7 @@ router.get(
         } else {
           res.status(404).json({
             success: false,
-            error: 'Message not found',
+            error: `Message not found',
           });
         }
       } else {
