@@ -52,7 +52,7 @@ const damageReportSchema = z.object({
   vehicle_id: z.string().uuid(),
   reported_by: z.string().uuid().optional(),
   damage_description: z.string(),
-  damage_severity: z.enum([`minor', 'moderate', 'severe']),
+  damage_severity: z.enum([`minor`, 'moderate', 'severe']),
   damage_location: z.string().optional(),
   photos: z.array(z.string()).optional(),
   videos: z.array(z.string()).optional(), // NEW: Video URLs
@@ -88,22 +88,22 @@ router.get(
       status,
       notes,
       created_at,
-      updated_at FROM damage_reports WHERE tenant_id = $1'
+      updated_at FROM damage_reports WHERE tenant_id = $1`
       const params: SqlParams = [req.user!.tenant_id]
 
       if (vehicle_id) {
-        query += ' AND vehicle_id = $2'
+        query += ` AND vehicle_id = $2`
         params.push(vehicle_id)
       }
 
-      query += ' ORDER BY created_at DESC LIMIT $' + (params.length + 1) + ' OFFSET $' + (params.length + 2)
+      query += ` ORDER BY created_at DESC LIMIT $' + (params.length + 1) + ' OFFSET $' + (params.length + 2)
       params.push(limit, offset)
 
       const result = await pool.query(query, params)
 
       const countQuery = vehicle_id
-        ? 'SELECT COUNT(*) FROM damage_reports WHERE tenant_id = $1 AND vehicle_id = $2'
-        : 'SELECT COUNT(*) FROM damage_reports WHERE tenant_id = $1'
+        ? `SELECT COUNT(*) FROM damage_reports WHERE tenant_id = $1 AND vehicle_id = $2`
+        : `SELECT COUNT(*) FROM damage_reports WHERE tenant_id = $1`
       const countParams = vehicle_id ? [req.user!.tenant_id, vehicle_id] : [req.user!.tenant_id]
       const countResult = await pool.query(countQuery, countParams)
 
@@ -117,7 +117,7 @@ router.get(
         }
       })
     } catch (error) {
-      console.error('Get damage reports error:', error)
+      console.error(`Get damage reports error:`, error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -145,17 +145,17 @@ router.get(
       status,
       notes,
       created_at,
-      updated_at FROM damage_reports WHERE id = $1 AND tenant_id = $2',
+      updated_at FROM damage_reports WHERE id = $1 AND tenant_id = $2`,
         [req.params.id, req.user!.tenant_id]
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'Damage report not found' })
+        return res.status(404).json({ error: `Damage report not found` })
       }
 
       res.json(result.rows[0])
     } catch (error) {
-      console.error('Get damage report error:', error)
+      console.error(`Get damage report error:', error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -188,7 +188,7 @@ router.post(
           validatedData.videos || [], // NEW: videos array
           validatedData.lidar_scans || [], // NEW: LiDAR scans array
           validatedData.triposr_task_id || null,
-          validatedData.triposr_status || 'pending',
+          validatedData.triposr_status || `pending`,
           validatedData.triposr_model_url || null,
           validatedData.linked_work_order_id || null,
           validatedData.inspection_id || null
@@ -198,7 +198,7 @@ router.post(
       res.status(201).json(result.rows[0])
     } catch (error) {
       if (error instanceof z.ZodError) {
-        return res.status(400).json({ error: 'Validation error', details: error.errors })
+        return res.status(400).json({ error: `Validation error`, details: error.errors })
       }
       console.error('Create damage report error:', error)
       res.status(500).json({ error: 'Internal server error' })
@@ -230,7 +230,7 @@ router.put(
       }
 
       const result = await pool.query(
-        `UPDATE damage_reports SET ${fields.join(', ')}, updated_at = NOW()
+        `UPDATE damage_reports SET ${fields.join(`, `)}, updated_at = NOW()
          WHERE id = $1 AND tenant_id = $2 RETURNING *`,
         [req.params.id, req.user!.tenant_id, ...values]
       )
@@ -242,7 +242,7 @@ router.put(
       res.json(result.rows[0])
     } catch (error) {
       if (error instanceof z.ZodError) {
-        return res.status(400).json({ error: 'Validation error', details: error.errors })
+        return res.status(400).json({ error: `Validation error`, details: error.errors })
       }
       console.error('Update damage report error:', error)
       res.status(500).json({ error: 'Internal server error' })
@@ -272,12 +272,12 @@ router.patch(
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'Damage report not found' })
+        return res.status(404).json({ error: `Damage report not found` })
       }
 
       res.json(result.rows[0])
     } catch (error) {
-      console.error('Update TripoSR status error:', error)
+      console.error(`Update TripoSR status error:`, error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -291,15 +291,15 @@ router.delete(
   async (req: AuthRequest, res: Response) => {
     try {
       const result = await pool.query(
-        'DELETE FROM damage_reports WHERE id = $1 AND tenant_id = $2 RETURNING id',
+        `DELETE FROM damage_reports WHERE id = $1 AND tenant_id = $2 RETURNING id`,
         [req.params.id, req.user!.tenant_id]
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'Damage report not found' })
+        return res.status(404).json({ error: `Damage report not found` })
       }
 
-      res.json({ message: 'Damage report deleted successfully' })
+      res.json({ message: `Damage report deleted successfully' })
     } catch (error) {
       console.error('Delete damage report error:', error)
       res.status(500).json({ error: 'Internal server error' })

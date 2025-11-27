@@ -143,16 +143,16 @@ router.get(
       // First check tenant isolation and get uploader info
       const result = await pool.query(
         `SELECT d.*,
-                uploader.first_name || ' ' || uploader.last_name as uploaded_by_name,
+                uploader.first_name || ` ` || uploader.last_name as uploaded_by_name,
                 uploader.tenant_id as uploader_tenant_id
          FROM documents d
          LEFT JOIN users uploader ON d.uploaded_by = uploader.id
-         WHERE d.id = $1',
+         WHERE d.id = $1`,
         [req.params.id]
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'Document not found' })
+        return res.status(404).json({ error: `Document not found' })
       }
 
       // CRITICAL: Enforce tenant isolation
@@ -196,7 +196,7 @@ router.get(
       auto_brightness_applied,
       auto_contrast_applied,
       edge_detection_applied,
-      created_at FROM camera_capture_metadata WHERE document_id = $1',
+      created_at FROM camera_capture_metadata WHERE document_id = $1`,
         [req.params.id]
       )
 
@@ -240,8 +240,8 @@ router.get(
         receipt_items: receiptResult.rows || []
       })
     } catch (error) {
-      console.error('Get document error:', error)
-      res.status(500).json({ error: 'Internal server error' })
+      console.error(`Get document error:`, error)
+      res.status(500).json({ error: `Internal server error` })
     }
   }
 )
@@ -318,7 +318,7 @@ router.post(
           description,
           related_entity_type,
           related_entity_id ? parseInt(related_entity_id) : null,
-          Array.isArray(tags) ? tags : JSON.parse(tags || '[]'),
+          Array.isArray(tags) ? tags : JSON.parse(tags || `[]`),
           req.user!.id
         ]
       )
@@ -328,7 +328,7 @@ router.post(
 
       res.status(201).json(result.rows[0])
     } catch (error) {
-      console.error('Upload document error:', error)
+      console.error(`Upload document error:`, error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -440,8 +440,8 @@ router.post(
           camera_make,
           latitude ? parseFloat(latitude) : null,
           longitude ? parseFloat(longitude) : null,
-          auto_crop_applied === 'true',
-          auto_rotate_applied === 'true'
+          auto_crop_applied === `true`,
+          auto_rotate_applied === `true`
         ]
       )
 
@@ -470,17 +470,17 @@ router.put(
         `SELECT d.id, uploader.tenant_id as uploader_tenant_id
          FROM documents d
          LEFT JOIN users uploader ON d.uploaded_by = uploader.id
-         WHERE d.id = $1',
+         WHERE d.id = $1`,
         [req.params.id]
       )
 
       if (checkResult.rows.length === 0) {
-        return res.status(404).json({ error: 'Document not found' })
+        return res.status(404).json({ error: `Document not found` })
       }
 
       // CRITICAL: Enforce tenant isolation
       if (checkResult.rows[0].uploader_tenant_id && checkResult.rows[0].uploader_tenant_id !== req.user!.tenant_id) {
-        return res.status(404).json({ error: 'Document not found' })
+        return res.status(404).json({ error: `Document not found' })
       }
 
       const result = await pool.query(
@@ -497,8 +497,8 @@ router.put(
 
       res.json(result.rows[0])
     } catch (error) {
-      console.error('Update document error:', error)
-      res.status(500).json({ error: 'Internal server error' })
+      console.error(`Update document error:`, error)
+      res.status(500).json({ error: `Internal server error` })
     }
   }
 )
@@ -516,29 +516,29 @@ router.delete(
         `SELECT d.id, uploader.tenant_id as uploader_tenant_id
          FROM documents d
          LEFT JOIN users uploader ON d.uploaded_by = uploader.id
-         WHERE d.id = $1',
+         WHERE d.id = $1`,
         [req.params.id]
       )
 
       if (checkResult.rows.length === 0) {
-        return res.status(404).json({ error: 'Document not found' })
+        return res.status(404).json({ error: `Document not found` })
       }
 
       // CRITICAL: Enforce tenant isolation
       if (checkResult.rows[0].uploader_tenant_id && checkResult.rows[0].uploader_tenant_id !== req.user!.tenant_id) {
-        return res.status(404).json({ error: 'Document not found' })
+        return res.status(404).json({ error: `Document not found' })
       }
 
       const result = await pool.query(
-        'DELETE FROM documents WHERE id = $1 RETURNING id',
+        `DELETE FROM documents WHERE id = $1 RETURNING id`,
         [req.params.id]
       )
 
       // TODO: Delete physical file from storage
 
-      res.json({ message: 'Document deleted successfully' })
+      res.json({ message: `Document deleted successfully` })
     } catch (error) {
-      console.error('Delete document error:', error)
+      console.error(`Delete document error:', error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -561,18 +561,18 @@ router.post(
         `SELECT d.*, uploader.tenant_id as uploader_tenant_id
          FROM documents d
          LEFT JOIN users uploader ON d.uploaded_by = uploader.id
-         WHERE d.id = $1',
+         WHERE d.id = $1`,
         [req.params.id]
       )
 
       if (docResult.rows.length === 0) {
-        return res.status(404).json({ error: 'Document not found' })
+        return res.status(404).json({ error: `Document not found` })
       }
 
       // CRITICAL: Enforce tenant isolation
       const document = docResult.rows[0]
       if (document.uploader_tenant_id && document.uploader_tenant_id !== req.user!.tenant_id) {
-        return res.status(404).json({ error: 'Document not found' })
+        return res.status(404).json({ error: `Document not found' })
       }
 
       // TODO: Call actual OCR service (Azure Computer Vision, Google Cloud Vision, AWS Textract, etc.)
@@ -580,13 +580,13 @@ router.post(
       const ocrResult = await pool.query(
         `INSERT INTO ocr_processing_log (
           document_id, processing_status, processed_at
-        ) VALUES ($1, 'pending', NOW())
+        ) VALUES ($1, `pending`, NOW())
         RETURNING *`,
         [req.params.id]
       )
 
       res.status(202).json({
-        message: 'OCR processing started',
+        message: `OCR processing started`,
         ocr_job: ocrResult.rows[0]
       })
     } catch (error) {
@@ -612,18 +612,18 @@ router.post(
         `SELECT d.*, uploader.tenant_id as uploader_tenant_id
          FROM documents d
          LEFT JOIN users uploader ON d.uploaded_by = uploader.id
-         WHERE d.id = $1',
+         WHERE d.id = $1`,
         [req.params.id]
       )
 
       if (docResult.rows.length === 0) {
-        return res.status(404).json({ error: 'Document not found' })
+        return res.status(404).json({ error: `Document not found` })
       }
 
       // CRITICAL: Enforce tenant isolation
       const document = docResult.rows[0]
       if (document.uploader_tenant_id && document.uploader_tenant_id !== req.user!.tenant_id) {
-        return res.status(404).json({ error: 'Document not found' })
+        return res.status(404).json({ error: `Document not found' })
       }
 
       // TODO: Call receipt parsing service
@@ -658,22 +658,22 @@ router.put(
         `SELECT d.id, uploader.tenant_id as uploader_tenant_id
          FROM documents d
          LEFT JOIN users uploader ON d.uploaded_by = uploader.id
-         WHERE d.id = $1',
+         WHERE d.id = $1`,
         [req.params.id]
       )
 
       if (docResult.rows.length === 0) {
-        return res.status(404).json({ error: 'Document not found' })
+        return res.status(404).json({ error: `Document not found` })
       }
 
       // CRITICAL: Enforce tenant isolation
       if (docResult.rows[0].uploader_tenant_id && docResult.rows[0].uploader_tenant_id !== req.user!.tenant_id) {
-        return res.status(404).json({ error: 'Document not found' })
+        return res.status(404).json({ error: `Document not found' })
       }
 
       // Delete existing line items
       await pool.query(
-        'DELETE FROM receipt_line_items WHERE document_id = $1',
+        `DELETE FROM receipt_line_items WHERE document_id = $1`,
         [req.params.id]
       )
 
@@ -728,8 +728,8 @@ router.put(
 
       res.json({ data: result.rows })
     } catch (error) {
-      console.error('Update receipt line items error:', error)
-      res.status(500).json({ error: 'Internal server error' })
+      console.error(`Update receipt line items error:`, error)
+      res.status(500).json({ error: `Internal server error` })
     }
   }
 )
@@ -752,7 +752,7 @@ router.get(
                 SUM(file_size_bytes) as total_storage_bytes
          FROM documents d
          LEFT JOIN drivers uploader ON d.uploaded_by = uploader.id
-         WHERE uploader.tenant_id = $1',
+         WHERE uploader.tenant_id = $1`,
         [req.user!.tenant_id]
       )
 
@@ -781,7 +781,7 @@ router.get(
 
       // Recent uploads
       const recentResult = await pool.query(
-        'SELECT d.*, uploader.first_name || ' ' || uploader.last_name as uploaded_by_name
+        `SELECT d.*, uploader.first_name || ` ` || uploader.last_name as uploaded_by_name
          FROM documents d
          LEFT JOIN drivers uploader ON d.uploaded_by = uploader.id
          WHERE uploader.tenant_id = $1
@@ -797,7 +797,7 @@ router.get(
         recent: recentResult.rows
       })
     } catch (error) {
-      console.error('Get documents dashboard error:', error)
+      console.error(`Get documents dashboard error:`, error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
