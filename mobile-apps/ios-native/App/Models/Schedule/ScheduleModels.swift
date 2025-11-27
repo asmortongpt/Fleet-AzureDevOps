@@ -22,6 +22,12 @@ struct ScheduleEntry: Codable, Identifiable, Hashable {
     var createdAt: Date
     var updatedAt: Date
 
+    // SECURITY: Personal/work usage tracking for compliance and audit logging
+    var isPersonalUse: Bool = false
+
+    // Vehicle reservation support
+    var vehicleId: String? // Optional: only used for vehicle reservation types
+
     // Computed properties
     var duration: TimeInterval {
         endDate.timeIntervalSince(startDate)
@@ -60,6 +66,7 @@ enum ScheduleType: String, Codable, CaseIterable {
     case pickup = "Pickup"
     case break_ = "Break"
     case timeOff = "Time Off"
+    case vehicleReservation = "Vehicle Reservation" // Support for reserving vehicles
 
     var icon: String {
         switch self {
@@ -73,6 +80,7 @@ enum ScheduleType: String, Codable, CaseIterable {
         case .pickup: return "arrow.down.circle.fill"
         case .break_: return "cup.and.saucer.fill"
         case .timeOff: return "beach.umbrella.fill"
+        case .vehicleReservation: return "car.fill"
         }
     }
 
@@ -88,6 +96,7 @@ enum ScheduleType: String, Codable, CaseIterable {
         case .pickup: return "mint"
         case .break_: return "gray"
         case .timeOff: return "pink"
+        case .vehicleReservation: return "blue"
         }
     }
 }
