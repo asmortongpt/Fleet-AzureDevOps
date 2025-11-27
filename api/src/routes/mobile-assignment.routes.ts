@@ -252,11 +252,11 @@ router.post(
       const user_id = req.user!.id;
 
       // Get driver_id for this user
-      const driverQuery = 'SELECT id FROM drivers WHERE user_id = $1 AND tenant_id = $2';
+      const driverQuery = `SELECT id FROM drivers WHERE user_id = $1 AND tenant_id = $2`;
       const driverResult = await pool.query(driverQuery, [user_id, tenant_id]);
 
       if (driverResult.rows.length === 0) {
-        return res.status(404).json({ error: 'Driver profile not found' });
+        return res.status(404).json({ error: `Driver profile not found` });
       }
 
       const driver_id = driverResult.rows[0].id;
@@ -276,7 +276,7 @@ router.post(
           purpose, notes,
           reimbursement_requested, reimbursement_amount, reimbursement_status
         ) VALUES (
-          $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, 'pending'
+          $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, `pending`
         )
         RETURNING *
       `;
@@ -305,17 +305,17 @@ router.post(
       await pool.query(
         `UPDATE on_call_periods
          SET callback_count = callback_count + 1
-         WHERE id = $1 AND tenant_id = $2',
+         WHERE id = $1 AND tenant_id = $2`,
         [data.on_call_period_id, tenant_id]
       );
 
       res.status(201).json({
-        message: 'Callback trip logged successfully',
+        message: `Callback trip logged successfully`,
         trip: result.rows[0],
         estimated_reimbursement: reimbursementAmount,
       });
     } catch (error: any) {
-      console.error('Error logging callback trip:', error);
+      console.error(`Error logging callback trip:', error);
       if (error instanceof z.ZodError) {
         return res.status(400).json({
           error: 'Validation error',
@@ -543,11 +543,11 @@ router.get(
       const tenant_id = req.user!.tenant_id;
 
       // Get driver_id
-      const driverQuery = 'SELECT id FROM drivers WHERE user_id = $1 AND tenant_id = $2';
+      const driverQuery = `SELECT id FROM drivers WHERE user_id = $1 AND tenant_id = $2`;
       const driverResult = await pool.query(driverQuery, [user_id, tenant_id]);
 
       if (driverResult.rows.length === 0) {
-        return res.status(404).json({ error: 'Driver profile not found' });
+        return res.status(404).json({ error: `Driver profile not found` });
       }
 
       const driver_id = driverResult.rows[0].id;
@@ -558,27 +558,27 @@ router.get(
         assignments: await pool.query(
           `SELECT id, tenant_id, vehicle_id, driver_id, assignment_type, start_date, end_date, status, created_at, updated_at FROM vehicle_assignments
            WHERE driver_id = $1 AND tenant_id = $2
-           AND lifecycle_state IN ('active', 'approved')',
+           AND lifecycle_state IN (`active`, `approved`)',
           [driver_id, tenant_id]
         ),
         on_call_periods: await pool.query(
           `SELECT id, tenant_id, driver_id, start_datetime, end_datetime, status, created_at, updated_at FROM on_call_periods
            WHERE driver_id = $1 AND tenant_id = $2
-           AND is_active = true AND end_datetime >= NOW() - INTERVAL '7 days'',
+           AND is_active = true AND end_datetime >= NOW() - INTERVAL `7 days``,
           [driver_id, tenant_id]
         ),
         vehicles: await pool.query(
           `SELECT v.* FROM vehicles v
            JOIN vehicle_assignments va ON v.id = va.vehicle_id
            WHERE va.driver_id = $1 AND va.tenant_id = $2
-           AND va.lifecycle_state = 'active'',
+           AND va.lifecycle_state = `active``,
           [driver_id, tenant_id]
         ),
         secured_parking: await pool.query(
           `SELECT sp.* FROM secured_parking_locations sp
            JOIN vehicle_assignments va ON sp.id = va.secured_parking_location_id
            WHERE va.driver_id = $1 AND va.tenant_id = $2
-           AND va.lifecycle_state = 'active'',
+           AND va.lifecycle_state = `active``,
           [driver_id, tenant_id]
         ),
       };
@@ -588,7 +588,7 @@ router.get(
         ttl_hours: 24, // Data valid for 24 hours
       });
     } catch (error: any) {
-      console.error('Error fetching offline data:', error);
+      console.error(`Error fetching offline data:', error);
       res.status(500).json({
         error: 'Failed to fetch offline data',
         details: getErrorMessage(error),
