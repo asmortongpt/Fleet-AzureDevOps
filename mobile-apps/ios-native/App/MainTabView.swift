@@ -12,6 +12,22 @@ struct MainTabView: View {
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass: UserInterfaceSizeClass?
     @Environment(\.accessibilityReduceMotion) private var reduceMotion: Bool
 
+    // Computed property for visible tabs based on user role
+    private var visibleTabs: [TabItem] {
+        if let user = authManager.currentUser {
+            return user.navigation.availableTabs
+        }
+        return RoleNavigation(role: authManager.userRole).availableTabs
+    }
+
+    // Computed property for quick actions based on user role
+    private var availableQuickActions: [QuickAction] {
+        if let user = authManager.currentUser {
+            return user.navigation.quickActions
+        }
+        return RoleNavigation(role: authManager.userRole).quickActions
+    }
+
     var body: some View {
         TabView(selection: $navigationCoordinator.selectedTab) {
             // Dashboard Tab
@@ -58,27 +74,29 @@ struct MainTabView: View {
                 .badge(notificationCount)
             }
 
-            // Vehicles Tab
-            if #available(iOS 16.0, *) {
-                NavigationStack(path: $navigationCoordinator.navigationPath) {
-                    VehiclesView()
-                        .navigationDestination(for: NavigationDestination.self) { destination in
-                            destinationView(for: destination)
-                        }
+            // Vehicles Tab (conditional based on role)
+            if visibleTabs.contains(.vehicles) {
+                if #available(iOS 16.0, *) {
+                    NavigationStack(path: $navigationCoordinator.navigationPath) {
+                        VehiclesView()
+                            .navigationDestination(for: NavigationDestination.self) { destination in
+                                destinationView(for: destination)
+                            }
+                    }
+                    .tabItem {
+                        Label(TabItem.vehicles.title, systemImage: TabItem.vehicles.systemImage)
+                    }
+                    .tag(TabItem.vehicles)
+                } else {
+                    NavigationView {
+                        VehiclesView()
+                    }
+                    .navigationViewStyle(.stack)
+                    .tabItem {
+                        Label(TabItem.vehicles.title, systemImage: TabItem.vehicles.systemImage)
+                    }
+                    .tag(TabItem.vehicles)
                 }
-                .tabItem {
-                    Label(TabItem.vehicles.title, systemImage: TabItem.vehicles.systemImage)
-                }
-                .tag(TabItem.vehicles)
-            } else {
-                NavigationView {
-                    VehiclesView()
-                }
-                .navigationViewStyle(.stack)
-                .tabItem {
-                    Label(TabItem.vehicles.title, systemImage: TabItem.vehicles.systemImage)
-                }
-                .tag(TabItem.vehicles)
             }
 
             // Trips Tab
@@ -104,27 +122,29 @@ struct MainTabView: View {
                 .tag(TabItem.trips)
             }
 
-            // Maintenance Tab
-            if #available(iOS 16.0, *) {
-                NavigationStack(path: $navigationCoordinator.navigationPath) {
-                    MaintenanceView()
-                        .navigationDestination(for: NavigationDestination.self) { destination in
-                            destinationView(for: destination)
-                        }
+            // Maintenance Tab (conditional based on role)
+            if visibleTabs.contains(.maintenance) {
+                if #available(iOS 16.0, *) {
+                    NavigationStack(path: $navigationCoordinator.navigationPath) {
+                        MaintenanceView()
+                            .navigationDestination(for: NavigationDestination.self) { destination in
+                                destinationView(for: destination)
+                            }
+                    }
+                    .tabItem {
+                        Label(TabItem.maintenance.title, systemImage: TabItem.maintenance.systemImage)
+                    }
+                    .tag(TabItem.maintenance)
+                } else {
+                    NavigationView {
+                        MaintenanceView()
+                    }
+                    .navigationViewStyle(.stack)
+                    .tabItem {
+                        Label(TabItem.maintenance.title, systemImage: TabItem.maintenance.systemImage)
+                    }
+                    .tag(TabItem.maintenance)
                 }
-                .tabItem {
-                    Label(TabItem.maintenance.title, systemImage: TabItem.maintenance.systemImage)
-                }
-                .tag(TabItem.maintenance)
-            } else {
-                NavigationView {
-                    MaintenanceView()
-                }
-                .navigationViewStyle(.stack)
-                .tabItem {
-                    Label(TabItem.maintenance.title, systemImage: TabItem.maintenance.systemImage)
-                }
-                .tag(TabItem.maintenance)
             }
 
             // More Tab
@@ -167,20 +187,37 @@ struct MainTabView: View {
     // MARK: - Quick Action Toolbar
     private var quickActionToolbar: some View {
         HStack(spacing: ModernTheme.Spacing.lg) {
-            Button(action: {
-                ModernTheme.Haptics.light()
-                navigationCoordinator.navigate(to: .addVehicle)
-            }) {
-                Label("Add Vehicle", systemImage: "plus.circle.fill")
-                    .symbolRenderingMode(.hierarchical)
+            // Add Vehicle - only for admin/manager
+            if authManager.userRole.canManageVehicles {
+                Button(action: {
+                    ModernTheme.Haptics.light()
+                    navigationCoordinator.navigate(to: .addVehicle)
+                }) {
+                    Label("Add Vehicle", systemImage: "plus.circle.fill")
+                        .symbolRenderingMode(.hierarchical)
+                }
             }
 
-            Button(action: {
-                ModernTheme.Haptics.light()
-                navigationCoordinator.navigate(to: .addTrip)
-            }) {
-                Label("Start Trip", systemImage: "location.circle.fill")
-                    .symbolRenderingMode(.hierarchical)
+            // Start Trip - for admin/manager/driver
+            if authManager.userRole.canRecordTrips {
+                Button(action: {
+                    ModernTheme.Haptics.light()
+                    navigationCoordinator.navigate(to: .addTrip)
+                }) {
+                    Label("Start Trip", systemImage: "location.circle.fill")
+                        .symbolRenderingMode(.hierarchical)
+                }
+            }
+
+            // Report Issue - all roles
+            if authManager.userRole.canReportIssues {
+                Button(action: {
+                    ModernTheme.Haptics.light()
+                    // Navigate to report issue
+                }) {
+                    Label("Report Issue", systemImage: "exclamationmark.triangle.fill")
+                        .symbolRenderingMode(.hierarchical)
+                }
             }
         }
         .font(.caption)
