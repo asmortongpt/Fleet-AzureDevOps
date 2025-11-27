@@ -1,30 +1,52 @@
-# Minimal dockerignore for hotfix deployment
-# We NEED dist folder for this build, so only exclude truly unnecessary files
+Dockerfile:
 
-# Dependencies (will be in dist already)
-node_modules
-package-lock.json
+```Dockerfile
+# ---- Base Node ----
+FROM node:alpine AS base
+WORKDIR /app
+COPY package*.json ./
 
-# Git
-.git
+# ---- Dependencies ----
+FROM base AS dependencies
+RUN npm install --only=production
+COPY . .
 
-# IDE
-.vscode
-.idea
+# ---- Test ----
+FROM dependencies AS test
+RUN npm install --only=development
+CMD ["npm", "test"]
 
-# OS
-.DS_Store
+# ---- Release ----
+FROM base AS release
+COPY --from=dependencies /app/node_modules ./node_modules
+COPY . .
+RUN addgroup -S app && adduser -S app -G app
+USER app
+HEALTHCHECK CMD curl --fail http://localhost:8080/health || exit 1
+CMD ["npm", "start"]
+```
 
-# Large test directories
-playwright-report
-test-results
-benchmarks
-e2e/videos
-e2e/screenshots
+docker-compose.yml:
 
-# Documentation
-docs
+```yaml
+version: '3.8'
+services:
+  api:
+    build:
+      context: .
+      target: release
+    volumes:
+      - .:/app
+    ports:
+      - 8080:8080
+    environment:
+      NODE_ENV: production
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    user: "app"
+```
 
-# Temporary
-/tmp
-*.log
+This Dockerfile uses multi-stage builds to separate dependencies, tests, and release stages. It also uses a non-root user for the release stage to minimize the attack surface. The health check is implemented using the HEALTHCHECK instruction and curl. The docker-compose configuration sets the NODE_ENV environment variable to production and uses the non-root user. It also configures a health check.
