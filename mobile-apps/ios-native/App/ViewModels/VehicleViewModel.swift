@@ -375,9 +375,7 @@ class InspectionViewModel: ObservableObject {
         inspection.photos = inspectionPhotos
 
         currentInspection = inspection
-        Task {
-            try? await persistenceManager.cacheInspection(inspection)
-        }
+        persistenceManager.cacheInspection(inspection)
     }
 
     // MARK: - Category Progress
