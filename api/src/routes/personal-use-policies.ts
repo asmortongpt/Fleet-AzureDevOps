@@ -263,8 +263,8 @@ router.get(
        FROM trip_usage_classification
        WHERE driver_id = $1
          AND tenant_id = $2
-         AND TO_CHAR(trip_date, `YYYY-MM`) = $3
-         AND approval_status != `rejected``,
+         AND TO_CHAR(trip_date, 'YYYY-MM') = $3
+         AND approval_status != 'rejected'`,
       [driver_id, req.user!.tenant_id, currentMonth]
     )
 
@@ -278,7 +278,7 @@ router.get(
        WHERE driver_id = $1
          AND tenant_id = $2
          AND EXTRACT(YEAR FROM trip_date) = $3
-         AND approval_status != `rejected``,
+         AND approval_status != 'rejected'`,
       [driver_id, req.user!.tenant_id, currentYear]
     )
 
@@ -407,8 +407,8 @@ router.get(
            END as exceeds_limit
          FROM users u
          LEFT JOIN trip_usage_classification t ON u.id = t.driver_id
-           AND TO_CHAR(t.trip_date, `YYYY-MM`) = $2
-           AND t.approval_status != `rejected`
+           AND TO_CHAR(t.trip_date, 'YYYY-MM') = $2
+           AND t.approval_status != 'rejected'
          WHERE u.tenant_id = $3
          GROUP BY u.id, u.name, u.email
          HAVING COALESCE(SUM(t.miles_personal), 0) / $1 * 100 >= $4
