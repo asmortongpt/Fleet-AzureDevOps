@@ -2,299 +2,110 @@
 //  FleetMapView.swift
 //  Fleet Manager
 //
-//  Full-featured map view with real-time GPS tracking, filtering, and clustering
-//
 
 import SwiftUI
 import MapKit
 
+// MARK: - Fleet Map View
 struct FleetMapView: View {
     @StateObject private var viewModel = FleetMapViewModel()
-    @EnvironmentObject private var navigationCoordinator: NavigationCoordinator
-    @State private var selectedVehicle: Vehicle?
+    @State private var showFilterSheet = false
     @State private var showVehicleDetail = false
 
     var body: some View {
         ZStack {
-            // Map Layer
+            // Map
             Map(coordinateRegion: $viewModel.mapRegion, annotationItems: viewModel.filteredVehicles) { vehicle in
-                MapAnnotation(coordinate: CLLocationCoordinate2D(
-                    latitude: vehicle.location.lat,
-                    longitude: vehicle.location.lng
-                )) {
-                    VehicleMapPin(vehicle: vehicle)
-                        .onTapGesture {
-                            selectedVehicle = vehicle
-                            viewModel.selectedVehicle = vehicle
-                            showVehicleDetail = true
-                            ModernTheme.Haptics.light()
-                        }
-                }
-            }
-            .ignoresSafeArea()
-
-            // Top Controls
-            VStack {
-                topControlBar
-                Spacer()
-            }
-
-            // Side Controls
-            HStack {
-                Spacer()
-                VStack(spacing: ModernTheme.Spacing.md) {
-                    Spacer()
-                    sideControlButtons
-                }
-                .padding(.trailing, ModernTheme.Spacing.lg)
-                .padding(.bottom, ModernTheme.Spacing.xxxl)
-            }
-
-            // Bottom Detail Card
-            if showVehicleDetail, let vehicle = selectedVehicle {
-                VStack {
-                    Spacer()
-                    VehicleMapDetailCard(vehicle: vehicle) {
-                        navigationCoordinator.navigate(to: .vehicleDetail(id: vehicle.id))
-                        ModernTheme.Haptics.medium()
-                    } onClose: {
+                MapAnnotation(coordinate: CLLocationCoordinate2D(latitude: vehicle.location.lat, longitude: vehicle.location.lng)) {
+                    Button {
                         withAnimation {
-                            showVehicleDetail = false
-                            selectedVehicle = nil
+                            viewModel.selectedVehicle = vehicle
                         }
-                        ModernTheme.Haptics.light()
+                    } label: {
+                        Circle()
+                            .fill(viewModel.getAnnotationColor(for: vehicle.status))
+                            .frame(width: 30, height: 30)
+                            .overlay(
+                                Image(systemName: vehicle.type.icon)
+                                    .font(.caption)
+                                    .foregroundColor(.white)
+                            )
+                            .shadow(radius: 4)
                     }
-                    .padding(ModernTheme.Spacing.lg)
+                }
+            }
+            .edgesIgnoringSafeArea(.all)
+
+            // Controls overlay
+            VStack {
+                HStack {
+                    Spacer()
+                    VStack(spacing: ModernTheme.Spacing.md) {
+                        MapControlButton(icon: "line.3.horizontal.decrease.circle", color: ModernTheme.Colors.primary) {
+                            showFilterSheet = true
+                        }
+
+                        MapControlButton(icon: "info.circle", color: ModernTheme.Colors.info) {
+                            withAnimation {
+                                viewModel.showLegend.toggle()
+                            }
+                        }
+
+                        MapControlButton(icon: "location.fill", color: ModernTheme.Colors.success) {
+                            viewModel.centerOnAllVehicles()
+                        }
+                    }
+                    .padding()
+                }
+
+                Spacer()
+
+                // Selected vehicle card
+                if let selectedVehicle = viewModel.selectedVehicle {
+                    VehicleMapDetailCard(
+                        vehicle: selectedVehicle,
+                        onViewDetails: {
+                            showVehicleDetail = true
+                        },
+                        onClose: {
+                            withAnimation {
+                                viewModel.selectedVehicle = nil
+                            }
+                        }
+                    )
+                    .padding()
                     .transition(.move(edge: .bottom).combined(with: .opacity))
                 }
             }
 
-            // Legend Overlay
+            // Legend overlay
             if viewModel.showLegend {
                 VStack {
                     HStack {
-                        MapLegendView(viewModel: viewModel)
-                            .padding(ModernTheme.Spacing.lg)
                         Spacer()
+                        MapLegendView(viewModel: viewModel)
+                            .frame(width: 250)
+                            .padding()
                     }
                     Spacer()
                 }
-                .transition(.move(edge: .leading).combined(with: .opacity))
-            }
-
-            // Loading Overlay
-            if viewModel.isLoading {
-                Color.black.opacity(0.3)
-                    .ignoresSafeArea()
-                ProgressView("Loading vehicles...")
-                    .padding()
-                    .background(ModernTheme.Colors.background)
-                    .cornerRadius(ModernTheme.CornerRadius.md)
+                .transition(.move(edge: .trailing).combined(with: .opacity))
             }
         }
         .navigationTitle("Fleet Map")
         .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
-                toolbarButtons
-            }
-        }
-        .searchable(text: $viewModel.searchText, prompt: "Search vehicles...")
-        .task {
-            await viewModel.fetchVehicles()
-        }
-        .refreshable {
-            await viewModel.refresh()
-        }
-        .alert("Error", isPresented: $viewModel.showError) {
-            Button("OK", role: .cancel) { }
-        } message: {
-            if let errorMessage = viewModel.errorMessage {
-                Text(errorMessage)
-            }
-        }
-        .sheet(isPresented: $viewModel.showFilterSheet) {
+        .sheet(isPresented: $showFilterSheet) {
             FilterSheetView(viewModel: viewModel)
         }
-    }
-
-    // MARK: - Top Control Bar
-    private var topControlBar: some View {
-        HStack(spacing: ModernTheme.Spacing.sm) {
-            // Active count badge
-            StatusBadge(
-                title: "Active",
-                count: viewModel.activeCount,
-                color: ModernTheme.Colors.active,
-                isSelected: viewModel.selectedStatusFilter == .active
-            ) {
-                if viewModel.selectedStatusFilter == .active {
-                    viewModel.applyStatusFilter(nil)
-                } else {
-                    viewModel.applyStatusFilter(.active)
+        .sheet(isPresented: $showVehicleDetail) {
+            if let vehicle = viewModel.selectedVehicle {
+                NavigationView {
+                    VehicleDetailView(vehicle: vehicle)
                 }
             }
-
-            // Idle count badge
-            StatusBadge(
-                title: "Idle",
-                count: viewModel.idleCount,
-                color: ModernTheme.Colors.idle,
-                isSelected: viewModel.selectedStatusFilter == .idle
-            ) {
-                if viewModel.selectedStatusFilter == .idle {
-                    viewModel.applyStatusFilter(nil)
-                } else {
-                    viewModel.applyStatusFilter(.idle)
-                }
-            }
-
-            // Offline count badge
-            StatusBadge(
-                title: "Offline",
-                count: viewModel.offlineCount,
-                color: ModernTheme.Colors.offline,
-                isSelected: viewModel.selectedStatusFilter == .offline
-            ) {
-                if viewModel.selectedStatusFilter == .offline {
-                    viewModel.applyStatusFilter(nil)
-                } else {
-                    viewModel.applyStatusFilter(.offline)
-                }
-            }
-
-            Spacer()
         }
-        .padding(.horizontal, ModernTheme.Spacing.lg)
-        .padding(.top, ModernTheme.Spacing.sm)
-    }
-
-    // MARK: - Side Control Buttons
-    private var sideControlButtons: some View {
-        VStack(spacing: ModernTheme.Spacing.md) {
-            // Center on all vehicles
-            MapControlButton(
-                icon: "map.fill",
-                color: ModernTheme.Colors.primary
-            ) {
-                viewModel.centerOnAllVehicles()
-            }
-            .accessibilityLabel("Center on all vehicles")
-
-            // Center on user location
-            MapControlButton(
-                icon: "location.fill",
-                color: ModernTheme.Colors.info
-            ) {
-                viewModel.centerOnUserLocation()
-            }
-            .accessibilityLabel("Center on my location")
-
-            // Refresh
-            MapControlButton(
-                icon: "arrow.clockwise",
-                color: ModernTheme.Colors.success
-            ) {
-                Task {
-                    await viewModel.refresh()
-                }
-            }
-            .accessibilityLabel("Refresh vehicle locations")
-
-            // Toggle Legend
-            MapControlButton(
-                icon: "info.circle.fill",
-                color: viewModel.showLegend ? ModernTheme.Colors.warning : ModernTheme.Colors.secondaryText
-            ) {
-                withAnimation {
-                    viewModel.showLegend.toggle()
-                    ModernTheme.Haptics.light()
-                }
-            }
-            .accessibilityLabel("Toggle legend")
-        }
-    }
-
-    // MARK: - Toolbar Buttons
-    private var toolbarButtons: some View {
-        HStack(spacing: ModernTheme.Spacing.md) {
-            // Filter button
-            Button {
-                viewModel.showFilterSheet = true
-                ModernTheme.Haptics.light()
-            } label: {
-                Image(systemName: viewModel.selectedStatusFilter != nil ? "line.3.horizontal.decrease.circle.fill" : "line.3.horizontal.decrease.circle")
-                    .foregroundColor(viewModel.selectedStatusFilter != nil ? ModernTheme.Colors.primary : ModernTheme.Colors.secondaryText)
-            }
-            .accessibilityLabel("Filter vehicles")
-        }
-    }
-}
-
-// MARK: - Vehicle Map Pin
-struct VehicleMapPin: View {
-    let vehicle: Vehicle
-
-    var body: some View {
-        VStack(spacing: 2) {
-            ZStack {
-                Circle()
-                    .fill(statusColor)
-                    .frame(width: 44, height: 44)
-                    .shadow(color: .black.opacity(0.3), radius: 4, x: 0, y: 2)
-
-                Image(systemName: vehicle.type.icon)
-                    .foregroundColor(.white)
-                    .font(.system(size: 20, weight: .semibold))
-            }
-
-            Text(vehicle.number)
-                .font(.system(size: 10, weight: .bold))
-                .foregroundColor(.primary)
-                .padding(.horizontal, 6)
-                .padding(.vertical, 2)
-                .background(Color.white)
-                .cornerRadius(4)
-                .shadow(color: .black.opacity(0.2), radius: 2, x: 0, y: 1)
-        }
-    }
-
-    private var statusColor: Color {
-        vehicle.status.themeColor
-    }
-}
-
-// MARK: - Status Badge
-struct StatusBadge: View {
-    let title: String
-    let count: Int
-    let color: Color
-    let isSelected: Bool
-    let action: () -> Void
-
-    var body: some View {
-        Button(action: action) {
-            HStack(spacing: 4) {
-                Circle()
-                    .fill(color)
-                    .frame(width: 8, height: 8)
-
-                Text(title)
-                    .font(.caption.weight(.semibold))
-
-                Text("\(count)")
-                    .font(.caption.weight(.bold))
-                    .padding(.horizontal, 6)
-                    .padding(.vertical, 2)
-                    .background(color.opacity(0.2))
-                    .cornerRadius(8)
-            }
-            .foregroundColor(isSelected ? .white : .primary)
-            .padding(.horizontal, 10)
-            .padding(.vertical, 6)
-            .background(isSelected ? color : Color(.systemBackground))
-            .cornerRadius(16)
-            .shadow(color: .black.opacity(0.1), radius: 4, x: 0, y: 2)
+        .task {
+            await viewModel.fetchVehicles()
         }
     }
 }
