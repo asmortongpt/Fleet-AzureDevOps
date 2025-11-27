@@ -527,3 +527,136 @@ struct FeatureRow: View {
     MoreView()
         .environmentObject(NavigationCoordinator())
 }
+// MARK: - Additional Feature Stubs for MoreView
+
+struct DispatchConsoleView: View {
+    var body: some View {
+        ComingSoonView(icon: "antenna.radiowaves.left.and.right", title: "Dispatch Console", description: "Central dispatch and coordination")
+    }
+}
+
+struct PredictiveMaintenanceView: View {
+    var body: some View {
+        ComingSoonView(icon: "wrench.and.screwdriver", title: "Predictive Maintenance", description: "AI-powered maintenance predictions")
+    }
+}
+
+struct WorkOrderListView: View {
+    var body: some View {
+        ComingSoonView(icon: "list.clipboard", title: "Work Orders", description: "Manage work orders and tasks")
+    }
+}
+
+struct ExecutiveDashboardView: View {
+    var body: some View {
+        ComingSoonView(icon: "chart.bar.doc.horizontal", title: "Executive Dashboard", description: "High-level analytics and KPIs")
+    }
+}
+
+struct FleetAnalyticsView: View {
+    var body: some View {
+        ComingSoonView(icon: "chart.xyaxis.line", title: "Fleet Analytics", description: "Comprehensive fleet analytics")
+    }
+}
+
+struct TripAnalyticsView: View {
+    var body: some View {
+        ComingSoonView(icon: "map", title: "Trip Analytics", description: "Analyze trip patterns and efficiency")
+    }
+}
+
+struct CostAnalysisCenterView: View {
+    var body: some View {
+        ComingSoonView(icon: "dollarsign.circle", title: "Cost Analysis Center", description: "Detailed cost breakdown and analysis")
+    }
+}
+
+struct FleetOptimizerView: View {
+    var body: some View {
+        ComingSoonView(icon: "speedometer", title: "Fleet Optimizer", description: "Optimize fleet operations")
+    }
+}
+
+struct VendorListView: View {
+    var body: some View {
+        ComingSoonView(icon: "building.2", title: "Vendors", description: "Manage vendor relationships")
+    }
+}
+
+struct PurchaseOrderListView: View {
+    var body: some View {
+        ComingSoonView(icon: "cart", title: "Purchase Orders", description: "Track purchase orders")
+    }
+}
+
+struct DriverListView: View {
+    var body: some View {
+        ComingSoonView(icon: "person.2", title: "Drivers", description: "Manage driver information")
+    }
+}
+
+struct TrainingManagementView: View {
+    var body: some View {
+        ComingSoonView(icon: "graduationcap", title: "Training Management", description: "Track driver training and certifications")
+    }
+}
+
+struct CommunicationCenterView: View {
+    var body: some View {
+        ComingSoonView(icon: "message", title: "Communication Center", description: "Team communications hub")
+    }
+}
+
+struct AssetListView: View {
+    var body: some View {
+        ComingSoonView(icon: "cube.box", title: "Assets", description: "Manage fleet assets and equipment")
+    }
+}
+
+struct DocumentBrowserView: View {
+    var body: some View {
+        ComingSoonView(icon: "folder", title: "Document Browser", description: "Browse and manage documents")
+    }
+}
+
+struct GISCommandCenterView: View {
+    var body: some View {
+        ComingSoonView(icon: "map.fill", title: "GIS Command Center", description: "Geographic information system")
+    }
+}
+
+struct GeofenceListView: View {
+    var body: some View {
+        ComingSoonView(icon: "mappin.circle", title: "Geofences", description: "Manage geofence boundaries")
+    }
+}
+
+struct EnhancedMapView: View {
+    var body: some View {
+        ComingSoonView(icon: "map", title: "Enhanced Map", description: "Advanced mapping features")
+    }
+}
+
+struct EnvironmentalDashboardView: View {
+    var body: some View {
+        ComingSoonView(icon: "leaf", title: "Environmental Dashboard", description: "Track environmental impact")
+    }
+}
+
+struct DataWorkbenchView: View {
+    var body: some View {
+        ComingSoonView(icon: "tablecells", title: "Data Workbench", description: "Advanced data analysis tools")
+    }
+}
+
+struct ErrorRecoveryView: View {
+    var body: some View {
+        ComingSoonView(icon: "exclamationmark.triangle", title: "Error Recovery", description: "System error recovery and diagnostics")
+    }
+}
+
+struct TaskListView: View {
+    var body: some View {
+        ComingSoonView(icon: "checklist", title: "Tasks", description: "Manage tasks and assignments")
+    }
+}
