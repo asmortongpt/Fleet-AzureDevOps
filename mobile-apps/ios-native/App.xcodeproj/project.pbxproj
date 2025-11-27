@@ -9,7 +9,6 @@
 /* Begin PBXBuildFile section */
 		0495F5DFD62AD3C497DE7092 /* ImageUploadService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB7FB32F6586627934CB3AFA /* ImageUploadService.swift */; };
 		0537E0BFB791487988E78493 /* AdminApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = C907237E021C4DC5AA0E7961 /* AdminApp.swift */; };
-		05FD29B2EBB588775BAA1FE2 /* AddTripView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A1F000579F31AE84F13F903 /* AddTripView.swift */; };
 		068908ED00ABE2CCC99837D2 /* CrashReporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADEA64A38480FA712CF17B0A /* CrashReporter.swift */; };
 		0DD2FA05B7BB88D2A99F8C33 /* JailbreakDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87398F778BFEF7EF2DF86B3E /* JailbreakDetector.swift */; };
 		0EACFD0C8AF16EEB70C47365 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A9F0539B2E38A8166C3FEFC /* LoginView.swift */; };
@@ -24,7 +23,6 @@
 		2195A10DF19DFCF799102BF4 /* MoreView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D699D4BE291F1EA5F945C74E /* MoreView.swift */; };
 		27BEF40315FFEAB575CE37C4 /* MaintenanceDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F5973307C13EA88B233DDA7 /* MaintenanceDetailView.swift */; };
 		27F42289AE2C5BE0C05B9969 /* FleetManagementApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B4F1DE72085BC7EE49218FE /* FleetManagementApp.swift */; };
-		286C7D4C40D793A3E298B807 /* DriverDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 363DE8A1059408E70A9ABE3C /* DriverDetailView.swift */; };
 		2B7F453BC83C54A7586D98F6 /* ImageUploadService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54EA97D78C595961A9512737 /* ImageUploadService.swift */; };
 		2DEC79E5AE28AB4E737D20AE /* TripTrackingService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71B47AA7C2DDBF992B0F00CD /* TripTrackingService.swift */; };
 		2FAD9763203C412B000D30F8 /* config.xml in Resources */ = {isa = PBXBuildFile; fileRef = 2FAD9762203C412B000D30F8 /* config.xml */; };
@@ -103,13 +101,11 @@
 		CED6F3841A7B0295737E3B55 /* AuditLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DE133A9EDC93F7437EE02F6 /* AuditLogger.swift */; };
 		D036E2E4ABE5A0A818928E29 /* EncryptionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B7C53095460E1F034B1E77B /* EncryptionManager.swift */; };
 		D432098DDB93B000CB1DB520 /* ErrorHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6913164C95F8AF990EF75826 /* ErrorHandler.swift */; };
-		D5B38B76DEDEF357480B4DB0 /* VehicleDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C46BD591596526437E1139B4 /* VehicleDetailView.swift */; };
 		D692D1E132B24D713EF5E7D6 /* AboutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A055E38F782367163A101332 /* AboutView.swift */; };
 		D75ED85F7F239630A578C03D /* QuickActionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8582D20487251E184F5F4911 /* QuickActionsView.swift */; };
 		D9FB772650EC724B1FB0F26F /* PerformanceOptimizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 740FAAB0ED6F70FB037DFF3F /* PerformanceOptimizer.swift */; };
 		DA823BDE8A91B436E5FFB847 /* TripModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07D1943466FCE07ED73040DF /* TripModels.swift */; };
 		DE5DDF0248C7ECADCC786C65 /* SyncQueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCAB2814574FF75E8941AB88 /* SyncQueue.swift */; };
-		DE8F39560886653CA97724F7 /* TripDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F19517AEB6FFEB798630BFF9 /* TripDetailView.swift */; };
 		DFD9FD75380C3E8746025568 /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7CC4692F8829295A37DEB2E /* RootView.swift */; };
 		E1CD02B139C09FD4DFF628FE /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45E2E4781D9C7FD949B1B87F /* ProfileView.swift */; };
 		E28E4E99C46F2434412CC188 /* AlertManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7CEE24FD0F9C966E8945375B /* AlertManager.swift */; };
@@ -158,6 +154,7 @@
 		3BBA46DB1D32C25AAA94AB6E /* NavigationCoordinator.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NavigationCoordinator.swift; sourceTree = "<group>"; };
 		3F2A394F01EDBA755BFE16C2 /* HealthCheckManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = HealthCheckManager.swift; sourceTree = "<group>"; };
 		3F6EE710CE87994F14F239CB /* TripDetailView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TripDetailView.swift; path = TripDetailView.swift; sourceTree = "<group>"; };
+		404699F73C8B827C98877343 /* VehicleDetailView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = VehicleDetailView.swift; path = App/Views/VehicleDetailView.swift; sourceTree = "<group>"; };
 		40E16F42F6ED5EF42AE44D2C /* NetworkOptimizer.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = NetworkOptimizer.swift; path = Performance/NetworkOptimizer.swift; sourceTree = "<group>"; };
 		40E238F20052C368232063A6 /* BackgroundSyncManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BackgroundSyncManager.swift; sourceTree = "<group>"; };
 		4219DC638C71B3AAF3C5E73A /* UIPerformanceMonitor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = UIPerformanceMonitor.swift; path = Performance/UIPerformanceMonitor.swift; sourceTree = "<group>"; };
@@ -191,6 +188,7 @@
 		5953A1033D6F82E599A2D52D /* SettingsView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		5C90D13485972B4C53A4755B /* NetworkOptimizer.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = NetworkOptimizer.swift; path = Performance/NetworkOptimizer.swift; sourceTree = "<group>"; };
 		5CA21F5B146D22EFC799637F /* SyncService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SyncService.swift; path = SyncService.swift; sourceTree = "<group>"; };
+		5D360E082A6DA5B9C34F24FA /* AddTripViewModel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AddTripViewModel.swift; path = App/ViewModels/AddTripViewModel.swift; sourceTree = "<group>"; };
 		5E439613C7CF45FD94590B8C /* TripTracking.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TripTracking.swift; sourceTree = "<group>"; };
 		626824C3C36EF8E8F31BB5C0 /* DriverManagementView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DriverManagementView.swift; sourceTree = "<group>"; };
 		67FD8E952DFF702FEC001451 /* Pods_App.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_App.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -283,6 +281,7 @@
 		E92A4B8F0ED22636777B1450 /* TripTrackingView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TripTrackingView.swift; sourceTree = "<group>"; };
 		E9618D77A7C10A819CA4AA14 /* VehicleModel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = VehicleModel.swift; sourceTree = "<group>"; };
 		EA371CA2F6EDEB0A203CFD97 /* PhotoLibraryManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PhotoLibraryManager.swift; sourceTree = "<group>"; };
+		EB60456311CC2F3AE47186EC /* TripsViewModel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TripsViewModel.swift; path = App/ViewModels/TripsViewModel.swift; sourceTree = "<group>"; };
 		ED69BBD9B42D719C46846D31 /* AdvancedCacheManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AdvancedCacheManager.swift; path = Performance/AdvancedCacheManager.swift; sourceTree = "<group>"; };
 		EE11154A39164F6F9851447F /* VehicleInspection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VehicleInspection.swift; sourceTree = "<group>"; };
 		EFBEC6B34D07608DBEF173C0 /* VehicleCard.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = VehicleCard.swift; path = Components/VehicleCard.swift; sourceTree = "<group>"; };
@@ -410,6 +409,9 @@
 				504EC3051FED79650016851F /* Products */,
 				2337AB1229333082AFA9B75A /* Pods */,
 				21A5746FC56EFF5DF859CDD7 /* Frameworks */,
+				404699F73C8B827C98877343 /* VehicleDetailView.swift */,
+				5D360E082A6DA5B9C34F24FA /* AddTripViewModel.swift */,
+				EB60456311CC2F3AE47186EC /* TripsViewModel.swift */,
 			);
 			sourceTree = "<group>";
 		};
@@ -821,7 +823,6 @@
 				2195A10DF19DFCF799102BF4 /* MoreView.swift in Sources */,
 				27BEF40315FFEAB575CE37C4 /* MaintenanceDetailView.swift in Sources */,
 				9EA18AED274C082E78EACC37 /* AddVehicleView.swift in Sources */,
-				05FD29B2EBB588775BAA1FE2 /* AddTripView.swift in Sources */,
 				1ED689725D32DF24B5DCDA67 /* NotificationsView.swift in Sources */,
 				D692D1E132B24D713EF5E7D6 /* AboutView.swift in Sources */,
 				79EBA4256590FB587268F448 /* HelpView.swift in Sources */,
@@ -858,9 +859,6 @@
 				D9FB772650EC724B1FB0F26F /* PerformanceOptimizer.swift in Sources */,
 				BB2CE9D5B04E60F68CE1133A /* VehiclesView.swift in Sources */,
 				5C2D0AB944231EEC807A47DC /* TripsView.swift in Sources */,
-				DE8F39560886653CA97724F7 /* TripDetailView.swift in Sources */,
-				286C7D4C40D793A3E298B807 /* DriverDetailView.swift in Sources */,
-				D5B38B76DEDEF357480B4DB0 /* VehicleDetailView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1004,6 +1002,7 @@
 				INFOPLIST_FILE = App/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				MACH_O_TYPE = mh_execute;
 				MARKETING_VERSION = 1.0;
 				OTHER_SWIFT_FLAGS = "$(inherited) \"-D\" \"COCOAPODS\" \"-DDEBUG\"";
 				PRODUCT_BUNDLE_IDENTIFIER = com.capitaltechalliance.fleetmanagement;
@@ -1025,6 +1024,7 @@
 				INFOPLIST_FILE = App/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				MACH_O_TYPE = mh_execute;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.capitaltechalliance.fleetmanagement;
 				PRODUCT_NAME = "$(TARGET_NAME)";

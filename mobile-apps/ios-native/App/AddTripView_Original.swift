@@ -12,8 +12,7 @@ import CoreLocation
 // MARK: - Add Trip View
 struct AddTripView: View {
     @Environment(\.dismiss) private var dismiss
-    @StateObject private var viewModel: AddTripViewModel
-    @StateObject private var tripsViewModel: TripsViewModel
+    @StateObject private var viewModel = AddTripViewModel()
 
     // MARK: - State
     @State private var selectedVehicle: Vehicle?
@@ -22,11 +21,6 @@ struct AddTripView: View {
     @State private var searchText: String = ""
     @State private var showError: Bool = false
     @State private var errorMessage: String = ""
-
-    init(tripsViewModel: TripsViewModel) {
-        _viewModel = StateObject(wrappedValue: AddTripViewModel())
-        _tripsViewModel = StateObject(wrappedValue: tripsViewModel)
-    }
 
     var body: some View {
         NavigationView {
@@ -310,9 +304,8 @@ struct AddTripView: View {
                     startLocation: location.coordinate
                 )
 
-                // Update trips view model
+                // Dismiss after creating trip
                 await MainActor.run {
-                    tripsViewModel.startNewTrip(vehicleId: vehicle.id)
                     dismiss()
                 }
             } catch {
@@ -526,5 +519,5 @@ struct LocationAnnotation: Identifiable {
 
 // MARK: - Preview
 #Preview {
-    AddTripView(tripsViewModel: TripsViewModel())
+    AddTripView()
 }
