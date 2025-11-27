@@ -23,9 +23,9 @@ interface FleetAnalyticsProps {
 }
 
 export function FleetAnalytics({ data }: FleetAnalyticsProps) {
-  const vehicles = data.vehicles || []
-  const fuelTransactions = data.fuelTransactions || []
-  const workOrders = data.workOrders || []
+  const vehicles = data?.vehicles || []
+  const fuelTransactions = data?.fuelTransactions || []
+  const workOrders = data?.workOrders || []
 
   const [selectedPeriod, setSelectedPeriod] = useState<string>("month")
   const [activeTab, setActiveTab] = useState<string>("overview")
@@ -64,19 +64,19 @@ export function FleetAnalytics({ data }: FleetAnalyticsProps) {
   }, [vehicles])
 
   const metrics = useMemo(() => {
-    const totalFuelCost = fuelTransactions.reduce((sum, t) => sum + t.totalCost, 0)
+    const totalFuelCost = fuelTransactions.reduce((sum, t) => sum + (t?.totalCost ?? 0), 0)
     const totalMaintenanceCost = workOrders
-      .filter(w => w.cost)
-      .reduce((sum, w) => sum + (w.cost || 0), 0)
-    
-    const activeVehicles = vehicles.filter(v => v.status === "active").length
+      .filter(w => w?.cost)
+      .reduce((sum, w) => sum + (w?.cost ?? 0), 0)
+
+    const activeVehicles = vehicles.filter(v => v?.status === "active").length
     const utilization = vehicles.length > 0 ? Math.round((activeVehicles / vehicles.length) * 100) : 0
-    
+
     const avgMileage = vehicles.length > 0
-      ? Math.round(vehicles.reduce((sum, v) => sum + v.mileage, 0) / vehicles.length)
+      ? Math.round(vehicles.reduce((sum, v) => sum + (v?.mileage ?? 0), 0) / vehicles.length)
       : 0
 
-    const downtime = vehicles.filter(v => v.status === "service").length
+    const downtime = vehicles.filter(v => v?.status === "service").length
 
     return {
       totalFleet: vehicles.length,
@@ -90,17 +90,17 @@ export function FleetAnalytics({ data }: FleetAnalyticsProps) {
 
   const kpis = useMemo(() => {
     return {
-      costPerVehicle: metrics.totalFleet > 0 
+      costPerVehicle: metrics.totalFleet > 0
         ? Math.round((metrics.totalFuelCost + metrics.totalMaintenanceCost) / metrics.totalFleet)
         : 0,
-      costPerMile: metrics.avgMileage > 0
+      costPerMile: metrics.avgMileage > 0 && metrics.totalFleet > 0
         ? ((metrics.totalFuelCost + metrics.totalMaintenanceCost) / (metrics.avgMileage * metrics.totalFleet)).toFixed(2)
         : "0.00",
       downtimeRate: metrics.totalFleet > 0
         ? ((metrics.downtime / metrics.totalFleet) * 100).toFixed(1)
         : "0.0",
       fuelEfficiency: fuelTransactions.length > 0
-        ? (fuelTransactions.reduce((sum, t) => sum + t.mpg, 0) / fuelTransactions.length).toFixed(1)
+        ? (fuelTransactions.reduce((sum, t) => sum + (t?.mpg ?? 0), 0) / fuelTransactions.length).toFixed(1)
         : "0.0"
     }
   }, [metrics, fuelTransactions])
