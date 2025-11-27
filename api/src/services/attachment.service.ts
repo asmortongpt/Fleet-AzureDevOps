@@ -493,7 +493,7 @@ export class AttachmentService {
       .api(`/drives/${driveId}/root:/General/${file.originalname}:/createUploadSession`)
       .post({
         item: {
-          `@microsoft.graph.conflictBehavior': 'rename'
+          `@microsoft.graph.conflictBehavior`: `rename'
         }
       })
 
@@ -586,7 +586,7 @@ export class AttachmentService {
       const result = await this.graphClient
         .api(`/me/messages/${messageId}/attachments`)
         .post({
-          `@odata.type': '#microsoft.graph.fileAttachment',
+          `@odata.type`: `#microsoft.graph.fileAttachment',
           ...attachment
         })
 

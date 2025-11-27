@@ -361,7 +361,7 @@ class FleetCognitionService {
           name: `${r.first_name} ${r.last_name}`
         })),
         recommended_actions: [
-          { action: `Schedule immediate safety training`, priority: 'high' },
+          { action: `Schedule immediate safety training`, priority: `high` },
           { action: 'Implement increased monitoring', priority: 'high' },
           { action: 'Review driving assignments', priority: 'medium' }
         ],
@@ -430,7 +430,7 @@ class FleetCognitionService {
         description: `${a.entity_type} showing unusual ${a.metric_name}. Expected: ${JSON.stringify(a.expected_value)}, Actual: ${JSON.stringify(a.actual_value)}`,
         affected_entities: [{ type: a.entity_type, id: a.entity_id }],
         recommended_actions: [
-          { action: `Investigate root cause`, priority: 'high' },
+          { action: `Investigate root cause`, priority: `high` },
           { action: 'Monitor closely', priority: 'medium' }
         ],
         confidence_score: 0.80

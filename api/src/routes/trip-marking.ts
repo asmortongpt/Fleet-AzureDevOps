@@ -234,7 +234,7 @@ router.post(
         },
         message: approval_status === ApprovalStatus.AUTO_APPROVED
           ? `Trip marked and auto-approved`
-          : `Trip marked - pending approval'
+          : 'Trip marked - pending approval'
       })
     } catch (error: any) {
       console.error('Mark trip error:', error)
@@ -473,7 +473,7 @@ router.get('/my-personal', async (req: AuthRequest, res: Response) => {
       LEFT JOIN personal_use_policies p ON t.tenant_id = p.tenant_id
       WHERE t.driver_id = $1
         AND t.tenant_id = $2
-        AND (t.usage_type = `personal` OR t.usage_type = `mixed`)
+        AND (t.usage_type = 'personal' OR t.usage_type = 'mixed')
     `
 
     const params: any[] = [req.user!.id, req.user!.tenant_id]
@@ -512,7 +512,7 @@ router.get('/my-personal', async (req: AuthRequest, res: Response) => {
       `SELECT COUNT(*)
        FROM trip_usage_classification
        WHERE driver_id = $1 AND tenant_id = $2
-         AND (usage_type = `personal` OR usage_type = `mixed`)`,
+         AND (usage_type = 'personal' OR usage_type = 'mixed')',
       [req.user!.id, req.user!.tenant_id]
     )
 
@@ -527,7 +527,7 @@ router.get('/my-personal', async (req: AuthRequest, res: Response) => {
       }
     })
   } catch (error: any) {
-    console.error(`Get personal trips error:', error)
+    console.error('Get personal trips error:', error)
     res.status(500).json({
       success: false,
       error: 'Failed to retrieve personal trips',
@@ -602,7 +602,7 @@ router.get('/:id/usage', async (req: AuthRequest, res: Response) => {
     console.error(`Get trip usage error:`, error)
     res.status(500).json({
       success: false,
-      error: `Failed to retrieve trip usage',
+      error: 'Failed to retrieve trip usage',
       details: getErrorMessage(error)
     })
   }
