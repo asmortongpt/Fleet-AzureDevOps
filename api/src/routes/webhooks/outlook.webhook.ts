@@ -101,7 +101,7 @@ async function processNotificationAsync(notification: any): Promise<void> {
     try {
       await pool.query(
         `UPDATE webhook_processing_queue
-         SET status = 'failed',
+         SET status = `failed`,
              error_message = $1,
              attempts = attempts + 1
          WHERE webhook_event_id = (
@@ -114,7 +114,7 @@ async function processNotificationAsync(notification: any): Promise<void> {
         [error.message, notification.subscriptionId, notification.resource]
       )
     } catch (dbError) {
-      console.error('Failed to log error to database:', dbError)
+      console.error(`Failed to log error to database:`, dbError)
     }
 
     throw error
@@ -139,8 +139,8 @@ async function handleEmailUpdate(notification: any): Promise<void> {
     // Check if email exists in our database
     const result = await pool.query(
       `SELECT id FROM communications
-       WHERE source_platform = 'Microsoft Outlook'
-       AND source_platform_id = $1',
+       WHERE source_platform = `Microsoft Outlook`
+       AND source_platform_id = $1`,
       [messageId]
     )
 
@@ -152,7 +152,7 @@ async function handleEmailUpdate(notification: any): Promise<void> {
     const communicationId = result.rows[0].id
 
     // Fetch updated email from Graph API
-    const { Client } = require('@microsoft/microsoft-graph-client')
+    const { Client } = require(`@microsoft/microsoft-graph-client')
     const { TokenCredentialAuthenticationProvider } = require('@microsoft/microsoft-graph-client/authProviders/azureTokenCredentials')
     const { ClientSecretCredential } = require('@azure/identity')
 
@@ -184,7 +184,7 @@ async function handleEmailUpdate(notification: any): Promise<void> {
       `UPDATE communications
        SET body = $1,
            updated_at = NOW(),
-           status = CASE WHEN $2 THEN 'Read' ELSE 'Unread' END,
+           status = CASE WHEN $2 THEN `Read` ELSE `Unread` END,
            metadata = jsonb_set(
              COALESCE(metadata, '{}'::jsonb),
              '{categories}',
@@ -225,10 +225,10 @@ async function handleEmailDelete(notification: any): Promise<void> {
     // Mark email as deleted in our database
     const result = await pool.query(
       `UPDATE communications
-       SET status = 'Deleted',
+       SET status = `Deleted`,
            updated_at = NOW(),
            metadata = jsonb_set(
-             COALESCE(metadata, '{}'::jsonb),
+             COALESCE(metadata, `{}`::jsonb),
              '{deletedAt}',
              $1::jsonb
            )
@@ -263,7 +263,7 @@ router.get(
     try {
       // Only return subscriptions for user's tenant
       const result = await pool.query(
-        'SELECT ' + (await getTableColumns(pool, 'webhook_subscriptions')).join(', ') + ' FROM webhook_subscriptions
+        `SELECT ` + (await getTableColumns(pool, `webhook_subscriptions`)).join(`, ') + ' FROM webhook_subscriptions
          WHERE subscription_type = 'outlook_emails'
          AND status = 'active'
          AND tenant_id = $1
@@ -356,16 +356,16 @@ router.delete(
 
       // Validate subscription belongs to user's tenant
       const checkResult = await pool.query(
-        'SELECT tenant_id FROM webhook_subscriptions WHERE subscription_id = $1',
+        `SELECT tenant_id FROM webhook_subscriptions WHERE subscription_id = $1`,
         [subscriptionId]
       )
 
       if (checkResult.rows.length === 0) {
-        return res.status(404).json({ error: 'Subscription not found' })
+        return res.status(404).json({ error: `Subscription not found` })
       }
 
       if (checkResult.rows[0].tenant_id !== req.user!.tenant_id) {
-        console.warn('Unauthorized subscription deletion attempt', {
+        console.warn(`Unauthorized subscription deletion attempt', {
           subscriptionId,
           userId: req.user!.id,
           userTenant: req.user!.tenant_id
@@ -407,12 +407,12 @@ router.post(
 
       // Validate subscription belongs to user's tenant
       const checkResult = await pool.query(
-        'SELECT tenant_id FROM webhook_subscriptions WHERE subscription_id = $1',
+        `SELECT tenant_id FROM webhook_subscriptions WHERE subscription_id = $1`,
         [subscriptionId]
       )
 
       if (checkResult.rows.length === 0) {
-        return res.status(404).json({ error: 'Subscription not found' })
+        return res.status(404).json({ error: `Subscription not found` })
       }
 
       if (checkResult.rows[0].tenant_id !== req.user!.tenant_id) {
@@ -544,18 +544,18 @@ router.post(
       created_at,
       created_by,
       updated_at,
-      updated_by FROM communications WHERE id = $1 AND tenant_id = $2',
+      updated_by FROM communications WHERE id = $1 AND tenant_id = $2`,
         [communicationId, req.user!.tenant_id]
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'Communication not found or access denied' })
+        return res.status(404).json({ error: `Communication not found or access denied` })
       }
 
       const communication = result.rows[0]
 
       // Re-categorize using AI
-      const OpenAI = require('openai')
+      const OpenAI = require(`openai`)
       const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
 
       const completion = await openai.chat.completions.create({
@@ -580,17 +580,17 @@ router.post(
       await pool.query(
         `UPDATE communications
          SET ai_detected_category = $1
-         WHERE id = $2',
+         WHERE id = $2`,
         [category, communicationId]
       )
 
       res.json({
-        message: 'Email re-categorized successfully',
+        message: `Email re-categorized successfully`,
         category
       })
 
     } catch (error: any) {
-      console.error('Failed to categorize email:', error)
+      console.error(`Failed to categorize email:', error)
       res.status(500).json({
         error: 'Failed to categorize',
         details: error.message
@@ -626,8 +626,8 @@ router.get(
       const totalResult = await pool.query(
         `SELECT COUNT(*) as total
          FROM communications
-         WHERE communication_type = 'Email'
-         AND source_platform = 'Microsoft Outlook'
+         WHERE communication_type = `Email`
+         AND source_platform = `Microsoft Outlook`
          AND tenant_id = $1',
         [req.user!.tenant_id]
       )
@@ -636,8 +636,8 @@ router.get(
       const categoryResult = await pool.query(
         `SELECT ai_detected_category, COUNT(*) as count
          FROM communications
-         WHERE communication_type = 'Email'
-         AND source_platform = 'Microsoft Outlook'
+         WHERE communication_type = `Email`
+         AND source_platform = `Microsoft Outlook`
          AND tenant_id = $1
          GROUP BY ai_detected_category
          ORDER BY count DESC
@@ -649,8 +649,8 @@ router.get(
       const priorityResult = await pool.query(
         `SELECT ai_detected_priority, COUNT(*) as count
          FROM communications
-         WHERE communication_type = 'Email'
-         AND source_platform = 'Microsoft Outlook'
+         WHERE communication_type = `Email`
+         AND source_platform = `Microsoft Outlook`
          AND tenant_id = $1
          GROUP BY ai_detected_priority
          ORDER BY count DESC`,
@@ -661,8 +661,8 @@ router.get(
       const recentResult = await pool.query(
         `SELECT COUNT(*) as recent_count
          FROM communications
-         WHERE communication_type = 'Email'
-         AND source_platform = 'Microsoft Outlook'
+         WHERE communication_type = `Email`
+         AND source_platform = `Microsoft Outlook`
          AND tenant_id = $1
          AND communication_datetime > NOW() - INTERVAL '24 hours'',
         [req.user!.tenant_id]
@@ -674,7 +674,7 @@ router.get(
          FROM webhook_processing_queue wpq
          JOIN webhook_events we ON wpq.webhook_event_id = we.id
          JOIN webhook_subscriptions ws ON we.subscription_id = ws.subscription_id
-         WHERE ws.subscription_type = 'outlook_emails'
+         WHERE ws.subscription_type = `outlook_emails`
          AND ws.tenant_id = $1
          GROUP BY status`,
         [req.user!.tenant_id]
@@ -689,7 +689,7 @@ router.get(
       })
 
     } catch (error: any) {
-      console.error('Failed to fetch stats:', error)
+      console.error(`Failed to fetch stats:`, error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }

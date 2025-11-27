@@ -94,7 +94,7 @@ async function checkDatabase(): Promise<ComponentHealth> {
     const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 
     // Test connection
-    const pingResult = await pool.query('SELECT 1 as ping');
+    const pingResult = await pool.query(`SELECT 1 as ping`);
 
     // Get database stats
     const statsResult = await pool.query(`
@@ -112,7 +112,7 @@ async function checkDatabase(): Promise<ComponentHealth> {
         schemaname,
         COUNT(*) as table_count
       FROM pg_tables
-      WHERE schemaname NOT IN ('pg_catalog', 'information_schema')
+      WHERE schemaname NOT IN (`pg_catalog`, `information_schema`)
       GROUP BY schemaname
     `);
 
