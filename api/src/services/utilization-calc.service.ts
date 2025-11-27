@@ -1,11 +1,7 @@
-import { Pool } from 'pg';
 import { z } from 'zod';
 import { AssetUtilizationInput, AssetUtilizationResult, HeatmapData, IdleAlert } from '../interfaces/utilization.interface';
 import { cache } from '../utils/cache';
-
-const pool = new Pool({
-  // your database connection details
-});
+import pool from '../config/database';
 
 const assetUtilizationInputSchema = z.object({
   assetId: z.string(),
