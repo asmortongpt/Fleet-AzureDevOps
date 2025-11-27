@@ -93,8 +93,8 @@ router.post(
         await pool.query(
           `UPDATE communication_attachments
            SET is_scanned = true, scan_result = $1, virus_scan_status = $2
-           WHERE id = $3',
-          [scanResult === 'clean' ? 'Clean' : 'Threat Detected', scanResult, result.id]
+           WHERE id = $3`,
+          [scanResult === `clean` ? `Clean` : 'Threat Detected', scanResult, result.id]
         )
       }).catch(err => {
         console.error('Virus scan error:', err)
@@ -192,12 +192,12 @@ router.get(
       file_path,
       file_type,
       file_size,
-      created_at FROM communication_attachments WHERE id = $1',
+      created_at FROM communication_attachments WHERE id = $1`,
         [blobId]
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'Attachment not found' })
+        return res.status(404).json({ error: `Attachment not found` })
       }
 
       const attachment = result.rows[0]
@@ -210,18 +210,18 @@ router.get(
         `UPDATE communication_attachments
          SET download_count = COALESCE(download_count, 0) + 1,
              last_accessed_at = NOW()
-         WHERE id = $1',
+         WHERE id = $1`,
         [blobId]
       )
 
       // Set response headers
-      res.setHeader('Content-Type', attachment.mime_type)
+      res.setHeader(`Content-Type`, attachment.mime_type)
       res.setHeader(`Content-Disposition`, "attachment; filename="${attachment.original_filename}"`)
       res.setHeader(`Content-Length`, fileBuffer.length)
 
       res.send(fileBuffer)
     } catch (error: unknown) {
-      console.error('Download error:', error)
+      console.error(`Download error:', error)
       res.status(500).json({
         error: 'Failed to download file',
         details: getErrorMessage(error)
@@ -250,7 +250,7 @@ router.get(
 
       // Get attachment metadata
       const result = await pool.query(
-        'SELECT blob_url FROM communication_attachments WHERE id = $1',
+        `SELECT blob_url FROM communication_attachments WHERE id = $1`,
         [blobId]
       )
 
@@ -270,7 +270,7 @@ router.get(
     } catch (error: unknown) {
       console.error(`SAS URL generation error:`, error)
       res.status(500).json({
-        error: 'Failed to generate SAS URL',
+        error: `Failed to generate SAS URL`,
         details: getErrorMessage(error)
       })
     }
@@ -287,7 +287,7 @@ router.get(
  *       - bearerAuth: []
  */
 router.delete(
-  '/:blobId',
+  `/:blobId',
   authorize('admin', 'fleet_manager', 'dispatcher'),
   auditLog({ action: 'DELETE', resourceType: 'attachment' }),
   async (req: AuthRequest, res: Response) => {
@@ -296,12 +296,12 @@ router.delete(
 
       // Get attachment metadata
       const result = await pool.query(
-        'SELECT blob_url FROM communication_attachments WHERE id = $1',
+        `SELECT blob_url FROM communication_attachments WHERE id = $1`,
         [blobId]
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'Attachment not found' })
+        return res.status(404).json({ error: `Attachment not found` })
       }
 
       // Delete from Azure
@@ -309,11 +309,11 @@ router.delete(
 
       // Delete from database
       await pool.query(
-        'DELETE FROM communication_attachments WHERE id = $1',
+        `DELETE FROM communication_attachments WHERE id = $1`,
         [blobId]
       )
 
-      res.json({ message: 'Attachment deleted successfully' })
+      res.json({ message: `Attachment deleted successfully` })
     } catch (error: unknown) {
       console.error('Delete error:', error)
       res.status(500).json({
@@ -608,7 +608,7 @@ router.get(
     } catch (error: unknown) {
       console.error(`Get attachments error:`, error)
       res.status(500).json({
-        error: 'Failed to get attachments',
+        error: `Failed to get attachments`,
         details: getErrorMessage(error)
       })
     }
@@ -625,7 +625,7 @@ router.get(
  *       - bearerAuth: []
  */
 router.get(
-  '/:id',
+  `/:id`,
   authorize('admin', 'fleet_manager', 'dispatcher', 'driver'),
   auditLog({ action: 'READ', resourceType: 'attachment' }),
   async (req: AuthRequest, res: Response) => {
@@ -639,17 +639,17 @@ router.get(
           c.communication_type
         FROM communication_attachments ca
         LEFT JOIN communications c ON ca.communication_id = c.id
-        WHERE ca.id = $1',
+        WHERE ca.id = $1`,
         [id]
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'Attachment not found' })
+        return res.status(404).json({ error: `Attachment not found` })
       }
 
       res.json(result.rows[0])
     } catch (error: unknown) {
-      console.error('Get attachment error:', error)
+      console.error(`Get attachment error:', error)
       res.status(500).json({
         error: 'Failed to get attachment',
         details: getErrorMessage(error)

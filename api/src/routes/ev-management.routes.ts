@@ -435,10 +435,10 @@ router.get('/sessions/active', authenticateJWT, requirePermission('charging_stat
       count: result.rows.length
     });
   } catch (error: any) {
-    console.error('Error fetching active sessions:', error);
+    console.error(`Error fetching active sessions:`, error);
     res.status(500).json({
       success: false,
-      error: 'Failed to fetch active sessions',
+      error: `Failed to fetch active sessions`,
       message: getErrorMessage(error)
     });
   }
@@ -638,10 +638,10 @@ router.get('/station-utilization', authenticateJWT, requirePermission('charging_
       data: result.rows
     });
   } catch (error: any) {
-    console.error('Error fetching station utilization:', error);
+    console.error(`Error fetching station utilization:`, error);
     res.status(500).json({
       success: false,
-      error: 'Failed to fetch station utilization',
+      error: `Failed to fetch station utilization`,
       message: getErrorMessage(error)
     });
   }
@@ -678,13 +678,13 @@ router.get('/vehicles/:id/charging-history', authenticateJWT, requirePermission(
          cs.*,
          cst.name as station_name,
          cst.station_id,
-         u.first_name || ' ' || u.last_name as driver_name
+         u.first_name || ` ` || u.last_name as driver_name
        FROM charging_sessions cs
        JOIN charging_stations cst ON cs.station_id = cst.id
        LEFT JOIN users u ON cs.driver_id = u.id
        WHERE cs.vehicle_id = $1
        ORDER BY cs.start_time DESC
-       LIMIT $2',
+       LIMIT $2`,
       [vehicleId, limit]
     );
 
@@ -694,7 +694,7 @@ router.get('/vehicles/:id/charging-history', authenticateJWT, requirePermission(
       count: result.rows.length
     });
   } catch (error: any) {
-    console.error('Error fetching charging history:', error);
+    console.error(`Error fetching charging history:', error);
     res.status(500).json({
       success: false,
       error: 'Failed to fetch charging history',

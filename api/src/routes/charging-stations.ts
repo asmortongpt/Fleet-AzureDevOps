@@ -32,12 +32,12 @@ router.get(
       status,
       is_active,
       created_at,
-      updated_at FROM charging_stations WHERE tenant_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3',
+      updated_at FROM charging_stations WHERE tenant_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3`,
         [req.user!.tenant_id, limit, offset]
       )
 
       const countResult = await pool.query(
-        'SELECT COUNT(*) FROM charging_stations WHERE tenant_id = $1',
+        `SELECT COUNT(*) FROM charging_stations WHERE tenant_id = $1`,
         [req.user!.tenant_id]
       )
 
@@ -51,8 +51,8 @@ router.get(
         }
       })
     } catch (error) {
-      console.error('Get charging-stations error:', error)
-      res.status(500).json({ error: 'Internal server error' })
+      console.error(`Get charging-stations error:`, error)
+      res.status(500).json({ error: `Internal server error' })
     }
   }
 )
@@ -77,17 +77,17 @@ router.get(
       status,
       is_active,
       created_at,
-      updated_at FROM charging_stations WHERE id = $1 AND tenant_id = $2',
+      updated_at FROM charging_stations WHERE id = $1 AND tenant_id = $2`,
         [req.params.id, req.user!.tenant_id]
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'ChargingStations not found' })
+        return res.status(404).json({ error: `ChargingStations not found` })
       }
 
       res.json(result.rows[0])
     } catch (error) {
-      console.error('Get charging-stations error:', error)
+      console.error(`Get charging-stations error:', error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -115,14 +115,14 @@ router.post(
       res.status(201).json(result.rows[0])
     } catch (error) {
       console.error(`Create charging-stations error:`, error)
-      res.status(500).json({ error: 'Internal server error' })
+      res.status(500).json({ error: `Internal server error` })
     }
   }
 )
 
 // PUT /charging-stations/:id
 router.put(
-  '/:id',
+  `/:id`,
   requirePermission('charging_station:update:fleet'),
   auditLog({ action: 'UPDATE', resourceType: 'charging_stations' }),
   async (req: AuthRequest, res: Response) => {
@@ -141,8 +141,8 @@ router.put(
 
       res.json(result.rows[0])
     } catch (error) {
-      console.error('Update charging-stations error:', error)
-      res.status(500).json({ error: 'Internal server error' })
+      console.error(`Update charging-stations error:`, error)
+      res.status(500).json({ error: `Internal server error` })
     }
   }
 )
