@@ -1,292 +1,126 @@
-import express, { Response } from 'express'
-import { AuthRequest, authenticateJWT } from '../middleware/auth'
-import { requirePermission } from '../middleware/permissions'
-import { auditLog } from '../middleware/audit'
-import { applyFieldMasking } from '../utils/fieldMasking'
-import pool from '../config/database'
-import { z } from 'zod'
-import { buildInsertClause, buildUpdateClause } from '../utils/sql-safety'
-import { createVehicleSchema, updateVehicleSchema } from '../validation/schemas'
+import { Router } from "express"
+import { db } from "../db/connection"
+import { vehicles } from "../db/schema"
+import { eq, like, or, and, desc } from "drizzle-orm"
+import { authenticateToken, requireRole } from "../middleware/auth"
 
-const router = express.Router()
-router.use(authenticateJWT)
+const router = Router()
 
-// GET /vehicles
-router.get(
-  '/',
-  requirePermission('vehicle:view:team'),
-  applyFieldMasking('vehicle'),
-  auditLog({ action: 'READ', resourceType: 'vehicles' }),
-  async (req: AuthRequest, res: Response) => {
-    try {
-      const {
-        page = 1,
-        limit = 50,
-        // Multi-asset filters from migration 032
-        asset_category,
-        asset_type,
-        power_type,
-        operational_status,
-        primary_metric,
-        is_road_legal,
-        location_id,
-        group_id,
-        fleet_id
-      } = req.query
-      const offset = (Number(page) - 1) * Number(limit)
+// GET all vehicles with pagination, filtering, sorting
+router.get("/", authenticateToken, async (req, res) => {
+  try {
+    const { page = 1, pageSize = 20, search, status, make, sortBy = 'vehicleNumber', sortOrder = 'asc' } = req.query
 
-      // Get user scope for row-level filtering
-      const userResult = await pool.query(
-        `SELECT team_vehicle_ids, vehicle_id, scope_level FROM users WHERE id = $1`,
-        [req.user!.id]
-      )
+    let query = db.select().from(vehicles)
 
-      const user = userResult.rows[0]
-      let scopeFilter = ''
-      let scopeParams: any[] = [req.user!.tenant_id]
-
-      if (user.scope_level === `own` && user.vehicle_id) {
-        // Drivers only see their assigned vehicle
-        scopeFilter = 'AND id = $2'
-        scopeParams.push(user.vehicle_id)
-      } else if (user.scope_level === 'team' && user.team_vehicle_ids && user.team_vehicle_ids.length > 0) {
-        // Supervisors see vehicles in their team
-        scopeFilter = 'AND id = ANY($2::uuid[])'
-        scopeParams.push(user.team_vehicle_ids)
-      }
-      // fleet/global scope sees all
-
-      // Build multi-asset filters
-      let assetFilters = ''
-      let paramIndex = scopeParams.length + 1
-
-      if (asset_category) {
-        assetFilters += ` AND asset_category = $${paramIndex++}`
-        scopeParams.push(asset_category)
-      }
-
-      if (asset_type) {
-        assetFilters += ` AND asset_type = $${paramIndex++}`
-        scopeParams.push(asset_type)
-      }
-
-      if (power_type) {
-        assetFilters += ` AND power_type = $${paramIndex++}`
-        scopeParams.push(power_type)
-      }
-
-      if (operational_status) {
-        assetFilters += ` AND operational_status = $${paramIndex++}`
-        scopeParams.push(operational_status)
-      }
-
-      if (primary_metric) {
-        assetFilters += ` AND primary_metric = $${paramIndex++}`
-        scopeParams.push(primary_metric)
-      }
-
-      if (is_road_legal !== undefined) {
-        assetFilters += ` AND is_road_legal = $${paramIndex++}`
-        scopeParams.push(is_road_legal === `true`)
-      }
-
-      if (location_id) {
-        assetFilters += ` AND location_id = $${paramIndex++}`
-        scopeParams.push(location_id)
-      }
-
-      if (group_id) {
-        assetFilters += ` AND group_id = $${paramIndex++}`
-        scopeParams.push(group_id)
-      }
-
-      if (fleet_id) {
-        assetFilters += ` AND fleet_id = $${paramIndex++}`
-        scopeParams.push(fleet_id)
-      }
-
-      const result = await pool.query(
-        `SELECT id, tenant_id, vin, license_plate, make, model, year, color, current_mileage, status, acquired_date, disposition_date, purchase_price, residual_value, created_at, updated_at, deleted_at FROM vehicles WHERE tenant_id = $1 ${scopeFilter}${assetFilters} ORDER BY created_at DESC LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`,
-        [...scopeParams, limit, offset]
-      )
-
-      const countResult = await pool.query(
-        `SELECT COUNT(*) FROM vehicles WHERE tenant_id = $1 ${scopeFilter}${assetFilters}`,
-        scopeParams
-      )
-
-      res.json({
-        data: result.rows,
-        pagination: {
-          page: Number(page),
-          limit: Number(limit),
-          total: parseInt(countResult.rows[0].count),
-          pages: Math.ceil(countResult.rows[0].count / Number(limit))
-        }
-      })
-    } catch (error) {
-      console.error(`Get vehicles error:`, error)
-      res.status(500).json({ error: `Internal server error` })
+    // Apply filters
+    const filters = []
+    if (search) {
+      filters.push(or(
+        like(vehicles.vehicleNumber, `%${search}%`),
+        like(vehicles.make, `%${search}%`),
+        like(vehicles.model, `%${search}%`),
+        like(vehicles.vin, `%${search}%`)
+      ))
     }
-  }
-)
+    if (status) filters.push(eq(vehicles.status, status as string))
+    if (make) filters.push(eq(vehicles.make, make as string))
 
-// GET /vehicles/:id
-router.get(
-  `/:id`,
-  requirePermission('vehicle:view:own'),
-  applyFieldMasking('vehicle'),
-  auditLog({ action: 'READ', resourceType: 'vehicles' }),
-  async (req: AuthRequest, res: Response) => {
-    try {
-      const result = await pool.query(
-        `SELECT id, tenant_id, vin, license_plate, make, model, year, color, current_mileage, status, acquired_date, disposition_date, purchase_price, residual_value, created_at, updated_at, deleted_at FROM vehicles WHERE id = $1 AND tenant_id = $2`,
-        [req.params.id, req.user!.tenant_id]
-      )
-
-      if (result.rows.length === 0) {
-        return res.status(404).json({ error: `Vehicles not found` })
-      }
-
-      // IDOR protection: Check if user has access to this vehicle
-      const userResult = await pool.query(
-        `SELECT team_vehicle_ids, vehicle_id, scope_level FROM users WHERE id = $1`,
-        [req.user!.id]
-      )
-      const user = userResult.rows[0]
-      const vehicleId = req.params.id
-
-      if (user.scope_level === `own` && user.vehicle_id !== vehicleId) {
-        return res.status(403).json({ error: 'Access denied: You can only view your assigned vehicle' })
-      } else if (user.scope_level === 'team' && user.team_vehicle_ids) {
-        if (!user.team_vehicle_ids.includes(vehicleId)) {
-          return res.status(403).json({ error: 'Access denied: Vehicle not in your team' })
-        }
-      }
-
-      res.json(result.rows[0])
-    } catch (error) {
-      console.error('Get vehicles error:', error)
-      res.status(500).json({ error: 'Internal server error' })
+    if (filters.length > 0) {
+      query = query.where(and(...filters))
     }
+
+    // Apply sorting
+    const sortColumn = vehicles[sortBy as keyof typeof vehicles]
+    query = sortOrder === 'desc' ? query.orderBy(desc(sortColumn)) : query.orderBy(sortColumn)
+
+    // Apply pagination
+    const offset = (Number(page) - 1) * Number(pageSize)
+    query = query.limit(Number(pageSize)).offset(offset)
+
+    const data = await query
+    const total = await db.select({ count: vehicles.id }).from(vehicles)
+
+    res.json({
+      data,
+      pagination: {
+        page: Number(page),
+        pageSize: Number(pageSize),
+        total: total[0]?.count || 0,
+        totalPages: Math.ceil((total[0]?.count || 0) / Number(pageSize))
+      }
+    })
+  } catch (error) {
+    console.error("Error fetching vehicles:", error)
+    res.status(500).json({ error: "Failed to fetch vehicles" })
   }
-)
+})
 
-// POST /vehicles
-router.post(
-  '/',
-  requirePermission('vehicle:create:global'),
-  auditLog({ action: 'CREATE', resourceType: 'vehicles' }),
-  async (req: AuthRequest, res: Response) => {
-    try {
-      // Validate and filter input data
-      const validatedData = createVehicleSchema.parse(req.body)
+// GET vehicle by ID
+router.get("/:id", authenticateToken, async (req, res) => {
+  try {
+    const { id } = req.params
+    const vehicle = await db.select().from(vehicles).where(eq(vehicles.id, Number(id))).limit(1)
 
-      // Check for duplicate VIN
-      const vinCheck = await pool.query(
-        `SELECT id FROM vehicles WHERE vin = $1 AND tenant_id = $2`,
-        [validatedData.vin.toUpperCase(), req.user!.tenant_id]
-      )
-
-      if (vinCheck.rows.length > 0) {
-        return res.status(409).json({ error: 'VIN already exists in the system' })
-      }
-
-      // Normalize VIN to uppercase
-      validatedData.vin = validatedData.vin.toUpperCase()
-
-      // Build INSERT with field whitelisting to prevent mass assignment
-      const { columnNames, placeholders, values } = buildInsertClause(
-        validatedData,
-        ['tenant_id'],
-        1,
-        `vehicles`
-      )
-
-      const result = await pool.query(
-        `INSERT INTO vehicles (${columnNames}) VALUES (${placeholders}) RETURNING *`,
-        [req.user!.tenant_id, ...values]
-      )
-
-      res.status(201).json(result.rows[0])
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        return res.status(400).json({ error: `Validation error`, details: error.errors })
-      }
-      console.error(`Create vehicles error:`, error)
-      res.status(500).json({ error: `Internal server error` })
+    if (!vehicle.length) {
+      return res.status(404).json({ error: "Vehicle not found" })
     }
+
+    res.json({ data: vehicle[0] })
+  } catch (error) {
+    console.error("Error fetching vehicle:", error)
+    res.status(500).json({ error: "Failed to fetch vehicle" })
   }
-)
+})
 
-// PUT /vehicles/:id
-router.put(
-  '/:id',
-  requirePermission('vehicle:update:global'),
-  auditLog({ action: 'UPDATE', resourceType: 'vehicles' }),
-  async (req: AuthRequest, res: Response) => {
-    try {
-      // Validate and filter input data
-      const validatedData = updateVehicleSchema.parse(req.body)
+// POST create vehicle
+router.post("/", authenticateToken, requireRole(["admin", "manager"]), async (req, res) => {
+  try {
+    const vehicleData = req.body
+    const result = await db.insert(vehicles).values(vehicleData).returning()
+    res.status(201).json({ data: result[0], message: "Vehicle created successfully" })
+  } catch (error) {
+    console.error("Error creating vehicle:", error)
+    res.status(500).json({ error: "Failed to create vehicle" })
+  }
+})
 
-      // Build UPDATE with field whitelisting to prevent mass assignment
-      const { fields, values } = buildUpdateClause(validatedData, 3, 'vehicles')
+// PUT update vehicle
+router.put("/:id", authenticateToken, requireRole(["admin", "manager"]), async (req, res) => {
+  try {
+    const { id } = req.params
+    const vehicleData = req.body
+    const result = await db.update(vehicles)
+      .set({ ...vehicleData, updatedAt: new Date() })
+      .where(eq(vehicles.id, Number(id)))
+      .returning()
 
-      const result = await pool.query(
-        `UPDATE vehicles SET ${fields}, updated_at = NOW() WHERE id = $1 AND tenant_id = $2 RETURNING *`,
-        [req.params.id, req.user!.tenant_id, ...values]
-      )
-
-      if (result.rows.length === 0) {
-        return res.status(404).json({ error: `Vehicles not found` })
-      }
-
-      res.json(result.rows[0])
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        return res.status(400).json({ error: `Validation error`, details: error.errors })
-      }
-      console.error(`Update vehicles error:`, error)
-      res.status(500).json({ error: 'Internal server error' })
+    if (!result.length) {
+      return res.status(404).json({ error: "Vehicle not found" })
     }
+
+    res.json({ data: result[0], message: "Vehicle updated successfully" })
+  } catch (error) {
+    console.error("Error updating vehicle:", error)
+    res.status(500).json({ error: "Failed to update vehicle" })
   }
-)
+})
 
-// DELETE /vehicles/:id
-router.delete(
-  '/:id',
-  requirePermission('vehicle:delete:global'),
-  auditLog({ action: 'DELETE', resourceType: 'vehicles' }),
-  async (req: AuthRequest, res: Response) => {
-    try {
-      // Check vehicle status before deletion
-      const statusCheck = await pool.query(
-        'SELECT status FROM vehicles WHERE id = $1 AND tenant_id = $2',
-        [req.params.id, req.user!.tenant_id]
-      )
+// DELETE vehicle
+router.delete("/:id", authenticateToken, requireRole(["admin"]), async (req, res) => {
+  try {
+    const { id } = req.params
+    const result = await db.delete(vehicles).where(eq(vehicles.id, Number(id))).returning()
 
-      if (statusCheck.rows.length === 0) {
-        return res.status(404).json({ error: 'Vehicle not found' })
-      }
-
-      const vehicleStatus = statusCheck.rows[0].status
-      if (vehicleStatus !== 'sold' && vehicleStatus !== 'retired') {
-        return res.status(403).json({
-          error: 'Vehicle can only be deleted if status is "sold" or "retired"'
-        })
-      }
-
-      const result = await pool.query(
-        'DELETE FROM vehicles WHERE id = $1 AND tenant_id = $2 RETURNING id',
-        [req.params.id, req.user!.tenant_id]
-      )
-
-      res.json({ message: 'Vehicle deleted successfully' })
-    } catch (error) {
-      console.error('Delete vehicles error:', error)
-      res.status(500).json({ error: 'Internal server error' })
+    if (!result.length) {
+      return res.status(404).json({ error: "Vehicle not found" })
     }
+
+    res.json({ message: "Vehicle deleted successfully" })
+  } catch (error) {
+    console.error("Error deleting vehicle:", error)
+    res.status(500).json({ error: "Failed to delete vehicle" })
   }
-)
+})
 
 export default router
