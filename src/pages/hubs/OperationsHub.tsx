@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from "react";
 import { HubLayout } from "../../components/layout/HubLayout";
 import { GPSTracking } from "../../components/modules/GPSTracking";
+import { UnifiedFleetMap } from "../../components/maps/UnifiedFleetMap";
 import DispatchConsole from "../../components/DispatchConsole";
 import { FuelManagement } from "../../components/modules/FuelManagement";
 import { AssetManagement } from "../../components/modules/AssetManagement";
@@ -322,31 +323,14 @@ const OperationsHub: React.FC = () => {
             </TabsList>
 
             <div className="flex-1 mt-4 min-h-0">
-              {/* GPS Tracking Tab - Split View */}
+              {/* GPS Tracking Tab - Unified Map View */}
               <TabsContent value="tracking" className="h-full mt-0">
-                <ResizablePanelGroup direction="horizontal" className="h-full rounded-lg border">
-                  <ResizablePanel defaultSize={60} minSize={40}>
-                    <div className="h-full p-2">
-                      <GPSTracking
-                        vehicles={fleetData.vehicles || []}
-                        facilities={fleetData.facilities || []}
-                      />
-                    </div>
-                  </ResizablePanel>
-                  <ResizableHandle withHandle />
-                  <ResizablePanel defaultSize={40} minSize={30}>
-                    <div className="h-full flex flex-col p-2">
-                      <h3 className="font-semibold mb-2">Live Vehicle Status</h3>
-                      <DataGrid
-                        data={vehicleData}
-                        columns={vehicleColumns}
-                        inspectorType="vehicle"
-                        pageSize={10}
-                        className="flex-1"
-                      />
-                    </div>
-                  </ResizablePanel>
-                </ResizablePanelGroup>
+                <UnifiedFleetMap
+                  vehicles={fleetData.vehicles || []}
+                  facilities={fleetData.facilities || []}
+                  enableRealTime={true}
+                  height="100%"
+                />
               </TabsContent>
 
               {/* Dispatch Board Tab */}
