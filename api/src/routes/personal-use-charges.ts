@@ -258,7 +258,7 @@ router.post(
          FROM trip_usage_classification
          WHERE driver_id = $1
            AND tenant_id = $2
-           AND TO_CHAR(trip_date, `YYYY-MM`) = $3
+           AND TO_CHAR(trip_date, 'YYYY-MM') = $3
            AND approval_status = 'approved'
            AND miles_personal > 0
          ORDER BY trip_date ASC`,
@@ -404,7 +404,7 @@ router.post(
           `SELECT SUM(miles_personal) as total_miles
            FROM trip_usage_classification
            WHERE driver_id = $1 AND tenant_id = $2
-             AND TO_CHAR(trip_date, `YYYY-MM`) = $3
+             AND TO_CHAR(trip_date, 'YYYY-MM') = $3
              AND approval_status = 'approved'',
           [validated.driver_id, req.user!.tenant_id, validated.charge_period]
         )
@@ -711,7 +711,7 @@ router.post(
            SUM(miles_personal) as total_personal_miles
          FROM trip_usage_classification
          WHERE tenant_id = $1
-           AND TO_CHAR(trip_date, `YYYY-MM`) = $2
+           AND TO_CHAR(trip_date, 'YYYY-MM') = $2
            AND approval_status = 'approved'
            AND miles_personal > 0
          GROUP BY driver_id
