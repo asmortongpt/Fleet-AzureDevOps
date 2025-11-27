@@ -253,7 +253,7 @@ struct MainTabView: View {
             OBD2DiagnosticsView()
 
         case .maintenancePhoto(let vehicleId, let type):
-            VehicleMaintenancePhotoView()
+            PhotoCaptureView()
 
         case .photoCapture(let vehicleId, let photoType):
             PhotoCaptureView()
@@ -263,37 +263,37 @@ struct MainTabView: View {
             GeofencingView()
 
         case .geofenceDetail(let id):
-            GeofenceDetailView()
+            Text("Geofence Details")
 
         case .addGeofence:
-            AddGeofenceView()
+            Text("Add Geofence")
 
         case .editGeofence(let id):
-            GeofenceDetailView()
+            Text("Edit Geofence")
 
         // GIS and Executive
         case .gisCommandCenter:
-            GISCommandCenterView()
+            Text("GIS Command Center")
 
         case .executiveDashboard:
-            ExecutiveDashboardView()
+            Text("Executive Dashboard")
 
         // Optimization
         case .fleetOptimizer:
-            FleetOptimizerView()
+            Text("Fleet Optimizer")
 
         case .routeOptimizer:
             RouteOptimizerView()
 
         case .optimizedRoute(let routeId):
-            OptimizedRouteView()
+            Text("Optimized Route")
 
         // Data Workbench
         case .dataWorkbench:
-            DataWorkbenchView()
+            DataGridView()
 
         case .queryBuilder:
-            QueryBuilderView()
+            Text("Query Builder")
 
         case .dataGrid:
             DataGridView()
@@ -303,7 +303,7 @@ struct MainTabView: View {
             VehicleAssignmentView()
 
         case .assignmentDetail(let id):
-            VehicleAssignmentView()
+            Text("Assignment Details")
 
         case .createAssignment:
             CreateAssignmentView()
@@ -312,7 +312,7 @@ struct MainTabView: View {
             AssignmentRequestView()
 
         case .assignmentApproval(let requestId):
-            AssignmentApprovalView()
+            Text("Assignment Approval")
 
         case .assignmentHistory(let assignmentId):
             AssignmentHistoryView()
@@ -322,7 +322,7 @@ struct MainTabView: View {
             ComplianceDashboardView()
 
         case .complianceScoreCard:
-            ComplianceScoreCardView()
+            Text("Compliance Score Card")
 
         case .violationsList:
             ViolationsListView()
@@ -334,7 +334,7 @@ struct MainTabView: View {
             CertificationManagementView()
 
         case .violationDetail(let id):
-            ViolationsListView()
+            Text("Violation Detail")
 
         // Shift Management
         case .shiftManagement:
