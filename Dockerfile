@@ -1,66 +1,77 @@
-Here is a Dockerfile that meets your requirements:
+# Multi-stage build for production-ready container
 
-```Dockerfile
-# ---- Base Node ----
-FROM node:20-alpine AS base
+# Stage 1: Build stage
+FROM node:20-alpine AS builder
+
 # Set working directory
 WORKDIR /app
-# Copy project file
-COPY package.json .
 
-# ---- Dependencies ----
-FROM base AS dependencies
-# Install production and development dependencies
-RUN npm install
-# Copy app sources
+# Install dependencies for native modules
+RUN apk add --no-cache python3 make g++
+
+# Copy package.json only (not lock file to avoid platform binding issues)
+COPY package.json ./
+
+# Cache buster MUST come after COPY to invalidate npm install layer
+ARG CACHE_BUST=1
+RUN echo "Cache bust: $CACHE_BUST - forcing fresh npm install"
+
+# Install dependencies (fresh install for correct Linux platform deps)
+# Use --legacy-peer-deps for React 18 compatibility with older packages
+RUN npm install --legacy-peer-deps
+
+# Copy source code (excluding node_modules via .dockerignore)
 COPY . .
-# Build TypeScript
-RUN npm run build
 
-# ---- Test ----
-# Run linters, setup and tests
-FROM dependencies AS test
-COPY . .
-RUN npm run test
+# Remove package-lock.json if copied to prevent node_modules conflicts
+RUN rm -f package-lock.json
 
-# ---- Release ----
-FROM base AS release
-# Copy production dependencies
-COPY --from=dependencies /app/node_modules ./node_modules
-# Copy app build (dist/)
-COPY --from=dependencies /app/dist ./dist
-# Change to non-root user
-USER node
-# Expose API port
+# Set build-time environment variables for Vite
+# SECURITY: Secrets are injected at runtime, not build-time
+ENV VITE_ENVIRONMENT=production
+ENV VITE_API_URL=""
+
+# Increase Node.js memory limit for large builds
+ENV NODE_OPTIONS="--max-old-space-size=4096"
+
+# Generate build version from git commit or timestamp
+RUN BUILD_VERSION=$(date +%s) && \
+    echo $BUILD_VERSION > /tmp/build_version.txt && \
+    export VITE_BUILD_VERSION=$BUILD_VERSION
+
+# Build application with increased memory
+RUN npm run build:production || npm run build
+
+# Inject build version into HTML for cache busting
+RUN BUILD_VERSION=$(cat /tmp/build_version.txt || date +%s) && \
+    sed -i "/<head>/a \ \ \ \ <!-- BUILD_VERSION: $BUILD_VERSION -->" /app/dist/index.html && \
+    echo "Build version: $BUILD_VERSION"
+
+# Stage 2: Production stage with nginx
+FROM nginx:alpine AS production
+
+# Copy complete nginx config (replaces default)
+COPY nginx.conf /etc/nginx/nginx.conf
+
+# Copy built application from builder
+COPY --from=builder /app/dist /usr/share/nginx/html
+
+# Copy runtime configuration script
+COPY scripts/runtime-config.sh /docker-entrypoint.d/01-runtime-config.sh
+RUN chmod +x /docker-entrypoint.d/01-runtime-config.sh
+
+# Expose port 3000
 EXPOSE 3000
-# Healthcheck
-HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 CMD node /app/healthcheck.js
-# Start application
-CMD ["node", "dist/index.js"]
-```
 
-And here is a docker-compose.yml file:
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
+  CMD wget --no-verbose --tries=1 --spider http://localhost:3000/health || exit 1
 
-```yaml
-version: '3.8'
-services:
-  api:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    image: my-api:1.0.0
-    restart: always
-    user: "node"
-    environment:
-      - NODE_ENV=production
-    ports:
-      - "3000:3000"
-    healthcheck:
-      test: ["CMD", "node", "/app/healthcheck.js"]
-      interval: 30s
-      timeout: 30s
-      start_period: 5s
-      retries: 3
-```
+# Start nginx
+CMD ["nginx", "-g", "daemon off;"]
 
-Please note that you need to create a healthcheck.js file that will return 200 status code when your API is healthy. Also, you need to adjust the paths according to your project structure.
+# Labels for better image management
+LABEL maintainer="Fleet Management Team"
+LABEL version="1.0.0"
+LABEL description="Production-ready Fleet Management Application"
+LABEL org.opencontainers.image.source="https://github.com/asmortongpt/Fleet"
