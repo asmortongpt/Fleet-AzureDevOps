@@ -132,7 +132,7 @@ export function MileageReimbursement({ data }: MileageReimbursementProps) {
               </div>
               <p className="text-sm font-medium text-muted-foreground">Submitted</p>
             </div>
-            <p className="text-2xl font-semibold metric-number">${totalSubmitted.toFixed(2)}</p>
+            <p className="text-2xl font-semibold metric-number">${(totalSubmitted ?? 0).toFixed(2)}</p>
             <p className="text-sm text-muted-foreground mt-1">
               {requests.filter(r => r.status === "submitted").length} requests
             </p>
@@ -147,7 +147,7 @@ export function MileageReimbursement({ data }: MileageReimbursementProps) {
               </div>
               <p className="text-sm font-medium text-muted-foreground">Approved</p>
             </div>
-            <p className="text-2xl font-semibold metric-number">${totalApproved.toFixed(2)}</p>
+            <p className="text-2xl font-semibold metric-number">${(totalApproved ?? 0).toFixed(2)}</p>
             <p className="text-sm text-muted-foreground mt-1">
               {requests.filter(r => r.status === "approved").length} requests
             </p>
@@ -162,7 +162,7 @@ export function MileageReimbursement({ data }: MileageReimbursementProps) {
               </div>
               <p className="text-sm font-medium text-muted-foreground">Paid</p>
             </div>
-            <p className="text-2xl font-semibold metric-number">${totalPaid.toFixed(2)}</p>
+            <p className="text-2xl font-semibold metric-number">${(totalPaid ?? 0).toFixed(2)}</p>
             <p className="text-sm text-muted-foreground mt-1">
               {requests.filter(r => r.status === "paid").length} requests
             </p>
@@ -274,7 +274,7 @@ export function MileageReimbursement({ data }: MileageReimbursementProps) {
                 <div className="flex items-center justify-between">
                   <p className="text-sm text-muted-foreground">Estimated Reimbursement:</p>
                   <p className="text-2xl font-semibold metric-number">
-                    ${(parseFloat(miles) * REIMBURSEMENT_RATE).toFixed(2)}
+                    ${((parseFloat(miles) || 0) * REIMBURSEMENT_RATE).toFixed(2)}
                   </p>
                 </div>
               </div>
@@ -336,7 +336,7 @@ export function MileageReimbursement({ data }: MileageReimbursementProps) {
                     </div>
                   </div>
                   <div className="text-right space-y-2">
-                    <p className="text-xl font-semibold metric-number">${request.amount.toFixed(2)}</p>
+                    <p className="text-xl font-semibold metric-number">${(request?.amount ?? 0).toFixed(2)}</p>
                     <Badge variant="outline" className={getStatusColor(request.status)}>
                       {request.status}
                     </Badge>
