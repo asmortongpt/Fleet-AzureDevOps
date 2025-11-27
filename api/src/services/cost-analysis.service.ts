@@ -444,7 +444,7 @@ export class CostAnalysisService {
       paramIndex++
     }
 
-    query += ` GROUP BY DATE_TRUNC(\'month\', transaction_date) ORDER BY month ASC'
+    query += ` GROUP BY DATE_TRUNC(\`month\`, transaction_date) ORDER BY month ASC'
 
     const result = await pool.query(query, params)
 
@@ -550,7 +550,7 @@ export class CostAnalysisService {
         row.vendor_name || ``
       ]
 
-      csv += values.map(v => `"${v}"`).join(`,') + '\n'
+      csv += values.map(v => `"${v}"`).join(`,`) + `\n'
     }
 
     return csv

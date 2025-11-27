@@ -97,7 +97,7 @@ router.get('/:entityType/export', async (req: Request, res: Response) => {
 
     const result = await pool.query(exportQuery, exportParams);
 
-    const filename = `${entityType}_export_${new Date().toISOString().split('T')[0]}`;
+    const filename = '${entityType}_export_${new Date().toISOString().split('T')[0]}';
 
     switch (format) {
       case 'csv':
@@ -174,7 +174,7 @@ function buildDrillThroughQuery(
   });
 
   const whereClause =
-    filterConditions.length > 0 ? `WHERE ${filterConditions.join(' AND ')}` : '';
+    filterConditions.length > 0 ? 'WHERE ${filterConditions.join(' AND ')}' : '';
 
   // Entity-specific queries
   let baseQuery = '';
@@ -288,7 +288,7 @@ function buildDrillThroughQuery(
   // Add pagination
   params.push(limit, offset);
   const query = `${baseQuery} LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`;
-  const countQuery = `SELECT COUNT(*) FROM (${baseQuery.replace(/ORDER BY .*/, '')}) as count_query`;
+  const countQuery = 'SELECT COUNT(*) FROM (${baseQuery.replace(/ORDER BY .*/, '')}) as count_query';
 
   const result: any = {
     query,
@@ -324,7 +324,7 @@ function exportCSV(res: Response, data: any[], filename: string) {
           // Escape quotes and wrap in quotes if contains comma
           const stringValue = value === null ? '' : String(value);
           return stringValue.includes(',')
-            ? `"${stringValue.replace(/"/g, '""')}"`
+            ? '"${stringValue.replace(/"/g, '""')}"'
             : stringValue;
         })
         .join(',')

@@ -247,11 +247,11 @@ export abstract class BaseRepository<T extends { id: string | number }> {
       }
 
       const values = Object.values(dataWithTenant);
-      const placeholders = columns.map((_, i) => `$${i + 1}').join(', ');
+      const placeholders = columns.map((_, i) => `$${i + 1}`).join(', ');
 
       // Column names are validated above
       const result = await pool.query(
-        `INSERT INTO ${this.tableName} (${columns.join(', ')})
+        `INSERT INTO ${this.tableName} (${columns.join(`, ')})
          VALUES (${placeholders})
          RETURNING *`,
         values

@@ -274,7 +274,7 @@ router.post(
       await pool.query(
         `INSERT INTO chat_messages (session_id, role, content, created_at)
          VALUES ($1, $2, $3, NOW())`,
-        [chatData.sessionId, `user`, chatData.message]
+        [chatData.sessionId, 'user', chatData.message]
       )
 
       // Get conversation history
@@ -291,7 +291,7 @@ router.post(
       }
 
       // Search relevant documents
-      let relevantContext = ``
+      let relevantContext = ''
       let sources: any[] = []
 
       if (chatData.searchDocuments) {
@@ -394,7 +394,7 @@ router.post(
       })
     } catch (error: any) {
       if (error.name === `ZodError`) {
-        return res.status(400).json({ error: `Validation error', details: error.errors })
+        return res.status(400).json({ error: 'Validation error', details: error.errors })
       }
       console.error('Chat error:', error)
       res.status(500).json({ error: 'Chat failed', message: getErrorMessage(error) })
@@ -503,7 +503,7 @@ router.post(
         temperature: 0.7,
       })
 
-      let fullResponse = '`
+      let fullResponse = ''
 
       for await (const chunk of stream) {
         const content = chunk.choices[0]?.delta?.content || ``
@@ -530,7 +530,7 @@ router.post(
       await pool.query(
         `INSERT INTO chat_messages (session_id, role, content, created_at)
          VALUES ($1, $2, $3, NOW()), ($1, $4, $5, NOW())`,
-        [chatData.sessionId, `user`, chatData.message, `assistant`, fullResponse]
+        [chatData.sessionId, 'user', chatData.message, 'assistant', fullResponse]
       )
 
       res.end()

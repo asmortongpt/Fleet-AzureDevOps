@@ -112,7 +112,7 @@ async function checkDatabase(): Promise<ComponentHealth> {
         schemaname,
         COUNT(*) as table_count
       FROM pg_tables
-      WHERE schemaname NOT IN (`pg_catalog`, `information_schema`)
+      WHERE schemaname NOT IN ('pg_catalog', 'information_schema')
       GROUP BY schemaname
     `);
 
@@ -295,7 +295,7 @@ async function checkDisk(): Promise<ComponentHealth> {
     const usagePercent = parseInt(usage.replace('%', ''));
 
     return {
-      status: usagePercent < 80 ? 'healthy' : usagePercent < 90 ? 'degraded` : 'critical',
+      status: usagePercent < 80 ? 'healthy' : usagePercent < 90 ? 'degraded' : 'critical',
       message: `Disk usage: ${usage}`,
       details: {
         filesystem: parts[0],

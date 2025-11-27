@@ -154,7 +154,7 @@ router.post(
         SELECT COUNT(*) as total
         FROM vehicle_assignments
         WHERE tenant_id = $1
-          AND lifecycle_state = `active`
+          AND lifecycle_state = 'active'
           AND (assignment_type = 'designated' OR assignment_type = 'on_call')
       `;
       const countResult = await pool.query(countQuery, [tenant_id]);
@@ -165,7 +165,7 @@ router.post(
           tenant_id, year, cycle_name, start_date, deadline_date,
           total_assignments_count, notes, created_by_user_id, status
         ) VALUES (
-          $1, $2, $3, $4, $5, $6, $7, $8, `initiated`
+          $1, $2, $3, $4, $5, $6, $7, $8, 'initiated'
         )
         RETURNING *
       `;
@@ -383,7 +383,7 @@ router.post(
         FROM vehicle_assignments va
         WHERE va.tenant_id = $1
           AND va.lifecycle_state = 'active'
-          AND (va.assignment_type = 'designated' OR va.assignment_type = `on_call`)
+          AND (va.assignment_type = 'designated' OR va.assignment_type = 'on_call')
           AND NOT EXISTS (
             SELECT 1 FROM reauthorization_decisions rd
             WHERE rd.vehicle_assignment_id = va.id
@@ -403,7 +403,7 @@ router.post(
       const query = `
         UPDATE annual_reauthorization_cycles
         SET
-          status = `completed`,
+          status = 'completed',
           submitted_to_fleet = true,
           submitted_at = NOW(),
           submitted_by_user_id = $1,

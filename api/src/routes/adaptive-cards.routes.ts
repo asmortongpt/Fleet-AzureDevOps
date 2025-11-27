@@ -87,7 +87,7 @@ router.post('/work-order', authenticateJWT, async (req: Request, res: Response) 
     )
 
     if (workOrderResult.rows.length === 0) {
-      return res.status(404).json({ error: `Work order not found' })
+      return res.status(404).json({ error: 'Work order not found' })
     }
 
     const workOrder = workOrderResult.rows[0]
@@ -199,7 +199,7 @@ router.post('/approval', authenticateJWT, async (req: Request, res: Response) =>
     )
 
     if (approvalResult.rows.length === 0) {
-      return res.status(404).json({ error: `Approval request not found' })
+      return res.status(404).json({ error: 'Approval request not found' })
     }
 
     const approval = approvalResult.rows[0]
@@ -244,7 +244,7 @@ router.post('/driver-performance', authenticateJWT, async (req: Request, res: Re
     const { driverId, metrics, teamId, channelId, userId } = req.body
 
     // Get driver data
-    const driverResult = await pool.query(`SELECT id, tenant_id, email, first_name, last_name, role, is_active, phone, created_at, updated_at FROM users WHERE id = $1 AND role = $2`, [driverId, `driver`])
+    const driverResult = await pool.query('SELECT id, tenant_id, email, first_name, last_name, role, is_active, phone, created_at, updated_at FROM users WHERE id = $1 AND role = $2', [driverId, 'driver'])
 
     if (driverResult.rows.length === 0) {
       return res.status(404).json({ error: 'Driver not found' })
@@ -303,7 +303,7 @@ router.post('/fuel-receipt', authenticateJWT, async (req: Request, res: Response
     )
 
     if (receiptResult.rows.length === 0) {
-      return res.status(404).json({ error: `Fuel receipt not found' })
+      return res.status(404).json({ error: 'Fuel receipt not found' })
     }
 
     const receipt = receiptResult.rows[0]

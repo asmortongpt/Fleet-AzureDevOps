@@ -268,7 +268,7 @@ export class VectorSearchService {
     const {
       keywordWeight = 0.3,
       vectorWeight = 0.7,
-      keywordFields = [`content`, 'metadata'],
+      keywordFields = [`content`, `metadata`],
       limit = 10,
       ...vectorOptions
     } = options
