@@ -24,11 +24,16 @@ final class AddTripViewModel: NSObject, ObservableObject {
 
     // MARK: - Published Properties
     @Published var availableVehicles: [Vehicle] = []
+    @Published var selectedVehicle: Vehicle?
+    @Published var driverName: String = ""
+    @Published var purpose: String = ""
     @Published var currentLocation: CLLocation?
     @Published var currentAddress: String?
     @Published var locationPermissionStatus: LocationPermissionStatus = .notDetermined
+    @Published var locationAuthStatus: CLAuthorizationStatus = .notDetermined
     @Published var isLoading: Bool = false
     @Published var errorMessage: String?
+    @Published var hasError: Bool = false
 
     // MARK: - Private Properties
     private let locationManager = CLLocationManager()
@@ -71,6 +76,8 @@ final class AddTripViewModel: NSObject, ObservableObject {
             status = CLLocationManager.authorizationStatus()
         }
 
+        locationAuthStatus = status
+
         switch status {
         case .notDetermined:
             locationPermissionStatus = .notDetermined
@@ -86,8 +93,26 @@ final class AddTripViewModel: NSObject, ObservableObject {
         }
     }
 
+    func checkLocationPermission() {
+        updateLocationPermissionStatus()
+    }
+
+    func loadVehicles() {
+        Task {
+            await loadVehicles()
+        }
+    }
+
     private func startLocationUpdates() {
         locationManager.startUpdatingLocation()
+    }
+
+    // MARK: - Computed Properties
+    var canStartTrip: Bool {
+        selectedVehicle != nil &&
+        !driverName.isEmpty &&
+        currentLocation != nil &&
+        locationAuthStatus == .authorizedWhenInUse || locationAuthStatus == .authorizedAlways
     }
 
     // MARK: - Load Vehicles
@@ -172,6 +197,37 @@ final class AddTripViewModel: NSObject, ObservableObject {
     }
 
     // MARK: - Start Trip
+    func startTrip(tripsViewModel: TripsViewModel) async {
+        guard let vehicle = selectedVehicle,
+              let location = currentLocation else {
+            errorMessage = "Missing required information"
+            hasError = true
+            return
+        }
+
+        isLoading = true
+        hasError = false
+        errorMessage = nil
+
+        do {
+            try await startTrip(
+                vehicleId: vehicle.id,
+                purpose: purpose.isEmpty ? nil : purpose,
+                odometerReading: vehicle.mileage,
+                startLocation: location.coordinate
+            )
+
+            // Notify trips view model to refresh
+            await tripsViewModel.fetchTrips()
+
+        } catch {
+            errorMessage = error.localizedDescription
+            hasError = true
+        }
+
+        isLoading = false
+    }
+
     func startTrip(
         vehicleId: String,
         purpose: String?,
