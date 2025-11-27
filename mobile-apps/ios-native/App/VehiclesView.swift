@@ -11,6 +11,9 @@ struct VehiclesView: View {
                 }
             }
             .navigationTitle("Vehicles")
+            .task {
+                await viewModel.fetchVehicles()
+            }
         }
     }
 }
