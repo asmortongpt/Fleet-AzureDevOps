@@ -192,7 +192,7 @@ router.post(
         userId,
         photo.id,
         blobUrl,
-        priority as 'high' | 'normal' | 'low'
+        priority as `high` | `normal` | 'low'
       );
 
       res.status(201).json({
@@ -336,7 +336,7 @@ router.post(
             userId,
             photo.id,
             blobUrl,
-            metadata.priority || 'normal'
+            metadata.priority || `normal`
           );
 
           results.push({
@@ -368,7 +368,7 @@ router.post(
     } catch (error: any) {
       console.error(`Batch upload error:`, error);
       res.status(500).json({
-        error: 'Failed to upload photos',
+        error: `Failed to upload photos`,
         details: getErrorMessage(error),
       });
     }
@@ -492,7 +492,7 @@ router.post(
          WHERE id = ANY($2)
            AND tenant_id = $3
            AND user_id = $4
-         RETURNING id',
+         RETURNING id`,
         [validated.deviceId, validated.photoIds, tenantId, userId]
       );
 
@@ -502,9 +502,9 @@ router.post(
         syncedIds: result.rows.map(r => r.id),
       });
     } catch (error: any) {
-      console.error('Sync complete error:', error);
+      console.error(`Sync complete error:`, error);
       res.status(400).json({
-        error: 'Failed to mark photos as synced',
+        error: `Failed to mark photos as synced',
         details: getErrorMessage(error),
       });
     }
@@ -548,13 +548,13 @@ router.get(
            ppq.processing_completed_at
          FROM mobile_photos mp
          LEFT JOIN photo_processing_queue ppq ON ppq.photo_id = mp.id
-         WHERE mp.id = $1 AND mp.tenant_id = $2',
+         WHERE mp.id = $1 AND mp.tenant_id = $2`,
         [photoId, tenantId]
       );
 
       if (result.rows.length === 0) {
         return res.status(404).json({
-          error: 'Photo not found',
+          error: `Photo not found`,
         });
       }
 
@@ -563,7 +563,7 @@ router.get(
         photo: result.rows[0],
       });
     } catch (error: any) {
-      console.error('Get status error:', error);
+      console.error(`Get status error:', error);
       res.status(500).json({
         error: 'Failed to get photo status',
         details: getErrorMessage(error),
@@ -607,13 +607,13 @@ router.get(
       photo_url,
       metadata,
       taken_at,
-      created_at FROM mobile_photos WHERE id = $1 AND tenant_id = $2',
+      created_at FROM mobile_photos WHERE id = $1 AND tenant_id = $2`,
         [photoId, tenantId]
       );
 
       if (result.rows.length === 0) {
         return res.status(404).json({
-          error: 'Photo not found',
+          error: `Photo not found`,
         });
       }
 
@@ -622,7 +622,7 @@ router.get(
         photo: result.rows[0],
       });
     } catch (error: any) {
-      console.error('Get photo error:', error);
+      console.error(`Get photo error:', error);
       res.status(500).json({
         error: 'Failed to get photo',
         details: getErrorMessage(error),
@@ -669,13 +669,13 @@ router.delete(
       photo_url,
       metadata,
       taken_at,
-      created_at FROM mobile_photos WHERE id = $1 AND tenant_id = $2',
+      created_at FROM mobile_photos WHERE id = $1 AND tenant_id = $2`,
         [photoId, tenantId]
       );
 
       if (photoResult.rows.length === 0) {
         return res.status(404).json({
-          error: 'Photo not found',
+          error: `Photo not found`,
         });
       }
 
@@ -683,7 +683,7 @@ router.delete(
 
       // Check if user owns the photo or is admin
       const userRole = (req as any).user.role;
-      if (photo.user_id !== userId && userRole !== 'admin' && userRole !== 'fleet_manager') {
+      if (photo.user_id !== userId && userRole !== `admin` && userRole !== 'fleet_manager') {
         return res.status(403).json({
           error: 'Unauthorized to delete this photo',
         });

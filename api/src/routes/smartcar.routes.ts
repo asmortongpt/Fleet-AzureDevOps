@@ -148,8 +148,8 @@ router.get('/callback', async (req: Request, res: Response) => {
       [
         user_id,
         tenant_id,
-        'CONNECT',
-        'smartcar_vehicle',
+        `CONNECT`,
+        `smartcar_vehicle`,
         parsedVehicleId,
         JSON.stringify({ smartcar_vehicle_id: smartcarVehicleId, ...vehicleInfo }),
         req.ip,
@@ -433,9 +433,9 @@ router.delete(
       // Update database
       await pool.query(
         `UPDATE vehicle_telematics_connections
-         SET sync_status = 'disconnected', updated_at = NOW()
+         SET sync_status = `disconnected`, updated_at = NOW()
          WHERE vehicle_id = $1
-         AND provider_id = (SELECT id FROM telematics_providers WHERE name = 'smartcar')',
+         AND provider_id = (SELECT id FROM telematics_providers WHERE name = `smartcar`)',
         [vehicleId]
       )
 

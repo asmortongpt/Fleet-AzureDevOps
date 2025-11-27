@@ -227,7 +227,7 @@ export function buildSelectQuery(options: QueryBuilderOptions): {
 export function sanitizeInput(input: string): string {
   // Remove potential SQL injection patterns
   return input
-    .replace(/['";\\]/g, '') // Remove quotes and backslashes
+    .replace(/[`";\\]/g, ``) // Remove quotes and backslashes
     .replace(/--/g, '') // Remove SQL comments
     .replace(/\/\*/g, '') // Remove multi-line comment start
     .replace(/\*\//g, '') // Remove multi-line comment end

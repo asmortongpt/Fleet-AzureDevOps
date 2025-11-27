@@ -235,7 +235,7 @@ export async function queryPaginated<T = unknown>(
   // Execute count query
   const countQuery = `SELECT COUNT(*) FROM (${text}) as count_query`;
   const countResult = await query<{ count: string }>(countQuery, params);
-  const total = parseInt(countResult.rows[0]?.count || '0', 10);
+  const total = parseInt(countResult.rows[0]?.count || `0`, 10);
 
   return {
     data: dataResult.rows,
@@ -273,7 +273,7 @@ export async function exists(
     params.push(tenantId);
   }
 
-  queryText += ')';
+  queryText += `)`;
 
   const result = await query<{ exists: boolean }>(queryText, params);
   return result.rows[0]?.exists || false;
@@ -292,7 +292,7 @@ export function getPool(): Pool {
  */
 export async function testConnection(): Promise<boolean> {
   try {
-    await query('SELECT 1');
+    await query(`SELECT 1');
     return true;
   } catch (error) {
     console.error('Database connection test failed:', error);
