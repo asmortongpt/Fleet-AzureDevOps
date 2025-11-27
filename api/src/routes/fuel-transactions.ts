@@ -23,15 +23,15 @@ router.get(
 
       // Get user's scope for row-level filtering
       const userResult = await pool.query(
-        'SELECT driver_id, scope_level FROM users WHERE id = $1',
+        `SELECT driver_id, scope_level FROM users WHERE id = $1`,
         [req.user!.id]
       )
 
       const user = userResult.rows[0]
-      let scopeFilter = ''
+      let scopeFilter = ``
       let scopeParams: any[] = [req.user!.tenant_id]
 
-      if (user.scope_level === 'own' && user.driver_id) {
+      if (user.scope_level === `own` && user.driver_id) {
         // Drivers only see their own fuel transactions
         scopeFilter = `AND driver_id = $2`
         scopeParams.push(user.driver_id)
@@ -63,14 +63,14 @@ router.get(
       })
     } catch (error) {
       console.error(`Get fuel-transactions error:`, error)
-      res.status(500).json({ error: 'Internal server error' })
+      res.status(500).json({ error: `Internal server error` })
     }
   }
 )
 
 // GET /fuel-transactions/:id
 router.get(
-  '/:id',
+  `/:id`,
   requirePermission('fuel_transaction:view:own'),
   validateScope('fuel_transaction'), // BOLA protection: validate user has access based on scope (own/team/fleet)
   applyFieldMasking('fuel_transaction'),
@@ -78,17 +78,17 @@ router.get(
   async (req: AuthRequest, res: Response) => {
     try {
       const result = await pool.query(
-        'SELECT id, tenant_id, vehicle_id, driver_id, transaction_date, gallons, price_per_gallon, total_cost, odometer_reading, fuel_type, location, latitude, longitude, fuel_card_number, receipt_photo, notes, created_at, updated_at FROM fuel_transactions WHERE id = $1 AND tenant_id = $2',
+        `SELECT id, tenant_id, vehicle_id, driver_id, transaction_date, gallons, price_per_gallon, total_cost, odometer_reading, fuel_type, location, latitude, longitude, fuel_card_number, receipt_photo, notes, created_at, updated_at FROM fuel_transactions WHERE id = $1 AND tenant_id = $2`,
         [req.params.id, req.user!.tenant_id]
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'Fuel transaction not found' })
+        return res.status(404).json({ error: `Fuel transaction not found` })
       }
 
       res.json(result.rows[0])
     } catch (error) {
-      console.error('Get fuel-transactions error:', error)
+      console.error(`Get fuel-transactions error:', error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -105,16 +105,16 @@ router.post(
 
       // Get user's driver_id for validation
       const userResult = await pool.query(
-        'SELECT driver_id FROM users WHERE id = $1',
+        `SELECT driver_id FROM users WHERE id = $1`,
         [req.user!.id]
       )
 
       const userDriverId = userResult.rows[0]?.driver_id
 
-      // Validate that driver_id matches user's driver_id (for own scope)
+      // Validate that driver_id matches user`s driver_id (for own scope)
       if (data.driver_id && userDriverId && data.driver_id !== userDriverId) {
         return res.status(403).json({
-          error: 'You can only create fuel transactions for yourself'
+          error: `You can only create fuel transactions for yourself'
         })
       }
 
@@ -137,14 +137,14 @@ router.post(
       res.status(201).json(result.rows[0])
     } catch (error) {
       console.error(`Create fuel-transactions error:`, error)
-      res.status(500).json({ error: 'Internal server error' })
+      res.status(500).json({ error: `Internal server error` })
     }
   }
 )
 
 // DELETE /fuel-transactions/:id
 router.delete(
-  '/:id',
+  `/:id`,
   requirePermission('fuel_transaction:delete:global'),
   auditLog({ action: 'DELETE', resourceType: 'fuel_transactions' }),
   async (req: AuthRequest, res: Response) => {

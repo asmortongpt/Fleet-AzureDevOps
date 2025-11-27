@@ -22,12 +22,12 @@ router.get(
 
       const result = await pool.query(
         `SELECT id, tenant_id, name, contact_name, contact_email, contact_phone, address, is_active, created_at, updated_at
-         FROM vendors WHERE tenant_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3',
+         FROM vendors WHERE tenant_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3`,
         [req.user!.tenant_id, limit, offset]
       )
 
       const countResult = await pool.query(
-        'SELECT COUNT(*) FROM vendors WHERE tenant_id = $1',
+        `SELECT COUNT(*) FROM vendors WHERE tenant_id = $1`,
         [req.user!.tenant_id]
       )
 
@@ -41,8 +41,8 @@ router.get(
         }
       })
     } catch (error) {
-      console.error('Get vendors error:', error)
-      res.status(500).json({ error: 'Internal server error' })
+      console.error(`Get vendors error:`, error)
+      res.status(500).json({ error: `Internal server error' })
     }
   }
 )
@@ -55,12 +55,12 @@ router.get(
   async (req: AuthRequest, res: Response) => {
     try {
       const result = await pool.query(
-        'SELECT id, tenant_id, name, contact_name, contact_email, contact_phone, address, is_active, created_at, updated_at FROM vendors WHERE id = $1 AND tenant_id = $2',
+        `SELECT id, tenant_id, name, contact_name, contact_email, contact_phone, address, is_active, created_at, updated_at FROM vendors WHERE id = $1 AND tenant_id = $2`,
         [req.params.id, req.user!.tenant_id]
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'Vendors not found' })
+        return res.status(404).json({ error: `Vendors not found` })
       }
 
       res.json(result.rows[0])
@@ -99,8 +99,8 @@ router.post(
       if (error instanceof z.ZodError) {
         return res.status(400).json({ error: `Validation error`, details: error.errors })
       }
-      console.error('Create vendors error:', error)
-      res.status(500).json({ error: 'Internal server error' })
+      console.error(`Create vendors error:`, error)
+      res.status(500).json({ error: `Internal server error` })
     }
   }
 )
@@ -130,9 +130,9 @@ router.put(
       res.json(result.rows[0])
     } catch (error) {
       if (error instanceof z.ZodError) {
-        return res.status(400).json({ error: 'Validation error', details: error.errors })
+        return res.status(400).json({ error: `Validation error`, details: error.errors })
       }
-      console.error('Update vendors error:', error)
+      console.error(`Update vendors error:`, error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }

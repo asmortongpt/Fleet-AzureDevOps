@@ -121,7 +121,7 @@ router.post(
           `SELECT v.*, vp.*
            FROM vehicles v
            LEFT JOIN vehicle_optimization_profiles vp ON v.id = vp.vehicle_id
-           WHERE v.id = ANY($1) AND v.tenant_id = $2',
+           WHERE v.id = ANY($1) AND v.tenant_id = $2`,
           [validatedData.vehicleIds, req.user!.tenant_id]
         )
         vehicles = vehicleResult.rows
@@ -139,7 +139,7 @@ router.post(
       }
 
       if (vehicles.length === 0) {
-        return res.status(400).json({ error: 'No available vehicles found' })
+        return res.status(400).json({ error: `No available vehicles found` })
       }
 
       // Get drivers
@@ -149,7 +149,7 @@ router.post(
           `SELECT d.*, dp.*
            FROM drivers d
            LEFT JOIN driver_optimization_profiles dp ON d.id = dp.driver_id
-           WHERE d.id = ANY($1) AND d.tenant_id = $2',
+           WHERE d.id = ANY($1) AND d.tenant_id = $2`,
           [validatedData.driverIds, req.user!.tenant_id]
         )
         drivers = driverResult.rows
@@ -159,7 +159,7 @@ router.post(
           `SELECT d.*, dp.*
            FROM drivers d
            LEFT JOIN driver_optimization_profiles dp ON d.id = dp.driver_id
-           WHERE d.tenant_id = $1 AND d.status = 'active'
+           WHERE d.tenant_id = $1 AND d.status = `active`
            LIMIT 20`,
           [req.user!.tenant_id]
         )
@@ -189,7 +189,7 @@ router.post(
 
       res.json(result)
     } catch (error: any) {
-      console.error('Route optimization error:', error)
+      console.error(`Route optimization error:`, error)
 
       if (error.name === 'ZodError') {
         return res.status(400).json({
@@ -262,8 +262,8 @@ router.get(
         }
       })
     } catch (error) {
-      console.error('Get jobs error:', error)
-      res.status(500).json({ error: 'Internal server error' })
+      console.error(`Get jobs error:`, error)
+      res.status(500).json({ error: `Internal server error` })
     }
   }
 )
@@ -321,8 +321,8 @@ router.get(
         stops: stopsResult.rows
       })
     } catch (error) {
-      console.error('Get job error:', error)
-      res.status(500).json({ error: 'Internal server error' })
+      console.error(`Get job error:`, error)
+      res.status(500).json({ error: `Internal server error` })
     }
   }
 )
@@ -363,8 +363,8 @@ router.get(
 
       res.json({ data: result.rows })
     } catch (error) {
-      console.error('Get active routes error:', error)
-      res.status(500).json({ error: 'Internal server error' })
+      console.error(`Get active routes error:`, error)
+      res.status(500).json({ error: `Internal server error` })
     }
   }
 )
@@ -386,16 +386,16 @@ router.get(
   async (req: AuthRequest, res: Response) => {
     try {
       const routeResult = await pool.query(
-        'SELECT r.*, v.name as vehicle_name, d.first_name || ' ' || d.last_name as driver_name
+        `SELECT r.*, v.name as vehicle_name, d.first_name || ` ` || d.last_name as driver_name
          FROM optimized_routes r
          LEFT JOIN vehicles v ON r.vehicle_id = v.id
          LEFT JOIN drivers d ON r.driver_id = d.id
-         WHERE r.id = $1 AND r.tenant_id = $2',
+         WHERE r.id = $1 AND r.tenant_id = $2`,
         [req.params.id, req.user!.tenant_id]
       )
 
       if (routeResult.rows.length === 0) {
-        return res.status(404).json({ error: 'Route not found' })
+        return res.status(404).json({ error: `Route not found' })
       }
 
       const route = routeResult.rows[0]
@@ -421,8 +421,8 @@ router.get(
         stops: stopsResult.rows
       })
     } catch (error) {
-      console.error('Get route error:', error)
-      res.status(500).json({ error: 'Internal server error' })
+      console.error(`Get route error:`, error)
+      res.status(500).json({ error: `Internal server error` })
     }
   }
 )
@@ -458,12 +458,12 @@ router.put(
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'Route not found' })
+        return res.status(404).json({ error: `Route not found` })
       }
 
       res.json(result.rows[0])
     } catch (error) {
-      console.error('Update route error:', error)
+      console.error(`Update route error:`, error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -489,7 +489,7 @@ router.post(
 
       const result = await pool.query(
         `UPDATE route_stops
-         SET status = 'completed',
+         SET status = `completed`,
              actual_arrival_time = COALESCE($1, NOW()),
              actual_departure_time = COALESCE($2, NOW()),
              completion_notes = $3,
@@ -500,7 +500,7 @@ router.post(
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'Stop not found' })
+        return res.status(404).json({ error: `Stop not found` })
       }
 
       res.json(result.rows[0])
@@ -531,13 +531,13 @@ router.get(
       const statsResult = await pool.query(
         `SELECT
            COUNT(*) as total_jobs,
-           COUNT(*) FILTER (WHERE status = 'completed') as completed_jobs,
+           COUNT(*) FILTER (WHERE status = `completed`) as completed_jobs,
            SUM(total_distance_miles) as total_distance,
            SUM(estimated_cost_savings) as total_savings,
            AVG(optimization_score) as avg_optimization_score
          FROM route_optimization_jobs
          WHERE tenant_id = $1
-           AND created_at >= NOW() - INTERVAL '30 days'',
+           AND created_at >= NOW() - INTERVAL `30 days`',
         [req.user!.tenant_id]
       )
 
@@ -566,8 +566,8 @@ router.get(
         recentJobs: recentResult.rows
       })
     } catch (error) {
-      console.error('Get stats error:', error)
-      res.status(500).json({ error: 'Internal server error' })
+      console.error(`Get stats error:`, error)
+      res.status(500).json({ error: `Internal server error` })
     }
   }
 )

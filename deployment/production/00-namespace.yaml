@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: fleet-management
+  labels:
+    name: fleet-management
+    environment: production
+    app: fleet-management-system
