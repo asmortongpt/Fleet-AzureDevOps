@@ -174,10 +174,10 @@ router.post(
           : `Reimbursement request submitted for review`
       })
     } catch (error: any) {
-      console.error('Create reimbursement error:', error)
+      console.error(`Create reimbursement error:`, error)
       res.status(500).json({
         success: false,
-        error: 'Failed to create reimbursement request',
+        error: `Failed to create reimbursement request`,
         details: getErrorMessage(error)
       })
     }
@@ -269,7 +269,7 @@ router.get('/', async (req: AuthRequest, res: Response) => {
     let countQuery = `SELECT COUNT(*) FROM reimbursement_requests WHERE tenant_id = $1`
     const countParams = [req.user!.tenant_id]
 
-    if (req.user!.role !== 'admin' && req.user!.role !== 'fleet_manager') {
+    if (req.user!.role !== `admin` && req.user!.role !== `fleet_manager`) {
       countQuery += ' AND driver_id = $2'
       countParams.push(req.user!.id)
     }
@@ -315,20 +315,20 @@ router.get('/:id', async (req: AuthRequest, res: Response) => {
       LEFT JOIN users d ON r.driver_id = d.id
       LEFT JOIN users rev ON r.reviewed_by_user_id = rev.id
       LEFT JOIN personal_use_charges c ON r.charge_id = c.id
-      WHERE r.id = $1 AND r.tenant_id = $2',
+      WHERE r.id = $1 AND r.tenant_id = $2`,
       [req.params.id, req.user!.tenant_id]
     )
 
     if (result.rows.length === 0) {
       return res.status(404).json({
         success: false,
-        error: 'Reimbursement request not found'
+        error: `Reimbursement request not found`
       })
     }
 
     // Non-admin users can only view their own requests
     if (
-      req.user!.role !== 'admin' &&
+      req.user!.role !== `admin` &&
       req.user!.role !== 'fleet_manager' &&
       result.rows[0].driver_id !== req.user!.id
     ) {
@@ -441,7 +441,7 @@ router.patch(
       console.error(`Approve reimbursement error:`, error)
       res.status(500).json({
         success: false,
-        error: 'Failed to approve reimbursement request',
+        error: `Failed to approve reimbursement request`,
         details: getErrorMessage(error)
       })
     }
@@ -453,7 +453,7 @@ router.patch(
  * Reject a reimbursement request
  */
 router.patch(
-  '/:id/reject',
+  `/:id/reject`,
   authorize('admin', 'fleet_manager'),
   auditLog({ action: 'REJECT', resourceType: 'reimbursement_requests' }),
   async (req: AuthRequest, res: Response) => {
@@ -524,10 +524,10 @@ router.patch(
         message: `Reimbursement request rejected`
       })
     } catch (error: any) {
-      console.error('Reject reimbursement error:', error)
+      console.error(`Reject reimbursement error:`, error)
       res.status(500).json({
         success: false,
-        error: 'Failed to reject reimbursement request',
+        error: `Failed to reject reimbursement request`,
         details: getErrorMessage(error)
       })
     }
@@ -565,14 +565,14 @@ router.patch(
           reviewer_notes, approved_amount, payment_date, payment_method,
           payment_reference, created_at, updated_at, created_by_user_id
         FROM reimbursement_requests
-        WHERE id = $1 AND tenant_id = $2',
+        WHERE id = $1 AND tenant_id = $2`,
         [req.params.id, req.user!.tenant_id]
       )
 
       if (currentResult.rows.length === 0) {
         return res.status(404).json({
           success: false,
-          error: 'Reimbursement request not found'
+          error: `Reimbursement request not found`
         })
       }
 
@@ -581,7 +581,7 @@ router.patch(
       if (current.status !== ReimbursementStatus.APPROVED) {
         return res.status(400).json({
           success: false,
-          error: 'Can only process payment for approved requests'
+          error: `Can only process payment for approved requests'
         })
       }
 
@@ -617,7 +617,7 @@ router.patch(
       console.error(`Process payment error:`, error)
       res.status(500).json({
         success: false,
-        error: 'Failed to process payment',
+        error: `Failed to process payment`,
         details: getErrorMessage(error)
       })
     }
@@ -629,7 +629,7 @@ router.patch(
  * Get pending reimbursements queue for admin review
  */
 router.get(
-  '/queue/pending',
+  `/queue/pending`,
   authorize('admin', 'fleet_manager'),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -654,7 +654,7 @@ router.get(
           SUM(request_amount) as total_amount,
           AVG(EXTRACT(EPOCH FROM (NOW() - submitted_at))/86400) as avg_days_pending
          FROM reimbursement_requests
-         WHERE tenant_id = $1 AND status = 'pending'',
+         WHERE tenant_id = $1 AND status = `pending``,
         [req.user!.tenant_id]
       )
 
@@ -664,7 +664,7 @@ router.get(
         summary: statsResult.rows[0]
       })
     } catch (error: any) {
-      console.error('Get pending queue error:', error)
+      console.error(`Get pending queue error:', error)
       res.status(500).json({
         success: false,
         error: 'Failed to retrieve pending reimbursements',
@@ -701,7 +701,7 @@ router.get('/summary/driver/:driver_id', async (req: AuthRequest, res: Response)
         rejected_requests, paid_requests, total_requested,
         total_approved, total_paid, avg_approval_days
       FROM v_driver_reimbursement_summary
-      WHERE tenant_id = $1 AND driver_id = $2',
+      WHERE tenant_id = $1 AND driver_id = $2`,
       [req.user!.tenant_id, driverId]
     )
 
@@ -710,10 +710,10 @@ router.get('/summary/driver/:driver_id', async (req: AuthRequest, res: Response)
       data: result.rows
     })
   } catch (error: any) {
-    console.error('Get reimbursement summary error:', error)
+    console.error(`Get reimbursement summary error:`, error)
     res.status(500).json({
       success: false,
-      error: 'Failed to retrieve reimbursement summary',
+      error: `Failed to retrieve reimbursement summary',
       details: getErrorMessage(error)
     })
   }

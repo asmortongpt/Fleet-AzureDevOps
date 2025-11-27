@@ -55,12 +55,12 @@ router.get(
 
       // Verify vehicle belongs to tenant
       const vehicleCheck = await pool.query(
-        'SELECT id FROM vehicles WHERE id = $1 AND tenant_id = $2',
+        `SELECT id FROM vehicles WHERE id = $1 AND tenant_id = $2`,
         [vehicleId, req.user!.tenant_id]
       );
 
       if (vehicleCheck.rows.length === 0) {
-        return res.status(404).json({ error: 'Vehicle not found' });
+        return res.status(404).json({ error: `Vehicle not found` });
       }
 
       // Build query with date filters
@@ -153,7 +153,7 @@ router.get(
       });
     } catch (error) {
       console.error(`Get vehicle location history error:`, error);
-      res.status(500).json({ error: 'Internal server error' });
+      res.status(500).json({ error: `Internal server error' });
     }
   }
 );
@@ -278,12 +278,12 @@ router.get(
 
       // Verify vehicle belongs to tenant
       const vehicleCheck = await pool.query(
-        'SELECT id, unit_number FROM vehicles WHERE id = $1 AND tenant_id = $2',
+        `SELECT id, unit_number FROM vehicles WHERE id = $1 AND tenant_id = $2`,
         [vehicleId, req.user!.tenant_id]
       );
 
       if (vehicleCheck.rows.length === 0) {
-        return res.status(404).json({ error: 'Vehicle not found' });
+        return res.status(404).json({ error: `Vehicle not found` });
       }
 
       // Build date filter
@@ -309,7 +309,7 @@ router.get(
           -- Trip start/end events
           (
             SELECT
-              'trip_start' as event_type,
+              `trip_start` as event_type,
               start_time as timestamp,
               start_latitude as latitude,
               start_longitude as longitude,
