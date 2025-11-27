@@ -37,15 +37,15 @@ router.get(
 
       // Get user scope for row-level filtering
       const userResult = await pool.query(
-        'SELECT team_vehicle_ids, vehicle_id, scope_level FROM users WHERE id = $1',
+        `SELECT team_vehicle_ids, vehicle_id, scope_level FROM users WHERE id = $1`,
         [req.user!.id]
       )
 
       const user = userResult.rows[0]
-      let scopeFilter = ''
+      let scopeFilter = ``
       let scopeParams: any[] = [req.user!.tenant_id]
 
-      if (user.scope_level === 'own' && user.vehicle_id) {
+      if (user.scope_level === `own` && user.vehicle_id) {
         // Drivers only see their assigned vehicle
         scopeFilter = 'AND id = $2'
         scopeParams.push(user.vehicle_id)
@@ -126,37 +126,37 @@ router.get(
       })
     } catch (error) {
       console.error(`Get vehicles error:`, error)
-      res.status(500).json({ error: 'Internal server error' })
+      res.status(500).json({ error: `Internal server error` })
     }
   }
 )
 
 // GET /vehicles/:id
 router.get(
-  '/:id',
+  `/:id`,
   requirePermission('vehicle:view:own'),
   applyFieldMasking('vehicle'),
   auditLog({ action: 'READ', resourceType: 'vehicles' }),
   async (req: AuthRequest, res: Response) => {
     try {
       const result = await pool.query(
-        'SELECT id, tenant_id, vin, license_plate, make, model, year, color, current_mileage, status, acquired_date, disposition_date, purchase_price, residual_value, created_at, updated_at, deleted_at FROM vehicles WHERE id = $1 AND tenant_id = $2',
+        `SELECT id, tenant_id, vin, license_plate, make, model, year, color, current_mileage, status, acquired_date, disposition_date, purchase_price, residual_value, created_at, updated_at, deleted_at FROM vehicles WHERE id = $1 AND tenant_id = $2`,
         [req.params.id, req.user!.tenant_id]
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'Vehicles not found' })
+        return res.status(404).json({ error: `Vehicles not found` })
       }
 
       // IDOR protection: Check if user has access to this vehicle
       const userResult = await pool.query(
-        'SELECT team_vehicle_ids, vehicle_id, scope_level FROM users WHERE id = $1',
+        `SELECT team_vehicle_ids, vehicle_id, scope_level FROM users WHERE id = $1`,
         [req.user!.id]
       )
       const user = userResult.rows[0]
       const vehicleId = req.params.id
 
-      if (user.scope_level === 'own' && user.vehicle_id !== vehicleId) {
+      if (user.scope_level === `own` && user.vehicle_id !== vehicleId) {
         return res.status(403).json({ error: 'Access denied: You can only view your assigned vehicle' })
       } else if (user.scope_level === 'team' && user.team_vehicle_ids) {
         if (!user.team_vehicle_ids.includes(vehicleId)) {
@@ -184,12 +184,12 @@ router.post(
 
       // Check for duplicate VIN
       const vinCheck = await pool.query(
-        'SELECT id FROM vehicles WHERE vin = $1 AND tenant_id = $2',
+        `SELECT id FROM vehicles WHERE vin = $1 AND tenant_id = $2`,
         [validatedData.vin.toUpperCase(), req.user!.tenant_id]
       )
 
       if (vinCheck.rows.length > 0) {
-        return res.status(409).json({ error: 'VIN already exists in the system' })
+        return res.status(409).json({ error: `VIN already exists in the system' })
       }
 
       // Normalize VIN to uppercase
@@ -213,8 +213,8 @@ router.post(
       if (error instanceof z.ZodError) {
         return res.status(400).json({ error: `Validation error`, details: error.errors })
       }
-      console.error('Create vehicles error:', error)
-      res.status(500).json({ error: 'Internal server error' })
+      console.error(`Create vehicles error:`, error)
+      res.status(500).json({ error: `Internal server error` })
     }
   }
 )
@@ -244,9 +244,9 @@ router.put(
       res.json(result.rows[0])
     } catch (error) {
       if (error instanceof z.ZodError) {
-        return res.status(400).json({ error: 'Validation error', details: error.errors })
+        return res.status(400).json({ error: `Validation error`, details: error.errors })
       }
-      console.error('Update vehicles error:', error)
+      console.error(`Update vehicles error:`, error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }

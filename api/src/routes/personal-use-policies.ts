@@ -54,7 +54,7 @@ router.get(
               u.name as created_by_name
        FROM personal_use_policies p
        LEFT JOIN users u ON p.created_by_user_id = u.id
-       WHERE p.tenant_id = $1',
+       WHERE p.tenant_id = $1`,
       [req.user!.tenant_id]
     )
 
@@ -75,10 +75,10 @@ router.get(
             notify_driver_on_limit: true,
             email_notifications: true
           },
-          effective_date: new Date().toISOString().split('T')[0],
+          effective_date: new Date().toISOString().split(`T`)[0],
           is_default: true
         },
-        message: 'No policy configured - using defaults. Create a policy to customize.'
+        message: `No policy configured - using defaults. Create a policy to customize.'
       })
     }
 
@@ -127,7 +127,7 @@ router.put(
 
       // Check if policy exists
       const existingResult = await pool.query(
-        'SELECT id FROM personal_use_policies WHERE tenant_id = $1',
+        `SELECT id FROM personal_use_policies WHERE tenant_id = $1`,
         [req.user!.tenant_id]
       )
 
@@ -203,8 +203,8 @@ router.put(
         success: true,
         data: result.rows[0],
         message: existingResult.rows.length > 0
-          ? 'Personal use policy updated successfully'
-          : 'Personal use policy created successfully'
+          ? `Personal use policy updated successfully`
+          : `Personal use policy created successfully`
       })
     } catch (error: any) {
       console.error('Update policy error:', error)
@@ -229,12 +229,12 @@ router.get(
 
     // Verify driver belongs to tenant
     const driverCheck = await pool.query(
-      'SELECT id, name FROM users WHERE id = $1 AND tenant_id = $2',
+      `SELECT id, name FROM users WHERE id = $1 AND tenant_id = $2`,
       [driver_id, req.user!.tenant_id]
     )
 
     if (driverCheck.rows.length === 0) {
-      return res.status(404).json({ error: 'Driver not found' })
+      return res.status(404).json({ error: `Driver not found` })
     }
 
     // Get policy
@@ -250,7 +250,7 @@ router.get(
       expiry_date,
       is_active,
       created_at,
-      updated_at FROM personal_use_policies WHERE tenant_id = $1',
+      updated_at FROM personal_use_policies WHERE tenant_id = $1`,
       [req.user!.tenant_id]
     )
 
@@ -263,8 +263,8 @@ router.get(
        FROM trip_usage_classification
        WHERE driver_id = $1
          AND tenant_id = $2
-         AND TO_CHAR(trip_date, 'YYYY-MM') = $3
-         AND approval_status != 'rejected'`,
+         AND TO_CHAR(trip_date, `YYYY-MM`) = $3
+         AND approval_status != `rejected``,
       [driver_id, req.user!.tenant_id, currentMonth]
     )
 
@@ -348,8 +348,8 @@ router.get(
       data: response
     })
   } catch (error: any) {
-    console.error('Get usage limits error:', error)
-    res.status(500).json({ error: 'Failed to calculate usage limits' })
+    console.error(`Get usage limits error:`, error)
+    res.status(500).json({ error: `Failed to calculate usage limits` })
   }
 })
 
@@ -377,7 +377,7 @@ router.get(
       expiry_date,
       is_active,
       created_at,
-      updated_at FROM personal_use_policies WHERE tenant_id = $1',
+      updated_at FROM personal_use_policies WHERE tenant_id = $1`,
         [req.user!.tenant_id]
       )
 
@@ -385,7 +385,7 @@ router.get(
         return res.json({
           success: true,
           data: [],
-          message: 'No usage limits configured'
+          message: `No usage limits configured`
         })
       }
 
@@ -407,8 +407,8 @@ router.get(
            END as exceeds_limit
          FROM users u
          LEFT JOIN trip_usage_classification t ON u.id = t.driver_id
-           AND TO_CHAR(t.trip_date, 'YYYY-MM') = $2
-           AND t.approval_status != 'rejected'
+           AND TO_CHAR(t.trip_date, `YYYY-MM`) = $2
+           AND t.approval_status != `rejected`
          WHERE u.tenant_id = $3
          GROUP BY u.id, u.name, u.email
          HAVING COALESCE(SUM(t.miles_personal), 0) / $1 * 100 >= $4
