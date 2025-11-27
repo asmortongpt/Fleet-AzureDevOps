@@ -263,12 +263,14 @@ public struct MetricCardData {
     public let value: String
     public let icon: String
     public let color: String
+    public let accessibilityLabel: String
 
-    public init(title: String, value: String, icon: String, color: String) {
+    public init(title: String, value: String, icon: String, color: String, accessibilityLabel: String? = nil) {
         self.title = title
         self.value = value
         self.icon = icon
         self.color = color
+        self.accessibilityLabel = accessibilityLabel ?? "\(title): \(value)"
     }
 }
 
@@ -538,7 +540,7 @@ public class ChecklistService {
 
 // MARK: - Quick Action Types
 
-public enum QuickActionType: String, Codable {
+public enum QuickActionType: String, Codable, CaseIterable {
     case addVehicle
     case startTrip
     case maintenance

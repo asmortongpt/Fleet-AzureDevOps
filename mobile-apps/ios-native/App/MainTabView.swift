@@ -210,7 +210,9 @@ struct MainTabView: View {
             AddVehicleView()
 
         case .addTrip:
-            AddTripView()
+            Text("Add Trip - Coming Soon")
+                .font(.title)
+                .padding()
 
         case .maintenance:
             MaintenanceView()
@@ -232,7 +234,9 @@ struct MainTabView: View {
 
         // Driver management destinations
         case .driverDetail(let id):
-            DriverDetailView(driverId: id)
+            Text("Driver Detail: \(id)")
+                .font(.title)
+                .padding()
 
         case .addDriver:
             Text("Add Driver View - Coming Soon")
@@ -267,6 +271,11 @@ struct MainTabView: View {
             Text("Photo Capture: \(photoType) for Vehicle: \(vehicleId)")
                 .font(.title)
                 .padding()
+
+        default:
+            Text("Feature Coming Soon")
+                .font(.title)
+                .padding()
         }
     }
 }
@@ -283,7 +292,23 @@ struct VehicleDetailViewWrapper: View {
                 ProgressView("Loading vehicle...")
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else if let vehicle = viewModel.selectedVehicle {
-                VehicleDetailView(vehicle: vehicle)
+                VStack(spacing: 16) {
+                    Image(systemName: "car.fill")
+                        .font(.system(size: 50))
+                        .foregroundColor(.blue)
+
+                    Text("Vehicle Details")
+                        .font(.title.bold())
+
+                    Text("\(vehicle.year) \(vehicle.make) \(vehicle.model)")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+
+                    Text("Vehicle #\(vehicle.number)")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else if let error = viewModel.errorMessage {
                 VStack(spacing: 16) {
                     Image(systemName: "exclamationmark.triangle")
@@ -404,6 +429,26 @@ struct DetailCard: View {
         .padding()
         .background(Color(.secondarySystemGroupedBackground))
         .cornerRadius(12)
+    }
+}
+
+// MARK: - Trip Detail Wrapper
+struct TripDetailViewWrapper: View {
+    let tripId: String
+
+    var body: some View {
+        Text("Trip Detail: \(tripId)")
+            .font(.title)
+            .padding()
+    }
+}
+
+// MARK: - Fleet Map View
+struct FleetMapView: View {
+    var body: some View {
+        Text("Fleet Map - Coming Soon")
+            .font(.title)
+            .padding()
     }
 }
 
