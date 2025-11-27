@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useMemo } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -18,14 +18,6 @@ import {
   DialogFooter
 } from "@/components/ui/dialog"
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow
-} from "@/components/ui/table"
-import {
   Select,
   SelectContent,
   SelectItem,
@@ -38,6 +30,8 @@ import { CalendarDots, Wrench, Clock, CheckCircle, Warning } from "@phosphor-ico
 import { MaintenanceSchedule } from "@/lib/types"
 import { format } from "date-fns"
 import { toast } from "sonner"
+import { DataGrid } from "@/components/common/DataGrid"
+import { ColumnDef } from "@tanstack/react-table"
 
 export function MaintenanceScheduling() {
   const [schedules, setSchedules] = useState<MaintenanceSchedule[]>([])
@@ -124,6 +118,76 @@ export function MaintenanceScheduling() {
     }
     return colors[priority]
   }
+
+  const maintenanceColumns: ColumnDef<MaintenanceSchedule>[] = useMemo(
+    () => [
+      {
+        accessorKey: "vehicleNumber",
+        header: "Vehicle",
+        cell: ({ row }) => (
+          <div className="font-medium">{row.original.vehicleNumber}</div>
+        ),
+      },
+      {
+        accessorKey: "serviceType",
+        header: "Service Type",
+        cell: ({ row }) => (
+          <div className="text-sm">{row.original.serviceType}</div>
+        ),
+      },
+      {
+        accessorKey: "nextDue",
+        header: "Due Date",
+        cell: ({ row }) => (
+          <div className="text-sm">
+            {format(new Date(row.original.nextDue), "MMM d, yyyy")}
+          </div>
+        ),
+      },
+      {
+        accessorKey: "priority",
+        header: "Priority",
+        cell: ({ row }) => (
+          <Badge className={getPriorityColor(row.original.priority)} variant="secondary">
+            {row.original.priority}
+          </Badge>
+        ),
+      },
+      {
+        accessorKey: "estimatedCost",
+        header: "Est. Cost",
+        cell: ({ row }) => (
+          <div className="text-sm">${row.original.estimatedCost.toLocaleString()}</div>
+        ),
+      },
+      {
+        accessorKey: "status",
+        header: "Status",
+        cell: ({ row }) => (
+          <Badge className={getStatusColor(row.original.status)} variant="secondary">
+            {row.original.status}
+          </Badge>
+        ),
+      },
+      {
+        id: "actions",
+        header: "Actions",
+        cell: ({ row }) => (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => {
+              setSelectedSchedule(row.original)
+              setIsDetailsDialogOpen(true)
+            }}
+          >
+            View Details
+          </Button>
+        ),
+      },
+    ],
+    [getPriorityColor, getStatusColor]
+  )
 
   return (
     <div className="space-y-6">
@@ -265,60 +329,17 @@ export function MaintenanceScheduling() {
           <CardTitle>Upcoming Maintenance</CardTitle>
           <CardDescription>Next scheduled services across all vehicles</CardDescription>
         </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Vehicle</TableHead>
-                <TableHead>Service Type</TableHead>
-                <TableHead>Due Date</TableHead>
-                <TableHead>Priority</TableHead>
-                <TableHead>Est. Cost</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {upcomingSchedules.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={7} className="text-center text-muted-foreground py-8">
-                    No upcoming maintenance scheduled
-                  </TableCell>
-                </TableRow>
-              ) : (
-                upcomingSchedules.map(schedule => (
-                  <TableRow key={schedule.id}>
-                    <TableCell className="font-medium">{schedule.vehicleNumber}</TableCell>
-                    <TableCell>{schedule.serviceType}</TableCell>
-                    <TableCell>{format(new Date(schedule.nextDue), "MMM d, yyyy")}</TableCell>
-                    <TableCell>
-                      <Badge className={getPriorityColor(schedule.priority)} variant="secondary">
-                        {schedule.priority}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>${schedule.estimatedCost.toLocaleString()}</TableCell>
-                    <TableCell>
-                      <Badge className={getStatusColor(schedule.status)} variant="secondary">
-                        {schedule.status}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => {
-                          setSelectedSchedule(schedule)
-                          setIsDetailsDialogOpen(true)
-                        }}
-                      >
-                        View Details
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
+        <CardContent className="p-0">
+          <DataGrid
+            data={upcomingSchedules}
+            columns={maintenanceColumns}
+            enableSearch={true}
+            searchPlaceholder="Search maintenance schedules..."
+            enablePagination={true}
+            pageSize={10}
+            emptyMessage="No upcoming maintenance scheduled"
+            className="border-0"
+          />
         </CardContent>
       </Card>
 
