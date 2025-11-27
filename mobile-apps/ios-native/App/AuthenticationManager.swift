@@ -20,6 +20,7 @@ class AuthenticationManager: ObservableObject {
 
     @Published var isAuthenticated = false
     @Published var currentUser: AuthenticationService.User?
+    @Published var userRole: UserRole = .driver
     @Published var isLoading = false
     @Published var errorMessage: String?
     @Published var isBiometricEnabled = false
@@ -131,9 +132,11 @@ class AuthenticationManager: ObservableObject {
             // Save user info
             try keychainManager.save(response.user.email, for: .userEmail)
             try keychainManager.save("\(response.user.id)", for: .userId)
+            try keychainManager.save(response.user.role, for: .userRole)
 
             // Update state
             currentUser = response.user
+            userRole = UserRole(rawValue: response.user.role.lowercased()) ?? .driver
             isAuthenticated = true
 
             // Start session monitoring
@@ -229,7 +232,16 @@ class AuthenticationManager: ObservableObject {
         // Clear state
         isAuthenticated = false
         currentUser = nil
+        userRole = .driver
         errorMessage = nil
+    }
+
+    // MARK: - Role Management
+
+    /// Update user role (for testing/debugging)
+    func updateRole(_ role: UserRole) {
+        userRole = role
+        try? keychainManager.save(role.rawValue, for: .userRole)
     }
 
     // MARK: - Token Management
@@ -318,6 +330,11 @@ class AuthenticationManager: ObservableObject {
         do {
             let user = try await authService.fetchUserProfile(token: token)
             currentUser = user
+            userRole = UserRole(rawValue: user.role.lowercased()) ?? .driver
+
+            // Save role to keychain
+            try? keychainManager.save(user.role, for: .userRole)
+
             isAuthenticated = true
         } catch {
             // Profile fetch failed - logout
@@ -437,15 +454,16 @@ extension AuthenticationManager {
 
     #if DEBUG
     /// Mock authentication for development/testing
-    func mockAuthentication() {
+    func mockAuthentication(role: UserRole = .admin) {
         isAuthenticated = true
         currentUser = AuthenticationService.User(
             id: 1,
             email: "dev@capitaltechalliance.com",
             name: "Development User",
-            role: "admin",
+            role: role.rawValue,
             organizationId: 1
         )
+        userRole = role
         errorMessage = nil
     }
     #endif
