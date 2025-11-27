@@ -263,11 +263,17 @@ struct PhotoCaptureView: View {
     }
 
     private func addCapturedPhoto(_ image: UIImage) {
+        // Add location from CameraManager if available
+        let locationString = cameraManager.currentLocation?.coordinate.latitude != nil ?
+            "\(cameraManager.currentLocation!.coordinate.latitude),\(cameraManager.currentLocation!.coordinate.longitude)" : nil
+
         let photo = CapturedPhoto(
             image: image,
             vehicleId: vehicleId,
             photoType: photoType,
-            timestamp: Date()
+            timestamp: Date(),
+            location: locationString,
+            notes: nil
         )
         capturedImages.append(photo)
         showingImagePreview = true
