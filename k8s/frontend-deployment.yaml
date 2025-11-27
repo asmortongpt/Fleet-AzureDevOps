@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: fleet-frontend
-  namespace: ctafleet
+  namespace: fleet-management
   labels:
     app: fleet
     component: frontend
@@ -36,7 +36,7 @@ spec:
       - name: frontend
         # SECURITY: Use specific version tags, update via CI/CD pipeline
         # To deploy new version: update tag below and apply manifest
-        image: fleetappregistry.azurecr.io/fleet-frontend:latest
+        image: fleetproductionacr.azurecr.io/fleet-frontend:latest
         imagePullPolicy: Always  # CRITICAL: Always pull latest for white screen fixes
         securityContext:
           allowPrivilegeEscalation: false
@@ -151,7 +151,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: fleet-frontend-service
-  namespace: ctafleet
+  namespace: fleet-management
   labels:
     app: fleet
     component: frontend
