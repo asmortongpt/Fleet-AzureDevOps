@@ -65,7 +65,7 @@ router.post(
         [
           req.user!.tenant_id,
           req.user!.id,
-          sessionData.title || 'New Chat',
+          sessionData.title || `New Chat`,
           JSON.stringify(sessionData.documentIds || []),
           sessionData.systemPrompt || getDefaultSystemPrompt(),
         ]
@@ -75,7 +75,7 @@ router.post(
         session: result.rows[0],
       })
     } catch (error: any) {
-      if (error.name === 'ZodError') {
+      if (error.name === `ZodError`) {
         return res.status(400).json({ error: 'Validation error', details: error.errors })
       }
       console.error('Create session error:', error)
@@ -115,8 +115,8 @@ router.get(
         sessions: result.rows,
       })
     } catch (error: any) {
-      console.error('Get sessions error:', error)
-      res.status(500).json({ error: 'Failed to get sessions', message: getErrorMessage(error) })
+      console.error(`Get sessions error:`, error)
+      res.status(500).json({ error: `Failed to get sessions`, message: getErrorMessage(error) })
     }
   }
 )
@@ -140,12 +140,12 @@ router.get(
       // Get session
       const sessionResult = await pool.query(
         `SELECT id, tenant_id, user_id, title, created_at, updated_at, closed_at FROM chat_sessions
-         WHERE id = $1 AND tenant_id = $2',
+         WHERE id = $1 AND tenant_id = $2`,
         [req.params.id, req.user!.tenant_id]
       )
 
       if (sessionResult.rows.length === 0) {
-        return res.status(404).json({ error: 'Session not found' })
+        return res.status(404).json({ error: `Session not found` })
       }
 
       // Get messages
@@ -161,8 +161,8 @@ router.get(
         messages: messagesResult.rows,
       })
     } catch (error: any) {
-      console.error('Get session error:', error)
-      res.status(500).json({ error: 'Failed to get session', message: getErrorMessage(error) })
+      console.error(`Get session error:`, error)
+      res.status(500).json({ error: `Failed to get session`, message: getErrorMessage(error) })
     }
   }
 )
@@ -184,15 +184,15 @@ router.delete(
   async (req: AuthRequest, res: Response) => {
     try {
       // Delete messages first
-      await pool.query('DELETE FROM chat_messages WHERE session_id = $1', [req.params.id])
+      await pool.query(`DELETE FROM chat_messages WHERE session_id = $1`, [req.params.id])
 
       // Delete session
       await pool.query(
-        'DELETE FROM chat_sessions WHERE id = $1 AND tenant_id = $2',
+        `DELETE FROM chat_sessions WHERE id = $1 AND tenant_id = $2`,
         [req.params.id, req.user!.tenant_id]
       )
 
-      res.json({ success: true, message: 'Session deleted' })
+      res.json({ success: true, message: `Session deleted` })
     } catch (error: any) {
       console.error('Delete session error:', error)
       res.status(500).json({ error: 'Failed to delete session', message: getErrorMessage(error) })
@@ -260,12 +260,12 @@ router.post(
       updated_at,
       last_message_at,
       is_active,
-      deleted_at FROM chat_sessions WHERE id = $1 AND tenant_id = $2',
+      deleted_at FROM chat_sessions WHERE id = $1 AND tenant_id = $2`,
         [chatData.sessionId, req.user!.tenant_id]
       )
 
       if (sessionResult.rows.length === 0) {
-        return res.status(404).json({ error: 'Session not found' })
+        return res.status(404).json({ error: `Session not found` })
       }
 
       const session = sessionResult.rows[0]
@@ -274,7 +274,7 @@ router.post(
       await pool.query(
         `INSERT INTO chat_messages (session_id, role, content, created_at)
          VALUES ($1, $2, $3, NOW())`,
-        [chatData.sessionId, 'user', chatData.message]
+        [chatData.sessionId, `user`, chatData.message]
       )
 
       // Get conversation history
@@ -284,14 +284,14 @@ router.post(
           `SELECT role, content FROM chat_messages
            WHERE session_id = $1
            ORDER BY created_at DESC
-           LIMIT $2',
+           LIMIT $2`,
           [chatData.sessionId, chatData.maxHistoryMessages]
         )
         conversationHistory = historyResult.rows.reverse()
       }
 
       // Search relevant documents
-      let relevantContext = '`
+      let relevantContext = ``
       let sources: any[] = []
 
       if (chatData.searchDocuments) {
@@ -317,7 +317,7 @@ router.post(
 
           sources = searchResults.map(r => ({
             documentId: r.id,
-            content: r.content.substring(0, 200) + '...',
+            content: r.content.substring(0, 200) + `...`,
             score: r.score,
             metadata: r.metadata,
           }))
@@ -368,7 +368,7 @@ router.post(
         ) VALUES ($1, $2, $3, $4, $5, $6, NOW())`,
         [
           chatData.sessionId,
-          'assistant',
+          `assistant`,
           aiResponse,
           JSON.stringify(sources),
           completion.model,
@@ -378,7 +378,7 @@ router.post(
 
       // Update session
       await pool.query(
-        'UPDATE chat_sessions SET updated_at = NOW() WHERE id = $1',
+        `UPDATE chat_sessions SET updated_at = NOW() WHERE id = $1`,
         [chatData.sessionId]
       )
 
@@ -393,8 +393,8 @@ router.post(
         },
       })
     } catch (error: any) {
-      if (error.name === 'ZodError') {
-        return res.status(400).json({ error: 'Validation error', details: error.errors })
+      if (error.name === `ZodError`) {
+        return res.status(400).json({ error: `Validation error', details: error.errors })
       }
       console.error('Chat error:', error)
       res.status(500).json({ error: 'Chat failed', message: getErrorMessage(error) })
@@ -484,11 +484,11 @@ router.post(
       // Build messages
       const messages: any[] = [
         {
-          role: 'system',
+          role: `system`,
           content: session.system_prompt || getDefaultSystemPrompt(),
         },
         {
-          role: 'user',
+          role: `user`,
           content: relevantContext
             ? `Context:\n${relevantContext}\n\nQuestion: ${chatData.message}`
             : chatData.message,
@@ -530,7 +530,7 @@ router.post(
       await pool.query(
         `INSERT INTO chat_messages (session_id, role, content, created_at)
          VALUES ($1, $2, $3, NOW()), ($1, $4, $5, NOW())`,
-        [chatData.sessionId, 'user', chatData.message, 'assistant', fullResponse]
+        [chatData.sessionId, `user`, chatData.message, `assistant`, fullResponse]
       )
 
       res.end()

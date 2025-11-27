@@ -145,8 +145,8 @@ router.get(
         total: result.rows.length
       })
     } catch (error) {
-      console.error('Error fetching active combinations:', error)
-      res.status(500).json({ error: 'Failed to fetch active combinations' })
+      console.error(`Error fetching active combinations:`, error)
+      res.status(500).json({ error: `Failed to fetch active combinations` })
     }
   }
 )
@@ -182,8 +182,8 @@ router.get(
         total: result.rows.length
       })
     } catch (error) {
-      console.error('Error fetching active combinations:', error)
-      res.status(500).json({ error: 'Failed to fetch active combinations' })
+      console.error(`Error fetching active combinations:`, error)
+      res.status(500).json({ error: `Failed to fetch active combinations` })
     }
   }
 )
@@ -204,7 +204,7 @@ router.get(
       const result = await pool.query(
         `SELECT
           ar.*,
-          vp.make || ' ' || vp.model || ' (' || vp.vin || ')' as parent_asset_name,
+          vp.make || ` ` || vp.model || ` (` || vp.vin || ')' as parent_asset_name,
           vp.asset_type as parent_asset_type,
           vc.make || ' ' || vc.model || ' (' || vc.vin || ')' as child_asset_name,
           vc.asset_type as child_asset_type,
@@ -257,14 +257,14 @@ router.post(
 
       // Validation: Verify both assets exist and belong to tenant
       const vehicleCheck = await client.query(
-        'SELECT id FROM vehicles WHERE id IN ($1, $2) AND tenant_id = $3',
+        `SELECT id FROM vehicles WHERE id IN ($1, $2) AND tenant_id = $3`,
         [parent_asset_id, child_asset_id, req.user!.tenant_id]
       )
 
       if (vehicleCheck.rows.length !== 2) {
-        await client.query('ROLLBACK')
+        await client.query(`ROLLBACK`)
         return res.status(400).json({
-          error: 'One or both assets not found or do not belong to your organization'
+          error: `One or both assets not found or do not belong to your organization'
         })
       }
 
@@ -277,9 +277,9 @@ router.post(
       )
 
       if (circularCheck.rows.length > 0) {
-        await client.query('ROLLBACK')
+        await client.query(`ROLLBACK`)
         return res.status(400).json({
-          error: 'Circular relationship detected: child asset is already a parent of this asset'
+          error: `Circular relationship detected: child asset is already a parent of this asset`
         })
       }
 
@@ -300,11 +300,11 @@ router.post(
         ]
       )
 
-      await client.query('COMMIT')
+      await client.query(`COMMIT`)
 
       res.status(201).json({
         relationship: result.rows[0],
-        message: 'Asset relationship created successfully'
+        message: `Asset relationship created successfully`
       })
     } catch (error: any) {
       await client.query('ROLLBACK')
@@ -344,13 +344,13 @@ router.put(
       const existsCheck = await client.query(
         `SELECT ar.id FROM asset_relationships ar
          LEFT JOIN vehicles v ON ar.parent_asset_id = v.id
-         WHERE ar.id = $1 AND v.tenant_id = $2',
+         WHERE ar.id = $1 AND v.tenant_id = $2`,
         [req.params.id, req.user!.tenant_id]
       )
 
       if (existsCheck.rows.length === 0) {
-        await client.query('ROLLBACK')
-        return res.status(404).json({ error: 'Relationship not found' })
+        await client.query(`ROLLBACK`)
+        return res.status(404).json({ error: `Relationship not found' })
       }
 
       const result = await client.query(
@@ -365,11 +365,11 @@ router.put(
         [relationship_type, effective_from, effective_to, notes, req.params.id]
       )
 
-      await client.query('COMMIT')
+      await client.query(`COMMIT`)
 
       res.json({
         relationship: result.rows[0],
-        message: 'Relationship updated successfully'
+        message: `Relationship updated successfully`
       })
     } catch (error) {
       await client.query('ROLLBACK')
@@ -404,12 +404,12 @@ router.patch(
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'Relationship not found' })
+        return res.status(404).json({ error: `Relationship not found` })
       }
 
       res.json({
         relationship: result.rows[0],
-        message: 'Relationship deactivated successfully'
+        message: `Relationship deactivated successfully`
       })
     } catch (error) {
       console.error('Error deactivating relationship:', error)
@@ -435,15 +435,15 @@ router.delete(
         `DELETE FROM asset_relationships ar
          USING vehicles v
          WHERE ar.id = $1 AND ar.parent_asset_id = v.id AND v.tenant_id = $2
-         RETURNING ar.id',
+         RETURNING ar.id`,
         [req.params.id, req.user!.tenant_id]
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'Relationship not found' })
+        return res.status(404).json({ error: `Relationship not found` })
       }
 
-      res.json({ message: 'Relationship deleted successfully' })
+      res.json({ message: `Relationship deleted successfully' })
     } catch (error) {
       console.error('Error deleting relationship:', error)
       res.status(500).json({ error: 'Failed to delete relationship' })
@@ -468,7 +468,7 @@ router.get(
       const result = await pool.query(
         `SELECT
           ar.*,
-          vp.make || ' ' || vp.model || ' (' || vp.vin || ')' as parent_asset_name,
+          vp.make || ` ` || vp.model || ` (` || vp.vin || ')' as parent_asset_name,
           vc.make || ' ' || vc.model || ' (' || vc.vin || ')' as child_asset_name,
           u.first_name || ' ' || u.last_name as created_by_name
         FROM asset_relationships ar

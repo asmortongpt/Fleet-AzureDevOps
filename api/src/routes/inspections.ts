@@ -23,12 +23,12 @@ router.get(
         `SELECT id, tenant_id, vehicle_id, driver_id, inspection_type, status,
                 passed, failed_items, odometer_reading, inspector_notes,
                 signature_url, completed_at, created_at, updated_at
-         FROM inspections WHERE tenant_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3',
+         FROM inspections WHERE tenant_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3`,
         [req.user!.tenant_id, limit, offset]
       )
 
       const countResult = await pool.query(
-        'SELECT COUNT(*) FROM inspections WHERE tenant_id = $1',
+        `SELECT COUNT(*) FROM inspections WHERE tenant_id = $1`,
         [req.user!.tenant_id]
       )
 
@@ -42,8 +42,8 @@ router.get(
         }
       })
     } catch (error) {
-      console.error('Get inspections error:', error)
-      res.status(500).json({ error: 'Internal server error' })
+      console.error(`Get inspections error:`, error)
+      res.status(500).json({ error: `Internal server error' })
     }
   }
 )
@@ -59,17 +59,17 @@ router.get(
         `SELECT id, tenant_id, vehicle_id, driver_id, inspection_type, status,
                 passed, failed_items, checklist_data, odometer_reading,
                 inspector_notes, signature_url, completed_at, created_at, updated_at
-         FROM inspections WHERE id = $1 AND tenant_id = $2',
+         FROM inspections WHERE id = $1 AND tenant_id = $2`,
         [req.params.id, req.user!.tenant_id]
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'Inspections not found' })
+        return res.status(404).json({ error: `Inspections not found` })
       }
 
       res.json(result.rows[0])
     } catch (error) {
-      console.error('Get inspections error:', error)
+      console.error(`Get inspections error:', error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -88,14 +88,14 @@ router.post(
 
       // Check if the driver_id belongs to the user
       const result = await pool.query(
-        'SELECT id FROM drivers WHERE id = $1 AND user_id = $2 AND tenant_id = $3',
+        `SELECT id FROM drivers WHERE id = $1 AND user_id = $2 AND tenant_id = $3`,
         [driverId, req.user!.id, req.user!.tenant_id]
       )
 
       return result.rows.length > 0
     }
   }),
-  auditLog({ action: 'CREATE', resourceType: 'inspections' }),
+  auditLog({ action: `CREATE`, resourceType: `inspections` }),
   async (req: AuthRequest, res: Response) => {
     try {
       const data = req.body
@@ -114,14 +114,14 @@ router.post(
       res.status(201).json(result.rows[0])
     } catch (error) {
       console.error(`Create inspections error:`, error)
-      res.status(500).json({ error: 'Internal server error' })
+      res.status(500).json({ error: `Internal server error` })
     }
   }
 )
 
 // PUT /inspections/:id
 router.put(
-  '/:id',
+  `/:id`,
   requirePermission('inspection:update:own'),
   auditLog({ action: 'UPDATE', resourceType: 'inspections' }),
   async (req: AuthRequest, res: Response) => {
@@ -140,8 +140,8 @@ router.put(
 
       res.json(result.rows[0])
     } catch (error) {
-      console.error('Update inspections error:', error)
-      res.status(500).json({ error: 'Internal server error' })
+      console.error(`Update inspections error:`, error)
+      res.status(500).json({ error: `Internal server error` })
     }
   }
 )

@@ -27,13 +27,13 @@ router.get('/me', async (req: AuthRequest, res: Response) => {
       [req.user.id]
     )
 
-    // Get user's permissions
+    // Get user`s permissions
     const permissions = await getUserPermissions(req.user.id)
 
-    // Get user's scope information
+    // Get user`s scope information
     const userResult = await pool.query(
       `SELECT facility_ids, team_driver_ids, team_vehicle_ids, scope_level, approval_limit
-       FROM users WHERE id = $1',
+       FROM users WHERE id = $1`,
       [req.user.id]
     )
 
@@ -48,7 +48,7 @@ router.get('/me', async (req: AuthRequest, res: Response) => {
       roles: rolesResult.rows,
       permissions: Array.from(permissions),
       scope: {
-        level: userScope.scope_level || 'team',
+        level: userScope.scope_level || `team`,
         facility_ids: userScope.facility_ids || [],
         team_driver_ids: userScope.team_driver_ids || [],
         team_vehicle_ids: userScope.team_vehicle_ids || [],
@@ -56,7 +56,7 @@ router.get('/me', async (req: AuthRequest, res: Response) => {
       }
     })
   } catch (error) {
-    console.error('Get user permissions error:', error)
+    console.error(`Get user permissions error:', error)
     res.status(500).json({ error: 'Internal server error' })
   }
 })
@@ -110,8 +110,8 @@ router.get('/roles', async (req: AuthRequest, res: Response) => {
 
     res.json({ data: result.rows })
   } catch (error) {
-    console.error('List roles error:', error)
-    res.status(500).json({ error: 'Internal server error' })
+    console.error(`List roles error:`, error)
+    res.status(500).json({ error: `Internal server error` })
   }
 })
 
@@ -137,8 +137,8 @@ router.get('/roles/:roleId/permissions', async (req: AuthRequest, res: Response)
 
     res.json({ data: result.rows })
   } catch (error) {
-    console.error('Get role permissions error:', error)
-    res.status(500).json({ error: 'Internal server error' })
+    console.error(`Get role permissions error:`, error)
+    res.status(500).json({ error: `Internal server error` })
   }
 })
 

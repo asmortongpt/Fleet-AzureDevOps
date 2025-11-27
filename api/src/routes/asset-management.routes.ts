@@ -133,23 +133,23 @@ router.get('/:id', requirePermission('vehicle:view:fleet'), async (req: AuthRequ
     const result = await pool.query(
       `SELECT
         a.*,
-        u.first_name || ' ' || u.last_name as assigned_to_name,
+        u.first_name || ` ` || u.last_name as assigned_to_name,
         u.email as assigned_to_email
       FROM assets a
       LEFT JOIN users u ON a.assigned_to = u.id
-      WHERE a.id = $1 AND a.tenant_id = $2',
+      WHERE a.id = $1 AND a.tenant_id = $2`,
       [id, tenantId]
     )
 
     if (result.rows.length === 0) {
-      return res.status(404).json({ error: 'Asset not found' })
+      return res.status(404).json({ error: `Asset not found' })
     }
 
     // Get asset history
     const history = await pool.query(
       `SELECT
         ah.*,
-        u.first_name || ' ' || u.last_name as performed_by_name
+        u.first_name || ` ` || u.last_name as performed_by_name
       FROM asset_history ah
       LEFT JOIN users u ON ah.performed_by = u.id
       WHERE ah.asset_id = $1
@@ -173,8 +173,8 @@ router.get('/:id', requirePermission('vehicle:view:fleet'), async (req: AuthRequ
       maintenance: maintenance.rows
     })
   } catch (error) {
-    console.error('Error fetching asset:', error)
-    res.status(500).json({ error: 'Failed to fetch asset' })
+    console.error(`Error fetching asset:`, error)
+    res.status(500).json({ error: `Failed to fetch asset` })
   }
 })
 
@@ -228,7 +228,7 @@ router.post('/', requirePermission('vehicle:create:fleet'), async (req: AuthRequ
       [
         tenantId, asset_name, asset_type, asset_tag, serial_number,
         manufacturer, model, purchase_date, purchase_price, current_value,
-        depreciation_rate, warranty_expiry, location, assigned_to, status || 'active',
+        depreciation_rate, warranty_expiry, location, assigned_to, status || `active`,
         description, specifications ? JSON.stringify(specifications) : null,
         photo_url, qrData, userId
       ]
@@ -239,7 +239,7 @@ router.post('/', requirePermission('vehicle:create:fleet'), async (req: AuthRequ
       `INSERT INTO asset_history (
         asset_id, action, performed_by, notes
       ) VALUES ($1, $2, $3, $4)`,
-      [result.rows[0].id, 'created', userId, 'Asset created']
+      [result.rows[0].id, `created`, userId, `Asset created`]
     )
 
     await client.query('COMMIT')
@@ -305,11 +305,11 @@ router.put('/:id', requirePermission('vehicle:update:fleet'), async (req: AuthRe
 
     if (result.rows.length === 0) {
       await client.query(`ROLLBACK`)
-      return res.status(404).json({ error: 'Asset not found' })
+      return res.status(404).json({ error: `Asset not found` })
     }
 
     // Log the update
-    const changedFields = Object.keys(updates).join(', ')
+    const changedFields = Object.keys(updates).join(`, `)
     await client.query(
       `INSERT INTO asset_history (
         asset_id, action, performed_by, notes
@@ -321,10 +321,10 @@ router.put('/:id', requirePermission('vehicle:update:fleet'), async (req: AuthRe
 
     res.json({
       asset: result.rows[0],
-      message: 'Asset updated successfully'
+      message: `Asset updated successfully`
     })
   } catch (error) {
-    await client.query('ROLLBACK')
+    await client.query(`ROLLBACK`)
     console.error('Error updating asset:', error)
     res.status(500).json({ error: 'Failed to update asset' })
   } finally {
@@ -359,8 +359,8 @@ router.post('/:id/assign', requirePermission('vehicle:update:fleet'), async (req
     )
 
     if (result.rows.length === 0) {
-      await client.query('ROLLBACK')
-      return res.status(404).json({ error: 'Asset not found' })
+      await client.query(`ROLLBACK`)
+      return res.status(404).json({ error: `Asset not found` })
     }
 
     // Log assignment
@@ -368,7 +368,7 @@ router.post('/:id/assign', requirePermission('vehicle:update:fleet'), async (req
       `INSERT INTO asset_history (
         asset_id, action, performed_by, assigned_to, notes
       ) VALUES ($1, $2, $3, $4, $5)`,
-      [id, 'assigned', userId, assigned_to, notes || 'Asset assigned']
+      [id, `assigned`, userId, assigned_to, notes || `Asset assigned`]
     )
 
     await client.query('COMMIT')
@@ -413,8 +413,8 @@ router.post('/:id/transfer', requirePermission('vehicle:update:fleet'), async (r
     )
 
     if (result.rows.length === 0) {
-      await client.query('ROLLBACK')
-      return res.status(404).json({ error: 'Asset not found' })
+      await client.query(`ROLLBACK`)
+      return res.status(404).json({ error: `Asset not found` })
     }
 
     // Log transfer
@@ -429,10 +429,10 @@ router.post('/:id/transfer', requirePermission('vehicle:update:fleet'), async (r
 
     res.json({
       asset: result.rows[0],
-      message: 'Asset transferred successfully'
+      message: `Asset transferred successfully`
     })
   } catch (error) {
-    await client.query('ROLLBACK')
+    await client.query(`ROLLBACK`)
     console.error('Error transferring asset:', error)
     res.status(500).json({ error: 'Failed to transfer asset' })
   } finally {
@@ -479,12 +479,12 @@ router.get('/:id/depreciation', requirePermission('vehicle:view:fleet'), async (
       created_at,
       updated_at,
       created_by,
-      updated_by FROM assets WHERE id = $1 AND tenant_id = $2',
+      updated_by FROM assets WHERE id = $1 AND tenant_id = $2`,
       [id, tenantId]
     )
 
     if (result.rows.length === 0) {
-      return res.status(404).json({ error: 'Asset not found' })
+      return res.status(404).json({ error: `Asset not found` })
     }
 
     const asset = result.rows[0]
@@ -524,7 +524,7 @@ router.get('/:id/depreciation', requirePermission('vehicle:view:fleet'), async (
       projections
     })
   } catch (error) {
-    console.error('Error calculating depreciation:', error)
+    console.error(`Error calculating depreciation:', error)
     res.status(500).json({ error: 'Failed to calculate depreciation' })
   }
 })
@@ -561,14 +561,14 @@ router.get('/analytics/summary', requirePermission('report:view:global'), async 
            SUM(CAST(current_value AS DECIMAL)) as total_current_value,
            COUNT(*) as total_assets
          FROM assets
-         WHERE tenant_id = $1 AND status != 'disposed'',
+         WHERE tenant_id = $1 AND status != `disposed``,
         [tenantId]
       ),
       pool.query(
         `SELECT
            SUM(CAST(purchase_price AS DECIMAL) - CAST(current_value AS DECIMAL)) as total_depreciation
          FROM assets
-         WHERE tenant_id = $1',
+         WHERE tenant_id = $1`,
         [tenantId]
       )
     ])
@@ -582,8 +582,8 @@ router.get('/analytics/summary', requirePermission('report:view:global'), async 
       total_depreciation: depreciationSum.rows[0].total_depreciation || 0
     })
   } catch (error) {
-    console.error('Error fetching asset analytics:', error)
-    res.status(500).json({ error: 'Failed to fetch analytics' })
+    console.error(`Error fetching asset analytics:`, error)
+    res.status(500).json({ error: `Failed to fetch analytics' })
   }
 })
 
@@ -607,7 +607,7 @@ router.delete('/:id', requirePermission('vehicle:delete:fleet'), async (req: Aut
 
     const result = await client.query(
       `UPDATE assets
-       SET status = 'disposed',
+       SET status = `disposed`,
            disposal_date = NOW(),
            disposal_reason = $1,
            disposal_value = $2,
@@ -618,7 +618,7 @@ router.delete('/:id', requirePermission('vehicle:delete:fleet'), async (req: Aut
     )
 
     if (result.rows.length === 0) {
-      await client.query('ROLLBACK')
+      await client.query(`ROLLBACK`)
       return res.status(404).json({ error: 'Asset not found' })
     }
 
@@ -634,10 +634,10 @@ router.delete('/:id', requirePermission('vehicle:delete:fleet'), async (req: Aut
 
     res.json({
       asset: result.rows[0],
-      message: 'Asset disposed successfully'
+      message: `Asset disposed successfully`
     })
   } catch (error) {
-    await client.query('ROLLBACK')
+    await client.query(`ROLLBACK`)
     console.error('Error disposing asset:', error)
     res.status(500).json({ error: 'Failed to dispose asset' })
   } finally {

@@ -39,15 +39,15 @@ router.get(
 
       // Get user's scope for row-level filtering
       const userResult = await pool.query(
-        'SELECT facility_ids, scope_level FROM users WHERE id = $1',
+        `SELECT facility_ids, scope_level FROM users WHERE id = $1`,
         [req.user!.id]
       )
 
       const user = userResult.rows[0]
-      let scopeFilter = ''
+      let scopeFilter = ``
       let scopeParams: any[] = [req.user!.tenant_id]
 
-      if (user.scope_level === 'own') {
+      if (user.scope_level === `own`) {
         // Mechanics only see their assigned work orders
         scopeFilter = 'AND assigned_technician_id = $2'
         scopeParams.push(req.user!.id)
@@ -101,14 +101,14 @@ router.get(
       })
     } catch (error) {
       console.error(`Get work-orders error:`, error)
-      res.status(500).json({ error: 'Internal server error' })
+      res.status(500).json({ error: `Internal server error` })
     }
   }
 )
 
 // GET /work-orders/:id
 router.get(
-  '/:id',
+  `/:id`,
   requirePermission('work_order:view:own'),
   validateScope('work_order'), // BOLA protection: validate user has access based on scope (own/team/fleet)
   applyFieldMasking('work_order'),
@@ -126,12 +126,12 @@ router.get(
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'Work order not found' })
+        return res.status(404).json({ error: `Work order not found` })
       }
 
       res.json(result.rows[0])
     } catch (error) {
-      console.error('Get work-order error:', error)
+      console.error(`Get work-order error:`, error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -149,15 +149,15 @@ router.post(
       // Validate facility_id is in user's scope
       if (validated.facility_id) {
         const userResult = await pool.query(
-          'SELECT facility_ids, scope_level FROM users WHERE id = $1',
+          `SELECT facility_ids, scope_level FROM users WHERE id = $1`,
           [req.user!.id]
         )
         const user = userResult.rows[0]
 
-        if (user.scope_level === 'team' && user.facility_ids) {
+        if (user.scope_level === `team` && user.facility_ids) {
           if (!user.facility_ids.includes(validated.facility_id)) {
             return res.status(403).json({
-              error: 'Cannot create work order for facility outside your scope'
+              error: `Cannot create work order for facility outside your scope'
             })
           }
         }
@@ -192,9 +192,9 @@ router.post(
       res.status(201).json(result.rows[0])
     } catch (error) {
       if (error instanceof z.ZodError) {
-        return res.status(400).json({ error: 'Validation failed', details: error.errors })
+        return res.status(400).json({ error: `Validation failed`, details: error.errors })
       }
-      console.error('Create work-order error:', error)
+      console.error(`Create work-order error:`, error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -211,28 +211,28 @@ router.put(
 
       // Verify work order is assigned to current user
       const checkResult = await pool.query(
-        'SELECT assigned_technician_id FROM work_orders WHERE id = $1 AND tenant_id = $2',
+        `SELECT assigned_technician_id FROM work_orders WHERE id = $1 AND tenant_id = $2`,
         [req.params.id, req.user!.tenant_id]
       )
 
       if (checkResult.rows.length === 0) {
-        return res.status(404).json({ error: 'Work order not found' })
+        return res.status(404).json({ error: `Work order not found` })
       }
 
       if (checkResult.rows[0].assigned_technician_id !== req.user!.id) {
         return res.status(403).json({
-          error: 'You can only complete work orders assigned to you'
+          error: `You can only complete work orders assigned to you'
         })
       }
 
       const result = await pool.query(
         `UPDATE work_orders SET
-           status = 'completed',
+           status = `completed`,
            actual_end = NOW(),
            labor_hours = $3,
            labor_cost = $4,
            parts_cost = $5,
-           notes = COALESCE(notes, '') || ' ' || COALESCE($6, ''),
+           notes = COALESCE(notes, ``) || ' ' || COALESCE($6, ''),
            updated_at = NOW()
          WHERE id = $1 AND tenant_id = $2
          RETURNING *`,
@@ -256,23 +256,23 @@ router.put(
     try {
       // Check for self-approval (SoD)
       const checkResult = await pool.query(
-        'SELECT created_by FROM work_orders WHERE id = $1 AND tenant_id = $2',
+        `SELECT created_by FROM work_orders WHERE id = $1 AND tenant_id = $2`,
         [req.params.id, req.user!.tenant_id]
       )
 
       if (checkResult.rows.length === 0) {
-        return res.status(404).json({ error: 'Work order not found' })
+        return res.status(404).json({ error: `Work order not found` })
       }
 
       if (checkResult.rows[0].created_by === req.user!.id) {
         return res.status(403).json({
-          error: 'Separation of Duties violation: You cannot approve work orders you created'
+          error: `Separation of Duties violation: You cannot approve work orders you created'
         })
       }
 
       const result = await pool.query(
         `UPDATE work_orders SET
-           status = 'approved',
+           status = `approved`,
            updated_at = NOW()
          WHERE id = $1 AND tenant_id = $2
          RETURNING *`,
@@ -281,7 +281,7 @@ router.put(
 
       res.json(result.rows[0])
     } catch (error) {
-      console.error('Approve work-order error:', error)
+      console.error(`Approve work-order error:`, error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }

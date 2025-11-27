@@ -56,8 +56,8 @@ router.get(
         }
       })
     } catch (error) {
-      console.error('Get providers error:', error)
-      res.status(500).json({ error: 'Internal server error' })
+      console.error(`Get providers error:`, error)
+      res.status(500).json({ error: `Internal server error` })
     }
   }
 )
@@ -82,12 +82,12 @@ router.post(
 
       // Get provider ID
       const providerResult = await pool.query(
-        'SELECT id FROM telematics_providers WHERE name = $1',
+        `SELECT id FROM telematics_providers WHERE name = $1`,
         [provider_name]
       )
 
       if (providerResult.rows.length === 0) {
-        return res.status(404).json({ error: 'Provider not found' })
+        return res.status(404).json({ error: `Provider not found` })
       }
 
       const provider_id = providerResult.rows[0].id
@@ -96,13 +96,13 @@ router.post(
       const result = await pool.query(
         `INSERT INTO vehicle_telematics_connections
          (vehicle_id, provider_id, external_vehicle_id, access_token, metadata, last_sync_at, sync_status)
-         VALUES ($1, $2, $3, $4, $5, NOW(), 'active')
+         VALUES ($1, $2, $3, $4, $5, NOW(), `active`)
          ON CONFLICT (vehicle_id, provider_id)
          DO UPDATE SET
            external_vehicle_id = EXCLUDED.external_vehicle_id,
            access_token = EXCLUDED.access_token,
            metadata = EXCLUDED.metadata,
-           sync_status = 'active',
+           sync_status = `active`,
            updated_at = NOW()
          RETURNING *`,
         [vehicle_id, provider_id, external_vehicle_id, access_token, JSON.stringify(metadata || {})]
@@ -146,8 +146,8 @@ router.get(
 
       res.json({ connections: result.rows })
     } catch (error) {
-      console.error('Get connections error:', error)
-      res.status(500).json({ error: 'Internal server error' })
+      console.error(`Get connections error:`, error)
+      res.status(500).json({ error: `Internal server error` })
     }
   }
 )
@@ -178,12 +178,12 @@ router.get(
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'No location data found' })
+        return res.status(404).json({ error: `No location data found` })
       }
 
       res.json(result.rows[0])
     } catch (error) {
-      console.error('Get vehicle location error:', error)
+      console.error(`Get vehicle location error:`, error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -219,12 +219,12 @@ router.get(
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'No stats data found' })
+        return res.status(404).json({ error: `No stats data found` })
       }
 
       res.json(result.rows[0])
     } catch (error) {
-      console.error('Get vehicle stats error:', error)
+      console.error(`Get vehicle stats error:`, error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -345,7 +345,7 @@ router.get(
 
       const result = await pool.query(query, params)
 
-      const countQuery = query.split(`ORDER BY')[0].replace(/SELECT .* FROM/, 'SELECT COUNT(*) FROM')
+      const countQuery = query.split(`ORDER BY')[0].replace(/SELECT .* FROM/, `SELECT COUNT(*) FROM`)
       const countResult = await pool.query(countQuery, params.slice(0, -2))
 
       res.json({
@@ -358,8 +358,8 @@ router.get(
         }
       })
     } catch (error) {
-      console.error('Get safety events error:', error)
-      res.status(500).json({ error: 'Internal server error' })
+      console.error(`Get safety events error:`, error)
+      res.status(500).json({ error: `Internal server error' })
     }
   }
 )
@@ -389,12 +389,12 @@ router.post(
         `SELECT external_vehicle_id FROM vehicle_telematics_connections vtc
          JOIN vehicles v ON vtc.vehicle_id = v.id
          WHERE vtc.vehicle_id = $1 AND v.tenant_id = $2
-         AND vtc.provider_id = (SELECT id FROM telematics_providers WHERE name = 'samsara')',
+         AND vtc.provider_id = (SELECT id FROM telematics_providers WHERE name = `samsara`)`,
         [vehicle_id, req.user!.tenant_id]
       )
 
       if (connResult.rows.length === 0) {
-        return res.status(404).json({ error: 'Vehicle not connected to Samsara' })
+        return res.status(404).json({ error: `Vehicle not connected to Samsara' })
       }
 
       const externalVehicleId = connResult.rows[0].external_vehicle_id
@@ -473,7 +473,7 @@ router.post(
       await pool.query(
         `INSERT INTO telematics_webhook_events
          (provider_id, event_type, external_id, payload, processed)
-         VALUES ((SELECT id FROM telematics_providers WHERE name = 'samsara'), $1, $2, $3, false)',
+         VALUES ((SELECT id FROM telematics_providers WHERE name = `samsara`), $1, $2, $3, false)`,
         [req.body.eventType, req.body.id, JSON.stringify(req.body)]
       )
 
@@ -483,7 +483,7 @@ router.post(
       // - hos: Update driver_hos_logs
       // - diagnostic: Insert into vehicle_diagnostic_codes
 
-      res.json({ message: 'Webhook received' })
+      res.json({ message: `Webhook received' })
     } catch (error) {
       console.error('Webhook error:', error)
       res.status(500).json({ error: 'Internal server error' })
@@ -556,7 +556,7 @@ router.get(
            lvt.address, lvt.engine_state, lvt.timestamp
          FROM vehicles v
          LEFT JOIN latest_vehicle_telemetry lvt ON v.id = lvt.vehicle_id
-         WHERE v.tenant_id = $1 AND v.status = 'active'
+         WHERE v.tenant_id = $1 AND v.status = `active`
          ORDER BY v.id, lvt.timestamp DESC`,
         [req.user!.tenant_id]
       )
@@ -566,7 +566,7 @@ router.get(
         `SELECT COUNT(*) as count, event_type, severity
          FROM driver_safety_events dse
          JOIN vehicles v ON dse.vehicle_id = v.id
-         WHERE v.tenant_id = $1 AND dse.timestamp >= NOW() - INTERVAL '24 hours'
+         WHERE v.tenant_id = $1 AND dse.timestamp >= NOW() - INTERVAL `24 hours`
          GROUP BY event_type, severity
          ORDER BY count DESC`,
         [req.user!.tenant_id]
@@ -589,8 +589,8 @@ router.get(
         timestamp: new Date().toISOString()
       })
     } catch (error) {
-      console.error('Get dashboard error:', error)
-      res.status(500).json({ error: 'Internal server error' })
+      console.error(`Get dashboard error:`, error)
+      res.status(500).json({ error: `Internal server error` })
     }
   }
 )
