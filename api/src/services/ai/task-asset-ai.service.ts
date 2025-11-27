@@ -88,7 +88,7 @@ ${idx + 1}. ${t.task_title}
    - Priority: ${t.priority}
    - Time taken: ${t.actual_hours || `N/A`} hours
    - Status: ${t.status}
-`).join('\n')}
+`).join(`\n`)}
 
 Based on this information, provide:
 1. Suggested priority level (low, medium, high, critical)
@@ -168,7 +168,7 @@ ${users.rows.map(u => `
   Active tasks: ${u.active_tasks}
   Average completion time: ${u.avg_completion_time || `N/A`} hours
   Similar tasks completed: ${u.similar_task_count}
-`).join('\n')}
+`).join(`\n`)}
 
 Recommend the top 3 assignees with:
 1. User ID
@@ -356,7 +356,7 @@ Priority: ${taskData.priority}
 Estimated Hours: ${taskData.estimated_hours || 'Unknown'}
 
 Current Subtasks:
-${subtasks.rows.map(st => `- ${st.task_title} (${st.status})`).join('\n') || 'None'}
+${subtasks.rows.map(st => `- ${st.task_title} (${st.status})`).join(`\n`) || 'None'}
 
 Suggest:
 1. Next actionable steps (in order)

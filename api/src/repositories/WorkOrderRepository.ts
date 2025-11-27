@@ -243,7 +243,7 @@ export class WorkOrderRepository extends BaseRepository<WorkOrder> {
     const query = `
       SELECT ${columns} FROM ${this.tableName}
       WHERE tenant_id = $1
-        AND status IN (`open', 'in_progress')
+        AND status IN (`open`, 'in_progress')
         AND deleted_at IS NULL
       ORDER BY priority DESC, created_at ASC
     `;
@@ -260,7 +260,7 @@ export class WorkOrderRepository extends BaseRepository<WorkOrder> {
     const query = `
       SELECT ${columns} FROM ${this.tableName}
       WHERE tenant_id = $1
-        AND status IN (`open', 'in_progress')
+        AND status IN (`open`, 'in_progress')
         AND scheduled_end_date < NOW()
         AND deleted_at IS NULL
       ORDER BY scheduled_end_date ASC
@@ -566,7 +566,7 @@ export class WorkOrderRepository extends BaseRepository<WorkOrder> {
   ): Promise<number> {
     if (workOrderIds.length === 0) return 0;
 
-    const idPlaceholders = workOrderIds.map((_, idx) => `$${3 + idx}').join(', ');
+    const idPlaceholders = workOrderIds.map((_, idx) => `$${3 + idx}`).join(', ');
 
     const query = `
       UPDATE ${this.tableName}

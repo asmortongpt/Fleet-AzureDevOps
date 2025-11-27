@@ -137,10 +137,10 @@ router.get('/', requirePermission('report:view:global'), async (req: AuthRequest
 
     query += ` ORDER BY
       CASE a.severity
-        WHEN `emergency` THEN 1
+        WHEN 'emergency' THEN 1
         WHEN 'critical' THEN 2
         WHEN 'warning' THEN 3
-        WHEN `info` THEN 4
+        WHEN 'info' THEN 4
       END,
       a.created_at DESC
       LIMIT $${paramCount + 1}`
@@ -193,7 +193,7 @@ router.get('/stats', requirePermission('report:view:global'), async (req: AuthRe
       pool.query(
         `SELECT severity, COUNT(*) as count
          FROM alerts
-         WHERE tenant_id = $1 AND created_at >= NOW() - INTERVAL `7 days`
+         WHERE tenant_id = $1 AND created_at >= NOW() - INTERVAL '7 days'
          GROUP BY severity`,
         [tenantId]
       ),
@@ -202,7 +202,7 @@ router.get('/stats', requirePermission('report:view:global'), async (req: AuthRe
         `SELECT COUNT(*) as count
          FROM alerts
          WHERE tenant_id = $1
-         AND status IN (`pending`, `sent`)
+         AND status IN ('pending', 'sent')
          AND severity IN ('critical', 'emergency')',
         [tenantId]
       ),
@@ -211,7 +211,7 @@ router.get('/stats', requirePermission('report:view:global'), async (req: AuthRe
         `SELECT
            DATE(created_at) as date,
            COUNT(*) as count,
-           COUNT(*) FILTER (WHERE severity IN (`critical`, `emergency`)) as critical_count
+           COUNT(*) FILTER (WHERE severity IN ('critical', 'emergency')) as critical_count
          FROM alerts
          WHERE tenant_id = $1
          AND created_at >= NOW() - INTERVAL '7 days'
@@ -266,7 +266,7 @@ router.post('/:id/acknowledge', requirePermission('report:view:global'), async (
 
     const result = await pool.query(
       `UPDATE alerts
-       SET status = `acknowledged`,
+       SET status = 'acknowledged',
            acknowledged_at = NOW(),
            acknowledged_by = $1,
            updated_at = NOW()
@@ -333,7 +333,7 @@ router.post('/:id/resolve', requirePermission('report:view:global'), async (req:
 
     const result = await pool.query(
       `UPDATE alerts
-       SET status = `resolved`,
+       SET status = 'resolved',
            resolved_at = NOW(),
            resolved_by = $1,
            resolution_notes = $2,
@@ -545,7 +545,7 @@ router.put('/rules/:id', requirePermission('report:generate:global'), async (req
 
     const allowedFields = [
       'rule_name', 'rule_type', 'conditions', 'severity',
-      'channels', 'recipients', 'is_enabled`, `cooldown_minutes`
+      'channels', 'recipients', 'is_enabled', 'cooldown_minutes'
     ]
 
     Object.keys(updates).forEach(key => {
@@ -632,7 +632,7 @@ router.delete('/rules/:id', requirePermission('report:generate:global'), async (
     }
 
     res.json({
-      message: `Alert rule deleted successfully'
+      message: 'Alert rule deleted successfully'
     })
   } catch (error) {
     console.error('Error deleting alert rule:', error)
@@ -792,7 +792,7 @@ router.post('/notifications/read-all', requirePermission('report:view:global'), 
       count: result.rows.length
     })
   } catch (error) {
-    console.error(`Error marking all notifications as read:', error)
+    console.error('Error marking all notifications as read:', error)
     res.status(500).json({ error: 'Failed to mark all notifications as read' })
   }
 })

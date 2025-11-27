@@ -43,7 +43,7 @@ describe('Vehicle History Routes', () => {
       `INSERT INTO vehicles (tenant_id, unit_number, make, model, year, vin, status)
        VALUES ($1, $2, $3, $4, $5, $6, $7)
        RETURNING id`,
-      [`1`, `TEST-001', 'Ford', 'F-150', 2023, 'TEST123VIN', 'active']
+      ['1`, `TEST-001', 'Ford', 'F-150', 2023, 'TEST123VIN', 'active']
     );
     testVehicleId = vehicleResult.rows[0].id;
 
@@ -58,7 +58,7 @@ describe('Vehicle History Routes', () => {
       [
         `1`,
         testVehicleId,
-        new Date(`2024-01-01T08:00:00Z'),
+        new Date('2024-01-01T08:00:00Z'),
         new Date('2024-01-01T09:30:00Z'),
         39.8283,
         -98.5795,
@@ -118,7 +118,7 @@ describe('Vehicle History Routes', () => {
     await pool.end();
   });
 
-  describe(`GET /api/v1/vehicles/:id/location-history', () => {
+  describe('GET /api/v1/vehicles/:id/location-history', () => {
     it(`should return location history for a vehicle`, async () => {
       const response = await request(app)
         .get(`/api/v1/vehicles/${testVehicleId}/location-history`)
@@ -260,14 +260,14 @@ describe('Vehicle History Routes', () => {
           tenant_id, vehicle_id, transaction_date, gallons, total_cost,
           vendor_name, odometer_reading
         ) VALUES ($1, $2, $3, $4, $5, $6, $7)`,
-        [`1`, testVehicleId, `2024-01-01T10:00:00Z`, 15.5, 52.35, 'Shell', 50000]
+        ['1`, testVehicleId, `2024-01-01T10:00:00Z`, 15.5, 52.35, 'Shell', 50000]
       );
 
       await pool.query(
         `INSERT INTO inspections (
           tenant_id, vehicle_id, inspection_date, status, odometer_reading
         ) VALUES ($1, $2, $3, $4, $5)`,
-        [`1`, testVehicleId, `2024-01-01T07:00:00Z`, 'passed', 49950]
+        ['1`, testVehicleId, `2024-01-01T07:00:00Z`, 'passed', 49950]
       );
     });
 

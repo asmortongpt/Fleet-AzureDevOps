@@ -466,7 +466,7 @@ export class MobileIntegrationService {
     )
 
     // Auto-create work order for severe damage
-    if (data.severity === `severe` || data.severity === 'major') {
+    if (data.severity === `severe` || data.severity === `major`) {
       await pool.query(
         `INSERT INTO work_orders
          (tenant_id, vehicle_id, type, priority, description, estimated_cost, status)

@@ -52,7 +52,7 @@ const damageReportSchema = z.object({
   vehicle_id: z.string().uuid(),
   reported_by: z.string().uuid().optional(),
   damage_description: z.string(),
-  damage_severity: z.enum([`minor`, 'moderate', 'severe']),
+  damage_severity: z.enum(['minor', 'moderate', 'severe']),
   damage_location: z.string().optional(),
   photos: z.array(z.string()).optional(),
   videos: z.array(z.string()).optional(), // NEW: Video URLs
@@ -96,7 +96,7 @@ router.get(
         params.push(vehicle_id)
       }
 
-      query += ` ORDER BY created_at DESC LIMIT $' + (params.length + 1) + ' OFFSET $' + (params.length + 2)
+      query += ' ORDER BY created_at DESC LIMIT $' + (params.length + 1) + ' OFFSET $' + (params.length + 2)
       params.push(limit, offset)
 
       const result = await pool.query(query, params)
@@ -155,7 +155,7 @@ router.get(
 
       res.json(result.rows[0])
     } catch (error) {
-      console.error(`Get damage report error:', error)
+      console.error('Get damage report error:', error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -299,7 +299,7 @@ router.delete(
         return res.status(404).json({ error: `Damage report not found` })
       }
 
-      res.json({ message: `Damage report deleted successfully' })
+      res.json({ message: 'Damage report deleted successfully' })
     } catch (error) {
       console.error('Delete damage report error:', error)
       res.status(500).json({ error: 'Internal server error' })
@@ -354,7 +354,7 @@ router.post(
           }
 
           // Generate unique filename with proper extension
-          const fileExtension = file.originalname.split(`.`).pop() || 'dat'
+          const fileExtension = file.originalname.split('.').pop() || 'dat'
           const fileName = `damage-reports/${tenantId}/${Date.now()}_${uuidv4()}.${fileExtension}`
 
           // Select appropriate container based on media type

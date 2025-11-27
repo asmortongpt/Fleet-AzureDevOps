@@ -66,7 +66,7 @@ export class AuthorizationError extends AppError {
 
 export class NotFoundError extends AppError {
   constructor(resource: string = 'Resource') {
-    super(`${resource} not found`, 404, 'NOT_FOUND')
+    super(resource + ' not found', 404, 'NOT_FOUND')
   }
 }
 
@@ -89,16 +89,16 @@ export class RateLimitError extends AppError {
 
 export class DatabaseError extends AppError {
   constructor(message: string, details?: any) {
-    super(message, 500, `DATABASE_ERROR`, details, false)
+    super(message, 500, 'DATABASE_ERROR', details, false)
   }
 }
 
 export class ExternalServiceError extends AppError {
   constructor(service: string, message?: string) {
     super(
-      message || `External service ${service} is unavailable`,
+      message || 'External service ' + service + ' is unavailable',
       503,
-      `EXTERNAL_SERVICE_ERROR`,
+      'EXTERNAL_SERVICE_ERROR',
       { service },
       false
     )
@@ -259,11 +259,11 @@ export function errorHandler(
   next: NextFunction
 ): void {
   // Generate request ID for tracking
-  const requestId = req.headers[`x-request-id`] as string || `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+  const requestId = req.headers['x-request-id'] as string || 'req_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9)
 
   // Default error values
   let statusCode = 500
-  let message = `Internal server error`
+  let message = 'Internal server error'
   let code: string | undefined
   let details: any
 
@@ -294,10 +294,10 @@ export function errorHandler(
     statusCode = 401
     message = 'Authentication token expired'
     code = 'TOKEN_EXPIRED'
-  } else if (err.name === `MulterError`) {
+  } else if (err.name === 'MulterError') {
     statusCode = 400
-    message = `File upload error: ${err.message}`
-    code = `FILE_UPLOAD_ERROR`
+    message = 'File upload error: ' + err.message
+    code = 'FILE_UPLOAD_ERROR'
   }
 
   // Log error if necessary
