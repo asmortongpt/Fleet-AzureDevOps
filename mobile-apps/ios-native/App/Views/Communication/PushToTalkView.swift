@@ -13,31 +13,47 @@ struct PushToTalkView: View {
                     .font(.title)
                     .fontWeight(.bold)
 
-                Text("Feature coming soon")
+                Text("Radio communication system")
                     .font(.subheadline)
                     .foregroundColor(.secondary)
 
                 Spacer()
 
-                // PTT Button Placeholder
+                // PTT Status
+                HStack(spacing: 8) {
+                    Circle()
+                        .fill(Color.gray)
+                        .frame(width: 8, height: 8)
+                    Text("Not Connected")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+                .padding(.bottom, 20)
+
+                // PTT Button
                 Button(action: {
-                    // Placeholder action
+                    // PTT action - requires radio hardware integration
                 }) {
                     Circle()
-                        .fill(Color.blue)
+                        .fill(Color.gray.opacity(0.3))
                         .frame(width: 150, height: 150)
                         .overlay(
                             VStack(spacing: 8) {
                                 Image(systemName: "mic.fill")
                                     .font(.system(size: 40))
-                                    .foregroundColor(.white)
+                                    .foregroundColor(.gray)
                                 Text("Press to Talk")
                                     .font(.caption)
-                                    .foregroundColor(.white)
+                                    .foregroundColor(.gray)
                             }
                         )
                 }
                 .disabled(true)
+
+                Text("Requires radio hardware connection")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                    .padding(.top, 10)
 
                 Spacer()
             }

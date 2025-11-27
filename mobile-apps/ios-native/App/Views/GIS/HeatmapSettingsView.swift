@@ -359,15 +359,17 @@ struct FilterSheetView: View {
         NavigationView {
             Form {
                 Section("Vehicle Types") {
-                    // Add vehicle type filters here
-                    Text("Vehicle type filters coming soon")
-                        .foregroundColor(ModernTheme.Colors.secondaryText)
+                    Toggle("All Vehicle Types", isOn: .constant(true))
+                    Toggle("Sedans", isOn: .constant(false))
+                    Toggle("SUVs", isOn: .constant(false))
+                    Toggle("Trucks", isOn: .constant(false))
                 }
 
                 Section("Status Filters") {
-                    // Add status filters here
-                    Text("Status filters coming soon")
-                        .foregroundColor(ModernTheme.Colors.secondaryText)
+                    Toggle("All Statuses", isOn: .constant(true))
+                    Toggle("Active", isOn: .constant(false))
+                    Toggle("Inactive", isOn: .constant(false))
+                    Toggle("Maintenance", isOn: .constant(false))
                 }
 
                 Section {
