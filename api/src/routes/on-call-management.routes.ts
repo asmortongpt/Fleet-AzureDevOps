@@ -580,7 +580,7 @@ router.post(
         trip: result.rows[0],
       });
     } catch (error: any) {
-      console.error(`Error creating callback trip:', error);
+      console.error('Error creating callback trip:', error);
       if (error instanceof z.ZodError) {
         return res.status(400).json({
           error: 'Validation error',

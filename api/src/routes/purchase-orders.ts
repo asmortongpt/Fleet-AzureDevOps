@@ -44,7 +44,7 @@ router.get(
       })
     } catch (error) {
       console.error(`Get purchase-orders error:`, error)
-      res.status(500).json({ error: `Internal server error' })
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )
@@ -94,7 +94,7 @@ router.post(
 
       const result = await pool.query(
         `INSERT INTO purchase_orders (${columnNames}) VALUES (${placeholders}) RETURNING *`,
-        [req.user!.tenant_id, `draft`, req.user!.id, ...values]
+        [req.user!.tenant_id, 'draft', req.user!.id, ...values]
       )
 
       res.status(201).json(result.rows[0])
@@ -119,7 +119,7 @@ router.put(
     try {
       const result = await pool.query(
         `UPDATE purchase_orders SET
-           status = `approved`,
+           status = 'approved',
            approved_by = $3,
            approved_at = NOW(),
            updated_at = NOW()

@@ -50,7 +50,7 @@ router.post(
 
       if (!role.just_in_time_elevation_allowed) {
         return res.status(400).json({
-          error: `This role does not support just-in-time elevation',
+          error: 'This role does not support just-in-time elevation',
           role: role.name
         })
       }
@@ -59,7 +59,7 @@ router.post(
       const activeResult = await pool.query(
         `SELECT id FROM break_glass_sessions
          WHERE user_id = $1
-         AND status IN (`pending`, `active`)',
+         AND status IN ('pending', 'active')',
         [req.user!.id]
       )
 
@@ -73,7 +73,7 @@ router.post(
       const result = await pool.query(
         `INSERT INTO break_glass_sessions
          (user_id, elevated_role_id, reason, ticket_reference, max_duration_minutes, status)
-         VALUES ($1, $2, $3, $4, $5, `pending`)
+         VALUES ($1, $2, $3, $4, $5, 'pending')
          RETURNING *`,
         [
           req.user!.id,
@@ -174,11 +174,11 @@ router.post(
 
       // Verify tenant match
       if (session.tenant_id !== req.user!.tenant_id) {
-        return res.status(403).json({ error: `Access denied' })
+        return res.status(403).json({ error: 'Access denied' })
       }
 
       // Verify status is pending
-      if (session.status !== `pending`) {
+      if (session.status !== 'pending') {
         return res.status(400).json({
           error: `Request cannot be approved. Current status: ${session.status}`
         })
@@ -190,7 +190,7 @@ router.post(
 
         await pool.query(
           `UPDATE break_glass_sessions
-           SET status = `active`,
+           SET status = 'active',
                approved_by = $1,
                approved_at = NOW(),
                start_time = NOW(),
@@ -209,8 +209,8 @@ router.post(
         // Send notification to requester
         await pool.query(
           `INSERT INTO notifications (tenant_id, user_id, notification_type, title, message, priority)
-           VALUES ($1, $2, `alert`, `Break-Glass Access Approved`,
-                   `Your emergency access request has been approved and is now active for ${session.max_duration_minutes} minutes. Ticket: ${session.ticket_reference}`,
+           VALUES ($1, $2, 'alert', 'Break-Glass Access Approved',
+                   'Your emergency access request has been approved and is now active for ${session.max_duration_minutes} minutes. Ticket: ${session.ticket_reference}',
                    'urgent')',
           [session.tenant_id, session.user_id]
         )
@@ -224,7 +224,7 @@ router.post(
         // Deny
         await pool.query(
           `UPDATE break_glass_sessions
-           SET status = `revoked`,
+           SET status = 'revoked',
                approved_by = $1,
                approved_at = NOW()
            WHERE id = $2`,
@@ -234,8 +234,8 @@ router.post(
         // Send notification to requester
         await pool.query(
           `INSERT INTO notifications (tenant_id, user_id, notification_type, title, message, priority)
-           VALUES ($1, $2, `alert`, `Break-Glass Access Denied`,
-                   `Your emergency access request has been denied. Reason: ${validated.notes || `Not provided`}`,
+           VALUES ($1, $2, 'alert', 'Break-Glass Access Denied',
+                   'Your emergency access request has been denied. Reason: ${validated.notes || 'Not provided'}',
                    'high')',
           [session.tenant_id, session.user_id]
         )
@@ -283,13 +283,13 @@ router.post(
         session.tenant_id === req.user!.tenant_id
 
       if (!canRevoke) {
-        return res.status(403).json({ error: `Access denied' })
+        return res.status(403).json({ error: 'Access denied' })
       }
 
       // Update session status
       await pool.query(
         `UPDATE break_glass_sessions
-         SET status = `revoked`,
+         SET status = 'revoked',
              end_time = NOW()
          WHERE id = $1`,
         [sessionId]
@@ -330,7 +330,7 @@ router.get(
          FROM break_glass_sessions bg
          JOIN roles r ON bg.elevated_role_id = r.id
          WHERE bg.user_id = $1
-         AND bg.status = `active`
+         AND bg.status = 'active'
          AND bg.end_time > NOW()
          ORDER BY bg.end_time ASC`,
         [req.user!.id]
@@ -365,7 +365,7 @@ async function notifyApprovers(
        JOIN user_roles ur ON u.id = ur.user_id
        JOIN roles r ON ur.role_id = r.id
        WHERE u.tenant_id = $1
-       AND r.name = `FleetAdmin`
+       AND r.name = 'FleetAdmin'
        AND ur.is_active = true`,
       [tenantId]
     )
@@ -374,11 +374,11 @@ async function notifyApprovers(
     const notifications = result.rows.map(row =>
       pool.query(
         `INSERT INTO notifications (tenant_id, user_id, notification_type, title, message, link, priority)
-         VALUES ($1, $2, `alert`,
-                 `Break-Glass Access Request Pending`,
-                 `User ${details.requester} has requested emergency access to role ${details.role}. Reason: ${details.reason}. Ticket: ${details.ticket}`,
-                 `/break-glass/requests/${sessionId}`,
-                 `urgent`)`,
+         VALUES ($1, $2, 'alert',
+                 'Break-Glass Access Request Pending',
+                 'User ${details.requester} has requested emergency access to role ${details.role}. Reason: ${details.reason}. Ticket: ${details.ticket}',
+                 '/break-glass/requests/${sessionId}',
+                 'urgent')',
         [tenantId, row.id]
       )
     )
@@ -399,8 +399,8 @@ export async function expireBreakGlassSessions() {
     // Expire sessions past their end_time
     await pool.query(
       `UPDATE break_glass_sessions
-       SET status = `expired`
-       WHERE status = `active`
+       SET status = 'expired'
+       WHERE status = 'active'
        AND end_time < NOW()`
     )
 

@@ -499,7 +499,7 @@ export abstract class BaseRepository<T> implements IRepository<T> {
       SET ${setClause}, updated_at = NOW()
       WHERE ${this.tenantColumn} = $${keys.length + 1}
         AND ${this.idColumn} IN (${idPlaceholders})
-        ${this.softDelete ? `AND ${this.deletedAtColumn} IS NULL' : ''}
+        ${this.softDelete ? `AND ${this.deletedAtColumn} IS NULL` : ''}
     `;
 
     const params = [...values, tenantId, ...ids];

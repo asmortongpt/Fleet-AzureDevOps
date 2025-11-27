@@ -23,7 +23,7 @@
 interface User {
   id: string
   tenant_id: number
-  scope_level?: `own` | `team` | 'fleet' | 'global'
+  scope_level?: `own` | `team` | `fleet' | 'global'
   vehicle_id?: string
   driver_id?: string
   team_vehicle_ids?: string[]
@@ -242,7 +242,7 @@ export function buildScopeSelectQuery(
   const { whereClause, params, nextParamIndex } = applyScopeFilter(user, baseParams, options)
 
   let paramIndex = nextParamIndex
-  const columnList = columns.join(`, ')
+  const columnList = columns.join(`, `)
   let query = `SELECT ${columnList} FROM ${tableName} ${whereClause}`
 
   if (orderBy) {
