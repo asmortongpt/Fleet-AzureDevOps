@@ -1,13 +1,9 @@
 // api/src/workers/daily-metrics.worker.ts
 
-import { Pool } from 'pg';
 import cron from 'node-cron';
 import { config } from '../config/config';
 import { logger } from '../utils/logger';
-
-const pool = new Pool({
-  connectionString: config.databaseUrl,
-});
+import pool from '../config/database';
 
 /**
  * Refreshes materialized views to ensure data is up to date.
