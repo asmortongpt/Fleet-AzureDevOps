@@ -356,15 +356,28 @@ function getActiveProvider(forceProvider?: MapProvider): MapProvider {
   // Check if Google Maps API key is available
   const hasGoogleKey = hasGoogleMapsApiKey()
 
+  // Check environment variable for default provider
+  const envProvider = import.meta.env.VITE_MAP_PROVIDER || import.meta.env.VITE_DEFAULT_MAP_PROVIDER
+
   // Get saved preference from localStorage
   const saved = safeGetLocalStorage(STORAGE_KEY)
 
-  // If user prefers Google and key is available, use Google
-  if (saved === "google" && hasGoogleKey) {
+  // Priority: 1) localStorage preference, 2) env var, 3) default to Google if key available
+  if (saved && isValidProvider(saved) && (saved !== "google" || hasGoogleKey)) {
+    return saved
+  }
+
+  // If environment specifies Google and key is available, use Google
+  if (envProvider === "google" && hasGoogleKey) {
     return "google"
   }
 
-  // Default to Leaflet (always works, no API key needed)
+  // If Google key is available and no other preference, default to Google
+  if (hasGoogleKey) {
+    return "google"
+  }
+
+  // Final fallback to Leaflet (always works, no API key needed)
   return "leaflet"
 }
 

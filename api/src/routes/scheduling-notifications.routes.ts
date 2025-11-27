@@ -28,7 +28,7 @@ router.get('/preferences', async (req: Request, res: Response) => {
       schedule_changes,
       shift_reminders,
       created_at,
-      updated_at FROM scheduling_notification_preferences WHERE user_id = $1',
+      updated_at FROM scheduling_notification_preferences WHERE user_id = $1`,
       [userId]
     )
 
@@ -66,10 +66,10 @@ router.get('/preferences', async (req: Request, res: Response) => {
       }
     })
   } catch (error) {
-    logger.error('Error fetching notification preferences', { error })
+    logger.error(`Error fetching notification preferences`, { error })
     res.status(500).json({
       success: false,
-      error: 'Failed to fetch notification preferences'
+      error: `Failed to fetch notification preferences'
     })
   }
 })
@@ -146,17 +146,17 @@ router.put('/preferences', async (req: Request, res: Response) => {
       schedule_changes,
       shift_reminders,
       created_at,
-      updated_at FROM scheduling_notification_preferences WHERE user_id = $1',
+      updated_at FROM scheduling_notification_preferences WHERE user_id = $1`,
       [userId]
     )
 
     const prefs = result.rows[0]
 
-    logger.info('Notification preferences updated', { userId })
+    logger.info(`Notification preferences updated`, { userId })
 
     res.json({
       success: true,
-      message: 'Notification preferences updated successfully',
+      message: `Notification preferences updated successfully',
       preferences: {
         userId: prefs.user_id,
         emailEnabled: prefs.email_enabled,
@@ -232,14 +232,14 @@ router.get('/history', async (req: Request, res: Response) => {
 
     // Get user email for filtering communications
     const userResult = await pool.query(
-      'SELECT email FROM users WHERE id = $1',
+      `SELECT email FROM users WHERE id = $1`,
       [userId]
     )
 
     if (userResult.rows.length === 0) {
       return res.status(404).json({
         success: false,
-        error: 'User not found'
+        error: `User not found`
       })
     }
 
@@ -250,8 +250,8 @@ router.get('/history', async (req: Request, res: Response) => {
        FROM communications c
        LEFT JOIN communication_entity_links cel ON c.id = cel.communication_id
        WHERE $1 = ANY(c.to_contact_emails)
-         AND c.communication_type = 'Email'
-         AND c.subject LIKE '%Reservation%' OR c.subject LIKE '%Maintenance%'
+         AND c.communication_type = `Email`
+         AND c.subject LIKE `%Reservation%` OR c.subject LIKE '%Maintenance%'
        ORDER BY c.communication_datetime DESC
        LIMIT $2 OFFSET $3',
       [userEmail, limit, offset]
@@ -281,8 +281,8 @@ router.get('/stats', async (req: Request, res: Response) => {
 
     const result = await pool.query(
       `SELECT
-        COUNT(*) FILTER (WHERE entity_type = 'reservation') as reservation_notifications,
-        COUNT(*) FILTER (WHERE entity_type = 'maintenance') as maintenance_notifications,
+        COUNT(*) FILTER (WHERE entity_type = `reservation`) as reservation_notifications,
+        COUNT(*) FILTER (WHERE entity_type = `maintenance`) as maintenance_notifications,
         COUNT(*) FILTER (WHERE sent_at > NOW() - INTERVAL '30 days') as last_30_days,
         COUNT(*) FILTER (WHERE sent_at > NOW() - INTERVAL '7 days') as last_7_days,
         MIN(sent_at) as first_notification,
@@ -344,19 +344,19 @@ router.post('/resend/:id', async (req: Request, res: Response) => {
     if (type === 'reservation') {
       const result = await pool.query(
         `SELECT vr.*, v.make, v.model, v.license_plate, v.vin,
-                u.first_name || ' ' || u.last_name as reserved_by_name,
+                u.first_name || ` ` || u.last_name as reserved_by_name,
                 vr.tenant_id
          FROM vehicle_reservations vr
          JOIN vehicles v ON vr.vehicle_id = v.id
          JOIN users u ON vr.reserved_by = u.id
-         WHERE vr.id = $1',
+         WHERE vr.id = $1`,
         [id]
       )
 
       if (result.rows.length === 0) {
         return res.status(404).json({
           success: false,
-          error: 'Reservation not found'
+          error: `Reservation not found'
         })
       }
 
@@ -381,21 +381,21 @@ router.post('/resend/:id', async (req: Request, res: Response) => {
       const result = await pool.query(
         `SELECT sbs.*, v.make, v.model, v.license_plate, v.vin,
                 at.name as appointment_type, sb.bay_name,
-                u.first_name || ' ' || u.last_name as technician_name,
+                u.first_name || ` ` || u.last_name as technician_name,
                 sbs.tenant_id
          FROM service_bay_schedules sbs
          LEFT JOIN vehicles v ON sbs.vehicle_id = v.id
          LEFT JOIN appointment_types at ON sbs.appointment_type_id = at.id
          LEFT JOIN service_bays sb ON sbs.service_bay_id = sb.id
          LEFT JOIN users u ON sbs.assigned_technician_id = u.id
-         WHERE sbs.id = $1',
+         WHERE sbs.id = $1`,
         [id]
       )
 
       if (result.rows.length === 0) {
         return res.status(404).json({
           success: false,
-          error: 'Maintenance appointment not found'
+          error: `Maintenance appointment not found'
         })
       }
 

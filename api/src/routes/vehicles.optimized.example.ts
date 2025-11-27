@@ -78,14 +78,14 @@ router.post(
       res.status(201).json(result.rows[0])
     } catch (error) {
       console.error(`Create vehicles error:`, error)
-      res.status(500).json({ error: 'Internal server error' })
+      res.status(500).json({ error: `Internal server error` })
     }
   }
 )
 
 // PUT /vehicles/:id
 router.put(
-  '/:id',
+  `/:id`,
   requirePermission('vehicle:update:global'),
   auditLog({ action: 'UPDATE', resourceType: 'vehicles' }),
   async (req: AuthRequest, res: Response) => {
@@ -104,11 +104,11 @@ router.put(
 
       // Invalidate cache on update - ADD THESE LINES
       await cache.delPattern(`route:/api/vehicles*`)
-      await cache.del(cache.getCacheKey(req.user!.tenant_id, 'vehicle', req.params.id))
+      await cache.del(cache.getCacheKey(req.user!.tenant_id, `vehicle`, req.params.id))
 
       res.json(result.rows[0])
     } catch (error) {
-      console.error('Update vehicles error:', error)
+      console.error(`Update vehicles error:`, error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -124,15 +124,15 @@ router.delete(
       // ... status check logic
 
       const result = await pool.query(
-        'DELETE FROM vehicles WHERE id = $1 AND tenant_id = $2 RETURNING id',
+        `DELETE FROM vehicles WHERE id = $1 AND tenant_id = $2 RETURNING id`,
         [req.params.id, req.user!.tenant_id]
       )
 
       // Invalidate cache on delete - ADD THESE LINES
       await cache.delPattern(`route:/api/vehicles*`)
-      await cache.del(cache.getCacheKey(req.user!.tenant_id, 'vehicle', req.params.id))
+      await cache.del(cache.getCacheKey(req.user!.tenant_id, `vehicle`, req.params.id))
 
-      res.json({ message: 'Vehicle deleted successfully' })
+      res.json({ message: `Vehicle deleted successfully' })
     } catch (error) {
       console.error('Delete vehicles error:', error)
       res.status(500).json({ error: 'Internal server error' })

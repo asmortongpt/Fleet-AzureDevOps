@@ -48,8 +48,8 @@ router.get('/me/permissions', async (req: Request, res: Response) => {
       visible_modules: modules,
       module_configs: moduleConfigs,
       permissions: {
-        can_access_admin: roles.includes('Admin'),
-        can_manage_users: roles.includes('Admin'),
+        can_access_admin: roles.includes(`Admin`),
+        can_manage_users: roles.includes(`Admin`),
         can_view_financial: roles.includes('Admin') || roles.includes('Finance'),
         can_manage_maintenance: roles.includes('Admin') || roles.includes('MaintenanceManager'),
         can_view_safety_data: roles.includes('Admin') || roles.includes('Safety'),
@@ -121,9 +121,9 @@ router.get('/roles', requireAdmin, async (req: Request, res: Response) => {
       roles: result.rows
     });
   } catch (error) {
-    console.error('Error fetching roles:', error);
+    console.error(`Error fetching roles:`, error);
     res.status(500).json({
-      error: 'Internal Server Error',
+      error: `Internal Server Error`,
       message: 'Failed to fetch roles'
     });
   }
@@ -155,8 +155,8 @@ router.post('/roles', requireAdmin, async (req: Request, res: Response) => {
     // Audit log
     await auditService.logSecurityEvent({
       user_id: user.id,
-      event_type: 'role.created',
-      severity: 'medium',
+      event_type: `role.created`,
+      severity: `medium`,
       description: `Role `${name}` created`,
       ip_address: req.ip,
       user_agent: req.get('user-agent'),
@@ -212,9 +212,9 @@ router.get('/users/:userId/roles', requireAdmin, async (req: Request, res: Respo
       roles: result.rows
     });
   } catch (error) {
-    console.error('Error fetching user roles:', error);
+    console.error(`Error fetching user roles:`, error);
     res.status(500).json({
-      error: 'Internal Server Error',
+      error: `Internal Server Error`,
       message: 'Failed to fetch user roles'
     });
   }
@@ -247,7 +247,7 @@ router.put('/users/:userId/roles', requireAdmin, async (req: Request, res: Respo
       await client.query(
         `UPDATE user_module_roles
          SET is_active = false
-         WHERE user_id = $1',
+         WHERE user_id = $1`,
         [userId]
       );
 
@@ -262,12 +262,12 @@ router.put('/users/:userId/roles', requireAdmin, async (req: Request, res: Respo
         );
       }
 
-      await client.query('COMMIT');
+      await client.query(`COMMIT`);
 
       // Audit log
       await auditService.logSecurityEvent({
         user_id: user.id,
-        event_type: 'user.roles_updated',
+        event_type: `user.roles_updated`,
         severity: 'high',
         description: `Roles updated for user ${userId}`,
         ip_address: req.ip,
@@ -310,15 +310,15 @@ router.delete('/users/:userId/roles/:roleName', requireAdmin, async (req: Reques
     await pool.query(
       `UPDATE user_module_roles
        SET is_active = false
-       WHERE user_id = $1 AND role_name = $2',
+       WHERE user_id = $1 AND role_name = $2`,
       [userId, roleName]
     );
 
     // Audit log
     await auditService.logSecurityEvent({
       user_id: user.id,
-      event_type: 'user.role_removed',
-      severity: 'medium',
+      event_type: `user.role_removed`,
+      severity: `medium`,
       description: `Role `${roleName}` removed from user ${userId}`,
       ip_address: req.ip,
       user_agent: req.get('user-agent'),
