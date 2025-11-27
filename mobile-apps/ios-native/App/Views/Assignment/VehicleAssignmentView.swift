@@ -82,8 +82,12 @@ struct AssignmentDetailView: View {
                     .font(.title)
                     .fontWeight(.bold)
 
-                Text("Full details view coming soon...")
-                    .foregroundColor(.secondary)
+                VStack(alignment: .leading, spacing: 12) {
+                    DetailRow(label: "Vehicle", value: "Vehicle Name")
+                    DetailRow(label: "Driver", value: "Driver Name")
+                    DetailRow(label: "Start Date", value: "Date")
+                    DetailRow(label: "Status", value: "Active")
+                }
             }
             .padding()
         }
