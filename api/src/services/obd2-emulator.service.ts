@@ -229,7 +229,7 @@ export class OBD2EmulatorService extends EventEmitter {
     vehicleId: number
     adapterId: number
     profile: VehicleProfile
-    scenario?: 'idle' | 'city' | 'highway` | 'aggressive'
+    scenario?: 'idle' | 'city' | 'highway' | 'aggressive'
     generateDTCs?: boolean
     updateIntervalMs?: number
     location?: { latitude: number; longitude: number }

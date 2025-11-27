@@ -102,7 +102,7 @@ router.get(
         params.push(acknowledged === `true`)
       }
 
-      query += ' ORDER BY created_at DESC LIMIT 100'
+      query += ` ORDER BY created_at DESC LIMIT 100`
 
       const result = await pool.query(query, params)
 
@@ -111,7 +111,7 @@ router.get(
         count: result.rows.length
       })
     } catch (error: any) {
-      res.status(500).json({ error: 'Failed to retrieve insights', message: getErrorMessage(error) })
+      res.status(500).json({ error: `Failed to retrieve insights`, message: getErrorMessage(error) })
     }
   }
 )
@@ -235,7 +235,7 @@ router.get(
         count: result.rows.length
       })
     } catch (error: any) {
-      res.status(500).json({ error: 'Failed to retrieve patterns', message: getErrorMessage(error) })
+      res.status(500).json({ error: `Failed to retrieve patterns`, message: getErrorMessage(error) })
     }
   }
 )
@@ -252,7 +252,7 @@ router.get(
  *       - bearerAuth: []
  */
 router.get(
-  '/cognition/anomalies',
+  `/cognition/anomalies`,
   requirePermission('report:view:global'),
   auditLog({ action: 'READ', resourceType: 'ai_insights' }),
   async (req: AuthRequest, res: Response) => {
@@ -284,7 +284,7 @@ router.get(
         count: result.rows.length
       })
     } catch (error: any) {
-      res.status(500).json({ error: 'Failed to retrieve anomalies', message: getErrorMessage(error) })
+      res.status(500).json({ error: `Failed to retrieve anomalies`, message: getErrorMessage(error) })
     }
   }
 )
@@ -308,7 +308,7 @@ const MaintenancePredictionSchema = z.object({
  *       - bearerAuth: []
  */
 router.post(
-  '/predictions/maintenance',
+  `/predictions/maintenance`,
   requirePermission('report:generate:global'),
   auditLog({ action: 'CREATE', resourceType: 'ai_prediction' }),
   async (req: AuthRequest, res: Response) => {
@@ -659,7 +659,7 @@ router.get(
         params.push(is_active === `true`)
       }
 
-      query += ' ORDER BY created_at DESC'
+      query += ` ORDER BY created_at DESC`
 
       const result = await pool.query(query, params)
 
@@ -668,7 +668,7 @@ router.get(
         count: result.rows.length
       })
     } catch (error: any) {
-      res.status(500).json({ error: 'Failed to retrieve models', message: getErrorMessage(error) })
+      res.status(500).json({ error: `Failed to retrieve models`, message: getErrorMessage(error) })
     }
   }
 )
@@ -758,7 +758,7 @@ router.get(
         count: result.rows.length
       })
     } catch (error: any) {
-      res.status(500).json({ error: 'Failed to retrieve jobs', message: getErrorMessage(error) })
+      res.status(500).json({ error: `Failed to retrieve jobs`, message: getErrorMessage(error) })
     }
   }
 )

@@ -69,7 +69,7 @@ const OdometerOCRSchema = z.object({
   ocrData: z
     .object({
       reading: z.number().positive(),
-      unit: z.enum([`miles', 'kilometers']),
+      unit: z.enum([`miles`, 'kilometers']),
       confidence: z.number().min(0).max(1),
       notes: z.string().optional(),
     })
@@ -162,7 +162,7 @@ router.post(
           ocrResult.gallons,
           ocrResult.pricePerGallon,
           null, // odometer reading will be captured separately
-          ocrResult.fuelType || 'Regular',
+          ocrResult.fuelType || `Regular`,
           ocrResult.location,
           receiptPath,
           ocrResult.notes,
@@ -180,7 +180,7 @@ router.post(
         [
           tenantId,
           userId,
-          'fuel_receipt',
+          `fuel_receipt`,
           documentId,
           receiptPath,
           JSON.stringify(ocrResult),
@@ -189,7 +189,7 @@ router.post(
       );
 
       return res.status(201).json({
-        message: 'Fuel receipt processed successfully',
+        message: `Fuel receipt processed successfully`,
         transaction,
         ocrData: ocrResult,
         confidenceScores: ocrResult.confidenceScores,
@@ -324,7 +324,7 @@ router.post(
           tenantId,
           validatedData.vehicleId,
           ocrResult.reading,
-          'ocr',
+          `ocr`,
           ocrResult.unit,
           odometerPath,
           validatedData.tripId,
@@ -337,11 +337,11 @@ router.post(
 
       const reading = result.rows[0];
 
-      // Update vehicle's current odometer reading
+      // Update vehicle`s current odometer reading
       await pool.query(
         `UPDATE vehicles
          SET odometer_reading = $1, last_odometer_update = NOW()
-         WHERE id = $2 AND tenant_id = $3',
+         WHERE id = $2 AND tenant_id = $3`,
         [ocrResult.reading, validatedData.vehicleId, tenantId]
       );
 
@@ -354,7 +354,7 @@ router.post(
         [
           tenantId,
           userId,
-          'odometer',
+          `odometer`,
           documentId,
           odometerPath,
           JSON.stringify(ocrResult),
@@ -363,7 +363,7 @@ router.post(
       );
 
       return res.status(201).json({
-        message: 'Odometer reading processed successfully',
+        message: `Odometer reading processed successfully`,
         reading,
         ocrData: ocrResult,
         confidence: ocrResult.confidence,
