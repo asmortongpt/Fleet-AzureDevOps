@@ -1,13 +1,19 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { HubLayout } from "../../components/layout/HubLayout";
 import { GPSTracking } from "../../components/modules/GPSTracking";
 import DispatchConsole from "../../components/DispatchConsole";
 import { FuelManagement } from "../../components/modules/FuelManagement";
 import { AssetManagement } from "../../components/modules/AssetManagement";
 import { useFleetData } from "../../hooks/use-fleet-data";
-import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/card";
-import { Button } from "../../components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../components/ui/tabs";
+import { KPIStrip, KPIMetric } from "../../components/common/KPIStrip";
+import { DataGrid } from "../../components/common/DataGrid";
+import { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "../../components/ui/badge";
+import { Card } from "../../components/ui/card";
+import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "../../components/ui/resizable";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "../../components/ui/collapsible";
+import { Button } from "../../components/ui/button";
 import {
   MapPin,
   Broadcast,
@@ -19,426 +25,416 @@ import {
   Warning,
   CheckCircle,
   Clock,
+  ChevronDown,
+  ChevronUp,
 } from "@phosphor-icons/react";
 
-type OperationsModule =
-  | "overview"
-  | "tracking"
-  | "dispatch"
-  | "fuel"
-  | "assets";
+type OperationsModule = "tracking" | "dispatch" | "fuel" | "assets";
+
+interface VehicleData {
+  id: string;
+  unit: string;
+  driver: string;
+  status: "active" | "idle" | "offline" | "maintenance";
+  location: string;
+  speed: number;
+  fuel: number;
+  lastUpdate: string;
+}
+
+interface DispatchData {
+  id: string;
+  tripId: string;
+  vehicle: string;
+  driver: string;
+  origin: string;
+  destination: string;
+  status: "pending" | "en-route" | "completed" | "delayed";
+  eta: string;
+}
 
 const OperationsHub: React.FC = () => {
-  const [activeModule, setActiveModule] = useState<OperationsModule>("overview");
+  const [activeModule, setActiveModule] = useState<OperationsModule>("tracking");
+  const [chartCollapsed, setChartCollapsed] = useState(false);
   const fleetData = useFleetData();
 
-  const renderModule = () => {
-    switch (activeModule) {
-      case "tracking":
-        return (
-          <div style={{ height: "100%", padding: "16px" }}>
-            <GPSTracking
-              vehicles={fleetData.vehicles || []}
-              facilities={fleetData.facilities || []}
-            />
-          </div>
-        );
-      case "dispatch":
-        return (
-          <div style={{ height: "100%", overflow: "auto" }}>
-            <DispatchConsole />
-          </div>
-        );
-      case "fuel":
-        return <FuelManagement data={fleetData} />;
-      case "assets":
-        return <AssetManagement />;
-      case "overview":
-      default:
-        return (
-          <div className="space-y-6 p-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <Card className="hover:bg-accent/5 cursor-pointer transition-colors">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Truck className="w-5 h-5 text-blue-500" />
-                    Active Vehicles
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-3xl font-bold">
-                    {fleetData.vehicles?.filter(v => v.status === 'active').length || 0}
-                  </div>
-                  <p className="text-sm text-muted-foreground mt-2">
-                    {fleetData.vehicles?.length || 0} total vehicles
-                  </p>
-                </CardContent>
-              </Card>
+  // Sample vehicle tracking data
+  const vehicleData: VehicleData[] = useMemo(
+    () => [
+      {
+        id: "1",
+        unit: "Unit 45",
+        driver: "John Smith",
+        status: "active",
+        location: "I-95 N, Mile 42",
+        speed: 55,
+        fuel: 75,
+        lastUpdate: "2 min ago",
+      },
+      {
+        id: "2",
+        unit: "Unit 23",
+        driver: "Jane Doe",
+        status: "idle",
+        location: "Rest Stop, Exit 15",
+        speed: 0,
+        fuel: 60,
+        lastUpdate: "15 min ago",
+      },
+      {
+        id: "3",
+        unit: "Unit 67",
+        driver: "Mike Johnson",
+        status: "active",
+        location: "Highway 301 S",
+        speed: 48,
+        fuel: 45,
+        lastUpdate: "1 min ago",
+      },
+    ],
+    []
+  );
 
-              <Card className="hover:bg-accent/5 cursor-pointer transition-colors">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <NavigationArrow className="w-5 h-5 text-green-500" />
-                    Pending Dispatches
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-3xl font-bold">8</div>
-                  <p className="text-sm text-muted-foreground mt-2">
-                    5 assigned, 3 unassigned
-                  </p>
-                </CardContent>
-              </Card>
+  // Sample dispatch data
+  const dispatchData: DispatchData[] = useMemo(
+    () => [
+      {
+        id: "1",
+        tripId: "TR-2025-001",
+        vehicle: "Unit 45",
+        driver: "John Smith",
+        origin: "Miami, FL",
+        destination: "Atlanta, GA",
+        status: "en-route",
+        eta: "4:30 PM",
+      },
+      {
+        id: "2",
+        tripId: "TR-2025-002",
+        vehicle: "Unit 23",
+        driver: "Jane Doe",
+        origin: "Orlando, FL",
+        destination: "Tampa, FL",
+        status: "pending",
+        eta: "6:00 PM",
+      },
+      {
+        id: "3",
+        tripId: "TR-2025-003",
+        vehicle: "Unit 67",
+        driver: "Mike Johnson",
+        origin: "Jacksonville, FL",
+        destination: "Savannah, GA",
+        status: "delayed",
+        eta: "7:15 PM",
+      },
+    ],
+    []
+  );
 
-              <Card className="hover:bg-accent/5 cursor-pointer transition-colors">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <MapPin className="w-5 h-5 text-purple-500" />
-                    Today's Routes
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-3xl font-bold">24</div>
-                  <p className="text-sm text-muted-foreground mt-2">
-                    18 completed, 6 in progress
-                  </p>
-                </CardContent>
-              </Card>
+  // KPI metrics
+  const kpiMetrics: KPIMetric[] = useMemo(
+    () => [
+      {
+        id: "active-trips",
+        icon: <Truck className="w-5 h-5" />,
+        label: "Active Trips",
+        value: 18,
+        trend: { value: 5, direction: "up", isPositive: true },
+        color: "text-green-500",
+      },
+      {
+        id: "idle-vehicles",
+        icon: <Clock className="w-5 h-5" />,
+        label: "Idle Vehicles",
+        value: 7,
+        trend: { value: 2, direction: "down", isPositive: true },
+        color: "text-orange-500",
+      },
+      {
+        id: "fuel-alerts",
+        icon: <GasPump className="w-5 h-5" />,
+        label: "Fuel Alerts",
+        value: 3,
+        trend: { value: 1, direction: "up", isPositive: false },
+        color: "text-red-500",
+      },
+      {
+        id: "route-efficiency",
+        icon: <NavigationArrow className="w-5 h-5" />,
+        label: "Route Efficiency",
+        value: "92%",
+        trend: { value: 4, direction: "up", isPositive: true },
+        color: "text-blue-500",
+      },
+    ],
+    []
+  );
 
-              <Card className="hover:bg-accent/5 cursor-pointer transition-colors">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Warning className="w-5 h-5 text-orange-500" />
-                    Fuel Alerts
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-3xl font-bold">3</div>
-                  <p className="text-sm text-muted-foreground mt-2">
-                    Vehicles below 25% fuel
-                  </p>
-                </CardContent>
-              </Card>
+  // Vehicle tracking columns
+  const vehicleColumns: ColumnDef<VehicleData>[] = useMemo(
+    () => [
+      {
+        accessorKey: "unit",
+        header: "Unit",
+        cell: ({ row }) => (
+          <div className="font-medium">{row.original.unit}</div>
+        ),
+      },
+      {
+        accessorKey: "driver",
+        header: "Driver",
+      },
+      {
+        accessorKey: "status",
+        header: "Status",
+        cell: ({ row }) => {
+          const status = row.original.status;
+          const variant =
+            status === "active"
+              ? "success"
+              : status === "idle"
+                ? "secondary"
+                : status === "offline"
+                  ? "outline"
+                  : "destructive";
+          return <Badge variant={variant as any}>{status}</Badge>;
+        },
+      },
+      {
+        accessorKey: "location",
+        header: "Location",
+      },
+      {
+        accessorKey: "speed",
+        header: "Speed",
+        cell: ({ row }) => `${row.original.speed} mph`,
+      },
+      {
+        accessorKey: "fuel",
+        header: "Fuel",
+        cell: ({ row }) => (
+          <div className="flex items-center gap-1">
+            <div className="w-16 h-2 bg-gray-200 rounded-full overflow-hidden">
+              <div
+                className={`h-full ${
+                  row.original.fuel > 50
+                    ? "bg-green-500"
+                    : row.original.fuel > 25
+                      ? "bg-yellow-500"
+                      : "bg-red-500"
+                }`}
+                style={{ width: `${row.original.fuel}%` }}
+              />
             </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Fleet Status Overview</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {[
-                      {
-                        label: "Vehicles in Transit",
-                        value: 15,
-                        total: fleetData.vehicles?.length || 0,
-                        color: "bg-blue-500",
-                      },
-                      {
-                        label: "Vehicles at Facilities",
-                        value: 8,
-                        total: fleetData.vehicles?.length || 0,
-                        color: "bg-green-500",
-                      },
-                      {
-                        label: "Vehicles Idle",
-                        value: 5,
-                        total: fleetData.vehicles?.length || 0,
-                        color: "bg-yellow-500",
-                      },
-                      {
-                        label: "Vehicles in Maintenance",
-                        value: 2,
-                        total: fleetData.vehicles?.length || 0,
-                        color: "bg-orange-500",
-                      },
-                    ].map((stat, i) => (
-                      <div key={i} className="space-y-2">
-                        <div className="flex items-center justify-between">
-                          <span className="font-medium">{stat.label}</span>
-                          <span className="text-sm font-bold">
-                            {stat.value}/{stat.total}
-                          </span>
-                        </div>
-                        <div className="w-full bg-accent/20 rounded-full h-2">
-                          <div
-                            className={`${stat.color} h-2 rounded-full transition-all`}
-                            style={{ width: `${(stat.value / stat.total) * 100}%` }}
-                          />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle>Recent Operations Activity</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    {[
-                      {
-                        title: "Dispatch completed",
-                        vehicle: "V-1023",
-                        time: "2 minutes ago",
-                        type: "dispatch",
-                      },
-                      {
-                        title: "Fuel refill recorded",
-                        vehicle: "V-2045",
-                        time: "15 minutes ago",
-                        type: "fuel",
-                      },
-                      {
-                        title: "Route checkpoint reached",
-                        vehicle: "V-3012",
-                        time: "28 minutes ago",
-                        type: "tracking",
-                      },
-                      {
-                        title: "Asset inspection completed",
-                        vehicle: "V-4028",
-                        time: "45 minutes ago",
-                        type: "asset",
-                      },
-                      {
-                        title: "Emergency alert cleared",
-                        vehicle: "V-1056",
-                        time: "1 hour ago",
-                        type: "dispatch",
-                      },
-                    ].map((activity, i) => (
-                      <div
-                        key={i}
-                        className="flex items-center justify-between p-3 rounded-lg bg-accent/5 hover:bg-accent/10 transition-colors"
-                      >
-                        <div className="flex items-center gap-3">
-                          {activity.type === "dispatch" && (
-                            <Broadcast className="w-4 h-4 text-blue-500" />
-                          )}
-                          {activity.type === "fuel" && (
-                            <GasPump className="w-4 h-4 text-green-500" />
-                          )}
-                          {activity.type === "tracking" && (
-                            <MapPin className="w-4 h-4 text-purple-500" />
-                          )}
-                          {activity.type === "asset" && (
-                            <Package className="w-4 h-4 text-orange-500" />
-                          )}
-                          <div>
-                            <div className="font-medium">{activity.title}</div>
-                            <div className="text-sm text-muted-foreground">
-                              {activity.vehicle}
-                            </div>
-                          </div>
-                        </div>
-                        <div className="text-sm text-muted-foreground">
-                          {activity.time}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Operations Metrics</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <div className="p-4 rounded-lg bg-blue-500/10">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Truck className="w-4 h-4 text-blue-500" />
-                      <span className="text-sm font-medium">Utilization</span>
-                    </div>
-                    <div className="text-2xl font-bold">87%</div>
-                    <p className="text-xs text-muted-foreground mt-1">+5% vs last week</p>
-                  </div>
-                  <div className="p-4 rounded-lg bg-green-500/10">
-                    <div className="flex items-center gap-2 mb-2">
-                      <CheckCircle className="w-4 h-4 text-green-500" />
-                      <span className="text-sm font-medium">On-Time</span>
-                    </div>
-                    <div className="text-2xl font-bold">94%</div>
-                    <p className="text-xs text-muted-foreground mt-1">+2% vs last week</p>
-                  </div>
-                  <div className="p-4 rounded-lg bg-purple-500/10">
-                    <div className="flex items-center gap-2 mb-2">
-                      <GasPump className="w-4 h-4 text-purple-500" />
-                      <span className="text-sm font-medium">Fuel Efficiency</span>
-                    </div>
-                    <div className="text-2xl font-bold">8.2 MPG</div>
-                    <p className="text-xs text-muted-foreground mt-1">+0.3 vs last week</p>
-                  </div>
-                  <div className="p-4 rounded-lg bg-orange-500/10">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Clock className="w-4 h-4 text-orange-500" />
-                      <span className="text-sm font-medium">Avg Response</span>
-                    </div>
-                    <div className="text-2xl font-bold">12 min</div>
-                    <p className="text-xs text-muted-foreground mt-1">-3 min vs last week</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+            <span className="text-xs">{row.original.fuel}%</span>
           </div>
-        );
-    }
-  };
+        ),
+      },
+      {
+        accessorKey: "lastUpdate",
+        header: "Last Update",
+      },
+    ],
+    []
+  );
+
+  // Dispatch columns
+  const dispatchColumns: ColumnDef<DispatchData>[] = useMemo(
+    () => [
+      {
+        accessorKey: "tripId",
+        header: "Trip ID",
+        cell: ({ row }) => (
+          <div className="font-medium">{row.original.tripId}</div>
+        ),
+      },
+      {
+        accessorKey: "vehicle",
+        header: "Vehicle",
+      },
+      {
+        accessorKey: "driver",
+        header: "Driver",
+      },
+      {
+        accessorKey: "origin",
+        header: "Origin",
+      },
+      {
+        accessorKey: "destination",
+        header: "Destination",
+      },
+      {
+        accessorKey: "status",
+        header: "Status",
+        cell: ({ row }) => {
+          const status = row.original.status;
+          const variant =
+            status === "completed"
+              ? "success"
+              : status === "en-route"
+                ? "secondary"
+                : status === "delayed"
+                  ? "destructive"
+                  : "outline";
+          return <Badge variant={variant as any}>{status}</Badge>;
+        },
+      },
+      {
+        accessorKey: "eta",
+        header: "ETA",
+      },
+    ],
+    []
+  );
 
   return (
-    <HubLayout title="Operations">
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "1fr 320px",
-          height: "100%",
-          gap: 0,
-        }}
-      >
-        <div style={{ minHeight: 0, overflow: "auto" }}>{renderModule()}</div>
+    <HubLayout title="Operations Center" icon={Broadcast}>
+      <div className="h-full flex flex-col gap-4 p-4">
+        {/* KPI Strip */}
+        <KPIStrip metrics={kpiMetrics} />
 
-        <div
-          style={{
-            borderLeft: "1px solid #1e232a",
-            minHeight: 0,
-            overflow: "auto",
-            background: "#0b0f14",
-          }}
-        >
-          <div style={{ padding: "16px" }}>
-            <div className="space-y-2">
-              <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-4">
-                Operations Modules
-              </h3>
+        {/* Main content area */}
+        <div className="flex-1 min-h-0">
+          <Tabs
+            value={activeModule}
+            onValueChange={(value) => setActiveModule(value as OperationsModule)}
+            className="h-full flex flex-col"
+          >
+            <TabsList className="grid w-full max-w-lg grid-cols-4">
+              <TabsTrigger value="tracking" className="flex items-center gap-1">
+                <MapPin className="w-4 h-4" />
+                GPS Tracking
+              </TabsTrigger>
+              <TabsTrigger value="dispatch" className="flex items-center gap-1">
+                <Broadcast className="w-4 h-4" />
+                Dispatch
+              </TabsTrigger>
+              <TabsTrigger value="fuel" className="flex items-center gap-1">
+                <GasPump className="w-4 h-4" />
+                Fuel
+              </TabsTrigger>
+              <TabsTrigger value="assets" className="flex items-center gap-1">
+                <Package className="w-4 h-4" />
+                Assets
+              </TabsTrigger>
+            </TabsList>
 
-              <Button
-                variant={activeModule === "overview" ? "secondary" : "ghost"}
-                className="w-full justify-start"
-                onClick={() => setActiveModule("overview")}
-              >
-                <ChartLine className="w-4 h-4 mr-2" />
-                Overview Dashboard
-              </Button>
+            <div className="flex-1 mt-4 min-h-0">
+              {/* GPS Tracking Tab - Split View */}
+              <TabsContent value="tracking" className="h-full mt-0">
+                <ResizablePanelGroup direction="horizontal" className="h-full rounded-lg border">
+                  <ResizablePanel defaultSize={60} minSize={40}>
+                    <div className="h-full p-2">
+                      <GPSTracking
+                        vehicles={fleetData.vehicles || []}
+                        facilities={fleetData.facilities || []}
+                      />
+                    </div>
+                  </ResizablePanel>
+                  <ResizableHandle withHandle />
+                  <ResizablePanel defaultSize={40} minSize={30}>
+                    <div className="h-full flex flex-col p-2">
+                      <h3 className="font-semibold mb-2">Live Vehicle Status</h3>
+                      <DataGrid
+                        data={vehicleData}
+                        columns={vehicleColumns}
+                        inspectorType="vehicle"
+                        pageSize={10}
+                        className="flex-1"
+                      />
+                    </div>
+                  </ResizablePanel>
+                </ResizablePanelGroup>
+              </TabsContent>
 
-              <Button
-                variant={activeModule === "tracking" ? "secondary" : "ghost"}
-                className="w-full justify-start"
-                onClick={() => setActiveModule("tracking")}
-              >
-                <MapPin className="w-4 h-4 mr-2" />
-                Live Tracking
-              </Button>
+              {/* Dispatch Board Tab */}
+              <TabsContent value="dispatch" className="h-full mt-0">
+                <DataGrid
+                  data={dispatchData}
+                  columns={dispatchColumns}
+                  inspectorType="dispatch"
+                  className="h-full"
+                />
+              </TabsContent>
 
-              <Button
-                variant={activeModule === "dispatch" ? "secondary" : "ghost"}
-                className="w-full justify-start"
-                onClick={() => setActiveModule("dispatch")}
-              >
-                <Broadcast className="w-4 h-4 mr-2" />
-                Radio Dispatch
-              </Button>
+              {/* Fuel Management Tab */}
+              <TabsContent value="fuel" className="h-full mt-0">
+                <div className="h-full flex flex-col gap-4">
+                  <Collapsible open={!chartCollapsed} onOpenChange={setChartCollapsed}>
+                    <div className="flex items-center justify-between">
+                      <h3 className="font-semibold">Fuel Analytics</h3>
+                      <CollapsibleTrigger asChild>
+                        <Button variant="ghost" size="sm">
+                          {chartCollapsed ? (
+                            <>
+                              <ChevronDown className="w-4 h-4 mr-1" />
+                              Show Charts
+                            </>
+                          ) : (
+                            <>
+                              <ChevronUp className="w-4 h-4 mr-1" />
+                              Hide Charts
+                            </>
+                          )}
+                        </Button>
+                      </CollapsibleTrigger>
+                    </div>
+                    <CollapsibleContent className="mt-2">
+                      <Card className="p-4 h-64">
+                        <FuelManagement />
+                      </Card>
+                    </CollapsibleContent>
+                  </Collapsible>
 
-              <Button
-                variant={activeModule === "fuel" ? "secondary" : "ghost"}
-                className="w-full justify-start"
-                onClick={() => setActiveModule("fuel")}
-              >
-                <GasPump className="w-4 h-4 mr-2" />
-                Fuel Management
-              </Button>
+                  <div className="flex-1">
+                    <DataGrid
+                      data={vehicleData}
+                      columns={vehicleColumns.filter(
+                        (col) =>
+                          col.accessorKey === "unit" ||
+                          col.accessorKey === "fuel" ||
+                          col.accessorKey === "location"
+                      )}
+                      inspectorType="fuel"
+                      className="h-full"
+                    />
+                  </div>
+                </div>
+              </TabsContent>
 
-              <Button
-                variant={activeModule === "assets" ? "secondary" : "ghost"}
-                className="w-full justify-start"
-                onClick={() => setActiveModule("assets")}
-              >
-                <Package className="w-4 h-4 mr-2" />
-                Asset Management
-              </Button>
-
+              {/* Asset Tracking Tab */}
+              <TabsContent value="assets" className="h-full mt-0">
+                <ResizablePanelGroup direction="horizontal" className="h-full rounded-lg border">
+                  <ResizablePanel defaultSize={20} minSize={15} maxSize={30}>
+                    <div className="h-full p-4 border-r">
+                      <h3 className="font-semibold mb-4">Filters</h3>
+                      <div className="space-y-2">
+                        <Button variant="ghost" className="w-full justify-start">
+                          All Assets
+                        </Button>
+                        <Button variant="ghost" className="w-full justify-start">
+                          Vehicles
+                        </Button>
+                        <Button variant="ghost" className="w-full justify-start">
+                          Equipment
+                        </Button>
+                        <Button variant="ghost" className="w-full justify-start">
+                          Tools
+                        </Button>
+                      </div>
+                    </div>
+                  </ResizablePanel>
+                  <ResizablePanel defaultSize={80}>
+                    <div className="h-full p-2">
+                      <AssetManagement />
+                    </div>
+                  </ResizablePanel>
+                </ResizablePanelGroup>
+              </TabsContent>
             </div>
-
-            <div className="mt-8 pt-8 border-t border-border">
-              <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-4">
-                Quick Stats
-              </h3>
-              <div className="space-y-3">
-                <div className="flex items-center justify-between p-3 rounded-lg bg-blue-500/10">
-                  <span className="text-sm">Active Vehicles</span>
-                  <Badge variant="secondary">
-                    {fleetData.vehicles?.filter(v => v.status === 'active').length || 0}
-                  </Badge>
-                </div>
-                <div className="flex items-center justify-between p-3 rounded-lg bg-green-500/10">
-                  <span className="text-sm">Pending Dispatches</span>
-                  <Badge variant="secondary">8</Badge>
-                </div>
-                <div className="flex items-center justify-between p-3 rounded-lg bg-purple-500/10">
-                  <span className="text-sm">Today's Routes</span>
-                  <Badge variant="secondary">24</Badge>
-                </div>
-                <div className="flex items-center justify-between p-3 rounded-lg bg-orange-500/10">
-                  <span className="text-sm">Fuel Alerts</span>
-                  <Badge variant="destructive">3</Badge>
-                </div>
-              </div>
-            </div>
-
-            <div className="mt-6 pt-6 border-t border-border">
-              <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-4">
-                Quick Actions
-              </h3>
-              <div className="space-y-2">
-                <Button
-                  variant="outline"
-                  className="w-full justify-start"
-                  onClick={() => window.open('/operations/dispatch', '_blank', 'width=1400,height=900')}
-                  title="Open Radio Dispatch in new window for multi-tasking"
-                >
-                  <Broadcast className="w-4 h-4 mr-2" />
-                  Open Radio in New Window
-                </Button>
-                <Button variant="outline" className="w-full justify-start">
-                  <MapPin className="w-4 h-4 mr-2" />
-                  View All Routes
-                </Button>
-                <Button variant="outline" className="w-full justify-start">
-                  <GasPump className="w-4 h-4 mr-2" />
-                  Fuel Report
-                </Button>
-                <Button variant="outline" className="w-full justify-start">
-                  <Package className="w-4 h-4 mr-2" />
-                  Asset Check
-                </Button>
-              </div>
-            </div>
-
-            <div className="mt-6 pt-6 border-t border-border">
-              <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">
-                System Status
-              </h3>
-              <div className="space-y-2">
-                <div className="flex items-center gap-2 text-sm">
-                  <CheckCircle className="w-4 h-4 text-green-500" />
-                  <span>GPS: Online</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm">
-                  <CheckCircle className="w-4 h-4 text-green-500" />
-                  <span>Dispatch: Active</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm">
-                  <CheckCircle className="w-4 h-4 text-green-500" />
-                  <span>Tracking: Real-time</span>
-                </div>
-              </div>
-            </div>
-          </div>
+          </Tabs>
         </div>
       </div>
     </HubLayout>
