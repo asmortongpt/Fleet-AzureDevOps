@@ -8,7 +8,7 @@ metadata:
     tier: backend
     environment: production
 spec:
-  replicas: 3
+  replicas: 2
   selector:
     matchLabels:
       app: fleet-api
@@ -19,6 +19,8 @@ spec:
         tier: backend
         environment: production
     spec:
+      imagePullSecrets:
+      - name: acr-secret
       securityContext:
         runAsNonRoot: true
         runAsUser: 1001
@@ -228,11 +230,11 @@ spec:
           mountPath: /app/.cache
         resources:
           requests:
-            memory: "512Mi"
-            cpu: "250m"
+            memory: "256Mi"
+            cpu: "100m"
           limits:
-            memory: "2Gi"
-            cpu: "1000m"
+            memory: "1Gi"
+            cpu: "500m"
         livenessProbe:
           httpGet:
             path: /api/health
