@@ -59,15 +59,11 @@ struct TripHistoryView: View {
             }
             .searchable(text: $searchText, prompt: "Search trips")
             .sheet(isPresented: $showingStartTrip) {
-                Text("Start Trip View - Coming Soon")
-                    .font(.title)
-                    .padding()
+                StartTripSheet(isPresented: $showingStartTrip)
             }
             .sheet(isPresented: $showingTripDetail) {
                 if let trip = selectedTrip {
-                    Text("Trip Detail View - Coming Soon")
-                        .font(.title)
-                        .padding()
+                    TripDetailView(trip: trip)
                 }
             }
             .alert("Delete Trip", isPresented: $showingDeleteAlert) {
@@ -360,6 +356,58 @@ private struct TripStatusBadge: View {
         case .cancelled:
             return .gray
         }
+    }
+}
+
+// MARK: - Start Trip Sheet
+struct StartTripSheet: View {
+    @Binding var isPresented: Bool
+    @State private var tripName = ""
+    @State private var vehicleId = ""
+    @State private var purpose = ""
+    @StateObject private var trackingService = TripTrackingService.shared
+
+    var body: some View {
+        NavigationView {
+            Form {
+                Section(header: Text("Trip Information")) {
+                    TextField("Trip Name", text: $tripName)
+                    TextField("Vehicle ID (optional)", text: $vehicleId)
+                    TextField("Purpose (optional)", text: $purpose)
+                }
+
+                Section {
+                    Button(action: startTrip) {
+                        HStack {
+                            Image(systemName: "play.circle.fill")
+                            Text("Start Trip")
+                        }
+                        .frame(maxWidth: .infinity)
+                        .foregroundColor(.white)
+                    }
+                    .listRowBackground(Color.blue)
+                    .disabled(tripName.isEmpty)
+                }
+            }
+            .navigationTitle("Start New Trip")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button("Cancel") {
+                        isPresented = false
+                    }
+                }
+            }
+        }
+    }
+
+    private func startTrip() {
+        trackingService.startTracking(
+            name: tripName,
+            vehicleId: vehicleId.isEmpty ? nil : vehicleId,
+            purpose: purpose.isEmpty ? nil : purpose
+        )
+        isPresented = false
     }
 }
 
