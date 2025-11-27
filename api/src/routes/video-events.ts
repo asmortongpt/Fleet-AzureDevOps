@@ -36,12 +36,12 @@ router.get(
       severity,
       notes,
       created_at,
-      updated_at FROM video_events WHERE tenant_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3',
+      updated_at FROM video_events WHERE tenant_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3`,
         [req.user!.tenant_id, limit, offset]
       )
 
       const countResult = await pool.query(
-        'SELECT COUNT(*) FROM video_events WHERE tenant_id = $1',
+        `SELECT COUNT(*) FROM video_events WHERE tenant_id = $1`,
         [req.user!.tenant_id]
       )
 
@@ -55,8 +55,8 @@ router.get(
         }
       })
     } catch (error) {
-      console.error('Get video-events error:', error)
-      res.status(500).json({ error: 'Internal server error' })
+      console.error(`Get video-events error:`, error)
+      res.status(500).json({ error: `Internal server error' })
     }
   }
 )
@@ -82,17 +82,17 @@ router.get(
       severity,
       notes,
       created_at,
-      updated_at FROM video_events WHERE id = $1 AND tenant_id = $2',
+      updated_at FROM video_events WHERE id = $1 AND tenant_id = $2`,
         [req.params.id, req.user!.tenant_id]
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'VideoEvents not found' })
+        return res.status(404).json({ error: `VideoEvents not found` })
       }
 
       res.json(result.rows[0])
     } catch (error) {
-      console.error('Get video-events error:', error)
+      console.error(`Get video-events error:', error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -121,14 +121,14 @@ router.post(
       res.status(201).json(result.rows[0])
     } catch (error) {
       console.error(`Create video-events error:`, error)
-      res.status(500).json({ error: 'Internal server error' })
+      res.status(500).json({ error: `Internal server error` })
     }
   }
 )
 
 // DELETE /video-events/:id
 router.delete(
-  '/:id',
+  `/:id`,
   requirePermission('video_event:delete:global'),
   auditLog({ action: 'DELETE', resourceType: 'video_events' }),
   async (req: AuthRequest, res: Response) => {

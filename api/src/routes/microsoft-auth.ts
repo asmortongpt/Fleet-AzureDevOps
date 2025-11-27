@@ -68,21 +68,21 @@ router.get('/microsoft/callback', async (req: Request, res: Response) => {
     if (state && state !== `1`) {
       // Validate that the provided tenant_id actually exists in database
       const tenantCheckResult = await pool.query(
-        'SELECT id FROM tenants WHERE id = $1',
+        `SELECT id FROM tenants WHERE id = $1`,
         [state]
       )
 
       if (tenantCheckResult.rows.length > 0) {
         tenantId = tenantCheckResult.rows[0].id
-        console.log('Using validated tenant_id from state parameter:', tenantId)
+        console.log(`Using validated tenant_id from state parameter:`, tenantId)
       } else {
         // Invalid tenant_id provided, fall back to default
-        console.log('Invalid tenant_id in state parameter:', state, '- using default')
+        console.log(`Invalid tenant_id in state parameter:', state, '- using default')
         const defaultTenantResult = await pool.query(
           `SELECT id FROM tenants ORDER BY created_at LIMIT 1`
         )
         if (!defaultTenantResult.rows[0]?.id) {
-          throw new Error('No tenants found in database')
+          throw new Error(`No tenants found in database`)
         }
         tenantId = defaultTenantResult.rows[0].id
       }
@@ -91,9 +91,9 @@ router.get('/microsoft/callback', async (req: Request, res: Response) => {
       const defaultTenantResult = await pool.query(
         `SELECT id FROM tenants ORDER BY created_at LIMIT 1`
       )
-      console.log('Query result for default tenant:', defaultTenantResult.rows)
+      console.log(`Query result for default tenant:`, defaultTenantResult.rows)
       if (!defaultTenantResult.rows[0]?.id) {
-        throw new Error('No tenants found in database')
+        throw new Error(`No tenants found in database`)
       }
       tenantId = defaultTenantResult.rows[0].id
       console.log('Using default tenant_id from database:', tenantId)
@@ -130,7 +130,7 @@ router.get('/microsoft/callback', async (req: Request, res: Response) => {
         `INSERT INTO users (
           tenant_id, email, first_name, last_name,
           role, is_active, password_hash, sso_provider, sso_provider_id
-        ) VALUES ($1, $2, $3, $4, $5, true, 'SSO', 'microsoft', $6)
+        ) VALUES ($1, $2, $3, $4, $5, true, `SSO`, `microsoft`, $6)
         RETURNING *`,
         [
           tenantId,
@@ -160,7 +160,7 @@ router.get('/microsoft/callback', async (req: Request, res: Response) => {
 
       // Update last login
       await pool.query(
-        'UPDATE users SET last_login_at = NOW() WHERE id = $1',
+        `UPDATE users SET last_login_at = NOW() WHERE id = $1`,
         [user.id]
       )
     }
@@ -169,8 +169,8 @@ router.get('/microsoft/callback', async (req: Request, res: Response) => {
     await createAuditLog(
       user.tenant_id,
       user.id,
-      'LOGIN',
-      'users',
+      `LOGIN`,
+      `users`,
       user.id,
       { email, sso_provider: 'microsoft' },
       req.ip || null,
@@ -272,8 +272,8 @@ router.get('/microsoft', async (req: Request, res: Response) => {
         `SELECT id FROM tenants ORDER BY created_at LIMIT 1`
       )
       if (!defaultTenantResult.rows[0]?.id) {
-        const safeErrorUrl = buildSafeRedirectUrl('/login', {
-          error: 'config_error',
+        const safeErrorUrl = buildSafeRedirectUrl(`/login`, {
+          error: `config_error`,
           message: `No tenants configured in system`
         })
         return res.redirect(safeErrorUrl)
@@ -319,8 +319,8 @@ router.get('/microsoft/login', async (req: Request, res: Response) => {
         `SELECT id FROM tenants ORDER BY created_at LIMIT 1`
       )
       if (!defaultTenantResult.rows[0]?.id) {
-        const safeErrorUrl = buildSafeRedirectUrl('/login', {
-          error: 'config_error',
+        const safeErrorUrl = buildSafeRedirectUrl(`/login`, {
+          error: `config_error`,
           message: `No tenants configured in system`
         })
         return res.redirect(safeErrorUrl)
