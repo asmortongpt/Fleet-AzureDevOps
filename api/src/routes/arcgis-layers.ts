@@ -61,11 +61,11 @@ router.get('/', requirePermission('geofence:view:fleet'), async (req: AuthReques
       layers: result.rows
     })
   } catch (error: any) {
-    logger.error('Failed to fetch ArcGIS layers', {
+    logger.error(`Failed to fetch ArcGIS layers`, {
       error: getErrorMessage(error),
       tenantId
     })
-    res.status(500).json({ error: 'Failed to fetch layers' })
+    res.status(500).json({ error: `Failed to fetch layers` })
   }
 })
 
@@ -90,11 +90,11 @@ router.get('/enabled/list', requirePermission('geofence:view:fleet'), async (req
       layers: result.rows
     })
   } catch (error: any) {
-    logger.error('Failed to fetch enabled ArcGIS layers', {
+    logger.error(`Failed to fetch enabled ArcGIS layers`, {
       error: getErrorMessage(error),
       tenantId
     })
-    res.status(500).json({ error: 'Failed to fetch layers' })
+    res.status(500).json({ error: `Failed to fetch layers` })
   }
 })
 
@@ -109,12 +109,12 @@ router.get('/:id', requirePermission('geofence:view:fleet'), async (req: AuthReq
   try {
     const result = await pool.query(
       `SELECT id, tenant_id, layer_name, layer_type, layer_config, is_active, created_at FROM arcgis_layers
-       WHERE id = $1 AND tenant_id = $2',
+       WHERE id = $1 AND tenant_id = $2`,
       [id, tenantId]
     )
 
     if (result.rows.length === 0) {
-      return res.status(404).json({ error: 'Layer not found' })
+      return res.status(404).json({ error: `Layer not found` })
     }
 
     res.json({
@@ -122,7 +122,7 @@ router.get('/:id', requirePermission('geofence:view:fleet'), async (req: AuthReq
       layer: result.rows[0]
     })
   } catch (error: any) {
-    logger.error('Failed to fetch ArcGIS layer', {
+    logger.error(`Failed to fetch ArcGIS layer', {
       error: getErrorMessage(error),
       layerId: id
     })
@@ -168,7 +168,7 @@ router.post(
         ]
       )
 
-      logger.info('ArcGIS layer created', {
+      logger.info(`ArcGIS layer created`, {
         layerId: result.rows[0].id,
         name: validated.name,
         tenantId
@@ -181,7 +181,7 @@ router.post(
     } catch (error: any) {
       if (error instanceof z.ZodError) {
         return res.status(400).json({
-          error: 'Validation failed',
+          error: `Validation failed`,
           details: error.errors
         })
       }
@@ -273,7 +273,7 @@ router.put(
 
       const result = await pool.query(
         `UPDATE arcgis_layers
-         SET ${updates.join(', ')}
+         SET ${updates.join(`, `)}
          WHERE id = $${paramCount++} AND tenant_id = $${paramCount++}
          RETURNING *`,
         values
@@ -283,7 +283,7 @@ router.put(
         return res.status(404).json({ error: `Layer not found` })
       }
 
-      logger.info('ArcGIS layer updated', {
+      logger.info(`ArcGIS layer updated`, {
         layerId: id,
         tenantId
       })
@@ -325,15 +325,15 @@ router.delete(
       const result = await pool.query(
         `DELETE FROM arcgis_layers
          WHERE id = $1 AND tenant_id = $2
-         RETURNING id',
+         RETURNING id`,
         [id, tenantId]
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'Layer not found' })
+        return res.status(404).json({ error: `Layer not found` })
       }
 
-      logger.info('ArcGIS layer deleted', {
+      logger.info(`ArcGIS layer deleted', {
         layerId: id,
         tenantId
       })

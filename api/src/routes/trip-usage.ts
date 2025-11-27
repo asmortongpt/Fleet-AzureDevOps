@@ -76,22 +76,22 @@ router.post(
 
       // Check if driver belongs to tenant
       const driverCheck = await pool.query(
-        'SELECT id FROM users WHERE id = $1 AND tenant_id = $2',
+        `SELECT id FROM users WHERE id = $1 AND tenant_id = $2`,
         [validated.driver_id, req.user!.tenant_id]
       )
 
       if (driverCheck.rows.length === 0) {
-        return res.status(403).json({ error: 'Driver not found in your organization' })
+        return res.status(403).json({ error: `Driver not found in your organization` })
       }
 
       // Check if vehicle belongs to tenant
       const vehicleCheck = await pool.query(
-        'SELECT id FROM vehicles WHERE id = $1 AND tenant_id = $2',
+        `SELECT id FROM vehicles WHERE id = $1 AND tenant_id = $2`,
         [validated.vehicle_id, req.user!.tenant_id]
       )
 
       if (vehicleCheck.rows.length === 0) {
-        return res.status(403).json({ error: 'Vehicle not found in your organization' })
+        return res.status(403).json({ error: `Vehicle not found in your organization` })
       }
 
       // Get tenant policy to determine approval requirements
@@ -107,7 +107,7 @@ router.post(
       expiry_date,
       is_active,
       created_at,
-      updated_at FROM personal_use_policies WHERE tenant_id = $1',
+      updated_at FROM personal_use_policies WHERE tenant_id = $1`,
         [req.user!.tenant_id]
       )
 
@@ -116,7 +116,7 @@ router.post(
 
       // Determine approval status based on policy
       if (validated.usage_type === UsageType.BUSINESS) {
-        // Business trips don't need approval
+        // Business trips don`t need approval
         approvalStatus = ApprovalStatus.AUTO_APPROVED
       } else if (policy) {
         if (!policy.require_approval) {
@@ -173,14 +173,14 @@ router.post(
 
         // Get driver and manager info for notification
         const driverInfo = await pool.query(
-          'SELECT first_name, last_name, email FROM users WHERE id = $1',
+          `SELECT first_name, last_name, email FROM users WHERE id = $1`,
           [validated.driver_id]
         )
 
         // Get manager email (fleet managers and admins)
         const managerInfo = await pool.query(
           `SELECT email FROM users
-           WHERE tenant_id = $1 AND role IN ('admin', `fleet_manager`)
+           WHERE tenant_id = $1 AND role IN (`admin`, `fleet_manager`)
            LIMIT 1`,
           [req.user!.tenant_id]
         )
@@ -207,7 +207,7 @@ router.post(
         success: true,
         data: tripUsage,
         message: approvalStatus === ApprovalStatus.AUTO_APPROVED
-          ? 'Trip usage recorded and auto-approved'
+          ? `Trip usage recorded and auto-approved`
           : 'Trip usage recorded and pending approval'
       })
     } catch (error: any) {
@@ -306,7 +306,7 @@ router.get(
 
     // Get total count
     const countResult = await pool.query(
-      query.replace('SELECT t.*, u.name as driver_name, v.vehicle_number as vehicle_number', `SELECT COUNT(*)`),
+      query.replace(`SELECT t.*, u.name as driver_name, v.vehicle_number as vehicle_number`, `SELECT COUNT(*)`),
       params
     )
 
@@ -333,7 +333,7 @@ router.get(
     })
   } catch (error: any) {
     console.error(`Get trip usage error:`, error)
-    res.status(500).json({ error: 'Failed to retrieve trip usage data' })
+    res.status(500).json({ error: `Failed to retrieve trip usage data` })
   }
 })
 
@@ -342,12 +342,12 @@ router.get(
  * Get specific trip usage classification
  */
 router.get(
-  '/:id',
+  `/:id`,
   requirePermission('route:view:own', {
     validateScope: async (req: AuthRequest) => {
       // Allow viewing if user is the driver or has fleet-wide access
       const result = await pool.query(
-        'SELECT driver_id FROM trip_usage_classification WHERE id = $1 AND tenant_id = $2',
+        `SELECT driver_id FROM trip_usage_classification WHERE id = $1 AND tenant_id = $2`,
         [req.params.id, req.user!.tenant_id]
       )
 
@@ -358,7 +358,7 @@ router.get(
       const driverId = result.rows[0].driver_id
 
       // Allow if user is the driver or has admin/manager role
-      return driverId === req.user!.id || ['admin', 'fleet_manager', 'manager'].includes(req.user!.role)
+      return driverId === req.user!.id || [`admin`, `fleet_manager`, 'manager'].includes(req.user!.role)
     }
   }),
   async (req: AuthRequest, res: Response) => {
@@ -372,17 +372,17 @@ router.get(
        LEFT JOIN users u ON t.driver_id = u.id
        LEFT JOIN vehicles v ON t.vehicle_id = v.id
        LEFT JOIN users approver ON t.approved_by_user_id = approver.id
-       WHERE t.id = $1 AND t.tenant_id = $2',
+       WHERE t.id = $1 AND t.tenant_id = $2`,
       [req.params.id, req.user!.tenant_id]
     )
 
     if (result.rows.length === 0) {
-      return res.status(404).json({ error: 'Trip usage classification not found' })
+      return res.status(404).json({ error: `Trip usage classification not found` })
     }
 
     res.json({ success: true, data: result.rows[0] })
   } catch (error: any) {
-    console.error('Get trip usage error:', error)
+    console.error(`Get trip usage error:', error)
     res.status(500).json({ error: 'Failed to retrieve trip usage data' })
   }
 })
@@ -411,19 +411,19 @@ router.patch(
       classified_at,
       notes,
       created_at,
-      updated_at FROM trip_usage_classification WHERE id = $1 AND tenant_id = $2',
+      updated_at FROM trip_usage_classification WHERE id = $1 AND tenant_id = $2`,
         [req.params.id, req.user!.tenant_id]
       )
 
       if (existing.rows.length === 0) {
-        return res.status(404).json({ error: 'Trip usage classification not found' })
+        return res.status(404).json({ error: `Trip usage classification not found` })
       }
 
       const trip = existing.rows[0]
 
       // Check permissions - only driver or admin/manager can update
       if (trip.driver_id !== req.user!.id &&
-          !['admin', 'fleet_manager'].includes(req.user!.role)) {
+          ![`admin`, 'fleet_manager'].includes(req.user!.role)) {
         return res.status(403).json({ error: 'Insufficient permissions to update this trip' })
       }
 
@@ -462,7 +462,7 @@ router.patch(
 
       const result = await pool.query(
         `UPDATE trip_usage_classification
-         SET ${updates.join(', ')}, updated_at = NOW()
+         SET ${updates.join(`, `)}, updated_at = NOW()
          WHERE id = $1 AND tenant_id = $2
          RETURNING *`,
         [req.params.id, req.user!.tenant_id, ...values]
@@ -474,7 +474,7 @@ router.patch(
         message: `Trip usage updated successfully`
       })
     } catch (error: any) {
-      console.error('Update trip usage error:', error)
+      console.error(`Update trip usage error:`, error)
       if (error instanceof z.ZodError) {
         return res.status(400).json({ error: 'Invalid request data', details: error.errors })
       }
@@ -511,7 +511,7 @@ router.get(
       )
 
       const countResult = await pool.query(
-        'SELECT COUNT(*) FROM trip_usage_classification WHERE tenant_id = $1 AND approval_status = $2',
+        `SELECT COUNT(*) FROM trip_usage_classification WHERE tenant_id = $1 AND approval_status = $2`,
         [req.user!.tenant_id, ApprovalStatus.PENDING]
       )
 
@@ -526,8 +526,8 @@ router.get(
         }
       })
     } catch (error: any) {
-      console.error('Get pending approvals error:', error)
-      res.status(500).json({ error: 'Failed to retrieve pending approvals' })
+      console.error(`Get pending approvals error:`, error)
+      res.status(500).json({ error: `Failed to retrieve pending approvals' })
     }
   }
 )
@@ -549,11 +549,11 @@ router.post(
          SET approval_status = $1,
              approved_by_user_id = $2,
              approved_at = NOW(),
-             metadata = metadata || jsonb_build_object('approver_notes', $3),
+             metadata = metadata || jsonb_build_object(`approver_notes`, $3),
              updated_at = NOW()
          WHERE id = $4 AND tenant_id = $5
          RETURNING *`,
-        [ApprovalStatus.APPROVED, req.user!.id, approver_notes || '', req.params.id, req.user!.tenant_id]
+        [ApprovalStatus.APPROVED, req.user!.id, approver_notes || ``, req.params.id, req.user!.tenant_id]
       )
 
       if (result.rows.length === 0) {
@@ -583,9 +583,9 @@ router.post(
           driverName: `${driver.first_name} ${driver.last_name}`,
           tripDate: trip.trip_date,
           miles: trip.miles_total,
-          status: 'approved'
+          status: `approved`
         }).catch(error => {
-          logger.error('Failed to send approval notification email', { error: getErrorMessage(error) })
+          logger.error(`Failed to send approval notification email`, { error: getErrorMessage(error) })
         })
       }
 
@@ -630,7 +630,7 @@ router.post(
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'Trip usage classification not found' })
+        return res.status(404).json({ error: `Trip usage classification not found` })
       }
 
       const trip = result.rows[0]
@@ -639,7 +639,7 @@ router.post(
       appInsightsService.trackTripApproval(
         req.user!.id,
         trip.id,
-        'rejected',
+        `rejected`,
         { miles: trip.miles_total, usageType: trip.usage_type }
       )
 
@@ -656,10 +656,10 @@ router.post(
           driverName: `${driver.first_name} ${driver.last_name}`,
           tripDate: trip.trip_date,
           miles: trip.miles_total,
-          status: 'rejected',
+          status: `rejected`,
           rejectionReason: rejection_reason
         }).catch(error => {
-          logger.error('Failed to send rejection notification email', { error: getErrorMessage(error) })
+          logger.error(`Failed to send rejection notification email`, { error: getErrorMessage(error) })
         })
       }
 

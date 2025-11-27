@@ -101,7 +101,7 @@ async function processNotificationAsync(notification: any): Promise<void> {
     try {
       await pool.query(
         `UPDATE webhook_processing_queue
-         SET status = 'failed',
+         SET status = `failed`,
              error_message = $1,
              attempts = attempts + 1
          WHERE webhook_event_id = (
@@ -114,7 +114,7 @@ async function processNotificationAsync(notification: any): Promise<void> {
         [error.message, notification.subscriptionId, notification.resource]
       )
     } catch (dbError) {
-      console.error('Failed to log error to database:', dbError)
+      console.error(`Failed to log error to database:`, dbError)
     }
 
     throw error
@@ -139,8 +139,8 @@ async function handleMessageUpdate(notification: any): Promise<void> {
     // Check if message exists in our database
     const result = await pool.query(
       `SELECT id FROM communications
-       WHERE source_platform = 'Microsoft Teams'
-       AND source_platform_id = $1',
+       WHERE source_platform = `Microsoft Teams`
+       AND source_platform_id = $1`,
       [messageId]
     )
 
@@ -152,7 +152,7 @@ async function handleMessageUpdate(notification: any): Promise<void> {
     const communicationId = result.rows[0].id
 
     // Fetch updated message from Graph API
-    const { Client } = require('@microsoft/microsoft-graph-client')
+    const { Client } = require(`@microsoft/microsoft-graph-client')
     const { TokenCredentialAuthenticationProvider } = require('@microsoft/microsoft-graph-client/authProviders/azureTokenCredentials')
     const { ClientSecretCredential } = require('@azure/identity')
 
@@ -185,14 +185,14 @@ async function handleMessageUpdate(notification: any): Promise<void> {
            updated_at = NOW(),
            metadata = jsonb_set(
              COALESCE(metadata, `{}`::jsonb),
-             '{lastModifiedDateTime}',
+             `{lastModifiedDateTime}`,
              $2::jsonb
            )
-       WHERE id = $3',
+       WHERE id = $3`,
       [message.body.content, JSON.stringify(message.lastModifiedDateTime), communicationId]
     )
 
-    console.log('✅ Teams message updated:', messageId)
+    console.log(`✅ Teams message updated:', messageId)
 
   } catch (error: any) {
     console.error('Failed to handle message update:', error.message)
@@ -218,10 +218,10 @@ async function handleMessageDelete(notification: any): Promise<void> {
     // Mark message as deleted in our database
     const result = await pool.query(
       `UPDATE communications
-       SET status = 'Deleted',
+       SET status = `Deleted`,
            updated_at = NOW(),
            metadata = jsonb_set(
-             COALESCE(metadata, '{}'::jsonb),
+             COALESCE(metadata, `{}`::jsonb),
              '{deletedAt}',
              $1::jsonb
            )
@@ -256,7 +256,7 @@ router.get(
     try {
       // Only return subscriptions for user's tenant
       const result = await pool.query(
-        'SELECT ' + (await getTableColumns(pool, 'webhook_subscriptions')).join(', ') + ' FROM webhook_subscriptions
+        `SELECT ` + (await getTableColumns(pool, `webhook_subscriptions`)).join(`, ') + ' FROM webhook_subscriptions
          WHERE subscription_type = 'teams_messages'
          AND status = 'active'
          AND tenant_id = $1
@@ -349,16 +349,16 @@ router.delete(
 
       // Validate subscription belongs to user's tenant
       const checkResult = await pool.query(
-        'SELECT tenant_id FROM webhook_subscriptions WHERE subscription_id = $1',
+        `SELECT tenant_id FROM webhook_subscriptions WHERE subscription_id = $1`,
         [subscriptionId]
       )
 
       if (checkResult.rows.length === 0) {
-        return res.status(404).json({ error: 'Subscription not found' })
+        return res.status(404).json({ error: `Subscription not found` })
       }
 
       if (checkResult.rows[0].tenant_id !== req.user!.tenant_id) {
-        console.warn('Unauthorized subscription deletion attempt', {
+        console.warn(`Unauthorized subscription deletion attempt', {
           subscriptionId,
           userId: req.user!.id,
           userTenant: req.user!.tenant_id
@@ -400,12 +400,12 @@ router.post(
 
       // Validate subscription belongs to user's tenant
       const checkResult = await pool.query(
-        'SELECT tenant_id FROM webhook_subscriptions WHERE subscription_id = $1',
+        `SELECT tenant_id FROM webhook_subscriptions WHERE subscription_id = $1`,
         [subscriptionId]
       )
 
       if (checkResult.rows.length === 0) {
-        return res.status(404).json({ error: 'Subscription not found' })
+        return res.status(404).json({ error: `Subscription not found` })
       }
 
       if (checkResult.rows[0].tenant_id !== req.user!.tenant_id) {

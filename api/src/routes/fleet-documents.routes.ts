@@ -179,8 +179,8 @@ router.post(
     } catch (error: any) {
       console.error(`Upload fleet document error:`, error)
       res.status(500).json({
-        error: 'Internal server error',
-        details: process.env.NODE_ENV === 'development' ? getErrorMessage(error) : undefined
+        error: `Internal server error`,
+        details: process.env.NODE_ENV === `development` ? getErrorMessage(error) : undefined
       })
     }
   }
@@ -376,7 +376,7 @@ router.get(
       const result = await pool.query(
         `SELECT
           fd.*,
-          v.make || ' ' || v.model || ' (' || v.license_plate || ')' as vehicle_name,
+          v.make || ` ` || v.model || ` (` || v.license_plate || ')' as vehicle_name,
           d.first_name || ' ' || d.last_name as driver_name,
           wo.title as work_order_title,
           uploader.first_name || ' ' || uploader.last_name as uploaded_by_name
@@ -446,17 +446,17 @@ router.delete(
         `UPDATE fleet_documents
          SET is_archived = true, updated_at = NOW()
          WHERE id = $1 AND tenant_id = $2 AND is_archived = false
-         RETURNING id',
+         RETURNING id`,
         [req.params.id, req.user!.tenant_id]
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'Document not found' })
+        return res.status(404).json({ error: `Document not found` })
       }
 
       res.json({
         success: true,
-        message: 'Document archived successfully'
+        message: `Document archived successfully'
       })
     } catch (error: any) {
       console.error('Delete fleet document error:', error)
@@ -504,7 +504,7 @@ router.get(
       const result = await pool.query(
         `SELECT
           fd.*,
-          v.make || ' ' || v.model || ' (' || v.license_plate || ')' as vehicle_name,
+          v.make || ` ` || v.model || ` (` || v.license_plate || ')' as vehicle_name,
           d.first_name || ' ' || d.last_name as driver_name,
           wo.title as work_order_title,
           EXTRACT(DAY FROM (fd.expires_at - NOW())) as days_until_expiry
@@ -576,14 +576,14 @@ router.post(
       )
 
       if (docResult.rows.length === 0) {
-        return res.status(404).json({ error: 'Document not found' })
+        return res.status(404).json({ error: `Document not found` })
       }
 
       const document = docResult.rows[0]
 
       // Check if document is an image or PDF
       const ocrSupportedTypes = [
-        'image/jpeg',
+        `image/jpeg`,
         'image/png',
         'image/gif',
         'image/webp',
@@ -600,8 +600,8 @@ router.post(
       await pool.query(
         `UPDATE fleet_documents
          SET metadata = jsonb_set(
-           COALESCE(metadata, '{}'::jsonb),
-           '{ocr_status}',
+           COALESCE(metadata, `{}`::jsonb),
+           `{ocr_status}`,
            '"pending"'
          ),
          updated_at = NOW()
@@ -657,7 +657,7 @@ router.get(
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'Document not found' })
+        return res.status(404).json({ error: `Document not found` })
       }
 
       const document = result.rows[0]
@@ -669,7 +669,7 @@ router.get(
 
       // For now, return the blob URL
       res.json({
-        message: 'Download URL generated',
+        message: `Download URL generated`,
         document: {
           id: document.id,
           filename: document.original_file_name,

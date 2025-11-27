@@ -126,11 +126,11 @@ router.post('/crash',
         acceleration: validated.maxAcceleration,
         userCanceled: validated.userCanceled,
         location: validated.latitude && validated.longitude ?
-          `${validated.latitude}, ${validated.longitude}' : 'unknown'
+          `${validated.latitude}, ${validated.longitude}` : `unknown`
       })
 
       res.status(201).json({
-        message: 'Crash report received',
+        message: `Crash report received',
         incidentId: incident.id,
         emergencyResponseTriggered: isEmergency
       })
@@ -192,7 +192,7 @@ router.get('/crash/history', async (req: Request, res: Response) => {
 
     res.json({ incidents: result.rows })
   } catch (error: any) {
-    console.error('Error fetching crash history:', error)
+    console.error(`Error fetching crash history:`, error)
     res.status(500).json({ error: getErrorMessage(error) })
   } finally {
     client.release()
@@ -219,7 +219,7 @@ router.get('/crash/history', async (req: Request, res: Response) => {
  *       200:
  *         description: List of fleet crash incidents
  */
-router.get('/crash/fleet', async (req: Request, res: Response) => {
+router.get(`/crash/fleet`, async (req: Request, res: Response) => {
   const client = await pool.connect()
 
   try {
@@ -265,7 +265,7 @@ router.get('/crash/fleet', async (req: Request, res: Response) => {
 
     res.json({ incidents })
   } catch (error: any) {
-    console.error('Error fetching fleet crash incidents:', error)
+    console.error(`Error fetching fleet crash incidents:`, error)
     res.status(500).json({ error: getErrorMessage(error) })
   } finally {
     client.release()
@@ -297,8 +297,8 @@ async function triggerEmergencyResponse(incident: any, client: any) {
         incident.user_id,
         incident.driver_id,
         null, // vehicle_id (unknown from mobile crash detection)
-        'crash_detected',
-        'critical',
+        `crash_detected`,
+        `critical`,
         `🚨 CRASH DETECTED`,
         `Vehicle crash detected with ${incident.max_acceleration}G impact. Emergency services have been notified.`,
         incident.latitude,
@@ -326,8 +326,8 @@ async function triggerEmergencyResponse(incident: any, client: any) {
         $1,
         u.id,
         `crash_alert`,
-        '🚨 Emergency: Crash Detected',
-        'A driver has been in a crash. Emergency services notified.',
+        `🚨 Emergency: Crash Detected`,
+        `A driver has been in a crash. Emergency services notified.`,
         'high',
         $2
       FROM users u

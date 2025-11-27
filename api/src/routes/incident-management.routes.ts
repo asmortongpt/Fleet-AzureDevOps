@@ -108,8 +108,8 @@ router.get('/:id', requirePermission('safety_incident:view:global'), async (req:
       pool.query(
         `SELECT
           i.*,
-          u_reported.first_name || ' ' || u_reported.last_name as reported_by_name,
-          u_assigned.first_name || ' ' || u_assigned.last_name as assigned_to_name,
+          u_reported.first_name || ` ` || u_reported.last_name as reported_by_name,
+          u_assigned.first_name || ` ` || u_assigned.last_name as assigned_to_name,
           v.vehicle_number as vehicle_involved,
           d.first_name || ' ' || d.last_name as driver_name
         FROM incidents i
@@ -152,13 +152,13 @@ router.get('/:id', requirePermission('safety_incident:view:global'), async (req:
       witness_name,
       contact_info,
       statement,
-      created_at FROM incident_witnesses WHERE incident_id = $1',
+      created_at FROM incident_witnesses WHERE incident_id = $1`,
         [id]
       )
     ])
 
     if (incident.rows.length === 0) {
-      return res.status(404).json({ error: 'Incident not found' })
+      return res.status(404).json({ error: `Incident not found` })
     }
 
     res.json({
@@ -168,7 +168,7 @@ router.get('/:id', requirePermission('safety_incident:view:global'), async (req:
       witnesses: witnesses.rows
     })
   } catch (error) {
-    console.error('Error fetching incident:', error)
+    console.error(`Error fetching incident:', error)
     res.status(500).json({ error: 'Failed to fetch incident' })
   }
 })
@@ -199,7 +199,7 @@ router.post('/', requirePermission('safety_incident:create:global'), async (req:
       ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19)
       RETURNING *`,
       [
-        tenantId, incident_title, incident_type, severity, 'open',
+        tenantId, incident_title, incident_type, severity, `open`,
         incident_date, incident_time, location, description,
         vehicle_id, driver_id, injuries_reported, injury_details,
         property_damage, damage_estimate, weather_conditions,
@@ -224,7 +224,7 @@ router.post('/', requirePermission('safety_incident:create:global'), async (req:
     await client.query(
       `INSERT INTO incident_timeline (incident_id, event_type, description, performed_by)
        VALUES ($1, $2, $3, $4)`,
-      [incidentId, 'created', 'Incident reported', userId]
+      [incidentId, `created`, `Incident reported`, userId]
     )
 
     await client.query('COMMIT')
@@ -274,7 +274,7 @@ router.put('/:id', requirePermission('safety_incident:update:global'), async (re
 
     const result = await client.query(
       `UPDATE incidents
-       SET ${setClauses.join(', ')}
+       SET ${setClauses.join(`, `)}
        WHERE id = $${paramCount} AND tenant_id = $${paramCount + 1}
        RETURNING *`,
       values
@@ -282,7 +282,7 @@ router.put('/:id', requirePermission('safety_incident:update:global'), async (re
 
     if (result.rows.length === 0) {
       await client.query(`ROLLBACK`)
-      return res.status(404).json({ error: 'Incident not found' })
+      return res.status(404).json({ error: `Incident not found` })
     }
 
     // Add timeline entry
@@ -297,10 +297,10 @@ router.put('/:id', requirePermission('safety_incident:update:global'), async (re
 
     res.json({
       incident: result.rows[0],
-      message: 'Incident updated successfully'
+      message: `Incident updated successfully`
     })
   } catch (error) {
-    await client.query('ROLLBACK')
+    await client.query(`ROLLBACK`)
     console.error('Error updating incident:', error)
     res.status(500).json({ error: 'Failed to update incident' })
   } finally {
@@ -337,10 +337,10 @@ router.post('/:id/actions', requirePermission('safety_incident:update:global'), 
 
     res.status(201).json({
       action: result.rows[0],
-      message: 'Corrective action added successfully'
+      message: `Corrective action added successfully`
     })
   } catch (error) {
-    await client.query('ROLLBACK')
+    await client.query(`ROLLBACK`)
     console.error('Error adding action:', error)
     res.status(500).json({ error: 'Failed to add corrective action' })
   } finally {
@@ -361,7 +361,7 @@ router.post('/:id/close', requirePermission('safety_incident:update:global'), as
 
     const result = await client.query(
       `UPDATE incidents
-       SET status = 'closed',
+       SET status = `closed`,
            closed_date = NOW(),
            resolution_notes = $1,
            root_cause = $2,
@@ -373,7 +373,7 @@ router.post('/:id/close', requirePermission('safety_incident:update:global'), as
     )
 
     if (result.rows.length === 0) {
-      await client.query('ROLLBACK')
+      await client.query(`ROLLBACK`)
       return res.status(404).json({ error: 'Incident not found' })
     }
 
@@ -381,7 +381,7 @@ router.post('/:id/close', requirePermission('safety_incident:update:global'), as
     await client.query(
       `INSERT INTO incident_timeline (incident_id, event_type, description, performed_by)
        VALUES ($1, $2, $3, $4)`,
-      [id, 'closed', 'Incident investigation completed and closed', userId]
+      [id, `closed`, `Incident investigation completed and closed`, userId]
     )
 
     await client.query('COMMIT')
@@ -419,10 +419,10 @@ router.get('/analytics/summary', requirePermission('safety_incident:view:global'
       ),
       pool.query(
         `SELECT
-           DATE_TRUNC('month', incident_date) as month,
+           DATE_TRUNC(`month`, incident_date) as month,
            COUNT(*) as count
          FROM incidents
-         WHERE tenant_id = $1 AND incident_date >= NOW() - INTERVAL '12 months'
+         WHERE tenant_id = $1 AND incident_date >= NOW() - INTERVAL `12 months`
          GROUP BY DATE_TRUNC('month', incident_date)
          ORDER BY month`,
         [tenantId]
