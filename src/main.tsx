@@ -1,82 +1,43 @@
-// CRITICAL: Import React and ReactDOM FIRST before any other library
-import React from 'react'
-import ReactDOM from 'react-dom/client'
-const { createRoot } = ReactDOM
-
-// Now import other React-dependent libraries
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
-import { ErrorBoundary } from "react-error-boundary";
-
-import App from './App.tsx'
-import { ErrorFallback } from './ErrorFallback.tsx'
-import { TenantProvider } from './lib/tenantContext.tsx'
-import { AuthProvider } from './components/providers/AuthProvider.tsx'
-import { QueryProvider } from './components/providers/QueryProvider.tsx'
-import { ThemeProvider } from './components/providers/ThemeProvider.tsx'
-import { InspectProvider } from './services/inspect/InspectContext.tsx'
-import { Login } from './pages/Login.tsx'
-import { AuthCallback } from './pages/AuthCallback.tsx'
-import { isAuthenticated } from './lib/microsoft-auth.ts'
-import MobileEmulatorTestScreen from './components/testing/MobileEmulatorTestScreen.tsx'
-import { startVersionChecker } from './lib/version-checker.ts'
-
-import "./main.css"
-import "./styles/theme.css"
+import React from "react"
+import ReactDOM from "react-dom/client"
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom"
+import { AuthProvider } from "./components/providers/AuthProvider"
+import { useAuth } from "./hooks/useAuth"
+import App from "./App"
+import Login from "./pages/Login"
 import "./index.css"
-import "leaflet/dist/leaflet.css"
 
-// Start automatic version checking and cache refresh
-startVersionChecker();
+function ProtectedRoute({ children }: { children: React.ReactNode }) {
+  const { isAuthenticated, isLoading } = useAuth()
 
-// Protected Route Component
-function ProtectedRoute({ children }: { children: React.ReactNode}) {
-  // TEMPORARY FIX: Bypass authentication in production until backend is deployed
-  // TODO: Re-enable authentication once backend API is running
-  console.log('[PROTECTED_ROUTE] Authentication bypassed - showing app directly')
-  return <>{children}</>
-
-  /* COMMENTED OUT - Re-enable when backend is ready
-  // CRITICAL FIX: Always bypass authentication in DEV mode
-  // Check DEV mode FIRST before calling isAuthenticated
-  if (import.meta.env.DEV) {
-    console.log('[PROTECTED_ROUTE] DEV mode detected - bypassing authentication')
-    return <>{children}</>
+  if (isLoading) {
+    return <div>Loading authentication...</div>
   }
 
-  const authenticated = isAuthenticated()
-  console.log('[PROTECTED_ROUTE] Production mode - isAuthenticated:', authenticated)
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />
+  }
 
-  return authenticated ? <>{children}</> : <Navigate to="/login" replace />
-  */
+  return <>{children}</>
 }
 
-createRoot(document.getElementById('root')!).render(
-  <ErrorBoundary FallbackComponent={ErrorFallback}>
-    <QueryProvider>
-      <ThemeProvider defaultTheme="system">
-        <InspectProvider>
-          <BrowserRouter>
-            <TenantProvider>
-              <AuthProvider>
-                <Routes>
-                  <Route path="/login" element={<Login />} />
-                  <Route path="/auth/callback" element={<AuthCallback />} />
-                  <Route path="/auth/success" element={<AuthCallback />} />
-                  <Route path="/test/mobile-emulator" element={<MobileEmulatorTestScreen />} />
-                  <Route
-                    path="/*"
-                    element={
-                      <ProtectedRoute>
-                        <App />
-                      </ProtectedRoute>
-                    }
-                  />
-                </Routes>
-              </AuthProvider>
-            </TenantProvider>
-          </BrowserRouter>
-        </InspectProvider>
-      </ThemeProvider>
-    </QueryProvider>
-   </ErrorBoundary>
+ReactDOM.createRoot(document.getElementById("root")!).render(
+  <React.StrictMode>
+    <AuthProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route path="/auth/callback" element={<Login />} />
+          <Route
+            path="/*"
+            element={
+              <ProtectedRoute>
+                <App />
+              </ProtectedRoute>
+            }
+          />
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
+  </React.StrictMode>
 )
