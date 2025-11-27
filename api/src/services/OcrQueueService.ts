@@ -376,7 +376,7 @@ export class OcrQueueService {
     error?: string
   ): Promise<void> {
     try {
-      const updates: string[] = [`status = $2', 'progress = $3', `updated_at = NOW()`];
+      const updates: string[] = [`status = $2`, `progress = $3', `updated_at = NOW()`];
       const values: any[] = [jobId, status, progress];
       let paramCount = 3;
 
@@ -402,7 +402,7 @@ export class OcrQueueService {
       }
 
       await pool.query(
-        `UPDATE ocr_jobs SET ${updates.join(', ')} WHERE id = $1',
+        `UPDATE ocr_jobs SET ${updates.join(`, `)} WHERE id = $1',
         values
       );
     } catch (error) {

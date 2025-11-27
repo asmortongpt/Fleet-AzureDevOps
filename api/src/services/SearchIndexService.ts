@@ -389,7 +389,7 @@ export class SearchIndexService {
         query += ` AND d.status = $${++paramCount}`
         params.push(searchQuery.filters.status)
       } else {
-        query += ` AND d.status = 'active'`
+        query += ` AND d.status = `active``
       }
 
       if (searchQuery.filters.minScore) {
@@ -510,7 +510,7 @@ export class SearchIndexService {
         query += ` AND d.status = $${++paramCount}`
         params.push(searchQuery.filters.status)
       } else {
-        query += ` AND d.status = 'active''
+        query += ` AND d.status = `active`'
       }
     }
 

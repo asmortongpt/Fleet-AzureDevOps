@@ -57,10 +57,10 @@ router.get('/rates', async (req: Request, res: Response) => {
     if (tenant_id) {
       try {
         const tenantRateResult = await pool.query(
-          `SELECT settings->>`mileage_rate` as rate,
-                  settings->>`rate_effective_date` as effective_date
+          `SELECT settings->>'mileage_rate' as rate,
+                  settings->>'rate_effective_date' as effective_date
            FROM tenants
-           WHERE id = $1 AND settings->>'mileage_rate' IS NOT NULL',
+           WHERE id = $1 AND settings->>'mileage_rate' IS NOT NULL`,
           [tenant_id]
         )
 
@@ -131,7 +131,7 @@ router.post('/calculate', async (req: Request, res: Response) => {
     else if (tenant_id) {
       try {
         const tenantRateResult = await pool.query(
-          `SELECT settings->>`mileage_rate` as rate FROM tenants WHERE id = $1`,
+          `SELECT settings->>'mileage_rate' as rate FROM tenants WHERE id = $1`,
           [tenant_id]
         )
         if (tenantRateResult.rows.length > 0 && tenantRateResult.rows[0].rate) {
@@ -317,9 +317,9 @@ router.put('/rates/tenant/:tenant_id', async (req: Request, res: Response) => {
 
     await pool.query(
       `UPDATE tenants
-       SET settings = settings || jsonb_build_object(`mileage_rate`, $1, `rate_effective_date`, $2),
+       SET settings = settings || jsonb_build_object('mileage_rate', $1, 'rate_effective_date', $2),
            updated_at = NOW()
-       WHERE id = $3',
+       WHERE id = $3`,
       [rate.toString(), effective_date || new Date().toISOString().split('T')[0], tenant_id]
     )
 

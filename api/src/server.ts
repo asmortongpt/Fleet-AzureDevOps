@@ -1,6 +1,16 @@
 // CRITICAL: Load environment variables FIRST (before ANY imports that use process.env)
 import dotenv from 'dotenv'
-dotenv.config()
+import path from 'path'
+import { fileURLToPath } from 'url'
+
+// Load global env file first (contains API keys per user instruction)
+const globalResult = dotenv.config({ path: '/Users/andrewmorton/.env' })
+console.log('[DOTENV] Global .env loaded:', globalResult.error ? `ERROR: ${globalResult.error}` : `✅ ${Object.keys(globalResult.parsed || {}).length} vars`)
+
+// Then load local env file (can override globals)
+const localResult = dotenv.config({ path: '/Users/andrewmorton/Documents/GitHub/fleet-local/api/.env' })
+console.log('[DOTENV] Local .env loaded:', localResult.error ? `ERROR: ${localResult.error}` : `✅ ${Object.keys(localResult.parsed || {}).length} vars`)
+console.log('[DOTENV] CSRF_SECRET present:', !!process.env.CSRF_SECRET)
 
 // IMPORTANT: OpenTelemetry must be initialized BEFORE any other imports (but AFTER dotenv)
 import sdk from './config/telemetry'

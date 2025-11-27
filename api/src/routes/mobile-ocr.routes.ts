@@ -69,7 +69,7 @@ const OdometerOCRSchema = z.object({
   ocrData: z
     .object({
       reading: z.number().positive(),
-      unit: z.enum([`miles`, 'kilometers']),
+      unit: z.enum(['miles', 'kilometers']),
       confidence: z.number().min(0).max(1),
       notes: z.string().optional(),
     })

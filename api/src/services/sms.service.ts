@@ -598,7 +598,7 @@ class SMSService {
     let result = template;
 
     for (const [key, value] of Object.entries(variables)) {
-      const regex = new RegExp(`{{${key}}}`, 'g');
+      const regex = new RegExp(`{{${key}}}`, `g`);
       result = result.replace(regex, String(value));
     }
 

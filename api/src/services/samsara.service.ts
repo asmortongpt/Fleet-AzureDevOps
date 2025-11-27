@@ -80,7 +80,7 @@ class SamsaraService {
     this.api = createSafeAxiosInstance(SAMSARA_BASE_URL, {
       headers: {
         'Authorization': `Bearer ${SAMSARA_API_TOKEN}`,
-        `Content-Type': 'application/json'
+        'Content-Type': 'application/json'
       },
       timeout: 30000,
       allowedDomains: SAMSARA_ALLOWED_DOMAINS,
@@ -231,7 +231,7 @@ class SamsaraService {
           const result = await this.db.query(
             `INSERT INTO vehicles (name, vin, make, model, year, license_plate, status)
              VALUES ($1, $2, $3, $4, $5, $6, 'active')
-             RETURNING id',
+             RETURNING id`,
             [vehicle.name, vehicle.vin, vehicle.make, vehicle.model, vehicle.year, vehicle.licensePlate]
           );
           vehicleId = result.rows[0].id;
@@ -247,7 +247,7 @@ class SamsaraService {
              external_vehicle_id = EXCLUDED.external_vehicle_id,
              metadata = EXCLUDED.metadata,
              last_sync_at = NOW(),
-             sync_status = `active``,
+             sync_status = 'active'`,
           [vehicleId, vehicle.id, JSON.stringify(vehicle)]
         );
 
@@ -272,7 +272,7 @@ class SamsaraService {
       `SELECT vtc.vehicle_id, vtc.external_vehicle_id
        FROM vehicle_telematics_connections vtc
        JOIN telematics_providers tp ON vtc.provider_id = tp.id
-       WHERE tp.name = 'samsara' AND vtc.sync_status = 'active''
+       WHERE tp.name = 'samsara' AND vtc.sync_status = 'active'`
     );
 
     if (connections.rows.length === 0) {
@@ -366,7 +366,7 @@ class SamsaraService {
         const vehicleResult = await this.db.query(
           `SELECT vehicle_id FROM vehicle_telematics_connections
            WHERE external_vehicle_id = $1
-           AND provider_id = (SELECT id FROM telematics_providers WHERE name = 'samsara')',
+           AND provider_id = (SELECT id FROM telematics_providers WHERE name = 'samsara')`,
           [event.vehicleId]
         );
 
@@ -384,7 +384,7 @@ class SamsaraService {
           `INSERT INTO driver_safety_events
            (external_event_id, vehicle_id, provider_id, event_type, severity,
             latitude, longitude, address, speed_mph, g_force, timestamp)
-           VALUES ($1, $2, (SELECT id FROM telematics_providers WHERE name = `samsara`),
+           VALUES ($1, $2, (SELECT id FROM telematics_providers WHERE name = 'samsara'),
                    $3, $4, $5, $6, $7, $8, $9, $10)
            ON CONFLICT (external_event_id) DO NOTHING`,
           [

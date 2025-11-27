@@ -197,7 +197,7 @@ router.delete(
         return ApiResponse.notFound(res, `Maintenance schedule`)
       }
 
-      return ApiResponse.success(res, { id: result.rows[0].id }, `Maintenance schedule deleted successfully')
+      return ApiResponse.success(res, { id: result.rows[0].id }, 'Maintenance schedule deleted successfully')
     } catch (error) {
       console.error('Delete maintenance-schedules error:', error)
       return ApiResponse.serverError(res, 'Failed to delete maintenance schedule')
@@ -259,7 +259,7 @@ router.post(
           nextDue,
           data.notes,
           data.parts ? JSON.stringify(data.parts) : null,
-          `scheduled`
+          'scheduled'
         ]
       )
 
@@ -402,7 +402,7 @@ router.post(
         const nextDue = new Date(schedule.next_due)
         if (nextDue > now) {
           return res.status(400).json({
-            error: `Schedule is not due yet',
+            error: 'Schedule is not due yet',
             next_due: schedule.next_due
           })
         }
@@ -433,7 +433,7 @@ router.post(
         schedule: schedule
       })
     } catch (error: any) {
-      console.error(`Generate work order error:', error)
+      console.error('Generate work order error:', error)
       res.status(500).json({ error: error.message || 'Internal server error' })
     }
   }

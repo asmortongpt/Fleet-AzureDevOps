@@ -228,7 +228,7 @@ export class ExcelExportService {
     }
 
     // Add header
-    lines.push(options.columns.map(col => `"${col.label}"`).join(','))
+    lines.push(options.columns.map(col => `"${col.label}"`).join(`,`))
 
     // Add data rows
     options.data.forEach(row => {
@@ -261,7 +261,7 @@ export class ExcelExportService {
     const filename = `${this.sanitizeFilename(options.title)}_${Date.now()}.csv`
     const filepath = path.join(this.OUTPUT_DIR, filename)
 
-    await fs.writeFile(filepath, lines.join(`\n'), 'utf-8')
+    await fs.writeFile(filepath, lines.join(`\n`), `utf-8')
 
     return filepath
   }
