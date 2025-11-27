@@ -25,7 +25,7 @@ class CameraManager: NSObject, ObservableObject {
 
     // Location for metadata
     private let locationManager = CLLocationManager()
-    private var currentLocation: CLLocation?
+    var currentLocation: CLLocation?
 
     override init() {
         super.init()
