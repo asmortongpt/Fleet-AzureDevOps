@@ -56,6 +56,14 @@ class CameraManager: NSObject, ObservableObject {
 
     // MARK: - Session Setup
     func setupSession() {
+        // SECURITY: Detect simulator to prevent camera freeze/crash
+        #if targetEnvironment(simulator)
+        DispatchQueue.main.async { [weak self] in
+            self?.error = .setupFailed("Camera not available in simulator. Please test on a physical device.")
+        }
+        return
+        #endif
+
         sessionQueue.async { [weak self] in
             guard let self = self else { return }
 
