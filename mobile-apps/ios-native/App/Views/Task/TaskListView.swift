@@ -64,7 +64,17 @@ struct TaskListView: View {
         case .kanban:
             kanbanView
         case .calendar:
-            Text("Calendar view coming soon")
+            VStack(spacing: 20) {
+                Image(systemName: "calendar")
+                    .font(.system(size: 50))
+                    .foregroundColor(.secondary)
+                Text("Calendar View")
+                    .font(.headline)
+                Text("View tasks in calendar format")
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
     }
 

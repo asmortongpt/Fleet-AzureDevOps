@@ -876,8 +876,15 @@ struct AddWarrantyView: View {
     var body: some View {
         NavigationView {
             Form {
-                Section {
-                    Text("Add warranty form coming soon...")
+                Section(header: Text("Warranty Information")) {
+                    TextField("Vehicle/Asset", text: .constant(""))
+                    TextField("Provider", text: .constant(""))
+                    TextField("Policy Number", text: .constant(""))
+                }
+                Section(header: Text("Coverage")) {
+                    DatePicker("Start Date", selection: .constant(Date()), displayedComponents: .date)
+                    DatePicker("End Date", selection: .constant(Date()), displayedComponents: .date)
+                    TextField("Coverage Amount", text: .constant(""))
                 }
             }
             .navigationTitle("Add Warranty")
