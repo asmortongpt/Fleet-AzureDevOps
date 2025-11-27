@@ -1,6 +1,7 @@
 import Foundation
 import Combine
 import CoreLocation
+import UserNotifications
 
 @MainActor
 class ScheduleService: ObservableObject {
@@ -75,6 +76,9 @@ class ScheduleService: ObservableObject {
     }
 
     func deleteSchedule(_ id: String) async throws {
+        // Cancel any pending notifications for this schedule
+        await cancelNotificationsForSchedule(id)
+
         // In production: DELETE to API
         // await apiClient.delete("/schedules/\(id)")
 
@@ -442,17 +446,105 @@ class ScheduleService: ObservableObject {
     // MARK: - Notifications
 
     private func scheduleNotifications(for entry: ScheduleEntry) async {
-        // In production, schedule local notifications
+        // Schedule local notifications for reminders
         for reminder in entry.reminders where !reminder.sent {
             let triggerDate = entry.startDate.addingTimeInterval(-Double(reminder.minutesBefore * 60))
 
-            // Schedule notification using UNUserNotificationCenter
-            // NotificationService.shared.scheduleNotification(
-            //     title: entry.title,
-            //     body: "Starting in \(reminder.minutesBefore) minutes",
-            //     date: triggerDate
-            // )
+            // Only schedule future notifications
+            guard triggerDate > Date() else { continue }
+
+            await scheduleNotification(
+                identifier: "schedule_\(entry.id)_\(reminder.id)",
+                title: entry.title,
+                body: generateNotificationBody(for: entry, minutesBefore: reminder.minutesBefore),
+                date: triggerDate,
+                categoryIdentifier: notificationCategory(for: entry.type),
+                userInfo: [
+                    "scheduleId": entry.id,
+                    "scheduleType": entry.type.rawValue,
+                    "reminderId": reminder.id
+                ]
+            )
         }
+    }
+
+    private func scheduleNotification(
+        identifier: String,
+        title: String,
+        body: String,
+        date: Date,
+        categoryIdentifier: String,
+        userInfo: [String: Any]
+    ) async {
+        let content = UNMutableNotificationContent()
+        content.title = title
+        content.body = body
+        content.sound = .default
+        content.categoryIdentifier = categoryIdentifier
+        content.userInfo = userInfo
+        content.badge = 1
+
+        let components = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute], from: date)
+        let trigger = UNCalendarNotificationTrigger(dateMatching: components, repeats: false)
+
+        let request = UNNotificationRequest(
+            identifier: identifier,
+            content: content,
+            trigger: trigger
+        )
+
+        do {
+            try await UNUserNotificationCenter.current().add(request)
+            print("✅ Scheduled notification for \(title) at \(date)")
+        } catch {
+            print("❌ Error scheduling notification: \(error.localizedDescription)")
+        }
+    }
+
+    private func generateNotificationBody(for entry: ScheduleEntry, minutesBefore: Int) -> String {
+        let timeUntil: String
+        if minutesBefore < 60 {
+            timeUntil = "\(minutesBefore) minutes"
+        } else {
+            let hours = minutesBefore / 60
+            timeUntil = "\(hours) hour\(hours > 1 ? "s" : "")"
+        }
+
+        var body = "\(entry.type.rawValue) starting in \(timeUntil)"
+
+        if let location = entry.location {
+            body += " at \(location.name)"
+        }
+
+        return body
+    }
+
+    private func notificationCategory(for type: ScheduleType) -> String {
+        switch type {
+        case .maintenance: return "MAINTENANCE"
+        case .shift: return "SHIFT"
+        case .trip: return "TRIP"
+        case .meeting: return "MEETING"
+        default: return "SCHEDULE"
+        }
+    }
+
+    func cancelNotificationsForSchedule(_ scheduleId: String) async {
+        let center = UNUserNotificationCenter.current()
+        let pendingRequests = await center.pendingNotificationRequests()
+
+        let identifiersToCancel = pendingRequests
+            .filter { request in
+                if let userInfo = request.content.userInfo as? [String: Any],
+                   let id = userInfo["scheduleId"] as? String {
+                    return id == scheduleId
+                }
+                return false
+            }
+            .map { $0.identifier }
+
+        center.removePendingNotificationRequests(withIdentifiers: identifiersToCancel)
+        print("✅ Cancelled \(identifiersToCancel.count) notifications for schedule \(scheduleId)")
     }
 
     // MARK: - Persistence
