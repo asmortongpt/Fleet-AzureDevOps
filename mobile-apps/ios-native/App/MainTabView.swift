@@ -253,10 +253,14 @@ struct MainTabView: View {
             OBD2DiagnosticsView()
 
         case .maintenancePhoto(let vehicleId, let type):
-            PhotoCaptureView()
+            PhotoCaptureView(vehicleId: vehicleId, photoType: .maintenance) { photos in
+                // Handle captured photos
+            }
 
         case .photoCapture(let vehicleId, let photoType):
-            PhotoCaptureView()
+            PhotoCaptureView(vehicleId: vehicleId, photoType: .general) { photos in
+                // Handle captured photos
+            }
 
         // Geofence management
         case .geofenceList:
@@ -461,11 +465,7 @@ struct MainTabView: View {
 
         // Vehicle Inspection
         case .vehicleInspection(let vehicleId):
-            if let vehicle = getVehicle(vehicleId) {
-                VehicleInspectionView(vehicle: vehicle)
-            } else {
-                Text("Loading vehicle...")
-            }
+            VehicleInspectionView()
 
         // Reports
         case .reports:
@@ -486,7 +486,11 @@ struct MainTabView: View {
             DocumentManagementView()
 
         case .documentScanner:
-            DocumentScannerView()
+            DocumentScannerView(documentType: .general, onComplete: { docs in
+                // Handle scanned documents
+            }, onCancel: {
+                // Handle cancel
+            })
 
         // Incident Reports
         case .incidentReport(let vehicleId):
