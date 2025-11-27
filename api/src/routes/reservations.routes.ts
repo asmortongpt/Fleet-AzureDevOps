@@ -110,7 +110,7 @@ async function requiresApproval(purpose: string, userId: string): Promise<boolea
   // Check if user has auto-approval privilege for business reservations
   try {
     const result = await pool.query(
-      'SELECT user_has_any_role($1, ARRAY['Admin', 'FleetManager']) as has_role',
+      `SELECT user_has_any_role($1, ARRAY[`Admin`, `FleetManager`]) as has_role',
       [userId]
     );
 
@@ -320,25 +320,25 @@ router.post('/', authenticateJWT, async (req: AuthRequest, res: Response) => {
 
       // Check if vehicle exists
       const vehicleCheck = await client.query(
-        'SELECT id, unit_number, make, model, year FROM vehicles WHERE id = $1 AND deleted_at IS NULL',
+        `SELECT id, unit_number, make, model, year FROM vehicles WHERE id = $1 AND deleted_at IS NULL`,
         [data.vehicle_id]
       );
 
       if (vehicleCheck.rows.length === 0) {
-        await client.query('ROLLBACK');
-        return res.status(404).json({ error: 'Vehicle not found' });
+        await client.query(`ROLLBACK`);
+        return res.status(404).json({ error: `Vehicle not found' });
       }
 
       const vehicle = vehicleCheck.rows[0];
 
       // Check for reservation conflicts using the database function
       const conflictCheck = await client.query(
-        'SELECT check_reservation_conflict($1, $2, $3) as has_conflict',
+        `SELECT check_reservation_conflict($1, $2, $3) as has_conflict`,
         [data.vehicle_id, data.start_datetime, data.end_datetime]
       );
 
       if (conflictCheck.rows[0].has_conflict) {
-        await client.query('ROLLBACK');
+        await client.query(`ROLLBACK`);
         return res.status(409).json({
           error: 'Reservation conflict',
           message: 'This vehicle is already reserved for the selected time period',
@@ -402,7 +402,7 @@ router.post('/', authenticateJWT, async (req: AuthRequest, res: Response) => {
 
           if (eventId) {
             await pool.query(
-              'UPDATE vehicle_reservations SET microsoft_calendar_event_id = $1 WHERE id = $2',
+              `UPDATE vehicle_reservations SET microsoft_calendar_event_id = $1 WHERE id = $2`,
               [eventId, reservation.id]
             );
           }
@@ -410,7 +410,7 @@ router.post('/', authenticateJWT, async (req: AuthRequest, res: Response) => {
           // Send email confirmation to user
           await microsoftService.sendOutlookEmail(
             { ...reservation, ...vehicle },
-            'created'
+            `created`
           );
 
           // If approval required, notify fleet managers
@@ -418,7 +418,7 @@ router.post('/', authenticateJWT, async (req: AuthRequest, res: Response) => {
             await microsoftService.notifyFleetManagers({ ...reservation, ...vehicle });
           }
         } catch (integrationError) {
-          console.error('Microsoft integration error:', integrationError);
+          console.error(`Microsoft integration error:', integrationError);
           // Don't fail the request if integration fails
         }
       });
@@ -466,14 +466,14 @@ router.put('/:id', authenticateJWT, async (req: AuthRequest, res: Response) => {
 
       // Check if reservation exists and user has permission
       const checkQuery = canViewAllReservations(currentUser)
-        ? 'SELECT * FROM vehicle_reservations WHERE id = $1 AND deleted_at IS NULL'
-        : 'SELECT * FROM vehicle_reservations WHERE id = $1 AND user_id = $2 AND deleted_at IS NULL';
+        ? `SELECT * FROM vehicle_reservations WHERE id = $1 AND deleted_at IS NULL`
+        : `SELECT * FROM vehicle_reservations WHERE id = $1 AND user_id = $2 AND deleted_at IS NULL`;
 
       const checkParams = canViewAllReservations(currentUser) ? [id] : [id, currentUser.id];
       const checkResult = await client.query(checkQuery, checkParams);
 
       if (checkResult.rows.length === 0) {
-        await client.query('ROLLBACK');
+        await client.query(`ROLLBACK`);
         return res.status(404).json({
           error: 'Reservation not found or access denied'
         });
@@ -496,7 +496,7 @@ router.put('/:id', authenticateJWT, async (req: AuthRequest, res: Response) => {
         const newEnd = data.end_datetime || existingReservation.end_datetime;
 
         const conflictCheck = await client.query(
-          'SELECT check_reservation_conflict($1, $2, $3, $4) as has_conflict',
+          `SELECT check_reservation_conflict($1, $2, $3, $4) as has_conflict`,
           [existingReservation.vehicle_id, newStart, newEnd, id]
         );
 
@@ -602,14 +602,14 @@ router.delete('/:id', authenticateJWT, async (req: AuthRequest, res: Response) =
 
       // Check permission
       const checkQuery = canViewAllReservations(currentUser)
-        ? 'SELECT * FROM vehicle_reservations WHERE id = $1 AND deleted_at IS NULL'
-        : 'SELECT * FROM vehicle_reservations WHERE id = $1 AND user_id = $2 AND deleted_at IS NULL';
+        ? `SELECT * FROM vehicle_reservations WHERE id = $1 AND deleted_at IS NULL`
+        : `SELECT * FROM vehicle_reservations WHERE id = $1 AND user_id = $2 AND deleted_at IS NULL`;
 
       const checkParams = canViewAllReservations(currentUser) ? [id] : [id, currentUser.id];
       const checkResult = await client.query(checkQuery, checkParams);
 
       if (checkResult.rows.length === 0) {
-        await client.query('ROLLBACK');
+        await client.query(`ROLLBACK`);
         return res.status(404).json({
           error: 'Reservation not found or access denied'
         });
@@ -620,12 +620,12 @@ router.delete('/:id', authenticateJWT, async (req: AuthRequest, res: Response) =
       // Update status to cancelled (soft delete)
       await client.query(
         `UPDATE vehicle_reservations
-         SET status = 'cancelled', deleted_at = NOW(), updated_at = NOW()
-         WHERE id = $1',
+         SET status = `cancelled`, deleted_at = NOW(), updated_at = NOW()
+         WHERE id = $1`,
         [id]
       );
 
-      await client.query('COMMIT');
+      await client.query(`COMMIT`);
 
       // Delete calendar event if exists (non-blocking)
       if (reservation.microsoft_calendar_event_id) {
@@ -685,13 +685,13 @@ router.post('/:id/approve', authenticateJWT, async (req: AuthRequest, res: Respo
 
       // Get reservation
       const reservationResult = await client.query(
-        'SELECT * FROM vehicle_reservations WHERE id = $1 AND deleted_at IS NULL',
+        `SELECT * FROM vehicle_reservations WHERE id = $1 AND deleted_at IS NULL`,
         [id]
       );
 
       if (reservationResult.rows.length === 0) {
-        await client.query('ROLLBACK');
-        return res.status(404).json({ error: 'Reservation not found' });
+        await client.query(`ROLLBACK`);
+        return res.status(404).json({ error: `Reservation not found' });
       }
 
       const reservation = reservationResult.rows[0];

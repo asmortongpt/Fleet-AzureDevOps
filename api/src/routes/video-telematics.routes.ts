@@ -53,8 +53,8 @@ router.get(
 
       res.json({ cameras: result.rows });
     } catch (error: any) {
-      console.error('Get cameras error:', error);
-      res.status(500).json({ error: 'Failed to fetch cameras' });
+      console.error(`Get cameras error:`, error);
+      res.status(500).json({ error: `Failed to fetch cameras` });
     }
   }
 );
@@ -166,32 +166,32 @@ router.get(
         `SELECT vse.*,
                 v.name as vehicle_name,
                 v.vin,
-                d.first_name || ' ' || d.last_name as driver_name,
+                d.first_name || ` ` || d.last_name as driver_name,
                 vc.camera_type,
                 vc.camera_name
          FROM video_safety_events vse
          JOIN vehicles v ON vse.vehicle_id = v.id
          LEFT JOIN drivers d ON vse.driver_id = d.id
          LEFT JOIN vehicle_cameras vc ON vse.camera_id = vc.id
-         WHERE vse.id = $1 AND v.tenant_id = $2',
+         WHERE vse.id = $1 AND v.tenant_id = $2`,
         [req.params.id, req.user!.tenant_id]
       );
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'Video event not found' });
+        return res.status(404).json({ error: `Video event not found' });
       }
 
       // Log access for audit
       await pool.query(
         `INSERT INTO video_privacy_audit
          (video_event_id, accessed_by, access_type, ip_address)
-         VALUES ($1, $2, 'view', $3)',
+         VALUES ($1, $2, `view`, $3)`,
         [req.params.id, req.user!.id, req.ip]
       );
 
       res.json(result.rows[0]);
     } catch (error: any) {
-      console.error('Get video event error:', error);
+      console.error(`Get video event error:', error);
       res.status(500).json({ error: 'Failed to fetch video event' });
     }
   }
@@ -218,13 +218,13 @@ router.get(
       await pool.query(
         `INSERT INTO video_privacy_audit
          (video_event_id, accessed_by, access_type, ip_address)
-         VALUES ($1, $2, 'view', $3)',
+         VALUES ($1, $2, `view`, $3)`,
         [req.params.id, req.user!.id, req.ip]
       );
 
       res.json({ url: playbackUrl });
     } catch (error: any) {
-      console.error('Get video clip error:', error);
+      console.error(`Get video clip error:', error);
       res.status(500).json({ error: 'Failed to get video clip' });
     }
   }
@@ -342,9 +342,9 @@ router.patch(
         await aiService.markFalsePositive(Number(req.params.id), req.user!.id, reviewNotes);
       }
 
-      res.json({ message: 'Video event reviewed successfully' });
+      res.json({ message: `Video event reviewed successfully` });
     } catch (error: any) {
-      console.error('Review video event error:', error);
+      console.error(`Review video event error:`, error);
       res.status(500).json({ error: 'Failed to review video event' });
     }
   }
@@ -500,8 +500,8 @@ router.get(
 
       res.json({ events: result.rows });
     } catch (error: any) {
-      console.error('Get coaching events error:', error);
-      res.status(500).json({ error: 'Failed to fetch coaching events' });
+      console.error(`Get coaching events error:`, error);
+      res.status(500).json({ error: `Failed to fetch coaching events` });
     }
   }
 );
@@ -589,7 +589,7 @@ router.post(
       // Queue privacy processing
       await pool.query(
         `INSERT INTO video_processing_queue (video_event_id, task_type, priority)
-         VALUES ($1, 'privacy_blur', 2)',
+         VALUES ($1, `privacy_blur`, 2)`,
         [eventId]
       );
 
@@ -598,8 +598,8 @@ router.post(
         `UPDATE video_safety_events
          SET privacy_faces_blurred = $1,
              privacy_plates_blurred = $2,
-             privacy_processing_status = 'pending'
-         WHERE id = $3',
+             privacy_processing_status = `pending`
+         WHERE id = $3`,
         [blurFaces, blurPlates, eventId]
       );
 
@@ -618,10 +618,10 @@ router.post(
       res.json({
         message: `Privacy processing queued`,
         eventId,
-        status: 'pending'
+        status: `pending`
       });
     } catch (error: any) {
-      console.error('Apply privacy blur error:', error);
+      console.error(`Apply privacy blur error:`, error);
       res.status(500).json({ error: 'Failed to apply privacy filters' });
     }
   }
@@ -676,8 +676,8 @@ router.get(
 
       res.json({ scorecard: result.rows });
     } catch (error: any) {
-      console.error('Get scorecard error:', error);
-      res.status(500).json({ error: 'Failed to fetch scorecard' });
+      console.error(`Get scorecard error:`, error);
+      res.status(500).json({ error: `Failed to fetch scorecard` });
     }
   }
 );
@@ -704,8 +704,8 @@ router.get(
 
       res.json({ cameras: result.rows });
     } catch (error: any) {
-      console.error('Get camera health error:', error);
-      res.status(500).json({ error: 'Failed to fetch camera health' });
+      console.error(`Get camera health error:`, error);
+      res.status(500).json({ error: `Failed to fetch camera health` });
     }
   }
 );
