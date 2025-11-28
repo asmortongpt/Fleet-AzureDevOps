@@ -359,6 +359,12 @@ export const navigationItems: NavigationItem[] = [
     section: "tools"
   },
   {
+    id: "endpoint-monitor",
+    label: "Endpoint Monitor",
+    icon: <Pulse className="w-5 h-5" />,
+    section: "tools"
+  },
+  {
     id: "driver-scorecard",
     label: "Driver Scorecard",
     icon: <Trophy className="w-5 h-5" />,
