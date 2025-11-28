@@ -83,6 +83,7 @@ const DocumentManagement = lazy(() => import("@/components/modules/DocumentManag
 const DocumentQA = lazy(() => import("@/components/modules/DocumentQA").then(m => ({ default: m.DocumentQA })))
 const FuelPurchasing = lazy(() => import("@/components/modules/FuelPurchasing").then(m => ({ default: m.FuelPurchasing })))
 const EndpointMonitor = lazy(() => import("@/components/modules/EndpointMonitor").then(m => ({ default: m.EndpointMonitor })))
+const SettingsPage = lazy(() => import("@/pages/SettingsPage"))
 
 // Loading spinner component for Suspense fallback
 const LoadingSpinner = () => (
@@ -246,8 +247,8 @@ function App() {
         return <FuelPurchasing />
       case "endpoint-monitor":
         return <EndpointMonitor />
-      case "dashboard":
-        return <FleetDashboardModern data={fleetData} />
+      case "settings":
+        return <SettingsPage />
       default:
         return <FleetDashboardModern data={fleetData} />
     }
@@ -372,7 +373,15 @@ function App() {
               <Button variant="ghost" size="icon">
                 <Bell className="w-5 h-5" />
               </Button>
-              <Button variant="ghost" size="icon">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => {
+                  telemetryService.trackButtonClick('nav-settings', { source: 'header' })
+                  setActiveModule('settings')
+                }}
+                title="Settings"
+              >
                 <Gear className="w-5 h-5" />
               </Button>
               <DropdownMenu>
