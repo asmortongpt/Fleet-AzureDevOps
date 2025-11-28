@@ -1,249 +1,196 @@
-#!/usr/bin/env python3
 """
-Jules Agent - Uses Google Gemini to review code patches.
-This agent acts as a safety gatekeeper, reviewing all proposed changes
-before they are applied to ensure they are safe and won't break production.
+JulesAgent - Code Review & Approval
+Uses OpenAI GPT-4 to review patches and approve/reject with security focus
 """
 
-import os
-import json
 import logging
-from typing import Dict, List, Tuple
-import google.generativeai as genai
-from tenacity import retry, stop_after_attempt, wait_exponential
+import os
+from typing import Dict, Tuple
+from openai import OpenAI
 
 logger = logging.getLogger(__name__)
 
 
 class JulesAgent:
-    """Gemini-powered code review agent that validates proposed changes."""
-
-    def __init__(self, api_key: str, model: str = "gemini-1.5-pro", temperature: float = 0.1):
+    """
+    JulesAgent reviews code patches with focus on security and best practices
+    """
+    
+    def __init__(self, config: Dict):
+        self.config = config
+        agent_config = config.get('agents', {}).get('jules', {})
+        
+        self.model = agent_config.get('model', 'gpt-4')
+        self.temperature = agent_config.get('temperature', 0.1)
+        self.max_tokens = agent_config.get('max_tokens', 2000)
+        self.system_prompt = agent_config.get('system_prompt', '')
+        
+        # Initialize OpenAI client
+        api_key = os.getenv('OPENAI_API_KEY')
+        if not api_key:
+            raise ValueError("OPENAI_API_KEY environment variable not set")
+        
+        self.client = OpenAI(api_key=api_key)
+        logger.info(f"✅ JulesAgent initialized (model: {self.model})")
+    
+    def review_patch(
+        self,
+        patch: str,
+        error_context: str = "",
+        original_files: Dict[str, str] = None
+    ) -> Tuple[bool, str, Dict]:
         """
-        Initialize the Jules Agent.
-
+        Review patch and approve or reject
+        
         Args:
-            api_key: Google Gemini API key
-            model: Model to use (default: gemini-1.5-pro)
-            temperature: Sampling temperature (default: 0.1 for conservative reviews)
-        """
-        genai.configure(api_key=api_key)
-        self.model = genai.GenerativeModel(
-            model_name=model,
-            generation_config={
-                "temperature": temperature,
-                "top_p": 0.95,
-                "top_k": 40,
-                "max_output_tokens": 2000,
-            }
-        )
-        logger.info(f"Initialized JulesAgent with model={model}, temperature={temperature}")
-
-    @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=2, max=10))
-    def review_patch(self, diagnosis: Dict[str, any], patch_content: str) -> Dict[str, any]:
-        """
-        Review a code patch for safety and correctness.
-
-        Args:
-            diagnosis: The diagnosis from Codex agent
-            patch_content: Unified diff patch content
-
+            patch: Git patch content
+            error_context: Original error that patch is fixing
+            original_files: Original file contents for context
+        
         Returns:
-            Dictionary with review results
+            Tuple[bool, str, Dict]: (approved, reasoning, metadata)
         """
-        logger.info("Reviewing patch with Google Gemini...")
+        logger.info("👀 Reviewing patch with GPT-4")
+        
+        user_prompt = f"""
+Review this git patch and respond with APPROVE or REJECT.
 
-        prompt = f"""You are a senior code reviewer specializing in production safety.
-Review this patch and determine if it is safe to apply.
+SECURITY CHECKLIST:
+- ✓ No hardcoded secrets (API keys, passwords, tokens)
+- ✓ No SQL injection vulnerabilities (use $1, $2, $3 parameterized queries)
+- ✓ No command injection (no shell=True with user input)
+- ✓ No security headers removed
+- ✓ No authentication/authorization bypassed
+- ✓ No sensitive data exposure
 
-## Proposed Change
+QUALITY CHECKLIST:
+- ✓ Changes are minimal and targeted
+- ✓ No breaking changes to existing functionality
+- ✓ Follows project conventions
+- ✓ Error handling preserved or improved
 
-### Root Cause Analysis
-{diagnosis.get('root_cause', 'Not provided')}
-
-### Explanation
-{diagnosis.get('explanation', 'Not provided')}
-
-### Risk Level
-{diagnosis.get('risk_level', 'UNKNOWN')}
-
-### Patch
-```diff
-{patch_content}
-```
-
-## Review Criteria
-
-REJECT if the patch:
-- Deletes files or Azure resources
-- Modifies secrets or credentials
-- Introduces security vulnerabilities
-- Uses deprecated or dangerous patterns
-- Has syntax errors
-- Removes error handling
-- Breaks existing functionality
-
-APPROVE if the patch:
-- Makes minimal, surgical changes
-- Uses well-tested patterns
-- Includes proper error handling
-- Maintains backward compatibility
-- Follows security best practices
-
-Provide response as JSON:
-{{
-  "approved": true/false,
-  "confidence": 0.0-1.0,
-  "concerns": ["list of specific concerns"],
-  "recommendations": ["list of improvements"],
-  "risk_assessment": "LOW|MEDIUM|HIGH",
-  "summary": "brief review summary"
-}}
+PATCH TO REVIEW:
+{patch}
 """
+        
+        if error_context:
+            user_prompt += f"\n\nORIGINAL ERROR THIS FIXES:\n{error_context}"
+        
+        if original_files:
+            files_preview = "\n\n".join([
+                f"=== {path} (first 50 lines) ===\n" + "\n".join(content.split('\n')[:50])
+                for path, content in list(original_files.items())[:3]
+            ])
+            user_prompt += f"\n\nORIGINAL FILES (CONTEXT):\n{files_preview}"
+        
+        user_prompt += """
 
+RESPOND IN THIS FORMAT:
+Decision: APPROVE or REJECT
+Reasoning: [Your detailed reasoning]
+Security Issues: [List any security concerns, or "None found"]
+Recommendations: [Any suggestions for improvement]
+"""
+        
         try:
-            response = self.model.generate_content(prompt)
-            result_text = response.text
-
-            # Extract JSON from response (may be wrapped in markdown)
-            if "```json" in result_text:
-                result_text = result_text.split("```json")[1].split("```")[0].strip()
-            elif "```" in result_text:
-                result_text = result_text.split("```")[1].split("```")[0].strip()
-
-            result = json.loads(result_text)
-            logger.info(f"Review complete. Approved: {result.get('approved', False)}")
-            return result
-
-        except json.JSONDecodeError as e:
-            logger.error(f"Failed to parse Gemini response as JSON: {str(e)}")
-            logger.error(f"Raw response: {result_text}")
-            # Return a safe default (reject)
-            return {
-                "approved": False,
-                "confidence": 0.0,
-                "concerns": ["Failed to parse review response"],
-                "recommendations": [],
-                "risk_assessment": "HIGH",
-                "summary": "Review failed - rejecting for safety"
+            response = self.client.chat.completions.create(
+                model=self.model,
+                messages=[
+                    {"role": "system", "content": self.system_prompt},
+                    {"role": "user", "content": user_prompt}
+                ],
+                temperature=self.temperature,
+                max_tokens=self.max_tokens
+            )
+            
+            review = response.choices[0].message.content
+            
+            # Parse response
+            approved = "APPROVE" in review.upper() and "REJECT" not in review.split('\n')[0].upper()
+            
+            # Extract sections
+            metadata = {
+                'full_review': review,
+                'security_issues': self._extract_section(review, 'Security Issues'),
+                'recommendations': self._extract_section(review, 'Recommendations')
             }
+            
+            reasoning = self._extract_section(review, 'Reasoning') or review
+            
+            if approved:
+                logger.info("✅ Patch APPROVED")
+            else:
+                logger.warning("❌ Patch REJECTED")
+            
+            logger.debug(f"Review reasoning: {reasoning[:200]}...")
+            
+            return approved, reasoning, metadata
+            
         except Exception as e:
-            logger.error(f"Error during review: {str(e)}")
+            logger.error(f"❌ Review failed: {str(e)}")
             raise
-
-    def validate_changes(self, fixes: List[Tuple[str, str]]) -> Tuple[bool, List[str]]:
+    
+    def validate_security(self, content: str) -> Tuple[bool, list]:
         """
-        Validate a list of file changes for common safety issues.
-
-        Args:
-            fixes: List of (filename, patch) tuples
-
+        Perform security validation on content
+        
         Returns:
-            (is_safe, issues) tuple
+            Tuple[bool, list]: (is_secure, list_of_issues)
         """
         issues = []
-        is_safe = True
-
-        for filename, patch in fixes:
-            # Check for dangerous file modifications
-            if any(pattern in filename for pattern in ['.env', 'secret', 'credential', 'key', '.azure']):
-                issues.append(f"Attempting to modify sensitive file: {filename}")
-                is_safe = False
-
-            # Check for file deletions
-            if 'deleted file mode' in patch or '--- a/' in patch and '+++ /dev/null' in patch:
-                issues.append(f"Attempting to delete file: {filename}")
-                is_safe = False
-
-            # Check for dangerous operations
-            dangerous_patterns = [
-                'rm -rf',
-                'DROP TABLE',
-                'DELETE FROM',
-                'az group delete',
-                'kubectl delete',
-                'docker rmi',
-                'git push --force'
-            ]
-            for pattern in dangerous_patterns:
-                if pattern in patch:
-                    issues.append(f"Dangerous operation detected in {filename}: {pattern}")
-                    is_safe = False
-
-        if is_safe:
-            logger.info("Change validation passed")
-        else:
-            logger.warning(f"Change validation failed: {', '.join(issues)}")
-
-        return is_safe, issues
-
-    def get_approval_summary(self, review: Dict[str, any]) -> str:
-        """
-        Generate a human-readable approval summary.
-
-        Args:
-            review: Review result from review_patch()
-
-        Returns:
-            Summary string
-        """
-        approved = review.get('approved', False)
-        confidence = review.get('confidence', 0.0)
-        risk = review.get('risk_assessment', 'UNKNOWN')
-        summary = review.get('summary', 'No summary provided')
-
-        status = "✓ APPROVED" if approved else "✗ REJECTED"
-
-        msg = f"""
-{status} (Confidence: {confidence:.0%}, Risk: {risk})
-
-Summary: {summary}
-"""
-
-        concerns = review.get('concerns', [])
-        if concerns:
-            msg += f"\nConcerns:\n"
-            for concern in concerns:
-                msg += f"  - {concern}\n"
-
-        recommendations = review.get('recommendations', [])
-        if recommendations:
-            msg += f"\nRecommendations:\n"
-            for rec in recommendations:
-                msg += f"  - {rec}\n"
-
-        return msg
-
-
-if __name__ == "__main__":
-    # Test the agent
-    import sys
-    logging.basicConfig(level=logging.INFO)
-
-    api_key = os.getenv("GEMINI_API_KEY")
-    if not api_key:
-        print("ERROR: GEMINI_API_KEY not set")
-        sys.exit(1)
-
-    agent = JulesAgent(api_key)
-
-    # Test diagnosis
-    diagnosis = {
-        "root_cause": "React module loading order issue",
-        "explanation": "React-dependent libraries loading before React",
-        "risk_level": "MEDIUM"
-    }
-
-    # Test patch
-    patch = """
---- a/vite.config.ts
-+++ b/vite.config.ts
-@@ -200,6 +200,10 @@
-+          if (id.includes('node_modules/@floating-ui')) {
-+            return 'react-utils';
-+          }
-"""
-
-    review = agent.review_patch(diagnosis, patch)
-    print(json.dumps(review, indent=2))
-    print(agent.get_approval_summary(review))
+        
+        # Check for hardcoded secrets patterns
+        secret_patterns = [
+            ('API key', r'["\']?api[_-]?key["\']?\s*[:=]\s*["\'][^"\']+["\']'),
+            ('Password', r'["\']?password["\']?\s*[:=]\s*["\'][^"\']+["\']'),
+            ('Token', r'["\']?token["\']?\s*[:=]\s*["\'][^"\']+["\']'),
+            ('Secret', r'["\']?secret["\']?\s*[:=]\s*["\'][^"\']+["\']'),
+        ]
+        
+        import re
+        for name, pattern in secret_patterns:
+            if re.search(pattern, content, re.IGNORECASE):
+                # Check if it's referencing an env var
+                if 'process.env' not in content and 'os.getenv' not in content and '${' not in content:
+                    issues.append(f"Potential hardcoded {name} detected")
+        
+        # Check for SQL injection
+        sql_patterns = [
+            r'execute\s*\(\s*["\']SELECT.*\+',
+            r'query\s*\(\s*["\']SELECT.*\+',
+            r'\.raw\s*\(\s*["\'].*\+',
+        ]
+        
+        for pattern in sql_patterns:
+            if re.search(pattern, content, re.IGNORECASE):
+                issues.append("Potential SQL injection vulnerability (string concatenation in query)")
+        
+        # Check for command injection
+        if re.search(r'exec\s*\(.*\+', content) or re.search(r'system\s*\(.*\+', content):
+            issues.append("Potential command injection (string concatenation in exec/system)")
+        
+        is_secure = len(issues) == 0
+        return is_secure, issues
+    
+    def _extract_section(self, text: str, section_name: str) -> str:
+        """Extract a section from review text"""
+        lines = text.split('\n')
+        collecting = False
+        section_lines = []
+        
+        for line in lines:
+            if section_name.lower() in line.lower() and ':' in line:
+                collecting = True
+                # Get content after the colon
+                parts = line.split(':', 1)
+                if len(parts) > 1 and parts[1].strip():
+                    section_lines.append(parts[1].strip())
+                continue
+            
+            if collecting:
+                # Stop at next section header (line with colon at end or all caps)
+                if ':' in line and (line.strip().endswith(':') or line.strip().split(':')[0].isupper()):
+                    break
+                section_lines.append(line.strip())
+        
+        return ' '.join(section_lines).strip()
