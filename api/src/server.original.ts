@@ -35,9 +35,6 @@ import invoicesRouter from './routes/invoices'
 import purchaseOrdersRouter from './routes/purchase-orders'
 import tasksRouter from './routes/tasks'
 import chargesRouter from './routes/personal-use-charges'
-import routeEmulatorRouter from './routes/route-emulator.routes'
-import costsRouter from './routes/costs'
-import monitoringRouter from './routes/monitoring'
 import { telemetryMiddleware, errorTelemetryMiddleware, performanceMiddleware } from './middleware/telemetry'
 
 const app = express()
@@ -111,9 +108,6 @@ app.use('/api/invoices', invoicesRouter)
 app.use('/api/purchase-orders', purchaseOrdersRouter)
 app.use('/api/tasks', tasksRouter)
 app.use('/api/personal-use-charges', chargesRouter)
-app.use('/api/routes', routeEmulatorRouter)
-app.use('/api/costs', costsRouter)
-app.use('/api/monitoring', monitoringRouter)
 
 // 404 handler - must come before error handlers
 app.use(notFoundHandler())
