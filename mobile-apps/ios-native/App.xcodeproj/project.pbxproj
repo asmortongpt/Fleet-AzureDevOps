@@ -18,7 +18,6 @@
 		1D8E3EC22199FD0081A1FD8B /* QuickActionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A9B4C0A4C1C63335C743B4A /* QuickActionsView.swift */; };
 		1EADECA0585536A9C0A29270 /* VehicleModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2206275B015222D51C57E551 /* VehicleModel.swift */; };
 		1ED689725D32DF24B5DCDA67 /* NotificationsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8EE81C544DA2D674F1A7E9B /* NotificationsView.swift */; };
-		1F3F6273C7F72CC6AB1432EB /* DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A6126F750A72AA7F17EB7F2 /* DashboardView.swift */; };
 		210EB20ADE42FDE6A9971963 /* Pods_App.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 67FD8E952DFF702FEC001451 /* Pods_App.framework */; };
 		2195A10DF19DFCF799102BF4 /* MoreView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D699D4BE291F1EA5F945C74E /* MoreView.swift */; };
 		27BEF40315FFEAB575CE37C4 /* MaintenanceDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F5973307C13EA88B233DDA7 /* MaintenanceDetailView.swift */; };
@@ -33,6 +32,7 @@
 		3880E7B6342FF209081CEF9C /* AnalyticsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5E52416BB203D0EEF965375 /* AnalyticsManager.swift */; };
 		39DCFBF240FBD2721596DC15 /* PhotoCaptureView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C38520069FC58F103DE1707 /* PhotoCaptureView.swift */; };
 		3BEA6EB128B67C751E716546 /* OBD2DataParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 184D495ABE80A8A6317145D5 /* OBD2DataParser.swift */; };
+		3CC729BFDCA81DA94F48A67E /* RoleNavigation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A6AFD7220001B7422DD165A /* RoleNavigation.swift */; };
 		3E111AC820DF00200BE8EAEF /* DataPersistenceManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = BAC214B3C288C3E295885007 /* DataPersistenceManager.swift */; };
 		3EA0B9A4D9B3E76F2CBAE804 /* AuditLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 226315FFBFE6AA825B509A90 /* AuditLogger.swift */; };
 		431C607465CFF42AC08924FF /* FirebaseManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC834984FF378DE275E3836A /* FirebaseManager.swift */; };
@@ -72,6 +72,7 @@
 		8114CE871359D23C82448D23 /* PhotoCaptureView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09C619BEA37BC33F2BEA6494 /* PhotoCaptureView.swift */; };
 		81BA0B87E9F824E3CC56B360 /* FIPSCryptoManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44C701A30429F5951D843EBB /* FIPSCryptoManager.swift */; };
 		81DF3DACC7EE13B162332E4F /* LocationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBD83D96E52957761B2D83DF /* LocationManager.swift */; };
+		81F58FBB5F09E49993A810AF /* PlaceholderViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B2BE111659741692029F42B /* PlaceholderViews.swift */; };
 		858D7B99437B46D3FD2BE2F2 /* MaintenanceModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17CD435FCBF1E6C3791DECEC /* MaintenanceModel.swift */; };
 		8EA02B9DC5D057019A4EC4A7 /* SecurityLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 838963176F4A74F195806866 /* SecurityLogger.swift */; };
 		93BE71FF7B0B2B2CFC39762A /* NetworkMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97FDE84822515E597067B0FC /* NetworkMonitor.swift */; };
@@ -112,6 +113,7 @@
 		E28E4E99C46F2434412CC188 /* AlertManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7CEE24FD0F9C966E8945375B /* AlertManager.swift */; };
 		E641D7862F149E307B75DA13 /* ModernTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6ED2B1C4F4B44A490F2C7123 /* ModernTheme.swift */; };
 		E9B6755080E234541175BE59 /* VehicleCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFBEC6B34D07608DBEF173C0 /* VehicleCard.swift */; };
+		EB8F196AE75F652368920227 /* AzureSSOManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC5495FD82A3080D0877B17F /* AzureSSOManager.swift */; };
 		F097904D1FA1EE2E3E1F74B3 /* Animations.swift in Sources */ = {isa = PBXBuildFile; fileRef = 77CE56E5D36E1D83A6A57AA4 /* Animations.swift */; };
 		F45953FE0B07EDEA34366949 /* TripHistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3626031863A4DDF6DB723410 /* TripHistoryView.swift */; };
 		F59D572696306988058A5EEA /* CertificatePinningManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 228E34544EC917D36F619E71 /* CertificatePinningManager.swift */; };
@@ -144,6 +146,7 @@
 		273B3076430F835BAA6D5637 /* ProductionValidationTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ProductionValidationTests.swift; path = Tests/ProductionValidationTests.swift; sourceTree = "<group>"; };
 		27DF63BC9B7B43F5B13704F4 /* AzureConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AzureConfig.swift; sourceTree = "<group>"; };
 		2856E6A5C693335650988463 /* OfflineIndicatorView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = OfflineIndicatorView.swift; path = OfflineIndicatorView.swift; sourceTree = "<group>"; };
+		2A6AFD7220001B7422DD165A /* RoleNavigation.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RoleNavigation.swift; sourceTree = "<group>"; };
 		2A9B4C0A4C1C63335C743B4A /* QuickActionsView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = QuickActionsView.swift; sourceTree = "<group>"; };
 		2B9172F5DE11D11F8C60B69B /* Pods-App.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-App.release.xcconfig"; path = "Target Support Files/Pods-App/Pods-App.release.xcconfig"; sourceTree = "<group>"; };
 		2CF2A7801387FACBC731C6A1 /* VehicleListView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = VehicleListView.swift; path = Views/VehicleListView.swift; sourceTree = "<group>"; };
@@ -196,6 +199,7 @@
 		67FD8E952DFF702FEC001451 /* Pods_App.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_App.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		689A186BE708D183B9BBC692 /* LocalizationManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = LocalizationManager.swift; path = Utilities/LocalizationManager.swift; sourceTree = "<group>"; };
 		6913164C95F8AF990EF75826 /* ErrorHandler.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ErrorHandler.swift; sourceTree = "<group>"; };
+		6B2BE111659741692029F42B /* PlaceholderViews.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PlaceholderViews.swift; sourceTree = "<group>"; };
 		6B689B334E340D102BE86A33 /* OBD2DiagnosticsView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = OBD2DiagnosticsView.swift; path = OBD2DiagnosticsView.swift; sourceTree = "<group>"; };
 		6C3BAE7CB2F7FD82B0AEC472 /* FeatureFlags.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = FeatureFlags.swift; path = FeatureFlags.swift; sourceTree = "<group>"; };
 		6CBD0E3AEADEE2730B32DAAB /* AccessibleVehicleListView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AccessibleVehicleListView.swift; path = Views/AccessibleVehicleListView.swift; sourceTree = "<group>"; };
@@ -261,6 +265,7 @@
 		CB0F8E37AEC73DF7634D9E5E /* AuthenticationService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AuthenticationService.swift; path = AuthenticationService.swift; sourceTree = "<group>"; };
 		CBD83D96E52957761B2D83DF /* LocationManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LocationManager.swift; sourceTree = "<group>"; };
 		CBF225A9A3EAF4A5CEB9AF79 /* VehiclesView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = VehiclesView.swift; path = VehiclesView.swift; sourceTree = "<group>"; };
+		CC5495FD82A3080D0877B17F /* AzureSSOManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AzureSSOManager.swift; sourceTree = "<group>"; };
 		CCAB2814574FF75E8941AB88 /* SyncQueue.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SyncQueue.swift; path = SyncQueue.swift; sourceTree = "<group>"; };
 		CCDDEEFF4455667788990011 /* DriverPreferencesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DriverPreferencesView.swift; sourceTree = "<group>"; };
 		CDB393E35AC8D6EADA254293 /* CacheManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CacheManager.swift; sourceTree = "<group>"; };
@@ -577,6 +582,9 @@
 				740FAAB0ED6F70FB037DFF3F /* PerformanceOptimizer.swift */,
 				BAED9DF255C360212B77D5FF /* ViewModels */,
 				01CA0F5EAB3DA01AE7361A58 /* DemoModeLoginView.swift */,
+				2A6AFD7220001B7422DD165A /* RoleNavigation.swift */,
+				CC5495FD82A3080D0877B17F /* AzureSSOManager.swift */,
+				6B2BE111659741692029F42B /* PlaceholderViews.swift */,
 			);
 			path = App;
 			sourceTree = "<group>";
@@ -773,7 +781,6 @@
 				3BEA6EB128B67C751E716546 /* OBD2DataParser.swift in Sources */,
 				DFD9FD75380C3E8746025568 /* RootView.swift in Sources */,
 				56EED8FD7C3F9154E51D636A /* Vehicle.swift in Sources */,
-				1F3F6273C7F72CC6AB1432EB /* DashboardView.swift in Sources */,
 				4C007558067FF7588CB9A046 /* MaintenanceView.swift in Sources */,
 				6609FF247D3EE1927372EEC8 /* DriverManagementView.swift in Sources */,
 				43641BC24CB5D7DFD7980558 /* SettingsView.swift in Sources */,
@@ -863,6 +870,9 @@
 				BB2CE9D5B04E60F68CE1133A /* VehiclesView.swift in Sources */,
 				5C2D0AB944231EEC807A47DC /* TripsView.swift in Sources */,
 				C33095E9E6B7DC1F7CE87789 /* DemoModeLoginView.swift in Sources */,
+				3CC729BFDCA81DA94F48A67E /* RoleNavigation.swift in Sources */,
+				EB8F196AE75F652368920227 /* AzureSSOManager.swift in Sources */,
+				81F58FBB5F09E49993A810AF /* PlaceholderViews.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
