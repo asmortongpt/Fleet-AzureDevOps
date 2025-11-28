@@ -706,6 +706,18 @@ export function FleetDashboard({ data }: FleetDashboardProps) {
             status={metrics.service > 5 ? "warning" : "info"}
           />
         </div>
+        {/* Emulator Stats Card */}
+        {isEmulatorRunning && emulatorStats && (
+          <div className="col-span-2 cursor-pointer transition-all duration-200 hover:scale-[1.02] hover:shadow-md active:scale-[0.98]">
+            <MetricCard
+              title="Emulator Stats"
+              value={emulatorStats.activeVehicles}
+              subtitle={`${emulatorStats.eventsPerSecond.toFixed(1)} events/sec`}
+              icon={<Broadcast className="w-4 h-4 animate-pulse" />}
+              status="info"
+            />
+          </div>
+        )}
       </div>
 
       {/* Professional Fleet Map - Prominent placement */}
@@ -862,6 +874,41 @@ export function FleetDashboard({ data }: FleetDashboardProps) {
             )}
           </CardContent>
         </Card>
+
+        {/* Real-time Activity Feed (shown when emulator is running) */}
+        {isEmulatorRunning && recentEvents.length > 0 && (
+          <Card className="shadow-sm border-border/50">
+            <CardHeader className="px-4 py-3 border-b border-border/50 bg-muted/30">
+              <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                <Broadcast className="w-4 h-4 text-blue-600 animate-pulse" />
+                Live Telemetry Feed
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="px-3 pb-3">
+              <div className="space-y-1 max-h-[200px] overflow-y-auto">
+                {recentEvents.slice(0, 10).map((event, idx) => (
+                  <div
+                    key={idx}
+                    className="flex items-start gap-2 p-1.5 rounded hover:bg-muted/50 transition-colors"
+                  >
+                    <Circle
+                      className="w-1.5 h-1.5 mt-1 fill-blue-500 text-blue-500 flex-shrink-0"
+                      weight="fill"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[10px] font-medium text-foreground truncate">
+                        {event.type.replace(':', ' ')}
+                      </p>
+                      <p className="text-[9px] text-muted-foreground">
+                        {event.vehicleId || 'System'} • {new Date(event.timestamp || Date.now()).toLocaleTimeString()}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
       </div>
 
       <Card className="shadow-sm border-border/50">
@@ -878,39 +925,62 @@ export function FleetDashboard({ data }: FleetDashboardProps) {
         </CardHeader>
         <CardContent className="px-4 pb-4 pt-3">
           <div className="space-y-2">
-            {filteredVehicles.slice(0, 10).map(vehicle => (
-              <div
-                key={vehicle.id}
-                onClick={() => handleVehicleDrilldown(vehicle)}
-                className="flex items-center justify-between p-3 border border-border/50 rounded-lg cursor-pointer hover:bg-muted/50 hover:border-primary/50 hover:shadow-sm transition-all duration-200 group"
-              >
-                <div className="flex items-center gap-2">
-                  <div className={`p-1 rounded ${getStatusColor(vehicle.status)}`}>
-                    <Car className="w-3 h-3" />
+            {filteredVehicles.slice(0, 10).map(vehicle => {
+              // Check if vehicle was recently updated (within last 5 seconds)
+              const wasRecentlyUpdated = vehicle.lastUpdated &&
+                (new Date().getTime() - new Date(vehicle.lastUpdated).getTime()) < 5000
+
+              return (
+                <div
+                  key={vehicle.id}
+                  onClick={() => handleVehicleDrilldown(vehicle)}
+                  className={`flex items-center justify-between p-3 border rounded-lg cursor-pointer hover:bg-muted/50 hover:border-primary/50 hover:shadow-sm transition-all duration-200 group ${
+                    wasRecentlyUpdated
+                      ? 'border-blue-500/50 bg-blue-50/30 dark:bg-blue-950/20'
+                      : 'border-border/50'
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <div className={`relative p-1 rounded ${getStatusColor(vehicle.status)}`}>
+                      <Car className="w-3 h-3" />
+                      {wasRecentlyUpdated && (
+                        <Circle
+                          className="absolute -top-0.5 -right-0.5 w-2 h-2 fill-blue-500 text-blue-500 animate-pulse"
+                          weight="fill"
+                        />
+                      )}
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-1.5">
+                        <p className="text-xs font-medium group-hover:text-primary transition-colors">{vehicle.number}</p>
+                        {wasRecentlyUpdated && (
+                          <Badge variant="outline" className="h-3.5 px-1 text-[8px] bg-blue-100 text-blue-700 border-blue-300 dark:bg-blue-950 dark:text-blue-400 dark:border-blue-800">
+                            LIVE
+                          </Badge>
+                        )}
+                      </div>
+                      <p className="text-[10px] text-muted-foreground">
+                        {vehicle.year} {vehicle.make} {vehicle.model}
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-xs font-medium group-hover:text-primary transition-colors">{vehicle.number}</p>
-                    <p className="text-[10px] text-muted-foreground">
-                      {vehicle.year} {vehicle.make} {vehicle.model}
-                    </p>
+                  <div className="flex items-center gap-2">
+                    <div className="text-right">
+                      <p className="text-[10px] font-medium">{vehicle.region}</p>
+                      <p className="text-[9px] text-muted-foreground">{vehicle.department}</p>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <BatteryMedium className="w-3 h-3 text-muted-foreground" />
+                      <span className="text-[10px]">{vehicle.fuelLevel}%</span>
+                    </div>
+                    <Badge variant="outline" className={`${getStatusColor(vehicle.status)} h-5 px-1.5 text-[10px]`}>
+                      {vehicle.status}
+                    </Badge>
+                    <ArrowRight className="w-3 h-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <div className="text-right">
-                    <p className="text-[10px] font-medium">{vehicle.region}</p>
-                    <p className="text-[9px] text-muted-foreground">{vehicle.department}</p>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <BatteryMedium className="w-3 h-3 text-muted-foreground" />
-                    <span className="text-[10px]">{vehicle.fuelLevel}%</span>
-                  </div>
-                  <Badge variant="outline" className={`${getStatusColor(vehicle.status)} h-5 px-1.5 text-[10px]`}>
-                    {vehicle.status}
-                  </Badge>
-                  <ArrowRight className="w-3 h-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
-                </div>
-              </div>
-            ))}
+              )
+            })}
             {filteredVehicles.length > 10 && (
               <Button
                 variant="outline"

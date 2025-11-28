@@ -1,409 +1,448 @@
-# Multi-Agent Fleet Deployment Orchestrator
+# Fleet Management Multi-Agent Orchestration System
 
-A fully autonomous multi-agent system that diagnoses, fixes, and deploys the Fleet React application to Azure Static Web Apps.
+**Autonomous AI-powered deployment automation with self-healing capabilities**
+
+## Overview
+
+This orchestration system uses three AI agents to automatically detect, analyze, and fix build/deployment issues in the Fleet Management application:
+
+- **CodexAgent** (GPT-4): Analyzes errors and generates code fixes as unified git patches
+- **JulesAgent** (GPT-4): Reviews patches for security and best practices
+- **DevOpsAgent**: Executes Azure/Kubernetes operations safely
 
 ## Architecture
 
-The system consists of four specialized agents working in concert:
-
-### 1. Codex Agent (OpenAI GPT-4)
-- **Role**: Error diagnosis and code fix generation
-- **Responsibilities**:
-  - Analyzes build errors and React module loading issues
-  - Generates surgical fixes for vite.config.ts, package.json, etc.
-  - Creates unified git patches
-  - Assesses fix confidence and risk levels
-
-### 2. Jules Agent (Google Gemini)
-- **Role**: Code review and safety gatekeeper
-- **Responsibilities**:
-  - Reviews all proposed code changes
-  - Validates safety and correctness
-  - Rejects risky changes (deleting files, modifying secrets)
-  - Approves safe, well-tested patterns
-
-### 3. DevOps Agent
-- **Role**: Build and deployment operations
-- **Responsibilities**:
-  - Runs `npm install && npm run build`
-  - Deploys to Azure Static Web Apps
-  - Creates deployment artifacts
-  - Returns logs and deployment URLs
-
-### 4. Verifier Agent (Playwright)
-- **Role**: Deployment verification and testing
-- **Responsibilities**:
-  - HTTP health checks
-  - Browser-based console error detection
-  - Smoke tests (app loads, no white screen, no React errors)
-  - Quality gate validation
-
-## Prerequisites
-
-### Required Environment Variables
-
-Create or update `~/.env` with:
-
-```bash
-# AI Agent APIs
-OPENAI_API_KEY=sk-...
-GEMINI_API_KEY=...
-
-# Azure Deployment
-AZURE_STATIC_WEB_APPS_API_TOKEN=...
-```
-
-### Required Software
-
-```bash
-# Python 3.11+
-python3 --version
-
-# Node.js 20+
-node --version
-
-# Git
-git --version
-```
-
-## Installation
-
-### 1. Install Python Dependencies
-
-```bash
-cd /Users/andrewmorton/Documents/GitHub/fleet-local
-pip install -r agent_orch/requirements.txt
-```
-
-### 2. Install Playwright Browsers
-
-```bash
-playwright install chromium
-```
-
-### 3. Install Node Dependencies
-
-```bash
-npm install
-```
-
-## Usage
-
-### Local Execution
-
-Run the orchestrator locally:
-
-```bash
-# Staging environment
-python agent_orch/orchestrator.py --environment staging
-
-# Production environment (requires approval)
-python agent_orch/orchestrator.py --environment prod
-```
-
-### GitHub Actions (CI/CD)
-
-The orchestrator runs automatically on:
-- Push to `main` branch
-- Pull requests to `main`
-- Manual workflow dispatch
-
-```bash
-# Trigger manually via GitHub UI
-# Go to Actions → Multi-Agent Deploy Orchestrator → Run workflow
-```
-
-### Command-Line Options
-
-```bash
-python agent_orch/orchestrator.py --help
-
-Options:
-  --environment {staging,prod}  Deployment environment (default: staging)
-  --config CONFIG               Path to config file (default: agent_orch/config.yaml)
-```
-
-## How It Works
-
-### Orchestration Loop
-
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                    ITERATION START                          │
+│                     Orchestrator.py                         │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐      │
+│  │  CodexAgent  │  │  JulesAgent  │  │ DevOpsAgent  │      │
+│  │   (GPT-4)    │  │   (GPT-4)    │  │  (Azure/K8s) │      │
+│  └──────────────┘  └──────────────┘  └──────────────┘      │
+│         │                 │                  │              │
+│         ▼                 ▼                  ▼              │
+│  ┌──────────────────────────────────────────────────┐      │
+│  │             Tool Modules                         │      │
+│  │  • ShellExecutor  • GitOperations  • Verifier    │      │
+│  └──────────────────────────────────────────────────┘      │
 └─────────────────────────────────────────────────────────────┘
-                            ↓
-┌─────────────────────────────────────────────────────────────┐
-│ 1. RUN QUALITY GATES                                        │
-│    - npm run build (check for errors)                       │
-│    - HTTP health check                                      │
-│    - Console error check (Playwright)                       │
-└─────────────────────────────────────────────────────────────┘
-                            ↓
-                    ┌──────────────┐
-                    │ All Passed?  │
-                    └──────────────┘
-                       ↓       ↓
-                     YES      NO
-                       ↓       ↓
-                   SUCCESS   ┌─────────────────────────────────┐
-                             │ 2. GATHER CONTEXT               │
-                             │    - Read vite.config.ts        │
-                             │    - Read package.json          │
-                             │    - Capture build output       │
-                             └─────────────────────────────────┘
-                                         ↓
-                             ┌─────────────────────────────────┐
-                             │ 3. CODEX AGENT - ANALYZE        │
-                             │    - Diagnose root cause        │
-                             │    - Generate fix patches       │
-                             │    - Assess risk level          │
-                             └─────────────────────────────────┘
-                                         ↓
-                             ┌─────────────────────────────────┐
-                             │ 4. CODEX AGENT - VALIDATE       │
-                             │    - Check fix safety           │
-                             │    - Verify no protected files  │
-                             └─────────────────────────────────┘
-                                         ↓
-                             ┌─────────────────────────────────┐
-                             │ 5. JULES AGENT - REVIEW         │
-                             │    - Review all patches         │
-                             │    - Approve or reject          │
-                             └─────────────────────────────────┘
-                                         ↓
-                                ┌───────────────┐
-                                │  Approved?    │
-                                └───────────────┘
-                                   ↓       ↓
-                                 YES      NO
-                                   ↓       ↓
-                   ┌───────────────┘    REJECT
-                   ↓                      ↓
-       ┌─────────────────────────────────┐
-       │ 6. DEVOPS AGENT - APPLY FIXES   │
-       │    - Apply git patches          │
-       │    - Create commit              │
-       └─────────────────────────────────┘
-                   ↓
-       ┌─────────────────────────────────┐
-       │ 7. DEVOPS AGENT - BUILD         │
-       │    - npm run build              │
-       │    - Check build metrics        │
-       └─────────────────────────────────┘
-                   ↓
-       ┌─────────────────────────────────┐
-       │ 8. DEVOPS AGENT - DEPLOY        │
-       │    - Deploy to Azure SWA        │
-       │    - Return deployment URL      │
-       └─────────────────────────────────┘
-                   ↓
-       ┌─────────────────────────────────┐
-       │ 9. VERIFIER AGENT - TEST        │
-       │    - Run smoke tests            │
-       │    - Check console errors       │
-       │    - Verify app loads           │
-       └─────────────────────────────────┘
-                   ↓
-              NEXT ITERATION
+                          │
+                          ▼
+         ┌────────────────────────────────┐
+         │   Azure DevOps Pipeline        │
+         │   • Build & Test               │
+         │   • AI Auto-Fix (on failure)   │
+         │   • Docker Build & Push        │
+         │   • Deploy to AKS              │
+         │   • Verification & Smoke Tests │
+         └────────────────────────────────┘
 ```
 
-### Stop Conditions
+## Features
 
-The orchestrator stops when:
-1. **All quality gates pass** - SUCCESS ✅
-2. **Max iterations reached** (5) - Give up gracefully
-3. **No progress detected** - Same diagnosis twice in a row
-4. **Safety violation** - Attempting to modify protected files
+### ✨ Core Capabilities
 
-## Configuration
+- **Autonomous Error Detection**: Automatically detects build/deployment failures
+- **AI-Powered Analysis**: GPT-4 analyzes errors and generates targeted fixes
+- **Security-First Reviews**: All patches reviewed for security vulnerabilities
+- **Safe Operations**: Forbidden command blocking, backup branches, dry-run mode
+- **Quality Gates**: Automated testing at each stage (lint, test, build)
+- **Health Monitoring**: Post-deployment verification and smoke tests
+- **Iterative Fixing**: Up to 10 iterations with progress detection
 
-Edit `agent_orch/config.yaml` to customize:
+### 🔒 Safety Features
 
-### Environments
+- Never deletes Azure resources
+- Never rotates secrets
+- Blocks dangerous commands (rm -rf /, kubectl delete namespace, etc.)
+- Creates backup branches before changes
+- Validates patches for security issues
+- Parameterized queries enforcement
+- No hardcoded secrets
 
-```yaml
-environments:
-  staging:
-    azure_static_web_app_name: fleet-management-staging
-    deployment_token_secret: AZURE_STATIC_WEB_APPS_API_TOKEN
-    health_endpoint: https://purple-river-0f465960f.3.azurestaticapps.net
+### 🎯 Target Issues
+
+The orchestrator is designed to fix:
+
+- **Build failures** (dependency issues, configuration errors)
+- **OOM/SIGKILL errors** (switches from ACR 4GB to DevOps 7GB agents)
+- **Lint/test failures** (code quality issues)
+- **Deployment issues** (Kubernetes misconfigurations)
+
+## Quick Start
+
+### Prerequisites
+
+1. **Python 3.11+**
+2. **Node.js 20+**
+3. **Azure CLI** (logged in)
+4. **OpenAI API Key** (GPT-4 access)
+
+### Installation
+
+```bash
+cd agent_orch
+
+# Install Python dependencies
+pip install -r requirements.txt
+
+# Verify installation
+python orchestrator.py --help
 ```
 
-### Quality Gates
+### Configuration
 
-```yaml
-quality_gates:
-  - name: build
-    command: npm run build
-    success_pattern: "✓ built in"
-  - name: health_check
-    url: "${health_endpoint}"
-    expect_status: 200
-  - name: no_console_errors
-    playwright_check: true
-    fail_patterns:
-      - "useLayoutEffect"
-      - "Uncaught"
+1. **Set environment variables**:
+
+```bash
+export OPENAI_API_KEY="sk-..."
+export AZURE_SUBSCRIPTION_ID="..."  # Optional, uses az cli default
 ```
 
-### Agent Configuration
+2. **Edit `config.yaml`** to customize:
+   - Quality gate commands
+   - Deployment endpoints
+   - Safety limits
+   - Agent parameters
+
+### Local Testing (Dry Run)
+
+Test the orchestrator without making actual changes:
+
+```bash
+# Dry run mode - no actual execution
+python orchestrator.py --config config.yaml --environment staging --dry-run
+
+# Check logs
+tail -f logs/orchestrator.log
+```
+
+### Production Run
+
+Run the orchestrator for real:
+
+```bash
+# For staging environment
+python orchestrator.py --config config.yaml --environment staging
+
+# For production (requires manual approval in pipeline)
+python orchestrator.py --config config.yaml --environment prod
+```
+
+## Azure DevOps Integration
+
+The orchestration is integrated into the Azure DevOps pipeline (`azure-pipelines.yml`).
+
+### Pipeline Stages
+
+1. **Build & Test** - Run quality gates
+2. **AI Orchestration** - Auto-fix on failure (staging only)
+3. **Docker Build & Push** - Build and push to ACR
+4. **Deploy Staging** - Deploy to AKS staging
+5. **Deploy Production** - Deploy to AKS prod (manual approval)
+
+### Required Pipeline Variables
+
+In Azure DevOps → Pipelines → Library → Variable Groups, create:
 
 ```yaml
-agent_config:
+Variable Group: "fleet-orchestrator-secrets"
+Variables:
+  - OPENAI_API_KEY: "sk-..." (secret)
+  - AZURE_SUBSCRIPTION_ID: "..." (optional)
+```
+
+### Trigger Orchestration
+
+The AI Orchestration stage triggers automatically when:
+
+- Branch is `stage-a/requirements-inception`
+- Build & Test stage **fails**
+
+```yaml
+condition: and(failed(), eq(variables['Build.SourceBranch'], 'refs/heads/stage-a/requirements-inception'))
+```
+
+## Configuration Reference
+
+### config.yaml Structure
+
+```yaml
+agents:
+  orchestrator:
+    max_iterations: 10
+    max_no_progress_iterations: 3
+    dry_run: false
+
   codex:
-    model: gpt-4-turbo-preview
+    model: "gpt-4"
     temperature: 0.2
+    max_tokens: 4000
+
   jules:
-    model: gemini-1.5-pro
+    model: "gpt-4"
     temperature: 0.1
-```
+    max_tokens: 2000
 
-### Safety Controls
+quality_gates:
+  install:
+    command: "npm install --legacy-peer-deps"
+    timeout: 600
+    required: true
 
-```yaml
+  build:
+    command: "npm run build"
+    timeout: 900
+    required: true
+
+deployment:
+  environments:
+    staging:
+      health_endpoint: "https://fleet-staging.capitaltechalliance.com/health"
+
 safety:
-  protected_files:
-    - "*.env"
-    - "*.env.*"
-    - "**/secrets/**"
-  protected_operations:
-    - delete_azure_resources
-    - modify_secrets
-  require_approval_for:
-    - prod_deployment
+  forbidden_commands:
+    - "rm -rf /"
+    - "kubectl delete namespace"
+    - "az group delete"
 ```
 
-## Outputs
+## File Structure
 
-### Logs
-
-All logs are saved to `agent_orch/logs/`:
-- `orchestrator.log` - Main orchestration log
-- `orchestration_metrics.json` - Detailed metrics for each iteration
-
-### Metrics Example
-
-```json
-{
-  "iteration": 1,
-  "timestamp": "2025-11-26T10:30:00",
-  "steps": {
-    "quality_gates": {
-      "build": true,
-      "health_check": false,
-      "no_console_errors": false
-    },
-    "codex_diagnosis": {
-      "root_cause": "React module loading order issue",
-      "risk_level": "MEDIUM",
-      "confidence": 0.85
-    },
-    "jules_review": {
-      "approved": true,
-      "confidence": 0.9,
-      "risk_assessment": "LOW"
-    },
-    "build": {
-      "success": true
-    },
-    "deployment": {
-      "success": true,
-      "url": "https://purple-river-0f465960f.3.azurestaticapps.net"
-    },
-    "smoke_test": {
-      "overall_passed": true
-    }
-  }
-}
+```
+agent_orch/
+├── config.yaml              # Main configuration
+├── requirements.txt         # Python dependencies
+├── orchestrator.py          # Main orchestrator
+├── agents/
+│   ├── __init__.py
+│   ├── codex_agent.py      # Error analysis & patch generation
+│   ├── jules_agent.py      # Security review & approval
+│   └── devops_agent.py     # Azure/K8s operations
+├── tools/
+│   ├── __init__.py
+│   ├── shell.py            # Safe shell execution
+│   ├── git.py              # Git operations
+│   └── verifier.py         # Deployment verification
+└── logs/
+    ├── orchestrator.log    # Main log file
+    └── verification_*.json # Verification reports
 ```
 
-## Testing the Agents
+## Operational Guide
 
-Each agent can be tested independently:
+### How It Works
 
-### Test Codex Agent
+1. **Trigger**: Azure DevOps pipeline detects build failure
+2. **Analysis**: CodexAgent analyzes error logs and relevant files
+3. **Patch Generation**: CodexAgent creates unified git patch
+4. **Review**: JulesAgent reviews patch for security and quality
+5. **Application**: Git patch applied if approved
+6. **Commit**: Changes committed with descriptive message
+7. **Re-test**: Quality gates re-run
+8. **Iterate**: Repeat up to 10 times or until success
+
+### Success Criteria
+
+Orchestration succeeds when:
+
+- ✅ All required quality gates pass
+- ✅ Health endpoints return 200 OK
+- ✅ Critical flows verified
+- ✅ Smoke tests pass
+
+### Failure Scenarios
+
+Orchestration stops if:
+
+- ❌ Max iterations reached (10)
+- ❌ No progress detected (3 iterations)
+- ❌ Patch rejected by JulesAgent
+- ❌ Forbidden operation attempted
+
+### Monitoring
+
+**Check orchestration status**:
 
 ```bash
-export OPENAI_API_KEY=sk-...
-python agent_orch/agents/codex_agent.py
+# View logs
+tail -f agent_orch/logs/orchestrator.log
+
+# Check latest verification report
+ls -lt agent_orch/logs/verification_*.json | head -1
+cat $(ls -t agent_orch/logs/verification_*.json | head -1)
 ```
 
-### Test Jules Agent
+**Azure DevOps Pipeline**:
 
-```bash
-export GEMINI_API_KEY=...
-python agent_orch/agents/jules_agent.py
-```
+1. Go to Pipelines → Builds
+2. Select latest build
+3. View "AI Orchestration" stage logs
 
-### Test DevOps Agent
+### Manual Intervention
 
-```bash
-python agent_orch/agents/devops_agent.py
-```
+If orchestration fails, you can:
 
-### Test Verifier Agent
-
-```bash
-python agent_orch/agents/verifier_agent.py
-```
+1. **Review logs**: `agent_orch/logs/orchestrator.log`
+2. **Check backup branch**: `backup/pre-orchestration-YYYYMMDD_HHMMSS`
+3. **Manual fix**: Apply fix manually and push
+4. **Re-trigger**: Push to trigger new pipeline run
 
 ## Troubleshooting
 
-### "Missing required secrets"
-
-Ensure all required environment variables are set in `~/.env`:
-- `OPENAI_API_KEY`
-- `GEMINI_API_KEY`
-- `AZURE_STATIC_WEB_APPS_API_TOKEN`
-
-### "Playwright not installed"
+### "OPENAI_API_KEY not set"
 
 ```bash
-playwright install chromium
+export OPENAI_API_KEY="sk-..."
+# Or add to ~/.bashrc or ~/.zshrc
 ```
 
-### "Build failed"
+### "Failed to fetch from remote"
 
-Check that Node.js dependencies are installed:
 ```bash
-npm install
+# Ensure git remote is configured
+git remote -v
+
+# Pull latest changes
+git pull origin main
 ```
 
-### "Deployment token not available"
+### "Patch validation failed"
 
-Set the deployment token in `~/.env`:
+The generated patch may be invalid. Check logs:
+
 ```bash
-AZURE_STATIC_WEB_APPS_API_TOKEN=your-token-here
+grep "Patch validation" agent_orch/logs/orchestrator.log
 ```
 
-## Safety Features
+Common causes:
+- Files changed externally during orchestration
+- Patch format issue (AI generation error)
 
-The orchestrator includes multiple safety layers:
+**Solution**: Re-run orchestrator or apply fix manually.
 
-1. **Protected Files** - Never modifies `.env`, secrets, or credentials
-2. **Risky Operations** - Blocks file deletions, Azure resource deletions
-3. **Two-Agent Review** - Codex proposes, Jules approves
-4. **Confidence Threshold** - Rejects fixes with <60% confidence
-5. **Risk Assessment** - Blocks HIGH risk changes
-6. **Git History** - All changes are committed (reversible)
-7. **Max Iterations** - Prevents infinite loops (max 5)
+### "No progress detected"
 
-## Production Deployment
+The orchestrator made multiple attempts but didn't fix the issue.
 
-For production deployments:
+**Check**:
+1. Review error analysis in logs
+2. Verify the issue is fixable by code changes
+3. May require infrastructure/config changes outside code
 
-1. Set `environment: prod` in the workflow
-2. Ensure `AZURE_STATIC_WEB_APPS_API_TOKEN_PROD` is set
-3. Manual approval is required (configured in GitHub)
-4. All quality gates must pass
-5. Smoke tests must pass in production
+### Pipeline Permission Errors
 
-## License
+If Azure DevOps can't push fixes:
 
-MIT License - Capital Tech Alliance
+1. Enable "Allow scripts to access the OAuth token"
+2. Grant "Contribute" permission to build service account
+
+## Advanced Usage
+
+### Custom Quality Gates
+
+Add custom gates in `config.yaml`:
+
+```yaml
+quality_gates:
+  security_scan:
+    command: "npm audit --audit-level=high"
+    timeout: 120
+    required: true
+```
+
+### Custom Verification Endpoints
+
+```yaml
+deployment:
+  environments:
+    staging:
+      verification_endpoints:
+        - url: "https://fleet-staging.capitaltechalliance.com/api/vehicles"
+          expected_status: 200
+          timeout: 10
+```
+
+### Extend Agents
+
+Subclass base agents to add custom logic:
+
+```python
+from agents.codex_agent import CodexAgent
+
+class CustomCodexAgent(CodexAgent):
+    def generate_patch(self, error_log, current_files, context=None):
+        # Add custom pre-processing
+        context = context or {}
+        context['custom_data'] = self._get_custom_data()
+        
+        return super().generate_patch(error_log, current_files, context)
+```
+
+## Security Considerations
+
+### Secrets Management
+
+- ✅ Use Azure Key Vault for secrets
+- ✅ Environment variables for API keys
+- ❌ Never commit secrets to git
+- ❌ Never pass secrets in patch content
+
+### Code Review
+
+- All patches reviewed by JulesAgent
+- Security checklist enforced
+- Suspicious patterns blocked
+
+### Audit Trail
+
+- All operations logged
+- Git history preserved
+- Verification reports saved
+
+## Performance
+
+**Typical orchestration times**:
+
+- Error analysis: ~10-30 seconds
+- Patch generation: ~20-60 seconds
+- Review: ~10-20 seconds
+- Quality gates: ~3-15 minutes
+- **Total**: ~5-20 minutes per iteration
+
+## Cost Estimation
+
+**OpenAI API costs** (GPT-4):
+
+- Error analysis: ~1,000-3,000 tokens (~$0.03-$0.09)
+- Patch generation: ~2,000-4,000 tokens (~$0.06-$0.12)
+- Review: ~1,000-2,000 tokens (~$0.03-$0.06)
+
+**Per orchestration run**: ~$0.15-$0.30
+
+**Per month** (assuming 10 runs/day): ~$50-$100
+
+## Roadmap
+
+- [ ] Support for multiple LLM providers (Claude, Gemini)
+- [ ] Parallel patch generation with voting
+- [ ] Infrastructure-as-Code fixes (Terraform, Bicep)
+- [ ] Advanced metrics and dashboards
+- [ ] Slack/Teams notifications
+- [ ] Cost optimization recommendations
 
 ## Support
 
 For issues or questions:
-- Create a GitHub issue
-- Contact: andrew.m@capitaltechalliance.com
+
+1. Check logs: `agent_orch/logs/orchestrator.log`
+2. Review documentation: This README
+3. Contact: andrew.m@capitaltechalliance.com
+
+## License
+
+Proprietary - Capital Tech Alliance LLC
+
+---
+
+**🤖 Built with AI, Secured by AI, Deployed by AI**
