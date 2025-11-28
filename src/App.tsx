@@ -84,6 +84,7 @@ const DocumentQA = lazy(() => import("@/components/modules/DocumentQA").then(m =
 const FuelPurchasing = lazy(() => import("@/components/modules/FuelPurchasing").then(m => ({ default: m.FuelPurchasing })))
 const EndpointMonitor = lazy(() => import("@/components/modules/EndpointMonitor").then(m => ({ default: m.EndpointMonitor })))
 const SettingsPage = lazy(() => import("@/pages/SettingsPage"))
+const ProfilePage = lazy(() => import("@/pages/ProfilePage"))
 
 // Loading spinner component for Suspense fallback
 const LoadingSpinner = () => (
@@ -249,6 +250,8 @@ function App() {
         return <EndpointMonitor />
       case "settings":
         return <SettingsPage />
+      case "profile":
+        return <ProfilePage />
       default:
         return <FleetDashboardModern data={fleetData} />
     }
