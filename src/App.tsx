@@ -81,6 +81,7 @@ const PushNotificationAdmin = lazy(() => import("@/components/modules/PushNotifi
 const DocumentManagement = lazy(() => import("@/components/modules/DocumentManagement").then(m => ({ default: m.DocumentManagement })))
 const DocumentQA = lazy(() => import("@/components/modules/DocumentQA").then(m => ({ default: m.DocumentQA })))
 const FuelPurchasing = lazy(() => import("@/components/modules/FuelPurchasing").then(m => ({ default: m.FuelPurchasing })))
+const EndpointMonitor = lazy(() => import("@/components/modules/EndpointMonitor").then(m => ({ default: m.EndpointMonitor })))
 
 // Loading spinner component for Suspense fallback
 const LoadingSpinner = () => (
@@ -242,6 +243,8 @@ function App() {
         return <DocumentQA />
       case "fuel-purchasing":
         return <FuelPurchasing />
+      case "endpoint-monitor":
+        return <EndpointMonitor />
       default:
         return <FleetDashboard data={fleetData} />
     }
