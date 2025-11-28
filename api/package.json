@@ -40,6 +40,7 @@
     "@azure/search-documents": "^12.2.0",
     "@azure/storage-blob": "^12.18.0",
     "@azure/web-pubsub": "^1.1.2",
+    "@faker-js/faker": "^10.1.0",
     "@fastify/busboy": "^3.0.0",
     "@google-cloud/vision": "^5.3.4",
     "@langchain/community": "^1.0.0",
