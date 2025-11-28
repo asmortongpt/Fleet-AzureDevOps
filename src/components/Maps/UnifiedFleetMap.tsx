@@ -68,12 +68,16 @@ export const UnifiedFleetMap: React.FC<UnifiedFleetMapProps> = ({
   enableRealTime = true,
   height = '100%'
 }) => {
-  // Fleet data hook for real-time updates
+  // Fleet data hook for real-time updates (only as fallback)
   const fleetData = useFleetData()
 
-  // Use provided data or fall back to fleet data hook
+  // ALWAYS use provided vehicles if available (they contain real-time data from parent)
+  // Only fall back to fleet data hook if no vehicles provided
   const vehicles = initialVehicles.length > 0 ? initialVehicles : fleetData.vehicles
   const facilities = initialFacilities.length > 0 ? initialFacilities : fleetData.facilities
+
+  // Track if we're actually displaying real-time data
+  const isDisplayingRealTimeData = initialVehicles.length > 0 && enableRealTime
 
   // State management
   const [activeTab, setActiveTab] = useState('map')
@@ -468,10 +472,16 @@ export const UnifiedFleetMap: React.FC<UnifiedFleetMapProps> = ({
             )}
           </div>
           <div className="flex items-center gap-2">
-            {enableRealTime && (
+            {isDisplayingRealTimeData && (
               <Badge variant="outline" className="text-xs">
                 <span className="w-1.5 h-1.5 bg-green-500 rounded-full mr-1 animate-pulse" />
-                Real-time
+                Live Data
+              </Badge>
+            )}
+            {enableRealTime && !isDisplayingRealTimeData && (
+              <Badge variant="outline" className="text-xs text-yellow-600">
+                <span className="w-1.5 h-1.5 bg-yellow-500 rounded-full mr-1" />
+                Static Data
               </Badge>
             )}
             <span>Last updated: {new Date().toLocaleTimeString()}</span>
