@@ -235,7 +235,9 @@ export class TaskEmulator {
     } else if (status === 'COMPLETED') {
       startDate = faker.date.between({ from: new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000), to: new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000) })
       completedDate = new Date(startDate)
-      completedDate.setHours(completedDate.getHours() + template.estimatedHours + faker.number.float({ min: -2, max: 4 }))
+      // Ensure completed date is always after start date
+      const additionalHours = Math.max(template.estimatedHours + faker.number.float({ min: -1, max: 4 }), 0.5)
+      completedDate.setHours(completedDate.getHours() + additionalHours)
       completionPercentage = 100
       actualHours = faker.number.float({ min: template.estimatedHours * 0.7, max: template.estimatedHours * 1.3, precision: 0.25 })
     }
