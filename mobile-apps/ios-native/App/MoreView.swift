@@ -45,7 +45,7 @@ struct MoreView: View {
 
             // MARK: - Key Features Section
             Section("Key Features") {
-                NavigationLink(destination: DamageReportView(vehicleId: "default")) {
+                NavigationLink(destination: DamageReportView()) {
                     Label("Report Damage", systemImage: "exclamationmark.triangle.fill")
                 }
 
@@ -67,7 +67,7 @@ struct MoreView: View {
             }
 
             Section("Inspections & Compliance") {
-                NavigationLink(destination: VehicleInspectionScreenView(vehicleId: "default")) {
+                NavigationLink(destination: VehicleInspectionScreenView()) {
                     Label("Vehicle Inspection", systemImage: "checkmark.circle.fill")
                 }
 
@@ -81,7 +81,7 @@ struct MoreView: View {
                     Label("Crash Detection", systemImage: "antenna.radiowaves.left.and.right")
                 }
 
-                NavigationLink(destination: BarcodeScannerView()) {
+                NavigationLink(destination: BarcodeScannerView(onScan: { _, _ in })) {
                     Label("Barcode Scanner", systemImage: "barcode.viewfinder")
                 }
 
