@@ -18,6 +18,7 @@ import {
   SelectValue
 } from '@/components/ui/select';
 import { BulkOperation, DocumentMetadata, Folder as FolderType } from '@/lib/documents/types';
+import { usePermissions } from '@/hooks/usePermissions';
 
 interface BulkActionsProps {
   selectedDocuments: DocumentMetadata[];
@@ -34,6 +35,7 @@ export function BulkActions({
   onExecute,
   onClearSelection
 }: BulkActionsProps) {
+  const { can, isAdmin } = usePermissions();
   const [showConfirm, setShowConfirm] = useState(false);
   const [currentOperation, setCurrentOperation] = useState<BulkOperation['operation'] | null>(null);
   const [isExecuting, setIsExecuting] = useState(false);
@@ -42,6 +44,10 @@ export function BulkActions({
   // State for operation parameters
   const [targetFolderId, setTargetFolderId] = useState('');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
+
+  // Permission checks
+  const canDelete = can('vehicle.delete');
+  const canEdit = can('vehicle.update');
 
   const handleMove = () => {
     setCurrentOperation('move');
@@ -135,30 +141,38 @@ export function BulkActions({
               Share
             </Button>
 
-            <Button variant="outline" size="sm" onClick={handleTag} disabled={isExecuting}>
-              <Tag className="mr-2 h-4 w-4" />
-              Tag
-            </Button>
+            {canEdit && (
+              <Button variant="outline" size="sm" onClick={handleTag} disabled={isExecuting}>
+                <Tag className="mr-2 h-4 w-4" />
+                Tag
+              </Button>
+            )}
 
-            <Button variant="outline" size="sm" onClick={handleMove} disabled={isExecuting}>
-              <FolderOpen className="mr-2 h-4 w-4" />
-              Move
-            </Button>
+            {canEdit && (
+              <Button variant="outline" size="sm" onClick={handleMove} disabled={isExecuting}>
+                <FolderOpen className="mr-2 h-4 w-4" />
+                Move
+              </Button>
+            )}
 
-            <Button variant="outline" size="sm" onClick={() => {}} disabled={isExecuting}>
-              <Archive className="mr-2 h-4 w-4" />
-              Archive
-            </Button>
+            {canEdit && (
+              <Button variant="outline" size="sm" onClick={() => {}} disabled={isExecuting}>
+                <Archive className="mr-2 h-4 w-4" />
+                Archive
+              </Button>
+            )}
 
-            <Button
-              variant="destructive"
-              size="sm"
-              onClick={handleDelete}
-              disabled={isExecuting}
-            >
-              <Trash2 className="mr-2 h-4 w-4" />
-              Delete
-            </Button>
+            {canDelete && (
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={handleDelete}
+                disabled={isExecuting}
+              >
+                <Trash2 className="mr-2 h-4 w-4" />
+                Delete
+              </Button>
+            )}
           </div>
         </div>
       </div>
