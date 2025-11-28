@@ -26,6 +26,7 @@ import {
   Filter,
 } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
+import { usePermissions } from '../../hooks/usePermissions';
 
 // Types
 interface VehicleAssignment {
@@ -75,6 +76,7 @@ interface ComplianceException {
 
 const VehicleAssignmentManagement: React.FC = () => {
   const { user } = useAuth();
+  const { can, isAdmin, isFleetManager } = usePermissions();
   const [activeTab, setActiveTab] = useState<'assignments' | 'on-call' | 'compliance' | 'reports'>('assignments');
 
   // State for assignments
@@ -330,13 +332,15 @@ const VehicleAssignmentManagement: React.FC = () => {
           </select>
         </div>
 
-        <button
-          onClick={() => setShowCreateModal(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-        >
-          <Plus className="w-5 h-5" />
-          New Assignment
-        </button>
+        {can('vehicle.create') && (
+          <button
+            onClick={() => setShowCreateModal(true)}
+            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          >
+            <Plus className="w-5 h-5" />
+            New Assignment
+          </button>
+        )}
       </div>
 
       {/* Stats cards */}
@@ -461,7 +465,7 @@ const VehicleAssignmentManagement: React.FC = () => {
                   >
                     View
                   </button>
-                  {assignment.lifecycle_state === 'submitted' && user?.role === 'ExecutiveTeamMember' && (
+                  {assignment.lifecycle_state === 'submitted' && (isAdmin || isFleetManager) && (
                     <>
                       <button
                         onClick={() => handleApproveAssignment(assignment.id)}
@@ -470,7 +474,7 @@ const VehicleAssignmentManagement: React.FC = () => {
                         Approve
                       </button>
                       <button
-                        onClick={() => handleDenyAssignment(assignment.id, 'Denied by executive review')}
+                        onClick={() => handleDenyAssignment(assignment.id, 'Denied by review')}
                         className="text-red-600 hover:text-red-900"
                       >
                         Deny
@@ -491,12 +495,14 @@ const VehicleAssignmentManagement: React.FC = () => {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h3 className="text-lg font-semibold text-gray-900">Active On-Call Periods</h3>
-        <button
-          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-        >
-          <Plus className="w-5 h-5" />
-          Schedule On-Call
-        </button>
+        {(isAdmin || isFleetManager) && (
+          <button
+            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          >
+            <Plus className="w-5 h-5" />
+            Schedule On-Call
+          </button>
+        )}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
