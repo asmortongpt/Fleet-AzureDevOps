@@ -22,9 +22,9 @@ export function Login() {
   const [email, setEmail] = useState(import.meta.env.DEV ? 'admin@fleet.local' : '')
   const [password, setPassword] = useState(import.meta.env.DEV ? 'demo123' : '')
 
-  // AUTO-LOGIN in DEV mode (disabled - let user click button instead)
+  // AUTO-LOGIN in DEV mode (enabled for testing)
   useEffect(() => {
-    if (import.meta.env.DEV && false) { // Disabled - user will click button
+    if (import.meta.env.DEV && true) { // Enabled for testing
       console.log('[LOGIN] DEV mode detected - auto-logging in with demo user')
 
       // Create a demo JWT token (not validated in DEV mode)
