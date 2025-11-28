@@ -1,0 +1,418 @@
+/**
+ * Reactive State Management with Jotai
+ * Global state atoms for vehicles, filters, telemetry, and alerts
+ */
+
+import { atom } from 'jotai'
+import { atomWithStorage } from 'jotai/utils'
+
+/* ============================================================
+   TYPES
+   ============================================================ */
+
+export interface Vehicle {
+  id: string
+  make: string
+  model: string
+  year: number
+  vin: string
+  licensePlate: string
+  status: 'active' | 'maintenance' | 'offline' | 'retired'
+  location?: {
+    lat: number
+    lng: number
+    address?: string
+    lastUpdate: string
+  }
+  mileage?: number
+  fuelLevel?: number
+  batteryLevel?: number
+  driver?: {
+    id: string
+    name: string
+  }
+}
+
+export interface TelemetryData {
+  vehicleId: string
+  timestamp: string
+  speed: number
+  rpm: number
+  fuelLevel: number
+  batteryVoltage: number
+  engineTemp: number
+  location: {
+    lat: number
+    lng: number
+  }
+  diagnostics?: {
+    dtcCount: number
+    codes: string[]
+  }
+}
+
+export interface Alert {
+  id: string
+  vehicleId: string
+  type: 'warning' | 'error' | 'info' | 'success'
+  severity: 'low' | 'medium' | 'high' | 'critical'
+  title: string
+  message: string
+  timestamp: string
+  acknowledged: boolean
+  autoDissmiss?: boolean
+  dismissAfter?: number // milliseconds
+}
+
+export interface VehicleFilters {
+  status: string[]
+  search: string
+  make: string[]
+  model: string[]
+  year: {
+    min?: number
+    max?: number
+  }
+  mileage: {
+    min?: number
+    max?: number
+  }
+}
+
+export interface WebSocketStatus {
+  connected: boolean
+  reconnecting: boolean
+  lastConnected?: string
+  errors: number
+}
+
+/* ============================================================
+   BASE ATOMS
+   ============================================================ */
+
+// Vehicles atom - main data store
+export const vehiclesAtom = atom<Vehicle[]>([])
+
+// Telemetry data - keyed by vehicle ID
+export const telemetryAtom = atom<Record<string, TelemetryData>>({})
+
+// Alerts - array of active alerts
+export const alertsAtom = atom<Alert[]>([])
+
+// Vehicle filters
+export const vehicleFiltersAtom = atomWithStorage<VehicleFilters>('vehicle-filters', {
+  status: [],
+  search: '',
+  make: [],
+  model: [],
+  year: {},
+  mileage: {},
+})
+
+// WebSocket connection status
+export const websocketStatusAtom = atom<WebSocketStatus>({
+  connected: false,
+  reconnecting: false,
+  errors: 0,
+})
+
+// Selected vehicle ID (for detail view)
+export const selectedVehicleIdAtom = atomWithStorage<string | null>('selected-vehicle-id', null)
+
+// Map view settings
+export const mapSettingsAtom = atomWithStorage('map-settings', {
+  center: { lat: 39.8283, lng: -98.5795 }, // Center of USA
+  zoom: 4,
+  showLabels: true,
+  showTraffic: false,
+  mapType: 'roadmap' as 'roadmap' | 'satellite' | 'hybrid' | 'terrain',
+})
+
+// UI state
+export const sidebarOpenAtom = atomWithStorage('sidebar-open', true)
+export const darkModeAtom = atomWithStorage('dark-mode', false)
+
+/* ============================================================
+   DERIVED ATOMS
+   ============================================================ */
+
+// Filtered vehicles based on current filters
+export const filteredVehiclesAtom = atom((get) => {
+  const vehicles = get(vehiclesAtom)
+  const filters = get(vehicleFiltersAtom)
+
+  return vehicles.filter((vehicle) => {
+    // Status filter
+    if (filters.status.length > 0 && !filters.status.includes(vehicle.status)) {
+      return false
+    }
+
+    // Search filter (searches make, model, vin, license plate)
+    if (filters.search) {
+      const searchLower = filters.search.toLowerCase()
+      const searchableText =
+        `${vehicle.make} ${vehicle.model} ${vehicle.vin} ${vehicle.licensePlate}`.toLowerCase()
+
+      if (!searchableText.includes(searchLower)) {
+        return false
+      }
+    }
+
+    // Make filter
+    if (filters.make.length > 0 && !filters.make.includes(vehicle.make)) {
+      return false
+    }
+
+    // Model filter
+    if (filters.model.length > 0 && !filters.model.includes(vehicle.model)) {
+      return false
+    }
+
+    // Year filter
+    if (filters.year.min && vehicle.year < filters.year.min) {
+      return false
+    }
+    if (filters.year.max && vehicle.year > filters.year.max) {
+      return false
+    }
+
+    // Mileage filter
+    if (vehicle.mileage) {
+      if (filters.mileage.min && vehicle.mileage < filters.mileage.min) {
+        return false
+      }
+      if (filters.mileage.max && vehicle.mileage > filters.mileage.max) {
+        return false
+      }
+    }
+
+    return true
+  })
+})
+
+// Selected vehicle details
+export const selectedVehicleAtom = atom((get) => {
+  const vehicles = get(vehiclesAtom)
+  const selectedId = get(selectedVehicleIdAtom)
+
+  if (!selectedId) return null
+
+  return vehicles.find((v) => v.id === selectedId) || null
+})
+
+// Vehicle statistics
+export const vehicleStatsAtom = atom((get) => {
+  const vehicles = get(vehiclesAtom)
+
+  return {
+    total: vehicles.length,
+    active: vehicles.filter((v) => v.status === 'active').length,
+    maintenance: vehicles.filter((v) => v.status === 'maintenance').length,
+    offline: vehicles.filter((v) => v.status === 'offline').length,
+    retired: vehicles.filter((v) => v.status === 'retired').length,
+  }
+})
+
+// Unacknowledged alerts
+export const unacknowledgedAlertsAtom = atom((get) => {
+  const alerts = get(alertsAtom)
+  return alerts.filter((alert) => !alert.acknowledged)
+})
+
+// Critical alerts
+export const criticalAlertsAtom = atom((get) => {
+  const alerts = get(alertsAtom)
+  return alerts.filter((alert) => alert.severity === 'critical' && !alert.acknowledged)
+})
+
+// Alert counts by severity
+export const alertCountsAtom = atom((get) => {
+  const alerts = get(unacknowledgedAlertsAtom)
+
+  return {
+    critical: alerts.filter((a) => a.severity === 'critical').length,
+    high: alerts.filter((a) => a.severity === 'high').length,
+    medium: alerts.filter((a) => a.severity === 'medium').length,
+    low: alerts.filter((a) => a.severity === 'low').length,
+  }
+})
+
+// Vehicles with active alerts
+export const vehiclesWithAlertsAtom = atom((get) => {
+  const vehicles = get(vehiclesAtom)
+  const alerts = get(unacknowledgedAlertsAtom)
+
+  const vehicleIdsWithAlerts = new Set(alerts.map((a) => a.vehicleId))
+
+  return vehicles.filter((v) => vehicleIdsWithAlerts.has(v.id))
+})
+
+// Average fleet metrics
+export const fleetMetricsAtom = atom((get) => {
+  const vehicles = get(vehiclesAtom)
+
+  const activeVehicles = vehicles.filter((v) => v.status === 'active')
+
+  if (activeVehicles.length === 0) {
+    return {
+      avgFuelLevel: 0,
+      avgBatteryLevel: 0,
+      avgMileage: 0,
+      totalMileage: 0,
+    }
+  }
+
+  const totalFuel = activeVehicles.reduce((sum, v) => sum + (v.fuelLevel || 0), 0)
+  const totalBattery = activeVehicles.reduce((sum, v) => sum + (v.batteryLevel || 0), 0)
+  const totalMileage = activeVehicles.reduce((sum, v) => sum + (v.mileage || 0), 0)
+
+  return {
+    avgFuelLevel: totalFuel / activeVehicles.length,
+    avgBatteryLevel: totalBattery / activeVehicles.length,
+    avgMileage: totalMileage / activeVehicles.length,
+    totalMileage,
+  }
+})
+
+// Vehicles on map (with location data)
+export const vehiclesOnMapAtom = atom((get) => {
+  const vehicles = get(filteredVehiclesAtom)
+  return vehicles.filter((v) => v.location && v.location.lat && v.location.lng)
+})
+
+/* ============================================================
+   WRITE-ONLY ATOMS (Actions)
+   ============================================================ */
+
+// Add vehicle
+export const addVehicleAtom = atom(null, (get, set, vehicle: Vehicle) => {
+  const vehicles = get(vehiclesAtom)
+  set(vehiclesAtom, [...vehicles, vehicle])
+})
+
+// Update vehicle
+export const updateVehicleAtom = atom(null, (get, set, update: Partial<Vehicle> & { id: string }) => {
+  const vehicles = get(vehiclesAtom)
+  set(
+    vehiclesAtom,
+    vehicles.map((v) => (v.id === update.id ? { ...v, ...update } : v))
+  )
+})
+
+// Remove vehicle
+export const removeVehicleAtom = atom(null, (get, set, vehicleId: string) => {
+  const vehicles = get(vehiclesAtom)
+  set(
+    vehiclesAtom,
+    vehicles.filter((v) => v.id !== vehicleId)
+  )
+})
+
+// Add alert
+export const addAlertAtom = atom(null, (get, set, alert: Alert) => {
+  const alerts = get(alertsAtom)
+  set(alertsAtom, [...alerts, alert])
+
+  // Auto-dismiss if configured
+  if (alert.autoDissmiss && alert.dismissAfter) {
+    setTimeout(() => {
+      set(removeAlertAtom, alert.id)
+    }, alert.dismissAfter)
+  }
+})
+
+// Acknowledge alert
+export const acknowledgeAlertAtom = atom(null, (get, set, alertId: string) => {
+  const alerts = get(alertsAtom)
+  set(
+    alertsAtom,
+    alerts.map((a) => (a.id === alertId ? { ...a, acknowledged: true } : a))
+  )
+})
+
+// Remove alert
+export const removeAlertAtom = atom(null, (get, set, alertId: string) => {
+  const alerts = get(alertsAtom)
+  set(
+    alertsAtom,
+    alerts.filter((a) => a.id !== alertId)
+  )
+})
+
+// Clear all acknowledged alerts
+export const clearAcknowledgedAlertsAtom = atom(null, (get, set) => {
+  const alerts = get(alertsAtom)
+  set(
+    alertsAtom,
+    alerts.filter((a) => !a.acknowledged)
+  )
+})
+
+// Update telemetry
+export const updateTelemetryAtom = atom(null, (get, set, data: TelemetryData) => {
+  const telemetry = get(telemetryAtom)
+  set(telemetryAtom, {
+    ...telemetry,
+    [data.vehicleId]: data,
+  })
+
+  // Also update vehicle location if telemetry includes it
+  if (data.location) {
+    const vehicles = get(vehiclesAtom)
+    set(
+      vehiclesAtom,
+      vehicles.map((v) =>
+        v.id === data.vehicleId
+          ? {
+              ...v,
+              location: {
+                lat: data.location.lat,
+                lng: data.location.lng,
+                lastUpdate: data.timestamp,
+              },
+              fuelLevel: data.fuelLevel,
+            }
+          : v
+      )
+    )
+  }
+})
+
+// Update WebSocket status
+export const updateWebSocketStatusAtom = atom(null, (get, set, update: Partial<WebSocketStatus>) => {
+  const current = get(websocketStatusAtom)
+  set(websocketStatusAtom, { ...current, ...update })
+})
+
+/* ============================================================
+   HELPER FUNCTIONS
+   ============================================================ */
+
+// Generate a unique ID
+export function generateId(): string {
+  return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+}
+
+// Create an alert helper
+export function createAlert(
+  vehicleId: string,
+  type: Alert['type'],
+  severity: Alert['severity'],
+  title: string,
+  message: string,
+  autoDissmiss = false,
+  dismissAfter = 5000
+): Alert {
+  return {
+    id: generateId(),
+    vehicleId,
+    type,
+    severity,
+    title,
+    message,
+    timestamp: new Date().toISOString(),
+    acknowledged: false,
+    autoDissmiss,
+    dismissAfter,
+  }
+}
