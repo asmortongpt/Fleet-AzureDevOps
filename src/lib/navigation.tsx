@@ -393,5 +393,14 @@ export const navigationItems: NavigationItem[] = [
     label: "Custom Report Builder",
     icon: <FileText className="w-5 h-5" />,
     section: "tools"
+  },
+  {
+    id: "settings",
+    label: "Settings",
+    icon: <Gear className="w-5 h-5" />,
+    section: "tools"
   }
 ]
+
+// Export Gear icon for use in other components
+export { Gear }
