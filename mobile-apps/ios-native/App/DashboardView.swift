@@ -36,7 +36,7 @@ struct DashboardView: View {
             switch authManager.userRole {
             case .admin:
                 AdminDashboardView()
-            case .manager, .fleetManager:
+            case .manager:
                 ManagerDashboardView()
             case .driver:
                 DriverDashboardView()
