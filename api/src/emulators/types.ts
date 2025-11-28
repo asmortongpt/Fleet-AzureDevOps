@@ -309,3 +309,106 @@ export interface BatteryHealth {
   lastUpdated: Date
   estimatedRange: number // miles
 }
+
+// Radio/PTT Communication Types
+export interface RadioChannel {
+  id: string
+  name: string
+  frequency: string
+  type: 'dispatch' | 'emergency' | 'tactical' | 'maintenance' | 'common'
+  priority: number
+  encryption: boolean
+  maxUsers: number
+  currentUsers: number
+  activeSpeaker: string | null
+  talkGroup?: string
+}
+
+export interface RadioTransmission {
+  id: string
+  vehicleId: string
+  driverId?: string
+  channelId: string
+  timestamp: Date
+  duration: number // milliseconds
+  signalStrength: number // 0-100
+  audioQuality: number // 0-100
+  interference: number // 0-100
+  location: Location
+  distance?: number // distance from base station (meters)
+  priority: 'routine' | 'urgent' | 'emergency'
+  transmissionType: 'voice' | 'tone' | 'data'
+  message?: string
+  isEmergency: boolean
+}
+
+export interface PTTEvent {
+  vehicleId: string
+  channelId: string
+  timestamp: Date
+  eventType: 'press' | 'release' | 'timeout'
+  signalStrength: number
+  location: Location
+  metadata?: Record<string, any>
+}
+
+export interface RadioState {
+  vehicleId: string
+  currentChannel: string
+  isPTTPressed: boolean
+  isTransmitting: boolean
+  lastTransmission: Date | null
+  totalTransmissions: number
+  totalTransmitTime: number // milliseconds
+  signalStrength: number
+  batteryLevel: number
+  isEmergencyMode: boolean
+}
+
+export interface AudioStreamData {
+  transmissionId: string
+  timestamp: Date
+  sampleRate: number // Hz
+  bitDepth: number
+  channels: number
+  audioData: Buffer // Simulated audio bytes
+  codec: 'pcm' | 'opus' | 'g711'
+}
+
+// Dispatch Radio Types
+export interface DispatchTransmission {
+  id: string
+  vehicleId: string
+  driverId?: string
+  channel: 'dispatch' | 'emergency' | 'maintenance' | 'operations'
+  type: 'emergency' | 'routine' | 'incident' | 'status' | 'acknowledgment' | 'request'
+  priority: 'low' | 'medium' | 'high' | 'critical'
+  message: string
+  timestamp: Date
+  duration: number // seconds
+  location?: {
+    lat: number
+    lng: number
+    address?: string
+  }
+  unitNumber?: string
+  incidentNumber?: string
+  responseRequired: boolean
+  acknowledged: boolean
+  audioClipId?: string
+  metadata: {
+    signalStrength: number
+    batteryLevel: number
+    backgroundNoise: number
+    transmission_quality: 'clear' | 'static' | 'weak' | 'broken'
+  }
+}
+
+export interface DispatchChannel {
+  id: string
+  name: string
+  frequency: string
+  activeUnits: string[]
+  status: 'active' | 'standby' | 'emergency'
+  description: string
+}
