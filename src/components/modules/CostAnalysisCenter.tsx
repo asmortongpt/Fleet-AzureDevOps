@@ -25,6 +25,7 @@ import {
 } from "@phosphor-icons/react"
 import { toast } from "sonner"
 import apiClient from "@/lib/api-client"
+import { usePermissions } from "@/hooks/usePermissions"
 
 interface CostSummary {
   totalCost: number
@@ -69,6 +70,7 @@ interface CostForecast {
 }
 
 export function CostAnalysisCenter() {
+  const { canViewFinancial, isAdmin, canAccessField } = usePermissions()
   const [costSummary, setCostSummary] = useState<CostSummary | null>(null)
   const [budgetStatus, setBudgetStatus] = useState<BudgetStatus[]>([])
   const [forecasts, setForecasts] = useState<CostForecast[]>([])
@@ -78,6 +80,22 @@ export function CostAnalysisCenter() {
     startDate: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
     endDate: new Date()
   })
+
+  // Check permission to view financial data
+  if (!canViewFinancial && !isAdmin) {
+    return (
+      <div className="p-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>Access Restricted</CardTitle>
+            <CardDescription>
+              You do not have permission to view cost analysis data.
+            </CardDescription>
+          </CardHeader>
+        </Card>
+      </div>
+    )
+  }
 
   useEffect(() => {
     fetchCostData()
@@ -178,10 +196,12 @@ export function CostAnalysisCenter() {
             Real-time cost tracking, forecasting, and anomaly detection
           </p>
         </div>
-        <Button onClick={exportData} className="flex items-center gap-2">
-          <Download className="h-4 w-4" weight="bold" />
-          Export to Excel
-        </Button>
+        {(isAdmin || canViewFinancial) && (
+          <Button onClick={exportData} className="flex items-center gap-2">
+            <Download className="h-4 w-4" weight="bold" />
+            Export to Excel
+          </Button>
+        )}
       </div>
 
       {/* Summary Cards */}
