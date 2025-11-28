@@ -511,8 +511,11 @@ describe('RadioEmulator', () => {
       await new Promise(resolve => setTimeout(resolve, 200))
       radioEmulator.releasePTT('manual')
 
+      // Wait for rate limit
+      await new Promise(resolve => setTimeout(resolve, 600))
+
       radioEmulator.pressPTT('routine')
-      await new Promise(resolve => setTimeout(resolve, 700))
+      await new Promise(resolve => setTimeout(resolve, 200))
       radioEmulator.releasePTT('manual')
 
       const state = radioEmulator.getCurrentState()
