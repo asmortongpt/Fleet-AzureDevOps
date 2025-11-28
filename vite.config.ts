@@ -8,25 +8,21 @@ import { cjsInterop } from 'vite-plugin-cjs-interop'
 const projectRoot = process.env.PROJECT_ROOT || import.meta.dirname
 
 /**
- * Inject runtime-config.js script tag
- * This ensures the runtime configuration is loaded before the main app
- * CRITICAL: Required for production deployment
+ * REMOVED: Runtime config injection - using Vite's built-in env var system instead
+ * The runtime-config.js approach was causing white screen issues
  */
-function injectRuntimeConfig(): PluginOption {
-  return {
-    name: 'inject-runtime-config',
-    enforce: 'post',
-    transformIndexHtml(html) {
-      // Ensure runtime-config.js is loaded before the main app
-      // This file is created at container startup with actual environment values
-      // CRITICAL: Use absolute path (/) for Kubernetes/production deployment
-      return html.replace(
-        '<div id="root"></div>',
-        '<div id="root"></div>\n    <script src="/runtime-config.js"></script>'
-      );
-    },
-  };
-}
+// function injectRuntimeConfig(): PluginOption {
+//   return {
+//     name: 'inject-runtime-config',
+//     enforce: 'post',
+//     transformIndexHtml(html) {
+//       return html.replace(
+//         '<div id="root"></div>',
+//         '<div id="root"></div>\n    <script src="/runtime-config.js"></script>'
+//       );
+//     },
+//   };
+// }
 
 /**
  * Fix module preload order to ensure React loads before libraries that depend on it
@@ -117,7 +113,7 @@ export default defineConfig({
         'next-themes'
       ]
     }),
-    injectRuntimeConfig(), // CRITICAL: Injects runtime-config.js script tag
+    // REMOVED: injectRuntimeConfig() - was causing white screen
     fixModulePreloadOrder(), // CRITICAL FIX: Reorder modulepreload tags to ensure React loads first
     // Bundle analyzer - generates stats.html after build
     visualizer({
