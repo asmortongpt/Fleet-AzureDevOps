@@ -25,6 +25,7 @@ import {
 } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import { format } from 'date-fns'
+import { usePermissions } from '@/hooks/usePermissions'
 
 interface ReimbursementRequest {
   id: string
@@ -80,6 +81,7 @@ const apiMutation = async (url: string, method: string, data?: any) => {
 
 export function ReimbursementQueue() {
   const queryClient = useQueryClient()
+  const { isAdmin, isFleetManager, canViewFinancial } = usePermissions()
   const [selectedRequests, setSelectedRequests] = useState<Set<string>>(new Set())
   const [reviewingRequest, setReviewingRequest] = useState<ReimbursementRequest | null>(null)
   const [reviewAction, setReviewAction] = useState<'approve' | 'reject'>('approve')
@@ -91,6 +93,24 @@ export function ReimbursementQueue() {
   const [statusFilter, setStatusFilter] = useState<string>('pending')
   const [categoryFilter, setCategoryFilter] = useState<string>('all')
   const [driverFilter, setDriverFilter] = useState<string>('')
+
+  // Permission check - only admins, fleet managers, and finance can access this page
+  const canAccessQueue = isAdmin || isFleetManager || canViewFinancial
+
+  if (!canAccessQueue) {
+    return (
+      <div className="p-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>Access Restricted</CardTitle>
+            <CardDescription>
+              You do not have permission to view the reimbursement queue.
+            </CardDescription>
+          </CardHeader>
+        </Card>
+      </div>
+    )
+  }
 
   const getQueueParams = () => {
     const params = new URLSearchParams()
@@ -362,10 +382,12 @@ export function ReimbursementQueue() {
                 <AlertDescription className="flex items-center justify-between">
                   <span>{selectedRequests.size} requests selected</span>
                   <div className="flex gap-2">
-                    <Button onClick={handleBulkApprove} size="sm">
-                      <CheckCircle className="w-4 h-4 mr-2" />
-                      Bulk Approve
-                    </Button>
+                    {(isAdmin || isFleetManager) && (
+                      <Button onClick={handleBulkApprove} size="sm">
+                        <CheckCircle className="w-4 h-4 mr-2" />
+                        Bulk Approve
+                      </Button>
+                    )}
                     <Button
                       onClick={() => setSelectedRequests(new Set())}
                       variant="outline"
@@ -464,7 +486,7 @@ export function ReimbursementQueue() {
                       )}
                     </TableCell>
                     <TableCell>
-                      {request.status === 'pending' && (
+                      {request.status === 'pending' && (isAdmin || isFleetManager) && (
                         <div className="flex gap-1">
                           <Button
                             size="sm"
