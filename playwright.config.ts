@@ -1,106 +1,116 @@
 import { defineConfig, devices } from '@playwright/test'
 
 export default defineConfig({
-  testDir: './e2e',
+  testDir: './tests/e2e',
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 1,
   workers: process.env.CI ? 1 : 4,
-  timeout: 60000, // Increase timeout to 60 seconds per test
+  timeout: 30000, // Default timeout of 30 seconds per test
+
   reporter: [
-    ['html'],
+    ['html', { outputFolder: 'playwright-report', open: 'never' }],
     ['json', { outputFile: 'test-results/results.json' }],
     ['junit', { outputFile: 'test-results/junit.xml' }],
     ['list']
   ],
+
   use: {
     baseURL: process.env.APP_URL || 'http://localhost:5173',
-    trace: 'on-first-retry',
+    trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
-    // Visual regression testing settings
-    ignoreSnapshots: !process.env.UPDATE_SNAPSHOTS,
-    // Ignore HTTPS errors for production testing
     ignoreHTTPSErrors: true,
+    actionTimeout: 15000,
+    navigationTimeout: 30000,
   },
-  // Visual snapshot configuration
+
+  // Configure test artifacts
+  outputDir: 'test-results',
+
+  // Snapshot configuration
   expect: {
+    timeout: 10000,
     toHaveScreenshot: {
       maxDiffPixels: 100,
       threshold: 0.2,
+      animations: 'disabled',
     },
   },
 
   projects: [
-    // ========== Production Smoke Tests ==========
-    // Run smoke tests with: npm run test:smoke or npm run test:smoke:production
+    // ========== Desktop Browser Testing ==========
     {
-      name: 'smoke-chromium',
-      testDir: './tests/smoke',
+      name: 'chromium',
+      testDir: './tests/e2e',
       use: {
         ...devices['Desktop Chrome'],
         viewport: { width: 1920, height: 1080 },
-        baseURL: process.env.PRODUCTION_URL || process.env.APP_URL || 'http://localhost:5173',
-      },
-      timeout: 60000,
-      retries: 1,
+        launchOptions: {
+          args: ['--disable-dev-shm-usage']
+        }
+      }
     },
 
-    // ========== E2E Testing Projects ==========
     {
-      name: 'chromium',
-      testDir: './e2e',
+      name: 'firefox',
+      testDir: './tests/e2e',
       use: {
-        ...devices['Desktop Chrome'],
+        ...devices['Desktop Firefox'],
+        viewport: { width: 1920, height: 1080 }
+      }
+    },
+
+    {
+      name: 'webkit',
+      testDir: './tests/e2e',
+      use: {
+        ...devices['Desktop Safari'],
         viewport: { width: 1920, height: 1080 }
       }
     },
 
     // ========== Mobile Testing Projects ==========
-    // Run mobile tests with: npm run test:mobile
     {
-      name: 'mobile-iphone',
-      testDir: './e2e/mobile',
-      use: {
-        ...devices['iPhone 12'],
-        viewport: { width: 390, height: 844 },
-      },
-      timeout: 90000,
-    },
-    {
-      name: 'mobile-pixel',
-      testDir: './e2e/mobile',
+      name: 'mobile-chrome',
+      testDir: './tests/e2e',
       use: {
         ...devices['Pixel 5'],
         viewport: { width: 393, height: 851 },
-      },
-      timeout: 90000,
+      }
     },
+
     {
-      name: 'mobile-ipad',
-      testDir: './e2e/mobile',
+      name: 'mobile-safari',
+      testDir: './tests/e2e',
+      use: {
+        ...devices['iPhone 12'],
+        viewport: { width: 390, height: 844 },
+      }
+    },
+
+    {
+      name: 'tablet-ipad',
+      testDir: './tests/e2e',
       use: {
         ...devices['iPad Pro'],
         viewport: { width: 1024, height: 1366 },
-      },
-      timeout: 90000,
+      }
     },
 
-    // ========== Browser Testing (Optional) ==========
-    // Uncomment for full cross-browser testing
-    // {
-    //   name: 'firefox',
-    //   testDir: './e2e',
-    //   use: { ...devices['Desktop Firefox'] }
-    // },
-    // {
-    //   name: 'webkit',
-    //   testDir: './e2e',
-    //   use: { ...devices['Desktop Safari'] }
-    // },
+    // ========== Smoke Tests Project ==========
+    {
+      name: 'smoke',
+      testDir: './tests/smoke',
+      use: {
+        ...devices['Desktop Chrome'],
+        viewport: { width: 1920, height: 1080 },
+      },
+      retries: 0,
+      timeout: 60000,
+    },
 
-    // ========== Visual Regression Testing Projects ==========
-    // Run visual tests with: npm run test:visual
+    // ========== Visual Regression Testing ==========
     {
       name: 'visual-chromium',
       testDir: './tests/visual',
@@ -108,7 +118,6 @@ export default defineConfig({
         ...devices['Desktop Chrome'],
         viewport: { width: 1920, height: 1080 },
         deviceScaleFactor: 1,
-        // Disable animations for consistent screenshots
         launchOptions: {
           args: [
             '--disable-animations',
@@ -126,63 +135,49 @@ export default defineConfig({
         },
       },
     },
+
+    // ========== API Testing Project ==========
     {
-      name: 'visual-firefox',
-      testDir: './tests/visual',
-      testMatch: /cross-browser\.visual\.spec\.ts/,
+      name: 'api',
+      testDir: './tests/api',
       use: {
-        ...devices['Desktop Firefox'],
-        viewport: { width: 1920, height: 1080 },
-      },
-      expect: {
-        toHaveScreenshot: {
-          maxDiffPixels: 200,
-          threshold: 0.25,
-          animations: 'disabled',
+        baseURL: process.env.API_URL || 'http://localhost:3000',
+        extraHTTPHeaders: {
+          'Accept': 'application/json',
         },
       },
     },
+
+    // ========== Accessibility Testing ==========
     {
-      name: 'visual-webkit',
-      testDir: './tests/visual',
-      testMatch: /cross-browser\.visual\.spec\.ts/,
+      name: 'a11y',
+      testDir: './tests/e2e',
+      testMatch: '**/*.a11y.spec.ts',
       use: {
-        ...devices['Desktop Safari'],
+        ...devices['Desktop Chrome'],
         viewport: { width: 1920, height: 1080 },
-      },
-      expect: {
-        toHaveScreenshot: {
-          maxDiffPixels: 200,
-          threshold: 0.25,
-          animations: 'disabled',
-        },
-      },
+      }
     },
-    // Mobile visual testing
+
+    // ========== Performance Testing ==========
     {
-      name: 'visual-mobile',
-      testDir: './tests/visual',
-      testMatch: /cross-browser\.visual\.spec\.ts/,
+      name: 'performance',
+      testDir: './tests/e2e',
+      testMatch: '**/*.perf.spec.ts',
       use: {
-        ...devices['iPhone 12'],
-        viewport: { width: 390, height: 844 },
-      },
-      expect: {
-        toHaveScreenshot: {
-          maxDiffPixels: 150,
-          threshold: 0.25,
-          animations: 'disabled',
-        },
-      },
+        ...devices['Desktop Chrome'],
+        launchOptions: {
+          args: ['--enable-precise-memory-info']
+        }
+      }
     },
   ],
 
-  webServer: process.env.CI
-    ? undefined
-    : {
-        command: 'npm run dev',
-        url: 'http://localhost:5173',
-        reuseExistingServer: !process.env.CI,
-        timeout: 120000
-      }
+  // Web server configuration for local development
+  webServer: process.env.CI ? undefined : {
+    command: 'npm run dev',
+    url: 'http://localhost:5173',
+    reuseExistingServer: !process.env.CI,
+    timeout: 120000
+  }
 })
