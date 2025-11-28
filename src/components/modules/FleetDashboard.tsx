@@ -12,6 +12,8 @@ import { MetricCard } from "@/components/MetricCard"
 import { AddVehicleDialog } from "@/components/dialogs/AddVehicleDialog"
 import { ProfessionalFleetMap } from "@/components/Maps/ProfessionalFleetMap"
 import { AssetTypeFilter, FilterState as AssetFilterState } from "@/components/filters/AssetTypeFilter"
+import { SystemStatusPanel } from "@/components/dashboard/SystemStatusPanel"
+import { AIInsightsPanel } from "@/components/dashboard/AIInsightsPanel"
 import {
   Car,
   Pulse,
@@ -32,6 +34,7 @@ import {
 import { Vehicle } from "@/lib/types"
 import { useFleetData } from "@/hooks/use-fleet-data"
 import { useVehicleTelemetry } from "@/hooks/useVehicleTelemetry"
+import { useSystemStatus } from "@/hooks/useSystemStatus"
 import { useDrilldown } from "@/contexts/DrilldownContext"
 import { useInspect } from "@/services/inspect/InspectContext"
 import apiClient from "@/lib/api-client"
@@ -90,6 +93,12 @@ export function FleetDashboard({ data }: FleetDashboardProps) {
     onVehicleUpdate: (vehicleId, update) => {
       console.debug(`[FleetDashboard] Real-time update for ${vehicleId}`, update)
     }
+  })
+
+  // Unified system status (all emulators + AI services)
+  const systemStatus = useSystemStatus({
+    enabled: true,
+    pollInterval: 5000
   })
 
   // Drilldown handlers for deep navigation to original records
@@ -718,6 +727,21 @@ export function FleetDashboard({ data }: FleetDashboardProps) {
             />
           </div>
         )}
+      </div>
+
+      {/* System Status & AI Insights Row */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <SystemStatusPanel
+          emulators={systemStatus.emulators}
+          aiServices={systemStatus.aiServices}
+          healthMetrics={systemStatus.healthMetrics}
+          onStartEmulator={systemStatus.startEmulator}
+          onStopEmulator={systemStatus.stopEmulator}
+        />
+        <AIInsightsPanel
+          insights={systemStatus.aiInsights}
+          onDismiss={systemStatus.dismissInsight}
+        />
       </div>
 
       {/* Professional Fleet Map - Prominent placement */}
