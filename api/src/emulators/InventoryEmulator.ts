@@ -344,10 +344,12 @@ export class InventoryEmulator extends EventEmitter {
   private generateInitialInventory(count: number): void {
     const categories = Object.keys(INVENTORY_TEMPLATES) as InventoryCategory[]
     const itemsPerCategory = Math.floor(count / categories.length)
+    const remainder = count % categories.length
 
-    categories.forEach(category => {
+    categories.forEach((category, index) => {
       const templates = INVENTORY_TEMPLATES[category]
-      const itemsToGenerate = itemsPerCategory
+      // Distribute remainder items across first categories
+      const itemsToGenerate = itemsPerCategory + (index < remainder ? 1 : 0)
 
       for (let i = 0; i < itemsToGenerate; i++) {
         const template = templates[i % templates.length]
