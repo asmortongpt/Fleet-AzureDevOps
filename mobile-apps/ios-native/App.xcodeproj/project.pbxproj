@@ -306,6 +306,7 @@
 		F19517AEB6FFEB798630BFF9 /* TripDetailView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TripDetailView.swift; path = App/Views/TripDetailView.swift; sourceTree = "<group>"; };
 		F2B306D6939DFE03C02278BC /* CameraManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CameraManager.swift; sourceTree = "<group>"; };
 		F34ECBC86983BEC6438C51D8 /* AccessibilityManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AccessibilityManager.swift; path = Utilities/AccessibilityManager.swift; sourceTree = "<group>"; };
+		F756CDB0436F12A438F19973 /* EnhancedMoreView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = EnhancedMoreView.swift; sourceTree = "<group>"; };
 		F7CC4692F8829295A37DEB2E /* RootView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
 		F8A2FD33782415307D756CEF /* AzureSSOManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AzureSSOManager.swift; sourceTree = "<group>"; };
 		F984287D647965A21C894EEB /* FleetMetricsCard.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = FleetMetricsCard.swift; sourceTree = "<group>"; };
@@ -603,6 +604,7 @@
 				1E23A36E6133C2D0FC69F0F3 /* AzureSSOManager.swift */,
 				F8A2FD33782415307D756CEF /* AzureSSOManager.swift */,
 				C7894041712EF9EAB30F9859 /* PerformanceOptimizations.swift */,
+				F756CDB0436F12A438F19973 /* EnhancedMoreView.swift */,
 			);
 			path = App;
 			sourceTree = "<group>";
