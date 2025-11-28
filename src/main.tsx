@@ -5,6 +5,7 @@ initSentry()
 import React from "react"
 import ReactDOM from "react-dom/client"
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom"
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import * as Sentry from "@sentry/react"
 import { AuthProvider } from "./components/providers/AuthProvider"
 import { InspectProvider } from "./services/inspect/InspectContext"
@@ -13,6 +14,17 @@ import { SentryErrorBoundary } from "./components/errors/SentryErrorBoundary"
 import App from "./App"
 import Login from "./pages/Login"
 import "./index.css"
+
+// Create a client
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+      retry: 1,
+      staleTime: 5 * 60 * 1000, // 5 minutes
+    },
+  },
+})
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, isLoading } = useAuth()
@@ -33,27 +45,29 @@ const SentryRoutes = Sentry.withSentryRouting(Routes)
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <SentryErrorBoundary level="page">
-      <AuthProvider>
-        <InspectProvider>
-          <BrowserRouter>
-            <SentryRoutes>
-              <Route path="/login" element={<Login />} />
-              <Route path="/auth/callback" element={<Login />} />
-              <Route
-                path="/*"
-                element={
-                  <ProtectedRoute>
-                    <SentryErrorBoundary level="section">
-                      <App />
-                    </SentryErrorBoundary>
-                  </ProtectedRoute>
-                }
-              />
-            </SentryRoutes>
-          </BrowserRouter>
-        </InspectProvider>
-      </AuthProvider>
-    </SentryErrorBoundary>
+    <QueryClientProvider client={queryClient}>
+      <SentryErrorBoundary level="page">
+        <AuthProvider>
+          <InspectProvider>
+            <BrowserRouter>
+              <SentryRoutes>
+                <Route path="/login" element={<Login />} />
+                <Route path="/auth/callback" element={<Login />} />
+                <Route
+                  path="/*"
+                  element={
+                    <ProtectedRoute>
+                      <SentryErrorBoundary level="section">
+                        <App />
+                      </SentryErrorBoundary>
+                    </ProtectedRoute>
+                  }
+                />
+              </SentryRoutes>
+            </BrowserRouter>
+          </InspectProvider>
+        </AuthProvider>
+      </SentryErrorBoundary>
+    </QueryClientProvider>
   </React.StrictMode>
 )
