@@ -18,6 +18,7 @@ struct LoginView: View {
     @State private var showPassword = false
     @State private var rememberMe = false
     @State private var showingBiometricPrompt = false
+    @State private var showingDemoMode = false
 
     var body: some View {
         ZStack {
@@ -65,6 +66,9 @@ struct LoginView: View {
         }
         .onAppear {
             loadSavedEmail()
+        }
+        .sheet(isPresented: $showingDemoMode) {
+            DemoModeLoginView()
         }
     }
 
@@ -305,6 +309,24 @@ struct LoginView: View {
             Text("Version \(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0.0")")
                 .font(.system(size: 12))
                 .foregroundColor(.white.opacity(0.7))
+
+            // Demo Mode button
+            Button(action: {
+                showingDemoMode = true
+            }) {
+                HStack(spacing: 8) {
+                    Image(systemName: "sparkles")
+                    Text("Try Demo Mode")
+                }
+                .font(.system(size: 14, weight: .semibold))
+                .foregroundColor(.yellow)
+                .padding(.horizontal, 20)
+                .padding(.vertical, 10)
+                .background(
+                    Capsule()
+                        .fill(Color.white.opacity(0.2))
+                )
+            }
 
             // Support link
             Button(action: {
