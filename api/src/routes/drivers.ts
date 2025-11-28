@@ -1,24 +1,78 @@
 import { Router } from "express"
+import { driverEmulator } from "../emulators/DriverEmulator"
+
 const router = Router()
 
+// GET all drivers
 router.get("/", async (req, res) => {
-  res.json({ data: [], message: "drivers endpoint working" })
+  try {
+    const { page = 1, pageSize = 20, search, status } = req.query
+
+    let drivers = driverEmulator.getAll()
+
+    // Apply search filter
+    if (search && typeof search === 'string') {
+      drivers = driverEmulator.search(search)
+    }
+
+    // Apply status filter
+    if (status && typeof status === 'string') {
+      drivers = drivers.filter(d => d.status === status)
+    }
+
+    // Apply pagination
+    const total = drivers.length
+    const offset = (Number(page) - 1) * Number(pageSize)
+    const data = drivers.slice(offset, offset + Number(pageSize))
+
+    res.json({ data, total })
+  } catch (error) {
+    console.error(error)
+    res.status(500).json({ error: "Failed to fetch drivers" })
+  }
 })
 
+// GET driver by ID
 router.get("/:id", async (req, res) => {
-  res.json({ data: null, id: req.params.id })
+  try {
+    const driver = driverEmulator.getById(Number(req.params.id))
+    if (!driver) return res.status(404).json({ error: "Driver not found" })
+    res.json({ data: driver })
+  } catch (error) {
+    res.status(500).json({ error: "Failed to fetch driver" })
+  }
 })
 
+// POST create driver
 router.post("/", async (req, res) => {
-  res.status(201).json({ data: req.body, message: "Created" })
+  try {
+    const driver = driverEmulator.create(req.body)
+    res.status(201).json({ data: driver })
+  } catch (error) {
+    res.status(500).json({ error: "Failed to create driver" })
+  }
 })
 
+// PUT update driver
 router.put("/:id", async (req, res) => {
-  res.json({ data: req.body, id: req.params.id, message: "Updated" })
+  try {
+    const driver = driverEmulator.update(Number(req.params.id), req.body)
+    if (!driver) return res.status(404).json({ error: "Driver not found" })
+    res.json({ data: driver })
+  } catch (error) {
+    res.status(500).json({ error: "Failed to update driver" })
+  }
 })
 
+// DELETE driver
 router.delete("/:id", async (req, res) => {
-  res.json({ message: "Deleted", id: req.params.id })
+  try {
+    const deleted = driverEmulator.delete(Number(req.params.id))
+    if (!deleted) return res.status(404).json({ error: "Driver not found" })
+    res.json({ message: "Driver deleted successfully" })
+  } catch (error) {
+    res.status(500).json({ error: "Failed to delete driver" })
+  }
 })
 
 export default router
