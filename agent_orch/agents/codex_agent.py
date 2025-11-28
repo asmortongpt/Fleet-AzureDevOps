@@ -1,250 +1,229 @@
-#!/usr/bin/env python3
 """
-Codex Agent - Uses OpenAI GPT-4 to analyze errors and generate fixes.
-This agent is responsible for diagnosing React module loading issues and
-creating unified git patches for vite.config.ts, package.json, etc.
+CodexAgent - Code Generation & Patch Creation
+Uses OpenAI GPT-4 to analyze errors and generate fixes
 """
 
-import os
-import json
 import logging
-from typing import Dict, List, Optional, Tuple
+import os
+from typing import Dict, Optional
 from openai import OpenAI
-from tenacity import retry, stop_after_attempt, wait_exponential
 
 logger = logging.getLogger(__name__)
 
 
 class CodexAgent:
-    """OpenAI-powered agent that analyzes errors and generates code fixes."""
-
-    def __init__(self, api_key: str, model: str = "gpt-4-turbo-preview", temperature: float = 0.2):
-        """
-        Initialize the Codex Agent.
-
-        Args:
-            api_key: OpenAI API key
-            model: Model to use (default: gpt-4-turbo-preview)
-            temperature: Sampling temperature (default: 0.2 for focused fixes)
-        """
+    """
+    CodexAgent uses GPT-4 to analyze build/deployment errors
+    and generate unified git patches that fix the issues
+    """
+    
+    def __init__(self, config: Dict):
+        self.config = config
+        agent_config = config.get('agents', {}).get('codex', {})
+        
+        self.model = agent_config.get('model', 'gpt-4')
+        self.temperature = agent_config.get('temperature', 0.2)
+        self.max_tokens = agent_config.get('max_tokens', 4000)
+        self.system_prompt = agent_config.get('system_prompt', '')
+        
+        # Initialize OpenAI client
+        api_key = os.getenv('OPENAI_API_KEY')
+        if not api_key:
+            raise ValueError("OPENAI_API_KEY environment variable not set")
+        
         self.client = OpenAI(api_key=api_key)
-        self.model = model
-        self.temperature = temperature
-        logger.info(f"Initialized CodexAgent with model={model}, temperature={temperature}")
-
-    @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=2, max=10))
-    def analyze_error(self, error_log: str, context: Dict[str, str]) -> Dict[str, any]:
+        logger.info(f"✅ CodexAgent initialized (model: {self.model})")
+    
+    def analyze_error(
+        self,
+        error_log: str,
+        context: Optional[Dict] = None
+    ) -> str:
         """
-        Analyze error logs and repository context to diagnose issues.
-
+        Analyze error and generate analysis
+        
         Args:
-            error_log: Error messages and stack traces
-            context: Repository context (vite.config.ts, package.json, etc.)
-
+            error_log: Error output from build/deployment
+            context: Additional context (files, config, etc.)
+        
         Returns:
-            Dictionary with diagnosis and recommended fixes
+            Analysis text
         """
-        logger.info("Analyzing error with OpenAI GPT-4...")
-
-        system_prompt = """You are an expert React + Vite build engineer specializing in module loading issues.
-Your task is to analyze errors and provide precise, minimal fixes.
-
-Focus areas:
-- React module loading order (useLayoutEffect errors)
-- Vite chunk configuration (manualChunks, modulePreload)
-- ESM/CJS interop issues
-- Circular dependencies
-
-Provide:
+        logger.info("🔍 Analyzing error with GPT-4")
+        
+        user_prompt = f"""
+Analyze this build/deployment error and provide:
 1. Root cause analysis
-2. Specific file changes (unified diff format)
-3. Explanation of why the fix works
-4. Risk assessment
+2. Impact assessment
+3. Recommended fix approach
 
-CRITICAL: Only suggest changes that are:
-- Minimal and surgical
-- Well-tested patterns
-- Safe for production
-- Do NOT delete files or Azure resources
-"""
-
-        user_prompt = f"""## Error Log
-```
+ERROR LOG:
 {error_log}
-```
-
-## Repository Context
-
-### vite.config.ts
-```typescript
-{context.get('vite.config.ts', 'Not provided')}
-```
-
-### package.json
-```json
-{context.get('package.json', 'Not provided')}
-```
-
-### Build Output
-```
-{context.get('build_output', 'Not provided')}
-```
-
-Analyze this error and provide:
-1. Root cause (be specific)
-2. Git patch (unified diff format) for fixes
-3. Explanation of the fix
-4. Risk level (LOW/MEDIUM/HIGH)
-
-Return response as JSON:
-{{
-  "root_cause": "...",
-  "fixes": [
-    {{
-      "file": "vite.config.ts",
-      "patch": "unified diff here",
-      "reason": "why this fixes the issue"
-    }}
-  ],
-  "explanation": "detailed explanation",
-  "risk_level": "LOW|MEDIUM|HIGH",
-  "confidence": 0.0-1.0
-}}
 """
-
+        
+        if context:
+            user_prompt += f"\n\nADDITIONAL CONTEXT:\n{self._format_context(context)}"
+        
         try:
             response = self.client.chat.completions.create(
                 model=self.model,
                 messages=[
-                    {"role": "system", "content": system_prompt},
+                    {"role": "system", "content": self.system_prompt},
                     {"role": "user", "content": user_prompt}
                 ],
                 temperature=self.temperature,
-                max_tokens=4000,
-                response_format={"type": "json_object"}
+                max_tokens=self.max_tokens
             )
-
-            result = json.loads(response.choices[0].message.content)
-            logger.info(f"Analysis complete. Root cause: {result.get('root_cause', 'Unknown')}")
-            return result
-
+            
+            analysis = response.choices[0].message.content
+            logger.info("✅ Analysis complete")
+            return analysis
+            
         except Exception as e:
-            logger.error(f"Error during analysis: {str(e)}")
+            logger.error(f"❌ Analysis failed: {str(e)}")
             raise
-
-    def generate_fix(self, diagnosis: Dict[str, any]) -> List[Tuple[str, str]]:
+    
+    def generate_patch(
+        self,
+        error_log: str,
+        current_files: Dict[str, str],
+        context: Optional[Dict] = None
+    ) -> Optional[str]:
         """
-        Generate file patches from diagnosis.
-
+        Generate unified git patch to fix the error
+        
         Args:
-            diagnosis: Output from analyze_error()
-
+            error_log: Error output
+            current_files: Dict of {filepath: content} for relevant files
+            context: Additional context
+        
         Returns:
-            List of (filename, patch) tuples
+            Unified git patch as string, or None if no fix needed
         """
-        fixes = []
-        for fix in diagnosis.get('fixes', []):
-            filename = fix.get('file')
-            patch = fix.get('patch')
-            if filename and patch:
-                fixes.append((filename, patch))
-                logger.info(f"Generated fix for {filename}")
-        return fixes
+        logger.info("🔧 Generating patch with GPT-4")
+        
+        # Build context for the AI
+        files_context = "\n\n".join([
+            f"=== {path} ===\n{content}"
+            for path, content in current_files.items()
+        ])
+        
+        user_prompt = f"""
+Analyze this error and generate a UNIFIED GIT PATCH to fix it.
 
-    def create_commit_message(self, diagnosis: Dict[str, any]) -> str:
-        """
-        Create a descriptive commit message from the diagnosis.
+REQUIREMENTS:
+- Use unified diff format (diff --git a/... b/...)
+- Make MINIMAL changes only
+- Never hardcode secrets
+- Use parameterized queries ($1, $2, $3)
+- Follow security best practices
+- Prefer Azure DevOps hosted agents (7GB RAM) over ACR build (4GB RAM) for large builds
 
-        Args:
-            diagnosis: Output from analyze_error()
+ERROR LOG:
+{error_log}
 
-        Returns:
-            Commit message string
-        """
-        root_cause = diagnosis.get('root_cause', 'Unknown issue')
-        explanation = diagnosis.get('explanation', '')
-
-        message = f"""fix: {root_cause}
-
-{explanation}
-
-Risk Level: {diagnosis.get('risk_level', 'UNKNOWN')}
-Confidence: {diagnosis.get('confidence', 0.0):.0%}
-
-Generated by Multi-Agent Orchestrator (Codex Agent)
+CURRENT FILES:
+{files_context}
 """
-        return message
+        
+        if context:
+            user_prompt += f"\n\nCONTEXT:\n{self._format_context(context)}"
+        
+        user_prompt += """
 
-    def validate_fix_safety(self, diagnosis: Dict[str, any], protected_files: List[str]) -> Tuple[bool, List[str]]:
+Generate ONLY the git patch. No explanations, just the patch content starting with "diff --git".
+If no changes are needed, respond with "NO_PATCH_NEEDED".
+"""
+        
+        try:
+            response = self.client.chat.completions.create(
+                model=self.model,
+                messages=[
+                    {"role": "system", "content": self.system_prompt},
+                    {"role": "user", "content": user_prompt}
+                ],
+                temperature=self.temperature,
+                max_tokens=self.max_tokens
+            )
+            
+            patch = response.choices[0].message.content.strip()
+            
+            if "NO_PATCH_NEEDED" in patch:
+                logger.info("ℹ️ No patch needed")
+                return None
+            
+            # Validate patch format
+            if not patch.startswith("diff --git"):
+                logger.warning("⚠️ Response doesn't look like a patch, extracting...")
+                # Try to extract patch from markdown code blocks
+                if "```" in patch:
+                    parts = patch.split("```")
+                    for part in parts:
+                        if "diff --git" in part:
+                            # Remove language identifier if present
+                            lines = part.split('\n')
+                            if lines[0].strip() in ['diff', 'patch', '']:
+                                patch = '\n'.join(lines[1:])
+                            else:
+                                patch = part
+                            break
+            
+            logger.info(f"✅ Patch generated ({len(patch)} bytes)")
+            logger.debug(f"Patch preview:\n{patch[:500]}...")
+            
+            return patch
+            
+        except Exception as e:
+            logger.error(f"❌ Patch generation failed: {str(e)}")
+            raise
+    
+    def suggest_build_strategy(self, error_log: str) -> Dict:
         """
-        Validate that the proposed fix is safe to apply.
-
-        Args:
-            diagnosis: Output from analyze_error()
-            protected_files: List of file patterns that should not be modified
-
+        Suggest build strategy based on error analysis
+        
         Returns:
-            (is_safe, warnings) tuple
+            Dict with strategy recommendations
         """
-        warnings = []
-        is_safe = True
-
-        # Check risk level
-        risk = diagnosis.get('risk_level', 'UNKNOWN')
-        if risk == 'HIGH':
-            warnings.append(f"High risk fix detected: {diagnosis.get('root_cause')}")
-            is_safe = False
-
-        # Check confidence
-        confidence = diagnosis.get('confidence', 0.0)
-        if confidence < 0.6:
-            warnings.append(f"Low confidence fix: {confidence:.0%}")
-            is_safe = False
-
-        # Check protected files
-        for fix in diagnosis.get('fixes', []):
-            filename = fix.get('file', '')
-            for pattern in protected_files:
-                if pattern in filename or filename.endswith(pattern):
-                    warnings.append(f"Attempting to modify protected file: {filename}")
-                    is_safe = False
-
-        if is_safe:
-            logger.info("Fix validation passed")
-        else:
-            logger.warning(f"Fix validation failed: {', '.join(warnings)}")
-
-        return is_safe, warnings
-
-
-if __name__ == "__main__":
-    # Test the agent
-    import sys
-    logging.basicConfig(level=logging.INFO)
-
-    api_key = os.getenv("OPENAI_API_KEY")
-    if not api_key:
-        print("ERROR: OPENAI_API_KEY not set")
-        sys.exit(1)
-
-    agent = CodexAgent(api_key)
-
-    # Test error
-    error_log = """
-    Uncaught TypeError: Cannot read properties of undefined (reading 'useLayoutEffect')
-        at index-BwZojry1.js:35203:24
-    """
-
-    context = {
-        "vite.config.ts": "// vite config here",
-        "package.json": "{}",
-        "build_output": "Build completed with errors"
-    }
-
-    diagnosis = agent.analyze_error(error_log, context)
-    print(json.dumps(diagnosis, indent=2))
-
-    is_safe, warnings = agent.validate_fix_safety(diagnosis, [".env", "secrets"])
-    print(f"\nSafe: {is_safe}")
-    if warnings:
-        print(f"Warnings: {', '.join(warnings)}")
+        logger.info("💡 Analyzing build strategy")
+        
+        # Check for common patterns
+        strategies = {
+            'use_devops_agent': False,
+            'increase_memory': False,
+            'optimize_bundle': False,
+            'split_build': False,
+            'reasons': []
+        }
+        
+        error_lower = error_log.lower()
+        
+        # Check for OOM / SIGKILL
+        if any(pattern in error_lower for pattern in ['sigkill', 'killed', 'out of memory', 'oom']):
+            strategies['use_devops_agent'] = True
+            strategies['increase_memory'] = True
+            strategies['reasons'].append(
+                "Detected OOM/SIGKILL - ACR build (4GB) insufficient. "
+                "Recommend Azure DevOps hosted agent (7GB RAM)."
+            )
+        
+        # Check for large bundle
+        if any(pattern in error_lower for pattern in ['chunk too large', 'bundle size', 'memory limit']):
+            strategies['optimize_bundle'] = True
+            strategies['reasons'].append(
+                "Large bundle detected. Consider code splitting, tree shaking, or lazy loading."
+            )
+        
+        logger.info(f"✅ Strategy suggestions: {strategies['reasons']}")
+        return strategies
+    
+    def _format_context(self, context: Dict) -> str:
+        """Format context dictionary for prompt"""
+        lines = []
+        for key, value in context.items():
+            if isinstance(value, dict):
+                lines.append(f"{key}:")
+                for k, v in value.items():
+                    lines.append(f"  {k}: {v}")
+            else:
+                lines.append(f"{key}: {value}")
+        return "\n".join(lines)
