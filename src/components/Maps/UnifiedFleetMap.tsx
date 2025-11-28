@@ -11,7 +11,7 @@ import {
   Car,
   MapPin,
   Route,
-  Traffic,
+  AlertTriangle as Traffic,
   Train,
   Circle,
   Layers,
