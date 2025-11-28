@@ -33,6 +33,7 @@ import telemetryService from '@/lib/telemetry'
 
 // Lazy load all modules for code splitting - reduces initial bundle by 80%+
 const FleetDashboard = lazy(() => import("@/components/modules/FleetDashboard").then(m => ({ default: m.FleetDashboard })))
+const FleetDashboardModern = lazy(() => import("@/components/modules/FleetDashboardModern").then(m => ({ default: m.FleetDashboardModern })))
 const ExecutiveDashboard = lazy(() => import("@/components/modules/ExecutiveDashboard").then(m => ({ default: m.ExecutiveDashboard })))
 const AdminDashboard = lazy(() => import("@/pages/AdminDashboard"))
 const PeopleManagement = lazy(() => import("@/components/modules/PeopleManagement").then(m => ({ default: m.PeopleManagement })))
