@@ -22,6 +22,8 @@ import { navigationItems } from "@/lib/navigation"
 import { RoleSwitcher } from "@/components/demo/RoleSwitcher"
 import { ToastContainer } from "@/components/common/ToastContainer"
 import { ErrorBoundary } from "@/components/ErrorBoundary"
+import { EnhancedErrorBoundary } from "@/components/EnhancedErrorBoundary"
+import { QueryErrorBoundary } from "@/components/errors/QueryErrorBoundary"
 import { ThemeToggle } from "@/components/ThemeToggle"
 import { DrilldownManager } from "@/components/DrilldownManager"
 import { useFleetData } from "@/hooks/use-fleet-data"
@@ -349,11 +351,18 @@ function App() {
         </header>
 
         <main id="main-content" className="p-6">
-          <ErrorBoundary>
-            <Suspense fallback={<LoadingSpinner />}>
-              {renderModule()}
-            </Suspense>
-          </ErrorBoundary>
+          <EnhancedErrorBoundary
+            showDetails={import.meta.env.DEV}
+            onError={(error, errorInfo) => {
+              console.error('App Error Boundary:', error, errorInfo);
+            }}
+          >
+            <QueryErrorBoundary>
+              <Suspense fallback={<LoadingSpinner />}>
+                {renderModule()}
+              </Suspense>
+            </QueryErrorBoundary>
+          </EnhancedErrorBoundary>
         </main>
       </div>
 
