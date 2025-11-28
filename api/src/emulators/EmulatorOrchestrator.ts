@@ -28,6 +28,10 @@ import { CostEmulator } from './cost/CostEmulator'
 import { IoTEmulator } from './iot/IoTEmulator'
 import { EVChargingEmulator } from './evcharging/EVChargingEmulator'
 import { VideoTelematicsEmulator } from './video/VideoTelematicsEmulator'
+import { RadioEmulator } from './radio/RadioEmulator'
+import { DispatchEmulator } from './DispatchEmulator'
+import { VehicleInventoryEmulator } from './inventory/VehicleInventoryEmulator'
+import { InventoryEmulator } from './InventoryEmulator'
 
 export class EmulatorOrchestrator extends EventEmitter {
   private config: EmulatorConfig
@@ -46,7 +50,11 @@ export class EmulatorOrchestrator extends EventEmitter {
   private costEmulators: Map<string, CostEmulator> = new Map()
   private iotEmulators: Map<string, IoTEmulator> = new Map()
   private evChargingEmulators: Map<string, EVChargingEmulator> = new Map()
+  private vehicleInventoryEmulator: VehicleInventoryEmulator | null = null
   private videoTelematicsEmulators: Map<string, VideoTelematicsEmulator> = new Map()
+  private radioEmulators: Map<string, RadioEmulator> = new Map()
+  private dispatchEmulator: DispatchEmulator | null = null
+  private inventoryEmulator: InventoryEmulator | null = null
 
   // State management
   private states: Map<string, EmulatorState> = new Map()
@@ -94,7 +102,71 @@ export class EmulatorOrchestrator extends EventEmitter {
     // Setup event listeners
     this.setupEventListeners()
 
+    // Initialize Dispatch Emulator (system-wide, not per-vehicle)
+    this.initializeDispatchEmulator()
+
+    // Initialize Inventory Emulator (system-wide, not per-vehicle)
+    this.initializeInventoryEmulator()
+
     console.log(`EmulatorOrchestrator initialized with ${this.vehicles.size} vehicles`)
+  }
+
+  /**
+   * Initialize the Dispatch Radio Emulator
+   */
+  private initializeDispatchEmulator(): void {
+    this.dispatchEmulator = new DispatchEmulator({
+      updateIntervalMs: this.config.emulators?.dispatch?.updateIntervalMs || 15000,
+      transmissionProbability: 0.3,
+      emergencyProbability: 0.05
+    })
+
+    // Listen for dispatch transmissions
+    this.dispatchEmulator.on('transmission', (transmission) => {
+      this.emit('dispatch', {
+        type: 'dispatch',
+        vehicleId: transmission.vehicleId,
+        timestamp: new Date(),
+        data: transmission
+      })
+    })
+
+    // Listen for emergency transmissions
+    this.dispatchEmulator.on('emergency-transmission', (transmission) => {
+      this.emit('dispatch-emergency', {
+        type: 'dispatch-emergency',
+        vehicleId: transmission.vehicleId,
+        timestamp: new Date(),
+        data: transmission,
+        priority: 'critical'
+      })
+    })
+
+    console.log('Dispatch Radio Emulator initialized')
+  }
+
+  /**
+   * Initialize the Inventory Management Emulator
+   */
+  private initializeInventoryEmulator(): void {
+    this.inventoryEmulator = new InventoryEmulator(this.config)
+
+    // Listen for inventory events
+    this.inventoryEmulator.on('data', (event) => {
+      this.emit('inventory', event)
+    })
+
+    this.inventoryEmulator.on('low-stock-alert', (alert) => {
+      this.emit('inventory-low-stock-alert', {
+        type: 'inventory-low-stock-alert',
+        vehicleId: '',
+        timestamp: new Date(),
+        data: alert,
+        priority: alert.severity === 'critical' || alert.severity === 'out-of-stock' ? 'high' : 'normal'
+      })
+    })
+
+    console.log('Inventory Management Emulator initialized')
   }
 
   /**
@@ -183,7 +255,8 @@ export class EmulatorOrchestrator extends EventEmitter {
   private setupEventListeners(): void {
     const eventTypes = [
       `gps`, 'obd2', 'fuel', 'maintenance',
-      'driver', 'route', 'cost', 'iot'
+      'driver', 'route', 'cost', 'iot', 'radio', 'dispatch', 'dispatch-emergency',
+      'inventory', 'inventory-low-stock-alert'
     ]
 
     eventTypes.forEach(type => {
@@ -253,6 +326,27 @@ export class EmulatorOrchestrator extends EventEmitter {
       }
 
       await this.startVehicleEmulators(vehicle)
+
+      // Register vehicle with dispatch emulator
+      if (this.dispatchEmulator) {
+        const unitNumber = `Unit-${vehicle.id.slice(0, 4).toUpperCase()}`
+        this.dispatchEmulator.registerVehicle({
+          id: vehicle.id,
+          unitNumber,
+          driverId: (vehicle as any).driver_id || (vehicle as any).driverId,
+          currentLocation: vehicle.startingLocation
+        })
+      }
+    }
+
+    // Start dispatch emulator
+    if (this.dispatchEmulator) {
+      this.dispatchEmulator.start()
+    }
+
+    // Start inventory emulator
+    if (this.inventoryEmulator) {
+      await this.inventoryEmulator.start()
     }
 
     this.isRunning = true
@@ -450,6 +544,78 @@ export class EmulatorOrchestrator extends EventEmitter {
       videoTelematicsEmulator.start()
     }
 
+    // Radio/PTT Emulator
+    if (vehicle.features.includes('radio') || vehicle.features.includes('ptt')) {
+      const radioEmulator = new RadioEmulator(vehicle, this.config, {
+        updateIntervalMs: this.config.emulators?.gps?.updateIntervalMs || 1000,
+        enableAudioSimulation: true,
+        enableInterference: true,
+        pttTimeoutMs: 30000,
+        emergencyPriority: true
+      })
+
+      // Listen to all radio events
+      radioEmulator.on('ptt-press', (data) => this.emit('radio', {
+        type: 'radio',
+        event: 'ptt-press',
+        vehicleId,
+        timestamp: new Date(),
+        data
+      }))
+      radioEmulator.on('ptt-release', (data) => this.emit('radio', {
+        type: 'radio',
+        event: 'ptt-release',
+        vehicleId,
+        timestamp: new Date(),
+        data
+      }))
+      radioEmulator.on('transmission-start', (data) => this.emit('radio', {
+        type: 'radio',
+        event: 'transmission-start',
+        vehicleId,
+        timestamp: new Date(),
+        data
+      }))
+      radioEmulator.on('transmission-end', (data) => this.emit('radio', {
+        type: 'radio',
+        event: 'transmission-end',
+        vehicleId,
+        timestamp: new Date(),
+        data
+      }))
+      radioEmulator.on('channel-switch', (data) => this.emit('radio', {
+        type: 'radio',
+        event: 'channel-switch',
+        vehicleId,
+        timestamp: new Date(),
+        data
+      }))
+      radioEmulator.on('emergency-activated', (data) => this.emit('radio', {
+        type: 'radio',
+        event: 'emergency-activated',
+        vehicleId,
+        timestamp: new Date(),
+        data
+      }))
+      radioEmulator.on('audio-stream', (data) => this.emit('radio', {
+        type: 'radio',
+        event: 'audio-stream',
+        vehicleId,
+        timestamp: new Date(),
+        data
+      }))
+      radioEmulator.on('channel-busy', (data) => this.emit('radio', {
+        type: 'radio',
+        event: 'channel-busy',
+        vehicleId,
+        timestamp: new Date(),
+        data
+      }))
+
+      this.radioEmulators.set(vehicleId, radioEmulator)
+      await radioEmulator.start()
+    }
+
     this.stats.activeVehicles++
 
     // Create state entry
@@ -477,6 +643,11 @@ export class EmulatorOrchestrator extends EventEmitter {
     }
 
     console.log('Stopping all emulators...')
+
+    // Stop dispatch emulator
+    if (this.dispatchEmulator) {
+      this.dispatchEmulator.stop()
+    }
 
     // Stop all emulator types
     await this.stopAllEmulators()
@@ -551,6 +722,12 @@ export class EmulatorOrchestrator extends EventEmitter {
       await emulator.stop()
     }
     this.iotEmulators.clear()
+
+    // Stop Radio emulators
+    for (const emulator of this.radioEmulators.values()) {
+      await emulator.stop()
+    }
+    this.radioEmulators.clear()
 
     this.states.clear()
   }
@@ -716,7 +893,8 @@ export class EmulatorOrchestrator extends EventEmitter {
         driver: this.driverEmulators.size,
         route: this.routeEmulators.size,
         cost: this.costEmulators.size,
-        iot: this.iotEmulators.size
+        iot: this.iotEmulators.size,
+        radio: this.radioEmulators.size
       }
     }
   }
