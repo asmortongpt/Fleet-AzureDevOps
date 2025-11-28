@@ -105,8 +105,17 @@
 			<array>
 				<string>fleetmgmt</string>
 				<string>ctafleet</string>
+				<!-- Azure AD SSO Redirect URI -->
+				<string>msauth.com.capitaltechalliance.fleetmanagement</string>
 			</array>
 		</dict>
+	</array>
+
+	<!-- LSApplicationQueriesSchemes - Required for Azure AD SSO -->
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>msauthv2</string>
+		<string>msauthv3</string>
 	</array>
 
 	<!-- Supported File Types -->
