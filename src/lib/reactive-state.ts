@@ -416,3 +416,169 @@ export function createAlert(
     dismissAfter,
   }
 }
+
+/* ============================================================
+   SETTINGS TYPES & ATOMS
+   ============================================================ */
+
+export interface GeneralSettings {
+  language: string
+  timezone: string
+  dateFormat: string
+  timeFormat: '12h' | '24h'
+  numberFormat: 'us' | 'eu' | 'uk'
+  defaultDashboard: string
+  itemsPerPage: number
+}
+
+export interface AppearanceSettings {
+  theme: 'light' | 'dark' | 'auto'
+  colorScheme: 'blue' | 'green' | 'purple' | 'orange'
+  fontSize: 'small' | 'medium' | 'large' | 'extra-large'
+  density: 'compact' | 'comfortable' | 'spacious'
+  sidebarCollapsed: boolean
+  animationsEnabled: boolean
+}
+
+export interface NotificationSettings {
+  emailNotifications: {
+    maintenance: boolean
+    alerts: boolean
+    reports: boolean
+    updates: boolean
+  }
+  inAppNotifications: boolean
+  pushNotifications: boolean
+  soundEnabled: boolean
+  notificationFrequency: 'realtime' | 'hourly' | 'daily'
+  quietHoursEnabled: boolean
+  quietHoursStart: string
+  quietHoursEnd: string
+}
+
+export interface FleetSettings {
+  defaultView: 'list' | 'grid' | 'map'
+  autoRefreshInterval: number
+  distanceUnit: 'miles' | 'kilometers'
+  fuelUnit: 'gallons' | 'liters'
+  temperatureUnit: 'fahrenheit' | 'celsius'
+  mapProvider: 'google' | 'mapbox' | 'arcgis'
+  geofenceAlertsEnabled: boolean
+}
+
+export interface SecuritySettings {
+  twoFactorEnabled: boolean
+  sessionTimeout: number
+  loginHistory: Array<{
+    id: string
+    timestamp: string
+    device: string
+    location: string
+    ip: string
+  }>
+  activeSessions: Array<{
+    id: string
+    device: string
+    browser: string
+    lastActive: string
+    ip: string
+  }>
+}
+
+export interface DataPrivacySettings {
+  dataRetentionPeriod: number
+  cookiePreferences: {
+    necessary: boolean
+    analytics: boolean
+    marketing: boolean
+  }
+  analyticsEnabled: boolean
+}
+
+export interface AdvancedSettings {
+  developerMode: boolean
+  apiEndpoint: string
+  featureFlags: Record<string, boolean>
+  debugLogging: boolean
+  performanceMetrics: boolean
+}
+
+// Settings atoms with localStorage persistence
+export const generalSettingsAtom = atomWithStorage<GeneralSettings>('general-settings', {
+  language: 'en-US',
+  timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+  dateFormat: 'MM/DD/YYYY',
+  timeFormat: '12h',
+  numberFormat: 'us',
+  defaultDashboard: 'dashboard',
+  itemsPerPage: 25,
+})
+
+export const appearanceSettingsAtom = atomWithStorage<AppearanceSettings>('appearance-settings', {
+  theme: 'auto',
+  colorScheme: 'blue',
+  fontSize: 'medium',
+  density: 'comfortable',
+  sidebarCollapsed: false,
+  animationsEnabled: true,
+})
+
+export const notificationSettingsAtom = atomWithStorage<NotificationSettings>(
+  'notification-settings',
+  {
+    emailNotifications: {
+      maintenance: true,
+      alerts: true,
+      reports: true,
+      updates: false,
+    },
+    inAppNotifications: true,
+    pushNotifications: false,
+    soundEnabled: true,
+    notificationFrequency: 'realtime',
+    quietHoursEnabled: false,
+    quietHoursStart: '22:00',
+    quietHoursEnd: '07:00',
+  }
+)
+
+export const fleetSettingsAtom = atomWithStorage<FleetSettings>('fleet-settings', {
+  defaultView: 'list',
+  autoRefreshInterval: 30,
+  distanceUnit: 'miles',
+  fuelUnit: 'gallons',
+  temperatureUnit: 'fahrenheit',
+  mapProvider: 'google',
+  geofenceAlertsEnabled: true,
+})
+
+export const securitySettingsAtom = atomWithStorage<SecuritySettings>('security-settings', {
+  twoFactorEnabled: false,
+  sessionTimeout: 30,
+  loginHistory: [],
+  activeSessions: [],
+})
+
+export const dataPrivacySettingsAtom = atomWithStorage<DataPrivacySettings>(
+  'data-privacy-settings',
+  {
+    dataRetentionPeriod: 365,
+    cookiePreferences: {
+      necessary: true,
+      analytics: true,
+      marketing: false,
+    },
+    analyticsEnabled: true,
+  }
+)
+
+export const advancedSettingsAtom = atomWithStorage<AdvancedSettings>('advanced-settings', {
+  developerMode: false,
+  apiEndpoint: import.meta.env.VITE_API_ENDPOINT || '/api',
+  featureFlags: {},
+  debugLogging: false,
+  performanceMetrics: false,
+})
+
+// Track unsaved changes
+export const hasUnsavedChangesAtom = atom<boolean>(false)
