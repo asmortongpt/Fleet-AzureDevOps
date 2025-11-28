@@ -1,10 +1,10 @@
-# Fleet Management - Docker Build & Deploy Pipeline
-# Builds with Microsoft-hosted agents (7GB RAM) to bypass ACR build agent limits
+# Fleet Management - Simple Build Pipeline (No Service Connections Required)
 trigger:
   branches:
     include:
       - main
-      - stage-a/*
+      - develop
+      - stage-*
   paths:
     exclude:
       - '*.md'
@@ -17,63 +17,45 @@ pr:
 
 variables:
   nodeVersion: '20.x'
-  dockerRegistryServiceConnection: 'fleetproductionacr'
-  imageRepository: 'fleet-frontend'
-  containerRegistry: 'fleetproductionacr.azurecr.io'
-  dockerfilePath: 'Dockerfile'
-  tag: '$(Build.BuildId)'
 
 pool:
-  vmImage: 'ubuntu-latest'  # 7GB RAM (vs ACR's 4GB limit)
+  vmImage: 'ubuntu-latest'
 
 stages:
-  - stage: DockerBuild
-    displayName: 'Docker Build & Push'
+  - stage: Build
+    displayName: 'Build & Verify'
     jobs:
-      - job: BuildDockerImage
-        displayName: 'Build Docker Image'
-        timeoutInMinutes: 45  # Extended for large Vite build
+      - job: BuildJob
+        displayName: 'Build Application'
         steps:
           - checkout: self
             clean: true
 
-          - script: |
-              echo "##[section]Build Agent Resources"
-              echo "Memory: $(free -h | grep Mem | awk '{print $2}')"
-              echo "Disk: $(df -h / | tail -1 | awk '{print $4}')"
-              echo "CPU: $(nproc) cores"
-            displayName: 'Show Agent Resources'
-
-          - task: Docker@2
-            displayName: 'Build Docker Image'
+          - task: NodeTool@0
+            displayName: 'Install Node.js'
             inputs:
-              command: 'build'
-              repository: '$(imageRepository)'
-              dockerfile: '$(dockerfilePath)'
-              tags: |
-                $(tag)
-                latest
-              arguments: '--build-arg CACHE_BUST=$(Build.BuildId)'
+              versionSpec: $(nodeVersion)
 
-          - task: Docker@2
-            displayName: 'Login to ACR'
-            inputs:
-              command: 'login'
-              containerRegistry: '$(dockerRegistryServiceConnection)'
+          - script: npm ci
+            displayName: 'Install Dependencies'
 
-          - task: Docker@2
-            displayName: 'Push to ACR'
-            inputs:
-              command: 'push'
-              repository: '$(imageRepository)'
-              containerRegistry: '$(dockerRegistryServiceConnection)'
-              tags: |
-                $(tag)
-                latest
+          - script: npx vite build
+            displayName: 'Build Frontend'
 
           - script: |
-              echo "##[section]Build Summary"
-              echo "✅ Image: $(containerRegistry)/$(imageRepository):$(tag)"
-              echo "✅ Image: $(containerRegistry)/$(imageRepository):latest"
-              echo "🎯 Ready for AKS deployment"
-            displayName: 'Build Summary'
+              if [ -d "dist" ]; then
+                echo "✅ Build successful - dist folder exists"
+                ls -la dist/
+                du -sh dist/
+              else
+                echo "❌ Build failed - dist folder not found"
+                exit 1
+              fi
+            displayName: 'Verify Build'
+
+          - task: PublishBuildArtifacts@1
+            displayName: 'Publish Build Artifacts'
+            inputs:
+              PathtoPublish: 'dist'
+              ArtifactName: 'fleet-frontend'
+              publishLocation: 'Container'
