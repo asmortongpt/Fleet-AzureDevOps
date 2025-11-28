@@ -6,7 +6,7 @@ struct FleetManagementApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     @StateObject private var navigationCoordinator = NavigationCoordinator()
     @StateObject private var networkManager = AzureNetworkManager()
-    @StateObject private var authManager = AuthenticationManager()
+    @StateObject private var authManager = AuthenticationManager.shared
 
     init() {
         configureAppearance()

@@ -155,7 +155,7 @@ struct LegacyDashboardView: View {
                     RoundedRectangle(cornerRadius: 12)
                         .fill(Color(.secondarySystemGroupedBackground))
                         .frame(height: 100)
-                        .shimmering()
+                        .opacity(0.5)
                 }
             }
         }
@@ -269,8 +269,9 @@ struct LegacyDashboardView: View {
 
             if viewModel.recentActivity.isEmpty {
                 EmptyStateCard(
+                    icon: "clock",
                     title: "No Recent Activity",
-                    subtitle: "Activity will appear here as it happens"
+                    message: "Activity will appear here as it happens"
                 )
             } else {
                 LazyVStack(spacing: 8) {
