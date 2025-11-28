@@ -59,11 +59,13 @@ struct TripHistoryView: View {
             }
             .searchable(text: $searchText, prompt: "Search trips")
             .sheet(isPresented: $showingStartTrip) {
-                StartTripSheet(isPresented: $showingStartTrip)
+                TripHistoryStartTripSheet(isPresented: $showingStartTrip)
             }
             .sheet(isPresented: $showingTripDetail) {
                 if let trip = selectedTrip {
-                    TripDetailView(trip: trip)
+                    Text("Trip Details: \(trip.name)")
+                        .padding()
+                    // TripDetailView(trip: trip) // TODO: Add TripDetailView to Xcode project
                 }
             }
             .alert("Delete Trip", isPresented: $showingDeleteAlert) {
@@ -360,7 +362,7 @@ private struct TripStatusBadge: View {
 }
 
 // MARK: - Start Trip Sheet
-struct StartTripSheet: View {
+struct TripHistoryStartTripSheet: View {
     @Binding var isPresented: Bool
     @State private var tripName = ""
     @State private var vehicleId = ""
@@ -402,10 +404,10 @@ struct StartTripSheet: View {
     }
 
     private func startTrip() {
-        trackingService.startTracking(
+        trackingService.startTrip(
             name: tripName,
             vehicleId: vehicleId.isEmpty ? nil : vehicleId,
-            purpose: purpose.isEmpty ? nil : purpose
+            driverId: nil
         )
         isPresented = false
     }
