@@ -53,6 +53,10 @@ FROM nginx:alpine AS production
 # Copy complete nginx config (replaces default)
 COPY nginx.conf /etc/nginx/nginx.conf
 
+# CRITICAL FIX: Remove default nginx config that conflicts with our custom config
+# The default.conf listens on port 80 and doesn't have try_files for SPA routing
+RUN rm -f /etc/nginx/conf.d/default.conf
+
 # Copy built application from builder
 COPY --from=builder /app/dist /usr/share/nginx/html
 
