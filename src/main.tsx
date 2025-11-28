@@ -1,8 +1,14 @@
+// Initialize Sentry before all other imports for proper error tracking
+import { initSentry } from "./lib/sentry"
+initSentry()
+
 import React from "react"
 import ReactDOM from "react-dom/client"
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom"
+import * as Sentry from "@sentry/react"
 import { AuthProvider } from "./components/providers/AuthProvider"
 import { useAuth } from "./hooks/useAuth"
+import { SentryErrorBoundary } from "./components/errors/SentryErrorBoundary"
 import App from "./App"
 import Login from "./pages/Login"
 import "./index.css"
@@ -21,23 +27,30 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   return <>{children}</>
 }
 
+// Use Sentry's BrowserRouter integration
+const SentryRoutes = Sentry.withSentryRouting(Routes)
+
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <AuthProvider>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/auth/callback" element={<Login />} />
-          <Route
-            path="/*"
-            element={
-              <ProtectedRoute>
-                <App />
-              </ProtectedRoute>
-            }
-          />
-        </Routes>
-      </BrowserRouter>
-    </AuthProvider>
+    <SentryErrorBoundary level="page">
+      <AuthProvider>
+        <BrowserRouter>
+          <SentryRoutes>
+            <Route path="/login" element={<Login />} />
+            <Route path="/auth/callback" element={<Login />} />
+            <Route
+              path="/*"
+              element={
+                <ProtectedRoute>
+                  <SentryErrorBoundary level="section">
+                    <App />
+                  </SentryErrorBoundary>
+                </ProtectedRoute>
+              }
+            />
+          </SentryRoutes>
+        </BrowserRouter>
+      </AuthProvider>
+    </SentryErrorBoundary>
   </React.StrictMode>
 )
