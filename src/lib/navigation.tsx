@@ -40,7 +40,8 @@ import {
   ChatCircleDots,
   Trophy,
   ChartBar,
-  CurrencyDollar
+  CurrencyDollar,
+  Shield
 } from "@phosphor-icons/react"
 
 export interface NavigationItem {
@@ -61,6 +62,12 @@ export const navigationItems: NavigationItem[] = [
     id: "executive-dashboard",
     label: "Executive Dashboard",
     icon: <PresentationChart className="w-5 h-5" />,
+    section: "main"
+  },
+  {
+    id: "admin-dashboard",
+    label: "Admin Dashboard",
+    icon: <Shield className="w-5 h-5" />,
     section: "main"
   },
   {
