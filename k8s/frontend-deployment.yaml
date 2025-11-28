@@ -48,7 +48,7 @@ spec:
               - ALL
         ports:
         - name: http
-          containerPort: 80  # FIXED: Changed from 3000 to 80
+          containerPort: 8080  # Non-privileged port for non-root nginx
           protocol: TCP
         env:
         # Nginx settings
@@ -105,7 +105,7 @@ spec:
         livenessProbe:
           httpGet:
             path: /health
-            port: 80  # FIXED: Changed from 3000 to 80
+            port: 8080
             scheme: HTTP
           initialDelaySeconds: 30
           periodSeconds: 30
@@ -113,8 +113,8 @@ spec:
           failureThreshold: 3
         readinessProbe:
           httpGet:
-            path: /ready  # CHANGED: Use /ready for readiness
-            port: 80  # FIXED: Changed from 3000 to 80
+            path: /ready
+            port: 8080
             scheme: HTTP
           initialDelaySeconds: 5
           periodSeconds: 10
@@ -163,5 +163,5 @@ spec:
   ports:
   - name: http
     port: 80
-    targetPort: 80  # FIXED: Changed from 3000 to 80
+    targetPort: 8080  # Map external port 80 to container port 8080
     protocol: TCP
