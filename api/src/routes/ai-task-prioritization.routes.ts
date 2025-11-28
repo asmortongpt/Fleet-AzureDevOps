@@ -133,7 +133,7 @@ router.post(
           req.user?.id,
           'ai_priority_calculation',
           'task',
-          taskData.id || null,
+          validatedData.id || null,
           JSON.stringify({
             task_title: taskData.task_title,
             score: priorityScore.score,
