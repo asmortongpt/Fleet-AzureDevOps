@@ -416,6 +416,26 @@ class AuthenticationManager: ObservableObject {
     func clearError() {
         errorMessage = nil
     }
+
+    // MARK: - SSO Support Methods
+
+    /// Get keychain manager for SSO integration
+    func getKeychainManager() -> KeychainManager {
+        return keychainManager
+    }
+
+    /// Set user from SSO authentication
+    func setSSOUser(_ user: AuthenticationService.User) async {
+        currentUser = user
+        userRole = UserRole(rawValue: user.role.lowercased()) ?? .driver
+        isAuthenticated = true
+
+        // Start session monitoring
+        startSessionMonitoring()
+
+        // Schedule automatic token refresh
+        scheduleTokenRefresh()
+    }
 }
 
 // MARK: - Session State

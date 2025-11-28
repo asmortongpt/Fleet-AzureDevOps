@@ -12,6 +12,7 @@ import SwiftUI
 
 struct LoginView: View {
     @StateObject private var authManager = AuthenticationManager.shared
+    @StateObject private var ssoManager = AzureSSOManager.shared
     @State private var email = ""
     @State private var password = ""
     @State private var showPassword = false
@@ -214,7 +215,49 @@ struct LoginView: View {
             .disabled(authManager.isLoading || email.isEmpty || password.isEmpty)
             .opacity((authManager.isLoading || email.isEmpty || password.isEmpty) ? 0.6 : 1.0)
 
-            // Biometric login button
+            // Azure AD SSO button (PRIMARY METHOD)
+            Divider()
+                .padding(.vertical, 12)
+
+            Text("OR")
+                .font(.system(size: 13, weight: .semibold))
+                .foregroundColor(.secondary)
+                .frame(maxWidth: .infinity, alignment: .center)
+
+            Divider()
+                .padding(.vertical, 12)
+
+            Button(action: {
+                Task {
+                    await performSSOLogin()
+                }
+            }) {
+                HStack(spacing: 12) {
+                    Image(systemName: "building.2.fill")
+                        .font(.system(size: 20))
+                    Text("Sign in with Microsoft")
+                        .font(.system(size: 16, weight: .semibold))
+                }
+                .foregroundColor(.white)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 16)
+                .background(
+                    LinearGradient(
+                        gradient: Gradient(colors: [
+                            Color(red: 0.0, green: 0.47, blue: 0.84),  // Microsoft Blue
+                            Color(red: 0.0, green: 0.37, blue: 0.67)
+                        ]),
+                        startPoint: .leading,
+                        endPoint: .trailing
+                    )
+                )
+                .cornerRadius(12)
+                .shadow(color: Color.blue.opacity(0.4), radius: 8, x: 0, y: 4)
+            }
+            .disabled(authManager.isLoading)
+            .opacity(authManager.isLoading ? 0.6 : 1.0)
+
+            // Biometric login button (if enabled)
             if authManager.isBiometricEnabled {
                 Divider()
                     .padding(.vertical, 8)
@@ -300,6 +343,30 @@ struct LoginView: View {
 
     private func performBiometricLogin() async {
         await authManager.loginWithBiometric()
+    }
+
+    private func performSSOLogin() async {
+        // Hide keyboard
+        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+
+        let (success, user, token) = await ssoManager.loginWithSSO()
+
+        if success, let user = user, let token = token {
+            // Save token to keychain
+            try? await authManager.getKeychainManager().saveTokens(
+                accessToken: token,
+                refreshToken: token, // In production, get separate refresh token
+                expiresIn: 3600
+            )
+
+            // Save user info
+            try? authManager.getKeychainManager().save(user.email, for: .userEmail)
+            try? authManager.getKeychainManager().save("\(user.id)", for: .userId)
+            try? authManager.getKeychainManager().save(user.role, for: .userRole)
+
+            // Update auth manager state
+            await authManager.setSSOUser(user)
+        }
     }
 
     private func loadSavedEmail() {
