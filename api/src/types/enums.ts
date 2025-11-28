@@ -342,6 +342,58 @@ export enum ChargingSessionStatus {
 }
 
 // ============================================================================
+// AI Dispatch Enums
+// ============================================================================
+
+export enum DispatchIncidentType {
+  ACCIDENT = 'accident',
+  MEDICAL = 'medical',
+  FIRE = 'fire',
+  HAZARD = 'hazard',
+  MAINTENANCE = 'maintenance',
+  BREAKDOWN = 'breakdown',
+  THEFT = 'theft',
+  VANDALISM = 'vandalism',
+  WEATHER = 'weather',
+  TRAFFIC = 'traffic',
+  OTHER = 'other'
+}
+
+export enum DispatchPriority {
+  LOW = 'low',
+  MEDIUM = 'medium',
+  HIGH = 'high',
+  CRITICAL = 'critical'
+}
+
+export enum DispatchStatus {
+  PENDING = 'pending',
+  ASSIGNED = 'assigned',
+  EN_ROUTE = 'en_route',
+  ON_SCENE = 'on_scene',
+  COMPLETED = 'completed',
+  CANCELLED = 'cancelled'
+}
+
+export enum DispatchAssignmentStatus {
+  ASSIGNED = 'assigned',
+  ACCEPTED = 'accepted',
+  DECLINED = 'declined',
+  EN_ROUTE = 'en_route',
+  ARRIVED = 'arrived',
+  COMPLETED = 'completed',
+  CANCELLED = 'cancelled'
+}
+
+export enum DispatchVehicleStatus {
+  AVAILABLE = 'available',
+  DISPATCHED = 'dispatched',
+  IN_USE = 'in_use',
+  OUT_OF_SERVICE = 'out_of_service',
+  MAINTENANCE = 'maintenance'
+}
+
+// ============================================================================
 // Helper Functions
 // ============================================================================
 
