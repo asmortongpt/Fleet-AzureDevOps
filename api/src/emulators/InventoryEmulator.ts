@@ -383,9 +383,9 @@ export class InventoryEmulator extends EventEmitter {
     })
     const listPrice = Number((unitCost * faker.number.float({ min: 1.3, max: 2.2, multipleOf: 0.01 })).toFixed(2))
 
-    // Stock levels
+    // Stock levels - ensure reorderQuantity >= reorderPoint
     const reorderPoint = faker.number.int({ min: 5, max: 25 })
-    const reorderQuantity = faker.number.int({ min: 10, max: 100 })
+    const reorderQuantity = faker.number.int({ min: reorderPoint, max: Math.max(reorderPoint + 10, 100) })
     const quantityOnHand = faker.number.int({ min: 0, max: 150 })
     const quantityReserved = quantityOnHand > 0
       ? faker.number.int({ min: 0, max: Math.min(5, quantityOnHand) })
@@ -414,7 +414,7 @@ export class InventoryEmulator extends EventEmitter {
       category,
       subcategory: template.subcategory,
       manufacturer,
-      manufacturerPartNumber: `${manufacturer.substring(0, 3).toUpperCase()}-${partNumber}`,
+      manufacturerPartNumber: `${manufacturer.replace(/[^A-Z]/g, '').substring(0, 3).toUpperCase() || 'MFR'}-${partNumber}`,
       universalPartNumber: Math.random() > 0.3 ? `UNI-${partNumber}` : undefined,
 
       quantityOnHand,
