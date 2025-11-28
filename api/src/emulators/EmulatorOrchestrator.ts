@@ -649,6 +649,11 @@ export class EmulatorOrchestrator extends EventEmitter {
       this.dispatchEmulator.stop()
     }
 
+    // Stop inventory emulator
+    if (this.inventoryEmulator) {
+      await this.inventoryEmulator.stop()
+    }
+
     // Stop all emulator types
     await this.stopAllEmulators()
 
@@ -917,6 +922,45 @@ export class EmulatorOrchestrator extends EventEmitter {
       driver: this.driverEmulators.get(vehicleId)?.getCurrentState(),
       iot: this.iotEmulators.get(vehicleId)?.getCurrentState()
     }
+  }
+
+  /**
+   * Get inventory data
+   */
+  public getInventoryData(): any {
+    if (!this.inventoryEmulator) {
+      return null
+    }
+
+    return {
+      stats: this.inventoryEmulator.getStats(),
+      lowStockItems: this.inventoryEmulator.getLowStockItems(),
+      lowStockAlerts: this.inventoryEmulator.getLowStockAlerts(),
+      recentTransactions: this.inventoryEmulator.getTransactions(20),
+      currentState: this.inventoryEmulator.getCurrentState()
+    }
+  }
+
+  /**
+   * Get inventory items by category
+   */
+  public getInventoryByCategory(category: string): any {
+    if (!this.inventoryEmulator) {
+      return []
+    }
+
+    return this.inventoryEmulator.getItemsByCategory(category as any)
+  }
+
+  /**
+   * Search inventory items
+   */
+  public searchInventory(sku: string): any {
+    if (!this.inventoryEmulator) {
+      return []
+    }
+
+    return this.inventoryEmulator.getItemsBySKU(sku)
   }
 
   /**
