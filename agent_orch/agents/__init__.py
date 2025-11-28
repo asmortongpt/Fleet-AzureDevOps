@@ -1,3 +1,10 @@
-"""Multi-agent orchestration system for Fleet deployment."""
+"""
+Fleet Management Multi-Agent Orchestration System
+Agent modules for code generation, review, and deployment
+"""
 
-__version__ = "1.0.0"
+from .codex_agent import CodexAgent
+from .jules_agent import JulesAgent
+from .devops_agent import DevOpsAgent
+
+__all__ = ['CodexAgent', 'JulesAgent', 'DevOpsAgent']
