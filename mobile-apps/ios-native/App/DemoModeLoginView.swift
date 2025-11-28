@@ -71,7 +71,8 @@ struct DemoModeLoginView: View {
                         Image(systemName: "sparkles")
                             .font(.system(size: 60))
                             .foregroundColor(.yellow)
-                            .symbolEffect(.bounce, value: isLoggingIn)
+                            .rotationEffect(.degrees(isLoggingIn ? 360 : 0))
+                            .animation(.easeInOut(duration: 1.0), value: isLoggingIn)
 
                         Text("Demo Mode")
                             .font(.system(size: 38, weight: .bold, design: .rounded))
