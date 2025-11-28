@@ -29,16 +29,16 @@ if (!MICROSOFT_AUTH_CONFIG.clientId || !MICROSOFT_AUTH_CONFIG.tenantId) {
 /**
  * Get the Microsoft login URL for OAuth2 authorization
  * @param tenantId Optional fleet tenant ID to pass as state parameter
- * @returns Backend endpoint that will initiate Microsoft OAuth flow
+ * @returns Microsoft OAuth2 authorization URL (direct client-side flow)
  */
 export function getMicrosoftLoginUrl(tenantId?: string): string {
-  // Use the backend endpoint to initiate OAuth - this ensures redirect_uri consistency
-  const apiBaseUrl = import.meta.env.VITE_API_URL || window.location.origin + '/api/v1'
-  const url = `${apiBaseUrl}/auth/microsoft/login`
-  return tenantId ? `${url}?tenant_id=${tenantId}` : url
-
-  /* OLD CLIENT-SIDE OAUTH INITIATION - Causes redirect_uri mismatch
   const { clientId, tenantId: azureTenantId, redirectUri, scopes } = MICROSOFT_AUTH_CONFIG
+
+  // Check if Azure AD is configured
+  if (!clientId || !azureTenantId) {
+    console.error('[AUTH] Azure AD not configured. Missing VITE_AZURE_AD_CLIENT_ID or VITE_AZURE_AD_TENANT_ID')
+    return '#'
+  }
 
   const params = new URLSearchParams({
     client_id: clientId,
@@ -46,12 +46,13 @@ export function getMicrosoftLoginUrl(tenantId?: string): string {
     redirect_uri: redirectUri,
     response_mode: 'query',
     scope: scopes.join(' '),
-    state: tenantId,
+    state: tenantId || '',
     prompt: 'select_account'
   })
 
-  return `https://login.microsoftonline.com/${azureTenantId}/oauth2/v2.0/authorize?${params}`
-  */
+  const authUrl = `https://login.microsoftonline.com/${azureTenantId}/oauth2/v2.0/authorize?${params}`
+  console.log('[AUTH] Microsoft OAuth URL:', authUrl)
+  return authUrl
 }
 
 /**
