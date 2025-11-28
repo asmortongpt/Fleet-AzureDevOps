@@ -9,7 +9,7 @@
  * - Static assets: Cache-first for offline support
  */
 
-const CACHE_VERSION = 'ctafleet-v1.0.13-no-reload-loop';
+const CACHE_VERSION = 'ctafleet-v1.0.14-no-runtime-config';
 const CACHE_NAME = `ctafleet-cache-${CACHE_VERSION}`;
 const DATA_CACHE_NAME = `ctafleet-data-${CACHE_VERSION}`;
 
@@ -17,7 +17,7 @@ const DATA_CACHE_NAME = `ctafleet-data-${CACHE_VERSION}`;
 const NEVER_CACHE = [
   '/index.html',
   '/',
-  '/runtime-config.js',
+  // REMOVED: '/runtime-config.js', - no longer used
 ];
 
 // Assets to cache on install (offline fallback only)
@@ -103,7 +103,7 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // CRITICAL: NEVER cache index.html or runtime-config.js - always fetch fresh
+  // CRITICAL: NEVER cache index.html - always fetch fresh
   if (NEVER_CACHE.some(path => url.pathname === path || url.pathname === path + 'index.html')) {
     console.log('[ServiceWorker] Network-only (never cache):', url.pathname);
     event.respondWith(
