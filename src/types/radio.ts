@@ -127,3 +127,62 @@ export interface PolicyStatistics {
   success_rate: number;
   average_approval_time_seconds: number;
 }
+
+// Enhanced PTT Types
+export interface PTTState {
+  isTransmitting: boolean;
+  isPTTActive: boolean;
+  audioLevel: number;
+  error: string | null;
+}
+
+export interface AudioVisualizationData {
+  frequencyData: Uint8Array;
+  timeDomainData: Uint8Array;
+  averageLevel: number;
+  peakLevel: number;
+}
+
+export interface DispatchUnit {
+  id: string;
+  callSign: string;
+  vehicleId?: string;
+  status: 'AVAILABLE' | 'BUSY' | 'OFFLINE' | 'EMERGENCY';
+  location?: {
+    lat: number;
+    lng: number;
+    heading?: number;
+    speed?: number;
+  };
+  lastUpdate: string;
+}
+
+export interface EmergencyAlert {
+  id: string;
+  type: 'PANIC' | 'MAYDAY' | 'OFFICER_DOWN' | 'MEDICAL' | 'FIRE' | 'PURSUIT';
+  unitId?: string;
+  vehicleId?: string;
+  location?: {
+    lat: number;
+    lng: number;
+  };
+  description: string;
+  status: 'ACTIVE' | 'ACKNOWLEDGED' | 'RESOLVED';
+  priority: TransmissionPriority;
+  timestamp: string;
+  acknowledgedBy?: string;
+  acknowledgedAt?: string;
+  resolvedBy?: string;
+  resolvedAt?: string;
+}
+
+export interface DispatchSocketMessage {
+  type: 'channel_joined' | 'user_joined' | 'user_left' | 'transmission_started' |
+        'audio_chunk' | 'transmission_ended' | 'emergency_alert' | 'unit_status_update' |
+        'transcript_update' | 'error';
+  data?: any;
+  channelId?: string;
+  userId?: string;
+  username?: string;
+  timestamp?: string;
+}

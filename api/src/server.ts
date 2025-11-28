@@ -89,6 +89,7 @@ import driverScorecardRouter from './routes/driver-scorecard.routes'
 import aiInsightsRouter from './routes/ai-insights.routes'
 import aiSearchRouter from './routes/ai-search'
 import aiTaskAssetRouter from './routes/ai-task-asset.routes'
+import aiTaskPrioritizationRouter from './routes/ai-task-prioritization.routes'
 import langchainRouter from './routes/langchain.routes'
 import fleetOptimizerRouter from './routes/fleet-optimizer.routes'
 
@@ -292,6 +293,7 @@ app.use('/api/driver-scorecard', driverScorecardRouter)
 app.use('/api/ai-insights', aiInsightsRouter)
 app.use('/api/ai-search', aiSearchRouter)
 app.use('/api/ai-task-asset', aiTaskAssetRouter)
+app.use('/api/ai-tasks', aiTaskPrioritizationRouter)
 app.use('/api/langchain', langchainRouter)
 app.use('/api/fleet-optimizer', fleetOptimizerRouter)
 
