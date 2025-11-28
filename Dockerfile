@@ -9,6 +9,9 @@ WORKDIR /app
 # Install dependencies for native modules
 RUN apk add --no-cache python3 make g++
 
+# Increase Node.js memory limit BEFORE any npm operations (16GB for large Vite builds)
+ENV NODE_OPTIONS="--max-old-space-size=16384"
+
 # Copy package.json only (not lock file to avoid platform binding issues)
 COPY package.json ./
 
@@ -30,9 +33,6 @@ RUN rm -f package-lock.json
 # SECURITY: Secrets are injected at runtime, not build-time
 ENV VITE_ENVIRONMENT=production
 ENV VITE_API_URL=""
-
-# Increase Node.js memory limit for large builds
-ENV NODE_OPTIONS="--max-old-space-size=4096"
 
 # Generate build version from git commit or timestamp
 RUN BUILD_VERSION=$(date +%s) && \
