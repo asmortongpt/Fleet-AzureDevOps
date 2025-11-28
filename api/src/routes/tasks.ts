@@ -2,7 +2,7 @@ import { Router } from "express"
 const router = Router()
 
 router.get("/", async (req, res) => {
-  res.json({ data: [], message: "vendors endpoint working" })
+  res.json({ data: [], message: "tasks endpoint working" })
 })
 
 router.get("/:id", async (req, res) => {
