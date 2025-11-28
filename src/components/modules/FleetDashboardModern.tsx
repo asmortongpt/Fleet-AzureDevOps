@@ -29,7 +29,7 @@ import {
   Broadcast,
   ChartLine,
   Bell,
-  Activity
+  List
 } from "@phosphor-icons/react"
 import { Vehicle } from "@/lib/types"
 import { useFleetData } from "@/hooks/use-fleet-data"
