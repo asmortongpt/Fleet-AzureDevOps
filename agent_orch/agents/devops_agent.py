@@ -1,313 +1,229 @@
-#!/usr/bin/env python3
 """
-DevOps Agent - Handles build and deployment operations.
-This agent runs npm builds, deploys to Azure Static Web Apps,
-and returns logs and deployment URLs.
+DevOpsAgent - Azure & Kubernetes Operations
+Handles Azure CLI, kubectl, and Docker commands
 """
 
-import os
-import subprocess
 import logging
-import json
-import time
-from typing import Dict, Optional, Tuple
-from pathlib import Path
+from typing import Dict, List, Optional, Tuple
+import sys
+import os
+
+# Add parent directory to path for imports
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from tools.shell import ShellExecutor
 
 logger = logging.getLogger(__name__)
 
 
 class DevOpsAgent:
-    """Agent responsible for build and deployment operations."""
-
-    def __init__(self, project_root: str):
-        """
-        Initialize the DevOps Agent.
-
-        Args:
-            project_root: Path to the project root directory
-        """
-        self.project_root = Path(project_root)
-        logger.info(f"Initialized DevOpsAgent with project_root={project_root}")
-
-    def run_build(self, timeout: int = 300) -> Tuple[bool, str, str]:
-        """
-        Run npm build and capture output.
-
-        Args:
-            timeout: Build timeout in seconds (default: 300)
-
-        Returns:
-            (success, stdout, stderr) tuple
-        """
-        logger.info("Starting npm build...")
-
+    """
+    DevOpsAgent handles infrastructure operations
+    """
+    
+    def __init__(self, config: Dict, dry_run: bool = False):
+        self.config = config
+        self.dry_run = dry_run
+        self.shell = ShellExecutor(config, dry_run)
+        self.azure_config = config.get('azure', {})
+        self.k8s_config = config.get('kubernetes', {})
+        
+        logger.info(f"✅ DevOpsAgent initialized (dry_run: {dry_run})")
+    
+    def check_az_login(self) -> bool:
+        """Check if Azure CLI is logged in"""
+        logger.info("🔐 Checking Azure CLI login")
+        
         try:
-            # Ensure we're in the project root
-            os.chdir(self.project_root)
-
-            # Run npm install first to ensure dependencies are up to date
-            logger.info("Running npm install...")
-            install_result = subprocess.run(
-                ["npm", "install"],
-                capture_output=True,
-                text=True,
-                timeout=timeout,
-                cwd=self.project_root
+            code, _, _ = self.shell.execute(
+                self.azure_config.get('commands', {}).get('login_check', 'az account show'),
+                timeout=30
             )
-
-            if install_result.returncode != 0:
-                logger.error("npm install failed")
-                return False, install_result.stdout, install_result.stderr
-
-            # Run the build
-            logger.info("Running npm run build...")
-            build_result = subprocess.run(
-                ["npm", "run", "build"],
-                capture_output=True,
-                text=True,
-                timeout=timeout,
-                cwd=self.project_root
-            )
-
-            success = build_result.returncode == 0
-            stdout = build_result.stdout
-            stderr = build_result.stderr
-
-            if success:
-                logger.info("Build completed successfully")
+            
+            if code == 0:
+                logger.info("✅ Azure CLI authenticated")
+                return True
             else:
-                logger.error(f"Build failed with exit code {build_result.returncode}")
-
-            return success, stdout, stderr
-
-        except subprocess.TimeoutExpired:
-            logger.error(f"Build timed out after {timeout} seconds")
-            return False, "", f"Build timed out after {timeout} seconds"
+                logger.warning("⚠️ Azure CLI not authenticated")
+                return False
+                
         except Exception as e:
-            logger.error(f"Build error: {str(e)}")
-            return False, "", str(e)
-
-    def check_build_output(self) -> Dict[str, any]:
-        """
-        Check the build output for quality metrics.
-
-        Returns:
-            Dictionary with build metrics
-        """
-        dist_path = self.project_root / "dist"
-
-        if not dist_path.exists():
-            return {
-                "exists": False,
-                "error": "dist directory not found"
-            }
-
-        # Count files and calculate total size
-        total_size = 0
-        file_count = 0
-        js_files = []
-        css_files = []
-
-        for file in dist_path.rglob("*"):
-            if file.is_file():
-                file_count += 1
-                size = file.stat().st_size
-                total_size += size
-
-                if file.suffix == ".js":
-                    js_files.append({
-                        "name": file.name,
-                        "size": size,
-                        "size_kb": round(size / 1024, 2)
-                    })
-                elif file.suffix == ".css":
-                    css_files.append({
-                        "name": file.name,
-                        "size": size,
-                        "size_kb": round(size / 1024, 2)
-                    })
-
-        return {
-            "exists": True,
-            "total_files": file_count,
-            "total_size_mb": round(total_size / (1024 * 1024), 2),
-            "js_files": len(js_files),
-            "css_files": len(css_files),
-            "largest_js": sorted(js_files, key=lambda x: x["size"], reverse=True)[:5],
-            "largest_css": sorted(css_files, key=lambda x: x["size"], reverse=True)[:3]
-        }
-
-    def deploy_to_azure(
-        self,
-        deployment_token: str,
-        app_name: str,
-        environment: str = "staging"
-    ) -> Tuple[bool, str, str]:
-        """
-        Deploy to Azure Static Web Apps using the Azure CLI.
-
-        Args:
-            deployment_token: Azure Static Web Apps deployment token
-            app_name: Name of the Azure Static Web App
-            environment: Deployment environment (staging/prod)
-
-        Returns:
-            (success, deployment_url, error_message) tuple
-        """
-        logger.info(f"Deploying to Azure Static Web App: {app_name} ({environment})")
-
+            logger.error(f"❌ Failed to check Azure login: {str(e)}")
+            return False
+    
+    def login_acr(self) -> bool:
+        """Login to Azure Container Registry"""
+        logger.info("🔐 Logging into ACR")
+        
+        acr_name = self.azure_config.get('acr_name', 'fleetproductionacr')
+        
         try:
-            # Check if dist directory exists
-            dist_path = self.project_root / "dist"
-            if not dist_path.exists():
-                error = "dist directory not found. Run build first."
-                logger.error(error)
-                return False, "", error
-
-            # For Azure Static Web Apps, we can use the deployment token directly
-            # The deployment URL is predetermined based on the app name
-            if environment == "staging":
-                deployment_url = "https://purple-river-0f465960f.3.azurestaticapps.net"
-            else:
-                deployment_url = f"https://{app_name}.azurestaticapps.net"
-
-            # Use SWA CLI for deployment (if available) or manual upload
-            logger.info("Deploying using Azure Static Web Apps CLI...")
-
-            # Check if we have the SWA CLI installed
-            swa_check = subprocess.run(
-                ["which", "swa"],
-                capture_output=True,
-                text=True
-            )
-
-            if swa_check.returncode == 0:
-                # Use SWA CLI
-                deploy_result = subprocess.run(
-                    [
-                        "npx", "@azure/static-web-apps-cli", "deploy",
-                        "--app-location", ".",
-                        "--output-location", "dist",
-                        "--deployment-token", deployment_token
-                    ],
-                    capture_output=True,
-                    text=True,
-                    timeout=300,
-                    cwd=self.project_root
-                )
-
-                if deploy_result.returncode == 0:
-                    logger.info("Deployment completed successfully")
-                    return True, deployment_url, ""
-                else:
-                    error = f"Deployment failed: {deploy_result.stderr}"
-                    logger.error(error)
-                    return False, "", error
-            else:
-                # Manual deployment instructions
-                logger.warning("SWA CLI not found. Using Azure portal deployment...")
-                return True, deployment_url, "SWA CLI not installed - manual deployment required"
-
-        except subprocess.TimeoutExpired:
-            error = "Deployment timed out after 300 seconds"
-            logger.error(error)
-            return False, "", error
-        except Exception as e:
-            error = f"Deployment error: {str(e)}"
-            logger.error(error)
-            return False, "", error
-
-    def create_deployment_artifact(self) -> Optional[str]:
-        """
-        Create a deployment artifact (tarball) of the dist directory.
-
-        Returns:
-            Path to the artifact, or None on failure
-        """
-        logger.info("Creating deployment artifact...")
-
-        try:
-            dist_path = self.project_root / "dist"
-            if not dist_path.exists():
-                logger.error("dist directory not found")
-                return None
-
-            # Create tarball
-            timestamp = time.strftime("%Y%m%d_%H%M%S")
-            artifact_name = f"fleet-deployment-{timestamp}.tar.gz"
-            artifact_path = self.project_root / artifact_name
-
-            result = subprocess.run(
-                ["tar", "-czf", str(artifact_path), "-C", str(dist_path), "."],
-                capture_output=True,
-                text=True,
+            code, _, stderr = self.shell.execute(
+                f"az acr login --name {acr_name}",
                 timeout=60
             )
-
-            if result.returncode == 0:
-                logger.info(f"Created deployment artifact: {artifact_name}")
-                return str(artifact_path)
+            
+            if code == 0:
+                logger.info("✅ ACR login successful")
+                return True
             else:
-                logger.error(f"Failed to create artifact: {result.stderr}")
-                return None
-
+                logger.error(f"❌ ACR login failed: {stderr}")
+                return False
+                
         except Exception as e:
-            logger.error(f"Error creating artifact: {str(e)}")
-            return None
-
-    def run_tests(self, test_command: str = "npm run test:smoke", timeout: int = 120) -> Tuple[bool, str]:
+            logger.error(f"❌ ACR login error: {str(e)}")
+            return False
+    
+    def build_and_push_docker(
+        self,
+        image_name: str,
+        tag: str,
+        dockerfile: str = "Dockerfile",
+        build_args: Optional[Dict] = None
+    ) -> bool:
         """
-        Run tests and return results.
-
-        Args:
-            test_command: Test command to run
-            timeout: Test timeout in seconds
-
-        Returns:
-            (success, output) tuple
+        Build and push Docker image using Azure DevOps agent
         """
-        logger.info(f"Running tests: {test_command}")
-
+        logger.info(f"🐳 Building Docker image: {image_name}:{tag}")
+        
+        # Build args
+        args_str = ""
+        if build_args:
+            args_str = " ".join([f"--build-arg {k}={v}" for k, v in build_args.items()])
+        
+        registry = self.azure_config.get('acr_name', 'fleetproductionacr') + '.azurecr.io'
+        full_image = f"{registry}/{image_name}:{tag}"
+        
         try:
-            result = subprocess.run(
-                test_command.split(),
-                capture_output=True,
-                text=True,
-                timeout=timeout,
-                cwd=self.project_root
-            )
-
-            success = result.returncode == 0
-            output = result.stdout + "\n" + result.stderr
-
-            if success:
-                logger.info("Tests passed")
-            else:
-                logger.error("Tests failed")
-
-            return success, output
-
-        except subprocess.TimeoutExpired:
-            logger.error(f"Tests timed out after {timeout} seconds")
-            return False, f"Tests timed out after {timeout} seconds"
+            # Build image
+            build_cmd = f"docker build {args_str} -t {full_image} -f {dockerfile} ."
+            code, stdout, stderr = self.shell.execute(build_cmd, timeout=1800)  # 30 min
+            
+            if code != 0:
+                logger.error(f"❌ Docker build failed: {stderr}")
+                return False
+            
+            logger.info("✅ Docker build successful")
+            
+            # Push image
+            push_cmd = f"docker push {full_image}"
+            code, stdout, stderr = self.shell.execute(push_cmd, timeout=600)  # 10 min
+            
+            if code != 0:
+                logger.error(f"❌ Docker push failed: {stderr}")
+                return False
+            
+            logger.info(f"✅ Image pushed: {full_image}")
+            return True
+            
         except Exception as e:
-            logger.error(f"Test error: {str(e)}")
+            logger.error(f"❌ Docker build/push error: {str(e)}")
+            return False
+    
+    def get_aks_credentials(self) -> bool:
+        """Get AKS cluster credentials"""
+        logger.info("🔑 Getting AKS credentials")
+        
+        rg = self.azure_config.get('resource_group')
+        cluster = self.azure_config.get('aks_cluster')
+        
+        try:
+            code, _, stderr = self.shell.execute(
+                f"az aks get-credentials --resource-group {rg} --name {cluster} --overwrite-existing",
+                timeout=60
+            )
+            
+            if code == 0:
+                logger.info("✅ AKS credentials retrieved")
+                return True
+            else:
+                logger.error(f"❌ Failed to get AKS credentials: {stderr}")
+                return False
+                
+        except Exception as e:
+            logger.error(f"❌ AKS credentials error: {str(e)}")
+            return False
+    
+    def deploy_to_k8s(
+        self,
+        namespace: str,
+        manifests: List[str]
+    ) -> bool:
+        """Deploy to Kubernetes"""
+        logger.info(f"🚀 Deploying to k8s namespace: {namespace}")
+        
+        try:
+            # Apply manifests
+            for manifest in manifests:
+                logger.info(f"📝 Applying {manifest}")
+                code, _, stderr = self.shell.execute(
+                    f"kubectl apply -f {manifest} -n {namespace}",
+                    timeout=self.k8s_config.get('apply_timeout', 300)
+                )
+                
+                if code != 0:
+                    logger.error(f"❌ Failed to apply {manifest}: {stderr}")
+                    return False
+            
+            logger.info("✅ All manifests applied")
+            return True
+            
+        except Exception as e:
+            logger.error(f"❌ k8s deployment error: {str(e)}")
+            return False
+    
+    def check_pod_health(
+        self,
+        namespace: str,
+        selector: str,
+        expected_count: int = 1
+    ) -> Tuple[bool, str]:
+        """
+        Check if pods are healthy
+        
+        Returns:
+            Tuple[bool, str]: (healthy, status_message)
+        """
+        logger.info(f"🏥 Checking pod health: {selector}")
+        
+        try:
+            # Get pod status
+            code, stdout, stderr = self.shell.execute(
+                f"kubectl get pods -n {namespace} -l {selector} -o json",
+                timeout=30
+            )
+            
+            if code != 0:
+                return False, f"Failed to get pods: {stderr}"
+            
+            import json
+            pods = json.loads(stdout)
+            
+            if not pods.get('items'):
+                return False, "No pods found"
+            
+            pod_count = len(pods['items'])
+            ready_count = 0
+            
+            for pod in pods['items']:
+                status = pod.get('status', {})
+                phase = status.get('phase', '')
+                
+                if phase == 'Running':
+                    # Check container readiness
+                    container_statuses = status.get('containerStatuses', [])
+                    if all(cs.get('ready', False) for cs in container_statuses):
+                        ready_count += 1
+            
+            message = f"{ready_count}/{pod_count} pods ready"
+            healthy = ready_count >= expected_count
+            
+            if healthy:
+                logger.info(f"✅ Pods healthy: {message}")
+            else:
+                logger.warning(f"⚠️ Pods not ready: {message}")
+            
+            return healthy, message
+            
+        except Exception as e:
+            logger.error(f"❌ Health check error: {str(e)}")
             return False, str(e)
-
-
-if __name__ == "__main__":
-    # Test the agent
-    import sys
-    logging.basicConfig(level=logging.INFO)
-
-    project_root = os.getenv("PROJECT_ROOT", "/Users/andrewmorton/Documents/GitHub/fleet-local")
-    agent = DevOpsAgent(project_root)
-
-    # Test build
-    print("Testing build...")
-    success, stdout, stderr = agent.run_build()
-    print(f"Success: {success}")
-
-    if success:
-        metrics = agent.check_build_output()
-        print(json.dumps(metrics, indent=2))
