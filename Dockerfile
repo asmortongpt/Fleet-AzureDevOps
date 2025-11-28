@@ -9,8 +9,8 @@ WORKDIR /app
 # Install dependencies for native modules
 RUN apk add --no-cache python3 make g++
 
-# Increase Node.js memory limit BEFORE any npm operations (16GB for large Vite builds)
-ENV NODE_OPTIONS="--max-old-space-size=16384"
+# Increase Node.js memory limit BEFORE any npm operations (4GB max for ACR agents)
+ENV NODE_OPTIONS="--max-old-space-size=3072"
 
 # Copy package.json only (not lock file to avoid platform binding issues)
 COPY package.json ./
