@@ -31,7 +31,8 @@ import {
   Broadcast,
   Circle,
   ArrowRight,
-  CaretRight
+  CaretRight,
+  CaretUp
 } from "@phosphor-icons/react"
 import { Vehicle } from "@/lib/types"
 import { useFleetData } from "@/hooks/use-fleet-data"
