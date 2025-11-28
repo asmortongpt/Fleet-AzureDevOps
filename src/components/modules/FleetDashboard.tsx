@@ -737,39 +737,109 @@ export function FleetDashboard({ data }: FleetDashboardProps) {
         )}
       </div>
 
-      {/* System Status & AI Insights Row */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <SystemStatusPanel
-          emulators={systemStatus.emulators}
-          aiServices={systemStatus.aiServices}
-          healthMetrics={systemStatus.healthMetrics}
-          onStartEmulator={systemStatus.startEmulator}
-          onStopEmulator={systemStatus.stopEmulator}
-        />
-        <AIInsightsPanel
-          insights={systemStatus.aiInsights}
-          onDismiss={systemStatus.dismissInsight}
-        />
-      </div>
+      {/* System Status & AI Insights Row - Collapsible */}
+      <Collapsible open={showStatusPanel} onOpenChange={setShowStatusPanel}>
+        <Card className="shadow-sm border-border/50 bg-card dark:bg-card">
+          <CollapsibleTrigger asChild>
+            <button className="w-full">
+              <CardHeader className="px-4 py-3 border-b border-border/50 bg-muted/30 dark:bg-muted/20 hover:bg-muted/50 dark:hover:bg-muted/30 transition-colors cursor-pointer">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                    <Pulse className="w-4 h-4 text-primary dark:text-primary" />
+                    System Status & AI Insights
+                  </CardTitle>
+                  {showStatusPanel ? (
+                    <CaretUp className="w-4 h-4 text-muted-foreground dark:text-muted-foreground" />
+                  ) : (
+                    <CaretRight className="w-4 h-4 text-muted-foreground dark:text-muted-foreground" />
+                  )}
+                </div>
+              </CardHeader>
+            </button>
+          </CollapsibleTrigger>
+          <CollapsibleContent>
+            <CardContent className="p-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <SystemStatusPanel
+                  emulators={systemStatus.emulators}
+                  aiServices={systemStatus.aiServices}
+                  healthMetrics={systemStatus.healthMetrics}
+                  onStartEmulator={systemStatus.startEmulator}
+                  onStopEmulator={systemStatus.stopEmulator}
+                />
+                <AIInsightsPanel
+                  insights={systemStatus.aiInsights}
+                  onDismiss={systemStatus.dismissInsight}
+                />
+              </div>
+            </CardContent>
+          </CollapsibleContent>
+        </Card>
+      </Collapsible>
 
-      {/* Professional Fleet Map - Prominent placement */}
-      <div className="shadow-sm">
-        <ProfessionalFleetMap
-          vehicles={filteredVehicles}
-          facilities={data.facilities}
-          height="400px"
-          onVehicleSelect={(vehicleId) => {
-            const vehicle = filteredVehicles.find(v => v.id === vehicleId)
-            if (vehicle) {
-              handleVehicleDrilldown(vehicle)
-            }
-          }}
-          showLegend={true}
-          enableRealTime={isRealtimeConnected}
-        />
-      </div>
+      {/* Professional Fleet Map - Collapsible */}
+      <Collapsible open={showMap} onOpenChange={setShowMap}>
+        <Card className="shadow-sm border-border/50 bg-card dark:bg-card">
+          <CollapsibleTrigger asChild>
+            <button className="w-full">
+              <CardHeader className="px-4 py-3 border-b border-border/50 bg-muted/30 dark:bg-muted/20 hover:bg-muted/50 dark:hover:bg-muted/30 transition-colors cursor-pointer">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                    <MapPin className="w-4 h-4 text-primary dark:text-primary" />
+                    Fleet Map {isRealtimeConnected && <Badge variant="outline" className="text-[10px] h-5 bg-green-100 text-green-700 border-green-300 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800">Live</Badge>}
+                  </CardTitle>
+                  {showMap ? (
+                    <CaretUp className="w-4 h-4 text-muted-foreground dark:text-muted-foreground" />
+                  ) : (
+                    <CaretRight className="w-4 h-4 text-muted-foreground dark:text-muted-foreground" />
+                  )}
+                </div>
+              </CardHeader>
+            </button>
+          </CollapsibleTrigger>
+          <CollapsibleContent>
+            <CardContent className="p-0">
+              <ProfessionalFleetMap
+                vehicles={filteredVehicles}
+                facilities={data.facilities}
+                height="400px"
+                onVehicleSelect={(vehicleId) => {
+                  const vehicle = filteredVehicles.find(v => v.id === vehicleId)
+                  if (vehicle) {
+                    handleVehicleDrilldown(vehicle)
+                  }
+                }}
+                showLegend={true}
+                enableRealTime={isRealtimeConnected}
+              />
+            </CardContent>
+          </CollapsibleContent>
+        </Card>
+      </Collapsible>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      {/* Analytics & Distribution - Collapsible */}
+      <Collapsible open={showAnalytics} onOpenChange={setShowAnalytics}>
+        <Card className="shadow-sm border-border/50 bg-card dark:bg-card">
+          <CollapsibleTrigger asChild>
+            <button className="w-full">
+              <CardHeader className="px-4 py-3 border-b border-border/50 bg-muted/30 dark:bg-muted/20 hover:bg-muted/50 dark:hover:bg-muted/30 transition-colors cursor-pointer">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                    <Buildings className="w-4 h-4 text-primary dark:text-primary" />
+                    Fleet Analytics & Distribution
+                  </CardTitle>
+                  {showAnalytics ? (
+                    <CaretUp className="w-4 h-4 text-muted-foreground dark:text-muted-foreground" />
+                  ) : (
+                    <CaretRight className="w-4 h-4 text-muted-foreground dark:text-muted-foreground" />
+                  )}
+                </div>
+              </CardHeader>
+            </button>
+          </CollapsibleTrigger>
+          <CollapsibleContent>
+            <CardContent className="p-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         <Card className="shadow-sm border-border/50">
           <CardHeader className="px-4 py-3 border-b border-border/50 bg-muted/30">
             <CardTitle className="text-sm font-semibold flex items-center gap-2">
@@ -941,20 +1011,43 @@ export function FleetDashboard({ data }: FleetDashboardProps) {
             </CardContent>
           </Card>
         )}
-      </div>
+              </div>
+            </CardContent>
+          </CollapsibleContent>
+        </Card>
+      </Collapsible>
 
-      <Card className="shadow-sm border-border/50">
-        <CardHeader className="px-4 py-3 border-b border-border/50 bg-muted/30">
-          <CardTitle className="flex items-center justify-between text-sm font-semibold">
-            <span className="flex items-center gap-2">
-              <Car className="w-4 h-4 text-primary" />
-              Fleet Vehicles
-            </span>
-            <span className="text-xs font-normal text-muted-foreground">
-              Click any vehicle for details
-            </span>
-          </CardTitle>
-        </CardHeader>
+      {/* Vehicle List - Collapsible */}
+      <Collapsible open={showVehicleList} onOpenChange={setShowVehicleList}>
+        <Card className="shadow-sm border-border/50 bg-card dark:bg-card">
+          <CollapsibleTrigger asChild>
+            <button className="w-full">
+              <CardHeader className="px-4 py-3 border-b border-border/50 bg-muted/30 dark:bg-muted/20 hover:bg-muted/50 dark:hover:bg-muted/30 transition-colors cursor-pointer">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Car className="w-4 h-4 text-primary dark:text-primary" />
+                    <CardTitle className="text-sm font-semibold">
+                      Fleet Vehicles
+                      <span className="ml-2 text-xs font-normal text-muted-foreground dark:text-muted-foreground">
+                        ({filteredVehicles.length} total)
+                      </span>
+                    </CardTitle>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className="text-xs text-muted-foreground dark:text-muted-foreground hidden sm:block">
+                      Click any vehicle for details
+                    </span>
+                    {showVehicleList ? (
+                      <CaretUp className="w-4 h-4 text-muted-foreground dark:text-muted-foreground" />
+                    ) : (
+                      <CaretRight className="w-4 h-4 text-muted-foreground dark:text-muted-foreground" />
+                    )}
+                  </div>
+                </div>
+              </CardHeader>
+            </button>
+          </CollapsibleTrigger>
+          <CollapsibleContent>
         <CardContent className="px-4 pb-4 pt-3">
           <div className="space-y-2">
             {filteredVehicles.slice(0, 10).map(vehicle => {
@@ -1030,7 +1123,9 @@ export function FleetDashboard({ data }: FleetDashboardProps) {
             )}
           </div>
         </CardContent>
-      </Card>
+          </CollapsibleContent>
+        </Card>
+      </Collapsible>
 
       {/* Advanced Filters Dialog */}
       <Dialog open={isAdvancedFiltersOpen} onOpenChange={setIsAdvancedFiltersOpen}>
