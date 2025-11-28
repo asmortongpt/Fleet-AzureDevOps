@@ -439,9 +439,9 @@ Return ONLY valid JSON array:
   "estimatedCompletionHours": <number>
 }]`
 
-    const response = await azureOpenAI.chat.completions.create({
-      model: process.env.AZURE_OPENAI_DEPLOYMENT_ID || 'gpt-4',
-      messages: [
+    const response = await azureOpenAI.getChatCompletions(
+      deploymentId,
+      [
         {
           role: 'system',
           content: 'You are an expert at matching tasks to workers. Return only valid JSON without markdown.'
@@ -451,9 +451,11 @@ Return ONLY valid JSON array:
           content: prompt
         }
       ],
-      temperature: 0.2,
-      max_tokens: 1200
-    })
+      {
+        temperature: 0.2,
+        maxTokens: 1200
+      }
+    )
 
     const content = response.choices[0]?.message?.content || '[]'
     const aiRankings = JSON.parse(content.replace(/```json\n?|\n?```/g, ''))
