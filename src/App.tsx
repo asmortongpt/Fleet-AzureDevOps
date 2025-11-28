@@ -28,10 +28,13 @@ import { ThemeToggle } from "@/components/ThemeToggle"
 import { DrilldownManager } from "@/components/DrilldownManager"
 import { useFleetData } from "@/hooks/use-fleet-data"
 import { useFacilities } from "@/hooks/use-api"
+import { withAITracking } from '@microsoft/applicationinsights-react-js'
+import telemetryService from '@/lib/telemetry'
 
 // Lazy load all modules for code splitting - reduces initial bundle by 80%+
 const FleetDashboard = lazy(() => import("@/components/modules/FleetDashboard").then(m => ({ default: m.FleetDashboard })))
 const ExecutiveDashboard = lazy(() => import("@/components/modules/ExecutiveDashboard").then(m => ({ default: m.ExecutiveDashboard })))
+const AdminDashboard = lazy(() => import("@/pages/AdminDashboard"))
 const PeopleManagement = lazy(() => import("@/components/modules/PeopleManagement").then(m => ({ default: m.PeopleManagement })))
 const GarageService = lazy(() => import("@/components/modules/GarageService").then(m => ({ default: m.GarageService })))
 const PredictiveMaintenance = lazy(() => import("@/components/modules/PredictiveMaintenance").then(m => ({ default: m.PredictiveMaintenance })))
@@ -92,6 +95,7 @@ const LoadingSpinner = () => (
 function App() {
   const [activeModule, setActiveModule] = useState("dashboard")
   const [sidebarOpen, setSidebarOpen] = useState(true)
+  const [reactPlugin] = useState(() => telemetryService.initialize())
 
   const fleetData = useFleetData()
   // Use facilities from fleetData (which includes demo data fallback)
@@ -101,12 +105,48 @@ function App() {
     fleetData.initializeData()
   }, [fleetData.initializeData])
 
+  // Initialize telemetry tracking
+  useEffect(() => {
+    // Track initial page view
+    telemetryService.trackPageView('Application Loaded')
+
+    // Track performance metrics after page load
+    const perfTimer = setTimeout(() => {
+      telemetryService.trackPerformance()
+    }, 2000)
+
+    // Track route changes
+    const handleRouteChange = () => {
+      telemetryService.trackPageView(window.location.pathname)
+    }
+
+    window.addEventListener('popstate', handleRouteChange)
+
+    return () => {
+      clearTimeout(perfTimer)
+      window.removeEventListener('popstate', handleRouteChange)
+    }
+  }, [])
+
+  // Track module changes
+  useEffect(() => {
+    if (activeModule) {
+      telemetryService.trackEvent('ModuleChanged', {
+        module: activeModule,
+        previousModule: window.sessionStorage.getItem('previousModule') || 'none'
+      })
+      window.sessionStorage.setItem('previousModule', activeModule)
+    }
+  }, [activeModule])
+
   const renderModule = () => {
     switch (activeModule) {
       case "dashboard":
         return <FleetDashboard data={fleetData} />
       case "executive-dashboard":
         return <ExecutiveDashboard />
+      case "admin-dashboard":
+        return <AdminDashboard />
       case "dispatch-console":
         // Dispatch console uses GPS tracking with different view
         return <GPSTracking vehicles={fleetData.vehicles || []} facilities={facilities} />
@@ -267,7 +307,13 @@ function App() {
                         key={item.id}
                         variant={activeModule === item.id ? "secondary" : "ghost"}
                         className="w-full justify-start gap-2"
-                        onClick={() => setActiveModule(item.id)}
+                        onClick={() => {
+                          telemetryService.trackButtonClick(`nav-${item.id}`, {
+                            category: item.category,
+                            label: item.label
+                          })
+                          setActiveModule(item.id)
+                        }}
                       >
                         {item.icon}
                         <span className="text-sm">{item.label}</span>
@@ -376,4 +422,6 @@ function App() {
   )
 }
 
-export default App
+// Export with Application Insights tracking if available
+const reactPlugin = telemetryService.getReactPlugin()
+export default reactPlugin ? withAITracking(reactPlugin, App) : App
