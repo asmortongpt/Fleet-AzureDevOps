@@ -7,7 +7,7 @@ import { ScrollArea } from '../ui/scroll-area'
 import {
   Circle as CircleIcon,
   Square,
-  Polygon as PolygonIcon,
+  Pentagon as PolygonIcon,
   Trash2,
   Edit2,
   Eye,
