@@ -1,29 +1,31 @@
 import { Router } from "express"
-import { db } from "../db/connection"
-import { vehicles } from "../db/schema"
-import { eq, like, or, and, desc } from "drizzle-orm"
+import { vehicleEmulator } from "../emulators/VehicleEmulator"
 
 const router = Router()
 
 // GET all vehicles
 router.get("/", async (req, res) => {
   try {
-    const { page = 1, pageSize = 20, search } = req.query
-    let query = db.select().from(vehicles)
+    const { page = 1, pageSize = 20, search, status } = req.query
 
-    if (search) {
-      query = query.where(or(
-        like(vehicles.vehicleNumber, `%${search}%`),
-        like(vehicles.make, `%${search}%`),
-        like(vehicles.model, `%${search}%`)
-      ))
+    let vehicles = vehicleEmulator.getAll()
+
+    // Apply search filter
+    if (search && typeof search === 'string') {
+      vehicles = vehicleEmulator.search(search)
     }
 
-    const offset = (Number(page) - 1) * Number(pageSize)
-    const data = await query.limit(Number(pageSize)).offset(offset)
-    const total = await db.select().from(vehicles)
+    // Apply status filter
+    if (status && typeof status === 'string') {
+      vehicles = vehicleEmulator.filterByStatus(status)
+    }
 
-    res.json({ data, total: total.length })
+    // Apply pagination
+    const total = vehicles.length
+    const offset = (Number(page) - 1) * Number(pageSize)
+    const data = vehicles.slice(offset, offset + Number(pageSize))
+
+    res.json({ data, total })
   } catch (error) {
     console.error(error)
     res.status(500).json({ error: "Failed to fetch vehicles" })
@@ -33,9 +35,9 @@ router.get("/", async (req, res) => {
 // GET vehicle by ID
 router.get("/:id", async (req, res) => {
   try {
-    const vehicle = await db.select().from(vehicles).where(eq(vehicles.id, Number(req.params.id))).limit(1)
-    if (!vehicle.length) return res.status(404).json({ error: "Not found" })
-    res.json({ data: vehicle[0] })
+    const vehicle = vehicleEmulator.getById(Number(req.params.id))
+    if (!vehicle) return res.status(404).json({ error: "Vehicle not found" })
+    res.json({ data: vehicle })
   } catch (error) {
     res.status(500).json({ error: "Failed to fetch vehicle" })
   }
@@ -44,8 +46,8 @@ router.get("/:id", async (req, res) => {
 // POST create vehicle
 router.post("/", async (req, res) => {
   try {
-    const result = await db.insert(vehicles).values(req.body).returning()
-    res.status(201).json({ data: result[0] })
+    const vehicle = vehicleEmulator.create(req.body)
+    res.status(201).json({ data: vehicle })
   } catch (error) {
     res.status(500).json({ error: "Failed to create vehicle" })
   }
@@ -54,9 +56,9 @@ router.post("/", async (req, res) => {
 // PUT update vehicle
 router.put("/:id", async (req, res) => {
   try {
-    const result = await db.update(vehicles).set(req.body).where(eq(vehicles.id, Number(req.params.id))).returning()
-    if (!result.length) return res.status(404).json({ error: "Not found" })
-    res.json({ data: result[0] })
+    const vehicle = vehicleEmulator.update(Number(req.params.id), req.body)
+    if (!vehicle) return res.status(404).json({ error: "Vehicle not found" })
+    res.json({ data: vehicle })
   } catch (error) {
     res.status(500).json({ error: "Failed to update vehicle" })
   }
@@ -65,8 +67,9 @@ router.put("/:id", async (req, res) => {
 // DELETE vehicle
 router.delete("/:id", async (req, res) => {
   try {
-    await db.delete(vehicles).where(eq(vehicles.id, Number(req.params.id)))
-    res.json({ message: "Deleted" })
+    const deleted = vehicleEmulator.delete(Number(req.params.id))
+    if (!deleted) return res.status(404).json({ error: "Vehicle not found" })
+    res.json({ message: "Vehicle deleted successfully" })
   } catch (error) {
     res.status(500).json({ error: "Failed to delete vehicle" })
   }
