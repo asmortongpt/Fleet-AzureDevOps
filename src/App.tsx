@@ -148,8 +148,7 @@ function App() {
       case "admin-dashboard":
         return <AdminDashboard />
       case "dispatch-console":
-        // Dispatch console uses GPS tracking with different view
-        return <GPSTracking vehicles={fleetData.vehicles || []} facilities={facilities} />
+        return <DispatchConsole />
       case "people":
         return <PeopleManagement data={fleetData} />
       case "garage":
