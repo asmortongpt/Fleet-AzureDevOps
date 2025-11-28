@@ -69,9 +69,14 @@ struct OptimizedCard<Content: View>: View {
 /// High-performance list configuration
 extension List {
     func optimizedForPerformance() -> some View {
-        self
-            .listStyle(.plain)
-            .scrollContentBackground(.hidden)
+        if #available(iOS 16.0, *) {
+            return self
+                .listStyle(.plain)
+                .scrollContentBackground(.hidden)
+        } else {
+            return self
+                .listStyle(.plain)
+        }
     }
 }
 
