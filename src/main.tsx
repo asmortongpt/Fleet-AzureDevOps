@@ -14,6 +14,7 @@ import { SentryErrorBoundary } from "./components/errors/SentryErrorBoundary"
 import App from "./App"
 import Login from "./pages/Login"
 import "./index.css"
+import "./styles/dark-mode-enhancements.css"
 
 // Create a client
 const queryClient = new QueryClient({
