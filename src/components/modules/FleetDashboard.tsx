@@ -11,7 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { MetricCard } from "@/components/MetricCard"
 import { AddVehicleDialog } from "@/components/dialogs/AddVehicleDialog"
 import { UniversalMap } from "@/components/UniversalMap"
-import { ProfessionalFleetMap } from "@/components/maps/ProfessionalFleetMap"
+import { ProfessionalFleetMap } from "@/components/Maps/ProfessionalFleetMap"
 import { AssetTypeFilter, FilterState as AssetFilterState } from "@/components/filters/AssetTypeFilter"
 import {
   Car,
