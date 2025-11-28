@@ -11,6 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { MetricCard } from "@/components/MetricCard"
 import { AddVehicleDialog } from "@/components/dialogs/AddVehicleDialog"
 import { UniversalMap } from "@/components/UniversalMap"
+import { ProfessionalFleetMap } from "@/components/maps/ProfessionalFleetMap"
 import { AssetTypeFilter, FilterState as AssetFilterState } from "@/components/filters/AssetTypeFilter"
 import {
   Car,
@@ -707,6 +708,21 @@ export function FleetDashboard({ data }: FleetDashboardProps) {
           />
         </div>
       </div>
+
+      {/* Professional Fleet Map - Prominent placement */}
+      <ProfessionalFleetMap
+        vehicles={filteredVehicles}
+        facilities={data.facilities}
+        height="500px"
+        onVehicleSelect={(vehicleId) => {
+          const vehicle = filteredVehicles.find(v => v.id === vehicleId)
+          if (vehicle) {
+            handleVehicleDrilldown(vehicle)
+          }
+        }}
+        showLegend={true}
+        enableRealTime={isRealtimeConnected}
+      />
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <Card>
