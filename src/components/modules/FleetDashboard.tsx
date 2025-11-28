@@ -8,6 +8,8 @@ import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Slider } from "@/components/ui/slider"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { MetricCard } from "@/components/MetricCard"
 import { AddVehicleDialog } from "@/components/dialogs/AddVehicleDialog"
 import { ProfessionalFleetMap } from "@/components/Maps/ProfessionalFleetMap"
@@ -182,6 +184,12 @@ export function FleetDashboard({ data }: FleetDashboardProps) {
   const [isAdvancedFiltersOpen, setIsAdvancedFiltersOpen] = useState(false)
   const [filterCriteria, setFilterCriteria] = useState<AdvancedFilterCriteria>(defaultFilterCriteria)
   const [appliedFilters, setAppliedFilters] = useState<AdvancedFilterCriteria>(defaultFilterCriteria)
+
+  // Collapsible sections state for minimal scrolling
+  const [showStatusPanel, setShowStatusPanel] = useState(true)
+  const [showMap, setShowMap] = useState(true)
+  const [showAnalytics, setShowAnalytics] = useState(false)
+  const [showVehicleList, setShowVehicleList] = useState(true)
 
   // Sync asset filters with URL parameters
   useEffect(() => {
