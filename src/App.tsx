@@ -246,8 +246,10 @@ function App() {
         return <FuelPurchasing />
       case "endpoint-monitor":
         return <EndpointMonitor />
+      case "dashboard":
+        return <FleetDashboardModern data={fleetData} />
       default:
-        return <FleetDashboard data={fleetData} />
+        return <FleetDashboardModern data={fleetData} />
     }
   }
 
