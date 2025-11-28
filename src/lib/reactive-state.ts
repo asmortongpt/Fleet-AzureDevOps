@@ -5,6 +5,17 @@
 
 import { atom } from 'jotai'
 import { atomWithStorage } from 'jotai/utils'
+import type {
+  User,
+  Role,
+  Team,
+  Permission,
+  UserFilters,
+  UserSortConfig,
+  ActiveSession,
+  LoginHistoryEntry,
+  TwoFactorSetup,
+} from '@/types/user-management'
 
 /* ============================================================
    TYPES
@@ -582,3 +593,191 @@ export const advancedSettingsAtom = atomWithStorage<AdvancedSettings>('advanced-
 
 // Track unsaved changes
 export const hasUnsavedChangesAtom = atom<boolean>(false)
+
+/* ============================================================
+   USER MANAGEMENT ATOMS
+   ============================================================ */
+
+// Current authenticated user
+export const currentUserAtom = atomWithStorage<User | null>('current-user', null)
+
+// Users list (for admin management)
+export const usersAtom = atom<User[]>([])
+
+// Roles list
+export const rolesAtom = atom<Role[]>([])
+
+// Teams list
+export const teamsAtom = atom<Team[]>([])
+
+// Active sessions for current user
+export const activeSessionsAtom = atom<ActiveSession[]>([])
+
+// Login history for current user
+export const loginHistoryAtom = atom<LoginHistoryEntry[]>([])
+
+// User filters
+export const userFiltersAtom = atom<UserFilters>({
+  search: '',
+  roles: [],
+  teams: [],
+  status: [],
+  departments: [],
+})
+
+// User sort configuration
+export const userSortConfigAtom = atom<UserSortConfig>({
+  field: 'displayName',
+  direction: 'asc',
+})
+
+// Selected user ID (for detail view/editing)
+export const selectedUserIdAtom = atom<string | null>(null)
+
+// Two-factor authentication setup
+export const twoFactorSetupAtom = atom<TwoFactorSetup>({
+  enabled: false,
+})
+
+// Current user's permissions (derived from roles)
+export const currentUserPermissionsAtom = atom<Permission[]>((get) => {
+  const currentUser = get(currentUserAtom)
+  const roles = get(rolesAtom)
+
+  if (!currentUser) return []
+
+  const userRoles = roles.filter((role) => currentUser.roleIds.includes(role.id))
+  const permissions = new Set<Permission>()
+
+  userRoles.forEach((role) => {
+    role.permissions.forEach((permission) => {
+      permissions.add(permission)
+    })
+  })
+
+  return Array.from(permissions)
+})
+
+// Check if current user has a specific permission
+export const hasPermissionAtom = atom((get) => (permission: Permission) => {
+  const permissions = get(currentUserPermissionsAtom)
+  return permissions.includes(permission) || permissions.includes('admin:full_access')
+})
+
+// Check if current user has admin access
+export const isAdminAtom = atom((get) => {
+  const permissions = get(currentUserPermissionsAtom)
+  return permissions.includes('admin:full_access')
+})
+
+// Filtered and sorted users
+export const filteredUsersAtom = atom((get) => {
+  const users = get(usersAtom)
+  const filters = get(userFiltersAtom)
+  const sortConfig = get(userSortConfigAtom)
+
+  let filtered = users.filter((user) => {
+    // Search filter
+    if (filters.search) {
+      const searchLower = filters.search.toLowerCase()
+      const searchableText = `${user.displayName} ${user.email} ${user.jobTitle || ''} ${user.department || ''}`.toLowerCase()
+      if (!searchableText.includes(searchLower)) {
+        return false
+      }
+    }
+
+    // Role filter
+    if (filters.roles.length > 0) {
+      const hasMatchingRole = user.roleIds.some((roleId) => filters.roles.includes(roleId))
+      if (!hasMatchingRole) {
+        return false
+      }
+    }
+
+    // Team filter
+    if (filters.teams.length > 0) {
+      const hasMatchingTeam = user.teamIds.some((teamId) => filters.teams.includes(teamId))
+      if (!hasMatchingTeam) {
+        return false
+      }
+    }
+
+    // Status filter
+    if (filters.status.length > 0 && !filters.status.includes(user.status)) {
+      return false
+    }
+
+    // Department filter
+    if (filters.departments.length > 0 && user.department) {
+      if (!filters.departments.includes(user.department)) {
+        return false
+      }
+    }
+
+    return true
+  })
+
+  // Sort
+  filtered.sort((a, b) => {
+    let aValue: string | number = ''
+    let bValue: string | number = ''
+
+    switch (sortConfig.field) {
+      case 'displayName':
+        aValue = a.displayName.toLowerCase()
+        bValue = b.displayName.toLowerCase()
+        break
+      case 'email':
+        aValue = a.email.toLowerCase()
+        bValue = b.email.toLowerCase()
+        break
+      case 'lastActive':
+        aValue = a.lastActive || ''
+        bValue = b.lastActive || ''
+        break
+      case 'createdAt':
+        aValue = a.createdAt
+        bValue = b.createdAt
+        break
+      case 'status':
+        aValue = a.status
+        bValue = b.status
+        break
+    }
+
+    if (aValue < bValue) {
+      return sortConfig.direction === 'asc' ? -1 : 1
+    }
+    if (aValue > bValue) {
+      return sortConfig.direction === 'asc' ? 1 : -1
+    }
+    return 0
+  })
+
+  return filtered
+})
+
+// User statistics
+export const userStatsAtom = atom((get) => {
+  const users = get(usersAtom)
+
+  return {
+    total: users.length,
+    active: users.filter((u) => u.status === 'active').length,
+    inactive: users.filter((u) => u.status === 'inactive').length,
+    invited: users.filter((u) => u.status === 'invited').length,
+    suspended: users.filter((u) => u.status === 'suspended').length,
+  }
+})
+
+// Get users by role
+export const getUsersByRoleAtom = atom((get) => (roleId: string) => {
+  const users = get(usersAtom)
+  return users.filter((user) => user.roleIds.includes(roleId))
+})
+
+// Get users by team
+export const getUsersByTeamAtom = atom((get) => (teamId: string) => {
+  const users = get(usersAtom)
+  return users.filter((user) => user.teamIds.includes(teamId))
+})
