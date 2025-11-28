@@ -14,14 +14,14 @@ struct MoreView: View {
                         .fill(Color.blue.opacity(0.2))
                         .frame(width: 60, height: 60)
                         .overlay(
-                            Text(authManager.currentUser?.username.prefix(2).uppercased() ?? "U")
+                            Text(authManager.currentUser?.name.prefix(2).uppercased() ?? "U")
                                 .font(.title2)
                                 .fontWeight(.semibold)
                                 .foregroundColor(.blue)
                         )
 
                     VStack(alignment: .leading, spacing: 4) {
-                        Text(authManager.currentUser?.fullName ?? "User")
+                        Text(authManager.currentUser?.name ?? "User")
                             .font(.headline)
                         Text(authManager.userRole.displayName)
                             .font(.subheadline)
