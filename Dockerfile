@@ -56,9 +56,9 @@ COPY nginx.conf /etc/nginx/nginx.conf
 # Copy built application from builder
 COPY --from=builder /app/dist /usr/share/nginx/html
 
-# Copy runtime configuration script
-COPY scripts/runtime-config.sh /docker-entrypoint.d/01-runtime-config.sh
-RUN chmod +x /docker-entrypoint.d/01-runtime-config.sh
+# REMOVED: Runtime configuration script (not needed - using build-time env vars)
+# COPY scripts/runtime-config.sh /docker-entrypoint.d/01-runtime-config.sh
+# RUN chmod +x /docker-entrypoint.d/01-runtime-config.sh
 
 # Expose port 3000
 EXPOSE 3000
