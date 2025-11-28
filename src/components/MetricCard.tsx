@@ -23,9 +23,9 @@ export function MetricCard({
   status
 }: MetricCardProps) {
   const getTrendIcon = () => {
-    if (trend === "up") return <TrendUp className="w-3 h-3" weight="bold" />
-    if (trend === "down") return <TrendDown className="w-3 h-3" weight="bold" />
-    return <Minus className="w-3 h-3" weight="bold" />
+    if (trend === "up") return <TrendUp className="w-2.5 h-2.5" weight="bold" />
+    if (trend === "down") return <TrendDown className="w-2.5 h-2.5" weight="bold" />
+    return <Minus className="w-2.5 h-2.5" weight="bold" />
   }
 
   const getTrendColor = () => {
@@ -44,39 +44,39 @@ export function MetricCard({
 
   return (
     <Card className="hover:shadow-md transition-shadow duration-200">
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-medium text-muted-foreground">
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 px-3 pt-3">
+        <CardTitle className="text-xs font-medium text-muted-foreground">
           {title}
         </CardTitle>
         {icon && (
-          <div className={`p-2 rounded-lg ${getStatusColor()}`}>
+          <div className={`p-1.5 rounded ${getStatusColor()}`}>
             {icon}
           </div>
         )}
       </CardHeader>
-      <CardContent>
-        <motion.div 
-          className="text-3xl font-semibold metric-number"
+      <CardContent className="px-3 pb-3">
+        <motion.div
+          className="text-xl font-semibold metric-number"
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, ease: "easeOut" }}
         >
           {value}
         </motion.div>
-        <div className="flex items-center gap-2 mt-2">
+        <div className="flex items-center gap-1.5 mt-1">
           {change !== undefined && (
-            <Badge 
-              variant="outline" 
-              className={`${getTrendColor()} border-current/20 gap-1`}
+            <Badge
+              variant="outline"
+              className={`${getTrendColor()} border-current/20 gap-0.5 text-[10px] h-4 px-1`}
             >
               {getTrendIcon()}
-              <span className="text-xs font-medium">
+              <span className="font-medium">
                 {Math.abs(change)}%
               </span>
             </Badge>
           )}
           {subtitle && (
-            <p className="text-xs text-muted-foreground">
+            <p className="text-[10px] text-muted-foreground">
               {subtitle}
             </p>
           )}

@@ -10,7 +10,6 @@ import { Slider } from "@/components/ui/slider"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { MetricCard } from "@/components/MetricCard"
 import { AddVehicleDialog } from "@/components/dialogs/AddVehicleDialog"
-import { UniversalMap } from "@/components/UniversalMap"
 import { ProfessionalFleetMap } from "@/components/Maps/ProfessionalFleetMap"
 import { AssetTypeFilter, FilterState as AssetFilterState } from "@/components/filters/AssetTypeFilter"
 import {
@@ -417,49 +416,49 @@ export function FleetDashboard({ data }: FleetDashboardProps) {
     .slice(0, 5)
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col gap-4">
+    <div className="space-y-4">
+      <div className="flex flex-col gap-3">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <h1 className="text-3xl font-semibold tracking-tight">Fleet Dashboard</h1>
+          <div className="flex items-center gap-3">
+            <h1 className="text-2xl font-bold tracking-tight bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">Fleet Dashboard</h1>
             {/* Real-time Status Indicator */}
-            <div className="flex items-center gap-2">
-              <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${
+            <div className="flex items-center gap-1.5">
+              <div className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium ${
                 isRealtimeConnected
                   ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
                   : 'bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400'
               }`}>
                 <Circle
-                  className={`w-2 h-2 ${isRealtimeConnected ? 'fill-green-500 animate-pulse' : 'fill-gray-400'}`}
+                  className={`w-1.5 h-1.5 ${isRealtimeConnected ? 'fill-green-500 animate-pulse' : 'fill-gray-400'}`}
                   weight="fill"
                 />
                 {isRealtimeConnected ? 'Live' : 'Offline'}
               </div>
               {isEmulatorRunning && (
-                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
-                  <Broadcast className="w-3 h-3 animate-pulse" />
-                  Emulator Active
+                <div className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
+                  <Broadcast className="w-2.5 h-2.5 animate-pulse" />
+                  Emulator
                 </div>
               )}
               {lastTelemetryUpdate && (
-                <span className="text-xs text-muted-foreground">
-                  Last update: {lastTelemetryUpdate.toLocaleTimeString()}
+                <span className="text-[10px] text-muted-foreground">
+                  {lastTelemetryUpdate.toLocaleTimeString()}
                 </span>
               )}
             </div>
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-1.5">
             <AddVehicleDialog onAdd={data.addVehicle} />
             <Button
               variant="outline"
               size="sm"
               onClick={() => setShowAssetFilters(!showAssetFilters)}
-              className={Object.keys(assetFilters).length > 0 ? "border-primary" : ""}
+              className={Object.keys(assetFilters).length > 0 ? "border-primary h-7 text-xs" : "h-7 text-xs"}
             >
-              <FunnelSimple className="w-4 h-4 mr-2" />
-              Asset Filters
+              <FunnelSimple className="w-3 h-3 mr-1.5" />
+              Asset
               {Object.keys(assetFilters).length > 0 && (
-                <Badge variant="secondary" className="ml-2 h-5 px-1.5">
+                <Badge variant="secondary" className="ml-1.5 h-4 px-1 text-[10px]">
                   {Object.keys(assetFilters).length}
                 </Badge>
               )}
@@ -468,13 +467,13 @@ export function FleetDashboard({ data }: FleetDashboardProps) {
               variant="outline"
               size="sm"
               onClick={() => setIsAdvancedFiltersOpen(true)}
-              className={hasActiveFilters ? "border-primary" : ""}
+              className={hasActiveFilters ? "border-primary h-7 text-xs" : "h-7 text-xs"}
             >
-              <FunnelSimple className="w-4 h-4 mr-2" />
-              Advanced Filters
+              <FunnelSimple className="w-3 h-3 mr-1.5" />
+              Advanced
               {hasActiveFilters && (
-                <Badge variant="secondary" className="ml-2 h-5 px-1.5">
-                  Active
+                <Badge variant="secondary" className="ml-1.5 h-4 px-1 text-[10px]">
+                  On
                 </Badge>
               )}
             </Button>
@@ -483,7 +482,7 @@ export function FleetDashboard({ data }: FleetDashboardProps) {
 
         {/* Asset Type Filter Component */}
         {showAssetFilters && (
-          <div className="mb-4">
+          <div className="mb-2">
             <AssetTypeFilter
               onFilterChange={handleAssetFilterChange}
               onClear={handleClearAssetFilters}
@@ -492,19 +491,19 @@ export function FleetDashboard({ data }: FleetDashboardProps) {
           </div>
         )}
 
-        <div className="flex flex-wrap gap-3">
-          <div className="relative flex-1 min-w-[200px]">
-            <MagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+        <div className="flex flex-wrap gap-2">
+          <div className="relative flex-1 min-w-[180px]">
+            <MagnifyingGlass className="absolute left-2 top-1/2 -translate-y-1/2 w-3 h-3 text-muted-foreground" />
             <Input
               placeholder="Search vehicles..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9"
+              className="pl-7 h-8 text-xs"
             />
           </div>
 
           <Select value={vehicleTypeFilter} onValueChange={setVehicleTypeFilter}>
-            <SelectTrigger className="w-[180px]">
+            <SelectTrigger className="w-[140px] h-8 text-xs">
               <SelectValue placeholder="Vehicle Type" />
             </SelectTrigger>
             <SelectContent>
@@ -518,7 +517,7 @@ export function FleetDashboard({ data }: FleetDashboardProps) {
           </Select>
 
           <Select value={regionFilter} onValueChange={setRegionFilter}>
-            <SelectTrigger className="w-[180px]">
+            <SelectTrigger className="w-[140px] h-8 text-xs">
               <SelectValue placeholder="Region" />
             </SelectTrigger>
             <SelectContent>
@@ -532,7 +531,7 @@ export function FleetDashboard({ data }: FleetDashboardProps) {
           </Select>
 
           <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-[180px]">
+            <SelectTrigger className="w-[140px] h-8 text-xs">
               <SelectValue placeholder="Status" />
             </SelectTrigger>
             <SelectContent>
@@ -548,8 +547,8 @@ export function FleetDashboard({ data }: FleetDashboardProps) {
 
         {/* Active Filter Badges */}
         {hasActiveFilters && (
-          <div className="flex flex-wrap gap-2 items-center">
-            <span className="text-sm text-muted-foreground">Active filters:</span>
+          <div className="flex flex-wrap gap-1.5 items-center">
+            <span className="text-xs text-muted-foreground">Active filters:</span>
             {appliedFilters.vehicleStatus.map(status => (
               <Badge key={status} variant="secondary" className="gap-1">
                 Status: {status}
@@ -652,22 +651,22 @@ export function FleetDashboard({ data }: FleetDashboardProps) {
         )}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
         <div
           onClick={() => handleMetricDrilldown('total', metrics.total, 'Total Vehicles')}
-          className="cursor-pointer transition-transform hover:scale-[1.02] active:scale-[0.98]"
+          className="cursor-pointer transition-all duration-200 hover:scale-[1.02] hover:shadow-md active:scale-[0.98]"
         >
           <MetricCard
             title="Total Vehicles"
             value={metrics.total}
             subtitle={`${metrics.active} active now`}
-            icon={<Car className="w-5 h-5" />}
+            icon={<Car className="w-4 h-4" />}
             status="info"
           />
         </div>
         <div
           onClick={() => handleStatusDrilldown('active', metrics.active)}
-          className="cursor-pointer transition-transform hover:scale-[1.02] active:scale-[0.98]"
+          className="cursor-pointer transition-all duration-200 hover:scale-[1.02] hover:shadow-md active:scale-[0.98]"
         >
           <MetricCard
             title="Active Vehicles"
@@ -675,13 +674,13 @@ export function FleetDashboard({ data }: FleetDashboardProps) {
             change={5.2}
             trend="up"
             subtitle="on the road"
-            icon={<Pulse className="w-5 h-5" />}
+            icon={<Pulse className="w-4 h-4" />}
             status="success"
           />
         </div>
         <div
           onClick={() => handleMetricDrilldown('fuel', metrics.avgFuelLevel, 'Avg Fuel Level')}
-          className="cursor-pointer transition-transform hover:scale-[1.02] active:scale-[0.98]"
+          className="cursor-pointer transition-all duration-200 hover:scale-[1.02] hover:shadow-md active:scale-[0.98]"
         >
           <MetricCard
             title="Avg Fuel Level"
@@ -689,13 +688,13 @@ export function FleetDashboard({ data }: FleetDashboardProps) {
             change={metrics.lowFuel > 5 ? 3.1 : 0}
             trend={metrics.lowFuel > 5 ? "down" : "neutral"}
             subtitle={`${metrics.lowFuel} low fuel`}
-            icon={<BatteryMedium className="w-5 h-5" />}
+            icon={<BatteryMedium className="w-4 h-4" />}
             status={metrics.lowFuel > 5 ? "warning" : "success"}
           />
         </div>
         <div
           onClick={() => handleStatusDrilldown('service', metrics.service)}
-          className="cursor-pointer transition-transform hover:scale-[1.02] active:scale-[0.98]"
+          className="cursor-pointer transition-all duration-200 hover:scale-[1.02] hover:shadow-md active:scale-[0.98]"
         >
           <MetricCard
             title="Service Required"
@@ -703,119 +702,121 @@ export function FleetDashboard({ data }: FleetDashboardProps) {
             change={metrics.alerts > 10 ? 12 : 0}
             trend={metrics.alerts > 10 ? "up" : "neutral"}
             subtitle={`${metrics.alerts} alerts`}
-            icon={<Wrench className="w-5 h-5" />}
+            icon={<Wrench className="w-4 h-4" />}
             status={metrics.service > 5 ? "warning" : "info"}
           />
         </div>
       </div>
 
       {/* Professional Fleet Map - Prominent placement */}
-      <ProfessionalFleetMap
-        vehicles={filteredVehicles}
-        facilities={data.facilities}
-        height="500px"
-        onVehicleSelect={(vehicleId) => {
-          const vehicle = filteredVehicles.find(v => v.id === vehicleId)
-          if (vehicle) {
-            handleVehicleDrilldown(vehicle)
-          }
-        }}
-        showLegend={true}
-        enableRealTime={isRealtimeConnected}
-      />
+      <div className="shadow-sm">
+        <ProfessionalFleetMap
+          vehicles={filteredVehicles}
+          facilities={data.facilities}
+          height="400px"
+          onVehicleSelect={(vehicleId) => {
+            const vehicle = filteredVehicles.find(v => v.id === vehicleId)
+            if (vehicle) {
+              handleVehicleDrilldown(vehicle)
+            }
+          }}
+          showLegend={true}
+          enableRealTime={isRealtimeConnected}
+        />
+      </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-sm font-medium flex items-center gap-2">
-              <Pulse className="w-4 h-4" />
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <Card className="shadow-sm border-border/50">
+          <CardHeader className="px-4 py-3 border-b border-border/50 bg-muted/30">
+            <CardTitle className="text-sm font-semibold flex items-center gap-2">
+              <Pulse className="w-4 h-4 text-green-600" />
               Status Distribution
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-2">
+          <CardContent className="space-y-1 px-3 pb-3">
             <div
               onClick={() => handleStatusDrilldown('active', metrics.active)}
-              className="flex items-center justify-between p-2 rounded-md cursor-pointer hover:bg-muted/50 transition-colors group"
+              className="flex items-center justify-between p-1.5 rounded cursor-pointer hover:bg-muted/50 transition-colors group"
             >
-              <span className="text-sm text-muted-foreground group-hover:text-foreground">Active</span>
-              <div className="flex items-center gap-2">
-                <Badge variant="outline" className="bg-success/10 text-success border-success/20">
+              <span className="text-xs text-muted-foreground group-hover:text-foreground">Active</span>
+              <div className="flex items-center gap-1.5">
+                <Badge variant="outline" className="bg-success/10 text-success border-success/20 h-5 px-1.5 text-xs">
                   {metrics.active}
                 </Badge>
-                <CaretRight className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+                <CaretRight className="w-3 h-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
               </div>
             </div>
             <div
               onClick={() => handleStatusDrilldown('idle', metrics.idle)}
-              className="flex items-center justify-between p-2 rounded-md cursor-pointer hover:bg-muted/50 transition-colors group"
+              className="flex items-center justify-between p-1.5 rounded cursor-pointer hover:bg-muted/50 transition-colors group"
             >
-              <span className="text-sm text-muted-foreground group-hover:text-foreground">Idle</span>
-              <div className="flex items-center gap-2">
-                <Badge variant="outline" className="bg-muted text-muted-foreground">
+              <span className="text-xs text-muted-foreground group-hover:text-foreground">Idle</span>
+              <div className="flex items-center gap-1.5">
+                <Badge variant="outline" className="bg-muted text-muted-foreground h-5 px-1.5 text-xs">
                   {metrics.idle}
                 </Badge>
-                <CaretRight className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+                <CaretRight className="w-3 h-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
               </div>
             </div>
             <div
               onClick={() => handleStatusDrilldown('charging', metrics.charging)}
-              className="flex items-center justify-between p-2 rounded-md cursor-pointer hover:bg-muted/50 transition-colors group"
+              className="flex items-center justify-between p-1.5 rounded cursor-pointer hover:bg-muted/50 transition-colors group"
             >
-              <span className="text-sm text-muted-foreground group-hover:text-foreground">Charging</span>
-              <div className="flex items-center gap-2">
-                <Badge variant="outline" className="bg-accent/10 text-accent border-accent/20">
+              <span className="text-xs text-muted-foreground group-hover:text-foreground">Charging</span>
+              <div className="flex items-center gap-1.5">
+                <Badge variant="outline" className="bg-accent/10 text-accent border-accent/20 h-5 px-1.5 text-xs">
                   {metrics.charging}
                 </Badge>
-                <CaretRight className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+                <CaretRight className="w-3 h-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
               </div>
             </div>
             <div
               onClick={() => handleStatusDrilldown('service', metrics.service)}
-              className="flex items-center justify-between p-2 rounded-md cursor-pointer hover:bg-muted/50 transition-colors group"
+              className="flex items-center justify-between p-1.5 rounded cursor-pointer hover:bg-muted/50 transition-colors group"
             >
-              <span className="text-sm text-muted-foreground group-hover:text-foreground">Service</span>
-              <div className="flex items-center gap-2">
-                <Badge variant="outline" className="bg-warning/10 text-warning border-warning/20">
+              <span className="text-xs text-muted-foreground group-hover:text-foreground">Service</span>
+              <div className="flex items-center gap-1.5">
+                <Badge variant="outline" className="bg-warning/10 text-warning border-warning/20 h-5 px-1.5 text-xs">
                   {metrics.service}
                 </Badge>
-                <CaretRight className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+                <CaretRight className="w-3 h-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
               </div>
             </div>
             <div
               onClick={() => handleStatusDrilldown('emergency', metrics.emergency)}
-              className="flex items-center justify-between p-2 rounded-md cursor-pointer hover:bg-muted/50 transition-colors group"
+              className="flex items-center justify-between p-1.5 rounded cursor-pointer hover:bg-muted/50 transition-colors group"
             >
-              <span className="text-sm text-muted-foreground group-hover:text-foreground">Emergency</span>
-              <div className="flex items-center gap-2">
-                <Badge variant="outline" className="bg-destructive/10 text-destructive border-destructive/20">
+              <span className="text-xs text-muted-foreground group-hover:text-foreground">Emergency</span>
+              <div className="flex items-center gap-1.5">
+                <Badge variant="outline" className="bg-destructive/10 text-destructive border-destructive/20 h-5 px-1.5 text-xs">
                   {metrics.emergency}
                 </Badge>
-                <CaretRight className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+                <CaretRight className="w-3 h-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-sm font-medium flex items-center gap-2">
-              <MapPin className="w-4 h-4" />
+        <Card className="shadow-sm border-border/50">
+          <CardHeader className="px-4 py-3 border-b border-border/50 bg-muted/30">
+            <CardTitle className="text-sm font-semibold flex items-center gap-2">
+              <MapPin className="w-4 h-4 text-blue-600" />
               Regional Distribution
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-2">
+          <CardContent className="space-y-1 px-3 pb-3">
             {regions.map(region => {
               const count = filteredVehicles.filter(v => v.region === region).length
               return (
                 <div
                   key={region}
                   onClick={() => handleRegionDrilldown(region, count)}
-                  className="flex items-center justify-between p-2 rounded-md cursor-pointer hover:bg-muted/50 transition-colors group"
+                  className="flex items-center justify-between p-1.5 rounded cursor-pointer hover:bg-muted/50 transition-colors group"
                 >
-                  <span className="text-sm text-muted-foreground group-hover:text-foreground">{region}</span>
-                  <div className="flex items-center gap-2">
-                    <Badge variant="outline">{count}</Badge>
-                    <CaretRight className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <span className="text-xs text-muted-foreground group-hover:text-foreground">{region}</span>
+                  <div className="flex items-center gap-1.5">
+                    <Badge variant="outline" className="h-5 px-1.5 text-xs">{count}</Badge>
+                    <CaretRight className="w-3 h-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
                   </div>
                 </div>
               )
@@ -823,37 +824,37 @@ export function FleetDashboard({ data }: FleetDashboardProps) {
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-sm font-medium flex items-center gap-2">
-              <Warning className="w-4 h-4" />
+        <Card className="shadow-sm border-border/50">
+          <CardHeader className="px-4 py-3 border-b border-border/50 bg-muted/30">
+            <CardTitle className="text-sm font-semibold flex items-center gap-2">
+              <Warning className="w-4 h-4 text-orange-600" />
               Priority Vehicles
             </CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="px-3 pb-3">
             {priorityVehicles.length === 0 ? (
-              <p className="text-sm text-muted-foreground text-center py-4">
+              <p className="text-xs text-muted-foreground text-center py-2">
                 No priority vehicles
               </p>
             ) : (
-              <div className="space-y-2">
+              <div className="space-y-1">
                 {priorityVehicles.map(vehicle => (
                   <div
                     key={vehicle.id}
                     onClick={() => handleVehicleDrilldown(vehicle)}
-                    className="flex items-center justify-between p-2 rounded-md cursor-pointer hover:bg-muted/50 transition-colors group"
+                    className="flex items-center justify-between p-1.5 rounded cursor-pointer hover:bg-muted/50 transition-colors group"
                   >
                     <div>
-                      <p className="text-sm font-medium group-hover:text-primary">{vehicle.number}</p>
-                      <p className="text-xs text-muted-foreground">
+                      <p className="text-xs font-medium group-hover:text-primary">{vehicle.number}</p>
+                      <p className="text-[10px] text-muted-foreground">
                         {vehicle.make} {vehicle.model}
                       </p>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Badge variant="outline" className={getStatusColor(vehicle.status)}>
+                    <div className="flex items-center gap-1.5">
+                      <Badge variant="outline" className={`${getStatusColor(vehicle.status)} h-5 px-1.5 text-[10px]`}>
                         {vehicle.status}
                       </Badge>
-                      <CaretRight className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+                      <CaretRight className="w-3 h-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
                     </div>
                   </div>
                 ))}
@@ -863,73 +864,57 @@ export function FleetDashboard({ data }: FleetDashboardProps) {
         </Card>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <MapPin className="w-5 h-5" />
-            Interactive Fleet Map
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="w-full" style={{ height: '500px' }}>
-            <UniversalMap
-              vehicles={filteredVehicles}
-              showVehicles={true}
-              showFacilities={false}
-              className="rounded-lg overflow-hidden"
-            />
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center justify-between">
-            <span>Fleet Vehicles</span>
-            <span className="text-sm font-normal text-muted-foreground">
-              Click any vehicle to view details
+      <Card className="shadow-sm border-border/50">
+        <CardHeader className="px-4 py-3 border-b border-border/50 bg-muted/30">
+          <CardTitle className="flex items-center justify-between text-sm font-semibold">
+            <span className="flex items-center gap-2">
+              <Car className="w-4 h-4 text-primary" />
+              Fleet Vehicles
+            </span>
+            <span className="text-xs font-normal text-muted-foreground">
+              Click any vehicle for details
             </span>
           </CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="px-4 pb-4 pt-3">
           <div className="space-y-2">
             {filteredVehicles.slice(0, 10).map(vehicle => (
               <div
                 key={vehicle.id}
                 onClick={() => handleVehicleDrilldown(vehicle)}
-                className="flex items-center justify-between p-3 border rounded-lg cursor-pointer hover:bg-muted/50 hover:border-primary/50 transition-all group"
+                className="flex items-center justify-between p-3 border border-border/50 rounded-lg cursor-pointer hover:bg-muted/50 hover:border-primary/50 hover:shadow-sm transition-all duration-200 group"
               >
-                <div className="flex items-center gap-4">
-                  <div className={`p-2 rounded-lg ${getStatusColor(vehicle.status)}`}>
-                    <Car className="w-5 h-5" />
+                <div className="flex items-center gap-2">
+                  <div className={`p-1 rounded ${getStatusColor(vehicle.status)}`}>
+                    <Car className="w-3 h-3" />
                   </div>
                   <div>
-                    <p className="font-medium group-hover:text-primary transition-colors">{vehicle.number}</p>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-xs font-medium group-hover:text-primary transition-colors">{vehicle.number}</p>
+                    <p className="text-[10px] text-muted-foreground">
                       {vehicle.year} {vehicle.make} {vehicle.model}
                     </p>
                   </div>
                 </div>
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2">
                   <div className="text-right">
-                    <p className="text-sm font-medium">{vehicle.region}</p>
-                    <p className="text-xs text-muted-foreground">{vehicle.department}</p>
+                    <p className="text-[10px] font-medium">{vehicle.region}</p>
+                    <p className="text-[9px] text-muted-foreground">{vehicle.department}</p>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <BatteryMedium className="w-4 h-4 text-muted-foreground" />
-                    <span className="text-sm">{vehicle.fuelLevel}%</span>
+                  <div className="flex items-center gap-1">
+                    <BatteryMedium className="w-3 h-3 text-muted-foreground" />
+                    <span className="text-[10px]">{vehicle.fuelLevel}%</span>
                   </div>
-                  <Badge variant="outline" className={getStatusColor(vehicle.status)}>
+                  <Badge variant="outline" className={`${getStatusColor(vehicle.status)} h-5 px-1.5 text-[10px]`}>
                     {vehicle.status}
                   </Badge>
-                  <ArrowRight className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <ArrowRight className="w-3 h-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
                 </div>
               </div>
             ))}
             {filteredVehicles.length > 10 && (
               <Button
                 variant="outline"
-                className="w-full mt-2"
+                className="w-full mt-1.5 h-7 text-xs"
                 onClick={() => drilldownPush({
                   id: 'all-vehicles',
                   type: 'vehicle-list',
@@ -938,7 +923,7 @@ export function FleetDashboard({ data }: FleetDashboardProps) {
                 })}
               >
                 View all {filteredVehicles.length} vehicles
-                <ArrowRight className="w-4 h-4 ml-2" />
+                <ArrowRight className="w-3 h-3 ml-1.5" />
               </Button>
             )}
           </div>

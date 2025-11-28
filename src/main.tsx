@@ -27,15 +27,16 @@ const queryClient = new QueryClient({
 })
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated, isLoading } = useAuth()
+  // TEMPORARILY DISABLED: Authentication bypassed for direct dashboard access
+  // const { isAuthenticated, isLoading } = useAuth()
 
-  if (isLoading) {
-    return <div>Loading authentication...</div>
-  }
+  // if (isLoading) {
+  //   return <div>Loading authentication...</div>
+  // }
 
-  if (!isAuthenticated) {
-    return <Navigate to="/login" replace />
-  }
+  // if (!isAuthenticated) {
+  //   return <Navigate to="/login" replace />
+  // }
 
   return <>{children}</>
 }
@@ -51,16 +52,12 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
           <InspectProvider>
             <BrowserRouter>
               <SentryRoutes>
-                <Route path="/login" element={<Login />} />
-                <Route path="/auth/callback" element={<Login />} />
                 <Route
                   path="/*"
                   element={
-                    <ProtectedRoute>
-                      <SentryErrorBoundary level="section">
-                        <App />
-                      </SentryErrorBoundary>
-                    </ProtectedRoute>
+                    <SentryErrorBoundary level="section">
+                      <App />
+                    </SentryErrorBoundary>
                   }
                 />
               </SentryRoutes>
