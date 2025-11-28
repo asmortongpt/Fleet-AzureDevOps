@@ -15,6 +15,7 @@
 		104FBABC12851A340672919B /* SyncQueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9356D12F9A3012CD67D50BE7 /* SyncQueue.swift */; };
 		127510355BDC707C09F83E39 /* EnvironmentManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F5ADEF94D0506FA2EAAC608 /* EnvironmentManager.swift */; };
 		1396EF324AC67AE1F94B80B2 /* CameraManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2B306D6939DFE03C02278BC /* CameraManager.swift */; };
+		1872FF4FE24A36D27BB1079D /* AzureSSOManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8A2FD33782415307D756CEF /* AzureSSOManager.swift */; };
 		1D8E3EC22199FD0081A1FD8B /* QuickActionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A9B4C0A4C1C63335C743B4A /* QuickActionsView.swift */; };
 		1EADECA0585536A9C0A29270 /* VehicleModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2206275B015222D51C57E551 /* VehicleModel.swift */; };
 		1ED689725D32DF24B5DCDA67 /* NotificationsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8EE81C544DA2D674F1A7E9B /* NotificationsView.swift */; };
@@ -43,6 +44,7 @@
 		467DD1223B2FBDAB130471F5 /* TelemetryExporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8549A19699C7F183EA1B384 /* TelemetryExporter.swift */; };
 		4B72C13258A942BEB8DFEB9C /* VehicleInspection.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE11154A39164F6F9851447F /* VehicleInspection.swift */; };
 		4C007558067FF7588CB9A046 /* MaintenanceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E365431A12D0E242DC6D206E /* MaintenanceView.swift */; };
+		4CA8C76FA1A2093524E3509C /* PerformanceOptimizations.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7894041712EF9EAB30F9859 /* PerformanceOptimizations.swift */; };
 		4CDA9BF51D1BF3A18C873632 /* UserRole.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BEF1CC1025E28F054056381 /* UserRole.swift */; };
 		4FCBE3746AEBD033727E30FC /* BluetoothPermissionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A654643DD537A0A5B2523CA8 /* BluetoothPermissionManager.swift */; };
 		504EC3081FED79650016851F /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 504EC3071FED79650016851F /* AppDelegate.swift */; };
@@ -139,6 +141,7 @@
 		16D08B1504E08A77D76D613D /* TripTrackingService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TripTrackingService.swift; path = TripTrackingService.swift; sourceTree = "<group>"; };
 		17CD435FCBF1E6C3791DECEC /* MaintenanceModel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MaintenanceModel.swift; sourceTree = "<group>"; };
 		184D495ABE80A8A6317145D5 /* OBD2DataParser.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = OBD2DataParser.swift; sourceTree = "<group>"; };
+		1E23A36E6133C2D0FC69F0F3 /* AzureSSOManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AzureSSOManager.swift; path = App/AzureSSOManager.swift; sourceTree = "<group>"; };
 		1E565A7A10DECB0553FE6567 /* ErrorView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ErrorView.swift; path = Views/ErrorView.swift; sourceTree = "<group>"; };
 		1EB06EC47240321127DACE13 /* LoggingManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LoggingManager.swift; sourceTree = "<group>"; };
 		1FCEFB0546A624293C4FF512 /* SecurityLogger.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SecurityLogger.swift; sourceTree = "<group>"; };
@@ -264,6 +267,7 @@
 		C4D25D7EC06C157B93DDC4BD /* AccessibleLoginView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AccessibleLoginView.swift; path = Views/AccessibleLoginView.swift; sourceTree = "<group>"; };
 		C5E52416BB203D0EEF965375 /* AnalyticsManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AnalyticsManager.swift; sourceTree = "<group>"; };
 		C6366EE59544741FA812506C /* TripModel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TripModel.swift; sourceTree = "<group>"; };
+		C7894041712EF9EAB30F9859 /* PerformanceOptimizations.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PerformanceOptimizations.swift; sourceTree = "<group>"; };
 		C7EDDBFA4EA484A264FA9B25 /* DatabaseMigration.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DatabaseMigration.swift; path = DatabaseMigration.swift; sourceTree = "<group>"; };
 		C8549A19699C7F183EA1B384 /* TelemetryExporter.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TelemetryExporter.swift; path = Monitoring/TelemetryExporter.swift; sourceTree = "<group>"; };
 		C907237E021C4DC5AA0E7961 /* AdminApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdminApp.swift; sourceTree = "<group>"; };
@@ -303,6 +307,7 @@
 		F2B306D6939DFE03C02278BC /* CameraManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CameraManager.swift; sourceTree = "<group>"; };
 		F34ECBC86983BEC6438C51D8 /* AccessibilityManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AccessibilityManager.swift; path = Utilities/AccessibilityManager.swift; sourceTree = "<group>"; };
 		F7CC4692F8829295A37DEB2E /* RootView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
+		F8A2FD33782415307D756CEF /* AzureSSOManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AzureSSOManager.swift; sourceTree = "<group>"; };
 		F984287D647965A21C894EEB /* FleetMetricsCard.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = FleetMetricsCard.swift; sourceTree = "<group>"; };
 		FCB6906407BB949155B48F3F /* HelpCenterView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = HelpCenterView.swift; path = Views/Help/HelpCenterView.swift; sourceTree = "<group>"; };
 		FDFBF38CE89C7D00AFFBAEB6 /* EmptyStateCard.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = EmptyStateCard.swift; path = Components/EmptyStateCard.swift; sourceTree = "<group>"; };
@@ -595,6 +600,9 @@
 				740FAAB0ED6F70FB037DFF3F /* PerformanceOptimizer.swift */,
 				BAED9DF255C360212B77D5FF /* ViewModels */,
 				FC1F4302F30E39A6476DE705 /* Models */,
+				1E23A36E6133C2D0FC69F0F3 /* AzureSSOManager.swift */,
+				F8A2FD33782415307D756CEF /* AzureSSOManager.swift */,
+				C7894041712EF9EAB30F9859 /* PerformanceOptimizations.swift */,
 			);
 			path = App;
 			sourceTree = "<group>";
@@ -895,6 +903,8 @@
 				A2C5D2FA390461EDA8959F53 /* ViewerDashboardView.swift in Sources */,
 				CDE5AFC427F35E731A5474AA /* QuickActionButton.swift in Sources */,
 				403736BFA1509615D3291D9F /* EmptyStateCard.swift in Sources */,
+				1872FF4FE24A36D27BB1079D /* AzureSSOManager.swift in Sources */,
+				4CA8C76FA1A2093524E3509C /* PerformanceOptimizations.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
