@@ -1,36 +1,45 @@
 import SwiftUI
 
-/// QuickActionButton - Reusable button component for dashboard quick actions
+// MARK: - Quick Action Button Component
 struct QuickActionButton: View {
-    let title: String
     let icon: String
+    let title: String
     let color: Color
     let action: () -> Void
 
+    init(icon: String, title: String, color: Color = .blue, action: @escaping () -> Void) {
+        self.icon = icon
+        self.title = title
+        self.color = color
+        self.action = action
+    }
+
     var body: some View {
         Button(action: action) {
-            VStack(spacing: ModernTheme.Spacing.sm) {
+            VStack(spacing: 12) {
                 Image(systemName: icon)
-                    .font(.system(size: 24))
-                    .foregroundColor(color)
+                    .font(.system(size: 28))
+                    .foregroundColor(.white)
+                    .frame(width: 60, height: 60)
+                    .background(
+                        LinearGradient(
+                            gradient: Gradient(colors: [color, color.opacity(0.7)]),
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    .cornerRadius(16)
+                    .shadow(color: color.opacity(0.3), radius: 8, x: 0, y: 4)
 
                 Text(title)
-                    .font(ModernTheme.Typography.caption1)
-                    .foregroundColor(ModernTheme.Colors.secondaryText)
+                    .font(.caption)
+                    .fontWeight(.medium)
+                    .foregroundColor(.primary)
                     .multilineTextAlignment(.center)
+                    .lineLimit(2)
             }
-            .frame(maxWidth: .infinity)
-            .padding(ModernTheme.Spacing.md)
-            .background(ModernTheme.Colors.secondaryBackground)
-            .cornerRadius(ModernTheme.CornerRadius.md)
+            .frame(width: 80)
         }
-        .buttonStyle(.plain)
+        .buttonStyle(PlainButtonStyle())
     }
-}
-
-#Preview {
-    QuickActionButton(title: "Start Trip", icon: "play.circle.fill", color: .green) {
-        print("Action tapped")
-    }
-    .padding()
 }
