@@ -85,11 +85,15 @@ struct MoreView: View {
                     Label("Barcode Scanner", systemImage: "barcode.viewfinder")
                 }
 
-                NavigationLink(destination: DocumentScannerView()) {
+                NavigationLink(destination: DocumentScannerView(
+                    documentType: .general,
+                    onComplete: { _ in },
+                    onCancel: {}
+                )) {
                     Label("Document Scanner", systemImage: "doc.viewfinder")
                 }
 
-                NavigationLink(destination: PhotoCaptureView()) {
+                NavigationLink(destination: PhotoCaptureView(onComplete: { _ in })) {
                     Label("Photo Capture", systemImage: "camera.fill")
                 }
             }
