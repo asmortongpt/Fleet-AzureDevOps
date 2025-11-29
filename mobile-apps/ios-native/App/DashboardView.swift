@@ -8,26 +8,6 @@
 import SwiftUI
 import Charts
 
-// MARK: - Activity Types
-struct ActivityItem: Identifiable {
-    let id = UUID()
-    let timestamp: Date
-    let type: ActivityType
-    let title: String
-    let description: String
-    let vehicleId: String?
-    let driverId: String?
-}
-
-enum ActivityType: String {
-    case tripStarted = "Trip Started"
-    case tripCompleted = "Trip Completed"
-    case maintenanceScheduled = "Maintenance Scheduled"
-    case maintenanceCompleted = "Maintenance Completed"
-    case alert = "Alert"
-    case incident = "Incident"
-}
-
 struct DashboardView: View {
     @EnvironmentObject private var authManager: AuthenticationManager
 
@@ -169,32 +149,32 @@ struct LegacyDashboardView: View {
 
             LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
                 QuickActionButton(
-                    title: "Start Trip",
                     icon: "play.circle.fill",
+                    title: "Start Trip",
                     color: .green
                 ) {
                     viewModel.startNewTrip()
                 }
 
                 QuickActionButton(
-                    title: "View Fleet",
                     icon: "car.2.fill",
+                    title: "View Fleet",
                     color: .blue
                 ) {
                     viewModel.viewAllVehicles()
                 }
 
                 QuickActionButton(
-                    title: "Maintenance",
                     icon: "wrench.and.screwdriver.fill",
+                    title: "Maintenance",
                     color: .orange
                 ) {
                     viewModel.viewMaintenance()
                 }
 
                 QuickActionButton(
-                    title: "Reports",
                     icon: "chart.bar.doc.horizontal.fill",
+                    title: "Reports",
                     color: .purple
                 ) {
                     viewModel.viewReports()
@@ -411,9 +391,11 @@ struct ActivityRow: View {
                 Text(activity.title)
                     .font(.subheadline.weight(.medium))
 
-                Text(activity.description)
-                    .font(.caption)
-                    .foregroundColor(.secondary)
+                if let description = activity.description {
+                    Text(description)
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
 
                 Text(activity.timestamp, style: .relative)
                     .font(.caption2)
@@ -425,23 +407,31 @@ struct ActivityRow: View {
         .padding(.vertical, 4)
     }
 
-    private func icon(for type: ActivityType) -> String {
+    private func icon(for type: ActivityItem.ActivityType) -> String {
         switch type {
         case .tripStarted: return "play.fill"
         case .tripCompleted: return "checkmark.circle.fill"
         case .maintenanceScheduled: return "wrench.fill"
         case .maintenanceCompleted: return "wrench.and.screwdriver.fill"
-        case .alert: return "exclamationmark.triangle.fill"
-        case .incident: return "exclamationmark.octagon.fill"
+        case .alertTriggered: return "exclamationmark.triangle.fill"
+        case .incidentReported: return "exclamationmark.octagon.fill"
+        case .vehicleAdded: return "car.fill"
+        case .inspectionCompleted: return "checkmark.shield.fill"
+        case .userLogin: return "person.fill"
+        case .other: return "circle.fill"
         }
     }
 
-    private func color(for type: ActivityType) -> Color {
+    private func color(for type: ActivityItem.ActivityType) -> Color {
         switch type {
         case .tripStarted, .tripCompleted: return .green
         case .maintenanceScheduled, .maintenanceCompleted: return .blue
-        case .alert: return .orange
-        case .incident: return .red
+        case .alertTriggered: return .orange
+        case .incidentReported: return .red
+        case .vehicleAdded: return .blue
+        case .inspectionCompleted: return .purple
+        case .userLogin: return .gray
+        case .other: return .gray
         }
     }
 }
