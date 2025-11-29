@@ -162,11 +162,6 @@ struct SettingsView: View {
                                     Text(role.displayName)
                                         .font(.headline)
                                         .foregroundColor(.primary)
-
-                                    Text(role.description)
-                                        .font(.caption)
-                                        .foregroundColor(.secondary)
-                                        .lineLimit(2)
                                 }
 
                                 Spacer()

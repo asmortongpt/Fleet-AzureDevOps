@@ -1,7 +1,7 @@
 import SwiftUI
 
 // MARK: - User Role Enum
-enum UserRole: String, Codable {
+enum UserRole: String, Codable, CaseIterable {
     case admin
     case manager
     case driver
