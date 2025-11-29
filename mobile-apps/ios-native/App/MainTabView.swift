@@ -209,14 +209,12 @@ struct MainTabView: View {
             }
 
             // Report Issue - all roles
-            if authManager.userRole.canReportIssues {
-                Button(action: {
-                    ModernTheme.Haptics.light()
-                    // Navigate to report issue
-                }) {
-                    Label("Report Issue", systemImage: "exclamationmark.triangle.fill")
-                        .symbolRenderingMode(.hierarchical)
-                }
+            Button(action: {
+                ModernTheme.Haptics.light()
+                // Navigate to report issue
+            }) {
+                Label("Report Issue", systemImage: "exclamationmark.triangle.fill")
+                    .symbolRenderingMode(.hierarchical)
             }
         }
         .font(.caption)

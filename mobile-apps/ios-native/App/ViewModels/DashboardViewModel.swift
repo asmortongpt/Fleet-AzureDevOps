@@ -79,12 +79,12 @@ final class DashboardViewModel: ObservableObject {
         // Add recent trip activities - using TripModels.Trip properties
         for trip in todayTrips.prefix(3) {
             activities.append(ActivityItem(
-                timestamp: trip.startTime,
                 type: trip.status == .completed ? .tripCompleted : .tripStarted,
                 title: "Trip \(trip.status == .completed ? "Completed" : "Started")",
                 description: "Trip: \(trip.name)",
-                vehicleId: trip.vehicleId,
-                driverId: trip.driverId
+                timestamp: trip.startTime,
+                userId: trip.driverId,
+                vehicleId: trip.vehicleId
             ))
         }
 
@@ -92,12 +92,11 @@ final class DashboardViewModel: ObservableObject {
         let maintenanceDue = vehicles.filter { $0.nextService < Date().addingTimeInterval(7 * 24 * 3600) }.prefix(2)
         for vehicle in maintenanceDue {
             activities.append(ActivityItem(
-                timestamp: vehicle.nextService,
                 type: .maintenanceScheduled,
                 title: "Maintenance Due",
                 description: "Vehicle \(vehicle.number) - \(vehicle.make) \(vehicle.model)",
-                vehicleId: vehicle.id,
-                driverId: nil
+                timestamp: vehicle.nextService,
+                vehicleId: vehicle.id
             ))
         }
 
@@ -105,12 +104,10 @@ final class DashboardViewModel: ObservableObject {
         for vehicle in vehicles.filter({ !$0.alerts.isEmpty }).prefix(2) {
             if let alert = vehicle.alerts.first {
                 activities.append(ActivityItem(
-                    timestamp: Date(),
-                    type: .alert,
+                    type: .alertTriggered,
                     title: alert,
                     description: "Vehicle \(vehicle.number)",
-                    vehicleId: vehicle.id,
-                    driverId: nil
+                    vehicleId: vehicle.id
                 ))
             }
         }
