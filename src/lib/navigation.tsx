@@ -5,6 +5,7 @@ import {
   Wrench,
   ChartLine,
   GasPump,
+  Gear,
   MapTrifold,
   Database,
   MapPin,
