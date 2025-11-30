@@ -669,7 +669,7 @@ export function FleetDashboard({ data }: FleetDashboardProps) {
         )}
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2">
         <div
           onClick={() => handleMetricDrilldown('total', metrics.total, 'Total Vehicles')}
           className="cursor-pointer transition-all duration-200 hover:scale-[1.02] hover:shadow-md active:scale-[0.98]"
@@ -678,7 +678,7 @@ export function FleetDashboard({ data }: FleetDashboardProps) {
             title="Total Vehicles"
             value={metrics.total}
             subtitle={`${metrics.active} active now`}
-            icon={<Car className="w-4 h-4" />}
+            icon={<Car className="w-3 h-3" />}
             status="info"
           />
         </div>
@@ -692,7 +692,7 @@ export function FleetDashboard({ data }: FleetDashboardProps) {
             change={5.2}
             trend="up"
             subtitle="on the road"
-            icon={<Pulse className="w-4 h-4" />}
+            icon={<Pulse className="w-3 h-3" />}
             status="success"
           />
         </div>
@@ -706,7 +706,7 @@ export function FleetDashboard({ data }: FleetDashboardProps) {
             change={metrics.lowFuel > 5 ? 3.1 : 0}
             trend={metrics.lowFuel > 5 ? "down" : "neutral"}
             subtitle={`${metrics.lowFuel} low fuel`}
-            icon={<BatteryMedium className="w-4 h-4" />}
+            icon={<BatteryMedium className="w-3 h-3" />}
             status={metrics.lowFuel > 5 ? "warning" : "success"}
           />
         </div>
@@ -720,7 +720,7 @@ export function FleetDashboard({ data }: FleetDashboardProps) {
             change={metrics.alerts > 10 ? 12 : 0}
             trend={metrics.alerts > 10 ? "up" : "neutral"}
             subtitle={`${metrics.alerts} alerts`}
-            icon={<Wrench className="w-4 h-4" />}
+            icon={<Wrench className="w-3 h-3" />}
             status={metrics.service > 5 ? "warning" : "info"}
           />
         </div>
@@ -731,7 +731,7 @@ export function FleetDashboard({ data }: FleetDashboardProps) {
               title="Emulator Stats"
               value={emulatorStats.activeVehicles}
               subtitle={`${emulatorStats.eventsPerSecond.toFixed(1)} events/sec`}
-              icon={<Broadcast className="w-4 h-4 animate-pulse" />}
+              icon={<Broadcast className="w-3 h-3 animate-pulse" />}
               status="info"
             />
           </div>
