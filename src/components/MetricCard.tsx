@@ -44,30 +44,30 @@ export function MetricCard({
 
   return (
     <Card className="hover:shadow-md transition-shadow duration-200">
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 px-3 pt-3">
-        <CardTitle className="text-xs font-medium text-muted-foreground">
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-0.5 px-2 pt-2">
+        <CardTitle className="text-[10px] font-medium text-muted-foreground">
           {title}
         </CardTitle>
         {icon && (
-          <div className={`p-1.5 rounded ${getStatusColor()}`}>
+          <div className={`p-1 rounded ${getStatusColor()}`}>
             {icon}
           </div>
         )}
       </CardHeader>
-      <CardContent className="px-3 pb-3">
+      <CardContent className="px-2 pb-2">
         <motion.div
-          className="text-xl font-semibold metric-number"
+          className="text-base font-semibold metric-number"
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, ease: "easeOut" }}
         >
           {value}
         </motion.div>
-        <div className="flex items-center gap-1.5 mt-1">
+        <div className="flex items-center gap-1 mt-0.5">
           {change !== undefined && (
             <Badge
               variant="outline"
-              className={`${getTrendColor()} border-current/20 gap-0.5 text-[10px] h-4 px-1`}
+              className={`${getTrendColor()} border-current/20 gap-0.5 text-[8px] h-3.5 px-0.5`}
             >
               {getTrendIcon()}
               <span className="font-medium">
@@ -76,7 +76,7 @@ export function MetricCard({
             </Badge>
           )}
           {subtitle && (
-            <p className="text-[10px] text-muted-foreground">
+            <p className="text-[9px] text-muted-foreground">
               {subtitle}
             </p>
           )}
