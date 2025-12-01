@@ -122,45 +122,65 @@ export function FuelManagement({ data }: FuelManagementProps) {
             height={250}
           />
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Recent Fuel Transactions</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                {recentTransactions.map(transaction => (
-                  <div
-                    key={transaction?.id}
-                    className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 transition-colors"
-                  >
-                    <div className="flex items-center gap-4">
-                      <div className="p-2 rounded-lg bg-accent/10 text-accent">
-                        <GasPump className="w-5 h-5" />
-                      </div>
-                      <div>
-                        <p className="font-medium">{transaction?.vehicleNumber ?? 'N/A'}</p>
-                        <p className="text-sm text-muted-foreground">
-                          {transaction?.date ? new Date(transaction.date).toLocaleDateString() : 'N/A'} • {transaction?.station ?? 'N/A'}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <p className="font-semibold">${(transaction?.totalCost ?? 0).toFixed(2)}</p>
-                      <p className="text-sm text-muted-foreground">
-                        {(transaction?.gallons ?? 0).toFixed(1)} gal @ ${(transaction?.pricePerGallon ?? 0).toFixed(2)}
-                      </p>
-                    </div>
-                    <div className="text-right min-w-[80px]">
-                      <p className="text-sm font-medium">{(transaction?.mpg ?? 0).toFixed(1)} MPG</p>
-                      <Badge variant="outline" className="text-xs mt-1">
-                        {transaction?.paymentMethod ?? 'N/A'}
-                      </Badge>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+          <div className="border rounded-lg overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-muted/50 border-b">
+                  <tr>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">Date</th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">Vehicle</th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">Station</th>
+                    <th className="px-4 py-3 text-right text-xs font-semibold text-muted-foreground uppercase tracking-wider">Gallons</th>
+                    <th className="px-4 py-3 text-right text-xs font-semibold text-muted-foreground uppercase tracking-wider">Price/Gal</th>
+                    <th className="px-4 py-3 text-right text-xs font-semibold text-muted-foreground uppercase tracking-wider">Total Cost</th>
+                    <th className="px-4 py-3 text-right text-xs font-semibold text-muted-foreground uppercase tracking-wider">MPG</th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">Payment</th>
+                    <th className="px-4 py-3 text-right text-xs font-semibold text-muted-foreground uppercase tracking-wider">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border bg-card">
+                  {recentTransactions.map(transaction => (
+                    <tr
+                      key={transaction?.id}
+                      className="hover:bg-muted/30 transition-colors cursor-pointer"
+                    >
+                      <td className="px-4 py-3 text-sm text-muted-foreground">
+                        {transaction?.date ? new Date(transaction.date).toLocaleDateString() : 'N/A'}
+                      </td>
+                      <td className="px-4 py-3 text-sm font-medium">
+                        {transaction?.vehicleNumber ?? 'N/A'}
+                      </td>
+                      <td className="px-4 py-3 text-sm text-muted-foreground">
+                        {transaction?.station ?? 'N/A'}
+                      </td>
+                      <td className="px-4 py-3 text-sm text-right">
+                        {(transaction?.gallons ?? 0).toFixed(1)}
+                      </td>
+                      <td className="px-4 py-3 text-sm text-right">
+                        ${(transaction?.pricePerGallon ?? 0).toFixed(2)}
+                      </td>
+                      <td className="px-4 py-3 text-sm text-right font-semibold">
+                        ${(transaction?.totalCost ?? 0).toFixed(2)}
+                      </td>
+                      <td className="px-4 py-3 text-sm text-right font-medium">
+                        {(transaction?.mpg ?? 0).toFixed(1)}
+                      </td>
+                      <td className="px-4 py-3 text-sm">
+                        <Badge variant="outline" className="text-xs">
+                          {transaction?.paymentMethod ?? 'N/A'}
+                        </Badge>
+                      </td>
+                      <td className="px-4 py-3 text-sm text-right">
+                        <Button variant="ghost" size="sm">
+                          View
+                        </Button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
         </TabsContent>
 
         <TabsContent value="cards">
