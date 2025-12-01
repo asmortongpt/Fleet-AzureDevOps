@@ -2,7 +2,7 @@
 //  ManagerDashboardView.swift
 //  Fleet Manager
 //
-//  Manager Dashboard - Fleet analytics, trip approvals, and maintenance oversight
+//  Manager Dashboard - Mobile-First Optimized (No Scrolling)
 //
 
 import SwiftUI
@@ -10,143 +10,167 @@ import SwiftUI
 struct ManagerDashboardView: View {
     @StateObject private var viewModel = DashboardViewModel()
     @EnvironmentObject private var authManager: AuthenticationManager
+    @Environment(\.verticalSizeClass) var verticalSizeClass
 
     var body: some View {
-        ScrollView {
-            LazyVStack(spacing: 20) {
-                // Welcome Header
-                welcomeHeader
+        VStack(spacing: 12) {
+            // Compact Header
+            compactHeader
 
-                // Manager Stats
-                managerStatsSection
+            // Horizontal Stats Scroll
+            horizontalStatsSection
 
-                // Pending Approvals
-                pendingApprovalsSection
+            // Pending Approvals (Limited to 2)
+            limitedApprovalsSection
 
-                // Fleet Analytics
-                fleetAnalyticsSection
+            // Fleet Analytics (Compact)
+            compactAnalyticsSection
 
-                // Maintenance Overview
-                maintenanceOverviewSection
-
-                // Recent Activity
-                recentActivitySection
-            }
-            .padding()
+            Spacer()
         }
+        .padding(.horizontal)
+        .padding(.top, 8)
         .background(Color(.systemGroupedBackground))
-        .navigationTitle("Manager Dashboard")
+        .navigationTitle("Manager")
+        .navigationBarTitleDisplayMode(.inline)
         .refreshable {
             await viewModel.refresh()
         }
     }
 
-    // MARK: - Welcome Header
-    private var welcomeHeader: some View {
+    // MARK: - Compact Header
+    private var compactHeader: some View {
+        HStack(spacing: 12) {
+            // Icon
+            Image(systemName: "person.badge.key.fill")
+                .font(.system(size: 32))
+                .foregroundColor(.purple)
+                .frame(width: 50, height: 50)
+                .background(Color(.secondarySystemGroupedBackground))
+                .cornerRadius(10)
+
+            // Welcome Text
+            VStack(alignment: .leading, spacing: 2) {
+                Text("Welcome back")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                Text(authManager.currentUser?.name ?? "Manager")
+                    .font(.headline)
+                    .lineLimit(1)
+            }
+
+            Spacer()
+
+            // Quick Approval Badge
+            HStack(spacing: 4) {
+                Circle()
+                    .fill(Color.orange)
+                    .frame(width: 8, height: 8)
+                Text("8")
+                    .font(.caption.bold())
+                    .foregroundColor(.orange)
+            }
+            .padding(.horizontal, 10)
+            .padding(.vertical, 6)
+            .background(Color.orange.opacity(0.15))
+            .cornerRadius(12)
+        }
+        .padding()
+        .background(Color(.secondarySystemGroupedBackground))
+        .cornerRadius(12)
+    }
+
+    // MARK: - Horizontal Stats
+    private var horizontalStatsSection: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Key Metrics")
+                .font(.caption.bold())
+                .foregroundColor(.secondary)
+                .padding(.leading, 4)
+
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 12) {
+                    if let stats = viewModel.stats {
+                        CompactStatCard(
+                            title: "Active Vehicles",
+                            value: "\(stats.activeVehicles)",
+                            subtitle: "of \(stats.totalVehicles) total",
+                            icon: "car.fill",
+                            color: .blue
+                        )
+
+                        CompactStatCard(
+                            title: "Today's Trips",
+                            value: "\(stats.todayTrips)",
+                            subtitle: "\(stats.totalTrips) total",
+                            icon: "location.fill",
+                            color: .green
+                        )
+
+                        CompactStatCard(
+                            title: "Approvals",
+                            value: "8",
+                            subtitle: "Needs review",
+                            icon: "checkmark.circle.fill",
+                            color: .orange
+                        )
+
+                        CompactStatCard(
+                            title: "Efficiency",
+                            value: "87%",
+                            subtitle: "This week",
+                            icon: "gauge.medium.fill",
+                            color: .purple
+                        )
+                    }
+                }
+                .padding(.horizontal, 4)
+            }
+        }
+    }
+
+    // MARK: - Limited Approvals
+    private var limitedApprovalsSection: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("Welcome back,")
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
-                    Text(authManager.currentUser?.name ?? "Manager")
-                        .font(.title.bold())
-                }
+                Text("Pending Approvals")
+                    .font(.caption.bold())
+                    .foregroundColor(.secondary)
                 Spacer()
-                Image(systemName: "person.badge.key.fill")
-                    .font(.system(size: 40))
-                    .foregroundColor(.purple)
+                NavigationLink(destination: Text("All Approvals")) {
+                    HStack(spacing: 2) {
+                        Text("View All (8)")
+                            .font(.caption2)
+                        Image(systemName: "chevron.right")
+                            .font(.caption2)
+                    }
+                    .foregroundColor(.blue)
+                }
             }
-            .padding()
+            .padding(.horizontal, 4)
+
+            VStack(spacing: 8) {
+                compactApprovalRow(
+                    title: "Maintenance Request",
+                    subtitle: "Vehicle #142 - Oil Change",
+                    time: "2h ago",
+                    type: .maintenance
+                )
+
+                compactApprovalRow(
+                    title: "Trip Report",
+                    subtitle: "John Doe - Downtown Route",
+                    time: "4h ago",
+                    type: .trip
+                )
+            }
+            .padding(12)
             .background(Color(.secondarySystemGroupedBackground))
             .cornerRadius(12)
         }
     }
 
-    // MARK: - Manager Stats
-    private var managerStatsSection: some View {
-        LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 16) {
-            if let stats = viewModel.stats {
-                StatCard(
-                    title: "Active Vehicles",
-                    value: "\(stats.activeVehicles)",
-                    subtitle: "of \(stats.totalVehicles) total",
-                    icon: "car.fill",
-                    color: .blue,
-                    trend: .up(5)
-                )
-
-                StatCard(
-                    title: "Today's Trips",
-                    value: "\(stats.todayTrips)",
-                    subtitle: "\(stats.totalTrips) total",
-                    icon: "location.fill",
-                    color: .green,
-                    trend: .up(12)
-                )
-
-                StatCard(
-                    title: "Pending Approvals",
-                    value: "8",
-                    subtitle: "Needs review",
-                    icon: "checkmark.circle.fill",
-                    color: .orange,
-                    trend: nil
-                )
-
-                StatCard(
-                    title: "Fleet Efficiency",
-                    value: "87%",
-                    subtitle: "This week",
-                    icon: "gauge.medium.fill",
-                    color: .purple,
-                    trend: .up(3)
-                )
-            }
-        }
-    }
-
-    // MARK: - Pending Approvals
-    private var pendingApprovalsSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                Text("Pending Approvals")
-                    .font(.headline)
-                Spacer()
-                Text("8 items")
-                    .font(.caption)
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 2)
-                    .background(Color.orange.opacity(0.2))
-                    .foregroundColor(.orange)
-                    .cornerRadius(8)
-            }
-
-            VStack(spacing: 12) {
-                approvalCard(
-                    title: "Maintenance Request",
-                    subtitle: "Vehicle #142 - Oil Change",
-                    time: "2 hours ago",
-                    type: .maintenance
-                )
-
-                approvalCard(
-                    title: "Trip Report",
-                    subtitle: "John Doe - Downtown Route",
-                    time: "4 hours ago",
-                    type: .trip
-                )
-
-                approvalCard(
-                    title: "Expense Report",
-                    subtitle: "Fuel Purchase - $245.00",
-                    time: "1 day ago",
-                    type: .expense
-                )
-            }
-        }
-    }
-
+    // MARK: - Approval Type
     enum ApprovalType {
         case maintenance, trip, expense
 
@@ -167,171 +191,145 @@ struct ManagerDashboardView: View {
         }
     }
 
-    private func approvalCard(title: String, subtitle: String, time: String, type: ApprovalType) -> some View {
-        HStack {
-            Circle()
-                .fill(type.color.opacity(0.2))
-                .frame(width: 40, height: 40)
-                .overlay(
-                    Image(systemName: type.icon)
-                        .foregroundColor(type.color)
-                        .font(.caption)
-                )
+    private func compactApprovalRow(title: String, subtitle: String, time: String, type: ApprovalType) -> some View {
+        HStack(spacing: 12) {
+            Image(systemName: type.icon)
+                .font(.caption)
+                .foregroundColor(.white)
+                .frame(width: 28, height: 28)
+                .background(type.color)
+                .cornerRadius(6)
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)
-                    .font(.subheadline.bold())
+                    .font(.caption.bold())
+                    .lineLimit(1)
+
                 Text(subtitle)
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-                Text(time)
                     .font(.caption2)
                     .foregroundColor(.secondary)
+                    .lineLimit(1)
             }
 
             Spacer()
 
-            Button(action: {}) {
-                Image(systemName: "chevron.right")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-            }
+            Text(time)
+                .font(.caption2)
+                .foregroundColor(.secondary)
         }
-        .padding()
-        .background(Color(.secondarySystemGroupedBackground))
-        .cornerRadius(12)
     }
 
-    // MARK: - Fleet Analytics
-    private var fleetAnalyticsSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("Fleet Analytics")
-                .font(.headline)
+    // MARK: - Compact Analytics
+    private var compactAnalyticsSection: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Text("Fleet Analytics")
+                    .font(.caption.bold())
+                    .foregroundColor(.secondary)
+                Spacer()
+                NavigationLink(destination: Text("Detailed Analytics")) {
+                    HStack(spacing: 2) {
+                        Text("Details")
+                            .font(.caption2)
+                        Image(systemName: "chevron.right")
+                            .font(.caption2)
+                    }
+                    .foregroundColor(.blue)
+                }
+            }
+            .padding(.horizontal, 4)
 
             if let stats = viewModel.stats {
-                VStack(spacing: 12) {
-                    analyticsRow(
+                VStack(spacing: 8) {
+                    compactAnalyticsRow(
                         title: "Fleet Utilization",
                         value: stats.fleetUtilization,
                         max: 100,
                         color: .blue
                     )
 
-                    analyticsRow(
+                    compactAnalyticsRow(
                         title: "Driver Efficiency",
                         value: 85,
                         max: 100,
                         color: .green
                     )
 
-                    analyticsRow(
+                    compactAnalyticsRow(
                         title: "Fuel Efficiency",
                         value: 72,
                         max: 100,
                         color: .purple
                     )
                 }
-                .padding()
+                .padding(12)
                 .background(Color(.secondarySystemGroupedBackground))
                 .cornerRadius(12)
             }
         }
     }
 
-    private func analyticsRow(title: String, value: Double, max: Double, color: Color) -> some View {
+    private func compactAnalyticsRow(title: String, value: Double, max: Double, color: Color) -> some View {
         VStack(alignment: .leading, spacing: 4) {
             HStack {
                 Text(title)
-                    .font(.caption)
+                    .font(.caption2)
                     .foregroundColor(.secondary)
                 Spacer()
-                Text(String(format: "%.1f%%", value))
+                Text(String(format: "%.0f%%", value))
                     .font(.caption.bold())
+                    .foregroundColor(color)
             }
 
             GeometryReader { geometry in
                 ZStack(alignment: .leading) {
-                    RoundedRectangle(cornerRadius: 4)
+                    RoundedRectangle(cornerRadius: 3)
                         .fill(Color(.systemGray5))
-                        .frame(height: 6)
+                        .frame(height: 5)
 
-                    RoundedRectangle(cornerRadius: 4)
+                    RoundedRectangle(cornerRadius: 3)
                         .fill(color)
-                        .frame(width: geometry.size.width * (value / max), height: 6)
+                        .frame(width: geometry.size.width * (value / max), height: 5)
                 }
             }
-            .frame(height: 6)
+            .frame(height: 5)
         }
     }
+}
 
-    // MARK: - Maintenance Overview
-    private var maintenanceOverviewSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                Text("Maintenance Overview")
-                    .font(.headline)
-                Spacer()
-                NavigationLink(destination: Text("All Maintenance")) {
-                    HStack(spacing: 4) {
-                        Text("View All")
-                            .font(.caption)
-                        Image(systemName: "chevron.right")
-                            .font(.caption2)
-                    }
-                }
-            }
+// MARK: - Compact Stat Card
+struct CompactStatCard: View {
+    let title: String
+    let value: String
+    let subtitle: String
+    let icon: String
+    let color: Color
 
-            LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
-                maintenanceCard(title: "Due Now", count: 5, color: .red, icon: "exclamationmark.triangle.fill")
-                maintenanceCard(title: "This Week", count: 12, color: .orange, icon: "calendar.fill")
-                maintenanceCard(title: "Scheduled", count: 23, color: .blue, icon: "checkmark.circle.fill")
-                maintenanceCard(title: "Completed", count: 87, color: .green, icon: "checkmark.seal.fill")
-            }
-        }
-    }
-
-    private func maintenanceCard(title: String, count: Int, color: Color, icon: String) -> some View {
+    var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Image(systemName: icon)
-                .font(.title3)
-                .foregroundColor(color)
+            HStack {
+                Image(systemName: icon)
+                    .font(.title3)
+                    .foregroundColor(color)
+                Spacer()
+            }
 
-            Text("\(count)")
-                .font(.title.bold())
+            Text(value)
+                .font(.title2.bold())
 
-            Text(title)
-                .font(.caption)
-                .foregroundColor(.secondary)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(title)
+                    .font(.caption2.bold())
+                    .foregroundColor(.secondary)
+                Text(subtitle)
+                    .font(.caption2)
+                    .foregroundColor(.secondary)
+            }
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
         .padding()
+        .frame(width: 140, height: 120)
         .background(Color(.secondarySystemGroupedBackground))
         .cornerRadius(12)
-    }
-
-    // MARK: - Recent Activity
-    private var recentActivitySection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("Recent Activity")
-                .font(.headline)
-
-            if viewModel.recentActivity.isEmpty {
-                EmptyStateCard(
-                    icon: "tray.fill",
-                    title: "No Recent Activity",
-                    message: "Activity will appear here as it happens"
-                )
-            } else {
-                LazyVStack(spacing: 8) {
-                    ForEach(viewModel.recentActivity.prefix(5)) { activity in
-                        ActivityRow(activity: activity)
-                    }
-                }
-                .padding()
-                .background(Color(.secondarySystemGroupedBackground))
-                .cornerRadius(12)
-            }
-        }
     }
 }
 
