@@ -1049,78 +1049,108 @@ export function FleetDashboard({ data }: FleetDashboardProps) {
             </button>
           </CollapsibleTrigger>
           <CollapsibleContent>
-        <CardContent className="px-4 pb-4 pt-3">
-          <div className="space-y-2">
-            {filteredVehicles.slice(0, 10).map(vehicle => {
-              // Check if vehicle was recently updated (within last 5 seconds)
-              const wasRecentlyUpdated = vehicle.lastUpdated &&
-                (new Date().getTime() - new Date(vehicle.lastUpdated).getTime()) < 5000
+        <CardContent className="px-0 pb-0">
+          <div className="border-x border-b rounded-b-lg overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-muted/50 border-b sticky top-0">
+                  <tr>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">Vehicle ID</th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">Vehicle</th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">Type</th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">Status</th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">Driver</th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">Fuel</th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">Region</th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">Department</th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">Location</th>
+                    <th className="px-4 py-3 text-right text-xs font-semibold text-muted-foreground uppercase tracking-wider">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border bg-card">
+                  {filteredVehicles.map(vehicle => {
+                    // Check if vehicle was recently updated (within last 5 seconds)
+                    const wasRecentlyUpdated = vehicle.lastUpdated &&
+                      (new Date().getTime() - new Date(vehicle.lastUpdated).getTime()) < 5000
 
-              return (
-                <div
-                  key={vehicle.id}
-                  onClick={() => handleVehicleDrilldown(vehicle)}
-                  className={`flex items-center justify-between p-3 border rounded-lg cursor-pointer hover:bg-muted/50 hover:border-primary/50 hover:shadow-sm transition-all duration-200 group ${
-                    wasRecentlyUpdated
-                      ? 'border-blue-500/50 bg-blue-50/30 dark:bg-blue-950/20'
-                      : 'border-border/50'
-                  }`}
-                >
-                  <div className="flex items-center gap-2">
-                    <div className={`relative p-1 rounded ${getStatusColor(vehicle.status)}`}>
-                      <Car className="w-3 h-3" />
-                      {wasRecentlyUpdated && (
-                        <Circle
-                          className="absolute -top-0.5 -right-0.5 w-2 h-2 fill-blue-500 text-blue-500 animate-pulse"
-                          weight="fill"
-                        />
-                      )}
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-1.5">
-                        <p className="text-xs font-medium group-hover:text-primary transition-colors">{vehicle.number}</p>
-                        {wasRecentlyUpdated && (
-                          <Badge variant="outline" className="h-3.5 px-1 text-[8px] bg-blue-100 text-blue-700 border-blue-300 dark:bg-blue-950 dark:text-blue-400 dark:border-blue-800">
-                            LIVE
+                    return (
+                      <tr
+                        key={vehicle.id}
+                        onClick={() => handleVehicleDrilldown(vehicle)}
+                        className={`hover:bg-muted/30 transition-colors cursor-pointer ${
+                          wasRecentlyUpdated ? 'bg-blue-50/50 dark:bg-blue-950/20' : ''
+                        }`}
+                      >
+                        <td className="px-4 py-3 text-sm font-medium">
+                          <div className="flex items-center gap-2">
+                            {vehicle.number}
+                            {wasRecentlyUpdated && (
+                              <Badge variant="outline" className="h-4 px-1 text-[8px] bg-blue-100 text-blue-700 border-blue-300 dark:bg-blue-950 dark:text-blue-400 dark:border-blue-800">
+                                LIVE
+                              </Badge>
+                            )}
+                          </div>
+                        </td>
+                        <td className="px-4 py-3 text-sm">
+                          <div>
+                            <p className="font-medium">{vehicle.make} {vehicle.model}</p>
+                            <p className="text-xs text-muted-foreground">{vehicle.year}</p>
+                          </div>
+                        </td>
+                        <td className="px-4 py-3 text-sm capitalize">{vehicle.type}</td>
+                        <td className="px-4 py-3 text-sm">
+                          <Badge variant="outline" className={`${getStatusColor(vehicle.status)}`}>
+                            {vehicle.status}
                           </Badge>
-                        )}
-                      </div>
-                      <p className="text-[10px] text-muted-foreground">
-                        {vehicle.year} {vehicle.make} {vehicle.model}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="text-right">
-                      <p className="text-[10px] font-medium">{vehicle.region}</p>
-                      <p className="text-[9px] text-muted-foreground">{vehicle.department}</p>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <BatteryMedium className="w-3 h-3 text-muted-foreground" />
-                      <span className="text-[10px]">{vehicle.fuelLevel}%</span>
-                    </div>
-                    <Badge variant="outline" className={`${getStatusColor(vehicle.status)} h-5 px-1.5 text-[10px]`}>
-                      {vehicle.status}
-                    </Badge>
-                    <ArrowRight className="w-3 h-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
-                  </div>
-                </div>
-              )
-            })}
-            {filteredVehicles.length > 10 && (
-              <Button
-                variant="outline"
-                className="w-full mt-1.5 h-7 text-xs"
-                onClick={() => drilldownPush({
-                  id: 'all-vehicles',
-                  type: 'vehicle-list',
-                  label: `All Vehicles (${filteredVehicles.length})`,
-                  data: { vehicles: filteredVehicles }
-                })}
-              >
-                View all {filteredVehicles.length} vehicles
-                <ArrowRight className="w-3 h-3 ml-1.5" />
-              </Button>
+                        </td>
+                        <td className="px-4 py-3 text-sm">{vehicle.assignedDriver || '-'}</td>
+                        <td className="px-4 py-3 text-sm">
+                          <div className="flex items-center gap-1.5">
+                            <BatteryMedium className="w-3.5 h-3.5 text-muted-foreground" />
+                            <span className={vehicle.fuelLevel < 25 ? 'text-warning font-medium' : ''}>
+                              {vehicle.fuelLevel}%
+                            </span>
+                          </div>
+                        </td>
+                        <td className="px-4 py-3 text-sm">{vehicle.region}</td>
+                        <td className="px-4 py-3 text-sm text-muted-foreground">{vehicle.department}</td>
+                        <td className="px-4 py-3 text-sm text-muted-foreground truncate max-w-[200px]">
+                          {vehicle.location?.address || 'Unknown'}
+                        </td>
+                        <td className="px-4 py-3 text-sm text-right">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              handleVehicleDrilldown(vehicle)
+                            }}
+                          >
+                            View
+                          </Button>
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
+            {filteredVehicles.length > 20 && (
+              <div className="border-t p-3 bg-muted/20">
+                <Button
+                  variant="outline"
+                  className="w-full h-8 text-xs"
+                  onClick={() => drilldownPush({
+                    id: 'all-vehicles',
+                    type: 'vehicle-list',
+                    label: `All Vehicles (${filteredVehicles.length})`,
+                    data: { vehicles: filteredVehicles }
+                  })}
+                >
+                  View all {filteredVehicles.length} vehicles
+                  <ArrowRight className="w-3 h-3 ml-1.5" />
+                </Button>
+              </div>
             )}
           </div>
         </CardContent>
