@@ -1,5 +1,4 @@
 import { useMemo, useState, useEffect, useCallback } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -8,31 +7,17 @@ import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Slider } from "@/components/ui/slider"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { MetricCard } from "@/components/MetricCard"
 import { AddVehicleDialog } from "@/components/dialogs/AddVehicleDialog"
 import { ProfessionalFleetMap } from "@/components/Maps/ProfessionalFleetMap"
-import { AssetTypeFilter, FilterState as AssetFilterState } from "@/components/filters/AssetTypeFilter"
-import { SystemStatusPanel } from "@/components/dashboard/SystemStatusPanel"
-import { AIInsightsPanel } from "@/components/dashboard/AIInsightsPanel"
 import {
   Car,
-  Pulse,
   BatteryMedium,
-  Wrench,
-  Warning,
-  Lightning,
   MapPin,
-  Buildings,
   MagnifyingGlass,
   FunnelSimple,
   X,
   Broadcast,
-  Circle,
-  ArrowRight,
-  CaretRight,
-  CaretUp
+  Circle
 } from "@phosphor-icons/react"
 import { Vehicle } from "@/lib/types"
 import { useFleetData } from "@/hooks/use-fleet-data"
@@ -172,116 +157,22 @@ export function FleetDashboard({ data }: FleetDashboardProps) {
     return initialVehicles
   }, [initialVehicles, realtimeVehicles])
 
-  const [vehicleTypeFilter, setVehicleTypeFilter] = useState<string>("all")
-  const [regionFilter, setRegionFilter] = useState<string>("all")
   const [statusFilter, setStatusFilter] = useState<string>("all")
   const [searchQuery, setSearchQuery] = useState<string>("")
-
-  // Asset Type Filters state
-  const [assetFilters, setAssetFilters] = useState<AssetFilterState>({})
-  const [showAssetFilters, setShowAssetFilters] = useState(false)
 
   // Advanced filters state
   const [isAdvancedFiltersOpen, setIsAdvancedFiltersOpen] = useState(false)
   const [filterCriteria, setFilterCriteria] = useState<AdvancedFilterCriteria>(defaultFilterCriteria)
   const [appliedFilters, setAppliedFilters] = useState<AdvancedFilterCriteria>(defaultFilterCriteria)
 
-  // Collapsible sections state for minimal scrolling
-  const [showStatusPanel, setShowStatusPanel] = useState(true)
-  const [showMap, setShowMap] = useState(true)
-  const [showAnalytics, setShowAnalytics] = useState(false)
-  const [showVehicleList, setShowVehicleList] = useState(true)
-
-  // Sync asset filters with URL parameters
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search)
-    const newFilters: AssetFilterState = {}
-
-    if (params.get('asset_category')) newFilters.asset_category = params.get('asset_category') as any
-    if (params.get('asset_type')) newFilters.asset_type = params.get('asset_type') as any
-    if (params.get('power_type')) newFilters.power_type = params.get('power_type') as any
-    if (params.get('operational_status')) newFilters.operational_status = params.get('operational_status') as any
-    if (params.get('primary_metric')) newFilters.primary_metric = params.get('primary_metric') as any
-    if (params.get('is_road_legal')) newFilters.is_road_legal = params.get('is_road_legal') === 'true'
-
-    if (Object.keys(newFilters).length > 0) {
-      setAssetFilters(newFilters)
-      setShowAssetFilters(true)
-    }
-  }, [])
-
-  // Update URL parameters when asset filters change
-  const handleAssetFilterChange = (newFilters: AssetFilterState) => {
-    setAssetFilters(newFilters)
-
-    // Update URL parameters
-    const params = new URLSearchParams()
-    Object.entries(newFilters).forEach(([key, value]) => {
-      if (value !== undefined) {
-        params.set(key, String(value))
-      }
-    })
-
-    const newUrl = params.toString()
-      ? `${window.location.pathname}?${params.toString()}`
-      : window.location.pathname
-    window.history.replaceState({}, '', newUrl)
-
-    // In a real implementation, you would fetch vehicles from API here:
-    // fetchVehiclesWithFilters(newFilters)
-  }
-
-  const handleClearAssetFilters = () => {
-    setAssetFilters({})
-    window.history.replaceState({}, '', window.location.pathname)
-    // In a real implementation, you would fetch all vehicles:
-    // fetchVehiclesWithFilters({})
-  }
-
-  // Function to fetch vehicles from API with filters (for future use)
-  const fetchVehiclesWithFilters = async (filters: AssetFilterState) => {
-    try {
-      const params: any = {}
-      if (filters.asset_category) params.asset_category = filters.asset_category
-      if (filters.asset_type) params.asset_type = filters.asset_type
-      if (filters.power_type) params.power_type = filters.power_type
-      if (filters.operational_status) params.operational_status = filters.operational_status
-      if (filters.primary_metric) params.primary_metric = filters.primary_metric
-      if (filters.is_road_legal !== undefined) params.is_road_legal = filters.is_road_legal
-
-      // Uncomment when API is ready:
-      // const response = await apiClient.vehicles.list(params)
-      // Update vehicles state with response
-      console.log('Fetching vehicles with filters:', params)
-    } catch (error) {
-      console.error('Error fetching vehicles:', error)
-    }
-  }
-
   const filteredVehicles = useMemo(() => {
     return vehicles.filter(v => {
       // Basic filters
-      const matchesType = vehicleTypeFilter === "all" || v.type === vehicleTypeFilter
-      const matchesRegion = regionFilter === "all" || v.region === regionFilter
       const matchesStatus = statusFilter === "all" || v.status === statusFilter
       const matchesSearch = !searchQuery || searchQuery === "" ||
         v.number.toLowerCase().includes(searchQuery.toLowerCase()) ||
         v.make.toLowerCase().includes(searchQuery.toLowerCase()) ||
         v.model.toLowerCase().includes(searchQuery.toLowerCase())
-
-      // Asset type filters
-      const matchesAssetCategory = !assetFilters.asset_category ||
-        (v as any).asset_category === assetFilters.asset_category
-      const matchesAssetType = !assetFilters.asset_type ||
-        (v as any).asset_type === assetFilters.asset_type
-      const matchesPowerType = !assetFilters.power_type ||
-        (v as any).power_type === assetFilters.power_type
-      const matchesOperationalStatus = !assetFilters.operational_status ||
-        (v as any).operational_status === assetFilters.operational_status
-      const matchesPrimaryMetric = !assetFilters.primary_metric ||
-        (v as any).primary_metric === assetFilters.primary_metric
-      const matchesRoadLegal = assetFilters.is_road_legal === undefined ||
-        (v as any).is_road_legal === assetFilters.is_road_legal
 
       // Advanced filters
       const matchesAdvancedStatus = appliedFilters.vehicleStatus.length === 0 ||
@@ -336,15 +227,13 @@ export function FleetDashboard({ data }: FleetDashboardProps) {
         }
       })()
 
-      return matchesType && matchesRegion && matchesStatus && matchesSearch &&
-        matchesAssetCategory && matchesAssetType && matchesPowerType &&
-        matchesOperationalStatus && matchesPrimaryMetric && matchesRoadLegal &&
+      return matchesStatus && matchesSearch &&
         matchesAdvancedStatus && matchesDepartment && matchesAdvancedRegion &&
         matchesFuelLevel && matchesMileage && matchesAlertStatus &&
         matchesDriverAssignment && matchesAdvancedVehicleType &&
         matchesYearRange && matchesLastMaintenance
     })
-  }, [vehicles, vehicleTypeFilter, regionFilter, statusFilter, searchQuery, assetFilters, appliedFilters])
+  }, [vehicles, statusFilter, searchQuery, appliedFilters])
 
   const metrics = useMemo(() => {
     const total = filteredVehicles.length
@@ -433,730 +322,205 @@ export function FleetDashboard({ data }: FleetDashboardProps) {
     .filter(v => v.type === "emergency" || (v.alerts?.length || 0) > 0)
     .slice(0, 5)
 
+  const getStatusVariant = (status: Vehicle["status"]) => {
+    const variants: Record<Vehicle["status"], "default" | "secondary" | "destructive" | "outline"> = {
+      active: "default",
+      idle: "secondary",
+      charging: "default",
+      service: "destructive",
+      emergency: "destructive",
+      offline: "secondary"
+    }
+    return variants[status] || "default"
+  }
+
   return (
-    <div className="space-y-4">
-      <div className="flex flex-col gap-3">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <h1 className="text-2xl font-bold tracking-tight bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">Fleet Dashboard</h1>
-            {/* Real-time Status Indicator */}
-            <div className="flex items-center gap-1.5">
-              <div className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium ${
-                isRealtimeConnected
-                  ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
-                  : 'bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400'
-              }`}>
-                <Circle
-                  className={`w-1.5 h-1.5 ${isRealtimeConnected ? 'fill-green-500 animate-pulse' : 'fill-gray-400'}`}
-                  weight="fill"
-                />
-                {isRealtimeConnected ? 'Live' : 'Offline'}
-              </div>
-              {isEmulatorRunning && (
-                <div className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
-                  <Broadcast className="w-2.5 h-2.5 animate-pulse" />
-                  Emulator
-                </div>
-              )}
-              {lastTelemetryUpdate && (
-                <span className="text-[10px] text-muted-foreground">
-                  {lastTelemetryUpdate.toLocaleTimeString()}
-                </span>
-              )}
-            </div>
-          </div>
-          <div className="flex gap-1.5">
-            <AddVehicleDialog onAdd={data.addVehicle} />
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setShowAssetFilters(!showAssetFilters)}
-              className={Object.keys(assetFilters).length > 0 ? "border-primary h-7 text-xs" : "h-7 text-xs"}
-            >
-              <FunnelSimple className="w-3 h-3 mr-1.5" />
-              Asset
-              {Object.keys(assetFilters).length > 0 && (
-                <Badge variant="secondary" className="ml-1.5 h-4 px-1 text-[10px]">
-                  {Object.keys(assetFilters).length}
-                </Badge>
-              )}
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setIsAdvancedFiltersOpen(true)}
-              className={hasActiveFilters ? "border-primary h-7 text-xs" : "h-7 text-xs"}
-            >
-              <FunnelSimple className="w-3 h-3 mr-1.5" />
-              Advanced
-              {hasActiveFilters && (
-                <Badge variant="secondary" className="ml-1.5 h-4 px-1 text-[10px]">
-                  On
-                </Badge>
-              )}
-            </Button>
-          </div>
-        </div>
-
-        {/* Asset Type Filter Component */}
-        {showAssetFilters && (
-          <div className="mb-2">
-            <AssetTypeFilter
-              onFilterChange={handleAssetFilterChange}
-              onClear={handleClearAssetFilters}
-              activeFilters={assetFilters}
-            />
-          </div>
-        )}
-
-        <div className="flex flex-wrap gap-2">
-          <div className="relative flex-1 min-w-[180px]">
-            <MagnifyingGlass className="absolute left-2 top-1/2 -translate-y-1/2 w-3 h-3 text-muted-foreground" />
-            <Input
-              placeholder="Search vehicles..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-7 h-8 text-xs"
-            />
-          </div>
-
-          <Select value={vehicleTypeFilter} onValueChange={setVehicleTypeFilter}>
-            <SelectTrigger className="w-[140px] h-8 text-xs">
-              <SelectValue placeholder="Vehicle Type" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Types</SelectItem>
-              {types.map(type => (
-                <SelectItem key={type} value={type}>
-                  {type.charAt(0).toUpperCase() + type.slice(1)}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
-          <Select value={regionFilter} onValueChange={setRegionFilter}>
-            <SelectTrigger className="w-[140px] h-8 text-xs">
-              <SelectValue placeholder="Region" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Regions</SelectItem>
-              {regions.map(region => (
-                <SelectItem key={region} value={region}>
-                  {region}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-[140px] h-8 text-xs">
-              <SelectValue placeholder="Status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Status</SelectItem>
-              <SelectItem value="active">Active</SelectItem>
-              <SelectItem value="idle">Idle</SelectItem>
-              <SelectItem value="charging">Charging</SelectItem>
-              <SelectItem value="service">Service</SelectItem>
-              <SelectItem value="emergency">Emergency</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
-        {/* Active Filter Badges */}
-        {hasActiveFilters && (
-          <div className="flex flex-wrap gap-1.5 items-center">
-            <span className="text-xs text-muted-foreground">Active filters:</span>
-            {appliedFilters.vehicleStatus.map(status => (
-              <Badge key={status} variant="secondary" className="gap-1">
-                Status: {status}
-                <X
-                  className="w-3 h-3 cursor-pointer hover:text-destructive"
-                  onClick={() => removeFilter("vehicleStatus", status)}
-                />
-              </Badge>
-            ))}
-            {appliedFilters.departments.map(dept => (
-              <Badge key={dept} variant="secondary" className="gap-1">
-                Dept: {dept}
-                <X
-                  className="w-3 h-3 cursor-pointer hover:text-destructive"
-                  onClick={() => removeFilter("departments", dept)}
-                />
-              </Badge>
-            ))}
-            {appliedFilters.regions.map(region => (
-              <Badge key={region} variant="secondary" className="gap-1">
-                Region: {region}
-                <X
-                  className="w-3 h-3 cursor-pointer hover:text-destructive"
-                  onClick={() => removeFilter("regions", region)}
-                />
-              </Badge>
-            ))}
-            {appliedFilters.vehicleTypes.map(type => (
-              <Badge key={type} variant="secondary" className="gap-1">
-                Type: {type}
-                <X
-                  className="w-3 h-3 cursor-pointer hover:text-destructive"
-                  onClick={() => removeFilter("vehicleTypes", type)}
-                />
-              </Badge>
-            ))}
-            {(appliedFilters.fuelLevelRange[0] !== 0 || appliedFilters.fuelLevelRange[1] !== 100) && (
-              <Badge variant="secondary" className="gap-1">
-                Fuel: {appliedFilters.fuelLevelRange[0]}-{appliedFilters.fuelLevelRange[1]}%
-                <X
-                  className="w-3 h-3 cursor-pointer hover:text-destructive"
-                  onClick={() => removeFilter("fuelLevelRange")}
-                />
-              </Badge>
-            )}
-            {(appliedFilters.mileageRange.min !== null || appliedFilters.mileageRange.max !== null) && (
-              <Badge variant="secondary" className="gap-1">
-                Mileage: {appliedFilters.mileageRange.min ?? 0}-{appliedFilters.mileageRange.max ?? "\u221E"}
-                <X
-                  className="w-3 h-3 cursor-pointer hover:text-destructive"
-                  onClick={() => removeFilter("mileageRange")}
-                />
-              </Badge>
-            )}
-            {appliedFilters.alertStatus.map(alert => (
-              <Badge key={alert} variant="secondary" className="gap-1">
-                Alert: {alert}
-                <X
-                  className="w-3 h-3 cursor-pointer hover:text-destructive"
-                  onClick={() => removeFilter("alertStatus", alert)}
-                />
-              </Badge>
-            ))}
-            {appliedFilters.driverAssigned !== "all" && (
-              <Badge variant="secondary" className="gap-1">
-                Driver: {appliedFilters.driverAssigned}
-                <X
-                  className="w-3 h-3 cursor-pointer hover:text-destructive"
-                  onClick={() => removeFilter("driverAssigned")}
-                />
-              </Badge>
-            )}
-            {(appliedFilters.yearRange.from !== null || appliedFilters.yearRange.to !== null) && (
-              <Badge variant="secondary" className="gap-1">
-                Year: {appliedFilters.yearRange.from ?? ""}-{appliedFilters.yearRange.to ?? ""}
-                <X
-                  className="w-3 h-3 cursor-pointer hover:text-destructive"
-                  onClick={() => removeFilter("yearRange")}
-                />
-              </Badge>
-            )}
-            {appliedFilters.lastMaintenance !== "all" && (
-              <Badge variant="secondary" className="gap-1">
-                Maintenance: {appliedFilters.lastMaintenance}
-                <X
-                  className="w-3 h-3 cursor-pointer hover:text-destructive"
-                  onClick={() => removeFilter("lastMaintenance")}
-                />
-              </Badge>
-            )}
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleResetFilters}
-              className="h-6 text-xs"
-            >
-              Clear all
-            </Button>
-          </div>
-        )}
-      </div>
-
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2">
-        <div
-          onClick={() => handleMetricDrilldown('total', metrics.total, 'Total Vehicles')}
-          className="cursor-pointer transition-all duration-200 hover:scale-[1.02] hover:shadow-md active:scale-[0.98]"
-        >
-          <MetricCard
-            title="Total Vehicles"
-            value={metrics.total}
-            subtitle={`${metrics.active} active now`}
-            icon={<Car className="w-3 h-3" />}
-            status="info"
-          />
-        </div>
-        <div
-          onClick={() => handleStatusDrilldown('active', metrics.active)}
-          className="cursor-pointer transition-all duration-200 hover:scale-[1.02] hover:shadow-md active:scale-[0.98]"
-        >
-          <MetricCard
-            title="Active Vehicles"
-            value={metrics.active}
-            change={5.2}
-            trend="up"
-            subtitle="on the road"
-            icon={<Pulse className="w-3 h-3" />}
-            status="success"
-          />
-        </div>
-        <div
-          onClick={() => handleMetricDrilldown('fuel', metrics.avgFuelLevel, 'Avg Fuel Level')}
-          className="cursor-pointer transition-all duration-200 hover:scale-[1.02] hover:shadow-md active:scale-[0.98]"
-        >
-          <MetricCard
-            title="Avg Fuel Level"
-            value={`${metrics.avgFuelLevel}%`}
-            change={metrics.lowFuel > 5 ? 3.1 : 0}
-            trend={metrics.lowFuel > 5 ? "down" : "neutral"}
-            subtitle={`${metrics.lowFuel} low fuel`}
-            icon={<BatteryMedium className="w-3 h-3" />}
-            status={metrics.lowFuel > 5 ? "warning" : "success"}
-          />
-        </div>
-        <div
-          onClick={() => handleStatusDrilldown('service', metrics.service)}
-          className="cursor-pointer transition-all duration-200 hover:scale-[1.02] hover:shadow-md active:scale-[0.98]"
-        >
-          <MetricCard
-            title="Service Required"
-            value={metrics.service}
-            change={metrics.alerts > 10 ? 12 : 0}
-            trend={metrics.alerts > 10 ? "up" : "neutral"}
-            subtitle={`${metrics.alerts} alerts`}
-            icon={<Wrench className="w-3 h-3" />}
-            status={metrics.service > 5 ? "warning" : "info"}
-          />
-        </div>
-        {/* Emulator Stats Card */}
-        {isEmulatorRunning && emulatorStats && (
-          <div className="col-span-2 cursor-pointer transition-all duration-200 hover:scale-[1.02] hover:shadow-md active:scale-[0.98]">
-            <MetricCard
-              title="Emulator Stats"
-              value={emulatorStats.activeVehicles}
-              subtitle={`${emulatorStats.eventsPerSecond.toFixed(1)} events/sec`}
-              icon={<Broadcast className="w-3 h-3 animate-pulse" />}
-              status="info"
-            />
-          </div>
-        )}
-      </div>
-
-      {/* System Status & AI Insights Row - Collapsible */}
-      <Collapsible open={showStatusPanel} onOpenChange={setShowStatusPanel}>
-        <Card className="shadow-sm border-border/50 bg-card dark:bg-card">
-          <CollapsibleTrigger asChild>
-            <button className="w-full">
-              <CardHeader className="px-4 py-3 border-b border-border/50 bg-muted/30 dark:bg-muted/20 hover:bg-muted/50 dark:hover:bg-muted/30 transition-colors cursor-pointer">
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                    <Pulse className="w-4 h-4 text-primary dark:text-primary" />
-                    System Status & AI Insights
-                  </CardTitle>
-                  {showStatusPanel ? (
-                    <CaretUp className="w-4 h-4 text-muted-foreground dark:text-muted-foreground" />
-                  ) : (
-                    <CaretRight className="w-4 h-4 text-muted-foreground dark:text-muted-foreground" />
-                  )}
-                </div>
-              </CardHeader>
-            </button>
-          </CollapsibleTrigger>
-          <CollapsibleContent>
-            <CardContent className="p-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <SystemStatusPanel
-                  emulators={systemStatus.emulators}
-                  aiServices={systemStatus.aiServices}
-                  healthMetrics={systemStatus.healthMetrics}
-                  onStartEmulator={systemStatus.startEmulator}
-                  onStopEmulator={systemStatus.stopEmulator}
-                />
-                <AIInsightsPanel
-                  insights={systemStatus.aiInsights}
-                  onDismiss={systemStatus.dismissInsight}
-                />
-              </div>
-            </CardContent>
-          </CollapsibleContent>
-        </Card>
-      </Collapsible>
-
-      {/* Professional Fleet Map - Collapsible */}
-      <Collapsible open={showMap} onOpenChange={setShowMap}>
-        <Card className="shadow-sm border-border/50 bg-card dark:bg-card">
-          <CollapsibleTrigger asChild>
-            <button className="w-full">
-              <CardHeader className="px-4 py-3 border-b border-border/50 bg-muted/30 dark:bg-muted/20 hover:bg-muted/50 dark:hover:bg-muted/30 transition-colors cursor-pointer">
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                    <MapPin className="w-4 h-4 text-primary dark:text-primary" />
-                    Fleet Map {isRealtimeConnected && <Badge variant="outline" className="text-[10px] h-5 bg-green-100 text-green-700 border-green-300 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800">Live</Badge>}
-                  </CardTitle>
-                  {showMap ? (
-                    <CaretUp className="w-4 h-4 text-muted-foreground dark:text-muted-foreground" />
-                  ) : (
-                    <CaretRight className="w-4 h-4 text-muted-foreground dark:text-muted-foreground" />
-                  )}
-                </div>
-              </CardHeader>
-            </button>
-          </CollapsibleTrigger>
-          <CollapsibleContent>
-            <CardContent className="p-0">
-              <ProfessionalFleetMap
-                vehicles={filteredVehicles}
-                facilities={data.facilities}
-                height="400px"
-                onVehicleSelect={(vehicleId) => {
-                  const vehicle = filteredVehicles.find(v => v.id === vehicleId)
-                  if (vehicle) {
-                    handleVehicleDrilldown(vehicle)
-                  }
-                }}
-                showLegend={true}
-                enableRealTime={isRealtimeConnected}
+    <div className="h-full flex flex-col gap-3 p-4">
+      {/* Header Row */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <h1 className="text-2xl font-bold tracking-tight bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">Fleet Dashboard</h1>
+          {/* Real-time Status Indicator */}
+          <div className="flex items-center gap-1.5">
+            <div className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium ${
+              isRealtimeConnected
+                ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+                : 'bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400'
+            }`}>
+              <Circle
+                className={`w-1.5 h-1.5 ${isRealtimeConnected ? 'fill-green-500 animate-pulse' : 'fill-gray-400'}`}
+                weight="fill"
               />
-            </CardContent>
-          </CollapsibleContent>
-        </Card>
-      </Collapsible>
-
-      {/* Analytics & Distribution - Collapsible */}
-      <Collapsible open={showAnalytics} onOpenChange={setShowAnalytics}>
-        <Card className="shadow-sm border-border/50 bg-card dark:bg-card">
-          <CollapsibleTrigger asChild>
-            <button className="w-full">
-              <CardHeader className="px-4 py-3 border-b border-border/50 bg-muted/30 dark:bg-muted/20 hover:bg-muted/50 dark:hover:bg-muted/30 transition-colors cursor-pointer">
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                    <Buildings className="w-4 h-4 text-primary dark:text-primary" />
-                    Fleet Analytics & Distribution
-                  </CardTitle>
-                  {showAnalytics ? (
-                    <CaretUp className="w-4 h-4 text-muted-foreground dark:text-muted-foreground" />
-                  ) : (
-                    <CaretRight className="w-4 h-4 text-muted-foreground dark:text-muted-foreground" />
-                  )}
-                </div>
-              </CardHeader>
-            </button>
-          </CollapsibleTrigger>
-          <CollapsibleContent>
-            <CardContent className="p-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        <Card className="shadow-sm border-border/50">
-          <CardHeader className="px-4 py-3 border-b border-border/50 bg-muted/30">
-            <CardTitle className="text-sm font-semibold flex items-center gap-2">
-              <Pulse className="w-4 h-4 text-green-600" />
-              Status Distribution
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-1 px-3 pb-3">
-            <div
-              onClick={() => handleStatusDrilldown('active', metrics.active)}
-              className="flex items-center justify-between p-1.5 rounded cursor-pointer hover:bg-muted/50 transition-colors group"
-            >
-              <span className="text-xs text-muted-foreground group-hover:text-foreground">Active</span>
-              <div className="flex items-center gap-1.5">
-                <Badge variant="outline" className="bg-success/10 text-success border-success/20 h-5 px-1.5 text-xs">
-                  {metrics.active}
-                </Badge>
-                <CaretRight className="w-3 h-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
-              </div>
+              {isRealtimeConnected ? 'Live' : 'Offline'}
             </div>
-            <div
-              onClick={() => handleStatusDrilldown('idle', metrics.idle)}
-              className="flex items-center justify-between p-1.5 rounded cursor-pointer hover:bg-muted/50 transition-colors group"
-            >
-              <span className="text-xs text-muted-foreground group-hover:text-foreground">Idle</span>
-              <div className="flex items-center gap-1.5">
-                <Badge variant="outline" className="bg-muted text-muted-foreground h-5 px-1.5 text-xs">
-                  {metrics.idle}
-                </Badge>
-                <CaretRight className="w-3 h-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
-              </div>
-            </div>
-            <div
-              onClick={() => handleStatusDrilldown('charging', metrics.charging)}
-              className="flex items-center justify-between p-1.5 rounded cursor-pointer hover:bg-muted/50 transition-colors group"
-            >
-              <span className="text-xs text-muted-foreground group-hover:text-foreground">Charging</span>
-              <div className="flex items-center gap-1.5">
-                <Badge variant="outline" className="bg-accent/10 text-accent border-accent/20 h-5 px-1.5 text-xs">
-                  {metrics.charging}
-                </Badge>
-                <CaretRight className="w-3 h-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
-              </div>
-            </div>
-            <div
-              onClick={() => handleStatusDrilldown('service', metrics.service)}
-              className="flex items-center justify-between p-1.5 rounded cursor-pointer hover:bg-muted/50 transition-colors group"
-            >
-              <span className="text-xs text-muted-foreground group-hover:text-foreground">Service</span>
-              <div className="flex items-center gap-1.5">
-                <Badge variant="outline" className="bg-warning/10 text-warning border-warning/20 h-5 px-1.5 text-xs">
-                  {metrics.service}
-                </Badge>
-                <CaretRight className="w-3 h-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
-              </div>
-            </div>
-            <div
-              onClick={() => handleStatusDrilldown('emergency', metrics.emergency)}
-              className="flex items-center justify-between p-1.5 rounded cursor-pointer hover:bg-muted/50 transition-colors group"
-            >
-              <span className="text-xs text-muted-foreground group-hover:text-foreground">Emergency</span>
-              <div className="flex items-center gap-1.5">
-                <Badge variant="outline" className="bg-destructive/10 text-destructive border-destructive/20 h-5 px-1.5 text-xs">
-                  {metrics.emergency}
-                </Badge>
-                <CaretRight className="w-3 h-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="shadow-sm border-border/50">
-          <CardHeader className="px-4 py-3 border-b border-border/50 bg-muted/30">
-            <CardTitle className="text-sm font-semibold flex items-center gap-2">
-              <MapPin className="w-4 h-4 text-blue-600" />
-              Regional Distribution
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-1 px-3 pb-3">
-            {regions.map(region => {
-              const count = filteredVehicles.filter(v => v.region === region).length
-              return (
-                <div
-                  key={region}
-                  onClick={() => handleRegionDrilldown(region, count)}
-                  className="flex items-center justify-between p-1.5 rounded cursor-pointer hover:bg-muted/50 transition-colors group"
-                >
-                  <span className="text-xs text-muted-foreground group-hover:text-foreground">{region}</span>
-                  <div className="flex items-center gap-1.5">
-                    <Badge variant="outline" className="h-5 px-1.5 text-xs">{count}</Badge>
-                    <CaretRight className="w-3 h-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
-                  </div>
-                </div>
-              )
-            })}
-          </CardContent>
-        </Card>
-
-        <Card className="shadow-sm border-border/50">
-          <CardHeader className="px-4 py-3 border-b border-border/50 bg-muted/30">
-            <CardTitle className="text-sm font-semibold flex items-center gap-2">
-              <Warning className="w-4 h-4 text-orange-600" />
-              Priority Vehicles
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="px-3 pb-3">
-            {priorityVehicles.length === 0 ? (
-              <p className="text-xs text-muted-foreground text-center py-2">
-                No priority vehicles
-              </p>
-            ) : (
-              <div className="space-y-1">
-                {priorityVehicles.map(vehicle => (
-                  <div
-                    key={vehicle.id}
-                    onClick={() => handleVehicleDrilldown(vehicle)}
-                    className="flex items-center justify-between p-1.5 rounded cursor-pointer hover:bg-muted/50 transition-colors group"
-                  >
-                    <div>
-                      <p className="text-xs font-medium group-hover:text-primary">{vehicle.number}</p>
-                      <p className="text-[10px] text-muted-foreground">
-                        {vehicle.make} {vehicle.model}
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      <Badge variant="outline" className={`${getStatusColor(vehicle.status)} h-5 px-1.5 text-[10px]`}>
-                        {vehicle.status}
-                      </Badge>
-                      <CaretRight className="w-3 h-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Real-time Activity Feed (shown when emulator is running) */}
-        {isEmulatorRunning && recentEvents.length > 0 && (
-          <Card className="shadow-sm border-border/50">
-            <CardHeader className="px-4 py-3 border-b border-border/50 bg-muted/30">
-              <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                <Broadcast className="w-4 h-4 text-blue-600 animate-pulse" />
-                Live Telemetry Feed
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="px-3 pb-3">
-              <div className="space-y-1 max-h-[200px] overflow-y-auto">
-                {recentEvents.slice(0, 10).map((event, idx) => (
-                  <div
-                    key={idx}
-                    className="flex items-start gap-2 p-1.5 rounded hover:bg-muted/50 transition-colors"
-                  >
-                    <Circle
-                      className="w-1.5 h-1.5 mt-1 fill-blue-500 text-blue-500 flex-shrink-0"
-                      weight="fill"
-                    />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-[10px] font-medium text-foreground truncate">
-                        {event.type.replace(':', ' ')}
-                      </p>
-                      <p className="text-[9px] text-muted-foreground">
-                        {event.vehicleId || 'System'} • {new Date(event.timestamp || Date.now()).toLocaleTimeString()}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        )}
-              </div>
-            </CardContent>
-          </CollapsibleContent>
-        </Card>
-      </Collapsible>
-
-      {/* Vehicle List - Collapsible */}
-      <Collapsible open={showVehicleList} onOpenChange={setShowVehicleList}>
-        <Card className="shadow-sm border-border/50 bg-card dark:bg-card">
-          <CollapsibleTrigger asChild>
-            <button className="w-full">
-              <CardHeader className="px-4 py-3 border-b border-border/50 bg-muted/30 dark:bg-muted/20 hover:bg-muted/50 dark:hover:bg-muted/30 transition-colors cursor-pointer">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Car className="w-4 h-4 text-primary dark:text-primary" />
-                    <CardTitle className="text-sm font-semibold">
-                      Fleet Vehicles
-                      <span className="ml-2 text-xs font-normal text-muted-foreground dark:text-muted-foreground">
-                        ({filteredVehicles.length} total)
-                      </span>
-                    </CardTitle>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <span className="text-xs text-muted-foreground dark:text-muted-foreground hidden sm:block">
-                      Click any vehicle for details
-                    </span>
-                    {showVehicleList ? (
-                      <CaretUp className="w-4 h-4 text-muted-foreground dark:text-muted-foreground" />
-                    ) : (
-                      <CaretRight className="w-4 h-4 text-muted-foreground dark:text-muted-foreground" />
-                    )}
-                  </div>
-                </div>
-              </CardHeader>
-            </button>
-          </CollapsibleTrigger>
-          <CollapsibleContent>
-        <CardContent className="px-0 pb-0">
-          <div className="border-x border-b rounded-b-lg overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-muted/50 border-b sticky top-0">
-                  <tr>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">Vehicle ID</th>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">Vehicle</th>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">Type</th>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">Status</th>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">Driver</th>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">Fuel</th>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">Region</th>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">Department</th>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">Location</th>
-                    <th className="px-4 py-3 text-right text-xs font-semibold text-muted-foreground uppercase tracking-wider">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-border bg-card">
-                  {filteredVehicles.map(vehicle => {
-                    // Check if vehicle was recently updated (within last 5 seconds)
-                    const wasRecentlyUpdated = vehicle.lastUpdated &&
-                      (new Date().getTime() - new Date(vehicle.lastUpdated).getTime()) < 5000
-
-                    return (
-                      <tr
-                        key={vehicle.id}
-                        onClick={() => handleVehicleDrilldown(vehicle)}
-                        className={`hover:bg-muted/30 transition-colors cursor-pointer ${
-                          wasRecentlyUpdated ? 'bg-blue-50/50 dark:bg-blue-950/20' : ''
-                        }`}
-                      >
-                        <td className="px-4 py-3 text-sm font-medium">
-                          <div className="flex items-center gap-2">
-                            {vehicle.number}
-                            {wasRecentlyUpdated && (
-                              <Badge variant="outline" className="h-4 px-1 text-[8px] bg-blue-100 text-blue-700 border-blue-300 dark:bg-blue-950 dark:text-blue-400 dark:border-blue-800">
-                                LIVE
-                              </Badge>
-                            )}
-                          </div>
-                        </td>
-                        <td className="px-4 py-3 text-sm">
-                          <div>
-                            <p className="font-medium">{vehicle.make} {vehicle.model}</p>
-                            <p className="text-xs text-muted-foreground">{vehicle.year}</p>
-                          </div>
-                        </td>
-                        <td className="px-4 py-3 text-sm capitalize">{vehicle.type}</td>
-                        <td className="px-4 py-3 text-sm">
-                          <Badge variant="outline" className={`${getStatusColor(vehicle.status)}`}>
-                            {vehicle.status}
-                          </Badge>
-                        </td>
-                        <td className="px-4 py-3 text-sm">{vehicle.assignedDriver || '-'}</td>
-                        <td className="px-4 py-3 text-sm">
-                          <div className="flex items-center gap-1.5">
-                            <BatteryMedium className="w-3.5 h-3.5 text-muted-foreground" />
-                            <span className={vehicle.fuelLevel < 25 ? 'text-warning font-medium' : ''}>
-                              {vehicle.fuelLevel}%
-                            </span>
-                          </div>
-                        </td>
-                        <td className="px-4 py-3 text-sm">{vehicle.region}</td>
-                        <td className="px-4 py-3 text-sm text-muted-foreground">{vehicle.department}</td>
-                        <td className="px-4 py-3 text-sm text-muted-foreground truncate max-w-[200px]">
-                          {vehicle.location?.address || 'Unknown'}
-                        </td>
-                        <td className="px-4 py-3 text-sm text-right">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              handleVehicleDrilldown(vehicle)
-                            }}
-                          >
-                            View
-                          </Button>
-                        </td>
-                      </tr>
-                    )
-                  })}
-                </tbody>
-              </table>
-            </div>
-            {filteredVehicles.length > 20 && (
-              <div className="border-t p-3 bg-muted/20">
-                <Button
-                  variant="outline"
-                  className="w-full h-8 text-xs"
-                  onClick={() => drilldownPush({
-                    id: 'all-vehicles',
-                    type: 'vehicle-list',
-                    label: `All Vehicles (${filteredVehicles.length})`,
-                    data: { vehicles: filteredVehicles }
-                  })}
-                >
-                  View all {filteredVehicles.length} vehicles
-                  <ArrowRight className="w-3 h-3 ml-1.5" />
-                </Button>
+            {isEmulatorRunning && (
+              <div className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
+                <Broadcast className="w-2.5 h-2.5 animate-pulse" />
+                Emulator
               </div>
             )}
           </div>
-        </CardContent>
-          </CollapsibleContent>
-        </Card>
-      </Collapsible>
+        </div>
+        <div className="flex gap-1.5">
+          <AddVehicleDialog onAdd={data.addVehicle} />
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setIsAdvancedFiltersOpen(true)}
+            className={hasActiveFilters ? "border-primary h-7 text-xs" : "h-7 text-xs"}
+          >
+            <FunnelSimple className="w-3 h-3 mr-1.5" />
+            Filters
+            {hasActiveFilters && (
+              <Badge variant="secondary" className="ml-1.5 h-4 px-1 text-[10px]">
+                On
+              </Badge>
+            )}
+          </Button>
+        </div>
+      </div>
+
+      {/* Quick Stats Bar */}
+      <div className="flex gap-2">
+        <Badge variant="outline" className="text-xs">Total: {metrics.total}</Badge>
+        <Badge variant="outline" className="text-xs bg-success/10 text-success border-success/20">Active: {metrics.active}</Badge>
+        <Badge variant="outline" className="text-xs bg-warning/10 text-warning border-warning/20">Service: {metrics.service}</Badge>
+        <Badge variant="outline" className="text-xs">Avg Fuel: {metrics.avgFuelLevel}%</Badge>
+        {metrics.lowFuel > 0 && (
+          <Badge variant="outline" className="text-xs bg-destructive/10 text-destructive border-destructive/20">
+            Low Fuel: {metrics.lowFuel}
+          </Badge>
+        )}
+      </div>
+
+      {/* Main Split Screen: Map LEFT, Table RIGHT */}
+      <div className="grid grid-cols-2 gap-4 flex-1 min-h-0">
+        {/* LEFT: Map */}
+        <div className="border rounded-lg overflow-hidden flex flex-col">
+          <div className="bg-muted/50 px-4 py-2 border-b flex items-center justify-between">
+            <h3 className="font-semibold text-sm flex items-center gap-2">
+              <MapPin className="w-4 h-4 text-primary" />
+              Fleet Map
+              {isRealtimeConnected && (
+                <Badge variant="outline" className="text-[10px] h-5 bg-green-100 text-green-700 border-green-300 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800">
+                  Live
+                </Badge>
+              )}
+            </h3>
+            <span className="text-xs text-muted-foreground">{filteredVehicles.length} vehicles</span>
+          </div>
+          <div className="flex-1">
+            <ProfessionalFleetMap
+              vehicles={filteredVehicles}
+              facilities={data.facilities}
+              height="100%"
+              onVehicleSelect={(vehicleId) => {
+                const vehicle = filteredVehicles.find(v => v.id === vehicleId)
+                if (vehicle) handleVehicleDrilldown(vehicle)
+              }}
+              showLegend={true}
+              enableRealTime={isRealtimeConnected}
+            />
+          </div>
+        </div>
+
+        {/* RIGHT: Vehicle Table */}
+        <div className="border rounded-lg overflow-hidden flex flex-col">
+          {/* Table Header - Fixed */}
+          <div className="bg-muted/50 px-4 py-2 border-b flex items-center justify-between">
+            <h3 className="font-semibold text-sm flex items-center gap-2">
+              <Car className="w-4 h-4 text-primary" />
+              Fleet Vehicles
+            </h3>
+            <div className="flex items-center gap-2">
+              <div className="relative">
+                <MagnifyingGlass className="absolute left-2 top-1/2 -translate-y-1/2 w-3 h-3 text-muted-foreground" />
+                <Input
+                  placeholder="Search..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-7 h-7 text-xs w-[150px]"
+                />
+              </div>
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="w-[100px] h-7 text-xs">
+                  <SelectValue placeholder="Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Status</SelectItem>
+                  <SelectItem value="active">Active</SelectItem>
+                  <SelectItem value="idle">Idle</SelectItem>
+                  <SelectItem value="service">Service</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          {/* Table Content - Scrollable */}
+          <div className="flex-1 overflow-y-auto">
+            <table className="w-full">
+              <thead className="bg-muted/30 sticky top-0">
+                <tr>
+                  <th className="px-3 py-2 text-left text-xs font-semibold uppercase">ID</th>
+                  <th className="px-3 py-2 text-left text-xs font-semibold uppercase">Vehicle</th>
+                  <th className="px-3 py-2 text-left text-xs font-semibold uppercase">Status</th>
+                  <th className="px-3 py-2 text-left text-xs font-semibold uppercase">Driver</th>
+                  <th className="px-3 py-2 text-left text-xs font-semibold uppercase">Fuel</th>
+                  <th className="px-3 py-2 text-left text-xs font-semibold uppercase">Location</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y">
+                {filteredVehicles.map(vehicle => {
+                  const wasRecentlyUpdated = vehicle.lastUpdated &&
+                    (new Date().getTime() - new Date(vehicle.lastUpdated).getTime()) < 5000
+
+                  return (
+                    <tr
+                      key={vehicle.id}
+                      className={`hover:bg-muted/30 cursor-pointer ${
+                        wasRecentlyUpdated ? 'bg-blue-50/50 dark:bg-blue-950/20' : ''
+                      }`}
+                      onClick={() => handleVehicleDrilldown(vehicle)}
+                    >
+                      <td className="px-3 py-2 text-sm font-medium">
+                        <div className="flex items-center gap-1">
+                          {vehicle.number}
+                          {wasRecentlyUpdated && (
+                            <Circle className="w-1.5 h-1.5 fill-blue-500 animate-pulse" weight="fill" />
+                          )}
+                        </div>
+                      </td>
+                      <td className="px-3 py-2 text-sm">
+                        <div>
+                          <p className="font-medium">{vehicle.make} {vehicle.model}</p>
+                          <p className="text-[10px] text-muted-foreground">{vehicle.year} • {vehicle.type}</p>
+                        </div>
+                      </td>
+                      <td className="px-3 py-2 text-sm">
+                        <Badge variant={getStatusVariant(vehicle.status)} className="text-xs">
+                          {vehicle.status}
+                        </Badge>
+                      </td>
+                      <td className="px-3 py-2 text-sm">{vehicle.assignedDriver || '-'}</td>
+                      <td className="px-3 py-2 text-sm">
+                        <div className="flex items-center gap-1">
+                          <BatteryMedium className="w-3 h-3 text-muted-foreground" />
+                          <span className={vehicle.fuelLevel < 25 ? 'text-warning font-medium' : ''}>
+                            {vehicle.fuelLevel}%
+                          </span>
+                        </div>
+                      </td>
+                      <td className="px-3 py-2 text-sm text-muted-foreground truncate max-w-[150px]">
+                        {vehicle.location?.address || 'Unknown'}
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
 
       {/* Advanced Filters Dialog */}
       <Dialog open={isAdvancedFiltersOpen} onOpenChange={setIsAdvancedFiltersOpen}>
