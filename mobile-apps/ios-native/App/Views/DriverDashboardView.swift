@@ -2,7 +2,7 @@
 //  DriverDashboardView.swift
 //  Fleet Manager
 //
-//  Driver Dashboard - Simplified view for drivers with assigned vehicles and trips
+//  Driver Dashboard - Mobile-First Optimized (No Scrolling)
 //
 
 import SwiftUI
@@ -10,164 +10,63 @@ import SwiftUI
 struct DriverDashboardView: View {
     @StateObject private var viewModel = DashboardViewModel()
     @EnvironmentObject private var authManager: AuthenticationManager
+    @Environment(\.verticalSizeClass) var verticalSizeClass
 
     var body: some View {
-        ScrollView {
-            LazyVStack(spacing: 20) {
-                // Welcome Header
-                welcomeHeader
+        VStack(spacing: 12) {
+            // Compact Header
+            compactHeader
 
-                // Driver Quick Stats
-                driverStatsSection
+            // Horizontal Stats Scroll
+            horizontalStatsSection
 
-                // My Assigned Vehicles
-                myVehiclesSection
+            // My Vehicle & Today's Trip Combined
+            compactVehicleAndTripSection
 
-                // Today's Trips
-                todaysTripsSection
+            // Quick Actions (Horizontal)
+            compactQuickActionsSection
 
-                // Quick Actions
-                quickActionsSection
-
-                // Recent Activity
-                recentActivitySection
-            }
-            .padding()
+            Spacer()
         }
+        .padding(.horizontal)
+        .padding(.top, 8)
         .background(Color(.systemGroupedBackground))
-        .navigationTitle("My Dashboard")
+        .navigationTitle("Driver")
+        .navigationBarTitleDisplayMode(.inline)
         .refreshable {
             await viewModel.refresh()
         }
     }
 
-    // MARK: - Welcome Header
-    private var welcomeHeader: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("Welcome back,")
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
-                    Text(authManager.currentUser?.name ?? "Driver")
-                        .font(.title.bold())
-                }
-                Spacer()
-                Image(systemName: "person.fill")
-                    .font(.system(size: 40))
-                    .foregroundColor(.blue)
-            }
-            .padding()
-            .background(Color(.secondarySystemGroupedBackground))
-            .cornerRadius(12)
-        }
-    }
+    // MARK: - Compact Header
+    private var compactHeader: some View {
+        HStack(spacing: 12) {
+            // Icon
+            Image(systemName: "person.fill")
+                .font(.system(size: 32))
+                .foregroundColor(.blue)
+                .frame(width: 50, height: 50)
+                .background(Color(.secondarySystemGroupedBackground))
+                .cornerRadius(10)
 
-    // MARK: - Driver Stats
-    private var driverStatsSection: some View {
-        LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 16) {
-            StatCard(
-                title: "Today's Trips",
-                value: "3",
-                subtitle: "12.5 hours driven",
-                icon: "location.fill",
-                color: .green,
-                trend: nil
-            )
-
-            StatCard(
-                title: "My Vehicles",
-                value: "2",
-                subtitle: "Assigned to you",
-                icon: "car.fill",
-                color: .blue,
-                trend: nil
-            )
-
-            StatCard(
-                title: "Fuel Level",
-                value: "75%",
-                subtitle: "Primary vehicle",
-                icon: "fuelpump.fill",
-                color: .purple,
-                trend: nil
-            )
-
-            StatCard(
-                title: "Performance",
-                value: "95%",
-                subtitle: "Safety score",
-                icon: "star.fill",
-                color: .orange,
-                trend: .up(5)
-            )
-        }
-    }
-
-    // MARK: - My Vehicles
-    private var myVehiclesSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                Text("My Assigned Vehicles")
-                    .font(.headline)
-                Spacer()
-                NavigationLink(destination: Text("All My Vehicles")) {
-                    HStack(spacing: 4) {
-                        Text("View All")
-                            .font(.caption)
-                        Image(systemName: "chevron.right")
-                            .font(.caption2)
-                    }
-                }
-            }
-
-            VStack(spacing: 12) {
-                vehicleCard(
-                    name: "Truck #101",
-                    type: "Ford F-150",
-                    status: "Available",
-                    fuel: 75,
-                    statusColor: .green
-                )
-
-                vehicleCard(
-                    name: "Van #205",
-                    type: "Mercedes Sprinter",
-                    status: "In Use",
-                    fuel: 60,
-                    statusColor: .blue
-                )
-            }
-        }
-    }
-
-    private func vehicleCard(name: String, type: String, status: String, fuel: Int, statusColor: Color) -> some View {
-        HStack {
-            VStack(alignment: .leading, spacing: 4) {
-                Text(name)
-                    .font(.subheadline.bold())
-                Text(type)
+            // Welcome Text
+            VStack(alignment: .leading, spacing: 2) {
+                Text("Welcome back")
                     .font(.caption)
                     .foregroundColor(.secondary)
-
-                HStack(spacing: 4) {
-                    Circle()
-                        .fill(statusColor)
-                        .frame(width: 6, height: 6)
-                    Text(status)
-                        .font(.caption)
-                        .foregroundColor(statusColor)
-                }
+                Text(authManager.currentUser?.name ?? "Driver")
+                    .font(.headline)
+                    .lineLimit(1)
             }
 
             Spacer()
 
-            VStack(alignment: .trailing, spacing: 4) {
-                Image(systemName: "fuelpump.fill")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-                Text("\(fuel)%")
-                    .font(.caption.bold())
+            // Quick Trip Status
+            NavigationLink(destination: Text("Start Trip")) {
+                Image(systemName: "play.circle.fill")
+                    .font(.title2)
+                    .foregroundColor(.green)
+                    .frame(width: 44, height: 44)
             }
         }
         .padding()
@@ -175,131 +74,240 @@ struct DriverDashboardView: View {
         .cornerRadius(12)
     }
 
-    // MARK: - Today's Trips
-    private var todaysTripsSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
+    // MARK: - Horizontal Stats
+    private var horizontalStatsSection: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("My Stats")
+                .font(.caption.bold())
+                .foregroundColor(.secondary)
+                .padding(.leading, 4)
+
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 12) {
+                    CompactStatCard(
+                        title: "Today's Trips",
+                        value: "3",
+                        subtitle: "12.5 hours driven",
+                        icon: "location.fill",
+                        color: .green
+                    )
+
+                    CompactStatCard(
+                        title: "My Vehicles",
+                        value: "2",
+                        subtitle: "Assigned to you",
+                        icon: "car.fill",
+                        color: .blue
+                    )
+
+                    CompactStatCard(
+                        title: "Fuel Level",
+                        value: "75%",
+                        subtitle: "Primary vehicle",
+                        icon: "fuelpump.fill",
+                        color: .purple
+                    )
+
+                    CompactStatCard(
+                        title: "Safety Score",
+                        value: "95%",
+                        subtitle: "Performance",
+                        icon: "star.fill",
+                        color: .orange
+                    )
+                }
+                .padding(.horizontal, 4)
+            }
+        }
+    }
+
+    // MARK: - Vehicle & Trip Combined
+    private var compactVehicleAndTripSection: some View {
+        VStack(alignment: .leading, spacing: 8) {
             HStack {
-                Text("Today's Trips")
-                    .font(.headline)
+                Text("Current Status")
+                    .font(.caption.bold())
+                    .foregroundColor(.secondary)
                 Spacer()
-                NavigationLink(destination: Text("Trip History")) {
-                    HStack(spacing: 4) {
+                NavigationLink(destination: Text("All Vehicles & Trips")) {
+                    HStack(spacing: 2) {
                         Text("View All")
-                            .font(.caption)
+                            .font(.caption2)
                         Image(systemName: "chevron.right")
                             .font(.caption2)
                     }
+                    .foregroundColor(.blue)
                 }
             }
+            .padding(.horizontal, 4)
 
             VStack(spacing: 12) {
-                tripCard(
-                    destination: "Downtown Delivery",
-                    time: "8:00 AM - 10:30 AM",
-                    distance: "25.3 mi",
-                    status: "Completed",
-                    statusColor: .green
-                )
+                // Current Vehicle
+                HStack(spacing: 12) {
+                    Image(systemName: "car.fill")
+                        .font(.caption)
+                        .foregroundColor(.white)
+                        .frame(width: 32, height: 32)
+                        .background(Color.blue)
+                        .cornerRadius(8)
 
-                tripCard(
-                    destination: "Airport Pickup",
-                    time: "11:00 AM - 12:45 PM",
-                    distance: "18.7 mi",
-                    status: "Completed",
-                    statusColor: .green
-                )
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Truck #101")
+                            .font(.caption.bold())
+                        Text("Ford F-150")
+                            .font(.caption2)
+                            .foregroundColor(.secondary)
+                    }
 
-                tripCard(
-                    destination: "Warehouse Run",
-                    time: "2:00 PM - 4:00 PM",
-                    distance: "32.1 mi",
-                    status: "In Progress",
-                    statusColor: .blue
-                )
+                    Spacer()
+
+                    VStack(alignment: .trailing, spacing: 2) {
+                        HStack(spacing: 4) {
+                            Image(systemName: "fuelpump.fill")
+                                .font(.caption2)
+                            Text("75%")
+                                .font(.caption.bold())
+                        }
+                        .foregroundColor(.purple)
+
+                        HStack(spacing: 2) {
+                            Circle()
+                                .fill(Color.green)
+                                .frame(width: 5, height: 5)
+                            Text("Available")
+                                .font(.caption2)
+                                .foregroundColor(.secondary)
+                        }
+                    }
+                }
+                .padding(12)
+                .background(Color(.secondarySystemGroupedBackground))
+                .cornerRadius(10)
+
+                // Current Trip
+                HStack(spacing: 12) {
+                    Image(systemName: "location.fill")
+                        .font(.caption)
+                        .foregroundColor(.white)
+                        .frame(width: 32, height: 32)
+                        .background(Color.blue)
+                        .cornerRadius(8)
+
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Warehouse Run")
+                            .font(.caption.bold())
+                        Text("2:00 PM - 4:00 PM")
+                            .font(.caption2)
+                            .foregroundColor(.secondary)
+                    }
+
+                    Spacer()
+
+                    VStack(alignment: .trailing, spacing: 2) {
+                        Text("32.1 mi")
+                            .font(.caption.bold())
+                            .foregroundColor(.green)
+
+                        HStack(spacing: 2) {
+                            Circle()
+                                .fill(Color.blue)
+                                .frame(width: 5, height: 5)
+                            Text("In Progress")
+                                .font(.caption2)
+                                .foregroundColor(.secondary)
+                        }
+                    }
+                }
+                .padding(12)
+                .background(Color(.secondarySystemGroupedBackground))
+                .cornerRadius(10)
             }
         }
     }
 
-    private func tripCard(destination: String, time: String, distance: String, status: String, statusColor: Color) -> some View {
+    // MARK: - Compact Quick Actions
+    private var compactQuickActionsSection: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Quick Actions")
+                .font(.caption.bold())
+                .foregroundColor(.secondary)
+                .padding(.leading, 4)
+
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 12) {
+                    compactActionButton(icon: "play.circle.fill", title: "Start Trip", color: .green) {
+                        viewModel.startNewTrip()
+                    }
+
+                    compactActionButton(icon: "exclamationmark.triangle.fill", title: "Report Issue", color: .orange) {
+                        // Report issue
+                    }
+
+                    compactActionButton(icon: "checkmark.circle.fill", title: "Pre-Trip", color: .blue) {
+                        // Pre-trip inspection
+                    }
+
+                    compactActionButton(icon: "calendar.fill", title: "Schedule", color: .purple) {
+                        // View schedule
+                    }
+                }
+                .padding(.horizontal, 4)
+            }
+        }
+    }
+
+    private func compactActionButton(icon: String, title: String, color: Color, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            VStack(spacing: 8) {
+                Image(systemName: icon)
+                    .font(.title3)
+                    .foregroundColor(color)
+                    .frame(width: 50, height: 50)
+                    .background(color.opacity(0.15))
+                    .cornerRadius(12)
+
+                Text(title)
+                    .font(.caption2.bold())
+                    .foregroundColor(.primary)
+            }
+            .frame(width: 90)
+        }
+    }
+}
+
+// MARK: - Compact Stat Card
+struct CompactStatCard: View {
+    let title: String
+    let value: String
+    let subtitle: String
+    let icon: String
+    let color: Color
+
+    var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
-                Text(destination)
-                    .font(.subheadline.bold())
+                Image(systemName: icon)
+                    .font(.title3)
+                    .foregroundColor(color)
                 Spacer()
-                HStack(spacing: 4) {
-                    Circle()
-                        .fill(statusColor)
-                        .frame(width: 6, height: 6)
-                    Text(status)
-                        .font(.caption)
-                        .foregroundColor(statusColor)
-                }
             }
 
-            HStack {
-                Label(time, systemImage: "clock.fill")
-                    .font(.caption)
+            Text(value)
+                .font(.title2.bold())
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text(title)
+                    .font(.caption2.bold())
                     .foregroundColor(.secondary)
-                Spacer()
-                Label(distance, systemImage: "location.fill")
-                    .font(.caption)
+                Text(subtitle)
+                    .font(.caption2)
                     .foregroundColor(.secondary)
             }
         }
         .padding()
+        .frame(width: 140, height: 120)
         .background(Color(.secondarySystemGroupedBackground))
         .cornerRadius(12)
-    }
-
-    // MARK: - Quick Actions
-    private var quickActionsSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("Quick Actions")
-                .font(.headline)
-
-            LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
-                QuickActionButton(title: "Start Trip", icon: "play.circle.fill", color: .green) {
-                    viewModel.startNewTrip()
-                }
-
-                QuickActionButton(title: "Report Issue", icon: "exclamationmark.triangle.fill", color: .orange) {
-                    // Report issue
-                }
-
-                QuickActionButton(title: "Pre-Trip Check", icon: "checkmark.circle.fill", color: .blue) {
-                    // Pre-trip inspection
-                }
-
-                QuickActionButton(title: "My Schedule", icon: "calendar.fill", color: .purple) {
-                    // View schedule
-                }
-            }
-        }
-    }
-
-    // MARK: - Recent Activity
-    private var recentActivitySection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("Recent Activity")
-                .font(.headline)
-
-            if viewModel.recentActivity.isEmpty {
-                EmptyStateCard(
-                    icon: "tray.fill",
-                    title: "No Recent Activity",
-                    message: "Your activity will appear here"
-                )
-            } else {
-                LazyVStack(spacing: 8) {
-                    ForEach(viewModel.recentActivity.prefix(5)) { activity in
-                        ActivityRow(activity: activity)
-                    }
-                }
-                .padding()
-                .background(Color(.secondarySystemGroupedBackground))
-                .cornerRadius(12)
-            }
-        }
     }
 }
 
