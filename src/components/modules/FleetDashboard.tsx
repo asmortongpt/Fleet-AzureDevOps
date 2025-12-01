@@ -7,6 +7,9 @@ import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Slider } from "@/components/ui/slider"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { AddVehicleDialog } from "@/components/dialogs/AddVehicleDialog"
 import { ProfessionalFleetMap } from "@/components/Maps/ProfessionalFleetMap"
 import {
@@ -17,7 +20,10 @@ import {
   FunnelSimple,
   X,
   Broadcast,
-  Circle
+  Circle,
+  Layout,
+  List,
+  ChartBar
 } from "@phosphor-icons/react"
 import { Vehicle } from "@/lib/types"
 import { useFleetData } from "@/hooks/use-fleet-data"
@@ -26,6 +32,8 @@ import { useSystemStatus } from "@/hooks/useSystemStatus"
 import { useDrilldown } from "@/contexts/DrilldownContext"
 import { useInspect } from "@/services/inspect/InspectContext"
 import apiClient from "@/lib/api-client"
+
+type LayoutMode = "split-50-50" | "split-70-30" | "tabs" | "top-bottom" | "map-drawer" | "quad-grid" | "fortune-glass" | "fortune-dark" | "fortune-nordic"
 
 interface FleetDashboardProps {
   data: ReturnType<typeof useFleetData>
@@ -60,13 +68,11 @@ const defaultFilterCriteria: AdvancedFilterCriteria = {
 export function FleetDashboard({ data }: FleetDashboardProps) {
   const initialVehicles = data.vehicles || []
 
-  // Drilldown navigation for deep data exploration
+  // Drilldown navigation
   const { push: drilldownPush } = useDrilldown()
-
-  // Inspect drawer for detailed entity views
   const { openInspect } = useInspect()
 
-  // Real-time telemetry integration
+  // Real-time telemetry
   const {
     isConnected: isRealtimeConnected,
     isEmulatorRunning,
@@ -83,18 +89,14 @@ export function FleetDashboard({ data }: FleetDashboardProps) {
     }
   })
 
-  // Unified system status (all emulators + AI services)
   const systemStatus = useSystemStatus({
     enabled: true,
     pollInterval: 5000
   })
 
-  // Drilldown handlers for deep navigation to original records
+  // Drilldown handlers
   const handleVehicleDrilldown = useCallback((vehicle: Vehicle) => {
-    // Open inspect drawer for detailed view
     openInspect({ type: 'vehicle', id: vehicle.id })
-
-    // Also maintain drilldown breadcrumb navigation
     drilldownPush({
       id: `vehicle-${vehicle.id}`,
       type: 'vehicle',
@@ -121,28 +123,13 @@ export function FleetDashboard({ data }: FleetDashboardProps) {
     })
   }, [drilldownPush])
 
-  const handleMetricDrilldown = useCallback((metricType: string, value: number | string, label: string) => {
-    drilldownPush({
-      id: `metric-${metricType}`,
-      type: 'metric-detail',
-      label: `${label} - ${value}`,
-      data: { metricType, value, label }
-    })
-  }, [drilldownPush])
-
   // Merge initial vehicles with real-time updates
   const vehicles = useMemo(() => {
     if (realtimeVehicles.length > 0) {
-      // Create a map of initial vehicles for quick lookup
       const initialMap = new Map(initialVehicles.map(v => [v.id, v]))
-
-      // Merge: prefer real-time data, fall back to initial
       const merged = new Map<string, Vehicle>()
 
-      // Add all initial vehicles
       initialVehicles.forEach(v => merged.set(v.id, v))
-
-      // Override with real-time data
       realtimeVehicles.forEach(v => {
         const existing = merged.get(v.id)
         if (existing) {
@@ -159,6 +146,8 @@ export function FleetDashboard({ data }: FleetDashboardProps) {
 
   const [statusFilter, setStatusFilter] = useState<string>("all")
   const [searchQuery, setSearchQuery] = useState<string>("")
+  const [layoutMode, setLayoutMode] = useState<LayoutMode>("split-50-50")
+  const [drawerOpen, setDrawerOpen] = useState(false)
 
   // Advanced filters state
   const [isAdvancedFiltersOpen, setIsAdvancedFiltersOpen] = useState(false)
@@ -167,48 +156,37 @@ export function FleetDashboard({ data }: FleetDashboardProps) {
 
   const filteredVehicles = useMemo(() => {
     return vehicles.filter(v => {
-      // Basic filters
       const matchesStatus = statusFilter === "all" || v.status === statusFilter
       const matchesSearch = !searchQuery || searchQuery === "" ||
         v.number.toLowerCase().includes(searchQuery.toLowerCase()) ||
         v.make.toLowerCase().includes(searchQuery.toLowerCase()) ||
         v.model.toLowerCase().includes(searchQuery.toLowerCase())
 
-      // Advanced filters
       const matchesAdvancedStatus = appliedFilters.vehicleStatus.length === 0 ||
         appliedFilters.vehicleStatus.includes(v.status)
-
       const matchesDepartment = appliedFilters.departments.length === 0 ||
         appliedFilters.departments.includes(v.department)
-
       const matchesAdvancedRegion = appliedFilters.regions.length === 0 ||
         appliedFilters.regions.includes(v.region)
-
       const matchesFuelLevel = v.fuelLevel >= appliedFilters.fuelLevelRange[0] &&
         v.fuelLevel <= appliedFilters.fuelLevelRange[1]
-
       const matchesMileage =
         (appliedFilters.mileageRange.min === null || v.mileage >= appliedFilters.mileageRange.min) &&
         (appliedFilters.mileageRange.max === null || v.mileage <= appliedFilters.mileageRange.max)
-
       const matchesAlertStatus = appliedFilters.alertStatus.length === 0 || (
         (appliedFilters.alertStatus.includes("has-alerts") && v.alerts && v.alerts.length > 0) ||
         (appliedFilters.alertStatus.includes("no-alerts") && (!v.alerts || v.alerts.length === 0)) ||
         (appliedFilters.alertStatus.includes("critical") && v.alerts && v.alerts.some(a => a.toLowerCase().includes("critical")))
       )
-
       const matchesDriverAssignment =
         appliedFilters.driverAssigned === "all" ||
         (appliedFilters.driverAssigned === "assigned" && v.assignedDriver) ||
         (appliedFilters.driverAssigned === "unassigned" && !v.assignedDriver)
-
       const matchesAdvancedVehicleType = appliedFilters.vehicleTypes.length === 0 ||
         appliedFilters.vehicleTypes.includes(v.type)
-
       const matchesYearRange =
         (appliedFilters.yearRange.from === null || v.year >= appliedFilters.yearRange.from) &&
         (appliedFilters.yearRange.to === null || v.year <= appliedFilters.yearRange.to)
-
       const matchesLastMaintenance = appliedFilters.lastMaintenance === "all" || (() => {
         const lastServiceDate = new Date(v.lastService)
         const now = new Date()
@@ -244,8 +222,8 @@ export function FleetDashboard({ data }: FleetDashboardProps) {
     const emergency = filteredVehicles.filter(v => v.status === "emergency").length
     const lowFuel = filteredVehicles.filter(v => v.fuelLevel < 25).length
     const alerts = filteredVehicles.filter(v => (v.alerts?.length || 0) > 0).length
-    const avgFuelLevel = total > 0 
-      ? Math.round(filteredVehicles.reduce((sum, v) => sum + v.fuelLevel, 0) / total) 
+    const avgFuelLevel = total > 0
+      ? Math.round(filteredVehicles.reduce((sum, v) => sum + v.fuelLevel, 0) / total)
       : 0
 
     return { total, active, idle, charging, service, emergency, lowFuel, alerts, avgFuelLevel }
@@ -255,7 +233,6 @@ export function FleetDashboard({ data }: FleetDashboardProps) {
   const types = Array.from(new Set(vehicles.map(v => v.type))) as string[]
   const departments = Array.from(new Set(vehicles.map(v => v.department))) as string[]
 
-  // Helper functions for advanced filters
   const handleApplyFilters = () => {
     setAppliedFilters(filterCriteria)
     setIsAdvancedFiltersOpen(false)
@@ -318,10 +295,6 @@ export function FleetDashboard({ data }: FleetDashboardProps) {
     return colors[status]
   }
 
-  const priorityVehicles = filteredVehicles
-    .filter(v => v.type === "emergency" || (v.alerts?.length || 0) > 0)
-    .slice(0, 5)
-
   const getStatusVariant = (status: Vehicle["status"]) => {
     const variants: Record<Vehicle["status"], "default" | "secondary" | "destructive" | "outline"> = {
       active: "default",
@@ -333,6 +306,740 @@ export function FleetDashboard({ data }: FleetDashboardProps) {
     }
     return variants[status] || "default"
   }
+
+  // Reusable Map Component
+  const MapPanel = ({ height = "100%" }: { height?: string }) => (
+    <div className="border rounded-lg overflow-hidden flex flex-col h-full">
+      <div className="bg-muted/50 px-4 py-2 border-b flex items-center justify-between">
+        <h3 className="font-semibold text-sm flex items-center gap-2">
+          <MapPin className="w-4 h-4 text-primary" />
+          Fleet Map
+          {isRealtimeConnected && (
+            <Badge variant="outline" className="text-[10px] h-5 bg-green-100 text-green-700 border-green-300 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800">
+              Live
+            </Badge>
+          )}
+        </h3>
+        <span className="text-xs text-muted-foreground">{filteredVehicles.length} vehicles</span>
+      </div>
+      <div className="flex-1">
+        <ProfessionalFleetMap
+          vehicles={filteredVehicles}
+          facilities={data.facilities}
+          height={height}
+          onVehicleSelect={(vehicleId) => {
+            const vehicle = filteredVehicles.find(v => v.id === vehicleId)
+            if (vehicle) handleVehicleDrilldown(vehicle)
+          }}
+          showLegend={true}
+          enableRealTime={isRealtimeConnected}
+        />
+      </div>
+    </div>
+  )
+
+  // Reusable Table Component
+  const VehicleTable = () => (
+    <div className="border rounded-lg overflow-hidden flex flex-col h-full">
+      <div className="bg-muted/50 px-4 py-2 border-b flex items-center justify-between">
+        <h3 className="font-semibold text-sm flex items-center gap-2">
+          <Car className="w-4 h-4 text-primary" />
+          Fleet Vehicles
+        </h3>
+        <div className="flex items-center gap-2">
+          <div className="relative">
+            <MagnifyingGlass className="absolute left-2 top-1/2 -translate-y-1/2 w-3 h-3 text-muted-foreground" />
+            <Input
+              placeholder="Search..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-7 h-7 text-xs w-[150px]"
+            />
+          </div>
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger className="w-[100px] h-7 text-xs">
+              <SelectValue placeholder="Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Status</SelectItem>
+              <SelectItem value="active">Active</SelectItem>
+              <SelectItem value="idle">Idle</SelectItem>
+              <SelectItem value="service">Service</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
+      <div className="flex-1 overflow-y-auto">
+        <table className="w-full">
+          <thead className="bg-muted/30 sticky top-0">
+            <tr>
+              <th className="px-3 py-2 text-left text-xs font-semibold uppercase">ID</th>
+              <th className="px-3 py-2 text-left text-xs font-semibold uppercase">Vehicle</th>
+              <th className="px-3 py-2 text-left text-xs font-semibold uppercase">Status</th>
+              <th className="px-3 py-2 text-left text-xs font-semibold uppercase">Driver</th>
+              <th className="px-3 py-2 text-left text-xs font-semibold uppercase">Fuel</th>
+              <th className="px-3 py-2 text-left text-xs font-semibold uppercase">Location</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y">
+            {filteredVehicles.map(vehicle => {
+              const wasRecentlyUpdated = vehicle.lastUpdated &&
+                (new Date().getTime() - new Date(vehicle.lastUpdated).getTime()) < 5000
+
+              return (
+                <tr
+                  key={vehicle.id}
+                  className={`hover:bg-muted/30 cursor-pointer ${
+                    wasRecentlyUpdated ? 'bg-blue-50/50 dark:bg-blue-950/20' : ''
+                  }`}
+                  onClick={() => handleVehicleDrilldown(vehicle)}
+                >
+                  <td className="px-3 py-2 text-sm font-medium">
+                    <div className="flex items-center gap-1">
+                      {vehicle.number}
+                      {wasRecentlyUpdated && (
+                        <Circle className="w-1.5 h-1.5 fill-blue-500 animate-pulse" weight="fill" />
+                      )}
+                    </div>
+                  </td>
+                  <td className="px-3 py-2 text-sm">
+                    <div>
+                      <p className="font-medium">{vehicle.make} {vehicle.model}</p>
+                      <p className="text-[10px] text-muted-foreground">{vehicle.year} • {vehicle.type}</p>
+                    </div>
+                  </td>
+                  <td className="px-3 py-2 text-sm">
+                    <Badge variant={getStatusVariant(vehicle.status)} className="text-xs">
+                      {vehicle.status}
+                    </Badge>
+                  </td>
+                  <td className="px-3 py-2 text-sm">{vehicle.assignedDriver || '-'}</td>
+                  <td className="px-3 py-2 text-sm">
+                    <div className="flex items-center gap-1">
+                      <BatteryMedium className="w-3 h-3 text-muted-foreground" />
+                      <span className={vehicle.fuelLevel < 25 ? 'text-warning font-medium' : ''}>
+                        {vehicle.fuelLevel}%
+                      </span>
+                    </div>
+                  </td>
+                  <td className="px-3 py-2 text-sm text-muted-foreground truncate max-w-[150px]">
+                    {vehicle.location?.address || 'Unknown'}
+                  </td>
+                </tr>
+              )
+            })}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  )
+
+  // Status Chart Component for Quad Grid
+  const StatusChart = () => {
+    const statusData = [
+      { status: 'Active', count: metrics.active, color: 'bg-green-500' },
+      { status: 'Idle', count: metrics.idle, color: 'bg-gray-400' },
+      { status: 'Service', count: metrics.service, color: 'bg-orange-500' },
+      { status: 'Emergency', count: metrics.emergency, color: 'bg-red-500' }
+    ]
+
+    return (
+      <Card className="h-full">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm flex items-center gap-2">
+            <ChartBar className="w-4 h-4" />
+            Status Distribution
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-2">
+          {statusData.map(item => (
+            <div key={item.status} className="flex items-center gap-2">
+              <div className={`w-3 h-3 rounded ${item.color}`} />
+              <span className="text-xs flex-1">{item.status}</span>
+              <span className="text-xs font-semibold">{item.count}</span>
+            </div>
+          ))}
+        </CardContent>
+      </Card>
+    )
+  }
+
+  // Alerts Component for Quad Grid
+  const RecentAlerts = () => {
+    const vehiclesWithAlerts = filteredVehicles
+      .filter(v => v.alerts && v.alerts.length > 0)
+      .slice(0, 5)
+
+    return (
+      <Card className="h-full">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm">Recent Alerts</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-1">
+          {vehiclesWithAlerts.length > 0 ? (
+            vehiclesWithAlerts.map(vehicle => (
+              <div key={vehicle.id} className="text-xs text-muted-foreground">
+                • {vehicle.alerts![0]} - {vehicle.number}
+              </div>
+            ))
+          ) : (
+            <div className="text-xs text-muted-foreground">No active alerts</div>
+          )}
+        </CardContent>
+      </Card>
+    )
+  }
+
+  // Render different layouts
+  const renderLayout = () => {
+    switch (layoutMode) {
+      case "split-50-50":
+        return (
+          <div className="grid grid-cols-2 gap-4 flex-1 min-h-0">
+            <MapPanel height="100%" />
+            <VehicleTable />
+          </div>
+        )
+
+      case "split-70-30":
+        return (
+          <div className="grid grid-cols-[70%_30%] gap-4 flex-1 min-h-0">
+            <MapPanel height="100%" />
+            <VehicleTable />
+          </div>
+        )
+
+      case "tabs":
+        return (
+          <Tabs defaultValue="map" className="flex-1 flex flex-col min-h-0">
+            <TabsList className="w-fit">
+              <TabsTrigger value="map">Map View</TabsTrigger>
+              <TabsTrigger value="table">Table View</TabsTrigger>
+            </TabsList>
+            <TabsContent value="map" className="flex-1 min-h-0 mt-3">
+              <MapPanel height="100%" />
+            </TabsContent>
+            <TabsContent value="table" className="flex-1 min-h-0 mt-3">
+              <VehicleTable />
+            </TabsContent>
+          </Tabs>
+        )
+
+      case "top-bottom":
+        return (
+          <div className="grid grid-rows-[40%_60%] gap-4 flex-1 min-h-0">
+            <MapPanel height="100%" />
+            <VehicleTable />
+          </div>
+        )
+
+      case "map-drawer":
+        return (
+          <div className="flex-1 min-h-0 relative">
+            <MapPanel height="100%" />
+            <Sheet open={drawerOpen} onOpenChange={setDrawerOpen}>
+              <SheetTrigger asChild>
+                <Button
+                  className="absolute top-4 right-4 shadow-lg"
+                  size="sm"
+                  variant="secondary"
+                >
+                  <List className="w-4 h-4 mr-2" />
+                  Vehicle List
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="right" className="w-[600px] sm:w-[600px]">
+                <SheetHeader>
+                  <SheetTitle>Fleet Vehicles</SheetTitle>
+                </SheetHeader>
+                <div className="mt-4 h-[calc(100vh-100px)]">
+                  <VehicleTable />
+                </div>
+              </SheetContent>
+            </Sheet>
+          </div>
+        )
+
+      case "quad-grid":
+        return (
+          <div className="grid grid-cols-2 grid-rows-2 gap-4 flex-1 min-h-0">
+            <MapPanel height="100%" />
+            <StatusChart />
+            <VehicleTable />
+            <RecentAlerts />
+          </div>
+        )
+
+      case "fortune-glass":
+        return <FortuneGlassLayout />
+
+      case "fortune-dark":
+        return <FortuneDarkLayout />
+
+      case "fortune-nordic":
+        return <FortuneNordicLayout />
+
+      default:
+        return null
+    }
+  }
+
+  // Fortune 50 Design 1: Minimalist Glass-morphism
+  const FortuneGlassLayout = () => (
+    <div className="flex-1 min-h-0 flex flex-col gap-3">
+      {/* Compact Metrics Row */}
+      <div className="flex flex-wrap gap-1.5">
+        <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/80 backdrop-blur-xl border border-slate-200/50 shadow-sm">
+          <Car className="w-3.5 h-3.5 text-indigo-500" />
+          <span className="text-xs font-medium text-slate-700">Total</span>
+          <span className="text-sm font-bold text-slate-900">{metrics.total}</span>
+        </div>
+        <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/80 backdrop-blur-xl border border-slate-200/50 shadow-sm">
+          <Circle className="w-2 h-2 fill-green-500" weight="fill" />
+          <span className="text-xs font-medium text-slate-700">Active</span>
+          <span className="text-sm font-bold text-green-600">{metrics.active}</span>
+        </div>
+        <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/80 backdrop-blur-xl border border-slate-200/50 shadow-sm">
+          <Circle className="w-2 h-2 fill-orange-500" weight="fill" />
+          <span className="text-xs font-medium text-slate-700">Service</span>
+          <span className="text-sm font-bold text-orange-600">{metrics.service}</span>
+        </div>
+        <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/80 backdrop-blur-xl border border-slate-200/50 shadow-sm">
+          <BatteryMedium className="w-3.5 h-3.5 text-indigo-500" />
+          <span className="text-xs font-medium text-slate-700">Low Fuel</span>
+          <span className="text-sm font-bold text-red-600">{metrics.lowFuel}</span>
+        </div>
+        <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/80 backdrop-blur-xl border border-slate-200/50 shadow-sm">
+          <Broadcast className="w-3.5 h-3.5 text-indigo-500" />
+          <span className="text-xs font-medium text-slate-700">Alerts</span>
+          <span className="text-sm font-bold text-indigo-600">{metrics.alerts}</span>
+        </div>
+      </div>
+
+      {/* Main Content: 60% Map / 40% Table */}
+      <div className="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-[60%_40%] gap-3">
+        {/* Map Panel */}
+        <div className="rounded-xl overflow-hidden bg-white/80 backdrop-blur-xl border border-slate-200/50 shadow-lg flex flex-col">
+          <div className="px-3 py-2 border-b border-slate-200/50 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <MapPin className="w-3.5 h-3.5 text-indigo-500" />
+              <span className="text-xs font-semibold text-slate-700">Fleet Map</span>
+              {isRealtimeConnected && (
+                <span className="px-1.5 py-0.5 rounded-full bg-green-100 text-green-700 text-[10px] font-medium">Live</span>
+              )}
+            </div>
+            <span className="text-[10px] text-slate-500">{filteredVehicles.length} vehicles</span>
+          </div>
+          <div className="flex-1 min-h-0">
+            <ProfessionalFleetMap
+              vehicles={filteredVehicles}
+              facilities={data.facilities}
+              height="100%"
+              onVehicleSelect={(vehicleId) => {
+                const vehicle = filteredVehicles.find(v => v.id === vehicleId)
+                if (vehicle) handleVehicleDrilldown(vehicle)
+              }}
+              showLegend={true}
+              enableRealTime={isRealtimeConnected}
+            />
+          </div>
+        </div>
+
+        {/* Compact Vehicle Table */}
+        <div className="rounded-xl overflow-hidden bg-white/80 backdrop-blur-xl border border-slate-200/50 shadow-lg flex flex-col">
+          <div className="px-3 py-2 border-b border-slate-200/50 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Car className="w-3.5 h-3.5 text-indigo-500" />
+              <span className="text-xs font-semibold text-slate-700">Vehicles</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <div className="relative">
+                <MagnifyingGlass className="absolute left-1.5 top-1/2 -translate-y-1/2 w-2.5 h-2.5 text-slate-400" />
+                <Input
+                  placeholder="Search..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-5 h-5 text-[10px] w-[100px] border-slate-200/50 bg-white/50"
+                />
+              </div>
+            </div>
+          </div>
+          <div className="flex-1 min-h-0 overflow-y-auto">
+            <table className="w-full text-[10px]">
+              <thead className="bg-slate-50/80 sticky top-0 backdrop-blur-sm">
+                <tr>
+                  <th className="px-2 py-1.5 text-left font-semibold text-slate-700">ID</th>
+                  <th className="px-2 py-1.5 text-left font-semibold text-slate-700">Vehicle</th>
+                  <th className="px-2 py-1.5 text-left font-semibold text-slate-700">Status</th>
+                  <th className="px-2 py-1.5 text-left font-semibold text-slate-700">Fuel</th>
+                  <th className="px-2 py-1.5 text-left font-semibold text-slate-700">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {filteredVehicles.slice(0, 20).map(vehicle => (
+                  <tr
+                    key={vehicle.id}
+                    className="hover:bg-indigo-50/50 cursor-pointer transition-colors"
+                    onClick={() => handleVehicleDrilldown(vehicle)}
+                  >
+                    <td className="px-2 py-1.5 font-medium text-slate-900">{vehicle.number}</td>
+                    <td className="px-2 py-1.5">
+                      <div className="text-slate-900 font-medium">{vehicle.make}</div>
+                      <div className="text-[9px] text-slate-500">{vehicle.model}</div>
+                    </td>
+                    <td className="px-2 py-1.5">
+                      <span className={`px-1.5 py-0.5 rounded text-[9px] font-medium ${
+                        vehicle.status === 'active' ? 'bg-green-100 text-green-700' :
+                        vehicle.status === 'service' ? 'bg-orange-100 text-orange-700' :
+                        'bg-slate-100 text-slate-700'
+                      }`}>
+                        {vehicle.status}
+                      </span>
+                    </td>
+                    <td className="px-2 py-1.5">
+                      <span className={vehicle.fuelLevel < 25 ? 'text-red-600 font-semibold' : 'text-slate-700'}>
+                        {vehicle.fuelLevel}%
+                      </span>
+                    </td>
+                    <td className="px-2 py-1.5">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-4 px-1.5 text-[9px]"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          handleVehicleDrilldown(vehicle)
+                        }}
+                      >
+                        View
+                      </Button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+
+  // Fortune 50 Design 2: Dark Mode Enterprise
+  const FortuneDarkLayout = () => (
+    <div className="flex-1 min-h-0 flex flex-col gap-2">
+      {/* Compact Metrics Strip */}
+      <div className="flex flex-wrap gap-1.5">
+        <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#0a0e27] border border-cyan-500/20 shadow-[0_0_10px_rgba(34,211,238,0.15)]">
+          <Car className="w-3.5 h-3.5 text-cyan-400" />
+          <span className="text-xs font-medium text-slate-300">Total</span>
+          <span className="text-sm font-bold text-cyan-400">{metrics.total}</span>
+        </div>
+        <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#0a0e27] border border-cyan-500/20 shadow-[0_0_10px_rgba(34,211,238,0.15)]">
+          <Circle className="w-2 h-2 fill-green-400" weight="fill" />
+          <span className="text-xs font-medium text-slate-300">Active</span>
+          <span className="text-sm font-bold text-green-400">{metrics.active}</span>
+        </div>
+        <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#0a0e27] border border-cyan-500/20 shadow-[0_0_10px_rgba(34,211,238,0.15)]">
+          <Circle className="w-2 h-2 fill-orange-400" weight="fill" />
+          <span className="text-xs font-medium text-slate-300">Service</span>
+          <span className="text-sm font-bold text-orange-400">{metrics.service}</span>
+        </div>
+        <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#0a0e27] border border-cyan-500/20 shadow-[0_0_10px_rgba(34,211,238,0.15)]">
+          <BatteryMedium className="w-3.5 h-3.5 text-cyan-400" />
+          <span className="text-xs font-medium text-slate-300">Low Fuel</span>
+          <span className="text-sm font-bold text-red-400">{metrics.lowFuel}</span>
+        </div>
+        <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#0a0e27] border border-cyan-500/20 shadow-[0_0_10px_rgba(34,211,238,0.15)]">
+          <Broadcast className="w-3.5 h-3.5 text-cyan-400" />
+          <span className="text-xs font-medium text-slate-300">Alerts</span>
+          <span className="text-sm font-bold text-cyan-400">{metrics.alerts}</span>
+        </div>
+      </div>
+
+      {/* Main Content: 55% Map / 45% Tabbed Panel */}
+      <div className="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-[55%_45%] gap-2">
+        {/* Map Panel */}
+        <div className="rounded-lg overflow-hidden bg-[#0a0e27] border border-cyan-500/20 shadow-[0_0_15px_rgba(34,211,238,0.2)] flex flex-col">
+          <div className="px-3 py-2 border-b border-cyan-500/20 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <MapPin className="w-3.5 h-3.5 text-cyan-400" />
+              <span className="text-xs font-semibold text-slate-100">Fleet Map</span>
+              {isRealtimeConnected && (
+                <span className="px-1.5 py-0.5 rounded-full bg-cyan-400/20 text-cyan-400 text-[10px] font-medium">Live</span>
+              )}
+            </div>
+            <span className="text-[10px] text-slate-400">{filteredVehicles.length} vehicles</span>
+          </div>
+          <div className="flex-1 min-h-0">
+            <ProfessionalFleetMap
+              vehicles={filteredVehicles}
+              facilities={data.facilities}
+              height="100%"
+              onVehicleSelect={(vehicleId) => {
+                const vehicle = filteredVehicles.find(v => v.id === vehicleId)
+                if (vehicle) handleVehicleDrilldown(vehicle)
+              }}
+              showLegend={true}
+              enableRealTime={isRealtimeConnected}
+            />
+          </div>
+        </div>
+
+        {/* Tabbed Data Panel */}
+        <div className="rounded-lg overflow-hidden bg-[#0a0e27] border border-cyan-500/20 shadow-[0_0_15px_rgba(34,211,238,0.2)] flex flex-col">
+          <Tabs defaultValue="vehicles" className="flex flex-col h-full">
+            <div className="px-3 py-2 border-b border-cyan-500/20">
+              <TabsList className="bg-transparent h-7 p-0 gap-1">
+                <TabsTrigger
+                  value="vehicles"
+                  className="text-[10px] h-6 px-3 data-[state=active]:bg-cyan-400/20 data-[state=active]:text-cyan-400 text-slate-400"
+                >
+                  Vehicles
+                </TabsTrigger>
+                <TabsTrigger
+                  value="alerts"
+                  className="text-[10px] h-6 px-3 data-[state=active]:bg-cyan-400/20 data-[state=active]:text-cyan-400 text-slate-400"
+                >
+                  Alerts
+                </TabsTrigger>
+                <TabsTrigger
+                  value="analytics"
+                  className="text-[10px] h-6 px-3 data-[state=active]:bg-cyan-400/20 data-[state=active]:text-cyan-400 text-slate-400"
+                >
+                  Analytics
+                </TabsTrigger>
+              </TabsList>
+            </div>
+
+            <TabsContent value="vehicles" className="flex-1 min-h-0 overflow-y-auto m-0 p-0">
+              <table className="w-full text-[10px]">
+                <thead className="bg-[#0f1535] sticky top-0">
+                  <tr>
+                    <th className="px-2 py-1.5 text-left font-semibold text-cyan-400">ID</th>
+                    <th className="px-2 py-1.5 text-left font-semibold text-cyan-400">Vehicle</th>
+                    <th className="px-2 py-1.5 text-left font-semibold text-cyan-400">Status</th>
+                    <th className="px-2 py-1.5 text-left font-semibold text-cyan-400">Fuel</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-cyan-500/10">
+                  {filteredVehicles.slice(0, 20).map(vehicle => (
+                    <tr
+                      key={vehicle.id}
+                      className="hover:bg-cyan-400/10 cursor-pointer transition-colors"
+                      onClick={() => handleVehicleDrilldown(vehicle)}
+                    >
+                      <td className="px-2 py-1.5 font-medium text-slate-100">{vehicle.number}</td>
+                      <td className="px-2 py-1.5">
+                        <div className="text-slate-100 font-medium">{vehicle.make}</div>
+                        <div className="text-[9px] text-slate-400">{vehicle.model}</div>
+                      </td>
+                      <td className="px-2 py-1.5">
+                        <span className={`px-1.5 py-0.5 rounded text-[9px] font-medium ${
+                          vehicle.status === 'active' ? 'bg-green-400/20 text-green-400 border border-green-400/30' :
+                          vehicle.status === 'service' ? 'bg-orange-400/20 text-orange-400 border border-orange-400/30' :
+                          'bg-slate-400/20 text-slate-400 border border-slate-400/30'
+                        }`}>
+                          {vehicle.status}
+                        </span>
+                      </td>
+                      <td className="px-2 py-1.5">
+                        <span className={vehicle.fuelLevel < 25 ? 'text-red-400 font-semibold' : 'text-slate-300'}>
+                          {vehicle.fuelLevel}%
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </TabsContent>
+
+            <TabsContent value="alerts" className="flex-1 min-h-0 overflow-y-auto m-0 p-3">
+              <div className="space-y-2">
+                {filteredVehicles.filter(v => v.alerts && v.alerts.length > 0).slice(0, 10).map(vehicle => (
+                  <div
+                    key={vehicle.id}
+                    className="p-2 rounded border border-cyan-500/20 bg-cyan-400/5 hover:bg-cyan-400/10 cursor-pointer transition-colors"
+                    onClick={() => handleVehicleDrilldown(vehicle)}
+                  >
+                    <div className="text-[10px] font-semibold text-cyan-400">{vehicle.number}</div>
+                    <div className="text-[9px] text-slate-300 mt-0.5">{vehicle.alerts![0]}</div>
+                  </div>
+                ))}
+              </div>
+            </TabsContent>
+
+            <TabsContent value="analytics" className="flex-1 min-h-0 overflow-y-auto m-0 p-3">
+              <div className="space-y-3">
+                <div className="p-2 rounded border border-cyan-500/20 bg-cyan-400/5">
+                  <div className="text-[9px] text-slate-400 mb-1">Fleet Utilization</div>
+                  <div className="text-lg font-bold text-cyan-400">{Math.round((metrics.active / metrics.total) * 100)}%</div>
+                </div>
+                <div className="p-2 rounded border border-cyan-500/20 bg-cyan-400/5">
+                  <div className="text-[9px] text-slate-400 mb-1">Avg Fuel Level</div>
+                  <div className="text-lg font-bold text-cyan-400">{metrics.avgFuelLevel}%</div>
+                </div>
+                <div className="p-2 rounded border border-cyan-500/20 bg-cyan-400/5">
+                  <div className="text-[9px] text-slate-400 mb-1">Vehicles in Service</div>
+                  <div className="text-lg font-bold text-orange-400">{metrics.service}</div>
+                </div>
+              </div>
+            </TabsContent>
+          </Tabs>
+        </div>
+      </div>
+    </div>
+  )
+
+  // Fortune 50 Design 3: Scandinavian Clean
+  const FortuneNordicLayout = () => (
+    <div className="flex-1 min-h-0 flex flex-col gap-3">
+      {/* Horizontal Metrics Ribbon */}
+      <div className="flex flex-wrap gap-2">
+        <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white border border-gray-200 shadow-sm">
+          <Car className="w-4 h-4 text-emerald-500" />
+          <div>
+            <div className="text-[9px] text-gray-500 font-medium">Total Fleet</div>
+            <div className="text-sm font-bold text-gray-800">{metrics.total}</div>
+          </div>
+        </div>
+        <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white border border-gray-200 shadow-sm">
+          <Circle className="w-3 h-3 fill-emerald-500" weight="fill" />
+          <div>
+            <div className="text-[9px] text-gray-500 font-medium">Active</div>
+            <div className="text-sm font-bold text-emerald-600">{metrics.active}</div>
+          </div>
+        </div>
+        <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white border border-gray-200 shadow-sm">
+          <Circle className="w-3 h-3 fill-sky-500" weight="fill" />
+          <div>
+            <div className="text-[9px] text-gray-500 font-medium">Service</div>
+            <div className="text-sm font-bold text-sky-600">{metrics.service}</div>
+          </div>
+        </div>
+        <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white border border-gray-200 shadow-sm">
+          <BatteryMedium className="w-4 h-4 text-sky-500" />
+          <div>
+            <div className="text-[9px] text-gray-500 font-medium">Low Fuel</div>
+            <div className="text-sm font-bold text-red-600">{metrics.lowFuel}</div>
+          </div>
+        </div>
+        <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white border border-gray-200 shadow-sm">
+          <Broadcast className="w-4 h-4 text-emerald-500" />
+          <div>
+            <div className="text-[9px] text-gray-500 font-medium">Alerts</div>
+            <div className="text-sm font-bold text-gray-800">{metrics.alerts}</div>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Content: 50/50 Split */}
+      <div className="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-2 gap-3">
+        {/* Map Panel */}
+        <div className="rounded-lg overflow-hidden bg-white border border-gray-200 shadow-sm flex flex-col">
+          <div className="px-4 py-2.5 border-b border-gray-200 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <MapPin className="w-4 h-4 text-emerald-500" />
+              <span className="text-sm font-semibold text-gray-800">Fleet Map</span>
+              {isRealtimeConnected && (
+                <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 text-[10px] font-medium">Live</span>
+              )}
+            </div>
+            <span className="text-xs text-gray-500">{filteredVehicles.length} vehicles</span>
+          </div>
+          <div className="flex-1 min-h-0">
+            <ProfessionalFleetMap
+              vehicles={filteredVehicles}
+              facilities={data.facilities}
+              height="100%"
+              onVehicleSelect={(vehicleId) => {
+                const vehicle = filteredVehicles.find(v => v.id === vehicleId)
+                if (vehicle) handleVehicleDrilldown(vehicle)
+              }}
+              showLegend={true}
+              enableRealTime={isRealtimeConnected}
+            />
+          </div>
+        </div>
+
+        {/* Vehicle Table with Alternating Rows */}
+        <div className="rounded-lg overflow-hidden bg-white border border-gray-200 shadow-sm flex flex-col">
+          <div className="px-4 py-2.5 border-b border-gray-200 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Car className="w-4 h-4 text-sky-500" />
+              <span className="text-sm font-semibold text-gray-800">Vehicles</span>
+            </div>
+            <div className="relative">
+              <MagnifyingGlass className="absolute left-2 top-1/2 -translate-y-1/2 w-3 h-3 text-gray-400" />
+              <Input
+                placeholder="Search..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-6 h-6 text-xs w-[120px] border-gray-200"
+              />
+            </div>
+          </div>
+          <div className="flex-1 min-h-0 overflow-y-auto">
+            <table className="w-full text-xs">
+              <thead className="bg-gray-50 sticky top-0">
+                <tr>
+                  <th className="px-3 py-2 text-left font-semibold text-gray-700">ID</th>
+                  <th className="px-3 py-2 text-left font-semibold text-gray-700">Vehicle</th>
+                  <th className="px-3 py-2 text-left font-semibold text-gray-700">Status</th>
+                  <th className="px-3 py-2 text-left font-semibold text-gray-700">Fuel</th>
+                  <th className="px-3 py-2 text-left font-semibold text-gray-700">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredVehicles.slice(0, 20).map((vehicle, index) => (
+                  <tr
+                    key={vehicle.id}
+                    className={`hover:bg-emerald-50/50 cursor-pointer transition-colors ${
+                      index % 2 === 0 ? 'bg-white' : 'bg-gray-50'
+                    }`}
+                    onClick={() => handleVehicleDrilldown(vehicle)}
+                  >
+                    <td className="px-3 py-2 font-medium text-gray-900">{vehicle.number}</td>
+                    <td className="px-3 py-2">
+                      <div className="text-gray-900 font-medium">{vehicle.make}</div>
+                      <div className="text-[10px] text-gray-500">{vehicle.model}</div>
+                    </td>
+                    <td className="px-3 py-2">
+                      <span className={`px-2 py-0.5 rounded-full text-[10px] font-medium ${
+                        vehicle.status === 'active' ? 'bg-emerald-100 text-emerald-700' :
+                        vehicle.status === 'service' ? 'bg-sky-100 text-sky-700' :
+                        'bg-gray-100 text-gray-700'
+                      }`}>
+                        {vehicle.status}
+                      </span>
+                    </td>
+                    <td className="px-3 py-2">
+                      <span className={vehicle.fuelLevel < 25 ? 'text-red-600 font-semibold' : 'text-gray-700'}>
+                        {vehicle.fuelLevel}%
+                      </span>
+                    </td>
+                    <td className="px-3 py-2">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-5 px-2 text-[10px] text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          handleVehicleDrilldown(vehicle)
+                        }}
+                      >
+                        View
+                      </Button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
 
   return (
     <div className="h-full flex flex-col gap-3 p-4">
@@ -362,6 +1069,23 @@ export function FleetDashboard({ data }: FleetDashboardProps) {
           </div>
         </div>
         <div className="flex gap-1.5">
+          <Select value={layoutMode} onValueChange={(v) => setLayoutMode(v as LayoutMode)}>
+            <SelectTrigger className="w-[180px] h-7 text-xs">
+              <Layout className="w-3 h-3 mr-1.5" />
+              <SelectValue placeholder="Layout" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="split-50-50">50/50 Split</SelectItem>
+              <SelectItem value="split-70-30">70/30 Map Focus</SelectItem>
+              <SelectItem value="tabs">Tabbed View</SelectItem>
+              <SelectItem value="top-bottom">Top/Bottom</SelectItem>
+              <SelectItem value="map-drawer">Map + Drawer</SelectItem>
+              <SelectItem value="quad-grid">4-Quadrant</SelectItem>
+              <SelectItem value="fortune-glass">Fortune 50: Glass</SelectItem>
+              <SelectItem value="fortune-dark">Fortune 50: Dark Enterprise</SelectItem>
+              <SelectItem value="fortune-nordic">Fortune 50: Nordic Clean</SelectItem>
+            </SelectContent>
+          </Select>
           <AddVehicleDialog onAdd={data.addVehicle} />
           <Button
             variant="outline"
@@ -393,134 +1117,8 @@ export function FleetDashboard({ data }: FleetDashboardProps) {
         )}
       </div>
 
-      {/* Main Split Screen: Map LEFT, Table RIGHT */}
-      <div className="grid grid-cols-2 gap-4 flex-1 min-h-0">
-        {/* LEFT: Map */}
-        <div className="border rounded-lg overflow-hidden flex flex-col">
-          <div className="bg-muted/50 px-4 py-2 border-b flex items-center justify-between">
-            <h3 className="font-semibold text-sm flex items-center gap-2">
-              <MapPin className="w-4 h-4 text-primary" />
-              Fleet Map
-              {isRealtimeConnected && (
-                <Badge variant="outline" className="text-[10px] h-5 bg-green-100 text-green-700 border-green-300 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800">
-                  Live
-                </Badge>
-              )}
-            </h3>
-            <span className="text-xs text-muted-foreground">{filteredVehicles.length} vehicles</span>
-          </div>
-          <div className="flex-1">
-            <ProfessionalFleetMap
-              vehicles={filteredVehicles}
-              facilities={data.facilities}
-              height="100%"
-              onVehicleSelect={(vehicleId) => {
-                const vehicle = filteredVehicles.find(v => v.id === vehicleId)
-                if (vehicle) handleVehicleDrilldown(vehicle)
-              }}
-              showLegend={true}
-              enableRealTime={isRealtimeConnected}
-            />
-          </div>
-        </div>
-
-        {/* RIGHT: Vehicle Table */}
-        <div className="border rounded-lg overflow-hidden flex flex-col">
-          {/* Table Header - Fixed */}
-          <div className="bg-muted/50 px-4 py-2 border-b flex items-center justify-between">
-            <h3 className="font-semibold text-sm flex items-center gap-2">
-              <Car className="w-4 h-4 text-primary" />
-              Fleet Vehicles
-            </h3>
-            <div className="flex items-center gap-2">
-              <div className="relative">
-                <MagnifyingGlass className="absolute left-2 top-1/2 -translate-y-1/2 w-3 h-3 text-muted-foreground" />
-                <Input
-                  placeholder="Search..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-7 h-7 text-xs w-[150px]"
-                />
-              </div>
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-[100px] h-7 text-xs">
-                  <SelectValue placeholder="Status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Status</SelectItem>
-                  <SelectItem value="active">Active</SelectItem>
-                  <SelectItem value="idle">Idle</SelectItem>
-                  <SelectItem value="service">Service</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          {/* Table Content - Scrollable */}
-          <div className="flex-1 overflow-y-auto">
-            <table className="w-full">
-              <thead className="bg-muted/30 sticky top-0">
-                <tr>
-                  <th className="px-3 py-2 text-left text-xs font-semibold uppercase">ID</th>
-                  <th className="px-3 py-2 text-left text-xs font-semibold uppercase">Vehicle</th>
-                  <th className="px-3 py-2 text-left text-xs font-semibold uppercase">Status</th>
-                  <th className="px-3 py-2 text-left text-xs font-semibold uppercase">Driver</th>
-                  <th className="px-3 py-2 text-left text-xs font-semibold uppercase">Fuel</th>
-                  <th className="px-3 py-2 text-left text-xs font-semibold uppercase">Location</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y">
-                {filteredVehicles.map(vehicle => {
-                  const wasRecentlyUpdated = vehicle.lastUpdated &&
-                    (new Date().getTime() - new Date(vehicle.lastUpdated).getTime()) < 5000
-
-                  return (
-                    <tr
-                      key={vehicle.id}
-                      className={`hover:bg-muted/30 cursor-pointer ${
-                        wasRecentlyUpdated ? 'bg-blue-50/50 dark:bg-blue-950/20' : ''
-                      }`}
-                      onClick={() => handleVehicleDrilldown(vehicle)}
-                    >
-                      <td className="px-3 py-2 text-sm font-medium">
-                        <div className="flex items-center gap-1">
-                          {vehicle.number}
-                          {wasRecentlyUpdated && (
-                            <Circle className="w-1.5 h-1.5 fill-blue-500 animate-pulse" weight="fill" />
-                          )}
-                        </div>
-                      </td>
-                      <td className="px-3 py-2 text-sm">
-                        <div>
-                          <p className="font-medium">{vehicle.make} {vehicle.model}</p>
-                          <p className="text-[10px] text-muted-foreground">{vehicle.year} • {vehicle.type}</p>
-                        </div>
-                      </td>
-                      <td className="px-3 py-2 text-sm">
-                        <Badge variant={getStatusVariant(vehicle.status)} className="text-xs">
-                          {vehicle.status}
-                        </Badge>
-                      </td>
-                      <td className="px-3 py-2 text-sm">{vehicle.assignedDriver || '-'}</td>
-                      <td className="px-3 py-2 text-sm">
-                        <div className="flex items-center gap-1">
-                          <BatteryMedium className="w-3 h-3 text-muted-foreground" />
-                          <span className={vehicle.fuelLevel < 25 ? 'text-warning font-medium' : ''}>
-                            {vehicle.fuelLevel}%
-                          </span>
-                        </div>
-                      </td>
-                      <td className="px-3 py-2 text-sm text-muted-foreground truncate max-w-[150px]">
-                        {vehicle.location?.address || 'Unknown'}
-                      </td>
-                    </tr>
-                  )
-                })}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
+      {/* Dynamic Layout Content */}
+      {renderLayout()}
 
       {/* Advanced Filters Dialog */}
       <Dialog open={isAdvancedFiltersOpen} onOpenChange={setIsAdvancedFiltersOpen}>
@@ -626,205 +1224,6 @@ export function FleetDashboard({ data }: FleetDashboardProps) {
                 }}
                 className="w-full"
               />
-            </div>
-
-            {/* Mileage Range */}
-            <div className="space-y-3">
-              <Label className="text-base font-semibold">Mileage Range</Label>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="mileage-min">Min Mileage</Label>
-                  <Input
-                    id="mileage-min"
-                    type="number"
-                    placeholder="0"
-                    value={filterCriteria.mileageRange.min ?? ""}
-                    onChange={(e) => {
-                      setFilterCriteria({
-                        ...filterCriteria,
-                        mileageRange: {
-                          ...filterCriteria.mileageRange,
-                          min: e.target.value ? parseInt(e.target.value) : null
-                        }
-                      })
-                    }}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="mileage-max">Max Mileage</Label>
-                  <Input
-                    id="mileage-max"
-                    type="number"
-                    placeholder="No limit"
-                    value={filterCriteria.mileageRange.max ?? ""}
-                    onChange={(e) => {
-                      setFilterCriteria({
-                        ...filterCriteria,
-                        mileageRange: {
-                          ...filterCriteria.mileageRange,
-                          max: e.target.value ? parseInt(e.target.value) : null
-                        }
-                      })
-                    }}
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Alert Status */}
-            <div className="space-y-3">
-              <Label className="text-base font-semibold">Alert Status</Label>
-              <div className="flex flex-wrap gap-3">
-                {[
-                  { value: "has-alerts", label: "Has Alerts" },
-                  { value: "no-alerts", label: "No Alerts" },
-                  { value: "critical", label: "Critical Only" }
-                ].map((alert) => (
-                  <div key={alert.value} className="flex items-center space-x-2">
-                    <Checkbox
-                      id={`alert-${alert.value}`}
-                      checked={filterCriteria.alertStatus.includes(alert.value)}
-                      onCheckedChange={(checked) => {
-                        setFilterCriteria({
-                          ...filterCriteria,
-                          alertStatus: checked
-                            ? [...filterCriteria.alertStatus, alert.value]
-                            : filterCriteria.alertStatus.filter(a => a !== alert.value)
-                        })
-                      }}
-                    />
-                    <Label htmlFor={`alert-${alert.value}`} className="cursor-pointer">
-                      {alert.label}
-                    </Label>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Driver Assigned */}
-            <div className="space-y-3">
-              <Label className="text-base font-semibold">Driver Assignment</Label>
-              <Select
-                value={filterCriteria.driverAssigned}
-                onValueChange={(value) => {
-                  setFilterCriteria({ ...filterCriteria, driverAssigned: value })
-                }}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Vehicles</SelectItem>
-                  <SelectItem value="assigned">Assigned</SelectItem>
-                  <SelectItem value="unassigned">Unassigned</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Vehicle Type */}
-            <div className="space-y-3">
-              <Label className="text-base font-semibold">Vehicle Type</Label>
-              <div className="flex flex-wrap gap-3">
-                {["sedan", "suv", "truck", "van", "emergency", "specialty"].map((type) => (
-                  <div key={type} className="flex items-center space-x-2">
-                    <Checkbox
-                      id={`type-${type}`}
-                      checked={filterCriteria.vehicleTypes.includes(type)}
-                      onCheckedChange={(checked) => {
-                        setFilterCriteria({
-                          ...filterCriteria,
-                          vehicleTypes: checked
-                            ? [...filterCriteria.vehicleTypes, type]
-                            : filterCriteria.vehicleTypes.filter(t => t !== type)
-                        })
-                      }}
-                    />
-                    <Label htmlFor={`type-${type}`} className="capitalize cursor-pointer">
-                      {type}
-                    </Label>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Year Range */}
-            <div className="space-y-3">
-              <Label className="text-base font-semibold">Year Range</Label>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="year-from">From Year</Label>
-                  <Select
-                    value={filterCriteria.yearRange.from?.toString() ?? "all"}
-                    onValueChange={(value) => {
-                      setFilterCriteria({
-                        ...filterCriteria,
-                        yearRange: {
-                          ...filterCriteria.yearRange,
-                          from: value === "all" ? null : parseInt(value)
-                        }
-                      })
-                    }}
-                  >
-                    <SelectTrigger id="year-from">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">Any Year</SelectItem>
-                      {Array.from({ length: 30 }, (_, i) => new Date().getFullYear() - i).map(year => (
-                        <SelectItem key={year} value={year.toString()}>{year}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="year-to">To Year</Label>
-                  <Select
-                    value={filterCriteria.yearRange.to?.toString() ?? "all"}
-                    onValueChange={(value) => {
-                      setFilterCriteria({
-                        ...filterCriteria,
-                        yearRange: {
-                          ...filterCriteria.yearRange,
-                          to: value === "all" ? null : parseInt(value)
-                        }
-                      })
-                    }}
-                  >
-                    <SelectTrigger id="year-to">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">Any Year</SelectItem>
-                      {Array.from({ length: 30 }, (_, i) => new Date().getFullYear() - i).map(year => (
-                        <SelectItem key={year} value={year.toString()}>{year}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-            </div>
-
-            {/* Last Maintenance */}
-            <div className="space-y-3">
-              <Label className="text-base font-semibold">Last Maintenance</Label>
-              <Select
-                value={filterCriteria.lastMaintenance}
-                onValueChange={(value) => {
-                  setFilterCriteria({ ...filterCriteria, lastMaintenance: value })
-                }}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Vehicles</SelectItem>
-                  <SelectItem value="7days">Last 7 Days</SelectItem>
-                  <SelectItem value="30days">Last 30 Days</SelectItem>
-                  <SelectItem value="60days">Last 60 Days</SelectItem>
-                  <SelectItem value="90days">Last 90 Days</SelectItem>
-                  <SelectItem value="overdue">Overdue Maintenance</SelectItem>
-                </SelectContent>
-              </Select>
             </div>
           </div>
 
