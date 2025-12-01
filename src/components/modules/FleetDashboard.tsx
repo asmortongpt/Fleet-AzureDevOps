@@ -36,7 +36,7 @@ import { useDrilldown } from "@/contexts/DrilldownContext"
 import { useInspect } from "@/services/inspect/InspectContext"
 import apiClient from "@/lib/api-client"
 
-type LayoutMode = "split-50-50" | "split-70-30" | "tabs" | "top-bottom" | "map-drawer" | "quad-grid" | "fortune-glass" | "fortune-dark" | "fortune-nordic"
+type LayoutMode = "split-50-50" | "split-70-30" | "tabs" | "top-bottom" | "map-drawer" | "quad-grid" | "fortune-glass" | "fortune-dark" | "fortune-nordic" | "fortune-ultimate"
 
 interface FleetDashboardProps {
   data: ReturnType<typeof useFleetData>
@@ -756,6 +756,9 @@ export function FleetDashboard({ data }: FleetDashboardProps) {
       case "fortune-nordic":
         return <FortuneNordicLayout />
 
+      case "fortune-ultimate":
+        return <FortuneUltimateLayout />
+
       default:
         return null
     }
@@ -1217,6 +1220,196 @@ export function FleetDashboard({ data }: FleetDashboardProps) {
     </div>
   )
 
+  // Fortune 50 Design 4: Command Center Pro - Ultimate Bloomberg Terminal Style
+  const FortuneUltimateLayout = () => {
+    // Compact Metric Card for ultra-dense display
+    const MetricCardCompact = ({ icon: Icon, value, label, color = 'gray' }: { icon: any, value: string | number, label: string, color?: 'gray' | 'green' | 'orange' | 'red' | 'amber' | 'blue' }) => {
+      const colors = {
+        gray: 'text-gray-700 dark:text-gray-300',
+        green: 'text-green-600 dark:text-green-400',
+        orange: 'text-orange-600 dark:text-orange-400',
+        red: 'text-red-600 dark:text-red-400',
+        amber: 'text-amber-600 dark:text-amber-400',
+        blue: 'text-blue-600 dark:text-blue-400'
+      }
+
+      return (
+        <div className="flex items-center gap-2 px-2">
+          <Icon className={`w-4 h-4 ${colors[color]}`} weight="duotone" />
+          <div>
+            <div className="text-lg font-bold leading-none dark:text-white">{value}</div>
+            <div className="text-[9px] uppercase text-gray-500 dark:text-gray-400 leading-none mt-0.5">{label}</div>
+          </div>
+        </div>
+      )
+    }
+
+    // Live Badge Component
+    const LiveBadgeCompact = ({ showText = false }: { showText?: boolean }) => (
+      <div className="flex items-center gap-1 px-2 py-1 bg-green-500/20 border border-green-500/30 rounded-md">
+        <Circle className="w-2 h-2 fill-green-500 animate-pulse" weight="fill" />
+        {showText && <span className="text-[10px] font-semibold text-green-700 dark:text-green-300">LIVE</span>}
+      </div>
+    )
+
+    return (
+      <div className="h-full flex flex-col bg-white dark:bg-gray-950">
+        {/* Header Bar - 40px */}
+        <div className="h-10 bg-gradient-to-r from-slate-900 to-slate-800 text-white px-4 flex items-center justify-between shadow-lg">
+          <h1 className="text-sm font-semibold tracking-wide">Fleet Command Center</h1>
+          <div className="flex items-center gap-3">
+            <div className="relative">
+              <MagnifyingGlass className="absolute left-2 top-1/2 -translate-y-1/2 w-3 h-3 text-gray-400" />
+              <Input
+                type="text"
+                placeholder="Search vehicles..."
+                className="pl-7 pr-3 py-1 text-xs rounded bg-slate-800 border border-slate-700 focus:border-blue-500 w-[200px] h-7"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
+            <Button size="sm" variant="secondary" className="h-7 text-xs">
+              <FunnelSimple className="w-3 h-3 mr-1" />
+              Filters
+            </Button>
+            <LiveBadgeCompact />
+          </div>
+        </div>
+
+        {/* Metrics Bar - 50px */}
+        <div className="h-[50px] bg-gray-50 dark:bg-gray-900 border-b px-4 flex items-center gap-4 overflow-x-auto">
+          <MetricCardCompact icon={Car} value={metrics.total} label="Total Fleet" />
+          <MetricCardCompact icon={Circle} value={metrics.active} label="Active Now" color="green" />
+          <MetricCardCompact icon={Wrench} value={metrics.service} label="In Service" color="orange" />
+          <MetricCardCompact icon={Warning} value={metrics.emergency} label="Emergency" color="red" />
+          <MetricCardCompact icon={BatteryLow} value={metrics.lowFuel} label="Low Fuel" color="amber" />
+          <MetricCardCompact icon={BatteryMedium} value={metrics.avgFuelLevel + "%"} label="Avg Fuel" color="blue" />
+          <div className="flex-1" /> {/* Spacer */}
+          <AddVehicleDialog onAdd={data.addVehicle} />
+        </div>
+
+        {/* Main Content - flex-1 */}
+        <div className="flex-1 grid grid-cols-1 lg:grid-cols-[70%_30%] min-h-0">
+          {/* Map Panel */}
+          <div className="relative border-r dark:border-gray-800">
+            <ProfessionalFleetMap
+              vehicles={filteredVehicles}
+              facilities={data.facilities}
+              height="100%"
+              onVehicleSelect={(vehicleId) => {
+                const vehicle = filteredVehicles.find(v => v.id === vehicleId)
+                if (vehicle) handleVehicleDrilldown(vehicle)
+              }}
+              showLegend={false}
+              enableRealTime={isRealtimeConnected}
+            />
+            <div className="absolute top-3 right-3">
+              <LiveBadgeCompact showText />
+            </div>
+          </div>
+
+          {/* Table Panel */}
+          <div className="flex flex-col bg-white dark:bg-gray-950">
+            {/* Table Header - Sticky */}
+            <div className="bg-gray-100 dark:bg-gray-900 border-b dark:border-gray-800 px-3 py-2 flex items-center justify-between sticky top-0 z-10">
+              <span className="text-xs font-semibold text-gray-700 dark:text-gray-300">
+                {filteredVehicles.length} Vehicles
+              </span>
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="w-[110px] h-6 text-[10px]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Status</SelectItem>
+                  <SelectItem value="active">Active</SelectItem>
+                  <SelectItem value="service">Service</SelectItem>
+                  <SelectItem value="emergency">Emergency</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Table Body - Scrollable */}
+            <div className="flex-1 overflow-y-auto">
+              <table className="w-full text-xs">
+                <thead className="bg-gray-50 dark:bg-gray-900 sticky top-0">
+                  <tr className="border-b dark:border-gray-800">
+                    <th className="px-3 py-2 text-left font-medium text-[10px] uppercase text-gray-500 dark:text-gray-400">ID</th>
+                    <th className="px-3 py-2 text-left font-medium text-[10px] uppercase text-gray-500 dark:text-gray-400">Vehicle</th>
+                    <th className="px-3 py-2 text-left font-medium text-[10px] uppercase text-gray-500 dark:text-gray-400">Status</th>
+                    <th className="px-3 py-2 text-right font-medium text-[10px] uppercase text-gray-500 dark:text-gray-400">Fuel</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredVehicles.slice(0, 20).map((vehicle, idx) => {
+                    const wasRecentlyUpdated = vehicle.lastUpdated &&
+                      (new Date().getTime() - new Date(vehicle.lastUpdated).getTime()) < 5000
+
+                    return (
+                      <tr
+                        key={vehicle.id}
+                        className={`h-9 border-b dark:border-gray-800 cursor-pointer transition-colors ${
+                          idx % 2 === 0 ? 'bg-white dark:bg-gray-950' : 'bg-gray-50 dark:bg-gray-900'
+                        } hover:bg-blue-50 dark:hover:bg-blue-950 ${
+                          wasRecentlyUpdated ? 'bg-blue-50/50 dark:bg-blue-950/30' : ''
+                        }`}
+                        onClick={() => handleVehicleDrilldown(vehicle)}
+                      >
+                        <td className="px-3 py-2 font-mono font-medium dark:text-white">
+                          <div className="flex items-center gap-1">
+                            {vehicle.number}
+                            {wasRecentlyUpdated && (
+                              <Circle className="w-1.5 h-1.5 fill-blue-500 animate-pulse" weight="fill" />
+                            )}
+                          </div>
+                        </td>
+                        <td className="px-3 py-2">
+                          <div className="truncate dark:text-white">
+                            {vehicle.make} {vehicle.model}
+                          </div>
+                          <div className="text-[10px] text-gray-500 dark:text-gray-400">{vehicle.year}</div>
+                        </td>
+                        <td className="px-3 py-2">
+                          <Badge variant={getStatusVariant(vehicle.status)} className="text-[9px] h-4">
+                            {vehicle.status}
+                          </Badge>
+                        </td>
+                        <td className="px-3 py-2 text-right font-medium">
+                          <span className={vehicle.fuelLevel < 25 ? 'text-red-600 dark:text-red-400' : 'dark:text-white'}>
+                            {vehicle.fuelLevel}%
+                          </span>
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        {/* Activity Feed - 35px */}
+        <div className="h-[35px] bg-blue-50 dark:bg-blue-950 border-t dark:border-gray-800 px-4 flex items-center gap-2 overflow-x-auto">
+          <span className="text-[10px] font-semibold text-blue-900 dark:text-blue-100 whitespace-nowrap flex items-center gap-1">
+            <Broadcast className="w-3 h-3" weight="fill" />
+            LIVE ACTIVITY:
+          </span>
+          <div className="flex items-center gap-2">
+            {recentEvents.slice(0, 5).map((event, i) => (
+              <div key={i} className="px-2 py-0.5 bg-white dark:bg-blue-900 rounded-full text-[10px] whitespace-nowrap shadow-sm dark:text-blue-100">
+                {event.message}
+              </div>
+            ))}
+            {recentEvents.length === 0 && (
+              <div className="px-2 py-0.5 bg-white dark:bg-blue-900 rounded-full text-[10px] whitespace-nowrap shadow-sm dark:text-blue-100">
+                No recent activity
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="h-full flex flex-col gap-3 p-4">
       {/* Header Row */}
@@ -1266,6 +1459,7 @@ export function FleetDashboard({ data }: FleetDashboardProps) {
                 <SelectItem value="fortune-glass">✨ Glass-morphism</SelectItem>
                 <SelectItem value="fortune-dark">🌙 Dark Enterprise</SelectItem>
                 <SelectItem value="fortune-nordic">🌿 Nordic Clean</SelectItem>
+                <SelectItem value="fortune-ultimate">🏆 Command Center Pro</SelectItem>
               </SelectGroup>
             </SelectContent>
           </Select>
