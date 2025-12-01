@@ -70,144 +70,170 @@ export function PeopleManagement({ data }: PeopleManagementProps) {
         </TabsList>
 
         <TabsContent value="drivers" className="space-y-4">
-          <div className="grid grid-cols-1 gap-4">
-            {filteredDrivers.map(driver => (
-              <Card key={driver.id}>
-                <CardContent className="p-6">
-                  <div className="flex items-start justify-between">
-                    <div className="flex gap-4">
-                      <div className="w-12 h-12 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-semibold">
-                        {(driver.name || 'U').split(' ').map(n => n[0] || '').join('').slice(0, 2) || 'U'}
-                      </div>
-                      <div className="space-y-3">
-                        <div>
-                          <h3 className="font-semibold text-lg">{driver.name || 'Unknown'}</h3>
-                          <p className="text-sm text-muted-foreground">{driver.employeeId || 'N/A'} • {driver.department || 'Unassigned'}</p>
+          <div className="border rounded-lg overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-muted/50 border-b">
+                  <tr>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">Name</th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">Employee ID</th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">Department</th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">Phone</th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">Email</th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">License</th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">Status</th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">Safety Score</th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">Certifications</th>
+                    <th className="px-4 py-3 text-right text-xs font-semibold text-muted-foreground uppercase tracking-wider">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border bg-card">
+                  {filteredDrivers.map(driver => (
+                    <tr
+                      key={driver.id}
+                      className="hover:bg-muted/30 transition-colors"
+                    >
+                      <td className="px-4 py-3 text-sm font-medium">{driver.name || 'Unknown'}</td>
+                      <td className="px-4 py-3 text-sm text-muted-foreground">{driver.employeeId || 'N/A'}</td>
+                      <td className="px-4 py-3 text-sm">{driver.department || 'Unassigned'}</td>
+                      <td className="px-4 py-3 text-sm">
+                        <a href={`tel:${driver.phone}`} className="hover:text-primary hover:underline">
+                          {driver.phone || 'No phone'}
+                        </a>
+                      </td>
+                      <td className="px-4 py-3 text-sm">
+                        <a href={`mailto:${driver.email}`} className="hover:text-primary hover:underline truncate max-w-[200px] block">
+                          {driver.email || 'No email'}
+                        </a>
+                      </td>
+                      <td className="px-4 py-3 text-sm">
+                        <Badge variant="outline" className="text-xs">
+                          <IdentificationCard className="w-3 h-3 mr-1" />
+                          {driver.licenseType || 'N/A'}
+                        </Badge>
+                      </td>
+                      <td className="px-4 py-3 text-sm">
+                        <Badge variant="outline" className={driver.status === "active" ? "bg-success/10 text-success border-success/20" : ""}>
+                          {driver.status}
+                        </Badge>
+                      </td>
+                      <td className="px-4 py-3 text-sm">
+                        <div className="text-center">
+                          <div className="text-lg font-semibold">{driver.safetyScore}</div>
+                          <div className="text-xs text-muted-foreground">Score</div>
                         </div>
-                        <div className="flex flex-wrap gap-4 text-sm">
-                          <div className="flex items-center gap-2">
-                            <Phone className="w-4 h-4 text-muted-foreground" />
-                            <span>{driver.phone || 'No phone'}</span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <EnvelopeSimple className="w-4 h-4 text-muted-foreground" />
-                            <span>{driver.email || 'No email'}</span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <IdentificationCard className="w-4 h-4 text-muted-foreground" />
-                            <span>{driver.licenseType || 'N/A'}</span>
-                          </div>
-                        </div>
-                        <div className="flex gap-2">
+                      </td>
+                      <td className="px-4 py-3 text-sm">
+                        <div className="flex flex-wrap gap-1">
                           {(driver.certifications || []).map(cert => (
-                            <Badge key={cert} variant="outline" className="bg-success/10 text-success border-success/20">
+                            <Badge key={cert} variant="outline" className="bg-success/10 text-success border-success/20 text-xs">
                               <Certificate className="w-3 h-3 mr-1" />
                               {cert}
                             </Badge>
                           ))}
                         </div>
-                      </div>
-                    </div>
-                    <div className="text-right space-y-2">
-                      <Badge variant="outline" className={driver.status === "active" ? "bg-success/10 text-success border-success/20" : ""}>
-                        {driver.status}
-                      </Badge>
-                      <div className="text-2xl font-semibold">{driver.safetyScore}</div>
-                      <div className="text-xs text-muted-foreground">Safety Score</div>
-                    </div>
-                  </div>
-                  <div className="mt-4 pt-4 border-t flex gap-2">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => window.location.href = `tel:${driver.phone}`}
-                    >
-                      <Phone className="w-4 h-4 mr-2" />
-                      Call
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => window.location.href = `mailto:${driver.email}`}
-                    >
-                      <EnvelopeSimple className="w-4 h-4 mr-2" />
-                      Email
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => {
-                        // Navigate to driver performance with this driver selected
-                        window.location.hash = 'driver-performance'
-                      }}
-                    >
-                      View Details
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                      </td>
+                      <td className="px-4 py-3 text-sm text-right">
+                        <div className="flex gap-1 justify-end">
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => window.location.href = `tel:${driver.phone}`}
+                          >
+                            <Phone className="w-3 h-3" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => window.location.href = `mailto:${driver.email}`}
+                          >
+                            <EnvelopeSimple className="w-3 h-3" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => {
+                              window.location.hash = 'driver-performance'
+                            }}
+                          >
+                            View
+                          </Button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         </TabsContent>
 
         <TabsContent value="staff" className="space-y-4">
-          <div className="grid grid-cols-1 gap-4">
-            {filteredStaff.map(member => (
-              <Card key={member.id}>
-                <CardContent className="p-6">
-                  <div className="flex items-start justify-between">
-                    <div className="flex gap-4">
-                      <div className="w-12 h-12 rounded-full bg-secondary text-secondary-foreground flex items-center justify-center font-semibold">
-                        {(member.name || 'U').split(' ').map(n => n[0] || '').join('').slice(0, 2) || 'U'}
-                      </div>
-                      <div className="space-y-2">
-                        <div>
-                          <h3 className="font-semibold text-lg">{member.name || 'Unknown'}</h3>
-                          <p className="text-sm text-muted-foreground">{member.employeeId || 'N/A'}</p>
+          <div className="border rounded-lg overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-muted/50 border-b">
+                  <tr>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">Name</th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">Employee ID</th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">Department</th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">Role</th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">Phone</th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">Email</th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">Status</th>
+                    <th className="px-4 py-3 text-right text-xs font-semibold text-muted-foreground uppercase tracking-wider">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border bg-card">
+                  {filteredStaff.map(member => (
+                    <tr
+                      key={member.id}
+                      className="hover:bg-muted/30 transition-colors"
+                    >
+                      <td className="px-4 py-3 text-sm font-medium">{member.name || 'Unknown'}</td>
+                      <td className="px-4 py-3 text-sm text-muted-foreground">{member.employeeId || 'N/A'}</td>
+                      <td className="px-4 py-3 text-sm">{member.department}</td>
+                      <td className="px-4 py-3 text-sm">
+                        <Badge variant="outline">{member.role}</Badge>
+                      </td>
+                      <td className="px-4 py-3 text-sm">
+                        <a href={`tel:${member.phone}`} className="hover:text-primary hover:underline">
+                          {member.phone}
+                        </a>
+                      </td>
+                      <td className="px-4 py-3 text-sm">
+                        <a href={`mailto:${member.email}`} className="hover:text-primary hover:underline truncate max-w-[200px] block">
+                          {member.email}
+                        </a>
+                      </td>
+                      <td className="px-4 py-3 text-sm">
+                        <Badge variant="outline" className="bg-success/10 text-success border-success/20">
+                          {member.status}
+                        </Badge>
+                      </td>
+                      <td className="px-4 py-3 text-sm text-right">
+                        <div className="flex gap-1 justify-end">
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => window.location.href = `tel:${member.phone}`}
+                          >
+                            <Phone className="w-3 h-3" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => window.location.href = `mailto:${member.email}`}
+                          >
+                            <EnvelopeSimple className="w-3 h-3" />
+                          </Button>
                         </div>
-                        <div className="flex flex-wrap gap-4 text-sm">
-                          <div className="flex items-center gap-2">
-                            <Phone className="w-4 h-4 text-muted-foreground" />
-                            <span>{member.phone}</span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <EnvelopeSimple className="w-4 h-4 text-muted-foreground" />
-                            <span>{member.email}</span>
-                          </div>
-                        </div>
-                        <div className="flex gap-2">
-                          <Badge variant="outline">{member.department}</Badge>
-                          <Badge variant="outline">{member.role}</Badge>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="space-y-2 flex flex-col items-end">
-                      <Badge variant="outline" className="bg-success/10 text-success border-success/20">
-                        {member.status}
-                      </Badge>
-                      <div className="flex gap-2 mt-2">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => window.location.href = `tel:${member.phone}`}
-                        >
-                          <Phone className="w-3 h-3 mr-1" />
-                          Call
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => window.location.href = `mailto:${member.email}`}
-                        >
-                          <EnvelopeSimple className="w-3 h-3 mr-1" />
-                          Email
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         </TabsContent>
 
