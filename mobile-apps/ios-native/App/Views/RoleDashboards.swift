@@ -46,8 +46,9 @@ struct CompactStatCard: View {
     }
 }
 
-/// Activity item for feeds
-struct ActivityItem: Identifiable {
+// Note: ActivityItem is defined in App/Models/ActivityItem.swift
+// Using a local simplified version for dashboard display purposes
+struct DashboardActivityItem: Identifiable {
     let id = UUID()
     let icon: String
     let title: String
@@ -58,7 +59,7 @@ struct ActivityItem: Identifiable {
 
 /// Activity row view
 struct ActivityRow: View {
-    let item: ActivityItem
+    let item: DashboardActivityItem
 
     var body: some View {
         HStack(spacing: 12) {
@@ -737,10 +738,10 @@ class AdminDashboardViewModel: ObservableObject {
     @Published var vehicleHealthPercent = 92.0
     @Published var userActivityPercent = 78.0
     @Published var issueResolutionPercent = 85.0
-    @Published var recentActivities: [ActivityItem] = [
-        ActivityItem(icon: "person.badge.plus", title: "New User Added", subtitle: "John Smith joined as Driver", time: "2m ago", color: .green),
-        ActivityItem(icon: "exclamationmark.triangle", title: "Vehicle Issue", subtitle: "FL-001 reported engine warning", time: "15m ago", color: .red),
-        ActivityItem(icon: "checkmark.circle", title: "Trip Completed", subtitle: "Route to Tallahassee finished", time: "1h ago", color: .blue)
+    @Published var recentActivities: [DashboardActivityItem] = [
+        DashboardActivityItem(icon: "person.badge.plus", title: "New User Added", subtitle: "John Smith joined as Driver", time: "2m ago", color: .green),
+        DashboardActivityItem(icon: "exclamationmark.triangle", title: "Vehicle Issue", subtitle: "FL-001 reported engine warning", time: "15m ago", color: .red),
+        DashboardActivityItem(icon: "checkmark.circle", title: "Trip Completed", subtitle: "Route to Tallahassee finished", time: "1h ago", color: .blue)
     ]
 }
 
