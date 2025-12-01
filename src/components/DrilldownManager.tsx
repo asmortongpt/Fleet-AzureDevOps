@@ -31,6 +31,10 @@ function DrilldownContent() {
   // Render the appropriate component based on the current level type
   switch (currentLevel.type) {
     // Vehicle drilldown hierarchy
+    case 'vehicle':
+      // Handle 'vehicle' type (used by FleetDashboard) - same as 'vehicle-detail'
+      return <VehicleDetailPanel vehicleId={currentLevel.data?.vehicleId} />
+
     case 'vehicle-detail':
       return <VehicleDetailPanel vehicleId={currentLevel.data?.vehicleId} />
 
@@ -51,6 +55,10 @@ function DrilldownContent() {
       )
 
     // Driver drilldown hierarchy
+    case 'driver':
+      // Handle 'driver' type - same as 'driver-detail'
+      return <DriverDetailPanel driverId={currentLevel.data?.driverId} />
+
     case 'driver-detail':
       return <DriverDetailPanel driverId={currentLevel.data?.driverId} />
 
@@ -71,6 +79,10 @@ function DrilldownContent() {
       )
 
     // Maintenance drilldown hierarchy
+    case 'workOrder':
+      // Handle 'workOrder' type - same as 'work-order-detail'
+      return <WorkOrderDetailPanel workOrderId={currentLevel.data?.workOrderId} />
+
     case 'work-order-detail':
       return <WorkOrderDetailPanel workOrderId={currentLevel.data?.workOrderId} />
 
@@ -91,6 +103,10 @@ function DrilldownContent() {
       )
 
     // Facility drilldown hierarchy
+    case 'facility':
+      // Handle 'facility' type - same as 'facility-detail'
+      return <FacilityDetailPanel facilityId={currentLevel.data?.facilityId} />
+
     case 'facility-detail':
       return <FacilityDetailPanel facilityId={currentLevel.data?.facilityId} />
 
