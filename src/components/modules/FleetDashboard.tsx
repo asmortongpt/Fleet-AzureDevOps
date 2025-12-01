@@ -1678,17 +1678,17 @@ export function FleetDashboard({ data }: FleetDashboardProps) {
             LIVE ACTIVITY:
           </span>
           <div className="flex items-center gap-2">
-            {recentEvents.slice(0, 5).map((event, i) => (
+            {(recentEvents || []).slice(0, 5).map((event, i) => (
               <div
                 key={i}
                 className="px-2 py-0.5 bg-white dark:bg-blue-900 rounded-full text-[10px] whitespace-nowrap shadow-sm dark:text-blue-100 cursor-pointer hover:shadow-md transition-shadow"
                 onClick={(e) => handleEventDrilldown(e, event)}
                 title="Click to view event details"
               >
-                {event.message}
+                {event?.message || event?.type || 'Event'}
               </div>
             ))}
-            {recentEvents.length === 0 && (
+            {(!recentEvents || recentEvents.length === 0) && (
               <div className="px-2 py-0.5 bg-white dark:bg-blue-900 rounded-full text-[10px] whitespace-nowrap shadow-sm dark:text-blue-100">
                 No recent activity
               </div>
