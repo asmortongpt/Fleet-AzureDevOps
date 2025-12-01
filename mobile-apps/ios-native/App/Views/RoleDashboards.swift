@@ -57,8 +57,8 @@ struct DashboardActivityItem: Identifiable {
     let color: Color
 }
 
-/// Activity row view for dashboard-specific activities
-struct DashboardActivityRow: View {
+/// Activity row view
+struct ActivityRow: View {
     let item: DashboardActivityItem
 
     var body: some View {
@@ -169,7 +169,7 @@ struct AdminDashboardView: View {
 
                         VStack(spacing: 0) {
                             ForEach(viewModel.recentActivities) { activity in
-                                DashboardActivityRow(item: activity)
+                                ActivityRow(item: activity)
                                     .padding(.horizontal)
                                 if activity.id != viewModel.recentActivities.last?.id {
                                     Divider()
@@ -323,7 +323,7 @@ struct ManagerDashboardView: View {
 
                         VStack(spacing: 0) {
                             ForEach(viewModel.teamActivities) { activity in
-                                DashboardActivityRow(item: activity)
+                                ActivityRow(item: activity)
                                     .padding(.horizontal)
                                 if activity.id != viewModel.teamActivities.last?.id {
                                     Divider()
@@ -463,21 +463,21 @@ struct DriverDashboardView: View {
                             .padding(.horizontal)
 
                         VStack(spacing: 12) {
-                            DashboardQuickActionButton(
+                            QuickActionButton(
                                 icon: "play.fill",
                                 title: viewModel.isOnTrip ? "End Trip" : "Start Trip",
                                 subtitle: viewModel.isOnTrip ? "Complete current journey" : "Begin new journey",
                                 color: viewModel.isOnTrip ? .red : .green
                             )
 
-                            DashboardQuickActionButton(
+                            QuickActionButton(
                                 icon: "exclamationmark.triangle.fill",
                                 title: "Report Issue",
                                 subtitle: "Report vehicle problem",
                                 color: .orange
                             )
 
-                            DashboardQuickActionButton(
+                            QuickActionButton(
                                 icon: "fuelpump.fill",
                                 title: "Log Fuel",
                                 subtitle: "Record refueling",
@@ -522,7 +522,7 @@ struct DriverDashboardView: View {
     }
 }
 
-struct DashboardQuickActionButton: View {
+struct QuickActionButton: View {
     let icon: String
     let title: String
     let subtitle: String
@@ -675,7 +675,7 @@ struct ViewerDashboardView: View {
 
                         VStack(spacing: 0) {
                             ForEach(viewModel.recentUpdates) { update in
-                                DashboardActivityRow(item: update)
+                                ActivityRow(item: update)
                                     .padding(.horizontal)
                                 if update.id != viewModel.recentUpdates.last?.id {
                                     Divider()
