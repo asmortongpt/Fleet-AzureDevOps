@@ -1,7 +1,7 @@
 import { useMemo, useState, useEffect, useCallback } from "react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, SelectGroup, SelectLabel, SelectSeparator } from "@/components/ui/select"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -23,7 +23,10 @@ import {
   Circle,
   Layout,
   List,
-  ChartBar
+  ChartBar,
+  Wrench,
+  BatteryLow,
+  Warning
 } from "@phosphor-icons/react"
 import { Vehicle } from "@/lib/types"
 import { useFleetData } from "@/hooks/use-fleet-data"
@@ -491,6 +494,116 @@ export function FleetDashboard({ data }: FleetDashboardProps) {
     )
   }
 
+  // Reusable Metric Card Component
+  interface MetricCardProps {
+    label: string
+    value: number
+    icon: React.ComponentType<any>
+    color?: 'gray' | 'green' | 'orange' | 'red' | 'amber'
+  }
+
+  const MetricCard = ({ label, value, icon: Icon, color = 'gray' }: MetricCardProps) => {
+    const colorClasses = {
+      gray: 'text-gray-600',
+      green: 'text-green-600',
+      orange: 'text-orange-600',
+      red: 'text-red-600',
+      amber: 'text-amber-600'
+    }
+
+    return (
+      <div className="flex-1 bg-white border border-gray-200 rounded-lg p-2 shadow-sm">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-[10px] text-gray-500 uppercase font-medium">{label}</p>
+            <p className="text-xl font-bold text-gray-900">{value}</p>
+          </div>
+          <Icon className={`w-5 h-5 ${colorClasses[color]}`} weight="duotone" />
+        </div>
+      </div>
+    )
+  }
+
+  // Live Badge Component
+  const LiveBadge = () => (
+    isRealtimeConnected ? (
+      <Badge variant="outline" className="text-[10px] h-5 bg-green-100 text-green-700 border-green-300 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800">
+        <Circle className="w-1.5 h-1.5 fill-green-500 animate-pulse mr-1" weight="fill" />
+        Live
+      </Badge>
+    ) : null
+  )
+
+  // Compact Vehicle Table Component
+  interface CompactVehicleTableProps {
+    vehicles: Vehicle[]
+    columns: string[]
+    maxRows: number
+  }
+
+  const CompactVehicleTable = ({ vehicles, columns, maxRows }: CompactVehicleTableProps) => (
+    <table className="w-full text-xs">
+      <thead className="bg-gray-50 sticky top-0">
+        <tr>
+          {columns.includes('id') && <th className="px-2 py-1.5 text-left font-semibold text-gray-700 uppercase">ID</th>}
+          {columns.includes('vehicle') && <th className="px-2 py-1.5 text-left font-semibold text-gray-700 uppercase">Vehicle</th>}
+          {columns.includes('status') && <th className="px-2 py-1.5 text-left font-semibold text-gray-700 uppercase">Status</th>}
+          {columns.includes('fuel') && <th className="px-2 py-1.5 text-left font-semibold text-gray-700 uppercase">Fuel</th>}
+        </tr>
+      </thead>
+      <tbody>
+        {vehicles.slice(0, maxRows).map((vehicle, index) => {
+          const wasRecentlyUpdated = vehicle.lastUpdated &&
+            (new Date().getTime() - new Date(vehicle.lastUpdated).getTime()) < 5000
+
+          return (
+            <tr
+              key={vehicle.id}
+              className={`hover:bg-gray-50 cursor-pointer transition-colors ${
+                index % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'
+              } ${wasRecentlyUpdated ? 'bg-blue-50/50 dark:bg-blue-950/20' : ''}`}
+              onClick={() => handleVehicleDrilldown(vehicle)}
+            >
+              {columns.includes('id') && (
+                <td className="px-2 py-1.5 font-medium text-gray-900">
+                  <div className="flex items-center gap-1">
+                    {vehicle.number}
+                    {wasRecentlyUpdated && (
+                      <Circle className="w-1.5 h-1.5 fill-blue-500 animate-pulse" weight="fill" />
+                    )}
+                  </div>
+                </td>
+              )}
+              {columns.includes('vehicle') && (
+                <td className="px-2 py-1.5">
+                  <div className="text-gray-900 font-medium">{vehicle.make} {vehicle.model}</div>
+                  <div className="text-[10px] text-gray-500">{vehicle.year}</div>
+                </td>
+              )}
+              {columns.includes('status') && (
+                <td className="px-2 py-1.5">
+                  <Badge variant={getStatusVariant(vehicle.status)} className="text-[10px]">
+                    {vehicle.status}
+                  </Badge>
+                </td>
+              )}
+              {columns.includes('fuel') && (
+                <td className="px-2 py-1.5">
+                  <div className="flex items-center gap-1">
+                    <BatteryMedium className="w-3 h-3 text-gray-400" />
+                    <span className={vehicle.fuelLevel < 25 ? 'text-red-600 font-semibold' : 'text-gray-700'}>
+                      {vehicle.fuelLevel}%
+                    </span>
+                  </div>
+                </td>
+              )}
+            </tr>
+          )
+        })}
+      </tbody>
+    </table>
+  )
+
   // Render different layouts
   const renderLayout = () => {
     switch (layoutMode) {
@@ -504,9 +617,72 @@ export function FleetDashboard({ data }: FleetDashboardProps) {
 
       case "split-70-30":
         return (
-          <div className="grid grid-cols-[70%_30%] gap-4 flex-1 min-h-0">
-            <MapPanel height="100%" />
-            <VehicleTable />
+          <div className="flex-1 min-h-0 flex flex-col gap-2">
+            {/* Compact Metrics Row */}
+            <div className="flex gap-2">
+              <MetricCard label="Total" value={metrics.total} icon={Car} />
+              <MetricCard label="Active" value={metrics.active} icon={Circle} color="green" />
+              <MetricCard label="Service" value={metrics.service} icon={Wrench} color="orange" />
+              <MetricCard label="Low Fuel" value={metrics.lowFuel} icon={BatteryLow} color="red" />
+              <MetricCard label="Alerts" value={metrics.alerts} icon={Warning} color="amber" />
+            </div>
+
+            {/* 70/30 Split: Map + Table */}
+            <div className="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-[70%_30%] gap-3">
+              {/* Left: Map (70%) */}
+              <div className="border rounded-lg overflow-hidden flex flex-col">
+                <div className="bg-white px-3 py-2 border-b flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <MapPin className="w-4 h-4 text-primary" />
+                    <h3 className="text-sm font-semibold">Fleet Map</h3>
+                    <LiveBadge />
+                  </div>
+                  <span className="text-xs text-muted-foreground">{filteredVehicles.length} vehicles</span>
+                </div>
+                <div className="flex-1 min-h-0">
+                  <ProfessionalFleetMap
+                    vehicles={filteredVehicles}
+                    facilities={data.facilities}
+                    height="100%"
+                    onVehicleSelect={(vehicleId) => {
+                      const vehicle = filteredVehicles.find(v => v.id === vehicleId)
+                      if (vehicle) handleVehicleDrilldown(vehicle)
+                    }}
+                    showLegend={true}
+                    enableRealTime={isRealtimeConnected}
+                  />
+                </div>
+              </div>
+
+              {/* Right: Condensed Table (30%) */}
+              <div className="border rounded-lg overflow-hidden flex flex-col">
+                <div className="bg-white px-3 py-2 border-b">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <Car className="w-4 h-4 text-primary" />
+                      <h3 className="text-sm font-semibold">Vehicles</h3>
+                    </div>
+                    <span className="text-xs text-muted-foreground">{filteredVehicles.length}</span>
+                  </div>
+                  <div className="relative">
+                    <MagnifyingGlass className="absolute left-2 top-1/2 -translate-y-1/2 w-3 h-3 text-muted-foreground" />
+                    <Input
+                      placeholder="Search..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="pl-7 h-7 text-xs"
+                    />
+                  </div>
+                </div>
+                <div className="flex-1 overflow-y-auto">
+                  <CompactVehicleTable
+                    vehicles={filteredVehicles}
+                    columns={['id', 'vehicle', 'status', 'fuel']}
+                    maxRows={20}
+                  />
+                </div>
+              </div>
+            </div>
           </div>
         )
 
@@ -1070,20 +1246,27 @@ export function FleetDashboard({ data }: FleetDashboardProps) {
         </div>
         <div className="flex gap-1.5">
           <Select value={layoutMode} onValueChange={(v) => setLayoutMode(v as LayoutMode)}>
-            <SelectTrigger className="w-[180px] h-7 text-xs">
-              <Layout className="w-3 h-3 mr-1.5" />
-              <SelectValue placeholder="Layout" />
+            <SelectTrigger className="w-[200px] h-8 text-xs font-medium">
+              <Layout className="w-3.5 h-3.5 mr-2" />
+              <SelectValue placeholder="Choose Layout" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="split-50-50">50/50 Split</SelectItem>
-              <SelectItem value="split-70-30">70/30 Map Focus</SelectItem>
-              <SelectItem value="tabs">Tabbed View</SelectItem>
-              <SelectItem value="top-bottom">Top/Bottom</SelectItem>
-              <SelectItem value="map-drawer">Map + Drawer</SelectItem>
-              <SelectItem value="quad-grid">4-Quadrant</SelectItem>
-              <SelectItem value="fortune-glass">Fortune 50: Glass</SelectItem>
-              <SelectItem value="fortune-dark">Fortune 50: Dark Enterprise</SelectItem>
-              <SelectItem value="fortune-nordic">Fortune 50: Nordic Clean</SelectItem>
+              <SelectGroup>
+                <SelectLabel className="text-[10px] uppercase font-semibold text-gray-500">Quick Views</SelectLabel>
+                <SelectItem value="split-50-50">📊 50/50 Split</SelectItem>
+                <SelectItem value="split-70-30">🗺️ 70/30 Map Focus</SelectItem>
+                <SelectItem value="tabs">🗂️ Tabbed View</SelectItem>
+                <SelectItem value="top-bottom">📐 Top/Bottom</SelectItem>
+                <SelectItem value="map-drawer">📋 Map + Drawer</SelectItem>
+                <SelectItem value="quad-grid">⊞ 4-Quadrant</SelectItem>
+              </SelectGroup>
+              <SelectSeparator />
+              <SelectGroup>
+                <SelectLabel className="text-[10px] uppercase font-semibold text-gray-500">Fortune 50 Designs</SelectLabel>
+                <SelectItem value="fortune-glass">✨ Glass-morphism</SelectItem>
+                <SelectItem value="fortune-dark">🌙 Dark Enterprise</SelectItem>
+                <SelectItem value="fortune-nordic">🌿 Nordic Clean</SelectItem>
+              </SelectGroup>
             </SelectContent>
           </Select>
           <AddVehicleDialog onAdd={data.addVehicle} />
