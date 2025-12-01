@@ -1,39 +1,40 @@
 import SwiftUI
 
-// MARK: - Simple More View for initial app launch
+// MARK: - Compact More View - Mobile-First Optimized
 struct MoreView: View {
     @EnvironmentObject private var navigationCoordinator: NavigationCoordinator
     @EnvironmentObject private var authManager: AuthenticationManager
 
     var body: some View {
         List {
-            // User Profile Section
+            // User Profile Section (Compact)
             Section {
-                HStack(spacing: 16) {
+                HStack(spacing: 12) {
                     Circle()
                         .fill(Color.blue.opacity(0.2))
-                        .frame(width: 60, height: 60)
+                        .frame(width: 50, height: 50)
                         .overlay(
                             Text(authManager.currentUser?.name.prefix(2).uppercased() ?? "U")
-                                .font(.title2)
+                                .font(.headline)
                                 .fontWeight(.semibold)
                                 .foregroundColor(.blue)
                         )
 
-                    VStack(alignment: .leading, spacing: 4) {
+                    VStack(alignment: .leading, spacing: 2) {
                         Text(authManager.currentUser?.name ?? "User")
-                            .font(.headline)
+                            .font(.subheadline.bold())
                         Text(authManager.userRole.displayName)
-                            .font(.subheadline)
+                            .font(.caption)
                             .foregroundColor(.secondary)
                     }
 
                     Spacer()
                 }
-                .padding(.vertical, 8)
+                .padding(.vertical, 4)
             }
 
-            Section("Account") {
+            // Account + Essential Features (Combined)
+            Section("Account & Features") {
                 NavigationLink(destination: ProfileView()) {
                     Label("Profile", systemImage: "person.circle")
                 }
@@ -41,20 +42,24 @@ struct MoreView: View {
                 NavigationLink(destination: SettingsView()) {
                     Label("Settings", systemImage: "gearshape")
                 }
-            }
 
-            // MARK: - Key Features Section
-            Section("Key Features") {
                 NavigationLink(destination: DamageReportView()) {
                     Label("Report Damage", systemImage: "exclamationmark.triangle.fill")
                 }
 
+                NavigationLink(destination: VehicleInspectionScreenView()) {
+                    Label("Vehicle Inspection", systemImage: "checkmark.circle.fill")
+                }
+            }
+
+            // Fleet Management (Consolidated)
+            Section("Fleet Management") {
                 NavigationLink(destination: IncidentReportView()) {
                     Label("Incident Reports", systemImage: "doc.text.fill")
                 }
 
                 NavigationLink(destination: VehicleReservationView()) {
-                    Label("Vehicle Reservations", systemImage: "calendar.badge.clock")
+                    Label("Reservations", systemImage: "calendar.badge.clock")
                 }
 
                 NavigationLink(destination: FuelManagementView()) {
@@ -66,19 +71,10 @@ struct MoreView: View {
                 }
             }
 
-            Section("Inspections & Compliance") {
-                NavigationLink(destination: VehicleInspectionScreenView()) {
-                    Label("Vehicle Inspection", systemImage: "checkmark.circle.fill")
-                }
-
-                NavigationLink(destination: Text("Checklist Management Coming Soon")) {
-                    Label("Checklist Management", systemImage: "list.bullet.clipboard")
-                }
-            }
-
-            Section("Diagnostics & Scanning") {
-                NavigationLink(destination: CrashDetectionView()) {
-                    Label("Crash Detection", systemImage: "antenna.radiowaves.left.and.right")
+            // Tools (Consolidated from Diagnostics & Maps)
+            Section("Tools") {
+                NavigationLink(destination: FleetMapView()) {
+                    Label("Fleet Map", systemImage: "map.fill")
                 }
 
                 NavigationLink(destination: BarcodeScannerView(onScan: { _, _ in })) {
@@ -98,35 +94,16 @@ struct MoreView: View {
                 }
             }
 
-            Section("Maps & Navigation") {
-                NavigationLink(destination: FleetMapView()) {
-                    Label("Fleet Map", systemImage: "map.fill")
+            // Info & Sign Out
+            Section {
+                NavigationLink(destination: ReportsView()) {
+                    Label("Reports", systemImage: "chart.bar.fill")
                 }
 
-                NavigationLink(destination: GeofencingView()) {
-                    Label("Geofencing", systemImage: "mappin.circle")
-                }
-
-                NavigationLink(destination: MapNavigationView()) {
-                    Label("Map Navigation", systemImage: "arrow.triangle.turn.up.right.circle")
-                }
-            }
-
-            Section("Information") {
                 NavigationLink(destination: HelpView()) {
                     Label("Help & Support", systemImage: "questionmark.circle")
                 }
 
-                NavigationLink(destination: AboutView()) {
-                    Label("About", systemImage: "info.circle")
-                }
-
-                NavigationLink(destination: ReportsView()) {
-                    Label("Reports", systemImage: "chart.bar.fill")
-                }
-            }
-
-            Section {
                 Button(action: {
                     Task {
                         await authManager.logout()
@@ -137,6 +114,7 @@ struct MoreView: View {
                 }
             }
         }
+        .listStyle(.insetGrouped)
         .navigationTitle("More")
     }
 }
