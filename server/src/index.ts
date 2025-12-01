@@ -6,6 +6,9 @@ import { config } from './services/config';
 import { logger } from './services/logger';
 import { db } from './services/database';
 import authRoutes from './routes/auth';
+import vehiclesRoutes from './routes/vehicles';
+import driversRoutes from './routes/drivers';
+import facilitiesRoutes from './routes/facilities';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler';
 
 // Create Express app
@@ -96,6 +99,29 @@ app.use('/api/v1/auth', authRoutes);
 
 // Apply general rate limiting to all other API routes
 app.use('/api', apiLimiter);
+
+// Fleet management routes
+app.use('/api/vehicles', vehiclesRoutes);
+app.use('/api/drivers', driversRoutes);
+app.use('/api/facilities', facilitiesRoutes);
+
+// Health endpoint at /api/health (frontend expects this)
+app.get('/api/health', async (_req: Request, res: Response): Promise<void> => {
+  try {
+    const dbHealthy = await db.testConnection();
+    res.json({
+      status: dbHealthy ? 'healthy' : 'unhealthy',
+      database: dbHealthy ? 'connected' : 'disconnected',
+      timestamp: new Date().toISOString(),
+      version: '2.0.0',
+    });
+  } catch (error) {
+    res.status(503).json({
+      status: 'unhealthy',
+      error: 'Health check failed',
+    });
+  }
+});
 
 // 404 handler
 app.use(notFoundHandler);
