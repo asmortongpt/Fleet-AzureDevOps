@@ -33,31 +33,29 @@ struct LoginView: View {
             )
             .ignoresSafeArea()
 
-            ScrollView {
-                VStack(spacing: 0) {
-                    Spacer()
-                        .frame(height: 60)
+            VStack(spacing: 0) {
+                Spacer()
+                    .frame(minHeight: 20, maxHeight: 40)
 
-                    // Logo and header
-                    headerSection
+                // Logo and header (Compact)
+                compactHeaderSection
 
-                    Spacer()
-                        .frame(height: 50)
+                Spacer()
+                    .frame(minHeight: 20, maxHeight: 30)
 
-                    // Login form card
-                    loginFormCard
+                // Login form card (Compact)
+                compactLoginFormCard
 
-                    Spacer()
-                        .frame(height: 30)
+                Spacer()
+                    .frame(minHeight: 15, maxHeight: 25)
 
-                    // Footer
-                    footerSection
+                // Footer (Compact)
+                compactFooterSection
 
-                    Spacer()
-                        .frame(height: 40)
-                }
-                .padding(.horizontal, 24)
+                Spacer()
+                    .frame(minHeight: 20, maxHeight: 30)
             }
+            .padding(.horizontal, 24)
 
             // Loading overlay
             if authManager.isLoading {
@@ -72,7 +70,30 @@ struct LoginView: View {
         }
     }
 
-    // MARK: - Header Section
+    // MARK: - Compact Header Section
+
+    private var compactHeaderSection: some View {
+        VStack(spacing: 10) {
+            // App Icon (Smaller)
+            Image(systemName: "car.2.fill")
+                .font(.system(size: 50))
+                .foregroundColor(.white)
+                .symbolRenderingMode(.hierarchical)
+                .shadow(color: .black.opacity(0.2), radius: 8, x: 0, y: 4)
+
+            // Title (Smaller)
+            Text("Fleet Manager")
+                .font(.system(size: 26, weight: .bold, design: .rounded))
+                .foregroundColor(.white)
+
+            // Subtitle (Smaller)
+            Text("Capital Tech Alliance")
+                .font(.system(size: 13, weight: .medium))
+                .foregroundColor(.white.opacity(0.9))
+        }
+    }
+
+    // MARK: - Original Header Section (Keep for reference)
 
     private var headerSection: some View {
         VStack(spacing: 16) {
@@ -95,21 +116,21 @@ struct LoginView: View {
         }
     }
 
-    // MARK: - Login Form Card
+    // MARK: - Compact Login Form Card
 
-    private var loginFormCard: some View {
-        VStack(spacing: 24) {
-            // Welcome text
-            VStack(spacing: 8) {
+    private var compactLoginFormCard: some View {
+        VStack(spacing: 14) {
+            // Welcome text (Compact)
+            VStack(spacing: 4) {
                 Text("Welcome Back")
-                    .font(.system(size: 28, weight: .bold))
+                    .font(.system(size: 22, weight: .bold))
                     .foregroundColor(.primary)
 
                 Text("Sign in to continue")
-                    .font(.system(size: 15))
+                    .font(.system(size: 13))
                     .foregroundColor(.secondary)
             }
-            .padding(.top, 8)
+            .padding(.top, 6)
 
             // Error message
             if let errorMessage = authManager.errorMessage {
@@ -298,7 +319,38 @@ struct LoginView: View {
         )
     }
 
-    // MARK: - Footer Section
+    // MARK: - Compact Footer Section
+
+    private var compactFooterSection: some View {
+        VStack(spacing: 10) {
+            // Version info + Demo Mode combined
+            HStack(spacing: 12) {
+                Text("v\(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0")")
+                    .font(.system(size: 11))
+                    .foregroundColor(.white.opacity(0.6))
+
+                Button(action: {
+                    showingDemoMode = true
+                }) {
+                    HStack(spacing: 6) {
+                        Image(systemName: "sparkles")
+                            .font(.system(size: 11))
+                        Text("Demo")
+                            .font(.system(size: 11, weight: .semibold))
+                    }
+                    .foregroundColor(.yellow)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 6)
+                    .background(
+                        Capsule()
+                            .fill(Color.white.opacity(0.2))
+                    )
+                }
+            }
+        }
+    }
+
+    // MARK: - Original Footer Section (Keep for reference)
 
     private var footerSection: some View {
         VStack(spacing: 16) {
