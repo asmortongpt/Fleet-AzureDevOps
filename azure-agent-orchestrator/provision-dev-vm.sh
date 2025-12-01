@@ -12,9 +12,9 @@ set -e
 
 # Configuration
 RESOURCE_GROUP="fleet-dev-agents-rg"
-LOCATION="eastus"
+LOCATION="eastus2"
 VM_NAME="fleet-dev-agent-01"
-VM_SIZE="Standard_D8s_v3"  # 8 vCPUs, 32GB RAM
+VM_SIZE="Standard_B2s"  # 2 vCPUs, 4GB RAM - fits within quota
 IMAGE="Canonical:0001-com-ubuntu-server-jammy:22_04-lts-gen2:latest"
 ADMIN_USERNAME="azureuser"
 NSG_NAME="fleet-dev-nsg"
