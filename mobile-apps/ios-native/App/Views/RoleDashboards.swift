@@ -758,9 +758,9 @@ class ManagerDashboardViewModel: ObservableObject {
         ApprovalItem(type: "Vehicle Swap", requester: "Mike Chen", details: "FL-003 → FL-007", time: "1h ago"),
         ApprovalItem(type: "Overtime", requester: "Lisa Davis", details: "Weekend shift coverage", time: "2h ago")
     ]
-    @Published var teamActivities: [ActivityItem] = [
-        ActivityItem(icon: "figure.walk", title: "Trip Started", subtitle: "Sarah Johnson to Jacksonville", time: "10m ago", color: .blue),
-        ActivityItem(icon: "checkmark.circle", title: "Inspection Complete", subtitle: "Mike Chen completed FL-001", time: "45m ago", color: .green)
+    @Published var teamActivities: [DashboardActivityItem] = [
+        DashboardActivityItem(icon: "figure.walk", title: "Trip Started", subtitle: "Sarah Johnson to Jacksonville", time: "10m ago", color: .blue),
+        DashboardActivityItem(icon: "checkmark.circle", title: "Inspection Complete", subtitle: "Mike Chen completed FL-001", time: "45m ago", color: .green)
     ]
 }
 
@@ -788,9 +788,9 @@ class ViewerDashboardViewModel: ObservableObject {
     @Published var utilization = 75.0
     @Published var availableVehicles = 9
     @Published var outOfService = 0
-    @Published var recentUpdates: [ActivityItem] = [
-        ActivityItem(icon: "car.fill", title: "Vehicle Status Change", subtitle: "FL-012 now available", time: "5m ago", color: .green),
-        ActivityItem(icon: "wrench.fill", title: "Maintenance Scheduled", subtitle: "FL-003 service tomorrow", time: "1h ago", color: .orange),
-        ActivityItem(icon: "figure.walk", title: "High Activity Period", subtitle: "12 vehicles currently in use", time: "2h ago", color: .blue)
+    @Published var recentUpdates: [DashboardActivityItem] = [
+        DashboardActivityItem(icon: "car.fill", title: "Vehicle Status Change", subtitle: "FL-012 now available", time: "5m ago", color: .green),
+        DashboardActivityItem(icon: "wrench.fill", title: "Maintenance Scheduled", subtitle: "FL-003 service tomorrow", time: "1h ago", color: .orange),
+        DashboardActivityItem(icon: "figure.walk", title: "High Activity Period", subtitle: "12 vehicles currently in use", time: "2h ago", color: .blue)
     ]
 }
