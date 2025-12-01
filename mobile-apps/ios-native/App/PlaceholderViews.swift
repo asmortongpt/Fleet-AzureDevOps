@@ -52,33 +52,8 @@ struct MapNavigationView: View {
     }
 }
 
-struct AdminDashboardView: View {
-    var body: some View {
-        FeatureComingSoonView(featureName: "Admin Dashboard")
-            .navigationTitle("Admin Dashboard")
-    }
-}
-
-struct ManagerDashboardView: View {
-    var body: some View {
-        FeatureComingSoonView(featureName: "Manager Dashboard")
-            .navigationTitle("Manager Dashboard")
-    }
-}
-
-struct DriverDashboardView: View {
-    var body: some View {
-        FeatureComingSoonView(featureName: "Driver Dashboard")
-            .navigationTitle("Driver Dashboard")
-    }
-}
-
-struct ViewerDashboardView: View {
-    var body: some View {
-        FeatureComingSoonView(featureName: "Viewer Dashboard")
-            .navigationTitle("Viewer Dashboard")
-    }
-}
+// NOTE: AdminDashboardView, ManagerDashboardView, DriverDashboardView, and ViewerDashboardView
+// are now implemented in App/Views/RoleDashboards.swift with full mobile-first functionality
 
 // MARK: - Generic Coming Soon View
 struct FeatureComingSoonView: View {
