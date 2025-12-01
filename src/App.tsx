@@ -287,7 +287,7 @@ function App() {
         Skip to main content
       </a>
 
-      <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 flex">
+      <div className="h-screen bg-gradient-to-br from-background via-background to-muted/20 flex overflow-hidden">
       {/* Glass-morphism sidebar with backdrop blur */}
       <aside
         className={`fixed left-0 top-0 h-full bg-card/95 backdrop-blur-xl border-r border-border/50 shadow-2xl shadow-primary/5 transition-all duration-300 ease-in-out z-50 ${
@@ -365,12 +365,12 @@ function App() {
 
       {/* Main content area with smooth transitions */}
       <div
-        className={`flex-1 transition-all duration-300 ease-in-out ${
+        className={`flex-1 grid grid-rows-[auto_1fr] overflow-hidden transition-all duration-300 ease-in-out ${
           sidebarOpen ? "ml-64" : "ml-0"
         }`}
       >
         {/* Modern header with glass-morphism and refined spacing */}
-        <header className="border-b border-border/50 bg-card/80 backdrop-blur-lg sticky top-0 z-40 shadow-sm">
+        <header className="border-b border-border/50 bg-card/80 backdrop-blur-lg z-40 shadow-sm">
           <div className="px-6 h-16 flex items-center justify-between">
             {/* Left section: Menu toggle and page title */}
             <div className="flex items-center gap-4">
@@ -449,8 +449,8 @@ function App() {
           </div>
         </header>
 
-        {/* Main content area with fade-in transitions */}
-        <main id="main-content" className="p-4 sm:p-6 lg:p-8">
+        {/* Main content area with fade-in transitions - scrolls within viewport */}
+        <main id="main-content" className="overflow-y-auto p-4 sm:p-6 lg:p-8">
           <EnhancedErrorBoundary
             showDetails={import.meta.env.DEV}
             onError={(error, errorInfo) => {
