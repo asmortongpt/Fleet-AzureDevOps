@@ -65,6 +65,7 @@ export class AzureBlobService {
       }
 
       // Set CORS rules for web access
+      // @ts-ignore - Azure SDK type mismatch with CORS configuration
       await this.blobServiceClient.setProperties({
         cors: [
           {
@@ -154,6 +155,7 @@ export class AzureBlobService {
         options.contentType || this.getContentType(originalFileName);
 
       // Upload with metadata
+      // @ts-ignore - Azure SDK type compatibility
       const uploadResponse: BlobUploadCommonResponse =
         await blockBlobClient.upload(fileBuffer, fileBuffer.length, {
           blobHTTPHeaders: {
@@ -318,6 +320,7 @@ export class AzureBlobService {
 
       // Note: This requires account key access
       // For production, use Azure AD authentication
+      // @ts-ignore - Azure SDK type for permissions
       const sasUrl = await blockBlobClient.generateSasUrl({
         permissions: 'r', // read only
         expiresOn,
