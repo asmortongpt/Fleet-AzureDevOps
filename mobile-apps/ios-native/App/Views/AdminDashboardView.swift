@@ -2,7 +2,7 @@
 //  AdminDashboardView.swift
 //  Fleet Manager
 //
-//  Administrator Dashboard - Full system access with user management
+//  Administrator Dashboard - Mobile-First Optimized (No Scrolling)
 //
 
 import SwiftUI
@@ -11,52 +11,143 @@ struct AdminDashboardView: View {
     @StateObject private var viewModel = DashboardViewModel()
     @EnvironmentObject private var authManager: AuthenticationManager
     @State private var selectedStatDetail: StatDetailType?
+    @Environment(\.verticalSizeClass) var verticalSizeClass
 
     var body: some View {
-        ScrollView {
-            LazyVStack(spacing: 20) {
-                // Welcome Header
-                welcomeHeader
+        VStack(spacing: 12) {
+            // Compact Header + Key Stat
+            compactHeader
 
-                // Admin Stats Grid
-                adminStatsSection
+            // Horizontal Stats Scroll
+            horizontalStatsSection
 
-                // System Health
-                systemHealthSection
+            // System Health (Compact)
+            compactSystemHealthSection
 
-                // User Management Quick Access
-                userManagementSection
+            // Recent Activity (Limited to 2 items)
+            limitedRecentActivitySection
 
-                // Fleet Overview
-                fleetOverviewSection
-
-                // Recent Activity
-                recentActivitySection
-            }
-            .padding()
+            Spacer()
         }
+        .padding(.horizontal)
+        .padding(.top, 8)
         .background(Color(.systemGroupedBackground))
-        .navigationTitle("Admin Dashboard")
+        .navigationTitle("Admin")
+        .navigationBarTitleDisplayMode(.inline)
         .refreshable {
             await viewModel.refresh()
         }
     }
 
-    // MARK: - Welcome Header
-    private var welcomeHeader: some View {
+    // MARK: - Compact Header
+    private var compactHeader: some View {
+        HStack(spacing: 12) {
+            // Icon
+            Image(systemName: "person.badge.shield.checkmark.fill")
+                .font(.system(size: 32))
+                .foregroundColor(.red)
+                .frame(width: 50, height: 50)
+                .background(Color(.secondarySystemGroupedBackground))
+                .cornerRadius(10)
+
+            // Welcome Text
+            VStack(alignment: .leading, spacing: 2) {
+                Text("Welcome back")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                Text(authManager.currentUser?.name ?? "Administrator")
+                    .font(.headline)
+                    .lineLimit(1)
+            }
+
+            Spacer()
+
+            // Quick Admin Action
+            NavigationLink(destination: Text("Manage Users")) {
+                Image(systemName: "person.2.badge.gearshape")
+                    .font(.title3)
+                    .foregroundColor(.blue)
+                    .frame(width: 44, height: 44)
+            }
+        }
+        .padding()
+        .background(Color(.secondarySystemGroupedBackground))
+        .cornerRadius(12)
+    }
+
+    // MARK: - Horizontal Stats
+    private var horizontalStatsSection: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Key Metrics")
+                .font(.caption.bold())
+                .foregroundColor(.secondary)
+                .padding(.leading, 4)
+
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 12) {
+                    if let stats = viewModel.stats {
+                        CompactStatCard(
+                            title: "Vehicles",
+                            value: "\(stats.totalVehicles)",
+                            subtitle: "\(stats.activeVehicles) active",
+                            icon: "car.fill",
+                            color: .blue
+                        )
+
+                        CompactStatCard(
+                            title: "Users",
+                            value: "24",
+                            subtitle: "12 online",
+                            icon: "person.3.fill",
+                            color: .green
+                        )
+
+                        CompactStatCard(
+                            title: "Alerts",
+                            value: "\(stats.alerts)",
+                            subtitle: stats.alerts > 0 ? "Active" : "Clear",
+                            icon: "exclamationmark.triangle.fill",
+                            color: stats.alerts > 0 ? .orange : .gray
+                        )
+
+                        CompactStatCard(
+                            title: "Savings",
+                            value: "$12.5K",
+                            subtitle: "This month",
+                            icon: "dollarsign.circle.fill",
+                            color: .purple
+                        )
+                    }
+                }
+                .padding(.horizontal, 4)
+            }
+        }
+    }
+
+    // MARK: - Compact System Health
+    private var compactSystemHealthSection: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("Welcome back,")
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
-                    Text(authManager.currentUser?.name ?? "Administrator")
-                        .font(.title.bold())
-                }
+                Text("System Status")
+                    .font(.caption.bold())
+                    .foregroundColor(.secondary)
                 Spacer()
-                Image(systemName: "person.badge.shield.checkmark.fill")
-                    .font(.system(size: 40))
-                    .foregroundColor(.red)
+                HStack(spacing: 4) {
+                    Circle()
+                        .fill(Color.green)
+                        .frame(width: 6, height: 6)
+                    Text("All Systems Operational")
+                        .font(.caption2)
+                        .foregroundColor(.secondary)
+                }
+            }
+            .padding(.horizontal, 4)
+
+            HStack(spacing: 12) {
+                systemStatusIndicator(title: "API", status: .operational)
+                systemStatusIndicator(title: "DB", status: .operational)
+                systemStatusIndicator(title: "Azure", status: .operational)
+                systemStatusIndicator(title: "Backup", status: .operational)
             }
             .padding()
             .background(Color(.secondarySystemGroupedBackground))
@@ -64,173 +155,73 @@ struct AdminDashboardView: View {
         }
     }
 
-    // MARK: - Admin Stats
-    private var adminStatsSection: some View {
-        LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 16) {
-            if let stats = viewModel.stats {
-                StatCard(
-                    title: "Total Vehicles",
-                    value: "\(stats.totalVehicles)",
-                    subtitle: "\(stats.activeVehicles) active",
-                    icon: "car.fill",
-                    color: .blue,
-                    trend: .up(5)
-                )
-
-                StatCard(
-                    title: "Active Users",
-                    value: "24",
-                    subtitle: "12 drivers online",
-                    icon: "person.3.fill",
-                    color: .green,
-                    trend: .up(8)
-                )
-
-                StatCard(
-                    title: "System Alerts",
-                    value: "\(stats.alerts)",
-                    subtitle: stats.alerts > 0 ? "Needs attention" : "All clear",
-                    icon: "exclamationmark.triangle.fill",
-                    color: stats.alerts > 0 ? .orange : .gray,
-                    trend: stats.alerts > 0 ? .down(2) : nil
-                )
-
-                StatCard(
-                    title: "Cost Savings",
-                    value: "$12.5K",
-                    subtitle: "This month",
-                    icon: "dollarsign.circle.fill",
-                    color: .purple,
-                    trend: .up(15)
-                )
-            }
-        }
-    }
-
-    // MARK: - System Health
-    private var systemHealthSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("System Health")
-                .font(.headline)
-
-            VStack(spacing: 12) {
-                healthRow(title: "API Status", status: "Operational", color: .green)
-                healthRow(title: "Database", status: "Healthy", color: .green)
-                healthRow(title: "Azure Services", status: "All Systems Go", color: .green)
-                healthRow(title: "Backup Status", status: "Last: 2 hours ago", color: .blue)
-            }
-            .padding()
-            .background(Color(.secondarySystemGroupedBackground))
-            .cornerRadius(12)
-        }
-    }
-
-    private func healthRow(title: String, status: String, color: Color) -> some View {
-        HStack {
+    private func systemStatusIndicator(title: String, status: SystemStatus) -> some View {
+        VStack(spacing: 6) {
             Circle()
-                .fill(color)
-                .frame(width: 8, height: 8)
+                .fill(status.color)
+                .frame(width: 12, height: 12)
             Text(title)
-                .font(.subheadline)
-            Spacer()
-            Text(status)
-                .font(.caption)
+                .font(.caption2)
                 .foregroundColor(.secondary)
         }
+        .frame(maxWidth: .infinity)
     }
 
-    // MARK: - User Management
-    private var userManagementSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
+    enum SystemStatus {
+        case operational, warning, error
+
+        var color: Color {
+            switch self {
+            case .operational: return .green
+            case .warning: return .orange
+            case .error: return .red
+            }
+        }
+    }
+
+    // MARK: - Limited Recent Activity
+    private var limitedRecentActivitySection: some View {
+        VStack(alignment: .leading, spacing: 8) {
             HStack {
-                Text("User Management")
-                    .font(.headline)
+                Text("Recent Activity")
+                    .font(.caption.bold())
+                    .foregroundColor(.secondary)
                 Spacer()
-                NavigationLink(destination: Text("Manage Users")) {
-                    HStack(spacing: 4) {
+                NavigationLink(destination: Text("All Activity")) {
+                    HStack(spacing: 2) {
                         Text("View All")
-                            .font(.caption)
+                            .font(.caption2)
                         Image(systemName: "chevron.right")
                             .font(.caption2)
                     }
+                    .foregroundColor(.blue)
                 }
             }
-
-            LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
-                QuickActionButton(title: "Add User", icon: "person.badge.plus.fill", color: .blue) {
-                    // Add user action
-                }
-                QuickActionButton(title: "Role Management", icon: "person.2.badge.gearshape.fill", color: .purple) {
-                    // Role management
-                }
-            }
-        }
-    }
-
-    // MARK: - Fleet Overview
-    private var fleetOverviewSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("Fleet Overview")
-                .font(.headline)
-
-            if let stats = viewModel.stats {
-                VStack(spacing: 8) {
-                    progressBar(title: "Active Trips", value: Double(stats.todayTrips), max: Double(stats.totalVehicles), color: .green)
-                    progressBar(title: "Maintenance Due", value: 5, max: Double(stats.totalVehicles), color: .orange)
-                    progressBar(title: "Fleet Utilization", value: stats.fleetUtilization, max: 100, color: .blue)
-                }
-                .padding()
-                .background(Color(.secondarySystemGroupedBackground))
-                .cornerRadius(12)
-            }
-        }
-    }
-
-    private func progressBar(title: String, value: Double, max: Double, color: Color) -> some View {
-        VStack(alignment: .leading, spacing: 4) {
-            HStack {
-                Text(title)
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-                Spacer()
-                Text("\(Int(value))/\(Int(max))")
-                    .font(.caption.bold())
-            }
-
-            GeometryReader { geometry in
-                ZStack(alignment: .leading) {
-                    RoundedRectangle(cornerRadius: 4)
-                        .fill(Color(.systemGray5))
-                        .frame(height: 6)
-
-                    RoundedRectangle(cornerRadius: 4)
-                        .fill(color)
-                        .frame(width: geometry.size.width * (value / max), height: 6)
-                }
-            }
-            .frame(height: 6)
-        }
-    }
-
-    // MARK: - Recent Activity
-    private var recentActivitySection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("Recent Admin Activity")
-                .font(.headline)
+            .padding(.horizontal, 4)
 
             if viewModel.recentActivity.isEmpty {
-                EmptyStateCard(
-                    icon: "tray.fill",
-                    title: "No Recent Activity",
-                    message: "Activity will appear here as it happens"
-                )
+                HStack {
+                    Spacer()
+                    VStack(spacing: 8) {
+                        Image(systemName: "tray.fill")
+                            .font(.title2)
+                            .foregroundColor(.secondary)
+                        Text("No Recent Activity")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                    .padding(.vertical, 24)
+                    Spacer()
+                }
+                .background(Color(.secondarySystemGroupedBackground))
+                .cornerRadius(12)
             } else {
-                LazyVStack(spacing: 8) {
-                    ForEach(viewModel.recentActivity.prefix(5)) { activity in
-                        ActivityRow(activity: activity)
+                VStack(spacing: 8) {
+                    ForEach(viewModel.recentActivity.prefix(2)) { activity in
+                        CompactActivityRow(activity: activity)
                     }
                 }
-                .padding()
+                .padding(12)
                 .background(Color(.secondarySystemGroupedBackground))
                 .cornerRadius(12)
             }
@@ -238,8 +229,81 @@ struct AdminDashboardView: View {
     }
 }
 
+// MARK: - Compact Stat Card
+struct CompactStatCard: View {
+    let title: String
+    let value: String
+    let subtitle: String
+    let icon: String
+    let color: Color
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Image(systemName: icon)
+                    .font(.title3)
+                    .foregroundColor(color)
+                Spacer()
+            }
+
+            Text(value)
+                .font(.title2.bold())
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text(title)
+                    .font(.caption2.bold())
+                    .foregroundColor(.secondary)
+                Text(subtitle)
+                    .font(.caption2)
+                    .foregroundColor(.secondary)
+            }
+        }
+        .padding()
+        .frame(width: 140, height: 120)
+        .background(Color(.secondarySystemGroupedBackground))
+        .cornerRadius(12)
+    }
+}
+
+// MARK: - Compact Activity Row
+struct CompactActivityRow: View {
+    let activity: ActivityItem
+
+    var body: some View {
+        HStack(spacing: 12) {
+            Image(systemName: activity.type.icon)
+                .font(.caption)
+                .foregroundColor(.white)
+                .frame(width: 28, height: 28)
+                .background(Color(activity.type.color))
+                .cornerRadius(6)
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text(activity.title)
+                    .font(.caption.bold())
+                    .lineLimit(1)
+
+                if let description = activity.description {
+                    Text(description)
+                        .font(.caption2)
+                        .foregroundColor(.secondary)
+                        .lineLimit(1)
+                }
+            }
+
+            Spacer()
+
+            Text(activity.timestamp, style: .relative)
+                .font(.caption2)
+                .foregroundColor(.secondary)
+        }
+    }
+}
+
 // MARK: - Preview
 #Preview {
-    AdminDashboardView()
-        .environmentObject(AuthenticationManager.shared)
+    NavigationStack {
+        AdminDashboardView()
+            .environmentObject(AuthenticationManager.shared)
+    }
 }
