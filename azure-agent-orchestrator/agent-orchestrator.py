@@ -28,10 +28,6 @@ import openai
 import anthropic
 from google import generativeai as genai
 
-# Task queue
-from celery import Celery
-import redis
-
 ##############################################################################
 # Configuration
 ##############################################################################
@@ -354,10 +350,10 @@ Generate complete, working code for all files. Each file should be production-re
 
 class Orchestrator:
     def __init__(self):
-        self.redis_client = redis.Redis(host='localhost', port=6379, db=0)
         self.task_queue = UI_REBUILD_TASKS.copy()
         self.completed_tasks = []
         self.failed_tasks = []
+        self.in_progress_tasks = []
 
         # Initialize agents
         self.agents = [
