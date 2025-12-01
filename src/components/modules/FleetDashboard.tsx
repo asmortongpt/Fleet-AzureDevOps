@@ -108,14 +108,129 @@ export function FleetDashboard({ data }: FleetDashboardProps) {
     })
   }, [drilldownPush, openInspect])
 
-  const handleStatusDrilldown = useCallback((status: string, count: number) => {
+  const handleMetricDrilldown = useCallback((metricType: string, filter: any, label: string) => {
+    const filteredList = metricType === 'total'
+      ? filteredVehicles
+      : metricType === 'lowFuel'
+      ? filteredVehicles.filter(v => v.fuelLevel < 25)
+      : metricType === 'alerts'
+      ? filteredVehicles.filter(v => (v.alerts?.length || 0) > 0)
+      : filteredVehicles.filter(v => v.status === filter.status)
+
+    drilldownPush({
+      id: `metric-${metricType}`,
+      type: 'vehicle-list',
+      label: label,
+      data: { filter, count: filteredList.length, vehicles: filteredList }
+    })
+
+    openInspect({
+      type: 'vehicle-list',
+      id: `metric-${metricType}`,
+      data: { filter, vehicles: filteredList }
+    })
+  }, [drilldownPush, openInspect, filteredVehicles])
+
+  const handleStatusDrilldown = useCallback((e: React.MouseEvent, status: string) => {
+    e.stopPropagation()
+    const statusVehicles = filteredVehicles.filter(v => v.status === status)
+    const count = statusVehicles.length
+
     drilldownPush({
       id: `status-${status}`,
       type: 'vehicle-list',
       label: `${status.charAt(0).toUpperCase() + status.slice(1)} Vehicles (${count})`,
-      data: { filterStatus: status, count }
+      data: { filterStatus: status, count, vehicles: statusVehicles }
     })
-  }, [drilldownPush])
+
+    openInspect({
+      type: 'vehicle-list',
+      id: `status-${status}`,
+      data: { filter: { status }, vehicles: statusVehicles }
+    })
+  }, [drilldownPush, openInspect, filteredVehicles])
+
+  const handleFuelDrilldown = useCallback((e: React.MouseEvent, vehicle: Vehicle) => {
+    e.stopPropagation()
+
+    drilldownPush({
+      id: `fuel-${vehicle.id}`,
+      type: 'fuel-history',
+      label: `Fuel History - ${vehicle.number}`,
+      data: { vehicleId: vehicle.id, vehicle, fuelLevel: vehicle.fuelLevel }
+    })
+
+    openInspect({
+      type: 'fuel-history',
+      id: vehicle.id,
+      data: { vehicle, fuelLevel: vehicle.fuelLevel }
+    })
+  }, [drilldownPush, openInspect])
+
+  const handleDriverDrilldown = useCallback((e: React.MouseEvent, driverName: string, vehicle: Vehicle) => {
+    e.stopPropagation()
+
+    const driverVehicles = filteredVehicles.filter(v => v.assignedDriver === driverName)
+
+    drilldownPush({
+      id: `driver-${driverName}`,
+      type: 'driver',
+      label: `Driver: ${driverName}`,
+      data: { driverName, assignedVehicles: driverVehicles, currentVehicle: vehicle }
+    })
+
+    openInspect({
+      type: 'driver',
+      id: driverName,
+      data: { driverName, assignedVehicles: driverVehicles, currentVehicle: vehicle }
+    })
+  }, [drilldownPush, openInspect, filteredVehicles])
+
+  const handleEventDrilldown = useCallback((e: React.MouseEvent, event: any) => {
+    e.stopPropagation()
+
+    drilldownPush({
+      id: `event-${event.vehicleId}-${event.timestamp}`,
+      type: 'event',
+      label: `Event: ${event.message}`,
+      data: { event, vehicleId: event.vehicleId }
+    })
+
+    openInspect({
+      type: 'event',
+      id: `${event.vehicleId}-${event.timestamp}`,
+      data: { event, vehicleId: event.vehicleId }
+    })
+  }, [drilldownPush, openInspect])
+
+  const handleRealtimeDrilldown = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation()
+
+    drilldownPush({
+      id: 'realtime-stats',
+      type: 'realtime',
+      label: 'Real-time Connection Stats',
+      data: {
+        isConnected: isRealtimeConnected,
+        isEmulatorRunning,
+        lastUpdate: lastTelemetryUpdate,
+        emulatorStats,
+        vehicleCount: realtimeVehicles.length
+      }
+    })
+
+    openInspect({
+      type: 'realtime-stats',
+      id: 'connection',
+      data: {
+        isConnected: isRealtimeConnected,
+        isEmulatorRunning,
+        lastUpdate: lastTelemetryUpdate,
+        emulatorStats,
+        vehicleCount: realtimeVehicles.length
+      }
+    })
+  }, [drilldownPush, openInspect, isRealtimeConnected, isEmulatorRunning, lastTelemetryUpdate, emulatorStats, realtimeVehicles])
 
   const handleRegionDrilldown = useCallback((region: string, count: number) => {
     drilldownPush({
@@ -413,15 +528,36 @@ export function FleetDashboard({ data }: FleetDashboardProps) {
                     </div>
                   </td>
                   <td className="px-3 py-2 text-sm">
-                    <Badge variant={getStatusVariant(vehicle.status)} className="text-xs">
+                    <Badge
+                      variant={getStatusVariant(vehicle.status)}
+                      className="text-xs cursor-pointer hover:opacity-80 transition-opacity"
+                      onClick={(e) => handleStatusDrilldown(e, vehicle.status)}
+                      title={`Click to view all ${vehicle.status} vehicles`}
+                    >
                       {vehicle.status}
                     </Badge>
                   </td>
-                  <td className="px-3 py-2 text-sm">{vehicle.assignedDriver || '-'}</td>
+                  <td className="px-3 py-2 text-sm">
+                    {vehicle.assignedDriver ? (
+                      <span
+                        className="cursor-pointer hover:underline text-blue-600 dark:text-blue-400"
+                        onClick={(e) => handleDriverDrilldown(e, vehicle.assignedDriver, vehicle)}
+                        title={`Click to view driver details: ${vehicle.assignedDriver}`}
+                      >
+                        {vehicle.assignedDriver}
+                      </span>
+                    ) : (
+                      <span className="text-muted-foreground">-</span>
+                    )}
+                  </td>
                   <td className="px-3 py-2 text-sm">
                     <div className="flex items-center gap-1">
                       <BatteryMedium className="w-3 h-3 text-muted-foreground" />
-                      <span className={vehicle.fuelLevel < 25 ? 'text-warning font-medium' : ''}>
+                      <span
+                        className={`${vehicle.fuelLevel < 25 ? 'text-warning font-medium' : ''} cursor-pointer hover:underline`}
+                        onClick={(e) => handleFuelDrilldown(e, vehicle)}
+                        title="Click to view fuel history"
+                      >
                         {vehicle.fuelLevel}%
                       </span>
                     </div>
@@ -500,9 +636,11 @@ export function FleetDashboard({ data }: FleetDashboardProps) {
     value: number
     icon: React.ComponentType<any>
     color?: 'gray' | 'green' | 'orange' | 'red' | 'amber'
+    onClick?: () => void
+    title?: string
   }
 
-  const MetricCard = ({ label, value, icon: Icon, color = 'gray' }: MetricCardProps) => {
+  const MetricCard = ({ label, value, icon: Icon, color = 'gray', onClick, title }: MetricCardProps) => {
     const colorClasses = {
       gray: 'text-gray-600',
       green: 'text-green-600',
@@ -512,7 +650,13 @@ export function FleetDashboard({ data }: FleetDashboardProps) {
     }
 
     return (
-      <div className="flex-1 bg-white border border-gray-200 rounded-lg p-2 shadow-sm">
+      <div
+        className={`flex-1 bg-white border border-gray-200 rounded-lg p-2 shadow-sm transition-all ${
+          onClick ? 'cursor-pointer hover:shadow-md hover:border-gray-300 hover:scale-[1.02]' : ''
+        }`}
+        onClick={onClick}
+        title={title}
+      >
         <div className="flex items-center justify-between">
           <div>
             <p className="text-[10px] text-gray-500 uppercase font-medium">{label}</p>
@@ -582,7 +726,12 @@ export function FleetDashboard({ data }: FleetDashboardProps) {
               )}
               {columns.includes('status') && (
                 <td className="px-2 py-1.5">
-                  <Badge variant={getStatusVariant(vehicle.status)} className="text-[10px]">
+                  <Badge
+                    variant={getStatusVariant(vehicle.status)}
+                    className="text-[10px] cursor-pointer hover:opacity-80 transition-opacity"
+                    onClick={(e) => handleStatusDrilldown(e, vehicle.status)}
+                    title={`Click to view all ${vehicle.status} vehicles`}
+                  >
                     {vehicle.status}
                   </Badge>
                 </td>
@@ -591,7 +740,11 @@ export function FleetDashboard({ data }: FleetDashboardProps) {
                 <td className="px-2 py-1.5">
                   <div className="flex items-center gap-1">
                     <BatteryMedium className="w-3 h-3 text-gray-400" />
-                    <span className={vehicle.fuelLevel < 25 ? 'text-red-600 font-semibold' : 'text-gray-700'}>
+                    <span
+                      className={`${vehicle.fuelLevel < 25 ? 'text-red-600 font-semibold' : 'text-gray-700'} cursor-pointer hover:underline`}
+                      onClick={(e) => handleFuelDrilldown(e, vehicle)}
+                      title="Click to view fuel history"
+                    >
                       {vehicle.fuelLevel}%
                     </span>
                   </div>
@@ -620,11 +773,45 @@ export function FleetDashboard({ data }: FleetDashboardProps) {
           <div className="flex-1 min-h-0 flex flex-col gap-2">
             {/* Compact Metrics Row */}
             <div className="flex gap-2">
-              <MetricCard label="Total" value={metrics.total} icon={Car} />
-              <MetricCard label="Active" value={metrics.active} icon={Circle} color="green" />
-              <MetricCard label="Service" value={metrics.service} icon={Wrench} color="orange" />
-              <MetricCard label="Low Fuel" value={metrics.lowFuel} icon={BatteryLow} color="red" />
-              <MetricCard label="Alerts" value={metrics.alerts} icon={Warning} color="amber" />
+              <MetricCard
+                label="Total"
+                value={metrics.total}
+                icon={Car}
+                onClick={() => handleMetricDrilldown('total', { status: 'all' }, `All Vehicles (${metrics.total})`)}
+                title="Click to view all vehicles"
+              />
+              <MetricCard
+                label="Active"
+                value={metrics.active}
+                icon={Circle}
+                color="green"
+                onClick={() => handleMetricDrilldown('active', { status: 'active' }, `Active Vehicles (${metrics.active})`)}
+                title="Click to view active vehicles"
+              />
+              <MetricCard
+                label="Service"
+                value={metrics.service}
+                icon={Wrench}
+                color="orange"
+                onClick={() => handleMetricDrilldown('service', { status: 'service' }, `Service Vehicles (${metrics.service})`)}
+                title="Click to view vehicles in service"
+              />
+              <MetricCard
+                label="Low Fuel"
+                value={metrics.lowFuel}
+                icon={BatteryLow}
+                color="red"
+                onClick={() => handleMetricDrilldown('lowFuel', { fuelLevel: '<25' }, `Low Fuel Vehicles (${metrics.lowFuel})`)}
+                title="Click to view vehicles with low fuel"
+              />
+              <MetricCard
+                label="Alerts"
+                value={metrics.alerts}
+                icon={Warning}
+                color="amber"
+                onClick={() => handleMetricDrilldown('alerts', { hasAlerts: true }, `Vehicles with Alerts (${metrics.alerts})`)}
+                title="Click to view vehicles with alerts"
+              />
             </div>
 
             {/* 70/30 Split: Map + Table */}
@@ -769,27 +956,47 @@ export function FleetDashboard({ data }: FleetDashboardProps) {
     <div className="flex-1 min-h-0 flex flex-col gap-3">
       {/* Compact Metrics Row */}
       <div className="flex flex-wrap gap-1.5">
-        <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/80 backdrop-blur-xl border border-slate-200/50 shadow-sm">
+        <div
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/80 backdrop-blur-xl border border-slate-200/50 shadow-sm cursor-pointer hover:shadow-md hover:scale-[1.02] transition-all"
+          onClick={() => handleMetricDrilldown('total', { status: 'all' }, `All Vehicles (${metrics.total})`)}
+          title="Click to view all vehicles"
+        >
           <Car className="w-3.5 h-3.5 text-indigo-500" />
           <span className="text-xs font-medium text-slate-700">Total</span>
           <span className="text-sm font-bold text-slate-900">{metrics.total}</span>
         </div>
-        <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/80 backdrop-blur-xl border border-slate-200/50 shadow-sm">
+        <div
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/80 backdrop-blur-xl border border-slate-200/50 shadow-sm cursor-pointer hover:shadow-md hover:scale-[1.02] transition-all"
+          onClick={() => handleMetricDrilldown('active', { status: 'active' }, `Active Vehicles (${metrics.active})`)}
+          title="Click to view active vehicles"
+        >
           <Circle className="w-2 h-2 fill-green-500" weight="fill" />
           <span className="text-xs font-medium text-slate-700">Active</span>
           <span className="text-sm font-bold text-green-600">{metrics.active}</span>
         </div>
-        <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/80 backdrop-blur-xl border border-slate-200/50 shadow-sm">
+        <div
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/80 backdrop-blur-xl border border-slate-200/50 shadow-sm cursor-pointer hover:shadow-md hover:scale-[1.02] transition-all"
+          onClick={() => handleMetricDrilldown('service', { status: 'service' }, `Service Vehicles (${metrics.service})`)}
+          title="Click to view vehicles in service"
+        >
           <Circle className="w-2 h-2 fill-orange-500" weight="fill" />
           <span className="text-xs font-medium text-slate-700">Service</span>
           <span className="text-sm font-bold text-orange-600">{metrics.service}</span>
         </div>
-        <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/80 backdrop-blur-xl border border-slate-200/50 shadow-sm">
+        <div
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/80 backdrop-blur-xl border border-slate-200/50 shadow-sm cursor-pointer hover:shadow-md hover:scale-[1.02] transition-all"
+          onClick={() => handleMetricDrilldown('lowFuel', { fuelLevel: '<25' }, `Low Fuel Vehicles (${metrics.lowFuel})`)}
+          title="Click to view vehicles with low fuel"
+        >
           <BatteryMedium className="w-3.5 h-3.5 text-indigo-500" />
           <span className="text-xs font-medium text-slate-700">Low Fuel</span>
           <span className="text-sm font-bold text-red-600">{metrics.lowFuel}</span>
         </div>
-        <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/80 backdrop-blur-xl border border-slate-200/50 shadow-sm">
+        <div
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/80 backdrop-blur-xl border border-slate-200/50 shadow-sm cursor-pointer hover:shadow-md hover:scale-[1.02] transition-all"
+          onClick={() => handleMetricDrilldown('alerts', { hasAlerts: true }, `Vehicles with Alerts (${metrics.alerts})`)}
+          title="Click to view vehicles with alerts"
+        >
           <Broadcast className="w-3.5 h-3.5 text-indigo-500" />
           <span className="text-xs font-medium text-slate-700">Alerts</span>
           <span className="text-sm font-bold text-indigo-600">{metrics.alerts}</span>
@@ -868,16 +1075,24 @@ export function FleetDashboard({ data }: FleetDashboardProps) {
                       <div className="text-[9px] text-slate-500">{vehicle.model}</div>
                     </td>
                     <td className="px-2 py-1.5">
-                      <span className={`px-1.5 py-0.5 rounded text-[9px] font-medium ${
-                        vehicle.status === 'active' ? 'bg-green-100 text-green-700' :
-                        vehicle.status === 'service' ? 'bg-orange-100 text-orange-700' :
-                        'bg-slate-100 text-slate-700'
-                      }`}>
+                      <span
+                        className={`px-1.5 py-0.5 rounded text-[9px] font-medium cursor-pointer hover:opacity-80 transition-opacity ${
+                          vehicle.status === 'active' ? 'bg-green-100 text-green-700' :
+                          vehicle.status === 'service' ? 'bg-orange-100 text-orange-700' :
+                          'bg-slate-100 text-slate-700'
+                        }`}
+                        onClick={(e) => handleStatusDrilldown(e, vehicle.status)}
+                        title={`Click to view all ${vehicle.status} vehicles`}
+                      >
                         {vehicle.status}
                       </span>
                     </td>
                     <td className="px-2 py-1.5">
-                      <span className={vehicle.fuelLevel < 25 ? 'text-red-600 font-semibold' : 'text-slate-700'}>
+                      <span
+                        className={`${vehicle.fuelLevel < 25 ? 'text-red-600 font-semibold' : 'text-slate-700'} cursor-pointer hover:underline`}
+                        onClick={(e) => handleFuelDrilldown(e, vehicle)}
+                        title="Click to view fuel history"
+                      >
                         {vehicle.fuelLevel}%
                       </span>
                     </td>
@@ -909,27 +1124,47 @@ export function FleetDashboard({ data }: FleetDashboardProps) {
     <div className="flex-1 min-h-0 flex flex-col gap-2">
       {/* Compact Metrics Strip */}
       <div className="flex flex-wrap gap-1.5">
-        <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#0a0e27] border border-cyan-500/20 shadow-[0_0_10px_rgba(34,211,238,0.15)]">
+        <div
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#0a0e27] border border-cyan-500/20 shadow-[0_0_10px_rgba(34,211,238,0.15)] cursor-pointer hover:shadow-[0_0_15px_rgba(34,211,238,0.25)] hover:scale-[1.02] transition-all"
+          onClick={() => handleMetricDrilldown('total', { status: 'all' }, `All Vehicles (${metrics.total})`)}
+          title="Click to view all vehicles"
+        >
           <Car className="w-3.5 h-3.5 text-cyan-400" />
           <span className="text-xs font-medium text-slate-300">Total</span>
           <span className="text-sm font-bold text-cyan-400">{metrics.total}</span>
         </div>
-        <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#0a0e27] border border-cyan-500/20 shadow-[0_0_10px_rgba(34,211,238,0.15)]">
+        <div
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#0a0e27] border border-cyan-500/20 shadow-[0_0_10px_rgba(34,211,238,0.15)] cursor-pointer hover:shadow-[0_0_15px_rgba(34,211,238,0.25)] hover:scale-[1.02] transition-all"
+          onClick={() => handleMetricDrilldown('active', { status: 'active' }, `Active Vehicles (${metrics.active})`)}
+          title="Click to view active vehicles"
+        >
           <Circle className="w-2 h-2 fill-green-400" weight="fill" />
           <span className="text-xs font-medium text-slate-300">Active</span>
           <span className="text-sm font-bold text-green-400">{metrics.active}</span>
         </div>
-        <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#0a0e27] border border-cyan-500/20 shadow-[0_0_10px_rgba(34,211,238,0.15)]">
+        <div
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#0a0e27] border border-cyan-500/20 shadow-[0_0_10px_rgba(34,211,238,0.15)] cursor-pointer hover:shadow-[0_0_15px_rgba(34,211,238,0.25)] hover:scale-[1.02] transition-all"
+          onClick={() => handleMetricDrilldown('service', { status: 'service' }, `Service Vehicles (${metrics.service})`)}
+          title="Click to view vehicles in service"
+        >
           <Circle className="w-2 h-2 fill-orange-400" weight="fill" />
           <span className="text-xs font-medium text-slate-300">Service</span>
           <span className="text-sm font-bold text-orange-400">{metrics.service}</span>
         </div>
-        <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#0a0e27] border border-cyan-500/20 shadow-[0_0_10px_rgba(34,211,238,0.15)]">
+        <div
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#0a0e27] border border-cyan-500/20 shadow-[0_0_10px_rgba(34,211,238,0.15)] cursor-pointer hover:shadow-[0_0_15px_rgba(34,211,238,0.25)] hover:scale-[1.02] transition-all"
+          onClick={() => handleMetricDrilldown('lowFuel', { fuelLevel: '<25' }, `Low Fuel Vehicles (${metrics.lowFuel})`)}
+          title="Click to view vehicles with low fuel"
+        >
           <BatteryMedium className="w-3.5 h-3.5 text-cyan-400" />
           <span className="text-xs font-medium text-slate-300">Low Fuel</span>
           <span className="text-sm font-bold text-red-400">{metrics.lowFuel}</span>
         </div>
-        <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#0a0e27] border border-cyan-500/20 shadow-[0_0_10px_rgba(34,211,238,0.15)]">
+        <div
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#0a0e27] border border-cyan-500/20 shadow-[0_0_10px_rgba(34,211,238,0.15)] cursor-pointer hover:shadow-[0_0_15px_rgba(34,211,238,0.25)] hover:scale-[1.02] transition-all"
+          onClick={() => handleMetricDrilldown('alerts', { hasAlerts: true }, `Vehicles with Alerts (${metrics.alerts})`)}
+          title="Click to view vehicles with alerts"
+        >
           <Broadcast className="w-3.5 h-3.5 text-cyan-400" />
           <span className="text-xs font-medium text-slate-300">Alerts</span>
           <span className="text-sm font-bold text-cyan-400">{metrics.alerts}</span>
@@ -1014,16 +1249,24 @@ export function FleetDashboard({ data }: FleetDashboardProps) {
                         <div className="text-[9px] text-slate-400">{vehicle.model}</div>
                       </td>
                       <td className="px-2 py-1.5">
-                        <span className={`px-1.5 py-0.5 rounded text-[9px] font-medium ${
-                          vehicle.status === 'active' ? 'bg-green-400/20 text-green-400 border border-green-400/30' :
-                          vehicle.status === 'service' ? 'bg-orange-400/20 text-orange-400 border border-orange-400/30' :
-                          'bg-slate-400/20 text-slate-400 border border-slate-400/30'
-                        }`}>
+                        <span
+                          className={`px-1.5 py-0.5 rounded text-[9px] font-medium cursor-pointer hover:opacity-80 transition-opacity ${
+                            vehicle.status === 'active' ? 'bg-green-400/20 text-green-400 border border-green-400/30' :
+                            vehicle.status === 'service' ? 'bg-orange-400/20 text-orange-400 border border-orange-400/30' :
+                            'bg-slate-400/20 text-slate-400 border border-slate-400/30'
+                          }`}
+                          onClick={(e) => handleStatusDrilldown(e, vehicle.status)}
+                          title={`Click to view all ${vehicle.status} vehicles`}
+                        >
                           {vehicle.status}
                         </span>
                       </td>
                       <td className="px-2 py-1.5">
-                        <span className={vehicle.fuelLevel < 25 ? 'text-red-400 font-semibold' : 'text-slate-300'}>
+                        <span
+                          className={`${vehicle.fuelLevel < 25 ? 'text-red-400 font-semibold' : 'text-slate-300'} cursor-pointer hover:underline`}
+                          onClick={(e) => handleFuelDrilldown(e, vehicle)}
+                          title="Click to view fuel history"
+                        >
                           {vehicle.fuelLevel}%
                         </span>
                       </td>
@@ -1075,35 +1318,55 @@ export function FleetDashboard({ data }: FleetDashboardProps) {
     <div className="flex-1 min-h-0 flex flex-col gap-3">
       {/* Horizontal Metrics Ribbon */}
       <div className="flex flex-wrap gap-2">
-        <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white border border-gray-200 shadow-sm">
+        <div
+          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white border border-gray-200 shadow-sm cursor-pointer hover:shadow-md hover:scale-[1.02] transition-all"
+          onClick={() => handleMetricDrilldown('total', { status: 'all' }, `All Vehicles (${metrics.total})`)}
+          title="Click to view all vehicles"
+        >
           <Car className="w-4 h-4 text-emerald-500" />
           <div>
             <div className="text-[9px] text-gray-500 font-medium">Total Fleet</div>
             <div className="text-sm font-bold text-gray-800">{metrics.total}</div>
           </div>
         </div>
-        <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white border border-gray-200 shadow-sm">
+        <div
+          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white border border-gray-200 shadow-sm cursor-pointer hover:shadow-md hover:scale-[1.02] transition-all"
+          onClick={() => handleMetricDrilldown('active', { status: 'active' }, `Active Vehicles (${metrics.active})`)}
+          title="Click to view active vehicles"
+        >
           <Circle className="w-3 h-3 fill-emerald-500" weight="fill" />
           <div>
             <div className="text-[9px] text-gray-500 font-medium">Active</div>
             <div className="text-sm font-bold text-emerald-600">{metrics.active}</div>
           </div>
         </div>
-        <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white border border-gray-200 shadow-sm">
+        <div
+          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white border border-gray-200 shadow-sm cursor-pointer hover:shadow-md hover:scale-[1.02] transition-all"
+          onClick={() => handleMetricDrilldown('service', { status: 'service' }, `Service Vehicles (${metrics.service})`)}
+          title="Click to view vehicles in service"
+        >
           <Circle className="w-3 h-3 fill-sky-500" weight="fill" />
           <div>
             <div className="text-[9px] text-gray-500 font-medium">Service</div>
             <div className="text-sm font-bold text-sky-600">{metrics.service}</div>
           </div>
         </div>
-        <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white border border-gray-200 shadow-sm">
+        <div
+          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white border border-gray-200 shadow-sm cursor-pointer hover:shadow-md hover:scale-[1.02] transition-all"
+          onClick={() => handleMetricDrilldown('lowFuel', { fuelLevel: '<25' }, `Low Fuel Vehicles (${metrics.lowFuel})`)}
+          title="Click to view vehicles with low fuel"
+        >
           <BatteryMedium className="w-4 h-4 text-sky-500" />
           <div>
             <div className="text-[9px] text-gray-500 font-medium">Low Fuel</div>
             <div className="text-sm font-bold text-red-600">{metrics.lowFuel}</div>
           </div>
         </div>
-        <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white border border-gray-200 shadow-sm">
+        <div
+          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white border border-gray-200 shadow-sm cursor-pointer hover:shadow-md hover:scale-[1.02] transition-all"
+          onClick={() => handleMetricDrilldown('alerts', { hasAlerts: true }, `Vehicles with Alerts (${metrics.alerts})`)}
+          title="Click to view vehicles with alerts"
+        >
           <Broadcast className="w-4 h-4 text-emerald-500" />
           <div>
             <div className="text-[9px] text-gray-500 font-medium">Alerts</div>
@@ -1184,16 +1447,24 @@ export function FleetDashboard({ data }: FleetDashboardProps) {
                       <div className="text-[10px] text-gray-500">{vehicle.model}</div>
                     </td>
                     <td className="px-3 py-2">
-                      <span className={`px-2 py-0.5 rounded-full text-[10px] font-medium ${
-                        vehicle.status === 'active' ? 'bg-emerald-100 text-emerald-700' :
-                        vehicle.status === 'service' ? 'bg-sky-100 text-sky-700' :
-                        'bg-gray-100 text-gray-700'
-                      }`}>
+                      <span
+                        className={`px-2 py-0.5 rounded-full text-[10px] font-medium cursor-pointer hover:opacity-80 transition-opacity ${
+                          vehicle.status === 'active' ? 'bg-emerald-100 text-emerald-700' :
+                          vehicle.status === 'service' ? 'bg-sky-100 text-sky-700' :
+                          'bg-gray-100 text-gray-700'
+                        }`}
+                        onClick={(e) => handleStatusDrilldown(e, vehicle.status)}
+                        title={`Click to view all ${vehicle.status} vehicles`}
+                      >
                         {vehicle.status}
                       </span>
                     </td>
                     <td className="px-3 py-2">
-                      <span className={vehicle.fuelLevel < 25 ? 'text-red-600 font-semibold' : 'text-gray-700'}>
+                      <span
+                        className={`${vehicle.fuelLevel < 25 ? 'text-red-600 font-semibold' : 'text-gray-700'} cursor-pointer hover:underline`}
+                        onClick={(e) => handleFuelDrilldown(e, vehicle)}
+                        title="Click to view fuel history"
+                      >
                         {vehicle.fuelLevel}%
                       </span>
                     </td>
@@ -1246,7 +1517,11 @@ export function FleetDashboard({ data }: FleetDashboardProps) {
 
     // Live Badge Component
     const LiveBadgeCompact = ({ showText = false }: { showText?: boolean }) => (
-      <div className="flex items-center gap-1 px-2 py-1 bg-green-500/20 border border-green-500/30 rounded-md">
+      <div
+        className="flex items-center gap-1 px-2 py-1 bg-green-500/20 border border-green-500/30 rounded-md cursor-pointer hover:bg-green-500/30 transition-colors"
+        onClick={handleRealtimeDrilldown}
+        title="Click to view real-time connection details"
+      >
         <Circle className="w-2 h-2 fill-green-500 animate-pulse" weight="fill" />
         {showText && <span className="text-[10px] font-semibold text-green-700 dark:text-green-300">LIVE</span>}
       </div>
@@ -1369,12 +1644,21 @@ export function FleetDashboard({ data }: FleetDashboardProps) {
                           <div className="text-[10px] text-gray-500 dark:text-gray-400">{vehicle.year}</div>
                         </td>
                         <td className="px-3 py-2">
-                          <Badge variant={getStatusVariant(vehicle.status)} className="text-[9px] h-4">
+                          <Badge
+                            variant={getStatusVariant(vehicle.status)}
+                            className="text-[9px] h-4 cursor-pointer hover:opacity-80 transition-opacity"
+                            onClick={(e) => handleStatusDrilldown(e, vehicle.status)}
+                            title={`Click to view all ${vehicle.status} vehicles`}
+                          >
                             {vehicle.status}
                           </Badge>
                         </td>
                         <td className="px-3 py-2 text-right font-medium">
-                          <span className={vehicle.fuelLevel < 25 ? 'text-red-600 dark:text-red-400' : 'dark:text-white'}>
+                          <span
+                            className={`${vehicle.fuelLevel < 25 ? 'text-red-600 dark:text-red-400' : 'dark:text-white'} cursor-pointer hover:underline`}
+                            onClick={(e) => handleFuelDrilldown(e, vehicle)}
+                            title="Click to view fuel history"
+                          >
                             {vehicle.fuelLevel}%
                           </span>
                         </td>
@@ -1395,7 +1679,12 @@ export function FleetDashboard({ data }: FleetDashboardProps) {
           </span>
           <div className="flex items-center gap-2">
             {recentEvents.slice(0, 5).map((event, i) => (
-              <div key={i} className="px-2 py-0.5 bg-white dark:bg-blue-900 rounded-full text-[10px] whitespace-nowrap shadow-sm dark:text-blue-100">
+              <div
+                key={i}
+                className="px-2 py-0.5 bg-white dark:bg-blue-900 rounded-full text-[10px] whitespace-nowrap shadow-sm dark:text-blue-100 cursor-pointer hover:shadow-md transition-shadow"
+                onClick={(e) => handleEventDrilldown(e, event)}
+                title="Click to view event details"
+              >
                 {event.message}
               </div>
             ))}
@@ -1418,11 +1707,15 @@ export function FleetDashboard({ data }: FleetDashboardProps) {
           <h1 className="text-2xl font-bold tracking-tight bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">Fleet Dashboard</h1>
           {/* Real-time Status Indicator */}
           <div className="flex items-center gap-1.5">
-            <div className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium ${
-              isRealtimeConnected
-                ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
-                : 'bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400'
-            }`}>
+            <div
+              className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium cursor-pointer transition-colors ${
+                isRealtimeConnected
+                  ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 hover:bg-green-200 dark:hover:bg-green-900/50'
+                  : 'bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'
+              }`}
+              onClick={handleRealtimeDrilldown}
+              title="Click to view real-time connection details"
+            >
               <Circle
                 className={`w-1.5 h-1.5 ${isRealtimeConnected ? 'fill-green-500 animate-pulse' : 'fill-gray-400'}`}
                 weight="fill"
@@ -1430,7 +1723,11 @@ export function FleetDashboard({ data }: FleetDashboardProps) {
               {isRealtimeConnected ? 'Live' : 'Offline'}
             </div>
             {isEmulatorRunning && (
-              <div className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
+              <div
+                className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 cursor-pointer hover:bg-blue-200 dark:hover:bg-blue-900/50 transition-colors"
+                onClick={handleRealtimeDrilldown}
+                title="Click to view emulator details"
+              >
                 <Broadcast className="w-2.5 h-2.5 animate-pulse" />
                 Emulator
               </div>
@@ -1483,12 +1780,38 @@ export function FleetDashboard({ data }: FleetDashboardProps) {
 
       {/* Quick Stats Bar */}
       <div className="flex gap-2">
-        <Badge variant="outline" className="text-xs">Total: {metrics.total}</Badge>
-        <Badge variant="outline" className="text-xs bg-success/10 text-success border-success/20">Active: {metrics.active}</Badge>
-        <Badge variant="outline" className="text-xs bg-warning/10 text-warning border-warning/20">Service: {metrics.service}</Badge>
+        <Badge
+          variant="outline"
+          className="text-xs cursor-pointer hover:bg-gray-100 transition-colors"
+          onClick={() => handleMetricDrilldown('total', { status: 'all' }, `All Vehicles (${metrics.total})`)}
+          title="Click to view all vehicles"
+        >
+          Total: {metrics.total}
+        </Badge>
+        <Badge
+          variant="outline"
+          className="text-xs bg-success/10 text-success border-success/20 cursor-pointer hover:bg-success/20 transition-colors"
+          onClick={() => handleMetricDrilldown('active', { status: 'active' }, `Active Vehicles (${metrics.active})`)}
+          title="Click to view active vehicles"
+        >
+          Active: {metrics.active}
+        </Badge>
+        <Badge
+          variant="outline"
+          className="text-xs bg-warning/10 text-warning border-warning/20 cursor-pointer hover:bg-warning/20 transition-colors"
+          onClick={() => handleMetricDrilldown('service', { status: 'service' }, `Service Vehicles (${metrics.service})`)}
+          title="Click to view vehicles in service"
+        >
+          Service: {metrics.service}
+        </Badge>
         <Badge variant="outline" className="text-xs">Avg Fuel: {metrics.avgFuelLevel}%</Badge>
         {metrics.lowFuel > 0 && (
-          <Badge variant="outline" className="text-xs bg-destructive/10 text-destructive border-destructive/20">
+          <Badge
+            variant="outline"
+            className="text-xs bg-destructive/10 text-destructive border-destructive/20 cursor-pointer hover:bg-destructive/20 transition-colors"
+            onClick={() => handleMetricDrilldown('lowFuel', { fuelLevel: '<25' }, `Low Fuel Vehicles (${metrics.lowFuel})`)}
+            title="Click to view vehicles with low fuel"
+          >
             Low Fuel: {metrics.lowFuel}
           </Badge>
         )}
