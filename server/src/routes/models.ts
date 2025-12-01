@@ -261,7 +261,7 @@ router.post(
         req.file.originalname,
         {
           metadata: {
-            uploadedBy: req.user?.id || 'unknown',
+            uploadedBy: String(req.user?.id || 'unknown'),
             name,
             vehicleType,
           },
