@@ -3,27 +3,34 @@ import SwiftUI
 // MARK: - Placeholder Views for Missing Features
 // These views provide a "Coming Soon" message until the full implementation is ready
 
+// TEMPORARY: Stub implementations to satisfy MoreView references
+// TODO: Add the actual implementation files to the Xcode project
+
 struct DamageReportView: View {
     var body: some View {
         FeatureComingSoonView(featureName: "Damage Reporting")
+            .navigationTitle("Report Damage")
     }
 }
 
 struct IncidentReportView: View {
     var body: some View {
         FeatureComingSoonView(featureName: "Incident Reports")
+            .navigationTitle("Incident Reports")
     }
 }
 
 struct VehicleReservationView: View {
     var body: some View {
         FeatureComingSoonView(featureName: "Vehicle Reservations")
+            .navigationTitle("Reservations")
     }
 }
 
 struct FuelManagementView: View {
     var body: some View {
         FeatureComingSoonView(featureName: "Fuel Management")
+            .navigationTitle("Fuel Management")
     }
 }
 
