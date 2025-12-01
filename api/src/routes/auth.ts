@@ -5,6 +5,8 @@ import { z } from 'zod'
 import { loginLimiter, registrationLimiter } from '../config/rate-limiters'
 import { FIPSCryptoService } from '../services/fips-crypto.service'
 import { FIPSJWTService } from '../services/fips-jwt.service'
+import axios from 'axios'
+import jwt from 'jsonwebtoken'
 
 const router = express.Router()
 
@@ -611,6 +613,171 @@ router.get('/me', async (req: Request, res: Response) => {
     }
     console.error('Error in /auth/me:', error.message)
     return res.status(500).json({ error: 'Internal server error' })
+  }
+})
+
+/**
+ * @openapi
+ * /api/auth/microsoft/login:
+ *   get:
+ *     summary: Initiate Microsoft Azure AD SSO login
+ *     description: Redirects user to Microsoft login page for OAuth authentication
+ *     tags:
+ *       - Authentication
+ *     responses:
+ *       302:
+ *         description: Redirect to Microsoft login page
+ */
+// GET /api/auth/microsoft/login - Initiate Microsoft SSO
+router.get('/microsoft/login', (req: Request, res: Response) => {
+  const AZURE_AD_CONFIG = {
+    clientId: process.env.AZURE_AD_CLIENT_ID || process.env.VITE_AZURE_AD_CLIENT_ID || 'baae0851-0c24-4214-8587-e3fabc46bd4a',
+    tenantId: process.env.AZURE_AD_TENANT_ID || process.env.VITE_AZURE_AD_TENANT_ID || '0ec14b81-7b82-45ee-8f3d-cbc31ced5347',
+    redirectUri: process.env.AZURE_AD_REDIRECT_URI || 'https://fleet.capitaltechalliance.com/api/auth/microsoft/callback'
+  }
+
+  const authUrl = `https://login.microsoftonline.com/${AZURE_AD_CONFIG.tenantId}/oauth2/v2.0/authorize?` +
+    `client_id=${AZURE_AD_CONFIG.clientId}` +
+    `&response_type=code` +
+    `&redirect_uri=${encodeURIComponent(AZURE_AD_CONFIG.redirectUri)}` +
+    `&response_mode=query` +
+    `&scope=${encodeURIComponent('openid profile email User.Read')}` +
+    `&state=1`
+
+  console.log('[AUTH] Redirecting to Azure AD:', authUrl)
+  res.redirect(authUrl)
+})
+
+/**
+ * @openapi
+ * /api/auth/microsoft/callback:
+ *   get:
+ *     summary: Microsoft Azure AD SSO callback
+ *     description: Handles OAuth callback from Microsoft and creates/authenticates user
+ *     tags:
+ *       - Authentication
+ *     responses:
+ *       302:
+ *         description: Redirect to dashboard with auth token
+ */
+// GET /api/auth/microsoft/callback - Handle Microsoft SSO callback
+router.get('/microsoft/callback', async (req: Request, res: Response) => {
+  try {
+    const { code } = req.query
+
+    if (!code || typeof code !== 'string') {
+      return res.redirect('/login?error=no_code')
+    }
+
+    const AZURE_AD_CONFIG = {
+      clientId: process.env.AZURE_AD_CLIENT_ID || process.env.VITE_AZURE_AD_CLIENT_ID || 'baae0851-0c24-4214-8587-e3fabc46bd4a',
+      clientSecret: process.env.AZURE_AD_CLIENT_SECRET || '',
+      tenantId: process.env.AZURE_AD_TENANT_ID || process.env.VITE_AZURE_AD_TENANT_ID || '0ec14b81-7b82-45ee-8f3d-cbc31ced5347',
+      redirectUri: process.env.AZURE_AD_REDIRECT_URI || 'https://fleet.capitaltechalliance.com/api/auth/microsoft/callback'
+    }
+
+    // Exchange code for token
+    const tokenResponse = await axios.post(
+      `https://login.microsoftonline.com/${AZURE_AD_CONFIG.tenantId}/oauth2/v2.0/token`,
+      new URLSearchParams({
+        client_id: AZURE_AD_CONFIG.clientId,
+        client_secret: AZURE_AD_CONFIG.clientSecret,
+        code: code,
+        redirect_uri: AZURE_AD_CONFIG.redirectUri,
+        grant_type: 'authorization_code',
+        scope: 'openid profile email User.Read'
+      }),
+      {
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+      }
+    )
+
+    const { access_token } = tokenResponse.data
+
+    // Get user info
+    const userInfoResponse = await axios.get('https://graph.microsoft.com/v1.0/me', {
+      headers: { Authorization: `Bearer ${access_token}` }
+    })
+
+    const microsoftUser = userInfoResponse.data
+    const email = (microsoftUser.mail || microsoftUser.userPrincipalName).toLowerCase()
+
+    // Get default tenant
+    const tenantResult = await pool.query('SELECT id FROM tenants ORDER BY created_at LIMIT 1')
+    if (tenantResult.rows.length === 0) {
+      return res.redirect('/login?error=no_tenant')
+    }
+    const tenantId = tenantResult.rows[0].id
+
+    // Check if user exists
+    let userResult = await pool.query(
+      'SELECT id, email, first_name, last_name, role, tenant_id FROM users WHERE email = $1',
+      [email]
+    )
+
+    let user
+    if (userResult.rows.length === 0) {
+      // Create new user
+      const insertResult = await pool.query(
+        `INSERT INTO users (tenant_id, email, first_name, last_name, role, is_active, password_hash, sso_provider, sso_provider_id)
+         VALUES ($1, $2, $3, $4, 'viewer', true, 'SSO', 'microsoft', $5)
+         RETURNING id, email, first_name, last_name, role, tenant_id`,
+        [tenantId, email, microsoftUser.givenName || 'User', microsoftUser.surname || '', microsoftUser.id]
+      )
+      user = insertResult.rows[0]
+    } else {
+      user = userResult.rows[0]
+    }
+
+    // Generate JWT token
+    const token = FIPSJWTService.generateAccessToken(
+      user.id,
+      user.email,
+      user.role,
+      user.tenant_id
+    )
+
+    await createAuditLog(
+      user.tenant_id,
+      user.id,
+      'LOGIN',
+      'users',
+      user.id,
+      { provider: 'microsoft', email },
+      req.ip || null,
+      req.get('User-Agent') || null,
+      'success'
+    )
+
+    // Check if this is a client-side fetch (JSON expected) or redirect from Azure AD
+    // Client-side fetch will have Accept: application/json header
+    const acceptsJson = req.headers.accept?.includes('application/json')
+
+    if (acceptsJson) {
+      // Return JSON for client-side OAuth flow
+      return res.json({
+        token,
+        user: {
+          id: user.id,
+          email: user.email,
+          first_name: user.first_name,
+          last_name: user.last_name,
+          role: user.role,
+          tenant_id: user.tenant_id
+        }
+      })
+    } else {
+      // Redirect to dashboard with token (legacy server-side flow)
+      res.redirect(`/?token=${encodeURIComponent(token)}`)
+    }
+  } catch (error: any) {
+    console.error('Microsoft SSO callback error:', error.message)
+    const acceptsJson = req.headers.accept?.includes('application/json')
+    if (acceptsJson) {
+      return res.status(500).json({ error: 'Microsoft SSO authentication failed', details: error.message })
+    } else {
+      res.redirect('/login?error=sso_failed')
+    }
   }
 })
 
