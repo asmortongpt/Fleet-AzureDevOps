@@ -132,5 +132,6 @@ export const checkAccountLock = async (
   }
 }
 
-// Export alias for backwards compatibility with routes importing from jwt.middleware
+// Export aliases for backwards compatibility with routes importing from jwt.middleware and role.middleware
 export const checkJwt = authenticateJWT
+export const checkRole = authorize
