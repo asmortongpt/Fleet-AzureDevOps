@@ -1,5 +1,5 @@
 import express from 'express';
-import { checkJwt } from '../middleware/jwt.middleware';
+import { checkJwt } from '../middleware/auth';
 import { checkRole } from '../middleware/role.middleware';
 import { UtilizationCalcService } from '../services/utilization-calc.service';
 import { ROICalculatorService } from '../services/roi-calculator.service';

@@ -131,3 +131,6 @@ export const checkAccountLock = async (
     return res.status(500).json({ error: 'Internal server error' })
   }
 }
+
+// Export alias for backwards compatibility with routes importing from jwt.middleware
+export const checkJwt = authenticateJWT
