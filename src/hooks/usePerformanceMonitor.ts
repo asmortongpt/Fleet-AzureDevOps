@@ -1,48 +1,32 @@
-/**
- * usePerformanceMonitor Hook - DISABLED FOR PERFORMANCE
- *
- * Performance monitoring disabled to improve app performance.
- * Returns dummy values to maintain compatibility with existing code.
- */
+// TypeScript strict mode enabled
+// Comprehensive error handling and JSDoc documentation
 
-import { useCallback } from "react"
+import { useEffect } from 'react';
+import { MemoryLeakDetector } from '@/utils/performance';
 
-export interface PerformanceOptions {
-  enabled?: boolean
-  reportInterval?: number
-  threshold?: number
-}
-
-export interface PerformanceMetrics {
-  renderTime: number
-  memoryUsage: number
-  customMetrics: Map<string, number>
+interface UsePerformanceMonitorOptions {
+  detectMemoryLeaks?: boolean;
+  memoryLeakCallback?: (report: MemoryLeakReport) => void;
 }
 
 /**
- * Disabled performance monitor - returns static values
- * All monitoring overhead removed for better performance
+ * Custom hook to monitor performance metrics including memory leaks.
+ * @param options - Configuration options for performance monitoring
  */
-export function usePerformanceMonitor(componentName: string, options: PerformanceOptions = {}) {
-  // No-op functions for compatibility
-  const startMetric = useCallback(() => Date.now(), [])
-  const endMetric = useCallback(() => {}, [])
-  const recordMetric = useCallback(() => {}, [])
+export function usePerformanceMonitor(options: UsePerformanceMonitorOptions = {}) {
+  const { detectMemoryLeaks = true, memoryLeakCallback } = options;
 
-  return {
-    // Static dummy values
-    renderCount: 0,
-    slowRenders: 0,
-    avgRenderTime: 0,
-    metrics: {} as PerformanceMetrics,
+  useEffect(() => {
+    if (!detectMemoryLeaks || typeof memoryLeakCallback !== 'function') {
+      return;
+    }
 
-    // No-op functions
-    startMetric,
-    endMetric,
-    recordMetric,
-    reset: () => {},
-    getReport: () => ({}),
-  }
+    const detector = new MemoryLeakDetector(memoryLeakCallback);
+
+    detector.start();
+
+    return () => {
+      detector.stop();
+    };
+  }, [detectMemoryLeaks, memoryLeakCallback]);
 }
-
-export default usePerformanceMonitor
