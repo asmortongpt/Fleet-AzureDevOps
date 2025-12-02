@@ -1,9 +1,8 @@
 import express from 'express';
-import { checkJwt } from '../middleware/auth';
-import { checkRole } from '../middleware/role.middleware';
+import { checkJwt, checkRole } from '../middleware/auth';
 import { UtilizationCalcService } from '../services/utilization-calc.service';
 import { ROICalculatorService } from '../services/roi-calculator.service';
-import { asyncHandler } from '../utils/async-handler';
+import { asyncHandler } from '../middleware/async-handler';
 import { z } from 'zod';
 
 const router = express.Router();
