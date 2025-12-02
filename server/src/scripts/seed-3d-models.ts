@@ -1,13 +1,9 @@
 /**
  * Seed 3D Vehicle Models
  * Populates the database with initial 3D models from Sketchfab
- * MIGRATED TO DRIZZLE ORM - All queries now use type-safe Drizzle operations
  */
 
 import { Pool } from 'pg';
-import { db } from '../../../api/src/db';
-import { vehicle3dModels } from '../../../api/src/db/schema';
-import { eq, desc, sql } from 'drizzle-orm';
 import { getSketchfabService } from '../services/sketchfab';
 import { getAzureBlobService } from '../services/azure-blob';
 import { logger } from '../services/logger';
@@ -31,7 +27,7 @@ const MODELS_TO_SEED: ModelToSeed[] = [
   { searchQuery: 'sports car', vehicleType: 'coupe', tags: ['sports', 'performance'], limit: 2 },
 ];
 
-export async function seedVehicle3DModels(pool?: Pool): Promise<void> {
+export async function seedVehicle3DModels(pool: Pool): Promise<void> {
   try {
     logger.info('🚗 Starting 3D vehicle models seeding...');
 
@@ -58,14 +54,13 @@ export async function seedVehicle3DModels(pool?: Pool): Promise<void> {
 
         for (const sketchfabModel of searchResults.results) {
           try {
-            // Check if model already exists using Drizzle
-            const existingModel = await db
-              .select({ id: vehicle3dModels.id })
-              .from(vehicle3dModels)
-              .where(eq(vehicle3dModels.sourceId, sketchfabModel.uid))
-              .limit(1);
+            // Check if model already exists
+            const existingModel = await pool.query(
+              'SELECT id FROM vehicle_3d_models WHERE source_id = $1',
+              [sketchfabModel.uid]
+            );
 
-            if (existingModel.length > 0) {
+            if (existingModel.rows.length > 0) {
               logger.info(`Model ${sketchfabModel.name} already exists, skipping`);
               totalSkipped++;
               continue;
@@ -79,7 +74,7 @@ export async function seedVehicle3DModels(pool?: Pool): Promise<void> {
             // Try to download and upload to Azure
             let fileUrl = sketchfabModel.viewerUrl;
             let source = 'sketchfab';
-            let fileSizeMb: string | null = null;
+            let fileSizeMb = null;
 
             try {
               logger.info(`Downloading model: ${sketchfabModel.name}`);
@@ -116,30 +111,39 @@ export async function seedVehicle3DModels(pool?: Pool): Promise<void> {
               );
             }
 
-            // Insert into database using Drizzle
-            await db.insert(vehicle3dModels).values({
-              name: sketchfabModel.name,
-              description: sketchfabModel.description || null,
-              vehicleType: modelSearch.vehicleType,
-              fileUrl,
-              fileFormat: 'glb',
-              fileSizeMb,
-              polyCount: sketchfabModel.faceCount || null,
-              source,
-              sourceId: sketchfabModel.uid,
-              license: sketchfabModel.license.label,
-              licenseUrl: sketchfabModel.license.url,
-              author: sketchfabModel.user.displayName,
-              authorUrl: sketchfabModel.user.profileUrl,
-              thumbnailUrl: thumbnail,
-              qualityTier: 'medium',
-              hasPbrMaterials: true,
-              isFeatured: false,
-              tags: modelSearch.tags,
-              viewCount: sketchfabModel.viewCount || 0,
-              downloadCount: sketchfabModel.downloadCount || 0,
-              isActive: true,
-            });
+            // Insert into database
+            await pool.query(
+              `INSERT INTO vehicle_3d_models (
+                name, description, vehicle_type,
+                file_url, file_format, file_size_mb, poly_count,
+                source, source_id, license, license_url,
+                author, author_url, thumbnail_url,
+                quality_tier, has_pbr_materials, is_featured,
+                tags, view_count, download_count
+              ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20)`,
+              [
+                sketchfabModel.name,
+                sketchfabModel.description || null,
+                modelSearch.vehicleType,
+                fileUrl,
+                'glb',
+                fileSizeMb,
+                sketchfabModel.faceCount || null,
+                source,
+                sketchfabModel.uid,
+                sketchfabModel.license.label,
+                sketchfabModel.license.url,
+                sketchfabModel.user.displayName,
+                sketchfabModel.user.profileUrl,
+                thumbnail,
+                'medium',
+                true,
+                false,
+                modelSearch.tags,
+                sketchfabModel.viewCount || 0,
+                sketchfabModel.downloadCount || 0,
+              ]
+            );
 
             logger.info(`✅ Imported: ${sketchfabModel.name}`);
             totalImported++;
@@ -155,27 +159,17 @@ export async function seedVehicle3DModels(pool?: Pool): Promise<void> {
       }
     }
 
-    // Mark featured models using Drizzle
-    // Get top 10 models by weighted score
-    const topModels = await db
-      .select({ id: vehicle3dModels.id })
-      .from(vehicle3dModels)
-      .where(eq(vehicle3dModels.isActive, true))
-      .orderBy(
-        desc(
-          sql`(${vehicle3dModels.viewCount} * 0.3 + ${vehicle3dModels.downloadCount} * 0.7)`
-        )
+    // Mark featured models
+    await pool.query(`
+      UPDATE vehicle_3d_models
+      SET is_featured = true
+      WHERE id IN (
+        SELECT id FROM vehicle_3d_models
+        WHERE is_active = true
+        ORDER BY (view_count * 0.3 + download_count * 0.7) DESC
+        LIMIT 10
       )
-      .limit(10);
-
-    // Update featured status for top models
-    if (topModels.length > 0) {
-      const topModelIds = topModels.map(m => m.id);
-      await db
-        .update(vehicle3dModels)
-        .set({ isFeatured: true })
-        .where(sql`${vehicle3dModels.id} = ANY(${topModelIds})`);
-    }
+    `);
 
     logger.info(`
     ✨ Seeding complete!
@@ -191,12 +185,21 @@ export async function seedVehicle3DModels(pool?: Pool): Promise<void> {
 // Run if called directly
 if (require.main === module) {
   (async () => {
+    const { Pool } = await import('pg');
+    const pool = new Pool({
+      connectionString:
+        process.env.DATABASE_URL ||
+        'postgresql://localhost:5432/fleet_management',
+    });
+
     try {
-      await seedVehicle3DModels();
+      await seedVehicle3DModels(pool);
       process.exit(0);
     } catch (error) {
       console.error('Seeding failed:', error);
       process.exit(1);
+    } finally {
+      await pool.end();
     }
   })();
 }
