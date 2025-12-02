@@ -1,0 +1,266 @@
+# Deliverfile - App Store metadata and submission configuration
+# https://docs.fastlane.tools/actions/deliver/
+
+# The bundle identifier of your app
+app_identifier("com.capitaltechalliance.fleetmanagement")
+
+# Your Apple ID
+username(ENV["APPLE_ID"] || "your-apple-id@example.com")
+
+# App Store Connect Team ID
+itc_team_id(ENV["ITC_TEAM_ID"] || ENV["TEAM_ID"])
+
+# Platform (optional, defaults to ios)
+platform("ios")
+
+# ============================================================================
+# APP METADATA
+# ============================================================================
+
+# App name
+name({
+  "en-US" => "DCF Fleet Management",
+})
+
+# Subtitle (optional, max 30 characters)
+subtitle({
+  "en-US" => "Fleet & Vehicle Management",
+})
+
+# Privacy policy URL
+privacy_url({
+  "en-US" => "https://your-domain.com/privacy"
+})
+
+# App Store URL (optional)
+# app_store_url("https://apps.apple.com/app/id1234567890")
+
+# Copyright notice
+copyright("#{Time.now.year} Capital Tech Alliance. All rights reserved.")
+
+# Primary category
+primary_category("BUSINESS")
+
+# Secondary category (optional)
+secondary_category("PRODUCTIVITY")
+
+# ============================================================================
+# VERSION INFORMATION
+# ============================================================================
+
+# App Store version description (What's New)
+description({
+  "en-US" => "DCF Fleet Management is a comprehensive fleet management solution designed for organizations managing vehicle fleets. Track vehicles in real-time, monitor maintenance schedules, perform OBD2 diagnostics, and ensure regulatory compliance.\n\nKEY FEATURES:\n\n• Real-time GPS tracking and location monitoring\n• OBD2 diagnostics and vehicle health monitoring\n• Maintenance scheduling and reminders\n• Trip tracking and mileage logging\n• Vehicle inspection and damage documentation\n• Photo capture and document management\n• Offline mode with automatic sync\n• Secure data encryption\n• Multi-user support with role-based access\n\nSECURITY & COMPLIANCE:\n\n• End-to-end encryption\n• Jailbreak detection\n• Certificate pinning\n• Secure data storage\n• HIPAA and regulatory compliance\n\nPERFORMANCE:\n\n• Optimized battery usage\n• Offline-first architecture\n• Fast synchronization\n• Efficient background processing\n\nSUPPORT:\n\nFor support and inquiries, contact support@capitaltechalliance.com"
+})
+
+# Release notes / What's New
+release_notes({
+  "en-US" => "Initial release of DCF Fleet Management.\n\n• Complete fleet management features\n• Real-time vehicle tracking\n• OBD2 diagnostics integration\n• Offline mode support\n• Enhanced security features\n• Bug fixes and performance improvements"
+})
+
+# Keywords (comma-separated, max 100 characters)
+keywords({
+  "en-US" => "fleet,vehicle,management,tracking,maintenance,OBD2,diagnostics,GPS"
+})
+
+# Marketing URL (optional)
+marketing_url({
+  "en-US" => "https://your-domain.com/fleet-management"
+})
+
+# Support URL
+support_url({
+  "en-US" => "https://your-domain.com/support"
+})
+
+# Promotional text (max 170 characters, appears above description)
+promotional_text({
+  "en-US" => "Professional fleet management solution with real-time tracking, OBD2 diagnostics, and comprehensive vehicle maintenance tools."
+})
+
+# ============================================================================
+# APP REVIEW INFORMATION
+# ============================================================================
+
+# App Review Information
+app_review_information({
+  first_name: "Fleet",
+  last_name: "Admin",
+  phone_number: "+1 555-123-4567",
+  email_address: "app-review@capitaltechalliance.com",
+  demo_user: "demo@example.com",
+  demo_password: "Demo123!",
+  notes: "Thank you for reviewing DCF Fleet Management.\n\nLogin Credentials:\nUsername: demo@example.com\nPassword: Demo123!\n\nThe app requires GPS, Bluetooth, and camera permissions for full functionality:\n- GPS: Vehicle location tracking\n- Bluetooth: OBD2 device connectivity\n- Camera: Vehicle inspection photos\n\nTest OBD2 features: The app includes a demo mode that simulates OBD2 data if no physical device is connected.\n\nFor any questions, please contact app-review@capitaltechalliance.com"
+})
+
+# ============================================================================
+# SUBMISSION CONFIGURATION
+# ============================================================================
+
+# Automatically submit for review after upload
+submit_for_review(false)
+
+# Automatically release after approval
+automatic_release(false)
+
+# Auto-increment build number
+# automatic_build_number(true)
+
+# Phased release (gradual rollout to 100% over 7 days)
+phased_release(false)
+
+# Force language on app metadata
+# force(false)
+
+# Skip binary upload (metadata only)
+skip_binary_upload(false)
+
+# Skip screenshots upload
+skip_screenshots(false)
+
+# Skip metadata upload
+skip_metadata(false)
+
+# Skip app version update
+# skip_app_version_update(false)
+
+# Overwrite screenshots
+overwrite_screenshots(true)
+
+# Verify HTML in metadata
+precheck_include_in_app_purchases(false)
+
+# ============================================================================
+# EXPORT COMPLIANCE & SUBMISSION INFO
+# ============================================================================
+
+# Export compliance information
+submission_information({
+  add_id_info_uses_idfa: false,
+  add_id_info_serves_ads: false,
+  add_id_info_tracks_action: false,
+  add_id_info_tracks_install: false,
+  add_id_info_limits_tracking: true,
+
+  # Export compliance
+  export_compliance_uses_encryption: true,
+  export_compliance_is_exempt: false,
+  export_compliance_contains_third_party_cryptography: false,
+  export_compliance_contains_proprietary_cryptography: false,
+  export_compliance_available_on_french_store: false,
+
+  # Content rights
+  content_rights_contains_third_party_content: false,
+  content_rights_has_rights: true,
+
+  # Advertising identifier
+  add_id_info_limits_tracking: true
+})
+
+# ============================================================================
+# PRICING & AVAILABILITY
+# ============================================================================
+
+# Price tier (0 = free)
+price_tier(0)
+
+# Available in all territories
+# For specific territories:
+# available_territories(["US", "CA", "GB"])
+
+# Available for all devices
+# For specific devices:
+# devices(["iphone", "ipad"])
+
+# ============================================================================
+# AGE RATING
+# ============================================================================
+
+# App age rating
+app_rating_config_path("./fastlane/metadata/age_rating.json")
+
+# Example age_rating.json content:
+# {
+#   "CARTOON_FANTASY_VIOLENCE": 0,
+#   "REALISTIC_VIOLENCE": 0,
+#   "PROLONGED_GRAPHIC_SADISTIC_REALISTIC_VIOLENCE": 0,
+#   "PROFANITY_CRUDE_HUMOR": 0,
+#   "MATURE_SUGGESTIVE": 0,
+#   "HORROR": 0,
+#   "MEDICAL_TREATMENT": 0,
+#   "ALCOHOL_TOBACCO_DRUGS": 0,
+#   "GAMBLING": 0,
+#   "SEXUAL_CONTENT_NUDITY": 0,
+#   "GRAPHIC_SEXUAL_CONTENT_NUDITY": 0,
+#   "UNRESTRICTED_WEB_ACCESS": 0,
+#   "GAMBLING_CONTESTS": 0
+# }
+
+# ============================================================================
+# SCREENSHOTS & MEDIA
+# ============================================================================
+
+# Screenshots directory
+screenshots_path("./screenshots")
+
+# Use HTML for metadata
+use_live_version(false)
+
+# Edit live version
+edit_live(false)
+
+# ============================================================================
+# BUILD INFORMATION
+# ============================================================================
+
+# IPA file path (if not using gym)
+# ipa("./builds/production/DCF Fleet Management.ipa")
+
+# Build number (optional, will auto-detect from IPA)
+# build_number("2")
+
+# App version (optional, will auto-detect from IPA)
+# app_version("1.0")
+
+# ============================================================================
+# LOCALIZATION
+# ============================================================================
+
+# Languages (will look for folders in screenshots_path and metadata)
+# languages(["en-US", "es-MX"])
+
+# Metadata path
+metadata_path("./fastlane/metadata")
+
+# Note: Metadata folder structure should be:
+# fastlane/metadata/
+#   en-US/
+#     name.txt
+#     subtitle.txt
+#     description.txt
+#     keywords.txt
+#     release_notes.txt
+#     privacy_url.txt
+#     marketing_url.txt
+#     support_url.txt
+#     promotional_text.txt
+
+# ============================================================================
+# TEAM INFORMATION
+# ============================================================================
+
+# Developer Team ID
+team_id(ENV["TEAM_ID"] || "FFC6NRQ5U5")
+
+# iTunes Connect Team Name (if part of multiple teams)
+# team_name("Capital Tech Alliance")
+
+# ============================================================================
+# RUN PRECHECK BEFORE SUBMIT
+# ============================================================================
+
+# Run precheck before submitting
+run_precheck_before_submit(true)
+
+# Precheck default rule level
+precheck_default_rule_level(:error)

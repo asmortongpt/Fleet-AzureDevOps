@@ -1,0 +1,363 @@
+/*
+  Localizable.strings (Spanish)
+  Fleet Manager - Localización en Español
+
+  Creado para accesibilidad y cumplimiento gubernamental
+*/
+
+// MARK: - General
+"app.name" = "Gestor de Flota";
+"app.tagline" = "Capital Tech Alliance";
+"app.version" = "Versión %@";
+"ok" = "OK";
+"cancel" = "Cancelar";
+"done" = "Hecho";
+"save" = "Guardar";
+"delete" = "Eliminar";
+"edit" = "Editar";
+"close" = "Cerrar";
+"back" = "Atrás";
+"next" = "Siguiente";
+"previous" = "Anterior";
+"loading" = "Cargando...";
+"refresh" = "Actualizar";
+"retry" = "Reintentar";
+"error" = "Error";
+"success" = "Éxito";
+"warning" = "Advertencia";
+"info" = "Información";
+
+// MARK: - Authentication
+"auth.welcome_back" = "Bienvenido de Nuevo";
+"auth.sign_in_to_continue" = "Inicia sesión para continuar";
+"auth.email" = "Correo Electrónico";
+"auth.email_placeholder" = "tu@empresa.com";
+"auth.password" = "Contraseña";
+"auth.password_placeholder" = "Ingresa contraseña";
+"auth.remember_me" = "Recordarme";
+"auth.forgot_password" = "¿Olvidaste tu Contraseña?";
+"auth.sign_in" = "Iniciar Sesión";
+"auth.sign_out" = "Cerrar Sesión";
+"auth.signing_in" = "Iniciando sesión...";
+"auth.sign_in_with_biometric" = "Iniciar sesión con %@";
+"auth.biometric_face_id" = "Face ID";
+"auth.biometric_touch_id" = "Touch ID";
+"auth.need_help" = "¿Necesitas ayuda? Contacta Soporte";
+
+// Authentication Errors
+"auth.error.empty_email" = "Por favor ingresa tu correo electrónico";
+"auth.error.empty_password" = "Por favor ingresa tu contraseña";
+"auth.error.invalid_credentials" = "Correo electrónico o contraseña inválidos";
+"auth.error.network" = "Error de conexión de red. Por favor intenta de nuevo.";
+"auth.error.biometric_failed" = "Autenticación biométrica fallida";
+"auth.error.biometric_unavailable" = "La autenticación biométrica no está disponible";
+
+// MARK: - Dashboard
+"dashboard.title" = "Panel de Control";
+"dashboard.loading" = "Cargando datos de la flota...";
+"dashboard.last_updated" = "Actualizado %@";
+"dashboard.offline_mode" = "Modo Sin Conexión";
+"dashboard.showing_cached_data" = "Mostrando datos en caché";
+"dashboard.no_data" = "Sin Datos de Flota";
+"dashboard.no_data_message" = "No hay vehículos o información de flota disponible.\nDesliza para actualizar o verifica tu conexión.";
+"dashboard.error_loading" = "Error al Cargar Datos";
+"dashboard.online" = "En Línea";
+"dashboard.offline" = "Sin Conexión";
+"dashboard.fleet_metrics" = "Métricas de la flota";
+
+// Quick Actions
+"quick_actions.title" = "Acciones Rápidas";
+"quick_actions.add_vehicle" = "Agregar Vehículo";
+"quick_actions.start_trip" = "Iniciar Viaje";
+"quick_actions.scan_barcode" = "Escanear Código de Barras";
+"quick_actions.take_photo" = "Tomar Foto";
+"quick_actions.report_issue" = "Reportar Problema";
+"quick_actions.view_reports" = "Ver Reportes";
+
+// Fleet Metrics
+"metrics.total_vehicles" = "Total de Vehículos";
+"metrics.active_vehicles" = "Vehículos Activos";
+"metrics.maintenance_due" = "Mantenimiento Pendiente";
+"metrics.low_fuel" = "Combustible Bajo";
+"metrics.in_use" = "En Uso";
+"metrics.available" = "Disponible";
+"metrics.total" = "Total";
+"metrics.active" = "Activo";
+"metrics.avg_miles" = "Millas Promedio";
+"metrics.avg_fuel" = "Combustible Promedio";
+
+// MARK: - Vehicle List
+"vehicles.title" = "Vehículos de la Flota";
+"vehicles.search_placeholder" = "Buscar vehículos...";
+"vehicles.loading" = "Cargando vehículos...";
+"vehicles.no_vehicles_found" = "No se Encontraron Vehículos";
+"vehicles.no_vehicles_available" = "No hay vehículos disponibles";
+"vehicles.no_search_results" = "Ningún vehículo coincide con tus criterios de búsqueda";
+"vehicles.filter" = "Filtrar";
+"vehicles.sort" = "Ordenar";
+"vehicles.clear_filters" = "Limpiar Todos los Filtros";
+"vehicles.filters_active" = "Filtros activos";
+
+// Vehicle Sorting
+"vehicles.sort.number" = "Número de Vehículo";
+"vehicles.sort.make" = "Marca y Modelo";
+"vehicles.sort.status" = "Estado";
+"vehicles.sort.fuel_level" = "Nivel de Combustible";
+"vehicles.sort.mileage" = "Kilometraje";
+"vehicles.sort.recent" = "Agregados Recientemente";
+
+// Vehicle Status
+"vehicle.status.active" = "Activo";
+"vehicle.status.inactive" = "Inactivo";
+"vehicle.status.maintenance" = "Mantenimiento";
+"vehicle.status.out_of_service" = "Fuera de Servicio";
+"vehicle.status.reserved" = "Reservado";
+
+// Vehicle Types
+"vehicle.type.sedan" = "Sedán";
+"vehicle.type.suv" = "SUV";
+"vehicle.type.truck" = "Camión";
+"vehicle.type.van" = "Camioneta";
+"vehicle.type.bus" = "Autobús";
+"vehicle.type.motorcycle" = "Motocicleta";
+"vehicle.type.equipment" = "Equipo";
+"vehicle.type.other" = "Otro";
+
+// MARK: - Vehicle Detail
+"vehicle.detail.title" = "Detalles del Vehículo";
+"vehicle.detail.information" = "Información del Vehículo";
+"vehicle.detail.current_location" = "Ubicación Actual";
+"vehicle.detail.status_metrics" = "Estado y Métricas";
+"vehicle.detail.maintenance" = "Mantenimiento";
+"vehicle.detail.alerts" = "Alertas";
+"vehicle.detail.tags" = "Etiquetas";
+
+// Vehicle Information Fields
+"vehicle.vin" = "VIN";
+"vehicle.license_plate" = "Placa";
+"vehicle.department" = "Departamento";
+"vehicle.region" = "Región";
+"vehicle.ownership" = "Propiedad";
+"vehicle.fuel_type" = "Tipo de Combustible";
+"vehicle.assigned_driver" = "Conductor Asignado";
+"vehicle.make" = "Marca";
+"vehicle.model" = "Modelo";
+"vehicle.year" = "Año";
+
+// Ownership Types
+"vehicle.ownership.owned" = "Propio";
+"vehicle.ownership.leased" = "Arrendado";
+"vehicle.ownership.rented" = "Rentado";
+
+// Fuel Types
+"vehicle.fuel.gasoline" = "Gasolina";
+"vehicle.fuel.diesel" = "Diésel";
+"vehicle.fuel.electric" = "Eléctrico";
+"vehicle.fuel.hybrid" = "Híbrido";
+"vehicle.fuel.propane" = "Propano";
+"vehicle.fuel.natural_gas" = "Gas Natural";
+
+// Vehicle Metrics
+"vehicle.fuel_level" = "Nivel de Combustible";
+"vehicle.fuel_low" = "Combustible Bajo";
+"vehicle.total_mileage" = "Kilometraje Total";
+"vehicle.hours_used" = "Horas Usadas";
+"vehicle.mileage_format" = "%.0f mi";
+"vehicle.hours_format" = "%.1f hrs";
+
+// Maintenance
+"vehicle.last_service" = "Último Servicio";
+"vehicle.next_service_due" = "Próximo Servicio Programado";
+"vehicle.service_overdue" = "Servicio Vencido";
+
+// Quick Actions
+"vehicle.action.inspect" = "Inspeccionar";
+"vehicle.action.service" = "Servicio";
+"vehicle.action.locate" = "Localizar";
+"vehicle.action.records" = "Registros";
+
+// MARK: - Vehicle Inspection
+"inspection.title" = "Inspección de Vehículo";
+"inspection.start" = "Iniciar Inspección";
+"inspection.complete" = "Completar Inspección";
+"inspection.cancel" = "Cancelar Inspección";
+"inspection.exterior" = "Exterior";
+"inspection.interior" = "Interior";
+"inspection.mechanical" = "Mecánico";
+"inspection.safety" = "Seguridad";
+"inspection.documentation" = "Documentación";
+"inspection.notes" = "Notas";
+"inspection.add_photo" = "Agregar Foto";
+"inspection.record_issue" = "Registrar Problema";
+"inspection.pass" = "Aprobar";
+"inspection.fail" = "Reprobar";
+"inspection.not_applicable" = "N/A";
+
+// MARK: - Trip Tracking
+"trip.title" = "Seguimiento de Viajes";
+"trip.start_trip" = "Iniciar Viaje";
+"trip.end_trip" = "Finalizar Viaje";
+"trip.pause_trip" = "Pausar Viaje";
+"trip.resume_trip" = "Reanudar Viaje";
+"trip.current_trip" = "Viaje Actual";
+"trip.trip_history" = "Historial de Viajes";
+"trip.distance" = "Distancia";
+"trip.duration" = "Duración";
+"trip.average_speed" = "Velocidad Promedio";
+"trip.purpose" = "Propósito del Viaje";
+"trip.notes" = "Notas del Viaje";
+"trip.odometer_start" = "Odómetro Inicial";
+"trip.odometer_end" = "Odómetro Final";
+
+// MARK: - OBD2 Diagnostics
+"obd2.title" = "Diagnósticos OBD2";
+"obd2.connect" = "Conectar al Vehículo";
+"obd2.disconnect" = "Desconectar";
+"obd2.connected" = "Conectado";
+"obd2.disconnected" = "Desconectado";
+"obd2.scanning" = "Escaneando...";
+"obd2.engine_rpm" = "RPM del Motor";
+"obd2.vehicle_speed" = "Velocidad del Vehículo";
+"obd2.coolant_temp" = "Temperatura del Refrigerante";
+"obd2.fuel_pressure" = "Presión del Combustible";
+"obd2.trouble_codes" = "Códigos de Problema";
+"obd2.no_codes" = "No se detectaron códigos de problema";
+"obd2.clear_codes" = "Limpiar Códigos";
+
+// MARK: - Barcode Scanner
+"barcode.title" = "Escanear Código de Barras";
+"barcode.scanning" = "Escaneando...";
+"barcode.align_barcode" = "Alinea el código de barras dentro del marco";
+"barcode.scan_success" = "Código de barras escaneado exitosamente";
+"barcode.scan_failed" = "Error al escanear el código de barras";
+"barcode.manual_entry" = "Ingresar Manualmente";
+
+// MARK: - Camera & Photos
+"camera.title" = "Cámara";
+"camera.take_photo" = "Tomar Foto";
+"camera.retake" = "Retomar";
+"camera.use_photo" = "Usar Foto";
+"camera.choose_from_library" = "Elegir de la Biblioteca";
+"camera.permission_required" = "Se Requiere Permiso de Cámara";
+"camera.permission_message" = "Por favor permite el acceso a la cámara en Configuración para tomar fotos.";
+
+// MARK: - Document Scanner
+"document.title" = "Escanear Documento";
+"document.scanning" = "Escaneando documento...";
+"document.scan_complete" = "Documento escaneado";
+"document.save_document" = "Guardar Documento";
+
+// MARK: - Connection Status
+"connection.connected" = "Conectado a los servicios de Flota";
+"connection.disconnected" = "Sin conexión";
+"connection.checking" = "Verificando conexión...";
+"connection.reconnecting" = "Reconectando...";
+
+// MARK: - Sync Status
+"sync.syncing" = "Sincronizando...";
+"sync.sync_complete" = "Sincronización completa";
+"sync.sync_failed" = "Sincronización fallida";
+"sync.pending_changes" = "%d cambios pendientes";
+"sync.last_sync" = "Última sincronización: %@";
+
+// MARK: - Errors & Alerts
+"error.generic" = "Ocurrió un error. Por favor intenta de nuevo.";
+"error.network" = "Error de conexión de red";
+"error.server" = "Error del servidor. Por favor intenta más tarde.";
+"error.not_found" = "Recurso no encontrado";
+"error.unauthorized" = "No autorizado. Por favor inicia sesión de nuevo.";
+"error.validation" = "Por favor verifica tu entrada e intenta de nuevo.";
+"error.permission_denied" = "Permiso denegado";
+"error.location_unavailable" = "Servicios de ubicación no disponibles";
+"error.camera_unavailable" = "Cámara no disponible";
+
+// MARK: - Confirmation Dialogs
+"confirm.delete_title" = "Confirmar Eliminación";
+"confirm.delete_message" = "¿Estás seguro de que quieres eliminar este elemento? Esta acción no se puede deshacer.";
+"confirm.discard_title" = "Descartar Cambios";
+"confirm.discard_message" = "¿Estás seguro de que quieres descartar tus cambios?";
+"confirm.logout_title" = "Cerrar Sesión";
+"confirm.logout_message" = "¿Estás seguro de que quieres cerrar sesión?";
+
+// MARK: - Date & Time Formats
+"date.today" = "Hoy";
+"date.yesterday" = "Ayer";
+"date.tomorrow" = "Mañana";
+"time.just_now" = "Justo ahora";
+"time.minutes_ago" = "Hace %d minutos";
+"time.hours_ago" = "Hace %d horas";
+"time.days_ago" = "Hace %d días";
+
+// MARK: - Pluralization
+"vehicles.count.zero" = "Sin vehículos";
+"vehicles.count.one" = "1 vehículo";
+"vehicles.count.other" = "%d vehículos";
+
+"trips.count.zero" = "Sin viajes";
+"trips.count.one" = "1 viaje";
+"trips.count.other" = "%d viajes";
+
+"alerts.count.zero" = "Sin alertas";
+"alerts.count.one" = "1 alerta";
+"alerts.count.other" = "%d alertas";
+
+// MARK: - Accessibility Labels
+"accessibility.menu" = "Menú";
+"accessibility.close_menu" = "Cerrar menú";
+"accessibility.search" = "Buscar";
+"accessibility.filter" = "Opciones de filtro";
+"accessibility.sort" = "Opciones de ordenamiento";
+"accessibility.refresh" = "Actualizar datos";
+"accessibility.back" = "Atrás";
+"accessibility.more_options" = "Más opciones";
+"accessibility.dismiss" = "Descartar";
+
+// Accessibility Hints
+"accessibility.hint.tap_to_open" = "Toca para abrir";
+"accessibility.hint.tap_to_select" = "Toca para seleccionar";
+"accessibility.hint.tap_to_edit" = "Toca para editar";
+"accessibility.hint.tap_to_delete" = "Toca para eliminar";
+"accessibility.hint.double_tap_to_activate" = "Toca dos veces para activar";
+"accessibility.hint.swipe_to_delete" = "Desliza a la izquierda para eliminar";
+
+// Accessibility Values
+"accessibility.value.selected" = "Seleccionado";
+"accessibility.value.not_selected" = "No seleccionado";
+"accessibility.value.checked" = "Marcado";
+"accessibility.value.unchecked" = "No marcado";
+"accessibility.value.expanded" = "Expandido";
+"accessibility.value.collapsed" = "Contraído";
+
+// Accessibility Announcements
+"accessibility.announcement.loading" = "Cargando datos";
+"accessibility.announcement.loaded" = "Datos cargados";
+"accessibility.announcement.error" = "Ocurrió un error: %@";
+"accessibility.announcement.saved" = "Guardado exitosamente";
+"accessibility.announcement.deleted" = "Eliminado exitosamente";
+"accessibility.announcement.filter_applied" = "Filtro aplicado";
+"accessibility.announcement.sort_changed" = "Orden de clasificación cambiado";
+
+// MARK: - Settings
+"settings.title" = "Configuración";
+"settings.account" = "Cuenta";
+"settings.notifications" = "Notificaciones";
+"settings.appearance" = "Apariencia";
+"settings.language" = "Idioma";
+"settings.accessibility" = "Accesibilidad";
+"settings.about" = "Acerca de";
+"settings.privacy" = "Privacidad";
+"settings.terms" = "Términos de Servicio";
+"settings.help" = "Ayuda y Soporte";
+
+// MARK: - Notifications
+"notification.trip_started" = "Viaje iniciado";
+"notification.trip_ended" = "Viaje finalizado";
+"notification.low_fuel_alert" = "Alerta de combustible bajo para vehículo %@";
+"notification.maintenance_due" = "Mantenimiento pendiente para vehículo %@";
+"notification.inspection_required" = "Inspección requerida para vehículo %@";
+
+// MARK: - Offline Mode
+"offline.mode_enabled" = "Modo sin conexión activado";
+"offline.mode_disabled" = "Modo sin conexión desactivado";
+"offline.data_saved_locally" = "Datos guardados localmente. Se sincronizarán cuando estés en línea.";
+"offline.limited_functionality" = "Algunas funciones no están disponibles en modo sin conexión";

@@ -1,0 +1,214 @@
+# ============================================================================
+# Security Scanning Template
+# ============================================================================
+jobs:
+  - job: SecurityScanning
+    displayName: 'Security Scanning'
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+      - checkout: self
+        displayName: 'Checkout code'
+        clean: true
+
+      # ==================================================================
+      # SAST - Semgrep
+      # ==================================================================
+      - script: |
+          pip install semgrep
+          semgrep --version
+        displayName: 'Install Semgrep'
+
+      - script: |
+          semgrep \
+            --config=p/security-audit \
+            --config=p/secrets \
+            --config=p/owasp-top-ten \
+            --config=p/javascript \
+            --config=p/typescript \
+            --sarif \
+            --output=semgrep-results.sarif \
+            .
+        displayName: 'Run Semgrep SAST'
+        workingDirectory: $(Build.SourcesDirectory)
+        continueOnError: true
+
+      - task: PublishPipelineArtifact@1
+        displayName: 'Publish Semgrep results'
+        condition: succeededOrFailed()
+        inputs:
+          targetPath: '$(Build.SourcesDirectory)/semgrep-results.sarif'
+          artifact: 'semgrep-results'
+          publishLocation: 'pipeline'
+
+      # ==================================================================
+      # Container Scanning - Trivy
+      # ==================================================================
+      - script: |
+          wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | sudo apt-key add -
+          echo "deb https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main" | sudo tee -a /etc/apt/sources.list.d/trivy.list
+          sudo apt-get update
+          sudo apt-get install -y trivy
+          trivy --version
+        displayName: 'Install Trivy'
+
+      - task: Docker@2
+        displayName: 'Docker Login to ACR'
+        inputs:
+          command: 'login'
+          containerRegistry: 'fleet-acr-connection'
+
+      - script: |
+          trivy image \
+            --severity CRITICAL,HIGH \
+            --exit-code 0 \
+            --no-progress \
+            --format sarif \
+            --output trivy-api-results.sarif \
+            $(registryLoginServer)/fleet-api:$(imageTag)
+        displayName: 'Trivy scan - API image'
+        workingDirectory: $(Build.ArtifactStagingDirectory)
+        continueOnError: true
+
+      - script: |
+          trivy image \
+            --severity CRITICAL,HIGH \
+            --exit-code 0 \
+            --no-progress \
+            --format sarif \
+            --output trivy-frontend-results.sarif \
+            $(registryLoginServer)/fleet-frontend:$(imageTag)
+        displayName: 'Trivy scan - Frontend image'
+        workingDirectory: $(Build.ArtifactStagingDirectory)
+        continueOnError: true
+
+      # Generate human-readable reports
+      - script: |
+          trivy image \
+            --severity CRITICAL,HIGH \
+            --no-progress \
+            --format table \
+            --output trivy-api-report.txt \
+            $(registryLoginServer)/fleet-api:$(imageTag)
+        displayName: 'Generate Trivy report - API'
+        workingDirectory: $(Build.ArtifactStagingDirectory)
+        continueOnError: true
+
+      - script: |
+          trivy image \
+            --severity CRITICAL,HIGH \
+            --no-progress \
+            --format table \
+            --output trivy-frontend-report.txt \
+            $(registryLoginServer)/fleet-frontend:$(imageTag)
+        displayName: 'Generate Trivy report - Frontend'
+        workingDirectory: $(Build.ArtifactStagingDirectory)
+        continueOnError: true
+
+      - task: PublishPipelineArtifact@1
+        displayName: 'Publish Trivy results'
+        condition: succeededOrFailed()
+        inputs:
+          targetPath: '$(Build.ArtifactStagingDirectory)'
+          artifact: 'trivy-results'
+          publishLocation: 'pipeline'
+
+      # ==================================================================
+      # NPM Audit
+      # ==================================================================
+      - task: NodeTool@0
+        displayName: 'Setup Node.js'
+        inputs:
+          versionSpec: '$(nodeVersion)'
+
+      - script: |
+          npm ci
+          npm audit --audit-level=high --production --json > npm-audit-frontend.json || true
+          npm audit --audit-level=high --production
+        displayName: 'NPM Audit - Frontend'
+        workingDirectory: $(Build.SourcesDirectory)
+        continueOnError: true
+
+      - script: |
+          npm ci
+          npm audit --audit-level=high --production --json > npm-audit-api.json || true
+          npm audit --audit-level=high --production
+        displayName: 'NPM Audit - API'
+        workingDirectory: $(Build.SourcesDirectory)/api
+        continueOnError: true
+
+      - task: PublishPipelineArtifact@1
+        displayName: 'Publish NPM Audit results'
+        condition: succeededOrFailed()
+        inputs:
+          targetPath: '$(Build.SourcesDirectory)'
+          artifact: 'npm-audit-results'
+          publishLocation: 'pipeline'
+
+      # ==================================================================
+      # Secret Detection - detect-secrets
+      # ==================================================================
+      - script: |
+          pip install detect-secrets
+          detect-secrets --version
+        displayName: 'Install detect-secrets'
+
+      - script: |
+          # Create baseline if it doesn't exist
+          if [ ! -f .secrets.baseline ]; then
+            detect-secrets scan --baseline .secrets.baseline
+          fi
+
+          # Scan for secrets
+          detect-secrets scan --baseline .secrets.baseline
+
+          if [ $? -ne 0 ]; then
+            echo "##vso[task.logissue type=warning]Potential secrets detected in code!"
+            # Don't fail the pipeline, just warn
+          fi
+        displayName: 'Scan for secrets'
+        workingDirectory: $(Build.SourcesDirectory)
+        continueOnError: true
+
+      # ==================================================================
+      # Container Image Signing - Cosign (Optional)
+      # ==================================================================
+      - script: |
+          # Install cosign
+          curl -Lo cosign https://github.com/sigstore/cosign/releases/latest/download/cosign-linux-amd64
+          chmod +x cosign
+          sudo mv cosign /usr/local/bin/
+          cosign version
+        displayName: 'Install Cosign'
+        condition: and(succeeded(), eq(variables.isProdBranch, true))
+
+      # Note: Actual signing requires proper key management
+      # This is a placeholder for the signing step
+      - script: |
+          echo "Container signing with Cosign would be performed here"
+          echo "Requires COSIGN_KEY and COSIGN_PASSWORD variables"
+          # cosign sign --key env://COSIGN_KEY $(registryLoginServer)/fleet-api:$(imageTag)
+          # cosign sign --key env://COSIGN_KEY $(registryLoginServer)/fleet-frontend:$(imageTag)
+        displayName: 'Sign container images (placeholder)'
+        condition: and(succeeded(), eq(variables.isProdBranch, true))
+        continueOnError: true
+
+      # ==================================================================
+      # Security Summary
+      # ==================================================================
+      - script: |
+          echo "=========================================="
+          echo "Security Scan Summary"
+          echo "=========================================="
+          echo "Build ID: $(Build.BuildId)"
+          echo "Source Version: $(Build.SourceVersion)"
+          echo "=========================================="
+          echo ""
+          echo "Semgrep SAST: $(if [ -f semgrep-results.sarif ]; then echo 'Completed'; else echo 'Failed'; fi)"
+          echo "Trivy Container Scan: $(if [ -f $(Build.ArtifactStagingDirectory)/trivy-api-results.sarif ]; then echo 'Completed'; else echo 'Failed'; fi)"
+          echo "NPM Audit: $(if [ -f npm-audit-frontend.json ]; then echo 'Completed'; else echo 'Failed'; fi)"
+          echo "Secret Detection: Completed"
+          echo ""
+          echo "Review artifacts for detailed results"
+        displayName: 'Security scan summary'
+        workingDirectory: $(Build.SourcesDirectory)

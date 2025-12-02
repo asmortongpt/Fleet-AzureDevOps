@@ -1,0 +1,66 @@
+---
+# Cert-Manager Installation and Configuration
+# Automated SSL/TLS certificate management with Let's Encrypt
+
+# NOTE: Install cert-manager first with:
+# kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.13.0/cert-manager.yaml
+
+---
+# Production Let's Encrypt Issuer
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-prod
+spec:
+  acme:
+    # Let's Encrypt production server
+    server: https://acme-v02.api.letsencrypt.org/directory
+
+    # Email for certificate expiration notifications
+    email: admin@capitaltechalliance.com
+
+    # Secret to store ACME account private key
+    privateKeySecretRef:
+      name: letsencrypt-prod-account-key
+
+    # HTTP-01 challenge for domain validation
+    solvers:
+    - http01:
+        ingress:
+          class: nginx
+
+---
+# Staging Let's Encrypt Issuer (for testing)
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-staging
+spec:
+  acme:
+    # Let's Encrypt staging server (higher rate limits for testing)
+    server: https://acme-staging-v02.api.letsencrypt.org/directory
+    email: admin@capitaltechalliance.com
+    privateKeySecretRef:
+      name: letsencrypt-staging-account-key
+    solvers:
+    - http01:
+        ingress:
+          class: nginx
+
+---
+# Certificate Resource (optional - can be auto-created by Ingress)
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: fleet-tls-cert
+  namespace: fleet-management
+spec:
+  secretName: fleet-tls-cert
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer
+  dnsNames:
+  - fleet.capitaltechalliance.com
+  - api.fleet.capitaltechalliance.com
+  # Certificate will auto-renew 30 days before expiration
+  renewBefore: 720h # 30 days

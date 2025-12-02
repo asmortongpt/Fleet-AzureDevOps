@@ -1,0 +1,82 @@
+# Matchfile - Code signing configuration using fastlane match
+# https://docs.fastlane.tools/actions/match/
+
+# Git repository for storing certificates and provisioning profiles
+# This should be a private git repository
+git_url(ENV["MATCH_GIT_URL"] || "git@github.com:your-org/certificates.git")
+
+# Git branch to use (optional, defaults to master)
+git_branch(ENV["MATCH_GIT_BRANCH"] || "main")
+
+# Storage mode (git, google_cloud, s3, or gitlab_secure_files)
+storage_mode("git")
+
+# The bundle identifier(s) for your app
+app_identifier([
+  "com.capitaltechalliance.fleetmanagement",
+  "com.capitaltechalliance.fleetmanagement.staging"
+])
+
+# Your Apple Developer Portal username
+username(ENV["APPLE_ID"] || "your-apple-id@example.com")
+
+# Team ID for the Apple Developer Portal
+team_id(ENV["TEAM_ID"] || "FFC6NRQ5U5")
+
+# Force Match to overwrite files if needed
+# force(false)
+
+# Force Match to overwrite the provisioning profile
+# force_for_new_devices(true)
+
+# Skip verification that the certificate and profile are matching
+# skip_certificate_verification(false)
+
+# The bundle identifier for the app
+# type("appstore") # development, adhoc, enterprise, or appstore
+
+# Generate profiles even if no code signing identity is installed
+# skip_provisioning_profiles(false)
+
+# Skip generation of a README.md for the certs repo
+# skip_docs(false)
+
+# Additional configuration options
+# platform("ios")
+
+# Template string for certificate and profile descriptions
+# template_name("MyApp {type}")
+
+# Should the command fail when there are uncommitted changes?
+# readonly(false)
+
+# Clone settings
+# clone_branch_directly(false)
+# shallow_clone(false)
+
+# Keychain settings
+keychain_name(ENV["MATCH_KEYCHAIN_NAME"] || "login.keychain")
+keychain_password(ENV["MATCH_KEYCHAIN_PASSWORD"] || "")
+
+# Verbose output
+verbose(false)
+
+# For CI environments, use these environment variables:
+# MATCH_PASSWORD - Password to decrypt the certificates repository
+# MATCH_GIT_BASIC_AUTHORIZATION - Base64 encoded username:token for git auth
+# MATCH_GIT_PRIVATE_KEY - Path to private SSH key for git
+# FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD - App-specific password for Apple ID
+
+# Example CI environment variables:
+# export MATCH_PASSWORD="your-match-password"
+# export MATCH_GIT_URL="git@github.com:your-org/certificates.git"
+# export MATCH_KEYCHAIN_NAME="fastlane_tmp_keychain"
+# export MATCH_KEYCHAIN_PASSWORD="temporary_password"
+
+# For readonly mode in CI (recommended):
+# match(type: "appstore", readonly: true)
+
+# Note: First time setup requires:
+# fastlane match init
+# fastlane match development
+# fastlane match appstore

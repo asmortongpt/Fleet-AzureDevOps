@@ -1,0 +1,85 @@
+# Allow Redis Ingress Network Policy
+# Restricts Redis access to only authorized pods (API)
+#
+# SECURITY NOTE: This policy prevents unauthorized access to cached data
+# and session information stored in Redis
+
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-redis-ingress
+  namespace: fleet-management
+  labels:
+    app: fleet
+    policy-type: ingress
+    target: redis
+  annotations:
+    description: "Restrict Redis access to API pods only"
+spec:
+  podSelector:
+    matchLabels:
+      app: redis
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app: fleet-api
+      ports:
+        - port: 6379
+          protocol: TCP
+---
+# Also apply to ctafleet namespace
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-redis-ingress
+  namespace: ctafleet
+  labels:
+    app: fleet
+    policy-type: ingress
+    target: redis
+  annotations:
+    description: "Restrict Redis access to API pods only"
+spec:
+  podSelector:
+    matchLabels:
+      component: redis
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              component: api
+      ports:
+        - port: 6379
+          protocol: TCP
+---
+# Staging namespace
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-redis-ingress
+  namespace: ctafleet-staging
+  labels:
+    app: fleet
+    policy-type: ingress
+    target: redis
+  annotations:
+    description: "Restrict Redis access to API pods only"
+spec:
+  podSelector:
+    matchLabels:
+      component: redis
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              component: api
+      ports:
+        - port: 6379
+          protocol: TCP

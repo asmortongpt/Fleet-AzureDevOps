@@ -1,0 +1,108 @@
+---
+# Fleet Management System - Production Ingress with SSL/TLS
+# Supports custom domain with automated Let's Encrypt certificates
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: fleet-ingress
+  namespace: fleet-management
+  annotations:
+    # SSL/TLS Configuration
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    cert-manager.io/acme-challenge-type: "http01"
+
+    # Nginx Ingress Configuration
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
+    nginx.ingress.kubernetes.io/proxy-body-size: "50m"
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "600"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
+
+    # Security Headers
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      more_set_headers "X-Frame-Options: SAMEORIGIN";
+      more_set_headers "X-Content-Type-Options: nosniff";
+      more_set_headers "X-XSS-Protection: 1; mode=block";
+      more_set_headers "Referrer-Policy: strict-origin-when-cross-origin";
+      more_set_headers "Permissions-Policy: geolocation=(self), microphone=(), camera=()";
+
+    # Rate Limiting
+    nginx.ingress.kubernetes.io/limit-rps: "100"
+    nginx.ingress.kubernetes.io/limit-connections: "20"
+
+spec:
+  ingressClassName: nginx
+
+  tls:
+  - hosts:
+    - fleet.capitaltechalliance.com
+    - api.fleet.capitaltechalliance.com
+    secretName: fleet-tls-cert
+
+  rules:
+  # Frontend Application
+  - host: fleet.capitaltechalliance.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: fleet-app-service
+            port:
+              number: 80
+
+  # API Backend
+  - host: api.fleet.capitaltechalliance.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: fleet-api-service
+            port:
+              number: 3000
+
+---
+# Alternative: Single domain with path-based routing
+# Uncomment if you prefer fleet.yourdomain.com/api instead of api.fleet.yourdomain.com
+
+# apiVersion: networking.k8s.io/v1
+# kind: Ingress
+# metadata:
+#   name: fleet-ingress-single
+#   namespace: fleet-management
+#   annotations:
+#     cert-manager.io/cluster-issuer: "letsencrypt-prod"
+#     nginx.ingress.kubernetes.io/ssl-redirect: "true"
+#     nginx.ingress.kubernetes.io/rewrite-target: /$2
+# spec:
+#   ingressClassName: nginx
+#   tls:
+#   - hosts:
+#     - fleet.capitaltechalliance.com
+#     secretName: fleet-tls-cert
+#   rules:
+#   - host: fleet.capitaltechalliance.com
+#     http:
+#       paths:
+#       # API routes
+#       - path: /api(/|$)(.*)
+#         pathType: Prefix
+#         backend:
+#           service:
+#             name: fleet-api-service
+#             port:
+#               number: 3000
+#       # Frontend routes (catch-all)
+#       - path: /
+#         pathType: Prefix
+#         backend:
+#           service:
+#             name: fleet-app-service
+#             port:
+#               number: 80

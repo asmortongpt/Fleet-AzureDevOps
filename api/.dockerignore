@@ -1,0 +1,7 @@
+// Generated code for: Create .dockerignore for API:
+- Exclude: node_modules, dist, .git, .env*, *.log
+- Exclude: coverage, .vscode, .idea
+- Exclude: *.md (except README.md)
+- Include: package*.json, tsconfig.json, src/
+Minimize image size, exclude sensitive files.
+// TODO: Implement using OpenAI Codex

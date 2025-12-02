@@ -1,0 +1,173 @@
+{
+  "emulator": {
+    "version": "1.0.0",
+    "name": "Fleet Management Emulator System",
+    "description": "Production-grade emulation system for realistic fleet data"
+  },
+  "timeCompression": {
+    "enabled": true,
+    "ratio": 60,
+    "description": "1 real second = 60 simulated seconds (1 min real = 1 hour simulated)"
+  },
+  "persistence": {
+    "enabled": true,
+    "database": "postgresql",
+    "redis": {
+      "enabled": true,
+      "ttl": 3600
+    }
+  },
+  "realtime": {
+    "websocket": {
+      "enabled": true,
+      "port": 3001,
+      "path": "/emulator/stream"
+    },
+    "broadcasting": {
+      "interval": 1000,
+      "batchSize": 100
+    }
+  },
+  "performance": {
+    "maxVehicles": 100,
+    "maxConcurrentEmulators": 50,
+    "updateInterval": 1000,
+    "memoryLimit": "2GB"
+  },
+  "logging": {
+    "level": "info",
+    "format": "json",
+    "output": ["console", "file"],
+    "file": {
+      "path": "./logs/emulator.log",
+      "maxSize": "100mb",
+      "maxFiles": 10
+    }
+  },
+  "gps": {
+    "updateFrequency": 5000,
+    "accuracy": {
+      "min": 5,
+      "max": 50,
+      "unit": "meters"
+    },
+    "speedVariation": {
+      "highway": { "min": 55, "max": 75 },
+      "city": { "min": 20, "max": 45 },
+      "residential": { "min": 15, "max": 35 }
+    }
+  },
+  "obd2": {
+    "updateFrequency": 2000,
+    "parameters": {
+      "rpm": { "min": 600, "max": 6500, "idle": 800 },
+      "coolantTemp": { "min": -40, "max": 120, "operating": 90 },
+      "batteryVoltage": { "min": 11.5, "max": 14.5, "normal": 12.6 },
+      "fuelLevel": { "min": 0, "max": 100, "unit": "percent" }
+    },
+    "diagnostics": {
+      "dtcProbability": 0.001,
+      "checkEngineThreshold": 0.0001
+    }
+  },
+  "fuel": {
+    "tankSize": {
+      "sedan": 15,
+      "suv": 22,
+      "truck": 26,
+      "van": 25
+    },
+    "efficiency": {
+      "sedan": 30,
+      "suv": 22,
+      "truck": 18,
+      "van": 20
+    },
+    "priceRange": {
+      "min": 2.99,
+      "max": 4.99,
+      "variance": 0.20
+    },
+    "purchaseFrequency": {
+      "min": 200,
+      "max": 400,
+      "unit": "miles"
+    }
+  },
+  "maintenance": {
+    "scheduled": {
+      "oilChange": { "interval": 5000, "cost": { "min": 50, "max": 120 } },
+      "tireRotation": { "interval": 7500, "cost": { "min": 40, "max": 80 } },
+      "inspection": { "interval": 10000, "cost": { "min": 100, "max": 200 } },
+      "brakes": { "interval": 30000, "cost": { "min": 300, "max": 800 } }
+    },
+    "unscheduled": {
+      "probability": 0.0001,
+      "cost": { "min": 100, "max": 2000 }
+    }
+  },
+  "driver": {
+    "behaviors": ["aggressive", "normal", "cautious"],
+    "distribution": {
+      "aggressive": 0.15,
+      "normal": 0.70,
+      "cautious": 0.15
+    },
+    "scoring": {
+      "speeding": { "weight": 0.25, "threshold": 10 },
+      "hardBraking": { "weight": 0.20, "threshold": 15 },
+      "hardAcceleration": { "weight": 0.15, "threshold": 12 },
+      "idling": { "weight": 0.10, "threshold": 300 },
+      "seatbelt": { "weight": 0.15 },
+      "distraction": { "weight": 0.15 }
+    }
+  },
+  "route": {
+    "trafficLevels": ["light", "moderate", "heavy"],
+    "trafficDistribution": {
+      "light": 0.50,
+      "moderate": 0.35,
+      "heavy": 0.15
+    },
+    "deviationProbability": 0.05,
+    "stopDuration": {
+      "min": 5,
+      "max": 30,
+      "unit": "minutes"
+    }
+  },
+  "iot": {
+    "sensors": {
+      "temperature": {
+        "updateFrequency": 10000,
+        "range": { "min": -20, "max": 120 },
+        "accuracy": 0.5
+      },
+      "tirePressure": {
+        "updateFrequency": 30000,
+        "range": { "min": 28, "max": 35 },
+        "accuracy": 0.1
+      },
+      "cargoWeight": {
+        "updateFrequency": 60000,
+        "accuracy": 5
+      },
+      "connectivity": {
+        "updateFrequency": 5000,
+        "signalStrength": { "min": -120, "max": -50 }
+      }
+    }
+  },
+  "anomalies": {
+    "enabled": true,
+    "probability": 0.001,
+    "types": [
+      "sensor_failure",
+      "gps_signal_loss",
+      "low_battery",
+      "engine_overheat",
+      "rapid_fuel_loss",
+      "geofence_violation"
+    ]
+  }
+}

@@ -1,0 +1,53 @@
+{
+  "serviceConnections": {
+    "acr": {
+      "name": "fleet-acr-connection",
+      "type": "dockerregistry",
+      "description": "Azure Container Registry connection for Fleet Management",
+      "configuration": {
+        "registryType": "AzureContainerRegistry",
+        "azureSubscriptionId": "your-subscription-id",
+        "azureSubscriptionName": "Your Subscription Name",
+        "resourceGroup": "fleet-management-rg",
+        "registry": "fleetacr",
+        "loginServer": "fleetacr.azurecr.io"
+      }
+    },
+    "azureSubscription": {
+      "name": "fleet-azure-subscription",
+      "type": "azurerm",
+      "description": "Azure Resource Manager connection for Fleet Management",
+      "configuration": {
+        "authenticationType": "spnKey",
+        "subscriptionId": "your-subscription-id",
+        "subscriptionName": "Your Subscription Name",
+        "servicePrincipalId": "service-principal-app-id",
+        "servicePrincipalKey": "service-principal-secret",
+        "tenantId": "your-tenant-id",
+        "scope": "/subscriptions/your-subscription-id/resourceGroups/fleet-management-rg"
+      }
+    },
+    "aks": {
+      "name": "fleet-aks-connection",
+      "type": "kubernetes",
+      "description": "Azure Kubernetes Service connection for Fleet Management",
+      "configuration": {
+        "authenticationType": "AzureSubscription",
+        "azureSubscriptionId": "your-subscription-id",
+        "azureResourceGroup": "fleet-management-rg",
+        "azureCluster": "fleet-aks-cluster",
+        "namespace": "fleet-management"
+      }
+    }
+  },
+  "instructions": {
+    "step1": "Replace 'your-subscription-id' with your Azure subscription ID",
+    "step2": "Replace 'your-tenant-id' with your Azure AD tenant ID",
+    "step3": "For service principal authentication, create a service principal:",
+    "step3_command": "az ad sp create-for-rbac --name fleet-management-sp --role Contributor --scopes /subscriptions/{subscription-id}/resourceGroups/fleet-management-rg",
+    "step4": "Grant ACR permissions to the service principal:",
+    "step4_command": "az role assignment create --assignee {sp-app-id} --role AcrPush --scope /subscriptions/{subscription-id}/resourceGroups/fleet-management-rg/providers/Microsoft.ContainerRegistry/registries/fleetacr",
+    "step5": "Grant AKS permissions to the service principal:",
+    "step5_command": "az role assignment create --assignee {sp-app-id} --role 'Azure Kubernetes Service Cluster User Role' --scope /subscriptions/{subscription-id}/resourceGroups/fleet-management-rg/providers/Microsoft.ContainerService/managedClusters/fleet-aks-cluster"
+  }
+}

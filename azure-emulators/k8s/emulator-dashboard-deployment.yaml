@@ -1,0 +1,264 @@
+---
+# Namespace (use existing fleet-management)
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: fleet-management
+
+---
+# ConfigMap for dashboard configuration
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: emulator-dashboard-config
+  namespace: fleet-management
+data:
+  ORCHESTRATOR_API_URL: "http://emulator-orchestrator-service:3002"
+  SIGNALR_HUB_URL: "http://emulator-orchestrator-service:3002/hub"
+  FLEET_API_URL: "http://fleet-api-service:3000"
+  TOTAL_VEHICLES: "300"
+
+---
+# Deployment for Emulator Dashboard (Nginx serving static HTML)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: emulator-dashboard
+  namespace: fleet-management
+  labels:
+    app: emulator-dashboard
+    tier: frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: emulator-dashboard
+  template:
+    metadata:
+      labels:
+        app: emulator-dashboard
+        tier: frontend
+    spec:
+      containers:
+      - name: dashboard
+        image: nginx:alpine
+        ports:
+        - containerPort: 80
+          name: http
+        volumeMounts:
+        - name: dashboard-html
+          mountPath: /usr/share/nginx/html
+        - name: nginx-config
+          mountPath: /etc/nginx/conf.d
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 200m
+            memory: 256Mi
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 10
+          periodSeconds: 30
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 5
+          periodSeconds: 10
+      volumes:
+      - name: dashboard-html
+        configMap:
+          name: emulator-dashboard-html
+      - name: nginx-config
+        configMap:
+          name: emulator-dashboard-nginx-config
+
+---
+# Service for Dashboard
+apiVersion: v1
+kind: Service
+metadata:
+  name: emulator-dashboard-service
+  namespace: fleet-management
+  labels:
+    app: emulator-dashboard
+spec:
+  type: ClusterIP
+  ports:
+  - port: 80
+    targetPort: 80
+    protocol: TCP
+    name: http
+  selector:
+    app: emulator-dashboard
+
+---
+# Deployment for Emulator Orchestrator API
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: emulator-orchestrator
+  namespace: fleet-management
+  labels:
+    app: emulator-orchestrator
+    tier: backend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: emulator-orchestrator
+  template:
+    metadata:
+      labels:
+        app: emulator-orchestrator
+        tier: backend
+    spec:
+      containers:
+      - name: orchestrator
+        image: node:18-alpine
+        command: ["/bin/sh"]
+        args:
+          - -c
+          - |
+            cd /app
+            npm install express cors ws @microsoft/signalr pg
+            node server.js
+        ports:
+        - containerPort: 3002
+          name: http
+        - containerPort: 3003
+          name: websocket
+        env:
+        - name: NODE_ENV
+          value: "production"
+        - name: PORT
+          value: "3002"
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: fleet-secrets
+              key: database-url
+              optional: true
+        - name: DB_HOST
+          value: "fleet-postgres-service"
+        - name: DB_PORT
+          value: "5432"
+        - name: DB_NAME
+          value: "fleetdb"
+        - name: DB_USER
+          value: "fleetadmin"
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: fleet-secrets
+              key: db-password
+              optional: true
+        volumeMounts:
+        - name: orchestrator-code
+          mountPath: /app
+        resources:
+          requests:
+            cpu: 500m
+            memory: 512Mi
+          limits:
+            cpu: 1000m
+            memory: 1Gi
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3002
+          initialDelaySeconds: 30
+          periodSeconds: 30
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 3002
+          initialDelaySeconds: 10
+          periodSeconds: 10
+      volumes:
+      - name: orchestrator-code
+        configMap:
+          name: emulator-orchestrator-code
+
+---
+# Service for Orchestrator API
+apiVersion: v1
+kind: Service
+metadata:
+  name: emulator-orchestrator-service
+  namespace: fleet-management
+  labels:
+    app: emulator-orchestrator
+spec:
+  type: ClusterIP
+  ports:
+  - port: 3002
+    targetPort: 3002
+    protocol: TCP
+    name: http
+  - port: 3003
+    targetPort: 3003
+    protocol: TCP
+    name: websocket
+  selector:
+    app: emulator-orchestrator
+
+---
+# Ingress for Dashboard and API
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: emulator-ingress
+  namespace: fleet-management
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/websocket-services: "emulator-orchestrator-service"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+spec:
+  tls:
+  - hosts:
+    - emulator.capitaltechalliance.com
+    - fleet.capitaltechalliance.com
+    secretName: emulator-tls
+  rules:
+  - host: emulator.capitaltechalliance.com
+    http:
+      paths:
+      - path: /api
+        pathType: Prefix
+        backend:
+          service:
+            name: emulator-orchestrator-service
+            port:
+              number: 3002
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: emulator-dashboard-service
+            port:
+              number: 80
+  - host: fleet.capitaltechalliance.com
+    http:
+      paths:
+      - path: /emulator
+        pathType: Prefix
+        backend:
+          service:
+            name: emulator-dashboard-service
+            port:
+              number: 80
+      - path: /emulator-api
+        pathType: Prefix
+        backend:
+          service:
+            name: emulator-orchestrator-service
+            port:
+              number: 3002
