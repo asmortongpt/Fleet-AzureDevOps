@@ -7,7 +7,7 @@ import { AssignmentNotificationService } from '../services/assignment-notificati
 import { getErrorMessage } from '../utils/error-handler';
 import { rateLimiter } from '../middleware/rate-limiter';
 import { validateSchema } from '../middleware/validate-schema';
-import { asyncHandler } from '../middleware/async-handler';
+import { asyncHandler } from '../utils/async-handler';
 
 const router = express.Router();
 
