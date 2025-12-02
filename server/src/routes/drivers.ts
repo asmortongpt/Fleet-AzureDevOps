@@ -1,31 +1,22 @@
 import express, { Request, Response, Router } from 'express';
-import { db } from '../../../api/src/db';
-import { drivers, vehicles } from '../../../api/src/db/schema';
-import { eq } from 'drizzle-orm';
+import { db } from '../services/database';
 import { logger } from '../services/logger';
 
 const router: Router = express.Router();
 
-// GET /api/drivers - Get all drivers with vehicle information
+// GET /api/drivers - Get all drivers
 router.get('/', async (_req: Request, res: Response): Promise<void> => {
   try {
-    // Drizzle query with left join to vehicles
-    const result = await db
-      .select({
-        id: drivers.id,
-        employeeId: drivers.employeeId,
-        name: drivers.name,
-        email: drivers.email,
-        phone: drivers.phone,
-        licenseNumber: drivers.licenseNumber,
-        licenseExpiry: drivers.licenseExpiry,
-        status: drivers.status,
-        assignedVehicleId: drivers.assignedVehicleId,
-        vehicleNumber: vehicles.vehicleNumber,
-      })
-      .from(drivers)
-      .leftJoin(vehicles, eq(drivers.assignedVehicleId, vehicles.id))
-      .orderBy(drivers.name);
+    const result = await db.query(
+      `SELECT
+        d.id, d.employee_id, d.name, d.email, d.phone,
+        d.license_number, d.license_expiry, d.status,
+        d.assigned_vehicle_id,
+        v.vehicle_number
+      FROM drivers d
+      LEFT JOIN vehicles v ON d.assigned_vehicle_id = v.id
+      ORDER BY d.name`
+    );
 
     res.json({
       success: true,
@@ -41,52 +32,19 @@ router.get('/', async (_req: Request, res: Response): Promise<void> => {
   }
 });
 
-// GET /api/drivers/:id - Get single driver with vehicle information
+// GET /api/drivers/:id - Get single driver
 router.get('/:id', async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    const driverId = parseInt(id, 10);
-
-    if (isNaN(driverId)) {
-      res.status(400).json({
-        success: false,
-        error: 'Invalid driver ID'
-      });
-      return;
-    }
-
-    // Drizzle query with left join for single driver
-    const result = await db
-      .select({
-        // All driver fields
-        id: drivers.id,
-        employeeId: drivers.employeeId,
-        name: drivers.name,
-        email: drivers.email,
-        phone: drivers.phone,
-        licenseNumber: drivers.licenseNumber,
-        licenseExpiry: drivers.licenseExpiry,
-        licenseClass: drivers.licenseClass,
-        status: drivers.status,
-        photoUrl: drivers.photoUrl,
-        azureAdId: drivers.azureAdId,
-        assignedVehicleId: drivers.assignedVehicleId,
-        rating: drivers.rating,
-        totalTrips: drivers.totalTrips,
-        totalMiles: drivers.totalMiles,
-        safetyScore: drivers.safetyScore,
-        hireDate: drivers.hireDate,
-        certifications: drivers.certifications,
-        emergencyContact: drivers.emergencyContact,
-        createdAt: drivers.createdAt,
-        updatedAt: drivers.updatedAt,
-        // Joined field
-        vehicleNumber: vehicles.vehicleNumber,
-      })
-      .from(drivers)
-      .leftJoin(vehicles, eq(drivers.assignedVehicleId, vehicles.id))
-      .where(eq(drivers.id, driverId))
-      .limit(1);
+    const result = await db.query(
+      `SELECT
+        d.*,
+        v.vehicle_number
+      FROM drivers d
+      LEFT JOIN vehicles v ON d.assigned_vehicle_id = v.id
+      WHERE d.id = $1`,
+      [id]
+    );
 
     if (!result || result.length === 0) {
       res.status(404).json({
