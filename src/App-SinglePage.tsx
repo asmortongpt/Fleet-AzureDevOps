@@ -6,7 +6,7 @@ import {
   Users,
   Wrench,
   MapPin,
-  TrendingUp,
+  TrendUp,
   Bell
 } from "@phosphor-icons/react"
 
@@ -134,7 +134,7 @@ export default function App() {
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center justify-between text-sm font-medium">
                 <span className="text-slate-600 dark:text-slate-400">Avg Fuel Cost</span>
-                <TrendingUp className="w-4 h-4 text-teal-600" weight="duotone" />
+                <TrendUp className="w-4 h-4 text-teal-600" weight="duotone" />
               </CardTitle>
             </CardHeader>
             <CardContent>
