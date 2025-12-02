@@ -13,12 +13,12 @@ export function generateMockVehicles(count: number = 10): Vehicle[] {
   const fuelTypes: Vehicle["fuelType"][] = ["gasoline", "diesel", "electric", "hybrid"]
   const makes = ["Ford", "Chevrolet", "Toyota", "Honda", "Tesla", "Ram", "GMC"]
   const departments = ["Operations", "Maintenance", "Administration", "Emergency Response"]
-  
+
   return Array.from({ length: count }, (_, i) => {
-    const type = vehicleTypes[i % vehicleTypes.length]
-    const status = statuses[i % statuses.length]
-    const fuelType = type === "bus" ? "diesel" : fuelTypes[i % fuelTypes.length]
-    const make = makes[i % makes.length]
+    const type = vehicleTypes[i % vehicleTypes.length]!
+    const status = statuses[i % statuses.length]!
+    const fuelType = type === "bus" ? "diesel" : fuelTypes[i % fuelTypes.length]!
+    const make = makes[i % makes.length]!
     
     return {
       id: "VEH-" + String(i + 1).padStart(4, "0"),
@@ -37,7 +37,7 @@ export function generateMockVehicles(count: number = 10): Vehicle[] {
         address: Math.floor(Math.random() * 9000 + 1000) + " " + ["N", "S", "E", "W"][i % 4] + " " + ["Monroe", "Adams", "Tennessee", "Gadsden", "Meridian"][i % 5] + " St, Tallahassee, FL 32301",
       },
       region: "North Florida",
-      department: departments[i % departments.length],
+      department: departments[i % departments.length]!,
       fuelLevel: Math.floor(Math.random() * 100),
       fuelType,
       mileage: Math.floor(Math.random() * 100000) + 10000,
@@ -46,7 +46,7 @@ export function generateMockVehicles(count: number = 10): Vehicle[] {
       lastService: new Date(Date.now() - Math.random() * 90 * 24 * 60 * 60 * 1000).toISOString(),
       nextService: new Date(Date.now() + Math.random() * 90 * 24 * 60 * 60 * 1000).toISOString(),
       alerts: status === "emergency" ? ["Engine Warning", "Low Oil Pressure"] : status === "service" ? ["Maintenance Due"] : [],
-      tags: [type, fuelType, departments[i % departments.length]],
+      tags: [type, fuelType, departments[i % departments.length]!],
     }
   })
 }
@@ -71,14 +71,14 @@ export function generateMockFacilities(count: number = 5): GISFacility[] {
   ]
 
   return Array.from({ length: count }, (_, i) => {
-    const type = types[i % types.length]
+    const type = types[i % types.length]!
     return {
       id: "FAC-" + String(i + 1).padStart(4, "0"),
       tenantId: "tenant-001",
-      name: names[i % names.length],
+      name: names[i % names.length]!,
       type,
-      status: i % 7 === 0 ? "maintenance" : i % 11 === 0 ? "closed" : "operational",
-      region: ["North", "South", "East", "West", "Central"][i % 5],
+      status: (i % 7 === 0 ? "maintenance" : i % 11 === 0 ? "closed" : "operational") as GISFacility["status"],
+      region: ["North", "South", "East", "West", "Central"][i % 5]!,
       address: Math.floor(Math.random() * 9000 + 1000) + " " + ["Capital", "Tennessee", "Apalachee", "Thomasville", "Mahan"][i % 5] + " Dr, Tallahassee, FL 32301",
       location: {
         lat: baseLat + (Math.random() - 0.5) * spread,
@@ -108,7 +108,7 @@ export function generateMockCameras(count: number = 8): TrafficCamera[] {
   ]
 
   return Array.from({ length: count }, (_, i) => {
-    const intersection = intersections[i % intersections.length]
+    const intersection = intersections[i % intersections.length]!
     const now = new Date().toISOString()
     return {
       id: "CAM-" + String(i + 1).padStart(4, "0"),
