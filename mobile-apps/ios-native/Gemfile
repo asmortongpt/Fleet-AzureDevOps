@@ -1,0 +1,32 @@
+# Gemfile - Ruby dependencies for iOS deployment automation
+
+source "https://rubygems.org"
+
+ruby ">= 3.0"
+
+# Fastlane - iOS deployment automation
+gem "fastlane", "~> 2.217"
+
+# Code signing
+gem "fastlane-plugin-match", "~> 0.1.0"
+
+# Code quality
+gem "fastlane-plugin-swiftlint", "~> 0.1.0"
+
+# Code coverage
+gem "slather", "~> 2.7"
+
+# Pretty output for xcodebuild
+gem "xcpretty", "~> 0.3.0"
+gem "xcpretty-travis-formatter", "~> 1.0"
+
+# Additional fastlane plugins (optional)
+# gem "fastlane-plugin-badge"           # Add badges to app icon
+# gem "fastlane-plugin-versioning"      # Version management
+# gem "fastlane-plugin-changelog"       # Changelog generation
+
+# CocoaPods (if using pods)
+# gem "cocoapods", "~> 1.12"
+
+# Bundler (dependency management)
+gem "bundler", ">= 2.0"

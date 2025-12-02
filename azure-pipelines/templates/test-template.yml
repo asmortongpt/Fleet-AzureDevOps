@@ -1,0 +1,103 @@
+# ============================================================================
+# Unit Tests Template
+# ============================================================================
+jobs:
+  - job: UnitTests
+    displayName: 'Unit Tests'
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+      - checkout: self
+        displayName: 'Checkout code'
+        clean: true
+
+      - task: NodeTool@0
+        displayName: 'Setup Node.js'
+        inputs:
+          versionSpec: '$(nodeVersion)'
+
+      - task: Cache@2
+        displayName: 'Cache npm packages'
+        inputs:
+          key: 'npm | "$(Agent.OS)" | package-lock.json'
+          restoreKeys: |
+            npm | "$(Agent.OS)"
+          path: $(npm_config_cache)
+
+      - script: |
+          npm ci
+        displayName: 'Install frontend dependencies'
+        workingDirectory: $(Build.SourcesDirectory)
+
+      - script: |
+          npm ci
+        displayName: 'Install API dependencies'
+        workingDirectory: $(Build.SourcesDirectory)/api
+
+      - script: |
+          npm test -- --ci --coverage=false
+        displayName: 'Run frontend tests'
+        workingDirectory: $(Build.SourcesDirectory)
+        continueOnError: false
+
+      - script: |
+          npm test -- --ci
+        displayName: 'Run API tests'
+        workingDirectory: $(Build.SourcesDirectory)/api
+        continueOnError: false
+
+      - script: |
+          npm run test:coverage
+        displayName: 'Generate API coverage report'
+        workingDirectory: $(Build.SourcesDirectory)/api
+        continueOnError: false
+
+      - script: |
+          COVERAGE=$(node -pe "require('./coverage/coverage-summary.json').total.lines.pct")
+          echo "Current coverage: ${COVERAGE}%"
+          if (( $(echo "$COVERAGE < 60" | bc -l) )); then
+            echo "##vso[task.logissue type=error]Coverage is below 60% threshold"
+            exit 1
+          fi
+        displayName: 'Check test coverage threshold'
+        workingDirectory: $(Build.SourcesDirectory)/api
+        continueOnError: false
+
+      - task: PublishTestResults@2
+        displayName: 'Publish frontend test results'
+        condition: succeededOrFailed()
+        inputs:
+          testResultsFormat: 'JUnit'
+          testResultsFiles: '**/test-results/junit.xml'
+          searchFolder: '$(Build.SourcesDirectory)'
+          mergeTestResults: true
+          failTaskOnFailedTests: true
+          testRunTitle: 'Frontend Unit Tests'
+
+      - task: PublishTestResults@2
+        displayName: 'Publish API test results'
+        condition: succeededOrFailed()
+        inputs:
+          testResultsFormat: 'JUnit'
+          testResultsFiles: '**/test-results/junit.xml'
+          searchFolder: '$(Build.SourcesDirectory)/api'
+          mergeTestResults: true
+          failTaskOnFailedTests: true
+          testRunTitle: 'API Unit Tests'
+
+      - task: PublishCodeCoverageResults@2
+        displayName: 'Publish code coverage'
+        condition: succeededOrFailed()
+        inputs:
+          codeCoverageTool: 'Cobertura'
+          summaryFileLocation: '$(Build.SourcesDirectory)/api/coverage/cobertura-coverage.xml'
+          reportDirectory: '$(Build.SourcesDirectory)/api/coverage'
+          failIfCoverageEmpty: true
+
+      - task: PublishPipelineArtifact@1
+        displayName: 'Publish coverage artifacts'
+        condition: succeededOrFailed()
+        inputs:
+          targetPath: '$(Build.SourcesDirectory)/api/coverage'
+          artifact: 'coverage-report'
+          publishLocation: 'pipeline'

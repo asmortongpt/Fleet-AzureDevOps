@@ -1,0 +1,61 @@
+# Fleet Management - Simple Build Pipeline (No Service Connections Required)
+trigger:
+  branches:
+    include:
+      - main
+      - develop
+      - stage-*
+  paths:
+    exclude:
+      - '*.md'
+      - 'docs/**'
+
+pr:
+  branches:
+    include:
+      - main
+
+variables:
+  nodeVersion: '20.x'
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+stages:
+  - stage: Build
+    displayName: 'Build & Verify'
+    jobs:
+      - job: BuildJob
+        displayName: 'Build Application'
+        steps:
+          - checkout: self
+            clean: true
+
+          - task: NodeTool@0
+            displayName: 'Install Node.js'
+            inputs:
+              versionSpec: $(nodeVersion)
+
+          - script: npm ci
+            displayName: 'Install Dependencies'
+
+          - script: npx vite build
+            displayName: 'Build Frontend'
+
+          - script: |
+              if [ -d "dist" ]; then
+                echo "✅ Build successful - dist folder exists"
+                ls -la dist/
+                du -sh dist/
+              else
+                echo "❌ Build failed - dist folder not found"
+                exit 1
+              fi
+            displayName: 'Verify Build'
+
+          - task: PublishBuildArtifacts@1
+            displayName: 'Publish Build Artifacts'
+            inputs:
+              PathtoPublish: 'dist'
+              ArtifactName: 'fleet-frontend'
+              publishLocation: 'Container'

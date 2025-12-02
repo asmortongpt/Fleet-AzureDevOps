@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Fleet Manager</string>
+    <string name="loading">Loading...</string>
+    <string name="error_title">Connection Error</string>
+    <string name="retry">Retry</string>
+    <string name="connected">Connected</string>
+    <string name="disconnected">Disconnected</string>
+
+    <!-- Permissions -->
+    <string name="permission_camera_rationale">Camera access is needed for receipt scanning and damage reporting</string>
+    <string name="permission_location_rationale">Location access is needed for GPS tracking and mileage calculation</string>
+    <string name="permission_storage_rationale">Storage access is needed to save and upload images</string>
+    <string name="permission_bluetooth_rationale">Bluetooth access is needed for OBD2 device connection</string>
+</resources>

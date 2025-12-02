@@ -1,0 +1,85 @@
+# API to Database Network Policy
+# Allows the fleet-api pods to communicate with PostgreSQL database
+#
+# SECURITY NOTE: This policy restricts database access to only the API pods
+# preventing lateral movement from compromised pods to the database
+
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: api-to-database
+  namespace: fleet-management
+  labels:
+    app: fleet
+    policy-type: egress
+    target: database
+  annotations:
+    description: "Allow API pods to connect to PostgreSQL database"
+spec:
+  podSelector:
+    matchLabels:
+      app: fleet-api
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              app: postgres
+      ports:
+        - port: 5432
+          protocol: TCP
+---
+# Also apply to ctafleet namespace
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: api-to-database
+  namespace: ctafleet
+  labels:
+    app: fleet
+    policy-type: egress
+    target: database
+  annotations:
+    description: "Allow API pods to connect to PostgreSQL database"
+spec:
+  podSelector:
+    matchLabels:
+      component: api
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              component: postgres
+      ports:
+        - port: 5432
+          protocol: TCP
+---
+# Staging namespace
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: api-to-database
+  namespace: ctafleet-staging
+  labels:
+    app: fleet
+    policy-type: egress
+    target: database
+  annotations:
+    description: "Allow API pods to connect to PostgreSQL database"
+spec:
+  podSelector:
+    matchLabels:
+      component: api
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              component: postgres
+      ports:
+        - port: 5432
+          protocol: TCP
