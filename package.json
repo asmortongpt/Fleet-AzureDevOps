@@ -71,9 +71,9 @@
     "build-storybook": "storybook build"
   },
   "dependencies": {
-    "@datadog/browser-rum": "^5.31.0",
     "@azure/ms-rest-azure-js": "^2.1.0",
     "@azure/ms-rest-js": "^2.7.0",
+    "@datadog/browser-rum": "^5.31.0",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
     "@heroicons/react": "^2.2.0",
@@ -186,6 +186,7 @@
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^14.3.1",
     "@testing-library/user-event": "^14.6.1",
+    "@types/express": "^5.0.6",
     "@types/jest-axe": "^3.5.9",
     "@types/leaflet": "^1.9.12",
     "@types/react": "^18.3.12",
