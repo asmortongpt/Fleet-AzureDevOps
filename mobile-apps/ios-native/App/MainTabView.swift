@@ -245,9 +245,7 @@ struct MainTabView: View {
             AddVehicleView()
 
         case .addTrip:
-            Text("Add Trip - Coming Soon")
-                .font(.title)
-                .padding()
+            AddTripView()
 
         case .maintenance:
             MaintenanceView()
@@ -274,14 +272,10 @@ struct MainTabView: View {
                 .padding()
 
         case .addDriver:
-            Text("Add Driver View - Coming Soon")
-                .font(.title)
-                .padding()
+            AddDriverView()
 
         case .editDriver(let id):
-            Text("Edit Driver View - Coming Soon")
-                .font(.title)
-                .padding()
+            EditDriverView(driverId: id)
 
         // Hardware integration destinations
         case .fleetMap:
@@ -293,9 +287,7 @@ struct MainTabView: View {
                 .padding()
 
         case .obd2Diagnostics:
-            Text("OBD-II Diagnostics - Coming Soon")
-                .font(.title)
-                .padding()
+            OBD2DiagnosticsView()
 
         case .maintenancePhoto(let vehicleId, let type):
             Text("Maintenance Photo: \(type) for Vehicle: \(vehicleId)")
@@ -478,14 +470,7 @@ struct TripDetailViewWrapper: View {
     }
 }
 
-// MARK: - Fleet Map View
-struct FleetMapView: View {
-    var body: some View {
-        Text("Fleet Map - Coming Soon")
-            .font(.title)
-            .padding()
-    }
-}
+// NOTE: FleetMapView is defined in App/FleetMapView.swift and already functional
 
 // MARK: - Preview Provider
 struct MainTabView_Previews: PreviewProvider {
