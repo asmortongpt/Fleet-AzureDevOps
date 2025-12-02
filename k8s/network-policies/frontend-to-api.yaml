@@ -1,0 +1,85 @@
+# Frontend to API Network Policy
+# Allows frontend pods to communicate with API pods
+#
+# SECURITY NOTE: This policy enables frontend-to-backend communication
+# within the cluster while preventing direct frontend access to the database
+
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: frontend-to-api
+  namespace: fleet-management
+  labels:
+    app: fleet
+    policy-type: egress
+    target: api
+  annotations:
+    description: "Allow frontend pods to reach API pods"
+spec:
+  podSelector:
+    matchLabels:
+      app: fleet-frontend
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              app: fleet-api
+      ports:
+        - port: 3000
+          protocol: TCP
+---
+# Also apply to ctafleet namespace
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: frontend-to-api
+  namespace: ctafleet
+  labels:
+    app: fleet
+    policy-type: egress
+    target: api
+  annotations:
+    description: "Allow frontend pods to reach API pods"
+spec:
+  podSelector:
+    matchLabels:
+      component: frontend
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              component: api
+      ports:
+        - port: 3000
+          protocol: TCP
+---
+# Staging namespace
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: frontend-to-api
+  namespace: ctafleet-staging
+  labels:
+    app: fleet
+    policy-type: egress
+    target: api
+  annotations:
+    description: "Allow frontend pods to reach API pods"
+spec:
+  podSelector:
+    matchLabels:
+      component: frontend
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              component: api
+      ports:
+        - port: 3000
+          protocol: TCP

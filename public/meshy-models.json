@@ -1,0 +1,94 @@
+{
+  "metadata": {
+    "generated_at": "2025-08-16T19:47:45.939989",
+    "api_provider": "Meshy AI",
+    "model_count": 6,
+    "dcf_fleet_source": "Real DCF ITB 2425 077 Data"
+  },
+  "models": {
+    "nissan_kicks": {
+      "make": "Nissan",
+      "model": "Kicks",
+      "year": "2020-2023",
+      "color": "White",
+      "fleet_count": 590,
+      "meshy_prompt": "Photorealistic white Nissan Kicks compact SUV, official Florida state government vehicle, Department of Children and Families fleet car, professional government styling, realistic automotive paint finish, government license plates, DCF official decals and markings, clean maintained appearance, high detail 3D model, realistic lighting, automotive grade materials, professional government vehicle standards",
+      "meshy_task_id": "0198b546-650c-7099-9fb2-38486d7aa559",
+      "model_url": "https://assets.meshy.ai/ec5c78f2-f705-4d00-9d6a-ff47d2d5bc28/tasks/0198b546-650c-7099-9fb2-38486d7aa559/output/model.glb?Expires=4908988800&Signature=ZnfKK6p8uR08~pGnhJiIKrCRdOQQC2ve7sQwkrudoWoslPLZLsNfWc72Q-WOg-dsD-GFY7KS00QFVrhbElRM7s2GKUmW5t2fjlkGMbFBNFlfJGsl6x5aoQlSBRVP-Qrby-uG-ZeBs6d18RTh26dSiUiRty-C3YgnVEPUWsmCz5i6MpWA0wpTJcQaejVG6I4S-XIgBOiaxsLEaaWqPlzpZ8xH1PUVMhQ1hXk04x2lTLRYKjwjRGSUYa9T0siiRNbvE9DQFV1gb9kOaRSZW2GXsLI4b6hy0rt8GNa~MfLl9sKeL~0n4Sox4a9UxHDrS2~3WedWRJYjAqUjbkmM78I5Tw__&Key-Pair-Id=KL5I0C8H7HX83",
+      "thumbnail_url": "https://assets.meshy.ai/ec5c78f2-f705-4d00-9d6a-ff47d2d5bc28/tasks/0198b546-650c-7099-9fb2-38486d7aa559/output/preview.png?Expires=4908988800&Signature=R2A6Gj54I0VHA94dlfjuMjKh5n1Et28-1iAit~WB~fRqVjq-21ga27BBrhRI~ua5iDFGekax8stp~CIVTalZBVtefVaOc61kxfJ19ffBiGg~FePsKqcEiAmFsTRKYLB~3MB~OmqD3VzK210JG~Q7tLVxA6wq0cOslJmWrsX9ANAurZm1zmeh1px3Xk3IdUIZEXpr-ygbV-VhSPvMLRG1oKSaBA2RxP9z7zCnCzyTz4HieIRKi9D1IShnLc9FFgR6MzGlqoOeBu3kzZ5M31Hrkc7~c6fJ2QSgRaQ41I8ALhvj11OBjzri6GaO~zkhJE0JsZCvES1E7dRNxvf90-NLFg__&Key-Pair-Id=KL5I0C8H7HX83",
+      "status": "SUCCEEDED",
+      "generated_at": "2025-08-16T19:45:47.514501",
+      "completed_at": "2025-08-16T19:47:13.941617"
+    },
+    "ford_fusion": {
+      "make": "Ford",
+      "model": "Fusion",
+      "year": "2018-2020",
+      "color": "Dark Blue",
+      "fleet_count": 156,
+      "meshy_prompt": "Photorealistic dark blue Ford Fusion sedan, Florida Department of Children and Families government vehicle, official state car with DCF branding, professional government styling, realistic automotive paint, government license plates, official department decals, clean executive appearance, detailed 3D model, realistic materials and lighting",
+      "meshy_task_id": "0198b546-726a-7085-be64-2ed5009e98a5",
+      "model_url": "https://assets.meshy.ai/ec5c78f2-f705-4d00-9d6a-ff47d2d5bc28/tasks/0198b546-726a-7085-be64-2ed5009e98a5/output/model.glb?Expires=4908988800&Signature=EZ-7WQ5mOeJsVx28d2N85sWtgN8eN90XK7KKThmz4qIM3KlaXidIT-sm8F4EI3ozOgyEAKjxqdKY~eIhQt7JI2yQPnpK-7Qd0xR5ciZarA2tFA8IihHdw2mPAmuczy35HAZ4JOcH15gO-Pl59bP-g-etWlu8AGBYySyU47SYL6VMCrhFbTwQ~CzxQhC~~HxsGGDsJhTGNqoZG5GkT-TXENwANJ6DUZlX7oBQK60LJmsrnToIqWb1Q2oa5erdZwhsa40zlEBh4EG6YlukaP7g4Yk1UdAvFkaISn1PQftyTm19Q~aWPBY4x~7e7RWeAKwYdPQh-mYCh-T9Urrungsl3g__&Key-Pair-Id=KL5I0C8H7HX83",
+      "thumbnail_url": "https://assets.meshy.ai/ec5c78f2-f705-4d00-9d6a-ff47d2d5bc28/tasks/0198b546-726a-7085-be64-2ed5009e98a5/output/preview.png?Expires=4908988800&Signature=VbitRhLwv-ha~n-GMbz3Hkmjp1jEWivkGAHauodUupaepC3goztgqxkRi7Vh7ANz1X0wC5-RRwYwoQuMd6vPiUml1j8wW3bSe7GaYumE0m391-d3cl3N8oHdIaHNSlCp4nxD9mO8~GxOlU28rajTH9sIn-IIpMUkLeAB7lM-EPZ8436hjSptXkdAME7wJVo8hRD4EvYVADDhkuzjVWohTfAT0iKG3ejMy2QTIyiCmE7nL80kixbe3bVbN3KBfSwqMOcgOuYAakeQruxv8d8Hi7yhe4cTyHI8u5LZVZNNBH1Y2LeyZSJh8BIYZPgnPfZfgzSKWdFJ6PXbYirY8Ptung__&Key-Pair-Id=KL5I0C8H7HX83",
+      "status": "SUCCEEDED",
+      "generated_at": "2025-08-16T19:45:50.856443",
+      "completed_at": "2025-08-16T19:46:41.516614"
+    },
+    "chevrolet_impala": {
+      "make": "Chevrolet",
+      "model": "Impala",
+      "year": "2016-2019",
+      "color": "Silver",
+      "fleet_count": 98,
+      "meshy_prompt": "Photorealistic silver Chevrolet Impala full-size sedan, Florida DCF supervisory vehicle, Department of Children and Families official car, government fleet styling, professional automotive finish, state license plates, DCF supervisor markings, executive vehicle appearance, high-detail 3D model, realistic automotive materials",
+      "meshy_task_id": "0198b546-7f76-7085-b29f-8fd5885d688c",
+      "model_url": "https://assets.meshy.ai/ec5c78f2-f705-4d00-9d6a-ff47d2d5bc28/tasks/0198b546-7f76-7085-b29f-8fd5885d688c/output/model.glb?Expires=4908988800&Signature=Fz5PmZCnlYUUk1xpvnh0NvgpeJp1IIM6g~SPs9fyn4xUxuCix4UvMqrzFztkh57ANDszUWq7dZgjcGKJmYa-OwxVUX8vaIA1pNbMEpRJhQecsJT56xOnFxO8m59fY0k6VtVrzApH7XekF7DX9GqrWRDLzNtVB9LFYWGGnfhWXeVNgsal~O0OKKliFdGqjGoGjUY9uYfSM34LgrID6D55D5tqXdd1m7dUnTVStSfL1q~KvtFiJ54VUzBZphbVLyZZ4xPlDhoFiONIryvNEuWG5nVnM0Szit~mPOzwiia0y1XZE5Wfj75Y3n63VX80TWb~d-ZDLQ6KMFis~v~006HI-w__&Key-Pair-Id=KL5I0C8H7HX83",
+      "thumbnail_url": "https://assets.meshy.ai/ec5c78f2-f705-4d00-9d6a-ff47d2d5bc28/tasks/0198b546-7f76-7085-b29f-8fd5885d688c/output/preview.png?Expires=4908988800&Signature=YzVKUJUmKdigpKyZgZfh3oGds4jngReE72ljkqifum9db52sLHUFhFRl6fqp9bybq3OTxzEUrbwt1f-QBZjBDY34eIzS~VqAyP-JBR0-zqLH0OZmT2J0xguCfgiDmNHw2cjm25mp58B0GQ1P~flWhFNCaYpUD2n8UpLmRCA~5tzTRvoKOortsWVHXL0pKdO7d~XCyitWGRER94Boi6H0p0WT3QWW2y7A1AXwbHnaIggTJu3Semattvoe2wc1QtPY41Zx5RMf9~VfvdiZXU43piIP2ymIHOacDUh4N4rtRQltUJUqiS-GDrfhF09ufI2hSrlAmA0UmJUoXvOzAsipMg__&Key-Pair-Id=KL5I0C8H7HX83",
+      "status": "SUCCEEDED",
+      "generated_at": "2025-08-16T19:45:54.259995",
+      "completed_at": "2025-08-16T19:46:42.039728"
+    },
+    "ford_focus": {
+      "make": "Ford",
+      "model": "Focus",
+      "year": "2016-2018",
+      "color": "White",
+      "fleet_count": 87,
+      "meshy_prompt": "Photorealistic white Ford Focus compact car, Florida DCF field operations vehicle, Department of Children and Families urban fleet car, compact government styling, professional paint finish, government plates, DCF field service decals, efficient city vehicle appearance, detailed 3D automotive model",
+      "meshy_task_id": "0198b546-8cc2-7085-944f-64421963b6f0",
+      "model_url": "https://assets.meshy.ai/ec5c78f2-f705-4d00-9d6a-ff47d2d5bc28/tasks/0198b546-8cc2-7085-944f-64421963b6f0/output/model.glb?Expires=4908988800&Signature=YyLdWB-ULfLpShbPH4MfJinFM655J78DDg2-dINonUdjSC9jKjVLoqE8DhMyi8Ca11Pa6C-7MIrkQm1-~exXZwPEuoRBZGbLW11KehFL-bYAV8EQPPySGjz~8T5xg6NR0jLNC1cYT8V1PS8Ym-sJhy6WOr6OlTU9vyHRqNzgrPNdblAbW8guf2t~k6e3SAEgEtRjTIi~p4av4Y27zMMW2arEoQNprE~DxGbyboSy713f5yo-79FPo0-AGYU2-BNP7x0b1hPPT~HYVEB9PpBTZpNOpszDvr~TEegXI72NdqrcdOKskPoaZnME3xHOk6~hzrJGW~iXHRcKipzqlPpQZA__&Key-Pair-Id=KL5I0C8H7HX83",
+      "thumbnail_url": "https://assets.meshy.ai/ec5c78f2-f705-4d00-9d6a-ff47d2d5bc28/tasks/0198b546-8cc2-7085-944f-64421963b6f0/output/preview.png?Expires=4908988800&Signature=SYYloOhV3-bo3Kw8u98~3aPfjOUAe1ezV6iToISsl3qyirnTCZtprpvYkadjswsnDVvcK0frjsrQ0vpeBPNSKwIXL9nVecS-v-8qtsK9tlsCc59-n7ThrBkUkeOBuqt5IItmj3hCFX26U4GE4nNsNu55LXBGKVN-s~PczV~X7~A5UAAVFZXxpEpQDgN33GsJ01UjftwFSHMBRfBPuqbaCkk9Ts0qR8ggeItWyfI4m3qrdvPbA4129WSP8wabjgHA95uOyuCgj73TDhdwr2gv8QFrN-gZ5Z3cbHbEVRVNdhG9rWFiSQbMyXJ3ZuarebUD71ANOLzPY-AGRes7BQwGKg__&Key-Pair-Id=KL5I0C8H7HX83",
+      "status": "SUCCEEDED",
+      "generated_at": "2025-08-16T19:45:57.624764",
+      "completed_at": "2025-08-16T19:47:14.415865"
+    },
+    "ford_explorer": {
+      "make": "Ford",
+      "model": "Explorer",
+      "year": "2020-2023",
+      "color": "White",
+      "fleet_count": 12,
+      "meshy_prompt": "Photorealistic white Ford Explorer SUV, Florida DCF emergency response vehicle, Department of Children and Families crisis intervention unit, emergency government styling with light bar, professional SUV appearance, government license plates, DCF emergency response decals, crisis response equipment visible, detailed 3D emergency vehicle model",
+      "meshy_task_id": "0198b546-99e8-70a0-bc9e-14113a4612a2",
+      "model_url": "https://assets.meshy.ai/ec5c78f2-f705-4d00-9d6a-ff47d2d5bc28/tasks/0198b546-99e8-70a0-bc9e-14113a4612a2/output/model.glb?Expires=4908988800&Signature=o5bIh2nQ3BdOOzEdOjtqQuGMjYVXj8QMQFyd6Oh9LV6rdGVJp4oQOSYWmV9pB7yQL8ceiiem5vvCdUhrxmPVC-Txt0DxOpK6Xd4L1HUxedTG9fxt9ZG6IdjBsJnCO~DhDXdgxPJHtSWrV6RIC5p8pPja~JLdlwTL~-QPpc7RxSzCbVez~68g-N7OP-RbuOEDXzILwGgFBv-Nc~OqwqQ2kBcHc~5JDA2PoXcalajwEQKwZ-ViI4BHFq6yRd9G5lpTgQ~TANRI05NPIYDuW45fbli5MyVoN9QK~7V~-E9hnjNLeMRDeoOUNwWmQOhl5-44IhyHM-u8f4pBvHkQMS8Lfw__&Key-Pair-Id=KL5I0C8H7HX83",
+      "thumbnail_url": "https://assets.meshy.ai/ec5c78f2-f705-4d00-9d6a-ff47d2d5bc28/tasks/0198b546-99e8-70a0-bc9e-14113a4612a2/output/preview.png?Expires=4908988800&Signature=qJnnXyXBAscKREguLlfNrxaEJIc895Wf-V97OLGWizoQAqQu9Az3FlfZ37Me-dU7om1nzZKGoGl4KDKjoqfYlJu4fFs8iSQqWVVJ4V482S8Whu1vkCOt0~fPPfzCgf6sSz8bkjtL9QE1a-6j2RLSSxwziyJ-dLPPHPdMdJ7J9pgxJI9f~KkY5BpdZjsI8CCytcWULs4ZkO-G8QVkaOOOUcuLQoMHro2s6Y-YuHm49KZ6nQyEtC7l8NfobYZ4K1nzu8mL4KSwy4O1FNKLIJAt1NDvBst32owldomEdlBSEBjFQ4tK2~~eI4Qdda6cjnSQUlAJgLOWr4SZX2x23pwpGQ__&Key-Pair-Id=KL5I0C8H7HX83",
+      "status": "SUCCEEDED",
+      "generated_at": "2025-08-16T19:46:01.855659",
+      "completed_at": "2025-08-16T19:47:45.939929"
+    },
+    "toyota_sienna": {
+      "make": "Toyota",
+      "model": "Sienna",
+      "year": "2018-2022",
+      "color": "Blue",
+      "fleet_count": 39,
+      "meshy_prompt": "Photorealistic blue Toyota Sienna minivan, Florida DCF family transport vehicle, Department of Children and Families family services van, child-safe transport styling, professional minivan appearance, government plates, DCF family services decals, family-friendly vehicle design, detailed 3D family transport model",
+      "meshy_task_id": "0198b546-aa6f-70a0-bfa9-f341723d0079",
+      "model_url": "https://assets.meshy.ai/ec5c78f2-f705-4d00-9d6a-ff47d2d5bc28/tasks/0198b546-aa6f-70a0-bfa9-f341723d0079/output/model.glb?Expires=4908988800&Signature=IHn~B7SEPBdIwbnCkh7LJUvfIf5e0D4vXKdxNbc6sDLIyHJO7EplhOmVH2UIwUNYvBNwXiFCdb1WoiAJxOUGqQuxQ6Vhhj0AugpuzkA3PyMLHpwLJFfm3kqjJTCNcTx4SUUVygYAzGwjNjJ3A77q~uQLM2faQrjRzqiih5w9f3JvwWHVc-68HpMRt-0XnJbhKl7wPgAtSRWp0UDxnhFTWdbL1FzWUz3LrS4~dtWaEZ6trorDFXxPB~bqYi-qj56efXHVeYEQxJj6xwUKhzdkvgjZJlWnuqywLfXIfO30PYriSRE8DRnBbO1aKZTPcxdHgwcCDQOhRmJCOBKZlZrFiA__&Key-Pair-Id=KL5I0C8H7HX83",
+      "thumbnail_url": "https://assets.meshy.ai/ec5c78f2-f705-4d00-9d6a-ff47d2d5bc28/tasks/0198b546-aa6f-70a0-bfa9-f341723d0079/output/preview.png?Expires=4908988800&Signature=ULVC2z68n62hvRdh~HWwxKRUfQuZSjATV5VLSX95b32i9BouKWL8zr7vK~3aDz3BDEsa0XUvG9IwQYbZ2l-e-ekGOUf0uCpCjSxznKidxqVddSh-BHTduFWufzYsN9F4JRHs3VNPuwgWO4fshbMOjbnMhDn-s-3vkGVFsKos3YJlZkxdQhbTySDUQB7j8L4mSoEXYeISZeU7kd8dh1IALDLmUShx22VMisnzZyRtlWWFJwhuMizfbFznKs13I1dERHpQ6j-SVAF~njTPvJdelUQQONhFvlZOiSVurIdvkwjtLYzmbAMMhiWvPRn8aoy~ZaL5tmxzg4XN5B8Y7wqx-A__&Key-Pair-Id=KL5I0C8H7HX83",
+      "status": "SUCCEEDED",
+      "generated_at": "2025-08-16T19:46:05.462477",
+      "completed_at": "2025-08-16T19:47:15.470130"
+    }
+  }
+}

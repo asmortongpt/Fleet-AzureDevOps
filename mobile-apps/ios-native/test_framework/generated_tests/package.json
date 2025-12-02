@@ -1,0 +1,42 @@
+{
+  "name": "fleet-management-tests",
+  "version": "1.0.0",
+  "description": "Comprehensive Playwright test suite for Fleet Management application",
+  "type": "module",
+  "scripts": {
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "test:ui": "playwright test --ui",
+    "test:debug": "playwright test --debug",
+    "test:vehicles": "playwright test vehicles.spec.ts",
+    "test:dispatch": "playwright test dispatch.spec.ts",
+    "test:component-matrix": "playwright test component_matrix.spec.ts",
+    "test:accessibility": "playwright test accessibility.spec.ts",
+    "test:performance": "playwright test performance.spec.ts",
+    "test:chromium": "playwright test --project=chromium",
+    "test:firefox": "playwright test --project=firefox",
+    "test:webkit": "playwright test --project=webkit",
+    "test:mobile": "playwright test --project=mobile-chrome --project=mobile-safari",
+    "test:smoke": "playwright test vehicles.spec.ts dispatch.spec.ts --project=chromium",
+    "test:report": "playwright show-report test-results/html-report",
+    "test:update-snapshots": "UPDATE_SNAPSHOTS=true playwright test",
+    "install-browsers": "playwright install --with-deps",
+    "clean": "rm -rf test-results"
+  },
+  "keywords": [
+    "playwright",
+    "testing",
+    "e2e",
+    "accessibility",
+    "performance",
+    "fleet-management"
+  ],
+  "author": "Fleet Management Team",
+  "license": "MIT",
+  "devDependencies": {
+    "@axe-core/playwright": "^4.11.0",
+    "@playwright/test": "^1.56.1",
+    "@types/node": "^22.10.0",
+    "typescript": "^5.7.2"
+  }
+}

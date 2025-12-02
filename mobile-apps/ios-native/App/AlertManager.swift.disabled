@@ -1,0 +1,554 @@
+//
+//  AlertManager.swift
+//  Fleet Manager - iOS Native App
+//
+//  Production alert management system
+//  Handles critical errors, performance degradation, service unavailability, and security incidents
+//
+
+import Foundation
+import UserNotifications
+import UIKit
+
+// MARK: - Alert Manager
+/// Manages production alerts and notifications
+class AlertManager {
+
+    // MARK: - Singleton
+    static let shared = AlertManager()
+
+    // MARK: - Dependencies
+    private let logger = LoggingManager.shared
+    private let metricsCollector = MetricsCollector.shared
+
+    // MARK: - Configuration
+    private struct Config {
+        var enableAlerts = true
+        var enableUserNotifications = false // Only for critical user-facing issues
+        var enableRemoteAlerts = true // Send to backend monitoring
+        var alertThrottleInterval: TimeInterval = 60.0 // Throttle duplicate alerts
+        var maxAlertHistoryCount = 100
+    }
+
+    private var config = Config()
+
+    // MARK: - Alert Storage
+    private var alertHistory: [Alert] = []
+    private var lastAlertTimes: [String: Date] = [:] // For throttling
+    private let alertQueue = DispatchQueue(label: "com.fleet.alerts", qos: .userInitiated)
+
+    // MARK: - Alert Handlers
+    private var alertHandlers: [(Alert) -> Void] = []
+
+    // MARK: - Initialization
+    private init() {
+        logger.log(.info, "AlertManager initialized")
+        setupNotifications()
+    }
+
+    // MARK: - Setup
+
+    private func setupNotifications() {
+        // Request notification permissions for critical alerts
+        let center = UNUserNotificationCenter.current()
+        center.requestAuthorization(options: [.alert, .sound, .badge]) { [weak self] granted, error in
+            if granted {
+                self?.logger.log(.info, "Notification permission granted")
+            } else if let error = error {
+                self?.logger.log(.warning, "Notification permission denied: \(error.localizedDescription)")
+            }
+        }
+    }
+
+    // MARK: - Alert Sending
+
+    /// Send an alert
+    func sendAlert(_ alertType: AlertType, severity: AlertSeverity, metadata: [String: String] = [:]) {
+        guard config.enableAlerts else { return }
+
+        // Check throttling
+        let alertKey = alertType.key
+        if let lastAlertTime = lastAlertTimes[alertKey],
+           Date().timeIntervalSince(lastAlertTime) < config.alertThrottleInterval {
+            logger.log(.debug, "Alert throttled: \(alertType.title)")
+            return
+        }
+
+        alertQueue.async { [weak self] in
+            guard let self = self else { return }
+
+            let alert = Alert(
+                id: UUID().uuidString,
+                type: alertType,
+                severity: severity,
+                metadata: metadata,
+                timestamp: Date()
+            )
+
+            // Store alert
+            self.alertHistory.append(alert)
+            if self.alertHistory.count > self.config.maxAlertHistoryCount {
+                self.alertHistory.removeFirst()
+            }
+
+            // Update throttle time
+            self.lastAlertTimes[alertKey] = Date()
+
+            // Log alert
+            self.logAlert(alert)
+
+            // Record metric
+            self.metricsCollector.recordError(
+                errorType: alertType.key,
+                message: alertType.message,
+                severity: severity.rawValue
+            )
+
+            // Handle alert based on severity
+            self.handleAlert(alert)
+
+            // Notify handlers
+            DispatchQueue.main.async {
+                for handler in self.alertHandlers {
+                    handler(alert)
+                }
+            }
+        }
+    }
+
+    // MARK: - Alert Handling
+
+    private func handleAlert(_ alert: Alert) {
+        switch alert.severity {
+        case .low:
+            handleLowSeverityAlert(alert)
+
+        case .medium:
+            handleMediumSeverityAlert(alert)
+
+        case .high:
+            handleHighSeverityAlert(alert)
+
+        case .critical:
+            handleCriticalAlert(alert)
+        }
+    }
+
+    private func handleLowSeverityAlert(_ alert: Alert) {
+        // Just log and track
+        logger.log(.info, "Low severity alert: \(alert.type.title)")
+
+        // Send to backend if enabled
+        if config.enableRemoteAlerts {
+            Task {
+                await sendAlertToBackend(alert)
+            }
+        }
+    }
+
+    private func handleMediumSeverityAlert(_ alert: Alert) {
+        logger.log(.warning, "Medium severity alert: \(alert.type.title)")
+
+        // Send to backend
+        if config.enableRemoteAlerts {
+            Task {
+                await sendAlertToBackend(alert)
+            }
+        }
+
+        // Post notification for app monitoring
+        NotificationCenter.default.post(
+            name: .productionAlertReceived,
+            object: nil,
+            userInfo: ["alert": alert]
+        )
+    }
+
+    private func handleHighSeverityAlert(_ alert: Alert) {
+        logger.log(.error, "High severity alert: \(alert.type.title)")
+
+        // Send to backend immediately
+        if config.enableRemoteAlerts {
+            Task {
+                await sendAlertToBackend(alert)
+            }
+        }
+
+        // Post notification
+        NotificationCenter.default.post(
+            name: .productionAlertReceived,
+            object: nil,
+            userInfo: ["alert": alert]
+        )
+
+        // Show user notification for critical user-facing issues
+        if config.enableUserNotifications && alert.type.shouldNotifyUser {
+            showUserNotification(alert)
+        }
+    }
+
+    private func handleCriticalAlert(_ alert: Alert) {
+        logger.log(.error, "CRITICAL alert: \(alert.type.title)")
+
+        // Immediate backend notification
+        if config.enableRemoteAlerts {
+            Task {
+                await sendAlertToBackend(alert)
+            }
+        }
+
+        // Post notification
+        NotificationCenter.default.post(
+            name: .productionAlertReceived,
+            object: nil,
+            userInfo: ["alert": alert]
+        )
+
+        // Always show user notification for critical issues
+        showUserNotification(alert)
+
+        // Log to crash reporter
+        CrashReporter.shared.addBreadcrumb(
+            message: "Critical alert: \(alert.type.title)",
+            category: "alert",
+            level: .error
+        )
+    }
+
+    private func logAlert(_ alert: Alert) {
+        var metadata = alert.metadata
+        metadata["alert.id"] = alert.id
+        metadata["alert.severity"] = alert.severity.rawValue
+        metadata["alert.type"] = alert.type.key
+
+        logger.log(
+            alert.severity.logLevel,
+            "Alert: \(alert.type.title) - \(alert.type.message)",
+            metadata: metadata
+        )
+    }
+
+    // MARK: - User Notifications
+
+    private func showUserNotification(_ alert: Alert) {
+        let content = UNMutableNotificationContent()
+        content.title = alert.type.title
+        content.body = alert.type.message
+        content.sound = alert.severity == .critical ? .defaultCritical : .default
+        content.badge = 1
+
+        // Add custom data
+        content.userInfo = [
+            "alert_id": alert.id,
+            "alert_type": alert.type.key,
+            "severity": alert.severity.rawValue
+        ]
+
+        let request = UNNotificationRequest(
+            identifier: alert.id,
+            content: content,
+            trigger: nil // Immediate
+        )
+
+        UNUserNotificationCenter.current().add(request) { error in
+            if let error = error {
+                self.logger.log(.error, "Failed to show notification: \(error.localizedDescription)")
+            }
+        }
+    }
+
+    // MARK: - Backend Integration
+
+    private func sendAlertToBackend(_ alert: Alert) async {
+        logger.log(.debug, "Sending alert to backend: \(alert.type.key)")
+
+        let payload: [String: Any] = [
+            "alert": alert.toDictionary(),
+            "device_info": getDeviceInfo(),
+            "app_version": getAppVersion()
+        ]
+
+        do {
+            // In production, this would use AzureNetworkManager
+            // For now, we'll simulate the network call
+            try await Task.sleep(nanoseconds: 100_000_000) // 0.1 second
+
+            logger.log(.debug, "Alert sent to backend successfully")
+        } catch {
+            logger.log(.error, "Failed to send alert to backend: \(error.localizedDescription)")
+        }
+    }
+
+    // MARK: - Alert Handlers
+
+    /// Register a handler to be called when alerts are sent
+    func addAlertHandler(_ handler: @escaping (Alert) -> Void) {
+        alertQueue.async { [weak self] in
+            self?.alertHandlers.append(handler)
+        }
+    }
+
+    /// Remove all alert handlers
+    func removeAllHandlers() {
+        alertQueue.async { [weak self] in
+            self?.alertHandlers.removeAll()
+        }
+    }
+
+    // MARK: - Alert History
+
+    /// Get alert history
+    func getAlertHistory(severity: AlertSeverity? = nil, limit: Int? = nil) -> [Alert] {
+        return alertQueue.sync {
+            var alerts = alertHistory
+
+            if let severity = severity {
+                alerts = alerts.filter { $0.severity == severity }
+            }
+
+            if let limit = limit {
+                alerts = Array(alerts.suffix(limit))
+            }
+
+            return alerts
+        }
+    }
+
+    /// Get recent alerts count
+    func getRecentAlertsCount(since: Date) -> Int {
+        return alertQueue.sync {
+            return alertHistory.filter { $0.timestamp >= since }.count
+        }
+    }
+
+    /// Clear alert history
+    func clearHistory() {
+        alertQueue.async { [weak self] in
+            self?.alertHistory.removeAll()
+            self?.logger.log(.info, "Alert history cleared")
+        }
+    }
+
+    // MARK: - Alert Statistics
+
+    func getAlertStatistics() -> AlertStatistics {
+        return alertQueue.sync {
+            let total = alertHistory.count
+            let critical = alertHistory.filter { $0.severity == .critical }.count
+            let high = alertHistory.filter { $0.severity == .high }.count
+            let medium = alertHistory.filter { $0.severity == .medium }.count
+            let low = alertHistory.filter { $0.severity == .low }.count
+
+            // Count by type
+            var typeCount: [String: Int] = [:]
+            for alert in alertHistory {
+                typeCount[alert.type.key, default: 0] += 1
+            }
+
+            return AlertStatistics(
+                totalAlerts: total,
+                criticalCount: critical,
+                highCount: high,
+                mediumCount: medium,
+                lowCount: low,
+                alertsByType: typeCount
+            )
+        }
+    }
+
+    // MARK: - Helper Methods
+
+    private func getDeviceInfo() -> [String: String] {
+        return [
+            "model": UIDevice.current.model,
+            "systemVersion": UIDevice.current.systemVersion,
+            "identifier": UIDevice.current.identifierForVendor?.uuidString ?? "unknown"
+        ]
+    }
+
+    private func getAppVersion() -> String {
+        let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "unknown"
+        let build = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "unknown"
+        return "\(version) (\(build))"
+    }
+}
+
+// MARK: - Supporting Types
+
+enum AlertType {
+    case criticalError(error: Error)
+    case performanceDegradation(metric: String, value: Double, threshold: Double)
+    case serviceUnavailable(service: String)
+    case healthCheckFailed(report: HealthCheckReport)
+    case securityIncident(incident: String)
+    case memoryWarning
+    case thermalStateWarning(state: ProcessInfo.ThermalState)
+    case networkError
+    case databaseError(message: String)
+    case syncFailure(reason: String)
+    case authenticationFailure
+    case custom(title: String, message: String, key: String)
+
+    var key: String {
+        switch self {
+        case .criticalError:
+            return "critical_error"
+        case .performanceDegradation:
+            return "performance_degradation"
+        case .serviceUnavailable:
+            return "service_unavailable"
+        case .healthCheckFailed:
+            return "health_check_failed"
+        case .securityIncident:
+            return "security_incident"
+        case .memoryWarning:
+            return "memory_warning"
+        case .thermalStateWarning:
+            return "thermal_state_warning"
+        case .networkError:
+            return "network_error"
+        case .databaseError:
+            return "database_error"
+        case .syncFailure:
+            return "sync_failure"
+        case .authenticationFailure:
+            return "authentication_failure"
+        case .custom(_, _, let key):
+            return key
+        }
+    }
+
+    var title: String {
+        switch self {
+        case .criticalError:
+            return "Critical Error"
+        case .performanceDegradation(let metric, _, _):
+            return "Performance Issue: \(metric)"
+        case .serviceUnavailable(let service):
+            return "Service Unavailable: \(service)"
+        case .healthCheckFailed:
+            return "Health Check Failed"
+        case .securityIncident:
+            return "Security Incident"
+        case .memoryWarning:
+            return "Memory Warning"
+        case .thermalStateWarning:
+            return "Thermal State Warning"
+        case .networkError:
+            return "Network Error"
+        case .databaseError:
+            return "Database Error"
+        case .syncFailure:
+            return "Sync Failure"
+        case .authenticationFailure:
+            return "Authentication Failure"
+        case .custom(let title, _, _):
+            return title
+        }
+    }
+
+    var message: String {
+        switch self {
+        case .criticalError(let error):
+            return "A critical error occurred: \(error.localizedDescription)"
+        case .performanceDegradation(let metric, let value, let threshold):
+            return "\(metric) is \(String(format: "%.2f", value)), exceeding threshold of \(String(format: "%.2f", threshold))"
+        case .serviceUnavailable(let service):
+            return "The \(service) service is currently unavailable"
+        case .healthCheckFailed(let report):
+            return "Health check failed with status: \(report.overallStatus.rawValue)"
+        case .securityIncident(let incident):
+            return "Security incident detected: \(incident)"
+        case .memoryWarning:
+            return "The app is experiencing high memory usage"
+        case .thermalStateWarning(let state):
+            return "Device thermal state is \(state.description)"
+        case .networkError:
+            return "Network connection error occurred"
+        case .databaseError(let message):
+            return "Database error: \(message)"
+        case .syncFailure(let reason):
+            return "Sync failed: \(reason)"
+        case .authenticationFailure:
+            return "Authentication failed"
+        case .custom(_, let message, _):
+            return message
+        }
+    }
+
+    var shouldNotifyUser: Bool {
+        switch self {
+        case .criticalError, .serviceUnavailable, .authenticationFailure:
+            return true
+        case .securityIncident, .memoryWarning, .thermalStateWarning:
+            return true
+        default:
+            return false
+        }
+    }
+}
+
+enum AlertSeverity: String {
+    case low = "low"
+    case medium = "medium"
+    case high = "high"
+    case critical = "critical"
+
+    var logLevel: LoggingManager.LogLevel {
+        switch self {
+        case .low:
+            return .info
+        case .medium:
+            return .warning
+        case .high:
+            return .error
+        case .critical:
+            return .error
+        }
+    }
+}
+
+struct Alert {
+    let id: String
+    let type: AlertType
+    let severity: AlertSeverity
+    let metadata: [String: String]
+    let timestamp: Date
+
+    func toDictionary() -> [String: Any] {
+        return [
+            "id": id,
+            "type": type.key,
+            "title": type.title,
+            "message": type.message,
+            "severity": severity.rawValue,
+            "metadata": metadata,
+            "timestamp": ISO8601DateFormatter().string(from: timestamp)
+        ]
+    }
+}
+
+struct AlertStatistics {
+    let totalAlerts: Int
+    let criticalCount: Int
+    let highCount: Int
+    let mediumCount: Int
+    let lowCount: Int
+    let alertsByType: [String: Int]
+
+    var criticalPercentage: Double {
+        guard totalAlerts > 0 else { return 0 }
+        return Double(criticalCount) / Double(totalAlerts) * 100
+    }
+
+    var highPercentage: Double {
+        guard totalAlerts > 0 else { return 0 }
+        return Double(highCount) / Double(totalAlerts) * 100
+    }
+}
+
+// MARK: - Notification Names
+
+extension Notification.Name {
+    static let productionAlertReceived = Notification.Name("productionAlertReceived")
+}
