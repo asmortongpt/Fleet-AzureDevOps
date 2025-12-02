@@ -1,0 +1,735 @@
+{
+  "title": "Fleet Manager - iOS Mobile App (DataDog)",
+  "description": "Comprehensive monitoring dashboard for iOS mobile application with APM integration",
+  "layout_type": "ordered",
+  "is_read_only": false,
+  "notify_list": ["mobile-team@fleet-manager.com"],
+  "template_variables": [
+    {
+      "name": "env",
+      "default": "production",
+      "prefix": "env",
+      "available_values": ["production", "staging", "development"]
+    },
+    {
+      "name": "version",
+      "default": "*",
+      "prefix": "version"
+    },
+    {
+      "name": "device",
+      "default": "*",
+      "prefix": "device_model"
+    }
+  ],
+  "widgets": [
+    {
+      "id": 1,
+      "definition": {
+        "type": "query_value",
+        "title": "Active Users (Last 5 min)",
+        "requests": [
+          {
+            "q": "sum:fleet.ios.session.active{$env,$version}",
+            "aggregator": "last",
+            "conditional_formats": [
+              {
+                "comparator": ">",
+                "value": 100,
+                "palette": "white_on_green"
+              },
+              {
+                "comparator": "<=",
+                "value": 10,
+                "palette": "white_on_red"
+              }
+            ]
+          }
+        ],
+        "precision": 0
+      },
+      "layout": {
+        "x": 0,
+        "y": 0,
+        "width": 2,
+        "height": 2
+      }
+    },
+    {
+      "id": 2,
+      "definition": {
+        "type": "timeseries",
+        "title": "API Response Times (p50, p95, p99)",
+        "requests": [
+          {
+            "q": "p50:fleet.ios.api.request.duration{$env,$version} by {endpoint}",
+            "display_type": "line",
+            "style": {
+              "palette": "cool",
+              "line_type": "solid",
+              "line_width": "normal"
+            }
+          },
+          {
+            "q": "p95:fleet.ios.api.request.duration{$env,$version} by {endpoint}",
+            "display_type": "line",
+            "style": {
+              "palette": "warm",
+              "line_type": "solid",
+              "line_width": "normal"
+            }
+          },
+          {
+            "q": "p99:fleet.ios.api.request.duration{$env,$version} by {endpoint}",
+            "display_type": "line",
+            "style": {
+              "palette": "orange",
+              "line_type": "solid",
+              "line_width": "thick"
+            }
+          }
+        ],
+        "yaxis": {
+          "label": "Duration (ms)",
+          "scale": "linear",
+          "min": "auto",
+          "max": "auto"
+        },
+        "markers": [
+          {
+            "value": "y = 500",
+            "display_type": "error dashed",
+            "label": "SLO Threshold"
+          }
+        ]
+      },
+      "layout": {
+        "x": 2,
+        "y": 0,
+        "width": 4,
+        "height": 2
+      }
+    },
+    {
+      "id": 3,
+      "definition": {
+        "type": "timeseries",
+        "title": "Error Rate by Endpoint",
+        "requests": [
+          {
+            "q": "sum:fleet.ios.api.errors{$env,$version} by {endpoint}.as_rate()",
+            "display_type": "bars",
+            "style": {
+              "palette": "warm",
+              "line_type": "solid",
+              "line_width": "normal"
+            }
+          }
+        ],
+        "yaxis": {
+          "label": "Errors/sec",
+          "scale": "linear"
+        }
+      },
+      "layout": {
+        "x": 6,
+        "y": 0,
+        "width": 3,
+        "height": 2
+      }
+    },
+    {
+      "id": 4,
+      "definition": {
+        "type": "query_value",
+        "title": "Crash-Free Rate (24h)",
+        "requests": [
+          {
+            "q": "(1 - (sum:fleet.ios.crash.count{$env,$version}.rollup(sum, 86400) / sum:fleet.ios.session.start{$env,$version}.rollup(sum, 86400))) * 100",
+            "aggregator": "last",
+            "conditional_formats": [
+              {
+                "comparator": ">=",
+                "value": 99.5,
+                "palette": "white_on_green"
+              },
+              {
+                "comparator": ">=",
+                "value": 99,
+                "palette": "white_on_yellow"
+              },
+              {
+                "comparator": "<",
+                "value": 99,
+                "palette": "white_on_red"
+              }
+            ]
+          }
+        ],
+        "precision": 3,
+        "custom_unit": "%"
+      },
+      "layout": {
+        "x": 9,
+        "y": 0,
+        "width": 3,
+        "height": 2
+      }
+    },
+    {
+      "id": 5,
+      "definition": {
+        "type": "distribution",
+        "title": "App Launch Time Distribution",
+        "requests": [
+          {
+            "q": "avg:fleet.ios.app.launch.duration{$env,$version}",
+            "style": {
+              "palette": "dog_classic"
+            }
+          }
+        ],
+        "xaxis": {
+          "label": "Launch Time (s)",
+          "scale": "linear"
+        },
+        "markers": [
+          {
+            "value": "x = 2.0",
+            "display_type": "ok dashed",
+            "label": "Target"
+          },
+          {
+            "value": "x = 3.0",
+            "display_type": "error dashed",
+            "label": "Threshold"
+          }
+        ]
+      },
+      "layout": {
+        "x": 0,
+        "y": 2,
+        "width": 4,
+        "height": 2
+      }
+    },
+    {
+      "id": 6,
+      "definition": {
+        "type": "timeseries",
+        "title": "Memory Usage Percentiles",
+        "requests": [
+          {
+            "q": "p50:fleet.ios.memory.usage{$env,$version}",
+            "display_type": "line",
+            "style": {
+              "palette": "green"
+            }
+          },
+          {
+            "q": "p90:fleet.ios.memory.usage{$env,$version}",
+            "display_type": "line",
+            "style": {
+              "palette": "orange"
+            }
+          },
+          {
+            "q": "p95:fleet.ios.memory.usage{$env,$version}",
+            "display_type": "line",
+            "style": {
+              "palette": "red"
+            }
+          }
+        ],
+        "yaxis": {
+          "label": "Memory (MB)",
+          "scale": "linear"
+        },
+        "markers": [
+          {
+            "value": "y = 150",
+            "display_type": "warning dashed",
+            "label": "Warning"
+          },
+          {
+            "value": "y = 200",
+            "display_type": "error dashed",
+            "label": "Critical"
+          }
+        ]
+      },
+      "layout": {
+        "x": 4,
+        "y": 2,
+        "width": 4,
+        "height": 2
+      }
+    },
+    {
+      "id": 7,
+      "definition": {
+        "type": "query_value",
+        "title": "Network Success Rate",
+        "requests": [
+          {
+            "q": "(sum:fleet.ios.network.success{$env,$version} / sum:fleet.ios.network.total{$env,$version}) * 100",
+            "aggregator": "avg",
+            "conditional_formats": [
+              {
+                "comparator": ">=",
+                "value": 98,
+                "palette": "white_on_green"
+              },
+              {
+                "comparator": ">=",
+                "value": 95,
+                "palette": "white_on_yellow"
+              },
+              {
+                "comparator": "<",
+                "value": 95,
+                "palette": "white_on_red"
+              }
+            ]
+          }
+        ],
+        "precision": 2,
+        "custom_unit": "%"
+      },
+      "layout": {
+        "x": 8,
+        "y": 2,
+        "width": 4,
+        "height": 2
+      }
+    },
+    {
+      "id": 8,
+      "definition": {
+        "type": "query_value",
+        "title": "GPS Accuracy (avg)",
+        "requests": [
+          {
+            "q": "avg:fleet.ios.gps.accuracy{$env,$version}",
+            "aggregator": "avg",
+            "conditional_formats": [
+              {
+                "comparator": "<=",
+                "value": 10,
+                "palette": "white_on_green"
+              },
+              {
+                "comparator": "<=",
+                "value": 30,
+                "palette": "white_on_yellow"
+              },
+              {
+                "comparator": ">",
+                "value": 30,
+                "palette": "white_on_red"
+              }
+            ]
+          }
+        ],
+        "precision": 1,
+        "custom_unit": "m"
+      },
+      "layout": {
+        "x": 0,
+        "y": 4,
+        "width": 2,
+        "height": 2
+      }
+    },
+    {
+      "id": 9,
+      "definition": {
+        "type": "query_value",
+        "title": "OBD2 Connection Rate",
+        "requests": [
+          {
+            "q": "(sum:fleet.ios.obd2.connected{$env,$version} / sum:fleet.ios.obd2.attempts{$env,$version}) * 100",
+            "aggregator": "last",
+            "conditional_formats": [
+              {
+                "comparator": ">=",
+                "value": 90,
+                "palette": "white_on_green"
+              },
+              {
+                "comparator": ">=",
+                "value": 70,
+                "palette": "white_on_yellow"
+              },
+              {
+                "comparator": "<",
+                "value": 70,
+                "palette": "white_on_red"
+              }
+            ]
+          }
+        ],
+        "precision": 1,
+        "custom_unit": "%"
+      },
+      "layout": {
+        "x": 2,
+        "y": 4,
+        "width": 2,
+        "height": 2
+      }
+    },
+    {
+      "id": 10,
+      "definition": {
+        "type": "timeseries",
+        "title": "Offline Sync Queue Depth",
+        "requests": [
+          {
+            "q": "avg:fleet.ios.sync.queue.depth{$env,$version}",
+            "display_type": "area",
+            "style": {
+              "palette": "purple",
+              "line_type": "solid",
+              "line_width": "normal"
+            }
+          }
+        ],
+        "yaxis": {
+          "label": "Items",
+          "scale": "linear"
+        },
+        "markers": [
+          {
+            "value": "y = 100",
+            "display_type": "warning dashed",
+            "label": "Warning"
+          }
+        ]
+      },
+      "layout": {
+        "x": 4,
+        "y": 4,
+        "width": 4,
+        "height": 2
+      }
+    },
+    {
+      "id": 11,
+      "definition": {
+        "type": "timeseries",
+        "title": "Authentication Success vs Failure",
+        "requests": [
+          {
+            "q": "sum:fleet.ios.auth.success{$env,$version}.as_rate()",
+            "display_type": "bars",
+            "style": {
+              "palette": "green"
+            }
+          },
+          {
+            "q": "sum:fleet.ios.auth.failure{$env,$version}.as_rate()",
+            "display_type": "bars",
+            "style": {
+              "palette": "red"
+            }
+          }
+        ],
+        "yaxis": {
+          "label": "Auth/sec",
+          "scale": "linear"
+        }
+      },
+      "layout": {
+        "x": 8,
+        "y": 4,
+        "width": 4,
+        "height": 2
+      }
+    },
+    {
+      "id": 12,
+      "definition": {
+        "type": "toplist",
+        "title": "Feature Adoption (Top 10)",
+        "requests": [
+          {
+            "q": "top(sum:fleet.ios.feature.usage{$env,$version} by {feature}.rollup(sum, 86400), 10, 'sum', 'desc')"
+          }
+        ]
+      },
+      "layout": {
+        "x": 0,
+        "y": 6,
+        "width": 4,
+        "height": 2
+      }
+    },
+    {
+      "id": 13,
+      "definition": {
+        "type": "timeseries",
+        "title": "User Session Duration",
+        "requests": [
+          {
+            "q": "p50:fleet.ios.session.duration{$env,$version}",
+            "display_type": "line",
+            "style": {
+              "palette": "cool"
+            }
+          },
+          {
+            "q": "p95:fleet.ios.session.duration{$env,$version}",
+            "display_type": "line",
+            "style": {
+              "palette": "warm"
+            }
+          },
+          {
+            "q": "avg:fleet.ios.session.duration{$env,$version}",
+            "display_type": "line",
+            "style": {
+              "palette": "purple"
+            }
+          }
+        ],
+        "yaxis": {
+          "label": "Duration (s)",
+          "scale": "linear"
+        }
+      },
+      "layout": {
+        "x": 4,
+        "y": 6,
+        "width": 4,
+        "height": 2
+      }
+    },
+    {
+      "id": 14,
+      "definition": {
+        "type": "query_value",
+        "title": "Battery Drain Rate",
+        "requests": [
+          {
+            "q": "avg:fleet.ios.battery.drain.rate{$env,$version}",
+            "aggregator": "avg",
+            "conditional_formats": [
+              {
+                "comparator": "<=",
+                "value": 5,
+                "palette": "white_on_green"
+              },
+              {
+                "comparator": "<=",
+                "value": 10,
+                "palette": "white_on_yellow"
+              },
+              {
+                "comparator": ">",
+                "value": 10,
+                "palette": "white_on_red"
+              }
+            ]
+          }
+        ],
+        "precision": 1,
+        "custom_unit": "%/hr"
+      },
+      "layout": {
+        "x": 8,
+        "y": 6,
+        "width": 4,
+        "height": 2
+      }
+    },
+    {
+      "id": 15,
+      "definition": {
+        "type": "sunburst",
+        "title": "App Version Distribution",
+        "requests": [
+          {
+            "q": "sum:fleet.ios.session.start{$env} by {version}"
+          }
+        ]
+      },
+      "layout": {
+        "x": 0,
+        "y": 8,
+        "width": 4,
+        "height": 3
+      }
+    },
+    {
+      "id": 16,
+      "definition": {
+        "type": "toplist",
+        "title": "Top API Endpoints by Request Count",
+        "requests": [
+          {
+            "q": "top(sum:fleet.ios.api.request.count{$env,$version} by {endpoint}.as_count(), 10, 'sum', 'desc')"
+          }
+        ]
+      },
+      "layout": {
+        "x": 4,
+        "y": 8,
+        "width": 4,
+        "height": 3
+      }
+    },
+    {
+      "id": 17,
+      "definition": {
+        "type": "heatmap",
+        "title": "Screen Render Time Heatmap",
+        "requests": [
+          {
+            "q": "avg:fleet.ios.screen.render.time{$env,$version} by {screen_name}"
+          }
+        ],
+        "yaxis": {
+          "label": "Screen",
+          "scale": "linear"
+        }
+      },
+      "layout": {
+        "x": 8,
+        "y": 8,
+        "width": 4,
+        "height": 3
+      }
+    },
+    {
+      "id": 18,
+      "definition": {
+        "type": "timeseries",
+        "title": "Database Query Performance (p95, p99)",
+        "requests": [
+          {
+            "q": "p95:fleet.ios.database.query.duration{$env,$version} by {query_type}",
+            "display_type": "line",
+            "style": {
+              "palette": "warm"
+            }
+          },
+          {
+            "q": "p99:fleet.ios.database.query.duration{$env,$version} by {query_type}",
+            "display_type": "line",
+            "style": {
+              "palette": "orange"
+            }
+          }
+        ],
+        "yaxis": {
+          "label": "Duration (ms)",
+          "scale": "linear"
+        }
+      },
+      "layout": {
+        "x": 0,
+        "y": 11,
+        "width": 6,
+        "height": 2
+      }
+    },
+    {
+      "id": 19,
+      "definition": {
+        "type": "log_stream",
+        "title": "Recent Error Logs",
+        "query": "source:ios-fleet-app status:error",
+        "columns": ["timestamp", "severity", "message", "error_type"],
+        "message_display": "expanded-md",
+        "sort": {
+          "column": "timestamp",
+          "order": "desc"
+        }
+      },
+      "layout": {
+        "x": 6,
+        "y": 11,
+        "width": 6,
+        "height": 2
+      }
+    },
+    {
+      "id": 20,
+      "definition": {
+        "type": "trace_service",
+        "title": "APM Traces - Request Flow",
+        "service": "fleet-ios-app",
+        "env": "$env",
+        "span_name": "api.request",
+        "show_hits": true,
+        "show_errors": true,
+        "show_latency": true,
+        "show_breakdown": true,
+        "show_distribution": true,
+        "show_resource_list": true
+      },
+      "layout": {
+        "x": 0,
+        "y": 13,
+        "width": 12,
+        "height": 3
+      }
+    },
+    {
+      "id": 21,
+      "definition": {
+        "type": "slo",
+        "title": "SLO Status - Availability",
+        "view_type": "detail",
+        "slo_id": "fleet-ios-availability-slo",
+        "show_error_budget": true,
+        "view_mode": "overall",
+        "time_windows": ["7d", "30d", "90d"]
+      },
+      "layout": {
+        "x": 0,
+        "y": 16,
+        "width": 4,
+        "height": 2
+      }
+    },
+    {
+      "id": 22,
+      "definition": {
+        "type": "slo",
+        "title": "SLO Status - Performance",
+        "view_type": "detail",
+        "slo_id": "fleet-ios-performance-slo",
+        "show_error_budget": true,
+        "view_mode": "overall",
+        "time_windows": ["7d", "30d", "90d"]
+      },
+      "layout": {
+        "x": 4,
+        "y": 16,
+        "width": 4,
+        "height": 2
+      }
+    },
+    {
+      "id": 23,
+      "definition": {
+        "type": "slo",
+        "title": "SLO Status - Crash-Free Rate",
+        "view_type": "detail",
+        "slo_id": "fleet-ios-crashfree-slo",
+        "show_error_budget": true,
+        "view_mode": "overall",
+        "time_windows": ["7d", "30d", "90d"]
+      },
+      "layout": {
+        "x": 8,
+        "y": 16,
+        "width": 4,
+        "height": 2
+      }
+    }
+  ],
+  "reflow_type": "fixed"
+}

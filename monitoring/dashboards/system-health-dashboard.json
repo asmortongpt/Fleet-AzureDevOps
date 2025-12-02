@@ -1,0 +1,348 @@
+{
+  "properties": {
+    "lenses": {
+      "0": {
+        "order": 0,
+        "parts": {
+          "0": {
+            "position": {
+              "x": 0,
+              "y": 0,
+              "colSpan": 6,
+              "rowSpan": 4
+            },
+            "metadata": {
+              "inputs": [
+                {
+                  "name": "resourceTypeMode",
+                  "isOptional": true
+                },
+                {
+                  "name": "ComponentId",
+                  "isOptional": true
+                },
+                {
+                  "name": "Scope",
+                  "value": {
+                    "resourceIds": [
+                      "/subscriptions/021415c2-2f52-4a73-ae77-f8363165a5e1/resourceGroups/fleet-production-rg/providers/microsoft.insights/components/fleet-management-insights"
+                    ]
+                  },
+                  "isOptional": true
+                },
+                {
+                  "name": "PartId",
+                  "value": "1d7a42e5-c2e7-4e94-a7f4-b6e0e85b28a7",
+                  "isOptional": true
+                },
+                {
+                  "name": "Version",
+                  "value": "2.0",
+                  "isOptional": true
+                },
+                {
+                  "name": "TimeRange",
+                  "value": "P1D",
+                  "isOptional": true
+                },
+                {
+                  "name": "DashboardId",
+                  "isOptional": true
+                },
+                {
+                  "name": "DraftRequestParameters",
+                  "isOptional": true
+                },
+                {
+                  "name": "Query",
+                  "value": "requests\n| where timestamp > ago(1h)\n| summarize RequestsPerMinute = count() by bin(timestamp, 1m)\n| render timechart\n",
+                  "isOptional": true
+                },
+                {
+                  "name": "ControlType",
+                  "value": "AnalyticsChart",
+                  "isOptional": true
+                },
+                {
+                  "name": "SpecificChart",
+                  "value": "Line",
+                  "isOptional": true
+                },
+                {
+                  "name": "PartTitle",
+                  "value": "Request Rate (Requests/Minute)",
+                  "isOptional": true
+                },
+                {
+                  "name": "PartSubTitle",
+                  "value": "fleet-management-insights",
+                  "isOptional": true
+                }
+              ],
+              "type": "Extension/Microsoft_OperationsManagementSuite_Workspace/PartType/LogsDashboardPart"
+            }
+          },
+          "1": {
+            "position": {
+              "x": 6,
+              "y": 0,
+              "colSpan": 6,
+              "rowSpan": 4
+            },
+            "metadata": {
+              "inputs": [
+                {
+                  "name": "resourceTypeMode",
+                  "isOptional": true
+                },
+                {
+                  "name": "ComponentId",
+                  "isOptional": true
+                },
+                {
+                  "name": "Scope",
+                  "value": {
+                    "resourceIds": [
+                      "/subscriptions/021415c2-2f52-4a73-ae77-f8363165a5e1/resourceGroups/fleet-production-rg/providers/microsoft.insights/components/fleet-management-insights"
+                    ]
+                  },
+                  "isOptional": true
+                },
+                {
+                  "name": "Query",
+                  "value": "requests\n| where timestamp > ago(1h)\n| summarize p50 = percentile(duration, 50), p95 = percentile(duration, 95), p99 = percentile(duration, 99) by bin(timestamp, 5m)\n| render timechart\n",
+                  "isOptional": true
+                },
+                {
+                  "name": "PartTitle",
+                  "value": "Response Time Percentiles (ms)",
+                  "isOptional": true
+                }
+              ],
+              "type": "Extension/Microsoft_OperationsManagementSuite_Workspace/PartType/LogsDashboardPart"
+            }
+          },
+          "2": {
+            "position": {
+              "x": 0,
+              "y": 4,
+              "colSpan": 6,
+              "rowSpan": 4
+            },
+            "metadata": {
+              "inputs": [
+                {
+                  "name": "resourceTypeMode",
+                  "isOptional": true
+                },
+                {
+                  "name": "ComponentId",
+                  "isOptional": true
+                },
+                {
+                  "name": "Scope",
+                  "value": {
+                    "resourceIds": [
+                      "/subscriptions/021415c2-2f52-4a73-ae77-f8363165a5e1/resourceGroups/fleet-production-rg/providers/microsoft.insights/components/fleet-management-insights"
+                    ]
+                  },
+                  "isOptional": true
+                },
+                {
+                  "name": "Query",
+                  "value": "requests\n| where timestamp > ago(1h)\n| summarize Total = count(), Failed = countif(success == false) by bin(timestamp, 5m)\n| extend ErrorRate = (Failed * 100.0) / Total\n| project timestamp, ErrorRate\n| render timechart\n",
+                  "isOptional": true
+                },
+                {
+                  "name": "PartTitle",
+                  "value": "Error Rate (%)",
+                  "isOptional": true
+                }
+              ],
+              "type": "Extension/Microsoft_OperationsManagementSuite_Workspace/PartType/LogsDashboardPart"
+            }
+          },
+          "3": {
+            "position": {
+              "x": 6,
+              "y": 4,
+              "colSpan": 6,
+              "rowSpan": 4
+            },
+            "metadata": {
+              "inputs": [
+                {
+                  "name": "resourceTypeMode",
+                  "isOptional": true
+                },
+                {
+                  "name": "ComponentId",
+                  "isOptional": true
+                },
+                {
+                  "name": "Scope",
+                  "value": {
+                    "resourceIds": [
+                      "/subscriptions/021415c2-2f52-4a73-ae77-f8363165a5e1/resourceGroups/fleet-production-rg/providers/microsoft.insights/components/fleet-management-insights"
+                    ]
+                  },
+                  "isOptional": true
+                },
+                {
+                  "name": "Query",
+                  "value": "dependencies\n| where type == 'SQL'\n| where timestamp > ago(1h)\n| summarize AvgDuration = avg(duration), p95 = percentile(duration, 95) by bin(timestamp, 5m)\n| render timechart\n",
+                  "isOptional": true
+                },
+                {
+                  "name": "PartTitle",
+                  "value": "Database Query Performance (ms)",
+                  "isOptional": true
+                }
+              ],
+              "type": "Extension/Microsoft_OperationsManagementSuite_Workspace/PartType/LogsDashboardPart"
+            }
+          },
+          "4": {
+            "position": {
+              "x": 0,
+              "y": 8,
+              "colSpan": 4,
+              "rowSpan": 3
+            },
+            "metadata": {
+              "inputs": [
+                {
+                  "name": "resourceTypeMode",
+                  "isOptional": true
+                },
+                {
+                  "name": "ComponentId",
+                  "isOptional": true
+                },
+                {
+                  "name": "Scope",
+                  "value": {
+                    "resourceIds": [
+                      "/subscriptions/021415c2-2f52-4a73-ae77-f8363165a5e1/resourceGroups/fleet-production-rg/providers/microsoft.insights/components/fleet-management-insights"
+                    ]
+                  },
+                  "isOptional": true
+                },
+                {
+                  "name": "Query",
+                  "value": "requests\n| where timestamp > ago(5m)\n| summarize RequestCount = count()\n| project RequestCount, Status = iff(RequestCount > 0, 'Healthy', 'Down')\n",
+                  "isOptional": true
+                },
+                {
+                  "name": "PartTitle",
+                  "value": "System Health Status",
+                  "isOptional": true
+                }
+              ],
+              "type": "Extension/Microsoft_OperationsManagementSuite_Workspace/PartType/LogsDashboardPart"
+            }
+          },
+          "5": {
+            "position": {
+              "x": 4,
+              "y": 8,
+              "colSpan": 4,
+              "rowSpan": 3
+            },
+            "metadata": {
+              "inputs": [
+                {
+                  "name": "resourceTypeMode",
+                  "isOptional": true
+                },
+                {
+                  "name": "ComponentId",
+                  "isOptional": true
+                },
+                {
+                  "name": "Scope",
+                  "value": {
+                    "resourceIds": [
+                      "/subscriptions/021415c2-2f52-4a73-ae77-f8363165a5e1/resourceGroups/fleet-production-rg/providers/microsoft.insights/components/fleet-management-insights"
+                    ]
+                  },
+                  "isOptional": true
+                },
+                {
+                  "name": "Query",
+                  "value": "requests\n| where timestamp > ago(24h)\n| summarize SuccessCount = countif(success == true), TotalCount = count()\n| extend Uptime = (SuccessCount * 100.0) / TotalCount\n| project Uptime\n",
+                  "isOptional": true
+                },
+                {
+                  "name": "PartTitle",
+                  "value": "Uptime % (24h)",
+                  "isOptional": true
+                }
+              ],
+              "type": "Extension/Microsoft_OperationsManagementSuite_Workspace/PartType/LogsDashboardPart"
+            }
+          },
+          "6": {
+            "position": {
+              "x": 8,
+              "y": 8,
+              "colSpan": 4,
+              "rowSpan": 3
+            },
+            "metadata": {
+              "inputs": [
+                {
+                  "name": "resourceTypeMode",
+                  "isOptional": true
+                },
+                {
+                  "name": "ComponentId",
+                  "isOptional": true
+                },
+                {
+                  "name": "Scope",
+                  "value": {
+                    "resourceIds": [
+                      "/subscriptions/021415c2-2f52-4a73-ae77-f8363165a5e1/resourceGroups/fleet-production-rg/providers/microsoft.insights/components/fleet-management-insights"
+                    ]
+                  },
+                  "isOptional": true
+                },
+                {
+                  "name": "Query",
+                  "value": "exceptions\n| where timestamp > ago(1h)\n| summarize ExceptionCount = count()\n| project ExceptionCount\n",
+                  "isOptional": true
+                },
+                {
+                  "name": "PartTitle",
+                  "value": "Exceptions (Last Hour)",
+                  "isOptional": true
+                }
+              ],
+              "type": "Extension/Microsoft_OperationsManagementSuite_Workspace/PartType/LogsDashboardPart"
+            }
+          }
+        }
+      }
+    },
+    "metadata": {
+      "model": {
+        "timeRange": {
+          "value": {
+            "relative": {
+              "duration": 24,
+              "timeUnit": 1
+            }
+          },
+          "type": "MsPortalFx.Composition.Configuration.ValueTypes.TimeRange"
+        }
+      }
+    }
+  },
+  "name": "Fleet Management - System Health",
+  "type": "Microsoft.Portal/dashboards",
+  "location": "eastus2",
+  "tags": {
+    "hidden-title": "Fleet Management - System Health"
+  }
+}

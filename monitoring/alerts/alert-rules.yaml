@@ -1,0 +1,222 @@
+# Fleet Management System - Alert Rules Configuration
+# This file documents all configured alerts for production monitoring
+
+alerts:
+  action_group:
+    name: fleet-critical-alerts
+    short_name: FleetAlerts
+    email: admin@capitaltechalliance.com
+    description: Primary notification channel for Fleet Management critical alerts
+
+  scheduled_queries:
+    - name: fleet-high-error-rate
+      severity: Critical (1)
+      description: Alert when API error rate exceeds 5% over 5 minutes
+      query: |
+        requests
+        | where timestamp > ago(5m)
+        | summarize Total = count(), Failed = countif(success == false)
+        | extend Perc = (Failed * 100.0) / Total
+        | project Perc
+      condition: count 'Perc' > 5
+      evaluation_frequency: 5m
+      window_size: 5m
+      actions:
+        - Send email to admin
+        - Log to audit trail
+      mitigation:
+        - Check recent deployments
+        - Review error logs in Application Insights
+        - Verify database connectivity
+        - Check external service dependencies
+
+    - name: fleet-slow-response-time
+      severity: Warning (2)
+      description: Alert when P95 API latency exceeds 2 seconds
+      query: |
+        requests
+        | where timestamp > ago(5m)
+        | summarize p95 = percentile(duration, 95)
+        | project p95
+      condition: count 'p95' > 2000
+      evaluation_frequency: 5m
+      window_size: 5m
+      actions:
+        - Send email to admin
+        - Log to performance monitoring
+      mitigation:
+        - Check database query performance
+        - Review slow endpoints in App Insights
+        - Verify AKS node resource utilization
+        - Consider scaling out pods
+        - Run load tests to reproduce
+
+    - name: fleet-database-failures
+      severity: Critical (0)
+      description: Alert when database connection failures occur
+      query: |
+        dependencies
+        | where type == 'SQL'
+        | where success == false
+        | where timestamp > ago(5m)
+        | summarize FailedConnections = count()
+        | project FailedConnections
+      condition: count 'FailedConnections' > 5
+      evaluation_frequency: 5m
+      window_size: 5m
+      actions:
+        - Immediate email alert
+        - Page on-call engineer
+        - Auto-scale database tier (if configured)
+      mitigation:
+        - Check PostgreSQL pod status
+        - Verify connection pool settings
+        - Check database disk space
+        - Review connection string configuration
+        - Verify network policies
+
+  metric_alerts:
+    - name: fleet-pod-restarts
+      severity: Warning (1)
+      description: Alert when pods restart more than 3 times in 10 minutes
+      metric: kube_pod_container_status_restarts_total
+      condition: avg > 3
+      evaluation_frequency: 5m
+      window_size: 10m
+      actions:
+        - Send email to admin
+        - Log restart events
+      mitigation:
+        - Check pod logs before restart
+        - Review OOMKilled events
+        - Verify resource limits
+        - Check liveness/readiness probes
+        - Review recent config changes
+
+    - name: fleet-high-cpu-usage
+      severity: Warning (2)
+      description: Alert when CPU usage exceeds 80%
+      metric: Percentage CPU
+      condition: avg > 80
+      evaluation_frequency: 5m
+      window_size: 5m
+      actions:
+        - Send email to admin
+        - Auto-scale pods (if HPA configured)
+      mitigation:
+        - Check current load vs baseline
+        - Review CPU-intensive endpoints
+        - Consider horizontal pod autoscaling
+        - Verify no infinite loops or CPU leaks
+        - Profile application with tracing
+
+    - name: fleet-high-memory-usage
+      severity: Warning (2)
+      description: Alert when memory usage exceeds 80%
+      metric: Memory Working Set Percentage
+      condition: avg > 80
+      evaluation_frequency: 5m
+      window_size: 5m
+      actions:
+        - Send email to admin
+        - Auto-scale pods (if HPA configured)
+      mitigation:
+        - Check for memory leaks
+        - Review cache size configurations
+        - Verify connection pools are limited
+        - Check for unbounded array growth
+        - Consider increasing pod memory limits
+
+severity_levels:
+  0_critical:
+    description: System down or major functionality broken
+    response_time: Immediate (5 minutes)
+    escalation: On-call engineer + team lead
+    examples:
+      - Database completely unavailable
+      - Authentication system failure
+      - Data corruption detected
+
+  1_error:
+    description: Significant degradation affecting users
+    response_time: 15 minutes
+    escalation: On-call engineer
+    examples:
+      - High error rate (>5%)
+      - Pod restart loops
+      - API endpoints failing
+
+  2_warning:
+    description: Performance degradation or potential issues
+    response_time: 1 hour
+    escalation: Team notification
+    examples:
+      - Slow response times
+      - High resource usage
+      - Approaching rate limits
+
+  3_informational:
+    description: Notable events for tracking
+    response_time: Next business day
+    escalation: Log only
+    examples:
+      - Deployments completed
+      - Scaling events
+      - Configuration changes
+
+response_procedures:
+  alert_received:
+    1: Check alert details in Azure Portal
+    2: Verify if alert is still firing or auto-resolved
+    3: Access Application Insights for detailed diagnostics
+    4: Check pod status with kubectl
+    5: Review recent deployments or changes
+    6: Execute mitigation steps for specific alert type
+    7: Document findings and resolution
+    8: Post-mortem if severity 0 or 1
+
+  escalation_path:
+    tier_1: On-call engineer (email)
+    tier_2: Team lead (SMS + email)
+    tier_3: Engineering manager (phone call)
+    tier_4: CTO (for extended outages)
+
+monitoring_coverage:
+  availability:
+    - API endpoint health checks
+    - Pod restart monitoring
+    - Database connectivity
+
+  performance:
+    - Response time (P50, P95, P99)
+    - Database query duration
+    - External dependency latency
+
+  errors:
+    - HTTP 5xx error rate
+    - Database connection failures
+    - Uncaught exceptions
+
+  resources:
+    - CPU utilization
+    - Memory usage
+    - Disk I/O (future)
+    - Network throughput (future)
+
+testing_alerts:
+  manual_test:
+    description: Trigger alerts manually to verify configuration
+    steps:
+      - Simulate high error rate with load test
+      - Trigger pod restart by killing process
+      - Simulate slow responses with CPU-intensive requests
+      - Test database failures by stopping PostgreSQL
+
+  quarterly_review:
+    description: Review and update alert thresholds
+    checklist:
+      - Verify thresholds match current baseline
+      - Check for false positive alerts
+      - Update contact information
+      - Test notification delivery
+      - Review escalation procedures

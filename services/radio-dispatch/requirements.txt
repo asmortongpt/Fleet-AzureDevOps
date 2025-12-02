@@ -1,0 +1,71 @@
+# ==========================================
+# Radio Dispatch Service - Python Dependencies
+# ==========================================
+
+# Core Framework
+fastapi==0.115.0
+uvicorn[standard]==0.32.1
+python-socketio==5.11.4
+python-engineio==4.10.1
+
+# Database
+sqlalchemy==2.0.36
+asyncpg==0.30.0
+psycopg2-binary==2.9.10
+alembic==1.14.0
+
+# Async Task Queue
+celery==5.4.0
+redis==5.2.0
+
+# Azure Services
+azure-cognitiveservices-speech==1.41.1
+azure-storage-blob==12.24.0
+azure-identity==1.19.0
+azure-keyvault-secrets==4.9.0
+
+# NLP & AI
+spacy==3.8.3
+transformers==4.47.1
+torch==2.5.1
+anthropic==0.39.0
+openai==1.57.0
+
+# HTTP Client
+httpx==0.28.1
+aiohttp==3.11.10
+
+# Data Processing
+pydantic==2.10.3
+pydantic-settings==2.6.1
+python-dotenv==1.0.1
+python-multipart==0.0.20
+
+# Audio Processing
+pydub==0.25.1
+numpy==2.2.1
+soundfile==0.12.1
+
+# Utilities
+python-dateutil==2.9.0
+pytz==2024.2
+tenacity==9.0.0
+structlog==24.4.0
+
+# Testing
+pytest==8.3.4
+pytest-asyncio==0.24.0
+pytest-cov==6.0.0
+httpx-sse==0.4.0
+faker==33.1.0
+
+# Security
+cryptography==44.0.0
+pyjwt==2.10.1
+passlib[bcrypt]==1.7.4
+
+# Monitoring
+prometheus-client==0.21.0
+opentelemetry-api==1.29.0
+opentelemetry-sdk==1.29.0
+opentelemetry-instrumentation-fastapi==0.50b0

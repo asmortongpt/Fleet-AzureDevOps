@@ -1,0 +1,89 @@
+# Allow DNS Resolution Network Policy
+# Allows all pods to resolve DNS through kube-dns/CoreDNS
+#
+# SECURITY NOTE: DNS resolution is required for all pods to function
+# This policy allows both UDP and TCP on port 53 to the kube-dns service
+# Without this policy, pods cannot resolve service names or external domains
+
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-dns
+  namespace: fleet-management
+  labels:
+    app: fleet
+    policy-type: egress
+    target: dns
+  annotations:
+    description: "Allow all pods to resolve DNS through kube-dns"
+spec:
+  podSelector: {}
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - namespaceSelector: {}
+          podSelector:
+            matchLabels:
+              k8s-app: kube-dns
+      ports:
+        - port: 53
+          protocol: UDP
+        - port: 53
+          protocol: TCP
+---
+# Also apply to ctafleet namespace
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-dns
+  namespace: ctafleet
+  labels:
+    app: fleet
+    policy-type: egress
+    target: dns
+  annotations:
+    description: "Allow all pods to resolve DNS through kube-dns"
+spec:
+  podSelector: {}
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - namespaceSelector: {}
+          podSelector:
+            matchLabels:
+              k8s-app: kube-dns
+      ports:
+        - port: 53
+          protocol: UDP
+        - port: 53
+          protocol: TCP
+---
+# Staging namespace
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-dns
+  namespace: ctafleet-staging
+  labels:
+    app: fleet
+    policy-type: egress
+    target: dns
+  annotations:
+    description: "Allow all pods to resolve DNS through kube-dns"
+spec:
+  podSelector: {}
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - namespaceSelector: {}
+          podSelector:
+            matchLabels:
+              k8s-app: kube-dns
+      ports:
+        - port: 53
+          protocol: UDP
+        - port: 53
+          protocol: TCP

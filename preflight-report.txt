@@ -1,0 +1,129 @@
+
+[0;35m========================================[0m
+[0;35mFLEET MANAGEMENT - PRODUCTION PRE-FLIGHT CHECK[0m
+[0;35m========================================[0m
+Starting comprehensive pre-deployment validation...
+Date: 2025-11-24 22:54:55 UTC
+Report: preflight-report.txt
+
+
+[0;35m========================================[0m
+[0;35m1. Azure CLI Verification[0m
+[0;35m========================================[0m
+[0;32m[PASS][0m Azure CLI is installed
+[0;32m[PASS][0m Logged in to Azure CLI
+[0;34m[INFO][0m Active subscription: Azure subscription 1 (021415c2-2f52-4a73-ae77-f8363165a5e1)
+
+[0;35m========================================[0m
+[0;35m2. Azure Resources Verification[0m
+[0;35m========================================[0m
+[0;34m[INFO][0m Checking resource group: fleet-management-rg
+[0;31m[CRITICAL][0m Resource group not found: fleet-management-rg
+[0;34m[INFO][0m Checking AKS cluster: fleet-aks-cluster
+[0;31m[CRITICAL][0m AKS cluster not found: fleet-aks-cluster
+[0;34m[INFO][0m Checking container registry: fleetappregistry
+[0;32m[PASS][0m Container registry exists: fleetappregistry
+[0;31m[FAIL][0m Cannot authenticate to container registry
+[0;34m[INFO][0m Checking Application Insights...
+[1;33m[WARN][0m No Application Insights found (recommended for production)
+
+[0;35m========================================[0m
+[0;35m3. Database Connectivity[0m
+[0;35m========================================[0m
+[0;31m[FAIL][0m DATABASE_URL environment variable not set
+
+[0;35m========================================[0m
+[0;35m4. Azure AD Configuration[0m
+[0;35m========================================[0m
+[0;31m[FAIL][0m AZURE_AD_CLIENT_ID is not set
+[0;31m[FAIL][0m AZURE_AD_CLIENT_SECRET is not set
+[0;31m[FAIL][0m AZURE_AD_TENANT_ID is not set
+[0;31m[FAIL][0m VITE_AZURE_AD_CLIENT_ID is not set
+[0;31m[FAIL][0m VITE_AZURE_AD_TENANT_ID is not set
+
+[0;35m========================================[0m
+[0;35m5. Environment Variables[0m
+[0;35m========================================[0m
+[0;31m[FAIL][0m NODE_ENV must be 'production' (current: not set)
+[0;31m[FAIL][0m JWT_SECRET is not set
+[1;33m[WARN][0m VITE_API_URL is not set
+
+[0;35m========================================[0m
+[0;35m6. SSL Certificates[0m
+[0;35m========================================[0m
+[1;33m[WARN][0m Cannot check SSL configuration (kubectl or AKS access issue)
+
+[0;35m========================================[0m
+[0;35m7. DNS Configuration[0m
+[0;35m========================================[0m
+[1;33m[WARN][0m PRODUCTION_DOMAIN not set (skipping DNS check)
+
+[0;35m========================================[0m
+[0;35m8. API Health Endpoints[0m
+[0;35m========================================[0m
+[0;32m[PASS][0m Health routes file exists
+[1;33m[WARN][0m API not built (run: cd api && npm run build)
+
+[0;35m========================================[0m
+[0;35m9. Application Insights[0m
+[0;35m========================================[0m
+[1;33m[WARN][0m APPLICATION_INSIGHTS_CONNECTION_STRING not set
+[0;34m[INFO][0m Application Insights provides critical monitoring for production
+
+[0;35m========================================[0m
+[0;35m10. Docker Images[0m
+[0;35m========================================[0m
+[0;34m[INFO][0m Checking for local Docker images...
+Cannot connect to the Docker daemon at unix:///Users/andrewmorton/.docker/run/docker.sock. Is the docker daemon running?
+[0;34m[INFO][0m fleet-api image not found locally (will be built during deployment)
+Cannot connect to the Docker daemon at unix:///Users/andrewmorton/.docker/run/docker.sock. Is the docker daemon running?
+[0;34m[INFO][0m fleet-frontend image not found locally (will be built during deployment)
+
+[0;35m========================================[0m
+[0;35m11. Kubernetes Namespace[0m
+[0;35m========================================[0m
+[1;33m[WARN][0m Cannot access AKS cluster
+
+[0;35m========================================[0m
+[0;35m12. Security - Hardcoded Secrets Check[0m
+[0;35m========================================[0m
+[0;34m[INFO][0m Scanning for potential hardcoded secrets...
+api/src/config/secrets.ts: * const secrets = await getSecrets(['db-password', 'jwt-secret', 'api-key'])
+api/dist/config/secrets.d.ts: * const secrets = await getSecrets(['db-password', 'jwt-secret', 'api-key'])
+api/dist/config/connection-manager-keyvault.example.js:const secrets_1 = require("./secrets");
+api/src/middleware/auth.ts:  const token = req.headers.authorization?.split(' ')[1] || req.cookies?.auth_token
+api/src/routes/auth.ts:    const tokenHash = Buffer.from(refreshToken).toString('base64').substring(0, 64)
+api/src/routes/auth.ts:    const token = req.headers.authorization?.split(' ')[1] || req.cookies?.auth_token
+[1;33m[WARN][0m Potential hardcoded secrets detected (review output above)
+
+[0;35m========================================[0m
+[0;35m13. Production Build Verification[0m
+[0;35m========================================[0m
+[0;32m[PASS][0m Frontend build directory exists
+[0;32m[PASS][0m dist/index.html exists
+[0;34m[INFO][0m JavaScript bundle size: 1.6M
+[0;32m[PASS][0m Code splitting active (       7 chunks)
+
+[0;35m========================================[0m
+[0;35m14. Git Status[0m
+[0;35m========================================[0m
+[0;34m[INFO][0m Current branch: main
+[0;32m[PASS][0m No uncommitted changes
+[0;34m[INFO][0m No tag on current commit
+
+[0;35m========================================[0m
+[0;35mPRE-FLIGHT CHECK SUMMARY[0m
+[0;35m========================================[0m
+
+  [0;32m✓ Passed:[0m           8
+  [0;31m✗ Failed:[0m           11
+  [0;31m✗ Critical Failed:[0m  2
+  [1;33m⚠ Warnings:[0m         8
+
+[0;31m╔════════════════════════════════════════╗[0m
+[0;31m║  ✗ NOT READY FOR PRODUCTION           ║[0m
+[0;31m║  Critical issues must be resolved     ║[0m
+[0;31m╚════════════════════════════════════════╝[0m
+
+Critical issues detected. Please fix the issues above before deploying.
+Report saved to: preflight-report.txt

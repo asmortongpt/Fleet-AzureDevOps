@@ -1,0 +1,160 @@
+# Application-level alerts for CTAFleet
+
+groups:
+  - name: application_alerts
+    interval: 30s
+    rules:
+      # API Health Alerts
+      - alert: APIDown
+        expr: up{job="fleet-api"} == 0
+        for: 2m
+        labels:
+          severity: critical
+          component: api
+        annotations:
+          summary: "Fleet API is down"
+          description: "Fleet API on {{ $labels.instance }} has been down for more than 2 minutes."
+
+      - alert: APIHighErrorRate
+        expr: |
+          rate(http_requests_total{job="fleet-api",status=~"5.."}[5m])
+          /
+          rate(http_requests_total{job="fleet-api"}[5m])
+          > 0.05
+        for: 5m
+        labels:
+          severity: warning
+          component: api
+        annotations:
+          summary: "High API error rate detected"
+          description: "API error rate is {{ $value | humanizePercentage }} on {{ $labels.instance }}."
+
+      - alert: APIHighLatency
+        expr: |
+          histogram_quantile(0.95,
+            rate(http_request_duration_seconds_bucket{job="fleet-api"}[5m])
+          ) > 2
+        for: 5m
+        labels:
+          severity: warning
+          component: api
+        annotations:
+          summary: "High API latency detected"
+          description: "95th percentile latency is {{ $value }}s on {{ $labels.instance }}."
+
+      # Frontend Alerts
+      - alert: FrontendDown
+        expr: up{job="fleet-frontend"} == 0
+        for: 2m
+        labels:
+          severity: critical
+          component: frontend
+        annotations:
+          summary: "Frontend is down"
+          description: "Frontend on {{ $labels.instance }} has been down for more than 2 minutes."
+
+      # Database Alerts
+      - alert: PostgreSQLDown
+        expr: up{job="postgres"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          component: database
+        annotations:
+          summary: "PostgreSQL is down"
+          description: "PostgreSQL database is down on {{ $labels.instance }}."
+
+      - alert: PostgreSQLHighConnections
+        expr: |
+          pg_stat_database_numbackends{datname="fleetdb"}
+          /
+          pg_settings_max_connections
+          > 0.8
+        for: 5m
+        labels:
+          severity: warning
+          component: database
+        annotations:
+          summary: "PostgreSQL high connection usage"
+          description: "PostgreSQL is using {{ $value | humanizePercentage }} of max connections."
+
+      - alert: PostgreSQLReplicationLag
+        expr: pg_replication_lag > 10
+        for: 5m
+        labels:
+          severity: warning
+          component: database
+        annotations:
+          summary: "PostgreSQL replication lag detected"
+          description: "Replication lag is {{ $value }} seconds on {{ $labels.instance }}."
+
+      # Redis Alerts
+      - alert: RedisDown
+        expr: up{job="redis"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          component: cache
+        annotations:
+          summary: "Redis is down"
+          description: "Redis cache is down on {{ $labels.instance }}."
+
+      - alert: RedisHighMemoryUsage
+        expr: |
+          redis_memory_used_bytes{job="redis"}
+          /
+          redis_memory_max_bytes{job="redis"}
+          > 0.9
+        for: 5m
+        labels:
+          severity: warning
+          component: cache
+        annotations:
+          summary: "Redis high memory usage"
+          description: "Redis is using {{ $value | humanizePercentage }} of max memory."
+
+      # Python Services Alerts
+      - alert: TestOrchestratorDown
+        expr: up{job="test-orchestrator"} == 0
+        for: 5m
+        labels:
+          severity: warning
+          component: test-orchestrator
+        annotations:
+          summary: "Test Orchestrator is down"
+          description: "Test Orchestrator service is down."
+
+      - alert: RAGIndexerDown
+        expr: up{job="rag-indexer"} == 0
+        for: 5m
+        labels:
+          severity: warning
+          component: rag-indexer
+        annotations:
+          summary: "RAG Indexer is down"
+          description: "RAG Indexer service is down."
+
+      # Business Metrics Alerts
+      - alert: HighAuthenticationFailureRate
+        expr: |
+          rate(authentication_failures_total[5m])
+          /
+          rate(authentication_attempts_total[5m])
+          > 0.3
+        for: 5m
+        labels:
+          severity: warning
+          component: security
+        annotations:
+          summary: "High authentication failure rate"
+          description: "Authentication failure rate is {{ $value | humanizePercentage }}."
+
+      - alert: NoUserActivity
+        expr: increase(http_requests_total{job="fleet-api"}[1h]) < 10
+        for: 1h
+        labels:
+          severity: info
+          component: business
+        annotations:
+          summary: "No user activity detected"
+          description: "Less than 10 requests in the last hour."

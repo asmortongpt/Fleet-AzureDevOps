@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ctafleet
+  labels:
+    name: ctafleet
+    environment: production
+    managed-by: devops
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ctafleet-staging
+  labels:
+    name: ctafleet-staging
+    environment: staging
+    managed-by: devops
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ctafleet-monitoring
+  labels:
+    name: ctafleet-monitoring
+    environment: production
+    managed-by: devops

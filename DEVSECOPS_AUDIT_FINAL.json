@@ -1,0 +1,195 @@
+{
+  "timestamp": "2025-11-20T19:33:04.392Z",
+  "projectPath": "/Users/andrewmorton/Documents/GitHub/Fleet",
+  "overallScore": 1,
+  "scores": {
+    "architecture": 0,
+    "api": 0,
+    "security": 0,
+    "performance": 0,
+    "multiTenancy": 0,
+    "cicd": 20
+  },
+  "findings": {
+    "architecture": [
+      {
+        "check": "TypeScript Config",
+        "status": "ISSUE",
+        "description": "Problems found:\n  - tsconfig.json: Failed to parse - Expected double-quoted property name in JSON at position 311 (line 14 column 5)\n  - api/tsconfig.json: Failed to parse - Expected double-quoted property name in JSON at position 150 (line 8 column 5)",
+        "recommendation": "Enable \"strict\": true and \"noEmitOnError\": true in all tsconfig files"
+      },
+      {
+        "check": "Dependency Injection",
+        "status": "PENDING",
+        "description": "Not yet implemented",
+        "recommendation": null
+      },
+      {
+        "check": "Error Handling",
+        "status": "PENDING",
+        "description": "Not yet implemented",
+        "recommendation": null
+      },
+      {
+        "check": "Routes Structure",
+        "status": "PENDING",
+        "description": "Not yet implemented",
+        "recommendation": null
+      },
+      {
+        "check": "Service Organization",
+        "status": "PENDING",
+        "description": "Not yet implemented",
+        "recommendation": null
+      },
+      {
+        "check": "Business Logic in Routes",
+        "status": "CRITICAL",
+        "description": "Found 698 direct DB calls in 77 route files:\n  - api/src/routes/work-orders.ts: 11 direct DB calls\n  - api/src/routes/video-telematics.routes.ts: 11 direct DB calls\n  - api/src/routes/video-events.ts: 5 direct DB calls\n  - api/src/routes/vendors.ts: 6 direct DB calls\n  - api/src/routes/vendors.dal-example.ts: 2 direct DB calls\n  - api/src/routes/vehicles.optimized.example.ts: 3 direct DB calls\n  - api/src/routes/vehicle-assignments.routes.ts: 13 direct DB calls\n  - api/src/routes/vehicle-3d.routes.ts: 1 direct DB calls\n  - api/src/routes/trip-usage.ts: 18 direct DB calls\n  - api/src/routes/trip-marking.ts: 16 direct DB calls\n  ... and 67 more",
+        "recommendation": "Move database queries to service layer and repository pattern"
+      },
+      {
+        "check": "ESLint Security Config",
+        "status": "PENDING",
+        "description": "Not yet implemented",
+        "recommendation": null
+      },
+      {
+        "check": "Global Error Middleware",
+        "status": "PENDING",
+        "description": "Not yet implemented",
+        "recommendation": null
+      },
+      {
+        "check": "Service Layer",
+        "status": "PENDING",
+        "description": "Not yet implemented",
+        "recommendation": null
+      },
+      {
+        "check": "Async Jobs",
+        "status": "PENDING",
+        "description": "Not yet implemented",
+        "recommendation": null
+      },
+      {
+        "check": "Repository Pattern",
+        "status": "PENDING",
+        "description": "Not yet implemented",
+        "recommendation": null
+      }
+    ],
+    "api": [
+      {
+        "check": "Over-Fetching (SELECT *)",
+        "status": "CRITICAL",
+        "description": "Found 6 SELECT * instances in 2 files:\n  - scripts/generate-api-backend.ts: 2 instances\n  - api/test-tenant-isolation.ts: 4 instances",
+        "recommendation": "Replace SELECT * with explicit column lists"
+      },
+      {
+        "check": "ORM Usage",
+        "status": "PENDING",
+        "description": "Not yet implemented",
+        "recommendation": null
+      },
+      {
+        "check": "API Versioning",
+        "status": "PENDING",
+        "description": "Not yet implemented",
+        "recommendation": null
+      },
+      {
+        "check": "Response Consistency",
+        "status": "PENDING",
+        "description": "Not yet implemented",
+        "recommendation": null
+      }
+    ],
+    "security": [
+      {
+        "check": "Error Logging",
+        "status": "CRITICAL",
+        "description": "Found 1000 console.log statements in 60 files (SOC 2 CC7.2 violation):\n  - test-websocket.js: 62 instances\n  - tailwind.config.js: 1 instances\n  - tests/verify-deployment-fixes.js: 27 instances\n  - tests/personal-business-use.spec.ts: 2 instances\n  - tests/manual-browser-test.js: 29 instances\n  - tests/deployment.test.js: 12 instances\n  - tests/comprehensive-production-test.js: 41 instances\n  - scripts/validate-rbac.ts: 52 instances\n  - scripts/seed-api-testdata.ts: 96 instances\n  - scripts/generate-api-backend.ts: 17 instances",
+        "recommendation": "Replace all console.log with Winston logger with PII sanitization"
+      },
+      {
+        "check": "Rate Limiting",
+        "status": "PENDING",
+        "description": "Not yet implemented",
+        "recommendation": null
+      },
+      {
+        "check": "JWT Secrets",
+        "status": "PENDING",
+        "description": "Not yet implemented",
+        "recommendation": null
+      },
+      {
+        "check": "CSRF Protection",
+        "status": "PENDING",
+        "description": "Not yet implemented",
+        "recommendation": null
+      }
+    ],
+    "performance": [
+      {
+        "check": "Caching",
+        "status": "PENDING",
+        "description": "Not yet implemented",
+        "recommendation": null
+      },
+      {
+        "check": "N+1 Queries",
+        "status": "PENDING",
+        "description": "Not yet implemented",
+        "recommendation": null
+      },
+      {
+        "check": "Worker Threads",
+        "status": "PENDING",
+        "description": "Not yet implemented",
+        "recommendation": null
+      }
+    ],
+    "multiTenancy": [
+      {
+        "check": "Row-Level Security",
+        "status": "PENDING",
+        "description": "Not yet implemented",
+        "recommendation": null
+      },
+      {
+        "check": "Tenant ID Columns",
+        "status": "PENDING",
+        "description": "Not yet implemented",
+        "recommendation": null
+      }
+    ],
+    "cicd": [
+      {
+        "check": "Azure Pipeline",
+        "status": "OK",
+        "description": "Pipeline found with test, build, deploy stages",
+        "recommendation": null
+      },
+      {
+        "check": "Branch Protection",
+        "status": "PENDING",
+        "description": "Not yet implemented",
+        "recommendation": null
+      },
+      {
+        "check": "Security Scanning",
+        "status": "PENDING",
+        "description": "Not yet implemented",
+        "recommendation": null
+      }
+    ]
+  },
+  "summary": {
+    "critical": 3,
+    "issues": 1,
+    "warnings": 0,
+    "passed": 1
+  }
+}
