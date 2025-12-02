@@ -1,0 +1,470 @@
+---
+# Default Deny All Ingress Traffic
+# This policy denies all incoming traffic by default
+# Specific allow policies must be created for required communication
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-ingress
+  namespace: fleet-management
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+
+---
+# Default Deny All Egress Traffic
+# This policy denies all outgoing traffic by default
+# Specific allow policies must be created for required communication
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-egress
+  namespace: fleet-management
+spec:
+  podSelector: {}
+  policyTypes:
+    - Egress
+
+---
+# Allow Fleet App to communicate with PostgreSQL
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-app-to-postgres
+  namespace: fleet-management
+spec:
+  podSelector:
+    matchLabels:
+      app: fleet-postgres
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app: fleet-app
+      ports:
+        - protocol: TCP
+          port: 5432
+
+---
+# Allow Fleet App to communicate with Redis
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-app-to-redis
+  namespace: fleet-management
+spec:
+  podSelector:
+    matchLabels:
+      app: fleet-redis
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app: fleet-app
+      ports:
+        - protocol: TCP
+          port: 6379
+
+---
+# Allow Ingress Controller to Fleet App
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-ingress-to-app
+  namespace: fleet-management
+spec:
+  podSelector:
+    matchLabels:
+      app: fleet-app
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              name: ingress-nginx
+      ports:
+        - protocol: TCP
+          port: 3000
+
+---
+# Allow Fleet App Egress to PostgreSQL and Redis
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-app-egress
+  namespace: fleet-management
+spec:
+  podSelector:
+    matchLabels:
+      app: fleet-app
+  policyTypes:
+    - Egress
+  egress:
+    # Allow DNS resolution
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              name: kube-system
+      ports:
+        - protocol: UDP
+          port: 53
+    # Allow PostgreSQL
+    - to:
+        - podSelector:
+            matchLabels:
+              app: fleet-postgres
+      ports:
+        - protocol: TCP
+          port: 5432
+    # Allow Redis
+    - to:
+        - podSelector:
+            matchLabels:
+              app: fleet-redis
+      ports:
+        - protocol: TCP
+          port: 6379
+    # Allow external HTTPS (for API calls, Azure services, etc.)
+    - to:
+        - namespaceSelector: {}
+      ports:
+        - protocol: TCP
+          port: 443
+    # Allow external HTTP
+    - to:
+        - namespaceSelector: {}
+      ports:
+        - protocol: TCP
+          port: 80
+
+---
+# Allow PostgreSQL Init Container health checks
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-postgres-health-checks
+  namespace: fleet-management
+spec:
+  podSelector:
+    matchLabels:
+      app: fleet-postgres
+  policyTypes:
+    - Ingress
+  ingress:
+    # Allow internal health checks from init containers
+    - from:
+        - podSelector:
+            matchLabels:
+              app: fleet-app
+      ports:
+        - protocol: TCP
+          port: 5432
+
+---
+# Allow Redis Init Container health checks
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-redis-health-checks
+  namespace: fleet-management
+spec:
+  podSelector:
+    matchLabels:
+      app: fleet-redis
+  policyTypes:
+    - Ingress
+  ingress:
+    # Allow internal health checks from init containers
+    - from:
+        - podSelector:
+            matchLabels:
+              app: fleet-app
+      ports:
+        - protocol: TCP
+          port: 6379
+
+---
+# Allow monitoring/metrics scraping (Prometheus)
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-monitoring
+  namespace: fleet-management
+spec:
+  podSelector:
+    matchLabels:
+      app: fleet-app
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              name: monitoring
+      ports:
+        - protocol: TCP
+          port: 9090
+
+---
+# Staging Environment Network Policies
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-ingress
+  namespace: fleet-staging
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-egress
+  namespace: fleet-staging
+spec:
+  podSelector: {}
+  policyTypes:
+    - Egress
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-app-to-postgres
+  namespace: fleet-staging
+spec:
+  podSelector:
+    matchLabels:
+      app: fleet-postgres
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app: fleet-app
+      ports:
+        - protocol: TCP
+          port: 5432
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-app-to-redis
+  namespace: fleet-staging
+spec:
+  podSelector:
+    matchLabels:
+      app: fleet-redis
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app: fleet-app
+      ports:
+        - protocol: TCP
+          port: 6379
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-ingress-to-app
+  namespace: fleet-staging
+spec:
+  podSelector:
+    matchLabels:
+      app: fleet-app
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              name: ingress-nginx
+      ports:
+        - protocol: TCP
+          port: 3000
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-app-egress
+  namespace: fleet-staging
+spec:
+  podSelector:
+    matchLabels:
+      app: fleet-app
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              name: kube-system
+      ports:
+        - protocol: UDP
+          port: 53
+    - to:
+        - podSelector:
+            matchLabels:
+              app: fleet-postgres
+      ports:
+        - protocol: TCP
+          port: 5432
+    - to:
+        - podSelector:
+            matchLabels:
+              app: fleet-redis
+      ports:
+        - protocol: TCP
+          port: 6379
+    - to:
+        - namespaceSelector: {}
+      ports:
+        - protocol: TCP
+          port: 443
+        - protocol: TCP
+          port: 80
+
+---
+# Development Environment Network Policies
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-ingress
+  namespace: fleet-dev
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-egress
+  namespace: fleet-dev
+spec:
+  podSelector: {}
+  policyTypes:
+    - Egress
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-app-to-postgres
+  namespace: fleet-dev
+spec:
+  podSelector:
+    matchLabels:
+      app: fleet-postgres
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app: fleet-app
+      ports:
+        - protocol: TCP
+          port: 5432
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-app-to-redis
+  namespace: fleet-dev
+spec:
+  podSelector:
+    matchLabels:
+      app: fleet-redis
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app: fleet-app
+      ports:
+        - protocol: TCP
+          port: 6379
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-ingress-to-app
+  namespace: fleet-dev
+spec:
+  podSelector:
+    matchLabels:
+      app: fleet-app
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              name: ingress-nginx
+      ports:
+        - protocol: TCP
+          port: 3000
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-app-egress
+  namespace: fleet-dev
+spec:
+  podSelector:
+    matchLabels:
+      app: fleet-app
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              name: kube-system
+      ports:
+        - protocol: UDP
+          port: 53
+    - to:
+        - podSelector:
+            matchLabels:
+              app: fleet-postgres
+      ports:
+        - protocol: TCP
+          port: 5432
+    - to:
+        - podSelector:
+            matchLabels:
+              app: fleet-redis
+      ports:
+        - protocol: TCP
+          port: 6379
+    - to:
+        - namespaceSelector: {}
+      ports:
+        - protocol: TCP
+          port: 443
+        - protocol: TCP
+          port: 80

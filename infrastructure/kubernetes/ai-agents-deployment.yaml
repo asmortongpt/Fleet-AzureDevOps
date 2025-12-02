@@ -1,0 +1,187 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ai-agent-orchestrator
+  namespace: fleet-system
+  labels:
+    app: ai-agent-orchestrator
+    component: ai-ml
+spec:
+  replicas: 2  # HA deployment
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: ai-agent-orchestrator
+  template:
+    metadata:
+      labels:
+        app: ai-agent-orchestrator
+        component: ai-ml
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8080"
+    spec:
+      serviceAccountName: fleet-ai-sa
+      nodeSelector:
+        workload: ai-ml
+      containers:
+      - name: orchestrator
+        image: fleetproductionacr.azurecr.io/fleet/ai-orchestrator:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
+          name: http
+        env:
+        - name: AZURE_OPENAI_ENDPOINT
+          valueFrom:
+            secretKeyRef:
+              name: fleet-ai-secrets
+              key: openai-endpoint
+        - name: AZURE_OPENAI_KEY
+          valueFrom:
+            secretKeyRef:
+              name: fleet-ai-secrets
+              key: openai-key
+        - name: COSMOS_CONNECTION_STRING
+          valueFrom:
+            secretKeyRef:
+              name: fleet-ai-secrets
+              key: cosmos-connection-string
+        - name: SERVICEBUS_CONNECTION_STRING
+          valueFrom:
+            secretKeyRef:
+              name: fleet-ai-secrets
+              key: servicebus-connection-string
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: fleet-secrets
+              key: database-url
+        - name: REDIS_URL
+          valueFrom:
+            secretKeyRef:
+              name: fleet-secrets
+              key: redis-url
+        - name: AGENT_COUNT
+          value: "10"
+        - name: ORCHESTRATION_MODE
+          value: "autonomous"
+        - name: LOG_LEVEL
+          value: "info"
+        resources:
+          requests:
+            cpu: "2000m"
+            memory: "8Gi"
+          limits:
+            cpu: "4000m"
+            memory: "16Gi"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 60
+          periodSeconds: 30
+          timeoutSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1001
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+            - ALL
+        volumeMounts:
+        - name: tmp
+          mountPath: /tmp
+        - name: agent-logs
+          mountPath: /var/log/agents
+      volumes:
+      - name: tmp
+        emptyDir: {}
+      - name: agent-logs
+        emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ai-agent-orchestrator
+  namespace: fleet-system
+spec:
+  type: ClusterIP
+  ports:
+  - port: 80
+    targetPort: 8080
+    protocol: TCP
+    name: http
+  selector:
+    app: ai-agent-orchestrator
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: fleet-ai-sa
+  namespace: fleet-system
+  annotations:
+    azure.workload.identity/client-id: "REPLACE_WITH_AI_MANAGED_IDENTITY"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: fleet-ai-secrets
+  namespace: fleet-system
+type: Opaque
+stringData:
+  openai-endpoint: "https://fleet-production-openai.openai.azure.com/"
+  openai-key: "REPLACE_WITH_OPENAI_KEY"
+  cosmos-connection-string: "REPLACE_WITH_COSMOS_CONNECTION_STRING"
+  servicebus-connection-string: "REPLACE_WITH_SERVICEBUS_CONNECTION_STRING"
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: agent-health-check
+  namespace: fleet-system
+spec:
+  schedule: "*/15 * * * *"  # Every 15 minutes
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          serviceAccountName: fleet-ai-sa
+          containers:
+          - name: health-checker
+            image: curlimages/curl:latest
+            command:
+            - /bin/sh
+            - -c
+            - |
+              curl -f http://ai-agent-orchestrator/health || exit 1
+              curl -f http://ai-agent-orchestrator/metrics || exit 1
+          restartPolicy: OnFailure
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: ai-agents
+  namespace: fleet-system
+  labels:
+    app: ai-agent-orchestrator
+spec:
+  selector:
+    matchLabels:
+      app: ai-agent-orchestrator
+  endpoints:
+  - port: http
+    path: /metrics
+    interval: 30s

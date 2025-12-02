@@ -1,0 +1,91 @@
+# Allow Ingress to Frontend Network Policy
+# Allows traffic from ingress-nginx controller to reach the frontend pods
+#
+# SECURITY NOTE: This policy only allows traffic from the ingress controller
+# namespace to the frontend pods on the standard port
+
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-ingress-to-frontend
+  namespace: fleet-management
+  labels:
+    app: fleet
+    policy-type: ingress
+    target: frontend
+  annotations:
+    description: "Allow ingress controller to reach frontend pods"
+spec:
+  podSelector:
+    matchLabels:
+      app: fleet-frontend
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              name: ingress-nginx
+      ports:
+        - port: 3000
+          protocol: TCP
+        - port: 80
+          protocol: TCP
+---
+# Also apply to ctafleet namespace
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-ingress-to-frontend
+  namespace: ctafleet
+  labels:
+    app: fleet
+    policy-type: ingress
+    target: frontend
+  annotations:
+    description: "Allow ingress controller to reach frontend pods"
+spec:
+  podSelector:
+    matchLabels:
+      component: frontend
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              name: ingress-nginx
+      ports:
+        - port: 3000
+          protocol: TCP
+        - port: 80
+          protocol: TCP
+---
+# Staging namespace
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-ingress-to-frontend
+  namespace: ctafleet-staging
+  labels:
+    app: fleet
+    policy-type: ingress
+    target: frontend
+  annotations:
+    description: "Allow ingress controller to reach frontend pods"
+spec:
+  podSelector:
+    matchLabels:
+      component: frontend
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              name: ingress-nginx
+      ports:
+        - port: 3000
+          protocol: TCP
+        - port: 80
+          protocol: TCP

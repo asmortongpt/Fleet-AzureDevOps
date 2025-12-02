@@ -1,0 +1,206 @@
+apiVersion: v1
+data:
+  index.html: "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"UTF-8\">\n
+    \ <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n
+    \ <title>Fleet Emulator Command Center</title>\n  <style>\n    * {\n      margin:
+    0;\n      padding: 0;\n      box-sizing: border-box;\n    }\n\n    body {\n      font-family:
+    'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;\n      background: linear-gradient(135deg,
+    #667eea 0%, #764ba2 100%);\n      height: 100vh;\n      display: flex;\n      justify-content:
+    center;\n      align-items: center;\n      padding: 20px;\n    }\n\n    .container
+    {\n      width: 100%;\n      max-width: 1200px;\n      height: 90vh;\n      background:
+    white;\n      border-radius: 20px;\n      box-shadow: 0 20px 60px rgba(0, 0, 0,
+    0.3);\n      display: flex;\n      overflow: hidden;\n    }\n\n    .sidebar {\n
+    \     width: 300px;\n      background: #2c3e50;\n      color: white;\n      padding:
+    20px;\n      overflow-y: auto;\n    }\n\n    .sidebar h2 {\n      font-size: 18px;\n
+    \     margin-bottom: 20px;\n      color: #3498db;\n      border-bottom: 2px solid
+    #3498db;\n      padding-bottom: 10px;\n    }\n\n    .command-category {\n      margin-bottom:
+    25px;\n    }\n\n    .command-category h3 {\n      font-size: 14px;\n      color:
+    #ecf0f1;\n      margin-bottom: 10px;\n      display: flex;\n      align-items:
+    center;\n    }\n\n    .command-category h3::before {\n      content: '▶';\n      margin-right:
+    8px;\n      font-size: 10px;\n    }\n\n    .command-item {\n      background:
+    #34495e;\n      padding: 10px;\n      border-radius: 8px;\n      margin-bottom:
+    8px;\n      cursor: pointer;\n      transition: all 0.2s;\n      font-size: 13px;\n
+    \   }\n\n    .command-item:hover {\n      background: #3498db;\n      transform:
+    translateX(5px);\n    }\n\n    .main-content {\n      flex: 1;\n      display:
+    flex;\n      flex-direction: column;\n    }\n\n    .header {\n      background:
+    #3498db;\n      color: white;\n      padding: 20px 30px;\n      display: flex;\n
+    \     justify-content: space-between;\n      align-items: center;\n    }\n\n    .header
+    h1 {\n      font-size: 24px;\n      font-weight: 600;\n    }\n\n    .status-badge
+    {\n      background: #2ecc71;\n      color: white;\n      padding: 8px 16px;\n
+    \     border-radius: 20px;\n      font-size: 12px;\n      font-weight: bold;\n
+    \     display: flex;\n      align-items: center;\n      gap: 8px;\n    }\n\n    .status-badge::before
+    {\n      content: '●';\n      animation: pulse 2s infinite;\n    }\n\n    @keyframes
+    pulse {\n      0%, 100% { opacity: 1; }\n      50% { opacity: 0.5; }\n    }\n\n
+    \   .chat-area {\n      flex: 1;\n      padding: 30px;\n      overflow-y: auto;\n
+    \     background: #f8f9fa;\n    }\n\n    .message {\n      margin-bottom: 20px;\n
+    \     animation: slideIn 0.3s ease-out;\n    }\n\n    @keyframes slideIn {\n      from
+    {\n        opacity: 0;\n        transform: translateY(10px);\n      }\n      to
+    {\n        opacity: 1;\n        transform: translateY(0);\n      }\n    }\n\n
+    \   .message.user {\n      text-align: right;\n    }\n\n    .message-content {\n
+    \     display: inline-block;\n      max-width: 70%;\n      padding: 15px 20px;\n
+    \     border-radius: 18px;\n      font-size: 14px;\n      line-height: 1.5;\n
+    \   }\n\n    .message.user .message-content {\n      background: #3498db;\n      color:
+    white;\n      border-bottom-right-radius: 4px;\n    }\n\n    .message.system .message-content
+    {\n      background: white;\n      border: 1px solid #e0e0e0;\n      border-bottom-left-radius:
+    4px;\n      text-align: left;\n    }\n\n    .message.system.success .message-content
+    {\n      border-left: 4px solid #2ecc71;\n      background: #e8f8f0;\n    }\n\n
+    \   .message.system.error .message-content {\n      border-left: 4px solid #e74c3c;\n
+    \     background: #fde8e7;\n    }\n\n    .message-data {\n      background: #f8f9fa;\n
+    \     border: 1px solid #dee2e6;\n      border-radius: 8px;\n      padding: 12px;\n
+    \     margin-top: 10px;\n      font-size: 12px;\n      font-family: 'Courier New',
+    monospace;\n    }\n\n    .message-data pre {\n      margin: 0;\n      white-space:
+    pre-wrap;\n    }\n\n    .input-area {\n      padding: 20px 30px;\n      background:
+    white;\n      border-top: 1px solid #e0e0e0;\n      display: flex;\n      gap:
+    15px;\n    }\n\n    .input-wrapper {\n      flex: 1;\n      position: relative;\n
+    \   }\n\n    #commandInput {\n      width: 100%;\n      padding: 15px 20px;\n
+    \     border: 2px solid #e0e0e0;\n      border-radius: 25px;\n      font-size:
+    14px;\n      outline: none;\n      transition: all 0.3s;\n    }\n\n    #commandInput:focus
+    {\n      border-color: #3498db;\n      box-shadow: 0 0 0 3px rgba(52, 152, 219,
+    0.1);\n    }\n\n    #sendButton {\n      padding: 15px 35px;\n      background:
+    #3498db;\n      color: white;\n      border: none;\n      border-radius: 25px;\n
+    \     font-size: 14px;\n      font-weight: 600;\n      cursor: pointer;\n      transition:
+    all 0.3s;\n    }\n\n    #sendButton:hover {\n      background: #2980b9;\n      transform:
+    translateY(-2px);\n      box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);\n    }\n\n
+    \   #sendButton:active {\n      transform: translateY(0);\n    }\n\n    #sendButton:disabled
+    {\n      background: #95a5a6;\n      cursor: not-allowed;\n      transform: none;\n
+    \   }\n\n    .activity-panel {\n      width: 350px;\n      background: #ecf0f1;\n
+    \     padding: 20px;\n      overflow-y: auto;\n      border-left: 1px solid #bdc3c7;\n
+    \   }\n\n    .activity-panel h2 {\n      font-size: 16px;\n      margin-bottom:
+    15px;\n      color: #2c3e50;\n    }\n\n    .activity-section {\n      background:
+    white;\n      border-radius: 8px;\n      padding: 15px;\n      margin-bottom:
+    15px;\n    }\n\n    .activity-section h3 {\n      font-size: 13px;\n      color:
+    #7f8c8d;\n      margin-bottom: 10px;\n      text-transform: uppercase;\n      letter-spacing:
+    0.5px;\n    }\n\n    .activity-item {\n      padding: 8px;\n      border-left:
+    3px solid #3498db;\n      background: #f8f9fa;\n      margin-bottom: 8px;\n      font-size:
+    12px;\n      border-radius: 4px;\n    }\n\n    .activity-item.incident {\n      border-left-color:
+    #e74c3c;\n    }\n\n    .activity-item.task {\n      border-left-color: #f39c12;\n
+    \   }\n\n    .loader {\n      display: inline-block;\n      width: 16px;\n      height:
+    16px;\n      border: 3px solid #f3f3f3;\n      border-top: 3px solid #3498db;\n
+    \     border-radius: 50%;\n      animation: spin 1s linear infinite;\n    }\n\n
+    \   @keyframes spin {\n      0% { transform: rotate(0deg); }\n      100% { transform:
+    rotate(360deg); }\n    }\n\n    .timestamp {\n      font-size: 11px;\n      color:
+    #95a5a6;\n      margin-top: 5px;\n    }\n\n    /* Scrollbar styling */\n    ::-webkit-scrollbar
+    {\n      width: 8px;\n      height: 8px;\n    }\n\n    ::-webkit-scrollbar-track
+    {\n      background: #f1f1f1;\n    }\n\n    ::-webkit-scrollbar-thumb {\n      background:
+    #888;\n      border-radius: 4px;\n    }\n\n    ::-webkit-scrollbar-thumb:hover
+    {\n      background: #555;\n    }\n  </style>\n</head>\n<body>\n  <div class=\"container\">\n
+    \   <!-- Sidebar with command examples -->\n    <div class=\"sidebar\">\n      <h2>\U0001F4CB
+    Quick Commands</h2>\n\n      <div class=\"command-category\">\n        <h3>\U0001F6A8
+    Create Incidents</h3>\n        <div class=\"command-item\" onclick=\"insertCommand('create
+    a structure fire at 100 N Monroe St')\">\n          Structure fire downtown\n
+    \       </div>\n        <div class=\"command-item\" onclick=\"insertCommand('trigger
+    a vehicle accident on Tennessee St')\">\n          Vehicle accident\n        </div>\n
+    \       <div class=\"command-item\" onclick=\"insertCommand('simulate a medical
+    emergency at Capital Circle')\">\n          Medical emergency\n        </div>\n
+    \       <div class=\"command-item\" onclick=\"insertCommand('mass casualty incident
+    at FSU stadium')\">\n          Mass casualty incident\n        </div>\n      </div>\n\n
+    \     <div class=\"command-category\">\n        <h3>\U0001F694 Dispatch Units</h3>\n
+    \       <div class=\"command-item\" onclick=\"insertCommand('dispatch TPD-101
+    to Market St')\">\n          Dispatch police unit\n        </div>\n        <div
+    class=\"command-item\" onclick=\"insertCommand('send fire truck to Monroe St')\">\n
+    \         Dispatch fire truck\n        </div>\n        <div class=\"command-item\"
+    onclick=\"insertCommand('dispatch ambulance to downtown')\">\n          Dispatch
+    ambulance\n        </div>\n      </div>\n\n      <div class=\"command-category\">\n
+    \       <h3>\U0001F4CB Create Tasks</h3>\n        <div class=\"command-item\"
+    onclick=\"insertCommand('assign a pothole repair on Tennessee St')\">\n          Pothole
+    repair task\n        </div>\n        <div class=\"command-item\" onclick=\"insertCommand('create
+    a waste collection route')\">\n          Collection route\n        </div>\n        <div
+    class=\"command-item\" onclick=\"insertCommand('schedule equipment inspection')\">\n
+    \         Equipment inspection\n        </div>\n      </div>\n\n      <div class=\"command-category\">\n
+    \       <h3>\U0001F4E1 Radio Messages</h3>\n        <div class=\"command-item\"
+    onclick=\"insertCommand('TPD-101 report 10-8 in service')\">\n          Unit in
+    service\n        </div>\n        <div class=\"command-item\" onclick=\"insertCommand('TFD-E1
+    arrived on scene')\">\n          Unit on scene\n        </div>\n      </div>\n\n
+    \     <div class=\"command-category\">\n        <h3>\U0001F4CA Status</h3>\n        <div
+    class=\"command-item\" onclick=\"insertCommand('show status')\">\n          System
+    status\n        </div>\n        <div class=\"command-item\" onclick=\"insertCommand('list
+    active incidents')\">\n          Active incidents\n        </div>\n      </div>\n
+    \   </div>\n\n    <!-- Main chat area -->\n    <div class=\"main-content\">\n
+    \     <div class=\"header\">\n        <h1>\U0001F3AE Fleet Emulator Command Center</h1>\n
+    \       <div class=\"status-badge\" id=\"statusBadge\">CONNECTED</div>\n      </div>\n\n
+    \     <div class=\"chat-area\" id=\"chatArea\">\n        <div class=\"message
+    system\">\n          <div class=\"message-content\">\n            <strong>\U0001F3AE
+    Welcome to Fleet Emulator Command Center</strong><br><br>\n            I can help
+    you simulate various scenarios in the City of Tallahassee Fleet Management System.<br><br>\n
+    \           <strong>Try commands like:</strong><br>\n            • \"create a
+    structure fire at 100 N Monroe St\"<br>\n            • \"dispatch TPD-101 to Capital
+    Circle\"<br>\n            • \"assign a pothole repair on Tennessee St\"<br>\n
+    \           • \"show status\"<br><br>\n            Click any command on the left
+    to get started!\n          </div>\n        </div>\n      </div>\n\n      <div
+    class=\"input-area\">\n        <div class=\"input-wrapper\">\n          <input\n
+    \           type=\"text\"\n            id=\"commandInput\"\n            placeholder=\"Type
+    a command... (e.g., 'create a fire at Monroe St')\"\n            autocomplete=\"off\"\n
+    \         />\n        </div>\n        <button id=\"sendButton\">Send</button>\n
+    \     </div>\n    </div>\n\n    <!-- Activity panel -->\n    <div class=\"activity-panel\"
+    id=\"activityPanel\">\n      <h2>\U0001F4CA Recent Activity</h2>\n      <div id=\"activityContent\">\n
+    \       <div class=\"activity-section\">\n          <h3>Loading...</h3>\n        </div>\n
+    \     </div>\n    </div>\n  </div>\n\n  <script>\n    const API_URL = window.location.hostname
+    === 'localhost' ?\n      'http://localhost:3005' :\n      `https://${window.location.hostname}/api/command`;\n\n
+    \   const chatArea = document.getElementById('chatArea');\n    const commandInput
+    = document.getElementById('commandInput');\n    const sendButton = document.getElementById('sendButton');\n
+    \   const activityContent = document.getElementById('activityContent');\n    const
+    statusBadge = document.getElementById('statusBadge');\n\n    // Send command\n
+    \   async function sendCommand(command) {\n      if (!command.trim()) return;\n\n
+    \     // Add user message\n      addMessage(command, 'user');\n      commandInput.value
+    = '';\n      sendButton.disabled = true;\n\n      try {\n        const response
+    = await fetch(`${API_URL}/command`, {\n          method: 'POST',\n          headers:
+    { 'Content-Type': 'application/json' },\n          body: JSON.stringify({ command
+    })\n        });\n\n        const result = await response.json();\n\n        //
+    Add system response\n        addMessage(\n          result.message,\n          'system',\n
+    \         result.success ? 'success' : 'error',\n          result.data\n        );\n\n
+    \       // Refresh activity\n        if (result.success) {\n          setTimeout(refreshActivity,
+    1000);\n        }\n      } catch (error) {\n        addMessage(`Error: ${error.message}`,
+    'system', 'error');\n        statusBadge.textContent = 'CONNECTION ERROR';\n        statusBadge.style.background
+    = '#e74c3c';\n      } finally {\n        sendButton.disabled = false;\n        commandInput.focus();\n
+    \     }\n    }\n\n    // Add message to chat\n    function addMessage(text, type,
+    subtype = '', data = null) {\n      const messageDiv = document.createElement('div');\n
+    \     messageDiv.className = `message ${type}${subtype ? ' ' + subtype : ''}`;\n\n
+    \     const contentDiv = document.createElement('div');\n      contentDiv.className
+    = 'message-content';\n      contentDiv.innerHTML = text;\n\n      if (data) {\n
+    \       const dataDiv = document.createElement('div');\n        dataDiv.className
+    = 'message-data';\n        dataDiv.innerHTML = `<pre>${JSON.stringify(data, null,
+    2)}</pre>`;\n        contentDiv.appendChild(dataDiv);\n      }\n\n      const
+    timestamp = document.createElement('div');\n      timestamp.className = 'timestamp';\n
+    \     timestamp.textContent = new Date().toLocaleTimeString();\n      contentDiv.appendChild(timestamp);\n\n
+    \     messageDiv.appendChild(contentDiv);\n      chatArea.appendChild(messageDiv);\n
+    \     chatArea.scrollTop = chatArea.scrollHeight;\n    }\n\n    // Refresh activity
+    panel\n    async function refreshActivity() {\n      try {\n        const response
+    = await fetch(`${API_URL}/activity`);\n        const data = await response.json();\n\n
+    \       let html = '';\n\n        // Active incidents\n        if (data.active_incidents
+    && data.active_incidents.length > 0) {\n          html += '<div class=\"activity-section\">';\n
+    \         html += '<h3>\U0001F6A8 Active Incidents</h3>';\n          data.active_incidents.slice(0,
+    5).forEach(inc => {\n            html += `<div class=\"activity-item incident\">\n
+    \             <strong>${inc.incident_number}</strong><br>\n              ${inc.incident_type}
+    - ${inc.status}<br>\n              <small>${inc.location_address}</small>\n            </div>`;\n
+    \         });\n          html += '</div>';\n        }\n\n        // Active tasks\n
+    \       if (data.active_tasks && data.active_tasks.length > 0) {\n          html
+    += '<div class=\"activity-section\">';\n          html += '<h3>\U0001F4CB Active
+    Tasks</h3>';\n          data.active_tasks.slice(0, 5).forEach(task => {\n            html
+    += `<div class=\"activity-item task\">\n              <strong>${task.task_number}</strong><br>\n
+    \             ${task.task_type} - ${task.status}\n            </div>`;\n          });\n
+    \         html += '</div>';\n        }\n\n        // Recent transmissions\n        if
+    (data.transmissions && data.transmissions.length > 0) {\n          html += '<div
+    class=\"activity-section\">';\n          html += '<h3>\U0001F4E1 Recent Radio</h3>';\n
+    \         data.transmissions.slice(0, 5).forEach(trans => {\n            html
+    += `<div class=\"activity-item\">\n              <strong>${trans.call_sign}</strong><br>\n
+    \             <small>${trans.message}</small>\n            </div>`;\n          });\n
+    \         html += '</div>';\n        }\n\n        if (!html) {\n          html
+    = '<div class=\"activity-section\"><h3>No recent activity</h3></div>';\n        }\n\n
+    \       activityContent.innerHTML = html;\n      } catch (error) {\n        console.error('Failed
+    to refresh activity:', error);\n      }\n    }\n\n    // Insert command from sidebar\n
+    \   function insertCommand(cmd) {\n      commandInput.value = cmd;\n      commandInput.focus();\n
+    \   }\n\n    // Event listeners\n    sendButton.addEventListener('click', () =>
+    {\n      sendCommand(commandInput.value);\n    });\n\n    commandInput.addEventListener('keypress',
+    (e) => {\n      if (e.key === 'Enter') {\n        sendCommand(commandInput.value);\n
+    \     }\n    });\n\n    // Check connection\n    async function checkConnection()
+    {\n      try {\n        const response = await fetch(`${API_URL}/health`);\n        if
+    (response.ok) {\n          statusBadge.textContent = 'CONNECTED';\n          statusBadge.style.background
+    = '#2ecc71';\n        }\n      } catch (error) {\n        statusBadge.textContent
+    = 'DISCONNECTED';\n        statusBadge.style.background = '#e74c3c';\n      }\n
+    \   }\n\n    // Initialize\n    checkConnection();\n    refreshActivity();\n    setInterval(refreshActivity,
+    10000); // Refresh every 10 seconds\n    setInterval(checkConnection, 30000);
+    // Check connection every 30 seconds\n    commandInput.focus();\n  </script>\n</body>\n</html>\n"
+kind: ConfigMap
+metadata:
+  name: chat-interface-configmap
+  namespace: fleet-management

@@ -1,0 +1,229 @@
+{
+  "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+  "type": "AdaptiveCard",
+  "version": "1.5",
+  "body": [
+    {
+      "type": "Container",
+      "style": "good",
+      "items": [
+        {
+          "type": "ColumnSet",
+          "columns": [
+            {
+              "type": "Column",
+              "width": "auto",
+              "items": [
+                {
+                  "type": "Image",
+                  "url": "https://img.icons8.com/fluency/96/approval.png",
+                  "size": "medium"
+                }
+              ]
+            },
+            {
+              "type": "Column",
+              "width": "stretch",
+              "items": [
+                {
+                  "type": "TextBlock",
+                  "text": "Approval Required",
+                  "weight": "bolder",
+                  "size": "large"
+                },
+                {
+                  "type": "TextBlock",
+                  "text": "${approvalType}",
+                  "weight": "bolder",
+                  "color": "accent",
+                  "spacing": "none"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Container",
+      "spacing": "medium",
+      "items": [
+        {
+          "type": "FactSet",
+          "facts": [
+            {
+              "title": "Requested By:",
+              "value": "${requestedBy}"
+            },
+            {
+              "title": "Date:",
+              "value": "${requestDate}"
+            },
+            {
+              "title": "Amount:",
+              "value": "$${amount}"
+            },
+            {
+              "title": "Budget Code:",
+              "value": "${budgetCode}"
+            },
+            {
+              "title": "Department:",
+              "value": "${department}"
+            },
+            {
+              "title": "Priority:",
+              "value": "${priority}"
+            }
+          ]
+        },
+        {
+          "type": "TextBlock",
+          "text": "**Item Details:**",
+          "weight": "bolder",
+          "spacing": "medium"
+        },
+        {
+          "type": "TextBlock",
+          "text": "${itemDescription}",
+          "wrap": true,
+          "spacing": "small"
+        },
+        {
+          "type": "TextBlock",
+          "text": "**Business Justification:**",
+          "weight": "bolder",
+          "spacing": "medium"
+        },
+        {
+          "type": "TextBlock",
+          "text": "${justification}",
+          "wrap": true,
+          "spacing": "small"
+        },
+        {
+          "type": "Container",
+          "spacing": "medium",
+          "style": "emphasis",
+          "items": [
+            {
+              "type": "TextBlock",
+              "text": "**Budget Impact Analysis:**",
+              "weight": "bolder"
+            },
+            {
+              "type": "FactSet",
+              "facts": [
+                {
+                  "title": "Current Budget:",
+                  "value": "$${currentBudget}"
+                },
+                {
+                  "title": "Spent to Date:",
+                  "value": "$${spentToDate}"
+                },
+                {
+                  "title": "Remaining:",
+                  "value": "$${remaining}"
+                },
+                {
+                  "title": "After Approval:",
+                  "value": "$${afterApproval}"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "actions": [
+    {
+      "type": "Action.Submit",
+      "title": "Approve",
+      "data": {
+        "action": "approve",
+        "approvalId": "${approvalId}",
+        "itemType": "${itemType}",
+        "itemId": "${itemId}"
+      },
+      "style": "positive"
+    },
+    {
+      "type": "Action.Submit",
+      "title": "Reject",
+      "data": {
+        "action": "reject",
+        "approvalId": "${approvalId}",
+        "itemType": "${itemType}",
+        "itemId": "${itemId}"
+      },
+      "style": "destructive"
+    },
+    {
+      "type": "Action.OpenUrl",
+      "title": "View Details",
+      "url": "${detailsUrl}"
+    },
+    {
+      "type": "Action.ShowCard",
+      "title": "Approve with Conditions",
+      "card": {
+        "type": "AdaptiveCard",
+        "body": [
+          {
+            "type": "Input.Text",
+            "id": "approvalConditions",
+            "placeholder": "Enter conditions for approval...",
+            "isMultiline": true
+          },
+          {
+            "type": "Input.Number",
+            "id": "approvedAmount",
+            "label": "Approved Amount (if different)",
+            "placeholder": "${amount}",
+            "min": 0
+          }
+        ],
+        "actions": [
+          {
+            "type": "Action.Submit",
+            "title": "Approve with Conditions",
+            "data": {
+              "action": "approve_conditional",
+              "approvalId": "${approvalId}",
+              "itemType": "${itemType}",
+              "itemId": "${itemId}"
+            },
+            "style": "positive"
+          }
+        ]
+      }
+    },
+    {
+      "type": "Action.ShowCard",
+      "title": "Request More Info",
+      "card": {
+        "type": "AdaptiveCard",
+        "body": [
+          {
+            "type": "Input.Text",
+            "id": "infoRequest",
+            "placeholder": "What additional information do you need?",
+            "isMultiline": true
+          }
+        ],
+        "actions": [
+          {
+            "type": "Action.Submit",
+            "title": "Send Request",
+            "data": {
+              "action": "request_info",
+              "approvalId": "${approvalId}"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

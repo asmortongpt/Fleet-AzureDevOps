@@ -1,0 +1,30 @@
+# Minimal dockerignore for hotfix deployment
+# We NEED dist folder for this build, so only exclude truly unnecessary files
+
+# Dependencies (will be in dist already)
+node_modules
+package-lock.json
+
+# Git
+.git
+
+# IDE
+.vscode
+.idea
+
+# OS
+.DS_Store
+
+# Large test directories
+playwright-report
+test-results
+benchmarks
+e2e/videos
+e2e/screenshots
+
+# Documentation
+docs
+
+# Temporary
+/tmp
+*.log

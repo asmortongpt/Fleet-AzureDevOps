@@ -1,0 +1,67 @@
+{
+  "modules": [
+    {
+      "name": "Overview Dashboard",
+      "present": false,
+      "functional": false
+    },
+    {
+      "name": "Dispatch Management",
+      "present": false,
+      "functional": false
+    },
+    {
+      "name": "Live Tracking",
+      "present": false,
+      "functional": false
+    },
+    {
+      "name": "Fuel Management",
+      "present": false,
+      "functional": false
+    },
+    {
+      "name": "Asset Management",
+      "present": false,
+      "functional": false
+    }
+  ],
+  "quickStats": [
+    {
+      "label": "Active Vehicles",
+      "present": false
+    },
+    {
+      "label": "Pending Dispatches",
+      "present": false
+    },
+    {
+      "label": "Today's Routes",
+      "present": false
+    },
+    {
+      "label": "Fuel Alerts",
+      "present": false
+    }
+  ],
+  "quickActions": [
+    {
+      "label": "Quick Dispatch",
+      "present": false
+    },
+    {
+      "label": "View All Routes",
+      "present": false
+    },
+    {
+      "label": "Fuel Report",
+      "present": false
+    },
+    {
+      "label": "Asset Check",
+      "present": false
+    }
+  ],
+  "overallCompletion": 0,
+  "timestamp": "2025-11-25T18:59:23.684Z"
+}

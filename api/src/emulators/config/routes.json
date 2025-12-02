@@ -1,0 +1,173 @@
+{
+  "routes": [
+    {
+      "id": "ROUTE-001",
+      "name": "Downtown Delivery Loop",
+      "description": "Standard downtown Washington DC delivery route",
+      "type": "delivery",
+      "estimatedDuration": 180,
+      "estimatedDistance": 25,
+      "waypoints": [
+        { "lat": 38.8951, "lng": -77.0364, "name": "DC Depot", "type": "depot", "stopDuration": 0 },
+        { "lat": 38.9072, "lng": -77.0369, "name": "White House", "type": "delivery", "stopDuration": 10 },
+        { "lat": 38.8893, "lng": -77.0502, "name": "Lincoln Memorial", "type": "delivery", "stopDuration": 15 },
+        { "lat": 38.8893, "lng": -77.0446, "name": "Washington Monument", "type": "delivery", "stopDuration": 10 },
+        { "lat": 38.8913, "lng": -77.0241, "name": "Capitol Building", "type": "delivery", "stopDuration": 20 },
+        { "lat": 38.8951, "lng": -77.0364, "name": "DC Depot", "type": "depot", "stopDuration": 0 }
+      ],
+      "roadTypes": ["city", "city", "city", "city", "city"],
+      "trafficPatterns": {
+        "morning": "moderate",
+        "midday": "light",
+        "afternoon": "heavy",
+        "evening": "moderate",
+        "night": "light"
+      }
+    },
+    {
+      "id": "ROUTE-002",
+      "name": "Interstate Highway Run",
+      "description": "Long-haul route to Baltimore via I-95",
+      "type": "longhaul",
+      "estimatedDuration": 120,
+      "estimatedDistance": 75,
+      "waypoints": [
+        { "lat": 38.8951, "lng": -77.0364, "name": "DC Depot", "type": "depot", "stopDuration": 0 },
+        { "lat": 38.9101, "lng": -77.0147, "name": "I-95 North Entry", "type": "waypoint", "stopDuration": 0 },
+        { "lat": 39.0458, "lng": -76.6413, "name": "Rest Stop", "type": "break", "stopDuration": 15 },
+        { "lat": 39.2904, "lng": -76.6122, "name": "Baltimore Downtown", "type": "delivery", "stopDuration": 30 },
+        { "lat": 39.0458, "lng": -76.6413, "name": "Rest Stop", "type": "break", "stopDuration": 10 },
+        { "lat": 38.8951, "lng": -77.0364, "name": "DC Depot", "type": "depot", "stopDuration": 0 }
+      ],
+      "roadTypes": ["city", "highway", "highway", "city", "highway", "city"],
+      "trafficPatterns": {
+        "morning": "heavy",
+        "midday": "moderate",
+        "afternoon": "heavy",
+        "evening": "moderate",
+        "night": "light"
+      }
+    },
+    {
+      "id": "ROUTE-003",
+      "name": "Suburban Service Route",
+      "description": "Residential service route in Virginia suburbs",
+      "type": "service",
+      "estimatedDuration": 240,
+      "estimatedDistance": 45,
+      "waypoints": [
+        { "lat": 38.8951, "lng": -77.0364, "name": "DC Depot", "type": "depot", "stopDuration": 0 },
+        { "lat": 38.8816, "lng": -77.0910, "name": "Arlington", "type": "service", "stopDuration": 45 },
+        { "lat": 38.8462, "lng": -77.3064, "name": "Falls Church", "type": "service", "stopDuration": 60 },
+        { "lat": 38.9047, "lng": -77.0723, "name": "Georgetown", "type": "service", "stopDuration": 30 },
+        { "lat": 38.8951, "lng": -77.0364, "name": "DC Depot", "type": "depot", "stopDuration": 0 }
+      ],
+      "roadTypes": ["city", "residential", "residential", "city", "city"],
+      "trafficPatterns": {
+        "morning": "moderate",
+        "midday": "light",
+        "afternoon": "moderate",
+        "evening": "light",
+        "night": "light"
+      }
+    },
+    {
+      "id": "ROUTE-004",
+      "name": "Airport Shuttle",
+      "description": "Regular shuttle to Reagan National Airport",
+      "type": "shuttle",
+      "estimatedDuration": 45,
+      "estimatedDistance": 12,
+      "waypoints": [
+        { "lat": 38.8951, "lng": -77.0364, "name": "DC Depot", "type": "depot", "stopDuration": 0 },
+        { "lat": 38.8521, "lng": -77.0377, "name": "Reagan National Airport", "type": "pickup", "stopDuration": 15 },
+        { "lat": 38.8951, "lng": -77.0364, "name": "DC Depot", "type": "depot", "stopDuration": 0 }
+      ],
+      "roadTypes": ["city", "highway", "city"],
+      "trafficPatterns": {
+        "morning": "heavy",
+        "midday": "moderate",
+        "afternoon": "heavy",
+        "evening": "moderate",
+        "night": "light"
+      },
+      "frequency": "every_30_minutes"
+    },
+    {
+      "id": "ROUTE-005",
+      "name": "Emergency Response Path",
+      "description": "Quick response route covering key city zones",
+      "type": "emergency",
+      "estimatedDuration": 30,
+      "estimatedDistance": 15,
+      "waypoints": [
+        { "lat": 38.8951, "lng": -77.0364, "name": "DC Depot", "type": "depot", "stopDuration": 0 },
+        { "lat": 38.9197, "lng": -77.0412, "name": "Emergency Zone 1", "type": "emergency", "stopDuration": 5 },
+        { "lat": 38.8867, "lng": -77.0049, "name": "Emergency Zone 2", "type": "emergency", "stopDuration": 5 },
+        { "lat": 38.9013, "lng": -77.0219, "name": "Emergency Zone 3", "type": "emergency", "stopDuration": 5 },
+        { "lat": 38.8951, "lng": -77.0364, "name": "DC Depot", "type": "depot", "stopDuration": 0 }
+      ],
+      "roadTypes": ["city", "city", "city", "city", "city"],
+      "priority": "high",
+      "trafficPatterns": {
+        "morning": "light",
+        "midday": "light",
+        "afternoon": "light",
+        "evening": "light",
+        "night": "light"
+      }
+    },
+    {
+      "id": "ROUTE-006",
+      "name": "Cross-Country Interstate",
+      "description": "Long-haul interstate route to Richmond, VA",
+      "type": "longhaul",
+      "estimatedDuration": 180,
+      "estimatedDistance": 120,
+      "waypoints": [
+        { "lat": 38.8951, "lng": -77.0364, "name": "DC Depot", "type": "depot", "stopDuration": 0 },
+        { "lat": 38.4374, "lng": -77.4416, "name": "Fredericksburg", "type": "break", "stopDuration": 20 },
+        { "lat": 37.5407, "lng": -77.4360, "name": "Richmond", "type": "delivery", "stopDuration": 45 },
+        { "lat": 38.4374, "lng": -77.4416, "name": "Fredericksburg", "type": "break", "stopDuration": 15 },
+        { "lat": 38.8951, "lng": -77.0364, "name": "DC Depot", "type": "depot", "stopDuration": 0 }
+      ],
+      "roadTypes": ["city", "highway", "city", "highway", "city"],
+      "trafficPatterns": {
+        "morning": "heavy",
+        "midday": "moderate",
+        "afternoon": "heavy",
+        "evening": "moderate",
+        "night": "light"
+      }
+    }
+  ],
+  "geofences": [
+    {
+      "id": "GEO-001",
+      "name": "Downtown DC Zone",
+      "type": "operational",
+      "center": { "lat": 38.8951, "lng": -77.0364 },
+      "radius": 5000,
+      "alertOnEntry": false,
+      "alertOnExit": true
+    },
+    {
+      "id": "GEO-002",
+      "name": "Depot Perimeter",
+      "type": "restricted",
+      "center": { "lat": 38.8951, "lng": -77.0364 },
+      "radius": 500,
+      "alertOnEntry": true,
+      "alertOnExit": true
+    },
+    {
+      "id": "GEO-003",
+      "name": "No-Go Zone - Capitol Security",
+      "type": "restricted",
+      "center": { "lat": 38.8899, "lng": -77.0091 },
+      "radius": 200,
+      "alertOnEntry": true,
+      "alertOnExit": false
+    }
+  ]
+}
