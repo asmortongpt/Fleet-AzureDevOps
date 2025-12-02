@@ -1,410 +1,281 @@
-/**
- * React hooks for API data fetching using SWR
- * Provides caching, revalidation, and real-time updates
- */
+import { useQuery, useMutation, useQueryClient, QueryClient, QueryKey } from '@tanstack/react-query';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 
-import useSWR, { mutate } from 'swr'
-import { apiClient, APIError } from '@/lib/api-client'
-import { transformVehicles, transformDrivers, transformFacilities } from '@/lib/data-transformers'
-import logger from '@/utils/logger'
-
-interface UseAPIOptions {
-  refreshInterval?: number
-  revalidateOnFocus?: boolean
-  dedupingInterval?: number
+interface VehicleFilters {
+  tenant_id: string;
+  [key: string]: string | number | undefined;
 }
 
-// Generic hook for GET requests with SWR
-export function useAPI<T>(
-  key: string | null,
-  fetcher: () => Promise<T>,
-  options: UseAPIOptions = {}
-) {
-  const { data, error, isLoading, isValidating, mutate: revalidate } = useSWR<T, APIError>(
-    key,
-    fetcher,
-    {
-      refreshInterval: options.refreshInterval || 0,
-      revalidateOnFocus: options.revalidateOnFocus !== false,
-      dedupingInterval: options.dedupingInterval || 2000,
-      onError: (error) => {
-        logger.error('API Error:', { error })
-      }
-    }
-  )
-
-  return {
-    data,
-    isLoading,
-    isValidating,
-    error,
-    refresh: revalidate
-  }
+interface DriverFilters {
+  tenant_id: string;
+  [key: string]: string | number | undefined;
 }
 
-// Vehicles hooks
-export function useVehicles(params?: any) {
-  return useAPI(
-    '/api/vehicles',
-    async () => {
-      const data = await apiClient.vehicles.list(params)
-      return transformVehicles(data)
-    }
-  )
+interface MaintenanceFilters {
+  tenant_id: string;
+  startDate: string;
+  endDate: string;
 }
 
-export function useVehicle(id: string | null) {
-  return useAPI(
-    id ? `/api/vehicles/${id}` : null,
-    () => apiClient.vehicles.get(id!)
-  )
+interface Vehicle {
+  id: string;
+  tenant_id: string;
+  // other vehicle properties
+}
+
+interface Driver {
+  id: string;
+  tenant_id: string;
+  // other driver properties
+}
+
+interface Maintenance {
+  id: string;
+  tenant_id: string;
+  // other maintenance properties
+}
+
+const queryClient = new QueryClient();
+
+const queryKeyFactory = {
+  vehicles: (filters: VehicleFilters) => ['vehicles', filters],
+  drivers: (filters: DriverFilters) => ['drivers', filters],
+  maintenance: (filters: MaintenanceFilters) => ['maintenance', filters],
+};
+
+export function useVehicles(filters: VehicleFilters) {
+  return useQuery<Vehicle[], Error>({
+    queryKey: queryKeyFactory.vehicles(filters),
+    queryFn: async () => {
+      const params = new URLSearchParams(filters as Record<string, string>);
+      const res = await fetch(`/api/vehicles?${params}`);
+      if (!res.ok) throw new Error('Network response was not ok');
+      return res.json();
+    },
+    staleTime: 5 * 60 * 1000,
+    cacheTime: 10 * 60 * 1000,
+    refetchOnWindowFocus: false,
+  });
+}
+
+export function useDrivers(filters: DriverFilters) {
+  return useQuery<Driver[], Error>({
+    queryKey: queryKeyFactory.drivers(filters),
+    queryFn: async () => {
+      const params = new URLSearchParams(filters as Record<string, string>);
+      const res = await fetch(`/api/drivers?${params}`);
+      if (!res.ok) throw new Error('Network response was not ok');
+      return res.json();
+    },
+    staleTime: 5 * 60 * 1000,
+    cacheTime: 10 * 60 * 1000,
+    refetchOnWindowFocus: false,
+  });
+}
+
+export function useMaintenance(filters: MaintenanceFilters) {
+  return useQuery<Maintenance[], Error>({
+    queryKey: queryKeyFactory.maintenance(filters),
+    queryFn: async () => {
+      const params = new URLSearchParams(filters as Record<string, string>);
+      const res = await fetch(`/api/maintenance?${params}`);
+      if (!res.ok) throw new Error('Network response was not ok');
+      return res.json();
+    },
+    staleTime: 5 * 60 * 1000,
+    cacheTime: 10 * 60 * 1000,
+    refetchOnWindowFocus: false,
+  });
 }
 
 export function useVehicleMutations() {
-  return {
-    create: async (data: any) => {
-      const result = await apiClient.vehicles.create(data)
-      mutate('/api/vehicles')
-      return result
-    },
-    update: async (id: string, data: any) => {
-      const result = await apiClient.vehicles.update(id, data)
-      mutate('/api/vehicles')
-      mutate(`/api/vehicles/${id}`)
-      return result
-    },
-    delete: async (id: string) => {
-      const result = await apiClient.vehicles.delete(id)
-      mutate('/api/vehicles')
-      return result
-    }
-  }
-}
+  const queryClient = useQueryClient();
 
-// Drivers hooks
-export function useDrivers(params?: any) {
-  return useAPI(
-    '/api/drivers',
-    async () => {
-      const data = await apiClient.drivers.list(params)
-      return transformDrivers(data)
-    }
-  )
-}
+  const createVehicle = useMutation<Vehicle, Error, Vehicle>({
+    mutationFn: async (newVehicle) => {
+      const res = await fetch('/api/vehicles', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newVehicle),
+      });
+      if (!res.ok) throw new Error('Network response was not ok');
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(queryKeyFactory.vehicles({ tenant_id: '' }));
+    },
+  });
 
-export function useDriver(id: string | null) {
-  return useAPI(
-    id ? `/api/drivers/${id}` : null,
-    () => apiClient.drivers.get(id!)
-  )
+  const updateVehicle = useMutation<Vehicle, Error, Vehicle>({
+    mutationFn: async (updatedVehicle) => {
+      const res = await fetch(`/api/vehicles/${updatedVehicle.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updatedVehicle),
+      });
+      if (!res.ok) throw new Error('Network response was not ok');
+      return res.json();
+    },
+    onMutate: async (updatedVehicle) => {
+      await queryClient.cancelQueries(queryKeyFactory.vehicles({ tenant_id: updatedVehicle.tenant_id }));
+      const previousVehicles = queryClient.getQueryData<Vehicle[]>(queryKeyFactory.vehicles({ tenant_id: updatedVehicle.tenant_id }));
+      queryClient.setQueryData<Vehicle[]>(queryKeyFactory.vehicles({ tenant_id: updatedVehicle.tenant_id }), (old) =>
+        old?.map((vehicle) => (vehicle.id === updatedVehicle.id ? updatedVehicle : vehicle))
+      );
+      return { previousVehicles };
+    },
+    onError: (err, updatedVehicle, context) => {
+      if (context?.previousVehicles) {
+        queryClient.setQueryData(queryKeyFactory.vehicles({ tenant_id: updatedVehicle.tenant_id }), context.previousVehicles);
+      }
+    },
+    onSettled: (updatedVehicle) => {
+      queryClient.invalidateQueries(queryKeyFactory.vehicles({ tenant_id: updatedVehicle.tenant_id }));
+    },
+  });
+
+  const deleteVehicle = useMutation<void, Error, { id: string; tenant_id: string }>({
+    mutationFn: async ({ id, tenant_id }) => {
+      const res = await fetch(`/api/vehicles/${id}`, {
+        method: 'DELETE',
+      });
+      if (!res.ok) throw new Error('Network response was not ok');
+    },
+    onSuccess: (_, { tenant_id }) => {
+      queryClient.invalidateQueries(queryKeyFactory.vehicles({ tenant_id }));
+    },
+  });
+
+  return { createVehicle, updateVehicle, deleteVehicle };
 }
 
 export function useDriverMutations() {
-  return {
-    create: async (data: any) => {
-      const result = await apiClient.drivers.create(data)
-      mutate('/api/drivers')
-      return result
+  const queryClient = useQueryClient();
+
+  const createDriver = useMutation<Driver, Error, Driver>({
+    mutationFn: async (newDriver) => {
+      const res = await fetch('/api/drivers', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newDriver),
+      });
+      if (!res.ok) throw new Error('Network response was not ok');
+      return res.json();
     },
-    update: async (id: string, data: any) => {
-      const result = await apiClient.drivers.update(id, data)
-      mutate('/api/drivers')
-      mutate(`/api/drivers/${id}`)
-      return result
+    onSuccess: () => {
+      queryClient.invalidateQueries(queryKeyFactory.drivers({ tenant_id: '' }));
     },
-    delete: async (id: string) => {
-      const result = await apiClient.drivers.delete(id)
-      mutate('/api/drivers')
-      return result
-    }
-  }
-}
+  });
 
-// Work Orders hooks
-export function useWorkOrders(params?: any) {
-  return useAPI(
-    '/api/work-orders',
-    () => apiClient.workOrders.list(params),
-    { refreshInterval: 30000 } // Refresh every 30 seconds
-  )
-}
-
-export function useWorkOrder(id: string | null) {
-  return useAPI(
-    id ? `/api/work-orders/${id}` : null,
-    () => apiClient.workOrders.get(id!)
-  )
-}
-
-export function useWorkOrderMutations() {
-  return {
-    create: async (data: any) => {
-      const result = await apiClient.workOrders.create(data)
-      mutate('/api/work-orders')
-      return result
+  const updateDriver = useMutation<Driver, Error, Driver>({
+    mutationFn: async (updatedDriver) => {
+      const res = await fetch(`/api/drivers/${updatedDriver.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updatedDriver),
+      });
+      if (!res.ok) throw new Error('Network response was not ok');
+      return res.json();
     },
-    update: async (id: string, data: any) => {
-      const result = await apiClient.workOrders.update(id, data)
-      mutate('/api/work-orders')
-      mutate(`/api/work-orders/${id}`)
-      return result
+    onMutate: async (updatedDriver) => {
+      await queryClient.cancelQueries(queryKeyFactory.drivers({ tenant_id: updatedDriver.tenant_id }));
+      const previousDrivers = queryClient.getQueryData<Driver[]>(queryKeyFactory.drivers({ tenant_id: updatedDriver.tenant_id }));
+      queryClient.setQueryData<Driver[]>(queryKeyFactory.drivers({ tenant_id: updatedDriver.tenant_id }), (old) =>
+        old?.map((driver) => (driver.id === updatedDriver.id ? updatedDriver : driver))
+      );
+      return { previousDrivers };
     },
-    delete: async (id: string) => {
-      const result = await apiClient.workOrders.delete(id)
-      mutate('/api/work-orders')
-      return result
-    }
-  }
-}
-
-// Fuel Transactions hooks
-export function useFuelTransactions(params?: any) {
-  return useAPI(
-    '/api/fuel-transactions',
-    () => apiClient.fuelTransactions.list(params)
-  )
-}
-
-export function useFuelTransactionMutations() {
-  return {
-    create: async (data: any) => {
-      const result = await apiClient.fuelTransactions.create(data)
-      mutate('/api/fuel-transactions')
-      return result
+    onError: (err, updatedDriver, context) => {
+      if (context?.previousDrivers) {
+        queryClient.setQueryData(queryKeyFactory.drivers({ tenant_id: updatedDriver.tenant_id }), context.previousDrivers);
+      }
     },
-    update: async (id: string, data: any) => {
-      const result = await apiClient.fuelTransactions.update(id, data)
-      mutate('/api/fuel-transactions')
-      return result
+    onSettled: (updatedDriver) => {
+      queryClient.invalidateQueries(queryKeyFactory.drivers({ tenant_id: updatedDriver.tenant_id }));
     },
-    delete: async (id: string) => {
-      const result = await apiClient.fuelTransactions.delete(id)
-      mutate('/api/fuel-transactions')
-      return result
-    }
-  }
-}
+  });
 
-// Routes hooks
-export function useRoutes(params?: any) {
-  return useAPI(
-    '/api/routes',
-    () => apiClient.routes.list(params),
-    { refreshInterval: 30000 } // Refresh every 30 seconds for live tracking
-  )
-}
-
-export function useRoute(id: string | null) {
-  return useAPI(
-    id ? `/api/routes/${id}` : null,
-    () => apiClient.routes.get(id!)
-  )
-}
-
-export function useRouteMutations() {
-  return {
-    create: async (data: any) => {
-      const result = await apiClient.routes.create(data)
-      mutate('/api/routes')
-      return result
+  const deleteDriver = useMutation<void, Error, { id: string; tenant_id: string }>({
+    mutationFn: async ({ id, tenant_id }) => {
+      const res = await fetch(`/api/drivers/${id}`, {
+        method: 'DELETE',
+      });
+      if (!res.ok) throw new Error('Network response was not ok');
     },
-    update: async (id: string, data: any) => {
-      const result = await apiClient.routes.update(id, data)
-      mutate('/api/routes')
-      mutate(`/api/routes/${id}`)
-      return result
+    onSuccess: (_, { tenant_id }) => {
+      queryClient.invalidateQueries(queryKeyFactory.drivers({ tenant_id }));
     },
-    delete: async (id: string) => {
-      const result = await apiClient.routes.delete(id)
-      mutate('/api/routes')
-      return result
-    }
-  }
+  });
+
+  return { createDriver, updateDriver, deleteDriver };
 }
 
-// Maintenance Schedules hooks
-export function useMaintenanceSchedules(params?: any) {
-  return useAPI(
-    '/api/maintenance-schedules',
-    () => apiClient.maintenanceSchedules.list(params),
-    { refreshInterval: 60000 } // Refresh every minute
-  )
-}
+export function useMaintenanceMutations() {
+  const queryClient = useQueryClient();
 
-export function useMaintenanceScheduleMutations() {
-  return {
-    create: async (data: any) => {
-      const result = await apiClient.maintenanceSchedules.create(data)
-      mutate('/api/maintenance-schedules')
-      return result
+  const createMaintenance = useMutation<Maintenance, Error, Maintenance>({
+    mutationFn: async (newMaintenance) => {
+      const res = await fetch('/api/maintenance', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newMaintenance),
+      });
+      if (!res.ok) throw new Error('Network response was not ok');
+      return res.json();
     },
-    update: async (id: string, data: any) => {
-      const result = await apiClient.maintenanceSchedules.update(id, data)
-      mutate('/api/maintenance-schedules')
-      return result
+    onSuccess: () => {
+      queryClient.invalidateQueries(queryKeyFactory.maintenance({ tenant_id: '', startDate: '', endDate: '' }));
     },
-    delete: async (id: string) => {
-      const result = await apiClient.maintenanceSchedules.delete(id)
-      mutate('/api/maintenance-schedules')
-      return result
-    }
-  }
-}
+  });
 
-// Facilities hooks
-export function useFacilities(params?: any) {
-  return useAPI(
-    '/api/facilities',
-    async () => {
-      const data = await apiClient.facilities.list(params)
-      return transformFacilities(data)
-    }
-  )
-}
-
-export function useFacilityMutations() {
-  return {
-    create: async (data: any) => {
-      const result = await apiClient.facilities.create(data)
-      mutate('/api/facilities')
-      return result
+  const updateMaintenance = useMutation<Maintenance, Error, Maintenance>({
+    mutationFn: async (updatedMaintenance) => {
+      const res = await fetch(`/api/maintenance/${updatedMaintenance.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updatedMaintenance),
+      });
+      if (!res.ok) throw new Error('Network response was not ok');
+      return res.json();
     },
-    update: async (id: string, data: any) => {
-      const result = await apiClient.facilities.update(id, data)
-      mutate('/api/facilities')
-      return result
+    onMutate: async (updatedMaintenance) => {
+      await queryClient.cancelQueries(queryKeyFactory.maintenance({ tenant_id: updatedMaintenance.tenant_id, startDate: '', endDate: '' }));
+      const previousMaintenance = queryClient.getQueryData<Maintenance[]>(queryKeyFactory.maintenance({ tenant_id: updatedMaintenance.tenant_id, startDate: '', endDate: '' }));
+      queryClient.setQueryData<Maintenance[]>(queryKeyFactory.maintenance({ tenant_id: updatedMaintenance.tenant_id, startDate: '', endDate: '' }), (old) =>
+        old?.map((maintenance) => (maintenance.id === updatedMaintenance.id ? updatedMaintenance : maintenance))
+      );
+      return { previousMaintenance };
     },
-    delete: async (id: string) => {
-      const result = await apiClient.facilities.delete(id)
-      mutate('/api/facilities')
-      return result
-    }
-  }
-}
-
-// Inspections hooks
-export function useInspections(params?: any) {
-  return useAPI(
-    '/api/inspections',
-    () => apiClient.inspections.list(params)
-  )
-}
-
-export function useInspectionMutations() {
-  return {
-    create: async (data: any) => {
-      const result = await apiClient.inspections.create(data)
-      mutate('/api/inspections')
-      return result
+    onError: (err, updatedMaintenance, context) => {
+      if (context?.previousMaintenance) {
+        queryClient.setQueryData(queryKeyFactory.maintenance({ tenant_id: updatedMaintenance.tenant_id, startDate: '', endDate: '' }), context.previousMaintenance);
+      }
     },
-    update: async (id: string, data: any) => {
-      const result = await apiClient.inspections.update(id, data)
-      mutate('/api/inspections')
-      return result
+    onSettled: (updatedMaintenance) => {
+      queryClient.invalidateQueries(queryKeyFactory.maintenance({ tenant_id: updatedMaintenance.tenant_id, startDate: '', endDate: '' }));
     },
-    delete: async (id: string) => {
-      const result = await apiClient.inspections.delete(id)
-      mutate('/api/inspections')
-      return result
-    }
-  }
-}
+  });
 
-// Safety Incidents hooks
-export function useSafetyIncidents(params?: any) {
-  return useAPI(
-    '/api/safety-incidents',
-    () => apiClient.safetyIncidents.list(params)
-  )
-}
-
-export function useSafetyIncidentMutations() {
-  return {
-    create: async (data: any) => {
-      const result = await apiClient.safetyIncidents.create(data)
-      mutate('/api/safety-incidents')
-      return result
+  const deleteMaintenance = useMutation<void, Error, { id: string; tenant_id: string }>({
+    mutationFn: async ({ id, tenant_id }) => {
+      const res = await fetch(`/api/maintenance/${id}`, {
+        method: 'DELETE',
+      });
+      if (!res.ok) throw new Error('Network response was not ok');
     },
-    update: async (id: string, data: any) => {
-      const result = await apiClient.safetyIncidents.update(id, data)
-      mutate('/api/safety-incidents')
-      return result
+    onSuccess: (_, { tenant_id }) => {
+      queryClient.invalidateQueries(queryKeyFactory.maintenance({ tenant_id, startDate: '', endDate: '' }));
     },
-    delete: async (id: string) => {
-      const result = await apiClient.safetyIncidents.delete(id)
-      mutate('/api/safety-incidents')
-      return result
-    }
-  }
+  });
+
+  return { createMaintenance, updateMaintenance, deleteMaintenance };
 }
 
-// Charging Stations hooks
-export function useChargingStations(params?: any) {
-  return useAPI(
-    '/api/charging-stations',
-    () => apiClient.chargingStations.list(params)
-  )
-}
-
-export function useChargingStationMutations() {
-  return {
-    create: async (data: any) => {
-      const result = await apiClient.chargingStations.create(data)
-      mutate('/api/charging-stations')
-      return result
-    },
-    update: async (id: string, data: any) => {
-      const result = await apiClient.chargingStations.update(id, data)
-      mutate('/api/charging-stations')
-      return result
-    },
-    delete: async (id: string) => {
-      const result = await apiClient.chargingStations.delete(id)
-      mutate('/api/charging-stations')
-      return result
-    }
-  }
-}
-
-// Telemetry hook (for real-time GPS tracking)
-export function useTelemetry(params?: any) {
-  return useAPI(
-    '/api/telemetry',
-    () => apiClient.telemetry.list(params),
-    { refreshInterval: 5000 } // Refresh every 5 seconds for real-time tracking
-  )
-}
-
-// AI hooks
-export function useAIQuery() {
-  return {
-    query: async (query: string) => {
-      return await apiClient.ai.query(query)
-    }
-  }
-}
-
-export function useAIAssistant() {
-  return {
-    chat: async (messages: any[]) => {
-      return await apiClient.ai.assistant(messages)
-    }
-  }
-}
-
-// Authentication hooks
-export function useAuth() {
-  return {
-    login: async (email: string, password: string) => {
-      return await apiClient.login(email, password)
-    },
-    register: async (data: any) => {
-      return await apiClient.register(data)
-    },
-    logout: async () => {
-      await apiClient.logout()
-      // Clear all SWR cache
-      mutate(() => true, undefined, { revalidate: false })
-    }
-  }
+export function App() {
+  return (
+    <>
+      <ReactQueryDevtools initialIsOpen={false} />
+      {/* Rest of your app */}
+    </>
+  );
 }
