@@ -276,7 +276,7 @@ describe('GoogleMap', () => {
 
     it('should create markers with correct positions', async () => {
       const vehicles = createMockVehicles(1)
-      vehicles[0]!.location = { lat: 30.4383, lng: -84.2807, address: 'Test' }
+      vehicles[0].location = { lat: 30.4383, lng: -84.2807, address: 'Test' }
 
       render(<GoogleMap vehicles={vehicles} showVehicles={true} />)
 
@@ -291,8 +291,8 @@ describe('GoogleMap', () => {
 
     it('should create markers with vehicle-specific colors', async () => {
       const vehicles = createMockVehicles(2)
-      vehicles[0]!.status = 'active'
-      vehicles[1]!.status = 'emergency'
+      vehicles[0].status = 'active'
+      vehicles[1].status = 'emergency'
 
       render(<GoogleMap vehicles={vehicles} showVehicles={true} />)
 
@@ -317,7 +317,7 @@ describe('GoogleMap', () => {
 
     it('should skip vehicles with missing location', async () => {
       const vehicles = createMockVehicles(3)
-      vehicles[1]!.location = null as any
+      vehicles[1].location = null as any
 
       render(<GoogleMap vehicles={vehicles} showVehicles={true} />)
 
@@ -380,15 +380,15 @@ describe('GoogleMap', () => {
 
     it('should differentiate operational and maintenance facilities', async () => {
       const facilities = createMockFacilities(2)
-      facilities[0]!.status = 'operational'
-      facilities[1]!.status = 'maintenance'
+      facilities[0].status = 'operational'
+      facilities[1].status = 'maintenance'
 
       render(<GoogleMap facilities={facilities} showFacilities={true} />)
 
       await waitFor(() => {
         const calls = vi.mocked(mockGoogleMaps.Marker).mock.calls
-        expect(calls[0]![0].icon.fillColor).toBe('#10b981') // operational
-        expect(calls[1]![0].icon.fillColor).toBe('#f59e0b') // maintenance
+        expect(calls[0][0].icon.fillColor).toBe('#10b981') // operational
+        expect(calls[1][0].icon.fillColor).toBe('#f59e0b') // maintenance
       })
     })
 
@@ -418,15 +418,15 @@ describe('GoogleMap', () => {
 
     it('should differentiate operational and offline cameras', async () => {
       const cameras = createMockCameras(2)
-      cameras[0]!.operational = true
-      cameras[1]!.operational = false
+      cameras[0].operational = true
+      cameras[1].operational = false
 
       render(<GoogleMap cameras={cameras} showCameras={true} />)
 
       await waitFor(() => {
         const calls = vi.mocked(mockGoogleMaps.Marker).mock.calls
-        expect(calls[0]![0].icon.fillColor).toBe('#3b82f6') // operational
-        expect(calls[1]![0].icon.fillColor).toBe('#6b7280') // offline
+        expect(calls[0][0].icon.fillColor).toBe('#3b82f6') // operational
+        expect(calls[1][0].icon.fillColor).toBe('#6b7280') // offline
       })
     })
   })
@@ -499,7 +499,7 @@ describe('GoogleMap', () => {
       await waitFor(() => {
         const markers = vi.mocked(mockGoogleMaps.Marker).mock.results
         const listener1 = vi.mocked(markers[0]?.value.addListener).mock.calls.find(
-          (call: any) => call[0] === 'click'
+          call => call[0] === 'click'
         )?.[1]
 
         // Simulate clicking first marker
@@ -515,7 +515,7 @@ describe('GoogleMap', () => {
 
     it('should display vehicle information in info window', async () => {
       const vehicles = createMockVehicles(1)
-      vehicles[0]!.name = 'Test Vehicle 123'
+      vehicles[0].name = 'Test Vehicle 123'
 
       render(<GoogleMap vehicles={vehicles} showVehicles={true} />)
 
@@ -530,7 +530,7 @@ describe('GoogleMap', () => {
 
     it('should display camera live feed link when available', async () => {
       const cameras = createMockCameras(1)
-      cameras[0]!.cameraUrl = 'https://example.com/feed'
+      cameras[0].cameraUrl = 'https://example.com/feed'
 
       render(<GoogleMap cameras={cameras} showCameras={true} />)
 
