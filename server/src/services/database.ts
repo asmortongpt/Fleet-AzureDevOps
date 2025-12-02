@@ -1,4 +1,13 @@
+/**
+ * Database Service
+ * Migrated to Drizzle ORM for type-safe database operations
+ * Maintains backward compatibility with existing Database class interface
+ */
+
 import { Pool, PoolClient } from 'pg';
+import { db, pool as drizzlePool } from '../../../api/src/db';
+import { users, sessions } from '../../../api/src/db/schema';
+import { eq, gt, sql } from 'drizzle-orm';
 import { config } from './config';
 import { logger } from './logger';
 import { User, Session } from '../types';
@@ -7,6 +16,7 @@ class Database {
   private pool: Pool;
 
   constructor() {
+    // Use the same pool configuration for backward compatibility
     this.pool = new Pool({
       host: config.database.host,
       port: config.database.port,
@@ -28,6 +38,10 @@ class Database {
     });
   }
 
+  /**
+   * Legacy query method - kept for backward compatibility
+   * New code should use Drizzle ORM directly via db import
+   */
   async query<T>(text: string, params?: any[]): Promise<T[]> {
     const start = Date.now();
     try {
@@ -47,8 +61,8 @@ class Database {
 
   async testConnection(): Promise<boolean> {
     try {
-      const result = await this.query('SELECT NOW() as current_time');
-      logger.info('Database connection test successful', { time: result[0] });
+      const result = await db.execute(sql`SELECT NOW() as current_time`);
+      logger.info('Database connection test successful', { time: result.rows[0] });
       return true;
     } catch (error) {
       logger.error('Database connection test failed', { error: error instanceof Error ? error.message : error });
@@ -56,23 +70,50 @@ class Database {
     }
   }
 
-  // User operations
+  // User operations - migrated to Drizzle ORM
   async findUserByEmail(email: string): Promise<User | null> {
-    const query = 'SELECT * FROM users WHERE email = $1';
-    const result = await this.query<User>(query, [email]);
-    return result.length > 0 ? result[0] : null;
+    try {
+      const result = await db
+        .select()
+        .from(users)
+        .where(eq(users.email, email))
+        .limit(1);
+
+      return result.length > 0 ? (result[0] as User) : null;
+    } catch (error) {
+      logger.error('Error finding user by email', { error });
+      throw error;
+    }
   }
 
   async findUserByMicrosoftId(microsoftId: string): Promise<User | null> {
-    const query = 'SELECT * FROM users WHERE microsoft_id = $1';
-    const result = await this.query<User>(query, [microsoftId]);
-    return result.length > 0 ? result[0] : null;
+    try {
+      const result = await db
+        .select()
+        .from(users)
+        .where(eq(users.microsoftId, microsoftId))
+        .limit(1);
+
+      return result.length > 0 ? (result[0] as User) : null;
+    } catch (error) {
+      logger.error('Error finding user by Microsoft ID', { error });
+      throw error;
+    }
   }
 
   async findUserById(id: number): Promise<User | null> {
-    const query = 'SELECT * FROM users WHERE id = $1';
-    const result = await this.query<User>(query, [id]);
-    return result.length > 0 ? result[0] : null;
+    try {
+      const result = await db
+        .select()
+        .from(users)
+        .where(eq(users.id, id))
+        .limit(1);
+
+      return result.length > 0 ? (result[0] as User) : null;
+    } catch (error) {
+      logger.error('Error finding user by ID', { error });
+      throw error;
+    }
   }
 
   async createUser(
@@ -81,66 +122,145 @@ class Database {
     displayName: string,
     role: string = 'user'
   ): Promise<User> {
-    const query = `
-      INSERT INTO users (email, microsoft_id, display_name, role, auth_provider)
-      VALUES ($1, $2, $3, $4, $5)
-      RETURNING *
-    `;
-    const result = await this.query<User>(query, [email, microsoftId, displayName, role, 'microsoft']);
-    return result[0];
+    try {
+      const result = await db
+        .insert(users)
+        .values({
+          email,
+          microsoftId,
+          displayName,
+          role,
+          authProvider: 'microsoft',
+          isActive: true,
+        })
+        .returning();
+
+      return result[0] as User;
+    } catch (error) {
+      logger.error('Error creating user', { error });
+      throw error;
+    }
   }
 
   async updateUser(id: number, updates: Partial<User>): Promise<User> {
-    const { display_name, role } = updates;
-    const query = `
-      UPDATE users
-      SET display_name = COALESCE($1, display_name),
-          role = COALESCE($2, role),
-          updated_at = NOW()
-      WHERE id = $3
-      RETURNING *
-    `;
-    const result = await this.query<User>(query, [display_name, role, id]);
-    return result[0];
+    try {
+      const updateData: any = {};
+
+      if (updates.display_name !== undefined) {
+        updateData.displayName = updates.display_name;
+      }
+      if (updates.role !== undefined) {
+        updateData.role = updates.role;
+      }
+      if (updates.is_active !== undefined) {
+        updateData.isActive = updates.is_active;
+      }
+      if (updates.last_login_at !== undefined) {
+        updateData.lastLoginAt = updates.last_login_at;
+      }
+
+      const result = await db
+        .update(users)
+        .set({
+          ...updateData,
+          updatedAt: new Date(),
+        })
+        .where(eq(users.id, id))
+        .returning();
+
+      return result[0] as User;
+    } catch (error) {
+      logger.error('Error updating user', { error });
+      throw error;
+    }
   }
 
-  // Session operations
+  // Session operations - migrated to Drizzle ORM
   async createSession(userId: number, token: string, expiresAt: Date): Promise<Session> {
-    const query = `
-      INSERT INTO sessions (user_id, token, expires_at)
-      VALUES ($1, $2, $3)
-      RETURNING *
-    `;
-    const result = await this.query<Session>(query, [userId, token, expiresAt]);
-    return result[0];
+    try {
+      const result = await db
+        .insert(sessions)
+        .values({
+          userId,
+          token,
+          expiresAt,
+        })
+        .returning();
+
+      return result[0] as Session;
+    } catch (error) {
+      logger.error('Error creating session', { error });
+      throw error;
+    }
   }
 
   async findSessionByToken(token: string): Promise<Session | null> {
-    const query = 'SELECT * FROM sessions WHERE token = $1 AND expires_at > NOW()';
-    const result = await this.query<Session>(query, [token]);
-    return result.length > 0 ? result[0] : null;
+    try {
+      const result = await db
+        .select()
+        .from(sessions)
+        .where(eq(sessions.token, token))
+        .limit(1);
+
+      if (result.length === 0) {
+        return null;
+      }
+
+      // Check if session is expired
+      const session = result[0];
+      if (session.expiresAt && new Date(session.expiresAt) <= new Date()) {
+        return null;
+      }
+
+      return session as Session;
+    } catch (error) {
+      logger.error('Error finding session by token', { error });
+      throw error;
+    }
   }
 
   async deleteSession(token: string): Promise<void> {
-    const query = 'DELETE FROM sessions WHERE token = $1';
-    await this.query(query, [token]);
+    try {
+      await db
+        .delete(sessions)
+        .where(eq(sessions.token, token));
+    } catch (error) {
+      logger.error('Error deleting session', { error });
+      throw error;
+    }
   }
 
   async deleteUserSessions(userId: number): Promise<void> {
-    const query = 'DELETE FROM sessions WHERE user_id = $1';
-    await this.query(query, [userId]);
+    try {
+      await db
+        .delete(sessions)
+        .where(eq(sessions.userId, userId));
+    } catch (error) {
+      logger.error('Error deleting user sessions', { error });
+      throw error;
+    }
   }
 
   async cleanupExpiredSessions(): Promise<number> {
-    const query = 'SELECT cleanup_expired_sessions()';
-    const result = await this.query<{ cleanup_expired_sessions: number }>(query);
-    return result[0].cleanup_expired_sessions;
+    try {
+      const result = await db
+        .delete(sessions)
+        .where(sql`${sessions.expiresAt} <= NOW()`)
+        .returning();
+
+      return result.length;
+    } catch (error) {
+      logger.error('Error cleaning up expired sessions', { error });
+      throw error;
+    }
   }
 
   async close(): Promise<void> {
     await this.pool.end();
+    await drizzlePool.end();
     logger.info('Database pool closed');
   }
 }
 
+// Export singleton instance
 export const db = new Database();
