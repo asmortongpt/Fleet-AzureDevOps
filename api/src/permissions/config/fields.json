@@ -1,0 +1,155 @@
+{
+  "vehicle": {
+    "always_visible": [
+      "id",
+      "make",
+      "model",
+      "year",
+      "vin",
+      "license_plate",
+      "color",
+      "mileage",
+      "status"
+    ],
+    "purchase_price": {
+      "roles": ["Admin", "Finance"],
+      "redact_for_others": true
+    },
+    "current_value": {
+      "roles": ["Admin", "Finance"],
+      "redact_for_others": true
+    },
+    "depreciation_data": {
+      "roles": ["Admin", "Finance"],
+      "redact_for_others": true
+    },
+    "lease_terms": {
+      "roles": ["Admin", "Finance"],
+      "redact_for_others": true
+    },
+    "residual_value": {
+      "roles": ["Admin", "Finance"],
+      "redact_for_others": true
+    },
+    "crash_history": {
+      "roles": ["Admin", "FleetManager", "Safety", "Auditor"],
+      "redact_for_others": true
+    },
+    "crash_claim_number": {
+      "roles": ["Admin", "Safety"],
+      "redact_for_others": true
+    },
+    "police_report": {
+      "roles": ["Admin", "Safety"],
+      "redact_for_others": true
+    },
+    "injury_notes": {
+      "roles": ["Admin", "Safety"],
+      "redact_for_others": true
+    },
+    "liability_comments": {
+      "roles": ["Admin", "Safety"],
+      "redact_for_others": true
+    }
+  },
+  "garage_hud": {
+    "always_visible": [
+      "mileage",
+      "oil_life",
+      "brake_life",
+      "tire_health",
+      "engine_health",
+      "ev_battery_health",
+      "upcoming_maintenance",
+      "last_service_date"
+    ],
+    "purchase_price": {
+      "roles": ["Admin", "Finance"],
+      "redact_for_others": true
+    },
+    "current_value": {
+      "roles": ["Admin", "Finance"],
+      "redact_for_others": true
+    },
+    "depreciation_chart": {
+      "roles": ["Admin", "Finance"],
+      "redact_for_others": true
+    },
+    "crash_details_panel": {
+      "roles": ["Admin", "FleetManager", "Safety"],
+      "redact_for_others": true
+    },
+    "maintenance_costs": {
+      "roles": ["Admin", "Finance", "MaintenanceManager"],
+      "summary_for": ["FleetManager", "Auditor"],
+      "redact_for_others": true
+    },
+    "labor_rates": {
+      "roles": ["Admin", "MaintenanceManager"],
+      "redact_for_others": true
+    },
+    "part_margins": {
+      "roles": ["Admin", "MaintenanceManager"],
+      "redact_for_others": true
+    },
+    "vendor_contract_rates": {
+      "roles": ["Admin", "MaintenanceManager"],
+      "redact_for_others": true
+    }
+  },
+  "maintenance": {
+    "always_visible": [
+      "id",
+      "vehicle_id",
+      "date",
+      "mileage",
+      "description",
+      "status",
+      "technician"
+    ],
+    "cost": {
+      "roles": ["Admin", "Finance", "MaintenanceManager"],
+      "summary_for": ["FleetManager", "Auditor"],
+      "redact_for_others": true
+    },
+    "labor_hours": {
+      "roles": ["Admin", "MaintenanceManager"],
+      "redact_for_others": true
+    },
+    "labor_rate": {
+      "roles": ["Admin", "MaintenanceManager"],
+      "redact_for_others": true
+    },
+    "parts_cost": {
+      "roles": ["Admin", "Finance", "MaintenanceManager"],
+      "redact_for_others": true
+    },
+    "vendor_invoice": {
+      "roles": ["Admin", "Finance", "MaintenanceManager"],
+      "redact_for_others": true
+    }
+  },
+  "inspection": {
+    "always_visible": [
+      "id",
+      "vehicle_id",
+      "date",
+      "inspector_id",
+      "status",
+      "damage_count"
+    ],
+    "inspector_name": {
+      "roles": ["Admin", "FleetManager", "MaintenanceManager", "Safety", "Auditor"],
+      "redact_for": ["Driver"],
+      "anonymize_for": ["Vendor"]
+    },
+    "ai_confidence_scores": {
+      "roles": ["Admin", "FleetManager", "Inspector"],
+      "redact_for_others": true
+    },
+    "manual_overrides": {
+      "roles": ["Admin", "FleetManager", "Safety"],
+      "redact_for_others": true
+    }
+  }
+}

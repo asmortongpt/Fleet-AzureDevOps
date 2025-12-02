@@ -1,0 +1,289 @@
+================================================================================
+FLEET MANAGEMENT SYSTEM - PRODUCTION DEPLOYMENT CHECKLIST
+================================================================================
+
+Version: 1.0.0
+Date: ___________________
+Deployed By: ___________________
+Deployment ID: ___________________
+
+================================================================================
+PRE-DEPLOYMENT TASKS
+================================================================================
+
+[ ] 1. CODE REVIEW & APPROVAL
+    [ ] All code changes reviewed and approved
+    [ ] No pending critical issues in backlog
+    [ ] Security review completed
+    [ ] Performance testing completed
+
+[ ] 2. ENVIRONMENT VERIFICATION
+    [ ] All environment variables configured
+    [ ] Azure AD credentials valid
+    [ ] Database connection string correct
+    [ ] JWT secrets generated and stored securely
+    [ ] Application Insights connection string set
+
+[ ] 3. PRE-FLIGHT CHECKS
+    [ ] Run: ./scripts/production-preflight-check.sh
+    [ ] All checks PASSED (0 critical failures)
+    [ ] Review warnings and document decisions
+    [ ] Save pre-flight report
+
+[ ] 4. BACKUP & SAFETY
+    [ ] Database backup created and verified
+    [ ] Current deployment version documented
+    [ ] Rollback plan prepared
+    [ ] On-call engineer identified
+
+[ ] 5. COMMUNICATION
+    [ ] Deployment scheduled in team calendar
+    [ ] Stakeholders notified (if user impact expected)
+    [ ] #deployments Slack channel updated
+    [ ] Status page updated (if maintenance window)
+
+[ ] 6. TESTING
+    [ ] Unit tests passing (100%)
+    [ ] Integration tests passing
+    [ ] E2E tests passing (critical paths)
+    [ ] Security scan completed (no HIGH/CRITICAL)
+
+[ ] 7. DOCUMENTATION
+    [ ] CHANGELOG updated with release notes
+    [ ] API documentation updated (if applicable)
+    [ ] User documentation updated (if applicable)
+    [ ] Runbook updated with new procedures
+
+================================================================================
+DURING DEPLOYMENT TASKS
+================================================================================
+
+[ ] 8. DEPLOYMENT EXECUTION
+    [ ] Time: ___________________
+    [ ] Run: ./scripts/deploy-to-production.sh v___________
+    [ ] Monitor deployment output for errors
+    [ ] Take screenshot of successful deployment
+
+[ ] 9. KUBERNETES VERIFICATION
+    [ ] All pods running (0 CrashLoopBackOff)
+    [ ] Services have external IPs assigned
+    [ ] Ingress configured correctly
+    [ ] No pod restarts in last 5 minutes
+
+[ ] 10. DATABASE MIGRATIONS
+    [ ] Migrations ran successfully (if applicable)
+    [ ] No migration errors in logs
+    [ ] Database schema version matches code
+
+[ ] 11. REAL-TIME MONITORING
+    [ ] Watch logs: kubectl logs -f deployment/fleet-api -n fleet-management
+    [ ] Watch events: kubectl get events -n fleet-management --watch
+    [ ] Monitor Application Insights (Live Metrics)
+    [ ] Check error rates (should be < 0.1%)
+
+================================================================================
+POST-DEPLOYMENT TASKS
+================================================================================
+
+[ ] 12. VALIDATION SUITE
+    [ ] Run: ./scripts/validate-production-deployment.sh
+    [ ] All validations PASSED (0 failures)
+    [ ] Performance < 2s load time
+    [ ] No security warnings
+
+[ ] 13. SMOKE TESTING
+    [ ] Frontend loads successfully
+    [ ] Login with Microsoft SSO works
+    [ ] Dashboard displays correctly
+    [ ] Vehicle list loads
+    [ ] GPS tracking functional
+    [ ] Work orders accessible
+    [ ] Create test work order
+    [ ] Verify maintenance schedule
+    [ ] Check analytics page
+    [ ] Test mobile responsiveness
+
+[ ] 14. SECURITY VERIFICATION
+    [ ] HTTPS redirect working
+    [ ] Security headers present (check browser dev tools)
+    [ ] No secrets exposed in HTML/JS
+    [ ] Azure AD authentication working
+    [ ] API endpoints properly protected (401 without auth)
+
+[ ] 15. PERFORMANCE VALIDATION
+    [ ] Frontend Lighthouse score > 85
+    [ ] API response time < 500ms
+    [ ] Database query time < 100ms
+    [ ] No memory leaks detected
+    [ ] CPU usage < 70%
+    [ ] Memory usage < 80%
+
+[ ] 16. DATA VALIDATION
+    [ ] Test data visible (if using test environment)
+    [ ] No mock data in production bundle
+    [ ] Database contains expected data
+    [ ] User permissions working correctly
+    [ ] Audit logs recording events
+
+[ ] 17. MONITORING SETUP
+    [ ] Application Insights receiving telemetry
+    [ ] Alerts configured and tested
+    [ ] Dashboard showing live data
+    [ ] Log aggregation working
+    [ ] Metrics being collected
+
+[ ] 18. INTEGRATION TESTING
+    [ ] Azure AD integration working
+    [ ] Azure Maps API working
+    [ ] Email notifications working (if applicable)
+    [ ] External APIs responding
+    [ ] Webhooks functional (if applicable)
+
+[ ] 19. DOCUMENTATION
+    [ ] Deployment report saved
+    [ ] Validation report saved
+    [ ] Any issues documented
+    [ ] Known limitations documented
+    [ ] Update DEPLOYMENT_STATUS.md
+
+[ ] 20. COMMUNICATION
+    [ ] Update #deployments Slack channel: "Deployment completed"
+    [ ] Notify stakeholders
+    [ ] Update status page (if maintenance window)
+    [ ] Send summary email to team
+
+================================================================================
+VALIDATION CHECKLIST (30-MINUTE SOAK TEST)
+================================================================================
+
+[ ] 21. MONITOR FOR 30 MINUTES
+    [ ] Start time: ___________________
+    [ ] End time: ___________________
+    [ ] No error spikes observed
+    [ ] Response times stable
+    [ ] No pod restarts
+    [ ] No memory growth
+    [ ] No database connection issues
+
+[ ] 22. CHECK METRICS
+    [ ] Request rate: ___________ req/min (expected)
+    [ ] Average response time: ___________ ms (< 500ms)
+    [ ] Error rate: ___________ % (< 0.1%)
+    [ ] CPU usage: ___________ % (< 70%)
+    [ ] Memory usage: ___________ % (< 80%)
+    [ ] Active users: ___________ (if monitoring available)
+
+[ ] 23. USER FEEDBACK
+    [ ] No user reports of issues
+    [ ] Test with real user accounts
+    [ ] Check #support channel for issues
+
+================================================================================
+SIGN-OFF
+================================================================================
+
+Deployment successful? [ ] YES  [ ] NO
+
+If NO, rollback performed? [ ] YES  [ ] NO  [ ] N/A
+
+Rollback successful? [ ] YES  [ ] NO  [ ] N/A
+
+================================================================================
+SIGNATURES
+================================================================================
+
+Deployed By:
+Name: _______________________________
+Signature: __________________________
+Date/Time: __________________________
+
+Verified By:
+Name: _______________________________
+Signature: __________________________
+Date/Time: __________________________
+
+Approved By (Technical Lead):
+Name: _______________________________
+Signature: __________________________
+Date/Time: __________________________
+
+================================================================================
+POST-DEPLOYMENT NOTES
+================================================================================
+
+Issues Encountered:
+________________________________________________________________________________
+________________________________________________________________________________
+________________________________________________________________________________
+________________________________________________________________________________
+
+Resolutions Applied:
+________________________________________________________________________________
+________________________________________________________________________________
+________________________________________________________________________________
+________________________________________________________________________________
+
+Follow-up Actions Required:
+________________________________________________________________________________
+________________________________________________________________________________
+________________________________________________________________________________
+________________________________________________________________________________
+
+Performance Observations:
+________________________________________________________________________________
+________________________________________________________________________________
+________________________________________________________________________________
+________________________________________________________________________________
+
+Recommendations for Next Deployment:
+________________________________________________________________________________
+________________________________________________________________________________
+________________________________________________________________________________
+________________________________________________________________________________
+
+================================================================================
+ROLLBACK INFORMATION (IF APPLICABLE)
+================================================================================
+
+Rollback Reason:
+________________________________________________________________________________
+
+Rollback Time: ___________________
+
+Rollback Method:
+[ ] Kubernetes rollout undo
+[ ] Deploy previous version
+[ ] Database restore
+[ ] Other: _______________
+
+Rollback Successful: [ ] YES  [ ] NO
+
+Post-Rollback Validation: [ ] PASSED  [ ] FAILED
+
+================================================================================
+DEPLOYMENT METRICS
+================================================================================
+
+Total Deployment Time: ___________ minutes
+Downtime (if any): ___________ minutes
+Number of Pods Deployed: ___________
+Database Migrations: ___________ migrations
+Build Time: ___________ minutes
+Docker Push Time: ___________ minutes
+Kubernetes Rollout Time: ___________ minutes
+Validation Time: ___________ minutes
+
+================================================================================
+END OF CHECKLIST
+================================================================================
+
+This checklist should be:
+1. Printed or saved as PDF before deployment
+2. Filled out during deployment
+3. Saved with deployment artifacts
+4. Reviewed in post-deployment meeting
+
+Questions or issues? Contact: andrew.m@capitaltechalliance.com
+
+Version: 1.0.0
+Last Updated: November 24, 2025

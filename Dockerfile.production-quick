@@ -1,0 +1,40 @@
+# Quick production build - uses pre-built dist/ files
+FROM nginx:alpine AS production
+
+# Copy complete nginx config (replaces default)
+COPY nginx.conf /etc/nginx/nginx.conf
+
+# Copy pre-built application
+COPY dist /usr/share/nginx/html
+
+# Copy runtime configuration script
+COPY scripts/runtime-config.sh /docker-entrypoint.d/01-runtime-config.sh
+RUN chmod +x /docker-entrypoint.d/01-runtime-config.sh
+
+# Create fleetapp user and set permissions for nginx
+RUN addgroup -g 1000 fleetapp && \
+    adduser -D -u 1000 -G fleetapp fleetapp && \
+    chown -R fleetapp:fleetapp /usr/share/nginx/html && \
+    chown -R fleetapp:fleetapp /var/cache/nginx && \
+    chown -R fleetapp:fleetapp /var/log/nginx && \
+    mkdir -p /run && \
+    chown -R fleetapp:fleetapp /run
+
+# Switch to non-root user
+USER fleetapp
+
+# Expose port
+EXPOSE 3000
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
+  CMD wget --no-verbose --tries=1 --spider http://localhost:3000/health || exit 1
+
+# Start nginx
+CMD ["nginx", "-g", "daemon off;"]
+
+# Labels for better image management
+LABEL maintainer="Fleet Management Team"
+LABEL version="white-screen-fix"
+LABEL description="Production-ready Fleet Management Application - White Screen Fix"
+LABEL org.opencontainers.image.source="https://github.com/asmortongpt/Fleet"

@@ -1,0 +1,35 @@
+# Kustomization for Network Policies
+# Use: kubectl apply -k k8s/network-policies/
+
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+metadata:
+  name: fleet-network-policies
+
+resources:
+  # Default deny - must be first
+  - default-deny.yaml
+  # DNS resolution - required for all pods
+  - allow-dns.yaml
+  # API egress policies
+  - api-to-database.yaml
+  - api-to-redis.yaml
+  - api-external-egress.yaml
+  # Ingress policies
+  - allow-ingress-to-api.yaml
+  - allow-ingress-to-frontend.yaml
+  # Internal service policies
+  - frontend-to-api.yaml
+  - allow-database-ingress.yaml
+  - allow-redis-ingress.yaml
+  # Monitoring
+  - allow-monitoring.yaml
+
+commonLabels:
+  managed-by: kustomize
+  app.kubernetes.io/part-of: fleet-management
+
+commonAnnotations:
+  security-policy: network-segmentation
+  compliance: SOC2-CC6.1

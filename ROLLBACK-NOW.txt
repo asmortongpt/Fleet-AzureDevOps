@@ -1,0 +1,111 @@
+================================================================================
+  EMERGENCY ROLLBACK - COPY/PASTE THESE COMMANDS
+  Last Updated: 2025-11-24 23:00 EST
+================================================================================
+
+IF SERVICE IS DOWN AND YOU NEED IT WORKING NOW:
+================================================================================
+
+cd /Users/andrewmorton/Documents/GitHub/Fleet && ./emergency-rollback.sh
+
+
+THAT'S IT. PRESS 'y' WHEN PROMPTED. WAIT 2-5 MINUTES.
+================================================================================
+
+
+IF SCRIPT DOESN'T WORK, USE MANUAL COMMANDS:
+================================================================================
+
+# 1. Connect to cluster
+az aks get-credentials --resource-group fleet-production-rg --name fleet-aks-cluster --overwrite-existing
+
+# 2. Rollback API
+kubectl set image deployment/fleet-api fleet-api=fleetappregistry.azurecr.io/fleet-api:v20251120-production-ready -n fleet-management
+
+# 3. Scale up
+kubectl scale deployment/fleet-api --replicas=3 -n fleet-management
+
+# 4. Wait for rollout
+kubectl rollout status deployment/fleet-api -n fleet-management --timeout=300s
+
+# 5. Check pods
+kubectl get pods -n fleet-management -l app=fleet-api
+
+# 6. Test
+curl https://fleet.capitaltechalliance.com/api/v1/health
+
+================================================================================
+
+
+VERIFY ROLLBACK SUCCESS:
+================================================================================
+
+./verify-rollback.sh
+
+================================================================================
+
+
+ALTERNATIVE IMAGES (IF FIRST ONE DOESN'T WORK):
+================================================================================
+
+# Option 2: Clean build
+./emergency-rollback.sh --image fleetappregistry.azurecr.io/fleet-api:v6.3-clean-build
+
+# Option 3: Stable production
+./emergency-rollback.sh --image fleetappregistry.azurecr.io/fleet-api:v5.0-production
+
+# Option 4: Staging version
+./emergency-rollback.sh --image fleetappregistry.azurecr.io/fleet-api:v3.1-sso
+
+================================================================================
+
+
+WORKING IMAGE TAG:
+================================================================================
+
+fleetappregistry.azurecr.io/fleet-api:v20251120-production-ready
+
+================================================================================
+
+
+WORKING GIT COMMIT:
+================================================================================
+
+cedf3734
+
+To rollback git:
+  git stash
+  git checkout -b emergency-rollback-$(date +%Y%m%d-%H%M%S)
+  git reset --hard cedf3734
+
+================================================================================
+
+
+CURRENT PROBLEM:
+================================================================================
+
+API is scaled to 0 replicas → No pods running → 502/504 errors
+
+Solution: Scale API back to 3 replicas with working image
+
+================================================================================
+
+
+SUCCESS CRITERIA:
+================================================================================
+
+✅ 3/3 API pods running
+✅ Health endpoint returns 200 OK
+✅ Web UI loads at https://fleet.capitaltechalliance.com
+✅ Can login
+✅ No errors in logs
+
+================================================================================
+
+
+ESTIMATED TIME TO RECOVERY:
+================================================================================
+
+2-5 minutes
+
+================================================================================

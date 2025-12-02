@@ -1,0 +1,223 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: deployment-validation
+  namespace: fleet-management
+  labels:
+    app: fleet
+    component: validation
+  annotations:
+    deployment.timestamp: "DEPLOYMENT_TIMESTAMP"
+    deployment.image: "DEPLOYMENT_IMAGE"
+spec:
+  # Keep job history for troubleshooting
+  ttlSecondsAfterFinished: 3600  # 1 hour
+  backoffLimit: 0  # Don't retry on failure
+  template:
+    metadata:
+      labels:
+        app: fleet
+        component: validation
+    spec:
+      restartPolicy: Never
+      serviceAccountName: deployment-validator
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1001
+        runAsGroup: 1001
+        fsGroup: 1001
+        seccompProfile:
+          type: RuntimeDefault
+
+      containers:
+      - name: validator
+        # Use a kubectl image with bash and curl
+        image: bitnami/kubectl:1.28@sha256:e6beee683deac0028302d5b5e84c1e7dd6a515e90c587afcf4e0700f6bb7adf4
+        imagePullPolicy: IfNotPresent
+
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
+          runAsUser: 1001
+          capabilities:
+            drop:
+              - ALL
+
+        env:
+        - name: NAMESPACE
+          value: "fleet-management"
+        - name: DEPLOYMENT_NAME
+          value: "fleet-app"
+        - name: BASE_URL
+          value: "https://fleet.capitaltechalliance.com"
+        - name: RESULTS_DIR
+          value: "/validation-results"
+        - name: INCIDENT_REPORT_DIR
+          value: "/incident-reports"
+
+        volumeMounts:
+        - name: scripts
+          mountPath: /scripts
+          readOnly: true
+        - name: validation-results
+          mountPath: /validation-results
+        - name: incident-reports
+          mountPath: /incident-reports
+        - name: tmp
+          mountPath: /tmp
+
+        command:
+        - /bin/bash
+        - -c
+        - |
+          set -euo pipefail
+
+          echo "Installing required tools..."
+
+          # Install jq for JSON processing
+          curl -L -o /tmp/jq https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64
+          chmod +x /tmp/jq
+          export PATH="/tmp:$PATH"
+
+          echo "Starting deployment validation orchestration..."
+
+          # Run the orchestration script
+          bash /scripts/orchestrate-deployment-validation.sh
+
+          exit_code=$?
+
+          echo "Validation completed with exit code: $exit_code"
+
+          # Copy results to a location accessible by other pods if needed
+          if [ -f /validation-results/deployment-success-*.json ]; then
+            echo "Deployment validation PASSED"
+            exit 0
+          elif [ -f /validation-results/deployment-rollback-*.json ]; then
+            echo "Deployment validation FAILED - Rollback executed"
+            exit 1
+          else
+            echo "Validation results unclear"
+            exit 1
+          fi
+
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+
+      volumes:
+      - name: scripts
+        configMap:
+          name: validation-scripts
+          defaultMode: 0555  # Read and execute permissions
+      - name: validation-results
+        emptyDir: {}
+      - name: incident-reports
+        emptyDir: {}
+      - name: tmp
+        emptyDir: {}
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: deployment-validator
+  namespace: fleet-management
+  labels:
+    app: fleet
+    component: validation
+automountServiceAccountToken: true
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: deployment-validator
+  namespace: fleet-management
+  labels:
+    app: fleet
+    component: validation
+rules:
+# Permissions to read deployment status
+- apiGroups: ["apps"]
+  resources: ["deployments"]
+  verbs: ["get", "list", "watch"]
+# Permissions to read deployment history
+- apiGroups: ["apps"]
+  resources: ["replicasets"]
+  verbs: ["get", "list"]
+# Permissions to read pod status and logs
+- apiGroups: [""]
+  resources: ["pods", "pods/log"]
+  verbs: ["get", "list", "watch"]
+# Permissions to read events
+- apiGroups: [""]
+  resources: ["events"]
+  verbs: ["get", "list", "watch"]
+# Permissions to execute commands in pods (for testing)
+- apiGroups: [""]
+  resources: ["pods/exec"]
+  verbs: ["create"]
+# Permissions to read services and ingress
+- apiGroups: [""]
+  resources: ["services"]
+  verbs: ["get", "list"]
+- apiGroups: ["networking.k8s.io"]
+  resources: ["ingresses"]
+  verbs: ["get", "list"]
+# Permissions to rollback deployments
+- apiGroups: ["apps"]
+  resources: ["deployments/rollback"]
+  verbs: ["create"]
+# Permissions to patch deployments (for rollback)
+- apiGroups: ["apps"]
+  resources: ["deployments"]
+  verbs: ["patch"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: deployment-validator
+  namespace: fleet-management
+  labels:
+    app: fleet
+    component: validation
+subjects:
+- kind: ServiceAccount
+  name: deployment-validator
+  namespace: fleet-management
+roleRef:
+  kind: Role
+  name: deployment-validator
+  apiGroup: rbac.authorization.k8s.io
+
+---
+# ConfigMap to store validation scripts
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: validation-scripts
+  namespace: fleet-management
+  labels:
+    app: fleet
+    component: validation
+data:
+  # Note: Scripts should be added to this ConfigMap
+  # Use: kubectl create configmap validation-scripts --from-file=scripts/ -n fleet-management --dry-run=client -o yaml | kubectl apply -f -
+  README.md: |
+    # Validation Scripts
+
+    This ConfigMap should contain all validation scripts.
+
+    To update:
+    ```bash
+    kubectl create configmap validation-scripts \
+      --from-file=/Users/andrewmorton/Documents/GitHub/Fleet/scripts/ \
+      -n fleet-management \
+      --dry-run=client -o yaml | kubectl apply -f -
+    ```
