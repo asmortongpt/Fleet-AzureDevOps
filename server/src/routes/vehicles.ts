@@ -1,25 +1,38 @@
 import express, { Request, Response, Router } from 'express';
-import { db } from '../services/database';
+import { db } from '../../../api/src/db';
+import { vehicles, drivers, facilities } from '../../../api/src/db/schema';
+import { eq } from 'drizzle-orm';
 import { logger } from '../services/logger';
 
 const router: Router = express.Router();
 
-// GET /api/vehicles - Get all vehicles
+// GET /api/vehicles - Get all vehicles with joins
 router.get('/', async (_req: Request, res: Response): Promise<void> => {
   try {
-    const result = await db.query(
-      `SELECT
-        v.id, v.vehicle_number, v.make, v.model, v.year,
-        v.vin, v.license_plate, v.status, v.mileage,
-        v.fuel_type, v.last_service_date, v.next_service_date,
-        v.assigned_driver_id, v.facility_id,
-        d.name as driver_name,
-        f.name as facility_name
-      FROM vehicles v
-      LEFT JOIN drivers d ON v.assigned_driver_id = d.id
-      LEFT JOIN facilities f ON v.facility_id = f.id
-      ORDER BY v.vehicle_number`
-    );
+    // Drizzle query with left joins
+    const result = await db
+      .select({
+        id: vehicles.id,
+        vehicleNumber: vehicles.vehicleNumber,
+        make: vehicles.make,
+        model: vehicles.model,
+        year: vehicles.year,
+        vin: vehicles.vin,
+        licensePlate: vehicles.licensePlate,
+        status: vehicles.status,
+        mileage: vehicles.mileage,
+        fuelType: vehicles.fuelType,
+        lastServiceDate: vehicles.lastServiceDate,
+        nextServiceDate: vehicles.nextServiceDate,
+        assignedDriverId: vehicles.assignedDriverId,
+        facilityId: vehicles.facilityId,
+        driverName: drivers.name,
+        facilityName: facilities.name,
+      })
+      .from(vehicles)
+      .leftJoin(drivers, eq(vehicles.assignedDriverId, drivers.id))
+      .leftJoin(facilities, eq(vehicles.facilityId, facilities.id))
+      .orderBy(vehicles.vehicleNumber);
 
     res.json({
       success: true,
@@ -35,21 +48,58 @@ router.get('/', async (_req: Request, res: Response): Promise<void> => {
   }
 });
 
-// GET /api/vehicles/:id - Get single vehicle
+// GET /api/vehicles/:id - Get single vehicle with joins
 router.get('/:id', async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    const result = await db.query(
-      `SELECT
-        v.*,
-        d.name as driver_name,
-        f.name as facility_name
-      FROM vehicles v
-      LEFT JOIN drivers d ON v.assigned_driver_id = d.id
-      LEFT JOIN facilities f ON v.facility_id = f.id
-      WHERE v.id = $1`,
-      [id]
-    );
+    const vehicleId = parseInt(id, 10);
+
+    if (isNaN(vehicleId)) {
+      res.status(400).json({
+        success: false,
+        error: 'Invalid vehicle ID'
+      });
+      return;
+    }
+
+    // Drizzle query with left joins for single vehicle
+    const result = await db
+      .select({
+        // All vehicle fields
+        id: vehicles.id,
+        vehicleNumber: vehicles.vehicleNumber,
+        make: vehicles.make,
+        model: vehicles.model,
+        year: vehicles.year,
+        vin: vehicles.vin,
+        licensePlate: vehicles.licensePlate,
+        status: vehicles.status,
+        mileage: vehicles.mileage,
+        fuelType: vehicles.fuelType,
+        location: vehicles.location,
+        assignedDriverId: vehicles.assignedDriverId,
+        facilityId: vehicles.facilityId,
+        model3dId: vehicles.model3dId,
+        lastServiceDate: vehicles.lastServiceDate,
+        nextServiceDate: vehicles.nextServiceDate,
+        purchaseDate: vehicles.purchaseDate,
+        purchasePrice: vehicles.purchasePrice,
+        currentValue: vehicles.currentValue,
+        insurancePolicyNumber: vehicles.insurancePolicyNumber,
+        registrationExpiry: vehicles.registrationExpiry,
+        inspectionDue: vehicles.inspectionDue,
+        specifications: vehicles.specifications,
+        createdAt: vehicles.createdAt,
+        updatedAt: vehicles.updatedAt,
+        // Joined fields
+        driverName: drivers.name,
+        facilityName: facilities.name,
+      })
+      .from(vehicles)
+      .leftJoin(drivers, eq(vehicles.assignedDriverId, drivers.id))
+      .leftJoin(facilities, eq(vehicles.facilityId, facilities.id))
+      .where(eq(vehicles.id, vehicleId))
+      .limit(1);
 
     if (!result || result.length === 0) {
       res.status(404).json({
