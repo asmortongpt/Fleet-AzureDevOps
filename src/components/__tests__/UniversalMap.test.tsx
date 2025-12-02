@@ -241,7 +241,7 @@ describe('UniversalMap', () => {
 
     it('should validate coordinates format', () => {
       const vehicles = createMockVehicles(1)
-      vehicles[0]!.location = { lat: NaN, lng: -84, address: 'Test' }
+      vehicles[0].location = { lat: NaN, lng: -84, address: 'Test' }
 
       render(<UniversalMap vehicles={vehicles} />)
 
