@@ -51,7 +51,7 @@ async function seedSupplemental() {
       settings,
       is_active,
       created_at,
-      updated_at FROM tenants WHERE is_active = true');
+      updated_at FROM tenants WHERE is_active = true`);
     const tenants = tenantsResult.rows;
 
     const vehiclesResult = await client.query(`SELECT
