@@ -76,6 +76,7 @@
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "csrf-csrf": "^4.0.3",
+    "dd-trace": "^5.26.0",
     "dotenv": "^16.3.1",
     "drizzle-kit": "^0.31.7",
     "drizzle-orm": "^0.44.7",
