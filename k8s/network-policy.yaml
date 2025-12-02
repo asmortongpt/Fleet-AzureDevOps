@@ -1,0 +1,209 @@
+# Network Policies for CTAFleet
+# These policies implement zero-trust networking and microsegmentation
+
+# Default deny all ingress traffic
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-ingress
+  namespace: ctafleet
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+---
+# Allow ingress to frontend from ingress controller
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-frontend-ingress
+  namespace: ctafleet
+spec:
+  podSelector:
+    matchLabels:
+      component: frontend
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: ingress-nginx
+    ports:
+    - protocol: TCP
+      port: 3000
+---
+# Allow API to communicate with frontend, postgres, and redis
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-api-access
+  namespace: ctafleet
+spec:
+  podSelector:
+    matchLabels:
+      component: api
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          component: frontend
+    - namespaceSelector:
+        matchLabels:
+          name: ingress-nginx
+    ports:
+    - protocol: TCP
+      port: 3000
+  egress:
+  - to:
+    - podSelector:
+        matchLabels:
+          component: postgres
+    ports:
+    - protocol: TCP
+      port: 5432
+  - to:
+    - podSelector:
+        matchLabels:
+          component: redis
+    ports:
+    - protocol: TCP
+      port: 6379
+  # Allow DNS resolution
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: kube-system
+    ports:
+    - protocol: UDP
+      port: 53
+  # Allow external HTTPS (for Azure services)
+  - to:
+    - podSelector: {}
+    ports:
+    - protocol: TCP
+      port: 443
+---
+# Allow postgres access from API only
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-postgres-access
+  namespace: ctafleet
+spec:
+  podSelector:
+    matchLabels:
+      component: postgres
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          component: api
+    ports:
+    - protocol: TCP
+      port: 5432
+---
+# Allow redis access from API only
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-redis-access
+  namespace: ctafleet
+spec:
+  podSelector:
+    matchLabels:
+      component: redis
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          component: api
+    ports:
+    - protocol: TCP
+      port: 6379
+---
+# Allow Python services to communicate with API and each other
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-python-services
+  namespace: ctafleet
+spec:
+  podSelector:
+    matchLabels:
+      app: fleet
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          app: fleet
+    ports:
+    - protocol: TCP
+      port: 8000
+    - protocol: TCP
+      port: 8001
+    - protocol: TCP
+      port: 8002
+  egress:
+  - to:
+    - podSelector:
+        matchLabels:
+          app: fleet
+  # Allow DNS
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: kube-system
+    ports:
+    - protocol: UDP
+      port: 53
+  # Allow external HTTPS
+  - to:
+    - podSelector: {}
+    ports:
+    - protocol: TCP
+      port: 443
+---
+# Allow Prometheus to scrape metrics from all pods
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-prometheus-scraping
+  namespace: ctafleet
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: ctafleet-monitoring
+    - podSelector:
+        matchLabels:
+          app: prometheus
+    ports:
+    - protocol: TCP
+      port: 3000
+    - protocol: TCP
+      port: 8000
+    - protocol: TCP
+      port: 8001
+    - protocol: TCP
+      port: 8002
+    - protocol: TCP
+      port: 9100
+    - protocol: TCP
+      port: 9187
+    - protocol: TCP
+      port: 9121

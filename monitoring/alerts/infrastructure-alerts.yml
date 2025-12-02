@@ -1,0 +1,181 @@
+# Infrastructure-level alerts for CTAFleet
+
+groups:
+  - name: infrastructure_alerts
+    interval: 30s
+    rules:
+      # Node Resource Alerts
+      - alert: HighCPUUsage
+        expr: 100 - (avg by (instance) (irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+        for: 10m
+        labels:
+          severity: warning
+          component: infrastructure
+        annotations:
+          summary: "High CPU usage on {{ $labels.instance }}"
+          description: "CPU usage is {{ $value | humanize }}% on {{ $labels.instance }}."
+
+      - alert: HighMemoryUsage
+        expr: |
+          (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes)
+          /
+          node_memory_MemTotal_bytes * 100 > 85
+        for: 10m
+        labels:
+          severity: warning
+          component: infrastructure
+        annotations:
+          summary: "High memory usage on {{ $labels.instance }}"
+          description: "Memory usage is {{ $value | humanize }}% on {{ $labels.instance }}."
+
+      - alert: DiskSpaceLow
+        expr: |
+          (node_filesystem_avail_bytes{mountpoint="/",fstype!="tmpfs"}
+          /
+          node_filesystem_size_bytes{mountpoint="/",fstype!="tmpfs"}) * 100 < 15
+        for: 5m
+        labels:
+          severity: warning
+          component: infrastructure
+        annotations:
+          summary: "Low disk space on {{ $labels.instance }}"
+          description: "Disk space is {{ $value | humanize }}% available on {{ $labels.instance }}."
+
+      - alert: DiskSpaceCritical
+        expr: |
+          (node_filesystem_avail_bytes{mountpoint="/",fstype!="tmpfs"}
+          /
+          node_filesystem_size_bytes{mountpoint="/",fstype!="tmpfs"}) * 100 < 5
+        for: 1m
+        labels:
+          severity: critical
+          component: infrastructure
+        annotations:
+          summary: "Critical disk space on {{ $labels.instance }}"
+          description: "Only {{ $value | humanize }}% disk space available on {{ $labels.instance }}."
+
+      - alert: HighDiskIOWait
+        expr: rate(node_disk_io_time_seconds_total[5m]) > 0.5
+        for: 10m
+        labels:
+          severity: warning
+          component: infrastructure
+        annotations:
+          summary: "High disk I/O wait on {{ $labels.instance }}"
+          description: "Disk I/O wait time is high on {{ $labels.instance }}."
+
+      # Kubernetes Alerts
+      - alert: PodCrashLooping
+        expr: rate(kube_pod_container_status_restarts_total[15m]) > 0
+        for: 5m
+        labels:
+          severity: critical
+          component: kubernetes
+        annotations:
+          summary: "Pod {{ $labels.pod }} is crash looping"
+          description: "Pod {{ $labels.pod }} in namespace {{ $labels.namespace }} is restarting frequently."
+
+      - alert: PodNotReady
+        expr: sum by (namespace, pod) (kube_pod_status_phase{phase!~"Running|Succeeded"}) > 0
+        for: 5m
+        labels:
+          severity: warning
+          component: kubernetes
+        annotations:
+          summary: "Pod {{ $labels.pod }} is not ready"
+          description: "Pod {{ $labels.pod }} in namespace {{ $labels.namespace }} is not in Running state."
+
+      - alert: DeploymentReplicasMismatch
+        expr: |
+          kube_deployment_spec_replicas{namespace="ctafleet"}
+          !=
+          kube_deployment_status_replicas_available{namespace="ctafleet"}
+        for: 5m
+        labels:
+          severity: warning
+          component: kubernetes
+        annotations:
+          summary: "Deployment {{ $labels.deployment }} replicas mismatch"
+          description: "Deployment {{ $labels.deployment }} has {{ $value }} replica mismatch."
+
+      - alert: StatefulSetReplicasMismatch
+        expr: |
+          kube_statefulset_status_replicas_ready{namespace="ctafleet"}
+          !=
+          kube_statefulset_status_replicas{namespace="ctafleet"}
+        for: 5m
+        labels:
+          severity: warning
+          component: kubernetes
+        annotations:
+          summary: "StatefulSet {{ $labels.statefulset }} replicas mismatch"
+          description: "StatefulSet {{ $labels.statefulset }} has replica mismatch."
+
+      - alert: PersistentVolumeClaimPending
+        expr: kube_persistentvolumeclaim_status_phase{phase="Pending"} == 1
+        for: 5m
+        labels:
+          severity: warning
+          component: kubernetes
+        annotations:
+          summary: "PVC {{ $labels.persistentvolumeclaim }} is pending"
+          description: "PVC {{ $labels.persistentvolumeclaim }} in namespace {{ $labels.namespace }} is in Pending state."
+
+      - alert: NodeNotReady
+        expr: kube_node_status_condition{condition="Ready",status="true"} == 0
+        for: 5m
+        labels:
+          severity: critical
+          component: kubernetes
+        annotations:
+          summary: "Node {{ $labels.node }} is not ready"
+          description: "Kubernetes node {{ $labels.node }} is not in Ready state."
+
+      # Network Alerts
+      - alert: HighNetworkReceive
+        expr: rate(node_network_receive_bytes_total[5m]) > 100000000
+        for: 5m
+        labels:
+          severity: warning
+          component: network
+        annotations:
+          summary: "High network receive on {{ $labels.instance }}"
+          description: "Network receive is {{ $value | humanize }}B/s on {{ $labels.instance }}."
+
+      - alert: HighNetworkTransmit
+        expr: rate(node_network_transmit_bytes_total[5m]) > 100000000
+        for: 5m
+        labels:
+          severity: warning
+          component: network
+        annotations:
+          summary: "High network transmit on {{ $labels.instance }}"
+          description: "Network transmit is {{ $value | humanize }}B/s on {{ $labels.instance }}."
+
+      # Container Resource Alerts
+      - alert: ContainerHighCPU
+        expr: |
+          sum(rate(container_cpu_usage_seconds_total{namespace="ctafleet"}[5m]))
+          by (pod, container) * 100 > 80
+        for: 10m
+        labels:
+          severity: warning
+          component: container
+        annotations:
+          summary: "Container {{ $labels.container }} high CPU"
+          description: "Container {{ $labels.container }} in pod {{ $labels.pod }} is using {{ $value }}% CPU."
+
+      - alert: ContainerHighMemory
+        expr: |
+          sum(container_memory_working_set_bytes{namespace="ctafleet"})
+          by (pod, container)
+          /
+          sum(container_spec_memory_limit_bytes{namespace="ctafleet"} > 0)
+          by (pod, container) * 100 > 90
+        for: 5m
+        labels:
+          severity: warning
+          component: container
+        annotations:
+          summary: "Container {{ $labels.container }} high memory"
+          description: "Container {{ $labels.container }} in pod {{ $labels.pod }} is using {{ $value }}% memory."
