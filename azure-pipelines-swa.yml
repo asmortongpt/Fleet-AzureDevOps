@@ -1,0 +1,60 @@
+# Fleet Management - Azure Static Web Apps Pipeline
+# Deploys to: https://green-pond-0f040980f.3.azurestaticapps.net
+trigger:
+  - main
+
+pool:
+  vmImage: ubuntu-latest
+
+variables:
+  - group: fleet-secrets  # Azure DevOps variable group
+  - group: fleet-production-vars  # Production-specific variables
+
+steps:
+  - task: NodeTool@0
+    inputs:
+      versionSpec: '20.x'
+    displayName: 'Install Node.js'
+
+  - script: npm ci
+    displayName: 'Install dependencies'
+
+  - script: |
+      # Generate runtime configuration for production environment
+      node scripts/generate-runtime-config.cjs production
+    displayName: 'Generate runtime configuration'
+    env:
+      VITE_AZURE_AD_CLIENT_ID: $(VITE-AZURE-AD-CLIENT-ID)
+      VITE_AZURE_AD_TENANT_ID: $(VITE-AZURE-AD-TENANT-ID)
+      VITE_AZURE_AD_REDIRECT_URI: "https://fleet.capitaltechalliance.com/auth/callback"
+      VITE_API_BASE_URL: "https://fleet.capitaltechalliance.com/api"
+      BUILD_BUILDID: $(Build.BuildId)
+
+  - script: npm run build
+    displayName: 'Build application'
+    env:
+      NODE_ENV: production
+      VITE_AZURE_AD_CLIENT_ID: $(VITE-AZURE-AD-CLIENT-ID)
+      VITE_AZURE_AD_TENANT_ID: $(VITE-AZURE-AD-TENANT-ID)
+      VITE_AZURE_AD_REDIRECT_URI: "https://fleet.capitaltechalliance.com/auth/callback"
+
+  - script: |
+      npm install -g @azure/static-web-apps-cli
+      swa deploy dist \
+        --api-location api \
+        --deployment-token $(AZURE-STATIC-WEB-APPS-API-TOKEN) \
+        --env production \
+        --no-use-keychain
+    displayName: 'Deploy to Azure Static Web Apps with API'
+
+  - script: |
+      echo "Verifying deployment at https://green-pond-0f040980f.3.azurestaticapps.net"
+      sleep 30
+      HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" https://green-pond-0f040980f.3.azurestaticapps.net)
+      if [ "$HTTP_CODE" = "200" ]; then
+        echo "✅ Deployment successful! Site is live."
+      else
+        echo "⚠️ Site returned HTTP $HTTP_CODE - may need verification"
+        exit 1
+      fi
+    displayName: 'Verify Production Deployment'

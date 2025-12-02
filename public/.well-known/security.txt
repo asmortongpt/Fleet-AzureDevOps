@@ -1,0 +1,46 @@
+# Fleet Management System - Security Policy
+# RFC 9116 compliant security.txt file
+# https://securitytxt.org/
+
+Contact: mailto:security@fleet.local
+Contact: mailto:andrew.m@capitaltechalliance.com
+Expires: 2026-11-20T00:00:00.000Z
+Preferred-Languages: en
+Canonical: https://fleet.local/.well-known/security.txt
+
+# Security Information
+Policy: https://fleet.local/security-policy
+Acknowledgments: https://fleet.local/security-acknowledgments
+
+# Reporting
+# Please report security vulnerabilities via email to security@fleet.local
+# Include:
+# - Description of the vulnerability
+# - Steps to reproduce
+# - Potential impact
+# - Suggested remediation (if any)
+#
+# We aim to respond within 24 hours for critical issues
+# and within 72 hours for all other reports.
+
+# Encryption
+# PGP key available at: https://fleet.local/.well-known/pgp-key.txt
+# Fingerprint: TBD
+
+# Vulnerability Disclosure Policy
+# - Do not access or modify data that is not yours
+# - Do not perform any attacks that could harm availability
+# - Report vulnerabilities privately before public disclosure
+# - Allow reasonable time for remediation before disclosure
+# - We will not pursue legal action against security researchers
+#   who follow this policy
+
+# Out of Scope
+# - Social engineering attacks
+# - Physical security issues
+# - Denial of service attacks
+# - Spam or phishing attacks
+# - Issues in third-party services we do not control
+
+# Hiring
+# Interested in security? Contact: careers@fleet.local

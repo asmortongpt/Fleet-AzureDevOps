@@ -1,0 +1,129 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: radio-dispatch-nlp-worker
+  namespace: fleet-management
+  labels:
+    app: radio-dispatch
+    component: nlp-worker
+    version: v1
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: radio-dispatch
+      component: nlp-worker
+  template:
+    metadata:
+      labels:
+        app: radio-dispatch
+        component: nlp-worker
+        version: v1
+    spec:
+      serviceAccountName: fleet-api-service-account
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1001
+        fsGroup: 1001
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+      - name: nlp-worker
+        image: fleetappregistry.azurecr.io/radio-dispatch-api:latest
+        imagePullPolicy: Always
+        command: ["celery"]
+        args:
+          - "-A"
+          - "app.workers.celery_app"
+          - "worker"
+          - "-Q"
+          - "nlp"
+          - "-c"
+          - "4"
+          - "--loglevel=info"
+          - "--max-tasks-per-child=100"
+        env:
+        # Application Config
+        - name: APP_NAME
+          value: "Radio Dispatch NLP Worker"
+        - name: LOG_LEVEL
+          value: "INFO"
+
+        # Database Config
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: fleet-secrets
+              key: database-url
+
+        # Redis Config
+        - name: REDIS_URL
+          value: "redis://redis-service:6379/0"
+        - name: CELERY_BROKER_URL
+          value: "redis://redis-service:6379/1"
+        - name: CELERY_RESULT_BACKEND
+          value: "redis://redis-service:6379/2"
+
+        # Azure Services
+        - name: AZURE_TENANT_ID
+          valueFrom:
+            secretKeyRef:
+              name: fleet-secrets
+              key: azure-tenant-id
+        - name: AZURE_CLIENT_ID
+          valueFrom:
+            secretKeyRef:
+              name: fleet-secrets
+              key: azure-client-id
+        - name: AZURE_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: fleet-secrets
+              key: azure-client-secret
+
+        # AI Services
+        - name: ANTHROPIC_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: fleet-secrets
+              key: anthropic-api-key
+              optional: true
+        - name: OPENAI_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: fleet-secrets
+              key: openai-api-key
+              optional: true
+
+        resources:
+          requests:
+            cpu: 250m
+            memory: 256Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+
+        livenessProbe:
+          exec:
+            command:
+            - /bin/sh
+            - -c
+            - celery -A app.workers.celery_app inspect ping -d celery@$HOSTNAME
+          initialDelaySeconds: 60
+          periodSeconds: 60
+          timeoutSeconds: 30
+          failureThreshold: 3
+
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: false
+          runAsNonRoot: true
+          runAsUser: 1001
+          capabilities:
+            drop:
+            - ALL

@@ -1,0 +1,303 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "description": "Performance budget for map components - defines maximum acceptable performance thresholds",
+  "version": "1.0.0",
+  "lastUpdated": "2025-11-16",
+  "enforcement": {
+    "ci": true,
+    "failOnCritical": true,
+    "warnOnExceeded": true,
+    "blockMerge": true
+  },
+  "budgets": {
+    "webVitals": {
+      "description": "Core Web Vitals thresholds for production",
+      "metrics": {
+        "LCP": {
+          "budget": 2500,
+          "unit": "ms",
+          "severity": "critical",
+          "description": "Largest Contentful Paint - main content should load within 2.5s"
+        },
+        "FID": {
+          "budget": 100,
+          "unit": "ms",
+          "severity": "critical",
+          "description": "First Input Delay - page should respond to user input within 100ms"
+        },
+        "CLS": {
+          "budget": 0.1,
+          "unit": "score",
+          "severity": "critical",
+          "description": "Cumulative Layout Shift - visual stability score below 0.1"
+        },
+        "TTFB": {
+          "budget": 800,
+          "unit": "ms",
+          "severity": "warning",
+          "description": "Time to First Byte - server response within 800ms"
+        },
+        "INP": {
+          "budget": 200,
+          "unit": "ms",
+          "severity": "warning",
+          "description": "Interaction to Next Paint - interactions processed within 200ms"
+        }
+      }
+    },
+    "mapInitialization": {
+      "description": "Map initialization performance budgets",
+      "metrics": {
+        "emptyMapInit": {
+          "budget": 500,
+          "unit": "ms",
+          "severity": "critical",
+          "description": "Empty map should initialize within 500ms"
+        },
+        "mapWith100Markers": {
+          "budget": 1000,
+          "unit": "ms",
+          "severity": "critical",
+          "description": "Map with 100 markers should initialize within 1s"
+        },
+        "mapWith1000Markers": {
+          "budget": 3000,
+          "unit": "ms",
+          "severity": "warning",
+          "description": "Map with 1000 markers should initialize within 3s"
+        },
+        "mapWith10000Markers": {
+          "budget": 10000,
+          "unit": "ms",
+          "severity": "warning",
+          "description": "Map with 10000 markers (clustered) should initialize within 10s"
+        }
+      }
+    },
+    "markerRendering": {
+      "description": "Marker rendering performance budgets",
+      "metrics": {
+        "render10Markers": {
+          "budget": 50,
+          "unit": "ms",
+          "severity": "critical",
+          "description": "Rendering 10 markers should take less than 50ms"
+        },
+        "render100Markers": {
+          "budget": 200,
+          "unit": "ms",
+          "severity": "critical",
+          "description": "Rendering 100 markers should take less than 200ms"
+        },
+        "render1000Markers": {
+          "budget": 1000,
+          "unit": "ms",
+          "severity": "warning",
+          "description": "Rendering 1000 markers should take less than 1s"
+        },
+        "render10000Markers": {
+          "budget": 5000,
+          "unit": "ms",
+          "severity": "warning",
+          "description": "Rendering 10000 markers (clustered) should take less than 5s"
+        },
+        "updatePosition": {
+          "budget": 16,
+          "unit": "ms",
+          "severity": "critical",
+          "description": "Updating marker position should take less than one frame (16ms)"
+        }
+      }
+    },
+    "interactions": {
+      "description": "Map interaction performance budgets",
+      "metrics": {
+        "zoom": {
+          "budget": 100,
+          "unit": "ms",
+          "severity": "critical",
+          "description": "Zoom operation should complete within 100ms"
+        },
+        "pan": {
+          "budget": 50,
+          "unit": "ms",
+          "severity": "critical",
+          "description": "Pan operation should complete within 50ms"
+        },
+        "filter": {
+          "budget": 200,
+          "unit": "ms",
+          "severity": "warning",
+          "description": "Filter operation should complete within 200ms"
+        },
+        "search": {
+          "budget": 100,
+          "unit": "ms",
+          "severity": "warning",
+          "description": "Search operation should complete within 100ms"
+        },
+        "markerClick": {
+          "budget": 50,
+          "unit": "ms",
+          "severity": "critical",
+          "description": "Marker click response should be within 50ms"
+        }
+      }
+    },
+    "clustering": {
+      "description": "Clustering algorithm performance budgets",
+      "metrics": {
+        "cluster100Markers": {
+          "budget": 50,
+          "unit": "ms",
+          "severity": "warning",
+          "description": "Clustering 100 markers should take less than 50ms"
+        },
+        "cluster1000Markers": {
+          "budget": 200,
+          "unit": "ms",
+          "severity": "warning",
+          "description": "Clustering 1000 markers should take less than 200ms"
+        },
+        "cluster10000Markers": {
+          "budget": 1000,
+          "unit": "ms",
+          "severity": "warning",
+          "description": "Clustering 10000 markers should take less than 1s"
+        },
+        "clusterUpdate": {
+          "budget": 100,
+          "unit": "ms",
+          "severity": "warning",
+          "description": "Cluster update on zoom should take less than 100ms"
+        }
+      }
+    },
+    "memory": {
+      "description": "Memory usage budgets",
+      "metrics": {
+        "initialHeapSize": {
+          "budget": 50,
+          "unit": "MB",
+          "severity": "warning",
+          "description": "Initial heap size should be under 50MB"
+        },
+        "heapSizeWith1000Markers": {
+          "budget": 100,
+          "unit": "MB",
+          "severity": "warning",
+          "description": "Heap size with 1000 markers should be under 100MB"
+        },
+        "heapSizeWith10000Markers": {
+          "budget": 200,
+          "unit": "MB",
+          "severity": "warning",
+          "description": "Heap size with 10000 markers should be under 200MB"
+        },
+        "memoryLeakThreshold": {
+          "budget": 50,
+          "unit": "MB",
+          "severity": "critical",
+          "description": "Memory growth during 60s stress test should be less than 50MB"
+        }
+      }
+    },
+    "rendering": {
+      "description": "Rendering performance budgets",
+      "metrics": {
+        "fps": {
+          "budget": 30,
+          "unit": "fps",
+          "severity": "critical",
+          "description": "Minimum FPS during animations should be 30",
+          "inverse": true
+        },
+        "frameTime": {
+          "budget": 33,
+          "unit": "ms",
+          "severity": "critical",
+          "description": "Frame time should be under 33ms (30 FPS)"
+        },
+        "droppedFrames": {
+          "budget": 10,
+          "unit": "percent",
+          "severity": "warning",
+          "description": "Dropped frames should be less than 10%"
+        }
+      }
+    },
+    "bundleSize": {
+      "description": "JavaScript bundle size budgets",
+      "metrics": {
+        "totalJS": {
+          "budget": 500,
+          "unit": "KB",
+          "severity": "warning",
+          "description": "Total JavaScript bundle size should be under 500KB (gzipped)"
+        },
+        "mapComponentsJS": {
+          "budget": 150,
+          "unit": "KB",
+          "severity": "warning",
+          "description": "Map components bundle should be under 150KB (gzipped)"
+        },
+        "vendorJS": {
+          "budget": 300,
+          "unit": "KB",
+          "severity": "warning",
+          "description": "Vendor bundle (map libraries) should be under 300KB (gzipped)"
+        }
+      }
+    },
+    "network": {
+      "description": "Network performance budgets",
+      "metrics": {
+        "tileLoadTime": {
+          "budget": 500,
+          "unit": "ms",
+          "severity": "warning",
+          "description": "Average tile load time should be under 500ms"
+        },
+        "totalRequests": {
+          "budget": 100,
+          "unit": "count",
+          "severity": "warning",
+          "description": "Total requests on page load should be under 100"
+        },
+        "totalTransferSize": {
+          "budget": 2000,
+          "unit": "KB",
+          "severity": "warning",
+          "description": "Total transfer size should be under 2MB"
+        }
+      }
+    }
+  },
+  "regressionThresholds": {
+    "warning": 10,
+    "critical": 25,
+    "description": "Percentage degradation thresholds for regression detection"
+  },
+  "recommendations": {
+    "enableClustering": {
+      "threshold": 100,
+      "description": "Enable clustering when marker count exceeds 100"
+    },
+    "enableVirtualization": {
+      "threshold": 1000,
+      "description": "Enable list virtualization for marker lists exceeding 1000 items"
+    },
+    "enableLazyLoading": {
+      "threshold": 500,
+      "description": "Enable lazy loading for marker popups when count exceeds 500"
+    }
+  },
+  "monitoring": {
+    "sampleRate": 1.0,
+    "description": "Percentage of users to monitor (1.0 = 100%)",
+    "endpoints": {
+      "rum": "/api/rum",
+      "errors": "/api/errors"
+    }
+  }
+}
