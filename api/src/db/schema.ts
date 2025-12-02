@@ -16,6 +16,10 @@ export const vehicles = pgTable('vehicles', {
   fuelType: varchar('fuel_type', { length: 50 }).notNull(),
   location: varchar('location', { length: 255 }),
   assignedDriverId: integer('assigned_driver_id'),
+  facilityId: integer('facility_id'),
+  model3dId: integer('model_3d_id'),
+  lastServiceDate: timestamp('last_service_date'),
+  nextServiceDate: timestamp('next_service_date'),
   purchaseDate: timestamp('purchase_date'),
   purchasePrice: decimal('purchase_price', { precision: 10, scale: 2 }),
   currentValue: decimal('current_value', { precision: 10, scale: 2 }),
@@ -30,6 +34,7 @@ export const vehicles = pgTable('vehicles', {
 // Drivers table
 export const drivers = pgTable('drivers', {
   id: serial('id').primaryKey(),
+  employeeId: varchar('employee_id', { length: 50 }).unique(),
   name: varchar('name', { length: 255 }).notNull(),
   email: varchar('email', { length: 255 }).notNull().unique(),
   phone: varchar('phone', { length: 20 }),
@@ -144,4 +149,78 @@ export const vendors = pgTable('vendors', {
   createdAt: timestamp('created_at').defaultNow(),
 })
 
-console.log("Complete database schema with 10+ tables created")
+// Facilities table
+export const facilities = pgTable('facilities', {
+  id: serial('id').primaryKey(),
+  name: varchar('name', { length: 255 }).notNull(),
+  type: varchar('type', { length: 100 }),
+  address: text('address'),
+  city: varchar('city', { length: 100 }),
+  state: varchar('state', { length: 50 }),
+  zipCode: varchar('zip_code', { length: 20 }),
+  phone: varchar('phone', { length: 20 }),
+  email: varchar('email', { length: 255 }),
+  capacity: integer('capacity'),
+  status: varchar('status', { length: 20 }).default('active'),
+  coordinates: jsonb('coordinates'),
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow(),
+})
+
+// 3D Vehicle Models table
+export const vehicle3dModels = pgTable('vehicle_3d_models', {
+  id: serial('id').primaryKey(),
+  name: varchar('name', { length: 255 }).notNull(),
+  description: text('description'),
+  vehicleType: varchar('vehicle_type', { length: 100 }),
+  make: varchar('make', { length: 100 }),
+  model: varchar('model', { length: 100 }),
+  year: integer('year'),
+  fileUrl: varchar('file_url', { length: 500 }).notNull(),
+  fileFormat: varchar('file_format', { length: 20 }),
+  fileSizeMb: decimal('file_size_mb', { precision: 8, scale: 2 }),
+  polyCount: integer('poly_count'),
+  source: varchar('source', { length: 50 }),
+  sourceId: varchar('source_id', { length: 255 }),
+  license: varchar('license', { length: 100 }),
+  licenseUrl: varchar('license_url', { length: 500 }),
+  author: varchar('author', { length: 255 }),
+  authorUrl: varchar('author_url', { length: 500 }),
+  thumbnailUrl: varchar('thumbnail_url', { length: 500 }),
+  previewImages: jsonb('preview_images'),
+  qualityTier: varchar('quality_tier', { length: 20 }),
+  hasInterior: boolean('has_interior').default(false),
+  hasPbrMaterials: boolean('has_pbr_materials').default(false),
+  viewCount: integer('view_count').default(0),
+  downloadCount: integer('download_count').default(0),
+  isFeatured: boolean('is_featured').default(false),
+  isActive: boolean('is_active').default(true),
+  tags: jsonb('tags'),
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow(),
+})
+
+// Users table (for authentication)
+export const users = pgTable('users', {
+  id: serial('id').primaryKey(),
+  email: varchar('email', { length: 255 }).notNull().unique(),
+  microsoftId: varchar('microsoft_id', { length: 255 }).unique(),
+  displayName: varchar('display_name', { length: 255 }),
+  role: varchar('role', { length: 50 }).default('user'),
+  authProvider: varchar('auth_provider', { length: 50 }).default('microsoft'),
+  isActive: boolean('is_active').default(true),
+  lastLoginAt: timestamp('last_login_at'),
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow(),
+})
+
+// Sessions table (for authentication)
+export const sessions = pgTable('sessions', {
+  id: serial('id').primaryKey(),
+  userId: integer('user_id').notNull(),
+  token: varchar('token', { length: 500 }).notNull().unique(),
+  expiresAt: timestamp('expires_at').notNull(),
+  createdAt: timestamp('created_at').defaultNow(),
+})
+
+console.log("Complete database schema with 13+ tables created")
