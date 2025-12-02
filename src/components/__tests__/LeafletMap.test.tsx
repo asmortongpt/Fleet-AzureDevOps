@@ -273,7 +273,7 @@ describe('LeafletMap', () => {
 
     it('should skip vehicles with invalid coordinates', async () => {
       const vehicles = createMockVehicles(3)
-      vehicles[1].location = { lat: NaN, lng: -84, address: '' }
+      vehicles[1]!.location = { lat: NaN, lng: -84, address: '' }
 
       render(<LeafletMap vehicles={vehicles} showVehicles={true} />)
 
@@ -287,7 +287,7 @@ describe('LeafletMap', () => {
 
     it('should skip vehicles with out-of-range coordinates', async () => {
       const vehicles = createMockVehicles(3)
-      vehicles[0].location = { lat: 91, lng: -84, address: '' } // lat > 90
+      vehicles[0]!.location = { lat: 91, lng: -84, address: '' } // lat > 90
 
       render(<LeafletMap vehicles={vehicles} showVehicles={true} />)
 
@@ -412,8 +412,8 @@ describe('LeafletMap', () => {
 
     it('should differentiate operational and offline cameras', async () => {
       const cameras = createMockCameras(2)
-      cameras[0].operational = true
-      cameras[1].operational = false
+      cameras[0]!.operational = true
+      cameras[1]!.operational = false
 
       render(<LeafletMap cameras={cameras} showCameras={true} />)
 
@@ -579,7 +579,7 @@ describe('LeafletMap', () => {
       await waitFor(() => {
         const tileLayer = vi.mocked(mockLeaflet.tileLayer).mock.results[0]?.value
         const errorCallback = vi.mocked(tileLayer?.on).mock.calls.find(
-          call => call[0] === 'tileerror'
+          (call: any) => call[0] === 'tileerror'
         )?.[1]
 
         if (errorCallback) {
