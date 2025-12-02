@@ -1,7 +1,5 @@
 import express, { Request, Response, Router } from 'express';
-import { db } from '../../../api/src/db';
-import { facilities } from '../../../api/src/db/schema';
-import { eq } from 'drizzle-orm';
+import { db } from '../services/database';
 import { logger } from '../services/logger';
 
 const router: Router = express.Router();
@@ -9,11 +7,9 @@ const router: Router = express.Router();
 // GET /api/facilities - Get all facilities
 router.get('/', async (_req: Request, res: Response): Promise<void> => {
   try {
-    // Drizzle query - select all facilities ordered by name
-    const result = await db
-      .select()
-      .from(facilities)
-      .orderBy(facilities.name);
+    const result = await db.query(
+      `SELECT * FROM facilities ORDER BY name`
+    );
 
     res.json({
       success: true,
@@ -33,22 +29,10 @@ router.get('/', async (_req: Request, res: Response): Promise<void> => {
 router.get('/:id', async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    const facilityId = parseInt(id, 10);
-
-    if (isNaN(facilityId)) {
-      res.status(400).json({
-        success: false,
-        error: 'Invalid facility ID'
-      });
-      return;
-    }
-
-    // Drizzle query - select single facility by ID
-    const result = await db
-      .select()
-      .from(facilities)
-      .where(eq(facilities.id, facilityId))
-      .limit(1);
+    const result = await db.query(
+      `SELECT * FROM facilities WHERE id = $1`,
+      [id]
+    );
 
     if (!result || result.length === 0) {
       res.status(404).json({
