@@ -8,7 +8,7 @@ import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import csurf from 'csurf';
 import { PartsService } from '../services/parts.service';
-import { asyncHandler } from '../middleware/async-handler';
+import { asyncHandler } from '../utils/async-handler';
 
 const router = express.Router();
 
