@@ -31,7 +31,7 @@ describe('/outlook.routes API Integration Tests', () => {
 
   afterAll(async () => {
     // Cleanup: Remove test data
-    // TODO: Implement cleanup logic
+    await request(app).delete(`/api/resource/${createdId}`).set("Authorization", `Bearer ${authToken}`).expect(204);
   });
 
   describe('POST /outlook.routes/send', () => {
@@ -40,7 +40,7 @@ describe('/outlook.routes API Integration Tests', () => {
         .post('/outlook.routes/send')
         
         .send({
-          // TODO: Add valid request body
+          name: "Test Entity", description: "Test Description", status: "active",
           tenantId: testTenantId,
         })
         .expect(201);
@@ -67,7 +67,7 @@ describe('/outlook.routes API Integration Tests', () => {
         .expect(200);
 
       expect(response.body).toBeDefined();
-      // TODO: Add specific response validation
+      expect(response.body).toHaveProperty("id"); expect(response.body).toHaveProperty("tenantId"); expect(response.body.tenantId).toBe(testTenantId);
     });
   });
 
@@ -79,7 +79,7 @@ describe('/outlook.routes API Integration Tests', () => {
         .expect(200);
 
       expect(response.body).toBeDefined();
-      // TODO: Add specific response validation
+      expect(response.body).toHaveProperty("id"); expect(response.body).toHaveProperty("tenantId"); expect(response.body.tenantId).toBe(testTenantId);
     });
   });
 
@@ -89,7 +89,7 @@ describe('/outlook.routes API Integration Tests', () => {
         .post('/outlook.routes/messages/:messageId/reply')
         
         .send({
-          // TODO: Add valid request body
+          name: "Test Entity", description: "Test Description", status: "active",
           tenantId: testTenantId,
         })
         .expect(201);
@@ -114,7 +114,7 @@ describe('/outlook.routes API Integration Tests', () => {
         .post('/outlook.routes/messages/:messageId/forward')
         
         .send({
-          // TODO: Add valid request body
+          name: "Test Entity", description: "Test Description", status: "active",
           tenantId: testTenantId,
         })
         .expect(201);
@@ -139,7 +139,7 @@ describe('/outlook.routes API Integration Tests', () => {
         .patch('/outlook.routes/messages/:messageId')
         
         .send({
-          // TODO: Add valid update data
+          status: "completed", completedAt: new Date().toISOString()
         })
         .expect(200);
 
@@ -161,7 +161,7 @@ describe('/outlook.routes API Integration Tests', () => {
         .post('/outlook.routes/messages/:messageId/move')
         
         .send({
-          // TODO: Add valid request body
+          name: "Test Entity", description: "Test Description", status: "active",
           tenantId: testTenantId,
         })
         .expect(201);
@@ -202,7 +202,7 @@ describe('/outlook.routes API Integration Tests', () => {
         .post('/outlook.routes/messages/:messageId/read')
         
         .send({
-          // TODO: Add valid request body
+          name: "Test Entity", description: "Test Description", status: "active",
           tenantId: testTenantId,
         })
         .expect(201);
@@ -229,7 +229,7 @@ describe('/outlook.routes API Integration Tests', () => {
         .expect(200);
 
       expect(response.body).toBeDefined();
-      // TODO: Add specific response validation
+      expect(response.body).toHaveProperty("id"); expect(response.body).toHaveProperty("tenantId"); expect(response.body.tenantId).toBe(testTenantId);
     });
   });
 
@@ -239,7 +239,7 @@ describe('/outlook.routes API Integration Tests', () => {
         .post('/outlook.routes/folders')
         
         .send({
-          // TODO: Add valid request body
+          name: "Test Entity", description: "Test Description", status: "active",
           tenantId: testTenantId,
         })
         .expect(201);
@@ -266,7 +266,7 @@ describe('/outlook.routes API Integration Tests', () => {
         .expect(200);
 
       expect(response.body).toBeDefined();
-      // TODO: Add specific response validation
+      expect(response.body).toHaveProperty("id"); expect(response.body).toHaveProperty("tenantId"); expect(response.body.tenantId).toBe(testTenantId);
     });
   });
 
@@ -278,7 +278,7 @@ describe('/outlook.routes API Integration Tests', () => {
         .expect(200);
 
       expect(response.body).toBeDefined();
-      // TODO: Add specific response validation
+      expect(response.body).toHaveProperty("id"); expect(response.body).toHaveProperty("tenantId"); expect(response.body.tenantId).toBe(testTenantId);
     });
   });
 
@@ -290,7 +290,7 @@ describe('/outlook.routes API Integration Tests', () => {
         .expect(200);
 
       expect(response.body).toBeDefined();
-      // TODO: Add specific response validation
+      expect(response.body).toHaveProperty("id"); expect(response.body).toHaveProperty("tenantId"); expect(response.body.tenantId).toBe(testTenantId);
     });
   });
 
@@ -300,7 +300,7 @@ describe('/outlook.routes API Integration Tests', () => {
         .post('/outlook.routes/messages/:messageId/categories')
         
         .send({
-          // TODO: Add valid request body
+          name: "Test Entity", description: "Test Description", status: "active",
           tenantId: testTenantId,
         })
         .expect(201);
@@ -327,7 +327,7 @@ describe('/outlook.routes API Integration Tests', () => {
         .expect(200);
 
       expect(response.body).toBeDefined();
-      // TODO: Add specific response validation
+      expect(response.body).toHaveProperty("id"); expect(response.body).toHaveProperty("tenantId"); expect(response.body.tenantId).toBe(testTenantId);
     });
   });
 
@@ -340,11 +340,11 @@ describe('/outlook.routes API Integration Tests', () => {
         .set('Authorization', `Bearer ${authToken}`)
         .send({
           tenantId: 'tenant-A',
-          // TODO: Add resource data
+          name: "Test Resource A", description: "For Tenant A", status: "active"
         });
 
       // Try to access from tenant B
-      const tenantBToken = 'TENANT_B_TOKEN_HERE'; // TODO: Generate actual tenant B token
+      const tenantBToken = 'await generateTestToken({ tenantId: "tenant-B", userId: "user-b" })
       const responseB = await request(app)
         .get(`/outlook.routes/${resourceA.body.id}`)
         .set('Authorization', `Bearer ${tenantBToken}`)
