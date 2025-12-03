@@ -270,3 +270,12 @@ export function useMaintenanceMutations() {
 
   return { createMaintenance, updateMaintenance, deleteMaintenance };
 }
+
+export function App() {
+  return (
+    <>
+      <ReactQueryDevtools initialIsOpen={false} />
+      {/* Rest of your app */}
+    </>
+  );
+}
