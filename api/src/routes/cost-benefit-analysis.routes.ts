@@ -1,4 +1,5 @@
 /**
+import logger from '../config/logger'; // Wave 32: Add Winston logger
  * Cost/Benefit Analysis API Routes
  * Supports BR-5 (Cost/Benefit Analysis Management)
  *
@@ -144,7 +145,7 @@ router.get(
         },
       });
     } catch (error: any) {
-      console.error(`Error fetching cost/benefit analyses:`, error);
+      logger.error(`Error fetching cost/benefit analyses:`, error) // Wave 32: Winston logger;
       res.status(500).json({
         error: 'Failed to fetch cost/benefit analyses',
         details: getErrorMessage(error),
@@ -199,7 +200,7 @@ router.get(
 
       res.json(result.rows[0]);
     } catch (error: any) {
-      console.error('Error fetching cost/benefit analysis:', error);
+      logger.error('Error fetching cost/benefit analysis:', error) // Wave 32: Winston logger;
       res.status(500).json({
         error: 'Failed to fetch cost/benefit analysis',
         details: getErrorMessage(error),
@@ -286,7 +287,7 @@ router.post(
         analysis: result.rows[0],
       });
     } catch (error: any) {
-      console.error('Error creating cost/benefit analysis:', error);
+      logger.error('Error creating cost/benefit analysis:', error) // Wave 32: Winston logger;
       if (error instanceof z.ZodError) {
         return res.status(400).json({
           error: 'Validation error',
@@ -352,7 +353,7 @@ router.put(
         analysis: result.rows[0],
       });
     } catch (error: any) {
-      console.error('Error updating cost/benefit analysis:', error);
+      logger.error('Error updating cost/benefit analysis:', error) // Wave 32: Winston logger;
       if (error instanceof z.ZodError) {
         return res.status(400).json({
           error: 'Validation error',
@@ -410,7 +411,7 @@ router.post(
         analysis: result.rows[0],
       });
     } catch (error: any) {
-      console.error(`Error reviewing cost/benefit analysis:`, error);
+      logger.error(`Error reviewing cost/benefit analysis:`, error) // Wave 32: Winston logger;
       if (error instanceof z.ZodError) {
         return res.status(400).json({
           error: 'Validation error',
@@ -455,7 +456,7 @@ router.delete(
         message: 'Cost/benefit analysis deleted successfully',
       });
     } catch (error: any) {
-      console.error('Error deleting cost/benefit analysis:', error);
+      logger.error('Error deleting cost/benefit analysis:', error) // Wave 32: Winston logger;
       res.status(500).json({
         error: 'Failed to delete cost/benefit analysis',
         details: getErrorMessage(error),
