@@ -1,4 +1,5 @@
 /**
+import logger from '../config/logger'; // Wave 26: Add Winston logger
  * Vehicle Assignments API Routes
  * Supports BR-3 (Employee & Assignment Management) and BR-8 (Temporary Assignment Management)
  *
@@ -183,7 +184,7 @@ router.get(
         },
       });
     } catch (error: any) {
-      console.error(`Error fetching vehicle assignments:`, error);
+      logger.error(`Error fetching vehicle assignments:`, error) // Wave 26: Winston logger;
       res.status(500).json({
         error: 'Failed to fetch vehicle assignments',
         details: getErrorMessage(error),
@@ -244,7 +245,7 @@ router.get(
 
       res.json(result.rows[0]);
     } catch (error: any) {
-      console.error('Error fetching vehicle assignment:', error);
+      logger.error('Error fetching vehicle assignment:', error) // Wave 26: Winston logger;
       res.status(500).json({
         error: 'Failed to fetch vehicle assignment',
         details: getErrorMessage(error),
@@ -340,7 +341,7 @@ router.post(
         assignment: result.rows[0],
       });
     } catch (error: any) {
-      console.error('Error creating vehicle assignment:', error);
+      logger.error('Error creating vehicle assignment:', error) // Wave 26: Winston logger;
       if (error instanceof z.ZodError) {
         return res.status(400).json({
           error: 'Validation error',
@@ -407,7 +408,7 @@ router.put(
         assignment: result.rows[0],
       });
     } catch (error: any) {
-      console.error('Error updating vehicle assignment:', error);
+      logger.error('Error updating vehicle assignment:', error) // Wave 26: Winston logger;
       if (error instanceof z.ZodError) {
         return res.status(400).json({
           error: 'Validation error',
@@ -456,7 +457,7 @@ router.post(
         assignment: result.rows[0],
       });
     } catch (error: any) {
-      console.error(`Error updating lifecycle state:`, error);
+      logger.error(`Error updating lifecycle state:`, error) // Wave 26: Winston logger;
       if (error instanceof z.ZodError) {
         return res.status(400).json({
           error: 'Validation error',
@@ -513,7 +514,7 @@ router.post(
         assignment: result.rows[0],
       });
     } catch (error: any) {
-      console.error('Error recommending assignment:', error);
+      logger.error('Error recommending assignment:', error) // Wave 26: Winston logger;
       res.status(500).json({
         error: 'Failed to recommend assignment',
         details: getErrorMessage(error),
@@ -591,7 +592,7 @@ router.post(
         assignment: result.rows[0],
       });
     } catch (error: any) {
-      console.error('Error processing approval:', error);
+      logger.error('Error processing approval:', error) // Wave 26: Winston logger;
       if (error instanceof z.ZodError) {
         return res.status(400).json({
           error: 'Validation error',
@@ -643,7 +644,7 @@ router.post(
         assignment: result.rows[0],
       });
     } catch (error: any) {
-      console.error('Error activating assignment:', error);
+      logger.error('Error activating assignment:', error) // Wave 26: Winston logger;
       res.status(500).json({
         error: 'Failed to activate assignment',
         details: getErrorMessage(error),
@@ -697,7 +698,7 @@ router.post(
         assignment: result.rows[0],
       });
     } catch (error: any) {
-      console.error('Error terminating assignment:', error);
+      logger.error('Error terminating assignment:', error) // Wave 26: Winston logger;
       res.status(500).json({
         error: 'Failed to terminate assignment',
         details: getErrorMessage(error),
@@ -734,7 +735,7 @@ router.get(
 
       res.json(result.rows);
     } catch (error: any) {
-      console.error('Error fetching assignment history:', error);
+      logger.error('Error fetching assignment history:', error) // Wave 26: Winston logger;
       res.status(500).json({
         error: 'Failed to fetch assignment history',
         details: getErrorMessage(error),
@@ -776,7 +777,7 @@ router.delete(
         message: 'Vehicle assignment deleted successfully',
       });
     } catch (error: any) {
-      console.error('Error deleting vehicle assignment:', error);
+      logger.error('Error deleting vehicle assignment:', error) // Wave 26: Winston logger;
       res.status(500).json({
         error: 'Failed to delete vehicle assignment',
         details: getErrorMessage(error),
