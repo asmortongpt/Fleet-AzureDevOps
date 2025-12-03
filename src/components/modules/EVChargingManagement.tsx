@@ -686,3 +686,5 @@ export function EVChargingManagement() {
     </div>
   )
 }
+
+export default EVChargingManagement;
