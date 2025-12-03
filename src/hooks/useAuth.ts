@@ -14,6 +14,8 @@ interface User {
   role: string;
   avatar?: string;
   token: string;
+  permissions?: string[]; // CRIT-F-003: Add permissions array
+  tenantId?: string; // CRIT-F-003: Add tenant ID for isolation
 }
 
 interface AuthContextType {
@@ -24,6 +26,10 @@ interface AuthContextType {
   logout: () => void;
   setUser: (user: User | null) => void;
   refreshToken: () => Promise<void>;
+  // CRIT-F-003: Add RBAC helper methods
+  hasRole: (role: string | string[]) => boolean;
+  hasPermission: (permission: string | string[]) => boolean;
+  canAccess: (requiredRole?: string | string[], requiredPermission?: string | string[]) => boolean;
 }
 
 // Create auth context
@@ -167,6 +173,62 @@ export const useAuthProvider = () => {
     }
   }, []);
 
+  // CRIT-F-003: RBAC helper methods
+
+  /**
+   * Check if user has a specific role (or any of the specified roles)
+   * Supports role hierarchy: admin > manager > user > guest
+   */
+  const hasRole = useCallback((requiredRoles: string | string[]): boolean => {
+    if (!user) return false;
+
+    const roles = Array.isArray(requiredRoles) ? requiredRoles : [requiredRoles];
+    const userRole = user.role.toLowerCase();
+
+    // Role hierarchy
+    const ROLE_HIERARCHY: Record<string, string[]> = {
+      admin: ['admin', 'manager', 'user', 'guest'],
+      manager: ['manager', 'user', 'guest'],
+      user: ['user', 'guest'],
+      guest: ['guest']
+    };
+
+    const userHierarchy = ROLE_HIERARCHY[userRole] || [userRole];
+
+    return roles.some(required =>
+      userHierarchy.includes(required.toLowerCase())
+    );
+  }, [user]);
+
+  /**
+   * Check if user has a specific permission (or any of the specified permissions)
+   */
+  const hasPermission = useCallback((requiredPermissions: string | string[]): boolean => {
+    if (!user || !user.permissions) return false;
+
+    const permissions = Array.isArray(requiredPermissions) ? requiredPermissions : [requiredPermissions];
+
+    return permissions.some(required =>
+      user.permissions?.includes(required)
+    );
+  }, [user]);
+
+  /**
+   * Check if user can access a resource based on role AND/OR permission
+   * If both role and permission are specified, user must satisfy BOTH
+   */
+  const canAccess = useCallback((
+    requiredRole?: string | string[],
+    requiredPermission?: string | string[]
+  ): boolean => {
+    if (!user) return false;
+
+    const hasRequiredRole = requiredRole ? hasRole(requiredRole) : true;
+    const hasRequiredPermission = requiredPermission ? hasPermission(requiredPermission) : true;
+
+    return hasRequiredRole && hasRequiredPermission;
+  }, [user, hasRole, hasPermission]);
+
   // SECURITY (CRIT-F-001): Refresh token using httpOnly cookie only
   // Backend rotates httpOnly cookie, NO localStorage token storage
   const refreshToken = useCallback(async () => {
@@ -210,5 +272,9 @@ export const useAuthProvider = () => {
     logout,
     setUser,
     refreshToken,
+    // CRIT-F-003: RBAC helper methods
+    hasRole,
+    hasPermission,
+    canAccess,
   };
 };

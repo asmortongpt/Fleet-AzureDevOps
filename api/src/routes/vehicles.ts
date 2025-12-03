@@ -4,11 +4,23 @@ import { vehicleCreateSchema, vehicleUpdateSchema } from '../schemas/vehicle.sch
 import { validate } from '../middleware/validate';
 import logger from '../config/logger'; // Wave 10: Add Winston logger
 import { vehicleEmulator } from "../emulators/VehicleEmulator"
+import { authenticateJWT } from '../middleware/auth';
+import { requireRBAC, Role, PERMISSIONS } from '../middleware/rbac';
 
 const router = Router()
 
-// GET all vehicles
-router.get("/", async (req, res) => {
+// SECURITY: All routes require authentication
+router.use(authenticateJWT)
+
+// GET all vehicles - Requires authentication, any role can read
+router.get("/",
+  requireRBAC({
+    roles: [Role.ADMIN, Role.MANAGER, Role.USER, Role.GUEST],
+    permissions: [PERMISSIONS.VEHICLE_READ],
+    enforceTenantIsolation: true,
+    resourceType: 'vehicle'
+  }),
+  async (req, res) => {
   try {
     const { page = 1, pageSize = 20, search, status } = req.query
 
@@ -49,8 +61,15 @@ router.get("/", async (req, res) => {
   }
 })
 
-// GET vehicle by ID
-router.get("/:id", async (req, res) => {
+// GET vehicle by ID - Requires authentication + tenant isolation
+router.get("/:id",
+  requireRBAC({
+    roles: [Role.ADMIN, Role.MANAGER, Role.USER, Role.GUEST],
+    permissions: [PERMISSIONS.VEHICLE_READ],
+    enforceTenantIsolation: true,
+    resourceType: 'vehicle'
+  }),
+  async (req, res) => {
   try {
     // Wave 12 (Revised): Cache-aside pattern for single vehicle
     const cacheKey = `vehicle:${req.params.id}`
@@ -73,8 +92,16 @@ router.get("/:id", async (req, res) => {
   }
 })
 
-// POST create vehicle
-router.post("/", validate(vehicleCreateSchema), async (req, res) => { // Wave 9: Add Zod validation
+// POST create vehicle - Requires admin or manager role
+router.post("/",
+  requireRBAC({
+    roles: [Role.ADMIN, Role.MANAGER],
+    permissions: [PERMISSIONS.VEHICLE_CREATE],
+    enforceTenantIsolation: true,
+    resourceType: 'vehicle'
+  }),
+  validate(vehicleCreateSchema),
+  async (req, res) => { // Wave 9: Add Zod validation
   try {
     const vehicle = vehicleEmulator.create(req.body)
 
@@ -91,8 +118,16 @@ router.post("/", validate(vehicleCreateSchema), async (req, res) => { // Wave 9:
   }
 })
 
-// PUT update vehicle
-router.put("/:id", validate(vehicleUpdateSchema), async (req, res) => { // Wave 9: Add Zod validation
+// PUT update vehicle - Requires admin or manager role + tenant isolation
+router.put("/:id",
+  requireRBAC({
+    roles: [Role.ADMIN, Role.MANAGER],
+    permissions: [PERMISSIONS.VEHICLE_UPDATE],
+    enforceTenantIsolation: true,
+    resourceType: 'vehicle'
+  }),
+  validate(vehicleUpdateSchema),
+  async (req, res) => { // Wave 9: Add Zod validation
   try {
     const vehicle = vehicleEmulator.update(Number(req.params.id), req.body)
     if (!vehicle) return res.status(404).json({ error: "Vehicle not found" })
