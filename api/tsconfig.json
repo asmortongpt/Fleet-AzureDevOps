@@ -1,62 +1,22 @@
 {
   "compilerOptions": {
-    "target": "ES2022",
+    "target": "ES2020",
     "module": "commonjs",
-    "lib": ["ES2022"],
-    "outDir": "./dist",
-    "rootDir": "./src",
-    // Enable strict mode for type safety - ALL CHECKS ENABLED
+    "lib": ["ES2020"],
     "strict": true,
-    // CRITICAL: Fail on errors - TEMPORARILY DISABLED TO ALLOW DEPLOYMENT
-    // TODO: Re-enable after fixing all TypeScript errors in routes, middleware, services
-    "noEmitOnError": false,
-    // ALL strict checks enabled for full type safety
-    "strictNullChecks": true,
-    "strictFunctionTypes": true,
-    "strictBindCallApply": true,
-    "strictPropertyInitialization": true,
-    "noImplicitThis": true,
-    "noImplicitAny": true,
-    "alwaysStrict": true,
-    // Code quality checks - ALL ENABLED FOR 100% COMPLIANCE
+    "noEmitOnError": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
-    // Module resolution and interop
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "resolveJsonModule": true,
     "moduleResolution": "node",
-    // Source map generation
-    "declaration": true,
-    "declarationMap": true,
-    "sourceMap": true
+    "resolveJsonModule": true,
+    "outDir": "./dist",
+    "rootDir": "./src"
   },
   "include": ["src/**/*"],
-  "exclude": [
-    "node_modules",
-    "dist",
-    "tests",
-    "src/**/*.test.ts",
-    "src/**/__tests__/**",
-    "src/__tests__/**",
-    "src/examples/**",
-    "src/scripts/**",
-    "src/db/seeds/**",
-    "src/emulators/**",
-    "src/ml-models/**",
-    "src/config/connection-manager-keyvault.example.ts",
-    "src/repositories/VehicleRepository.example.ts",
-    "src/routes/document-search.example.ts",
-    "src/routes/inspections.dal-example.enhanced.ts",
-    "src/routes/inspections.dal-example.ts",
-    "src/routes/vendors.dal-example.ts",
-    "src/routes/vehicles.optimized.example.ts",
-    "src/routes/example-di.routes.ts",
-    "src/middleware/azure-ad-auth.ts",
-    "src/services/auth/azure-ad.service.ts",
-    "src/jobs/**"
-  ]
+  "exclude": ["node_modules", "dist"]
 }
