@@ -48,7 +48,7 @@ router.get("/:id", async (req, res) => {
 })
 
 // POST create driver
-router.post("/", async (req, res) => {
+router.post("/", validate(driverCreateSchema), async (req, res) => { // Wave 9: Add Zod validation
   try {
     const driver = driverEmulator.create(req.body)
     res.status(201).json({ data: driver })
@@ -58,7 +58,7 @@ router.post("/", async (req, res) => {
 })
 
 // PUT update driver
-router.put("/:id", async (req, res) => {
+router.put("/:id", validate(driverUpdateSchema), async (req, res) => { // Wave 9: Add Zod validation
   try {
     const driver = driverEmulator.update(Number(req.params.id), req.body)
     if (!driver) return res.status(404).json({ error: "Driver not found" })
