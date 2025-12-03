@@ -17,6 +17,31 @@ interface MaintenanceFilters {
   endDate: string;
 }
 
+interface WorkOrderFilters {
+  tenant_id: string;
+  [key: string]: string | number | undefined;
+}
+
+interface FuelTransactionFilters {
+  tenant_id: string;
+  [key: string]: string | number | undefined;
+}
+
+interface FacilityFilters {
+  tenant_id: string;
+  [key: string]: string | number | undefined;
+}
+
+interface MaintenanceScheduleFilters {
+  tenant_id: string;
+  [key: string]: string | number | undefined;
+}
+
+interface RouteFilters {
+  tenant_id: string;
+  [key: string]: string | number | undefined;
+}
+
 interface Vehicle {
   id: string;
   tenant_id: string;
@@ -35,15 +60,120 @@ interface Maintenance {
   // other maintenance properties
 }
 
+interface WorkOrder {
+  id: string;
+  tenant_id: string;
+  work_order_number: string;
+  vehicle_id: string;
+  facility_id?: string;
+  assigned_technician_id?: string;
+  type: 'preventive' | 'corrective' | 'inspection';
+  priority: 'low' | 'medium' | 'high' | 'critical';
+  status: 'open' | 'in_progress' | 'on_hold' | 'completed' | 'cancelled';
+  description: string;
+  scheduled_start?: string;
+  scheduled_end?: string;
+  actual_start?: string;
+  actual_end?: string;
+  labor_hours?: number;
+  labor_cost?: number;
+  parts_cost?: number;
+  odometer_reading?: number;
+  engine_hours_reading?: number;
+  notes?: string;
+  created_by: string;
+  created_at: string;
+  updated_at: string;
+}
+
+interface FuelTransaction {
+  id: string;
+  tenant_id: string;
+  vehicle_id: string;
+  driver_id?: string;
+  fuel_card_id?: string;
+  transaction_date: string;
+  fuel_type: string;
+  quantity_gallons: number;
+  price_per_gallon: number;
+  total_cost: number;
+  odometer_reading?: number;
+  location?: string;
+  vendor?: string;
+  receipt_number?: string;
+  notes?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+interface Facility {
+  id: string;
+  tenant_id: string;
+  name: string;
+  type: 'garage' | 'depot' | 'office' | 'warehouse';
+  address: string;
+  city: string;
+  state: string;
+  zip_code: string;
+  phone?: string;
+  email?: string;
+  manager_id?: string;
+  capacity?: number;
+  operating_hours?: string;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+interface MaintenanceSchedule {
+  id: string;
+  tenant_id: string;
+  vehicle_id: string;
+  maintenance_type: string;
+  interval_miles?: number;
+  interval_days?: number;
+  last_service_date?: string;
+  last_service_miles?: number;
+  next_service_date?: string;
+  next_service_miles?: number;
+  status: 'pending' | 'due' | 'overdue' | 'completed';
+  notes?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+interface Route {
+  id: string;
+  tenant_id: string;
+  route_number: string;
+  name: string;
+  description?: string;
+  start_location: string;
+  end_location: string;
+  distance_miles?: number;
+  estimated_duration_minutes?: number;
+  is_active: boolean;
+  assigned_vehicle_id?: string;
+  assigned_driver_id?: string;
+  schedule?: string;
+  created_at: string;
+  updated_at: string;
+}
+
 const queryClient = new QueryClient();
 
 const queryKeyFactory = {
   vehicles: (filters: VehicleFilters) => ['vehicles', filters],
   drivers: (filters: DriverFilters) => ['drivers', filters],
   maintenance: (filters: MaintenanceFilters) => ['maintenance', filters],
+  workOrders: (filters: WorkOrderFilters) => ['workOrders', filters],
+  fuelTransactions: (filters: FuelTransactionFilters) => ['fuelTransactions', filters],
+  facilities: (filters: FacilityFilters) => ['facilities', filters],
+  maintenanceSchedules: (filters: MaintenanceScheduleFilters) => ['maintenanceSchedules', filters],
+  routes: (filters: RouteFilters) => ['routes', filters],
 };
 
-export function useVehicles(filters: VehicleFilters) {
+export function useVehicles(filters: VehicleFilters = { tenant_id: '' }) {
   return useQuery<Vehicle[], Error>({
     queryKey: queryKeyFactory.vehicles(filters),
     queryFn: async () => {
@@ -58,7 +188,7 @@ export function useVehicles(filters: VehicleFilters) {
   });
 }
 
-export function useDrivers(filters: DriverFilters) {
+export function useDrivers(filters: DriverFilters = { tenant_id: '' }) {
   return useQuery<Driver[], Error>({
     queryKey: queryKeyFactory.drivers(filters),
     queryFn: async () => {
@@ -73,12 +203,87 @@ export function useDrivers(filters: DriverFilters) {
   });
 }
 
-export function useMaintenance(filters: MaintenanceFilters) {
+export function useMaintenance(filters: MaintenanceFilters = { tenant_id: '', startDate: '', endDate: '' }) {
   return useQuery<Maintenance[], Error>({
     queryKey: queryKeyFactory.maintenance(filters),
     queryFn: async () => {
       const params = new URLSearchParams(filters as Record<string, string>);
       const res = await fetch(`/api/maintenance?${params}`);
+      if (!res.ok) throw new Error('Network response was not ok');
+      return res.json();
+    },
+    staleTime: 5 * 60 * 1000,
+    cacheTime: 10 * 60 * 1000,
+    refetchOnWindowFocus: false,
+  });
+}
+
+export function useWorkOrders(filters: WorkOrderFilters = { tenant_id: '' }) {
+  return useQuery<WorkOrder[], Error>({
+    queryKey: queryKeyFactory.workOrders(filters),
+    queryFn: async () => {
+      const params = new URLSearchParams(filters as Record<string, string>);
+      const res = await fetch(`/api/work-orders?${params}`);
+      if (!res.ok) throw new Error('Network response was not ok');
+      return res.json();
+    },
+    staleTime: 5 * 60 * 1000,
+    cacheTime: 10 * 60 * 1000,
+    refetchOnWindowFocus: false,
+  });
+}
+
+export function useFuelTransactions(filters: FuelTransactionFilters = { tenant_id: '' }) {
+  return useQuery<FuelTransaction[], Error>({
+    queryKey: queryKeyFactory.fuelTransactions(filters),
+    queryFn: async () => {
+      const params = new URLSearchParams(filters as Record<string, string>);
+      const res = await fetch(`/api/fuel-transactions?${params}`);
+      if (!res.ok) throw new Error('Network response was not ok');
+      return res.json();
+    },
+    staleTime: 5 * 60 * 1000,
+    cacheTime: 10 * 60 * 1000,
+    refetchOnWindowFocus: false,
+  });
+}
+
+export function useFacilities(filters: FacilityFilters = { tenant_id: '' }) {
+  return useQuery<Facility[], Error>({
+    queryKey: queryKeyFactory.facilities(filters),
+    queryFn: async () => {
+      const params = new URLSearchParams(filters as Record<string, string>);
+      const res = await fetch(`/api/facilities?${params}`);
+      if (!res.ok) throw new Error('Network response was not ok');
+      return res.json();
+    },
+    staleTime: 5 * 60 * 1000,
+    cacheTime: 10 * 60 * 1000,
+    refetchOnWindowFocus: false,
+  });
+}
+
+export function useMaintenanceSchedules(filters: MaintenanceScheduleFilters = { tenant_id: '' }) {
+  return useQuery<MaintenanceSchedule[], Error>({
+    queryKey: queryKeyFactory.maintenanceSchedules(filters),
+    queryFn: async () => {
+      const params = new URLSearchParams(filters as Record<string, string>);
+      const res = await fetch(`/api/maintenance-schedules?${params}`);
+      if (!res.ok) throw new Error('Network response was not ok');
+      return res.json();
+    },
+    staleTime: 5 * 60 * 1000,
+    cacheTime: 10 * 60 * 1000,
+    refetchOnWindowFocus: false,
+  });
+}
+
+export function useRoutes(filters: RouteFilters = { tenant_id: '' }) {
+  return useQuery<Route[], Error>({
+    queryKey: queryKeyFactory.routes(filters),
+    queryFn: async () => {
+      const params = new URLSearchParams(filters as Record<string, string>);
+      const res = await fetch(`/api/routes?${params}`);
       if (!res.ok) throw new Error('Network response was not ok');
       return res.json();
     },
@@ -269,4 +474,264 @@ export function useMaintenanceMutations() {
   });
 
   return { createMaintenance, updateMaintenance, deleteMaintenance };
+}
+
+export function useWorkOrderMutations() {
+  const queryClient = useQueryClient();
+
+  const createWorkOrder = useMutation<WorkOrder, Error, WorkOrder>({
+    mutationFn: async (newWorkOrder) => {
+      const res = await fetch('/api/work-orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newWorkOrder),
+      });
+      if (!res.ok) throw new Error('Failed to create work order');
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['workOrders'] as QueryKey);
+    },
+  });
+
+  const updateWorkOrder = useMutation<WorkOrder, Error, { id: string; data: Partial<WorkOrder> }>({
+    mutationFn: async ({ id, data }) => {
+      const res = await fetch(`/api/work-orders/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) throw new Error('Failed to update work order');
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['workOrders'] as QueryKey);
+    },
+  });
+
+  const deleteWorkOrder = useMutation<void, Error, string>({
+    mutationFn: async (id) => {
+      const res = await fetch(`/api/work-orders/${id}`, {
+        method: 'DELETE',
+      });
+      if (!res.ok) throw new Error('Failed to delete work order');
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['workOrders'] as QueryKey);
+    },
+  });
+
+  return {
+    create: createWorkOrder.mutateAsync,
+    update: (id: string, data: Partial<WorkOrder>) => updateWorkOrder.mutateAsync({ id, data }),
+    delete: deleteWorkOrder.mutateAsync,
+  };
+}
+
+export function useFuelTransactionMutations() {
+  const queryClient = useQueryClient();
+
+  const createFuelTransaction = useMutation<FuelTransaction, Error, FuelTransaction>({
+    mutationFn: async (newFuelTransaction) => {
+      const res = await fetch('/api/fuel-transactions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newFuelTransaction),
+      });
+      if (!res.ok) throw new Error('Failed to create fuel transaction');
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['fuelTransactions'] as QueryKey);
+    },
+  });
+
+  const updateFuelTransaction = useMutation<FuelTransaction, Error, { id: string; data: Partial<FuelTransaction> }>({
+    mutationFn: async ({ id, data }) => {
+      const res = await fetch(`/api/fuel-transactions/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) throw new Error('Failed to update fuel transaction');
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['fuelTransactions'] as QueryKey);
+    },
+  });
+
+  const deleteFuelTransaction = useMutation<void, Error, string>({
+    mutationFn: async (id) => {
+      const res = await fetch(`/api/fuel-transactions/${id}`, {
+        method: 'DELETE',
+      });
+      if (!res.ok) throw new Error('Failed to delete fuel transaction');
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['fuelTransactions'] as QueryKey);
+    },
+  });
+
+  return {
+    create: createFuelTransaction.mutateAsync,
+    update: (id: string, data: Partial<FuelTransaction>) => updateFuelTransaction.mutateAsync({ id, data }),
+    delete: deleteFuelTransaction.mutateAsync,
+  };
+}
+
+export function useFacilityMutations() {
+  const queryClient = useQueryClient();
+
+  const createFacility = useMutation<Facility, Error, Facility>({
+    mutationFn: async (newFacility) => {
+      const res = await fetch('/api/facilities', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newFacility),
+      });
+      if (!res.ok) throw new Error('Failed to create facility');
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['facilities'] as QueryKey);
+    },
+  });
+
+  const updateFacility = useMutation<Facility, Error, { id: string; data: Partial<Facility> }>({
+    mutationFn: async ({ id, data }) => {
+      const res = await fetch(`/api/facilities/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) throw new Error('Failed to update facility');
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['facilities'] as QueryKey);
+    },
+  });
+
+  const deleteFacility = useMutation<void, Error, string>({
+    mutationFn: async (id) => {
+      const res = await fetch(`/api/facilities/${id}`, {
+        method: 'DELETE',
+      });
+      if (!res.ok) throw new Error('Failed to delete facility');
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['facilities'] as QueryKey);
+    },
+  });
+
+  return {
+    create: createFacility.mutateAsync,
+    update: (id: string, data: Partial<Facility>) => updateFacility.mutateAsync({ id, data }),
+    delete: deleteFacility.mutateAsync,
+  };
+}
+
+export function useMaintenanceScheduleMutations() {
+  const queryClient = useQueryClient();
+
+  const createMaintenanceSchedule = useMutation<MaintenanceSchedule, Error, MaintenanceSchedule>({
+    mutationFn: async (newMaintenanceSchedule) => {
+      const res = await fetch('/api/maintenance-schedules', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newMaintenanceSchedule),
+      });
+      if (!res.ok) throw new Error('Failed to create maintenance schedule');
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['maintenanceSchedules'] as QueryKey);
+    },
+  });
+
+  const updateMaintenanceSchedule = useMutation<MaintenanceSchedule, Error, { id: string; data: Partial<MaintenanceSchedule> }>({
+    mutationFn: async ({ id, data }) => {
+      const res = await fetch(`/api/maintenance-schedules/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) throw new Error('Failed to update maintenance schedule');
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['maintenanceSchedules'] as QueryKey);
+    },
+  });
+
+  const deleteMaintenanceSchedule = useMutation<void, Error, string>({
+    mutationFn: async (id) => {
+      const res = await fetch(`/api/maintenance-schedules/${id}`, {
+        method: 'DELETE',
+      });
+      if (!res.ok) throw new Error('Failed to delete maintenance schedule');
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['maintenanceSchedules'] as QueryKey);
+    },
+  });
+
+  return {
+    create: createMaintenanceSchedule.mutateAsync,
+    update: (id: string, data: Partial<MaintenanceSchedule>) => updateMaintenanceSchedule.mutateAsync({ id, data }),
+    delete: deleteMaintenanceSchedule.mutateAsync,
+  };
+}
+
+export function useRouteMutations() {
+  const queryClient = useQueryClient();
+
+  const createRoute = useMutation<Route, Error, Route>({
+    mutationFn: async (newRoute) => {
+      const res = await fetch('/api/routes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newRoute),
+      });
+      if (!res.ok) throw new Error('Failed to create route');
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['routes'] as QueryKey);
+    },
+  });
+
+  const updateRoute = useMutation<Route, Error, { id: string; data: Partial<Route> }>({
+    mutationFn: async ({ id, data }) => {
+      const res = await fetch(`/api/routes/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) throw new Error('Failed to update route');
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['routes'] as QueryKey);
+    },
+  });
+
+  const deleteRoute = useMutation<void, Error, string>({
+    mutationFn: async (id) => {
+      const res = await fetch(`/api/routes/${id}`, {
+        method: 'DELETE',
+      });
+      if (!res.ok) throw new Error('Failed to delete route');
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['routes'] as QueryKey);
+    },
+  });
+
+  return {
+    create: createRoute.mutateAsync,
+    update: (id: string, data: Partial<Route>) => updateRoute.mutateAsync({ id, data }),
+    delete: deleteRoute.mutateAsync,
+  };
 }
