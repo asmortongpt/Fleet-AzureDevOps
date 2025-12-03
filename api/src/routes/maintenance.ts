@@ -1,4 +1,5 @@
 import { Router } from "express"
+import { cacheService } from '../config/cache'; // Wave 13: Add Redis caching
 import { maintenanceCreateSchema, maintenanceUpdateSchema } from '../schemas/maintenance.schema';
 import { validate } from '../middleware/validate';
 import logger from '../config/logger'; // Wave 11: Add Winston logger
@@ -22,6 +23,14 @@ router.get("/", async (req, res) => {
       startDate,
       endDate
     } = req.query
+
+    // Wave 13: Cache-aside pattern
+    const cacheKey = `maintenance:list:${page}:${pageSize}:${search || ''}:${serviceType || ''}:${status || ''}:${category || ''}:${vehicleNumber || ''}:${startDate || ''}:${endDate || ''}`
+    const cached = await cacheService.get<{ data: any[], total: number }>(cacheKey)
+
+    if (cached) {
+      return res.json(cached)
+    }
 
     let records = maintenanceRecordEmulator.getAll()
 
@@ -63,7 +72,12 @@ router.get("/", async (req, res) => {
     const offset = (Number(page) - 1) * Number(pageSize)
     const data = records.slice(offset, offset + Number(pageSize))
 
-    res.json({ data, total })
+    const result = { data, total }
+
+    // Cache for 5 minutes (300 seconds)
+    await cacheService.set(cacheKey, result, 300)
+
+    res.json(result)
   } catch (error) {
     logger.error('Failed to fetch maintenance records', { error }) // Wave 11: Winston logger
     res.status(500).json({ error: "Failed to fetch maintenance records" })
@@ -73,8 +87,20 @@ router.get("/", async (req, res) => {
 // GET maintenance record by ID
 router.get("/:id", async (req, res) => {
   try {
+    // Wave 13: Cache-aside pattern for single record
+    const cacheKey = `maintenance:${req.params.id}`
+    const cached = await cacheService.get<any>(cacheKey)
+
+    if (cached) {
+      return res.json({ data: cached })
+    }
+
     const record = maintenanceRecordEmulator.getById(Number(req.params.id))
     if (!record) return res.status(404).json({ error: "Maintenance record not found" })
+
+    // Cache for 10 minutes (600 seconds)
+    await cacheService.set(cacheKey, record, 600)
+
     res.json({ data: record })
   } catch (error) {
     logger.error('Failed to fetch maintenance record', { error, recordId: req.params.id }) // Wave 11: Winston logger
@@ -85,8 +111,21 @@ router.get("/:id", async (req, res) => {
 // GET maintenance records by vehicle ID
 router.get("/vehicle/:vehicleId", async (req, res) => {
   try {
+    // Wave 13: Cache-aside pattern for vehicle maintenance records
+    const cacheKey = `maintenance:vehicle:${req.params.vehicleId}`
+    const cached = await cacheService.get<{ data: any[], total: number }>(cacheKey)
+
+    if (cached) {
+      return res.json(cached)
+    }
+
     const records = maintenanceRecordEmulator.getByVehicleId(Number(req.params.vehicleId))
-    res.json({ data: records, total: records.length })
+    const result = { data: records, total: records.length }
+
+    // Cache for 10 minutes (600 seconds)
+    await cacheService.set(cacheKey, result, 600)
+
+    res.json(result)
   } catch (error) {
     logger.error('Failed to fetch vehicle maintenance records', { error, vehicleId: req.params.vehicleId }) // Wave 11: Winston logger
     res.status(500).json({ error: "Failed to fetch vehicle maintenance records" })
@@ -125,6 +164,11 @@ router.put("/:id", validate(maintenanceUpdateSchema), async (req, res) => { // W
       })
     }
     if (!record) return res.status(404).json({ error: "Maintenance record not found" })
+
+    // Wave 13: Invalidate cache on update
+    const cacheKey = `maintenance:${req.params.id}`
+    await cacheService.del(cacheKey)
+
     res.json({ data: record })
   } catch (error) {
     logger.error('Failed to update maintenance record', { error, recordId: req.params.id }) // Wave 11: Winston logger
@@ -137,6 +181,11 @@ router.delete("/:id", async (req, res) => {
   try {
     const deleted = maintenanceRecordEmulator.delete(Number(req.params.id))
     if (!deleted) return res.status(404).json({ error: "Maintenance record not found" })
+
+    // Wave 13: Invalidate cache on delete
+    const cacheKey = `maintenance:${req.params.id}`
+    await cacheService.del(cacheKey)
+
     res.json({ message: "Maintenance record deleted successfully" })
   } catch (error) {
     logger.error('Failed to delete maintenance record', { error, recordId: req.params.id }) // Wave 11: Winston logger
