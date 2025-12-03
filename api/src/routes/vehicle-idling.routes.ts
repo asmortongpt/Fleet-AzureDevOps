@@ -1,4 +1,5 @@
 /**
+import logger from '../config/logger'; // Wave 22: Add Winston logger
  * Vehicle Idling Routes
  *
  * REST API endpoints for vehicle idling detection and analytics
@@ -44,7 +45,7 @@ router.get(
         events: activeEvents
       });
     } catch (error) {
-      console.error('Error fetching active idling events:', error);
+      logger.error('Error fetching active idling events:', error) // Wave 22: Winston logger;
       res.status(500).json({
         success: false,
         message: 'Failed to fetch active idling events'
@@ -79,7 +80,7 @@ router.get(
         event
       });
     } catch (error) {
-      console.error('Error fetching active idling event:', error);
+      logger.error('Error fetching active idling event:', error) // Wave 22: Winston logger;
       res.status(500).json({
         success: false,
         message: 'Failed to fetch active idling event'
@@ -131,7 +132,7 @@ router.get(
         events
       });
     } catch (error) {
-      console.error('Error fetching vehicle idling history:', error);
+      logger.error('Error fetching vehicle idling history:', error) // Wave 22: Winston logger;
       res.status(500).json({
         success: false,
         message: 'Failed to fetch vehicle idling history'
@@ -170,7 +171,7 @@ router.get(
         stats
       });
     } catch (error) {
-      console.error('Error fetching vehicle idling stats:', error);
+      logger.error('Error fetching vehicle idling stats:', error) // Wave 22: Winston logger;
       res.status(500).json({
         success: false,
         message: 'Failed to fetch vehicle idling statistics'
@@ -207,7 +208,7 @@ router.get(
         stats
       });
     } catch (error) {
-      console.error('Error fetching fleet idling stats:', error);
+      logger.error('Error fetching fleet idling stats:', error) // Wave 22: Winston logger;
       res.status(500).json({
         success: false,
         message: 'Failed to fetch fleet idling statistics'
@@ -245,7 +246,7 @@ router.get(
         vehicles
       });
     } catch (error) {
-      console.error('Error fetching top idling offenders:', error);
+      logger.error('Error fetching top idling offenders:', error) // Wave 22: Winston logger;
       res.status(500).json({
         success: false,
         message: 'Failed to fetch top idling offenders'
@@ -288,7 +289,7 @@ router.get(
         performance
       });
     } catch (error) {
-      console.error('Error fetching driver idling performance:', error);
+      logger.error('Error fetching driver idling performance:', error) // Wave 22: Winston logger;
       res.status(500).json({
         success: false,
         message: 'Failed to fetch driver idling performance'
@@ -331,7 +332,7 @@ router.get(
         events
       });
     } catch (error) {
-      console.error('Error fetching driver idling history:', error);
+      logger.error('Error fetching driver idling history:', error) // Wave 22: Winston logger;
       res.status(500).json({
         success: false,
         message: 'Failed to fetch driver idling history'
@@ -402,7 +403,7 @@ router.post(
         eventId
       });
     } catch (error) {
-      console.error('Error creating manual idling event:', error);
+      logger.error('Error creating manual idling event:', error) // Wave 22: Winston logger;
       res.status(500).json({
         success: false,
         message: 'Failed to create manual idling event'
@@ -436,7 +437,7 @@ router.get(
         thresholds
       });
     } catch (error) {
-      console.error('Error fetching vehicle thresholds:', error);
+      logger.error('Error fetching vehicle thresholds:', error) // Wave 22: Winston logger;
       res.status(500).json({
         success: false,
         message: 'Failed to fetch vehicle thresholds'
@@ -483,7 +484,7 @@ router.put(
         vehicleId: parseInt(vehicleId)
       });
     } catch (error) {
-      console.error('Error updating vehicle thresholds:', error);
+      logger.error('Error updating vehicle thresholds:', error) // Wave 22: Winston logger;
       res.status(500).json({
         success: false,
         message: 'Failed to update vehicle thresholds'
@@ -523,7 +524,7 @@ router.get(
         alerts
       });
     } catch (error) {
-      console.error('Error fetching idling alerts:', error);
+      logger.error('Error fetching idling alerts:', error) // Wave 22: Winston logger;
       res.status(500).json({
         success: false,
         message: 'Failed to fetch idling alerts'
@@ -554,7 +555,7 @@ router.post(
         alertId: parseInt(alertId)
       });
     } catch (error) {
-      console.error('Error acknowledging alert:', error);
+      logger.error('Error acknowledging alert:', error) // Wave 22: Winston logger;
       res.status(500).json({
         success: false,
         message: 'Failed to acknowledge alert'
@@ -591,7 +592,7 @@ router.get(
         report
       });
     } catch (error) {
-      console.error('Error fetching monthly idling report:', error);
+      logger.error('Error fetching monthly idling report:', error) // Wave 22: Winston logger;
       res.status(500).json({
         success: false,
         message: 'Failed to fetch monthly idling report'
