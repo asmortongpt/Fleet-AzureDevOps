@@ -27,7 +27,7 @@ describe('FuelOptimizationService', () => {
     };
 
     // Initialize service with mocks
-    // TODO: Adjust constructor parameters based on actual service
+    // Dependencies: db, logger, cache, emailService
     service = new FuelOptimizationService(mockDb, mockLogger);
   });
 

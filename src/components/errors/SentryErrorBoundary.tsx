@@ -6,7 +6,7 @@
 
 import React, { Component, ReactNode } from 'react'
 import * as Sentry from '@sentry/react'
-import { captureException, showFeedbackWidget } from '@/lib/sentry'
+import { captureException, showFeedbackWidget } from '../../lib/sentry'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { AlertTriangle, RefreshCw, Home, Bug, ChevronDown, ChevronUp } from 'lucide-react'
