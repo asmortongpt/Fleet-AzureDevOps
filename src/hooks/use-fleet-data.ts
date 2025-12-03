@@ -8,16 +8,19 @@ import {
   useVehicleMutations,
   useDrivers,
   useDriverMutations,
-  useWorkOrders,
-  useWorkOrderMutations,
-  useFuelTransactions,
-  useFuelTransactionMutations,
-  useFacilities,
-  useFacilityMutations,
-  useMaintenanceSchedules,
-  useMaintenanceScheduleMutations,
-  useRoutes,
-  useRouteMutations
+  useMaintenance,
+  useMaintenanceMutations,
+  // TODO: Implement these hooks in use-api.ts
+  // useWorkOrders,
+  // useWorkOrderMutations,
+  // useFuelTransactions,
+  // useFuelTransactionMutations,
+  // useFacilities,
+  // useFacilityMutations,
+  // useMaintenanceSchedules,
+  // useMaintenanceScheduleMutations,
+  // useRoutes,
+  // useRouteMutations
 } from '@/hooks/use-api'
 import { useCallback, useEffect, useMemo } from 'react'
 import logger from '@/utils/logger'
