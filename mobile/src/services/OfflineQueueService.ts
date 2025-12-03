@@ -436,6 +436,13 @@ export class OfflineQueueService {
       // Update status to completed
       await this.updateQueueItemStatus(item.id, SyncStatus.COMPLETED);
 
+      // Record sync history for analytics
+      await this.recordSyncHistory(
+        item.id,
+        SyncStatus.COMPLETED,
+        result.duration
+      );
+
       console.log(`[OfflineQueue] ✓ ${item.method} ${item.url} [${response.status}]`);
       return result;
     } catch (error: any) {
@@ -454,6 +461,14 @@ export class OfflineQueueService {
       } else {
         // Mark as failed
         await this.updateQueueItemStatus(item.id, SyncStatus.FAILED, queueError);
+
+        // Record failed sync in history
+        await this.recordSyncHistory(
+          item.id,
+          SyncStatus.FAILED,
+          Date.now() - startTime,
+          queueError.message
+        );
 
         console.error(`[OfflineQueue] ✗ ${item.method} ${item.url}`, queueError);
         return {
@@ -562,6 +577,9 @@ export class OfflineQueueService {
       allItems.reduce((sum, item) => sum + item.retryCount, 0) /
       (totalItems || 1);
 
+    // Calculate average sync time from completed items with timing data
+    const avgSyncTime = await this.calculateAverageSyncTime();
+
     const lastSyncTime = await this.persistence.getMetadata('last_sync_time');
 
     return {
@@ -569,9 +587,55 @@ export class OfflineQueueService {
       successCount,
       failureCount,
       averageRetries: avgRetries,
-      averageSyncTime: 0, // TODO: Calculate from results
+      averageSyncTime: avgSyncTime,
       lastSyncTime: lastSyncTime ? parseInt(lastSyncTime, 10) : undefined,
     };
+  }
+
+  /**
+   * Calculate average sync time from sync history
+   */
+  private async calculateAverageSyncTime(): Promise<number> {
+    try {
+      // Query sync history table for completed syncs with duration
+      const result = await this.persistence.executeSql(
+        `SELECT AVG(duration_ms) as avg_duration
+         FROM sync_history
+         WHERE status = ? AND duration_ms IS NOT NULL
+         LIMIT 100`,
+        [SyncStatus.COMPLETED]
+      );
+
+      if (result.rows.length > 0 && result.rows.item(0).avg_duration) {
+        return Math.round(result.rows.item(0).avg_duration);
+      }
+
+      return 0;
+    } catch (error) {
+      console.error('Error calculating average sync time:', error);
+      return 0;
+    }
+  }
+
+  /**
+   * Record sync result in history for analytics
+   */
+  private async recordSyncHistory(
+    queueItemId: string,
+    status: SyncStatus,
+    durationMs: number,
+    error?: string
+  ): Promise<void> {
+    try {
+      await this.persistence.executeSql(
+        `INSERT INTO sync_history (
+          queue_item_id, status, duration_ms, error, synced_at
+        ) VALUES (?, ?, ?, ?, ?)`,
+        [queueItemId, status, durationMs, error, Date.now()]
+      );
+    } catch (error) {
+      console.error('Error recording sync history:', error);
+    }
   }
 
   /**
