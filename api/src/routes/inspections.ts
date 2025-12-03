@@ -84,6 +84,7 @@ router.get(
 // POST /inspections
 router.post(
   '/',
+  validate(inspectionCreateSchema), // Wave 8: Add Zod validation
   requirePermission('inspection:create:own', {
     customCheck: async (req: AuthRequest) => {
       // Validate driver_id matches the authenticated user
@@ -142,6 +143,7 @@ const ALLOWED_UPDATE_FIELDS = [
 
 router.put(
   `/:id`,
+  validate(inspectionUpdateSchema), // Wave 8: Add Zod validation
   requirePermission('inspection:update:own'),
   auditLog({ action: 'UPDATE', resourceType: 'inspections' }),
   async (req: AuthRequest, res: Response) => {
