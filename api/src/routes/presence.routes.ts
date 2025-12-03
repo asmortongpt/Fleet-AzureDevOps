@@ -1,4 +1,5 @@
 import express, { Request, Response } from 'express'
+import logger from '../config/logger'; // Wave 29: Add Winston logger
 import { authenticateJWT } from '../middleware/auth'
 import { getErrorMessage } from '../utils/error-handler'
 import {
@@ -28,7 +29,7 @@ router.get('/:userId', authenticateJWT, async (req: Request, res: Response) => {
       presence
     })
   } catch (error: any) {
-    console.error('Error fetching user presence:', getErrorMessage(error))
+    logger.error('Error fetching user presence:', getErrorMessage(error)) // Wave 29: Winston logger
     res.status(500).json({ error: getErrorMessage(error) })
   }
 })
@@ -54,7 +55,7 @@ router.post('/', authenticateJWT, async (req: Request, res: Response) => {
       message: 'Presence updated successfully'
     })
   } catch (error: any) {
-    console.error('Error setting user presence:', getErrorMessage(error))
+    logger.error('Error setting user presence:', getErrorMessage(error)) // Wave 29: Winston logger
     res.status(500).json({ error: getErrorMessage(error) })
   }
 })
@@ -81,7 +82,7 @@ router.get('/batch/users', authenticateJWT, async (req: Request, res: Response) 
       presences
     })
   } catch (error: any) {
-    console.error('Error fetching batch presence:', getErrorMessage(error))
+    logger.error('Error fetching batch presence:', getErrorMessage(error)) // Wave 29: Winston logger
     res.status(500).json({ error: getErrorMessage(error) })
   }
 })
@@ -102,7 +103,7 @@ router.get('/driver/:driverId', authenticateJWT, async (req: Request, res: Respo
       ...availability
     })
   } catch (error: any) {
-    console.error('Error fetching driver availability:', getErrorMessage(error))
+    logger.error('Error fetching driver availability:', getErrorMessage(error)) // Wave 29: Winston logger
     res.status(500).json({ error: getErrorMessage(error) })
   }
 })
@@ -123,7 +124,7 @@ router.get('/drivers/all', authenticateJWT, async (req: Request, res: Response) 
       drivers
     })
   } catch (error: any) {
-    console.error('Error fetching all drivers availability:', getErrorMessage(error))
+    logger.error('Error fetching all drivers availability:', getErrorMessage(error)) // Wave 29: Winston logger
     res.status(500).json({ error: getErrorMessage(error) })
   }
 })
@@ -144,7 +145,7 @@ router.get('/drivers/available', authenticateJWT, async (req: Request, res: Resp
       drivers: availableDrivers
     })
   } catch (error: any) {
-    console.error('Error fetching available drivers:', getErrorMessage(error))
+    logger.error('Error fetching available drivers:', getErrorMessage(error)) // Wave 29: Winston logger
     res.status(500).json({ error: getErrorMessage(error) })
   }
 })
@@ -177,7 +178,7 @@ router.post('/intelligent-routing', authenticateJWT, async (req: Request, res: R
       suggestion
     })
   } catch (error: any) {
-    console.error(`Error getting intelligent routing suggestion:`, getErrorMessage(error))
+    logger.error(`Error getting intelligent routing suggestion:`, getErrorMessage(error)) // Wave 29: Winston logger
     res.status(500).json({ error: getErrorMessage(error) })
   }
 })
@@ -204,7 +205,7 @@ router.post('/subscribe', authenticateJWT, async (req: Request, res: Response) =
       note: 'Webhook subscriptions require proper Azure configuration'
     })
   } catch (error: any) {
-    console.error('Error creating presence subscription:', getErrorMessage(error))
+    logger.error('Error creating presence subscription:', getErrorMessage(error)) // Wave 29: Winston logger
     res.status(500).json({ error: getErrorMessage(error) })
   }
 })
