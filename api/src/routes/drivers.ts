@@ -4,11 +4,23 @@ import { driverCreateSchema, driverUpdateSchema } from '../schemas/driver.schema
 import { validate } from '../middleware/validate';
 import logger from '../config/logger'; // Wave 10: Add Winston logger
 import { driverEmulator } from "../emulators/DriverEmulator"
+import { authenticateJWT } from '../middleware/auth';
+import { requireRBAC, Role, PERMISSIONS } from '../middleware/rbac';
 
 const router = Router()
 
-// GET all drivers
-router.get("/", async (req, res) => {
+// SECURITY: All routes require authentication
+router.use(authenticateJWT)
+
+// GET all drivers - Requires authentication, any role can read
+router.get("/",
+  requireRBAC({
+    roles: [Role.ADMIN, Role.MANAGER, Role.USER, Role.GUEST],
+    permissions: [PERMISSIONS.DRIVER_READ],
+    enforceTenantIsolation: true,
+    resourceType: 'driver'
+  }),
+  async (req, res) => {
   try {
     const { page = 1, pageSize = 20, search, status } = req.query
 
@@ -49,8 +61,15 @@ router.get("/", async (req, res) => {
   }
 })
 
-// GET driver by ID
-router.get("/:id", async (req, res) => {
+// GET driver by ID - Requires authentication + tenant isolation
+router.get("/:id",
+  requireRBAC({
+    roles: [Role.ADMIN, Role.MANAGER, Role.USER, Role.GUEST],
+    permissions: [PERMISSIONS.DRIVER_READ],
+    enforceTenantIsolation: true,
+    resourceType: 'driver'
+  }),
+  async (req, res) => {
   try {
     // Wave 12 (Revised): Cache-aside pattern for single driver
     const cacheKey = `driver:${req.params.id}`
@@ -73,8 +92,16 @@ router.get("/:id", async (req, res) => {
   }
 })
 
-// POST create driver
-router.post("/", validate(driverCreateSchema), async (req, res) => { // Wave 9: Add Zod validation
+// POST create driver - Requires admin or manager role
+router.post("/",
+  requireRBAC({
+    roles: [Role.ADMIN, Role.MANAGER],
+    permissions: [PERMISSIONS.DRIVER_CREATE],
+    enforceTenantIsolation: true,
+    resourceType: 'driver'
+  }),
+  validate(driverCreateSchema),
+  async (req, res) => { // Wave 9: Add Zod validation
   try {
     const driver = driverEmulator.create(req.body)
     res.status(201).json({ data: driver })
@@ -84,8 +111,16 @@ router.post("/", validate(driverCreateSchema), async (req, res) => { // Wave 9: 
   }
 })
 
-// PUT update driver
-router.put("/:id", validate(driverUpdateSchema), async (req, res) => { // Wave 9: Add Zod validation
+// PUT update driver - Requires admin or manager role + tenant isolation
+router.put("/:id",
+  requireRBAC({
+    roles: [Role.ADMIN, Role.MANAGER],
+    permissions: [PERMISSIONS.DRIVER_UPDATE],
+    enforceTenantIsolation: true,
+    resourceType: 'driver'
+  }),
+  validate(driverUpdateSchema),
+  async (req, res) => { // Wave 9: Add Zod validation
   try {
     const driver = driverEmulator.update(Number(req.params.id), req.body)
     if (!driver) return res.status(404).json({ error: "Driver not found" })
