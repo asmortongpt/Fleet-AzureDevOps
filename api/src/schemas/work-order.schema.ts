@@ -5,15 +5,16 @@ import { z } from 'zod';
  * Auto-generated for input validation
  */
 
-export const work-orderCreateSchema = z.object({
-  // TODO: Add specific fields for work-order
+export const workOrderCreateSchema = z.object({
+  // Fields defined inline in work-orders.ts route file (lines 21-35)
+  // This schema is not currently used - route uses inline schema instead
   tenant_id: z.number().int().positive(),
   created_at: z.date().optional(),
   updated_at: z.date().optional(),
 });
 
-export const work-orderUpdateSchema = work-orderCreateSchema.partial();
+export const workOrderUpdateSchema = workOrderCreateSchema.partial();
 
-export type WorkOrderCreate = z.infer<typeof work-orderCreateSchema>;
-export type WorkOrderUpdate = z.infer<typeof work-orderUpdateSchema>;
+export type WorkOrderCreate = z.infer<typeof workOrderCreateSchema>;
+export type WorkOrderUpdate = z.infer<typeof workOrderUpdateSchema>;
 
