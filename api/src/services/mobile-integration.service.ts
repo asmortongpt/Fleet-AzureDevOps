@@ -18,7 +18,7 @@
  */
 
 import pool from '../config/database'
-// import { OfflineStorage } from './offline-storage.service' // TODO: Create offline storage service
+import OfflineStorageService from './offline-storage.service'
 import RouteOptimizationService from './route-optimization.service'
 import DispatchService from './dispatch.service'
 import EVChargingService from './ev-charging.service'
@@ -79,18 +79,11 @@ export interface ARNavigationData {
 }
 
 export class MobileIntegrationService {
-  // private offlineStorage: OfflineStorage // TODO: Create offline storage service
-  // private routeOptimization: RouteOptimizationService // TODO: Refactor services to be classes
-  // private dispatch: DispatchService
-  // private evCharging: EVChargingService
-  // private videoTelematics: VideoTelematicsService
+  private offlineStorage = OfflineStorageService
 
   constructor() {
-    // this.offlineStorage = new OfflineStorage() // TODO: Create offline storage service
-    // this.routeOptimization = new RouteOptimizationService() // TODO: Refactor services to be classes
-    // this.dispatch = new DispatchService()
-    // this.evCharging = new EVChargingService()
-    // this.videoTelematics = new VideoTelematicsService()
+    // Services are initialized as singletons and imported directly
+    // RouteOptimizationService, DispatchService, EVChargingService, VideoTelematicsService
   }
 
   /**
