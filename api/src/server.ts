@@ -28,6 +28,9 @@ import express from 'express'
 import cors from 'cors'
 import helmet from 'helmet'
 
+// CRIT-F-004: Comprehensive Rate Limiting Middleware
+import { globalLimiter, smartRateLimiter } from './middleware/rateLimiter'
+
 // Core Fleet Management Routes
 import vehiclesRouter from './routes/vehicles'
 import driversRouter from './routes/drivers'
@@ -187,6 +190,10 @@ app.use(helmet({
 app.use(cors())
 app.use(express.json({ limit: '10mb' }))
 app.use(express.urlencoded({ extended: true, limit: '10mb' }))
+
+// CRIT-F-004: Apply global rate limiting to prevent DoS attacks
+// This applies to all routes before specific route handlers
+app.use(globalLimiter)
 
 // Add telemetry middleware
 app.use(telemetryMiddleware)
