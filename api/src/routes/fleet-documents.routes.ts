@@ -1,4 +1,5 @@
 /**
+import logger from '../config/logger'; // Wave 31: Add Winston logger
  * Fleet Documents Routes
  *
  * Comprehensive document management API for fleet operations:
@@ -177,7 +178,7 @@ router.post(
         document: result.rows[0]
       })
     } catch (error: any) {
-      console.error(`Upload fleet document error:`, error)
+      logger.error(`Upload fleet document error:`, error) // Wave 31: Winston logger
       res.status(500).json({
         error: `Internal server error`,
         details: process.env.NODE_ENV === `development` ? getErrorMessage(error) : undefined
@@ -336,7 +337,7 @@ router.get(
         }
       })
     } catch (error: any) {
-      console.error(`Get fleet documents error:`, error)
+      logger.error(`Get fleet documents error:`, error) // Wave 31: Winston logger
       res.status(500).json({
         error: 'Internal server error',
         details: process.env.NODE_ENV === 'development' ? getErrorMessage(error) : undefined
@@ -405,7 +406,7 @@ router.get(
         }
       })
     } catch (error: any) {
-      console.error(`Get fleet document error:`, error)
+      logger.error(`Get fleet document error:`, error) // Wave 31: Winston logger
       res.status(500).json({
         error: 'Internal server error',
         details: process.env.NODE_ENV === 'development' ? getErrorMessage(error) : undefined
@@ -459,7 +460,7 @@ router.delete(
         message: 'Document archived successfully'
       })
     } catch (error: any) {
-      console.error('Delete fleet document error:', error)
+      logger.error('Delete fleet document error:', error) // Wave 31: Winston logger
       res.status(500).json({
         error: 'Internal server error',
         details: process.env.NODE_ENV === 'development' ? getErrorMessage(error) : undefined
@@ -526,7 +527,7 @@ router.get(
         days: daysInt
       })
     } catch (error: any) {
-      console.error('Get expiring documents error:', error)
+      logger.error('Get expiring documents error:', error) // Wave 31: Winston logger
       res.status(500).json({
         error: 'Internal server error',
         details: process.env.NODE_ENV === 'development' ? getErrorMessage(error) : undefined
@@ -622,7 +623,7 @@ router.post(
         status: 'pending'
       })
     } catch (error: any) {
-      console.error('Trigger OCR processing error:', error)
+      logger.error('Trigger OCR processing error:', error) // Wave 31: Winston logger
       res.status(500).json({
         error: 'Internal server error',
         details: process.env.NODE_ENV === 'development' ? getErrorMessage(error) : undefined
@@ -679,7 +680,7 @@ router.get(
         downloadUrl: document.blob_url
       })
     } catch (error: any) {
-      console.error('Download fleet document error:', error)
+      logger.error('Download fleet document error:', error) // Wave 31: Winston logger
       res.status(500).json({
         error: 'Internal server error',
         details: process.env.NODE_ENV === 'development' ? getErrorMessage(error) : undefined
