@@ -15,6 +15,8 @@ import fs from 'fs/promises'
 import path from 'path'
 import crypto from 'crypto'
 import { DocumentRAGService } from './document-rag.service'
+import pdfParse from 'pdf-parse'
+import mammoth from 'mammoth'
 
 export interface Document {
   id: string
@@ -219,6 +221,11 @@ export class DocumentManagementService {
 
   /**
    * Extract text from document (supports PDF, DOCX, TXT, CSV)
+   * Uses pdf-parse for PDF files and mammoth for DOCX files
+   *
+   * @param filePath - Absolute path to the file
+   * @param mimeType - MIME type of the document
+   * @returns Extracted text content
    */
   private async extractText(filePath: string, mimeType: string): Promise<string> {
     try {
@@ -228,31 +235,46 @@ export class DocumentManagementService {
         return content
       }
 
-      // For PDFs, would use pdf-parse or similar
+      // For PDFs, use pdf-parse library
       if (mimeType === 'application/pdf') {
-        // PRODUCTION TODO: Integrate pdf-parse
-        // const pdfParse = require(`pdf-parse`)
-        // const dataBuffer = await fs.readFile(filePath)
-        // const data = await pdfParse(dataBuffer)
-        // return data.text
+        try {
+          const dataBuffer = await fs.readFile(filePath)
+          const data = await pdfParse(dataBuffer)
 
-        // Placeholder for now
-        return `[PDF content extraction not yet implemented for ${filePath}]`
+          // Extract text and metadata
+          console.log(`[DocumentManagement] Extracted ${data.text.length} characters from PDF: ${filePath}`)
+          console.log(`[DocumentManagement] PDF metadata: ${data.numpages} pages, info: ${JSON.stringify(data.info)}`)
+
+          return data.text
+        } catch (pdfError: any) {
+          console.error('[DocumentManagement] Error parsing PDF:', pdfError.message)
+          return `[PDF parsing failed: ${pdfError.message}]`
+        }
       }
 
-      // For DOCX, would use mammoth or similar
+      // For DOCX, use mammoth library
       if (mimeType === `application/vnd.openxmlformats-officedocument.wordprocessingml.document`) {
-        // PRODUCTION TODO: Integrate mammoth
-        // const mammoth = require(`mammoth`)
-        // const result = await mammoth.extractRawText({ path: filePath })
-        // return result.value
+        try {
+          const result = await mammoth.extractRawText({ path: filePath })
 
-        return `[DOCX content extraction not yet implemented for ${filePath}]`
+          if (result.messages && result.messages.length > 0) {
+            console.warn('[DocumentManagement] Mammoth warnings:', result.messages)
+          }
+
+          console.log(`[DocumentManagement] Extracted ${result.value.length} characters from DOCX: ${filePath}`)
+
+          return result.value
+        } catch (docxError: any) {
+          console.error('[DocumentManagement] Error parsing DOCX:', docxError.message)
+          return `[DOCX parsing failed: ${docxError.message}]`
+        }
       }
 
+      // Unsupported file type
+      console.warn(`[DocumentManagement] Unsupported mime type for text extraction: ${mimeType}`)
       return ``
-    } catch (error) {
-      console.error('Error extracting text:', error)
+    } catch (error: any) {
+      console.error('[DocumentManagement] Error extracting text:', error.message)
       return ''
     }
   }
