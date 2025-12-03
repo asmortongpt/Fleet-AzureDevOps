@@ -31,7 +31,7 @@ describe('/alerts.routes API Integration Tests', () => {
 
   afterAll(async () => {
     // Cleanup: Remove test data
-    // TODO: Implement cleanup logic
+    await request(app).delete(`/api/resource/${createdId}`).set("Authorization", `Bearer ${authToken}`).expect(204);
   });
 
   describe('GET /alerts.routes/', () => {
@@ -42,7 +42,7 @@ describe('/alerts.routes API Integration Tests', () => {
         .expect(200);
 
       expect(response.body).toBeDefined();
-      // TODO: Add specific response validation
+      expect(response.body).toHaveProperty("id"); expect(response.body).toHaveProperty("tenantId"); expect(response.body.tenantId).toBe(testTenantId);
     });
   });
 
@@ -54,7 +54,7 @@ describe('/alerts.routes API Integration Tests', () => {
         .expect(200);
 
       expect(response.body).toBeDefined();
-      // TODO: Add specific response validation
+      expect(response.body).toHaveProperty("id"); expect(response.body).toHaveProperty("tenantId"); expect(response.body.tenantId).toBe(testTenantId);
     });
   });
 
@@ -64,7 +64,7 @@ describe('/alerts.routes API Integration Tests', () => {
         .post('/alerts.routes/:id/acknowledge')
         
         .send({
-          // TODO: Add valid request body
+          name: "Test Entity", description: "Test Description", status: "active",
           tenantId: testTenantId,
         })
         .expect(201);
@@ -89,7 +89,7 @@ describe('/alerts.routes API Integration Tests', () => {
         .post('/alerts.routes/:id/resolve')
         
         .send({
-          // TODO: Add valid request body
+          name: "Test Entity", description: "Test Description", status: "active",
           tenantId: testTenantId,
         })
         .expect(201);
@@ -116,7 +116,7 @@ describe('/alerts.routes API Integration Tests', () => {
         .expect(200);
 
       expect(response.body).toBeDefined();
-      // TODO: Add specific response validation
+      expect(response.body).toHaveProperty("id"); expect(response.body).toHaveProperty("tenantId"); expect(response.body.tenantId).toBe(testTenantId);
     });
   });
 
@@ -126,7 +126,7 @@ describe('/alerts.routes API Integration Tests', () => {
         .post('/alerts.routes/rules')
         
         .send({
-          // TODO: Add valid request body
+          name: "Test Entity", description: "Test Description", status: "active",
           tenantId: testTenantId,
         })
         .expect(201);
@@ -151,7 +151,7 @@ describe('/alerts.routes API Integration Tests', () => {
         .put('/alerts.routes/rules/:id')
         
         .send({
-          // TODO: Add valid update data
+          status: "completed", completedAt: new Date().toISOString()
         })
         .expect(200);
 
@@ -191,7 +191,7 @@ describe('/alerts.routes API Integration Tests', () => {
         .expect(200);
 
       expect(response.body).toBeDefined();
-      // TODO: Add specific response validation
+      expect(response.body).toHaveProperty("id"); expect(response.body).toHaveProperty("tenantId"); expect(response.body.tenantId).toBe(testTenantId);
     });
   });
 
@@ -201,7 +201,7 @@ describe('/alerts.routes API Integration Tests', () => {
         .post('/alerts.routes/notifications/:id/read')
         
         .send({
-          // TODO: Add valid request body
+          name: "Test Entity", description: "Test Description", status: "active",
           tenantId: testTenantId,
         })
         .expect(201);
@@ -226,7 +226,7 @@ describe('/alerts.routes API Integration Tests', () => {
         .post('/alerts.routes/notifications/read-all')
         
         .send({
-          // TODO: Add valid request body
+          name: "Test Entity", description: "Test Description", status: "active",
           tenantId: testTenantId,
         })
         .expect(201);
@@ -254,11 +254,11 @@ describe('/alerts.routes API Integration Tests', () => {
         .set('Authorization', `Bearer ${authToken}`)
         .send({
           tenantId: 'tenant-A',
-          // TODO: Add resource data
+          name: "Test Resource A", description: "For Tenant A", status: "active"
         });
 
       // Try to access from tenant B
-      const tenantBToken = 'TENANT_B_TOKEN_HERE'; // TODO: Generate actual tenant B token
+      const tenantBToken = 'await generateTestToken({ tenantId: "tenant-B", userId: "user-b" })
       const responseB = await request(app)
         .get(`/alerts.routes/${resourceA.body.id}`)
         .set('Authorization', `Bearer ${tenantBToken}`)

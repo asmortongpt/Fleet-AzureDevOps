@@ -31,7 +31,7 @@ describe('/ai-task-asset.routes API Integration Tests', () => {
 
   afterAll(async () => {
     // Cleanup: Remove test data
-    // TODO: Implement cleanup logic
+    await request(app).delete(`/api/resource/${createdId}`).set("Authorization", `Bearer ${authToken}`).expect(204);
   });
 
   describe('POST /ai-task-asset.routes/task-suggestions', () => {
@@ -40,7 +40,7 @@ describe('/ai-task-asset.routes API Integration Tests', () => {
         .post('/ai-task-asset.routes/task-suggestions')
         
         .send({
-          // TODO: Add valid request body
+          name: "Test Entity", description: "Test Description", status: "active",
           tenantId: testTenantId,
         })
         .expect(201);
@@ -65,7 +65,7 @@ describe('/ai-task-asset.routes API Integration Tests', () => {
         .post('/ai-task-asset.routes/suggest-assignee')
         
         .send({
-          // TODO: Add valid request body
+          name: "Test Entity", description: "Test Description", status: "active",
           tenantId: testTenantId,
         })
         .expect(201);
@@ -90,7 +90,7 @@ describe('/ai-task-asset.routes API Integration Tests', () => {
         .post('/ai-task-asset.routes/parse-task')
         
         .send({
-          // TODO: Add valid request body
+          name: "Test Entity", description: "Test Description", status: "active",
           tenantId: testTenantId,
         })
         .expect(201);
@@ -115,7 +115,7 @@ describe('/ai-task-asset.routes API Integration Tests', () => {
         .post('/ai-task-asset.routes/predict-maintenance')
         
         .send({
-          // TODO: Add valid request body
+          name: "Test Entity", description: "Test Description", status: "active",
           tenantId: testTenantId,
         })
         .expect(201);
@@ -140,7 +140,7 @@ describe('/ai-task-asset.routes API Integration Tests', () => {
         .post('/ai-task-asset.routes/workflow-suggestion')
         
         .send({
-          // TODO: Add valid request body
+          name: "Test Entity", description: "Test Description", status: "active",
           tenantId: testTenantId,
         })
         .expect(201);
@@ -165,7 +165,7 @@ describe('/ai-task-asset.routes API Integration Tests', () => {
         .post('/ai-task-asset.routes/ask-question')
         
         .send({
-          // TODO: Add valid request body
+          name: "Test Entity", description: "Test Description", status: "active",
           tenantId: testTenantId,
         })
         .expect(201);
@@ -190,7 +190,7 @@ describe('/ai-task-asset.routes API Integration Tests', () => {
         .post('/ai-task-asset.routes/mcp/optimize-schedule')
         
         .send({
-          // TODO: Add valid request body
+          name: "Test Entity", description: "Test Description", status: "active",
           tenantId: testTenantId,
         })
         .expect(201);
@@ -215,7 +215,7 @@ describe('/ai-task-asset.routes API Integration Tests', () => {
         .post('/ai-task-asset.routes/mcp/analyze-asset-lifecycle')
         
         .send({
-          // TODO: Add valid request body
+          name: "Test Entity", description: "Test Description", status: "active",
           tenantId: testTenantId,
         })
         .expect(201);
@@ -242,7 +242,7 @@ describe('/ai-task-asset.routes API Integration Tests', () => {
         .expect(200);
 
       expect(response.body).toBeDefined();
-      // TODO: Add specific response validation
+      expect(response.body).toHaveProperty("id"); expect(response.body).toHaveProperty("tenantId"); expect(response.body.tenantId).toBe(testTenantId);
     });
   });
 
@@ -254,7 +254,7 @@ describe('/ai-task-asset.routes API Integration Tests', () => {
         .expect(200);
 
       expect(response.body).toBeDefined();
-      // TODO: Add specific response validation
+      expect(response.body).toHaveProperty("id"); expect(response.body).toHaveProperty("tenantId"); expect(response.body.tenantId).toBe(testTenantId);
     });
   });
 
@@ -264,7 +264,7 @@ describe('/ai-task-asset.routes API Integration Tests', () => {
         .post('/ai-task-asset.routes/config/workflows')
         
         .send({
-          // TODO: Add valid request body
+          name: "Test Entity", description: "Test Description", status: "active",
           tenantId: testTenantId,
         })
         .expect(201);
@@ -291,7 +291,7 @@ describe('/ai-task-asset.routes API Integration Tests', () => {
         .expect(200);
 
       expect(response.body).toBeDefined();
-      // TODO: Add specific response validation
+      expect(response.body).toHaveProperty("id"); expect(response.body).toHaveProperty("tenantId"); expect(response.body.tenantId).toBe(testTenantId);
     });
   });
 
@@ -301,7 +301,7 @@ describe('/ai-task-asset.routes API Integration Tests', () => {
         .post('/ai-task-asset.routes/config/business-rules')
         
         .send({
-          // TODO: Add valid request body
+          name: "Test Entity", description: "Test Description", status: "active",
           tenantId: testTenantId,
         })
         .expect(201);
@@ -326,7 +326,7 @@ describe('/ai-task-asset.routes API Integration Tests', () => {
         .post('/ai-task-asset.routes/config/evaluate-rules')
         
         .send({
-          // TODO: Add valid request body
+          name: "Test Entity", description: "Test Description", status: "active",
           tenantId: testTenantId,
         })
         .expect(201);
@@ -354,11 +354,11 @@ describe('/ai-task-asset.routes API Integration Tests', () => {
         .set('Authorization', `Bearer ${authToken}`)
         .send({
           tenantId: 'tenant-A',
-          // TODO: Add resource data
+          name: "Test Resource A", description: "For Tenant A", status: "active"
         });
 
       // Try to access from tenant B
-      const tenantBToken = 'TENANT_B_TOKEN_HERE'; // TODO: Generate actual tenant B token
+      const tenantBToken = 'await generateTestToken({ tenantId: "tenant-B", userId: "user-b" })
       const responseB = await request(app)
         .get(`/ai-task-asset.routes/${resourceA.body.id}`)
         .set('Authorization', `Bearer ${tenantBToken}`)
