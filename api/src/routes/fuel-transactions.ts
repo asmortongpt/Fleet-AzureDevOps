@@ -1,4 +1,5 @@
 import { Router } from "express"
+import logger from '../config/logger'; // Wave 16: Add Winston logger
 import { fuelTransactionEmulator } from "../emulators/FuelTransactionEmulator"
 import { TenantValidator } from '../utils/tenant-validator';
 
@@ -56,7 +57,7 @@ router.get("/", async (req, res) => {
 
     res.json({ data, total })
   } catch (error) {
-    console.error(error)
+    logger.error(error) // Wave 16: Winston logger
     res.status(500).json({ error: "Failed to fetch fuel transactions" })
   }
 })
