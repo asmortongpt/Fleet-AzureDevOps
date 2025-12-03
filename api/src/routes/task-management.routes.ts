@@ -1,4 +1,5 @@
 /**
+import logger from '../config/logger'; // Wave 31: Add Winston logger
  * Task Management Routes
  * Comprehensive task tracking, assignment, and workflow management
  *
@@ -86,7 +87,7 @@ router.get('/', requirePermission('report:view:global'), async (req: AuthRequest
       total: result.rows.length
     })
   } catch (error) {
-    console.error('Error fetching tasks:', error)
+    logger.error('Error fetching tasks:', error) // Wave 31: Winston logger
     res.status(500).json({ error: 'Failed to fetch tasks' })
   }
 })
@@ -142,7 +143,7 @@ router.post('/', requirePermission('report:generate:global'), async (req: AuthRe
     })
   } catch (error) {
     await client.query('ROLLBACK')
-    console.error('Error creating task:', error)
+    logger.error('Error creating task:', error) // Wave 31: Winston logger
     res.status(500).json({ error: 'Failed to create task' })
   } finally {
     client.release()
@@ -199,7 +200,7 @@ router.put('/:id', requirePermission('report:generate:global'), async (req: Auth
     })
   } catch (error) {
     await client.query('ROLLBACK')
-    console.error('Error updating task:', error)
+    logger.error('Error updating task:', error) // Wave 31: Winston logger
     res.status(500).json({ error: 'Failed to update task' })
   } finally {
     client.release()
@@ -225,7 +226,7 @@ router.post('/:id/comments', requirePermission('report:generate:global'), async 
       message: `Comment added successfully`
     })
   } catch (error) {
-    console.error(`Error adding comment:`, error)
+    logger.error(`Error adding comment:`, error) // Wave 31: Winston logger
     res.status(500).json({ error: 'Failed to add comment' })
   }
 })
@@ -249,7 +250,7 @@ router.post('/:id/time-entries', requirePermission('report:generate:global'), as
       message: `Time logged successfully`
     })
   } catch (error) {
-    console.error(`Error logging time:`, error)
+    logger.error(`Error logging time:`, error) // Wave 31: Winston logger
     res.status(500).json({ error: 'Failed to log time' })
   }
 })
@@ -297,7 +298,7 @@ router.get('/analytics/summary', requirePermission('report:view:global'), async 
       }
     })
   } catch (error) {
-    console.error('Error fetching analytics:', error)
+    logger.error('Error fetching analytics:', error) // Wave 31: Winston logger
     res.status(500).json({ error: 'Failed to fetch analytics' })
   }
 })
