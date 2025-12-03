@@ -1,4 +1,5 @@
 /**
+import logger from '../config/logger'; // Wave 23: Add Winston logger
  * Telematics Integration Routes (Samsara, Geotab, Verizon, Motive)
  * Real-time fleet tracking, driver safety, and compliance
  */
@@ -56,7 +57,7 @@ router.get(
         }
       })
     } catch (error) {
-      console.error(`Get providers error:`, error)
+      logger.error(`Get providers error:`, error) // Wave 23: Winston logger
       res.status(500).json({ error: `Internal server error` })
     }
   }
@@ -113,7 +114,7 @@ router.post(
         connection: result.rows[0]
       })
     } catch (error: any) {
-      console.error('Connect vehicle error:', error)
+      logger.error('Connect vehicle error:', error) // Wave 23: Winston logger
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -146,7 +147,7 @@ router.get(
 
       res.json({ connections: result.rows })
     } catch (error) {
-      console.error(`Get connections error:`, error)
+      logger.error(`Get connections error:`, error) // Wave 23: Winston logger
       res.status(500).json({ error: `Internal server error` })
     }
   }
@@ -183,7 +184,7 @@ router.get(
 
       res.json(result.rows[0])
     } catch (error) {
-      console.error(`Get vehicle location error:`, error)
+      logger.error(`Get vehicle location error:`, error) // Wave 23: Winston logger
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -224,7 +225,7 @@ router.get(
 
       res.json(result.rows[0])
     } catch (error) {
-      console.error(`Get vehicle stats error:`, error)
+      logger.error(`Get vehicle stats error:`, error) // Wave 23: Winston logger
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -274,7 +275,7 @@ router.get(
         count: result.rows.length
       })
     } catch (error) {
-      console.error(`Get vehicle history error:`, error)
+      logger.error(`Get vehicle history error:`, error) // Wave 23: Winston logger
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -358,7 +359,7 @@ router.get(
         }
       })
     } catch (error) {
-      console.error(`Get safety events error:`, error)
+      logger.error(`Get safety events error:`, error) // Wave 23: Winston logger
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -413,7 +414,7 @@ router.post(
         expires_at: videoRequest.expiresAt
       })
     } catch (error: any) {
-      console.error('Request video error:', error)
+      logger.error('Request video error:', error) // Wave 23: Winston logger
       res.status(500).json({ error: getErrorMessage(error) || 'Internal server error' })
     }
   }
@@ -438,7 +439,7 @@ router.get(
 
       res.json(status)
     } catch (error: any) {
-      console.error('Get video status error:', error)
+      logger.error('Get video status error:', error) // Wave 23: Winston logger
       res.status(500).json({ error: getErrorMessage(error) || 'Internal server error' })
     }
   }
@@ -464,7 +465,7 @@ router.post(
           .digest('hex')
 
         if (signature !== expectedSignature) {
-          console.error('Invalid webhook signature')
+          logger.error('Invalid webhook signature') // Wave 23: Winston logger
           return res.status(401).json({ error: 'Invalid signature' })
         }
       }
@@ -485,7 +486,7 @@ router.post(
 
       res.json({ message: 'Webhook received' })
     } catch (error) {
-      console.error('Webhook error:', error)
+      logger.error('Webhook error:', error) // Wave 23: Winston logger
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -531,7 +532,7 @@ router.post(
         result
       })
     } catch (error: any) {
-      console.error('Sync error:', error)
+      logger.error('Sync error:', error) // Wave 23: Winston logger
       res.status(500).json({ error: getErrorMessage(error) || 'Internal server error' })
     }
   }
@@ -589,7 +590,7 @@ router.get(
         timestamp: new Date().toISOString()
       })
     } catch (error) {
-      console.error(`Get dashboard error:`, error)
+      logger.error(`Get dashboard error:`, error) // Wave 23: Winston logger
       res.status(500).json({ error: `Internal server error` })
     }
   }
