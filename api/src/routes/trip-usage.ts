@@ -1,4 +1,5 @@
 import express, { Response } from 'express'
+import logger from '../config/logger'; // Wave 19: Add Winston logger
 import { AuthRequest, authenticateJWT, authorize } from '../middleware/auth'
 import { requirePermission } from '../middleware/permissions'
 import { auditLog } from '../middleware/audit'
@@ -211,7 +212,7 @@ router.post(
           : 'Trip usage recorded and pending approval'
       })
     } catch (error: any) {
-      console.error('Create trip usage error:', error)
+      logger.error('Create trip usage error:', error) // Wave 19: Winston logger
       if (error instanceof z.ZodError) {
         return res.status(400).json({ error: 'Invalid request data', details: error.errors })
       }
@@ -332,7 +333,7 @@ router.get(
       }
     })
   } catch (error: any) {
-    console.error(`Get trip usage error:`, error)
+    logger.error(`Get trip usage error:`, error) // Wave 19: Winston logger
     res.status(500).json({ error: `Failed to retrieve trip usage data` })
   }
 })
@@ -382,7 +383,7 @@ router.get(
 
     res.json({ success: true, data: result.rows[0] })
   } catch (error: any) {
-    console.error('Get trip usage error:', error)
+    logger.error('Get trip usage error:', error) // Wave 19: Winston logger
     res.status(500).json({ error: 'Failed to retrieve trip usage data' })
   }
 })
@@ -474,7 +475,7 @@ router.patch(
         message: `Trip usage updated successfully`
       })
     } catch (error: any) {
-      console.error(`Update trip usage error:`, error)
+      logger.error(`Update trip usage error:`, error) // Wave 19: Winston logger
       if (error instanceof z.ZodError) {
         return res.status(400).json({ error: 'Invalid request data', details: error.errors })
       }
@@ -526,7 +527,7 @@ router.get(
         }
       })
     } catch (error: any) {
-      console.error(`Get pending approvals error:`, error)
+      logger.error(`Get pending approvals error:`, error) // Wave 19: Winston logger
       res.status(500).json({ error: 'Failed to retrieve pending approvals' })
     }
   }
@@ -595,7 +596,7 @@ router.post(
         message: 'Trip usage approved successfully'
       })
     } catch (error: any) {
-      console.error('Approve trip error:', error)
+      logger.error('Approve trip error:', error) // Wave 19: Winston logger
       res.status(500).json({ error: 'Failed to approve trip usage' })
     }
   }
@@ -669,7 +670,7 @@ router.post(
         message: 'Trip usage rejected'
       })
     } catch (error: any) {
-      console.error('Reject trip error:', error)
+      logger.error('Reject trip error:', error) // Wave 19: Winston logger
       res.status(500).json({ error: 'Failed to reject trip usage' })
     }
   }
