@@ -26,9 +26,10 @@ handleGracefulShutdown()
 
 import express from 'express'
 import cors from 'cors'
-import helmet from 'helmet'
 
-// CRIT-F-004: Comprehensive Rate Limiting Middleware
+// Security middleware
+import { securityHeaders } from './middleware/security-headers'
+import { getCorsConfig, validateCorsConfiguration } from './middleware/corsConfig'
 import { globalLimiter, smartRateLimiter } from './middleware/rateLimiter'
 
 // Core Fleet Management Routes
@@ -175,24 +176,54 @@ import { telemetryMiddleware, errorTelemetryMiddleware, performanceMiddleware } 
 const app = express()
 const PORT = process.env.PORT || 3001
 
+// Validate CORS configuration at startup
+validateCorsConfiguration()
+
 // Sentry request handler must be the first middleware
 app.use(sentryRequestHandler())
 
 // Sentry tracing handler for performance monitoring
 app.use(sentryTracingHandler())
 
-// Security middleware
-app.use(helmet({
-  contentSecurityPolicy: false, // Configure as needed
-  crossOriginEmbedderPolicy: false
+// ===========================================================================
+// SECURITY MIDDLEWARE (Applied in correct order)
+// ===========================================================================
+
+// 1. Security Headers - Must be first to set headers on all responses
+app.use(securityHeaders({
+  hsts: {
+    maxAge: 31536000, // 1 year
+    includeSubDomains: true,
+    preload: true
+  },
+  csp: {
+    directives: {
+      'default-src': ["'self'"],
+      'script-src': ["'self'"],
+      'style-src': ["'self'", "'unsafe-inline'"], // For Swagger UI
+      'img-src': ["'self'", 'data:', 'https:'],
+      'connect-src': ["'self'", process.env.AZURE_OPENAI_ENDPOINT || ''].filter(Boolean),
+      'font-src': ["'self'"],
+      'object-src': ["'none'"],
+      'frame-src': ["'none'"],
+      'base-uri': ["'self'"],
+      'form-action': ["'self'"]
+    }
+  },
+  frameOptions: 'DENY',
+  contentTypeOptions: true,
+  xssProtection: true,
+  referrerPolicy: 'strict-origin-when-cross-origin'
 }))
 
-app.use(cors())
+// 2. CORS Configuration - Strict origin validation
+app.use(cors(getCorsConfig()))
+
+// 3. Body Parsers - After security headers and CORS
 app.use(express.json({ limit: '10mb' }))
 app.use(express.urlencoded({ extended: true, limit: '10mb' }))
 
-// CRIT-F-004: Apply global rate limiting to prevent DoS attacks
-// This applies to all routes before specific route handlers
+// 4. Global Rate Limiting - Apply to all routes to prevent DoS attacks
 app.use(globalLimiter)
 
 // Add telemetry middleware
