@@ -1,4 +1,5 @@
 import express, { Request, Response } from 'express'
+import logger from '../config/logger'; // Wave 16: Add Winston logger
 import pool from '../config/database'
 import { createAuditLog } from '../middleware/audit'
 import { z } from 'zod'
@@ -275,7 +276,7 @@ router.post('/login', loginLimiter, async (req: Request, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ error: 'Validation error', details: error.errors })
     }
-    console.error('Login error:', error)
+    logger.error('Login error:', error) // Wave 16: Winston logger
     res.status(500).json({ error: 'Internal server error' })
   }
 })
@@ -361,7 +362,7 @@ router.post('/register', registrationLimiter, async (req: Request, res: Response
     if (error instanceof z.ZodError) {
       return res.status(400).json({ error: 'Validation error', details: error.errors })
     }
-    console.error('Register error:', error)
+    logger.error('Register error:', error) // Wave 16: Winston logger
     res.status(500).json({ error: 'Internal server error' })
   }
 })
@@ -490,7 +491,7 @@ router.post('/refresh', async (req: Request, res: Response) => {
       expiresIn: 900 // 15 minutes in seconds
     })
   } catch (error) {
-    console.error('Refresh token error:', error)
+    logger.error('Refresh token error:', error) // Wave 16: Winston logger
     res.status(500).json({ error: 'Internal server error' })
   }
 })
@@ -611,7 +612,7 @@ router.get('/me', async (req: Request, res: Response) => {
     if (error.name === 'JsonWebTokenError') {
       return res.status(401).json({ error: 'Invalid token' })
     }
-    console.error('Error in /auth/me:', error.message)
+    logger.error('Error in /auth/me:', error.message) // Wave 16: Winston logger
     return res.status(500).json({ error: 'Internal server error' })
   }
 })
@@ -771,7 +772,7 @@ router.get('/microsoft/callback', async (req: Request, res: Response) => {
       res.redirect(`/?token=${encodeURIComponent(token)}`)
     }
   } catch (error: any) {
-    console.error('Microsoft SSO callback error:', error.message)
+    logger.error('Microsoft SSO callback error:', error.message) // Wave 16: Winston logger
     const acceptsJson = req.headers.accept?.includes('application/json')
     if (acceptsJson) {
       return res.status(500).json({ error: 'Microsoft SSO authentication failed', details: error.message })
