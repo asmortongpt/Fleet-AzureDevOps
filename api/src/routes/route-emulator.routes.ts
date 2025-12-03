@@ -1,4 +1,5 @@
 import { Router, Request, Response } from 'express';
+import logger from '../config/logger'; // Wave 27: Add Winston logger
 import { RouteEmulator } from '../emulators/RouteEmulator';
 import { RouteFilters, UpdateStopStatusRequest } from '../types/route.types';
 
@@ -41,7 +42,7 @@ router.get('/', (req: Request, res: Response) => {
       }
     });
   } catch (error) {
-    console.error('Error getting routes:', error);
+    logger.error('Error getting routes:', error) // Wave 27: Winston logger;
     res.status(500).json({
       success: false,
       error: 'Failed to retrieve routes'
@@ -61,7 +62,7 @@ router.get('/optimize', (req: Request, res: Response) => {
       data: stats
     });
   } catch (error) {
-    console.error('Error getting optimization stats:', error);
+    logger.error('Error getting optimization stats:', error) // Wave 27: Winston logger;
     res.status(500).json({
       success: false,
       error: 'Failed to retrieve optimization statistics'
@@ -89,7 +90,7 @@ router.get('/:id', (req: Request, res: Response) => {
       data: route
     });
   } catch (error) {
-    console.error('Error getting route:', error);
+    logger.error('Error getting route:', error) // Wave 27: Winston logger;
     res.status(500).json({
       success: false,
       error: 'Failed to retrieve route'
@@ -111,7 +112,7 @@ router.get('/vehicle/:vehicleId', (req: Request, res: Response) => {
       total: routes.length
     });
   } catch (error) {
-    console.error('Error getting vehicle routes:', error);
+    logger.error('Error getting vehicle routes:', error) // Wave 27: Winston logger;
     res.status(500).json({
       success: false,
       error: 'Failed to retrieve vehicle routes'
@@ -133,7 +134,7 @@ router.get('/driver/:driverId', (req: Request, res: Response) => {
       total: routes.length
     });
   } catch (error) {
-    console.error('Error getting driver routes:', error);
+    logger.error('Error getting driver routes:', error) // Wave 27: Winston logger;
     res.status(500).json({
       success: false,
       error: 'Failed to retrieve driver routes'
@@ -163,7 +164,7 @@ router.post('/', (req: Request, res: Response) => {
       data: newRoute
     });
   } catch (error) {
-    console.error('Error creating route:', error);
+    logger.error('Error creating route:', error) // Wave 27: Winston logger;
     res.status(500).json({
       success: false,
       error: 'Failed to create route'
@@ -193,7 +194,7 @@ router.put('/:id', (req: Request, res: Response) => {
       data: updatedRoute
     });
   } catch (error) {
-    console.error('Error updating route:', error);
+    logger.error('Error updating route:', error) // Wave 27: Winston logger;
     res.status(500).json({
       success: false,
       error: 'Failed to update route'
@@ -234,7 +235,7 @@ router.put('/:routeId/stops/:stopId', (req: Request, res: Response) => {
       data: updatedRoute
     });
   } catch (error) {
-    console.error('Error updating stop status:', error);
+    logger.error('Error updating stop status:', error) // Wave 27: Winston logger;
     res.status(500).json({
       success: false,
       error: 'Failed to update stop status'
@@ -266,7 +267,7 @@ router.delete('/:id', (req: Request, res: Response) => {
       message: 'Route cancelled successfully'
     });
   } catch (error) {
-    console.error('Error cancelling route:', error);
+    logger.error('Error cancelling route:', error) // Wave 27: Winston logger;
     res.status(500).json({
       success: false,
       error: 'Failed to cancel route'

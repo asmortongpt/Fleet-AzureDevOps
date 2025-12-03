@@ -1,4 +1,5 @@
 /**
+import logger from '../config/logger'; // Wave 27: Add Winston logger
  * Permissions API Routes
  * Endpoints for managing user permissions, roles, and checking access
  */
@@ -57,7 +58,7 @@ router.get('/me/permissions', async (req: Request, res: Response) => {
       }
     });
   } catch (error) {
-    console.error('Error getting user permissions:', error);
+    logger.error('Error getting user permissions:', error) // Wave 27: Winston logger;
     res.status(500).json({
       error: 'Internal Server Error',
       message: 'Failed to retrieve permissions'
@@ -97,7 +98,7 @@ router.post('/check', async (req: Request, res: Response) => {
       conditions: result.conditions
     });
   } catch (error) {
-    console.error('Error checking permission:', error);
+    logger.error('Error checking permission:', error) // Wave 27: Winston logger;
     res.status(500).json({
       error: 'Internal Server Error',
       message: 'Failed to check permission'
@@ -121,7 +122,7 @@ router.get('/roles', requireAdmin, async (req: Request, res: Response) => {
       roles: result.rows
     });
   } catch (error) {
-    console.error(`Error fetching roles:`, error);
+    logger.error(`Error fetching roles:`, error) // Wave 27: Winston logger;
     res.status(500).json({
       error: `Internal Server Error`,
       message: 'Failed to fetch roles'
@@ -174,7 +175,7 @@ router.post('/roles', requireAdmin, async (req: Request, res: Response) => {
       });
     }
 
-    console.error('Error creating role:', error);
+    logger.error('Error creating role:', error) // Wave 27: Winston logger;
     res.status(500).json({
       error: 'Internal Server Error',
       message: 'Failed to create role'
@@ -212,7 +213,7 @@ router.get('/users/:userId/roles', requireAdmin, async (req: Request, res: Respo
       roles: result.rows
     });
   } catch (error) {
-    console.error(`Error fetching user roles:`, error);
+    logger.error(`Error fetching user roles:`, error) // Wave 27: Winston logger;
     res.status(500).json({
       error: `Internal Server Error`,
       message: 'Failed to fetch user roles'
@@ -290,7 +291,7 @@ router.put('/users/:userId/roles', requireAdmin, async (req: Request, res: Respo
       client.release();
     }
   } catch (error) {
-    console.error('Error updating user roles:', error);
+    logger.error('Error updating user roles:', error) // Wave 27: Winston logger;
     res.status(500).json({
       error: 'Internal Server Error',
       message: 'Failed to update user roles'
@@ -334,7 +335,7 @@ router.delete('/users/:userId/roles/:roleName', requireAdmin, async (req: Reques
       role: roleName
     });
   } catch (error) {
-    console.error('Error removing user role:', error);
+    logger.error('Error removing user role:', error) // Wave 27: Winston logger;
     res.status(500).json({
       error: 'Internal Server Error',
       message: 'Failed to remove role'
@@ -371,7 +372,7 @@ router.get('/audit/permissions', requireRole('Admin', 'Auditor'), async (req: Re
       }
     });
   } catch (error) {
-    console.error('Error fetching audit logs:', error);
+    logger.error('Error fetching audit logs:', error) // Wave 27: Winston logger;
     res.status(500).json({
       error: 'Internal Server Error',
       message: 'Failed to fetch audit logs'
@@ -395,7 +396,7 @@ router.get('/audit/summary/:resourceType/:resourceId', requireRole('Admin', 'Aud
       summary
     });
   } catch (error) {
-    console.error('Error fetching audit summary:', error);
+    logger.error('Error fetching audit summary:', error) // Wave 27: Winston logger;
     res.status(500).json({
       error: 'Internal Server Error',
       message: 'Failed to fetch audit summary'
