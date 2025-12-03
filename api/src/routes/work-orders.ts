@@ -1,4 +1,6 @@
 import express, { Response } from 'express'
+import { cacheService } from '../config/cache'; // Wave 13: Add Redis caching
+import logger from '../config/logger'; // Wave 11: Add Winston logger
 import { work-orderCreateSchema, work-orderUpdateSchema } from '../schemas/work-order.schema';
 
 import { validate } from '../middleware/validate';
@@ -42,6 +44,14 @@ router.get(
     try {
       const { page = 1, limit = 50, status, priority, facility_id } = req.query
       const offset = (Number(page) - 1) * Number(limit)
+
+      // Wave 13: Cache-aside pattern
+      const cacheKey = `work-orders:list:${req.user!.tenant_id}:${page}:${limit}:${status || ''}:${priority || ''}:${facility_id || ''}`
+      const cached = await cacheService.get<any>(cacheKey)
+
+      if (cached) {
+        return res.json(cached)
+      }
 
       // Get user's scope for row-level filtering
       const userResult = await pool.query(
@@ -96,7 +106,7 @@ router.get(
         queryParams
       )
 
-      res.json({
+      const response = {
         data: result.rows,
         pagination: {
           page: Number(page),
@@ -104,9 +114,14 @@ router.get(
           total: parseInt(countResult.rows[0].count),
           pages: Math.ceil(countResult.rows[0].count / Number(limit))
         }
-      })
+      }
+
+      // Cache for 5 minutes (300 seconds)
+      await cacheService.set(cacheKey, response, 300)
+
+      res.json(response)
     } catch (error) {
-      console.error(`Get work-orders error:`, error)
+      logger.error('Failed to fetch work orders', { error }) // Wave 11: Winston logger
       res.status(500).json({ error: `Internal server error` })
     }
   }
@@ -121,6 +136,14 @@ router.get(
   auditLog({ action: 'READ', resourceType: 'work_orders' }),
   async (req: AuthRequest, res: Response) => {
     try {
+      // Wave 13: Cache-aside pattern for single work order
+      const cacheKey = `work-order:${req.params.id}:${req.user!.tenant_id}`
+      const cached = await cacheService.get<any>(cacheKey)
+
+      if (cached) {
+        return res.json(cached)
+      }
+
       const result = await pool.query(
         `SELECT id, tenant_id, work_order_number, vehicle_id, facility_id,
                 assigned_technician_id, type, priority, status, description,
@@ -135,9 +158,12 @@ router.get(
         return res.status(404).json({ error: `Work order not found` })
       }
 
+      // Cache for 10 minutes (600 seconds)
+      await cacheService.set(cacheKey, result.rows[0], 600)
+
       res.json(result.rows[0])
     } catch (error) {
-      console.error(`Get work-order error:`, error)
+      logger.error('Failed to fetch work order', { error, workOrderId: req.params.id }) // Wave 11: Winston logger
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -200,7 +226,7 @@ router.post(
       if (error instanceof z.ZodError) {
         return res.status(400).json({ error: `Validation failed`, details: error.errors })
       }
-      console.error(`Create work-order error:`, error)
+      logger.error('Failed to create work order', { error }) // Wave 11: Winston logger
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -272,9 +298,13 @@ router.put(
         [req.params.id, req.user!.tenant_id, labor_hours, labor_cost, parts_cost, notes]
       )
 
+      // Wave 13: Invalidate cache on complete
+      const cacheKey = `work-order:${req.params.id}:${req.user!.tenant_id}`
+      await cacheService.del(cacheKey)
+
       res.json(result.rows[0])
     } catch (error) {
-      console.error('Complete work-order error:', error)
+      logger.error('Failed to complete work order', { error, workOrderId: req.params.id }) // Wave 11: Winston logger
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -312,9 +342,13 @@ router.put(
         [req.params.id, req.user!.tenant_id]
       )
 
+      // Wave 13: Invalidate cache on approve
+      const cacheKey = `work-order:${req.params.id}:${req.user!.tenant_id}`
+      await cacheService.del(cacheKey)
+
       res.json(result.rows[0])
     } catch (error) {
-      console.error(`Approve work-order error:`, error)
+      logger.error('Failed to approve work order', { error, workOrderId: req.params.id }) // Wave 11: Winston logger
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -336,9 +370,13 @@ router.delete(
         return res.status(404).json({ error: 'Work order not found' })
       }
 
+      // Wave 13: Invalidate cache on delete
+      const cacheKey = `work-order:${req.params.id}:${req.user!.tenant_id}`
+      await cacheService.del(cacheKey)
+
       res.json({ message: 'Work order deleted successfully' })
     } catch (error) {
-      console.error('Delete work-order error:', error)
+      logger.error('Failed to delete work order', { error, workOrderId: req.params.id }) // Wave 11: Winston logger
       res.status(500).json({ error: 'Internal server error' })
     }
   }
