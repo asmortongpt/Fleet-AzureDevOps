@@ -1,4 +1,5 @@
 /**
+import logger from '../config/logger'; // Wave 33: Add Winston logger (FINAL WAVE!)
  * Annual Reauthorization API Routes
  * Supports BR-9 (Annual Reauthorization - November Cycle)
  *
@@ -112,7 +113,7 @@ router.get(
         },
       });
     } catch (error: any) {
-      console.error(`Error fetching reauthorization cycles:`, error);
+      logger.error(`Error fetching reauthorization cycles:`, error) // Wave 33: Winston logger (FINAL WAVE!);
       res.status(500).json({
         error: 'Failed to fetch reauthorization cycles',
         details: getErrorMessage(error),
@@ -188,7 +189,7 @@ router.post(
         cycle: result.rows[0],
       });
     } catch (error: any) {
-      console.error('Error creating reauthorization cycle:', error);
+      logger.error('Error creating reauthorization cycle:', error) // Wave 33: Winston logger (FINAL WAVE!);
       if (error instanceof z.ZodError) {
         return res.status(400).json({
           error: 'Validation error',
@@ -264,7 +265,7 @@ router.get(
 
       res.json(result.rows);
     } catch (error: any) {
-      console.error(`Error fetching assignments for review:`, error);
+      logger.error(`Error fetching assignments for review:`, error) // Wave 33: Winston logger (FINAL WAVE!);
       res.status(500).json({
         error: 'Failed to fetch assignments for review',
         details: getErrorMessage(error),
@@ -347,7 +348,7 @@ router.post(
         decision: result.rows[0],
       });
     } catch (error: any) {
-      console.error('Error creating reauthorization decision:', error);
+      logger.error('Error creating reauthorization decision:', error) // Wave 33: Winston logger (FINAL WAVE!);
       if (error instanceof z.ZodError) {
         return res.status(400).json({
           error: 'Validation error',
@@ -424,7 +425,7 @@ router.post(
         cycle: result.rows[0],
       });
     } catch (error: any) {
-      console.error('Error submitting reauthorization cycle:', error);
+      logger.error('Error submitting reauthorization cycle:', error) // Wave 33: Winston logger (FINAL WAVE!);
       res.status(500).json({
         error: 'Failed to submit reauthorization cycle',
         details: getErrorMessage(error),
