@@ -155,6 +155,8 @@ paths = [
     '''CRITICAL-TASKS-.*\.md$''',
     '''REMAINING-.*\.md$''',
     '''COMPREHENSIVE_.*\.md$''',
+    '''SESSION-SUMMARY-.*\.md$''',
+    '''TENANT-ISOLATION-AUDIT-.*\.md$''',
     '''^docs/''',
 
     # Test fixtures with fake data
