@@ -1,7 +1,12 @@
 import { Router } from "express"
 import { cacheService } from '../config/cache'; // Wave 12 (Revised): Add Redis caching
-import { driverCreateSchema, driverUpdateSchema } from '../schemas/driver.schema';
-import { validate } from '../middleware/validate';
+import {
+  driverCreateSchema,
+  driverUpdateSchema,
+  driverQuerySchema,
+  driverIdSchema
+} from '../schemas/drivers.schema';
+import { validateBody, validateQuery, validateParams, validateAll } from '../middleware/validate';
 import logger from '../config/logger'; // Wave 10: Add Winston logger
 import { driverEmulator } from "../emulators/DriverEmulator"
 import { authenticateJWT } from '../middleware/auth';
@@ -13,6 +18,7 @@ const router = Router()
 router.use(authenticateJWT)
 
 // GET all drivers - Requires authentication, any role can read
+// CRIT-B-003: Added query parameter validation
 router.get("/",
   requireRBAC({
     roles: [Role.ADMIN, Role.MANAGER, Role.USER, Role.GUEST],
@@ -20,6 +26,7 @@ router.get("/",
     enforceTenantIsolation: true,
     resourceType: 'driver'
   }),
+  validateQuery(driverQuerySchema),
   async (req, res) => {
   try {
     const { page = 1, pageSize = 20, search, status } = req.query
@@ -62,6 +69,7 @@ router.get("/",
 })
 
 // GET driver by ID - Requires authentication + tenant isolation
+// CRIT-B-003: Added URL parameter validation
 router.get("/:id",
   requireRBAC({
     roles: [Role.ADMIN, Role.MANAGER, Role.USER, Role.GUEST],
@@ -69,6 +77,7 @@ router.get("/:id",
     enforceTenantIsolation: true,
     resourceType: 'driver'
   }),
+  validateParams(driverIdSchema),
   async (req, res) => {
   try {
     // Wave 12 (Revised): Cache-aside pattern for single driver
