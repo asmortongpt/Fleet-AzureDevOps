@@ -1,7 +1,9 @@
 import { Router } from "express"
 import { fuelTransactionEmulator } from "../emulators/FuelTransactionEmulator"
+import { TenantValidator } from '../utils/tenant-validator';
 
 const router = Router()
+const validator = new TenantValidator(db);
 
 // GET all fuel transactions
 router.get("/", async (req, res) => {
@@ -84,6 +86,22 @@ router.post("/", async (req, res) => {
 router.put("/:id", async (req, res) => {
   try {
     const transaction = fuelTransactionEmulator.update(Number(req.params.id), req.body)
+
+    // SECURITY: IDOR Protection - Validate foreign keys belong to tenant
+    const { vehicle_id, driver_id } = data
+
+    if (vehicle_id && !(await validator.validateVehicle(vehicle_id, req.user!.tenant_id))) {
+      return res.status(403).json({
+        success: false,
+        error: 'Vehicle Id not found or access denied'
+      })
+    }
+    if (driver_id && !(await validator.validateDriver(driver_id, req.user!.tenant_id))) {
+      return res.status(403).json({
+        success: false,
+        error: 'Driver Id not found or access denied'
+      })
+    }
     if (!transaction) return res.status(404).json({ error: "Fuel transaction not found" })
     res.json({ data: transaction })
   } catch (error) {
@@ -103,3 +121,44 @@ router.delete("/:id", async (req, res) => {
 })
 
 export default router
+
+// IDOR Protection for UPDATE
+router.put('/:id', async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const tenantId = req.user?.tenantId;
+
+  // Validate ownership before update
+  const validator = new TenantValidator(pool);
+  const isValid = await validator.validateOwnership(tenantId, 'fuel_transactions', parseInt(id));
+
+  if (!isValid) {
+    return res.status(403).json({
+      success: false,
+      error: 'Access denied - resource not found or belongs to different tenant'
+    });
+  }
+
+  // Proceed with update...
+  const data = req.body;
+  // ... existing update logic
+});
+
+// IDOR Protection for DELETE
+router.delete('/:id', async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const tenantId = req.user?.tenantId;
+
+  // Validate ownership before delete
+  const validator = new TenantValidator(pool);
+  const isValid = await validator.validateOwnership(tenantId, 'fuel_transactions', parseInt(id));
+
+  if (!isValid) {
+    return res.status(403).json({
+      success: false,
+      error: 'Access denied - resource not found or belongs to different tenant'
+    });
+  }
+
+  // Proceed with soft delete...
+  // ... existing delete logic
+});
