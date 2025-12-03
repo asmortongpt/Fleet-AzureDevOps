@@ -1,4 +1,5 @@
 import express, { Response } from 'express'
+import logger from '../config/logger'; // Wave 27: Add Winston logger
 import { AuthRequest, authenticateJWT } from '../middleware/auth'
 import { requirePermission } from '../middleware/permissions'
 import { auditLog } from '../middleware/audit'
@@ -28,7 +29,7 @@ router.get(
 
       res.json(summary)
     } catch (error) {
-      console.error('Get cost summary error:', error)
+      logger.error('Get cost summary error:', error) // Wave 27: Winston logger
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -55,7 +56,7 @@ router.get(
 
       res.json(costs)
     } catch (error) {
-      console.error('Get costs by category error:', error)
+      logger.error('Get costs by category error:', error) // Wave 27: Winston logger
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -82,7 +83,7 @@ router.get(
 
       res.json(costs)
     } catch (error) {
-      console.error('Get costs by vehicle error:', error)
+      logger.error('Get costs by vehicle error:', error) // Wave 27: Winston logger
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -105,7 +106,7 @@ router.get(
 
       res.json(forecast)
     } catch (error) {
-      console.error('Forecast costs error:', error)
+      logger.error('Forecast costs error:', error) // Wave 27: Winston logger
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -128,7 +129,7 @@ router.get(
 
       res.json(trends)
     } catch (error) {
-      console.error('Get cost trends error:', error)
+      logger.error('Get cost trends error:', error) // Wave 27: Winston logger
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -155,7 +156,7 @@ router.get(
 
       res.json(anomalies)
     } catch (error) {
-      console.error('Get anomalies error:', error)
+      logger.error('Get anomalies error:', error) // Wave 27: Winston logger
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -178,7 +179,7 @@ router.get(
 
       res.json(status)
     } catch (error) {
-      console.error('Get budget status error:', error)
+      logger.error('Get budget status error:', error) // Wave 27: Winston logger
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -195,7 +196,7 @@ router.post(
 
       res.status(201).json(cost)
     } catch (error) {
-      console.error('Track cost error:', error)
+      logger.error('Track cost error:', error) // Wave 27: Winston logger
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -226,7 +227,7 @@ router.post(
 
       res.json({ message: 'Budget allocation set successfully' })
     } catch (error) {
-      console.error('Set budget allocation error:', error)
+      logger.error('Set budget allocation error:', error) // Wave 27: Winston logger
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -255,7 +256,7 @@ router.get(
       res.setHeader('Content-Disposition', 'attachment; filename=cost-analysis.csv')
       res.send(csv)
     } catch (error) {
-      console.error('Export cost data error:', error)
+      logger.error('Export cost data error:', error) // Wave 27: Winston logger
       res.status(500).json({ error: 'Internal server error' })
     }
   }
