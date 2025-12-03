@@ -1,4 +1,5 @@
 /**
+import logger from '../config/logger'; // Wave 24: Add Winston logger
  * EV Management Routes
  *
  * API endpoints for electric vehicle fleet management including:
@@ -90,7 +91,7 @@ router.get('/chargers', authenticateJWT, requirePermission('charging_station:vie
       count: stations.length
     });
   } catch (error: any) {
-    console.error('Error fetching chargers:', error);
+    logger.error('Error fetching chargers:', error) // Wave 24: Winston logger;
     res.status(500).json({
       success: false,
       error: 'Failed to fetch charging stations',
@@ -132,7 +133,7 @@ router.get('/chargers/:id/status', authenticateJWT, requirePermission('charging_
       data: status
     });
   } catch (error: any) {
-    console.error('Error fetching charger status:', error);
+    logger.error('Error fetching charger status:', error) // Wave 24: Winston logger;
     res.status(500).json({
       success: false,
       error: 'Failed to fetch charger status',
@@ -209,7 +210,7 @@ router.post('/chargers/:id/reserve', authenticateJWT, requirePermission('chargin
       });
     }
 
-    console.error('Error creating reservation:', error);
+    logger.error('Error creating reservation:', error) // Wave 24: Winston logger;
     res.status(500).json({
       success: false,
       error: 'Failed to create reservation',
@@ -244,7 +245,7 @@ router.delete('/reservations/:id/cancel', authenticateJWT, requirePermission('ch
       message: 'Reservation cancelled successfully'
     });
   } catch (error: any) {
-    console.error('Error cancelling reservation:', error);
+    logger.error('Error cancelling reservation:', error) // Wave 24: Winston logger;
     res.status(500).json({
       success: false,
       error: 'Failed to cancel reservation',
@@ -320,7 +321,7 @@ router.post('/vehicles/:id/charge-schedule', authenticateJWT, requirePermission(
       });
     }
 
-    console.error('Error creating charging schedule:', error);
+    logger.error('Error creating charging schedule:', error) // Wave 24: Winston logger;
     res.status(500).json({
       success: false,
       error: 'Failed to create charging schedule',
@@ -364,7 +365,7 @@ router.post('/chargers/:id/remote-start', authenticateJWT, requirePermission('ch
       message: 'Remote start command sent'
     });
   } catch (error: any) {
-    console.error('Error remote starting:', error);
+    logger.error('Error remote starting:', error) // Wave 24: Winston logger;
     res.status(500).json({
       success: false,
       error: 'Failed to start charging',
@@ -404,7 +405,7 @@ router.post('/sessions/:transactionId/stop', authenticateJWT, requirePermission(
       message: 'Remote stop command sent'
     });
   } catch (error: any) {
-    console.error('Error remote stopping:', error);
+    logger.error('Error remote stopping:', error) // Wave 24: Winston logger;
     res.status(500).json({
       success: false,
       error: 'Failed to stop charging',
@@ -435,7 +436,7 @@ router.get('/sessions/active', authenticateJWT, requirePermission('charging_stat
       count: result.rows.length
     });
   } catch (error: any) {
-    console.error(`Error fetching active sessions:`, error);
+    logger.error(`Error fetching active sessions:`, error) // Wave 24: Winston logger;
     res.status(500).json({
       success: false,
       error: `Failed to fetch active sessions`,
@@ -516,7 +517,7 @@ router.get('/carbon-footprint', authenticateJWT, requirePermission('report:view:
       }
     });
   } catch (error: any) {
-    console.error('Error fetching carbon footprint:', error);
+    logger.error('Error fetching carbon footprint:', error) // Wave 24: Winston logger;
     res.status(500).json({
       success: false,
       error: 'Failed to fetch carbon footprint data',
@@ -573,7 +574,7 @@ router.get('/esg-report', authenticateJWT, requirePermission('report:view:global
       data: report
     });
   } catch (error: any) {
-    console.error('Error generating ESG report:', error);
+    logger.error('Error generating ESG report:', error) // Wave 24: Winston logger;
     res.status(500).json({
       success: false,
       error: 'Failed to generate ESG report',
@@ -608,7 +609,7 @@ router.get('/vehicles/:id/battery-health', authenticateJWT, requirePermission('v
       data: report
     });
   } catch (error: any) {
-    console.error('Error fetching battery health:', error);
+    logger.error('Error fetching battery health:', error) // Wave 24: Winston logger;
     res.status(500).json({
       success: false,
       error: 'Failed to fetch battery health',
@@ -638,7 +639,7 @@ router.get('/station-utilization', authenticateJWT, requirePermission('charging_
       data: result.rows
     });
   } catch (error: any) {
-    console.error(`Error fetching station utilization:`, error);
+    logger.error(`Error fetching station utilization:`, error) // Wave 24: Winston logger;
     res.status(500).json({
       success: false,
       error: `Failed to fetch station utilization`,
@@ -694,7 +695,7 @@ router.get('/vehicles/:id/charging-history', authenticateJWT, requirePermission(
       count: result.rows.length
     });
   } catch (error: any) {
-    console.error('Error fetching charging history:', error);
+    logger.error('Error fetching charging history:', error) // Wave 24: Winston logger;
     res.status(500).json({
       success: false,
       error: 'Failed to fetch charging history',
