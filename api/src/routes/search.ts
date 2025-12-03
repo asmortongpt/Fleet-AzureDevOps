@@ -1,4 +1,5 @@
 /**
+import logger from '../config/logger'; // Wave 20: Add Winston logger
  * Search API Routes
  *
  * Comprehensive search endpoints for document discovery:
@@ -99,7 +100,7 @@ router.post(
         }
       })
     } catch (error) {
-      console.error('Search error:', error)
+      logger.error('Search error:', error) // Wave 20: Winston logger
       if (error instanceof z.ZodError) {
         return res.status(400).json({
           success: false,
@@ -144,7 +145,7 @@ router.get(
         data: suggestions
       })
     } catch (error) {
-      console.error('Autocomplete error:', error)
+      logger.error('Autocomplete error:', error) // Wave 20: Winston logger
       res.status(500).json({
         success: false,
         error: 'Autocomplete failed'
@@ -181,7 +182,7 @@ router.get(
         data: suggestions
       })
     } catch (error) {
-      console.error('Suggestions error:', error)
+      logger.error('Suggestions error:', error) // Wave 20: Winston logger
       res.status(500).json({
         success: false,
         error: 'Suggestions failed'
@@ -217,7 +218,7 @@ router.post(
         message: 'Click recorded'
       })
     } catch (error) {
-      console.error('Click recording error:', error)
+      logger.error('Click recording error:', error) // Wave 20: Winston logger
       res.status(500).json({
         success: false,
         error: 'Click recording failed'
@@ -248,7 +249,7 @@ router.get(
         data: savedSearches
       })
     } catch (error) {
-      console.error('Get saved searches error:', error)
+      logger.error('Get saved searches error:', error) // Wave 20: Winston logger
       res.status(500).json({
         success: false,
         error: 'Failed to get saved searches'
@@ -289,7 +290,7 @@ router.post(
         data: savedSearch
       })
     } catch (error) {
-      console.error('Save search error:', error)
+      logger.error('Save search error:', error) // Wave 20: Winston logger
       if (error instanceof z.ZodError) {
         return res.status(400).json({
           success: false,
@@ -324,7 +325,7 @@ router.delete(
         message: 'Saved search deleted'
       })
     } catch (error) {
-      console.error('Delete saved search error:', error)
+      logger.error('Delete saved search error:', error) // Wave 20: Winston logger
       res.status(500).json({
         success: false,
         error: 'Failed to delete saved search'
@@ -358,7 +359,7 @@ router.get(
         data: history
       })
     } catch (error) {
-      console.error('Get search history error:', error)
+      logger.error('Get search history error:', error) // Wave 20: Winston logger
       res.status(500).json({
         success: false,
         error: 'Failed to get search history'
@@ -392,7 +393,7 @@ router.get(
         data: analytics
       })
     } catch (error) {
-      console.error('Get search analytics error:', error)
+      logger.error('Get search analytics error:', error) // Wave 20: Winston logger
       res.status(500).json({
         success: false,
         error: 'Failed to get search analytics'
@@ -428,7 +429,7 @@ router.post(
         message: 'Document indexed successfully'
       })
     } catch (error) {
-      console.error('Index document error:', error)
+      logger.error('Index document error:', error) // Wave 20: Winston logger
       res.status(500).json({
         success: false,
         error: 'Failed to index document'
@@ -466,7 +467,7 @@ router.post(
         data: job
       })
     } catch (error) {
-      console.error('Reindex error:', error)
+      logger.error('Reindex error:', error) // Wave 20: Winston logger
       if (error instanceof z.ZodError) {
         return res.status(400).json({
           success: false,
@@ -506,7 +507,7 @@ router.get(
         data: jobs
       })
     } catch (error) {
-      console.error('Get indexing jobs error:', error)
+      logger.error('Get indexing jobs error:', error) // Wave 20: Winston logger
       res.status(500).json({
         success: false,
         error: 'Failed to get indexing jobs'
@@ -532,7 +533,7 @@ router.post(
         message: 'Index optimization started'
       })
     } catch (error) {
-      console.error('Optimize index error:', error)
+      logger.error('Optimize index error:', error) // Wave 20: Winston logger
       res.status(500).json({
         success: false,
         error: 'Failed to optimize index'
@@ -557,7 +558,7 @@ router.get(
         data: stats
       })
     } catch (error) {
-      console.error('Get index stats error:', error)
+      logger.error('Get index stats error:', error) // Wave 20: Winston logger
       res.status(500).json({
         success: false,
         error: 'Failed to get index statistics'
@@ -583,7 +584,7 @@ router.post(
         message: 'Search cache cleared'
       })
     } catch (error) {
-      console.error('Clear cache error:', error)
+      logger.error('Clear cache error:', error) // Wave 20: Winston logger
       res.status(500).json({
         success: false,
         error: 'Failed to clear cache'
@@ -608,7 +609,7 @@ router.post(
         message: 'Cache warming completed'
       })
     } catch (error) {
-      console.error('Warm cache error:', error)
+      logger.error('Warm cache error:', error) // Wave 20: Winston logger
       res.status(500).json({
         success: false,
         error: 'Failed to warm cache'
