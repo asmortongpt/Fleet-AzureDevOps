@@ -1,10 +1,8 @@
 import { Router } from "express"
 import { cacheService } from '../config/cache';
-
 import { vehicleCreateSchema, vehicleUpdateSchema } from '../schemas/vehicle.schema';
-
 import { validate } from '../middleware/validate';
-
+import logger from '../config/logger'; // Wave 10: Add Winston logger
 import { vehicleEmulator } from "../emulators/VehicleEmulator"
 
 const router = Router()
@@ -33,7 +31,7 @@ router.get("/", async (req, res) => {
 
     res.json({ data, total })
   } catch (error) {
-    console.error(error)
+    logger.error('Failed to fetch vehicles', { error }) // Wave 10: Winston logger
     res.status(500).json({ error: "Failed to fetch vehicles" })
   }
 })
@@ -45,6 +43,7 @@ router.get("/:id", async (req, res) => {
     if (!vehicle) return res.status(404).json({ error: "Vehicle not found" })
     res.json({ data: vehicle })
   } catch (error) {
+    logger.error('Failed to fetch vehicle', { error, vehicleId: req.params.id }) // Wave 10: Winston logger
     res.status(500).json({ error: "Failed to fetch vehicle" })
   }
 })
@@ -55,6 +54,7 @@ router.post("/", validate(vehicleCreateSchema), async (req, res) => { // Wave 9:
     const vehicle = vehicleEmulator.create(req.body)
     res.status(201).json({ data: vehicle })
   } catch (error) {
+    logger.error('Failed to create vehicle', { error }) // Wave 10: Winston logger
     res.status(500).json({ error: "Failed to create vehicle" })
   }
 })
@@ -66,6 +66,7 @@ router.put("/:id", validate(vehicleUpdateSchema), async (req, res) => { // Wave 
     if (!vehicle) return res.status(404).json({ error: "Vehicle not found" })
     res.json({ data: vehicle })
   } catch (error) {
+    logger.error('Failed to update vehicle', { error, vehicleId: req.params.id }) // Wave 10: Winston logger
     res.status(500).json({ error: "Failed to update vehicle" })
   }
 })
@@ -77,6 +78,7 @@ router.delete("/:id", async (req, res) => {
     if (!deleted) return res.status(404).json({ error: "Vehicle not found" })
     res.json({ message: "Vehicle deleted successfully" })
   } catch (error) {
+    logger.error('Failed to delete vehicle', { error, vehicleId: req.params.id }) // Wave 10: Winston logger
     res.status(500).json({ error: "Failed to delete vehicle" })
   }
 })
