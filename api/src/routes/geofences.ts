@@ -1,4 +1,5 @@
 import express, { Response } from 'express'
+import logger from '../config/logger'; // Wave 18: Add Winston logger
 import { AuthRequest, authenticateJWT } from '../middleware/auth'
 import { requirePermission } from '../middleware/permissions'
 import { auditLog } from '../middleware/audit'
@@ -49,7 +50,7 @@ router.get(
         }
       })
     } catch (error) {
-      console.error(`Get geofences error:`, error)
+      logger.error(`Get geofences error:`, error) // Wave 18: Winston logger
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -83,7 +84,7 @@ router.get(
 
       res.json(result.rows[0])
     } catch (error) {
-      console.error('Get geofences error:', error)
+      logger.error('Get geofences error:', error) // Wave 18: Winston logger
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -111,7 +112,7 @@ router.post(
 
       res.status(201).json(result.rows[0])
     } catch (error) {
-      console.error(`Create geofences error:`, error)
+      logger.error(`Create geofences error:`, error) // Wave 18: Winston logger
       res.status(500).json({ error: `Internal server error` })
     }
   }
@@ -138,7 +139,7 @@ router.put(
 
       res.json(result.rows[0])
     } catch (error) {
-      console.error(`Update geofences error:`, error)
+      logger.error(`Update geofences error:`, error) // Wave 18: Winston logger
       res.status(500).json({ error: `Internal server error` })
     }
   }
@@ -162,7 +163,7 @@ router.delete(
 
       res.json({ message: 'Geofences deleted successfully' })
     } catch (error) {
-      console.error('Delete geofences error:', error)
+      logger.error('Delete geofences error:', error) // Wave 18: Winston logger
       res.status(500).json({ error: 'Internal server error' })
     }
   }
