@@ -1,4 +1,5 @@
 import express, { Response } from 'express'
+import logger from '../config/logger'; // Wave 19: Add Winston logger
 import { AuthRequest, authenticateJWT } from '../middleware/auth'
 import { requirePermission, validateScope } from '../middleware/permissions'
 import { auditLog } from '../middleware/audit'
@@ -126,7 +127,7 @@ router.get(
         }
       })
     } catch (error) {
-      console.error(`Get documents error:`, error)
+      logger.error(`Get documents error:`, error) // Wave 19: Winston logger
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -240,7 +241,7 @@ router.get(
         receipt_items: receiptResult.rows || []
       })
     } catch (error) {
-      console.error(`Get document error:`, error)
+      logger.error(`Get document error:`, error) // Wave 19: Winston logger
       res.status(500).json({ error: `Internal server error` })
     }
   }
@@ -291,7 +292,7 @@ router.post(
       try {
         await fs.mkdir(uploadDir, { recursive: true })
       } catch (err) {
-        console.error('Failed to create upload directory:', err)
+        logger.error('Failed to create upload directory:', err) // Wave 19: Winston logger
       }
 
       // Write validated file to disk with secure filename
@@ -328,7 +329,7 @@ router.post(
 
       res.status(201).json(result.rows[0])
     } catch (error) {
-      console.error(`Upload document error:`, error)
+      logger.error(`Upload document error:`, error) // Wave 19: Winston logger
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -389,7 +390,7 @@ router.post(
       try {
         await fs.mkdir(uploadDir, { recursive: true })
       } catch (err) {
-        console.error('Failed to create upload directory:', err)
+        logger.error('Failed to create upload directory:', err) // Wave 19: Winston logger
       }
 
       // Write validated file to disk with secure filename
@@ -449,7 +450,7 @@ router.post(
 
       res.status(201).json(docResult.rows[0])
     } catch (error) {
-      console.error('Camera capture error:', error)
+      logger.error('Camera capture error:', error) // Wave 19: Winston logger
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -497,7 +498,7 @@ router.put(
 
       res.json(result.rows[0])
     } catch (error) {
-      console.error(`Update document error:`, error)
+      logger.error(`Update document error:`, error) // Wave 19: Winston logger
       res.status(500).json({ error: `Internal server error` })
     }
   }
@@ -538,7 +539,7 @@ router.delete(
 
       res.json({ message: `Document deleted successfully` })
     } catch (error) {
-      console.error('Delete document error:', error)
+      logger.error('Delete document error:', error) // Wave 19: Winston logger
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -590,7 +591,7 @@ router.post(
         ocr_job: ocrResult.rows[0]
       })
     } catch (error) {
-      console.error('Start OCR processing error:', error)
+      logger.error('Start OCR processing error:', error) // Wave 19: Winston logger
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -633,7 +634,7 @@ router.post(
         message: 'Receipt parsing started'
       })
     } catch (error) {
-      console.error('Start receipt parsing error:', error)
+      logger.error('Start receipt parsing error:', error) // Wave 19: Winston logger
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -728,7 +729,7 @@ router.put(
 
       res.json({ data: result.rows })
     } catch (error) {
-      console.error(`Update receipt line items error:`, error)
+      logger.error(`Update receipt line items error:`, error) // Wave 19: Winston logger
       res.status(500).json({ error: `Internal server error` })
     }
   }
@@ -797,7 +798,7 @@ router.get(
         recent: recentResult.rows
       })
     } catch (error) {
-      console.error(`Get documents dashboard error:`, error)
+      logger.error(`Get documents dashboard error:`, error) // Wave 19: Winston logger
       res.status(500).json({ error: 'Internal server error' })
     }
   }
