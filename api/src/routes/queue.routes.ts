@@ -1,4 +1,5 @@
 /**
+import logger from '../config/logger'; // Wave 23: Add Winston logger
  * Queue Management Routes
  * API endpoints for queue monitoring, management, and administration
  */
@@ -40,7 +41,7 @@ router.get(`/stats`, requireAdmin, async (req: Request, res: Response) => {
         try {
           return await queueService.getQueueStats(queueName);
         } catch (error) {
-          console.error(`Failed to get stats for ${queueName}:`, error);
+          logger.error(`Failed to get stats for ${queueName}:`, error) // Wave 23: Winston logger;
           return null;
         }
       })
@@ -63,7 +64,7 @@ router.get(`/stats`, requireAdmin, async (req: Request, res: Response) => {
       }
     });
   } catch (error: any) {
-    console.error(`Error getting queue stats:`, error);
+    logger.error(`Error getting queue stats:`, error) // Wave 23: Winston logger;
     res.status(500).json({ error: 'Failed to get queue statistics', message: getErrorMessage(error) });
   }
 });
@@ -81,7 +82,7 @@ router.get('/health', async (req: Request, res: Response) => {
       data: health
     });
   } catch (error: any) {
-    console.error('Error getting queue health:', error);
+    logger.error('Error getting queue health:', error) // Wave 23: Winston logger;
     res.status(500).json({ error: 'Failed to get queue health', message: getErrorMessage(error) });
   }
 });
@@ -129,7 +130,7 @@ router.get(`/:queueName/jobs`, requireAdmin, async (req: Request, res: Response)
       }
     });
   } catch (error: any) {
-    console.error('Error getting jobs:', error);
+    logger.error('Error getting jobs:', error) // Wave 23: Winston logger;
     res.status(500).json({ error: 'Failed to get jobs', message: getErrorMessage(error) });
   }
 });
@@ -168,7 +169,7 @@ router.get('/:queueName/failed', requireAdmin, async (req: Request, res: Respons
       }
     });
   } catch (error: any) {
-    console.error(`Error getting failed jobs:`, error);
+    logger.error(`Error getting failed jobs:`, error) // Wave 23: Winston logger;
     res.status(500).json({ error: 'Failed to get failed jobs', message: getErrorMessage(error) });
   }
 });
@@ -229,7 +230,7 @@ router.get('/dead-letter', requireAdmin, async (req: Request, res: Response) => 
       }
     });
   } catch (error: any) {
-    console.error('Error getting dead letter jobs:', error);
+    logger.error('Error getting dead letter jobs:', error) // Wave 23: Winston logger;
     res.status(500).json({ error: 'Failed to get dead letter jobs', message: getErrorMessage(error) });
   }
 });
@@ -253,7 +254,7 @@ router.post('/:queueName/retry/:jobId', requireAdmin, async (req: Request, res: 
       }
     });
   } catch (error: any) {
-    console.error('Error retrying job:', error);
+    logger.error('Error retrying job:', error) // Wave 23: Winston logger;
     res.status(500).json({ error: 'Failed to retry job', message: getErrorMessage(error) });
   }
 });
@@ -277,7 +278,7 @@ router.post(`/:queueName/pause`, requireAdmin, async (req: Request, res: Respons
       }
     });
   } catch (error: any) {
-    console.error(`Error pausing queue:`, error);
+    logger.error(`Error pausing queue:`, error) // Wave 23: Winston logger;
     res.status(500).json({ error: 'Failed to pause queue', message: getErrorMessage(error) });
   }
 });
@@ -301,7 +302,7 @@ router.post(`/:queueName/resume`, requireAdmin, async (req: Request, res: Respon
       }
     });
   } catch (error: any) {
-    console.error(`Error resuming queue:`, error);
+    logger.error(`Error resuming queue:`, error) // Wave 23: Winston logger;
     res.status(500).json({ error: 'Failed to resume queue', message: getErrorMessage(error) });
   }
 });
@@ -334,7 +335,7 @@ router.delete('/:queueName/clear', requireAdmin, async (req: Request, res: Respo
       }
     });
   } catch (error: any) {
-    console.error(`Error clearing queue:`, error);
+    logger.error(`Error clearing queue:`, error) // Wave 23: Winston logger;
     res.status(500).json({ error: 'Failed to clear queue', message: getErrorMessage(error) });
   }
 });
@@ -368,7 +369,7 @@ router.post('/dead-letter/:jobId/review', requireAdmin, async (req: Request, res
       }
     });
   } catch (error: any) {
-    console.error('Error reviewing dead letter job:', error);
+    logger.error('Error reviewing dead letter job:', error) // Wave 23: Winston logger;
     res.status(500).json({ error: 'Failed to review job', message: getErrorMessage(error) });
   }
 });
@@ -440,7 +441,7 @@ router.get('/metrics', requireAdmin, async (req: Request, res: Response) => {
       }
     });
   } catch (error: any) {
-    console.error('Error getting metrics:', error);
+    logger.error('Error getting metrics:', error) // Wave 23: Winston logger;
     res.status(500).json({ error: 'Failed to get metrics', message: getErrorMessage(error) });
   }
 });
@@ -484,7 +485,7 @@ router.get('/:queueName/job/:jobId', requireAdmin, async (req: Request, res: Res
       data: result.rows[0]
     });
   } catch (error: any) {
-    console.error('Error getting job:', error);
+    logger.error('Error getting job:', error) // Wave 23: Winston logger;
     res.status(500).json({ error: 'Failed to get job', message: getErrorMessage(error) });
   }
 });
