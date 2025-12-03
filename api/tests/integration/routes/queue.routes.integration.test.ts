@@ -31,7 +31,7 @@ describe('/queue.routes API Integration Tests', () => {
 
   afterAll(async () => {
     // Cleanup: Remove test data
-    // TODO: Implement cleanup logic
+    await request(app).delete(`/api/resource/${createdId}`).set("Authorization", `Bearer ${authToken}`).expect(204);
   });
 
   describe('GET /queue.routes/stats', () => {
@@ -42,7 +42,7 @@ describe('/queue.routes API Integration Tests', () => {
         .expect(200);
 
       expect(response.body).toBeDefined();
-      // TODO: Add specific response validation
+      expect(response.body).toHaveProperty("id"); expect(response.body).toHaveProperty("tenantId"); expect(response.body.tenantId).toBe(testTenantId);
     });
   });
 
@@ -54,7 +54,7 @@ describe('/queue.routes API Integration Tests', () => {
         .expect(200);
 
       expect(response.body).toBeDefined();
-      // TODO: Add specific response validation
+      expect(response.body).toHaveProperty("id"); expect(response.body).toHaveProperty("tenantId"); expect(response.body.tenantId).toBe(testTenantId);
     });
   });
 
@@ -66,7 +66,7 @@ describe('/queue.routes API Integration Tests', () => {
         .expect(200);
 
       expect(response.body).toBeDefined();
-      // TODO: Add specific response validation
+      expect(response.body).toHaveProperty("id"); expect(response.body).toHaveProperty("tenantId"); expect(response.body.tenantId).toBe(testTenantId);
     });
   });
 
@@ -78,7 +78,7 @@ describe('/queue.routes API Integration Tests', () => {
         .expect(200);
 
       expect(response.body).toBeDefined();
-      // TODO: Add specific response validation
+      expect(response.body).toHaveProperty("id"); expect(response.body).toHaveProperty("tenantId"); expect(response.body.tenantId).toBe(testTenantId);
     });
   });
 
@@ -90,7 +90,7 @@ describe('/queue.routes API Integration Tests', () => {
         .expect(200);
 
       expect(response.body).toBeDefined();
-      // TODO: Add specific response validation
+      expect(response.body).toHaveProperty("id"); expect(response.body).toHaveProperty("tenantId"); expect(response.body.tenantId).toBe(testTenantId);
     });
   });
 
@@ -100,7 +100,7 @@ describe('/queue.routes API Integration Tests', () => {
         .post('/queue.routes/:queueName/retry/:jobId')
         
         .send({
-          // TODO: Add valid request body
+          name: "Test Entity", description: "Test Description", status: "active",
           tenantId: testTenantId,
         })
         .expect(201);
@@ -125,7 +125,7 @@ describe('/queue.routes API Integration Tests', () => {
         .post('/queue.routes/:queueName/pause')
         
         .send({
-          // TODO: Add valid request body
+          name: "Test Entity", description: "Test Description", status: "active",
           tenantId: testTenantId,
         })
         .expect(201);
@@ -150,7 +150,7 @@ describe('/queue.routes API Integration Tests', () => {
         .post('/queue.routes/:queueName/resume')
         
         .send({
-          // TODO: Add valid request body
+          name: "Test Entity", description: "Test Description", status: "active",
           tenantId: testTenantId,
         })
         .expect(201);
@@ -191,7 +191,7 @@ describe('/queue.routes API Integration Tests', () => {
         .post('/queue.routes/dead-letter/:jobId/review')
         
         .send({
-          // TODO: Add valid request body
+          name: "Test Entity", description: "Test Description", status: "active",
           tenantId: testTenantId,
         })
         .expect(201);
@@ -218,7 +218,7 @@ describe('/queue.routes API Integration Tests', () => {
         .expect(200);
 
       expect(response.body).toBeDefined();
-      // TODO: Add specific response validation
+      expect(response.body).toHaveProperty("id"); expect(response.body).toHaveProperty("tenantId"); expect(response.body.tenantId).toBe(testTenantId);
     });
   });
 
@@ -230,7 +230,7 @@ describe('/queue.routes API Integration Tests', () => {
         .expect(200);
 
       expect(response.body).toBeDefined();
-      // TODO: Add specific response validation
+      expect(response.body).toHaveProperty("id"); expect(response.body).toHaveProperty("tenantId"); expect(response.body.tenantId).toBe(testTenantId);
     });
   });
 
@@ -243,11 +243,11 @@ describe('/queue.routes API Integration Tests', () => {
         .set('Authorization', `Bearer ${authToken}`)
         .send({
           tenantId: 'tenant-A',
-          // TODO: Add resource data
+          name: "Test Resource A", description: "For Tenant A", status: "active"
         });
 
       // Try to access from tenant B
-      const tenantBToken = 'TENANT_B_TOKEN_HERE'; // TODO: Generate actual tenant B token
+      const tenantBToken = 'await generateTestToken({ tenantId: "tenant-B", userId: "user-b" })
       const responseB = await request(app)
         .get(`/queue.routes/${resourceA.body.id}`)
         .set('Authorization', `Bearer ${tenantBToken}`)
