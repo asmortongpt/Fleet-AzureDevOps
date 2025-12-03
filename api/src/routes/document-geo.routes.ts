@@ -1,4 +1,5 @@
 /**
+import logger from '../config/logger'; // Wave 26: Add Winston logger
  * Document Geospatial Routes
  *
  * RESTful API endpoints for geospatial document operations:
@@ -103,7 +104,7 @@ router.post('/nearby', async (req: AuthRequest, res) => {
       search_params: { lat, lng, radius }
     })
   } catch (error: any) {
-    console.error('Error finding nearby documents:', error)
+    logger.error('Error finding nearby documents:', error) // Wave 26: Winston logger
     res.status(500).json({
       error: 'Failed to find nearby documents',
       details: getErrorMessage(error)
@@ -166,7 +167,7 @@ router.post('/within-polygon', async (req: AuthRequest, res) => {
       total: documents.length
     })
   } catch (error: any) {
-    console.error('Error finding documents in polygon:', error)
+    logger.error('Error finding documents in polygon:', error) // Wave 26: Winston logger
     res.status(500).json({
       error: 'Failed to find documents in polygon',
       details: getErrorMessage(error)
@@ -245,7 +246,7 @@ router.post('/along-route', async (req: AuthRequest, res) => {
       total: documents.length
     })
   } catch (error: any) {
-    console.error('Error finding documents along route:', error)
+    logger.error('Error finding documents along route:', error) // Wave 26: Winston logger
     res.status(500).json({
       error: 'Failed to find documents along route',
       details: getErrorMessage(error)
@@ -286,7 +287,7 @@ router.get('/heatmap', async (req: AuthRequest, res) => {
       total_cells: heatmap.length
     })
   } catch (error: any) {
-    console.error('Error generating heatmap:', error)
+    logger.error('Error generating heatmap:', error) // Wave 26: Winston logger
     res.status(500).json({
       error: 'Failed to generate heatmap',
       details: getErrorMessage(error)
@@ -328,7 +329,7 @@ router.get('/clusters', async (req: AuthRequest, res) => {
       total_documents: clusters.reduce((sum, c) => sum + c.document_count, 0)
     })
   } catch (error: any) {
-    console.error('Error clustering documents:', error)
+    logger.error('Error clustering documents:', error) // Wave 26: Winston logger
     res.status(500).json({
       error: 'Failed to cluster documents',
       details: getErrorMessage(error)
@@ -369,7 +370,7 @@ router.post('/geocode', async (req: AuthRequest, res) => {
 
     res.json({ result })
   } catch (error: any) {
-    console.error('Error geocoding address:', error)
+    logger.error('Error geocoding address:', error) // Wave 26: Winston logger
     res.status(500).json({
       error: 'Failed to geocode address',
       details: getErrorMessage(error)
@@ -420,7 +421,7 @@ router.post('/reverse-geocode', async (req: AuthRequest, res) => {
 
     res.json({ result })
   } catch (error: any) {
-    console.error('Error reverse geocoding:', error)
+    logger.error('Error reverse geocoding:', error) // Wave 26: Winston logger
     res.status(500).json({
       error: 'Failed to reverse geocode',
       details: getErrorMessage(error)
@@ -477,7 +478,7 @@ router.put('/:id/location', async (req: AuthRequest, res) => {
       location: { lat, lng }
     })
   } catch (error: any) {
-    console.error('Error setting document location:', error)
+    logger.error('Error setting document location:', error) // Wave 26: Winston logger
     res.status(500).json({
       error: 'Failed to set document location',
       details: getErrorMessage(error)
@@ -507,7 +508,7 @@ router.get('/all', async (req: AuthRequest, res) => {
       total: documents.length
     })
   } catch (error: any) {
-    console.error('Error getting geolocated documents:', error)
+    logger.error('Error getting geolocated documents:', error) // Wave 26: Winston logger
     res.status(500).json({
       error: 'Failed to get geolocated documents',
       details: getErrorMessage(error)
@@ -553,7 +554,7 @@ router.post('/:id/extract-location', async (req: AuthRequest, res) => {
       note: 'Location will be extracted from EXIF data or text content'
     })
   } catch (error: any) {
-    console.error('Error extracting location:', error)
+    logger.error('Error extracting location:', error) // Wave 26: Winston logger
     res.status(500).json({
       error: 'Failed to extract location',
       details: getErrorMessage(error)
