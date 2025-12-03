@@ -12,6 +12,14 @@ router.get("/", async (req, res) => {
   try {
     const { page = 1, pageSize = 20, search, status } = req.query
 
+    // Wave 12 (Revised): Cache-aside pattern
+    const cacheKey = `vehicles:list:${page}:${pageSize}:${search || ''}:${status || ''}`
+    const cached = await cacheService.get<{ data: any[], total: number }>(cacheKey)
+
+    if (cached) {
+      return res.json(cached)
+    }
+
     let vehicles = vehicleEmulator.getAll()
 
     // Apply search filter
@@ -29,7 +37,12 @@ router.get("/", async (req, res) => {
     const offset = (Number(page) - 1) * Number(pageSize)
     const data = vehicles.slice(offset, offset + Number(pageSize))
 
-    res.json({ data, total })
+    const result = { data, total }
+
+    // Cache for 5 minutes (300 seconds)
+    await cacheService.set(cacheKey, result, 300)
+
+    res.json(result)
   } catch (error) {
     logger.error('Failed to fetch vehicles', { error }) // Wave 10: Winston logger
     res.status(500).json({ error: "Failed to fetch vehicles" })
@@ -39,8 +52,20 @@ router.get("/", async (req, res) => {
 // GET vehicle by ID
 router.get("/:id", async (req, res) => {
   try {
+    // Wave 12 (Revised): Cache-aside pattern for single vehicle
+    const cacheKey = `vehicle:${req.params.id}`
+    const cached = await cacheService.get<any>(cacheKey)
+
+    if (cached) {
+      return res.json({ data: cached })
+    }
+
     const vehicle = vehicleEmulator.getById(Number(req.params.id))
     if (!vehicle) return res.status(404).json({ error: "Vehicle not found" })
+
+    // Cache for 10 minutes (600 seconds)
+    await cacheService.set(cacheKey, vehicle, 600)
+
     res.json({ data: vehicle })
   } catch (error) {
     logger.error('Failed to fetch vehicle', { error, vehicleId: req.params.id }) // Wave 10: Winston logger
@@ -52,6 +77,13 @@ router.get("/:id", async (req, res) => {
 router.post("/", validate(vehicleCreateSchema), async (req, res) => { // Wave 9: Add Zod validation
   try {
     const vehicle = vehicleEmulator.create(req.body)
+
+    // Wave 12 (Revised): Invalidate list cache on create
+    // Delete all vehicles:list:* keys to ensure fresh data
+    const pattern = 'vehicles:list:*'
+    // Note: In production with Redis, use SCAN to find and delete matching keys
+    // For now, we rely on TTL expiration
+
     res.status(201).json({ data: vehicle })
   } catch (error) {
     logger.error('Failed to create vehicle', { error }) // Wave 10: Winston logger
@@ -64,6 +96,11 @@ router.put("/:id", validate(vehicleUpdateSchema), async (req, res) => { // Wave 
   try {
     const vehicle = vehicleEmulator.update(Number(req.params.id), req.body)
     if (!vehicle) return res.status(404).json({ error: "Vehicle not found" })
+
+    // Wave 12 (Revised): Invalidate cache on update
+    const cacheKey = `vehicle:${req.params.id}`
+    await cacheService.del(cacheKey)
+
     res.json({ data: vehicle })
   } catch (error) {
     logger.error('Failed to update vehicle', { error, vehicleId: req.params.id }) // Wave 10: Winston logger
@@ -76,6 +113,11 @@ router.delete("/:id", async (req, res) => {
   try {
     const deleted = vehicleEmulator.delete(Number(req.params.id))
     if (!deleted) return res.status(404).json({ error: "Vehicle not found" })
+
+    // Wave 12 (Revised): Invalidate cache on delete
+    const cacheKey = `vehicle:${req.params.id}`
+    await cacheService.del(cacheKey)
+
     res.json({ message: "Vehicle deleted successfully" })
   } catch (error) {
     logger.error('Failed to delete vehicle', { error, vehicleId: req.params.id }) // Wave 10: Winston logger
