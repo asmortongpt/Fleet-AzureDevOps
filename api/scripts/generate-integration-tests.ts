@@ -121,9 +121,10 @@ ${routes.map(route => generateRouteTests(route, basePath)).join('\n\n')}
         });
 
       // Try to access from tenant B
+      const tenantBToken = 'TENANT_B_TOKEN_HERE'; // TODO: Generate actual tenant B token
       const responseB = await request(app)
         .get(\`${basePath}/\${resourceA.body.id}\`)
-        .set('Authorization', 'Bearer ${authToken for tenant B}')
+        .set('Authorization', \`Bearer \${tenantBToken}\`)
         .expect(403);
     });
   });
