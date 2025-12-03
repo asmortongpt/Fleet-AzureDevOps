@@ -427,18 +427,225 @@ export function checkBruteForce(identifierField: string = 'email') {
 
 /**
  * Middleware for distributed rate limiting with Redis
- * (Placeholder - implement when Redis is configured)
+ * Provides rate limiting across multiple server instances
  */
 export class RedisRateLimiter {
   constructor(
-    private redisClient: any, // Redis client
+    private redisClient: any, // Redis client (ioredis)
     private prefix: string = 'ratelimit'
-  ) {}
+  ) {
+    if (!redisClient) {
+      throw new Error('Redis client is required for distributed rate limiting')
+    }
+  }
 
+  /**
+   * Increment rate limit counter using Redis
+   * Uses sliding window algorithm with sorted sets
+   */
   async increment(key: string, windowMs: number): Promise<{ count: number; resetAt: number }> {
-    // TODO: Implement Redis-based rate limiting
-    // This provides distributed rate limiting across multiple server instances
-    return rateLimitStore.increment(key, windowMs)
+    try {
+      const now = Date.now()
+      const resetAt = now + windowMs
+      const redisKey = `${this.prefix}:${key}`
+
+      // Use Redis transaction for atomic operations
+      const multi = this.redisClient.multi()
+
+      // Remove old entries outside the window
+      multi.zremrangebyscore(redisKey, 0, now - windowMs)
+
+      // Add current hit
+      multi.zadd(redisKey, now, `${now}-${Math.random()}`)
+
+      // Count hits in current window
+      multi.zcount(redisKey, now - windowMs, now)
+
+      // Set expiration on the key
+      multi.expire(redisKey, Math.ceil(windowMs / 1000) + 1)
+
+      const results = await multi.exec()
+
+      if (!results) {
+        throw new Error('Redis transaction failed')
+      }
+
+      // Extract count from zcount result
+      const count = results[2][1] as number
+
+      securityLogger.debug('rate_limit', {
+        details: {
+          key: redisKey,
+          count,
+          window: windowMs,
+          resetAt: new Date(resetAt).toISOString()
+        }
+      })
+
+      return { count, resetAt }
+    } catch (error) {
+      securityLogger.incident('rate_limit_redis_error', {
+        details: {
+          error: error instanceof Error ? error.message : String(error),
+          key
+        },
+        severity: 'high'
+      })
+
+      // Fallback to in-memory store if Redis fails
+      securityLogger.warn('Falling back to in-memory rate limiting due to Redis error')
+      return rateLimitStore.increment(key, windowMs)
+    }
+  }
+
+  /**
+   * Reset rate limit for a specific key
+   */
+  async reset(key: string): Promise<void> {
+    try {
+      const redisKey = `${this.prefix}:${key}`
+      await this.redisClient.del(redisKey)
+
+      securityLogger.info('rate_limit_reset', {
+        details: { key: redisKey }
+      })
+    } catch (error) {
+      securityLogger.error('rate_limit_reset_error', {
+        details: {
+          error: error instanceof Error ? error.message : String(error),
+          key
+        }
+      })
+    }
+  }
+
+  /**
+   * Get current rate limit status
+   */
+  async get(key: string, windowMs: number): Promise<{ count: number; resetAt: number } | null> {
+    try {
+      const now = Date.now()
+      const redisKey = `${this.prefix}:${key}`
+
+      // Count hits in current window
+      const count = await this.redisClient.zcount(redisKey, now - windowMs, now)
+
+      if (count === 0) {
+        return null
+      }
+
+      // Get TTL for reset time
+      const ttl = await this.redisClient.ttl(redisKey)
+      const resetAt = ttl > 0 ? now + (ttl * 1000) : now + windowMs
+
+      return { count, resetAt }
+    } catch (error) {
+      securityLogger.error('rate_limit_get_error', {
+        details: {
+          error: error instanceof Error ? error.message : String(error),
+          key
+        }
+      })
+      return null
+    }
+  }
+}
+
+/**
+ * Create a Redis-backed rate limiter
+ * Falls back to in-memory if Redis is not available
+ */
+export function createRedisRateLimiter(redisClient: any, prefix: string = 'ratelimit'): RedisRateLimiter {
+  if (!redisClient) {
+    securityLogger.warn('Redis client not provided - rate limiting will use in-memory store')
+    throw new Error('Redis client required for distributed rate limiting')
+  }
+
+  return new RedisRateLimiter(redisClient, prefix)
+}
+
+/**
+ * Enhanced rate limit middleware factory with Redis support
+ */
+export function distributedRateLimit(
+  config: RateLimitConfig & { redisClient?: any }
+) {
+  const {
+    windowMs,
+    maxRequests,
+    message = 'Too many requests, please try again later',
+    keyGenerator = defaultKeyGenerator,
+    skip,
+    handler,
+    redisClient
+  } = config
+
+  // Use Redis if available, otherwise fall back to in-memory
+  let rateLimiter: RedisRateLimiter | null = null
+  if (redisClient) {
+    try {
+      rateLimiter = new RedisRateLimiter(redisClient)
+      securityLogger.info('Distributed rate limiting enabled with Redis')
+    } catch (error) {
+      securityLogger.warn('Failed to initialize Redis rate limiter, using in-memory fallback', {
+        error: error instanceof Error ? error.message : String(error)
+      })
+    }
+  }
+
+  return async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      // Check if should skip rate limiting
+      if (skip && skip(req)) {
+        return next()
+      }
+
+      // Generate rate limit key
+      const key = keyGenerator(req)
+
+      // Increment counter (Redis or in-memory)
+      const { count, resetAt } = rateLimiter
+        ? await rateLimiter.increment(key, windowMs)
+        : rateLimitStore.increment(key, windowMs)
+
+      // Set rate limit headers
+      const remaining = Math.max(0, maxRequests - count)
+      res.setHeader('X-RateLimit-Limit', maxRequests.toString())
+      res.setHeader('X-RateLimit-Remaining', remaining.toString())
+      res.setHeader('X-RateLimit-Reset', new Date(resetAt).toISOString())
+
+      // Check if limit exceeded
+      if (count > maxRequests) {
+        const retryAfter = Math.ceil((resetAt - Date.now()) / 1000)
+        res.setHeader('Retry-After', retryAfter.toString())
+
+        // Log rate limit incident
+        securityLogger.incident('rate_limit', {
+          ip: req.ip,
+          userAgent: req.get('user-agent'),
+          userId: (req as any).user?.id,
+          tenantId: (req as any).user?.tenant_id,
+          details: {
+            endpoint: req.path,
+            method: req.method,
+            count,
+            limit: maxRequests,
+            usingRedis: !!rateLimiter
+          },
+          severity: count > maxRequests * 2 ? 'high' : 'medium'
+        })
+
+        if (handler) {
+          return handler(req, res)
+        }
+
+        throw new RateLimitError(retryAfter)
+      }
+
+      next()
+    } catch (error) {
+      next(error)
+    }
   }
 }
 
