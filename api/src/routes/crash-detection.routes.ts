@@ -1,4 +1,5 @@
 /**
+import logger from '../config/logger'; // Wave 33: Add Winston logger (FINAL WAVE!)
  * Crash Detection API Routes
  *
  * Handles crash reports from mobile devices and triggers emergency response
@@ -135,7 +136,7 @@ router.post('/crash',
         emergencyResponseTriggered: isEmergency
       })
     } catch (error: any) {
-      console.error('Error saving crash report:', error)
+      logger.error('Error saving crash report:', error) // Wave 33: Winston logger (FINAL WAVE!)
       res.status(400).json({ error: getErrorMessage(error) })
     } finally {
       client.release()
@@ -192,7 +193,7 @@ router.get('/crash/history', async (req: Request, res: Response) => {
 
     res.json({ incidents: result.rows })
   } catch (error: any) {
-    console.error(`Error fetching crash history:`, error)
+    logger.error(`Error fetching crash history:`, error) // Wave 33: Winston logger (FINAL WAVE!)
     res.status(500).json({ error: getErrorMessage(error) })
   } finally {
     client.release()
@@ -265,7 +266,7 @@ router.get(`/crash/fleet`, async (req: Request, res: Response) => {
 
     res.json({ incidents })
   } catch (error: any) {
-    console.error(`Error fetching fleet crash incidents:`, error)
+    logger.error(`Error fetching fleet crash incidents:`, error) // Wave 33: Winston logger (FINAL WAVE!)
     res.status(500).json({ error: getErrorMessage(error) })
   } finally {
     client.release()
@@ -356,7 +357,7 @@ async function triggerEmergencyResponse(incident: any, client: any) {
     // - Company safety coordinator
 
   } catch (error) {
-    console.error(`Error triggering emergency response:`, error)
+    logger.error(`Error triggering emergency response:`, error) // Wave 33: Winston logger (FINAL WAVE!)
   }
 }
 
