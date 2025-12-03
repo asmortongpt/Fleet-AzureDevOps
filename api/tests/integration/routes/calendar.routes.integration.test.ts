@@ -31,7 +31,7 @@ describe('/calendar.routes API Integration Tests', () => {
 
   afterAll(async () => {
     // Cleanup: Remove test data
-    // TODO: Implement cleanup logic
+    await request(app).delete(`/api/resource/${createdId}`).set("Authorization", `Bearer ${authToken}`).expect(204);
   });
 
   describe('POST /calendar.routes/events', () => {
@@ -40,7 +40,7 @@ describe('/calendar.routes API Integration Tests', () => {
         .post('/calendar.routes/events')
         
         .send({
-          // TODO: Add valid request body
+          name: "Test Entity", description: "Test Description", status: "active",
           tenantId: testTenantId,
         })
         .expect(201);
@@ -67,7 +67,7 @@ describe('/calendar.routes API Integration Tests', () => {
         .expect(200);
 
       expect(response.body).toBeDefined();
-      // TODO: Add specific response validation
+      expect(response.body).toHaveProperty("id"); expect(response.body).toHaveProperty("tenantId"); expect(response.body.tenantId).toBe(testTenantId);
     });
   });
 
@@ -79,7 +79,7 @@ describe('/calendar.routes API Integration Tests', () => {
         .expect(200);
 
       expect(response.body).toBeDefined();
-      // TODO: Add specific response validation
+      expect(response.body).toHaveProperty("id"); expect(response.body).toHaveProperty("tenantId"); expect(response.body.tenantId).toBe(testTenantId);
     });
   });
 
@@ -89,7 +89,7 @@ describe('/calendar.routes API Integration Tests', () => {
         .patch('/calendar.routes/events/:eventId')
         
         .send({
-          // TODO: Add valid update data
+          status: "completed", completedAt: new Date().toISOString()
         })
         .expect(200);
 
@@ -127,7 +127,7 @@ describe('/calendar.routes API Integration Tests', () => {
         .post('/calendar.routes/events/:eventId/accept')
         
         .send({
-          // TODO: Add valid request body
+          name: "Test Entity", description: "Test Description", status: "active",
           tenantId: testTenantId,
         })
         .expect(201);
@@ -152,7 +152,7 @@ describe('/calendar.routes API Integration Tests', () => {
         .post('/calendar.routes/events/:eventId/decline')
         
         .send({
-          // TODO: Add valid request body
+          name: "Test Entity", description: "Test Description", status: "active",
           tenantId: testTenantId,
         })
         .expect(201);
@@ -177,7 +177,7 @@ describe('/calendar.routes API Integration Tests', () => {
         .post('/calendar.routes/events/:eventId/tentative')
         
         .send({
-          // TODO: Add valid request body
+          name: "Test Entity", description: "Test Description", status: "active",
           tenantId: testTenantId,
         })
         .expect(201);
@@ -202,7 +202,7 @@ describe('/calendar.routes API Integration Tests', () => {
         .post('/calendar.routes/find-times')
         
         .send({
-          // TODO: Add valid request body
+          name: "Test Entity", description: "Test Description", status: "active",
           tenantId: testTenantId,
         })
         .expect(201);
@@ -229,7 +229,7 @@ describe('/calendar.routes API Integration Tests', () => {
         .expect(200);
 
       expect(response.body).toBeDefined();
-      // TODO: Add specific response validation
+      expect(response.body).toHaveProperty("id"); expect(response.body).toHaveProperty("tenantId"); expect(response.body.tenantId).toBe(testTenantId);
     });
   });
 
@@ -239,7 +239,7 @@ describe('/calendar.routes API Integration Tests', () => {
         .post('/calendar.routes/schedule-maintenance')
         
         .send({
-          // TODO: Add valid request body
+          name: "Test Entity", description: "Test Description", status: "active",
           tenantId: testTenantId,
         })
         .expect(201);
@@ -264,7 +264,7 @@ describe('/calendar.routes API Integration Tests', () => {
         .post('/calendar.routes/schedule-training')
         
         .send({
-          // TODO: Add valid request body
+          name: "Test Entity", description: "Test Description", status: "active",
           tenantId: testTenantId,
         })
         .expect(201);
@@ -292,11 +292,11 @@ describe('/calendar.routes API Integration Tests', () => {
         .set('Authorization', `Bearer ${authToken}`)
         .send({
           tenantId: 'tenant-A',
-          // TODO: Add resource data
+          name: "Test Resource A", description: "For Tenant A", status: "active"
         });
 
       // Try to access from tenant B
-      const tenantBToken = 'TENANT_B_TOKEN_HERE'; // TODO: Generate actual tenant B token
+      const tenantBToken = 'await generateTestToken({ tenantId: "tenant-B", userId: "user-b" })
       const responseB = await request(app)
         .get(`/calendar.routes/${resourceA.body.id}`)
         .set('Authorization', `Bearer ${tenantBToken}`)
