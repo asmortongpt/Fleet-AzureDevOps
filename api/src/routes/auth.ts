@@ -128,7 +128,7 @@ router.post('/login', loginLimiter, async (req: Request, res: Response) => {
           tenant_id: demoUser.tenant_id,
           auth_provider: 'demo'
         },
-        process.env.JWT_SECRET || 'dev-secret-key',
+        process.env.JWT_SECRET!,
         { expiresIn: '24h' }
       )
 
