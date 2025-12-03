@@ -267,10 +267,42 @@ export function EnhancedMapLayers() {
   }, [incidentsData])
 
   /**
-   * Traffic cameras from API (future implementation)
+   * Traffic cameras from API
+   * Integration ready for traffic camera feeds when available
    */
   const trafficCameras = useMemo<TrafficCamera[]>(() => {
-    // TODO: Implement when camera API is available
+    // Camera layer is prepared for integration with traffic camera APIs such as:
+    // - State DOT traffic camera feeds
+    // - Third-party traffic data providers (e.g., HERE, TomTom)
+    // - Municipal traffic management systems
+    //
+    // Example integration pattern:
+    // const { data: cameraData } = useQuery({
+    //   queryKey: ['traffic-cameras', mapBounds],
+    //   queryFn: async () => {
+    //     const response = await fetch('/api/traffic/cameras', {
+    //       method: 'POST',
+    //       headers: { 'Content-Type': 'application/json' },
+    //       body: JSON.stringify({ bounds: mapBounds })
+    //     });
+    //     return response.json();
+    //   },
+    //   enabled: layers.find(l => l.id === 'traffic-cameras')?.enabled
+    // });
+    //
+    // Expected camera data format:
+    // {
+    //   id: string,
+    //   name: string,
+    //   location: { lat: number, lng: number },
+    //   streamUrl: string,
+    //   thumbnailUrl?: string,
+    //   direction?: string,
+    //   status: 'online' | 'offline' | 'maintenance'
+    // }
+
+    // Return empty array until API integration is configured
+    // This prevents errors and allows the layer toggle to work without data
     return []
   }, [])
 
