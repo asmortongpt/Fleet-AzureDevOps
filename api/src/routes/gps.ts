@@ -1,4 +1,5 @@
 /**
+import logger from '../config/logger'; // Wave 17: Add Winston logger
  * GPS Routes API
  * Provides endpoints for GPS tracking, position history, and geofencing
  */
@@ -58,7 +59,7 @@ router.get('/', (req: Request, res: Response) => {
       }
     })
   } catch (error) {
-    console.error('Error getting GPS positions:', error)
+    logger.error('Error getting GPS positions:', error) // Wave 17: Winston logger
     res.status(500).json({
       success: false,
       error: 'Failed to retrieve GPS positions'
@@ -79,7 +80,7 @@ router.get('/facilities', (req: Request, res: Response) => {
       data: facilities
     })
   } catch (error) {
-    console.error('Error getting facilities:', error)
+    logger.error('Error getting facilities:', error) // Wave 17: Winston logger
     res.status(500).json({
       success: false,
       error: 'Failed to retrieve facilities'
@@ -117,7 +118,7 @@ router.get('/geofence/alerts', (req: Request, res: Response) => {
       total: alerts.length
     })
   } catch (error) {
-    console.error('Error getting geofence alerts:', error)
+    logger.error('Error getting geofence alerts:', error) // Wave 17: Winston logger
     res.status(500).json({
       success: false,
       error: 'Failed to retrieve geofence alerts'
@@ -154,7 +155,7 @@ router.get('/:vehicleId', (req: Request, res: Response) => {
       data: position
     })
   } catch (error) {
-    console.error('Error getting vehicle position:', error)
+    logger.error('Error getting vehicle position:', error) // Wave 17: Winston logger
     res.status(500).json({
       success: false,
       error: 'Failed to retrieve vehicle position'
@@ -185,7 +186,7 @@ router.get('/:vehicleId/history', (req: Request, res: Response) => {
       count: history.length
     })
   } catch (error) {
-    console.error('Error getting vehicle history:', error)
+    logger.error('Error getting vehicle history:', error) // Wave 17: Winston logger
     res.status(500).json({
       success: false,
       error: 'Failed to retrieve vehicle history'
@@ -206,7 +207,7 @@ router.post('/start', (req: Request, res: Response) => {
       message: 'GPS emulation started'
     })
   } catch (error) {
-    console.error('Error starting GPS emulation:', error)
+    logger.error('Error starting GPS emulation:', error) // Wave 17: Winston logger
     res.status(500).json({
       success: false,
       error: 'Failed to start GPS emulation'
@@ -227,7 +228,7 @@ router.post('/stop', (req: Request, res: Response) => {
       message: 'GPS emulation stopped'
     })
   } catch (error) {
-    console.error('Error stopping GPS emulation:', error)
+    logger.error('Error stopping GPS emulation:', error) // Wave 17: Winston logger
     res.status(500).json({
       success: false,
       error: 'Failed to stop GPS emulation'
