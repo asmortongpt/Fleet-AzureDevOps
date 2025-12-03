@@ -5,8 +5,10 @@ import { authenticateToken } from '../middleware/auth';
 import { tenantIsolation } from '../middleware/tenant-isolation';
 import { validate } from '../middleware/validation';
 import { createInspectionSchema, updateInspectionSchema } from '../schemas/inspection.schema';
+import { TenantValidator } from '../utils/tenant-validator';
 
 const router: Router = express.Router();
+const validator = new TenantValidator(db);
 
 /**
  * GET /api/inspections - Get all inspections (with tenant isolation)
@@ -123,6 +125,23 @@ router.post('/', authenticateToken, tenantIsolation, validate(createInspectionSc
       attachments,
       notes
     } = req.body;
+
+    // SECURITY FIX: Validate foreign keys belong to tenant (IDOR protection)
+    if (vehicle_id && !(await validator.validateVehicle(vehicle_id, tenantId))) {
+      res.status(403).json({
+        success: false,
+        error: 'Vehicle not found or access denied'
+      });
+      return;
+    }
+
+    if (inspector_id && !(await validator.validateInspector(inspector_id, tenantId))) {
+      res.status(403).json({
+        success: false,
+        error: 'Inspector not found or access denied'
+      });
+      return;
+    }
 
     // SECURITY: Insert with tenant_id and audit fields
     const result_data = await db.query(

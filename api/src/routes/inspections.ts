@@ -5,8 +5,10 @@ import { auditLog } from '../middleware/audit'
 import pool from '../config/database'
 import { z } from 'zod'
 import { buildInsertClause, buildUpdateClause } from '../utils/sql-safety'
+import { TenantValidator } from '../utils/tenant-validator';
 
 const router = express.Router()
+const validator = new TenantValidator(db);
 router.use(authenticateJWT)
 
 // GET /inspections
