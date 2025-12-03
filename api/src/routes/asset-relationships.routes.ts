@@ -1,4 +1,5 @@
 /**
+import logger from '../config/logger'; // Wave 28: Add Winston logger
  * Asset Relationships Routes
  * API for managing multi-asset combinations (tractor-trailer, machine-attachments)
  *
@@ -108,7 +109,7 @@ router.get(
         total: result.rows.length
       })
     } catch (error) {
-      console.error('Error fetching asset relationships:', error)
+      logger.error('Error fetching asset relationships:', error) // Wave 28: Winston logger
       res.status(500).json({ error: 'Failed to fetch asset relationships' })
     }
   }
@@ -145,7 +146,7 @@ router.get(
         total: result.rows.length
       })
     } catch (error) {
-      console.error(`Error fetching active combinations:`, error)
+      logger.error(`Error fetching active combinations:`, error) // Wave 28: Winston logger
       res.status(500).json({ error: `Failed to fetch active combinations` })
     }
   }
@@ -182,7 +183,7 @@ router.get(
         total: result.rows.length
       })
     } catch (error) {
-      console.error(`Error fetching active combinations:`, error)
+      logger.error(`Error fetching active combinations:`, error) // Wave 28: Winston logger
       res.status(500).json({ error: `Failed to fetch active combinations` })
     }
   }
@@ -223,7 +224,7 @@ router.get(
 
       res.json({ relationship: result.rows[0] })
     } catch (error) {
-      console.error('Error fetching relationship:', error)
+      logger.error('Error fetching relationship:', error) // Wave 28: Winston logger
       res.status(500).json({ error: 'Failed to fetch relationship' })
     }
   }
@@ -308,7 +309,7 @@ router.post(
       })
     } catch (error: any) {
       await client.query('ROLLBACK')
-      console.error('Error creating asset relationship:', error)
+      logger.error('Error creating asset relationship:', error) // Wave 28: Winston logger
 
       if (error.constraint === 'asset_relationships_different_assets') {
         return res.status(400).json({ error: 'Parent and child assets must be different' })
@@ -373,7 +374,7 @@ router.put(
       })
     } catch (error) {
       await client.query('ROLLBACK')
-      console.error('Error updating relationship:', error)
+      logger.error('Error updating relationship:', error) // Wave 28: Winston logger
       res.status(500).json({ error: 'Failed to update relationship' })
     } finally {
       client.release()
@@ -412,7 +413,7 @@ router.patch(
         message: `Relationship deactivated successfully`
       })
     } catch (error) {
-      console.error('Error deactivating relationship:', error)
+      logger.error('Error deactivating relationship:', error) // Wave 28: Winston logger
       res.status(500).json({ error: 'Failed to deactivate relationship' })
     }
   }
@@ -445,7 +446,7 @@ router.delete(
 
       res.json({ message: 'Relationship deleted successfully' })
     } catch (error) {
-      console.error('Error deleting relationship:', error)
+      logger.error('Error deleting relationship:', error) // Wave 28: Winston logger
       res.status(500).json({ error: 'Failed to delete relationship' })
     }
   }
@@ -486,7 +487,7 @@ router.get(
         total: result.rows.length
       })
     } catch (error) {
-      console.error('Error fetching relationship history:', error)
+      logger.error('Error fetching relationship history:', error) // Wave 28: Winston logger
       res.status(500).json({ error: 'Failed to fetch relationship history' })
     }
   }
