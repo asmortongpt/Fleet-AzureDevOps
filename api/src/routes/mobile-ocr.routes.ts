@@ -1,4 +1,5 @@
 /**
+import logger from '../config/logger'; // Wave 33: Add Winston logger (FINAL WAVE!)
  * Mobile OCR API Routes
  *
  * Production-ready endpoints for mobile OCR processing:
@@ -196,7 +197,7 @@ router.post(
         documentId,
       });
     } catch (error: any) {
-      console.error('Fuel receipt OCR error:', error);
+      logger.error('Fuel receipt OCR error:', error) // Wave 33: Winston logger (FINAL WAVE!);
 
       // Clean up uploaded file on error
       if (req.file?.path) {
@@ -370,7 +371,7 @@ router.post(
         documentId,
       });
     } catch (error: any) {
-      console.error('Odometer OCR error:', error);
+      logger.error('Odometer OCR error:', error) // Wave 33: Winston logger (FINAL WAVE!);
 
       // Clean up uploaded file on error
       if (req.file?.path) {
@@ -463,7 +464,7 @@ router.post(
 
       return res.status(200).json(validationResult);
     } catch (error: any) {
-      console.error('Validation error:', error);
+      logger.error('Validation error:', error) // Wave 33: Winston logger (FINAL WAVE!);
 
       if (error instanceof z.ZodError) {
         return res.status(400).json({
@@ -519,7 +520,7 @@ router.get(
         },
       });
     } catch (error: any) {
-      console.error(`Error fetching OCR history:`, error);
+      logger.error(`Error fetching OCR history:`, error) // Wave 33: Winston logger (FINAL WAVE!);
       return res.status(500).json({
         error: 'Failed to fetch OCR history',
         message: getErrorMessage(error),
