@@ -1,4 +1,5 @@
 /**
+import logger from '../config/logger'; // Wave 31: Add Winston logger
  * Mobile Trip Logging API Routes
  *
  * Endpoints for automated trip tracking with OBD2 integration
@@ -198,7 +199,7 @@ router.post('/start', requirePermission('route:create:own'), auditLog, async (re
       trip
     });
   } catch (error: any) {
-    console.error('Error starting trip:', error);
+    logger.error('Error starting trip:', error) // Wave 31: Winston logger;
     if (error instanceof z.ZodError) {
       return res.status(400).json({ error: 'Invalid request data', details: error.errors });
     }
@@ -330,7 +331,7 @@ router.post('/:id/end', requirePermission('route:update:own'), auditLog, async (
       trip: result.rows[0]
     });
   } catch (error: any) {
-    console.error(`Error ending trip:`, error);
+    logger.error(`Error ending trip:`, error) // Wave 31: Winston logger;
     if (error instanceof z.ZodError) {
       return res.status(400).json({ error: 'Invalid request data', details: error.errors });
     }
@@ -504,7 +505,7 @@ router.post('/:id/metrics', requirePermission('route:update:own'), async (req: R
       client.release();
     }
   } catch (error: any) {
-    console.error('Error saving metrics:', error);
+    logger.error('Error saving metrics:', error) // Wave 31: Winston logger;
     if (error instanceof z.ZodError) {
       return res.status(400).json({ error: 'Invalid request data', details: error.errors });
     }
@@ -610,7 +611,7 @@ router.get('/:id', requirePermission('route:view:own'), async (req: Request, res
       trip
     });
   } catch (error: any) {
-    console.error(`Error getting trip:`, error);
+    logger.error(`Error getting trip:`, error) // Wave 31: Winston logger;
     res.status(500).json({ error: `Failed to get trip` });
   }
 });
@@ -734,7 +735,7 @@ router.patch('/:id/classify', requirePermission('route:update:own'), auditLog, a
       trip: result.rows[0]
     });
   } catch (error: any) {
-    console.error('Error classifying trip:', error);
+    logger.error('Error classifying trip:', error) // Wave 31: Winston logger;
     if (error instanceof z.ZodError) {
       return res.status(400).json({ error: 'Invalid request data', details: error.errors });
     }
@@ -875,7 +876,7 @@ router.get('/', requirePermission('route:view:fleet'), async (req: Request, res:
       }
     });
   } catch (error: any) {
-    console.error(`Error getting trips:`, error);
+    logger.error(`Error getting trips:`, error) // Wave 31: Winston logger;
     res.status(500).json({ error: `Failed to get trips` });
   }
 });
