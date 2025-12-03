@@ -1,4 +1,5 @@
 /**
+import logger from '../config/logger'; // Wave 32: Add Winston logger
  * AI Task Prioritization API Routes
  *
  * Endpoints:
@@ -148,7 +149,7 @@ router.post(
         message: 'Priority score calculated successfully'
       })
     } catch (error) {
-      console.error('Error in prioritize endpoint:', error)
+      logger.error('Error in prioritize endpoint:', error) // Wave 32: Winston logger
       if (error instanceof z.ZodError) {
         return res.status(400).json({
           error: 'Invalid input data',
@@ -214,7 +215,7 @@ router.post(
         message: 'Assignment recommendations generated successfully'
       })
     } catch (error) {
-      console.error('Error in assign endpoint:', error)
+      logger.error('Error in assign endpoint:', error) // Wave 32: Winston logger
       if (error instanceof z.ZodError) {
         return res.status(400).json({
           error: 'Invalid input data',
@@ -255,7 +256,7 @@ router.post(
         message: 'Dependency analysis completed successfully'
       })
     } catch (error) {
-      console.error('Error in dependencies endpoint:', error)
+      logger.error('Error in dependencies endpoint:', error) // Wave 32: Winston logger
       if (error instanceof z.ZodError) {
         return res.status(400).json({
           error: 'Invalid input data',
@@ -297,7 +298,7 @@ router.post(
         message: 'Execution order calculated successfully'
       })
     } catch (error) {
-      console.error('Error in execution-order endpoint:', error)
+      logger.error('Error in execution-order endpoint:', error) // Wave 32: Winston logger
       if (error instanceof z.ZodError) {
         return res.status(400).json({
           error: 'Invalid input data',
@@ -355,7 +356,7 @@ router.post(
         message: 'Resource optimization completed successfully'
       })
     } catch (error) {
-      console.error('Error in optimize endpoint:', error)
+      logger.error('Error in optimize endpoint:', error) // Wave 32: Winston logger
       if (error instanceof z.ZodError) {
         return res.status(400).json({
           error: 'Invalid input data',
@@ -418,7 +419,7 @@ router.post(
         message: 'Batch prioritization completed successfully'
       })
     } catch (error) {
-      console.error('Error in batch-prioritize endpoint:', error)
+      logger.error('Error in batch-prioritize endpoint:', error) // Wave 32: Winston logger
       if (error instanceof z.ZodError) {
         return res.status(400).json({
           error: 'Invalid input data',
