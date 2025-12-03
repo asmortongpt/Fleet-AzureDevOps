@@ -111,6 +111,9 @@ const fetchStationUtilization = async (): Promise<StationUtilization[]> => {
 const EVChargingDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState('overview');
   const [selectedStation, setSelectedStation] = useState<number | null>(null);
+  const [selectedVehicleId, setSelectedVehicleId] = useState<number | null>(null);
+  const [showReservationDialog, setShowReservationDialog] = useState(false);
+  const [reservationStationId, setReservationStationId] = useState<number | null>(null);
   const queryClient = useQueryClient();
 
   // TanStack Query hooks for data fetching
@@ -153,13 +156,17 @@ const EVChargingDashboard: React.FC = () => {
   // Mutation for remote start
   const remoteStartMutation = useMutation({
     mutationFn: async ({ stationId, connectorId }: { stationId: string; connectorId: number }) => {
+      if (!selectedVehicleId) {
+        throw new Error('Please select a vehicle before starting charging');
+      }
+
       const response = await fetch(`/api/ev/chargers/${stationId}/remote-start`, {
         method: 'POST',
         headers: getAuthHeaders(),
         body: JSON.stringify({
           connectorId,
-          vehicleId: 1, // TODO: Get from selection
-          idTag: 'VEHICLE_1'
+          vehicleId: selectedVehicleId,
+          idTag: `VEHICLE_${selectedVehicleId}`
         })
       });
       const data = await response.json();
@@ -244,9 +251,49 @@ const EVChargingDashboard: React.FC = () => {
     return kwh * rate;
   };
 
+  /**
+   * Open reservation dialog for a specific charging station
+   * @param stationId - The charging station ID to create a reservation for
+   */
   const createReservation = (stationId: number) => {
-    // TODO: Open reservation dialog
-    console.log('Create reservation for station:', stationId);
+    setReservationStationId(stationId);
+    setShowReservationDialog(true);
+  };
+
+  /**
+   * Handle reservation submission
+   * Creates a reservation with the selected vehicle and time slot
+   */
+  const handleReservationSubmit = async (reservationData: {
+    vehicleId: number;
+    startTime: string;
+    endTime: string;
+  }) => {
+    try {
+      const response = await fetch('/api/ev/reservations', {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({
+          stationId: reservationStationId,
+          ...reservationData
+        })
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        alert('Reservation created successfully');
+        setShowReservationDialog(false);
+        setReservationStationId(null);
+        // Refresh stations data to show updated reservation status
+        refetchStations();
+      } else {
+        throw new Error(data.message || 'Failed to create reservation');
+      }
+    } catch (error: any) {
+      console.error('Error creating reservation:', error);
+      alert(`Failed to create reservation: ${error.message}`);
+    }
   };
 
   const handleRemoteStart = (stationId: string, connectorId: number) => {
