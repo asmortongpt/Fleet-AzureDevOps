@@ -547,3 +547,5 @@ export function DriverPerformance({ data }: DriverPerformanceProps) {
     </div>
   )
 }
+
+export default DriverPerformance;

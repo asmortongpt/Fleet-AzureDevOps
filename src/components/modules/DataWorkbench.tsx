@@ -1788,3 +1788,5 @@ export function DataWorkbench({ data }: DataWorkbenchProps) {
     </div>
   )
 }
+
+export default DataWorkbench;
