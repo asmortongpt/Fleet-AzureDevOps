@@ -1,4 +1,5 @@
 import express, { Response } from 'express'
+import logger from '../config/logger'; // Wave 21: Add Winston logger
 import { AuthRequest, authenticateJWT } from '../middleware/auth'
 import { requirePermission } from '../middleware/permissions'
 import { auditLog } from '../middleware/audit'
@@ -70,7 +71,7 @@ router.get(
 
       res.json(stations)
     } catch (error) {
-      console.error('Get nearby stations error:', error)
+      logger.error('Get nearby stations error:', error) // Wave 21: Winston logger
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -103,7 +104,7 @@ router.get(
 
       res.json(result)
     } catch (error) {
-      console.error('Find cheapest fuel error:', error)
+      logger.error('Find cheapest fuel error:', error) // Wave 21: Winston logger
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -145,7 +146,7 @@ router.post(
 
       res.json(recommendation)
     } catch (error) {
-      console.error('Get recommendation error:', error)
+      logger.error('Get recommendation error:', error) // Wave 21: Winston logger
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -169,7 +170,7 @@ router.get(
 
       res.json(forecasts)
     } catch (error) {
-      console.error('Get forecast error:', error)
+      logger.error('Get forecast error:', error) // Wave 21: Winston logger
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -197,7 +198,7 @@ router.get(
 
       res.json(recommendation)
     } catch (error) {
-      console.error('Get timing recommendation error:', error)
+      logger.error('Get timing recommendation error:', error) // Wave 21: Winston logger
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -216,7 +217,7 @@ router.get(
 
       res.json(trends)
     } catch (error) {
-      console.error('Get seasonal trends error:', error)
+      logger.error('Get seasonal trends error:', error) // Wave 21: Winston logger
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -238,7 +239,7 @@ router.get(
 
       res.json(variations)
     } catch (error) {
-      console.error('Get regional variations error:', error)
+      logger.error('Get regional variations error:', error) // Wave 21: Winston logger
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -259,7 +260,7 @@ router.post(
       // Mask sensitive data in response
       res.status(201).json(maskFuelCardData(order))
     } catch (error) {
-      console.error('Create purchase order error:', error)
+      logger.error('Create purchase order error:', error) // Wave 21: Winston logger
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -282,7 +283,7 @@ router.get(
       // Mask sensitive pricing data
       res.json(maskFuelCardData(contracts))
     } catch (error) {
-      console.error('Get contracts error:', error)
+      logger.error('Get contracts error:', error) // Wave 21: Winston logger
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -303,7 +304,7 @@ router.post(
 
       res.status(201).json(alert)
     } catch (error) {
-      console.error('Create alert error:', error)
+      logger.error('Create alert error:', error) // Wave 21: Winston logger
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -330,7 +331,7 @@ router.get(
 
       res.json(savings)
     } catch (error) {
-      console.error('Calculate savings error:', error)
+      logger.error('Calculate savings error:', error) // Wave 21: Winston logger
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -352,7 +353,7 @@ router.get(
 
       res.json(recommendations)
     } catch (error) {
-      console.error('Get refueling optimization error:', error)
+      logger.error('Get refueling optimization error:', error) // Wave 21: Winston logger
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -378,7 +379,7 @@ router.get(
 
       res.json(analysis)
     } catch (error) {
-      console.error('Bulk vs retail analysis error:', error)
+      logger.error('Bulk vs retail analysis error:', error) // Wave 21: Winston logger
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -404,7 +405,7 @@ router.get(
 
       res.json(optimization)
     } catch (error) {
-      console.error('Fleet card optimization error:', error)
+      logger.error('Fleet card optimization error:', error) // Wave 21: Winston logger
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -430,7 +431,7 @@ router.get(
 
       res.json(analysis)
     } catch (error) {
-      console.error('Cross-border analysis error:', error)
+      logger.error('Cross-border analysis error:', error) // Wave 21: Winston logger
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -457,7 +458,7 @@ router.get(
 
       res.json(recommendations)
     } catch (error) {
-      console.error('Hedging recommendations error:', error)
+      logger.error('Hedging recommendations error:', error) // Wave 21: Winston logger
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -476,7 +477,7 @@ router.get(
 
       res.json(report)
     } catch (error) {
-      console.error('Generate optimization report error:', error)
+      logger.error('Generate optimization report error:', error) // Wave 21: Winston logger
       res.status(500).json({ error: 'Internal server error' })
     }
   }
