@@ -1,4 +1,5 @@
 /**
+import logger from '../config/logger'; // Wave 24: Add Winston logger
  * Smartcar Connected Vehicle Routes
  * OAuth flow and remote vehicle control
  */
@@ -56,7 +57,7 @@ router.get('/connect', authenticateJWT, requirePermission('vehicle:manage:global
       message: 'Redirect user to this URL to connect their vehicle'
     })
   } catch (error: any) {
-    console.error('Smartcar connect error:', error)
+    logger.error('Smartcar connect error:', error) // Wave 24: Winston logger
     res.status(500).json({ error: error.message || 'Internal server error' })
   }
 })
@@ -74,7 +75,7 @@ router.get('/callback', async (req: Request, res: Response) => {
     const { code, state, error } = req.query
 
     if (error) {
-      console.error('Smartcar OAuth error:', error)
+      logger.error('Smartcar OAuth error:', error) // Wave 24: Winston logger
       const safeErrorUrl = buildSafeRedirectUrl('/vehicles', {
         error: 'smartcar_auth_failed',
         message: error as string
@@ -165,7 +166,7 @@ router.get('/callback', async (req: Request, res: Response) => {
     })
     res.redirect(safeSuccessUrl)
   } catch (error: any) {
-    console.error('Smartcar callback error:', error)
+    logger.error('Smartcar callback error:', error) // Wave 24: Winston logger
     const safeErrorUrl = buildSafeRedirectUrl('/vehicles', {
       error: 'smartcar_auth_failed',
       message: error.message || 'Connection failed'
@@ -201,7 +202,7 @@ router.get(
 
       res.json(location)
     } catch (error: any) {
-      console.error('Get Smartcar location error:', error)
+      logger.error('Get Smartcar location error:', error) // Wave 24: Winston logger
       res.status(500).json({ error: error.message || 'Internal server error' })
     }
   }
@@ -234,7 +235,7 @@ router.get(
 
       res.json(battery)
     } catch (error: any) {
-      console.error('Get Smartcar battery error:', error)
+      logger.error('Get Smartcar battery error:', error) // Wave 24: Winston logger
       res.status(500).json({ error: error.message || 'Internal server error' })
     }
   }
@@ -267,7 +268,7 @@ router.get(
 
       res.json(charge)
     } catch (error: any) {
-      console.error('Get Smartcar charge error:', error)
+      logger.error('Get Smartcar charge error:', error) // Wave 24: Winston logger
       res.status(500).json({ error: error.message || 'Internal server error' })
     }
   }
@@ -300,7 +301,7 @@ router.post(
 
       res.json(result)
     } catch (error: any) {
-      console.error('Lock vehicle error:', error)
+      logger.error('Lock vehicle error:', error) // Wave 24: Winston logger
       res.status(500).json({ error: error.message || 'Internal server error' })
     }
   }
@@ -333,7 +334,7 @@ router.post(
 
       res.json(result)
     } catch (error: any) {
-      console.error('Unlock vehicle error:', error)
+      logger.error('Unlock vehicle error:', error) // Wave 24: Winston logger
       res.status(500).json({ error: error.message || 'Internal server error' })
     }
   }
@@ -366,7 +367,7 @@ router.post(
 
       res.json(result)
     } catch (error: any) {
-      console.error('Start charging error:', error)
+      logger.error('Start charging error:', error) // Wave 24: Winston logger
       res.status(500).json({ error: error.message || 'Internal server error' })
     }
   }
@@ -399,7 +400,7 @@ router.post(
 
       res.json(result)
     } catch (error: any) {
-      console.error('Stop charging error:', error)
+      logger.error('Stop charging error:', error) // Wave 24: Winston logger
       res.status(500).json({ error: error.message || 'Internal server error' })
     }
   }
@@ -441,7 +442,7 @@ router.delete(
 
       res.json({ message: 'Smartcar disconnected successfully' })
     } catch (error: any) {
-      console.error('Disconnect Smartcar error:', error)
+      logger.error('Disconnect Smartcar error:', error) // Wave 24: Winston logger
       res.status(500).json({ error: error.message || 'Internal server error' })
     }
   }
@@ -468,7 +469,7 @@ router.post(
 
       res.json({ message: 'Vehicle data synced successfully' })
     } catch (error: any) {
-      console.error('Sync Smartcar data error:', error)
+      logger.error('Sync Smartcar data error:', error) // Wave 24: Winston logger
       res.status(500).json({ error: error.message || 'Internal server error' })
     }
   }
