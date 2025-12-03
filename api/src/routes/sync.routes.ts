@@ -1,4 +1,5 @@
 /**
+import logger from '../config/logger'; // Wave 26: Add Winston logger
  * Fleet Management - Message Sync Routes
  *
  * Endpoints:
@@ -68,7 +69,7 @@ router.post(`/teams/:teamId/channels/:channelId`, async (req: Request, res: Resp
       message: `Synced ${result.synced} messages with ${result.errors} errors`
     })
   } catch (error: any) {
-    console.error(`Error syncing Teams channel:`, error)
+    logger.error(`Error syncing Teams channel:`, error) // Wave 26: Winston logger
     res.status(500).json({
       success: false,
       error: 'Failed to sync Teams channel',
@@ -116,7 +117,7 @@ router.post(`/outlook/folders/:folderId`, async (req: Request, res: Response) =>
       message: `Synced ${result.synced} emails with ${result.errors} errors`
     })
   } catch (error: any) {
-    console.error(`Error syncing Outlook folder:`, error)
+    logger.error(`Error syncing Outlook folder:`, error) // Wave 26: Winston logger
     res.status(500).json({
       success: false,
       error: 'Failed to sync Outlook folder',
@@ -149,7 +150,7 @@ router.get('/status', async (req: Request, res: Response) => {
       totalResources: status.length
     })
   } catch (error: any) {
-    console.error('Error getting sync status:', error)
+    logger.error('Error getting sync status:', error) // Wave 26: Winston logger
     res.status(500).json({
       success: false,
       error: 'Failed to get sync status',
@@ -208,7 +209,7 @@ router.post('/full', async (req: Request, res: Response) => {
       message: `Full re-sync completed`
     })
   } catch (error: any) {
-    console.error(`Error during full re-sync:`, error)
+    logger.error(`Error during full re-sync:`, error) // Wave 26: Winston logger
     res.status(500).json({
       success: false,
       error: 'Failed to perform full re-sync',
@@ -249,7 +250,7 @@ router.get('/errors', async (req: Request, res: Response) => {
       totalErrors: errors.length
     })
   } catch (error: any) {
-    console.error('Error getting sync errors:', error)
+    logger.error('Error getting sync errors:', error) // Wave 26: Winston logger
     res.status(500).json({
       success: false,
       error: 'Failed to get sync errors',
@@ -299,7 +300,7 @@ router.get('/jobs', async (req: Request, res: Response) => {
       totalJobs: result.rows.length
     })
   } catch (error: any) {
-    console.error('Error getting sync jobs:', error)
+    logger.error('Error getting sync jobs:', error) // Wave 26: Winston logger
     res.status(500).json({
       success: false,
       error: 'Failed to get sync jobs',
@@ -337,7 +338,7 @@ router.post(`/teams/all`, async (req: Request, res: Response) => {
       message: `Synced ${result.totalSynced} messages with ${result.totalErrors} errors`
     })
   } catch (error: any) {
-    console.error(`Error syncing all Teams channels:`, error)
+    logger.error(`Error syncing all Teams channels:`, error) // Wave 26: Winston logger
     res.status(500).json({
       success: false,
       error: 'Failed to sync Teams channels',
@@ -375,7 +376,7 @@ router.post(`/outlook/all`, async (req: Request, res: Response) => {
       message: `Synced ${result.totalSynced} emails with ${result.totalErrors} errors`
     })
   } catch (error: any) {
-    console.error(`Error syncing all Outlook folders:`, error)
+    logger.error(`Error syncing all Outlook folders:`, error) // Wave 26: Winston logger
     res.status(500).json({
       success: false,
       error: 'Failed to sync Outlook folders',
@@ -419,7 +420,7 @@ router.delete('/errors/:id', async (req: Request, res: Response) => {
       message: `Error marked as resolved`
     })
   } catch (error: any) {
-    console.error('Error resolving sync error:', error)
+    logger.error('Error resolving sync error:', error) // Wave 26: Winston logger
     res.status(500).json({
       success: false,
       error: 'Failed to resolve error',
@@ -505,7 +506,7 @@ router.get('/health', async (req: Request, res: Response) => {
       }
     })
   } catch (error: any) {
-    console.error('Error getting sync health:', error)
+    logger.error('Error getting sync health:', error) // Wave 26: Winston logger
     res.status(500).json({
       success: false,
       error: 'Failed to get health status',
