@@ -1,4 +1,5 @@
 import express, { Response } from 'express'
+import logger from '../config/logger'; // Wave 19: Add Winston logger
 import { AuthRequest, authenticateJWT, authorize } from '../middleware/auth'
 import { auditLog } from '../middleware/audit'
 import pool from '../config/database'
@@ -237,7 +238,7 @@ router.post(
           : 'Trip marked - pending approval'
       })
     } catch (error: any) {
-      console.error('Mark trip error:', error)
+      logger.error('Mark trip error:', error) // Wave 19: Winston logger
       res.status(500).json({
         success: false,
         error: 'Failed to mark trip',
@@ -313,7 +314,7 @@ router.post(
         message: `Personal trip started`
       })
     } catch (error: any) {
-      console.error(`Start personal trip error:`, error)
+      logger.error(`Start personal trip error:`, error) // Wave 19: Winston logger
       res.status(500).json({
         success: false,
         error: 'Failed to start personal trip',
@@ -445,7 +446,7 @@ router.patch(
         message: `Trip split successfully`
       })
     } catch (error: any) {
-      console.error(`Split trip error:`, error)
+      logger.error(`Split trip error:`, error) // Wave 19: Winston logger
       res.status(500).json({
         success: false,
         error: 'Failed to split trip',
@@ -527,7 +528,7 @@ router.get('/my-personal', async (req: AuthRequest, res: Response) => {
       }
     })
   } catch (error: any) {
-    console.error('Get personal trips error:', error)
+    logger.error('Get personal trips error:', error) // Wave 19: Winston logger
     res.status(500).json({
       success: false,
       error: 'Failed to retrieve personal trips',
@@ -599,7 +600,7 @@ router.get('/:id/usage', async (req: AuthRequest, res: Response) => {
       }
     })
   } catch (error: any) {
-    console.error(`Get trip usage error:`, error)
+    logger.error(`Get trip usage error:`, error) // Wave 19: Winston logger
     res.status(500).json({
       success: false,
       error: 'Failed to retrieve trip usage',
