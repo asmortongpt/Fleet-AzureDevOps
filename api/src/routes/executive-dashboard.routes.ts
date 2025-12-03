@@ -1,4 +1,5 @@
 import express, { Response } from 'express'
+import logger from '../config/logger'; // Wave 32: Add Winston logger
 import { AuthRequest, authenticateJWT } from '../middleware/auth'
 import { requirePermission } from '../middleware/permissions'
 import { auditLog } from '../middleware/audit'
@@ -49,7 +50,7 @@ router.get(
       const kpis = await executiveDashboardService.getKPIs(req.user!.tenant_id)
       res.json(kpis)
     } catch (error) {
-      console.error('Get executive KPIs error:', error)
+      logger.error('Get executive KPIs error:', error) // Wave 32: Winston logger
       res.status(500).json({ error: 'Failed to fetch KPIs' })
     }
   }
@@ -91,7 +92,7 @@ router.get(
       const trends = await executiveDashboardService.getTrends(req.user!.tenant_id, days)
       res.json(trends)
     } catch (error) {
-      console.error('Get trends error:', error)
+      logger.error('Get trends error:', error) // Wave 32: Winston logger
       res.status(500).json({ error: 'Failed to fetch trends' })
     }
   }
@@ -144,7 +145,7 @@ router.get(
       const insights = await executiveDashboardService.getAIInsights(req.user!.tenant_id)
       res.json(insights)
     } catch (error) {
-      console.error('Get AI insights error:', error)
+      logger.error('Get AI insights error:', error) // Wave 32: Winston logger
       res.status(500).json({ error: 'Failed to fetch AI insights' })
     }
   }
@@ -177,7 +178,7 @@ router.get(
       const summary = await executiveDashboardService.getAlertsSummary(req.user!.tenant_id)
       res.json(summary)
     } catch (error) {
-      console.error('Get alerts summary error:', error)
+      logger.error('Get alerts summary error:', error) // Wave 32: Winston logger
       res.status(500).json({ error: 'Failed to fetch alerts summary' })
     }
   }
@@ -225,7 +226,7 @@ router.get(
       const health = await executiveDashboardService.getFleetHealth(req.user!.tenant_id)
       res.json(health)
     } catch (error) {
-      console.error('Get fleet health error:', error)
+      logger.error('Get fleet health error:', error) // Wave 32: Winston logger
       res.status(500).json({ error: 'Failed to fetch fleet health' })
     }
   }
@@ -258,7 +259,7 @@ router.get(
       const costs = await executiveDashboardService.getCostAnalysis(req.user!.tenant_id)
       res.json(costs)
     } catch (error) {
-      console.error('Get cost analysis error:', error)
+      logger.error('Get cost analysis error:', error) // Wave 32: Winston logger
       res.status(500).json({ error: 'Failed to fetch cost analysis' })
     }
   }
