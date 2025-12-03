@@ -1,4 +1,5 @@
 /**
+import logger from '../config/logger'; // Wave 25: Add Winston logger
  * Push Notifications Routes
  * API endpoints for mobile push notification management
  */
@@ -55,7 +56,7 @@ router.post('/register-device', authenticateJWT, requirePermission('communicatio
       data: device,
     });
   } catch (error) {
-    console.error('Error registering device:', error);
+    logger.error('Error registering device:', error) // Wave 25: Winston logger;
     res.status(500).json({
       success: false,
       error: 'Failed to register device',
@@ -78,7 +79,7 @@ router.delete('/device/:deviceId', authenticateJWT, requirePermission('communica
       message: success ? 'Device unregistered successfully' : 'Failed to unregister device',
     });
   } catch (error) {
-    console.error('Error unregistering device:', error);
+    logger.error('Error unregistering device:', error) // Wave 25: Winston logger;
     res.status(500).json({
       success: false,
       error: 'Failed to unregister device',
@@ -148,7 +149,7 @@ router.post('/send', authenticateJWT, requirePermission('communication:send:glob
       },
     });
   } catch (error) {
-    console.error('Error sending notification:', error);
+    logger.error('Error sending notification:', error) // Wave 25: Winston logger;
     res.status(500).json({
       success: false,
       error: 'Failed to send notification',
@@ -218,7 +219,7 @@ router.post('/send-bulk', authenticateJWT, requirePermission('communication:broa
       },
     });
   } catch (error) {
-    console.error('Error sending bulk notification:', error);
+    logger.error('Error sending bulk notification:', error) // Wave 25: Winston logger;
     res.status(500).json({
       success: false,
       error: 'Failed to send bulk notification',
@@ -298,7 +299,7 @@ router.post('/schedule', authenticateJWT, requirePermission('communication:send:
       },
     });
   } catch (error) {
-    console.error('Error scheduling notification:', error);
+    logger.error('Error scheduling notification:', error) // Wave 25: Winston logger;
     res.status(500).json({
       success: false,
       error: 'Failed to schedule notification',
@@ -351,7 +352,7 @@ router.post('/send-from-template', authenticateJWT, requirePermission('communica
       },
     });
   } catch (error) {
-    console.error('Error sending from template:', error);
+    logger.error('Error sending from template:', error) // Wave 25: Winston logger;
     res.status(500).json({
       success: false,
       error: 'Failed to send notification from template',
@@ -399,7 +400,7 @@ router.get('/history', authenticateJWT, requirePermission('communication:view:gl
       },
     });
   } catch (error) {
-    console.error('Error getting notification history:', error);
+    logger.error('Error getting notification history:', error) // Wave 25: Winston logger;
     res.status(500).json({
       success: false,
       error: 'Failed to get notification history',
@@ -433,7 +434,7 @@ router.get('/stats', authenticateJWT, requirePermission('communication:view:glob
       data: stats,
     });
   } catch (error) {
-    console.error('Error getting delivery stats:', error);
+    logger.error('Error getting delivery stats:', error) // Wave 25: Winston logger;
     res.status(500).json({
       success: false,
       error: 'Failed to get delivery statistics',
@@ -459,7 +460,7 @@ router.get('/templates', authenticateJWT, requirePermission('communication:view:
       data: templates,
     });
   } catch (error) {
-    console.error('Error getting templates:', error);
+    logger.error('Error getting templates:', error) // Wave 25: Winston logger;
     res.status(500).json({
       success: false,
       error: 'Failed to get templates',
@@ -482,7 +483,7 @@ router.put('/:id/opened', authenticateJWT, requirePermission('communication:view
       message: 'Notification open tracked',
     });
   } catch (error) {
-    console.error('Error tracking notification open:', error);
+    logger.error('Error tracking notification open:', error) // Wave 25: Winston logger;
     res.status(500).json({
       success: false,
       error: 'Failed to track notification open',
@@ -506,7 +507,7 @@ router.put('/:id/clicked', authenticateJWT, async (req, res) => {
       message: 'Notification click tracked',
     });
   } catch (error) {
-    console.error('Error tracking notification click:', error);
+    logger.error('Error tracking notification click:', error) // Wave 25: Winston logger;
     res.status(500).json({
       success: false,
       error: 'Failed to track notification click',
@@ -548,7 +549,7 @@ router.post('/test', authenticateJWT, async (req, res) => {
       },
     });
   } catch (error) {
-    console.error('Error sending test notification:', error);
+    logger.error('Error sending test notification:', error) // Wave 25: Winston logger;
     res.status(500).json({
       success: false,
       error: 'Failed to send test notification',

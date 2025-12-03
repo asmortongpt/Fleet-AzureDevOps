@@ -1,4 +1,5 @@
 /**
+import logger from '../config/logger'; // Wave 25: Add Winston logger
  * OCR API Routes
  *
  * Endpoints for OCR processing and management
@@ -107,7 +108,7 @@ router.post('/process', upload.single('file'), async (req: Request, res: Respons
       });
     }
   } catch (error: any) {
-    console.error('OCR processing error:', error);
+    logger.error('OCR processing error:', error) // Wave 25: Winston logger;
     return res.status(500).json({
       error: 'OCR processing failed',
       message: getErrorMessage(error)
@@ -161,7 +162,7 @@ router.post('/batch', upload.array('files', 100), async (req: Request, res: Resp
       status: 'pending'
     });
   } catch (error: any) {
-    console.error('Batch OCR error:', error);
+    logger.error('Batch OCR error:', error) // Wave 25: Winston logger;
     return res.status(500).json({
       error: 'Batch OCR processing failed',
       message: getErrorMessage(error)
@@ -186,7 +187,7 @@ router.get('/job/:jobId', async (req: Request, res: Response) => {
 
     return res.status(200).json(job);
   } catch (error: any) {
-    console.error('Error getting job status:', error);
+    logger.error('Error getting job status:', error) // Wave 25: Winston logger;
     return res.status(500).json({
       error: 'Failed to get job status',
       message: getErrorMessage(error)
@@ -211,7 +212,7 @@ router.get('/batch/:batchId', async (req: Request, res: Response) => {
 
     return res.status(200).json(batch);
   } catch (error: any) {
-    console.error('Error getting batch status:', error);
+    logger.error('Error getting batch status:', error) // Wave 25: Winston logger;
     return res.status(500).json({
       error: 'Failed to get batch status',
       message: getErrorMessage(error)
@@ -236,7 +237,7 @@ router.get('/result/:documentId', async (req: Request, res: Response) => {
 
     return res.status(200).json(result);
   } catch (error: any) {
-    console.error('Error getting OCR result:', error);
+    logger.error('Error getting OCR result:', error) // Wave 25: Winston logger;
     return res.status(500).json({
       error: 'Failed to get OCR result',
       message: getErrorMessage(error)
@@ -270,7 +271,7 @@ router.post('/search', async (req: Request, res: Response) => {
       results
     });
   } catch (error: any) {
-    console.error('OCR search error:', error);
+    logger.error('OCR search error:', error) // Wave 25: Winston logger;
     return res.status(500).json({
       error: 'OCR search failed',
       message: getErrorMessage(error)
@@ -294,7 +295,7 @@ router.delete('/job/:jobId', async (req: Request, res: Response) => {
       jobId
     });
   } catch (error: any) {
-    console.error('Error cancelling job:', error);
+    logger.error('Error cancelling job:', error) // Wave 25: Winston logger;
     return res.status(500).json({
       error: 'Failed to cancel job',
       message: getErrorMessage(error)
@@ -319,7 +320,7 @@ router.post('/job/:jobId/retry', async (req: Request, res: Response) => {
       newJobId
     });
   } catch (error: any) {
-    console.error('Error retrying job:', error);
+    logger.error('Error retrying job:', error) // Wave 25: Winston logger;
     return res.status(500).json({
       error: 'Failed to retry job',
       message: getErrorMessage(error)
@@ -340,7 +341,7 @@ router.get('/statistics', async (req: Request, res: Response) => {
 
     return res.status(200).json(stats);
   } catch (error: any) {
-    console.error('Error getting OCR statistics:', error);
+    logger.error('Error getting OCR statistics:', error) // Wave 25: Winston logger;
     return res.status(500).json({
       error: 'Failed to get statistics',
       message: getErrorMessage(error)
@@ -392,7 +393,7 @@ router.get('/providers', async (req: Request, res: Response) => {
 
     return res.status(200).json({ providers });
   } catch (error: any) {
-    console.error('Error getting providers:', error);
+    logger.error('Error getting providers:', error) // Wave 25: Winston logger;
     return res.status(500).json({
       error: 'Failed to get providers',
       message: getErrorMessage(error)
@@ -433,7 +434,7 @@ router.get('/languages', async (req: Request, res: Response) => {
 
     return res.status(200).json({ languages });
   } catch (error: any) {
-    console.error('Error getting languages:', error);
+    logger.error('Error getting languages:', error) // Wave 25: Winston logger;
     return res.status(500).json({
       error: 'Failed to get languages',
       message: getErrorMessage(error)
@@ -458,7 +459,7 @@ router.post('/cleanup', async (req: Request, res: Response) => {
       deletedJobs: deletedCount
     });
   } catch (error: any) {
-    console.error('Cleanup error:', error);
+    logger.error('Cleanup error:', error) // Wave 25: Winston logger;
     return res.status(500).json({
       error: 'Cleanup failed',
       message: getErrorMessage(error)
