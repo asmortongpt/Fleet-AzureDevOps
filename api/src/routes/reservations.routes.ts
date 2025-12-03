@@ -1,4 +1,5 @@
 /**
+import logger from '../config/logger'; // Wave 23: Add Winston logger
  * Vehicle Reservations API Routes
  *
  * Comprehensive vehicle reservation system with:
@@ -236,7 +237,7 @@ router.get('/', authenticateJWT, async (req: AuthRequest, res: Response) => {
       },
     });
   } catch (error: any) {
-    console.error(`Error fetching reservations:`, error);
+    logger.error(`Error fetching reservations:`, error) // Wave 23: Winston logger;
     res.status(500).json({
       error: 'Failed to fetch reservations',
       details: getErrorMessage(error),
@@ -295,7 +296,7 @@ router.get('/:id', authenticateJWT, async (req: AuthRequest, res: Response) => {
 
     res.json(result.rows[0]);
   } catch (error: any) {
-    console.error('Error fetching reservation:', error);
+    logger.error('Error fetching reservation:', error) // Wave 23: Winston logger;
     res.status(500).json({
       error: 'Failed to fetch reservation',
       details: getErrorMessage(error),
@@ -418,7 +419,7 @@ router.post('/', authenticateJWT, async (req: AuthRequest, res: Response) => {
             await microsoftService.notifyFleetManagers({ ...reservation, ...vehicle });
           }
         } catch (integrationError) {
-          console.error('Microsoft integration error:', integrationError);
+          logger.error('Microsoft integration error:', integrationError) // Wave 23: Winston logger;
           // Don't fail the request if integration fails
         }
       });
@@ -435,7 +436,7 @@ router.post('/', authenticateJWT, async (req: AuthRequest, res: Response) => {
       client.release();
     }
   } catch (error: any) {
-    console.error('Error creating reservation:', error);
+    logger.error('Error creating reservation:', error) // Wave 23: Winston logger;
     if (error instanceof z.ZodError) {
       return res.status(400).json({
         error: 'Validation error',
@@ -556,7 +557,7 @@ router.put('/:id', authenticateJWT, async (req: AuthRequest, res: Response) => {
               existingReservation.reserved_by_email
             );
           } catch (error) {
-            console.error('Calendar update error:', error);
+            logger.error('Calendar update error:', error) // Wave 23: Winston logger;
           }
         });
       }
@@ -572,7 +573,7 @@ router.put('/:id', authenticateJWT, async (req: AuthRequest, res: Response) => {
       client.release();
     }
   } catch (error: any) {
-    console.error('Error updating reservation:', error);
+    logger.error('Error updating reservation:', error) // Wave 23: Winston logger;
     if (error instanceof z.ZodError) {
       return res.status(400).json({
         error: 'Validation error',
@@ -637,7 +638,7 @@ router.delete('/:id', authenticateJWT, async (req: AuthRequest, res: Response) =
             );
             await microsoftService.sendOutlookEmail(reservation, 'cancelled');
           } catch (error) {
-            console.error('Calendar deletion error:', error);
+            logger.error('Calendar deletion error:', error) // Wave 23: Winston logger;
           }
         });
       }
@@ -652,7 +653,7 @@ router.delete('/:id', authenticateJWT, async (req: AuthRequest, res: Response) =
       client.release();
     }
   } catch (error: any) {
-    console.error('Error cancelling reservation:', error);
+    logger.error('Error cancelling reservation:', error) // Wave 23: Winston logger;
     res.status(500).json({
       error: 'Failed to cancel reservation',
       details: getErrorMessage(error),
@@ -734,7 +735,7 @@ router.post('/:id/approve', authenticateJWT, async (req: AuthRequest, res: Respo
             await microsoftService.sendTeamsNotification(updatedReservation, 'approved');
           }
         } catch (error) {
-          console.error(`Notification error: `, error);
+          logger.error(`Notification error: `, error) // Wave 23: Winston logger;
         }
       });
 
@@ -749,7 +750,7 @@ router.post('/:id/approve', authenticateJWT, async (req: AuthRequest, res: Respo
       client.release();
     }
   } catch (error: any) {
-    console.error('Error processing approval:', error);
+    logger.error('Error processing approval:', error) // Wave 23: Winston logger;
     if (error instanceof z.ZodError) {
       return res.status(400).json({
         error: 'Validation error',
@@ -795,7 +796,7 @@ router.get('/vehicles/:vehicleId/availability', authenticateJWT, async (req: Aut
       availability: result.rows,
     });
   } catch (error: any) {
-    console.error('Error checking vehicle availability:', error);
+    logger.error('Error checking vehicle availability:', error) // Wave 23: Winston logger;
     res.status(500).json({
       error: 'Failed to check vehicle availability',
       details: getErrorMessage(error),
@@ -850,7 +851,7 @@ router.get('/vehicles/:vehicleId/reservations', authenticateJWT, async (req: Aut
       reservations: result.rows,
     });
   } catch (error: any) {
-    console.error(`Error fetching vehicle reservations:`, error);
+    logger.error(`Error fetching vehicle reservations:`, error) // Wave 23: Winston logger;
     res.status(500).json({
       error: 'Failed to fetch vehicle reservations',
       details: getErrorMessage(error),
@@ -886,7 +887,7 @@ router.get('/pending', authenticateJWT, async (req: AuthRequest, res: Response) 
       count: result.rows.length,
     });
   } catch (error: any) {
-    console.error('Error fetching pending reservations:', error);
+    logger.error('Error fetching pending reservations:', error) // Wave 23: Winston logger;
     res.status(500).json({
       error: 'Failed to fetch pending reservations',
       details: getErrorMessage(error),
