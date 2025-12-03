@@ -1,4 +1,5 @@
 /**
+import logger from '../config/logger'; // Wave 22: Add Winston logger
  * Performance Monitoring Routes
  *
  * Endpoints for monitoring database performance, connection pools,
@@ -53,7 +54,7 @@ router.get('/health', authenticateJWT, async (req: Request, res: Response) => {
 
     res.json(health)
   } catch (error: any) {
-    console.error('Error getting health status:', error)
+    logger.error('Error getting health status:', error) // Wave 22: Winston logger
     res.status(500).json({
       status: 'error',
       message: 'Failed to retrieve health status',
@@ -72,7 +73,7 @@ router.get('/database/pools', authenticateJWT, async (req: Request, res: Respons
     const diagnostics = await connectionManager.getPoolDiagnostics()
     res.json(diagnostics)
   } catch (error: any) {
-    console.error('Error getting pool diagnostics:', error)
+    logger.error('Error getting pool diagnostics:', error) // Wave 22: Winston logger
     res.status(500).json({
       message: 'Failed to retrieve pool diagnostics',
       error: getErrorMessage(error)
@@ -96,7 +97,7 @@ router.get('/database/replica-lag', authenticateJWT, async (req: Request, res: R
       timestamp: new Date().toISOString()
     })
   } catch (error: any) {
-    console.error('Error getting replica lag:', error)
+    logger.error('Error getting replica lag:', error) // Wave 22: Winston logger
     res.status(500).json({
       message: 'Failed to retrieve replica lag',
       error: getErrorMessage(error)
@@ -119,7 +120,7 @@ router.get('/database/connection-leaks', authenticateJWT, async (req: Request, r
       hasLeaks: Object.keys(leaks).length > 0
     })
   } catch (error: any) {
-    console.error('Error detecting connection leaks:', error)
+    logger.error('Error detecting connection leaks:', error) // Wave 22: Winston logger
     res.status(500).json({
       message: 'Failed to detect connection leaks',
       error: getErrorMessage(error)
@@ -137,7 +138,7 @@ router.get('/queries/stats', authenticateJWT, (req: Request, res: Response) => {
     const stats = queryPerformanceService.getQueryStats()
     res.json(stats)
   } catch (error: any) {
-    console.error('Error getting query stats:', error)
+    logger.error('Error getting query stats:', error) // Wave 22: Winston logger
     res.status(500).json({
       message: 'Failed to retrieve query statistics',
       error: getErrorMessage(error)
@@ -161,7 +162,7 @@ router.get('/queries/slow', authenticateJWT, (req: Request, res: Response) => {
       threshold: process.env.SLOW_QUERY_THRESHOLD_MS || 1000
     })
   } catch (error: any) {
-    console.error('Error getting slow queries:', error)
+    logger.error('Error getting slow queries:', error) // Wave 22: Winston logger
     res.status(500).json({
       message: 'Failed to retrieve slow queries',
       error: getErrorMessage(error)
@@ -184,7 +185,7 @@ router.get('/queries/recent', authenticateJWT, (req: Request, res: Response) => 
       count: recentQueries.length
     })
   } catch (error: any) {
-    console.error('Error getting recent queries:', error)
+    logger.error('Error getting recent queries:', error) // Wave 22: Winston logger
     res.status(500).json({
       message: 'Failed to retrieve recent queries',
       error: getErrorMessage(error)
@@ -202,7 +203,7 @@ router.get('/queries/summary', authenticateJWT, (req: Request, res: Response) =>
     const summary = queryPerformanceService.getPerformanceSummary()
     res.json(summary)
   } catch (error: any) {
-    console.error('Error getting performance summary:', error)
+    logger.error('Error getting performance summary:', error) // Wave 22: Winston logger
     res.status(500).json({
       message: 'Failed to retrieve performance summary',
       error: getErrorMessage(error)
@@ -228,7 +229,7 @@ router.post('/queries/analyze', authenticateJWT, async (req: Request, res: Respo
 
     res.json(analysis)
   } catch (error: any) {
-    console.error('Error analyzing query:', error)
+    logger.error('Error analyzing query:', error) // Wave 22: Winston logger
     res.status(500).json({
       message: 'Failed to analyze query',
       error: getErrorMessage(error)
@@ -250,7 +251,7 @@ router.delete('/queries/metrics', authenticateJWT, (req: Request, res: Response)
       timestamp: new Date().toISOString()
     })
   } catch (error: any) {
-    console.error('Error clearing metrics:', error)
+    logger.error('Error clearing metrics:', error) // Wave 22: Winston logger
     res.status(500).json({
       message: 'Failed to clear metrics',
       error: getErrorMessage(error)
@@ -268,7 +269,7 @@ router.get('/workers/stats', authenticateJWT, (req: Request, res: Response) => {
     const stats = workerPool.getStats()
     res.json(stats)
   } catch (error: any) {
-    console.error('Error getting worker stats:', error)
+    logger.error('Error getting worker stats:', error) // Wave 22: Winston logger
     res.status(500).json({
       message: 'Failed to retrieve worker statistics',
       error: getErrorMessage(error)
@@ -289,7 +290,7 @@ router.get('/workers/info', authenticateJWT, (req: Request, res: Response) => {
       count: info.length
     })
   } catch (error: any) {
-    console.error('Error getting worker info:', error)
+    logger.error('Error getting worker info:', error) // Wave 22: Winston logger
     res.status(500).json({
       message: 'Failed to retrieve worker information',
       error: getErrorMessage(error)
@@ -340,7 +341,7 @@ router.get('/memory', authenticateJWT, (req: Request, res: Response) => {
 
     res.json(memory)
   } catch (error: any) {
-    console.error('Error getting memory stats:', error)
+    logger.error('Error getting memory stats:', error) // Wave 22: Winston logger
     res.status(500).json({
       message: 'Failed to retrieve memory statistics',
       error: getErrorMessage(error)
@@ -377,7 +378,7 @@ router.post('/gc', authenticateJWT, (req: Request, res: Response) => {
       })
     }
   } catch (error: any) {
-    console.error('Error triggering GC:', error)
+    logger.error('Error triggering GC:', error) // Wave 22: Winston logger
     res.status(500).json({
       message: 'Failed to trigger garbage collection',
       error: getErrorMessage(error)
