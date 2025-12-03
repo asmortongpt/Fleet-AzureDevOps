@@ -2,12 +2,18 @@ import { Router } from "express"
 import logger from '../config/logger'; // Wave 16: Add Winston logger
 import { fuelTransactionEmulator } from "../emulators/FuelTransactionEmulator"
 import { TenantValidator } from '../utils/tenant-validator';
+import { validate } from '../middleware/validation'
+import {
+  createFuelTransactionSchema,
+  updateFuelTransactionSchema,
+  getFuelTransactionsQuerySchema
+} from '../schemas/fuel-transactions.schema'
 
 const router = Router()
 const validator = new TenantValidator(db);
 
 // GET all fuel transactions
-router.get("/", async (req, res) => {
+router.get("/", validate(getFuelTransactionsQuerySchema, 'query'), async (req, res) => {
   try {
     const {
       page = 1,
@@ -74,7 +80,7 @@ router.get("/:id", async (req, res) => {
 })
 
 // POST create fuel transaction
-router.post("/", async (req, res) => {
+router.post("/", validate(createFuelTransactionSchema, 'body'), async (req, res) => {
   try {
     const transaction = fuelTransactionEmulator.create(req.body)
     res.status(201).json({ data: transaction })
@@ -84,7 +90,7 @@ router.post("/", async (req, res) => {
 })
 
 // PUT update fuel transaction
-router.put("/:id", async (req, res) => {
+router.put("/:id", validate(updateFuelTransactionSchema, 'body'), async (req, res) => {
   try {
     const transaction = fuelTransactionEmulator.update(Number(req.params.id), req.body)
 
