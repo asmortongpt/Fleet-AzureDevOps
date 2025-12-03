@@ -3,6 +3,8 @@
 
 import { useState, useEffect, useCallback, createContext, useContext } from 'react';
 import logger from '@/utils/logger'
+// SECURITY (CRIT-F-002): Import CSRF token management functions
+import { refreshCsrfToken, clearCsrfToken } from './use-api';
 
 interface User {
   id: string;
@@ -111,6 +113,16 @@ export const useAuthProvider = () => {
       localStorage.setItem('user', JSON.stringify(userData));
 
       setUserState(userData);
+
+      // SECURITY (CRIT-F-002): Fetch CSRF token after successful login
+      // This ensures we have a valid CSRF token for subsequent state-changing requests
+      try {
+        await refreshCsrfToken();
+        logger.info('CSRF token initialized after login');
+      } catch (csrfError) {
+        logger.warn('Failed to fetch CSRF token after login:', { error: csrfError });
+        // Don't fail login if CSRF token fetch fails - it will be retried on first mutation
+      }
     } catch (error) {
       logger.error('Login error:', { error });
       throw error;
@@ -130,6 +142,11 @@ export const useAuthProvider = () => {
     } catch (error) {
       logger.error('Logout error:', { error });
     }
+
+    // SECURITY (CRIT-F-002): Clear CSRF token on logout
+    // This prevents stale CSRF tokens from being used after logout
+    clearCsrfToken();
+    logger.info('CSRF token cleared on logout');
 
     setUserState(null);
     localStorage.removeItem('user');
