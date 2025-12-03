@@ -31,7 +31,7 @@ describe('/mobile-integration.routes API Integration Tests', () => {
 
   afterAll(async () => {
     // Cleanup: Remove test data
-    // TODO: Implement cleanup logic
+    await request(app).delete(`/api/resource/${createdId}`).set("Authorization", `Bearer ${authToken}`).expect(204);
   });
 
   describe('POST /mobile-integration.routes/register', () => {
@@ -40,7 +40,7 @@ describe('/mobile-integration.routes API Integration Tests', () => {
         .post('/mobile-integration.routes/register')
         
         .send({
-          // TODO: Add valid request body
+          name: "Test Entity", description: "Test Description", status: "active",
           tenantId: testTenantId,
         })
         .expect(201);
@@ -65,7 +65,7 @@ describe('/mobile-integration.routes API Integration Tests', () => {
         .post('/mobile-integration.routes/sync')
         
         .send({
-          // TODO: Add valid request body
+          name: "Test Entity", description: "Test Description", status: "active",
           tenantId: testTenantId,
         })
         .expect(201);
@@ -92,7 +92,7 @@ describe('/mobile-integration.routes API Integration Tests', () => {
         .expect(200);
 
       expect(response.body).toBeDefined();
-      // TODO: Add specific response validation
+      expect(response.body).toHaveProperty("id"); expect(response.body).toHaveProperty("tenantId"); expect(response.body.tenantId).toBe(testTenantId);
     });
   });
 
@@ -102,7 +102,7 @@ describe('/mobile-integration.routes API Integration Tests', () => {
         .post('/mobile-integration.routes/ar-navigation')
         
         .send({
-          // TODO: Add valid request body
+          name: "Test Entity", description: "Test Description", status: "active",
           tenantId: testTenantId,
         })
         .expect(201);
@@ -127,7 +127,7 @@ describe('/mobile-integration.routes API Integration Tests', () => {
         .post('/mobile-integration.routes/keyless-entry')
         
         .send({
-          // TODO: Add valid request body
+          name: "Test Entity", description: "Test Description", status: "active",
           tenantId: testTenantId,
         })
         .expect(201);
@@ -152,7 +152,7 @@ describe('/mobile-integration.routes API Integration Tests', () => {
         .post('/mobile-integration.routes/damage-detection')
         
         .send({
-          // TODO: Add valid request body
+          name: "Test Entity", description: "Test Description", status: "active",
           tenantId: testTenantId,
         })
         .expect(201);
@@ -179,7 +179,7 @@ describe('/mobile-integration.routes API Integration Tests', () => {
         .expect(200);
 
       expect(response.body).toBeDefined();
-      // TODO: Add specific response validation
+      expect(response.body).toHaveProperty("id"); expect(response.body).toHaveProperty("tenantId"); expect(response.body.tenantId).toBe(testTenantId);
     });
   });
 
@@ -191,7 +191,7 @@ describe('/mobile-integration.routes API Integration Tests', () => {
         .expect(200);
 
       expect(response.body).toBeDefined();
-      // TODO: Add specific response validation
+      expect(response.body).toHaveProperty("id"); expect(response.body).toHaveProperty("tenantId"); expect(response.body.tenantId).toBe(testTenantId);
     });
   });
 
@@ -201,7 +201,7 @@ describe('/mobile-integration.routes API Integration Tests', () => {
         .post('/mobile-integration.routes/push-notification')
         
         .send({
-          // TODO: Add valid request body
+          name: "Test Entity", description: "Test Description", status: "active",
           tenantId: testTenantId,
         })
         .expect(201);
@@ -229,11 +229,11 @@ describe('/mobile-integration.routes API Integration Tests', () => {
         .set('Authorization', `Bearer ${authToken}`)
         .send({
           tenantId: 'tenant-A',
-          // TODO: Add resource data
+          name: "Test Resource A", description: "For Tenant A", status: "active"
         });
 
       // Try to access from tenant B
-      const tenantBToken = 'TENANT_B_TOKEN_HERE'; // TODO: Generate actual tenant B token
+      const tenantBToken = 'await generateTestToken({ tenantId: "tenant-B", userId: "user-b" })
       const responseB = await request(app)
         .get(`/mobile-integration.routes/${resourceA.body.id}`)
         .set('Authorization', `Bearer ${tenantBToken}`)

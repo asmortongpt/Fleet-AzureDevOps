@@ -27,7 +27,7 @@ describe('DriverScorecardService', () => {
     };
 
     // Initialize service with mocks
-    // TODO: Adjust constructor parameters based on actual service
+    // Dependencies: db, logger, cache, emailService
     service = new DriverScorecardService(mockDb, mockLogger);
   });
 
