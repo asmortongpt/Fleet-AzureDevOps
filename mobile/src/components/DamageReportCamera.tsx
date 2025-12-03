@@ -23,6 +23,7 @@ import {
 import { Camera, useCameraDevice } from 'react-native-vision-camera';
 import Voice from '@react-native-voice/voice';
 import CameraService from '../services/CameraService';
+import { useAuth } from '../hooks/useAuth';
 import {
   DamageReportCameraProps,
   DamageAngle,
@@ -64,6 +65,9 @@ export const DamageReportCamera: React.FC<DamageReportCameraProps> = ({
   onCancel,
   existingReport,
 }) => {
+  // SECURITY: Get authenticated user from auth context
+  const { user } = useAuth();
+
   // Camera state
   const [hasPermission, setHasPermission] = useState(false);
   const [isActive, setIsActive] = useState(true);
@@ -270,12 +274,21 @@ export const DamageReportCamera: React.FC<DamageReportCameraProps> = ({
       return;
     }
 
+    // SECURITY: Validate user is authenticated
+    if (!user || !user.id) {
+      Alert.alert(
+        'Authentication Required',
+        'You must be logged in to submit a damage report.'
+      );
+      return;
+    }
+
     setLoading(true);
     try {
       const report: DamageReport = {
         id: existingReport?.id || `damage_${Date.now()}`,
         vehicleId,
-        reportedBy: 'current_user', // TODO: Get from auth context
+        reportedBy: user.id, // SECURITY FIX: Use actual user ID from auth context
         reportedAt: new Date(),
         photos: capturedPhotos,
         severity,
@@ -304,10 +317,19 @@ export const DamageReportCamera: React.FC<DamageReportCameraProps> = ({
   };
 
   const saveDraft = async () => {
+    // SECURITY: Validate user is authenticated
+    if (!user || !user.id) {
+      Alert.alert(
+        'Authentication Required',
+        'You must be logged in to save a draft.'
+      );
+      return;
+    }
+
     const report: DamageReport = {
       id: existingReport?.id || `damage_draft_${Date.now()}`,
       vehicleId,
-      reportedBy: 'current_user',
+      reportedBy: user.id, // SECURITY FIX: Use actual user ID from auth context
       reportedAt: new Date(),
       photos: capturedPhotos,
       severity,
