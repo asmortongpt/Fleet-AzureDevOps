@@ -35,6 +35,7 @@
     "@azure/cosmos": "^4.0.0",
     "@azure/identity": "^4.13.0",
     "@azure/keyvault-secrets": "^4.10.0",
+    "@azure/monitor-opentelemetry-exporter": "^1.0.0-beta.35",
     "@azure/ms-rest-js": "^2.7.0",
     "@azure/openai": "^1.0.0-beta.8",
     "@azure/search-documents": "^12.2.0",
@@ -117,6 +118,7 @@
     "twilio": "^5.3.5",
     "uuid": "^9.0.1",
     "winston": "^3.11.0",
+    "winston-daily-rotate-file": "^5.0.0",
     "ws": "^8.16.0",
     "xlsx": "^0.18.5",
     "zod": "^3.22.4"
