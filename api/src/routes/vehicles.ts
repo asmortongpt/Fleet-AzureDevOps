@@ -1,4 +1,8 @@
 import { Router } from "express"
+import { vehicleCreateSchema, vehicleUpdateSchema } from '../schemas/vehicle.schema';
+
+import { validate } from '../middleware/validate';
+
 import { vehicleEmulator } from "../emulators/VehicleEmulator"
 
 const router = Router()
