@@ -1,12 +1,20 @@
 import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
 import { visualizer } from 'rollup-plugin-visualizer';
-import { terser } from 'rollup-plugin-terser';
+import path from 'path';
 
 export default defineConfig({
+  plugins: [react()],
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './src'),
+    },
+  },
   build: {
     target: 'esnext',
     sourcemap: process.env.NODE_ENV === 'development',
     rollupOptions: {
+      external: ['helmet', 'express'],
       output: {
         manualChunks(id) {
           if (id.includes('node_modules')) {
@@ -30,16 +38,6 @@ export default defineConfig({
         visualizer({
           filename: './dist/stats.html',
           open: true,
-        }),
-        terser({
-          compress: {
-            drop_console: true,
-            drop_debugger: true,
-            passes: 2,
-          },
-          output: {
-            comments: false,
-          },
         }),
       ],
     },
