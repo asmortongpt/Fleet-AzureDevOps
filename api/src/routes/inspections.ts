@@ -1,8 +1,7 @@
 import express, { Response } from 'express'
 import { inspectionCreateSchema, inspectionUpdateSchema } from '../schemas/inspection.schema';
-
 import { validate } from '../middleware/validate';
-
+import logger from '../config/logger'; // Wave 11: Add Winston logger
 import { AuthRequest, authenticateJWT } from '../middleware/auth'
 import { requirePermission } from '../middleware/permissions'
 import { auditLog } from '../middleware/audit'
@@ -48,7 +47,7 @@ router.get(
         }
       })
     } catch (error) {
-      console.error(`Get inspections error:`, error)
+      logger.error('Failed to fetch inspections', { error }) // Wave 11: Winston logger
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -75,7 +74,7 @@ router.get(
 
       res.json(result.rows[0])
     } catch (error) {
-      console.error('Get inspections error:', error)
+      logger.error('Failed to fetch inspection', { error, inspectionId: req.params.id }) // Wave 11: Winston logger
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -120,7 +119,7 @@ router.post(
 
       res.status(201).json(result.rows[0])
     } catch (error) {
-      console.error(`Create inspections error:`, error)
+      logger.error('Failed to create inspection', { error }) // Wave 11: Winston logger
       res.status(500).json({ error: `Internal server error` })
     }
   }
@@ -178,7 +177,7 @@ router.put(
 
       res.json(result.rows[0])
     } catch (error) {
-      console.error(`Update inspections error:`, error)
+      logger.error('Failed to update inspection', { error, inspectionId: req.params.id }) // Wave 11: Winston logger
       res.status(500).json({ error: `Internal server error` })
     }
   }
@@ -202,7 +201,7 @@ router.delete(
 
       res.json({ message: 'Inspections deleted successfully' })
     } catch (error) {
-      console.error('Delete inspections error:', error)
+      logger.error('Failed to delete inspection', { error, inspectionId: req.params.id }) // Wave 11: Winston logger
       res.status(500).json({ error: 'Internal server error' })
     }
   }
