@@ -3,7 +3,8 @@ import logger from '../config/logger'; // Wave 16: Add Winston logger
 import pool from '../config/database'
 import { createAuditLog } from '../middleware/audit'
 import { z } from 'zod'
-import { loginLimiter, registrationLimiter } from '../config/rate-limiters'
+// CRIT-F-004: Updated to use centralized rate limiters
+import { authLimiter, registrationLimiter, passwordResetLimiter, checkBruteForce, bruteForce } from '../middleware/rateLimiter'
 import { FIPSCryptoService } from '../services/fips-crypto.service'
 import { FIPSJWTService } from '../services/fips-jwt.service'
 import axios from 'axios'
@@ -100,7 +101,8 @@ const registerSchema = z.object({
  *                   format: date-time
  */
 // POST /api/auth/login
-router.post('/login', loginLimiter, async (req: Request, res: Response) => {
+// CRIT-F-004: Apply auth rate limiter and brute force protection
+router.post('/login', authLimiter, checkBruteForce('email'), async (req: Request, res: Response) => {
   try {
     const { email, password } = loginSchema.parse(req.body)
 
@@ -183,7 +185,10 @@ router.post('/login', loginLimiter, async (req: Request, res: Response) => {
     const validPassword = await FIPSCryptoService.verifyPassword(password, user.password_hash)
 
     if (!validPassword) {
-      // Increment failed attempts
+      // CRIT-F-004: Record brute force attempt
+      const bruteForceResult = bruteForce.recordFailure(email)
+
+      // Increment failed attempts in database
       const newAttempts = user.failed_login_attempts + 1
       const lockAccount = newAttempts >= 3
       const lockedUntil = lockAccount ? new Date(Date.now() + 30 * 60 * 1000) : null // 30 minutes
@@ -202,7 +207,7 @@ router.post('/login', loginLimiter, async (req: Request, res: Response) => {
         'LOGIN',
         'users',
         user.id,
-        { email, attempts: newAttempts },
+        { email, attempts: newAttempts, bruteForceProtected: bruteForceResult.locked },
         req.ip || null,
         req.get('User-Agent') || null,
         `failure`,
@@ -216,6 +221,9 @@ router.post('/login', loginLimiter, async (req: Request, res: Response) => {
     }
 
     // Reset failed attempts on successful login
+    // CRIT-F-004: Clear brute force protection on success
+    bruteForce.recordSuccess(email)
+
     await pool.query(
       `UPDATE users
        SET failed_login_attempts = 0,
