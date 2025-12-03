@@ -1,4 +1,5 @@
 /**
+import logger from '../config/logger'; // Wave 26: Add Winston logger
  * Alert & Notification Routes
  * Centralized alert system for proactive fleet management
  *
@@ -153,7 +154,7 @@ router.get('/', requirePermission('report:view:global'), async (req: AuthRequest
       total: result.rows.length
     })
   } catch (error) {
-    console.error(`Error fetching alerts:`, error)
+    logger.error(`Error fetching alerts:`, error) // Wave 26: Winston logger
     res.status(500).json({ error: 'Failed to fetch alerts' })
   }
 })
@@ -228,7 +229,7 @@ router.get('/stats', requirePermission('report:view:global'), async (req: AuthRe
       trend_7_days: trends.rows
     })
   } catch (error) {
-    console.error('Error fetching alert stats:', error)
+    logger.error('Error fetching alert stats:', error) // Wave 26: Winston logger
     res.status(500).json({ error: 'Failed to fetch alert statistics' })
   }
 })
@@ -284,7 +285,7 @@ router.post('/:id/acknowledge', requirePermission('report:view:global'), async (
       message: 'Alert acknowledged successfully'
     })
   } catch (error) {
-    console.error('Error acknowledging alert:', error)
+    logger.error('Error acknowledging alert:', error) // Wave 26: Winston logger
     res.status(500).json({ error: 'Failed to acknowledge alert' })
   }
 })
@@ -352,7 +353,7 @@ router.post('/:id/resolve', requirePermission('report:view:global'), async (req:
       message: 'Alert resolved successfully'
     })
   } catch (error) {
-    console.error('Error resolving alert:', error)
+    logger.error('Error resolving alert:', error) // Wave 26: Winston logger
     res.status(500).json({ error: 'Failed to resolve alert' })
   }
 })
@@ -393,7 +394,7 @@ router.get('/rules', requirePermission('report:view:global'), async (req: AuthRe
       total: result.rows.length
     })
   } catch (error) {
-    console.error(`Error fetching alert rules:`, error)
+    logger.error(`Error fetching alert rules:`, error) // Wave 26: Winston logger
     res.status(500).json({ error: 'Failed to fetch alert rules' })
   }
 })
@@ -494,7 +495,7 @@ router.post('/rules', requirePermission('report:generate:global'), async (req: A
     if (error instanceof z.ZodError) {
       return res.status(400).json({ error: 'Validation error', details: error.errors })
     }
-    console.error('Error creating alert rule:', error)
+    logger.error('Error creating alert rule:', error) // Wave 26: Winston logger
     res.status(500).json({ error: 'Failed to create alert rule' })
   }
 })
@@ -585,7 +586,7 @@ router.put('/rules/:id', requirePermission('report:generate:global'), async (req
       message: `Alert rule updated successfully`
     })
   } catch (error) {
-    console.error('Error updating alert rule:', error)
+    logger.error('Error updating alert rule:', error) // Wave 26: Winston logger
     res.status(500).json({ error: 'Failed to update alert rule' })
   }
 })
@@ -635,7 +636,7 @@ router.delete('/rules/:id', requirePermission('report:generate:global'), async (
       message: 'Alert rule deleted successfully'
     })
   } catch (error) {
-    console.error('Error deleting alert rule:', error)
+    logger.error('Error deleting alert rule:', error) // Wave 26: Winston logger
     res.status(500).json({ error: 'Failed to delete alert rule' })
   }
 })
@@ -702,7 +703,7 @@ router.get(`/notifications`, requirePermission(`report:view:global`), async (req
       total: result.rows.length
     })
   } catch (error) {
-    console.error(`Error fetching notifications:`, error)
+    logger.error(`Error fetching notifications:`, error) // Wave 26: Winston logger
     res.status(500).json({ error: 'Failed to fetch notifications' })
   }
 })
@@ -754,7 +755,7 @@ router.post('/notifications/:id/read', requirePermission('report:view:global'), 
       message: `Notification marked as read`
     })
   } catch (error) {
-    console.error('Error marking notification as read:', error)
+    logger.error('Error marking notification as read:', error) // Wave 26: Winston logger
     res.status(500).json({ error: 'Failed to mark notification as read' })
   }
 })
@@ -792,7 +793,7 @@ router.post('/notifications/read-all', requirePermission('report:view:global'), 
       count: result.rows.length
     })
   } catch (error) {
-    console.error('Error marking all notifications as read:', error)
+    logger.error('Error marking all notifications as read:', error) // Wave 26: Winston logger
     res.status(500).json({ error: 'Failed to mark all notifications as read' })
   }
 })
