@@ -1,4 +1,5 @@
 /**
+import logger from '../config/logger'; // Wave 23: Add Winston logger
  * AI-Enhanced Task and Asset Management Routes
  * Provides AI-powered endpoints for intelligent task and asset management
  */
@@ -47,7 +48,7 @@ router.post('/task-suggestions', async (req: AuthRequest, res) => {
 
     res.json({ suggestions })
   } catch (error) {
-    console.error('Error getting task suggestions:', error)
+    logger.error('Error getting task suggestions:', error) // Wave 23: Winston logger
     res.status(500).json({ error: 'Failed to get AI suggestions' })
   }
 })
@@ -74,7 +75,7 @@ router.post('/suggest-assignee', async (req: AuthRequest, res) => {
 
     res.json({ suggestions })
   } catch (error) {
-    console.error('Error suggesting assignee:', error)
+    logger.error('Error suggesting assignee:', error) // Wave 23: Winston logger
     res.status(500).json({ error: 'Failed to suggest assignee' })
   }
 })
@@ -95,7 +96,7 @@ router.post('/parse-task', async (req: AuthRequest, res) => {
 
     res.json({ task })
   } catch (error) {
-    console.error('Error parsing task:', error)
+    logger.error('Error parsing task:', error) // Wave 23: Winston logger
     res.status(500).json({ error: 'Failed to parse task' })
   }
 })
@@ -116,7 +117,7 @@ router.post('/predict-maintenance', async (req: AuthRequest, res) => {
 
     res.json({ prediction })
   } catch (error) {
-    console.error('Error predicting maintenance:', error)
+    logger.error('Error predicting maintenance:', error) // Wave 23: Winston logger
     res.status(500).json({ error: 'Failed to predict maintenance' })
   }
 })
@@ -137,7 +138,7 @@ router.post('/workflow-suggestion', async (req: AuthRequest, res) => {
 
     res.json({ workflow })
   } catch (error) {
-    console.error('Error suggesting workflow:', error)
+    logger.error('Error suggesting workflow:', error) // Wave 23: Winston logger
     res.status(500).json({ error: 'Failed to suggest workflow' })
   }
 })
@@ -163,7 +164,7 @@ router.post('/ask-question', async (req: AuthRequest, res) => {
 
     res.json({ answer })
   } catch (error) {
-    console.error('Error answering question:', error)
+    logger.error('Error answering question:', error) // Wave 23: Winston logger
     res.status(500).json({ error: 'Failed to answer question' })
   }
 })
@@ -187,7 +188,7 @@ router.post('/mcp/optimize-schedule', async (req: AuthRequest, res) => {
 
     res.json(result)
   } catch (error) {
-    console.error('Error optimizing schedule:', error)
+    logger.error('Error optimizing schedule:', error) // Wave 23: Winston logger
     res.status(500).json({ error: 'Failed to optimize schedule' })
   }
 })
@@ -207,7 +208,7 @@ router.post('/mcp/analyze-asset-lifecycle', async (req: AuthRequest, res) => {
 
     res.json({ analysis })
   } catch (error) {
-    console.error('Error analyzing asset lifecycle:', error)
+    logger.error('Error analyzing asset lifecycle:', error) // Wave 23: Winston logger
     res.status(500).json({ error: 'Failed to analyze asset lifecycle' })
   }
 })
@@ -224,7 +225,7 @@ router.get('/mcp/servers', async (req: AuthRequest, res) => {
     const servers = mcpManager.getConnectedServers()
     res.json({ servers })
   } catch (error) {
-    console.error('Error getting MCP servers:', error)
+    logger.error('Error getting MCP servers:', error) // Wave 23: Winston logger
     res.status(500).json({ error: 'Failed to get MCP servers' })
   }
 })
@@ -249,7 +250,7 @@ router.get('/config/workflows', async (req: AuthRequest, res) => {
 
     res.json({ workflows })
   } catch (error) {
-    console.error('Error getting workflows:', error)
+    logger.error('Error getting workflows:', error) // Wave 23: Winston logger
     res.status(500).json({ error: 'Failed to get workflows' })
   }
 })
@@ -270,7 +271,7 @@ router.post('/config/workflows', async (req: AuthRequest, res) => {
 
     res.json({ workflow })
   } catch (error) {
-    console.error('Error saving workflow:', error)
+    logger.error('Error saving workflow:', error) // Wave 23: Winston logger
     res.status(500).json({ error: 'Failed to save workflow' })
   }
 })
@@ -292,7 +293,7 @@ router.get('/config/business-rules', async (req: AuthRequest, res) => {
 
     res.json({ rules })
   } catch (error) {
-    console.error('Error getting business rules:', error)
+    logger.error('Error getting business rules:', error) // Wave 23: Winston logger
     res.status(500).json({ error: 'Failed to get business rules' })
   }
 })
@@ -313,7 +314,7 @@ router.post('/config/business-rules', async (req: AuthRequest, res) => {
 
     res.json({ rule })
   } catch (error) {
-    console.error('Error saving business rule:', error)
+    logger.error('Error saving business rule:', error) // Wave 23: Winston logger
     res.status(500).json({ error: 'Failed to save business rule' })
   }
 })
@@ -335,7 +336,7 @@ router.post('/config/evaluate-rules', async (req: AuthRequest, res) => {
 
     res.json({ actions })
   } catch (error) {
-    console.error('Error evaluating rules:', error)
+    logger.error('Error evaluating rules:', error) // Wave 23: Winston logger
     res.status(500).json({ error: 'Failed to evaluate rules' })
   }
 })
