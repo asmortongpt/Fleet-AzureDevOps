@@ -1,4 +1,5 @@
 /**
+import logger from '../config/logger'; // Wave 25: Add Winston logger
  * Mobile OBD2 API Routes
  *
  * Endpoints for OBD2 adapter management and vehicle diagnostics
@@ -172,7 +173,7 @@ router.post('/connect', requirePermission('vehicle:update:fleet'), auditLog, asy
 
     res.json(adapter)
   } catch (error: any) {
-    console.error('Error registering OBD2 adapter:', error)
+    logger.error('Error registering OBD2 adapter:', error) // Wave 25: Winston logger
     res.status(400).json({ error: getErrorMessage(error) })
   }
 })
@@ -200,7 +201,7 @@ router.get('/adapters', requirePermission('vehicle:view:fleet'), async (req: Req
 
     res.json(adapters)
   } catch (error: any) {
-    console.error('Error getting adapters:', error)
+    logger.error('Error getting adapters:', error) // Wave 25: Winston logger
     res.status(400).json({ error: getErrorMessage(error) })
   }
 })
@@ -238,7 +239,7 @@ router.get('/adapters/:adapterId', requirePermission('vehicle:view:fleet'), asyn
 
     res.json(adapter)
   } catch (error: any) {
-    console.error('Error getting adapter:', error)
+    logger.error('Error getting adapter:', error) // Wave 25: Winston logger
     res.status(400).json({ error: getErrorMessage(error) })
   }
 })
@@ -313,7 +314,7 @@ router.post('/dtcs', requirePermission('maintenance:create:fleet'), auditLog, as
 
     res.status(201).json(dtcs)
   } catch (error: any) {
-    console.error('Error reporting DTCs:', error)
+    logger.error('Error reporting DTCs:', error) // Wave 25: Winston logger
     res.status(400).json({ error: getErrorMessage(error) })
   }
 })
@@ -351,7 +352,7 @@ router.get('/dtcs/:vehicleId', requirePermission('maintenance:view:fleet'), asyn
 
     res.json(dtcs)
   } catch (error: any) {
-    console.error('Error getting DTCs:', error)
+    logger.error('Error getting DTCs:', error) // Wave 25: Winston logger
     res.status(400).json({ error: getErrorMessage(error) })
   }
 })
@@ -390,7 +391,7 @@ router.delete(`/dtcs/:vehicleId`, requirePermission(`maintenance:update:fleet`),
       message: `Cleared ${count} diagnostic code(s)`
     })
   } catch (error: any) {
-    console.error(`Error clearing DTCs:`, error)
+    logger.error(`Error clearing DTCs:`, error) // Wave 25: Winston logger
     res.status(400).json({ error: getErrorMessage(error) })
   }
 })
@@ -469,7 +470,7 @@ router.post('/live-data', requirePermission('vehicle:view:fleet'), async (req: R
 
     res.status(201).json(liveData)
   } catch (error: any) {
-    console.error('Error storing live data:', error)
+    logger.error('Error storing live data:', error) // Wave 25: Winston logger
     res.status(400).json({ error: getErrorMessage(error) })
   }
 })
@@ -507,7 +508,7 @@ router.get('/live-data/:vehicleId', requirePermission('vehicle:view:fleet'), asy
 
     res.json(liveData)
   } catch (error: any) {
-    console.error('Error getting live data:', error)
+    logger.error('Error getting live data:', error) // Wave 25: Winston logger
     res.status(400).json({ error: getErrorMessage(error) })
   }
 })
@@ -584,7 +585,7 @@ router.post('/connection-log', requirePermission('vehicle:view:fleet'), async (r
 
     res.status(201).json(log)
   } catch (error: any) {
-    console.error('Error logging connection:', error)
+    logger.error('Error logging connection:', error) // Wave 25: Winston logger
     res.status(400).json({ error: getErrorMessage(error) })
   }
 })
@@ -625,7 +626,7 @@ router.get('/health/:vehicleId', requirePermission('vehicle:view:fleet'), async 
 
     res.json(health)
   } catch (error: any) {
-    console.error('Error getting vehicle health:', error)
+    logger.error('Error getting vehicle health:', error) // Wave 25: Winston logger
     res.status(400).json({ error: getErrorMessage(error) })
   }
 })
@@ -663,7 +664,7 @@ router.get('/fuel-economy/:vehicleId', requirePermission('vehicle:view:fleet'), 
 
     res.json(trends)
   } catch (error: any) {
-    console.error('Error getting fuel economy trends:', error)
+    logger.error('Error getting fuel economy trends:', error) // Wave 25: Winston logger
     res.status(400).json({ error: getErrorMessage(error) })
   }
 })
@@ -703,7 +704,7 @@ router.get('/dtc-info/:dtcCode', requirePermission('vehicle:view:fleet'), async 
 
     res.json(info)
   } catch (error: any) {
-    console.error('Error getting DTC info:', error)
+    logger.error('Error getting DTC info:', error) // Wave 25: Winston logger
     res.status(400).json({ error: getErrorMessage(error) })
   }
 })
