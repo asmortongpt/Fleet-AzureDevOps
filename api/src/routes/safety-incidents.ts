@@ -1,4 +1,5 @@
 import express, { Response } from 'express'
+import logger from '../config/logger'; // Wave 17: Add Winston logger
 import { AuthRequest, authenticateJWT } from '../middleware/auth'
 import { requirePermission } from '../middleware/permissions'
 import { applyFieldMasking } from '../utils/fieldMasking'
@@ -41,7 +42,7 @@ router.get(
         }
       })
     } catch (error) {
-      console.error(`Get safety-incidents error:`, error)
+      logger.error(`Get safety-incidents error:`, error) // Wave 17: Winston logger
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -66,7 +67,7 @@ router.get(
 
       res.json(result.rows[0])
     } catch (error) {
-      console.error('Get safety-incidents error:', error)
+      logger.error('Get safety-incidents error:', error) // Wave 17: Winston logger
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -101,7 +102,7 @@ router.post(
 
       res.status(201).json(result.rows[0])
     } catch (error) {
-      console.error(`Create safety-incidents error:`, error)
+      logger.error(`Create safety-incidents error:`, error) // Wave 17: Winston logger
       res.status(500).json({ error: `Internal server error` })
     }
   }
@@ -143,7 +144,7 @@ router.put(
 
       res.json(result.rows[0])
     } catch (error) {
-      console.error(`Approve safety-incident error:`, error)
+      logger.error(`Approve safety-incident error:`, error) // Wave 17: Winston logger
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -167,7 +168,7 @@ router.delete(
 
       res.json({ message: 'SafetyIncidents deleted successfully' })
     } catch (error) {
-      console.error('Delete safety-incidents error:', error)
+      logger.error('Delete safety-incidents error:', error) // Wave 17: Winston logger
       res.status(500).json({ error: 'Internal server error' })
     }
   }
