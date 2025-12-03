@@ -1,4 +1,5 @@
 import express from 'express';
+import logger from '../config/logger'; // Wave 33: Add Winston logger (FINAL WAVE!)
 import multer from 'multer';
 import { pool } from '../db';
 import { verifyJWT } from '../middleware/authMiddleware';
@@ -47,7 +48,7 @@ router.post('/checkout', verifyJWT, rateLimiter(10), upload.single('photo'), asy
 
     res.status(201).json(rows[0]);
   } catch (error) {
-    console.error('Checkout Error:', error);
+    logger.error('Checkout Error:', error) // Wave 33: Winston logger (FINAL WAVE!);
     res.status(500).send('Internal server error during asset checkout.');
   }
 });
@@ -79,7 +80,7 @@ router.post('/checkin', verifyJWT, rateLimiter(10), upload.single('photo'), asyn
 
     res.status(201).json(rows[0]);
   } catch (error) {
-    console.error('Checkin Error:', error);
+    logger.error('Checkin Error:', error) // Wave 33: Winston logger (FINAL WAVE!);
     res.status(500).send('Internal server error during asset checkin.');
   }
 });
