@@ -1,4 +1,5 @@
 /**
+import logger from '../config/logger'; // Wave 28: Add Winston logger
  * Mobile Photos API Routes
  *
  * Comprehensive endpoints for mobile photo upload and processing
@@ -205,7 +206,7 @@ router.post(
         },
       });
     } catch (error: any) {
-      console.error('Photo upload error:', error);
+      logger.error('Photo upload error:', error) // Wave 28: Winston logger;
       res.status(500).json({
         error: 'Failed to upload photo',
         details: getErrorMessage(error),
@@ -348,7 +349,7 @@ router.post(
             },
           });
         } catch (error: any) {
-          console.error(`Failed to upload photo ${i}:`, error);
+          logger.error(`Failed to upload photo ${i}:`, error) // Wave 28: Winston logger;
           errors.push({
             index: i,
             fileName: file.originalname,
@@ -366,7 +367,7 @@ router.post(
         errors,
       });
     } catch (error: any) {
-      console.error(`Batch upload error:`, error);
+      logger.error(`Batch upload error:`, error) // Wave 28: Winston logger;
       res.status(500).json({
         error: `Failed to upload photos`,
         details: getErrorMessage(error),
@@ -437,7 +438,7 @@ router.get(
         count: result.rows.length,
       });
     } catch (error: any) {
-      console.error(`Sync queue error:`, error);
+      logger.error(`Sync queue error:`, error) // Wave 28: Winston logger;
       res.status(500).json({
         error: 'Failed to get sync queue',
         details: getErrorMessage(error),
@@ -502,7 +503,7 @@ router.post(
         syncedIds: result.rows.map(r => r.id),
       });
     } catch (error: any) {
-      console.error(`Sync complete error:`, error);
+      logger.error(`Sync complete error:`, error) // Wave 28: Winston logger;
       res.status(400).json({
         error: 'Failed to mark photos as synced',
         details: getErrorMessage(error),
@@ -563,7 +564,7 @@ router.get(
         photo: result.rows[0],
       });
     } catch (error: any) {
-      console.error('Get status error:', error);
+      logger.error('Get status error:', error) // Wave 28: Winston logger;
       res.status(500).json({
         error: 'Failed to get photo status',
         details: getErrorMessage(error),
@@ -622,7 +623,7 @@ router.get(
         photo: result.rows[0],
       });
     } catch (error: any) {
-      console.error('Get photo error:', error);
+      logger.error('Get photo error:', error) // Wave 28: Winston logger;
       res.status(500).json({
         error: 'Failed to get photo',
         details: getErrorMessage(error),
@@ -703,7 +704,7 @@ router.delete(
         message: 'Photo deleted successfully',
       });
     } catch (error: any) {
-      console.error('Delete photo error:', error);
+      logger.error('Delete photo error:', error) // Wave 28: Winston logger;
       res.status(500).json({
         error: 'Failed to delete photo',
         details: getErrorMessage(error),
@@ -744,7 +745,7 @@ router.get(
         stats,
       });
     } catch (error: any) {
-      console.error('Get stats error:', error);
+      logger.error('Get stats error:', error) // Wave 28: Winston logger;
       res.status(500).json({
         error: 'Failed to get processing stats',
         details: getErrorMessage(error),
