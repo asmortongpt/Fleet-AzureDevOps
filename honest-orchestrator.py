@@ -20,8 +20,8 @@ from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
 class HonestOrchestrator:
-    def __init__(self, workspace: str = "/home/azureuser/agent-workspace/fleet-local"):
-        self.workspace = Path(workspace)
+    def __init__(self, workspace: str = None):
+        self.workspace = Path(workspace) if workspace else Path.cwd()
         self.log_file = self.workspace / "honest-orchestration.log"
         self.results_file = self.workspace / "honest-results.json"
         self.results = {
