@@ -2,6 +2,7 @@ import express, { Request, Response } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
+import cookieParser from 'cookie-parser';
 import { config } from './services/config';
 import { logger } from './services/logger';
 import { db } from './services/database';
@@ -10,6 +11,10 @@ import vehiclesRoutes from './routes/vehicles';
 import driversRoutes from './routes/drivers';
 import facilitiesRoutes from './routes/facilities';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler';
+
+// Import Wave 4+ middleware
+import { csrfProtection, getCsrfToken, csrfErrorHandler } from '../../api/src/middleware/csrf';
+import { monitorRequests, getMetrics, getAverageResponseTime } from '../../api/src/middleware/monitoring';
 
 // Create Express app
 const app = express();
@@ -46,6 +51,12 @@ app.use(cors({
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
+// Cookie parser (required for CSRF)
+app.use(cookieParser());
+
+// Request monitoring middleware
+app.use(monitorRequests);
+
 // Rate limiting
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
@@ -65,6 +76,21 @@ const apiLimiter = rateLimit({
 
 // Apply rate limiting to auth routes
 app.use('/api/v1/auth', authLimiter);
+
+// CSRF token endpoint (must be before CSRF protection)
+app.get('/api/v1/csrf-token', csrfProtection, getCsrfToken);
+
+// Metrics endpoint (no rate limiting, no CSRF)
+app.get('/api/v1/metrics', async (_req: Request, res: Response): Promise<void> => {
+  res.json({
+    success: true,
+    metrics: {
+      totalRequests: getMetrics().length,
+      averageResponseTime: getAverageResponseTime(),
+      recentRequests: getMetrics().slice(-10)
+    }
+  });
+});
 
 // Health check endpoint (no rate limiting)
 app.get('/health', async (_req: Request, res: Response): Promise<void> => {
@@ -100,6 +126,15 @@ app.use('/api/v1/auth', authRoutes);
 // Apply general rate limiting to all other API routes
 app.use('/api', apiLimiter);
 
+// Apply CSRF protection to all state-changing operations (POST/PUT/DELETE)
+// Note: GET requests don't need CSRF protection
+app.use('/api', (req, res, next) => {
+  if (['POST', 'PUT', 'DELETE', 'PATCH'].includes(req.method)) {
+    return csrfProtection(req, res, next);
+  }
+  next();
+});
+
 // Fleet management routes
 app.use('/api/vehicles', vehiclesRoutes);
 app.use('/api/drivers', driversRoutes);
@@ -125,6 +160,9 @@ app.get('/api/health', async (_req: Request, res: Response): Promise<void> => {
 
 // 404 handler
 app.use(notFoundHandler);
+
+// CSRF error handler (must be before global error handler)
+app.use(csrfErrorHandler);
 
 // Global error handler (must be last)
 app.use(errorHandler);
