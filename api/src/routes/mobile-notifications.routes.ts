@@ -1,4 +1,5 @@
 /**
+import logger from '../config/logger'; // Wave 21: Add Winston logger
  * Mobile Notifications Routes
  * API endpoints for mobile app notification management
  */
@@ -61,7 +62,7 @@ router.post('/register-device', authenticateJWT, async (req, res) => {
       message: 'Device registered successfully',
     });
   } catch (error) {
-    console.error('Error registering device:', error);
+    logger.error('Error registering device:', error) // Wave 21: Winston logger;
     res.status(500).json({
       success: false,
       error: 'Failed to register device',
@@ -86,7 +87,7 @@ router.delete('/device/:deviceId', authenticateJWT, async (req, res) => {
         : 'Failed to unregister device',
     });
   } catch (error) {
-    console.error('Error unregistering device:', error);
+    logger.error('Error unregistering device:', error) // Wave 21: Winston logger;
     res.status(500).json({
       success: false,
       error: 'Failed to unregister device',
@@ -165,7 +166,7 @@ router.post(
         message: 'Notification sent successfully',
       });
     } catch (error) {
-      console.error('Error sending notification:', error);
+      logger.error('Error sending notification:', error) // Wave 21: Winston logger;
       res.status(500).json({
         success: false,
         error: 'Failed to send notification',
@@ -223,7 +224,7 @@ router.post('/send-to-user', authenticateJWT, async (req, res) => {
       message: 'Notification sent to user',
     });
   } catch (error) {
-    console.error('Error sending notification to user:', error);
+    logger.error('Error sending notification to user:', error) // Wave 21: Winston logger;
     res.status(500).json({
       success: false,
       error: 'Failed to send notification',
@@ -260,7 +261,7 @@ router.get('/preferences', authenticateJWT, async (req, res) => {
       },
     });
   } catch (error) {
-    console.error('Error getting preferences:', error);
+    logger.error('Error getting preferences:', error) // Wave 21: Winston logger;
     res.status(500).json({
       success: false,
       error: 'Failed to get notification preferences',
@@ -284,7 +285,7 @@ router.put('/preferences', authenticateJWT, async (req, res) => {
       message: 'Preferences updated successfully',
     });
   } catch (error) {
-    console.error('Error updating preferences:', error);
+    logger.error('Error updating preferences:', error) // Wave 21: Winston logger;
     res.status(500).json({
       success: false,
       error: 'Failed to update preferences',
@@ -331,7 +332,7 @@ router.post(
         message: 'SMS sent successfully',
       });
     } catch (error) {
-      console.error('Error sending SMS:', error);
+      logger.error('Error sending SMS:', error) // Wave 21: Winston logger;
       res.status(500).json({
         success: false,
         error: 'Failed to send SMS',
@@ -382,7 +383,7 @@ router.post(
         message: `Sent ${results.successful} messages, ${results.failed} failed`,
       });
     } catch (error) {
-      console.error(`Error sending bulk SMS:`, error);
+      logger.error(`Error sending bulk SMS:`, error) // Wave 21: Winston logger;
       res.status(500).json({
         success: false,
         error: 'Failed to send bulk SMS',
@@ -424,7 +425,7 @@ router.post(
         message: 'SMS sent from template',
       });
     } catch (error) {
-      console.error('Error sending from template:', error);
+      logger.error('Error sending from template:', error) // Wave 21: Winston logger;
       res.status(500).json({
         success: false,
         error: 'Failed to send SMS from template',
@@ -466,7 +467,7 @@ router.get(
         },
       });
     } catch (error) {
-      console.error('Error getting SMS history:', error);
+      logger.error('Error getting SMS history:', error) // Wave 21: Winston logger;
       res.status(500).json({
         success: false,
         error: 'Failed to get SMS history',
@@ -497,7 +498,7 @@ router.get(
         data: templates,
       });
     } catch (error) {
-      console.error('Error getting SMS templates:', error);
+      logger.error('Error getting SMS templates:', error) // Wave 21: Winston logger;
       res.status(500).json({
         success: false,
         error: 'Failed to get SMS templates',
@@ -539,7 +540,7 @@ router.post(
         message: 'Template created successfully',
       });
     } catch (error) {
-      console.error('Error creating template:', error);
+      logger.error('Error creating template:', error) // Wave 21: Winston logger;
       res.status(500).json({
         success: false,
         error: 'Failed to create template',
@@ -575,7 +576,7 @@ router.get(
         data: stats,
       });
     } catch (error) {
-      console.error('Error getting SMS statistics:', error);
+      logger.error('Error getting SMS statistics:', error) // Wave 21: Winston logger;
       res.status(500).json({
         success: false,
         error: 'Failed to get SMS statistics',
@@ -598,7 +599,7 @@ router.post('/webhooks/twilio', async (req, res) => {
 
     res.status(200).send('OK');
   } catch (error) {
-    console.error('Error handling Twilio webhook:', error);
+    logger.error('Error handling Twilio webhook:', error) // Wave 21: Winston logger;
     res.status(500).send('Error');
   }
 });
@@ -622,7 +623,7 @@ router.put('/:id/opened', authenticateJWT, async (req, res) => {
       message: 'Notification open tracked',
     });
   } catch (error) {
-    console.error('Error tracking notification open:', error);
+    logger.error('Error tracking notification open:', error) // Wave 21: Winston logger;
     res.status(500).json({
       success: false,
       error: 'Failed to track notification open',
@@ -646,7 +647,7 @@ router.put('/:id/clicked', authenticateJWT, async (req, res) => {
       message: 'Notification click tracked',
     });
   } catch (error) {
-    console.error('Error tracking notification click:', error);
+    logger.error('Error tracking notification click:', error) // Wave 21: Winston logger;
     res.status(500).json({
       success: false,
       error: 'Failed to track notification click',
