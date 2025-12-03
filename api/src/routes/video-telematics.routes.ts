@@ -53,7 +53,7 @@ router.get(
 
       res.json({ cameras: result.rows });
     } catch (error: any) {
-      console.error(`Get cameras error:`, error);
+      logger.error(`Get cameras error:`, error) // Wave 20: Winston logger;
       res.status(500).json({ error: `Failed to fetch cameras` });
     }
   }
@@ -88,7 +88,7 @@ router.post(
         cameraId
       });
     } catch (error: any) {
-      console.error('Register camera error:', error);
+      logger.error('Register camera error:', error) // Wave 20: Winston logger;
       res.status(400).json({ error: getErrorMessage(error) || 'Failed to register camera' });
     }
   }
@@ -109,7 +109,7 @@ router.patch(
 
       res.json({ message: 'Camera health updated' });
     } catch (error: any) {
-      console.error('Update camera health error:', error);
+      logger.error('Update camera health error:', error) // Wave 20: Winston logger;
       res.status(500).json({ error: 'Failed to update camera health' });
     }
   }
@@ -145,7 +145,7 @@ router.get(
       const result = await videoService.getVideoEvents(filters);
       res.json(result);
     } catch (error: any) {
-      console.error('Get video events error:', error);
+      logger.error('Get video events error:', error) // Wave 20: Winston logger;
       res.status(500).json({ error: 'Failed to fetch video events' });
     }
   }
@@ -191,7 +191,7 @@ router.get(
 
       res.json(result.rows[0]);
     } catch (error: any) {
-      console.error('Get video event error:', error);
+      logger.error('Get video event error:', error) // Wave 20: Winston logger;
       res.status(500).json({ error: 'Failed to fetch video event' });
     }
   }
@@ -224,7 +224,7 @@ router.get(
 
       res.json({ url: playbackUrl });
     } catch (error: any) {
-      console.error('Get video clip error:', error);
+      logger.error('Get video clip error:', error) // Wave 20: Winston logger;
       res.status(500).json({ error: 'Failed to get video clip' });
     }
   }
@@ -267,7 +267,7 @@ router.post(
         eventId
       });
     } catch (error: any) {
-      console.error('Create video event error:', error);
+      logger.error('Create video event error:', error) // Wave 20: Winston logger;
       res.status(400).json({ error: getErrorMessage(error) || 'Failed to create video event' });
     }
   }
@@ -291,7 +291,7 @@ router.post(
 
       // Process asynchronously
       aiService.processVideoEvent(eventId).catch(error => {
-        console.error(`AI analysis failed for event ${eventId}:`, error);
+        logger.error(`AI analysis failed for event ${eventId}:`, error) // Wave 20: Winston logger;
       });
 
       res.json({
@@ -300,7 +300,7 @@ router.post(
         status: 'processing'
       });
     } catch (error: any) {
-      console.error('Trigger AI analysis error:', error);
+      logger.error('Trigger AI analysis error:', error) // Wave 20: Winston logger;
       res.status(500).json({ error: 'Failed to trigger AI analysis' });
     }
   }
@@ -344,7 +344,7 @@ router.patch(
 
       res.json({ message: `Video event reviewed successfully` });
     } catch (error: any) {
-      console.error(`Review video event error:`, error);
+      logger.error(`Review video event error:`, error) // Wave 20: Winston logger;
       res.status(500).json({ error: 'Failed to review video event' });
     }
   }
@@ -376,7 +376,7 @@ router.get(
       const result = await videoService.searchEvidenceLocker(filters);
       res.json(result);
     } catch (error: any) {
-      console.error('Search evidence locker error:', error);
+      logger.error('Search evidence locker error:', error) // Wave 20: Winston logger;
       res.status(500).json({ error: 'Failed to search evidence locker' });
     }
   }
@@ -401,7 +401,7 @@ router.get(
 
       res.json(locker);
     } catch (error: any) {
-      console.error('Get evidence locker error:', error);
+      logger.error('Get evidence locker error:', error) // Wave 20: Winston logger;
       res.status(500).json({ error: 'Failed to fetch evidence locker' });
     }
   }
@@ -440,7 +440,7 @@ router.post(
         lockerId
       });
     } catch (error: any) {
-      console.error('Create evidence locker error:', error);
+      logger.error('Create evidence locker error:', error) // Wave 20: Winston logger;
       res.status(400).json({ error: getErrorMessage(error) || 'Failed to create evidence locker' });
     }
   }
@@ -470,7 +470,7 @@ router.post(
 
       res.json({ message: 'Video event added to evidence locker' });
     } catch (error: any) {
-      console.error('Add to evidence locker error:', error);
+      logger.error('Add to evidence locker error:', error) // Wave 20: Winston logger;
       res.status(500).json({ error: 'Failed to add video to evidence locker' });
     }
   }
@@ -500,7 +500,7 @@ router.get(
 
       res.json({ events: result.rows });
     } catch (error: any) {
-      console.error(`Get coaching events error:`, error);
+      logger.error(`Get coaching events error:`, error) // Wave 20: Winston logger;
       res.status(500).json({ error: `Failed to fetch coaching events` });
     }
   }
@@ -537,7 +537,7 @@ router.post(
         sessionId
       });
     } catch (error: any) {
-      console.error('Create coaching session error:', error);
+      logger.error('Create coaching session error:', error) // Wave 20: Winston logger;
       res.status(400).json({ error: getErrorMessage(error) || 'Failed to create coaching session' });
     }
   }
@@ -564,7 +564,7 @@ router.patch(
 
       res.json({ message: 'Coaching session completed successfully' });
     } catch (error: any) {
-      console.error('Complete coaching session error:', error);
+      logger.error('Complete coaching session error:', error) // Wave 20: Winston logger;
       res.status(500).json({ error: 'Failed to complete coaching session' });
     }
   }
@@ -621,7 +621,7 @@ router.post(
         status: 'pending'
       });
     } catch (error: any) {
-      console.error(`Apply privacy blur error:`, error);
+      logger.error(`Apply privacy blur error:`, error) // Wave 20: Winston logger;
       res.status(500).json({ error: 'Failed to apply privacy filters' });
     }
   }
@@ -647,7 +647,7 @@ router.get(
 
       res.json(insights);
     } catch (error: any) {
-      console.error('Get driver insights error:', error);
+      logger.error('Get driver insights error:', error) // Wave 20: Winston logger;
       res.status(500).json({ error: 'Failed to fetch driver insights' });
     }
   }
@@ -676,7 +676,7 @@ router.get(
 
       res.json({ scorecard: result.rows });
     } catch (error: any) {
-      console.error(`Get scorecard error:`, error);
+      logger.error(`Get scorecard error:`, error) // Wave 20: Winston logger;
       res.status(500).json({ error: `Failed to fetch scorecard` });
     }
   }
@@ -704,7 +704,7 @@ router.get(
 
       res.json({ cameras: result.rows });
     } catch (error: any) {
-      console.error(`Get camera health error:`, error);
+      logger.error(`Get camera health error:`, error) // Wave 20: Winston logger;
       res.status(500).json({ error: `Failed to fetch camera health` });
     }
   }
