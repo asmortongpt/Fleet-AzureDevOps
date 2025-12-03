@@ -1,4 +1,6 @@
 import { Router } from "express"
+import { cacheService } from '../config/cache';
+
 import { vehicleCreateSchema, vehicleUpdateSchema } from '../schemas/vehicle.schema';
 
 import { validate } from '../middleware/validate';
