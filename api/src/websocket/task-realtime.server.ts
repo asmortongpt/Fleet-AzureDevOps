@@ -1,5 +1,8 @@
 import { Server as HttpServer } from 'http';
 import { Server, Socket } from 'socket.io';
+import jwt from 'jsonwebtoken';
+import { getJwtSecret } from '../config/jwt.config';
+import logger from '../utils/logger';
 
 /**
  * Task Real-Time WebSocket Server
@@ -18,6 +21,8 @@ const taskEventTypes = ['TASK_CREATED', 'TASK_UPDATED', 'TASK_ASSIGNED', 'TASK_D
 interface DecodedToken {
   userId: string;
   tenantId: string;
+  iat?: number;
+  exp?: number;
 }
 
 /**
@@ -41,20 +46,92 @@ export function initializeWebSocketServer(httpServer: HttpServer): void {
       const token = socket.handshake.auth.token;
 
       if (!token) {
-        throw new Error('Authentication token missing');
+        logger.error('[WebSocket Auth] Token missing', {
+          socketId: socket.id,
+          handshake: socket.handshake.address
+        });
+        return next(new Error('Authentication token missing'));
       }
 
-      // TODO: Implement proper JWT verification when JWT_SECRET is configured
-      // For now, we'll skip auth in development mode
-      if (process.env.NODE_ENV === 'development') {
-        socket.data.userId = 'dev-user';
-        socket.data.tenantId = 'dev-tenant';
+      // Extract tenant ID from token query parameter or default to env variable
+      const queryTenantId = socket.handshake.query.tenantId as string;
+      const tenantId = queryTenantId || process.env.TENANT_ID;
+
+      if (!tenantId) {
+        logger.error('[WebSocket Auth] Tenant ID missing', {
+          socketId: socket.id
+        });
+        return next(new Error('Tenant ID missing'));
+      }
+
+      try {
+        // Retrieve JWT secret for the tenant
+        const jwtSecret = await getJwtSecret(tenantId);
+
+        // Verify JWT token
+        const decoded = jwt.verify(token, jwtSecret, {
+          algorithms: ['HS256'],
+          issuer: 'fleet-management-api',
+          audience: 'fleet-management-client'
+        }) as DecodedToken;
+
+        // Validate decoded token structure
+        if (!decoded.userId || !decoded.tenantId) {
+          logger.error('[WebSocket Auth] Invalid token structure', {
+            socketId: socket.id,
+            hasUserId: !!decoded.userId,
+            hasTenantId: !!decoded.tenantId
+          });
+          return next(new Error('Invalid token structure'));
+        }
+
+        // Verify tenant ID matches
+        if (decoded.tenantId !== tenantId) {
+          logger.error('[WebSocket Auth] Tenant ID mismatch', {
+            socketId: socket.id,
+            tokenTenantId: decoded.tenantId,
+            requestedTenantId: tenantId
+          });
+          return next(new Error('Tenant ID mismatch'));
+        }
+
+        // Store authenticated user data
+        socket.data.userId = decoded.userId;
+        socket.data.tenantId = decoded.tenantId;
+
+        logger.info('[WebSocket Auth] Authentication successful', {
+          socketId: socket.id,
+          userId: decoded.userId,
+          tenantId: decoded.tenantId
+        });
+
         next();
-      } else {
-        throw new Error('JWT authentication not yet configured');
+      } catch (jwtError) {
+        if (jwtError instanceof jwt.TokenExpiredError) {
+          logger.error('[WebSocket Auth] Token expired', {
+            socketId: socket.id,
+            expiredAt: jwtError.expiredAt
+          });
+          return next(new Error('Token expired'));
+        } else if (jwtError instanceof jwt.JsonWebTokenError) {
+          logger.error('[WebSocket Auth] Invalid token', {
+            socketId: socket.id,
+            message: jwtError.message
+          });
+          return next(new Error('Invalid token'));
+        } else {
+          logger.error('[WebSocket Auth] JWT verification failed', {
+            socketId: socket.id,
+            error: jwtError
+          });
+          return next(new Error('JWT verification failed'));
+        }
       }
     } catch (error) {
-      console.error('WebSocket authentication error:', error);
+      logger.error('[WebSocket Auth] Authentication error', {
+        socketId: socket.id,
+        error: error instanceof Error ? error.message : String(error)
+      });
       next(new Error('Authentication error'));
     }
   });
