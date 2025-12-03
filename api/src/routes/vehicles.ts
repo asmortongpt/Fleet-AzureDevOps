@@ -50,7 +50,7 @@ router.get("/:id", async (req, res) => {
 })
 
 // POST create vehicle
-router.post("/", async (req, res) => {
+router.post("/", validate(vehicleCreateSchema), async (req, res) => { // Wave 9: Add Zod validation
   try {
     const vehicle = vehicleEmulator.create(req.body)
     res.status(201).json({ data: vehicle })
@@ -60,7 +60,7 @@ router.post("/", async (req, res) => {
 })
 
 // PUT update vehicle
-router.put("/:id", async (req, res) => {
+router.put("/:id", validate(vehicleUpdateSchema), async (req, res) => { // Wave 9: Add Zod validation
   try {
     const vehicle = vehicleEmulator.update(Number(req.params.id), req.body)
     if (!vehicle) return res.status(404).json({ error: "Vehicle not found" })
