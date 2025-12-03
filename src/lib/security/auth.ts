@@ -100,7 +100,9 @@ export interface APIToken {
 }
 
 /**
- * Session management
+ * SECURITY (CRIT-F-001): Session management
+ * Sessions stored in sessionStorage (cleared on browser close) for non-sensitive metadata only
+ * Auth tokens are ONLY in httpOnly cookies managed by backend
  */
 export class SessionManager {
   private static readonly SESSION_TIMEOUT = 30 * 60 * 1000 // 30 minutes
@@ -134,7 +136,8 @@ export class SessionManager {
       expiresAt: expiresAt.toISOString()
     }
 
-    // Store session (in production, this would be Redis/database)
+    // SECURITY: Store session metadata in sessionStorage (not localStorage)
+    // sessionStorage is cleared when browser closes, reducing persistence risk
     this.storeSession(session)
 
     return session
@@ -142,7 +145,7 @@ export class SessionManager {
 
   static async validateSession(sessionId: string): Promise<SecurityContext | null> {
     const session = this.getSession(sessionId)
-    
+
     if (!session) return null
 
     // Check expiration
@@ -170,16 +173,19 @@ export class SessionManager {
   }
 
   static revokeSession(sessionId: string): void {
-    // Remove from storage
-    localStorage.removeItem(`session_${sessionId}`)
+    // SECURITY (CRIT-F-001): Remove from sessionStorage (not localStorage)
+    sessionStorage.removeItem(`session_${sessionId}`)
   }
 
   private static storeSession(session: SecurityContext): void {
-    localStorage.setItem(`session_${session.sessionId}`, JSON.stringify(session))
+    // SECURITY (CRIT-F-001): Use sessionStorage instead of localStorage
+    // sessionStorage is cleared on browser/tab close, reducing XSS attack window
+    sessionStorage.setItem(`session_${session.sessionId}`, JSON.stringify(session))
   }
 
   private static getSession(sessionId: string): SecurityContext | null {
-    const data = localStorage.getItem(`session_${sessionId}`)
+    // SECURITY (CRIT-F-001): Read from sessionStorage (not localStorage)
+    const data = sessionStorage.getItem(`session_${sessionId}`)
     return data ? JSON.parse(data) : null
   }
 }
@@ -305,16 +311,20 @@ export class APITokenService {
   }
 
   private static storeToken(token: APIToken): void {
-    localStorage.setItem(`api_token_${token.id}`, JSON.stringify(token))
+    // SECURITY (CRIT-F-001): Use sessionStorage for API token metadata
+    // In production, this should be server-side only
+    sessionStorage.setItem(`api_token_${token.id}`, JSON.stringify(token))
   }
 
   private static getStoredToken(tokenString: string): APIToken | null {
-    // Simplified lookup - in production, use proper database query
+    // SECURITY: In production, validate tokens server-side only
+    // This is a client-side placeholder and should not be used for auth
     return null
   }
 
   private static getStoredTokenById(tokenId: string): APIToken | null {
-    const data = localStorage.getItem(`api_token_${tokenId}`)
+    // SECURITY (CRIT-F-001): Read from sessionStorage (not localStorage)
+    const data = sessionStorage.getItem(`api_token_${tokenId}`)
     return data ? JSON.parse(data) : null
   }
 }
