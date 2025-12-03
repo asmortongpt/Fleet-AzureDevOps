@@ -1,3 +1,40 @@
+/**
+ * Hooks Index
+ * Central export point for all shared hooks
+ */
+
+// ============================================================================
+// NEW SHARED HOOKS - Code Deduplication Initiative
+// ============================================================================
+
+// Fleet filters - eliminates duplicate filter logic across 12+ modules
+export { useVehicleFilters } from './useVehicleFilters'
+export type { VehicleFilters, FilterStats } from './useVehicleFilters'
+
+// Fleet metrics - eliminates duplicate calculation logic across 8+ modules
+export { useFleetMetrics } from './useFleetMetrics'
+export type {
+  UtilizationMetrics,
+  CostMetrics,
+  MaintenanceMetrics,
+  ComplianceMetrics,
+  EfficiencyMetrics,
+  FleetMetrics
+} from './useFleetMetrics'
+
+// Confirmation dialogs - eliminates duplicate dialog management across 20+ modules
+export {
+  useConfirmationDialog,
+  useDeleteConfirmation,
+  useSaveConfirmation,
+  useDiscardConfirmation
+} from './useConfirmationDialog'
+export type { ConfirmationConfig } from './useConfirmationDialog'
+
+// ============================================================================
+// EXISTING HOOKS
+// ============================================================================
+
 export { useDebounce } from "./useDebounce"
 export { useLocalStorage } from "./useLocalStorage"
 export { useAsync } from "./useAsync"
