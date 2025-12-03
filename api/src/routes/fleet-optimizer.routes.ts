@@ -1,4 +1,5 @@
 import express, { Response } from 'express'
+import logger from '../config/logger'; // Wave 30: Add Winston logger
 import { AuthRequest, authenticateJWT } from '../middleware/auth'
 import { requirePermission } from '../middleware/permissions'
 import { auditLog } from '../middleware/audit'
@@ -24,7 +25,7 @@ router.get(
 
       res.json(heatmap)
     } catch (error) {
-      console.error('Get utilization heatmap error:', error)
+      logger.error('Get utilization heatmap error:', error) // Wave 30: Winston logger
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -53,7 +54,7 @@ router.get(
 
       res.json(utilization)
     } catch (error) {
-      console.error('Get vehicle utilization error:', error)
+      logger.error('Get vehicle utilization error:', error) // Wave 30: Winston logger
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -77,7 +78,7 @@ router.get(
 
       res.json(forecast)
     } catch (error) {
-      console.error('Get utilization forecast error:', error)
+      logger.error('Get utilization forecast error:', error) // Wave 30: Winston logger
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -99,7 +100,7 @@ router.get(
 
       res.json(recommendations)
     } catch (error) {
-      console.error('Get recommendations error:', error)
+      logger.error('Get recommendations error:', error) // Wave 30: Winston logger
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -126,7 +127,7 @@ router.post(
 
       res.json(recommendations)
     } catch (error) {
-      console.error('Generate recommendations error:', error)
+      logger.error('Generate recommendations error:', error) // Wave 30: Winston logger
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -148,7 +149,7 @@ router.get(
 
       res.json(result)
     } catch (error) {
-      console.error('Calculate optimal fleet size error:', error)
+      logger.error('Calculate optimal fleet size error:', error) // Wave 30: Winston logger
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -175,7 +176,7 @@ router.post(
 
       res.json({ message: 'Analysis started for all vehicles' })
     } catch (error) {
-      console.error('Analyze all vehicles error:', error)
+      logger.error('Analyze all vehicles error:', error) // Wave 30: Winston logger
       res.status(500).json({ error: 'Internal server error' })
     }
   }
