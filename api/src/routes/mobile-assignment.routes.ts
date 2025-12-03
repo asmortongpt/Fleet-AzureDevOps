@@ -1,4 +1,5 @@
 /**
+import logger from '../config/logger'; // Wave 31: Add Winston logger
  * Mobile Assignment API Routes
  * Mobile-optimized endpoints for vehicle assignment management (BR-11)
  *
@@ -168,7 +169,7 @@ router.get(
         },
       });
     } catch (error: any) {
-      console.error('Error fetching mobile employee dashboard:', error);
+      logger.error('Error fetching mobile employee dashboard:', error) // Wave 31: Winston logger;
       res.status(500).json({
         error: 'Failed to fetch employee dashboard',
         details: getErrorMessage(error),
@@ -227,7 +228,7 @@ router.post(
         period: result.rows[0],
       });
     } catch (error: any) {
-      console.error('Error acknowledging on-call period:', error);
+      logger.error('Error acknowledging on-call period:', error) // Wave 31: Winston logger;
       res.status(500).json({
         error: 'Failed to acknowledge on-call period',
         details: getErrorMessage(error),
@@ -315,7 +316,7 @@ router.post(
         estimated_reimbursement: reimbursementAmount,
       });
     } catch (error: any) {
-      console.error('Error logging callback trip:', error);
+      logger.error('Error logging callback trip:', error) // Wave 31: Winston logger;
       if (error instanceof z.ZodError) {
         return res.status(400).json({
           error: 'Validation error',
@@ -441,7 +442,7 @@ router.get(
         },
       });
     } catch (error: any) {
-      console.error('Error fetching manager mobile dashboard:', error);
+      logger.error('Error fetching manager mobile dashboard:', error) // Wave 31: Winston logger;
       res.status(500).json({
         error: 'Failed to fetch manager dashboard',
         details: getErrorMessage(error),
@@ -519,7 +520,7 @@ router.post(
         assignment: result.rows[0],
       });
     } catch (error: any) {
-      console.error(`Error processing mobile approval:`, error);
+      logger.error(`Error processing mobile approval:`, error) // Wave 31: Winston logger;
       res.status(500).json({
         error: 'Failed to process approval',
         details: getErrorMessage(error),
@@ -588,7 +589,7 @@ router.get(
         ttl_hours: 24, // Data valid for 24 hours
       });
     } catch (error: any) {
-      console.error('Error fetching offline data:', error);
+      logger.error('Error fetching offline data:', error) // Wave 31: Winston logger;
       res.status(500).json({
         error: 'Failed to fetch offline data',
         details: getErrorMessage(error),
