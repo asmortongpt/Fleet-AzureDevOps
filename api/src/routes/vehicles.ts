@@ -1,7 +1,12 @@
 import { Router } from "express"
 import { cacheService } from '../config/cache';
-import { vehicleCreateSchema, vehicleUpdateSchema } from '../schemas/vehicle.schema';
-import { validate } from '../middleware/validate';
+import {
+  vehicleCreateSchema,
+  vehicleUpdateSchema,
+  vehicleQuerySchema,
+  vehicleIdSchema
+} from '../schemas/vehicles.schema';
+import { validateBody, validateQuery, validateParams, validateAll } from '../middleware/validate';
 import logger from '../config/logger'; // Wave 10: Add Winston logger
 import { vehicleEmulator } from "../emulators/VehicleEmulator"
 import { authenticateJWT } from '../middleware/auth';
@@ -13,6 +18,7 @@ const router = Router()
 router.use(authenticateJWT)
 
 // GET all vehicles - Requires authentication, any role can read
+// CRIT-B-003: Added query parameter validation
 router.get("/",
   requireRBAC({
     roles: [Role.ADMIN, Role.MANAGER, Role.USER, Role.GUEST],
@@ -20,6 +26,7 @@ router.get("/",
     enforceTenantIsolation: true,
     resourceType: 'vehicle'
   }),
+  validateQuery(vehicleQuerySchema),
   async (req, res) => {
   try {
     const { page = 1, pageSize = 20, search, status } = req.query
@@ -62,6 +69,7 @@ router.get("/",
 })
 
 // GET vehicle by ID - Requires authentication + tenant isolation
+// CRIT-B-003: Added URL parameter validation
 router.get("/:id",
   requireRBAC({
     roles: [Role.ADMIN, Role.MANAGER, Role.USER, Role.GUEST],
@@ -69,6 +77,7 @@ router.get("/:id",
     enforceTenantIsolation: true,
     resourceType: 'vehicle'
   }),
+  validateParams(vehicleIdSchema),
   async (req, res) => {
   try {
     // Wave 12 (Revised): Cache-aside pattern for single vehicle
@@ -93,6 +102,7 @@ router.get("/:id",
 })
 
 // POST create vehicle - Requires admin or manager role
+// CRIT-B-003: Comprehensive input validation with sanitization
 router.post("/",
   requireRBAC({
     roles: [Role.ADMIN, Role.MANAGER],
@@ -100,8 +110,8 @@ router.post("/",
     enforceTenantIsolation: true,
     resourceType: 'vehicle'
   }),
-  validate(vehicleCreateSchema),
-  async (req, res) => { // Wave 9: Add Zod validation
+  validateBody(vehicleCreateSchema),
+  async (req, res) => {
   try {
     const vehicle = vehicleEmulator.create(req.body)
 
@@ -119,6 +129,7 @@ router.post("/",
 })
 
 // PUT update vehicle - Requires admin or manager role + tenant isolation
+// CRIT-B-003: Validates both URL params and request body
 router.put("/:id",
   requireRBAC({
     roles: [Role.ADMIN, Role.MANAGER],
@@ -126,8 +137,11 @@ router.put("/:id",
     enforceTenantIsolation: true,
     resourceType: 'vehicle'
   }),
-  validate(vehicleUpdateSchema),
-  async (req, res) => { // Wave 9: Add Zod validation
+  validateAll({
+    params: vehicleIdSchema,
+    body: vehicleUpdateSchema
+  }),
+  async (req, res) => {
   try {
     const vehicle = vehicleEmulator.update(Number(req.params.id), req.body)
     if (!vehicle) return res.status(404).json({ error: "Vehicle not found" })
@@ -144,7 +158,16 @@ router.put("/:id",
 })
 
 // DELETE vehicle
-router.delete("/:id", async (req, res) => {
+// CRIT-B-003: Added URL parameter validation
+router.delete("/:id",
+  requireRBAC({
+    roles: [Role.ADMIN, Role.MANAGER],
+    permissions: [PERMISSIONS.VEHICLE_DELETE],
+    enforceTenantIsolation: true,
+    resourceType: 'vehicle'
+  }),
+  validateParams(vehicleIdSchema),
+  async (req, res) => {
   try {
     const deleted = vehicleEmulator.delete(Number(req.params.id))
     if (!deleted) return res.status(404).json({ error: "Vehicle not found" })
