@@ -1,4 +1,5 @@
 import express, { Request, Response } from 'express'
+import logger from '../config/logger'; // Wave 18: Add Winston logger
 import axios from 'axios'
 import pool from '../config/database'
 import { getErrorMessage } from '../utils/error-handler'
@@ -49,7 +50,7 @@ router.get('/rates', async (req: Request, res: Response) => {
           organization: MILEAGE_CONFIG.organizationName
         })
       } catch (apiError) {
-        console.error('External API error, falling back to configured rate:', apiError)
+        logger.error('External API error, falling back to configured rate:', apiError) // Wave 18: Winston logger
       }
     }
 
@@ -75,7 +76,7 @@ router.get('/rates', async (req: Request, res: Response) => {
           })
         }
       } catch (dbError) {
-        console.error('Database error fetching tenant rate:', dbError)
+        logger.error('Database error fetching tenant rate:', dbError) // Wave 18: Winston logger
       }
     }
 
@@ -89,7 +90,7 @@ router.get('/rates', async (req: Request, res: Response) => {
       last_updated: new Date().toISOString()
     })
   } catch (error: any) {
-    console.error('Error fetching mileage rates:', error)
+    logger.error('Error fetching mileage rates:', error) // Wave 18: Winston logger
     res.status(500).json({ error: 'Failed to fetch mileage rates', message: getErrorMessage(error) })
   }
 })
@@ -139,7 +140,7 @@ router.post('/calculate', async (req: Request, res: Response) => {
           rateSource = 'tenant'
         }
       } catch (dbError) {
-        console.error('Error fetching tenant rate:', dbError)
+        logger.error('Error fetching tenant rate:', dbError) // Wave 18: Winston logger
       }
     }
 
@@ -176,7 +177,7 @@ router.post('/calculate', async (req: Request, res: Response) => {
 
     res.json(calculations)
   } catch (error: any) {
-    console.error('Error calculating mileage:', error)
+    logger.error('Error calculating mileage:', error) // Wave 18: Winston logger
     res.status(500).json({ error: 'Failed to calculate mileage', message: getErrorMessage(error) })
   }
 })
@@ -206,7 +207,7 @@ router.get('/rates/history', async (req: Request, res: Response) => {
       note: 'IRS standard mileage rates per federal guidelines. Updated annually.'
     })
   } catch (error: any) {
-    console.error('Error fetching rate history:', error)
+    logger.error('Error fetching rate history:', error) // Wave 18: Winston logger
     res.status(500).json({ error: 'Failed to fetch rate history', message: getErrorMessage(error) })
   }
 })
@@ -281,7 +282,7 @@ router.post('/validate-trip', async (req: Request, res: Response) => {
       }
     })
   } catch (error: any) {
-    console.error('Error validating trip:', error)
+    logger.error('Error validating trip:', error) // Wave 18: Winston logger
     res.status(500).json({ error: 'Failed to validate trip', message: getErrorMessage(error) })
   }
 })
@@ -335,7 +336,7 @@ router.put('/rates/tenant/:tenant_id', async (req: Request, res: Response) => {
       }
     })
   } catch (error: any) {
-    console.error('Error updating tenant rate:', error)
+    logger.error('Error updating tenant rate:', error) // Wave 18: Winston logger
     res.status(500).json({ error: 'Failed to update tenant rate', message: getErrorMessage(error) })
   }
 })
