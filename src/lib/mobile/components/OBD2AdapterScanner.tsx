@@ -84,7 +84,7 @@ export const OBD2AdapterScanner: React.FC<OBD2AdapterScannerProps> = ({
 
     if (autoConnect) {
       // Auto-connect to previously paired adapter
-      // TODO: Load from AsyncStorage
+      loadSavedAdapter()
     }
 
     return () => {
@@ -93,7 +93,70 @@ export const OBD2AdapterScanner: React.FC<OBD2AdapterScannerProps> = ({
         OBD2Service.disconnect()
       }
     }
-  }, [])
+  }, [autoConnect])
+
+  // =====================================================
+  // Saved Adapter Management
+  // =====================================================
+
+  const loadSavedAdapter = async () => {
+    try {
+      const savedAdapterJson = await AsyncStorage.getItem('savedOBD2Adapter')
+      if (savedAdapterJson) {
+        const savedAdapter: OBD2Adapter = JSON.parse(savedAdapterJson)
+
+        // Attempt to reconnect to saved adapter
+        setConnectionStatus('Reconnecting to saved adapter...')
+        const success = await OBD2Service.connect(savedAdapter)
+
+        if (success) {
+          setConnectedAdapter(savedAdapter)
+          setConnectionStatus('Connected')
+          onAdapterConnected?.(savedAdapter)
+
+          // Read diagnostics if enabled
+          if (showDiagnostics) {
+            try {
+              const diagnosticCodes = await OBD2Service.readDTCs()
+              setDtcs(diagnosticCodes)
+              onDTCsDetected?.(diagnosticCodes)
+            } catch (error) {
+              console.warn('Could not read DTCs on reconnect:', error)
+            }
+          }
+
+          // Start live data if enabled
+          if (enableLiveData) {
+            startLiveDataStream()
+          }
+        } else {
+          setConnectionStatus('Failed to reconnect')
+          console.warn('Could not reconnect to saved adapter')
+        }
+      }
+    } catch (error) {
+      console.error('Error loading saved adapter:', error)
+      setConnectionStatus('Disconnected')
+    }
+  }
+
+  const savePairedAdapter = async (adapter: OBD2Adapter) => {
+    try {
+      await AsyncStorage.setItem('savedOBD2Adapter', JSON.stringify(adapter))
+      console.log('Saved paired adapter:', adapter.name)
+    } catch (error) {
+      console.error('Error saving adapter:', error)
+    }
+  }
+
+  const clearSavedAdapter = async () => {
+    try {
+      await AsyncStorage.removeItem('savedOBD2Adapter')
+      console.log('Cleared saved adapter')
+    } catch (error) {
+      console.error('Error clearing saved adapter:', error)
+    }
+  }
 
   // =====================================================
   // Permissions
@@ -172,6 +235,9 @@ export const OBD2AdapterScanner: React.FC<OBD2AdapterScannerProps> = ({
       setConnectedAdapter(adapter)
       setConnectionStatus('Connected')
 
+      // Save adapter for auto-reconnect
+      await savePairedAdapter(adapter)
+
       // Read VIN
       setConnectionStatus('Reading VIN...')
       try {
@@ -236,6 +302,9 @@ export const OBD2AdapterScanner: React.FC<OBD2AdapterScannerProps> = ({
       setLiveData(null)
       setVin(null)
       setConnectionStatus('Disconnected')
+
+      // Clear saved adapter on manual disconnect
+      await clearSavedAdapter()
 
       onAdapterDisconnected?.()
 
