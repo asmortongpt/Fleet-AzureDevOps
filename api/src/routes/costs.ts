@@ -1,4 +1,5 @@
 /**
+import logger from '../config/logger'; // Wave 18: Add Winston logger
  * Cost Management Routes
  * Provides endpoints for cost tracking, budgeting, and analytics
  */
@@ -108,7 +109,7 @@ router.get('/', async (req, res) => {
       }
     })
   } catch (error) {
-    console.error('Error fetching costs:', error)
+    logger.error('Error fetching costs:', error) // Wave 18: Winston logger
     res.status(500).json({ error: 'Failed to fetch cost data' })
   }
 })
@@ -170,7 +171,7 @@ router.get('/vehicle/:vehicleId', async (req, res) => {
       }
     })
   } catch (error) {
-    console.error('Error fetching vehicle costs:', error)
+    logger.error('Error fetching vehicle costs:', error) // Wave 18: Winston logger
     res.status(500).json({ error: 'Failed to fetch vehicle cost data' })
   }
 })
@@ -194,7 +195,7 @@ router.get('/analytics', async (req, res) => {
       generated: new Date().toISOString()
     })
   } catch (error) {
-    console.error('Error generating analytics:', error)
+    logger.error('Error generating analytics:', error) // Wave 18: Winston logger
     res.status(500).json({ error: 'Failed to generate cost analytics' })
   }
 })
@@ -256,7 +257,7 @@ router.get('/budget', async (req, res) => {
       }
     })
   } catch (error) {
-    console.error('Error fetching budget data:', error)
+    logger.error('Error fetching budget data:', error) // Wave 18: Winston logger
     res.status(500).json({ error: 'Failed to fetch budget tracking data' })
   }
 })
@@ -292,7 +293,7 @@ router.get('/budget/alerts', async (_req, res) => {
       }
     })
   } catch (error) {
-    console.error('Error fetching budget alerts:', error)
+    logger.error('Error fetching budget alerts:', error) // Wave 18: Winston logger
     res.status(500).json({ error: 'Failed to fetch budget alerts' })
   }
 })
@@ -318,7 +319,7 @@ router.get('/department-analysis', async (req, res) => {
       totalCost: analytics.totalCosts
     })
   } catch (error) {
-    console.error('Error fetching department analysis:', error)
+    logger.error('Error fetching department analysis:', error) // Wave 18: Winston logger
     res.status(500).json({ error: 'Failed to fetch department analysis' })
   }
 })
@@ -350,7 +351,7 @@ router.get('/vendor-analysis', async (req, res) => {
       }
     })
   } catch (error) {
-    console.error('Error fetching vendor analysis:', error)
+    logger.error('Error fetching vendor analysis:', error) // Wave 18: Winston logger
     res.status(500).json({ error: 'Failed to fetch vendor analysis' })
   }
 })
@@ -364,7 +365,7 @@ router.get('/export', async (_req, res) => {
     res.setHeader('Content-Disposition', `attachment; filename="fleet-costs-${new Date().toISOString().split('T')[0]}.csv"`)
     res.send(csv)
   } catch (error) {
-    console.error('Error exporting costs:', error)
+    logger.error('Error exporting costs:', error) // Wave 18: Winston logger
     res.status(500).json({ error: 'Failed to export cost data' })
   }
 })
@@ -436,7 +437,7 @@ router.post('/', async (req, res): Promise<any> => {
       data: newCost
     })
   } catch (error) {
-    console.error('Error creating cost entry:', error)
+    logger.error('Error creating cost entry:', error) // Wave 18: Winston logger
     res.status(500).json({ error: 'Failed to create cost entry' })
   }
 })
@@ -493,7 +494,7 @@ router.post('/bulk-import', async (req, res): Promise<any> => {
       results
     })
   } catch (error) {
-    console.error('Error in bulk import:', error)
+    logger.error('Error in bulk import:', error) // Wave 18: Winston logger
     res.status(500).json({ error: 'Failed to process bulk import' })
   }
 })
@@ -514,7 +515,7 @@ router.get('/forecast', async (_req, res) => {
       generated: new Date().toISOString()
     })
   } catch (error) {
-    console.error('Error generating forecast:', error)
+    logger.error('Error generating forecast:', error) // Wave 18: Winston logger
     res.status(500).json({ error: 'Failed to generate cost forecast' })
   }
 })
@@ -574,7 +575,7 @@ router.get('/dashboard', async (_req, res) => {
       }
     })
   } catch (error) {
-    console.error('Error generating dashboard data:', error)
+    logger.error('Error generating dashboard data:', error) // Wave 18: Winston logger
     res.status(500).json({ error: 'Failed to generate dashboard data' })
   }
 })
