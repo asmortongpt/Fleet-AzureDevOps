@@ -28,18 +28,19 @@ class APIClient {
     this.initializeCsrfToken()
   }
 
-  // SECURITY: Tokens now managed via httpOnly cookies (CRITICAL-001)
-  // No localStorage token storage to prevent XSS attacks
+  // SECURITY (CRIT-F-001): Tokens now managed ONLY via httpOnly cookies
+  // NO localStorage token storage to prevent XSS attacks
+  // These methods are deprecated stubs for backwards compatibility
   setToken(_token: string) {
-    // Token is now set by backend via Set-Cookie header
-    // This method is kept for API compatibility but does nothing
-    console.warn('setToken() is deprecated - tokens are now httpOnly cookies')
+    // DEPRECATED: Token is now set by backend via Set-Cookie header
+    // This method does nothing - kept for API compatibility only
+    console.warn('[DEPRECATED] setToken() does nothing - tokens are httpOnly cookies managed by backend')
   }
 
   clearToken() {
-    // Token cleared by backend on logout
-    // This method is kept for API compatibility but does nothing
-    console.warn('clearToken() is deprecated - tokens are now httpOnly cookies')
+    // DEPRECATED: Token cleared by backend on logout
+    // This method does nothing - kept for API compatibility only
+    console.warn('[DEPRECATED] clearToken() does nothing - tokens are httpOnly cookies managed by backend')
   }
 
   /**
