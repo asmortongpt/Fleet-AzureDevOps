@@ -1,4 +1,5 @@
 /**
+import logger from '../config/logger'; // Wave 28: Add Winston logger
  * Asset Management Routes
  * Comprehensive fleet asset tracking and lifecycle management
  *
@@ -113,7 +114,7 @@ router.get('/', requirePermission('vehicle:view:fleet'), async (req: AuthRequest
       total: result.rows.length
     })
   } catch (error) {
-    console.error(`Error fetching assets:`, error)
+    logger.error(`Error fetching assets:`, error) // Wave 28: Winston logger
     res.status(500).json({ error: 'Failed to fetch assets' })
   }
 })
@@ -173,7 +174,7 @@ router.get('/:id', requirePermission('vehicle:view:fleet'), async (req: AuthRequ
       maintenance: maintenance.rows
     })
   } catch (error) {
-    console.error(`Error fetching asset:`, error)
+    logger.error(`Error fetching asset:`, error) // Wave 28: Winston logger
     res.status(500).json({ error: `Failed to fetch asset` })
   }
 })
@@ -250,7 +251,7 @@ router.post('/', requirePermission('vehicle:create:fleet'), async (req: AuthRequ
     })
   } catch (error) {
     await client.query('ROLLBACK')
-    console.error('Error creating asset:', error)
+    logger.error('Error creating asset:', error) // Wave 28: Winston logger
     res.status(500).json({ error: 'Failed to create asset' })
   } finally {
     client.release()
@@ -325,7 +326,7 @@ router.put('/:id', requirePermission('vehicle:update:fleet'), async (req: AuthRe
     })
   } catch (error) {
     await client.query(`ROLLBACK`)
-    console.error('Error updating asset:', error)
+    logger.error('Error updating asset:', error) // Wave 28: Winston logger
     res.status(500).json({ error: 'Failed to update asset' })
   } finally {
     client.release()
@@ -379,7 +380,7 @@ router.post('/:id/assign', requirePermission('vehicle:update:fleet'), async (req
     })
   } catch (error) {
     await client.query('ROLLBACK')
-    console.error('Error assigning asset:', error)
+    logger.error('Error assigning asset:', error) // Wave 28: Winston logger
     res.status(500).json({ error: 'Failed to assign asset' })
   } finally {
     client.release()
@@ -433,7 +434,7 @@ router.post('/:id/transfer', requirePermission('vehicle:update:fleet'), async (r
     })
   } catch (error) {
     await client.query(`ROLLBACK`)
-    console.error('Error transferring asset:', error)
+    logger.error('Error transferring asset:', error) // Wave 28: Winston logger
     res.status(500).json({ error: 'Failed to transfer asset' })
   } finally {
     client.release()
@@ -524,7 +525,7 @@ router.get('/:id/depreciation', requirePermission('vehicle:view:fleet'), async (
       projections
     })
   } catch (error) {
-    console.error('Error calculating depreciation:', error)
+    logger.error('Error calculating depreciation:', error) // Wave 28: Winston logger
     res.status(500).json({ error: 'Failed to calculate depreciation' })
   }
 })
@@ -582,7 +583,7 @@ router.get('/analytics/summary', requirePermission('report:view:global'), async 
       total_depreciation: depreciationSum.rows[0].total_depreciation || 0
     })
   } catch (error) {
-    console.error(`Error fetching asset analytics:`, error)
+    logger.error(`Error fetching asset analytics:`, error) // Wave 28: Winston logger
     res.status(500).json({ error: 'Failed to fetch analytics' })
   }
 })
@@ -638,7 +639,7 @@ router.delete('/:id', requirePermission('vehicle:delete:fleet'), async (req: Aut
     })
   } catch (error) {
     await client.query(`ROLLBACK`)
-    console.error('Error disposing asset:', error)
+    logger.error('Error disposing asset:', error) // Wave 28: Winston logger
     res.status(500).json({ error: 'Failed to dispose asset' })
   } finally {
     client.release()
