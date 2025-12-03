@@ -1,4 +1,5 @@
 import express, { Response } from 'express'
+import logger from '../config/logger'; // Wave 32: Add Winston logger
 import { AuthRequest, authenticateJWT } from '../middleware/auth'
 import { requirePermission } from '../middleware/permissions'
 import { auditLog } from '../middleware/audit'
@@ -23,7 +24,7 @@ async function validateDriverScope(req: AuthRequest): Promise<boolean> {
 
     return result.rows.length > 0
   } catch (error) {
-    console.error('Driver scope validation error:', error)
+    logger.error('Driver scope validation error:', error) // Wave 32: Winston logger
     return false
   }
 }
@@ -46,7 +47,7 @@ router.get(
 
       res.json(leaderboard)
     } catch (error) {
-      console.error('Get leaderboard error:', error)
+      logger.error('Get leaderboard error:', error) // Wave 32: Winston logger
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -76,7 +77,7 @@ router.get(
         res.status(400).json({ error: 'periodStart and periodEnd are required' })
       }
     } catch (error) {
-      console.error('Get driver scorecard error:', error)
+      logger.error('Get driver scorecard error:', error) // Wave 32: Winston logger
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -100,7 +101,7 @@ router.get(
 
       res.json(history)
     } catch (error) {
-      console.error('Get score history error:', error)
+      logger.error('Get score history error:', error) // Wave 32: Winston logger
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -122,7 +123,7 @@ router.get(
 
       res.json(achievements)
     } catch (error) {
-      console.error('Get achievements error:', error)
+      logger.error('Get achievements error:', error) // Wave 32: Winston logger
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -149,7 +150,7 @@ router.post(
 
       res.json({ message: 'Calculation started for all drivers' })
     } catch (error) {
-      console.error('Calculate all scores error:', error)
+      logger.error('Calculate all scores error:', error) // Wave 32: Winston logger
       res.status(500).json({ error: 'Internal server error' })
     }
   }
