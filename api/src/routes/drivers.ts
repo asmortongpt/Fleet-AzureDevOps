@@ -1,4 +1,8 @@
 import { Router } from "express"
+import { driverCreateSchema, driverUpdateSchema } from '../schemas/driver.schema';
+
+import { validate } from '../middleware/validate';
+
 import { driverEmulator } from "../emulators/DriverEmulator"
 
 const router = Router()
