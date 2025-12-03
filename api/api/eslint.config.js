@@ -27,9 +27,6 @@ export default tseslint.config(
   {
     // TypeScript configuration
     files: ['**/*.ts'],
-    plugins: {
-      security,
-    },
     extends: [
       ...tseslint.configs.recommended,
       ...tseslint.configs.recommendedTypeChecked,
@@ -62,6 +59,22 @@ export default tseslint.config(
       '@typescript-eslint/no-floating-promises': 'error',
       '@typescript-eslint/no-misused-promises': 'error',
 
+      // General JavaScript rules
+      'no-console': 'off',
+      'prefer-const': 'error',
+      'no-var': 'error',
+      'eqeqeq': ['error', 'always'],
+      'curly': ['error', 'all'],
+      'brace-style': ['error', '1tbs'],
+    },
+  },
+  {
+    // Security plugin configuration (separate layer to avoid conflicts)
+    files: ['**/*.ts', '**/*.js'],
+    plugins: {
+      security,
+    },
+    rules: {
       // Security rules
       'security/detect-object-injection': 'warn',
       'security/detect-non-literal-regexp': 'warn',
@@ -75,14 +88,6 @@ export default tseslint.config(
       'security/detect-non-literal-require': 'warn',
       'security/detect-possible-timing-attacks': 'warn',
       'security/detect-pseudoRandomBytes': 'error',
-
-      // General JavaScript rules
-      'no-console': 'off',
-      'prefer-const': 'error',
-      'no-var': 'error',
-      'eqeqeq': ['error', 'always'],
-      'curly': ['error', 'all'],
-      'brace-style': ['error', '1tbs'],
     },
   },
 );
