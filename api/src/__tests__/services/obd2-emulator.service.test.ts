@@ -27,7 +27,7 @@ describe('OBD2EmulatorService', () => {
     };
 
     // Initialize service with mocks
-    // TODO: Adjust constructor parameters based on actual service
+    // Dependencies: db, logger, cache, emailService
     service = new OBD2EmulatorService(mockDb, mockLogger);
   });
 
