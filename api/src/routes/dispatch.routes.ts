@@ -1,4 +1,5 @@
 /**
+import logger from '../config/logger'; // Wave 24: Add Winston logger
  * Fleet Management - Dispatch Radio Routes
  *
  * Endpoints:
@@ -76,7 +77,7 @@ router.get('/channels', requirePermission('route:view:fleet'), async (req: Reque
       channels
     })
   } catch (error) {
-    console.error('Error getting dispatch channels:', error)
+    logger.error('Error getting dispatch channels:', error) // Wave 24: Winston logger
     res.status(500).json({
       success: false,
       error: 'Failed to get dispatch channels'
@@ -134,7 +135,7 @@ router.get('/channels/:id', requirePermission('route:view:fleet'), async (req: R
       channel: result.rows[0]
     })
   } catch (error) {
-    console.error('Error getting channel:', error)
+    logger.error('Error getting channel:', error) // Wave 24: Winston logger
     res.status(500).json({
       success: false,
       error: 'Failed to get channel'
@@ -203,7 +204,7 @@ router.post('/channels', requirePermission('route:create:fleet'), async (req: Re
       channel: result.rows[0]
     })
   } catch (error) {
-    console.error('Error creating channel:', error)
+    logger.error('Error creating channel:', error) // Wave 24: Winston logger
     res.status(500).json({
       success: false,
       error: 'Failed to create channel'
@@ -247,7 +248,7 @@ router.get('/channels/:id/history', requirePermission('route:view:fleet'), async
       history
     })
   } catch (error) {
-    console.error('Error getting channel history:', error)
+    logger.error('Error getting channel history:', error) // Wave 24: Winston logger
     res.status(500).json({
       success: false,
       error: 'Failed to get channel history'
@@ -286,7 +287,7 @@ router.get('/channels/:id/listeners', requirePermission('route:view:fleet'), asy
       count: listeners.length
     })
   } catch (error) {
-    console.error('Error getting listeners:', error)
+    logger.error('Error getting listeners:', error) // Wave 24: Winston logger
     res.status(500).json({
       success: false,
       error: 'Failed to get listeners'
@@ -356,7 +357,7 @@ router.post('/emergency', requirePermission('route:create:fleet'), async (req: R
       alert
     })
   } catch (error) {
-    console.error('Error creating emergency alert:', error)
+    logger.error('Error creating emergency alert:', error) // Wave 24: Winston logger
     res.status(500).json({
       success: false,
       error: 'Failed to create emergency alert'
@@ -427,7 +428,7 @@ router.get('/emergency', requirePermission('route:view:fleet'), async (req: Requ
       alerts: result.rows
     })
   } catch (error) {
-    console.error('Error getting emergency alerts:', error)
+    logger.error('Error getting emergency alerts:', error) // Wave 24: Winston logger
     res.status(500).json({
       success: false,
       error: 'Failed to get emergency alerts'
@@ -480,7 +481,7 @@ router.put('/emergency/:id/acknowledge', requirePermission('route:update:fleet')
       alert: result.rows[0]
     })
   } catch (error) {
-    console.error('Error acknowledging alert:', error)
+    logger.error('Error acknowledging alert:', error) // Wave 24: Winston logger
     res.status(500).json({
       success: false,
       error: 'Failed to acknowledge alert'
@@ -534,7 +535,7 @@ router.put('/emergency/:id/resolve', requirePermission('route:update:fleet'), as
       alert: result.rows[0]
     })
   } catch (error) {
-    console.error('Error resolving alert:', error)
+    logger.error('Error resolving alert:', error) // Wave 24: Winston logger
     res.status(500).json({
       success: false,
       error: 'Failed to resolve alert'
@@ -612,7 +613,7 @@ router.get('/metrics', requirePermission('route:view:fleet'), async (req: Reques
       metrics: result.rows
     })
   } catch (error) {
-    console.error(`Error getting metrics:`, error)
+    logger.error(`Error getting metrics:`, error) // Wave 24: Winston logger
     res.status(500).json({
       success: false,
       error: `Failed to get metrics`
@@ -660,7 +661,7 @@ router.post('/webrtc/offer', requirePermission(`route:create:fleet`), async (req
       offer
     })
   } catch (error) {
-    console.error(`Error creating WebRTC offer:`, error)
+    logger.error(`Error creating WebRTC offer:`, error) // Wave 24: Winston logger
     res.status(500).json({
       success: false,
       error: 'Failed to create WebRTC offer'
@@ -705,7 +706,7 @@ router.post('/webrtc/answer', requirePermission('route:create:fleet'), async (re
       success: true
     })
   } catch (error) {
-    console.error('Error handling WebRTC answer:', error)
+    logger.error('Error handling WebRTC answer:', error) // Wave 24: Winston logger
     res.status(500).json({
       success: false,
       error: 'Failed to handle answer'
@@ -750,7 +751,7 @@ router.post('/webrtc/ice-candidate', requirePermission('route:create:fleet'), as
       success: true
     })
   } catch (error) {
-    console.error('Error adding ICE candidate:', error)
+    logger.error('Error adding ICE candidate:', error) // Wave 24: Winston logger
     res.status(500).json({
       success: false,
       error: 'Failed to add ICE candidate'
