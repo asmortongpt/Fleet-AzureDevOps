@@ -1,4 +1,5 @@
 import express, { Response } from 'express'
+import logger from '../config/logger'; // Wave 17: Add Winston logger
 import pool from '../config/database'
 import { createAuditLog } from '../middleware/audit'
 import { AuthRequest, authenticateJWT } from '../middleware/auth'
@@ -60,7 +61,7 @@ router.get('/',
       total: result.rows.length
     })
   } catch (error: any) {
-    console.error(`Error fetching deployments:`, error)
+    logger.error(`Error fetching deployments:`, error) // Wave 17: Winston logger
     res.status(500).json({ error: 'Failed to fetch deployments', message: getErrorMessage(error) })
   }
 })
@@ -134,7 +135,7 @@ router.post('/',
 
     res.status(201).json(result.rows[0])
   } catch (error: any) {
-    console.error('Error creating deployment:', error)
+    logger.error('Error creating deployment:', error) // Wave 17: Winston logger
     res.status(500).json({ error: 'Failed to create deployment', message: getErrorMessage(error) })
   }
 })
@@ -207,7 +208,7 @@ router.patch('/:id',
 
     res.json(result.rows[0])
   } catch (error: any) {
-    console.error('Error updating deployment:', error)
+    logger.error('Error updating deployment:', error) // Wave 17: Winston logger
     res.status(500).json({ error: 'Failed to update deployment', message: getErrorMessage(error) })
   }
 })
@@ -248,7 +249,7 @@ router.get('/:id',
       quality_gates: qualityGatesResult.rows
     })
   } catch (error: any) {
-    console.error(`Error fetching deployment:`, error)
+    logger.error(`Error fetching deployment:`, error) // Wave 17: Winston logger
     res.status(500).json({ error: `Failed to fetch deployment`, message: getErrorMessage(error) })
   }
 })
@@ -286,7 +287,7 @@ router.get('/stats/summary',
       period_days: days
     })
   } catch (error: any) {
-    console.error('Error fetching deployment stats:', error)
+    logger.error('Error fetching deployment stats:', error) // Wave 17: Winston logger
     res.status(500).json({ error: 'Failed to fetch stats', message: getErrorMessage(error) })
   }
 })
