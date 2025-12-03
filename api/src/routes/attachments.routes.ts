@@ -1,4 +1,5 @@
 /**
+import logger from '../config/logger'; // Wave 22: Add Winston logger
  * Attachments Routes
  *
  * Comprehensive file attachment API for:
@@ -97,7 +98,7 @@ router.post(
           [scanResult === 'clean` ? `Clean` : 'Threat Detected', scanResult, result.id]
         )
       }).catch(err => {
-        console.error('Virus scan error:', err)
+        logger.error('Virus scan error:', err) // Wave 22: Winston logger
       })
 
       res.status(201).json({
@@ -105,7 +106,7 @@ router.post(
         attachment: result
       })
     } catch (error: unknown) {
-      console.error('Upload error:', error)
+      logger.error('Upload error:', error) // Wave 22: Winston logger
       res.status(500).json({
         error: 'Failed to upload file',
         details: getErrorMessage(error)
@@ -157,7 +158,7 @@ router.post(
         attachments: results
       })
     } catch (error: unknown) {
-      console.error(`Multiple upload error:`, error)
+      logger.error(`Multiple upload error:`, error) // Wave 22: Winston logger
       res.status(500).json({
         error: 'Failed to upload files',
         details: getErrorMessage(error)
@@ -221,7 +222,7 @@ router.get(
 
       res.send(fileBuffer)
     } catch (error: unknown) {
-      console.error('Download error:', error)
+      logger.error('Download error:', error) // Wave 22: Winston logger
       res.status(500).json({
         error: 'Failed to download file',
         details: getErrorMessage(error)
@@ -268,7 +269,7 @@ router.get(
         expiresIn: `${expiryMinutes} minutes`
       })
     } catch (error: unknown) {
-      console.error(`SAS URL generation error:`, error)
+      logger.error(`SAS URL generation error:`, error) // Wave 22: Winston logger
       res.status(500).json({
         error: `Failed to generate SAS URL`,
         details: getErrorMessage(error)
@@ -315,7 +316,7 @@ router.delete(
 
       res.json({ message: `Attachment deleted successfully` })
     } catch (error: unknown) {
-      console.error('Delete error:', error)
+      logger.error('Delete error:', error) // Wave 22: Winston logger
       res.status(500).json({
         error: 'Failed to delete attachment',
         details: getErrorMessage(error)
@@ -363,7 +364,7 @@ router.post(
         file: result
       })
     } catch (error: unknown) {
-      console.error('Teams upload error:', error)
+      logger.error('Teams upload error:', error) // Wave 22: Winston logger
       res.status(500).json({
         error: 'Failed to upload file to Teams',
         details: getErrorMessage(error)
@@ -398,7 +399,7 @@ router.get(
       res.setHeader('Content-Type', 'application/octet-stream')
       res.send(fileBuffer)
     } catch (error: unknown) {
-      console.error('Teams download error:', error)
+      logger.error('Teams download error:', error) // Wave 22: Winston logger
       res.status(500).json({
         error: 'Failed to download file from Teams',
         details: getErrorMessage(error)
@@ -444,7 +445,7 @@ router.post(
         attachment: result
       })
     } catch (error: unknown) {
-      console.error('Outlook attachment error:', error)
+      logger.error('Outlook attachment error:', error) // Wave 22: Winston logger
       res.status(500).json({
         error: 'Failed to add attachment to email',
         details: getErrorMessage(error)
@@ -492,7 +493,7 @@ router.post(
         attachments: files.length
       })
     } catch (error: unknown) {
-      console.error('Send email error:', error)
+      logger.error('Send email error:', error) // Wave 22: Winston logger
       res.status(500).json({
         error: 'Failed to send email',
         details: getErrorMessage(error)
@@ -526,7 +527,7 @@ router.get(
       res.setHeader('Content-Type', 'application/octet-stream')
       res.send(fileBuffer)
     } catch (error: unknown) {
-      console.error('Download email attachment error:', error)
+      logger.error('Download email attachment error:', error) // Wave 22: Winston logger
       res.status(500).json({
         error: 'Failed to download email attachment',
         details: getErrorMessage(error)
@@ -606,7 +607,7 @@ router.get(
         }
       })
     } catch (error: unknown) {
-      console.error(`Get attachments error:`, error)
+      logger.error(`Get attachments error:`, error) // Wave 22: Winston logger
       res.status(500).json({
         error: `Failed to get attachments`,
         details: getErrorMessage(error)
@@ -649,7 +650,7 @@ router.get(
 
       res.json(result.rows[0])
     } catch (error: unknown) {
-      console.error('Get attachment error:', error)
+      logger.error('Get attachment error:', error) // Wave 22: Winston logger
       res.status(500).json({
         error: 'Failed to get attachment',
         details: getErrorMessage(error)
@@ -682,7 +683,7 @@ router.post(
         deletedCount
       })
     } catch (error: unknown) {
-      console.error('Cleanup error:', error)
+      logger.error('Cleanup error:', error) // Wave 22: Winston logger
       res.status(500).json({
         error: 'Failed to cleanup orphaned files',
         details: getErrorMessage(error)
@@ -734,7 +735,7 @@ router.get(
         by_type: byType.rows
       })
     } catch (error: unknown) {
-      console.error('Get stats error:', error)
+      logger.error('Get stats error:', error) // Wave 22: Winston logger
       res.status(500).json({
         error: 'Failed to get attachment statistics',
         details: getErrorMessage(error)
