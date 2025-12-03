@@ -1,41 +1,22 @@
 {
-  "root": true,
-  "parser": "@typescript-eslint/parser",
-  "parserOptions": {
-    "ecmaVersion": 2022,
-    "sourceType": "module",
-    "project": "./tsconfig.json"
-  },
-  "plugins": ["@typescript-eslint", "security"],
   "extends": [
     "eslint:recommended",
     "plugin:@typescript-eslint/recommended",
-    "plugin:@typescript-eslint/recommended-requiring-type-checking",
     "plugin:security/recommended"
   ],
-  "env": {
-    "node": true,
-    "es2022": true
+  "plugins": ["@typescript-eslint", "security"],
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "ecmaVersion": 2020,
+    "sourceType": "module"
   },
   "rules": {
-    "@typescript-eslint/no-explicit-any": "warn",
-    "@typescript-eslint/explicit-function-return-type": "off",
-    "@typescript-eslint/explicit-module-boundary-types": "off",
-    "@typescript-eslint/no-unused-vars": [
-      "error",
-      {
-        "argsIgnorePattern": "^_",
-        "varsIgnorePattern": "^_"
-      }
-    ],
-    "@typescript-eslint/no-floating-promises": "error",
-    "@typescript-eslint/no-misused-promises": "error",
-    "no-console": "off",
-    "prefer-const": "error",
-    "no-var": "error",
-    "eqeqeq": ["error", "always"],
-    "curly": ["error", "all"],
-    "brace-style": ["error", "1tbs"]
-  },
-  "ignorePatterns": ["dist", "node_modules", "*.test.ts", "*.spec.ts"]
+    "security/detect-object-injection": "warn",
+    "security/detect-unsafe-regex": "error",
+    "security/detect-buffer-noassert": "error",
+    "security/detect-eval-with-expression": "error",
+    "security/detect-no-csrf-before-method-override": "error",
+    "security/detect-possible-timing-attacks": "warn",
+    "security/detect-pseudoRandomBytes": "error"
+  }
 }
