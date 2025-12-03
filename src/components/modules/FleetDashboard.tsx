@@ -1940,3 +1940,5 @@ export function FleetDashboard({ data }: FleetDashboardProps) {
     </div>
   )
 }
+
+export default FleetDashboard;
