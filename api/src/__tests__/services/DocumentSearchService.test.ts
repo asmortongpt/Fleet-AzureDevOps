@@ -27,7 +27,7 @@ describe('DocumentSearchService', () => {
     };
 
     // Initialize service with mocks
-    // TODO: Adjust constructor parameters based on actual service
+    // Dependencies: db, logger, cache, emailService
     service = new DocumentSearchService(mockDb, mockLogger);
   });
 
