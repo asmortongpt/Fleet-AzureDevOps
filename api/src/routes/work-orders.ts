@@ -1,7 +1,7 @@
 import express, { Response } from 'express'
 import { cacheService } from '../config/cache'; // Wave 13: Add Redis caching
 import logger from '../config/logger'; // Wave 11: Add Winston logger
-import { work-orderCreateSchema, work-orderUpdateSchema } from '../schemas/work-order.schema';
+import { workOrderCreateSchema, workOrderUpdateSchema } from '../schemas/work-order.schema';
 
 import { validate } from '../middleware/validate';
 
@@ -384,43 +384,4 @@ router.delete(
 
 export default router
 
-// IDOR Protection for UPDATE
-router.put('/:id', validate(work-orderUpdateSchema), async (req: Request, res: Response) => {
-  const { id } = req.params;
-  const tenantId = req.user?.tenantId;
-
-  // Validate ownership before update
-  const validator = new TenantValidator(pool);
-  const isValid = await validator.validateOwnership(tenantId, 'work_orders', parseInt(id));
-
-  if (!isValid) {
-    return res.status(403).json({
-      success: false,
-      error: 'Access denied - resource not found or belongs to different tenant'
-    });
-  }
-
-  // Proceed with update...
-  const data = req.body;
-  // ... existing update logic
-});
-
-// IDOR Protection for DELETE
-router.delete('/:id', async (req: Request, res: Response) => {
-  const { id } = req.params;
-  const tenantId = req.user?.tenantId;
-
-  // Validate ownership before delete
-  const validator = new TenantValidator(pool);
-  const isValid = await validator.validateOwnership(tenantId, 'work_orders', parseInt(id));
-
-  if (!isValid) {
-    return res.status(403).json({
-      success: false,
-      error: 'Access denied - resource not found or belongs to different tenant'
-    });
-  }
-
-  // Proceed with soft delete...
-  // ... existing delete logic
-});
+// Wave 15: Removed duplicate route definitions (dead code after export)
