@@ -93,7 +93,7 @@ router.get("/vehicle/:vehicleId", async (req, res) => {
 })
 
 // POST create maintenance record
-router.post("/", async (req, res) => {
+router.post("/", validate(maintenanceCreateSchema), async (req, res) => { // Wave 8: Add Zod validation
   try {
     const record = maintenanceRecordEmulator.create(req.body)
     res.status(201).json({ data: record })
@@ -103,7 +103,7 @@ router.post("/", async (req, res) => {
 })
 
 // PUT update maintenance record
-router.put("/:id", async (req, res) => {
+router.put("/:id", validate(maintenanceUpdateSchema), async (req, res) => { // Wave 8: Add Zod validation
   try {
     const record = maintenanceRecordEmulator.update(Number(req.params.id), req.body)
 
