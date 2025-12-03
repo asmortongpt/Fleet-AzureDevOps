@@ -1,4 +1,5 @@
 /**
+import logger from '../config/logger'; // Wave 33: Add Winston logger (FINAL WAVE!)
  * Vehicle Location History API Routes
  *
  * Endpoints for tracking vehicle location history and trip breadcrumbs
@@ -152,7 +153,7 @@ router.get(
         }
       });
     } catch (error) {
-      console.error(`Get vehicle location history error:`, error);
+      logger.error(`Get vehicle location history error:`, error) // Wave 33: Winston logger (FINAL WAVE!);
       res.status(500).json({ error: 'Internal server error' });
     }
   }
@@ -244,7 +245,7 @@ router.get(
         }
       });
     } catch (error) {
-      console.error('Get trip breadcrumbs error:', error);
+      logger.error('Get trip breadcrumbs error:', error) // Wave 33: Winston logger (FINAL WAVE!);
       res.status(500).json({ error: 'Internal server error' });
     }
   }
@@ -437,7 +438,7 @@ router.get(
         }
       });
     } catch (error) {
-      console.error(`Get vehicle timeline error:`, error);
+      logger.error(`Get vehicle timeline error:`, error) // Wave 33: Winston logger (FINAL WAVE!);
       res.status(500).json({ error: 'Internal server error' });
     }
   }
