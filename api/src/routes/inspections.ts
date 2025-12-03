@@ -1,4 +1,5 @@
 import express, { Response } from 'express'
+import { cacheService } from '../config/cache'; // Wave 13: Add Redis caching
 import { inspectionCreateSchema, inspectionUpdateSchema } from '../schemas/inspection.schema';
 import { validate } from '../middleware/validate';
 import logger from '../config/logger'; // Wave 11: Add Winston logger
@@ -22,6 +23,15 @@ router.get(
   async (req: AuthRequest, res: Response) => {
     try {
       const { page = 1, limit = 50 } = req.query
+
+      // Wave 13: Cache-aside pattern
+      const cacheKey = `inspections:list:${req.user!.tenant_id}:${page}:${limit}`
+      const cached = await cacheService.get<any>(cacheKey)
+
+      if (cached) {
+        return res.json(cached)
+      }
+
       const offset = (Number(page) - 1) * Number(limit)
 
       const result = await pool.query(
@@ -37,7 +47,7 @@ router.get(
         [req.user!.tenant_id]
       )
 
-      res.json({
+      const response = {
         data: result.rows,
         pagination: {
           page: Number(page),
@@ -45,7 +55,12 @@ router.get(
           total: parseInt(countResult.rows[0].count),
           pages: Math.ceil(countResult.rows[0].count / Number(limit))
         }
-      })
+      }
+
+      // Cache for 5 minutes (300 seconds)
+      await cacheService.set(cacheKey, response, 300)
+
+      res.json(response)
     } catch (error) {
       logger.error('Failed to fetch inspections', { error }) // Wave 11: Winston logger
       res.status(500).json({ error: 'Internal server error' })
@@ -60,6 +75,14 @@ router.get(
   auditLog({ action: 'READ', resourceType: 'inspections' }),
   async (req: AuthRequest, res: Response) => {
     try {
+      // Wave 13: Cache-aside pattern for single inspection
+      const cacheKey = `inspection:${req.params.id}:${req.user!.tenant_id}`
+      const cached = await cacheService.get<any>(cacheKey)
+
+      if (cached) {
+        return res.json(cached)
+      }
+
       const result = await pool.query(
         `SELECT id, tenant_id, vehicle_id, driver_id, inspection_type, status,
                 passed, failed_items, checklist_data, odometer_reading,
@@ -71,6 +94,9 @@ router.get(
       if (result.rows.length === 0) {
         return res.status(404).json({ error: `Inspections not found` })
       }
+
+      // Cache for 10 minutes (600 seconds)
+      await cacheService.set(cacheKey, result.rows[0], 600)
 
       res.json(result.rows[0])
     } catch (error) {
@@ -175,6 +201,10 @@ router.put(
         return res.status(404).json({ error: `Inspections not found` })
       }
 
+      // Wave 13: Invalidate cache on update
+      const cacheKey = `inspection:${req.params.id}:${req.user!.tenant_id}`
+      await cacheService.del(cacheKey)
+
       res.json(result.rows[0])
     } catch (error) {
       logger.error('Failed to update inspection', { error, inspectionId: req.params.id }) // Wave 11: Winston logger
@@ -198,6 +228,10 @@ router.delete(
       if (result.rows.length === 0) {
         return res.status(404).json({ error: 'Inspections not found' })
       }
+
+      // Wave 13: Invalidate cache on delete
+      const cacheKey = `inspection:${req.params.id}:${req.user!.tenant_id}`
+      await cacheService.del(cacheKey)
 
       res.json({ message: 'Inspections deleted successfully' })
     } catch (error) {
