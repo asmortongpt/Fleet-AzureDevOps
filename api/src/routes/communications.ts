@@ -6,6 +6,14 @@ import pool from '../config/database'
 import { z } from 'zod'
 import { buildInsertClause, buildUpdateClause } from '../utils/sql-safety'
 import { cacheMiddleware, invalidateOnWrite, CacheStrategies } from '../middleware/cache'
+import { validate } from '../middleware/validation'
+import {
+  createCommunicationSchema,
+  updateCommunicationSchema,
+  linkEntitySchema,
+  getCommunicationsQuerySchema,
+  createCommunicationTemplateSchema
+} from '../schemas/communications.schema'
 
 const router = express.Router()
 router.use(authenticateJWT)
@@ -18,6 +26,7 @@ router.use(authenticateJWT)
 router.get(
   '/',
   requirePermission('communication:view:global'),
+  validate(getCommunicationsQuerySchema, 'query'),
   cacheMiddleware({ ttl: 300000, varyByTenant: true, varyByQuery: true }),
   auditLog({ action: 'READ', resourceType: 'communications' }),
   async (req: AuthRequest, res: Response) => {
@@ -168,6 +177,7 @@ router.get(
 router.post(
   '/',
   requirePermission('communication:send:global'),
+  validate(createCommunicationSchema, 'body'),
   invalidateOnWrite('communications'),
   auditLog({ action: 'CREATE', resourceType: 'communications' }),
   async (req: AuthRequest, res: Response) => {
@@ -225,6 +235,7 @@ router.post(
 router.put(
   '/:id',
   requirePermission('communication:send:global'),
+  validate(updateCommunicationSchema, 'body'),
   invalidateOnWrite('communications'),
   auditLog({ action: 'UPDATE', resourceType: 'communications' }),
   async (req: AuthRequest, res: Response) => {
@@ -263,6 +274,7 @@ router.put(
 router.post(
   '/:id/link',
   requirePermission('communication:send:global'),
+  validate(linkEntitySchema, 'body'),
   auditLog({ action: 'CREATE', resourceType: 'communication_entity_links' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -450,6 +462,7 @@ router.get(
 router.post(
   '/templates',
   requirePermission('communication:broadcast:global'),
+  validate(createCommunicationTemplateSchema, 'body'),
   auditLog({ action: 'CREATE', resourceType: 'communication_templates' }),
   async (req: AuthRequest, res: Response) => {
     try {
