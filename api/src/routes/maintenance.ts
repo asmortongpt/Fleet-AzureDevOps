@@ -1,8 +1,7 @@
 import { Router } from "express"
 import { maintenanceCreateSchema, maintenanceUpdateSchema } from '../schemas/maintenance.schema';
-
 import { validate } from '../middleware/validate';
-
+import logger from '../config/logger'; // Wave 11: Add Winston logger
 import { maintenanceRecordEmulator } from "../emulators/MaintenanceRecordEmulator"
 import { TenantValidator } from '../utils/tenant-validator';
 
@@ -66,7 +65,7 @@ router.get("/", async (req, res) => {
 
     res.json({ data, total })
   } catch (error) {
-    console.error(error)
+    logger.error('Failed to fetch maintenance records', { error }) // Wave 11: Winston logger
     res.status(500).json({ error: "Failed to fetch maintenance records" })
   }
 })
@@ -78,6 +77,7 @@ router.get("/:id", async (req, res) => {
     if (!record) return res.status(404).json({ error: "Maintenance record not found" })
     res.json({ data: record })
   } catch (error) {
+    logger.error('Failed to fetch maintenance record', { error, recordId: req.params.id }) // Wave 11: Winston logger
     res.status(500).json({ error: "Failed to fetch maintenance record" })
   }
 })
@@ -88,6 +88,7 @@ router.get("/vehicle/:vehicleId", async (req, res) => {
     const records = maintenanceRecordEmulator.getByVehicleId(Number(req.params.vehicleId))
     res.json({ data: records, total: records.length })
   } catch (error) {
+    logger.error('Failed to fetch vehicle maintenance records', { error, vehicleId: req.params.vehicleId }) // Wave 11: Winston logger
     res.status(500).json({ error: "Failed to fetch vehicle maintenance records" })
   }
 })
@@ -98,6 +99,7 @@ router.post("/", validate(maintenanceCreateSchema), async (req, res) => { // Wav
     const record = maintenanceRecordEmulator.create(req.body)
     res.status(201).json({ data: record })
   } catch (error) {
+    logger.error('Failed to create maintenance record', { error }) // Wave 11: Winston logger
     res.status(500).json({ error: "Failed to create maintenance record" })
   }
 })
@@ -125,6 +127,7 @@ router.put("/:id", validate(maintenanceUpdateSchema), async (req, res) => { // W
     if (!record) return res.status(404).json({ error: "Maintenance record not found" })
     res.json({ data: record })
   } catch (error) {
+    logger.error('Failed to update maintenance record', { error, recordId: req.params.id }) // Wave 11: Winston logger
     res.status(500).json({ error: "Failed to update maintenance record" })
   }
 })
@@ -136,6 +139,7 @@ router.delete("/:id", async (req, res) => {
     if (!deleted) return res.status(404).json({ error: "Maintenance record not found" })
     res.json({ message: "Maintenance record deleted successfully" })
   } catch (error) {
+    logger.error('Failed to delete maintenance record', { error, recordId: req.params.id }) // Wave 11: Winston logger
     res.status(500).json({ error: "Failed to delete maintenance record" })
   }
 })
