@@ -1,4 +1,5 @@
 /**
+import logger from '../config/logger'; // Wave 29: Add Winston logger
  * Route Optimization API Endpoints
  */
 
@@ -189,7 +190,7 @@ router.post(
 
       res.json(result)
     } catch (error: any) {
-      console.error(`Route optimization error:`, error)
+      logger.error(`Route optimization error:`, error) // Wave 29: Winston logger
 
       if (error.name === 'ZodError') {
         return res.status(400).json({
@@ -262,7 +263,7 @@ router.get(
         }
       })
     } catch (error) {
-      console.error(`Get jobs error:`, error)
+      logger.error(`Get jobs error:`, error) // Wave 29: Winston logger
       res.status(500).json({ error: `Internal server error` })
     }
   }
@@ -321,7 +322,7 @@ router.get(
         stops: stopsResult.rows
       })
     } catch (error) {
-      console.error(`Get job error:`, error)
+      logger.error(`Get job error:`, error) // Wave 29: Winston logger
       res.status(500).json({ error: `Internal server error` })
     }
   }
@@ -363,7 +364,7 @@ router.get(
 
       res.json({ data: result.rows })
     } catch (error) {
-      console.error(`Get active routes error:`, error)
+      logger.error(`Get active routes error:`, error) // Wave 29: Winston logger
       res.status(500).json({ error: `Internal server error` })
     }
   }
@@ -421,7 +422,7 @@ router.get(
         stops: stopsResult.rows
       })
     } catch (error) {
-      console.error(`Get route error:`, error)
+      logger.error(`Get route error:`, error) // Wave 29: Winston logger
       res.status(500).json({ error: `Internal server error` })
     }
   }
@@ -463,7 +464,7 @@ router.put(
 
       res.json(result.rows[0])
     } catch (error) {
-      console.error(`Update route error:`, error)
+      logger.error(`Update route error:`, error) // Wave 29: Winston logger
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -505,7 +506,7 @@ router.post(
 
       res.json(result.rows[0])
     } catch (error) {
-      console.error('Complete stop error:', error)
+      logger.error('Complete stop error:', error) // Wave 29: Winston logger
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -566,7 +567,7 @@ router.get(
         recentJobs: recentResult.rows
       })
     } catch (error) {
-      console.error(`Get stats error:`, error)
+      logger.error(`Get stats error:`, error) // Wave 29: Winston logger
       res.status(500).json({ error: `Internal server error` })
     }
   }

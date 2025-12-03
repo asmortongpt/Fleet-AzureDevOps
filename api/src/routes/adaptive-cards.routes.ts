@@ -1,4 +1,5 @@
 import express, { Request, Response } from 'express'
+import logger from '../config/logger'; // Wave 29: Add Winston logger
 import pool from '../config/database'
 import { authenticateJWT } from '../middleware/auth'
 import {
@@ -62,7 +63,7 @@ router.post('/vehicle-maintenance', authenticateJWT, async (req: Request, res: R
       card
     })
   } catch (error: any) {
-    console.error('Error sending maintenance card:', error.message)
+    logger.error('Error sending maintenance card:', error.message) // Wave 29: Winston logger
     res.status(500).json({ error: error.message })
   }
 })
@@ -118,7 +119,7 @@ router.post('/work-order', authenticateJWT, async (req: Request, res: Response) 
       card
     })
   } catch (error: any) {
-    console.error('Error sending work order card:', error.message)
+    logger.error('Error sending work order card:', error.message) // Wave 29: Winston logger
     res.status(500).json({ error: error.message })
   }
 })
@@ -176,7 +177,7 @@ router.post('/incident', authenticateJWT, async (req: Request, res: Response) =>
       card
     })
   } catch (error: any) {
-    console.error('Error sending incident card:', error.message)
+    logger.error('Error sending incident card:', error.message) // Wave 29: Winston logger
     res.status(500).json({ error: error.message })
   }
 })
@@ -230,7 +231,7 @@ router.post('/approval', authenticateJWT, async (req: Request, res: Response) =>
       card
     })
   } catch (error: any) {
-    console.error('Error sending approval card:', error.message)
+    logger.error('Error sending approval card:', error.message) // Wave 29: Winston logger
     res.status(500).json({ error: error.message })
   }
 })
@@ -278,7 +279,7 @@ router.post('/driver-performance', authenticateJWT, async (req: Request, res: Re
       card
     })
   } catch (error: any) {
-    console.error('Error sending performance card:', error.message)
+    logger.error('Error sending performance card:', error.message) // Wave 29: Winston logger
     res.status(500).json({ error: error.message })
   }
 })
@@ -334,7 +335,7 @@ router.post('/fuel-receipt', authenticateJWT, async (req: Request, res: Response
       card
     })
   } catch (error: any) {
-    console.error('Error sending fuel receipt card:', error.message)
+    logger.error('Error sending fuel receipt card:', error.message) // Wave 29: Winston logger
     res.status(500).json({ error: error.message })
   }
 })
@@ -390,7 +391,7 @@ router.post('/inspection-checklist', authenticateJWT, async (req: Request, res: 
       card
     })
   } catch (error: any) {
-    console.error('Error sending inspection card:', error.message)
+    logger.error('Error sending inspection card:', error.message) // Wave 29: Winston logger
     res.status(500).json({ error: error.message })
   }
 })
@@ -418,7 +419,7 @@ router.post('/:cardType/action', authenticateJWT, async (req: Request, res: Resp
       res.status(400).json(result)
     }
   } catch (error: any) {
-    console.error('Error handling card action:', error.message)
+    logger.error('Error handling card action:', error.message) // Wave 29: Winston logger
     res.status(500).json({ error: error.message })
   }
 })
@@ -483,7 +484,7 @@ router.get('/preview/:cardType', authenticateJWT, async (req: Request, res: Resp
 
     res.json({ card })
   } catch (error: any) {
-    console.error('Error generating card preview:', error.message)
+    logger.error('Error generating card preview:', error.message) // Wave 29: Winston logger
     res.status(500).json({ error: error.message })
   }
 })
