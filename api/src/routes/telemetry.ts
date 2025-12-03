@@ -5,6 +5,13 @@ import { auditLog } from '../middleware/audit'
 import pool from '../config/database'
 import { z } from 'zod'
 import { buildInsertClause, buildUpdateClause } from '../utils/sql-safety'
+import { validate } from '../middleware/validation'
+import {
+  createTelemetrySchema,
+  updateTelemetrySchema,
+  getTelemetryQuerySchema,
+  bulkTelemetrySchema
+} from '../schemas/telemetry.schema'
 
 const router = express.Router()
 router.use(authenticateJWT)
@@ -14,6 +21,7 @@ router.get(
   '/',
   requirePermission('telemetry:view:fleet'),
   rateLimit(10, 60000),
+  validate(getTelemetryQuerySchema, 'query'),
   auditLog({ action: 'READ', resourceType: 'telemetry_data' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -76,6 +84,7 @@ router.post(
   '/',
   requirePermission('telemetry:view:fleet'),
   rateLimit(10, 60000),
+  validate(createTelemetrySchema, 'body'),
   auditLog({ action: 'CREATE', resourceType: 'telemetry_data' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -105,6 +114,7 @@ router.put(
   `/:id`,
   requirePermission('telemetry:view:fleet'),
   rateLimit(10, 60000),
+  validate(updateTelemetrySchema, 'body'),
   auditLog({ action: 'UPDATE', resourceType: 'telemetry_data' }),
   async (req: AuthRequest, res: Response) => {
     try {
