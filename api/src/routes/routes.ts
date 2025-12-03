@@ -1,4 +1,5 @@
 import express, { Response } from 'express'
+import logger from '../config/logger'; // Wave 17: Add Winston logger
 import { AuthRequest, authenticateJWT } from '../middleware/auth'
 import { requirePermission } from '../middleware/permissions'
 import { auditLog } from '../middleware/audit'
@@ -80,7 +81,7 @@ router.get(
         }
       })
     } catch (error) {
-      console.error('Get routes error:', error)
+      logger.error('Get routes error:', error) // Wave 17: Winston logger
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -146,7 +147,7 @@ router.get(
 
       res.json(result.rows[0])
     } catch (error) {
-      console.error('Get routes error:', error)
+      logger.error('Get routes error:', error) // Wave 17: Winston logger
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -174,7 +175,7 @@ router.post(
 
       res.status(201).json(result.rows[0])
     } catch (error) {
-      console.error(`Create routes error:`, error)
+      logger.error(`Create routes error:`, error) // Wave 17: Winston logger
       res.status(500).json({ error: `Internal server error` })
     }
   }
@@ -248,7 +249,7 @@ router.put(
 
       res.json(result.rows[0])
     } catch (error) {
-      console.error(`Update routes error:`, error)
+      logger.error(`Update routes error:`, error) // Wave 17: Winston logger
       res.status(500).json({ error: `Internal server error` })
     }
   }
@@ -272,7 +273,7 @@ router.delete(
 
       res.json({ message: 'Routes deleted successfully' })
     } catch (error) {
-      console.error('Delete routes error:', error)
+      logger.error('Delete routes error:', error) // Wave 17: Winston logger
       res.status(500).json({ error: 'Internal server error' })
     }
   }
