@@ -76,7 +76,7 @@ export const initSentry = () => {
           ],
           // Capture interactions like clicks
           markBackgroundTransactions: true,
-          // React Router v6 instrumentation
+          // React Router v6 instrumentation (v10 API compatibility pending)
           routingInstrumentation: Sentry.reactRouterV6Instrumentation(
             useEffect,
             useLocation,
