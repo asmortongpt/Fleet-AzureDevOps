@@ -25,7 +25,7 @@ const logger = createLogger({
 // Zod schema for environment validation
 const envSchema = z.object({
   AZURE_KEY_VAULT_URL: z.string().url().optional(),
-  JWT_SECRET: z.string().min(32).refine((s) => s !== "", "JWT_SECRET cannot be empty").refine((s) => s !== "", "JWT_SECRET cannot be empty"),
+  JWT_SECRET: z.string().min(32).refine((s) => s !== "", "JWT_SECRET cannot be empty"),
   TENANT_ID: z.string().uuid(),
 });
 
