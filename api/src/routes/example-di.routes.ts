@@ -1,4 +1,5 @@
 /**
+import logger from '../config/logger'; // Wave 33: Add Winston logger (FINAL WAVE!)
  * Example Routes with Dependency Injection
  *
  * This file demonstrates how to use the DI container in route handlers.
@@ -67,7 +68,7 @@ router.get('/vehicle-count', authenticateJWT, async (req: Request, res: Response
       count
     })
   } catch (error) {
-    console.error('Error in vehicle-count route:', error)
+    logger.error('Error in vehicle-count route:', error) // Wave 33: Winston logger (FINAL WAVE!)
     res.status(500).json({
       success: false,
       error: 'Failed to retrieve vehicle count'
@@ -124,7 +125,7 @@ router.post('/vehicle-action/:vehicleId', authenticateJWT, async (req: Request, 
 
     res.json(result)
   } catch (error) {
-    console.error('Error in vehicle-action route:', error)
+    logger.error('Error in vehicle-action route:', error) // Wave 33: Winston logger (FINAL WAVE!)
     res.status(500).json({
       success: false,
       error: 'Failed to perform action'
@@ -189,7 +190,7 @@ router.get('/test-di', async (req: Request, res: Response) => {
         : 'DI container is not available - ensure containerMiddleware is registered in server.ts'
     })
   } catch (error) {
-    console.error('Error testing DI:', error)
+    logger.error('Error testing DI:', error) // Wave 33: Winston logger (FINAL WAVE!)
     res.status(500).json({
       success: false,
       error: 'Failed to test DI container'
@@ -231,7 +232,7 @@ router.post('/complex-operation/:vehicleId', authenticateJWT, async (req: Reques
       actionResult
     })
   } catch (error) {
-    console.error('Error in complex operation:', error)
+    logger.error('Error in complex operation:', error) // Wave 33: Winston logger (FINAL WAVE!)
     res.status(500).json({
       success: false,
       error: 'Failed to complete complex operation'
