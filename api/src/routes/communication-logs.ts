@@ -1,4 +1,5 @@
 import express, { Response } from 'express'
+import logger from '../config/logger'; // Wave 16: Add Winston logger
 import { AuthRequest, authenticateJWT } from '../middleware/auth'
 import { requirePermission } from '../middleware/permissions'
 import { auditLog } from '../middleware/audit'
@@ -40,7 +41,7 @@ router.get(
         }
       })
     } catch (error) {
-      console.error(`Get communication-logs error:`, error)
+      logger.error(`Get communication-logs error:`, error) // Wave 16: Winston logger
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -64,7 +65,7 @@ router.get(
 
       res.json(result.rows[0])
     } catch (error) {
-      console.error('Get communication-logs error:', error)
+      logger.error('Get communication-logs error:', error) // Wave 16: Winston logger
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -92,7 +93,7 @@ router.post(
 
       res.status(201).json(result.rows[0])
     } catch (error) {
-      console.error(`Create communication-logs error:`, error)
+      logger.error(`Create communication-logs error:`, error) // Wave 16: Winston logger
       res.status(500).json({ error: `Internal server error` })
     }
   }
@@ -119,7 +120,7 @@ router.put(
 
       res.json(result.rows[0])
     } catch (error) {
-      console.error(`Update communication-logs error:`, error)
+      logger.error(`Update communication-logs error:`, error) // Wave 16: Winston logger
       res.status(500).json({ error: `Internal server error` })
     }
   }
@@ -143,7 +144,7 @@ router.delete(
 
       res.json({ message: 'CommunicationLogs deleted successfully' })
     } catch (error) {
-      console.error('Delete communication-logs error:', error)
+      logger.error('Delete communication-logs error:', error) // Wave 16: Winston logger
       res.status(500).json({ error: 'Internal server error' })
     }
   }
