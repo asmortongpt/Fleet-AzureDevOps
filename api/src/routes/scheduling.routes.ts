@@ -1,4 +1,5 @@
 /**
+import logger from '../config/logger'; // Wave 20: Add Winston logger
  * Scheduling Routes
  * API endpoints for vehicle reservations, maintenance scheduling,
  * service bay management, and calendar integration
@@ -74,7 +75,7 @@ router.get('/reservations', async (req: Request, res: Response) => {
       reservations: result.rows
     })
   } catch (error) {
-    console.error('Error fetching reservations:', error)
+    logger.error('Error fetching reservations:', error) // Wave 20: Winston logger
     res.status(500).json({ error: 'Failed to fetch reservations' })
   }
 })
@@ -132,7 +133,7 @@ router.post('/reservations', async (req: Request, res: Response) => {
       reservation
     })
   } catch (error) {
-    console.error('Error creating reservation:', error)
+    logger.error('Error creating reservation:', error) // Wave 20: Winston logger
     res.status(500).json({
       error: (error as Error).message || 'Failed to create reservation'
     })
@@ -190,7 +191,7 @@ router.patch('/reservations/:id', async (req: Request, res: Response) => {
       reservation: result.rows[0]
     })
   } catch (error) {
-    console.error('Error updating reservation:', error)
+    logger.error('Error updating reservation:', error) // Wave 20: Winston logger
     res.status(500).json({ error: 'Failed to update reservation' })
   }
 })
@@ -221,7 +222,7 @@ router.delete('/reservations/:id', async (req: Request, res: Response) => {
       message: 'Reservation cancelled successfully'
     })
   } catch (error) {
-    console.error('Error cancelling reservation:', error)
+    logger.error('Error cancelling reservation:', error) // Wave 20: Winston logger
     res.status(500).json({ error: 'Failed to cancel reservation' })
   }
 })
@@ -270,7 +271,7 @@ router.post('/reservations/:id/approve', async (req: Request, res: Response) => 
         ...reservation
       })
     } catch (error) {
-      console.error('Error sending approval notification:', error)
+      logger.error('Error sending approval notification:', error) // Wave 20: Winston logger
       // Don't fail the approval if notification fails
     }
 
@@ -280,7 +281,7 @@ router.post('/reservations/:id/approve', async (req: Request, res: Response) => 
       reservation: result.rows[0]
     })
   } catch (error) {
-    console.error('Error approving reservation:', error)
+    logger.error('Error approving reservation:', error) // Wave 20: Winston logger
     res.status(500).json({ error: 'Failed to approve reservation' })
   }
 })
@@ -330,7 +331,7 @@ router.post('/reservations/:id/reject', async (req: Request, res: Response) => {
         ...reservation
       }, reason || 'No reason provided')
     } catch (error) {
-      console.error('Error sending rejection notification:', error)
+      logger.error('Error sending rejection notification:', error) // Wave 20: Winston logger
       // Don't fail the rejection if notification fails
     }
 
@@ -340,7 +341,7 @@ router.post('/reservations/:id/reject', async (req: Request, res: Response) => {
       reservation: result.rows[0]
     })
   } catch (error) {
-    console.error('Error rejecting reservation:', error)
+    logger.error('Error rejecting reservation:', error) // Wave 20: Winston logger
     res.status(500).json({ error: 'Failed to reject reservation' })
   }
 })
@@ -415,7 +416,7 @@ router.get('/maintenance', async (req: Request, res: Response) => {
       appointments: result.rows
     })
   } catch (error) {
-    console.error('Error fetching maintenance appointments:', error)
+    logger.error('Error fetching maintenance appointments:', error) // Wave 20: Winston logger
     res.status(500).json({ error: 'Failed to fetch appointments' })
   }
 })
@@ -469,7 +470,7 @@ router.post('/maintenance', async (req: Request, res: Response) => {
       appointment
     })
   } catch (error) {
-    console.error('Error creating maintenance appointment:', error)
+    logger.error('Error creating maintenance appointment:', error) // Wave 20: Winston logger
     res.status(500).json({
       error: (error as Error).message || 'Failed to create appointment'
     })
@@ -526,7 +527,7 @@ router.patch('/maintenance/:id', async (req: Request, res: Response) => {
       appointment: result.rows[0]
     })
   } catch (error) {
-    console.error('Error updating appointment:', error)
+    logger.error('Error updating appointment:', error) // Wave 20: Winston logger
     res.status(500).json({ error: 'Failed to update appointment' })
   }
 })
@@ -590,7 +591,7 @@ router.post('/check-conflicts', async (req: Request, res: Response) => {
       conflicts
     })
   } catch (error) {
-    console.error('Error checking conflicts:', error)
+    logger.error('Error checking conflicts:', error) // Wave 20: Winston logger
     res.status(500).json({ error: 'Failed to check conflicts' })
   }
 })
@@ -621,7 +622,7 @@ router.get('/available-vehicles', async (req: Request, res: Response) => {
       vehicles
     })
   } catch (error) {
-    console.error('Error finding available vehicles:', error)
+    logger.error('Error finding available vehicles:', error) // Wave 20: Winston logger
     res.status(500).json({ error: 'Failed to find available vehicles' })
   }
 })
@@ -655,7 +656,7 @@ router.get('/available-service-bays', async (req: Request, res: Response) => {
       serviceBays: bays
     })
   } catch (error) {
-    console.error('Error finding available service bays:', error)
+    logger.error('Error finding available service bays:', error) // Wave 20: Winston logger
     res.status(500).json({ error: 'Failed to find available service bays' })
   }
 })
@@ -685,7 +686,7 @@ router.get('/vehicle/:vehicleId/schedule', async (req: Request, res: Response) =
       schedule
     })
   } catch (error) {
-    console.error('Error getting vehicle schedule:', error)
+    logger.error('Error getting vehicle schedule:', error) // Wave 20: Winston logger
     res.status(500).json({ error: 'Failed to get vehicle schedule' })
   }
 })
@@ -717,7 +718,7 @@ router.get('/calendar/integrations', async (req: Request, res: Response) => {
       integrations: result.rows
     })
   } catch (error) {
-    console.error(`Error fetching calendar integrations:`, error)
+    logger.error(`Error fetching calendar integrations:`, error) // Wave 20: Winston logger
     res.status(500).json({ error: `Failed to fetch integrations` })
   }
 })
@@ -737,7 +738,7 @@ router.get('/calendar/google/authorize', async (req: Request, res: Response) => 
       authUrl
     })
   } catch (error) {
-    console.error('Error generating auth URL:', error)
+    logger.error('Error generating auth URL:', error) // Wave 20: Winston logger
     res.status(500).json({ error: 'Failed to generate authorization URL' })
   }
 })
@@ -773,7 +774,7 @@ router.post('/calendar/google/callback', async (req: Request, res: Response) => 
       integration
     })
   } catch (error) {
-    console.error('Error connecting Google Calendar:', error)
+    logger.error('Error connecting Google Calendar:', error) // Wave 20: Winston logger
     res.status(500).json({ error: 'Failed to connect Google Calendar' })
   }
 })
@@ -811,7 +812,7 @@ router.delete('/calendar/integrations/:id', async (req: Request, res: Response) 
       message: `Calendar integration removed successfully`
     })
   } catch (error) {
-    console.error('Error revoking integration:', error)
+    logger.error('Error revoking integration:', error) // Wave 20: Winston logger
     res.status(500).json({ error: 'Failed to remove integration' })
   }
 })
@@ -880,7 +881,7 @@ router.post('/calendar/sync', async (req: Request, res: Response) => {
       res.status(400).json({ error: 'Sync not supported for this provider' })
     }
   } catch (error) {
-    console.error('Error syncing calendar:', error)
+    logger.error('Error syncing calendar:', error) // Wave 20: Winston logger
     res.status(500).json({ error: 'Failed to sync calendar' })
   }
 })
@@ -906,7 +907,7 @@ router.get('/appointment-types', async (req: Request, res: Response) => {
       appointmentTypes: result.rows
     })
   } catch (error) {
-    console.error(`Error fetching appointment types:`, error)
+    logger.error(`Error fetching appointment types:`, error) // Wave 20: Winston logger
     res.status(500).json({ error: `Failed to fetch appointment types` })
   }
 })
