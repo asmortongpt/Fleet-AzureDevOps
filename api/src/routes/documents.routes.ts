@@ -1,4 +1,5 @@
 /**
+import logger from '../config/logger'; // Wave 22: Add Winston logger
  * Document Management Routes
  * Comprehensive document lifecycle and RAG-powered search
  *
@@ -117,7 +118,7 @@ router.post(`/upload`,
       message: 'Document uploaded successfully'
     })
   } catch (error: any) {
-    console.error('Error uploading document:', error)
+    logger.error('Error uploading document:', error) // Wave 22: Winston logger
     res.status(500).json({
       error: 'Failed to upload document',
       details: getErrorMessage(error)
@@ -176,7 +177,7 @@ router.get('/',
 
     res.json(result)
   } catch (error) {
-    console.error('Error fetching documents:', error)
+    logger.error('Error fetching documents:', error) // Wave 22: Winston logger
     res.status(500).json({ error: 'Failed to fetch documents' })
   }
 })
@@ -209,7 +210,7 @@ router.get('/:id',
 
     res.json({ document })
   } catch (error) {
-    console.error('Error fetching document:', error)
+    logger.error('Error fetching document:', error) // Wave 22: Winston logger
     res.status(500).json({ error: 'Failed to fetch document' })
   }
 })
@@ -246,7 +247,7 @@ router.put('/:id',
       message: 'Document updated successfully'
     })
   } catch (error: any) {
-    console.error('Error updating document:', error)
+    logger.error('Error updating document:', error) // Wave 22: Winston logger
     res.status(500).json({
       error: 'Failed to update document',
       details: getErrorMessage(error)
@@ -278,7 +279,7 @@ router.delete('/:id',
 
     res.json({ message: 'Document deleted successfully' })
   } catch (error: any) {
-    console.error('Error deleting document:', error)
+    logger.error('Error deleting document:', error) // Wave 22: Winston logger
     res.status(500).json({
       error: 'Failed to delete document',
       details: getErrorMessage(error)
@@ -320,7 +321,7 @@ router.get('/:id/download',
       message: 'Use the download_url to access the file'
     })
   } catch (error) {
-    console.error('Error downloading document:', error)
+    logger.error('Error downloading document:', error) // Wave 22: Winston logger
     res.status(500).json({ error: 'Failed to download document' })
   }
 })
@@ -346,7 +347,7 @@ router.get('/categories/all',
 
     res.json({ categories })
   } catch (error) {
-    console.error('Error fetching categories:', error)
+    logger.error('Error fetching categories:', error) // Wave 22: Winston logger
     res.status(500).json({ error: 'Failed to fetch categories' })
   }
 })
@@ -376,7 +377,7 @@ router.post('/categories',
       message: 'Category created successfully'
     })
   } catch (error: any) {
-    console.error('Error creating category:', error)
+    logger.error('Error creating category:', error) // Wave 22: Winston logger
     res.status(500).json({
       error: 'Failed to create category',
       details: getErrorMessage(error)
@@ -428,7 +429,7 @@ router.post('/search',
 
     res.json({ results, total: results.length })
   } catch (error: any) {
-    console.error('Error performing semantic search:', error)
+    logger.error('Error performing semantic search:', error) // Wave 22: Winston logger
     res.status(500).json({
       error: 'Failed to perform search',
       details: getErrorMessage(error)
@@ -483,7 +484,7 @@ router.post('/ask',
 
     res.json(result)
   } catch (error: any) {
-    console.error('Error answering question:', error)
+    logger.error('Error answering question:', error) // Wave 22: Winston logger
     res.status(500).json({
       error: 'Failed to answer question',
       details: getErrorMessage(error)
@@ -517,7 +518,7 @@ router.get('/queries/history',
 
     res.json({ queries: history })
   } catch (error) {
-    console.error('Error fetching query history:', error)
+    logger.error('Error fetching query history:', error) // Wave 22: Winston logger
     res.status(500).json({ error: 'Failed to fetch query history' })
   }
 })
@@ -544,7 +545,7 @@ router.post('/queries/:id/feedback',
 
     res.json({ message: 'Feedback submitted successfully' })
   } catch (error: any) {
-    console.error('Error submitting feedback:', error)
+    logger.error('Error submitting feedback:', error) // Wave 22: Winston logger
     res.status(500).json({
       error: 'Failed to submit feedback',
       details: getErrorMessage(error)
@@ -574,7 +575,7 @@ router.get('/:id/access-log',
 
     res.json({ access_log: accessLog })
   } catch (error) {
-    console.error('Error fetching access log:', error)
+    logger.error('Error fetching access log:', error) // Wave 22: Winston logger
     res.status(500).json({ error: 'Failed to fetch access log' })
   }
 })
@@ -606,7 +607,7 @@ router.get('/analytics/stats',
       rag: ragStats
     })
   } catch (error) {
-    console.error('Error fetching analytics:', error)
+    logger.error('Error fetching analytics:', error) // Wave 22: Winston logger
     res.status(500).json({ error: 'Failed to fetch analytics' })
   }
 })
