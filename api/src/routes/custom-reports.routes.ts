@@ -1,4 +1,5 @@
 import express, { Response } from 'express'
+import logger from '../config/logger'; // Wave 21: Add Winston logger
 import { AuthRequest, authenticateJWT } from '../middleware/auth'
 import { requirePermission } from '../middleware/permissions'
 import { auditLog } from '../middleware/audit'
@@ -21,7 +22,7 @@ router.get(
       const dataSources = await customReportService.getDataSources()
       res.json(dataSources)
     } catch (error) {
-      console.error('Get data sources error:', error)
+      logger.error('Get data sources error:', error) // Wave 21: Winston logger
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -36,7 +37,7 @@ router.get(
       const templates = await customReportService.getTemplates(req.user!.tenant_id)
       res.json(templates)
     } catch (error) {
-      console.error('Get templates error:', error)
+      logger.error('Get templates error:', error) // Wave 21: Winston logger
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -65,7 +66,7 @@ router.post(
 
       res.status(201).json(report)
     } catch (error) {
-      console.error('Create from template error:', error)
+      logger.error('Create from template error:', error) // Wave 21: Winston logger
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -83,7 +84,7 @@ router.get(
       )
       res.json(reports)
     } catch (error) {
-      console.error('List reports error:', error)
+      logger.error('List reports error:', error) // Wave 21: Winston logger
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -108,7 +109,7 @@ router.get(
 
       res.json(report)
     } catch (error) {
-      console.error('Get report error:', error)
+      logger.error('Get report error:', error) // Wave 21: Winston logger
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -137,7 +138,7 @@ router.post(
 
       res.status(201).json(report)
     } catch (error) {
-      console.error('Create report error:', error)
+      logger.error('Create report error:', error) // Wave 21: Winston logger
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -162,7 +163,7 @@ router.put(
 
       res.json(report)
     } catch (error) {
-      console.error('Update report error:', error)
+      logger.error('Update report error:', error) // Wave 21: Winston logger
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -181,7 +182,7 @@ router.delete(
 
       res.json({ message: 'Report deleted successfully' })
     } catch (error) {
-      console.error('Delete report error:', error)
+      logger.error('Delete report error:', error) // Wave 21: Winston logger
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -210,7 +211,7 @@ router.post(
 
       res.json(result)
     } catch (error) {
-      console.error('Execute report error:', error)
+      logger.error('Execute report error:', error) // Wave 21: Winston logger
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -231,7 +232,7 @@ router.get(
 
       res.json(history)
     } catch (error) {
-      console.error('Get execution history error:', error)
+      logger.error('Get execution history error:', error) // Wave 21: Winston logger
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -285,14 +286,14 @@ router.get(
         res.send(fileBuffer)
       } catch (error) {
         if (error instanceof PathTraversalError) {
-          console.error(`Security violation - Path traversal attempt:`, getErrorMessage(error))
+          logger.error(`Security violation - Path traversal attempt:`, getErrorMessage(error)) // Wave 21: Winston logger
           return res.status(403).json({ error: 'Access denied' })
         }
-        console.error('File access error:', error)
+        logger.error('File access error:', error) // Wave 21: Winston logger
         return res.status(404).json({ error: 'Report file not found' })
       }
     } catch (error) {
-      console.error('Download report error:', error)
+      logger.error('Download report error:', error) // Wave 21: Winston logger
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -339,7 +340,7 @@ router.post(
 
       res.status(201).json({ scheduleId, message: 'Report scheduled successfully' })
     } catch (error) {
-      console.error('Schedule report error:', error)
+      logger.error('Schedule report error:', error) // Wave 21: Winston logger
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -357,7 +358,7 @@ router.get(
 
       res.json(schedules)
     } catch (error) {
-      console.error('Get schedules error:', error)
+      logger.error('Get schedules error:', error) // Wave 21: Winston logger
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -377,7 +378,7 @@ router.put(
 
       res.json({ message: 'Schedule updated successfully' })
     } catch (error) {
-      console.error('Update schedule error:', error)
+      logger.error('Update schedule error:', error) // Wave 21: Winston logger
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -396,7 +397,7 @@ router.delete(
 
       res.json({ message: 'Schedule deleted successfully' })
     } catch (error) {
-      console.error('Delete schedule error:', error)
+      logger.error('Delete schedule error:', error) // Wave 21: Winston logger
       res.status(500).json({ error: 'Internal server error' })
     }
   }
