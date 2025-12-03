@@ -310,7 +310,7 @@ class K8sClusterOrchestrator:
                                 "command": [
                                     "/bin/sh",
                                     "-c",
-                                    f"""
+                                    """
                                     # Install dependencies
                                     pip install --no-cache-dir requests pyyaml
 
@@ -430,7 +430,9 @@ with open('/config/tasks.json', 'r') as f:
 # Filter tasks for this worker (simplified - would use label selector)
 worker_tasks = all_tasks[:5]  # Take first 5 as example
 
-worker = HonestK8sWorker('{config['id']}', worker_tasks)
+# Get worker ID from environment
+worker_id = os.getenv('WORKER_ID', 'unknown')
+worker = HonestK8sWorker(worker_id, worker_tasks)
 worker.run()
 WORKER_SCRIPT
 
