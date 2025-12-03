@@ -1,4 +1,5 @@
 /**
+import logger from '../config/logger'; // Wave 30: Add Winston logger
  * Vehicle Identification Routes
  *
  * API endpoints for:
@@ -54,7 +55,7 @@ router.post('/qr/generate/:vehicleId', requirePermission('vehicle:update:fleet')
       message: 'QR code generated successfully'
     })
   } catch (error: any) {
-    console.error('Error generating QR code:', error)
+    logger.error('Error generating QR code:', error) // Wave 30: Winston logger
     res.status(500).json({ error: getErrorMessage(error) || 'Failed to generate QR code' })
   }
 })
@@ -102,7 +103,7 @@ router.post('/qr/scan', requirePermission('vehicle:view:fleet'), async (req: Aut
 
     res.json({ vehicle })
   } catch (error: any) {
-    console.error('Error scanning QR code:', error)
+    logger.error('Error scanning QR code:', error) // Wave 30: Winston logger
     res.status(500).json({ error: getErrorMessage(error) || 'Failed to scan QR code' })
   }
 })
@@ -161,7 +162,7 @@ router.post('/vin', requirePermission('vehicle:view:fleet'), async (req: AuthReq
 
     res.json({ vehicle })
   } catch (error: any) {
-    console.error('Error identifying by VIN:', error)
+    logger.error('Error identifying by VIN:', error) // Wave 30: Winston logger
     res.status(500).json({ error: getErrorMessage(error) || 'Failed to identify vehicle' })
   }
 })
@@ -213,7 +214,7 @@ router.post('/license-plate', requirePermission('vehicle:view:fleet'), async (re
 
     res.json({ vehicle })
   } catch (error: any) {
-    console.error('Error identifying by license plate:', error)
+    logger.error('Error identifying by license plate:', error) // Wave 30: Winston logger
     res.status(500).json({ error: getErrorMessage(error) || 'Failed to identify vehicle' })
   }
 })
@@ -268,7 +269,7 @@ router.post('/license-plate/ocr', requirePermission('vehicle:view:fleet'), async
 
     res.json({ vehicle })
   } catch (error: any) {
-    console.error('Error processing license plate image:', error)
+    logger.error('Error processing license plate image:', error) // Wave 30: Winston logger
 
     if (getErrorMessage(error).includes('Azure Computer Vision')) {
       return res.status(501).json({
@@ -315,7 +316,7 @@ router.get('/search', requirePermission('vehicle:view:fleet'), async (req: AuthR
 
     res.json({ vehicles, total: vehicles.length })
   } catch (error: any) {
-    console.error('Error searching vehicles:', error)
+    logger.error('Error searching vehicles:', error) // Wave 30: Winston logger
     res.status(500).json({ error: getErrorMessage(error) || 'Failed to search vehicles' })
   }
 })
@@ -351,7 +352,7 @@ router.get('/label/:vehicleId', requirePermission('vehicle:view:fleet'), async (
 
     res.json(label)
   } catch (error: any) {
-    console.error('Error generating label:', error)
+    logger.error('Error generating label:', error) // Wave 30: Winston logger
     res.status(500).json({ error: getErrorMessage(error) || 'Failed to generate label' })
   }
 })

@@ -1,4 +1,5 @@
 /**
+import logger from '../config/logger'; // Wave 30: Add Winston logger
  * Incident Management Routes
  * Comprehensive incident tracking, investigation, and resolution
  *
@@ -93,7 +94,7 @@ router.get('/', requirePermission('safety_incident:view:global'), async (req: Au
       total: result.rows.length
     })
   } catch (error) {
-    console.error('Error fetching incidents:', error)
+    logger.error('Error fetching incidents:', error) // Wave 30: Winston logger
     res.status(500).json({ error: 'Failed to fetch incidents' })
   }
 })
@@ -168,7 +169,7 @@ router.get('/:id', requirePermission('safety_incident:view:global'), async (req:
       witnesses: witnesses.rows
     })
   } catch (error) {
-    console.error('Error fetching incident:', error)
+    logger.error('Error fetching incident:', error) // Wave 30: Winston logger
     res.status(500).json({ error: 'Failed to fetch incident' })
   }
 })
@@ -235,7 +236,7 @@ router.post('/', requirePermission('safety_incident:create:global'), async (req:
     })
   } catch (error) {
     await client.query('ROLLBACK')
-    console.error('Error creating incident:', error)
+    logger.error('Error creating incident:', error) // Wave 30: Winston logger
     res.status(500).json({ error: 'Failed to create incident' })
   } finally {
     client.release()
@@ -301,7 +302,7 @@ router.put('/:id', requirePermission('safety_incident:update:global'), async (re
     })
   } catch (error) {
     await client.query(`ROLLBACK`)
-    console.error('Error updating incident:', error)
+    logger.error('Error updating incident:', error) // Wave 30: Winston logger
     res.status(500).json({ error: 'Failed to update incident' })
   } finally {
     client.release()
@@ -341,7 +342,7 @@ router.post('/:id/actions', requirePermission('safety_incident:update:global'), 
     })
   } catch (error) {
     await client.query(`ROLLBACK`)
-    console.error('Error adding action:', error)
+    logger.error('Error adding action:', error) // Wave 30: Winston logger
     res.status(500).json({ error: 'Failed to add corrective action' })
   } finally {
     client.release()
@@ -392,7 +393,7 @@ router.post('/:id/close', requirePermission('safety_incident:update:global'), as
     })
   } catch (error) {
     await client.query('ROLLBACK')
-    console.error('Error closing incident:', error)
+    logger.error('Error closing incident:', error) // Wave 30: Winston logger
     res.status(500).json({ error: 'Failed to close incident' })
   } finally {
     client.release()
@@ -436,7 +437,7 @@ router.get('/analytics/summary', requirePermission('safety_incident:view:global'
       monthly_trend: monthlyTrend.rows
     })
   } catch (error) {
-    console.error('Error fetching analytics:', error)
+    logger.error('Error fetching analytics:', error) // Wave 30: Winston logger
     res.status(500).json({ error: 'Failed to fetch analytics' })
   }
 })
