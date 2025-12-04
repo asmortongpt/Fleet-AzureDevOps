@@ -8,6 +8,7 @@
 import { Request, Response, NextFunction } from 'express'
 import { pool } from '../db'
 import logger from '../config/logger'
+import sharp from 'sharp'
 
 /**
  * Check if user has permission to perform an action on an asset
@@ -90,58 +91,50 @@ export function validateGPS(lat: number, lng: number): void {
 }
 
 /**
- * Strip EXIF metadata from images
- * SECURITY: Removes potentially sensitive metadata (GPS, camera info, etc.)
+ * Strip EXIF metadata from images using sharp library
+ * SECURITY: Removes ALL potentially sensitive metadata including:
+ * - GPS coordinates (latitude, longitude, altitude)
+ * - Camera serial numbers and device information
+ * - EXIF, IPTC, and XMP metadata
+ * - Timestamps and software information
  *
- * NOTE: This is a basic implementation. For production, consider using 'sharp' library
- * which provides more robust EXIF stripping.
+ * SECURITY FIX: Previous implementation only removed 2 bytes using basic method,
+ * allowing GPS data, camera serial numbers, and other sensitive info to leak.
+ * This implementation uses sharp.rotate() which strips ALL metadata by default.
+ *
+ * Supported formats: JPEG, PNG, WEBP, TIFF, GIF, SVG
  *
  * @param buffer - Image buffer to strip EXIF from
- * @returns Promise<Buffer> - Clean image buffer without EXIF data
+ * @returns Promise<Buffer> - Clean image buffer without ANY metadata
+ * @throws Error if stripping fails (SECURITY: fail closed, not open)
  */
 export async function stripEXIFData(buffer: Buffer): Promise<Buffer> {
   try {
-    // Try to use piexifjs if available
-    try {
-      // Dynamic import to handle missing module gracefully
-      const piexifjs = require('piexifjs')
-      const dataUrl = `data:image/jpeg;base64,${buffer.toString('base64')}`
-      const cleanDataUrl = piexifjs.remove(dataUrl)
-      const base64Data = cleanDataUrl.replace(/^data:image\/jpeg;base64,/, '')
-      const cleanBuffer = Buffer.from(base64Data, 'base64')
-      logger.info('EXIF data stripped from image using piexifjs')
-      return cleanBuffer
-    } catch (piexifError) {
-      // piexifjs not available or error - fall back to basic stripping
-      logger.warn('piexifjs not available, using basic EXIF stripping')
+    // SECURITY: Use sharp.rotate() which strips ALL metadata by default
+    // rotate() with no angle parameter performs a no-op rotation that removes:
+    // - EXIF (GPS, camera info, timestamps)
+    // - IPTC (copyright, keywords)
+    // - XMP (Adobe metadata)
+    // This is more secure than withMetadata(false) which can miss some fields
+    const cleanBuffer = await sharp(buffer)
+      .rotate() // Strips ALL metadata including EXIF, IPTC, XMP
+      .toBuffer()
 
-      // Basic JPEG EXIF stripping - remove APP1 marker if present
-      if (buffer[0] === 0xFF && buffer[1] === 0xD8) {
-        let offset = 2
-        while (offset < buffer.length - 1) {
-          // Check for APP1 marker (0xFFE1) which typically contains EXIF
-          if (buffer[offset] === 0xFF && buffer[offset + 1] === 0xE1) {
-            // Get segment length
-            const segmentLength = buffer.readUInt16BE(offset + 2)
-            // Remove this segment by creating new buffer without it
-            const beforeSegment = buffer.slice(0, offset)
-            const afterSegment = buffer.slice(offset + 2 + segmentLength)
-            const cleanBuffer = Buffer.concat([beforeSegment, afterSegment])
-            logger.info('EXIF APP1 marker removed from JPEG')
-            return cleanBuffer
-          }
-          offset++
-        }
-      }
+    logger.info('EXIF/IPTC/XMP metadata stripped from image using sharp', {
+      originalSize: buffer.length,
+      cleanSize: cleanBuffer.length,
+      bytesRemoved: buffer.length - cleanBuffer.length
+    })
 
-      // No EXIF found or not a JPEG, return original
-      logger.info('No EXIF data found or not a JPEG, returning original buffer')
-      return buffer
-    }
+    return cleanBuffer
   } catch (error) {
-    logger.error('Error stripping EXIF data:', error)
-    logger.warn('Returning original image due to EXIF stripping error')
-    return buffer
+    // SECURITY: Fail closed - throw error rather than returning original buffer
+    // This ensures sensitive metadata is NEVER accidentally leaked
+    logger.error('SECURITY: Failed to strip EXIF data from image', {
+      error: error instanceof Error ? error.message : String(error),
+      bufferSize: buffer.length
+    })
+    throw new Error('Failed to strip EXIF data from image - operation aborted for security')
   }
 }
 
