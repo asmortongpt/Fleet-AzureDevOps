@@ -27,6 +27,7 @@ import cors from 'cors'
 import { securityHeaders } from './middleware/security-headers'
 import { getCorsConfig, validateCorsConfiguration } from './middleware/corsConfig'
 import { globalLimiter, smartRateLimiter } from './middleware/rateLimiter'
+import { csrfProtection, getCsrfToken } from './middleware/csrf'
 
 // Core Fleet Management Routes
 import vehiclesRouter from './routes/vehicles'
@@ -233,6 +234,11 @@ app.use((req, res, next) => {
     next()
   }
 })
+
+// CSRF Token endpoint
+app.get('/api/csrf-token', csrfProtection, getCsrfToken)
+app.get('/api/v1/csrf-token', csrfProtection, getCsrfToken)
+app.get('/api/csrf', csrfProtection, getCsrfToken)
 
 // Health check
 app.get('/health', (_req, res) => {
