@@ -56,9 +56,10 @@ router.get(
       }
 
       // Get user's scope for row-level filtering
+      // SECURITY: Include tenant_id to prevent cross-tenant user data access
       const userResult = await pool.query(
-        `SELECT facility_ids, scope_level FROM users WHERE id = $1`,
-        [req.user!.id]
+        `SELECT facility_ids, scope_level FROM users WHERE id = $1 AND tenant_id = $2`,
+        [req.user!.id, req.user!.tenant_id]
       )
 
       const user = userResult.rows[0]
@@ -182,9 +183,10 @@ router.post(
 
       // Validate facility_id is in user's scope
       if (validated.facility_id) {
+        // SECURITY: Include tenant_id to prevent cross-tenant user data access
         const userResult = await pool.query(
-          `SELECT facility_ids, scope_level FROM users WHERE id = $1`,
-          [req.user!.id]
+          `SELECT facility_ids, scope_level FROM users WHERE id = $1 AND tenant_id = $2`,
+          [req.user!.id, req.user!.tenant_id]
         )
         const user = userResult.rows[0]
 
