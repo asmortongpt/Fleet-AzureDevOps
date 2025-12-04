@@ -46,7 +46,7 @@ const createReauthDecisionSchema = z.object({
   modification_notes: z.string().optional(),
   new_vehicle_id: z.string().uuid().optional(),
   new_driver_id: z.string().uuid().optional(),
-  parameter_changes: z.record(z.any()).optional(),
+  parameter_changes: z.record(z.any().optional(),
   termination_reason: z.string().optional(),
   termination_effective_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
   director_notes: z.string().optional(),
@@ -73,7 +73,7 @@ router.get(
 
       if (year) {
         whereConditions.push(`arc.year = $${paramIndex++}`);
-        params.push(parseInt(year as string));
+        params.push(parseInt(year as string);
       }
       if (status) {
         whereConditions.push(`arc.status = $${paramIndex++}`);
@@ -103,7 +103,7 @@ router.get(
         FROM annual_reauthorization_cycles arc
         WHERE ${whereClause}
       `;
-      const countResult = await pool.query(countQuery, params.slice(0, -2));
+      const countResult = await pool.query(countQuery, params.slice(0, -2);
       const total = parseInt(countResult.rows[0].total);
 
       res.json({
@@ -112,7 +112,7 @@ router.get(
           page: parseInt(page as string),
           limit: parseInt(limit as string),
           total,
-          pages: Math.ceil(total / parseInt(limit as string)),
+          pages: Math.ceil(total / parseInt(limit as string),
         },
       });
     } catch (error: any) {
@@ -420,7 +420,7 @@ router.post(
       const result = await pool.query(query, [user_id, id, tenant_id]);
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'Reauthorization cycle not found' });
+        return throw new NotFoundError("Reauthorization cycle not found");
       }
 
       res.json({

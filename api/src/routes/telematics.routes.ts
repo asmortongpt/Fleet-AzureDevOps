@@ -27,7 +27,7 @@ try {
     console.log('✅ Samsara service initialized')
   }
 } catch (error: any) {
-  console.warn('⚠️  Samsara service not initialized:', getErrorMessage(error))
+  console.warn('⚠️  Samsara service not initialized:', getErrorMessage(error)
 }
 
 /**
@@ -57,10 +57,10 @@ router.get(
           motive: !!process.env.MOTIVE_API_KEY,
           smartcar: !!process.env.SMARTCAR_CLIENT_ID
         }
-      }))
+      })
     } catch (error) {
       logger.error(`Get providers error:`, error) // Wave 23: Winston logger
-      res.status(500).json({ error: `Internal server error` }))
+      res.status(500).json({ error: `Internal server error` })
     }
   }
 )
@@ -80,7 +80,7 @@ router.post(
       if (!vehicle_id || !provider_name || !external_vehicle_id) {
         return res.status(400).json({
           error: 'vehicle_id, provider_name, and external_vehicle_id are required'
-        }))
+        })
       }
 
       // Get provider ID
@@ -90,7 +90,7 @@ router.post(
       )
 
       if (providerResult.rows.length === 0) {
-        return res.status(404).json({ error: `Provider not found` }))
+        return res.status(404).json({ error: `Provider not found` })
       }
 
       const provider_id = providerResult.rows[0].id
@@ -114,10 +114,10 @@ router.post(
       res.status(201).json({
         message: 'Vehicle connected successfully',
         connection: result.rows[0]
-      }))
+      })
     } catch (error: any) {
       logger.error('Connect vehicle error:', error) // Wave 23: Winston logger
-      res.status(500).json({ error: 'Internal server error' }))
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )
@@ -147,10 +147,10 @@ router.get(
         [req.user!.tenant_id]
       )
 
-      res.json({ connections: result.rows }))
+      res.json({ connections: result.rows })
     } catch (error) {
       logger.error(`Get connections error:`, error) // Wave 23: Winston logger
-      res.status(500).json({ error: `Internal server error` }))
+      res.status(500).json({ error: `Internal server error` })
     }
   }
 )
@@ -181,13 +181,13 @@ router.get(
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: `No location data found` }))
+        return res.status(404).json({ error: `No location data found` })
       }
 
       res.json(result.rows[0])
     } catch (error) {
       logger.error(`Get vehicle location error:`, error) // Wave 23: Winston logger
-      res.status(500).json({ error: 'Internal server error' }))
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )
@@ -222,13 +222,13 @@ router.get(
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: `No stats data found` }))
+        return res.status(404).json({ error: `No stats data found` })
       }
 
       res.json(result.rows[0])
     } catch (error) {
       logger.error(`Get vehicle stats error:`, error) // Wave 23: Winston logger
-      res.status(500).json({ error: 'Internal server error' }))
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )
@@ -275,10 +275,10 @@ router.get(
         vehicle_id: req.params.id,
         points: result.rows,
         count: result.rows.length
-      }))
+      })
     } catch (error) {
       logger.error(`Get vehicle history error:`, error) // Wave 23: Winston logger
-      res.status(500).json({ error: 'Internal server error' }))
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )
@@ -349,7 +349,7 @@ router.get(
       const result = await pool.query(query, params)
 
       const countQuery = query.split('ORDER BY')[0].replace(/SELECT .* FROM/, 'SELECT COUNT(*) FROM')
-      const countResult = await pool.query(countQuery, params.slice(0, -2))
+      const countResult = await pool.query(countQuery, params.slice(0, -2)
 
       res.json({
         events: result.rows,
@@ -357,12 +357,12 @@ router.get(
           page: Number(page),
           limit: Number(limit),
           total: parseInt(countResult.rows[0].count),
-          pages: Math.ceil(countResult.rows[0].count / Number(limit))
+          pages: Math.ceil(countResult.rows[0].count / Number(limit)
         }
-      }))
+      })
     } catch (error) {
       logger.error(`Get safety events error:`, error) // Wave 23: Winston logger
-      res.status(500).json({ error: 'Internal server error' }))
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )
@@ -378,13 +378,13 @@ router.post(
   async (req: AuthRequest, res: Response) => {
     try {
       if (!samsaraService) {
-        return res.status(503).json({ error: 'Samsara service not available' }))
+        return res.status(503).json({ error: 'Samsara service not available' })
       }
 
       const { vehicle_id, start_time, duration_seconds = 30 } = req.body
 
       if (!vehicle_id || !start_time) {
-        return res.status(400).json({ error: 'vehicle_id and start_time are required' }))
+        return throw new ValidationError("vehicle_id and start_time are required")
       }
 
       // Get Samsara external ID
@@ -397,7 +397,7 @@ router.post(
       )
 
       if (connResult.rows.length === 0) {
-        return res.status(404).json({ error: 'Vehicle not connected to Samsara' }))
+        return throw new NotFoundError("Vehicle not connected to Samsara")
       }
 
       const externalVehicleId = connResult.rows[0].external_vehicle_id
@@ -414,10 +414,10 @@ router.post(
         request_id: videoRequest.requestId,
         status: videoRequest.status,
         expires_at: videoRequest.expiresAt
-      }))
+      })
     } catch (error: any) {
       logger.error('Request video error:', error) // Wave 23: Winston logger
-      res.status(500).json({ error: getErrorMessage(error) || 'Internal server error' }))
+      res.status(500).json({ error: getErrorMessage(error) || 'Internal server error' })
     }
   }
 )
@@ -434,7 +434,7 @@ router.get(
   async (req: AuthRequest, res: Response) => {
     try {
       if (!samsaraService) {
-        return res.status(503).json({ error: 'Samsara service not available' }))
+        return res.status(503).json({ error: 'Samsara service not available' })
       }
 
       const status = await samsaraService.getVideoStatus(req.params.requestId)
@@ -442,7 +442,7 @@ router.get(
       res.json(status)
     } catch (error: any) {
       logger.error('Get video status error:', error) // Wave 23: Winston logger
-      res.status(500).json({ error: getErrorMessage(error) || 'Internal server error' }))
+      res.status(500).json({ error: getErrorMessage(error) || 'Internal server error' })
     }
   }
 )
@@ -468,7 +468,7 @@ router.post(
 
         if (signature !== expectedSignature) {
           logger.error('Invalid webhook signature') // Wave 23: Winston logger
-          return res.status(401).json({ error: 'Invalid signature' }))
+          return res.status(401).json({ error: 'Invalid signature' })
         }
       }
 
@@ -486,10 +486,10 @@ router.post(
       // - hos: Update driver_hos_logs
       // - diagnostic: Insert into vehicle_diagnostic_codes
 
-      res.json({ message: 'Webhook received' }))
+      res.json({ message: 'Webhook received' })
     } catch (error) {
       logger.error('Webhook error:', error) // Wave 23: Winston logger
-      res.status(500).json({ error: 'Internal server error' }))
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )
@@ -505,7 +505,7 @@ router.post(
   async (req: AuthRequest, res: Response) => {
     try {
       if (!samsaraService) {
-        return res.status(503).json({ error: 'Samsara service not available' }))
+        return res.status(503).json({ error: 'Samsara service not available' })
       }
 
       const { sync_type = 'full' } = req.body
@@ -532,10 +532,10 @@ router.post(
         message: 'Sync completed successfully',
         sync_type,
         result
-      }))
+      })
     } catch (error: any) {
       logger.error('Sync error:', error) // Wave 23: Winston logger
-      res.status(500).json({ error: getErrorMessage(error) || 'Internal server error' }))
+      res.status(500).json({ error: getErrorMessage(error) || 'Internal server error' })
     }
   }
 )
@@ -590,10 +590,10 @@ router.get(
         safety_events: eventsResult.rows,
         diagnostics: diagnosticsResult.rows,
         timestamp: new Date().toISOString()
-      }))
+      })
     } catch (error) {
       logger.error(`Get dashboard error:`, error) // Wave 23: Winston logger
-      res.status(500).json({ error: `Internal server error` }))
+      res.status(500).json({ error: `Internal server error` })
     }
   }
 )

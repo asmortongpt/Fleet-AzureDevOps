@@ -48,7 +48,7 @@ const createAssignmentSchema = z.object({
   authorized_use: z.string().optional(),
   commuting_authorized: z.boolean().default(false),
   on_call_only: z.boolean().default(false),
-  geographic_constraints: z.record(z.any()).optional(),
+  geographic_constraints: z.record(z.any().optional(),
   requires_secured_parking: z.boolean().default(false),
   secured_parking_location_id: z.string().uuid().optional(),
   recommendation_notes: z.string().optional(),
@@ -174,7 +174,7 @@ router.get(
         WHERE ${whereClause}
       `;
 
-      const countResult = await pool.query(countQuery, params.slice(0, -2)); // Remove limit and offset
+      const countResult = await pool.query(countQuery, params.slice(0, -2); // Remove limit and offset
       const total = parseInt(countResult.rows[0].total);
 
       res.json({
@@ -183,7 +183,7 @@ router.get(
           page: parseInt(page as string),
           limit: parseInt(limit as string),
           total,
-          pages: Math.ceil(total / parseInt(limit as string)),
+          pages: Math.ceil(total / parseInt(limit as string),
         },
       });
     } catch (error: any) {
@@ -243,7 +243,7 @@ router.get(
       const result = await pool.query(query, [id, tenant_id]);
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'Vehicle assignment not found' });
+        return throw new NotFoundError("Vehicle assignment not found");
       }
 
       res.json(result.rows[0]);
@@ -282,7 +282,7 @@ router.post(
 
         const startDate = new Date(data.start_date);
         const endDate = new Date(data.end_date);
-        const daysDiff = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+        const daysDiff = Math.ceil((endDate.getTime() - startDate.getTime() / (1000 * 60 * 60 * 24);
 
         if (daysDiff > 7) {
           return res.status(400).json({
@@ -506,7 +506,7 @@ router.post(
       const result = await pool.query(query, [user_id, notes || null, id, tenant_id]);
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'Vehicle assignment not found' });
+        return throw new NotFoundError("Vehicle assignment not found");
       }
 
       // BR-6.4: Send notification to Executive Team
@@ -690,7 +690,7 @@ router.post(
       ]);
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'Vehicle assignment not found' });
+        return throw new NotFoundError("Vehicle assignment not found");
       }
 
       // BR-6.4: Send termination notification to all stakeholders

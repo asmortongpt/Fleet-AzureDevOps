@@ -13,7 +13,7 @@ import { errorHandler } from '../middleware/errorHandler'
 
 const router = express.Router()
 router.use(authenticateJWT)
-router.use(rateLimit(100, 60000)) // Updated rate limit as per requirements
+router.use(rateLimit(100, 60000) // Updated rate limit as per requirements
 
 // Video Event Schema for validation
 const videoEventSchema = z.object({
@@ -72,7 +72,7 @@ router.get(
           page: Number(page),
           limit: Number(limit),
           total: parseInt(countResult.rows[0].count, 10),
-          pages: Math.ceil(countResult.rows[0].count / Number(limit)),
+          pages: Math.ceil(countResult.rows[0].count / Number(limit),
         },
       })
     } catch (error) {
@@ -149,7 +149,7 @@ router.put(
 
       const result = await pool.query(query, values)
       if (result.rowCount === 0) {
-        return res.status(404).json({ error: 'VideoEvent not found or no update made' })
+        return throw new NotFoundError("VideoEvent not found or no update made")
       }
 
       res.json(result.rows[0])

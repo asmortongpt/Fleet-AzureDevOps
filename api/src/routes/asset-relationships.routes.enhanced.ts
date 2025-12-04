@@ -64,7 +64,7 @@ router.get(
       }
 
       if (validatedQuery.active_only) {
-        query += ` AND (ar.effective_to IS NULL OR ar.effective_to > NOW())`
+        query += ` AND (ar.effective_to IS NULL OR ar.effective_to > NOW()`
       }
 
       query += ` ORDER BY ar.effective_from DESC`

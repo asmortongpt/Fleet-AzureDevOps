@@ -69,16 +69,16 @@ router.post(`/teams/:teamId/channels/:channelId`, async (req: Request, res: Resp
       synced: result.synced,
       errors: result.errors,
       message: `Synced ${result.synced} messages with ${result.errors} errors`
-    }))
+    })
   } catch (error: any) {
     logger.error(`Error syncing Teams channel:`, error) // Wave 26: Winston logger
     res.status(500).json({
       success: false,
       error: 'Failed to sync Teams channel',
       message: getErrorMessage(error)
-    }))
+    })
   }
-}))
+})
 
 /**
  * @openapi
@@ -117,16 +117,16 @@ router.post(`/outlook/folders/:folderId`, async (req: Request, res: Response) =>
       synced: result.synced,
       errors: result.errors,
       message: `Synced ${result.synced} emails with ${result.errors} errors`
-    }))
+    })
   } catch (error: any) {
     logger.error(`Error syncing Outlook folder:`, error) // Wave 26: Winston logger
     res.status(500).json({
       success: false,
       error: 'Failed to sync Outlook folder',
       message: getErrorMessage(error)
-    }))
+    })
   }
-}))
+})
 
 /**
  * @openapi
@@ -150,16 +150,16 @@ router.get('/status', async (req: Request, res: Response) => {
       success: true,
       status,
       totalResources: status.length
-    }))
+    })
   } catch (error: any) {
     logger.error('Error getting sync status:', error) // Wave 26: Winston logger
     res.status(500).json({
       success: false,
       error: 'Failed to get sync status',
       message: getErrorMessage(error)
-    }))
+    })
   }
-}))
+})
 
 /**
  * @openapi
@@ -186,7 +186,7 @@ router.post('/full', async (req: Request, res: Response) => {
       return res.status(403).json({
         success: false,
         error: `Insufficient permissions. Only admins can trigger full re-sync.`
-      }))
+      })
     }
 
     console.log(`Full re-sync requested by ${(req as any).user?.email}`)
@@ -209,16 +209,16 @@ router.post('/full', async (req: Request, res: Response) => {
         errors: outlookResult.totalErrors
       },
       message: `Full re-sync completed`
-    }))
+    })
   } catch (error: any) {
     logger.error(`Error during full re-sync:`, error) // Wave 26: Winston logger
     res.status(500).json({
       success: false,
       error: 'Failed to perform full re-sync',
       message: getErrorMessage(error)
-    }))
+    })
   }
-}))
+})
 
 /**
  * @openapi
@@ -250,16 +250,16 @@ router.get('/errors', async (req: Request, res: Response) => {
       success: true,
       errors,
       totalErrors: errors.length
-    }))
+    })
   } catch (error: any) {
     logger.error('Error getting sync errors:', error) // Wave 26: Winston logger
     res.status(500).json({
       success: false,
       error: 'Failed to get sync errors',
       message: getErrorMessage(error)
-    }))
+    })
   }
-}))
+})
 
 /**
  * @openapi
@@ -300,16 +300,16 @@ router.get('/jobs', async (req: Request, res: Response) => {
       success: true,
       jobs: result.rows,
       totalJobs: result.rows.length
-    }))
+    })
   } catch (error: any) {
     logger.error('Error getting sync jobs:', error) // Wave 26: Winston logger
     res.status(500).json({
       success: false,
       error: 'Failed to get sync jobs',
       message: getErrorMessage(error)
-    }))
+    })
   }
-}))
+})
 
 /**
  * @openapi
@@ -338,16 +338,16 @@ router.post(`/teams/all`, async (req: Request, res: Response) => {
       synced: result.totalSynced,
       errors: result.totalErrors,
       message: `Synced ${result.totalSynced} messages with ${result.totalErrors} errors`
-    }))
+    })
   } catch (error: any) {
     logger.error(`Error syncing all Teams channels:`, error) // Wave 26: Winston logger
     res.status(500).json({
       success: false,
       error: 'Failed to sync Teams channels',
       message: getErrorMessage(error)
-    }))
+    })
   }
-}))
+})
 
 /**
  * @openapi
@@ -376,16 +376,16 @@ router.post(`/outlook/all`, async (req: Request, res: Response) => {
       synced: result.totalSynced,
       errors: result.totalErrors,
       message: `Synced ${result.totalSynced} emails with ${result.totalErrors} errors`
-    }))
+    })
   } catch (error: any) {
     logger.error(`Error syncing all Outlook folders:`, error) // Wave 26: Winston logger
     res.status(500).json({
       success: false,
       error: 'Failed to sync Outlook folders',
       message: getErrorMessage(error)
-    }))
+    })
   }
-}))
+})
 
 /**
  * @openapi
@@ -420,16 +420,16 @@ router.delete('/errors/:id', async (req: Request, res: Response) => {
     res.json({
       success: true,
       message: `Error marked as resolved`
-    }))
+    })
   } catch (error: any) {
     logger.error('Error resolving sync error:', error) // Wave 26: Winston logger
     res.status(500).json({
       success: false,
       error: 'Failed to resolve error',
       message: getErrorMessage(error)
-    }))
+    })
   }
-}))
+})
 
 /**
  * @openapi
@@ -506,15 +506,15 @@ router.get('/health', async (req: Request, res: Response) => {
         },
         syncState: syncStateStats.rows
       }
-    }))
+    })
   } catch (error: any) {
     logger.error('Error getting sync health:', error) // Wave 26: Winston logger
     res.status(500).json({
       success: false,
       error: 'Failed to get health status',
       message: getErrorMessage(error)
-    }))
+    })
   }
-}))
+})
 
 export default router

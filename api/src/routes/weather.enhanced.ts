@@ -16,9 +16,9 @@ dotenv.config();
 
 const app = express();
 
-app.use(express.json());
-app.use(helmet());
-app.use(express.static('public', { maxAge: '1y', immutable: true }));
+app.use(express.json();
+app.use(helmet();
+app.use(express.static('public', { maxAge: '1y', immutable: true });
 
 const limiter = rateLimit({
   windowMs: 1 * 60 * 1000, // 1 minute
@@ -26,7 +26,7 @@ const limiter = rateLimit({
 });
 
 app.use(limiter);
-app.use(csurf());
+app.use(csurf();
 
 // JWT middleware
 app.use(
@@ -40,7 +40,7 @@ app.use(
     audience: process.env.AUDIENCE,
     issuer: process.env.ISSUER,
     algorithms: ['RS256'],
-  }))
+  })
 );
 
 const pool = new Pool({
