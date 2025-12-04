@@ -15,7 +15,6 @@ const router = Router()
 
 // GET all cost entries with filtering and pagination
 router.get('/', asyncHandler(async (req, res) => {
-// TODO: const service = container.resolve('"Service"')
   try {
     const {
       page = 1,
@@ -120,7 +119,6 @@ router.get('/', asyncHandler(async (req, res) => {
 
 // GET costs for specific vehicle
 router.get('/vehicle/:vehicleId', asyncHandler(async (req, res) => {
-// TODO: const service = container.resolve('"Service"')
   try {
     const { vehicleId } = req.params
     const {
@@ -183,7 +181,6 @@ router.get('/vehicle/:vehicleId', asyncHandler(async (req, res) => {
 
 // GET cost analytics and trends
 router.get('/analytics', asyncHandler(async (req, res) => {
-// TODO: const service = container.resolve('"Service"')
   try {
     const { startDate, endDate } = req.query
 
@@ -208,7 +205,6 @@ router.get('/analytics', asyncHandler(async (req, res) => {
 
 // GET budget vs actual tracking
 router.get('/budget', asyncHandler(async (req, res) => {
-// TODO: const service = container.resolve('"Service"')
   try {
     const { month } = req.query
 
@@ -307,7 +303,6 @@ router.get('/budget/alerts', async (_req, res) => {
 
 // GET cost breakdown by department
 router.get('/department-analysis', asyncHandler(async (req, res) => {
-// TODO: const service = container.resolve('"Service"')
   try {
     const { startDate, endDate } = req.query
 
@@ -334,7 +329,6 @@ router.get('/department-analysis', asyncHandler(async (req, res) => {
 
 // GET vendor analysis
 router.get('/vendor-analysis', asyncHandler(async (req, res) => {
-// TODO: const service = container.resolve('"Service"')
   try {
     const { startDate, endDate, limit = 20 } = req.query
 
@@ -381,7 +375,6 @@ router.get('/export', async (_req, res) => {
 
 // POST create new cost entry
 router.post('/', asyncHandler(async (req, res): Promise<any> => {
-// TODO: const service = container.resolve('"Service"')
   try {
     const {
       vehicleId,
@@ -454,7 +447,6 @@ router.post('/', asyncHandler(async (req, res): Promise<any> => {
 
 // POST bulk import costs
 router.post('/bulk-import', asyncHandler(async (req, res): Promise<any> => {
-// TODO: const service = container.resolve('"Service"')
   try {
     const { costs } = req.body
 

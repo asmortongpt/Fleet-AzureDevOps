@@ -13,7 +13,6 @@ const validator = new TenantValidator(db);
 
 // GET all maintenance records
 router.get("/", asyncHandler(async (req, res) => {
-// TODO: const service = container.resolve('"Service"')
   try {
     const {
       page = 1,
@@ -89,7 +88,6 @@ router.get("/", asyncHandler(async (req, res) => {
 
 // GET maintenance record by ID
 router.get("/:id", asyncHandler(async (req, res) => {
-// TODO: const service = container.resolve('"Service"')
   try {
     // Wave 13: Cache-aside pattern for single record
     const cacheKey = `maintenance:${req.params.id}`
@@ -114,7 +112,6 @@ router.get("/:id", asyncHandler(async (req, res) => {
 
 // GET maintenance records by vehicle ID
 router.get("/vehicle/:vehicleId", asyncHandler(async (req, res) => {
-// TODO: const service = container.resolve('"Service"')
   try {
     // Wave 13: Cache-aside pattern for vehicle maintenance records
     const cacheKey = `maintenance:vehicle:${req.params.vehicleId}`
@@ -183,7 +180,6 @@ router.put("/:id", validate(maintenanceUpdateSchema), async (req, res) => { // W
 
 // DELETE maintenance record
 router.delete("/:id", asyncHandler(async (req, res) => {
-// TODO: const service = container.resolve('"Service"')
   try {
     const deleted = maintenanceRecordEmulator.delete(Number(req.params.id)
     if (!deleted) return throw new NotFoundError("Maintenance record not found")
