@@ -1,4 +1,7 @@
 /**
+import { container } from '../container'
+import { asyncHandler } from '../middleware/error-handler'
+import { NotFoundError, ValidationError } from '../errors/app-error'
 import logger from '../config/logger'; // Wave 26: Add Winston logger
  * Alert & Notification Routes
  * Centralized alert system for proactive fleet management
@@ -13,7 +16,6 @@ import logger from '../config/logger'; // Wave 26: Add Winston logger
 
 import { Router } from 'express'
 import type { AuthRequest } from '../middleware/auth'
-import pool from '../config/database'
 import { authenticateJWT } from '../middleware/auth'
 import { requirePermission } from '../middleware/permissions'
 import alertEngine from '../services/alert-engine.service'
@@ -29,17 +31,17 @@ const createAlertRuleSchema = z.object({
   recipients: z.array(z.string().uuid()).optional(),
   is_enabled: z.boolean().optional(),
   cooldown_minutes: z.number().int().min(0).max(1440).optional()
-})
+}))
 
 const updateAlertRuleSchema = createAlertRuleSchema.partial()
 
 const acknowledgeAlertSchema = z.object({
   notes: z.string().max(1000).optional()
-})
+}))
 
 const resolveAlertSchema = z.object({
   resolution_notes: z.string().min(1).max(1000)
-})
+}))
 
 const router = Router()
 router.use(authenticateJWT)
@@ -152,12 +154,12 @@ router.get('/', requirePermission('report:view:global'), async (req: AuthRequest
     res.json({
       alerts: result.rows,
       total: result.rows.length
-    })
+    }))
   } catch (error) {
     logger.error(`Error fetching alerts:`, error) // Wave 26: Winston logger
-    res.status(500).json({ error: 'Failed to fetch alerts' })
+    res.status(500).json({ error: 'Failed to fetch alerts' }))
   }
-})
+}))
 
 /**
  * @openapi
@@ -227,12 +229,12 @@ router.get('/stats', requirePermission('report:view:global'), async (req: AuthRe
       by_severity: severityCounts.rows,
       unacknowledged_critical: parseInt(recentAlerts.rows[0]?.count || '0'),
       trend_7_days: trends.rows
-    })
+    }))
   } catch (error) {
     logger.error('Error fetching alert stats:', error) // Wave 26: Winston logger
-    res.status(500).json({ error: 'Failed to fetch alert statistics' })
+    res.status(500).json({ error: 'Failed to fetch alert statistics' }))
   }
-})
+}))
 
 /**
  * @openapi
@@ -277,18 +279,18 @@ router.post('/:id/acknowledge', requirePermission('report:view:global'), async (
     )
 
     if (result.rows.length === 0) {
-      return res.status(404).json({ error: `Alert not found` })
+      return res.status(404).json({ error: `Alert not found` }))
     }
 
     res.json({
       alert: result.rows[0],
       message: 'Alert acknowledged successfully'
-    })
+    }))
   } catch (error) {
     logger.error('Error acknowledging alert:', error) // Wave 26: Winston logger
-    res.status(500).json({ error: 'Failed to acknowledge alert' })
+    res.status(500).json({ error: 'Failed to acknowledge alert' }))
   }
-})
+}))
 
 /**
  * @openapi
@@ -345,18 +347,18 @@ router.post('/:id/resolve', requirePermission('report:view:global'), async (req:
     )
 
     if (result.rows.length === 0) {
-      return res.status(404).json({ error: `Alert not found` })
+      return res.status(404).json({ error: `Alert not found` }))
     }
 
     res.json({
       alert: result.rows[0],
       message: 'Alert resolved successfully'
-    })
+    }))
   } catch (error) {
     logger.error('Error resolving alert:', error) // Wave 26: Winston logger
-    res.status(500).json({ error: 'Failed to resolve alert' })
+    res.status(500).json({ error: 'Failed to resolve alert' }))
   }
-})
+}))
 
 /**
  * @openapi
@@ -392,12 +394,12 @@ router.get('/rules', requirePermission('report:view:global'), async (req: AuthRe
     res.json({
       rules: result.rows,
       total: result.rows.length
-    })
+    }))
   } catch (error) {
     logger.error(`Error fetching alert rules:`, error) // Wave 26: Winston logger
-    res.status(500).json({ error: 'Failed to fetch alert rules' })
+    res.status(500).json({ error: 'Failed to fetch alert rules' }))
   }
-})
+}))
 
 /**
  * @openapi
@@ -490,15 +492,15 @@ router.post('/rules', requirePermission('report:generate:global'), async (req: A
     res.status(201).json({
       rule: result.rows[0],
       message: `Alert rule created successfully`
-    })
+    }))
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ error: 'Validation error', details: error.errors })
+      return res.status(400).json({ error: 'Validation error', details: error.errors }))
     }
     logger.error('Error creating alert rule:', error) // Wave 26: Winston logger
-    res.status(500).json({ error: 'Failed to create alert rule' })
+    res.status(500).json({ error: 'Failed to create alert rule' }))
   }
-})
+}))
 
 /**
  * @openapi
@@ -560,10 +562,10 @@ router.put('/rules/:id', requirePermission('report:generate:global'), async (req
         }
         paramCount++
       }
-    })
+    }))
 
     if (setClauses.length === 0) {
-      return res.status(400).json({ error: `No valid fields to update` })
+      return res.status(400).json({ error: `No valid fields to update` }))
     }
 
     setClauses.push(`updated_at = NOW()`)
@@ -578,18 +580,18 @@ router.put('/rules/:id', requirePermission('report:generate:global'), async (req
     )
 
     if (result.rows.length === 0) {
-      return res.status(404).json({ error: `Alert rule not found` })
+      return res.status(404).json({ error: `Alert rule not found` }))
     }
 
     res.json({
       rule: result.rows[0],
       message: `Alert rule updated successfully`
-    })
+    }))
   } catch (error) {
     logger.error('Error updating alert rule:', error) // Wave 26: Winston logger
-    res.status(500).json({ error: 'Failed to update alert rule' })
+    res.status(500).json({ error: 'Failed to update alert rule' }))
   }
-})
+}))
 
 /**
  * @openapi
@@ -629,17 +631,17 @@ router.delete('/rules/:id', requirePermission('report:generate:global'), async (
     )
 
     if (result.rows.length === 0) {
-      return res.status(404).json({ error: `Alert rule not found` })
+      return res.status(404).json({ error: `Alert rule not found` }))
     }
 
     res.json({
       message: 'Alert rule deleted successfully'
-    })
+    }))
   } catch (error) {
     logger.error('Error deleting alert rule:', error) // Wave 26: Winston logger
-    res.status(500).json({ error: 'Failed to delete alert rule' })
+    res.status(500).json({ error: 'Failed to delete alert rule' }))
   }
-})
+}))
 
 /**
  * @openapi
@@ -701,12 +703,12 @@ router.get(`/notifications`, requirePermission(`report:view:global`), async (req
     res.json({
       notifications: result.rows,
       total: result.rows.length
-    })
+    }))
   } catch (error) {
     logger.error(`Error fetching notifications:`, error) // Wave 26: Winston logger
-    res.status(500).json({ error: 'Failed to fetch notifications' })
+    res.status(500).json({ error: 'Failed to fetch notifications' }))
   }
-})
+}))
 
 /**
  * @openapi
@@ -747,18 +749,18 @@ router.post('/notifications/:id/read', requirePermission('report:view:global'), 
     )
 
     if (result.rows.length === 0) {
-      return res.status(404).json({ error: `Notification not found` })
+      return res.status(404).json({ error: `Notification not found` }))
     }
 
     res.json({
       notification: result.rows[0],
       message: `Notification marked as read`
-    })
+    }))
   } catch (error) {
     logger.error('Error marking notification as read:', error) // Wave 26: Winston logger
-    res.status(500).json({ error: 'Failed to mark notification as read' })
+    res.status(500).json({ error: 'Failed to mark notification as read' }))
   }
-})
+}))
 
 /**
  * @openapi
@@ -791,11 +793,11 @@ router.post('/notifications/read-all', requirePermission('report:view:global'), 
     res.json({
       message: `All notifications marked as read`,
       count: result.rows.length
-    })
+    }))
   } catch (error) {
     logger.error('Error marking all notifications as read:', error) // Wave 26: Winston logger
-    res.status(500).json({ error: 'Failed to mark all notifications as read' })
+    res.status(500).json({ error: 'Failed to mark all notifications as read' }))
   }
-})
+}))
 
 export default router

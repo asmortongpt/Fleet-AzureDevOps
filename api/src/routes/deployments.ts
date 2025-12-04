@@ -1,6 +1,8 @@
 import express, { Response } from 'express'
+import { container } from '../container'
+import { asyncHandler } from '../middleware/error-handler'
+import { NotFoundError, ValidationError } from '../errors/app-error'
 import logger from '../config/logger'; // Wave 17: Add Winston logger
-import pool from '../config/database'
 import { createAuditLog } from '../middleware/audit'
 import { AuthRequest, authenticateJWT } from '../middleware/auth'
 import { requirePermission } from '../middleware/permissions'
@@ -59,12 +61,12 @@ router.get('/',
     res.json({
       deployments: result.rows,
       total: result.rows.length
-    })
+    }))
   } catch (error: any) {
     logger.error(`Error fetching deployments:`, error) // Wave 17: Winston logger
-    res.status(500).json({ error: 'Failed to fetch deployments', message: getErrorMessage(error) })
+    res.status(500).json({ error: 'Failed to fetch deployments', message: getErrorMessage(error) }))
   }
-})
+}))
 
 /**
  * POST /api/deployments
@@ -87,7 +89,7 @@ router.post('/',
 
     // Validate required fields
     if (!environment) {
-      return res.status(400).json({ error: 'environment is required' })
+      return res.status(400).json({ error: 'environment is required' }))
     }
 
     // Validate environment
@@ -96,7 +98,7 @@ router.post('/',
       return res.status(400).json({
         error: 'Invalid environment',
         valid_environments: validEnvironments
-      })
+      }))
     }
 
     const result = await pool.query(
@@ -136,9 +138,9 @@ router.post('/',
     res.status(201).json(result.rows[0])
   } catch (error: any) {
     logger.error('Error creating deployment:', error) // Wave 17: Winston logger
-    res.status(500).json({ error: 'Failed to create deployment', message: getErrorMessage(error) })
+    res.status(500).json({ error: 'Failed to create deployment', message: getErrorMessage(error) }))
   }
-})
+}))
 
 /**
  * PATCH /api/deployments/:id
@@ -157,7 +159,7 @@ router.patch('/:id',
       return res.status(400).json({
         error: 'Invalid status',
         valid_statuses: validStatuses
-      })
+      }))
     }
 
     let updateQuery = `UPDATE deployments SET updated_at = NOW()`
@@ -188,7 +190,7 @@ router.patch('/:id',
     const result = await pool.query(updateQuery, params)
 
     if (result.rows.length === 0) {
-      return res.status(404).json({ error: `Deployment not found` })
+      return res.status(404).json({ error: `Deployment not found` }))
     }
 
     // Create audit log
@@ -209,9 +211,9 @@ router.patch('/:id',
     res.json(result.rows[0])
   } catch (error: any) {
     logger.error('Error updating deployment:', error) // Wave 17: Winston logger
-    res.status(500).json({ error: 'Failed to update deployment', message: getErrorMessage(error) })
+    res.status(500).json({ error: 'Failed to update deployment', message: getErrorMessage(error) }))
   }
-})
+}))
 
 /**
  * GET /api/deployments/:id
@@ -234,7 +236,7 @@ router.get('/:id',
     )
 
     if (deploymentResult.rows.length === 0) {
-      return res.status(404).json({ error: 'Deployment not found' })
+      return res.status(404).json({ error: 'Deployment not found' }))
     }
 
     const qualityGatesResult = await pool.query(
@@ -247,12 +249,12 @@ router.get('/:id',
     res.json({
       ...deploymentResult.rows[0],
       quality_gates: qualityGatesResult.rows
-    })
+    }))
   } catch (error: any) {
     logger.error(`Error fetching deployment:`, error) // Wave 17: Winston logger
-    res.status(500).json({ error: `Failed to fetch deployment`, message: getErrorMessage(error) })
+    res.status(500).json({ error: `Failed to fetch deployment`, message: getErrorMessage(error) }))
   }
-})
+}))
 
 /**
  * GET /api/deployments/stats/summary
@@ -285,11 +287,11 @@ router.get('/stats/summary',
     res.json({
       stats: result.rows,
       period_days: days
-    })
+    }))
   } catch (error: any) {
     logger.error('Error fetching deployment stats:', error) // Wave 17: Winston logger
-    res.status(500).json({ error: 'Failed to fetch stats', message: getErrorMessage(error) })
+    res.status(500).json({ error: 'Failed to fetch stats', message: getErrorMessage(error) }))
   }
-})
+}))
 
 export default router

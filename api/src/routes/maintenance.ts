@@ -1,4 +1,7 @@
 import { Router } from "express"
+import { container } from '../container'
+import { asyncHandler } from '../middleware/error-handler'
+import { NotFoundError, ValidationError } from '../errors/app-error'
 import { cacheService } from '../config/cache'; // Wave 13: Add Redis caching
 import { maintenanceCreateSchema, maintenanceUpdateSchema } from '../schemas/maintenance.schema';
 import { validate } from '../middleware/validate';
@@ -10,7 +13,8 @@ const router = Router()
 const validator = new TenantValidator(db);
 
 // GET all maintenance records
-router.get("/", async (req, res) => {
+router.get("/", asyncHandler(async (req, res) => {
+// TODO: const service = container.resolve('"Service"')
   try {
     const {
       page = 1,
@@ -80,36 +84,38 @@ router.get("/", async (req, res) => {
     res.json(result)
   } catch (error) {
     logger.error('Failed to fetch maintenance records', { error }) // Wave 11: Winston logger
-    res.status(500).json({ error: "Failed to fetch maintenance records" })
+    res.status(500).json({ error: "Failed to fetch maintenance records" }))
   }
-})
+}))
 
 // GET maintenance record by ID
-router.get("/:id", async (req, res) => {
+router.get("/:id", asyncHandler(async (req, res) => {
+// TODO: const service = container.resolve('"Service"')
   try {
     // Wave 13: Cache-aside pattern for single record
     const cacheKey = `maintenance:${req.params.id}`
     const cached = await cacheService.get<any>(cacheKey)
 
     if (cached) {
-      return res.json({ data: cached })
+      return res.json({ data: cached }))
     }
 
     const record = maintenanceRecordEmulator.getById(Number(req.params.id))
-    if (!record) return res.status(404).json({ error: "Maintenance record not found" })
+    if (!record) return res.status(404).json({ error: "Maintenance record not found" }))
 
     // Cache for 10 minutes (600 seconds)
     await cacheService.set(cacheKey, record, 600)
 
-    res.json({ data: record })
+    res.json({ data: record }))
   } catch (error) {
     logger.error('Failed to fetch maintenance record', { error, recordId: req.params.id }) // Wave 11: Winston logger
-    res.status(500).json({ error: "Failed to fetch maintenance record" })
+    res.status(500).json({ error: "Failed to fetch maintenance record" }))
   }
-})
+}))
 
 // GET maintenance records by vehicle ID
-router.get("/vehicle/:vehicleId", async (req, res) => {
+router.get("/vehicle/:vehicleId", asyncHandler(async (req, res) => {
+// TODO: const service = container.resolve('"Service"')
   try {
     // Wave 13: Cache-aside pattern for vehicle maintenance records
     const cacheKey = `maintenance:vehicle:${req.params.vehicleId}`
@@ -128,20 +134,20 @@ router.get("/vehicle/:vehicleId", async (req, res) => {
     res.json(result)
   } catch (error) {
     logger.error('Failed to fetch vehicle maintenance records', { error, vehicleId: req.params.vehicleId }) // Wave 11: Winston logger
-    res.status(500).json({ error: "Failed to fetch vehicle maintenance records" })
+    res.status(500).json({ error: "Failed to fetch vehicle maintenance records" }))
   }
-})
+}))
 
 // POST create maintenance record
 router.post("/", validate(maintenanceCreateSchema), async (req, res) => { // Wave 8: Add Zod validation
   try {
     const record = maintenanceRecordEmulator.create(req.body)
-    res.status(201).json({ data: record })
+    res.status(201).json({ data: record }))
   } catch (error) {
     logger.error('Failed to create maintenance record', { error }) // Wave 11: Winston logger
-    res.status(500).json({ error: "Failed to create maintenance record" })
+    res.status(500).json({ error: "Failed to create maintenance record" }))
   }
-})
+}))
 
 // PUT update maintenance record
 router.put("/:id", validate(maintenanceUpdateSchema), async (req, res) => { // Wave 8: Add Zod validation
@@ -155,43 +161,44 @@ router.put("/:id", validate(maintenanceUpdateSchema), async (req, res) => { // W
       return res.status(403).json({
         success: false,
         error: 'Vehicle Id not found or access denied'
-      })
+      }))
     }
     if (work_order_id && !(await validator.validateWorkOrder(work_order_id, req.user!.tenant_id))) {
       return res.status(403).json({
         success: false,
         error: 'Work Order Id not found or access denied'
-      })
+      }))
     }
-    if (!record) return res.status(404).json({ error: "Maintenance record not found" })
+    if (!record) return res.status(404).json({ error: "Maintenance record not found" }))
 
     // Wave 13: Invalidate cache on update
     const cacheKey = `maintenance:${req.params.id}`
     await cacheService.del(cacheKey)
 
-    res.json({ data: record })
+    res.json({ data: record }))
   } catch (error) {
     logger.error('Failed to update maintenance record', { error, recordId: req.params.id }) // Wave 11: Winston logger
-    res.status(500).json({ error: "Failed to update maintenance record" })
+    res.status(500).json({ error: "Failed to update maintenance record" }))
   }
-})
+}))
 
 // DELETE maintenance record
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", asyncHandler(async (req, res) => {
+// TODO: const service = container.resolve('"Service"')
   try {
     const deleted = maintenanceRecordEmulator.delete(Number(req.params.id))
-    if (!deleted) return res.status(404).json({ error: "Maintenance record not found" })
+    if (!deleted) return res.status(404).json({ error: "Maintenance record not found" }))
 
     // Wave 13: Invalidate cache on delete
     const cacheKey = `maintenance:${req.params.id}`
     await cacheService.del(cacheKey)
 
-    res.json({ message: "Maintenance record deleted successfully" })
+    res.json({ message: "Maintenance record deleted successfully" }))
   } catch (error) {
     logger.error('Failed to delete maintenance record', { error, recordId: req.params.id }) // Wave 11: Winston logger
-    res.status(500).json({ error: "Failed to delete maintenance record" })
+    res.status(500).json({ error: "Failed to delete maintenance record" }))
   }
-})
+}))
 
 export default router
 

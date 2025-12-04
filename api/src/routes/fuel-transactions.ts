@@ -1,4 +1,7 @@
 import { Router } from "express"
+import { container } from '../container'
+import { asyncHandler } from '../middleware/error-handler'
+import { NotFoundError, ValidationError } from '../errors/app-error'
 import logger from '../config/logger'; // Wave 16: Add Winston logger
 import { fuelTransactionEmulator } from "../emulators/FuelTransactionEmulator"
 import { TenantValidator } from '../utils/tenant-validator';
@@ -61,33 +64,34 @@ router.get("/", validate(getFuelTransactionsQuerySchema, 'query'), async (req, r
     const offset = (Number(page) - 1) * Number(pageSize)
     const data = transactions.slice(offset, offset + Number(pageSize))
 
-    res.json({ data, total })
+    res.json({ data, total }))
   } catch (error) {
     logger.error(error) // Wave 16: Winston logger
-    res.status(500).json({ error: "Failed to fetch fuel transactions" })
+    res.status(500).json({ error: "Failed to fetch fuel transactions" }))
   }
-})
+}))
 
 // GET fuel transaction by ID
-router.get("/:id", async (req, res) => {
+router.get("/:id", asyncHandler(async (req, res) => {
+// TODO: const service = container.resolve('"Service"')
   try {
     const transaction = fuelTransactionEmulator.getById(Number(req.params.id))
-    if (!transaction) return res.status(404).json({ error: "Fuel transaction not found" })
-    res.json({ data: transaction })
+    if (!transaction) return res.status(404).json({ error: "Fuel transaction not found" }))
+    res.json({ data: transaction }))
   } catch (error) {
-    res.status(500).json({ error: "Failed to fetch fuel transaction" })
+    res.status(500).json({ error: "Failed to fetch fuel transaction" }))
   }
-})
+}))
 
 // POST create fuel transaction
 router.post("/", validate(createFuelTransactionSchema, 'body'), async (req, res) => {
   try {
     const transaction = fuelTransactionEmulator.create(req.body)
-    res.status(201).json({ data: transaction })
+    res.status(201).json({ data: transaction }))
   } catch (error) {
-    res.status(500).json({ error: "Failed to create fuel transaction" })
+    res.status(500).json({ error: "Failed to create fuel transaction" }))
   }
-})
+}))
 
 // PUT update fuel transaction
 router.put("/:id", validate(updateFuelTransactionSchema, 'body'), async (req, res) => {
@@ -101,31 +105,32 @@ router.put("/:id", validate(updateFuelTransactionSchema, 'body'), async (req, re
       return res.status(403).json({
         success: false,
         error: 'Vehicle Id not found or access denied'
-      })
+      }))
     }
     if (driver_id && !(await validator.validateDriver(driver_id, req.user!.tenant_id))) {
       return res.status(403).json({
         success: false,
         error: 'Driver Id not found or access denied'
-      })
+      }))
     }
-    if (!transaction) return res.status(404).json({ error: "Fuel transaction not found" })
-    res.json({ data: transaction })
+    if (!transaction) return res.status(404).json({ error: "Fuel transaction not found" }))
+    res.json({ data: transaction }))
   } catch (error) {
-    res.status(500).json({ error: "Failed to update fuel transaction" })
+    res.status(500).json({ error: "Failed to update fuel transaction" }))
   }
-})
+}))
 
 // DELETE fuel transaction
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", asyncHandler(async (req, res) => {
+// TODO: const service = container.resolve('"Service"')
   try {
     const deleted = fuelTransactionEmulator.delete(Number(req.params.id))
-    if (!deleted) return res.status(404).json({ error: "Fuel transaction not found" })
-    res.json({ message: "Fuel transaction deleted successfully" })
+    if (!deleted) return res.status(404).json({ error: "Fuel transaction not found" }))
+    res.json({ message: "Fuel transaction deleted successfully" }))
   } catch (error) {
-    res.status(500).json({ error: "Failed to delete fuel transaction" })
+    res.status(500).json({ error: "Failed to delete fuel transaction" }))
   }
-})
+}))
 
 export default router
 

@@ -1,4 +1,7 @@
 /**
+import { container } from '../container'
+import { asyncHandler } from '../middleware/error-handler'
+import { NotFoundError, ValidationError } from '../errors/app-error'
  * Document Search API Routes Example
  *
  * This file demonstrates how to integrate the DocumentSearchService
@@ -42,13 +45,13 @@ router.post('/', async (req: Request, res: Response) => {
     if (!query || typeof query !== 'string' || query.trim().length === 0) {
       return res.status(400).json({
         error: 'Query parameter is required and must be a non-empty string'
-      })
+      }))
     }
 
     if (!filters?.tenantId) {
       return res.status(400).json({
         error: 'Tenant ID is required in filters'
-      })
+      }))
     }
 
     // Execute search
@@ -57,15 +60,15 @@ router.post('/', async (req: Request, res: Response) => {
     return res.json({
       success: true,
       ...results
-    })
+    }))
   } catch (error) {
     console.error('Document search error:', error)
     return res.status(500).json({
       error: 'Search failed',
       message: error instanceof Error ? getErrorMessage(error) : 'Unknown error'
-    })
+    }))
   }
-})
+}))
 
 /**
  * GET /api/documents/search/vehicle/:vehicleId
@@ -84,7 +87,7 @@ router.get('/vehicle/:vehicleId', async (req: Request, res: Response) => {
     if (!tenantId) {
       return res.status(400).json({
         error: 'Tenant ID is required as query parameter'
-      })
+      }))
     }
 
     const documents = await documentSearchService.searchByVehicle(
@@ -98,15 +101,15 @@ router.get('/vehicle/:vehicleId', async (req: Request, res: Response) => {
       documents,
       total: documents.length,
       vehicleId
-    })
+    }))
   } catch (error) {
     console.error('Vehicle document search error:', error)
     return res.status(500).json({
       error: 'Vehicle search failed',
       message: error instanceof Error ? getErrorMessage(error) : 'Unknown error'
-    })
+    }))
   }
-})
+}))
 
 /**
  * GET /api/documents/search/suggestions
@@ -125,7 +128,7 @@ router.get('/suggestions', async (req: Request, res: Response) => {
     if (!tenantId || !q) {
       return res.status(400).json({
         error: 'tenantId and q (query) parameters are required'
-      })
+      }))
     }
 
     const suggestions = await documentSearchService.getSuggestions(
@@ -138,15 +141,15 @@ router.get('/suggestions', async (req: Request, res: Response) => {
       success: true,
       suggestions,
       query: q
-    })
+    }))
   } catch (error) {
     console.error('Suggestions error:', error)
     return res.status(500).json({
       error: 'Failed to get suggestions',
       message: error instanceof Error ? getErrorMessage(error) : 'Unknown error'
-    })
+    }))
   }
-})
+}))
 
 /**
  * GET /api/documents/search/stats
@@ -163,7 +166,7 @@ router.get('/stats', async (req: Request, res: Response) => {
     if (!tenantId) {
       return res.status(400).json({
         error: 'Tenant ID is required as query parameter'
-      })
+      }))
     }
 
     const stats = await documentSearchService.getSearchStatistics(tenantId as string)
@@ -171,15 +174,15 @@ router.get('/stats', async (req: Request, res: Response) => {
     return res.json({
       success: true,
       stats
-    })
+    }))
   } catch (error) {
     console.error('Search stats error:', error)
     return res.status(500).json({
       error: 'Failed to get search statistics',
       message: error instanceof Error ? getErrorMessage(error) : 'Unknown error'
-    })
+    }))
   }
-})
+}))
 
 /**
  * POST /api/documents/search/index/:documentId
@@ -201,15 +204,15 @@ router.post('/index/:documentId', async (req: Request, res: Response) => {
       success: true,
       message: 'Document indexed successfully',
       documentId
-    })
+    }))
   } catch (error) {
     console.error('Document indexing error:', error)
     return res.status(500).json({
       error: 'Failed to index document',
       message: error instanceof Error ? getErrorMessage(error) : 'Unknown error'
-    })
+    }))
   }
-})
+}))
 
 /**
  * POST /api/documents/search/index/batch
@@ -229,7 +232,7 @@ router.post('/index/batch', async (req: Request, res: Response) => {
     if (!Array.isArray(documentIds) || documentIds.length === 0) {
       return res.status(400).json({
         error: `documentIds must be a non-empty array`
-      })
+      }))
     }
 
     await documentSearchService.batchIndexDocuments(documentIds)
@@ -238,15 +241,15 @@ router.post('/index/batch', async (req: Request, res: Response) => {
       success: true,
       message: `Successfully indexed ${documentIds.length} documents`,
       count: documentIds.length
-    })
+    }))
   } catch (error) {
     console.error(`Batch indexing error:`, error)
     return res.status(500).json({
       error: 'Failed to batch index documents',
       message: error instanceof Error ? getErrorMessage(error) : 'Unknown error'
-    })
+    }))
   }
-})
+}))
 
 export default router
 

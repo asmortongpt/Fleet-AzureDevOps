@@ -1,4 +1,7 @@
 import { Router } from "express"
+import { container } from '../container'
+import { asyncHandler } from '../middleware/error-handler'
+import { NotFoundError, ValidationError } from '../errors/app-error'
 import { cacheService } from '../config/cache'; // Wave 12 (Revised): Add Redis caching
 import {
   driverCreateSchema,
@@ -64,9 +67,9 @@ router.get("/",
     res.json(result)
   } catch (error) {
     logger.error('Failed to fetch drivers', { error }) // Wave 10: Winston logger
-    res.status(500).json({ error: "Failed to fetch drivers" })
+    res.status(500).json({ error: "Failed to fetch drivers" }))
   }
-})
+}))
 
 // GET driver by ID - Requires authentication + tenant isolation
 // CRIT-B-003: Added URL parameter validation
@@ -85,21 +88,21 @@ router.get("/:id",
     const cached = await cacheService.get<any>(cacheKey)
 
     if (cached) {
-      return res.json({ data: cached })
+      return res.json({ data: cached }))
     }
 
     const driver = driverEmulator.getById(Number(req.params.id))
-    if (!driver) return res.status(404).json({ error: "Driver not found" })
+    if (!driver) return res.status(404).json({ error: "Driver not found" }))
 
     // Cache for 10 minutes (600 seconds)
     await cacheService.set(cacheKey, driver, 600)
 
-    res.json({ data: driver })
+    res.json({ data: driver }))
   } catch (error) {
     logger.error('Failed to fetch driver', { error, driverId: req.params.id }) // Wave 10: Winston logger
-    res.status(500).json({ error: "Failed to fetch driver" })
+    res.status(500).json({ error: "Failed to fetch driver" }))
   }
-})
+}))
 
 // POST create driver - Requires admin or manager role
 router.post("/",
@@ -113,12 +116,12 @@ router.post("/",
   async (req, res) => { // Wave 9: Add Zod validation
   try {
     const driver = driverEmulator.create(req.body)
-    res.status(201).json({ data: driver })
+    res.status(201).json({ data: driver }))
   } catch (error) {
     logger.error('Failed to create driver', { error }) // Wave 10: Winston logger
-    res.status(500).json({ error: "Failed to create driver" })
+    res.status(500).json({ error: "Failed to create driver" }))
   }
-})
+}))
 
 // PUT update driver - Requires admin or manager role + tenant isolation
 router.put("/:id",
@@ -132,34 +135,35 @@ router.put("/:id",
   async (req, res) => { // Wave 9: Add Zod validation
   try {
     const driver = driverEmulator.update(Number(req.params.id), req.body)
-    if (!driver) return res.status(404).json({ error: "Driver not found" })
+    if (!driver) return res.status(404).json({ error: "Driver not found" }))
 
     // Wave 12 (Revised): Invalidate cache on update
     const cacheKey = `driver:${req.params.id}`
     await cacheService.del(cacheKey)
 
-    res.json({ data: driver })
+    res.json({ data: driver }))
   } catch (error) {
     logger.error('Failed to update driver', { error, driverId: req.params.id }) // Wave 10: Winston logger
-    res.status(500).json({ error: "Failed to update driver" })
+    res.status(500).json({ error: "Failed to update driver" }))
   }
-})
+}))
 
 // DELETE driver
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", asyncHandler(async (req, res) => {
+// TODO: const service = container.resolve('"Service"')
   try {
     const deleted = driverEmulator.delete(Number(req.params.id))
-    if (!deleted) return res.status(404).json({ error: "Driver not found" })
+    if (!deleted) return res.status(404).json({ error: "Driver not found" }))
 
     // Wave 12 (Revised): Invalidate cache on delete
     const cacheKey = `driver:${req.params.id}`
     await cacheService.del(cacheKey)
 
-    res.json({ message: "Driver deleted successfully" })
+    res.json({ message: "Driver deleted successfully" }))
   } catch (error) {
     logger.error('Failed to delete driver', { error, driverId: req.params.id }) // Wave 10: Winston logger
-    res.status(500).json({ error: "Failed to delete driver" })
+    res.status(500).json({ error: "Failed to delete driver" }))
   }
-})
+}))
 
 export default router
