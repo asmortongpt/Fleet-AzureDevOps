@@ -4,8 +4,8 @@
  */
 
 import { z } from 'zod'
-import pool from '../config/database'
-import { logger } from `../utils/logger`
+import { Pool } from 'pg'
+import logger from '../utils/logger'
 
 export interface ValidationResult {
   isValid: boolean
@@ -30,6 +30,11 @@ class AIValidationService {
   private readonly MAX_CONTEXT_SIZE = 50000
   private readonly MAX_ATTACHMENTS = 10
   private readonly MAX_ATTACHMENT_SIZE = 10 * 1024 * 1024 // 10MB
+
+  constructor(
+    private db: Pool,
+    private logger: typeof logger
+  ) {}
 
   // Patterns for potential injection attacks
   private readonly INJECTION_PATTERNS = [
@@ -69,7 +74,7 @@ class AIValidationService {
       // 2. Check for injection attempts
       const injectionCheck = this.checkForInjection(request.prompt)
       if (!injectionCheck.isSafe) {
-        logger.warn(`Potential prompt injection detected`, {
+        this.logger.warn(`Potential prompt injection detected`, {
           prompt: request.prompt.substring(0, 100)
         })
         return {
@@ -82,7 +87,7 @@ class AIValidationService {
       const sensitiveCheck = this.checkForSensitiveData(request.prompt)
       if (!sensitiveCheck.isSafe) {
         warnings.push('Prompt may contain sensitive data')
-        logger.warn(`Prompt contains sensitive data patterns`, {
+        this.logger.warn(`Prompt contains sensitive data patterns`, {
           patterns: sensitiveCheck.flaggedPatterns
         })
       }
@@ -124,7 +129,7 @@ class AIValidationService {
       if (process.env.ENABLE_CONTENT_SAFETY === `true`) {
         const safetyCheck = await this.checkContentSafety(request.prompt)
         if (!safetyCheck.isSafe) {
-          logger.warn('Content safety check failed', {
+          this.logger.warn('Content safety check failed', {
             categories: safetyCheck.categories,
             flaggedReasons: safetyCheck.flaggedReasons
           })
@@ -141,7 +146,7 @@ class AIValidationService {
         warnings: warnings.length > 0 ? warnings : undefined
       }
     } catch (error: any) {
-      logger.error('Validation error:', error)
+      this.logger.error('Validation error:', error)
       return {
         isValid: false,
         reason: 'Validation process failed'
@@ -373,7 +378,7 @@ class AIValidationService {
         flaggedReasons
       }
     } catch (error) {
-      logger.error('Content safety check failed:', error)
+      this.logger.error('Content safety check failed:', error)
       // Fail open to avoid blocking legitimate requests
       return {
         isSafe: true,
@@ -426,16 +431,16 @@ class AIValidationService {
     prompt: string
   ): Promise<void> {
     try {
-      await pool.query(
+      await this.db.query(
         `INSERT INTO ai_validation_failures (
           tenant_id, user_id, reason, prompt_preview, created_at
         ) VALUES ($1, $2, $3, $4, NOW())`,
         [tenantId, userId, reason, prompt.substring(0, 500)]
       )
     } catch (error) {
-      logger.error('Failed to log validation failure:', error)
+      this.logger.error('Failed to log validation failure:', error)
     }
   }
 }
 
-export default new AIValidationService()
+export default AIValidationService

@@ -11,7 +11,7 @@
  * Business Value: $800,000/year (vehicle diagnostics, predictive maintenance)
  */
 
-import pool from '../config/database'
+import { Pool } from 'pg'
 
 export interface OBD2Adapter {
   id: number
@@ -135,7 +135,7 @@ export class OBD2ServiceBackend {
       protocol_detected?: string
     }
   ): Promise<OBD2Adapter> {
-    const result = await pool.query(
+    const result = await this.db.query(
       `INSERT INTO obd2_adapters
        (tenant_id, user_id, vehicle_id, adapter_type, connection_type, device_id,
         device_name, mac_address, ip_address, port, firmware_version, hardware_version,
@@ -182,7 +182,7 @@ export class OBD2ServiceBackend {
     tenantId: number,
     userId: number
   ): Promise<OBD2Adapter[]> {
-    const result = await pool.query(
+    const result = await this.db.query(
       `SELECT id, tenant_id, user_id, vehicle_id, adapter_type, connection_type, device_id, device_name, mac_address, ip_address, port, supported_protocols, firmware_version, hardware_version, vin, protocol_detected, is_paired, is_active, last_connected_at, last_data_received_at, pairing_metadata, created_at, updated_at FROM obd2_adapters
        WHERE tenant_id = $1 AND user_id = $2 AND is_active = true
        ORDER BY last_connected_at DESC NULLS LAST, created_at DESC`,
@@ -199,7 +199,7 @@ export class OBD2ServiceBackend {
     tenantId: number,
     adapterId: number
   ): Promise<OBD2Adapter | null> {
-    const result = await pool.query(
+    const result = await this.db.query(
       `SELECT id, tenant_id, user_id, vehicle_id, adapter_type, connection_type, device_id, device_name, mac_address, ip_address, port, supported_protocols, firmware_version, hardware_version, vin, protocol_detected, is_paired, is_active, last_connected_at, last_data_received_at, pairing_metadata, created_at, updated_at FROM obd2_adapters
        WHERE tenant_id = $1 AND id = $2',
       [tenantId, adapterId]
@@ -215,7 +215,7 @@ export class OBD2ServiceBackend {
     adapterId: number,
     connected: boolean
   ): Promise<void> {
-    await pool.query(
+    await this.db.query(
       `UPDATE obd2_adapters
        SET last_connected_at = CASE WHEN $2 THEN CURRENT_TIMESTAMP ELSE last_connected_at END,
            updated_at = CURRENT_TIMESTAMP
@@ -246,7 +246,7 @@ export class OBD2ServiceBackend {
 
     for (const dtc of dtcs) {
       // Check if DTC already exists and is active
-      const existing = await pool.query(
+      const existing = await this.db.query(
         `SELECT id, tenant_id, vehicle_id, adapter_id, user_id, dtc_code, dtc_type, description, severity, status, is_mil_on, freeze_frame_data, detected_at, reported_at, cleared_at, cleared_by, resolution_notes, work_order_id, raw_data, metadata FROM obd2_diagnostic_codes
          WHERE tenant_id = $1 AND vehicle_id = $2 AND dtc_code = $3 AND status = 'active'',
         [tenantId, vehicleId, dtc.dtc_code]
@@ -254,7 +254,7 @@ export class OBD2ServiceBackend {
 
       if (existing.rows.length === 0) {
         // Insert new DTC
-        const result = await pool.query(
+        const result = await this.db.query(
           `INSERT INTO obd2_diagnostic_codes
            (tenant_id, vehicle_id, adapter_id, user_id, dtc_code, dtc_type,
             description, severity, is_mil_on, freeze_frame_data, detected_at, status)
@@ -314,7 +314,7 @@ export class OBD2ServiceBackend {
 
     query += ` ORDER BY odc.detected_at DESC`
 
-    const result = await pool.query(query, params)
+    const result = await this.db.query(query, params)
 
     return result.rows
   }
@@ -327,7 +327,7 @@ export class OBD2ServiceBackend {
     vehicleId: number,
     userId: number
   ): Promise<number> {
-    const result = await pool.query(
+    const result = await this.db.query(
       `UPDATE obd2_diagnostic_codes
        SET status = `cleared`,
            cleared_at = CURRENT_TIMESTAMP,
@@ -373,14 +373,14 @@ export class OBD2ServiceBackend {
     }
   ): Promise<LiveOBD2Data> {
     // Update adapter last data received
-    await pool.query(
+    await this.db.query(
       `UPDATE obd2_adapters
        SET last_data_received_at = CURRENT_TIMESTAMP
        WHERE id = $1',
       [adapterId]
     )
 
-    const result = await pool.query(
+    const result = await this.db.query(
       `INSERT INTO obd2_live_data
        (tenant_id, vehicle_id, adapter_id, user_id, session_id, session_start,
         engine_rpm, vehicle_speed, throttle_position, engine_coolant_temp,
@@ -443,7 +443,7 @@ export class OBD2ServiceBackend {
       disconnected_at?: Date
     }
   ): Promise<ConnectionLog> {
-    const result = await pool.query(
+    const result = await this.db.query(
       `INSERT INTO obd2_connection_logs
        (tenant_id, adapter_id, user_id, vehicle_id, connection_type, connection_status,
         error_code, error_message, session_duration_seconds, data_points_received,
@@ -478,7 +478,7 @@ export class OBD2ServiceBackend {
     tenantId: number,
     vehicleId: number
   ): Promise<any> {
-    const result = await pool.query(
+    const result = await this.db.query(
       `SELECT id, tenant_id, vehicle_id, health_score, last_assessed, issues_count, warning_count, dtc_summary, maintenance_due, estimated_repair_cost FROM obd2_vehicle_health_summary
        WHERE tenant_id = $1 AND vehicle_id = $2',
       [tenantId, vehicleId]
@@ -494,7 +494,7 @@ export class OBD2ServiceBackend {
     tenantId: number,
     adapterId: number
   ): Promise<any> {
-    const result = await pool.query(
+    const result = await this.db.query(
       `SELECT id, tenant_id, adapter_id, success_rate, uptime_percent, last_checked, total_connections, failed_connections FROM obd2_connection_reliability
        WHERE tenant_id = $1 AND adapter_id = $2',
       [tenantId, adapterId]
@@ -507,7 +507,7 @@ export class OBD2ServiceBackend {
    * Get DTC information from library
    */
   async getDTCInfo(dtcCode: string): Promise<any> {
-    const result = await pool.query(
+    const result = await this.db.query(
       'SELECT id, dtc_code, description, common_causes, diagnostic_steps, avg_repair_cost_min, avg_repair_cost_max, severity_level FROM obd2_dtc_library WHERE dtc_code = $1',
       [dtcCode]
     )
@@ -526,7 +526,7 @@ export class OBD2ServiceBackend {
     // Validate and sanitize days parameter
     const daysNum = Math.max(1, Math.min(365, days || 30))
 
-    const result = await pool.query(
+    const result = await this.db.query(
       `SELECT id, tenant_id, vehicle_id, date, avg_mpg, estimated_cost_per_mile, driving_pattern, efficiency_score FROM obd2_fuel_economy_trends
        WHERE tenant_id = $1 AND vehicle_id = $2
          AND date >= CURRENT_DATE - ($3 || ' days')::INTERVAL
@@ -545,7 +545,7 @@ export class OBD2ServiceBackend {
     vehicleId: number,
     limit: number = 100
   ): Promise<LiveOBD2Data[]> {
-    const result = await pool.query(
+    const result = await this.db.query(
       `SELECT id, tenant_id, vehicle_id, adapter_id, user_id, session_id, session_start, session_end, engine_rpm, vehicle_speed, throttle_position, engine_coolant_temp, intake_air_temp, maf_air_flow_rate, fuel_pressure, intake_manifold_pressure, timing_advance, fuel_level, short_term_fuel_trim, long_term_fuel_trim, fuel_consumption_rate, o2_sensor_voltage, catalyst_temperature, battery_voltage, odometer_reading, location, all_pids, recorded_at FROM obd2_live_data
        WHERE tenant_id = $1 AND vehicle_id = $2
        ORDER BY recorded_at DESC
@@ -572,7 +572,7 @@ export class OBD2ServiceBackend {
         ? (dtcInfo.avg_repair_cost_min + dtcInfo.avg_repair_cost_max) / 2
         : 0
 
-      const result = await pool.query(
+      const result = await this.db.query(
         `INSERT INTO work_orders
          (tenant_id, vehicle_id, type, priority, description, estimated_cost, status, metadata)
          VALUES ($1, $2, 'diagnostic', $3, $4, $5, 'open', $6)
@@ -589,7 +589,7 @@ export class OBD2ServiceBackend {
 
       // Link work order to DTC
       if (result.rows.length > 0) {
-        await pool.query(
+        await this.db.query(
           `UPDATE obd2_diagnostic_codes
            SET work_order_id = $1
            WHERE id = $2`,
