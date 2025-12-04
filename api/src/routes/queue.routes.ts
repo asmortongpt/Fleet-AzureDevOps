@@ -1,4 +1,7 @@
 /**
+import { container } from '../container'
+import { asyncHandler } from '../middleware/error-handler'
+import { NotFoundError, ValidationError } from '../errors/app-error'
 import logger from '../config/logger'; // Wave 23: Add Winston logger
  * Queue Management Routes
  * API endpoints for queue monitoring, management, and administration
@@ -6,7 +9,6 @@ import logger from '../config/logger'; // Wave 23: Add Winston logger
 
 import express, { Request, Response, Router } from 'express';
 import { queueService } from '../services/queue.service';
-import { pool } from '../config/database';
 import { QueueName, JobStatus } from '../types/queue.types';
 import { getErrorMessage } from '../utils/error-handler'
 
@@ -44,7 +46,7 @@ router.get(`/stats`, requireAdmin, async (req: Request, res: Response) => {
           logger.error(`Failed to get stats for ${queueName}:`, error) // Wave 23: Winston logger;
           return null;
         }
-      })
+      }))
     );
 
     const validStats = stats.filter(s => s !== null);

@@ -1,4 +1,7 @@
 /**
+import { container } from '../container'
+import { asyncHandler } from '../middleware/error-handler'
+import { NotFoundError, ValidationError } from '../errors/app-error'
  * Outlook Email Integration Routes
  * REST API endpoints for full email management via Microsoft Graph API
  */
@@ -48,7 +51,7 @@ const sendEmailSchema = z.object({
   isReadReceiptRequested: z.boolean().optional(),
   saveToSentItems: z.boolean().optional().default(true),
   userId: z.string().email().optional() // Optional: send from specific user
-})
+}))
 
 router.post(
   '/send',
@@ -65,12 +68,12 @@ router.post(
           success: true,
           message: 'Email sent successfully',
           messageId: result.messageId
-        })
+        }))
       } else {
         res.status(500).json({
           success: false,
           error: result.error || 'Failed to send email'
-        })
+        }))
       }
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -78,14 +81,14 @@ router.post(
           success: false,
           error: 'Validation error',
           details: error.errors
-        })
+        }))
       }
 
       logger.error('Send email error:', error)
       res.status(500).json({
         success: false,
         error: error instanceof Error ? getErrorMessage(error) : 'Internal server error'
-      })
+      }))
     }
   }
 )
@@ -134,13 +137,13 @@ router.get(
           hasMore: !!result['@odata.nextLink'],
           nextLink: result['@odata.nextLink']
         }
-      })
+      }))
     } catch (error) {
       logger.error('Get emails error:', error)
       res.status(500).json({
         success: false,
         error: error instanceof Error ? getErrorMessage(error) : 'Internal server error'
-      })
+      }))
     }
   }
 )
@@ -163,13 +166,13 @@ router.get(
       res.json({
         success: true,
         data: email
-      })
+      }))
     } catch (error) {
       logger.error('Get email error:', error)
       res.status(500).json({
         success: false,
         error: error instanceof Error ? getErrorMessage(error) : 'Internal server error'
-      })
+      }))
     }
   }
 )
@@ -190,7 +193,7 @@ const replyEmailSchema = z.object({
     contentId: z.string().optional()
   })).optional(),
   userId: z.string().email().optional()
-})
+}))
 
 router.post(
   '/messages/:messageId/reply',
@@ -207,21 +210,21 @@ router.post(
       res.json({
         success: true,
         message: 'Reply sent successfully'
-      })
+      }))
     } catch (error) {
       if (error instanceof z.ZodError) {
         return res.status(400).json({
           success: false,
           error: 'Validation error',
           details: error.errors
-        })
+        }))
       }
 
       logger.error('Reply email error:', error)
       res.status(500).json({
         success: false,
         error: error instanceof Error ? getErrorMessage(error) : 'Internal server error'
-      })
+      }))
     }
   }
 )
@@ -243,7 +246,7 @@ const forwardEmailSchema = z.object({
     contentId: z.string().optional()
   })).optional(),
   userId: z.string().email().optional()
-})
+}))
 
 router.post(
   '/messages/:messageId/forward',
@@ -260,21 +263,21 @@ router.post(
       res.json({
         success: true,
         message: 'Email forwarded successfully'
-      })
+      }))
     } catch (error) {
       if (error instanceof z.ZodError) {
         return res.status(400).json({
           success: false,
           error: 'Validation error',
           details: error.errors
-        })
+        }))
       }
 
       logger.error('Forward email error:', error)
       res.status(500).json({
         success: false,
         error: error instanceof Error ? getErrorMessage(error) : 'Internal server error'
-      })
+      }))
     }
   }
 )
@@ -293,7 +296,7 @@ const updateEmailSchema = z.object({
     startDateTime: z.string().optional()
   }).optional(),
   userId: z.string().email().optional()
-})
+}))
 
 router.patch(
   '/messages/:messageId',
@@ -311,21 +314,21 @@ router.patch(
         success: true,
         message: 'Email updated successfully',
         data: updatedEmail
-      })
+      }))
     } catch (error) {
       if (error instanceof z.ZodError) {
         return res.status(400).json({
           success: false,
           error: 'Validation error',
           details: error.errors
-        })
+        }))
       }
 
       logger.error('Update email error:', error)
       res.status(500).json({
         success: false,
         error: error instanceof Error ? getErrorMessage(error) : 'Internal server error'
-      })
+      }))
     }
   }
 )
@@ -347,7 +350,7 @@ router.post(
         return res.status(400).json({
           success: false,
           error: 'destinationFolderId is required'
-        })
+        }))
       }
 
       const movedEmail = await outlookService.moveEmail(messageId, destinationFolderId, userId)
@@ -356,13 +359,13 @@ router.post(
         success: true,
         message: 'Email moved successfully',
         data: movedEmail
-      })
+      }))
     } catch (error) {
       logger.error('Move email error:', error)
       res.status(500).json({
         success: false,
         error: error instanceof Error ? getErrorMessage(error) : 'Internal server error'
-      })
+      }))
     }
   }
 )
@@ -385,13 +388,13 @@ router.delete(
       res.json({
         success: true,
         message: 'Email deleted successfully'
-      })
+      }))
     } catch (error) {
       logger.error('Delete email error:', error)
       res.status(500).json({
         success: false,
         error: error instanceof Error ? getErrorMessage(error) : 'Internal server error'
-      })
+      }))
     }
   }
 )
@@ -414,13 +417,13 @@ router.post(
       res.json({
         success: true,
         message: 'Email marked as ${isRead ? 'read' : 'unread'}'
-      })
+      }))
     } catch (error) {
       logger.error(`Mark as read error:`, error)
       res.status(500).json({
         success: false,
         error: error instanceof Error ? getErrorMessage(error) : 'Internal server error'
-      })
+      }))
     }
   }
 )
@@ -445,13 +448,13 @@ router.get(
       res.json({
         success: true,
         data: result.value
-      })
+      }))
     } catch (error) {
       logger.error('Get folders error:', error)
       res.status(500).json({
         success: false,
         error: error instanceof Error ? getErrorMessage(error) : 'Internal server error'
-      })
+      }))
     }
   }
 )
@@ -465,7 +468,7 @@ const createFolderSchema = z.object({
   parentFolderId: z.string().optional(),
   isHidden: z.boolean().optional().default(false),
   userId: z.string().email().optional()
-})
+}))
 
 router.post(
   '/folders',
@@ -482,21 +485,21 @@ router.post(
         success: true,
         message: 'Folder created successfully',
         data: folder
-      })
+      }))
     } catch (error) {
       if (error instanceof z.ZodError) {
         return res.status(400).json({
           success: false,
           error: 'Validation error',
           details: error.errors
-        })
+        }))
       }
 
       logger.error('Create folder error:', error)
       res.status(500).json({
         success: false,
         error: error instanceof Error ? getErrorMessage(error) : 'Internal server error'
-      })
+      }))
     }
   }
 )
@@ -519,13 +522,13 @@ router.get(
       res.json({
         success: true,
         data: attachments
-      })
+      }))
     } catch (error) {
       logger.error('Get attachments error:', error)
       res.status(500).json({
         success: false,
         error: error instanceof Error ? getErrorMessage(error) : 'Internal server error'
-      })
+      }))
     }
   }
 )
@@ -552,13 +555,13 @@ router.get(
       res.json({
         success: true,
         data: attachment
-      })
+      }))
     } catch (error) {
       logger.error('Download attachment error:', error)
       res.status(500).json({
         success: false,
         error: error instanceof Error ? getErrorMessage(error) : 'Internal server error'
-      })
+      }))
     }
   }
 )
@@ -586,7 +589,7 @@ router.get(
         return res.status(400).json({
           success: false,
           error: 'Query parameter is required'
-        })
+        }))
       }
 
       const request = {
@@ -608,13 +611,13 @@ router.get(
           hasMore: !!result['@odata.nextLink'],
           nextLink: result['@odata.nextLink']
         }
-      })
+      }))
     } catch (error) {
       logger.error('Search emails error:', error)
       res.status(500).json({
         success: false,
         error: error instanceof Error ? getErrorMessage(error) : 'Internal server error'
-      })
+      }))
     }
   }
 )
@@ -627,7 +630,7 @@ const categorizeEmailSchema = z.object({
   categories: z.array(z.string()).min(1),
   replace: z.boolean().optional().default(false),
   userId: z.string().email().optional()
-})
+}))
 
 router.post(
   '/messages/:messageId/categories',
@@ -644,21 +647,21 @@ router.post(
       res.json({
         success: true,
         message: 'Email categorized successfully'
-      })
+      }))
     } catch (error) {
       if (error instanceof z.ZodError) {
         return res.status(400).json({
           success: false,
           error: 'Validation error',
           details: error.errors
-        })
+        }))
       }
 
       logger.error('Categorize email error:', error)
       res.status(500).json({
         success: false,
         error: error instanceof Error ? getErrorMessage(error) : 'Internal server error'
-      })
+      }))
     }
   }
 )
@@ -681,13 +684,13 @@ router.get(
         missing: configStatus.missing,
         service: 'Microsoft Graph API',
         version: 'v1.0'
-      })
+      }))
     } catch (error) {
       logger.error('Status check error:', error)
       res.status(500).json({
         success: false,
         error: error instanceof Error ? getErrorMessage(error) : 'Internal server error'
-      })
+      }))
     }
   }
 )

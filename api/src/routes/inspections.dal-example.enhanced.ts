@@ -1,4 +1,7 @@
 import express, { Request, Response } from 'express';
+import { container } from '../container'
+import { asyncHandler } from '../middleware/error-handler'
+import { NotFoundError, ValidationError } from '../errors/app-error'
 import { authenticateJWT } from '../middleware/auth';
 import { requirePermission } from '../middleware/permissions';
 import { auditLog } from '../middleware/audit';
@@ -52,7 +55,7 @@ router.get(
     });
 
     res.json(result);
-  })
+  }))
 );
 
 /**
@@ -66,7 +69,7 @@ router.get(
   asyncHandler(async (req: Request, res: Response) => {
     const stats = await inspectionRepo.getInspectionStats(req.user!.tenant_id);
     res.json(stats);
-  })
+  }))
 );
 
 /**
@@ -80,7 +83,7 @@ router.get(
   asyncHandler(async (req: Request, res: Response) => {
     const inspections = await inspectionRepo.getPendingInspections(req.user!.tenant_id);
     res.json(inspections);
-  })
+  }))
 );
 
 /**
@@ -95,7 +98,7 @@ router.post(
   asyncHandler(async (req: Request, res: Response) => {
     const inspection = await inspectionRepo.createInspection(req.user!.tenant_id, req.body);
     res.status(201).json(inspection);
-  })
+  }))
 );
 
 /**
@@ -111,7 +114,7 @@ router.patch(
     const { id } = req.params;
     const updatedInspection = await inspectionRepo.completeInspection(id, req.body);
     res.json(updatedInspection);
-  })
+  }))
 );
 
 export default router;

@@ -1,4 +1,7 @@
 /**
+import { container } from '../container'
+import { asyncHandler } from '../middleware/error-handler'
+import { NotFoundError, ValidationError } from '../errors/app-error'
 import logger from '../config/logger'; // Wave 31: Add Winston logger
  * Mobile Assignment API Routes
  * Mobile-optimized endpoints for vehicle assignment management (BR-11)

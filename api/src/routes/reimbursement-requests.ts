@@ -1,7 +1,9 @@
 import express, { Response } from 'express'
+import { container } from '../container'
+import { asyncHandler } from '../middleware/error-handler'
+import { NotFoundError, ValidationError } from '../errors/app-error'
 import { AuthRequest, authenticateJWT, authorize } from '../middleware/auth'
 import { auditLog } from '../middleware/audit'
-import pool from '../config/database'
 import { z } from 'zod'
 import { getErrorMessage } from '../utils/error-handler'
 import {
@@ -21,19 +23,19 @@ const createReimbursementSchema = z.object({
   expense_date: z.string(),
   category: z.string().optional(),
   receipt_file_path: z.string().optional()
-})
+}))
 
 const reviewReimbursementSchema = z.object({
   status: z.enum([ReimbursementStatus.APPROVED, ReimbursementStatus.REJECTED]),
   approved_amount: z.number().positive().optional(),
   reviewer_notes: z.string().optional()
-})
+}))
 
 const processPaymentSchema = z.object({
   payment_date: z.string(),
   payment_method: z.string(),
   payment_reference: z.string()
-})
+}))
 
 /**
  * POST /api/reimbursements
@@ -52,7 +54,7 @@ router.post(
           success: false,
           error: 'Invalid request data',
           details: validation.error.errors
-        })
+        }))
       }
 
       const {
@@ -77,7 +79,7 @@ router.post(
         return res.status(404).json({
           success: false,
           error: `Charge not found`
-        })
+        }))
       }
 
       const charge = chargeResult.rows[0]
@@ -97,7 +99,7 @@ router.post(
           return res.status(400).json({
             success: false,
             error: `Receipt required for amounts over $${policy.receipt_required_over_amount || 0}`
-          })
+          }))
         }
       }
 
@@ -172,14 +174,14 @@ router.post(
         message: shouldAutoApprove
           ? `Auto-approved - reimbursement of $${request_amount} approved`
           : `Reimbursement request submitted for review`
-      })
+      }))
     } catch (error: any) {
       console.error(`Create reimbursement error:`, error)
       res.status(500).json({
         success: false,
         error: `Failed to create reimbursement request`,
         details: getErrorMessage(error)
-      })
+      }))
     }
   }
 )
@@ -287,16 +289,16 @@ router.get('/', async (req: AuthRequest, res: Response) => {
           parseInt(countResult.rows[0].count) >
           parseInt(offset as string) + result.rows.length
       }
-    })
+    }))
   } catch (error: any) {
     console.error('List reimbursements error:', error)
     res.status(500).json({
       success: false,
       error: 'Failed to retrieve reimbursement requests',
       details: getErrorMessage(error)
-    })
+    }))
   }
-})
+}))
 
 /**
  * GET /api/reimbursements/:id
@@ -323,7 +325,7 @@ router.get('/:id', async (req: AuthRequest, res: Response) => {
       return res.status(404).json({
         success: false,
         error: `Reimbursement request not found`
-      })
+      }))
     }
 
     // Non-admin users can only view their own requests
@@ -335,22 +337,22 @@ router.get('/:id', async (req: AuthRequest, res: Response) => {
       return res.status(403).json({
         success: false,
         error: 'Access denied'
-      })
+      }))
     }
 
     res.json({
       success: true,
       data: result.rows[0]
-    })
+    }))
   } catch (error: any) {
     console.error('Get reimbursement error:', error)
     res.status(500).json({
       success: false,
       error: 'Failed to retrieve reimbursement request',
       details: getErrorMessage(error)
-    })
+    }))
   }
-})
+}))
 
 /**
  * PATCH /api/reimbursements/:id/approve
@@ -381,7 +383,7 @@ router.patch(
         return res.status(404).json({
           success: false,
           error: `Reimbursement request not found`
-        })
+        }))
       }
 
       const current = currentResult.rows[0]
@@ -390,7 +392,7 @@ router.patch(
         return res.status(400).json({
           success: false,
           error: `Cannot approve request with status: ${current.status}`
-        })
+        }))
       }
 
       const finalApprovedAmount = approved_amount || current.request_amount
@@ -400,7 +402,7 @@ router.patch(
         return res.status(400).json({
           success: false,
           error: `Approved amount cannot exceed requested amount`
-        })
+        }))
       }
 
       // Update reimbursement request
@@ -436,14 +438,14 @@ router.patch(
         success: true,
         data: result.rows[0],
         message: `Reimbursement approved for $${finalApprovedAmount}`
-      })
+      }))
     } catch (error: any) {
       console.error(`Approve reimbursement error:`, error)
       res.status(500).json({
         success: false,
         error: `Failed to approve reimbursement request`,
         details: getErrorMessage(error)
-      })
+      }))
     }
   }
 )
@@ -464,7 +466,7 @@ router.patch(
         return res.status(400).json({
           success: false,
           error: 'Rejection reason is required'
-        })
+        }))
       }
 
       // Get current request
@@ -484,7 +486,7 @@ router.patch(
         return res.status(404).json({
           success: false,
           error: `Reimbursement request not found`
-        })
+        }))
       }
 
       const current = currentResult.rows[0]
@@ -493,7 +495,7 @@ router.patch(
         return res.status(400).json({
           success: false,
           error: `Cannot reject request with status: ${current.status}`
-        })
+        }))
       }
 
       // Update reimbursement request
@@ -522,14 +524,14 @@ router.patch(
         success: true,
         data: result.rows[0],
         message: `Reimbursement request rejected`
-      })
+      }))
     } catch (error: any) {
       console.error(`Reject reimbursement error:`, error)
       res.status(500).json({
         success: false,
         error: `Failed to reject reimbursement request`,
         details: getErrorMessage(error)
-      })
+      }))
     }
   }
 )
@@ -551,7 +553,7 @@ router.patch(
           success: false,
           error: 'Invalid payment data',
           details: validation.error.errors
-        })
+        }))
       }
 
       const { payment_date, payment_method, payment_reference } = validation.data
@@ -573,7 +575,7 @@ router.patch(
         return res.status(404).json({
           success: false,
           error: `Reimbursement request not found`
-        })
+        }))
       }
 
       const current = currentResult.rows[0]
@@ -582,7 +584,7 @@ router.patch(
         return res.status(400).json({
           success: false,
           error: 'Can only process payment for approved requests'
-        })
+        }))
       }
 
       // Update reimbursement request
@@ -612,14 +614,14 @@ router.patch(
         success: true,
         data: result.rows[0],
         message: `Payment of $${current.approved_amount} processed`
-      })
+      }))
     } catch (error: any) {
       console.error(`Process payment error:`, error)
       res.status(500).json({
         success: false,
         error: `Failed to process payment`,
         details: getErrorMessage(error)
-      })
+      }))
     }
   }
 )
@@ -662,14 +664,14 @@ router.get(
         success: true,
         data: result.rows,
         summary: statsResult.rows[0]
-      })
+      }))
     } catch (error: any) {
       console.error('Get pending queue error:', error)
       res.status(500).json({
         success: false,
         error: 'Failed to retrieve pending reimbursements',
         details: getErrorMessage(error)
-      })
+      }))
     }
   }
 )
@@ -691,7 +693,7 @@ router.get('/summary/driver/:driver_id', async (req: AuthRequest, res: Response)
       return res.status(403).json({
         success: false,
         error: 'Access denied'
-      })
+      }))
     }
 
     const result = await pool.query(
@@ -708,15 +710,15 @@ router.get('/summary/driver/:driver_id', async (req: AuthRequest, res: Response)
     res.json({
       success: true,
       data: result.rows
-    })
+    }))
   } catch (error: any) {
     console.error(`Get reimbursement summary error:`, error)
     res.status(500).json({
       success: false,
       error: 'Failed to retrieve reimbursement summary',
       details: getErrorMessage(error)
-    })
+    }))
   }
-})
+}))
 
 export default router
