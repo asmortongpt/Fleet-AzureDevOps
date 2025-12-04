@@ -38,7 +38,7 @@ const createTripUsageSchema = z.object({
   start_odometer: z.number().optional(),
   end_odometer: z.number().optional(),
   trip_id: z.string().uuid().optional()
-}))
+})
 
 const updateTripUsageSchema = z.object({
   usage_type: z.enum([UsageType.BUSINESS, UsageType.PERSONAL, UsageType.MIXED]).optional(),
@@ -48,7 +48,7 @@ const updateTripUsageSchema = z.object({
   miles_total: z.number().positive().optional(),
   start_location: z.string().optional(),
   end_location: z.string().optional()
-}))
+})
 
 /**
  * POST /api/trip-usage
@@ -67,14 +67,14 @@ router.post(
           !validated.business_purpose) {
         return res.status(400).json({
           error: 'Business purpose is required for business and mixed trips (federal requirement)'
-        }))
+        })
       }
 
       // Validation: business percentage required for mixed trips
       if (validated.usage_type === UsageType.MIXED && validated.business_percentage === undefined) {
         return res.status(400).json({
           error: 'Business percentage is required for mixed trips'
-        }))
+        })
       }
 
       // Check if driver belongs to tenant
@@ -84,7 +84,7 @@ router.post(
       )
 
       if (driverCheck.rows.length === 0) {
-        return res.status(403).json({ error: `Driver not found in your organization` }))
+        return res.status(403).json({ error: `Driver not found in your organization` })
       }
 
       // Check if vehicle belongs to tenant
@@ -94,7 +94,7 @@ router.post(
       )
 
       if (vehicleCheck.rows.length === 0) {
-        return res.status(403).json({ error: `Vehicle not found in your organization` }))
+        return res.status(403).json({ error: `Vehicle not found in your organization` })
       }
 
       // Get tenant policy to determine approval requirements
@@ -172,7 +172,7 @@ router.post(
 
       // If personal/mixed and requires approval, notify manager
       if (approvalStatus === ApprovalStatus.PENDING &&
-          (validated.usage_type === UsageType.PERSONAL || validated.usage_type === UsageType.MIXED)) {
+          (validated.usage_type === UsageType.PERSONAL || validated.usage_type === UsageType.MIXED) {
 
         // Get driver and manager info for notification
         const driverInfo = await pool.query(
@@ -201,8 +201,8 @@ router.post(
             purpose: validated.personal_notes,
             approvalUrl
           }).catch(error => {
-            logger.error(`Failed to send approval request email`, { error: getErrorMessage(error) }))
-          }))
+            logger.error(`Failed to send approval request email`, { error: getErrorMessage(error) })
+          })
         }
       }
 
@@ -212,13 +212,13 @@ router.post(
         message: approvalStatus === ApprovalStatus.AUTO_APPROVED
           ? `Trip usage recorded and auto-approved`
           : 'Trip usage recorded and pending approval'
-      }))
+      })
     } catch (error: any) {
       logger.error('Create trip usage error:', error) // Wave 19: Winston logger
       if (error instanceof z.ZodError) {
-        return res.status(400).json({ error: 'Invalid request data', details: error.errors }))
+        return res.status(400).json({ error: 'Invalid request data', details: error.errors })
       }
-      res.status(500).json({ error: 'Failed to create trip usage classification' }))
+      res.status(500).json({ error: 'Failed to create trip usage classification' })
     }
   }
 )
@@ -333,12 +333,12 @@ router.get(
         offset: parseInt(offset),
         has_more: parseInt(offset) + result.rows.length < parseInt(countResult.rows[0].count)
       }
-    }))
+    })
   } catch (error: any) {
     logger.error(`Get trip usage error:`, error) // Wave 19: Winston logger
-    res.status(500).json({ error: `Failed to retrieve trip usage data` }))
+    res.status(500).json({ error: `Failed to retrieve trip usage data` })
   }
-}))
+})
 
 /**
  * GET /api/trip-usage/:id
@@ -380,15 +380,15 @@ router.get(
     )
 
     if (result.rows.length === 0) {
-      return res.status(404).json({ error: `Trip usage classification not found` }))
+      return res.status(404).json({ error: `Trip usage classification not found` })
     }
 
-    res.json({ success: true, data: result.rows[0] }))
+    res.json({ success: true, data: result.rows[0] })
   } catch (error: any) {
     logger.error('Get trip usage error:', error) // Wave 19: Winston logger
-    res.status(500).json({ error: 'Failed to retrieve trip usage data' }))
+    res.status(500).json({ error: 'Failed to retrieve trip usage data' })
   }
-}))
+})
 
 /**
  * PATCH /api/trip-usage/:id
@@ -419,23 +419,23 @@ router.patch(
       )
 
       if (existing.rows.length === 0) {
-        return res.status(404).json({ error: `Trip usage classification not found` }))
+        return res.status(404).json({ error: `Trip usage classification not found` })
       }
 
       const trip = existing.rows[0]
 
       // Check permissions - only driver or admin/manager can update
       if (trip.driver_id !== req.user!.id &&
-          !['admin', 'fleet_manager'].includes(req.user!.role)) {
-        return res.status(403).json({ error: 'Insufficient permissions to update this trip' }))
+          !['admin', 'fleet_manager'].includes(req.user!.role) {
+        return res.status(403).json({ error: 'Insufficient permissions to update this trip' })
       }
 
       // If already approved, require manager approval to change
       if (trip.approval_status === ApprovalStatus.APPROVED &&
-          !['admin', 'fleet_manager'].includes(req.user!.role)) {
+          !['admin', 'fleet_manager'].includes(req.user!.role) {
         return res.status(403).json({
           error: `Cannot modify approved trips. Please contact your manager.`
-        }))
+        })
       }
 
       // Build update query
@@ -449,15 +449,15 @@ router.patch(
           updates.push(`${key} = $${paramCount}`)
           values.push(value)
         }
-      }))
+      })
 
       if (updates.length === 0) {
-        return res.status(400).json({ error: `No valid fields to update` }))
+        return res.status(400).json({ error: `No valid fields to update` })
       }
 
       // If changing to pending, reset approval
       if (validated.usage_type && validated.usage_type !== trip.usage_type) {
-        updates.push('approval_status = $' + (paramCount + 1))
+        updates.push('approval_status = $' + (paramCount + 1)
         values.push(ApprovalStatus.PENDING)
         updates.push('approved_by_user_id = NULL')
         updates.push(`approved_at = NULL`)
@@ -475,13 +475,13 @@ router.patch(
         success: true,
         data: result.rows[0],
         message: `Trip usage updated successfully`
-      }))
+      })
     } catch (error: any) {
       logger.error(`Update trip usage error:`, error) // Wave 19: Winston logger
       if (error instanceof z.ZodError) {
-        return res.status(400).json({ error: 'Invalid request data', details: error.errors }))
+        return res.status(400).json({ error: 'Invalid request data', details: error.errors })
       }
-      res.status(500).json({ error: 'Failed to update trip usage classification' }))
+      res.status(500).json({ error: 'Failed to update trip usage classification' })
     }
   }
 )
@@ -527,10 +527,10 @@ router.get(
           offset: parseInt(offset as string),
           has_more: parseInt(offset as string) + result.rows.length < parseInt(countResult.rows[0].count)
         }
-      }))
+      })
     } catch (error: any) {
       logger.error(`Get pending approvals error:`, error) // Wave 19: Winston logger
-      res.status(500).json({ error: 'Failed to retrieve pending approvals' }))
+      res.status(500).json({ error: 'Failed to retrieve pending approvals' })
     }
   }
 )
@@ -560,7 +560,7 @@ router.post(
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'Trip usage classification not found' }))
+        return throw new NotFoundError("Trip usage classification not found")
       }
 
       const trip = result.rows[0]
@@ -588,18 +588,18 @@ router.post(
           miles: trip.miles_total,
           status: 'approved'
         }).catch(error => {
-          logger.error('Failed to send approval notification email', { error: getErrorMessage(error) }))
-        }))
+          logger.error('Failed to send approval notification email', { error: getErrorMessage(error) })
+        })
       }
 
       res.json({
         success: true,
         data: trip,
         message: 'Trip usage approved successfully'
-      }))
+      })
     } catch (error: any) {
       logger.error('Approve trip error:', error) // Wave 19: Winston logger
-      res.status(500).json({ error: 'Failed to approve trip usage' }))
+      res.status(500).json({ error: 'Failed to approve trip usage' })
     }
   }
 )
@@ -617,7 +617,7 @@ router.post(
       const { rejection_reason } = req.body
 
       if (!rejection_reason || rejection_reason.trim().length === 0) {
-        return res.status(400).json({ error: 'Rejection reason is required' }))
+        return throw new ValidationError("Rejection reason is required")
       }
 
       const result = await pool.query(
@@ -633,7 +633,7 @@ router.post(
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: `Trip usage classification not found` }))
+        return res.status(404).json({ error: `Trip usage classification not found` })
       }
 
       const trip = result.rows[0]
@@ -662,18 +662,18 @@ router.post(
           status: 'rejected',
           rejectionReason: rejection_reason
         }).catch(error => {
-          logger.error('Failed to send rejection notification email', { error: getErrorMessage(error) }))
-        }))
+          logger.error('Failed to send rejection notification email', { error: getErrorMessage(error) })
+        })
       }
 
       res.json({
         success: true,
         data: trip,
         message: 'Trip usage rejected'
-      }))
+      })
     } catch (error: any) {
       logger.error('Reject trip error:', error) // Wave 19: Winston logger
-      res.status(500).json({ error: 'Failed to reject trip usage' }))
+      res.status(500).json({ error: 'Failed to reject trip usage' })
     }
   }
 )

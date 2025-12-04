@@ -38,7 +38,7 @@ router.get('/:id/3d-model', optionalAuth, async (req: AuthRequest, res: Response
     const modelData = await vehicleModelsService.getVehicle3DModel(vehicleId)
 
     if (!modelData) {
-      return res.status(404).json({ error: 'Vehicle 3D model not found' })
+      return throw new NotFoundError("Vehicle 3D model not found")
     }
 
     res.json(modelData)
@@ -60,13 +60,13 @@ router.get('/:id/ar-model', optionalAuth, async (req: AuthRequest, res: Response
     const modelData = await vehicleModelsService.getVehicle3DModel(vehicleId)
 
     if (!modelData) {
-      return res.status(404).json({ error: 'Vehicle 3D model not found' })
+      return throw new NotFoundError("Vehicle 3D model not found")
     }
 
     const arUrl = platform === 'ios' ? modelData.usdz_model_url : modelData.glb_model_url
 
     if (!arUrl) {
-      return res.status(404).json({ error: 'AR model not available for this platform' })
+      return throw new NotFoundError("AR model not available for this platform")
     }
 
     res.json({
@@ -485,7 +485,7 @@ router.post(
       )
 
       if (vehicleResult.rows.length === 0) {
-        return res.status(404).json({ error: 'Vehicle not found' })
+        return throw new NotFoundError("Vehicle not found")
       }
 
       const vehicle = vehicleResult.rows[0]

@@ -49,7 +49,7 @@ const aiRateLimiter = rateLimit({
   message: 'Too many AI requests, please try again later',
   standardHeaders: true,
   legacyHeaders: false
-}))
+})
 
 router.use(aiRateLimiter)
 
@@ -67,8 +67,8 @@ const PrioritizeTaskSchema = z.object({
   vehicle_id: z.string().uuid().optional(),
   assigned_to: z.string().uuid().optional(),
   parent_task_id: z.string().uuid().optional(),
-  metadata: z.record(z.any()).optional()
-}))
+  metadata: z.record(z.any().optional()
+})
 
 const AssignTaskSchema = z.object({
   task_id: z.string().uuid().optional(),
@@ -79,23 +79,23 @@ const AssignTaskSchema = z.object({
   estimated_hours: z.number().positive().optional(),
   vehicle_id: z.string().uuid().optional(),
   consider_location: z.boolean().optional().default(true)
-}))
+})
 
 const DependencyAnalysisSchema = z.object({
   task_id: z.string().uuid()
-}))
+})
 
 const ExecutionOrderSchema = z.object({
-  task_ids: z.array(z.string().uuid()).min(1)
-}))
+  task_ids: z.array(z.string().uuid().min(1)
+})
 
 const OptimizeResourcesSchema = z.object({
-  task_ids: z.array(z.string().uuid()).min(1)
-}))
+  task_ids: z.array(z.string().uuid().min(1)
+})
 
 const BatchPrioritizeSchema = z.object({
   tasks: z.array(PrioritizeTaskSchema).min(1).max(20) // Limit batch size
-}))
+})
 
 // ============================================================================
 // ROUTE HANDLERS
@@ -112,7 +112,7 @@ router.post(
     try {
       const tenantId = req.user?.tenant_id
       if (!tenantId) {
-        return res.status(401).json({ error: 'Tenant ID required' }))
+        return res.status(401).json({ error: 'Tenant ID required' })
       }
 
       // Validate input
@@ -141,7 +141,7 @@ router.post(
             task_title: taskData.task_title,
             score: priorityScore.score,
             confidence: priorityScore.confidence
-          }))
+          })
         ]
       )
 
@@ -149,16 +149,16 @@ router.post(
         success: true,
         priorityScore,
         message: 'Priority score calculated successfully'
-      }))
+      })
     } catch (error) {
       logger.error('Error in prioritize endpoint:', error) // Wave 32: Winston logger
       if (error instanceof z.ZodError) {
         return res.status(400).json({
           error: 'Invalid input data',
           details: error.errors
-        }))
+        })
       }
-      res.status(500).json({ error: 'Failed to calculate priority score' }))
+      res.status(500).json({ error: 'Failed to calculate priority score' })
     }
   }
 )
@@ -174,7 +174,7 @@ router.post(
     try {
       const tenantId = req.user?.tenant_id
       if (!tenantId) {
-        return res.status(401).json({ error: 'Tenant ID required' }))
+        return res.status(401).json({ error: 'Tenant ID required' })
       }
 
       // Validate input
@@ -206,7 +206,7 @@ router.post(
             task_title: taskData.task_title,
             recommendations_count: recommendations.length,
             top_recommendation: recommendations[0]?.userName || null
-          }))
+          })
         ]
       )
 
@@ -215,16 +215,16 @@ router.post(
         recommendations,
         count: recommendations.length,
         message: 'Assignment recommendations generated successfully'
-      }))
+      })
     } catch (error) {
       logger.error('Error in assign endpoint:', error) // Wave 32: Winston logger
       if (error instanceof z.ZodError) {
         return res.status(400).json({
           error: 'Invalid input data',
           details: error.errors
-        }))
+        })
       }
-      res.status(500).json({ error: 'Failed to generate recommendations' }))
+      res.status(500).json({ error: 'Failed to generate recommendations' })
     }
   }
 )
@@ -240,7 +240,7 @@ router.post(
     try {
       const tenantId = req.user?.tenant_id
       if (!tenantId) {
-        return res.status(401).json({ error: 'Tenant ID required' }))
+        return res.status(401).json({ error: 'Tenant ID required' })
       }
 
       // Validate input
@@ -256,16 +256,16 @@ router.post(
         success: true,
         dependencyGraph,
         message: 'Dependency analysis completed successfully'
-      }))
+      })
     } catch (error) {
       logger.error('Error in dependencies endpoint:', error) // Wave 32: Winston logger
       if (error instanceof z.ZodError) {
         return res.status(400).json({
           error: 'Invalid input data',
           details: error.errors
-        }))
+        })
       }
-      res.status(500).json({ error: 'Failed to analyze dependencies' }))
+      res.status(500).json({ error: 'Failed to analyze dependencies' })
     }
   }
 )
@@ -281,7 +281,7 @@ router.post(
     try {
       const tenantId = req.user?.tenant_id
       if (!tenantId) {
-        return res.status(401).json({ error: 'Tenant ID required' }))
+        return res.status(401).json({ error: 'Tenant ID required' })
       }
 
       // Validate input
@@ -298,16 +298,16 @@ router.post(
         executionOrder,
         levels: executionOrder.length,
         message: 'Execution order calculated successfully'
-      }))
+      })
     } catch (error) {
       logger.error('Error in execution-order endpoint:', error) // Wave 32: Winston logger
       if (error instanceof z.ZodError) {
         return res.status(400).json({
           error: 'Invalid input data',
           details: error.errors
-        }))
+        })
       }
-      res.status(500).json({ error: 'Failed to calculate execution order' }))
+      res.status(500).json({ error: 'Failed to calculate execution order' })
     }
   }
 )
@@ -323,7 +323,7 @@ router.post(
     try {
       const tenantId = req.user?.tenant_id
       if (!tenantId) {
-        return res.status(401).json({ error: 'Tenant ID required' }))
+        return res.status(401).json({ error: 'Tenant ID required' })
       }
 
       // Validate input
@@ -347,7 +347,7 @@ router.post(
           JSON.stringify({
             task_count: validatedData.task_ids.length,
             optimizations_count: optimizations.length
-          }))
+          })
         ]
       )
 
@@ -356,16 +356,16 @@ router.post(
         optimizations,
         count: optimizations.length,
         message: 'Resource optimization completed successfully'
-      }))
+      })
     } catch (error) {
       logger.error('Error in optimize endpoint:', error) // Wave 32: Winston logger
       if (error instanceof z.ZodError) {
         return res.status(400).json({
           error: 'Invalid input data',
           details: error.errors
-        }))
+        })
       }
-      res.status(500).json({ error: 'Failed to optimize resources' }))
+      res.status(500).json({ error: 'Failed to optimize resources' })
     }
   }
 )
@@ -381,7 +381,7 @@ router.post(
     try {
       const tenantId = req.user?.tenant_id
       if (!tenantId) {
-        return res.status(401).json({ error: 'Tenant ID required' }))
+        return res.status(401).json({ error: 'Tenant ID required' })
       }
 
       // Validate input
@@ -396,7 +396,7 @@ router.post(
             task: task.task_title,
             priorityScore
           }
-        }))
+        })
       )
 
       // Log the batch operation
@@ -410,7 +410,7 @@ router.post(
           'task',
           JSON.stringify({
             task_count: validatedData.tasks.length
-          }))
+          })
         ]
       )
 
@@ -419,16 +419,16 @@ router.post(
         results,
         count: results.length,
         message: 'Batch prioritization completed successfully'
-      }))
+      })
     } catch (error) {
       logger.error('Error in batch-prioritize endpoint:', error) // Wave 32: Winston logger
       if (error instanceof z.ZodError) {
         return res.status(400).json({
           error: 'Invalid input data',
           details: error.errors
-        }))
+        })
       }
-      res.status(500).json({ error: 'Failed to batch prioritize tasks' }))
+      res.status(500).json({ error: 'Failed to batch prioritize tasks' })
     }
   }
 )
@@ -448,14 +448,14 @@ router.get('/health', async (req: AuthRequest, res) => {
       azureEndpointConfigured: !!azureEndpoint,
       apiKeyConfigured: hasApiKey,
       message: 'AI Task Prioritization service is operational'
-    }))
+    })
   } catch (error) {
     res.status(500).json({
       success: false,
       status: 'unhealthy',
       error: 'Service health check failed'
-    }))
+    })
   }
-}))
+})
 
 export default router

@@ -226,7 +226,7 @@ router.post(
         return res.status(400).json({
           error: 'Invalid recurrence pattern',
           errors: validation.errors
-        }))
+        })
       }
 
       // Calculate initial next_due date
@@ -268,7 +268,7 @@ router.post(
       res.status(201).json(result.rows[0])
     } catch (error: any) {
       console.error(`Create recurring schedule error:`, error)
-      res.status(500).json({ error: error.message || 'Internal server error' }))
+      res.status(500).json({ error: error.message || 'Internal server error' })
     }
   }
 )
@@ -288,7 +288,7 @@ router.put(
         return res.status(400).json({
           error: 'Invalid recurrence pattern',
           errors: validation.errors
-        }))
+        })
       }
 
       const updateFields: string[] = [`recurrence_pattern = $3`]
@@ -303,7 +303,7 @@ router.put(
 
       if (data.work_order_template) {
         updateFields.push(`work_order_template = $${paramIndex}`)
-        updateValues.push(JSON.stringify(data.work_order_template))
+        updateValues.push(JSON.stringify(data.work_order_template)
         paramIndex++
       }
 
@@ -316,13 +316,13 @@ router.put(
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: `Recurring schedule not found` }))
+        return res.status(404).json({ error: `Recurring schedule not found` })
       }
 
       res.json(result.rows[0])
     } catch (error: any) {
       console.error(`Update recurrence pattern error:`, error)
-      res.status(500).json({ error: error.message || 'Internal server error' }))
+      res.status(500).json({ error: error.message || 'Internal server error' })
     }
   }
 )
@@ -369,10 +369,10 @@ router.get(
           due_within_7_days: dueSchedules.filter((s) => s.days_until_due <= 7 && !s.is_overdue).length,
           total_estimated_cost: dueSchedules.reduce((sum, s) => sum + s.schedule.estimated_cost, 0)
         }
-      }))
+      })
     } catch (error: any) {
       console.error('Get due schedules error:', error)
-      res.status(500).json({ error: error.message || 'Internal server error' }))
+      res.status(500).json({ error: error.message || 'Internal server error' })
     }
   }
 )
@@ -393,7 +393,7 @@ router.post(
       )
 
       if (scheduleResult.rows.length === 0) {
-        return res.status(404).json({ error: `Schedule not found` }))
+        return res.status(404).json({ error: `Schedule not found` })
       }
 
       const schedule = scheduleResult.rows[0]
@@ -406,7 +406,7 @@ router.post(
           return res.status(400).json({
             error: 'Schedule is not due yet',
             next_due: schedule.next_due
-          }))
+          })
         }
       }
 
@@ -433,10 +433,10 @@ router.post(
         message: `Work order created successfully`,
         work_order: workOrderResult.rows[0],
         schedule: schedule
-      }))
+      })
     } catch (error: any) {
       console.error('Generate work order error:', error)
-      res.status(500).json({ error: error.message || 'Internal server error' }))
+      res.status(500).json({ error: error.message || 'Internal server error' })
     }
   }
 )
@@ -455,7 +455,7 @@ router.get(
       )
 
       if (scheduleResult.rows.length === 0) {
-        return res.status(404).json({ error: `Schedule not found` }))
+        return res.status(404).json({ error: `Schedule not found` })
       }
 
       // Get history with work orders
@@ -485,10 +485,10 @@ router.get(
             ? (totalWorkOrders / historyResult.rows.length) * 100
             : 0
         }
-      }))
+      })
     } catch (error: any) {
       console.error(`Get schedule history error:`, error)
-      res.status(500).json({ error: error.message || 'Internal server error' }))
+      res.status(500).json({ error: error.message || 'Internal server error' })
     }
   }
 )
@@ -504,7 +504,7 @@ router.get(
       res.json(stats)
     } catch (error: any) {
       console.error('Get recurring schedule stats error:', error)
-      res.status(500).json({ error: error.message || 'Internal server error' }))
+      res.status(500).json({ error: error.message || 'Internal server error' })
     }
   }
 )
@@ -525,16 +525,16 @@ router.patch(
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: `Recurring schedule not found` }))
+        return res.status(404).json({ error: `Recurring schedule not found` })
       }
 
       res.json({
         message: `Auto work order generation paused`,
         schedule: result.rows[0]
-      }))
+      })
     } catch (error: any) {
       console.error('Pause schedule error:', error)
-      res.status(500).json({ error: error.message || 'Internal server error' }))
+      res.status(500).json({ error: error.message || 'Internal server error' })
     }
   }
 )
@@ -555,16 +555,16 @@ router.patch(
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: `Recurring schedule not found` }))
+        return res.status(404).json({ error: `Recurring schedule not found` })
       }
 
       res.json({
         message: `Auto work order generation resumed`,
         schedule: result.rows[0]
-      }))
+      })
     } catch (error: any) {
       console.error('Resume schedule error:', error)
-      res.status(500).json({ error: error.message || 'Internal server error' }))
+      res.status(500).json({ error: error.message || 'Internal server error' })
     }
   }
 )
@@ -662,10 +662,10 @@ router.get(
       res.json({
         data: schedules,
         summary
-      }))
+      })
     } catch (error: any) {
       console.error('Get multi-metric maintenance due error:', error)
-      res.status(500).json({ error: error.message || 'Internal server error' }))
+      res.status(500).json({ error: error.message || 'Internal server error' })
     }
   }
 )
@@ -710,7 +710,7 @@ router.get(
         }
         acc[metric].push(schedule)
         return acc
-      }, {}))
+      }, {})
 
       res.json({
         vehicle_id: req.params.vehicleId,
@@ -721,10 +721,10 @@ router.get(
           overdue: result.rows.filter((s: any) => s.is_overdue).length,
           metrics_tracked: Object.keys(byMetric)
         }
-      }))
+      })
     } catch (error: any) {
       console.error(`Get vehicle multi-metric schedules error:`, error)
-      res.status(500).json({ error: error.message || 'Internal server error' }))
+      res.status(500).json({ error: error.message || 'Internal server error' })
     }
   }
 )

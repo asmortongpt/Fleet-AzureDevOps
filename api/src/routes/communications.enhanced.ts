@@ -13,7 +13,7 @@ import { serialize } from 'node-html-encoder'
 
 const router = express.Router()
 
-router.use(helmet())
+router.use(helmet()
 router.use(authenticateJWT)
 router.use(
   rateLimit({
@@ -44,7 +44,7 @@ router.get(
     try {
       const validationResult = communicationQuerySchema.safeParse(req.query)
       if (!validationResult.success) {
-        return res.status(400).json({ error: 'Invalid query parameters' })
+        return throw new ValidationError("Invalid query parameters")
       }
 
       const {
@@ -114,7 +114,7 @@ router.get(
         result.rows.map(row => ({
           ...row,
           from_user_name: serialize(row.from_user_name),
-        }))
+        })
       )
     } catch (error) {
       console.error(error)

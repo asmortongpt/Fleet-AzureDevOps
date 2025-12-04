@@ -40,7 +40,7 @@ router.post('/events', authenticateJWT, async (req: Request, res: Response) => {
     } = req.body
 
     if (!userId || !subject || !start || !end) {
-      return res.status(400).json({ error: 'Missing required fields: userId, subject, start, end' }))
+      return throw new ValidationError("Missing required fields: userId, subject, start, end")
     }
 
     const startDate = new Date(start)
@@ -61,12 +61,12 @@ router.post('/events', authenticateJWT, async (req: Request, res: Response) => {
       success: true,
       message: 'Calendar event created',
       event
-    }))
+    })
   } catch (error: any) {
-    logger.error('Error creating calendar event:', getErrorMessage(error)) // Wave 25: Winston logger
-    res.status(500).json({ error: getErrorMessage(error) }))
+    logger.error('Error creating calendar event:', getErrorMessage(error) // Wave 25: Winston logger
+    res.status(500).json({ error: getErrorMessage(error) })
   }
-}))
+})
 
 /**
  * GET /api/calendar/events
@@ -77,7 +77,7 @@ router.get('/events', authenticateJWT, async (req: Request, res: Response) => {
     const { userId, startDate, endDate } = req.query
 
     if (!userId || !startDate || !endDate) {
-      return res.status(400).json({ error: 'Missing required query parameters: userId, startDate, endDate' }))
+      return throw new ValidationError("Missing required query parameters: userId, startDate, endDate")
     }
 
     const start = new Date(startDate as string)
@@ -89,12 +89,12 @@ router.get('/events', authenticateJWT, async (req: Request, res: Response) => {
       success: true,
       count: events.length,
       events
-    }))
+    })
   } catch (error: any) {
-    logger.error('Error fetching calendar events:', getErrorMessage(error)) // Wave 25: Winston logger
-    res.status(500).json({ error: getErrorMessage(error) }))
+    logger.error('Error fetching calendar events:', getErrorMessage(error) // Wave 25: Winston logger
+    res.status(500).json({ error: getErrorMessage(error) })
   }
-}))
+})
 
 /**
  * GET /api/calendar/events/:eventId
@@ -106,7 +106,7 @@ router.get('/events/:eventId', authenticateJWT, async (req: Request, res: Respon
     const { userId } = req.query
 
     if (!userId) {
-      return res.status(400).json({ error: 'Missing required query parameter: userId' }))
+      return throw new ValidationError("Missing required query parameter: userId")
     }
 
     const event = await getEventById(userId as string, eventId)
@@ -114,12 +114,12 @@ router.get('/events/:eventId', authenticateJWT, async (req: Request, res: Respon
     res.json({
       success: true,
       event
-    }))
+    })
   } catch (error: any) {
-    logger.error('Error fetching calendar event:', getErrorMessage(error)) // Wave 25: Winston logger
-    res.status(500).json({ error: getErrorMessage(error) }))
+    logger.error('Error fetching calendar event:', getErrorMessage(error) // Wave 25: Winston logger
+    res.status(500).json({ error: getErrorMessage(error) })
   }
-}))
+})
 
 /**
  * PATCH /api/calendar/events/:eventId
@@ -131,7 +131,7 @@ router.patch('/events/:eventId', authenticateJWT, async (req: Request, res: Resp
     const { userId, subject, start, end, attendees, location, body } = req.body
 
     if (!userId) {
-      return res.status(400).json({ error: 'Missing required field: userId' }))
+      return throw new ValidationError("Missing required field: userId")
     }
 
     const updates: any = {}
@@ -148,12 +148,12 @@ router.patch('/events/:eventId', authenticateJWT, async (req: Request, res: Resp
       success: true,
       message: 'Calendar event updated',
       event
-    }))
+    })
   } catch (error: any) {
-    logger.error('Error updating calendar event:', getErrorMessage(error)) // Wave 25: Winston logger
-    res.status(500).json({ error: getErrorMessage(error) }))
+    logger.error('Error updating calendar event:', getErrorMessage(error) // Wave 25: Winston logger
+    res.status(500).json({ error: getErrorMessage(error) })
   }
-}))
+})
 
 /**
  * DELETE /api/calendar/events/:eventId
@@ -165,7 +165,7 @@ router.delete('/events/:eventId', authenticateJWT, async (req: Request, res: Res
     const { userId } = req.query
 
     if (!userId) {
-      return res.status(400).json({ error: 'Missing required query parameter: userId' }))
+      return throw new ValidationError("Missing required query parameter: userId")
     }
 
     await deleteEvent(userId as string, eventId)
@@ -173,12 +173,12 @@ router.delete('/events/:eventId', authenticateJWT, async (req: Request, res: Res
     res.json({
       success: true,
       message: 'Calendar event deleted'
-    }))
+    })
   } catch (error: any) {
-    logger.error('Error deleting calendar event:', getErrorMessage(error)) // Wave 25: Winston logger
-    res.status(500).json({ error: getErrorMessage(error) }))
+    logger.error('Error deleting calendar event:', getErrorMessage(error) // Wave 25: Winston logger
+    res.status(500).json({ error: getErrorMessage(error) })
   }
-}))
+})
 
 /**
  * POST /api/calendar/events/:eventId/accept
@@ -190,7 +190,7 @@ router.post('/events/:eventId/accept', authenticateJWT, async (req: Request, res
     const { userId, comment } = req.body
 
     if (!userId) {
-      return res.status(400).json({ error: 'Missing required field: userId' }))
+      return throw new ValidationError("Missing required field: userId")
     }
 
     await acceptEvent(userId, eventId, comment)
@@ -198,12 +198,12 @@ router.post('/events/:eventId/accept', authenticateJWT, async (req: Request, res
     res.json({
       success: true,
       message: 'Meeting accepted'
-    }))
+    })
   } catch (error: any) {
-    logger.error('Error accepting meeting:', getErrorMessage(error)) // Wave 25: Winston logger
-    res.status(500).json({ error: getErrorMessage(error) }))
+    logger.error('Error accepting meeting:', getErrorMessage(error) // Wave 25: Winston logger
+    res.status(500).json({ error: getErrorMessage(error) })
   }
-}))
+})
 
 /**
  * POST /api/calendar/events/:eventId/decline
@@ -215,7 +215,7 @@ router.post('/events/:eventId/decline', authenticateJWT, async (req: Request, re
     const { userId, comment } = req.body
 
     if (!userId) {
-      return res.status(400).json({ error: 'Missing required field: userId' }))
+      return throw new ValidationError("Missing required field: userId")
     }
 
     await declineEvent(userId, eventId, comment)
@@ -223,12 +223,12 @@ router.post('/events/:eventId/decline', authenticateJWT, async (req: Request, re
     res.json({
       success: true,
       message: 'Meeting declined'
-    }))
+    })
   } catch (error: any) {
-    logger.error('Error declining meeting:', getErrorMessage(error)) // Wave 25: Winston logger
-    res.status(500).json({ error: getErrorMessage(error) }))
+    logger.error('Error declining meeting:', getErrorMessage(error) // Wave 25: Winston logger
+    res.status(500).json({ error: getErrorMessage(error) })
   }
-}))
+})
 
 /**
  * POST /api/calendar/events/:eventId/tentative
@@ -240,7 +240,7 @@ router.post('/events/:eventId/tentative', authenticateJWT, async (req: Request, 
     const { userId, comment } = req.body
 
     if (!userId) {
-      return res.status(400).json({ error: 'Missing required field: userId' }))
+      return throw new ValidationError("Missing required field: userId")
     }
 
     await tentativelyAcceptEvent(userId, eventId, comment)
@@ -248,12 +248,12 @@ router.post('/events/:eventId/tentative', authenticateJWT, async (req: Request, 
     res.json({
       success: true,
       message: 'Meeting tentatively accepted'
-    }))
+    })
   } catch (error: any) {
-    logger.error('Error tentatively accepting meeting:', getErrorMessage(error)) // Wave 25: Winston logger
-    res.status(500).json({ error: getErrorMessage(error) }))
+    logger.error('Error tentatively accepting meeting:', getErrorMessage(error) // Wave 25: Winston logger
+    res.status(500).json({ error: getErrorMessage(error) })
   }
-}))
+})
 
 /**
  * POST /api/calendar/find-times
@@ -273,7 +273,7 @@ router.post('/find-times', authenticateJWT, async (req: Request, res: Response) 
     if (!organizerEmail || !attendees || !durationMinutes) {
       return res.status(400).json({
         error: 'Missing required fields: organizerEmail, attendees, durationMinutes'
-      }))
+      })
     }
 
     const timeConstraints: any = {}
@@ -292,12 +292,12 @@ router.post('/find-times', authenticateJWT, async (req: Request, res: Response) 
       success: true,
       count: suggestions.length,
       suggestions
-    }))
+    })
   } catch (error: any) {
-    logger.error('Error finding meeting times:', getErrorMessage(error)) // Wave 25: Winston logger
-    res.status(500).json({ error: getErrorMessage(error) }))
+    logger.error('Error finding meeting times:', getErrorMessage(error) // Wave 25: Winston logger
+    res.status(500).json({ error: getErrorMessage(error) })
   }
-}))
+})
 
 /**
  * GET /api/calendar/availability
@@ -310,7 +310,7 @@ router.get('/availability', authenticateJWT, async (req: Request, res: Response)
     if (!users || !startDate || !endDate) {
       return res.status(400).json({
         error: 'Missing required query parameters: users, startDate, endDate'
-      }))
+      })
     }
 
     const userList = (users as string).split(',')
@@ -323,12 +323,12 @@ router.get('/availability', authenticateJWT, async (req: Request, res: Response)
     res.json({
       success: true,
       availability
-    }))
+    })
   } catch (error: any) {
-    logger.error('Error getting availability:', getErrorMessage(error)) // Wave 25: Winston logger
-    res.status(500).json({ error: getErrorMessage(error) }))
+    logger.error('Error getting availability:', getErrorMessage(error) // Wave 25: Winston logger
+    res.status(500).json({ error: getErrorMessage(error) })
   }
-}))
+})
 
 /**
  * POST /api/calendar/schedule-maintenance
@@ -341,7 +341,7 @@ router.post('/schedule-maintenance', authenticateJWT, async (req: Request, res: 
     if (!vehicleId || !durationMinutes) {
       return res.status(400).json({
         error: 'Missing required fields: vehicleId, durationMinutes'
-      }))
+      })
     }
 
     const preferredDateTime = preferredDate ? new Date(preferredDate) : undefined
@@ -357,12 +357,12 @@ router.post('/schedule-maintenance', authenticateJWT, async (req: Request, res: 
       success: true,
       message: 'Maintenance scheduled',
       event
-    }))
+    })
   } catch (error: any) {
-    logger.error('Error scheduling maintenance:', getErrorMessage(error)) // Wave 25: Winston logger
-    res.status(500).json({ error: getErrorMessage(error) }))
+    logger.error('Error scheduling maintenance:', getErrorMessage(error) // Wave 25: Winston logger
+    res.status(500).json({ error: getErrorMessage(error) })
   }
-}))
+})
 
 /**
  * POST /api/calendar/schedule-training
@@ -375,7 +375,7 @@ router.post('/schedule-training', authenticateJWT, async (req: Request, res: Res
     if (!driverId || !durationMinutes) {
       return res.status(400).json({
         error: 'Missing required fields: driverId, durationMinutes'
-      }))
+      })
     }
 
     const preferredDateTime = preferredDate ? new Date(preferredDate) : undefined
@@ -392,11 +392,11 @@ router.post('/schedule-training', authenticateJWT, async (req: Request, res: Res
       success: true,
       message: 'Training scheduled',
       event
-    }))
+    })
   } catch (error: any) {
-    logger.error('Error scheduling training:', getErrorMessage(error)) // Wave 25: Winston logger
-    res.status(500).json({ error: getErrorMessage(error) }))
+    logger.error('Error scheduling training:', getErrorMessage(error) // Wave 25: Winston logger
+    res.status(500).json({ error: getErrorMessage(error) })
   }
-}))
+})
 
 export default router
