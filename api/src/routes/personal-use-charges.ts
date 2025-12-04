@@ -6,7 +6,6 @@ import { db } from "../db/connection"
 const router = Router()
 
 router.get("/", asyncHandler(async (req, res) => {
-// TODO: const service = container.resolve('"Service"')
   try {
     res.json({ data: [], message: "Personal use charges route - under construction" }))
   } catch (error) {
