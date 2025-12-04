@@ -10,7 +10,7 @@
 
 import QRCode from 'qrcode'
 import { v4 as uuidv4 } from 'uuid'
-import pool from '../config/database'
+import { Pool } from 'pg'
 
 export interface VehicleIdentification {
   vehicleId: string
@@ -24,6 +24,8 @@ export interface VehicleIdentification {
 }
 
 export class VehicleIdentificationService {
+  constructor(private db: Pool) {}
+
   /**
    * Generate QR code for a vehicle
    * Admin can print this and affix to vehicle
@@ -31,7 +33,7 @@ export class VehicleIdentificationService {
   async generateVehicleQRCode(vehicleId: string, tenantId: string): Promise<string> {
     try {
       // Get vehicle details
-      const vehicleResult = await pool.query(
+      const vehicleResult = await this.db.query(
         `SELECT id, vehicle_number, vin, license_plate, make, model, year
          FROM vehicles
          WHERE id = $1 AND tenant_id = $2`,
@@ -67,7 +69,7 @@ export class VehicleIdentificationService {
       })
 
       // Store QR code reference in database
-      await pool.query(
+      await this.db.query(
         `UPDATE vehicles
          SET qr_code = $1, updated_at = NOW()
          WHERE id = $2 AND tenant_id = $3',
@@ -94,7 +96,7 @@ export class VehicleIdentificationService {
       }
 
       // Look up vehicle
-      const result = await pool.query(
+      const result = await this.db.query(
         `SELECT id, vehicle_number, vin, license_plate, make, model, year, qr_code
          FROM vehicles
          WHERE id = $1 AND tenant_id = $2',
@@ -127,7 +129,7 @@ export class VehicleIdentificationService {
    */
   async identifyByVIN(vin: string, tenantId: string): Promise<VehicleIdentification | null> {
     try {
-      const result = await pool.query(
+      const result = await this.db.query(
         `SELECT id, vehicle_number, vin, license_plate, make, model, year, qr_code
          FROM vehicles
          WHERE UPPER(vin) = UPPER($1) AND tenant_id = $2',
@@ -166,7 +168,7 @@ export class VehicleIdentificationService {
       // Normalize license plate (remove spaces, hyphens, make uppercase)
       const normalized = licensePlate.replace(/[\s-]/g, '').toUpperCase()
 
-      const result = await pool.query(
+      const result = await this.db.query(
         `SELECT id, vehicle_number, vin, license_plate, make, model, year, qr_code
          FROM vehicles
          WHERE UPPER(REPLACE(REPLACE(license_plate, ' ', ''), '-', '')) = $1
@@ -254,7 +256,7 @@ export class VehicleIdentificationService {
     tenantId: string
   ): Promise<VehicleIdentification[]> {
     try {
-      const result = await pool.query(
+      const result = await this.db.query(
         `SELECT id, vehicle_number, vin, license_plate, make, model, year, qr_code
          FROM vehicles
          WHERE tenant_id = $1
@@ -317,7 +319,7 @@ export class VehicleIdentificationService {
     tenantId: string
   ): Promise<{ qrCode: string; labelData: any }> {
     try {
-      const vehicle = await pool.query(
+      const vehicle = await this.db.query(
         `SELECT id, vehicle_number, vin, license_plate, make, model, year, qr_code
          FROM vehicles
          WHERE id = $1 AND tenant_id = $2',
