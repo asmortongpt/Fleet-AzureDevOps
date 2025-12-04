@@ -101,6 +101,10 @@ import CalendarService from './services/calendar.service'
 import PresenceService from './services/presence.service'
 import ActionableMessagesService from './services/actionable-messages.service'
 
+// Import Tier 6 Communication services
+import AlertEngineService from './services/alert-engine.service'
+import SchedulingNotificationService from './services/scheduling-notification.service'
+
 // Import repository classes
 import { VehicleRepository } from './repositories/VehicleRepository'
 import { DriverRepository } from './repositories/DriverRepository'
@@ -213,6 +217,10 @@ export interface DIContainer extends AwilixContainer {
   calendarService: CalendarService
   presenceService: PresenceService
   actionableMessagesService: ActionableMessagesService
+
+  // Tier 6 Communication Services
+  alertEngineService: AlertEngineService
+  schedulingNotificationService: SchedulingNotificationService
 }
 
 /**
@@ -493,6 +501,17 @@ export function createDIContainer() {
       lifetime: Lifetime.SINGLETON
     }),
     actionableMessagesService: asClass(ActionableMessagesService, {
+      lifetime: Lifetime.SINGLETON
+    })
+  })
+
+  // Register Tier 6 Communication services
+  // These services handle alerts, notifications, and scheduling communications
+  container.register({
+    alertEngineService: asClass(AlertEngineService, {
+      lifetime: Lifetime.SINGLETON
+    }),
+    schedulingNotificationService: asClass(SchedulingNotificationService, {
       lifetime: Lifetime.SINGLETON
     })
   })
