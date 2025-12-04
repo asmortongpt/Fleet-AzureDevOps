@@ -105,6 +105,13 @@ import ActionableMessagesService from './services/actionable-messages.service'
 import AlertEngineService from './services/alert-engine.service'
 import SchedulingNotificationService from './services/scheduling-notification.service'
 
+// Import Tier 7 Reporting/Analytics services
+import BillingReportsService from './services/billing-reports'
+import CostAnalysisService from './services/cost-analysis.service'
+import CustomReportService from './services/custom-report.service'
+import ExecutiveDashboardService from './services/executive-dashboard.service'
+import RouteOptimizationService from './services/route-optimization.service'
+
 // Import repository classes
 import { VehicleRepository } from './repositories/VehicleRepository'
 import { DriverRepository } from './repositories/DriverRepository'
@@ -221,6 +228,13 @@ export interface DIContainer extends AwilixContainer {
   // Tier 6 Communication Services
   alertEngineService: AlertEngineService
   schedulingNotificationService: SchedulingNotificationService
+
+  // Tier 7 Reporting/Analytics Services
+  billingReportsService: BillingReportsService
+  costAnalysisService: CostAnalysisService
+  customReportService: CustomReportService
+  executiveDashboardService: ExecutiveDashboardService
+  routeOptimizationService: RouteOptimizationService
 }
 
 /**
@@ -512,6 +526,26 @@ export function createDIContainer() {
       lifetime: Lifetime.SINGLETON
     }),
     schedulingNotificationService: asClass(SchedulingNotificationService, {
+      lifetime: Lifetime.SINGLETON
+    })
+  })
+
+  // Register Tier 7 Reporting/Analytics services
+  // These services provide business intelligence, reporting, and analytics
+  container.register({
+    billingReportsService: asClass(BillingReportsService, {
+      lifetime: Lifetime.SINGLETON
+    }),
+    costAnalysisService: asClass(CostAnalysisService, {
+      lifetime: Lifetime.SINGLETON
+    }),
+    customReportService: asClass(CustomReportService, {
+      lifetime: Lifetime.SINGLETON
+    }),
+    executiveDashboardService: asClass(ExecutiveDashboardService, {
+      lifetime: Lifetime.SINGLETON
+    }),
+    routeOptimizationService: asClass(RouteOptimizationService, {
       lifetime: Lifetime.SINGLETON
     })
   })
