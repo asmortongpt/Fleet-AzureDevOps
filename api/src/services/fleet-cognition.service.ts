@@ -4,8 +4,8 @@
  * anomaly detection, and generates high-level insights for fleet managers
  */
 
-import pool from '../config/database'
-import { logger } from '../utils/logger'
+import { Pool } from 'pg'
+import logger from '../utils/logger'
 import mlDecisionEngineService from './ml-decision-engine.service'
 import ragEngineService from './rag-engine.service'
 
@@ -42,7 +42,10 @@ export interface AnomalyDetection {
 class FleetCognitionService {
   private analysisInterval: NodeJS.Timeout | null = null
 
-  constructor() {
+  constructor(
+    private db: Pool,
+    private logger: typeof logger
+  ) {
     this.startContinuousAnalysis()
   }
 
@@ -50,7 +53,7 @@ class FleetCognitionService {
    * Generate comprehensive fleet insights
    */
   async generateFleetInsights(tenantId: string): Promise<CognitionInsight[]> {
-    logger.info('Generating fleet insights', { tenantId })
+    this.logger.info('Generating fleet insights', { tenantId })
 
     const insights: CognitionInsight[] = []
 
@@ -80,11 +83,11 @@ class FleetCognitionService {
         await this.storeInsight(tenantId, insight)
       }
 
-      logger.info('Fleet insights generated', { tenantId, count: insights.length })
+      this.logger.info('Fleet insights generated', { tenantId, count: insights.length })
 
       return insights
     } catch (error: any) {
-      logger.error('Error generating fleet insights', { error: error.message, tenantId })
+      this.logger.error('Error generating fleet insights', { error: error.message, tenantId })
       throw error
     }
   }
@@ -93,7 +96,7 @@ class FleetCognitionService {
    * Detect patterns across fleet operations
    */
   async detectPatterns(tenantId: string): Promise<PatternAnalysis[]> {
-    logger.info('Detecting fleet patterns', { tenantId })
+    this.logger.info('Detecting fleet patterns', { tenantId })
 
     const patterns: PatternAnalysis[] = []
 
@@ -119,11 +122,11 @@ class FleetCognitionService {
         await this.storePattern(tenantId, pattern)
       }
 
-      logger.info('Patterns detected', { tenantId, count: patterns.length })
+      this.logger.info('Patterns detected', { tenantId, count: patterns.length })
 
       return patterns
     } catch (error: any) {
-      logger.error('Error detecting patterns', { error: error.message, tenantId })
+      this.logger.error('Error detecting patterns', { error: error.message, tenantId })
       throw error
     }
   }
@@ -132,7 +135,7 @@ class FleetCognitionService {
    * Detect anomalies across fleet metrics
    */
   async detectAnomalies(tenantId: string): Promise<AnomalyDetection[]> {
-    logger.info('Detecting anomalies', { tenantId })
+    this.logger.info('Detecting anomalies', { tenantId })
 
     const anomalies: AnomalyDetection[] = []
 
@@ -158,11 +161,11 @@ class FleetCognitionService {
         await this.storeAnomaly(tenantId, anomaly)
       }
 
-      logger.info('Anomalies detected', { tenantId, count: anomalies.length })
+      this.logger.info('Anomalies detected', { tenantId, count: anomalies.length })
 
       return anomalies
     } catch (error: any) {
-      logger.error('Error detecting anomalies', { error: error.message, tenantId })
+      this.logger.error('Error detecting anomalies', { error: error.message, tenantId })
       throw error
     }
   }
@@ -174,7 +177,7 @@ class FleetCognitionService {
     tenantId: string,
     context: 'maintenance' | 'cost' | 'safety' | 'efficiency' | 'all' = 'all'
   ): Promise<any[]> {
-    logger.info('Generating recommendations', { tenantId, context })
+    this.logger.info('Generating recommendations', { tenantId, context })
 
     const recommendations: any[] = []
 
@@ -205,11 +208,11 @@ class FleetCognitionService {
         recommendations.push(...this.generateEfficiencyRecommendations(patterns))
       }
 
-      logger.info('Recommendations generated', { tenantId, count: recommendations.length })
+      this.logger.info('Recommendations generated', { tenantId, count: recommendations.length })
 
       return recommendations
     } catch (error: any) {
-      logger.error('Error generating recommendations', { error: error.message, tenantId })
+      this.logger.error('Error generating recommendations', { error: error.message, tenantId })
       throw error
     }
   }
@@ -218,11 +221,11 @@ class FleetCognitionService {
    * Learn from feedback and improve predictions
    */
   async processFeedbackLoop(tenantId: string): Promise<void> {
-    logger.info('Processing feedback loop', { tenantId })
+    this.logger.info('Processing feedback loop', { tenantId })
 
     try {
       // Get feedback that hasn't been incorporated into training
-      const feedbackResult = await pool.query(
+      const feedbackResult = await this.db.query(
         `SELECT id, tenant_id, feedback_type, feedback_data, created_at FROM feedback_loops
          WHERE tenant_id = $1
            AND incorporated_into_training = false
@@ -235,7 +238,7 @@ class FleetCognitionService {
       const feedbackItems = feedbackResult.rows
 
       if (feedbackItems.length === 0) {
-        logger.info('No new feedback to process', { tenantId })
+        this.logger.info('No new feedback to process', { tenantId })
         return
       }
 
@@ -247,14 +250,14 @@ class FleetCognitionService {
         const shouldRetrain = await this.assessRetrainingNeed(modelId, feedbacks as any[])
 
         if (shouldRetrain) {
-          logger.info('Scheduling model retraining', { modelId, feedbackCount: (feedbacks as any[]).length })
+          this.logger.info('Scheduling model retraining', { modelId, feedbackCount: (feedbacks as any[]).length })
           await this.scheduleModelRetraining(tenantId, modelId, feedbacks as any[])
         }
       }
 
-      logger.info('Feedback loop processed', { tenantId, feedbackProcessed: feedbackItems.length })
+      this.logger.info('Feedback loop processed', { tenantId, feedbackProcessed: feedbackItems.length })
     } catch (error: any) {
-      logger.error('Error processing feedback loop', { error: error.message, tenantId })
+      this.logger.error('Error processing feedback loop', { error: error.message, tenantId })
       throw error
     }
   }
@@ -263,7 +266,7 @@ class FleetCognitionService {
    * Get fleet health score
    */
   async getFleetHealthScore(tenantId: string): Promise<any> {
-    logger.info('Calculating fleet health score', { tenantId })
+    this.logger.info('Calculating fleet health score', { tenantId })
 
     try {
       // Get various metrics
@@ -291,7 +294,7 @@ class FleetCognitionService {
         timestamp: new Date().toISOString()
       }
     } catch (error: any) {
-      logger.error('Error calculating fleet health score', { error: error.message, tenantId })
+      this.logger.error('Error calculating fleet health score', { error: error.message, tenantId })
       throw error
     }
   }
@@ -304,7 +307,7 @@ class FleetCognitionService {
     const insights: CognitionInsight[] = []
 
     // Get vehicles needing maintenance
-    const result = await pool.query(
+    const result = await this.db.query(
       `SELECT v.id, v.name, v.mileage,
               COUNT(wo.id) FILTER (WHERE wo.created_at >= NOW() - INTERVAL '90 days') as recent_work_orders
        FROM vehicles v
@@ -337,7 +340,7 @@ class FleetCognitionService {
     const insights: CognitionInsight[] = []
 
     // Get high-risk drivers
-    const result = await pool.query(
+    const result = await this.db.query(
       `SELECT d.id, d.first_name, d.last_name,
               COUNT(si.id) as incident_count
        FROM drivers d
@@ -376,7 +379,7 @@ class FleetCognitionService {
     const insights: CognitionInsight[] = []
 
     // Analyze cost trends
-    const result = await pool.query(
+    const result = await this.db.query(
       `WITH monthly_costs AS (
          SELECT
            DATE_TRUNC('month', created_at) as month,
@@ -441,7 +444,7 @@ class FleetCognitionService {
     const insights: CognitionInsight[] = []
 
     // Check for idle vehicles
-    const idleResult = await pool.query(
+    const idleResult = await this.db.query(
       `SELECT v.id, v.name, MAX(t.end_time) as last_trip
        FROM vehicles v
        LEFT JOIN trips t ON v.id = t.vehicle_id
@@ -510,7 +513,7 @@ class FleetCognitionService {
   }
 
   private async storeInsight(tenantId: string, insight: CognitionInsight): Promise<void> {
-    await pool.query(
+    await this.db.query(
       `INSERT INTO cognition_insights (
         tenant_id, insight_type, severity, title, description,
         affected_entities, recommended_actions, confidence_score
@@ -529,7 +532,7 @@ class FleetCognitionService {
   }
 
   private async storePattern(tenantId: string, pattern: PatternAnalysis): Promise<void> {
-    await pool.query(
+    await this.db.query(
       `INSERT INTO detected_patterns (
         tenant_id, pattern_type, pattern_name, description,
         affected_entities, pattern_characteristics, confidence_score,
@@ -551,7 +554,7 @@ class FleetCognitionService {
   }
 
   private async storeAnomaly(tenantId: string, anomaly: AnomalyDetection): Promise<void> {
-    await pool.query(
+    await this.db.query(
       `INSERT INTO anomalies (
         tenant_id, anomaly_type, entity_type, entity_id, metric_name,
         expected_value, actual_value, deviation_score, severity
@@ -571,7 +574,7 @@ class FleetCognitionService {
   }
 
   private async getRecentInsights(tenantId: string, days: number): Promise<any[]> {
-    const result = await pool.query(
+    const result = await this.db.query(
       `SELECT id, tenant_id, insight_type, insight_data, confidence_score, created_at FROM cognition_insights
        WHERE tenant_id = $1 AND created_at >= NOW() - INTERVAL `${days} days`
        ORDER BY created_at DESC`,
@@ -581,7 +584,7 @@ class FleetCognitionService {
   }
 
   private async getRecentPatterns(tenantId: string, days: number): Promise<any[]> {
-    const result = await pool.query(
+    const result = await this.db.query(
       `SELECT id, tenant_id, vehicle_id, pattern_type, pattern_data, confidence_score, detected_at FROM detected_patterns
        WHERE tenant_id = $1 AND last_detected_at >= NOW() - INTERVAL `${days} days`
        ORDER BY occurrence_count DESC`,
@@ -591,7 +594,7 @@ class FleetCognitionService {
   }
 
   private async getUnresolvedAnomalies(tenantId: string): Promise<any[]> {
-    const result = await pool.query(
+    const result = await this.db.query(
       `SELECT id, tenant_id, vehicle_id, anomaly_type, anomaly_data, detected_at FROM anomalies
        WHERE tenant_id = $1 AND is_resolved = false
        ORDER BY severity DESC, detected_at DESC`,
@@ -662,11 +665,11 @@ class FleetCognitionService {
 
   private async scheduleModelRetraining(tenantId: string, modelId: string, feedbacks: any[]): Promise<void> {
     // This would integrate with the ML training service
-    logger.info('Model retraining scheduled', { modelId, feedbackCount: feedbacks.length })
+    this.logger.info('Model retraining scheduled', { modelId, feedbackCount: feedbacks.length })
   }
 
   private async calculateVehicleHealth(tenantId: string): Promise<number> {
-    const result = await pool.query(
+    const result = await this.db.query(
       `SELECT
         COUNT(*) as total_vehicles,
         COUNT(*) FILTER (WHERE status = 'maintenance') as in_maintenance
@@ -681,7 +684,7 @@ class FleetCognitionService {
   }
 
   private async calculateDriverSafety(tenantId: string): Promise<number> {
-    const result = await pool.query(
+    const result = await this.db.query(
       `SELECT COUNT(*) as incident_count
        FROM safety_incidents
        WHERE tenant_id = $1 AND incident_date >= NOW() - INTERVAL '90 days'',
@@ -703,7 +706,7 @@ class FleetCognitionService {
   }
 
   private async calculateIncidentRate(tenantId: string): Promise<number> {
-    const result = await pool.query(
+    const result = await this.db.query(
       `SELECT COUNT(*) as incident_count
        FROM safety_incidents
        WHERE tenant_id = $1 AND incident_date >= NOW() - INTERVAL '30 days'',
@@ -719,7 +722,7 @@ class FleetCognitionService {
     this.analysisInterval = setInterval(async () => {
       try {
         // Get all active tenants
-        const tenantsResult = await pool.query('SELECT id FROM tenants WHERE is_active = true')
+        const tenantsResult = await this.db.query('SELECT id FROM tenants WHERE is_active = true')
 
         for (const tenant of tenantsResult.rows) {
           try {
@@ -728,11 +731,11 @@ class FleetCognitionService {
             await this.detectAnomalies(tenant.id)
             await this.processFeedbackLoop(tenant.id)
           } catch (error) {
-            logger.error('Error in continuous analysis for tenant', { tenantId: tenant.id, error })
+            this.logger.error('Error in continuous analysis for tenant', { tenantId: tenant.id, error })
           }
         }
       } catch (error) {
-        logger.error('Error in continuous analysis', { error })
+        this.logger.error('Error in continuous analysis', { error })
       }
     }, 6 * 60 * 60 * 1000) // 6 hours
   }
@@ -741,9 +744,9 @@ class FleetCognitionService {
     if (this.analysisInterval) {
       clearInterval(this.analysisInterval)
     }
-    logger.info('Fleet cognition service shut down')
+    this.logger.info('Fleet cognition service shut down')
   }
 }
 
-export const fleetCognitionService = new FleetCognitionService()
-export default fleetCognitionService
+
+export default FleetCognitionService

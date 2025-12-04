@@ -6,8 +6,8 @@
 
 import { Queue } from 'bull'
 import { z } from 'zod'
-import pool from '../config/database'
-import { logger } from '../utils/logger'
+import { Pool } from 'pg'
+import logger from '../utils/logger'
 import aiValidationService from './ai-validation.service'
 import aiControlsService from './ai-controls.service'
 
@@ -76,7 +76,10 @@ export interface AIRequestRecord {
 class AIIntakeService {
   private requestQueue: Queue | null = null
 
-  constructor() {
+  constructor(
+    private db: Pool,
+    private logger: typeof logger
+  ) {
     this.initializeQueue()
   }
 
@@ -100,15 +103,15 @@ class AIIntakeService {
         })
 
         this.requestQueue.on('error', (error) => {
-          logger.error('AI Request Queue Error:', error)
+          this.logger.error('AI Request Queue Error:', error)
         })
 
-        logger.info('AI Request Queue initialized successfully')
+        this.logger.info('AI Request Queue initialized successfully')
       } else {
-        logger.warn('Redis not configured - AI requests will process synchronously')
+        this.logger.warn('Redis not configured - AI requests will process synchronously')
       }
     } catch (error) {
-      logger.error(`Failed to initialize AI request queue:`, error)
+      this.logger.error(`Failed to initialize AI request queue:`, error)
     }
   }
 
@@ -127,7 +130,7 @@ class AIIntakeService {
       // 2. Check rate limits and user permissions
       const controlsCheck = await aiControlsService.checkRateLimits(tenantId, userId)
       if (!controlsCheck.allowed) {
-        logger.warn(`Rate limit exceeded for user ${userId}`, {
+        this.logger.warn(`Rate limit exceeded for user ${userId}`, {
           tenantId,
           userId,
           reason: controlsCheck.reason
@@ -142,7 +145,7 @@ class AIIntakeService {
       // 3. Validate content (safety, injection, etc.)
       const validationResult = await aiValidationService.validateRequest(validatedRequest)
       if (!validationResult.isValid) {
-        logger.warn(`AI request validation failed for user ${userId}`, {
+        this.logger.warn(`AI request validation failed for user ${userId}`, {
           tenantId,
           userId,
           reason: validationResult.reason
@@ -158,7 +161,7 @@ class AIIntakeService {
       const priority = this.calculatePriority(validatedRequest.request_type, controlsCheck.userTier)
 
       // 5. Insert into database
-      const result = await pool.query<AIRequestRecord>(
+      const result = await this.db.query<AIRequestRecord>(
         `INSERT INTO ai_requests (
           tenant_id, user_id, request_type, prompt, context,
           attachments, parameters, status, priority
@@ -205,7 +208,7 @@ class AIIntakeService {
       const queueStats = await this.getQueueStatistics()
       const estimatedWait = this.estimateWaitTime(priority, queueStats)
 
-      logger.info(`AI request submitted successfully`, {
+      this.logger.info(`AI request submitted successfully`, {
         requestId: requestRecord.id,
         tenantId,
         userId,
@@ -221,7 +224,7 @@ class AIIntakeService {
         message: 'Request queued for processing'
       }
     } catch (error: any) {
-      logger.error('Failed to submit AI request:', error)
+      this.logger.error('Failed to submit AI request:', error)
 
       if (error.name === 'ZodError') {
         return {
@@ -248,7 +251,7 @@ class AIIntakeService {
     userId: string
   ): Promise<AIRequestRecord | null> {
     try {
-      const result = await pool.query<AIRequestRecord>(
+      const result = await this.db.query<AIRequestRecord>(
         `SELECT * FROM ai_requests
          WHERE id = $1 AND tenant_id = $2 AND user_id = $3',
         [requestId, tenantId, userId]
@@ -256,7 +259,7 @@ class AIIntakeService {
 
       return result.rows[0] || null
     } catch (error) {
-      logger.error('Failed to get request status:', error)
+      this.logger.error('Failed to get request status:', error)
       return null
     }
   }
@@ -267,7 +270,7 @@ class AIIntakeService {
   async cancelRequest(requestId: string, tenantId: string, userId: string): Promise<boolean> {
     try {
       // Update database
-      const result = await pool.query(
+      const result = await this.db.query(
         `UPDATE ai_requests
          SET status = 'cancelled', completed_at = NOW()
          WHERE id = $1 AND tenant_id = $2 AND user_id = $3
@@ -287,10 +290,10 @@ class AIIntakeService {
         }
       }
 
-      logger.info(`AI request cancelled`, { requestId, tenantId, userId })
+      this.logger.info(`AI request cancelled`, { requestId, tenantId, userId })
       return true
     } catch (error) {
-      logger.error('Failed to cancel request:', error)
+      this.logger.error('Failed to cancel request:', error)
       return false
     }
   }
@@ -304,7 +307,7 @@ class AIIntakeService {
     limit: number = 50
   ): Promise<AIRequestRecord[]> {
     try {
-      const result = await pool.query<AIRequestRecord>(
+      const result = await this.db.query<AIRequestRecord>(
         `SELECT id, request_type, prompt, status, priority,
                 created_at, started_at, completed_at, error_message
          FROM ai_requests
@@ -316,7 +319,7 @@ class AIIntakeService {
 
       return result.rows
     } catch (error) {
-      logger.error('Failed to get request history:', error)
+      this.logger.error('Failed to get request history:', error)
       return []
     }
   }
@@ -342,7 +345,7 @@ class AIIntakeService {
       }
 
       // Fallback to database counts
-      const result = await pool.query(
+      const result = await this.db.query(
         `SELECT
           COUNT(*) FILTER (WHERE status = 'queued') as waiting,
           COUNT(*) FILTER (WHERE status = 'processing') as active,
@@ -354,7 +357,7 @@ class AIIntakeService {
 
       return result.rows[0]
     } catch (error) {
-      logger.error('Failed to get queue statistics:', error)
+      this.logger.error('Failed to get queue statistics:', error)
       return { waiting: 0, active: 0, completed: 0, failed: 0 }
     }
   }
@@ -410,19 +413,19 @@ class AIIntakeService {
    */
   async cleanupOldRequests(daysToKeep: number = 30): Promise<number> {
     try {
-      const result = await pool.query(
+      const result = await this.db.query(
         `DELETE FROM ai_requests
          WHERE completed_at < NOW() - INTERVAL `${daysToKeep} days`
            AND status IN (`completed`, `failed', 'cancelled`)`
       )
 
-      logger.info(`Cleaned up ${result.rowCount} old AI requests`)
+      this.logger.info(`Cleaned up ${result.rowCount} old AI requests`)
       return result.rowCount || 0
     } catch (error) {
-      logger.error(`Failed to clean up old requests:`, error)
+      this.logger.error(`Failed to clean up old requests:`, error)
       return 0
     }
   }
 }
 
-export default new AIIntakeService()
+export default AIIntakeService

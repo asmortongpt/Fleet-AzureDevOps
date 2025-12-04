@@ -15,7 +15,8 @@
  * - Performance monitoring
  */
 
-import pool from '../config/database'
+import { Pool } from 'pg'
+import logger from '../utils/logger'
 
 export interface VectorStoreConfig {
   backend: 'pgvector' | 'pinecone' | 'qdrant'
@@ -61,7 +62,11 @@ export class VectorSearchService {
   private qdrant: any = null
   private initialized = false
 
-  constructor(config: Partial<VectorStoreConfig> = {}) {
+  constructor(
+    private db: Pool,
+    private logger: typeof logger,
+    config: Partial<VectorStoreConfig> = {}
+  ) {
     this.backend = config.backend || this.selectBestBackend()
     // Don't call async initialization in constructor
   }
@@ -91,7 +96,7 @@ export class VectorSearchService {
   private async initializePgVector(): Promise<void> {
     try {
       // Check if pgvector extension is installed
-      const result = await pool.query(
+      const result = await this.db.query(
         "SELECT ' + (await getTableColumns(pool, 'pg_extension')).join(', ') + ' FROM pg_extension WHERE extname = 'vector'"
       )
 
@@ -319,7 +324,7 @@ export class VectorSearchService {
     metadata: Record<string, any>
   ): Promise<boolean> {
     try {
-      await pool.query(
+      await this.db.query(
         `UPDATE document_embeddings
          SET metadata = $1, updated_at = NOW()
          WHERE document_id = $2 AND tenant_id = $3`,
@@ -341,7 +346,7 @@ export class VectorSearchService {
     document: VectorDocument
   ): Promise<{ id: string; success: boolean }> {
     try {
-      await pool.query(
+      await this.db.query(
         `INSERT INTO document_embeddings (
           tenant_id, document_id, content, embedding, metadata, created_at
         ) VALUES ($1, $2, $3, $4, $5, NOW())
@@ -404,7 +409,7 @@ export class VectorSearchService {
         LIMIT $3
       `
 
-      const result = await pool.query(query, params)
+      const result = await this.db.query(query, params)
 
       return result.rows
         .filter((row: any) => row.score >= minScore)
@@ -422,7 +427,7 @@ export class VectorSearchService {
 
   private async deleteDocumentPgVector(tenantId: string, documentId: string): Promise<boolean> {
     try {
-      await pool.query(
+      await this.db.query(
         'DELETE FROM document_embeddings WHERE tenant_id = $1 AND document_id = $2',
         [tenantId, documentId]
       )
@@ -619,7 +624,7 @@ export class VectorSearchService {
     options: { limit: number; fields: string[] }
   ): Promise<SearchResult[]> {
     try {
-      const result = await pool.query(
+      const result = await this.db.query(
         `SELECT
           document_id as id,
           content,
@@ -698,7 +703,7 @@ export class VectorSearchService {
    */
   async getStatistics(tenantId: string): Promise<any> {
     try {
-      const result = await pool.query(
+      const result = await this.db.query(
         `SELECT
           COUNT(*) as total_documents,
           AVG(LENGTH(content)) as avg_content_length,
