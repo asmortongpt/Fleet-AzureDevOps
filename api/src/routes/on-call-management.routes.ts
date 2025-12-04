@@ -1,4 +1,7 @@
 /**
+import { container } from '../container'
+import { asyncHandler } from '../middleware/error-handler'
+import { NotFoundError, ValidationError } from '../errors/app-error'
 import logger from '../config/logger'; // Wave 27: Add Winston logger
  * On-Call Management API Routes
  * Supports BR-4 (On-Call Management)
@@ -11,18 +14,18 @@ import logger from '../config/logger'; // Wave 27: Add Winston logger
  * - Geographic constraints
  */
 
-import express, { Request, Response } from 'express';
-import { Pool } from 'pg';
-import { z } from 'zod';
-import { authenticateJWT, AuthRequest } from '../middleware/auth';
-import { requirePermission } from '../middleware/permissions';
+import express, { Request, Response } from 'express'
+import { Pool } from 'pg'
+import { z } from 'zod'
+import { authenticateJWT, AuthRequest } from '../middleware/auth'
+import { requirePermission } from '../middleware/permissions'
 import { getErrorMessage } from '../utils/error-handler'
 
-const router = express.Router();
+const router = express.Router()
 
-let pool: Pool;
+let pool: Pool
 export function setDatabasePool(dbPool: Pool) {
-  pool = dbPool;
+  pool = dbPool
 }
 
 // =====================================================
@@ -39,13 +42,13 @@ const createOnCallPeriodSchema = z.object({
   on_call_vehicle_assignment_id: z.string().uuid().optional(),
   geographic_region: z.string().optional(),
   commuting_constraints: z.record(z.any()).optional(),
-});
+})
 
-const updateOnCallPeriodSchema = createOnCallPeriodSchema.partial();
+const updateOnCallPeriodSchema = createOnCallPeriodSchema.partial()
 
 const acknowledgeOnCallSchema = z.object({
   acknowledged: z.boolean(),
-});
+})
 
 const createCallbackTripSchema = z.object({
   on_call_period_id: z.string().uuid(),
@@ -63,7 +66,7 @@ const createCallbackTripSchema = z.object({
   notes: z.string().optional(),
   reimbursement_requested: z.boolean().default(false),
   reimbursement_amount: z.number().nonnegative().optional(),
-});
+})
 
 // =====================================================
 // GET /on-call-periods
@@ -84,47 +87,47 @@ router.get(
         is_active,
         start_date,
         end_date,
-      } = req.query;
+      } = req.query
 
-      const offset = (parseInt(page as string) - 1) * parseInt(limit as string);
-      const tenant_id = req.user!.tenant_id;
-      const user_scope = req.user!.scope_level;
+      const offset = (parseInt(page as string) - 1) * parseInt(limit as string)
+      const tenant_id = req.user!.tenant_id
+      const user_scope = req.user!.scope_level
 
-      let whereConditions = ['ocp.tenant_id = $1'];
-      let params: any[] = [tenant_id];
-      let paramIndex = 2;
+      let whereConditions = ['ocp.tenant_id = $1']
+      let params: any[] = [tenant_id]
+      let paramIndex = 2
 
       // Apply scope filtering
       if (user_scope === `own`) {
-        whereConditions.push(`dr.user_id = $${paramIndex++}`);
-        params.push(req.user!.id);
+        whereConditions.push(`dr.user_id = $${paramIndex++}`)
+        params.push(req.user!.id)
       } else if (user_scope === `team` && req.user!.team_driver_ids) {
-        whereConditions.push(`ocp.driver_id = ANY($${paramIndex++}::uuid[])`);
-        params.push(req.user!.team_driver_ids);
+        whereConditions.push(`ocp.driver_id = ANY($${paramIndex++}::uuid[])`)
+        params.push(req.user!.team_driver_ids)
       }
 
       if (driver_id) {
-        whereConditions.push(`ocp.driver_id = $${paramIndex++}`);
-        params.push(driver_id);
+        whereConditions.push(`ocp.driver_id = $${paramIndex++}`)
+        params.push(driver_id)
       }
       if (department_id) {
-        whereConditions.push(`ocp.department_id = $${paramIndex++}`);
-        params.push(department_id);
+        whereConditions.push(`ocp.department_id = $${paramIndex++}`)
+        params.push(department_id)
       }
       if (is_active !== undefined) {
-        whereConditions.push(`ocp.is_active = $${paramIndex++}`);
-        params.push(is_active === `true`);
+        whereConditions.push(`ocp.is_active = $${paramIndex++}`)
+        params.push(is_active === `true`)
       }
       if (start_date) {
-        whereConditions.push(`ocp.start_datetime >= $${paramIndex++}`);
-        params.push(start_date);
+        whereConditions.push(`ocp.start_datetime >= $${paramIndex++}`)
+        params.push(start_date)
       }
       if (end_date) {
-        whereConditions.push(`ocp.end_datetime <= $${paramIndex++}`);
-        params.push(end_date);
+        whereConditions.push(`ocp.end_datetime <= $${paramIndex++}`)
+        params.push(end_date)
       }
 
-      const whereClause = whereConditions.join(` AND `);
+      const whereClause = whereConditions.join(` AND `)
 
       const query = `
         SELECT
@@ -144,20 +147,20 @@ router.get(
         WHERE ${whereClause}
         ORDER BY ocp.start_datetime DESC
         LIMIT $${paramIndex++} OFFSET $${paramIndex}
-      `;
+      `
 
-      params.push(parseInt(limit as string), offset);
+      params.push(parseInt(limit as string), offset)
 
-      const result = await pool.query(query, params);
+      const result = await pool.query(query, params)
 
       const countQuery = `
         SELECT COUNT(*) as total
         FROM on_call_periods ocp
         JOIN drivers dr ON ocp.driver_id = dr.id
         WHERE ${whereClause}
-      `;
-      const countResult = await pool.query(countQuery, params.slice(0, -2));
-      const total = parseInt(countResult.rows[0].total);
+      `
+      const countResult = await pool.query(countQuery, params.slice(0, -2))
+      const total = parseInt(countResult.rows[0].total)
 
       res.json({
         periods: result.rows,
@@ -167,16 +170,16 @@ router.get(
           total,
           pages: Math.ceil(total / parseInt(limit as string)),
         },
-      });
+      })
     } catch (error: any) {
       logger.error(`Error fetching on-call periods:`, error) // Wave 27: Winston logger;
       res.status(500).json({
         error: 'Failed to fetch on-call periods',
         details: getErrorMessage(error),
-      });
+      })
     }
   }
-);
+)
 
 // =====================================================
 // GET /on-call-periods/:id
@@ -189,8 +192,8 @@ router.get(
   requirePermission('on_call:view:team'),
   async (req: AuthRequest, res: Response) => {
     try {
-      const { id } = req.params;
-      const tenant_id = req.user!.tenant_id;
+      const { id } = req.params
+      const tenant_id = req.user!.tenant_id
 
       const query = `
         SELECT
@@ -208,24 +211,24 @@ router.get(
         LEFT JOIN vehicle_assignments va ON ocp.on_call_vehicle_assignment_id = va.id
         LEFT JOIN vehicles v ON va.vehicle_id = v.id
         WHERE ocp.id = $1 AND ocp.tenant_id = $2
-      `;
+      `
 
-      const result = await pool.query(query, [id, tenant_id]);
+      const result = await pool.query(query, [id, tenant_id])
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'On-call period not found' });
+        return res.status(404).json({ error: 'On-call period not found' })
       }
 
-      res.json(result.rows[0]);
+      res.json(result.rows[0])
     } catch (error: any) {
       logger.error('Error fetching on-call period:', error) // Wave 27: Winston logger;
       res.status(500).json({
         error: 'Failed to fetch on-call period',
         details: getErrorMessage(error),
-      });
+      })
     }
   }
-);
+)
 
 // =====================================================
 // POST /on-call-periods
@@ -238,18 +241,18 @@ router.post(
   requirePermission('on_call:create:team'),
   async (req: AuthRequest, res: Response) => {
     try {
-      const data = createOnCallPeriodSchema.parse(req.body);
-      const tenant_id = req.user!.tenant_id;
-      const user_id = req.user!.id;
+      const data = createOnCallPeriodSchema.parse(req.body)
+      const tenant_id = req.user!.tenant_id
+      const user_id = req.user!.id
 
       // Validate dates
-      const startDate = new Date(data.start_datetime);
-      const endDate = new Date(data.end_datetime);
+      const startDate = new Date(data.start_datetime)
+      const endDate = new Date(data.end_datetime)
 
       if (endDate <= startDate) {
         return res.status(400).json({
           error: 'End datetime must be after start datetime',
-        });
+        })
       }
 
       const query = `
@@ -264,7 +267,7 @@ router.post(
           $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11
         )
         RETURNING *
-      `;
+      `
 
       const params = [
         tenant_id,
@@ -278,29 +281,29 @@ router.post(
         data.geographic_region || null,
         JSON.stringify(data.commuting_constraints || {}),
         user_id,
-      ];
+      ]
 
-      const result = await pool.query(query, params);
+      const result = await pool.query(query, params)
 
       res.status(201).json({
         message: 'On-call period created successfully',
         period: result.rows[0],
-      });
+      })
     } catch (error: any) {
       logger.error('Error creating on-call period:', error) // Wave 27: Winston logger;
       if (error instanceof z.ZodError) {
         return res.status(400).json({
           error: 'Validation error',
           details: error.errors,
-        });
+        })
       }
       res.status(500).json({
         error: 'Failed to create on-call period',
         details: getErrorMessage(error),
-      });
+      })
     }
   }
-);
+)
 
 // =====================================================
 // PUT /on-call-periods/:id
@@ -313,60 +316,60 @@ router.put(
   requirePermission(`on_call:create:team`),
   async (req: AuthRequest, res: Response) => {
     try {
-      const { id } = req.params;
-      const data = updateOnCallPeriodSchema.parse(req.body);
-      const tenant_id = req.user!.tenant_id;
+      const { id } = req.params
+      const data = updateOnCallPeriodSchema.parse(req.body)
+      const tenant_id = req.user!.tenant_id
 
-      const updates: string[] = [];
-      const params: any[] = [];
-      let paramIndex = 1;
+      const updates: string[] = []
+      const params: any[] = []
+      let paramIndex = 1
 
       Object.entries(data).forEach(([key, value]) => {
         if (value !== undefined) {
-          updates.push(`${key} = $${paramIndex++}`);
-          params.push(key === `commuting_constraints` ? JSON.stringify(value) : value);
+          updates.push(`${key} = $${paramIndex++}`)
+          params.push(key === `commuting_constraints` ? JSON.stringify(value) : value)
         }
-      });
+      })
 
       if (updates.length === 0) {
-        return res.status(400).json({ error: `No fields to update` });
+        return res.status(400).json({ error: `No fields to update` })
       }
 
-      updates.push(`updated_at = NOW()`);
-      params.push(id, tenant_id);
+      updates.push(`updated_at = NOW()`)
+      params.push(id, tenant_id)
 
       const query = `
         UPDATE on_call_periods
         SET ${updates.join(', ')}
         WHERE id = $${paramIndex++} AND tenant_id = $${paramIndex}
         RETURNING *
-      `;
+      `
 
-      const result = await pool.query(query, params);
+      const result = await pool.query(query, params)
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: `On-call period not found` });
+        return res.status(404).json({ error: `On-call period not found` })
       }
 
       res.json({
         message: 'On-call period updated successfully',
         period: result.rows[0],
-      });
+      })
     } catch (error: any) {
       logger.error('Error updating on-call period:', error) // Wave 27: Winston logger;
       if (error instanceof z.ZodError) {
         return res.status(400).json({
           error: 'Validation error',
           details: error.errors,
-        });
+        })
       }
       res.status(500).json({
         error: 'Failed to update on-call period',
         details: getErrorMessage(error),
-      });
+      })
     }
   }
-);
+)
 
 // =====================================================
 // POST /on-call-periods/:id/acknowledge
@@ -379,9 +382,9 @@ router.post(
   requirePermission('on_call:acknowledge:own'),
   async (req: AuthRequest, res: Response) => {
     try {
-      const { id } = req.params;
-      const data = acknowledgeOnCallSchema.parse(req.body);
-      const tenant_id = req.user!.tenant_id;
+      const { id } = req.params
+      const data = acknowledgeOnCallSchema.parse(req.body)
+      const tenant_id = req.user!.tenant_id
 
       const query = `
         UPDATE on_call_periods
@@ -391,12 +394,12 @@ router.post(
           updated_at = NOW()
         WHERE id = $2 AND tenant_id = $3
         RETURNING *
-      `;
+      `
 
-      const result = await pool.query(query, [data.acknowledged, id, tenant_id]);
+      const result = await pool.query(query, [data.acknowledged, id, tenant_id])
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'On-call period not found' });
+        return res.status(404).json({ error: 'On-call period not found' })
       }
 
       res.json({
@@ -404,22 +407,22 @@ router.post(
           ? 'On-call period acknowledged'
           : 'On-call acknowledgement removed',
         period: result.rows[0],
-      });
+      })
     } catch (error: any) {
       logger.error('Error acknowledging on-call period:', error) // Wave 27: Winston logger;
       if (error instanceof z.ZodError) {
         return res.status(400).json({
           error: 'Validation error',
           details: error.errors,
-        });
+        })
       }
       res.status(500).json({
         error: 'Failed to acknowledge on-call period',
         details: getErrorMessage(error),
-      });
+      })
     }
   }
-);
+)
 
 // =====================================================
 // GET /on-call-periods/active/current
@@ -432,28 +435,28 @@ router.get(
   requirePermission('on_call:view:team'),
   async (req: AuthRequest, res: Response) => {
     try {
-      const tenant_id = req.user!.tenant_id;
-      const { driver_id, department_id } = req.query;
+      const tenant_id = req.user!.tenant_id
+      const { driver_id, department_id } = req.query
 
       let whereConditions = [
         'ocp.tenant_id = $1',
         'ocp.is_active = true',
         'ocp.start_datetime <= NOW()',
         `ocp.end_datetime >= NOW()`,
-      ];
-      let params: any[] = [tenant_id];
-      let paramIndex = 2;
+      ]
+      let params: any[] = [tenant_id]
+      let paramIndex = 2
 
       if (driver_id) {
-        whereConditions.push(`ocp.driver_id = $${paramIndex++}`);
-        params.push(driver_id);
+        whereConditions.push(`ocp.driver_id = $${paramIndex++}`)
+        params.push(driver_id)
       }
       if (department_id) {
-        whereConditions.push(`ocp.department_id = $${paramIndex++}`);
-        params.push(department_id);
+        whereConditions.push(`ocp.department_id = $${paramIndex++}`)
+        params.push(department_id)
       }
 
-      const whereClause = whereConditions.join(` AND `);
+      const whereClause = whereConditions.join(` AND `)
 
       const query = `
         SELECT
@@ -471,20 +474,20 @@ router.get(
         LEFT JOIN vehicles v ON va.vehicle_id = v.id
         WHERE ${whereClause}
         ORDER BY ocp.start_datetime
-      `;
+      `
 
-      const result = await pool.query(query, params);
+      const result = await pool.query(query, params)
 
-      res.json(result.rows);
+      res.json(result.rows)
     } catch (error: any) {
       logger.error(`Error fetching current on-call periods:`, error) // Wave 27: Winston logger;
       res.status(500).json({
         error: 'Failed to fetch current on-call periods',
         details: getErrorMessage(error),
-      });
+      })
     }
   }
-);
+)
 
 // =====================================================
 // Callback Trips Management
@@ -497,8 +500,8 @@ router.get(
   requirePermission('on_call:view:team'),
   async (req: AuthRequest, res: Response) => {
     try {
-      const { id } = req.params;
-      const tenant_id = req.user!.tenant_id;
+      const { id } = req.params
+      const tenant_id = req.user!.tenant_id
 
       const query = `
         SELECT
@@ -508,20 +511,20 @@ router.get(
         LEFT JOIN vehicles v ON oct.vehicle_id = v.id
         WHERE oct.on_call_period_id = $1 AND oct.tenant_id = $2
         ORDER BY oct.trip_date DESC, oct.trip_start_time DESC
-      `;
+      `
 
-      const result = await pool.query(query, [id, tenant_id]);
+      const result = await pool.query(query, [id, tenant_id])
 
-      res.json(result.rows);
+      res.json(result.rows)
     } catch (error: any) {
       logger.error('Error fetching callback trips:', error) // Wave 27: Winston logger;
       res.status(500).json({
         error: 'Failed to fetch callback trips',
         details: getErrorMessage(error),
-      });
+      })
     }
   }
-);
+)
 
 // POST /callback-trips
 router.post(
@@ -530,8 +533,8 @@ router.post(
   requirePermission('on_call:view:own'),
   async (req: AuthRequest, res: Response) => {
     try {
-      const data = createCallbackTripSchema.parse(req.body);
-      const tenant_id = req.user!.tenant_id;
+      const data = createCallbackTripSchema.parse(req.body)
+      const tenant_id = req.user!.tenant_id
 
       const query = `
         INSERT INTO on_call_callback_trips (
@@ -545,7 +548,7 @@ router.post(
           $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, 'pending'
         )
         RETURNING *
-      `;
+      `
 
       const params = [
         tenant_id,
@@ -564,9 +567,9 @@ router.post(
         data.notes || null,
         data.reimbursement_requested,
         data.reimbursement_amount || null,
-      ];
+      ]
 
-      const result = await pool.query(query, params);
+      const result = await pool.query(query, params)
 
       // Update callback count on on-call period
       await pool.query(
@@ -574,27 +577,27 @@ router.post(
          SET callback_count = callback_count + 1
          WHERE id = $1 AND tenant_id = $2`,
         [data.on_call_period_id, tenant_id]
-      );
+      )
 
       res.status(201).json({
         message: `Callback trip logged successfully`,
         trip: result.rows[0],
-      });
+      })
     } catch (error: any) {
       logger.error('Error creating callback trip:', error) // Wave 27: Winston logger;
       if (error instanceof z.ZodError) {
         return res.status(400).json({
           error: 'Validation error',
           details: error.errors,
-        });
+        })
       }
       res.status(500).json({
         error: 'Failed to log callback trip',
         details: getErrorMessage(error),
-      });
+      })
     }
   }
-);
+)
 
 // DELETE /on-call-periods/:id
 router.delete(
@@ -603,34 +606,34 @@ router.delete(
   requirePermission('on_call:create:team'),
   async (req: AuthRequest, res: Response) => {
     try {
-      const { id } = req.params;
-      const tenant_id = req.user!.tenant_id;
+      const { id } = req.params
+      const tenant_id = req.user!.tenant_id
 
       const query = `
         DELETE FROM on_call_periods
         WHERE id = $1 AND tenant_id = $2 AND is_active = true
         RETURNING *
-      `;
+      `
 
-      const result = await pool.query(query, [id, tenant_id]);
+      const result = await pool.query(query, [id, tenant_id])
 
       if (result.rows.length === 0) {
         return res.status(404).json({
           error: 'On-call period not found or already inactive',
-        });
+        })
       }
 
       res.json({
         message: 'On-call period deleted successfully',
-      });
+      })
     } catch (error: any) {
       logger.error('Error deleting on-call period:', error) // Wave 27: Winston logger;
       res.status(500).json({
         error: 'Failed to delete on-call period',
         details: getErrorMessage(error),
-      });
+      })
     }
   }
-);
+)
 
-export default router;
+export default router

@@ -1,8 +1,10 @@
 import express, { Response } from 'express'
+import { container } from '../container'
+import { asyncHandler } from '../middleware/error-handler'
+import { NotFoundError, ValidationError } from '../errors/app-error'
 import { AuthRequest, authenticateJWT } from '../middleware/auth'
 import { requirePermission } from '../middleware/permissions'
 import { auditLog } from '../middleware/audit'
-import pool from '../config/database'
 import { z } from 'zod'
 
 const router = express.Router()
@@ -18,12 +20,12 @@ const elevationRequestSchema = z.object({
   reason: z.string().min(20).max(500),
   ticket_reference: z.string().min(1).max(100),
   duration_minutes: z.number().int().min(1).max(30).default(30)
-})
+}))
 
 const approvalSchema = z.object({
   approved: z.boolean(),
   notes: z.string().optional()
-})
+}))
 
 /**
  * POST /api/break-glass/request
@@ -43,7 +45,7 @@ router.post(
       )
 
       if (roleResult.rows.length === 0) {
-        return res.status(404).json({ error: `Role not found` })
+        return res.status(404).json({ error: `Role not found` }))
       }
 
       const role = roleResult.rows[0]
@@ -52,7 +54,7 @@ router.post(
         return res.status(400).json({
           error: 'This role does not support just-in-time elevation',
           role: role.name
-        })
+        }))
       }
 
       // Check if user already has an active elevation
@@ -66,7 +68,7 @@ router.post(
       if (activeResult.rows.length > 0) {
         return res.status(400).json({
           error: 'You already have an active or pending elevation request'
-        })
+        }))
       }
 
       // Create elevation request
@@ -92,19 +94,19 @@ router.post(
         role: role.name,
         reason: validated.reason,
         ticket: validated.ticket_reference
-      })
+      }))
 
       res.status(201).json({
         message: `Elevation request submitted. Awaiting approval from FleetAdmin.`,
         session_id: session.id,
         status: 'pending'
-      })
+      }))
     } catch (error) {
       if (error instanceof z.ZodError) {
-        return res.status(400).json({ error: 'Validation failed', details: error.errors })
+        return res.status(400).json({ error: 'Validation failed', details: error.errors }))
       }
       console.error('Break-glass request error:', error)
-      res.status(500).json({ error: 'Internal server error' })
+      res.status(500).json({ error: 'Internal server error' }))
     }
   }
 )
@@ -136,10 +138,10 @@ router.get(
         [req.user!.tenant_id, status || null]
       )
 
-      res.json({ data: result.rows })
+      res.json({ data: result.rows }))
     } catch (error) {
       console.error(`List elevation requests error:`, error)
-      res.status(500).json({ error: 'Internal server error' })
+      res.status(500).json({ error: 'Internal server error' }))
     }
   }
 )
@@ -167,21 +169,21 @@ router.post(
       )
 
       if (sessionResult.rows.length === 0) {
-        return res.status(404).json({ error: `Elevation request not found` })
+        return res.status(404).json({ error: `Elevation request not found` }))
       }
 
       const session = sessionResult.rows[0]
 
       // Verify tenant match
       if (session.tenant_id !== req.user!.tenant_id) {
-        return res.status(403).json({ error: 'Access denied' })
+        return res.status(403).json({ error: 'Access denied' }))
       }
 
       // Verify status is pending
       if (session.status !== 'pending') {
         return res.status(400).json({
           error: `Request cannot be approved. Current status: ${session.status}`
-        })
+        }))
       }
 
       if (validated.approved) {
@@ -219,7 +221,7 @@ router.post(
           message: 'Elevation request approved',
           expires_at: endTime,
           duration_minutes: session.max_duration_minutes
-        })
+        }))
       } else {
         // Deny
         await pool.query(
@@ -240,14 +242,14 @@ router.post(
           [session.tenant_id, session.user_id]
         )
 
-        res.json({ message: 'Elevation request denied' })
+        res.json({ message: 'Elevation request denied' }))
       }
     } catch (error) {
       if (error instanceof z.ZodError) {
-        return res.status(400).json({ error: 'Validation failed', details: error.errors })
+        return res.status(400).json({ error: 'Validation failed', details: error.errors }))
       }
       console.error('Approve elevation error:', error)
-      res.status(500).json({ error: 'Internal server error' })
+      res.status(500).json({ error: 'Internal server error' }))
     }
   }
 )
@@ -272,7 +274,7 @@ router.post(
       )
 
       if (sessionResult.rows.length === 0) {
-        return res.status(404).json({ error: `Elevation session not found` })
+        return res.status(404).json({ error: `Elevation session not found` }))
       }
 
       const session = sessionResult.rows[0]
@@ -283,7 +285,7 @@ router.post(
         session.tenant_id === req.user!.tenant_id
 
       if (!canRevoke) {
-        return res.status(403).json({ error: 'Access denied' })
+        return res.status(403).json({ error: 'Access denied' }))
       }
 
       // Update session status
@@ -305,10 +307,10 @@ router.post(
         [session.user_id, session.elevated_role_id]
       )
 
-      res.json({ message: `Elevation revoked successfully` })
+      res.json({ message: `Elevation revoked successfully` }))
     } catch (error) {
       console.error(`Revoke elevation error:`, error)
-      res.status(500).json({ error: 'Internal server error' })
+      res.status(500).json({ error: 'Internal server error' }))
     }
   }
 )
@@ -336,10 +338,10 @@ router.get(
         [req.user!.id]
       )
 
-      res.json({ data: result.rows })
+      res.json({ data: result.rows }))
     } catch (error) {
       console.error(`Get active elevations error:`, error)
-      res.status(500).json({ error: 'Internal server error' })
+      res.status(500).json({ error: 'Internal server error' }))
     }
   }
 )

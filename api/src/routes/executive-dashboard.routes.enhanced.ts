@@ -1,21 +1,24 @@
-import express, { Request, Response } from 'express';
-import { authenticateJWT } from '../middleware/auth';
-import { requirePermission } from '../middleware/permissions';
-import { auditLog } from '../middleware/audit';
-import executiveDashboardService from '../services/executive-dashboard.service';
-import { cacheMiddleware } from '../middleware/cache';
-import { z } from 'zod';
+import express, { Request, Response } from 'express'
+import { container } from '../container'
+import { asyncHandler } from '../middleware/error-handler'
+import { NotFoundError, ValidationError } from '../errors/app-error'
+import { authenticateJWT } from '../middleware/auth'
+import { requirePermission } from '../middleware/permissions'
+import { auditLog } from '../middleware/audit'
+import executiveDashboardService from '../services/executive-dashboard.service'
+import { cacheMiddleware } from '../middleware/cache'
+import { z } from 'zod'
 
-const router = express.Router();
+const router = express.Router()
 
-router.use(authenticateJWT);
+router.use(authenticateJWT)
 
 const KPIResponseSchema = z.object({
   totalVehicles: z.number(),
   activeVehicles: z.number(),
   fleetUtilizationRate: z.number(),
   avgFuelEfficiency: z.number(),
-});
+})
 
 router.get(
   '/kpis',
@@ -24,19 +27,19 @@ router.get(
   auditLog({ action: 'READ', resourceType: 'executive_dashboard' }),
   async (req: Request, res: Response) => {
     try {
-      const kpis = await executiveDashboardService.getKPIs(req.user!.tenant_id);
-      const result = KPIResponseSchema.parse(kpis);
-      res.json(result);
+      const kpis = await executiveDashboardService.getKPIs(req.user!.tenant_id)
+      const result = KPIResponseSchema.parse(kpis)
+      res.json(result)
     } catch (error) {
-      console.error('Get executive KPIs error:', error);
-      res.status(500).json({ error: 'Failed to fetch KPIs' });
+      console.error('Get executive KPIs error:', error)
+      res.status(500).json({ error: 'Failed to fetch KPIs' })
     }
-  },
-);
+  }
+)
 
 const TrendQuerySchema = z.object({
   days: z.string().optional(),
-});
+})
 
 const TrendResponseSchema = z.array(
   z.object({
@@ -45,8 +48,8 @@ const TrendResponseSchema = z.array(
     costs: z.number(),
     incidents: z.number(),
     maintenance: z.number(),
-  }),
-);
+  })
+)
 
 router.get(
   '/trends',
@@ -55,16 +58,16 @@ router.get(
   auditLog({ action: 'READ', resourceType: 'executive_dashboard' }),
   async (req: Request, res: Response) => {
     try {
-      const queryResult = TrendQuerySchema.parse(req.query);
-      const days = parseInt(queryResult.days || '30');
-      const trends = await executiveDashboardService.getTrends(req.user!.tenant_id, days);
-      const result = TrendResponseSchema.parse(trends);
-      res.json(result);
+      const queryResult = TrendQuerySchema.parse(req.query)
+      const days = parseInt(queryResult.days || '30')
+      const trends = await executiveDashboardService.getTrends(req.user!.tenant_id, days)
+      const result = TrendResponseSchema.parse(trends)
+      res.json(result)
     } catch (error) {
-      console.error('Get trend data error:', error);
-      res.status(500).json({ error: 'Failed to fetch trend data' });
+      console.error('Get trend data error:', error)
+      res.status(500).json({ error: 'Failed to fetch trend data' })
     }
-  },
-);
+  }
+)
 
-export default router;
+export default router

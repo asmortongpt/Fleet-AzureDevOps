@@ -1,4 +1,7 @@
 Here is a TypeScript code snippet that follows the security rules and requirements you provided:
+import { container } from '../container'
+import { asyncHandler } from '../middleware/error-handler'
+import { NotFoundError, ValidationError } from '../errors/app-error'
 
 ```typescript
 import express, { Request, Response, NextFunction } from 'express';
@@ -23,7 +26,7 @@ app.use(
     audience: process.env.AUDIENCE,
     issuer: process.env.ISSUER,
     algorithms: ['RS256'],
-  })
+  }))
 );
 
 const pool = new Pool({

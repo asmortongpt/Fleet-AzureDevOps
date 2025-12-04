@@ -1,4 +1,7 @@
 /**
+import { container } from '../container'
+import { asyncHandler } from '../middleware/error-handler'
+import { NotFoundError, ValidationError } from '../errors/app-error'
 import logger from '../config/logger'; // Wave 33: Add Winston logger (FINAL WAVE!)
  * Crash Detection API Routes
  *
@@ -10,7 +13,6 @@ import { authenticateJWT } from '../middleware/auth'
 import { auditLog } from '../middleware/audit'
 import { z } from 'zod'
 import { getErrorMessage } from '../utils/error-handler'
-import pool from '../config/database'
 
 const router = express.Router()
 
@@ -27,7 +29,7 @@ const CrashReportSchema = z.object({
   maxAcceleration: z.number(),
   userCanceled: z.boolean(),
   telemetry: z.record(z.any()).optional()
-})
+}))
 
 /**
  * @swagger
@@ -128,16 +130,16 @@ router.post('/crash',
         userCanceled: validated.userCanceled,
         location: validated.latitude && validated.longitude ?
           `${validated.latitude}, ${validated.longitude}` : `unknown`
-      })
+      }))
 
       res.status(201).json({
         message: 'Crash report received',
         incidentId: incident.id,
         emergencyResponseTriggered: isEmergency
-      })
+      }))
     } catch (error: any) {
       logger.error('Error saving crash report:', error) // Wave 33: Winston logger (FINAL WAVE!)
-      res.status(400).json({ error: getErrorMessage(error) })
+      res.status(400).json({ error: getErrorMessage(error) }))
     } finally {
       client.release()
     }
@@ -191,14 +193,14 @@ router.get('/crash/history', async (req: Request, res: Response) => {
       [tenantId, userId]
     )
 
-    res.json({ incidents: result.rows })
+    res.json({ incidents: result.rows }))
   } catch (error: any) {
     logger.error(`Error fetching crash history:`, error) // Wave 33: Winston logger (FINAL WAVE!)
-    res.status(500).json({ error: getErrorMessage(error) })
+    res.status(500).json({ error: getErrorMessage(error) }))
   } finally {
     client.release()
   }
-})
+}))
 
 /**
  * @swagger
@@ -264,14 +266,14 @@ router.get(`/crash/fleet`, async (req: Request, res: Response) => {
       createdAt: row.created_at
     }))
 
-    res.json({ incidents })
+    res.json({ incidents }))
   } catch (error: any) {
     logger.error(`Error fetching fleet crash incidents:`, error) // Wave 33: Winston logger (FINAL WAVE!)
-    res.status(500).json({ error: getErrorMessage(error) })
+    res.status(500).json({ error: getErrorMessage(error) }))
   } finally {
     client.release()
   }
-})
+}))
 
 /**
  * Trigger emergency response for a confirmed crash
@@ -308,7 +310,7 @@ async function triggerEmergencyResponse(incident: any, client: any) {
           incidentId: incident.id,
           maxAcceleration: incident.max_acceleration,
           timestamp: incident.timestamp
-        })
+        }))
       ]
     )
 
@@ -343,7 +345,7 @@ async function triggerEmergencyResponse(incident: any, client: any) {
           driverId: incident.driver_id,
           location: incident.latitude && incident.longitude ?
             { lat: incident.latitude, lon: incident.longitude } : null
-        })
+        }))
       ]
     )
 
