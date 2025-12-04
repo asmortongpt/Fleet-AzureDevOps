@@ -1,10 +1,12 @@
 /**
+import { container } from '../container'
+import { asyncHandler } from '../middleware/error-handler'
+import { NotFoundError, ValidationError } from '../errors/app-error'
  * Scheduling Notifications Routes
  * API endpoints for managing scheduling notification preferences
  */
 
 import express, { Request, Response } from 'express'
-import pool from '../config/database'
 import schedulingNotificationService from '../services/scheduling-notification.service'
 import { logger } from '../utils/logger'
 
@@ -47,7 +49,7 @@ router.get('/preferences', async (req: Request, res: Response) => {
           createdAt: null,
           updatedAt: null
         }
-      })
+      }))
     }
 
     const prefs = result.rows[0]
@@ -64,15 +66,15 @@ router.get('/preferences', async (req: Request, res: Response) => {
         createdAt: prefs.created_at,
         updatedAt: prefs.updated_at
       }
-    })
+    }))
   } catch (error) {
-    logger.error(`Error fetching notification preferences`, { error })
+    logger.error(`Error fetching notification preferences`, { error }))
     res.status(500).json({
       success: false,
       error: 'Failed to fetch notification preferences'
-    })
+    }))
   }
-})
+}))
 
 /**
  * PUT /api/scheduling-notifications/preferences
@@ -95,7 +97,7 @@ router.put('/preferences', async (req: Request, res: Response) => {
       return res.status(400).json({
         success: false,
         error: 'reminderTimes must be an array of numbers'
-      })
+      }))
     }
 
     if (reminderTimes) {
@@ -104,7 +106,7 @@ router.put('/preferences', async (req: Request, res: Response) => {
           return res.status(400).json({
             success: false,
             error: 'Reminder times must be numbers between 0 and 168 (hours)'
-          })
+          }))
         }
       }
     }
@@ -115,14 +117,14 @@ router.put('/preferences', async (req: Request, res: Response) => {
       return res.status(400).json({
         success: false,
         error: 'quietHoursStart must be in HH:MM format'
-      })
+      }))
     }
 
     if (quietHoursEnd && !timeRegex.test(quietHoursEnd)) {
       return res.status(400).json({
         success: false,
         error: 'quietHoursEnd must be in HH:MM format'
-      })
+      }))
     }
 
     await schedulingNotificationService.updateNotificationPreferences(userId, {
@@ -133,7 +135,7 @@ router.put('/preferences', async (req: Request, res: Response) => {
       reminderTimes,
       quietHoursStart,
       quietHoursEnd
-    })
+    }))
 
     // Fetch updated preferences
     const result = await pool.query(
@@ -152,7 +154,7 @@ router.put('/preferences', async (req: Request, res: Response) => {
 
     const prefs = result.rows[0]
 
-    logger.info(`Notification preferences updated`, { userId })
+    logger.info(`Notification preferences updated`, { userId }))
 
     res.json({
       success: true,
@@ -167,15 +169,15 @@ router.put('/preferences', async (req: Request, res: Response) => {
         quietHoursEnd: prefs.quiet_hours_end,
         updatedAt: prefs.updated_at
       }
-    })
+    }))
   } catch (error) {
-    logger.error('Error updating notification preferences', { error })
+    logger.error('Error updating notification preferences', { error }))
     res.status(500).json({
       success: false,
       error: 'Failed to update notification preferences'
-    })
+    }))
   }
-})
+}))
 
 /**
  * POST /api/scheduling-notifications/test
@@ -190,7 +192,7 @@ router.post('/test', async (req: Request, res: Response) => {
       return res.status(400).json({
         success: false,
         error: 'channels must be an array of notification types (email, sms, teams)'
-      })
+      }))
     }
 
     const validChannels = ['email', 'sms', 'teams']
@@ -199,27 +201,27 @@ router.post('/test', async (req: Request, res: Response) => {
         return res.status(400).json({
           success: false,
           error: `Invalid channel: ${channel}. Must be one of: ${validChannels.join(`, `)}`
-        })
+        }))
       }
     }
 
     await schedulingNotificationService.sendTestNotification(userId, channels)
 
-    logger.info(`Test notification sent`, { userId, channels })
+    logger.info(`Test notification sent`, { userId, channels }))
 
     res.json({
       success: true,
       message: `Test notifications sent via: ${channels.join(`, `)}`,
       channels
-    })
+    }))
   } catch (error) {
-    logger.error('Error sending test notification', { error })
+    logger.error('Error sending test notification', { error }))
     res.status(500).json({
       success: false,
       error: 'Failed to send test notification'
-    })
+    }))
   }
-})
+}))
 
 /**
  * GET /api/scheduling-notifications/history
@@ -240,7 +242,7 @@ router.get('/history', async (req: Request, res: Response) => {
       return res.status(404).json({
         success: false,
         error: `User not found`
-      })
+      }))
     }
 
     const userEmail = userResult.rows[0].email
@@ -261,15 +263,15 @@ router.get('/history', async (req: Request, res: Response) => {
       success: true,
       count: result.rows.length,
       history: result.rows
-    })
+    }))
   } catch (error) {
-    logger.error('Error fetching notification history', { error })
+    logger.error('Error fetching notification history', { error }))
     res.status(500).json({
       success: false,
       error: 'Failed to fetch notification history'
-    })
+    }))
   }
-})
+}))
 
 /**
  * GET /api/scheduling-notifications/stats
@@ -313,15 +315,15 @@ router.get('/stats', async (req: Request, res: Response) => {
         firstNotification: stats.first_notification,
         lastNotification: stats.last_notification
       }
-    })
+    }))
   } catch (error) {
-    logger.error('Error fetching notification stats', { error })
+    logger.error('Error fetching notification stats', { error }))
     res.status(500).json({
       success: false,
       error: 'Failed to fetch notification statistics'
-    })
+    }))
   }
-})
+}))
 
 /**
  * POST /api/scheduling-notifications/resend/:id
@@ -338,7 +340,7 @@ router.post('/resend/:id', async (req: Request, res: Response) => {
       return res.status(403).json({
         success: false,
         error: 'Insufficient permissions. Admin or Fleet Manager role required.'
-      })
+      }))
     }
 
     if (type === 'reservation') {
@@ -357,7 +359,7 @@ router.post('/resend/:id', async (req: Request, res: Response) => {
         return res.status(404).json({
           success: false,
           error: 'Reservation not found'
-        })
+        }))
       }
 
       const reservation = result.rows[0]
@@ -376,7 +378,7 @@ router.post('/resend/:id', async (req: Request, res: Response) => {
       res.json({
         success: true,
         message: 'Reservation notification resent successfully'
-      })
+      }))
     } else if (type === 'maintenance') {
       const result = await pool.query(
         `SELECT sbs.*, v.make, v.model, v.license_plate, v.vin,
@@ -396,7 +398,7 @@ router.post('/resend/:id', async (req: Request, res: Response) => {
         return res.status(404).json({
           success: false,
           error: 'Maintenance appointment not found'
-        })
+        }))
       }
 
       const appointment = result.rows[0]
@@ -415,20 +417,20 @@ router.post('/resend/:id', async (req: Request, res: Response) => {
       res.json({
         success: true,
         message: 'Maintenance notification resent successfully'
-      })
+      }))
     } else {
       return res.status(400).json({
         success: false,
         error: 'Invalid type. Must be "reservation" or "maintenance"'
-      })
+      }))
     }
   } catch (error) {
-    logger.error('Error resending notification', { error })
+    logger.error('Error resending notification', { error }))
     res.status(500).json({
       success: false,
       error: 'Failed to resend notification'
-    })
+    }))
   }
-})
+}))
 
 export default router

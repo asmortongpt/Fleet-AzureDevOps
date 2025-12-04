@@ -1,4 +1,7 @@
 import express, { Request, Response } from 'express'
+import { container } from '../container'
+import { asyncHandler } from '../middleware/error-handler'
+import { NotFoundError, ValidationError } from '../errors/app-error'
 import logger from '../config/logger'; // Wave 29: Add Winston logger
 import { authenticateJWT } from '../middleware/auth'
 import { getErrorMessage } from '../utils/error-handler'
@@ -27,12 +30,12 @@ router.get('/:userId', authenticateJWT, async (req: Request, res: Response) => {
     res.json({
       success: true,
       presence
-    })
+    }))
   } catch (error: any) {
     logger.error('Error fetching user presence:', getErrorMessage(error)) // Wave 29: Winston logger
-    res.status(500).json({ error: getErrorMessage(error) })
+    res.status(500).json({ error: getErrorMessage(error) }))
   }
-})
+}))
 
 /**
  * POST /api/presence
@@ -45,7 +48,7 @@ router.post('/', authenticateJWT, async (req: Request, res: Response) => {
     if (!userId || !availability || !activity) {
       return res.status(400).json({
         error: 'Missing required fields: userId, availability, activity'
-      })
+      }))
     }
 
     await setPresence(userId, availability, activity, expirationDuration, statusMessage)
@@ -53,12 +56,12 @@ router.post('/', authenticateJWT, async (req: Request, res: Response) => {
     res.json({
       success: true,
       message: 'Presence updated successfully'
-    })
+    }))
   } catch (error: any) {
     logger.error('Error setting user presence:', getErrorMessage(error)) // Wave 29: Winston logger
-    res.status(500).json({ error: getErrorMessage(error) })
+    res.status(500).json({ error: getErrorMessage(error) }))
   }
-})
+}))
 
 /**
  * GET /api/presence/batch
@@ -69,7 +72,7 @@ router.get('/batch/users', authenticateJWT, async (req: Request, res: Response) 
     const { userIds } = req.query
 
     if (!userIds) {
-      return res.status(400).json({ error: 'Missing required query parameter: userIds' })
+      return res.status(400).json({ error: 'Missing required query parameter: userIds' }))
     }
 
     const userIdList = (userIds as string).split(',')
@@ -80,12 +83,12 @@ router.get('/batch/users', authenticateJWT, async (req: Request, res: Response) 
       success: true,
       count: presences.length,
       presences
-    })
+    }))
   } catch (error: any) {
     logger.error('Error fetching batch presence:', getErrorMessage(error)) // Wave 29: Winston logger
-    res.status(500).json({ error: getErrorMessage(error) })
+    res.status(500).json({ error: getErrorMessage(error) }))
   }
-})
+}))
 
 /**
  * GET /api/presence/driver/:driverId
@@ -101,12 +104,12 @@ router.get('/driver/:driverId', authenticateJWT, async (req: Request, res: Respo
       success: true,
       driverId,
       ...availability
-    })
+    }))
   } catch (error: any) {
     logger.error('Error fetching driver availability:', getErrorMessage(error)) // Wave 29: Winston logger
-    res.status(500).json({ error: getErrorMessage(error) })
+    res.status(500).json({ error: getErrorMessage(error) }))
   }
-})
+}))
 
 /**
  * GET /api/presence/drivers
@@ -122,12 +125,12 @@ router.get('/drivers/all', authenticateJWT, async (req: Request, res: Response) 
       success: true,
       count: drivers.length,
       drivers
-    })
+    }))
   } catch (error: any) {
     logger.error('Error fetching all drivers availability:', getErrorMessage(error)) // Wave 29: Winston logger
-    res.status(500).json({ error: getErrorMessage(error) })
+    res.status(500).json({ error: getErrorMessage(error) }))
   }
-})
+}))
 
 /**
  * GET /api/presence/drivers/available
@@ -143,12 +146,12 @@ router.get('/drivers/available', authenticateJWT, async (req: Request, res: Resp
       success: true,
       count: availableDrivers.length,
       drivers: availableDrivers
-    })
+    }))
   } catch (error: any) {
     logger.error('Error fetching available drivers:', getErrorMessage(error)) // Wave 29: Winston logger
-    res.status(500).json({ error: getErrorMessage(error) })
+    res.status(500).json({ error: getErrorMessage(error) }))
   }
-})
+}))
 
 /**
  * POST /api/presence/intelligent-routing
@@ -161,14 +164,14 @@ router.post('/intelligent-routing', authenticateJWT, async (req: Request, res: R
     if (!taskPriority || !candidateUserIds || !Array.isArray(candidateUserIds)) {
       return res.status(400).json({
         error: 'Missing required fields: taskPriority, candidateUserIds (array)'
-      })
+      }))
     }
 
     const validPriorities = ['low', 'medium', 'high', 'critical']
     if (!validPriorities.includes(taskPriority)) {
       return res.status(400).json({
         error: `Invalid priority. Must be one of: ${validPriorities.join(`, `)}`
-      })
+      }))
     }
 
     const suggestion = await getIntelligentRoutingSuggestion(taskPriority, candidateUserIds)
@@ -176,12 +179,12 @@ router.post('/intelligent-routing', authenticateJWT, async (req: Request, res: R
     res.json({
       success: true,
       suggestion
-    })
+    }))
   } catch (error: any) {
     logger.error(`Error getting intelligent routing suggestion:`, getErrorMessage(error)) // Wave 29: Winston logger
-    res.status(500).json({ error: getErrorMessage(error) })
+    res.status(500).json({ error: getErrorMessage(error) }))
   }
-})
+}))
 
 /**
  * POST /api/presence/subscribe
@@ -194,7 +197,7 @@ router.post('/subscribe', authenticateJWT, async (req: Request, res: Response) =
     if (!userIds || !Array.isArray(userIds) || !webhookUrl) {
       return res.status(400).json({
         error: 'Missing required fields: userIds (array), webhookUrl'
-      })
+      }))
     }
 
     // Note: This would require proper webhook setup
@@ -203,11 +206,11 @@ router.post('/subscribe', authenticateJWT, async (req: Request, res: Response) =
       success: true,
       message: 'Presence subscription created',
       note: 'Webhook subscriptions require proper Azure configuration'
-    })
+    }))
   } catch (error: any) {
     logger.error('Error creating presence subscription:', getErrorMessage(error)) // Wave 29: Winston logger
-    res.status(500).json({ error: getErrorMessage(error) })
+    res.status(500).json({ error: getErrorMessage(error) }))
   }
-})
+}))
 
 export default router
