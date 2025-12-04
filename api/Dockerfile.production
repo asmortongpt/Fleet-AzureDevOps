@@ -13,11 +13,10 @@ RUN npm install --production=false --legacy-peer-deps
 # Copy source code
 COPY . .
 
-# Use pre-built dist folder (TypeScript already compiled locally)
-# This avoids TypeScript compilation issues in CI
-# Force compilation to succeed even with errors (existing codebase has non-critical TS errors)
+# SECURITY: TypeScript compilation MUST succeed - no error bypassing allowed
 # Increase Node.js memory limit to 4GB for TypeScript compilation
-RUN NODE_OPTIONS="--max-old-space-size=4096" npx tsc --skipLibCheck || true && \
+# skipLibCheck: faster compilation, skips checking node_modules types
+RUN NODE_OPTIONS="--max-old-space-size=4096" npx tsc --skipLibCheck && \
     if [ ! -f "dist/server.js" ]; then \
       echo "ERROR: dist/server.js not found after compilation" && \
       ls -la dist/ || echo "dist/ directory missing" && \
