@@ -3,8 +3,8 @@
  * Provides semantic search and context-aware responses using vector embeddings
  */
 
-import pool from '../config/database'
-import { logger } from '../utils/logger'
+import { Pool } from 'pg'
+import logger from '../utils/logger'
 import OpenAI from 'openai'
 
 const openai = new OpenAI({
@@ -48,6 +48,11 @@ class RAGEngineService {
   private embeddingModel = 'text-embedding-3-small'
   private chatModel = 'gpt-4o-mini'
 
+  constructor(
+    private db: Pool,
+    private logger: typeof logger
+  ) {}
+
   /**
    * Index a document into the RAG system
    */
@@ -60,13 +65,13 @@ class RAGEngineService {
     try {
       // Split document into chunks (approximately 500 tokens each)
       const chunks = this.splitIntoChunks(document.content, 500)
-      logger.info('Document split into chunks', { chunks: chunks.length, title: document.document_title })
+      this.logger.info('Document split into chunks', { chunks: chunks.length, title: document.document_title })
 
       // Generate embeddings for each chunk
       const embeddingsPromises = chunks.map(async (chunk, index) => {
         const embedding = await this.generateEmbedding(chunk)
 
-        return pool.query(
+        return this.db.query(
           `INSERT INTO embedding_vectors (
             tenant_id, document_type, document_id, document_title,
             document_source, content_chunk, chunk_index, chunk_total,
@@ -92,7 +97,7 @@ class RAGEngineService {
       await Promise.all(embeddingsPromises)
 
       const processingTime = Date.now() - startTime
-      logger.info(`Document indexed successfully`, {
+      this.logger.info(`Document indexed successfully`, {
         title: document.document_title,
         chunks: chunks.length,
         processingTime
@@ -103,7 +108,7 @@ class RAGEngineService {
         document_id: document.document_id || 'generated'
       }
     } catch (error: any) {
-      logger.error(`Error indexing document`, { error: error.message, document: document.document_title })
+      this.logger.error(`Error indexing document`, { error: error.message, document: document.document_title })
       throw error
     }
   }
@@ -153,12 +158,12 @@ class RAGEngineService {
 
       sqlQuery += ` ORDER BY similarity DESC LIMIT ${maxChunks}`
 
-      const result = await pool.query(sqlQuery, params)
+      const result = await this.db.query(sqlQuery, params)
 
       const retrievedChunks: EmbeddingChunk[] = result.rows
 
       if (retrievedChunks.length === 0) {
-        logger.warn(`No relevant chunks found for query`, { query: query.query })
+        this.logger.warn(`No relevant chunks found for query`, { query: query.query })
         return {
           answer: 'I could not find relevant information in the fleet knowledge base to answer your question.',
           confidence_score: 0,
@@ -196,7 +201,7 @@ class RAGEngineService {
         processing_time_ms: processingTime
       }
     } catch (error: any) {
-      logger.error(`RAG query error`, { error: error.message, query: query.query })
+      this.logger.error(`RAG query error`, { error: error.message, query: query.query })
       throw error
     }
   }
@@ -246,7 +251,7 @@ ${contextText}`
 
       return response.data[0].embedding
     } catch (error: any) {
-      logger.error('Error generating embedding', { error: error.message })
+      this.logger.error('Error generating embedding', { error: error.message })
       throw error
     }
   }
@@ -321,7 +326,7 @@ ${contextText}`
         similarity: chunk.similarity
       }))
 
-      await pool.query(
+      await this.db.query(
         `INSERT INTO rag_queries (
           tenant_id, user_id, query_text, query_embedding, context_type,
           retrieved_chunks, generated_response, confidence_score,
@@ -341,7 +346,7 @@ ${contextText}`
         ]
       )
     } catch (error) {
-      logger.warn(`Failed to log RAG query`, { error })
+      this.logger.warn(`Failed to log RAG query`, { error })
     }
   }
 
@@ -354,27 +359,27 @@ ${contextText}`
     wasHelpful: boolean,
     feedback?: string
   ): Promise<void> {
-    await pool.query(
+    await this.db.query(
       `UPDATE rag_queries
        SET was_helpful = $1, user_feedback = $2
        WHERE id = $3 AND tenant_id = $4`,
       [wasHelpful, feedback || null, queryId, tenantId]
     )
 
-    logger.info('RAG feedback recorded', { queryId, wasHelpful })
+    this.logger.info('RAG feedback recorded', { queryId, wasHelpful })
   }
 
   /**
    * Delete document from RAG system
    */
   async deleteDocument(tenantId: string, documentId: string): Promise<number> {
-    const result = await pool.query(
+    const result = await this.db.query(
       `DELETE FROM embedding_vectors
        WHERE tenant_id = $1 AND document_id = $2',
       [tenantId, documentId]
     )
 
-    logger.info('Document deleted from RAG', { documentId, chunksDeleted: result.rowCount })
+    this.logger.info('Document deleted from RAG', { documentId, chunksDeleted: result.rowCount })
     return result.rowCount || 0
   }
 
@@ -382,7 +387,7 @@ ${contextText}`
    * Get document statistics
    */
   async getStatistics(tenantId: string): Promise<any> {
-    const result = await pool.query(
+    const result = await this.db.query(
       `SELECT
         COUNT(DISTINCT document_id) as total_documents,
         COUNT(*) as total_chunks,
@@ -393,7 +398,7 @@ ${contextText}`
       [tenantId]
     )
 
-    const queryStats = await pool.query(
+    const queryStats = await this.db.query(
       `SELECT
         COUNT(*) as total_queries,
         AVG(confidence_score) as avg_confidence,
@@ -426,17 +431,16 @@ ${contextText}`
         successful++
       } catch (error) {
         failed++
-        logger.error('Failed to index document in bulk operation', {
+        this.logger.error('Failed to index document in bulk operation', {
           title: document.document_title
         })
       }
     }
 
-    logger.info('Bulk indexing completed', { total: documents.length, successful, failed })
+    this.logger.info('Bulk indexing completed', { total: documents.length, successful, failed })
 
     return { total: documents.length, successful, failed }
   }
 }
 
-export const ragEngineService = new RAGEngineService()
-export default ragEngineService
+export default RAGEngineService

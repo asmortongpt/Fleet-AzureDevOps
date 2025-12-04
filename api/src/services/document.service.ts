@@ -11,7 +11,7 @@
 
 import { BlobServiceClient, ContainerClient, BlobSASPermissions, generateBlobSASQueryParameters, StorageSharedKeyCredential } from '@azure/storage-blob'
 import crypto from 'crypto'
-import pool from '../config/database'
+import { Pool } from 'pg'
 
 export interface DocumentMetadata {
   vehicleId?: string
@@ -55,7 +55,9 @@ export interface DocumentFilters {
   isArchived?: boolean
 }
 
-export class DocumentService {
+export default class DocumentService {
+  private readonly db: Pool
+  private readonly logger: any
   private blobServiceClient: BlobServiceClient | null = null
   private accountName: string = ''
   private accountKey: string = ''
@@ -82,11 +84,14 @@ export class DocumentService {
   // Container name for fleet documents
   private readonly CONTAINER_NAME = 'fleet-documents'
 
-  constructor() {
+  constructor(db: Pool, logger: any) {
+    this.db = db
+    this.logger = logger
+
     // Graceful initialization - only initialize when Azure Storage is configured
     const connectionString = process.env.AZURE_STORAGE_CONNECTION_STRING
     if (!connectionString) {
-      console.warn('⚠️  AZURE_STORAGE_CONNECTION_STRING is not configured - document features will be disabled')
+      this.logger.warn('⚠️  AZURE_STORAGE_CONNECTION_STRING is not configured - document features will be disabled')
       return
     }
 
@@ -98,21 +103,21 @@ export class DocumentService {
       const accountKeyMatch = connectionString.match(/AccountKey=([^;]+)/)
 
       if (!accountNameMatch || !accountKeyMatch) {
-        console.error('Invalid Azure Storage connection string format')
+        this.logger.error('Invalid Azure Storage connection string format')
         return }
 
       this.accountName = accountNameMatch[1]
       this.accountKey = accountKeyMatch[1]
 
       this.isInitialized = true
-      console.log('✅ DocumentService initialized successfully')
+      this.logger.info('✅ DocumentService initialized successfully')
 
       // Initialize container
       this.initializeContainer().catch(err => {
-        console.error('Error initializing document container:', err)
+        this.logger.error('Error initializing document container:', err)
       })
     } catch (error) {
-      console.error('Error initializing DocumentService:', error)
+      this.logger.error('Error initializing DocumentService:', error)
       this.isInitialized = false
     }
   }
@@ -135,9 +140,9 @@ export class DocumentService {
       await containerClient.createIfNotExists({
         access: 'private'
       })
-      console.log(`✅ Container initialized: ${this.CONTAINER_NAME}`)
+      this.logger.info(`✅ Container initialized: ${this.CONTAINER_NAME}`)
     } catch (error) {
-      console.error(`Error creating container ${this.CONTAINER_NAME}:`, error)
+      this.logger.error(`Error creating container ${this.CONTAINER_NAME}:`, error)
     }
   }
 
@@ -214,7 +219,7 @@ export class DocumentService {
       const blobUrl = blockBlobClient.url
 
       // Store in database
-      const result = await pool.query(
+      const result = await this.db.query(
         `INSERT INTO fleet_documents (
           vehicle_id, driver_id, work_order_id, document_type,
           title, description, file_name, original_file_name,
@@ -263,7 +268,7 @@ export class DocumentService {
 
       return result.rows[0] as DocumentRecord
     } catch (error) {
-      console.error(`Error uploading document:`, error)
+      this.logger.error(`Error uploading document:`, error)
       throw error
     }
   }
@@ -303,7 +308,7 @@ export class DocumentService {
 
       const params = tenantId ? [documentId, tenantId] : [documentId]
 
-      const result = await pool.query(query, params)
+      const result = await this.db.query(query, params)
 
       if (result.rows.length === 0) {
         return null
@@ -336,7 +341,7 @@ export class DocumentService {
         downloadUrl
       }
     } catch (error) {
-      console.error('Error getting document:', error)
+      this.logger.error('Error getting document:', error)
       throw error
     }
   }
@@ -410,7 +415,7 @@ export class DocumentService {
 
       query += ` ORDER BY uploaded_at DESC`
 
-      const result = await pool.query(query, params)
+      const result = await this.db.query(query, params)
 
       return result.rows.map(doc => ({
         id: doc.id,
@@ -433,7 +438,7 @@ export class DocumentService {
         tenantId: doc.tenant_id
       }))
     } catch (error) {
-      console.error(`Error listing documents:`, error)
+      this.logger.error(`Error listing documents:`, error)
       throw error
     }
   }
@@ -469,12 +474,12 @@ export class DocumentService {
         : `DELETE FROM fleet_documents WHERE id = $1 RETURNING id`
 
       const deleteParams = tenantId ? [documentId, tenantId] : [documentId]
-      const result = await pool.query(deleteQuery, deleteParams)
+      const result = await this.db.query(deleteQuery, deleteParams)
 
-      console.log(`✅ Deleted document: ${documentId}`)
+      this.logger.info(`✅ Deleted document: ${documentId}`)
       return result.rows.length > 0
     } catch (error) {
-      console.error(`Error deleting document:`, error)
+      this.logger.error(`Error deleting document:`, error)
       throw error
     }
   }
@@ -503,7 +508,7 @@ export class DocumentService {
            ORDER BY expires_at ASC`
 
       const params = tenantId ? [tenantId, daysThresholdNum] : [daysThresholdNum]
-      const result = await pool.query(query, params)
+      const result = await this.db.query(query, params)
 
       return result.rows.map(doc => ({
         id: doc.id,
@@ -526,7 +531,7 @@ export class DocumentService {
         tenantId: doc.tenant_id
       }))
     } catch (error) {
-      console.error('Error getting expiring documents:', error)
+      this.logger.error('Error getting expiring documents:', error)
       throw error
     }
   }
@@ -553,7 +558,7 @@ export class DocumentService {
       const sasToken = generateBlobSASQueryParameters(sasOptions, sharedKeyCredential).toString()
       return `${blobUrl}?${sasToken}`
     } catch (error) {
-      console.error(`Error generating SAS URL:`, error)
+      this.logger.error(`Error generating SAS URL:`, error)
       throw error
     }
   }
@@ -568,11 +573,11 @@ export class DocumentService {
         : 'UPDATE fleet_documents SET is_archived = true WHERE id = $1 RETURNING id'
 
       const params = tenantId ? [documentId, tenantId] : [documentId]
-      const result = await pool.query(query, params)
+      const result = await this.db.query(query, params)
 
       return result.rows.length > 0
     } catch (error) {
-      console.error('Error archiving document:', error)
+      this.logger.error('Error archiving document:', error)
       throw error
     }
   }
@@ -585,4 +590,5 @@ export class DocumentService {
   }
 }
 
-export default new DocumentService()
+// Note: Service is now registered in DI container (container.ts)
+// Use: container.resolve('documentService') or req.container.resolve('documentService')
