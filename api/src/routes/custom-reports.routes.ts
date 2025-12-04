@@ -26,7 +26,7 @@ router.get(
       res.json(dataSources)
     } catch (error) {
       logger.error('Get data sources error:', error) // Wave 21: Winston logger
-      res.status(500).json({ error: 'Internal server error' }))
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )
@@ -41,7 +41,7 @@ router.get(
       res.json(templates)
     } catch (error) {
       logger.error('Get templates error:', error) // Wave 21: Winston logger
-      res.status(500).json({ error: 'Internal server error' }))
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )
@@ -57,7 +57,7 @@ router.post(
       const { report_name } = req.body
 
       if (!report_name) {
-        return res.status(400).json({ error: 'Report name is required' }))
+        return throw new ValidationError("Report name is required")
       }
 
       const report = await customReportService.createFromTemplate(
@@ -70,7 +70,7 @@ router.post(
       res.status(201).json(report)
     } catch (error) {
       logger.error('Create from template error:', error) // Wave 21: Winston logger
-      res.status(500).json({ error: 'Internal server error' }))
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )
@@ -88,7 +88,7 @@ router.get(
       res.json(reports)
     } catch (error) {
       logger.error('List reports error:', error) // Wave 21: Winston logger
-      res.status(500).json({ error: 'Internal server error' }))
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )
@@ -107,13 +107,13 @@ router.get(
       )
 
       if (!report) {
-        return res.status(404).json({ error: 'Report not found' }))
+        return throw new NotFoundError("Report not found")
       }
 
       res.json(report)
     } catch (error) {
       logger.error('Get report error:', error) // Wave 21: Winston logger
-      res.status(500).json({ error: 'Internal server error' }))
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )
@@ -130,7 +130,7 @@ router.post(
       if (!reportData.report_name || !reportData.data_sources || !reportData.columns) {
         return res.status(400).json({
           error: 'Missing required fields: report_name, data_sources, columns'
-        }))
+        })
       }
 
       const report = await customReportService.createReport(
@@ -142,7 +142,7 @@ router.post(
       res.status(201).json(report)
     } catch (error) {
       logger.error('Create report error:', error) // Wave 21: Winston logger
-      res.status(500).json({ error: 'Internal server error' }))
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )
@@ -167,7 +167,7 @@ router.put(
       res.json(report)
     } catch (error) {
       logger.error('Update report error:', error) // Wave 21: Winston logger
-      res.status(500).json({ error: 'Internal server error' }))
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )
@@ -183,10 +183,10 @@ router.delete(
 
       await customReportService.deleteReport(id, req.user!.tenant_id)
 
-      res.json({ message: 'Report deleted successfully' }))
+      res.json({ message: 'Report deleted successfully' })
     } catch (error) {
       logger.error('Delete report error:', error) // Wave 21: Winston logger
-      res.status(500).json({ error: 'Internal server error' }))
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )
@@ -201,8 +201,8 @@ router.post(
       const { id } = req.params
       const { format = 'csv' } = req.body
 
-      if (!['xlsx', 'csv', 'pdf'].includes(format)) {
-        return res.status(400).json({ error: 'Invalid format. Must be xlsx, csv, or pdf' }))
+      if (!['xlsx', 'csv', 'pdf'].includes(format) {
+        return throw new ValidationError("Invalid format. Must be xlsx, csv, or pdf")
       }
 
       const result = await customReportService.executeReport(
@@ -215,7 +215,7 @@ router.post(
       res.json(result)
     } catch (error) {
       logger.error('Execute report error:', error) // Wave 21: Winston logger
-      res.status(500).json({ error: 'Internal server error' }))
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )
@@ -236,7 +236,7 @@ router.get(
       res.json(history)
     } catch (error) {
       logger.error('Get execution history error:', error) // Wave 21: Winston logger
-      res.status(500).json({ error: 'Internal server error' }))
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )
@@ -254,11 +254,11 @@ router.get(
       const executionRecord = execution.find(e => e.id === executionId)
 
       if (!executionRecord) {
-        return res.status(404).json({ error: 'Execution not found' }))
+        return throw new NotFoundError("Execution not found")
       }
 
       if (executionRecord.status !== 'completed') {
-        return res.status(400).json({ error: 'Report execution not completed' }))
+        return throw new ValidationError("Report execution not completed")
       }
 
       const filePath = executionRecord.file_url
@@ -289,15 +289,15 @@ router.get(
         res.send(fileBuffer)
       } catch (error) {
         if (error instanceof PathTraversalError) {
-          logger.error(`Security violation - Path traversal attempt:`, getErrorMessage(error)) // Wave 21: Winston logger
-          return res.status(403).json({ error: 'Access denied' }))
+          logger.error(`Security violation - Path traversal attempt:`, getErrorMessage(error) // Wave 21: Winston logger
+          return res.status(403).json({ error: 'Access denied' })
         }
         logger.error('File access error:', error) // Wave 21: Winston logger
-        return res.status(404).json({ error: 'Report file not found' }))
+        return throw new NotFoundError("Report file not found")
       }
     } catch (error) {
       logger.error('Download report error:', error) // Wave 21: Winston logger
-      res.status(500).json({ error: 'Internal server error' }))
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )
@@ -315,21 +315,21 @@ router.post(
       if (!schedule_type || !schedule_config || !recipients || !format) {
         return res.status(400).json({
           error: 'Missing required fields: schedule_type, schedule_config, recipients, format'
-        }))
+        })
       }
 
-      if (!['daily', 'weekly', 'monthly', 'quarterly', 'custom'].includes(schedule_type)) {
+      if (!['daily', 'weekly', 'monthly', 'quarterly', 'custom'].includes(schedule_type) {
         return res.status(400).json({
           error: 'Invalid schedule_type. Must be daily, weekly, monthly, quarterly, or custom'
-        }))
+        })
       }
 
-      if (!['xlsx', 'csv', 'pdf'].includes(format)) {
-        return res.status(400).json({ error: 'Invalid format. Must be xlsx, csv, or pdf' }))
+      if (!['xlsx', 'csv', 'pdf'].includes(format) {
+        return throw new ValidationError("Invalid format. Must be xlsx, csv, or pdf")
       }
 
       if (!Array.isArray(recipients) || recipients.length === 0) {
-        return res.status(400).json({ error: 'Recipients must be a non-empty array of email addresses' }))
+        return throw new ValidationError("Recipients must be a non-empty array of email addresses")
       }
 
       const scheduleId = await reportScheduler.createSchedule(
@@ -341,10 +341,10 @@ router.post(
         req.user!.id
       )
 
-      res.status(201).json({ scheduleId, message: 'Report scheduled successfully' }))
+      res.status(201).json({ scheduleId, message: 'Report scheduled successfully' })
     } catch (error) {
       logger.error('Schedule report error:', error) // Wave 21: Winston logger
-      res.status(500).json({ error: 'Internal server error' }))
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )
@@ -362,7 +362,7 @@ router.get(
       res.json(schedules)
     } catch (error) {
       logger.error('Get schedules error:', error) // Wave 21: Winston logger
-      res.status(500).json({ error: 'Internal server error' }))
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )
@@ -379,10 +379,10 @@ router.put(
 
       await reportScheduler.updateSchedule(scheduleId, updates)
 
-      res.json({ message: 'Schedule updated successfully' }))
+      res.json({ message: 'Schedule updated successfully' })
     } catch (error) {
       logger.error('Update schedule error:', error) // Wave 21: Winston logger
-      res.status(500).json({ error: 'Internal server error' }))
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )
@@ -398,10 +398,10 @@ router.delete(
 
       await reportScheduler.deleteSchedule(scheduleId)
 
-      res.json({ message: 'Schedule deleted successfully' }))
+      res.json({ message: 'Schedule deleted successfully' })
     } catch (error) {
       logger.error('Delete schedule error:', error) // Wave 21: Winston logger
-      res.status(500).json({ error: 'Internal server error' }))
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )

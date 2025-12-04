@@ -61,12 +61,12 @@ router.get('/',
     res.json({
       quality_gates: result.rows,
       total: result.rows.length
-    }))
+    })
   } catch (error: any) {
     console.error(`Error fetching quality gates:`, error)
-    res.status(500).json({ error: 'Failed to fetch quality gates', message: getErrorMessage(error) }))
+    res.status(500).json({ error: 'Failed to fetch quality gates', message: getErrorMessage(error) })
   }
-}))
+})
 
 /**
  * POST /api/quality-gates
@@ -89,7 +89,7 @@ router.post('/',
 
     // Validate required fields
     if (!gate_type || !status) {
-      return res.status(400).json({ error: 'gate_type and status are required' }))
+      return throw new ValidationError("gate_type and status are required")
     }
 
     // Validate gate_type
@@ -104,20 +104,20 @@ router.post('/',
       'linting',
       'type_check'
     ]
-    if (!validGateTypes.includes(gate_type)) {
+    if (!validGateTypes.includes(gate_type) {
       return res.status(400).json({
         error: 'Invalid gate_type',
         valid_types: validGateTypes
-      }))
+      })
     }
 
     // Validate status
     const validStatuses = ['pending', 'running', 'passed', 'failed', 'skipped']
-    if (!validStatuses.includes(status)) {
+    if (!validStatuses.includes(status) {
       return res.status(400).json({
         error: 'Invalid status',
         valid_statuses: validStatuses
-      }))
+      })
     }
 
     const result = await pool.query(
@@ -157,9 +157,9 @@ router.post('/',
     res.status(201).json(result.rows[0])
   } catch (error: any) {
     console.error('Error creating quality gate:', error)
-    res.status(500).json({ error: 'Failed to create quality gate', message: getErrorMessage(error) }))
+    res.status(500).json({ error: 'Failed to create quality gate', message: getErrorMessage(error) })
   }
-}))
+})
 
 /**
  * GET /api/quality-gates/summary
@@ -172,7 +172,7 @@ router.get('/summary',
     const { days = 7 } = req.query
 
     // Validate and sanitize days parameter
-    const daysNum = Math.max(1, Math.min(365, parseInt(days as string) || 7))
+    const daysNum = Math.max(1, Math.min(365, parseInt(days as string) || 7)
 
     const result = await pool.query(
       `SELECT
@@ -193,12 +193,12 @@ router.get('/summary',
     res.json({
       summary: result.rows,
       period_days: days
-    }))
+    })
   } catch (error: any) {
     console.error('Error fetching quality gate summary:', error)
-    res.status(500).json({ error: 'Failed to fetch summary', message: getErrorMessage(error) }))
+    res.status(500).json({ error: 'Failed to fetch summary', message: getErrorMessage(error) })
   }
-}))
+})
 
 /**
  * GET /api/quality-gates/latest/:gate_type
@@ -219,14 +219,14 @@ router.get('/latest/:gate_type',
     )
 
     if (result.rows.length === 0) {
-      return res.status(404).json({ error: `No results found for this gate type` }))
+      return res.status(404).json({ error: `No results found for this gate type` })
     }
 
     res.json(result.rows[0])
   } catch (error: any) {
     console.error(`Error fetching latest quality gate:`, error)
-    res.status(500).json({ error: 'Failed to fetch quality gate', message: getErrorMessage(error) }))
+    res.status(500).json({ error: 'Failed to fetch quality gate', message: getErrorMessage(error) })
   }
-}))
+})
 
 export default router

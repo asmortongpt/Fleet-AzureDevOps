@@ -16,7 +16,7 @@ const pool = new Pool({
 });
 
 const app = express();
-app.use(jwt({ secret: process.env.JWT_SECRET }));
+app.use(jwt({ secret: process.env.JWT_SECRET });
 
 app.get('/api/traffic/cameras', async (req: Request, res: Response, next: NextFunction) => {
   try {

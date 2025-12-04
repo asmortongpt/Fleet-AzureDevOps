@@ -92,7 +92,7 @@ router.get('/microsoft/callback', async (req: Request, res: Response) => {
     // Additional security, error handling, and user management logic here
     // ...
 
-    res.redirect(getValidatedFrontendUrl('/dashboard'))
+    res.redirect(getValidatedFrontendUrl('/dashboard')
   } catch (error) {
     console.error('Microsoft OAuth callback error:', error)
     const safeErrorUrl = buildSafeRedirectUrl('/login', {

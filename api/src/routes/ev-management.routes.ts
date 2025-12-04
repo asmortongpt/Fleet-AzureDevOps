@@ -520,7 +520,7 @@ router.get(
     try {
       const startDate = req.query.startDate
         ? new Date(req.query.startDate as string)
-        : new Date(new Date().setDate(new Date().getDate() - 30))
+        : new Date(new Date().setDate(new Date().getDate() - 30)
       const endDate = req.query.endDate ? new Date(req.query.endDate as string) : new Date()
       const vehicleId = req.query.vehicleId ? parseInt(req.query.vehicleId as string) : null
 
@@ -611,7 +611,7 @@ router.get(
       const year = parseInt(req.query.year as string)
       const month = req.query.month ? parseInt(req.query.month as string) : undefined
 
-      if (!['monthly', 'quarterly', 'annual'].includes(period)) {
+      if (!['monthly', 'quarterly', 'annual'].includes(period) {
         return res.status(400).json({
           success: false,
           error: 'Invalid period. Must be monthly, quarterly, or annual',

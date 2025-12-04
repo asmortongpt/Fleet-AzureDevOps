@@ -76,19 +76,19 @@ router.get('/', async (req: AuthRequest, res: Response) => {
     res.json({
       success: true,
       teams
-    }))
+    })
   } catch (error) {
     logger.error('Error getting teams', {
       error: error instanceof Error ? getErrorMessage(error) : 'Unknown error',
       userId: req.user?.id
-    }))
+    })
 
     res.status(500).json({
       success: false,
       error: 'Failed to retrieve teams'
-    }))
+    })
   }
-}))
+})
 
 /**
  * @openapi
@@ -123,20 +123,20 @@ router.get('/:teamId/channels', async (req: AuthRequest, res: Response) => {
     res.json({
       success: true,
       channels
-    }))
+    })
   } catch (error) {
     logger.error('Error getting channels', {
       error: error instanceof Error ? getErrorMessage(error) : 'Unknown error',
       teamId: req.params.teamId,
       userId: req.user?.id
-    }))
+    })
 
     res.status(500).json({
       success: false,
       error: 'Failed to retrieve channels'
-    }))
+    })
   }
-}))
+})
 
 /**
  * @openapi
@@ -181,21 +181,21 @@ router.get('/:teamId/channels/:channelId/messages', async (req: AuthRequest, res
     res.json({
       success: true,
       messages
-    }))
+    })
   } catch (error) {
     logger.error('Error getting messages', {
       error: error instanceof Error ? getErrorMessage(error) : 'Unknown error',
       teamId: req.params.teamId,
       channelId: req.params.channelId,
       userId: req.user?.id
-    }))
+    })
 
     res.status(500).json({
       success: false,
       error: 'Failed to retrieve messages'
-    }))
+    })
   }
-}))
+})
 
 /**
  * @openapi
@@ -285,7 +285,7 @@ router.post('/:teamId/channels/:channelId/messages', async (req: AuthRequest, re
       return res.status(400).json({
         success: false,
         error: 'Message content is required'
-      }))
+      })
     }
 
     const request: SendMessageRequest = {
@@ -306,21 +306,21 @@ router.post('/:teamId/channels/:channelId/messages', async (req: AuthRequest, re
       success: true,
       message: result.message,
       communicationId: result.communicationId
-    }))
+    })
   } catch (error) {
     logger.error('Error sending message', {
       error: error instanceof Error ? getErrorMessage(error) : 'Unknown error',
       teamId: req.params.teamId,
       channelId: req.params.channelId,
       userId: req.user?.id
-    }))
+    })
 
     res.status(500).json({
       success: false,
       error: 'Failed to send message'
-    }))
+    })
   }
-}))
+})
 
 /**
  * @openapi
@@ -385,7 +385,7 @@ router.post('/:teamId/channels/:channelId/messages/:messageId/replies', async (r
       return res.status(400).json({
         success: false,
         error: 'Message content is required'
-      }))
+      })
     }
 
     const request: ReplyToMessageRequest = {
@@ -405,7 +405,7 @@ router.post('/:teamId/channels/:channelId/messages/:messageId/replies', async (r
       success: true,
       message: result.message,
       communicationId: result.communicationId
-    }))
+    })
   } catch (error) {
     logger.error('Error replying to message', {
       error: error instanceof Error ? getErrorMessage(error) : 'Unknown error',
@@ -413,14 +413,14 @@ router.post('/:teamId/channels/:channelId/messages/:messageId/replies', async (r
       channelId: req.params.channelId,
       messageId: req.params.messageId,
       userId: req.user?.id
-    }))
+    })
 
     res.status(500).json({
       success: false,
       error: 'Failed to reply to message'
-    }))
+    })
   }
-}))
+})
 
 /**
  * @openapi
@@ -479,7 +479,7 @@ router.post('/:teamId/channels/:channelId/messages/:messageId/reactions', async 
       return res.status(400).json({
         success: false,
         error: 'Reaction type is required'
-      }))
+      })
     }
 
     const request: AddReactionRequest = {
@@ -494,7 +494,7 @@ router.post('/:teamId/channels/:channelId/messages/:messageId/reactions', async 
     res.json({
       success: true,
       message: 'Reaction added successfully'
-    }))
+    })
   } catch (error) {
     logger.error('Error adding reaction', {
       error: error instanceof Error ? getErrorMessage(error) : 'Unknown error',
@@ -502,14 +502,14 @@ router.post('/:teamId/channels/:channelId/messages/:messageId/reactions', async 
       channelId: req.params.channelId,
       messageId: req.params.messageId,
       userId: req.user?.id
-    }))
+    })
 
     res.status(500).json({
       success: false,
       error: 'Failed to add reaction'
-    }))
+    })
   }
-}))
+})
 
 /**
  * @openapi
@@ -563,7 +563,7 @@ router.post('/:teamId/channels', async (req: AuthRequest, res: Response) => {
       return res.status(400).json({
         success: false,
         error: 'Display name is required'
-      }))
+      })
     }
 
     const request: CreateChannelRequest = {
@@ -579,20 +579,20 @@ router.post('/:teamId/channels', async (req: AuthRequest, res: Response) => {
     res.status(201).json({
       success: true,
       channel
-    }))
+    })
   } catch (error) {
     logger.error('Error creating channel', {
       error: error instanceof Error ? getErrorMessage(error) : 'Unknown error',
       teamId: req.params.teamId,
       userId: req.user?.id
-    }))
+    })
 
     res.status(500).json({
       success: false,
       error: 'Failed to create channel'
-    }))
+    })
   }
-}))
+})
 
 /**
  * @openapi
@@ -654,7 +654,7 @@ router.patch('/:teamId/channels/:channelId/messages/:messageId', async (req: Aut
       return res.status(400).json({
         success: false,
         error: 'Content is required'
-      }))
+      })
     }
 
     const request: UpdateMessageRequest = {
@@ -670,7 +670,7 @@ router.patch('/:teamId/channels/:channelId/messages/:messageId', async (req: Aut
     res.json({
       success: true,
       message
-    }))
+    })
   } catch (error) {
     logger.error('Error updating message', {
       error: error instanceof Error ? getErrorMessage(error) : 'Unknown error',
@@ -678,14 +678,14 @@ router.patch('/:teamId/channels/:channelId/messages/:messageId', async (req: Aut
       channelId: req.params.channelId,
       messageId: req.params.messageId,
       userId: req.user?.id
-    }))
+    })
 
     res.status(500).json({
       success: false,
       error: 'Failed to update message'
-    }))
+    })
   }
-}))
+})
 
 /**
  * @openapi
@@ -729,7 +729,7 @@ router.delete('/:teamId/channels/:channelId/messages/:messageId', async (req: Au
     res.json({
       success: true,
       message: 'Message deleted successfully'
-    }))
+    })
   } catch (error) {
     logger.error('Error deleting message', {
       error: error instanceof Error ? getErrorMessage(error) : 'Unknown error',
@@ -737,13 +737,13 @@ router.delete('/:teamId/channels/:channelId/messages/:messageId', async (req: Au
       channelId: req.params.channelId,
       messageId: req.params.messageId,
       userId: req.user?.id
-    }))
+    })
 
     res.status(500).json({
       success: false,
       error: 'Failed to delete message'
-    }))
+    })
   }
-}))
+})
 
 export default router

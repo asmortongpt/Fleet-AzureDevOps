@@ -69,12 +69,12 @@ router.get(
           page: Number(page),
           limit: Number(limit),
           total: parseInt(countResult.rows[0].count),
-          pages: Math.ceil(countResult.rows[0].count / Number(limit))
+          pages: Math.ceil(countResult.rows[0].count / Number(limit)
         }
-      }))
+      })
     } catch (error) {
       console.error(`Get charging-sessions error:`, error)
-      res.status(500).json({ error: 'Internal server error' }))
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )
@@ -92,13 +92,13 @@ router.get(
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: `ChargingSessions not found` }))
+        return res.status(404).json({ error: `ChargingSessions not found` })
       }
 
       res.json(result.rows[0])
     } catch (error) {
       console.error('Get charging-sessions error:', error)
-      res.status(500).json({ error: 'Internal server error' }))
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )
@@ -126,7 +126,7 @@ router.post(
       res.status(201).json(result.rows[0])
     } catch (error) {
       console.error(`Create charging-sessions error:`, error)
-      res.status(500).json({ error: `Internal server error` }))
+      res.status(500).json({ error: `Internal server error` })
     }
   }
 )
@@ -147,13 +147,13 @@ router.put(
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: `ChargingSessions not found` }))
+        return res.status(404).json({ error: `ChargingSessions not found` })
       }
 
       res.json(result.rows[0])
     } catch (error) {
       console.error(`Update charging-sessions error:`, error)
-      res.status(500).json({ error: `Internal server error` }))
+      res.status(500).json({ error: `Internal server error` })
     }
   }
 )
@@ -171,13 +171,13 @@ router.delete(
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'ChargingSessions not found' }))
+        return throw new NotFoundError("ChargingSessions not found")
       }
 
-      res.json({ message: 'ChargingSessions deleted successfully' }))
+      res.json({ message: 'ChargingSessions deleted successfully' })
     } catch (error) {
       console.error('Delete charging-sessions error:', error)
-      res.status(500).json({ error: 'Internal server error' }))
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )

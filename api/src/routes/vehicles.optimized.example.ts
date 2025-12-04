@@ -80,7 +80,7 @@ router.post(
       res.status(201).json(result.rows[0])
     } catch (error) {
       console.error(`Create vehicles error:`, error)
-      res.status(500).json({ error: `Internal server error` }))
+      res.status(500).json({ error: `Internal server error` })
     }
   }
 )
@@ -101,17 +101,17 @@ router.put(
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: `Vehicles not found` }))
+        return res.status(404).json({ error: `Vehicles not found` })
       }
 
       // Invalidate cache on update - ADD THESE LINES
       await cache.delPattern(`route:/api/vehicles*`)
-      await cache.del(cache.getCacheKey(req.user!.tenant_id, 'vehicle', req.params.id))
+      await cache.del(cache.getCacheKey(req.user!.tenant_id, 'vehicle', req.params.id)
 
       res.json(result.rows[0])
     } catch (error) {
       console.error(`Update vehicles error:`, error)
-      res.status(500).json({ error: 'Internal server error' }))
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )
@@ -132,12 +132,12 @@ router.delete(
 
       // Invalidate cache on delete - ADD THESE LINES
       await cache.delPattern(`route:/api/vehicles*`)
-      await cache.del(cache.getCacheKey(req.user!.tenant_id, 'vehicle', req.params.id))
+      await cache.del(cache.getCacheKey(req.user!.tenant_id, 'vehicle', req.params.id)
 
-      res.json({ message: 'Vehicle deleted successfully' }))
+      res.json({ message: 'Vehicle deleted successfully' })
     } catch (error) {
       console.error('Delete vehicles error:', error)
-      res.status(500).json({ error: 'Internal server error' }))
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )
