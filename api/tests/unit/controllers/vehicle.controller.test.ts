@@ -1,15 +1,16 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { Request, Response, NextFunction } from 'express';
-import { VehicleController } from '../../../src/modules/fleet/controllers/vehicle.controller';
-import { VehicleService } from '../../../src/modules/fleet/services/vehicle.service';
 import type { Vehicle } from '../../../src/types/vehicle';
 
-// Mock container
+// Mock container before imports
 vi.mock('../../../src/container', () => ({
   container: {
     get: vi.fn()
   }
 }));
+
+import { VehicleController } from '../../../src/modules/fleet/controllers/vehicle.controller';
+import { container } from '../../../src/container';
 
 describe('VehicleController', () => {
   let vehicleController: VehicleController;
@@ -26,8 +27,7 @@ describe('VehicleController', () => {
       deleteVehicle: vi.fn()
     };
 
-    const { container } = require('../../../src/container');
-    container.get.mockReturnValue(mockVehicleService);
+    vi.mocked(container.get).mockReturnValue(mockVehicleService);
 
     vehicleController = new VehicleController();
 
