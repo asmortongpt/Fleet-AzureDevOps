@@ -1,4 +1,7 @@
 /**
+import { container } from '../container'
+import { asyncHandler } from '../middleware/error-handler'
+import { NotFoundError, ValidationError } from '../errors/app-error'
  * AI-Directed Dispatch Routes
  *
  * RESTful API endpoints for AI-powered dispatch operations:
@@ -16,7 +19,6 @@
 
 import { Router, Request, Response } from 'express'
 import aiDispatchService from '../services/ai-dispatch'
-import { pool } from '../database'
 import logger from '../utils/logger'
 import { authenticateJWT } from '../middleware/auth'
 import { requirePermission } from '../middleware/permissions'
@@ -35,7 +37,7 @@ const validateIncidentParse = [
   body('description')
     .isString()
     .trim()
-    .isLength({ min: 10, max: 1000 })
+    .isLength({ min: 10, max: 1000 }))
     .withMessage('Description must be between 10 and 1000 characters'),
   body('requestId')
     .optional()
@@ -57,10 +59,10 @@ const validateRecommendation = [
     .isObject()
     .withMessage('Location is required'),
   body('location.lat')
-    .isFloat({ min: -90, max: 90 })
+    .isFloat({ min: -90, max: 90 }))
     .withMessage('Valid latitude is required'),
   body('location.lng')
-    .isFloat({ min: -180, max: 180 })
+    .isFloat({ min: -180, max: 180 }))
     .withMessage('Valid longitude is required')
 ]
 
@@ -150,7 +152,7 @@ router.post(
         return res.status(400).json({
           success: false,
           errors: errors.array()
-        })
+        }))
       }
 
       const { description, requestId } = req.body
@@ -160,7 +162,7 @@ router.post(
         userId,
         requestId,
         descriptionLength: description.length
-      })
+      }))
 
       // Parse incident using AI
       const incident = await aiDispatchService.parseIncident(description)
@@ -175,7 +177,7 @@ router.post(
           'AI_INCIDENT_PARSE',
           'dispatch',
           requestId || 'unknown',
-          JSON.stringify({ incident, originalDescription: description })
+          JSON.stringify({ incident, originalDescription: description }))
         ]
       )
 
@@ -183,17 +185,17 @@ router.post(
         success: true,
         incident,
         requestId
-      })
+      }))
     } catch (error) {
       logger.error('Error parsing incident', {
         error: error instanceof Error ? error.message : 'Unknown error',
         userId: (req as any).user?.id
-      })
+      }))
 
       res.status(500).json({
         success: false,
         error: 'Failed to parse incident description'
-      })
+      }))
     }
   }
 )
@@ -252,7 +254,7 @@ router.post(
         return res.status(400).json({
           success: false,
           errors: errors.array()
-        })
+        }))
       }
 
       const { incident, location } = req.body
@@ -263,7 +265,7 @@ router.post(
         incidentType: incident.incidentType,
         priority: incident.priority,
         location
-      })
+      }))
 
       // Get recommendation from AI service
       const recommendation = await aiDispatchService.recommendVehicle(incident, location)
@@ -275,24 +277,24 @@ router.post(
         success: true,
         recommendation,
         explanation
-      })
+      }))
     } catch (error) {
       logger.error('Error getting recommendation', {
         error: error instanceof Error ? error.message : 'Unknown error'
-      })
+      }))
 
       // Check if it's a "no vehicles" error
       if (error instanceof Error && error.message.includes('No available vehicles')) {
         return res.status(404).json({
           success: false,
           error: error.message
-        })
+        }))
       }
 
       res.status(500).json({
         success: false,
         error: 'Failed to get vehicle recommendation'
-      })
+      }))
     }
   }
 )
@@ -354,7 +356,7 @@ router.post(
         return res.status(400).json({
           success: false,
           errors: errors.array()
-        })
+        }))
       }
 
       const { description, location, vehicleId, autoAssign = false } = req.body
@@ -366,7 +368,7 @@ router.post(
         location,
         vehicleId,
         autoAssign
-      })
+      }))
 
       // Step 1: Parse incident description
       const incident = await aiDispatchService.parseIncident(description)
@@ -464,7 +466,7 @@ router.post(
             recommendation: recommendation || null,
             autoAssigned: autoAssign,
             vehicleId: selectedVehicleId
-          })
+          }))
         ]
       )
 
@@ -478,16 +480,16 @@ router.post(
         recommendation: recommendation || null,
         assignment: assignmentResult ? assignmentResult.rows[0] : null,
         autoAssigned: autoAssign
-      })
+      }))
     } catch (error) {
       logger.error('Error creating AI dispatch', {
         error: error instanceof Error ? error.message : 'Unknown error'
-      })
+      }))
 
       res.status(500).json({
         success: false,
         error: 'Failed to create dispatch'
-      })
+      }))
     }
   }
 )
@@ -536,7 +538,7 @@ router.get(
     query('timeOfDay').optional().isInt({ min: 0, max: 23 }),
     query('dayOfWeek').optional().isInt({ min: 0, max: 6 }),
     query('lat').optional().isFloat({ min: -90, max: 90 }),
-    query('lng').optional().isFloat({ min: -180, max: 180 })
+    query('lng').optional().isFloat({ min: -180, max: 180 }))
   ],
   async (req: Request, res: Response) => {
     try {
@@ -545,7 +547,7 @@ router.get(
         return res.status(400).json({
           success: false,
           errors: errors.array()
-        })
+        }))
       }
 
       const now = new Date()
@@ -564,23 +566,23 @@ router.get(
         timeOfDay,
         dayOfWeek,
         location
-      })
+      }))
 
       const prediction = await aiDispatchService.predictIncidents(timeOfDay, dayOfWeek, location)
 
       res.json({
         success: true,
         prediction
-      })
+      }))
     } catch (error) {
       logger.error('Error getting predictions', {
         error: error instanceof Error ? error.message : 'Unknown error'
-      })
+      }))
 
       res.status(500).json({
         success: false,
         error: 'Failed to get predictions'
-      })
+      }))
     }
   }
 )
@@ -624,7 +626,7 @@ router.get(
         return res.status(400).json({
           success: false,
           errors: errors.array()
-        })
+        }))
       }
 
       const startDate = req.query.startDate
@@ -635,7 +637,7 @@ router.get(
         ? new Date(req.query.endDate as string)
         : new Date() // Default: now
 
-      logger.info('Analytics request', { startDate, endDate })
+      logger.info('Analytics request', { startDate, endDate }))
 
       const analytics = await aiDispatchService.getAnalytics(startDate, endDate)
 
@@ -646,16 +648,16 @@ router.get(
           startDate: startDate.toISOString(),
           endDate: endDate.toISOString()
         }
-      })
+      }))
     } catch (error) {
       logger.error('Error getting analytics', {
         error: error instanceof Error ? error.message : 'Unknown error'
-      })
+      }))
 
       res.status(500).json({
         success: false,
         error: 'Failed to get analytics'
-      })
+      }))
     }
   }
 )
@@ -697,7 +699,7 @@ router.post(
         return res.status(400).json({
           success: false,
           errors: errors.array()
-        })
+        }))
       }
 
       const { recommendation } = req.body
@@ -707,16 +709,16 @@ router.post(
       res.json({
         success: true,
         explanation
-      })
+      }))
     } catch (error) {
       logger.error('Error generating explanation', {
         error: error instanceof Error ? error.message : 'Unknown error'
-      })
+      }))
 
       res.status(500).json({
         success: false,
         error: 'Failed to generate explanation'
-      })
+      }))
     }
   }
 )

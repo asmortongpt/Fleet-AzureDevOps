@@ -1,8 +1,10 @@
 import express, { Response } from 'express'
+import { container } from '../container'
+import { asyncHandler } from '../middleware/error-handler'
+import { NotFoundError, ValidationError } from '../errors/app-error'
 import logger from '../config/logger'; // Wave 19: Add Winston logger
 import { AuthRequest, authenticateJWT, authorize } from '../middleware/auth'
 import { auditLog } from '../middleware/audit'
-import pool from '../config/database'
 import { z } from 'zod'
 import { getErrorMessage } from '../utils/error-handler'
 import {
@@ -21,19 +23,19 @@ const markTripSchema = z.object({
   business_percentage: z.number().min(0).max(100).optional(),
   business_purpose: z.string().optional(),
   personal_notes: z.string().optional()
-})
+}))
 
 const startPersonalTripSchema = z.object({
   vehicle_id: z.string().uuid(),
   start_location: z.string().optional(),
   notes: z.string().optional()
-})
+}))
 
 const splitTripSchema = z.object({
   business_percentage: z.number().min(10).max(90),
   business_purpose: z.string().min(3),
   personal_notes: z.string().optional()
-})
+}))
 
 /**
  * POST /api/trips/:id/mark
@@ -53,7 +55,7 @@ router.post(
           success: false,
           error: 'Invalid request data',
           details: validation.error.errors
-        })
+        }))
       }
 
       const { usage_type, business_percentage, business_purpose, personal_notes } = validation.data
@@ -63,7 +65,7 @@ router.post(
         return res.status(400).json({
           success: false,
           error: 'business_percentage is required for mixed usage type'
-        })
+        }))
       }
 
       // Get trip details
@@ -79,7 +81,7 @@ router.post(
         return res.status(404).json({
           success: false,
           error: `Trip not found`
-        })
+        }))
       }
 
       const trip = tripResult.rows[0]
@@ -236,14 +238,14 @@ router.post(
         message: approval_status === ApprovalStatus.AUTO_APPROVED
           ? `Trip marked and auto-approved`
           : 'Trip marked - pending approval'
-      })
+      }))
     } catch (error: any) {
       logger.error('Mark trip error:', error) // Wave 19: Winston logger
       res.status(500).json({
         success: false,
         error: 'Failed to mark trip',
         details: getErrorMessage(error)
-      })
+      }))
     }
   }
 )
@@ -264,7 +266,7 @@ router.post(
           success: false,
           error: 'Invalid request data',
           details: validation.error.errors
-        })
+        }))
       }
 
       const { vehicle_id, start_location, notes } = validation.data
@@ -279,7 +281,7 @@ router.post(
         return res.status(404).json({
           success: false,
           error: `Vehicle not found`
-        })
+        }))
       }
 
       // Create trip usage classification (without trip_id for now)
@@ -312,14 +314,14 @@ router.post(
         success: true,
         data: result.rows[0],
         message: `Personal trip started`
-      })
+      }))
     } catch (error: any) {
       logger.error(`Start personal trip error:`, error) // Wave 19: Winston logger
       res.status(500).json({
         success: false,
         error: 'Failed to start personal trip',
         details: getErrorMessage(error)
-      })
+      }))
     }
   }
 )
@@ -341,7 +343,7 @@ router.patch(
           success: false,
           error: 'Invalid request data',
           details: validation.error.errors
-        })
+        }))
       }
 
       const { business_percentage, business_purpose, personal_notes } = validation.data
@@ -359,7 +361,7 @@ router.patch(
         return res.status(404).json({
           success: false,
           error: `Trip not found`
-        })
+        }))
       }
 
       const trip = tripResult.rows[0]
@@ -444,14 +446,14 @@ router.patch(
           estimated_charge
         },
         message: `Trip split successfully`
-      })
+      }))
     } catch (error: any) {
       logger.error(`Split trip error:`, error) // Wave 19: Winston logger
       res.status(500).json({
         success: false,
         error: 'Failed to split trip',
         details: getErrorMessage(error)
-      })
+      }))
     }
   }
 )
@@ -506,7 +508,7 @@ router.get('/my-personal', async (req: AuthRequest, res: Response) => {
         ...trip,
         estimated_charge
       }
-    })
+    }))
 
     // Get total count
     const countResult = await pool.query(
@@ -526,16 +528,16 @@ router.get('/my-personal', async (req: AuthRequest, res: Response) => {
         offset: parseInt(offset as string),
         has_more: parseInt(countResult.rows[0].count) > parseInt(offset as string) + tripsWithCharges.length
       }
-    })
+    }))
   } catch (error: any) {
     logger.error('Get personal trips error:', error) // Wave 19: Winston logger
     res.status(500).json({
       success: false,
       error: 'Failed to retrieve personal trips',
       details: getErrorMessage(error)
-    })
+    }))
   }
-})
+}))
 
 /**
  * GET /api/trips/:id/usage
@@ -563,7 +565,7 @@ router.get('/:id/usage', async (req: AuthRequest, res: Response) => {
       return res.status(404).json({
         success: false,
         error: `Trip usage classification not found`
-      })
+      }))
     }
 
     // Get cost preview
@@ -598,15 +600,15 @@ router.get('/:id/usage', async (req: AuthRequest, res: Response) => {
         ...result.rows[0],
         estimated_charge
       }
-    })
+    }))
   } catch (error: any) {
     logger.error(`Get trip usage error:`, error) // Wave 19: Winston logger
     res.status(500).json({
       success: false,
       error: 'Failed to retrieve trip usage',
       details: getErrorMessage(error)
-    })
+    }))
   }
-})
+}))
 
 export default router

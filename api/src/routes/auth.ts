@@ -1,6 +1,8 @@
 import express, { Request, Response } from 'express'
+import { container } from '../container'
+import { asyncHandler } from '../middleware/error-handler'
+import { NotFoundError, ValidationError } from '../errors/app-error'
 import logger from '../config/logger'; // Wave 16: Add Winston logger
-import pool from '../config/database'
 import { createAuditLog } from '../middleware/audit'
 import { z } from 'zod'
 // CRIT-F-004: Updated to use centralized rate limiters
@@ -16,7 +18,7 @@ const router = express.Router()
 const loginSchema = z.object({
   email: z.string().email(),
   password: z.string().min(1)
-})
+}))
 
 const registerSchema = z.object({
   email: z.string().email(),
@@ -31,7 +33,7 @@ const registerSchema = z.object({
   phone: z.string().optional()
   // SECURITY: Role is NOT accepted in registration - always defaults to 'viewer'
   // This prevents privilege escalation attacks during self-registration
-})
+}))
 
 /**
  * @openapi
@@ -134,7 +136,7 @@ router.post('/login', authLimiter, checkBruteForce('email'), async (req: Request
         { expiresIn: '24h' }
       )
 
-      return res.json({ token, user: demoUser })
+      return res.json({ token, user: demoUser }))
     }
 
     // Get user
@@ -156,7 +158,7 @@ router.post('/login', authLimiter, checkBruteForce('email'), async (req: Request
         'failure',
         'User not found or inactive'
       )
-      return res.status(401).json({ error: 'Invalid credentials' })
+      return res.status(401).json({ error: 'Invalid credentials' }))
     }
 
     const user = userResult.rows[0]
@@ -178,7 +180,7 @@ router.post('/login', authLimiter, checkBruteForce('email'), async (req: Request
       return res.status(423).json({
         error: 'Account locked due to multiple failed login attempts',
         locked_until: user.account_locked_until
-      })
+      }))
     }
 
     // Verify password using FIPS-compliant PBKDF2
@@ -217,7 +219,7 @@ router.post('/login', authLimiter, checkBruteForce('email'), async (req: Request
       return res.status(401).json({
         error: `Invalid credentials`,
         attempts_remaining: Math.max(0, 3 - newAttempts)
-      })
+      }))
     }
 
     // Reset failed attempts on successful login
@@ -279,15 +281,15 @@ router.post('/login', authLimiter, checkBruteForce('email'), async (req: Request
         role: user.role,
         tenant_id: user.tenant_id
       }
-    })
+    }))
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ error: 'Validation error', details: error.errors })
+      return res.status(400).json({ error: 'Validation error', details: error.errors }))
     }
     logger.error('Login error:', error) // Wave 16: Winston logger
-    res.status(500).json({ error: 'Internal server error' })
+    res.status(500).json({ error: 'Internal server error' }))
   }
-})
+}))
 
 // POST /api/auth/register
 router.post('/register', registrationLimiter, async (req: Request, res: Response) => {
@@ -301,7 +303,7 @@ router.post('/register', registrationLimiter, async (req: Request, res: Response
     )
 
     if (existing.rows.length > 0) {
-      return res.status(409).json({ error: 'Email already registered' })
+      return res.status(409).json({ error: 'Email already registered' }))
     }
 
     // Hash password using FIPS-compliant PBKDF2
@@ -365,15 +367,15 @@ router.post('/register', registrationLimiter, async (req: Request, res: Response
         role: user.role,
         tenant_id: user.tenant_id
       }
-    })
+    }))
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ error: 'Validation error', details: error.errors })
+      return res.status(400).json({ error: 'Validation error', details: error.errors }))
     }
     logger.error('Register error:', error) // Wave 16: Winston logger
-    res.status(500).json({ error: 'Internal server error' })
+    res.status(500).json({ error: 'Internal server error' }))
   }
-})
+}))
 
 /**
  * @openapi
@@ -421,7 +423,7 @@ router.post('/refresh', async (req: Request, res: Response) => {
     const { refreshToken } = req.body
 
     if (!refreshToken) {
-      return res.status(401).json({ error: 'Refresh token required' })
+      return res.status(401).json({ error: 'Refresh token required' }))
     }
 
     // Verify refresh token using FIPS-compliant RS256
@@ -429,7 +431,7 @@ router.post('/refresh', async (req: Request, res: Response) => {
     try {
       decoded = FIPSJWTService.verifyRefreshToken(refreshToken)
     } catch (error) {
-      return res.status(401).json({ error: 'Invalid or expired refresh token' })
+      return res.status(401).json({ error: 'Invalid or expired refresh token' }))
     }
 
     // Check if refresh token exists in database and is not revoked
@@ -441,7 +443,7 @@ router.post('/refresh', async (req: Request, res: Response) => {
     )
 
     if (tokenResult.rows.length === 0) {
-      return res.status(401).json({ error: 'Refresh token not found or revoked' })
+      return res.status(401).json({ error: 'Refresh token not found or revoked' }))
     }
 
     // Get user data
@@ -451,7 +453,7 @@ router.post('/refresh', async (req: Request, res: Response) => {
     )
 
     if (userResult.rows.length === 0) {
-      return res.status(401).json({ error: 'User not found or inactive' })
+      return res.status(401).json({ error: 'User not found or inactive' }))
     }
 
     const user = userResult.rows[0]
@@ -497,12 +499,12 @@ router.post('/refresh', async (req: Request, res: Response) => {
       token: newToken,
       refreshToken: newRefreshToken,
       expiresIn: 900 // 15 minutes in seconds
-    })
+    }))
   } catch (error) {
     logger.error('Refresh token error:', error) // Wave 16: Winston logger
-    res.status(500).json({ error: 'Internal server error' })
+    res.status(500).json({ error: 'Internal server error' }))
   }
-})
+}))
 
 /**
  * @openapi
@@ -569,8 +571,8 @@ router.post('/logout', async (req: Request, res: Response) => {
     }
   }
 
-  res.json({ message: 'Logged out successfully' })
-})
+  res.json({ message: 'Logged out successfully' }))
+}))
 
 /**
  * GET /api/auth/me
@@ -582,7 +584,7 @@ router.get('/me', async (req: Request, res: Response) => {
     const token = req.headers.authorization?.split(' ')[1] || req.cookies?.auth_token
 
     if (!token) {
-      return res.status(401).json({ error: 'No authentication token found' })
+      return res.status(401).json({ error: 'No authentication token found' }))
     }
 
     // Verify and decode token using FIPS-compliant RS256
@@ -596,7 +598,7 @@ router.get('/me', async (req: Request, res: Response) => {
     )
 
     if (userResult.rows.length === 0) {
-      return res.status(404).json({ error: 'User not found or inactive' })
+      return res.status(404).json({ error: 'User not found or inactive' }))
     }
 
     const user = userResult.rows[0]
@@ -612,18 +614,18 @@ router.get('/me', async (req: Request, res: Response) => {
         tenant_id: user.tenant_id
       },
       token // Return the token so frontend can store it for API calls
-    })
+    }))
   } catch (error: any) {
     if (error.name === 'TokenExpiredError') {
-      return res.status(401).json({ error: 'Token expired' })
+      return res.status(401).json({ error: 'Token expired' }))
     }
     if (error.name === 'JsonWebTokenError') {
-      return res.status(401).json({ error: 'Invalid token' })
+      return res.status(401).json({ error: 'Invalid token' }))
     }
     logger.error('Error in /auth/me:', error.message) // Wave 16: Winston logger
-    return res.status(500).json({ error: 'Internal server error' })
+    return res.status(500).json({ error: 'Internal server error' }))
   }
-})
+}))
 
 /**
  * @openapi
@@ -655,7 +657,7 @@ router.get('/microsoft/login', (req: Request, res: Response) => {
 
   console.log('[AUTH] Redirecting to Azure AD:', authUrl)
   res.redirect(authUrl)
-})
+}))
 
 /**
  * @openapi
@@ -706,7 +708,7 @@ router.get('/microsoft/callback', async (req: Request, res: Response) => {
     // Get user info
     const userInfoResponse = await axios.get('https://graph.microsoft.com/v1.0/me', {
       headers: { Authorization: `Bearer ${access_token}` }
-    })
+    }))
 
     const microsoftUser = userInfoResponse.data
     const email = (microsoftUser.mail || microsoftUser.userPrincipalName).toLowerCase()
@@ -774,7 +776,7 @@ router.get('/microsoft/callback', async (req: Request, res: Response) => {
           role: user.role,
           tenant_id: user.tenant_id
         }
-      })
+      }))
     } else {
       // Redirect to dashboard with token (legacy server-side flow)
       res.redirect(`/?token=${encodeURIComponent(token)}`)
@@ -783,11 +785,11 @@ router.get('/microsoft/callback', async (req: Request, res: Response) => {
     logger.error('Microsoft SSO callback error:', error.message) // Wave 16: Winston logger
     const acceptsJson = req.headers.accept?.includes('application/json')
     if (acceptsJson) {
-      return res.status(500).json({ error: 'Microsoft SSO authentication failed', details: error.message })
+      return res.status(500).json({ error: 'Microsoft SSO authentication failed', details: error.message }))
     } else {
       res.redirect('/login?error=sso_failed')
     }
   }
-})
+}))
 
 export default router

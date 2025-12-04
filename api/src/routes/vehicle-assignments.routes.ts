@@ -1,4 +1,7 @@
 /**
+import { container } from '../container'
+import { asyncHandler } from '../middleware/error-handler'
+import { NotFoundError, ValidationError } from '../errors/app-error'
 import logger from '../config/logger'; // Wave 26: Add Winston logger
  * Vehicle Assignments API Routes
  * Supports BR-3 (Employee & Assignment Management) and BR-8 (Temporary Assignment Management)

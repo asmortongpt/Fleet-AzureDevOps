@@ -1,4 +1,7 @@
 /**
+import { container } from '../container'
+import { asyncHandler } from '../middleware/error-handler'
+import { NotFoundError, ValidationError } from '../errors/app-error'
  * EXAMPLE: Optimized Vehicles Route with Caching
  *
  * This file demonstrates how to apply caching to the vehicles route.
@@ -14,7 +17,6 @@ import { AuthRequest, authenticateJWT } from '../middleware/auth'
 import { requirePermission } from '../middleware/permissions'
 import { auditLog } from '../middleware/audit'
 import { applyFieldMasking } from '../utils/fieldMasking'
-import pool from '../config/database'
 import { z } from 'zod'
 import { buildInsertClause, buildUpdateClause } from '../utils/sql-safety'
 import { ApiResponse } from '../utils/apiResponse'
@@ -78,7 +80,7 @@ router.post(
       res.status(201).json(result.rows[0])
     } catch (error) {
       console.error(`Create vehicles error:`, error)
-      res.status(500).json({ error: `Internal server error` })
+      res.status(500).json({ error: `Internal server error` }))
     }
   }
 )
@@ -99,7 +101,7 @@ router.put(
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: `Vehicles not found` })
+        return res.status(404).json({ error: `Vehicles not found` }))
       }
 
       // Invalidate cache on update - ADD THESE LINES
@@ -109,7 +111,7 @@ router.put(
       res.json(result.rows[0])
     } catch (error) {
       console.error(`Update vehicles error:`, error)
-      res.status(500).json({ error: 'Internal server error' })
+      res.status(500).json({ error: 'Internal server error' }))
     }
   }
 )
@@ -132,10 +134,10 @@ router.delete(
       await cache.delPattern(`route:/api/vehicles*`)
       await cache.del(cache.getCacheKey(req.user!.tenant_id, 'vehicle', req.params.id))
 
-      res.json({ message: 'Vehicle deleted successfully' })
+      res.json({ message: 'Vehicle deleted successfully' }))
     } catch (error) {
       console.error('Delete vehicles error:', error)
-      res.status(500).json({ error: 'Internal server error' })
+      res.status(500).json({ error: 'Internal server error' }))
     }
   }
 )

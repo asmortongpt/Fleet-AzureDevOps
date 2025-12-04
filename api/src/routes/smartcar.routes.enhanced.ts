@@ -1,8 +1,10 @@
 import express, { Request, Response } from 'express';
+import { container } from '../container'
+import { asyncHandler } from '../middleware/error-handler'
+import { NotFoundError, ValidationError } from '../errors/app-error'
 import { AuthRequest, authenticateJWT } from '../middleware/auth';
 import { requirePermission } from '../middleware/permissions';
 import { auditLog } from '../middleware/audit';
-import pool from '../config/database';
 import SmartcarService from '../services/smartcar.service';
 import { buildSafeRedirectUrl, validateInternalPath } from '../utils/redirect-validator';
 import { z } from 'zod';
@@ -47,7 +49,7 @@ router.get('/connect', authenticateJWT, requirePermission('vehicle:manage:global
         vehicle_id,
         user_id: req.user!.id,
         tenant_id: req.user!.tenant_id,
-      })
+      }))
     ).toString('base64');
 
     const authUrl = smartcarService.getAuthUrl(state);

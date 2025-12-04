@@ -1,4 +1,7 @@
 /**
+import { container } from '../container'
+import { asyncHandler } from '../middleware/error-handler'
+import { NotFoundError, ValidationError } from '../errors/app-error'
 import logger from '../config/logger'; // Wave 30: Add Winston logger
  * Assignment Reporting & Compliance API Routes
  * Supports BR-10 (Reporting & Audit Requirements)
