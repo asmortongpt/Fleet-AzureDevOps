@@ -113,6 +113,8 @@ export interface ConnectionLog {
 }
 
 export class OBD2ServiceBackend {
+  constructor(private db: Pool) {}
+
   /**
    * Register or update OBD2 adapter
    */
@@ -603,4 +605,4 @@ export class OBD2ServiceBackend {
   }
 }
 
-export default new OBD2ServiceBackend()
+export default OBD2ServiceBackend
