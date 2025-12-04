@@ -139,6 +139,7 @@ import permissionsRouter from './routes/permissions'
 // Authentication & User Management Routes
 import authRouter from './routes/auth'
 import microsoftAuthRouter from './routes/microsoft-auth'
+import sessionRevocationRouter from './routes/session-revocation'
 import breakGlassRouter from './routes/break-glass'
 
 // External Integrations Routes
@@ -381,6 +382,7 @@ app.use('/api/permissions', permissionsRouter)
 
 // Authentication & User Management Routes
 app.use('/api/auth', authRouter)
+app.use('/api/auth', sessionRevocationRouter) // Session revocation endpoints (/revoke, /revoke/status)
 app.use('/api/microsoft-auth', microsoftAuthRouter)
 app.use('/api/break-glass', breakGlassRouter)
 
