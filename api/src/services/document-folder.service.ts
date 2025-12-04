@@ -3,7 +3,8 @@
  * Manages hierarchical folder structure for documents
  */
 
-import pool from '../config/database'
+import { Pool } from 'pg'
+import logger from '../utils/logger'
 import {
   DocumentFolder,
   FolderWithMetadata,
@@ -17,11 +18,13 @@ import { validateFolderName } from '../utils/document-utils'
 import documentAuditService from './document-audit.service'
 
 export class DocumentFolderService {
+  constructor(private db: Pool, private logger: typeof logger) {}
+
   /**
    * Create a new folder
    */
   async createFolder(options: CreateFolderOptions): Promise<DocumentFolder> {
-    const client = await pool.connect()
+    const client = await this.db.connect()
 
     try {
       await client.query('BEGIN')
@@ -44,7 +47,7 @@ export class DocumentFolderService {
 
       if (duplicateCheck.rows.length > 0) {
         throw new Error(
-          `Folder `${options.folder_name}` already exists in this location`
+          `Folder "${options.folder_name}" already exists in this location`
         )
       }
 
@@ -95,11 +98,11 @@ export class DocumentFolderService {
 
       await client.query(`COMMIT`)
 
-      console.log(`✅ Folder created: ${folder.folder_name}`)
+      this.logger.info(`✅ Folder created: ${folder.folder_name}`)
       return folder
     } catch (error) {
       await client.query(`ROLLBACK`)
-      console.error('❌ Failed to create folder:', error)
+      this.logger.error('❌ Failed to create folder:', error)
       throw error
     } finally {
       client.release()
@@ -114,7 +117,7 @@ export class DocumentFolderService {
     tenantId: string
   ): Promise<FolderWithMetadata | null> {
     try {
-      const result = await pool.query(
+      const result = await this.db.query(
         `SELECT
           df.*,
           (SELECT COUNT(*) FROM document_folders WHERE parent_folder_id = df.id AND deleted_at IS NULL) as subfolder_count,
@@ -139,7 +142,7 @@ export class DocumentFolderService {
         breadcrumb
       }
     } catch (error) {
-      console.error('❌ Failed to get folder:', error)
+      this.logger.error('❌ Failed to get folder:', error)
       throw error
     }
   }
@@ -159,7 +162,7 @@ export class DocumentFolderService {
       }
 
       // Get subfolders
-      const subfoldersResult = await pool.query(
+      const subfoldersResult = await this.db.query(
         `SELECT
           df.*,
           (SELECT COUNT(*) FROM document_folders WHERE parent_folder_id = df.id AND deleted_at IS NULL) as subfolder_count,
@@ -174,7 +177,7 @@ export class DocumentFolderService {
       )
 
       // Get documents
-      const documentsResult = await pool.query(
+      const documentsResult = await this.db.query(
         `SELECT
           d.*,
           dc.category_name,
@@ -197,7 +200,7 @@ export class DocumentFolderService {
         breadcrumb: folder.breadcrumb || []
       }
     } catch (error) {
-      console.error('❌ Failed to get folder contents:', error)
+      this.logger.error('❌ Failed to get folder contents:', error)
       throw error
     }
   }
@@ -207,7 +210,7 @@ export class DocumentFolderService {
    */
   async getRootFolders(tenantId: string): Promise<FolderWithMetadata[]> {
     try {
-      const result = await pool.query(
+      const result = await this.db.query(
         `SELECT
           df.*,
           (SELECT COUNT(*) FROM document_folders WHERE parent_folder_id = df.id AND deleted_at IS NULL) as subfolder_count,
@@ -223,7 +226,7 @@ export class DocumentFolderService {
 
       return result.rows
     } catch (error) {
-      console.error('❌ Failed to get root folders:', error)
+      this.logger.error('❌ Failed to get root folders:', error)
       throw error
     }
   }
@@ -237,7 +240,7 @@ export class DocumentFolderService {
     userId: string,
     updates: UpdateFolderOptions
   ): Promise<DocumentFolder> {
-    const client = await pool.connect()
+    const client = await this.db.connect()
 
     try {
       await client.query(`BEGIN`)
@@ -349,11 +352,11 @@ export class DocumentFolderService {
 
       await client.query(`COMMIT`)
 
-      console.log(`✅ Folder updated: ${updatedFolder.folder_name}`)
+      this.logger.info(`✅ Folder updated: ${updatedFolder.folder_name}`)
       return updatedFolder
     } catch (error) {
       await client.query(`ROLLBACK`)
-      console.error('❌ Failed to update folder:', error)
+      this.logger.error('❌ Failed to update folder:', error)
       throw error
     } finally {
       client.release()
@@ -369,7 +372,7 @@ export class DocumentFolderService {
     userId: string,
     options?: { recursive?: boolean }
   ): Promise<void> {
-    const client = await pool.connect()
+    const client = await this.db.connect()
 
     try {
       await client.query('BEGIN')
@@ -417,7 +420,7 @@ export class DocumentFolderService {
       await client.query(
         `UPDATE document_folders
          SET deleted_at = NOW(), updated_at = NOW()
-         WHERE id = $1 AND tenant_id = $2',
+         WHERE id = $1 AND tenant_id = $2`,
         [folderId, tenantId]
       )
 
@@ -434,10 +437,10 @@ export class DocumentFolderService {
 
       await client.query(`COMMIT`)
 
-      console.log(`✅ Folder deleted: ${folder.folder_name}`)
+      this.logger.info(`✅ Folder deleted: ${folder.folder_name}`)
     } catch (error) {
       await client.query(`ROLLBACK`)
-      console.error('❌ Failed to delete folder:', error)
+      this.logger.error('❌ Failed to delete folder:', error)
       throw error
     } finally {
       client.release()
@@ -452,7 +455,7 @@ export class DocumentFolderService {
     tenantId: string,
     userId: string
   ): Promise<DocumentFolder> {
-    const client = await pool.connect()
+    const client = await this.db.connect()
 
     try {
       await client.query('BEGIN')
@@ -484,11 +487,11 @@ export class DocumentFolderService {
 
       await client.query(`COMMIT`)
 
-      console.log(`✅ Folder restored: ${folder.folder_name}`)
+      this.logger.info(`✅ Folder restored: ${folder.folder_name}`)
       return folder
     } catch (error) {
       await client.query(`ROLLBACK`)
-      console.error('❌ Failed to restore folder:', error)
+      this.logger.error('❌ Failed to restore folder:', error)
       throw error
     } finally {
       client.release()
@@ -516,14 +519,14 @@ export class DocumentFolderService {
     folderId: string
   ): Promise<Array<{ id: string; folder_name: string; depth: number }>> {
     try {
-      const result = await pool.query(
-        'SELECT ' + (await getTableColumns(pool, 'get_folder_breadcrumb')).join(', ') + ' FROM get_folder_breadcrumb($1)`,
+      const result = await this.db.query(
+        `SELECT * FROM get_folder_breadcrumb($1)`,
         [folderId]
       )
 
       return result.rows
     } catch (error) {
-      console.error('❌ Failed to get folder breadcrumb:', error)
+      this.logger.error('❌ Failed to get folder breadcrumb:', error)
       return []
     }
   }
@@ -536,7 +539,7 @@ export class DocumentFolderService {
     ancestorId: string
   ): Promise<boolean> {
     try {
-      const result = await pool.query(
+      const result = await this.db.query(
         `WITH RECURSIVE folder_tree AS (
           SELECT id, parent_folder_id
           FROM document_folders
@@ -554,7 +557,7 @@ export class DocumentFolderService {
 
       return result.rows[0].is_descendant
     } catch (error) {
-      console.error(`❌ Failed to check folder hierarchy:`, error)
+      this.logger.error(`❌ Failed to check folder hierarchy:`, error)
       return false
     }
   }
@@ -627,7 +630,7 @@ export class DocumentFolderService {
       const params = [tenantId, `%${searchTerm}%`]
 
       // Get total count
-      const countResult = await pool.query(
+      const countResult = await this.db.query(
         query.replace(`SELECT df.*`, `SELECT COUNT(*) as count`),
         params
       )
@@ -646,17 +649,17 @@ export class DocumentFolderService {
         params.push(options.offset)
       }
 
-      const result = await pool.query(query, params)
+      const result = await this.db.query(query, params)
 
       return {
         folders: result.rows,
         total
       }
     } catch (error) {
-      console.error(`❌ Failed to search folders:`, error)
+      this.logger.error(`❌ Failed to search folders:`, error)
       throw error
     }
   }
 }
 
-export default new DocumentFolderService()
+export default DocumentFolderService

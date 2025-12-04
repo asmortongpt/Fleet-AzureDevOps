@@ -6,8 +6,8 @@
 import { ComputerVisionClient } from '@azure/cognitiveservices-computervision'
 import { CognitiveServicesCredentials } from '@azure/ms-rest-js'
 import { BlobServiceClient } from '@azure/storage-blob'
-import pool from '../config/database'
-import { logger } from '../utils/logger'
+import { Pool } from 'pg'
+import logger from '../utils/logger'
 import sharp from 'sharp'
 
 export interface OCRResult {
@@ -66,7 +66,10 @@ class AIOCRService {
   private blobServiceClient: BlobServiceClient | null = null
   private readonly containerName = 'ocr-processing'
 
-  constructor() {
+  constructor(
+    private db: Pool,
+    private logger: typeof logger
+  ) {
     this.initializeClients()
   }
 
@@ -82,9 +85,9 @@ class AIOCRService {
       if (endpoint && apiKey) {
         const credentials = new CognitiveServicesCredentials(apiKey)
         this.visionClient = new ComputerVisionClient(credentials, endpoint)
-        logger.info('Azure Computer Vision client initialized')
+        this.logger.info('Azure Computer Vision client initialized')
       } else {
-        logger.warn('Azure Computer Vision credentials not configured')
+        this.logger.warn('Azure Computer Vision credentials not configured')
       }
 
       // Initialize Blob Storage client
@@ -93,12 +96,12 @@ class AIOCRService {
       if (storageConnectionString) {
         this.blobServiceClient = BlobServiceClient.fromConnectionString(storageConnectionString)
         this.ensureContainer()
-        logger.info('Azure Blob Storage client initialized')
+        this.logger.info('Azure Blob Storage client initialized')
       } else {
-        logger.warn('Azure Blob Storage connection string not configured')
+        this.logger.warn('Azure Blob Storage connection string not configured')
       }
     } catch (error) {
-      logger.error('Failed to initialize Azure clients:', error)
+      this.logger.error('Failed to initialize Azure clients:', error)
     }
   }
 
@@ -112,7 +115,7 @@ class AIOCRService {
         access: 'private'
       })
     } catch (error) {
-      logger.error('Failed to create container:', error)
+      this.logger.error('Failed to create container:', error)
     }
   }
 
@@ -206,7 +209,7 @@ class AIOCRService {
       // Store result in database
       await this.storeOCRResult(tenantId, ocrResult)
 
-      logger.info('OCR completed successfully', {
+      this.logger.info('OCR completed successfully', {
         tenantId,
         textLength: fullText.length,
         linesCount: lines.length,
@@ -216,7 +219,7 @@ class AIOCRService {
 
       return ocrResult
     } catch (error: any) {
-      logger.error(`OCR failed:`, error)
+      this.logger.error(`OCR failed:`, error)
       throw new Error(`OCR processing failed: ${error.message}`)
     }
   }
@@ -270,7 +273,7 @@ class AIOCRService {
         }
       }
     } catch (error: any) {
-      logger.error(`Image analysis failed:`, error)
+      this.logger.error(`Image analysis failed:`, error)
       throw new Error(`Image analysis failed: ${error.message}`)
     }
   }
@@ -304,7 +307,7 @@ class AIOCRService {
         confidence: ocrResult.confidence
       }
     } catch (error: any) {
-      logger.error(`Document analysis failed:`, error)
+      this.logger.error(`Document analysis failed:`, error)
       throw new Error(`Document analysis failed: ${error.message}`)
     }
   }
@@ -437,7 +440,7 @@ class AIOCRService {
         .png({ compressionLevel: 6 })
         .toBuffer()
     } catch (error) {
-      logger.warn('Image optimization failed, using original:', error)
+      this.logger.warn('Image optimization failed, using original:', error)
       return imageBuffer
     }
   }
@@ -461,7 +464,7 @@ class AIOCRService {
 
       return blockBlobClient.url
     } catch (error: any) {
-      logger.error(`Failed to upload to blob:`, error)
+      this.logger.error(`Failed to upload to blob:`, error)
       throw new Error(`Blob upload failed: ${error.message}`)
     }
   }
@@ -471,7 +474,7 @@ class AIOCRService {
    */
   private async storeOCRResult(tenantId: string, result: OCRResult): Promise<void> {
     try {
-      await pool.query(
+      await this.db.query(
         `INSERT INTO ocr_results (
           tenant_id, text, confidence, language, lines_count,
           processing_time_ms, created_at
@@ -486,7 +489,7 @@ class AIOCRService {
         ]
       )
     } catch (error) {
-      logger.error(`Failed to store OCR result:`, error)
+      this.logger.error(`Failed to store OCR result:`, error)
     }
   }
 
@@ -506,7 +509,7 @@ class AIOCRService {
     averageProcessingTime: number
   }> {
     try {
-      const result = await pool.query(
+      const result = await this.db.query(
         `SELECT
           COUNT(*) as total_processed,
           AVG(confidence) as avg_confidence,
@@ -522,7 +525,7 @@ class AIOCRService {
         averageProcessingTime: parseFloat(result.rows[0].avg_processing_time) || 0
       }
     } catch (error) {
-      logger.error('Failed to get OCR statistics:', error)
+      this.logger.error('Failed to get OCR statistics:', error)
       return {
         totalProcessed: 0,
         averageConfidence: 0,
@@ -532,4 +535,4 @@ class AIOCRService {
   }
 }
 
-export default new AIOCRService()
+export default AIOCRService
