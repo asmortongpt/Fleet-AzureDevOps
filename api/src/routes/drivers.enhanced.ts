@@ -12,15 +12,16 @@ import { createUserSchema, updateUserSchema } from '../validation/schemas'
 import helmet from 'helmet'
 import rateLimit from 'express-rate-limit'
 import csurf from 'csurf'
+import { tenantSafeQuery } from '../utils/dbHelpers'
 
 const router = express.Router()
 
-router.use(helmet()
+router.use(helmet())
 router.use(authenticateJWT)
 router.use(rateLimit({
   windowMs: 60 * 1000, // 1 minute
   max: 100, // limit each IP to 100 requests per windowMs
-})
+}))
 
 const csrfProtection = csurf({ cookie: true })
 
@@ -41,9 +42,10 @@ router.get(
       const offset = (Number(page) - 1) * Number(limit)
 
       // Get user scope for row-level filtering
-      const userResult = await pool.query(
-        'SELECT team_driver_ids, driver_id, scope_level FROM users WHERE id = $1',
-        [req.user!.id]
+      const userResult = await tenantSafeQuery(
+        'SELECT team_driver_ids, driver_id, scope_level FROM users WHERE id = $1 AND tenant_id = $2',
+        [req.user!.id, req.user!.tenant_id],
+        req.user!.tenant_id
       )
 
       const user = userResult.rows[0]
@@ -61,14 +63,16 @@ router.get(
       }
       // fleet/global scope sees all
 
-      const result = await pool.query(
+      const result = await tenantSafeQuery(
         'SELECT id, tenant_id, email, first_name, last_name, role, is_active, phone, created_at, updated_at FROM users WHERE tenant_id = $1 ' + scopeFilter + ' ORDER BY created_at DESC LIMIT $2 OFFSET $3',
-        [...scopeParams, limit, offset]
+        [...scopeParams, limit, offset],
+        req.user!.tenant_id
       )
 
-      const countResult = await pool.query(
+      const countResult = await tenantSafeQuery(
         'SELECT COUNT(*) FROM users WHERE tenant_id = $1 ' + scopeFilter,
-        scopeParams
+        scopeParams,
+        req.user!.tenant_id
       )
 
       res.json({
@@ -77,7 +81,7 @@ router.get(
           page: Number(page),
           limit: Number(limit),
           total: parseInt(countResult.rows[0].count),
-          pages: Math.ceil(countResult.rows[0].count / Number(limit)
+          pages: Math.ceil(countResult.rows[0].count / Number(limit))
         }
       })
     } catch (error) {
@@ -95,9 +99,10 @@ router.get(
   auditLog({ action: 'READ', resourceType: 'users' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const result = await pool.query(
+      const result = await tenantSafeQuery(
         'SELECT id, tenant_id, email, first_name, last_name, role, is_active, phone, created_at, updated_at FROM users WHERE id = $1 AND tenant_id = $2',
-        [req.params.id, req.user!.tenant_id]
+        [req.params.id, req.user!.tenant_id],
+        req.user!.tenant_id
       )
 
       if (result.rows.length === 0) {
@@ -105,16 +110,17 @@ router.get(
       }
 
       // IDOR protection: Check if user has access to this driver
-      const userResult = await pool.query(
-        'SELECT team_driver_ids, driver_id, scope_level FROM users WHERE id = $1',
-        [req.user!.id]
+      const userResult = await tenantSafeQuery(
+        'SELECT team_driver_ids, driver_id, scope_level FROM users WHERE id = $1 AND tenant_id = $2',
+        [req.user!.id, req.user!.tenant_id],
+        req.user!.tenant_id
       )
       const user = userResult.rows[0]
       const driverId = req.params.id
 
       if (user.scope_level === `own` && user.driver_id !== driverId) {
         return res.status(403).json({ error: `Forbidden` })
-      } else if (user.scope_level === 'team' && !user.team_driver_ids.includes(driverId) {
+      } else if (user.scope_level === 'team' && !user.team_driver_ids.includes(driverId)) {
         return res.status(403).json({ error: `Forbidden` })
       }
 
