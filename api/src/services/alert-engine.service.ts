@@ -8,7 +8,7 @@
  * - Alert history and acknowledgment tracking
  */
 
-import pool from '../config/database'
+import { Pool } from 'pg'
 import nodemailer from 'nodemailer'
 
 export interface AlertRule {
@@ -47,7 +47,7 @@ export interface Alert {
 export class AlertEngineService {
   private emailTransporter: nodemailer.Transporter
 
-  constructor() {
+  constructor(private db: Pool) {
     // Initialize email transporter
     if (process.env.SMTP_HOST) {
       this.emailTransporter = nodemailer.createTransporter({
@@ -202,7 +202,7 @@ export class AlertEngineService {
 
     try {
       // Get recipient emails
-      const result = await pool.query(
+      const result = await this.db.query(
         'SELECT email FROM users WHERE id = ANY($1) AND tenant_id = $2',
         [recipients, tenantId]
       )
@@ -282,7 +282,7 @@ export class AlertEngineService {
       process.env.TWILIO_AUTH_TOKEN
     )
 
-    const result = await pool.query(
+    const result = await this.db.query(
       `SELECT phone FROM users WHERE id = ANY($1) AND tenant_id = $2 AND phone IS NOT NULL`,
       [recipients, tenantId]
     )
@@ -397,7 +397,7 @@ export class AlertEngineService {
         break
     }
 
-    const result = await pool.query(
+    const result = await this.db.query(
       `SELECT id FROM users WHERE tenant_id = $1 AND role = ANY($2)`,
       [tenantId, roles]
     )
@@ -430,7 +430,7 @@ export class AlertEngineService {
    * Check maintenance due alerts
    */
   async checkMaintenanceDueAlerts(tenantId: string): Promise<void> {
-    const result = await pool.query(
+    const result = await this.db.query(
       `SELECT v.id, v.vehicle_number, ms.service_type, ms.due_date
        FROM vehicles v
        JOIN maintenance_schedules ms ON v.id = ms.vehicle_id
@@ -467,7 +467,7 @@ export class AlertEngineService {
    * Check overdue task alerts
    */
   async checkOverdueTaskAlerts(tenantId: string): Promise<void> {
-    const result = await pool.query(
+    const result = await this.db.query(
       `SELECT t.id, t.task_title, t.assigned_to, u.first_name, u.last_name
        FROM tasks t
        LEFT JOIN users u ON t.assigned_to = u.id
@@ -500,7 +500,7 @@ export class AlertEngineService {
    * Check critical incident alerts
    */
   async checkCriticalIncidentAlerts(tenantId: string): Promise<void> {
-    const result = await pool.query(
+    const result = await this.db.query(
       `SELECT id, incident_title, severity
        FROM incidents
        WHERE tenant_id = $1
@@ -547,7 +547,7 @@ export class AlertEngineService {
    * Acknowledge alert
    */
   async acknowledgeAlert(alertId: string, userId: string): Promise<void> {
-    await pool.query(
+    await this.db.query(
       `UPDATE alerts
        SET status = 'acknowledged', acknowledged_at = NOW(), acknowledged_by = $1
        WHERE id = $2',
@@ -559,7 +559,7 @@ export class AlertEngineService {
    * Resolve alert
    */
   async resolveAlert(alertId: string): Promise<void> {
-    await pool.query(
+    await this.db.query(
       `UPDATE alerts
        SET status = 'resolved', resolved_at = NOW()
        WHERE id = $1',
@@ -606,9 +606,9 @@ export class AlertEngineService {
     query += ` ORDER BY a.created_at DESC LIMIT $${paramCount + 1}`
     params.push(limit)
 
-    const result = await pool.query(query, params)
+    const result = await this.db.query(query, params)
     return result.rows
   }
 }
 
-export default new AlertEngineService()
+export default AlertEngineService
