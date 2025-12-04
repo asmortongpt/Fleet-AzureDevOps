@@ -14,10 +14,11 @@ import rateLimit from 'express-rate-limit'
 import { serializeError } from 'serialize-error'
 import { sendErrorResponse } from '../utils/errorHandler'
 import { logger } from '../config/logger'
+import { tenantSafeQuery } from '../utils/dbHelpers'
 
 const router = express.Router()
 
-router.use(helmet()
+router.use(helmet())
 router.use(authenticateJWT)
 
 const apiLimiter = rateLimit({
@@ -53,9 +54,10 @@ router.get(
 
       const offset = (Number(page) - 1) * Number(limit)
 
-      const userResult = await pool.query(
-        'SELECT team_vehicle_ids, vehicle_id, scope_level FROM users WHERE id = $1',
-        [req.user!.id]
+      const userResult = await tenantSafeQuery(
+        'SELECT team_vehicle_ids, vehicle_id, scope_level FROM users WHERE id = $1 AND tenant_id = $2',
+        [req.user!.id, req.user!.tenant_id],
+        req.user!.tenant_id
       )
 
       const user = userResult.rows[0]
@@ -96,9 +98,10 @@ router.get(
         }
       })
 
-      const result = await pool.query(
+      const result = await tenantSafeQuery(
         `SELECT * FROM vehicles WHERE tenant_id = $1 ${scopeFilter} ${assetFilters} LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`,
-        [...scopeParams, Number(limit), offset]
+        [...scopeParams, Number(limit), offset],
+        req.user!.tenant_id
       )
 
       res.json(result.rows)
