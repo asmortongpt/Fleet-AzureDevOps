@@ -184,7 +184,7 @@ export function DocumentSharing({
             {linkSharing && (
               <div className="space-y-2">
                 <div className="flex gap-2">
-                  <Input value={shareLink} readOnly className="flex-1" />
+                  <Input value={shareLink} readOnly className="flex-1"  aria-label="Input field" />
                   <Button variant="outline" onClick={handleCopyLink}>
                     {copied ? (
                       <>
