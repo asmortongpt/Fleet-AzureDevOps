@@ -23,7 +23,7 @@ router.get('/', requirePermission('report:view:global'), async (req: AuthRequest
   try {
     const queryValidation = taskQuerySchema.safeParse(req.query)
     if (!queryValidation.success) {
-      return res.status(400).json({ error: 'Invalid query parameters' })
+      return throw new ValidationError("Invalid query parameters")
     }
     const { status, priority, assigned_to, category } = queryValidation.data
     const tenantId = req.user?.tenant_id

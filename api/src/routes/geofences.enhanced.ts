@@ -14,11 +14,11 @@ import { zodValidator } from '../middleware/zodValidator'
 const router = express.Router()
 
 router.use(authenticateJWT)
-router.use(helmet())
+router.use(helmet()
 router.use(rateLimit({
   windowMs: 60 * 1000, // 1 minute
   max: 100, // limit each IP to 100 requests per windowMs
-}))
+})
 
 const geofenceSchema = z.object({
   name: z.string().min(1),
@@ -27,7 +27,7 @@ const geofenceSchema = z.object({
   type: z.enum(['circle', 'polygon']),
   radius: z.number().optional(),
   is_active: z.boolean(),
-}))
+})
 
 // GET /geofences
 router.get(
@@ -69,12 +69,12 @@ router.get(
           page: Number(page),
           limit: Number(limit),
           total: parseInt(countResult.rows[0].count, 10),
-          pages: Math.ceil(parseInt(countResult.rows[0].count, 10) / Number(limit)),
+          pages: Math.ceil(parseInt(countResult.rows[0].count, 10) / Number(limit),
         },
-      }))
+      })
     } catch (error) {
       console.error(`Get geofences error:`, error)
-      res.status(500).json({ error: 'Internal server error' }))
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )
@@ -104,13 +104,13 @@ router.get(
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: `Geofence not found` }))
+        return res.status(404).json({ error: `Geofence not found` })
       }
 
       res.json(result.rows[0])
     } catch (error) {
       console.error('Get geofence error:', error)
-      res.status(500).json({ error: 'Internal server error' }))
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )
@@ -133,7 +133,7 @@ router.post(
       res.status(201).json(result.rows[0])
     } catch (error) {
       console.error(`Create geofence error:`, error)
-      res.status(500).json({ error: `Internal server error` }))
+      res.status(500).json({ error: `Internal server error` })
     }
   }
 )
@@ -143,7 +143,7 @@ router.put(
   '/:id',
   requirePermission('geofence:update:fleet'),
   auditLog({ action: 'UPDATE', resourceType: 'geofences' }),
-  zodValidator(geofenceSchema.partial()),
+  zodValidator(geofenceSchema.partial(),
   async (req: AuthRequest, res: Response) => {
     try {
       const id = req.params.id
@@ -157,13 +157,13 @@ router.put(
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'Geofence not found or not authorized to update' }))
+        return throw new NotFoundError("Geofence not found or not authorized to update")
       }
 
       res.json(result.rows[0])
     } catch (error) {
       console.error(`Update geofence error:`, error)
-      res.status(500).json({ error: 'Internal server error' }))
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )

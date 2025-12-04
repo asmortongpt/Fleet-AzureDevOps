@@ -39,7 +39,7 @@ router.get(
       const { vehicleId } = req.query;
 
       if (vehicleId) {
-        const cameras = await videoService.getVehicleCameras(Number(vehicleId));
+        const cameras = await videoService.getVehicleCameras(Number(vehicleId);
         return res.json({ cameras });
       }
 
@@ -180,7 +180,7 @@ router.get(
       );
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'Video event not found' });
+        return throw new NotFoundError("Video event not found");
       }
 
       // Log access for audit
@@ -210,10 +210,10 @@ router.get(
   auditLog({ action: 'READ', resourceType: 'video_clip' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const playbackUrl = await videoService.getVideoPlaybackUrl(Number(req.params.id));
+      const playbackUrl = await videoService.getVideoPlaybackUrl(Number(req.params.id);
 
       if (!playbackUrl) {
-        return res.status(404).json({ error: 'Video clip not available' });
+        return throw new NotFoundError("Video clip not available");
       }
 
       // Log video access
@@ -253,7 +253,7 @@ router.post(
         address: z.string().optional(),
         speedMph: z.number().optional(),
         gForce: z.number().optional(),
-        eventTimestamp: z.string().transform(s => new Date(s)),
+        eventTimestamp: z.string().transform(s => new Date(s),
         videoRequestId: z.string().optional(),
         videoUrl: z.string().optional(),
         videoThumbnailUrl: z.string().optional(),
@@ -395,10 +395,10 @@ router.get(
   auditLog({ action: 'READ', resourceType: 'evidence_locker' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const locker = await videoService.getEvidenceLocker(Number(req.params.id));
+      const locker = await videoService.getEvidenceLocker(Number(req.params.id);
 
       if (!locker) {
-        return res.status(404).json({ error: 'Evidence locker not found' });
+        return throw new NotFoundError("Evidence locker not found");
       }
 
       res.json(locker);
@@ -461,7 +461,7 @@ router.post(
       const { eventId } = req.body;
 
       if (!eventId) {
-        return res.status(400).json({ error: 'eventId is required' });
+        return throw new ValidationError("eventId is required");
       }
 
       await videoService.addToEvidenceLocker(

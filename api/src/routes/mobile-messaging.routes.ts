@@ -32,9 +32,9 @@ const twilioPhoneNumber = process.env.TWILIO_PHONE_NUMBER;
 // ============================================================================
 
 const sendEmailSchema = z.object({
-  to: z.union([z.string().email(), z.array(z.string().email())]),
-  cc: z.union([z.string().email(), z.array(z.string().email())]).optional(),
-  bcc: z.union([z.string().email(), z.array(z.string().email())]).optional(),
+  to: z.union([z.string().email(), z.array(z.string().email()]),
+  cc: z.union([z.string().email(), z.array(z.string().email()]).optional(),
+  bcc: z.union([z.string().email(), z.array(z.string().email()]).optional(),
   subject: z.string().min(1),
   body: z.string(),
   bodyType: z.enum(['text', 'html']).optional().default('html'),
@@ -45,7 +45,7 @@ const sendEmailSchema = z.object({
         uri: z.string(),
         type: z.string(),
         size: z.number(),
-      }))
+      })
     )
     .optional(),
   importance: z.enum(['low', 'normal', 'high']).optional().default('normal'),
@@ -55,7 +55,7 @@ const sendEmailSchema = z.object({
         entity_type: z.string(),
         entity_id: z.string(),
         link_type: z.string().optional(),
-      }))
+      })
     )
     .optional(),
 });
@@ -87,7 +87,7 @@ router.post(
               name: att.name,
               contentType: att.type,
               contentBytes: '', // Would need to fetch and encode from URI
-            }))
+            })
           : undefined,
       });
 
@@ -99,7 +99,7 @@ router.post(
               communication_type, direction, subject, body,
               to_contact_emails, cc_emails, bcc_emails,
               created_by, communication_datetime
-            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW())
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW()
             RETURNING id`,
             [
               `Email`,
@@ -187,7 +187,7 @@ const sendSMSSchema = z.object({
         entity_type: z.string(),
         entity_id: z.string(),
         link_type: z.string().optional(),
-      }))
+      })
     )
     .optional(),
 });
@@ -232,7 +232,7 @@ router.post(
           to_contact_phone, from_contact_phone,
           external_message_id, status,
           created_by, communication_datetime
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW())
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW()
         RETURNING id`,
         [
           `SMS`,
@@ -303,10 +303,10 @@ const sendTeamsMessageSchema = z.object({
       z.object({
         userId: z.string(),
         displayName: z.string(),
-      }))
+      })
     )
     .optional(),
-  attachments: z.array(z.any()).optional(),
+  attachments: z.array(z.any().optional(),
   importance: z.enum(['normal', 'high', 'urgent']).optional(),
   entityLinks: z
     .array(
@@ -314,7 +314,7 @@ const sendTeamsMessageSchema = z.object({
         entity_type: z.string(),
         entity_id: z.string(),
         link_type: z.string().optional(),
-      }))
+      })
     )
     .optional(),
 });

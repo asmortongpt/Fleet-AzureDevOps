@@ -34,11 +34,11 @@ const RegisterAdapterSchema = z.object({
   port: z.number().int().positive().optional(),
   firmware_version: z.string().optional(),
   hardware_version: z.string().optional(),
-  supported_protocols: z.array(z.string()).optional(),
+  supported_protocols: z.array(z.string().optional(),
   vehicle_id: z.number().int().positive().optional(),
   vin: z.string().length(17).optional(),
   protocol_detected: z.string().optional()
-}))
+})
 
 /**
  * Report DTCs Schema
@@ -54,8 +54,8 @@ const ReportDTCsSchema = z.object({
     is_mil_on: z.boolean(),
     freeze_frame_data: z.any().optional(),
     detected_at: z.string().datetime()
-  }))
-}))
+  })
+})
 
 /**
  * Live Data Schema
@@ -89,8 +89,8 @@ const LiveDataSchema = z.object({
       accuracy: z.number().optional()
     }).optional(),
     all_pids: z.any().optional()
-  }))
-}))
+  })
+})
 
 /**
  * Connection Log Schema
@@ -108,7 +108,7 @@ const ConnectionLogSchema = z.object({
   connection_speed: z.string().optional(),
   connected_at: z.string().datetime().optional(),
   disconnected_at: z.string().datetime().optional()
-}))
+})
 
 /**
  * @swagger
@@ -177,9 +177,9 @@ router.post('/connect', requirePermission('vehicle:update:fleet'), auditLog, asy
     res.json(adapter)
   } catch (error: any) {
     logger.error('Error registering OBD2 adapter:', error) // Wave 25: Winston logger
-    res.status(400).json({ error: getErrorMessage(error) }))
+    res.status(400).json({ error: getErrorMessage(error) })
   }
-}))
+})
 
 /**
  * @swagger
@@ -205,9 +205,9 @@ router.get('/adapters', requirePermission('vehicle:view:fleet'), async (req: Req
     res.json(adapters)
   } catch (error: any) {
     logger.error('Error getting adapters:', error) // Wave 25: Winston logger
-    res.status(400).json({ error: getErrorMessage(error) }))
+    res.status(400).json({ error: getErrorMessage(error) })
   }
-}))
+})
 
 /**
  * @swagger
@@ -237,15 +237,15 @@ router.get('/adapters/:adapterId', requirePermission('vehicle:view:fleet'), asyn
     const adapter = await obd2Service.getAdapterById(tenantId, adapterId)
 
     if (!adapter) {
-      return res.status(404).json({ error: 'Adapter not found' }))
+      return throw new NotFoundError("Adapter not found")
     }
 
     res.json(adapter)
   } catch (error: any) {
     logger.error('Error getting adapter:', error) // Wave 25: Winston logger
-    res.status(400).json({ error: getErrorMessage(error) }))
+    res.status(400).json({ error: getErrorMessage(error) })
   }
-}))
+})
 
 /**
  * @swagger
@@ -312,15 +312,15 @@ router.post('/dtcs', requirePermission('maintenance:create:fleet'), auditLog, as
       validated.dtcs.map(dtc => ({
         ...dtc,
         detected_at: new Date(dtc.detected_at)
-      }))
+      })
     )
 
     res.status(201).json(dtcs)
   } catch (error: any) {
     logger.error('Error reporting DTCs:', error) // Wave 25: Winston logger
-    res.status(400).json({ error: getErrorMessage(error) }))
+    res.status(400).json({ error: getErrorMessage(error) })
   }
-}))
+})
 
 /**
  * @swagger
@@ -356,9 +356,9 @@ router.get('/dtcs/:vehicleId', requirePermission('maintenance:view:fleet'), asyn
     res.json(dtcs)
   } catch (error: any) {
     logger.error('Error getting DTCs:', error) // Wave 25: Winston logger
-    res.status(400).json({ error: getErrorMessage(error) }))
+    res.status(400).json({ error: getErrorMessage(error) })
   }
-}))
+})
 
 /**
  * @swagger
@@ -392,12 +392,12 @@ router.delete(`/dtcs/:vehicleId`, requirePermission(`maintenance:update:fleet`),
       success: true,
       cleared_count: count,
       message: `Cleared ${count} diagnostic code(s)`
-    }))
+    })
   } catch (error: any) {
     logger.error(`Error clearing DTCs:`, error) // Wave 25: Winston logger
-    res.status(400).json({ error: getErrorMessage(error) }))
+    res.status(400).json({ error: getErrorMessage(error) })
   }
-}))
+})
 
 /**
  * @swagger
@@ -474,9 +474,9 @@ router.post('/live-data', requirePermission('vehicle:view:fleet'), async (req: R
     res.status(201).json(liveData)
   } catch (error: any) {
     logger.error('Error storing live data:', error) // Wave 25: Winston logger
-    res.status(400).json({ error: getErrorMessage(error) }))
+    res.status(400).json({ error: getErrorMessage(error) })
   }
-}))
+})
 
 /**
  * @swagger
@@ -512,9 +512,9 @@ router.get('/live-data/:vehicleId', requirePermission('vehicle:view:fleet'), asy
     res.json(liveData)
   } catch (error: any) {
     logger.error('Error getting live data:', error) // Wave 25: Winston logger
-    res.status(400).json({ error: getErrorMessage(error) }))
+    res.status(400).json({ error: getErrorMessage(error) })
   }
-}))
+})
 
 /**
  * @swagger
@@ -589,9 +589,9 @@ router.post('/connection-log', requirePermission('vehicle:view:fleet'), async (r
     res.status(201).json(log)
   } catch (error: any) {
     logger.error('Error logging connection:', error) // Wave 25: Winston logger
-    res.status(400).json({ error: getErrorMessage(error) }))
+    res.status(400).json({ error: getErrorMessage(error) })
   }
-}))
+})
 
 /**
  * @swagger
@@ -624,15 +624,15 @@ router.get('/health/:vehicleId', requirePermission('vehicle:view:fleet'), async 
         health_status: 'unknown',
         active_dtc_count: 0,
         message: 'No OBD2 data available for this vehicle'
-      }))
+      })
     }
 
     res.json(health)
   } catch (error: any) {
     logger.error('Error getting vehicle health:', error) // Wave 25: Winston logger
-    res.status(400).json({ error: getErrorMessage(error) }))
+    res.status(400).json({ error: getErrorMessage(error) })
   }
-}))
+})
 
 /**
  * @swagger
@@ -668,9 +668,9 @@ router.get('/fuel-economy/:vehicleId', requirePermission('vehicle:view:fleet'), 
     res.json(trends)
   } catch (error: any) {
     logger.error('Error getting fuel economy trends:', error) // Wave 25: Winston logger
-    res.status(400).json({ error: getErrorMessage(error) }))
+    res.status(400).json({ error: getErrorMessage(error) })
   }
-}))
+})
 
 /**
  * @swagger
@@ -702,14 +702,14 @@ router.get('/dtc-info/:dtcCode', requirePermission('vehicle:view:fleet'), async 
       return res.status(404).json({
         error: 'DTC not found in library',
         dtc_code: dtcCode
-      }))
+      })
     }
 
     res.json(info)
   } catch (error: any) {
     logger.error('Error getting DTC info:', error) // Wave 25: Winston logger
-    res.status(400).json({ error: getErrorMessage(error) }))
+    res.status(400).json({ error: getErrorMessage(error) })
   }
-}))
+})
 
 export default router
