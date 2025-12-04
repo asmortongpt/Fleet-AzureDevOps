@@ -1,4 +1,7 @@
 /**
+import { container } from '../container'
+import { asyncHandler } from '../middleware/error-handler'
+import { NotFoundError, ValidationError } from '../errors/app-error'
 import logger from '../config/logger'; // Wave 24: Add Winston logger
  * Fleet Management - Dispatch Radio Routes
  *
@@ -19,7 +22,6 @@ import logger from '../config/logger'; // Wave 24: Add Winston logger
 import { Router, Request, Response } from 'express'
 import dispatchService from '../services/dispatch.service'
 import webrtcService from '../services/webrtc.service'
-import { pool } from '../config/database'
 import { authenticateJWT } from '../middleware/auth'
 import { requirePermission } from '../middleware/permissions'
 
@@ -75,15 +77,15 @@ router.get('/channels', requirePermission('route:view:fleet'), async (req: Reque
     res.json({
       success: true,
       channels
-    })
+    }))
   } catch (error) {
     logger.error('Error getting dispatch channels:', error) // Wave 24: Winston logger
     res.status(500).json({
       success: false,
       error: 'Failed to get dispatch channels'
-    })
+    }))
   }
-})
+}))
 
 /**
  * @openapi
@@ -127,21 +129,21 @@ router.get('/channels/:id', requirePermission('route:view:fleet'), async (req: R
       return res.status(404).json({
         success: false,
         error: `Channel not found`
-      })
+      }))
     }
 
     res.json({
       success: true,
       channel: result.rows[0]
-    })
+    }))
   } catch (error) {
     logger.error('Error getting channel:', error) // Wave 24: Winston logger
     res.status(500).json({
       success: false,
       error: 'Failed to get channel'
-    })
+    }))
   }
-})
+}))
 
 /**
  * @openapi
@@ -189,7 +191,7 @@ router.post('/channels', requirePermission('route:create:fleet'), async (req: Re
       return res.status(400).json({
         success: false,
         error: 'Name and channel type are required'
-      })
+      }))
     }
 
     const result = await pool.query(`
@@ -202,15 +204,15 @@ router.post('/channels', requirePermission('route:create:fleet'), async (req: Re
     res.status(201).json({
       success: true,
       channel: result.rows[0]
-    })
+    }))
   } catch (error) {
     logger.error('Error creating channel:', error) // Wave 24: Winston logger
     res.status(500).json({
       success: false,
       error: 'Failed to create channel'
-    })
+    }))
   }
-})
+}))
 
 /**
  * @openapi
@@ -246,15 +248,15 @@ router.get('/channels/:id/history', requirePermission('route:view:fleet'), async
     res.json({
       success: true,
       history
-    })
+    }))
   } catch (error) {
     logger.error('Error getting channel history:', error) // Wave 24: Winston logger
     res.status(500).json({
       success: false,
       error: 'Failed to get channel history'
-    })
+    }))
   }
-})
+}))
 
 /**
  * @openapi
@@ -285,15 +287,15 @@ router.get('/channels/:id/listeners', requirePermission('route:view:fleet'), asy
       success: true,
       listeners,
       count: listeners.length
-    })
+    }))
   } catch (error) {
     logger.error('Error getting listeners:', error) // Wave 24: Winston logger
     res.status(500).json({
       success: false,
       error: 'Failed to get listeners'
-    })
+    }))
   }
-})
+}))
 
 /**
  * @openapi
@@ -340,7 +342,7 @@ router.post('/emergency', requirePermission('route:create:fleet'), async (req: R
       return res.status(400).json({
         success: false,
         error: 'Alert type is required'
-      })
+      }))
     }
 
     const alert = await dispatchService.createEmergencyAlert({
@@ -350,20 +352,20 @@ router.post('/emergency', requirePermission('route:create:fleet'), async (req: R
       locationLat: location?.lat,
       locationLng: location?.lng,
       description
-    })
+    }))
 
     res.status(201).json({
       success: true,
       alert
-    })
+    }))
   } catch (error) {
     logger.error('Error creating emergency alert:', error) // Wave 24: Winston logger
     res.status(500).json({
       success: false,
       error: 'Failed to create emergency alert'
-    })
+    }))
   }
-})
+}))
 
 /**
  * @openapi
@@ -426,15 +428,15 @@ router.get('/emergency', requirePermission('route:view:fleet'), async (req: Requ
     res.json({
       success: true,
       alerts: result.rows
-    })
+    }))
   } catch (error) {
     logger.error('Error getting emergency alerts:', error) // Wave 24: Winston logger
     res.status(500).json({
       success: false,
       error: 'Failed to get emergency alerts'
-    })
+    }))
   }
-})
+}))
 
 /**
  * @openapi
@@ -473,21 +475,21 @@ router.put('/emergency/:id/acknowledge', requirePermission('route:update:fleet')
       return res.status(404).json({
         success: false,
         error: 'Alert not found'
-      })
+      }))
     }
 
     res.json({
       success: true,
       alert: result.rows[0]
-    })
+    }))
   } catch (error) {
     logger.error('Error acknowledging alert:', error) // Wave 24: Winston logger
     res.status(500).json({
       success: false,
       error: 'Failed to acknowledge alert'
-    })
+    }))
   }
-})
+}))
 
 /**
  * @openapi
@@ -527,21 +529,21 @@ router.put('/emergency/:id/resolve', requirePermission('route:update:fleet'), as
       return res.status(404).json({
         success: false,
         error: 'Alert not found'
-      })
+      }))
     }
 
     res.json({
       success: true,
       alert: result.rows[0]
-    })
+    }))
   } catch (error) {
     logger.error('Error resolving alert:', error) // Wave 24: Winston logger
     res.status(500).json({
       success: false,
       error: 'Failed to resolve alert'
-    })
+    }))
   }
-})
+}))
 
 /**
  * @openapi
@@ -611,15 +613,15 @@ router.get('/metrics', requirePermission('route:view:fleet'), async (req: Reques
     res.json({
       success: true,
       metrics: result.rows
-    })
+    }))
   } catch (error) {
     logger.error(`Error getting metrics:`, error) // Wave 24: Winston logger
     res.status(500).json({
       success: false,
       error: `Failed to get metrics`
-    })
+    }))
   }
-})
+}))
 
 /**
  * @openapi
@@ -659,15 +661,15 @@ router.post('/webrtc/offer', requirePermission(`route:create:fleet`), async (req
     res.json({
       success: true,
       offer
-    })
+    }))
   } catch (error) {
     logger.error(`Error creating WebRTC offer:`, error) // Wave 24: Winston logger
     res.status(500).json({
       success: false,
       error: 'Failed to create WebRTC offer'
-    })
+    }))
   }
-})
+}))
 
 /**
  * @openapi
@@ -704,15 +706,15 @@ router.post('/webrtc/answer', requirePermission('route:create:fleet'), async (re
 
     res.json({
       success: true
-    })
+    }))
   } catch (error) {
     logger.error('Error handling WebRTC answer:', error) // Wave 24: Winston logger
     res.status(500).json({
       success: false,
       error: 'Failed to handle answer'
-    })
+    }))
   }
-})
+}))
 
 /**
  * @openapi
@@ -749,14 +751,14 @@ router.post('/webrtc/ice-candidate', requirePermission('route:create:fleet'), as
 
     res.json({
       success: true
-    })
+    }))
   } catch (error) {
     logger.error('Error adding ICE candidate:', error) // Wave 24: Winston logger
     res.status(500).json({
       success: false,
       error: 'Failed to add ICE candidate'
-    })
+    }))
   }
-})
+}))
 
 export default router

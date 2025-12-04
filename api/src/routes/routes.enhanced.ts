@@ -1,8 +1,10 @@
 import express, { Response } from 'express'
+import { container } from '../container'
+import { asyncHandler } from '../middleware/error-handler'
+import { NotFoundError, ValidationError } from '../errors/app-error'
 import { AuthRequest, authenticateJWT } from '../middleware/auth'
 import { requirePermission } from '../middleware/permissions'
 import { auditLog } from '../middleware/audit'
-import pool from '../config/database'
 import { z } from 'zod'
 import { buildInsertClause, buildUpdateClause } from '../utils/sql-safety'
 import { rateLimit } from '../middleware/rateLimit'
@@ -15,11 +17,11 @@ router.use(rateLimit({ windowMs: 60 * 1000, max: 100 })) // 100 requests per min
 const routeQuerySchema = z.object({
   page: z.string().optional(),
   limit: z.string().optional(),
-})
+}))
 
 const idParamSchema = z.object({
   id: z.string(),
-})
+}))
 
 // GET /routes
 router.get(
@@ -87,10 +89,10 @@ router.get(
           total: parseInt(countResult.rows[0].count, 10),
           pages: Math.ceil(parseInt(countResult.rows[0].count, 10) / Number(limit))
         }
-      })
+      }))
     } catch (error) {
       console.error('Get routes error:', error)
-      res.status(500).json({ error: 'Internal server error' })
+      res.status(500).json({ error: 'Internal server error' }))
     }
   }
 )
@@ -124,12 +126,12 @@ router.get(
         [id, req.user!.tenant_id]
       )
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'Route not found' })
+        return res.status(404).json({ error: 'Route not found' }))
       }
       res.json(result.rows[0])
     } catch (error) {
       console.error('Get route by ID error:', error)
-      res.status(500).json({ error: 'Internal server error' })
+      res.status(500).json({ error: 'Internal server error' }))
     }
   }
 )

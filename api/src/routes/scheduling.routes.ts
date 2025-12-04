@@ -1,4 +1,7 @@
 /**
+import { container } from '../container'
+import { asyncHandler } from '../middleware/error-handler'
+import { NotFoundError, ValidationError } from '../errors/app-error'
 import logger from '../config/logger'; // Wave 20: Add Winston logger
  * Scheduling Routes
  * API endpoints for vehicle reservations, maintenance scheduling,
@@ -9,7 +12,6 @@ import express, { Request, Response } from 'express'
 import * as schedulingService from '../services/scheduling.service'
 import * as googleCalendar from '../services/google-calendar.service'
 import schedulingNotificationService from '../services/scheduling-notification.service'
-import pool from '../config/database'
 
 const router = express.Router()
 
@@ -73,12 +75,12 @@ router.get('/reservations', async (req: Request, res: Response) => {
       success: true,
       count: result.rows.length,
       reservations: result.rows
-    })
+    }))
   } catch (error) {
     logger.error('Error fetching reservations:', error) // Wave 20: Winston logger
-    res.status(500).json({ error: 'Failed to fetch reservations' })
+    res.status(500).json({ error: 'Failed to fetch reservations' }))
   }
-})
+}))
 
 /**
  * POST /api/scheduling/reservations
@@ -105,7 +107,7 @@ router.post('/reservations', async (req: Request, res: Response) => {
     if (!vehicleId || !startTime || !endTime) {
       return res.status(400).json({
         error: 'Missing required fields: vehicleId, startTime, endTime'
-      })
+      }))
     }
 
     // Create reservation
@@ -131,14 +133,14 @@ router.post('/reservations', async (req: Request, res: Response) => {
       success: true,
       message: 'Vehicle reservation created successfully',
       reservation
-    })
+    }))
   } catch (error) {
     logger.error('Error creating reservation:', error) // Wave 20: Winston logger
     res.status(500).json({
       error: (error as Error).message || 'Failed to create reservation'
-    })
+    }))
   }
-})
+}))
 
 /**
  * PATCH /api/scheduling/reservations/:id
@@ -169,7 +171,7 @@ router.patch('/reservations/:id', async (req: Request, res: Response) => {
     }
 
     if (updateFields.length === 0) {
-      return res.status(400).json({ error: `No valid fields to update` })
+      return res.status(400).json({ error: `No valid fields to update` }))
     }
 
     const query = `
@@ -182,19 +184,19 @@ router.patch('/reservations/:id', async (req: Request, res: Response) => {
     const result = await pool.query(query, values)
 
     if (result.rows.length === 0) {
-      return res.status(404).json({ error: `Reservation not found` })
+      return res.status(404).json({ error: `Reservation not found` }))
     }
 
     res.json({
       success: true,
       message: 'Reservation updated successfully',
       reservation: result.rows[0]
-    })
+    }))
   } catch (error) {
     logger.error('Error updating reservation:', error) // Wave 20: Winston logger
-    res.status(500).json({ error: 'Failed to update reservation' })
+    res.status(500).json({ error: 'Failed to update reservation' }))
   }
-})
+}))
 
 /**
  * DELETE /api/scheduling/reservations/:id
@@ -214,18 +216,18 @@ router.delete('/reservations/:id', async (req: Request, res: Response) => {
     )
 
     if (result.rows.length === 0) {
-      return res.status(404).json({ error: `Reservation not found` })
+      return res.status(404).json({ error: `Reservation not found` }))
     }
 
     res.json({
       success: true,
       message: 'Reservation cancelled successfully'
-    })
+    }))
   } catch (error) {
     logger.error('Error cancelling reservation:', error) // Wave 20: Winston logger
-    res.status(500).json({ error: 'Failed to cancel reservation' })
+    res.status(500).json({ error: 'Failed to cancel reservation' }))
   }
-})
+}))
 
 /**
  * POST /api/scheduling/reservations/:id/approve
@@ -249,7 +251,7 @@ router.post('/reservations/:id/approve', async (req: Request, res: Response) => 
     )
 
     if (reservationResult.rows.length === 0) {
-      return res.status(404).json({ error: 'Reservation not found' })
+      return res.status(404).json({ error: 'Reservation not found' }))
     }
 
     const reservation = reservationResult.rows[0]
@@ -269,7 +271,7 @@ router.post('/reservations/:id/approve', async (req: Request, res: Response) => 
       await schedulingNotificationService.sendReservationApproved(tenantId, {
         ...result.rows[0],
         ...reservation
-      })
+      }))
     } catch (error) {
       logger.error('Error sending approval notification:', error) // Wave 20: Winston logger
       // Don't fail the approval if notification fails
@@ -279,12 +281,12 @@ router.post('/reservations/:id/approve', async (req: Request, res: Response) => 
       success: true,
       message: 'Reservation approved successfully',
       reservation: result.rows[0]
-    })
+    }))
   } catch (error) {
     logger.error('Error approving reservation:', error) // Wave 20: Winston logger
-    res.status(500).json({ error: 'Failed to approve reservation' })
+    res.status(500).json({ error: 'Failed to approve reservation' }))
   }
-})
+}))
 
 /**
  * POST /api/scheduling/reservations/:id/reject
@@ -309,7 +311,7 @@ router.post('/reservations/:id/reject', async (req: Request, res: Response) => {
     )
 
     if (reservationResult.rows.length === 0) {
-      return res.status(404).json({ error: 'Reservation not found' })
+      return res.status(404).json({ error: 'Reservation not found' }))
     }
 
     const reservation = reservationResult.rows[0]
@@ -339,12 +341,12 @@ router.post('/reservations/:id/reject', async (req: Request, res: Response) => {
       success: true,
       message: 'Reservation rejected',
       reservation: result.rows[0]
-    })
+    }))
   } catch (error) {
     logger.error('Error rejecting reservation:', error) // Wave 20: Winston logger
-    res.status(500).json({ error: 'Failed to reject reservation' })
+    res.status(500).json({ error: 'Failed to reject reservation' }))
   }
-})
+}))
 
 // ============================================
 // Maintenance Appointments
@@ -414,12 +416,12 @@ router.get('/maintenance', async (req: Request, res: Response) => {
       success: true,
       count: result.rows.length,
       appointments: result.rows
-    })
+    }))
   } catch (error) {
     logger.error('Error fetching maintenance appointments:', error) // Wave 20: Winston logger
-    res.status(500).json({ error: 'Failed to fetch appointments' })
+    res.status(500).json({ error: 'Failed to fetch appointments' }))
   }
-})
+}))
 
 /**
  * POST /api/scheduling/maintenance
@@ -444,7 +446,7 @@ router.post('/maintenance', async (req: Request, res: Response) => {
     if (!vehicleId || !appointmentTypeId || !scheduledStart || !scheduledEnd) {
       return res.status(400).json({
         error: 'Missing required fields'
-      })
+      }))
     }
 
     const appointment = await schedulingService.createMaintenanceAppointment(
@@ -468,14 +470,14 @@ router.post('/maintenance', async (req: Request, res: Response) => {
       success: true,
       message: 'Maintenance appointment created successfully',
       appointment
-    })
+    }))
   } catch (error) {
     logger.error('Error creating maintenance appointment:', error) // Wave 20: Winston logger
     res.status(500).json({
       error: (error as Error).message || 'Failed to create appointment'
-    })
+    }))
   }
-})
+}))
 
 /**
  * PATCH /api/scheduling/maintenance/:id
@@ -505,7 +507,7 @@ router.patch('/maintenance/:id', async (req: Request, res: Response) => {
     }
 
     if (updateFields.length === 0) {
-      return res.status(400).json({ error: `No valid fields to update` })
+      return res.status(400).json({ error: `No valid fields to update` }))
     }
 
     const query = `
@@ -518,19 +520,19 @@ router.patch('/maintenance/:id', async (req: Request, res: Response) => {
     const result = await pool.query(query, values)
 
     if (result.rows.length === 0) {
-      return res.status(404).json({ error: `Appointment not found` })
+      return res.status(404).json({ error: `Appointment not found` }))
     }
 
     res.json({
       success: true,
       message: 'Appointment updated successfully',
       appointment: result.rows[0]
-    })
+    }))
   } catch (error) {
     logger.error('Error updating appointment:', error) // Wave 20: Winston logger
-    res.status(500).json({ error: 'Failed to update appointment' })
+    res.status(500).json({ error: 'Failed to update appointment' }))
   }
-})
+}))
 
 // ============================================
 // Availability & Conflicts
@@ -589,12 +591,12 @@ router.post('/check-conflicts', async (req: Request, res: Response) => {
       success: true,
       hasConflicts,
       conflicts
-    })
+    }))
   } catch (error) {
     logger.error('Error checking conflicts:', error) // Wave 20: Winston logger
-    res.status(500).json({ error: 'Failed to check conflicts' })
+    res.status(500).json({ error: 'Failed to check conflicts' }))
   }
-})
+}))
 
 /**
  * GET /api/scheduling/available-vehicles
@@ -606,7 +608,7 @@ router.get('/available-vehicles', async (req: Request, res: Response) => {
     const { startTime, endTime, vehicleType } = req.query
 
     if (!startTime || !endTime) {
-      return res.status(400).json({ error: 'startTime and endTime are required' })
+      return res.status(400).json({ error: 'startTime and endTime are required' }))
     }
 
     const vehicles = await schedulingService.findAvailableVehicles(
@@ -620,12 +622,12 @@ router.get('/available-vehicles', async (req: Request, res: Response) => {
       success: true,
       count: vehicles.length,
       vehicles
-    })
+    }))
   } catch (error) {
     logger.error('Error finding available vehicles:', error) // Wave 20: Winston logger
-    res.status(500).json({ error: 'Failed to find available vehicles' })
+    res.status(500).json({ error: 'Failed to find available vehicles' }))
   }
-})
+}))
 
 /**
  * GET /api/scheduling/available-service-bays
@@ -639,7 +641,7 @@ router.get('/available-service-bays', async (req: Request, res: Response) => {
     if (!facilityId || !startTime || !endTime) {
       return res.status(400).json({
         error: 'facilityId, startTime, and endTime are required'
-      })
+      }))
     }
 
     const bays = await schedulingService.findAvailableServiceBays(
@@ -654,12 +656,12 @@ router.get('/available-service-bays', async (req: Request, res: Response) => {
       success: true,
       count: bays.length,
       serviceBays: bays
-    })
+    }))
   } catch (error) {
     logger.error('Error finding available service bays:', error) // Wave 20: Winston logger
-    res.status(500).json({ error: 'Failed to find available service bays' })
+    res.status(500).json({ error: 'Failed to find available service bays' }))
   }
-})
+}))
 
 /**
  * GET /api/scheduling/vehicle/:vehicleId/schedule
@@ -684,12 +686,12 @@ router.get('/vehicle/:vehicleId/schedule', async (req: Request, res: Response) =
     res.json({
       success: true,
       schedule
-    })
+    }))
   } catch (error) {
     logger.error('Error getting vehicle schedule:', error) // Wave 20: Winston logger
-    res.status(500).json({ error: 'Failed to get vehicle schedule' })
+    res.status(500).json({ error: 'Failed to get vehicle schedule' }))
   }
-})
+}))
 
 // ============================================
 // Calendar Integration
@@ -716,12 +718,12 @@ router.get('/calendar/integrations', async (req: Request, res: Response) => {
     res.json({
       success: true,
       integrations: result.rows
-    })
+    }))
   } catch (error) {
     logger.error(`Error fetching calendar integrations:`, error) // Wave 20: Winston logger
-    res.status(500).json({ error: `Failed to fetch integrations` })
+    res.status(500).json({ error: `Failed to fetch integrations` }))
   }
-})
+}))
 
 /**
  * GET /api/scheduling/calendar/google/authorize
@@ -736,12 +738,12 @@ router.get('/calendar/google/authorize', async (req: Request, res: Response) => 
     res.json({
       success: true,
       authUrl
-    })
+    }))
   } catch (error) {
     logger.error('Error generating auth URL:', error) // Wave 20: Winston logger
-    res.status(500).json({ error: 'Failed to generate authorization URL' })
+    res.status(500).json({ error: 'Failed to generate authorization URL' }))
   }
-})
+}))
 
 /**
  * POST /api/scheduling/calendar/google/callback
@@ -753,7 +755,7 @@ router.post('/calendar/google/callback', async (req: Request, res: Response) => 
     const { code, isPrimary } = req.body
 
     if (!code) {
-      return res.status(400).json({ error: 'Authorization code is required' })
+      return res.status(400).json({ error: 'Authorization code is required' }))
     }
 
     // Exchange code for tokens
@@ -772,12 +774,12 @@ router.post('/calendar/google/callback', async (req: Request, res: Response) => 
       success: true,
       message: 'Google Calendar connected successfully',
       integration
-    })
+    }))
   } catch (error) {
     logger.error('Error connecting Google Calendar:', error) // Wave 20: Winston logger
-    res.status(500).json({ error: 'Failed to connect Google Calendar' })
+    res.status(500).json({ error: 'Failed to connect Google Calendar' }))
   }
-})
+}))
 
 /**
  * DELETE /api/scheduling/calendar/integrations/:id
@@ -795,7 +797,7 @@ router.delete('/calendar/integrations/:id', async (req: Request, res: Response) 
     )
 
     if (result.rows.length === 0) {
-      return res.status(404).json({ error: `Integration not found` })
+      return res.status(404).json({ error: `Integration not found` }))
     }
 
     const provider = result.rows[0].provider
@@ -810,12 +812,12 @@ router.delete('/calendar/integrations/:id', async (req: Request, res: Response) 
     res.json({
       success: true,
       message: `Calendar integration removed successfully`
-    })
+    }))
   } catch (error) {
     logger.error('Error revoking integration:', error) // Wave 20: Winston logger
-    res.status(500).json({ error: 'Failed to remove integration' })
+    res.status(500).json({ error: 'Failed to remove integration' }))
   }
-})
+}))
 
 /**
  * POST /api/scheduling/calendar/sync
@@ -854,7 +856,7 @@ router.post('/calendar/sync', async (req: Request, res: Response) => {
     )
 
     if (result.rows.length === 0) {
-      return res.status(404).json({ error: 'Integration not found' })
+      return res.status(404).json({ error: 'Integration not found' }))
     }
 
     const integration = result.rows[0]
@@ -876,15 +878,15 @@ router.post('/calendar/sync', async (req: Request, res: Response) => {
         success: true,
         message: 'Calendar synced successfully',
         ...syncResult
-      })
+      }))
     } else {
-      res.status(400).json({ error: 'Sync not supported for this provider' })
+      res.status(400).json({ error: 'Sync not supported for this provider' }))
     }
   } catch (error) {
     logger.error('Error syncing calendar:', error) // Wave 20: Winston logger
-    res.status(500).json({ error: 'Failed to sync calendar' })
+    res.status(500).json({ error: 'Failed to sync calendar' }))
   }
-})
+}))
 
 // ============================================
 // Appointment Types
@@ -905,11 +907,11 @@ router.get('/appointment-types', async (req: Request, res: Response) => {
     res.json({
       success: true,
       appointmentTypes: result.rows
-    })
+    }))
   } catch (error) {
     logger.error(`Error fetching appointment types:`, error) // Wave 20: Winston logger
-    res.status(500).json({ error: `Failed to fetch appointment types` })
+    res.status(500).json({ error: `Failed to fetch appointment types` }))
   }
-})
+}))
 
 export default router
