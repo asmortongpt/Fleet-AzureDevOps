@@ -4,7 +4,7 @@
  */
 
 import twilio from 'twilio';
-import { pool as db } from '../config/database';
+import { Pool } from 'pg';
 import Bottleneck from 'bottleneck';
 
 export interface SMSMessage {
@@ -61,7 +61,7 @@ class SMSService {
   private limiter: Bottleneck;
   private isDevelopment = process.env.NODE_ENV !== 'production';
 
-  constructor() {
+  constructor(private db: Pool) {
     this.fromNumber = process.env.TWILIO_PHONE_NUMBER || '';
     this.initializeTwilio();
     this.initializeRateLimiter();
@@ -275,7 +275,7 @@ class SMSService {
       const { MessageSid, MessageStatus, ErrorCode, ErrorMessage } = payload;
 
       // Update message log
-      await db.query(
+      await this.db.query(
         `UPDATE sms_logs
          SET status = $1,
              error_code = $2,
@@ -348,7 +348,7 @@ class SMSService {
         params.push(filters.offset);
       }
 
-      const result = await db.query(query, params);
+      const result = await this.db.query(query, params);
       return result.rows;
     } catch (error) {
       console.error(`Error getting SMS history:`, error);
@@ -371,7 +371,7 @@ class SMSService {
 
       query += ' ORDER BY name ASC';
 
-      const result = await db.query(query, params);
+      const result = await this.db.query(query, params);
       return result.rows;
     } catch (error) {
       console.error('Error getting templates:', error);
@@ -384,7 +384,7 @@ class SMSService {
    */
   async getTemplate(name: string, tenantId: string): Promise<SMSTemplate | null> {
     try {
-      const result = await db.query(
+      const result = await this.db.query(
         'SELECT id, tenant_id, name, body, category, variables, created_at, updated_at FROM sms_templates WHERE name = $1 AND tenant_id = $2',
         [name, tenantId]
       );
@@ -401,7 +401,7 @@ class SMSService {
    */
   async createTemplate(template: SMSTemplate): Promise<string> {
     try {
-      const result = await db.query(
+      const result = await this.db.query(
         `INSERT INTO sms_templates (tenant_id, name, body, category, variables)
          VALUES ($1, $2, $3, $4, $5)
          RETURNING id',
@@ -450,7 +450,7 @@ class SMSService {
         params.push(dateRange.start, dateRange.end);
       }
 
-      const result = await db.query(query, params);
+      const result = await this.db.query(query, params);
       const row = result.rows[0];
 
       const totalSent = parseInt(row.total_sent) || 0;
@@ -511,7 +511,7 @@ class SMSService {
     createdBy?: string;
   }): Promise<string> {
     try {
-      const result = await db.query(
+      const result = await this.db.query(
         `INSERT INTO sms_logs (tenant_id, to_number, from_number, body, status, created_by)
          VALUES ($1, $2, $3, $4, $5, $6)
          RETURNING id`,
@@ -585,7 +585,7 @@ class SMSService {
       params.push(id);
       const query = `UPDATE sms_logs SET ${sets.join(`, `)} WHERE id = $${paramIndex}`;
 
-      await db.query(query, params);
+      await this.db.query(query, params);
     } catch (error) {
       console.error('Error updating message log:', error);
     }
@@ -606,5 +606,4 @@ class SMSService {
   }
 }
 
-export const smsService = new SMSService();
-export default smsService;
+export default SMSService;
