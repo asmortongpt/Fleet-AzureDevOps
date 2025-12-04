@@ -11,7 +11,7 @@
  * - Export capabilities
  */
 
-import pool from '../../config/database'
+import { Pool } from 'pg'
 
 export interface TaskAnalytics {
   overview: {
@@ -77,6 +77,8 @@ export interface CustomMetric {
 }
 
 export class AnalyticsService {
+  constructor(private db: Pool) {}
+
   /**
    * Get comprehensive task analytics
    */
@@ -143,7 +145,7 @@ export class AnalyticsService {
   // ========== Task Analytics Methods ==========
 
   private async getTaskOverview(tenantId: string, dateFilter: string): Promise<any> {
-    const result = await pool.query(
+    const result = await this.db.query(
       `SELECT
          COUNT(*) as total,
          COUNT(*) FILTER (WHERE status = 'completed') as completed,
@@ -172,7 +174,7 @@ export class AnalyticsService {
   }
 
   private async getTasksByPriority(tenantId: string, dateFilter: string): Promise<any[]> {
-    const result = await pool.query(
+    const result = await this.db.query(
       `SELECT
          priority,
          COUNT(*) as count,
@@ -198,7 +200,7 @@ export class AnalyticsService {
   }
 
   private async getTasksByStatus(tenantId: string, dateFilter: string): Promise<any[]> {
-    const result = await pool.query(
+    const result = await this.db.query(
       `SELECT
          status,
          COUNT(*) as count,
@@ -218,7 +220,7 @@ export class AnalyticsService {
   }
 
   private async getTasksByType(tenantId: string, dateFilter: string): Promise<any[]> {
-    const result = await pool.query(
+    const result = await this.db.query(
       `SELECT
          task_type as type,
          COUNT(*) as count,
@@ -238,7 +240,7 @@ export class AnalyticsService {
   }
 
   private async getTasksByAssignee(tenantId: string, dateFilter: string): Promise<any[]> {
-    const result = await pool.query(
+    const result = await this.db.query(
       `SELECT
          u.id as user_id,
          u.first_name || ` ` || u.last_name as user_name,
@@ -267,7 +269,7 @@ export class AnalyticsService {
     const start = startDate || new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
     const end = endDate || new Date()
 
-    const result = await pool.query(
+    const result = await this.db.query(
       `SELECT
          DATE(date_series) as date,
          COUNT(t.id) FILTER (WHERE t.status = `completed` AND DATE(t.completed_date) = DATE(date_series)) as completed,
@@ -290,7 +292,7 @@ export class AnalyticsService {
 
   private async getTaskTrends(tenantId: string): Promise<any> {
     // Get last 2 weeks data for trend analysis
-    const result = await pool.query(
+    const result = await this.db.query(
       `WITH weekly_stats AS (
          SELECT
            DATE_TRUNC('week', created_at) as week,
@@ -335,7 +337,7 @@ export class AnalyticsService {
   // ========== Asset Analytics Methods ==========
 
   private async getAssetOverview(tenantId: string): Promise<any> {
-    const result = await pool.query(
+    const result = await this.db.query(
       `SELECT
          COUNT(*) as total,
          SUM(CAST(current_value AS NUMERIC)) as total_value,
@@ -361,7 +363,7 @@ export class AnalyticsService {
   }
 
   private async getAssetsByType(tenantId: string): Promise<any[]> {
-    const result = await pool.query(
+    const result = await this.db.query(
       `SELECT
          asset_type as type,
          COUNT(*) as count,
@@ -381,7 +383,7 @@ export class AnalyticsService {
   }
 
   private async getAssetsByStatus(tenantId: string): Promise<any[]> {
-    const result = await pool.query(
+    const result = await this.db.query(
       `SELECT
          status,
          COUNT(*) as count,
@@ -401,7 +403,7 @@ export class AnalyticsService {
   }
 
   private async getAssetsByCondition(tenantId: string): Promise<any[]> {
-    const result = await pool.query(
+    const result = await this.db.query(
       `SELECT
          condition,
          COUNT(*) as count,
@@ -428,7 +430,7 @@ export class AnalyticsService {
   }
 
   private async getMaintenanceMetrics(tenantId: string): Promise<any> {
-    const result = await pool.query(
+    const result = await this.db.query(
       `SELECT
          COUNT(*) FILTER (WHERE next_maintenance_date BETWEEN NOW() AND NOW() + INTERVAL '7 days') as due_this_week,
          COUNT(*) FILTER (WHERE next_maintenance_date BETWEEN NOW() AND NOW() + INTERVAL '30 days') as due_this_month,
@@ -451,7 +453,7 @@ export class AnalyticsService {
   }
 
   private async getDepreciationTimeline(tenantId: string): Promise<any[]> {
-    const result = await pool.query(
+    const result = await this.db.query(
       `SELECT
          TO_CHAR(date_series, 'YYYY-MM') as month,
          SUM(CAST(a.current_value AS NUMERIC)) as total_value,
@@ -472,7 +474,7 @@ export class AnalyticsService {
   }
 
   private async getAssetUtilization(tenantId: string): Promise<any> {
-    const result = await pool.query(
+    const result = await this.db.query(
       `SELECT
          COUNT(*) FILTER (WHERE status = 'in_use') as in_use,
          COUNT(*) FILTER (WHERE status = 'active') as available,
