@@ -11,6 +11,7 @@ import { FIPSCryptoService } from '../services/fips-crypto.service'
 import { FIPSJWTService } from '../services/fips-jwt.service'
 import axios from 'axios'
 import jwt from 'jsonwebtoken'
+import pool from '../config/database' // SECURITY: Import database pool
 
 const router = express.Router()
 
@@ -113,8 +114,12 @@ router.post('/login', authLimiter, checkBruteForce('email'), async (req: Request
     // No NODE_ENV bypasses allowed - violates FedRAMP AC-2
 
     // Get user
+    // SECURITY NOTE: Login is a special case - we don't have tenant_id yet from JWT
+    // However, users table already has tenant_id and we use it to set JWT claims
+    // This query is safe because it only returns data that will be used to create the JWT
     const userResult = await pool.query(
-      `SELECT id, tenant_id, email, first_name, last_name, role, is_active, phone, created_at, updated_at FROM users WHERE email = $1 AND is_active = true`,
+      `SELECT id, tenant_id, email, first_name, last_name, role, is_active, phone, password_hash, failed_login_attempts, account_locked_until, created_at, updated_at
+       FROM users WHERE email = $1 AND is_active = true`,
       [email.toLowerCase()]
     )
 
@@ -137,7 +142,7 @@ router.post('/login', authLimiter, checkBruteForce('email'), async (req: Request
     const user = userResult.rows[0]
 
     // Check if account is locked (FedRAMP AC-7)
-    if (user.account_locked_until && new Date(user.account_locked_until) > new Date() {
+    if (user.account_locked_until && new Date(user.account_locked_until) > new Date()) {
       await createAuditLog(
         user.tenant_id,
         user.id,
@@ -168,12 +173,13 @@ router.post('/login', authLimiter, checkBruteForce('email'), async (req: Request
       const lockAccount = newAttempts >= 3
       const lockedUntil = lockAccount ? new Date(Date.now() + 30 * 60 * 1000) : null // 30 minutes
 
+      // SECURITY: Add tenant_id filter to prevent cross-tenant account manipulation
       await pool.query(
         `UPDATE users
          SET failed_login_attempts = $1,
              account_locked_until = $2
-         WHERE id = $3`,
-        [newAttempts, lockedUntil, user.id]
+         WHERE id = $3 AND tenant_id = $4`,
+        [newAttempts, lockedUntil, user.id, user.tenant_id]
       )
 
       await createAuditLog(
@@ -199,13 +205,14 @@ router.post('/login', authLimiter, checkBruteForce('email'), async (req: Request
     // CRIT-F-004: Clear brute force protection on success
     bruteForce.recordSuccess(email)
 
+    // SECURITY: Add tenant_id filter to prevent cross-tenant account manipulation
     await pool.query(
       `UPDATE users
        SET failed_login_attempts = 0,
            account_locked_until = NULL,
            last_login_at = NOW()
-       WHERE id = $1`,
-      [user.id]
+       WHERE id = $1 AND tenant_id = $2`,
+      [user.id, user.tenant_id]
     )
 
     // SECURITY: Generate FIPS-compliant JWT tokens using RS256
@@ -225,9 +232,10 @@ router.post('/login', authLimiter, checkBruteForce('email'), async (req: Request
     )
 
     // Store refresh token in database for rotation tracking
+    // SECURITY: Include tenant_id for proper multi-tenant isolation
     await pool.query(
-      'INSERT INTO refresh_tokens (user_id, token_hash, expires_at, created_at) VALUES ($1, $2, NOW() + INTERVAL \'7 days\', NOW()',
-      [user.id, Buffer.from(refreshToken).toString('base64').substring(0, 64)]
+      'INSERT INTO refresh_tokens (user_id, tenant_id, token_hash, expires_at, created_at) VALUES ($1, $2, $3, NOW() + INTERVAL \'7 days\', NOW())',
+      [user.id, user.tenant_id, Buffer.from(refreshToken).toString('base64').substring(0, 64)]
     )
 
     await createAuditLog(
@@ -270,8 +278,11 @@ router.post('/register', registrationLimiter, async (req: Request, res: Response
     const data = registerSchema.parse(req.body)
 
     // Check if user already exists
+    // SECURITY NOTE: For registration, we check globally across all tenants
+    // to prevent the same email from registering multiple times
+    // This is intentional - emails should be unique system-wide
     const existing = await pool.query(
-      'SELECT id FROM users WHERE email = $1',
+      'SELECT id, tenant_id FROM users WHERE email = $1',
       [data.email.toLowerCase()]
     )
 
@@ -408,11 +419,12 @@ router.post('/refresh', async (req: Request, res: Response) => {
     }
 
     // Check if refresh token exists in database and is not revoked
+    // SECURITY: Add tenant_id filter to prevent cross-tenant token use
     const tokenHash = Buffer.from(refreshToken).toString('base64').substring(0, 64)
     const tokenResult = await pool.query(
       `SELECT * FROM refresh_tokens
-       WHERE user_id = $1 AND token_hash = $2 AND revoked_at IS NULL AND expires_at > NOW()`,
-      [decoded.id, tokenHash]
+       WHERE user_id = $1 AND tenant_id = $2 AND token_hash = $3 AND revoked_at IS NULL AND expires_at > NOW()`,
+      [decoded.id, decoded.tenant_id, tokenHash]
     )
 
     if (tokenResult.rows.length === 0) {
@@ -420,9 +432,12 @@ router.post('/refresh', async (req: Request, res: Response) => {
     }
 
     // Get user data
+    // SECURITY: Add tenant_id filter to ensure proper multi-tenant isolation
     const userResult = await pool.query(
-      `SELECT id, tenant_id, email, first_name, last_name, role, is_active, phone, created_at, updated_at FROM users WHERE id = $1 AND is_active = true`,
-      [decoded.id]
+      `SELECT id, tenant_id, email, first_name, last_name, role, is_active, phone, created_at, updated_at
+       FROM users
+       WHERE id = $1 AND tenant_id = $2 AND is_active = true`,
+      [decoded.id, decoded.tenant_id]
     )
 
     if (userResult.rows.length === 0) {
@@ -432,9 +447,10 @@ router.post('/refresh', async (req: Request, res: Response) => {
     const user = userResult.rows[0]
 
     // Revoke old refresh token (rotation)
+    // SECURITY: Add tenant_id filter to prevent cross-tenant token manipulation
     await pool.query(
-      'UPDATE refresh_tokens SET revoked_at = NOW() WHERE token_hash = $1',
-      [tokenHash]
+      'UPDATE refresh_tokens SET revoked_at = NOW() WHERE token_hash = $1 AND tenant_id = $2',
+      [tokenHash, user.tenant_id]
     )
 
     // Generate new FIPS-compliant tokens using RS256
@@ -451,9 +467,10 @@ router.post('/refresh', async (req: Request, res: Response) => {
     )
 
     // Store new refresh token
+    // SECURITY: Include tenant_id for proper multi-tenant isolation
     await pool.query(
-      'INSERT INTO refresh_tokens (user_id, token_hash, expires_at, created_at) VALUES ($1, $2, NOW() + INTERVAL \'7 days\', NOW()',
-      [user.id, Buffer.from(newRefreshToken).toString('base64').substring(0, 64)]
+      'INSERT INTO refresh_tokens (user_id, tenant_id, token_hash, expires_at, created_at) VALUES ($1, $2, $3, NOW() + INTERVAL \'7 days\', NOW())',
+      [user.id, user.tenant_id, Buffer.from(newRefreshToken).toString('base64').substring(0, 64)]
     )
 
     await createAuditLog(
@@ -511,20 +528,21 @@ router.post('/logout', async (req: Request, res: Response) => {
       const decoded = FIPSJWTService.verifyAccessToken(token)
 
       // Revoke refresh tokens
+      // SECURITY: Add tenant_id filter to prevent cross-tenant token revocation
       if (revokeAllTokens) {
         // Revoke all tokens for this user (logout from all devices)
         await pool.query(
           `UPDATE refresh_tokens SET revoked_at = NOW()
-           WHERE user_id = $1 AND revoked_at IS NULL`,
-          [decoded.id]
+           WHERE user_id = $1 AND tenant_id = $2 AND revoked_at IS NULL`,
+          [decoded.id, decoded.tenant_id]
         )
       } else {
         // Just revoke tokens that should have been cleaned up
         // In a production system, you'd track which specific refresh token to revoke
         await pool.query(
           `UPDATE refresh_tokens SET revoked_at = NOW()
-           WHERE user_id = $1 AND expires_at < NOW() AND revoked_at IS NULL`,
-          [decoded.id]
+           WHERE user_id = $1 AND tenant_id = $2 AND expires_at < NOW() AND revoked_at IS NULL`,
+          [decoded.id, decoded.tenant_id]
         )
       }
 
@@ -571,7 +589,7 @@ router.get('/me', async (req: Request, res: Response) => {
     )
 
     if (userResult.rows.length === 0) {
-      return throw new NotFoundError("User not found or inactive")
+      throw new NotFoundError("User not found or inactive")
     }
 
     const user = userResult.rows[0]
@@ -687,6 +705,8 @@ router.get('/microsoft/callback', async (req: Request, res: Response) => {
     const email = (microsoftUser.mail || microsoftUser.userPrincipalName).toLowerCase()
 
     // Get default tenant
+    // SECURITY NOTE: This query is safe - tenants table doesn't need tenant_id filter
+    // It's the root of the tenant hierarchy
     const tenantResult = await pool.query('SELECT id FROM tenants ORDER BY created_at LIMIT 1')
     if (tenantResult.rows.length === 0) {
       return res.redirect('/login?error=no_tenant')
@@ -694,6 +714,9 @@ router.get('/microsoft/callback', async (req: Request, res: Response) => {
     const tenantId = tenantResult.rows[0].id
 
     // Check if user exists
+    // SECURITY NOTE: For SSO, we check globally across all tenants first
+    // Then assign to the default tenant if they don't exist
+    // This prevents duplicate SSO users across tenants
     let userResult = await pool.query(
       'SELECT id, email, first_name, last_name, role, tenant_id FROM users WHERE email = $1',
       [email]
