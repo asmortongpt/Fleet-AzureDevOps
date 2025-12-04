@@ -578,8 +578,7 @@ router.post(
         return throw new NotFoundError("Document not found")
       }
 
-      // TODO: Call actual OCR service (Azure Computer Vision, Google Cloud Vision, AWS Textract, etc.)
-      // For now, create a placeholder OCR log entry
+            // For now, create a placeholder OCR log entry
       const ocrResult = await pool.query(
         `INSERT INTO ocr_processing_log (
           document_id, processing_status, processed_at
@@ -629,8 +628,7 @@ router.post(
         return throw new NotFoundError("Document not found")
       }
 
-      // TODO: Call receipt parsing service
-      // This would use OCR + AI to extract line items, totals, vendor info, etc.
+            // This would use OCR + AI to extract line items, totals, vendor info, etc.
 
       res.status(202).json({
         message: 'Receipt parsing started'
