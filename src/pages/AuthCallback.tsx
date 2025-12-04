@@ -3,17 +3,15 @@ import { useNavigate } from 'react-router-dom'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
-import {
-  getAuthCodeFromUrl,
-  getAuthErrorFromUrl,
-  setAuthToken,
-  getTenantIdFromState
-} from '@/lib/microsoft-auth'
+import { getAuthErrorFromUrl } from '@/lib/microsoft-auth'
 import { Loader2, CheckCircle2, XCircle } from 'lucide-react'
 
 /**
  * AuthCallback Component
- * Handles the OAuth callback from Microsoft Azure AD and exchanges the code for a JWT token
+ * Handles the OAuth callback from Microsoft Azure AD
+ *
+ * SECURITY: Uses httpOnly cookies for token storage (not localStorage)
+ * Backend handles token exchange and sets secure cookie before redirecting here
  */
 export function AuthCallback() {
   const navigate = useNavigate()
@@ -44,76 +42,51 @@ export function AuthCallback() {
         return
       }
 
-      // Check if we have an authorization code from Azure AD
-      const authCode = getAuthCodeFromUrl()
-      if (authCode) {
-        console.log('[AUTH] Received authorization code from Azure AD')
+      // Verify the session was established via httpOnly cookie
+      // Backend already exchanged the code and set the cookie before redirecting here
+      const apiUrl = import.meta.env.VITE_API_URL || window.location.origin
 
-        // Try to exchange code with backend API
-        const apiUrl = import.meta.env.VITE_API_URL || window.location.origin
-
-        try {
-          const response = await fetch(`${apiUrl}/api/v1/auth/microsoft/callback?code=${authCode}`, {
-            method: 'GET',
-            credentials: 'include',
-            headers: {
-              'Content-Type': 'application/json'
-            }
-          })
-
-          if (response.ok) {
-            const data = await response.json()
-            if (data.token) {
-              setAuthToken(data.token)
-              setStatus('success')
-              setTimeout(() => {
-                navigate('/')
-              }, 1500)
-              return
-            }
+      try {
+        const response = await fetch(`${apiUrl}/api/v1/auth/verify`, {
+          method: 'GET',
+          credentials: 'include', // Send httpOnly cookie
+          headers: {
+            'Content-Type': 'application/json'
           }
-        } catch (apiError) {
-          console.warn('[AUTH] Backend API not available, using demo mode:', apiError)
+        })
+
+        if (response.ok) {
+          const data = await response.json()
+          if (data.user) {
+            console.log('[AUTH] Session verified via httpOnly cookie')
+            setStatus('success')
+            setTimeout(() => {
+              navigate('/')
+            }, 1500)
+            return
+          }
         }
 
-        // FALLBACK: Backend not available - create demo token for development/testing
-        console.log('[AUTH] Creating demo token (backend API not available)')
-        const demoToken = btoa(JSON.stringify({
-          header: { alg: 'HS256', typ: 'JWT' },
-          payload: {
-            id: 1,
-            email: 'admin@capitaltechalliance.com',
-            role: 'admin',
-            tenant_id: 1,
-            microsoft_id: 'demo-microsoft-id',
-            auth_provider: 'microsoft',
-            exp: Math.floor(Date.now() / 1000) + 86400 // 24 hours from now
-          },
-          signature: 'demo'
-        }))
+        // If verification failed, check if we need to handle the auth code
+        // (This shouldn't happen in normal flow, but handles edge cases)
+        const authCode = params.get('code')
+        if (authCode) {
+          console.log('[AUTH] Auth code found, backend should have already processed it')
+          setStatus('error')
+          setErrorMessage('Authentication processing error. Please try signing in again.')
+          return
+        }
 
-        setAuthToken(demoToken)
-        setStatus('success')
-        setTimeout(() => {
-          navigate('/')
-        }, 1500)
-        return
-      }
-
-      // Check if we have a token in the URL (legacy support)
-      const token = params.get('token')
-      if (token) {
-        setAuthToken(token)
-        setStatus('success')
-        setTimeout(() => {
-          navigate('/')
-        }, 1500)
+      } catch (apiError) {
+        console.error('[AUTH] Backend API not available:', apiError)
+        setStatus('error')
+        setErrorMessage('Unable to connect to authentication service. Please try again later.')
         return
       }
 
       // If we get here, no valid authentication found
       setStatus('error')
-      setErrorMessage('No authorization code received. Please try signing in again.')
+      setErrorMessage('No valid session found. Please try signing in again.')
 
     } catch (error: any) {
       console.error('Authentication callback error:', error)
