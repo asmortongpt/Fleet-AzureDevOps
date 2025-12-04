@@ -10,19 +10,15 @@ import {
   sentryRequestHandler,
   sentryTracingHandler,
   sentryErrorHandler,
-  notFoundHandler,
-  handleUnhandledRejection,
-  handleUncaughtException,
-  handleGracefulShutdown
+  notFoundHandler
 } from './middleware/sentryErrorHandler'
+
+// ARCHITECTURE FIX: Import new error handling infrastructure
+import { errorHandler } from './middleware/errorHandler'
+import { initializeProcessErrorHandlers } from './middleware/processErrorHandlers'
 
 // Initialize Sentry
 sentryService.init()
-
-// Set up process error handlers
-handleUnhandledRejection()
-handleUncaughtException()
-handleGracefulShutdown()
 
 import express from 'express'
 import cors from 'cors'
@@ -415,6 +411,10 @@ app.use(notFoundHandler())
 // Add error telemetry middleware
 app.use(errorTelemetryMiddleware)
 
+// ARCHITECTURE FIX: Add custom error handler BEFORE Sentry
+// This handles ApplicationError instances with proper status codes
+app.use(errorHandler)
+
 // Sentry error handler must be the last middleware
 app.use(sentryErrorHandler())
 
@@ -438,6 +438,9 @@ const server = app.listen(PORT, () => {
   console.log(`📊 Application Insights: ${telemetryService.isActive() ? 'Enabled' : 'Disabled'}`)
   console.log(`🔍 Sentry: ${process.env.SENTRY_DSN ? 'Enabled' : 'Disabled (no DSN configured)'}`)
   console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`)
+
+  // ARCHITECTURE FIX: Initialize process-level error handlers
+  initializeProcessErrorHandlers(server)
 
   // Track server startup in both monitoring systems
   telemetryService.trackEvent('ServerStartup', {

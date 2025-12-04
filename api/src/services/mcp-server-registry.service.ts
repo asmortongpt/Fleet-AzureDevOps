@@ -4,7 +4,7 @@
  * failover, and load balancing for fleet operations
  */
 
-import pool from '../config/database'
+import { Pool } from 'pg'
 import { logger } from '../utils/logger'
 import mcpServerService, { MCPToolRequest, MCPToolResponse } from './mcp-server.service'
 
@@ -39,7 +39,7 @@ class MCPServerRegistryService {
   private healthCheckInterval: NodeJS.Timeout | null = null
   private requestCounts: Map<string, number> = new Map()
 
-  constructor() {
+  constructor(private db: Pool) {
     this.initializeServerPools()
     this.startHealthMonitoring()
   }
@@ -318,7 +318,7 @@ class MCPServerRegistryService {
 
     try {
       // Get server info from database
-      const result = await pool.query(
+      const result = await this.db.query(
         'SELECT 
       id,
       tenant_id,
@@ -348,7 +348,7 @@ class MCPServerRegistryService {
       const server = result.rows[0]
 
       // Get health metrics
-      const metricsResult = await pool.query(
+      const metricsResult = await this.db.query(
         `SELECT
            COUNT(*) as total_requests,
            SUM(CASE WHEN status = 'error' THEN 1 ELSE 0 END) as failed_requests,

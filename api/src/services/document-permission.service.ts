@@ -3,7 +3,8 @@
  * Manages granular access control for documents and folders
  */
 
-import pool from '../config/database'
+import { Pool } from 'pg'
+import logger from '../utils/logger'
 import {
   DocumentPermission,
   GrantPermissionOptions,
@@ -14,11 +15,13 @@ import {
 import documentAuditService from './document-audit.service'
 
 export class DocumentPermissionService {
+  constructor(private db: Pool, private logger: typeof logger) {}
+
   /**
    * Grant permission to a user for a document or folder
    */
   async grantPermission(options: GrantPermissionOptions): Promise<DocumentPermission> {
-    const client = await pool.connect()
+    const client = await this.db.connect()
 
     try {
       await client.query('BEGIN')
@@ -106,11 +109,11 @@ export class DocumentPermissionService {
 
       await client.query(`COMMIT`)
 
-      console.log(`✅ Permission granted: ${options.permissionType} to user ${options.userId}`)
+      this.logger.info(`✅ Permission granted: ${options.permissionType} to user ${options.userId}`)
       return permission
     } catch (error) {
       await client.query(`ROLLBACK`)
-      console.error('❌ Failed to grant permission:', error)
+      this.logger.error('❌ Failed to grant permission:', error)
       throw error
     } finally {
       client.release()
@@ -124,14 +127,14 @@ export class DocumentPermissionService {
     permissionId: string,
     revokedBy: string
   ): Promise<void> {
-    const client = await pool.connect()
+    const client = await this.db.connect()
 
     try {
       await client.query('BEGIN')
 
       // Get permission details for logging
       const permissionResult = await client.query(
-        `SELECT 
+        `SELECT
       id,
       document_id,
       user_id,
@@ -139,7 +142,7 @@ export class DocumentPermissionService {
       permission_type,
       granted_by,
       granted_at,
-      expires_at FROM document_permissions WHERE id = $1',
+      expires_at FROM document_permissions WHERE id = $1`,
         [permissionId]
       )
 
@@ -177,10 +180,10 @@ export class DocumentPermissionService {
 
       await client.query(`COMMIT`)
 
-      console.log(`✅ Permission revoked: ${permissionId}`)
+      this.logger.info(`✅ Permission revoked: ${permissionId}`)
     } catch (error) {
       await client.query(`ROLLBACK`)
-      console.error('❌ Failed to revoke permission:', error)
+      this.logger.error('❌ Failed to revoke permission:', error)
       throw error
     } finally {
       client.release()
@@ -197,7 +200,7 @@ export class DocumentPermissionService {
   ): Promise<boolean> {
     try {
       // Check direct document permissions
-      const directPermission = await pool.query(
+      const directPermission = await this.db.query(
         `SELECT permission_type FROM document_permissions
          WHERE document_id = $1
            AND user_id = $2
@@ -211,7 +214,7 @@ export class DocumentPermissionService {
       }
 
       // Check folder permissions (inherited)
-      const folderPermission = await pool.query(
+      const folderPermission = await this.db.query(
         `SELECT dp.permission_type
          FROM documents d
          JOIN document_permissions dp ON d.parent_folder_id = dp.folder_id
@@ -227,7 +230,7 @@ export class DocumentPermissionService {
       }
 
       // Check if document is public
-      const documentCheck = await pool.query(
+      const documentCheck = await this.db.query(
         'SELECT is_public FROM documents WHERE id = $1',
         [documentId]
       )
@@ -239,7 +242,7 @@ export class DocumentPermissionService {
 
       return false
     } catch (error) {
-      console.error('❌ Failed to check document permission:', error)
+      this.logger.error('❌ Failed to check document permission:', error)
       return false
     }
   }
@@ -253,7 +256,7 @@ export class DocumentPermissionService {
     requiredPermission: PermissionType
   ): Promise<boolean> {
     try {
-      const result = await pool.query(
+      const result = await this.db.query(
         `SELECT permission_type FROM document_permissions
          WHERE folder_id = $1
            AND user_id = $2
@@ -268,7 +271,7 @@ export class DocumentPermissionService {
 
       return false
     } catch (error) {
-      console.error('❌ Failed to check folder permission:', error)
+      this.logger.error('❌ Failed to check folder permission:', error)
       return false
     }
   }
@@ -278,7 +281,7 @@ export class DocumentPermissionService {
    */
   async getDocumentPermissions(documentId: string): Promise<DocumentPermission[]> {
     try {
-      const result = await pool.query(
+      const result = await this.db.query(
         `SELECT
           dp.*,
           u.first_name || ' ' || u.last_name as user_name,
@@ -294,7 +297,7 @@ export class DocumentPermissionService {
 
       return result.rows
     } catch (error) {
-      console.error('❌ Failed to get document permissions:', error)
+      this.logger.error('❌ Failed to get document permissions:', error)
       throw error
     }
   }
@@ -304,7 +307,7 @@ export class DocumentPermissionService {
    */
   async getFolderPermissions(folderId: string): Promise<DocumentPermission[]> {
     try {
-      const result = await pool.query(
+      const result = await this.db.query(
         `SELECT
           dp.*,
           u.first_name || ' ' || u.last_name as user_name,
@@ -320,7 +323,7 @@ export class DocumentPermissionService {
 
       return result.rows
     } catch (error) {
-      console.error('❌ Failed to get folder permissions:', error)
+      this.logger.error('❌ Failed to get folder permissions:', error)
       throw error
     }
   }
@@ -334,18 +337,18 @@ export class DocumentPermissionService {
   ): Promise<PermissionSummary> {
     try {
       // Get direct permissions
-      const userPermissions = await pool.query(
+      const userPermissions = await this.db.query(
         `SELECT id, tenant_id, document_id, user_id, permission_type, granted_at FROM document_permissions
-         WHERE document_id = $1 AND user_id = $2',
+         WHERE document_id = $1 AND user_id = $2`,
         [documentId, userId]
       )
 
       // Get folder permissions (inherited)
-      const folderPermissions = await pool.query(
+      const folderPermissions = await this.db.query(
         `SELECT dp.*
          FROM documents d
          JOIN document_permissions dp ON d.parent_folder_id = dp.folder_id
-         WHERE d.id = $1 AND dp.user_id = $2',
+         WHERE d.id = $1 AND dp.user_id = $2`,
         [documentId, userId]
       )
 
@@ -378,7 +381,7 @@ export class DocumentPermissionService {
         effective_permission: effectivePermission
       }
     } catch (error) {
-      console.error('❌ Failed to get permission summary:', error)
+      this.logger.error('❌ Failed to get permission summary:', error)
       throw error
     }
   }
@@ -391,7 +394,7 @@ export class DocumentPermissionService {
     tenantId: string
   ): Promise<DocumentPermission[]> {
     try {
-      const result = await pool.query(
+      const result = await this.db.query(
         `SELECT
           dp.*,
           d.file_name as document_name,
@@ -410,7 +413,7 @@ export class DocumentPermissionService {
 
       return result.rows
     } catch (error) {
-      console.error(`❌ Failed to get user permissions:`, error)
+      this.logger.error(`❌ Failed to get user permissions:`, error)
       throw error
     }
   }
@@ -420,15 +423,15 @@ export class DocumentPermissionService {
    */
   async cleanupExpiredPermissions(): Promise<number> {
     try {
-      const result = await pool.query(
+      const result = await this.db.query(
         `DELETE FROM document_permissions
          WHERE expires_at IS NOT NULL AND expires_at < NOW()`
       )
 
-      console.log(`✅ Cleaned up ${result.rowCount} expired permissions`)
+      this.logger.info(`✅ Cleaned up ${result.rowCount} expired permissions`)
       return result.rowCount || 0
     } catch (error) {
-      console.error(`❌ Failed to cleanup expired permissions:`, error)
+      this.logger.error(`❌ Failed to cleanup expired permissions:`, error)
       throw error
     }
   }
@@ -458,7 +461,7 @@ export class DocumentPermissionService {
   ): Promise<string | null> {
     try {
       if (documentId) {
-        const result = await pool.query(
+        const result = await this.db.query(
           'SELECT tenant_id FROM documents WHERE id = $1',
           [documentId]
         )
@@ -466,7 +469,7 @@ export class DocumentPermissionService {
       }
 
       if (folderId) {
-        const result = await pool.query(
+        const result = await this.db.query(
           'SELECT tenant_id FROM document_folders WHERE id = $1',
           [folderId]
         )
@@ -475,7 +478,7 @@ export class DocumentPermissionService {
 
       return null
     } catch (error) {
-      console.error('❌ Failed to get tenant ID:', error)
+      this.logger.error('❌ Failed to get tenant ID:', error)
       return null
     }
   }
@@ -486,7 +489,7 @@ export class DocumentPermissionService {
   async bulkGrantPermissions(
     permissions: GrantPermissionOptions[]
   ): Promise<DocumentPermission[]> {
-    const client = await pool.connect()
+    const client = await this.db.connect()
     const results: DocumentPermission[] = []
 
     try {
@@ -499,11 +502,11 @@ export class DocumentPermissionService {
 
       await client.query(`COMMIT`)
 
-      console.log(`✅ Bulk granted ${results.length} permissions`)
+      this.logger.info(`✅ Bulk granted ${results.length} permissions`)
       return results
     } catch (error) {
       await client.query(`ROLLBACK`)
-      console.error('❌ Failed to bulk grant permissions:', error)
+      this.logger.error('❌ Failed to bulk grant permissions:', error)
       throw error
     } finally {
       client.release()
@@ -519,7 +522,7 @@ export class DocumentPermissionService {
     sourceType: 'document' | 'folder',
     copiedBy: string
   ): Promise<DocumentPermission[]> {
-    const client = await pool.connect()
+    const client = await this.db.connect()
     const results: DocumentPermission[] = []
 
     try {
@@ -545,11 +548,11 @@ export class DocumentPermissionService {
 
       await client.query(`COMMIT`)
 
-      console.log(`✅ Copied ${results.length} permissions`)
+      this.logger.info(`✅ Copied ${results.length} permissions`)
       return results
     } catch (error) {
       await client.query(`ROLLBACK`)
-      console.error('❌ Failed to copy permissions:', error)
+      this.logger.error('❌ Failed to copy permissions:', error)
       throw error
     } finally {
       client.release()
@@ -557,4 +560,4 @@ export class DocumentPermissionService {
   }
 }
 
-export default new DocumentPermissionService()
+export default DocumentPermissionService
