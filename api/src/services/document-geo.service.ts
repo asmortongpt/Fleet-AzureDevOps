@@ -15,18 +15,20 @@
  * - OpenStreetMap Nominatim (free, no API key)
  */
 
-import pool from '../config/database'
+import { Pool } from 'pg'
+import logger from '../utils/logger'
 
 // Optional EXIF parser for image metadata extraction
 let ExifParser: any = null
 
 // Lazy load optional EXIF parser
 async function loadExifParser() {
-  if (ExifParser) return try {
+  if (ExifParser) return
+  try {
     const exifModule = await import('exif-parser')
     ExifParser = exifModule.default
   } catch (err) {
-    console.warn('exif-parser not available - install exif-parser for image location extraction from EXIF data')
+    this.logger.warn('exif-parser not available - install exif-parser for image location extraction from EXIF data')
   }
 }
 
@@ -112,7 +114,7 @@ export class DocumentGeoService {
   private geocodingApiKey?: string
   private geocodeCache: Map<string, GeocodingResult>
 
-  constructor() {
+  constructor(private db: Pool, private logger: typeof logger) {
     // Default to free Nominatim provider (no API key required)
     this.geocodingProvider = (process.env.GEOCODING_PROVIDER as any) || 'nominatim'
     this.geocodingApiKey = process.env.GEOCODING_API_KEY
@@ -145,7 +147,7 @@ export class DocumentGeoService {
 
       return null
     } catch (error) {
-      console.error('Error extracting location from document:', error)
+      this.logger.error('Error extracting location from document:', error)
       return null
     }
   }
@@ -159,7 +161,7 @@ export class DocumentGeoService {
       await loadExifParser()
 
       if (!ExifParser) {
-        console.warn('EXIF parser not available - cannot extract location from image')
+        this.logger.warn('EXIF parser not available - cannot extract location from image')
         return null
       }
 
@@ -191,7 +193,7 @@ export class DocumentGeoService {
 
       return null
     } catch (error) {
-      console.error('Error extracting EXIF location:', error)
+      this.logger.error('Error extracting EXIF location:', error)
       return null
     }
   }
@@ -201,7 +203,7 @@ export class DocumentGeoService {
    */
   private async extractTextLocation(documentId: string): Promise<GeoLocation | null> {
     try {
-      const result = await pool.query(
+      const result = await this.db.query(
         'SELECT extracted_text FROM documents WHERE id = $1',
         [documentId]
       )
@@ -236,7 +238,7 @@ export class DocumentGeoService {
 
       return null
     } catch (error) {
-      console.error(`Error extracting text location:`, error)
+      this.logger.error(`Error extracting text location:`, error)
       return null
     }
   }
@@ -306,7 +308,7 @@ export class DocumentGeoService {
 
       return result
     } catch (error) {
-      console.error(`Geocoding error:`, error)
+      this.logger.error(`Geocoding error:`, error)
       return null
     }
   }
@@ -344,7 +346,7 @@ export class DocumentGeoService {
 
       return result
     } catch (error) {
-      console.error(`Reverse geocoding error:`, error)
+      this.logger.error(`Reverse geocoding error:`, error)
       return null
     }
   }
@@ -425,14 +427,14 @@ export class DocumentGeoService {
    */
   private async geocodeGoogle(address: string): Promise<GeocodingResult | null> {
     if (!this.geocodingApiKey) {
-      throw new Error(`Google Maps API key not configured`)
+      throw new Error('Google Maps API key not configured')
     }
 
     const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${this.geocodingApiKey}`
     const response = await fetch(url)
     const data = await response.json()
 
-    if (data.status !== `OK` || !data.results || data.results.length === 0) {
+    if (data.status !== 'OK' || !data.results || data.results.length === 0) {
       return null
     }
 
@@ -454,14 +456,14 @@ export class DocumentGeoService {
    */
   private async reverseGeocodeGoogle(lat: number, lng: number): Promise<GeocodingResult | null> {
     if (!this.geocodingApiKey) {
-      throw new Error(`Google Maps API key not configured`)
+      throw new Error('Google Maps API key not configured')
     }
 
     const url = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${this.geocodingApiKey}`
     const response = await fetch(url)
     const data = await response.json()
 
-    if (data.status !== `OK` || !data.results || data.results.length === 0) {
+    if (data.status !== 'OK' || !data.results || data.results.length === 0) {
       return null
     }
 
@@ -505,7 +507,7 @@ export class DocumentGeoService {
    */
   private async geocodeMapbox(address: string): Promise<GeocodingResult | null> {
     if (!this.geocodingApiKey) {
-      throw new Error(`Mapbox API key not configured`)
+      throw new Error('Mapbox API key not configured')
     }
 
     const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(address)}.json?access_token=${this.geocodingApiKey}`
@@ -534,7 +536,7 @@ export class DocumentGeoService {
    */
   private async reverseGeocodeMapbox(lat: number, lng: number): Promise<GeocodingResult | null> {
     if (!this.geocodingApiKey) {
-      throw new Error(`Mapbox API key not configured`)
+      throw new Error('Mapbox API key not configured')
     }
 
     const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${lng},${lat}.json?access_token=${this.geocodingApiKey}`
@@ -572,7 +574,7 @@ export class DocumentGeoService {
         result.state = ctx.short_code?.split('-')[1]
       } else if (ctx.id.startsWith('country')) {
         result.country = ctx.text
-      } else if (ctx.id.startsWith(`postcode`)) {
+      } else if (ctx.id.startsWith('postcode')) {
         result.postal_code = ctx.text
       }
     }
@@ -666,7 +668,7 @@ export class DocumentGeoService {
       FROM documents d
       WHERE d.tenant_id = $3
       AND d.location IS NOT NULL
-      AND d.status = `active`
+      AND d.status = 'active'
       AND ST_DWithin(
         d.location::geography,
         ST_MakePoint($2, $1)::geography,
@@ -703,7 +705,7 @@ export class DocumentGeoService {
       params.push(options.limit)
     }
 
-    const result = await pool.query(query, params)
+    const result = await this.db.query(query, params)
 
     return result.rows.map(row => ({
       document_id: row.document_id,
@@ -737,7 +739,7 @@ export class DocumentGeoService {
       FROM documents d
       WHERE d.tenant_id = $1
       AND d.location IS NOT NULL
-      AND d.status = `active`
+      AND d.status = 'active'
       AND ST_Within(
         d.location::geometry,
         ST_GeomFromGeoJSON($2)
@@ -767,7 +769,7 @@ export class DocumentGeoService {
       params.push(options.limit)
     }
 
-    const result = await pool.query(query, params)
+    const result = await this.db.query(query, params)
 
     return result.rows.map(row => ({
       document_id: row.document_id,
@@ -791,7 +793,7 @@ export class DocumentGeoService {
     const bufferMeters = options?.bufferMeters || 1000
 
     // Create LineString from waypoints
-    const coordinates = waypoints.map(wp => `${wp.lng} ${wp.lat}`).join(`, `)
+    const coordinates = waypoints.map(wp => `${wp.lng} ${wp.lat}`).join(', ')
     const linestring = `LINESTRING(${coordinates})`
 
     let query = `
@@ -808,7 +810,7 @@ export class DocumentGeoService {
       FROM documents d
       WHERE d.tenant_id = $1
       AND d.location IS NOT NULL
-      AND d.status = `active`
+      AND d.status = 'active'
       AND ST_DWithin(
         d.location::geography,
         ST_GeomFromText($2, 4326)::geography,
@@ -833,7 +835,7 @@ export class DocumentGeoService {
       params.push(options.limit)
     }
 
-    const result = await pool.query(query, params)
+    const result = await this.db.query(query, params)
 
     return result.rows.map(row => ({
       document_id: row.document_id,
@@ -862,7 +864,7 @@ export class DocumentGeoService {
         FROM documents
         WHERE tenant_id = $1
         AND location IS NOT NULL
-        AND status = `active`
+        AND status = 'active'
       )
       SELECT
         ST_Y(ST_Centroid(grid))::DECIMAL as lat,
@@ -874,7 +876,7 @@ export class DocumentGeoService {
       ORDER BY document_count DESC
     `
 
-    const result = await pool.query(query, [tenantId, gridSizeMeters])
+    const result = await this.db.query(query, [tenantId, gridSizeMeters])
 
     const maxCount = result.rows.length > 0 ? Math.max(...result.rows.map(r => r.document_count)) : 1
 
@@ -929,7 +931,7 @@ export class DocumentGeoService {
       ORDER BY document_count DESC
     `
 
-    const result = await pool.query(query, [tenantId, clusterDistance / 111320]) // Convert meters to degrees (approximate)
+    const result = await this.db.query(query, [tenantId, clusterDistance / 111320]) // Convert meters to degrees (approximate)
 
     return result.rows.map(row => ({
       cluster_id: row.cluster_id,
@@ -948,7 +950,7 @@ export class DocumentGeoService {
    * Update document location in database
    */
   private async updateDocumentLocation(documentId: string, location: GeoLocation): Promise<void> {
-    await pool.query(
+    await this.db.query(
       `UPDATE documents
        SET
          location = ST_SetSRID(ST_MakePoint($2, $3), 4326)::geography,
@@ -962,7 +964,7 @@ export class DocumentGeoService {
          geo_accuracy = $9,
          geo_source = $10,
          geo_extracted_at = NOW()
-       WHERE id = $1',
+       WHERE id = $1`,
       [
         documentId,
         location.lng,
@@ -1026,7 +1028,7 @@ export class DocumentGeoService {
       ORDER BY created_at DESC
     `
 
-    const result = await pool.query(query, [tenantId])
+    const result = await this.db.query(query, [tenantId])
 
     return result.rows.map(row => ({
       document_id: row.document_id,
@@ -1042,4 +1044,4 @@ export class DocumentGeoService {
   }
 }
 
-export default new DocumentGeoService()
+export default DocumentGeoService

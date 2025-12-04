@@ -24,13 +24,64 @@ import { createContainer, asClass, asFunction, asValue, InjectionMode, Lifetime,
 import { Pool } from 'pg'
 import { connectionManager } from './config/connection-manager'
 
-// Import existing singleton service instances
-// These services are currently exported as singleton instances
-import dispatchServiceInstance from './services/dispatch.service'
-import documentServiceInstance from './services/document.service'
-
 // Import service classes for DI (exported as classes, not instances)
+import DispatchService from './services/dispatch.service'
+import DocumentService from './services/document.service'
 import ExampleDIService from './services/example-di.service'
+
+// Import Tier 2 business logic services
+import { VehicleService } from './services/VehicleService'
+import { DriverService } from './services/DriverService'
+import { MaintenanceService } from './services/MaintenanceService'
+import { WorkorderService } from './services/WorkOrderService'
+import { InspectionService } from './services/InspectionService'
+import { FueltransactionService } from './services/FuelTransactionService'
+import { RouteService } from './services/RouteService'
+
+// Import Tier 3 Document Management services
+import DocumentAuditService from './services/document-audit.service'
+import DocumentFolderService from './services/document-folder.service'
+import DocumentPermissionService from './services/document-permission.service'
+import DocumentVersionService from './services/document-version.service'
+import DocumentIndexer from './services/DocumentIndexer'
+import DocumentSearchService from './services/DocumentSearchService'
+import DocumentAiService from './services/DocumentAiService'
+import DocumentRAGService from './services/document-rag.service'
+import DocumentGeoService from './services/document-geo.service'
+import DocumentManagementService from './services/document-management.service'
+import DocumentSearchServiceAlt from './services/document-search.service'
+import DocumentStorageService from './services/document-storage.service'
+
+// Import Tier 4 AI/ML services
+import AIAgentSupervisorService from './services/ai-agent-supervisor.service'
+import AIControlsService from './services/ai-controls.service'
+import AIIntakeService from './services/ai-intake.service'
+import AIOcrService from './services/ai-ocr.service'
+import AIValidationService from './services/ai-validation.service'
+import FleetCognitionService from './services/fleet-cognition.service'
+import FleetOptimizerService from './services/fleet-optimizer.service'
+import LangChainOrchestratorService from './services/langchain-orchestrator.service'
+import MLDecisionEngineService from './services/ml-decision-engine.service'
+import MLTrainingService from './services/ml-training.service'
+import RAGEngineService from './services/rag-engine.service'
+import EmbeddingService from './services/EmbeddingService'
+import VectorSearchService from './services/VectorSearchService'
+
+// Import Tier 5 Integration services
+import { MicrosoftGraphService } from './services/microsoft-graph.service'
+import MicrosoftIntegrationService from './services/microsoft-integration.service'
+import OutlookService from './services/outlook.service'
+import SamsaraService from './services/samsara.service'
+import SmartcarService from './services/smartcar.service'
+import OBD2EmulatorService from './services/obd2-emulator.service'
+import OCPPService from './services/ocpp.service'
+import EVChargingService from './services/ev-charging.service'
+import MobileIntegrationService from './services/mobile-integration.service'
+import PushNotificationService from './services/push-notification.service'
+import WebRTCService from './services/webrtc.service'
+import VideoTelematicsService from './services/video-telematics.service'
+import MCPServerService from './services/mcp-server.service'
+import MCPServerRegistryService from './services/mcp-server-registry.service'
 
 // Import repository classes
 import { VehicleRepository } from './repositories/VehicleRepository'
@@ -58,12 +109,19 @@ export interface DIContainer extends AwilixContainer {
   // Logger
   logger: typeof logger
 
-  // Core Services (legacy singletons)
-  dispatchService: any
-  documentService: any
-
   // DI Services (proper constructor injection)
+  dispatchService: DispatchService
+  documentService: DocumentService
   exampleDIService: ExampleDIService
+
+  // Tier 2 Business Logic Services (core domain services)
+  vehicleService: VehicleService
+  driverService: DriverService
+  maintenanceService: MaintenanceService
+  workOrderService: WorkorderService
+  inspectionService: InspectionService
+  fuelTransactionService: FueltransactionService
+  routeService: RouteService
 
   // Repositories (data access layer)
   vehicleRepository: VehicleRepository
@@ -72,6 +130,51 @@ export interface DIContainer extends AwilixContainer {
   inspectionRepository: InspectionRepository
   maintenanceRepository: MaintenanceRepository
   workOrderRepository: WorkOrderRepository
+
+  // Tier 3 Document Management Services
+  documentAuditService: DocumentAuditService
+  documentFolderService: DocumentFolderService
+  documentPermissionService: DocumentPermissionService
+  documentVersionService: DocumentVersionService
+  documentIndexer: DocumentIndexer
+  documentSearchService: DocumentSearchService
+  documentAiService: DocumentAiService
+  documentRagService: DocumentRAGService
+  documentGeoService: DocumentGeoService
+  documentManagementService: DocumentManagementService
+  documentSearchServiceAlt: DocumentSearchServiceAlt
+  documentStorageService: DocumentStorageService
+
+  // Tier 4 AI/ML Services
+  aiAgentSupervisorService: AIAgentSupervisorService
+  aiControlsService: AIControlsService
+  aiIntakeService: AIIntakeService
+  aiOcrService: AIOcrService
+  aiValidationService: AIValidationService
+  fleetCognitionService: FleetCognitionService
+  fleetOptimizerService: FleetOptimizerService
+  langchainOrchestratorService: LangChainOrchestratorService
+  mlDecisionEngineService: MLDecisionEngineService
+  mlTrainingService: MLTrainingService
+  ragEngineService: RAGEngineService
+  embeddingService: EmbeddingService
+  vectorSearchService: VectorSearchService
+
+  // Tier 5 Integration Services
+  microsoftGraphService: MicrosoftGraphService
+  microsoftIntegrationService: MicrosoftIntegrationService
+  outlookService: OutlookService
+  samsaraService: SamsaraService
+  smartcarService: SmartcarService
+  obd2EmulatorService: OBD2EmulatorService
+  ocppService: OCPPService
+  evChargingService: EVChargingService
+  mobileIntegrationService: MobileIntegrationService
+  pushNotificationService: PushNotificationService
+  webrtcService: WebRTCService
+  videoTelematicsService: VideoTelematicsService
+  mcpServerService: MCPServerService
+  mcpServerRegistryService: MCPServerRegistryService
 }
 
 /**
@@ -92,11 +195,40 @@ export function createDIContainer() {
     logger: asValue(logger)
   })
 
-  // Register existing singleton service instances
-  // These services are already instantiated and exported as singletons
+  // Register DI-enabled services (constructor injection)
   container.register({
-    dispatchService: asValue(dispatchServiceInstance),
-    documentService: asValue(documentServiceInstance)
+    dispatchService: asClass(DispatchService, {
+      lifetime: Lifetime.SINGLETON
+    }),
+    documentService: asClass(DocumentService, {
+      lifetime: Lifetime.SINGLETON
+    })
+  })
+
+  // Register Tier 2 business logic services (core domain services)
+  // These services handle primary business operations (vehicles, drivers, maintenance, etc.)
+  container.register({
+    vehicleService: asClass(VehicleService, {
+      lifetime: Lifetime.SINGLETON
+    }),
+    driverService: asClass(DriverService, {
+      lifetime: Lifetime.SINGLETON
+    }),
+    maintenanceService: asClass(MaintenanceService, {
+      lifetime: Lifetime.SINGLETON
+    }),
+    workOrderService: asClass(WorkorderService, {
+      lifetime: Lifetime.SINGLETON
+    }),
+    inspectionService: asClass(InspectionService, {
+      lifetime: Lifetime.SINGLETON
+    }),
+    fuelTransactionService: asClass(FueltransactionService, {
+      lifetime: Lifetime.SINGLETON
+    }),
+    routeService: asClass(RouteService, {
+      lifetime: Lifetime.SINGLETON
+    })
   })
 
   // Register new DI-enabled services
@@ -133,6 +265,138 @@ export function createDIContainer() {
       lifetime: Lifetime.SINGLETON
     }),
     workOrderRepository: asClass(WorkOrderRepository, {
+      lifetime: Lifetime.SINGLETON
+    })
+  })
+
+  // Register Tier 3 Document Management services
+  // These services handle document storage, versioning, permissions, search, and AI features
+  container.register({
+    documentAuditService: asClass(DocumentAuditService, {
+      lifetime: Lifetime.SINGLETON
+    }),
+    documentFolderService: asClass(DocumentFolderService, {
+      lifetime: Lifetime.SINGLETON
+    }),
+    documentPermissionService: asClass(DocumentPermissionService, {
+      lifetime: Lifetime.SINGLETON
+    }),
+    documentVersionService: asClass(DocumentVersionService, {
+      lifetime: Lifetime.SINGLETON
+    }),
+    documentIndexer: asClass(DocumentIndexer, {
+      lifetime: Lifetime.SINGLETON
+    }),
+    documentSearchService: asClass(DocumentSearchService, {
+      lifetime: Lifetime.SINGLETON
+    }),
+    documentAiService: asClass(DocumentAiService, {
+      lifetime: Lifetime.SINGLETON
+    }),
+    documentRagService: asClass(DocumentRAGService, {
+      lifetime: Lifetime.SINGLETON
+    }),
+    documentGeoService: asClass(DocumentGeoService, {
+      lifetime: Lifetime.SINGLETON
+    }),
+    documentManagementService: asClass(DocumentManagementService, {
+      lifetime: Lifetime.SINGLETON
+    }),
+    documentSearchServiceAlt: asClass(DocumentSearchServiceAlt, {
+      lifetime: Lifetime.SINGLETON
+    }),
+    documentStorageService: asClass(DocumentStorageService, {
+      lifetime: Lifetime.SINGLETON
+    })
+  })
+
+  // Register Tier 4 AI/ML services
+  // These services handle AI agents, ML models, embeddings, vector search, and fleet intelligence
+  container.register({
+    aiAgentSupervisorService: asClass(AIAgentSupervisorService, {
+      lifetime: Lifetime.SINGLETON
+    }),
+    aiControlsService: asClass(AIControlsService, {
+      lifetime: Lifetime.SINGLETON
+    }),
+    aiIntakeService: asClass(AIIntakeService, {
+      lifetime: Lifetime.SINGLETON
+    }),
+    aiOcrService: asClass(AIOcrService, {
+      lifetime: Lifetime.SINGLETON
+    }),
+    aiValidationService: asClass(AIValidationService, {
+      lifetime: Lifetime.SINGLETON
+    }),
+    fleetCognitionService: asClass(FleetCognitionService, {
+      lifetime: Lifetime.SINGLETON
+    }),
+    fleetOptimizerService: asClass(FleetOptimizerService, {
+      lifetime: Lifetime.SINGLETON
+    }),
+    langchainOrchestratorService: asClass(LangChainOrchestratorService, {
+      lifetime: Lifetime.SINGLETON
+    }),
+    mlDecisionEngineService: asClass(MLDecisionEngineService, {
+      lifetime: Lifetime.SINGLETON
+    }),
+    mlTrainingService: asClass(MLTrainingService, {
+      lifetime: Lifetime.SINGLETON
+    }),
+    ragEngineService: asClass(RAGEngineService, {
+      lifetime: Lifetime.SINGLETON
+    }),
+    embeddingService: asClass(EmbeddingService, {
+      lifetime: Lifetime.SINGLETON
+    }),
+    vectorSearchService: asClass(VectorSearchService, {
+      lifetime: Lifetime.SINGLETON
+    })
+  })
+
+  // Register Tier 5 Integration services
+  // These services handle external integrations (Microsoft, Samsara, SmartCar, OBD2, OCPP, mobile apps)
+  container.register({
+    microsoftGraphService: asFunction(() => MicrosoftGraphService.getInstance(), {
+      lifetime: Lifetime.SINGLETON
+    }),
+    microsoftIntegrationService: asClass(MicrosoftIntegrationService, {
+      lifetime: Lifetime.SINGLETON
+    }),
+    outlookService: asClass(OutlookService, {
+      lifetime: Lifetime.SINGLETON
+    }),
+    samsaraService: asClass(SamsaraService, {
+      lifetime: Lifetime.SINGLETON
+    }),
+    smartcarService: asClass(SmartcarService, {
+      lifetime: Lifetime.SINGLETON
+    }),
+    obd2EmulatorService: asFunction(() => OBD2EmulatorService.getInstance(), {
+      lifetime: Lifetime.SINGLETON
+    }),
+    ocppService: asClass(OCPPService, {
+      lifetime: Lifetime.SINGLETON
+    }),
+    evChargingService: asClass(EVChargingService, {
+      lifetime: Lifetime.SINGLETON
+    }),
+    mobileIntegrationService: asClass(MobileIntegrationService, {
+      lifetime: Lifetime.SINGLETON
+    }),
+    pushNotificationService: asClass(PushNotificationService, {
+      lifetime: Lifetime.SINGLETON
+    }),
+    webrtcService: asClass(WebRTCService, {
+      lifetime: Lifetime.SINGLETON
+    }),
+    videoTelematicsService: asClass(VideoTelematicsService, {
+      lifetime: Lifetime.SINGLETON
+    }),
+    mcpServerService: asClass(MCPServerService, {
+      lifetime: Lifetime.SINGLETON
+    }),
+    mcpServerRegistryService: asClass(MCPServerRegistryService, {
       lifetime: Lifetime.SINGLETON
     })
   })
