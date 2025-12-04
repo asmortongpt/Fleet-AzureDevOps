@@ -1,7 +1,9 @@
 import express, { Request, Response } from 'express'
+import { container } from '../container'
+import { asyncHandler } from '../middleware/error-handler'
+import { NotFoundError, ValidationError } from '../errors/app-error'
 import logger from '../config/logger'; // Wave 18: Add Winston logger
 import axios from 'axios'
-import pool from '../config/database'
 import { getErrorMessage } from '../utils/error-handler'
 
 const router = express.Router()
@@ -40,7 +42,7 @@ router.get('/rates', async (req: Request, res: Response) => {
             'Authorization': `Bearer ${MILEAGE_CONFIG.externalApiKey}`
           },
           timeout: 5000
-        })
+        }))
 
         return res.json({
           source: 'external_api',
@@ -48,7 +50,7 @@ router.get('/rates', async (req: Request, res: Response) => {
           effective_date: response.data.effective_date,
           last_updated: new Date().toISOString(),
           organization: MILEAGE_CONFIG.organizationName
-        })
+        }))
       } catch (apiError) {
         logger.error('External API error, falling back to configured rate:', apiError) // Wave 18: Winston logger
       }
@@ -73,7 +75,7 @@ router.get('/rates', async (req: Request, res: Response) => {
             effective_date: tenantRate.effective_date || MILEAGE_CONFIG.effectiveDate,
             tenant_id,
             last_updated: new Date().toISOString()
-          })
+          }))
         }
       } catch (dbError) {
         logger.error('Database error fetching tenant rate:', dbError) // Wave 18: Winston logger
@@ -88,12 +90,12 @@ router.get('/rates', async (req: Request, res: Response) => {
       organization: MILEAGE_CONFIG.organizationName,
       note: 'Using IRS standard mileage rate (federal guideline). Configure MILEAGE_API_ENDPOINT for GSA rates or set tenant-specific rates.',
       last_updated: new Date().toISOString()
-    })
+    }))
   } catch (error: any) {
     logger.error('Error fetching mileage rates:', error) // Wave 18: Winston logger
-    res.status(500).json({ error: 'Failed to fetch mileage rates', message: getErrorMessage(error) })
+    res.status(500).json({ error: 'Failed to fetch mileage rates', message: getErrorMessage(error) }))
   }
-})
+}))
 
 /**
  * POST /api/mileage-reimbursement/calculate
@@ -116,7 +118,7 @@ router.post('/calculate', async (req: Request, res: Response) => {
 
     // Validate required fields
     if (!miles || miles <= 0) {
-      return res.status(400).json({ error: 'Valid miles value is required' })
+      return res.status(400).json({ error: 'Valid miles value is required' }))
     }
 
     // Determine applicable rate
@@ -178,9 +180,9 @@ router.post('/calculate', async (req: Request, res: Response) => {
     res.json(calculations)
   } catch (error: any) {
     logger.error('Error calculating mileage:', error) // Wave 18: Winston logger
-    res.status(500).json({ error: 'Failed to calculate mileage', message: getErrorMessage(error) })
+    res.status(500).json({ error: 'Failed to calculate mileage', message: getErrorMessage(error) }))
   }
-})
+}))
 
 /**
  * GET /api/mileage-reimbursement/rates/history
@@ -205,12 +207,12 @@ router.get('/rates/history', async (req: Request, res: Response) => {
       current_rate: MILEAGE_CONFIG.defaultRate,
       organization: MILEAGE_CONFIG.organizationName,
       note: 'IRS standard mileage rates per federal guidelines. Updated annually.'
-    })
+    }))
   } catch (error: any) {
     logger.error('Error fetching rate history:', error) // Wave 18: Winston logger
-    res.status(500).json({ error: 'Failed to fetch rate history', message: getErrorMessage(error) })
+    res.status(500).json({ error: 'Failed to fetch rate history', message: getErrorMessage(error) }))
   }
-})
+}))
 
 /**
  * POST /api/mileage-reimbursement/validate-trip
@@ -280,12 +282,12 @@ router.post('/validate-trip', async (req: Request, res: Response) => {
         purpose_documented: !!purpose,
         distance_reasonable: miles <= 500
       }
-    })
+    }))
   } catch (error: any) {
     logger.error('Error validating trip:', error) // Wave 18: Winston logger
-    res.status(500).json({ error: 'Failed to validate trip', message: getErrorMessage(error) })
+    res.status(500).json({ error: 'Failed to validate trip', message: getErrorMessage(error) }))
   }
-})
+}))
 
 /**
  * PUT /api/mileage-reimbursement/rates/tenant/:tenant_id
@@ -297,7 +299,7 @@ router.put('/rates/tenant/:tenant_id', async (req: Request, res: Response) => {
     const { rate, effective_date } = req.body
 
     if (!rate || rate <= 0) {
-      return res.status(400).json({ error: 'Valid rate is required' })
+      return res.status(400).json({ error: 'Valid rate is required' }))
     }
 
     // Federal compliance check - cannot exceed IRS rate
@@ -306,14 +308,14 @@ router.put('/rates/tenant/:tenant_id', async (req: Request, res: Response) => {
         error: 'Rate cannot exceed federal IRS standard mileage rate',
         max_allowed_rate: MILEAGE_CONFIG.defaultRate,
         requested_rate: rate
-      })
+      }))
     }
 
     // SECURITY: Admin authorization required to update mileage rates
     if (req.user?.role !== 'admin' && req.user?.role !== 'fleet_manager') {
       return res.status(403).json({
         error: 'Admin or Fleet Manager access required to update mileage rates'
-      })
+      }))
     }
 
     await pool.query(
@@ -334,11 +336,11 @@ router.put('/rates/tenant/:tenant_id', async (req: Request, res: Response) => {
         meets_federal_guidelines: rate <= MILEAGE_CONFIG.defaultRate,
         irs_standard_rate: MILEAGE_CONFIG.defaultRate
       }
-    })
+    }))
   } catch (error: any) {
     logger.error('Error updating tenant rate:', error) // Wave 18: Winston logger
-    res.status(500).json({ error: 'Failed to update tenant rate', message: getErrorMessage(error) })
+    res.status(500).json({ error: 'Failed to update tenant rate', message: getErrorMessage(error) }))
   }
-})
+}))
 
 export default router

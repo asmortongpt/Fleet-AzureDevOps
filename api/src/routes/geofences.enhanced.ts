@@ -1,8 +1,10 @@
 import express, { Response } from 'express'
+import { container } from '../container'
+import { asyncHandler } from '../middleware/error-handler'
+import { NotFoundError, ValidationError } from '../errors/app-error'
 import { AuthRequest, authenticateJWT } from '../middleware/auth'
 import { requirePermission } from '../middleware/permissions'
 import { auditLog } from '../middleware/audit'
-import pool from '../config/database'
 import { z } from 'zod'
 import helmet from 'helmet'
 import rateLimit from 'express-rate-limit'
@@ -25,7 +27,7 @@ const geofenceSchema = z.object({
   type: z.enum(['circle', 'polygon']),
   radius: z.number().optional(),
   is_active: z.boolean(),
-})
+}))
 
 // GET /geofences
 router.get(
@@ -69,10 +71,10 @@ router.get(
           total: parseInt(countResult.rows[0].count, 10),
           pages: Math.ceil(parseInt(countResult.rows[0].count, 10) / Number(limit)),
         },
-      })
+      }))
     } catch (error) {
       console.error(`Get geofences error:`, error)
-      res.status(500).json({ error: 'Internal server error' })
+      res.status(500).json({ error: 'Internal server error' }))
     }
   }
 )
@@ -102,13 +104,13 @@ router.get(
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: `Geofence not found` })
+        return res.status(404).json({ error: `Geofence not found` }))
       }
 
       res.json(result.rows[0])
     } catch (error) {
       console.error('Get geofence error:', error)
-      res.status(500).json({ error: 'Internal server error' })
+      res.status(500).json({ error: 'Internal server error' }))
     }
   }
 )
@@ -131,7 +133,7 @@ router.post(
       res.status(201).json(result.rows[0])
     } catch (error) {
       console.error(`Create geofence error:`, error)
-      res.status(500).json({ error: `Internal server error` })
+      res.status(500).json({ error: `Internal server error` }))
     }
   }
 )
@@ -155,13 +157,13 @@ router.put(
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'Geofence not found or not authorized to update' })
+        return res.status(404).json({ error: 'Geofence not found or not authorized to update' }))
       }
 
       res.json(result.rows[0])
     } catch (error) {
       console.error(`Update geofence error:`, error)
-      res.status(500).json({ error: 'Internal server error' })
+      res.status(500).json({ error: 'Internal server error' }))
     }
   }
 )

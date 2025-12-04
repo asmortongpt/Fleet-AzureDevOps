@@ -1,10 +1,12 @@
 import express, { Response } from 'express'
+import { container } from '../container'
+import { asyncHandler } from '../middleware/error-handler'
+import { NotFoundError, ValidationError } from '../errors/app-error'
 import logger from '../config/logger'; // Wave 19: Add Winston logger
 import { AuthRequest, authenticateJWT } from '../middleware/auth'
 import { requirePermission } from '../middleware/permissions'
 import { auditLog } from '../middleware/audit'
 import { rateLimit } from '../middleware/rateLimit'
-import pool from '../config/database'
 import { z } from 'zod'
 import { buildInsertClause, buildUpdateClause } from '../utils/sql-safety'
 
@@ -54,10 +56,10 @@ router.get(
           total: parseInt(countResult.rows[0].count),
           pages: Math.ceil(countResult.rows[0].count / Number(limit))
         }
-      })
+      }))
     } catch (error) {
       logger.error(`Get video-events error:`, error) // Wave 19: Winston logger
-      res.status(500).json({ error: 'Internal server error' })
+      res.status(500).json({ error: 'Internal server error' }))
     }
   }
 )
@@ -88,13 +90,13 @@ router.get(
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: `VideoEvents not found` })
+        return res.status(404).json({ error: `VideoEvents not found` }))
       }
 
       res.json(result.rows[0])
     } catch (error) {
       logger.error('Get video-events error:', error) // Wave 19: Winston logger
-      res.status(500).json({ error: 'Internal server error' })
+      res.status(500).json({ error: 'Internal server error' }))
     }
   }
 )
@@ -122,7 +124,7 @@ router.post(
       res.status(201).json(result.rows[0])
     } catch (error) {
       logger.error(`Create video-events error:`, error) // Wave 19: Winston logger
-      res.status(500).json({ error: `Internal server error` })
+      res.status(500).json({ error: `Internal server error` }))
     }
   }
 )
@@ -140,13 +142,13 @@ router.delete(
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'VideoEvents not found' })
+        return res.status(404).json({ error: 'VideoEvents not found' }))
       }
 
-      res.json({ message: 'VideoEvents deleted successfully' })
+      res.json({ message: 'VideoEvents deleted successfully' }))
     } catch (error) {
       logger.error('Delete video-events error:', error) // Wave 19: Winston logger
-      res.status(500).json({ error: 'Internal server error' })
+      res.status(500).json({ error: 'Internal server error' }))
     }
   }
 )

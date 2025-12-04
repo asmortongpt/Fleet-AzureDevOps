@@ -1,4 +1,7 @@
 import express, { Response } from 'express'
+import { container } from '../container'
+import { asyncHandler } from '../middleware/error-handler'
+import { NotFoundError, ValidationError } from '../errors/app-error'
 import { cacheService } from '../config/cache'; // Wave 13: Add Redis caching
 import { inspectionCreateSchema, inspectionUpdateSchema } from '../schemas/inspection.schema';
 import { validate } from '../middleware/validate';
@@ -6,7 +9,6 @@ import logger from '../config/logger'; // Wave 11: Add Winston logger
 import { AuthRequest, authenticateJWT } from '../middleware/auth'
 import { requirePermission } from '../middleware/permissions'
 import { auditLog } from '../middleware/audit'
-import pool from '../config/database'
 import { z } from 'zod'
 import { buildInsertClause, buildUpdateClause } from '../utils/sql-safety'
 import { TenantValidator } from '../utils/tenant-validator';
@@ -63,7 +65,7 @@ router.get(
       res.json(response)
     } catch (error) {
       logger.error('Failed to fetch inspections', { error }) // Wave 11: Winston logger
-      res.status(500).json({ error: 'Internal server error' })
+      res.status(500).json({ error: 'Internal server error' }))
     }
   }
 )
@@ -92,7 +94,7 @@ router.get(
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: `Inspections not found` })
+        return res.status(404).json({ error: `Inspections not found` }))
       }
 
       // Cache for 10 minutes (600 seconds)
@@ -101,7 +103,7 @@ router.get(
       res.json(result.rows[0])
     } catch (error) {
       logger.error('Failed to fetch inspection', { error, inspectionId: req.params.id }) // Wave 11: Winston logger
-      res.status(500).json({ error: 'Internal server error' })
+      res.status(500).json({ error: 'Internal server error' }))
     }
   }
 )
@@ -146,7 +148,7 @@ router.post(
       res.status(201).json(result.rows[0])
     } catch (error) {
       logger.error('Failed to create inspection', { error }) // Wave 11: Winston logger
-      res.status(500).json({ error: `Internal server error` })
+      res.status(500).json({ error: `Internal server error` }))
     }
   }
 )
@@ -182,13 +184,13 @@ router.put(
         return res.status(403).json({
           success: false,
           error: 'Vehicle Id not found or access denied'
-        })
+        }))
       }
       if (inspector_id && !(await validator.validateInspector(inspector_id, req.user!.tenant_id))) {
         return res.status(403).json({
           success: false,
           error: 'Inspector Id not found or access denied'
-        })
+        }))
       }
       const { fields, values } = buildUpdateClause(data, 3)
 
@@ -198,7 +200,7 @@ router.put(
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: `Inspections not found` })
+        return res.status(404).json({ error: `Inspections not found` }))
       }
 
       // Wave 13: Invalidate cache on update
@@ -208,7 +210,7 @@ router.put(
       res.json(result.rows[0])
     } catch (error) {
       logger.error('Failed to update inspection', { error, inspectionId: req.params.id }) // Wave 11: Winston logger
-      res.status(500).json({ error: `Internal server error` })
+      res.status(500).json({ error: `Internal server error` }))
     }
   }
 )
@@ -226,17 +228,17 @@ router.delete(
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'Inspections not found' })
+        return res.status(404).json({ error: 'Inspections not found' }))
       }
 
       // Wave 13: Invalidate cache on delete
       const cacheKey = `inspection:${req.params.id}:${req.user!.tenant_id}`
       await cacheService.del(cacheKey)
 
-      res.json({ message: 'Inspections deleted successfully' })
+      res.json({ message: 'Inspections deleted successfully' }))
     } catch (error) {
       logger.error('Failed to delete inspection', { error, inspectionId: req.params.id }) // Wave 11: Winston logger
-      res.status(500).json({ error: 'Internal server error' })
+      res.status(500).json({ error: 'Internal server error' }))
     }
   }
 )

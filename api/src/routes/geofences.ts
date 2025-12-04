@@ -1,9 +1,11 @@
 import express, { Response } from 'express'
+import { container } from '../container'
+import { asyncHandler } from '../middleware/error-handler'
+import { NotFoundError, ValidationError } from '../errors/app-error'
 import logger from '../config/logger'; // Wave 18: Add Winston logger
 import { AuthRequest, authenticateJWT } from '../middleware/auth'
 import { requirePermission } from '../middleware/permissions'
 import { auditLog } from '../middleware/audit'
-import pool from '../config/database'
 import { z } from 'zod'
 import { buildInsertClause, buildUpdateClause } from '../utils/sql-safety'
 
@@ -48,10 +50,10 @@ router.get(
           total: parseInt(countResult.rows[0].count),
           pages: Math.ceil(countResult.rows[0].count / Number(limit))
         }
-      })
+      }))
     } catch (error) {
       logger.error(`Get geofences error:`, error) // Wave 18: Winston logger
-      res.status(500).json({ error: 'Internal server error' })
+      res.status(500).json({ error: 'Internal server error' }))
     }
   }
 )
@@ -79,13 +81,13 @@ router.get(
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: `Geofences not found` })
+        return res.status(404).json({ error: `Geofences not found` }))
       }
 
       res.json(result.rows[0])
     } catch (error) {
       logger.error('Get geofences error:', error) // Wave 18: Winston logger
-      res.status(500).json({ error: 'Internal server error' })
+      res.status(500).json({ error: 'Internal server error' }))
     }
   }
 )
@@ -113,7 +115,7 @@ router.post(
       res.status(201).json(result.rows[0])
     } catch (error) {
       logger.error(`Create geofences error:`, error) // Wave 18: Winston logger
-      res.status(500).json({ error: `Internal server error` })
+      res.status(500).json({ error: `Internal server error` }))
     }
   }
 )
@@ -134,13 +136,13 @@ router.put(
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: `Geofences not found` })
+        return res.status(404).json({ error: `Geofences not found` }))
       }
 
       res.json(result.rows[0])
     } catch (error) {
       logger.error(`Update geofences error:`, error) // Wave 18: Winston logger
-      res.status(500).json({ error: `Internal server error` })
+      res.status(500).json({ error: `Internal server error` }))
     }
   }
 )
@@ -158,13 +160,13 @@ router.delete(
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'Geofences not found' })
+        return res.status(404).json({ error: 'Geofences not found' }))
       }
 
-      res.json({ message: 'Geofences deleted successfully' })
+      res.json({ message: 'Geofences deleted successfully' }))
     } catch (error) {
       logger.error('Delete geofences error:', error) // Wave 18: Winston logger
-      res.status(500).json({ error: 'Internal server error' })
+      res.status(500).json({ error: 'Internal server error' }))
     }
   }
 )

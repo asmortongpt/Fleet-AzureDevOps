@@ -1,4 +1,7 @@
 /**
+import { container } from '../container'
+import { asyncHandler } from '../middleware/error-handler'
+import { NotFoundError, ValidationError } from '../errors/app-error'
  * Mobile Messaging Routes
  * API endpoints for mobile app email, SMS, and Teams messaging
  */
@@ -9,7 +12,6 @@ import { requirePermission } from '../middleware/permissions';
 import { auditLog } from '../middleware/audit';
 import { outlookService } from '../services/outlook.service';
 import teamsService from '../services/teams.service';
-import pool from '../config/database';
 import { z } from 'zod';
 import { logger } from '../utils/logger';
 import twilio from 'twilio';
@@ -43,7 +45,7 @@ const sendEmailSchema = z.object({
         uri: z.string(),
         type: z.string(),
         size: z.number(),
-      })
+      }))
     )
     .optional(),
   importance: z.enum(['low', 'normal', 'high']).optional().default('normal'),
@@ -53,7 +55,7 @@ const sendEmailSchema = z.object({
         entity_type: z.string(),
         entity_id: z.string(),
         link_type: z.string().optional(),
-      })
+      }))
     )
     .optional(),
 });
@@ -185,7 +187,7 @@ const sendSMSSchema = z.object({
         entity_type: z.string(),
         entity_id: z.string(),
         link_type: z.string().optional(),
-      })
+      }))
     )
     .optional(),
 });
@@ -301,7 +303,7 @@ const sendTeamsMessageSchema = z.object({
       z.object({
         userId: z.string(),
         displayName: z.string(),
-      })
+      }))
     )
     .optional(),
   attachments: z.array(z.any()).optional(),
@@ -312,7 +314,7 @@ const sendTeamsMessageSchema = z.object({
         entity_type: z.string(),
         entity_id: z.string(),
         link_type: z.string().optional(),
-      })
+      }))
     )
     .optional(),
 });

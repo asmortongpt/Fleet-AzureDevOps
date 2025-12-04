@@ -1,4 +1,7 @@
 import express, { Response } from 'express'
+import { container } from '../container'
+import { asyncHandler } from '../middleware/error-handler'
+import { NotFoundError, ValidationError } from '../errors/app-error'
 import logger from '../config/logger'; // Wave 21: Add Winston logger
 import { AuthRequest, authenticateJWT } from '../middleware/auth'
 import { requirePermission } from '../middleware/permissions'
@@ -58,7 +61,7 @@ router.get(
       const { lat, lng, radius = '25', fuelType } = req.query
 
       if (!lat || !lng) {
-        return res.status(400).json({ error: 'lat and lng are required' })
+        return res.status(400).json({ error: 'lat and lng are required' }))
       }
 
       const stations = await fuelPurchasingService.getNearbyStations(
@@ -72,7 +75,7 @@ router.get(
       res.json(stations)
     } catch (error) {
       logger.error('Get nearby stations error:', error) // Wave 21: Winston logger
-      res.status(500).json({ error: 'Internal server error' })
+      res.status(500).json({ error: 'Internal server error' }))
     }
   }
 )
@@ -87,7 +90,7 @@ router.get(
       const { lat, lng, fuelType, radius = '50' } = req.query
 
       if (!lat || !lng || !fuelType) {
-        return res.status(400).json({ error: 'lat, lng, and fuelType are required' })
+        return res.status(400).json({ error: 'lat, lng, and fuelType are required' }))
       }
 
       const result = await fuelPurchasingService.findCheapestFuel(
@@ -99,13 +102,13 @@ router.get(
       )
 
       if (!result) {
-        return res.status(404).json({ error: 'No stations found' })
+        return res.status(404).json({ error: 'No stations found' }))
       }
 
       res.json(result)
     } catch (error) {
       logger.error('Find cheapest fuel error:', error) // Wave 21: Winston logger
-      res.status(500).json({ error: 'Internal server error' })
+      res.status(500).json({ error: 'Internal server error' }))
     }
   }
 )
@@ -128,7 +131,7 @@ router.post(
       if (!vehicleLocation || !destination || !fuelType) {
         return res.status(400).json({
           error: 'vehicleLocation, destination, and fuelType are required'
-        })
+        }))
       }
 
       const recommendation = await fuelPurchasingService.getOptimalFuelingRecommendation(
@@ -141,13 +144,13 @@ router.post(
       )
 
       if (!recommendation) {
-        return res.status(404).json({ error: 'No recommendation available' })
+        return res.status(404).json({ error: 'No recommendation available' }))
       }
 
       res.json(recommendation)
     } catch (error) {
       logger.error('Get recommendation error:', error) // Wave 21: Winston logger
-      res.status(500).json({ error: 'Internal server error' })
+      res.status(500).json({ error: 'Internal server error' }))
     }
   }
 )
@@ -171,7 +174,7 @@ router.get(
       res.json(forecasts)
     } catch (error) {
       logger.error('Get forecast error:', error) // Wave 21: Winston logger
-      res.status(500).json({ error: 'Internal server error' })
+      res.status(500).json({ error: 'Internal server error' }))
     }
   }
 )
@@ -186,7 +189,7 @@ router.get(
       const { fuelType = 'regular', currentPrice, region = 'national' } = req.query
 
       if (!currentPrice) {
-        return res.status(400).json({ error: 'currentPrice is required' })
+        return res.status(400).json({ error: 'currentPrice is required' }))
       }
 
       const recommendation = await fuelPriceForecastingModel.generatePurchaseRecommendation(
@@ -199,7 +202,7 @@ router.get(
       res.json(recommendation)
     } catch (error) {
       logger.error('Get timing recommendation error:', error) // Wave 21: Winston logger
-      res.status(500).json({ error: 'Internal server error' })
+      res.status(500).json({ error: 'Internal server error' }))
     }
   }
 )
@@ -218,7 +221,7 @@ router.get(
       res.json(trends)
     } catch (error) {
       logger.error('Get seasonal trends error:', error) // Wave 21: Winston logger
-      res.status(500).json({ error: 'Internal server error' })
+      res.status(500).json({ error: 'Internal server error' }))
     }
   }
 )
@@ -240,7 +243,7 @@ router.get(
       res.json(variations)
     } catch (error) {
       logger.error('Get regional variations error:', error) // Wave 21: Winston logger
-      res.status(500).json({ error: 'Internal server error' })
+      res.status(500).json({ error: 'Internal server error' }))
     }
   }
 )
@@ -261,7 +264,7 @@ router.post(
       res.status(201).json(maskFuelCardData(order))
     } catch (error) {
       logger.error('Create purchase order error:', error) // Wave 21: Winston logger
-      res.status(500).json({ error: 'Internal server error' })
+      res.status(500).json({ error: 'Internal server error' }))
     }
   }
 )
@@ -284,7 +287,7 @@ router.get(
       res.json(maskFuelCardData(contracts))
     } catch (error) {
       logger.error('Get contracts error:', error) // Wave 21: Winston logger
-      res.status(500).json({ error: 'Internal server error' })
+      res.status(500).json({ error: 'Internal server error' }))
     }
   }
 )
@@ -305,7 +308,7 @@ router.post(
       res.status(201).json(alert)
     } catch (error) {
       logger.error('Create alert error:', error) // Wave 21: Winston logger
-      res.status(500).json({ error: 'Internal server error' })
+      res.status(500).json({ error: 'Internal server error' }))
     }
   }
 )
@@ -320,7 +323,7 @@ router.get(
       const { startDate, endDate } = req.query
 
       if (!startDate || !endDate) {
-        return res.status(400).json({ error: 'startDate and endDate are required' })
+        return res.status(400).json({ error: 'startDate and endDate are required' }))
       }
 
       const savings = await fuelPurchasingService.calculateSavings(
@@ -332,7 +335,7 @@ router.get(
       res.json(savings)
     } catch (error) {
       logger.error('Calculate savings error:', error) // Wave 21: Winston logger
-      res.status(500).json({ error: 'Internal server error' })
+      res.status(500).json({ error: 'Internal server error' }))
     }
   }
 )
@@ -354,7 +357,7 @@ router.get(
       res.json(recommendations)
     } catch (error) {
       logger.error('Get refueling optimization error:', error) // Wave 21: Winston logger
-      res.status(500).json({ error: 'Internal server error' })
+      res.status(500).json({ error: 'Internal server error' }))
     }
   }
 )
@@ -369,7 +372,7 @@ router.get(
       const { monthlyGallons } = req.query
 
       if (!monthlyGallons) {
-        return res.status(400).json({ error: 'monthlyGallons is required' })
+        return res.status(400).json({ error: 'monthlyGallons is required' }))
       }
 
       const analysis = await fuelOptimizationService.analyzeBulkVsRetail(
@@ -380,7 +383,7 @@ router.get(
       res.json(analysis)
     } catch (error) {
       logger.error('Bulk vs retail analysis error:', error) // Wave 21: Winston logger
-      res.status(500).json({ error: 'Internal server error' })
+      res.status(500).json({ error: 'Internal server error' }))
     }
   }
 )
@@ -395,7 +398,7 @@ router.get(
       const { annualGallons } = req.query
 
       if (!annualGallons) {
-        return res.status(400).json({ error: 'annualGallons is required' })
+        return res.status(400).json({ error: 'annualGallons is required' }))
       }
 
       const optimization = await fuelOptimizationService.optimizeFleetCardUsage(
@@ -406,7 +409,7 @@ router.get(
       res.json(optimization)
     } catch (error) {
       logger.error('Fleet card optimization error:', error) // Wave 21: Winston logger
-      res.status(500).json({ error: 'Internal server error' })
+      res.status(500).json({ error: 'Internal server error' }))
     }
   }
 )
@@ -421,7 +424,7 @@ router.get(
       const { state } = req.query
 
       if (!state) {
-        return res.status(400).json({ error: 'state is required' })
+        return res.status(400).json({ error: 'state is required' }))
       }
 
       const analysis = await fuelOptimizationService.analyzeCrossBorderArbitrage(
@@ -432,7 +435,7 @@ router.get(
       res.json(analysis)
     } catch (error) {
       logger.error('Cross-border analysis error:', error) // Wave 21: Winston logger
-      res.status(500).json({ error: 'Internal server error' })
+      res.status(500).json({ error: 'Internal server error' }))
     }
   }
 )
@@ -447,7 +450,7 @@ router.get(
       const { annualGallons, fuelType = 'regular' } = req.query
 
       if (!annualGallons) {
-        return res.status(400).json({ error: 'annualGallons is required' })
+        return res.status(400).json({ error: 'annualGallons is required' }))
       }
 
       const recommendations = await fuelOptimizationService.generateHedgingRecommendations(
@@ -459,7 +462,7 @@ router.get(
       res.json(recommendations)
     } catch (error) {
       logger.error('Hedging recommendations error:', error) // Wave 21: Winston logger
-      res.status(500).json({ error: 'Internal server error' })
+      res.status(500).json({ error: 'Internal server error' }))
     }
   }
 )
@@ -478,7 +481,7 @@ router.get(
       res.json(report)
     } catch (error) {
       logger.error('Generate optimization report error:', error) // Wave 21: Winston logger
-      res.status(500).json({ error: 'Internal server error' })
+      res.status(500).json({ error: 'Internal server error' }))
     }
   }
 )

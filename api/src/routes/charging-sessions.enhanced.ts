@@ -1,29 +1,33 @@
-import express, { Response } from 'express';
-import { AuthRequest, authenticateJWT } from '../middleware/auth';
-import { requirePermission } from '../middleware/permissions';
-import { auditLog } from '../middleware/audit';
-import pool from '../config/database';
-import { z } from 'zod';
-import helmet from 'helmet';
-import rateLimit from 'express-rate-limit';
-import { serialize } from 'node-html-encoder';
+import express, { Response } from 'express'
+import { container } from '../container'
+import { asyncHandler } from '../middleware/error-handler'
+import { NotFoundError, ValidationError } from '../errors/app-error'
+import { AuthRequest, authenticateJWT } from '../middleware/auth'
+import { requirePermission } from '../middleware/permissions'
+import { auditLog } from '../middleware/audit'
+import { z } from 'zod'
+import helmet from 'helmet'
+import rateLimit from 'express-rate-limit'
+import { serialize } from 'node-html-encoder'
 
-const router = express.Router();
+const router = express.Router()
 
-router.use(authenticateJWT);
-router.use(helmet());
-router.use(rateLimit({
-  windowMs: 60 * 1000, // 1 minute
-  max: 100, // limit each IP to 100 requests per windowMs
-  standardHeaders: true,
-  legacyHeaders: false,
-}));
+router.use(authenticateJWT)
+router.use(helmet())
+router.use(
+  rateLimit({
+    windowMs: 60 * 1000, // 1 minute
+    max: 100, // limit each IP to 100 requests per windowMs
+    standardHeaders: true,
+    legacyHeaders: false,
+  })
+)
 
 const chargingSessionSchema = z.object({
   page: z.string().optional(),
   limit: z.string().optional(),
   id: z.string().optional(),
-});
+})
 
 // GET /charging-sessions
 router.get(
@@ -32,12 +36,12 @@ router.get(
   auditLog({ action: 'READ', resourceType: 'charging_sessions' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const validation = chargingSessionSchema.safeParse(req.query);
+      const validation = chargingSessionSchema.safeParse(req.query)
       if (!validation.success) {
-        return res.status(400).json({ error: 'Invalid request parameters' });
+        return res.status(400).json({ error: 'Invalid request parameters' })
       }
-      const { page = '1', limit = '50' } = validation.data;
-      const offset = (Number(page) - 1) * Number(limit);
+      const { page = '1', limit = '50' } = validation.data
+      const offset = (Number(page) - 1) * Number(limit)
 
       const result = await pool.query(
         `SELECT 
@@ -78,19 +82,19 @@ router.get(
         ORDER BY created_at DESC 
         LIMIT $2 OFFSET $3`,
         [req.user!.tenant_id, limit, offset]
-      );
+      )
 
       const countResult = await pool.query(
         `SELECT COUNT(*) FROM charging_sessions WHERE tenant_id = $1`,
         [req.user!.tenant_id]
-      );
+      )
 
       res.json({
         data: result.rows.map(row => {
           Object.keys(row).forEach(key => {
-            row[key] = serialize(row[key]);
-          });
-          return row;
+            row[key] = serialize(row[key])
+          })
+          return row
         }),
         pagination: {
           page: Number(page),
@@ -98,13 +102,13 @@ router.get(
           total: parseInt(countResult.rows[0].count, 10),
           pages: Math.ceil(parseInt(countResult.rows[0].count, 10) / Number(limit)),
         },
-      });
+      })
     } catch (error) {
-      console.error(`Get charging-sessions error:`, error);
-      res.status(500).json({ error: 'Internal server error' });
+      console.error(`Get charging-sessions error:`, error)
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
-);
+)
 
 // GET /charging-sessions/:id
 router.get(
@@ -113,11 +117,11 @@ router.get(
   auditLog({ action: 'READ', resourceType: 'charging_sessions' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const idValidation = chargingSessionSchema.pick({ id: true }).safeParse(req.params);
+      const idValidation = chargingSessionSchema.pick({ id: true }).safeParse(req.params)
       if (!idValidation.success) {
-        return res.status(400).json({ error: 'Invalid ID parameter' });
+        return res.status(400).json({ error: 'Invalid ID parameter' })
       }
-      const { id } = idValidation.data;
+      const { id } = idValidation.data
 
       const result = await pool.query(
         `SELECT 
@@ -156,23 +160,23 @@ router.get(
         FROM charging_sessions 
         WHERE id = $1 AND tenant_id = $2`,
         [id, req.user!.tenant_id]
-      );
+      )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'Charging session not found' });
+        return res.status(404).json({ error: 'Charging session not found' })
       }
 
       const sanitizedData = Object.keys(result.rows[0]).reduce((acc, key) => {
-        acc[key] = serialize(result.rows[0][key]);
-        return acc;
-      }, {});
+        acc[key] = serialize(result.rows[0][key])
+        return acc
+      }, {})
 
-      res.json(sanitizedData);
+      res.json(sanitizedData)
     } catch (error) {
-      console.error(`Get charging-session by ID error:`, error);
-      res.status(500).json({ error: 'Internal server error' });
+      console.error(`Get charging-session by ID error:`, error)
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
-);
+)
 
-export default router;
+export default router
