@@ -456,7 +456,13 @@ export function checkBruteForce(identifierField: string = 'email') {
     const identifier = req.body?.[identifierField] || req.ip
 
     if (bruteForce.isLocked(identifier)) {
-      console.warn(`[SECURITY] Brute force blocked: ${identifier}`)
+      // SECURITY FIX (P0): Sanitize identifier to prevent log injection (CWE-117)
+      // Fingerprint: a9c6d2e8f4b7c3e9
+      const { sanitizeForLog } = require('../utils/logSanitizer')
+      console.warn('[SECURITY] Brute force blocked', {
+        identifier: sanitizeForLog(identifier, 100),
+        timestamp: new Date().toISOString()
+      })
 
       return res.status(429).json({
         success: false,
