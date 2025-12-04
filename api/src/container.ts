@@ -93,6 +93,10 @@ import MCPServerService from './services/mcp-server.service'
 import MCPServerRegistryService from './services/mcp-server-registry.service'
 import GoogleCalendarService from './services/google-calendar.service'
 import { OBD2ServiceBackend } from './services/obd2.service'
+import WebhookService from './services/webhook.service'
+import CalendarService from './services/calendar.service'
+import PresenceService from './services/presence.service'
+import ActionableMessagesService from './services/actionable-messages.service'
 
 // Import repository classes
 import { VehicleRepository } from './repositories/VehicleRepository'
@@ -197,6 +201,10 @@ export interface DIContainer extends AwilixContainer {
   mcpServerRegistryService: MCPServerRegistryService
   googleCalendarService: GoogleCalendarService
   obd2Service: OBD2ServiceBackend
+  webhookService: WebhookService
+  calendarService: CalendarService
+  presenceService: PresenceService
+  actionableMessagesService: ActionableMessagesService
 }
 
 /**
@@ -452,6 +460,18 @@ export function createDIContainer() {
       lifetime: Lifetime.SINGLETON
     }),
     obd2Service: asClass(OBD2ServiceBackend, {
+      lifetime: Lifetime.SINGLETON
+    }),
+    webhookService: asClass(WebhookService, {
+      lifetime: Lifetime.SINGLETON
+    }),
+    calendarService: asClass(CalendarService, {
+      lifetime: Lifetime.SINGLETON
+    }),
+    presenceService: asClass(PresenceService, {
+      lifetime: Lifetime.SINGLETON
+    }),
+    actionableMessagesService: asClass(ActionableMessagesService, {
       lifetime: Lifetime.SINGLETON
     })
   })
