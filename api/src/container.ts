@@ -40,6 +40,11 @@ import { RouteService } from './services/RouteService'
 import { OcrQueueService } from './services/OcrQueueService'
 import { OcrService } from './services/OcrService'
 import { SearchIndexService } from './services/SearchIndexService'
+import { VehiclesService } from './services/vehicles.service'
+import { DriversService } from './services/drivers.service'
+import { DriverScorecardService } from './services/driver-scorecard.service'
+import { FuelOptimizationService } from './services/fuel-optimization.service'
+import { FuelPurchasingService } from './services/fuel-purchasing.service'
 
 // Import Tier 3 Document Management services
 import DocumentAuditService from './services/document-audit.service'
@@ -129,6 +134,11 @@ export interface DIContainer extends AwilixContainer {
   ocrQueueService: OcrQueueService
   ocrService: OcrService
   searchIndexService: SearchIndexService
+  vehiclesService: VehiclesService
+  driversService: DriversService
+  driverScorecardService: DriverScorecardService
+  fuelOptimizationService: FuelOptimizationService
+  fuelPurchasingService: FuelPurchasingService
 
   // Repositories (data access layer)
   vehicleRepository: VehicleRepository
@@ -244,6 +254,21 @@ export function createDIContainer() {
       lifetime: Lifetime.SINGLETON
     }),
     searchIndexService: asClass(SearchIndexService, {
+      lifetime: Lifetime.SINGLETON
+    }),
+    vehiclesService: asClass(VehiclesService, {
+      lifetime: Lifetime.SINGLETON
+    }),
+    driversService: asClass(DriversService, {
+      lifetime: Lifetime.SINGLETON
+    }),
+    driverScorecardService: asClass(DriverScorecardService, {
+      lifetime: Lifetime.SINGLETON
+    }),
+    fuelOptimizationService: asClass(FuelOptimizationService, {
+      lifetime: Lifetime.SINGLETON
+    }),
+    fuelPurchasingService: asClass(FuelPurchasingService, {
       lifetime: Lifetime.SINGLETON
     })
   })
