@@ -10,7 +10,7 @@
 
 import OpenAI from 'openai'
 import Anthropic from '@anthropic-ai/sdk'
-import pool from '../config/database'
+import { Pool } from 'pg'
 import { randomUUID as uuidv4 } from 'crypto'
 import {
   getRelevantContext,
@@ -149,15 +149,15 @@ async function extractEntities(
   }
 
   // Get context from database (recent vehicles, vendors, drivers)
-  const vehiclesResult = await pool.query(
+  const vehiclesResult = await this.db.query(
     'SELECT id, fleet_number, license_plate, make, model FROM vehicles WHERE tenant_id = $1 LIMIT 20',
     [tenantId]
   )
-  const vendorsResult = await pool.query(
+  const vendorsResult = await this.db.query(
     'SELECT id, name FROM vendors WHERE tenant_id = $1 LIMIT 20',
     [tenantId]
   )
-  const driversResult = await pool.query(
+  const driversResult = await this.db.query(
     `SELECT id, first_name, last_name FROM drivers WHERE tenant_id = $1 LIMIT 20`,
     [tenantId]
   )
@@ -276,7 +276,11 @@ Make it natural and helpful. Be brief.`
 /**
  * Main conversational intake function
  */
-export async function processNaturalLanguageInput(
+
+export class AIIntakeService {
+  constructor(private db: Pool) {}
+
+  async processNaturalLanguageInput(
   userInput: string,
   context: ConversationContext
 ): Promise<IntakeResponse> {
@@ -338,7 +342,7 @@ export async function processNaturalLanguageInput(
     context.messages.push({ role: 'assistant', content: response })
 
     // Save conversation state to database
-    await pool.query(
+    await this.db.query(
       `INSERT INTO ai_conversations (
         tenant_id, user_id, conversation_id, intent, status,
         extracted_data, messages, completeness, missing_fields
@@ -429,7 +433,7 @@ function generateSmartSuggestions(context: ConversationContext): Array<{
 /**
  * Initialize a new conversation context
  */
-export function createConversationContext(tenantId: string, userId: string): ConversationContext {
+  createConversationContext(tenantId: string, userId: string): ConversationContext {
   return {
     conversationId: uuidv4(),
     tenantId,
@@ -442,3 +446,7 @@ export function createConversationContext(tenantId: string, userId: string): Con
     validationWarnings: []
   }
 }
+
+}
+
+export default AIIntakeService
