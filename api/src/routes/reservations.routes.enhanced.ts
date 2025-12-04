@@ -1,4 +1,7 @@
 import express, { Request, Response } from 'express';
+import { container } from '../container'
+import { asyncHandler } from '../middleware/error-handler'
+import { NotFoundError, ValidationError } from '../errors/app-error'
 import { Pool } from 'pg';
 import { z } from 'zod';
 import { authenticateJWT, AuthRequest } from '../middleware/auth';
@@ -37,7 +40,7 @@ const createReservationSchema = z.object({
   start_datetime: z.string().datetime('Invalid start datetime format'),
   end_datetime: z.string().datetime('Invalid end datetime format'),
   purpose: z.enum(['business', 'personal'], {
-    errorMap: () => ({ message: 'Purpose must be either "business" or "personal"' })
+    errorMap: () => ({ message: 'Purpose must be either "business" or "personal"' }))
   }),
   notes: z.string().max(1000, 'Notes cannot exceed 1000 characters').optional(),
   approval_required: z.boolean().optional().default(true),
@@ -63,7 +66,7 @@ const updateReservationSchema = z.object({
 
 const approvalActionSchema = z.object({
   action: z.enum(['approve', 'reject'], {
-    errorMap: () => ({ message: 'Action must be either "approve" or "reject"' })
+    errorMap: () => ({ message: 'Action must be either "approve" or "reject"' }))
   }),
   notes: z.string().max(500).optional(),
 });

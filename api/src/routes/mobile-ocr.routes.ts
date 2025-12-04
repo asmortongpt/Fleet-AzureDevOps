@@ -1,4 +1,7 @@
 /**
+import { container } from '../container'
+import { asyncHandler } from '../middleware/error-handler'
+import { NotFoundError, ValidationError } from '../errors/app-error'
 import logger from '../config/logger'; // Wave 33: Add Winston logger (FINAL WAVE!)
  * Mobile OCR API Routes
  *
@@ -18,7 +21,6 @@ import { authenticateJWT, AuthRequest } from '../middleware/auth';
 import { requirePermission } from '../middleware/permissions';
 import { auditLog } from '../middleware/audit';
 import ocrService from '../services/OcrService';
-import pool from '../config/database';
 import { getErrorMessage } from '../utils/error-handler'
 
 const router = express.Router();
@@ -59,7 +61,7 @@ const FuelReceiptOCRSchema = z.object({
       paymentMethod: z.string().optional(),
       notes: z.string().optional(),
       confidenceScores: z.record(z.number()).optional(),
-    })
+    }))
     .optional(),
 });
 
@@ -73,7 +75,7 @@ const OdometerOCRSchema = z.object({
       unit: z.enum(['miles', 'kilometers']),
       confidence: z.number().min(0).max(1),
       notes: z.string().optional(),
-    })
+    }))
     .optional(),
 });
 

@@ -1,24 +1,26 @@
-import express, { Response } from 'express';
-import { AuthRequest, authenticateJWT } from '../middleware/auth';
-import { requirePermission, rateLimit } from '../middleware/permissions';
-import { auditLog } from '../middleware/audit';
-import pool from '../config/database';
-import { z } from 'zod';
-import { buildInsertClause, buildUpdateClause } from '../utils/sql-safety';
-import helmet from 'helmet';
-import csurf from 'csurf';
+import express, { Response } from 'express'
+import { container } from '../container'
+import { asyncHandler } from '../middleware/error-handler'
+import { NotFoundError, ValidationError } from '../errors/app-error'
+import { AuthRequest, authenticateJWT } from '../middleware/auth'
+import { requirePermission, rateLimit } from '../middleware/permissions'
+import { auditLog } from '../middleware/audit'
+import { z } from 'zod'
+import { buildInsertClause, buildUpdateClause } from '../utils/sql-safety'
+import helmet from 'helmet'
+import csurf from 'csurf'
 
-const router = express.Router();
-router.use(authenticateJWT);
-router.use(helmet());
-router.use(csurf());
+const router = express.Router()
+router.use(authenticateJWT)
+router.use(helmet())
+router.use(csurf())
 
 const telemetrySchema = z.object({
   id: z.string().optional(),
   tenant_id: z.string(),
   data: z.any(),
   created_at: z.date().optional(),
-});
+})
 
 // Enhanced GET /telemetry with pagination and security improvements
 router.get(
@@ -28,18 +30,18 @@ router.get(
   auditLog({ action: 'READ', resourceType: 'telemetry_data' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const { page = 1, limit = 50 } = req.query;
-      const offset = (Number(page) - 1) * Number(limit);
+      const { page = 1, limit = 50 } = req.query
+      const offset = (Number(page) - 1) * Number(limit)
 
       const result = await pool.query(
         'SELECT * FROM telemetry_data WHERE tenant_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3',
         [req.user!.tenant_id, limit, offset]
-      );
+      )
 
       const countResult = await pool.query(
         'SELECT COUNT(*) FROM telemetry_data WHERE tenant_id = $1',
         [req.user!.tenant_id]
-      );
+      )
 
       res.json({
         data: result.rows.map(row => telemetrySchema.parse(row)),
@@ -49,13 +51,13 @@ router.get(
           total: parseInt(countResult.rows[0].count, 10),
           pages: Math.ceil(parseInt(countResult.rows[0].count, 10) / Number(limit)),
         },
-      });
+      })
     } catch (error) {
-      console.error(`Get telemetry error:`, error);
-      res.status(500).json({ error: 'Internal server error' });
+      console.error(`Get telemetry error:`, error)
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
-);
+)
 
 // Enhanced POST /telemetry with security and validation improvements
 router.post(
@@ -65,26 +67,22 @@ router.post(
   auditLog({ action: 'CREATE', resourceType: 'telemetry_data' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const data = telemetrySchema.parse(req.body);
+      const data = telemetrySchema.parse(req.body)
 
-      const { columnNames, placeholders, values } = buildInsertClause(
-        data,
-        ['tenant_id'],
-        1
-      );
+      const { columnNames, placeholders, values } = buildInsertClause(data, ['tenant_id'], 1)
 
       const result = await pool.query(
         `INSERT INTO telemetry_data (${columnNames}) VALUES (${placeholders}) RETURNING *`,
         [req.user!.tenant_id, ...values]
-      );
+      )
 
-      res.status(201).json(telemetrySchema.parse(result.rows[0]));
+      res.status(201).json(telemetrySchema.parse(result.rows[0]))
     } catch (error) {
-      console.error(`Create telemetry error:`, error);
-      res.status(500).json({ error: `Internal server error` });
+      console.error(`Create telemetry error:`, error)
+      res.status(500).json({ error: `Internal server error` })
     }
   }
-);
+)
 
 // Enhanced PUT /telemetry/:id with security and validation improvements
 router.put(
@@ -94,24 +92,26 @@ router.put(
   auditLog({ action: 'UPDATE', resourceType: 'telemetry_data' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const data = telemetrySchema.omit({ id: true, tenant_id: true, created_at: true }).parse(req.body);
-      const { fields, values } = buildUpdateClause(data, 3);
+      const data = telemetrySchema
+        .omit({ id: true, tenant_id: true, created_at: true })
+        .parse(req.body)
+      const { fields, values } = buildUpdateClause(data, 3)
 
       const result = await pool.query(
         `UPDATE telemetry_data SET ${fields} WHERE id = $1 AND tenant_id = $2 RETURNING *`,
         [req.params.id, req.user!.tenant_id, ...values]
-      );
+      )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'Telemetry not found' });
+        return res.status(404).json({ error: 'Telemetry not found' })
       }
 
-      res.json(telemetrySchema.parse(result.rows[0]));
+      res.json(telemetrySchema.parse(result.rows[0]))
     } catch (error) {
-      console.error(`Update telemetry error:`, error);
-      res.status(500).json({ error: `Internal server error` });
+      console.error(`Update telemetry error:`, error)
+      res.status(500).json({ error: `Internal server error` })
     }
   }
-);
+)
 
-export default router;
+export default router

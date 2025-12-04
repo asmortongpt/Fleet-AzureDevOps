@@ -1,4 +1,7 @@
 /**
+import { container } from '../container'
+import { asyncHandler } from '../middleware/error-handler'
+import { NotFoundError, ValidationError } from '../errors/app-error'
  * Document System - Master Route Registry
  * Registers all document-related routes in the Express app
  */
@@ -69,7 +72,7 @@ export function getDocumentSystemRoutes() {
       path: '/api/ocr',
       description: 'OCR processing and management',
       endpoints: 12
-    })
+    }))
   }
 
   if (documentSystemConfig.features.enableAI && documentSystemConfig.features.enableRAG) {
@@ -77,7 +80,7 @@ export function getDocumentSystemRoutes() {
       path: '/api/ai-search',
       description: 'AI-powered semantic search',
       endpoints: 8
-    })
+    }))
   }
 
   if (documentSystemConfig.features.enableAI) {
@@ -85,7 +88,7 @@ export function getDocumentSystemRoutes() {
       path: '/api/ai-chat',
       description: 'Document Q&A chat interface',
       endpoints: 6
-    })
+    }))
   }
 
   if (documentSystemConfig.features.enableGeospatial) {
@@ -93,21 +96,21 @@ export function getDocumentSystemRoutes() {
       path: '/api/documents/geo',
       description: 'Geospatial document features',
       endpoints: 10
-    })
+    }))
   }
 
   routes.push({
     path: '/api/search',
     description: 'Advanced document search',
     endpoints: 16
-  })
+  }))
 
   if (documentSystemConfig.features.enableExternalStorage) {
     routes.push({
       path: '/api/storage',
       description: 'Storage management and admin',
       endpoints: 12
-    })
+    }))
   }
 
   return routes
