@@ -14,7 +14,7 @@
 import { Server as SocketIOServer } from 'socket.io'
 import { Server as HTTPServer } from 'http'
 import jwt from 'jsonwebtoken'
-import pool from '../../config/database'
+import { Pool } from 'pg'
 
 // Allowlist of valid comment tables
 const COMMENT_TABLES = ['task_comments', 'asset_comments'] as const;
@@ -46,6 +46,7 @@ interface ActivityEvent {
 }
 
 export class CollaborationService {
+  constructor(private db: Pool) {}
   private io: SocketIOServer | null = null
   private activeUsers: Map<string, CollaborationUser> = new Map()
   private entityViewers: Map<string, Set<string>> = new Map() // entityId -> Set of userIds
@@ -247,7 +248,7 @@ export class CollaborationService {
 
       // Table and column names are validated/constant, safe to use in query
       const idColumn = data.entityType === 'task' ? 'task_id' : 'asset_id`
-      const result = await pool.query(
+      const result = await this.db.query(
         `INSERT INTO ${table} (${idColumn}, created_by, comment_text)
          VALUES ($1, $2, $3)
          RETURNING *`,
@@ -432,7 +433,7 @@ export class CollaborationService {
    */
   private async trackActivity(event: ActivityEvent): Promise<void> {
     try {
-      await pool.query(
+      await this.db.query(
         `INSERT INTO activity_log (entity_type, entity_id, event_type, user_id, user_name, event_data, created_at)
          VALUES ($1, $2, $3, $4, $5, $6, $7)`,
         [
