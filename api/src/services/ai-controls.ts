@@ -10,7 +10,7 @@
  */
 
 import OpenAI from 'openai'
-import pool from '../config/database'
+import { Pool } from 'pg'
 import {
   getRelevantContext,
   addConversationToRAG,
@@ -59,7 +59,7 @@ async function checkForFraud(
 
   // Duplicate transaction check
   if (transactionType === 'fuel_transaction') {
-    const duplicateCheck = await pool.query(
+    const duplicateCheck = await this.db.query(
       `SELECT COUNT(*) as count, array_agg(id) as ids
        FROM fuel_transactions
        WHERE tenant_id = $1
@@ -84,7 +84,7 @@ async function checkForFraud(
 
   // Impossible location check (vehicle can't be in two places at once)
   if (transaction.vehicle_id && transaction.location) {
-    const recentLocation = await pool.query(
+    const recentLocation = await this.db.query(
       `SELECT location, date
        FROM fuel_transactions
        WHERE tenant_id = $1
@@ -111,7 +111,7 @@ async function checkForFraud(
   if (transaction.date) {
     const hour = new Date(transaction.date).getHours()
     if (hour < 5 || hour > 22) {
-      const afterHoursCount = await pool.query(
+      const afterHoursCount = await this.db.query(
         `SELECT COUNT(*) as count
          FROM fuel_transactions
          WHERE tenant_id = $1
@@ -130,7 +130,7 @@ async function checkForFraud(
 
   // Same vendor, same amount pattern (card sharing)
   if (transactionType === 'fuel_transaction' && transaction.vendor_id && transaction.total_cost) {
-    const patternCheck = await pool.query(
+    const patternCheck = await this.db.query(
       `SELECT COUNT(DISTINCT vehicle_id) as vehicle_count
        FROM fuel_transactions
        WHERE tenant_id = $1
@@ -148,7 +148,7 @@ async function checkForFraud(
 
   // Frequency anomaly (too many transactions in short time)
   if (transaction.vehicle_id) {
-    const frequencyCheck = await pool.query(
+    const frequencyCheck = await this.db.query(
       `SELECT COUNT(*) as count
        FROM fuel_transactions
        WHERE tenant_id = $1
@@ -182,7 +182,7 @@ async function checkCompliance(
 
   // Vehicle compliance checks
   if (transaction.vehicle_id) {
-    const vehicleCompliance = await pool.query(
+    const vehicleCompliance = await this.db.query(
       `SELECT
          v.id,
          v.status,
@@ -235,7 +235,7 @@ async function checkCompliance(
 
   // Driver compliance checks
   if (transaction.driver_id) {
-    const driverCompliance = await pool.query(
+    const driverCompliance = await this.db.query(
       `SELECT
          d.id,
          d.license_expiration,
@@ -324,7 +324,7 @@ async function checkCostControls(
 
     // Check monthly budget
     if (transactionType === `fuel_transaction`) {
-      const monthlySpend = await pool.query(
+      const monthlySpend = await this.db.query(
         `SELECT COALESCE(SUM(total_cost), 0) as total
          FROM fuel_transactions
          WHERE tenant_id = $1
@@ -362,7 +362,7 @@ async function checkCostControls(
 
   // Vehicle-specific spending limits
   if (transaction.vehicle_id && transactionType === 'work_order') {
-    const vehicleSpend = await pool.query(
+    const vehicleSpend = await this.db.query(
       `SELECT COALESCE(SUM(actual_cost), 0) as total
        FROM work_orders
        WHERE vehicle_id = $1
@@ -474,7 +474,11 @@ Provide additional fraud analysis and return JSON:
 /**
  * Main control check function with RAG-enhanced fraud detection
  */
-export async function checkControls(
+
+export class AIControlsService {
+  constructor(private db: Pool) {}
+
+  async checkControls(
   transaction: any,
   transactionType: string,
   tenantId: string,
@@ -553,7 +557,7 @@ export async function checkControls(
     }
 
     // Save to database
-    await pool.query(
+    await this.db.query(
       `INSERT INTO ai_control_checks
        (tenant_id, user_id, transaction_type, transaction_data, passed,
         violations, required_approvals, automated_actions, severity, action_taken)
@@ -582,7 +586,7 @@ export async function checkControls(
 /**
  * Get control check history
  */
-export async function getControlCheckHistory(
+  async getControlCheckHistory(
   tenantId: string,
   filters?: {
     transactionType?: string
@@ -620,6 +624,10 @@ export async function getControlCheckHistory(
     params.push(filters.limit)
   }
 
-  const result = await pool.query(query, params)
+  const result = await this.db.query(query, params)
   return result.rows
 }
+
+}
+
+export default AIControlsService
