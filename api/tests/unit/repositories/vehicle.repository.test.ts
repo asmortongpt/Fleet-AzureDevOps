@@ -267,7 +267,8 @@ describe('VehicleRepository', () => {
 
       const call = mockPool.query.mock.calls[0];
       expect(call[0]).toContain('$1');
-      expect(call[0]).not.toContain(String(1));
+      // The query contains '1' in status = 'active' and tenant_id = $1, so we check parameters instead
+      expect(call[1]).toEqual([1]);
     });
   });
 
