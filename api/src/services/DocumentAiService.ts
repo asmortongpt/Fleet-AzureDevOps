@@ -13,9 +13,10 @@
  */
 
 import OpenAI from 'openai'
-import pool from '../config/database'
+import { Pool } from 'pg'
 import vectorSearchService from './VectorSearchService'
 import embeddingService from './EmbeddingService'
+import logger from '../utils/logger'
 
 export interface DocumentClassification {
   documentType: string
@@ -71,14 +72,14 @@ export class DocumentAiService {
   private model = 'gpt-4-turbo-preview'
   private visionModel = 'gpt-4-vision-preview'
 
-  constructor() {
+  constructor(private db: Pool, private logger: typeof logger) {
     if (process.env.OPENAI_API_KEY) {
       this.openai = new OpenAI({
         apiKey: process.env.OPENAI_API_KEY,
       })
-      console.log('✓ DocumentAI Service initialized')
+      this.logger.info('✓ DocumentAI Service initialized')
     } else {
-      console.warn(`⚠ OpenAI API key not found - DocumentAI will use mock responses`)
+      this.logger.warn(`⚠ OpenAI API key not found - DocumentAI will use mock responses`)
     }
   }
 
@@ -137,7 +138,7 @@ ${content.substring(0, 3000)}...`
         reasoning: result.reasoning,
       }
     } catch (error) {
-      console.error(`Document classification error:`, error)
+      this.logger.error(`Document classification error:`, error)
       return this.getMockClassification()
     }
   }
@@ -198,7 +199,7 @@ ${content.substring(0, 4000)}...`
         context: e.context,
       }))
     } catch (error) {
-      console.error('Entity extraction error:', error)
+      this.logger.error('Entity extraction error:', error)
       return this.getMockEntities()
     }
   }
@@ -276,7 +277,7 @@ ${content}`
 
       return summary
     } catch (error) {
-      console.error(`Summary generation error:`, error)
+      this.logger.error(`Summary generation error:`, error)
       return this.getMockSummary(content, summaryType)
     }
   }
@@ -366,7 +367,7 @@ If the context doesn't contain enough information, say so clearly. Always cite w
         modelUsed: this.model,
       }
     } catch (error) {
-      console.error('Q&A error:', error)
+      this.logger.error('Q&A error:', error)
       throw error
     }
   }
@@ -425,7 +426,7 @@ ${content.substring(0, 2000)}...`
         suggestions: result.suggestions || [],
       }
     } catch (error) {
-      console.error('Document validation error:', error)
+      this.logger.error('Document validation error:', error)
       return {
         isValid: true,
         qualityScore: 0.5,
@@ -480,7 +481,7 @@ ${content.substring(0, 2000)}...`
         aspects: result.aspects,
       }
     } catch (error) {
-      console.error('Sentiment analysis error:', error)
+      this.logger.error('Sentiment analysis error:', error)
       return { sentiment: 'neutral', score: 0 }
     }
   }
@@ -495,7 +496,7 @@ ${content.substring(0, 2000)}...`
     classification: any
   ): Promise<void> {
     try {
-      await pool.query(
+      await this.db.query(
         `INSERT INTO document_classifications (
           tenant_id, document_id, detected_type, confidence,
           primary_category, secondary_category, tags, model_name
@@ -520,7 +521,7 @@ ${content.substring(0, 2000)}...`
         ]
       )
     } catch (error) {
-      console.error('Error storing classification:', error)
+      this.logger.error('Error storing classification:', error)
     }
   }
 
@@ -531,14 +532,14 @@ ${content.substring(0, 2000)}...`
   ): Promise<void> {
     try {
       // Delete existing entities
-      await pool.query('DELETE FROM extracted_entities WHERE tenant_id = $1 AND document_id = $2', [
+      await this.db.query('DELETE FROM extracted_entities WHERE tenant_id = $1 AND document_id = $2', [
         tenantId,
         documentId,
       ])
 
       // Insert new entities
       for (const entity of entities) {
-        await pool.query(
+        await this.db.query(
           `INSERT INTO extracted_entities (
             tenant_id, document_id, entity_type, entity_value,
             entity_normalized, confidence, context_text
@@ -555,7 +556,7 @@ ${content.substring(0, 2000)}...`
         )
       }
     } catch (error) {
-      console.error('Error storing entities:', error)
+      this.logger.error('Error storing entities:', error)
     }
   }
 
@@ -565,7 +566,7 @@ ${content.substring(0, 2000)}...`
     summary: DocumentSummary
   ): Promise<void> {
     try {
-      await pool.query(
+      await this.db.query(
         `INSERT INTO document_summaries (
           tenant_id, document_id, summary_type, summary_text,
           key_points, keywords, sentiment, sentiment_score,
@@ -597,7 +598,7 @@ ${content.substring(0, 2000)}...`
         ]
       )
     } catch (error) {
-      console.error('Error storing summary:', error)
+      this.logger.error('Error storing summary:', error)
     }
   }
 
@@ -613,7 +614,7 @@ ${content.substring(0, 2000)}...`
       // Generate embedding for the query
       const queryEmbedding = await embeddingService.generateEmbedding(question)
 
-      await pool.query(
+      await this.db.query(
         `INSERT INTO rag_queries (
           tenant_id, user_id, query_text, query_embedding, query_type,
           results_count, results, top_similarity_score,
@@ -634,7 +635,7 @@ ${content.substring(0, 2000)}...`
         ]
       )
     } catch (error) {
-      console.error('Error storing query:', error)
+      this.logger.error('Error storing query:', error)
     }
   }
 
@@ -695,4 +696,4 @@ ${content.substring(0, 2000)}...`
   }
 }
 
-export default new DocumentAiService()
+export default DocumentAiService
