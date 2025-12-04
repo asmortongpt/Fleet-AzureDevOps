@@ -5,7 +5,7 @@
 
 import { google } from 'googleapis'
 import { OAuth2Client } from 'google-auth-library'
-import pool from '../config/database'
+import { Pool } from 'pg'
 import { safePost } from '../utils/ssrf-protection'
 
 // Allowed domains for Google Calendar OAuth requests
