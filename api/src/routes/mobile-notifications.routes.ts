@@ -597,7 +597,6 @@ router.get(
  * Handle Twilio delivery status webhooks
  */
 router.post('/webhooks/twilio', asyncHandler(async (req, res) => {
-// TODO: const service = container.resolve('"Service"')
   try {
     await smsService.handleWebhook(req.body);
 
