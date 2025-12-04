@@ -1,11 +1,12 @@
 import express, { Response } from 'express'
 import { container } from '../container'
-import { asyncHandler } from '../middleware/error-handler'
 import { NotFoundError, ValidationError } from '../errors/app-error'
 import { AuthRequest, authenticateJWT } from '../middleware/auth'
 import { requirePermission } from '../middleware/permissions'
 import { auditLog } from '../middleware/audit'
 import { z } from 'zod'
+import pool from '../config/database'
+import { tenantSafeQuery, validateTenantOwnership } from '../utils/dbHelpers'
 
 const router = express.Router()
 router.use(authenticateJWT)
@@ -39,9 +40,11 @@ router.post(
       const validated = elevationRequestSchema.parse(req.body)
 
       // Check if role allows JIT elevation
-      const roleResult = await pool.query(
-        `SELECT name, just_in_time_elevation_allowed FROM roles WHERE id = $1`,
-        [validated.role_id]
+      // SECURITY: Must verify role belongs to tenant to prevent cross-tenant privilege escalation
+      const roleResult = await tenantSafeQuery(
+        `SELECT name, just_in_time_elevation_allowed FROM roles WHERE id = $1 AND tenant_id = $2`,
+        [validated.role_id, req.user!.tenant_id],
+        req.user!.tenant_id
       )
 
       if (roleResult.rows.length === 0) {
@@ -58,11 +61,15 @@ router.post(
       }
 
       // Check if user already has an active elevation
-      const activeResult = await pool.query(
-        `SELECT id FROM break_glass_sessions
-         WHERE user_id = $1
-         AND status IN ('pending', 'active')',
-        [req.user!.id]
+      // SECURITY: Join with users table to enforce tenant isolation
+      const activeResult = await tenantSafeQuery(
+        `SELECT bg.id FROM break_glass_sessions bg
+         JOIN users u ON bg.user_id = u.id
+         WHERE bg.user_id = $1
+         AND u.tenant_id = $2
+         AND bg.status IN ('pending', 'active')`,
+        [req.user!.id, req.user!.tenant_id],
+        req.user!.tenant_id
       )
 
       if (activeResult.rows.length > 0) {
@@ -103,7 +110,7 @@ router.post(
       })
     } catch (error) {
       if (error instanceof z.ZodError) {
-        return res.status(400).json({ error: 'Validation failed', details: error.errors })
+        return res.status(400).json({ error: 'Validation failed', details: error.issues })
       }
       console.error('Break-glass request error:', error)
       res.status(500).json({ error: 'Internal server error' })
@@ -123,11 +130,11 @@ router.get(
     try {
       const { status = 'pending' } = req.query
 
-      const result = await pool.query(
+      const result = await tenantSafeQuery(
         `SELECT
            bg.*,
            u.email as requester_email,
-           u.first_name || ` ` || u.last_name as requester_name,
+           u.first_name || ' ' || u.last_name as requester_name,
            r.name as role_name
          FROM break_glass_sessions bg
          JOIN users u ON bg.user_id = u.id
@@ -135,7 +142,8 @@ router.get(
          WHERE u.tenant_id = $1
          AND ($2::varchar IS NULL OR bg.status = $2)
          ORDER BY bg.created_at DESC`,
-        [req.user!.tenant_id, status || null]
+        [req.user!.tenant_id, status || null],
+        req.user!.tenant_id
       )
 
       res.json({ data: result.rows })
@@ -160,12 +168,14 @@ router.post(
       const sessionId = req.params.id
 
       // Get the session
-      const sessionResult = await pool.query(
+      // SECURITY: Must verify session belongs to approver's tenant
+      const sessionResult = await tenantSafeQuery(
         `SELECT bg.*, u.tenant_id
          FROM break_glass_sessions bg
          JOIN users u ON bg.user_id = u.id
-         WHERE bg.id = $1`,
-        [sessionId]
+         WHERE bg.id = $1 AND u.tenant_id = $2`,
+        [sessionId, req.user!.tenant_id],
+        req.user!.tenant_id
       )
 
       if (sessionResult.rows.length === 0) {
@@ -173,11 +183,6 @@ router.post(
       }
 
       const session = sessionResult.rows[0]
-
-      // Verify tenant match
-      if (session.tenant_id !== req.user!.tenant_id) {
-        return res.status(403).json({ error: 'Access denied' })
-      }
 
       // Verify status is pending
       if (session.status !== 'pending') {
@@ -189,6 +194,9 @@ router.post(
       if (validated.approved) {
         // Approve and activate
         const endTime = new Date(Date.now() + session.max_duration_minutes * 60 * 1000)
+
+        // SECURITY: Verify session belongs to tenant before updating
+        await validateTenantOwnership('break_glass_sessions', sessionId, req.user!.tenant_id)
 
         await pool.query(
           `UPDATE break_glass_sessions
@@ -202,6 +210,7 @@ router.post(
         )
 
         // Create temporary user_role
+        // SECURITY: session.user_id and session.elevated_role_id already validated above via tenant-safe query
         await pool.query(
           `INSERT INTO user_roles (user_id, role_id, assigned_by, expires_at, is_active)
            VALUES ($1, $2, $3, $4, true)`,
@@ -209,11 +218,12 @@ router.post(
         )
 
         // Send notification to requester
+        // SECURITY: session.tenant_id and session.user_id already validated above via tenant-safe query
         await pool.query(
           `INSERT INTO notifications (tenant_id, user_id, notification_type, title, message, priority)
            VALUES ($1, $2, 'alert', 'Break-Glass Access Approved',
                    'Your emergency access request has been approved and is now active for ${session.max_duration_minutes} minutes. Ticket: ${session.ticket_reference}',
-                   'urgent')',
+                   'urgent')`,
           [session.tenant_id, session.user_id]
         )
 
@@ -224,6 +234,7 @@ router.post(
         })
       } else {
         // Deny
+        // SECURITY: Session already validated above via tenant-safe query
         await pool.query(
           `UPDATE break_glass_sessions
            SET status = 'revoked',
@@ -234,11 +245,12 @@ router.post(
         )
 
         // Send notification to requester
+        // SECURITY: session.tenant_id and session.user_id already validated above via tenant-safe query
         await pool.query(
           `INSERT INTO notifications (tenant_id, user_id, notification_type, title, message, priority)
            VALUES ($1, $2, 'alert', 'Break-Glass Access Denied',
                    'Your emergency access request has been denied. Reason: ${validated.notes || 'Not provided'}',
-                   'high')',
+                   'high')`,
           [session.tenant_id, session.user_id]
         )
 
@@ -246,7 +258,7 @@ router.post(
       }
     } catch (error) {
       if (error instanceof z.ZodError) {
-        return res.status(400).json({ error: 'Validation failed', details: error.errors })
+        return res.status(400).json({ error: 'Validation failed', details: error.issues })
       }
       console.error('Approve elevation error:', error)
       res.status(500).json({ error: 'Internal server error' })
@@ -265,12 +277,14 @@ router.post(
     try {
       const sessionId = req.params.id
 
-      const sessionResult = await pool.query(
+      // SECURITY: Must verify session belongs to current user's tenant
+      const sessionResult = await tenantSafeQuery(
         `SELECT bg.*, u.tenant_id
          FROM break_glass_sessions bg
          JOIN users u ON bg.user_id = u.id
-         WHERE bg.id = $1`,
-        [sessionId]
+         WHERE bg.id = $1 AND u.tenant_id = $2`,
+        [sessionId, req.user!.tenant_id],
+        req.user!.tenant_id
       )
 
       if (sessionResult.rows.length === 0) {
@@ -324,18 +338,22 @@ router.get(
   auditLog({ action: 'VIEW_ACTIVE_ELEVATIONS', resourceType: 'break_glass' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const result = await pool.query(
+      // SECURITY: Must verify user belongs to current tenant
+      const result = await tenantSafeQuery(
         `SELECT
            bg.*,
            r.name as role_name,
-           EXTRACT(EPOCH FROM (bg.end_time - NOW()) / 60 as minutes_remaining
+           EXTRACT(EPOCH FROM (bg.end_time - NOW())) / 60 as minutes_remaining
          FROM break_glass_sessions bg
+         JOIN users u ON bg.user_id = u.id
          JOIN roles r ON bg.elevated_role_id = r.id
          WHERE bg.user_id = $1
+         AND u.tenant_id = $2
          AND bg.status = 'active'
          AND bg.end_time > NOW()
          ORDER BY bg.end_time ASC`,
-        [req.user!.id]
+        [req.user!.id, req.user!.tenant_id],
+        req.user!.tenant_id
       )
 
       res.json({ data: result.rows })
@@ -361,7 +379,8 @@ async function notifyApprovers(
 ) {
   try {
     // Get all FleetAdmin users
-    const result = await pool.query(
+    // SECURITY: Already filtering by tenantId parameter
+    const result = await tenantSafeQuery(
       `SELECT DISTINCT u.id
        FROM users u
        JOIN user_roles ur ON u.id = ur.user_id
@@ -369,7 +388,8 @@ async function notifyApprovers(
        WHERE u.tenant_id = $1
        AND r.name = 'FleetAdmin'
        AND ur.is_active = true`,
-      [tenantId]
+      [tenantId],
+      tenantId
     )
 
     // Create notifications for each approver
@@ -380,7 +400,7 @@ async function notifyApprovers(
                  'Break-Glass Access Request Pending',
                  'User ${details.requester} has requested emergency access to role ${details.role}. Reason: ${details.reason}. Ticket: ${details.ticket}',
                  '/break-glass/requests/${sessionId}',
-                 'urgent')',
+                 'urgent')`,
         [tenantId, row.id]
       )
     )
