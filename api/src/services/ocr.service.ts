@@ -224,7 +224,7 @@ export class OcrService {
     console.log(`🔍 Processing document: ${doc.file_name} (${doc.mime_type})`)
 
     // Extract text
-    const ocrResult = await extractText(doc.blob_url, doc.mime_type)
+    const ocrResult = await this.extractText(doc.blob_url, doc.mime_type)
 
     // Update database with OCR text
     await this.db.query(
@@ -275,7 +275,7 @@ export class OcrService {
   // Process documents sequentially to avoid rate limits
   for (const documentId of documentIds) {
     try {
-      await processDocument(documentId)
+      await this.processDocument(documentId)
       results.successful.push(documentId)
     } catch (error) {
       results.failed.push({
@@ -341,7 +341,7 @@ export class OcrService {
  */
   getOcrStatus() {
   return {
-    configured: isOcrConfigured(),
+    configured: this.isOcrConfigured(),
     endpoint: AZURE_CV_ENDPOINT ? '***configured***' : 'not configured',
     supportedFormats: SUPPORTED_MIME_TYPES
   }
