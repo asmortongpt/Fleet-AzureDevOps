@@ -8,8 +8,8 @@
  * - Cost forecasting
  */
 
-import pool from '../config/database'
-import { logger } from '../utils/logger'
+import { Pool } from 'pg'
+import logger from '../utils/logger'
 
 export interface MaintenancePrediction {
   vehicle_id: string
@@ -53,6 +53,11 @@ export interface CostForecast {
 }
 
 class MLDecisionEngineService {
+  constructor(
+    private db: Pool,
+    private logger: typeof logger
+  ) {}
+
   /**
    * Predict vehicle maintenance needs
    */
@@ -62,7 +67,7 @@ class MLDecisionEngineService {
   ): Promise<MaintenancePrediction> {
     try {
       // Get active maintenance prediction model
-      const modelResult = await pool.query(
+      const modelResult = await this.db.query(
         `SELECT id, tenant_id, model_name, model_type, version, status, accuracy, created_at, updated_at FROM ml_models
          WHERE tenant_id = $1
            AND model_type = 'predictive_maintenance'
@@ -95,7 +100,7 @@ class MLDecisionEngineService {
 
       return prediction
     } catch (error: any) {
-      logger.error('Maintenance prediction error', { error: error.message, vehicleId })
+      this.logger.error('Maintenance prediction error', { error: error.message, vehicleId })
       throw error
     }
   }
@@ -130,7 +135,7 @@ class MLDecisionEngineService {
 
       return score
     } catch (error: any) {
-      logger.error('Driver behavior scoring error', { error: error.message, driverId })
+      this.logger.error('Driver behavior scoring error', { error: error.message, driverId })
       throw error
     }
   }
@@ -161,7 +166,7 @@ class MLDecisionEngineService {
 
       return riskPrediction
     } catch (error: any) {
-      logger.error('Incident risk prediction error', { error: error.message, entityType, entityId })
+      this.logger.error('Incident risk prediction error', { error: error.message, entityType, entityId })
       throw error
     }
   }
@@ -194,7 +199,7 @@ class MLDecisionEngineService {
 
       return forecast
     } catch (error: any) {
-      logger.error('Cost forecasting error', { error: error.message, forecastPeriod })
+      this.logger.error('Cost forecasting error', { error: error.message, forecastPeriod })
       throw error
     }
   }
@@ -229,7 +234,7 @@ class MLDecisionEngineService {
 
       return optimizedRoute
     } catch (error: any) {
-      logger.error(`Route optimization error`, { error: error.message })
+      this.logger.error(`Route optimization error`, { error: error.message })
       throw error
     }
   }
@@ -245,7 +250,7 @@ class MLDecisionEngineService {
   ): Promise<void> {
     try {
       // Update prediction with actual outcome
-      await pool.query(
+      await this.db.query(
         `UPDATE predictions
          SET actual_outcome = $1,
              outcome_date = NOW(),
@@ -262,7 +267,7 @@ class MLDecisionEngineService {
       )
 
       // Get prediction details
-      const predResult = await pool.query(
+      const predResult = await this.db.query(
         `SELECT 
       id,
       tenant_id,
@@ -287,7 +292,7 @@ class MLDecisionEngineService {
       const prediction = predResult.rows[0]
 
       // Create feedback loop entry
-      await pool.query(
+      await this.db.query(
         `INSERT INTO feedback_loops (
           tenant_id, prediction_id, model_id, feedback_type,
           original_prediction, actual_value, entity_type, entity_id,
@@ -307,9 +312,9 @@ class MLDecisionEngineService {
         ]
       )
 
-      logger.info('Actual outcome recorded for prediction', { predictionId })
+      this.logger.info('Actual outcome recorded for prediction', { predictionId })
     } catch (error: any) {
-      logger.error('Error recording actual outcome', { error: error.message, predictionId })
+      this.logger.error('Error recording actual outcome', { error: error.message, predictionId })
       throw error
     }
   }
@@ -319,7 +324,7 @@ class MLDecisionEngineService {
   // ============================================================================
 
   private async getVehicleFeatures(tenantId: string, vehicleId: string): Promise<any> {
-    const result = await pool.query(
+    const result = await this.db.query(
       `SELECT
         v.id,
         v.mileage,
@@ -411,7 +416,7 @@ class MLDecisionEngineService {
     // SECURITY: Use parameterized interval to prevent SQL injection
     const days = period === '7d' ? 7 : period === '30d' ? 30 : 90
 
-    const result = await pool.query(
+    const result = await this.db.query(
       `SELECT
         COUNT(*) as total_trips,
         AVG(CASE WHEN harsh_acceleration > 0 THEN 1 ELSE 0 END) as avg_harsh_acceleration,
@@ -516,7 +521,7 @@ class MLDecisionEngineService {
     // SECURITY: Use parameterized interval to prevent SQL injection
     const months = period === 'week' ? 1 : period === 'month' ? 3 : 12
 
-    const result = await pool.query(
+    const result = await this.db.query(
       `SELECT
         DATE_TRUNC('month', date) as month,
         SUM(fuel_cost) as fuel_cost,
@@ -614,7 +619,7 @@ class MLDecisionEngineService {
   }
 
   private async getActiveModel(tenantId: string, modelType: string): Promise<any> {
-    const result = await pool.query(
+    const result = await this.db.query(
       `SELECT id, tenant_id, model_name, model_type, version, status, accuracy, created_at, updated_at FROM ml_models
        WHERE tenant_id = $1 AND model_type = $2 AND is_active = true
        ORDER BY created_at DESC LIMIT 1`,
@@ -634,7 +639,7 @@ class MLDecisionEngineService {
     predictionValue: any,
     confidence: number
   ): Promise<void> {
-    await pool.query(
+    await this.db.query(
       `INSERT INTO predictions (
         tenant_id, model_id, prediction_type, entity_type, entity_id,
         input_features, prediction_value, confidence_score
@@ -681,5 +686,4 @@ class MLDecisionEngineService {
   }
 }
 
-export const mlDecisionEngineService = new MLDecisionEngineService()
-export default mlDecisionEngineService
+export default MLDecisionEngineService

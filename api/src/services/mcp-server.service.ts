@@ -3,7 +3,7 @@
  * Manages connections to Claude MCP servers for tool use and context management
  */
 
-import pool from '../config/database'
+import { Pool } from 'pg'
 import { logger } from '../utils/logger'
 import axios, { AxiosInstance } from 'axios'
 
@@ -42,7 +42,7 @@ class MCPServerService {
   private connections: Map<string, MCPServerConnection> = new Map()
   private heartbeatInterval: NodeJS.Timeout | null = null
 
-  constructor() {
+  constructor(private db: Pool) {
     this.startHeartbeatMonitor()
   }
 
@@ -51,7 +51,7 @@ class MCPServerService {
    */
   async connectServer(serverId: string, tenantId: string): Promise<boolean> {
     try {
-      const result = await pool.query(
+      const result = await this.db.query(
         `SELECT id, tenant_id, server_name, server_url, status, last_health_check, created_at, updated_at FROM mcp_servers
          WHERE id = $1 AND tenant_id = $2 AND is_active = true`,
         [serverId, tenantId]
@@ -233,7 +233,7 @@ class MCPServerService {
       configuration?: Record<string, any>
     }
   ): Promise<MCPServer> {
-    const result = await pool.query(
+    const result = await this.db.query(
       `INSERT INTO mcp_servers (
         tenant_id, server_name, server_type, connection_url,
         configuration, is_active, connection_status, created_by
@@ -267,7 +267,7 @@ class MCPServerService {
    * Get all active servers for tenant
    */
   async getActiveServers(tenantId: string): Promise<MCPServer[]> {
-    const result = await pool.query(
+    const result = await this.db.query(
       `SELECT id, tenant_id, server_name, server_url, status, last_health_check, created_at, updated_at FROM mcp_servers
        WHERE tenant_id = $1 AND is_active = true
        ORDER BY server_name`,
@@ -285,7 +285,7 @@ class MCPServerService {
     status: string,
     errorMessage: string | null
   ): Promise<void> {
-    await pool.query(
+    await this.db.query(
       `UPDATE mcp_servers
        SET connection_status = $1,
            error_message = $2,
@@ -310,7 +310,7 @@ class MCPServerService {
     status: string,
     errorMessage: string | null
   ): Promise<void> {
-    await pool.query(
+    await this.db.query(
       `INSERT INTO mcp_tool_executions (
         tenant_id, server_id, tool_name, input_parameters,
         output_result, execution_time_ms, status, error_message, user_id
