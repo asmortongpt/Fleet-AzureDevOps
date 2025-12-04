@@ -3,8 +3,8 @@
  * Manages automated model training, retraining, versioning, and A/B testing
  */
 
-import pool from '../config/database'
-import { logger } from '../utils/logger'
+import { Pool } from 'pg'
+import logger from '../utils/logger'
 
 export interface TrainingConfig {
   model_name: string
@@ -40,7 +40,10 @@ class MLTrainingService {
   private trainingQueue: Map<string, any> = new Map()
   private trainingSchedule: NodeJS.Timeout | null = null
 
-  constructor() {
+  constructor(
+    private db: Pool,
+    private logger: typeof logger
+  ) {
     this.startScheduledTraining()
   }
 
@@ -52,7 +55,7 @@ class MLTrainingService {
     userId: string,
     config: TrainingConfig
   ): Promise<TrainingResult> {
-    logger.info('Starting model training', { tenantId, modelType: config.model_type })
+    this.logger.info('Starting model training', { tenantId, modelType: config.model_type })
 
     const startTime = Date.now()
 
@@ -111,7 +114,7 @@ class MLTrainingService {
       await this.updateJobStatus(jobId, 'completed', null)
       await this.updateJobWithModel(jobId, modelId, duration, dataSplits)
 
-      logger.info('Model training completed', {
+      this.logger.info('Model training completed', {
         tenantId,
         jobId,
         modelId,
@@ -126,7 +129,7 @@ class MLTrainingService {
         duration_seconds: duration
       }
     } catch (error: any) {
-      logger.error('Model training failed', { error: error.message, config })
+      this.logger.error('Model training failed', { error: error.message, config })
 
       return {
         job_id: 'unknown',
@@ -147,10 +150,10 @@ class MLTrainingService {
     modelId: string,
     schedule: 'daily' | 'weekly' | 'monthly'
   ): Promise<void> {
-    logger.info('Scheduling model retraining', { tenantId, modelId, schedule })
+    this.logger.info('Scheduling model retraining', { tenantId, modelId, schedule })
 
     // Store retraining schedule in model metadata
-    await pool.query(
+    await this.db.query(
       `UPDATE ml_models
        SET hyperparameters = jsonb_set(
          COALESCE(hyperparameters, '{}'::jsonb),
@@ -161,7 +164,7 @@ class MLTrainingService {
       [JSON.stringify({ schedule, last_retrain: null }), modelId, tenantId]
     )
 
-    logger.info('Retraining scheduled', { modelId, schedule })
+    this.logger.info('Retraining scheduled', { modelId, schedule })
   }
 
   /**
@@ -172,10 +175,10 @@ class MLTrainingService {
     userId: string,
     config: ABTestConfig
   ): Promise<string> {
-    logger.info('Creating A/B test', { tenantId, testName: config.test_name })
+    this.logger.info('Creating A/B test', { tenantId, testName: config.test_name })
 
     // SECURITY: Use parameterized interval to prevent SQL injection
-    const result = await pool.query(
+    const result = await this.db.query(
       `INSERT INTO model_ab_tests (
         tenant_id, test_name, model_a_id, model_b_id,
         traffic_split_percent, status, start_date, end_date, created_by
@@ -195,7 +198,7 @@ class MLTrainingService {
 
     const testId = result.rows[0].id
 
-    logger.info('A/B test created', { testId, testName: config.test_name })
+    this.logger.info('A/B test created', { testId, testName: config.test_name })
 
     return testId
   }
@@ -204,7 +207,7 @@ class MLTrainingService {
    * Get A/B test results
    */
   async getABTestResults(testId: string, tenantId: string): Promise<any> {
-    const result = await pool.query(
+    const result = await this.db.query(
       `SELECT 
       id,
       tenant_id,
@@ -250,7 +253,7 @@ class MLTrainingService {
     const winner = this.determineABTestWinner(modelAMetrics, modelBMetrics)
 
     // Update test with results
-    await pool.query(
+    await this.db.query(
       `UPDATE model_ab_tests
        SET model_a_metrics = $1,
            model_b_metrics = $2,
@@ -290,7 +293,7 @@ class MLTrainingService {
    * Deploy model (make it active)
    */
   async deployModel(modelId: string, tenantId: string, userId: string): Promise<void> {
-    logger.info('Deploying model', { modelId, tenantId })
+    this.logger.info('Deploying model', { modelId, tenantId })
 
     const client = await pool.connect()
 
@@ -329,7 +332,7 @@ class MLTrainingService {
 
       await client.query('COMMIT')
 
-      logger.info('Model deployed successfully', { modelId, modelType })
+      this.logger.info('Model deployed successfully', { modelId, modelType })
     } catch (error) {
       await client.query('ROLLBACK')
       throw error
@@ -342,10 +345,10 @@ class MLTrainingService {
    * Rollback to previous model version
    */
   async rollbackModel(modelType: string, tenantId: string): Promise<string> {
-    logger.info('Rolling back model', { modelType, tenantId })
+    this.logger.info('Rolling back model', { modelType, tenantId })
 
     // Get previous active model
-    const result = await pool.query(
+    const result = await this.db.query(
       `SELECT id, version FROM ml_models
        WHERE tenant_id = $1 AND model_type = $2 AND status = 'deployed'
        ORDER BY deployed_at DESC
@@ -362,7 +365,7 @@ class MLTrainingService {
     // Deploy previous version
     await this.deployModel(previousModelId, tenantId, 'system')
 
-    logger.info(`Model rolled back`, { previousModelId, modelType })
+    this.logger.info(`Model rolled back`, { previousModelId, modelType })
 
     return previousModelId
   }
@@ -374,7 +377,7 @@ class MLTrainingService {
     modelId: string,
     tenantId: string
   ): Promise<any[]> {
-    const result = await pool.query(
+    const result = await this.db.query(
       `SELECT id, tenant_id, model_name, metric_name, metric_value, evaluation_date FROM model_performance
        WHERE model_id = $1 AND tenant_id = $2
        ORDER BY evaluation_date DESC`,
@@ -394,7 +397,7 @@ class MLTrainingService {
     const comparisons: any[] = []
 
     for (const modelId of modelIds) {
-      const modelResult = await pool.query(
+      const modelResult = await this.db.query(
         `SELECT m.*, mp.metrics
          FROM ml_models m
          LEFT JOIN model_performance mp ON m.id = mp.model_id
@@ -424,7 +427,7 @@ class MLTrainingService {
     userId: string,
     config: TrainingConfig
   ): Promise<string> {
-    const result = await pool.query(
+    const result = await this.db.query(
       `INSERT INTO training_jobs (
         tenant_id, job_name, model_type, status, training_config,
         data_source, data_filters, train_start_date, train_end_date,
@@ -458,7 +461,7 @@ class MLTrainingService {
     status: string,
     errorMessage: string | null
   ): Promise<void> {
-    await pool.query(
+    await this.db.query(
       `UPDATE training_jobs
        SET status = $1,
            error_message = $2,
@@ -476,7 +479,7 @@ class MLTrainingService {
     duration: number,
     dataSplits: any
   ): Promise<void> {
-    await pool.query(
+    await this.db.query(
       `UPDATE training_jobs
        SET model_id = $1,
            duration_seconds = $2,
@@ -503,7 +506,7 @@ class MLTrainingService {
   ): Promise<any[]> {
     // This would fetch actual training data based on model type
     // For now, return mock data structure
-    logger.info('Fetching training data', { modelType: config.model_type })
+    this.logger.info('Fetching training data', { modelType: config.model_type })
 
     // In production, this would query relevant tables based on model type
     // e.g., for predictive maintenance: vehicle history, work orders, telemetry
@@ -535,7 +538,7 @@ class MLTrainingService {
     hyperparameters: Record<string, any>,
     dataSplits: any
   ): Promise<any> {
-    logger.info('Executing model training', { modelType, algorithm })
+    this.logger.info('Executing model training', { modelType, algorithm })
 
     // In production, this would:
     // 1. Use TensorFlow.js, scikit-learn via Python bridge, or cloud ML services
@@ -552,7 +555,7 @@ class MLTrainingService {
   }
 
   private async evaluateModel(model: any, testData: any[]): Promise<Record<string, any>> {
-    logger.info('Evaluating model performance')
+    this.logger.info('Evaluating model performance')
 
     // In production, this would evaluate against test set
     // For now, return mock metrics
@@ -576,7 +579,7 @@ class MLTrainingService {
     dataInfo: any
   ): Promise<string> {
     // Generate version number
-    const versionResult = await pool.query(
+    const versionResult = await this.db.query(
       `SELECT COALESCE(MAX(CAST(version AS INTEGER)), 0) + 1 as next_version
        FROM ml_models
        WHERE tenant_id = $1 AND model_name = $2',
@@ -585,7 +588,7 @@ class MLTrainingService {
 
     const version = versionResult.rows[0].next_version.toString()
 
-    const result = await pool.query(
+    const result = await this.db.query(
       `INSERT INTO ml_models (
         tenant_id, model_name, model_type, version, algorithm,
         framework, hyperparameters, feature_importance,
@@ -616,7 +619,7 @@ class MLTrainingService {
     metrics: Record<string, any>,
     datasetType: string
   ): Promise<void> {
-    await pool.query(
+    await this.db.query(
       `INSERT INTO model_performance (
         model_id, tenant_id, dataset_type, metrics,
         accuracy, precision_score, recall, f1_score, mae, rmse, r2_score
@@ -642,7 +645,7 @@ class MLTrainingService {
     startDate: Date,
     endDate: Date
   ): Promise<any> {
-    const result = await pool.query(
+    const result = await this.db.query(
       `SELECT
         COUNT(*) as prediction_count,
         AVG(CASE WHEN is_correct THEN 1.0 ELSE 0.0 END) as accuracy,
@@ -706,9 +709,9 @@ class MLTrainingService {
     // Check for scheduled retraining every 24 hours
     this.trainingSchedule = setInterval(async () => {
       try {
-        logger.info(`Checking for scheduled model retraining`)
+        this.logger.info(`Checking for scheduled model retraining`)
 
-        const result = await pool.query(`
+        const result = await this.db.query(`
           SELECT id, tenant_id, model_name, model_type, hyperparameters
           FROM ml_models
           WHERE is_active = true
@@ -722,7 +725,7 @@ class MLTrainingService {
           const shouldRetrain = this.shouldRetrainNow(schedule.schedule, lastRetrain)
 
           if (shouldRetrain) {
-            logger.info('Triggering scheduled retraining', { modelId: model.id })
+            this.logger.info('Triggering scheduled retraining', { modelId: model.id })
 
             // Trigger retraining (this would be done asynchronously)
             this.trainModel(model.tenant_id, 'system', {
@@ -732,12 +735,12 @@ class MLTrainingService {
               hyperparameters: model.hyperparameters,
               data_source: 'production'
             }).catch(error => {
-              logger.error('Scheduled retraining failed', { modelId: model.id, error })
+              this.logger.error('Scheduled retraining failed', { modelId: model.id, error })
             })
           }
         }
       } catch (error) {
-        logger.error('Error in scheduled training check', { error })
+        this.logger.error('Error in scheduled training check', { error })
       }
     }, 24 * 60 * 60 * 1000) // 24 hours
   }
@@ -764,9 +767,8 @@ class MLTrainingService {
     if (this.trainingSchedule) {
       clearInterval(this.trainingSchedule)
     }
-    logger.info('ML training service shut down')
+    this.logger.info('ML training service shut down')
   }
 }
 
-export const mlTrainingService = new MLTrainingService()
-export default mlTrainingService
+export default MLTrainingService
