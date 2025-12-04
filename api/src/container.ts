@@ -68,8 +68,10 @@ import AIAgentSupervisorService from './services/ai-agent-supervisor.service'
 import AIControlsService from './services/ai-controls.service'
 import AIIntakeService from './services/ai-intake.service'
 import AIOcrService from './services/ai-ocr.service'
+import AITaskPrioritizationService from './services/ai-task-prioritization'
 import AIValidationService from './services/ai-validation.service'
 import FleetCognitionService from './services/fleet-cognition.service'
+import OpenAIService from './services/openai'
 import FleetOptimizerService from './services/fleet-optimizer.service'
 import LangChainOrchestratorService from './services/langchain-orchestrator.service'
 import MLDecisionEngineService from './services/ml-decision-engine.service'
@@ -192,8 +194,10 @@ export interface DIContainer extends AwilixContainer {
   aiControlsService: AIControlsService
   aiIntakeService: AIIntakeService
   aiOcrService: AIOcrService
+  aiTaskPrioritizationService: AITaskPrioritizationService
   aiValidationService: AIValidationService
   fleetCognitionService: FleetCognitionService
+  openAIService: OpenAIService
   fleetOptimizerService: FleetOptimizerService
   langchainOrchestratorService: LangChainOrchestratorService
   mlDecisionEngineService: MLDecisionEngineService
@@ -422,10 +426,16 @@ export function createDIContainer() {
     aiOcrService: asClass(AIOcrService, {
       lifetime: Lifetime.SINGLETON
     }),
+    aiTaskPrioritizationService: asClass(AITaskPrioritizationService, {
+      lifetime: Lifetime.SINGLETON
+    }),
     aiValidationService: asClass(AIValidationService, {
       lifetime: Lifetime.SINGLETON
     }),
     fleetCognitionService: asClass(FleetCognitionService, {
+      lifetime: Lifetime.SINGLETON
+    }),
+    openAIService: asClass(OpenAIService, {
       lifetime: Lifetime.SINGLETON
     }),
     fleetOptimizerService: asClass(FleetOptimizerService, {
