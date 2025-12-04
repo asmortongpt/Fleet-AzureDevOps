@@ -13,7 +13,7 @@
 import { Client } from '@microsoft/microsoft-graph-client'
 import { TokenCredentialAuthenticationProvider } from '@microsoft/microsoft-graph-client/authProviders/azureTokenCredentials'
 import { ClientSecretCredential } from '@azure/identity'
-import pool from '../config/database'
+import { Pool } from 'pg'
 import * as crypto from 'crypto'
 import axios from 'axios'
 import { analyzeDocument } from './ai-ocr'
@@ -104,7 +104,7 @@ export interface OutlookEmail {
 class WebhookService {
   private graphClient: Client | null = null
 
-  constructor() {
+  constructor(private db: Pool) {
     this.initializeGraphClient()
   }
 
@@ -170,7 +170,7 @@ class WebhookService {
       console.log('✅ Teams subscription created:', subscription.id)
 
       // Store subscription in database
-      await pool.query(
+      await this.db.query(
         `INSERT INTO webhook_subscriptions
          (subscription_id, resource, change_type, notification_url, expiration_date_time,
           client_state, status, subscription_type, tenant_id, team_id, channel_id, metadata)
@@ -232,7 +232,7 @@ class WebhookService {
       console.log('✅ Outlook subscription created:', subscription.id)
 
       // Store subscription in database
-      await pool.query(
+      await this.db.query(
         `INSERT INTO webhook_subscriptions
          (subscription_id, resource, change_type, notification_url, expiration_date_time,
           client_state, status, subscription_type, tenant_id, user_email, folder_id, metadata)
@@ -270,7 +270,7 @@ class WebhookService {
 
     try {
       // Get subscription details from database
-      const result = await pool.query(
+      const result = await this.db.query(
         `SELECT subscription_id, resource, change_type, notification_url,
                 expiration_date_time, client_state, status, subscription_type,
                 tenant_id, team_id, channel_id, user_email, folder_id,
@@ -302,7 +302,7 @@ class WebhookService {
         })
 
       // Update database
-      await pool.query(
+      await this.db.query(
         `UPDATE webhook_subscriptions
          SET expiration_date_time = $1,
              last_renewed_at = NOW(),
@@ -317,7 +317,7 @@ class WebhookService {
       console.error('Failed to renew subscription:', subscriptionId, error.message)
 
       // Increment failure count
-      await pool.query(
+      await this.db.query(
         `UPDATE webhook_subscriptions
          SET renewal_failure_count = renewal_failure_count + 1
          WHERE subscription_id = $1`,
@@ -343,7 +343,7 @@ class WebhookService {
         .delete()
 
       // Update database
-      await pool.query(
+      await this.db.query(
         `UPDATE webhook_subscriptions
          SET status = `deleted`
          WHERE subscription_id = $1',
@@ -387,7 +387,7 @@ class WebhookService {
       console.log('📨 Processing Teams notification:', { subscriptionId, resource, changeType })
 
       // Store webhook event
-      const eventResult = await pool.query(
+      const eventResult = await this.db.query(
         `INSERT INTO webhook_events
          (subscription_id, change_type, resource, resource_data)
          VALUES ($1, $2, $3, $4)
@@ -419,7 +419,7 @@ class WebhookService {
       )
 
       // Store in communications table
-      const commResult = await pool.query(
+      const commResult = await this.db.query(
         `INSERT INTO communications
          (communication_type, from_contact_name, from_contact_email, subject, body,
           communication_datetime, ai_detected_category, source_platform, source_platform_id,
@@ -455,7 +455,7 @@ class WebhookService {
       }
 
       // Update webhook event as processed
-      await pool.query(
+      await this.db.query(
         `UPDATE webhook_events
          SET processed = true, processed_at = NOW(), communication_id = $1
          WHERE id = $2',
@@ -477,7 +477,7 @@ class WebhookService {
       console.error('Failed to process Teams notification:', error.message)
 
       // Log error in webhook_events
-      await pool.query(
+      await this.db.query(
         `UPDATE webhook_events
          SET error = $1
          WHERE subscription_id = $2 AND resource = $3',
@@ -498,7 +498,7 @@ class WebhookService {
       console.log('📧 Processing Outlook notification:', { subscriptionId, resource, changeType })
 
       // Store webhook event
-      const eventResult = await pool.query(
+      const eventResult = await this.db.query(
         `INSERT INTO webhook_events
          (subscription_id, change_type, resource, resource_data)
          VALUES ($1, $2, $3, $4)
@@ -529,7 +529,7 @@ class WebhookService {
       const priority = email.importance === 'high' || category === 'Critical' ? 'High' : 'Normal'
 
       // Store in communications table
-      const commResult = await pool.query(
+      const commResult = await this.db.query(
         `INSERT INTO communications
          (communication_type, from_contact_name, from_contact_email, subject, body,
           communication_datetime, ai_detected_category, ai_detected_priority,
@@ -570,7 +570,7 @@ class WebhookService {
       }
 
       // Update webhook event as processed
-      await pool.query(
+      await this.db.query(
         `UPDATE webhook_events
          SET processed = true, processed_at = NOW(), communication_id = $1
          WHERE id = $2',
@@ -591,7 +591,7 @@ class WebhookService {
       console.error('Failed to process Outlook notification:', error.message)
 
       // Log error in webhook_events
-      await pool.query(
+      await this.db.query(
         `UPDATE webhook_events
          SET error = $1
          WHERE subscription_id = $2 AND resource = $3',
@@ -707,7 +707,7 @@ class WebhookService {
             throw error
           }
 
-          await pool.query(
+          await this.db.query(
             `INSERT INTO communication_attachments
              (communication_id, file_name, file_url, file_type, file_size)
              VALUES ($1, $2, $3, $4, $5)`,
@@ -740,7 +740,7 @@ class WebhookService {
         .get()
 
       for (const attachment of attachments.value || []) {
-        await pool.query(
+        await this.db.query(
           `INSERT INTO communication_attachments
            (communication_id, file_name, file_type, file_size, attachment_data)
            VALUES ($1, $2, $3, $4, $5)`,
@@ -810,7 +810,7 @@ class WebhookService {
       const extracted = JSON.parse(completion.choices[0].message.content || `{}`)
 
       // Store extracted data in metadata
-      await pool.query(
+      await this.db.query(
         `UPDATE communications
          SET metadata = jsonb_set(COALESCE(metadata, '{}'::jsonb), '{extracted_data}', $1::jsonb)
          WHERE id = $2',
@@ -847,7 +847,7 @@ class WebhookService {
   async renewExpiringSubscriptions(): Promise<void> {
     try {
       // Find subscriptions expiring in the next 12 hours
-      const result = await pool.query(
+      const result = await this.db.query(
         `SELECT subscription_id, subscription_type
          FROM webhook_subscriptions
          WHERE status = 'active'
@@ -874,7 +874,7 @@ class WebhookService {
    */
   async cleanupExpiredSubscriptions(): Promise<void> {
     try {
-      await pool.query(
+      await this.db.query(
         `UPDATE webhook_subscriptions
          SET status = 'expired'
          WHERE status = 'active'
@@ -888,4 +888,4 @@ class WebhookService {
   }
 }
 
-export default new WebhookService()
+export default WebhookService
