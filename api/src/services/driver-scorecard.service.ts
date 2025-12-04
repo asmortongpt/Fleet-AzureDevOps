@@ -4,7 +4,7 @@
  * Manages driver performance scoring, leaderboards, and gamification
  */
 
-import pool from '../config/database'
+import { Pool } from 'pg'
 import driverScoringModel, { DriverMetrics } from '../ml-models/driver-scoring.model'
 
 export interface DriverScorecard {
@@ -45,6 +45,8 @@ export interface Achievement {
 }
 
 export class DriverScorecardService {
+  constructor(private db: Pool) {}
+
   /**
    * Calculate and save driver scores for a period
    */
@@ -148,7 +150,7 @@ export class DriverScorecardService {
       await client.query('COMMIT')
 
       // Get driver name
-      const driverResult = await pool.query(
+      const driverResult = await this.db.query(
         `SELECT first_name, last_name FROM drivers WHERE id = $1`,
         [driverId]
       )
@@ -157,7 +159,7 @@ export class DriverScorecardService {
         : 'Unknown'
 
       // Get rank
-      const rankResult = await pool.query(
+      const rankResult = await this.db.query(
         'SELECT rank_position FROM driver_scores WHERE id = $1',
         [scoreResult.rows[0].id]
       )
@@ -195,7 +197,7 @@ export class DriverScorecardService {
     periodEnd: Date
   ): Promise<DriverMetrics> {
     // Safety metrics from incidents and video events
-    const safetyResult = await pool.query(
+    const safetyResult = await this.db.query(
       `SELECT
          COUNT(CASE WHEN si.incident_type IN ('accident', 'collision') THEN 1 END) as incidents_count,
          COUNT(CASE WHEN ve.event_type = 'speed_violation' THEN 1 END) as violations_count,
@@ -214,7 +216,7 @@ export class DriverScorecardService {
     )
 
     // Efficiency metrics from trips and fuel
-    const efficiencyResult = await pool.query(
+    const efficiencyResult = await this.db.query(
       `SELECT
          COALESCE(AVG(ft.fuel_economy), 8.0) as avg_fuel_economy,
          COALESCE(SUM(EXTRACT(EPOCH FROM (t.trip_end - t.trip_start)) / 3600), 0) as total_hours,
@@ -230,7 +232,7 @@ export class DriverScorecardService {
     )
 
     // Compliance metrics
-    const complianceResult = await pool.query(
+    const complianceResult = await this.db.query(
       `SELECT
          COUNT(CASE WHEN hos_violation = true THEN 1 END) as hos_violations_count,
          COUNT(i.id) as total_inspections,
@@ -342,7 +344,7 @@ export class DriverScorecardService {
 
     params.push(limit)
 
-    const result = await pool.query(query, params)
+    const result = await this.db.query(query, params)
 
     return result.rows.map(row => ({
       rank: row.rank || 0,
@@ -361,7 +363,7 @@ export class DriverScorecardService {
    * Get driver achievements
    */
   async getDriverAchievements(driverId: string, tenantId: string): Promise<Achievement[]> {
-    const result = await pool.query(
+    const result = await this.db.query(
       `SELECT ` + (await getTableColumns(pool, `driver_achievements`)).join(', ') + ' FROM driver_achievements
        WHERE driver_id = $1 AND tenant_id = $2
        ORDER BY earned_at DESC`,
@@ -390,7 +392,7 @@ export class DriverScorecardService {
     // Validate and sanitize months parameter
     const monthsNum = Math.max(1, Math.min(24, months || 6))
 
-    const result = await pool.query(
+    const result = await this.db.query(
       `SELECT
          period_start,
          period_end,
@@ -419,7 +421,7 @@ export class DriverScorecardService {
     periodEnd: Date
   ): Promise<void> {
     // Get all active drivers
-    const result = await pool.query(
+    const result = await this.db.query(
       'SELECT id FROM drivers WHERE tenant_id = $1 AND status = $2',
       [tenantId, 'active']
     )
@@ -435,4 +437,4 @@ export class DriverScorecardService {
   }
 }
 
-export default new DriverScorecardService()
+export default DriverScorecardService
