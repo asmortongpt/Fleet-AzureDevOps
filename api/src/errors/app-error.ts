@@ -1,48 +1,41 @@
 export class AppError extends Error {
   constructor(
     public message: string,
-    public statusCode: number,
-    public code: string,
+    public statusCode: number = 500,
     public isOperational: boolean = true
   ) {
-    super(message)
-    this.name = this.constructor.name
-    Error.captureStackTrace(this, this.constructor)
+    super(message);
+    Object.setPrototypeOf(this, new.target.prototype);
+    Error.captureStackTrace(this);
   }
 }
 
 export class ValidationError extends AppError {
   constructor(message: string) {
-    super(message, 400, 'VALIDATION_ERROR')
+    super(message, 400);
   }
 }
 
 export class UnauthorizedError extends AppError {
   constructor(message: string = 'Unauthorized') {
-    super(message, 401, 'UNAUTHORIZED')
+    super(message, 401);
   }
 }
 
 export class ForbiddenError extends AppError {
   constructor(message: string = 'Forbidden') {
-    super(message, 403, 'FORBIDDEN')
+    super(message, 403);
   }
 }
 
 export class NotFoundError extends AppError {
-  constructor(message: string) {
-    super(message, 404, 'NOT_FOUND')
+  constructor(message: string = 'Resource not found') {
+    super(message, 404);
   }
 }
 
 export class ConflictError extends AppError {
   constructor(message: string) {
-    super(message, 409, 'CONFLICT')
-  }
-}
-
-export class InternalError extends AppError {
-  constructor(message: string = 'Internal server error') {
-    super(message, 500, 'INTERNAL_ERROR')
+    super(message, 409);
   }
 }
