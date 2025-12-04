@@ -11,7 +11,6 @@ import {
 } from '../schemas/drivers.schema';
 import { validateBody, validateQuery, validateParams, validateAll } from '../middleware/validate';
 import logger from '../config/logger'; // Wave 10: Add Winston logger
-import { driverEmulator } from "../emulators/DriverEmulator"
 import { authenticateJWT } from '../middleware/auth';
 import { requireRBAC, Role, PERMISSIONS } from '../middleware/rbac';
 
@@ -30,28 +29,39 @@ router.get("/",
     resourceType: 'driver'
   }),
   validateQuery(driverQuerySchema),
-  async (req, res) => {
-  try {
+  asyncHandler(async (req, res) => {
     const { page = 1, pageSize = 20, search, status } = req.query
+    const tenantId = (req as any).user?.tenant_id
+
+    if (!tenantId) {
+      throw new ValidationError('Tenant ID is required')
+    }
 
     // Wave 12 (Revised): Cache-aside pattern
-    const cacheKey = `drivers:list:${page}:${pageSize}:${search || ''}:${status || ''}`
+    const cacheKey = `drivers:list:${tenantId}:${page}:${pageSize}:${search || ''}:${status || ''}`
     const cached = await cacheService.get<{ data: any[], total: number }>(cacheKey)
 
     if (cached) {
       return res.json(cached)
     }
 
-    let drivers = driverEmulator.getAll()
+    // Use DI-resolved DriverService
+    const driverService = container.resolve('driverService')
+    let drivers = await driverService.getAllDrivers(tenantId)
 
-    // Apply search filter
+    // Apply filters (future: move to service layer)
     if (search && typeof search === 'string') {
-      drivers = driverEmulator.search(search)
+      const searchLower = search.toLowerCase()
+      drivers = drivers.filter((d: any) =>
+        d.first_name?.toLowerCase().includes(searchLower) ||
+        d.last_name?.toLowerCase().includes(searchLower) ||
+        d.email?.toLowerCase().includes(searchLower) ||
+        d.license_number?.toLowerCase().includes(searchLower)
+      )
     }
 
-    // Apply status filter
     if (status && typeof status === 'string') {
-      drivers = drivers.filter(d => d.status === status)
+      drivers = drivers.filter((d: any) => d.status === status)
     }
 
     // Apply pagination
@@ -64,12 +74,10 @@ router.get("/",
     // Cache for 5 minutes (300 seconds)
     await cacheService.set(cacheKey, result, 300)
 
+    logger.info('Fetched drivers', { tenantId, count: data.length, total })
     res.json(result)
-  } catch (error) {
-    logger.error('Failed to fetch drivers', { error }) // Wave 10: Winston logger
-    res.status(500).json({ error: "Failed to fetch drivers" }))
-  }
-}))
+  })
+)
 
 // GET driver by ID - Requires authentication + tenant isolation
 // CRIT-B-003: Added URL parameter validation
@@ -81,28 +89,38 @@ router.get("/:id",
     resourceType: 'driver'
   }),
   validateParams(driverIdSchema),
-  async (req, res) => {
-  try {
+  asyncHandler(async (req, res) => {
+    const tenantId = (req as any).user?.tenant_id
+    const driverId = Number(req.params.id)
+
+    if (!tenantId) {
+      throw new ValidationError('Tenant ID is required')
+    }
+
     // Wave 12 (Revised): Cache-aside pattern for single driver
-    const cacheKey = `driver:${req.params.id}`
+    const cacheKey = `driver:${tenantId}:${driverId}`
     const cached = await cacheService.get<any>(cacheKey)
 
     if (cached) {
-      return res.json({ data: cached }))
+      logger.debug('Driver cache hit', { driverId, tenantId })
+      return res.json({ data: cached })
     }
 
-    const driver = driverEmulator.getById(Number(req.params.id))
-    if (!driver) return res.status(404).json({ error: "Driver not found" }))
+    // Use DI-resolved DriverService
+    const driverService = container.resolve('driverService')
+    const driver = await driverService.getDriverById(driverId, tenantId)
+
+    if (!driver) {
+      throw new NotFoundError(`Driver ${driverId} not found`)
+    }
 
     // Cache for 10 minutes (600 seconds)
     await cacheService.set(cacheKey, driver, 600)
 
-    res.json({ data: driver }))
-  } catch (error) {
-    logger.error('Failed to fetch driver', { error, driverId: req.params.id }) // Wave 10: Winston logger
-    res.status(500).json({ error: "Failed to fetch driver" }))
-  }
-}))
+    logger.info('Fetched driver', { driverId, tenantId })
+    res.json({ data: driver })
+  })
+)
 
 // POST create driver - Requires admin or manager role
 router.post("/",
@@ -112,16 +130,27 @@ router.post("/",
     enforceTenantIsolation: true,
     resourceType: 'driver'
   }),
-  validate(driverCreateSchema),
-  async (req, res) => { // Wave 9: Add Zod validation
-  try {
-    const driver = driverEmulator.create(req.body)
-    res.status(201).json({ data: driver }))
-  } catch (error) {
-    logger.error('Failed to create driver', { error }) // Wave 10: Winston logger
-    res.status(500).json({ error: "Failed to create driver" }))
-  }
-}))
+  validateBody(driverCreateSchema),
+  asyncHandler(async (req, res) => {
+    const tenantId = (req as any).user?.tenant_id
+
+    if (!tenantId) {
+      throw new ValidationError('Tenant ID is required')
+    }
+
+    // Validate required fields
+    if (!req.body.first_name || !req.body.last_name || !req.body.email) {
+      throw new ValidationError('First name, last name, and email are required')
+    }
+
+    // Use DI-resolved DriverService
+    const driverService = container.resolve('driverService')
+    const driver = await driverService.createDriver(req.body, tenantId)
+
+    logger.info('Driver created', { driverId: driver.id, tenantId })
+    res.status(201).json({ data: driver })
+  })
+)
 
 // PUT update driver - Requires admin or manager role + tenant isolation
 router.put("/:id",
@@ -131,39 +160,67 @@ router.put("/:id",
     enforceTenantIsolation: true,
     resourceType: 'driver'
   }),
-  validate(driverUpdateSchema),
-  async (req, res) => { // Wave 9: Add Zod validation
-  try {
-    const driver = driverEmulator.update(Number(req.params.id), req.body)
-    if (!driver) return res.status(404).json({ error: "Driver not found" }))
+  validateAll({
+    params: driverIdSchema,
+    body: driverUpdateSchema
+  }),
+  asyncHandler(async (req, res) => {
+    const tenantId = (req as any).user?.tenant_id
+    const driverId = Number(req.params.id)
+
+    if (!tenantId) {
+      throw new ValidationError('Tenant ID is required')
+    }
+
+    // Use DI-resolved DriverService
+    const driverService = container.resolve('driverService')
+    const driver = await driverService.updateDriver(driverId, req.body, tenantId)
+
+    if (!driver) {
+      throw new NotFoundError(`Driver ${driverId} not found`)
+    }
 
     // Wave 12 (Revised): Invalidate cache on update
-    const cacheKey = `driver:${req.params.id}`
+    const cacheKey = `driver:${tenantId}:${driverId}`
     await cacheService.del(cacheKey)
 
-    res.json({ data: driver }))
-  } catch (error) {
-    logger.error('Failed to update driver', { error, driverId: req.params.id }) // Wave 10: Winston logger
-    res.status(500).json({ error: "Failed to update driver" }))
-  }
-}))
+    logger.info('Driver updated', { driverId, tenantId })
+    res.json({ data: driver })
+  })
+)
 
 // DELETE driver
-router.delete("/:id", asyncHandler(async (req, res) => {
-// TODO: const service = container.resolve('"Service"')
-  try {
-    const deleted = driverEmulator.delete(Number(req.params.id))
-    if (!deleted) return res.status(404).json({ error: "Driver not found" }))
+router.delete("/:id",
+  requireRBAC({
+    roles: [Role.ADMIN, Role.MANAGER],
+    permissions: [PERMISSIONS.DRIVER_DELETE],
+    enforceTenantIsolation: true,
+    resourceType: 'driver'
+  }),
+  validateParams(driverIdSchema),
+  asyncHandler(async (req, res) => {
+    const tenantId = (req as any).user?.tenant_id
+    const driverId = Number(req.params.id)
+
+    if (!tenantId) {
+      throw new ValidationError('Tenant ID is required')
+    }
+
+    // Use DI-resolved DriverService
+    const driverService = container.resolve('driverService')
+    const deleted = await driverService.deleteDriver(driverId, tenantId)
+
+    if (!deleted) {
+      throw new NotFoundError(`Driver ${driverId} not found`)
+    }
 
     // Wave 12 (Revised): Invalidate cache on delete
-    const cacheKey = `driver:${req.params.id}`
+    const cacheKey = `driver:${tenantId}:${driverId}`
     await cacheService.del(cacheKey)
 
-    res.json({ message: "Driver deleted successfully" }))
-  } catch (error) {
-    logger.error('Failed to delete driver', { error, driverId: req.params.id }) // Wave 10: Winston logger
-    res.status(500).json({ error: "Failed to delete driver" }))
-  }
-}))
+    logger.info('Driver deleted', { driverId, tenantId })
+    res.json({ message: "Driver deleted successfully" })
+  })
+)
 
 export default router
