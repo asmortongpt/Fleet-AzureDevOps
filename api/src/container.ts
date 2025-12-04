@@ -28,6 +28,9 @@ import { connectionManager } from './config/connection-manager'
 import DispatchService from './services/dispatch.service'
 import DocumentService from './services/document.service'
 import ExampleDIService from './services/example-di.service'
+import AuditService from './services/auditService'
+import { StorageManager } from './services/StorageManager'
+import { OfflineStorageService } from './services/offline-storage.service'
 
 // Import Tier 2 business logic services
 import { VehicleService } from './services/VehicleService'
@@ -123,6 +126,11 @@ export interface DIContainer extends AwilixContainer {
 
   // Logger
   logger: typeof logger
+
+  // Tier 1 Foundation Services
+  auditService: AuditService
+  storageManager: StorageManager
+  offlineStorageService: OfflineStorageService
 
   // DI Services (proper constructor injection)
   dispatchService: DispatchService
@@ -223,6 +231,19 @@ export function createDIContainer() {
     readPool: asFunction(() => connectionManager.getReadPool(), { lifetime: Lifetime.SINGLETON }),
     writePool: asFunction(() => connectionManager.getWritePool(), { lifetime: Lifetime.SINGLETON }),
     logger: asValue(logger)
+  })
+
+  // Register Tier 1 Foundation services (infrastructure layer)
+  container.register({
+    auditService: asClass(AuditService, {
+      lifetime: Lifetime.SINGLETON
+    }),
+    storageManager: asClass(StorageManager, {
+      lifetime: Lifetime.SINGLETON
+    }),
+    offlineStorageService: asClass(OfflineStorageService, {
+      lifetime: Lifetime.SINGLETON
+    })
   })
 
   // Register DI-enabled services (constructor injection)
