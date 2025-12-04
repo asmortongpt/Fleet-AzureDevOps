@@ -6,6 +6,7 @@ import axios from 'axios'
 import jwt from 'jsonwebtoken'
 import { createAuditLog } from '../middleware/audit'
 import { getValidatedFrontendUrl, buildSafeRedirectUrl } from '../utils/redirect-validator'
+import { pool } from '../db'
 
 const router = express.Router()
 
