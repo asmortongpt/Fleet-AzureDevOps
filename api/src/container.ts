@@ -91,6 +91,8 @@ import WebRTCService from './services/webrtc.service'
 import VideoTelematicsService from './services/video-telematics.service'
 import MCPServerService from './services/mcp-server.service'
 import MCPServerRegistryService from './services/mcp-server-registry.service'
+import GoogleCalendarService from './services/google-calendar.service'
+import { OBD2ServiceBackend } from './services/obd2.service'
 
 // Import repository classes
 import { VehicleRepository } from './repositories/VehicleRepository'
@@ -193,6 +195,8 @@ export interface DIContainer extends AwilixContainer {
   videoTelematicsService: VideoTelematicsService
   mcpServerService: MCPServerService
   mcpServerRegistryService: MCPServerRegistryService
+  googleCalendarService: GoogleCalendarService
+  obd2Service: OBD2ServiceBackend
 }
 
 /**
@@ -442,6 +446,12 @@ export function createDIContainer() {
       lifetime: Lifetime.SINGLETON
     }),
     mcpServerRegistryService: asClass(MCPServerRegistryService, {
+      lifetime: Lifetime.SINGLETON
+    }),
+    googleCalendarService: asClass(GoogleCalendarService, {
+      lifetime: Lifetime.SINGLETON
+    }),
+    obd2Service: asClass(OBD2ServiceBackend, {
       lifetime: Lifetime.SINGLETON
     })
   })
