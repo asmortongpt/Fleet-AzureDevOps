@@ -21,14 +21,14 @@ const registerDeviceSchema = z.object({
 });
 
 const sendNotificationSchema = z.object({
-  recipients: z.array(z.string()),
+  recipients: z.array(z.string(),
   notificationType: z.string(),
   category: z.string().optional(),
   priority: z.string().optional(),
   title: z.string(),
   message: z.string(),
-  dataPayload: z.record(z.any()).optional(),
-  actionButtons: z.array(z.any()).optional(),
+  dataPayload: z.record(z.any().optional(),
+  actionButtons: z.array(z.any().optional(),
   imageUrl: z.string().optional(),
 });
 
@@ -62,7 +62,7 @@ router.post(
       data: device,
       message: 'Device registered successfully',
     });
-  }))
+  })
 );
 
 router.delete(
@@ -77,7 +77,7 @@ router.delete(
       success,
       message: success ? 'Device unregistered successfully' : 'Failed to unregister device',
     });
-  }))
+  })
 );
 
 router.post(
@@ -115,7 +115,7 @@ router.post(
       data: result,
       message: 'Notification sent successfully',
     });
-  }))
+  })
 );
 
 export { router as mobileNotificationsRouter };

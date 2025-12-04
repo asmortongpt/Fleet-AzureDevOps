@@ -37,10 +37,10 @@ const upload = multer({
       `text/csv`,
     ]
 
-    if (allowedTypes.includes(file.mimetype)) {
+    if (allowedTypes.includes(file.mimetype) {
       cb(null, true)
     } else {
-      cb(new Error(`Unsupported file type: ${file.mimetype}`))
+      cb(new Error(`Unsupported file type: ${file.mimetype}`)
     }
   },
 })
@@ -125,7 +125,7 @@ router.post('/batch', upload.array('files', 100), async (req: Request, res: Resp
     const files = req.files as Express.Multer.File[]
 
     if (!files || files.length === 0) {
-      return res.status(400).json({ error: 'No files uploaded' })
+      return throw new ValidationError("No files uploaded")
     }
 
     const { tenantId, userId } = (req as any).user
@@ -144,7 +144,7 @@ router.post('/batch', upload.array('files', 100), async (req: Request, res: Resp
       documentId: `doc-${Date.now()}-${idx}`,
       filePath: file.path,
       fileName: file.originalname,
-    }))
+    })
 
     // Enqueue batch job
     const batchId = await ocrQueueService.enqueueBatchOcrJob(tenantId, userId, documents, options)
@@ -176,7 +176,7 @@ router.get('/job/:jobId', async (req: Request, res: Response) => {
     const job = await ocrQueueService.getJobStatus(jobId)
 
     if (!job) {
-      return res.status(404).json({ error: 'Job not found' })
+      return throw new NotFoundError("Job not found")
     }
 
     return res.status(200).json(job)
@@ -201,7 +201,7 @@ router.get('/batch/:batchId', async (req: Request, res: Response) => {
     const batch = await ocrQueueService.getBatchStatus(batchId)
 
     if (!batch) {
-      return res.status(404).json({ error: 'Batch not found' })
+      return throw new NotFoundError("Batch not found")
     }
 
     return res.status(200).json(batch)
@@ -226,7 +226,7 @@ router.get('/result/:documentId', async (req: Request, res: Response) => {
     const result = await ocrService.getOcrResult(documentId)
 
     if (!result) {
-      return res.status(404).json({ error: 'OCR result not found' })
+      return throw new NotFoundError("OCR result not found")
     }
 
     return res.status(200).json(result)
@@ -250,7 +250,7 @@ router.post('/search', async (req: Request, res: Response) => {
     const { query, limit } = req.body
 
     if (!query) {
-      return res.status(400).json({ error: 'Search query is required' })
+      return throw new ValidationError("Search query is required")
     }
 
     const results = await ocrService.searchOcrResults(tenantId, query, limit || 20)

@@ -26,7 +26,7 @@ app.use(
     audience: process.env.AUDIENCE,
     issuer: process.env.ISSUER,
     algorithms: ['RS256'],
-  }))
+  })
 );
 
 const pool = new Pool({
@@ -42,7 +42,7 @@ app.get('/api/weather/current', async (req: Request, res: Response, next: NextFu
   const { lat, lng }: Coordinate = req.query;
 
   if (!lat || !lng) {
-    return res.status(400).json({ error: 'Invalid coordinates' });
+    return throw new ValidationError("Invalid coordinates");
   }
 
   try {
@@ -57,7 +57,7 @@ app.get('/api/weather/forecast', async (req: Request, res: Response, next: NextF
   const { lat, lng }: Coordinate = req.query;
 
   if (!lat || !lng) {
-    return res.status(400).json({ error: 'Invalid coordinates' });
+    return throw new ValidationError("Invalid coordinates");
   }
 
   try {

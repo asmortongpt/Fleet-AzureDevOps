@@ -14,7 +14,7 @@ import csurf from 'csurf'
 const router = express.Router()
 
 router.use(authenticateJWT)
-router.use(helmet())
+router.use(helmet()
 router.use(
   rateLimit({
     windowMs: 60 * 1000, // 1 minute
@@ -23,7 +23,7 @@ router.use(
     legacyHeaders: false,
   })
 )
-router.use(csurf())
+router.use(csurf()
 
 const chargingStationSchema = z.object({
   name: z.string().min(1),
@@ -78,7 +78,7 @@ router.get(
           page: Number(page),
           limit: Number(limit),
           total: parseInt(countResult.rows[0].count, 10),
-          pages: Math.ceil(countResult.rows[0].count / Number(limit)),
+          pages: Math.ceil(countResult.rows[0].count / Number(limit),
         },
       })
     } catch (error) {

@@ -15,9 +15,9 @@ import { asyncHandler } from '../utils/async-handler'
 
 const router = express.Router()
 
-router.use(helmet())
-router.use(express.json())
-router.use(csurf({ cookie: true }))
+router.use(helmet()
+router.use(express.json()
+router.use(csurf({ cookie: true })
 router.use(authenticateJWT)
 router.use(
   rateLimit({

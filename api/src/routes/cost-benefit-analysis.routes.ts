@@ -130,7 +130,7 @@ router.get(
         FROM cost_benefit_analyses cba
         WHERE ${whereClause}
       `
-      const countResult = await pool.query(countQuery, params.slice(0, -2))
+      const countResult = await pool.query(countQuery, params.slice(0, -2)
       const total = parseInt(countResult.rows[0].total)
 
       res.json({
@@ -139,7 +139,7 @@ router.get(
           page: parseInt(page as string),
           limit: parseInt(limit as string),
           total,
-          pages: Math.ceil(total / parseInt(limit as string)),
+          pages: Math.ceil(total / parseInt(limit as string),
         },
       })
     } catch (error: any) {
@@ -193,7 +193,7 @@ router.get(
       const result = await pool.query(query, [id, tenant_id])
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'Cost/benefit analysis not found' })
+        return throw new NotFoundError("Cost/benefit analysis not found")
       }
 
       res.json(result.rows[0])
@@ -442,7 +442,7 @@ router.delete(
       const result = await pool.query(query, [id, tenant_id])
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'Cost/benefit analysis not found' })
+        return throw new NotFoundError("Cost/benefit analysis not found")
       }
 
       res.json({
