@@ -10,13 +10,14 @@
  * - Audit logging
  */
 
-import pool from '../config/database'
+import { Pool } from 'pg'
 import fs from 'fs/promises'
 import path from 'path'
 import crypto from 'crypto'
 import { DocumentRAGService } from './document-rag.service'
 import pdfParse from 'pdf-parse'
 import mammoth from 'mammoth'
+import logger from '../utils/logger'
 
 export interface Document {
   id: string
@@ -70,10 +71,10 @@ export class DocumentManagementService {
   private ragService: DocumentRAGService
   private uploadDir: string
 
-  constructor() {
+  constructor(private db: Pool, private logger: typeof logger) {
     this.ragService = new DocumentRAGService()
     // Configure upload directory (can be overridden with S3)
-    this.uploadDir = process.env.DOCUMENT_UPLOAD_DIR || path.join(process.cwd(), 'uploads', `documents`)
+    this.uploadDir = process.env.DOCUMENT_UPLOAD_DIR || path.join(process.cwd(), 'uploads', 'documents')
   }
 
   /**
@@ -82,9 +83,9 @@ export class DocumentManagementService {
   async initialize(): Promise<void> {
     try {
       await fs.mkdir(this.uploadDir, { recursive: true })
-      console.log(`Document upload directory initialized: ${this.uploadDir}`)
+      this.logger.info(`Document upload directory initialized: ${this.uploadDir}`)
     } catch (error) {
-      console.error(`Error initializing document upload directory:`, error)
+      this.logger.error(`Error initializing document upload directory:`, error)
       throw error
     }
   }
@@ -93,7 +94,7 @@ export class DocumentManagementService {
    * Upload a new document
    */
   async uploadDocument(options: UploadOptions): Promise<Document> {
-    const client = await pool.connect()
+    const client = await this.db.connect()
 
     try {
       await client.query('BEGIN')
@@ -109,13 +110,13 @@ export class DocumentManagementService {
       )
 
       if (duplicateCheck.rows.length > 0) {
-        await client.query(`ROLLBACK`)
+        await client.query('ROLLBACK')
         throw new Error(`Duplicate file detected: ${duplicateCheck.rows[0].file_name}`)
       }
 
       // Generate unique filename
       const fileExt = path.extname(options.file.originalname)
-      const fileName = `${crypto.randomBytes(16).toString(`hex`)}${fileExt}`
+      const fileName = `${crypto.randomBytes(16).toString('hex')}${fileExt}`
       const filePath = path.join(this.uploadDir, options.tenantId, fileName)
 
       // Ensure tenant directory exists
@@ -162,13 +163,13 @@ export class DocumentManagementService {
 
       // Process document asynchronously (don't wait)
       this.processDocumentAsync(document.id, filePath, options.file.mimetype).catch(err => {
-        console.error('Error processing document:', err)
+        this.logger.error('Error processing document:', err)
       })
 
       return document
     } catch (error) {
       await client.query('ROLLBACK')
-      console.error('Error uploading document:', error)
+      this.logger.error('Error uploading document:', error)
       throw error
     } finally {
       client.release()
@@ -184,36 +185,36 @@ export class DocumentManagementService {
       const extractedText = await this.extractText(filePath, mimeType)
 
       // Update document with extracted text
-      await pool.query(
+      await this.db.query(
         `UPDATE documents
          SET extracted_text = $1, ocr_status = 'completed', ocr_completed_at = NOW()
-         WHERE id = $2',
+         WHERE id = $2`,
         [extractedText, documentId]
       )
 
       // Generate embeddings for RAG
       if (extractedText && extractedText.length > 50) {
-        await pool.query(
-          'UPDATE documents SET embedding_status = 'processing' WHERE id = $1',
+        await this.db.query(
+          `UPDATE documents SET embedding_status = 'processing' WHERE id = $1`,
           [documentId]
         )
 
         await this.ragService.generateDocumentEmbeddings(documentId, extractedText)
 
-        await pool.query(
-          'UPDATE documents SET embedding_status = 'completed', embedding_completed_at = NOW() WHERE id = $1',
+        await this.db.query(
+          `UPDATE documents SET embedding_status = 'completed', embedding_completed_at = NOW() WHERE id = $1`,
           [documentId]
         )
       } else {
-        await pool.query(
-          'UPDATE documents SET embedding_status = 'failed' WHERE id = $1',
+        await this.db.query(
+          `UPDATE documents SET embedding_status = 'failed' WHERE id = $1`,
           [documentId]
         )
       }
     } catch (error) {
-      console.error('Error processing document:', error)
-      await pool.query(
-        'UPDATE documents SET ocr_status = 'failed', embedding_status = 'failed' WHERE id = $1',
+      this.logger.error('Error processing document:', error)
+      await this.db.query(
+        `UPDATE documents SET ocr_status = 'failed', embedding_status = 'failed' WHERE id = $1`,
         [documentId]
       )
     }
@@ -242,39 +243,39 @@ export class DocumentManagementService {
           const data = await pdfParse(dataBuffer)
 
           // Extract text and metadata
-          console.log(`[DocumentManagement] Extracted ${data.text.length} characters from PDF: ${filePath}`)
-          console.log(`[DocumentManagement] PDF metadata: ${data.numpages} pages, info: ${JSON.stringify(data.info)}`)
+          this.logger.info(`[DocumentManagement] Extracted ${data.text.length} characters from PDF: ${filePath}`)
+          this.logger.info(`[DocumentManagement] PDF metadata: ${data.numpages} pages, info: ${JSON.stringify(data.info)}`)
 
           return data.text
         } catch (pdfError: any) {
-          console.error('[DocumentManagement] Error parsing PDF:', pdfError.message)
+          this.logger.error('[DocumentManagement] Error parsing PDF:', pdfError.message)
           return `[PDF parsing failed: ${pdfError.message}]`
         }
       }
 
       // For DOCX, use mammoth library
-      if (mimeType === `application/vnd.openxmlformats-officedocument.wordprocessingml.document`) {
+      if (mimeType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
         try {
           const result = await mammoth.extractRawText({ path: filePath })
 
           if (result.messages && result.messages.length > 0) {
-            console.warn('[DocumentManagement] Mammoth warnings:', result.messages)
+            this.logger.warn('[DocumentManagement] Mammoth warnings:', result.messages)
           }
 
-          console.log(`[DocumentManagement] Extracted ${result.value.length} characters from DOCX: ${filePath}`)
+          this.logger.info(`[DocumentManagement] Extracted ${result.value.length} characters from DOCX: ${filePath}`)
 
           return result.value
         } catch (docxError: any) {
-          console.error('[DocumentManagement] Error parsing DOCX:', docxError.message)
+          this.logger.error('[DocumentManagement] Error parsing DOCX:', docxError.message)
           return `[DOCX parsing failed: ${docxError.message}]`
         }
       }
 
       // Unsupported file type
-      console.warn(`[DocumentManagement] Unsupported mime type for text extraction: ${mimeType}`)
-      return ``
+      this.logger.warn(`[DocumentManagement] Unsupported mime type for text extraction: ${mimeType}`)
+      return ''
     } catch (error: any) {
-      console.error('[DocumentManagement] Error extracting text:', error.message)
+      this.logger.error('[DocumentManagement] Error extracting text:', error.message)
       return ''
     }
   }
@@ -312,7 +313,7 @@ export class DocumentManagementService {
         d.*,
         dc.category_name,
         dc.color as category_color,
-        u.first_name || ` ` || u.last_name as uploaded_by_name,
+        u.first_name || ' ' || u.last_name as uploaded_by_name,
         (SELECT COUNT(*) FROM document_versions dv WHERE dv.document_id = d.id) as version_count,
         (SELECT COUNT(*) FROM document_comments dcom WHERE dcom.document_id = d.id) as comment_count
       FROM documents d
@@ -329,7 +330,7 @@ export class DocumentManagementService {
       query += ` AND d.status = $${paramCount}`
       params.push(filters.status)
     } else {
-      query += ` AND d.status = `active``
+      query += ` AND d.status = 'active'`
     }
 
     if (filters?.categoryId) {
@@ -361,7 +362,7 @@ export class DocumentManagementService {
     }
 
     // Get total count
-    const countResult = await pool.query(
+    const countResult = await this.db.query(
       query.replace(`SELECT d.*, dc.category_name, dc.color as category_color, u.first_name`, `SELECT COUNT(DISTINCT d.id)`),
       params
     )
@@ -382,7 +383,7 @@ export class DocumentManagementService {
       params.push(filters.offset)
     }
 
-    const result = await pool.query(query, params)
+    const result = await this.db.query(query, params)
 
     return {
       documents: result.rows,
@@ -394,16 +395,16 @@ export class DocumentManagementService {
    * Get document by ID
    */
   async getDocumentById(documentId: string, tenantId: string, userId: string): Promise<Document | null> {
-    const result = await pool.query(
+    const result = await this.db.query(
       `SELECT
         d.*,
         dc.category_name,
         dc.color as category_color,
-        u.first_name || ` ` || u.last_name as uploaded_by_name
+        u.first_name || ' ' || u.last_name as uploaded_by_name
       FROM documents d
       LEFT JOIN document_categories dc ON d.category_id = dc.id
       LEFT JOIN users u ON d.uploaded_by = u.id
-      WHERE d.id = $1 AND d.tenant_id = $2',
+      WHERE d.id = $1 AND d.tenant_id = $2`,
       [documentId, tenantId]
     )
 
@@ -426,7 +427,7 @@ export class DocumentManagementService {
     userId: string,
     updates: Partial<Document>
   ): Promise<Document> {
-    const client = await pool.connect()
+    const client = await this.db.connect()
 
     try {
       await client.query('BEGIN')
@@ -435,7 +436,7 @@ export class DocumentManagementService {
       const values: any[] = []
       let paramCount = 1
 
-      const allowedFields = ['file_name', 'description', 'category_id', 'tags', 'is_public', 'metadata`, `status`]
+      const allowedFields = ['file_name', 'description', 'category_id', 'tags', 'is_public', 'metadata', 'status']
 
       Object.keys(updates).forEach(key => {
         if (allowedFields.includes(key) && updates[key as keyof Document] !== undefined) {
@@ -446,7 +447,7 @@ export class DocumentManagementService {
       })
 
       if (setClauses.length === 0) {
-        throw new Error(`No valid fields to update`)
+        throw new Error('No valid fields to update')
       }
 
       setClauses.push(`updated_at = NOW()`)
@@ -461,7 +462,7 @@ export class DocumentManagementService {
       )
 
       if (result.rows.length === 0) {
-        throw new Error(`Document not found`)
+        throw new Error('Document not found')
       }
 
       await this.logAccess(client, documentId, userId, 'edit')
@@ -481,7 +482,7 @@ export class DocumentManagementService {
    * Delete document (soft delete)
    */
   async deleteDocument(documentId: string, tenantId: string, userId: string): Promise<void> {
-    const client = await pool.connect()
+    const client = await this.db.connect()
 
     try {
       await client.query('BEGIN')
@@ -513,7 +514,7 @@ export class DocumentManagementService {
    * Get document categories
    */
   async getCategories(tenantId: string): Promise<DocumentCategory[]> {
-    const result = await pool.query(
+    const result = await this.db.query(
       `SELECT
         dc.*,
         COUNT(d.id) as document_count
@@ -535,7 +536,7 @@ export class DocumentManagementService {
     tenantId: string,
     categoryData: { category_name: string; description?: string; color?: string; icon?: string }
   ): Promise<DocumentCategory> {
-    const result = await pool.query(
+    const result = await this.db.query(
       `INSERT INTO document_categories (tenant_id, category_name, description, color, icon)
        VALUES ($1, $2, $3, $4, $5)
        RETURNING *`,
@@ -555,7 +556,7 @@ export class DocumentManagementService {
    * Get document access log
    */
   async getAccessLog(documentId: string, tenantId: string): Promise<any[]> {
-    const result = await pool.query(
+    const result = await this.db.query(
       `SELECT
         dal.*,
         u.first_name || ' ' || u.last_name as user_name,
@@ -589,7 +590,7 @@ export class DocumentManagementService {
     if (client) {
       await client.query(query, [documentId, userId, action])
     } else {
-      await pool.query(query, [documentId, userId, action])
+      await this.db.query(query, [documentId, userId, action])
     }
   }
 
@@ -598,15 +599,15 @@ export class DocumentManagementService {
    */
   async getStatistics(tenantId: string): Promise<any> {
     const [totalDocs, byCategory, byType, recentUploads] = await Promise.all([
-      pool.query(
+      this.db.query(
         `SELECT
           COUNT(*) as total_documents,
           SUM(file_size) as total_size_bytes
         FROM documents
-        WHERE tenant_id = $1 AND status = 'active'',
+        WHERE tenant_id = $1 AND status = 'active'`,
         [tenantId]
       ),
-      pool.query(
+      this.db.query(
         `SELECT
           COALESCE(dc.category_name, 'Uncategorized') as category,
           dc.color,
@@ -618,7 +619,7 @@ export class DocumentManagementService {
         ORDER BY count DESC`,
         [tenantId]
       ),
-      pool.query(
+      this.db.query(
         `SELECT
           file_type,
           COUNT(*) as count,
@@ -629,11 +630,11 @@ export class DocumentManagementService {
         ORDER BY count DESC`,
         [tenantId]
       ),
-      pool.query(
+      this.db.query(
         `SELECT COUNT(*) as count
         FROM documents
         WHERE tenant_id = $1 AND status = 'active'
-        AND created_at > NOW() - INTERVAL '7 days'',
+        AND created_at > NOW() - INTERVAL '7 days'`,
         [tenantId]
       )
     ])
@@ -648,4 +649,4 @@ export class DocumentManagementService {
   }
 }
 
-export default new DocumentManagementService()
+export default DocumentManagementService
