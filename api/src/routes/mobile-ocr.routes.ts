@@ -37,10 +37,10 @@ const upload = multer({
   fileFilter: (req, file, cb) => {
     const allowedTypes = ['image/jpeg', 'image/png', 'image/heic', `image/webp`];
 
-    if (allowedTypes.includes(file.mimetype)) {
+    if (allowedTypes.includes(file.mimetype) {
       cb(null, true);
     } else {
-      cb(new Error(`Unsupported file type: ${file.mimetype}`));
+      cb(new Error(`Unsupported file type: ${file.mimetype}`);
     }
   },
 });
@@ -60,8 +60,8 @@ const FuelReceiptOCRSchema = z.object({
       location: z.string().optional(),
       paymentMethod: z.string().optional(),
       notes: z.string().optional(),
-      confidenceScores: z.record(z.number()).optional(),
-    }))
+      confidenceScores: z.record(z.number().optional(),
+    })
     .optional(),
 });
 
@@ -75,13 +75,13 @@ const OdometerOCRSchema = z.object({
       unit: z.enum(['miles', 'kilometers']),
       confidence: z.number().min(0).max(1),
       notes: z.string().optional(),
-    }))
+    })
     .optional(),
 });
 
 const ValidationSchema = z.object({
   type: z.enum(['fuel-receipt', 'odometer']),
-  data: z.record(z.any()),
+  data: z.record(z.any(),
 });
 
 /**
@@ -179,7 +179,7 @@ router.post(
         `INSERT INTO mobile_ocr_captures (
           tenant_id, user_id, capture_type, document_id,
           image_path, ocr_data, confidence_scores, created_at
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, NOW())`,
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, NOW()`,
         [
           tenantId,
           userId,
@@ -353,7 +353,7 @@ router.post(
         `INSERT INTO mobile_ocr_captures (
           tenant_id, user_id, capture_type, document_id,
           image_path, ocr_data, confidence_scores, created_at
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, NOW())`,
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, NOW()`,
         [
           tenantId,
           userId,
@@ -436,7 +436,7 @@ router.post(
             validationResult.errors = error.errors.map(e => ({
               field: e.path.join(`.`),
               message: e.message,
-            }));
+            });
           }
         }
       } else if (validatedData.type === `odometer`) {
@@ -459,7 +459,7 @@ router.post(
             validationResult.errors = error.errors.map(e => ({
               field: e.path.join(`.`),
               message: e.message,
-            }));
+            });
           }
         }
       }
@@ -498,7 +498,7 @@ router.get(
       const { type, limit = 50, offset = 0 } = req.query;
 
       let query = `
-        SELECT ' + (await getTableColumns(pool, 'mobile_ocr_captures')).join(', `) + ` FROM mobile_ocr_captures
+        SELECT ' + (await getTableColumns(pool, 'mobile_ocr_captures').join(', `) + ` FROM mobile_ocr_captures
         WHERE tenant_id = $1 AND user_id = $2
       `;
       const params: any[] = [tenantId, userId];

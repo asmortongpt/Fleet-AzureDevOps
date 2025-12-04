@@ -40,7 +40,7 @@ const createPolicySchema = z.object({
   auto_approve_under_miles: z.number().int().positive().optional(),
   effective_date: z.string(),
   expiration_date: z.string().optional()
-}))
+})
 
 /**
  * GET /api/personal-use-policies
@@ -81,18 +81,18 @@ router.get(
           is_default: true
         },
         message: 'No policy configured - using defaults. Create a policy to customize.'
-      }))
+      })
     }
 
     res.json({
       success: true,
       data: result.rows[0]
-    }))
+    })
   } catch (error: any) {
     console.error('Get policy error:', error)
-    res.status(500).json({ error: 'Failed to retrieve personal use policy' }))
+    res.status(500).json({ error: 'Failed to retrieve personal use policy' })
   }
-}))
+})
 
 /**
  * PUT /api/personal-use-policies/:tenant_id
@@ -106,7 +106,7 @@ router.put(
     try {
       // Verify tenant_id matches user's tenant
       if (req.params.tenant_id !== req.user!.tenant_id) {
-        return res.status(403).json({ error: 'Cannot modify policy for another tenant' }))
+        return res.status(403).json({ error: 'Cannot modify policy for another tenant' })
       }
 
       const validated = createPolicySchema.parse(req.body)
@@ -115,7 +115,7 @@ router.put(
       if (validated.charge_personal_use && !validated.personal_use_rate_per_mile) {
         return res.status(400).json({
           error: 'Personal use rate per mile is required when charge_personal_use is enabled'
-        }))
+        })
       }
 
       // Validation: yearly limit should exceed monthly limit
@@ -124,7 +124,7 @@ router.put(
           validated.max_personal_miles_per_year < validated.max_personal_miles_per_month) {
         return res.status(400).json({
           error: 'Annual limit must be greater than or equal to monthly limit'
-        }))
+        })
       }
 
       // Check if policy exists
@@ -207,13 +207,13 @@ router.put(
         message: existingResult.rows.length > 0
           ? `Personal use policy updated successfully`
           : `Personal use policy created successfully`
-      }))
+      })
     } catch (error: any) {
       console.error('Update policy error:', error)
       if (error instanceof z.ZodError) {
-        return res.status(400).json({ error: 'Invalid request data', details: error.errors }))
+        return res.status(400).json({ error: 'Invalid request data', details: error.errors })
       }
-      res.status(500).json({ error: 'Failed to update personal use policy' }))
+      res.status(500).json({ error: 'Failed to update personal use policy' })
     }
   }
 )
@@ -236,7 +236,7 @@ router.get(
     )
 
     if (driverCheck.rows.length === 0) {
-      return res.status(404).json({ error: `Driver not found` }))
+      return res.status(404).json({ error: `Driver not found` })
     }
 
     // Get policy
@@ -348,12 +348,12 @@ router.get(
     res.json({
       success: true,
       data: response
-    }))
+    })
   } catch (error: any) {
     console.error(`Get usage limits error:`, error)
-    res.status(500).json({ error: `Failed to calculate usage limits` }))
+    res.status(500).json({ error: `Failed to calculate usage limits` })
   }
-}))
+})
 
 /**
  * GET /api/personal-use-policies/drivers-at-limit
@@ -388,7 +388,7 @@ router.get(
           success: true,
           data: [],
           message: `No usage limits configured`
-        }))
+        })
       }
 
       const policy = policyResult.rows[0]
@@ -431,10 +431,10 @@ router.get(
           month: currentMonth,
           monthly_limit: policy.max_personal_miles_per_month
         }
-      }))
+      })
     } catch (error: any) {
       console.error('Get drivers at limit error:', error)
-      res.status(500).json({ error: 'Failed to retrieve drivers at limit' }))
+      res.status(500).json({ error: 'Failed to retrieve drivers at limit' })
     }
   }
 )

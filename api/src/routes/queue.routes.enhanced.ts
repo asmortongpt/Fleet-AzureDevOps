@@ -14,8 +14,8 @@ import csurf from 'csurf'
 const router: Router = express.Router()
 
 // Apply security middlewares globally
-router.use(helmet())
-router.use(csurf())
+router.use(helmet()
+router.use(csurf()
 router.use(
   rateLimit({
     windowMs: 60 * 1000, // 1 minute
@@ -37,7 +37,7 @@ router.get(
   authenticateAdmin,
   asyncHandler(async (req: Request, res: Response) => {
     const queues = Object.values(QueueName).filter(q => q !== QueueName.DEAD_LETTER)
-    const stats = await Promise.all(queues.map(queueName => queueService.getQueueStats(queueName)))
+    const stats = await Promise.all(queues.map(queueName => queueService.getQueueStats(queueName))
 
     const validStats = stats.filter(s => s !== null)
 

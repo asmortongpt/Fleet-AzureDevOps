@@ -50,7 +50,7 @@ router.get(
         pages: Math.ceil(parseInt(countResult.rows[0].count, 10) / limit),
       },
     });
-  }))
+  })
 );
 
 // GET /vendors/:id
@@ -75,7 +75,7 @@ router.get(
     }
 
     res.json(result.rows[0]);
-  }))
+  })
 );
 
 // POST /vendors
@@ -108,7 +108,7 @@ router.post(
       }
       throw error;
     }
-  }))
+  })
 );
 
 export default router;

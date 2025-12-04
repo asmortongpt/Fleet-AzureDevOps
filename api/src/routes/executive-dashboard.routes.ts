@@ -54,7 +54,7 @@ router.get(
       res.json(kpis)
     } catch (error) {
       logger.error('Get executive KPIs error:', error) // Wave 32: Winston logger
-      res.status(500).json({ error: 'Failed to fetch KPIs' }))
+      res.status(500).json({ error: 'Failed to fetch KPIs' })
     }
   }
 )
@@ -96,7 +96,7 @@ router.get(
       res.json(trends)
     } catch (error) {
       logger.error('Get trends error:', error) // Wave 32: Winston logger
-      res.status(500).json({ error: 'Failed to fetch trends' }))
+      res.status(500).json({ error: 'Failed to fetch trends' })
     }
   }
 )
@@ -149,7 +149,7 @@ router.get(
       res.json(insights)
     } catch (error) {
       logger.error('Get AI insights error:', error) // Wave 32: Winston logger
-      res.status(500).json({ error: 'Failed to fetch AI insights' }))
+      res.status(500).json({ error: 'Failed to fetch AI insights' })
     }
   }
 )
@@ -182,7 +182,7 @@ router.get(
       res.json(summary)
     } catch (error) {
       logger.error('Get alerts summary error:', error) // Wave 32: Winston logger
-      res.status(500).json({ error: 'Failed to fetch alerts summary' }))
+      res.status(500).json({ error: 'Failed to fetch alerts summary' })
     }
   }
 )
@@ -230,7 +230,7 @@ router.get(
       res.json(health)
     } catch (error) {
       logger.error('Get fleet health error:', error) // Wave 32: Winston logger
-      res.status(500).json({ error: 'Failed to fetch fleet health' }))
+      res.status(500).json({ error: 'Failed to fetch fleet health' })
     }
   }
 )
@@ -263,7 +263,7 @@ router.get(
       res.json(costs)
     } catch (error) {
       logger.error('Get cost analysis error:', error) // Wave 32: Winston logger
-      res.status(500).json({ error: 'Failed to fetch cost analysis' }))
+      res.status(500).json({ error: 'Failed to fetch cost analysis' })
     }
   }
 )

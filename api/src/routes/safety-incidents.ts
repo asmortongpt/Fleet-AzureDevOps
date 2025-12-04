@@ -40,12 +40,12 @@ router.get(
           page: Number(page),
           limit: Number(limit),
           total: parseInt(countResult.rows[0].count),
-          pages: Math.ceil(countResult.rows[0].count / Number(limit))
+          pages: Math.ceil(countResult.rows[0].count / Number(limit)
         }
-      }))
+      })
     } catch (error) {
       logger.error(`Get safety-incidents error:`, error) // Wave 17: Winston logger
-      res.status(500).json({ error: 'Internal server error' }))
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )
@@ -64,13 +64,13 @@ router.get(
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'SafetyIncidents not found' }))
+        return throw new NotFoundError("SafetyIncidents not found")
       }
 
       res.json(result.rows[0])
     } catch (error) {
       logger.error('Get safety-incidents error:', error) // Wave 17: Winston logger
-      res.status(500).json({ error: 'Internal server error' }))
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )
@@ -86,7 +86,7 @@ router.post(
 
       // Auto-generate incident_number
       const incidentNumberResult = await pool.query(
-        'SELECT COALESCE(MAX(CAST(SUBSTRING(incident_number FROM \'[0-9]+\') AS INTEGER)), 0) + 1 as next_num FROM safety_incidents WHERE tenant_id = $1',
+        'SELECT COALESCE(MAX(CAST(SUBSTRING(incident_number FROM \'[0-9]+\') AS INTEGER), 0) + 1 as next_num FROM safety_incidents WHERE tenant_id = $1',
         [req.user!.tenant_id]
       )
       const incidentNumber = 'INC-' + String(incidentNumberResult.rows[0].next_num).padStart(6, '0')
@@ -105,7 +105,7 @@ router.post(
       res.status(201).json(result.rows[0])
     } catch (error) {
       logger.error(`Create safety-incidents error:`, error) // Wave 17: Winston logger
-      res.status(500).json({ error: `Internal server error` }))
+      res.status(500).json({ error: `Internal server error` })
     }
   }
 )
@@ -124,13 +124,13 @@ router.put(
       )
 
       if (checkResult.rows.length === 0) {
-        return res.status(404).json({ error: `Safety incident not found` }))
+        return res.status(404).json({ error: `Safety incident not found` })
       }
 
       if (checkResult.rows[0].reported_by === req.user!.id) {
         return res.status(403).json({
           error: 'Separation of Duties violation: You cannot approve incidents you reported'
-        }))
+        })
       }
 
       const result = await pool.query(
@@ -147,7 +147,7 @@ router.put(
       res.json(result.rows[0])
     } catch (error) {
       logger.error(`Approve safety-incident error:`, error) // Wave 17: Winston logger
-      res.status(500).json({ error: 'Internal server error' }))
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )
@@ -165,13 +165,13 @@ router.delete(
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'SafetyIncidents not found' }))
+        return throw new NotFoundError("SafetyIncidents not found")
       }
 
-      res.json({ message: 'SafetyIncidents deleted successfully' }))
+      res.json({ message: 'SafetyIncidents deleted successfully' })
     } catch (error) {
       logger.error('Delete safety-incidents error:', error) // Wave 17: Winston logger
-      res.status(500).json({ error: 'Internal server error' }))
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )

@@ -34,7 +34,7 @@ const createWorkOrderSchema = z.object({
   scheduled_start: z.string().optional(),
   scheduled_end: z.string().optional(),
   notes: z.string().optional()
-}))
+})
 
 // GET /work-orders
 router.get(
@@ -114,7 +114,7 @@ router.get(
           page: Number(page),
           limit: Number(limit),
           total: parseInt(countResult.rows[0].count),
-          pages: Math.ceil(countResult.rows[0].count / Number(limit))
+          pages: Math.ceil(countResult.rows[0].count / Number(limit)
         }
       }
 
@@ -124,7 +124,7 @@ router.get(
       res.json(response)
     } catch (error) {
       logger.error('Failed to fetch work orders', { error }) // Wave 11: Winston logger
-      res.status(500).json({ error: `Internal server error` }))
+      res.status(500).json({ error: `Internal server error` })
     }
   }
 )
@@ -157,7 +157,7 @@ router.get(
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: `Work order not found` }))
+        return res.status(404).json({ error: `Work order not found` })
       }
 
       // Cache for 10 minutes (600 seconds)
@@ -166,7 +166,7 @@ router.get(
       res.json(result.rows[0])
     } catch (error) {
       logger.error('Failed to fetch work order', { error, workOrderId: req.params.id }) // Wave 11: Winston logger
-      res.status(500).json({ error: 'Internal server error' }))
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )
@@ -189,10 +189,10 @@ router.post(
         const user = userResult.rows[0]
 
         if (user.scope_level === `team` && user.facility_ids) {
-          if (!user.facility_ids.includes(validated.facility_id)) {
+          if (!user.facility_ids.includes(validated.facility_id) {
             return res.status(403).json({
               error: 'Cannot create work order for facility outside your scope'
-            }))
+            })
           }
         }
       }
@@ -226,10 +226,10 @@ router.post(
       res.status(201).json(result.rows[0])
     } catch (error) {
       if (error instanceof z.ZodError) {
-        return res.status(400).json({ error: `Validation failed`, details: error.errors }))
+        return res.status(400).json({ error: `Validation failed`, details: error.errors })
       }
       logger.error('Failed to create work order', { error }) // Wave 11: Winston logger
-      res.status(500).json({ error: 'Internal server error' }))
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )
@@ -257,17 +257,17 @@ router.put(
       // SECURITY: IDOR Protection - Validate foreign keys belong to tenant
       const { vehicle_id, assigned_to } = data
 
-      if (vehicle_id && !(await validator.validateVehicle(vehicle_id, req.user!.tenant_id))) {
+      if (vehicle_id && !(await validator.validateVehicle(vehicle_id, req.user!.tenant_id)) {
         return res.status(403).json({
           success: false,
           error: 'Vehicle Id not found or access denied'
-        }))
+        })
       }
-      if (assigned_to && !(await validator.validateDriver(assigned_to, req.user!.tenant_id))) {
+      if (assigned_to && !(await validator.validateDriver(assigned_to, req.user!.tenant_id)) {
         return res.status(403).json({
           success: false,
           error: 'Assigned To not found or access denied'
-        }))
+        })
       }
 
       // Verify work order is assigned to current user
@@ -277,13 +277,13 @@ router.put(
       )
 
       if (checkResult.rows.length === 0) {
-        return res.status(404).json({ error: `Work order not found` }))
+        return res.status(404).json({ error: `Work order not found` })
       }
 
       if (checkResult.rows[0].assigned_technician_id !== req.user!.id) {
         return res.status(403).json({
           error: 'You can only complete work orders assigned to you'
-        }))
+        })
       }
 
       const result = await pool.query(
@@ -307,7 +307,7 @@ router.put(
       res.json(result.rows[0])
     } catch (error) {
       logger.error('Failed to complete work order', { error, workOrderId: req.params.id }) // Wave 11: Winston logger
-      res.status(500).json({ error: 'Internal server error' }))
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )
@@ -326,13 +326,13 @@ router.put(
       )
 
       if (checkResult.rows.length === 0) {
-        return res.status(404).json({ error: `Work order not found` }))
+        return res.status(404).json({ error: `Work order not found` })
       }
 
       if (checkResult.rows[0].created_by === req.user!.id) {
         return res.status(403).json({
           error: 'Separation of Duties violation: You cannot approve work orders you created'
-        }))
+        })
       }
 
       const result = await pool.query(
@@ -351,7 +351,7 @@ router.put(
       res.json(result.rows[0])
     } catch (error) {
       logger.error('Failed to approve work order', { error, workOrderId: req.params.id }) // Wave 11: Winston logger
-      res.status(500).json({ error: 'Internal server error' }))
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )
@@ -369,17 +369,17 @@ router.delete(
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'Work order not found' }))
+        return throw new NotFoundError("Work order not found")
       }
 
       // Wave 13: Invalidate cache on delete
       const cacheKey = `work-order:${req.params.id}:${req.user!.tenant_id}`
       await cacheService.del(cacheKey)
 
-      res.json({ message: 'Work order deleted successfully' }))
+      res.json({ message: 'Work order deleted successfully' })
     } catch (error) {
       logger.error('Failed to delete work order', { error, workOrderId: req.params.id }) // Wave 11: Winston logger
-      res.status(500).json({ error: 'Internal server error' }))
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )

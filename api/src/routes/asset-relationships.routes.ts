@@ -99,7 +99,7 @@ router.get(
       }
 
       if (active_only === `true`) {
-        query += ` AND (ar.effective_to IS NULL OR ar.effective_to > NOW())`
+        query += ` AND (ar.effective_to IS NULL OR ar.effective_to > NOW()`
       }
 
       query += ` ORDER BY ar.effective_from DESC`
@@ -109,10 +109,10 @@ router.get(
       res.json({
         relationships: result.rows,
         total: result.rows.length
-      }))
+      })
     } catch (error) {
       logger.error('Error fetching asset relationships:', error) // Wave 28: Winston logger
-      res.status(500).json({ error: 'Failed to fetch asset relationships' }))
+      res.status(500).json({ error: 'Failed to fetch asset relationships' })
     }
   }
 )
@@ -146,10 +146,10 @@ router.get(
       res.json({
         combinations: result.rows,
         total: result.rows.length
-      }))
+      })
     } catch (error) {
       logger.error(`Error fetching active combinations:`, error) // Wave 28: Winston logger
-      res.status(500).json({ error: `Failed to fetch active combinations` }))
+      res.status(500).json({ error: `Failed to fetch active combinations` })
     }
   }
 )
@@ -183,10 +183,10 @@ router.get(
       res.json({
         combinations: result.rows,
         total: result.rows.length
-      }))
+      })
     } catch (error) {
       logger.error(`Error fetching active combinations:`, error) // Wave 28: Winston logger
-      res.status(500).json({ error: `Failed to fetch active combinations` }))
+      res.status(500).json({ error: `Failed to fetch active combinations` })
     }
   }
 )
@@ -221,13 +221,13 @@ router.get(
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'Relationship not found' }))
+        return throw new NotFoundError("Relationship not found")
       }
 
-      res.json({ relationship: result.rows[0] }))
+      res.json({ relationship: result.rows[0] })
     } catch (error) {
       logger.error('Error fetching relationship:', error) // Wave 28: Winston logger
-      res.status(500).json({ error: 'Failed to fetch relationship' }))
+      res.status(500).json({ error: 'Failed to fetch relationship' })
     }
   }
 )
@@ -268,14 +268,14 @@ router.post(
         await client.query(`ROLLBACK`)
         return res.status(400).json({
           error: 'One or both assets not found or do not belong to your organization'
-        }))
+        })
       }
 
       // Validation: Check for circular relationships
       const circularCheck = await client.query(
         `SELECT id FROM asset_relationships
          WHERE parent_asset_id = $1 AND child_asset_id = $2
-         AND (effective_to IS NULL OR effective_to > NOW())`,
+         AND (effective_to IS NULL OR effective_to > NOW()`,
         [child_asset_id, parent_asset_id]
       )
 
@@ -283,7 +283,7 @@ router.post(
         await client.query(`ROLLBACK`)
         return res.status(400).json({
           error: `Circular relationship detected: child asset is already a parent of this asset`
-        }))
+        })
       }
 
       const result = await client.query(
@@ -308,16 +308,16 @@ router.post(
       res.status(201).json({
         relationship: result.rows[0],
         message: `Asset relationship created successfully`
-      }))
+      })
     } catch (error: any) {
       await client.query('ROLLBACK')
       logger.error('Error creating asset relationship:', error) // Wave 28: Winston logger
 
       if (error.constraint === 'asset_relationships_different_assets') {
-        return res.status(400).json({ error: 'Parent and child assets must be different' }))
+        return throw new ValidationError("Parent and child assets must be different")
       }
 
-      res.status(500).json({ error: 'Failed to create asset relationship' }))
+      res.status(500).json({ error: 'Failed to create asset relationship' })
     } finally {
       client.release()
     }
@@ -353,7 +353,7 @@ router.put(
 
       if (existsCheck.rows.length === 0) {
         await client.query(`ROLLBACK`)
-        return res.status(404).json({ error: 'Relationship not found' }))
+        return throw new NotFoundError("Relationship not found")
       }
 
       const result = await client.query(
@@ -373,11 +373,11 @@ router.put(
       res.json({
         relationship: result.rows[0],
         message: `Relationship updated successfully`
-      }))
+      })
     } catch (error) {
       await client.query('ROLLBACK')
       logger.error('Error updating relationship:', error) // Wave 28: Winston logger
-      res.status(500).json({ error: 'Failed to update relationship' }))
+      res.status(500).json({ error: 'Failed to update relationship' })
     } finally {
       client.release()
     }
@@ -407,16 +407,16 @@ router.patch(
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: `Relationship not found` }))
+        return res.status(404).json({ error: `Relationship not found` })
       }
 
       res.json({
         relationship: result.rows[0],
         message: `Relationship deactivated successfully`
-      }))
+      })
     } catch (error) {
       logger.error('Error deactivating relationship:', error) // Wave 28: Winston logger
-      res.status(500).json({ error: 'Failed to deactivate relationship' }))
+      res.status(500).json({ error: 'Failed to deactivate relationship' })
     }
   }
 )
@@ -443,13 +443,13 @@ router.delete(
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: `Relationship not found` }))
+        return res.status(404).json({ error: `Relationship not found` })
       }
 
-      res.json({ message: 'Relationship deleted successfully' }))
+      res.json({ message: 'Relationship deleted successfully' })
     } catch (error) {
       logger.error('Error deleting relationship:', error) // Wave 28: Winston logger
-      res.status(500).json({ error: 'Failed to delete relationship' }))
+      res.status(500).json({ error: 'Failed to delete relationship' })
     }
   }
 )
@@ -487,10 +487,10 @@ router.get(
       res.json({
         history: result.rows,
         total: result.rows.length
-      }))
+      })
     } catch (error) {
       logger.error('Error fetching relationship history:', error) // Wave 28: Winston logger
-      res.status(500).json({ error: 'Failed to fetch relationship history' }))
+      res.status(500).json({ error: 'Failed to fetch relationship history' })
     }
   }
 )

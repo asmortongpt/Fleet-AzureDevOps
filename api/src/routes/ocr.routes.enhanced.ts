@@ -15,8 +15,8 @@ import { body, validationResult } from 'express-validator'
 
 const router = express.Router()
 
-router.use(helmet())
-router.use(csurf())
+router.use(helmet()
+router.use(csurf()
 router.use(
   rateLimit({
     windowMs: 60 * 1000, // 1 minute
@@ -44,10 +44,10 @@ const upload = multer({
       'text/csv',
     ]
 
-    if (allowedTypes.includes(file.mimetype)) {
+    if (allowedTypes.includes(file.mimetype) {
       cb(null, true)
     } else {
-      cb(new Error(`Unsupported file type: ${file.mimetype}`))
+      cb(new Error(`Unsupported file type: ${file.mimetype}`)
     }
   },
 })
@@ -58,7 +58,7 @@ const ocrOptionsSchema = z.object({
   detectTables: z.boolean().optional(),
   detectForms: z.boolean().optional(),
   detectHandwriting: z.boolean().optional(),
-  pageNumbers: z.array(z.number()).optional(),
+  pageNumbers: z.array(z.number().optional(),
   dpi: z.number().optional(),
   preprocessImage: z.boolean().optional(),
   async: z.boolean().optional(),
@@ -86,7 +86,7 @@ router.post(
   async (req: Request, res: Response) => {
     try {
       const errors = validationResult(req)
-      if (!errors.isEmpty()) {
+      if (!errors.isEmpty() {
         return res.status(400).json({ errors: errors.array() })
       }
 
