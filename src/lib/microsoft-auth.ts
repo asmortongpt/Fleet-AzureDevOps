@@ -121,71 +121,66 @@ export function isAuthenticated(): boolean {
     return true
   }
 
-  // Production: check for valid token
-  const token = localStorage.getItem('token')
-  logger.info('[AUTH] Checking token, exists:', { exists: token ? 'yes' : 'no' })
-
-  if (!token) {
-    logger.info('[AUTH] No token found - not authenticated')
-    return false
-  }
-
-  // Validate token expiry
-  try {
-    const payload = JSON.parse(atob(token.split('.')[1]))
-    const expiresAt = payload.exp * 1000
-    const isValid = Date.now() < expiresAt
-    logger.info('[AUTH] Token validation result:', { isValid })
-    return isValid
-  } catch (error) {
-    logger.info('[AUTH] Token validation failed:', { error })
-    return false
-  }
+  // Production: Authentication state is managed via httpOnly cookies
+  // Frontend cannot directly check the cookie, so we rely on API calls with credentials: 'include'
+  // This function returns true optimistically - actual verification happens in useAuth hook
+  logger.info('[AUTH] Cookie-based auth - verification happens server-side')
+  return true
 }
 
 /**
- * Get current user information from stored JWT token
- * @returns User info from token or null
+ * Get current user information from session
+ * SECURITY: User data comes from backend API, not localStorage
+ * @returns User info from session or null
+ * @deprecated Use useAuth hook instead for reactive user state
  */
 export function getCurrentUser(): any | null {
-  const token = localStorage.getItem('token')
-  if (!token) return null
-
-  try {
-    const payload = JSON.parse(atob(token.split('.')[1]))
-    return {
-      id: payload.id,
-      email: payload.email,
-      role: payload.role,
-      tenant_id: payload.tenant_id,
-      microsoft_id: payload.microsoft_id,
-      auth_provider: payload.auth_provider
-    }
-  } catch {
-    return null
-  }
+  logger.warn('[AUTH] getCurrentUser() is deprecated - use useAuth hook instead')
+  // User data should be fetched from API using credentials: 'include'
+  // This synchronous function cannot make async API calls
+  return null
 }
 
 /**
- * Sign out user by clearing stored token
+ * Sign out user by clearing session cookie
  */
-export function signOut(): void {
-  localStorage.removeItem('token')
+export async function signOut(): Promise<void> {
+  const apiUrl = import.meta.env.VITE_API_URL || window.location.origin
+
+  try {
+    await fetch(`${apiUrl}/api/v1/auth/logout`, {
+      method: 'POST',
+      credentials: 'include', // Send httpOnly cookie
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    })
+  } catch (error) {
+    console.error('[AUTH] Logout error:', error)
+  }
+
   window.location.href = '/login'
 }
 
 /**
  * Get the stored authentication token
- * @returns JWT token or null
+ * SECURITY: Tokens are in httpOnly cookies and cannot be accessed by JavaScript
+ * @returns Always returns null (token is in httpOnly cookie)
+ * @deprecated Tokens are in httpOnly cookies - use credentials: 'include' in fetch
  */
 export function getAuthToken(): string | null {
-  return localStorage.getItem('token')
+  logger.warn('[AUTH] getAuthToken() deprecated - token is in httpOnly cookie')
+  return null
 }
 
 /**
  * Store authentication token
- * @param token JWT token from backend
+ * SECURITY: No-op function - tokens are stored in httpOnly cookies by backend
+ * @param token JWT token (ignored - backend sets httpOnly cookie)
+ * @deprecated Backend sets httpOnly cookie automatically
  */
 export function setAuthToken(token: string): void {
-  localStorage.setItem('token', token)
+  logger.warn('[AUTH] setAuthToken() is deprecated - backend sets httpOnly cookie')
+  // No-op: Tokens are set by backend as httpOnly cookies
+  // This function exists for backward compatibility only
 }
