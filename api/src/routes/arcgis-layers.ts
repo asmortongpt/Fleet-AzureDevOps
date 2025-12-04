@@ -1,7 +1,9 @@
 import express, { Response } from 'express'
+import { container } from '../container'
+import { asyncHandler } from '../middleware/error-handler'
+import { NotFoundError, ValidationError } from '../errors/app-error'
 import { AuthRequest, authenticateJWT } from '../middleware/auth'
 import { requirePermission } from '../middleware/permissions'
-import { pool } from '../config/database'
 import { logger } from '../utils/logger'
 import { z } from 'zod'
 import { getErrorMessage } from '../utils/error-handler'
@@ -39,7 +41,7 @@ const arcgisLayerSchema = z.object({
     labelColor: z.string().optional()
   }).optional(),
   metadata: z.record(z.any()).optional()
-})
+}))
 
 /**
  * GET /api/arcgis-layers
@@ -59,15 +61,15 @@ router.get('/', requirePermission('geofence:view:fleet'), async (req: AuthReques
     res.json({
       success: true,
       layers: result.rows
-    })
+    }))
   } catch (error: any) {
     logger.error(`Failed to fetch ArcGIS layers`, {
       error: getErrorMessage(error),
       tenantId
-    })
-    res.status(500).json({ error: `Failed to fetch layers` })
+    }))
+    res.status(500).json({ error: `Failed to fetch layers` }))
   }
-})
+}))
 
 /**
  * GET /api/arcgis-layers/enabled/list
@@ -88,15 +90,15 @@ router.get('/enabled/list', requirePermission('geofence:view:fleet'), async (req
     res.json({
       success: true,
       layers: result.rows
-    })
+    }))
   } catch (error: any) {
     logger.error(`Failed to fetch enabled ArcGIS layers`, {
       error: getErrorMessage(error),
       tenantId
-    })
-    res.status(500).json({ error: `Failed to fetch layers` })
+    }))
+    res.status(500).json({ error: `Failed to fetch layers` }))
   }
-})
+}))
 
 /**
  * GET /api/arcgis-layers/:id
@@ -114,21 +116,21 @@ router.get('/:id', requirePermission('geofence:view:fleet'), async (req: AuthReq
     )
 
     if (result.rows.length === 0) {
-      return res.status(404).json({ error: `Layer not found` })
+      return res.status(404).json({ error: `Layer not found` }))
     }
 
     res.json({
       success: true,
       layer: result.rows[0]
-    })
+    }))
   } catch (error: any) {
     logger.error('Failed to fetch ArcGIS layer', {
       error: getErrorMessage(error),
       layerId: id
-    })
-    res.status(500).json({ error: 'Failed to fetch layer' })
+    }))
+    res.status(500).json({ error: 'Failed to fetch layer' }))
   }
-})
+}))
 
 /**
  * POST /api/arcgis-layers
@@ -172,25 +174,25 @@ router.post(
         layerId: result.rows[0].id,
         name: validated.name,
         tenantId
-      })
+      }))
 
       res.status(201).json({
         success: true,
         layer: result.rows[0]
-      })
+      }))
     } catch (error: any) {
       if (error instanceof z.ZodError) {
         return res.status(400).json({
           error: `Validation failed`,
           details: error.errors
-        })
+        }))
       }
 
       logger.error('Failed to create ArcGIS layer', {
         error: getErrorMessage(error),
         tenantId
-      })
-      res.status(500).json({ error: 'Failed to create layer' })
+      }))
+      res.status(500).json({ error: 'Failed to create layer' }))
     }
   }
 )
@@ -265,7 +267,7 @@ router.put(
       }
 
       if (updates.length === 0) {
-        return res.status(400).json({ error: `No fields to update` })
+        return res.status(400).json({ error: `No fields to update` }))
       }
 
       updates.push(`updated_at = NOW()`)
@@ -280,31 +282,31 @@ router.put(
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: `Layer not found` })
+        return res.status(404).json({ error: `Layer not found` }))
       }
 
       logger.info(`ArcGIS layer updated`, {
         layerId: id,
         tenantId
-      })
+      }))
 
       res.json({
         success: true,
         layer: result.rows[0]
-      })
+      }))
     } catch (error: any) {
       if (error instanceof z.ZodError) {
         return res.status(400).json({
           error: 'Validation failed',
           details: error.errors
-        })
+        }))
       }
 
       logger.error('Failed to update ArcGIS layer', {
         error: getErrorMessage(error),
         layerId: id
-      })
-      res.status(500).json({ error: 'Failed to update layer' })
+      }))
+      res.status(500).json({ error: 'Failed to update layer' }))
     }
   }
 )
@@ -330,24 +332,24 @@ router.delete(
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: `Layer not found` })
+        return res.status(404).json({ error: `Layer not found` }))
       }
 
       logger.info('ArcGIS layer deleted', {
         layerId: id,
         tenantId
-      })
+      }))
 
       res.json({
         success: true,
         message: 'Layer deleted successfully'
-      })
+      }))
     } catch (error: any) {
       logger.error('Failed to delete ArcGIS layer', {
         error: getErrorMessage(error),
         layerId: id
-      })
-      res.status(500).json({ error: 'Failed to delete layer' })
+      }))
+      res.status(500).json({ error: 'Failed to delete layer' }))
     }
   }
 )

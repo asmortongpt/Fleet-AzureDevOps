@@ -1,4 +1,7 @@
 import express, { Request, Response } from 'express';
+import { container } from '../container'
+import { asyncHandler } from '../middleware/error-handler'
+import { NotFoundError, ValidationError } from '../errors/app-error'
 import { Pool } from 'pg';
 import { z } from 'zod';
 import { authenticateJWT, AuthRequest } from '../middleware/auth';
@@ -83,7 +86,7 @@ router.get(
     const assignmentsResult = await pool.query(assignmentsQuery, [driver_id]);
 
     res.json(assignmentsResult.rows);
-  })
+  }))
 );
 
 // Additional routes and middleware would follow a similar pattern, ensuring

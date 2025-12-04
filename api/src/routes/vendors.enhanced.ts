@@ -1,8 +1,10 @@
 import express, { Response } from 'express';
+import { container } from '../container'
+import { asyncHandler } from '../middleware/error-handler'
+import { NotFoundError, ValidationError } from '../errors/app-error'
 import { AuthRequest, authenticateJWT } from '../middleware/auth';
 import { requirePermission } from '../middleware/permissions';
 import { auditLog } from '../middleware/audit';
-import pool from '../config/database';
 import { z } from 'zod';
 import { createVendorSchema, updateVendorSchema } from '../validation/schemas';
 import { asyncHandler } from '../utils/asyncHandler';
@@ -48,7 +50,7 @@ router.get(
         pages: Math.ceil(parseInt(countResult.rows[0].count, 10) / limit),
       },
     });
-  })
+  }))
 );
 
 // GET /vendors/:id
@@ -73,7 +75,7 @@ router.get(
     }
 
     res.json(result.rows[0]);
-  })
+  }))
 );
 
 // POST /vendors
@@ -106,7 +108,7 @@ router.post(
       }
       throw error;
     }
-  })
+  }))
 );
 
 export default router;

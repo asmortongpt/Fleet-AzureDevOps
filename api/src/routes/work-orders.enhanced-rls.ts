@@ -1,4 +1,7 @@
 /**
+import { container } from '../container'
+import { asyncHandler } from '../middleware/error-handler'
+import { NotFoundError, ValidationError } from '../errors/app-error'
  * Work Orders Routes - RLS Enhanced Version
  *
  * SECURITY IMPROVEMENTS (CRIT-B-004):
@@ -51,7 +54,7 @@ const createWorkOrderSchema = z.object({
   scheduled_start: z.string().optional(),
   scheduled_end: z.string().optional(),
   notes: z.string().optional()
-})
+}))
 
 /**
  * GET /work-orders
@@ -78,7 +81,7 @@ router.get(
         return res.status(500).json({
           error: 'Internal server error',
           code: 'MISSING_DB_CLIENT'
-        })
+        }))
       }
 
       // Get user's scope for row-level filtering (beyond RLS)
@@ -143,14 +146,14 @@ router.get(
           total: parseInt(countResult.rows[0].count),
           pages: Math.ceil(countResult.rows[0].count / Number(limit))
         }
-      })
+      }))
     } catch (error) {
       logger.error('Failed to fetch work orders', {
         error: error instanceof Error ? error.message : 'Unknown error',
         userId: req.user?.id,
         tenantId: req.user?.tenant_id
-      })
-      res.status(500).json({ error: 'Internal server error' })
+      }))
+      res.status(500).json({ error: 'Internal server error' }))
     }
   }
 )
@@ -170,7 +173,7 @@ router.get(
     try {
       const client = (req as any).dbClient
       if (!client) {
-        return res.status(500).json({ error: 'Internal server error', code: 'MISSING_DB_CLIENT' })
+        return res.status(500).json({ error: 'Internal server error', code: 'MISSING_DB_CLIENT' }))
       }
 
       // RLS automatically filters - if work order doesn't exist OR is in different tenant, returns nothing
@@ -188,17 +191,17 @@ router.get(
         return res.status(404).json({
           error: 'Work order not found',
           code: 'NOT_FOUND'
-        })
+        }))
       }
 
-      res.json({ data: result.rows[0] })
+      res.json({ data: result.rows[0] }))
     } catch (error) {
       logger.error('Failed to fetch work order', {
         error,
         workOrderId: req.params.id,
         userId: req.user?.id
-      })
-      res.status(500).json({ error: 'Internal server error' })
+      }))
+      res.status(500).json({ error: 'Internal server error' }))
     }
   }
 )
@@ -232,7 +235,7 @@ router.post(
 
       const client = (req as any).dbClient
       if (!client) {
-        return res.status(500).json({ error: 'Internal server error', code: 'MISSING_DB_CLIENT' })
+        return res.status(500).json({ error: 'Internal server error', code: 'MISSING_DB_CLIENT' }))
       }
 
       // Insert work order - tenant_id comes from req.body (injected by injectTenantId middleware)
@@ -263,21 +266,21 @@ router.post(
         ]
       )
 
-      res.status(201).json({ data: result.rows[0] })
+      res.status(201).json({ data: result.rows[0] }))
     } catch (error) {
       if (error instanceof z.ZodError) {
         return res.status(400).json({
           error: 'Validation failed',
           details: error.errors
-        })
+        }))
       }
 
       logger.error('Failed to create work order', {
         error,
         userId: req.user?.id,
         tenantId: req.user?.tenant_id
-      })
-      res.status(500).json({ error: 'Internal server error' })
+      }))
+      res.status(500).json({ error: 'Internal server error' }))
     }
   }
 )
@@ -302,7 +305,7 @@ router.put(
     try {
       const client = (req as any).dbClient
       if (!client) {
-        return res.status(500).json({ error: 'Internal server error', code: 'MISSING_DB_CLIENT' })
+        return res.status(500).json({ error: 'Internal server error', code: 'MISSING_DB_CLIENT' }))
       }
 
       // Build dynamic UPDATE clause
@@ -325,7 +328,7 @@ router.put(
       }
 
       if (fields.length === 0) {
-        return res.status(400).json({ error: 'No fields to update' })
+        return res.status(400).json({ error: 'No fields to update' }))
       }
 
       // RLS ensures UPDATE only affects rows in current tenant
@@ -339,17 +342,17 @@ router.put(
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'Work order not found' })
+        return res.status(404).json({ error: 'Work order not found' }))
       }
 
-      res.json({ data: result.rows[0] })
+      res.json({ data: result.rows[0] }))
     } catch (error) {
       logger.error('Failed to update work order', {
         error,
         workOrderId: req.params.id,
         userId: req.user?.id
-      })
-      res.status(500).json({ error: 'Internal server error' })
+      }))
+      res.status(500).json({ error: 'Internal server error' }))
     }
   }
 )
@@ -368,7 +371,7 @@ router.delete(
     try {
       const client = (req as any).dbClient
       if (!client) {
-        return res.status(500).json({ error: 'Internal server error', code: 'MISSING_DB_CLIENT' })
+        return res.status(500).json({ error: 'Internal server error', code: 'MISSING_DB_CLIENT' }))
       }
 
       // RLS ensures DELETE only affects rows in current tenant
@@ -381,17 +384,17 @@ router.delete(
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'Work order not found' })
+        return res.status(404).json({ error: 'Work order not found' }))
       }
 
-      res.json({ message: 'Work order deleted successfully' })
+      res.json({ message: 'Work order deleted successfully' }))
     } catch (error) {
       logger.error('Failed to delete work order', {
         error,
         workOrderId: req.params.id,
         userId: req.user?.id
-      })
-      res.status(500).json({ error: 'Internal server error' })
+      }))
+      res.status(500).json({ error: 'Internal server error' }))
     }
   }
 )
