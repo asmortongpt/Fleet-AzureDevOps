@@ -11,7 +11,7 @@
  * - Field templates
  */
 
-import pool from '../../config/database'
+import { Pool } from 'pg'
 
 export type FieldType =
   | 'text'
@@ -83,11 +83,13 @@ export interface CustomFieldValue {
 }
 
 export class CustomFieldsService {
+  constructor(private db: Pool) {}
+
   /**
    * Create custom field definition
    */
   async createFieldDefinition(definition: CustomFieldDefinition): Promise<CustomFieldDefinition> {
-    const result = await pool.query(
+    const result = await this.db.query(
       `INSERT INTO custom_field_definitions
        (tenant_id, entity_type, field_name, field_label, field_type, description, required, default_value, options, validation, conditional, group_name, sort_order, is_active)
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
@@ -146,7 +148,7 @@ export class CustomFieldsService {
     setClauses.push(`updated_at = NOW()`)
     values.push(fieldId)
 
-    const result = await pool.query(
+    const result = await this.db.query(
       `UPDATE custom_field_definitions
        SET ${setClauses.join(', ')}
        WHERE id = $${paramCount}
@@ -172,7 +174,7 @@ export class CustomFieldsService {
 
     query += ' ORDER BY sort_order ASC, created_at ASC'
 
-    const result = await pool.query(query, [tenantId, entityType])
+    const result = await this.db.query(query, [tenantId, entityType])
     return result.rows
   }
 
@@ -180,7 +182,7 @@ export class CustomFieldsService {
    * Get single field definition
    */
   async getFieldDefinition(fieldId: string): Promise<CustomFieldDefinition | null> {
-    const result = await pool.query(
+    const result = await this.db.query(
       'SELECT 
       id,
       tenant_id,
@@ -210,7 +212,7 @@ export class CustomFieldsService {
    */
   async deleteFieldDefinition(fieldId: string): Promise<void> {
     // Soft delete - mark as inactive
-    await pool.query(
+    await this.db.query(
       'UPDATE custom_field_definitions SET is_active = false, updated_at = NOW() WHERE id = $1',
       [fieldId]
     )
@@ -220,7 +222,7 @@ export class CustomFieldsService {
    * Create field group
    */
   async createFieldGroup(group: FieldGroup): Promise<FieldGroup> {
-    const result = await pool.query(
+    const result = await this.db.query(
       `INSERT INTO custom_field_groups
        (tenant_id, entity_type, group_name, group_label, description, sort_order, is_collapsible, is_collapsed_by_default)
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
@@ -244,7 +246,7 @@ export class CustomFieldsService {
    * Get field groups
    */
   async getFieldGroups(tenantId: string, entityType: 'task' | 'asset'): Promise<FieldGroup[]> {
-    const result = await pool.query(
+    const result = await this.db.query(
       `SELECT id, tenant_id, group_name, created_at, updated_at FROM custom_field_groups
        WHERE tenant_id = $1 AND entity_type = $2
        ORDER BY sort_order ASC`,
@@ -268,7 +270,7 @@ export class CustomFieldsService {
     this.validateFieldValue(field, value)
 
     // Upsert value
-    await pool.query(
+    await this.db.query(
       `INSERT INTO custom_field_values (tenant_id, field_id, entity_type, entity_id, value)
        VALUES ($1, $2, $3, $4, $5)
        ON CONFLICT (field_id, entity_id)
@@ -281,7 +283,7 @@ export class CustomFieldsService {
    * Get custom field values for entity
    */
   async getFieldValues(entityType: 'task' | 'asset', entityId: string): Promise<Record<string, any>> {
-    const result = await pool.query(
+    const result = await this.db.query(
       `SELECT cfd.field_name, cfv.value
        FROM custom_field_values cfv
        JOIN custom_field_definitions cfd ON cfv.field_id = cfd.id
@@ -479,7 +481,7 @@ export class CustomFieldsService {
    * Search entities by custom field value
    */
   async searchByCustomField(tenantId: string, entityType: 'task' | 'asset', fieldName: string, value: any): Promise<string[]> {
-    const result = await pool.query(
+    const result = await this.db.query(
       `SELECT cfv.entity_id
        FROM custom_field_values cfv
        JOIN custom_field_definitions cfd ON cfv.field_id = cfd.id
@@ -500,7 +502,7 @@ export class CustomFieldsService {
     const field = await this.getFieldDefinition(fieldId)
     if (!field) return null
 
-    const result = await pool.query(
+    const result = await this.db.query(
       `SELECT
          COUNT(*) as total_values,
          COUNT(DISTINCT entity_id) as unique_entities,
@@ -514,7 +516,7 @@ export class CustomFieldsService {
 
     // For select/multi_select, get value distribution
     if (['select', 'multi_select', 'radio'].includes(field.fieldType)) {
-      const distResult = await pool.query(
+      const distResult = await this.db.query(
         `SELECT value, COUNT(*) as count
          FROM custom_field_values
          WHERE field_id = $1
@@ -528,7 +530,7 @@ export class CustomFieldsService {
 
     // For number fields, get min/max/avg
     if (['number', 'currency', 'percentage'].includes(field.fieldType)) {
-      const numResult = await pool.query(
+      const numResult = await this.db.query(
         `SELECT
            MIN(CAST(value AS NUMERIC)) as min_value,
            MAX(CAST(value AS NUMERIC)) as max_value,
