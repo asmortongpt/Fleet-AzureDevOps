@@ -1,4 +1,7 @@
 /**
+import { container } from '../container'
+import { asyncHandler } from '../middleware/error-handler'
+import { NotFoundError, ValidationError } from '../errors/app-error'
 import logger from '../config/logger'; // Wave 17: Add Winston logger
  * GPS Routes API
  * Provides endpoints for GPS tracking, position history, and geofencing
@@ -57,15 +60,15 @@ router.get('/', (req: Request, res: Response) => {
         total,
         totalPages: Math.ceil(total / filters.limit)
       }
-    })
+    }))
   } catch (error) {
     logger.error('Error getting GPS positions:', error) // Wave 17: Winston logger
     res.status(500).json({
       success: false,
       error: 'Failed to retrieve GPS positions'
-    })
+    }))
   }
-})
+}))
 
 /**
  * GET /api/gps/facilities
@@ -78,15 +81,15 @@ router.get('/facilities', (req: Request, res: Response) => {
     res.json({
       success: true,
       data: facilities
-    })
+    }))
   } catch (error) {
     logger.error('Error getting facilities:', error) // Wave 17: Winston logger
     res.status(500).json({
       success: false,
       error: 'Failed to retrieve facilities'
-    })
+    }))
   }
-})
+}))
 
 /**
  * GET /api/gps/geofence/alerts
@@ -116,15 +119,15 @@ router.get('/geofence/alerts', (req: Request, res: Response) => {
       success: true,
       data: alerts,
       total: alerts.length
-    })
+    }))
   } catch (error) {
     logger.error('Error getting geofence alerts:', error) // Wave 17: Winston logger
     res.status(500).json({
       success: false,
       error: 'Failed to retrieve geofence alerts'
-    })
+    }))
   }
-})
+}))
 
 /**
  * GET /api/gps/:vehicleId
@@ -138,7 +141,7 @@ router.get('/:vehicleId', (req: Request, res: Response) => {
       return res.status(400).json({
         success: false,
         error: 'Invalid vehicle ID'
-      })
+      }))
     }
 
     const position = gpsEmulator.getVehiclePosition(vehicleId)
@@ -147,21 +150,21 @@ router.get('/:vehicleId', (req: Request, res: Response) => {
       return res.status(404).json({
         success: false,
         error: 'Vehicle not found'
-      })
+      }))
     }
 
     res.json({
       success: true,
       data: position
-    })
+    }))
   } catch (error) {
     logger.error('Error getting vehicle position:', error) // Wave 17: Winston logger
     res.status(500).json({
       success: false,
       error: 'Failed to retrieve vehicle position'
-    })
+    }))
   }
-})
+}))
 
 /**
  * GET /api/gps/:vehicleId/history
@@ -175,7 +178,7 @@ router.get('/:vehicleId/history', (req: Request, res: Response) => {
       return res.status(400).json({
         success: false,
         error: 'Invalid vehicle ID'
-      })
+      }))
     }
 
     const history = gpsEmulator.getVehicleHistory(vehicleId)
@@ -184,15 +187,15 @@ router.get('/:vehicleId/history', (req: Request, res: Response) => {
       success: true,
       data: history,
       count: history.length
-    })
+    }))
   } catch (error) {
     logger.error('Error getting vehicle history:', error) // Wave 17: Winston logger
     res.status(500).json({
       success: false,
       error: 'Failed to retrieve vehicle history'
-    })
+    }))
   }
-})
+}))
 
 /**
  * POST /api/gps/start
@@ -205,15 +208,15 @@ router.post('/start', (req: Request, res: Response) => {
     res.json({
       success: true,
       message: 'GPS emulation started'
-    })
+    }))
   } catch (error) {
     logger.error('Error starting GPS emulation:', error) // Wave 17: Winston logger
     res.status(500).json({
       success: false,
       error: 'Failed to start GPS emulation'
-    })
+    }))
   }
-})
+}))
 
 /**
  * POST /api/gps/stop
@@ -226,14 +229,14 @@ router.post('/stop', (req: Request, res: Response) => {
     res.json({
       success: true,
       message: 'GPS emulation stopped'
-    })
+    }))
   } catch (error) {
     logger.error('Error stopping GPS emulation:', error) // Wave 17: Winston logger
     res.status(500).json({
       success: false,
       error: 'Failed to stop GPS emulation'
-    })
+    }))
   }
-})
+}))
 
 export default router

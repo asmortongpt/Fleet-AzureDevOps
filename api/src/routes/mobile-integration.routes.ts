@@ -1,4 +1,7 @@
 /**
+import { container } from '../container'
+import { asyncHandler } from '../middleware/error-handler'
+import { NotFoundError, ValidationError } from '../errors/app-error'
 import logger from '../config/logger'; // Wave 28: Add Winston logger
  * Mobile App Integration API Routes
  *
@@ -28,7 +31,7 @@ const DeviceRegistrationSchema = z.object({
   app_version: z.string().min(1),
   os_version: z.string().min(1),
   push_token: z.string().optional()
-})
+}))
 
 /**
  * Mobile Sync Schema
@@ -41,8 +44,8 @@ const MobileSyncSchema = z.object({
     reports: z.array(z.any()).optional(),
     photos: z.array(z.any()).optional(),
     hos_logs: z.array(z.any()).optional()
-  })
-})
+  }))
+}))
 
 /**
  * Keyless Entry Schema
@@ -55,7 +58,7 @@ const KeylessEntrySchema = z.object({
     latitude: z.number(),
     longitude: z.number()
   }).optional()
-})
+}))
 
 /**
  * AR Navigation Schema
@@ -70,7 +73,7 @@ const ARNavigationSchema = z.object({
   heading: z.number(),
   include_pois: z.boolean().optional(),
   include_geofences: z.boolean().optional()
-})
+}))
 
 /**
  * Damage Detection Schema
@@ -81,7 +84,7 @@ const DamageDetectionSchema = z.object({
   ai_detections: z.array(z.any()),
   severity: z.enum(['minor', 'moderate', 'major', 'severe']),
   estimated_cost: z.number().optional()
-})
+}))
 
 /**
  * @swagger
@@ -135,9 +138,9 @@ router.post('/register', requirePermission('driver:create:global'), auditLog, as
     res.json(device)
   } catch (error: any) {
     logger.error('Error registering device:', error) // Wave 28: Winston logger
-    res.status(400).json({ error: getErrorMessage(error) })
+    res.status(400).json({ error: getErrorMessage(error) }))
   }
-})
+}))
 
 /**
  * @swagger
@@ -196,9 +199,9 @@ router.post('/sync', requirePermission('driver:update:global'), auditLog, async 
     res.json(result)
   } catch (error: any) {
     logger.error('Error syncing mobile data:', error) // Wave 28: Winston logger
-    res.status(400).json({ error: getErrorMessage(error) })
+    res.status(400).json({ error: getErrorMessage(error) }))
   }
-})
+}))
 
 /**
  * @swagger
@@ -231,15 +234,15 @@ router.get('/route/:vehicleId', requirePermission('route:view:fleet'), async (re
     )
 
     if (!route) {
-      return res.status(404).json({ error: 'No active route found for this vehicle' })
+      return res.status(404).json({ error: 'No active route found for this vehicle' }))
     }
 
     res.json(route)
   } catch (error: any) {
     logger.error('Error getting mobile route:', error) // Wave 28: Winston logger
-    res.status(400).json({ error: getErrorMessage(error) })
+    res.status(400).json({ error: getErrorMessage(error) }))
   }
-})
+}))
 
 /**
  * @swagger
@@ -288,9 +291,9 @@ router.post('/ar-navigation', requirePermission('route:view:fleet'), async (req:
     res.json(data)
   } catch (error: any) {
     logger.error('Error getting AR navigation data:', error) // Wave 28: Winston logger
-    res.status(400).json({ error: getErrorMessage(error) })
+    res.status(400).json({ error: getErrorMessage(error) }))
   }
-})
+}))
 
 /**
  * @swagger
@@ -341,9 +344,9 @@ router.post('/keyless-entry', requirePermission('vehicle:update:fleet'), auditLo
     res.json(result)
   } catch (error: any) {
     logger.error('Error executing keyless entry:', error) // Wave 28: Winston logger
-    res.status(400).json({ error: getErrorMessage(error) })
+    res.status(400).json({ error: getErrorMessage(error) }))
   }
-})
+}))
 
 /**
  * @swagger
@@ -390,9 +393,9 @@ router.post('/damage-detection', requirePermission('safety_incident:create:globa
     res.status(201).json(result)
   } catch (error: any) {
     logger.error('Error submitting damage detection:', error) // Wave 28: Winston logger
-    res.status(400).json({ error: getErrorMessage(error) })
+    res.status(400).json({ error: getErrorMessage(error) }))
   }
-})
+}))
 
 /**
  * @swagger
@@ -433,9 +436,9 @@ router.get('/dispatch/messages', requirePermission('communication:view:global'),
     res.json(messages)
   } catch (error: any) {
     logger.error('Error getting dispatch messages:', error) // Wave 28: Winston logger
-    res.status(400).json({ error: getErrorMessage(error) })
+    res.status(400).json({ error: getErrorMessage(error) }))
   }
-})
+}))
 
 /**
  * @swagger
@@ -473,7 +476,7 @@ router.get('/charging-stations/nearby', requirePermission('charging_station:view
     const radius = req.query.radius ? parseFloat(req.query.radius as string) : 10
 
     if (isNaN(latitude) || isNaN(longitude)) {
-      return res.status(400).json({ error: 'Invalid latitude or longitude' })
+      return res.status(400).json({ error: 'Invalid latitude or longitude' }))
     }
 
     const stations = await mobileIntegrationService.getNearbyChargingStations(
@@ -486,9 +489,9 @@ router.get('/charging-stations/nearby', requirePermission('charging_station:view
     res.json(stations)
   } catch (error: any) {
     logger.error('Error getting nearby charging stations:', error) // Wave 28: Winston logger
-    res.status(400).json({ error: getErrorMessage(error) })
+    res.status(400).json({ error: getErrorMessage(error) }))
   }
-})
+}))
 
 /**
  * @swagger
@@ -525,13 +528,13 @@ router.post('/push-notification', requirePermission('communication:send:global')
     // Check if user is admin
     const userRole = (req as any).user.role
     if (userRole !== 'admin' && userRole !== 'fleet_manager') {
-      return res.status(403).json({ error: 'Unauthorized' })
+      return res.status(403).json({ error: 'Unauthorized' }))
     }
 
     const { device_id, title, body, data, priority } = req.body
 
     if (!device_id || !title || !body) {
-      return res.status(400).json({ error: 'Missing required fields' })
+      return res.status(400).json({ error: 'Missing required fields' }))
     }
 
     const success = await mobileIntegrationService.sendPushNotification(device_id, {
@@ -539,13 +542,13 @@ router.post('/push-notification', requirePermission('communication:send:global')
       body,
       data,
       priority: priority || 'normal'
-    })
+    }))
 
-    res.json({ success })
+    res.json({ success }))
   } catch (error: any) {
     logger.error('Error sending push notification:', error) // Wave 28: Winston logger
-    res.status(400).json({ error: getErrorMessage(error) })
+    res.status(400).json({ error: getErrorMessage(error) }))
   }
-})
+}))
 
 export default router

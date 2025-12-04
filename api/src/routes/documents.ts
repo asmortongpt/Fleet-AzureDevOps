@@ -1,9 +1,11 @@
 import express, { Response } from 'express'
+import { container } from '../container'
+import { asyncHandler } from '../middleware/error-handler'
+import { NotFoundError, ValidationError } from '../errors/app-error'
 import logger from '../config/logger'; // Wave 19: Add Winston logger
 import { AuthRequest, authenticateJWT } from '../middleware/auth'
 import { requirePermission, validateScope } from '../middleware/permissions'
 import { auditLog } from '../middleware/audit'
-import pool from '../config/database'
 import { z } from 'zod'
 import multer from 'multer'
 import path from 'path'
@@ -36,7 +38,7 @@ const upload = multer({
       cb(new Error('Invalid file type'))
     }
   }
-})
+}))
 
 // ============================================================================
 // Documents - Core document management
@@ -125,10 +127,10 @@ router.get(
           total: parseInt(countResult.rows[0].count),
           pages: Math.ceil(countResult.rows[0].count / Number(limit))
         }
-      })
+      }))
     } catch (error) {
       logger.error(`Get documents error:`, error) // Wave 19: Winston logger
-      res.status(500).json({ error: 'Internal server error' })
+      res.status(500).json({ error: 'Internal server error' }))
     }
   }
 )
@@ -153,14 +155,14 @@ router.get(
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'Document not found' })
+        return res.status(404).json({ error: 'Document not found' }))
       }
 
       // CRITICAL: Enforce tenant isolation
       // Documents must belong to users in the same tenant
       const document = result.rows[0]
       if (document.uploader_tenant_id && document.uploader_tenant_id !== req.user!.tenant_id) {
-        return res.status(404).json({ error: 'Document not found' })
+        return res.status(404).json({ error: 'Document not found' }))
       }
 
       // Get camera metadata if exists
@@ -239,10 +241,10 @@ router.get(
         camera_metadata: cameraResult.rows[0] || null,
         ocr_data: ocrResult.rows[0] || null,
         receipt_items: receiptResult.rows || []
-      })
+      }))
     } catch (error) {
       logger.error(`Get document error:`, error) // Wave 19: Winston logger
-      res.status(500).json({ error: `Internal server error` })
+      res.status(500).json({ error: `Internal server error` }))
     }
   }
 )
@@ -257,7 +259,7 @@ router.post(
   async (req: AuthRequest, res: Response) => {
     try {
       if (!req.file) {
-        return res.status(400).json({ error: 'No file uploaded' })
+        return res.status(400).json({ error: 'No file uploaded' }))
       }
 
       // SECURITY: Validate file content using magic bytes (not just MIME type)
@@ -267,7 +269,7 @@ router.post(
         return res.status(400).json({
           error: 'File validation failed',
           message: validation.error
-        })
+        }))
       }
 
       // Virus scan check
@@ -275,7 +277,7 @@ router.post(
         return res.status(400).json({
           error: 'File failed security scan',
           message: validation.virusScanResult.threat
-        })
+        }))
       }
 
       const {
@@ -290,7 +292,7 @@ router.post(
       // Create upload directory if it doesn't exist
       const uploadDir = process.env.UPLOAD_DIR || '/tmp/uploads'
       try {
-        await fs.mkdir(uploadDir, { recursive: true })
+        await fs.mkdir(uploadDir, { recursive: true }))
       } catch (err) {
         logger.error('Failed to create upload directory:', err) // Wave 19: Winston logger
       }
@@ -330,7 +332,7 @@ router.post(
       res.status(201).json(result.rows[0])
     } catch (error) {
       logger.error(`Upload document error:`, error) // Wave 19: Winston logger
-      res.status(500).json({ error: 'Internal server error' })
+      res.status(500).json({ error: 'Internal server error' }))
     }
   }
 )
@@ -345,7 +347,7 @@ router.post(
   async (req: AuthRequest, res: Response) => {
     try {
       if (!req.file) {
-        return res.status(400).json({ error: 'No photo uploaded' })
+        return res.status(400).json({ error: 'No photo uploaded' }))
       }
 
       // SECURITY: Validate file content using magic bytes (not just MIME type)
@@ -355,7 +357,7 @@ router.post(
         return res.status(400).json({
           error: 'File validation failed',
           message: validation.error
-        })
+        }))
       }
 
       // Virus scan check
@@ -363,7 +365,7 @@ router.post(
         return res.status(400).json({
           error: 'File failed security scan',
           message: validation.virusScanResult.threat
-        })
+        }))
       }
 
       const {
@@ -388,7 +390,7 @@ router.post(
       // Create upload directory if it doesn't exist
       const uploadDir = process.env.UPLOAD_DIR || '/tmp/uploads'
       try {
-        await fs.mkdir(uploadDir, { recursive: true })
+        await fs.mkdir(uploadDir, { recursive: true }))
       } catch (err) {
         logger.error('Failed to create upload directory:', err) // Wave 19: Winston logger
       }
@@ -451,7 +453,7 @@ router.post(
       res.status(201).json(docResult.rows[0])
     } catch (error) {
       logger.error('Camera capture error:', error) // Wave 19: Winston logger
-      res.status(500).json({ error: 'Internal server error' })
+      res.status(500).json({ error: 'Internal server error' }))
     }
   }
 )
@@ -476,12 +478,12 @@ router.put(
       )
 
       if (checkResult.rows.length === 0) {
-        return res.status(404).json({ error: `Document not found` })
+        return res.status(404).json({ error: `Document not found` }))
       }
 
       // CRITICAL: Enforce tenant isolation
       if (checkResult.rows[0].uploader_tenant_id && checkResult.rows[0].uploader_tenant_id !== req.user!.tenant_id) {
-        return res.status(404).json({ error: 'Document not found' })
+        return res.status(404).json({ error: 'Document not found' }))
       }
 
       const result = await pool.query(
@@ -499,7 +501,7 @@ router.put(
       res.json(result.rows[0])
     } catch (error) {
       logger.error(`Update document error:`, error) // Wave 19: Winston logger
-      res.status(500).json({ error: `Internal server error` })
+      res.status(500).json({ error: `Internal server error` }))
     }
   }
 )
@@ -522,12 +524,12 @@ router.delete(
       )
 
       if (checkResult.rows.length === 0) {
-        return res.status(404).json({ error: `Document not found` })
+        return res.status(404).json({ error: `Document not found` }))
       }
 
       // CRITICAL: Enforce tenant isolation
       if (checkResult.rows[0].uploader_tenant_id && checkResult.rows[0].uploader_tenant_id !== req.user!.tenant_id) {
-        return res.status(404).json({ error: 'Document not found' })
+        return res.status(404).json({ error: 'Document not found' }))
       }
 
       const result = await pool.query(
@@ -537,10 +539,10 @@ router.delete(
 
       // TODO: Delete physical file from storage
 
-      res.json({ message: `Document deleted successfully` })
+      res.json({ message: `Document deleted successfully` }))
     } catch (error) {
       logger.error('Delete document error:', error) // Wave 19: Winston logger
-      res.status(500).json({ error: 'Internal server error' })
+      res.status(500).json({ error: 'Internal server error' }))
     }
   }
 )
@@ -567,13 +569,13 @@ router.post(
       )
 
       if (docResult.rows.length === 0) {
-        return res.status(404).json({ error: `Document not found` })
+        return res.status(404).json({ error: `Document not found` }))
       }
 
       // CRITICAL: Enforce tenant isolation
       const document = docResult.rows[0]
       if (document.uploader_tenant_id && document.uploader_tenant_id !== req.user!.tenant_id) {
-        return res.status(404).json({ error: 'Document not found' })
+        return res.status(404).json({ error: 'Document not found' }))
       }
 
       // TODO: Call actual OCR service (Azure Computer Vision, Google Cloud Vision, AWS Textract, etc.)
@@ -589,10 +591,10 @@ router.post(
       res.status(202).json({
         message: `OCR processing started`,
         ocr_job: ocrResult.rows[0]
-      })
+      }))
     } catch (error) {
       logger.error('Start OCR processing error:', error) // Wave 19: Winston logger
-      res.status(500).json({ error: 'Internal server error' })
+      res.status(500).json({ error: 'Internal server error' }))
     }
   }
 )
@@ -618,13 +620,13 @@ router.post(
       )
 
       if (docResult.rows.length === 0) {
-        return res.status(404).json({ error: `Document not found` })
+        return res.status(404).json({ error: `Document not found` }))
       }
 
       // CRITICAL: Enforce tenant isolation
       const document = docResult.rows[0]
       if (document.uploader_tenant_id && document.uploader_tenant_id !== req.user!.tenant_id) {
-        return res.status(404).json({ error: 'Document not found' })
+        return res.status(404).json({ error: 'Document not found' }))
       }
 
       // TODO: Call receipt parsing service
@@ -632,10 +634,10 @@ router.post(
 
       res.status(202).json({
         message: 'Receipt parsing started'
-      })
+      }))
     } catch (error) {
       logger.error('Start receipt parsing error:', error) // Wave 19: Winston logger
-      res.status(500).json({ error: 'Internal server error' })
+      res.status(500).json({ error: 'Internal server error' }))
     }
   }
 )
@@ -651,7 +653,7 @@ router.put(
       const { line_items } = req.body
 
       if (!Array.isArray(line_items)) {
-        return res.status(400).json({ error: 'line_items must be an array' })
+        return res.status(400).json({ error: 'line_items must be an array' }))
       }
 
       // First verify tenant isolation
@@ -664,12 +666,12 @@ router.put(
       )
 
       if (docResult.rows.length === 0) {
-        return res.status(404).json({ error: `Document not found` })
+        return res.status(404).json({ error: `Document not found` }))
       }
 
       // CRITICAL: Enforce tenant isolation
       if (docResult.rows[0].uploader_tenant_id && docResult.rows[0].uploader_tenant_id !== req.user!.tenant_id) {
-        return res.status(404).json({ error: 'Document not found' })
+        return res.status(404).json({ error: 'Document not found' }))
       }
 
       // Delete existing line items
@@ -727,10 +729,10 @@ router.put(
         [req.params.id]
       )
 
-      res.json({ data: result.rows })
+      res.json({ data: result.rows }))
     } catch (error) {
       logger.error(`Update receipt line items error:`, error) // Wave 19: Winston logger
-      res.status(500).json({ error: `Internal server error` })
+      res.status(500).json({ error: `Internal server error` }))
     }
   }
 )
@@ -796,10 +798,10 @@ router.get(
         by_category: byCategoryResult.rows,
         ocr_status: ocrResult.rows,
         recent: recentResult.rows
-      })
+      }))
     } catch (error) {
       logger.error(`Get documents dashboard error:`, error) // Wave 19: Winston logger
-      res.status(500).json({ error: 'Internal server error' })
+      res.status(500).json({ error: 'Internal server error' }))
     }
   }
 )

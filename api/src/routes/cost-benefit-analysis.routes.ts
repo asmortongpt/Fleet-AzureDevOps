@@ -1,4 +1,7 @@
 /**
+import { container } from '../container'
+import { asyncHandler } from '../middleware/error-handler'
+import { NotFoundError, ValidationError } from '../errors/app-error'
 import logger from '../config/logger'; // Wave 32: Add Winston logger
  * Cost/Benefit Analysis API Routes
  * Supports BR-5 (Cost/Benefit Analysis Management)
@@ -10,18 +13,18 @@ import logger from '../config/logger'; // Wave 32: Add Winston logger
  * - Analysis approval workflow
  */
 
-import express, { Request, Response } from 'express';
-import { Pool } from 'pg';
-import { z } from 'zod';
-import { authenticateJWT, AuthRequest } from '../middleware/auth';
-import { requirePermission } from '../middleware/permissions';
+import express, { Request, Response } from 'express'
+import { Pool } from 'pg'
+import { z } from 'zod'
+import { authenticateJWT, AuthRequest } from '../middleware/auth'
+import { requirePermission } from '../middleware/permissions'
 import { getErrorMessage } from '../utils/error-handler'
 
-const router = express.Router();
+const router = express.Router()
 
-let pool: Pool;
+let pool: Pool
 export function setDatabasePool(dbPool: Pool) {
-  pool = dbPool;
+  pool = dbPool
 }
 
 // =====================================================
@@ -57,14 +60,14 @@ const createCostBenefitSchema = z.object({
 
   // Overall
   recommendation: z.string().optional(),
-});
+})
 
-const updateCostBenefitSchema = createCostBenefitSchema.partial();
+const updateCostBenefitSchema = createCostBenefitSchema.partial()
 
 const reviewCostBenefitSchema = z.object({
   approval_status: z.enum(['pending', 'approved', 'rejected']),
   notes: z.string().optional(),
-});
+})
 
 // =====================================================
 // GET /cost-benefit-analyses
@@ -77,30 +80,25 @@ router.get(
   requirePermission('cost_benefit:view:team'),
   async (req: AuthRequest, res: Response) => {
     try {
-      const {
-        page = '1',
-        limit = '50',
-        department_id,
-        approval_status,
-      } = req.query;
+      const { page = '1', limit = '50', department_id, approval_status } = req.query
 
-      const offset = (parseInt(page as string) - 1) * parseInt(limit as string);
-      const tenant_id = req.user!.tenant_id;
+      const offset = (parseInt(page as string) - 1) * parseInt(limit as string)
+      const tenant_id = req.user!.tenant_id
 
-      let whereConditions = [`cba.tenant_id = $1`];
-      let params: any[] = [tenant_id];
-      let paramIndex = 2;
+      let whereConditions = [`cba.tenant_id = $1`]
+      let params: any[] = [tenant_id]
+      let paramIndex = 2
 
       if (department_id) {
-        whereConditions.push(`cba.department_id = $${paramIndex++}`);
-        params.push(department_id);
+        whereConditions.push(`cba.department_id = $${paramIndex++}`)
+        params.push(department_id)
       }
       if (approval_status) {
-        whereConditions.push(`cba.approval_status = $${paramIndex++}`);
-        params.push(approval_status);
+        whereConditions.push(`cba.approval_status = $${paramIndex++}`)
+        params.push(approval_status)
       }
 
-      const whereClause = whereConditions.join(` AND `);
+      const whereClause = whereConditions.join(` AND `)
 
       const query = `
         SELECT
@@ -121,19 +119,19 @@ router.get(
         WHERE ${whereClause}
         ORDER BY cba.created_at DESC
         LIMIT $${paramIndex++} OFFSET $${paramIndex}
-      `;
+      `
 
-      params.push(parseInt(limit as string), offset);
+      params.push(parseInt(limit as string), offset)
 
-      const result = await pool.query(query, params);
+      const result = await pool.query(query, params)
 
       const countQuery = `
         SELECT COUNT(*) as total
         FROM cost_benefit_analyses cba
         WHERE ${whereClause}
-      `;
-      const countResult = await pool.query(countQuery, params.slice(0, -2));
-      const total = parseInt(countResult.rows[0].total);
+      `
+      const countResult = await pool.query(countQuery, params.slice(0, -2))
+      const total = parseInt(countResult.rows[0].total)
 
       res.json({
         analyses: result.rows,
@@ -143,16 +141,16 @@ router.get(
           total,
           pages: Math.ceil(total / parseInt(limit as string)),
         },
-      });
+      })
     } catch (error: any) {
       logger.error(`Error fetching cost/benefit analyses:`, error) // Wave 32: Winston logger;
       res.status(500).json({
         error: 'Failed to fetch cost/benefit analyses',
         details: getErrorMessage(error),
-      });
+      })
     }
   }
-);
+)
 
 // =====================================================
 // GET /cost-benefit-analyses/:id
@@ -165,8 +163,8 @@ router.get(
   requirePermission('cost_benefit:view:team'),
   async (req: AuthRequest, res: Response) => {
     try {
-      const { id } = req.params;
-      const tenant_id = req.user!.tenant_id;
+      const { id } = req.params
+      const tenant_id = req.user!.tenant_id
 
       const query = `
         SELECT
@@ -190,24 +188,24 @@ router.get(
         LEFT JOIN users prep_user ON cba.prepared_by_user_id = prep_user.id
         LEFT JOIN users rev_user ON cba.reviewed_by_user_id = rev_user.id
         WHERE cba.id = $1 AND cba.tenant_id = $2
-      `;
+      `
 
-      const result = await pool.query(query, [id, tenant_id]);
+      const result = await pool.query(query, [id, tenant_id])
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'Cost/benefit analysis not found' });
+        return res.status(404).json({ error: 'Cost/benefit analysis not found' })
       }
 
-      res.json(result.rows[0]);
+      res.json(result.rows[0])
     } catch (error: any) {
       logger.error('Error fetching cost/benefit analysis:', error) // Wave 32: Winston logger;
       res.status(500).json({
         error: 'Failed to fetch cost/benefit analysis',
         details: getErrorMessage(error),
-      });
+      })
     }
   }
-);
+)
 
 // =====================================================
 // POST /cost-benefit-analyses
@@ -220,9 +218,9 @@ router.post(
   requirePermission('cost_benefit:create:team'),
   async (req: AuthRequest, res: Response) => {
     try {
-      const data = createCostBenefitSchema.parse(req.body);
-      const tenant_id = req.user!.tenant_id;
-      const user_id = req.user!.id;
+      const data = createCostBenefitSchema.parse(req.body)
+      const tenant_id = req.user!.tenant_id
+      const user_id = req.user!.id
 
       const query = `
         INSERT INTO cost_benefit_analyses (
@@ -242,7 +240,7 @@ router.post(
           $16, $17, $18, $19, $20, $21, $22, $23
         )
         RETURNING *
-      `;
+      `
 
       const params = [
         tenant_id,
@@ -268,9 +266,9 @@ router.post(
         data.other_non_quantifiable_factors || null,
         data.recommendation || null,
         user_id,
-      ];
+      ]
 
-      const result = await pool.query(query, params);
+      const result = await pool.query(query, params)
 
       // If linked to a vehicle assignment, update the assignment
       if (data.vehicle_assignment_id) {
@@ -279,28 +277,28 @@ router.post(
            SET cost_benefit_analysis_id = $1
            WHERE id = $2 AND tenant_id = $3`,
           [result.rows[0].id, data.vehicle_assignment_id, tenant_id]
-        );
+        )
       }
 
       res.status(201).json({
         message: `Cost/benefit analysis created successfully`,
         analysis: result.rows[0],
-      });
+      })
     } catch (error: any) {
       logger.error('Error creating cost/benefit analysis:', error) // Wave 32: Winston logger;
       if (error instanceof z.ZodError) {
         return res.status(400).json({
           error: 'Validation error',
           details: error.errors,
-        });
+        })
       }
       res.status(500).json({
         error: 'Failed to create cost/benefit analysis',
         details: getErrorMessage(error),
-      });
+      })
     }
   }
-);
+)
 
 // =====================================================
 // PUT /cost-benefit-analyses/:id
@@ -313,60 +311,60 @@ router.put(
   requirePermission(`cost_benefit:create:team`),
   async (req: AuthRequest, res: Response) => {
     try {
-      const { id } = req.params;
-      const data = updateCostBenefitSchema.parse(req.body);
-      const tenant_id = req.user!.tenant_id;
+      const { id } = req.params
+      const data = updateCostBenefitSchema.parse(req.body)
+      const tenant_id = req.user!.tenant_id
 
-      const updates: string[] = [];
-      const params: any[] = [];
-      let paramIndex = 1;
+      const updates: string[] = []
+      const params: any[] = []
+      let paramIndex = 1
 
       Object.entries(data).forEach(([key, value]) => {
         if (value !== undefined) {
-          updates.push(`${key} = $${paramIndex++}`);
-          params.push(value);
+          updates.push(`${key} = $${paramIndex++}`)
+          params.push(value)
         }
-      });
+      })
 
       if (updates.length === 0) {
-        return res.status(400).json({ error: `No fields to update` });
+        return res.status(400).json({ error: `No fields to update` })
       }
 
-      updates.push(`updated_at = NOW()`);
-      params.push(id, tenant_id);
+      updates.push(`updated_at = NOW()`)
+      params.push(id, tenant_id)
 
       const query = `
         UPDATE cost_benefit_analyses
         SET ${updates.join(', ')}
         WHERE id = $${paramIndex++} AND tenant_id = $${paramIndex}
         RETURNING *
-      `;
+      `
 
-      const result = await pool.query(query, params);
+      const result = await pool.query(query, params)
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: `Cost/benefit analysis not found` });
+        return res.status(404).json({ error: `Cost/benefit analysis not found` })
       }
 
       res.json({
         message: 'Cost/benefit analysis updated successfully',
         analysis: result.rows[0],
-      });
+      })
     } catch (error: any) {
       logger.error('Error updating cost/benefit analysis:', error) // Wave 32: Winston logger;
       if (error instanceof z.ZodError) {
         return res.status(400).json({
           error: 'Validation error',
           details: error.errors,
-        });
+        })
       }
       res.status(500).json({
         error: 'Failed to update cost/benefit analysis',
         details: getErrorMessage(error),
-      });
+      })
     }
   }
-);
+)
 
 // =====================================================
 // POST /cost-benefit-analyses/:id/review
@@ -379,10 +377,10 @@ router.post(
   requirePermission('cost_benefit:approve:fleet'),
   async (req: AuthRequest, res: Response) => {
     try {
-      const { id } = req.params;
-      const data = reviewCostBenefitSchema.parse(req.body);
-      const tenant_id = req.user!.tenant_id;
-      const user_id = req.user!.id;
+      const { id } = req.params
+      const data = reviewCostBenefitSchema.parse(req.body)
+      const tenant_id = req.user!.tenant_id
+      const user_id = req.user!.id
 
       const query = `
         UPDATE cost_benefit_analyses
@@ -393,38 +391,33 @@ router.post(
           updated_at = NOW()
         WHERE id = $3 AND tenant_id = $4
         RETURNING *
-      `;
+      `
 
-      const result = await pool.query(query, [
-        data.approval_status,
-        user_id,
-        id,
-        tenant_id,
-      ]);
+      const result = await pool.query(query, [data.approval_status, user_id, id, tenant_id])
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: `Cost/benefit analysis not found` });
+        return res.status(404).json({ error: `Cost/benefit analysis not found` })
       }
 
       res.json({
         message: `Cost/benefit analysis ${data.approval_status}`,
         analysis: result.rows[0],
-      });
+      })
     } catch (error: any) {
       logger.error(`Error reviewing cost/benefit analysis:`, error) // Wave 32: Winston logger;
       if (error instanceof z.ZodError) {
         return res.status(400).json({
           error: 'Validation error',
           details: error.errors,
-        });
+        })
       }
       res.status(500).json({
         error: 'Failed to review cost/benefit analysis',
         details: getErrorMessage(error),
-      });
+      })
     }
   }
-);
+)
 
 // =====================================================
 // DELETE /cost-benefit-analyses/:id
@@ -437,32 +430,32 @@ router.delete(
   requirePermission('cost_benefit:create:team'),
   async (req: AuthRequest, res: Response) => {
     try {
-      const { id } = req.params;
-      const tenant_id = req.user!.tenant_id;
+      const { id } = req.params
+      const tenant_id = req.user!.tenant_id
 
       const query = `
         DELETE FROM cost_benefit_analyses
         WHERE id = $1 AND tenant_id = $2
         RETURNING *
-      `;
+      `
 
-      const result = await pool.query(query, [id, tenant_id]);
+      const result = await pool.query(query, [id, tenant_id])
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'Cost/benefit analysis not found' });
+        return res.status(404).json({ error: 'Cost/benefit analysis not found' })
       }
 
       res.json({
         message: 'Cost/benefit analysis deleted successfully',
-      });
+      })
     } catch (error: any) {
       logger.error('Error deleting cost/benefit analysis:', error) // Wave 32: Winston logger;
       res.status(500).json({
         error: 'Failed to delete cost/benefit analysis',
         details: getErrorMessage(error),
-      });
+      })
     }
   }
-);
+)
 
-export default router;
+export default router
