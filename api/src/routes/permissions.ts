@@ -1,7 +1,9 @@
 import express, { Response } from 'express'
+import { container } from '../container'
+import { asyncHandler } from '../middleware/error-handler'
+import { NotFoundError, ValidationError } from '../errors/app-error'
 import { AuthRequest, authenticateJWT } from '../middleware/auth'
 import { getUserPermissions } from '../middleware/permissions'
-import pool from '../config/database'
 
 const router = express.Router()
 router.use(authenticateJWT)
@@ -13,7 +15,7 @@ router.use(authenticateJWT)
 router.get('/me', async (req: AuthRequest, res: Response) => {
   try {
     if (!req.user) {
-      return res.status(401).json({ error: 'Authentication required' })
+      return res.status(401).json({ error: 'Authentication required' }))
     }
 
     // Get user's roles
@@ -54,12 +56,12 @@ router.get('/me', async (req: AuthRequest, res: Response) => {
         team_vehicle_ids: userScope.team_vehicle_ids || [],
         approval_limit: userScope.approval_limit || 0
       }
-    })
+    }))
   } catch (error) {
     console.error('Get user permissions error:', error)
-    res.status(500).json({ error: 'Internal server error' })
+    res.status(500).json({ error: 'Internal server error' }))
   }
-})
+}))
 
 /**
  * GET /api/permissions/check/:permission
@@ -68,7 +70,7 @@ router.get('/me', async (req: AuthRequest, res: Response) => {
 router.get('/check/:permission', async (req: AuthRequest, res: Response) => {
   try {
     if (!req.user) {
-      return res.status(401).json({ error: 'Authentication required' })
+      return res.status(401).json({ error: 'Authentication required' }))
     }
 
     const permissions = await getUserPermissions(req.user.id)
@@ -77,12 +79,12 @@ router.get('/check/:permission', async (req: AuthRequest, res: Response) => {
     res.json({
       permission: req.params.permission,
       granted: hasPermission
-    })
+    }))
   } catch (error) {
     console.error('Check permission error:', error)
-    res.status(500).json({ error: 'Internal server error' })
+    res.status(500).json({ error: 'Internal server error' }))
   }
-})
+}))
 
 /**
  * GET /api/permissions/roles
@@ -93,7 +95,7 @@ router.get('/roles', async (req: AuthRequest, res: Response) => {
     // Check if user has permission to view roles
     const permissions = await getUserPermissions(req.user!.id)
     if (!permissions.has('role:manage:global')) {
-      return res.status(403).json({ error: 'Insufficient permissions' })
+      return res.status(403).json({ error: 'Insufficient permissions' }))
     }
 
     const result = await pool.query(
@@ -108,12 +110,12 @@ router.get('/roles', async (req: AuthRequest, res: Response) => {
        ORDER BY r.name`
     )
 
-    res.json({ data: result.rows })
+    res.json({ data: result.rows }))
   } catch (error) {
     console.error(`List roles error:`, error)
-    res.status(500).json({ error: `Internal server error` })
+    res.status(500).json({ error: `Internal server error` }))
   }
-})
+}))
 
 /**
  * GET /api/permissions/roles/:roleId/permissions
@@ -123,7 +125,7 @@ router.get('/roles/:roleId/permissions', async (req: AuthRequest, res: Response)
   try {
     const permissions = await getUserPermissions(req.user!.id)
     if (!permissions.has('role:manage:global')) {
-      return res.status(403).json({ error: 'Insufficient permissions' })
+      return res.status(403).json({ error: 'Insufficient permissions' }))
     }
 
     const result = await pool.query(
@@ -135,11 +137,11 @@ router.get('/roles/:roleId/permissions', async (req: AuthRequest, res: Response)
       [req.params.roleId]
     )
 
-    res.json({ data: result.rows })
+    res.json({ data: result.rows }))
   } catch (error) {
     console.error(`Get role permissions error:`, error)
-    res.status(500).json({ error: `Internal server error` })
+    res.status(500).json({ error: `Internal server error` }))
   }
-})
+}))
 
 export default router

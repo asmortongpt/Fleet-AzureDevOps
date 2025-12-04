@@ -1,4 +1,7 @@
 /**
+import { container } from '../container'
+import { asyncHandler } from '../middleware/error-handler'
+import { NotFoundError, ValidationError } from '../errors/app-error'
 import logger from '../config/logger'; // Wave 21: Add Winston logger
  * Mobile Notifications Routes
  * API endpoints for mobile app notification management
@@ -593,7 +596,8 @@ router.get(
  * POST /api/mobile/notifications/webhooks/twilio
  * Handle Twilio delivery status webhooks
  */
-router.post('/webhooks/twilio', async (req, res) => {
+router.post('/webhooks/twilio', asyncHandler(async (req, res) => {
+// TODO: const service = container.resolve('"Service"')
   try {
     await smsService.handleWebhook(req.body);
 
