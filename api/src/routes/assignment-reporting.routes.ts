@@ -400,7 +400,7 @@ router.get(
           COUNT(DISTINCT ocp.id) as on_call_periods,
           SUM(ocp.callback_count) as total_callbacks,
           SUM(
-            EXTRACT(EPOCH FROM (ocp.end_datetime - ocp.start_datetime)) / 3600
+            EXTRACT(EPOCH FROM (ocp.end_datetime - ocp.start_datetime) / 3600
           ) as total_on_call_hours,
           COUNT(CASE WHEN ocp.acknowledged_by_driver THEN 1 END) as acknowledged_periods,
           SUM(

@@ -14,13 +14,13 @@ import csurf from 'csurf';
 
 const router = express.Router();
 
-router.use(helmet());
-router.use(express.json());
-router.use(csurf({ cookie: true }));
+router.use(helmet();
+router.use(express.json();
+router.use(csurf({ cookie: true });
 router.use(rateLimit({
   windowMs: 60 * 1000, // 1 minute
   max: 100, // limit each IP to 100 requests per windowMs
-}));
+});
 
 // Database pool (will be set via setDatabasePool)
 let pool: Pool;
@@ -40,7 +40,7 @@ const createReservationSchema = z.object({
   start_datetime: z.string().datetime('Invalid start datetime format'),
   end_datetime: z.string().datetime('Invalid end datetime format'),
   purpose: z.enum(['business', 'personal'], {
-    errorMap: () => ({ message: 'Purpose must be either "business" or "personal"' }))
+    errorMap: () => ({ message: 'Purpose must be either "business" or "personal"' })
   }),
   notes: z.string().max(1000, 'Notes cannot exceed 1000 characters').optional(),
   approval_required: z.boolean().optional().default(true),
@@ -66,7 +66,7 @@ const updateReservationSchema = z.object({
 
 const approvalActionSchema = z.object({
   action: z.enum(['approve', 'reject'], {
-    errorMap: () => ({ message: 'Action must be either "approve" or "reject"' }))
+    errorMap: () => ({ message: 'Action must be either "approve" or "reject"' })
   }),
   notes: z.string().max(500).optional(),
 });
@@ -82,7 +82,7 @@ router.post('/', authenticateJWT, async (req: AuthRequest, res: Response) => {
     const { vehicle_id, start_datetime, end_datetime, purpose, notes, approval_required } = parsedData;
 
     // Permission check
-    if (!checkPermissions(req.user, 'createReservation')) {
+    if (!checkPermissions(req.user, 'createReservation') {
       return res.status(403).json({ error: 'Insufficient permissions' });
     }
 

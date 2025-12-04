@@ -31,13 +31,13 @@ const upload = multer({
     ]
 
     if (allowedTypes.includes(file.mimetype) ||
-        file.originalname.match(/\.(usdz|ply|obj|fbx|dae)$/i)) {
+        file.originalname.match(/\.(usdz|ply|obj|fbx|dae)$/i) {
       cb(null, true)
     } else {
-      cb(new Error(`Unsupported file type: ${file.mimetype}`))
+      cb(new Error(`Unsupported file type: ${file.mimetype}`)
     }
   },
-}))
+})
 
 // Initialize blob service client
 let blobServiceClient: BlobServiceClient | null = null
@@ -56,15 +56,15 @@ const damageReportSchema = z.object({
   damage_description: z.string(),
   damage_severity: z.enum(['minor', 'moderate', 'severe']),
   damage_location: z.string().optional(),
-  photos: z.array(z.string()).optional(),
-  videos: z.array(z.string()).optional(), // NEW: Video URLs
-  lidar_scans: z.array(z.string()).optional(), // NEW: LiDAR scan URLs
+  photos: z.array(z.string().optional(),
+  videos: z.array(z.string().optional(), // NEW: Video URLs
+  lidar_scans: z.array(z.string().optional(), // NEW: LiDAR scan URLs
   triposr_task_id: z.string().optional(),
   triposr_status: z.enum(['pending', 'processing', 'completed', 'failed']).optional(),
   triposr_model_url: z.string().optional(),
   linked_work_order_id: z.string().uuid().optional(),
   inspection_id: z.string().uuid().optional(),
-}))
+})
 
 // GET /damage-reports
 router.get(
@@ -115,12 +115,12 @@ router.get(
           page: Number(page),
           limit: Number(limit),
           total: parseInt(countResult.rows[0].count),
-          pages: Math.ceil(countResult.rows[0].count / Number(limit))
+          pages: Math.ceil(countResult.rows[0].count / Number(limit)
         }
-      }))
+      })
     } catch (error) {
       console.error(`Get damage reports error:`, error)
-      res.status(500).json({ error: 'Internal server error' }))
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )
@@ -152,13 +152,13 @@ router.get(
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: `Damage report not found` }))
+        return res.status(404).json({ error: `Damage report not found` })
       }
 
       res.json(result.rows[0])
     } catch (error) {
       console.error('Get damage report error:', error)
-      res.status(500).json({ error: 'Internal server error' }))
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )
@@ -200,10 +200,10 @@ router.post(
       res.status(201).json(result.rows[0])
     } catch (error) {
       if (error instanceof z.ZodError) {
-        return res.status(400).json({ error: `Validation error`, details: error.errors }))
+        return res.status(400).json({ error: `Validation error`, details: error.errors })
       }
       console.error('Create damage report error:', error)
-      res.status(500).json({ error: 'Internal server error' }))
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )
@@ -225,10 +225,10 @@ router.put(
         fields.push(`${key} = $${paramIndex}`)
         values.push(value)
         paramIndex++
-      }))
+      })
 
       if (fields.length === 0) {
-        return res.status(400).json({ error: `No fields to update` }))
+        return res.status(400).json({ error: `No fields to update` })
       }
 
       const result = await pool.query(
@@ -238,16 +238,16 @@ router.put(
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: `Damage report not found` }))
+        return res.status(404).json({ error: `Damage report not found` })
       }
 
       res.json(result.rows[0])
     } catch (error) {
       if (error instanceof z.ZodError) {
-        return res.status(400).json({ error: `Validation error`, details: error.errors }))
+        return res.status(400).json({ error: `Validation error`, details: error.errors })
       }
       console.error('Update damage report error:', error)
-      res.status(500).json({ error: 'Internal server error' }))
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )
@@ -263,7 +263,7 @@ router.patch(
       const { triposr_status, triposr_model_url } = req.body
 
       if (!triposr_status) {
-        return res.status(400).json({ error: 'triposr_status is required' }))
+        return throw new ValidationError("triposr_status is required")
       }
 
       const result = await pool.query(
@@ -274,13 +274,13 @@ router.patch(
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: `Damage report not found` }))
+        return res.status(404).json({ error: `Damage report not found` })
       }
 
       res.json(result.rows[0])
     } catch (error) {
       console.error(`Update TripoSR status error:`, error)
-      res.status(500).json({ error: 'Internal server error' }))
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )
@@ -298,13 +298,13 @@ router.delete(
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: `Damage report not found` }))
+        return res.status(404).json({ error: `Damage report not found` })
       }
 
-      res.json({ message: 'Damage report deleted successfully' }))
+      res.json({ message: 'Damage report deleted successfully' })
     } catch (error) {
       console.error('Delete damage report error:', error)
-      res.status(500).json({ error: 'Internal server error' }))
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )
@@ -323,13 +323,13 @@ router.post(
       if (!blobServiceClient) {
         return res.status(500).json({
           error: 'Azure Storage not configured - media upload disabled',
-        }))
+        })
       }
 
       if (!req.files || !Array.isArray(req.files) || req.files.length === 0) {
         return res.status(400).json({
           error: 'No media files provided',
-        }))
+        })
       }
 
       const tenantId = req.user!.tenant_id
@@ -345,7 +345,7 @@ router.post(
         try {
           // Determine media type based on MIME type and extension
           let mediaType: 'photo' | 'video' | 'lidar' = 'photo'
-          if (file.mimetype.startsWith('video/')) {
+          if (file.mimetype.startsWith('video/') {
             mediaType = 'video'
           } else if (
             file.originalname.match(/\.(usdz|ply|obj|fbx|dae)$/i) ||
@@ -368,7 +368,7 @@ router.post(
               : 'damage-photos'
 
           const containerClient = blobServiceClient.getContainerClient(containerName)
-          await containerClient.createIfNotExists({ access: 'blob' }))
+          await containerClient.createIfNotExists({ access: 'blob' })
 
           const blockBlobClient = containerClient.getBlockBlobClient(fileName)
 
@@ -382,7 +382,7 @@ router.post(
               tenantId: tenantId,
               mediaType: mediaType,
             },
-          }))
+          })
 
           const blobUrl = blockBlobClient.url
 
@@ -391,7 +391,7 @@ router.post(
             type: mediaType,
             fileName: file.originalname,
             size: file.size,
-          }))
+          })
         } catch (error: any) {
           console.error(`Failed to upload file ${file.originalname}:`, error)
           // Continue with other files even if one fails
@@ -401,7 +401,7 @@ router.post(
       if (uploadedFiles.length === 0) {
         return res.status(500).json({
           error: `Failed to upload any media files`,
-        }))
+        })
       }
 
       res.status(201).json({
@@ -410,13 +410,13 @@ router.post(
         files: uploadedFiles,
         totalFiles: req.files.length,
         successfulUploads: uploadedFiles.length,
-      }))
+      })
     } catch (error: any) {
       console.error('Upload media error:', error)
       res.status(500).json({
         error: 'Failed to upload media',
         details: error.message,
-      }))
+      })
     }
   }
 )

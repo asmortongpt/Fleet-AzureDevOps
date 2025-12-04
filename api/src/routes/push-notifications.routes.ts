@@ -33,7 +33,7 @@ router.post(
         })
       }
 
-      if (!['ios', 'android'].includes(platform)) {
+      if (!['ios', 'android'].includes(platform) {
         return res.status(400).json({
           success: false,
           error: 'Platform must be either "ios" or "android"',
