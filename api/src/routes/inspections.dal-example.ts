@@ -43,14 +43,14 @@ const inspectionCreateSchema = z.object({
   location: z.string().optional(),
   notes: z.string().optional(),
   checklist_data: z.any().optional()
-}))
+})
 
 const inspectionCompleteSchema = z.object({
   passed: z.boolean(),
-  defects_found: z.array(z.any()).optional(),
+  defects_found: z.array(z.any().optional(),
   notes: z.string().optional(),
   signature_url: z.string().url().optional()
-}))
+})
 
 /**
  * GET /inspections
@@ -68,12 +68,12 @@ router.get(
         page: Number(page),
         limit: Number(limit),
         orderBy: orderBy as string
-      }))
+      })
 
       res.json(result)
     } catch (error) {
       const { statusCode, error: message, code } = handleDatabaseError(error)
-      res.status(statusCode).json({ error: message, code }))
+      res.status(statusCode).json({ error: message, code })
     }
   }
 )
@@ -92,7 +92,7 @@ router.get(
       res.json(stats)
     } catch (error) {
       const { statusCode, error: message, code } = handleDatabaseError(error)
-      res.status(statusCode).json({ error: message, code }))
+      res.status(statusCode).json({ error: message, code })
     }
   }
 )
@@ -108,10 +108,10 @@ router.get(
   async (req: AuthRequest, res: Response) => {
     try {
       const inspections = await inspectionRepo.findPending(req.user!.tenant_id)
-      res.json({ data: inspections }))
+      res.json({ data: inspections })
     } catch (error) {
       const { statusCode, error: message, code } = handleDatabaseError(error)
-      res.status(statusCode).json({ error: message, code }))
+      res.status(statusCode).json({ error: message, code })
     }
   }
 )
@@ -127,10 +127,10 @@ router.get(
   async (req: AuthRequest, res: Response) => {
     try {
       const inspections = await inspectionRepo.findOverdue(req.user!.tenant_id)
-      res.json({ data: inspections }))
+      res.json({ data: inspections })
     } catch (error) {
       const { statusCode, error: message, code } = handleDatabaseError(error)
-      res.status(statusCode).json({ error: message, code }))
+      res.status(statusCode).json({ error: message, code })
     }
   }
 )
@@ -146,11 +146,11 @@ router.get(
   async (req: AuthRequest, res: Response) => {
     try {
       const { days = 7 } = req.query
-      const inspections = await inspectionRepo.findDueSoon(req.user!.tenant_id, Number(days))
-      res.json({ data: inspections }))
+      const inspections = await inspectionRepo.findDueSoon(req.user!.tenant_id, Number(days)
+      res.json({ data: inspections })
     } catch (error) {
       const { statusCode, error: message, code } = handleDatabaseError(error)
-      res.status(statusCode).json({ error: message, code }))
+      res.status(statusCode).json({ error: message, code })
     }
   }
 )
@@ -169,10 +169,10 @@ router.get(
         req.user!.tenant_id,
         req.params.vehicleId
       )
-      res.json({ data: inspections }))
+      res.json({ data: inspections })
     } catch (error) {
       const { statusCode, error: message, code } = handleDatabaseError(error)
-      res.status(statusCode).json({ error: message, code }))
+      res.status(statusCode).json({ error: message, code })
     }
   }
 )
@@ -194,10 +194,10 @@ router.get(
         req.params.vehicleId,
         Number(limit)
       )
-      res.json({ data: inspections }))
+      res.json({ data: inspections })
     } catch (error) {
       const { statusCode, error: message, code } = handleDatabaseError(error)
-      res.status(statusCode).json({ error: message, code }))
+      res.status(statusCode).json({ error: message, code })
     }
   }
 )
@@ -216,10 +216,10 @@ router.get(
         req.user!.tenant_id,
         req.params.driverId
       )
-      res.json({ data: inspections }))
+      res.json({ data: inspections })
     } catch (error) {
       const { statusCode, error: message, code } = handleDatabaseError(error)
-      res.status(statusCode).json({ error: message, code }))
+      res.status(statusCode).json({ error: message, code })
     }
   }
 )
@@ -245,10 +245,10 @@ router.get(
         new Date(startDate as string),
         new Date(endDate as string)
       )
-      res.json({ data: inspections }))
+      res.json({ data: inspections })
     } catch (error) {
       const { statusCode, error: message, code } = handleDatabaseError(error)
-      res.status(statusCode).json({ error: message, code }))
+      res.status(statusCode).json({ error: message, code })
     }
   }
 )
@@ -275,7 +275,7 @@ router.get(
       res.json(inspection)
     } catch (error) {
       const { statusCode, error: message, code } = handleDatabaseError(error)
-      res.status(statusCode).json({ error: message, code }))
+      res.status(statusCode).json({ error: message, code })
     }
   }
 )
@@ -302,11 +302,11 @@ router.post(
       res.status(201).json(inspection)
     } catch (error) {
       if (error instanceof z.ZodError) {
-        return res.status(400).json({ error: 'Validation failed', details: error.errors }))
+        return res.status(400).json({ error: 'Validation failed', details: error.errors })
       }
 
       const { statusCode, error: message, code } = handleDatabaseError(error)
-      res.status(statusCode).json({ error: message, code }))
+      res.status(statusCode).json({ error: message, code })
     }
   }
 )
@@ -334,11 +334,11 @@ router.put(
       res.json(inspection)
     } catch (error) {
       if (error instanceof z.ZodError) {
-        return res.status(400).json({ error: 'Validation failed', details: error.errors }))
+        return res.status(400).json({ error: 'Validation failed', details: error.errors })
       }
 
       const { statusCode, error: message, code } = handleDatabaseError(error)
-      res.status(statusCode).json({ error: message, code }))
+      res.status(statusCode).json({ error: message, code })
     }
   }
 )
@@ -395,11 +395,11 @@ router.post(
       res.json(inspection)
     } catch (error) {
       if (error instanceof z.ZodError) {
-        return res.status(400).json({ error: 'Validation failed', details: error.errors }))
+        return res.status(400).json({ error: 'Validation failed', details: error.errors })
       }
 
       const { statusCode, error: message, code } = handleDatabaseError(error)
-      res.status(statusCode).json({ error: message, code }))
+      res.status(statusCode).json({ error: message, code })
     }
   }
 )
@@ -420,10 +420,10 @@ router.delete(
         throw new NotFoundError('Inspection not found')
       }
 
-      res.json({ message: 'Inspection deleted successfully' }))
+      res.json({ message: 'Inspection deleted successfully' })
     } catch (error) {
       const { statusCode, error: message, code } = handleDatabaseError(error)
-      res.status(statusCode).json({ error: message, code }))
+      res.status(statusCode).json({ error: message, code })
     }
   }
 )
@@ -476,10 +476,10 @@ router.post(
       res.status(201).json({
         message: `${inspections.length} inspections scheduled successfully`,
         data: inspections
-      }))
+      })
     } catch (error) {
       const { statusCode, error: message, code } = handleDatabaseError(error)
-      res.status(statusCode).json({ error: message, code }))
+      res.status(statusCode).json({ error: message, code })
     }
   }
 )

@@ -63,10 +63,10 @@ const upload = multer({
   },
   fileFilter: (req, file, cb) => {
     // Accept images and videos
-    if (file.mimetype.startsWith('image/') || file.mimetype.startsWith('video/')) {
+    if (file.mimetype.startsWith('image/') || file.mimetype.startsWith('video/') {
       cb(null, true)
     } else {
-      cb(new Error('Only image and video files are allowed'))
+      cb(new Error('Only image and video files are allowed')
     }
   },
 })
@@ -85,7 +85,7 @@ router.post(
   async (req: AuthRequest, res: Response) => {
     try {
       if (!req.file) {
-        return res.status(400).json({ error: 'No photo file provided' })
+        return throw new ValidationError("No photo file provided")
       }
 
       // SECURITY: Validate file content and size
@@ -170,11 +170,11 @@ router.post(
   async (req: AuthRequest, res: Response) => {
     try {
       if (!req.files || req.files.length === 0) {
-        return res.status(400).json({ error: 'No photo files provided' })
+        return throw new ValidationError("No photo files provided")
       }
 
       if (!req.body.lidarData) {
-        return res.status(400).json({ error: 'No LiDAR data provided' })
+        return throw new ValidationError("No LiDAR data provided")
       }
 
       logger.info('Analyzing LiDAR scan', {
@@ -242,7 +242,7 @@ router.post(
   async (req: AuthRequest, res: Response) => {
     try {
       if (!req.file) {
-        return res.status(400).json({ error: 'No video file provided' })
+        return throw new ValidationError("No video file provided")
       }
 
       logger.info('Analyzing video for damage', {
@@ -307,7 +307,7 @@ router.post(
   async (req: AuthRequest, res: Response) => {
     try {
       if (!req.files || req.files.length === 0) {
-        return res.status(400).json({ error: 'At least one photo is required' })
+        return throw new ValidationError("At least one photo is required")
       }
 
       logger.info('Starting comprehensive damage analysis', {
@@ -407,7 +407,7 @@ router.post(
       const { vehicleId, damages, photoUrls, analysisMetadata } = req.body
 
       if (!vehicleId || !damages || damages.length === 0) {
-        return res.status(400).json({ error: 'vehicleId and damages are required' })
+        return throw new ValidationError("vehicleId and damages are required")
       }
 
       // Validate vehicle belongs to user's tenant
@@ -448,7 +448,7 @@ router.post(
               cost_estimate,
               repair_status,
               reported_at
-            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, NOW())
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, NOW()
             RETURNING id`,
             [
               vehicleId,

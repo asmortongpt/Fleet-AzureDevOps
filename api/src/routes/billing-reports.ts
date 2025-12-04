@@ -25,10 +25,10 @@ router.get('/monthly/:period',
     try {
       const { period } = req.params // Format: YYYY-MM
 
-      if (!/^\d{4}-\d{2}$/.test(period)) {
+      if (!/^\d{4}-\d{2}$/.test(period) {
         return res.status(400).json({
           error: 'Invalid period format. Use YYYY-MM format (e.g., 2025-11)'
-        }))
+        })
       }
 
       const report = await billingReportsService.generateMonthlyReport(tenantId, period)
@@ -36,13 +36,13 @@ router.get('/monthly/:period',
       res.json({
         success: true,
         report
-      }))
+      })
     } catch (error: any) {
       logger.error('Failed to generate monthly billing report', {
         error: getErrorMessage(error),
         tenantId
-      }))
-      res.status(500).json({ error: 'Failed to generate billing report' }))
+      })
+      res.status(500).json({ error: 'Failed to generate billing report' })
     }
   }
 )
@@ -59,10 +59,10 @@ router.get('/payroll-export/:period',
     try {
       const { period } = req.params
 
-      if (!/^\d{4}-\d{2}$/.test(period)) {
+      if (!/^\d{4}-\d{2}$/.test(period) {
         return res.status(400).json({
           error: 'Invalid period format. Use YYYY-MM format (e.g., 2025-11)'
-        }))
+        })
       }
 
       const payrollExport = await billingReportsService.generatePayrollExport(tenantId, period)
@@ -70,13 +70,13 @@ router.get('/payroll-export/:period',
       res.json({
         success: true,
         data: payrollExport
-      }))
+      })
     } catch (error: any) {
       logger.error('Failed to generate payroll export', {
         error: getErrorMessage(error),
         tenantId
-      }))
-      res.status(500).json({ error: 'Failed to generate payroll export' }))
+      })
+      res.status(500).json({ error: 'Failed to generate payroll export' })
     }
   }
 )
@@ -93,10 +93,10 @@ router.get('/payroll-csv/:period',
     try {
       const { period } = req.params
 
-      if (!/^\d{4}-\d{2}$/.test(period)) {
+      if (!/^\d{4}-\d{2}$/.test(period) {
         return res.status(400).json({
           error: 'Invalid period format. Use YYYY-MM format (e.g., 2025-11)'
-        }))
+        })
       }
 
       const csv = await billingReportsService.generatePayrollCSV(tenantId, period)
@@ -108,8 +108,8 @@ router.get('/payroll-csv/:period',
       logger.error(`Failed to generate payroll CSV`, {
         error: getErrorMessage(error),
         tenantId
-      }))
-      res.status(500).json({ error: 'Failed to generate CSV export' }))
+      })
+      res.status(500).json({ error: 'Failed to generate CSV export' })
     }
   }
 )
@@ -127,10 +127,10 @@ router.post('/mark-billed/:period',
       const { period } = req.params
       const { charge_ids } = req.body // Optional: specific charges to mark
 
-      if (!/^\d{4}-\d{2}$/.test(period)) {
+      if (!/^\d{4}-\d{2}$/.test(period) {
         return res.status(400).json({
           error: `Invalid period format. Use YYYY-MM format (e.g., 2025-11)`
-        }))
+        })
       }
 
       const count = await billingReportsService.markChargesAsBilled(
@@ -143,13 +143,13 @@ router.post('/mark-billed/:period',
         success: true,
         message: `Marked ${count} charge(s) as billed`,
         count
-      }))
+      })
     } catch (error: any) {
       logger.error(`Failed to mark charges as billed`, {
         error: getErrorMessage(error),
         tenantId
-      }))
-      res.status(500).json({ error: 'Failed to update charge status' }))
+      })
+      res.status(500).json({ error: 'Failed to update charge status' })
     }
   }
 )

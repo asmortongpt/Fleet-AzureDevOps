@@ -17,7 +17,7 @@ import { logger } from '../config/logger'
 
 const router = express.Router()
 
-router.use(helmet())
+router.use(helmet()
 router.use(authenticateJWT)
 
 const apiLimiter = rateLimit({
