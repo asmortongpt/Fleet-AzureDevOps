@@ -16,7 +16,7 @@ import { WebPubSubServiceClient } from '@azure/web-pubsub'
 import { BlobServiceClient } from '@azure/storage-blob'
 import { DefaultAzureCredential } from '@azure/identity'
 import * as speechSdk from 'microsoft-cognitiveservices-speech-sdk'
-import { pool } from '../config/database'
+import { Pool } from 'pg'
 import { v4 as uuidv4 } from 'uuid'
 import { WebSocket, WebSocketServer } from 'ws'
 import { Server as HttpServer } from 'http'
@@ -68,7 +68,7 @@ export interface EmergencyAlert {
   description?: string
 }
 
-class DispatchService {
+export default class DispatchService {
   private wss: WebSocketServer | null = null
   private activeConnections: Map<string, WebSocket> = new Map()
   private channelListeners: Map<number, Set<string>> = new Map()
@@ -76,9 +76,12 @@ class DispatchService {
   private speechConfig: speechSdk.SpeechConfig | null = null
   private pubsubClient: WebPubSubServiceClient | null = null
   private initialized = false
+  private readonly db: Pool
+  private readonly logger: any
 
-  constructor() {
-    // Don't call initialization in constructor - do it lazily
+  constructor(db: Pool, logger: any) {
+    this.db = db
+    this.logger = logger
   }
 
   /**
@@ -90,7 +93,7 @@ class DispatchService {
       const blobConnectionString = process.env.AZURE_STORAGE_CONNECTION_STRING
       if (blobConnectionString) {
         this.blobServiceClient = BlobServiceClient.fromConnectionString(blobConnectionString)
-        console.log('✅ Azure Blob Storage initialized for dispatch audio storage')
+        this.logger.info('✅ Azure Blob Storage initialized for dispatch audio storage')
       }
 
       // Azure Speech Services for transcription
@@ -99,17 +102,17 @@ class DispatchService {
       if (speechKey) {
         this.speechConfig = speechSdk.SpeechConfig.fromSubscription(speechKey, speechRegion)
         this.speechConfig.speechRecognitionLanguage = 'en-US'
-        console.log('✅ Azure Speech Services initialized for transcription')
+        this.logger.info('✅ Azure Speech Services initialized for transcription')
       }
 
       // Azure Web PubSub (SignalR alternative) for real-time messaging
       const pubsubConnectionString = process.env.AZURE_WEBPUBSUB_CONNECTION_STRING
       if (pubsubConnectionString) {
         this.pubsubClient = new WebPubSubServiceClient(pubsubConnectionString, 'dispatch')
-        console.log('✅ Azure Web PubSub initialized for real-time dispatch')
+        this.logger.info('✅ Azure Web PubSub initialized for real-time dispatch')
       }
     } catch (error) {
-      console.error('⚠️  Error initializing Azure services:', error)
+      this.logger.error('⚠️  Error initializing Azure services:', error)
     }
 
     this.initialized = true
@@ -129,7 +132,7 @@ class DispatchService {
 
     this.wss.on(`connection`, (ws: WebSocket, req) => {
       const connectionId = uuidv4()
-      console.log(`🔌 New dispatch connection: ${connectionId}`)
+      this.logger.info(`🔌 New dispatch connection: ${connectionId}`)
 
       this.activeConnections.set(connectionId, ws)
 
@@ -138,22 +141,22 @@ class DispatchService {
           const message = JSON.parse(data.toString())
           await this.handleWebSocketMessage(connectionId, ws, message)
         } catch (error) {
-          console.error('Error handling WebSocket message:', error)
+          this.logger.error('Error handling WebSocket message:', error)
           ws.send(JSON.stringify({ error: 'Invalid message format' }))
         }
       })
 
       ws.on(`close`, () => {
-        console.log(`🔌 Dispatch connection closed: ${connectionId}`)
+        this.logger.info(`🔌 Dispatch connection closed: ${connectionId}`)
         this.handleDisconnection(connectionId)
       })
 
       ws.on(`error`, (error) => {
-        console.error(`WebSocket error for ${connectionId}:`, error)
+        this.logger.error(`WebSocket error for ${connectionId}:`, error)
       })
     })
 
-    console.log(`🎙️  Dispatch WebSocket server initialized on /api/dispatch/ws`)
+    this.logger.info(`🎙️  Dispatch WebSocket server initialized on /api/dispatch/ws`)
   }
 
   /**
@@ -199,7 +202,7 @@ class DispatchService {
 
     try {
       // Record active listener in database
-      await pool.query(`
+      await this.db.query(`
         INSERT INTO dispatch_active_listeners
         (channel_id, user_id, connection_id, device_type, device_info)
         VALUES ($1, $2, $3, $4, $5)
@@ -214,7 +217,7 @@ class DispatchService {
       this.channelListeners.get(channelId)!.add(connectionId)
 
       // Get channel info
-      const channelResult = await pool.query(
+      const channelResult = await this.db.query(
         'SELECT 
       id,
       name,
@@ -244,9 +247,9 @@ class DispatchService {
         timestamp: new Date()
       }, connectionId)
 
-      console.log(`👤 User ${username} joined channel ${channelId}`)
+      this.logger.info(`👤 User ${username} joined channel ${channelId}`)
     } catch (error) {
-      console.error(`Error joining channel:`, error)
+      this.logger.error(`Error joining channel:`, error)
       ws.send(JSON.stringify({ error: 'Failed to join channel' }))
     }
   }
@@ -259,7 +262,7 @@ class DispatchService {
 
     try {
       // Remove from database
-      await pool.query(
+      await this.db.query(
         'DELETE FROM dispatch_active_listeners WHERE connection_id = $1 AND channel_id = $2',
         [connectionId, channelId]
       )
@@ -277,7 +280,7 @@ class DispatchService {
         timestamp: new Date()
       }, connectionId)
     } catch (error) {
-      console.error('Error leaving channel:', error)
+      this.logger.error('Error leaving channel:', error)
     }
   }
 
@@ -289,7 +292,7 @@ class DispatchService {
 
     try {
       // Create transmission record
-      const result = await pool.query(`
+      const result = await this.db.query(`
         INSERT INTO dispatch_transmissions
         (channel_id, user_id, is_emergency, location_lat, location_lng, audio_format)
         VALUES ($1, $2, $3, $4, $5, 'opus')
@@ -320,9 +323,9 @@ class DispatchService {
         transmissionId
       }))
 
-      console.log(`🎙️  Transmission ${transmissionId} started by ${username} on channel ${channelId}`)
+      this.logger.info(`🎙️  Transmission ${transmissionId} started by ${username} on channel ${channelId}`)
     } catch (error) {
-      console.error(`Error starting transmission:`, error)
+      this.logger.error(`Error starting transmission:`, error)
       ws.send(JSON.stringify({ error: 'Failed to start transmission' }))
     }
   }
@@ -341,7 +344,7 @@ class DispatchService {
         audioData // Base64 encoded Opus audio
       }, connectionId)
     } catch (error) {
-      console.error('Error handling audio chunk:', error)
+      this.logger.error('Error handling audio chunk:', error)
     }
   }
 
@@ -361,7 +364,7 @@ class DispatchService {
       }
 
       // Update transmission record
-      const result = await pool.query(`
+      const result = await this.db.query(`
         UPDATE dispatch_transmissions
         SET transmission_end = $1,
             duration_seconds = EXTRACT(EPOCH FROM ($1 - transmission_start)),
@@ -383,12 +386,12 @@ class DispatchService {
 
       // Trigger transcription if audio was recorded
       if (audioBlobUrl) {
-        this.transcribeAudio(transmissionId, audioBlobUrl).catch(console.error)
+        this.transcribeAudio(transmissionId, audioBlobUrl).catch((err) => this.logger.error(err))
       }
 
-      console.log(`🎙️  Transmission ${transmissionId} ended (${duration}s)`)
+      this.logger.info(`🎙️  Transmission ${transmissionId} ended (${duration}s)`)
     } catch (error) {
-      console.error(`Error ending transmission:`, error)
+      this.logger.error(`Error ending transmission:`, error)
     }
   }
 
@@ -420,12 +423,12 @@ class DispatchService {
    */
   private async transcribeAudio(transmissionId: string, audioBlobUrl: string) {
     if (!this.speechConfig) {
-      console.log(`⚠️  Speech service not configured, skipping transcription`)
+      this.logger.info(`⚠️  Speech service not configured, skipping transcription`)
       return
     }
 
     try {
-      console.log(`🎤 Transcribing transmission ${transmissionId}...`)
+      this.logger.info(`🎤 Transcribing transmission ${transmissionId}...`)
 
       // Note: In production, you would fetch the audio from the blob URL
       // and use Azure Speech SDK to transcribe it. This is a simplified implementation.
@@ -435,7 +438,7 @@ class DispatchService {
       const confidenceScore = 0.95
 
       // Store transcription
-      await pool.query(`
+      await this.db.query(`
         INSERT INTO dispatch_transcriptions
         (transmission_id, transcription_text, confidence_score, transcription_service)
         VALUES ($1, $2, $3, `azure-speech`)
@@ -444,9 +447,9 @@ class DispatchService {
       // Trigger AI incident tagging
       await this.tagIncidents(transmissionId, transcriptionText)
 
-      console.log(`✅ Transcription completed for transmission ${transmissionId}`)
+      this.logger.info(`✅ Transcription completed for transmission ${transmissionId}`)
     } catch (error) {
-      console.error(`Error transcribing audio:`, error)
+      this.logger.error(`Error transcribing audio:`, error)
     }
   }
 
@@ -464,16 +467,16 @@ class DispatchService {
       ]
 
       for (const tag of tags) {
-        await pool.query(`
+        await this.db.query(`
           INSERT INTO dispatch_incident_tags
           (transmission_id, tag_type, confidence_score, detected_by, entities)
           VALUES ($1, $2, $3, `azure-openai`, $4)
         `, [transmissionId, tag.type, tag.confidence, JSON.stringify(tag.entities)])
       }
 
-      console.log(`🏷️  Tagged transmission ${transmissionId} with ${tags.length} incidents`)
+      this.logger.info(`🏷️  Tagged transmission ${transmissionId} with ${tags.length} incidents`)
     } catch (error) {
-      console.error(`Error tagging incidents:`, error)
+      this.logger.error(`Error tagging incidents:`, error)
     }
   }
 
@@ -485,7 +488,7 @@ class DispatchService {
 
     try {
       // Create emergency alert
-      const result = await pool.query(`
+      const result = await this.db.query(`
         INSERT INTO dispatch_emergency_alerts
         (user_id, vehicle_id, alert_type, location_lat, location_lng, description)
         VALUES ($1, $2, $3, $4, $5, $6)
@@ -495,7 +498,7 @@ class DispatchService {
       const alertId = result.rows[0].id
 
       // Broadcast to all emergency channels
-      const emergencyChannels = await pool.query(
+      const emergencyChannels = await this.db.query(
         "SELECT id FROM dispatch_channels WHERE channel_type = 'emergency' AND is_active = true"
       )
 
@@ -512,9 +515,9 @@ class DispatchService {
         })
       }
 
-      console.log(`🚨 Emergency alert ${alertId} broadcast: ${alertType}`)
+      this.logger.info(`🚨 Emergency alert ${alertId} broadcast: ${alertType}`)
     } catch (error) {
-      console.error(`Error handling emergency alert:`, error)
+      this.logger.error(`Error handling emergency alert:`, error)
     }
   }
 
@@ -525,13 +528,13 @@ class DispatchService {
     const { channelId, userId } = message
 
     try {
-      await pool.query(`
+      await this.db.query(`
         UPDATE dispatch_active_listeners
         SET last_heartbeat = CURRENT_TIMESTAMP
         WHERE connection_id = $1
       `, [connectionId])
     } catch (error) {
-      console.error('Error updating heartbeat:', error)
+      this.logger.error('Error updating heartbeat:', error)
     }
   }
 
@@ -555,10 +558,10 @@ class DispatchService {
     this.activeConnections.delete(connectionId)
 
     // Clean up database
-    pool.query(
+    this.db.query(
       'DELETE FROM dispatch_active_listeners WHERE connection_id = $1',
       [connectionId]
-    ).catch(console.error)
+    ).catch((err) => this.logger.error(err))
   }
 
   /**
@@ -608,10 +611,10 @@ class DispatchService {
 
       query += ' ORDER BY priority_level DESC, name ASC'
 
-      const result = await pool.query(query, params)
+      const result = await this.db.query(query, params)
       return result.rows
     } catch (error) {
-      console.error('Error getting channels:', error)
+      this.logger.error('Error getting channels:', error)
       throw error
     }
   }
@@ -621,7 +624,7 @@ class DispatchService {
    */
   async getChannelHistory(channelId: number, limit: number = 50) {
     try {
-      const result = await pool.query(`
+      const result = await this.db.query(`
         SELECT
           t.*,
           u.email as user_email,
@@ -640,7 +643,7 @@ class DispatchService {
 
       return result.rows
     } catch (error) {
-      console.error('Error getting channel history:', error)
+      this.logger.error('Error getting channel history:', error)
       throw error
     }
   }
@@ -650,7 +653,7 @@ class DispatchService {
    */
   async getActiveListeners(channelId: number) {
     try {
-      const result = await pool.query(`
+      const result = await this.db.query(`
         SELECT
           al.*,
           u.email as user_email
@@ -663,7 +666,7 @@ class DispatchService {
 
       return result.rows
     } catch (error) {
-      console.error('Error getting active listeners:', error)
+      this.logger.error('Error getting active listeners:', error)
       throw error
     }
   }
@@ -673,7 +676,7 @@ class DispatchService {
    */
   async createEmergencyAlert(alertData: Partial<EmergencyAlert>) {
     try {
-      const result = await pool.query(`
+      const result = await this.db.query(`
         INSERT INTO dispatch_emergency_alerts
         (user_id, vehicle_id, alert_type, location_lat, location_lng,
          location_address, description, alert_status)
@@ -691,20 +694,11 @@ class DispatchService {
 
       return result.rows[0]
     } catch (error) {
-      console.error('Error creating emergency alert:', error)
+      this.logger.error('Error creating emergency alert:', error)
       throw error
     }
   }
 }
 
-// Export function to get singleton instance (lazy initialization)
-let serviceInstance: DispatchService | null = null
-
-export function getDispatchService(): DispatchService {
-  if (!serviceInstance) {
-    serviceInstance = new DispatchService()
-  }
-  return serviceInstance
-}
-
-export default getDispatchService
+// Note: Service is now registered in DI container (container.ts)
+// Use: container.resolve('dispatchService') or req.container.resolve('dispatchService')

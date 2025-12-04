@@ -3,7 +3,8 @@
  * Comprehensive audit logging for all document system operations
  */
 
-import pool from '../config/database'
+import { Pool } from 'pg'
+import logger from '../utils/logger'
 import {
   DocumentAuditLog,
   AuditLogOptions,
@@ -12,12 +13,13 @@ import {
 } from '../types/document-storage.types'
 
 export class DocumentAuditService {
+  constructor(private db: Pool, private logger: typeof logger) {}
   /**
    * Log an audit event
    */
   async logEvent(options: AuditLogOptions): Promise<DocumentAuditLog> {
     try {
-      const result = await pool.query(
+      const result = await this.db.query(
         `INSERT INTO document_audit_log (
           tenant_id, document_id, folder_id, user_id, action, entity_type,
           old_values, new_values, ip_address, user_agent, session_id,
@@ -44,7 +46,7 @@ export class DocumentAuditService {
 
       return result.rows[0]
     } catch (error) {
-      console.error('❌ Failed to log audit event:', error)
+      this.logger.error('❌ Failed to log audit event:', error)
       // Don`t throw - audit logging should not break main operations
       return {} as DocumentAuditLog
     }
@@ -150,7 +152,7 @@ export class DocumentAuditService {
       }
 
       // Get total count
-      const countResult = await pool.query(
+      const countResult = await this.db.query(
         query.replace(`SELECT dal.*`, `SELECT COUNT(*) as count`),
         params
       )
@@ -171,14 +173,14 @@ export class DocumentAuditService {
         params.push(options.offset)
       }
 
-      const result = await pool.query(query, params)
+      const result = await this.db.query(query, params)
 
       return {
         logs: result.rows,
         total
       }
     } catch (error) {
-      console.error(`❌ Failed to get document audit log:`, error)
+      this.logger.error(`❌ Failed to get document audit log:`, error)
       throw error
     }
   }
@@ -223,7 +225,7 @@ export class DocumentAuditService {
       }
 
       // Get total count
-      const countResult = await pool.query(
+      const countResult = await this.db.query(
         query.replace(`SELECT dal.*`, `SELECT COUNT(*) as count`),
         params
       )
@@ -244,14 +246,14 @@ export class DocumentAuditService {
         params.push(options.offset)
       }
 
-      const result = await pool.query(query, params)
+      const result = await this.db.query(query, params)
 
       return {
         logs: result.rows,
         total
       }
     } catch (error) {
-      console.error(`❌ Failed to get folder audit log:`, error)
+      this.logger.error(`❌ Failed to get folder audit log:`, error)
       throw error
     }
   }
@@ -320,7 +322,7 @@ export class DocumentAuditService {
       }
 
       // Get total count
-      const countResult = await pool.query(
+      const countResult = await this.db.query(
         query.replace(`SELECT dal.*`, `SELECT COUNT(*) as count`),
         params
       )
@@ -341,14 +343,14 @@ export class DocumentAuditService {
         params.push(options.offset)
       }
 
-      const result = await pool.query(query, params)
+      const result = await this.db.query(query, params)
 
       return {
         logs: result.rows,
         total
       }
     } catch (error) {
-      console.error(`❌ Failed to get tenant audit log:`, error)
+      this.logger.error(`❌ Failed to get tenant audit log:`, error)
       throw error
     }
   }
@@ -385,11 +387,11 @@ export class DocumentAuditService {
       }
 
       const [total, byAction, byEntityType, byUser, byResult] = await Promise.all([
-        pool.query(
+        this.db.query(
           `SELECT COUNT(*) as total_events FROM document_audit_log dal ${whereClause}`,
           params
         ),
-        pool.query(
+        this.db.query(
           `SELECT action, COUNT(*) as count
            FROM document_audit_log dal
            ${whereClause}
@@ -397,7 +399,7 @@ export class DocumentAuditService {
            ORDER BY count DESC`,
           params
         ),
-        pool.query(
+        this.db.query(
           `SELECT entity_type, COUNT(*) as count
            FROM document_audit_log dal
            ${whereClause}
@@ -405,7 +407,7 @@ export class DocumentAuditService {
            ORDER BY count DESC`,
           params
         ),
-        pool.query(
+        this.db.query(
           `SELECT
              dal.user_id,
              u.first_name || ` ` || u.last_name as user_name,
@@ -418,7 +420,7 @@ export class DocumentAuditService {
            LIMIT 10`,
           params
         ),
-        pool.query(
+        this.db.query(
           `SELECT result, COUNT(*) as count
            FROM document_audit_log dal
            ${whereClause}
@@ -436,7 +438,7 @@ export class DocumentAuditService {
         by_result: byResult.rows
       }
     } catch (error) {
-      console.error(`❌ Failed to get audit statistics:`, error)
+      this.logger.error(`❌ Failed to get audit statistics:`, error)
       throw error
     }
   }
@@ -449,19 +451,19 @@ export class DocumentAuditService {
       const cutoffDate = new Date()
       cutoffDate.setDate(cutoffDate.getDate() - daysToKeep)
 
-      const result = await pool.query(
+      const result = await this.db.query(
         `DELETE FROM document_audit_log
          WHERE created_at < $1`,
         [cutoffDate]
       )
 
-      console.log(`✅ Deleted ${result.rowCount} old audit log entries`)
+      this.logger.info(`✅ Deleted ${result.rowCount} old audit log entries`)
       return result.rowCount || 0
     } catch (error) {
-      console.error(`❌ Failed to delete old audit logs:`, error)
+      this.logger.error(`❌ Failed to delete old audit logs:`, error)
       throw error
     }
   }
 }
 
-export default new DocumentAuditService()
+export default DocumentAuditService
