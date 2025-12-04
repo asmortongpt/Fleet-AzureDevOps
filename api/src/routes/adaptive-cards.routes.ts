@@ -33,7 +33,7 @@ router.post('/vehicle-maintenance', authenticateJWT, async (req: Request, res: R
     const maintenanceResult = await pool.query(`SELECT * FROM maintenance WHERE id = $1`, [maintenanceId])
 
     if (vehicleResult.rows.length === 0 || maintenanceResult.rows.length === 0) {
-      return res.status(404).json({ error: `Vehicle or maintenance record not found` }))
+      return res.status(404).json({ error: `Vehicle or maintenance record not found` })
     }
 
     const vehicle = vehicleResult.rows[0]
@@ -45,7 +45,7 @@ router.post('/vehicle-maintenance', authenticateJWT, async (req: Request, res: R
     // Validate the card
     const validation = validateAdaptiveCard(card)
     if (!validation.valid) {
-      return res.status(400).json({ error: 'Invalid card schema', errors: validation.errors }))
+      return res.status(400).json({ error: 'Invalid card schema', errors: validation.errors })
     }
 
     // Send the card
@@ -55,7 +55,7 @@ router.post('/vehicle-maintenance', authenticateJWT, async (req: Request, res: R
     } else if (teamId && channelId) {
       response = await sendAdaptiveCard(teamId, channelId, card, 'Vehicle maintenance alert')
     } else {
-      return res.status(400).json({ error: 'Either userId or teamId/channelId must be provided' }))
+      return throw new ValidationError("Either userId or teamId/channelId must be provided")
     }
 
     res.json({
@@ -63,12 +63,12 @@ router.post('/vehicle-maintenance', authenticateJWT, async (req: Request, res: R
       message: 'Maintenance alert card sent',
       messageId: response.id,
       card
-    }))
+    })
   } catch (error: any) {
     logger.error('Error sending maintenance card:', error.message) // Wave 29: Winston logger
-    res.status(500).json({ error: error.message }))
+    res.status(500).json({ error: error.message })
   }
-}))
+})
 
 /**
  * POST /api/cards/work-order
@@ -90,7 +90,7 @@ router.post('/work-order', authenticateJWT, async (req: Request, res: Response) 
     )
 
     if (workOrderResult.rows.length === 0) {
-      return res.status(404).json({ error: 'Work order not found' }))
+      return throw new NotFoundError("Work order not found")
     }
 
     const workOrder = workOrderResult.rows[0]
@@ -101,7 +101,7 @@ router.post('/work-order', authenticateJWT, async (req: Request, res: Response) 
     // Validate the card
     const validation = validateAdaptiveCard(card)
     if (!validation.valid) {
-      return res.status(400).json({ error: 'Invalid card schema', errors: validation.errors }))
+      return res.status(400).json({ error: 'Invalid card schema', errors: validation.errors })
     }
 
     // Send the card
@@ -111,7 +111,7 @@ router.post('/work-order', authenticateJWT, async (req: Request, res: Response) 
     } else if (teamId && channelId) {
       response = await sendAdaptiveCard(teamId, channelId, card, 'New work order assignment')
     } else {
-      return res.status(400).json({ error: 'Either userId or teamId/channelId must be provided' }))
+      return throw new ValidationError("Either userId or teamId/channelId must be provided")
     }
 
     res.json({
@@ -119,12 +119,12 @@ router.post('/work-order', authenticateJWT, async (req: Request, res: Response) 
       message: 'Work order card sent',
       messageId: response.id,
       card
-    }))
+    })
   } catch (error: any) {
     logger.error('Error sending work order card:', error.message) // Wave 29: Winston logger
-    res.status(500).json({ error: error.message }))
+    res.status(500).json({ error: error.message })
   }
-}))
+})
 
 /**
  * POST /api/cards/incident
@@ -148,7 +148,7 @@ router.post('/incident', authenticateJWT, async (req: Request, res: Response) =>
     )
 
     if (incidentResult.rows.length === 0) {
-      return res.status(404).json({ error: 'Incident not found' }))
+      return throw new NotFoundError("Incident not found")
     }
 
     const incident = incidentResult.rows[0]
@@ -159,7 +159,7 @@ router.post('/incident', authenticateJWT, async (req: Request, res: Response) =>
     // Validate the card
     const validation = validateAdaptiveCard(card)
     if (!validation.valid) {
-      return res.status(400).json({ error: 'Invalid card schema', errors: validation.errors }))
+      return res.status(400).json({ error: 'Invalid card schema', errors: validation.errors })
     }
 
     // Send the card
@@ -169,7 +169,7 @@ router.post('/incident', authenticateJWT, async (req: Request, res: Response) =>
     } else if (teamId && channelId) {
       response = await sendAdaptiveCard(teamId, channelId, card, 'New incident report')
     } else {
-      return res.status(400).json({ error: 'Either userId or teamId/channelId must be provided' }))
+      return throw new ValidationError("Either userId or teamId/channelId must be provided")
     }
 
     res.json({
@@ -177,12 +177,12 @@ router.post('/incident', authenticateJWT, async (req: Request, res: Response) =>
       message: 'Incident card sent',
       messageId: response.id,
       card
-    }))
+    })
   } catch (error: any) {
     logger.error('Error sending incident card:', error.message) // Wave 29: Winston logger
-    res.status(500).json({ error: error.message }))
+    res.status(500).json({ error: error.message })
   }
-}))
+})
 
 /**
  * POST /api/cards/approval
@@ -202,7 +202,7 @@ router.post('/approval', authenticateJWT, async (req: Request, res: Response) =>
     )
 
     if (approvalResult.rows.length === 0) {
-      return res.status(404).json({ error: 'Approval request not found' }))
+      return throw new NotFoundError("Approval request not found")
     }
 
     const approval = approvalResult.rows[0]
@@ -213,7 +213,7 @@ router.post('/approval', authenticateJWT, async (req: Request, res: Response) =>
     // Validate the card
     const validation = validateAdaptiveCard(card)
     if (!validation.valid) {
-      return res.status(400).json({ error: 'Invalid card schema', errors: validation.errors }))
+      return res.status(400).json({ error: 'Invalid card schema', errors: validation.errors })
     }
 
     // Send the card
@@ -223,7 +223,7 @@ router.post('/approval', authenticateJWT, async (req: Request, res: Response) =>
     } else if (teamId && channelId) {
       response = await sendAdaptiveCard(teamId, channelId, card, 'Approval required')
     } else {
-      return res.status(400).json({ error: 'Either userId or teamId/channelId must be provided' }))
+      return throw new ValidationError("Either userId or teamId/channelId must be provided")
     }
 
     res.json({
@@ -231,12 +231,12 @@ router.post('/approval', authenticateJWT, async (req: Request, res: Response) =>
       message: 'Approval card sent',
       messageId: response.id,
       card
-    }))
+    })
   } catch (error: any) {
     logger.error('Error sending approval card:', error.message) // Wave 29: Winston logger
-    res.status(500).json({ error: error.message }))
+    res.status(500).json({ error: error.message })
   }
-}))
+})
 
 /**
  * POST /api/cards/driver-performance
@@ -250,7 +250,7 @@ router.post('/driver-performance', authenticateJWT, async (req: Request, res: Re
     const driverResult = await pool.query('SELECT id, tenant_id, email, first_name, last_name, role, is_active, phone, created_at, updated_at FROM users WHERE id = $1 AND role = $2', [driverId, 'driver'])
 
     if (driverResult.rows.length === 0) {
-      return res.status(404).json({ error: 'Driver not found' }))
+      return throw new NotFoundError("Driver not found")
     }
 
     const driver = driverResult.rows[0]
@@ -261,7 +261,7 @@ router.post('/driver-performance', authenticateJWT, async (req: Request, res: Re
     // Validate the card
     const validation = validateAdaptiveCard(card)
     if (!validation.valid) {
-      return res.status(400).json({ error: 'Invalid card schema', errors: validation.errors }))
+      return res.status(400).json({ error: 'Invalid card schema', errors: validation.errors })
     }
 
     // Send the card
@@ -271,7 +271,7 @@ router.post('/driver-performance', authenticateJWT, async (req: Request, res: Re
     } else if (teamId && channelId) {
       response = await sendAdaptiveCard(teamId, channelId, card, 'Driver performance report')
     } else {
-      return res.status(400).json({ error: 'Either userId or teamId/channelId must be provided' }))
+      return throw new ValidationError("Either userId or teamId/channelId must be provided")
     }
 
     res.json({
@@ -279,12 +279,12 @@ router.post('/driver-performance', authenticateJWT, async (req: Request, res: Re
       message: 'Performance card sent',
       messageId: response.id,
       card
-    }))
+    })
   } catch (error: any) {
     logger.error('Error sending performance card:', error.message) // Wave 29: Winston logger
-    res.status(500).json({ error: error.message }))
+    res.status(500).json({ error: error.message })
   }
-}))
+})
 
 /**
  * POST /api/cards/fuel-receipt
@@ -306,7 +306,7 @@ router.post('/fuel-receipt', authenticateJWT, async (req: Request, res: Response
     )
 
     if (receiptResult.rows.length === 0) {
-      return res.status(404).json({ error: 'Fuel receipt not found' }))
+      return throw new NotFoundError("Fuel receipt not found")
     }
 
     const receipt = receiptResult.rows[0]
@@ -317,7 +317,7 @@ router.post('/fuel-receipt', authenticateJWT, async (req: Request, res: Response
     // Validate the card
     const validation = validateAdaptiveCard(card)
     if (!validation.valid) {
-      return res.status(400).json({ error: 'Invalid card schema', errors: validation.errors }))
+      return res.status(400).json({ error: 'Invalid card schema', errors: validation.errors })
     }
 
     // Send the card
@@ -327,7 +327,7 @@ router.post('/fuel-receipt', authenticateJWT, async (req: Request, res: Response
     } else if (teamId && channelId) {
       response = await sendAdaptiveCard(teamId, channelId, card, 'Fuel receipt for review')
     } else {
-      return res.status(400).json({ error: 'Either userId or teamId/channelId must be provided' }))
+      return throw new ValidationError("Either userId or teamId/channelId must be provided")
     }
 
     res.json({
@@ -335,12 +335,12 @@ router.post('/fuel-receipt', authenticateJWT, async (req: Request, res: Response
       message: 'Fuel receipt card sent',
       messageId: response.id,
       card
-    }))
+    })
   } catch (error: any) {
     logger.error('Error sending fuel receipt card:', error.message) // Wave 29: Winston logger
-    res.status(500).json({ error: error.message }))
+    res.status(500).json({ error: error.message })
   }
-}))
+})
 
 /**
  * POST /api/cards/inspection-checklist
@@ -355,7 +355,7 @@ router.post('/inspection-checklist', authenticateJWT, async (req: Request, res: 
     const driverResult = await pool.query(`SELECT id, tenant_id, email, first_name, last_name, role, is_active, phone, created_at, updated_at FROM users WHERE id = $1`, [driverId])
 
     if (vehicleResult.rows.length === 0 || driverResult.rows.length === 0) {
-      return res.status(404).json({ error: `Vehicle or driver not found` }))
+      return res.status(404).json({ error: `Vehicle or driver not found` })
     }
 
     const inspection = {
@@ -373,7 +373,7 @@ router.post('/inspection-checklist', authenticateJWT, async (req: Request, res: 
     // Validate the card
     const validation = validateAdaptiveCard(card)
     if (!validation.valid) {
-      return res.status(400).json({ error: `Invalid card schema`, errors: validation.errors }))
+      return res.status(400).json({ error: `Invalid card schema`, errors: validation.errors })
     }
 
     // Send the card
@@ -383,7 +383,7 @@ router.post('/inspection-checklist', authenticateJWT, async (req: Request, res: 
     } else if (teamId && channelId) {
       response = await sendAdaptiveCard(teamId, channelId, card, 'Daily vehicle inspection')
     } else {
-      return res.status(400).json({ error: 'Either userId or teamId/channelId must be provided' }))
+      return throw new ValidationError("Either userId or teamId/channelId must be provided")
     }
 
     res.json({
@@ -391,12 +391,12 @@ router.post('/inspection-checklist', authenticateJWT, async (req: Request, res: 
       message: 'Inspection checklist card sent',
       messageId: response.id,
       card
-    }))
+    })
   } catch (error: any) {
     logger.error('Error sending inspection card:', error.message) // Wave 29: Winston logger
-    res.status(500).json({ error: error.message }))
+    res.status(500).json({ error: error.message })
   }
-}))
+})
 
 /**
  * POST /api/cards/:cardType/action
@@ -409,7 +409,7 @@ router.post('/:cardType/action', authenticateJWT, async (req: Request, res: Resp
     const userId = (req as any).user?.id
 
     if (!userId) {
-      return res.status(401).json({ error: 'User not authenticated' }))
+      return res.status(401).json({ error: 'User not authenticated' })
     }
 
     // Handle the action
@@ -422,9 +422,9 @@ router.post('/:cardType/action', authenticateJWT, async (req: Request, res: Resp
     }
   } catch (error: any) {
     logger.error('Error handling card action:', error.message) // Wave 29: Winston logger
-    res.status(500).json({ error: error.message }))
+    res.status(500).json({ error: error.message })
   }
-}))
+})
 
 /**
  * GET /api/cards/preview/:cardType
@@ -481,14 +481,14 @@ router.get('/preview/:cardType', authenticateJWT, async (req: Request, res: Resp
         card = await createWorkOrderCard(sampleData[cardType])
         break
       default:
-        return res.status(404).json({ error: 'Card type not found' }))
+        return throw new NotFoundError("Card type not found")
     }
 
-    res.json({ card }))
+    res.json({ card })
   } catch (error: any) {
     logger.error('Error generating card preview:', error.message) // Wave 29: Winston logger
-    res.status(500).json({ error: error.message }))
+    res.status(500).json({ error: error.message })
   }
-}))
+})
 
 export default router

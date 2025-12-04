@@ -13,7 +13,7 @@ import { serialize } from 'node-html-encoder'
 const router = express.Router()
 
 router.use(authenticateJWT)
-router.use(helmet())
+router.use(helmet()
 router.use(
   rateLimit({
     windowMs: 60 * 1000, // 1 minute
@@ -38,7 +38,7 @@ router.get(
     try {
       const validation = chargingSessionSchema.safeParse(req.query)
       if (!validation.success) {
-        return res.status(400).json({ error: 'Invalid request parameters' })
+        return throw new ValidationError("Invalid request parameters")
       }
       const { page = '1', limit = '50' } = validation.data
       const offset = (Number(page) - 1) * Number(limit)
@@ -100,7 +100,7 @@ router.get(
           page: Number(page),
           limit: Number(limit),
           total: parseInt(countResult.rows[0].count, 10),
-          pages: Math.ceil(parseInt(countResult.rows[0].count, 10) / Number(limit)),
+          pages: Math.ceil(parseInt(countResult.rows[0].count, 10) / Number(limit),
         },
       })
     } catch (error) {
@@ -119,7 +119,7 @@ router.get(
     try {
       const idValidation = chargingSessionSchema.pick({ id: true }).safeParse(req.params)
       if (!idValidation.success) {
-        return res.status(400).json({ error: 'Invalid ID parameter' })
+        return throw new ValidationError("Invalid ID parameter")
       }
       const { id } = idValidation.data
 
@@ -163,7 +163,7 @@ router.get(
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'Charging session not found' })
+        return throw new NotFoundError("Charging session not found")
       }
 
       const sanitizedData = Object.keys(result.rows[0]).reduce((acc, key) => {

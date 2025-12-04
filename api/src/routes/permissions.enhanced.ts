@@ -24,7 +24,7 @@ router.get('/me', async (req: AuthRequest, res: Response) => {
     }
 
     const rolesResult = await pool.query(
-      'SELECT r.name, r.display_name, r.description FROM roles r JOIN user_roles ur ON r.id = ur.role_id WHERE ur.user_id = $1 AND ur.is_active = true AND (ur.expires_at IS NULL OR ur.expires_at > NOW())',
+      'SELECT r.name, r.display_name, r.description FROM roles r JOIN user_roles ur ON r.id = ur.role_id WHERE ur.user_id = $1 AND ur.is_active = true AND (ur.expires_at IS NULL OR ur.expires_at > NOW()',
       [req.user.id]
     )
 
@@ -91,7 +91,7 @@ router.get('/check/:permission', async (req: AuthRequest, res: Response) => {
 router.get('/roles', async (req: AuthRequest, res: Response) => {
   try {
     const permissions = await getUserPermissions(req.user!.id)
-    if (!permissions.has('role:manage:global')) {
+    if (!permissions.has('role:manage:global') {
       return res.status(403).json({ error: 'Insufficient permissions' })
     }
 

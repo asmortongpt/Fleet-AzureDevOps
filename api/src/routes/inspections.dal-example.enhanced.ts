@@ -32,7 +32,7 @@ const inspectionCreateSchema = z.object({
 
 const inspectionCompleteSchema = z.object({
   passed: z.boolean(),
-  defects_found: z.array(z.any()).optional(), // Consider defining a more specific schema for defects_found
+  defects_found: z.array(z.any().optional(), // Consider defining a more specific schema for defects_found
   notes: z.string().optional(),
   signature_url: z.string().url().optional()
 }).strict();
@@ -55,7 +55,7 @@ router.get(
     });
 
     res.json(result);
-  }))
+  })
 );
 
 /**
@@ -69,7 +69,7 @@ router.get(
   asyncHandler(async (req: Request, res: Response) => {
     const stats = await inspectionRepo.getInspectionStats(req.user!.tenant_id);
     res.json(stats);
-  }))
+  })
 );
 
 /**
@@ -83,7 +83,7 @@ router.get(
   asyncHandler(async (req: Request, res: Response) => {
     const inspections = await inspectionRepo.getPendingInspections(req.user!.tenant_id);
     res.json(inspections);
-  }))
+  })
 );
 
 /**
@@ -98,7 +98,7 @@ router.post(
   asyncHandler(async (req: Request, res: Response) => {
     const inspection = await inspectionRepo.createInspection(req.user!.tenant_id, req.body);
     res.status(201).json(inspection);
-  }))
+  })
 );
 
 /**
@@ -114,7 +114,7 @@ router.patch(
     const { id } = req.params;
     const updatedInspection = await inspectionRepo.completeInspection(id, req.body);
     res.json(updatedInspection);
-  }))
+  })
 );
 
 export default router;
