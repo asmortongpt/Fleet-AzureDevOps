@@ -1,49 +1,52 @@
-import { Router, Request, Response } from 'express';
-import { EmulatorOrchestrator } from '../emulators/EmulatorOrchestrator';
-import os from 'os';
-import { performance } from 'perf_hooks';
+import { Router, Request, Response } from 'express'
+import { container } from '../container'
+import { asyncHandler } from '../middleware/error-handler'
+import { NotFoundError, ValidationError } from '../errors/app-error'
+import { EmulatorOrchestrator } from '../emulators/EmulatorOrchestrator'
+import os from 'os'
+import { performance } from 'perf_hooks'
 
-const router = Router();
+const router = Router()
 
 // Track server start time for uptime calculation
-const serverStartTime = Date.now();
+const serverStartTime = Date.now()
 
 // In-memory storage for metrics (in production, use Redis or similar)
 const metricsStore = {
   requests: new Map<string, any[]>(),
   errors: [] as any[],
-  alerts: [] as any[]
-};
+  alerts: [] as any[],
+}
 
 // Middleware to track request metrics
 const trackMetrics = (req: Request, res: Response, next: Function) => {
-  const startTime = performance.now();
-  const endpoint = `${req.method} ${req.path}`;
+  const startTime = performance.now()
+  const endpoint = `${req.method} ${req.path}`
 
   // Store original end function
-  const originalEnd = res.end;
+  const originalEnd = res.end
 
   // Override end function to capture metrics
-  res.end = function(...args: any[]) {
-    const responseTime = performance.now() - startTime;
+  res.end = function (...args: any[]) {
+    const responseTime = performance.now() - startTime
 
     // Store metric
     if (!metricsStore.requests.has(endpoint)) {
-      metricsStore.requests.set(endpoint, []);
+      metricsStore.requests.set(endpoint, [])
     }
 
-    const metrics = metricsStore.requests.get(endpoint)!;
+    const metrics = metricsStore.requests.get(endpoint)!
     metrics.push({
       timestamp: Date.now(),
       responseTime,
       statusCode: res.statusCode,
       method: req.method,
-      path: req.path
-    });
+      path: req.path,
+    })
 
     // Keep only last 1000 metrics per endpoint
     if (metrics.length > 1000) {
-      metrics.shift();
+      metrics.shift()
     }
 
     // Track errors
@@ -55,24 +58,24 @@ const trackMetrics = (req: Request, res: Response, next: Function) => {
         message: `HTTP ${res.statusCode} on ${endpoint}`,
         timestamp: Date.now(),
         statusCode: res.statusCode,
-        userId: (req as any).user?.id
-      });
+        userId: (req as any).user?.id,
+      })
 
       // Keep only last 1000 errors
       if (metricsStore.errors.length > 1000) {
-        metricsStore.errors.shift();
+        metricsStore.errors.shift()
       }
     }
 
     // Call original end
-    return originalEnd.apply(this, args as any);
-  };
+    return originalEnd.apply(this, args as any)
+  }
 
-  next();
-};
+  next()
+}
 
 // Apply metrics tracking to all monitoring routes
-router.use(trackMetrics);
+router.use(trackMetrics)
 
 /**
  * GET /api/monitoring/health
@@ -80,29 +83,29 @@ router.use(trackMetrics);
  */
 router.get('/health', async (req: Request, res: Response) => {
   try {
-    const uptime = Math.floor((Date.now() - serverStartTime) / 1000);
+    const uptime = Math.floor((Date.now() - serverStartTime) / 1000)
 
     // Check emulator status
-    const emulatorOrchestrator = EmulatorOrchestrator.getInstance();
-    const emulatorStatus = emulatorOrchestrator.getStatus();
+    const emulatorOrchestrator = EmulatorOrchestrator.getInstance()
+    const emulatorStatus = emulatorOrchestrator.getStatus()
 
     // Check API health by measuring a simple operation
-    const apiStartTime = performance.now();
+    const apiStartTime = performance.now()
     const testResult = await Promise.race([
       new Promise(resolve => setTimeout(() => resolve('ok'), 100)),
-      new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), 1000))
-    ]);
-    const apiResponseTime = performance.now() - apiStartTime;
+      new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), 1000)),
+    ])
+    const apiResponseTime = performance.now() - apiStartTime
 
     // Determine overall health status
-    let overallStatus: 'healthy' | 'degraded' | 'down' = 'healthy';
+    let overallStatus: 'healthy' | 'degraded' | 'down' = 'healthy'
 
     if (apiResponseTime > 500) {
-      overallStatus = 'degraded';
+      overallStatus = 'degraded'
     }
 
     if (testResult !== 'ok' || emulatorStatus.activeEmulators === 0) {
-      overallStatus = 'degraded';
+      overallStatus = 'degraded'
     }
 
     const health = {
@@ -113,28 +116,28 @@ router.get('/health', async (req: Request, res: Response) => {
       components: {
         api: {
           status: apiResponseTime < 500 ? 'healthy' : 'degraded',
-          responseTime: Math.round(apiResponseTime)
+          responseTime: Math.round(apiResponseTime),
         },
         emulators: {
           status: emulatorStatus.activeEmulators > 0 ? 'healthy' : 'stopped',
-          activeCount: emulatorStatus.activeEmulators
+          activeCount: emulatorStatus.activeEmulators,
         },
         database: {
           status: 'healthy', // TODO: Implement actual DB health check
-          connectionPool: 10 // TODO: Get actual connection pool size
-        }
-      }
-    };
+          connectionPool: 10, // TODO: Get actual connection pool size
+        },
+      },
+    }
 
-    res.json(health);
+    res.json(health)
   } catch (error) {
     res.status(500).json({
       status: 'down',
       error: 'Health check failed',
-      timestamp: new Date().toISOString()
-    });
+      timestamp: new Date().toISOString(),
+    })
   }
-});
+})
 
 /**
  * GET /api/monitoring/metrics
@@ -142,45 +145,48 @@ router.get('/health', async (req: Request, res: Response) => {
  */
 router.get('/metrics', (req: Request, res: Response) => {
   try {
-    const now = Date.now();
-    const oneHourAgo = now - 3600000;
+    const now = Date.now()
+    const oneHourAgo = now - 3600000
 
     // Calculate metrics for each endpoint
-    const endpoints = Array.from(metricsStore.requests.entries()).map(([path, metrics]) => {
-      const recentMetrics = metrics.filter(m => m.timestamp > oneHourAgo);
+    const endpoints = Array.from(metricsStore.requests.entries())
+      .map(([path, metrics]) => {
+        const recentMetrics = metrics.filter(m => m.timestamp > oneHourAgo)
 
-      if (recentMetrics.length === 0) {
-        return null;
-      }
-
-      const responseTimes = recentMetrics.map(m => m.responseTime).sort((a, b) => a - b);
-      const errorCount = recentMetrics.filter(m => m.statusCode >= 400).length;
-
-      return {
-        path: path.split(' ')[1],
-        method: path.split(' ')[0],
-        p50: responseTimes[Math.floor(responseTimes.length * 0.5)] || 0,
-        p95: responseTimes[Math.floor(responseTimes.length * 0.95)] || 0,
-        p99: responseTimes[Math.floor(responseTimes.length * 0.99)] || 0,
-        requestCount: recentMetrics.length,
-        errorRate: errorCount / recentMetrics.length,
-        lastHour: {
-          requests: recentMetrics.length,
-          errors: errorCount,
-          avgResponseTime: responseTimes.reduce((a, b) => a + b, 0) / responseTimes.length
+        if (recentMetrics.length === 0) {
+          return null
         }
-      };
-    }).filter(Boolean);
+
+        const responseTimes = recentMetrics.map(m => m.responseTime).sort((a, b) => a - b)
+        const errorCount = recentMetrics.filter(m => m.statusCode >= 400).length
+
+        return {
+          path: path.split(' ')[1],
+          method: path.split(' ')[0],
+          p50: responseTimes[Math.floor(responseTimes.length * 0.5)] || 0,
+          p95: responseTimes[Math.floor(responseTimes.length * 0.95)] || 0,
+          p99: responseTimes[Math.floor(responseTimes.length * 0.99)] || 0,
+          requestCount: recentMetrics.length,
+          errorRate: errorCount / recentMetrics.length,
+          lastHour: {
+            requests: recentMetrics.length,
+            errors: errorCount,
+            avgResponseTime: responseTimes.reduce((a, b) => a + b, 0) / responseTimes.length,
+          },
+        }
+      })
+      .filter(Boolean)
 
     // Calculate overall throughput
     const allRecentRequests = Array.from(metricsStore.requests.values())
       .flat()
-      .filter(m => m.timestamp > oneHourAgo);
+      .filter(m => m.timestamp > oneHourAgo)
 
-    const requestsPerMinute = (allRecentRequests.length / 60);
-    const avgResponseTime = allRecentRequests.length > 0
-      ? allRecentRequests.reduce((sum, m) => sum + m.responseTime, 0) / allRecentRequests.length
-      : 0;
+    const requestsPerMinute = allRecentRequests.length / 60
+    const avgResponseTime =
+      allRecentRequests.length > 0
+        ? allRecentRequests.reduce((sum, m) => sum + m.responseTime, 0) / allRecentRequests.length
+        : 0
 
     const metrics = {
       endpoints,
@@ -188,31 +194,31 @@ router.get('/metrics', (req: Request, res: Response) => {
         requestsPerMinute: Math.round(requestsPerMinute),
         requestsPerSecond: requestsPerMinute / 60,
         peakRPM: Math.round(requestsPerMinute * 1.5), // Simulated peak
-        avgResponseTime: Math.round(avgResponseTime)
+        avgResponseTime: Math.round(avgResponseTime),
       },
       cache: {
         hitRate: 0.85, // Simulated cache hit rate
         missRate: 0.15,
         totalHits: Math.floor(Math.random() * 10000),
         totalMisses: Math.floor(Math.random() * 1500),
-        avgLoadTime: Math.random() * 50
+        avgLoadTime: Math.random() * 50,
       },
       database: {
         avgQueryTime: Math.random() * 100,
         slowQueries: Math.floor(Math.random() * 10),
         connectionPoolUsage: Math.random(),
         activeConnections: Math.floor(Math.random() * 20),
-        maxConnections: 100
-      }
-    };
+        maxConnections: 100,
+      },
+    }
 
-    res.json(metrics);
+    res.json(metrics)
   } catch (error) {
     res.status(500).json({
-      error: 'Failed to fetch metrics'
-    });
+      error: 'Failed to fetch metrics',
+    })
   }
-});
+})
 
 /**
  * GET /api/monitoring/emulators
@@ -220,8 +226,8 @@ router.get('/metrics', (req: Request, res: Response) => {
  */
 router.get('/emulators', (req: Request, res: Response) => {
   try {
-    const orchestrator = EmulatorOrchestrator.getInstance();
-    const status = orchestrator.getStatus();
+    const orchestrator = EmulatorOrchestrator.getInstance()
+    const status = orchestrator.getStatus()
 
     // Mock emulator data for comprehensive monitoring
     const emulators = [
@@ -239,8 +245,8 @@ router.get('/emulators', (req: Request, res: Response) => {
         config: {
           autoGenerate: true,
           batchSize: 10,
-          interval: 30
-        }
+          interval: 30,
+        },
       },
       {
         id: 'drv-emu-001',
@@ -256,8 +262,8 @@ router.get('/emulators', (req: Request, res: Response) => {
         config: {
           autoGenerate: true,
           batchSize: 5,
-          interval: 60
-        }
+          interval: 60,
+        },
       },
       {
         id: 'fuel-emu-001',
@@ -273,8 +279,8 @@ router.get('/emulators', (req: Request, res: Response) => {
         config: {
           autoGenerate: true,
           batchSize: 3,
-          interval: 120
-        }
+          interval: 120,
+        },
       },
       {
         id: 'maint-emu-001',
@@ -290,8 +296,8 @@ router.get('/emulators', (req: Request, res: Response) => {
         config: {
           autoGenerate: true,
           batchSize: 2,
-          interval: 300
-        }
+          interval: 300,
+        },
       },
       {
         id: 'gps-emu-001',
@@ -307,8 +313,8 @@ router.get('/emulators', (req: Request, res: Response) => {
         config: {
           autoGenerate: false,
           batchSize: 20,
-          interval: 10
-        }
+          interval: 10,
+        },
       },
       {
         id: 'route-emu-001',
@@ -324,8 +330,8 @@ router.get('/emulators', (req: Request, res: Response) => {
         config: {
           autoGenerate: false,
           batchSize: 1,
-          interval: 180
-        }
+          interval: 180,
+        },
       },
       {
         id: 'cost-emu-001',
@@ -341,20 +347,22 @@ router.get('/emulators', (req: Request, res: Response) => {
         config: {
           autoGenerate: false,
           batchSize: 5,
-          interval: 240
-        }
-      }
-    ];
+          interval: 240,
+        },
+      },
+    ]
 
-    const activeEmulators = emulators.filter(e => e.status === 'running');
-    const totalMemory = emulators.reduce((sum, e) => sum + (e.memoryUsage || 0), 0);
-    const totalRecords = emulators.reduce((sum, e) => sum + e.recordCount, 0);
-    const avgUpdateFrequency = activeEmulators.length > 0
-      ? activeEmulators.reduce((sum, e) => sum + e.updateFrequency, 0) / activeEmulators.length
-      : 0;
-    const errorRate = emulators.length > 0
-      ? (emulators.reduce((sum, e) => sum + e.errorCount, 0) / emulators.length) * 10
-      : 0;
+    const activeEmulators = emulators.filter(e => e.status === 'running')
+    const totalMemory = emulators.reduce((sum, e) => sum + (e.memoryUsage || 0), 0)
+    const totalRecords = emulators.reduce((sum, e) => sum + e.recordCount, 0)
+    const avgUpdateFrequency =
+      activeEmulators.length > 0
+        ? activeEmulators.reduce((sum, e) => sum + e.updateFrequency, 0) / activeEmulators.length
+        : 0
+    const errorRate =
+      emulators.length > 0
+        ? (emulators.reduce((sum, e) => sum + e.errorCount, 0) / emulators.length) * 10
+        : 0
 
     res.json({
       active: activeEmulators,
@@ -363,15 +371,15 @@ router.get('/emulators', (req: Request, res: Response) => {
         totalRecords,
         totalMemory: Math.round(totalMemory),
         avgUpdateFrequency: Math.round(avgUpdateFrequency),
-        errorRate
-      }
-    });
+        errorRate,
+      },
+    })
   } catch (error) {
     res.status(500).json({
-      error: 'Failed to fetch emulator status'
-    });
+      error: 'Failed to fetch emulator status',
+    })
   }
-});
+})
 
 /**
  * GET /api/monitoring/errors
@@ -380,14 +388,14 @@ router.get('/emulators', (req: Request, res: Response) => {
 router.get('/errors', (req: Request, res: Response) => {
   try {
     // Return last 100 errors
-    const recentErrors = metricsStore.errors.slice(-100).reverse();
-    res.json(recentErrors);
+    const recentErrors = metricsStore.errors.slice(-100).reverse()
+    res.json(recentErrors)
   } catch (error) {
     res.status(500).json({
-      error: 'Failed to fetch errors'
-    });
+      error: 'Failed to fetch errors',
+    })
   }
-});
+})
 
 /**
  * GET /api/monitoring/alerts
@@ -396,11 +404,11 @@ router.get('/errors', (req: Request, res: Response) => {
 router.get('/alerts', (req: Request, res: Response) => {
   try {
     // Generate sample alerts based on current system state
-    const alerts = [];
-    const now = new Date();
+    const alerts = []
+    const now = new Date()
 
     // Check for high error rate
-    const recentErrors = metricsStore.errors.filter(e => e.timestamp > Date.now() - 300000);
+    const recentErrors = metricsStore.errors.filter(e => e.timestamp > Date.now() - 300000)
     if (recentErrors.length > 10) {
       alerts.push({
         id: 'alert-error-rate',
@@ -411,8 +419,8 @@ router.get('/alerts', (req: Request, res: Response) => {
         message: `${recentErrors.length} errors in the last 5 minutes`,
         timestamp: now.toISOString(),
         source: 'Monitoring System',
-        actionRequired: true
-      });
+        actionRequired: true,
+      })
     }
 
     // Sample maintenance alerts
@@ -431,9 +439,9 @@ router.get('/alerts', (req: Request, res: Response) => {
       metadata: {
         lastService: '2024-10-15',
         mileage: 45000,
-        serviceType: 'Oil Change'
-      }
-    });
+        serviceType: 'Oil Change',
+      },
+    })
 
     // Sample budget alert
     alerts.push({
@@ -450,9 +458,9 @@ router.get('/alerts', (req: Request, res: Response) => {
       metadata: {
         category: 'Fuel',
         month: 'November',
-        projection: 11000
-      }
-    });
+        projection: 11000,
+      },
+    })
 
     // Sample geofencing alert
     alerts.push({
@@ -470,9 +478,9 @@ router.get('/alerts', (req: Request, res: Response) => {
       metadata: {
         location: { lat: 26.1224, lng: -80.1373 },
         zone: 'Downtown District',
-        exitTime: new Date(now.getTime() - 600000).toISOString()
-      }
-    });
+        exitTime: new Date(now.getTime() - 600000).toISOString(),
+      },
+    })
 
     // Sample license expiration alert
     alerts.push({
@@ -481,7 +489,7 @@ router.get('/alerts', (req: Request, res: Response) => {
       severity: 'critical',
       status: 'active',
       title: 'Driver License Expiring',
-      message: 'Driver John Smith\'s license expires in 7 days',
+      message: "Driver John Smith's license expires in 7 days",
       timestamp: new Date(now.getTime() - 1800000).toISOString(),
       source: 'Compliance System',
       driverId: 'DRV-123',
@@ -491,9 +499,9 @@ router.get('/alerts', (req: Request, res: Response) => {
       metadata: {
         driverName: 'John Smith',
         licenseNumber: 'D123-4567-8901',
-        expirationDate: new Date(now.getTime() + 604800000).toISOString()
-      }
-    });
+        expirationDate: new Date(now.getTime() + 604800000).toISOString(),
+      },
+    })
 
     // Add some resolved alerts for filtering demonstration
     alerts.push({
@@ -505,15 +513,15 @@ router.get('/alerts', (req: Request, res: Response) => {
       message: 'Vehicle FL-3001 fuel level below 20%',
       timestamp: new Date(now.getTime() - 10800000).toISOString(),
       source: 'Fuel Monitor',
-      vehicleId: 'FL-3001'
-    });
+      vehicleId: 'FL-3001',
+    })
 
-    res.json(alerts);
+    res.json(alerts)
   } catch (error) {
     res.status(500).json({
-      error: 'Failed to fetch alerts'
-    });
+      error: 'Failed to fetch alerts',
+    })
   }
-});
+})
 
-export default router;
+export default router

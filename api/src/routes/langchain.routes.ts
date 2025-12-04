@@ -1,4 +1,7 @@
 /**
+import { container } from '../container'
+import { asyncHandler } from '../middleware/error-handler'
+import { NotFoundError, ValidationError } from '../errors/app-error'
  * LangChain API Routes
  * Endpoints for AI-powered workflows, chat, and agent interactions
  */
@@ -30,7 +33,7 @@ router.post('/execute', requirePermission('report:generate:global'), async (req:
     const sessionId = req.body.sessionId || uuidv4()
 
     if (!workflowType) {
-      return res.status(400).json({ error: 'Workflow type is required' })
+      return res.status(400).json({ error: 'Workflow type is required' }))
     }
 
     logger.info('Executing LangChain workflow', {
@@ -38,7 +41,7 @@ router.post('/execute', requirePermission('report:generate:global'), async (req:
       userId,
       tenantId,
       sessionId
-    })
+    }))
 
     const context = {
       tenantId,
@@ -68,7 +71,7 @@ router.post('/execute', requirePermission('report:generate:global'), async (req:
         break
 
       default:
-        return res.status(400).json({ error: `Unknown workflow type: ${workflowType}` })
+        return res.status(400).json({ error: `Unknown workflow type: ${workflowType}` }))
     }
 
     res.json({
@@ -76,15 +79,15 @@ router.post('/execute', requirePermission('report:generate:global'), async (req:
       workflow: workflowType,
       sessionId,
       result
-    })
+    }))
   } catch (error: any) {
-    logger.error(`Workflow execution failed`, { error: getErrorMessage(error) })
+    logger.error(`Workflow execution failed`, { error: getErrorMessage(error) }))
     res.status(500).json({
       error: 'Failed to execute workflow',
       details: getErrorMessage(error)
-    })
+    }))
   }
-})
+}))
 
 /**
  * POST /api/langchain/chat
@@ -97,7 +100,7 @@ router.post('/chat', requirePermission('report:view:global'), async (req: Reques
     const userId = (req as any).user.userId
 
     if (!message) {
-      return res.status(400).json({ error: 'Message is required' })
+      return res.status(400).json({ error: 'Message is required' }))
     }
 
     const chatSessionId = sessionId || uuidv4()
@@ -107,7 +110,7 @@ router.post('/chat', requirePermission('report:view:global'), async (req: Reques
       tenantId,
       sessionId: chatSessionId,
       messageLength: message.length
-    })
+    }))
 
     // Check if this is a complex query requiring supervisor
     const isComplexQuery = message.length > 100 ||
@@ -159,15 +162,15 @@ router.post('/chat', requirePermission('report:view:global'), async (req: Reques
       sessionId: chatSessionId,
       responseType,
       ...response
-    })
+    }))
   } catch (error: any) {
-    logger.error('Chat processing failed', { error: getErrorMessage(error) })
+    logger.error('Chat processing failed', { error: getErrorMessage(error) }))
     res.status(500).json({
       error: 'Failed to process chat message',
       details: getErrorMessage(error)
-    })
+    }))
   }
-})
+}))
 
 /**
  * POST /api/langchain/supervisor/query
@@ -180,7 +183,7 @@ router.post('/supervisor/query', requirePermission('report:view:global'), async 
     const userId = (req as any).user.userId
 
     if (!query) {
-      return res.status(400).json({ error: 'Query is required' })
+      return res.status(400).json({ error: 'Query is required' }))
     }
 
     const querySessionId = sessionId || uuidv4()
@@ -200,15 +203,15 @@ router.post('/supervisor/query', requirePermission('report:view:global'), async 
       synthesis: result.synthesis,
       totalTokens: result.totalTokens,
       executionTimeMs: result.executionTimeMs
-    })
+    }))
   } catch (error: any) {
-    logger.error('Supervisor query failed', { error: getErrorMessage(error) })
+    logger.error('Supervisor query failed', { error: getErrorMessage(error) }))
     res.status(500).json({
       error: 'Failed to process supervisor query',
       details: getErrorMessage(error)
-    })
+    }))
   }
-})
+}))
 
 /**
  * GET /api/langchain/agents
@@ -226,15 +229,15 @@ router.get('/agents', requirePermission('report:view:global'), async (req: Reque
         role: agent.role,
         capabilities: agent.capabilities
       }))
-    })
+    }))
   } catch (error: any) {
-    logger.error('Failed to list agents', { error: getErrorMessage(error) })
+    logger.error('Failed to list agents', { error: getErrorMessage(error) }))
     res.status(500).json({
       error: 'Failed to list agents',
       details: getErrorMessage(error)
-    })
+    }))
   }
-})
+}))
 
 /**
  * GET /api/langchain/agents/:agentId
@@ -246,7 +249,7 @@ router.get('/agents/:agentId', requirePermission('report:view:global'), async (r
     const agent = aiAgentSupervisorService.getAgent(agentId)
 
     if (!agent) {
-      return res.status(404).json({ error: 'Agent not found' })
+      return res.status(404).json({ error: 'Agent not found' }))
     }
 
     res.json({
@@ -258,15 +261,15 @@ router.get('/agents/:agentId', requirePermission('report:view:global'), async (r
         capabilities: agent.capabilities,
         systemPrompt: agent.systemPrompt
       }
-    })
+    }))
   } catch (error: any) {
-    logger.error('Failed to get agent', { error: getErrorMessage(error) })
+    logger.error('Failed to get agent', { error: getErrorMessage(error) }))
     res.status(500).json({
       error: 'Failed to get agent',
       details: getErrorMessage(error)
-    })
+    }))
   }
-})
+}))
 
 /**
  * GET /api/langchain/workflows
@@ -332,15 +335,15 @@ router.get('/workflows', requirePermission('report:view:global'), async (req: Re
     res.json({
       success: true,
       workflows
-    })
+    }))
   } catch (error: any) {
-    logger.error('Failed to list workflows', { error: getErrorMessage(error) })
+    logger.error('Failed to list workflows', { error: getErrorMessage(error) }))
     res.status(500).json({
       error: 'Failed to list workflows',
       details: getErrorMessage(error)
-    })
+    }))
   }
-})
+}))
 
 /**
  * GET /api/langchain/workflows/:workflowId
@@ -498,21 +501,21 @@ router.get('/workflows/:workflowId', requirePermission('report:view:global'), as
     const workflow = workflowDetails[workflowId as keyof typeof workflowDetails]
 
     if (!workflow) {
-      return res.status(404).json({ error: 'Workflow not found' })
+      return res.status(404).json({ error: 'Workflow not found' }))
     }
 
     res.json({
       success: true,
       workflow
-    })
+    }))
   } catch (error: any) {
-    logger.error('Failed to get workflow', { error: getErrorMessage(error) })
+    logger.error('Failed to get workflow', { error: getErrorMessage(error) }))
     res.status(500).json({
       error: 'Failed to get workflow',
       details: getErrorMessage(error)
-    })
+    }))
   }
-})
+}))
 
 /**
  * GET /api/langchain/mcp/servers
@@ -525,15 +528,15 @@ router.get('/mcp/servers', requirePermission('report:view:global'), async (req: 
     res.json({
       success: true,
       servers: healthStatus
-    })
+    }))
   } catch (error: any) {
-    logger.error('Failed to list MCP servers', { error: getErrorMessage(error) })
+    logger.error('Failed to list MCP servers', { error: getErrorMessage(error) }))
     res.status(500).json({
       error: 'Failed to list MCP servers',
       details: getErrorMessage(error)
-    })
+    }))
   }
-})
+}))
 
 /**
  * GET /api/langchain/mcp/tools
@@ -547,15 +550,15 @@ router.get('/mcp/tools', requirePermission('report:view:global'), async (req: Re
     res.json({
       success: true,
       tools
-    })
+    }))
   } catch (error: any) {
-    logger.error('Failed to list MCP tools', { error: getErrorMessage(error) })
+    logger.error('Failed to list MCP tools', { error: getErrorMessage(error) }))
     res.status(500).json({
       error: 'Failed to list MCP tools',
       details: getErrorMessage(error)
-    })
+    }))
   }
-})
+}))
 
 /**
  * DELETE /api/langchain/sessions/:sessionId
@@ -570,15 +573,15 @@ router.delete('/sessions/:sessionId', requirePermission('report:generate:global'
     res.json({
       success: true,
       message: 'Session cleared successfully'
-    })
+    }))
   } catch (error: any) {
-    logger.error('Failed to clear session', { error: getErrorMessage(error) })
+    logger.error('Failed to clear session', { error: getErrorMessage(error) }))
     res.status(500).json({
       error: 'Failed to clear session',
       details: getErrorMessage(error)
-    })
+    }))
   }
-})
+}))
 
 /**
  * GET /api/langchain/sessions
@@ -591,14 +594,14 @@ router.get('/sessions', requirePermission('report:view:global'), async (req: Req
     res.json({
       success: true,
       sessions
-    })
+    }))
   } catch (error: any) {
-    logger.error('Failed to list sessions', { error: getErrorMessage(error) })
+    logger.error('Failed to list sessions', { error: getErrorMessage(error) }))
     res.status(500).json({
       error: 'Failed to list sessions',
       details: getErrorMessage(error)
-    })
+    }))
   }
-})
+}))
 
 export default router

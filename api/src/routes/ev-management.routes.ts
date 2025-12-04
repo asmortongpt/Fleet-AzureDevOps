@@ -1,4 +1,7 @@
 /**
+import { container } from '../container'
+import { asyncHandler } from '../middleware/error-handler'
+import { NotFoundError, ValidationError } from '../errors/app-error'
 import logger from '../config/logger'; // Wave 24: Add Winston logger
  * EV Management Routes
  *
@@ -11,20 +14,19 @@ import logger from '../config/logger'; // Wave 24: Add Winston logger
  * - Battery health monitoring
  */
 
-import express, { Request, Response } from 'express';
-import { z } from 'zod';
-import pool from '../config/database';
-import OCPPService from '../services/ocpp.service';
-import EVChargingService from '../services/ev-charging.service';
-import { authenticateJWT } from '../middleware/auth';
-import { requirePermission } from '../middleware/permissions';
+import express, { Request, Response } from 'express'
+import { z } from 'zod'
+import OCPPService from '../services/ocpp.service'
+import EVChargingService from '../services/ev-charging.service'
+import { authenticateJWT } from '../middleware/auth'
+import { requirePermission } from '../middleware/permissions'
 import { getErrorMessage } from '../utils/error-handler'
 
-const router = express.Router();
+const router = express.Router()
 
 // Initialize services
-const ocppService = new OCPPService(pool);
-const evChargingService = new EVChargingService(pool, ocppService);
+const ocppService = new OCPPService(pool)
+const evChargingService = new EVChargingService(pool, ocppService)
 
 // Validation schemas
 const reservationSchema = z.object({
@@ -33,8 +35,8 @@ const reservationSchema = z.object({
   vehicleId: z.number(),
   driverId: z.number(),
   startTime: z.string().datetime(),
-  endTime: z.string().datetime()
-});
+  endTime: z.string().datetime(),
+})
 
 const smartChargingSchema = z.object({
   vehicleId: z.number(),
@@ -42,16 +44,16 @@ const smartChargingSchema = z.object({
   completionTime: z.string().datetime(),
   preferOffPeak: z.boolean().optional(),
   preferRenewable: z.boolean().optional(),
-  maxChargeRate: z.number().optional()
-});
+  maxChargeRate: z.number().optional(),
+})
 
 const remoteStartSchema = z.object({
   stationId: z.string(),
   connectorId: z.number(),
   vehicleId: z.number(),
   driverId: z.number().optional(),
-  idTag: z.string()
-});
+  idTag: z.string(),
+})
 
 /**
  * @openapi
@@ -77,28 +79,33 @@ const remoteStartSchema = z.object({
  *       200:
  *         description: List of charging stations
  */
-router.get('/chargers', authenticateJWT, requirePermission('charging_station:view:fleet'), async (req: Request, res: Response) => {
-  try {
-    const latitude = req.query.latitude ? parseFloat(req.query.latitude as string) : undefined;
-    const longitude = req.query.longitude ? parseFloat(req.query.longitude as string) : undefined;
-    const radius = req.query.radius ? parseFloat(req.query.radius as string) : undefined;
+router.get(
+  '/chargers',
+  authenticateJWT,
+  requirePermission('charging_station:view:fleet'),
+  async (req: Request, res: Response) => {
+    try {
+      const latitude = req.query.latitude ? parseFloat(req.query.latitude as string) : undefined
+      const longitude = req.query.longitude ? parseFloat(req.query.longitude as string) : undefined
+      const radius = req.query.radius ? parseFloat(req.query.radius as string) : undefined
 
-    const stations = await evChargingService.getAvailableStations(latitude, longitude, radius);
+      const stations = await evChargingService.getAvailableStations(latitude, longitude, radius)
 
-    res.json({
-      success: true,
-      data: stations,
-      count: stations.length
-    });
-  } catch (error: any) {
-    logger.error('Error fetching chargers:', error) // Wave 24: Winston logger;
-    res.status(500).json({
-      success: false,
-      error: 'Failed to fetch charging stations',
-      message: getErrorMessage(error)
-    });
+      res.json({
+        success: true,
+        data: stations,
+        count: stations.length,
+      })
+    } catch (error: any) {
+      logger.error('Error fetching chargers:', error) // Wave 24: Winston logger;
+      res.status(500).json({
+        success: false,
+        error: 'Failed to fetch charging stations',
+        message: getErrorMessage(error),
+      })
+    }
   }
-});
+)
 
 /**
  * @openapi
@@ -116,31 +123,36 @@ router.get('/chargers', authenticateJWT, requirePermission('charging_station:vie
  *       200:
  *         description: Charging station status with connectors and active sessions
  */
-router.get('/chargers/:id/status', authenticateJWT, requirePermission('charging_station:view:fleet'), async (req: Request, res: Response) => {
-  try {
-    const stationId = parseInt(req.params.id);
-    const status = await evChargingService.getChargerStatus(stationId);
+router.get(
+  '/chargers/:id/status',
+  authenticateJWT,
+  requirePermission('charging_station:view:fleet'),
+  async (req: Request, res: Response) => {
+    try {
+      const stationId = parseInt(req.params.id)
+      const status = await evChargingService.getChargerStatus(stationId)
 
-    if (!status) {
-      return res.status(404).json({
+      if (!status) {
+        return res.status(404).json({
+          success: false,
+          error: 'Charging station not found',
+        })
+      }
+
+      res.json({
+        success: true,
+        data: status,
+      })
+    } catch (error: any) {
+      logger.error('Error fetching charger status:', error) // Wave 24: Winston logger;
+      res.status(500).json({
         success: false,
-        error: 'Charging station not found'
-      });
+        error: 'Failed to fetch charger status',
+        message: getErrorMessage(error),
+      })
     }
-
-    res.json({
-      success: true,
-      data: status
-    });
-  } catch (error: any) {
-    logger.error('Error fetching charger status:', error) // Wave 24: Winston logger;
-    res.status(500).json({
-      success: false,
-      error: 'Failed to fetch charger status',
-      message: getErrorMessage(error)
-    });
   }
-});
+)
 
 /**
  * @openapi
@@ -182,42 +194,47 @@ router.get('/chargers/:id/status', authenticateJWT, requirePermission('charging_
  *       201:
  *         description: Reservation created successfully
  */
-router.post('/chargers/:id/reserve', authenticateJWT, requirePermission('charging_station:create:fleet'), async (req: Request, res: Response) => {
-  try {
-    const stationId = parseInt(req.params.id);
-    const data = reservationSchema.parse({ ...req.body, stationId });
+router.post(
+  '/chargers/:id/reserve',
+  authenticateJWT,
+  requirePermission('charging_station:create:fleet'),
+  async (req: Request, res: Response) => {
+    try {
+      const stationId = parseInt(req.params.id)
+      const data = reservationSchema.parse({ ...req.body, stationId })
 
-    const reservation = await evChargingService.createReservation({
-      stationId: data.stationId,
-      connectorId: data.connectorId,
-      vehicleId: data.vehicleId,
-      driverId: data.driverId,
-      startTime: new Date(data.startTime),
-      endTime: new Date(data.endTime)
-    });
+      const reservation = await evChargingService.createReservation({
+        stationId: data.stationId,
+        connectorId: data.connectorId,
+        vehicleId: data.vehicleId,
+        driverId: data.driverId,
+        startTime: new Date(data.startTime),
+        endTime: new Date(data.endTime),
+      })
 
-    res.status(201).json({
-      success: true,
-      data: reservation,
-      message: 'Charging station reserved successfully'
-    });
-  } catch (error: any) {
-    if (error.name === 'ZodError') {
-      return res.status(400).json({
+      res.status(201).json({
+        success: true,
+        data: reservation,
+        message: 'Charging station reserved successfully',
+      })
+    } catch (error: any) {
+      if (error.name === 'ZodError') {
+        return res.status(400).json({
+          success: false,
+          error: 'Validation error',
+          details: error.errors,
+        })
+      }
+
+      logger.error('Error creating reservation:', error) // Wave 24: Winston logger;
+      res.status(500).json({
         success: false,
-        error: 'Validation error',
-        details: error.errors
-      });
+        error: 'Failed to create reservation',
+        message: getErrorMessage(error),
+      })
     }
-
-    logger.error('Error creating reservation:', error) // Wave 24: Winston logger;
-    res.status(500).json({
-      success: false,
-      error: 'Failed to create reservation',
-      message: getErrorMessage(error)
-    });
   }
-});
+)
 
 /**
  * @openapi
@@ -235,24 +252,29 @@ router.post('/chargers/:id/reserve', authenticateJWT, requirePermission('chargin
  *       200:
  *         description: Reservation cancelled successfully
  */
-router.delete('/reservations/:id/cancel', authenticateJWT, requirePermission('charging_station:delete:fleet'), async (req: Request, res: Response) => {
-  try {
-    const reservationId = parseInt(req.params.id);
-    await evChargingService.cancelReservation(reservationId);
+router.delete(
+  '/reservations/:id/cancel',
+  authenticateJWT,
+  requirePermission('charging_station:delete:fleet'),
+  async (req: Request, res: Response) => {
+    try {
+      const reservationId = parseInt(req.params.id)
+      await evChargingService.cancelReservation(reservationId)
 
-    res.json({
-      success: true,
-      message: 'Reservation cancelled successfully'
-    });
-  } catch (error: any) {
-    logger.error('Error cancelling reservation:', error) // Wave 24: Winston logger;
-    res.status(500).json({
-      success: false,
-      error: 'Failed to cancel reservation',
-      message: getErrorMessage(error)
-    });
+      res.json({
+        success: true,
+        message: 'Reservation cancelled successfully',
+      })
+    } catch (error: any) {
+      logger.error('Error cancelling reservation:', error) // Wave 24: Winston logger;
+      res.status(500).json({
+        success: false,
+        error: 'Failed to cancel reservation',
+        message: getErrorMessage(error),
+      })
+    }
   }
-});
+)
 
 /**
  * @openapi
@@ -293,42 +315,47 @@ router.delete('/reservations/:id/cancel', authenticateJWT, requirePermission('ch
  *       201:
  *         description: Charging schedule created
  */
-router.post('/vehicles/:id/charge-schedule', authenticateJWT, requirePermission('charging_station:create:fleet'), async (req: Request, res: Response) => {
-  try {
-    const vehicleId = parseInt(req.params.id);
-    const data = smartChargingSchema.parse({ ...req.body, vehicleId });
+router.post(
+  '/vehicles/:id/charge-schedule',
+  authenticateJWT,
+  requirePermission('charging_station:create:fleet'),
+  async (req: Request, res: Response) => {
+    try {
+      const vehicleId = parseInt(req.params.id)
+      const data = smartChargingSchema.parse({ ...req.body, vehicleId })
 
-    const schedule = await evChargingService.createChargingSchedule({
-      vehicleId: data.vehicleId,
-      targetSoC: data.targetSoC,
-      completionTime: new Date(data.completionTime),
-      preferOffPeak: data.preferOffPeak,
-      preferRenewable: data.preferRenewable,
-      maxChargeRate: data.maxChargeRate
-    });
+      const schedule = await evChargingService.createChargingSchedule({
+        vehicleId: data.vehicleId,
+        targetSoC: data.targetSoC,
+        completionTime: new Date(data.completionTime),
+        preferOffPeak: data.preferOffPeak,
+        preferRenewable: data.preferRenewable,
+        maxChargeRate: data.maxChargeRate,
+      })
 
-    res.status(201).json({
-      success: true,
-      data: schedule,
-      message: 'Smart charging schedule created'
-    });
-  } catch (error: any) {
-    if (error.name === 'ZodError') {
-      return res.status(400).json({
+      res.status(201).json({
+        success: true,
+        data: schedule,
+        message: 'Smart charging schedule created',
+      })
+    } catch (error: any) {
+      if (error.name === 'ZodError') {
+        return res.status(400).json({
+          success: false,
+          error: 'Validation error',
+          details: error.errors,
+        })
+      }
+
+      logger.error('Error creating charging schedule:', error) // Wave 24: Winston logger;
+      res.status(500).json({
         success: false,
-        error: 'Validation error',
-        details: error.errors
-      });
+        error: 'Failed to create charging schedule',
+        message: getErrorMessage(error),
+      })
     }
-
-    logger.error('Error creating charging schedule:', error) // Wave 24: Winston logger;
-    res.status(500).json({
-      success: false,
-      error: 'Failed to create charging schedule',
-      message: getErrorMessage(error)
-    });
   }
-});
+)
 
 /**
  * @openapi
@@ -346,33 +373,38 @@ router.post('/vehicles/:id/charge-schedule', authenticateJWT, requirePermission(
  *       200:
  *         description: Remote start command sent
  */
-router.post('/chargers/:id/remote-start', authenticateJWT, requirePermission('charging_station:update:fleet'), async (req: Request, res: Response) => {
-  try {
-    const stationId = req.params.id;
-    const data = remoteStartSchema.parse({ ...req.body, stationId });
+router.post(
+  '/chargers/:id/remote-start',
+  authenticateJWT,
+  requirePermission('charging_station:update:fleet'),
+  async (req: Request, res: Response) => {
+    try {
+      const stationId = req.params.id
+      const data = remoteStartSchema.parse({ ...req.body, stationId })
 
-    const result = await ocppService.remoteStartTransaction({
-      stationId: data.stationId,
-      connectorId: data.connectorId,
-      idTag: data.idTag,
-      vehicleId: data.vehicleId,
-      driverId: data.driverId
-    });
+      const result = await ocppService.remoteStartTransaction({
+        stationId: data.stationId,
+        connectorId: data.connectorId,
+        idTag: data.idTag,
+        vehicleId: data.vehicleId,
+        driverId: data.driverId,
+      })
 
-    res.json({
-      success: true,
-      data: result,
-      message: 'Remote start command sent'
-    });
-  } catch (error: any) {
-    logger.error('Error remote starting:', error) // Wave 24: Winston logger;
-    res.status(500).json({
-      success: false,
-      error: 'Failed to start charging',
-      message: getErrorMessage(error)
-    });
+      res.json({
+        success: true,
+        data: result,
+        message: 'Remote start command sent',
+      })
+    } catch (error: any) {
+      logger.error('Error remote starting:', error) // Wave 24: Winston logger;
+      res.status(500).json({
+        success: false,
+        error: 'Failed to start charging',
+        message: getErrorMessage(error),
+      })
+    }
   }
-});
+)
 
 /**
  * @openapi
@@ -390,29 +422,34 @@ router.post('/chargers/:id/remote-start', authenticateJWT, requirePermission('ch
  *       200:
  *         description: Remote stop command sent
  */
-router.post('/sessions/:transactionId/stop', authenticateJWT, requirePermission('charging_station:update:fleet'), async (req: Request, res: Response) => {
-  try {
-    const transactionId = req.params.transactionId;
+router.post(
+  '/sessions/:transactionId/stop',
+  authenticateJWT,
+  requirePermission('charging_station:update:fleet'),
+  async (req: Request, res: Response) => {
+    try {
+      const transactionId = req.params.transactionId
 
-    const result = await ocppService.remoteStopTransaction({
-      transactionId,
-      reason: 'Remote'
-    });
+      const result = await ocppService.remoteStopTransaction({
+        transactionId,
+        reason: 'Remote',
+      })
 
-    res.json({
-      success: true,
-      data: result,
-      message: 'Remote stop command sent'
-    });
-  } catch (error: any) {
-    logger.error('Error remote stopping:', error) // Wave 24: Winston logger;
-    res.status(500).json({
-      success: false,
-      error: 'Failed to stop charging',
-      message: getErrorMessage(error)
-    });
+      res.json({
+        success: true,
+        data: result,
+        message: 'Remote stop command sent',
+      })
+    } catch (error: any) {
+      logger.error('Error remote stopping:', error) // Wave 24: Winston logger;
+      res.status(500).json({
+        success: false,
+        error: 'Failed to stop charging',
+        message: getErrorMessage(error),
+      })
+    }
   }
-});
+)
 
 /**
  * @openapi
@@ -424,26 +461,31 @@ router.post('/sessions/:transactionId/stop', authenticateJWT, requirePermission(
  *       200:
  *         description: List of active charging sessions
  */
-router.get('/sessions/active', authenticateJWT, requirePermission('charging_station:view:fleet'), async (req: Request, res: Response) => {
-  try {
-    const result = await pool.query(
-      `SELECT id, tenant_id, vehicle_id, charger_id, start_time, end_time, energy_charged, cost FROM active_charging_sessions ORDER BY start_time DESC`
-    );
+router.get(
+  '/sessions/active',
+  authenticateJWT,
+  requirePermission('charging_station:view:fleet'),
+  async (req: Request, res: Response) => {
+    try {
+      const result = await pool.query(
+        `SELECT id, tenant_id, vehicle_id, charger_id, start_time, end_time, energy_charged, cost FROM active_charging_sessions ORDER BY start_time DESC`
+      )
 
-    res.json({
-      success: true,
-      data: result.rows,
-      count: result.rows.length
-    });
-  } catch (error: any) {
-    logger.error(`Error fetching active sessions:`, error) // Wave 24: Winston logger;
-    res.status(500).json({
-      success: false,
-      error: `Failed to fetch active sessions`,
-      message: getErrorMessage(error)
-    });
+      res.json({
+        success: true,
+        data: result.rows,
+        count: result.rows.length,
+      })
+    } catch (error: any) {
+      logger.error(`Error fetching active sessions:`, error) // Wave 24: Winston logger;
+      res.status(500).json({
+        success: false,
+        error: `Failed to fetch active sessions`,
+        message: getErrorMessage(error),
+      })
+    }
   }
-});
+)
 
 /**
  * @openapi
@@ -470,15 +512,19 @@ router.get('/sessions/active', authenticateJWT, requirePermission('charging_stat
  *       200:
  *         description: Carbon footprint data
  */
-router.get('/carbon-footprint', authenticateJWT, requirePermission('report:view:global'), async (req: Request, res: Response) => {
-  try {
-    const startDate = req.query.startDate
-      ? new Date(req.query.startDate as string)
-      : new Date(new Date().setDate(new Date().getDate() - 30));
-    const endDate = req.query.endDate ? new Date(req.query.endDate as string) : new Date();
-    const vehicleId = req.query.vehicleId ? parseInt(req.query.vehicleId as string) : null;
+router.get(
+  '/carbon-footprint',
+  authenticateJWT,
+  requirePermission('report:view:global'),
+  async (req: Request, res: Response) => {
+    try {
+      const startDate = req.query.startDate
+        ? new Date(req.query.startDate as string)
+        : new Date(new Date().setDate(new Date().getDate() - 30))
+      const endDate = req.query.endDate ? new Date(req.query.endDate as string) : new Date()
+      const vehicleId = req.query.vehicleId ? parseInt(req.query.vehicleId as string) : null
 
-    let query = `
+      let query = `
       SELECT
         vehicle_id,
         v.name as vehicle_name,
@@ -493,38 +539,39 @@ router.get('/carbon-footprint', authenticateJWT, requirePermission('report:view:
       FROM carbon_footprint_log cfl
       JOIN vehicles v ON cfl.vehicle_id = v.id
       WHERE log_date BETWEEN $1 AND $2
-    `;
+    `
 
-    const params: any[] = [startDate, endDate];
+      const params: any[] = [startDate, endDate]
 
-    if (vehicleId) {
-      query += ` AND vehicle_id = $3`;
-      params.push(vehicleId);
-    }
-
-    query += ` ORDER BY log_date DESC, vehicle_name`;
-
-    const result = await pool.query(query, params);
-
-    // Get summary
-    const summary = await evChargingService.getFleetCarbonSummary(startDate, endDate);
-
-    res.json({
-      success: true,
-      data: {
-        logs: result.rows,
-        summary
+      if (vehicleId) {
+        query += ` AND vehicle_id = $3`
+        params.push(vehicleId)
       }
-    });
-  } catch (error: any) {
-    logger.error('Error fetching carbon footprint:', error) // Wave 24: Winston logger;
-    res.status(500).json({
-      success: false,
-      error: 'Failed to fetch carbon footprint data',
-      message: getErrorMessage(error)
-    });
+
+      query += ` ORDER BY log_date DESC, vehicle_name`
+
+      const result = await pool.query(query, params)
+
+      // Get summary
+      const summary = await evChargingService.getFleetCarbonSummary(startDate, endDate)
+
+      res.json({
+        success: true,
+        data: {
+          logs: result.rows,
+          summary,
+        },
+      })
+    } catch (error: any) {
+      logger.error('Error fetching carbon footprint:', error) // Wave 24: Winston logger;
+      res.status(500).json({
+        success: false,
+        error: 'Failed to fetch carbon footprint data',
+        message: getErrorMessage(error),
+      })
+    }
   }
-});
+)
 
 /**
  * @openapi
@@ -554,34 +601,39 @@ router.get('/carbon-footprint', authenticateJWT, requirePermission('report:view:
  *       200:
  *         description: ESG report data
  */
-router.get('/esg-report', authenticateJWT, requirePermission('report:view:global'), async (req: Request, res: Response) => {
-  try {
-    const period = req.query.period as 'monthly' | 'quarterly' | 'annual';
-    const year = parseInt(req.query.year as string);
-    const month = req.query.month ? parseInt(req.query.month as string) : undefined;
+router.get(
+  '/esg-report',
+  authenticateJWT,
+  requirePermission('report:view:global'),
+  async (req: Request, res: Response) => {
+    try {
+      const period = req.query.period as 'monthly' | 'quarterly' | 'annual'
+      const year = parseInt(req.query.year as string)
+      const month = req.query.month ? parseInt(req.query.month as string) : undefined
 
-    if (!['monthly', 'quarterly', 'annual'].includes(period)) {
-      return res.status(400).json({
+      if (!['monthly', 'quarterly', 'annual'].includes(period)) {
+        return res.status(400).json({
+          success: false,
+          error: 'Invalid period. Must be monthly, quarterly, or annual',
+        })
+      }
+
+      const report = await evChargingService.generateESGReport(period, year, month)
+
+      res.json({
+        success: true,
+        data: report,
+      })
+    } catch (error: any) {
+      logger.error('Error generating ESG report:', error) // Wave 24: Winston logger;
+      res.status(500).json({
         success: false,
-        error: 'Invalid period. Must be monthly, quarterly, or annual'
-      });
+        error: 'Failed to generate ESG report',
+        message: getErrorMessage(error),
+      })
     }
-
-    const report = await evChargingService.generateESGReport(period, year, month);
-
-    res.json({
-      success: true,
-      data: report
-    });
-  } catch (error: any) {
-    logger.error('Error generating ESG report:', error) // Wave 24: Winston logger;
-    res.status(500).json({
-      success: false,
-      error: 'Failed to generate ESG report',
-      message: getErrorMessage(error)
-    });
   }
-});
+)
 
 /**
  * @openapi
@@ -599,24 +651,29 @@ router.get('/esg-report', authenticateJWT, requirePermission('report:view:global
  *       200:
  *         description: Battery health report
  */
-router.get('/vehicles/:id/battery-health', authenticateJWT, requirePermission('vehicle:view:fleet'), async (req: Request, res: Response) => {
-  try {
-    const vehicleId = parseInt(req.params.id);
-    const report = await evChargingService.monitorBatteryHealth(vehicleId);
+router.get(
+  '/vehicles/:id/battery-health',
+  authenticateJWT,
+  requirePermission('vehicle:view:fleet'),
+  async (req: Request, res: Response) => {
+    try {
+      const vehicleId = parseInt(req.params.id)
+      const report = await evChargingService.monitorBatteryHealth(vehicleId)
 
-    res.json({
-      success: true,
-      data: report
-    });
-  } catch (error: any) {
-    logger.error('Error fetching battery health:', error) // Wave 24: Winston logger;
-    res.status(500).json({
-      success: false,
-      error: 'Failed to fetch battery health',
-      message: getErrorMessage(error)
-    });
+      res.json({
+        success: true,
+        data: report,
+      })
+    } catch (error: any) {
+      logger.error('Error fetching battery health:', error) // Wave 24: Winston logger;
+      res.status(500).json({
+        success: false,
+        error: 'Failed to fetch battery health',
+        message: getErrorMessage(error),
+      })
+    }
   }
-});
+)
 
 /**
  * @openapi
@@ -628,25 +685,30 @@ router.get('/vehicles/:id/battery-health', authenticateJWT, requirePermission('v
  *       200:
  *         description: Station utilization data
  */
-router.get('/station-utilization', authenticateJWT, requirePermission('charging_station:view:fleet'), async (req: Request, res: Response) => {
-  try {
-    const result = await pool.query(
-      `SELECT station_id, station_name, utilization_percent, total_sessions, peak_hour FROM station_utilization_today ORDER BY utilization_percent DESC`
-    );
+router.get(
+  '/station-utilization',
+  authenticateJWT,
+  requirePermission('charging_station:view:fleet'),
+  async (req: Request, res: Response) => {
+    try {
+      const result = await pool.query(
+        `SELECT station_id, station_name, utilization_percent, total_sessions, peak_hour FROM station_utilization_today ORDER BY utilization_percent DESC`
+      )
 
-    res.json({
-      success: true,
-      data: result.rows
-    });
-  } catch (error: any) {
-    logger.error(`Error fetching station utilization:`, error) // Wave 24: Winston logger;
-    res.status(500).json({
-      success: false,
-      error: `Failed to fetch station utilization`,
-      message: getErrorMessage(error)
-    });
+      res.json({
+        success: true,
+        data: result.rows,
+      })
+    } catch (error: any) {
+      logger.error(`Error fetching station utilization:`, error) // Wave 24: Winston logger;
+      res.status(500).json({
+        success: false,
+        error: `Failed to fetch station utilization`,
+        message: getErrorMessage(error),
+      })
+    }
   }
-});
+)
 
 /**
  * @openapi
@@ -669,42 +731,47 @@ router.get('/station-utilization', authenticateJWT, requirePermission('charging_
  *       200:
  *         description: Charging session history
  */
-router.get('/vehicles/:id/charging-history', authenticateJWT, requirePermission('vehicle:view:fleet'), async (req: Request, res: Response) => {
-  try {
-    const vehicleId = parseInt(req.params.id);
-    const limit = req.query.limit ? parseInt(req.query.limit as string) : 50;
+router.get(
+  '/vehicles/:id/charging-history',
+  authenticateJWT,
+  requirePermission('vehicle:view:fleet'),
+  async (req: Request, res: Response) => {
+    try {
+      const vehicleId = parseInt(req.params.id)
+      const limit = req.query.limit ? parseInt(req.query.limit as string) : 50
 
-    const result = await pool.query(
-      `SELECT
+      const result = await pool.query(
+        `SELECT
          cs.*,
          cst.name as station_name,
          cst.station_id,
-         u.first_name || ` ` || u.last_name as driver_name
+         u.first_name || `` || u.last_name as driver_name
        FROM charging_sessions cs
        JOIN charging_stations cst ON cs.station_id = cst.id
        LEFT JOIN users u ON cs.driver_id = u.id
        WHERE cs.vehicle_id = $1
        ORDER BY cs.start_time DESC
        LIMIT $2`,
-      [vehicleId, limit]
-    );
+        [vehicleId, limit]
+      )
 
-    res.json({
-      success: true,
-      data: result.rows,
-      count: result.rows.length
-    });
-  } catch (error: any) {
-    logger.error('Error fetching charging history:', error) // Wave 24: Winston logger;
-    res.status(500).json({
-      success: false,
-      error: 'Failed to fetch charging history',
-      message: getErrorMessage(error)
-    });
+      res.json({
+        success: true,
+        data: result.rows,
+        count: result.rows.length,
+      })
+    } catch (error: any) {
+      logger.error('Error fetching charging history:', error) // Wave 24: Winston logger;
+      res.status(500).json({
+        success: false,
+        error: 'Failed to fetch charging history',
+        message: getErrorMessage(error),
+      })
+    }
   }
-});
+)
 
 // OCPP connections will be initialized by the server on startup
 // See src/server.ts for initialization logic
 
-export default router;
+export default router
