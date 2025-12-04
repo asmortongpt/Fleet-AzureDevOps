@@ -3,7 +3,6 @@ import { container } from '../container'
 import { asyncHandler } from '../middleware/error-handler'
 import { NotFoundError, ValidationError } from '../errors/app-error'
 import logger from '../config/logger' // Wave 27: Add Winston logger
-import { RouteEmulator } from '../emulators/RouteEmulator'
 import { RouteFilters, UpdateStopStatusRequest } from '../types/route.types'
 
 const router = Router()

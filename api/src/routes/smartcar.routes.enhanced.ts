@@ -38,7 +38,7 @@ router.get('/connect', authenticateJWT, requirePermission('vehicle:manage:global
   try {
     const validationResult = vehicleIdSchema.safeParse(req.query);
     if (!validationResult.success) {
-      return res.status(400).json({ error: 'Invalid vehicle_id query parameter' });
+      return throw new ValidationError("Invalid vehicle_id query parameter");
     }
 
     const { vehicle_id } = validationResult.data;
@@ -49,7 +49,7 @@ router.get('/connect', authenticateJWT, requirePermission('vehicle:manage:global
         vehicle_id,
         user_id: req.user!.id,
         tenant_id: req.user!.tenant_id,
-      }))
+      })
     ).toString('base64');
 
     const authUrl = smartcarService.getAuthUrl(state);
@@ -94,7 +94,7 @@ router.get('/callback', async (req: Request, res: Response) => {
     }
 
     // Decode state parameter
-    const stateData = JSON.parse(Buffer.from(state as string, `base64`).toString(`utf-8`));
+    const stateData = JSON.parse(Buffer.from(state as string, `base64`).toString(`utf-8`);
     const { vehicle_id, user_id, tenant_id } = stateData;
 
     // SECURITY: Validate vehicle_id is a valid UUID to prevent path traversal

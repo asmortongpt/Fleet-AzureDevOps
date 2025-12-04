@@ -66,12 +66,12 @@ router.get('/', requirePermission('vehicle:view:fleet'), async (req: AuthRequest
     res.json({
       equipment,
       total: equipment.length
-    }))
+    })
   } catch (error) {
     logger.error('Error fetching heavy equipment:', error) // Wave 20: Winston logger
-    res.status(500).json({ error: 'Failed to fetch heavy equipment' }))
+    res.status(500).json({ error: 'Failed to fetch heavy equipment' })
   }
-}))
+})
 
 /**
  * @openapi
@@ -87,16 +87,16 @@ router.get('/:id', requirePermission('vehicle:view:fleet'), async (req: AuthRequ
 
     const equipment = await heavyEquipmentService.getEquipmentById(id, tenantId)
 
-    res.json({ equipment }))
+    res.json({ equipment })
   } catch (error: any) {
     logger.error('Error fetching equipment:', error) // Wave 20: Winston logger
     if (getErrorMessage(error) === 'Equipment not found') {
-      res.status(404).json({ error: getErrorMessage(error) }))
+      res.status(404).json({ error: getErrorMessage(error) })
     } else {
-      res.status(500).json({ error: 'Failed to fetch equipment' }))
+      res.status(500).json({ error: 'Failed to fetch equipment' })
     }
   }
-}))
+})
 
 /**
  * @openapi
@@ -120,12 +120,12 @@ router.post('/', requirePermission('vehicle:create:fleet'), async (req: AuthRequ
     res.status(201).json({
       equipment,
       message: 'Heavy equipment created successfully'
-    }))
+    })
   } catch (error) {
     logger.error('Error creating heavy equipment:', error) // Wave 20: Winston logger
-    res.status(500).json({ error: 'Failed to create heavy equipment' }))
+    res.status(500).json({ error: 'Failed to create heavy equipment' })
   }
-}))
+})
 
 /**
  * @openapi
@@ -145,16 +145,16 @@ router.put('/:id', requirePermission('vehicle:update:fleet'), async (req: AuthRe
     res.json({
       equipment,
       message: 'Equipment updated successfully'
-    }))
+    })
   } catch (error: any) {
     logger.error('Error updating equipment:', error) // Wave 20: Winston logger
     if (getErrorMessage(error) === 'Equipment not found') {
-      res.status(404).json({ error: getErrorMessage(error) }))
+      res.status(404).json({ error: getErrorMessage(error) })
     } else {
-      res.status(500).json({ error: 'Failed to update equipment' }))
+      res.status(500).json({ error: 'Failed to update equipment' })
     }
   }
-}))
+})
 
 /**
  * @openapi
@@ -179,12 +179,12 @@ router.post('/:id/hour-meter', requirePermission('vehicle:update:fleet'), async 
     res.status(201).json({
       reading,
       message: 'Hour meter reading recorded successfully'
-    }))
+    })
   } catch (error) {
     logger.error('Error recording hour meter:', error) // Wave 20: Winston logger
-    res.status(500).json({ error: 'Failed to record hour meter reading' }))
+    res.status(500).json({ error: 'Failed to record hour meter reading' })
   }
-}))
+})
 
 /**
  * @openapi
@@ -203,12 +203,12 @@ router.get('/:id/hour-meter', requirePermission('vehicle:view:fleet'), async (re
     res.json({
       readings,
       total: readings.length
-    }))
+    })
   } catch (error) {
     logger.error('Error fetching hour meter readings:', error) // Wave 20: Winston logger
-    res.status(500).json({ error: 'Failed to fetch hour meter readings' }))
+    res.status(500).json({ error: 'Failed to fetch hour meter readings' })
   }
-}))
+})
 
 /**
  * @openapi
@@ -233,12 +233,12 @@ router.get('/certifications/all', requirePermission('driver:view:global'), async
     res.json({
       certifications,
       total: certifications.length
-    }))
+    })
   } catch (error) {
     logger.error('Error fetching certifications:', error) // Wave 20: Winston logger
-    res.status(500).json({ error: 'Failed to fetch certifications' }))
+    res.status(500).json({ error: 'Failed to fetch certifications' })
   }
-}))
+})
 
 /**
  * @openapi
@@ -257,12 +257,12 @@ router.get('/certifications/expiring', requirePermission('driver:view:global'), 
     res.json({
       alerts,
       total: alerts.length
-    }))
+    })
   } catch (error) {
     logger.error('Error fetching expiring certifications:', error) // Wave 20: Winston logger
-    res.status(500).json({ error: 'Failed to fetch expiring certifications' }))
+    res.status(500).json({ error: 'Failed to fetch expiring certifications' })
   }
-}))
+})
 
 /**
  * @openapi
@@ -277,12 +277,12 @@ router.get('/certifications/matrix', requirePermission('driver:view:global'), as
 
     const matrix = await heavyEquipmentService.getOperatorCertificationMatrix(tenantId)
 
-    res.json({ matrix }))
+    res.json({ matrix })
   } catch (error) {
     logger.error('Error fetching certification matrix:', error) // Wave 20: Winston logger
-    res.status(500).json({ error: 'Failed to fetch certification matrix' }))
+    res.status(500).json({ error: 'Failed to fetch certification matrix' })
   }
-}))
+})
 
 /**
  * @openapi
@@ -305,12 +305,12 @@ router.post('/certifications/create', requirePermission('driver:create:global'),
     res.status(201).json({
       certification,
       message: 'Operator certification created successfully'
-    }))
+    })
   } catch (error) {
     logger.error('Error creating certification:', error) // Wave 20: Winston logger
-    res.status(500).json({ error: 'Failed to create certification' }))
+    res.status(500).json({ error: 'Failed to create certification' })
   }
-}))
+})
 
 /**
  * @openapi
@@ -328,12 +328,12 @@ router.get('/attachments/:equipmentId', requirePermission('vehicle:view:fleet'),
     res.json({
       attachments,
       total: attachments.length
-    }))
+    })
   } catch (error) {
     logger.error('Error fetching attachments:', error) // Wave 20: Winston logger
-    res.status(500).json({ error: 'Failed to fetch attachments' }))
+    res.status(500).json({ error: 'Failed to fetch attachments' })
   }
-}))
+})
 
 /**
  * @openapi
@@ -349,12 +349,12 @@ router.post('/attachments', requirePermission('vehicle:update:fleet'), async (re
     res.status(201).json({
       attachment,
       message: 'Attachment added successfully'
-    }))
+    })
   } catch (error) {
     logger.error('Error adding attachment:', error) // Wave 20: Winston logger
-    res.status(500).json({ error: 'Failed to add attachment' }))
+    res.status(500).json({ error: 'Failed to add attachment' })
   }
-}))
+})
 
 /**
  * @openapi
@@ -373,12 +373,12 @@ router.patch('/attachments/:id/status', requirePermission('vehicle:update:fleet'
     res.json({
       attachment,
       message: 'Attachment status updated successfully'
-    }))
+    })
   } catch (error) {
     logger.error('Error updating attachment status:', error) // Wave 20: Winston logger
-    res.status(500).json({ error: 'Failed to update attachment status' }))
+    res.status(500).json({ error: 'Failed to update attachment status' })
   }
-}))
+})
 
 /**
  * @openapi
@@ -403,12 +403,12 @@ router.post('/:id/inspection', requirePermission('vehicle:update:fleet'), async 
     res.status(201).json({
       checklist,
       message: 'Inspection checklist completed successfully'
-    }))
+    })
   } catch (error) {
     logger.error('Error completing inspection:', error) // Wave 20: Winston logger
-    res.status(500).json({ error: 'Failed to complete inspection' }))
+    res.status(500).json({ error: 'Failed to complete inspection' })
   }
-}))
+})
 
 /**
  * @openapi
@@ -427,12 +427,12 @@ router.get('/:id/inspection', requirePermission('vehicle:view:fleet'), async (re
     res.json({
       checklists,
       total: checklists.length
-    }))
+    })
   } catch (error) {
     logger.error('Error fetching inspection checklists:', error) // Wave 20: Winston logger
-    res.status(500).json({ error: 'Failed to fetch inspection checklists' }))
+    res.status(500).json({ error: 'Failed to fetch inspection checklists' })
   }
-}))
+})
 
 /**
  * @openapi
@@ -449,12 +449,12 @@ router.get('/:id/utilization', requirePermission('report:view:global'), async (r
 
     const utilization = await heavyEquipmentService.getEquipmentUtilization(id, startDate, endDate)
 
-    res.json({ utilization }))
+    res.json({ utilization })
   } catch (error) {
     logger.error('Error fetching utilization:', error) // Wave 20: Winston logger
-    res.status(500).json({ error: 'Failed to fetch utilization data' }))
+    res.status(500).json({ error: 'Failed to fetch utilization data' })
   }
-}))
+})
 
 /**
  * @openapi
@@ -471,12 +471,12 @@ router.get('/:id/cost-analysis', requirePermission('report:view:global'), async 
 
     const analysis = await heavyEquipmentService.getEquipmentCostAnalysis(id, startDate, endDate)
 
-    res.json({ analysis }))
+    res.json({ analysis })
   } catch (error) {
     logger.error('Error fetching cost analysis:', error) // Wave 20: Winston logger
-    res.status(500).json({ error: 'Failed to fetch cost analysis' }))
+    res.status(500).json({ error: 'Failed to fetch cost analysis' })
   }
-}))
+})
 
 /**
  * @openapi
@@ -495,11 +495,11 @@ router.get('/maintenance/schedules', requirePermission('maintenance:view:fleet')
     res.json({
       schedules,
       total: schedules.length
-    }))
+    })
   } catch (error) {
     logger.error('Error fetching maintenance schedules:', error) // Wave 20: Winston logger
-    res.status(500).json({ error: 'Failed to fetch maintenance schedules' }))
+    res.status(500).json({ error: 'Failed to fetch maintenance schedules' })
   }
-}))
+})
 
 export default router

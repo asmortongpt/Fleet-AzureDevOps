@@ -72,7 +72,7 @@ const TripMetricsSchema = z.object({
     odometer_miles: z.number().optional(),
     mil_status: z.boolean().optional(),
     dtc_count: z.number().int().optional()
-  })).optional(),
+  }).optional(),
   breadcrumbs: z.array(z.object({
     timestamp: z.string().datetime(),
     latitude: z.number(),
@@ -85,7 +85,7 @@ const TripMetricsSchema = z.object({
     fuel_level_percent: z.number().optional(),
     coolant_temp_f: z.number().optional(),
     throttle_position_percent: z.number().optional()
-  })).optional(),
+  }).optional(),
   events: z.array(z.object({
     type: z.enum([
       'harsh_acceleration',
@@ -110,7 +110,7 @@ const TripMetricsSchema = z.object({
     speed_limit_mph: z.number().int().optional(),
     description: z.string(),
     metadata: z.any().optional()
-  })).optional()
+  }).optional()
 });
 
 const ClassifyTripSchema = z.object({
@@ -266,7 +266,7 @@ router.post('/:id/end', requirePermission('route:update:own'), auditLog, async (
     const trip = tripCheck.rows[0];
 
     // Verify user is the driver or has admin access
-    if (trip.driver_id !== userId && !['admin', 'fleet_manager'].includes((req as any).user.role)) {
+    if (trip.driver_id !== userId && !['admin', 'fleet_manager'].includes((req as any).user.role) {
       return res.status(403).json({ error: 'Access denied' });
     }
 
@@ -483,7 +483,7 @@ router.post('/:id/metrics', requirePermission('route:update:own'), async (req: R
               event.g_force || null,
               event.speed_limit_mph || null,
               event.description,
-              JSON.stringify(event.metadata || {}))
+              JSON.stringify(event.metadata || {})
             ]
           );
         }
@@ -671,7 +671,7 @@ router.patch('/:id/classify', requirePermission('route:update:own'), auditLog, a
     const trip = tripCheck.rows[0];
 
     // Verify user is the driver or has admin access
-    if (trip.driver_id !== userId && !['admin', 'fleet_manager'].includes((req as any).user.role)) {
+    if (trip.driver_id !== userId && !['admin', 'fleet_manager'].includes((req as any).user.role) {
       return res.status(403).json({ error: 'Access denied' });
     }
 
@@ -809,7 +809,7 @@ router.get('/', requirePermission('route:view:fleet'), async (req: Request, res:
         v.name as vehicle_name,
         v.license_plate,
         u.name as driver_name,
-        (SELECT COUNT(*) FROM trip_events te WHERE te.trip_id = t.id AND te.severity IN ('high', 'critical')) as critical_events
+        (SELECT COUNT(*) FROM trip_events te WHERE te.trip_id = t.id AND te.severity IN ('high', 'critical') as critical_events
       FROM trips t
       LEFT JOIN vehicles v ON t.vehicle_id = v.id
       LEFT JOIN users u ON t.driver_id = u.id

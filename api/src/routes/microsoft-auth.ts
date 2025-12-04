@@ -30,7 +30,7 @@ router.get('/microsoft/callback', async (req: Request, res: Response) => {
       const safeErrorUrl = buildSafeRedirectUrl('/login', {
         error: 'auth_failed',
         message: `No authorization code received`
-      }))
+      })
       return res.redirect(safeErrorUrl)
     }
 
@@ -59,7 +59,7 @@ router.get('/microsoft/callback', async (req: Request, res: Response) => {
       headers: {
         Authorization: `Bearer ${access_token}`
       }
-    }))
+    })
 
     const microsoftUser = userInfoResponse.data
     const email = microsoftUser.mail || microsoftUser.userPrincipalName
@@ -188,7 +188,7 @@ router.get('/microsoft/callback', async (req: Request, res: Response) => {
       const safeErrorUrl = buildSafeRedirectUrl('/login', {
         error: 'config_error',
         message: 'Server authentication configuration error'
-      }))
+      })
       return res.redirect(safeErrorUrl)
     }
 
@@ -197,7 +197,7 @@ router.get('/microsoft/callback', async (req: Request, res: Response) => {
       const safeErrorUrl = buildSafeRedirectUrl('/login', {
         error: 'config_error',
         message: 'Server authentication configuration error'
-      }))
+      })
       return res.redirect(safeErrorUrl)
     }
 
@@ -230,7 +230,7 @@ router.get('/microsoft/callback', async (req: Request, res: Response) => {
       sameSite: 'lax',    // CSRF protection
       maxAge: 24 * 60 * 60 * 1000, // 24 hours (matches JWT expiration)
       path: `/`           // Available throughout the application
-    }))
+    })
 
     // SECURITY FIX (CWE-601): Validate frontend URL before redirect
     // Token is in httpOnly cookie - DO NOT pass in URL (prevents XSS)
@@ -251,10 +251,10 @@ router.get('/microsoft/callback', async (req: Request, res: Response) => {
     const safeErrorUrl = buildSafeRedirectUrl('/login', {
       error: 'auth_failed',
       message: errorMessage
-    }))
+    })
     res.redirect(safeErrorUrl)
   }
-}))
+})
 
 /**
  * GET /api/auth/microsoft
@@ -277,7 +277,7 @@ router.get('/microsoft', async (req: Request, res: Response) => {
         const safeErrorUrl = buildSafeRedirectUrl(`/login`, {
           error: `config_error`,
           message: `No tenants configured in system`
-        }))
+        })
         return res.redirect(safeErrorUrl)
       }
       state = defaultTenantResult.rows[0].id
@@ -298,10 +298,10 @@ router.get('/microsoft', async (req: Request, res: Response) => {
     const safeErrorUrl = buildSafeRedirectUrl(`/login`, {
       error: 'auth_failed',
       message: 'Failed to initiate authentication'
-    }))
+    })
     res.redirect(safeErrorUrl)
   }
-}))
+})
 
 /**
  * GET /api/auth/microsoft/login
@@ -324,7 +324,7 @@ router.get('/microsoft/login', async (req: Request, res: Response) => {
         const safeErrorUrl = buildSafeRedirectUrl(`/login`, {
           error: `config_error`,
           message: `No tenants configured in system`
-        }))
+        })
         return res.redirect(safeErrorUrl)
       }
       state = defaultTenantResult.rows[0].id
@@ -345,9 +345,9 @@ router.get('/microsoft/login', async (req: Request, res: Response) => {
     const safeErrorUrl = buildSafeRedirectUrl(`/login`, {
       error: 'auth_failed',
       message: 'Failed to initiate authentication'
-    }))
+    })
     res.redirect(safeErrorUrl)
   }
-}))
+})
 
 export default router
