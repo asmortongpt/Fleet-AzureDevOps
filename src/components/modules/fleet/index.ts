@@ -1,0 +1,12 @@
+// Fleet module exports
+export { FleetAnalytics } from './FleetAnalytics'
+export { FleetDashboard } from './FleetDashboard'
+export { FleetDashboardModern } from './FleetDashboardModern'
+export { FleetOptimizer } from './FleetOptimizer'
+export { GPSTracking } from './GPSTracking'
+export { VehicleAssignmentManagement } from './VehicleAssignmentManagement'
+export { VehicleInventory } from './VehicleInventory'
+export { VehicleManagement } from './VehicleManagement'
+export { VehicleTelemetry } from './VehicleTelemetry'
+export { VirtualGarage } from './VirtualGarage'
+export { VirtualGarage3D } from './VirtualGarage3D'
