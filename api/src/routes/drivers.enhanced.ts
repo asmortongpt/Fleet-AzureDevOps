@@ -15,14 +15,14 @@ import csurf from 'csurf'
 
 const router = express.Router()
 
-router.use(helmet())
+router.use(helmet()
 router.use(authenticateJWT)
 router.use(rateLimit({
   windowMs: 60 * 1000, // 1 minute
   max: 100, // limit each IP to 100 requests per windowMs
-}))
+})
 
-const csrfProtection = csurf({ cookie: true }))
+const csrfProtection = csurf({ cookie: true })
 
 // Enhanced with CSRF protection on mutations
 router.post('/', csrfProtection)
@@ -77,12 +77,12 @@ router.get(
           page: Number(page),
           limit: Number(limit),
           total: parseInt(countResult.rows[0].count),
-          pages: Math.ceil(countResult.rows[0].count / Number(limit))
+          pages: Math.ceil(countResult.rows[0].count / Number(limit)
         }
-      }))
+      })
     } catch (error) {
       console.error(`Get drivers error:`, error)
-      res.status(500).json({ error: `Internal server error` }))
+      res.status(500).json({ error: `Internal server error` })
     }
   }
 )
@@ -101,7 +101,7 @@ router.get(
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: `Driver not found` }))
+        return res.status(404).json({ error: `Driver not found` })
       }
 
       // IDOR protection: Check if user has access to this driver
@@ -113,15 +113,15 @@ router.get(
       const driverId = req.params.id
 
       if (user.scope_level === `own` && user.driver_id !== driverId) {
-        return res.status(403).json({ error: `Forbidden` }))
-      } else if (user.scope_level === 'team' && !user.team_driver_ids.includes(driverId)) {
-        return res.status(403).json({ error: `Forbidden` }))
+        return res.status(403).json({ error: `Forbidden` })
+      } else if (user.scope_level === 'team' && !user.team_driver_ids.includes(driverId) {
+        return res.status(403).json({ error: `Forbidden` })
       }
 
       res.json(result.rows[0])
     } catch (error) {
       console.error(`Get driver error:`, error)
-      res.status(500).json({ error: `Internal server error` }))
+      res.status(500).json({ error: `Internal server error` })
     }
   }
 )

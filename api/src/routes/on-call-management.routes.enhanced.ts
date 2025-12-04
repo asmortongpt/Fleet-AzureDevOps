@@ -13,8 +13,8 @@ import bcrypt from 'bcrypt'
 import { check, validationResult } from 'express-validator'
 
 const router = express.Router()
-router.use(helmet())
-router.use(express.json())
+router.use(helmet()
+router.use(express.json()
 
 const apiLimiter = rateLimit({
   windowMs: 1 * 60 * 1000, // 1 minute
@@ -44,7 +44,7 @@ const createOnCallPeriodSchema = z.object({
   schedule_notes: z.string().optional(),
   on_call_vehicle_assignment_id: z.string().uuid().optional(),
   geographic_region: z.string().optional(),
-  commuting_constraints: z.record(z.any()).optional(),
+  commuting_constraints: z.record(z.any().optional(),
 })
 
 const updateOnCallPeriodSchema = createOnCallPeriodSchema.partial()

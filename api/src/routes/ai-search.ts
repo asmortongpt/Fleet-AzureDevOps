@@ -32,9 +32,9 @@ const SemanticSearchSchema = z.object({
   query: z.string().min(1).max(1000),
   limit: z.number().min(1).max(100).optional().default(10),
   minScore: z.number().min(0).max(1).optional().default(0.7),
-  filter: z.record(z.any()).optional(),
+  filter: z.record(z.any().optional(),
   includeMetadata: z.boolean().optional().default(true),
-}))
+})
 
 /**
  * @openapi
@@ -106,13 +106,13 @@ router.post(
         count: results.length,
         searchTimeMs: searchTime,
         strategy: 'semantic',
-      }))
+      })
     } catch (error: any) {
       if (error.name === 'ZodError') {
-        return res.status(400).json({ error: 'Validation error', details: error.errors }))
+        return res.status(400).json({ error: 'Validation error', details: error.errors })
       }
       console.error('Semantic search error:', error)
-      res.status(500).json({ error: 'Search failed', message: getErrorMessage(error) }))
+      res.status(500).json({ error: 'Search failed', message: getErrorMessage(error) })
     }
   }
 )
@@ -127,8 +127,8 @@ const HybridSearchSchema = z.object({
   minScore: z.number().min(0).max(1).optional().default(0.5),
   keywordWeight: z.number().min(0).max(1).optional().default(0.3),
   vectorWeight: z.number().min(0).max(1).optional().default(0.7),
-  filter: z.record(z.any()).optional(),
-}))
+  filter: z.record(z.any().optional(),
+})
 
 /**
  * @openapi
@@ -185,13 +185,13 @@ router.post(
           keyword: searchData.keywordWeight,
           vector: searchData.vectorWeight,
         },
-      }))
+      })
     } catch (error: any) {
       if (error.name === 'ZodError') {
-        return res.status(400).json({ error: 'Validation error', details: error.errors }))
+        return res.status(400).json({ error: 'Validation error', details: error.errors })
       }
       console.error('Hybrid search error:', error)
-      res.status(500).json({ error: 'Search failed', message: getErrorMessage(error) }))
+      res.status(500).json({ error: 'Search failed', message: getErrorMessage(error) })
     }
   }
 )
@@ -202,10 +202,10 @@ router.post(
 
 const DocumentQASchema = z.object({
   question: z.string().min(3).max(1000),
-  documentIds: z.array(z.string()).optional(),
+  documentIds: z.array(z.string().optional(),
   includeSourceText: z.boolean().optional().default(true),
   maxSources: z.number().min(1).max(10).optional().default(5),
-}))
+})
 
 /**
  * @openapi
@@ -243,17 +243,17 @@ router.post(
         answer: response.answer,
         sources: qaData.includeSourceText
           ? response.sources
-          : response.sources.map(s => ({ documentId: s.documentId, score: s.score })),
+          : response.sources.map(s => ({ documentId: s.documentId, score: s.score }),
         confidence: response.confidence,
         modelUsed: response.modelUsed,
         responseTimeMs: responseTime,
-      }))
+      })
     } catch (error: any) {
       if (error.name === 'ZodError') {
-        return res.status(400).json({ error: 'Validation error', details: error.errors }))
+        return res.status(400).json({ error: 'Validation error', details: error.errors })
       }
       console.error('Document Q&A error:', error)
-      res.status(500).json({ error: 'Q&A failed', message: getErrorMessage(error) }))
+      res.status(500).json({ error: 'Q&A failed', message: getErrorMessage(error) })
     }
   }
 )
@@ -265,7 +265,7 @@ router.post(
 const QueryExpansionSchema = z.object({
   query: z.string().min(1).max(500),
   maxSuggestions: z.number().min(1).max(10).optional().default(5),
-}))
+})
 
 /**
  * @openapi
@@ -309,13 +309,13 @@ router.post(
         originalQuery: query,
         expandedQueries: expansions.slice(0, maxSuggestions),
         suggestions: expansions.length,
-      }))
+      })
     } catch (error: any) {
       if (error.name === `ZodError`) {
-        return res.status(400).json({ error: `Validation error`, details: error.errors }))
+        return res.status(400).json({ error: `Validation error`, details: error.errors })
       }
       console.error(`Query expansion error:`, error)
-      res.status(500).json({ error: 'Expansion failed', message: getErrorMessage(error) }))
+      res.status(500).json({ error: 'Expansion failed', message: getErrorMessage(error) })
     }
   }
 )
@@ -327,11 +327,11 @@ router.post(
 const IndexDocumentSchema = z.object({
   documentId: z.string(),
   content: z.string().min(10),
-  metadata: z.record(z.any()).optional(),
+  metadata: z.record(z.any().optional(),
   chunkStrategy: z.enum(['semantic', 'fixed', 'sentence', 'paragraph']).optional().default('semantic'),
   chunkSize: z.number().min(100).max(4096).optional().default(512),
   chunkOverlap: z.number().min(0).max(512).optional().default(50),
-}))
+})
 
 /**
  * @openapi
@@ -359,7 +359,7 @@ router.post(
         strategy: indexData.chunkStrategy,
         chunkSize: indexData.chunkSize,
         chunkOverlap: indexData.chunkOverlap,
-      }))
+      })
 
       // Generate embeddings for each chunk
       let indexed = 0
@@ -378,7 +378,7 @@ router.post(
             chunkIndex: chunk.index,
             chunkTokens: chunk.tokens,
           },
-        }))
+        })
 
         indexed++
         totalCost += embeddingResult.cost || 0
@@ -393,13 +393,13 @@ router.post(
         totalChunks: chunks.length,
         processingTimeMs: processingTime,
         estimatedCost: totalCost.toFixed(4),
-      }))
+      })
     } catch (error: any) {
       if (error.name === `ZodError`) {
-        return res.status(400).json({ error: 'Validation error', details: error.errors }))
+        return res.status(400).json({ error: 'Validation error', details: error.errors })
       }
       console.error('Document indexing error:', error)
-      res.status(500).json({ error: 'Indexing failed', message: getErrorMessage(error) }))
+      res.status(500).json({ error: 'Indexing failed', message: getErrorMessage(error) })
     }
   }
 )
@@ -413,10 +413,10 @@ const BatchIndexSchema = z.object({
     z.object({
       documentId: z.string(),
       content: z.string().min(10),
-      metadata: z.record(z.any()).optional(),
-    }))
+      metadata: z.record(z.any().optional(),
+    })
   ).min(1).max(100),
-}))
+})
 
 /**
  * @openapi
@@ -447,7 +447,7 @@ router.post(
             strategy: 'semantic',
             chunkSize: 512,
             chunkOverlap: 50,
-          }))
+          })
 
           for (const chunk of chunks) {
             const embeddingResult = await embeddingService.generateEmbedding(chunk.text)
@@ -461,7 +461,7 @@ router.post(
                 documentId: doc.documentId,
                 chunkIndex: chunk.index,
               },
-            }))
+            })
 
             totalIndexed++
             totalCost += embeddingResult.cost || 0
@@ -481,13 +481,13 @@ router.post(
         failed: totalFailed,
         processingTimeMs: processingTime,
         estimatedCost: totalCost.toFixed(4),
-      }))
+      })
     } catch (error: any) {
       if (error.name === `ZodError`) {
-        return res.status(400).json({ error: 'Validation error', details: error.errors }))
+        return res.status(400).json({ error: 'Validation error', details: error.errors })
       }
       console.error('Batch indexing error:', error)
-      res.status(500).json({ error: 'Batch indexing failed', message: getErrorMessage(error) }))
+      res.status(500).json({ error: 'Batch indexing failed', message: getErrorMessage(error) })
     }
   }
 )
@@ -553,10 +553,10 @@ router.get(
         topQueries: topQueries.rows,
         recentSearches: recentSearches.rows,
         metrics: avgMetrics.rows[0],
-      }))
+      })
     } catch (error: any) {
       console.error(`Analytics error:`, error)
-      res.status(500).json({ error: 'Failed to get analytics', message: getErrorMessage(error) }))
+      res.status(500).json({ error: 'Failed to get analytics', message: getErrorMessage(error) })
     }
   }
 )
@@ -570,7 +570,7 @@ const FeedbackSchema = z.object({
   rating: z.number().min(1).max(5),
   helpful: z.boolean().optional(),
   comment: z.string().optional(),
-}))
+})
 
 /**
  * @openapi
@@ -606,13 +606,13 @@ router.post(
         ]
       )
 
-      res.json({ success: true, message: `Feedback recorded` }))
+      res.json({ success: true, message: `Feedback recorded` })
     } catch (error: any) {
       if (error.name === `ZodError`) {
-        return res.status(400).json({ error: 'Validation error', details: error.errors }))
+        return res.status(400).json({ error: 'Validation error', details: error.errors })
       }
       console.error('Feedback error:', error)
-      res.status(500).json({ error: 'Failed to record feedback', message: getErrorMessage(error) }))
+      res.status(500).json({ error: 'Failed to record feedback', message: getErrorMessage(error) })
     }
   }
 )

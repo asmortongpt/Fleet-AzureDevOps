@@ -44,14 +44,14 @@ router.get('/status', async (req: Request, res: Response) => {
     res.json({
       success: true,
       data: status
-    }))
+    })
   } catch (error: any) {
     res.status(500).json({
       success: false,
       error: getErrorMessage(error)
-    }))
+    })
   }
-}))
+})
 
 /**
  * @openapi
@@ -86,14 +86,14 @@ router.post('/start', async (req: Request, res: Response) => {
       success: true,
       message: 'Emulators started successfully',
       data: orch.getStatus()
-    }))
+    })
   } catch (error: any) {
     res.status(500).json({
       success: false,
       error: getErrorMessage(error)
-    }))
+    })
   }
-}))
+})
 
 /**
  * @openapi
@@ -114,14 +114,14 @@ router.post('/stop', async (req: Request, res: Response) => {
     res.json({
       success: true,
       message: 'Emulators stopped successfully'
-    }))
+    })
   } catch (error: any) {
     res.status(500).json({
       success: false,
       error: getErrorMessage(error)
-    }))
+    })
   }
-}))
+})
 
 /**
  * @openapi
@@ -142,14 +142,14 @@ router.post('/pause', async (req: Request, res: Response) => {
     res.json({
       success: true,
       message: 'Emulators paused successfully'
-    }))
+    })
   } catch (error: any) {
     res.status(500).json({
       success: false,
       error: getErrorMessage(error)
-    }))
+    })
   }
-}))
+})
 
 /**
  * @openapi
@@ -170,14 +170,14 @@ router.post('/resume', async (req: Request, res: Response) => {
     res.json({
       success: true,
       message: 'Emulators resumed successfully'
-    }))
+    })
   } catch (error: any) {
     res.status(500).json({
       success: false,
       error: getErrorMessage(error)
-    }))
+    })
   }
-}))
+})
 
 /**
  * @openapi
@@ -208,14 +208,14 @@ router.post('/scenario/:scenarioId', async (req: Request, res: Response) => {
       success: true,
       message: `Scenario `${scenarioId}` started successfully`,
       data: orch.getStatus()
-    }))
+    })
   } catch (error: any) {
     res.status(500).json({
       success: false,
       error: getErrorMessage(error)
-    }))
+    })
   }
-}))
+})
 
 /**
  * @openapi
@@ -246,20 +246,20 @@ router.get('/vehicles/:vehicleId/telemetry', async (req: Request, res: Response)
       return res.status(404).json({
         success: false,
         error: 'Vehicle not found or not running'
-      }))
+      })
     }
 
     res.json({
       success: true,
       data: telemetry
-    }))
+    })
   } catch (error: any) {
     res.status(500).json({
       success: false,
       error: getErrorMessage(error)
-    }))
+    })
   }
-}))
+})
 
 /**
  * @openapi
@@ -278,19 +278,19 @@ router.get('/scenarios', async (req: Request, res: Response) => {
     const path = require('path')
 
     const scenariosPath = path.join(__dirname, '..', 'emulators', 'config', 'scenarios.json')
-    const data = JSON.parse(fs.readFileSync(scenariosPath, 'utf-8'))
+    const data = JSON.parse(fs.readFileSync(scenariosPath, 'utf-8')
 
     res.json({
       success: true,
       data: data.scenarios
-    }))
+    })
   } catch (error: any) {
     res.status(500).json({
       success: false,
       error: getErrorMessage(error)
-    }))
+    })
   }
-}))
+})
 
 /**
  * @openapi
@@ -309,19 +309,19 @@ router.get('/vehicles', async (req: Request, res: Response) => {
     const path = require('path')
 
     const vehiclesPath = path.join(__dirname, '..', 'emulators', 'config', 'vehicles.json')
-    const data = JSON.parse(fs.readFileSync(vehiclesPath, 'utf-8'))
+    const data = JSON.parse(fs.readFileSync(vehiclesPath, 'utf-8')
 
     res.json({
       success: true,
       data: data.vehicles
-    }))
+    })
   } catch (error: any) {
     res.status(500).json({
       success: false,
       error: getErrorMessage(error)
-    }))
+    })
   }
-}))
+})
 
 /**
  * @openapi
@@ -340,7 +340,7 @@ router.get('/routes', async (req: Request, res: Response) => {
     const path = require('path')
 
     const routesPath = path.join(__dirname, '..', 'emulators', 'config', 'routes.json')
-    const data = JSON.parse(fs.readFileSync(routesPath, 'utf-8'))
+    const data = JSON.parse(fs.readFileSync(routesPath, 'utf-8')
 
     res.json({
       success: true,
@@ -348,14 +348,14 @@ router.get('/routes', async (req: Request, res: Response) => {
         routes: data.routes,
         geofences: data.geofences
       }
-    }))
+    })
   } catch (error: any) {
     res.status(500).json({
       success: false,
       error: getErrorMessage(error)
-    }))
+    })
   }
-}))
+})
 
 // Cleanup on process exit
 process.on('SIGINT', async () => {
@@ -364,13 +364,13 @@ process.on('SIGINT', async () => {
     await orchestrator.shutdown()
     process.exit(0)
   }
-}))
+})
 
 process.on('SIGTERM', async () => {
   if (orchestrator) {
     await orchestrator.shutdown()
     process.exit(0)
   }
-}))
+})
 
 export default router

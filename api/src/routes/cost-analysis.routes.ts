@@ -21,7 +21,7 @@ router.get(
       const { startDate, endDate } = req.query
 
       if (!startDate || !endDate) {
-        return res.status(400).json({ error: 'startDate and endDate are required' }))
+        return throw new ValidationError("startDate and endDate are required")
       }
 
       const summary = await costAnalysisService.getCostSummary(
@@ -33,7 +33,7 @@ router.get(
       res.json(summary)
     } catch (error) {
       logger.error('Get cost summary error:', error) // Wave 27: Winston logger
-      res.status(500).json({ error: 'Internal server error' }))
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )
@@ -48,7 +48,7 @@ router.get(
       const { startDate, endDate } = req.query
 
       if (!startDate || !endDate) {
-        return res.status(400).json({ error: 'startDate and endDate are required' }))
+        return throw new ValidationError("startDate and endDate are required")
       }
 
       const costs = await costAnalysisService.getCostsByCategory(
@@ -60,7 +60,7 @@ router.get(
       res.json(costs)
     } catch (error) {
       logger.error('Get costs by category error:', error) // Wave 27: Winston logger
-      res.status(500).json({ error: 'Internal server error' }))
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )
@@ -75,7 +75,7 @@ router.get(
       const { startDate, endDate } = req.query
 
       if (!startDate || !endDate) {
-        return res.status(400).json({ error: 'startDate and endDate are required' }))
+        return throw new ValidationError("startDate and endDate are required")
       }
 
       const costs = await costAnalysisService.getCostsByVehicle(
@@ -87,7 +87,7 @@ router.get(
       res.json(costs)
     } catch (error) {
       logger.error('Get costs by vehicle error:', error) // Wave 27: Winston logger
-      res.status(500).json({ error: 'Internal server error' }))
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )
@@ -110,7 +110,7 @@ router.get(
       res.json(forecast)
     } catch (error) {
       logger.error('Forecast costs error:', error) // Wave 27: Winston logger
-      res.status(500).json({ error: 'Internal server error' }))
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )
@@ -133,7 +133,7 @@ router.get(
       res.json(trends)
     } catch (error) {
       logger.error('Get cost trends error:', error) // Wave 27: Winston logger
-      res.status(500).json({ error: 'Internal server error' }))
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )
@@ -148,7 +148,7 @@ router.get(
       const { startDate, endDate } = req.query
 
       if (!startDate || !endDate) {
-        return res.status(400).json({ error: 'startDate and endDate are required' }))
+        return throw new ValidationError("startDate and endDate are required")
       }
 
       const anomalies = await costAnalysisService.getAnomalies(
@@ -160,7 +160,7 @@ router.get(
       res.json(anomalies)
     } catch (error) {
       logger.error('Get anomalies error:', error) // Wave 27: Winston logger
-      res.status(500).json({ error: 'Internal server error' }))
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )
@@ -183,7 +183,7 @@ router.get(
       res.json(status)
     } catch (error) {
       logger.error('Get budget status error:', error) // Wave 27: Winston logger
-      res.status(500).json({ error: 'Internal server error' }))
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )
@@ -200,7 +200,7 @@ router.post(
       res.status(201).json(cost)
     } catch (error) {
       logger.error('Track cost error:', error) // Wave 27: Winston logger
-      res.status(500).json({ error: 'Internal server error' }))
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )
@@ -217,7 +217,7 @@ router.post(
       if (!category || !amount || !fiscalYear || !fiscalQuarter) {
         return res.status(400).json({
           error: 'category, amount, fiscalYear, and fiscalQuarter are required'
-        }))
+        })
       }
 
       await costAnalysisService.setBudgetAllocation(
@@ -228,10 +228,10 @@ router.post(
         parseInt(fiscalQuarter)
       )
 
-      res.json({ message: 'Budget allocation set successfully' }))
+      res.json({ message: 'Budget allocation set successfully' })
     } catch (error) {
       logger.error('Set budget allocation error:', error) // Wave 27: Winston logger
-      res.status(500).json({ error: 'Internal server error' }))
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )
@@ -246,7 +246,7 @@ router.get(
       const { startDate, endDate } = req.query
 
       if (!startDate || !endDate) {
-        return res.status(400).json({ error: 'startDate and endDate are required' }))
+        return throw new ValidationError("startDate and endDate are required")
       }
 
       const csv = await costAnalysisService.exportCostData(
@@ -260,7 +260,7 @@ router.get(
       res.send(csv)
     } catch (error) {
       logger.error('Export cost data error:', error) // Wave 27: Winston logger
-      res.status(500).json({ error: 'Internal server error' }))
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )

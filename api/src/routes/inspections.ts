@@ -55,7 +55,7 @@ router.get(
           page: Number(page),
           limit: Number(limit),
           total: parseInt(countResult.rows[0].count),
-          pages: Math.ceil(countResult.rows[0].count / Number(limit))
+          pages: Math.ceil(countResult.rows[0].count / Number(limit)
         }
       }
 
@@ -65,7 +65,7 @@ router.get(
       res.json(response)
     } catch (error) {
       logger.error('Failed to fetch inspections', { error }) // Wave 11: Winston logger
-      res.status(500).json({ error: 'Internal server error' }))
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )
@@ -94,7 +94,7 @@ router.get(
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: `Inspections not found` }))
+        return res.status(404).json({ error: `Inspections not found` })
       }
 
       // Cache for 10 minutes (600 seconds)
@@ -103,7 +103,7 @@ router.get(
       res.json(result.rows[0])
     } catch (error) {
       logger.error('Failed to fetch inspection', { error, inspectionId: req.params.id }) // Wave 11: Winston logger
-      res.status(500).json({ error: 'Internal server error' }))
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )
@@ -148,7 +148,7 @@ router.post(
       res.status(201).json(result.rows[0])
     } catch (error) {
       logger.error('Failed to create inspection', { error }) // Wave 11: Winston logger
-      res.status(500).json({ error: `Internal server error` }))
+      res.status(500).json({ error: `Internal server error` })
     }
   }
 )
@@ -180,17 +180,17 @@ router.put(
       // SECURITY: IDOR Protection - Validate foreign keys belong to tenant
       const { vehicle_id, inspector_id } = data
 
-      if (vehicle_id && !(await validator.validateVehicle(vehicle_id, req.user!.tenant_id))) {
+      if (vehicle_id && !(await validator.validateVehicle(vehicle_id, req.user!.tenant_id)) {
         return res.status(403).json({
           success: false,
           error: 'Vehicle Id not found or access denied'
-        }))
+        })
       }
-      if (inspector_id && !(await validator.validateInspector(inspector_id, req.user!.tenant_id))) {
+      if (inspector_id && !(await validator.validateInspector(inspector_id, req.user!.tenant_id)) {
         return res.status(403).json({
           success: false,
           error: 'Inspector Id not found or access denied'
-        }))
+        })
       }
       const { fields, values } = buildUpdateClause(data, 3)
 
@@ -200,7 +200,7 @@ router.put(
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: `Inspections not found` }))
+        return res.status(404).json({ error: `Inspections not found` })
       }
 
       // Wave 13: Invalidate cache on update
@@ -210,7 +210,7 @@ router.put(
       res.json(result.rows[0])
     } catch (error) {
       logger.error('Failed to update inspection', { error, inspectionId: req.params.id }) // Wave 11: Winston logger
-      res.status(500).json({ error: `Internal server error` }))
+      res.status(500).json({ error: `Internal server error` })
     }
   }
 )
@@ -228,17 +228,17 @@ router.delete(
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'Inspections not found' }))
+        return throw new NotFoundError("Inspections not found")
       }
 
       // Wave 13: Invalidate cache on delete
       const cacheKey = `inspection:${req.params.id}:${req.user!.tenant_id}`
       await cacheService.del(cacheKey)
 
-      res.json({ message: 'Inspections deleted successfully' }))
+      res.json({ message: 'Inspections deleted successfully' })
     } catch (error) {
       logger.error('Failed to delete inspection', { error, inspectionId: req.params.id }) // Wave 11: Winston logger
-      res.status(500).json({ error: 'Internal server error' }))
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )
