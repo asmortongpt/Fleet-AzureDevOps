@@ -12,6 +12,19 @@ export interface AuthRequest extends Request {
   }
 }
 
+// Import checkRevoked from session-revocation module
+// This will be available after the module is loaded
+let checkRevokedFn: ((req: AuthRequest, res: Response, next: NextFunction) => void) | null = null
+
+/**
+ * Set the checkRevoked function from session-revocation module
+ * This is called during application initialization to avoid circular dependencies
+ */
+export function setCheckRevoked(fn: (req: AuthRequest, res: Response, next: NextFunction) => void) {
+  checkRevokedFn = fn
+  logger.info('✅ Session revocation middleware registered')
+}
+
 export const authenticateJWT = async (
   req: AuthRequest,
   res: Response,
@@ -48,7 +61,16 @@ export const authenticateJWT = async (
     const decoded = jwt.verify(token, process.env.JWT_SECRET) as any
     req.user = decoded
     logger.info('✅ AUTH MIDDLEWARE - JWT token validated successfully')
-    return next()
+
+    // SECURITY FIX: Check if token has been revoked (CVSS 7.2)
+    // Call checkRevoked if it has been registered
+    if (checkRevokedFn) {
+      return checkRevokedFn(req, res, next)
+    } else {
+      // Fallback if revocation middleware not loaded yet
+      logger.warn('⚠️ Session revocation middleware not registered - skipping revocation check')
+      return next()
+    }
   } catch (error) {
     logger.info('❌ AUTH MIDDLEWARE - Invalid or expired token')
     return res.status(403).json({ error: 'Invalid or expired token' })
