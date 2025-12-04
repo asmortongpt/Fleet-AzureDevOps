@@ -10,7 +10,7 @@ import { z } from 'zod'
 
 const router = express.Router()
 router.use(authenticateJWT)
-router.use(express.json())
+router.use(express.json()
 
 const leaderboardQuerySchema = z.object({
   periodStart: z.string().optional(),

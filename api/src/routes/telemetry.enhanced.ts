@@ -12,8 +12,8 @@ import csurf from 'csurf'
 
 const router = express.Router()
 router.use(authenticateJWT)
-router.use(helmet())
-router.use(csurf())
+router.use(helmet()
+router.use(csurf()
 
 const telemetrySchema = z.object({
   id: z.string().optional(),
@@ -44,12 +44,12 @@ router.get(
       )
 
       res.json({
-        data: result.rows.map(row => telemetrySchema.parse(row)),
+        data: result.rows.map(row => telemetrySchema.parse(row),
         pagination: {
           page: Number(page),
           limit: Number(limit),
           total: parseInt(countResult.rows[0].count, 10),
-          pages: Math.ceil(parseInt(countResult.rows[0].count, 10) / Number(limit)),
+          pages: Math.ceil(parseInt(countResult.rows[0].count, 10) / Number(limit),
         },
       })
     } catch (error) {
@@ -76,7 +76,7 @@ router.post(
         [req.user!.tenant_id, ...values]
       )
 
-      res.status(201).json(telemetrySchema.parse(result.rows[0]))
+      res.status(201).json(telemetrySchema.parse(result.rows[0])
     } catch (error) {
       console.error(`Create telemetry error:`, error)
       res.status(500).json({ error: `Internal server error` })
@@ -103,10 +103,10 @@ router.put(
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'Telemetry not found' })
+        return throw new NotFoundError("Telemetry not found")
       }
 
-      res.json(telemetrySchema.parse(result.rows[0]))
+      res.json(telemetrySchema.parse(result.rows[0])
     } catch (error) {
       console.error(`Update telemetry error:`, error)
       res.status(500).json({ error: `Internal server error` })

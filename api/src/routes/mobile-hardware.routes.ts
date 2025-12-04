@@ -36,7 +36,7 @@ router.use(authenticateJWT)
  */
 const PartScanSchema = z.object({
   barcode: z.string().min(1)
-}))
+})
 
 /**
  * @swagger
@@ -82,26 +82,26 @@ router.post('/parts/scan', requirePermission('inventory:view:global'), async (re
     }
 
     // Check if part exists (mock)
-    if (validated.barcode.includes('NOTFOUND')) {
+    if (validated.barcode.includes('NOTFOUND') {
       return res.status(404).json({
         error: 'Part not found',
         barcode: validated.barcode
-      }))
+      })
     }
 
-    res.json({ part }))
+    res.json({ part })
   } catch (error: any) {
     logger.error('Error scanning part:', error) // Wave 24: Winston logger
-    res.status(400).json({ error: getErrorMessage(error) }))
+    res.status(400).json({ error: getErrorMessage(error) })
   }
-}))
+})
 
 /**
  * Part Search Schema
  */
 const PartSearchSchema = z.object({
   q: z.string().min(1)
-}))
+})
 
 /**
  * @swagger
@@ -126,7 +126,7 @@ router.get('/parts/search', requirePermission('inventory:view:global'), async (r
     const query = req.query.q as string
 
     if (!query || query.length < 1) {
-      return res.status(400).json({ error: 'Search query required' }))
+      return throw new ValidationError("Search query required")
     }
 
     const tenantId = (req as any).user.tenant_id
@@ -153,12 +153,12 @@ router.get('/parts/search', requirePermission('inventory:view:global'), async (r
       }
     ]
 
-    res.json({ parts }))
+    res.json({ parts })
   } catch (error: any) {
     logger.error('Error searching parts:', error) // Wave 24: Winston logger
-    res.status(400).json({ error: getErrorMessage(error) }))
+    res.status(400).json({ error: getErrorMessage(error) })
   }
-}))
+})
 
 /**
  * Part Order Schema
@@ -169,7 +169,7 @@ const PartOrderSchema = z.object({
   workOrderId: z.string().optional(),
   vehicleId: z.string().optional(),
   notes: z.string().optional()
-}))
+})
 
 /**
  * @swagger
@@ -220,9 +220,9 @@ router.post(`/parts/order`, requirePermission(`inventory:create:global`), auditL
     res.status(201).json(order)
   } catch (error: any) {
     logger.error('Error ordering part:', error) // Wave 24: Winston logger
-    res.status(400).json({ error: getErrorMessage(error) }))
+    res.status(400).json({ error: getErrorMessage(error) })
   }
-}))
+})
 
 /**
  * ============================================================================
@@ -238,7 +238,7 @@ const VehicleCheckInSchema = z.object({
   vin: z.string().optional(),
   checkInMethod: z.enum(['nfc', 'qr', 'manual']),
   timestamp: z.string().datetime()
-}))
+})
 
 /**
  * @swagger
@@ -277,7 +277,7 @@ router.post('/checkin/nfc', requirePermission('vehicle:update:fleet'), auditLog,
     const userId = (req as any).user.id
 
     if (!validated.vehicleId && !validated.vin) {
-      return res.status(400).json({ error: `Either vehicleId or vin is required` }))
+      return res.status(400).json({ error: `Either vehicleId or vin is required` })
     }
 
     // TODO: Implement actual vehicle check-in logic
@@ -298,9 +298,9 @@ router.post('/checkin/nfc', requirePermission('vehicle:update:fleet'), auditLog,
     res.json(checkIn)
   } catch (error: any) {
     logger.error(`Error during vehicle check-in:`, error) // Wave 24: Winston logger
-    res.status(400).json({ error: getErrorMessage(error) }))
+    res.status(400).json({ error: getErrorMessage(error) })
   }
-}))
+})
 
 /**
  * @swagger
@@ -330,7 +330,7 @@ router.get('/vehicles/details', requirePermission('vehicle:view:fleet'), async (
     const tenantId = (req as any).user.tenant_id
 
     if (!vehicleId && !vin) {
-      return res.status(400).json({ error: `Either vehicleId or vin is required` }))
+      return res.status(400).json({ error: `Either vehicleId or vin is required` })
     }
 
     // TODO: Implement actual vehicle lookup
@@ -352,9 +352,9 @@ router.get('/vehicles/details', requirePermission('vehicle:view:fleet'), async (
     res.json(vehicle)
   } catch (error: any) {
     logger.error('Error getting vehicle details:', error) // Wave 24: Winston logger
-    res.status(400).json({ error: getErrorMessage(error) }))
+    res.status(400).json({ error: getErrorMessage(error) })
   }
-}))
+})
 
 /**
  * ============================================================================
@@ -371,7 +371,7 @@ const BeaconRegistrationSchema = z.object({
   major: z.number().int().min(0).max(65535),
   minor: z.number().int().min(0).max(65535),
   registeredAt: z.string().datetime()
-}))
+})
 
 /**
  * @swagger
@@ -425,9 +425,9 @@ router.post('/beacons/register', requirePermission(`vehicle:update:fleet`), audi
     res.status(201).json(beacon)
   } catch (error: any) {
     logger.error(`Error registering beacon:`, error) // Wave 24: Winston logger
-    res.status(400).json({ error: getErrorMessage(error) }))
+    res.status(400).json({ error: getErrorMessage(error) })
   }
-}))
+})
 
 /**
  * @swagger
@@ -492,12 +492,12 @@ router.get('/beacons/nearby', requirePermission('vehicle:view:fleet'), async (re
       }
     ]
 
-    res.json({ beacons }))
+    res.json({ beacons })
   } catch (error: any) {
     logger.error('Error getting nearby beacons:', error) // Wave 24: Winston logger
-    res.status(400).json({ error: getErrorMessage(error) }))
+    res.status(400).json({ error: getErrorMessage(error) })
   }
-}))
+})
 
 /**
  * ============================================================================
@@ -525,7 +525,7 @@ const DashcamEventSchema = z.object({
     model: z.string(),
     serialNumber: z.string()
   }).optional()
-}))
+})
 
 /**
  * @swagger
@@ -593,9 +593,9 @@ router.post(`/dashcam/event`, requirePermission(`safety_incident:create:global`)
     res.status(201).json(event)
   } catch (error: any) {
     logger.error('Error tagging dashcam event:', error) // Wave 24: Winston logger
-    res.status(400).json({ error: getErrorMessage(error) }))
+    res.status(400).json({ error: getErrorMessage(error) })
   }
-}))
+})
 
 /**
  * @swagger
@@ -656,12 +656,12 @@ router.get('/dashcam/events', requirePermission('safety_incident:view:global'), 
       }
     ]
 
-    res.json({ events }))
+    res.json({ events })
   } catch (error: any) {
     logger.error('Error getting dashcam events:', error) // Wave 24: Winston logger
-    res.status(400).json({ error: getErrorMessage(error) }))
+    res.status(400).json({ error: getErrorMessage(error) })
   }
-}))
+})
 
 /**
  * ============================================================================
@@ -706,12 +706,12 @@ router.get('/work-orders/:workOrderId/parts', requirePermission('work_order:view
       }
     ]
 
-    res.json({ parts }))
+    res.json({ parts })
   } catch (error: any) {
     logger.error('Error getting work order parts:', error) // Wave 24: Winston logger
-    res.status(400).json({ error: getErrorMessage(error) }))
+    res.status(400).json({ error: getErrorMessage(error) })
   }
-}))
+})
 
 /**
  * Add Part to Work Order Schema
@@ -721,7 +721,7 @@ const AddPartToWorkOrderSchema = z.object({
   quantity: z.number().int().positive(),
   unitPrice: z.number().min(0),
   notes: z.string().optional()
-}))
+})
 
 /**
  * @swagger
@@ -781,9 +781,9 @@ router.post('/work-orders/:workOrderId/parts', requirePermission(`work_order:upd
     res.status(201).json(workOrderPart)
   } catch (error: any) {
     logger.error('Error adding part to work order:', error) // Wave 24: Winston logger
-    res.status(400).json({ error: getErrorMessage(error) }))
+    res.status(400).json({ error: getErrorMessage(error) })
   }
-}))
+})
 
 /**
  * Batch Add Parts Schema
@@ -793,8 +793,8 @@ const BatchAddPartsSchema = z.object({
     partNumber: z.string().min(1),
     quantity: z.number().int().positive(),
     unitPrice: z.number().min(0)
-  }))
-}))
+  })
+})
 
 /**
  * @swagger
@@ -844,14 +844,14 @@ router.post('/work-orders/:workOrderId/parts/batch', requirePermission(`work_ord
       status: 'pending',
       addedBy: userId,
       addedAt: new Date().toISOString()
-    }))
+    })
 
-    res.status(201).json({ parts: addedParts, count: addedParts.length }))
+    res.status(201).json({ parts: addedParts, count: addedParts.length })
   } catch (error: any) {
     logger.error('Error adding parts batch to work order:', error) // Wave 24: Winston logger
-    res.status(400).json({ error: getErrorMessage(error) }))
+    res.status(400).json({ error: getErrorMessage(error) })
   }
-}))
+})
 
 /**
  * ============================================================================
@@ -864,7 +864,7 @@ router.post('/work-orders/:workOrderId/parts/batch', requirePermission(`work_ord
  */
 const AssetScanSchema = z.object({
   barcode: z.string().min(1)
-}))
+})
 
 /**
  * @swagger
@@ -907,11 +907,11 @@ router.post('/assets/scan', requirePermission(`asset:view:global`), async (req: 
       status: 'active' as const
     }
 
-    res.json({ asset }))
+    res.json({ asset })
   } catch (error: any) {
     logger.error('Error scanning asset:', error) // Wave 24: Winston logger
-    res.status(400).json({ error: getErrorMessage(error) }))
+    res.status(400).json({ error: getErrorMessage(error) })
   }
-}))
+})
 
 export default router

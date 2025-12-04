@@ -13,7 +13,7 @@ import { buildInsertClause, buildUpdateClause } from '../utils/sql-safety'
 const router = express.Router()
 router.use(authenticateJWT)
 // Rate limit all video event endpoints to 10 requests per minute
-router.use(rateLimit(10, 60000))
+router.use(rateLimit(10, 60000)
 
 // GET /video-events
 router.get(
@@ -54,12 +54,12 @@ router.get(
           page: Number(page),
           limit: Number(limit),
           total: parseInt(countResult.rows[0].count),
-          pages: Math.ceil(countResult.rows[0].count / Number(limit))
+          pages: Math.ceil(countResult.rows[0].count / Number(limit)
         }
-      }))
+      })
     } catch (error) {
       logger.error(`Get video-events error:`, error) // Wave 19: Winston logger
-      res.status(500).json({ error: 'Internal server error' }))
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )
@@ -90,13 +90,13 @@ router.get(
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: `VideoEvents not found` }))
+        return res.status(404).json({ error: `VideoEvents not found` })
       }
 
       res.json(result.rows[0])
     } catch (error) {
       logger.error('Get video-events error:', error) // Wave 19: Winston logger
-      res.status(500).json({ error: 'Internal server error' }))
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )
@@ -124,7 +124,7 @@ router.post(
       res.status(201).json(result.rows[0])
     } catch (error) {
       logger.error(`Create video-events error:`, error) // Wave 19: Winston logger
-      res.status(500).json({ error: `Internal server error` }))
+      res.status(500).json({ error: `Internal server error` })
     }
   }
 )
@@ -142,13 +142,13 @@ router.delete(
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'VideoEvents not found' }))
+        return throw new NotFoundError("VideoEvents not found")
       }
 
-      res.json({ message: 'VideoEvents deleted successfully' }))
+      res.json({ message: 'VideoEvents deleted successfully' })
     } catch (error) {
       logger.error('Delete video-events error:', error) // Wave 19: Winston logger
-      res.status(500).json({ error: 'Internal server error' }))
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )

@@ -28,7 +28,7 @@ router.use(authenticateJWT)
 // Initialize OpenAI
 let openai: OpenAI | null = null
 if (process.env.OPENAI_API_KEY) {
-  openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY }))
+  openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
 }
 
 // ============================================================================
@@ -37,9 +37,9 @@ if (process.env.OPENAI_API_KEY) {
 
 const CreateSessionSchema = z.object({
   title: z.string().optional(),
-  documentIds: z.array(z.string()).optional(),
+  documentIds: z.array(z.string().optional(),
   systemPrompt: z.string().optional(),
-}))
+})
 
 /**
  * @openapi
@@ -75,13 +75,13 @@ router.post(
 
       res.json({
         session: result.rows[0],
-      }))
+      })
     } catch (error: any) {
       if (error.name === `ZodError`) {
-        return res.status(400).json({ error: 'Validation error', details: error.errors }))
+        return res.status(400).json({ error: 'Validation error', details: error.errors })
       }
       console.error('Create session error:', error)
-      res.status(500).json({ error: 'Failed to create session', message: getErrorMessage(error) }))
+      res.status(500).json({ error: 'Failed to create session', message: getErrorMessage(error) })
     }
   }
 )
@@ -115,10 +115,10 @@ router.get(
 
       res.json({
         sessions: result.rows,
-      }))
+      })
     } catch (error: any) {
       console.error(`Get sessions error:`, error)
-      res.status(500).json({ error: `Failed to get sessions`, message: getErrorMessage(error) }))
+      res.status(500).json({ error: `Failed to get sessions`, message: getErrorMessage(error) })
     }
   }
 )
@@ -147,7 +147,7 @@ router.get(
       )
 
       if (sessionResult.rows.length === 0) {
-        return res.status(404).json({ error: `Session not found` }))
+        return res.status(404).json({ error: `Session not found` })
       }
 
       // Get messages
@@ -161,10 +161,10 @@ router.get(
       res.json({
         session: sessionResult.rows[0],
         messages: messagesResult.rows,
-      }))
+      })
     } catch (error: any) {
       console.error(`Get session error:`, error)
-      res.status(500).json({ error: `Failed to get session`, message: getErrorMessage(error) }))
+      res.status(500).json({ error: `Failed to get session`, message: getErrorMessage(error) })
     }
   }
 )
@@ -194,10 +194,10 @@ router.delete(
         [req.params.id, req.user!.tenant_id]
       )
 
-      res.json({ success: true, message: `Session deleted` }))
+      res.json({ success: true, message: `Session deleted` })
     } catch (error: any) {
       console.error('Delete session error:', error)
-      res.status(500).json({ error: 'Failed to delete session', message: getErrorMessage(error) }))
+      res.status(500).json({ error: 'Failed to delete session', message: getErrorMessage(error) })
     }
   }
 )
@@ -213,7 +213,7 @@ const ChatMessageSchema = z.object({
   maxHistoryMessages: z.number().min(1).max(20).optional().default(10),
   searchDocuments: z.boolean().optional().default(true),
   maxSources: z.number().min(1).max(10).optional().default(5),
-}))
+})
 
 /**
  * @openapi
@@ -238,7 +238,7 @@ router.post(
         return res.status(503).json({
           error: 'AI chat not available',
           message: 'OpenAI API key not configured',
-        }))
+        })
       }
 
       const startTime = Date.now()
@@ -267,7 +267,7 @@ router.post(
       )
 
       if (sessionResult.rows.length === 0) {
-        return res.status(404).json({ error: `Session not found` }))
+        return res.status(404).json({ error: `Session not found` })
       }
 
       const session = sessionResult.rows[0]
@@ -275,7 +275,7 @@ router.post(
       // Save user message
       await pool.query(
         `INSERT INTO chat_messages (session_id, role, content, created_at)
-         VALUES ($1, $2, $3, NOW())`,
+         VALUES ($1, $2, $3, NOW()`,
         [chatData.sessionId, 'user', chatData.message]
       )
 
@@ -322,7 +322,7 @@ router.post(
             content: r.content.substring(0, 200) + `...`,
             score: r.score,
             metadata: r.metadata,
-          }))
+          })
         }
       }
 
@@ -339,8 +339,8 @@ router.post(
         messages.push({
           role: msg.role,
           content: msg.content,
-        }))
-      }))
+        })
+      })
 
       // Add current message with context
       let userMessage = chatData.message
@@ -351,7 +351,7 @@ router.post(
       messages.push({
         role: 'user',
         content: userMessage,
-      }))
+      })
 
       // Get AI response
       const completion = await openai.chat.completions.create({
@@ -359,7 +359,7 @@ router.post(
         messages,
         temperature: 0.7,
         max_tokens: 1000,
-      }))
+      })
 
       const aiResponse = completion.choices[0].message.content || 'Unable to generate response'
 
@@ -367,7 +367,7 @@ router.post(
       await pool.query(
         `INSERT INTO chat_messages (
           session_id, role, content, sources, model_used, tokens_used, created_at
-        ) VALUES ($1, $2, $3, $4, $5, $6, NOW())`,
+        ) VALUES ($1, $2, $3, $4, $5, $6, NOW()`,
         [
           chatData.sessionId,
           `assistant`,
@@ -393,13 +393,13 @@ router.post(
           tokensUsed: completion.usage?.total_tokens,
           responseTimeMs: responseTime,
         },
-      }))
+      })
     } catch (error: any) {
       if (error.name === `ZodError`) {
-        return res.status(400).json({ error: 'Validation error', details: error.errors }))
+        return res.status(400).json({ error: 'Validation error', details: error.errors })
       }
       console.error('Chat error:', error)
-      res.status(500).json({ error: 'Chat failed', message: getErrorMessage(error) }))
+      res.status(500).json({ error: 'Chat failed', message: getErrorMessage(error) })
     }
   }
 )
@@ -430,7 +430,7 @@ router.post(
       if (!openai) {
         return res.status(503).json({
           error: 'AI chat not available',
-        }))
+        })
       }
 
       // Set up SSE headers
@@ -503,7 +503,7 @@ router.post(
         messages,
         stream: true,
         temperature: 0.7,
-      }))
+      })
 
       let fullResponse = ''
 
@@ -521,7 +521,7 @@ router.post(
           sources: searchResults.map(r => ({
             documentId: r.id,
             score: r.score,
-          })),
+          }),
         })}\n\n`
       )
 
@@ -531,7 +531,7 @@ router.post(
       // Save messages
       await pool.query(
         `INSERT INTO chat_messages (session_id, role, content, created_at)
-         VALUES ($1, $2, $3, NOW()), ($1, $4, $5, NOW())`,
+         VALUES ($1, $2, $3, NOW(), ($1, $4, $5, NOW()`,
         [chatData.sessionId, 'user', chatData.message, 'assistant', fullResponse]
       )
 
@@ -574,10 +574,10 @@ router.get(
         'Which vehicles are due for replacement?',
       ]
 
-      res.json({ suggestions }))
+      res.json({ suggestions })
     } catch (error: any) {
       console.error('Suggestions error:', error)
-      res.status(500).json({ error: 'Failed to get suggestions' }))
+      res.status(500).json({ error: 'Failed to get suggestions' })
     }
   }
 )

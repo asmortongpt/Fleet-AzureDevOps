@@ -114,12 +114,12 @@ router.get('/', requirePermission('vehicle:view:fleet'), async (req: AuthRequest
     res.json({
       assets: result.rows,
       total: result.rows.length
-    }))
+    })
   } catch (error) {
     logger.error(`Error fetching assets:`, error) // Wave 28: Winston logger
-    res.status(500).json({ error: 'Failed to fetch assets' }))
+    res.status(500).json({ error: 'Failed to fetch assets' })
   }
-}))
+})
 
 /**
  * @openapi
@@ -145,7 +145,7 @@ router.get('/:id', requirePermission('vehicle:view:fleet'), async (req: AuthRequ
     )
 
     if (result.rows.length === 0) {
-      return res.status(404).json({ error: 'Asset not found' }))
+      return throw new NotFoundError("Asset not found")
     }
 
     // Get asset history
@@ -174,12 +174,12 @@ router.get('/:id', requirePermission('vehicle:view:fleet'), async (req: AuthRequ
       asset: result.rows[0],
       history: history.rows,
       maintenance: maintenance.rows
-    }))
+    })
   } catch (error) {
     logger.error(`Error fetching asset:`, error) // Wave 28: Winston logger
-    res.status(500).json({ error: `Failed to fetch asset` }))
+    res.status(500).json({ error: `Failed to fetch asset` })
   }
-}))
+})
 
 /**
  * @openapi
@@ -250,15 +250,15 @@ router.post('/', requirePermission('vehicle:create:fleet'), async (req: AuthRequ
     res.status(201).json({
       asset: result.rows[0],
       message: 'Asset created successfully'
-    }))
+    })
   } catch (error) {
     await client.query('ROLLBACK')
     logger.error('Error creating asset:', error) // Wave 28: Winston logger
-    res.status(500).json({ error: 'Failed to create asset' }))
+    res.status(500).json({ error: 'Failed to create asset' })
   } finally {
     client.release()
   }
-}))
+})
 
 /**
  * @openapi
@@ -289,10 +289,10 @@ router.put('/:id', requirePermission('vehicle:update:fleet'), async (req: AuthRe
         values.push(updates[key])
         paramCount++
       }
-    }))
+    })
 
     if (setClauses.length === 0) {
-      return res.status(400).json({ error: `No fields to update` }))
+      return res.status(400).json({ error: `No fields to update` })
     }
 
     setClauses.push(`updated_at = NOW()`)
@@ -308,7 +308,7 @@ router.put('/:id', requirePermission('vehicle:update:fleet'), async (req: AuthRe
 
     if (result.rows.length === 0) {
       await client.query(`ROLLBACK`)
-      return res.status(404).json({ error: `Asset not found` }))
+      return res.status(404).json({ error: `Asset not found` })
     }
 
     // Log the update
@@ -325,15 +325,15 @@ router.put('/:id', requirePermission('vehicle:update:fleet'), async (req: AuthRe
     res.json({
       asset: result.rows[0],
       message: `Asset updated successfully`
-    }))
+    })
   } catch (error) {
     await client.query(`ROLLBACK`)
     logger.error('Error updating asset:', error) // Wave 28: Winston logger
-    res.status(500).json({ error: 'Failed to update asset' }))
+    res.status(500).json({ error: 'Failed to update asset' })
   } finally {
     client.release()
   }
-}))
+})
 
 /**
  * @openapi
@@ -363,7 +363,7 @@ router.post('/:id/assign', requirePermission('vehicle:update:fleet'), async (req
 
     if (result.rows.length === 0) {
       await client.query(`ROLLBACK`)
-      return res.status(404).json({ error: `Asset not found` }))
+      return res.status(404).json({ error: `Asset not found` })
     }
 
     // Log assignment
@@ -379,15 +379,15 @@ router.post('/:id/assign', requirePermission('vehicle:update:fleet'), async (req
     res.json({
       asset: result.rows[0],
       message: 'Asset assigned successfully'
-    }))
+    })
   } catch (error) {
     await client.query('ROLLBACK')
     logger.error('Error assigning asset:', error) // Wave 28: Winston logger
-    res.status(500).json({ error: 'Failed to assign asset' }))
+    res.status(500).json({ error: 'Failed to assign asset' })
   } finally {
     client.release()
   }
-}))
+})
 
 /**
  * @openapi
@@ -417,7 +417,7 @@ router.post('/:id/transfer', requirePermission('vehicle:update:fleet'), async (r
 
     if (result.rows.length === 0) {
       await client.query(`ROLLBACK`)
-      return res.status(404).json({ error: `Asset not found` }))
+      return res.status(404).json({ error: `Asset not found` })
     }
 
     // Log transfer
@@ -433,15 +433,15 @@ router.post('/:id/transfer', requirePermission('vehicle:update:fleet'), async (r
     res.json({
       asset: result.rows[0],
       message: `Asset transferred successfully`
-    }))
+    })
   } catch (error) {
     await client.query(`ROLLBACK`)
     logger.error('Error transferring asset:', error) // Wave 28: Winston logger
-    res.status(500).json({ error: 'Failed to transfer asset' }))
+    res.status(500).json({ error: 'Failed to transfer asset' })
   } finally {
     client.release()
   }
-}))
+})
 
 /**
  * @openapi
@@ -487,7 +487,7 @@ router.get('/:id/depreciation', requirePermission('vehicle:view:fleet'), async (
     )
 
     if (result.rows.length === 0) {
-      return res.status(404).json({ error: `Asset not found` }))
+      return res.status(404).json({ error: `Asset not found` })
     }
 
     const asset = result.rows[0]
@@ -497,7 +497,7 @@ router.get('/:id/depreciation', requirePermission('vehicle:view:fleet'), async (
     const currentDate = new Date()
 
     // Calculate years since purchase
-    const yearsSincePurchase = (currentDate.getTime() - purchaseDate.getTime()) / (1000 * 60 * 60 * 24 * 365.25)
+    const yearsSincePurchase = (currentDate.getTime() - purchaseDate.getTime() / (1000 * 60 * 60 * 24 * 365.25)
 
     // Straight-line depreciation
     const annualDepreciation = purchasePrice * (depreciationRate / 100)
@@ -513,7 +513,7 @@ router.get('/:id/depreciation', requirePermission('vehicle:view:fleet'), async (
         year,
         value: futureValue.toFixed(2),
         depreciation: futureDepreciation.toFixed(2)
-      }))
+      })
     }
 
     res.json({
@@ -525,12 +525,12 @@ router.get('/:id/depreciation', requirePermission('vehicle:view:fleet'), async (
       total_depreciation: totalDepreciation.toFixed(2),
       current_value: currentValue.toFixed(2),
       projections
-    }))
+    })
   } catch (error) {
     logger.error('Error calculating depreciation:', error) // Wave 28: Winston logger
-    res.status(500).json({ error: 'Failed to calculate depreciation' }))
+    res.status(500).json({ error: 'Failed to calculate depreciation' })
   }
-}))
+})
 
 /**
  * @openapi
@@ -560,8 +560,8 @@ router.get('/analytics/summary', requirePermission('report:view:global'), async 
       ),
       pool.query(
         `SELECT
-           SUM(CAST(purchase_price AS DECIMAL)) as total_purchase_value,
-           SUM(CAST(current_value AS DECIMAL)) as total_current_value,
+           SUM(CAST(purchase_price AS DECIMAL) as total_purchase_value,
+           SUM(CAST(current_value AS DECIMAL) as total_current_value,
            COUNT(*) as total_assets
          FROM assets
          WHERE tenant_id = $1 AND status != `disposed``,
@@ -569,7 +569,7 @@ router.get('/analytics/summary', requirePermission('report:view:global'), async 
       ),
       pool.query(
         `SELECT
-           SUM(CAST(purchase_price AS DECIMAL) - CAST(current_value AS DECIMAL)) as total_depreciation
+           SUM(CAST(purchase_price AS DECIMAL) - CAST(current_value AS DECIMAL) as total_depreciation
          FROM assets
          WHERE tenant_id = $1`,
         [tenantId]
@@ -583,12 +583,12 @@ router.get('/analytics/summary', requirePermission('report:view:global'), async 
       total_purchase_value: totalValue.rows[0].total_purchase_value || 0,
       total_current_value: totalValue.rows[0].total_current_value || 0,
       total_depreciation: depreciationSum.rows[0].total_depreciation || 0
-    }))
+    })
   } catch (error) {
     logger.error(`Error fetching asset analytics:`, error) // Wave 28: Winston logger
-    res.status(500).json({ error: 'Failed to fetch analytics' }))
+    res.status(500).json({ error: 'Failed to fetch analytics' })
   }
-}))
+})
 
 /**
  * @openapi
@@ -622,7 +622,7 @@ router.delete('/:id', requirePermission('vehicle:delete:fleet'), async (req: Aut
 
     if (result.rows.length === 0) {
       await client.query(`ROLLBACK`)
-      return res.status(404).json({ error: 'Asset not found' }))
+      return throw new NotFoundError("Asset not found")
     }
 
     // Log disposal
@@ -638,14 +638,14 @@ router.delete('/:id', requirePermission('vehicle:delete:fleet'), async (req: Aut
     res.json({
       asset: result.rows[0],
       message: `Asset disposed successfully`
-    }))
+    })
   } catch (error) {
     await client.query(`ROLLBACK`)
     logger.error('Error disposing asset:', error) // Wave 28: Winston logger
-    res.status(500).json({ error: 'Failed to dispose asset' }))
+    res.status(500).json({ error: 'Failed to dispose asset' })
   } finally {
     client.release()
   }
-}))
+})
 
 export default router

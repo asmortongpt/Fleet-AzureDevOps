@@ -8,8 +8,7 @@ import logger from '../config/logger'; // Wave 17: Add Winston logger
  */
 
 import { Router, Request, Response } from 'express'
-import { gpsEmulator } from '../emulators/GPSEmulator'
-
+import { gpsEmulator } 
 const router = Router()
 
 /**
@@ -31,7 +30,7 @@ router.get('/', (req: Request, res: Response) => {
     const filters: any = {}
 
     // Parse status filter
-    if (status && ['moving', 'idle', 'stopped'].includes(status as string)) {
+    if (status && ['moving', 'idle', 'stopped'].includes(status as string) {
       filters.status = status as 'moving' | 'idle' | 'stopped'
     }
 
@@ -60,15 +59,15 @@ router.get('/', (req: Request, res: Response) => {
         total,
         totalPages: Math.ceil(total / filters.limit)
       }
-    }))
+    })
   } catch (error) {
     logger.error('Error getting GPS positions:', error) // Wave 17: Winston logger
     res.status(500).json({
       success: false,
       error: 'Failed to retrieve GPS positions'
-    }))
+    })
   }
-}))
+})
 
 /**
  * GET /api/gps/facilities
@@ -81,15 +80,15 @@ router.get('/facilities', (req: Request, res: Response) => {
     res.json({
       success: true,
       data: facilities
-    }))
+    })
   } catch (error) {
     logger.error('Error getting facilities:', error) // Wave 17: Winston logger
     res.status(500).json({
       success: false,
       error: 'Failed to retrieve facilities'
-    }))
+    })
   }
-}))
+})
 
 /**
  * GET /api/gps/geofence/alerts
@@ -119,15 +118,15 @@ router.get('/geofence/alerts', (req: Request, res: Response) => {
       success: true,
       data: alerts,
       total: alerts.length
-    }))
+    })
   } catch (error) {
     logger.error('Error getting geofence alerts:', error) // Wave 17: Winston logger
     res.status(500).json({
       success: false,
       error: 'Failed to retrieve geofence alerts'
-    }))
+    })
   }
-}))
+})
 
 /**
  * GET /api/gps/:vehicleId
@@ -137,11 +136,11 @@ router.get('/:vehicleId', (req: Request, res: Response) => {
   try {
     const vehicleId = parseInt(req.params.vehicleId, 10)
 
-    if (isNaN(vehicleId)) {
+    if (isNaN(vehicleId) {
       return res.status(400).json({
         success: false,
         error: 'Invalid vehicle ID'
-      }))
+      })
     }
 
     const position = gpsEmulator.getVehiclePosition(vehicleId)
@@ -150,21 +149,21 @@ router.get('/:vehicleId', (req: Request, res: Response) => {
       return res.status(404).json({
         success: false,
         error: 'Vehicle not found'
-      }))
+      })
     }
 
     res.json({
       success: true,
       data: position
-    }))
+    })
   } catch (error) {
     logger.error('Error getting vehicle position:', error) // Wave 17: Winston logger
     res.status(500).json({
       success: false,
       error: 'Failed to retrieve vehicle position'
-    }))
+    })
   }
-}))
+})
 
 /**
  * GET /api/gps/:vehicleId/history
@@ -174,11 +173,11 @@ router.get('/:vehicleId/history', (req: Request, res: Response) => {
   try {
     const vehicleId = parseInt(req.params.vehicleId, 10)
 
-    if (isNaN(vehicleId)) {
+    if (isNaN(vehicleId) {
       return res.status(400).json({
         success: false,
         error: 'Invalid vehicle ID'
-      }))
+      })
     }
 
     const history = gpsEmulator.getVehicleHistory(vehicleId)
@@ -187,15 +186,15 @@ router.get('/:vehicleId/history', (req: Request, res: Response) => {
       success: true,
       data: history,
       count: history.length
-    }))
+    })
   } catch (error) {
     logger.error('Error getting vehicle history:', error) // Wave 17: Winston logger
     res.status(500).json({
       success: false,
       error: 'Failed to retrieve vehicle history'
-    }))
+    })
   }
-}))
+})
 
 /**
  * POST /api/gps/start
@@ -208,15 +207,15 @@ router.post('/start', (req: Request, res: Response) => {
     res.json({
       success: true,
       message: 'GPS emulation started'
-    }))
+    })
   } catch (error) {
     logger.error('Error starting GPS emulation:', error) // Wave 17: Winston logger
     res.status(500).json({
       success: false,
       error: 'Failed to start GPS emulation'
-    }))
+    })
   }
-}))
+})
 
 /**
  * POST /api/gps/stop
@@ -229,14 +228,14 @@ router.post('/stop', (req: Request, res: Response) => {
     res.json({
       success: true,
       message: 'GPS emulation stopped'
-    }))
+    })
   } catch (error) {
     logger.error('Error stopping GPS emulation:', error) // Wave 17: Winston logger
     res.status(500).json({
       success: false,
       error: 'Failed to stop GPS emulation'
-    }))
+    })
   }
-}))
+})
 
 export default router

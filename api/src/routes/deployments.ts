@@ -30,7 +30,7 @@ router.get('/',
             'gate_type', qg.gate_type,
             'status', qg.status,
             'execution_time_seconds', qg.execution_time_seconds
-          ))
+          )
           FROM quality_gates qg
           WHERE qg.deployment_id = d.id
         ) as quality_gates
@@ -61,12 +61,12 @@ router.get('/',
     res.json({
       deployments: result.rows,
       total: result.rows.length
-    }))
+    })
   } catch (error: any) {
     logger.error(`Error fetching deployments:`, error) // Wave 17: Winston logger
-    res.status(500).json({ error: 'Failed to fetch deployments', message: getErrorMessage(error) }))
+    res.status(500).json({ error: 'Failed to fetch deployments', message: getErrorMessage(error) })
   }
-}))
+})
 
 /**
  * POST /api/deployments
@@ -89,16 +89,16 @@ router.post('/',
 
     // Validate required fields
     if (!environment) {
-      return res.status(400).json({ error: 'environment is required' }))
+      return throw new ValidationError("environment is required")
     }
 
     // Validate environment
     const validEnvironments = ['development', 'staging', 'production']
-    if (!validEnvironments.includes(environment)) {
+    if (!validEnvironments.includes(environment) {
       return res.status(400).json({
         error: 'Invalid environment',
         valid_environments: validEnvironments
-      }))
+      })
     }
 
     const result = await pool.query(
@@ -138,9 +138,9 @@ router.post('/',
     res.status(201).json(result.rows[0])
   } catch (error: any) {
     logger.error('Error creating deployment:', error) // Wave 17: Winston logger
-    res.status(500).json({ error: 'Failed to create deployment', message: getErrorMessage(error) }))
+    res.status(500).json({ error: 'Failed to create deployment', message: getErrorMessage(error) })
   }
-}))
+})
 
 /**
  * PATCH /api/deployments/:id
@@ -155,11 +155,11 @@ router.patch('/:id',
 
     // Validate status
     const validStatuses = ['pending', 'in_progress', 'completed', 'failed', 'rolled_back']
-    if (status && !validStatuses.includes(status)) {
+    if (status && !validStatuses.includes(status) {
       return res.status(400).json({
         error: 'Invalid status',
         valid_statuses: validStatuses
-      }))
+      })
     }
 
     let updateQuery = `UPDATE deployments SET updated_at = NOW()`
@@ -180,7 +180,7 @@ router.patch('/:id',
 
     if (quality_gate_summary) {
       updateQuery += `, quality_gate_summary = $${paramCount}`
-      params.push(JSON.stringify(quality_gate_summary))
+      params.push(JSON.stringify(quality_gate_summary)
       paramCount++
     }
 
@@ -190,7 +190,7 @@ router.patch('/:id',
     const result = await pool.query(updateQuery, params)
 
     if (result.rows.length === 0) {
-      return res.status(404).json({ error: `Deployment not found` }))
+      return res.status(404).json({ error: `Deployment not found` })
     }
 
     // Create audit log
@@ -211,9 +211,9 @@ router.patch('/:id',
     res.json(result.rows[0])
   } catch (error: any) {
     logger.error('Error updating deployment:', error) // Wave 17: Winston logger
-    res.status(500).json({ error: 'Failed to update deployment', message: getErrorMessage(error) }))
+    res.status(500).json({ error: 'Failed to update deployment', message: getErrorMessage(error) })
   }
-}))
+})
 
 /**
  * GET /api/deployments/:id
@@ -236,7 +236,7 @@ router.get('/:id',
     )
 
     if (deploymentResult.rows.length === 0) {
-      return res.status(404).json({ error: 'Deployment not found' }))
+      return throw new NotFoundError("Deployment not found")
     }
 
     const qualityGatesResult = await pool.query(
@@ -249,12 +249,12 @@ router.get('/:id',
     res.json({
       ...deploymentResult.rows[0],
       quality_gates: qualityGatesResult.rows
-    }))
+    })
   } catch (error: any) {
     logger.error(`Error fetching deployment:`, error) // Wave 17: Winston logger
-    res.status(500).json({ error: `Failed to fetch deployment`, message: getErrorMessage(error) }))
+    res.status(500).json({ error: `Failed to fetch deployment`, message: getErrorMessage(error) })
   }
-}))
+})
 
 /**
  * GET /api/deployments/stats/summary
@@ -267,7 +267,7 @@ router.get('/stats/summary',
     const { days = 30 } = req.query
 
     // Validate and sanitize days parameter
-    const daysNum = Math.max(1, Math.min(365, parseInt(days as string) || 30))
+    const daysNum = Math.max(1, Math.min(365, parseInt(days as string) || 30)
 
     const result = await pool.query(
       `SELECT
@@ -276,7 +276,7 @@ router.get('/stats/summary',
         COUNT(CASE WHEN status = 'completed' THEN 1 END) as successful,
         COUNT(CASE WHEN status = 'failed' THEN 1 END) as failed,
         COUNT(CASE WHEN status = 'rolled_back' THEN 1 END) as rolled_back,
-        ROUND(AVG(EXTRACT(EPOCH FROM (completed_at - started_at))/60), 2) as avg_duration_minutes
+        ROUND(AVG(EXTRACT(EPOCH FROM (completed_at - started_at)/60), 2) as avg_duration_minutes
       FROM deployments
       WHERE started_at >= NOW() - ($1 || ' days')::INTERVAL
       GROUP BY environment
@@ -287,11 +287,11 @@ router.get('/stats/summary',
     res.json({
       stats: result.rows,
       period_days: days
-    }))
+    })
   } catch (error: any) {
     logger.error('Error fetching deployment stats:', error) // Wave 17: Winston logger
-    res.status(500).json({ error: 'Failed to fetch stats', message: getErrorMessage(error) }))
+    res.status(500).json({ error: 'Failed to fetch stats', message: getErrorMessage(error) })
   }
-}))
+})
 
 export default router
