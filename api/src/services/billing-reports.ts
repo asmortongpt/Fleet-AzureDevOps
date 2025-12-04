@@ -1,4 +1,4 @@
-import pool from '../config/database'
+import { Pool } from 'pg'
 import { logger } from '../utils/logger'
 import { appInsightsService } from '../config/app-insights'
 
@@ -56,7 +56,9 @@ interface PayrollLineItem {
   deduction_description: string
 }
 
-class BillingReportsService {
+export class BillingReportsService {
+  constructor(private db: Pool) {}
+
   /**
    * Generate comprehensive monthly billing report
    */
@@ -69,7 +71,7 @@ class BillingReportsService {
       logger.info('Generating monthly billing report', { tenantId, period })
 
       // Get driver billing data
-      const driversQuery = await pool.query(`
+      const driversQuery = await this.db.query(`
         SELECT
           u.id as driver_id,
           u.first_name || ' ' || u.last_name as driver_name,
@@ -101,7 +103,7 @@ class BillingReportsService {
       `, [tenantId, periodStart, periodEnd, period])
 
       // Get policy violations
-      const violationsQuery = await pool.query(`
+      const violationsQuery = await this.db.query(`
         SELECT
           u.id as driver_id,
           u.first_name || ' ' || u.last_name as driver_name,
@@ -181,7 +183,7 @@ class BillingReportsService {
     try {
       logger.info('Generating payroll export', { tenantId, period })
 
-      const result = await pool.query(`
+      const result = await this.db.query(`
         SELECT
           u.id as employee_id,
           u.first_name || ' ' || u.last_name as employee_name,
@@ -266,7 +268,7 @@ class BillingReportsService {
         params = [tenantId, period]
       }
 
-      const result = await pool.query(query, params)
+      const result = await this.db.query(query, params)
 
       logger.info('Marked charges as billed', {
         tenantId,
@@ -318,5 +320,4 @@ class BillingReportsService {
   }
 }
 
-export const billingReportsService = new BillingReportsService()
-export default billingReportsService
+export default BillingReportsService
