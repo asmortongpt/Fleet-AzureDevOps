@@ -12,7 +12,7 @@
  * - Background sync scheduling
  */
 
-import pool from '../config/database'
+import { Pool } from 'pg'
 
 export interface OfflineData {
   id: string
@@ -65,7 +65,7 @@ export class OfflineStorageService {
     dataType: string,
     data: any
   ): Promise<OfflineData> {
-    const result = await pool.query(
+    const result = await this.db.query(
       `INSERT INTO offline_storage (
         tenant_id, device_id, data_type, data, version, is_synced
       ) VALUES ($1, $2, $3, $4, 1, false)
@@ -104,7 +104,7 @@ export class OfflineStorageService {
 
     query += ` ORDER BY updated_at DESC`
 
-    const result = await pool.query(query, params)
+    const result = await this.db.query(query, params)
     return result.rows
   }
 
@@ -115,7 +115,7 @@ export class OfflineStorageService {
    * @param id - Offline data record ID
    */
   async markAsSynced(id: string): Promise<void> {
-    await pool.query(
+    await this.db.query(
       `UPDATE offline_storage
        SET is_synced = true, synced_at = CURRENT_TIMESTAMP
        WHERE id = $1`,
@@ -198,7 +198,7 @@ export class OfflineStorageService {
     dataType: string,
     data: any
   ): Promise<number> {
-    const result = await pool.query(
+    const result = await this.db.query(
       `INSERT INTO sync_queue (
         device_id, operation, data_type, data, retry_count, status
       ) VALUES ($1, $2, $3, $4, 0, 'pending')
@@ -233,7 +233,7 @@ export class OfflineStorageService {
     query += ` ORDER BY created_at ASC LIMIT $${params.length + 1}`
     params.push(limit)
 
-    const result = await pool.query(query, params)
+    const result = await this.db.query(query, params)
     return result.rows
   }
 
@@ -251,7 +251,7 @@ export class OfflineStorageService {
     errorMessage?: string
   ): Promise<void> {
     if (success) {
-      await pool.query(
+      await this.db.query(
         `UPDATE sync_queue
          SET status = 'completed',
              processed_at = CURRENT_TIMESTAMP
@@ -259,7 +259,7 @@ export class OfflineStorageService {
         [queueId]
       )
     } else {
-      await pool.query(
+      await this.db.query(
         `UPDATE sync_queue
          SET status = 'failed',
              retry_count = retry_count + 1,
@@ -278,7 +278,7 @@ export class OfflineStorageService {
    * @param ttlSeconds - Time to live in seconds (default: 1 hour)
    */
   async clearOldSyncedData(ttlSeconds: number = this.DEFAULT_TTL_SECONDS): Promise<number> {
-    const result = await pool.query(
+    const result = await this.db.query(
       `DELETE FROM offline_storage
        WHERE is_synced = true
          AND synced_at < NOW() - INTERVAL '${ttlSeconds} seconds'
@@ -298,7 +298,7 @@ export class OfflineStorageService {
    */
   async getSyncStats(deviceId: string): Promise<any> {
     const [dataStats, queueStats] = await Promise.all([
-      pool.query(
+      this.db.query(
         `SELECT
           COUNT(*) as total_records,
           COUNT(*) FILTER (WHERE is_synced = false) as unsynced_records,
@@ -309,7 +309,7 @@ export class OfflineStorageService {
         WHERE device_id = $1`,
         [deviceId]
       ),
-      pool.query(
+      this.db.query(
         `SELECT
           COUNT(*) as total_queued,
           COUNT(*) FILTER (WHERE status = 'pending') as pending_count,
@@ -337,7 +337,7 @@ export class OfflineStorageService {
   async calculateDelta(deviceId: string, lastSyncAt: Date): Promise<any> {
     const [created, updated, deleted] = await Promise.all([
       // New records created since last sync
-      pool.query(
+      this.db.query(
         `SELECT * FROM offline_storage
          WHERE device_id = $1
            AND created_at > $2
@@ -345,7 +345,7 @@ export class OfflineStorageService {
         [deviceId, lastSyncAt]
       ),
       // Records updated since last sync
-      pool.query(
+      this.db.query(
         `SELECT * FROM offline_storage
          WHERE device_id = $1
            AND updated_at > $2
@@ -353,7 +353,7 @@ export class OfflineStorageService {
         [deviceId, lastSyncAt]
       ),
       // Deleted records (would need a separate deleted_records table)
-      pool.query(
+      this.db.query(
         `SELECT * FROM deleted_records
          WHERE device_id = $1
            AND deleted_at > $2`,
@@ -370,4 +370,4 @@ export class OfflineStorageService {
   }
 }
 
-export default new OfflineStorageService()
+export default OfflineStorageService
