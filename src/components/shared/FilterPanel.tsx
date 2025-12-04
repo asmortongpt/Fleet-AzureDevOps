@@ -26,6 +26,7 @@ export function FilterPanel({ filters }: FilterPanelProps) {
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
               <Input
+                aria-label={`Filter by ${filter.label}`}
                 type="search"
                 placeholder={`Search ${filter.label.toLowerCase()}...`}
                 value={filter.value}
