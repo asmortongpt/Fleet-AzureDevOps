@@ -87,12 +87,12 @@ router.get('/', requirePermission('report:view:global'), async (req: AuthRequest
     res.json({
       tasks: result.rows,
       total: result.rows.length
-    }))
+    })
   } catch (error) {
     logger.error('Error fetching tasks:', error) // Wave 31: Winston logger
-    res.status(500).json({ error: 'Failed to fetch tasks' }))
+    res.status(500).json({ error: 'Failed to fetch tasks' })
   }
-}))
+})
 
 // Create task
 router.post('/', requirePermission('report:generate:global'), async (req: AuthRequest, res) => {
@@ -142,15 +142,15 @@ router.post('/', requirePermission('report:generate:global'), async (req: AuthRe
     res.status(201).json({
       task: result.rows[0],
       message: `Task created successfully`
-    }))
+    })
   } catch (error) {
     await client.query('ROLLBACK')
     logger.error('Error creating task:', error) // Wave 31: Winston logger
-    res.status(500).json({ error: 'Failed to create task' }))
+    res.status(500).json({ error: 'Failed to create task' })
   } finally {
     client.release()
   }
-}))
+})
 
 // Update task
 router.put('/:id', requirePermission('report:generate:global'), async (req: AuthRequest, res) => {
@@ -172,10 +172,10 @@ router.put('/:id', requirePermission('report:generate:global'), async (req: Auth
         values.push(updates[key])
         paramCount++
       }
-    }))
+    })
 
     if (setClauses.length === 0) {
-      return res.status(400).json({ error: `No fields to update` }))
+      return res.status(400).json({ error: `No fields to update` })
     }
 
     setClauses.push(`updated_at = NOW()`)
@@ -191,7 +191,7 @@ router.put('/:id', requirePermission('report:generate:global'), async (req: Auth
 
     if (result.rows.length === 0) {
       await client.query(`ROLLBACK`)
-      return res.status(404).json({ error: `Task not found` }))
+      return res.status(404).json({ error: `Task not found` })
     }
 
     await client.query(`COMMIT`)
@@ -199,15 +199,15 @@ router.put('/:id', requirePermission('report:generate:global'), async (req: Auth
     res.json({
       task: result.rows[0],
       message: 'Task updated successfully'
-    }))
+    })
   } catch (error) {
     await client.query('ROLLBACK')
     logger.error('Error updating task:', error) // Wave 31: Winston logger
-    res.status(500).json({ error: 'Failed to update task' }))
+    res.status(500).json({ error: 'Failed to update task' })
   } finally {
     client.release()
   }
-}))
+})
 
 // Add comment to task
 router.post('/:id/comments', requirePermission('report:generate:global'), async (req: AuthRequest, res) => {
@@ -226,12 +226,12 @@ router.post('/:id/comments', requirePermission('report:generate:global'), async 
     res.status(201).json({
       comment: result.rows[0],
       message: `Comment added successfully`
-    }))
+    })
   } catch (error) {
     logger.error(`Error adding comment:`, error) // Wave 31: Winston logger
-    res.status(500).json({ error: 'Failed to add comment' }))
+    res.status(500).json({ error: 'Failed to add comment' })
   }
-}))
+})
 
 // Track time on task
 router.post('/:id/time-entries', requirePermission('report:generate:global'), async (req: AuthRequest, res) => {
@@ -250,12 +250,12 @@ router.post('/:id/time-entries', requirePermission('report:generate:global'), as
     res.status(201).json({
       time_entry: result.rows[0],
       message: `Time logged successfully`
-    }))
+    })
   } catch (error) {
     logger.error(`Error logging time:`, error) // Wave 31: Winston logger
-    res.status(500).json({ error: 'Failed to log time' }))
+    res.status(500).json({ error: 'Failed to log time' })
   }
-}))
+})
 
 // Get task analytics
 router.get('/analytics/summary', requirePermission('report:view:global'), async (req: AuthRequest, res) => {
@@ -298,11 +298,11 @@ router.get('/analytics/summary', requirePermission('report:view:global'), async 
         total,
         percentage: completion_percentage
       }
-    }))
+    })
   } catch (error) {
     logger.error('Error fetching analytics:', error) // Wave 31: Winston logger
-    res.status(500).json({ error: 'Failed to fetch analytics' }))
+    res.status(500).json({ error: 'Failed to fetch analytics' })
   }
-}))
+})
 
 export default router

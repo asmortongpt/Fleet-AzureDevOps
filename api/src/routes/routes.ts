@@ -79,12 +79,12 @@ router.get(
           page: Number(page),
           limit: Number(limit),
           total: parseInt(countResult.rows[0].count),
-          pages: Math.ceil(countResult.rows[0].count / Number(limit))
+          pages: Math.ceil(countResult.rows[0].count / Number(limit)
         }
-      }))
+      })
     } catch (error) {
       logger.error('Get routes error:', error) // Wave 17: Winston logger
-      res.status(500).json({ error: 'Internal server error' }))
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )
@@ -144,13 +144,13 @@ router.get(
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: `Routes not found` }))
+        return res.status(404).json({ error: `Routes not found` })
       }
 
       res.json(result.rows[0])
     } catch (error) {
       logger.error('Get routes error:', error) // Wave 17: Winston logger
-      res.status(500).json({ error: 'Internal server error' }))
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )
@@ -178,7 +178,7 @@ router.post(
       res.status(201).json(result.rows[0])
     } catch (error) {
       logger.error(`Create routes error:`, error) // Wave 17: Winston logger
-      res.status(500).json({ error: `Internal server error` }))
+      res.status(500).json({ error: `Internal server error` })
     }
   }
 )
@@ -226,17 +226,17 @@ router.put(
       // SECURITY: IDOR Protection - Validate foreign keys belong to tenant
       const { vehicle_id, driver_id } = data
 
-      if (vehicle_id && !(await validator.validateVehicle(vehicle_id, req.user!.tenant_id))) {
+      if (vehicle_id && !(await validator.validateVehicle(vehicle_id, req.user!.tenant_id)) {
         return res.status(403).json({
           success: false,
           error: 'Vehicle Id not found or access denied'
-        }))
+        })
       }
-      if (driver_id && !(await validator.validateDriver(driver_id, req.user!.tenant_id))) {
+      if (driver_id && !(await validator.validateDriver(driver_id, req.user!.tenant_id)) {
         return res.status(403).json({
           success: false,
           error: 'Driver Id not found or access denied'
-        }))
+        })
       }
       const { fields, values } = buildUpdateClause(data, 3)
 
@@ -246,13 +246,13 @@ router.put(
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: `Routes not found` }))
+        return res.status(404).json({ error: `Routes not found` })
       }
 
       res.json(result.rows[0])
     } catch (error) {
       logger.error(`Update routes error:`, error) // Wave 17: Winston logger
-      res.status(500).json({ error: `Internal server error` }))
+      res.status(500).json({ error: `Internal server error` })
     }
   }
 )
@@ -270,13 +270,13 @@ router.delete(
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'Routes not found' }))
+        return throw new NotFoundError("Routes not found")
       }
 
-      res.json({ message: 'Routes deleted successfully' }))
+      res.json({ message: 'Routes deleted successfully' })
     } catch (error) {
       logger.error('Delete routes error:', error) // Wave 17: Winston logger
-      res.status(500).json({ error: 'Internal server error' }))
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )
@@ -290,7 +290,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 
   // Validate ownership before update
   const validator = new TenantValidator(pool);
-  const isValid = await validator.validateOwnership(tenantId, 'routes', parseInt(id));
+  const isValid = await validator.validateOwnership(tenantId, 'routes', parseInt(id);
 
   if (!isValid) {
     return res.status(403).json({
@@ -311,7 +311,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
   // Validate ownership before delete
   const validator = new TenantValidator(pool);
-  const isValid = await validator.validateOwnership(tenantId, 'routes', parseInt(id));
+  const isValid = await validator.validateOwnership(tenantId, 'routes', parseInt(id);
 
   if (!isValid) {
     return res.status(403).json({

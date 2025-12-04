@@ -41,8 +41,8 @@ const upload = multer({
   },
   fileFilter: (req, file, cb) => {
     // Accept images only
-    if (!file.mimetype.startsWith('image/')) {
-      return cb(new Error('Only image files are allowed'));
+    if (!file.mimetype.startsWith('image/') {
+      return cb(new Error('Only image files are allowed');
     }
     cb(null, true);
   },
@@ -70,12 +70,12 @@ const PhotoMetadataSchema = z.object({
   reportType: z.enum(['damage', 'inspection', 'fuel', 'general']).optional(),
   latitude: z.number().optional(),
   longitude: z.number().optional(),
-  tags: z.array(z.string()).optional(),
+  tags: z.array(z.string().optional(),
   description: z.string().optional(),
 });
 
 const SyncCompleteSchema = z.object({
-  photoIds: z.array(z.number()),
+  photoIds: z.array(z.number(),
   deviceId: z.string(),
 });
 
@@ -174,7 +174,7 @@ router.post(
       const photoResult = await pool.query(
         `INSERT INTO mobile_photos
          (tenant_id, user_id, photo_url, file_name, file_size, mime_type, metadata, taken_at)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, NOW())
+         VALUES ($1, $2, $3, $4, $5, $6, $7, NOW()
          RETURNING *`,
         [
           tenantId,
@@ -318,7 +318,7 @@ router.post(
           const photoResult = await pool.query(
             `INSERT INTO mobile_photos
              (tenant_id, user_id, photo_url, file_name, file_size, mime_type, metadata, taken_at)
-             VALUES ($1, $2, $3, $4, $5, $6, $7, NOW())
+             VALUES ($1, $2, $3, $4, $5, $6, $7, NOW()
              RETURNING *`,
             [
               tenantId,

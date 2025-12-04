@@ -14,9 +14,9 @@ import { parseISO, isBefore, subMinutes } from 'date-fns'
 
 const router = express.Router()
 
-router.use(helmet())
-router.use(express.json())
-router.use(csurf({ cookie: true }))
+router.use(helmet()
+router.use(express.json()
+router.use(csurf({ cookie: true })
 router.use(
   rateLimit({
     windowMs: 60 * 1000, // 1 minute
@@ -34,7 +34,7 @@ router.use(authenticateJWT)
 const StartTripSchema = z.object({
   vehicle_id: z.number().int().positive().optional(),
   driver_id: z.number().int().positive().optional(),
-  start_time: z.string().refine(val => !isBefore(parseISO(val), subMinutes(new Date(), 5)), {
+  start_time: z.string().refine(val => !isBefore(parseISO(val), subMinutes(new Date(), 5), {
     message: 'Start time cannot be more than 5 minutes in the past',
   }),
   start_location: z.object({
@@ -46,7 +46,7 @@ const StartTripSchema = z.object({
 })
 
 const EndTripSchema = z.object({
-  end_time: z.string().refine(val => !isBefore(parseISO(val), subMinutes(new Date(), 5)), {
+  end_time: z.string().refine(val => !isBefore(parseISO(val), subMinutes(new Date(), 5), {
     message: 'End time cannot be more than 5 minutes in the past',
   }),
   end_location: z.object({

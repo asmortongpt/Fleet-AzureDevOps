@@ -50,7 +50,7 @@ const createReservationSchema = z.object({
   start_datetime: z.string().datetime('Invalid start datetime format'),
   end_datetime: z.string().datetime('Invalid end datetime format'),
   purpose: z.enum(['business', 'personal'], {
-    errorMap: () => ({ message: 'Purpose must be either "business" or "personal"' }))
+    errorMap: () => ({ message: 'Purpose must be either "business" or "personal"' })
   }),
   notes: z.string().max(1000, 'Notes cannot exceed 1000 characters').optional(),
   approval_required: z.boolean().optional().default(true),
@@ -76,7 +76,7 @@ const updateReservationSchema = z.object({
 
 const approvalActionSchema = z.object({
   action: z.enum(['approve', 'reject'], {
-    errorMap: () => ({ message: 'Action must be either "approve" or "reject"' }))
+    errorMap: () => ({ message: 'Action must be either "approve" or "reject"' })
   }),
   notes: z.string().max(500).optional(),
 });
@@ -159,7 +159,7 @@ router.get('/', authenticateJWT, async (req: AuthRequest, res: Response) => {
     let paramIndex = 1;
 
     // Apply permission-based filtering
-    if (!canViewAllReservations(currentUser)) {
+    if (!canViewAllReservations(currentUser) {
       // Users can only see their own reservations
       whereConditions.push(`vr.user_id = $${paramIndex++}`);
       params.push(currentUser.id);
@@ -174,7 +174,7 @@ router.get('/', authenticateJWT, async (req: AuthRequest, res: Response) => {
       whereConditions.push(`vr.vehicle_id = $${paramIndex++}`);
       params.push(vehicle_id);
     }
-    if (user_id && canViewAllReservations(currentUser)) {
+    if (user_id && canViewAllReservations(currentUser) {
       whereConditions.push(`vr.user_id = $${paramIndex++}`);
       params.push(user_id);
     }
@@ -227,7 +227,7 @@ router.get('/', authenticateJWT, async (req: AuthRequest, res: Response) => {
       WHERE ${whereClause}
     `;
 
-    const countResult = await pool.query(countQuery, params.slice(0, -2));
+    const countResult = await pool.query(countQuery, params.slice(0, -2);
     const total = parseInt(countResult.rows[0].total);
 
     res.json({
@@ -236,7 +236,7 @@ router.get('/', authenticateJWT, async (req: AuthRequest, res: Response) => {
         page: parseInt(page as string),
         limit: parseInt(limit as string),
         total,
-        pages: Math.ceil(total / parseInt(limit as string)),
+        pages: Math.ceil(total / parseInt(limit as string),
       },
     });
   } catch (error: any) {
@@ -262,7 +262,7 @@ router.get('/:id', authenticateJWT, async (req: AuthRequest, res: Response) => {
     let whereClause = 'vr.id = $1 AND vr.deleted_at IS NULL';
     const params: any[] = [id];
 
-    if (!canViewAllReservations(currentUser)) {
+    if (!canViewAllReservations(currentUser) {
       whereClause += ` AND vr.user_id = $2`;
       params.push(currentUser.id);
     }
@@ -330,7 +330,7 @@ router.post('/', authenticateJWT, async (req: AuthRequest, res: Response) => {
 
       if (vehicleCheck.rows.length === 0) {
         await client.query(`ROLLBACK`);
-        return res.status(404).json({ error: 'Vehicle not found' });
+        return throw new NotFoundError("Vehicle not found");
       }
 
       const vehicle = vehicleCheck.rows[0];
@@ -486,7 +486,7 @@ router.put('/:id', authenticateJWT, async (req: AuthRequest, res: Response) => {
       const existingReservation = checkResult.rows[0];
 
       // Only allow updates to pending or confirmed reservations
-      if (!['pending', 'confirmed'].includes(existingReservation.status)) {
+      if (!['pending', 'confirmed'].includes(existingReservation.status) {
         await client.query('ROLLBACK');
         return res.status(400).json({
           error: 'Cannot update reservation',
@@ -676,7 +676,7 @@ router.post('/:id/approve', authenticateJWT, async (req: AuthRequest, res: Respo
     const currentUser = req.user!;
 
     // Check permission
-    if (!canApproveReservations(currentUser)) {
+    if (!canApproveReservations(currentUser) {
       return res.status(403).json({
         error: 'Forbidden',
         message: 'You do not have permission to approve reservations'
@@ -695,7 +695,7 @@ router.post('/:id/approve', authenticateJWT, async (req: AuthRequest, res: Respo
 
       if (reservationResult.rows.length === 0) {
         await client.query(`ROLLBACK`);
-        return res.status(404).json({ error: 'Reservation not found' });
+        return throw new NotFoundError("Reservation not found");
       }
 
       const reservation = reservationResult.rows[0];
@@ -871,7 +871,7 @@ router.get('/pending', authenticateJWT, async (req: AuthRequest, res: Response) 
   try {
     const currentUser = req.user!;
 
-    if (!canApproveReservations(currentUser)) {
+    if (!canApproveReservations(currentUser) {
       return res.status(403).json({
         error: 'Forbidden',
         message: 'You do not have permission to view pending approvals'

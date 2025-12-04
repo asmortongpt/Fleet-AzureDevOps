@@ -22,8 +22,8 @@ const router = express.Router()
 
 router.use(authenticateJWT)
 router.use(rateLimiter)
-router.use(helmet())
-router.use(csurf())
+router.use(helmet()
+router.use(csurf()
 
 const upload = multer({
   storage: multer.memoryStorage(),
@@ -50,7 +50,7 @@ const upload = multer({
     ) {
       cb(null, true)
     } else {
-      cb(new Error(`Unsupported file type: ${file.mimetype}`))
+      cb(new Error(`Unsupported file type: ${file.mimetype}`)
     }
   },
 })
@@ -71,9 +71,9 @@ const damageReportSchema = z.object({
   damage_description: z.string(),
   damage_severity: z.enum(['minor', 'moderate', 'severe']),
   damage_location: z.string().optional(),
-  photos: z.array(z.string()).optional(),
-  videos: z.array(z.string()).optional(),
-  lidar_scans: z.array(z.string()).optional(),
+  photos: z.array(z.string().optional(),
+  videos: z.array(z.string().optional(),
+  lidar_scans: z.array(z.string().optional(),
   triposr_task_id: z.string().optional(),
   triposr_status: z.enum(['pending', 'processing', 'completed', 'failed']).optional(),
   triposr_model_url: z.string().optional(),

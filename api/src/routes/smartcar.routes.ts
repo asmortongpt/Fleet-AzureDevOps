@@ -33,14 +33,14 @@ try {
  */
 router.get('/connect', authenticateJWT, requirePermission('vehicle:manage:global'), (req: AuthRequest, res: Response) => {
   if (!smartcarService) {
-    return res.status(503).json({ error: 'Smartcar service not available' }))
+    return res.status(503).json({ error: 'Smartcar service not available' })
   }
 
   try {
     const { vehicle_id } = req.query
 
     if (!vehicle_id) {
-      return res.status(400).json({ error: 'vehicle_id query parameter is required' }))
+      return throw new ValidationError("vehicle_id query parameter is required")
     }
 
     // Generate state parameter with vehicle_id and user info
@@ -49,7 +49,7 @@ router.get('/connect', authenticateJWT, requirePermission('vehicle:manage:global
         vehicle_id,
         user_id: req.user!.id,
         tenant_id: req.user!.tenant_id
-      }))
+      })
     ).toString('base64')
 
     const authUrl = smartcarService.getAuthUrl(state)
@@ -57,12 +57,12 @@ router.get('/connect', authenticateJWT, requirePermission('vehicle:manage:global
     res.json({
       authUrl,
       message: 'Redirect user to this URL to connect their vehicle'
-    }))
+    })
   } catch (error: any) {
     logger.error('Smartcar connect error:', error) // Wave 24: Winston logger
-    res.status(500).json({ error: error.message || 'Internal server error' }))
+    res.status(500).json({ error: error.message || 'Internal server error' })
   }
-}))
+})
 
 /**
  * GET /api/smartcar/callback
@@ -70,7 +70,7 @@ router.get('/connect', authenticateJWT, requirePermission('vehicle:manage:global
  */
 router.get('/callback', async (req: Request, res: Response) => {
   if (!smartcarService) {
-    return res.status(503).json({ error: 'Smartcar service not available' }))
+    return res.status(503).json({ error: 'Smartcar service not available' })
   }
 
   try {
@@ -81,7 +81,7 @@ router.get('/callback', async (req: Request, res: Response) => {
       const safeErrorUrl = buildSafeRedirectUrl('/vehicles', {
         error: 'smartcar_auth_failed',
         message: error as string
-      }))
+      })
       return res.redirect(safeErrorUrl)
     }
 
@@ -89,12 +89,12 @@ router.get('/callback', async (req: Request, res: Response) => {
       const safeErrorUrl = buildSafeRedirectUrl('/vehicles', {
         error: 'smartcar_auth_failed',
         message: 'Missing authorization code'
-      }))
+      })
       return res.redirect(safeErrorUrl)
     }
 
     // Decode state parameter
-    const stateData = JSON.parse(Buffer.from(state as string, `base64`).toString(`utf-8`))
+    const stateData = JSON.parse(Buffer.from(state as string, `base64`).toString(`utf-8`)
     const { vehicle_id, user_id, tenant_id } = stateData
 
     // SECURITY: Validate vehicle_id is a valid integer to prevent path traversal
@@ -104,7 +104,7 @@ router.get('/callback', async (req: Request, res: Response) => {
       const safeErrorUrl = buildSafeRedirectUrl(`/vehicles`, {
         error: 'invalid_state',
         message: 'Invalid vehicle identifier'
-      }))
+      })
       return res.redirect(safeErrorUrl)
     }
 
@@ -118,7 +118,7 @@ router.get('/callback', async (req: Request, res: Response) => {
       const safeErrorUrl = buildSafeRedirectUrl('/vehicles', {
         error: 'no_vehicles',
         message: 'No vehicles found in Smartcar account'
-      }))
+      })
       return res.redirect(safeErrorUrl)
     }
 
@@ -165,17 +165,17 @@ router.get('/callback', async (req: Request, res: Response) => {
     // SECURITY FIX (CWE-601): Validate redirect path and sanitize vehicle_id
     const safeSuccessUrl = buildSafeRedirectUrl(`/vehicles/${parsedVehicleId}`, {
       smartcar_connected: 'true'
-    }))
+    })
     res.redirect(safeSuccessUrl)
   } catch (error: any) {
     logger.error('Smartcar callback error:', error) // Wave 24: Winston logger
     const safeErrorUrl = buildSafeRedirectUrl('/vehicles', {
       error: 'smartcar_auth_failed',
       message: error.message || 'Connection failed'
-    }))
+    })
     res.redirect(safeErrorUrl)
   }
-}))
+})
 
 /**
  * GET /api/smartcar/vehicles/:id/location
@@ -188,7 +188,7 @@ router.get(
   auditLog({ action: 'READ', resourceType: 'smartcar_location' }),
   async (req: AuthRequest, res: Response) => {
     if (!smartcarService) {
-      return res.status(503).json({ error: 'Smartcar service not available' }))
+      return res.status(503).json({ error: 'Smartcar service not available' })
     }
 
     try {
@@ -197,7 +197,7 @@ router.get(
       const connection = await smartcarService.getVehicleConnection(vehicleId)
 
       if (!connection) {
-        return res.status(404).json({ error: 'Vehicle not connected to Smartcar' }))
+        return throw new NotFoundError("Vehicle not connected to Smartcar")
       }
 
       const location = await smartcarService.getLocation(connection.external_vehicle_id, accessToken)
@@ -205,7 +205,7 @@ router.get(
       res.json(location)
     } catch (error: any) {
       logger.error('Get Smartcar location error:', error) // Wave 24: Winston logger
-      res.status(500).json({ error: error.message || 'Internal server error' }))
+      res.status(500).json({ error: error.message || 'Internal server error' })
     }
   }
 )
@@ -221,7 +221,7 @@ router.get(
   auditLog({ action: 'READ', resourceType: 'smartcar_battery' }),
   async (req: AuthRequest, res: Response) => {
     if (!smartcarService) {
-      return res.status(503).json({ error: 'Smartcar service not available' }))
+      return res.status(503).json({ error: 'Smartcar service not available' })
     }
 
     try {
@@ -230,7 +230,7 @@ router.get(
       const connection = await smartcarService.getVehicleConnection(vehicleId)
 
       if (!connection) {
-        return res.status(404).json({ error: 'Vehicle not connected to Smartcar' }))
+        return throw new NotFoundError("Vehicle not connected to Smartcar")
       }
 
       const battery = await smartcarService.getBattery(connection.external_vehicle_id, accessToken)
@@ -238,7 +238,7 @@ router.get(
       res.json(battery)
     } catch (error: any) {
       logger.error('Get Smartcar battery error:', error) // Wave 24: Winston logger
-      res.status(500).json({ error: error.message || 'Internal server error' }))
+      res.status(500).json({ error: error.message || 'Internal server error' })
     }
   }
 )
@@ -254,7 +254,7 @@ router.get(
   auditLog({ action: 'READ', resourceType: 'smartcar_charge' }),
   async (req: AuthRequest, res: Response) => {
     if (!smartcarService) {
-      return res.status(503).json({ error: 'Smartcar service not available' }))
+      return res.status(503).json({ error: 'Smartcar service not available' })
     }
 
     try {
@@ -263,7 +263,7 @@ router.get(
       const connection = await smartcarService.getVehicleConnection(vehicleId)
 
       if (!connection) {
-        return res.status(404).json({ error: 'Vehicle not connected to Smartcar' }))
+        return throw new NotFoundError("Vehicle not connected to Smartcar")
       }
 
       const charge = await smartcarService.getChargeStatus(connection.external_vehicle_id, accessToken)
@@ -271,7 +271,7 @@ router.get(
       res.json(charge)
     } catch (error: any) {
       logger.error('Get Smartcar charge error:', error) // Wave 24: Winston logger
-      res.status(500).json({ error: error.message || 'Internal server error' }))
+      res.status(500).json({ error: error.message || 'Internal server error' })
     }
   }
 )
@@ -287,7 +287,7 @@ router.post(
   auditLog({ action: 'UPDATE', resourceType: 'smartcar_security' }),
   async (req: AuthRequest, res: Response) => {
     if (!smartcarService) {
-      return res.status(503).json({ error: 'Smartcar service not available' }))
+      return res.status(503).json({ error: 'Smartcar service not available' })
     }
 
     try {
@@ -296,7 +296,7 @@ router.post(
       const connection = await smartcarService.getVehicleConnection(vehicleId)
 
       if (!connection) {
-        return res.status(404).json({ error: 'Vehicle not connected to Smartcar' }))
+        return throw new NotFoundError("Vehicle not connected to Smartcar")
       }
 
       const result = await smartcarService.lockDoors(connection.external_vehicle_id, accessToken)
@@ -304,7 +304,7 @@ router.post(
       res.json(result)
     } catch (error: any) {
       logger.error('Lock vehicle error:', error) // Wave 24: Winston logger
-      res.status(500).json({ error: error.message || 'Internal server error' }))
+      res.status(500).json({ error: error.message || 'Internal server error' })
     }
   }
 )
@@ -320,7 +320,7 @@ router.post(
   auditLog({ action: 'UPDATE', resourceType: 'smartcar_security' }),
   async (req: AuthRequest, res: Response) => {
     if (!smartcarService) {
-      return res.status(503).json({ error: 'Smartcar service not available' }))
+      return res.status(503).json({ error: 'Smartcar service not available' })
     }
 
     try {
@@ -329,7 +329,7 @@ router.post(
       const connection = await smartcarService.getVehicleConnection(vehicleId)
 
       if (!connection) {
-        return res.status(404).json({ error: 'Vehicle not connected to Smartcar' }))
+        return throw new NotFoundError("Vehicle not connected to Smartcar")
       }
 
       const result = await smartcarService.unlockDoors(connection.external_vehicle_id, accessToken)
@@ -337,7 +337,7 @@ router.post(
       res.json(result)
     } catch (error: any) {
       logger.error('Unlock vehicle error:', error) // Wave 24: Winston logger
-      res.status(500).json({ error: error.message || 'Internal server error' }))
+      res.status(500).json({ error: error.message || 'Internal server error' })
     }
   }
 )
@@ -353,7 +353,7 @@ router.post(
   auditLog({ action: 'UPDATE', resourceType: 'smartcar_charge' }),
   async (req: AuthRequest, res: Response) => {
     if (!smartcarService) {
-      return res.status(503).json({ error: 'Smartcar service not available' }))
+      return res.status(503).json({ error: 'Smartcar service not available' })
     }
 
     try {
@@ -362,7 +362,7 @@ router.post(
       const connection = await smartcarService.getVehicleConnection(vehicleId)
 
       if (!connection) {
-        return res.status(404).json({ error: 'Vehicle not connected to Smartcar' }))
+        return throw new NotFoundError("Vehicle not connected to Smartcar")
       }
 
       const result = await smartcarService.startCharging(connection.external_vehicle_id, accessToken)
@@ -370,7 +370,7 @@ router.post(
       res.json(result)
     } catch (error: any) {
       logger.error('Start charging error:', error) // Wave 24: Winston logger
-      res.status(500).json({ error: error.message || 'Internal server error' }))
+      res.status(500).json({ error: error.message || 'Internal server error' })
     }
   }
 )
@@ -386,7 +386,7 @@ router.post(
   auditLog({ action: 'UPDATE', resourceType: 'smartcar_charge' }),
   async (req: AuthRequest, res: Response) => {
     if (!smartcarService) {
-      return res.status(503).json({ error: 'Smartcar service not available' }))
+      return res.status(503).json({ error: 'Smartcar service not available' })
     }
 
     try {
@@ -395,7 +395,7 @@ router.post(
       const connection = await smartcarService.getVehicleConnection(vehicleId)
 
       if (!connection) {
-        return res.status(404).json({ error: 'Vehicle not connected to Smartcar' }))
+        return throw new NotFoundError("Vehicle not connected to Smartcar")
       }
 
       const result = await smartcarService.stopCharging(connection.external_vehicle_id, accessToken)
@@ -403,7 +403,7 @@ router.post(
       res.json(result)
     } catch (error: any) {
       logger.error('Stop charging error:', error) // Wave 24: Winston logger
-      res.status(500).json({ error: error.message || 'Internal server error' }))
+      res.status(500).json({ error: error.message || 'Internal server error' })
     }
   }
 )
@@ -419,7 +419,7 @@ router.delete(
   auditLog({ action: 'DELETE', resourceType: 'smartcar_connection' }),
   async (req: AuthRequest, res: Response) => {
     if (!smartcarService) {
-      return res.status(503).json({ error: 'Smartcar service not available' }))
+      return res.status(503).json({ error: 'Smartcar service not available' })
     }
 
     try {
@@ -427,7 +427,7 @@ router.delete(
       const connection = await smartcarService.getVehicleConnection(vehicleId)
 
       if (!connection) {
-        return res.status(404).json({ error: 'Vehicle not connected to Smartcar' }))
+        return throw new NotFoundError("Vehicle not connected to Smartcar")
       }
 
       // Revoke access on Smartcar side
@@ -442,10 +442,10 @@ router.delete(
         [vehicleId]
       )
 
-      res.json({ message: 'Smartcar disconnected successfully' }))
+      res.json({ message: 'Smartcar disconnected successfully' })
     } catch (error: any) {
       logger.error('Disconnect Smartcar error:', error) // Wave 24: Winston logger
-      res.status(500).json({ error: error.message || 'Internal server error' }))
+      res.status(500).json({ error: error.message || 'Internal server error' })
     }
   }
 )
@@ -461,7 +461,7 @@ router.post(
   auditLog({ action: 'CREATE', resourceType: 'smartcar_sync' }),
   async (req: AuthRequest, res: Response) => {
     if (!smartcarService) {
-      return res.status(503).json({ error: 'Smartcar service not available' }))
+      return res.status(503).json({ error: 'Smartcar service not available' })
     }
 
     try {
@@ -469,10 +469,10 @@ router.post(
 
       await smartcarService.syncVehicleData(vehicleId)
 
-      res.json({ message: 'Vehicle data synced successfully' }))
+      res.json({ message: 'Vehicle data synced successfully' })
     } catch (error: any) {
       logger.error('Sync Smartcar data error:', error) // Wave 24: Winston logger
-      res.status(500).json({ error: error.message || 'Internal server error' }))
+      res.status(500).json({ error: error.message || 'Internal server error' })
     }
   }
 )

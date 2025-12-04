@@ -12,7 +12,7 @@ import { ValidationError } from '../utils/errors'
 
 const router = express.Router()
 router.use(authenticateJWT)
-router.use(rateLimit({ windowMs: 60000, max: 100 })) // 100 requests per minute
+router.use(rateLimit({ windowMs: 60000, max: 100 }) // 100 requests per minute
 
 const inspectionSchema = z.object({
   vehicle_id: z.string(),
@@ -20,7 +20,7 @@ const inspectionSchema = z.object({
   inspection_type: z.enum(['PRE_TRIP', 'POST_TRIP']),
   status: z.enum(['PASSED', 'FAILED']),
   passed: z.boolean(),
-  failed_items: z.array(z.string()).optional(),
+  failed_items: z.array(z.string().optional(),
   odometer_reading: z.number().optional(),
   inspector_notes: z.string().optional(),
   signature_url: z.string().url().optional(),
@@ -56,7 +56,7 @@ router.get(
           page: Number(page),
           limit: Number(limit),
           total: parseInt(countResult.rows[0].count, 10),
-          pages: Math.ceil(countResult.rows[0].count / Number(limit)),
+          pages: Math.ceil(countResult.rows[0].count / Number(limit),
         },
       })
     } catch (error) {

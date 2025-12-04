@@ -50,7 +50,7 @@ router.get(
       res.json(leaderboard)
     } catch (error) {
       logger.error('Get leaderboard error:', error) // Wave 32: Winston logger
-      res.status(500).json({ error: 'Internal server error' }))
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )
@@ -76,11 +76,11 @@ router.get(
 
         res.json(score)
       } else {
-        res.status(400).json({ error: 'periodStart and periodEnd are required' }))
+        throw new ValidationError("periodStart and periodEnd are required")
       }
     } catch (error) {
       logger.error('Get driver scorecard error:', error) // Wave 32: Winston logger
-      res.status(500).json({ error: 'Internal server error' }))
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )
@@ -104,7 +104,7 @@ router.get(
       res.json(history)
     } catch (error) {
       logger.error('Get score history error:', error) // Wave 32: Winston logger
-      res.status(500).json({ error: 'Internal server error' }))
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )
@@ -126,7 +126,7 @@ router.get(
       res.json(achievements)
     } catch (error) {
       logger.error('Get achievements error:', error) // Wave 32: Winston logger
-      res.status(500).json({ error: 'Internal server error' }))
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )
@@ -141,7 +141,7 @@ router.post(
       const { periodStart, periodEnd } = req.body
 
       if (!periodStart || !periodEnd) {
-        return res.status(400).json({ error: 'periodStart and periodEnd are required' }))
+        return throw new ValidationError("periodStart and periodEnd are required")
       }
 
       await driverScorecardService.calculateAllDriverScores(
@@ -150,10 +150,10 @@ router.post(
         new Date(periodEnd)
       )
 
-      res.json({ message: 'Calculation started for all drivers' }))
+      res.json({ message: 'Calculation started for all drivers' })
     } catch (error) {
       logger.error('Calculate all scores error:', error) // Wave 32: Winston logger
-      res.status(500).json({ error: 'Internal server error' }))
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )

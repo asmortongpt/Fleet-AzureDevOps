@@ -46,7 +46,7 @@ router.get(`/stats`, requireAdmin, async (req: Request, res: Response) => {
           logger.error(`Failed to get stats for ${queueName}:`, error) // Wave 23: Winston logger;
           return null;
         }
-      }))
+      })
     );
 
     const validStats = stats.filter(s => s !== null);
@@ -110,7 +110,7 @@ router.get(`/:queueName/jobs`, requireAdmin, async (req: Request, res: Response)
     }
 
     query += ` ORDER BY created_at DESC LIMIT $${params.length + 1} OFFSET $${params.length + 2}`;
-    params.push(parseInt(limit as string), parseInt(offset as string));
+    params.push(parseInt(limit as string), parseInt(offset as string);
 
     const result = await pool.query(query, params);
 
@@ -210,7 +210,7 @@ router.get('/dead-letter', requireAdmin, async (req: Request, res: Response) => 
     }
 
     query += ` ORDER BY moved_to_dlq_at DESC LIMIT $${params.length + 1} OFFSET $${params.length + 2}`;
-    params.push(parseInt(limit as string), parseInt(offset as string));
+    params.push(parseInt(limit as string), parseInt(offset as string);
 
     const result = await pool.query(query, params);
 
@@ -403,11 +403,11 @@ router.get('/metrics', requireAdmin, async (req: Request, res: Response) => {
         COUNT(*) FILTER (WHERE status = 'failed') as failed_jobs,
         COUNT(*) FILTER (WHERE status = 'pending') as pending_jobs,
         COUNT(*) FILTER (WHERE status = 'active') as active_jobs,
-        AVG(EXTRACT(EPOCH FROM (completed_at - started_at)) * 1000)
+        AVG(EXTRACT(EPOCH FROM (completed_at - started_at) * 1000)
           FILTER (WHERE completed_at IS NOT NULL) as avg_processing_time_ms,
-        MAX(EXTRACT(EPOCH FROM (completed_at - started_at)) * 1000)
+        MAX(EXTRACT(EPOCH FROM (completed_at - started_at) * 1000)
           FILTER (WHERE completed_at IS NOT NULL) as max_processing_time_ms,
-        MIN(EXTRACT(EPOCH FROM (completed_at - started_at)) * 1000)
+        MIN(EXTRACT(EPOCH FROM (completed_at - started_at) * 1000)
           FILTER (WHERE completed_at IS NOT NULL) as min_processing_time_ms
        FROM job_tracking
        WHERE created_at > NOW() - $1::INTERVAL
@@ -432,7 +432,7 @@ router.get('/metrics', requireAdmin, async (req: Request, res: Response) => {
       avgProcessingTimeMs: parseFloat(row.avg_processing_time_ms) || 0,
       maxProcessingTimeMs: parseFloat(row.max_processing_time_ms) || 0,
       minProcessingTimeMs: parseFloat(row.min_processing_time_ms) || 0
-    }));
+    });
 
     res.json({
       success: true,
@@ -479,7 +479,7 @@ router.get('/:queueName/job/:jobId', requireAdmin, async (req: Request, res: Res
     );
 
     if (result.rows.length === 0) {
-      return res.status(404).json({ error: 'Job not found' });
+      return throw new NotFoundError("Job not found");
     }
 
     res.json({
