@@ -78,6 +78,7 @@ import OCPPService from './services/ocpp.service'
 import EVChargingService from './services/ev-charging.service'
 import MobileIntegrationService from './services/mobile-integration.service'
 import PushNotificationService from './services/push-notification.service'
+import SMSService from './services/sms.service'
 import WebRTCService from './services/webrtc.service'
 import VideoTelematicsService from './services/video-telematics.service'
 import MCPServerService from './services/mcp-server.service'
@@ -171,6 +172,7 @@ export interface DIContainer extends AwilixContainer {
   evChargingService: EVChargingService
   mobileIntegrationService: MobileIntegrationService
   pushNotificationService: PushNotificationService
+  smsService: SMSService
   webrtcService: WebRTCService
   videoTelematicsService: VideoTelematicsService
   mcpServerService: MCPServerService
@@ -355,7 +357,7 @@ export function createDIContainer() {
   })
 
   // Register Tier 5 Integration services
-  // These services handle external integrations (Microsoft, Samsara, SmartCar, OBD2, OCPP, mobile apps)
+  // These services handle external integrations (Microsoft, Samsara, SmartCar, OBD2, OCPP, mobile apps, SMS)
   container.register({
     microsoftGraphService: asFunction(() => MicrosoftGraphService.getInstance(), {
       lifetime: Lifetime.SINGLETON
@@ -385,6 +387,9 @@ export function createDIContainer() {
       lifetime: Lifetime.SINGLETON
     }),
     pushNotificationService: asClass(PushNotificationService, {
+      lifetime: Lifetime.SINGLETON
+    }),
+    smsService: asClass(SMSService, {
       lifetime: Lifetime.SINGLETON
     }),
     webrtcService: asClass(WebRTCService, {
