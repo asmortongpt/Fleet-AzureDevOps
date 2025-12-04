@@ -1,4 +1,7 @@
 /**
+import { container } from '../container'
+import { asyncHandler } from '../middleware/error-handler'
+import { NotFoundError, ValidationError } from '../errors/app-error'
 import logger from '../config/logger'; // Wave 31: Add Winston logger
  * Fleet Documents Routes
  *
@@ -15,7 +18,6 @@ import multer from 'multer'
 import path from 'path'
 import { AuthRequest, authenticateJWT, authorize } from '../middleware/auth'
 import { auditLog } from '../middleware/audit'
-import pool from '../config/database'
 import documentService from '../services/document.service'
 import { getErrorMessage } from '../utils/error-handler'
 
@@ -30,7 +32,7 @@ const storage = multer.diskStorage({
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9)
     cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname))
   }
-})
+}))
 
 const upload = multer({
   storage,
@@ -55,7 +57,7 @@ const upload = multer({
       cb(new Error('Invalid file type. Allowed types: images, PDF, Word, Excel, text files'))
     }
   }
-})
+}))
 
 // Apply authentication to all routes
 router.use(authenticateJWT)
@@ -117,7 +119,7 @@ router.post(
   async (req: AuthRequest, res: Response) => {
     try {
       if (!req.file) {
-        return res.status(400).json({ error: 'No file uploaded' })
+        return res.status(400).json({ error: 'No file uploaded' }))
       }
 
       const {
@@ -131,14 +133,14 @@ router.post(
       } = req.body
 
       if (!documentType || !title) {
-        return res.status(400).json({ error: 'documentType and title are required' })
+        return res.status(400).json({ error: 'documentType and title are required' }))
       }
 
       // Validate that at least one entity is specified
       if (!vehicleId && !driverId && !workOrderId) {
         return res.status(400).json({
           error: `At least one of vehicleId, driverId, or workOrderId must be specified`
-        })
+        }))
       }
 
       // Insert document record
@@ -176,13 +178,13 @@ router.post(
       res.status(201).json({
         success: true,
         document: result.rows[0]
-      })
+      }))
     } catch (error: any) {
       logger.error(`Upload fleet document error:`, error) // Wave 31: Winston logger
       res.status(500).json({
         error: `Internal server error`,
         details: process.env.NODE_ENV === `development` ? getErrorMessage(error) : undefined
-      })
+      }))
     }
   }
 )
@@ -335,13 +337,13 @@ router.get(
           total: parseInt(countResult.rows[0].count),
           pages: Math.ceil(countResult.rows[0].count / Number(limit))
         }
-      })
+      }))
     } catch (error: any) {
       logger.error(`Get fleet documents error:`, error) // Wave 31: Winston logger
       res.status(500).json({
         error: 'Internal server error',
         details: process.env.NODE_ENV === 'development' ? getErrorMessage(error) : undefined
-      })
+      }))
     }
   }
 )
@@ -391,7 +393,7 @@ router.get(
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: `Document not found` })
+        return res.status(404).json({ error: `Document not found` }))
       }
 
       const document = result.rows[0]
@@ -404,13 +406,13 @@ router.get(
           ...document,
           downloadUrl
         }
-      })
+      }))
     } catch (error: any) {
       logger.error(`Get fleet document error:`, error) // Wave 31: Winston logger
       res.status(500).json({
         error: 'Internal server error',
         details: process.env.NODE_ENV === 'development' ? getErrorMessage(error) : undefined
-      })
+      }))
     }
   }
 )
@@ -452,19 +454,19 @@ router.delete(
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: `Document not found` })
+        return res.status(404).json({ error: `Document not found` }))
       }
 
       res.json({
         success: true,
         message: 'Document archived successfully'
-      })
+      }))
     } catch (error: any) {
       logger.error('Delete fleet document error:', error) // Wave 31: Winston logger
       res.status(500).json({
         error: 'Internal server error',
         details: process.env.NODE_ENV === 'development' ? getErrorMessage(error) : undefined
-      })
+      }))
     }
   }
 )
@@ -525,13 +527,13 @@ router.get(
         documents: result.rows,
         count: result.rows.length,
         days: daysInt
-      })
+      }))
     } catch (error: any) {
       logger.error('Get expiring documents error:', error) // Wave 31: Winston logger
       res.status(500).json({
         error: 'Internal server error',
         details: process.env.NODE_ENV === 'development' ? getErrorMessage(error) : undefined
-      })
+      }))
     }
   }
 )
@@ -577,7 +579,7 @@ router.post(
       )
 
       if (docResult.rows.length === 0) {
-        return res.status(404).json({ error: `Document not found` })
+        return res.status(404).json({ error: `Document not found` }))
       }
 
       const document = docResult.rows[0]
@@ -594,7 +596,7 @@ router.post(
       if (!ocrSupportedTypes.includes(document.mime_type)) {
         return res.status(400).json({
           error: 'OCR is only supported for images and PDF files'
-        })
+        }))
       }
 
       // Update document metadata to mark as OCR pending
@@ -621,13 +623,13 @@ router.post(
         message: 'OCR processing queued',
         documentId: req.params.id,
         status: 'pending'
-      })
+      }))
     } catch (error: any) {
       logger.error('Trigger OCR processing error:', error) // Wave 31: Winston logger
       res.status(500).json({
         error: 'Internal server error',
         details: process.env.NODE_ENV === 'development' ? getErrorMessage(error) : undefined
-      })
+      }))
     }
   }
 )
@@ -658,7 +660,7 @@ router.get(
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: `Document not found` })
+        return res.status(404).json({ error: `Document not found` }))
       }
 
       const document = result.rows[0]
@@ -678,13 +680,13 @@ router.get(
         },
         // In production, this would be a signed URL with SAS token
         downloadUrl: document.blob_url
-      })
+      }))
     } catch (error: any) {
       logger.error('Download fleet document error:', error) // Wave 31: Winston logger
       res.status(500).json({
         error: 'Internal server error',
         details: process.env.NODE_ENV === 'development' ? getErrorMessage(error) : undefined
-      })
+      }))
     }
   }
 )

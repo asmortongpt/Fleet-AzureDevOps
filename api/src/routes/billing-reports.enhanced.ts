@@ -1,4 +1,7 @@
 import express, { Response } from 'express'
+import { container } from '../container'
+import { asyncHandler } from '../middleware/error-handler'
+import { NotFoundError, ValidationError } from '../errors/app-error'
 import { AuthRequest, authenticateJWT } from '../middleware/auth'
 import { requirePermission } from '../middleware/permissions'
 import { billingReportsService } from '../services/billing-reports'
@@ -13,7 +16,7 @@ router.use(express.json())
 
 const periodSchema = z.object({
   period: z.string().regex(/^\d{4}-\d{2}$/, 'Invalid period format. Use YYYY-MM format (e.g., 2025-11)')
-})
+}))
 
 router.get('/monthly/:period',
   requirePermission('report:view:global'),
@@ -24,13 +27,13 @@ router.get('/monthly/:period',
 
       const report = await billingReportsService.generateMonthlyReport(tenantId, period)
 
-      res.json({ success: true, report })
+      res.json({ success: true, report }))
     } catch (error: any) {
       logger.error('Failed to generate monthly billing report', {
         error: getErrorMessage(error),
         tenantId: req.user!.tenant_id,
-      })
-      res.status(500).json({ error: 'Failed to generate billing report' })
+      }))
+      res.status(500).json({ error: 'Failed to generate billing report' }))
     }
   }
 )
@@ -44,13 +47,13 @@ router.get('/payroll-export/:period',
 
       const payrollExport = await billingReportsService.generatePayrollExport(tenantId, period)
 
-      res.json({ success: true, data: payrollExport })
+      res.json({ success: true, data: payrollExport }))
     } catch (error: any) {
       logger.error('Failed to generate payroll export', {
         error: getErrorMessage(error),
         tenantId: req.user!.tenant_id,
-      })
-      res.status(500).json({ error: 'Failed to generate payroll export' })
+      }))
+      res.status(500).json({ error: 'Failed to generate payroll export' }))
     }
   }
 )
@@ -71,8 +74,8 @@ router.get('/payroll-csv/:period',
       logger.error('Failed to generate payroll CSV', {
         error: getErrorMessage(error),
         tenantId: req.user!.tenant_id,
-      })
-      res.status(500).json({ error: 'Failed to download payroll CSV' })
+      }))
+      res.status(500).json({ error: 'Failed to download payroll CSV' }))
     }
   }
 )

@@ -1,10 +1,12 @@
 import express, { Response } from 'express'
+import { container } from '../container'
+import { asyncHandler } from '../middleware/error-handler'
+import { NotFoundError, ValidationError } from '../errors/app-error'
 import logger from '../config/logger'; // Wave 17: Add Winston logger
 import { AuthRequest, authenticateJWT } from '../middleware/auth'
 import { requirePermission } from '../middleware/permissions'
 import { applyFieldMasking } from '../utils/fieldMasking'
 import { auditLog } from '../middleware/audit'
-import pool from '../config/database'
 import { z } from 'zod'
 import { buildInsertClause, buildUpdateClause } from '../utils/sql-safety'
 
@@ -40,10 +42,10 @@ router.get(
           total: parseInt(countResult.rows[0].count),
           pages: Math.ceil(countResult.rows[0].count / Number(limit))
         }
-      })
+      }))
     } catch (error) {
       logger.error(`Get safety-incidents error:`, error) // Wave 17: Winston logger
-      res.status(500).json({ error: 'Internal server error' })
+      res.status(500).json({ error: 'Internal server error' }))
     }
   }
 )
@@ -62,13 +64,13 @@ router.get(
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'SafetyIncidents not found' })
+        return res.status(404).json({ error: 'SafetyIncidents not found' }))
       }
 
       res.json(result.rows[0])
     } catch (error) {
       logger.error('Get safety-incidents error:', error) // Wave 17: Winston logger
-      res.status(500).json({ error: 'Internal server error' })
+      res.status(500).json({ error: 'Internal server error' }))
     }
   }
 )
@@ -103,7 +105,7 @@ router.post(
       res.status(201).json(result.rows[0])
     } catch (error) {
       logger.error(`Create safety-incidents error:`, error) // Wave 17: Winston logger
-      res.status(500).json({ error: `Internal server error` })
+      res.status(500).json({ error: `Internal server error` }))
     }
   }
 )
@@ -122,13 +124,13 @@ router.put(
       )
 
       if (checkResult.rows.length === 0) {
-        return res.status(404).json({ error: `Safety incident not found` })
+        return res.status(404).json({ error: `Safety incident not found` }))
       }
 
       if (checkResult.rows[0].reported_by === req.user!.id) {
         return res.status(403).json({
           error: 'Separation of Duties violation: You cannot approve incidents you reported'
-        })
+        }))
       }
 
       const result = await pool.query(
@@ -145,7 +147,7 @@ router.put(
       res.json(result.rows[0])
     } catch (error) {
       logger.error(`Approve safety-incident error:`, error) // Wave 17: Winston logger
-      res.status(500).json({ error: 'Internal server error' })
+      res.status(500).json({ error: 'Internal server error' }))
     }
   }
 )
@@ -163,13 +165,13 @@ router.delete(
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'SafetyIncidents not found' })
+        return res.status(404).json({ error: 'SafetyIncidents not found' }))
       }
 
-      res.json({ message: 'SafetyIncidents deleted successfully' })
+      res.json({ message: 'SafetyIncidents deleted successfully' }))
     } catch (error) {
       logger.error('Delete safety-incidents error:', error) // Wave 17: Winston logger
-      res.status(500).json({ error: 'Internal server error' })
+      res.status(500).json({ error: 'Internal server error' }))
     }
   }
 )

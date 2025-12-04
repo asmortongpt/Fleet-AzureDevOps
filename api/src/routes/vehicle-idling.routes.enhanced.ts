@@ -1,4 +1,7 @@
 import express, { Request, Response } from 'express';
+import { container } from '../container'
+import { asyncHandler } from '../middleware/error-handler'
+import { NotFoundError, ValidationError } from '../errors/app-error'
 import { celebrate, Joi, Segments } from 'celebrate';
 import { VehicleIdlingService } from '../services/vehicle-idling.service';
 import { authenticate } from '../middleware/auth';
@@ -21,7 +24,7 @@ router.get(
       count: activeEvents.length,
       events: activeEvents,
     });
-  })
+  }))
 );
 
 router.get(
@@ -46,7 +49,7 @@ router.get(
       success: true,
       event,
     });
-  })
+  }))
 );
 
 // Vehicle Idling History & Statistics
@@ -72,7 +75,7 @@ router.get(
       success: true,
       history,
     });
-  })
+  }))
 );
 
 // Apply CSRF protection to all mutation endpoints

@@ -1,4 +1,7 @@
 /**
+import { container } from '../container'
+import { asyncHandler } from '../middleware/error-handler'
+import { NotFoundError, ValidationError } from '../errors/app-error'
 import logger from '../config/logger'; // Wave 31: Add Winston logger
  * Mobile Trip Logging API Routes
  *
@@ -9,7 +12,6 @@ import express, { Request, Response } from 'express';
 import { authenticateJWT } from '../middleware/auth';
 import { requirePermission } from '../middleware/permissions';
 import { auditLog } from '../middleware/audit';
-import pool from '../config/database';
 import { z } from 'zod';
 
 const router = express.Router();
@@ -481,7 +483,7 @@ router.post('/:id/metrics', requirePermission('route:update:own'), async (req: R
               event.g_force || null,
               event.speed_limit_mph || null,
               event.description,
-              JSON.stringify(event.metadata || {})
+              JSON.stringify(event.metadata || {}))
             ]
           );
         }

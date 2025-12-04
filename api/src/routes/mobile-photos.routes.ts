@@ -1,4 +1,7 @@
 /**
+import { container } from '../container'
+import { asyncHandler } from '../middleware/error-handler'
+import { NotFoundError, ValidationError } from '../errors/app-error'
 import logger from '../config/logger'; // Wave 28: Add Winston logger
  * Mobile Photos API Routes
  *
@@ -20,7 +23,6 @@ import { BlobServiceClient } from '@azure/storage-blob';
 import { authenticateJWT } from '../middleware/auth';
 import { requirePermission } from '../middleware/permissions';
 import { auditLog } from '../middleware/audit';
-import pool from '../config/database';
 import photoProcessingService from '../services/photo-processing.service';
 import { v4 as uuidv4 } from 'uuid';
 import { z } from 'zod';
