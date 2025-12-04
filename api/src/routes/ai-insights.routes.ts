@@ -111,9 +111,9 @@ router.get(
       res.json({
         insights: result.rows,
         count: result.rows.length
-      }))
+      })
     } catch (error: any) {
-      res.status(500).json({ error: `Failed to retrieve insights`, message: getErrorMessage(error) }))
+      res.status(500).json({ error: `Failed to retrieve insights`, message: getErrorMessage(error) })
     }
   }
 )
@@ -141,9 +141,9 @@ router.post(
         insights,
         count: insights.length,
         generated_at: new Date().toISOString()
-      }))
+      })
     } catch (error: any) {
-      res.status(500).json({ error: 'Failed to generate insights', message: getErrorMessage(error) }))
+      res.status(500).json({ error: 'Failed to generate insights', message: getErrorMessage(error) })
     }
   }
 )
@@ -168,7 +168,7 @@ router.get(
       const healthScore = await fleetCognitionService.getFleetHealthScore(req.user!.tenant_id)
       res.json(healthScore)
     } catch (error: any) {
-      res.status(500).json({ error: 'Failed to calculate health score', message: getErrorMessage(error) }))
+      res.status(500).json({ error: 'Failed to calculate health score', message: getErrorMessage(error) })
     }
   }
 )
@@ -200,9 +200,9 @@ router.get(
         recommendations,
         context,
         count: recommendations.length
-      }))
+      })
     } catch (error: any) {
-      res.status(500).json({ error: 'Failed to get recommendations', message: getErrorMessage(error) }))
+      res.status(500).json({ error: 'Failed to get recommendations', message: getErrorMessage(error) })
     }
   }
 )
@@ -235,9 +235,9 @@ router.get(
       res.json({
         patterns: result.rows,
         count: result.rows.length
-      }))
+      })
     } catch (error: any) {
-      res.status(500).json({ error: `Failed to retrieve patterns`, message: getErrorMessage(error) }))
+      res.status(500).json({ error: `Failed to retrieve patterns`, message: getErrorMessage(error) })
     }
   }
 )
@@ -284,9 +284,9 @@ router.get(
       res.json({
         anomalies: result.rows,
         count: result.rows.length
-      }))
+      })
     } catch (error: any) {
-      res.status(500).json({ error: `Failed to retrieve anomalies`, message: getErrorMessage(error) }))
+      res.status(500).json({ error: `Failed to retrieve anomalies`, message: getErrorMessage(error) })
     }
   }
 )
@@ -297,7 +297,7 @@ router.get(
 
 const MaintenancePredictionSchema = z.object({
   vehicle_id: z.string().uuid()
-}))
+})
 
 /**
  * @openapi
@@ -325,9 +325,9 @@ router.post(
       res.json(prediction)
     } catch (error: any) {
       if (error.name === 'ZodError') {
-        return res.status(400).json({ error: 'Validation error', details: error.errors }))
+        return res.status(400).json({ error: 'Validation error', details: error.errors })
       }
-      res.status(500).json({ error: 'Prediction failed', message: getErrorMessage(error) }))
+      res.status(500).json({ error: 'Prediction failed', message: getErrorMessage(error) })
     }
   }
 )
@@ -335,7 +335,7 @@ router.post(
 const DriverBehaviorScoreSchema = z.object({
   driver_id: z.string().uuid(),
   period: z.enum(['7d', '30d', '90d']).optional().default('30d')
-}))
+})
 
 /**
  * @openapi
@@ -364,9 +364,9 @@ router.post(
       res.json(score)
     } catch (error: any) {
       if (error.name === 'ZodError') {
-        return res.status(400).json({ error: 'Validation error', details: error.errors }))
+        return res.status(400).json({ error: 'Validation error', details: error.errors })
       }
-      res.status(500).json({ error: 'Scoring failed', message: getErrorMessage(error) }))
+      res.status(500).json({ error: 'Scoring failed', message: getErrorMessage(error) })
     }
   }
 )
@@ -374,7 +374,7 @@ router.post(
 const IncidentRiskSchema = z.object({
   entity_type: z.enum(['vehicle', 'driver', 'route']),
   entity_id: z.string()
-}))
+})
 
 /**
  * @openapi
@@ -403,16 +403,16 @@ router.post(
       res.json(prediction)
     } catch (error: any) {
       if (error.name === 'ZodError') {
-        return res.status(400).json({ error: 'Validation error', details: error.errors }))
+        return res.status(400).json({ error: 'Validation error', details: error.errors })
       }
-      res.status(500).json({ error: 'Prediction failed', message: getErrorMessage(error) }))
+      res.status(500).json({ error: 'Prediction failed', message: getErrorMessage(error) })
     }
   }
 )
 
 const CostForecastSchema = z.object({
   forecast_period: z.enum(['week', 'month', 'quarter'])
-}))
+})
 
 /**
  * @openapi
@@ -440,9 +440,9 @@ router.post(
       res.json(forecast)
     } catch (error: any) {
       if (error.name === 'ZodError') {
-        return res.status(400).json({ error: 'Validation error', details: error.errors }))
+        return res.status(400).json({ error: 'Validation error', details: error.errors })
       }
-      res.status(500).json({ error: 'Forecasting failed', message: getErrorMessage(error) }))
+      res.status(500).json({ error: 'Forecasting failed', message: getErrorMessage(error) })
     }
   }
 )
@@ -472,9 +472,9 @@ router.put(
         req.user!.id
       )
 
-      res.json({ message: 'Outcome recorded successfully' }))
+      res.json({ message: 'Outcome recorded successfully' })
     } catch (error: any) {
-      res.status(500).json({ error: 'Failed to record outcome', message: getErrorMessage(error) }))
+      res.status(500).json({ error: 'Failed to record outcome', message: getErrorMessage(error) })
     }
   }
 )
@@ -488,7 +488,7 @@ const RAGQuerySchema = z.object({
   context_type: z.string().optional(),
   max_chunks: z.number().min(1).max(20).optional(),
   similarity_threshold: z.number().min(0).max(1).optional()
-}))
+})
 
 /**
  * @openapi
@@ -518,9 +518,9 @@ router.post(
       res.json(response)
     } catch (error: any) {
       if (error.name === 'ZodError') {
-        return res.status(400).json({ error: 'Validation error', details: error.errors }))
+        return res.status(400).json({ error: 'Validation error', details: error.errors })
       }
-      res.status(500).json({ error: 'RAG query failed', message: getErrorMessage(error) }))
+      res.status(500).json({ error: 'RAG query failed', message: getErrorMessage(error) })
     }
   }
 )
@@ -531,8 +531,8 @@ const IndexDocumentSchema = z.object({
   document_title: z.string(),
   document_source: z.string().optional(),
   content: z.string().min(10),
-  metadata: z.record(z.any()).optional()
-}))
+  metadata: z.record(z.any().optional()
+})
 
 /**
  * @openapi
@@ -557,12 +557,12 @@ router.post(
       res.json({
         message: 'Document indexed successfully',
         ...result
-      }))
+      })
     } catch (error: any) {
       if (error.name === 'ZodError') {
-        return res.status(400).json({ error: 'Validation error', details: error.errors }))
+        return res.status(400).json({ error: 'Validation error', details: error.errors })
       }
-      res.status(500).json({ error: 'Indexing failed', message: getErrorMessage(error) }))
+      res.status(500).json({ error: 'Indexing failed', message: getErrorMessage(error) })
     }
   }
 )
@@ -592,9 +592,9 @@ router.post(
         feedback
       )
 
-      res.json({ message: 'Feedback recorded' }))
+      res.json({ message: 'Feedback recorded' })
     } catch (error: any) {
-      res.status(500).json({ error: 'Failed to record feedback', message: getErrorMessage(error) }))
+      res.status(500).json({ error: 'Failed to record feedback', message: getErrorMessage(error) })
     }
   }
 )
@@ -618,7 +618,7 @@ router.get(
       const stats = await ragEngineService.getStatistics(req.user!.tenant_id)
       res.json(stats)
     } catch (error: any) {
-      res.status(500).json({ error: 'Failed to retrieve stats', message: getErrorMessage(error) }))
+      res.status(500).json({ error: 'Failed to retrieve stats', message: getErrorMessage(error) })
     }
   }
 )
@@ -668,9 +668,9 @@ router.get(
       res.json({
         models: result.rows,
         count: result.rows.length
-      }))
+      })
     } catch (error: any) {
-      res.status(500).json({ error: `Failed to retrieve models`, message: getErrorMessage(error) }))
+      res.status(500).json({ error: `Failed to retrieve models`, message: getErrorMessage(error) })
     }
   }
 )
@@ -699,9 +699,9 @@ router.get(
       res.json({
         model_id: req.params.id,
         performance_history: performance
-      }))
+      })
     } catch (error: any) {
-      res.status(500).json({ error: 'Failed to retrieve performance', message: getErrorMessage(error) }))
+      res.status(500).json({ error: 'Failed to retrieve performance', message: getErrorMessage(error) })
     }
   }
 )
@@ -724,9 +724,9 @@ router.post(
     try {
       await mlTrainingService.deployModel(req.params.id, req.user!.tenant_id, req.user!.id)
 
-      res.json({ message: 'Model deployed successfully' }))
+      res.json({ message: 'Model deployed successfully' })
     } catch (error: any) {
-      res.status(500).json({ error: 'Deployment failed', message: getErrorMessage(error) }))
+      res.status(500).json({ error: 'Deployment failed', message: getErrorMessage(error) })
     }
   }
 )
@@ -758,9 +758,9 @@ router.get(
       res.json({
         jobs: result.rows,
         count: result.rows.length
-      }))
+      })
     } catch (error: any) {
-      res.status(500).json({ error: `Failed to retrieve jobs`, message: getErrorMessage(error) }))
+      res.status(500).json({ error: `Failed to retrieve jobs`, message: getErrorMessage(error) })
     }
   }
 )

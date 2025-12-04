@@ -40,7 +40,7 @@ router.get('/me/permissions', async (req: Request, res: Response) => {
        FROM user_module_roles
        WHERE user_id = $1
        AND is_active = true
-       AND (expires_at IS NULL OR expires_at > NOW())`,
+       AND (expires_at IS NULL OR expires_at > NOW()`,
       [user.id]
     );
 
@@ -234,7 +234,7 @@ router.put('/users/:userId/roles', requireAdmin, async (req: Request, res: Respo
     const { userId } = req.params;
     const { roles, org_id } = req.body;
 
-    if (!Array.isArray(roles)) {
+    if (!Array.isArray(roles) {
       return res.status(400).json({
         error: 'Bad Request',
         message: 'Roles must be an array'

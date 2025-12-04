@@ -17,7 +17,7 @@ export function registerDocumentSystemRoutes(app: Express): void {
   console.log('📄 Registering Document System routes...')
 
   // Security enhancements
-  app.use(helmet())
+  app.use(helmet()
   app.use(
     rateLimit({
       windowMs: 60 * 1000, // 1 minute
@@ -26,7 +26,7 @@ export function registerDocumentSystemRoutes(app: Express): void {
       legacyHeaders: false,
     })
   )
-  app.use(csurf())
+  app.use(csurf()
 
   // OCR Routes (if enabled)
   if (documentSystemConfig.features.enableOCR) {

@@ -21,15 +21,15 @@ const execAsync = promisify(require('child_process').exec)
 const pool = new Pool({ connectionString: process.env.DATABASE_URL })
 const redisClient: RedisClientType = redis.createClient({ url: process.env.REDIS_URL })
 
-router.use(helmet())
-router.use(express.json())
+router.use(helmet()
+router.use(express.json()
 router.use(
   rateLimit({
     windowMs: 60 * 1000, // 1 minute
     max: 100, // limit each IP to 100 requests per windowMs
   })
 )
-router.use(csurf())
+router.use(csurf()
 
 const requireAdmin = async (req: Request, res: Response, next: express.NextFunction) => {
   try {
@@ -158,7 +158,7 @@ async function checkCache(): Promise<ComponentHealth> {
 
 async function checkDisk(): Promise<ComponentHealth> {
   try {
-    const { free } = await checkDiskSpace(os.tmpdir())
+    const { free } = await checkDiskSpace(os.tmpdir()
     const total = os.totalmem()
     const used = total - free
     const percentUsed = (used / total) * 100

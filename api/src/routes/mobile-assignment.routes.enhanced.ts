@@ -70,7 +70,7 @@ router.get(
     const driverResult = await pool.query(driverQuery, [user_id, tenant_id]);
 
     if (driverResult.rows.length === 0) {
-      return res.status(404).json({ error: 'Driver profile not found' });
+      return throw new NotFoundError("Driver profile not found");
     }
 
     const driver_id = driverResult.rows[0].id;
@@ -86,7 +86,7 @@ router.get(
     const assignmentsResult = await pool.query(assignmentsQuery, [driver_id]);
 
     res.json(assignmentsResult.rows);
-  }))
+  })
 );
 
 // Additional routes and middleware would follow a similar pattern, ensuring

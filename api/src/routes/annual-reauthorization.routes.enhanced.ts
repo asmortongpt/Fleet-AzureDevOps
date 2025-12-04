@@ -12,9 +12,9 @@ import rateLimit from 'express-rate-limit'
 import csurf from 'csurf'
 
 const router = express.Router()
-router.use(helmet())
-router.use(express.json())
-router.use(csurf({ cookie: true }))
+router.use(helmet()
+router.use(express.json()
+router.use(csurf({ cookie: true })
 
 const apiLimiter = rateLimit({
   windowMs: 60 * 1000, // 1 minute
@@ -49,7 +49,7 @@ const createReauthDecisionSchema = z.object({
   modification_notes: z.string().optional(),
   new_vehicle_id: z.string().uuid().optional(),
   new_driver_id: z.string().uuid().optional(),
-  parameter_changes: z.record(z.any()).optional(), // Consider refining this schema for better validation
+  parameter_changes: z.record(z.any().optional(), // Consider refining this schema for better validation
   termination_reason: z.string().optional(),
   termination_effective_date: z
     .string()
@@ -79,7 +79,7 @@ router.get(
 
       if (year) {
         whereConditions.push(`arc.year = $${paramIndex++}`)
-        params.push(parseInt(year as string))
+        params.push(parseInt(year as string)
       }
       if (status) {
         whereConditions.push(`arc.status = $${paramIndex++}`)

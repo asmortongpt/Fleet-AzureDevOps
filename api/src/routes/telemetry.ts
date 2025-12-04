@@ -31,7 +31,7 @@ router.get(
       const offset = (Number(page) - 1) * Number(limit)
 
       const result = await pool.query(
-        'SELECT ' + (await getTableColumns(pool, 'telemetry_data')).join(', ') + ' FROM telemetry_data WHERE tenant_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3',
+        'SELECT ' + (await getTableColumns(pool, 'telemetry_data').join(', ') + ' FROM telemetry_data WHERE tenant_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3',
         [req.user!.tenant_id, limit, offset]
       )
 
@@ -46,12 +46,12 @@ router.get(
           page: Number(page),
           limit: Number(limit),
           total: parseInt(countResult.rows[0].count),
-          pages: Math.ceil(countResult.rows[0].count / Number(limit))
+          pages: Math.ceil(countResult.rows[0].count / Number(limit)
         }
-      }))
+      })
     } catch (error) {
       console.error(`Get telemetry error:`, error)
-      res.status(500).json({ error: 'Internal server error' }))
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )
@@ -65,18 +65,18 @@ router.get(
   async (req: AuthRequest, res: Response) => {
     try {
       const result = await pool.query(
-        'SELECT ' + (await getTableColumns(pool, 'telemetry_data')).join(', ') + ' FROM telemetry_data WHERE id = $1 AND tenant_id = $2',
+        'SELECT ' + (await getTableColumns(pool, 'telemetry_data').join(', ') + ' FROM telemetry_data WHERE id = $1 AND tenant_id = $2',
         [req.params.id, req.user!.tenant_id]
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'Telemetry not found' }))
+        return throw new NotFoundError("Telemetry not found")
       }
 
       res.json(result.rows[0])
     } catch (error) {
       console.error('Get telemetry error:', error)
-      res.status(500).json({ error: 'Internal server error' }))
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )
@@ -106,7 +106,7 @@ router.post(
       res.status(201).json(result.rows[0])
     } catch (error) {
       console.error(`Create telemetry error:`, error)
-      res.status(500).json({ error: `Internal server error` }))
+      res.status(500).json({ error: `Internal server error` })
     }
   }
 )
@@ -129,13 +129,13 @@ router.put(
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: `Telemetry not found` }))
+        return res.status(404).json({ error: `Telemetry not found` })
       }
 
       res.json(result.rows[0])
     } catch (error) {
       console.error(`Update telemetry error:`, error)
-      res.status(500).json({ error: `Internal server error` }))
+      res.status(500).json({ error: `Internal server error` })
     }
   }
 )
@@ -154,13 +154,13 @@ router.delete(
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'Telemetry not found' }))
+        return throw new NotFoundError("Telemetry not found")
       }
 
-      res.json({ message: 'Telemetry deleted successfully' }))
+      res.json({ message: 'Telemetry deleted successfully' })
     } catch (error) {
       console.error('Delete telemetry error:', error)
-      res.status(500).json({ error: 'Internal server error' }))
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )
