@@ -41,3 +41,7 @@ azure-pipelines.yml
 
 # Logs
 *.log
+
+# Additional exclusions for v9
+src/db/seeds/
+**/connection-manager-keyvault.example.ts
