@@ -1,5 +1,5 @@
 import { DriverRepository, Driver } from '../repositories/DriverRepository'
-import pool from '../config/database'
+import { Pool } from 'pg'
 
 /**
  * DriversService
@@ -8,7 +8,7 @@ import pool from '../config/database'
 export class DriversService {
   private driverRepository: DriverRepository
 
-  constructor() {
+  constructor(private db: Pool) {
     this.driverRepository = new DriverRepository()
   }
 
@@ -21,7 +21,7 @@ export class DriversService {
     options: { page?: number; limit?: number } = {}
   ) {
     // Get user scope for row-level filtering
-    const userResult = await pool.query(
+    const userResult = await this.db.query(
       'SELECT team_driver_ids, driver_id, scope_level FROM users WHERE id = $1',
       [userId]
     )
@@ -46,7 +46,7 @@ export class DriversService {
       const limit = options.limit || 50
       const offset = ((options.page || 1) - 1) * limit
 
-      const result = await pool.query(
+      const result = await this.db.query(
         `SELECT 
       id,
       tenant_id,
@@ -67,7 +67,7 @@ export class DriversService {
         [tenantId, user.team_driver_ids, limit, offset]
       )
 
-      const countResult = await pool.query(
+      const countResult = await this.db.query(
         `SELECT COUNT(*) FROM users WHERE tenant_id = $1 AND id = ANY($2::uuid[])`,
         [tenantId, user.team_driver_ids]
       )
@@ -98,7 +98,7 @@ export class DriversService {
     }
 
     // Check IDOR protection
-    const userResult = await pool.query(
+    const userResult = await this.db.query(
       'SELECT team_driver_ids, driver_id, scope_level FROM users WHERE id = $1',
       [userId]
     )
@@ -157,7 +157,7 @@ export class DriversService {
       throw new Error('Separation of Duties violation: You cannot certify yourself')
     }
 
-    const result = await pool.query(
+    const result = await this.db.query(
       `UPDATE users SET
          certification_status = 'certified',
          certification_type = $3,
@@ -178,4 +178,4 @@ export class DriversService {
   }
 }
 
-export default new DriversService()
+export default DriversService
