@@ -65,7 +65,7 @@ router.post('/nearby', async (req: AuthRequest, res) => {
     const tenantId = req.user?.tenant_id
 
     if (!tenantId) {
-      return res.status(401).json({ error: 'Unauthorized' }))
+      return res.status(401).json({ error: 'Unauthorized' })
     }
 
     const { lat, lng, radius, categoryId, tags, limit, minDistance } = req.body
@@ -73,19 +73,19 @@ router.post('/nearby', async (req: AuthRequest, res) => {
     if (!lat || !lng || !radius) {
       return res.status(400).json({
         error: 'Missing required parameters: lat, lng, radius'
-      }))
+      })
     }
 
     // Validate coordinates
     if (lat < -90 || lat > 90 || lng < -180 || lng > 180) {
-      return res.status(400).json({ error: 'Invalid coordinates' }))
+      return throw new ValidationError("Invalid coordinates")
     }
 
     // Validate radius
     if (radius <= 0 || radius > 100000) {
       return res.status(400).json({
         error: 'Radius must be between 0 and 100000 meters'
-      }))
+      })
     }
 
     const documents = await documentGeoService.findDocumentsNearby(
@@ -105,15 +105,15 @@ router.post('/nearby', async (req: AuthRequest, res) => {
       documents,
       total: documents.length,
       search_params: { lat, lng, radius }
-    }))
+    })
   } catch (error: any) {
     logger.error('Error finding nearby documents:', error) // Wave 26: Winston logger
     res.status(500).json({
       error: 'Failed to find nearby documents',
       details: getErrorMessage(error)
-    }))
+    })
   }
-}))
+})
 
 /**
  * @openapi
@@ -146,13 +146,13 @@ router.post('/within-polygon', async (req: AuthRequest, res) => {
     const tenantId = req.user?.tenant_id
 
     if (!tenantId) {
-      return res.status(401).json({ error: 'Unauthorized' }))
+      return res.status(401).json({ error: 'Unauthorized' })
     }
 
     const { polygon, categoryId, tags, limit } = req.body
 
     if (!polygon) {
-      return res.status(400).json({ error: 'Missing required parameter: polygon' }))
+      return throw new ValidationError("Missing required parameter: polygon")
     }
 
     const documents = await documentGeoService.findDocumentsInPolygon(
@@ -168,15 +168,15 @@ router.post('/within-polygon', async (req: AuthRequest, res) => {
     res.json({
       documents,
       total: documents.length
-    }))
+    })
   } catch (error: any) {
     logger.error('Error finding documents in polygon:', error) // Wave 26: Winston logger
     res.status(500).json({
       error: 'Failed to find documents in polygon',
       details: getErrorMessage(error)
-    }))
+    })
   }
-}))
+})
 
 /**
  * @openapi
@@ -214,7 +214,7 @@ router.post('/along-route', async (req: AuthRequest, res) => {
     const tenantId = req.user?.tenant_id
 
     if (!tenantId) {
-      return res.status(401).json({ error: 'Unauthorized' }))
+      return res.status(401).json({ error: 'Unauthorized' })
     }
 
     const { waypoints, bufferMeters, categoryId, limit } = req.body
@@ -222,7 +222,7 @@ router.post('/along-route', async (req: AuthRequest, res) => {
     if (!waypoints || !Array.isArray(waypoints) || waypoints.length < 2) {
       return res.status(400).json({
         error: 'Waypoints must be an array with at least 2 points'
-      }))
+      })
     }
 
     // Validate waypoints
@@ -230,7 +230,7 @@ router.post('/along-route', async (req: AuthRequest, res) => {
       if (!wp.lat || !wp.lng) {
         return res.status(400).json({
           error: 'Each waypoint must have lat and lng'
-        }))
+        })
       }
     }
 
@@ -247,15 +247,15 @@ router.post('/along-route', async (req: AuthRequest, res) => {
     res.json({
       documents,
       total: documents.length
-    }))
+    })
   } catch (error: any) {
     logger.error('Error finding documents along route:', error) // Wave 26: Winston logger
     res.status(500).json({
       error: 'Failed to find documents along route',
       details: getErrorMessage(error)
-    }))
+    })
   }
-}))
+})
 
 /**
  * @openapi
@@ -275,7 +275,7 @@ router.get('/heatmap', async (req: AuthRequest, res) => {
     const tenantId = req.user?.tenant_id
 
     if (!tenantId) {
-      return res.status(401).json({ error: 'Unauthorized' }))
+      return res.status(401).json({ error: 'Unauthorized' })
     }
 
     const { gridSize } = req.query
@@ -288,15 +288,15 @@ router.get('/heatmap', async (req: AuthRequest, res) => {
     res.json({
       heatmap,
       total_cells: heatmap.length
-    }))
+    })
   } catch (error: any) {
     logger.error('Error generating heatmap:', error) // Wave 26: Winston logger
     res.status(500).json({
       error: 'Failed to generate heatmap',
       details: getErrorMessage(error)
-    }))
+    })
   }
-}))
+})
 
 /**
  * @openapi
@@ -316,7 +316,7 @@ router.get('/clusters', async (req: AuthRequest, res) => {
     const tenantId = req.user?.tenant_id
 
     if (!tenantId) {
-      return res.status(401).json({ error: 'Unauthorized' }))
+      return res.status(401).json({ error: 'Unauthorized' })
     }
 
     const { distance } = req.query
@@ -330,15 +330,15 @@ router.get('/clusters', async (req: AuthRequest, res) => {
       clusters,
       total_clusters: clusters.length,
       total_documents: clusters.reduce((sum, c) => sum + c.document_count, 0)
-    }))
+    })
   } catch (error: any) {
     logger.error('Error clustering documents:', error) // Wave 26: Winston logger
     res.status(500).json({
       error: 'Failed to cluster documents',
       details: getErrorMessage(error)
-    }))
+    })
   }
-}))
+})
 
 /**
  * @openapi
@@ -362,24 +362,24 @@ router.post('/geocode', async (req: AuthRequest, res) => {
     const { address } = req.body
 
     if (!address) {
-      return res.status(400).json({ error: 'Missing required parameter: address' }))
+      return throw new ValidationError("Missing required parameter: address")
     }
 
     const result = await documentGeoService.geocode(address)
 
     if (!result) {
-      return res.status(404).json({ error: 'Address not found' }))
+      return throw new NotFoundError("Address not found")
     }
 
-    res.json({ result }))
+    res.json({ result })
   } catch (error: any) {
     logger.error('Error geocoding address:', error) // Wave 26: Winston logger
     res.status(500).json({
       error: 'Failed to geocode address',
       details: getErrorMessage(error)
-    }))
+    })
   }
-}))
+})
 
 /**
  * @openapi
@@ -408,29 +408,29 @@ router.post('/reverse-geocode', async (req: AuthRequest, res) => {
     if (!lat || !lng) {
       return res.status(400).json({
         error: 'Missing required parameters: lat, lng'
-      }))
+      })
     }
 
     // Validate coordinates
     if (lat < -90 || lat > 90 || lng < -180 || lng > 180) {
-      return res.status(400).json({ error: 'Invalid coordinates' }))
+      return throw new ValidationError("Invalid coordinates")
     }
 
     const result = await documentGeoService.reverseGeocode(lat, lng)
 
     if (!result) {
-      return res.status(404).json({ error: 'Address not found' }))
+      return throw new NotFoundError("Address not found")
     }
 
-    res.json({ result }))
+    res.json({ result })
   } catch (error: any) {
     logger.error('Error reverse geocoding:', error) // Wave 26: Winston logger
     res.status(500).json({
       error: 'Failed to reverse geocode',
       details: getErrorMessage(error)
-    }))
+    })
   }
-}))
+})
 
 /**
  * @openapi
@@ -466,12 +466,12 @@ router.put('/:id/location', async (req: AuthRequest, res) => {
     if (!lat || !lng) {
       return res.status(400).json({
         error: 'Missing required parameters: lat, lng'
-      }))
+      })
     }
 
     // Validate coordinates
     if (lat < -90 || lat > 90 || lng < -180 || lng > 180) {
-      return res.status(400).json({ error: 'Invalid coordinates' }))
+      return throw new ValidationError("Invalid coordinates")
     }
 
     await documentGeoService.setDocumentLocation(id, lat, lng)
@@ -479,15 +479,15 @@ router.put('/:id/location', async (req: AuthRequest, res) => {
     res.json({
       message: 'Document location updated successfully',
       location: { lat, lng }
-    }))
+    })
   } catch (error: any) {
     logger.error('Error setting document location:', error) // Wave 26: Winston logger
     res.status(500).json({
       error: 'Failed to set document location',
       details: getErrorMessage(error)
-    }))
+    })
   }
-}))
+})
 
 /**
  * @openapi
@@ -501,7 +501,7 @@ router.get('/all', async (req: AuthRequest, res) => {
     const tenantId = req.user?.tenant_id
 
     if (!tenantId) {
-      return res.status(401).json({ error: 'Unauthorized' }))
+      return res.status(401).json({ error: 'Unauthorized' })
     }
 
     const documents = await documentGeoService.getGeolocatedDocuments(tenantId)
@@ -509,15 +509,15 @@ router.get('/all', async (req: AuthRequest, res) => {
     res.json({
       documents,
       total: documents.length
-    }))
+    })
   } catch (error: any) {
     logger.error('Error getting geolocated documents:', error) // Wave 26: Winston logger
     res.status(500).json({
       error: 'Failed to get geolocated documents',
       details: getErrorMessage(error)
-    }))
+    })
   }
-}))
+})
 
 /**
  * @openapi
@@ -537,14 +537,14 @@ router.post('/:id/extract-location', async (req: AuthRequest, res) => {
     const { id } = req.params
 
     // Get document info
-    const pool = (await import('../config/database')).default
+    const pool = (await import('../config/database').default
     const result = await pool.query(
       'SELECT file_url, file_type FROM documents WHERE id = $1',
       [id]
     )
 
     if (result.rows.length === 0) {
-      return res.status(404).json({ error: 'Document not found' }))
+      return throw new NotFoundError("Document not found")
     }
 
     const { file_url, file_type } = result.rows[0]
@@ -555,14 +555,14 @@ router.post('/:id/extract-location', async (req: AuthRequest, res) => {
       message: 'Location extraction initiated',
       document_id: id,
       note: 'Location will be extracted from EXIF data or text content'
-    }))
+    })
   } catch (error: any) {
     logger.error('Error extracting location:', error) // Wave 26: Winston logger
     res.status(500).json({
       error: 'Failed to extract location',
       details: getErrorMessage(error)
-    }))
+    })
   }
-}))
+})
 
 export default router

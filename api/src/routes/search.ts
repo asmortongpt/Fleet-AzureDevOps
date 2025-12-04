@@ -50,7 +50,7 @@ router.post(
         operator: z.enum(['AND', 'OR']).optional(),
         categoryId: z.string().optional(),
         documentType: z.string().optional(),
-        tags: z.array(z.string()).optional(),
+        tags: z.array(z.string().optional(),
         dateFrom: z.string().datetime().optional(),
         dateTo: z.string().datetime().optional(),
         uploadedBy: z.string().optional(),
@@ -59,9 +59,9 @@ router.post(
         limit: z.number().int().min(1).max(100).optional(),
         sortBy: z.enum(['relevance', 'date', 'popularity']).optional(),
         sortOrder: z.enum(['asc', 'desc']).optional(),
-        boost: z.record(z.number()).optional(),
+        boost: z.record(z.number().optional(),
         minScore: z.number().optional()
-      }))
+      })
 
       const validated = schema.parse(req.body)
 
@@ -86,7 +86,7 @@ router.post(
         sortOrder: validated.sortOrder,
         boost: validated.boost,
         minScore: validated.minScore
-      }))
+      })
 
       res.json({
         success: true,
@@ -99,9 +99,9 @@ router.post(
           page: validated.page || 1,
           limit: validated.limit || 20,
           total: results.stats.total_results,
-          pages: Math.ceil(results.stats.total_results / (validated.limit || 20))
+          pages: Math.ceil(results.stats.total_results / (validated.limit || 20)
         }
-      }))
+      })
     } catch (error) {
       logger.error('Search error:', error) // Wave 20: Winston logger
       if (error instanceof z.ZodError) {
@@ -109,12 +109,12 @@ router.post(
           success: false,
           error: 'Validation error',
           details: error.errors
-        }))
+        })
       }
       res.status(500).json({
         success: false,
         error: 'Search failed'
-      }))
+      })
     }
   }
 )
@@ -134,7 +134,7 @@ router.get(
         return res.status(400).json({
           success: false,
           error: 'Query parameter "q" is required'
-        }))
+        })
       }
 
       const suggestions = await DocumentSearchService.autocomplete(
@@ -146,13 +146,13 @@ router.get(
       res.json({
         success: true,
         data: suggestions
-      }))
+      })
     } catch (error) {
       logger.error('Autocomplete error:', error) // Wave 20: Winston logger
       res.status(500).json({
         success: false,
         error: 'Autocomplete failed'
-      }))
+      })
     }
   }
 )
@@ -172,7 +172,7 @@ router.get(
         return res.status(400).json({
           success: false,
           error: 'Query parameter "q" is required'
-        }))
+        })
       }
 
       const suggestions = await SearchIndexService.getSpellingSuggestions(
@@ -183,13 +183,13 @@ router.get(
       res.json({
         success: true,
         data: suggestions
-      }))
+      })
     } catch (error) {
       logger.error('Suggestions error:', error) // Wave 20: Winston logger
       res.status(500).json({
         success: false,
         error: 'Suggestions failed'
-      }))
+      })
     }
   }
 )
@@ -206,7 +206,7 @@ router.post(
       const schema = z.object({
         query: z.string(),
         documentId: z.string()
-      }))
+      })
 
       const { query, documentId } = schema.parse(req.body)
 
@@ -219,13 +219,13 @@ router.post(
       res.json({
         success: true,
         message: 'Click recorded'
-      }))
+      })
     } catch (error) {
       logger.error('Click recording error:', error) // Wave 20: Winston logger
       res.status(500).json({
         success: false,
         error: 'Click recording failed'
-      }))
+      })
     }
   }
 )
@@ -250,13 +250,13 @@ router.get(
       res.json({
         success: true,
         data: savedSearches
-      }))
+      })
     } catch (error) {
       logger.error('Get saved searches error:', error) // Wave 20: Winston logger
       res.status(500).json({
         success: false,
         error: 'Failed to get saved searches'
-      }))
+      })
     }
   }
 )
@@ -273,9 +273,9 @@ router.post(
       const schema = z.object({
         name: z.string().min(1).max(100),
         query: z.string().min(1),
-        filters: z.record(z.any()).optional(),
+        filters: z.record(z.any().optional(),
         notificationEnabled: z.boolean().optional()
-      }))
+      })
 
       const validated = schema.parse(req.body)
 
@@ -291,7 +291,7 @@ router.post(
       res.status(201).json({
         success: true,
         data: savedSearch
-      }))
+      })
     } catch (error) {
       logger.error('Save search error:', error) // Wave 20: Winston logger
       if (error instanceof z.ZodError) {
@@ -299,12 +299,12 @@ router.post(
           success: false,
           error: 'Validation error',
           details: error.errors
-        }))
+        })
       }
       res.status(500).json({
         success: false,
         error: 'Failed to save search'
-      }))
+      })
     }
   }
 )
@@ -326,13 +326,13 @@ router.delete(
       res.json({
         success: true,
         message: 'Saved search deleted'
-      }))
+      })
     } catch (error) {
       logger.error('Delete saved search error:', error) // Wave 20: Winston logger
       res.status(500).json({
         success: false,
         error: 'Failed to delete saved search'
-      }))
+      })
     }
   }
 )
@@ -360,13 +360,13 @@ router.get(
       res.json({
         success: true,
         data: history
-      }))
+      })
     } catch (error) {
       logger.error('Get search history error:', error) // Wave 20: Winston logger
       res.status(500).json({
         success: false,
         error: 'Failed to get search history'
-      }))
+      })
     }
   }
 )
@@ -394,13 +394,13 @@ router.get(
       res.json({
         success: true,
         data: analytics
-      }))
+      })
     } catch (error) {
       logger.error('Get search analytics error:', error) // Wave 20: Winston logger
       res.status(500).json({
         success: false,
         error: 'Failed to get search analytics'
-      }))
+      })
     }
   }
 )
@@ -430,13 +430,13 @@ router.post(
       res.json({
         success: true,
         message: 'Document indexed successfully'
-      }))
+      })
     } catch (error) {
       logger.error('Index document error:', error) // Wave 20: Winston logger
       res.status(500).json({
         success: false,
         error: 'Failed to index document'
-      }))
+      })
     }
   }
 )
@@ -453,9 +453,9 @@ router.post(
     try {
       const schema = z.object({
         categoryId: z.string().optional(),
-        documentIds: z.array(z.string()).optional(),
+        documentIds: z.array(z.string().optional(),
         fullReindex: z.boolean().optional()
-      }))
+      })
 
       const validated = schema.parse(req.body)
 
@@ -468,7 +468,7 @@ router.post(
         success: true,
         message: 'Reindexing job created',
         data: job
-      }))
+      })
     } catch (error) {
       logger.error('Reindex error:', error) // Wave 20: Winston logger
       if (error instanceof z.ZodError) {
@@ -476,12 +476,12 @@ router.post(
           success: false,
           error: 'Validation error',
           details: error.errors
-        }))
+        })
       }
       res.status(500).json({
         success: false,
         error: 'Failed to create reindex job'
-      }))
+      })
     }
   }
 )
@@ -508,13 +508,13 @@ router.get(
       res.json({
         success: true,
         data: jobs
-      }))
+      })
     } catch (error) {
       logger.error('Get indexing jobs error:', error) // Wave 20: Winston logger
       res.status(500).json({
         success: false,
         error: 'Failed to get indexing jobs'
-      }))
+      })
     }
   }
 )
@@ -534,13 +534,13 @@ router.post(
       res.json({
         success: true,
         message: 'Index optimization started'
-      }))
+      })
     } catch (error) {
       logger.error('Optimize index error:', error) // Wave 20: Winston logger
       res.status(500).json({
         success: false,
         error: 'Failed to optimize index'
-      }))
+      })
     }
   }
 )
@@ -559,13 +559,13 @@ router.get(
       res.json({
         success: true,
         data: stats
-      }))
+      })
     } catch (error) {
       logger.error('Get index stats error:', error) // Wave 20: Winston logger
       res.status(500).json({
         success: false,
         error: 'Failed to get index statistics'
-      }))
+      })
     }
   }
 )
@@ -585,13 +585,13 @@ router.post(
       res.json({
         success: true,
         message: 'Search cache cleared'
-      }))
+      })
     } catch (error) {
       logger.error('Clear cache error:', error) // Wave 20: Winston logger
       res.status(500).json({
         success: false,
         error: 'Failed to clear cache'
-      }))
+      })
     }
   }
 )
@@ -610,13 +610,13 @@ router.post(
       res.json({
         success: true,
         message: 'Cache warming completed'
-      }))
+      })
     } catch (error) {
       logger.error('Warm cache error:', error) // Wave 20: Winston logger
       res.status(500).json({
         success: false,
         error: 'Failed to warm cache'
-      }))
+      })
     }
   }
 )

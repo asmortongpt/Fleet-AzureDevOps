@@ -14,7 +14,7 @@ const preferencesSchema = z.object({
   emailEnabled: z.boolean(),
   smsEnabled: z.boolean(),
   teamsEnabled: z.boolean(),
-  reminderTimes: z.array(z.number().min(0).max(168)),
+  reminderTimes: z.array(z.number().min(0).max(168),
   quietHoursStart: z
     .string()
     .optional()
@@ -26,7 +26,7 @@ const preferencesSchema = z.object({
 })
 
 router.use(authenticate)
-router.use(rateLimiter({ windowMs: 60 * 1000, max: 100 }))
+router.use(rateLimiter({ windowMs: 60 * 1000, max: 100 })
 
 /**
  * GET /api/scheduling-notifications/preferences

@@ -14,8 +14,8 @@ import bcrypt from 'bcrypt'
 import { check, validationResult } from 'express-validator'
 
 const router = express.Router()
-router.use(helmet())
-router.use(express.json())
+router.use(helmet()
+router.use(express.json()
 
 const apiLimiter = rateLimit({
   windowMs: 60 * 1000, // 1 minute
@@ -52,7 +52,7 @@ const createAssignmentSchema = z
     authorized_use: z.string().optional(),
     commuting_authorized: z.boolean().default(false),
     on_call_only: z.boolean().default(false),
-    geographic_constraints: z.record(z.any()).optional(),
+    geographic_constraints: z.record(z.any().optional(),
     requires_secured_parking: z.boolean().default(false),
     secured_parking_location_id: z.string().uuid().optional(),
     recommendation_notes: z.string().optional(),
@@ -92,7 +92,7 @@ const validate = (schema: z.ZodSchema) => {
   return (req: Request, res: Response, next: Function) => {
     const result = schema.safeParse(req.body)
     if (!result.success) {
-      return res.status(400).json(result.error.format())
+      return res.status(400).json(result.error.format()
     }
     next()
   }
@@ -149,14 +149,14 @@ router.get(
       }
 
       const offset = (parseInt(page as string) - 1) * parseInt(limit as string)
-      queryParams.push(offset, parseInt(limit as string))
+      queryParams.push(offset, parseInt(limit as string)
       queryStr += ` OFFSET $${queryParams.length - 1} LIMIT $${queryParams.length}`
 
       const { rows } = await pool.query(queryStr, queryParams)
       res.json(rows)
     } catch (error) {
       console.error(error)
-      res.status(500).send(getErrorMessage(error))
+      res.status(500).send(getErrorMessage(error)
     }
   }
 )

@@ -93,7 +93,7 @@ router.get('/:id', async (req: Request, res: Response) => {
     const result = await pool.query(query, [id]);
 
     if (result.rows.length === 0) {
-      return res.status(404).json({ error: 'Camera not found' });
+      return throw new NotFoundError("Camera not found");
     }
 
     res.json(result.rows[0]);
@@ -187,7 +187,7 @@ router.post('/sync', async (req: Request, res: Response) => {
           fdot_id, name, description, latitude, longitude,
           road, direction, county, feed_url, thumbnail_url,
           status, metadata, last_updated
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, NOW())
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, NOW()
         ON CONFLICT (fdot_id)
         DO UPDATE SET
           name = EXCLUDED.name,
@@ -257,7 +257,7 @@ router.get('/incidents/list', async (req: Request, res: Response) => {
     let paramIndex = 1;
 
     if (active === 'true') {
-      conditions.push(`(end_time IS NULL OR end_time > NOW())`);
+      conditions.push(`(end_time IS NULL OR end_time > NOW()`);
     }
 
     if (county) {
@@ -305,7 +305,7 @@ router.get('/search/nearby', async (req: Request, res: Response) => {
     const { lat, lng, radius = '10' } = req.query;
 
     if (!lat || !lng) {
-      return res.status(400).json({ error: 'Latitude and longitude required' });
+      return throw new ValidationError("Latitude and longitude required");
     }
 
     const radiusMiles = parseFloat(radius as string);

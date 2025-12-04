@@ -24,7 +24,7 @@ router.get(
       count: activeEvents.length,
       events: activeEvents,
     });
-  }))
+  })
 );
 
 router.get(
@@ -38,7 +38,7 @@ router.get(
   }),
   asyncHandler(async (req: Request, res: Response) => {
     const { vehicleId } = req.params;
-    const event = await idlingService.getActiveIdlingEvent(parseInt(vehicleId, 10));
+    const event = await idlingService.getActiveIdlingEvent(parseInt(vehicleId, 10);
     if (!event) {
       return res.status(404).json({
         success: false,
@@ -49,7 +49,7 @@ router.get(
       success: true,
       event,
     });
-  }))
+  })
 );
 
 // Vehicle Idling History & Statistics
@@ -75,7 +75,7 @@ router.get(
       success: true,
       history,
     });
-  }))
+  })
 );
 
 // Apply CSRF protection to all mutation endpoints
