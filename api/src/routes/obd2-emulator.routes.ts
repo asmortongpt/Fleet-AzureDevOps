@@ -1,4 +1,7 @@
 /**
+import { container } from '../container'
+import { asyncHandler } from '../middleware/error-handler'
+import { NotFoundError, ValidationError } from '../errors/app-error'
 import logger from '../config/logger'; // Wave 29: Add Winston logger
  * OBD2 Emulator API Routes
  *
@@ -35,7 +38,7 @@ router.get('/profiles', (_req: Request, res: Response) => {
     { id: 'sports', name: 'Sports Car', description: 'High-performance sports car' }
   ]
   res.json(profiles)
-})
+}))
 
 /**
  * @swagger
@@ -55,7 +58,7 @@ router.get('/scenarios', (_req: Request, res: Response) => {
     { id: 'aggressive', name: 'Aggressive Driving', description: 'Hard acceleration and braking' }
   ]
   res.json(scenarios)
-})
+}))
 
 /**
  * @swagger
@@ -105,7 +108,7 @@ router.post('/start', (req: Request, res: Response) => {
       vehicleId,
       adapterId,
       profile: profile as VehicleProfile
-    })
+    }))
 
     // Start emulation
     obd2Emulator.startSession({
@@ -117,7 +120,7 @@ router.post('/start', (req: Request, res: Response) => {
       generateDTCs,
       updateIntervalMs,
       location
-    })
+    }))
 
     res.json({
       success: true,
@@ -128,12 +131,12 @@ router.post('/start', (req: Request, res: Response) => {
       scenario,
       message: `Emulation session started`,
       wsUrl: `/ws/obd2/${sessionId}`
-    })
+    }))
   } catch (error: any) {
     logger.error(`Error starting emulation:`, error) // Wave 29: Winston logger
-    res.status(500).json({ error: error.message })
+    res.status(500).json({ error: error.message }))
   }
-})
+}))
 
 /**
  * @swagger
@@ -162,12 +165,12 @@ router.post('/stop/:sessionId', (req: Request, res: Response) => {
       success: true,
       sessionId,
       message: 'Emulation session stopped'
-    })
+    }))
   } catch (error: any) {
     logger.error('Error stopping emulation:', error) // Wave 29: Winston logger
-    res.status(500).json({ error: error.message })
+    res.status(500).json({ error: error.message }))
   }
-})
+}))
 
 /**
  * @swagger
@@ -191,15 +194,15 @@ router.get('/data/:sessionId', (req: Request, res: Response) => {
     const data = obd2Emulator.getSessionData(sessionId)
 
     if (!data) {
-      return res.status(404).json({ error: 'Session not found or no data available' })
+      return res.status(404).json({ error: 'Session not found or no data available' }))
     }
 
     res.json(data)
   } catch (error: any) {
     logger.error('Error getting emulation data:', error) // Wave 29: Winston logger
-    res.status(500).json({ error: error.message })
+    res.status(500).json({ error: error.message }))
   }
-})
+}))
 
 /**
  * @swagger
@@ -223,9 +226,9 @@ router.get('/sessions', (_req: Request, res: Response) => {
     res.json(sessionDetails)
   } catch (error: any) {
     logger.error('Error getting sessions:', error) // Wave 29: Winston logger
-    res.status(500).json({ error: error.message })
+    res.status(500).json({ error: error.message }))
   }
-})
+}))
 
 /**
  * @swagger
@@ -251,9 +254,9 @@ router.get('/sample-data', (req: Request, res: Response) => {
     res.json(data)
   } catch (error: any) {
     logger.error('Error generating sample data:', error) // Wave 29: Winston logger
-    res.status(500).json({ error: error.message })
+    res.status(500).json({ error: error.message }))
   }
-})
+}))
 
 /**
  * @swagger
@@ -278,15 +281,15 @@ router.get('/sample-dtcs', (req: Request, res: Response) => {
     res.json(dtcs)
   } catch (error: any) {
     logger.error('Error getting sample DTCs:', error) // Wave 29: Winston logger
-    res.status(500).json({ error: error.message })
+    res.status(500).json({ error: error.message }))
   }
-})
+}))
 
 /**
  * Setup WebSocket server for real-time OBD2 data streaming
  */
 export function setupOBD2WebSocket(server: any): void {
-  const wss = new WebSocketServer({ noServer: true })
+  const wss = new WebSocketServer({ noServer: true }))
 
   // Handle upgrade requests
   server.on(`upgrade`, (request: any, socket: any, head: any) => {
@@ -295,9 +298,9 @@ export function setupOBD2WebSocket(server: any): void {
     if (url.pathname.startsWith(`/ws/obd2/`)) {
       wss.handleUpgrade(request, socket, head, (ws) => {
         wss.emit('connection', ws, request)
-      })
+      }))
     }
-  })
+  }))
 
   // Handle WebSocket connections
   wss.on(`connection`, (ws: WebSocket, request: any) => {
@@ -363,19 +366,19 @@ export function setupOBD2WebSocket(server: any): void {
         logger.error('[OBD2 WebSocket] Error processing message:', error) // Wave 29: Winston logger
         ws.send(JSON.stringify({ type: 'error', message: 'Invalid message format' }))
       }
-    })
+    }))
 
     // Handle disconnection
     ws.on(`close`, () => {
       console.log(`[OBD2 WebSocket] Client ${clientId} disconnected`)
       obd2Emulator.unregisterWSClient(clientId)
-    })
+    }))
 
     // Handle errors
     ws.on(`error`, (error) => {
       logger.error(`[OBD2 WebSocket] Error for client ${clientId}:`, error) // Wave 29: Winston logger
       obd2Emulator.unregisterWSClient(clientId)
-    })
+    }))
 
     // Send initial connection confirmation
     ws.send(JSON.stringify({
@@ -383,7 +386,7 @@ export function setupOBD2WebSocket(server: any): void {
       clientId,
       message: 'Connected to OBD2 emulator WebSocket'
     }))
-  })
+  }))
 
   console.log('[OBD2 Emulator] WebSocket server initialized')
 }

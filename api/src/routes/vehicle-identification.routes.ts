@@ -1,4 +1,7 @@
 /**
+import { container } from '../container'
+import { asyncHandler } from '../middleware/error-handler'
+import { NotFoundError, ValidationError } from '../errors/app-error'
 import logger from '../config/logger'; // Wave 30: Add Winston logger
  * Vehicle Identification Routes
  *
@@ -45,7 +48,7 @@ router.post('/qr/generate/:vehicleId', requirePermission('vehicle:update:fleet')
     const tenantId = req.user?.tenant_id
 
     if (!tenantId) {
-      return res.status(401).json({ error: 'Tenant ID required' })
+      return res.status(401).json({ error: 'Tenant ID required' }))
     }
 
     const qrCode = await vehicleIdentificationService.generateVehicleQRCode(vehicleId, tenantId)
@@ -53,12 +56,12 @@ router.post('/qr/generate/:vehicleId', requirePermission('vehicle:update:fleet')
     res.json({
       qrCode,
       message: 'QR code generated successfully'
-    })
+    }))
   } catch (error: any) {
     logger.error('Error generating QR code:', error) // Wave 30: Winston logger
-    res.status(500).json({ error: getErrorMessage(error) || 'Failed to generate QR code' })
+    res.status(500).json({ error: getErrorMessage(error) || 'Failed to generate QR code' }))
   }
-})
+}))
 
 /**
  * @openapi
@@ -88,25 +91,25 @@ router.post('/qr/scan', requirePermission('vehicle:view:fleet'), async (req: Aut
     const tenantId = req.user?.tenant_id
 
     if (!tenantId) {
-      return res.status(401).json({ error: 'Tenant ID required' })
+      return res.status(401).json({ error: 'Tenant ID required' }))
     }
 
     if (!qrData) {
-      return res.status(400).json({ error: 'QR data required' })
+      return res.status(400).json({ error: 'QR data required' }))
     }
 
     const vehicle = await vehicleIdentificationService.identifyByQRCode(qrData, tenantId)
 
     if (!vehicle) {
-      return res.status(404).json({ error: 'Vehicle not found' })
+      return res.status(404).json({ error: 'Vehicle not found' }))
     }
 
-    res.json({ vehicle })
+    res.json({ vehicle }))
   } catch (error: any) {
     logger.error('Error scanning QR code:', error) // Wave 30: Winston logger
-    res.status(500).json({ error: getErrorMessage(error) || 'Failed to scan QR code' })
+    res.status(500).json({ error: getErrorMessage(error) || 'Failed to scan QR code' }))
   }
-})
+}))
 
 /**
  * @openapi
@@ -139,11 +142,11 @@ router.post('/vin', requirePermission('vehicle:view:fleet'), async (req: AuthReq
     const tenantId = req.user?.tenant_id
 
     if (!tenantId) {
-      return res.status(401).json({ error: 'Tenant ID required' })
+      return res.status(401).json({ error: 'Tenant ID required' }))
     }
 
     if (!vin) {
-      return res.status(400).json({ error: 'VIN required' })
+      return res.status(400).json({ error: 'VIN required' }))
     }
 
     // Validate VIN format
@@ -151,21 +154,21 @@ router.post('/vin', requirePermission('vehicle:view:fleet'), async (req: AuthReq
       return res.status(400).json({
         error: 'Invalid VIN format',
         details: 'VIN must be 17 characters, alphanumeric, excluding I, O, Q'
-      })
+      }))
     }
 
     const vehicle = await vehicleIdentificationService.identifyByVIN(vin, tenantId)
 
     if (!vehicle) {
-      return res.status(404).json({ error: 'Vehicle not found with this VIN' })
+      return res.status(404).json({ error: 'Vehicle not found with this VIN' }))
     }
 
-    res.json({ vehicle })
+    res.json({ vehicle }))
   } catch (error: any) {
     logger.error('Error identifying by VIN:', error) // Wave 30: Winston logger
-    res.status(500).json({ error: getErrorMessage(error) || 'Failed to identify vehicle' })
+    res.status(500).json({ error: getErrorMessage(error) || 'Failed to identify vehicle' }))
   }
-})
+}))
 
 /**
  * @openapi
@@ -196,11 +199,11 @@ router.post('/license-plate', requirePermission('vehicle:view:fleet'), async (re
     const tenantId = req.user?.tenant_id
 
     if (!tenantId) {
-      return res.status(401).json({ error: 'Tenant ID required' })
+      return res.status(401).json({ error: 'Tenant ID required' }))
     }
 
     if (!licensePlate) {
-      return res.status(400).json({ error: 'License plate required' })
+      return res.status(400).json({ error: 'License plate required' }))
     }
 
     const vehicle = await vehicleIdentificationService.identifyByLicensePlate(
@@ -209,15 +212,15 @@ router.post('/license-plate', requirePermission('vehicle:view:fleet'), async (re
     )
 
     if (!vehicle) {
-      return res.status(404).json({ error: 'Vehicle not found with this license plate' })
+      return res.status(404).json({ error: 'Vehicle not found with this license plate' }))
     }
 
-    res.json({ vehicle })
+    res.json({ vehicle }))
   } catch (error: any) {
     logger.error('Error identifying by license plate:', error) // Wave 30: Winston logger
-    res.status(500).json({ error: getErrorMessage(error) || 'Failed to identify vehicle' })
+    res.status(500).json({ error: getErrorMessage(error) || 'Failed to identify vehicle' }))
   }
-})
+}))
 
 /**
  * @openapi
@@ -251,11 +254,11 @@ router.post('/license-plate/ocr', requirePermission('vehicle:view:fleet'), async
     const tenantId = req.user?.tenant_id
 
     if (!tenantId) {
-      return res.status(401).json({ error: 'Tenant ID required' })
+      return res.status(401).json({ error: 'Tenant ID required' }))
     }
 
     if (!imageData) {
-      return res.status(400).json({ error: 'Image data required' })
+      return res.status(400).json({ error: 'Image data required' }))
     }
 
     const vehicle = await vehicleIdentificationService.processLicensePlateImage(
@@ -264,10 +267,10 @@ router.post('/license-plate/ocr', requirePermission('vehicle:view:fleet'), async
     )
 
     if (!vehicle) {
-      return res.status(404).json({ error: 'Vehicle not found' })
+      return res.status(404).json({ error: 'Vehicle not found' }))
     }
 
-    res.json({ vehicle })
+    res.json({ vehicle }))
   } catch (error: any) {
     logger.error('Error processing license plate image:', error) // Wave 30: Winston logger
 
@@ -275,12 +278,12 @@ router.post('/license-plate/ocr', requirePermission('vehicle:view:fleet'), async
       return res.status(501).json({
         error: 'OCR service not configured',
         details: getErrorMessage(error)
-      })
+      }))
     }
 
-    res.status(500).json({ error: getErrorMessage(error) || 'Failed to process image' })
+    res.status(500).json({ error: getErrorMessage(error) || 'Failed to process image' }))
   }
-})
+}))
 
 /**
  * @openapi
@@ -305,21 +308,21 @@ router.get('/search', requirePermission('vehicle:view:fleet'), async (req: AuthR
     const tenantId = req.user?.tenant_id
 
     if (!tenantId) {
-      return res.status(401).json({ error: 'Tenant ID required' })
+      return res.status(401).json({ error: 'Tenant ID required' }))
     }
 
     if (!q || typeof q !== 'string') {
-      return res.status(400).json({ error: 'Search query required' })
+      return res.status(400).json({ error: 'Search query required' }))
     }
 
     const vehicles = await vehicleIdentificationService.searchVehicles(q, tenantId)
 
-    res.json({ vehicles, total: vehicles.length })
+    res.json({ vehicles, total: vehicles.length }))
   } catch (error: any) {
     logger.error('Error searching vehicles:', error) // Wave 30: Winston logger
-    res.status(500).json({ error: getErrorMessage(error) || 'Failed to search vehicles' })
+    res.status(500).json({ error: getErrorMessage(error) || 'Failed to search vehicles' }))
   }
-})
+}))
 
 /**
  * @openapi
@@ -345,7 +348,7 @@ router.get('/label/:vehicleId', requirePermission('vehicle:view:fleet'), async (
     const tenantId = req.user?.tenant_id
 
     if (!tenantId) {
-      return res.status(401).json({ error: 'Tenant ID required' })
+      return res.status(401).json({ error: 'Tenant ID required' }))
     }
 
     const label = await vehicleIdentificationService.generatePrintableLabel(vehicleId, tenantId)
@@ -353,8 +356,8 @@ router.get('/label/:vehicleId', requirePermission('vehicle:view:fleet'), async (
     res.json(label)
   } catch (error: any) {
     logger.error('Error generating label:', error) // Wave 30: Winston logger
-    res.status(500).json({ error: getErrorMessage(error) || 'Failed to generate label' })
+    res.status(500).json({ error: getErrorMessage(error) || 'Failed to generate label' }))
   }
-})
+}))
 
 export default router

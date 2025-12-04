@@ -1,4 +1,7 @@
 /**
+import { container } from '../container'
+import { asyncHandler } from '../middleware/error-handler'
+import { NotFoundError, ValidationError } from '../errors/app-error'
  * EXAMPLE: Dashboard Statistics Endpoint with Query Result Caching
  *
  * This demonstrates caching expensive aggregation queries that power dashboards.
@@ -8,7 +11,6 @@
 import express, { Response } from 'express'
 import { AuthRequest, authenticateJWT } from '../middleware/auth'
 import { requirePermission } from '../middleware/permissions'
-import pool from '../config/database'
 import { cache } from '../utils/cache'
 import { slowQueryLogger } from '../utils/performance'
 
@@ -46,7 +48,7 @@ router.get('/stats',
           success: true,
           data: cached,
           cached: true
-        })
+        }))
       }
 
       console.log(`❌ Cache MISS: dashboard stats for tenant ${tenantId}`)
@@ -120,14 +122,14 @@ router.get('/stats',
         success: true,
         data: result,
         cached: false
-      })
+      }))
 
     } catch (error) {
       console.error('Dashboard stats error:', error)
       return res.status(500).json({
         success: false,
         error: 'Failed to retrieve dashboard statistics'
-      })
+      }))
     }
   }
 )
@@ -153,7 +155,7 @@ router.get('/fleet-health',
       // Check cache
       const cached = await cache.get(cacheKey)
       if (cached) {
-        return res.json({ success: true, data: cached, cached: true })
+        return res.json({ success: true, data: cached, cached: true }))
       }
 
       // Complex aggregation query
@@ -212,14 +214,14 @@ router.get('/fleet-health',
       // Cache for 30 minutes (fleet health changes slowly)
       await cache.set(cacheKey, result, 1800)
 
-      return res.json({ success: true, data: result, cached: false })
+      return res.json({ success: true, data: result, cached: false }))
 
     } catch (error) {
       console.error('Fleet health error:', error)
       return res.status(500).json({
         success: false,
         error: 'Failed to retrieve fleet health metrics'
-      })
+      }))
     }
   }
 )
@@ -246,14 +248,14 @@ router.post('/invalidate-cache',
       return res.json({
         success: true,
         message: 'Dashboard caches invalidated successfully'
-      })
+      }))
 
     } catch (error) {
       console.error('Cache invalidation error:', error)
       return res.status(500).json({
         success: false,
         error: 'Failed to invalidate caches'
-      })
+      }))
     }
   }
 )
