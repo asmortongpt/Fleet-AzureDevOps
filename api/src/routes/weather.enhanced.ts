@@ -1,4 +1,7 @@
 import express, { Request, Response, NextFunction } from 'express';
+import { container } from '../container'
+import { asyncHandler } from '../middleware/error-handler'
+import { NotFoundError, ValidationError } from '../errors/app-error'
 import helmet from 'helmet';
 import csurf from 'csurf';
 import rateLimit from 'express-rate-limit';
@@ -37,7 +40,7 @@ app.use(
     audience: process.env.AUDIENCE,
     issuer: process.env.ISSUER,
     algorithms: ['RS256'],
-  })
+  }))
 );
 
 const pool = new Pool({

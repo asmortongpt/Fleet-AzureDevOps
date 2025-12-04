@@ -1,4 +1,7 @@
 /**
+import { container } from '../container'
+import { asyncHandler } from '../middleware/error-handler'
+import { NotFoundError, ValidationError } from '../errors/app-error'
 import logger from '../config/logger'; // Wave 22: Add Winston logger
  * Performance Monitoring Routes
  *
@@ -59,9 +62,9 @@ router.get('/health', authenticateJWT, async (req: Request, res: Response) => {
       status: 'error',
       message: 'Failed to retrieve health status',
       error: getErrorMessage(error)
-    })
+    }))
   }
-})
+}))
 
 /**
  * @route GET /api/performance/database/pools
@@ -77,9 +80,9 @@ router.get('/database/pools', authenticateJWT, async (req: Request, res: Respons
     res.status(500).json({
       message: 'Failed to retrieve pool diagnostics',
       error: getErrorMessage(error)
-    })
+    }))
   }
-})
+}))
 
 /**
  * @route GET /api/performance/database/replica-lag
@@ -95,15 +98,15 @@ router.get('/database/replica-lag', authenticateJWT, async (req: Request, res: R
       unit: 'milliseconds',
       status: lag === null ? 'no_replica' : lag < 1000 ? 'healthy' : lag < 5000 ? 'warning' : 'critical',
       timestamp: new Date().toISOString()
-    })
+    }))
   } catch (error: any) {
     logger.error('Error getting replica lag:', error) // Wave 22: Winston logger
     res.status(500).json({
       message: 'Failed to retrieve replica lag',
       error: getErrorMessage(error)
-    })
+    }))
   }
-})
+}))
 
 /**
  * @route GET /api/performance/database/connection-leaks
@@ -118,15 +121,15 @@ router.get('/database/connection-leaks', authenticateJWT, async (req: Request, r
       leaks,
       timestamp: new Date().toISOString(),
       hasLeaks: Object.keys(leaks).length > 0
-    })
+    }))
   } catch (error: any) {
     logger.error('Error detecting connection leaks:', error) // Wave 22: Winston logger
     res.status(500).json({
       message: 'Failed to detect connection leaks',
       error: getErrorMessage(error)
-    })
+    }))
   }
-})
+}))
 
 /**
  * @route GET /api/performance/queries/stats
@@ -142,9 +145,9 @@ router.get('/queries/stats', authenticateJWT, (req: Request, res: Response) => {
     res.status(500).json({
       message: 'Failed to retrieve query statistics',
       error: getErrorMessage(error)
-    })
+    }))
   }
-})
+}))
 
 /**
  * @route GET /api/performance/queries/slow
@@ -160,15 +163,15 @@ router.get('/queries/slow', authenticateJWT, (req: Request, res: Response) => {
       slowQueries,
       count: slowQueries.length,
       threshold: process.env.SLOW_QUERY_THRESHOLD_MS || 1000
-    })
+    }))
   } catch (error: any) {
     logger.error('Error getting slow queries:', error) // Wave 22: Winston logger
     res.status(500).json({
       message: 'Failed to retrieve slow queries',
       error: getErrorMessage(error)
-    })
+    }))
   }
-})
+}))
 
 /**
  * @route GET /api/performance/queries/recent
@@ -183,15 +186,15 @@ router.get('/queries/recent', authenticateJWT, (req: Request, res: Response) => 
     res.json({
       queries: recentQueries,
       count: recentQueries.length
-    })
+    }))
   } catch (error: any) {
     logger.error('Error getting recent queries:', error) // Wave 22: Winston logger
     res.status(500).json({
       message: 'Failed to retrieve recent queries',
       error: getErrorMessage(error)
-    })
+    }))
   }
-})
+}))
 
 /**
  * @route GET /api/performance/queries/summary
@@ -207,9 +210,9 @@ router.get('/queries/summary', authenticateJWT, (req: Request, res: Response) =>
     res.status(500).json({
       message: 'Failed to retrieve performance summary',
       error: getErrorMessage(error)
-    })
+    }))
   }
-})
+}))
 
 /**
  * @route POST /api/performance/queries/analyze
@@ -221,7 +224,7 @@ router.post('/queries/analyze', authenticateJWT, async (req: Request, res: Respo
     const { query, params } = req.body
 
     if (!query) {
-      return res.status(400).json({ message: 'Query is required' })
+      return res.status(400).json({ message: 'Query is required' }))
     }
 
     const pool = connectionManager.getReadPool()
@@ -233,9 +236,9 @@ router.post('/queries/analyze', authenticateJWT, async (req: Request, res: Respo
     res.status(500).json({
       message: 'Failed to analyze query',
       error: getErrorMessage(error)
-    })
+    }))
   }
-})
+}))
 
 /**
  * @route DELETE /api/performance/queries/metrics
@@ -249,15 +252,15 @@ router.delete('/queries/metrics', authenticateJWT, (req: Request, res: Response)
     res.json({
       message: 'Query metrics cleared',
       timestamp: new Date().toISOString()
-    })
+    }))
   } catch (error: any) {
     logger.error('Error clearing metrics:', error) // Wave 22: Winston logger
     res.status(500).json({
       message: 'Failed to clear metrics',
       error: getErrorMessage(error)
-    })
+    }))
   }
-})
+}))
 
 /**
  * @route GET /api/performance/workers/stats
@@ -273,9 +276,9 @@ router.get('/workers/stats', authenticateJWT, (req: Request, res: Response) => {
     res.status(500).json({
       message: 'Failed to retrieve worker statistics',
       error: getErrorMessage(error)
-    })
+    }))
   }
-})
+}))
 
 /**
  * @route GET /api/performance/workers/info
@@ -288,15 +291,15 @@ router.get('/workers/info', authenticateJWT, (req: Request, res: Response) => {
     res.json({
       workers: info,
       count: info.length
-    })
+    }))
   } catch (error: any) {
     logger.error('Error getting worker info:', error) // Wave 22: Winston logger
     res.status(500).json({
       message: 'Failed to retrieve worker information',
       error: getErrorMessage(error)
-    })
+    }))
   }
-})
+}))
 
 /**
  * @route GET /api/performance/memory
@@ -345,9 +348,9 @@ router.get('/memory', authenticateJWT, (req: Request, res: Response) => {
     res.status(500).json({
       message: 'Failed to retrieve memory statistics',
       error: getErrorMessage(error)
-    })
+    }))
   }
-})
+}))
 
 /**
  * @route POST /api/performance/gc
@@ -371,19 +374,19 @@ router.post('/gc', authenticateJWT, (req: Request, res: Response) => {
         },
         freed: Math.round((before.heapUsed - after.heapUsed) / 1024 / 1024) + 'MB',
         timestamp: new Date().toISOString()
-      })
+      }))
     } else {
       res.status(400).json({
         message: 'Garbage collection not available. Start Node with --expose-gc flag'
-      })
+      }))
     }
   } catch (error: any) {
     logger.error('Error triggering GC:', error) // Wave 22: Winston logger
     res.status(500).json({
       message: 'Failed to trigger garbage collection',
       error: getErrorMessage(error)
-    })
+    }))
   }
-})
+}))
 
 export default router

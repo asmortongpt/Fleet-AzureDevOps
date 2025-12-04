@@ -1,4 +1,7 @@
 /**
+import { container } from '../container'
+import { asyncHandler } from '../middleware/error-handler'
+import { NotFoundError, ValidationError } from '../errors/app-error'
 import logger from '../config/logger'; // Wave 22: Add Winston logger
  * Vehicle Idling Routes
  *
@@ -13,14 +16,14 @@ import logger from '../config/logger'; // Wave 22: Add Winston logger
  * - Threshold configuration
  */
 
-import { Router, Request, Response } from 'express';
-import { VehicleIdlingService } from '../services/vehicle-idling.service';
-import { authenticate } from '../middleware/auth';
-import { validateRequest } from '../middleware/validation';
-import { body, param, query } from 'express-validator';
+import { Router, Request, Response } from 'express'
+import { VehicleIdlingService } from '../services/vehicle-idling.service'
+import { authenticate } from '../middleware/auth'
+import { validateRequest } from '../middleware/validation'
+import { body, param, query } from 'express-validator'
 
-const router = Router();
-const idlingService = new VehicleIdlingService();
+const router = Router()
+const idlingService = new VehicleIdlingService()
 
 // ============================================================================
 // Active Idling Events
@@ -32,27 +35,23 @@ const idlingService = new VehicleIdlingService();
  *
  * Response: Array of active idling events with real-time duration
  */
-router.get(
-  '/active',
-  authenticate,
-  async (req: Request, res: Response) => {
-    try {
-      const activeEvents = await idlingService.getActiveIdlingEvents();
+router.get('/active', authenticate, async (req: Request, res: Response) => {
+  try {
+    const activeEvents = await idlingService.getActiveIdlingEvents()
 
-      res.json({
-        success: true,
-        count: activeEvents.length,
-        events: activeEvents
-      });
-    } catch (error) {
-      logger.error('Error fetching active idling events:', error) // Wave 22: Winston logger;
-      res.status(500).json({
-        success: false,
-        message: 'Failed to fetch active idling events'
-      });
-    }
+    res.json({
+      success: true,
+      count: activeEvents.length,
+      events: activeEvents,
+    })
+  } catch (error) {
+    logger.error('Error fetching active idling events:', error) // Wave 22: Winston logger;
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch active idling events',
+    })
   }
-);
+})
 
 /**
  * GET /api/idling/active/:vehicleId
@@ -65,29 +64,29 @@ router.get(
   validateRequest,
   async (req: Request, res: Response) => {
     try {
-      const { vehicleId } = req.params;
-      const event = await idlingService.getActiveIdlingEvent(parseInt(vehicleId));
+      const { vehicleId } = req.params
+      const event = await idlingService.getActiveIdlingEvent(parseInt(vehicleId))
 
       if (!event) {
         return res.status(404).json({
           success: false,
-          message: 'No active idling event for this vehicle'
-        });
+          message: 'No active idling event for this vehicle',
+        })
       }
 
       res.json({
         success: true,
-        event
-      });
+        event,
+      })
     } catch (error) {
       logger.error('Error fetching active idling event:', error) // Wave 22: Winston logger;
       res.status(500).json({
         success: false,
-        message: 'Failed to fetch active idling event'
-      });
+        message: 'Failed to fetch active idling event',
+      })
     }
   }
-);
+)
 
 // ============================================================================
 // Vehicle Idling History & Statistics
@@ -112,34 +111,34 @@ router.get(
   validateRequest,
   async (req: Request, res: Response) => {
     try {
-      const { vehicleId } = req.params;
-      const days = parseInt(req.query.days as string) || 30;
-      const limit = parseInt(req.query.limit as string) || 100;
-      const offset = parseInt(req.query.offset as string) || 0;
+      const { vehicleId } = req.params
+      const days = parseInt(req.query.days as string) || 30
+      const limit = parseInt(req.query.limit as string) || 100
+      const offset = parseInt(req.query.offset as string) || 0
 
       const events = await idlingService.getVehicleIdlingHistory(
         parseInt(vehicleId),
         days,
         limit,
         offset
-      );
+      )
 
       res.json({
         success: true,
         vehicleId: parseInt(vehicleId),
         days,
         count: events.length,
-        events
-      });
+        events,
+      })
     } catch (error) {
       logger.error('Error fetching vehicle idling history:', error) // Wave 22: Winston logger;
       res.status(500).json({
         success: false,
-        message: 'Failed to fetch vehicle idling history'
-      });
+        message: 'Failed to fetch vehicle idling history',
+      })
     }
   }
-);
+)
 
 /**
  * GET /api/idling/vehicle/:vehicleId/stats
@@ -156,29 +155,26 @@ router.get(
   validateRequest,
   async (req: Request, res: Response) => {
     try {
-      const { vehicleId } = req.params;
-      const days = parseInt(req.query.days as string) || 30;
+      const { vehicleId } = req.params
+      const days = parseInt(req.query.days as string) || 30
 
-      const stats = await idlingService.getVehicleIdlingStats(
-        parseInt(vehicleId),
-        days
-      );
+      const stats = await idlingService.getVehicleIdlingStats(parseInt(vehicleId), days)
 
       res.json({
         success: true,
         vehicleId: parseInt(vehicleId),
         days,
-        stats
-      });
+        stats,
+      })
     } catch (error) {
       logger.error('Error fetching vehicle idling stats:', error) // Wave 22: Winston logger;
       res.status(500).json({
         success: false,
-        message: 'Failed to fetch vehicle idling statistics'
-      });
+        message: 'Failed to fetch vehicle idling statistics',
+      })
     }
   }
-);
+)
 
 // ============================================================================
 // Fleet-Wide Statistics
@@ -198,24 +194,24 @@ router.get(
   validateRequest,
   async (req: Request, res: Response) => {
     try {
-      const days = parseInt(req.query.days as string) || 30;
+      const days = parseInt(req.query.days as string) || 30
 
-      const stats = await idlingService.getFleetIdlingStats(days);
+      const stats = await idlingService.getFleetIdlingStats(days)
 
       res.json({
         success: true,
         days,
-        stats
-      });
+        stats,
+      })
     } catch (error) {
       logger.error('Error fetching fleet idling stats:', error) // Wave 22: Winston logger;
       res.status(500).json({
         success: false,
-        message: 'Failed to fetch fleet idling statistics'
-      });
+        message: 'Failed to fetch fleet idling statistics',
+      })
     }
   }
-);
+)
 
 /**
  * GET /api/idling/top-offenders
@@ -233,27 +229,27 @@ router.get(
   validateRequest,
   async (req: Request, res: Response) => {
     try {
-      const limit = parseInt(req.query.limit as string) || 10;
-      const days = parseInt(req.query.days as string) || 30;
+      const limit = parseInt(req.query.limit as string) || 10
+      const days = parseInt(req.query.days as string) || 30
 
-      const vehicles = await idlingService.getTopIdlingVehicles(limit, days);
+      const vehicles = await idlingService.getTopIdlingVehicles(limit, days)
 
       res.json({
         success: true,
         limit,
         days,
         count: vehicles.length,
-        vehicles
-      });
+        vehicles,
+      })
     } catch (error) {
       logger.error('Error fetching top idling offenders:', error) // Wave 22: Winston logger;
       res.status(500).json({
         success: false,
-        message: 'Failed to fetch top idling offenders'
-      });
+        message: 'Failed to fetch top idling offenders',
+      })
     }
   }
-);
+)
 
 // ============================================================================
 // Driver Performance
@@ -274,29 +270,26 @@ router.get(
   validateRequest,
   async (req: Request, res: Response) => {
     try {
-      const { driverId } = req.params;
-      const days = parseInt(req.query.days as string) || 30;
+      const { driverId } = req.params
+      const days = parseInt(req.query.days as string) || 30
 
-      const performance = await idlingService.getDriverIdlingPerformance(
-        parseInt(driverId),
-        days
-      );
+      const performance = await idlingService.getDriverIdlingPerformance(parseInt(driverId), days)
 
       res.json({
         success: true,
         driverId: parseInt(driverId),
         days,
-        performance
-      });
+        performance,
+      })
     } catch (error) {
       logger.error('Error fetching driver idling performance:', error) // Wave 22: Winston logger;
       res.status(500).json({
         success: false,
-        message: 'Failed to fetch driver idling performance'
-      });
+        message: 'Failed to fetch driver idling performance',
+      })
     }
   }
-);
+)
 
 /**
  * GET /api/idling/driver/:driverId/history
@@ -312,34 +305,34 @@ router.get(
   validateRequest,
   async (req: Request, res: Response) => {
     try {
-      const { driverId } = req.params;
-      const days = parseInt(req.query.days as string) || 30;
-      const limit = parseInt(req.query.limit as string) || 100;
-      const offset = parseInt(req.query.offset as string) || 0;
+      const { driverId } = req.params
+      const days = parseInt(req.query.days as string) || 30
+      const limit = parseInt(req.query.limit as string) || 100
+      const offset = parseInt(req.query.offset as string) || 0
 
       const events = await idlingService.getDriverIdlingHistory(
         parseInt(driverId),
         days,
         limit,
         offset
-      );
+      )
 
       res.json({
         success: true,
         driverId: parseInt(driverId),
         days,
         count: events.length,
-        events
-      });
+        events,
+      })
     } catch (error) {
       logger.error('Error fetching driver idling history:', error) // Wave 22: Winston logger;
       res.status(500).json({
         success: false,
-        message: 'Failed to fetch driver idling history'
-      });
+        message: 'Failed to fetch driver idling history',
+      })
     }
   }
-);
+)
 
 // ============================================================================
 // Manual Event Reporting
@@ -368,9 +361,17 @@ router.post(
   body('endTime').optional().isISO8601(),
   body('latitude').optional().isFloat({ min: -90, max: 90 }),
   body('longitude').optional().isFloat({ min: -180, max: 180 }),
-  body('idleType').optional().isIn([
-    'traffic', 'loading_unloading', 'warmup', 'cooldown', 'break', 'unauthorized', 'unknown'
-  ]),
+  body('idleType')
+    .optional()
+    .isIn([
+      'traffic',
+      'loading_unloading',
+      'warmup',
+      'cooldown',
+      'break',
+      'unauthorized',
+      'unknown',
+    ]),
   body('driverNotes').optional().isString().trim(),
   validateRequest,
   async (req: Request, res: Response) => {
@@ -383,8 +384,8 @@ router.post(
         latitude,
         longitude,
         idleType,
-        driverNotes
-      } = req.body;
+        driverNotes,
+      } = req.body
 
       const eventId = await idlingService.createManualIdlingEvent({
         vehicleId,
@@ -394,23 +395,23 @@ router.post(
         latitude,
         longitude,
         idleType,
-        driverNotes
-      });
+        driverNotes,
+      })
 
       res.status(201).json({
         success: true,
         message: 'Idling event created successfully',
-        eventId
-      });
+        eventId,
+      })
     } catch (error) {
       logger.error('Error creating manual idling event:', error) // Wave 22: Winston logger;
       res.status(500).json({
         success: false,
-        message: 'Failed to create manual idling event'
-      });
+        message: 'Failed to create manual idling event',
+      })
     }
   }
-);
+)
 
 // ============================================================================
 // Threshold Configuration
@@ -427,24 +428,24 @@ router.get(
   validateRequest,
   async (req: Request, res: Response) => {
     try {
-      const { vehicleId } = req.params;
+      const { vehicleId } = req.params
 
-      const thresholds = await idlingService.getVehicleThresholds(parseInt(vehicleId));
+      const thresholds = await idlingService.getVehicleThresholds(parseInt(vehicleId))
 
       res.json({
         success: true,
         vehicleId: parseInt(vehicleId),
-        thresholds
-      });
+        thresholds,
+      })
     } catch (error) {
       logger.error('Error fetching vehicle thresholds:', error) // Wave 22: Winston logger;
       res.status(500).json({
         success: false,
-        message: 'Failed to fetch vehicle thresholds'
-      });
+        message: 'Failed to fetch vehicle thresholds',
+      })
     }
   }
-);
+)
 
 /**
  * PUT /api/idling/thresholds/:vehicleId
@@ -473,25 +474,25 @@ router.put(
   validateRequest,
   async (req: Request, res: Response) => {
     try {
-      const { vehicleId } = req.params;
-      const updates = req.body;
+      const { vehicleId } = req.params
+      const updates = req.body
 
-      await idlingService.updateVehicleThresholds(parseInt(vehicleId), updates);
+      await idlingService.updateVehicleThresholds(parseInt(vehicleId), updates)
 
       res.json({
         success: true,
         message: 'Thresholds updated successfully',
-        vehicleId: parseInt(vehicleId)
-      });
+        vehicleId: parseInt(vehicleId),
+      })
     } catch (error) {
       logger.error('Error updating vehicle thresholds:', error) // Wave 22: Winston logger;
       res.status(500).json({
         success: false,
-        message: 'Failed to update vehicle thresholds'
-      });
+        message: 'Failed to update vehicle thresholds',
+      })
     }
   }
-);
+)
 
 // ============================================================================
 // Alert Management
@@ -513,25 +514,25 @@ router.get(
   validateRequest,
   async (req: Request, res: Response) => {
     try {
-      const limit = parseInt(req.query.limit as string) || 50;
-      const unacknowledged = req.query.unacknowledged === 'true';
+      const limit = parseInt(req.query.limit as string) || 50
+      const unacknowledged = req.query.unacknowledged === 'true'
 
-      const alerts = await idlingService.getRecentAlerts(limit, unacknowledged);
+      const alerts = await idlingService.getRecentAlerts(limit, unacknowledged)
 
       res.json({
         success: true,
         count: alerts.length,
-        alerts
-      });
+        alerts,
+      })
     } catch (error) {
       logger.error('Error fetching idling alerts:', error) // Wave 22: Winston logger;
       res.status(500).json({
         success: false,
-        message: 'Failed to fetch idling alerts'
-      });
+        message: 'Failed to fetch idling alerts',
+      })
     }
   }
-);
+)
 
 /**
  * POST /api/idling/alerts/:alertId/acknowledge
@@ -544,25 +545,25 @@ router.post(
   validateRequest,
   async (req: Request, res: Response) => {
     try {
-      const { alertId } = req.params;
-      const userId = (req as any).user?.id; // From auth middleware
+      const { alertId } = req.params
+      const userId = (req as any).user?.id // From auth middleware
 
-      await idlingService.acknowledgeAlert(parseInt(alertId), userId);
+      await idlingService.acknowledgeAlert(parseInt(alertId), userId)
 
       res.json({
         success: true,
         message: 'Alert acknowledged successfully',
-        alertId: parseInt(alertId)
-      });
+        alertId: parseInt(alertId),
+      })
     } catch (error) {
       logger.error('Error acknowledging alert:', error) // Wave 22: Winston logger;
       res.status(500).json({
         success: false,
-        message: 'Failed to acknowledge alert'
-      });
+        message: 'Failed to acknowledge alert',
+      })
     }
   }
-);
+)
 
 // ============================================================================
 // Monthly Reports
@@ -582,27 +583,27 @@ router.get(
   validateRequest,
   async (req: Request, res: Response) => {
     try {
-      const months = parseInt(req.query.months as string) || 12;
+      const months = parseInt(req.query.months as string) || 12
 
-      const report = await idlingService.getMonthlyIdlingReport(months);
+      const report = await idlingService.getMonthlyIdlingReport(months)
 
       res.json({
         success: true,
         months,
-        report
-      });
+        report,
+      })
     } catch (error) {
       logger.error('Error fetching monthly idling report:', error) // Wave 22: Winston logger;
       res.status(500).json({
         success: false,
-        message: 'Failed to fetch monthly idling report'
-      });
+        message: 'Failed to fetch monthly idling report',
+      })
     }
   }
-);
+)
 
 // ============================================================================
 // Export Routes
 // ============================================================================
 
-export default router;
+export default router

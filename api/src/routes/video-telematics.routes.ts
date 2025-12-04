@@ -1,4 +1,7 @@
 /**
+import { container } from '../container'
+import { asyncHandler } from '../middleware/error-handler'
+import { NotFoundError, ValidationError } from '../errors/app-error'
  * Video Telematics API Routes
  * Camera management, video events, evidence locker, and AI analysis
  */
@@ -7,7 +10,6 @@ import express, { Response } from 'express';
 import { AuthRequest, authenticateJWT } from '../middleware/auth';
 import { requirePermission, rateLimit } from '../middleware/permissions';
 import { auditLog } from '../middleware/audit';
-import pool from '../config/database';
 import VideoTelematicsService from '../services/video-telematics.service';
 import DriverSafetyAIService from '../services/driver-safety-ai.service';
 import { z } from 'zod';

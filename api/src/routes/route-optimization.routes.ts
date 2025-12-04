@@ -1,4 +1,7 @@
 /**
+import { container } from '../container'
+import { asyncHandler } from '../middleware/error-handler'
+import { NotFoundError, ValidationError } from '../errors/app-error'
 import logger from '../config/logger'; // Wave 29: Add Winston logger
  * Route Optimization API Endpoints
  */
@@ -7,7 +10,6 @@ import express, { Response } from 'express'
 import { AuthRequest, authenticateJWT } from '../middleware/auth'
 import { requirePermission } from '../middleware/permissions'
 import { auditLog } from '../middleware/audit'
-import pool from '../config/database'
 import * as routeOptimizationService from '../services/route-optimization.service'
 import { z } from 'zod'
 import { getErrorMessage } from '../utils/error-handler'
@@ -33,7 +35,7 @@ const StopSchema = z.object({
   customerName: z.string().optional(),
   customerPhone: z.string().optional(),
   customerEmail: z.string().email().optional()
-})
+}))
 
 const OptimizationRequestSchema = z.object({
   jobName: z.string(),
@@ -49,7 +51,7 @@ const OptimizationRequestSchema = z.object({
   maxRouteDuration: z.number().default(480),
   scheduledDate: z.string().optional(),
   scheduledTime: z.string().optional()
-})
+}))
 
 /**
  * @openapi
@@ -140,7 +142,7 @@ router.post(
       }
 
       if (vehicles.length === 0) {
-        return res.status(400).json({ error: `No available vehicles found` })
+        return res.status(400).json({ error: `No available vehicles found` }))
       }
 
       // Get drivers
@@ -196,13 +198,13 @@ router.post(
         return res.status(400).json({
           error: 'Validation error',
           details: error.errors
-        })
+        }))
       }
 
       res.status(500).json({
         error: 'Route optimization failed',
         message: getErrorMessage(error)
-      })
+      }))
     }
   }
 )
@@ -261,10 +263,10 @@ router.get(
           total: parseInt(countResult.rows[0].count),
           pages: Math.ceil(countResult.rows[0].count / Number(limit))
         }
-      })
+      }))
     } catch (error) {
       logger.error(`Get jobs error:`, error) // Wave 29: Winston logger
-      res.status(500).json({ error: `Internal server error` })
+      res.status(500).json({ error: `Internal server error` }))
     }
   }
 )
@@ -291,7 +293,7 @@ router.get(
       )
 
       if (!job) {
-        return res.status(404).json({ error: 'Job not found' })
+        return res.status(404).json({ error: 'Job not found' }))
       }
 
       // Get routes
@@ -320,10 +322,10 @@ router.get(
         job,
         routes,
         stops: stopsResult.rows
-      })
+      }))
     } catch (error) {
       logger.error(`Get job error:`, error) // Wave 29: Winston logger
-      res.status(500).json({ error: `Internal server error` })
+      res.status(500).json({ error: `Internal server error` }))
     }
   }
 )
@@ -362,10 +364,10 @@ router.get(
         [req.user!.tenant_id]
       )
 
-      res.json({ data: result.rows })
+      res.json({ data: result.rows }))
     } catch (error) {
       logger.error(`Get active routes error:`, error) // Wave 29: Winston logger
-      res.status(500).json({ error: `Internal server error` })
+      res.status(500).json({ error: `Internal server error` }))
     }
   }
 )
@@ -396,7 +398,7 @@ router.get(
       )
 
       if (routeResult.rows.length === 0) {
-        return res.status(404).json({ error: 'Route not found' })
+        return res.status(404).json({ error: 'Route not found' }))
       }
 
       const route = routeResult.rows[0]
@@ -420,10 +422,10 @@ router.get(
       res.json({
         ...route,
         stops: stopsResult.rows
-      })
+      }))
     } catch (error) {
       logger.error(`Get route error:`, error) // Wave 29: Winston logger
-      res.status(500).json({ error: `Internal server error` })
+      res.status(500).json({ error: `Internal server error` }))
     }
   }
 )
@@ -459,13 +461,13 @@ router.put(
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: `Route not found` })
+        return res.status(404).json({ error: `Route not found` }))
       }
 
       res.json(result.rows[0])
     } catch (error) {
       logger.error(`Update route error:`, error) // Wave 29: Winston logger
-      res.status(500).json({ error: 'Internal server error' })
+      res.status(500).json({ error: 'Internal server error' }))
     }
   }
 )
@@ -501,13 +503,13 @@ router.post(
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: `Stop not found` })
+        return res.status(404).json({ error: `Stop not found` }))
       }
 
       res.json(result.rows[0])
     } catch (error) {
       logger.error('Complete stop error:', error) // Wave 29: Winston logger
-      res.status(500).json({ error: 'Internal server error' })
+      res.status(500).json({ error: 'Internal server error' }))
     }
   }
 )
@@ -565,10 +567,10 @@ router.get(
       res.json({
         summary: statsResult.rows[0],
         recentJobs: recentResult.rows
-      })
+      }))
     } catch (error) {
       logger.error(`Get stats error:`, error) // Wave 29: Winston logger
-      res.status(500).json({ error: `Internal server error` })
+      res.status(500).json({ error: `Internal server error` }))
     }
   }
 )

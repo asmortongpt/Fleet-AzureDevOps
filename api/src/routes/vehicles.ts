@@ -1,4 +1,7 @@
 import { Router } from "express"
+import { container } from '../container'
+import { asyncHandler } from '../middleware/error-handler'
+import { NotFoundError, ValidationError } from '../errors/app-error'
 import { cacheService } from '../config/cache';
 import {
   vehicleCreateSchema,
@@ -64,9 +67,9 @@ router.get("/",
     res.json(result)
   } catch (error) {
     logger.error('Failed to fetch vehicles', { error }) // Wave 10: Winston logger
-    res.status(500).json({ error: "Failed to fetch vehicles" })
+    res.status(500).json({ error: "Failed to fetch vehicles" }))
   }
-})
+}))
 
 // GET vehicle by ID - Requires authentication + tenant isolation
 // CRIT-B-003: Added URL parameter validation
@@ -85,21 +88,21 @@ router.get("/:id",
     const cached = await cacheService.get<any>(cacheKey)
 
     if (cached) {
-      return res.json({ data: cached })
+      return res.json({ data: cached }))
     }
 
     const vehicle = vehicleEmulator.getById(Number(req.params.id))
-    if (!vehicle) return res.status(404).json({ error: "Vehicle not found" })
+    if (!vehicle) return res.status(404).json({ error: "Vehicle not found" }))
 
     // Cache for 10 minutes (600 seconds)
     await cacheService.set(cacheKey, vehicle, 600)
 
-    res.json({ data: vehicle })
+    res.json({ data: vehicle }))
   } catch (error) {
     logger.error('Failed to fetch vehicle', { error, vehicleId: req.params.id }) // Wave 10: Winston logger
-    res.status(500).json({ error: "Failed to fetch vehicle" })
+    res.status(500).json({ error: "Failed to fetch vehicle" }))
   }
-})
+}))
 
 // POST create vehicle - Requires admin or manager role
 // CRIT-B-003: Comprehensive input validation with sanitization
@@ -121,12 +124,12 @@ router.post("/",
     // Note: In production with Redis, use SCAN to find and delete matching keys
     // For now, we rely on TTL expiration
 
-    res.status(201).json({ data: vehicle })
+    res.status(201).json({ data: vehicle }))
   } catch (error) {
     logger.error('Failed to create vehicle', { error }) // Wave 10: Winston logger
-    res.status(500).json({ error: "Failed to create vehicle" })
+    res.status(500).json({ error: "Failed to create vehicle" }))
   }
-})
+}))
 
 // PUT update vehicle - Requires admin or manager role + tenant isolation
 // CRIT-B-003: Validates both URL params and request body
@@ -144,18 +147,18 @@ router.put("/:id",
   async (req, res) => {
   try {
     const vehicle = vehicleEmulator.update(Number(req.params.id), req.body)
-    if (!vehicle) return res.status(404).json({ error: "Vehicle not found" })
+    if (!vehicle) return res.status(404).json({ error: "Vehicle not found" }))
 
     // Wave 12 (Revised): Invalidate cache on update
     const cacheKey = `vehicle:${req.params.id}`
     await cacheService.del(cacheKey)
 
-    res.json({ data: vehicle })
+    res.json({ data: vehicle }))
   } catch (error) {
     logger.error('Failed to update vehicle', { error, vehicleId: req.params.id }) // Wave 10: Winston logger
-    res.status(500).json({ error: "Failed to update vehicle" })
+    res.status(500).json({ error: "Failed to update vehicle" }))
   }
-})
+}))
 
 // DELETE vehicle
 // CRIT-B-003: Added URL parameter validation
@@ -170,17 +173,17 @@ router.delete("/:id",
   async (req, res) => {
   try {
     const deleted = vehicleEmulator.delete(Number(req.params.id))
-    if (!deleted) return res.status(404).json({ error: "Vehicle not found" })
+    if (!deleted) return res.status(404).json({ error: "Vehicle not found" }))
 
     // Wave 12 (Revised): Invalidate cache on delete
     const cacheKey = `vehicle:${req.params.id}`
     await cacheService.del(cacheKey)
 
-    res.json({ message: "Vehicle deleted successfully" })
+    res.json({ message: "Vehicle deleted successfully" }))
   } catch (error) {
     logger.error('Failed to delete vehicle', { error, vehicleId: req.params.id }) // Wave 10: Winston logger
-    res.status(500).json({ error: "Failed to delete vehicle" })
+    res.status(500).json({ error: "Failed to delete vehicle" }))
   }
-})
+}))
 
 export default router

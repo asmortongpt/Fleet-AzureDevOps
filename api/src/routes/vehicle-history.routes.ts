@@ -1,4 +1,7 @@
 /**
+import { container } from '../container'
+import { asyncHandler } from '../middleware/error-handler'
+import { NotFoundError, ValidationError } from '../errors/app-error'
 import logger from '../config/logger'; // Wave 33: Add Winston logger (FINAL WAVE!)
  * Vehicle Location History API Routes
  *
@@ -7,15 +10,14 @@ import logger from '../config/logger'; // Wave 33: Add Winston logger (FINAL WAV
  * Security: JWT authentication required, RBAC permissions enforced, multi-tenant isolation
  */
 
-import express, { Response } from 'express';
-import { AuthRequest, authenticateJWT } from '../middleware/auth';
-import { requirePermission, rateLimit } from '../middleware/permissions';
-import { auditLog } from '../middleware/audit';
-import pool from '../config/database';
-import { z } from 'zod';
+import express, { Response } from 'express'
+import { AuthRequest, authenticateJWT } from '../middleware/auth'
+import { requirePermission, rateLimit } from '../middleware/permissions'
+import { auditLog } from '../middleware/audit'
+import { z } from 'zod'
 
-const router = express.Router();
-router.use(authenticateJWT);
+const router = express.Router()
+router.use(authenticateJWT)
 
 // =====================================================
 // Validation Schemas
@@ -25,8 +27,8 @@ const LocationHistoryQuerySchema = z.object({
   startDate: z.string().datetime().optional(),
   endDate: z.string().datetime().optional(),
   limit: z.coerce.number().int().min(1).max(10000).default(1000),
-  page: z.coerce.number().int().min(1).default(1)
-});
+  page: z.coerce.number().int().min(1).default(1),
+})
 
 // =====================================================
 // GET /api/vehicles/:id/location-history
@@ -40,48 +42,48 @@ router.get(
   auditLog({ action: 'READ', resourceType: 'vehicle_location_history' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const vehicleId = req.params.id;
+      const vehicleId = req.params.id
 
       // Validate query parameters
-      const queryValidation = LocationHistoryQuerySchema.safeParse(req.query);
+      const queryValidation = LocationHistoryQuerySchema.safeParse(req.query)
       if (!queryValidation.success) {
         return res.status(400).json({
           error: 'Invalid query parameters',
-          details: queryValidation.error.errors
-        });
+          details: queryValidation.error.errors,
+        })
       }
 
-      const { startDate, endDate, limit, page } = queryValidation.data;
-      const offset = (page - 1) * limit;
+      const { startDate, endDate, limit, page } = queryValidation.data
+      const offset = (page - 1) * limit
 
       // Verify vehicle belongs to tenant
       const vehicleCheck = await pool.query(
         `SELECT id FROM vehicles WHERE id = $1 AND tenant_id = $2`,
         [vehicleId, req.user!.tenant_id]
-      );
+      )
 
       if (vehicleCheck.rows.length === 0) {
-        return res.status(404).json({ error: `Vehicle not found` });
+        return res.status(404).json({ error: `Vehicle not found` })
       }
 
       // Build query with date filters
-      let dateFilter = '';
-      const params: any[] = [vehicleId, req.user!.tenant_id];
-      let paramIndex = 3;
+      let dateFilter = ''
+      const params: any[] = [vehicleId, req.user!.tenant_id]
+      let paramIndex = 3
 
       if (startDate) {
-        dateFilter += ` AND tgb.timestamp >= $${paramIndex}`;
-        params.push(startDate);
-        paramIndex++;
+        dateFilter += ` AND tgb.timestamp >= $${paramIndex}`
+        params.push(startDate)
+        paramIndex++
       }
 
       if (endDate) {
-        dateFilter += ` AND tgb.timestamp <= $${paramIndex}`;
-        params.push(endDate);
-        paramIndex++;
+        dateFilter += ` AND tgb.timestamp <= $${paramIndex}`
+        params.push(endDate)
+        paramIndex++
       }
 
-      params.push(limit, offset);
+      params.push(limit, offset)
 
       // Query breadcrumbs with trip context
       const result = await pool.query(
@@ -118,10 +120,10 @@ router.get(
         LIMIT $${paramIndex} OFFSET $${paramIndex + 1}
         `,
         params
-      );
+      )
 
       // Get total count for pagination
-      const countParams = params.slice(0, paramIndex - 2);
+      const countParams = params.slice(0, paramIndex - 2)
       const countResult = await pool.query(
         `
         SELECT COUNT(*)
@@ -132,9 +134,9 @@ router.get(
           ${dateFilter}
         `,
         countParams
-      );
+      )
 
-      const total = parseInt(countResult.rows[0].count);
+      const total = parseInt(countResult.rows[0].count)
 
       res.json({
         data: result.rows,
@@ -143,21 +145,21 @@ router.get(
           limit,
           total,
           pages: Math.ceil(total / limit),
-          hasMore: offset + result.rows.length < total
+          hasMore: offset + result.rows.length < total,
         },
         metadata: {
           vehicleId,
           startDate: startDate || null,
           endDate: endDate || null,
-          pointsReturned: result.rows.length
-        }
-      });
+          pointsReturned: result.rows.length,
+        },
+      })
     } catch (error) {
       logger.error(`Get vehicle location history error:`, error) // Wave 33: Winston logger (FINAL WAVE!);
-      res.status(500).json({ error: 'Internal server error' });
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
-);
+)
 
 // =====================================================
 // GET /api/trips/:id/breadcrumbs
@@ -171,7 +173,7 @@ router.get(
   auditLog({ action: 'READ', resourceType: 'trip_breadcrumbs' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const tripId = req.params.id;
+      const tripId = req.params.id
 
       // Get trip metadata and verify tenant ownership
       const tripResult = await pool.query(
@@ -201,13 +203,13 @@ router.get(
         WHERE t.id = $1 AND t.tenant_id = $2
         `,
         [tripId, req.user!.tenant_id]
-      );
+      )
 
       if (tripResult.rows.length === 0) {
-        return res.status(404).json({ error: 'Trip not found' });
+        return res.status(404).json({ error: 'Trip not found' })
       }
 
-      const trip = tripResult.rows[0];
+      const trip = tripResult.rows[0]
 
       // Get breadcrumbs ordered chronologically
       const breadcrumbsResult = await pool.query(
@@ -231,7 +233,7 @@ router.get(
         ORDER BY timestamp ASC
         `,
         [tripId]
-      );
+      )
 
       res.json({
         trip: trip,
@@ -241,15 +243,15 @@ router.get(
           startTime: trip.start_time,
           endTime: trip.end_time,
           duration: trip.duration_seconds,
-          distance: trip.distance_miles
-        }
-      });
+          distance: trip.distance_miles,
+        },
+      })
     } catch (error) {
       logger.error('Get trip breadcrumbs error:', error) // Wave 33: Winston logger (FINAL WAVE!);
-      res.status(500).json({ error: 'Internal server error' });
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
-);
+)
 
 // =====================================================
 // GET /api/vehicles/:id/timeline
@@ -263,45 +265,45 @@ router.get(
   auditLog({ action: 'READ', resourceType: 'vehicle_timeline' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const vehicleId = req.params.id;
+      const vehicleId = req.params.id
 
       // Validate query parameters
-      const queryValidation = LocationHistoryQuerySchema.safeParse(req.query);
+      const queryValidation = LocationHistoryQuerySchema.safeParse(req.query)
       if (!queryValidation.success) {
         return res.status(400).json({
           error: 'Invalid query parameters',
-          details: queryValidation.error.errors
-        });
+          details: queryValidation.error.errors,
+        })
       }
 
-      const { startDate, endDate, limit, page } = queryValidation.data;
-      const offset = (page - 1) * limit;
+      const { startDate, endDate, limit, page } = queryValidation.data
+      const offset = (page - 1) * limit
 
       // Verify vehicle belongs to tenant
       const vehicleCheck = await pool.query(
         `SELECT id, unit_number FROM vehicles WHERE id = $1 AND tenant_id = $2`,
         [vehicleId, req.user!.tenant_id]
-      );
+      )
 
       if (vehicleCheck.rows.length === 0) {
-        return res.status(404).json({ error: `Vehicle not found` });
+        return res.status(404).json({ error: `Vehicle not found` })
       }
 
       // Build date filter
-      let dateFilter = '';
-      const params: any[] = [vehicleId, req.user!.tenant_id];
-      let paramIndex = 3;
+      let dateFilter = ''
+      const params: any[] = [vehicleId, req.user!.tenant_id]
+      let paramIndex = 3
 
       if (startDate) {
-        dateFilter = ` AND timestamp >= $${paramIndex}`;
-        params.push(startDate);
-        paramIndex++;
+        dateFilter = ` AND timestamp >= $${paramIndex}`
+        params.push(startDate)
+        paramIndex++
       }
 
       if (endDate) {
-        dateFilter += ` AND timestamp <= $${paramIndex}`;
-        params.push(endDate);
-        paramIndex++;
+        dateFilter += ` AND timestamp <= $${paramIndex}`
+        params.push(endDate)
+        paramIndex++
       }
 
       // Combine events from multiple tables using UNION ALL
@@ -396,11 +398,11 @@ router.get(
         ) combined_events
         ORDER BY timestamp DESC
         LIMIT $${paramIndex} OFFSET $${paramIndex + 1}
-      `;
+      `
 
-      params.push(limit, offset);
+      params.push(limit, offset)
 
-      const result = await pool.query(query, params);
+      const result = await pool.query(query, params)
 
       // Get total count
       const countQuery = `
@@ -415,10 +417,10 @@ router.get(
           UNION ALL
           SELECT inspection_date as timestamp FROM inspections WHERE vehicle_id = $1 AND tenant_id = $2 ${dateFilter}
         ) all_events
-      `;
+      `
 
-      const countResult = await pool.query(countQuery, params.slice(0, paramIndex - 2));
-      const total = parseInt(countResult.rows[0].count);
+      const countResult = await pool.query(countQuery, params.slice(0, paramIndex - 2))
+      const total = parseInt(countResult.rows[0].count)
 
       res.json({
         data: result.rows,
@@ -427,21 +429,21 @@ router.get(
           limit,
           total,
           pages: Math.ceil(total / limit),
-          hasMore: offset + result.rows.length < total
+          hasMore: offset + result.rows.length < total,
         },
         metadata: {
           vehicleId,
           unitNumber: vehicleCheck.rows[0].unit_number,
           startDate: startDate || null,
           endDate: endDate || null,
-          eventsReturned: result.rows.length
-        }
-      });
+          eventsReturned: result.rows.length,
+        },
+      })
     } catch (error) {
       logger.error(`Get vehicle timeline error:`, error) // Wave 33: Winston logger (FINAL WAVE!);
-      res.status(500).json({ error: 'Internal server error' });
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
-);
+)
 
-export default router;
+export default router

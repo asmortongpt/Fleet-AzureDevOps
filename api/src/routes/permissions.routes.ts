@@ -1,4 +1,7 @@
 /**
+import { container } from '../container'
+import { asyncHandler } from '../middleware/error-handler'
+import { NotFoundError, ValidationError } from '../errors/app-error'
 import logger from '../config/logger'; // Wave 27: Add Winston logger
  * Permissions API Routes
  * Endpoints for managing user permissions, roles, and checking access
