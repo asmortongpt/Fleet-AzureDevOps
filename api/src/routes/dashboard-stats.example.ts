@@ -48,7 +48,7 @@ router.get('/stats',
           success: true,
           data: cached,
           cached: true
-        }))
+        })
       }
 
       console.log(`❌ Cache MISS: dashboard stats for tenant ${tenantId}`)
@@ -122,14 +122,14 @@ router.get('/stats',
         success: true,
         data: result,
         cached: false
-      }))
+      })
 
     } catch (error) {
       console.error('Dashboard stats error:', error)
       return res.status(500).json({
         success: false,
         error: 'Failed to retrieve dashboard statistics'
-      }))
+      })
     }
   }
 )
@@ -155,7 +155,7 @@ router.get('/fleet-health',
       // Check cache
       const cached = await cache.get(cacheKey)
       if (cached) {
-        return res.json({ success: true, data: cached, cached: true }))
+        return res.json({ success: true, data: cached, cached: true })
       }
 
       // Complex aggregation query
@@ -166,7 +166,7 @@ router.get('/fleet-health',
               v.id,
               v.year,
               v.odometer,
-              EXTRACT(YEAR FROM AGE(CURRENT_DATE, TO_DATE(v.year::text, 'YYYY'))) as vehicle_age,
+              EXTRACT(YEAR FROM AGE(CURRENT_DATE, TO_DATE(v.year::text, 'YYYY')) as vehicle_age,
               COUNT(DISTINCT ms.id) as scheduled_maintenance,
               COUNT(DISTINCT CASE WHEN ms.status = 'completed' THEN ms.id END) as completed_maintenance
             FROM vehicles v
@@ -214,14 +214,14 @@ router.get('/fleet-health',
       // Cache for 30 minutes (fleet health changes slowly)
       await cache.set(cacheKey, result, 1800)
 
-      return res.json({ success: true, data: result, cached: false }))
+      return res.json({ success: true, data: result, cached: false })
 
     } catch (error) {
       console.error('Fleet health error:', error)
       return res.status(500).json({
         success: false,
         error: 'Failed to retrieve fleet health metrics'
-      }))
+      })
     }
   }
 )
@@ -239,8 +239,8 @@ router.post('/invalidate-cache',
       const tenantId = req.user!.tenant_id
 
       // Invalidate all dashboard caches for this tenant
-      await cache.del(cache.getCacheKey(tenantId, 'dashboard:stats'))
-      await cache.del(cache.getCacheKey(tenantId, 'dashboard:fleet-health'))
+      await cache.del(cache.getCacheKey(tenantId, 'dashboard:stats')
+      await cache.del(cache.getCacheKey(tenantId, 'dashboard:fleet-health')
 
       // Could also invalidate route caches if needed
       // await cache.delPattern(`route:/api/dashboard*`)
@@ -248,14 +248,14 @@ router.post('/invalidate-cache',
       return res.json({
         success: true,
         message: 'Dashboard caches invalidated successfully'
-      }))
+      })
 
     } catch (error) {
       console.error('Cache invalidation error:', error)
       return res.status(500).json({
         success: false,
         error: 'Failed to invalidate caches'
-      }))
+      })
     }
   }
 )
@@ -272,15 +272,15 @@ router.post('/invalidate-cache',
  * Add to relevant routes:
  *
  * // After creating/updating/deleting vehicles
- * await cache.del(cache.getCacheKey(req.user.tenant_id, 'dashboard:stats'))
- * await cache.del(cache.getCacheKey(req.user.tenant_id, 'dashboard:fleet-health'))
+ * await cache.del(cache.getCacheKey(req.user.tenant_id, 'dashboard:stats')
+ * await cache.del(cache.getCacheKey(req.user.tenant_id, 'dashboard:fleet-health')
  *
  * // After work order status changes
- * await cache.del(cache.getCacheKey(req.user.tenant_id, 'dashboard:stats'))
+ * await cache.del(cache.getCacheKey(req.user.tenant_id, 'dashboard:stats')
  *
  * // After maintenance completion
- * await cache.del(cache.getCacheKey(req.user.tenant_id, 'dashboard:stats'))
- * await cache.del(cache.getCacheKey(req.user.tenant_id, 'dashboard:fleet-health'))
+ * await cache.del(cache.getCacheKey(req.user.tenant_id, 'dashboard:stats')
+ * await cache.del(cache.getCacheKey(req.user.tenant_id, 'dashboard:fleet-health')
  */
 
 export default router

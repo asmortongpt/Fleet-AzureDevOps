@@ -137,7 +137,7 @@ router.get('/microsoft', async (req: Request, res: Response) => {
           resource: sub.resource,
           status: sub.status,
           expiresAt: sub.expiration_date_time
-        }))
+        })
       }
     };
   } catch (error: unknown) {
@@ -308,7 +308,7 @@ router.get('/microsoft/metrics', async (req: Request, res: Response) => {
     metrics.push(`# Error: ${getErrorMessage(error)}`);
   }
 
-  res.send(metrics.join(`\n`));
+  res.send(metrics.join(`\n`);
 });
 
 export default router;

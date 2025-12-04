@@ -13,7 +13,7 @@ import { serialize } from 'node-html-encoder'
 const router = express.Router()
 
 router.use(authenticateJWT)
-router.use(helmet())
+router.use(helmet()
 router.use(
   rateLimit({
     windowMs: 60 * 1000, // 1 minute
@@ -53,7 +53,7 @@ router.get(
     try {
       const validationResult = logSchema.safeParse(req.query)
       if (!validationResult.success) {
-        return res.status(400).json({ error: 'Invalid request parameters' })
+        return throw new ValidationError("Invalid request parameters")
       }
 
       const { page = 1, limit = 50, year, status } = validationResult.data
@@ -101,12 +101,12 @@ router.get(
           ...row,
           employee_full_name: serialize(row.employee_full_name),
           vehicle_unit: serialize(row.vehicle_unit),
-        })),
+        }),
         pagination: {
           page: Number(page),
           limit: Number(limit),
           total: parseInt(countResult.rows[0].count, 10),
-          pages: Math.ceil(countResult.rows[0].count / Number(limit)),
+          pages: Math.ceil(countResult.rows[0].count / Number(limit),
         },
       })
     } catch (error) {

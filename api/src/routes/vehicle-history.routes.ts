@@ -206,7 +206,7 @@ router.get(
       )
 
       if (tripResult.rows.length === 0) {
-        return res.status(404).json({ error: 'Trip not found' })
+        return throw new NotFoundError("Trip not found")
       }
 
       const trip = tripResult.rows[0]
@@ -419,7 +419,7 @@ router.get(
         ) all_events
       `
 
-      const countResult = await pool.query(countQuery, params.slice(0, paramIndex - 2))
+      const countResult = await pool.query(countQuery, params.slice(0, paramIndex - 2)
       const total = parseInt(countResult.rows[0].count)
 
       res.json({

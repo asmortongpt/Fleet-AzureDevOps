@@ -15,7 +15,7 @@ import csurf from 'csurf'
 
 const router = Router()
 
-router.use(helmet())
+router.use(helmet()
 router.use(
   rateLimit({
     windowMs: 60 * 1000, // 1 minute
@@ -24,7 +24,7 @@ router.use(
 )
 
 // CSRF protection
-router.use(csurf({ cookie: true }))
+router.use(csurf({ cookie: true })
 
 // Configure multer for file uploads
 const storage = multer.diskStorage({
@@ -54,10 +54,10 @@ const upload = multer({
       'text/plain',
       'text/csv',
     ]
-    if (allowedTypes.includes(file.mimetype)) {
+    if (allowedTypes.includes(file.mimetype) {
       cb(null, true)
     } else {
-      cb(new Error('Invalid file type. Allowed types: images, PDF, Word, Excel, text files.'))
+      cb(new Error('Invalid file type. Allowed types: images, PDF, Word, Excel, text files.')
     }
   },
 })
@@ -92,12 +92,12 @@ router.post(
       // Validate request body
       const validationResult = documentUploadSchema.safeParse(req.body)
       if (!validationResult.success) {
-        return res.status(400).json({ error: 'Invalid request data' })
+        return throw new ValidationError("Invalid request data")
       }
 
       const { file } = req
       if (!file) {
-        return res.status(400).json({ error: 'File is required' })
+        return throw new ValidationError("File is required")
       }
 
       const documentData = validationResult.data

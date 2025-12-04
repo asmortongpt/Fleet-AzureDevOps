@@ -110,12 +110,12 @@ router.get(
           page: Number(page),
           limit: Number(limit),
           total: parseInt(countResult.rows[0].count),
-          pages: Math.ceil(countResult.rows[0].count / Number(limit))
+          pages: Math.ceil(countResult.rows[0].count / Number(limit)
         }
-      }))
+      })
     } catch (error) {
       console.error(`Get communications error:`, error)
-      res.status(500).json({ error: 'Internal server error' }))
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )
@@ -138,7 +138,7 @@ router.get(
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'Communication not found' }))
+        return throw new NotFoundError("Communication not found")
       }
 
       // Get linked entities
@@ -167,10 +167,10 @@ router.get(
         ...result.rows[0],
         linked_entities: linksResult.rows,
         attachments: attachmentsResult.rows
-      }))
+      })
     } catch (error) {
       console.error(`Get communication error:`, error)
-      res.status(500).json({ error: 'Internal server error' }))
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )
@@ -214,7 +214,7 @@ router.post(
             link.entity_id,
             link.link_type || `Related`
           )
-        }))
+        })
 
         // Single batch insert instead of N queries
         await pool.query(
@@ -228,7 +228,7 @@ router.post(
       res.status(201).json(result.rows[0])
     } catch (error) {
       console.error(`Create communication error:`, error)
-      res.status(500).json({ error: `Internal server error` }))
+      res.status(500).json({ error: `Internal server error` })
     }
   }
 )
@@ -257,13 +257,13 @@ router.put(
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: `Communication not found` }))
+        return res.status(404).json({ error: `Communication not found` })
       }
 
       res.json(result.rows[0])
     } catch (error) {
       console.error(`Update communication error:`, error)
-      res.status(500).json({ error: `Internal server error` }))
+      res.status(500).json({ error: `Internal server error` })
     }
   }
 )
@@ -294,7 +294,7 @@ router.post(
       res.status(201).json(result.rows[0])
     } catch (error) {
       console.error(`Link communication to entity error:`, error)
-      res.status(500).json({ error: `Internal server error` }))
+      res.status(500).json({ error: `Internal server error` })
     }
   }
 )
@@ -314,13 +314,13 @@ router.delete(
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: `Link not found` }))
+        return res.status(404).json({ error: `Link not found` })
       }
 
-      res.json({ message: 'Link deleted successfully' }))
+      res.json({ message: 'Link deleted successfully' })
     } catch (error) {
       console.error('Delete communication link error:', error)
-      res.status(500).json({ error: 'Internal server error' }))
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )
@@ -367,12 +367,12 @@ router.get(
           page: Number(page),
           limit: Number(limit),
           total: parseInt(countResult.rows[0].count),
-          pages: Math.ceil(countResult.rows[0].count / Number(limit))
+          pages: Math.ceil(countResult.rows[0].count / Number(limit)
         }
-      }))
+      })
     } catch (error) {
       console.error(`Get entity communications error:`, error)
-      res.status(500).json({ error: 'Internal server error' }))
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )
@@ -410,10 +410,10 @@ router.get(
         [req.user!.tenant_id]
       )
 
-      res.json({ data: result.rows }))
+      res.json({ data: result.rows })
     } catch (error) {
       console.error('Get pending follow-ups error:', error)
-      res.status(500).json({ error: 'Internal server error' }))
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )
@@ -452,10 +452,10 @@ router.get(
       query += ` ORDER BY template_name`
 
       const result = await pool.query(query, params)
-      res.json({ data: result.rows }))
+      res.json({ data: result.rows })
     } catch (error) {
       console.error(`Get communication templates error:`, error)
-      res.status(500).json({ error: 'Internal server error' }))
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )
@@ -484,7 +484,7 @@ router.post(
       res.status(201).json(result.rows[0])
     } catch (error) {
       console.error(`Create communication template error:`, error)
-      res.status(500).json({ error: `Internal server error` }))
+      res.status(500).json({ error: `Internal server error` })
     }
   }
 )
@@ -554,10 +554,10 @@ router.get(
         by_type: byTypeResult.rows,
         by_priority: byPriorityResult.rows,
         overdue: overdueResult.rows[0]
-      }))
+      })
     } catch (error) {
       console.error(`Get communications dashboard error:`, error)
-      res.status(500).json({ error: `Internal server error` }))
+      res.status(500).json({ error: `Internal server error` })
     }
   }
 )

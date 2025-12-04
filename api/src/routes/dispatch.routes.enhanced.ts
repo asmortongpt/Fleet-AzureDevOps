@@ -18,9 +18,9 @@ const server = http.createServer(router)
 const io = new Server(server)
 
 // Security Enhancements
-router.use(helmet())
-router.use(express.json())
-router.use(csurf())
+router.use(helmet()
+router.use(express.json()
+router.use(csurf()
 router.use(
   rateLimit({
     windowMs: 60 * 1000, // 1 minute
