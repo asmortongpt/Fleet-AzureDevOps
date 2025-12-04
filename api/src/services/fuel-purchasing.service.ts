@@ -5,7 +5,7 @@
  * Integrates with external price APIs (or uses realistic mock data)
  */
 
-import pool from '../config/database'
+import { Pool } from 'pg'
 import fuelPriceForecastingModel from '../ml-models/fuel-price-forecasting.model'
 
 export interface FuelStation {
@@ -73,6 +73,8 @@ export interface PriceAlert {
 }
 
 export class FuelPurchasingService {
+  constructor(private db: Pool) {}
+
   /**
    * Get nearby fuel stations with current prices
    */
@@ -106,7 +108,7 @@ export class FuelPurchasingService {
 
       query += ` ORDER BY distance LIMIT 50`
 
-      const result = await pool.query(query, params)
+      const result = await this.db.query(query, params)
 
       // Get current prices for each station
       const stations: FuelStation[] = []
@@ -352,7 +354,7 @@ export class FuelPurchasingService {
 
       query += ` ORDER BY start_date DESC`
 
-      const result = await pool.query(query, params)
+      const result = await this.db.query(query, params)
 
       return result.rows.map(row => ({
         id: row.id,
@@ -379,7 +381,7 @@ export class FuelPurchasingService {
     alertData: PriceAlert
   ): Promise<PriceAlert> {
     try {
-      const result = await pool.query(
+      const result = await this.db.query(
         `INSERT INTO fuel_price_alerts (
           tenant_id, alert_type, alert_name, fuel_type,
           threshold, comparison_operator, is_active, created_by
@@ -427,7 +429,7 @@ export class FuelPurchasingService {
     }
   }> {
     try {
-      const result = await pool.query(
+      const result = await this.db.query(
         `SELECT
            COALESCE(SUM(gallons), 0) as total_gallons,
            COALESCE(SUM(total_cost), 0) as total_spent,
@@ -479,7 +481,7 @@ export class FuelPurchasingService {
    */
   private async getCurrentStationPrices(stationId: string): Promise<{ [fuelType: string]: number }> {
     try {
-      const result = await pool.query(
+      const result = await this.db.query(
         `SELECT DISTINCT ON (fuel_type)
            fuel_type, price_per_gallon
          FROM fuel_prices
@@ -554,4 +556,4 @@ export class FuelPurchasingService {
   }
 }
 
-export default new FuelPurchasingService()
+export default FuelPurchasingService

@@ -1,5 +1,5 @@
 import { VehicleRepository, Vehicle } from '../repositories/VehicleRepository'
-import pool from '../config/database'
+import { Pool } from 'pg'
 
 /**
  * VehiclesService
@@ -8,7 +8,7 @@ import pool from '../config/database'
 export class VehiclesService {
   private vehicleRepository: VehicleRepository
 
-  constructor() {
+  constructor(private db: Pool) {
     this.vehicleRepository = new VehicleRepository()
   }
 
@@ -33,7 +33,7 @@ export class VehiclesService {
     } = {}
   ) {
     // Get user scope for row-level filtering
-    const userResult = await pool.query(
+    const userResult = await this.db.query(
       'SELECT team_vehicle_ids, vehicle_id, scope_level FROM users WHERE id = $1',
       [userId]
     )
@@ -102,7 +102,7 @@ export class VehiclesService {
       const limit = filters.limit || 50
       const offset = ((filters.page || 1) - 1) * limit
 
-      const result = await pool.query(
+      const result = await this.db.query(
         `SELECT 
       id,
       tenant_id,
@@ -136,7 +136,7 @@ export class VehiclesService {
         [...scopeParams, limit, offset]
       )
 
-      const countResult = await pool.query(
+      const countResult = await this.db.query(
         `SELECT COUNT(*) FROM vehicles WHERE tenant_id = $1 ${assetFilters}`,
         scopeParams
       )
@@ -181,7 +181,7 @@ export class VehiclesService {
     }
 
     // Check IDOR protection
-    const userResult = await pool.query(
+    const userResult = await this.db.query(
       'SELECT team_vehicle_ids, vehicle_id, scope_level FROM users WHERE id = $1',
       [userId]
     )
@@ -256,4 +256,4 @@ export class VehiclesService {
   }
 }
 
-export default new VehiclesService()
+export default VehiclesService
