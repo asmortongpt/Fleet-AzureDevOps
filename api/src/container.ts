@@ -114,6 +114,27 @@ import CustomReportService from './services/custom-report.service'
 import ExecutiveDashboardService from './services/executive-dashboard.service'
 import RouteOptimizationService from './services/route-optimization.service'
 
+// Import Batch 1: Large Specialized services
+import SchedulingService from './services/scheduling.service'
+import AttachmentService from './services/attachment.service'
+import PhotoProcessingService from './services/photo-processing.service'
+import HeavyEquipmentService from './services/heavy-equipment.service'
+
+// Import Batch 2: Medium Domain services
+import JobQueueService from './services/queue/job-queue.service'
+import TaskAssetConfigManager from './services/config/task-asset-config.service'
+import NotificationService from './services/notifications/notification.service'
+import CustomFieldsService from './services/custom-fields/custom-fields.service'
+import AnalyticsService from './services/analytics/analytics.service'
+import RecurringMaintenanceService from './services/recurring-maintenance'
+
+// Import Batch 3: Small Utility services
+import TaskAssetAIService from './services/ai/task-asset-ai.service'
+import CollaborationService from './services/collaboration/real-time.service'
+import VehicleIdentificationService from './services/vehicle-identification.service'
+import OcrService from './services/ocr.service'
+import UtilizationCalcService from './services/utilization-calc.service'
+
 // Import repository classes
 import { VehicleRepository } from './repositories/VehicleRepository'
 import { DriverRepository } from './repositories/DriverRepository'
@@ -239,6 +260,27 @@ export interface DIContainer extends AwilixContainer {
   customReportService: CustomReportService
   executiveDashboardService: ExecutiveDashboardService
   routeOptimizationService: RouteOptimizationService
+
+  // Batch 1: Large Specialized Services
+  schedulingService: SchedulingService
+  attachmentService: AttachmentService
+  photoProcessingService: PhotoProcessingService
+  heavyEquipmentService: HeavyEquipmentService
+
+  // Batch 2: Medium Domain Services
+  jobQueueService: JobQueueService
+  taskAssetConfigManager: TaskAssetConfigManager
+  notificationService: NotificationService
+  customFieldsService: CustomFieldsService
+  analyticsService: AnalyticsService
+  recurringMaintenanceService: RecurringMaintenanceService
+
+  // Batch 3: Small Utility Services
+  taskAssetAIService: TaskAssetAIService
+  collaborationService: CollaborationService
+  vehicleIdentificationService: VehicleIdentificationService
+  ocrService: OcrService
+  utilizationCalcService: UtilizationCalcService
 }
 
 /**
@@ -556,6 +598,66 @@ export function createDIContainer() {
       lifetime: Lifetime.SINGLETON
     }),
     routeOptimizationService: asClass(RouteOptimizationService, {
+      lifetime: Lifetime.SINGLETON
+    })
+  })
+
+  // Register Batch 1: Large Specialized services
+  // These services handle scheduling, attachments, photo processing, and heavy equipment
+  container.register({
+    schedulingService: asClass(SchedulingService, {
+      lifetime: Lifetime.SINGLETON
+    }),
+    attachmentService: asClass(AttachmentService, {
+      lifetime: Lifetime.SINGLETON
+    }),
+    photoProcessingService: asClass(PhotoProcessingService, {
+      lifetime: Lifetime.SINGLETON
+    }),
+    heavyEquipmentService: asClass(HeavyEquipmentService, {
+      lifetime: Lifetime.SINGLETON
+    })
+  })
+
+  // Register Batch 2: Medium Domain services
+  // These services handle queues, config, notifications, custom fields, analytics, recurring maintenance
+  container.register({
+    jobQueueService: asClass(JobQueueService, {
+      lifetime: Lifetime.SINGLETON
+    }),
+    taskAssetConfigManager: asClass(TaskAssetConfigManager, {
+      lifetime: Lifetime.SINGLETON
+    }),
+    notificationService: asClass(NotificationService, {
+      lifetime: Lifetime.SINGLETON
+    }),
+    customFieldsService: asClass(CustomFieldsService, {
+      lifetime: Lifetime.SINGLETON
+    }),
+    analyticsService: asClass(AnalyticsService, {
+      lifetime: Lifetime.SINGLETON
+    }),
+    recurringMaintenanceService: asClass(RecurringMaintenanceService, {
+      lifetime: Lifetime.SINGLETON
+    })
+  })
+
+  // Register Batch 3: Small Utility services
+  // These services handle AI tasks, collaboration, vehicle ID, OCR, utilization
+  container.register({
+    taskAssetAIService: asClass(TaskAssetAIService, {
+      lifetime: Lifetime.SINGLETON
+    }),
+    collaborationService: asClass(CollaborationService, {
+      lifetime: Lifetime.SINGLETON
+    }),
+    vehicleIdentificationService: asClass(VehicleIdentificationService, {
+      lifetime: Lifetime.SINGLETON
+    }),
+    ocrService: asClass(OcrService, {
+      lifetime: Lifetime.SINGLETON
+    }),
+    utilizationCalcService: asClass(UtilizationCalcService, {
       lifetime: Lifetime.SINGLETON
     })
   })
