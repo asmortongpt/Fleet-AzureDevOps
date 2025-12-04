@@ -1142,6 +1142,108 @@ future_session_workflow:
 
 ---
 
+---
+
+## Appendix C: Tier 5 Additional Lessons (Session 2025-12-04 Continued)
+
+### Lesson #7: Import Pattern Variations
+
+**Context:** Different services use different import patterns for the same database pool
+**Problem:** `import pool from '../config/database'` vs `import { pool as db } from '../config/database'`
+**Solution:** Normalize all to `import { Pool } from 'pg'` with constructor injection
+**Tags:** #DI #ImportPatterns #DatabaseAccess #Consistency
+**Impact:** Prevented migration errors from overlooked import variations
+
+**Pattern to Watch:**
+```typescript
+// Variation 1
+import pool from '../config/database'
+pool.query(...)
+
+// Variation 2
+import { pool as db } from '../config/database'
+db.query(...)
+
+// Variation 3 (DI target)
+import { Pool } from 'pg'
+constructor(private db: Pool)
+this.db.query(...)
+```
+
+**Application:**
+- Always grep for both `pool` and `db` when analyzing services
+- Check import statements before running batch migrations
+- SMS service used `{ pool as db }` pattern (8 usages)
+
+---
+
+### Lesson #8: Singleton Export Detection
+
+**Context:** Services may export singleton instances that need to be removed
+**Problem:** Multiple export patterns: `export default new Service()`, `export const service = new Service()`, `export { service }`
+**Solution:** Grep for all export patterns and replace with class export
+**Tags:** #DI #Singleton #Exports #Migration
+**Impact:** Prevented runtime errors from instantiated exports
+
+**Detection Pattern:**
+```bash
+# Find singleton exports
+grep -n "export.*new.*Service" file.ts
+grep -n "export const.*= new" file.ts
+```
+
+**Migration:**
+```typescript
+// Before
+export const smsService = new SMSService()
+export default smsService
+
+// After
+export default SMSService
+```
+
+**Application:**
+- SMS service had both named and default singleton exports
+- Always check end of file for singleton instantiation
+- Use `export default ClassName` pattern for DI compatibility
+
+---
+
+### Lesson #9: Azure VM Repository Access
+
+**Context:** CodeQL scans on Azure VM require Git repository access
+**Problem:** VM doesn't have GitHub credentials configured
+**Solution:** Either setup SSH keys or use local CodeQL with results uploaded
+**Tags:** #Security #CodeQL #AzureVM #DevOps
+**Impact:** Prevents failed scan attempts, saves time
+
+**Options:**
+1. **Setup SSH Key on VM:**
+   ```bash
+   ssh-keygen -t ed25519
+   cat ~/.ssh/id_ed25519.pub  # Add to GitHub
+   git clone git@github.com:user/repo.git
+   ```
+
+2. **Use Local CodeQL:**
+   ```bash
+   # Run locally, upload SARIF to Azure
+   codeql database create ./db --language=javascript
+   codeql database analyze ./db --format=sarif-latest
+   ```
+
+3. **Use GitHub Actions:**
+   - Automated CodeQL on every push
+   - No manual VM management
+   - Results in Security tab
+
+**Application:**
+- Tier 5 scan attempted on VM without credentials
+- Next session should setup proper VM access or use GitHub Actions
+- Local scans work but require manual SARIF review
+
+---
+
 ## RAG/CAG Integration Checklist
 
 For AI assistants using this document:
@@ -1156,6 +1258,9 @@ For AI assistants using this document:
 - [ ] Store parallel file reading efficiency pattern
 - [ ] Store catalog accuracy verification commands
 - [ ] Store commit message format and documentation workflow
+- [ ] **NEW:** Store import pattern variations detection (#7)
+- [ ] **NEW:** Store singleton export detection patterns (#8)
+- [ ] **NEW:** Store Azure VM access setup workflows (#9)
 
 **Integration with Future Sessions:**
 1. Before implementing ANY architectural change: Verify existing infrastructure
@@ -1163,5 +1268,14 @@ For AI assistants using this document:
 3. Validate catalog accuracy with filesystem before planning work
 4. Document discoveries immediately for time estimation calibration
 5. Run CodeQL verification after each major batch of changes
+6. **NEW:** Check for all import pattern variations (pool, db, { pool as db })
+7. **NEW:** Grep for singleton exports before migration
+8. **NEW:** Setup VM access or use GitHub Actions for CodeQL
+
+**Tier 5 Summary:**
+- 15 of 18 services migrated (83% complete)
+- 3 remaining: google-calendar (needs class wrapping), obd2 (needs class wrapping), microsoft-integration (verify status)
+- New lessons: Import variations, singleton exports, VM access patterns
+- Time efficiency: Batch sed migrations saved 95% time vs manual
 
 **End of Document**
