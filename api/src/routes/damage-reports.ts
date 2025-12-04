@@ -1,12 +1,10 @@
 import express, { Response } from 'express'
 import { container } from '../container'
-import { asyncHandler } from '../middleware/error-handler'
 import { NotFoundError, ValidationError } from '../errors/app-error'
 import { AuthRequest, authenticateJWT } from '../middleware/auth'
 import { requirePermission } from '../middleware/permissions'
 import { auditLog } from '../middleware/audit'
 import { z } from 'zod'
-import { SqlParams } from '../types'
 import multer from 'multer'
 import { BlobServiceClient } from '@azure/storage-blob'
 import { v4 as uuidv4 } from 'uuid'
@@ -93,7 +91,7 @@ router.get(
       notes,
       created_at,
       updated_at FROM damage_reports WHERE tenant_id = $1`
-      const params: SqlParams = [req.user!.tenant_id]
+      const params: any[] = [req.user!.tenant_id]
 
       if (vehicle_id) {
         query += ` AND vehicle_id = $2`
@@ -202,7 +200,7 @@ router.post(
       res.status(201).json(result.rows[0])
     } catch (error) {
       if (error instanceof z.ZodError) {
-        return res.status(400).json({ error: `Validation error`, details: error.errors })
+        return res.status(400).json({ error: `Validation error`, details: error.issues })
       }
       console.error('Create damage report error:', error)
       res.status(500).json({ error: 'Internal server error' })
@@ -220,7 +218,7 @@ router.put(
       const validatedData = damageReportSchema.partial().parse(req.body)
 
       const fields: string[] = []
-      const values: SqlParams = []
+      const values: any[] = []
       let paramIndex = 3
 
       Object.entries(validatedData).forEach(([key, value]) => {
@@ -246,7 +244,7 @@ router.put(
       res.json(result.rows[0])
     } catch (error) {
       if (error instanceof z.ZodError) {
-        return res.status(400).json({ error: `Validation error`, details: error.errors })
+        return res.status(400).json({ error: `Validation error`, details: error.issues })
       }
       console.error('Update damage report error:', error)
       res.status(500).json({ error: 'Internal server error' })
