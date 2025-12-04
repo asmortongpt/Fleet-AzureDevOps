@@ -1,7 +1,11 @@
 import { Client } from '@microsoft/microsoft-graph-client'
 import axios from 'axios'
-import pool from '../config/database'
+import { Pool } from 'pg'
 import { validateURL, SSRFError } from '../utils/safe-http-request'
+
+
+export class PresenceService {
+  constructor(private db: Pool) {}
 
 // Azure AD Configuration
 const AZURE_AD_CONFIG = {
@@ -55,7 +59,7 @@ export interface PresenceInfo {
 /**
  * Get presence information for a user
  */
-export async function getPresence(userId: string): Promise<PresenceInfo> {
+  async getPresence(userId: string): Promise<PresenceInfo> {
   try {
     const client = await getGraphClient()
 
@@ -79,7 +83,7 @@ export async function getPresence(userId: string): Promise<PresenceInfo> {
 /**
  * Set presence for the current user (requires delegated permissions)
  */
-export async function setPresence(
+  async setPresence(
   userId: string,
   availability: string,
   activity: string,
@@ -124,7 +128,7 @@ export async function setPresence(
 /**
  * Get presence for multiple users in a single request
  */
-export async function getBatchPresence(userIds: string[]): Promise<PresenceInfo[]> {
+  async getBatchPresence(userIds: string[]): Promise<PresenceInfo[]> {
   try {
     const client = await getGraphClient()
 
@@ -153,7 +157,7 @@ export async function getBatchPresence(userIds: string[]): Promise<PresenceInfo[
  * Subscribe to presence updates for users
  * Note: This requires setting up webhooks/subscriptions
  */
-export async function subscribeToPresence(userIds: string[], webhookUrl: string): Promise<any> {
+  async subscribeToPresence(userIds: string[], webhookUrl: string): Promise<any> {
   try {
     // SSRF Protection: Validate webhook URL
     // Only allow webhooks to our own application domain
@@ -202,14 +206,14 @@ export async function subscribeToPresence(userIds: string[], webhookUrl: string)
 /**
  * Get driver availability based on presence
  */
-export async function getDriverAvailability(driverId: string): Promise<{
+  async getDriverAvailability(driverId: string): Promise<{
   available: boolean
   status: string
   presence?: PresenceInfo
 }> {
   try {
     // Get driver's Microsoft user ID
-    const driverResult = await pool.query(
+    const driverResult = await this.db.query(
       'SELECT email, sso_provider_id FROM users WHERE id = $1 AND role = $2',
       [driverId, 'driver']
     )
@@ -226,7 +230,7 @@ export async function getDriverAvailability(driverId: string): Promise<{
     // If driver doesn't have Microsoft SSO, check alternative availability indicators
     if (!driver.sso_provider_id) {
       // Check if driver has any active assignments
-      const assignmentResult = await pool.query(
+      const assignmentResult = await this.db.query(
         `SELECT COUNT(*) as active_count
          FROM work_orders
          WHERE assigned_to = $1 AND status = 'in_progress'',
@@ -282,7 +286,7 @@ export async function getDriverAvailability(driverId: string): Promise<{
 /**
  * Get availability for all drivers
  */
-export async function getAllDriversAvailability(tenantId?: number): Promise<any[]> {
+  async getAllDriversAvailability(tenantId?: number): Promise<any[]> {
   try {
     // Get all drivers with Microsoft SSO
     const query = tenantId
@@ -290,7 +294,7 @@ export async function getAllDriversAvailability(tenantId?: number): Promise<any[
       : 'SELECT id, email, first_name, last_name, sso_provider_id FROM users WHERE role = $1'
 
     const params = tenantId ? ['driver', tenantId] : ['driver']
-    const driversResult = await pool.query(query, params)
+    const driversResult = await this.db.query(query, params)
 
     const drivers = driversResult.rows
 
@@ -326,7 +330,7 @@ export async function getAllDriversAvailability(tenantId?: number): Promise<any[
           }
         } else {
           // Check alternative availability indicators
-          const assignmentResult = await pool.query(
+          const assignmentResult = await this.db.query(
             `SELECT COUNT(*) as active_count
              FROM work_orders
              WHERE assigned_to = $1 AND status = `in_progress``,
@@ -357,7 +361,7 @@ export async function getAllDriversAvailability(tenantId?: number): Promise<any[
 /**
  * Find available drivers for urgent tasks
  */
-export async function findAvailableDrivers(tenantId?: number): Promise<any[]> {
+  async findAvailableDrivers(tenantId?: number): Promise<any[]> {
   const allDrivers = await getAllDriversAvailability(tenantId)
   return allDrivers.filter(driver => driver.available)
 }
@@ -366,7 +370,7 @@ export async function findAvailableDrivers(tenantId?: number): Promise<any[]> {
  * Check if a user should be disturbed based on presence
  * Returns true if it's OK to send notifications/messages
  */
-export function shouldNotifyUser(presence: PresenceInfo): boolean {
+  shouldNotifyUser(presence: PresenceInfo): boolean {
   // Don't disturb users who are in Do Not Disturb mode or in a meeting
   const doNotDisturbStatuses = ['DoNotDisturb', 'Presenting', 'InAMeeting']
 
@@ -385,7 +389,7 @@ export function shouldNotifyUser(presence: PresenceInfo): boolean {
 /**
  * Get intelligent routing suggestion based on presence
  */
-export async function getIntelligentRoutingSuggestion(
+  async getIntelligentRoutingSuggestion(
   taskPriority: 'low' | 'medium' | 'high' | 'critical',
   candidateUserIds: string[]
 ): Promise<{
@@ -465,14 +469,7 @@ export async function getIntelligentRoutingSuggestion(
   }
 }
 
-export default {
-  getPresence,
-  setPresence,
-  getBatchPresence,
-  subscribeToPresence,
-  getDriverAvailability,
-  getAllDriversAvailability,
-  findAvailableDrivers,
-  shouldNotifyUser,
-  getIntelligentRoutingSuggestion
+
 }
+
+export default PresenceService
