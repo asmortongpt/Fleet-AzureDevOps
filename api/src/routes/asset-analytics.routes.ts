@@ -34,8 +34,7 @@ router.get(
   checkJwt,
   checkRole(['manager']),
   asyncHandler(async (req, res) => {
-    // TODO: const service = container.resolve('"Service"')
-    const { startDate, endDate } = dateRangeSchema.parse(req.query)
+        const { startDate, endDate } = dateRangeSchema.parse(req.query)
     const utilizationMetrics = await utilizationCalcService.getDailyUtilization(startDate, endDate)
     res.json(utilizationMetrics)
   })
@@ -57,8 +56,7 @@ router.get(
   checkJwt,
   checkRole(['manager']),
   asyncHandler(async (req, res) => {
-    // TODO: const service = container.resolve('"Service"')
-    const { startDate, endDate } = dateRangeSchema.parse(req.query)
+        const { startDate, endDate } = dateRangeSchema.parse(req.query)
     const roi = await roiCalculatorService.calculateROI(startDate, endDate)
     res.json(roi)
   })
@@ -77,8 +75,7 @@ router.get(
   checkJwt,
   checkRole(['manager']),
   asyncHandler(async (req, res) => {
-    // TODO: const service = container.resolve('"Service"')
-    const idleAssets = await utilizationCalcService.getIdleAssets()
+        const idleAssets = await utilizationCalcService.getIdleAssets()
     res.json(idleAssets)
   })
 )
@@ -96,8 +93,7 @@ router.get(
   checkJwt,
   checkRole(['manager']),
   asyncHandler(async (req, res) => {
-    // TODO: const service = container.resolve('"Service"')
-    const costPerMileData = await roiCalculatorService.getCostPerMile()
+        const costPerMileData = await roiCalculatorService.getCostPerMile()
     res.json(costPerMileData)
   })
 )

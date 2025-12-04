@@ -72,7 +72,6 @@ router.get("/", validate(getFuelTransactionsQuerySchema, 'query'), async (req, r
 
 // GET fuel transaction by ID
 router.get("/:id", asyncHandler(async (req, res) => {
-// TODO: const service = container.resolve('"Service"')
   try {
     const transaction = fuelTransactionEmulator.getById(Number(req.params.id)
     if (!transaction) return throw new NotFoundError("Fuel transaction not found")
@@ -121,7 +120,6 @@ router.put("/:id", validate(updateFuelTransactionSchema, 'body'), async (req, re
 
 // DELETE fuel transaction
 router.delete("/:id", asyncHandler(async (req, res) => {
-// TODO: const service = container.resolve('"Service"')
   try {
     const deleted = fuelTransactionEmulator.delete(Number(req.params.id)
     if (!deleted) return throw new NotFoundError("Fuel transaction not found")
