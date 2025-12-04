@@ -37,6 +37,9 @@ import { WorkorderService } from './services/WorkOrderService'
 import { InspectionService } from './services/InspectionService'
 import { FueltransactionService } from './services/FuelTransactionService'
 import { RouteService } from './services/RouteService'
+import { OcrQueueService } from './services/OcrQueueService'
+import { OcrService } from './services/OcrService'
+import { SearchIndexService } from './services/SearchIndexService'
 
 // Import Tier 3 Document Management services
 import DocumentAuditService from './services/document-audit.service'
@@ -123,6 +126,9 @@ export interface DIContainer extends AwilixContainer {
   inspectionService: InspectionService
   fuelTransactionService: FueltransactionService
   routeService: RouteService
+  ocrQueueService: OcrQueueService
+  ocrService: OcrService
+  searchIndexService: SearchIndexService
 
   // Repositories (data access layer)
   vehicleRepository: VehicleRepository
@@ -229,6 +235,15 @@ export function createDIContainer() {
       lifetime: Lifetime.SINGLETON
     }),
     routeService: asClass(RouteService, {
+      lifetime: Lifetime.SINGLETON
+    }),
+    ocrQueueService: asClass(OcrQueueService, {
+      lifetime: Lifetime.SINGLETON
+    }),
+    ocrService: asClass(OcrService, {
+      lifetime: Lifetime.SINGLETON
+    }),
+    searchIndexService: asClass(SearchIndexService, {
       lifetime: Lifetime.SINGLETON
     })
   })
