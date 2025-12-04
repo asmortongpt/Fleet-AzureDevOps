@@ -1,4 +1,7 @@
 /**
+import { container } from '../container'
+import { asyncHandler } from '../middleware/error-handler'
+import { NotFoundError, ValidationError } from '../errors/app-error'
 import logger from '../config/logger'; // Wave 22: Add Winston logger
  * Attachments Routes
  *
@@ -14,7 +17,6 @@ import multer from 'multer'
 import { AuthRequest, authenticateJWT, authorize } from '../middleware/auth'
 import { auditLog } from '../middleware/audit'
 import attachmentService from '../services/attachment.service'
-import pool from '../config/database'
 import { getErrorMessage } from '../utils/error-handler'
 import { SqlParams, Attachment } from '../types'
 
@@ -35,7 +37,7 @@ const upload = multer({
       cb(new Error(getErrorMessage(error)))
     }
   }
-})
+}))
 
 // Apply authentication to all routes
 router.use(authenticateJWT)
@@ -74,7 +76,7 @@ router.post(
   async (req: AuthRequest, res: Response) => {
     try {
       if (!req.file) {
-        return res.status(400).json({ error: 'No file uploaded' })
+        return res.status(400).json({ error: 'No file uploaded' }))
       }
 
       const { communicationId, metadata } = req.body
@@ -87,7 +89,7 @@ router.post(
         tenantId: req.user!.tenant_id,
         communicationId: communicationId ? parseInt(communicationId) : undefined,
         metadata: metadata ? JSON.parse(metadata) : undefined
-      })
+      }))
 
       // Perform virus scan asynchronously
       attachmentService.scanFileForVirus(req.file).then(async (scanResult) => {
@@ -99,18 +101,18 @@ router.post(
         )
       }).catch(err => {
         logger.error('Virus scan error:', err) // Wave 22: Winston logger
-      })
+      }))
 
       res.status(201).json({
         message: 'File uploaded successfully',
         attachment: result
-      })
+      }))
     } catch (error: unknown) {
       logger.error('Upload error:', error) // Wave 22: Winston logger
       res.status(500).json({
         error: 'Failed to upload file',
         details: getErrorMessage(error)
-      })
+      }))
     }
   }
 )
@@ -134,7 +136,7 @@ router.post(
       const files = req.files as Express.Multer.File[]
 
       if (!files || files.length === 0) {
-        return res.status(400).json({ error: `No files uploaded` })
+        return res.status(400).json({ error: `No files uploaded` }))
       }
 
       const { communicationId, metadata } = req.body
@@ -148,7 +150,7 @@ router.post(
           tenantId: req.user!.tenant_id,
           communicationId: communicationId ? parseInt(communicationId) : undefined,
           metadata: metadata ? JSON.parse(metadata) : undefined
-        })
+        }))
       )
 
       const results = await Promise.all(uploadPromises)
@@ -156,13 +158,13 @@ router.post(
       res.status(201).json({
         message: `${results.length} files uploaded successfully`,
         attachments: results
-      })
+      }))
     } catch (error: unknown) {
       logger.error(`Multiple upload error:`, error) // Wave 22: Winston logger
       res.status(500).json({
         error: 'Failed to upload files',
         details: getErrorMessage(error)
-      })
+      }))
     }
   }
 )
@@ -198,7 +200,7 @@ router.get(
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: `Attachment not found` })
+        return res.status(404).json({ error: `Attachment not found` }))
       }
 
       const attachment = result.rows[0]
@@ -226,7 +228,7 @@ router.get(
       res.status(500).json({
         error: 'Failed to download file',
         details: getErrorMessage(error)
-      })
+      }))
     }
   }
 )
@@ -256,7 +258,7 @@ router.get(
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: `Attachment not found` })
+        return res.status(404).json({ error: `Attachment not found` }))
       }
 
       const sasUrl = await attachmentService.getFileSasUrl(
@@ -267,13 +269,13 @@ router.get(
       res.json({
         sasUrl,
         expiresIn: `${expiryMinutes} minutes`
-      })
+      }))
     } catch (error: unknown) {
       logger.error(`SAS URL generation error:`, error) // Wave 22: Winston logger
       res.status(500).json({
         error: `Failed to generate SAS URL`,
         details: getErrorMessage(error)
-      })
+      }))
     }
   }
 )
@@ -302,7 +304,7 @@ router.delete(
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: `Attachment not found` })
+        return res.status(404).json({ error: `Attachment not found` }))
       }
 
       // Delete from Azure
@@ -314,13 +316,13 @@ router.delete(
         [blobId]
       )
 
-      res.json({ message: `Attachment deleted successfully` })
+      res.json({ message: `Attachment deleted successfully` }))
     } catch (error: unknown) {
       logger.error('Delete error:', error) // Wave 22: Winston logger
       res.status(500).json({
         error: 'Failed to delete attachment',
         details: getErrorMessage(error)
-      })
+      }))
     }
   }
 )
@@ -346,7 +348,7 @@ router.post(
   async (req: AuthRequest, res: Response) => {
     try {
       if (!req.file) {
-        return res.status(400).json({ error: 'No file uploaded' })
+        return res.status(400).json({ error: 'No file uploaded' }))
       }
 
       const { teamId, channelId } = req.params
@@ -362,13 +364,13 @@ router.post(
       res.status(201).json({
         message: 'File uploaded to Teams successfully',
         file: result
-      })
+      }))
     } catch (error: unknown) {
       logger.error('Teams upload error:', error) // Wave 22: Winston logger
       res.status(500).json({
         error: 'Failed to upload file to Teams',
         details: getErrorMessage(error)
-      })
+      }))
     }
   }
 )
@@ -403,7 +405,7 @@ router.get(
       res.status(500).json({
         error: 'Failed to download file from Teams',
         details: getErrorMessage(error)
-      })
+      }))
     }
   }
 )
@@ -429,13 +431,13 @@ router.post(
   async (req: AuthRequest, res: Response) => {
     try {
       if (!req.file) {
-        return res.status(400).json({ error: 'No file uploaded' })
+        return res.status(400).json({ error: 'No file uploaded' }))
       }
 
       const { messageId } = req.body
 
       if (!messageId) {
-        return res.status(400).json({ error: 'Message ID is required' })
+        return res.status(400).json({ error: 'Message ID is required' }))
       }
 
       const result = await attachmentService.uploadToOutlook(messageId, req.file)
@@ -443,13 +445,13 @@ router.post(
       res.status(201).json({
         message: 'Attachment added to email successfully',
         attachment: result
-      })
+      }))
     } catch (error: unknown) {
       logger.error('Outlook attachment error:', error) // Wave 22: Winston logger
       res.status(500).json({
         error: 'Failed to add attachment to email',
         details: getErrorMessage(error)
-      })
+      }))
     }
   }
 )
@@ -474,7 +476,7 @@ router.post(
       const files = req.files as Express.Multer.File[] || []
 
       if (!to || !subject || !body) {
-        return res.status(400).json({ error: 'Missing required fields: to, subject, body' })
+        return res.status(400).json({ error: 'Missing required fields: to, subject, body' }))
       }
 
       const email = {
@@ -491,13 +493,13 @@ router.post(
         message: 'Email sent successfully',
         recipients: email.to.length,
         attachments: files.length
-      })
+      }))
     } catch (error: unknown) {
       logger.error('Send email error:', error) // Wave 22: Winston logger
       res.status(500).json({
         error: 'Failed to send email',
         details: getErrorMessage(error)
-      })
+      }))
     }
   }
 )
@@ -531,7 +533,7 @@ router.get(
       res.status(500).json({
         error: 'Failed to download email attachment',
         details: getErrorMessage(error)
-      })
+      }))
     }
   }
 )
@@ -605,13 +607,13 @@ router.get(
           total: parseInt(countResult.rows[0].count),
           pages: Math.ceil(countResult.rows[0].count / Number(limit))
         }
-      })
+      }))
     } catch (error: unknown) {
       logger.error(`Get attachments error:`, error) // Wave 22: Winston logger
       res.status(500).json({
         error: `Failed to get attachments`,
         details: getErrorMessage(error)
-      })
+      }))
     }
   }
 )
@@ -645,7 +647,7 @@ router.get(
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: `Attachment not found` })
+        return res.status(404).json({ error: `Attachment not found` }))
       }
 
       res.json(result.rows[0])
@@ -654,7 +656,7 @@ router.get(
       res.status(500).json({
         error: 'Failed to get attachment',
         details: getErrorMessage(error)
-      })
+      }))
     }
   }
 )
@@ -681,13 +683,13 @@ router.post(
       res.json({
         message: 'Cleanup completed',
         deletedCount
-      })
+      }))
     } catch (error: unknown) {
       logger.error('Cleanup error:', error) // Wave 22: Winston logger
       res.status(500).json({
         error: 'Failed to cleanup orphaned files',
         details: getErrorMessage(error)
-      })
+      }))
     }
   }
 )
@@ -733,13 +735,13 @@ router.get(
       res.json({
         summary: stats.rows[0],
         by_type: byType.rows
-      })
+      }))
     } catch (error: unknown) {
       logger.error('Get stats error:', error) // Wave 22: Winston logger
       res.status(500).json({
         error: 'Failed to get attachment statistics',
         details: getErrorMessage(error)
-      })
+      }))
     }
   }
 )

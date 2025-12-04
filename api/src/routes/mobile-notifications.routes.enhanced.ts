@@ -1,4 +1,7 @@
 import express, { Request, Response } from 'express';
+import { container } from '../container'
+import { asyncHandler } from '../middleware/error-handler'
+import { NotFoundError, ValidationError } from '../errors/app-error'
 import { z } from 'zod';
 import { authenticateJWT } from '../middleware/auth';
 import { requirePermission } from '../middleware/permissions';
@@ -59,7 +62,7 @@ router.post(
       data: device,
       message: 'Device registered successfully',
     });
-  })
+  }))
 );
 
 router.delete(
@@ -74,7 +77,7 @@ router.delete(
       success,
       message: success ? 'Device unregistered successfully' : 'Failed to unregister device',
     });
-  })
+  }))
 );
 
 router.post(
@@ -112,7 +115,7 @@ router.post(
       data: result,
       message: 'Notification sent successfully',
     });
-  })
+  }))
 );
 
 export { router as mobileNotificationsRouter };

@@ -1,4 +1,7 @@
 import express, { Response } from 'express'
+import { container } from '../container'
+import { asyncHandler } from '../middleware/error-handler'
+import { NotFoundError, ValidationError } from '../errors/app-error'
 import logger from '../config/logger'; // Wave 30: Add Winston logger
 import { AuthRequest, authenticateJWT } from '../middleware/auth'
 import { requirePermission } from '../middleware/permissions'
@@ -26,7 +29,7 @@ router.get(
       res.json(heatmap)
     } catch (error) {
       logger.error('Get utilization heatmap error:', error) // Wave 30: Winston logger
-      res.status(500).json({ error: 'Internal server error' })
+      res.status(500).json({ error: 'Internal server error' }))
     }
   }
 )
@@ -42,7 +45,7 @@ router.get(
       const { periodStart, periodEnd } = req.query
 
       if (!periodStart || !periodEnd) {
-        return res.status(400).json({ error: 'periodStart and periodEnd are required' })
+        return res.status(400).json({ error: 'periodStart and periodEnd are required' }))
       }
 
       const utilization = await fleetOptimizerService.analyzeVehicleUtilization(
@@ -55,7 +58,7 @@ router.get(
       res.json(utilization)
     } catch (error) {
       logger.error('Get vehicle utilization error:', error) // Wave 30: Winston logger
-      res.status(500).json({ error: 'Internal server error' })
+      res.status(500).json({ error: 'Internal server error' }))
     }
   }
 )
@@ -79,7 +82,7 @@ router.get(
       res.json(forecast)
     } catch (error) {
       logger.error('Get utilization forecast error:', error) // Wave 30: Winston logger
-      res.status(500).json({ error: 'Internal server error' })
+      res.status(500).json({ error: 'Internal server error' }))
     }
   }
 )
@@ -101,7 +104,7 @@ router.get(
       res.json(recommendations)
     } catch (error) {
       logger.error('Get recommendations error:', error) // Wave 30: Winston logger
-      res.status(500).json({ error: 'Internal server error' })
+      res.status(500).json({ error: 'Internal server error' }))
     }
   }
 )
@@ -116,7 +119,7 @@ router.post(
       const { periodStart, periodEnd } = req.body
 
       if (!periodStart || !periodEnd) {
-        return res.status(400).json({ error: 'periodStart and periodEnd are required' })
+        return res.status(400).json({ error: 'periodStart and periodEnd are required' }))
       }
 
       const recommendations = await fleetOptimizerService.generateRecommendations(
@@ -128,7 +131,7 @@ router.post(
       res.json(recommendations)
     } catch (error) {
       logger.error('Generate recommendations error:', error) // Wave 30: Winston logger
-      res.status(500).json({ error: 'Internal server error' })
+      res.status(500).json({ error: 'Internal server error' }))
     }
   }
 )
@@ -150,7 +153,7 @@ router.get(
       res.json(result)
     } catch (error) {
       logger.error('Calculate optimal fleet size error:', error) // Wave 30: Winston logger
-      res.status(500).json({ error: 'Internal server error' })
+      res.status(500).json({ error: 'Internal server error' }))
     }
   }
 )
@@ -165,7 +168,7 @@ router.post(
       const { periodStart, periodEnd } = req.body
 
       if (!periodStart || !periodEnd) {
-        return res.status(400).json({ error: 'periodStart and periodEnd are required' })
+        return res.status(400).json({ error: 'periodStart and periodEnd are required' }))
       }
 
       await fleetOptimizerService.analyzeAllVehicles(
@@ -174,10 +177,10 @@ router.post(
         new Date(periodEnd)
       )
 
-      res.json({ message: 'Analysis started for all vehicles' })
+      res.json({ message: 'Analysis started for all vehicles' }))
     } catch (error) {
       logger.error('Analyze all vehicles error:', error) // Wave 30: Winston logger
-      res.status(500).json({ error: 'Internal server error' })
+      res.status(500).json({ error: 'Internal server error' }))
     }
   }
 )

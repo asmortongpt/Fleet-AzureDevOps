@@ -1,4 +1,7 @@
 /**
+import { container } from '../container'
+import { asyncHandler } from '../middleware/error-handler'
+import { NotFoundError, ValidationError } from '../errors/app-error'
  * Vendors Routes - DAL Example Implementation
  *
  * This file demonstrates how to use the Data Access Layer (DAL) with repositories
@@ -51,7 +54,7 @@ const vendorSchema = z.object({
   payment_terms: z.string().optional(),
   notes: z.string().optional(),
   is_active: z.boolean().optional()
-})
+}))
 
 /**
  * GET /vendors
@@ -80,12 +83,12 @@ router.get(
         page: Number(page),
         limit: Number(limit),
         orderBy: orderBy as string
-      })
+      }))
 
       res.json(result)
     } catch (error) {
       const { statusCode, error: message, code } = handleDatabaseError(error)
-      res.status(statusCode).json({ error: message, code })
+      res.status(statusCode).json({ error: message, code }))
     }
   }
 )
@@ -103,10 +106,10 @@ router.get(
   async (req: AuthRequest, res: Response) => {
     try {
       const vendors = await vendorRepo.findActiveByTenant(req.user!.tenant_id)
-      res.json({ data: vendors })
+      res.json({ data: vendors }))
     } catch (error) {
       const { statusCode, error: message, code } = handleDatabaseError(error)
-      res.status(statusCode).json({ error: message, code })
+      res.status(statusCode).json({ error: message, code }))
     }
   }
 )
@@ -127,7 +130,7 @@ router.get(
       res.json(stats)
     } catch (error) {
       const { statusCode, error: message, code } = handleDatabaseError(error)
-      res.status(statusCode).json({ error: message, code })
+      res.status(statusCode).json({ error: message, code }))
     }
   }
 )
@@ -149,10 +152,10 @@ router.get(
       }
 
       const vendors = await vendorRepo.searchByName(req.user!.tenant_id, q)
-      res.json({ data: vendors })
+      res.json({ data: vendors }))
     } catch (error) {
       const { statusCode, error: message, code } = handleDatabaseError(error)
-      res.status(statusCode).json({ error: message, code })
+      res.status(statusCode).json({ error: message, code }))
     }
   }
 )
@@ -184,7 +187,7 @@ router.get(
       res.json(vendor)
     } catch (error) {
       const { statusCode, error: message, code } = handleDatabaseError(error)
-      res.status(statusCode).json({ error: message, code })
+      res.status(statusCode).json({ error: message, code }))
     }
   }
 )
@@ -225,11 +228,11 @@ router.post(
       res.status(201).json(vendor)
     } catch (error) {
       if (error instanceof z.ZodError) {
-        return res.status(400).json({ error: 'Validation failed', details: error.errors })
+        return res.status(400).json({ error: 'Validation failed', details: error.errors }))
       }
 
       const { statusCode, error: message, code } = handleDatabaseError(error)
-      res.status(statusCode).json({ error: message, code })
+      res.status(statusCode).json({ error: message, code }))
     }
   }
 )
@@ -278,11 +281,11 @@ router.put(
       res.json(vendor)
     } catch (error) {
       if (error instanceof z.ZodError) {
-        return res.status(400).json({ error: 'Validation failed', details: error.errors })
+        return res.status(400).json({ error: 'Validation failed', details: error.errors }))
       }
 
       const { statusCode, error: message, code } = handleDatabaseError(error)
-      res.status(statusCode).json({ error: message, code })
+      res.status(statusCode).json({ error: message, code }))
     }
   }
 )
@@ -311,10 +314,10 @@ router.delete(
         throw new NotFoundError('Vendor not found')
       }
 
-      res.json({ message: 'Vendor deleted successfully' })
+      res.json({ message: 'Vendor deleted successfully' }))
     } catch (error) {
       const { statusCode, error: message, code } = handleDatabaseError(error)
-      res.status(statusCode).json({ error: message, code })
+      res.status(statusCode).json({ error: message, code }))
     }
   }
 )
@@ -340,7 +343,7 @@ router.post(
       res.json(vendor)
     } catch (error) {
       const { statusCode, error: message, code } = handleDatabaseError(error)
-      res.status(statusCode).json({ error: message, code })
+      res.status(statusCode).json({ error: message, code }))
     }
   }
 )
@@ -384,14 +387,14 @@ router.post(
       res.status(201).json({
         message: `${createdVendors.length} vendors created successfully`,
         data: createdVendors
-      })
+      }))
     } catch (error) {
       if (error instanceof z.ZodError) {
-        return res.status(400).json({ error: `Validation failed`, details: error.errors })
+        return res.status(400).json({ error: `Validation failed`, details: error.errors }))
       }
 
       const { statusCode, error: message, code } = handleDatabaseError(error)
-      res.status(statusCode).json({ error: message, code })
+      res.status(statusCode).json({ error: message, code }))
     }
   }
 )
