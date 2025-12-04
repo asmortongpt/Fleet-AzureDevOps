@@ -5,7 +5,7 @@
  * and work order generation.
  */
 
-import pool from '../config/database'
+import { Pool } from 'pg'
 import winston from 'winston'
 import {
   MaintenanceSchedule,
@@ -37,7 +37,11 @@ const logger = winston.createLogger({
 /**
  * Calculate the next due date based on recurrence pattern
  */
-export async function calculateNextDueDate(
+
+export class RecurringMaintenanceService {
+  constructor(private db: Pool) {}
+
+  async calculateNextDueDate(
   schedule: MaintenanceSchedule,
   currentDate: Date = new Date(),
   vehicleData?: VehicleTelemetrySnapshot
@@ -117,7 +121,7 @@ function addTimeInterval(date: Date, pattern: RecurrencePattern): Date {
  * Get average daily mileage for a vehicle
  */
 async function getAverageDailyMileage(vehicleId: string, tenantId: string): Promise<number> {
-  const result = await pool.query(
+  const result = await this.db.query(
     `
     SELECT
       (MAX(odometer_reading) - MIN(odometer_reading)) as total_miles,
@@ -141,7 +145,7 @@ async function getAverageDailyMileage(vehicleId: string, tenantId: string): Prom
  * Get average engine hours per day for a vehicle
  */
 async function getAverageEngineHoursPerDay(vehicleId: string, tenantId: string): Promise<number> {
-  const result = await pool.query(
+  const result = await this.db.query(
     `
     SELECT
       (MAX(engine_hours) - MIN(engine_hours)) as total_hours,
@@ -164,7 +168,7 @@ async function getAverageEngineHoursPerDay(vehicleId: string, tenantId: string):
 /**
  * Check all schedules that are due now or within the specified window
  */
-export async function checkDueSchedules(
+  async checkDueSchedules(
   tenantId: string,
   daysAhead: number = 1,
   includeOverdue: boolean = true
@@ -205,7 +209,7 @@ export async function checkDueSchedules(
     ORDER BY ms.next_due ASC
   `
 
-  const result = await pool.query(query, [tenantId, daysAheadNum])
+  const result = await this.db.query(query, [tenantId, daysAheadNum])
 
   return result.rows.map((row) => ({
     schedule: row as MaintenanceSchedule,
@@ -244,12 +248,12 @@ export async function checkDueSchedules(
 /**
  * Generate a work order from a maintenance schedule
  */
-export async function generateWorkOrder(
+  async generateWorkOrder(
   schedule: MaintenanceSchedule,
   vehicleData?: VehicleTelemetrySnapshot,
   overrideTemplate?: Partial<WorkOrderTemplate>
 ): Promise<string> {
-  const client = await pool.connect()
+  const client = await this.db.connect()
 
   try {
     await client.query('BEGIN')
@@ -375,7 +379,7 @@ export async function generateWorkOrder(
  * Process all recurring schedules for a tenant
  * This is the main function called by the cron job
  */
-export async function processRecurringSchedules(
+  async processRecurringSchedules(
   tenantId?: string,
   daysAhead: number = 1
 ): Promise<ScheduleGenerationResult[]> {
@@ -385,7 +389,7 @@ export async function processRecurringSchedules(
     // Get all tenants if not specified
     const tenants = tenantId
       ? [{ id: tenantId }]
-      : (await pool.query(`SELECT id FROM tenants WHERE active = true`)).rows
+      : (await this.db.query(`SELECT id FROM tenants WHERE active = true`)).rows
 
     const results: ScheduleGenerationResult[] = []
 
@@ -421,7 +425,7 @@ export async function processRecurringSchedules(
           })
 
           // Record failed attempt in history
-          await pool.query(
+          await this.db.query(
             `INSERT INTO maintenance_schedule_history (
               tenant_id, schedule_id, execution_type, status, error_message
             ) VALUES ($1, $2, $3, $4, $5)`,
@@ -454,8 +458,8 @@ export async function processRecurringSchedules(
 /**
  * Get statistics for recurring schedules
  */
-export async function getRecurringScheduleStats(tenantId: string): Promise<RecurringScheduleStats> {
-  const result = await pool.query(
+  async getRecurringScheduleStats(tenantId: string): Promise<RecurringScheduleStats> {
+  const result = await this.db.query(
     `
     SELECT
       COUNT(*) FILTER (WHERE is_recurring = true) as total_recurring,
@@ -472,7 +476,7 @@ export async function getRecurringScheduleStats(tenantId: string): Promise<Recur
     [tenantId]
   )
 
-  const historyResult = await pool.query(
+  const historyResult = await this.db.query(
     `
     SELECT COUNT(*) as work_orders_created
     FROM maintenance_schedule_history
@@ -499,7 +503,7 @@ export async function getRecurringScheduleStats(tenantId: string): Promise<Recur
 /**
  * Validate recurrence pattern
  */
-export function validateRecurrencePattern(pattern: RecurrencePattern): { valid: boolean; errors: string[] } {
+  validateRecurrencePattern(pattern: RecurrencePattern): { valid: boolean; errors: string[] } {
   const errors: string[] = []
 
   if (!pattern.type) {
@@ -536,3 +540,7 @@ export function validateRecurrencePattern(pattern: RecurrencePattern): { valid: 
     errors
   }
 }
+
+}
+
+export default RecurringMaintenanceService
