@@ -43,8 +43,7 @@ router.post(
   requirePermission('vehicle:update:fleet'),
   qrGenerateLimiter,
   asyncHandler(async (req, res) => {
-    // TODO: const service = container.resolve('"Service"')
-    const { vehicleId } = vehicleIdSchema.parse(req.params)
+        const { vehicleId } = vehicleIdSchema.parse(req.params)
     const tenantId = req.user?.tenant_id
 
     if (!tenantId) {
@@ -65,8 +64,7 @@ router.post(
   requirePermission('vehicle:view:fleet'),
   qrScanLimiter,
   asyncHandler(async (req, res) => {
-    // TODO: const service = container.resolve('"Service"')
-    const { qrData } = qrDataSchema.parse(req.body)
+        const { qrData } = qrDataSchema.parse(req.body)
     const tenantId = req.user?.tenant_id
 
     if (!tenantId) {
