@@ -5,6 +5,8 @@ import { NotFoundError, ValidationError } from '../errors/app-error'
 import logger from '../config/logger'; // Wave 25: Add Winston logger
 import { authenticateJWT } from '../middleware/auth'
 import { getErrorMessage } from '../utils/error-handler'
+import { csrfProtection } from '../middleware/csrf'
+
 import {
   createEvent,
   getEvents,

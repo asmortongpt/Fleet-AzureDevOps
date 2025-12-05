@@ -21,6 +21,8 @@ import { VehicleIdlingService } from '../services/vehicle-idling.service'
 import { authenticate } from '../middleware/auth'
 import { validateRequest } from '../middleware/validation'
 import { body, param, query } from 'express-validator'
+import { csrfProtection } from '../middleware/csrf'
+
 
 const router = Router()
 const idlingService = new VehicleIdlingService()

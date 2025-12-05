@@ -5,6 +5,8 @@ import { NotFoundError, ValidationError } from '../errors/app-error'
 import logger from '../config/logger'; // Wave 16: Add Winston logger
 import { fuelTransactionEmulator } import { TenantValidator } from '../utils/tenant-validator';
 import { validate } from '../middleware/validation'
+import { csrfProtection } from '../middleware/csrf'
+
 import {
   createFuelTransactionSchema,
   updateFuelTransactionSchema,
@@ -132,7 +134,7 @@ router.delete("/:id", asyncHandler(async (req, res) => {
 export default router
 
 // IDOR Protection for UPDATE
-router.put('/:id', async (req: Request, res: Response) => {
+router.put('/:id', csrfProtection, async (req: Request, res: Response) => {
   const { id } = req.params;
   const tenantId = req.user?.tenantId;
 
@@ -153,7 +155,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 });
 
 // IDOR Protection for DELETE
-router.delete('/:id', async (req: Request, res: Response) => {
+router.delete('/:id', csrfProtection, async (req: Request, res: Response) => {
   const { id } = req.params;
   const tenantId = req.user?.tenantId;
 

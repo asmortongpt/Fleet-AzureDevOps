@@ -22,7 +22,9 @@ import { buildInsertClause, buildUpdateClause } from '../utils/sql-safety'
 import { ApiResponse } from '../utils/apiResponse'
 import { validate } from '../middleware/validation'
 import { getPaginationParams, createPaginatedResponse } from '../utils/pagination'
-import { cache, cacheMiddleware } from '../utils/cache' // ADD THIS LINE
+import { cache, cacheMiddleware } from '../utils/cache'
+import { csrfProtection } from '../middleware/csrf'
+ // ADD THIS LINE
 
 const router = express.Router()
 router.use(authenticateJWT)
