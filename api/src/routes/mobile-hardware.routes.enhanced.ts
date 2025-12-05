@@ -39,7 +39,7 @@ const PartScanSchema = z.object({
 
 router.post(
   '/parts/scan',
- csrfProtection,  csrfProtection, requirePermission('inventory:view:global'),
+ csrfProtection, requirePermission('inventory:view:global'),
   asyncHandler(async (req: Request, res: Response) => {
     try {
       const validated = PartScanSchema.parse(req.body)

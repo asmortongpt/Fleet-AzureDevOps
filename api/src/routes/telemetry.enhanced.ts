@@ -64,7 +64,7 @@ router.get(
 // Enhanced POST /telemetry with security and validation improvements
 router.post(
   '/',
- csrfProtection,  csrfProtection, requirePermission('telemetry:create:fleet'),
+ csrfProtection, requirePermission('telemetry:create:fleet'),
   rateLimit(100, 60000), // Adjusted rate limit
   auditLog({ action: 'CREATE', resourceType: 'telemetry_data' }),
   async (req: AuthRequest, res: Response) => {
@@ -89,7 +89,7 @@ router.post(
 // Enhanced PUT /telemetry/:id with security and validation improvements
 router.put(
   '/:id',
- csrfProtection,  csrfProtection, requirePermission('telemetry:update:fleet'),
+ csrfProtection, requirePermission('telemetry:update:fleet'),
   rateLimit(100, 60000), // Adjusted rate limit
   auditLog({ action: 'UPDATE', resourceType: 'telemetry_data' }),
   async (req: AuthRequest, res: Response) => {

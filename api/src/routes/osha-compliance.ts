@@ -127,7 +127,7 @@ router.get(
 // POST /osha-compliance/300-log
 router.post(
   '/300-log',
- csrfProtection,  csrfProtection, requirePermission('osha:submit:global'),
+ csrfProtection, requirePermission('osha:submit:global'),
   auditLog({ action: 'CREATE', resourceType: 'osha_300_log' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -258,7 +258,7 @@ router.get(
 // POST /osha-compliance/safety-inspections
 router.post(
   '/safety-inspections',
- csrfProtection,  csrfProtection, requirePermission('osha:submit:global'),
+ csrfProtection, requirePermission('osha:submit:global'),
   auditLog({ action: 'CREATE', resourceType: 'vehicle_safety_inspections' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -347,7 +347,7 @@ router.get(
 // POST /osha-compliance/training-records
 router.post(
   '/training-records',
- csrfProtection,  csrfProtection, requirePermission('osha:submit:global'),
+ csrfProtection, requirePermission('osha:submit:global'),
   auditLog({ action: 'CREATE', resourceType: 'safety_training_records' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -432,7 +432,7 @@ router.get(
 // POST /osha-compliance/accident-investigations
 router.post(
   '/accident-investigations',
- csrfProtection,  csrfProtection, requirePermission('osha:submit:global'),
+ csrfProtection, requirePermission('osha:submit:global'),
   auditLog({ action: 'CREATE', resourceType: 'accident_investigations' }),
   async (req: AuthRequest, res: Response) => {
     try {

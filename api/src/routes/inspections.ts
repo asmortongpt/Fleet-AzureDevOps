@@ -64,7 +64,7 @@ router.get("/:id",
 
 // POST create inspection
 router.post("/",
- csrfProtection,  csrfProtection, requireRBAC({
+ csrfProtection, requireRBAC({
     roles: [Role.ADMIN, Role.MANAGER, Role.USER],
     permissions: [PERMISSIONS.INSPECTION_CREATE],
     enforceTenantIsolation: true,
@@ -76,7 +76,7 @@ router.post("/",
 
 // PUT update inspection
 router.put("/:id",
- csrfProtection,  csrfProtection, requireRBAC({
+ csrfProtection, requireRBAC({
     roles: [Role.ADMIN, Role.MANAGER],
     permissions: [PERMISSIONS.INSPECTION_UPDATE],
     enforceTenantIsolation: true,
@@ -89,7 +89,7 @@ router.put("/:id",
 
 // DELETE inspection
 router.delete("/:id",
- csrfProtection,  csrfProtection, requireRBAC({
+ csrfProtection, requireRBAC({
     roles: [Role.ADMIN, Role.MANAGER],
     permissions: [PERMISSIONS.INSPECTION_DELETE],
     enforceTenantIsolation: true,

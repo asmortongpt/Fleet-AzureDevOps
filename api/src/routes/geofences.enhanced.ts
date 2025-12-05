@@ -120,7 +120,7 @@ router.get(
 // POST /geofences
 router.post(
   '/',
- csrfProtection,  csrfProtection, requirePermission('geofence:create:fleet'),
+ csrfProtection, requirePermission('geofence:create:fleet'),
   auditLog({ action: 'CREATE', resourceType: 'geofences' }),
   zodValidator(geofenceSchema),
   async (req: AuthRequest, res: Response) => {
@@ -143,7 +143,7 @@ router.post(
 // PUT /geofences/:id
 router.put(
   '/:id',
- csrfProtection,  csrfProtection, requirePermission('geofence:update:fleet'),
+ csrfProtection, requirePermission('geofence:update:fleet'),
   auditLog({ action: 'UPDATE', resourceType: 'geofences' }),
   zodValidator(geofenceSchema.partial(),
   async (req: AuthRequest, res: Response) => {

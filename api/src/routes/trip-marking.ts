@@ -46,7 +46,7 @@ const splitTripSchema = z.object({
  */
 router.post(
   '/:id/mark',
- csrfProtection,  csrfProtection, auditLog({ action: 'UPDATE', resourceType: 'trips' }),
+ csrfProtection, auditLog({ action: 'UPDATE', resourceType: 'trips' }),
   async (req: AuthRequest, res: Response) => {
     try {
       const tripId = req.params.id
@@ -258,7 +258,7 @@ router.post(
  */
 router.post(
   '/start-personal',
- csrfProtection,  csrfProtection, auditLog({ action: 'CREATE', resourceType: 'trips' }),
+ csrfProtection, auditLog({ action: 'CREATE', resourceType: 'trips' }),
   async (req: AuthRequest, res: Response) => {
     try {
       const validation = startPersonalTripSchema.safeParse(req.body)
@@ -334,7 +334,7 @@ router.post(
  */
 router.patch(
   '/:id/split',
- csrfProtection,  csrfProtection, auditLog({ action: 'UPDATE', resourceType: 'trips' }),
+ csrfProtection, auditLog({ action: 'UPDATE', resourceType: 'trips' }),
   async (req: AuthRequest, res: Response) => {
     try {
       const tripId = req.params.id

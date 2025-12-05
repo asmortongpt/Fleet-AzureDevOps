@@ -235,7 +235,7 @@ router.get('/fleet-health',
  * Useful after bulk data imports or major system updates
  */
 router.post('/invalidate-cache',
- csrfProtection,  csrfProtection, requirePermission('dashboard:admin:global'),
+ csrfProtection, requirePermission('dashboard:admin:global'),
   async (req: AuthRequest, res: Response) => {
     try {
       const tenantId = req.user!.tenant_id

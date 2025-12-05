@@ -188,7 +188,7 @@ router.get(
 // POST /communications (INVALIDATE CACHE on write)
 router.post(
   '/',
- csrfProtection,  csrfProtection, requirePermission('communication:send:global'),
+ csrfProtection, requirePermission('communication:send:global'),
   validate(createCommunicationSchema, 'body'),
   invalidateOnWrite('communications'),
   auditLog({ action: 'CREATE', resourceType: 'communications' }),
@@ -247,7 +247,7 @@ router.post(
 // PUT /communications/:id (INVALIDATE CACHE on write)
 router.put(
   '/:id',
- csrfProtection,  csrfProtection, requirePermission('communication:send:global'),
+ csrfProtection, requirePermission('communication:send:global'),
   validate(updateCommunicationSchema, 'body'),
   invalidateOnWrite('communications'),
   auditLog({ action: 'UPDATE', resourceType: 'communications' }),
@@ -287,7 +287,7 @@ router.put(
 // POST /communications/:id/link
 router.post(
   '/:id/link',
- csrfProtection,  csrfProtection, requirePermission('communication:send:global'),
+ csrfProtection, requirePermission('communication:send:global'),
   validate(linkEntitySchema, 'body'),
   auditLog({ action: 'CREATE', resourceType: 'communication_entity_links' }),
   async (req: AuthRequest, res: Response) => {
@@ -324,7 +324,7 @@ router.post(
 // DELETE /communications/:id/link/:link_id
 router.delete(
   '/:id/link/:link_id',
- csrfProtection,  csrfProtection, requirePermission('communication:send:global'),
+ csrfProtection, requirePermission('communication:send:global'),
   auditLog({ action: 'DELETE', resourceType: 'communication_entity_links' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -495,7 +495,7 @@ router.get(
 // POST /communications/templates
 router.post(
   '/templates',
- csrfProtection,  csrfProtection, requirePermission('communication:broadcast:global'),
+ csrfProtection, requirePermission('communication:broadcast:global'),
   validate(createCommunicationTemplateSchema, 'body'),
   auditLog({ action: 'CREATE', resourceType: 'communication_templates' }),
   async (req: AuthRequest, res: Response) => {

@@ -356,7 +356,7 @@ router.get(
  */
 router.post(
   '/manual',
- csrfProtection,  csrfProtection, authenticate,
+ csrfProtection, authenticate,
   body('vehicleId').isInt().toInt(),
   body('driverId').optional().isInt().toInt(),
   body('startTime').isISO8601(),
@@ -464,7 +464,7 @@ router.get(
  */
 router.put(
   '/thresholds/:vehicleId',
- csrfProtection,  csrfProtection, authenticate,
+ csrfProtection, authenticate,
   param('vehicleId').isInt().toInt(),
   body('warningThresholdSeconds').optional().isInt({ min: 60 }),
   body('alertThresholdSeconds').optional().isInt({ min: 60 }),
@@ -542,7 +542,7 @@ router.get(
  */
 router.post(
   '/alerts/:alertId/acknowledge',
- csrfProtection,  csrfProtection, authenticate,
+ csrfProtection, authenticate,
   param('alertId').isInt().toInt(),
   validateRequest,
   async (req: Request, res: Response) => {

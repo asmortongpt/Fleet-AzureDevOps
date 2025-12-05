@@ -58,7 +58,7 @@ const updateTripUsageSchema = z.object({
  */
 router.post(
   '/',
- csrfProtection,  csrfProtection, requirePermission('route:create:own'),
+ csrfProtection, requirePermission('route:create:own'),
   auditLog({ action: 'CREATE', resourceType: 'trip_usage_classification' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -398,7 +398,7 @@ router.get(
  */
 router.patch(
   '/:id',
- csrfProtection,  csrfProtection, requirePermission('route:update:own'),
+ csrfProtection, requirePermission('route:update:own'),
   auditLog({ action: 'UPDATE', resourceType: 'trip_usage_classification' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -543,7 +543,7 @@ router.get(
  */
 router.post(
   '/:id/approve',
- csrfProtection,  csrfProtection, requirePermission('route:approve:fleet'),
+ csrfProtection, requirePermission('route:approve:fleet'),
   auditLog({ action: 'APPROVE', resourceType: 'trip_usage_classification' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -612,7 +612,7 @@ router.post(
  */
 router.post(
   '/:id/reject',
- csrfProtection,  csrfProtection, requirePermission('route:approve:fleet'),
+ csrfProtection, requirePermission('route:approve:fleet'),
   auditLog({ action: 'REJECT', resourceType: 'trip_usage_classification' }),
   async (req: AuthRequest, res: Response) => {
     try {

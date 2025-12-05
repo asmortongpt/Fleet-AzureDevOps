@@ -55,7 +55,7 @@ const CreateSessionSchema = z.object({
  */
 router.post(
   '/sessions',
- csrfProtection,  csrfProtection, authorize('admin', 'fleet_manager', 'dispatcher', 'driver'),
+ csrfProtection, authorize('admin', 'fleet_manager', 'dispatcher', 'driver'),
   auditLog({ action: 'CREATE', resourceType: 'chat_session' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -183,7 +183,7 @@ router.get(
  */
 router.delete(
   '/sessions/:id',
- csrfProtection,  csrfProtection, authorize('admin', 'fleet_manager', 'dispatcher', 'driver'),
+ csrfProtection, authorize('admin', 'fleet_manager', 'dispatcher', 'driver'),
   auditLog({ action: 'DELETE', resourceType: 'chat_session' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -230,7 +230,7 @@ const ChatMessageSchema = z.object({
  */
 router.post(
   '/chat',
- csrfProtection,  csrfProtection, authorize('admin', 'fleet_manager', 'dispatcher', 'driver'),
+ csrfProtection, authorize('admin', 'fleet_manager', 'dispatcher', 'driver'),
   auditLog({ action: 'CREATE', resourceType: 'chat_message' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -423,7 +423,7 @@ router.post(
  */
 router.post(
   '/chat/stream',
- csrfProtection,  csrfProtection, authorize('admin', 'fleet_manager', 'dispatcher', 'driver'),
+ csrfProtection, authorize('admin', 'fleet_manager', 'dispatcher', 'driver'),
   auditLog({ action: 'CREATE', resourceType: 'chat_stream' }),
   async (req: AuthRequest, res: Response) => {
     try {

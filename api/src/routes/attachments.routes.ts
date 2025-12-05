@@ -72,7 +72,7 @@ router.use(authenticateJWT)
  */
 router.post(
   '/upload',
- csrfProtection,  csrfProtection, authorize('admin', 'fleet_manager', 'dispatcher', 'driver'),
+ csrfProtection, authorize('admin', 'fleet_manager', 'dispatcher', 'driver'),
   upload.single('file'),
   auditLog({ action: 'CREATE', resourceType: 'attachment' }),
   async (req: AuthRequest, res: Response) => {
@@ -130,7 +130,7 @@ router.post(
  */
 router.post(
   '/upload-multiple',
- csrfProtection,  csrfProtection, authorize('admin', 'fleet_manager', 'dispatcher', 'driver'),
+ csrfProtection, authorize('admin', 'fleet_manager', 'dispatcher', 'driver'),
   upload.array('files', 10),
   auditLog({ action: 'CREATE', resourceType: 'attachments' }),
   async (req: AuthRequest, res: Response) => {
@@ -293,7 +293,7 @@ router.get(
  */
 router.delete(
   '/:blobId',
- csrfProtection,  csrfProtection, authorize('admin', 'fleet_manager', 'dispatcher'),
+ csrfProtection, authorize('admin', 'fleet_manager', 'dispatcher'),
   auditLog({ action: 'DELETE', resourceType: 'attachment' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -344,7 +344,7 @@ router.delete(
  */
 router.post(
   '/teams/:teamId/channels/:channelId/files',
- csrfProtection,  csrfProtection, authorize('admin', 'fleet_manager', 'dispatcher'),
+ csrfProtection, authorize('admin', 'fleet_manager', 'dispatcher'),
   upload.single('file'),
   auditLog({ action: 'CREATE', resourceType: 'teams_file' }),
   async (req: AuthRequest, res: Response) => {
@@ -427,7 +427,7 @@ router.get(
  */
 router.post(
   '/outlook/attachments',
- csrfProtection,  csrfProtection, authorize('admin', 'fleet_manager', 'dispatcher'),
+ csrfProtection, authorize('admin', 'fleet_manager', 'dispatcher'),
   upload.single('file'),
   auditLog({ action: 'CREATE', resourceType: 'outlook_attachment' }),
   async (req: AuthRequest, res: Response) => {
@@ -469,7 +469,7 @@ router.post(
  */
 router.post(
   '/outlook/send-email',
- csrfProtection,  csrfProtection, authorize('admin', 'fleet_manager', 'dispatcher'),
+ csrfProtection, authorize('admin', 'fleet_manager', 'dispatcher'),
   upload.array('files', 10),
   auditLog({ action: 'CREATE', resourceType: 'outlook_email' }),
   async (req: AuthRequest, res: Response) => {
@@ -674,7 +674,7 @@ router.get(
  */
 router.post(
   '/cleanup/orphaned',
- csrfProtection,  csrfProtection, authorize('admin'),
+ csrfProtection, authorize('admin'),
   auditLog({ action: 'DELETE', resourceType: 'orphaned_attachments' }),
   async (req: AuthRequest, res: Response) => {
     try {
