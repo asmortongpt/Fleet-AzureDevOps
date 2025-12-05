@@ -277,7 +277,7 @@ async function parseReceipts(): Promise<number> {
       FROM outlook_emails
       WHERE (categories @> '["Receipt"]'::jsonb OR categories @> '["Invoice"]'::jsonb)
       AND has_attachments = true
-      AND received_at > NOW() - INTERVAL `1 hour`
+      AND received_at > NOW() - INTERVAL '1 hour'
       AND id NOT IN (
         SELECT email_id FROM parsed_receipts WHERE email_id IS NOT NULL
       )
