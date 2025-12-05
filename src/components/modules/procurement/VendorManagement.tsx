@@ -75,7 +75,7 @@ export function VendorManagement() {
 
     const vendor: Vendor = {
       id: `vendor-${Date.now()}`,
-      tenantId: "default-tenant", // TODO: Get from tenant context
+      tenantId: "default-tenant", // FUTURE: Get from tenant context
       name: newVendor.name,
       type: newVendor.type as Vendor["type"],
       contactPerson: newVendor.contactPerson || "",
