@@ -94,7 +94,7 @@ router.get(
 // POST /api/dispatch/channels - Create new channel (admin)
 router.post(
   '/channels',
-  requirePermission('admin:create:channel'),
+ csrfProtection,  csrfProtection, requirePermission('admin:create:channel'),
   async (req: Request, res: Response) => {
     try {
       const channelData = channelSchema.parse(req.body)

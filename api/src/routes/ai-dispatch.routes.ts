@@ -144,7 +144,7 @@ const validateDispatch = [
  */
 router.post(
   '/parse',
-  requirePermission('route:create:fleet'),
+ csrfProtection,  csrfProtection, requirePermission('route:create:fleet'),
   validateIncidentParse,
   async (req: Request, res: Response) => {
     try {
@@ -247,7 +247,7 @@ router.post(
  */
 router.post(
   '/recommend',
-  requirePermission('route:view:fleet'),
+ csrfProtection,  csrfProtection, requirePermission('route:view:fleet'),
   validateRecommendation,
   async (req: Request, res: Response) => {
     try {
@@ -349,7 +349,7 @@ router.post(
  */
 router.post(
   '/dispatch',
-  requirePermission('route:create:fleet'),
+ csrfProtection,  csrfProtection, requirePermission('route:create:fleet'),
   validateDispatch,
   async (req: Request, res: Response) => {
     try {
@@ -692,7 +692,7 @@ router.get(
  */
 router.post(
   '/explain',
-  requirePermission('route:view:fleet'),
+ csrfProtection,  csrfProtection, requirePermission('route:view:fleet'),
   [body('recommendation').isObject()],
   async (req: Request, res: Response) => {
     try {

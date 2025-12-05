@@ -16,6 +16,8 @@ import aiChatRoutes from './ai-chat'
 import documentGeoRoutes from './document-geo.routes'
 import searchRoutes from './search'
 import storageAdminRoutes from './storage-admin'
+import { csrfProtection } from '../middleware/csrf'
+
 
 /**
  * Register all document system routes

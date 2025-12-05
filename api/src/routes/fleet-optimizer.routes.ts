@@ -114,7 +114,7 @@ router.get(
 // POST /api/fleet-optimizer/recommendations/generate - Generate new recommendations
 router.post(
   '/recommendations/generate',
-  requirePermission('route:create:fleet'),
+ csrfProtection,  csrfProtection, requirePermission('route:create:fleet'),
   auditLog({ action: 'CREATE', resourceType: 'fleet_optimizer' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -163,7 +163,7 @@ router.get(
 // POST /api/fleet-optimizer/analyze-all - Analyze all vehicles
 router.post(
   '/analyze-all',
-  requirePermission('route:create:fleet'),
+ csrfProtection,  csrfProtection, requirePermission('route:create:fleet'),
   auditLog({ action: 'UPDATE', resourceType: 'fleet_optimizer' }),
   async (req: AuthRequest, res: Response) => {
     try {

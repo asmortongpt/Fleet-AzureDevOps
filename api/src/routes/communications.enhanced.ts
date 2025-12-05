@@ -10,6 +10,8 @@ import { cacheMiddleware, invalidateOnWrite, CacheStrategies } from '../middlewa
 import helmet from 'helmet'
 import rateLimit from 'express-rate-limit'
 import { serialize } from 'node-html-encoder'
+import { csrfProtection } from '../middleware/csrf'
+
 
 const router = express.Router()
 

@@ -69,7 +69,7 @@ router.get(
 // POST /facilities
 router.post(
   '/',
-  requireRBAC({
+ csrfProtection,  csrfProtection, requireRBAC({
     roles: [Role.ADMIN, Role.MANAGER],
     permissions: [PERMISSIONS.FACILITY_CREATE],
     enforceTenantIsolation: true,
@@ -83,7 +83,7 @@ router.post(
 // PUT /facilities/:id
 router.put(
   '/:id',
-  requireRBAC({
+ csrfProtection,  csrfProtection, requireRBAC({
     roles: [Role.ADMIN, Role.MANAGER],
     permissions: [PERMISSIONS.FACILITY_UPDATE],
     enforceTenantIsolation: true,
@@ -98,7 +98,7 @@ router.put(
 // DELETE /facilities/:id
 router.delete(
   '/:id',
-  requireRBAC({
+ csrfProtection,  csrfProtection, requireRBAC({
     roles: [Role.ADMIN, Role.MANAGER],
     permissions: [PERMISSIONS.FACILITY_DELETE],
     enforceTenantIsolation: true,

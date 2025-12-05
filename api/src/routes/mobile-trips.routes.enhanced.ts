@@ -126,7 +126,7 @@ const TripMetricsSchema = z.object({
 // =====================================================
 
 // Example route handler
-router.post('/start', requirePermission('trip:start'), async (req: Request, res: Response) => {
+router.post('/start',csrfProtection,  csrfProtection, requirePermission('trip:start'), async (req: Request, res: Response) => {
   try {
     const parsed = StartTripSchema.parse(req.body)
     const hashedOdometer = await bcrypt.hash(parsed.start_odometer_miles.toString(), 12)

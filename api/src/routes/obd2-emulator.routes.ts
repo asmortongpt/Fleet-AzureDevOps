@@ -91,7 +91,7 @@ router.get('/scenarios', (_req: Request, res: Response) => {
  *       200:
  *         description: Emulation session started
  */
-router.post('/start', csrfProtection, (req: Request, res: Response) => {
+router.post('/start',csrfProtection,  csrfProtection, (req: Request, res: Response) => {
   try {
     const {
       vehicleId = 1,
@@ -156,7 +156,7 @@ router.post('/start', csrfProtection, (req: Request, res: Response) => {
  *       200:
  *         description: Emulation session stopped
  */
-router.post('/stop/:sessionId', csrfProtection, (req: Request, res: Response) => {
+router.post('/stop/:sessionId',csrfProtection,  csrfProtection, (req: Request, res: Response) => {
   try {
     const { sessionId } = req.params
 
