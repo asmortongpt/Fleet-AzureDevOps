@@ -15,6 +15,8 @@ import { queryPerformanceService } from '../services/query-performance.service'
 import { workerPool } from '../config/worker-pool'
 import { authenticateJWT } from '../middleware/auth'
 import { getErrorMessage } from '../utils/error-handler'
+import { csrfProtection } from '../middleware/csrf'
+
 
 const router = Router()
 

@@ -19,6 +19,8 @@ import { emailNotificationService } from '../services/email-notifications'
 import { appInsightsService } from '../config/app-insights'
 import { logger } from '../utils/logger'
 import { getErrorMessage } from '../utils/error-handler'
+import { csrfProtection } from '../middleware/csrf'
+
 
 const router = express.Router()
 router.use(authenticateJWT)
