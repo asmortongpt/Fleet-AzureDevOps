@@ -6,7 +6,9 @@ import { asyncHandler } from '../middleware/errorHandler';
 import { authenticateJWT } from '../middleware/auth';
 import { requireRBAC, Role, PERMISSIONS } from '../middleware/rbac';
 import { z } from 'zod';
-import { validateBody, validateParams } from '../middleware/validate';
+import { validateBody, validateParams } from '../middleware/validate'
+import { csrfProtection } from '../middleware/csrf'
+;
 
 const router = Router();
 const incidentController = container.get<IncidentController>(TYPES.IncidentController);

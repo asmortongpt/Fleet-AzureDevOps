@@ -15,6 +15,8 @@ import { verifyJWT } from '../middleware/authMiddleware'
 // } from '../utils/securityUtils'
 import { Request, Response } from 'express'
 import { z } from 'zod'
+import { csrfProtection } from '../middleware/csrf'
+
 
 const router = express.Router()
 const upload = multer({ storage: multer.memoryStorage() })

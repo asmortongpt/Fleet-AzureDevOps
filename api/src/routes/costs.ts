@@ -10,6 +10,8 @@ import logger from '../config/logger'; // Wave 18: Add Winston logger
 import { Router } from 'express'
 import { costEmulator } from '../emulators/cost/CostEmulator'
 import type { BudgetTracking } from '../emulators/cost/CostEmulator'
+import { csrfProtection } from '../middleware/csrf'
+
 
 const router = Router()
 
