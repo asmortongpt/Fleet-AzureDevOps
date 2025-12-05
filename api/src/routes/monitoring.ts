@@ -5,6 +5,8 @@ import { NotFoundError, ValidationError } from '../errors/app-error'
 import { EmulatorOrchestrator } from '../emulators/EmulatorOrchestrator'
 import os from 'os'
 import { performance } from 'perf_hooks'
+import { csrfProtection } from '../middleware/csrf'
+
 
 const router = Router()
 

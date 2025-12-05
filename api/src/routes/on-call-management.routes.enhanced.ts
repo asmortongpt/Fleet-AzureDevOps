@@ -11,6 +11,8 @@ import helmet from 'helmet'
 import rateLimit from 'express-rate-limit'
 import bcrypt from 'bcrypt'
 import { check, validationResult } from 'express-validator'
+import { csrfProtection } from '../middleware/csrf'
+
 
 const router = express.Router()
 router.use(helmet()

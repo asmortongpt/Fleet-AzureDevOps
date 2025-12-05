@@ -8,6 +8,8 @@ import { billingReportsService } from '../services/billing-reports'
 import { logger } from '../utils/logger'
 import { getErrorMessage } from '../utils/error-handler'
 import { z } from 'zod'
+import { csrfProtection } from '../middleware/csrf'
+
 
 const router = express.Router()
 

@@ -71,7 +71,7 @@ router.get("/:id",
 
 // POST create incident
 router.post("/",
-  requireRBAC({
+ csrfProtection,  csrfProtection, requireRBAC({
     roles: [Role.ADMIN, Role.MANAGER, Role.USER],
     permissions: [PERMISSIONS.INCIDENT_CREATE],
     enforceTenantIsolation: true,
@@ -83,7 +83,7 @@ router.post("/",
 
 // PUT update incident
 router.put("/:id",
-  requireRBAC({
+ csrfProtection,  csrfProtection, requireRBAC({
     roles: [Role.ADMIN, Role.MANAGER],
     permissions: [PERMISSIONS.INCIDENT_UPDATE],
     enforceTenantIsolation: true,
@@ -96,7 +96,7 @@ router.put("/:id",
 
 // DELETE incident
 router.delete("/:id",
-  requireRBAC({
+ csrfProtection,  csrfProtection, requireRBAC({
     roles: [Role.ADMIN, Role.MANAGER],
     permissions: [PERMISSIONS.INCIDENT_DELETE],
     enforceTenantIsolation: true,

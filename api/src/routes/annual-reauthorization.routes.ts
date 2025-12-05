@@ -134,7 +134,7 @@ router.get(
 
 router.post(
   '/',
-  authenticateJWT,
+ csrfProtection,  csrfProtection, authenticateJWT,
   requirePermission(`reauthorization:submit:global`),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -286,7 +286,7 @@ router.get(
 
 router.post(
   '/decisions',
-  authenticateJWT,
+ csrfProtection,  csrfProtection, authenticateJWT,
   requirePermission('reauthorization:review:team'),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -375,7 +375,7 @@ router.post(
 
 router.post(
   '/:id/submit',
-  authenticateJWT,
+ csrfProtection,  csrfProtection, authenticateJWT,
   requirePermission('reauthorization:submit:global'),
   async (req: AuthRequest, res: Response) => {
     try {
