@@ -168,7 +168,7 @@ const ConnectionLogSchema = z.object({
  *       400:
  *         description: Invalid request
  */
-router.post('/connect',csrfProtection,  csrfProtection, requirePermission('vehicle:update:fleet'), auditLog, async (req: Request, res: Response) => {
+router.post('/connect',csrfProtection, requirePermission('vehicle:update:fleet'), auditLog, async (req: Request, res: Response) => {
   try {
     const validated = RegisterAdapterSchema.parse(req.body)
     const tenantId = (req as any).user.tenant_id
@@ -300,7 +300,7 @@ router.get('/adapters/:adapterId', requirePermission('vehicle:view:fleet'), asyn
  *       400:
  *         description: Invalid request
  */
-router.post('/dtcs',csrfProtection,  csrfProtection, requirePermission('maintenance:create:fleet'), auditLog, async (req: Request, res: Response) => {
+router.post('/dtcs',csrfProtection, requirePermission('maintenance:create:fleet'), auditLog, async (req: Request, res: Response) => {
   try {
     const validated = ReportDTCsSchema.parse(req.body)
     const tenantId = (req as any).user.tenant_id
@@ -458,7 +458,7 @@ router.delete(`/dtcs/:vehicleId`, csrfProtection, requirePermission(`maintenance
  *       201:
  *         description: Live data stored successfully
  */
-router.post('/live-data',csrfProtection,  csrfProtection, requirePermission('vehicle:view:fleet'), async (req: Request, res: Response) => {
+router.post('/live-data',csrfProtection, requirePermission('vehicle:view:fleet'), async (req: Request, res: Response) => {
   try {
     const validated = LiveDataSchema.parse(req.body)
     const tenantId = (req as any).user.tenant_id
@@ -563,7 +563,7 @@ router.get('/live-data/:vehicleId', requirePermission('vehicle:view:fleet'), asy
  *       201:
  *         description: Connection logged successfully
  */
-router.post('/connection-log',csrfProtection,  csrfProtection, requirePermission('vehicle:view:fleet'), async (req: Request, res: Response) => {
+router.post('/connection-log',csrfProtection, requirePermission('vehicle:view:fleet'), async (req: Request, res: Response) => {
   try {
     const validated = ConnectionLogSchema.parse(req.body)
     const tenantId = (req as any).user.tenant_id

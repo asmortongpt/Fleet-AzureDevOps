@@ -75,7 +75,7 @@ router.get('/',
  * Create a new deployment record
  */
 router.post('/',
- csrfProtection,  csrfProtection, requirePermission('role:manage:global'),
+ csrfProtection, requirePermission('role:manage:global'),
   async (req: AuthRequest, res: Response) => {
   try {
     const {
@@ -149,7 +149,7 @@ router.post('/',
  * Update deployment status
  */
 router.patch('/:id',
- csrfProtection,  csrfProtection, requirePermission('role:manage:global'),
+ csrfProtection, requirePermission('role:manage:global'),
   async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params

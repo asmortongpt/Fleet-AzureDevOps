@@ -258,7 +258,7 @@ router.get('/dead-letter', requireAdmin, async (req: Request, res: Response) => 
  * POST /api/queue/:queueName/retry/:jobId
  * Retry a failed job
  */
-router.post('/:queueName/retry/:jobId',csrfProtection,  csrfProtection, requireAdmin, async (req: Request, res: Response) => {
+router.post('/:queueName/retry/:jobId',csrfProtection, requireAdmin, async (req: Request, res: Response) => {
   try {
     const { jobId } = req.params;
 
@@ -330,7 +330,7 @@ router.post(`/:queueName/resume`, csrfProtection, requireAdmin, async (req: Requ
  * DELETE /api/queue/:queueName/clear
  * Clear all jobs from a queue (admin only, dangerous operation)
  */
-router.delete('/:queueName/clear',csrfProtection,  csrfProtection, requireAdmin, async (req: Request, res: Response) => {
+router.delete('/:queueName/clear',csrfProtection, requireAdmin, async (req: Request, res: Response) => {
   try {
     const { queueName } = req.params;
     const { confirm } = req.query;
@@ -363,7 +363,7 @@ router.delete('/:queueName/clear',csrfProtection,  csrfProtection, requireAdmin,
  * POST /api/queue/dead-letter/:jobId/review
  * Mark a dead letter job as reviewed
  */
-router.post('/dead-letter/:jobId/review',csrfProtection,  csrfProtection, requireAdmin, async (req: Request, res: Response) => {
+router.post('/dead-letter/:jobId/review',csrfProtection, requireAdmin, async (req: Request, res: Response) => {
   try {
     const { jobId } = req.params;
     const { reviewedBy, resolutionNotes } = req.body;

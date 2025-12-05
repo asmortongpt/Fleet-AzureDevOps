@@ -105,7 +105,7 @@ const createTaskSchema = z.object({
   due_date: z.string().optional(),
 })
 
-router.post('/',csrfProtection,  csrfProtection, requirePermission('report:generate:global'), async (req: AuthRequest, res) => {
+router.post('/',csrfProtection, requirePermission('report:generate:global'), async (req: AuthRequest, res) => {
   const parseResult = createTaskSchema.safeParse(req.body)
   if (!parseResult.success) {
     return res.status(400).json({ error: 'Invalid task data', details: parseResult.error.format() })
