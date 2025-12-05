@@ -331,7 +331,7 @@ export class QueueMonitoringExample {
   async checkMessageStatus(jobId: string) {
     try {
       const response = await fetch(`/api/queue/teams-outbound/job/${jobId}`, {
-        headers: { `x-admin-key`: process.env.ADMIN_KEY || '' }
+        headers: { 'x-admin-key': process.env.ADMIN_KEY || '' }
       });
 
       const { data } = await response.json();
