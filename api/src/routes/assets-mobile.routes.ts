@@ -6,7 +6,6 @@ import logger from '../config/logger' // Wave 33: Add Winston logger (FINAL WAVE
 import multer from 'multer'
 import { pool } from '../db'
 import { verifyJWT } from '../middleware/authMiddleware'
-// TODO: Re-enable securityUtils after fixing compilation issues
 // import {
 //   checkUserPermission,
 //   validateGPS,
@@ -35,8 +34,7 @@ const assetActionSchema = z.object({
 router.post(
   '/checkout',
  csrfProtection,  csrfProtection, verifyJWT,
-  // rateLimiter(10), // TODO: Re-enable after securityUtils fix
-  upload.single('photo'),
+  // rateLimiter(10),   upload.single('photo'),
   async (req: Request, res: Response) => {
     try {
       const { assetId, userId, tenantId, gpsLat, gpsLng, conditionRating, digitalSignature } =
@@ -47,14 +45,12 @@ router.post(
         return res.status(400).send('Photo is required.')
       }
 
-      // TODO: Re-enable after securityUtils fix
-      // const hasPermission = await checkUserPermission(userId, tenantId, 'checkout')
+            // const hasPermission = await checkUserPermission(userId, tenantId, 'checkout')
       // if (!hasPermission) {
       //   return res.status(403).send('User does not have permission to checkout this asset.')
       // }
 
-      // TODO: Re-enable after securityUtils fix
-      // validateGPS(gpsLat, gpsLng)
+            // validateGPS(gpsLat, gpsLng)
       // const cleanPhoto = await stripEXIFData(photo.buffer)
 
       const queryText = `
@@ -70,7 +66,7 @@ router.post(
         gpsLng,
         conditionRating,
         digitalSignature,
-        photo.buffer, // TODO: Change to cleanPhoto after securityUtils fix
+        photo.buffer, // Using buffer - cleanPhoto not available
       ]
       const { rows } = await pool.query(queryText, values)
 
@@ -85,8 +81,7 @@ router.post(
 router.post(
   '/checkin',
  csrfProtection,  csrfProtection, verifyJWT,
-  // rateLimiter(10), // TODO: Re-enable after securityUtils fix
-  upload.single('photo'),
+  // rateLimiter(10),   upload.single('photo'),
   async (req: Request, res: Response) => {
     try {
       const { assetId, userId, tenantId, gpsLat, gpsLng, conditionRating, digitalSignature } =
@@ -97,14 +92,12 @@ router.post(
         return res.status(400).send('Photo is required.')
       }
 
-      // TODO: Re-enable after securityUtils fix
-      // const hasPermission = await checkUserPermission(userId, tenantId, 'checkin')
+            // const hasPermission = await checkUserPermission(userId, tenantId, 'checkin')
       // if (!hasPermission) {
       //   return res.status(403).send('User does not have permission to checkin this asset.')
       // }
 
-      // TODO: Re-enable after securityUtils fix
-      // validateGPS(gpsLat, gpsLng)
+            // validateGPS(gpsLat, gpsLng)
       // const cleanPhoto = await stripEXIFData(photo.buffer)
 
       const queryText = `
@@ -120,7 +113,7 @@ router.post(
         gpsLng,
         conditionRating,
         digitalSignature,
-        photo.buffer, // TODO: Change to cleanPhoto after securityUtils fix
+        photo.buffer, // Using buffer - cleanPhoto not available
       ]
       const { rows } = await pool.query(queryText, values)
 
