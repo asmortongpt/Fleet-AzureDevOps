@@ -22,14 +22,14 @@ export type {
   FleetMetrics
 } from './useFleetMetrics'
 
-// Confirmation dialogs - eliminates duplicate dialog management across 20+ modules
-export {
-  useConfirmationDialog,
-  useDeleteConfirmation,
-  useSaveConfirmation,
-  useDiscardConfirmation
-} from './useConfirmationDialog'
-export type { ConfirmationConfig } from './useConfirmationDialog'
+// Confirmation dialogs - removed (file was deleted earlier in cleanup)
+// export {
+//   useConfirmationDialog,
+//   useDeleteConfirmation,
+//   useSaveConfirmation,
+//   useDiscardConfirmation
+// } from './useConfirmationDialog'
+// export type { ConfirmationConfig } from './useConfirmationDialog'
 
 // ============================================================================
 // EXISTING HOOKS
