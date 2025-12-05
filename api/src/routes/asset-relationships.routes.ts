@@ -243,7 +243,7 @@ router.get(
  */
 router.post(
   '/',
- csrfProtection,  csrfProtection, requirePermission('vehicle:update:fleet'),
+ csrfProtection, requirePermission('vehicle:update:fleet'),
   auditLog({ action: 'CREATE', resourceType: 'asset_relationships' }),
   async (req: AuthRequest, res) => {
     const client = await pool.connect()
@@ -335,7 +335,7 @@ router.post(
  */
 router.put(
   '/:id',
- csrfProtection,  csrfProtection, requirePermission('vehicle:update:fleet'),
+ csrfProtection, requirePermission('vehicle:update:fleet'),
   auditLog({ action: 'UPDATE', resourceType: 'asset_relationships' }),
   async (req: AuthRequest, res) => {
     const client = await pool.connect()
@@ -395,7 +395,7 @@ router.put(
  */
 router.patch(
   '/:id/deactivate',
- csrfProtection,  csrfProtection, requirePermission('vehicle:update:fleet'),
+ csrfProtection, requirePermission('vehicle:update:fleet'),
   auditLog({ action: 'UPDATE', resourceType: 'asset_relationships' }),
   async (req: AuthRequest, res) => {
     try {
@@ -432,7 +432,7 @@ router.patch(
  */
 router.delete(
   '/:id',
- csrfProtection,  csrfProtection, requirePermission('vehicle:delete:fleet'),
+ csrfProtection, requirePermission('vehicle:delete:fleet'),
   auditLog({ action: 'DELETE', resourceType: 'asset_relationships' }),
   async (req: AuthRequest, res) => {
     try {

@@ -107,7 +107,7 @@ router.get(
 
 router.post(
   '/',
- csrfProtection,  csrfProtection, requirePermission('damage_report:create'),
+ csrfProtection, requirePermission('damage_report:create'),
   upload.array('media', 10),
   auditLog({ action: 'CREATE', resourceType: 'damage_report' }),
   async (req: Request, res: Response) => {

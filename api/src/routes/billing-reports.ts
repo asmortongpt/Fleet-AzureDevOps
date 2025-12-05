@@ -122,7 +122,7 @@ router.get('/payroll-csv/:period',
  * Requires: report:generate:global permission
  */
 router.post('/mark-billed/:period',
- csrfProtection,  csrfProtection, requirePermission('report:generate:global'),
+ csrfProtection, requirePermission('report:generate:global'),
   async (req: AuthRequest, res: Response) => {
     const tenantId = req.user!.tenant_id
     try {

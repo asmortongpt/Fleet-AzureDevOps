@@ -502,7 +502,7 @@ router.get(
 
 router.post(
   '/export',
- csrfProtection,  csrfProtection, authenticateJWT,
+ csrfProtection, authenticateJWT,
   requirePermission('compliance_report:export:global'),
   async (req: AuthRequest, res: Response) => {
     try {

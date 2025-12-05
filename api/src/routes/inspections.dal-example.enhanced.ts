@@ -94,7 +94,7 @@ router.get(
  */
 router.post(
   '/',
- csrfProtection,  csrfProtection, requirePermission('inspection:create'),
+ csrfProtection, requirePermission('inspection:create'),
   validateSchema(inspectionCreateSchema),
   auditLog({ action: 'CREATE', resourceType: 'inspection' }),
   asyncHandler(async (req: Request, res: Response) => {
@@ -109,7 +109,7 @@ router.post(
  */
 router.patch(
   '/:id/complete',
- csrfProtection,  csrfProtection, requirePermission('inspection:complete'),
+ csrfProtection, requirePermission('inspection:complete'),
   validateSchema(inspectionCompleteSchema),
   auditLog({ action: 'UPDATE', resourceType: 'inspection', resourceIdParam: 'id' }),
   asyncHandler(async (req: Request, res: Response) => {
