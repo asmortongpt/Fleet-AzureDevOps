@@ -104,7 +104,7 @@ export function AddVehicleDialog({ onAdd }: AddVehicleDialogProps) {
     // Build the new vehicle object with all fields
     const newVehicle: Vehicle = {
       id: `veh-${Date.now()}`,
-      tenantId: "default-tenant", // TODO: Get from tenant context
+      tenantId: "default-tenant", // FUTURE: Get from tenant context
       number: formData.number,
       type: formData.type,
       make: formData.make,
