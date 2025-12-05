@@ -5,7 +5,7 @@
 
 import { Router } from 'express';
 import { container } from '../container';
-import { asyncHandler } from '../middleware/error-handler';
+import { asyncHandler } from '../middleware/errorHandler';
 import { authenticateJWT } from '../middleware/auth';
 import { requireRBAC, Role, PERMISSIONS } from '../middleware/rbac';
 import { validateBody, validateQuery, validateParams } from '../middleware/validate';
