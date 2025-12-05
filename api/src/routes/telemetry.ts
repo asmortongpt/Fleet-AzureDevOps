@@ -86,7 +86,7 @@ router.get(
 // POST /telemetry
 router.post(
   '/',
- csrfProtection,  csrfProtection, requirePermission('telemetry:view:fleet'),
+ csrfProtection, requirePermission('telemetry:view:fleet'),
   rateLimit(10, 60000),
   validate(createTelemetrySchema, 'body'),
   auditLog({ action: 'CREATE', resourceType: 'telemetry_data' }),
@@ -145,7 +145,7 @@ router.put(
 // DELETE /telemetry/:id
 router.delete(
   '/:id',
- csrfProtection,  csrfProtection, requirePermission('telemetry:view:fleet'),
+ csrfProtection, requirePermission('telemetry:view:fleet'),
   rateLimit(10, 60000),
   auditLog({ action: 'DELETE', resourceType: 'telemetry_data' }),
   async (req: AuthRequest, res: Response) => {

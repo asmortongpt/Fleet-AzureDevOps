@@ -36,7 +36,7 @@ const sendNotificationSchema = z.object({
 
 router.post(
   '/register-device',
- csrfProtection,  csrfProtection, authenticateJWT,
+ csrfProtection, authenticateJWT,
   validateRequest(registerDeviceSchema),
   asyncHandler(async (req: Request, res: Response) => {
     const {
@@ -69,7 +69,7 @@ router.post(
 
 router.delete(
   '/device/:deviceId',
- csrfProtection,  csrfProtection, authenticateJWT,
+ csrfProtection, authenticateJWT,
   asyncHandler(async (req: Request, res: Response) => {
     const { deviceId } = req.params;
 
@@ -84,7 +84,7 @@ router.delete(
 
 router.post(
   '/send',
- csrfProtection,  csrfProtection, authenticateJWT,
+ csrfProtection, authenticateJWT,
   requirePermission('communication:send:global'),
   validateRequest(sendNotificationSchema),
   asyncHandler(async (req: Request, res: Response) => {

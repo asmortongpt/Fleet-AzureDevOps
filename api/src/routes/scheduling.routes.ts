@@ -88,7 +88,7 @@ router.get('/reservations', async (req: Request, res: Response) => {
  * POST /api/scheduling/reservations
  * Create a new vehicle reservation
  */
-router.post('/reservations',csrfProtection,  csrfProtection, async (req: Request, res: Response) => {
+router.post('/reservations',csrfProtection, async (req: Request, res: Response) => {
   try {
     const { tenantId, userId } = req.user as any
     const {
@@ -148,7 +148,7 @@ router.post('/reservations',csrfProtection,  csrfProtection, async (req: Request
  * PATCH /api/scheduling/reservations/:id
  * Update a vehicle reservation
  */
-router.patch('/reservations/:id',csrfProtection,  csrfProtection, async (req: Request, res: Response) => {
+router.patch('/reservations/:id',csrfProtection, async (req: Request, res: Response) => {
   try {
     const { tenantId } = req.user as any
     const { id } = req.params
@@ -204,7 +204,7 @@ router.patch('/reservations/:id',csrfProtection,  csrfProtection, async (req: Re
  * DELETE /api/scheduling/reservations/:id
  * Cancel a vehicle reservation
  */
-router.delete('/reservations/:id',csrfProtection,  csrfProtection, async (req: Request, res: Response) => {
+router.delete('/reservations/:id',csrfProtection, async (req: Request, res: Response) => {
   try {
     const { tenantId } = req.user as any
     const { id } = req.params
@@ -235,7 +235,7 @@ router.delete('/reservations/:id',csrfProtection,  csrfProtection, async (req: R
  * POST /api/scheduling/reservations/:id/approve
  * Approve a vehicle reservation
  */
-router.post('/reservations/:id/approve',csrfProtection,  csrfProtection, async (req: Request, res: Response) => {
+router.post('/reservations/:id/approve',csrfProtection, async (req: Request, res: Response) => {
   try {
     const { tenantId, userId } = req.user as any
     const { id } = req.params
@@ -294,7 +294,7 @@ router.post('/reservations/:id/approve',csrfProtection,  csrfProtection, async (
  * POST /api/scheduling/reservations/:id/reject
  * Reject a vehicle reservation
  */
-router.post('/reservations/:id/reject',csrfProtection,  csrfProtection, async (req: Request, res: Response) => {
+router.post('/reservations/:id/reject',csrfProtection, async (req: Request, res: Response) => {
   try {
     const { tenantId, userId } = req.user as any
     const { id } = req.params
@@ -429,7 +429,7 @@ router.get('/maintenance', async (req: Request, res: Response) => {
  * POST /api/scheduling/maintenance
  * Create a maintenance appointment
  */
-router.post('/maintenance',csrfProtection,  csrfProtection, async (req: Request, res: Response) => {
+router.post('/maintenance',csrfProtection, async (req: Request, res: Response) => {
   try {
     const { tenantId, userId } = req.user as any
     const {
@@ -485,7 +485,7 @@ router.post('/maintenance',csrfProtection,  csrfProtection, async (req: Request,
  * PATCH /api/scheduling/maintenance/:id
  * Update a maintenance appointment
  */
-router.patch('/maintenance/:id',csrfProtection,  csrfProtection, async (req: Request, res: Response) => {
+router.patch('/maintenance/:id',csrfProtection, async (req: Request, res: Response) => {
   try {
     const { tenantId } = req.user as any
     const { id } = req.params
@@ -544,7 +544,7 @@ router.patch('/maintenance/:id',csrfProtection,  csrfProtection, async (req: Req
  * POST /api/scheduling/check-conflicts
  * Check for scheduling conflicts
  */
-router.post('/check-conflicts',csrfProtection,  csrfProtection, async (req: Request, res: Response) => {
+router.post('/check-conflicts',csrfProtection, async (req: Request, res: Response) => {
   try {
     const { tenantId } = req.user as any
     const { vehicleId, serviceBayId, technicianId, startTime, endTime, excludeId } = req.body
@@ -751,7 +751,7 @@ router.get('/calendar/google/authorize', async (req: Request, res: Response) => 
  * POST /api/scheduling/calendar/google/callback
  * Handle Google Calendar OAuth callback
  */
-router.post('/calendar/google/callback',csrfProtection,  csrfProtection, async (req: Request, res: Response) => {
+router.post('/calendar/google/callback',csrfProtection, async (req: Request, res: Response) => {
   try {
     const { tenantId, userId } = req.user as any
     const { code, isPrimary } = req.body
@@ -787,7 +787,7 @@ router.post('/calendar/google/callback',csrfProtection,  csrfProtection, async (
  * DELETE /api/scheduling/calendar/integrations/:id
  * Revoke calendar integration
  */
-router.delete('/calendar/integrations/:id',csrfProtection,  csrfProtection, async (req: Request, res: Response) => {
+router.delete('/calendar/integrations/:id',csrfProtection, async (req: Request, res: Response) => {
   try {
     const { userId } = req.user as any
     const { id } = req.params
@@ -825,7 +825,7 @@ router.delete('/calendar/integrations/:id',csrfProtection,  csrfProtection, asyn
  * POST /api/scheduling/calendar/sync
  * Manually trigger calendar sync
  */
-router.post('/calendar/sync',csrfProtection,  csrfProtection, async (req: Request, res: Response) => {
+router.post('/calendar/sync',csrfProtection, async (req: Request, res: Response) => {
   try {
     const { userId } = req.user as any
     const { integrationId, startDate, endDate } = req.body

@@ -28,7 +28,7 @@ const router = express.Router()
  * POST /api/calendar/events
  * Create a new calendar event
  */
-router.post('/events',csrfProtection,  csrfProtection, authenticateJWT, async (req: Request, res: Response) => {
+router.post('/events',csrfProtection, authenticateJWT, async (req: Request, res: Response) => {
   try {
     const {
       userId,
@@ -127,7 +127,7 @@ router.get('/events/:eventId', authenticateJWT, async (req: Request, res: Respon
  * PATCH /api/calendar/events/:eventId
  * Update a calendar event
  */
-router.patch('/events/:eventId',csrfProtection,  csrfProtection, authenticateJWT, async (req: Request, res: Response) => {
+router.patch('/events/:eventId',csrfProtection, authenticateJWT, async (req: Request, res: Response) => {
   try {
     const { eventId } = req.params
     const { userId, subject, start, end, attendees, location, body } = req.body
@@ -161,7 +161,7 @@ router.patch('/events/:eventId',csrfProtection,  csrfProtection, authenticateJWT
  * DELETE /api/calendar/events/:eventId
  * Delete/Cancel a calendar event
  */
-router.delete('/events/:eventId',csrfProtection,  csrfProtection, authenticateJWT, async (req: Request, res: Response) => {
+router.delete('/events/:eventId',csrfProtection, authenticateJWT, async (req: Request, res: Response) => {
   try {
     const { eventId } = req.params
     const { userId } = req.query
@@ -186,7 +186,7 @@ router.delete('/events/:eventId',csrfProtection,  csrfProtection, authenticateJW
  * POST /api/calendar/events/:eventId/accept
  * Accept a meeting invitation
  */
-router.post('/events/:eventId/accept',csrfProtection,  csrfProtection, authenticateJWT, async (req: Request, res: Response) => {
+router.post('/events/:eventId/accept',csrfProtection, authenticateJWT, async (req: Request, res: Response) => {
   try {
     const { eventId } = req.params
     const { userId, comment } = req.body
@@ -211,7 +211,7 @@ router.post('/events/:eventId/accept',csrfProtection,  csrfProtection, authentic
  * POST /api/calendar/events/:eventId/decline
  * Decline a meeting invitation
  */
-router.post('/events/:eventId/decline',csrfProtection,  csrfProtection, authenticateJWT, async (req: Request, res: Response) => {
+router.post('/events/:eventId/decline',csrfProtection, authenticateJWT, async (req: Request, res: Response) => {
   try {
     const { eventId } = req.params
     const { userId, comment } = req.body
@@ -236,7 +236,7 @@ router.post('/events/:eventId/decline',csrfProtection,  csrfProtection, authenti
  * POST /api/calendar/events/:eventId/tentative
  * Tentatively accept a meeting invitation
  */
-router.post('/events/:eventId/tentative',csrfProtection,  csrfProtection, authenticateJWT, async (req: Request, res: Response) => {
+router.post('/events/:eventId/tentative',csrfProtection, authenticateJWT, async (req: Request, res: Response) => {
   try {
     const { eventId } = req.params
     const { userId, comment } = req.body
@@ -261,7 +261,7 @@ router.post('/events/:eventId/tentative',csrfProtection,  csrfProtection, authen
  * POST /api/calendar/find-times
  * Find available meeting times for attendees
  */
-router.post('/find-times',csrfProtection,  csrfProtection, authenticateJWT, async (req: Request, res: Response) => {
+router.post('/find-times',csrfProtection, authenticateJWT, async (req: Request, res: Response) => {
   try {
     const {
       organizerEmail,
@@ -336,7 +336,7 @@ router.get('/availability', authenticateJWT, async (req: Request, res: Response)
  * POST /api/calendar/schedule-maintenance
  * Schedule vehicle maintenance with calendar integration
  */
-router.post('/schedule-maintenance',csrfProtection,  csrfProtection, authenticateJWT, async (req: Request, res: Response) => {
+router.post('/schedule-maintenance',csrfProtection, authenticateJWT, async (req: Request, res: Response) => {
   try {
     const { vehicleId, durationMinutes, preferredDate, assignedMechanicEmail } = req.body
 
@@ -370,7 +370,7 @@ router.post('/schedule-maintenance',csrfProtection,  csrfProtection, authenticat
  * POST /api/calendar/schedule-training
  * Schedule driver training session
  */
-router.post('/schedule-training',csrfProtection,  csrfProtection, authenticateJWT, async (req: Request, res: Response) => {
+router.post('/schedule-training',csrfProtection, authenticateJWT, async (req: Request, res: Response) => {
   try {
     const { driverId, durationMinutes, trainingType, preferredDate, trainerEmail } = req.body
 

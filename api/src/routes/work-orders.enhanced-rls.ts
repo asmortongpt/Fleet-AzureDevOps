@@ -221,7 +221,7 @@ router.get(
  */
 router.post(
   '/',
- csrfProtection,  csrfProtection, requirePermission('work_order:create'),
+ csrfProtection, requirePermission('work_order:create'),
   preventTenantIdOverride,  // CRITICAL: Prevent tenant_id override
   validateTenantReferences([
     { table: 'vehicles', column: 'id', field: 'vehicle_id', required: true },
@@ -295,7 +295,7 @@ router.post(
  */
 router.put(
   '/:id',
- csrfProtection,  csrfProtection, requirePermission('work_order:update'),
+ csrfProtection, requirePermission('work_order:update'),
   preventTenantIdOverride,
   validateTenantReferences([
     { table: 'vehicles', column: 'id', field: 'vehicle_id', required: false },
@@ -367,7 +367,7 @@ router.put(
  */
 router.delete(
   '/:id',
- csrfProtection,  csrfProtection, requirePermission('work_order:delete'),
+ csrfProtection, requirePermission('work_order:delete'),
   auditLog({ action: 'DELETE', resourceType: 'work_orders' }),
   async (req: AuthRequest, res: Response) => {
     try {
