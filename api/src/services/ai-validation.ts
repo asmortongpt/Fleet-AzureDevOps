@@ -270,7 +270,7 @@ async function detectStatisticalAnomalies(
          FROM work_orders
          WHERE tenant_id = $1
            AND actual_cost > 0
-           AND created_at > NOW() - INTERVAL `180 days``,
+           AND created_at > NOW() - INTERVAL '180 days'`,
         [tenantId]
       )
 

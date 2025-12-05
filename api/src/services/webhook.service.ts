@@ -851,7 +851,7 @@ class WebhookService {
         `SELECT subscription_id, subscription_type
          FROM webhook_subscriptions
          WHERE status = 'active'
-         AND expiration_date_time < NOW() + INTERVAL `12 hours`
+         AND expiration_date_time < NOW() + INTERVAL '12 hours'
          AND renewal_failure_count < 3`
       )
 
