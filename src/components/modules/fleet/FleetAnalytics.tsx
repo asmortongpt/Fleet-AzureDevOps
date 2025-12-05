@@ -1,15 +1,18 @@
 import { useState } from "react"
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { useFleetData } from "@/hooks/use-fleet-data"
-import { useFleetAnalyticsData } from "./FleetAnalytics/hooks/useFleetAnalyticsData"
-import { useChartData } from "./FleetAnalytics/hooks/useChartData"
+
 import {
   OverviewTab,
   FinancialTab,
   UtilizationTab,
   KPIsTab
 } from "./FleetAnalytics/components"
+import { useChartData } from "./FleetAnalytics/hooks/useChartData"
+import { useFleetAnalyticsData } from "./FleetAnalytics/hooks/useFleetAnalyticsData"
+
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
+import { useFleetData } from "@/hooks/use-fleet-data"
+
 
 interface FleetAnalyticsProps {
   data: ReturnType<typeof useFleetData>

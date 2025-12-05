@@ -1,5 +1,15 @@
 import { useMemo } from "react"
 import { Vehicle } from "@/lib/types"
+import {
+  generateRecordId,
+  formatVehicleName,
+  generateDateRange,
+  randomInt,
+  randomFloat,
+  randomItem,
+  sortByDateDesc,
+  COMMON_LOCATIONS
+} from "@/utils/demo-data-generator"
 
 export interface FuelRecord {
   id: string
@@ -16,37 +26,33 @@ export interface FuelRecord {
 export function useFuelData(vehicles: Vehicle[]) {
   const fuelRecords = useMemo((): FuelRecord[] => {
     const records: FuelRecord[] = []
-    const locations = ["Main Depot", "North Station", "South Station", "Highway 95", "Downtown"]
 
     vehicles.slice(0, 20).forEach((vehicle, idx) => {
-      const numRecords = Math.floor(Math.random() * 8) + 3
+      const numRecords = randomInt(3, 10)
       let currentOdometer = vehicle.mileage
+      const dates = generateDateRange(numRecords, 3)
 
       for (let i = 0; i < numRecords; i++) {
-        const daysAgo = (numRecords - i - 1) * 3
-        const date = new Date()
-        date.setDate(date.getDate() - daysAgo)
-
-        const gallons = Math.floor(Math.random() * 20) + 5
-        const costPerGallon = 3.2 + Math.random() * 0.8
-        const milesDriven = Math.floor(Math.random() * 300) + 50
+        const gallons = randomInt(5, 25)
+        const costPerGallon = randomFloat(3.2, 4.0)
+        const milesDriven = randomInt(50, 350)
         currentOdometer -= milesDriven
 
         records.push({
-          id: `fuel-${idx}-${i}`,
+          id: generateRecordId('fuel', idx, i),
           vehicleNumber: vehicle.number,
-          vehicleName: `${vehicle.year} ${vehicle.make} ${vehicle.model}`,
-          date: date.toISOString().split("T")[0],
+          vehicleName: formatVehicleName(vehicle),
+          date: dates[i],
           gallons: gallons,
-          cost: parseFloat((gallons * costPerGallon).toFixed(2)),
+          cost: randomFloat(gallons * costPerGallon, gallons * costPerGallon),
           odometer: currentOdometer,
-          mpg: parseFloat((milesDriven / gallons).toFixed(1)),
-          location: locations[Math.floor(Math.random() * locations.length)]
+          mpg: randomFloat(milesDriven / gallons, milesDriven / gallons, 1),
+          location: randomItem(COMMON_LOCATIONS)
         })
       }
     })
 
-    return records.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+    return sortByDateDesc(records)
   }, [vehicles])
 
   return { fuelRecords }

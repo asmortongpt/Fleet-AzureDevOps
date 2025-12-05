@@ -1,10 +1,11 @@
 import { useMemo } from "react"
+
 import { Vehicle } from "@/lib/types"
 
 export function useChartData(vehicles: Vehicle[]) {
   const monthlyFleetData = useMemo(() => {
     const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun"]
-    return months.map((name, i) => {
+    return months.map((name) => {
       const activeCount = Math.floor(Math.random() * 15 + 35)
       return {
         name,
