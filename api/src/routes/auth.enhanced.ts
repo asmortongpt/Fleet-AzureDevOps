@@ -100,7 +100,7 @@ router.post('/login',csrfProtection, loginLimiter, async (req: Request, res: Res
 // POST /api/auth/register
 router.post(
   '/register',
-csrfProtection,  csrfProtection,
+csrfProtection,
   registrationLimiter,
   async (req: Request, res: Response) => {
     try {
