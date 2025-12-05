@@ -228,7 +228,7 @@ router.get('/:id',
  *     tags: [Documents]
  */
 router.put('/:id',
- csrfProtection,  csrfProtection, requirePermission('document:update:own'),
+ csrfProtection, requirePermission('document:update:own'),
   auditLog({ action: 'UPDATE', resourceType: 'documents' }),
   async (req: AuthRequest, res) => {
   try {
@@ -268,7 +268,7 @@ router.put('/:id',
  *     tags: [Documents]
  */
 router.delete('/:id',
- csrfProtection,  csrfProtection, requirePermission('document:delete:fleet'),
+ csrfProtection, requirePermission('document:delete:fleet'),
   auditLog({ action: 'DELETE', resourceType: 'documents' }),
   async (req: AuthRequest, res) => {
   try {
@@ -365,7 +365,7 @@ router.get('/categories/all',
  *     tags: [Documents]
  */
 router.post('/categories',
- csrfProtection,  csrfProtection, requirePermission('document:manage:global'),
+ csrfProtection, requirePermission('document:manage:global'),
   auditLog({ action: 'CREATE_CATEGORY', resourceType: 'document_categories' }),
   async (req: AuthRequest, res) => {
   try {
@@ -410,7 +410,7 @@ router.post('/categories',
  *                 type: integer
  */
 router.post('/search',
- csrfProtection,  csrfProtection, requirePermission('document:view:fleet'),
+ csrfProtection, requirePermission('document:view:fleet'),
   async (req: AuthRequest, res) => {
   try {
     const tenantId = req.user?.tenant_id
@@ -464,7 +464,7 @@ router.post('/search',
  *                   type: string
  */
 router.post('/ask',
- csrfProtection,  csrfProtection, requirePermission('document:view:fleet'),
+ csrfProtection, requirePermission('document:view:fleet'),
   auditLog({ action: 'RAG_QUERY', resourceType: 'documents' }),
   async (req: AuthRequest, res) => {
   try {
@@ -536,7 +536,7 @@ router.get('/queries/history',
  *     tags: [Documents]
  */
 router.post('/queries/:id/feedback',
- csrfProtection,  csrfProtection, requirePermission('document:view:fleet'),
+ csrfProtection, requirePermission('document:view:fleet'),
   async (req: AuthRequest, res) => {
   try {
     const { id } = req.params

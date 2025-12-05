@@ -93,7 +93,7 @@ router.get('/:id/ar-model', optionalAuth, async (req: AuthRequest, res: Response
  */
 router.post(
   '/:id/customize',
- csrfProtection,  csrfProtection, authenticateJWT,
+ csrfProtection, authenticateJWT,
   requirePermission('vehicle:update:fleet'),
   auditLog({ action: 'UPDATE', resourceType: 'vehicle_customization' }),
   async (req: AuthRequest, res: Response) => {
@@ -197,7 +197,7 @@ router.get(
  */
 router.post(
   '/:id/damage-markers',
- csrfProtection,  csrfProtection, authenticateJWT,
+ csrfProtection, authenticateJWT,
   requirePermission('damage_report:create:own'),
   auditLog({ action: 'UPDATE', resourceType: 'vehicle_damage' }),
   async (req: AuthRequest, res: Response) => {
@@ -240,7 +240,7 @@ router.post(
  * POST /api/vehicles/:id/ar-session
  * Track AR viewing session
  */
-router.post('/:id/ar-session',csrfProtection,  csrfProtection, optionalAuth, async (req: AuthRequest, res: Response) => {
+router.post('/:id/ar-session',csrfProtection, optionalAuth, async (req: AuthRequest, res: Response) => {
   try {
     const vehicleId = parseInt(req.params.id)
 
@@ -281,7 +281,7 @@ router.post('/:id/ar-session',csrfProtection,  csrfProtection, optionalAuth, asy
  * PUT /api/ar-sessions/:sessionId
  * End AR session and update metrics
  */
-router.put('/ar-sessions/:sessionId',csrfProtection,  csrfProtection, optionalAuth, async (req: AuthRequest, res: Response) => {
+router.put('/ar-sessions/:sessionId',csrfProtection, optionalAuth, async (req: AuthRequest, res: Response) => {
   try {
     const sessionId = parseInt(req.params.sessionId)
 
@@ -342,7 +342,7 @@ router.get(
  */
 router.post(
   '/:id/render',
- csrfProtection,  csrfProtection, authenticateJWT,
+ csrfProtection, authenticateJWT,
   requirePermission('vehicle:view:fleet'),
   auditLog({ action: 'CREATE', resourceType: 'vehicle_render' }),
   async (req: AuthRequest, res: Response) => {
@@ -408,7 +408,7 @@ router.get('/:id/renders', optionalAuth, async (req: AuthRequest, res: Response)
  * POST /api/3d-performance
  * Track 3D viewer performance metrics
  */
-router.post('/3d-performance',csrfProtection,  csrfProtection, optionalAuth, async (req: AuthRequest, res: Response) => {
+router.post('/3d-performance',csrfProtection, optionalAuth, async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
       sessionId: z.string(),
@@ -473,7 +473,7 @@ router.get(
  */
 router.post(
   '/:id/3d-instance',
- csrfProtection,  csrfProtection, authenticateJWT,
+ csrfProtection, authenticateJWT,
   requirePermission('vehicle:update:fleet'),
   auditLog({ action: 'CREATE', resourceType: 'vehicle_3d_instance' }),
   async (req: AuthRequest, res: Response) => {

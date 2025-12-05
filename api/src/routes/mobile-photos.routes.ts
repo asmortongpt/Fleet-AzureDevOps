@@ -113,7 +113,7 @@ const SyncCompleteSchema = z.object({
  */
 router.post(
   '/upload',
- csrfProtection,  csrfProtection, requirePermission('driver:create:global'),
+ csrfProtection, requirePermission('driver:create:global'),
   upload.single('photo'),
   auditLog,
   async (req: Request, res: Response) => {
@@ -250,7 +250,7 @@ router.post(
  */
 router.post(
   '/upload-batch',
- csrfProtection,  csrfProtection, requirePermission('driver:create:global'),
+ csrfProtection, requirePermission('driver:create:global'),
   upload.array('photos', 20), // Max 20 photos per batch
   auditLog,
   async (req: Request, res: Response) => {
@@ -481,7 +481,7 @@ router.get(
  */
 router.post(
   '/sync-complete',
- csrfProtection,  csrfProtection, requirePermission('driver:update:global'),
+ csrfProtection, requirePermission('driver:update:global'),
   auditLog,
   async (req: Request, res: Response) => {
     try {
@@ -656,7 +656,7 @@ router.get(
  */
 router.delete(
   '/:id',
- csrfProtection,  csrfProtection, requirePermission('driver:delete:global'),
+ csrfProtection, requirePermission('driver:delete:global'),
   auditLog,
   async (req: Request, res: Response) => {
     try {

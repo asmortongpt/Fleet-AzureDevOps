@@ -193,7 +193,7 @@ router.get(
 // POST /api/cost-analysis/cost - Track a new cost
 router.post(
   '/cost',
- csrfProtection,  csrfProtection, requirePermission('report:generate:global'),
+ csrfProtection, requirePermission('report:generate:global'),
   auditLog({ action: 'CREATE', resourceType: 'cost_analysis' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -210,7 +210,7 @@ router.post(
 // POST /api/cost-analysis/budget - Set budget allocation
 router.post(
   '/budget',
- csrfProtection,  csrfProtection, requirePermission('report:generate:global'),
+ csrfProtection, requirePermission('report:generate:global'),
   auditLog({ action: 'CREATE', resourceType: 'cost_analysis' }),
   async (req: AuthRequest, res: Response) => {
     try {

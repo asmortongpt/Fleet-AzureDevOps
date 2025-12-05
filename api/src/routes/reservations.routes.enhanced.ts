@@ -78,7 +78,7 @@ const approvalActionSchema = z.object({
 // ============================================
 
 // POST /reservations - Create a new reservation
-router.post('/',csrfProtection,  csrfProtection, authenticateJWT, async (req: AuthRequest, res: Response) => {
+router.post('/',csrfProtection, authenticateJWT, async (req: AuthRequest, res: Response) => {
   try {
     const parsedData = createReservationSchema.parse(req.body);
     const { vehicle_id, start_datetime, end_datetime, purpose, notes, approval_required } = parsedData;

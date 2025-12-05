@@ -108,7 +108,7 @@ router.get(
 // POST /charging-sessions
 router.post(
   '/',
- csrfProtection,  csrfProtection, requirePermission('charging_session:create:own'),
+ csrfProtection, requirePermission('charging_session:create:own'),
   auditLog({ action: 'CREATE', resourceType: 'charging_sessions' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -163,7 +163,7 @@ router.put(
 // DELETE /charging-sessions/:id
 router.delete(
   '/:id',
- csrfProtection,  csrfProtection, requirePermission('charging_session:delete:fleet'),
+ csrfProtection, requirePermission('charging_session:delete:fleet'),
   auditLog({ action: 'DELETE', resourceType: 'charging_sessions' }),
   async (req: AuthRequest, res: Response) => {
     try {

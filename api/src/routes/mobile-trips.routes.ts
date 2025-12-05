@@ -164,7 +164,7 @@ const ClassifyTripSchema = z.object({
  *       400:
  *         description: Invalid request data
  */
-router.post('/start',csrfProtection,  csrfProtection, requirePermission('route:create:own'), auditLog, async (req: Request, res: Response) => {
+router.post('/start',csrfProtection, requirePermission('route:create:own'), auditLog, async (req: Request, res: Response) => {
   try {
     const validated = StartTripSchema.parse(req.body);
     const userId = (req as any).user.id;
@@ -248,7 +248,7 @@ router.post('/start',csrfProtection,  csrfProtection, requirePermission('route:c
  *       200:
  *         description: Trip ended successfully
  */
-router.post('/:id/end',csrfProtection,  csrfProtection, requirePermission('route:update:own'), auditLog, async (req: Request, res: Response) => {
+router.post('/:id/end',csrfProtection, requirePermission('route:update:own'), auditLog, async (req: Request, res: Response) => {
   try {
     const tripId = req.params.id;
     const validated = EndTripSchema.parse(req.body);
@@ -381,7 +381,7 @@ router.post('/:id/end',csrfProtection,  csrfProtection, requirePermission('route
  *       200:
  *         description: Metrics saved successfully
  */
-router.post('/:id/metrics',csrfProtection,  csrfProtection, requirePermission('route:update:own'), async (req: Request, res: Response) => {
+router.post('/:id/metrics',csrfProtection, requirePermission('route:update:own'), async (req: Request, res: Response) => {
   try {
     const tripId = req.params.id;
     const validated = TripMetricsSchema.parse(req.body);
@@ -653,7 +653,7 @@ router.get('/:id', requirePermission('route:view:own'), async (req: Request, res
  *       200:
  *         description: Trip classified
  */
-router.patch('/:id/classify',csrfProtection,  csrfProtection, requirePermission('route:update:own'), auditLog, async (req: Request, res: Response) => {
+router.patch('/:id/classify',csrfProtection, requirePermission('route:update:own'), auditLog, async (req: Request, res: Response) => {
   try {
     const tripId = req.params.id;
     const validated = ClassifyTripSchema.parse(req.body);

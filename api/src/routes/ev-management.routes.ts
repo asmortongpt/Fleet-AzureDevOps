@@ -198,7 +198,7 @@ router.get(
  */
 router.post(
   '/chargers/:id/reserve',
- csrfProtection,  csrfProtection, authenticateJWT,
+ csrfProtection, authenticateJWT,
   requirePermission('charging_station:create:fleet'),
   async (req: Request, res: Response) => {
     try {
@@ -256,7 +256,7 @@ router.post(
  */
 router.delete(
   '/reservations/:id/cancel',
- csrfProtection,  csrfProtection, authenticateJWT,
+ csrfProtection, authenticateJWT,
   requirePermission('charging_station:delete:fleet'),
   async (req: Request, res: Response) => {
     try {
@@ -319,7 +319,7 @@ router.delete(
  */
 router.post(
   '/vehicles/:id/charge-schedule',
- csrfProtection,  csrfProtection, authenticateJWT,
+ csrfProtection, authenticateJWT,
   requirePermission('charging_station:create:fleet'),
   async (req: Request, res: Response) => {
     try {
@@ -377,7 +377,7 @@ router.post(
  */
 router.post(
   '/chargers/:id/remote-start',
- csrfProtection,  csrfProtection, authenticateJWT,
+ csrfProtection, authenticateJWT,
   requirePermission('charging_station:update:fleet'),
   async (req: Request, res: Response) => {
     try {
@@ -426,7 +426,7 @@ router.post(
  */
 router.post(
   '/sessions/:transactionId/stop',
- csrfProtection,  csrfProtection, authenticateJWT,
+ csrfProtection, authenticateJWT,
   requirePermission('charging_station:update:fleet'),
   async (req: Request, res: Response) => {
     try {

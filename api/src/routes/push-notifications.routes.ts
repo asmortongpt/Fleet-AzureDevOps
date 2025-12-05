@@ -22,7 +22,7 @@ const router = express.Router()
  */
 router.post(
   '/register-device',
- csrfProtection,  csrfProtection, authenticateJWT,
+ csrfProtection, authenticateJWT,
   requirePermission('communication:send:global'),
   async (req, res) => {
     try {
@@ -73,7 +73,7 @@ router.post(
  */
 router.delete(
   '/device/:deviceId',
- csrfProtection,  csrfProtection, authenticateJWT,
+ csrfProtection, authenticateJWT,
   requirePermission('communication:send:global'),
   async (req, res) => {
     try {
@@ -101,7 +101,7 @@ router.delete(
  */
 router.post(
   '/send',
- csrfProtection,  csrfProtection, authenticateJWT,
+ csrfProtection, authenticateJWT,
   requirePermission('communication:send:global'),
   async (req, res) => {
     try {
@@ -176,7 +176,7 @@ router.post(
  */
 router.post(
   '/send-bulk',
- csrfProtection,  csrfProtection, authenticateJWT,
+ csrfProtection, authenticateJWT,
   requirePermission('communication:broadcast:global'),
   async (req, res) => {
     try {
@@ -251,7 +251,7 @@ router.post(
  */
 router.post(
   '/schedule',
- csrfProtection,  csrfProtection, authenticateJWT,
+ csrfProtection, authenticateJWT,
   requirePermission('communication:send:global'),
   async (req, res) => {
     try {
@@ -336,7 +336,7 @@ router.post(
  */
 router.post(
   '/send-from-template',
- csrfProtection,  csrfProtection, authenticateJWT,
+ csrfProtection, authenticateJWT,
   requirePermission('communication:send:global'),
   async (req, res) => {
     try {
@@ -507,7 +507,7 @@ router.get(
  */
 router.put(
   '/:id/opened',
- csrfProtection,  csrfProtection, authenticateJWT,
+ csrfProtection, authenticateJWT,
   requirePermission('communication:view:global'),
   async (req, res) => {
     try {
@@ -533,7 +533,7 @@ router.put(
  * PUT /api/push-notifications/:id/clicked
  * Track notification clicked with action
  */
-router.put('/:id/clicked',csrfProtection,  csrfProtection, authenticateJWT, async (req, res) => {
+router.put('/:id/clicked',csrfProtection, authenticateJWT, async (req, res) => {
   try {
     const { id } = req.params
     const { action } = req.body
@@ -557,7 +557,7 @@ router.put('/:id/clicked',csrfProtection,  csrfProtection, authenticateJWT, asyn
  * POST /api/push-notifications/test
  * Send a test notification (for development)
  */
-router.post('/test',csrfProtection,  csrfProtection, authenticateJWT, async (req, res) => {
+router.post('/test',csrfProtection, authenticateJWT, async (req, res) => {
   try {
     const notification = {
       tenantId: req.user.tenantId,

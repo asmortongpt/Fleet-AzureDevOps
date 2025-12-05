@@ -124,7 +124,7 @@ router.get(
 // POST /video-events
 router.post(
   '/',
- csrfProtection,  csrfProtection, requirePermission('video_event:create:global'),
+ csrfProtection, requirePermission('video_event:create:global'),
   auditLog({ action: 'CREATE', resourceType: 'video_events' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -142,7 +142,7 @@ router.post(
 // PUT /video-events/:id
 router.put(
   '/:id',
- csrfProtection,  csrfProtection, requirePermission('video_event:update:global'),
+ csrfProtection, requirePermission('video_event:update:global'),
   auditLog({ action: 'UPDATE', resourceType: 'video_events' }),
   async (req: AuthRequest, res: Response) => {
     try {
