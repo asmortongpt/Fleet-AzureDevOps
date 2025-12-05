@@ -600,8 +600,8 @@ router.get(
       })
 
       const result = await pool.query(
-        'SELECT vehicle_id, damage_type, severity, repair_cost, incident_date FROM v_vehicle_damage_summary WHERE /* TODO: Add tenant_id = $X AND */ vehicle_id = $1',
-        [vehicleId]
+        'SELECT vehicle_id, damage_type, severity, repair_cost, incident_date FROM v_vehicle_damage_summary WHERE tenant_id = $1 AND vehicle_id = $2',
+        [req.user!.tenant_id, vehicleId]
       )
 
       if (result.rows.length === 0) {
