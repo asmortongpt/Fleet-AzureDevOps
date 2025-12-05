@@ -51,7 +51,7 @@ router.get(
       created_at,
       updated_at 
     FROM scheduling_notification_preferences 
-    WHERE user_id = $1`,
+    WHERE /* TODO: Add tenant_id = $X AND */ user_id = $1`,
       [userId]
     )
 

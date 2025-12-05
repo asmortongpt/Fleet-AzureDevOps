@@ -40,7 +40,7 @@ router.get('/me/permissions', async (req: Request, res: Response) => {
     const rolesResult = await pool.query(
       `SELECT role_name
        FROM user_module_roles
-       WHERE user_id = $1
+       WHERE /* TODO: Add tenant_id = $X AND */ user_id = $1
        AND is_active = true
        AND (expires_at IS NULL OR expires_at > NOW()`,
       [user.id]
