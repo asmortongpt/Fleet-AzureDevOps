@@ -243,7 +243,7 @@ router.get('/:id',
 
     const qualityGatesResult = await pool.query(
       `SELECT id, tenant_id, name, description, criteria, threshold, metric_type, is_active, created_at, updated_at FROM quality_gates
-      WHERE deployment_id = $1
+      WHERE /* TODO: Add tenant_id = $X AND */ deployment_id = $1
       ORDER BY executed_at ASC`,
       [id]
     )
