@@ -10,7 +10,7 @@
  * - Integration with communication_logs table
  */
 
-import pool from '../config/database'
+import { Pool } from 'pg'
 import { logger } from '../utils/logger'
 import outlookService from './outlook.service'
 import teamsService from './teams.service'
@@ -45,7 +45,7 @@ interface NotificationPreferences {
   quietHoursEnd?: string
 }
 
-class SchedulingNotificationService {
+export class SchedulingNotificationService {
   /**
    * Send notification for new reservation request (to approvers)
    */
@@ -352,7 +352,7 @@ class SchedulingNotificationService {
   ): Promise<void> {
     try {
       // Get user email
-      const userResult = await pool.query(
+      const userResult = await this.db.query(
         'SELECT email, first_name, last_name FROM users WHERE id = $1',
         [userId]
       )
@@ -397,7 +397,7 @@ class SchedulingNotificationService {
   private async sendSMS(userId: string, message: string): Promise<void> {
     try {
       // Get user phone number
-      const userResult = await pool.query(
+      const userResult = await this.db.query(
         'SELECT phone, first_name, last_name FROM users WHERE id = $1',
         [userId]
       )
@@ -443,7 +443,7 @@ class SchedulingNotificationService {
   ): Promise<void> {
     try {
       // Get user's default Teams channel (from user preferences or tenant config)
-      const configResult = await pool.query(
+      const configResult = await this.db.query(
         `SELECT team_id, channel_id FROM tenant_teams_config
          WHERE tenant_id = (SELECT tenant_id FROM users WHERE id = $1)
          AND is_default = true
@@ -724,7 +724,7 @@ class SchedulingNotificationService {
    * Get user notification preferences
    */
   private async getNotificationPreferences(userId: string): Promise<NotificationPreferences> {
-    const result = await pool.query(
+    const result = await this.db.query(
       `SELECT 
       id,
       user_id,
@@ -768,7 +768,7 @@ class SchedulingNotificationService {
     userId: string,
     preferences: Partial<NotificationPreferences>
   ): Promise<void> {
-    await pool.query(
+    await this.db.query(
       `INSERT INTO scheduling_notification_preferences (
         user_id, email_enabled, sms_enabled, teams_enabled, reminder_times,
         quiet_hours_start, quiet_hours_end
@@ -808,7 +808,7 @@ class SchedulingNotificationService {
     entityId: string | null
   }): Promise<void> {
     try {
-      const result = await pool.query(
+      const result = await this.db.query(
         `INSERT INTO communications (
           communication_type, direction, subject, body,
           to_contact_emails, communication_datetime, status
@@ -827,7 +827,7 @@ class SchedulingNotificationService {
 
       // Link to entity if provided
       if (data.entityId && data.entityType) {
-        await pool.query(
+        await this.db.query(
           `INSERT INTO communication_entity_links (
             communication_id, entity_type, entity_id, link_type
           ) VALUES ($1, $2, $3, 'Primary Subject')',
@@ -850,7 +850,7 @@ class SchedulingNotificationService {
     entityType: string,
     hoursUntil: number
   ): Promise<void> {
-    await pool.query(
+    await this.db.query(
       `INSERT INTO scheduling_reminders_sent (
         entity_id, entity_type, hours_before, sent_at
       ) VALUES ($1, $2, $3, NOW())
@@ -868,7 +868,7 @@ class SchedulingNotificationService {
     entityType: string,
     hoursUntil: number
   ): Promise<boolean> {
-    const result = await pool.query(
+    const result = await this.db.query(
       `SELECT id FROM scheduling_reminders_sent
        WHERE entity_id = $1 AND entity_type = $2 AND hours_before = $3
        AND sent_at > NOW() - INTERVAL '2 hours'',
@@ -924,6 +924,4 @@ class SchedulingNotificationService {
   }
 }
 
-// Export singleton instance
-export const schedulingNotificationService = new SchedulingNotificationService()
-export default schedulingNotificationService
+export default SchedulingNotificationService

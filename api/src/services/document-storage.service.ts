@@ -4,8 +4,9 @@
  * Integrates: storage adapters, versioning, permissions, folders, and audit logging
  */
 
-import pool from '../config/database'
+import { Pool } from 'pg'
 import path from 'path'
+import logger from '../utils/logger'
 import {
   Document,
   DocumentWithMetadata,
@@ -43,7 +44,7 @@ export class DocumentStorageService {
   private maxFileSize: number
   private allowedFileTypes?: string[]
 
-  constructor() {
+  constructor(private db: Pool, private logger: typeof logger) {
     this.maxFileSize = parseInt(process.env.MAX_FILE_SIZE || '104857600') // 100MB
     // If specified, restrict file types
     if (process.env.ALLOWED_FILE_TYPES) {
@@ -62,9 +63,9 @@ export class DocumentStorageService {
       // Initialize other services
       await documentVersionService.initialize()
 
-      console.log('✅ Document Storage Service initialized')
+      this.logger.info('✅ Document Storage Service initialized')
     } catch (error) {
-      console.error('❌ Failed to initialize Document Storage Service:', error)
+      this.logger.error('❌ Failed to initialize Document Storage Service:', error)
       throw error
     }
   }
@@ -73,7 +74,7 @@ export class DocumentStorageService {
    * Upload a new document
    */
   async uploadDocument(options: UploadDocumentOptions): Promise<DocumentWithMetadata> {
-    const client = await pool.connect()
+    const client = await this.db.connect()
 
     try {
       await client.query('BEGIN')
@@ -130,7 +131,7 @@ export class DocumentStorageService {
           options.tenantId
         )
         if (!folder) {
-          throw new Error(`Folder not found`)
+          throw new Error('Folder not found')
         }
       }
 
@@ -229,24 +230,24 @@ export class DocumentStorageService {
       // Process document asynchronously (OCR, embeddings, etc.)
       this.processDocumentAsync(document.id, options.file.buffer, options.file.mimetype)
         .catch(err => {
-          console.error(`❌ Error processing document:`, err)
+          this.logger.error(`❌ Error processing document:`, err)
         })
 
-      console.log(`✅ Document uploaded: ${document.file_name}`)
+      this.logger.info(`✅ Document uploaded: ${document.file_name}`)
 
       // Get enriched document data
       return this.getDocumentById(document.id, options.tenantId, options.userId)
     } catch (error) {
-      await client.query(`ROLLBACK`)
+      await client.query('ROLLBACK')
 
       // Try to clean up uploaded file
       try {
         // File cleanup would go here
       } catch (cleanupError) {
-        console.error('❌ Failed to cleanup file:', cleanupError)
+        this.logger.error('❌ Failed to cleanup file:', cleanupError)
       }
 
-      console.error('❌ Failed to upload document:', error)
+      this.logger.error('❌ Failed to upload document:', error)
       throw error
     } finally {
       client.release()
@@ -262,7 +263,7 @@ export class DocumentStorageService {
     userId: string
   ): Promise<DocumentWithMetadata> {
     try {
-      const result = await pool.query(
+      const result = await this.db.query(
         `SELECT
           d.*,
           dc.category_name,
@@ -295,7 +296,7 @@ export class DocumentStorageService {
 
       return result.rows[0]
     } catch (error) {
-      console.error('❌ Failed to get document:', error)
+      this.logger.error('❌ Failed to get document:', error)
       throw error
     }
   }
@@ -313,7 +314,7 @@ export class DocumentStorageService {
           d.*,
           dc.category_name,
           dc.color as category_color,
-          u.first_name || ` ` || u.last_name as uploaded_by_name,
+          u.first_name || ' ' || u.last_name as uploaded_by_name,
           df.folder_name,
           df.path as folder_path,
           (SELECT COUNT(*) FROM document_versions dv WHERE dv.document_id = d.id) as version_count,
@@ -404,7 +405,7 @@ export class DocumentStorageService {
       }
 
       // Get total count
-      const countResult = await pool.query(
+      const countResult = await this.db.query(
         query.replace(`SELECT d.*, dc.category_name`, `SELECT COUNT(DISTINCT d.id) as count`),
         params
       )
@@ -427,7 +428,7 @@ export class DocumentStorageService {
       query += ` OFFSET $${paramCount}`
       params.push(offset)
 
-      const result = await pool.query(query, params)
+      const result = await this.db.query(query, params)
 
       return {
         documents: result.rows,
@@ -437,7 +438,7 @@ export class DocumentStorageService {
         hasMore: offset + limit < total
       }
     } catch (error) {
-      console.error(`❌ Failed to get documents:`, error)
+      this.logger.error(`❌ Failed to get documents:`, error)
       throw error
     }
   }
@@ -451,7 +452,7 @@ export class DocumentStorageService {
     userId: string,
     updates: UpdateDocumentOptions
   ): Promise<DocumentWithMetadata> {
-    const client = await pool.connect()
+    const client = await this.db.connect()
 
     try {
       await client.query('BEGIN')
@@ -508,7 +509,7 @@ export class DocumentStorageService {
 
       for (const field of allowedFields) {
         if (updates[field] !== undefined) {
-          if (field === `metadata`) {
+          if (field === 'metadata') {
             setClauses.push(`${field} = $${paramCount}`)
             values.push(JSON.stringify(updates[field]))
           } else {
@@ -520,7 +521,7 @@ export class DocumentStorageService {
       }
 
       if (setClauses.length === 0) {
-        throw new Error(`No valid fields to update`)
+        throw new Error('No valid fields to update')
       }
 
       values.push(documentId, tenantId)
@@ -547,14 +548,14 @@ export class DocumentStorageService {
         }
       )
 
-      await client.query(`COMMIT`)
+      await client.query('COMMIT')
 
-      console.log(`✅ Document updated: ${updatedDoc.file_name}`)
+      this.logger.info(`✅ Document updated: ${updatedDoc.file_name}`)
 
       return this.getDocumentById(documentId, tenantId, userId)
     } catch (error) {
-      await client.query(`ROLLBACK`)
-      console.error('❌ Failed to update document:', error)
+      await client.query('ROLLBACK')
+      this.logger.error('❌ Failed to update document:', error)
       throw error
     } finally {
       client.release()
@@ -570,7 +571,7 @@ export class DocumentStorageService {
     userId: string,
     permanent: boolean = false
   ): Promise<void> {
-    const client = await pool.connect()
+    const client = await this.db.connect()
 
     try {
       await client.query('BEGIN')
@@ -596,7 +597,7 @@ export class DocumentStorageService {
         try {
           await this.storageAdapter!.delete(document.file_url)
         } catch (error) {
-          console.warn('⚠️  Failed to delete file from storage:', error)
+          this.logger.warn('⚠️  Failed to delete file from storage:', error)
         }
 
         // Delete from database
@@ -617,7 +618,7 @@ export class DocumentStorageService {
         await client.query(
           `UPDATE documents
            SET deleted_at = NOW(), updated_at = NOW()
-           WHERE id = $1 AND tenant_id = $2',
+           WHERE id = $1 AND tenant_id = $2`,
           [documentId, tenantId]
         )
 
@@ -630,12 +631,12 @@ export class DocumentStorageService {
         )
       }
 
-      await client.query(`COMMIT`)
+      await client.query('COMMIT')
 
-      console.log(`✅ Document deleted: ${document.file_name} (permanent: ${permanent})`)
+      this.logger.info(`✅ Document deleted: ${document.file_name} (permanent: ${permanent})`)
     } catch (error) {
-      await client.query(`ROLLBACK`)
-      console.error('❌ Failed to delete document:', error)
+      await client.query('ROLLBACK')
+      this.logger.error('❌ Failed to delete document:', error)
       throw error
     } finally {
       client.release()
@@ -650,7 +651,7 @@ export class DocumentStorageService {
     tenantId: string,
     userId: string
   ): Promise<DocumentWithMetadata> {
-    const client = await pool.connect()
+    const client = await this.db.connect()
 
     try {
       await client.query('BEGIN')
@@ -677,14 +678,14 @@ export class DocumentStorageService {
         { newValues: { file_name: document.file_name } }
       )
 
-      await client.query(`COMMIT`)
+      await client.query('COMMIT')
 
-      console.log(`✅ Document restored: ${document.file_name}`)
+      this.logger.info(`✅ Document restored: ${document.file_name}`)
 
       return this.getDocumentById(documentId, tenantId, userId)
     } catch (error) {
-      await client.query(`ROLLBACK`)
-      console.error('❌ Failed to restore document:', error)
+      await client.query('ROLLBACK')
+      this.logger.error('❌ Failed to restore document:', error)
       throw error
     } finally {
       client.release()
@@ -716,11 +717,11 @@ export class DocumentStorageService {
         `download`
       )
 
-      console.log(`✅ Document downloaded: ${document.file_name}`)
+      this.logger.info(`✅ Document downloaded: ${document.file_name}`)
 
       return { buffer, document }
     } catch (error) {
-      console.error(`❌ Failed to download document:`, error)
+      this.logger.error(`❌ Failed to download document:`, error)
       throw error
     }
   }
@@ -732,7 +733,7 @@ export class DocumentStorageService {
     try {
       const [totalDocs, byCategory, byType, byStatus, storageUsage] =
         await Promise.all([
-          pool.query(
+          this.db.query(
             `SELECT
               COUNT(*) as total_documents,
               SUM(file_size) as total_size_bytes
@@ -740,7 +741,7 @@ export class DocumentStorageService {
             WHERE tenant_id = $1 AND deleted_at IS NULL`,
             [tenantId]
           ),
-          pool.query(
+          this.db.query(
             `SELECT
               COALESCE(dc.category_name, 'Uncategorized') as category,
               dc.color,
@@ -752,7 +753,7 @@ export class DocumentStorageService {
             ORDER BY count DESC`,
             [tenantId]
           ),
-          pool.query(
+          this.db.query(
             `SELECT
               file_type,
               COUNT(*) as count,
@@ -763,7 +764,7 @@ export class DocumentStorageService {
             ORDER BY count DESC`,
             [tenantId]
           ),
-          pool.query(
+          this.db.query(
             `SELECT
               status,
               COUNT(*) as count
@@ -773,7 +774,7 @@ export class DocumentStorageService {
             ORDER BY count DESC`,
             [tenantId]
           ),
-          pool.query(
+          this.db.query(
             `SELECT
               used_bytes,
               capacity_bytes
@@ -804,7 +805,7 @@ export class DocumentStorageService {
         recent_uploads: 0 // Would need to calculate
       }
     } catch (error) {
-      console.error(`❌ Failed to get statistics:`, error)
+      this.logger.error(`❌ Failed to get statistics:`, error)
       throw error
     }
   }
@@ -820,24 +821,24 @@ export class DocumentStorageService {
     try {
       // This would integrate with OCR and embedding services
       // For now, just mark as completed
-      await pool.query(
+      await this.db.query(
         `UPDATE documents
          SET ocr_status = $1, embedding_status = $2, updated_at = NOW()
          WHERE id = $3`,
         [OCRStatus.NOT_NEEDED, EmbeddingStatus.COMPLETED, documentId]
       )
 
-      console.log(`✅ Document processed: ${documentId}`)
+      this.logger.info(`✅ Document processed: ${documentId}`)
     } catch (error) {
-      console.error(`❌ Error processing document:`, error)
-      await pool.query(
+      this.logger.error(`❌ Error processing document:`, error)
+      await this.db.query(
         `UPDATE documents
          SET ocr_status = $1, embedding_status = $2
-         WHERE id = $3',
+         WHERE id = $3`,
         [OCRStatus.FAILED, EmbeddingStatus.FAILED, documentId]
       )
     }
   }
 }
 
-export default new DocumentStorageService()
+export default DocumentStorageService

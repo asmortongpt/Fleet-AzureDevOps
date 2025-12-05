@@ -14,7 +14,7 @@
  * - Search result caching
  */
 
-import pool from '../config/database'
+import { Pool } from 'pg'
 import { cache } from '../utils/cache'
 
 export interface SearchQuery {
@@ -85,7 +85,7 @@ export class SearchIndexService {
   private cacheEnabled: boolean
   private cacheTTL: number = 300 // 5 minutes
 
-  constructor() {
+  constructor(private db: Pool) {
     this.cacheEnabled = process.env.SEARCH_CACHE_ENABLED !== 'false'
   }
 
@@ -125,7 +125,7 @@ export class SearchIndexService {
       )
 
       // Execute search
-      const result = await pool.query(query, params)
+      const result = await this.db.query(query, params)
 
       // Build results
       const results: SearchResult[] = result.rows.map((row, index) => ({
@@ -149,7 +149,7 @@ export class SearchIndexService {
 
       // Get total count
       const countQuery = this.buildCountQuery(tsquery, searchQuery)
-      const countResult = await pool.query(countQuery.query, countQuery.params)
+      const countResult = await this.db.query(countQuery.query, countQuery.params)
       const totalResults = parseInt(countResult.rows[0].count)
 
       const stats: SearchStats = {
@@ -551,7 +551,7 @@ export class SearchIndexService {
       const results: AutocompleteResult[] = []
 
       // Search document names
-      const docResult = await pool.query(
+      const docResult = await this.db.query(
         `SELECT DISTINCT file_name, COUNT(*) OVER() as frequency
          FROM documents
          WHERE tenant_id = $1
@@ -572,7 +572,7 @@ export class SearchIndexService {
       })
 
       // Search tags
-      const tagResult = await pool.query(
+      const tagResult = await this.db.query(
         `SELECT DISTINCT unnest(tags) as tag, COUNT(*) as frequency
          FROM documents
          WHERE tenant_id = $1
@@ -596,7 +596,7 @@ export class SearchIndexService {
       })
 
       // Search categories
-      const categoryResult = await pool.query(
+      const categoryResult = await this.db.query(
         `SELECT DISTINCT category_name, COUNT(d.id) as frequency
          FROM document_categories dc
          LEFT JOIN documents d ON dc.id = d.category_id AND d.status = 'active'
@@ -641,7 +641,7 @@ export class SearchIndexService {
       const suggestions: SpellingSuggestion[] = []
 
       // Use PostgreSQL's similarity function (requires pg_trgm extension)
-      const result = await pool.query(
+      const result = await this.db.query(
         `SELECT DISTINCT word, similarity(word, $2) as score
          FROM (
            SELECT unnest(string_to_array(file_name, ' ')) as word FROM documents WHERE tenant_id = $1
@@ -691,7 +691,7 @@ export class SearchIndexService {
     stats: SearchStats
   ): Promise<void> {
     try {
-      await pool.query(
+      await this.db.query(
         `INSERT INTO search_query_log (
           tenant_id, query_text, query_terms, filters,
           result_count, search_time_ms, created_at
@@ -721,7 +721,7 @@ export class SearchIndexService {
     try {
       const [topQueries, noResults, avgTime, totalSearches] = await Promise.all([
         // Top queries
-        pool.query(
+        this.db.query(
           `SELECT query_text, COUNT(*) as count, AVG(result_count) as avg_results
            FROM search_query_log
            WHERE tenant_id = $1
@@ -732,7 +732,7 @@ export class SearchIndexService {
           [tenantId]
         ),
         // Queries with no results
-        pool.query(
+        this.db.query(
           `SELECT query_text, COUNT(*) as count
            FROM search_query_log
            WHERE tenant_id = $1
@@ -744,7 +744,7 @@ export class SearchIndexService {
           [tenantId]
         ),
         // Average search time
-        pool.query(
+        this.db.query(
           `SELECT AVG(search_time_ms) as avg_time_ms
            FROM search_query_log
            WHERE tenant_id = $1
@@ -752,7 +752,7 @@ export class SearchIndexService {
           [tenantId]
         ),
         // Total searches
-        pool.query(
+        this.db.query(
           `SELECT COUNT(*) as total
            FROM search_query_log
            WHERE tenant_id = $1
@@ -786,7 +786,7 @@ export class SearchIndexService {
   async warmCache(tenantId: string): Promise<void> {
     try {
       // Get top 20 queries from last 7 days
-      const result = await pool.query(
+      const result = await this.db.query(
         `SELECT DISTINCT query_text, filters
          FROM search_query_log
          WHERE tenant_id = $1
@@ -816,4 +816,4 @@ export class SearchIndexService {
   }
 }
 
-export default new SearchIndexService()
+export default SearchIndexService;

@@ -1,17 +1,32 @@
-import { Component, ReactNode } from 'react'
+import { Component, ReactNode, ErrorInfo } from 'react'
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
+import { AlertTriangle, RefreshCw, Home, Bug, Clock } from 'lucide-react'
+import { telemetryService } from '@/lib/telemetry'
 
 interface Props {
   children: ReactNode
   fallback?: ReactNode
+  onError?: (error: Error, errorInfo: ErrorInfo) => void
+  showDetails?: boolean
+  resetKeys?: any[]
+  onReset?: () => void
 }
 
 interface State {
   hasError: boolean
   error?: Error
-  errorInfo?: any
+  errorInfo?: ErrorInfo
+  errorCount: number
+  retryCount: number
+  isRetrying: boolean
+  retryDelay: number
 }
+
+const MAX_RETRIES = 3
+const INITIAL_RETRY_DELAY = 1000 // 1 second
+const MAX_RETRY_DELAY = 10000 // 10 seconds
 
 // Global error tracking for debugging
 const errorLog: Array<{ timestamp: string; error: string; stack?: string; componentStack?: string }> = []
@@ -22,151 +37,396 @@ if (typeof window !== 'undefined') {
 }
 
 export class ErrorBoundary extends Component<Props, State> {
+  private retryTimeoutId?: number
+
   constructor(props: Props) {
     super(props)
-    this.state = { hasError: false }
+    this.state = {
+      hasError: false,
+      errorCount: 0,
+      retryCount: 0,
+      isRetrying: false,
+      retryDelay: INITIAL_RETRY_DELAY,
+    }
   }
 
-  static getDerivedStateFromError(error: Error) {
-    return { hasError: true, error }
+  static getDerivedStateFromError(error: Error): Partial<State> {
+    return {
+      hasError: true,
+      error,
+    }
   }
 
-  componentDidCatch(error: Error, errorInfo: any) {
+  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     const timestamp = new Date().toISOString()
+    console.error('ErrorBoundary caught error:', error, errorInfo)
+
+    // Update error count and store error info
+    this.setState((prev) => ({
+      errorInfo,
+      errorCount: prev.errorCount + 1,
+    }))
+
+    // Add to global error log
     const errorEntry = {
       timestamp,
       error: error.message,
       stack: error.stack,
       componentStack: errorInfo?.componentStack
     }
-
-    // Add to global error log
     errorLog.push(errorEntry)
-    if (errorLog.length > 50) errorLog.shift() // Keep last 50 errors
+    if (errorLog.length > 50) errorLog.shift()
 
-    // Detailed console logging
-    console.group(`[ErrorBoundary] Error caught at ${timestamp}`)
-    console.error('Error:', error.message)
-    console.error('Full Error Object:', error)
-    console.error('Error Stack:', error.stack)
-    console.error('Component Stack:', errorInfo?.componentStack)
+    // Track error in Application Insights
+    this.trackError(error, errorInfo)
 
-    // Try to identify the source of common errors
-    if (error.message.includes("Cannot read properties of undefined (reading 'length')")) {
-      console.warn('DIAGNOSIS: This error typically occurs when accessing .length on undefined.')
-      console.warn('Common causes:')
-      console.warn('  1. API returned unexpected data format (not an array)')
-      console.warn('  2. Data transform failed or returned undefined')
-      console.warn('  3. Vehicle/Driver data missing expected properties (e.g., alerts array)')
-      console.warn('Check localStorage for token:', localStorage.getItem('token') ? 'Present' : 'Missing')
-      console.warn('Check window.__FLEET_API_RESPONSES__ for recent API responses')
-    }
+    // Call custom error handler if provided
+    this.props.onError?.(error, errorInfo)
 
-    console.groupEnd()
-
-    // Store error info in state for display
-    this.setState({ errorInfo })
-
-    // Attempt to report to external service (if configured)
-    this.reportError(error, errorInfo)
+    // Store in localStorage for debugging
+    this.storeErrorLog(error, errorInfo)
   }
 
-  private reportError(error: Error, errorInfo: any) {
+  componentDidUpdate(prevProps: Props) {
+    // Reset error boundary if resetKeys changed
+    if (this.state.hasError && this.props.resetKeys) {
+      const prevKeys = prevProps.resetKeys || []
+      const currentKeys = this.props.resetKeys
+
+      if (prevKeys.length !== currentKeys.length ||
+          prevKeys.some((key, index) => key !== currentKeys[index])) {
+        this.handleReset()
+      }
+    }
+  }
+
+  componentWillUnmount() {
+    // Clear retry timeout
+    if (this.retryTimeoutId) {
+      window.clearTimeout(this.retryTimeoutId)
+    }
+  }
+
+  /**
+   * Track error in Application Insights
+   */
+  private trackError(error: Error, errorInfo: ErrorInfo) {
     try {
-      // Log to console in a structured format that can be captured
-      const errorReport = {
-        type: 'FLEET_FRONTEND_ERROR',
-        message: error.message,
-        stack: error.stack,
-        componentStack: errorInfo?.componentStack,
+      telemetryService.trackException(error, 3, {
+        componentStack: errorInfo.componentStack,
+        errorBoundary: true,
+        errorCount: this.state.errorCount,
+        retryCount: this.state.retryCount,
         url: window.location.href,
         userAgent: navigator.userAgent,
         timestamp: new Date().toISOString(),
-        localStorage: {
-          hasToken: !!localStorage.getItem('token'),
-          demoMode: localStorage.getItem('demo_mode')
-        }
+      })
+
+      // Also track as event for better querying
+      telemetryService.trackEvent('ErrorBoundary_Error', {
+        errorMessage: error.message,
+        errorName: error.name,
+        errorStack: error.stack?.substring(0, 500),
+        componentStack: errorInfo.componentStack?.substring(0, 500),
+        errorCount: this.state.errorCount.toString(),
+        retryCount: this.state.retryCount.toString(),
+      })
+    } catch (trackingError) {
+      console.error('Failed to track error in Application Insights:', trackingError)
+    }
+  }
+
+  /**
+   * Store error log in localStorage
+   */
+  private storeErrorLog(error: Error, errorInfo: ErrorInfo) {
+    try {
+      const errorLog = {
+        timestamp: new Date().toISOString(),
+        error: {
+          message: error.message,
+          name: error.name,
+          stack: error.stack,
+        },
+        errorInfo: {
+          componentStack: errorInfo.componentStack,
+        },
+        userAgent: navigator.userAgent,
+        url: window.location.href,
+        viewport: {
+          width: window.innerWidth,
+          height: window.innerHeight,
+        },
+        errorCount: this.state.errorCount,
+        retryCount: this.state.retryCount,
       }
 
-      console.log('[ErrorBoundary] Error Report:', JSON.stringify(errorReport, null, 2))
+      const existingLogs = JSON.parse(
+        localStorage.getItem('fleet-error-logs') || '[]'
+      )
 
-      // If API URL is available, try to send error report
-      const apiUrl = (window as any).__RUNTIME_CONFIG__?.VITE_API_URL
-      if (apiUrl) {
-        fetch(`${apiUrl}/api/v1/telemetry/client-error`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(errorReport)
-        }).catch(() => {
-          // Silently fail - we don't want error reporting to cause more errors
-        })
-      }
+      // Keep only last 20 errors
+      const updatedLogs = [errorLog, ...existingLogs].slice(0, 20)
+
+      localStorage.setItem('fleet-error-logs', JSON.stringify(updatedLogs))
     } catch (e) {
-      // Silently fail
+      console.error('Failed to store error log:', e)
+    }
+  }
+
+  /**
+   * Reset error boundary state
+   */
+  private handleReset = () => {
+    telemetryService.trackEvent('ErrorBoundary_Reset', {
+      errorCount: this.state.errorCount.toString(),
+      retryCount: this.state.retryCount.toString(),
+    })
+
+    this.setState({
+      hasError: false,
+      error: undefined,
+      errorInfo: undefined,
+      isRetrying: false,
+    })
+
+    this.props.onReset?.()
+  }
+
+  /**
+   * Retry with exponential backoff
+   */
+  private handleRetry = () => {
+    const { retryCount, retryDelay } = this.state
+
+    if (retryCount >= MAX_RETRIES) {
+      alert('Maximum retry attempts reached. Please reload the page.')
+      return
+    }
+
+    telemetryService.trackEvent('ErrorBoundary_Retry', {
+      retryCount: retryCount.toString(),
+      retryDelay: retryDelay.toString(),
+    })
+
+    this.setState({
+      isRetrying: true,
+      retryCount: retryCount + 1,
+    })
+
+    // Calculate next delay with exponential backoff
+    const nextDelay = Math.min(retryDelay * 2, MAX_RETRY_DELAY)
+
+    this.retryTimeoutId = window.setTimeout(() => {
+      this.setState({
+        hasError: false,
+        error: undefined,
+        errorInfo: undefined,
+        isRetrying: false,
+        retryDelay: nextDelay,
+      })
+
+      this.props.onReset?.()
+    }, retryDelay)
+  }
+
+  /**
+   * Reload the page
+   */
+  private handleReload = () => {
+    telemetryService.trackEvent('ErrorBoundary_Reload')
+    window.location.reload()
+  }
+
+  /**
+   * Go to home page
+   */
+  private handleGoHome = () => {
+    telemetryService.trackEvent('ErrorBoundary_GoHome')
+    window.location.href = '/'
+  }
+
+  /**
+   * Download error log
+   */
+  private handleDownloadLog = () => {
+    try {
+      const logs = localStorage.getItem('fleet-error-logs') || '[]'
+      const blob = new Blob([logs], { type: 'application/json' })
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `fleet-error-log-${new Date().toISOString()}.json`
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      URL.revokeObjectURL(url)
+
+      telemetryService.trackEvent('ErrorBoundary_DownloadLog')
+    } catch (error) {
+      console.error('Failed to download error log:', error)
     }
   }
 
   render() {
     if (this.state.hasError) {
-      return this.props.fallback || (
-        <div className="flex items-center justify-center min-h-screen p-4">
-          <Alert variant="destructive" className="max-w-lg">
-            <AlertTitle>Something went wrong</AlertTitle>
-            <AlertDescription className="mt-2 space-y-4">
-              <p className="font-mono text-sm bg-destructive/10 p-2 rounded overflow-auto max-h-20">
-                {this.state.error?.message || 'An unexpected error occurred'}
-              </p>
+      // Use custom fallback if provided
+      if (this.props.fallback) {
+        return this.props.fallback
+      }
 
-              <details className="text-xs">
-                <summary className="cursor-pointer hover:text-destructive-foreground">
-                  Show technical details
-                </summary>
-                <div className="mt-2 space-y-2">
-                  <div>
-                    <strong>Error Stack:</strong>
-                    <pre className="bg-muted p-2 rounded overflow-auto max-h-40 text-xs mt-1">
-                      {this.state.error?.stack || 'No stack trace available'}
-                    </pre>
-                  </div>
-                  {this.state.errorInfo?.componentStack && (
+      const { error, errorInfo, errorCount, retryCount, isRetrying, retryDelay } = this.state
+      const showDetails = this.props.showDetails ?? import.meta.env.DEV
+      const canRetry = retryCount < MAX_RETRIES
+
+      return (
+        <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-orange-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center p-4">
+          <Card className="max-w-2xl w-full shadow-2xl">
+            <CardHeader className="text-center">
+              <div className="mx-auto mb-4 w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center">
+                <AlertTriangle className="w-8 h-8 text-red-600 dark:text-red-400" />
+              </div>
+              <CardTitle className="text-2xl font-bold text-red-600 dark:text-red-400">
+                Something Went Wrong
+              </CardTitle>
+              <CardDescription className="text-base mt-2">
+                We encountered an unexpected error. Our team has been notified and is working to fix it.
+              </CardDescription>
+            </CardHeader>
+
+            <CardContent className="space-y-6">
+              {/* Error Message */}
+              <Alert variant="destructive">
+                <AlertTriangle className="h-4 w-4" />
+                <AlertTitle>Error Details</AlertTitle>
+                <AlertDescription className="mt-2 font-mono text-sm">
+                  {error?.message || 'An unexpected error occurred'}
+                </AlertDescription>
+              </Alert>
+
+              {/* Error Count Warning */}
+              {errorCount > 1 && (
+                <Alert>
+                  <Bug className="h-4 w-4" />
+                  <AlertTitle>Multiple Errors Detected</AlertTitle>
+                  <AlertDescription>
+                    This error has occurred {errorCount} times. {retryCount > 0 && `(Retry attempt ${retryCount}/${MAX_RETRIES})`}
+                    {!canRetry && ' Maximum retry attempts reached. Please reload the page or contact support.'}
+                  </AlertDescription>
+                </Alert>
+              )}
+
+              {/* Retry In Progress */}
+              {isRetrying && (
+                <Alert>
+                  <Clock className="h-4 w-4 animate-spin" />
+                  <AlertTitle>Retrying...</AlertTitle>
+                  <AlertDescription>
+                    Attempting to recover in {Math.round(retryDelay / 1000)} seconds...
+                  </AlertDescription>
+                </Alert>
+              )}
+
+              {/* Technical Details (Dev Mode) */}
+              {showDetails && error && (
+                <details className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
+                  <summary className="cursor-pointer font-semibold mb-2 flex items-center gap-2">
+                    <Bug className="w-4 h-4" />
+                    Technical Details (Development Only)
+                  </summary>
+                  <div className="space-y-3 mt-3">
                     <div>
-                      <strong>Component Stack:</strong>
-                      <pre className="bg-muted p-2 rounded overflow-auto max-h-40 text-xs mt-1">
-                        {this.state.errorInfo.componentStack}
+                      <div className="text-sm font-semibold mb-1">Error Type:</div>
+                      <pre className="text-xs bg-gray-100 dark:bg-gray-900 p-2 rounded">
+                        {error.name}
                       </pre>
                     </div>
-                  )}
-                  <div className="text-muted-foreground">
-                    <p>Debug Info:</p>
-                    <ul className="list-disc list-inside">
-                      <li>Token: {localStorage.getItem('token') ? 'Present' : 'Missing'}</li>
-                      <li>Demo Mode: {localStorage.getItem('demo_mode') || 'Not set'}</li>
-                      <li>Time: {new Date().toISOString()}</li>
-                    </ul>
+                    <div>
+                      <div className="text-sm font-semibold mb-1">Stack Trace:</div>
+                      <pre className="text-xs bg-gray-100 dark:bg-gray-900 p-3 rounded overflow-x-auto max-h-48 overflow-y-auto">
+                        {error.stack}
+                      </pre>
+                    </div>
+                    {errorInfo && (
+                      <div>
+                        <div className="text-sm font-semibold mb-1">
+                          Component Stack:
+                        </div>
+                        <pre className="text-xs bg-gray-100 dark:bg-gray-900 p-3 rounded overflow-x-auto max-h-48 overflow-y-auto">
+                          {errorInfo.componentStack}
+                        </pre>
+                      </div>
+                    )}
                   </div>
-                </div>
-              </details>
+                </details>
+              )}
 
-              <div className="flex gap-2">
+              {/* Action Buttons */}
+              <div className="flex flex-col sm:flex-row gap-3">
+                {canRetry && !isRetrying && (
+                  <Button
+                    onClick={this.handleRetry}
+                    variant="default"
+                    className="flex-1"
+                  >
+                    <RefreshCw className="w-4 h-4 mr-2" />
+                    Retry ({retryCount}/{MAX_RETRIES})
+                  </Button>
+                )}
                 <Button
-                  onClick={() => window.location.reload()}
+                  onClick={this.handleReset}
+                  variant="outline"
                   className="flex-1"
+                  disabled={isRetrying}
                 >
+                  <RefreshCw className="w-4 h-4 mr-2" />
+                  Try Again
+                </Button>
+                <Button
+                  onClick={this.handleReload}
+                  variant="outline"
+                  className="flex-1"
+                  disabled={isRetrying}
+                >
+                  <RefreshCw className="w-4 h-4 mr-2" />
                   Reload Page
                 </Button>
                 <Button
+                  onClick={this.handleGoHome}
                   variant="outline"
-                  onClick={() => {
-                    localStorage.setItem('demo_mode', 'true')
-                    window.location.reload()
-                  }}
                   className="flex-1"
+                  disabled={isRetrying}
                 >
-                  Try Demo Mode
+                  <Home className="w-4 h-4 mr-2" />
+                  Go Home
                 </Button>
               </div>
-            </AlertDescription>
-          </Alert>
+
+              {/* Download Log Button */}
+              {showDetails && (
+                <Button
+                  onClick={this.handleDownloadLog}
+                  variant="ghost"
+                  className="w-full"
+                  size="sm"
+                >
+                  <Bug className="w-4 h-4 mr-2" />
+                  Download Error Log
+                </Button>
+              )}
+
+              {/* Support Info */}
+              <div className="text-center text-sm text-muted-foreground">
+                <p>
+                  If this problem persists, please contact support with the error
+                  code:
+                </p>
+                <code className="mt-1 inline-block bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded font-mono">
+                  {Date.now().toString(36).toUpperCase()}
+                </code>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       )
     }
@@ -174,3 +434,14 @@ export class ErrorBoundary extends Component<Props, State> {
     return this.props.children
   }
 }
+
+/**
+ * Hook to programmatically trigger error boundary
+ */
+export function useErrorHandler() {
+  return (error: Error) => {
+    throw error
+  }
+}
+
+export default ErrorBoundary

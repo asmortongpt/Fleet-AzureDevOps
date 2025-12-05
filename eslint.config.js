@@ -1,99 +1,59 @@
-import js from '@eslint/js';
-import globals from 'globals';
-import reactHooks from 'eslint-plugin-react-hooks';
-import reactRefresh from 'eslint-plugin-react-refresh';
-import tseslint from 'typescript-eslint';
-import storybook from 'eslint-plugin-storybook';
+import js from '@eslint/js'
+import globals from 'globals'
+import reactHooks from 'eslint-plugin-react-hooks'
+import reactRefresh from 'eslint-plugin-react-refresh'
+import tseslint from 'typescript-eslint'
+import jsxA11y from 'eslint-plugin-jsx-a11y'
+import importPlugin from 'eslint-plugin-import'
+import unusedImports from 'eslint-plugin-unused-imports'
 
 export default tseslint.config(
+  { ignores: ['dist'] },
   {
-    // Global ignores
-    ignores: [
-      '**/dist/**',
-      '**/node_modules/**',
-      '**/.eslintrc.cjs',
-      '**/api/**', // API has its own config
-    ],
-  },
-  {
-    // Base config for all files
-    extends: [js.configs.recommended],
-    languageOptions: {
-      ecmaVersion: 2022,
-      globals: {
-        ...globals.browser,
-        ...globals.es2022,
-      },
-    },
-  },
-  {
-    // TypeScript and React configuration
+    extends: [js.configs.recommended, ...tseslint.configs.strict],
     files: ['**/*.{ts,tsx}'],
-    extends: [
-      ...tseslint.configs.recommended,
-    ],
     languageOptions: {
-      ecmaVersion: 'latest',
-      sourceType: 'module',
-      parser: tseslint.parser,
-      parserOptions: {
-        ecmaFeatures: {
-          jsx: true,
-        },
-      },
-      globals: {
-        ...globals.browser,
-        ...globals.es2022,
-      },
+      ecmaVersion: 2020,
+      globals: globals.browser,
     },
     plugins: {
       'react-hooks': reactHooks,
       'react-refresh': reactRefresh,
+      'jsx-a11y': jsxA11y,
+      'import': importPlugin,
+      'unused-imports': unusedImports,
     },
     rules: {
-      // React Refresh rules
+      ...reactHooks.configs.recommended.rules,
       'react-refresh/only-export-components': [
         'warn',
         { allowConstantExport: true },
       ],
-
-      // React Hooks rules
-      'react-hooks/rules-of-hooks': 'error',
-      'react-hooks/exhaustive-deps': 'warn',
-
-      // TypeScript rules
-      '@typescript-eslint/no-explicit-any': 'warn',
-      '@typescript-eslint/no-unused-vars': [
-        'error',
-        {
-          argsIgnorePattern: '^_',
-          varsIgnorePattern: '^_',
-        },
-      ],
-
-      // General JavaScript rules
-      'no-console': [
+      '@typescript-eslint/no-explicit-any': 'error',
+      '@typescript-eslint/no-unused-vars': 'off',
+      'unused-imports/no-unused-imports': 'error',
+      'unused-imports/no-unused-vars': [
         'warn',
         {
-          allow: ['warn', 'error'],
+          vars: 'all',
+          varsIgnorePattern: '^_',
+          args: 'after-used',
+          argsIgnorePattern: '^_',
         },
       ],
-      'prefer-const': 'error',
-      'no-var': 'error',
-    },
-    settings: {
-      react: {
-        version: 'detect',
-      },
+      'jsx-a11y/alt-text': 'error',
+      'jsx-a11y/aria-props': 'error',
+      'jsx-a11y/aria-role': 'error',
+      'jsx-a11y/label-has-associated-control': 'warn',
+      'import/no-duplicates': 'error',
+      'import/order': [
+        'warn',
+        {
+          groups: ['builtin', 'external', 'internal', 'parent', 'sibling', 'index'],
+          'newlines-between': 'always',
+          alphabetize: { order: 'asc' },
+        },
+      ],
     },
   },
-  {
-    // Allow console in benchmark and script files
-    files: ['**/benchmarks/**/*.ts', '**/scripts/**/*.{js,ts}'],
-    rules: {
-      'no-console': 'off',
-    },
-  },
-  // Storybook configuration
-  ...storybook.configs['flat/recommended'],
-);
+)

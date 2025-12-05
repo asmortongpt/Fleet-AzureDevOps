@@ -9,7 +9,7 @@
  * - Attachment management
  */
 
-import pool from '../config/database'
+import { Pool } from 'pg'
 
 interface HeavyEquipment {
   id?: string
@@ -96,7 +96,9 @@ interface ChecklistResponse {
   photo_url?: string
 }
 
-class HeavyEquipmentService {
+export class HeavyEquipmentService {
+  constructor(private db: Pool) {}
+
   /**
    * Get all heavy equipment for a tenant
    */
@@ -140,7 +142,7 @@ class HeavyEquipmentService {
 
     query += ` ORDER BY a.asset_name`
 
-    const result = await pool.query(query, params)
+    const result = await this.db.query(query, params)
     return result.rows
   }
 
@@ -148,7 +150,7 @@ class HeavyEquipmentService {
    * Get single equipment by ID
    */
   async getEquipmentById(equipmentId: string, tenantId: string) {
-    const result = await pool.query(
+    const result = await this.db.query(
       `SELECT
         he.*,
         a.asset_tag,
@@ -178,7 +180,7 @@ class HeavyEquipmentService {
    * Create new heavy equipment
    */
   async createEquipment(data: HeavyEquipment, userId: string) {
-    const client = await pool.connect()
+    const client = await this.db.connect()
     try {
       await client.query('BEGIN')
 
@@ -239,7 +241,7 @@ class HeavyEquipmentService {
 
     values.push(equipmentId, tenantId)
 
-    const result = await pool.query(
+    const result = await this.db.query(
       `UPDATE heavy_equipment
        SET ${setClauses.join(', ')}
        WHERE id = $${paramCount - 1} AND tenant_id = $${paramCount}
@@ -258,7 +260,7 @@ class HeavyEquipmentService {
    * Record hour meter reading
    */
   async recordHourMeterReading(data: HourMeterReading) {
-    const result = await pool.query(
+    const result = await this.db.query(
       `INSERT INTO equipment_hour_meter_readings (
         equipment_id, reading_date, hours, odometer_miles, fuel_level_percent,
         recorded_by, job_site, operator_id, billable_hours, notes
@@ -279,7 +281,7 @@ class HeavyEquipmentService {
    * Get hour meter readings for equipment
    */
   async getHourMeterReadings(equipmentId: string, limit: number = 50) {
-    const result = await pool.query(
+    const result = await this.db.query(
       `SELECT
         ehmr.*,
         u.first_name || ' ' || u.last_name as recorded_by_name,
@@ -342,7 +344,7 @@ class HeavyEquipmentService {
 
     query += ` ORDER BY eoc.expiry_date ASC`
 
-    const result = await pool.query(query, params)
+    const result = await this.db.query(query, params)
     return result.rows
   }
 
@@ -350,7 +352,7 @@ class HeavyEquipmentService {
    * Create operator certification
    */
   async createOperatorCertification(data: OperatorCertification) {
-    const result = await pool.query(
+    const result = await this.db.query(
       `INSERT INTO equipment_operator_certifications (
         tenant_id, driver_id, equipment_type, certification_number,
         certification_date, expiry_date, certifying_authority,
@@ -372,7 +374,7 @@ class HeavyEquipmentService {
    * Get equipment attachments
    */
   async getEquipmentAttachments(equipmentId: string) {
-    const result = await pool.query(
+    const result = await this.db.query(
       `SELECT id, tenant_id, equipment_id, attachment_type, attachment_data, created_at FROM equipment_attachments
        WHERE equipment_id = $1
        ORDER BY is_currently_attached DESC, attachment_name`,
@@ -386,7 +388,7 @@ class HeavyEquipmentService {
    * Add equipment attachment
    */
   async addAttachment(data: EquipmentAttachment) {
-    const result = await pool.query(
+    const result = await this.db.query(
       `INSERT INTO equipment_attachments (
         equipment_id, attachment_type, attachment_name, manufacturer,
         model, serial_number, condition, purchase_cost, current_value,
@@ -408,7 +410,7 @@ class HeavyEquipmentService {
    * Update attachment status (attach/detach)
    */
   async updateAttachmentStatus(attachmentId: string, isAttached: boolean) {
-    const result = await pool.query(
+    const result = await this.db.query(
       `UPDATE equipment_attachments
        SET is_currently_attached = $1,
            attached_date = CASE WHEN $1 = TRUE THEN NOW() ELSE NULL END,
@@ -425,7 +427,7 @@ class HeavyEquipmentService {
    * Complete maintenance checklist
    */
   async completeMaintenanceChecklist(data: MaintenanceChecklist) {
-    const client = await pool.connect()
+    const client = await this.db.connect()
     try {
       await client.query('BEGIN')
 
@@ -473,7 +475,7 @@ class HeavyEquipmentService {
    * Get maintenance checklists for equipment
    */
   async getMaintenanceChecklists(equipmentId: string, limit: number = 20) {
-    const result = await pool.query(
+    const result = await this.db.query(
       `SELECT
         emc.*,
         u.first_name || ' ' || u.last_name as completed_by_name,
@@ -494,7 +496,7 @@ class HeavyEquipmentService {
    * Get equipment utilization data
    */
   async getEquipmentUtilization(equipmentId: string, startDate: string, endDate: string) {
-    const result = await pool.query(
+    const result = await this.db.query(
       `SELECT
         eul.*,
         d.first_name || ' ' || d.last_name as operator_name
@@ -579,7 +581,7 @@ class HeavyEquipmentService {
       COALESCE(ems.next_due_date, '9999-12-31'::DATE),
       COALESCE(ems.next_due_hours, 999999)`
 
-    const result = await pool.query(query, params)
+    const result = await this.db.query(query, params)
     return result.rows
   }
 
@@ -588,7 +590,7 @@ class HeavyEquipmentService {
    */
   async getEquipmentCostAnalysis(equipmentId: string, startDate: string, endDate: string) {
     // Get existing analysis if available
-    const existingAnalysis = await pool.query(
+    const existingAnalysis = await this.db.query(
       `SELECT id, tenant_id, equipment_id, total_cost, depreciation, maintenance_cost, analysis_date FROM equipment_cost_analysis
        WHERE equipment_id = $1
          AND analysis_period_start = $2
@@ -604,7 +606,7 @@ class HeavyEquipmentService {
     const utilizationData = await this.getEquipmentUtilization(equipmentId, startDate, endDate)
 
     // Get maintenance costs
-    const maintenanceCosts = await pool.query(
+    const maintenanceCosts = await this.db.query(
       `SELECT SUM(CAST(cost AS DECIMAL)) as total_maintenance_cost
        FROM asset_maintenance am
        JOIN heavy_equipment he ON am.asset_id = he.asset_id
@@ -635,7 +637,7 @@ class HeavyEquipmentService {
    * Get certification expiration alerts
    */
   async getCertificationExpiringAlerts(tenantId: string, daysThreshold: number = 30) {
-    const result = await pool.query(
+    const result = await this.db.query(
       `SELECT
         eoc.*,
         d.first_name || ' ' || d.last_name as operator_name,
@@ -657,7 +659,7 @@ class HeavyEquipmentService {
    * Get operator certification matrix (who can operate what)
    */
   async getOperatorCertificationMatrix(tenantId: string) {
-    const result = await pool.query(
+    const result = await this.db.query(
       `SELECT
         d.id as driver_id,
         d.first_name || ' ' || d.last_name as operator_name,
@@ -685,4 +687,4 @@ class HeavyEquipmentService {
   }
 }
 
-export default new HeavyEquipmentService()
+export default HeavyEquipmentService
