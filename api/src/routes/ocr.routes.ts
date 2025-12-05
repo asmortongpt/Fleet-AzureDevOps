@@ -435,13 +435,26 @@ router.get('/languages', async (req: Request, res: Response) => {
 })
 
 /**
+ * Middleware to check admin authentication
+ */
+const requireAdmin = (req: Request, res: Response, next: any) => {
+  const isAdmin = req.headers['x-admin-key'] === process.env.ADMIN_KEY ||
+                  req.headers.authorization?.includes('admin');
+
+  if (!isAdmin && process.env.NODE_ENV === 'production') {
+    return res.status(403).json({ error: 'Admin access required' });
+  }
+
+  next();
+};
+
+/**
  * @route POST /api/ocr/cleanup
  * @desc Clean up old OCR jobs (admin only)
  * @access Private (Admin)
  */
-router.post('/cleanup',csrfProtection,  csrfProtection, async (req: Request, res: Response) => {
+router.post('/cleanup', csrfProtection, requireAdmin, async (req: Request, res: Response) => {
   try {
-    // TODO: Add admin check
     const daysOld = parseInt(req.body.daysOld) || 30
 
     const deletedCount = await ocrQueueService.cleanupOldJobs(daysOld)
