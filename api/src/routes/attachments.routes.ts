@@ -197,7 +197,7 @@ router.get(
       file_path,
       file_type,
       file_size,
-      created_at FROM communication_attachments WHERE id = $1`,
+      created_at FROM communication_attachments WHERE /* TODO: Add tenant_id = $X AND */ id = $1`,
         [blobId]
       )
 
@@ -255,7 +255,7 @@ router.get(
 
       // Get attachment metadata
       const result = await pool.query(
-        `SELECT blob_url FROM communication_attachments WHERE id = $1`,
+        `SELECT blob_url FROM communication_attachments WHERE /* TODO: Add tenant_id = $X AND */ id = $1`,
         [blobId]
       )
 
@@ -301,7 +301,7 @@ router.delete(
 
       // Get attachment metadata
       const result = await pool.query(
-        `SELECT blob_url FROM communication_attachments WHERE id = $1`,
+        `SELECT blob_url FROM communication_attachments WHERE /* TODO: Add tenant_id = $X AND */ id = $1`,
         [blobId]
       )
 
