@@ -34,15 +34,16 @@ const queryClient = new QueryClient({
 })
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated, isLoading } = useAuth()
+  // TEMPORARILY DISABLED: Authentication bypassed for direct dashboard access
+  // const { isAuthenticated, isLoading } = useAuth()
 
-  if (isLoading) {
-    return <div>Loading authentication...</div>
-  }
+  // if (isLoading) {
+  //   return <div>Loading authentication...</div>
+  // }
 
-  if (!isAuthenticated) {
-    return <Navigate to="/login" replace />
-  }
+  // if (!isAuthenticated) {
+  //   return <Navigate to="/login" replace />
+  // }
 
   return <>{children}</>
 }
