@@ -80,7 +80,7 @@ async function getStorageManager(): Promise<StorageManager> {
  *       200:
  *         description: File uploaded successfully
  */
-router.post('/upload',csrfProtection,  csrfProtection, upload.single('file'), async (req: Request, res: Response) => {
+router.post('/upload',csrfProtection, upload.single('file'), async (req: Request, res: Response) => {
   try {
     if (!req.file) {
       return res.status(400).json({ error: `No file provided` });
@@ -228,7 +228,7 @@ router.get('/url/:key(*)', async (req: Request, res: Response) => {
  *       200:
  *         description: File deleted successfully
  */
-router.delete('/delete/:key(*)',csrfProtection,  csrfProtection, async (req: Request, res: Response) => {
+router.delete('/delete/:key(*)',csrfProtection, async (req: Request, res: Response) => {
   try {
     const manager = await getStorageManager();
     const key = req.params.key;
@@ -359,7 +359,7 @@ router.get('/stats', async (req: Request, res: Response) => {
  *       200:
  *         description: Migration job created
  */
-router.post('/migrate',csrfProtection,  csrfProtection, async (req: Request, res: Response) => {
+router.post('/migrate',csrfProtection, async (req: Request, res: Response) => {
   try {
     const manager = await getStorageManager();
     const { sourceProvider, targetProvider, deleteSource } = req.body;
@@ -403,7 +403,7 @@ router.post('/migrate',csrfProtection,  csrfProtection, async (req: Request, res
  *       200:
  *         description: Tiering completed
  */
-router.post('/tier/auto',csrfProtection,  csrfProtection, async (req: Request, res: Response) => {
+router.post('/tier/auto',csrfProtection, async (req: Request, res: Response) => {
   try {
     if (!storageFeatures.enableAutoTiering) {
       return res.status(400).json({
@@ -532,7 +532,7 @@ router.get('/health', async (req: Request, res: Response) => {
  *       200:
  *         description: Files uploaded successfully
  */
-router.post('/batch/upload',csrfProtection,  csrfProtection, upload.array('files', 10), async (req: Request, res: Response) => {
+router.post('/batch/upload',csrfProtection, upload.array('files', 10), async (req: Request, res: Response) => {
   try {
     const files = req.files as Express.Multer.File[];
 
@@ -606,7 +606,7 @@ router.post('/batch/upload',csrfProtection,  csrfProtection, upload.array('files
  *       200:
  *         description: Files deleted successfully
  */
-router.post('/batch/delete',csrfProtection,  csrfProtection, async (req: Request, res: Response) => {
+router.post('/batch/delete',csrfProtection, async (req: Request, res: Response) => {
   try {
     const { keys } = req.body;
 

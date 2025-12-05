@@ -288,7 +288,7 @@ router.get(
  */
 router.post(
   '/',
- csrfProtection,  csrfProtection, requirePermission('inspection:create:fleet'),
+ csrfProtection, requirePermission('inspection:create:fleet'),
   auditLog({ action: 'CREATE', resourceType: 'inspections' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -319,7 +319,7 @@ router.post(
  */
 router.put(
   '/:id',
- csrfProtection,  csrfProtection, requirePermission('inspection:update:fleet'),
+ csrfProtection, requirePermission('inspection:update:fleet'),
   auditLog({ action: 'UPDATE', resourceType: 'inspections' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -353,7 +353,7 @@ router.put(
  */
 router.post(
   '/:id/complete',
- csrfProtection,  csrfProtection, requirePermission('inspection:update:fleet'),
+ csrfProtection, requirePermission('inspection:update:fleet'),
   auditLog({ action: 'UPDATE', resourceType: 'inspections' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -412,7 +412,7 @@ router.post(
  */
 router.delete(
   '/:id',
- csrfProtection,  csrfProtection, requirePermission('inspection:delete:fleet'),
+ csrfProtection, requirePermission('inspection:delete:fleet'),
   auditLog({ action: 'DELETE', resourceType: 'inspections' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -438,7 +438,7 @@ router.delete(
  */
 router.post(
   '/schedule-bulk',
- csrfProtection,  csrfProtection, requirePermission('inspection:create:fleet'),
+ csrfProtection, requirePermission('inspection:create:fleet'),
   auditLog({ action: 'CREATE', resourceType: 'inspections' }),
   async (req: AuthRequest, res: Response) => {
     try {
