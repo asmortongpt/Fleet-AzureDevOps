@@ -382,7 +382,7 @@ router.get('/dtcs/:vehicleId', requirePermission('maintenance:view:fleet'), asyn
  *       400:
  *         description: Error clearing DTCs
  */
-router.delete(`/dtcs/:vehicleId`, requirePermission(`maintenance:update:fleet`), auditLog, async (req: Request, res: Response) => {
+router.delete(`/dtcs/:vehicleId`, csrfProtection, requirePermission(`maintenance:update:fleet`), auditLog, async (req: Request, res: Response) => {
   try {
     const tenantId = (req as any).user.tenant_id
     const userId = (req as any).user.id
