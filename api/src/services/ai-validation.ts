@@ -9,7 +9,7 @@
  */
 
 import OpenAI from 'openai'
-import pool from '../config/database'
+import { Pool } from 'pg'
 import {
   getRelevantContext,
   generateRAGResponse
@@ -68,7 +68,7 @@ async function getStatisticalBaseline(
   sampleSize: number
 } | null> {
   // Check if we have a cached baseline
-  const cachedResult = await pool.query(
+  const cachedResult = await this.db.query(
     `SELECT statistical_data, sample_size, last_calculated
      FROM ai_anomaly_baselines
      WHERE tenant_id = $1 AND metric_name = $2
@@ -87,7 +87,7 @@ async function getStatisticalBaseline(
 
   // Calculate new baseline (example for fuel prices)
   if (metricName === 'fuel_price_per_gallon') {
-    const result = await pool.query(
+    const result = await this.db.query(
       `SELECT
         AVG(price_per_gallon) as mean,
         PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY price_per_gallon) as median,
@@ -119,7 +119,7 @@ async function getStatisticalBaseline(
       }
 
       // Cache the baseline
-      await pool.query(
+      await this.db.query(
         `INSERT INTO ai_anomaly_baselines
          (tenant_id, metric_name, entity_type, statistical_data, sample_size)
          VALUES ($1, $2, $3, $4, $5)
@@ -136,7 +136,7 @@ async function getStatisticalBaseline(
 
   // Similar calculations for other metrics...
   if (metricName === 'fuel_consumption') {
-    const result = await pool.query(
+    const result = await this.db.query(
       `SELECT
         AVG(gallons) as mean,
         PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY gallons) as median,
@@ -168,7 +168,7 @@ async function getStatisticalBaseline(
         sampleSize: parseInt(result.rows[0].sample_size)
       }
 
-      await pool.query(
+      await this.db.query(
         `INSERT INTO ai_anomaly_baselines
          (tenant_id, metric_name, entity_type, entity_id, statistical_data, sample_size)
          VALUES ($1, $2, $3, $4, $5, $6)
@@ -241,7 +241,7 @@ async function detectStatisticalAnomalies(
 
     // Check for duplicate transactions (same vehicle, similar amount, within 1 hour)
     if (data.vehicle_id && data.total_cost && data.date) {
-      const duplicateCheck = await pool.query(
+      const duplicateCheck = await this.db.query(
         `SELECT COUNT(*) as count
          FROM fuel_transactions
          WHERE tenant_id = $1
@@ -265,7 +265,7 @@ async function detectStatisticalAnomalies(
   // Work order anomalies
   if (entityType === 'work_order') {
     if (data.estimated_cost) {
-      const avgResult = await pool.query(
+      const avgResult = await this.db.query(
         `SELECT AVG(actual_cost) as avg_cost, STDDEV(actual_cost) as std_dev
          FROM work_orders
          WHERE tenant_id = $1
@@ -308,7 +308,7 @@ async function generateSmartSuggestions(
   if (entityType === 'fuel_transaction') {
     // Suggest vendor based on location
     if (data.location && !data.vendor_id) {
-      const nearbyVendors = await pool.query(
+      const nearbyVendors = await this.db.query(
         `SELECT id, name
          FROM vendors
          WHERE tenant_id = $1
@@ -339,7 +339,7 @@ async function generateSmartSuggestions(
 
     // Suggest fuel type based on vehicle
     if (data.vehicle_id && !data.fuel_type) {
-      const vehicleResult = await pool.query(
+      const vehicleResult = await this.db.query(
         'SELECT fuel_type FROM vehicles WHERE id = $1',
         [data.vehicle_id]
       )
@@ -358,7 +358,7 @@ async function generateSmartSuggestions(
   if (entityType === 'work_order') {
     // Suggest next maintenance date based on patterns
     if (data.vehicle_id && data.type === 'maintenance') {
-      const lastMaintenance = await pool.query(
+      const lastMaintenance = await this.db.query(
         `SELECT MAX(completed_at) as last_date
          FROM work_orders
          WHERE vehicle_id = $1 AND type = 'maintenance' AND status = 'completed'`,
@@ -429,7 +429,11 @@ Return as JSON with format: { "warnings": [{ "field", "message", "severity", "su
 /**
  * Main validation function
  */
-export async function validateWithAI(
+
+export class AIValidationService {
+  constructor(private db: Pool) {}
+
+  async validateWithAI(
   entityType: string,
   data: any,
   tenantId: string,
@@ -476,7 +480,7 @@ export async function validateWithAI(
     }
 
     // Save validation result to database
-    await pool.query(
+    await this.db.query(
       `INSERT INTO ai_validations
        (tenant_id, user_id, entity_type, validation_result, is_valid, confidence, warnings, anomalies, suggestions)
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
@@ -503,13 +507,13 @@ export async function validateWithAI(
 /**
  * Get validation history for an entity
  */
-export async function getValidationHistory(
+  async getValidationHistory(
   entityType: string,
   entityId: string,
   tenantId: string,
   limit: number = 10
 ): Promise<any[]> {
-  const result = await pool.query(
+  const result = await this.db.query(
     `SELECT * FROM ai_validations
      WHERE tenant_id = $1 AND entity_type = $2 AND entity_id = $3
      ORDER BY created_at DESC
@@ -519,3 +523,7 @@ export async function getValidationHistory(
 
   return result.rows
 }
+
+}
+
+export default AIValidationService

@@ -15,7 +15,8 @@
 
 import SearchIndexService, { SearchQuery, SearchResult, SearchStats } from './SearchIndexService'
 import DocumentRAGService, { SearchResult as RAGSearchResult } from './document-rag.service'
-import pool from '../config/database'
+import { Pool } from 'pg'
+import logger from '../utils/logger'
 
 export interface UnifiedSearchRequest {
   query: string
@@ -105,7 +106,7 @@ export class DocumentSearchService {
   private searchIndexService: typeof SearchIndexService
   private ragService: typeof DocumentRAGService
 
-  constructor() {
+  constructor(private db: Pool, private logger: typeof logger) {
     this.searchIndexService = SearchIndexService
     this.ragService = DocumentRAGService
   }
@@ -230,7 +231,7 @@ export class DocumentSearchService {
         clusters
       }
     } catch (error) {
-      console.error('Unified search error:', error)
+      this.logger.error('Unified search error:', error)
       throw error
     }
   }
@@ -317,7 +318,7 @@ export class DocumentSearchService {
   ): Promise<SearchResult[]> {
     try {
       // Get user's interaction history
-      const history = await pool.query(
+      const history = await this.db.query(
         `SELECT document_id, COUNT(*) as interaction_count
          FROM (
            SELECT unnest(clicked_documents) as document_id
@@ -325,7 +326,7 @@ export class DocumentSearchService {
            WHERE user_id = $1
              AND created_at > NOW() - INTERVAL '30 days'
          ) interactions
-         GROUP BY document_id',
+         GROUP BY document_id`,
         [userId]
       )
 
@@ -335,7 +336,7 @@ export class DocumentSearchService {
       })
 
       // Get user's preferred categories
-      const categoryPrefs = await pool.query(
+      const categoryPrefs = await this.db.query(
         `SELECT category_id, COUNT(*) as count
          FROM documents d
          JOIN search_history sh ON d.id = ANY(sh.clicked_documents)
@@ -381,7 +382,7 @@ export class DocumentSearchService {
           rank: index + 1
         }))
     } catch (error) {
-      console.error('Personalization error:', error)
+      this.logger.error('Personalization error:', error)
       return results // Return original results on error
     }
   }
@@ -393,7 +394,7 @@ export class DocumentSearchService {
     try {
       const [categories, documentTypes, tags, uploadedBy] = await Promise.all([
         // Categories
-        pool.query(
+        this.db.query(
           `SELECT
             dc.id,
             dc.category_name as name,
@@ -409,7 +410,7 @@ export class DocumentSearchService {
           [request.tenantId]
         ),
         // Document types
-        pool.query(
+        this.db.query(
           `SELECT
             file_type as type,
             COUNT(*) as count
@@ -422,7 +423,7 @@ export class DocumentSearchService {
           [request.tenantId]
         ),
         // Tags
-        pool.query(
+        this.db.query(
           `SELECT
             unnest(tags) as tag,
             COUNT(*) as count
@@ -436,7 +437,7 @@ export class DocumentSearchService {
           [request.tenantId]
         ),
         // Uploaded by
-        pool.query(
+        this.db.query(
           `SELECT
             u.id,
             u.first_name || ' ' || u.last_name as name,
@@ -476,7 +477,7 @@ export class DocumentSearchService {
         }))
       }
     } catch (error) {
-      console.error('Facets error:', error)
+      this.logger.error('Facets error:', error)
       return {
         categories: [],
         documentTypes: [],
@@ -523,7 +524,7 @@ export class DocumentSearchService {
         related: related.slice(0, 5)
       }
     } catch (error) {
-      console.error(`Suggestions error: `, error)
+      this.logger.error(`Suggestions error: `, error)
       return {}
     }
   }
@@ -536,13 +537,13 @@ export class DocumentSearchService {
     query: string
   ): Promise<string[]> {
     try {
-      const result = await pool.query(
+      const result = await this.db.query(
         `SELECT DISTINCT query_text, COUNT(*) as count
          FROM search_query_log
          WHERE tenant_id = $1
            AND query_text != $2
            AND query_text ILIKE $3
-           AND created_at > NOW() - INTERVAL `30 days`
+           AND created_at > NOW() - INTERVAL '30 days'
          GROUP BY query_text
          ORDER BY count DESC
          LIMIT 5`,
@@ -551,7 +552,7 @@ export class DocumentSearchService {
 
       return result.rows.map(row => row.query_text)
     } catch (error) {
-      console.error(`Related searches error:`, error)
+      this.logger.error(`Related searches error:`, error)
       return []
     }
   }
@@ -591,15 +592,15 @@ export class DocumentSearchService {
     resultCount: number
   ): Promise<void> {
     try {
-      await pool.query(
+      await this.db.query(
         `INSERT INTO search_history (
           user_id, query, result_count, clicked_documents, created_at
         ) VALUES ($1, $2, $3, $4, NOW())`,
         [userId, query, resultCount, []]
       )
     } catch (error) {
-      // Don`t fail search if history save fails
-      console.error(`Search history error:`, error)
+      // Don't fail search if history save fails
+      this.logger.error('Search history error:', error)
     }
   }
 
@@ -612,7 +613,7 @@ export class DocumentSearchService {
     documentId: string
   ): Promise<void> {
     try {
-      await pool.query(
+      await this.db.query(
         `UPDATE search_history
          SET clicked_documents = array_append(clicked_documents, $3)
          WHERE user_id = $1
@@ -623,7 +624,7 @@ export class DocumentSearchService {
         [userId, query, documentId]
       )
     } catch (error) {
-      console.error('Document click recording error:', error)
+      this.logger.error('Document click recording error:', error)
     }
   }
 
@@ -638,7 +639,7 @@ export class DocumentSearchService {
     filters: any,
     notificationEnabled: boolean = false
   ): Promise<SavedSearch> {
-    const result = await pool.query(
+    const result = await this.db.query(
       `INSERT INTO saved_searches (
         tenant_id, user_id, name, query, filters, notification_enabled, created_at
       ) VALUES ($1, $2, $3, $4, $5, $6, NOW())
@@ -653,7 +654,7 @@ export class DocumentSearchService {
    * Get saved searches
    */
   async getSavedSearches(userId: string): Promise<SavedSearch[]> {
-    const result = await pool.query(
+    const result = await this.db.query(
       `SELECT id, tenant_id, user_id, search_name, search_query, created_at, updated_at FROM saved_searches
        WHERE user_id = $1
        ORDER BY created_at DESC`,
@@ -667,9 +668,9 @@ export class DocumentSearchService {
    * Delete saved search
    */
   async deleteSavedSearch(searchId: string, userId: string): Promise<void> {
-    await pool.query(
+    await this.db.query(
       `DELETE FROM saved_searches
-       WHERE id = $1 AND user_id = $2',
+       WHERE id = $1 AND user_id = $2`,
       [searchId, userId]
     )
   }
@@ -681,11 +682,11 @@ export class DocumentSearchService {
     userId: string,
     limit: number = 50
   ): Promise<SearchHistory[]> {
-    const result = await pool.query(
+    const result = await this.db.query(
       `SELECT id, tenant_id, user_id, search_query, result_count, created_at FROM search_history
        WHERE user_id = $1
        ORDER BY created_at DESC
-       LIMIT $2',
+       LIMIT $2`,
       [userId, limit]
     )
 
@@ -711,4 +712,4 @@ export class DocumentSearchService {
   }
 }
 
-export default new DocumentSearchService()
+export default DocumentSearchService

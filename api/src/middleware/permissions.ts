@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express'
 import { AuthRequest } from './auth'
 import pool from '../config/database'
 import { isValidIdentifier } from '../utils/sql-safety'
+import logger from '../config/logger' // Wave 14: Add Winston logger
 
 // Allowlist of tables for self-approval checks
 const SELF_APPROVAL_TABLES = ['work_orders', 'purchase_orders', 'safety_incidents'] as const;
@@ -57,7 +58,7 @@ export async function getUserPermissions(userId: string): Promise<Set<string>> {
 
     return permissions
   } catch (error) {
-    console.error(`Error fetching user permissions:`, error)
+    logger.error('Failed to fetch user permissions', { error, userId }) // Wave 14: Winston logger
     return new Set()
   }
 }
@@ -175,7 +176,7 @@ export function requirePermission(
 
       next()
     } catch (error) {
-      console.error('Permission check error:', error)
+      logger.error('Permission check failed', { error, permission, userId: req.user?.id }) // Wave 14: Winston logger
       return res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -286,7 +287,7 @@ export async function validateResourceScope(
 
     return false
   } catch (error) {
-    console.error('Scope validation error:', error)
+    logger.error('Scope validation failed', { error, userId, resourceType, resourceId }) // Wave 14: Winston logger
     return false
   }
 }
@@ -329,7 +330,7 @@ export function validateScope(resourceType: 'vehicle' | 'driver' | 'work_order' 
 
       next()
     } catch (error) {
-      console.error(`Scope validation middleware error:`, error)
+      logger.error('Scope validation middleware failed', { error, resourceType, resourceId: req.params.id }) // Wave 14: Winston logger
       return res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -349,7 +350,7 @@ export function preventSelfApproval(createdByField: string = 'created_by') {
 
       // Validate createdByField to prevent SQL injection
       if (!isValidIdentifier(createdByField)) {
-        console.error(`Invalid createdByField: ${createdByField}`)
+        logger.error('Invalid createdByField for self-approval check', { createdByField }) // Wave 14: Winston logger
         return res.status(500).json({ error: `Internal server error` })
       }
 
@@ -398,7 +399,7 @@ export function preventSelfApproval(createdByField: string = 'created_by') {
 
       next()
     } catch (error) {
-      console.error('Self-approval check error:', error)
+      logger.error('Self-approval check failed', { error, resourceId: req.params.id }) // Wave 14: Winston logger
       return res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -448,7 +449,7 @@ export function checkApprovalLimit() {
 
       next()
     } catch (error) {
-      console.error(`Approval limit check error:`, error)
+      logger.error('Approval limit check failed', { error, poId: req.params.id }) // Wave 14: Winston logger
       return res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -484,7 +485,7 @@ async function logPermissionCheck(entry: {
       ]
     )
   } catch (error) {
-    console.error('Failed to log permission check:', error)
+    logger.error('Failed to log permission check', { error, userId: entry.userId, permission: entry.permission }) // Wave 14: Winston logger
     // Don't throw - logging failure shouldn't block the request
   }
 }
@@ -521,7 +522,7 @@ export function requireVehicleStatus(...allowedStatuses: string[]) {
 
       next()
     } catch (error) {
-      console.error(`Vehicle status check error:`, error)
+      logger.error('Vehicle status check failed', { error, vehicleId: req.params.id || req.body.vehicle_id }) // Wave 14: Winston logger
       return res.status(500).json({ error: 'Internal server error' })
     }
   }

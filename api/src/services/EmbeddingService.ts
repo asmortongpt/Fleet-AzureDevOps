@@ -15,7 +15,8 @@
  */
 
 import OpenAI from 'openai'
-import pool from '../config/database'
+import { Pool } from 'pg'
+import logger from '../utils/logger'
 
 // Cohere SDK (optional)
 interface CohereClient {
@@ -87,7 +88,10 @@ export class EmbeddingService {
     },
   }
 
-  constructor() {
+  constructor(
+    private db: Pool,
+    private logger: typeof logger
+  ) {
     // Don't call async initialization in constructor
   }
 
@@ -618,15 +622,5 @@ export class EmbeddingService {
   }
 }
 
-// Export class instead of instance to avoid module-level initialization
-// Users should create their own instance or import the singleton helper
-let serviceInstance: EmbeddingService | null = null
-
-export function getEmbeddingService(): EmbeddingService {
-  if (!serviceInstance) {
-    serviceInstance = new EmbeddingService()
-  }
-  return serviceInstance
-}
-
-export default getEmbeddingService
+// Export class for DI container registration
+export default EmbeddingService

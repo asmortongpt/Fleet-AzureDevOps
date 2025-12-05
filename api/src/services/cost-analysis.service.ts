@@ -4,7 +4,7 @@
  * Comprehensive cost tracking, forecasting, and anomaly detection
  */
 
-import pool from '../config/database'
+import { Pool } from 'pg'
 import costForecastingModel from '../ml-models/cost-forecasting.model'
 
 export interface CostEntry {
@@ -60,11 +60,13 @@ export interface BudgetStatus {
 }
 
 export class CostAnalysisService {
+  constructor(private db: Pool) {}
+
   /**
    * Track a new cost
    */
   async trackCost(tenantId: string, cost: CostEntry): Promise<CostEntry> {
-    const client = await pool.connect()
+    const client = await this.db.connect()
 
     try {
       await client.query('BEGIN')
@@ -164,7 +166,7 @@ export class CostAnalysisService {
     endDate: Date
   ): Promise<CostSummary> {
     // Get total cost
-    const totalResult = await pool.query(
+    const totalResult = await this.db.query(
       `SELECT COALESCE(SUM(amount), 0) as total_cost
        FROM cost_tracking
        WHERE tenant_id = $1
@@ -182,7 +184,7 @@ export class CostAnalysisService {
     )
 
     // Get top expenses
-    const expensesResult = await pool.query(
+    const expensesResult = await this.db.query(
       `SELECT
          description,
          amount,
@@ -204,7 +206,7 @@ export class CostAnalysisService {
     }))
 
     // Get anomalies
-    const anomaliesResult = await pool.query(
+    const anomaliesResult = await this.db.query(
       `SELECT
          id,
          amount,
@@ -244,7 +246,7 @@ export class CostAnalysisService {
     startDate: Date,
     endDate: Date
   ): Promise<Array<{ category: string; amount: number; percentage: number }>> {
-    const result = await pool.query(
+    const result = await this.db.query(
       `SELECT
          cost_category as category,
          SUM(amount) as amount
@@ -279,7 +281,7 @@ export class CostAnalysisService {
     costPerMile: number
     categories: Record<string, number>
   }>> {
-    const result = await pool.query(
+    const result = await this.db.query(
       `SELECT
          ct.vehicle_id,
          v.vehicle_number,
@@ -348,7 +350,7 @@ export class CostAnalysisService {
     const year = fiscalYear || now.getFullYear()
     const quarter = fiscalQuarter || Math.floor(now.getMonth() / 3) + 1
 
-    const result = await pool.query(
+    const result = await this.db.query(
       `SELECT
          budget_category,
          allocated_amount,
@@ -401,7 +403,7 @@ export class CostAnalysisService {
     fiscalYear: number,
     fiscalQuarter: number
   ): Promise<void> {
-    await pool.query(
+    await this.db.query(
       `INSERT INTO budget_allocations (
         tenant_id, budget_category, allocated_amount,
         fiscal_year, fiscal_quarter, remaining_amount
@@ -446,7 +448,7 @@ export class CostAnalysisService {
 
     query += ` GROUP BY DATE_TRUNC(\`month\`, transaction_date) ORDER BY month ASC'
 
-    const result = await pool.query(query, params)
+    const result = await this.db.query(query, params)
 
     return result.rows.map(row => ({
       month: row.month,
@@ -469,8 +471,8 @@ export class CostAnalysisService {
     transactionDate: Date
     expectedRange: { min: number; max: number }
   }>> {
-    const result = await pool.query(
-      'SELECT ' + (await getTableColumns(pool, 'cost_tracking')).join(', ') + ' FROM cost_tracking
+    const result = await this.db.query(
+      'SELECT ' + (await getTableColumns(this.db, 'cost_tracking')).join(', ') + ' FROM cost_tracking
        WHERE tenant_id = $1
        AND transaction_date BETWEEN $2 AND $3
        AND is_anomaly = true
@@ -508,7 +510,7 @@ export class CostAnalysisService {
     startDate: Date,
     endDate: Date
   ): Promise<string> {
-    const result = await pool.query(
+    const result = await this.db.query(
       `SELECT
          transaction_date,
          cost_category,
@@ -557,4 +559,4 @@ export class CostAnalysisService {
   }
 }
 
-export default new CostAnalysisService()
+export default CostAnalysisService

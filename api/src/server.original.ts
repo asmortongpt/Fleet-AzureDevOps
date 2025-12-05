@@ -47,9 +47,24 @@ app.use(sentryRequestHandler())
 app.use(sentryTracingHandler())
 
 // Security middleware
+// SECURITY FIX (P0): Enable Content Security Policy to prevent XSS attacks (CWE-693)
+// Fingerprint: e9f3a7c4d8b2e6f9
 app.use(helmet({
-  contentSecurityPolicy: false, // Configure as needed
-  crossOriginEmbedderPolicy: false
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'"], // Allow inline scripts for React
+      styleSrc: ["'self'", "'unsafe-inline'"], // Allow inline styles
+      imgSrc: ["'self'", 'data:', 'https:', 'blob:'], // Allow external images
+      connectSrc: ["'self'", 'wss:', 'ws:'], // Allow WebSocket connections
+      fontSrc: ["'self'", 'data:'],
+      objectSrc: ["'none'"],
+      mediaSrc: ["'self'"],
+      frameSrc: ["'none'"],
+      upgradeInsecureRequests: []
+    }
+  },
+  crossOriginEmbedderPolicy: false // Keep disabled for external resource loading
 }))
 
 app.use(cors())

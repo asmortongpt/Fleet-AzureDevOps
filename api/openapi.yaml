@@ -1,0 +1,76 @@
+openapi: 3.0.0
+info:
+  title: Fleet Management API
+  version: 1.0.0
+  description: Complete fleet management system API
+
+servers:
+  - url: http://localhost:3000/api
+    description: Development server
+  - url: https://production.fleet.com/api
+    description: Production server
+
+paths:
+  /vehicles:
+    get:
+      summary: List all vehicles
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Vehicle'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+
+components:
+  schemas:
+    Vehicle:
+      type: object
+      properties:
+        id:
+          type: integer
+        make:
+          type: string
+        model:
+          type: string
+        year:
+          type: integer
+        vin:
+          type: string
+        status:
+          type: string
+          enum: [active, maintenance, retired]
+
+    Pagination:
+      type: object
+      properties:
+        page:
+          type: integer
+        limit:
+          type: integer
+        total:
+          type: integer
+        totalPages:
+          type: integer
+        hasNext:
+          type: boolean
+        hasPrev:
+          type: boolean

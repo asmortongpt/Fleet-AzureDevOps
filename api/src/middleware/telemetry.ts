@@ -61,8 +61,15 @@ export function telemetryMiddleware(req: TelemetryRequest, res: Response, next: 
   }
 
   // Log request start (for debugging)
+  // SECURITY FIX (P0): Sanitize request details to prevent log injection (CWE-117)
+  // Fingerprint: d8e4f2a7c9b3d6e8
   if (process.env.NODE_ENV === 'development') {
-    console.log(`📊 [${req.telemetry.correlationId}] ${req.method} ${req.path}`)
+    const { sanitizeForLog } = require('../utils/logSanitizer')
+    console.log('📊 Request started', {
+      correlationId: req.telemetry.correlationId,
+      method: req.method,
+      path: sanitizeForLog(req.path, 100)
+    })
   }
 
   // Override res.end to capture response metrics

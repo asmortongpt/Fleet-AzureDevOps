@@ -2,6 +2,10 @@
 import { initSentry } from "./lib/sentry"
 initSentry()
 
+// Initialize Datadog RUM for real user monitoring
+import { initializeDatadogRUM } from "./lib/datadog-rum"
+initializeDatadogRUM()
+
 import React from "react"
 import ReactDOM from "react-dom/client"
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom"

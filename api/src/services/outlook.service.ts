@@ -6,7 +6,7 @@
 
 import { microsoftGraphService, MicrosoftGraphService } from './microsoft-graph.service'
 import { logger } from '../utils/logger'
-import pool from '../config/database'
+import { Pool } from 'pg'
 import {
   Email,
   EmailMessage,
@@ -33,7 +33,7 @@ import {
 class OutlookService {
   private defaultUserId: string
 
-  constructor() {
+  constructor(private db: Pool) {
     // Default user email for sending emails (can be overridden per request)
     this.defaultUserId = process.env.OUTLOOK_DEFAULT_USER_EMAIL || process.env.EMAIL_FROM || ''
   }
@@ -802,7 +802,7 @@ class OutlookService {
         status: 'Open'
       }
 
-      await pool.query(
+      await this.db.query(
         `INSERT INTO communications (
           communication_type, direction, subject, body,
           from_contact_email, to_contact_emails, cc_emails, bcc_emails,
