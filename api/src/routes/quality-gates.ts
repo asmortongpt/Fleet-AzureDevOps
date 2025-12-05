@@ -28,7 +28,7 @@ router.get('/',
         d.environment,
         d.version,
         d.deployed_by_user_id,
-        u.first_name || ` ` || u.last_name as executed_by_name
+        u.first_name || ' ' || u.last_name as executed_by_name
       FROM quality_gates qg
       LEFT JOIN deployments d ON qg.deployment_id = d.id
       LEFT JOIN users u ON qg.executed_by_user_id = u.id
@@ -91,7 +91,7 @@ router.post('/',
 
     // Validate required fields
     if (!gate_type || !status) {
-      return throw new ValidationError("gate_type and status are required")
+      throw new ValidationError("gate_type and status are required")
     }
 
     // Validate gate_type

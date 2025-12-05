@@ -128,7 +128,7 @@ router.get(
         [id, req.user!.tenant_id]
       )
       if (result.rows.length === 0) {
-        return throw new NotFoundError("Route not found")
+        throw new NotFoundError("Route not found")
       }
       res.json(result.rows[0])
     } catch (error) {

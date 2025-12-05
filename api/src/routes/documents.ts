@@ -67,7 +67,7 @@ router.get(
 
       let query = `
         SELECT d.*,
-               uploader.first_name || ` ` || uploader.last_name as uploaded_by_name
+               uploader.first_name || ' ' || uploader.last_name as uploaded_by_name
         FROM documents d
         LEFT JOIN drivers uploader ON d.uploaded_by = uploader.id
         WHERE uploader.tenant_id = $1 OR uploader.tenant_id IS NULL
@@ -149,7 +149,7 @@ router.get(
       // First check tenant isolation and get uploader info
       const result = await pool.query(
         `SELECT d.*,
-                uploader.first_name || ` ` || uploader.last_name as uploaded_by_name,
+                uploader.first_name || ' ' || uploader.last_name as uploaded_by_name,
                 uploader.tenant_id as uploader_tenant_id
          FROM documents d
          LEFT JOIN users uploader ON d.uploaded_by = uploader.id
@@ -158,14 +158,14 @@ router.get(
       )
 
       if (result.rows.length === 0) {
-        return throw new NotFoundError("Document not found")
+        throw new NotFoundError("Document not found")
       }
 
       // CRITICAL: Enforce tenant isolation
       // Documents must belong to users in the same tenant
       const document = result.rows[0]
       if (document.uploader_tenant_id && document.uploader_tenant_id !== req.user!.tenant_id) {
-        return throw new NotFoundError("Document not found")
+        throw new NotFoundError("Document not found")
       }
 
       // Get camera metadata if exists
@@ -262,7 +262,7 @@ router.post(
   async (req: AuthRequest, res: Response) => {
     try {
       if (!req.file) {
-        return throw new ValidationError("No file uploaded")
+        throw new ValidationError("No file uploaded")
       }
 
       // SECURITY: Validate file content using magic bytes (not just MIME type)
@@ -350,7 +350,7 @@ router.post(
   async (req: AuthRequest, res: Response) => {
     try {
       if (!req.file) {
-        return throw new ValidationError("No photo uploaded")
+        throw new ValidationError("No photo uploaded")
       }
 
       // SECURITY: Validate file content using magic bytes (not just MIME type)
@@ -486,7 +486,7 @@ router.put(
 
       // CRITICAL: Enforce tenant isolation
       if (checkResult.rows[0].uploader_tenant_id && checkResult.rows[0].uploader_tenant_id !== req.user!.tenant_id) {
-        return throw new NotFoundError("Document not found")
+        throw new NotFoundError("Document not found")
       }
 
       const result = await pool.query(
@@ -532,7 +532,7 @@ router.delete(
 
       // CRITICAL: Enforce tenant isolation
       if (checkResult.rows[0].uploader_tenant_id && checkResult.rows[0].uploader_tenant_id !== req.user!.tenant_id) {
-        return throw new NotFoundError("Document not found")
+        throw new NotFoundError("Document not found")
       }
 
       const result = await pool.query(
@@ -578,7 +578,7 @@ router.post(
       // CRITICAL: Enforce tenant isolation
       const document = docResult.rows[0]
       if (document.uploader_tenant_id && document.uploader_tenant_id !== req.user!.tenant_id) {
-        return throw new NotFoundError("Document not found")
+        throw new NotFoundError("Document not found")
       }
 
             // For now, create a placeholder OCR log entry
@@ -628,7 +628,7 @@ router.post(
       // CRITICAL: Enforce tenant isolation
       const document = docResult.rows[0]
       if (document.uploader_tenant_id && document.uploader_tenant_id !== req.user!.tenant_id) {
-        return throw new NotFoundError("Document not found")
+        throw new NotFoundError("Document not found")
       }
 
             // This would use OCR + AI to extract line items, totals, vendor info, etc.
@@ -654,7 +654,7 @@ router.put(
       const { line_items } = req.body
 
       if (!Array.isArray(line_items) {
-        return throw new ValidationError("line_items must be an array")
+        throw new ValidationError("line_items must be an array")
       }
 
       // First verify tenant isolation
@@ -672,7 +672,7 @@ router.put(
 
       // CRITICAL: Enforce tenant isolation
       if (docResult.rows[0].uploader_tenant_id && docResult.rows[0].uploader_tenant_id !== req.user!.tenant_id) {
-        return throw new NotFoundError("Document not found")
+        throw new NotFoundError("Document not found")
       }
 
       // Delete existing line items
@@ -785,7 +785,7 @@ router.get(
 
       // Recent uploads
       const recentResult = await pool.query(
-        `SELECT d.*, uploader.first_name || ` ` || uploader.last_name as uploaded_by_name
+        `SELECT d.*, uploader.first_name || ' ' || uploader.last_name as uploaded_by_name
          FROM documents d
          LEFT JOIN drivers uploader ON d.uploaded_by = uploader.id
          WHERE uploader.tenant_id = $1

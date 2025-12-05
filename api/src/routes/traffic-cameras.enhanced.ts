@@ -95,7 +95,7 @@ router.get('/:id', async (req: Request, res: Response) => {
     const result = await pool.query(query, [req.user!.tenant_id, id]);
 
     if (result.rows.length === 0) {
-      return throw new NotFoundError("Camera not found");
+      throw new NotFoundError("Camera not found");
     }
 
     res.json(result.rows[0]);
@@ -307,7 +307,7 @@ router.get('/search/nearby', async (req: Request, res: Response) => {
     const { lat, lng, radius = '10' } = req.query;
 
     if (!lat || !lng) {
-      return throw new ValidationError("Latitude and longitude required");
+      throw new ValidationError("Latitude and longitude required");
     }
 
     const radiusMiles = parseFloat(radius as string);

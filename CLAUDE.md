@@ -232,6 +232,249 @@ push({
 - Automated testing on PR and merge
 - Production deployment triggers on main branch push
 
+---
+
+# Backend API Architecture
+
+Fleet includes a comprehensive Express/TypeScript backend API in the `api/` directory.
+
+## API Development Commands
+
+```bash
+# API Development (run from api/ directory)
+cd api
+npm install --legacy-peer-deps  # Install dependencies
+npm run dev                      # Start dev server with hot reload (tsx watch)
+npm run build                    # Build TypeScript to dist/
+npm start                        # Start production server
+npm test                         # Run tests
+npm run lint                     # Lint TypeScript code
+
+# Database & Seeding
+npm run migrate                  # Run database migrations
+npm run seed                     # Seed comprehensive test data
+npm run seed:verify              # Verify seeded data integrity
+
+# Deployment
+cd /Users/andrewmorton/Documents/GitHub/Fleet
+az acr build --registry fleetproductionacr \
+  --image fleet-api:latest \
+  --file api/Dockerfile ./api    # Build API image in Azure ACR
+```
+
+## API Architecture Overview
+
+**Technology Stack:**
+- **Runtime:** Node.js 20 + Express.js
+- **Language:** TypeScript (strict mode enabled)
+- **DI Container:** InversifyJS for dependency injection
+- **Database:** PostgreSQL with pg driver
+- **Job Queue:** Bull (Redis-based) for background jobs
+- **Monitoring:** Application Insights + Sentry
+- **Authentication:** JWT + Azure AD OAuth
+- **Security:** Helmet, CORS, CSRF protection, rate limiting
+
+**Key Architectural Patterns:**
+
+1. **Emulator-First Development** (`api/src/emulators/`):
+   - Real-time GPS, fuel, maintenance, OBD2, and IoT data emulators
+   - Enables full-stack development without external dependencies
+   - Each emulator generates realistic test data with proper relationships
+   - Used in both development and demo modes
+
+2. **Dependency Injection Pattern** (`api/src/container.ts`):
+   - InversifyJS container manages service lifecycle
+   - Controllers → Services → Repositories architecture
+   - Clean separation of concerns, easy to test
+
+3. **Middleware Security Stack** (applied in order):
+   - Security headers (Helmet) - HSTS, CSP, X-Frame-Options
+   - CORS with strict origin validation
+   - Global rate limiting (DoS prevention)
+   - Route-specific smart rate limiting
+   - CSRF token protection on state-changing operations
+   - Input validation and sanitization
+
+4. **Background Job Processing** (`api/src/jobs/`):
+   - Bull queues for email, notifications, and reports
+   - Cron-scheduled jobs for maintenance, webhooks, telemetry sync
+   - Graceful shutdown with job cleanup
+
+5. **Multi-Tenant Architecture**:
+   - Tenant context middleware injects `tenant_id` into requests
+   - Row-Level Security (RLS) enforced at database layer
+   - All queries filtered by tenant automatically
+
+## Route Organization (100+ endpoints)
+
+Routes are organized by feature domain in `api/src/routes/`:
+
+**Core Fleet Management:**
+- `vehicles.ts` - Vehicle CRUD and telematics
+- `drivers.ts` - Driver management and scoring
+- `fuel-transactions.ts` - Fuel tracking and analytics
+- `maintenance.ts` - Maintenance records
+- `work-orders.ts` - Work order management
+
+**Asset & Equipment:**
+- `asset-management.routes.ts` - Asset tracking, QR codes, depreciation
+- `heavy-equipment.routes.ts` - Heavy machinery management
+- `assets-mobile.routes.ts` - Mobile asset tracking
+
+**Tracking & Telematics:**
+- `gps.ts` - Real-time GPS tracking (emulated)
+- `telemetry.ts` - Vehicle telemetry data
+- `geofences.ts` - Geofence management
+- `obd2-emulator.routes.ts` - OBD2 diagnostic data
+
+**EV Management:**
+- `ev-management.routes.ts` - Electric vehicle operations
+- `charging-sessions.ts` - Charging session tracking
+- `charging-stations.ts` - Station management
+
+**Documents & OCR:**
+- `documents.ts` - Document storage and retrieval
+- `ocr.routes.ts` - OCR processing for receipts/forms
+- `attachments.routes.ts` - File uploads and attachments
+
+**AI & Automation:**
+- `ai-insights.routes.ts` - AI-powered analytics
+- `langchain.routes.ts` - LangChain-based document Q&A
+- `fleet-optimizer.routes.ts` - Fleet optimization algorithms
+
+**Mobile Integration:**
+- `mobile-*.routes.ts` - 10+ mobile app endpoints
+- Mobile photo uploads, OCR, damage reports, trips
+
+**System Management:**
+- `health.routes.ts` - Health checks
+- `monitoring.ts` - System monitoring
+- `queue.routes.ts` - Job queue management
+
+## Critical Security Patterns
+
+**SQL Injection Prevention:**
+```typescript
+// ALWAYS use parameterized queries
+const result = await pool.query(
+  'SELECT * FROM vehicles WHERE id = $1 AND tenant_id = $2',
+  [vehicleId, tenantId]
+)
+
+// NEVER use string concatenation
+// ❌ BAD: `SELECT * FROM vehicles WHERE id = ${vehicleId}`
+```
+
+**Authentication Pattern:**
+```typescript
+import { authenticateJWT } from '../middleware/auth'
+import { requirePermission } from '../middleware/permissions'
+
+// Protect routes with JWT + permission checks
+router.get('/sensitive-data',
+  authenticateJWT,
+  requirePermission('vehicles:read'),
+  async (req, res) => { /* ... */ }
+)
+```
+
+**CSRF Protection:**
+```typescript
+import { csrfProtection } from '../middleware/csrf'
+
+// Apply CSRF to all state-changing operations
+router.post('/create', csrfProtection, async (req, res) => { /* ... */ })
+router.put('/update/:id', csrfProtection, async (req, res) => { /* ... */ })
+router.delete('/delete/:id', csrfProtection, async (req, res) => { /* ... */ })
+```
+
+**Input Validation:**
+```typescript
+import { validate } from '../middleware/validation'
+import { createVehicleSchema } from '../schemas/vehicle.schema'
+
+// Validate request body with Zod schemas
+router.post('/',
+  validate(createVehicleSchema, 'body'),
+  async (req, res) => { /* ... */ }
+)
+```
+
+## Container Deployment
+
+**Multi-Stage Docker Build** (`api/Dockerfile`):
+1. Builder stage: Install deps + compile TypeScript
+2. Production stage: Minimal Alpine image with only runtime deps
+3. Runs with non-root user (`nodejs:1001`)
+4. Uses `tsx` for direct TypeScript execution (faster startup than transpiled JS)
+5. Health check on `/api/health` endpoint
+
+**Production Deployment:**
+- Deployed to Azure Container Apps
+- PostgreSQL database (Azure Database for PostgreSQL)
+- Redis for Bull queues (optional, gracefully degrades)
+- Application Insights + Sentry for monitoring
+- Environment variables managed via Azure Key Vault
+
+**API Base URL:** `https://fleet-api.gentlepond-ec715fc2.eastus2.azurecontainerapps.io`
+
+## Adding a New API Route
+
+1. Create route file in `api/src/routes/your-feature.ts`:
+   ```typescript
+   import { Router } from 'express'
+   import { authenticateJWT } from '../middleware/auth'
+   import { csrfProtection } from '../middleware/csrf'
+   import { pool } from '../container'
+
+   const router = Router()
+
+   router.get('/', authenticateJWT, async (req, res) => {
+     const { tenant_id } = req.user
+     const result = await pool.query(
+       'SELECT * FROM your_table WHERE tenant_id = $1',
+       [tenant_id]
+     )
+     res.json({ data: result.rows })
+   })
+
+   export default router
+   ```
+
+2. Register route in `api/src/server.ts`:
+   ```typescript
+   import yourFeatureRouter from './routes/your-feature'
+   app.use('/api/your-feature', yourFeatureRouter)
+   ```
+
+3. Add schema validation in `api/src/schemas/your-feature.schema.ts` (use Zod)
+
+4. Test with `npm test` and deploy via Azure ACR
+
+## Debugging Tips
+
+**Enable Verbose Logging:**
+```bash
+# In api/.env
+LOG_LEVEL=debug
+DEBUG=*
+```
+
+**Check Container Logs:**
+```bash
+az containerapp logs show \
+  --name fleet-api \
+  --resource-group fleet-production-rg \
+  --tail 100
+```
+
+**Common TypeScript Errors:**
+- Ensure `pool` is imported from `../container` (not `../database`)
+- Use parameterized queries with `$1, $2, $3` placeholders
+- Always type request/response objects for type safety
+
+---
+
 ## Security Notes
 
 All security requirements from global .env file apply:

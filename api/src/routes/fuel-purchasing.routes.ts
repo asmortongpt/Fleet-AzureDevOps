@@ -63,7 +63,7 @@ router.get(
       const { lat, lng, radius = '25', fuelType } = req.query
 
       if (!lat || !lng) {
-        return throw new ValidationError("lat and lng are required")
+        throw new ValidationError("lat and lng are required")
       }
 
       const stations = await fuelPurchasingService.getNearbyStations(
@@ -92,7 +92,7 @@ router.get(
       const { lat, lng, fuelType, radius = '50' } = req.query
 
       if (!lat || !lng || !fuelType) {
-        return throw new ValidationError("lat, lng, and fuelType are required")
+        throw new ValidationError("lat, lng, and fuelType are required")
       }
 
       const result = await fuelPurchasingService.findCheapestFuel(
@@ -104,7 +104,7 @@ router.get(
       )
 
       if (!result) {
-        return throw new NotFoundError("No stations found")
+        throw new NotFoundError("No stations found")
       }
 
       res.json(result)
@@ -146,7 +146,7 @@ router.post(
       )
 
       if (!recommendation) {
-        return throw new NotFoundError("No recommendation available")
+        throw new NotFoundError("No recommendation available")
       }
 
       res.json(recommendation)
@@ -191,7 +191,7 @@ router.get(
       const { fuelType = 'regular', currentPrice, region = 'national' } = req.query
 
       if (!currentPrice) {
-        return throw new ValidationError("currentPrice is required")
+        throw new ValidationError("currentPrice is required")
       }
 
       const recommendation = await fuelPriceForecastingModel.generatePurchaseRecommendation(
@@ -325,7 +325,7 @@ router.get(
       const { startDate, endDate } = req.query
 
       if (!startDate || !endDate) {
-        return throw new ValidationError("startDate and endDate are required")
+        throw new ValidationError("startDate and endDate are required")
       }
 
       const savings = await fuelPurchasingService.calculateSavings(
@@ -374,7 +374,7 @@ router.get(
       const { monthlyGallons } = req.query
 
       if (!monthlyGallons) {
-        return throw new ValidationError("monthlyGallons is required")
+        throw new ValidationError("monthlyGallons is required")
       }
 
       const analysis = await fuelOptimizationService.analyzeBulkVsRetail(
@@ -400,7 +400,7 @@ router.get(
       const { annualGallons } = req.query
 
       if (!annualGallons) {
-        return throw new ValidationError("annualGallons is required")
+        throw new ValidationError("annualGallons is required")
       }
 
       const optimization = await fuelOptimizationService.optimizeFleetCardUsage(
@@ -426,7 +426,7 @@ router.get(
       const { state } = req.query
 
       if (!state) {
-        return throw new ValidationError("state is required")
+        throw new ValidationError("state is required")
       }
 
       const analysis = await fuelOptimizationService.analyzeCrossBorderArbitrage(
@@ -452,7 +452,7 @@ router.get(
       const { annualGallons, fuelType = 'regular' } = req.query
 
       if (!annualGallons) {
-        return throw new ValidationError("annualGallons is required")
+        throw new ValidationError("annualGallons is required")
       }
 
       const recommendations = await fuelOptimizationService.generateHedgingRecommendations(
