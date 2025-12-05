@@ -293,6 +293,8 @@ function buildDrillThroughQuery(
   params.push(limit, offset);
   const limitIndex = params.length + 1
   const offsetIndex = params.length + 2
+  const limitIndex = params.length + 1
+  const offsetIndex = params.length + 2
   const query = `${baseQuery} LIMIT ${paramIndex} OFFSET $${paramIndex + 1}`;
   const countQuery = 'SELECT COUNT(*) FROM (${baseQuery.replace(/ORDER BY .*/, '')}) as count_query';
 

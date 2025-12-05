@@ -1,4 +1,5 @@
 import { Router } from "express"
+import { csrfProtection } from '../middleware/csrf'
 import { container } from '../container'
 import { TYPES } from '../types'
 import { DriverController } from '../modules/drivers/controllers/driver.controller'
