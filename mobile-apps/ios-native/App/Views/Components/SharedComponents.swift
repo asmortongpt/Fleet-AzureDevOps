@@ -87,7 +87,7 @@ struct QuickActionsView: View {
 
             LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
                 ForEach(actions) { action in
-                    QuickActionButton(
+                    LegacyQuickActionButton(
                         title: action.title,
                         icon: action.icon,
                         color: action.color,
