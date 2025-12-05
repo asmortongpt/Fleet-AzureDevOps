@@ -168,8 +168,16 @@ import storageAdminRouter from './routes/storage-admin'
 import syncRouter from './routes/sync.routes'
 import qualityGatesRouter from './routes/quality-gates'
 import reservationsRouter from './routes/reservations.routes'
+import adminJobsRouter from './routes/admin-jobs.routes'
 
 import { telemetryMiddleware, errorTelemetryMiddleware, performanceMiddleware } from './middleware/telemetry'
+
+// Job Processing Infrastructure
+import { emailQueue, notificationQueue, reportQueue, closeAllQueues } from './jobs/queue'
+import { processEmailJob } from './jobs/processors/email.processor'
+import { processNotificationJob } from './jobs/processors/notification.processor'
+import { processReportJob } from './jobs/processors/report.processor'
+import logger from './utils/logger'
 
 const app = express()
 const PORT = process.env.PORT || 3001
@@ -412,6 +420,7 @@ app.use('/api/storage-admin', storageAdminRouter)
 app.use('/api/sync', syncRouter)
 app.use('/api/quality-gates', qualityGatesRouter)
 app.use('/api/reservations', reservationsRouter)
+app.use('/api/admin/jobs', adminJobsRouter)
 
 // 404 handler - must come before error handlers
 app.use(notFoundHandler())
@@ -441,6 +450,33 @@ const initializeEmulatorTracking = () => {
   }
 }
 
+/**
+ * Initialize Bull job processors
+ */
+const initializeJobProcessors = () => {
+  logger.info('Initializing Bull job processors...')
+
+  // Email queue processor
+  emailQueue.process(async (job) => {
+    return processEmailJob(job)
+  })
+
+  // Notification queue processor
+  notificationQueue.process(async (job) => {
+    return processNotificationJob(job)
+  })
+
+  // Report queue processor
+  reportQueue.process(async (job) => {
+    return processReportJob(job)
+  })
+
+  logger.info('✅ Bull job processors initialized')
+  logger.info('  - Email queue: ready')
+  logger.info('  - Notification queue: ready')
+  logger.info('  - Report queue: ready')
+}
+
 const server = app.listen(PORT, () => {
   console.log(`✅ Server running on http://localhost:${PORT}`)
   console.log(`📊 Application Insights: ${telemetryService.isActive() ? 'Enabled' : 'Disabled'}`)
@@ -450,13 +486,17 @@ const server = app.listen(PORT, () => {
   // ARCHITECTURE FIX: Initialize process-level error handlers
   initializeProcessErrorHandlers(server)
 
+  // Initialize Bull job processors
+  initializeJobProcessors()
+
   // Track server startup in both monitoring systems
   telemetryService.trackEvent('ServerStartup', {
     port: PORT,
     nodeVersion: process.version,
     environment: process.env.NODE_ENV || 'development',
     telemetryEnabled: telemetryService.isActive(),
-    sentryEnabled: !!process.env.SENTRY_DSN
+    sentryEnabled: !!process.env.SENTRY_DSN,
+    jobProcessorsEnabled: true
   })
 
   // Also track in Sentry
@@ -475,6 +515,9 @@ process.on('SIGTERM', async () => {
   console.log('📊 SIGTERM signal received: flushing telemetry and closing server')
 
   server.close(async () => {
+    // Close Bull queues gracefully
+    await closeAllQueues()
+
     // Flush both monitoring services
     await Promise.all([
       telemetryService.flush(),
@@ -489,6 +532,9 @@ process.on('SIGINT', async () => {
   console.log('📊 SIGINT signal received: flushing telemetry and closing server')
 
   server.close(async () => {
+    // Close Bull queues gracefully
+    await closeAllQueues()
+
     // Flush both monitoring services
     await Promise.all([
       telemetryService.flush(),
