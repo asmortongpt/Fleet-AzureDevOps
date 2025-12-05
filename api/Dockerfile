@@ -52,13 +52,15 @@ COPY package*.json ./
 RUN npm ci --only=production --legacy-peer-deps && \
     npm cache clean --force
 
-# Copy built application from builder (or source if dist doesn't exist)
-COPY --from=builder /app/dist ./dist 2>/dev/null || true
+# Copy source files (always needed for tsx fallback)
 COPY --from=builder /app/src ./src
+COPY --from=builder /app/tsconfig.json ./tsconfig.json
+
+# Copy built application if it exists
+COPY --from=builder /app/dist ./dist || echo "No dist folder, will run from source"
 
 # Copy necessary config files
-COPY --from=builder /app/drizzle ./drizzle 2>/dev/null || true
-COPY --from=builder /app/tsconfig.json ./tsconfig.json
+COPY --from=builder /app/drizzle ./drizzle || echo "No drizzle folder"
 
 # Set ownership to non-root user
 RUN chown -R nodejs:nodejs /app
@@ -76,9 +78,5 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
 # Use tini as init system for proper signal handling
 ENTRYPOINT ["/sbin/tini", "--"]
 
-# Start application (use dist if available, otherwise tsx from source)
-CMD if [ -f "dist/server.js" ]; then \
-      node dist/server.js; \
-    else \
-      npx tsx src/server.ts; \
-    fi
+# Start application using tsx from source (TypeScript direct execution)
+CMD ["npx", "tsx", "src/server.ts"]
