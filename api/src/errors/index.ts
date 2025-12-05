@@ -30,4 +30,4 @@ export {
   AuthorizationError,
   RateLimitError,
   ExternalServiceError
-} from '../middleware/error-handler';
+} from '../middleware/errorHandler';
