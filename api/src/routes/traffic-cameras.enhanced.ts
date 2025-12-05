@@ -3,7 +3,9 @@ import { container } from '../container'
 import { asyncHandler } from '../middleware/errorHandler'
 import { NotFoundError, ValidationError } from '../errors/app-error'
 import { Pool } from 'pg';
-import axios from 'axios';
+import axios from 'axios'
+import { csrfProtection } from '../middleware/csrf'
+;
 
 const router = Router();
 
@@ -155,7 +157,7 @@ router.get('/meta/roads', async (req: Request, res: Response) => {
  * Sync cameras from Florida 511 API (admin only)
  * POST /api/traffic-cameras/sync
  */
-router.post('/sync', async (req: Request, res: Response) => {
+router.post('/sync', csrfProtection, async (req: Request, res: Response) => {
   try {
     // Note: In production, add authentication/authorization middleware
 
