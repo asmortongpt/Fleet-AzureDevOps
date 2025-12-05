@@ -229,3 +229,21 @@ export interface ScheduleHistoryResponse {
   total_cost: number
   avg_days_between_service: number
 }
+
+// Basic maintenance record (for simple CRUD operations)
+export interface MaintenanceRecord {
+  id: number;
+  tenant_id: number;
+  vehicle_id: number;
+  service_type: string;
+  service_date?: Date;
+  description?: string;
+  cost?: number;
+  mileage?: number;
+  status?: string;
+  category?: string;
+  vehicle_number?: string;
+  work_order_id?: number;
+  created_at?: Date;
+  updated_at?: Date;
+}

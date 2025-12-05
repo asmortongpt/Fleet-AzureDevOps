@@ -1,96 +1,116 @@
 import React, { useEffect, useState } from 'react';
-import { Bar, HeatMap } from '@ant-design/plots';
-import { Table, message } from 'antd';
-import axios from 'axios';
+import { Table, Button } from 'antd';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
+import { exportToCSV, exportToExcel } from '../../utils/exportUtils';
+import { fetchIdleAssets, fetchUtilizationData, fetchROIMetrics } from '../../services/analyticsService';
+import { logError, logAudit } from '../../utils/logger';
+import { validateTenantId } from '../../utils/validation';
+import Helmet from 'react-helmet';
+import { useAuth } from '../../hooks/useAuth';
+
+interface Asset {
+  id: string;
+  name: string;
+  idleDays: number;
+  revenue: number;
+  cost: number;
+}
 
 interface UtilizationData {
-  hour: string;
-  utilizationPercentage: number;
+  date: string;
+  utilizationRate: number;
 }
 
-interface ROIData {
-  category: string;
-  value: number;
-}
-
-interface IdleAssetsData {
+interface ROIMetric {
   assetId: string;
-  daysIdle: number;
+  revenue: number;
+  cost: number;
+  roi: number;
 }
 
 const UtilizationDashboard: React.FC = () => {
+  const [idleAssets, setIdleAssets] = useState<Asset[]>([]);
   const [utilizationData, setUtilizationData] = useState<UtilizationData[]>([]);
-  const [roiData, setRoiData] = useState<ROIData[]>([]);
-  const [idleAssetsData, setIdleAssetsData] = useState<IdleAssetsData[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [roiMetrics, setRoiMetrics] = useState<ROIMetric[]>([]);
+  const { tenantId } = useAuth();
 
   useEffect(() => {
+    if (!validateTenantId(tenantId)) {
+      logError('Invalid tenant ID');
+      return;
+    }
+
     const fetchData = async () => {
       try {
-        setLoading(true);
-        const [utilizationResponse, roiResponse, idleAssetsResponse] = await Promise.all([
-          axios.get('/api/utilization/heatmap'),
-          axios.get('/api/roi/summary'),
-          axios.get('/api/assets/idle'),
-        ]);
-        setUtilizationData(utilizationResponse.data);
-        setRoiData(roiResponse.data);
-        setIdleAssetsData(idleAssetsResponse.data);
+        const idleAssetsData = await fetchIdleAssets(tenantId);
+        setIdleAssets(idleAssetsData);
+
+        const utilizationData = await fetchUtilizationData(tenantId);
+        setUtilizationData(utilizationData);
+
+        const roiMetricsData = await fetchROIMetrics(tenantId);
+        setRoiMetrics(roiMetricsData);
+
+        logAudit('Utilization dashboard data fetched', { tenantId });
       } catch (error) {
-        message.error('Failed to fetch data. Please try again later.');
-        console.error('Error fetching data:', error);
-      } finally {
-        setLoading(false);
+        logError('Error fetching utilization dashboard data', error);
       }
     };
 
     fetchData();
-  }, []);
-
-  const utilizationConfig = {
-    data: utilizationData,
-    xField: 'hour',
-    yField: 'utilizationPercentage',
-    colorField: 'utilizationPercentage',
-    color: ['#BAE7FF', '#1890FF', '#0050B3'],
-  };
-
-  const roiConfig = {
-    data: roiData,
-    xField: 'category',
-    yField: 'value',
-    seriesField: 'category',
-    legend: { position: 'top-left' },
-  };
+  }, [tenantId]);
 
   const columns = [
     {
-      title: 'Asset ID',
-      dataIndex: 'assetId',
-      key: 'assetId',
+      title: 'Asset Name',
+      dataIndex: 'name',
+      key: 'name',
     },
     {
-      title: 'Days Idle',
-      dataIndex: 'daysIdle',
-      key: 'daysIdle',
+      title: 'Idle Days',
+      dataIndex: 'idleDays',
+      key: 'idleDays',
+      sorter: (a: Asset, b: Asset) => a.idleDays - b.idleDays,
     },
   ];
 
   return (
-    <div>
-      {loading ? (
-        <p>Loading...</p>
-      ) : (
-        <>
-          <h2>Utilization Heatmap</h2>
-          <HeatMap {...utilizationConfig} />
-          <h2>ROI Analysis</h2>
-          <Bar {...roiConfig} />
-          <h2>Idle Assets</h2>
-          <Table dataSource={idleAssetsData} columns={columns} rowKey="assetId" />
-        </>
-      )}
-    </div>
+    <>
+      <Helmet>
+        <meta http-equiv="Content-Security-Policy" content="default-src 'self';" />
+        <meta http-equiv="Strict-Transport-Security" content="max-age=31536000; includeSubDomains" />
+      </Helmet>
+      <div>
+        <h2>Idle Assets</h2>
+        <Table columns={columns} dataSource={idleAssets} rowKey="id" />
+        <Button onClick={() => exportToCSV(idleAssets, 'idle_assets.csv')}>Export to CSV</Button>
+        <Button onClick={() => exportToExcel(idleAssets, 'idle_assets.xlsx')}>Export to Excel</Button>
+      </div>
+      <div>
+        <h2>Utilization Rate</h2>
+        <LineChart width={600} height={300} data={utilizationData}>
+          <CartesianGrid strokeDasharray="3 3" />
+          <XAxis dataKey="date" />
+          <YAxis />
+          <Tooltip />
+          <Legend />
+          <Line type="monotone" dataKey="utilizationRate" stroke="#8884d8" />
+        </LineChart>
+      </div>
+      <div>
+        <h2>ROI Metrics</h2>
+        <Table
+          columns={[
+            { title: 'Asset ID', dataIndex: 'assetId', key: 'assetId' },
+            { title: 'Revenue', dataIndex: 'revenue', key: 'revenue' },
+            { title: 'Cost', dataIndex: 'cost', key: 'cost' },
+            { title: 'ROI', dataIndex: 'roi', key: 'roi' },
+          ]}
+          dataSource={roiMetrics}
+          rowKey="assetId"
+        />
+      </div>
+    </>
   );
 };
 

@@ -13,7 +13,7 @@
  * - Delivery tracking
  */
 
-import pool from '../../config/database'
+import { Pool } from 'pg'
 import nodemailer from 'nodemailer'
 
 export interface Notification {
@@ -66,6 +66,8 @@ export interface NotificationTemplate {
 }
 
 export class NotificationService {
+  constructor(private db: Pool) {}
+
   private emailTransporter: nodemailer.Transporter | null = null
 
   constructor() {
@@ -172,7 +174,7 @@ export class NotificationService {
    * Create in-app notification
    */
   private async createInAppNotification(notification: Notification): Promise<void> {
-    await pool.query(
+    await this.db.query(
       `INSERT INTO notifications (tenant_id, user_id, type, title, message, priority, data, action_url, created_at)
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW())`,
       [
@@ -197,7 +199,7 @@ export class NotificationService {
       return }
 
     // Get user email
-    const userResult = await pool.query(
+    const userResult = await this.db.query(
       'SELECT email, first_name, last_name FROM users WHERE id = $1',
       [notification.userId]
     )
@@ -272,7 +274,7 @@ export class NotificationService {
       return }
 
     // Get user phone
-    const userResult = await pool.query(
+    const userResult = await this.db.query(
       'SELECT phone FROM users WHERE id = $1',
       [notification.userId]
     )
@@ -304,7 +306,7 @@ export class NotificationService {
    * Get user notification preferences
    */
   async getUserPreferences(userId: string): Promise<NotificationPreferences> {
-    const result = await pool.query(
+    const result = await this.db.query(
       `SELECT 
       id,
       user_id,
@@ -351,7 +353,7 @@ export class NotificationService {
    * Update user notification preferences
    */
   async updateUserPreferences(userId: string, preferences: Partial<NotificationPreferences>): Promise<void> {
-    await pool.query(
+    await this.db.query(
       `INSERT INTO notification_preferences (user_id, email_notifications, sms_notifications, push_notifications, in_app_notifications, notification_types, quiet_hours_start, quiet_hours_end, timezone)
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
        ON CONFLICT (user_id)
@@ -383,7 +385,7 @@ export class NotificationService {
    * Get user's unread notifications
    */
   async getUnreadNotifications(userId: string, limit: number = 50): Promise<Notification[]> {
-    const result = await pool.query(
+    const result = await this.db.query(
       `SELECT id, tenant_id, user_id, notification_type, title, message, is_read, created_at FROM notifications
        WHERE user_id = $1 AND read_at IS NULL
        ORDER BY created_at DESC
@@ -398,7 +400,7 @@ export class NotificationService {
    * Mark notification as read
    */
   async markAsRead(notificationId: string, userId: string): Promise<void> {
-    await pool.query(
+    await this.db.query(
       'UPDATE notifications SET read_at = NOW() WHERE id = $1 AND user_id = $2',
       [notificationId, userId]
     )
@@ -408,7 +410,7 @@ export class NotificationService {
    * Mark all notifications as read
    */
   async markAllAsRead(userId: string): Promise<void> {
-    await pool.query(
+    await this.db.query(
       'UPDATE notifications SET read_at = NOW() WHERE user_id = $1 AND read_at IS NULL',
       [userId]
     )
@@ -418,7 +420,7 @@ export class NotificationService {
    * Delete notification
    */
   async deleteNotification(notificationId: string, userId: string): Promise<void> {
-    await pool.query(
+    await this.db.query(
       'DELETE FROM notifications WHERE id = $1 AND user_id = $2',
       [notificationId, userId]
     )
@@ -428,7 +430,7 @@ export class NotificationService {
    * Get notification template
    */
   private async getTemplate(templateId: string): Promise<NotificationTemplate | null> {
-    const result = await pool.query(
+    const result = await this.db.query(
       `SELECT 
       id,
       name,
@@ -490,7 +492,7 @@ export class NotificationService {
    * Schedule notification for later
    */
   async scheduleNotification(notification: Notification, sendAt: Date): Promise<void> {
-    await pool.query(
+    await this.db.query(
       `INSERT INTO scheduled_notifications (tenant_id, user_id, type, title, message, channels, priority, data, action_url, scheduled_for)
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
       [
@@ -512,7 +514,7 @@ export class NotificationService {
    * Process scheduled notifications (run by cron job)
    */
   async processScheduledNotifications(): Promise<void> {
-    const result = await pool.query(
+    const result = await this.db.query(
       `SELECT id, tenant_id, user_id, notification_type, message, scheduled_time, sent_at FROM scheduled_notifications
        WHERE scheduled_for <= NOW() AND sent_at IS NULL
        ORDER BY scheduled_for ASC
@@ -535,7 +537,7 @@ export class NotificationService {
         })
 
         // Mark as sent
-        await pool.query(
+        await this.db.query(
           'UPDATE scheduled_notifications SET sent_at = NOW() WHERE id = $1',
           [row.id]
         )

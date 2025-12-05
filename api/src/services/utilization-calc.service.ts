@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { AssetUtilizationInput, AssetUtilizationResult, HeatmapData, IdleAlert } from '../interfaces/utilization.interface';
 import { cache } from '../utils/cache';
-import pool from '../config/database';
+import { Pool } from 'pg';
 
 const assetUtilizationInputSchema = z.object({
   assetId: z.string(),
@@ -13,6 +13,7 @@ const assetUtilizationInputSchema = z.object({
  * Service for calculating asset utilization metrics.
  */
 export class UtilizationCalcService {
+  constructor(private db: Pool) {}
   /**
    * Calculates the daily utilization percentage of an asset.
    * @param input The input parameters including assetId, startDate, and endDate.
@@ -36,7 +37,7 @@ export class UtilizationCalcService {
         GROUP BY asset_id;
       `;
       const values = [assetId, startDate, endDate];
-      const client = await pool.connect();
+      const client = await this.db.connect();
       const result = await client.query(query, values);
       client.release();
 
@@ -65,7 +66,7 @@ export class UtilizationCalcService {
         GROUP BY asset_id
         HAVING MAX(usage_date) < CURRENT_DATE - INTERVAL '7 days';
       `;
-      const client = await pool.connect();
+      const client = await this.db.connect();
       const result = await client.query(query);
       client.release();
 
@@ -94,7 +95,7 @@ export class UtilizationCalcService {
         ORDER BY hour;
       `;
       const values = [assetId];
-      const client = await pool.connect();
+      const client = await this.db.connect();
       const result = await client.query(query, values);
       client.release();
 
