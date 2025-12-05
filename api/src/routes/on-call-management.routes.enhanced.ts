@@ -126,7 +126,7 @@ router.get(
       const whereClause = whereConditions.length > 0 ? `WHERE ${whereConditions.join(' AND ')}` : ''
 
       const query = `
-        SELECT * FROM on_call_period WHERE tenant_id = $1 /* tenant_id validated */s WHERE tenant_id = $1 /* tenant_id validated */ ocp
+        SELECT * FROM on_call_periods ocp
         ${whereClause}
         LIMIT $${paramIndex++} OFFSET $${paramIndex}
       `
