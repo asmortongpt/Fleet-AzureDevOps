@@ -32,69 +32,97 @@ import { withAITracking } from '@microsoft/applicationinsights-react-js'
 import telemetryService from '@/lib/telemetry'
 
 // Lazy load all modules for code splitting - reduces initial bundle by 80%+
-const FleetDashboard = lazy(() => import("@/components/modules/FleetDashboard").then(m => ({ default: m.FleetDashboard })))
-const FleetDashboardModern = lazy(() => import("@/components/modules/FleetDashboardModern").then(m => ({ default: m.FleetDashboardModern })))
-const ExecutiveDashboard = lazy(() => import("@/components/modules/ExecutiveDashboard").then(m => ({ default: m.ExecutiveDashboard })))
+// Modules now organized in feature-based folders for better maintainability
+
+// FLEET MODULES
+const FleetDashboard = lazy(() => import("@/components/modules/fleet/FleetDashboard").then(m => ({ default: m.FleetDashboard })))
+const FleetDashboardModern = lazy(() => import("@/components/modules/fleet/FleetDashboardModern").then(m => ({ default: m.FleetDashboardModern })))
+const FleetAnalytics = lazy(() => import("@/components/modules/fleet/FleetAnalytics").then(m => ({ default: m.FleetAnalytics })))
+const GPSTracking = lazy(() => import("@/components/modules/fleet/GPSTracking").then(m => ({ default: m.GPSTracking })))
+const VehicleTelemetry = lazy(() => import("@/components/modules/fleet/VehicleTelemetry").then(m => ({ default: m.VehicleTelemetry })))
+const VirtualGarage = lazy(() => import("@/components/modules/fleet/VirtualGarage").then(m => ({ default: m.VirtualGarage })))
+
+// ANALYTICS MODULES
+const ExecutiveDashboard = lazy(() => import("@/components/modules/analytics/ExecutiveDashboard").then(m => ({ default: m.ExecutiveDashboard })))
+const DataWorkbench = lazy(() => import("@/components/modules/analytics/DataWorkbench").then(m => ({ default: m.DataWorkbench })))
+const EndpointMonitor = lazy(() => import("@/components/modules/analytics/EndpointMonitor").then(m => ({ default: m.EndpointMonitor })))
+
+// ADMIN MODULES
 const AdminDashboard = lazy(() => import("@/pages/AdminDashboard"))
-const PeopleManagement = lazy(() => import("@/components/modules/PeopleManagement").then(m => ({ default: m.PeopleManagement })))
-const GarageService = lazy(() => import("@/components/modules/GarageService").then(m => ({ default: m.GarageService })))
-const PredictiveMaintenance = lazy(() => import("@/components/modules/PredictiveMaintenance").then(m => ({ default: m.PredictiveMaintenance })))
-const FuelManagement = lazy(() => import("@/components/modules/FuelManagement").then(m => ({ default: m.FuelManagement })))
-const GPSTracking = lazy(() => import("@/components/modules/GPSTracking").then(m => ({ default: m.GPSTracking })))
-const DataWorkbench = lazy(() => import("@/components/modules/DataWorkbench").then(m => ({ default: m.DataWorkbench })))
-const MileageReimbursement = lazy(() => import("@/components/modules/MileageReimbursement").then(m => ({ default: m.MileageReimbursement })))
-const RouteManagement = lazy(() => import("@/components/modules/RouteManagement").then(m => ({ default: m.RouteManagement })))
-const GISCommandCenter = lazy(() => import("@/components/modules/GISCommandCenter").then(m => ({ default: m.GISCommandCenter })))
-const TrafficCameras = lazy(() => import("@/components/modules/TrafficCameras").then(m => ({ default: m.TrafficCameras })))
-const FleetAnalytics = lazy(() => import("@/components/modules/FleetAnalytics").then(m => ({ default: m.FleetAnalytics })))
-const VendorManagement = lazy(() => import("@/components/modules/VendorManagement").then(m => ({ default: m.VendorManagement })))
-const PartsInventory = lazy(() => import("@/components/modules/PartsInventory").then(m => ({ default: m.PartsInventory })))
-const PurchaseOrders = lazy(() => import("@/components/modules/PurchaseOrders").then(m => ({ default: m.PurchaseOrders })))
-const Invoices = lazy(() => import("@/components/modules/Invoices").then(m => ({ default: m.Invoices })))
-const TeamsIntegration = lazy(() => import("@/components/modules/TeamsIntegration").then(m => ({ default: m.TeamsIntegration })))
-const EmailCenter = lazy(() => import("@/components/modules/EmailCenter").then(m => ({ default: m.EmailCenter })))
-const MaintenanceScheduling = lazy(() => import("@/components/modules/MaintenanceScheduling").then(m => ({ default: m.MaintenanceScheduling })))
-const ReceiptProcessing = lazy(() => import("@/components/modules/ReceiptProcessing").then(m => ({ default: m.ReceiptProcessing })))
-const CommunicationLog = lazy(() => import("@/components/modules/CommunicationLog").then(m => ({ default: m.CommunicationLog })))
-const GeofenceManagement = lazy(() => import("@/components/modules/GeofenceManagement").then(m => ({ default: m.GeofenceManagement })))
-const OSHAForms = lazy(() => import("@/components/modules/OSHAForms").then(m => ({ default: m.OSHAForms })))
-const PolicyEngineWorkbench = lazy(() => import("@/components/modules/PolicyEngineWorkbench").then(m => ({ default: m.PolicyEngineWorkbench })))
-const VideoTelematics = lazy(() => import("@/components/modules/VideoTelematics").then(m => ({ default: m.VideoTelematics })))
-const EVChargingManagement = lazy(() => import("@/components/modules/EVChargingManagement").then(m => ({ default: m.EVChargingManagement })))
-const EnhancedMapLayers = lazy(() => import("@/components/modules/EnhancedMapLayers").then(m => ({ default: m.EnhancedMapLayers })))
-const AdvancedRouteOptimization = lazy(() => import("@/components/modules/AdvancedRouteOptimization").then(m => ({ default: m.AdvancedRouteOptimization })))
-const CustomFormBuilder = lazy(() => import("@/components/modules/CustomFormBuilder").then(m => ({ default: m.CustomFormBuilder })))
-const VehicleTelemetry = lazy(() => import("@/components/modules/VehicleTelemetry").then(m => ({ default: m.VehicleTelemetry })))
-const VirtualGarage = lazy(() => import("@/components/modules/VirtualGarage").then(m => ({ default: m.VirtualGarage })))
-const PersonalUseDashboard = lazy(() => import("@/components/modules/PersonalUseDashboard").then(m => ({ default: m.PersonalUseDashboard })))
-const PersonalUsePolicyConfig = lazy(() => import("@/components/modules/PersonalUsePolicyConfig").then(m => ({ default: m.PersonalUsePolicyConfig })))
+const PeopleManagement = lazy(() => import("@/components/modules/admin/PeopleManagement").then(m => ({ default: m.PeopleManagement })))
+const PolicyEngineWorkbench = lazy(() => import("@/components/modules/admin/PolicyEngineWorkbench").then(m => ({ default: m.PolicyEngineWorkbench })))
+const Notifications = lazy(() => import("@/components/modules/admin/Notifications").then(m => ({ default: m.Notifications })))
+const PushNotificationAdmin = lazy(() => import("@/components/modules/admin/PushNotificationAdmin"))
+
+// MAINTENANCE MODULES
+const GarageService = lazy(() => import("@/components/modules/maintenance/GarageService").then(m => ({ default: m.GarageService })))
+const PredictiveMaintenance = lazy(() => import("@/components/modules/maintenance/PredictiveMaintenance").then(m => ({ default: m.PredictiveMaintenance })))
+const MaintenanceScheduling = lazy(() => import("@/components/modules/maintenance/MaintenanceScheduling").then(m => ({ default: m.MaintenanceScheduling })))
+
+// FUEL MODULES
+const FuelManagement = lazy(() => import("@/components/modules/fuel/FuelManagement").then(m => ({ default: m.FuelManagement })))
+const FuelPurchasing = lazy(() => import("@/components/modules/fuel/FuelPurchasing").then(m => ({ default: m.FuelPurchasing })))
+
+// OPERATIONS MODULES
+const RouteManagement = lazy(() => import("@/components/modules/operations/RouteManagement").then(m => ({ default: m.RouteManagement })))
+const GeofenceManagement = lazy(() => import("@/components/modules/operations/GeofenceManagement").then(m => ({ default: m.GeofenceManagement })))
+const AdvancedRouteOptimization = lazy(() => import("@/components/modules/operations/AdvancedRouteOptimization").then(m => ({ default: m.AdvancedRouteOptimization })))
+const TaskManagement = lazy(() => import("@/components/modules/operations/TaskManagement").then(m => ({ default: m.TaskManagement })))
+const DispatchConsole = lazy(() => import("@/components/DispatchConsole"))
+
+// INTEGRATIONS MODULES
+const GISCommandCenter = lazy(() => import("@/components/modules/integrations/GISCommandCenter").then(m => ({ default: m.GISCommandCenter })))
+const TeamsIntegration = lazy(() => import("@/components/modules/integrations/TeamsIntegration").then(m => ({ default: m.TeamsIntegration })))
+const EmailCenter = lazy(() => import("@/components/modules/integrations/EmailCenter").then(m => ({ default: m.EmailCenter })))
+const ArcGISIntegration = lazy(() => import("@/components/modules/integrations/ArcGISIntegration").then(m => ({ default: m.ArcGISIntegration })))
+const MapSettings = lazy(() => import("@/components/modules/integrations/MapSettings").then(m => ({ default: m.MapSettings })))
+const EnhancedMapLayers = lazy(() => import("@/components/modules/integrations/EnhancedMapLayers").then(m => ({ default: m.EnhancedMapLayers })))
+
+// PROCUREMENT MODULES
+const VendorManagement = lazy(() => import("@/components/modules/procurement/VendorManagement").then(m => ({ default: m.VendorManagement })))
+const PartsInventory = lazy(() => import("@/components/modules/procurement/PartsInventory").then(m => ({ default: m.PartsInventory })))
+const PurchaseOrders = lazy(() => import("@/components/modules/procurement/PurchaseOrders").then(m => ({ default: m.PurchaseOrders })))
+const Invoices = lazy(() => import("@/components/modules/procurement/Invoices").then(m => ({ default: m.Invoices })))
+
+// TOOLS MODULES
+const MileageReimbursement = lazy(() => import("@/components/modules/tools/MileageReimbursement").then(m => ({ default: m.MileageReimbursement })))
+const ReceiptProcessing = lazy(() => import("@/components/modules/tools/ReceiptProcessing").then(m => ({ default: m.ReceiptProcessing })))
+const TrafficCameras = lazy(() => import("@/components/modules/tools/TrafficCameras").then(m => ({ default: m.TrafficCameras })))
+const CustomFormBuilder = lazy(() => import("@/components/modules/tools/CustomFormBuilder").then(m => ({ default: m.CustomFormBuilder })))
+
+// COMMUNICATION MODULES
+const CommunicationLog = lazy(() => import("@/components/modules/communication/CommunicationLog").then(m => ({ default: m.CommunicationLog })))
+
+// COMPLIANCE MODULES
+const OSHAForms = lazy(() => import("@/components/modules/compliance/OSHAForms").then(m => ({ default: m.OSHAForms })))
+const VideoTelematics = lazy(() => import("@/components/modules/compliance/VideoTelematics").then(m => ({ default: m.VideoTelematics })))
+const IncidentManagement = lazy(() => import("@/components/modules/compliance/IncidentManagement").then(m => ({ default: m.IncidentManagement })))
+const DocumentManagement = lazy(() => import("@/components/modules/compliance/DocumentManagement").then(m => ({ default: m.DocumentManagement })))
+const DocumentQA = lazy(() => import("@/components/modules/compliance/DocumentQA").then(m => ({ default: m.DocumentQA })))
+
+// CHARGING MODULES
+const EVChargingManagement = lazy(() => import("@/components/modules/charging/EVChargingManagement").then(m => ({ default: m.EVChargingManagement })))
+
+// PERSONAL USE MODULES
+const PersonalUseDashboard = lazy(() => import("@/components/modules/personal-use/PersonalUseDashboard").then(m => ({ default: m.PersonalUseDashboard })))
+const PersonalUsePolicyConfig = lazy(() => import("@/components/modules/personal-use/PersonalUsePolicyConfig").then(m => ({ default: m.PersonalUsePolicyConfig })))
 const ReimbursementQueue = lazy(() => import("@/pages/PersonalUse/ReimbursementQueue").then(m => ({ default: m.ReimbursementQueue })))
 const ChargesAndBilling = lazy(() => import("@/pages/PersonalUse/ChargesAndBilling").then(m => ({ default: m.ChargesAndBilling })))
-const ArcGISIntegration = lazy(() => import("@/components/modules/ArcGISIntegration").then(m => ({ default: m.ArcGISIntegration })))
-const MapSettings = lazy(() => import("@/components/modules/MapSettings").then(m => ({ default: m.MapSettings })))
-const DispatchConsole = lazy(() => import("@/components/DispatchConsole"))
-const AssetManagement = lazy(() => import("@/components/modules/AssetManagement").then(m => ({ default: m.AssetManagement })))
-const EquipmentDashboard = lazy(() => import("@/components/modules/EquipmentDashboard").then(m => ({ default: m.EquipmentDashboard })))
-const TaskManagement = lazy(() => import("@/components/modules/TaskManagement").then(m => ({ default: m.TaskManagement })))
-const IncidentManagement = lazy(() => import("@/components/modules/IncidentManagement").then(m => ({ default: m.IncidentManagement })))
-const Notifications = lazy(() => import("@/components/modules/Notifications").then(m => ({ default: m.Notifications })))
-const PushNotificationAdmin = lazy(() => import("@/components/modules/PushNotificationAdmin"))
-const DocumentManagement = lazy(() => import("@/components/modules/DocumentManagement").then(m => ({ default: m.DocumentManagement })))
-const DocumentQA = lazy(() => import("@/components/modules/DocumentQA").then(m => ({ default: m.DocumentQA })))
-const FuelPurchasing = lazy(() => import("@/components/modules/FuelPurchasing").then(m => ({ default: m.FuelPurchasing })))
-const EndpointMonitor = lazy(() => import("@/components/modules/EndpointMonitor").then(m => ({ default: m.EndpointMonitor })))
+
+// ASSETS MODULES
+const AssetManagement = lazy(() => import("@/components/modules/assets/AssetManagement").then(m => ({ default: m.AssetManagement })))
+const EquipmentDashboard = lazy(() => import("@/components/modules/assets/EquipmentDashboard").then(m => ({ default: m.EquipmentDashboard })))
+
+// PAGES
 const SettingsPage = lazy(() => import("@/pages/SettingsPage"))
 const ProfilePage = lazy(() => import("@/pages/ProfilePage"))
 
 // Loading spinner component for Suspense fallback
 const LoadingSpinner = () => (
   <div className="flex items-center justify-center min-h-[400px]">
-    <div className="flex flex-col items-center gap-4">
-      <div className="relative">
-        <div className="w-12 h-12 border-4 border-primary/20 rounded-full" />
-        <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin absolute top-0 left-0" />
-      </div>
-      <p className="text-sm font-medium text-muted-foreground">Loading module...</p>
+    <div className="flex flex-col items-center gap-3">
+      <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+      <p className="text-sm text-muted-foreground">Loading module...</p>
     </div>
   </div>
 )
@@ -287,45 +315,38 @@ function App() {
         Skip to main content
       </a>
 
-      <div className="h-screen bg-gradient-to-br from-background via-background to-muted/20 flex overflow-hidden">
-      {/* Glass-morphism sidebar with backdrop blur */}
-      <aside
-        className={`fixed left-0 top-0 h-full bg-card/95 backdrop-blur-xl border-r border-border/50 shadow-2xl shadow-primary/5 transition-all duration-300 ease-in-out z-50 ${
+      <div className="min-h-screen bg-background flex">
+      <aside 
+        className={`fixed left-0 top-0 h-full bg-card border-r transition-all duration-300 z-50 ${
           sidebarOpen ? "w-64" : "w-0"
         } overflow-hidden`}
       >
-        {/* Logo header with refined spacing */}
-        <div className="px-6 py-5 flex items-center justify-between border-b border-border/50 bg-gradient-to-r from-primary/5 to-transparent">
+        <div className="p-6 flex items-center justify-between border-b">
           <div className="flex items-center gap-3">
             <img
               src="/logos/logo-horizontal.svg"
               alt="Fleet Management"
-              className="h-8 w-auto transition-transform duration-300 hover:scale-105"
+              className="h-8 w-auto"
             />
           </div>
         </div>
 
-        {/* Scrollable navigation area */}
         <ScrollArea className="h-[calc(100vh-140px)]">
-          <div className="px-3 py-4 space-y-6">
+          <div className="p-4 space-y-6">
             {Object.entries(groupedNav).map(([section, items]) => {
               if (items.length === 0) return null
-
+              
               return (
-                <div key={section} className="space-y-1">
-                  <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider mb-2.5 px-3">
+                <div key={section}>
+                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 px-2">
                     {section}
                   </p>
-                  <div className="space-y-0.5">
+                  <div className="space-y-1">
                     {items.map(item => (
                       <Button
                         key={item.id}
                         variant={activeModule === item.id ? "secondary" : "ghost"}
-                        className={`w-full justify-start gap-3 px-3 py-2 h-auto transition-all duration-300 ${
-                          activeModule === item.id
-                            ? "bg-primary/10 text-primary font-medium shadow-sm shadow-primary/10 hover:bg-primary/15"
-                            : "hover:bg-accent/50 hover:shadow-sm hover:translate-x-0.5"
-                        }`}
+                        className="w-full justify-start gap-2"
                         onClick={() => {
                           telemetryService.trackButtonClick(`nav-${item.id}`, {
                             category: item.category,
@@ -334,12 +355,8 @@ function App() {
                           setActiveModule(item.id)
                         }}
                       >
-                        <span className={`transition-transform duration-300 ${
-                          activeModule === item.id ? "scale-110" : ""
-                        }`}>
-                          {item.icon}
-                        </span>
-                        <span className="text-sm font-medium">{item.label}</span>
+                        {item.icon}
+                        <span className="text-sm">{item.label}</span>
                       </Button>
                     ))}
                   </div>
@@ -349,63 +366,47 @@ function App() {
           </div>
         </ScrollArea>
 
-        {/* Collapse button with refined styling */}
-        <div className="absolute bottom-0 left-0 right-0 px-3 py-4 border-t border-border/50 bg-gradient-to-t from-card via-card to-transparent backdrop-blur-sm">
+        <div className="absolute bottom-0 left-0 right-0 p-4 border-t bg-card">
           <Button
             variant="ghost"
             size="sm"
-            className="w-full justify-start gap-3 px-3 py-2 hover:bg-accent/50 transition-all duration-300 hover:translate-x-0.5"
+            className="w-full justify-start gap-2"
             onClick={() => setSidebarOpen(false)}
           >
             <X className="w-4 h-4" />
-            <span className="text-sm font-medium">Collapse</span>
+            <span className="text-sm">Collapse</span>
           </Button>
         </div>
       </aside>
 
-      {/* Main content area with smooth transitions */}
       <div
-        className={`flex-1 grid grid-rows-[auto_1fr] overflow-hidden transition-all duration-300 ease-in-out ${
+        className={`flex-1 transition-all duration-300 ${
           sidebarOpen ? "ml-64" : "ml-0"
         }`}
       >
-        {/* Modern header with glass-morphism and refined spacing */}
-        <header className="border-b border-border/50 bg-card/80 backdrop-blur-lg z-40 shadow-sm">
+        <header className="border-b bg-card sticky top-0 z-40">
           <div className="px-6 h-16 flex items-center justify-between">
-            {/* Left section: Menu toggle and page title */}
             <div className="flex items-center gap-4">
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={() => setSidebarOpen(!sidebarOpen)}
                 title={sidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
-                className="hover:bg-accent/50 transition-all duration-300 hover:scale-105"
               >
                 <List className="w-5 h-5" />
               </Button>
-              <div className="hidden sm:block">
-                <h2 className="text-base font-semibold text-foreground leading-tight">
+              <div>
+                <h2 className="font-semibold">
                   {navigationItems.find(item => item.id === activeModule)?.label || "Dashboard"}
                 </h2>
-                <p className="text-xs text-muted-foreground font-medium">Fleet Management System</p>
+                <p className="text-xs text-muted-foreground">Fleet Management System</p>
               </div>
             </div>
-
-            {/* Right section: Actions and user menu */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3">
               <ThemeToggle />
-
-              {/* Notification bell with pulse animation */}
-              <Button
-                variant="ghost"
-                size="icon"
-                className="relative hover:bg-accent/50 transition-all duration-300 hover:scale-105"
-              >
+              <Button variant="ghost" size="icon">
                 <Bell className="w-5 h-5" />
-                <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-destructive rounded-full animate-pulse" />
               </Button>
-
-              {/* Settings button */}
               <Button
                 variant="ghost"
                 size="icon"
@@ -414,34 +415,28 @@ function App() {
                   setActiveModule('settings')
                 }}
                 title="Settings"
-                className="hover:bg-accent/50 transition-all duration-300 hover:scale-105"
               >
                 <Gear className="w-5 h-5" />
               </Button>
-
-              {/* User profile dropdown */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    className="relative h-10 w-10 rounded-full hover:ring-2 hover:ring-primary/20 transition-all duration-300 hover:scale-105"
-                  >
-                    <Avatar className="h-9 w-9">
-                      <AvatarFallback className="bg-gradient-to-br from-primary to-primary/80 text-primary-foreground font-semibold text-sm">
+                  <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+                    <Avatar>
+                      <AvatarFallback className="bg-primary text-primary-foreground">
                         FM
                       </AvatarFallback>
                     </Avatar>
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56 shadow-lg">
-                  <DropdownMenuItem className="cursor-pointer transition-colors duration-200">
-                    <Gear className="w-4 h-4 mr-3" />
-                    <span className="font-medium">Settings</span>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem>
+                    <Gear className="w-4 h-4 mr-2" />
+                    Settings
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem className="cursor-pointer text-destructive focus:text-destructive transition-colors duration-200">
-                    <SignOut className="w-4 h-4 mr-3" />
-                    <span className="font-medium">Sign out</span>
+                  <DropdownMenuItem>
+                    <SignOut className="w-4 h-4 mr-2" />
+                    Sign out
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -449,8 +444,7 @@ function App() {
           </div>
         </header>
 
-        {/* Main content area with fade-in transitions - scrolls within viewport */}
-        <main id="main-content" className="overflow-y-auto p-4 sm:p-6 lg:p-8">
+        <main id="main-content" className="p-6">
           <EnhancedErrorBoundary
             showDetails={import.meta.env.DEV}
             onError={(error, errorInfo) => {
@@ -459,9 +453,7 @@ function App() {
           >
             <QueryErrorBoundary>
               <Suspense fallback={<LoadingSpinner />}>
-                <div className="animate-in fade-in duration-500">
-                  {renderModule()}
-                </div>
+                {renderModule()}
               </Suspense>
             </QueryErrorBoundary>
           </EnhancedErrorBoundary>

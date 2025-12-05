@@ -4,7 +4,7 @@
  * Implements Vehicle Routing Problem (VRP) with time windows and capacity constraints
  */
 
-import pool from '../config/database'
+import { Pool } from 'pg'
 import { logger } from '../utils/logger'
 import * as mapboxService from './mapbox.service'
 
@@ -91,10 +91,13 @@ export interface OptimizationResult {
   solverTime: number
 }
 
-/**
- * Main optimization function
- */
-export async function optimizeRoutes(
+export class RouteOptimizationService {
+  constructor(private db: Pool) {}
+
+  /**
+   * Main optimization function
+   */
+  async optimizeRoutes(
   tenantId: number,
   userId: number,
   stops: Stop[],
@@ -108,17 +111,17 @@ export async function optimizeRoutes(
     logger.info(`Starting route optimization for ${stops.length} stops, ${vehicles.length} vehicles`)
 
     // 1. Create optimization job
-    const jobId = await createOptimizationJob(tenantId, userId, options)
+    const jobId = await this.createOptimizationJob(tenantId, userId, options)
 
     // 2. Insert stops into database
-    await insertStops(jobId, tenantId, stops)
+    await this.insertStops(jobId, tenantId, stops)
 
     // 3. Get distance matrix from Mapbox
     const coordinates = stops.map((s) => ({ latitude: s.latitude, longitude: s.longitude }))
     const matrix = await mapboxService.getDistanceMatrix(coordinates)
 
     // 4. Run optimization algorithm
-    const routes = await runOptimizationAlgorithm(
+    const routes = await this.runOptimizationAlgorithm(
       stops,
       vehicles,
       drivers,
@@ -127,16 +130,16 @@ export async function optimizeRoutes(
     )
 
     // 5. Get detailed route geometries from Mapbox
-    const routesWithGeometry = await enrichRoutesWithGeometry(routes)
+    const routesWithGeometry = await this.enrichRoutesWithGeometry(routes)
 
     // 6. Calculate metrics
-    const metrics = calculateOptimizationMetrics(routesWithGeometry, vehicles)
+    const metrics = this.calculateOptimizationMetrics(routesWithGeometry, vehicles)
 
     // 7. Save routes to database
-    await saveOptimizedRoutes(jobId, tenantId, routesWithGeometry)
+    await this.saveOptimizedRoutes(jobId, tenantId, routesWithGeometry)
 
     // 8. Update job status
-    await updateJobStatus(jobId, `completed`, metrics)
+    await this.updateJobStatus(jobId, `completed`, metrics)
 
     const solverTime = (Date.now() - startTime) / 1000
 
@@ -158,10 +161,10 @@ export async function optimizeRoutes(
   }
 }
 
-/**
- * Genetic Algorithm for VRP with Time Windows
- */
-async function runOptimizationAlgorithm(
+  /**
+   * Genetic Algorithm for VRP with Time Windows
+   */
+  private async runOptimizationAlgorithm(
   stops: Stop[],
   vehicles: Vehicle[],
   drivers: Driver[],
@@ -174,32 +177,32 @@ async function runOptimizationAlgorithm(
   const eliteSize = 5
 
   // Initialize population
-  let population = initializePopulation(stops, vehicles, populationSize, options)
+  let population = this.initializePopulation(stops, vehicles, populationSize, options)
 
   // Evolution loop
   for (let generation = 0; generation < maxGenerations; generation++) {
     // Evaluate fitness
     const fitnessScores = population.map((individual) =>
-      evaluateFitness(individual, matrix, options)
+      this.evaluateFitness(individual, matrix, options)
     )
 
     // Select elite
-    const elite = selectElite(population, fitnessScores, eliteSize)
+    const elite = this.selectElite(population, fitnessScores, eliteSize)
 
     // Create new generation
     const newPopulation = [...elite]
 
     while (newPopulation.length < populationSize) {
       // Selection
-      const parent1 = tournamentSelection(population, fitnessScores)
-      const parent2 = tournamentSelection(population, fitnessScores)
+      const parent1 = this.tournamentSelection(population, fitnessScores)
+      const parent2 = this.tournamentSelection(population, fitnessScores)
 
       // Crossover
-      const offspring = crossover(parent1, parent2)
+      const offspring = this.crossover(parent1, parent2)
 
       // Mutation
       if (Math.random() < mutationRate) {
-        mutate(offspring, options)
+        this.mutate(offspring, options)
       }
 
       newPopulation.push(offspring)
@@ -210,19 +213,19 @@ async function runOptimizationAlgorithm(
 
   // Get best solution
   const fitnessScores = population.map((individual) =>
-    evaluateFitness(individual, matrix, options)
+    this.evaluateFitness(individual, matrix, options)
   )
   const bestIndex = fitnessScores.indexOf(Math.max(...fitnessScores))
   const bestSolution = population[bestIndex]
 
   // Convert to OptimizedRoute format
-  return convertToOptimizedRoutes(bestSolution, vehicles, drivers, matrix)
-}
+  return this.convertToOptimizedRoutes(bestSolution, vehicles, drivers, matrix)
+  }
 
-/**
- * Initialize random population
- */
-function initializePopulation(
+  /**
+   * Initialize random population
+   */
+  private initializePopulation(
   stops: Stop[],
   vehicles: Vehicle[],
   size: number,
@@ -232,18 +235,18 @@ function initializePopulation(
 
   for (let i = 0; i < size; i++) {
     const individual = {
-      routes: assignStopsToVehicles(stops, vehicles, options)
+      routes: this.assignStopsToVehicles(stops, vehicles, options)
     }
     population.push(individual)
   }
 
   return population
-}
+  }
 
-/**
- * Assign stops to vehicles using simple heuristics
- */
-function assignStopsToVehicles(
+  /**
+   * Assign stops to vehicles using simple heuristics
+   */
+  private assignStopsToVehicles(
   stops: Stop[],
   vehicles: Vehicle[],
   options: OptimizationOptions
@@ -275,12 +278,12 @@ function assignStopsToVehicles(
   })
 
   return routes
-}
+  }
 
-/**
- * Evaluate fitness of a solution
- */
-function evaluateFitness(
+  /**
+   * Evaluate fitness of a solution
+   */
+  private evaluateFitness(
   individual: any,
   matrix: mapboxService.MatrixResponse,
   options: OptimizationOptions
@@ -335,12 +338,12 @@ function evaluateFitness(
   }
 
   return fitness
-}
+  }
 
-/**
- * Tournament selection
- */
-function tournamentSelection(population: any[], fitnessScores: number[]): any {
+  /**
+   * Tournament selection
+   */
+  private tournamentSelection(population: any[], fitnessScores: number[]): any {
   const tournamentSize = 3
   let best = Math.floor(Math.random() * population.length)
 
@@ -352,12 +355,12 @@ function tournamentSelection(population: any[], fitnessScores: number[]): any {
   }
 
   return population[best]
-}
+  }
 
-/**
- * Select elite individuals
- */
-function selectElite(population: any[], fitnessScores: number[], eliteSize: number): any[] {
+  /**
+   * Select elite individuals
+   */
+  private selectElite(population: any[], fitnessScores: number[], eliteSize: number): any[] {
   const indices = fitnessScores
     .map((score, index) => ({ score, index }))
     .sort((a, b) => b.score - a.score)
@@ -365,12 +368,12 @@ function selectElite(population: any[], fitnessScores: number[], eliteSize: numb
     .map((item) => item.index)
 
   return indices.map((index) => population[index])
-}
+  }
 
-/**
- * Crossover operation
- */
-function crossover(parent1: any, parent2: any): any {
+  /**
+   * Crossover operation
+   */
+  private crossover(parent1: any, parent2: any): any {
   const offspring = {
     routes: []
   }
@@ -383,12 +386,12 @@ function crossover(parent1: any, parent2: any): any {
   ]
 
   return offspring
-}
+  }
 
-/**
- * Mutation operation
- */
-function mutate(individual: any, options: OptimizationOptions): void {
+  /**
+   * Mutation operation
+   */
+  private mutate(individual: any, options: OptimizationOptions): void {
   if (individual.routes.length < 2) return
 
   const route1Index = Math.floor(Math.random() * individual.routes.length)
@@ -408,12 +411,12 @@ function mutate(individual: any, options: OptimizationOptions): void {
     route1.stops[stop1Index] = route2.stops[stop2Index]
     route2.stops[stop2Index] = temp
   }
-}
+  }
 
-/**
- * Convert solution to OptimizedRoute format
- */
-function convertToOptimizedRoutes(
+  /**
+   * Convert solution to OptimizedRoute format
+   */
+  private convertToOptimizedRoutes(
   solution: any,
   vehicles: Vehicle[],
   drivers: Driver[],
@@ -463,12 +466,12 @@ function convertToOptimizedRoutes(
       capacityUtilization: Math.round(capacityUtilization)
     }
   })
-}
+  }
 
-/**
- * Enrich routes with Mapbox geometry
- */
-async function enrichRoutesWithGeometry(
+  /**
+   * Enrich routes with Mapbox geometry
+   */
+  private async enrichRoutesWithGeometry(
   routes: OptimizedRoute[]
 ): Promise<OptimizedRoute[]> {
   const enrichedRoutes = []
@@ -502,12 +505,12 @@ async function enrichRoutesWithGeometry(
   }
 
   return enrichedRoutes
-}
+  }
 
-/**
- * Calculate optimization metrics
- */
-function calculateOptimizationMetrics(routes: OptimizedRoute[], vehicles: Vehicle[]) {
+  /**
+   * Calculate optimization metrics
+   */
+  private calculateOptimizationMetrics(routes: OptimizedRoute[], vehicles: Vehicle[]) {
   const totalDistance = routes.reduce((sum, r) => sum + r.totalDistance, 0)
   const totalDuration = routes.reduce((sum, r) => sum + r.totalDuration, 0)
   const totalCost = routes.reduce((sum, r) => sum + r.totalCost, 0)
@@ -526,17 +529,17 @@ function calculateOptimizationMetrics(routes: OptimizedRoute[], vehicles: Vehicl
     estimatedSavings: Math.round(estimatedSavings * 100) / 100,
     optimizationScore: Math.round(optimizationScore * 10000) / 10000
   }
-}
+  }
 
-/**
- * Create optimization job in database
- */
-async function createOptimizationJob(
+  /**
+   * Create optimization job in database
+   */
+  private async createOptimizationJob(
   tenantId: number,
   userId: number,
   options: OptimizationOptions
 ): Promise<number> {
-  const result = await pool.query(
+  const result = await this.db.query(
     `INSERT INTO route_optimization_jobs (
       tenant_id, created_by, job_name, job_type, optimization_goal,
       consider_traffic, consider_time_windows, consider_vehicle_capacity,
@@ -561,14 +564,14 @@ async function createOptimizationJob(
   )
 
   return result.rows[0].id
-}
+  }
 
-/**
- * Insert stops into database
- */
-async function insertStops(jobId: number, tenantId: number, stops: Stop[]): Promise<void> {
+  /**
+   * Insert stops into database
+   */
+  private async insertStops(jobId: number, tenantId: number, stops: Stop[]): Promise<void> {
   for (const stop of stops) {
-    await pool.query(
+    await this.db.query(
       `INSERT INTO route_stops (
         job_id, tenant_id, stop_name, address, latitude, longitude,
         service_duration_minutes, earliest_arrival, latest_arrival,
@@ -598,18 +601,18 @@ async function insertStops(jobId: number, tenantId: number, stops: Stop[]): Prom
       ]
     )
   }
-}
+  }
 
-/**
- * Save optimized routes to database
- */
-async function saveOptimizedRoutes(
+  /**
+   * Save optimized routes to database
+   */
+  private async saveOptimizedRoutes(
   jobId: number,
   tenantId: number,
   routes: OptimizedRoute[]
 ): Promise<void> {
   for (const route of routes) {
-    const result = await pool.query(
+    const result = await this.db.query(
       `INSERT INTO optimized_routes (
         job_id, tenant_id, route_number, route_name,
         vehicle_id, driver_id, total_stops,
@@ -644,7 +647,7 @@ async function saveOptimizedRoutes(
     for (let i = 0; i < route.stops.length; i++) {
       const stop = route.stops[i]
       if (stop.id) {
-        await pool.query(
+        await this.db.query(
           `UPDATE route_stops
            SET assigned_route_id = $1, assigned_sequence = $2
            WHERE id = $3',
@@ -653,17 +656,17 @@ async function saveOptimizedRoutes(
       }
     }
   }
-}
+  }
 
-/**
- * Update job status
- */
-async function updateJobStatus(
+  /**
+   * Update job status
+   */
+  private async updateJobStatus(
   jobId: number,
   status: string,
   metrics: any
 ): Promise<void> {
-  await pool.query(
+  await this.db.query(
     `UPDATE route_optimization_jobs
      SET status = $1, completed_at = NOW(),
          total_routes = $2, total_distance_miles = $3,
@@ -680,32 +683,32 @@ async function updateJobStatus(
       jobId
     ]
   )
-}
+  }
 
-/**
- * Get optimization job by ID
- */
-export async function getOptimizationJob(
+  /**
+   * Get optimization job by ID
+   */
+  async getOptimizationJob(
   jobId: number,
   tenantId: number
 ): Promise<any> {
-  const result = await pool.query(
+  const result = await this.db.query(
     `SELECT id, tenant_id, job_name, job_status, result_data, created_at, updated_at FROM route_optimization_jobs
      WHERE id = $1 AND tenant_id = $2',
     [jobId, tenantId]
   )
 
   return result.rows[0] || null
-}
+  }
 
-/**
- * Get routes for a job
- */
-export async function getRoutesForJob(
+  /**
+   * Get routes for a job
+   */
+  async getRoutesForJob(
   jobId: number,
   tenantId: number
 ): Promise<any[]> {
-  const result = await pool.query(
+  const result = await this.db.query(
     'SELECT r.*, v.name as vehicle_name, d.first_name || ' ' || d.last_name as driver_name
      FROM optimized_routes r
      LEFT JOIN vehicles v ON r.vehicle_id = v.id
@@ -716,10 +719,7 @@ export async function getRoutesForJob(
   )
 
   return result.rows
+  }
 }
 
-export default {
-  optimizeRoutes,
-  getOptimizationJob,
-  getRoutesForJob
-}
+export default RouteOptimizationService

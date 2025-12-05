@@ -12,7 +12,7 @@
 
 import crypto from 'crypto';
 import { Readable } from 'stream';
-import pool from '../config/database';
+import { Pool } from 'pg';
 import {
   IStorageAdapter,
   StorageConfig,
@@ -267,7 +267,7 @@ export class StorageManager {
    * Get storage usage statistics
    */
   async getUsageStats(): Promise<UsageStats> {
-    const result = await pool.query(`
+    const result = await this.db.query(`
       SELECT
         COUNT(*) as total_files,
         SUM(size) as total_size,
@@ -340,7 +340,7 @@ export class StorageManager {
     const jobId = crypto.randomUUID();
 
     // Create migration job
-    await pool.query(`
+    await this.db.query(`
       INSERT INTO storage_migrations (id, source_provider, target_provider, status, started_at)
       VALUES ($1, $2, $3, 'in_progress', NOW())
     `, [jobId, sourceProvider, targetProvider]);
@@ -452,7 +452,7 @@ export class StorageManager {
   }
 
   private async initializeDatabase(): Promise<void> {
-    await pool.query(`
+    await this.db.query(`
       CREATE TABLE IF NOT EXISTS storage_files (
         key VARCHAR(1024) PRIMARY KEY,
         size BIGINT NOT NULL,
@@ -468,7 +468,7 @@ export class StorageManager {
       )
     `);
 
-    await pool.query(`
+    await this.db.query(`
       CREATE TABLE IF NOT EXISTS storage_migrations (
         id UUID PRIMARY KEY,
         source_provider VARCHAR(50) NOT NULL,
@@ -484,7 +484,7 @@ export class StorageManager {
     `);
 
     // Create indexes
-    await pool.query(`
+    await this.db.query(`
       CREATE INDEX IF NOT EXISTS idx_storage_files_provider ON storage_files(provider);
       CREATE INDEX IF NOT EXISTS idx_storage_files_tier ON storage_files(tier);
       CREATE INDEX IF NOT EXISTS idx_storage_files_hash ON storage_files(hash);
@@ -503,7 +503,7 @@ export class StorageManager {
 
     const hash = this.calculateHash(data);
 
-    const result = await pool.query(
+    const result = await this.db.query(
       'SELECT key, size FROM storage_files WHERE hash = $1 AND deleted_at IS NULL LIMIT 1',
       [hash]
     );
@@ -523,7 +523,7 @@ export class StorageManager {
   private async createFileReference(key: string, referenceKey: string): Promise<void> {
     const refFile = await this.getFileInfo(referenceKey);
 
-    await pool.query(`
+    await this.db.query(`
       INSERT INTO storage_files (key, size, provider, tier, hash, reference_key, created_at)
       VALUES ($1, $2, $3, $4, $5, $6, NOW())
     `, [key, refFile.size, refFile.provider, refFile.tier, refFile.hash, referenceKey]);
@@ -537,7 +537,7 @@ export class StorageManager {
     hash?: string;
     metadata?: any;
   }): Promise<void> {
-    await pool.query(`
+    await this.db.query(`
       INSERT INTO storage_files (key, size, provider, tier, hash, metadata, created_at, last_accessed_at)
       VALUES ($1, $2, $3, $4, $5, $6, NOW(), NOW())
       ON CONFLICT (key) DO UPDATE SET
@@ -551,7 +551,7 @@ export class StorageManager {
   }
 
   private async getFileInfo(key: string): Promise<any> {
-    const result = await pool.query(
+    const result = await this.db.query(
       `SELECT key, size, provider, tier, hash, reference_key, metadata,
               created_at, last_accessed_at, access_count
        FROM storage_files
@@ -563,7 +563,7 @@ export class StorageManager {
   }
 
   private async updateAccessTime(key: string): Promise<void> {
-    await pool.query(`
+    await this.db.query(`
       UPDATE storage_files
       SET last_accessed_at = NOW(), access_count = access_count + 1
       WHERE key = $1
@@ -571,7 +571,7 @@ export class StorageManager {
   }
 
   private async removeFileTracking(key: string): Promise<void> {
-    await pool.query(
+    await this.db.query(
       `UPDATE storage_files SET deleted_at = NOW() WHERE key = $1`,
       [key]
     );
@@ -654,7 +654,7 @@ export class StorageManager {
 
     query += ` LIMIT ${options?.maxKeys || 1000}`;
 
-    const result = await pool.query(query, params);
+    const result = await this.db.query(query, params);
 
     return {
       files: result.rows.map(row => ({
@@ -670,7 +670,7 @@ export class StorageManager {
   }
 
   private async getFilesByProvider(provider: string): Promise<any[]> {
-    const result = await pool.query(
+    const result = await this.db.query(
       `SELECT key, size, provider, tier, hash, reference_key, metadata,
               created_at, last_accessed_at, access_count
        FROM storage_files
@@ -681,7 +681,7 @@ export class StorageManager {
   }
 
   private async getTieringCandidates(): Promise<any[]> {
-    const result = await pool.query(`
+    const result = await this.db.query(`
       SELECT key, size, provider, tier, hash, reference_key,
              created_at, last_accessed_at, access_count
       FROM storage_files
@@ -704,7 +704,7 @@ export class StorageManager {
   }
 
   private async moveFileToTier(key: string, targetTier: string): Promise<void> {
-    await pool.query(
+    await this.db.query(
       'UPDATE storage_files SET tier = $1 WHERE key = $2',
       [targetTier, key]
     );
@@ -733,7 +733,7 @@ export class StorageManager {
         await targetAdapter.upload(file.key, data);
 
         // Update database
-        await pool.query(
+        await this.db.query(
           `UPDATE storage_files SET provider = $1 WHERE key = $2`,
           [targetAdapter.provider, file.key]
         );
@@ -761,7 +761,7 @@ export class StorageManager {
     job.status = `completed`;
     job.completedAt = new Date();
 
-    await pool.query(`
+    await this.db.query(`
       UPDATE storage_migrations
       SET status = $1, completed_files = $2, failed_files = $3, completed_at = $4
       WHERE id = $5

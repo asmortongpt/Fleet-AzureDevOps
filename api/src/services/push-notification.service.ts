@@ -3,7 +3,7 @@
  * Handles Firebase Cloud Messaging (FCM) and Apple Push Notification Service (APNS)
  */
 
-import { pool as db } from '../config/database';
+import { pool as db } from 'pg';
 import admin from 'firebase-admin';
 import apn from 'apn';
 import { SqlParams } from '../types';
@@ -90,7 +90,7 @@ class PushNotificationService {
   private apnProvider: apn.Provider | null = null;
   private isDevelopment = process.env.NODE_ENV !== 'production';
 
-  constructor() {
+  constructor(private db: Pool) {
     this.initializeFCM();
     this.initializeAPNS();
   }
@@ -152,7 +152,7 @@ class PushNotificationService {
   async registerDevice(deviceData: Omit<MobileDevice, 'id' | 'lastActive' | 'isActive'>): Promise<MobileDevice> {
     try {
       // Check if device already exists
-      const existing = await pool.query(
+      const existing = await this.db.query(
         'SELECT 
       id,
       user_id,
@@ -356,7 +356,7 @@ class PushNotificationService {
    */
   async processScheduledNotifications(): Promise<void> {
     try {
-      const result = await pool.query(
+      const result = await this.db.query(
         `SELECT id, tenant_id, user_id, title, message, is_read, created_at FROM push_notifications
          WHERE delivery_status = 'scheduled'
          AND scheduled_for <= CURRENT_TIMESTAMP
@@ -590,7 +590,7 @@ class PushNotificationService {
     variables: Record<string, any>
   ): Promise<PushNotification> {
     try {
-      const result = await pool.query(
+      const result = await this.db.query(
         'SELECT 
       id,
       tenant_id,
@@ -648,7 +648,7 @@ class PushNotificationService {
       );
 
       // Get recipients
-      const recipientsResult = await pool.query(
+      const recipientsResult = await this.db.query(
         'SELECT 
       id,
       push_notification_id,
