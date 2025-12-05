@@ -202,7 +202,7 @@ const PartOrderSchema = z.object({
  *       201:
  *         description: Part ordered successfully
  */
-router.post(`/parts/order`, requirePermission(`inventory:create:global`), auditLog, async (req: Request, res: Response) => {
+router.post(`/parts/order`, csrfProtection, requirePermission(`inventory:create:global`), auditLog, async (req: Request, res: Response) => {
   try {
     const validated = PartOrderSchema.parse(req.body)
     const tenantId = (req as any).user.tenant_id
@@ -566,7 +566,7 @@ const DashcamEventSchema = z.object({
  *       201:
  *         description: Event tagged successfully
  */
-router.post(`/dashcam/event`, requirePermission(`safety_incident:create:global`), auditLog, async (req: Request, res: Response) => {
+router.post(`/dashcam/event`, csrfProtection, requirePermission(`safety_incident:create:global`), auditLog, async (req: Request, res: Response) => {
   try {
     const validated = DashcamEventSchema.parse(req.body)
     const tenantId = (req as any).user.tenant_id

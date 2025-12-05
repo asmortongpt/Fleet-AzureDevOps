@@ -458,6 +458,7 @@ router.patch(
  */
 router.patch(
   `/:id/reject`,
+  csrfProtection,
   authorize('admin', 'fleet_manager'),
   auditLog({ action: 'REJECT', resourceType: 'reimbursement_requests' }),
   async (req: AuthRequest, res: Response) => {
