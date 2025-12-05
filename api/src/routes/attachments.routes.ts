@@ -190,15 +190,15 @@ router.get(
 
       // Get attachment metadata from database
       const result = await pool.query(
-        `SELECT 
+        `SELECT
       id,
       communication_id,
       file_name,
       file_path,
       file_type,
       file_size,
-      created_at FROM communication_attachments WHERE /* TODO: Add tenant_id = $X AND */ id = $1`,
-        [blobId]
+      created_at FROM communication_attachments WHERE tenant_id = $1 AND id = $2`,
+        [req.user!.tenant_id, blobId]
       )
 
       if (result.rows.length === 0) {
@@ -255,8 +255,8 @@ router.get(
 
       // Get attachment metadata
       const result = await pool.query(
-        `SELECT blob_url FROM communication_attachments WHERE /* TODO: Add tenant_id = $X AND */ id = $1`,
-        [blobId]
+        `SELECT blob_url FROM communication_attachments WHERE tenant_id = $1 AND id = $2`,
+        [req.user!.tenant_id, blobId]
       )
 
       if (result.rows.length === 0) {
@@ -301,8 +301,8 @@ router.delete(
 
       // Get attachment metadata
       const result = await pool.query(
-        `SELECT blob_url FROM communication_attachments WHERE /* TODO: Add tenant_id = $X AND */ id = $1`,
-        [blobId]
+        `SELECT blob_url FROM communication_attachments WHERE tenant_id = $1 AND id = $2`,
+        [req.user!.tenant_id, blobId]
       )
 
       if (result.rows.length === 0) {
