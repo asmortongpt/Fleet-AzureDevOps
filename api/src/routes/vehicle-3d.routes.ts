@@ -482,8 +482,8 @@ router.post(
 
       // Get vehicle info
       const vehicleResult = await pool.query(
-        'SELECT make, model, year FROM vehicles WHERE /* TODO: Add tenant_id = $X AND */ id = $1',
-        [vehicleId]
+        'SELECT make, model, year FROM vehicles WHERE tenant_id = $1 AND id = $2',
+        [req.user!.tenant_id, vehicleId]
       )
 
       if (vehicleResult.rows.length === 0) {

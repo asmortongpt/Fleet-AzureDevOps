@@ -353,8 +353,8 @@ router.post('/inspection-checklist',csrfProtection,  csrfProtection, authenticat
     const { vehicleId, driverId, teamId, channelId, userId } = req.body
 
     // Get vehicle and driver data
-    const vehicleResult = await pool.query(`SELECT id, tenant_id, vin, license_plate, make, model, year, color, current_mileage, status, acquired_date, disposition_date, purchase_price, residual_value, created_at, updated_at, deleted_at FROM vehicles WHERE id = $1`, [vehicleId])
-    const driverResult = await pool.query(`SELECT id, tenant_id, email, first_name, last_name, role, is_active, phone, created_at, updated_at FROM users WHERE /* TODO: Add tenant_id = $X AND */ id = $1`, [driverId])
+    const vehicleResult = await pool.query(`SELECT id, tenant_id, vin, license_plate, make, model, year, color, current_mileage, status, acquired_date, disposition_date, purchase_price, residual_value, created_at, updated_at, deleted_at FROM vehicles WHERE tenant_id = $1 AND id = $2`, [req.user!.tenant_id, vehicleId])
+    const driverResult = await pool.query(`SELECT id, tenant_id, email, first_name, last_name, role, is_active, phone, created_at, updated_at FROM users WHERE tenant_id = $1 AND id = $2`, [req.user!.tenant_id, driverId])
 
     if (vehicleResult.rows.length === 0 || driverResult.rows.length === 0) {
       return res.status(404).json({ error: `Vehicle or driver not found` })
