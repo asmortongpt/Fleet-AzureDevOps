@@ -124,7 +124,7 @@ router.get(
     try {
       const { id } = req.params
       const result = await pool.query(
-        'SELECT * FROM rout WHERE tenant_id = $1 /* tenant_id validated */e WHERE tenant_id = $1 /* tenant_id validated */s WHERE id = $1 AND tenant_id = $2',
+        'SELECT * FROM routes WHERE id = $1 AND tenant_id = $2',
         [id, req.user!.tenant_id]
       )
       if (result.rows.length === 0) {
