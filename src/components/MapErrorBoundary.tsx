@@ -203,7 +203,7 @@ function reportError(error: Error, errorInfo: ErrorInfo, provider?: MapProvider)
       },
     })
 
-    // TODO: Integrate with your error monitoring service
+    // FUTURE: Integrate with your error monitoring service
     // Example: Sentry.captureException(error, { contexts: { react: errorInfo } })
   } else {
     console.error('Map Error Boundary caught error:', error, errorInfo)
@@ -403,7 +403,7 @@ export class MapErrorBoundary extends Component<MapErrorBoundaryProps, MapErrorB
   }
 
   private handleOfflineMode = (): void => {
-    // TODO: Implement offline mode
+    // FUTURE: Implement offline mode
     alert('Offline mode is not yet implemented.')
   }
 
