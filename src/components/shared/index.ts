@@ -15,6 +15,10 @@ export type { EnhancedDataTableProps } from './EnhancedDataTable'
 export { FilterBar } from './FilterBar'
 export type { FilterBarProps } from './FilterBar'
 
+// Metric cards - eliminates duplicate metric bar components across 15+ modules
+export { MetricCard, MetricsBar } from './MetricCard'
+export type { MetricCardProps, MetricsBarProps } from './MetricCard'
+
 // ============================================================================
 // EXISTING COMPONENTS
 // ============================================================================
