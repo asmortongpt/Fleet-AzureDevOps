@@ -1,9 +1,29 @@
+[0;36m
+╔════════════════════════════════════════════════════════╗
+║                                                        ║
+║     FLEET MANAGEMENT SYSTEM                            ║
+║     PRODUCTION DEPLOYMENT                              ║
+║                                                        ║
+╚════════════════════════════════════════════════════════╝
+[0m
+Version:    v1.0.20251205073414
+Environment: PRODUCTION
+Timestamp:  2025-12-05 12:34:14 UTC
+Operator:   andrewmorton
+Report:     deployment-report-20251205-073414.txt
+
+[0;34m[INFO][0m Starting production deployment...
+
+[0;35m[STEP][0m Checking prerequisites...
+[0;32m[SUCCESS][0m All required tools are installed
+[0;32m[SUCCESS][0m Logged in to Azure
+[0;35m[STEP][0m Running pre-flight checks...
 
 [0;35m========================================[0m
 [0;35mFLEET MANAGEMENT - PRODUCTION PRE-FLIGHT CHECK[0m
 [0;35m========================================[0m
 Starting comprehensive pre-deployment validation...
-Date: 2025-12-05 13:25:54 UTC
+Date: 2025-12-05 12:34:14 UTC
 Report: preflight-report.txt
 
 
@@ -17,16 +37,12 @@ Report: preflight-report.txt
 [0;35m========================================[0m
 [0;35m2. Azure Resources Verification[0m
 [0;35m========================================[0m
-[0;34m[INFO][0m Checking resource group: fleet-production-rg
-[0;32m[PASS][0m Resource group exists: fleet-production-rg
+[0;34m[INFO][0m Checking resource group: fleet-management-rg
+[0;31m[CRITICAL][0m Resource group not found: fleet-management-rg
 [0;34m[INFO][0m Checking AKS cluster: fleet-aks-cluster
-[0;32m[PASS][0m AKS cluster exists: fleet-aks-cluster
-[0;32m[PASS][0m AKS cluster is in Succeeded state
-[0;34m[INFO][0m AKS node count: 4
-[0;32m[PASS][0m Sufficient nodes for production (>= 2)
-[0;34m[INFO][0m Checking container registry: fleetproductionacr
-[0;32m[PASS][0m Container registry exists: fleetproductionacr
-[0;31m[FAIL][0m Cannot authenticate to container registry
+[0;31m[CRITICAL][0m AKS cluster not found: fleet-aks-cluster
+[0;34m[INFO][0m Checking container registry: fleetappregistry
+[0;31m[CRITICAL][0m Container registry not found: fleetappregistry
 [0;34m[INFO][0m Checking Application Insights...
 [1;33m[WARN][0m No Application Insights found (recommended for production)
 
@@ -54,9 +70,7 @@ Report: preflight-report.txt
 [0;35m========================================[0m
 [0;35m6. SSL Certificates[0m
 [0;35m========================================[0m
-[0;32m[PASS][0m Ingress has TLS configuration
-[0;32m[PASS][0m cert-manager is installed
-[0;32m[PASS][0m Certificate issuers configured
+[1;33m[WARN][0m Cannot check SSL configuration (kubectl or AKS access issue)
 
 [0;35m========================================[0m
 [0;35m7. DNS Configuration[0m
@@ -87,9 +101,7 @@ Cannot connect to the Docker daemon at unix:///Users/andrewmorton/.docker/run/do
 [0;35m========================================[0m
 [0;35m11. Kubernetes Namespace[0m
 [0;35m========================================[0m
-[0;32m[PASS][0m Namespace exists: fleet-management
-[0;34m[INFO][0m No resource quotas configured
-[0;34m[INFO][0m No network policies configured
+[1;33m[WARN][0m Cannot access AKS cluster
 
 [0;35m========================================[0m
 [0;35m12. Security - Hardcoded Secrets Check[0m
@@ -118,22 +130,25 @@ api/src/backups/final-fixes/health-detailed.enhanced.ts.20251204_152216:    cons
 [1;33m[WARN][0m Uncommitted changes detected
  M preflight-report.txt
 ?? deployment-report-20251205-073414.txt
-?? deployment-report-20251205-082553.txt
 [0;34m[INFO][0m No tag on current commit
 
 [0;35m========================================[0m
 [0;35mPRE-FLIGHT CHECK SUMMARY[0m
 [0;35m========================================[0m
 
-  [0;32m✓ Passed:[0m           16
-  [0;31m✗ Failed:[0m           9
-  [0;31m✗ Critical Failed:[0m  0
-  [1;33m⚠ Warnings:[0m         6
+  [0;32m✓ Passed:[0m           7
+  [0;31m✗ Failed:[0m           11
+  [0;31m✗ Critical Failed:[0m  3
+  [1;33m⚠ Warnings:[0m         8
 
-[1;33m╔════════════════════════════════════════╗[0m
-[1;33m║  ⚠ CAUTION - Issues Detected          ║[0m
-[1;33m║  Review failures before deploying     ║[0m
-[1;33m╚════════════════════════════════════════╝[0m
+[0;31m╔════════════════════════════════════════╗[0m
+[0;31m║  ✗ NOT READY FOR PRODUCTION           ║[0m
+[0;31m║  Critical issues must be resolved     ║[0m
+[0;31m╚════════════════════════════════════════╝[0m
 
-Non-critical issues detected. Review carefully.
+Critical issues detected. Please fix the issues above before deploying.
 Report saved to: preflight-report.txt
+[0;31m[ERROR][0m Pre-flight checks failed
+[0;34m[INFO][0m Fix issues or set SKIP_PREFLIGHT=true to override (not recommended)
+[0;31m[ERROR][0m Deployment failed with exit code: 1
+[0;34m[INFO][0m Check report: deployment-report-20251205-073414.txt
