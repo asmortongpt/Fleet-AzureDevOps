@@ -209,8 +209,11 @@ router.get('/dead-letter', requireAdmin, async (req: Request, res: Response) => 
       params.push(reviewed === `true`);
     }
 
-    query += ` ORDER BY moved_to_dlq_at DESC LIMIT $${params.length + 1} OFFSET $${params.length + 2}`;
-    params.push(parseInt(limit as string), parseInt(offset as string);
+    // Fix SQL injection: Use explicit parameter numbers instead of computed indices
+    const limitParamIndex = params.length + 1;
+    const offsetParamIndex = params.length + 2;
+    query += ` ORDER BY moved_to_dlq_at DESC LIMIT $${limitParamIndex} OFFSET $${offsetParamIndex}`;
+    params.push(parseInt(limit as string), parseInt(offset as string));
 
     const result = await pool.query(query, params);
 
