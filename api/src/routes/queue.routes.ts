@@ -18,18 +18,33 @@ const router: Router = express.Router();
 
 /**
  * Middleware to check admin authentication
- * TODO: Replace with actual authentication middleware
+ * Verifies admin API key or JWT with admin role
  */
 const requireAdmin = (req: Request, res: Response, next: any) => {
-  // TODO: Implement actual admin check
-  // For now, check for admin header or token
-  const isAdmin = req.headers['x-admin-key'] === process.env.ADMIN_KEY ||
-                  req.headers.authorization?.includes('admin');
+  const adminKey = req.headers['x-admin-key'] as string;
+  const expectedKey = process.env.ADMIN_KEY || process.env.ADMIN_API_KEY;
 
-  if (!isAdmin && process.env.NODE_ENV === 'production') {
-    return res.status(403).json({ error: 'Admin access required' });
+  // Check for API key
+  if (adminKey && adminKey === expectedKey) {
+    return next();
   }
 
+  // Check for JWT with admin role
+  const user = (req as any).user;
+  if (user && (user.role === 'admin' || user.role === 'system_admin')) {
+    return next();
+  }
+
+  // Production mode requires authentication
+  if (process.env.NODE_ENV === 'production') {
+    return res.status(403).json({
+      error: 'Forbidden',
+      message: 'Admin access required. Provide x-admin-key header or authenticate with admin role.'
+    });
+  }
+
+  // Development mode allows through (with warning)
+  console.warn('⚠️  Admin endpoint accessed without authentication in development mode');
   next();
 };
 
@@ -150,10 +165,10 @@ router.get('/:queueName/failed', requireAdmin, async (req: Request, res: Respons
 
     const result = await pool.query(
       `SELECT id, tenant_id, job_name, job_type, status, progress, result_data, created_at, updated_at FROM job_tracking
-       WHERE /* TODO: Add tenant_id = $X AND */ queue_name = $1 AND status = $2
+       WHERE tenant_id = $1 AND queue_name = $2 AND status = $3
        ORDER BY failed_at DESC
-       LIMIT $3 OFFSET $4`,
-      [queueName, JobStatus.FAILED, parseInt(limit as string), parseInt(offset as string)]
+       LIMIT $4 OFFSET $5`,
+      [req.user!.tenant_id, queueName, JobStatus.FAILED, parseInt(limit as string), parseInt(offset as string)]
     );
 
     const countResult = await pool.query(
@@ -459,7 +474,7 @@ router.get('/:queueName/job/:jobId', requireAdmin, async (req: Request, res: Res
     const { jobId } = req.params;
 
     const result = await pool.query(
-      'SELECT 
+      'SELECT
       id,
       job_id,
       queue_name,
@@ -476,8 +491,8 @@ router.get('/:queueName/job/:jobId', requireAdmin, async (req: Request, res: Res
       completed_at,
       failed_at,
       created_at,
-      updated_at FROM job_tracking WHERE /* TODO: Add tenant_id = $X AND */ job_id = $1',
-      [jobId]
+      updated_at FROM job_tracking WHERE tenant_id = $1 AND job_id = $2',
+      [req.user!.tenant_id, jobId]
     );
 
     if (result.rows.length === 0) {
