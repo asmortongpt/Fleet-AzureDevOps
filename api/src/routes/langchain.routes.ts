@@ -27,7 +27,7 @@ router.use(authenticateJWT)
  * POST /api/langchain/execute
  * Execute a LangChain workflow
  */
-router.post('/execute', requirePermission('report:generate:global'), async (req: Request, res: Response) => {
+router.post('/execute',csrfProtection,  csrfProtection, requirePermission('report:generate:global'), async (req: Request, res: Response) => {
   try {
     const { workflowType, parameters } = req.body
     const tenantId = (req as any).user.tenant_id
@@ -95,7 +95,7 @@ router.post('/execute', requirePermission('report:generate:global'), async (req:
  * POST /api/langchain/chat
  * Chat with AI supervisor
  */
-router.post('/chat', requirePermission('report:view:global'), async (req: Request, res: Response) => {
+router.post('/chat',csrfProtection,  csrfProtection, requirePermission('report:view:global'), async (req: Request, res: Response) => {
   try {
     const { message, sessionId, config } = req.body
     const tenantId = (req as any).user.tenant_id
@@ -178,7 +178,7 @@ router.post('/chat', requirePermission('report:view:global'), async (req: Reques
  * POST /api/langchain/supervisor/query
  * Query the AI supervisor directly
  */
-router.post('/supervisor/query', requirePermission('report:view:global'), async (req: Request, res: Response) => {
+router.post('/supervisor/query',csrfProtection,  csrfProtection, requirePermission('report:view:global'), async (req: Request, res: Response) => {
   try {
     const { query, sessionId } = req.body
     const tenantId = (req as any).user.tenant_id
@@ -566,7 +566,7 @@ router.get('/mcp/tools', requirePermission('report:view:global'), async (req: Re
  * DELETE /api/langchain/sessions/:sessionId
  * Clear a chat session
  */
-router.delete('/sessions/:sessionId', requirePermission('report:generate:global'), async (req: Request, res: Response) => {
+router.delete('/sessions/:sessionId',csrfProtection,  csrfProtection, requirePermission('report:generate:global'), async (req: Request, res: Response) => {
   try {
     const { sessionId } = req.params
 

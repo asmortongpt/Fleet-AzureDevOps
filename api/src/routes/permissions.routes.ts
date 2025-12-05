@@ -75,7 +75,7 @@ router.get('/me/permissions', async (req: Request, res: Response) => {
  * POST /api/v1/permissions/check
  * Check if current user can perform a specific action
  */
-router.post('/check', csrfProtection, async (req: Request, res: Response) => {
+router.post('/check',csrfProtection,  csrfProtection, async (req: Request, res: Response) => {
   try {
     const user = req.user as User;
 
@@ -139,7 +139,7 @@ router.get('/roles', requireAdmin, async (req: Request, res: Response) => {
  * POST /api/v1/roles
  * Create a new role (Admin only)
  */
-router.post('/roles', requireAdmin, async (req: Request, res: Response) => {
+router.post('/roles',csrfProtection,  csrfProtection, requireAdmin, async (req: Request, res: Response) => {
   try {
     const user = req.user as User;
     const { name, description } = req.body;
@@ -230,7 +230,7 @@ router.get('/users/:userId/roles', requireAdmin, async (req: Request, res: Respo
  * PUT /api/v1/users/:userId/roles
  * Assign roles to a user (Admin only)
  */
-router.put('/users/:userId/roles', requireAdmin, async (req: Request, res: Response) => {
+router.put('/users/:userId/roles',csrfProtection,  csrfProtection, requireAdmin, async (req: Request, res: Response) => {
   try {
     const user = req.user as User;
     const { userId } = req.params;
@@ -308,7 +308,7 @@ router.put('/users/:userId/roles', requireAdmin, async (req: Request, res: Respo
  * DELETE /api/v1/users/:userId/roles/:roleName
  * Remove a role from a user (Admin only)
  */
-router.delete('/users/:userId/roles/:roleName', requireAdmin, async (req: Request, res: Response) => {
+router.delete('/users/:userId/roles/:roleName',csrfProtection,  csrfProtection, requireAdmin, async (req: Request, res: Response) => {
   try {
     const user = req.user as User;
     const { userId, roleName } = req.params;

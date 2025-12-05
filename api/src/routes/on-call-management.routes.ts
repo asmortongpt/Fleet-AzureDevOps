@@ -239,7 +239,7 @@ router.get(
 
 router.post(
   '/',
-  authenticateJWT,
+ csrfProtection,  csrfProtection, authenticateJWT,
   requirePermission('on_call:create:team'),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -314,7 +314,7 @@ router.post(
 
 router.put(
   '/:id',
-  authenticateJWT,
+ csrfProtection,  csrfProtection, authenticateJWT,
   requirePermission(`on_call:create:team`),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -380,7 +380,7 @@ router.put(
 
 router.post(
   '/:id/acknowledge',
-  authenticateJWT,
+ csrfProtection,  csrfProtection, authenticateJWT,
   requirePermission('on_call:acknowledge:own'),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -531,7 +531,7 @@ router.get(
 // POST /callback-trips
 router.post(
   '/callback-trips',
-  authenticateJWT,
+ csrfProtection,  csrfProtection, authenticateJWT,
   requirePermission('on_call:view:own'),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -604,7 +604,7 @@ router.post(
 // DELETE /on-call-periods/:id
 router.delete(
   '/:id',
-  authenticateJWT,
+ csrfProtection,  csrfProtection, authenticateJWT,
   requirePermission('on_call:create:team'),
   async (req: AuthRequest, res: Response) => {
     try {

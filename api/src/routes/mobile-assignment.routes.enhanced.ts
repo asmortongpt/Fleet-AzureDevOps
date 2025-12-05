@@ -11,6 +11,8 @@ import { getErrorMessage } from '../utils/error-handler';
 import { rateLimiter } from '../middleware/rate-limiter';
 import { validateSchema } from '../middleware/validate-schema';
 import { asyncHandler } from '../utils/async-handler';
+import { csrfProtection } from '../middleware/csrf'
+
 
 const router = express.Router();
 

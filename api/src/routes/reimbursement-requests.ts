@@ -46,7 +46,7 @@ const processPaymentSchema = z.object({
  */
 router.post(
   '/',
-  auditLog({ action: 'CREATE', resourceType: 'reimbursement_requests' }),
+ csrfProtection,  csrfProtection, auditLog({ action: 'CREATE', resourceType: 'reimbursement_requests' }),
   async (req: AuthRequest, res: Response) => {
     try {
       const validation = createReimbursementSchema.safeParse(req.body)
@@ -362,7 +362,7 @@ router.get('/:id', async (req: AuthRequest, res: Response) => {
  */
 router.patch(
   '/:id/approve',
-  authorize('admin', 'fleet_manager'),
+ csrfProtection,  csrfProtection, authorize('admin', 'fleet_manager'),
   auditLog({ action: 'APPROVE', resourceType: 'reimbursement_requests' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -544,7 +544,7 @@ router.patch(
  */
 router.patch(
   '/:id/pay',
-  authorize('admin', 'fleet_manager'),
+ csrfProtection,  csrfProtection, authorize('admin', 'fleet_manager'),
   auditLog({ action: 'UPDATE', resourceType: 'reimbursement_requests' }),
   async (req: AuthRequest, res: Response) => {
     try {

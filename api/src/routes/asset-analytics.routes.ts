@@ -8,6 +8,8 @@ import { UtilizationCalcService } from '../services/utilization-calc.service'
 import { ROICalculatorService } from '../services/roi-calculator.service'
 import { asyncHandler } from '../utils/async-handler'
 import { z } from 'zod'
+import { csrfProtection } from '../middleware/csrf'
+
 
 const router = express.Router()
 const utilizationCalcService = new UtilizationCalcService()

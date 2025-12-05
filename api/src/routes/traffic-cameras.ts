@@ -8,6 +8,8 @@ import express, { Request, Response, NextFunction } from 'express';
 import jwt from 'express-jwt';
 import { Pool } from 'pg';
 import { config } from 'dotenv';
+import { csrfProtection } from '../middleware/csrf'
+
 
 config();
 

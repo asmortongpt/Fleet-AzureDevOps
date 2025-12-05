@@ -34,7 +34,7 @@ const assetActionSchema = z.object({
 
 router.post(
   '/checkout',
-  verifyJWT,
+ csrfProtection,  csrfProtection, verifyJWT,
   // rateLimiter(10), // TODO: Re-enable after securityUtils fix
   upload.single('photo'),
   async (req: Request, res: Response) => {
@@ -84,7 +84,7 @@ router.post(
 
 router.post(
   '/checkin',
-  verifyJWT,
+ csrfProtection,  csrfProtection, verifyJWT,
   // rateLimiter(10), // TODO: Re-enable after securityUtils fix
   upload.single('photo'),
   async (req: Request, res: Response) => {

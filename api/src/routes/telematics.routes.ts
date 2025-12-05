@@ -75,7 +75,7 @@ router.get(
  */
 router.post(
   '/connect',
-  requirePermission('telemetry:create:fleet'),
+ csrfProtection,  csrfProtection, requirePermission('telemetry:create:fleet'),
   auditLog({ action: 'CREATE', resourceType: 'vehicle_telematics_connections' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -398,7 +398,7 @@ router.get(
  */
 router.post(
   '/video/request',
-  requirePermission('telemetry:create:fleet'),
+ csrfProtection,  csrfProtection, requirePermission('telemetry:create:fleet'),
   auditLog({ action: 'CREATE', resourceType: 'video_request' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -482,7 +482,7 @@ router.get(
  */
 router.post(
   '/webhook/samsara',
-  csrfProtection, async (req: express.Request, res: Response) => {
+csrfProtection,  csrfProtection,  csrfProtection, async (req: express.Request, res: Response) => {
     try {
       // Verify webhook signature (if configured)
       const signature = req.headers['x-samsara-signature'] as string
@@ -529,7 +529,7 @@ router.post(
  */
 router.post(
   '/sync',
-  requirePermission('telemetry:create:fleet'),
+ csrfProtection,  csrfProtection, requirePermission('telemetry:create:fleet'),
   auditLog({ action: 'CREATE', resourceType: 'telematics_sync' }),
   async (req: AuthRequest, res: Response) => {
     try {

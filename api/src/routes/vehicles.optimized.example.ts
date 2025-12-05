@@ -64,7 +64,7 @@ router.get(
 // POST /vehicles
 router.post(
   '/',
-  requirePermission('vehicle:create:global'),
+ csrfProtection,  csrfProtection, requirePermission('vehicle:create:global'),
   auditLog({ action: 'CREATE', resourceType: 'vehicles' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -121,7 +121,7 @@ router.put(
 // DELETE /vehicles/:id
 router.delete(
   '/:id',
-  requirePermission('vehicle:delete:global'),
+ csrfProtection,  csrfProtection, requirePermission('vehicle:delete:global'),
   auditLog({ action: 'DELETE', resourceType: 'vehicles' }),
   async (req: AuthRequest, res: Response) => {
     try {

@@ -30,7 +30,7 @@ const router = express.Router()
  */
 router.post(
   '/',
-  validateWebhook,
+  csrfProtection, validateWebhook,
   async (req: WebhookRequest, res: Response) => {
     try {
       const notifications = req.body?.value
@@ -285,7 +285,7 @@ router.get(
  */
 router.post(
   '/subscribe',
-  authenticateJWT,
+  csrfProtection, authenticateJWT,
   requirePermission('webhook:create'),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -343,7 +343,7 @@ router.post(
  */
 router.delete(
   '/subscribe/:subscriptionId',
-  authenticateJWT,
+  csrfProtection, authenticateJWT,
   requirePermission('webhook:delete'),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -394,7 +394,7 @@ router.delete(
  */
 router.post(
   '/renew/:subscriptionId',
-  authenticateJWT,
+  csrfProtection, authenticateJWT,
   requirePermission('webhook:update'),
   async (req: AuthRequest, res: Response) => {
     try {

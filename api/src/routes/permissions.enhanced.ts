@@ -5,6 +5,8 @@ import { NotFoundError, ValidationError } from '../errors/app-error'
 import { AuthRequest, authenticateJWT } from '../middleware/auth'
 import { getUserPermissions } from '../middleware/permissions'
 import { z } from 'zod'
+import { csrfProtection } from '../middleware/csrf'
+
 
 const router = express.Router()
 router.use(authenticateJWT)
