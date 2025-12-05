@@ -190,7 +190,7 @@ router.get(
 
 router.post(
   '/on-call/:id/acknowledge',
-  authenticateJWT,
+ csrfProtection,  csrfProtection, authenticateJWT,
   requirePermission('on_call:acknowledge:own'),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -249,7 +249,7 @@ router.post(
 
 router.post(
   '/callback-trip',
-  authenticateJWT,
+ csrfProtection,  csrfProtection, authenticateJWT,
   requirePermission('on_call:view:own'),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -463,7 +463,7 @@ router.get(
 
 router.post(
   '/assignment/:id/quick-approve',
-  authenticateJWT,
+ csrfProtection,  csrfProtection, authenticateJWT,
   requirePermission('vehicle_assignment:approve:fleet'),
   async (req: AuthRequest, res: Response) => {
     try {

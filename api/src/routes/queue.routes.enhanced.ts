@@ -10,6 +10,8 @@ import asyncHandler from '../utils/asyncHandler'
 import rateLimit from 'express-rate-limit'
 import helmet from 'helmet'
 import csurf from 'csurf'
+import { csrfProtection } from '../middleware/csrf'
+
 
 const router: Router = express.Router()
 

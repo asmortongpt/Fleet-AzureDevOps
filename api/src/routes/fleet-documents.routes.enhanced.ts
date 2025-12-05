@@ -87,7 +87,7 @@ const documentUploadSchema = z.object({
 
 router.post(
   '/upload',
-  upload.single('file'),
+ csrfProtection,  csrfProtection, upload.single('file'),
   authorize(['admin', 'manager']),
   async (req: AuthRequest, res: Response) => {
     try {

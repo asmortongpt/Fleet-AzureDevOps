@@ -9,6 +9,8 @@ import jwt from 'express-jwt';
 import jwksRsa from 'jwks-rsa';
 import { Pool } from 'pg';
 import dotenv from 'dotenv';
+import { csrfProtection } from '../middleware/csrf'
+
 
 dotenv.config();
 
