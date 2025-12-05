@@ -1,6 +1,3 @@
-// Initialize Datadog APM FIRST (must be before ALL other imports)
-import './config/datadog'
-
 // Initialize monitoring services FIRST (before other imports)
 import telemetryService from './monitoring/applicationInsights'
 telemetryService.initialize()
