@@ -136,7 +136,7 @@ router.post(
 // PUT /charging-sessions/:id
 router.put(
   `/:id`,
-  requirePermission('charging_session:update:own'),
+  csrfProtection, requirePermission('charging_session:update:own'),
   auditLog({ action: 'UPDATE', resourceType: 'charging_sessions' }),
   async (req: AuthRequest, res: Response) => {
     try {

@@ -115,6 +115,7 @@ router.post(
 // PUT /safety-incidents/:id/approve
 router.put(
   `/:id/approve`,
+  csrfProtection,
   requirePermission('safety_incident:approve:global'),
   auditLog({ action: 'APPROVE', resourceType: 'safety_incidents' }),
   async (req: AuthRequest, res: Response) => {

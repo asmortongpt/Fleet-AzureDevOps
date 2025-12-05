@@ -106,7 +106,7 @@ router.post(
 // PUT /communication-logs/:id (system-generated only)
 router.put(
   `/:id`,
-  requirePermission('communication:update:global'),
+  csrfProtection, requirePermission('communication:update:global'),
   auditLog({ action: 'UPDATE', resourceType: 'communication_logs' }),
   async (req: AuthRequest, res: Response) => {
     try {
