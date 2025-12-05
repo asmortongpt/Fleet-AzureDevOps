@@ -482,7 +482,7 @@ router.get(
  */
 router.post(
   '/webhook/samsara',
-csrfProtection,  csrfProtection, async (req: express.Request, res: Response) => {
+csrfProtection, async (req: express.Request, res: Response) => {
     try {
       // Verify webhook signature (if configured)
       const signature = req.headers['x-samsara-signature'] as string
