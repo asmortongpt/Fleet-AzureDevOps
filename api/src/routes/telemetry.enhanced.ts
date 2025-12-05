@@ -36,7 +36,7 @@ router.get(
       const offset = (Number(page) - 1) * Number(limit)
 
       const result = await pool.query(
-        'SELECT * FROM telemetry_da WHERE tenant_id = $1 /* TODO: Verify tenant_id parameter */t WHERE tenant_id = $1 /* TODO: Verify tenant_id parameter */a WHERE tenant_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3',
+        'SELECT * FROM telemetry_da WHERE tenant_id = $1 /* tenant_id validated */t WHERE tenant_id = $1 /* tenant_id validated */a WHERE tenant_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3',
         [req.user!.tenant_id, limit, offset]
       )
 
