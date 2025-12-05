@@ -38,9 +38,10 @@ router.get(
   '/preferences',
   asyncHandler(async (req: Request, res: Response) => {
     const userId = req.user!.id
+    const tenantId = req.user!.tenant_id
 
     const result = await pool.query(
-      `SELECT 
+      `SELECT
       id,
       user_id,
       email_enabled,
@@ -49,10 +50,10 @@ router.get(
       schedule_changes,
       shift_reminders,
       created_at,
-      updated_at 
-    FROM scheduling_notification_preferences 
-    WHERE /* TODO: Add tenant_id = $X AND */ user_id = $1`,
-      [userId]
+      updated_at
+    FROM scheduling_notification_preferences
+    WHERE tenant_id = $1 AND user_id = $2`,
+      [tenantId, userId]
     )
 
     if (result.rows.length === 0) {

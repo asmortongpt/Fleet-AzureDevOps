@@ -440,8 +440,8 @@ router.delete(
         `UPDATE vehicle_telematics_connections
          SET sync_status = 'disconnected', updated_at = NOW()
          WHERE vehicle_id = $1
-         AND provider_id = (SELECT id FROM telematics_providers WHERE /* TODO: Add tenant_id = $X AND */ name = 'smartcar')`,
-        [vehicleId]
+         AND provider_id = (SELECT id FROM telematics_providers WHERE tenant_id = $2 AND name = 'smartcar')`,
+        [vehicleId, req.user!.tenant_id]
       )
 
       res.json({ message: 'Smartcar disconnected successfully' })
