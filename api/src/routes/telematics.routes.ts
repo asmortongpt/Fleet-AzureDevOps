@@ -12,7 +12,7 @@ import crypto from 'crypto'
 import { cacheMiddleware, invalidateOnWrite } from '../middleware/cache'
 import { getErrorMessage } from '../utils/error-handler'
 import { container } from '../container'
-import { asyncHandler } from '../middleware/error-handler'
+import { asyncHandler } from '../middleware/errorHandler'
 import { NotFoundError, ValidationError } from '../errors/app-error'
 import logger from '../config/logger' // Wave 23: Add Winston logger
 import pool from '../config/database' // SECURITY: Import database pool
