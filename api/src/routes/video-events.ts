@@ -134,7 +134,7 @@ router.post(
 // DELETE /video-events/:id
 router.delete(
   `/:id`,
-  requirePermission('video_event:delete:global'),
+  csrfProtection, requirePermission('video_event:delete:global'),
   auditLog({ action: 'DELETE', resourceType: 'video_events' }),
   async (req: AuthRequest, res: Response) => {
     try {
