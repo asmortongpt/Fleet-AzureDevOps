@@ -1,6 +1,8 @@
 /**
 import { container } from '../container'
-import { asyncHandler } from '../middleware/error-handler'
+import { csrfProtection } from '../middleware/csrf'
+
+import { asyncHandler } from '../middleware/errorHandler'
 import { NotFoundError, ValidationError } from '../errors/app-error'
 import logger from '../config/logger'; // Wave 27: Add Winston logger
  * Permissions API Routes

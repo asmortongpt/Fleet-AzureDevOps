@@ -163,10 +163,14 @@ function buildDrillThroughQuery(
   Object.entries(filters).forEach(([key, value]) => {
     if (value !== undefined && value !== null) {
       if (Array.isArray(value)) {
-        filterConditions.push(`${key} = ANY($${paramIndex})`);
+        const limitIndex = params.length + 1
+        const offsetIndex = params.length + 2
+        filterConditions.push(`${key} = ANY(${paramIndex})`);
         params.push(value);
       } else {
-        filterConditions.push(`${key} = $${paramIndex}`);
+        const limitIndex = params.length + 1
+        const offsetIndex = params.length + 2
+        filterConditions.push(`${key} = ${paramIndex}`);
         params.push(value);
       }
       paramIndex++;
@@ -287,7 +291,9 @@ function buildDrillThroughQuery(
 
   // Add pagination
   params.push(limit, offset);
-  const query = `${baseQuery} LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`;
+  const limitIndex = params.length + 1
+  const offsetIndex = params.length + 2
+  const query = `${baseQuery} LIMIT ${paramIndex} OFFSET $${paramIndex + 1}`;
   const countQuery = 'SELECT COUNT(*) FROM (${baseQuery.replace(/ORDER BY .*/, '')}) as count_query';
 
   const result: any = {

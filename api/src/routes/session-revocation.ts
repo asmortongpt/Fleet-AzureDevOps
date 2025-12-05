@@ -21,6 +21,8 @@
  */
 
 import express, { Request, Response, NextFunction } from 'express'
+import { csrfProtection } from '../middleware/csrf'
+
 import jwt from 'jsonwebtoken'
 import { asyncHandler } from '../middleware/async-handler'
 import { authenticateJWT, authorize, AuthRequest, setCheckRevoked } from '../middleware/auth'
