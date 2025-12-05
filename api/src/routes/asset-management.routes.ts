@@ -566,7 +566,7 @@ router.get('/analytics/summary', requirePermission('report:view:global'), async 
            SUM(CAST(current_value AS DECIMAL) as total_current_value,
            COUNT(*) as total_assets
          FROM assets
-         WHERE tenant_id = $1 AND status != `disposed``,
+         WHERE tenant_id = $1 AND status != 'disposed'`,
         [tenantId]
       ),
       pool.query(

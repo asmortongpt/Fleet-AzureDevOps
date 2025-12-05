@@ -366,7 +366,7 @@ export async function boundingBoxExample() {
   const firstPage = result.pages[0];
   firstPage.lines.forEach(line => {
     line.words.forEach(word => {
-      console.log("Word: "${word.text}"`);
+      console.log(`Word: "${word.text}"`);
       console.log(`  Position: x=${word.boundingBox.x}, y=${word.boundingBox.y}`);
       console.log(`  Size: width=${word.boundingBox.width}, height=${word.boundingBox.height}`);
       console.log(`  Confidence: ${word.confidence}`);

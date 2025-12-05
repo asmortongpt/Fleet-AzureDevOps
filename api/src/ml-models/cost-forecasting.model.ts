@@ -65,7 +65,7 @@ export class CostForecastingModel {
            SUM(amount) as total_amount
          FROM cost_tracking
          WHERE tenant_id = $1 ${whereClause}
-         AND transaction_date >= CURRENT_DATE - INTERVAL `12 months`
+         AND transaction_date >= CURRENT_DATE - INTERVAL '12 months'
          GROUP BY DATE_TRUNC('month', transaction_date)
          ORDER BY month ASC`,
         params
