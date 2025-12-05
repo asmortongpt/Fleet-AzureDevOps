@@ -466,21 +466,21 @@ struct DriverDashboardView: View {
                             .padding(.horizontal)
 
                         VStack(spacing: 12) {
-                            DashboardQuickActionButton(
+                            DashboardLegacyQuickActionButton(
                                 icon: "play.fill",
                                 title: viewModel.isOnTrip ? "End Trip" : "Start Trip",
                                 subtitle: viewModel.isOnTrip ? "Complete current journey" : "Begin new journey",
                                 color: viewModel.isOnTrip ? .red : .green
                             )
 
-                            DashboardQuickActionButton(
+                            DashboardLegacyQuickActionButton(
                                 icon: "exclamationmark.triangle.fill",
                                 title: "Report Issue",
                                 subtitle: "Report vehicle problem",
                                 color: .orange
                             )
 
-                            DashboardQuickActionButton(
+                            DashboardLegacyQuickActionButton(
                                 icon: "fuelpump.fill",
                                 title: "Log Fuel",
                                 subtitle: "Record refueling",

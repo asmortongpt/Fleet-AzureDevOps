@@ -219,9 +219,9 @@ struct NoScrollContainer<Content: View>: View {
 
                  CompactCard(title: "Quick Actions", maxHeight: 80) {
                      HStack {
-                         QuickActionButton(icon: "car", title: "Start Trip")
-                         QuickActionButton(icon: "wrench", title: "Maintenance")
-                         QuickActionButton(icon: "doc.text", title: "Reports")
+                         LegacyQuickActionButton(icon: "car", title: "Start Trip")
+                         LegacyQuickActionButton(icon: "wrench", title: "Maintenance")
+                         LegacyQuickActionButton(icon: "doc.text", title: "Reports")
                      }
                  }
              }
