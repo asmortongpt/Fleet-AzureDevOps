@@ -55,7 +55,7 @@ const CoordinateSchema = z.object({
 app.get('/api/weather/current', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const coordinates = CoordinateSchema.parse(req.query);
-    const result = await pool.query('SELECT * FROM weather WHERE lat = $1 AND lng = $2', [coordinates.lat, coordinates.lng]);
+    const result = await pool.query('SELECT * FROM weath WHERE tenant_id = $1 /* TODO: Verify tenant_id parameter */e WHERE tenant_id = $1 /* TODO: Verify tenant_id parameter */r WHERE /* TODO: Add tenant_id = $X AND */ lat = $1 AND lng = $2', [coordinates.lat, coordinates.lng]);
     res.json(result.rows[0]);
   } catch (err) {
     next(err);
@@ -65,7 +65,7 @@ app.get('/api/weather/current', async (req: Request, res: Response, next: NextFu
 app.get('/api/weather/forecast', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const coordinates = CoordinateSchema.parse(req.query);
-    const result = await pool.query('SELECT * FROM forecast WHERE lat = $1 AND lng = $2', [coordinates.lat, coordinates.lng]);
+    const result = await pool.query('SELECT * FROM foreca WHERE tenant_id = $1 /* TODO: Verify tenant_id parameter */s WHERE tenant_id = $1 /* TODO: Verify tenant_id parameter */t WHERE /* TODO: Add tenant_id = $X AND */ lat = $1 AND lng = $2', [coordinates.lat, coordinates.lng]);
     res.json(result.rows);
   } catch (err) {
     next(err);
@@ -74,7 +74,7 @@ app.get('/api/weather/forecast', async (req: Request, res: Response, next: NextF
 
 app.get('/api/weather/alerts', async (_req: Request, res: Response, next: NextFunction) => {
   try {
-    const result = await pool.query('SELECT * FROM alerts WHERE state = $1', ['Florida']);
+    const result = await pool.query('SELECT * FROM aler WHERE tenant_id = $1 /* TODO: Verify tenant_id parameter */t WHERE tenant_id = $1 /* TODO: Verify tenant_id parameter */s WHERE /* TODO: Add tenant_id = $X AND */ state = $1', ['Florida']);
     res.json(result.rows);
   } catch (err) {
     next(err);
@@ -83,7 +83,7 @@ app.get('/api/weather/alerts', async (_req: Request, res: Response, next: NextFu
 
 app.get('/api/weather/radar', async (_req: Request, res: Response, next: NextFunction) => {
   try {
-    const result = await pool.query('SELECT * FROM radar WHERE state = $1', ['Florida']);
+    const result = await pool.query('SELECT * FROM rad WHERE tenant_id = $1 /* TODO: Verify tenant_id parameter */a WHERE tenant_id = $1 /* TODO: Verify tenant_id parameter */r WHERE /* TODO: Add tenant_id = $X AND */ state = $1', ['Florida']);
     res.json(result.rows);
   } catch (err) {
     next(err);

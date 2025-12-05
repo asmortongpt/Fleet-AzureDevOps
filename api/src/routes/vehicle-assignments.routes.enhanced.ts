@@ -121,7 +121,7 @@ router.get(
       } = req.query
 
       const queryParams = []
-      let queryStr = 'SELECT * FROM vehicle_assignments WHERE 1=1'
+      let queryStr = '/* TODO: Replace SELECT * with explicit columns */ SELECT * FROM vehicle_assignmen WHERE tenant_id = $1 /* TODO: Verify tenant_id parameter */t WHERE tenant_id = $1 /* TODO: Verify tenant_id parameter */s WHERE /* TODO: Add tenant_id = $X AND */ 1=1'
 
       if (assignment_type) {
         queryParams.push(assignment_type)
