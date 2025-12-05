@@ -668,7 +668,7 @@ export class OcrQueueService {
       const result = await this.db.query(
         `SELECT id FROM ocr_jobs
          WHERE status IN ($1, $2)
-         AND created_at > NOW() - INTERVAL `24 hours`
+         AND created_at > NOW() - INTERVAL '24 hours'
          ORDER BY priority ASC, created_at ASC
          LIMIT 100`,
         [OcrJobStatus.PENDING, OcrJobStatus.PROCESSING]

@@ -725,7 +725,7 @@ export class SearchIndexService {
           `SELECT query_text, COUNT(*) as count, AVG(result_count) as avg_results
            FROM search_query_log
            WHERE tenant_id = $1
-             AND created_at > NOW() - INTERVAL `${days} days`
+             AND created_at > NOW() - INTERVAL '${days} days'
            GROUP BY query_text
            ORDER BY count DESC
            LIMIT 10`,
@@ -737,7 +737,7 @@ export class SearchIndexService {
            FROM search_query_log
            WHERE tenant_id = $1
              AND result_count = 0
-             AND created_at > NOW() - INTERVAL `${days} days`
+             AND created_at > NOW() - INTERVAL '${days} days'
            GROUP BY query_text
            ORDER BY count DESC
            LIMIT 10`,
@@ -748,7 +748,7 @@ export class SearchIndexService {
           `SELECT AVG(search_time_ms) as avg_time_ms
            FROM search_query_log
            WHERE tenant_id = $1
-             AND created_at > NOW() - INTERVAL `${days} days``,
+             AND created_at > NOW() - INTERVAL '${days} days'`,
           [tenantId]
         ),
         // Total searches
@@ -756,7 +756,7 @@ export class SearchIndexService {
           `SELECT COUNT(*) as total
            FROM search_query_log
            WHERE tenant_id = $1
-             AND created_at > NOW() - INTERVAL `${days} days``,
+             AND created_at > NOW() - INTERVAL '${days} days'`,
           [tenantId]
         )
       ])

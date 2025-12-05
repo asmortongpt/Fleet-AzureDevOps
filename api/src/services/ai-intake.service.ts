@@ -415,7 +415,7 @@ class AIIntakeService {
     try {
       const result = await this.db.query(
         `DELETE FROM ai_requests
-         WHERE completed_at < NOW() - INTERVAL `${daysToKeep} days`
+         WHERE completed_at < NOW() - INTERVAL '${daysToKeep} days'
            AND status IN (`completed`, `failed', 'cancelled`)`
       )
 

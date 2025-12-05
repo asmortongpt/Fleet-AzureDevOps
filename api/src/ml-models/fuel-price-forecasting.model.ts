@@ -301,7 +301,7 @@ export class FuelPriceForecastingModel {
          JOIN fuel_stations fs ON fp.fuel_station_id = fs.id
          WHERE fs.tenant_id = $1
          AND fp.fuel_type = $2
-         AND fp.timestamp >= CURRENT_DATE - INTERVAL `${days} days`
+         AND fp.timestamp >= CURRENT_DATE - INTERVAL '${days} days'
          GROUP BY fp.timestamp::date
          ORDER BY date ASC`,
         [tenantId, fuelType, region]
