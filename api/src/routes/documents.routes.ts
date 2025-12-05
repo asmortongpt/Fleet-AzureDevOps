@@ -89,7 +89,7 @@ router.use(authenticateJWT)
  *                 type: boolean
  */
 router.post(`/upload`,
-  requirePermission('document:create:fleet'),
+  csrfProtection, requirePermission('document:create:fleet'),
   auditLog({ action: 'UPLOAD', resourceType: 'documents' }),
   upload.single('file'),
   async (req: AuthRequest, res) => {
