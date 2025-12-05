@@ -1,19 +1,18 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from "react"
-
-import { GoogleMap } from "./GoogleMap"
 import { LeafletMap } from "./LeafletMap"
+import { GoogleMap } from "./GoogleMap"
+import { Vehicle, GISFacility, TrafficCamera } from "@/lib/types"
+import { usePerformanceMonitor } from "@/hooks/usePerformanceMonitor"
 import { PerformanceMonitor } from "./PerformanceMonitor"
-import { ClusteringBadge } from "./UniversalMap/components/ClusteringBadge"
+import { getMarkerOptimizationSuggestions } from "@/utils/performance"
 import { MapErrorBoundary } from "./UniversalMap/components/MapErrorBoundary"
 import { MapLoadingOverlay } from "./UniversalMap/components/MapLoadingOverlay"
+import { ClusteringBadge } from "./UniversalMap/components/ClusteringBadge"
 import { ProviderBadge } from "./UniversalMap/components/ProviderBadge"
 import { useMapProvider } from "./UniversalMap/hooks/useMapProvider"
 import { UniversalMapProps, MapLoadingState } from "./UniversalMap/types"
 import { DEFAULT_CENTER, DEFAULT_ZOOM, calculateDynamicCenter } from "./UniversalMap/utils/coordinates"
 import { isValidCoordinates } from "./UniversalMap/utils/validation"
-
-import { usePerformanceMonitor } from "@/hooks/usePerformanceMonitor"
-import { getMarkerOptimizationSuggestions } from "@/utils/performance"
 
 const DEFAULT_CLUSTER_THRESHOLD = 100
 
@@ -203,13 +202,4 @@ export function UniversalMap(props: UniversalMapProps) {
   )
 }
 
-// Re-export API functions
-export {
-  getMapProvider,
-  setMapProvider,
-  isMapProviderAvailable,
-  getAvailableProviders,
-  resetMapProvider
-} from "./UniversalMap/api"
-
-export type { MapProvider } from "./UniversalMap/types"
+export { getMapProvider, setMapProvider, isMapProviderAvailable, getAvailableProviders, resetMapProvider } from "./UniversalMap/api"
