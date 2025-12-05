@@ -52,15 +52,9 @@ COPY package*.json ./
 RUN npm ci --only=production --legacy-peer-deps && \
     npm cache clean --force
 
-# Copy source files (always needed for tsx fallback)
+# Copy source files (always needed for tsx runtime)
 COPY --from=builder /app/src ./src
 COPY --from=builder /app/tsconfig.json ./tsconfig.json
-
-# Copy built application if it exists
-COPY --from=builder /app/dist ./dist || echo "No dist folder, will run from source"
-
-# Copy necessary config files
-COPY --from=builder /app/drizzle ./drizzle || echo "No drizzle folder"
 
 # Set ownership to non-root user
 RUN chown -R nodejs:nodejs /app
