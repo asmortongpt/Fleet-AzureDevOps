@@ -173,7 +173,7 @@ router.delete(
       )
 
       if (result.rows.length === 0) {
-        return throw new NotFoundError("ChargingSessions not found")
+        throw new NotFoundError("ChargingSessions not found")
       }
 
       res.json({ message: 'ChargingSessions deleted successfully' })

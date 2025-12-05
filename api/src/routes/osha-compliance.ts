@@ -43,7 +43,7 @@ router.get(
 
       let query = `
         SELECT o.*,
-               d.first_name || ` ` || d.last_name as employee_full_name,
+               d.first_name || ' ' || d.last_name as employee_full_name,
                v.unit_number as vehicle_unit
         FROM osha_300_log o
         LEFT JOIN drivers d ON o.employee_id = d.id
@@ -103,7 +103,7 @@ router.get(
     try {
       const result = await pool.query(
         `SELECT o.*,
-                d.first_name || ` ` || d.last_name as employee_full_name,
+                d.first_name || ' ' || d.last_name as employee_full_name,
                 v.unit_number as vehicle_unit
          FROM osha_300_log o
          LEFT JOIN drivers d ON o.employee_id = d.id
@@ -113,7 +113,7 @@ router.get(
       )
 
       if (result.rows.length === 0) {
-        return throw new NotFoundError("OSHA 300 log entry not found")
+        throw new NotFoundError("OSHA 300 log entry not found")
       }
 
       res.json(result.rows[0])
@@ -199,7 +199,7 @@ router.get(
       let query = `
         SELECT vsi.*,
                v.unit_number,
-               d.first_name || ` ` || d.last_name as driver_name
+               d.first_name || ' ' || d.last_name as driver_name
         FROM vehicle_safety_inspections vsi
         JOIN vehicles v ON vsi.vehicle_id = v.id
         JOIN drivers d ON vsi.driver_id = d.id
@@ -295,7 +295,7 @@ router.get(
 
       let query = `
         SELECT str.*,
-               d.first_name || ` ` || d.last_name as employee_name
+               d.first_name || ' ' || d.last_name as employee_name
         FROM safety_training_records str
         JOIN drivers d ON str.employee_id = d.id
         WHERE d.tenant_id = $1
@@ -385,7 +385,7 @@ router.get(
       let query = `
         SELECT ai.*,
                v.unit_number,
-               d.first_name || ` ` || d.last_name as driver_name
+               d.first_name || ' ' || d.last_name as driver_name
         FROM accident_investigations ai
         LEFT JOIN vehicles v ON ai.vehicle_id = v.id
         LEFT JOIN drivers d ON ai.driver_id = d.id

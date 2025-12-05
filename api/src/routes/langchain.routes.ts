@@ -35,7 +35,7 @@ router.post('/execute',csrfProtection, requirePermission('report:generate:global
     const sessionId = req.body.sessionId || uuidv4()
 
     if (!workflowType) {
-      return throw new ValidationError("Workflow type is required")
+      throw new ValidationError("Workflow type is required")
     }
 
     logger.info('Executing LangChain workflow', {
@@ -102,7 +102,7 @@ router.post('/chat',csrfProtection, requirePermission('report:view:global'), asy
     const userId = (req as any).user.userId
 
     if (!message) {
-      return throw new ValidationError("Message is required")
+      throw new ValidationError("Message is required")
     }
 
     const chatSessionId = sessionId || uuidv4()
@@ -185,7 +185,7 @@ router.post('/supervisor/query',csrfProtection, requirePermission('report:view:g
     const userId = (req as any).user.userId
 
     if (!query) {
-      return throw new ValidationError("Query is required")
+      throw new ValidationError("Query is required")
     }
 
     const querySessionId = sessionId || uuidv4()
@@ -251,7 +251,7 @@ router.get('/agents/:agentId', requirePermission('report:view:global'), async (r
     const agent = aiAgentSupervisorService.getAgent(agentId)
 
     if (!agent) {
-      return throw new NotFoundError("Agent not found")
+      throw new NotFoundError("Agent not found")
     }
 
     res.json({
@@ -503,7 +503,7 @@ router.get('/workflows/:workflowId', requirePermission('report:view:global'), as
     const workflow = workflowDetails[workflowId as keyof typeof workflowDetails]
 
     if (!workflow) {
-      return throw new NotFoundError("Workflow not found")
+      throw new NotFoundError("Workflow not found")
     }
 
     res.json({

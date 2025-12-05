@@ -328,7 +328,7 @@ router.get(
           dse.address, dse.speed_mph, dse.g_force, dse.timestamp,
           dse.video_url, dse.video_thumbnail_url,
           v.name as vehicle_name, v.vin,
-          d.first_name || ` ` || d.last_name as driver_name,
+          d.first_name || ' ' || d.last_name as driver_name,
           tp.display_name as provider
         FROM driver_safety_events dse
         JOIN vehicles v ON dse.vehicle_id = v.id

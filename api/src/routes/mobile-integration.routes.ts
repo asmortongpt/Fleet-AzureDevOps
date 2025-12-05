@@ -236,7 +236,7 @@ router.get('/route/:vehicleId', requirePermission('route:view:fleet'), async (re
     )
 
     if (!route) {
-      return throw new NotFoundError("No active route found for this vehicle")
+      throw new NotFoundError("No active route found for this vehicle")
     }
 
     res.json(route)
@@ -478,7 +478,7 @@ router.get('/charging-stations/nearby', requirePermission('charging_station:view
     const radius = req.query.radius ? parseFloat(req.query.radius as string) : 10
 
     if (isNaN(latitude) || isNaN(longitude) {
-      return throw new ValidationError("Invalid latitude or longitude")
+      throw new ValidationError("Invalid latitude or longitude")
     }
 
     const stations = await mobileIntegrationService.getNearbyChargingStations(
@@ -536,7 +536,7 @@ router.post('/push-notification',csrfProtection, requirePermission('communicatio
     const { device_id, title, body, data, priority } = req.body
 
     if (!device_id || !title || !body) {
-      return throw new ValidationError("Missing required fields")
+      throw new ValidationError("Missing required fields")
     }
 
     const success = await mobileIntegrationService.sendPushNotification(device_id, {

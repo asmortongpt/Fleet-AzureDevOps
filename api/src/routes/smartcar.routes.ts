@@ -42,7 +42,7 @@ router.get('/connect', authenticateJWT, requirePermission('vehicle:manage:global
     const { vehicle_id } = req.query
 
     if (!vehicle_id) {
-      return throw new ValidationError("vehicle_id query parameter is required")
+      throw new ValidationError("vehicle_id query parameter is required")
     }
 
     // Generate state parameter with vehicle_id and user info
@@ -199,7 +199,7 @@ router.get(
       const connection = await smartcarService.getVehicleConnection(vehicleId)
 
       if (!connection) {
-        return throw new NotFoundError("Vehicle not connected to Smartcar")
+        throw new NotFoundError("Vehicle not connected to Smartcar")
       }
 
       const location = await smartcarService.getLocation(connection.external_vehicle_id, accessToken)
@@ -232,7 +232,7 @@ router.get(
       const connection = await smartcarService.getVehicleConnection(vehicleId)
 
       if (!connection) {
-        return throw new NotFoundError("Vehicle not connected to Smartcar")
+        throw new NotFoundError("Vehicle not connected to Smartcar")
       }
 
       const battery = await smartcarService.getBattery(connection.external_vehicle_id, accessToken)
@@ -265,7 +265,7 @@ router.get(
       const connection = await smartcarService.getVehicleConnection(vehicleId)
 
       if (!connection) {
-        return throw new NotFoundError("Vehicle not connected to Smartcar")
+        throw new NotFoundError("Vehicle not connected to Smartcar")
       }
 
       const charge = await smartcarService.getChargeStatus(connection.external_vehicle_id, accessToken)
@@ -298,7 +298,7 @@ router.post(
       const connection = await smartcarService.getVehicleConnection(vehicleId)
 
       if (!connection) {
-        return throw new NotFoundError("Vehicle not connected to Smartcar")
+        throw new NotFoundError("Vehicle not connected to Smartcar")
       }
 
       const result = await smartcarService.lockDoors(connection.external_vehicle_id, accessToken)
@@ -331,7 +331,7 @@ router.post(
       const connection = await smartcarService.getVehicleConnection(vehicleId)
 
       if (!connection) {
-        return throw new NotFoundError("Vehicle not connected to Smartcar")
+        throw new NotFoundError("Vehicle not connected to Smartcar")
       }
 
       const result = await smartcarService.unlockDoors(connection.external_vehicle_id, accessToken)
@@ -364,7 +364,7 @@ router.post(
       const connection = await smartcarService.getVehicleConnection(vehicleId)
 
       if (!connection) {
-        return throw new NotFoundError("Vehicle not connected to Smartcar")
+        throw new NotFoundError("Vehicle not connected to Smartcar")
       }
 
       const result = await smartcarService.startCharging(connection.external_vehicle_id, accessToken)
@@ -397,7 +397,7 @@ router.post(
       const connection = await smartcarService.getVehicleConnection(vehicleId)
 
       if (!connection) {
-        return throw new NotFoundError("Vehicle not connected to Smartcar")
+        throw new NotFoundError("Vehicle not connected to Smartcar")
       }
 
       const result = await smartcarService.stopCharging(connection.external_vehicle_id, accessToken)
@@ -429,7 +429,7 @@ router.delete(
       const connection = await smartcarService.getVehicleConnection(vehicleId)
 
       if (!connection) {
-        return throw new NotFoundError("Vehicle not connected to Smartcar")
+        throw new NotFoundError("Vehicle not connected to Smartcar")
       }
 
       // Revoke access on Smartcar side
