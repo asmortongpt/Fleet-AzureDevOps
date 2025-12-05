@@ -1,6 +1,6 @@
 import express, { Response } from 'express'
 import { container } from '../container'
-import { asyncHandler } from '../middleware/error-handler'
+import { asyncHandler } from '../middleware/errorHandler'
 import { NotFoundError, ValidationError, ForbiddenError } from '../errors/app-error'
 import { AuthRequest, authenticateJWT } from '../middleware/auth'
 import { requirePermission } from '../middleware/permissions'

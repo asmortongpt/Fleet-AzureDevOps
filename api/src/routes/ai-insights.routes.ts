@@ -1,6 +1,6 @@
 /**
 import { container } from '../container'
-import { asyncHandler } from '../middleware/error-handler'
+import { asyncHandler } from '../middleware/errorHandler'
 import { NotFoundError, ValidationError } from '../errors/app-error'
  * AI Insights API Routes
  * Endpoints for AI/ML predictions, recommendations, RAG queries, and model management

@@ -18,7 +18,7 @@ try {
   if (error instanceof z.ZodError) {
     console.error('❌ Environment validation failed:');
     error.issues.forEach((e) => {
-      console.error(\`  - \${e.path.join('.')}: \${e.message}\`);
+      console.error(`  - ${e.path.join('.')}: ${e.message}`);
     });
     process.exit(1);
   }
