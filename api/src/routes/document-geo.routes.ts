@@ -541,7 +541,7 @@ router.post('/:id/extract-location', csrfProtection, async (req: AuthRequest, re
     // Get document info
     const pool = (await import('../config/database').default
     const result = await pool.query(
-      'SELECT file_url, file_type FROM documents WHERE id = $1',
+      'SELECT file_url, file_type FROM documents WHERE /* TODO: Add tenant_id = $X AND */ id = $1',
       [id]
     )
 
