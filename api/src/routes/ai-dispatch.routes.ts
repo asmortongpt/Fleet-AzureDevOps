@@ -23,6 +23,8 @@ import logger from '../utils/logger'
 import { authenticateJWT } from '../middleware/auth'
 import { requirePermission } from '../middleware/permissions'
 import { body, query, validationResult } from 'express-validator'
+import { csrfProtection } from '../middleware/csrf'
+
 
 const router = Router()
 

@@ -16,7 +16,9 @@ import { asyncHandler } from '../middleware/errorHandler'
 import { NotFoundError, ValidationError } from '../errors/app-error'
 import logger from '../config/logger' // Wave 23: Add Winston logger
 import pool from '../config/database' // SECURITY: Import database pool
-import { tenantSafeQuery, tenantSafeQueryMany } from '../utils/dbHelpers' // SECURITY: Tenant-safe query helpers
+import { tenantSafeQuery, tenantSafeQueryMany } from '../utils/dbHelpers'
+import { csrfProtection } from '../middleware/csrf'
+ // SECURITY: Tenant-safe query helpers
 
 const router = express.Router()
 router.use(authenticateJWT)
@@ -480,7 +482,7 @@ router.get(
  */
 router.post(
   '/webhook/samsara',
-  async (req: express.Request, res: Response) => {
+  csrfProtection, async (req: express.Request, res: Response) => {
     try {
       // Verify webhook signature (if configured)
       const signature = req.headers['x-samsara-signature'] as string

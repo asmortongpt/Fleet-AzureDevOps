@@ -14,6 +14,8 @@ import logger from '../config/logger'; // Wave 33: Add Winston logger (FINAL WAV
 import { Router, Request, Response } from 'express'
 import { authenticateJWT } from '../middleware/auth'
 import { DIContainer } from '../container'
+import { csrfProtection } from '../middleware/csrf'
+
 
 const router = Router()
 

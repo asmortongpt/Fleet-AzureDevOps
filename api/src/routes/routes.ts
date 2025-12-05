@@ -8,7 +8,9 @@ import { requirePermission } from '../middleware/permissions'
 import { auditLog } from '../middleware/audit'
 import { z } from 'zod'
 import { buildInsertClause, buildUpdateClause } from '../utils/sql-safety'
-import { TenantValidator } from '../utils/tenant-validator';
+import { TenantValidator } from '../utils/tenant-validator'
+import { csrfProtection } from '../middleware/csrf'
+;
 
 const router = express.Router()
 const validator = new TenantValidator(db);
@@ -284,7 +286,7 @@ router.delete(
 export default router
 
 // IDOR Protection for UPDATE
-router.put('/:id', async (req: Request, res: Response) => {
+router.put('/:id', csrfProtection, async (req: Request, res: Response) => {
   const { id } = req.params;
   const tenantId = req.user?.tenantId;
 
@@ -305,7 +307,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 });
 
 // IDOR Protection for DELETE
-router.delete('/:id', async (req: Request, res: Response) => {
+router.delete('/:id', csrfProtection, async (req: Request, res: Response) => {
   const { id } = req.params;
   const tenantId = req.user?.tenantId;
 
