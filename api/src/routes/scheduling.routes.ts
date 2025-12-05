@@ -33,7 +33,7 @@ router.get('/reservations', async (req: Request, res: Response) => {
     let query = `
       SELECT vr.*, v.make, v.model, v.license_plate, v.vin,
              u.first_name || ' ' || u.last_name as reserved_by_name,
-             du.first_name || ` ` || du.last_name as driver_name
+             du.first_name || ' ' || du.last_name as driver_name
       FROM vehicle_reservations vr
       JOIN vehicles v ON vr.vehicle_id = v.id
       JOIN users u ON vr.reserved_by = u.id
@@ -243,7 +243,7 @@ router.post('/reservations/:id/approve',csrfProtection, async (req: Request, res
     // Get full reservation details with vehicle and user info
     const reservationResult = await pool.query(
       `SELECT vr.*, v.make, v.model, v.license_plate, v.vin,
-              u.first_name || ` ` || u.last_name as reserved_by_name,
+              u.first_name || ' ' || u.last_name as reserved_by_name,
               u.email as reserved_by_email
        FROM vehicle_reservations vr
        JOIN vehicles v ON vr.vehicle_id = v.id
@@ -253,7 +253,7 @@ router.post('/reservations/:id/approve',csrfProtection, async (req: Request, res
     )
 
     if (reservationResult.rows.length === 0) {
-      return throw new NotFoundError("Reservation not found")
+      throw new NotFoundError("Reservation not found")
     }
 
     const reservation = reservationResult.rows[0]
@@ -303,7 +303,7 @@ router.post('/reservations/:id/reject',csrfProtection, async (req: Request, res:
     // Get full reservation details with vehicle and user info
     const reservationResult = await pool.query(
       `SELECT vr.*, v.make, v.model, v.license_plate, v.vin,
-              u.first_name || ` ` || u.last_name as reserved_by_name,
+              u.first_name || ' ' || u.last_name as reserved_by_name,
               u.email as reserved_by_email
        FROM vehicle_reservations vr
        JOIN vehicles v ON vr.vehicle_id = v.id
@@ -313,7 +313,7 @@ router.post('/reservations/:id/reject',csrfProtection, async (req: Request, res:
     )
 
     if (reservationResult.rows.length === 0) {
-      return throw new NotFoundError("Reservation not found")
+      throw new NotFoundError("Reservation not found")
     }
 
     const reservation = reservationResult.rows[0]
@@ -367,7 +367,7 @@ router.get('/maintenance', async (req: Request, res: Response) => {
       SELECT sbs.*, v.make, v.model, v.license_plate, v.vin,
              at.name as appointment_type, at.color,
              sb.bay_name, sb.bay_number,
-             u.first_name || ` ` || u.last_name as technician_name,
+             u.first_name || ' ' || u.last_name as technician_name,
              wo.work_order_number
       FROM service_bay_schedules sbs
       LEFT JOIN vehicles v ON sbs.vehicle_id = v.id
@@ -610,7 +610,7 @@ router.get('/available-vehicles', async (req: Request, res: Response) => {
     const { startTime, endTime, vehicleType } = req.query
 
     if (!startTime || !endTime) {
-      return throw new ValidationError("startTime and endTime are required")
+      throw new ValidationError("startTime and endTime are required")
     }
 
     const vehicles = await schedulingService.findAvailableVehicles(
@@ -757,7 +757,7 @@ router.post('/calendar/google/callback',csrfProtection, async (req: Request, res
     const { code, isPrimary } = req.body
 
     if (!code) {
-      return throw new ValidationError("Authorization code is required")
+      throw new ValidationError("Authorization code is required")
     }
 
     // Exchange code for tokens
@@ -858,7 +858,7 @@ router.post('/calendar/sync',csrfProtection, async (req: Request, res: Response)
     )
 
     if (result.rows.length === 0) {
-      return throw new NotFoundError("Integration not found")
+      throw new NotFoundError("Integration not found")
     }
 
     const integration = result.rows[0]

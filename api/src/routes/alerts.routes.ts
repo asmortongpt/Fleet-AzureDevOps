@@ -106,7 +106,7 @@ router.get('/', requirePermission('report:view:global'), async (req: AuthRequest
       SELECT
         a.*,
         u_ack.first_name || ' ' || u_ack.last_name as acknowledged_by_name,
-        u_res.first_name || ` ` || u_res.last_name as resolved_by_name
+        u_res.first_name || ' ' || u_res.last_name as resolved_by_name
       FROM alerts a
       LEFT JOIN users u_ack ON a.acknowledged_by = u_ack.id
       LEFT JOIN users u_res ON a.resolved_by = u_res.id
@@ -385,7 +385,7 @@ router.get('/rules', requirePermission('report:view:global'), async (req: AuthRe
     const result = await pool.query(
       `SELECT
          ar.*,
-         u.first_name || ` ` || u.last_name as created_by_name
+         u.first_name || ' ' || u.last_name as created_by_name
        FROM alert_rules ar
        LEFT JOIN users u ON ar.created_by = u.id
        WHERE ar.tenant_id = $1

@@ -120,7 +120,7 @@ router.post('/calculate',csrfProtection, async (req: Request, res: Response) => 
 
     // Validate required fields
     if (!miles || miles <= 0) {
-      return throw new ValidationError("Valid miles value is required")
+      throw new ValidationError("Valid miles value is required")
     }
 
     // Determine applicable rate
@@ -301,7 +301,7 @@ router.put('/rates/tenant/:tenant_id',csrfProtection, async (req: Request, res: 
     const { rate, effective_date } = req.body
 
     if (!rate || rate <= 0) {
-      return throw new ValidationError("Valid rate is required")
+      throw new ValidationError("Valid rate is required")
     }
 
     // Federal compliance check - cannot exceed IRS rate

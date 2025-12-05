@@ -233,7 +233,7 @@ router.get(
     try {
       const result = await pool.query(
         `SELECT pa.*,
-                d.first_name || ` ` || d.last_name as employee_name,
+                d.first_name || ' ' || d.last_name as employee_name,
                 d.employee_id
          FROM policy_acknowledgments pa
          JOIN drivers d ON pa.employee_id = d.id
@@ -324,7 +324,7 @@ router.get(
       const result = await pool.query(
         `SELECT
           d.id AS employee_id,
-          d.first_name || ` ` || d.last_name AS employee_name,
+          d.first_name || ' ' || d.last_name AS employee_name,
           COUNT(DISTINCT pt.id) AS total_policies,
           COUNT(DISTINCT pa.policy_id) AS acknowledged_policies,
           COUNT(DISTINCT pt.id) - COUNT(DISTINCT pa.policy_id) AS pending_acknowledgments,
@@ -341,7 +341,7 @@ router.get(
       )
 
       if (result.rows.length === 0) {
-        return throw new NotFoundError("Employee not found")
+        throw new NotFoundError("Employee not found")
       }
 
       res.json(result.rows[0])
@@ -369,7 +369,7 @@ router.get(
       let query = `
         SELECT pv.*,
                pt.policy_name,
-               d.first_name || ` ` || d.last_name as employee_name,
+               d.first_name || ' ' || d.last_name as employee_name,
                d.employee_id as employee_number
         FROM policy_violations pv
         JOIN policy_templates pt ON pv.policy_id = pt.id
