@@ -57,7 +57,7 @@ const sendEmailSchema = z.object({
 
 router.post(
   '/send',
-  authorize('admin', 'fleet_manager', 'dispatcher'),
+ csrfProtection,  csrfProtection, authorize('admin', 'fleet_manager', 'dispatcher'),
   auditLog({ action: 'CREATE', resourceType: 'outlook_email' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -199,7 +199,7 @@ const replyEmailSchema = z.object({
 
 router.post(
   '/messages/:messageId/reply',
-  authorize('admin', 'fleet_manager', 'dispatcher'),
+ csrfProtection,  csrfProtection, authorize('admin', 'fleet_manager', 'dispatcher'),
   auditLog({ action: 'CREATE', resourceType: 'outlook_reply' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -252,7 +252,7 @@ const forwardEmailSchema = z.object({
 
 router.post(
   '/messages/:messageId/forward',
-  authorize('admin', 'fleet_manager', 'dispatcher'),
+ csrfProtection,  csrfProtection, authorize('admin', 'fleet_manager', 'dispatcher'),
   auditLog({ action: 'CREATE', resourceType: 'outlook_forward' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -302,7 +302,7 @@ const updateEmailSchema = z.object({
 
 router.patch(
   '/messages/:messageId',
-  authorize('admin', 'fleet_manager', 'dispatcher'),
+ csrfProtection,  csrfProtection, authorize('admin', 'fleet_manager', 'dispatcher'),
   auditLog({ action: 'UPDATE', resourceType: 'outlook_message' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -341,7 +341,7 @@ router.patch(
 
 router.post(
   '/messages/:messageId/move',
-  authorize('admin', 'fleet_manager', 'dispatcher'),
+ csrfProtection,  csrfProtection, authorize('admin', 'fleet_manager', 'dispatcher'),
   auditLog({ action: 'UPDATE', resourceType: 'outlook_message' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -378,7 +378,7 @@ router.post(
 
 router.delete(
   '/messages/:messageId',
-  authorize('admin', 'fleet_manager', 'dispatcher'),
+ csrfProtection,  csrfProtection, authorize('admin', 'fleet_manager', 'dispatcher'),
   auditLog({ action: 'DELETE', resourceType: 'outlook_message' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -407,7 +407,7 @@ router.delete(
 
 router.post(
   '/messages/:messageId/read',
-  authorize('admin', 'fleet_manager', 'dispatcher'),
+ csrfProtection,  csrfProtection, authorize('admin', 'fleet_manager', 'dispatcher'),
   auditLog({ action: 'UPDATE', resourceType: 'outlook_message' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -474,7 +474,7 @@ const createFolderSchema = z.object({
 
 router.post(
   '/folders',
-  authorize('admin', 'fleet_manager'),
+ csrfProtection,  csrfProtection, authorize('admin', 'fleet_manager'),
   auditLog({ action: 'CREATE', resourceType: 'outlook_folder' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -636,7 +636,7 @@ const categorizeEmailSchema = z.object({
 
 router.post(
   '/messages/:messageId/categories',
-  authorize('admin', 'fleet_manager', 'dispatcher'),
+ csrfProtection,  csrfProtection, authorize('admin', 'fleet_manager', 'dispatcher'),
   auditLog({ action: 'UPDATE', resourceType: 'outlook_message' }),
   async (req: AuthRequest, res: Response) => {
     try {

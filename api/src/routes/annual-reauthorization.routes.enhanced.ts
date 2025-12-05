@@ -10,6 +10,8 @@ import { getErrorMessage } from '../utils/error-handler'
 import helmet from 'helmet'
 import rateLimit from 'express-rate-limit'
 import csurf from 'csurf'
+import { csrfProtection } from '../middleware/csrf'
+
 
 const router = express.Router()
 router.use(helmet()

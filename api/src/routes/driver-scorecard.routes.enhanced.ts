@@ -7,6 +7,8 @@ import { requirePermission } from '../middleware/permissions'
 import { auditLog } from '../middleware/audit'
 import driverScorecardService from '../services/driver-scorecard.service'
 import { z } from 'zod'
+import { csrfProtection } from '../middleware/csrf'
+
 
 const router = express.Router()
 router.use(authenticateJWT)

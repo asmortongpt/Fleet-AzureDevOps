@@ -61,7 +61,7 @@ router.get("/vehicle/:vehicleId",
 
 // POST create maintenance record
 router.post("/",
-  requireRBAC({
+ csrfProtection,  csrfProtection, requireRBAC({
     roles: [Role.ADMIN, Role.MANAGER],
     permissions: [PERMISSIONS.MAINTENANCE_CREATE],
     enforceTenantIsolation: true,
@@ -73,7 +73,7 @@ router.post("/",
 
 // PUT update maintenance record
 router.put("/:id",
-  requireRBAC({
+ csrfProtection,  csrfProtection, requireRBAC({
     roles: [Role.ADMIN, Role.MANAGER],
     permissions: [PERMISSIONS.MAINTENANCE_UPDATE],
     enforceTenantIsolation: true,
@@ -86,7 +86,7 @@ router.put("/:id",
 
 // DELETE maintenance record
 router.delete("/:id",
-  requireRBAC({
+ csrfProtection,  csrfProtection, requireRBAC({
     roles: [Role.ADMIN, Role.MANAGER],
     permissions: [PERMISSIONS.MAINTENANCE_DELETE],
     enforceTenantIsolation: true,

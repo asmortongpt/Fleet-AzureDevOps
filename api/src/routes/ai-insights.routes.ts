@@ -133,7 +133,7 @@ router.get(
  */
 router.post(
   '/cognition/generate',
-  requirePermission('report:generate:global'),
+ csrfProtection,  csrfProtection, requirePermission('report:generate:global'),
   auditLog({ action: 'CREATE', resourceType: 'ai_insights' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -351,7 +351,7 @@ const DriverBehaviorScoreSchema = z.object({
  */
 router.post(
   '/predictions/driver-behavior',
-  requirePermission('report:generate:global'),
+ csrfProtection,  csrfProtection, requirePermission('report:generate:global'),
   auditLog({ action: 'CREATE', resourceType: 'ai_prediction' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -390,7 +390,7 @@ const IncidentRiskSchema = z.object({
  */
 router.post(
   '/predictions/incident-risk',
-  requirePermission('report:generate:global'),
+ csrfProtection,  csrfProtection, requirePermission('report:generate:global'),
   auditLog({ action: 'CREATE', resourceType: 'ai_prediction' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -428,7 +428,7 @@ const CostForecastSchema = z.object({
  */
 router.post(
   '/predictions/cost-forecast',
-  requirePermission('report:generate:global'),
+ csrfProtection,  csrfProtection, requirePermission('report:generate:global'),
   auditLog({ action: 'CREATE', resourceType: 'ai_prediction' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -461,7 +461,7 @@ router.post(
  */
 router.put(
   '/predictions/:id/outcome',
-  requirePermission('report:generate:global'),
+ csrfProtection,  csrfProtection, requirePermission('report:generate:global'),
   auditLog({ action: 'UPDATE', resourceType: 'ai_prediction' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -505,7 +505,7 @@ const RAGQuerySchema = z.object({
  */
 router.post(
   '/rag/query',
-  requirePermission('report:view:global'),
+ csrfProtection,  csrfProtection, requirePermission('report:view:global'),
   auditLog({ action: 'READ', resourceType: 'rag_query' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -548,7 +548,7 @@ const IndexDocumentSchema = z.object({
  */
 router.post(
   '/rag/index',
-  requirePermission('report:generate:global'),
+ csrfProtection,  csrfProtection, requirePermission('report:generate:global'),
   auditLog({ action: 'CREATE', resourceType: 'rag_document' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -581,7 +581,7 @@ router.post(
  */
 router.post(
   '/rag/feedback',
-  requirePermission('report:view:global'),
+ csrfProtection,  csrfProtection, requirePermission('report:view:global'),
   auditLog({ action: 'CREATE', resourceType: 'rag_feedback' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -720,7 +720,7 @@ router.get(
  */
 router.post(
   '/models/:id/deploy',
-  requirePermission('report:generate:global'),
+ csrfProtection,  csrfProtection, requirePermission('report:generate:global'),
   auditLog({ action: 'UPDATE', resourceType: 'ml_model' }),
   async (req: AuthRequest, res: Response) => {
     try {
