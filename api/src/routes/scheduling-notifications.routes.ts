@@ -1,6 +1,6 @@
 /**
 import { container } from '../container'
-import { asyncHandler } from '../middleware/error-handler'
+import { asyncHandler } from '../middleware/errorHandler'
 import { NotFoundError, ValidationError } from '../errors/app-error'
  * Scheduling Notifications Routes
  * API endpoints for managing scheduling notification preferences

@@ -1,6 +1,6 @@
 import express, { Request, Response } from 'express'
 import { container } from '../container'
-import { asyncHandler } from '../middleware/error-handler'
+import { asyncHandler } from '../middleware/errorHandler'
 import { NotFoundError, ValidationError } from '../errors/app-error'
 import { z } from 'zod'
 import { authenticate, rateLimiter } from '../middleware'

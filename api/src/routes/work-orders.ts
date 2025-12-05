@@ -2,7 +2,7 @@ import { Router } from "express";
 import { container } from '../container';
 import { TYPES } from '../types';
 import { WorkOrderController } from '../modules/work-orders/controllers/work-order.controller';
-import { asyncHandler } from '../middleware/error-handler';
+import { asyncHandler } from '../middleware/errorHandler';
 import { authenticateJWT } from '../middleware/auth';
 import { requireRBAC, Role, PERMISSIONS } from '../middleware/rbac';
 import { z } from 'zod';
