@@ -576,8 +576,8 @@ router.get(
         const result = await pool.query(
           `SELECT status, communication_datetime, error_message
           FROM communications
-          WHERE /* TODO: Add tenant_id = $X AND */ external_message_id = $1`,
-          [messageId]
+          WHERE tenant_id = $1 AND external_message_id = $2`,
+          [req.user!.tenant_id, messageId]
         );
 
         if (result.rows.length > 0) {

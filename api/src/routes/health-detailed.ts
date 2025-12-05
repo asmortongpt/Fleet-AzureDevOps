@@ -62,23 +62,34 @@ interface ComponentHealth {
 
 /**
  * Middleware to require admin authentication
- * In production, this should verify JWT and check role
+ * Verifies admin API key or JWT with admin role
  */
 const requireAdmin = (req: Request, res: Response, next: express.NextFunction) => {
-  // TODO: Implement proper admin authentication
-  // For now, check for admin API key or JWT with admin role
-
   const apiKey = req.headers['x-api-key'] as string;
-  const adminKey = process.env.ADMIN_API_KEY || 'admin-key-change-in-production';
+  const adminKey = process.env.ADMIN_API_KEY || process.env.ADMIN_KEY;
 
-  if (apiKey === adminKey) {
-    next();
-  } else {
-    res.status(403).json({
+  // Check for API key
+  if (apiKey && apiKey === adminKey) {
+    return next();
+  }
+
+  // Check for JWT with admin role (if using JWT authentication)
+  const user = (req as any).user;
+  if (user && (user.role === 'admin' || user.role === 'system_admin')) {
+    return next();
+  }
+
+  // Production mode requires authentication
+  if (process.env.NODE_ENV === 'production') {
+    return res.status(403).json({
       error: 'Forbidden',
       message: 'Admin access required'
     });
   }
+
+  // Development mode allows through (with warning)
+  console.warn('⚠️  Admin endpoint accessed without authentication in development mode');
+  next();
 };
 
 /**
