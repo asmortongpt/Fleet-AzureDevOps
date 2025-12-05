@@ -1,4 +1,3 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
   CurrencyDollar,
   GasPump,
@@ -6,6 +5,8 @@ import {
   TrendUp,
   Wrench
 } from "@phosphor-icons/react"
+
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
 interface KPIsTabProps {
   costPerMile: string

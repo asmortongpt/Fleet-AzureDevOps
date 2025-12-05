@@ -1,6 +1,6 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
 import { ChartCard } from "@/components/ChartCard"
+import { Badge } from "@/components/ui/badge"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
 interface UtilizationByType {
   name: string
