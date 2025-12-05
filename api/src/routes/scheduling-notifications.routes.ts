@@ -9,6 +9,8 @@ import { NotFoundError, ValidationError } from '../errors/app-error'
 import express, { Request, Response } from 'express'
 import schedulingNotificationService from '../services/scheduling-notification.service'
 import { logger } from '../utils/logger'
+import { csrfProtection } from '../middleware/csrf'
+
 
 const router = express.Router()
 
@@ -80,7 +82,7 @@ router.get('/preferences', async (req: Request, res: Response) => {
  * PUT /api/scheduling-notifications/preferences
  * Update user's notification preferences
  */
-router.put('/preferences', async (req: Request, res: Response) => {
+router.put('/preferences', csrfProtection, async (req: Request, res: Response) => {
   try {
     const { userId } = req.user as any
     const {
@@ -183,7 +185,7 @@ router.put('/preferences', async (req: Request, res: Response) => {
  * POST /api/scheduling-notifications/test
  * Send a test notification to verify settings
  */
-router.post('/test', async (req: Request, res: Response) => {
+router.post('/test', csrfProtection, async (req: Request, res: Response) => {
   try {
     const { userId } = req.user as any
     const { channels } = req.body
@@ -329,7 +331,7 @@ router.get('/stats', async (req: Request, res: Response) => {
  * POST /api/scheduling-notifications/resend/:id
  * Resend a notification (admin only)
  */
-router.post('/resend/:id', async (req: Request, res: Response) => {
+router.post('/resend/:id', csrfProtection, async (req: Request, res: Response) => {
   try {
     const { userId, role } = req.user as any
     const { id } = req.params

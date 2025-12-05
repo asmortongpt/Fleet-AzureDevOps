@@ -21,6 +21,8 @@ import { Router } from 'express'
 import type { AuthRequest } from '../middleware/auth'
 import { authenticateJWT } from '../middleware/auth'
 import { requirePermission } from '../middleware/permissions'
+import { csrfProtection } from '../middleware/csrf'
+
 
 const router = Router()
 router.use(authenticateJWT)

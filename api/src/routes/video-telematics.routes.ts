@@ -14,6 +14,8 @@ import VideoTelematicsService from '../services/video-telematics.service';
 import DriverSafetyAIService from '../services/driver-safety-ai.service';
 import { z } from 'zod';
 import { getErrorMessage } from '../utils/error-handler'
+import { csrfProtection } from '../middleware/csrf'
+
 
 const router = express.Router();
 router.use(authenticateJWT);
