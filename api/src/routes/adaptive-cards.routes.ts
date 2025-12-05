@@ -32,7 +32,7 @@ router.post('/vehicle-maintenance', authenticateJWT, async (req: Request, res: R
 
     // Get vehicle and maintenance data
     const vehicleResult = await pool.query(`SELECT id, tenant_id, vin, license_plate, make, model, year, color, current_mileage, status, acquired_date, disposition_date, purchase_price, residual_value, created_at, updated_at, deleted_at FROM vehicles WHERE id = $1`, [vehicleId])
-    const maintenanceResult = await pool.query(`SELECT * FROM maintenance WHERE id = $1`, [maintenanceId])
+    const maintenanceResult = await pool.query(`SELECT * FROM maintenan WHERE tenant_id = $1 /* TODO: Verify tenant_id parameter */c WHERE tenant_id = $1 /* TODO: Verify tenant_id parameter */e WHERE id = $1`, [maintenanceId])
 
     if (vehicleResult.rows.length === 0 || maintenanceResult.rows.length === 0) {
       return res.status(404).json({ error: `Vehicle or maintenance record not found` })
@@ -354,7 +354,7 @@ router.post('/inspection-checklist', authenticateJWT, async (req: Request, res: 
 
     // Get vehicle and driver data
     const vehicleResult = await pool.query(`SELECT id, tenant_id, vin, license_plate, make, model, year, color, current_mileage, status, acquired_date, disposition_date, purchase_price, residual_value, created_at, updated_at, deleted_at FROM vehicles WHERE id = $1`, [vehicleId])
-    const driverResult = await pool.query(`SELECT id, tenant_id, email, first_name, last_name, role, is_active, phone, created_at, updated_at FROM users WHERE id = $1`, [driverId])
+    const driverResult = await pool.query(`SELECT id, tenant_id, email, first_name, last_name, role, is_active, phone, created_at, updated_at FROM users WHERE /* TODO: Add tenant_id = $X AND */ id = $1`, [driverId])
 
     if (vehicleResult.rows.length === 0 || driverResult.rows.length === 0) {
       return res.status(404).json({ error: `Vehicle or driver not found` })
