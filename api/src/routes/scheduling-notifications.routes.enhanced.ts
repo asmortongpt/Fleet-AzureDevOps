@@ -96,7 +96,7 @@ router.get(
  */
 router.put(
   '/preferences',
-  validateSchema(preferencesSchema),
+ csrfProtection,  csrfProtection, validateSchema(preferencesSchema),
   asyncHandler(async (req: Request, res: Response) => {
     const userId = req.user!.id
     const {

@@ -8,6 +8,8 @@ import { auditLog } from '../middleware/audit'
 import executiveDashboardService from '../services/executive-dashboard.service'
 import { cacheMiddleware } from '../middleware/cache'
 import { z } from 'zod'
+import { csrfProtection } from '../middleware/csrf'
+
 
 const router = express.Router()
 

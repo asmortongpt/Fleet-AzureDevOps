@@ -69,7 +69,7 @@ router.get(
  */
 router.post(
   '/cameras',
-  requirePermission('video_event:create:global'),
+ csrfProtection,  csrfProtection, requirePermission('video_event:create:global'),
   auditLog({ action: 'CREATE', resourceType: 'cameras' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -104,7 +104,7 @@ router.post(
  */
 router.patch(
   '/cameras/:id/health',
-  requirePermission('video_event:create:global'),
+ csrfProtection,  csrfProtection, requirePermission('video_event:create:global'),
   auditLog({ action: 'UPDATE', resourceType: 'camera_health' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -240,7 +240,7 @@ router.get(
  */
 router.post(
   '/events',
-  requirePermission('video_event:create:global'),
+ csrfProtection,  csrfProtection, requirePermission('video_event:create:global'),
   auditLog({ action: 'CREATE', resourceType: 'video_events' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -283,7 +283,7 @@ router.post(
  */
 router.post(
   '/analyze',
-  requirePermission('video_event:create:global'),
+ csrfProtection,  csrfProtection, requirePermission('video_event:create:global'),
   auditLog({ action: 'UPDATE', resourceType: 'video_analysis' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -316,7 +316,7 @@ router.post(
  */
 router.patch(
   '/events/:id/review',
-  requirePermission('video_event:create:global'),
+ csrfProtection,  csrfProtection, requirePermission('video_event:create:global'),
   auditLog({ action: 'UPDATE', resourceType: 'video_events' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -417,7 +417,7 @@ router.get(
  */
 router.post(
   '/evidence-locker',
-  requirePermission('video_event:create:global'),
+ csrfProtection,  csrfProtection, requirePermission('video_event:create:global'),
   auditLog({ action: 'CREATE', resourceType: 'evidence_locker' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -456,7 +456,7 @@ router.post(
  */
 router.post(
   '/evidence-locker/:id/add-event',
-  requirePermission('video_event:create:global'),
+ csrfProtection,  csrfProtection, requirePermission('video_event:create:global'),
   auditLog({ action: 'UPDATE', resourceType: 'evidence_locker' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -516,7 +516,7 @@ router.get(
  */
 router.post(
   '/coaching/sessions',
-  requirePermission('video_event:create:global'),
+ csrfProtection,  csrfProtection, requirePermission('video_event:create:global'),
   auditLog({ action: 'CREATE', resourceType: 'coaching_sessions' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -553,7 +553,7 @@ router.post(
  */
 router.patch(
   '/coaching/sessions/:id/complete',
-  requirePermission('video_event:create:global'),
+ csrfProtection,  csrfProtection, requirePermission('video_event:create:global'),
   auditLog({ action: 'UPDATE', resourceType: 'coaching_sessions' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -584,7 +584,7 @@ router.patch(
  */
 router.post(
   '/privacy/blur',
-  requirePermission('video_event:delete:global'),
+ csrfProtection,  csrfProtection, requirePermission('video_event:delete:global'),
   auditLog({ action: 'UPDATE', resourceType: 'video_privacy' }),
   async (req: AuthRequest, res: Response) => {
     try {

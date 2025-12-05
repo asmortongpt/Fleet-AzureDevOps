@@ -179,7 +179,7 @@ router.get('/:id', requirePermission('safety_incident:view:global'), async (req:
 })
 
 // Create incident
-router.post('/', requirePermission('safety_incident:create:global'), async (req: AuthRequest, res) => {
+router.post('/',csrfProtection,  csrfProtection, requirePermission('safety_incident:create:global'), async (req: AuthRequest, res) => {
   const client = await pool.connect()
   try {
     await client.query('BEGIN')
@@ -248,7 +248,7 @@ router.post('/', requirePermission('safety_incident:create:global'), async (req:
 })
 
 // Update incident
-router.put('/:id', requirePermission('safety_incident:update:global'), async (req: AuthRequest, res) => {
+router.put('/:id',csrfProtection,  csrfProtection, requirePermission('safety_incident:update:global'), async (req: AuthRequest, res) => {
   const client = await pool.connect()
   try {
     await client.query('BEGIN')
@@ -314,7 +314,7 @@ router.put('/:id', requirePermission('safety_incident:update:global'), async (re
 })
 
 // Add corrective action
-router.post('/:id/actions', requirePermission('safety_incident:update:global'), async (req: AuthRequest, res) => {
+router.post('/:id/actions',csrfProtection,  csrfProtection, requirePermission('safety_incident:update:global'), async (req: AuthRequest, res) => {
   const client = await pool.connect()
   try {
     await client.query('BEGIN')
@@ -354,7 +354,7 @@ router.post('/:id/actions', requirePermission('safety_incident:update:global'), 
 })
 
 // Close incident
-router.post('/:id/close', requirePermission('safety_incident:update:global'), async (req: AuthRequest, res) => {
+router.post('/:id/close',csrfProtection,  csrfProtection, requirePermission('safety_incident:update:global'), async (req: AuthRequest, res) => {
   const client = await pool.connect()
   try {
     await client.query('BEGIN')

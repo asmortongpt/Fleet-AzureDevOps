@@ -140,7 +140,7 @@ export function checkRevoked(req: AuthRequest, res: Response, next: NextFunction
  * - Cleanup happens automatically via setInterval
  * - Future: Migrate to Redis for distributed systems
  */
-router.post('/revoke', authenticateJWT, asyncHandler(async (req: AuthRequest, res: Response) => {
+router.post('/revoke',csrfProtection,  csrfProtection, authenticateJWT, asyncHandler(async (req: AuthRequest, res: Response) => {
   if (!req.user) {
     return res.status(401).json({ error: 'Authentication required' })
   }

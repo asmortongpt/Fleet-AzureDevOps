@@ -19,6 +19,8 @@ import express, { Request, Response } from 'express';
 import { microsoftGraphService } from '../services/microsoft-graph.service';
 import { queueService } from '../services/queue.service';
 import { getErrorMessage } from '../utils/error-handler';
+import { csrfProtection } from '../middleware/csrf'
+
 
 const router = express.Router();
 

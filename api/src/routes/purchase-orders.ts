@@ -13,15 +13,15 @@ router.get("/:id", asyncHandler(async (req, res) => {
   res.json({ data: null, id: req.params.id }))
 }))
 
-router.post("/", asyncHandler(async (req, res) => {
+router.post("/",csrfProtection,  csrfProtection, asyncHandler(async (req, res) => {
   res.status(201).json({ data: req.body, message: "Created" }))
 }))
 
-router.put("/:id", asyncHandler(async (req, res) => {
+router.put("/:id",csrfProtection,  csrfProtection, asyncHandler(async (req, res) => {
   res.json({ data: req.body, id: req.params.id, message: "Updated" }))
 }))
 
-router.delete("/:id", asyncHandler(async (req, res) => {
+router.delete("/:id",csrfProtection,  csrfProtection, asyncHandler(async (req, res) => {
   res.json({ message: "Deleted", id: req.params.id }))
 }))
 
