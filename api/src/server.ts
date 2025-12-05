@@ -22,9 +22,9 @@ sentryService.init()
 
 import express from 'express'
 import cors from 'cors'
-import helmet from 'helmet'
 
 // Security middleware
+import { securityHeaders } from './middleware/security-headers'
 import { getCorsConfig, validateCorsConfiguration } from './middleware/corsConfig'
 import { globalLimiter, smartRateLimiter } from './middleware/rateLimiter'
 import { csrfProtection, getCsrfToken } from './middleware/csrf'
@@ -195,30 +195,31 @@ app.use(sentryTracingHandler())
 // SECURITY MIDDLEWARE (Applied in correct order)
 // ===========================================================================
 
-// 1. Helmet.js - Industry-standard security headers
-app.use(helmet({
+// 1. Security Headers - Must be first to set headers on all responses
+app.use(securityHeaders({
   hsts: {
     maxAge: 31536000, // 1 year
     includeSubDomains: true,
     preload: true
   },
-  contentSecurityPolicy: {
+  csp: {
     directives: {
-      defaultSrc: ["'self'"],
-      scriptSrc: ["'self'"],
-      styleSrc: ["'self'", "'unsafe-inline'"], // For Swagger UI
-      imgSrc: ["'self'", 'data:', 'https:'],
-      connectSrc: ["'self'", process.env.AZURE_OPENAI_ENDPOINT || ''].filter(Boolean),
-      fontSrc: ["'self'"],
-      objectSrc: ["'none'"],
-      frameSrc: ["'none'"],
-      baseUri: ["'self'"],
-      formAction: ["'self'"]
+      'default-src': ["'self'"],
+      'script-src': ["'self'"],
+      'style-src': ["'self'", "'unsafe-inline'"], // For Swagger UI
+      'img-src': ["'self'", 'data:', 'https:'],
+      'connect-src': ["'self'", process.env.AZURE_OPENAI_ENDPOINT || ''].filter(Boolean),
+      'font-src': ["'self'"],
+      'object-src': ["'none'"],
+      'frame-src': ["'none'"],
+      'base-uri': ["'self'"],
+      'form-action': ["'self'"]
     }
   },
-  frameguard: { action: 'deny' },
-  xContentTypeOptions: true,
-  referrerPolicy: { policy: 'strict-origin-when-cross-origin' }
+  frameOptions: 'DENY',
+  contentTypeOptions: true,
+  xssProtection: true,
+  referrerPolicy: 'strict-origin-when-cross-origin'
 }))
 
 // 2. CORS Configuration - Strict origin validation

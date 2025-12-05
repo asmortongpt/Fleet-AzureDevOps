@@ -2,7 +2,7 @@ import { Router } from "express"
 import { container } from '../container'
 import { TYPES } from '../types'
 import { DriverController } from '../modules/drivers/controllers/driver.controller'
-import { asyncHandler } from '../middleware/error-handler'
+import { asyncHandler } from '../middleware/errorHandler'
 import {
   driverCreateSchema,
   driverUpdateSchema,
