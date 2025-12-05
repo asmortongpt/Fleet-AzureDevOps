@@ -11,7 +11,7 @@
 
 import { Pool, PoolClient } from 'pg';
 import { connectionManager } from '../config/connection-manager';
-import { NotFoundError, DatabaseError } from '../middleware/error-handler';
+import { NotFoundError, DatabaseError } from '../middleware/errorHandler';
 import { isValidIdentifier } from '../utils/sql-safety';
 
 // Valid sort orders allowlist
