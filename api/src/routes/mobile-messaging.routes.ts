@@ -491,7 +491,7 @@ router.get(
       const driversResult = await pool.query(
         `SELECT
           id,
-          first_name || ` ` || last_name as name,
+          first_name || ' ' || last_name as name,
           email,
           phone_number,
           `driver` as type
@@ -505,7 +505,7 @@ router.get(
       const usersResult = await pool.query(
         `SELECT
           d.id,
-          d.first_name || ` ` || d.last_name as name,
+          d.first_name || ' ' || d.last_name as name,
           d.email,
           d.phone_number,
           `manager` as type

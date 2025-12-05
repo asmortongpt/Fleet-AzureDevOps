@@ -159,7 +159,7 @@ router.put(
       )
 
       if (result.rows.length === 0) {
-        return throw new NotFoundError("Geofence not found or not authorized to update")
+        throw new NotFoundError("Geofence not found or not authorized to update")
       }
 
       res.json(result.rows[0])

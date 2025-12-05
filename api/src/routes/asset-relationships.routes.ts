@@ -74,7 +74,7 @@ router.get(
           vp.asset_type as parent_asset_type,
           vc.make || ' ' || vc.model || ' (' || vc.vin || ')' as child_asset_name,
           vc.asset_type as child_asset_type,
-          u.first_name || ` ` || u.last_name as created_by_name
+          u.first_name || ' ' || u.last_name as created_by_name
         FROM asset_relationships ar
         LEFT JOIN vehicles vp ON ar.parent_asset_id = vp.id
         LEFT JOIN vehicles vc ON ar.child_asset_id = vc.id
@@ -223,7 +223,7 @@ router.get(
       )
 
       if (result.rows.length === 0) {
-        return throw new NotFoundError("Relationship not found")
+        throw new NotFoundError("Relationship not found")
       }
 
       res.json({ relationship: result.rows[0] })
@@ -316,7 +316,7 @@ router.post(
       logger.error('Error creating asset relationship:', error) // Wave 28: Winston logger
 
       if (error.constraint === 'asset_relationships_different_assets') {
-        return throw new ValidationError("Parent and child assets must be different")
+        throw new ValidationError("Parent and child assets must be different")
       }
 
       res.status(500).json({ error: 'Failed to create asset relationship' })
@@ -355,7 +355,7 @@ router.put(
 
       if (existsCheck.rows.length === 0) {
         await client.query(`ROLLBACK`)
-        return throw new NotFoundError("Relationship not found")
+        throw new NotFoundError("Relationship not found")
       }
 
       const result = await client.query(

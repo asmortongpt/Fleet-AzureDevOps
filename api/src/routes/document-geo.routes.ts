@@ -80,7 +80,7 @@ router.post('/nearby',csrfProtection, async (req: AuthRequest, res) => {
 
     // Validate coordinates
     if (lat < -90 || lat > 90 || lng < -180 || lng > 180) {
-      return throw new ValidationError("Invalid coordinates")
+      throw new ValidationError("Invalid coordinates")
     }
 
     // Validate radius
@@ -154,7 +154,7 @@ router.post('/within-polygon',csrfProtection, async (req: AuthRequest, res) => {
     const { polygon, categoryId, tags, limit } = req.body
 
     if (!polygon) {
-      return throw new ValidationError("Missing required parameter: polygon")
+      throw new ValidationError("Missing required parameter: polygon")
     }
 
     const documents = await documentGeoService.findDocumentsInPolygon(
@@ -364,13 +364,13 @@ router.post('/geocode',csrfProtection, async (req: AuthRequest, res) => {
     const { address } = req.body
 
     if (!address) {
-      return throw new ValidationError("Missing required parameter: address")
+      throw new ValidationError("Missing required parameter: address")
     }
 
     const result = await documentGeoService.geocode(address)
 
     if (!result) {
-      return throw new NotFoundError("Address not found")
+      throw new NotFoundError("Address not found")
     }
 
     res.json({ result })
@@ -415,13 +415,13 @@ router.post('/reverse-geocode',csrfProtection, async (req: AuthRequest, res) => 
 
     // Validate coordinates
     if (lat < -90 || lat > 90 || lng < -180 || lng > 180) {
-      return throw new ValidationError("Invalid coordinates")
+      throw new ValidationError("Invalid coordinates")
     }
 
     const result = await documentGeoService.reverseGeocode(lat, lng)
 
     if (!result) {
-      return throw new NotFoundError("Address not found")
+      throw new NotFoundError("Address not found")
     }
 
     res.json({ result })
@@ -473,7 +473,7 @@ router.put('/:id/location',csrfProtection, async (req: AuthRequest, res) => {
 
     // Validate coordinates
     if (lat < -90 || lat > 90 || lng < -180 || lng > 180) {
-      return throw new ValidationError("Invalid coordinates")
+      throw new ValidationError("Invalid coordinates")
     }
 
     await documentGeoService.setDocumentLocation(id, lat, lng)
@@ -546,7 +546,7 @@ router.post('/:id/extract-location',csrfProtection, async (req: AuthRequest, res
     )
 
     if (result.rows.length === 0) {
-      return throw new NotFoundError("Document not found")
+      throw new NotFoundError("Document not found")
     }
 
     const { file_url, file_type } = result.rows[0]
