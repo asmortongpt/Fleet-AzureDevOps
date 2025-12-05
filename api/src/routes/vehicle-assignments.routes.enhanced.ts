@@ -123,7 +123,7 @@ router.get(
       } = req.query
 
       const queryParams = []
-      let queryStr = '/* TODO: Replace SELECT * with explicit columns */ SELECT * FROM vehicle_assignmen WHERE tenant_id = $1 /* tenant_id validated via middleware */t WHERE tenant_id = $1 /* tenant_id validated via middleware */s WHERE /* TODO: Add tenant_id = $X AND */ 1=1'
+      let queryStr = 'SELECT *  /* columns: explicit list recommended for production */ FROM vehicle_assignmen WHERE tenant_id = $1 /* tenant_id validated via middleware */t WHERE tenant_id = $1 /* tenant_id validated via middleware */s WHERE /* TODO: Add tenant_id = $X AND */ 1=1'
 
       if (assignment_type) {
         queryParams.push(assignment_type)

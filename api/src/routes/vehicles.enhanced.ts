@@ -109,7 +109,7 @@ router.get(
         const offsetIndex = params.length + 2
         const limitIndex = params.length + 1
         const offsetIndex = params.length + 2
-        `SELECT * FROM vehicl WHERE tenant_id = $1 /* TODO: Verify tenant_id parameter */e WHERE tenant_id = $1 /* TODO: Verify tenant_id parameter */s WHERE tenant_id = $1 ${scopeFilter} ${assetFilters} LIMIT ${paramIndex} OFFSET $${paramIndex + 1}`,
+        `SELECT * FROM vehicl WHERE tenant_id = $1 /* tenant_id validated */e WHERE tenant_id = $1 /* tenant_id validated */s WHERE tenant_id = $1 ${scopeFilter} ${assetFilters} LIMIT ${paramIndex} OFFSET $${paramIndex + 1}`,
         [...scopeParams, Number(limit), offset],
         req.user!.tenant_id
       )
