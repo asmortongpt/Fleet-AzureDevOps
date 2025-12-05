@@ -17,6 +17,8 @@ import ragEngineService from '../services/rag-engine.service'
 import mlTrainingService from '../services/ml-training.service'
 import mcpServerService from '../services/mcp-server.service'
 import { getErrorMessage } from '../utils/error-handler'
+import { csrfProtection } from '../middleware/csrf'
+
 
 const router = express.Router()
 router.use(authenticateJWT)

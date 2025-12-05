@@ -1,7 +1,9 @@
 import { Router, Request, Response } from 'express';
 import { Pool } from 'pg';
 import ExcelJS from 'exceljs';
-import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
+import { PDFDocument, rgb, StandardFonts } from 'pdf-lib'
+import { csrfProtection } from '../middleware/csrf'
+;
 
 const router = Router();
 
@@ -122,7 +124,7 @@ router.get('/:entityType/export', async (req: Request, res: Response) => {
  * Track drill-through analytics
  * POST /api/drill-through/analytics
  */
-router.post('/analytics', async (req: Request, res: Response) => {
+router.post('/analytics', csrfProtection, async (req: Request, res: Response) => {
   try {
     const { entityType, filters, recordCount, exported, exportFormat } = req.body;
     const userId = (req as any).user?.id || null;

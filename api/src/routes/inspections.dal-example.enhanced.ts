@@ -9,7 +9,9 @@ import { InspectionRepository } from '../repositories/InspectionRepository';
 import { handleDatabaseError, NotFoundError, ValidationError } from '../services/dal';
 import { z } from 'zod';
 import { asyncHandler } from '../utils/asyncHandler';
-import { validateSchema } from '../middleware/validateSchema';
+import { validateSchema } from '../middleware/validateSchema'
+import { csrfProtection } from '../middleware/csrf'
+;
 
 const router = express.Router();
 router.use(authenticateJWT);

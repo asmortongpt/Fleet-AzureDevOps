@@ -24,6 +24,8 @@ import DocumentSearchService from '../services/DocumentSearchService'
 import SearchIndexService from '../services/SearchIndexService'
 import DocumentIndexer from '../services/DocumentIndexer'
 import { z } from 'zod'
+import { csrfProtection } from '../middleware/csrf'
+
 
 const router = express.Router()
 router.use(authenticateJWT)

@@ -25,6 +25,8 @@ import { auditLog } from '../middleware/audit'
 import documentManagementService from '../services/document-management.service'
 import documentRAGService from '../services/document-rag.service'
 import { getErrorMessage } from '../utils/error-handler'
+import { csrfProtection } from '../middleware/csrf'
+
 
 const router = Router()
 

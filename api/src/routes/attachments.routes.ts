@@ -19,6 +19,8 @@ import { auditLog } from '../middleware/audit'
 import attachmentService from '../services/attachment.service'
 import { getErrorMessage } from '../utils/error-handler'
 import { SqlParams, Attachment } from '../types'
+import { csrfProtection } from '../middleware/csrf'
+
 
 const router = Router()
 

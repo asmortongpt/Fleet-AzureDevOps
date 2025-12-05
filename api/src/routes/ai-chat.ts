@@ -21,6 +21,8 @@ import OpenAI from 'openai'
 import vectorSearchService from '../services/VectorSearchService'
 import embeddingService from '../services/EmbeddingService'
 import { getErrorMessage } from '../utils/error-handler'
+import { csrfProtection } from '../middleware/csrf'
+
 
 const router = express.Router()
 router.use(authenticateJWT)

@@ -10,6 +10,8 @@ import { buildInsertClause, buildUpdateClause } from '../utils/sql-safety'
 import { rateLimit } from 'express-rate-limit'
 import helmet from 'helmet'
 import csurf from 'csurf'
+import { csrfProtection } from '../middleware/csrf'
+
 
 const router = express.Router()
 

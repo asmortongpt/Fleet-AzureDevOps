@@ -8,6 +8,8 @@ import { requireRBAC, Role, PERMISSIONS } from '../middleware/rbac'
 import { auditLog } from '../middleware/audit'
 import { z } from 'zod'
 import { validateParams, validateBody } from '../middleware/validate'
+import { csrfProtection } from '../middleware/csrf'
+
 
 const router = Router()
 const facilityController = container.get<FacilityController>(TYPES.FacilityController)
