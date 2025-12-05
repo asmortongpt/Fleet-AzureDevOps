@@ -17,6 +17,8 @@ import type { AuthRequest } from '../middleware/auth'
 import { authenticateJWT } from '../middleware/auth'
 import documentGeoService from '../services/document-geo.service'
 import { getErrorMessage } from '../utils/error-handler'
+import { csrfProtection } from '../middleware/csrf'
+
 
 const router = Router()
 
@@ -60,7 +62,7 @@ router.use(authenticateJWT)
  *                 type: number
  *                 description: Minimum distance in meters
  */
-router.post('/nearby', async (req: AuthRequest, res) => {
+router.post('/nearby', csrfProtection, async (req: AuthRequest, res) => {
   try {
     const tenantId = req.user?.tenant_id
 
@@ -141,7 +143,7 @@ router.post('/nearby', async (req: AuthRequest, res) => {
  *               limit:
  *                 type: integer
  */
-router.post('/within-polygon', async (req: AuthRequest, res) => {
+router.post('/within-polygon', csrfProtection, async (req: AuthRequest, res) => {
   try {
     const tenantId = req.user?.tenant_id
 
@@ -209,7 +211,7 @@ router.post('/within-polygon', async (req: AuthRequest, res) => {
  *               limit:
  *                 type: integer
  */
-router.post('/along-route', async (req: AuthRequest, res) => {
+router.post('/along-route', csrfProtection, async (req: AuthRequest, res) => {
   try {
     const tenantId = req.user?.tenant_id
 
@@ -357,7 +359,7 @@ router.get('/clusters', async (req: AuthRequest, res) => {
  *               address:
  *                 type: string
  */
-router.post('/geocode', async (req: AuthRequest, res) => {
+router.post('/geocode', csrfProtection, async (req: AuthRequest, res) => {
   try {
     const { address } = req.body
 
@@ -401,7 +403,7 @@ router.post('/geocode', async (req: AuthRequest, res) => {
  *               lng:
  *                 type: number
  */
-router.post('/reverse-geocode', async (req: AuthRequest, res) => {
+router.post('/reverse-geocode', csrfProtection, async (req: AuthRequest, res) => {
   try {
     const { lat, lng } = req.body
 
@@ -458,7 +460,7 @@ router.post('/reverse-geocode', async (req: AuthRequest, res) => {
  *               lng:
  *                 type: number
  */
-router.put('/:id/location', async (req: AuthRequest, res) => {
+router.put('/:id/location', csrfProtection, async (req: AuthRequest, res) => {
   try {
     const { id } = req.params
     const { lat, lng } = req.body
@@ -532,7 +534,7 @@ router.get('/all', async (req: AuthRequest, res) => {
  *         schema:
  *           type: string
  */
-router.post('/:id/extract-location', async (req: AuthRequest, res) => {
+router.post('/:id/extract-location', csrfProtection, async (req: AuthRequest, res) => {
   try {
     const { id } = req.params
 

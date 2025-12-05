@@ -22,6 +22,8 @@ import { authenticateJWT, AuthRequest } from '../middleware/auth';
 import { requirePermission } from '../middleware/permissions';
 import { AssignmentNotificationService } from '../services/assignment-notification.service';
 import { getErrorMessage } from '../utils/error-handler'
+import { csrfProtection } from '../middleware/csrf'
+
 
 const router = express.Router();
 

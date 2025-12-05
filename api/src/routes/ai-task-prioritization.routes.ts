@@ -29,6 +29,8 @@ import { authenticateJWT } from '../middleware/auth'
 import { requirePermission } from '../middleware/permissions'
 import rateLimit from 'express-rate-limit'
 import { z } from 'zod'
+import { csrfProtection } from '../middleware/csrf'
+
 import {
   calculatePriorityScore,
   recommendTaskAssignment,

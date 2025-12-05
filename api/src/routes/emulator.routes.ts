@@ -75,7 +75,7 @@ router.get('/status', async (req: Request, res: Response) => {
  *       200:
  *         description: Emulators started successfully
  */
-router.post('/start', async (req: Request, res: Response) => {
+router.post('/start', csrfProtection, async (req: Request, res: Response) => {
   try {
     const { vehicleIds } = req.body
     const orch = getOrchestrator()
@@ -106,7 +106,7 @@ router.post('/start', async (req: Request, res: Response) => {
  *       200:
  *         description: Emulators stopped successfully
  */
-router.post('/stop', async (req: Request, res: Response) => {
+router.post('/stop', csrfProtection, async (req: Request, res: Response) => {
   try {
     const orch = getOrchestrator()
     await orch.stop()
@@ -134,7 +134,7 @@ router.post('/stop', async (req: Request, res: Response) => {
  *       200:
  *         description: Emulators paused successfully
  */
-router.post('/pause', async (req: Request, res: Response) => {
+router.post('/pause', csrfProtection, async (req: Request, res: Response) => {
   try {
     const orch = getOrchestrator()
     await orch.pause()
@@ -162,7 +162,7 @@ router.post('/pause', async (req: Request, res: Response) => {
  *       200:
  *         description: Emulators resumed successfully
  */
-router.post('/resume', async (req: Request, res: Response) => {
+router.post('/resume', csrfProtection, async (req: Request, res: Response) => {
   try {
     const orch = getOrchestrator()
     await orch.resume()
@@ -197,7 +197,7 @@ router.post('/resume', async (req: Request, res: Response) => {
  *       200:
  *         description: Scenario started successfully
  */
-router.post('/scenario/:scenarioId', async (req: Request, res: Response) => {
+router.post('/scenario/:scenarioId', csrfProtection, async (req: Request, res: Response) => {
   try {
     const { scenarioId } = req.params
     const orch = getOrchestrator()
@@ -338,6 +338,8 @@ router.get('/routes', async (req: Request, res: Response) => {
   try {
     const fs = require('fs')
     const path = require('path')
+import { csrfProtection } from '../middleware/csrf'
+
 
     const routesPath = path.join(__dirname, '..', 'emulators', 'config', 'routes.json')
     const data = JSON.parse(fs.readFileSync(routesPath, 'utf-8')
