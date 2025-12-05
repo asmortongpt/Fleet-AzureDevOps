@@ -1,8 +1,12 @@
 import { Client } from '@microsoft/microsoft-graph-client'
 import axios from 'axios'
-import pool from '../config/database'
+import { Pool } from 'pg'
 import nodemailer from 'nodemailer'
 import { createEvent as createICSEvent } from 'ics'
+
+
+export class CalendarService {
+  constructor(private db: Pool) {}
 
 // Azure AD Configuration
 const AZURE_AD_CONFIG = {
@@ -63,7 +67,7 @@ interface CalendarEvent {
 /**
  * Create a calendar event
  */
-export async function createEvent(
+  async createEvent(
   userId: string,
   subject: string,
   start: Date,
@@ -110,7 +114,7 @@ export async function createEvent(
     console.log(`Calendar event created:`, response.id)
 
     // Store in our database
-    await pool.query(
+    await this.db.query(
       `INSERT INTO calendar_events (event_id, subject, start_time, end_time, location, attendees, organizer)
        VALUES ($1, $2, $3, $4, $5, $6, $7)`,
       [
@@ -134,7 +138,7 @@ export async function createEvent(
 /**
  * Get calendar events within a date range
  */
-export async function getEvents(
+  async getEvents(
   userId: string,
   startDate: Date,
   endDate: Date
@@ -162,7 +166,7 @@ export async function getEvents(
 /**
  * Get a specific event by ID
  */
-export async function getEventById(userId: string, eventId: string): Promise<any> {
+  async getEventById(userId: string, eventId: string): Promise<any> {
   try {
     const client = await getGraphClient()
 
@@ -180,7 +184,7 @@ export async function getEventById(userId: string, eventId: string): Promise<any
 /**
  * Update a calendar event
  */
-export async function updateEvent(
+  async updateEvent(
   userId: string,
   eventId: string,
   updates: Partial<CalendarEvent>
@@ -228,7 +232,7 @@ export async function updateEvent(
       .patch(eventUpdate)
 
     // Update in our database
-    await pool.query(
+    await this.db.query(
       `UPDATE calendar_events
        SET updated_at = NOW()
        WHERE event_id = $1`,
@@ -246,7 +250,7 @@ export async function updateEvent(
 /**
  * Delete/Cancel a calendar event
  */
-export async function deleteEvent(userId: string, eventId: string): Promise<void> {
+  async deleteEvent(userId: string, eventId: string): Promise<void> {
   try {
     const client = await getGraphClient()
 
@@ -255,7 +259,7 @@ export async function deleteEvent(userId: string, eventId: string): Promise<void
       .delete()
 
     // Update status in our database
-    await pool.query(
+    await this.db.query(
       `UPDATE calendar_events
        SET status = `cancelled`, updated_at = NOW()
        WHERE event_id = $1',
@@ -272,7 +276,7 @@ export async function deleteEvent(userId: string, eventId: string): Promise<void
 /**
  * Accept a meeting invitation
  */
-export async function acceptEvent(userId: string, eventId: string, comment?: string): Promise<void> {
+  async acceptEvent(userId: string, eventId: string, comment?: string): Promise<void> {
   try {
     const client = await getGraphClient()
 
@@ -293,7 +297,7 @@ export async function acceptEvent(userId: string, eventId: string, comment?: str
 /**
  * Decline a meeting invitation
  */
-export async function declineEvent(userId: string, eventId: string, comment?: string): Promise<void> {
+  async declineEvent(userId: string, eventId: string, comment?: string): Promise<void> {
   try {
     const client = await getGraphClient()
 
@@ -314,7 +318,7 @@ export async function declineEvent(userId: string, eventId: string, comment?: st
 /**
  * Tentatively accept a meeting invitation
  */
-export async function tentativelyAcceptEvent(userId: string, eventId: string, comment?: string): Promise<void> {
+  async tentativelyAcceptEvent(userId: string, eventId: string, comment?: string): Promise<void> {
   try {
     const client = await getGraphClient()
 
@@ -335,7 +339,7 @@ export async function tentativelyAcceptEvent(userId: string, eventId: string, co
 /**
  * Find available meeting times for attendees
  */
-export async function findMeetingTimes(
+  async findMeetingTimes(
   organizerEmail: string,
   attendees: string[],
   durationMinutes: number,
@@ -389,7 +393,7 @@ export async function findMeetingTimes(
 /**
  * Get availability/free-busy information for users
  */
-export async function getAvailability(
+  async getAvailability(
   users: string[],
   startDate: Date,
   endDate: Date,
@@ -425,7 +429,7 @@ export async function getAvailability(
 /**
  * Schedule vehicle maintenance with calendar integration
  */
-export async function scheduleMaintenance(
+  async scheduleMaintenance(
   vehicleId: string,
   durationMinutes: number,
   preferredDate?: Date,
@@ -433,7 +437,7 @@ export async function scheduleMaintenance(
 ): Promise<any> {
   try {
     // Get vehicle details
-    const vehicleResult = await pool.query(
+    const vehicleResult = await this.db.query(
       `SELECT
       id,
       tenant_id,
@@ -495,7 +499,7 @@ export async function scheduleMaintenance(
     )
 
     // Update database with entity reference
-    await pool.query(
+    await this.db.query(
       `UPDATE calendar_events
        SET entity_type = 'vehicle', entity_id = $1
        WHERE event_id = $2',
@@ -512,7 +516,7 @@ export async function scheduleMaintenance(
 /**
  * Schedule driver training session
  */
-export async function scheduleDriverTraining(
+  async scheduleDriverTraining(
   driverId: string,
   durationMinutes: number,
   trainingType?: string,
@@ -521,7 +525,7 @@ export async function scheduleDriverTraining(
 ): Promise<any> {
   try {
     // Get driver details
-    const driverResult = await pool.query(
+    const driverResult = await this.db.query(
       `SELECT
       id,
       tenant_id,
@@ -572,7 +576,7 @@ export async function scheduleDriverTraining(
     )
 
     // Update database with entity reference
-    await pool.query(
+    await this.db.query(
       `UPDATE calendar_events
        SET entity_type = 'driver_training', entity_id = $1
        WHERE event_id = $2',
@@ -589,7 +593,7 @@ export async function scheduleDriverTraining(
 /**
  * Create and send calendar invite via email with ICS attachment
  */
-export async function sendCalendarInviteEmail(
+  async sendCalendarInviteEmail(
   to: string[],
   subject: string,
   start: Date,
@@ -659,18 +663,7 @@ export async function sendCalendarInviteEmail(
   }
 }
 
-export default {
-  createEvent,
-  getEvents,
-  getEventById,
-  updateEvent,
-  deleteEvent,
-  acceptEvent,
-  declineEvent,
-  tentativelyAcceptEvent,
-  findMeetingTimes,
-  getAvailability,
-  scheduleMaintenance,
-  scheduleDriverTraining,
-  sendCalendarInviteEmail
+
 }
+
+export default CalendarService

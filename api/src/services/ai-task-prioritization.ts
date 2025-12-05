@@ -20,7 +20,7 @@
  */
 
 import { OpenAIClient, AzureKeyCredential } from '@azure/openai'
-import pool from '../config/database'
+import { Pool } from 'pg'
 import { z } from 'zod'
 
 // ============================================================================
@@ -139,7 +139,11 @@ const azureOpenAI = new OpenAIClient(
  * Calculate multi-factor priority score for a task
  * Uses AI to analyze context and determine optimal priority
  */
-export async function calculatePriorityScore(
+
+export class AITaskPrioritizationService {
+  constructor(private db: Pool) {}
+
+  async calculatePriorityScore(
   taskData: z.infer<typeof TaskDataSchema>
 ): Promise<PriorityScore> {
   try {
@@ -233,7 +237,7 @@ async function gatherTaskContext(taskData: z.infer<typeof TaskDataSchema>) {
     const queries = await Promise.allSettled([
       // Get vehicle info if related
       taskData.vehicle_id
-        ? pool.query(
+        ? this.db.query(
             `SELECT vehicle_number, make, model, year FROM vehicles WHERE id = $1 AND tenant_id = $2`,
             [taskData.vehicle_id, taskData.tenant_id]
           )
@@ -241,7 +245,7 @@ async function gatherTaskContext(taskData: z.infer<typeof TaskDataSchema>) {
 
       // Count dependent tasks
       taskData.id
-        ? pool.query(
+        ? this.db.query(
             `SELECT COUNT(*) as count FROM tasks WHERE parent_task_id = $1 AND tenant_id = $2`,
             [taskData.id, taskData.tenant_id]
           )
@@ -249,14 +253,14 @@ async function gatherTaskContext(taskData: z.infer<typeof TaskDataSchema>) {
 
       // Count blocking tasks
       taskData.parent_task_id
-        ? pool.query(
+        ? this.db.query(
             `SELECT COUNT(*) as count FROM tasks WHERE id = $1 AND tenant_id = $2 AND status != $3`,
             [taskData.parent_task_id, taskData.tenant_id, 'completed']
           )
         : Promise.resolve({ rows: [{ count: 0 }] }),
 
       // Count available drivers
-      pool.query(
+      this.db.query(
         `SELECT COUNT(*) as count FROM users
          WHERE tenant_id = $1 AND is_active = true AND role IN ($2, $3)`,
         [taskData.tenant_id, 'driver', 'technician']
@@ -325,7 +329,7 @@ function calculateBasicPriorityScore(taskData: z.infer<typeof TaskDataSchema>): 
  * Recommend the best driver/technician for a task using AI
  * Considers skills, location, workload, and performance history
  */
-export async function recommendTaskAssignment(
+  async recommendTaskAssignment(
   taskData: z.infer<typeof TaskDataSchema>,
   considerLocation: boolean = true
 ): Promise<TaskAssignment[]> {
@@ -333,7 +337,7 @@ export async function recommendTaskAssignment(
     const validatedTask = TaskDataSchema.parse(taskData)
 
     // Get available users with their skills and current workload
-    const usersQuery = await pool.query(
+    const usersQuery = await this.db.query(
       `SELECT
         u.id,
         u.first_name || ' ' || u.last_name as name,
@@ -372,7 +376,7 @@ export async function recommendTaskAssignment(
     // Get task location if vehicle is involved
     let taskLocation: { latitude: number; longitude: number } | null = null
     if (considerLocation && validatedTask.vehicle_id) {
-      const vehicleLocation = await pool.query(
+      const vehicleLocation = await this.db.query(
         `SELECT
           COALESCE(last_latitude, 0) as latitude,
           COALESCE(last_longitude, 0) as longitude
@@ -492,7 +496,7 @@ Return ONLY valid JSON array:
 /**
  * Analyze task dependencies and determine execution order
  */
-export async function analyzeDependencies(
+  async analyzeDependencies(
   taskId: string,
   tenantId: string
 ): Promise<DependencyGraph> {
@@ -500,7 +504,7 @@ export async function analyzeDependencies(
     // Get all related tasks (parent, children, siblings)
     const [dependencies, dependents, parentTask] = await Promise.all([
       // Tasks this task depends on (parent and its incomplete siblings)
-      pool.query(
+      this.db.query(
         `SELECT id, task_title, status FROM tasks
          WHERE id = (SELECT parent_task_id FROM tasks WHERE id = $1 AND tenant_id = $2)
            AND tenant_id = $2`,
@@ -508,14 +512,14 @@ export async function analyzeDependencies(
       ),
 
       // Tasks that depend on this task
-      pool.query(
+      this.db.query(
         `SELECT id, task_title, status FROM tasks
          WHERE parent_task_id = $1 AND tenant_id = $2`,
         [taskId, tenantId]
       ),
 
       // Get parent task info
-      pool.query(
+      this.db.query(
         `SELECT parent_task_id, status FROM tasks WHERE id = $1 AND tenant_id = $2`,
         [taskId, tenantId]
       )
@@ -555,7 +559,7 @@ export async function analyzeDependencies(
 /**
  * Get optimal task execution order using topological sort
  */
-export async function getOptimalExecutionOrder(
+  async getOptimalExecutionOrder(
   taskIds: string[],
   tenantId: string
 ): Promise<string[][]> {
@@ -626,13 +630,13 @@ export async function getOptimalExecutionOrder(
 /**
  * Optimize resource allocation across multiple tasks
  */
-export async function optimizeResourceAllocation(
+  async optimizeResourceAllocation(
   taskIds: string[],
   tenantId: string
 ): Promise<ResourceOptimization[]> {
   try {
     // Get all tasks
-    const tasksQuery = await pool.query(
+    const tasksQuery = await this.db.query(
       `SELECT
         id, task_title, description, task_type, priority,
         estimated_hours, due_date, assigned_to, status
@@ -718,3 +722,7 @@ export default {
   getOptimalExecutionOrder,
   optimizeResourceAllocation
 }
+
+}
+
+export default AITaskPrioritizationService

@@ -1,72 +1,22 @@
-Here is a TypeScript code snippet that follows the security rules you provided:
+import { pgTable, uuid, text, decimal, timestamp, pgEnum } from 'drizzle-orm/pg-core';
 
-```typescript
-import { pgTable } from 'drizzle-orm';
-import { Pool } from 'pg';
-import { config } from 'dotenv';
-import { v4 as uuidv4 } from 'uuid';
+// Define status enum
+export const statusEnum = pgEnum('camera_status', ['active', 'inactive', 'maintenance']);
 
-config();
-
-const pool = new Pool({
-  user: process.env.PGUSER,
-  host: process.env.PGHOST,
-  database: process.env.PGDATABASE,
-  password: process.env.PGPASSWORD,
-  port: Number(process.env.PGPORT),
+// Traffic cameras table schema
+export const trafficCameras = pgTable('traffic_cameras', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  fl511_id: text('fl511_id').notNull().unique(),
+  name: text('name').notNull(),
+  route: text('route').notNull(),
+  latitude: decimal('latitude', { precision: 10, scale: 7 }).notNull(),
+  longitude: decimal('longitude', { precision: 10, scale: 7 }).notNull(),
+  image_url: text('image_url').notNull(),
+  status: statusEnum('status').notNull().default('active'),
+  last_updated: timestamp('last_updated').notNull().defaultNow(),
+  created_at: timestamp('created_at').notNull().defaultNow(),
+  updated_at: timestamp('updated_at').notNull().defaultNow()
 });
 
-type Status = 'active' | 'inactive' | 'maintenance';
-
-interface TrafficCamera {
-  id: string;
-  fl511_id: string;
-  name: string;
-  route: string;
-  latitude: number;
-  longitude: number;
-  image_url: string;
-  status: Status;
-  last_updated: Date;
-}
-
-const TrafficCameras = pgTable<TrafficCamera>({
-  tableName: 'traffic_cameras',
-  pool,
-  columns: {
-    id: { type: 'uuid', primaryKey: true },
-    fl511_id: { type: 'text' },
-    name: { type: 'text' },
-    route: { type: 'text' },
-    latitude: { type: 'decimal' },
-    longitude: { type: 'decimal' },
-    image_url: { type: 'text' },
-    status: { type: 'enum', enumName: 'status', enumValues: ['active', 'inactive', 'maintenance'] },
-    last_updated: { type: 'timestamp' },
-  },
-  indexes: [
-    { columns: ['latitude', 'longitude'], method: 'gist' },
-    { columns: ['route'] },
-  ],
-});
-
-async function addCamera(camera: Partial<TrafficCamera>) {
-  try {
-    camera.id = uuidv4();
-    await TrafficCameras.insert(camera);
-  } catch (error) {
-    console.error(`Error: ${error.message}`);
-  }
-}
-
-async function getCamera(id: string) {
-  try {
-    const camera = await TrafficCameras.findOne({ id });
-    return camera;
-  } catch (error) {
-    console.error(`Error: ${error.message}`);
-  }
-}
-```
-
-This code creates a PostgreSQL table using the Drizzle ORM, and includes functions to add and retrieve cameras from the table. It uses environment variables for the database configuration, and includes proper error handling. The code also uses TypeScript types for all variables and function parameters/returns. The SQL queries use parameterized queries, not string concatenation.
+export type TrafficCamera = typeof trafficCameras.$inferSelect;
+export type NewTrafficCamera = typeof trafficCameras.$inferInsert;

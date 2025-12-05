@@ -5,7 +5,7 @@
  * Supports multiple data sources, joins, filters, grouping, and aggregations
  */
 
-import pool from '../config/database'
+import { Pool } from 'pg'
 import excelExportService, { ExportColumn, ExportOptions } from './excel-export.service'
 import nodemailer from 'nodemailer'
 
@@ -77,6 +77,8 @@ interface CustomReport {
 }
 
 export class CustomReportService {
+  constructor(private db: Pool) {}
+
   // Define available data sources and their schemas
   private dataSourceSchemas: Map<string, DataSourceSchema> = new Map([
     ['vehicles', {
@@ -258,7 +260,7 @@ export class CustomReportService {
     userId: string,
     reportData: Partial<CustomReport>
   ): Promise<CustomReport> {
-    const client = await pool.connect()
+    const client = await this.db.connect()
 
     try {
       await client.query('BEGIN')
@@ -308,7 +310,7 @@ export class CustomReportService {
     userId: string,
     reportData: Partial<CustomReport>
   ): Promise<CustomReport> {
-    const client = await pool.connect()
+    const client = await this.db.connect()
 
     try {
       await client.query('BEGIN')
@@ -365,7 +367,7 @@ export class CustomReportService {
    * Delete a custom report
    */
   async deleteReport(reportId: string, tenantId: string): Promise<void> {
-    await pool.query(
+    await this.db.query(
       'DELETE FROM custom_reports WHERE id = $1 AND tenant_id = $2',
       [reportId, tenantId]
     )
@@ -375,7 +377,7 @@ export class CustomReportService {
    * Get report by ID
    */
   async getReportById(reportId: string, tenantId: string): Promise<CustomReport | null> {
-    const result = await pool.query(
+    const result = await this.db.query(
       'SELECT 
       id,
       tenant_id,
@@ -404,7 +406,7 @@ export class CustomReportService {
    * List user's reports
    */
   async listReports(tenantId: string, userId: string): Promise<CustomReport[]> {
-    const result = await pool.query(
+    const result = await this.db.query(
       `SELECT id, tenant_id, report_name, report_type, query_config, created_at, updated_at FROM custom_reports
        WHERE tenant_id = $1
        AND (created_by = $2 OR is_public = true OR id IN (
@@ -435,7 +437,7 @@ export class CustomReportService {
     }
 
     // Create execution record
-    const executionResult = await pool.query(
+    const executionResult = await this.db.query(
       `INSERT INTO report_executions (
         report_id, executed_by, format, status
       ) VALUES ($1, $2, $3, 'running')
@@ -460,7 +462,7 @@ export class CustomReportService {
       const { query, params } = this.buildQuery(config, tenantId)
 
       // Execute query
-      const dataResult = await pool.query(query, params)
+      const dataResult = await this.db.query(query, params)
       const data = dataResult.rows
 
       // Export to file
@@ -486,7 +488,7 @@ export class CustomReportService {
       const duration = Date.now() - startTime
 
       // Update execution record
-      await pool.query(
+      await this.db.query(
         `UPDATE report_executions SET
           status = `completed`,
           execution_duration_ms = $1,
@@ -504,7 +506,7 @@ export class CustomReportService {
       }
     } catch (error: any) {
       // Update execution record with error
-      await pool.query(
+      await this.db.query(
         `UPDATE report_executions SET
           status = `failed`,
           error_message = $1
@@ -679,7 +681,7 @@ export class CustomReportService {
     reportId: string,
     tenantId: string
   ): Promise<any[]> {
-    const result = await pool.query(
+    const result = await this.db.query(
       `SELECT re.*, u.first_name, u.last_name
        FROM report_executions re
        LEFT JOIN users u ON re.executed_by = u.id
@@ -719,7 +721,7 @@ export class CustomReportService {
 
     query += ' ORDER BY category, template_name'
 
-    const result = await pool.query(query, params)
+    const result = await this.db.query(query, params)
 
     return result.rows.map(row => ({
       ...row,
@@ -736,7 +738,7 @@ export class CustomReportService {
     userId: string,
     reportName: string
   ): Promise<CustomReport> {
-    const template = await pool.query(
+    const template = await this.db.query(
       'SELECT 
       id,
       tenant_id,
@@ -782,7 +784,7 @@ export class CustomReportService {
     recipients: string[],
     reportName: string
   ): Promise<void> {
-    const execution = await pool.query(
+    const execution = await this.db.query(
       'SELECT 
       id,
       report_id,
@@ -868,4 +870,4 @@ export class CustomReportService {
   }
 }
 
-export default new CustomReportService()
+export default CustomReportService
