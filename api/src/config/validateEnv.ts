@@ -19,7 +19,7 @@ export function validateEnv() {
     if (error instanceof z.ZodError) {
       console.error('Environment validation failed:');
       error.issues.forEach((issue, index) => {
-        console.error(\`  \${index + 1}. \${issue.path.join('.')}: \${issue.message}\`);
+        console.error(`  ${index + 1}. ${issue.path.join('.')}: ${issue.message}`);
       });
       throw new Error('Invalid environment configuration');
     }
