@@ -1,6 +1,6 @@
 import express, { Request, Response } from 'express'
 import { container } from '../container'
-import { asyncHandler } from '../middleware/error-handler'
+import { asyncHandler } from '../middleware/errorHandler'
 import { NotFoundError, ValidationError } from '../errors/app-error'
 import { Pool } from 'pg'
 import { z } from 'zod'
@@ -78,10 +78,14 @@ router.get(
       let paramIndex = 2
 
       if (year) {
+        const limitIndex = params.length + 1
+        const offsetIndex = params.length + 2
         whereConditions.push(`arc.year = $${paramIndex++}`)
         params.push(parseInt(year as string)
       }
       if (status) {
+        const limitIndex = params.length + 1
+        const offsetIndex = params.length + 2
         whereConditions.push(`arc.status = $${paramIndex++}`)
         params.push(status)
       }
@@ -97,7 +101,9 @@ router.get(
         LEFT JOIN users u ON arc.submitted_by_user_id = u.id
         WHERE ${whereClause}
         ORDER BY arc.year DESC, arc.start_date DESC
-        LIMIT $${paramIndex++} OFFSET $${paramIndex}
+        const limitIndex = params.length + 1
+        const offsetIndex = params.length + 2
+        LIMIT $${paramIndex++} OFFSET ${paramIndex}
       `
       params.push(parseInt(limit as string), offset)
 

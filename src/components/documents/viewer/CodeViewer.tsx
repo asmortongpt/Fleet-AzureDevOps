@@ -5,6 +5,8 @@
  */
 
 import { useState, useEffect } from 'react';
+import { sanitizeHtml } from '@/utils/xss-sanitizer'
+
 import { Copy, Check, Search, Download } from 'lucide-react';
 import DOMPurify from 'dompurify';
 import { Button } from '@/components/ui/button';
@@ -252,7 +254,7 @@ export function CodeViewer({ document }: CodeViewerProps) {
                   <td className="px-4 py-0.5">
                     <pre
                       className="whitespace-pre-wrap break-all"
-                      dangerouslySetInnerHTML={{ __html: highlightCode(line) || '&nbsp;' }}
+                      dangerouslySetInnerHTML={{ __html: sanitizeHtml(highlightCode(line) || '&nbsp;') }}
                     />
                   </td>
                 </tr>

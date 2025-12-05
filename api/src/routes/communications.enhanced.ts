@@ -1,6 +1,6 @@
 import express, { Response } from 'express'
 import { container } from '../container'
-import { asyncHandler } from '../middleware/error-handler'
+import { asyncHandler } from '../middleware/errorHandler'
 import { NotFoundError, ValidationError } from '../errors/app-error'
 import { AuthRequest, authenticateJWT } from '../middleware/auth'
 import { requirePermission } from '../middleware/permissions'
@@ -72,41 +72,57 @@ router.get(
       let paramIndex = 2
 
       if (communication_type) {
-        query += ` AND c.communication_type = $${paramIndex}`
+        const limitIndex = params.length + 1
+        const offsetIndex = params.length + 2
+        query += ` AND c.communication_type = ${paramIndex}`
         params.push(communication_type)
         paramIndex++
       }
 
       if (category) {
-        query += ` AND (c.ai_detected_category = $${paramIndex} OR c.manual_category = $${paramIndex})`
+        const limitIndex = params.length + 1
+        const offsetIndex = params.length + 2
+        query += ` AND (c.ai_detected_category = ${paramIndex} OR c.manual_category = ${paramIndex})`
         params.push(category)
         paramIndex++
       }
 
       if (priority) {
-        query += ` AND (c.ai_detected_priority = $${paramIndex} OR c.manual_priority = $${paramIndex})`
+        const limitIndex = params.length + 1
+        const offsetIndex = params.length + 2
+        query += ` AND (c.ai_detected_priority = ${paramIndex} OR c.manual_priority = ${paramIndex})`
         params.push(priority)
         paramIndex++
       }
 
       if (status) {
-        query += ` AND c.status = $${paramIndex}`
+        const limitIndex = params.length + 1
+        const offsetIndex = params.length + 2
+        query += ` AND c.status = ${paramIndex}`
         params.push(status)
         paramIndex++
       }
 
       if (search) {
         query += ` AND (
-          c.subject ILIKE $${paramIndex} OR
-          c.body ILIKE $${paramIndex} OR
-          c.from_contact_name ILIKE $${paramIndex}
+          const limitIndex = params.length + 1
+          const offsetIndex = params.length + 2
+          c.subject ILIKE ${paramIndex} OR
+          const limitIndex = params.length + 1
+          const offsetIndex = params.length + 2
+          c.body ILIKE ${paramIndex} OR
+          const limitIndex = params.length + 1
+          const offsetIndex = params.length + 2
+          c.from_contact_name ILIKE ${paramIndex}
         )`
         params.push(`%${search}%`)
         paramIndex++
       }
 
       query += ` GROUP BY c.id, from_user.first_name, from_user.last_name`
-      query += ` ORDER BY c.communication_datetime DESC LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`
+      const limitIndex = params.length + 1
+      const offsetIndex = params.length + 2
+      query += ` ORDER BY c.communication_datetime DESC LIMIT ${paramIndex} OFFSET $${paramIndex + 1}`
       params.push(limit, offset)
 
       const result = await pool.query(query, params)
