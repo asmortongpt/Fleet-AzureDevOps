@@ -89,10 +89,10 @@ router.get('/:id', async (req: Request, res: Response) => {
         road, direction, county, feed_url, thumbnail_url,
         status, metadata, last_updated
       FROM traffic_cameras
-      WHERE /* TODO: Add tenant_id = $X AND */ id = $1
+      WHERE tenant_id = $1 AND id = $2
     `;
 
-    const result = await pool.query(query, [id]);
+    const result = await pool.query(query, [req.user!.tenant_id, id]);
 
     if (result.rows.length === 0) {
       return throw new NotFoundError("Camera not found");
