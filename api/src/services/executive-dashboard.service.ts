@@ -6,7 +6,7 @@
  */
 
 import OpenAI from 'openai'
-import pool from '../config/database'
+import { Pool } from 'pg'
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
@@ -90,6 +90,8 @@ interface CostAnalysis {
 }
 
 export class ExecutiveDashboardService {
+  constructor(private db: Pool) {}
+
   /**
    * Calculate all KPIs for the executive dashboard
    */
@@ -100,7 +102,7 @@ export class ExecutiveDashboardService {
     const endOfLastMonth = new Date(now.getFullYear(), now.getMonth(), 0)
 
     // Get vehicle counts
-    const vehicleStats = await pool.query(`
+    const vehicleStats = await this.db.query(`
       SELECT
         COUNT(*) as total,
         COUNT(*) FILTER (WHERE status = 'active') as active,
@@ -113,7 +115,7 @@ export class ExecutiveDashboardService {
     const vStats = vehicleStats.rows[0]
 
     // Get mileage data
-    const mileageData = await pool.query(`
+    const mileageData = await this.db.query(`
       SELECT
         COALESCE(SUM(ft.gallons * 25.0), 0) as current_month_mileage,
         COALESCE(AVG(ft.gallons), 0) as avg_fuel_consumption
@@ -122,7 +124,7 @@ export class ExecutiveDashboardService {
         AND ft.transaction_date >= $2
     `, [tenantId, startOfMonth])
 
-    const lastMonthMileage = await pool.query(`
+    const lastMonthMileage = await this.db.query(`
       SELECT COALESCE(SUM(ft.gallons * 25.0), 0) as last_month_mileage
       FROM fuel_transactions ft
       WHERE ft.tenant_id = $1
@@ -135,7 +137,7 @@ export class ExecutiveDashboardService {
     const mileageChange = lastMileage > 0 ? ((currentMileage - lastMileage) / lastMileage) * 100 : 0
 
     // Calculate fuel efficiency
-    const fuelEfficiency = await pool.query(`
+    const fuelEfficiency = await this.db.query(`
       SELECT
         COALESCE(AVG(
           CASE
@@ -149,7 +151,7 @@ export class ExecutiveDashboardService {
     `, [tenantId, startOfMonth])
 
     // Get maintenance costs
-    const maintenanceCosts = await pool.query(`
+    const maintenanceCosts = await this.db.query(`
       SELECT
         COALESCE(AVG(total_cost), 0) as avg_cost_per_vehicle
       FROM work_orders
@@ -159,7 +161,7 @@ export class ExecutiveDashboardService {
     `, [tenantId, startOfMonth])
 
     // Calculate incident rate
-    const incidentRate = await pool.query(`
+    const incidentRate = await this.db.query(`
       SELECT
         COUNT(*) as incident_count,
         COALESCE(SUM(
@@ -179,7 +181,7 @@ export class ExecutiveDashboardService {
     const incidentsPer100k = totalMiles > 0 ? (incidents / totalMiles) * 100000 : 0
 
     // Get driver safety scores
-    const driverScores = await pool.query(`
+    const driverScores = await this.db.query(`
       SELECT COALESCE(AVG(safety_score), 100) as avg_score
       FROM drivers
       WHERE tenant_id = $1
@@ -187,7 +189,7 @@ export class ExecutiveDashboardService {
     `, [tenantId])
 
     // Calculate fleet utilization
-    const utilizationData = await pool.query(`
+    const utilizationData = await this.db.query(`
       SELECT
         COUNT(DISTINCT v.id) as active_count,
         COALESCE(AVG(v.engine_hours), 0) as avg_hours
@@ -206,7 +208,7 @@ export class ExecutiveDashboardService {
       : 0
 
     // Task completion rate (from work orders)
-    const taskCompletion = await pool.query(`
+    const taskCompletion = await this.db.query(`
       SELECT
         COUNT(*) FILTER (WHERE status = 'completed') as completed,
         COUNT(*) as total
@@ -220,7 +222,7 @@ export class ExecutiveDashboardService {
     const taskCompletionRate = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0
 
     // Alert response time (using policy violations as proxy)
-    const alertResponse = await pool.query(`
+    const alertResponse = await this.db.query(`
       SELECT
         COALESCE(AVG(
           EXTRACT(EPOCH FROM (acknowledged_at - violation_time)) / 3600
@@ -263,7 +265,7 @@ export class ExecutiveDashboardService {
     startDate.setDate(startDate.getDate() - days)
 
     // Daily utilization trend
-    const utilizationTrend = await pool.query(`
+    const utilizationTrend = await this.db.query(`
       SELECT
         DATE(created_at) as date,
         COUNT(*) as value
@@ -275,7 +277,7 @@ export class ExecutiveDashboardService {
     `, [tenantId, startDate])
 
     // Daily cost trend
-    const costTrend = await pool.query(`
+    const costTrend = await this.db.query(`
       SELECT
         DATE(actual_end) as date,
         SUM(total_cost) as value
@@ -288,7 +290,7 @@ export class ExecutiveDashboardService {
     `, [tenantId, startDate])
 
     // Daily incident trend
-    const incidentTrend = await pool.query(`
+    const incidentTrend = await this.db.query(`
       SELECT
         DATE(incident_date) as date,
         COUNT(*) as value
@@ -300,7 +302,7 @@ export class ExecutiveDashboardService {
     `, [tenantId, startDate])
 
     // Maintenance schedule trend
-    const maintenanceTrend = await pool.query(`
+    const maintenanceTrend = await this.db.query(`
       SELECT
         DATE(actual_start) as date,
         COUNT(*) as value
@@ -346,7 +348,7 @@ export class ExecutiveDashboardService {
       const kpis = await this.getKPIs(tenantId)
 
       // Get vehicles with high maintenance costs
-      const highMaintenanceVehicles = await pool.query(`
+      const highMaintenanceVehicles = await this.db.query(`
         SELECT
           v.vin,
           v.make,
@@ -364,7 +366,7 @@ export class ExecutiveDashboardService {
       `, [tenantId])
 
       // Get overdue maintenance
-      const overdueMaintenance = await pool.query(`
+      const overdueMaintenance = await this.db.query(`
         SELECT
           v.vin,
           v.make,
@@ -382,7 +384,7 @@ export class ExecutiveDashboardService {
       `, [tenantId])
 
       // Get recent safety incidents
-      const recentIncidents = await pool.query(`
+      const recentIncidents = await this.db.query(`
         SELECT
           v.vin,
           v.make,
@@ -518,7 +520,7 @@ export class ExecutiveDashboardService {
    * Get alerts summary
    */
   async getAlertsSummary(tenantId: string): Promise<AlertSummary> {
-    const alerts = await pool.query(`
+    const alerts = await this.db.query(`
       SELECT
         severity,
         COUNT(*) as count
@@ -529,7 +531,7 @@ export class ExecutiveDashboardService {
       GROUP BY severity
     `, [tenantId])
 
-    const recentAlerts = await pool.query(`
+    const recentAlerts = await this.db.query(`
       SELECT
         pv.id,
         pv.severity,
@@ -581,7 +583,7 @@ export class ExecutiveDashboardService {
     const safetyScore = Math.min(100, kpis.avgDriverSafetyScore - (kpis.incidentRatePer100kMiles * 2))
 
     // Compliance score (based on overdue maintenance)
-    const complianceData = await pool.query(`
+    const complianceData = await this.db.query(`
       SELECT COUNT(*) as overdue_count
       FROM maintenance_schedules
       WHERE tenant_id = $1
@@ -623,7 +625,7 @@ export class ExecutiveDashboardService {
     startOfMonth.setHours(0, 0, 0, 0)
 
     // Get fuel costs
-    const fuelCosts = await pool.query(`
+    const fuelCosts = await this.db.query(`
       SELECT COALESCE(SUM(total_cost), 0) as total
       FROM fuel_transactions
       WHERE tenant_id = $1
@@ -631,7 +633,7 @@ export class ExecutiveDashboardService {
     `, [tenantId, startOfMonth])
 
     // Get maintenance costs
-    const maintenanceCosts = await pool.query(`
+    const maintenanceCosts = await this.db.query(`
       SELECT COALESCE(SUM(total_cost), 0) as total
       FROM work_orders
       WHERE tenant_id = $1
@@ -640,7 +642,7 @@ export class ExecutiveDashboardService {
     `, [tenantId, startOfMonth])
 
     // Get incident costs
-    const incidentCosts = await pool.query(`
+    const incidentCosts = await this.db.query(`
       SELECT COALESCE(SUM(vehicle_damage_cost + property_damage_cost), 0) as total
       FROM safety_incidents
       WHERE tenant_id = $1
@@ -653,7 +655,7 @@ export class ExecutiveDashboardService {
     const totalCosts = fuelTotal + maintTotal + incidentTotal
 
     // Get cost trends for the past 6 months
-    const costTrends = await pool.query(`
+    const costTrends = await this.db.query(`
       SELECT
         TO_CHAR(DATE_TRUNC('month', transaction_date), 'YYYY-MM') as date,
         SUM(total_cost) as value
@@ -705,4 +707,4 @@ export class ExecutiveDashboardService {
   }
 }
 
-export default new ExecutiveDashboardService()
+export default ExecutiveDashboardService

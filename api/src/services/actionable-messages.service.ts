@@ -1,6 +1,10 @@
-import pool from '../config/database'
+import { Pool } from 'pg'
 import { updateAdaptiveCard } from './adaptive-cards.service'
 import { createAuditLog } from '../middleware/audit'
+
+
+export class ActionableMessagesService {
+  constructor(private db: Pool) {}
 
 interface CardAction {
   action: string
@@ -21,7 +25,7 @@ interface CardAction {
 /**
  * Handle card action submission
  */
-export async function handleCardAction(
+  async handleCardAction(
   action: CardAction,
   userId: string,
   cardId: string,
@@ -153,7 +157,7 @@ export async function handleCardAction(
 async function handleAcceptWorkOrder(action: CardAction, userId: string): Promise<any> {
   const { workOrderId } = action
 
-  await pool.query(
+  await this.db.query(
     `UPDATE work_orders
      SET status = `accepted`, assigned_to = $1, updated_at = NOW()
      WHERE id = $2',
@@ -174,7 +178,7 @@ async function handleAcceptWorkOrder(action: CardAction, userId: string): Promis
 async function handleRejectWorkOrder(action: CardAction, userId: string): Promise<any> {
   const { workOrderId, rejectionReason } = action
 
-  await pool.query(
+  await this.db.query(
     `UPDATE work_orders
      SET status = 'rejected', rejection_reason = $1, updated_at = NOW()
      WHERE id = $2',
@@ -195,7 +199,7 @@ async function handleRejectWorkOrder(action: CardAction, userId: string): Promis
 async function handleStartWork(action: CardAction, userId: string): Promise<any> {
   const { workOrderId } = action
 
-  await pool.query(
+  await this.db.query(
     `UPDATE work_orders
      SET status = 'in_progress', started_at = NOW(), updated_at = NOW()
      WHERE id = $1',
@@ -215,7 +219,7 @@ async function handleStartWork(action: CardAction, userId: string): Promise<any>
 async function handleCompleteWork(action: CardAction, userId: string): Promise<any> {
   const { workOrderId } = action
 
-  await pool.query(
+  await this.db.query(
     `UPDATE work_orders
      SET status = 'completed', completed_at = NOW(), updated_at = NOW()
      WHERE id = $1',
@@ -236,7 +240,7 @@ async function handleCompleteWork(action: CardAction, userId: string): Promise<a
 async function handleUpdateProgress(action: CardAction, userId: string): Promise<any> {
   const { workOrderId, progressPercentage, progressNote } = action
 
-  await pool.query(
+  await this.db.query(
     `UPDATE work_orders
      SET progress_percentage = $1, progress_notes = $2, updated_at = NOW()
      WHERE id = $3`,
@@ -257,10 +261,10 @@ async function handleApprove(action: CardAction, userId: string): Promise<any> {
   const { approvalId, itemType, itemId } = action
 
   // Get user details for audit log
-  const userResult = await pool.query(`SELECT tenant_id FROM users WHERE id = $1`, [userId])
+  const userResult = await this.db.query(`SELECT tenant_id FROM users WHERE id = $1`, [userId])
   const tenantId = userResult.rows[0]?.tenant_id
 
-  await pool.query(
+  await this.db.query(
     `UPDATE approvals
      SET status = 'approved', approved_by = $1, approved_at = NOW(), updated_at = NOW()
      WHERE id = $2',
@@ -297,10 +301,10 @@ async function handleApprove(action: CardAction, userId: string): Promise<any> {
 async function handleReject(action: CardAction, userId: string): Promise<any> {
   const { approvalId, itemType, itemId, rejectionReason } = action
 
-  const userResult = await pool.query('SELECT tenant_id FROM users WHERE id = $1', [userId])
+  const userResult = await this.db.query('SELECT tenant_id FROM users WHERE id = $1', [userId])
   const tenantId = userResult.rows[0]?.tenant_id
 
-  await pool.query(
+  await this.db.query(
     `UPDATE approvals
      SET status = 'rejected', approved_by = $1, rejection_reason = $2, approved_at = NOW(), updated_at = NOW()
      WHERE id = $3',
@@ -336,7 +340,7 @@ async function handleReject(action: CardAction, userId: string): Promise<any> {
 async function handleApproveConditional(action: CardAction, userId: string): Promise<any> {
   const { approvalId, approvalConditions, approvedAmount } = action
 
-  await pool.query(
+  await this.db.query(
     `UPDATE approvals
      SET status = 'approved_conditional',
          approved_by = $1,
@@ -362,7 +366,7 @@ async function handleApproveConditional(action: CardAction, userId: string): Pro
 async function handleRequestInfo(action: CardAction, userId: string): Promise<any> {
   const { approvalId, infoRequest } = action
 
-  await pool.query(
+  await this.db.query(
     `UPDATE approvals
      SET status = 'info_requested',
          info_requested = $1,
@@ -385,7 +389,7 @@ async function handleRequestInfo(action: CardAction, userId: string): Promise<an
 async function handleApproveIncident(action: CardAction, userId: string): Promise<any> {
   const { incidentId } = action
 
-  await pool.query(
+  await this.db.query(
     `UPDATE incidents
      SET status = 'approved', reviewed_by = $1, reviewed_at = NOW(), updated_at = NOW()
      WHERE id = $2',
@@ -405,7 +409,7 @@ async function handleApproveIncident(action: CardAction, userId: string): Promis
 async function handleAssignInvestigator(action: CardAction, userId: string): Promise<any> {
   const { incidentId, investigatorId, investigationNotes } = action
 
-  await pool.query(
+  await this.db.query(
     `UPDATE incidents
      SET investigator_id = $1, investigation_notes = $2, status = 'investigating', updated_at = NOW()
      WHERE id = $3',
@@ -426,7 +430,7 @@ async function handleAssignInvestigator(action: CardAction, userId: string): Pro
 async function handleCloseIncident(action: CardAction, userId: string): Promise<any> {
   const { incidentId, resolution, closureNotes } = action
 
-  await pool.query(
+  await this.db.query(
     `UPDATE incidents
      SET status = 'closed', resolution = $1, closure_notes = $2, closed_at = NOW(), updated_at = NOW()
      WHERE id = $3',
@@ -462,7 +466,7 @@ async function handleScheduleMaintenance(action: CardAction, userId: string): Pr
 async function handleAcknowledge(action: CardAction, userId: string): Promise<any> {
   const { alertId, vehicleId } = action
 
-  await pool.query(
+  await this.db.query(
     `UPDATE alerts
      SET acknowledged = true, acknowledged_by = $1, acknowledged_at = NOW()
      WHERE id = $2',
@@ -484,7 +488,7 @@ async function handleAddNote(action: CardAction, userId: string): Promise<any> {
   const note = maintenanceNote || receiptNote
 
   // Store note in a generic notes table or appropriate entity
-  await pool.query(
+  await this.db.query(
     `INSERT INTO notes (entity_type, entity_id, user_id, note_text, created_at)
      VALUES ($1, $2, $3, $4, NOW())`,
     [vehicleId ? 'vehicle' : 'alert', vehicleId || alertId, userId, note]
@@ -503,7 +507,7 @@ async function handleAddNote(action: CardAction, userId: string): Promise<any> {
 async function handleApproveReceipt(action: CardAction, userId: string): Promise<any> {
   const { receiptId } = action
 
-  await pool.query(
+  await this.db.query(
     `UPDATE fuel_receipts
      SET status = 'approved', approved_by = $1, approved_at = NOW()
      WHERE id = $2',
@@ -523,7 +527,7 @@ async function handleApproveReceipt(action: CardAction, userId: string): Promise
 async function handleFlagReceipt(action: CardAction, userId: string): Promise<any> {
   const { receiptId } = action
 
-  await pool.query(
+  await this.db.query(
     `UPDATE fuel_receipts
      SET status = 'flagged', flagged_by = $1, flagged_at = NOW()
      WHERE id = $2',
@@ -545,7 +549,7 @@ async function handleSubmitInspection(action: CardAction, userId: string): Promi
   const { inspectionId, vehicleId, driverId, ...checklistData } = action
 
   // Save inspection checklist results
-  await pool.query(
+  await this.db.query(
     `INSERT INTO vehicle_inspections (
       vehicle_id, driver_id, inspection_data, vehicle_condition, status, created_at
     ) VALUES ($1, $2, $3, $4, 'submitted', NOW())
@@ -567,7 +571,7 @@ async function handleReportCriticalIssue(action: CardAction, userId: string): Pr
   const { inspectionId, vehicleId } = action
 
   // Create a high-priority alert
-  await pool.query(
+  await this.db.query(
     `INSERT INTO alerts (
       vehicle_id, alert_type, severity, message, created_at
     ) VALUES ($1, 'critical_inspection_issue', 'critical', 'Critical issue reported during inspection', NOW())',
@@ -605,7 +609,7 @@ async function handleSendRecognition(action: CardAction, userId: string): Promis
   const { driverId } = action
 
   // Create a recognition record
-  await pool.query(
+  await this.db.query(
     `INSERT INTO driver_recognitions (driver_id, recognized_by, recognition_type, created_at)
      VALUES ($1, $2, 'excellent_performance', NOW())',
     [driverId, userId]
@@ -625,7 +629,7 @@ async function handleSendRecognition(action: CardAction, userId: string): Promis
 async function handleAddCoachingNote(action: CardAction, userId: string): Promise<any> {
   const { driverId, coachingNote } = action
 
-  await pool.query(
+  await this.db.query(
     `INSERT INTO coaching_notes (driver_id, coach_id, note, created_at)
      VALUES ($1, $2, $3, NOW())`,
     [driverId, userId, coachingNote]
@@ -648,7 +652,7 @@ async function logCardAction(
   result: string
 ): Promise<void> {
   try {
-    await pool.query(
+    await this.db.query(
       `INSERT INTO adaptive_card_actions (card_id, action_type, action_data, user_id, result, created_at)
        VALUES ($1, $2, $3, $4, $5, NOW())`,
       [cardId, action.action, JSON.stringify(action), userId, result]
@@ -671,8 +675,7 @@ async function sendActionNotification(
   console.log('Sending action notification:', { action: action.action, result: result.message, roles: notifyUserRoles })
 }
 
-export default {
-  handleCardAction,
-  logCardAction,
-  sendActionNotification
+
 }
+
+export default ActionableMessagesService
