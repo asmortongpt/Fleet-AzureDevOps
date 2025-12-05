@@ -6,7 +6,7 @@ import { NotFoundError, ValidationError } from '../errors/app-error'
 const router = Router()
 
 router.get("/", asyncHandler(async (req, res) => {
-  res.json({ data: [], message: "purchase-orders endpoint working" }))
+  res.json({ data: [], message: "purchase-orders endpoint working" })
 }))
 
 router.get("/:id", asyncHandler(async (req, res) => {
