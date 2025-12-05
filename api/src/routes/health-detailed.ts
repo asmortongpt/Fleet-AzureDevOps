@@ -1,6 +1,6 @@
 /**
 import { container } from '../container'
-import { asyncHandler } from '../middleware/error-handler'
+import { asyncHandler } from '../middleware/errorHandler'
 import { NotFoundError, ValidationError } from '../errors/app-error'
  * Detailed Health Check API Endpoint
  * Provides comprehensive system status for production monitoring

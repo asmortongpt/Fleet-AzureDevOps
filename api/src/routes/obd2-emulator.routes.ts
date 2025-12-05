@@ -1,6 +1,6 @@
 /**
 import { container } from '../container'
-import { asyncHandler } from '../middleware/error-handler'
+import { asyncHandler } from '../middleware/errorHandler'
 import { NotFoundError, ValidationError } from '../errors/app-error'
 import logger from '../config/logger'; // Wave 29: Add Winston logger
  * OBD2 Emulator API Routes
