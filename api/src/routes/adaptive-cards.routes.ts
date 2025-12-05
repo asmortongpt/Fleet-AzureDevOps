@@ -17,6 +17,8 @@ import {
   validateAdaptiveCard
 } from '../services/adaptive-cards.service'
 import { handleCardAction } from '../services/actionable-messages.service'
+import { csrfProtection } from '../middleware/csrf'
+
 
 const router = express.Router()
 

@@ -7,6 +7,8 @@ import { auditLog } from '../middleware/audit'
 import { z } from 'zod'
 import pool from '../config/database'
 import { tenantSafeQuery, validateTenantOwnership } from '../utils/dbHelpers'
+import { csrfProtection } from '../middleware/csrf'
+
 
 const router = express.Router()
 router.use(authenticateJWT)

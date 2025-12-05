@@ -13,6 +13,8 @@ import { auditLog } from '../middleware/audit'
 import * as routeOptimizationService from '../services/route-optimization.service'
 import { z } from 'zod'
 import { getErrorMessage } from '../utils/error-handler'
+import { csrfProtection } from '../middleware/csrf'
+
 
 const router = express.Router()
 router.use(authenticateJWT)

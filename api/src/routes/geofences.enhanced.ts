@@ -10,6 +10,8 @@ import helmet from 'helmet'
 import rateLimit from 'express-rate-limit'
 import bcrypt from 'bcrypt'
 import { zodValidator } from '../middleware/zodValidator'
+import { csrfProtection } from '../middleware/csrf'
+
 
 const router = express.Router()
 
