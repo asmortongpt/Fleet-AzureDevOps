@@ -8,8 +8,8 @@ import { ChatOpenAI } from '@langchain/openai'
 import { ChatPromptTemplate } from '@langchain/core/prompts'
 import { StringOutputParser, JsonOutputParser } from '@langchain/core/output_parsers'
 import { HumanMessage, SystemMessage, AIMessage } from '@langchain/core/messages'
-import pool from '../config/database'
-import { logger } from '../utils/logger'
+import { Pool } from 'pg'
+import logger from '../utils/logger'
 import langchainOrchestratorService from './langchain-orchestrator.service'
 import mcpServerRegistryService from './mcp-server-registry.service'
 
@@ -52,7 +52,10 @@ class AIAgentSupervisorService {
   private agents: Map<string, AgentDefinition> = new Map()
   private supervisorModel: ChatOpenAI
 
-  constructor() {
+  constructor(
+    private db: Pool,
+    private logger: typeof logger
+  ) {
     // Initialize supervisor model
     this.supervisorModel = new ChatOpenAI({
       modelName: 'gpt-4-turbo-preview',
@@ -188,7 +191,7 @@ Provide accurate, relevant information with proper citations.`,
       })
     })
 
-    logger.info('AI agents initialized', { agentCount: this.agents.size })
+    this.logger.info('AI agents initialized', { agentCount: this.agents.size })
   }
 
   /**
@@ -214,7 +217,7 @@ Provide accurate, relevant information with proper citations.`,
       const decision = await this.makeSupervisionDecision(query)
       totalTokens += this.estimateTokens(JSON.stringify(decision))
 
-      logger.info('Supervisor decision made', {
+      this.logger.info('Supervisor decision made', {
         query,
         primaryAgent: decision.primaryAgent,
         supportingAgents: decision.supportingAgents
@@ -266,7 +269,7 @@ Provide accurate, relevant information with proper citations.`,
         executionTimeMs: Date.now() - startTime
       }
     } catch (error: any) {
-      logger.error(`Supervisor processing failed`, { error: error.message, query })
+      this.logger.error(`Supervisor processing failed`, { error: error.message, query })
       throw error
     }
   }
@@ -314,7 +317,7 @@ Respond in JSON format:
         return JSON.parse(jsonMatch[0])
       }
     } catch (error) {
-      logger.warn('Failed to parse supervisor decision JSON, using defaults')
+      this.logger.warn('Failed to parse supervisor decision JSON, using defaults')
     }
 
     // Fallback decision
@@ -392,7 +395,7 @@ Respond in JSON format:
         tokensUsed
       }
     } catch (error: any) {
-      logger.error(`Agent execution failed`, { agentId, error: error.message })
+      this.logger.error(`Agent execution failed`, { agentId, error: error.message })
 
       return {
         agentId,
@@ -524,7 +527,7 @@ Keep the response concise but thorough.`
     totalTokens: number
   ): Promise<void> {
     try {
-      await pool.query(
+      await this.db.query(
         `INSERT INTO ai_supervisor_executions (
           tenant_id, user_id, session_id, query,
           primary_agent, supporting_agents, decision_reasoning,
@@ -544,7 +547,7 @@ Keep the response concise but thorough.`
         ]
       )
     } catch (error: any) {
-      logger.error(`Failed to log supervisor execution`, { error: error.message })
+      this.logger.error(`Failed to log supervisor execution`, { error: error.message })
     }
   }
 
@@ -553,5 +556,4 @@ Keep the response concise but thorough.`
   }
 }
 
-export const aiAgentSupervisorService = new AIAgentSupervisorService()
-export default aiAgentSupervisorService
+export default AIAgentSupervisorService

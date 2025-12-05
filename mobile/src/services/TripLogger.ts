@@ -195,6 +195,14 @@ class TripLoggerService {
         await this.resumeTrip();
       }
 
+      // Process any pending retries from previous sessions
+      await this.processRetryQueue();
+
+      // Set up periodic retry queue processing (every 5 minutes)
+      setInterval(() => {
+        this.processRetryQueue();
+      }, 5 * 60 * 1000);
+
       console.log('TripLogger initialized');
     } catch (error) {
       console.error('Failed to initialize TripLogger:', error);
@@ -547,12 +555,27 @@ class TripLoggerService {
         };
       }
 
+      // Calculate heading from location history using haversine formula
+      let heading_degrees = 0;
+      if (this.lastLocation && this.currentTrip) {
+        const lat1 = this.lastLocation.latitude * Math.PI / 180;
+        const lat2 = location.latitude * Math.PI / 180;
+        const lon1 = this.lastLocation.longitude * Math.PI / 180;
+        const lon2 = location.longitude * Math.PI / 180;
+
+        const dLon = lon2 - lon1;
+        const y = Math.sin(dLon) * Math.cos(lat2);
+        const x = Math.cos(lat1) * Math.sin(lat2) - Math.sin(lat1) * Math.cos(lat2) * Math.cos(dLon);
+        const bearing = Math.atan2(y, x);
+        heading_degrees = ((bearing * 180 / Math.PI) + 360) % 360; // Convert to 0-360 range
+      }
+
       const breadcrumb: GPSBreadcrumb = {
         timestamp: location.timestamp,
         latitude: location.latitude,
         longitude: location.longitude,
         speed_mph: this.lastSpeed || 0,
-        heading_degrees: 0, // TODO: Calculate from location history
+        heading_degrees,
         accuracy_meters: 0,
         ...obd2Data
       };
@@ -615,11 +638,20 @@ class TripLoggerService {
         this.currentTrip.harsh_cornering_count++;
       }
 
-      // Detect speeding (requires speed limit data - TODO: integrate with maps API)
-      // const speedLimit = await this.getSpeedLimit();
-      // if (speed > speedLimit + THRESHOLDS.SPEEDING_THRESHOLD) {
-      //   this.recordEvent({ ... });
-      // }
+      // Detect speeding (speed limit check)
+      // Using placeholder speed limit for now - ready for Google Maps API integration
+      const speedLimit = await this.getSpeedLimit();
+      if (speedLimit && speed > speedLimit + THRESHOLDS.SPEEDING_THRESHOLD) {
+        await this.recordEvent({
+          type: 'speeding',
+          severity: this.calculateEventSeverity(speed - speedLimit, THRESHOLDS.SPEEDING_THRESHOLD),
+          timestamp: new Date(),
+          speed_mph: speed,
+          description: `Speeding detected: ${speed.toFixed(1)} mph in ${speedLimit} mph zone`,
+          metadata: { speedLimit, overage: speed - speedLimit }
+        });
+        this.currentTrip.speeding_count++;
+      }
 
       this.lastSpeed = speed;
       this.lastAcceleration = { ...acceleration, timestamp: new Date() };
@@ -732,8 +764,8 @@ class TripLoggerService {
       const fuelLevels = trip.metrics.map(m => m.fuel_level_percent);
       const fuelDrop = fuelLevels[0] - fuelLevels[fuelLevels.length - 1];
 
-      // Estimate tank capacity (TODO: get from vehicle config)
-      const tankCapacity = 15; // gallons
+      // Get tank capacity from vehicle config or use reasonable defaults by type
+      const tankCapacity = await this.getVehicleTankCapacity(trip.vehicle_id);
       trip.fuel_consumed_gallons = (fuelDrop / 100) * tankCapacity;
 
       // Calculate MPG
@@ -886,7 +918,18 @@ class TripLoggerService {
       console.log('Trip synced to server:', action);
     } catch (error) {
       console.error('Failed to sync trip to server:', error);
-      // TODO: Queue for retry
+
+      // Queue failed sync for retry with exponential backoff
+      await this.queueFailedSync({
+        action,
+        tripId: this.currentTrip.id,
+        url,
+        method,
+        body,
+        error: error instanceof Error ? error.message : 'Unknown error',
+        timestamp: Date.now(),
+        retryCount: 0
+      });
     }
   }
 
@@ -971,17 +1014,184 @@ class TripLoggerService {
   }
 
   private async getAcceleration(): Promise<{ x: number; y: number; z: number }> {
-    // TODO: Implement accelerometer integration
-    // For now, calculate from speed change
+    // Calculate acceleration from speed change (forward/backward g-force)
     const currentSpeed = this.lastSpeed || 0;
     const previousSpeed = this.lastAcceleration ? this.lastSpeed : 0;
     const timeDelta = this.lastAcceleration
       ? (new Date().getTime() - this.lastAcceleration.timestamp.getTime()) / 1000
       : 1;
 
-    const acceleration = (currentSpeed - previousSpeed) / timeDelta / 32.2; // Convert to g-force
+    // Convert speed change to g-force
+    // Formula: acceleration = (speed change in ft/s) / (time in s) / 32.2 ft/s²
+    const speedChangeMphPerSec = (currentSpeed - previousSpeed) / timeDelta;
+    const speedChangeFtPerSec = speedChangeMphPerSec * 1.467; // Convert mph to ft/s
+    const acceleration_x = speedChangeFtPerSec / 32.2; // Convert to g-force
 
-    return { x: acceleration, y: 0, z: 0 };
+    // For lateral g-force (y, z), we would need actual accelerometer hardware
+    // React Native Sensors would provide this: npm install react-native-sensors
+    // Example integration (commented out for now):
+    /*
+    import { accelerometer } from 'react-native-sensors';
+
+    accelerometer.subscribe(({ x, y, z }) => {
+      // x: forward/backward acceleration
+      // y: left/right acceleration
+      // z: up/down acceleration
+      this.lastAcceleration = { x, y, z, timestamp: new Date() };
+    });
+    */
+
+    // For now, return calculated forward acceleration and zero lateral
+    // In production, install react-native-sensors and use real accelerometer data
+    return {
+      x: acceleration_x,
+      y: 0, // Lateral left/right - requires hardware sensor
+      z: 0  // Vertical up/down - requires hardware sensor
+    };
+  }
+
+  private async getSpeedLimit(): Promise<number | null> {
+    // Placeholder implementation - returns typical urban speed limit
+    // TODO: Integrate with Google Maps Roads API to fetch actual speed limits
+    // API: https://developers.google.com/maps/documentation/roads/speed-limits
+    // Requires GOOGLE_MAPS_API_KEY from environment
+
+    if (!this.lastLocation) return null;
+
+    // For now, return reasonable default based on typical road types
+    // In production, this should call:
+    // const response = await fetch(
+    //   `https://roads.googleapis.com/v1/speedLimits?path=${lat},${lng}&key=${GOOGLE_MAPS_API_KEY}`
+    // );
+
+    // Default to 35 mph for urban areas (common speed limit)
+    // This will be replaced with actual API data in future implementation
+    return 35;
+  }
+
+  private async queueFailedSync(syncData: {
+    action: string;
+    tripId: string;
+    url: string;
+    method: string;
+    body: any;
+    error: string;
+    timestamp: number;
+    retryCount: number;
+  }): Promise<void> {
+    try {
+      // Load existing retry queue
+      const queueJson = await AsyncStorage.getItem('tripSyncRetryQueue');
+      const queue = queueJson ? JSON.parse(queueJson) : [];
+
+      // Add to queue with exponential backoff schedule
+      const maxRetries = 5;
+      if (syncData.retryCount < maxRetries) {
+        // Calculate next retry time with exponential backoff (2^retryCount minutes)
+        const backoffMinutes = Math.pow(2, syncData.retryCount);
+        const nextRetryTime = Date.now() + (backoffMinutes * 60 * 1000);
+
+        queue.push({
+          ...syncData,
+          nextRetryTime,
+          maxRetries
+        });
+
+        // Save updated queue
+        await AsyncStorage.setItem('tripSyncRetryQueue', JSON.stringify(queue));
+
+        console.log(`Queued failed sync for retry in ${backoffMinutes} minute(s)`);
+      } else {
+        console.error('Max retries exceeded for sync:', syncData.action);
+      }
+    } catch (error) {
+      console.error('Failed to queue sync for retry:', error);
+    }
+  }
+
+  private async processRetryQueue(): Promise<void> {
+    try {
+      const queueJson = await AsyncStorage.getItem('tripSyncRetryQueue');
+      if (!queueJson) return;
+
+      const queue = JSON.parse(queueJson);
+      const now = Date.now();
+      const remainingQueue = [];
+
+      for (const item of queue) {
+        if (item.nextRetryTime <= now) {
+          // Attempt retry
+          try {
+            const response = await fetch(item.url, {
+              method: item.method,
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${this.authToken}`
+              },
+              body: JSON.stringify(item.body)
+            });
+
+            if (response.ok) {
+              console.log('Retry successful for:', item.action);
+              // Don't add back to queue - success!
+            } else {
+              throw new Error(`Server responded with ${response.status}`);
+            }
+          } catch (error) {
+            // Retry failed, increment retry count and re-queue
+            item.retryCount++;
+            if (item.retryCount < item.maxRetries) {
+              const backoffMinutes = Math.pow(2, item.retryCount);
+              item.nextRetryTime = Date.now() + (backoffMinutes * 60 * 1000);
+              remainingQueue.push(item);
+              console.log(`Retry failed, will retry in ${backoffMinutes} minute(s)`);
+            } else {
+              console.error('Max retries exceeded, dropping sync:', item.action);
+            }
+          }
+        } else {
+          // Not ready to retry yet
+          remainingQueue.push(item);
+        }
+      }
+
+      // Save updated queue
+      await AsyncStorage.setItem('tripSyncRetryQueue', JSON.stringify(remainingQueue));
+    } catch (error) {
+      console.error('Failed to process retry queue:', error);
+    }
+  }
+
+  private async getVehicleTankCapacity(vehicleId?: number): Promise<number> {
+    // Try to get tank capacity from vehicle configuration
+    if (vehicleId && this.apiBaseUrl && this.authToken) {
+      try {
+        const response = await fetch(`${this.apiBaseUrl}/api/vehicles/${vehicleId}`, {
+          headers: {
+            'Authorization': `Bearer ${this.authToken}`
+          }
+        });
+
+        if (response.ok) {
+          const vehicle = await response.json();
+          if (vehicle.fuel_tank_capacity_gallons) {
+            return vehicle.fuel_tank_capacity_gallons;
+          }
+        }
+      } catch (error) {
+        console.warn('Could not fetch vehicle tank capacity:', error);
+      }
+    }
+
+    // Return reasonable defaults by common vehicle types
+    // These are typical fuel tank capacities in gallons
+    // Compact car: 12-14 gallons
+    // Midsize sedan: 14-16 gallons
+    // Full-size sedan: 16-18 gallons
+    // SUV: 18-26 gallons
+    // Pickup truck: 20-36 gallons
+    // Default to 15 gallons (typical midsize sedan)
+    return 15;
   }
 
   private generateTripId(): string {

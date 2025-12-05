@@ -12,8 +12,8 @@ import { BufferMemory, ChatMessageHistory } from 'langchain/memory'
 import { AIMessage, HumanMessage, SystemMessage } from '@langchain/core/messages'
 import { DynamicStructuredTool } from '@langchain/core/tools'
 import { z } from 'zod'
-import pool from '../config/database'
-import { logger } from '../utils/logger'
+import { Pool } from 'pg'
+import logger from '../utils/logger'
 import mcpServerService from './mcp-server.service'
 
 export interface WorkflowContext {
@@ -155,7 +155,7 @@ class LangChainOrchestratorService {
         executionTimeMs: Date.now() - startTime
       }
     } catch (error: any) {
-      logger.error('Maintenance planning chain failed', { error: error.message, context })
+      this.logger.error('Maintenance planning chain failed', { error: error.message, context })
       await this.logWorkflowExecution(context, steps, totalTokens, 'error', error.message)
 
       return {
@@ -261,7 +261,7 @@ class LangChainOrchestratorService {
         executionTimeMs: Date.now() - startTime
       }
     } catch (error: any) {
-      logger.error('Incident investigation chain failed', { error: error.message, context })
+      this.logger.error('Incident investigation chain failed', { error: error.message, context })
       await this.logWorkflowExecution(context, steps, totalTokens, 'error', error.message)
 
       return {
@@ -377,7 +377,7 @@ class LangChainOrchestratorService {
         executionTimeMs: Date.now() - startTime
       }
     } catch (error: any) {
-      logger.error('Route optimization chain failed', { error: error.message, context })
+      this.logger.error('Route optimization chain failed', { error: error.message, context })
       await this.logWorkflowExecution(context, steps, totalTokens, 'error', error.message)
 
       return {
@@ -467,7 +467,7 @@ class LangChainOrchestratorService {
         executionTimeMs: Date.now() - startTime
       }
     } catch (error: any) {
-      logger.error('Cost optimization chain failed', { error: error.message, context })
+      this.logger.error('Cost optimization chain failed', { error: error.message, context })
       await this.logWorkflowExecution(context, steps, totalTokens, 'error', error.message)
 
       return {
@@ -559,7 +559,7 @@ class LangChainOrchestratorService {
         tokensUsed: this.estimateTokens(message + response)
       }
     } catch (error: any) {
-      logger.error('Chat failed', { error: error.message, sessionId })
+      this.logger.error('Chat failed', { error: error.message, sessionId })
       throw error
     }
   }
@@ -576,7 +576,7 @@ class LangChainOrchestratorService {
           vehicleId: z.string().describe('The vehicle ID to look up')
         }),
         func: async ({ vehicleId }) => {
-          const result = await pool.query(
+          const result = await this.db.query(
             `SELECT
       id,
       tenant_id,
@@ -621,7 +621,7 @@ class LangChainOrchestratorService {
           scheduledDate: z.string().describe(`Scheduled date in ISO format`)
         }),
         func: async ({ vehicleId, maintenanceType, scheduledDate }) => {
-          const result = await pool.query(
+          const result = await this.db.query(
             `INSERT INTO tasks (tenant_id, title, description, task_type, related_asset_id, priority, due_date, status, created_by)
              VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *`,
             [
@@ -647,7 +647,7 @@ class LangChainOrchestratorService {
           endDate: z.string().describe('End date in ISO format')
         }),
         func: async ({ startDate, endDate }) => {
-          const result = await pool.query(
+          const result = await this.db.query(
             `SELECT
                SUM(fuel_cost) as total_fuel,
                SUM(maintenance_cost) as total_maintenance,
@@ -665,7 +665,7 @@ class LangChainOrchestratorService {
   // Helper methods for workflow steps
 
   private async analyzeVehicleCondition(vehicleId: string, tenantId: string): Promise<any> {
-    const result = await pool.query(
+    const result = await this.db.query(
       `SELECT v.*,
               COUNT(t.id) as pending_tasks,
               MAX(t.updated_at) as last_maintenance
@@ -699,7 +699,7 @@ Provide a brief analysis of the vehicle condition and any immediate concerns.`
   }
 
   private async getMaintenanceHistory(vehicleId: string, tenantId: string): Promise<any> {
-    const result = await pool.query(
+    const result = await this.db.query(
       `SELECT id, tenant_id, title, description, status, priority, due_date, assigned_to, created_by, created_at, updated_at FROM tasks
        WHERE related_asset_id = $1 AND tenant_id = $2 AND task_type = `maintenance`
        ORDER BY created_at DESC LIMIT 10`,
@@ -747,7 +747,7 @@ Generate a structured maintenance plan with:
   }
 
   private async getIncidentReport(incidentId: string, tenantId: string): Promise<any> {
-    const result = await pool.query(
+    const result = await this.db.query(
       `SELECT
       id,
       tenant_id,
@@ -837,7 +837,7 @@ Generate:
     recommendations: any,
     tenantId: string
   ): Promise<any> {
-    await pool.query(
+    await this.db.query(
       `UPDATE incidents
        SET ai_analysis = $1, ai_recommendations = $2, updated_at = NOW()
        WHERE id = $3 AND tenant_id = $4`,
@@ -900,7 +900,7 @@ Provide optimized routes with:
   }
 
   private async analyzeSpending(timeRange: any, tenantId: string): Promise<any> {
-    const result = await pool.query(
+    const result = await this.db.query(
       `SELECT
          category,
          SUM(amount) as total,
@@ -964,7 +964,7 @@ Generate prioritized recommendations with:
     message: string,
     response: string
   ): Promise<void> {
-    await pool.query(
+    await this.db.query(
       `INSERT INTO ai_chat_history (session_id, tenant_id, user_id, user_message, ai_response)
        VALUES ($1, $2, $3, $4, $5)`,
       [sessionId, tenantId, userId, message, response]
@@ -978,7 +978,7 @@ Generate prioritized recommendations with:
     status: string,
     error?: string
   ): Promise<void> {
-    await pool.query(
+    await this.db.query(
       `INSERT INTO langchain_workflow_executions (
         tenant_id, user_id, workflow_type, session_id,
         steps, total_tokens, status, error_message
@@ -1016,5 +1016,5 @@ Generate prioritized recommendations with:
   }
 }
 
-export const langchainOrchestratorService = new LangChainOrchestratorService()
-export default langchainOrchestratorService
+
+export default LangChainOrchestratorService
