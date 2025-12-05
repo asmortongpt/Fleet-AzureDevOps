@@ -199,7 +199,7 @@ const ALLOWED_UPDATE_FIELDS = [
 
 router.put(
   `/:id`,
-  requirePermission('route:update:fleet', {
+  csrfProtection, requirePermission('route:update:fleet', {
     customCheck: async (req: AuthRequest) => {
       // Prevent modifying completed routes
       const routeResult = await pool.query(
