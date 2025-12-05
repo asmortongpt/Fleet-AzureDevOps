@@ -1,16 +1,16 @@
 /**
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
-import logger from '../config/logger'; // Wave 17: Add Winston logger
  * GPS Routes API
  * Provides endpoints for GPS tracking, position history, and geofencing
  */
 
 import { Router, Request, Response } from 'express'
+import { container } from '../container'
+import { asyncHandler } from '../middleware/errorHandler'
+import { NotFoundError, ValidationError } from '../errors/app-error'
+import logger from '../config/logger'
 import { csrfProtection } from '../middleware/csrf'
+import { gpsEmulator } from '../emulators/GPSEmulator'
 
-import { gpsEmulator } 
 const router = Router()
 
 /**
@@ -32,7 +32,7 @@ router.get('/', (req: Request, res: Response) => {
     const filters: any = {}
 
     // Parse status filter
-    if (status && ['moving', 'idle', 'stopped'].includes(status as string) {
+    if (status && ['moving', 'idle', 'stopped'].includes(status as string)) {
       filters.status = status as 'moving' | 'idle' | 'stopped'
     }
 
@@ -138,7 +138,7 @@ router.get('/:vehicleId', (req: Request, res: Response) => {
   try {
     const vehicleId = parseInt(req.params.vehicleId, 10)
 
-    if (isNaN(vehicleId) {
+    if (isNaN(vehicleId)) {
       return res.status(400).json({
         success: false,
         error: 'Invalid vehicle ID'
@@ -175,7 +175,7 @@ router.get('/:vehicleId/history', (req: Request, res: Response) => {
   try {
     const vehicleId = parseInt(req.params.vehicleId, 10)
 
-    if (isNaN(vehicleId) {
+    if (isNaN(vehicleId)) {
       return res.status(400).json({
         success: false,
         error: 'Invalid vehicle ID'

@@ -219,7 +219,7 @@ router.get(
           v.unit_number,
           v.make || ' ' || v.model AS vehicle,
           dr.employee_number,
-          emp.first_name || ` ` || emp.last_name AS driver_name
+          emp.first_name || ' ' || emp.last_name AS driver_name
         FROM vehicle_assignment_history vah
         LEFT JOIN users u ON vah.changed_by_user_id = u.id
         LEFT JOIN vehicle_assignments va ON vah.vehicle_assignment_id = va.id
@@ -397,7 +397,7 @@ router.get(
       const query = `
         SELECT
           dept.name AS department,
-          u.first_name || ` ` || u.last_name AS driver_name,
+          u.first_name || ' ' || u.last_name AS driver_name,
           dr.employee_number,
           COUNT(DISTINCT ocp.id) as on_call_periods,
           SUM(ocp.callback_count) as total_callbacks,

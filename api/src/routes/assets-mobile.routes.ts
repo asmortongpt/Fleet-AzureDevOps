@@ -5,7 +5,7 @@ import { NotFoundError, ValidationError } from '../errors/app-error'
 import logger from '../config/logger' // Wave 33: Add Winston logger (FINAL WAVE!)
 import multer from 'multer'
 import { pool } from '../db'
-import { verifyJWT } from '../middleware/authMiddleware'
+import { authenticateJWT } from '../middleware/auth'
 // import {
 //   checkUserPermission,
 //   validateGPS,
@@ -33,7 +33,7 @@ const assetActionSchema = z.object({
 
 router.post(
   '/checkout',
- csrfProtection, verifyJWT,
+ csrfProtection, authenticateJWT,
   // rateLimiter(10),   upload.single('photo'),
   async (req: Request, res: Response) => {
     try {
@@ -80,7 +80,7 @@ router.post(
 
 router.post(
   '/checkin',
- csrfProtection, verifyJWT,
+ csrfProtection, authenticateJWT,
   // rateLimiter(10),   upload.single('photo'),
   async (req: Request, res: Response) => {
     try {

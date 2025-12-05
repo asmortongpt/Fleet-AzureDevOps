@@ -47,7 +47,7 @@ router.get(
       const { periodStart, periodEnd } = req.query
 
       if (!periodStart || !periodEnd) {
-        return throw new ValidationError("periodStart and periodEnd are required")
+        throw new ValidationError("periodStart and periodEnd are required")
       }
 
       const utilization = await fleetOptimizerService.analyzeVehicleUtilization(
@@ -121,7 +121,7 @@ router.post(
       const { periodStart, periodEnd } = req.body
 
       if (!periodStart || !periodEnd) {
-        return throw new ValidationError("periodStart and periodEnd are required")
+        throw new ValidationError("periodStart and periodEnd are required")
       }
 
       const recommendations = await fleetOptimizerService.generateRecommendations(
@@ -170,7 +170,7 @@ router.post(
       const { periodStart, periodEnd } = req.body
 
       if (!periodStart || !periodEnd) {
-        return throw new ValidationError("periodStart and periodEnd are required")
+        throw new ValidationError("periodStart and periodEnd are required")
       }
 
       await fleetOptimizerService.analyzeAllVehicles(

@@ -44,7 +44,7 @@ app.get('/api/weather/current', async (req: Request, res: Response, next: NextFu
   const { lat, lng }: Coordinate = req.query;
 
   if (!lat || !lng) {
-    return throw new ValidationError("Invalid coordinates");
+    throw new ValidationError("Invalid coordinates");
   }
 
   try {
@@ -59,7 +59,7 @@ app.get('/api/weather/forecast', async (req: Request, res: Response, next: NextF
   const { lat, lng }: Coordinate = req.query;
 
   if (!lat || !lng) {
-    return throw new ValidationError("Invalid coordinates");
+    throw new ValidationError("Invalid coordinates");
   }
 
   try {

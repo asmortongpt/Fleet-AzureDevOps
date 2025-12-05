@@ -1,8 +1,4 @@
 /**
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
-import logger from '../config/logger'; // Wave 22: Add Winston logger
  * Vehicle Idling Routes
  *
  * REST API endpoints for vehicle idling detection and analytics
@@ -17,6 +13,10 @@ import logger from '../config/logger'; // Wave 22: Add Winston logger
  */
 
 import { Router, Request, Response } from 'express'
+import { container } from '../container'
+import { asyncHandler } from '../middleware/errorHandler'
+import { NotFoundError, ValidationError } from '../errors/app-error'
+import logger from '../config/logger'
 import { VehicleIdlingService } from '../services/vehicle-idling.service'
 import { authenticate } from '../middleware/auth'
 import { validateRequest } from '../middleware/validation'
@@ -67,7 +67,7 @@ router.get(
   async (req: Request, res: Response) => {
     try {
       const { vehicleId } = req.params
-      const event = await idlingService.getActiveIdlingEvent(parseInt(vehicleId)
+      const event = await idlingService.getActiveIdlingEvent(parseInt(vehicleId))
 
       if (!event) {
         return res.status(404).json({
@@ -432,7 +432,7 @@ router.get(
     try {
       const { vehicleId } = req.params
 
-      const thresholds = await idlingService.getVehicleThresholds(parseInt(vehicleId)
+      const thresholds = await idlingService.getVehicleThresholds(parseInt(vehicleId))
 
       res.json({
         success: true,

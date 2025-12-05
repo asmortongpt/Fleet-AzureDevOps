@@ -329,7 +329,7 @@ export class SearchIndexService {
         d.created_at,
         d.metadata,
         dc.category_name,
-        u.first_name || ` ` || u.last_name as uploaded_by_name,
+        u.first_name || ' ' || u.last_name as uploaded_by_name,
         ts_rank_cd(${searchVector}, to_tsquery(`english`, $${++paramCount}), 32) as relevance_score,
         ts_headline(
           `english`,

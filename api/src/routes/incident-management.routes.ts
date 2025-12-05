@@ -39,7 +39,7 @@ router.get('/', requirePermission('safety_incident:view:global'), async (req: Au
         u_reported.first_name || ' ' || u_reported.last_name as reported_by_name,
         u_assigned.first_name || ' ' || u_assigned.last_name as assigned_to_name,
         v.vehicle_number as vehicle_involved,
-        d.first_name || ` ` || d.last_name as driver_name,
+        d.first_name || ' ' || d.last_name as driver_name,
         COUNT(DISTINCT ia.id) as action_count,
         COUNT(DISTINCT iph.id) as photo_count
       FROM incidents i
@@ -113,8 +113,8 @@ router.get('/:id', requirePermission('safety_incident:view:global'), async (req:
       pool.query(
         `SELECT
           i.*,
-          u_reported.first_name || ` ` || u_reported.last_name as reported_by_name,
-          u_assigned.first_name || ` ` || u_assigned.last_name as assigned_to_name,
+          u_reported.first_name || ' ' || u_reported.last_name as reported_by_name,
+          u_assigned.first_name || ' ' || u_assigned.last_name as assigned_to_name,
           v.vehicle_number as vehicle_involved,
           d.first_name || ' ' || d.last_name as driver_name
         FROM incidents i
@@ -379,7 +379,7 @@ router.post('/:id/close',csrfProtection, requirePermission('safety_incident:upda
 
     if (result.rows.length === 0) {
       await client.query(`ROLLBACK`)
-      return throw new NotFoundError("Incident not found")
+      throw new NotFoundError("Incident not found")
     }
 
     // Add timeline entry

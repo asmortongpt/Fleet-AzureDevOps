@@ -272,7 +272,7 @@ router.delete(
       )
 
       if (result.rows.length === 0) {
-        return throw new NotFoundError("Routes not found")
+        throw new NotFoundError("Routes not found")
       }
 
       res.json({ message: 'Routes deleted successfully' })

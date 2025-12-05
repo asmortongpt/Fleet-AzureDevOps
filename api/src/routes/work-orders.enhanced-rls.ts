@@ -330,7 +330,7 @@ router.put(
       }
 
       if (fields.length === 0) {
-        return throw new ValidationError("No fields to update")
+        throw new ValidationError("No fields to update")
       }
 
       // RLS ensures UPDATE only affects rows in current tenant
@@ -344,7 +344,7 @@ router.put(
       )
 
       if (result.rows.length === 0) {
-        return throw new NotFoundError("Work order not found")
+        throw new NotFoundError("Work order not found")
       }
 
       res.json({ data: result.rows[0] })
@@ -386,7 +386,7 @@ router.delete(
       )
 
       if (result.rows.length === 0) {
-        return throw new NotFoundError("Work order not found")
+        throw new NotFoundError("Work order not found")
       }
 
       res.json({ message: 'Work order deleted successfully' })
