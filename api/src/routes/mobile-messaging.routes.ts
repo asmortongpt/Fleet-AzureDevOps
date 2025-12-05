@@ -68,7 +68,7 @@ const sendEmailSchema = z.object({
  */
 router.post(
   '/email/send',
- csrfProtection,  csrfProtection, requirePermission('communication:send:global'),
+ csrfProtection, requirePermission('communication:send:global'),
   auditLog({ action: 'CREATE', resourceType: 'mobile_email' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -200,7 +200,7 @@ const sendSMSSchema = z.object({
  */
 router.post(
   '/sms/send',
- csrfProtection,  csrfProtection, requirePermission('communication:send:global'),
+ csrfProtection, requirePermission('communication:send:global'),
   auditLog({ action: 'CREATE', resourceType: 'mobile_sms' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -327,7 +327,7 @@ const sendTeamsMessageSchema = z.object({
  */
 router.post(
   '/teams/send',
- csrfProtection,  csrfProtection, requirePermission('communication:send:global'),
+ csrfProtection, requirePermission('communication:send:global'),
   auditLog({ action: 'CREATE', resourceType: 'mobile_teams' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -427,7 +427,7 @@ router.get(
  */
 router.post(
   '/templates',
- csrfProtection,  csrfProtection, requirePermission('communication:broadcast:global'),
+ csrfProtection, requirePermission('communication:broadcast:global'),
   auditLog({ action: 'CREATE', resourceType: 'communication_templates' }),
   async (req: AuthRequest, res: Response) => {
     try {

@@ -83,7 +83,7 @@ router.get(
 // POST /vendors
 router.post(
   '/',
- csrfProtection,  csrfProtection, requirePermission('vendor:create:global'),
+ csrfProtection, requirePermission('vendor:create:global'),
   auditLog({ action: 'CREATE', resourceType: 'vendors' }),
   asyncHandler(async (req: AuthRequest, res: Response) => {
     try {

@@ -164,7 +164,7 @@ router.get(
 // POST /policy-templates
 router.post(
   '/',
- csrfProtection,  csrfProtection, requirePermission('policy:create:global'),
+ csrfProtection, requirePermission('policy:create:global'),
   auditLog({ action: 'CREATE', resourceType: 'policy_templates' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -253,7 +253,7 @@ router.get(
 // POST /policy-templates/:id/acknowledge
 router.post(
   '/:id/acknowledge',
- csrfProtection,  csrfProtection, requirePermission('policy:create:global'),
+ csrfProtection, requirePermission('policy:create:global'),
   auditLog({ action: 'CREATE', resourceType: 'policy_acknowledgments' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -429,7 +429,7 @@ router.get(
 // POST /policy-templates/violations
 router.post(
   '/violations',
- csrfProtection,  csrfProtection, requirePermission('policy:delete:global'),
+ csrfProtection, requirePermission('policy:delete:global'),
   auditLog({ action: 'CREATE', resourceType: 'policy_violations' }),
   async (req: AuthRequest, res: Response) => {
     try {

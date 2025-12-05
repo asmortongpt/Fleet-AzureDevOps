@@ -265,7 +265,7 @@ router.get(
 
 router.post(
   '/',
- csrfProtection,  csrfProtection, authenticateJWT,
+ csrfProtection, authenticateJWT,
   requirePermission('vehicle_assignment:create:team'),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -367,7 +367,7 @@ router.post(
 
 router.put(
   '/:id',
- csrfProtection,  csrfProtection, authenticateJWT,
+ csrfProtection, authenticateJWT,
   requirePermission(`vehicle_assignment:create:team`),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -434,7 +434,7 @@ router.put(
 
 router.post(
   '/:id/lifecycle',
- csrfProtection,  csrfProtection, authenticateJWT,
+ csrfProtection, authenticateJWT,
   requirePermission('vehicle_assignment:create:team'),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -483,7 +483,7 @@ router.post(
 
 router.post(
   '/:id/recommend',
- csrfProtection,  csrfProtection, authenticateJWT,
+ csrfProtection, authenticateJWT,
   requirePermission('vehicle_assignment:recommend:team'),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -534,7 +534,7 @@ router.post(
 
 router.post(
   '/:id/approve',
- csrfProtection,  csrfProtection, authenticateJWT,
+ csrfProtection, authenticateJWT,
   requirePermission('vehicle_assignment:approve:fleet'),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -618,7 +618,7 @@ router.post(
 
 router.post(
   '/:id/activate',
- csrfProtection,  csrfProtection, authenticateJWT,
+ csrfProtection, authenticateJWT,
   requirePermission('vehicle_assignment:approve:fleet'),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -664,7 +664,7 @@ router.post(
 
 router.post(
   '/:id/terminate',
- csrfProtection,  csrfProtection, authenticateJWT,
+ csrfProtection, authenticateJWT,
   requirePermission('vehicle_assignment:terminate:fleet'),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -755,7 +755,7 @@ router.get(
 
 router.delete(
   '/:id',
- csrfProtection,  csrfProtection, authenticateJWT,
+ csrfProtection, authenticateJWT,
   requirePermission('vehicle_assignment:create:team'),
   async (req: AuthRequest, res: Response) => {
     try {

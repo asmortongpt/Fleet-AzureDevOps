@@ -43,7 +43,7 @@ router.get('/:userId', authenticateJWT, async (req: Request, res: Response) => {
  * POST /api/presence
  * Set presence status for the current user
  */
-router.post('/',csrfProtection,  csrfProtection, authenticateJWT, async (req: Request, res: Response) => {
+router.post('/',csrfProtection, authenticateJWT, async (req: Request, res: Response) => {
   try {
     const { userId, availability, activity, expirationDuration, statusMessage } = req.body
 
@@ -159,7 +159,7 @@ router.get('/drivers/available', authenticateJWT, async (req: Request, res: Resp
  * POST /api/presence/intelligent-routing
  * Get intelligent routing suggestion based on presence
  */
-router.post('/intelligent-routing',csrfProtection,  csrfProtection, authenticateJWT, async (req: Request, res: Response) => {
+router.post('/intelligent-routing',csrfProtection, authenticateJWT, async (req: Request, res: Response) => {
   try {
     const { taskPriority, candidateUserIds } = req.body
 
@@ -192,7 +192,7 @@ router.post('/intelligent-routing',csrfProtection,  csrfProtection, authenticate
  * POST /api/presence/subscribe
  * Subscribe to presence updates (webhook)
  */
-router.post('/subscribe',csrfProtection,  csrfProtection, authenticateJWT, async (req: Request, res: Response) => {
+router.post('/subscribe',csrfProtection, authenticateJWT, async (req: Request, res: Response) => {
   try {
     const { userIds, webhookUrl } = req.body
 

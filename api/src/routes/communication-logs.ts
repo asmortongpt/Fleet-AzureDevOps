@@ -78,7 +78,7 @@ router.get(
 // POST /communication-logs (system-generated only)
 router.post(
   '/',
- csrfProtection,  csrfProtection, requirePermission('communication:create:global'),
+ csrfProtection, requirePermission('communication:create:global'),
   auditLog({ action: 'CREATE', resourceType: 'communication_logs' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -133,7 +133,7 @@ router.put(
 // DELETE /communication-logs/:id
 router.delete(
   '/:id',
- csrfProtection,  csrfProtection, requirePermission('communication:delete:global'),
+ csrfProtection, requirePermission('communication:delete:global'),
   auditLog({ action: 'DELETE', resourceType: 'communication_logs' }),
   async (req: AuthRequest, res: Response) => {
     try {

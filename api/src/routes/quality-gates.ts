@@ -75,7 +75,7 @@ router.get('/',
  * Create a new quality gate result
  */
 router.post('/',
- csrfProtection,  csrfProtection, requirePermission('role:manage:global'),
+ csrfProtection, requirePermission('role:manage:global'),
   async (req: AuthRequest, res: Response) => {
   try {
     const {

@@ -60,7 +60,7 @@ const processPaymentSchema = z.object({
  */
 router.post(
   '/',
- csrfProtection,  csrfProtection, auditLog({ action: 'CREATE', resourceType: 'reimbursement_requests' }),
+ csrfProtection, auditLog({ action: 'CREATE', resourceType: 'reimbursement_requests' }),
   async (req: AuthRequest, res: Response) => {
     try {
       const validation = createReimbursementSchema.safeParse(req.body);
