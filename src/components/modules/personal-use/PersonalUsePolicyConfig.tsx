@@ -26,7 +26,7 @@ import {
   PersonalUsePolicy,
   ApprovalWorkflow,
   CreatePolicyRequest
-} from '../../types/trip-usage'
+} from '@/types/trip-usage'
 
 interface PersonalUsePolicyConfigProps {
   currentTheme?: string
