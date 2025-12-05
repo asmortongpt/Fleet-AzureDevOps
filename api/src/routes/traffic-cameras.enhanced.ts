@@ -89,7 +89,7 @@ router.get('/:id', async (req: Request, res: Response) => {
         road, direction, county, feed_url, thumbnail_url,
         status, metadata, last_updated
       FROM traffic_cameras
-      WHERE id = $1
+      WHERE /* TODO: Add tenant_id = $X AND */ id = $1
     `;
 
     const result = await pool.query(query, [id]);

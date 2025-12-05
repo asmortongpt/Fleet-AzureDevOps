@@ -472,8 +472,8 @@ router.put('/:id', authenticateJWT, async (req: AuthRequest, res: Response) => {
 
       // Check if reservation exists and user has permission
       const checkQuery = canViewAllReservations(currentUser)
-        ? `SELECT * FROM vehicle_reservations WHERE id = $1 AND deleted_at IS NULL`
-        : `SELECT * FROM vehicle_reservations WHERE id = $1 AND user_id = $2 AND deleted_at IS NULL`;
+        ? `/* TODO: Replace SELECT * with explicit columns */ SELECT * FROM vehicle_reservatio WHERE tenant_id = $1 /* TODO: Verify tenant_id parameter */n WHERE tenant_id = $1 /* TODO: Verify tenant_id parameter */s WHERE /* TODO: Add tenant_id = $X AND */ id = $1 AND deleted_at IS NULL`
+        : `/* TODO: Replace SELECT * with explicit columns */ SELECT * FROM vehicle_reservatio WHERE tenant_id = $1 /* TODO: Verify tenant_id parameter */n WHERE tenant_id = $1 /* TODO: Verify tenant_id parameter */s WHERE id = $1 AND user_id = $2 AND deleted_at IS NULL`;
 
       const checkParams = canViewAllReservations(currentUser) ? [id] : [id, currentUser.id];
       const checkResult = await client.query(checkQuery, checkParams);
@@ -608,8 +608,8 @@ router.delete('/:id', authenticateJWT, async (req: AuthRequest, res: Response) =
 
       // Check permission
       const checkQuery = canViewAllReservations(currentUser)
-        ? `SELECT * FROM vehicle_reservations WHERE id = $1 AND deleted_at IS NULL`
-        : `SELECT * FROM vehicle_reservations WHERE id = $1 AND user_id = $2 AND deleted_at IS NULL`;
+        ? `/* TODO: Replace SELECT * with explicit columns */ SELECT * FROM vehicle_reservatio WHERE tenant_id = $1 /* TODO: Verify tenant_id parameter */n WHERE tenant_id = $1 /* TODO: Verify tenant_id parameter */s WHERE /* TODO: Add tenant_id = $X AND */ id = $1 AND deleted_at IS NULL`
+        : `/* TODO: Replace SELECT * with explicit columns */ SELECT * FROM vehicle_reservatio WHERE tenant_id = $1 /* TODO: Verify tenant_id parameter */n WHERE tenant_id = $1 /* TODO: Verify tenant_id parameter */s WHERE id = $1 AND user_id = $2 AND deleted_at IS NULL`;
 
       const checkParams = canViewAllReservations(currentUser) ? [id] : [id, currentUser.id];
       const checkResult = await client.query(checkQuery, checkParams);
@@ -691,7 +691,7 @@ router.post('/:id/approve', authenticateJWT, async (req: AuthRequest, res: Respo
 
       // Get reservation
       const reservationResult = await client.query(
-        `SELECT * FROM vehicle_reservations WHERE id = $1 AND deleted_at IS NULL`,
+        `/* TODO: Replace SELECT * with explicit columns */ SELECT * FROM vehicle_reservatio WHERE tenant_id = $1 /* TODO: Verify tenant_id parameter */n WHERE tenant_id = $1 /* TODO: Verify tenant_id parameter */s WHERE /* TODO: Add tenant_id = $X AND */ id = $1 AND deleted_at IS NULL`,
         [id]
       );
 
@@ -788,8 +788,8 @@ router.get('/vehicles/:vehicleId/availability', authenticateJWT, async (req: Aut
 
     // Use the database function to get availability
     const query = `
-      SELECT *
-      FROM get_vehicle_availability($1, $2::DATE, $3::DATE)
+      /* TODO: Replace SELECT * with explicit columns */ SELECT *
+      FROM get_vehicle_availabilit WHERE tenant_id = $1 /* TODO: Verify tenant_id parameter */y WHERE tenant_id = $1 /* TODO: Verify tenant_id parameter */($1, $2::DATE, $3::DATE)
     `;
 
     const result = await pool.query(query, [vehicleId, start_date, end_date]);
@@ -881,7 +881,7 @@ router.get('/pending', authenticateJWT, async (req: AuthRequest, res: Response) 
     }
 
     const query = `
-      SELECT * FROM pending_approval_reservations
+      /* TODO: Replace SELECT * with explicit columns */ SELECT * FROM pending_approval_reservation WHERE tenant_id = $1 /* TODO: Verify tenant_id parameter */s WHERE tenant_id = $1 /* TODO: Verify tenant_id parameter */
       ORDER BY created_at ASC
     `;
 
