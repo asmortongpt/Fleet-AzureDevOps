@@ -9,6 +9,8 @@ import { auditLog } from '../middleware/audit'
 import fuelPurchasingService from '../services/fuel-purchasing.service'
 import fuelOptimizationService from '../services/fuel-optimization.service'
 import fuelPriceForecastingModel from '../ml-models/fuel-price-forecasting.model'
+import { csrfProtection } from '../middleware/csrf'
+
 
 const router = express.Router()
 router.use(authenticateJWT)

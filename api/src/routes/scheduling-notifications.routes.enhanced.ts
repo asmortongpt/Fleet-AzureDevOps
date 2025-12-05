@@ -7,6 +7,8 @@ import { authenticate, rateLimiter } from '../middleware'
 import { logger } from '../utils/logger'
 import { asyncHandler } from '../utils/asyncHandler'
 import { validateSchema } from '../utils/validateSchema'
+import { csrfProtection } from '../middleware/csrf'
+
 
 const router = express.Router()
 

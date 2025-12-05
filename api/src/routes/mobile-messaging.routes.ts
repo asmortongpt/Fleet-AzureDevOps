@@ -16,6 +16,8 @@ import { z } from 'zod';
 import { logger } from '../utils/logger';
 import twilio from 'twilio';
 import { getErrorMessage } from '../utils/error-handler'
+import { csrfProtection } from '../middleware/csrf'
+
 
 const router = express.Router();
 router.use(authenticateJWT);
