@@ -26,7 +26,7 @@ const router = express.Router()
  * POST /api/cards/vehicle-maintenance
  * Send a vehicle maintenance alert card
  */
-router.post('/vehicle-maintenance', authenticateJWT, async (req: Request, res: Response) => {
+router.post('/vehicle-maintenance',csrfProtection,  csrfProtection, authenticateJWT, async (req: Request, res: Response) => {
   try {
     const { vehicleId, maintenanceId, teamId, channelId, userId } = req.body
 
@@ -76,7 +76,7 @@ router.post('/vehicle-maintenance', authenticateJWT, async (req: Request, res: R
  * POST /api/cards/work-order
  * Send a work order assignment card
  */
-router.post('/work-order', authenticateJWT, async (req: Request, res: Response) => {
+router.post('/work-order',csrfProtection,  csrfProtection, authenticateJWT, async (req: Request, res: Response) => {
   try {
     const { workOrderId, teamId, channelId, userId } = req.body
 
@@ -132,7 +132,7 @@ router.post('/work-order', authenticateJWT, async (req: Request, res: Response) 
  * POST /api/cards/incident
  * Send an incident report card
  */
-router.post('/incident', authenticateJWT, async (req: Request, res: Response) => {
+router.post('/incident',csrfProtection,  csrfProtection, authenticateJWT, async (req: Request, res: Response) => {
   try {
     const { incidentId, teamId, channelId, userId } = req.body
 
@@ -190,7 +190,7 @@ router.post('/incident', authenticateJWT, async (req: Request, res: Response) =>
  * POST /api/cards/approval
  * Send an approval request card
  */
-router.post('/approval', authenticateJWT, async (req: Request, res: Response) => {
+router.post('/approval',csrfProtection,  csrfProtection, authenticateJWT, async (req: Request, res: Response) => {
   try {
     const { approvalId, teamId, channelId, userId } = req.body
 
@@ -244,7 +244,7 @@ router.post('/approval', authenticateJWT, async (req: Request, res: Response) =>
  * POST /api/cards/driver-performance
  * Send a driver performance card
  */
-router.post('/driver-performance', authenticateJWT, async (req: Request, res: Response) => {
+router.post('/driver-performance',csrfProtection,  csrfProtection, authenticateJWT, async (req: Request, res: Response) => {
   try {
     const { driverId, metrics, teamId, channelId, userId } = req.body
 
@@ -292,7 +292,7 @@ router.post('/driver-performance', authenticateJWT, async (req: Request, res: Re
  * POST /api/cards/fuel-receipt
  * Send a fuel receipt card
  */
-router.post('/fuel-receipt', authenticateJWT, async (req: Request, res: Response) => {
+router.post('/fuel-receipt',csrfProtection,  csrfProtection, authenticateJWT, async (req: Request, res: Response) => {
   try {
     const { receiptId, teamId, channelId, userId } = req.body
 
@@ -348,7 +348,7 @@ router.post('/fuel-receipt', authenticateJWT, async (req: Request, res: Response
  * POST /api/cards/inspection-checklist
  * Send an inspection checklist card
  */
-router.post('/inspection-checklist', authenticateJWT, async (req: Request, res: Response) => {
+router.post('/inspection-checklist',csrfProtection,  csrfProtection, authenticateJWT, async (req: Request, res: Response) => {
   try {
     const { vehicleId, driverId, teamId, channelId, userId } = req.body
 
@@ -404,7 +404,7 @@ router.post('/inspection-checklist', authenticateJWT, async (req: Request, res: 
  * POST /api/cards/:cardType/action
  * Handle card button actions
  */
-router.post('/:cardType/action', authenticateJWT, async (req: Request, res: Response) => {
+router.post('/:cardType/action',csrfProtection,  csrfProtection, authenticateJWT, async (req: Request, res: Response) => {
   try {
     const { cardType } = req.params
     const { action, cardId, teamId, channelId, messageId } = req.body

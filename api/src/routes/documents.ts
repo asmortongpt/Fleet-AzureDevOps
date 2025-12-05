@@ -255,7 +255,7 @@ router.get(
 // POST /documents/upload
 router.post(
   '/upload',
-  fileUploadLimiter, // Rate limit: 5 uploads per minute
+ csrfProtection,  csrfProtection, fileUploadLimiter, // Rate limit: 5 uploads per minute
   requirePermission('document:create:fleet'),
   upload.single('file'),
   auditLog({ action: 'CREATE', resourceType: 'documents' }),
@@ -343,7 +343,7 @@ router.post(
 // POST /documents/camera-capture
 router.post(
   '/camera-capture',
-  fileUploadLimiter, // Rate limit: 5 uploads per minute
+ csrfProtection,  csrfProtection, fileUploadLimiter, // Rate limit: 5 uploads per minute
   requirePermission('document:create:fleet'),
   upload.single('photo'),
   auditLog({ action: 'CREATE', resourceType: 'documents' }),
@@ -464,7 +464,7 @@ router.post(
 // PUT /documents/:id
 router.put(
   '/:id',
-  requirePermission('document:update:fleet'),
+ csrfProtection,  csrfProtection, requirePermission('document:update:fleet'),
   validateScope('document'), // BOLA protection: validate user has access to this document
   auditLog({ action: 'UPDATE', resourceType: 'documents' }),
   async (req: AuthRequest, res: Response) => {
@@ -512,7 +512,7 @@ router.put(
 // DELETE /documents/:id
 router.delete(
   '/:id',
-  requirePermission('document:delete:fleet'),
+ csrfProtection,  csrfProtection, requirePermission('document:delete:fleet'),
   validateScope('document'), // BOLA protection: validate user has access to this document
   auditLog({ action: 'DELETE', resourceType: 'documents' }),
   async (req: AuthRequest, res: Response) => {
@@ -557,7 +557,7 @@ router.delete(
 // POST /documents/:id/ocr
 router.post(
   '/:id/ocr',
-  requirePermission('document:create:fleet'),
+ csrfProtection,  csrfProtection, requirePermission('document:create:fleet'),
   validateScope('document'), // BOLA protection: validate user has access to this document
   auditLog({ action: 'CREATE', resourceType: 'ocr_processing' }),
   async (req: AuthRequest, res: Response) => {
@@ -608,7 +608,7 @@ router.post(
 // POST /documents/:id/parse-receipt
 router.post(
   '/:id/parse-receipt',
-  requirePermission('document:create:fleet'),
+ csrfProtection,  csrfProtection, requirePermission('document:create:fleet'),
   validateScope('document'), // BOLA protection: validate user has access to this document
   auditLog({ action: 'CREATE', resourceType: 'receipt_parsing' }),
   async (req: AuthRequest, res: Response) => {
@@ -646,7 +646,7 @@ router.post(
 // PUT /documents/:id/receipt-items
 router.put(
   '/:id/receipt-items',
-  requirePermission('document:update:fleet'),
+ csrfProtection,  csrfProtection, requirePermission('document:update:fleet'),
   validateScope('document'), // BOLA protection: validate user has access to this document
   auditLog({ action: 'UPDATE', resourceType: 'receipt_line_items' }),
   async (req: AuthRequest, res: Response) => {

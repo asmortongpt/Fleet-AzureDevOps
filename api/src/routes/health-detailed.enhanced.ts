@@ -15,6 +15,8 @@ import { z } from 'zod'
 import { checkDiskSpace } from 'check-disk-space'
 import { AzureMonitor } from './AzureMonitor' // Assume this is a custom module for Azure AD & Application Insights checks
 import { RedisClientType } from 'redis'
+import { csrfProtection } from '../middleware/csrf'
+
 
 const router = express.Router()
 const execAsync = promisify(require('child_process').exec)

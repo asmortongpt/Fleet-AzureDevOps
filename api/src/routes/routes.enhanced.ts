@@ -9,6 +9,8 @@ import { z } from 'zod'
 import { buildInsertClause, buildUpdateClause } from '../utils/sql-safety'
 import { rateLimit } from '../middleware/rateLimit'
 import { validateInput } from '../middleware/validateInput'
+import { csrfProtection } from '../middleware/csrf'
+
 
 const router = express.Router()
 router.use(authenticateJWT)

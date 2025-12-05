@@ -63,7 +63,7 @@ router.get("/:id",
 
 // POST create work order
 router.post("/",
-  requireRBAC({
+ csrfProtection,  csrfProtection, requireRBAC({
     roles: [Role.ADMIN, Role.MANAGER],
     permissions: [PERMISSIONS.WORK_ORDER_CREATE],
     enforceTenantIsolation: true,
@@ -75,7 +75,7 @@ router.post("/",
 
 // PUT update work order
 router.put("/:id",
-  requireRBAC({
+ csrfProtection,  csrfProtection, requireRBAC({
     roles: [Role.ADMIN, Role.MANAGER],
     permissions: [PERMISSIONS.WORK_ORDER_UPDATE],
     enforceTenantIsolation: true,
@@ -88,7 +88,7 @@ router.put("/:id",
 
 // DELETE work order
 router.delete("/:id",
-  requireRBAC({
+ csrfProtection,  csrfProtection, requireRBAC({
     roles: [Role.ADMIN, Role.MANAGER],
     permissions: [PERMISSIONS.WORK_ORDER_DELETE],
     enforceTenantIsolation: true,

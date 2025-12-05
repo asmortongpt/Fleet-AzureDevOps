@@ -38,7 +38,7 @@ const registerSchema = z.object({
 })
 
 // POST /api/auth/login
-router.post('/login', csrfProtection, loginLimiter, async (req: Request, res: Response) => {
+router.post('/login',csrfProtection,  csrfProtection, loginLimiter, async (req: Request, res: Response) => {
   try {
     const { email, password } = loginSchema.parse(req.body)
     const tenant_id = req.body.tenant_id || req.headers['x-tenant-id']
@@ -100,7 +100,7 @@ router.post('/login', csrfProtection, loginLimiter, async (req: Request, res: Re
 // POST /api/auth/register
 router.post(
   '/register',
-  csrfProtection,
+csrfProtection,  csrfProtection,  csrfProtection,
   registrationLimiter,
   async (req: Request, res: Response) => {
     try {

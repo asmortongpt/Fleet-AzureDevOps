@@ -6,6 +6,8 @@ import type { AuthRequest } from '../middleware/auth'
 import { authenticateJWT } from '../middleware/auth'
 import { requirePermission } from '../middleware/permissions'
 import { z } from 'zod'
+import { csrfProtection } from '../middleware/csrf'
+
 
 const router = Router()
 
