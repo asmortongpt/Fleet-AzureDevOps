@@ -1,6 +1,6 @@
 import express, { Response } from 'express'
 import { container } from '../container'
-import { asyncHandler } from '../middleware/error-handler'
+import { asyncHandler } from '../middleware/errorHandler'
 import { NotFoundError, ValidationError } from '../errors/app-error'
 import { AuthRequest, authenticateJWT } from '../middleware/auth'
 import { requirePermission } from '../middleware/permissions'
@@ -93,13 +93,17 @@ router.get(
 
       filters.forEach(filter => {
         if (filter.value !== undefined) {
+          const limitIndex = params.length + 1
+          const offsetIndex = params.length + 2
           assetFilters += ` AND ${filter.field} = $${paramIndex++}`
           scopeParams.push(filter.value)
         }
       })
 
       const result = await tenantSafeQuery(
-        `SELECT * FROM vehicles WHERE tenant_id = $1 ${scopeFilter} ${assetFilters} LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`,
+        const limitIndex = params.length + 1
+        const offsetIndex = params.length + 2
+        `SELECT * FROM vehicles WHERE tenant_id = $1 ${scopeFilter} ${assetFilters} LIMIT ${paramIndex} OFFSET $${paramIndex + 1}`,
         [...scopeParams, Number(limit), offset],
         req.user!.tenant_id
       )

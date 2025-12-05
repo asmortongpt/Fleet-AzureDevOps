@@ -1,6 +1,6 @@
 import express, { Request, Response, Router } from 'express'
 import { container } from '../container'
-import { asyncHandler } from '../middleware/error-handler'
+import { asyncHandler } from '../middleware/errorHandler'
 import { NotFoundError, ValidationError } from '../errors/app-error'
 import { queueService } from '../services/queue.service'
 import { authenticateAdmin } from '../middleware/auth.middleware'
