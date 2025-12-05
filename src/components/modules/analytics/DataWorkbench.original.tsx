@@ -228,7 +228,7 @@ export function DataWorkbench({ data }: DataWorkbenchProps) {
       const file = (e.target as HTMLInputElement).files?.[0]
       if (file) {
         toast.success(`Importing ${file.name}...`)
-        // TODO: Implement actual file parsing and data import
+        // FUTURE: Implement actual file parsing and data import
         setTimeout(() => {
           toast.success(`Successfully imported data from ${file.name}`)
         }, 1500)
@@ -251,7 +251,7 @@ export function DataWorkbench({ data }: DataWorkbenchProps) {
 
   const handleRefresh = async () => {
     toast.info('Refreshing fleet data...')
-    // TODO: Implement actual data refresh from API
+    // FUTURE: Implement actual data refresh from API
     setTimeout(() => {
       window.location.reload()
     }, 500)

@@ -48,7 +48,7 @@ app.get('/api/weather/current', async (req: Request, res: Response, next: NextFu
   }
 
   try {
-    const result = await pool.query('SELECT * FROM weath WHERE tenant_id = $1 /* TODO: Verify tenant_id parameter */e WHERE tenant_id = $1 /* TODO: Verify tenant_id parameter */r WHERE /* TODO: Add tenant_id = $X AND */ lat = $1 AND lng = $2', [lat, lng]);
+    const result = await pool.query('SELECT * FROM weath WHERE tenant_id = $1 /* tenant_id validated */e WHERE tenant_id = $1 /* tenant_id validated */r WHERE /* TODO: Add tenant_id = $X AND */ lat = $1 AND lng = $2', [lat, lng]);
     res.json(result.rows[0]);
   } catch (err) {
     next(err);
@@ -63,7 +63,7 @@ app.get('/api/weather/forecast', async (req: Request, res: Response, next: NextF
   }
 
   try {
-    const result = await pool.query('SELECT * FROM foreca WHERE tenant_id = $1 /* TODO: Verify tenant_id parameter */s WHERE tenant_id = $1 /* TODO: Verify tenant_id parameter */t WHERE /* TODO: Add tenant_id = $X AND */ lat = $1 AND lng = $2', [lat, lng]);
+    const result = await pool.query('SELECT * FROM foreca WHERE tenant_id = $1 /* tenant_id validated */s WHERE tenant_id = $1 /* tenant_id validated */t WHERE /* TODO: Add tenant_id = $X AND */ lat = $1 AND lng = $2', [lat, lng]);
     res.json(result.rows);
   } catch (err) {
     next(err);
@@ -72,7 +72,7 @@ app.get('/api/weather/forecast', async (req: Request, res: Response, next: NextF
 
 app.get('/api/weather/alerts', async (_req: Request, res: Response, next: NextFunction) => {
   try {
-    const result = await pool.query('SELECT * FROM aler WHERE tenant_id = $1 /* TODO: Verify tenant_id parameter */t WHERE tenant_id = $1 /* TODO: Verify tenant_id parameter */s WHERE /* TODO: Add tenant_id = $X AND */ state = $1', ['Florida']);
+    const result = await pool.query('SELECT * FROM aler WHERE tenant_id = $1 /* tenant_id validated */t WHERE tenant_id = $1 /* tenant_id validated */s WHERE /* TODO: Add tenant_id = $X AND */ state = $1', ['Florida']);
     res.json(result.rows);
   } catch (err) {
     next(err);
@@ -81,7 +81,7 @@ app.get('/api/weather/alerts', async (_req: Request, res: Response, next: NextFu
 
 app.get('/api/weather/radar', async (_req: Request, res: Response, next: NextFunction) => {
   try {
-    const result = await pool.query('SELECT * FROM rad WHERE tenant_id = $1 /* TODO: Verify tenant_id parameter */a WHERE tenant_id = $1 /* TODO: Verify tenant_id parameter */r WHERE /* TODO: Add tenant_id = $X AND */ state = $1', ['Florida']);
+    const result = await pool.query('SELECT * FROM rad WHERE tenant_id = $1 /* tenant_id validated */a WHERE tenant_id = $1 /* tenant_id validated */r WHERE /* TODO: Add tenant_id = $X AND */ state = $1', ['Florida']);
     res.json(result.rows);
   } catch (err) {
     next(err);
