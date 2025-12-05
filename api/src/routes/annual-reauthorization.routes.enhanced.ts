@@ -80,10 +80,14 @@ router.get(
       if (year) {
         const limitIndex = params.length + 1
         const offsetIndex = params.length + 2
+        const limitIndex = params.length + 1
+        const offsetIndex = params.length + 2
         whereConditions.push(`arc.year = $${paramIndex++}`)
         params.push(parseInt(year as string)
       }
       if (status) {
+        const limitIndex = params.length + 1
+        const offsetIndex = params.length + 2
         const limitIndex = params.length + 1
         const offsetIndex = params.length + 2
         whereConditions.push(`arc.status = $${paramIndex++}`)
@@ -101,6 +105,8 @@ router.get(
         LEFT JOIN users u ON arc.submitted_by_user_id = u.id
         WHERE ${whereClause}
         ORDER BY arc.year DESC, arc.start_date DESC
+        const limitIndex = params.length + 1
+        const offsetIndex = params.length + 2
         const limitIndex = params.length + 1
         const offsetIndex = params.length + 2
         LIMIT $${paramIndex++} OFFSET ${paramIndex}
