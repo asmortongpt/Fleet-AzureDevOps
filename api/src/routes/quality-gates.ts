@@ -214,10 +214,10 @@ router.get('/latest/:gate_type',
 
     const result = await pool.query(
       `SELECT id, tenant_id, name, description, criteria, threshold, metric_type, is_active, created_at, updated_at FROM quality_gates
-      WHERE /* TODO: Add tenant_id = $X AND */ gate_type = $1
+      WHERE tenant_id = $1 AND gate_type = $2
       ORDER BY executed_at DESC
       LIMIT 1`,
-      [gate_type]
+      [req.user!.tenant_id, gate_type]
     )
 
     if (result.rows.length === 0) {
