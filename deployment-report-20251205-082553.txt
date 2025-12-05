@@ -1,3 +1,23 @@
+[0;36m
+╔════════════════════════════════════════════════════════╗
+║                                                        ║
+║     FLEET MANAGEMENT SYSTEM                            ║
+║     PRODUCTION DEPLOYMENT                              ║
+║                                                        ║
+╚════════════════════════════════════════════════════════╝
+[0m
+Version:    v1.0.20251205082553
+Environment: PRODUCTION
+Timestamp:  2025-12-05 13:25:53 UTC
+Operator:   andrewmorton
+Report:     deployment-report-20251205-082553.txt
+
+[0;34m[INFO][0m Starting production deployment...
+
+[0;35m[STEP][0m Checking prerequisites...
+[0;32m[SUCCESS][0m All required tools are installed
+[0;32m[SUCCESS][0m Logged in to Azure
+[0;35m[STEP][0m Running pre-flight checks...
 
 [0;35m========================================[0m
 [0;35mFLEET MANAGEMENT - PRODUCTION PRE-FLIGHT CHECK[0m
@@ -137,3 +157,7 @@ api/src/backups/final-fixes/health-detailed.enhanced.ts.20251204_152216:    cons
 
 Non-critical issues detected. Review carefully.
 Report saved to: preflight-report.txt
+[0;31m[ERROR][0m Pre-flight checks failed
+[0;34m[INFO][0m Fix issues or set SKIP_PREFLIGHT=true to override (not recommended)
+[0;31m[ERROR][0m Deployment failed with exit code: 1
+[0;34m[INFO][0m Check report: deployment-report-20251205-082553.txt
