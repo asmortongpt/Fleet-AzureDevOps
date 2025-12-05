@@ -1,12 +1,22 @@
 import express, { Response } from 'express'
+import { container } from '../container'
+import { asyncHandler } from '../middleware/error-handler'
+import { NotFoundError, ValidationError } from '../errors/app-error'
+import { cacheService } from '../config/cache'; // Wave 13: Add Redis caching
+import logger from '../config/logger'; // Wave 11: Add Winston logger
+import { workOrderCreateSchema, workOrderUpdateSchema } from '../schemas/work-order.schema';
+
+import { validate } from '../middleware/validate';
+
 import { AuthRequest, authenticateJWT } from '../middleware/auth'
 import { requirePermission, validateScope } from '../middleware/permissions'
 import { auditLog } from '../middleware/audit'
 import { applyFieldMasking } from '../utils/fieldMasking'
-import pool from '../config/database'
 import { z } from 'zod'
+import { TenantValidator } from '../utils/tenant-validator';
 
 const router = express.Router()
+const validator = new TenantValidator(db);
 router.use(authenticateJWT)
 
 // Validation schema for work order creation
@@ -37,10 +47,19 @@ router.get(
       const { page = 1, limit = 50, status, priority, facility_id } = req.query
       const offset = (Number(page) - 1) * Number(limit)
 
+      // Wave 13: Cache-aside pattern
+      const cacheKey = `work-orders:list:${req.user!.tenant_id}:${page}:${limit}:${status || ''}:${priority || ''}:${facility_id || ''}`
+      const cached = await cacheService.get<any>(cacheKey)
+
+      if (cached) {
+        return res.json(cached)
+      }
+
       // Get user's scope for row-level filtering
+      // SECURITY: Include tenant_id to prevent cross-tenant user data access
       const userResult = await pool.query(
-        `SELECT facility_ids, scope_level FROM users WHERE id = $1`,
-        [req.user!.id]
+        `SELECT facility_ids, scope_level FROM users WHERE id = $1 AND tenant_id = $2`,
+        [req.user!.id, req.user!.tenant_id]
       )
 
       const user = userResult.rows[0]
@@ -90,17 +109,22 @@ router.get(
         queryParams
       )
 
-      res.json({
+      const response = {
         data: result.rows,
         pagination: {
           page: Number(page),
           limit: Number(limit),
           total: parseInt(countResult.rows[0].count),
-          pages: Math.ceil(countResult.rows[0].count / Number(limit))
+          pages: Math.ceil(countResult.rows[0].count / Number(limit)
         }
-      })
+      }
+
+      // Cache for 5 minutes (300 seconds)
+      await cacheService.set(cacheKey, response, 300)
+
+      res.json(response)
     } catch (error) {
-      console.error(`Get work-orders error:`, error)
+      logger.error('Failed to fetch work orders', { error }) // Wave 11: Winston logger
       res.status(500).json({ error: `Internal server error` })
     }
   }
@@ -115,6 +139,14 @@ router.get(
   auditLog({ action: 'READ', resourceType: 'work_orders' }),
   async (req: AuthRequest, res: Response) => {
     try {
+      // Wave 13: Cache-aside pattern for single work order
+      const cacheKey = `work-order:${req.params.id}:${req.user!.tenant_id}`
+      const cached = await cacheService.get<any>(cacheKey)
+
+      if (cached) {
+        return res.json(cached)
+      }
+
       const result = await pool.query(
         `SELECT id, tenant_id, work_order_number, vehicle_id, facility_id,
                 assigned_technician_id, type, priority, status, description,
@@ -129,9 +161,12 @@ router.get(
         return res.status(404).json({ error: `Work order not found` })
       }
 
+      // Cache for 10 minutes (600 seconds)
+      await cacheService.set(cacheKey, result.rows[0], 600)
+
       res.json(result.rows[0])
     } catch (error) {
-      console.error(`Get work-order error:`, error)
+      logger.error('Failed to fetch work order', { error, workOrderId: req.params.id }) // Wave 11: Winston logger
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -148,14 +183,15 @@ router.post(
 
       // Validate facility_id is in user's scope
       if (validated.facility_id) {
+        // SECURITY: Include tenant_id to prevent cross-tenant user data access
         const userResult = await pool.query(
-          `SELECT facility_ids, scope_level FROM users WHERE id = $1`,
-          [req.user!.id]
+          `SELECT facility_ids, scope_level FROM users WHERE id = $1 AND tenant_id = $2`,
+          [req.user!.id, req.user!.tenant_id]
         )
         const user = userResult.rows[0]
 
         if (user.scope_level === `team` && user.facility_ids) {
-          if (!user.facility_ids.includes(validated.facility_id)) {
+          if (!user.facility_ids.includes(validated.facility_id) {
             return res.status(403).json({
               error: 'Cannot create work order for facility outside your scope'
             })
@@ -194,13 +230,24 @@ router.post(
       if (error instanceof z.ZodError) {
         return res.status(400).json({ error: `Validation failed`, details: error.errors })
       }
-      console.error(`Create work-order error:`, error)
+      logger.error('Failed to create work order', { error }) // Wave 11: Winston logger
       res.status(500).json({ error: 'Internal server error' })
     }
   }
 )
 
 // PUT /work-orders/:id/complete
+
+// SECURITY: Allow-list for updateable fields (prevents mass assignment)
+const ALLOWED_UPDATE_FIELDS = [
+  "notes",
+  "status",
+  "description",
+  "priority",
+  "assigned_to",
+  "due_date"
+];
+
 router.put(
   '/:id/complete',
   requirePermission('work_order:complete:own'),
@@ -208,6 +255,22 @@ router.put(
   async (req: AuthRequest, res: Response) => {
     try {
       const { labor_hours, labor_cost, parts_cost, notes } = req.body
+
+      // SECURITY: IDOR Protection - Validate foreign keys belong to tenant
+      const { vehicle_id, assigned_to } = data
+
+      if (vehicle_id && !(await validator.validateVehicle(vehicle_id, req.user!.tenant_id)) {
+        return res.status(403).json({
+          success: false,
+          error: 'Vehicle Id not found or access denied'
+        })
+      }
+      if (assigned_to && !(await validator.validateDriver(assigned_to, req.user!.tenant_id)) {
+        return res.status(403).json({
+          success: false,
+          error: 'Assigned To not found or access denied'
+        })
+      }
 
       // Verify work order is assigned to current user
       const checkResult = await pool.query(
@@ -239,9 +302,13 @@ router.put(
         [req.params.id, req.user!.tenant_id, labor_hours, labor_cost, parts_cost, notes]
       )
 
+      // Wave 13: Invalidate cache on complete
+      const cacheKey = `work-order:${req.params.id}:${req.user!.tenant_id}`
+      await cacheService.del(cacheKey)
+
       res.json(result.rows[0])
     } catch (error) {
-      console.error('Complete work-order error:', error)
+      logger.error('Failed to complete work order', { error, workOrderId: req.params.id }) // Wave 11: Winston logger
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -279,9 +346,13 @@ router.put(
         [req.params.id, req.user!.tenant_id]
       )
 
+      // Wave 13: Invalidate cache on approve
+      const cacheKey = `work-order:${req.params.id}:${req.user!.tenant_id}`
+      await cacheService.del(cacheKey)
+
       res.json(result.rows[0])
     } catch (error) {
-      console.error(`Approve work-order error:`, error)
+      logger.error('Failed to approve work order', { error, workOrderId: req.params.id }) // Wave 11: Winston logger
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -300,15 +371,21 @@ router.delete(
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'Work order not found' })
+        return throw new NotFoundError("Work order not found")
       }
+
+      // Wave 13: Invalidate cache on delete
+      const cacheKey = `work-order:${req.params.id}:${req.user!.tenant_id}`
+      await cacheService.del(cacheKey)
 
       res.json({ message: 'Work order deleted successfully' })
     } catch (error) {
-      console.error('Delete work-order error:', error)
+      logger.error('Failed to delete work order', { error, workOrderId: req.params.id }) // Wave 11: Winston logger
       res.status(500).json({ error: 'Internal server error' })
     }
   }
 )
 
 export default router
+
+// Wave 15: Removed duplicate route definitions (dead code after export)

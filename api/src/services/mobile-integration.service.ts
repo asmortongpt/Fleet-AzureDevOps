@@ -17,8 +17,8 @@
  * Business Value: $1,500,000/year across all mobile features
  */
 
-import pool from '../config/database'
-// import { OfflineStorage } from './offline-storage.service' // TODO: Create offline storage service
+import { Pool } from 'pg'
+import OfflineStorageService from './offline-storage.service'
 import RouteOptimizationService from './route-optimization.service'
 import DispatchService from './dispatch.service'
 import EVChargingService from './ev-charging.service'
@@ -79,18 +79,13 @@ export interface ARNavigationData {
 }
 
 export class MobileIntegrationService {
-  // private offlineStorage: OfflineStorage // TODO: Create offline storage service
-  // private routeOptimization: RouteOptimizationService // TODO: Refactor services to be classes
-  // private dispatch: DispatchService
-  // private evCharging: EVChargingService
-  // private videoTelematics: VideoTelematicsService
+  private db: Pool
+  private offlineStorage = OfflineStorageService
 
-  constructor() {
-    // this.offlineStorage = new OfflineStorage() // TODO: Create offline storage service
-    // this.routeOptimization = new RouteOptimizationService() // TODO: Refactor services to be classes
-    // this.dispatch = new DispatchService()
-    // this.evCharging = new EVChargingService()
-    // this.videoTelematics = new VideoTelematicsService()
+  constructor(db: Pool) {
+    this.db = db
+    // Services are initialized as singletons and imported directly
+    // RouteOptimizationService, DispatchService, EVChargingService, VideoTelematicsService
   }
 
   /**
@@ -107,7 +102,7 @@ export class MobileIntegrationService {
       push_token?: string
     }
   ): Promise<MobileDevice> {
-    const result = await pool.query(
+    const result = await this.db.query(
       `INSERT INTO mobile_devices
        (user_id, device_type, device_id, device_name, app_version, os_version, push_token)
        VALUES ($1, $2, $3, $4, $5, $6, $7)
@@ -199,7 +194,7 @@ export class MobileIntegrationService {
     )
 
     // 6. Update device sync timestamp
-    await pool.query(
+    await this.db.query(
       `UPDATE mobile_devices
        SET last_sync_at = $1, updated_at = $1
        WHERE device_id = $2',
@@ -223,7 +218,7 @@ export class MobileIntegrationService {
     vehicleId: number
   ): Promise<any> {
     // Get active route for driver
-    const result = await pool.query(
+    const result = await this.db.query(
       `SELECT r.*, v.make, v.model, v.license_plate
        FROM optimized_routes r
        JOIN vehicles v ON v.id = r.vehicle_id
@@ -243,7 +238,7 @@ export class MobileIntegrationService {
     const route = result.rows[0]
 
     // Get route waypoints with turn-by-turn directions
-    const waypoints = await pool.query(
+    const waypoints = await this.db.query(
       `SELECT id, tenant_id, route_id, waypoint_order, latitude, longitude, address, created_at FROM route_waypoints
        WHERE route_id = $1
        ORDER BY sequence`,
@@ -272,7 +267,7 @@ export class MobileIntegrationService {
     }
 
     // 1. Get vehicle info
-    const vehicleResult = await pool.query(
+    const vehicleResult = await this.db.query(
       `SELECT 
       id,
       tenant_id,
@@ -309,7 +304,7 @@ export class MobileIntegrationService {
 
     // 2. Get active route if route_id provided
     if (data.route_id) {
-      const routeResult = await pool.query(
+      const routeResult = await this.db.query(
         `SELECT 
       id,
       job_id,
@@ -348,7 +343,7 @@ export class MobileIntegrationService {
       result.route = routeResult.rows[0]
 
       // Get next stop
-      const nextStopResult = await pool.query(
+      const nextStopResult = await this.db.query(
         `SELECT id, tenant_id, route_id, stop_order, stop_name, latitude, longitude, created_at FROM route_stops
          WHERE route_id = $1
            AND (status = 'pending' OR status = 'in_progress')
@@ -371,7 +366,7 @@ export class MobileIntegrationService {
 
     // 4. Get active geofences if requested
     if (data.include_geofences) {
-      const geofencesResult = await pool.query(
+      const geofencesResult = await this.db.query(
         `SELECT id, tenant_id, geofence_name, latitude, longitude, radius_meters, created_at, updated_at FROM geofences
          WHERE tenant_id = $1 AND is_active = true`,
         [tenantId]
@@ -391,7 +386,7 @@ export class MobileIntegrationService {
     request: KeylessEntryRequest
   ): Promise<any> {
     // 1. Verify user has access to vehicle
-    const accessResult = await pool.query(
+    const accessResult = await this.db.query(
       `SELECT v.* FROM vehicles v
        LEFT JOIN vehicle_assignments va ON va.vehicle_id = v.id
        WHERE v.tenant_id = $1
@@ -407,7 +402,7 @@ export class MobileIntegrationService {
     const vehicle = accessResult.rows[0]
 
     // 2. Log keyless entry event
-    await pool.query(
+    await this.db.query(
       `INSERT INTO keyless_entry_logs
        (tenant_id, vehicle_id, user_id, device_id, command, location, executed_at)
        VALUES ($1, $2, $3, $4, $5, $6, CURRENT_TIMESTAMP)`,
@@ -448,7 +443,7 @@ export class MobileIntegrationService {
       estimated_cost?: number
     }
   ): Promise<any> {
-    const result = await pool.query(
+    const result = await this.db.query(
       `INSERT INTO damage_detections
        (tenant_id, vehicle_id, reported_by, photo_url, ai_detections,
         severity, estimated_cost, detected_at)
@@ -467,7 +462,7 @@ export class MobileIntegrationService {
 
     // Auto-create work order for severe damage
     if (data.severity === `severe` || data.severity === `major`) {
-      await pool.query(
+      await this.db.query(
         `INSERT INTO work_orders
          (tenant_id, vehicle_id, type, priority, description, estimated_cost, status)
          VALUES ($1, $2, 'damage_repair', 'high', $3, $4, 'open`)`,
@@ -514,7 +509,7 @@ export class MobileIntegrationService {
 
     query += ` ORDER BY dm.created_at DESC LIMIT 100`
 
-    const result = await pool.query(query, params)
+    const result = await this.db.query(query, params)
     return result.rows
   }
 
@@ -528,7 +523,7 @@ export class MobileIntegrationService {
     radiusMiles: number = 10
   ): Promise<any[]> {
     // Use PostGIS for geospatial query
-    const result = await pool.query(
+    const result = await this.db.query(
       `SELECT
          cs.*,
          ST_Distance(
@@ -569,7 +564,7 @@ export class MobileIntegrationService {
     }
   ): Promise<boolean> {
     // Get device push token
-    const deviceResult = await pool.query(
+    const deviceResult = await this.db.query(
       `SELECT push_token, device_type FROM mobile_devices WHERE device_id = $1`,
       [deviceId]
     )
@@ -596,7 +591,7 @@ export class MobileIntegrationService {
     inspection: any
   ): Promise<any | null> {
     // Check for conflicts
-    const existing = await pool.query(
+    const existing = await this.db.query(
       `SELECT id, tenant_id, vehicle_id, inspection_type, inspection_date, status, notes, created_at FROM vehicle_inspections
        WHERE mobile_id = $1`,
       [inspection.id]
@@ -615,7 +610,7 @@ export class MobileIntegrationService {
     }
 
     // Insert or update inspection
-    await pool.query(
+    await this.db.query(
       `INSERT INTO vehicle_inspections
        (tenant_id, vehicle_id, inspector_id, mobile_id, inspection_type,
         checklist_data, notes, status, inspected_at)
@@ -648,7 +643,7 @@ export class MobileIntegrationService {
     report: any
   ): Promise<any | null> {
     // Similar conflict resolution as inspections
-    await pool.query(
+    await this.db.query(
       `INSERT INTO driver_reports
        (tenant_id, driver_id, mobile_id, report_type, data, submitted_at)
        VALUES ($1, $2, $3, $4, $5, $6)
@@ -674,7 +669,7 @@ export class MobileIntegrationService {
     userId: number,
     photo: any
   ): Promise<void> {
-    await pool.query(
+    await this.db.query(
       `INSERT INTO mobile_photos
        (tenant_id, user_id, mobile_id, photo_url, metadata, taken_at)
        VALUES ($1, $2, $3, $4, $5, $6)
@@ -695,7 +690,7 @@ export class MobileIntegrationService {
     userId: number,
     hosLog: any
   ): Promise<void> {
-    await pool.query(
+    await this.db.query(
       `INSERT INTO hos_logs
        (tenant_id, driver_id, mobile_id, duty_status, start_time,
         end_time, location, notes)
@@ -725,7 +720,7 @@ export class MobileIntegrationService {
     const data: any = {}
 
     // Get vehicles
-    const vehicles = await pool.query(
+    const vehicles = await this.db.query(
       `SELECT v.* FROM vehicles v
        LEFT JOIN vehicle_assignments va ON va.vehicle_id = v.id
        WHERE v.tenant_id = $1
@@ -736,7 +731,7 @@ export class MobileIntegrationService {
     data.vehicles = vehicles.rows
 
     // Get active routes
-    const routes = await pool.query(
+    const routes = await this.db.query(
       `SELECT id, tenant_id, route_name, total_distance, estimated_duration, waypoint_count, created_at FROM optimized_routes
        WHERE tenant_id = $1 AND driver_id = $2 AND status = 'active'
        ORDER BY created_at DESC`,
@@ -757,7 +752,7 @@ export class MobileIntegrationService {
     // This would require current location from mobile device
 
     // Get recent safety events
-    const safetyEvents = await pool.query(
+    const safetyEvents = await this.db.query(
       `SELECT id, tenant_id, driver_id, event_type, severity, event_data, event_date, created_at FROM driver_safety_events
        WHERE tenant_id = $1 AND driver_id = $2
        ORDER BY event_time DESC
@@ -780,4 +775,4 @@ export class MobileIntegrationService {
   }
 }
 
-export default new MobileIntegrationService()
+export default MobileIntegrationService

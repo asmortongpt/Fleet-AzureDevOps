@@ -277,6 +277,17 @@ export interface AttributeConstraint {
 }
 
 /**
+ * User attribute profile for ABAC (Attribute-Based Access Control)
+ */
+export interface UserAttributes {
+  departments?: string[]
+  sites?: string[]
+  regions?: string[]
+  vehicleTypes?: string[]
+  costCenters?: string[]
+}
+
+/**
  * Check if user has permission with optional attribute constraints
  */
 export function hasPermission(
@@ -288,20 +299,103 @@ export function hasPermission(
     site?: string
     region?: string
     vehicleType?: string
-  }
+  },
+  userAttributes?: UserAttributes
 ): boolean {
   // Super admin has all permissions
   if (userRole === "super-admin") return true
 
   // Check if user has the permission
   const hasDirectPermission = userPermissions.includes(requiredPermission)
-  if (!hasDirectPermission) return false
+  if (!hasDirectPermission) {
+    logger.info('[RBAC] Permission denied - user lacks permission', {
+      role: userRole,
+      requiredPermission,
+      hasPermission: false
+    })
+    return false
+  }
 
   // If no constraints, permission is granted
   if (!constraints) return true
 
-  // TODO: Implement attribute constraint checking
-  // This would check if user's attributes match the resource attributes
+  // If constraints are specified but user has no attributes, deny access
+  if (!userAttributes) {
+    logger.warn('[RBAC] Permission denied - constraints specified but no user attributes', {
+      role: userRole,
+      requiredPermission,
+      constraints
+    })
+    return false
+  }
+
+  // Check attribute constraints
+  const constraintChecks: Record<string, boolean> = {}
+
+  // Check department constraint
+  if (constraints.department) {
+    const hasAccess = userAttributes.departments?.includes(constraints.department) ?? false
+    constraintChecks.department = hasAccess
+    if (!hasAccess) {
+      logger.info('[RBAC] Permission denied - department constraint failed', {
+        role: userRole,
+        requiredDepartment: constraints.department,
+        userDepartments: userAttributes.departments
+      })
+      return false
+    }
+  }
+
+  // Check site constraint
+  if (constraints.site) {
+    const hasAccess = userAttributes.sites?.includes(constraints.site) ?? false
+    constraintChecks.site = hasAccess
+    if (!hasAccess) {
+      logger.info('[RBAC] Permission denied - site constraint failed', {
+        role: userRole,
+        requiredSite: constraints.site,
+        userSites: userAttributes.sites
+      })
+      return false
+    }
+  }
+
+  // Check region constraint
+  if (constraints.region) {
+    const hasAccess = userAttributes.regions?.includes(constraints.region) ?? false
+    constraintChecks.region = hasAccess
+    if (!hasAccess) {
+      logger.info('[RBAC] Permission denied - region constraint failed', {
+        role: userRole,
+        requiredRegion: constraints.region,
+        userRegions: userAttributes.regions
+      })
+      return false
+    }
+  }
+
+  // Check vehicle type constraint
+  if (constraints.vehicleType) {
+    const hasAccess = userAttributes.vehicleTypes?.includes(constraints.vehicleType) ?? false
+    constraintChecks.vehicleType = hasAccess
+    if (!hasAccess) {
+      logger.info('[RBAC] Permission denied - vehicle type constraint failed', {
+        role: userRole,
+        requiredVehicleType: constraints.vehicleType,
+        userVehicleTypes: userAttributes.vehicleTypes
+      })
+      return false
+    }
+  }
+
+  // All constraints passed
+  logger.info('[RBAC] Permission granted with constraints', {
+    role: userRole,
+    requiredPermission,
+    constraints,
+    constraintChecks
+  })
+
   return true
 }
 

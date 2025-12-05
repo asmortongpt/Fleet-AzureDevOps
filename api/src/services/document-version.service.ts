@@ -3,7 +3,8 @@
  * Manages document versioning and version history
  */
 
-import pool from '../config/database'
+import { Pool } from 'pg'
+import logger from '../utils/logger'
 import {
   DocumentVersion,
   CreateVersionOptions,
@@ -16,6 +17,8 @@ import { StorageAdapter } from './storage/storage-adapter.base'
 import documentAuditService from './document-audit.service'
 
 export class DocumentVersionService {
+  constructor(private db: Pool, private logger: typeof logger) {}
+
   private storageAdapter?: StorageAdapter
 
   /**
@@ -30,14 +33,14 @@ export class DocumentVersionService {
    * Create a new version of a document
    */
   async createVersion(options: CreateVersionOptions): Promise<DocumentVersion> {
-    const client = await pool.connect()
+    const client = await this.db.connect()
 
     try {
       await client.query('BEGIN')
 
       // Get current document
       const docResult = await client.query(
-        `SELECT 
+        `SELECT
       id,
       tenant_id,
       file_name,
@@ -59,7 +62,7 @@ export class DocumentVersionService {
       embedding_status,
       embedding_completed_at,
       created_at,
-      updated_at FROM documents WHERE id = $1',
+      updated_at FROM documents WHERE id = $1`,
         [options.documentId]
       )
 
@@ -170,11 +173,11 @@ export class DocumentVersionService {
 
       await client.query(`COMMIT`)
 
-      console.log(`✅ Version created: v${updatedDoc.rows[0].version_number}`)
+      this.logger.info(`✅ Version created: v${updatedDoc.rows[0].version_number}`)
       return versionResult.rows[0]
     } catch (error) {
       await client.query(`ROLLBACK`)
-      console.error('❌ Failed to create version:', error)
+      this.logger.error('❌ Failed to create version:', error)
       throw error
     } finally {
       client.release()
@@ -187,7 +190,7 @@ export class DocumentVersionService {
   async getVersionHistory(documentId: string): Promise<VersionHistory> {
     try {
       // Get current version
-      const currentResult = await pool.query(
+      const currentResult = await this.db.query(
         `SELECT
           d.id,
           d.id as document_id,
@@ -202,7 +205,7 @@ export class DocumentVersionService {
           u.first_name || ' ' || u.last_name as uploaded_by_name
         FROM documents d
         LEFT JOIN users u ON d.uploaded_by = u.id
-        WHERE d.id = $1',
+        WHERE d.id = $1`,
         [documentId]
       )
 
@@ -211,7 +214,7 @@ export class DocumentVersionService {
       }
 
       // Get version history
-      const historyResult = await pool.query(
+      const historyResult = await this.db.query(
         `SELECT
           dv.*,
           u.first_name || ' ' || u.last_name as uploaded_by_name
@@ -227,7 +230,7 @@ export class DocumentVersionService {
         history: historyResult.rows
       }
     } catch (error) {
-      console.error('❌ Failed to get version history:', error)
+      this.logger.error('❌ Failed to get version history:', error)
       throw error
     }
   }
@@ -240,19 +243,19 @@ export class DocumentVersionService {
     versionNumber: number
   ): Promise<DocumentVersion | null> {
     try {
-      const result = await pool.query(
+      const result = await this.db.query(
         `SELECT
           dv.*,
           u.first_name || ' ' || u.last_name as uploaded_by_name
         FROM document_versions dv
         LEFT JOIN users u ON dv.uploaded_by = u.id
-        WHERE dv.document_id = $1 AND dv.version_number = $2',
+        WHERE dv.document_id = $1 AND dv.version_number = $2`,
         [documentId, versionNumber]
       )
 
       return result.rows[0] || null
     } catch (error) {
-      console.error('❌ Failed to get version:', error)
+      this.logger.error('❌ Failed to get version:', error)
       throw error
     }
   }
@@ -265,7 +268,7 @@ export class DocumentVersionService {
     versionNumber: number,
     userId: string
   ): Promise<DocumentVersion> {
-    const client = await pool.connect()
+    const client = await this.db.connect()
 
     try {
       await client.query(`BEGIN`)
@@ -388,11 +391,11 @@ export class DocumentVersionService {
 
       await client.query(`COMMIT`)
 
-      console.log(`✅ Restored version ${versionNumber}`)
+      this.logger.info(`✅ Restored version ${versionNumber}`)
       return newVersionResult.rows[0]
     } catch (error) {
       await client.query(`ROLLBACK`)
-      console.error(`❌ Failed to restore version:`, error)
+      this.logger.error(`❌ Failed to restore version:`, error)
       throw error
     } finally {
       client.release()
@@ -418,10 +421,10 @@ export class DocumentVersionService {
 
       const buffer = await this.storageAdapter!.download(version.file_url)
 
-      console.log(`✅ Downloaded version ${versionNumber}`)
+      this.logger.info(`✅ Downloaded version ${versionNumber}`)
       return buffer
     } catch (error) {
-      console.error(`❌ Failed to download version:`, error)
+      this.logger.error(`❌ Failed to download version:`, error)
       throw error
     }
   }
@@ -466,7 +469,7 @@ export class DocumentVersionService {
         }
       }
     } catch (error) {
-      console.error('❌ Failed to compare versions:', error)
+      this.logger.error('❌ Failed to compare versions:', error)
       throw error
     }
   }
@@ -478,7 +481,7 @@ export class DocumentVersionService {
     documentId: string,
     keepVersions: number = 10
   ): Promise<number> {
-    const client = await pool.connect()
+    const client = await this.db.connect()
 
     try {
       await client.query('BEGIN')
@@ -507,7 +510,7 @@ export class DocumentVersionService {
         try {
           await this.storageAdapter!.delete(version.file_url)
         } catch (error) {
-          console.warn(`⚠️  Failed to delete version file: ${version.file_url}`)
+          this.logger.warn(`⚠️  Failed to delete version file: ${version.file_url}`)
         }
       }
 
@@ -520,11 +523,11 @@ export class DocumentVersionService {
 
       await client.query(`COMMIT`)
 
-      console.log(`✅ Pruned ${versionsToDelete.rows.length} old versions`)
+      this.logger.info(`✅ Pruned ${versionsToDelete.rows.length} old versions`)
       return versionsToDelete.rows.length
     } catch (error) {
       await client.query(`ROLLBACK`)
-      console.error('❌ Failed to prune version history:', error)
+      this.logger.error('❌ Failed to prune version history:', error)
       throw error
     } finally {
       client.release()
@@ -542,7 +545,7 @@ export class DocumentVersionService {
     average_size_bytes: number
   }> {
     try {
-      const result = await pool.query(
+      const result = await this.db.query(
         `SELECT
           COUNT(*) as total_versions,
           SUM(file_size) as total_size_bytes,
@@ -550,7 +553,7 @@ export class DocumentVersionService {
           MAX(created_at) as newest_version,
           AVG(file_size) as average_size_bytes
         FROM document_versions
-        WHERE document_id = $1',
+        WHERE document_id = $1`,
         [documentId]
       )
 
@@ -564,10 +567,10 @@ export class DocumentVersionService {
         average_size_bytes: parseFloat(stats.average_size_bytes) || 0
       }
     } catch (error) {
-      console.error('❌ Failed to get version statistics:', error)
+      this.logger.error('❌ Failed to get version statistics:', error)
       throw error
     }
   }
 }
 
-export default new DocumentVersionService()
+export default DocumentVersionService

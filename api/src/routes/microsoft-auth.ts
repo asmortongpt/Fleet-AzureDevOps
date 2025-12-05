@@ -1,9 +1,12 @@
 import express, { Request, Response } from 'express'
+import { container } from '../container'
+import { asyncHandler } from '../middleware/error-handler'
+import { NotFoundError, ValidationError } from '../errors/app-error'
 import axios from 'axios'
 import jwt from 'jsonwebtoken'
-import pool from '../config/database'
 import { createAuditLog } from '../middleware/audit'
 import { getValidatedFrontendUrl, buildSafeRedirectUrl } from '../utils/redirect-validator'
+import { pool } from '../db'
 
 const router = express.Router()
 
@@ -231,11 +234,11 @@ router.get('/microsoft/callback', async (req: Request, res: Response) => {
     })
 
     // SECURITY FIX (CWE-601): Validate frontend URL before redirect
-    // Also pass token in URL for SPA compatibility (hash fragment for security)
+    // Token is in httpOnly cookie - DO NOT pass in URL (prevents XSS)
     try {
       const frontendUrl = getValidatedFrontendUrl()
-      // Pass token as query param for SPA to read and store
-      const safeCallbackUrl = buildSafeRedirectUrl(`${frontendUrl}/auth/callback`, { token })
+      // Redirect without token param - frontend will verify via cookie
+      const safeCallbackUrl = buildSafeRedirectUrl(`${frontendUrl}/auth/callback`)
       res.redirect(safeCallbackUrl)
     } catch (error: any) {
       console.error(`Frontend URL validation failed:`, error.message)

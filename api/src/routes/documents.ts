@@ -1,8 +1,11 @@
 import express, { Response } from 'express'
+import { container } from '../container'
+import { asyncHandler } from '../middleware/error-handler'
+import { NotFoundError, ValidationError } from '../errors/app-error'
+import logger from '../config/logger'; // Wave 19: Add Winston logger
 import { AuthRequest, authenticateJWT } from '../middleware/auth'
 import { requirePermission, validateScope } from '../middleware/permissions'
 import { auditLog } from '../middleware/audit'
-import pool from '../config/database'
 import { z } from 'zod'
 import multer from 'multer'
 import path from 'path'
@@ -29,10 +32,10 @@ const upload = multer({
       'application/vnd.ms-excel',
       'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
     ]
-    if (allowedTypes.includes(file.mimetype)) {
+    if (allowedTypes.includes(file.mimetype) {
       cb(null, true)
     } else {
-      cb(new Error('Invalid file type'))
+      cb(new Error('Invalid file type')
     }
   }
 })
@@ -122,11 +125,11 @@ router.get(
           page: Number(page),
           limit: Number(limit),
           total: parseInt(countResult.rows[0].count),
-          pages: Math.ceil(countResult.rows[0].count / Number(limit))
+          pages: Math.ceil(countResult.rows[0].count / Number(limit)
         }
       })
     } catch (error) {
-      console.error(`Get documents error:`, error)
+      logger.error(`Get documents error:`, error) // Wave 19: Winston logger
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -152,14 +155,14 @@ router.get(
       )
 
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'Document not found' })
+        return throw new NotFoundError("Document not found")
       }
 
       // CRITICAL: Enforce tenant isolation
       // Documents must belong to users in the same tenant
       const document = result.rows[0]
       if (document.uploader_tenant_id && document.uploader_tenant_id !== req.user!.tenant_id) {
-        return res.status(404).json({ error: 'Document not found' })
+        return throw new NotFoundError("Document not found")
       }
 
       // Get camera metadata if exists
@@ -240,7 +243,7 @@ router.get(
         receipt_items: receiptResult.rows || []
       })
     } catch (error) {
-      console.error(`Get document error:`, error)
+      logger.error(`Get document error:`, error) // Wave 19: Winston logger
       res.status(500).json({ error: `Internal server error` })
     }
   }
@@ -256,7 +259,7 @@ router.post(
   async (req: AuthRequest, res: Response) => {
     try {
       if (!req.file) {
-        return res.status(400).json({ error: 'No file uploaded' })
+        return throw new ValidationError("No file uploaded")
       }
 
       // SECURITY: Validate file content using magic bytes (not just MIME type)
@@ -291,7 +294,7 @@ router.post(
       try {
         await fs.mkdir(uploadDir, { recursive: true })
       } catch (err) {
-        console.error('Failed to create upload directory:', err)
+        logger.error('Failed to create upload directory:', err) // Wave 19: Winston logger
       }
 
       // Write validated file to disk with secure filename
@@ -305,7 +308,7 @@ router.post(
           file_size_bytes, mime_type, file_path, description,
           related_entity_type, related_entity_id, tags,
           uploaded_by, uploaded_at
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, NOW())
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, NOW()
         RETURNING *`,
         [
           document_type,
@@ -328,7 +331,7 @@ router.post(
 
       res.status(201).json(result.rows[0])
     } catch (error) {
-      console.error(`Upload document error:`, error)
+      logger.error(`Upload document error:`, error) // Wave 19: Winston logger
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -344,7 +347,7 @@ router.post(
   async (req: AuthRequest, res: Response) => {
     try {
       if (!req.file) {
-        return res.status(400).json({ error: 'No photo uploaded' })
+        return throw new ValidationError("No photo uploaded")
       }
 
       // SECURITY: Validate file content using magic bytes (not just MIME type)
@@ -389,7 +392,7 @@ router.post(
       try {
         await fs.mkdir(uploadDir, { recursive: true })
       } catch (err) {
-        console.error('Failed to create upload directory:', err)
+        logger.error('Failed to create upload directory:', err) // Wave 19: Winston logger
       }
 
       // Write validated file to disk with secure filename
@@ -449,7 +452,7 @@ router.post(
 
       res.status(201).json(docResult.rows[0])
     } catch (error) {
-      console.error('Camera capture error:', error)
+      logger.error('Camera capture error:', error) // Wave 19: Winston logger
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -480,7 +483,7 @@ router.put(
 
       // CRITICAL: Enforce tenant isolation
       if (checkResult.rows[0].uploader_tenant_id && checkResult.rows[0].uploader_tenant_id !== req.user!.tenant_id) {
-        return res.status(404).json({ error: 'Document not found' })
+        return throw new NotFoundError("Document not found")
       }
 
       const result = await pool.query(
@@ -497,7 +500,7 @@ router.put(
 
       res.json(result.rows[0])
     } catch (error) {
-      console.error(`Update document error:`, error)
+      logger.error(`Update document error:`, error) // Wave 19: Winston logger
       res.status(500).json({ error: `Internal server error` })
     }
   }
@@ -526,7 +529,7 @@ router.delete(
 
       // CRITICAL: Enforce tenant isolation
       if (checkResult.rows[0].uploader_tenant_id && checkResult.rows[0].uploader_tenant_id !== req.user!.tenant_id) {
-        return res.status(404).json({ error: 'Document not found' })
+        return throw new NotFoundError("Document not found")
       }
 
       const result = await pool.query(
@@ -538,7 +541,7 @@ router.delete(
 
       res.json({ message: `Document deleted successfully` })
     } catch (error) {
-      console.error('Delete document error:', error)
+      logger.error('Delete document error:', error) // Wave 19: Winston logger
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -572,15 +575,14 @@ router.post(
       // CRITICAL: Enforce tenant isolation
       const document = docResult.rows[0]
       if (document.uploader_tenant_id && document.uploader_tenant_id !== req.user!.tenant_id) {
-        return res.status(404).json({ error: 'Document not found' })
+        return throw new NotFoundError("Document not found")
       }
 
-      // TODO: Call actual OCR service (Azure Computer Vision, Google Cloud Vision, AWS Textract, etc.)
-      // For now, create a placeholder OCR log entry
+            // For now, create a placeholder OCR log entry
       const ocrResult = await pool.query(
         `INSERT INTO ocr_processing_log (
           document_id, processing_status, processed_at
-        ) VALUES ($1, 'pending', NOW())
+        ) VALUES ($1, 'pending', NOW()
         RETURNING *`,
         [req.params.id]
       )
@@ -590,7 +592,7 @@ router.post(
         ocr_job: ocrResult.rows[0]
       })
     } catch (error) {
-      console.error('Start OCR processing error:', error)
+      logger.error('Start OCR processing error:', error) // Wave 19: Winston logger
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -623,17 +625,16 @@ router.post(
       // CRITICAL: Enforce tenant isolation
       const document = docResult.rows[0]
       if (document.uploader_tenant_id && document.uploader_tenant_id !== req.user!.tenant_id) {
-        return res.status(404).json({ error: 'Document not found' })
+        return throw new NotFoundError("Document not found")
       }
 
-      // TODO: Call receipt parsing service
-      // This would use OCR + AI to extract line items, totals, vendor info, etc.
+            // This would use OCR + AI to extract line items, totals, vendor info, etc.
 
       res.status(202).json({
         message: 'Receipt parsing started'
       })
     } catch (error) {
-      console.error('Start receipt parsing error:', error)
+      logger.error('Start receipt parsing error:', error) // Wave 19: Winston logger
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -649,8 +650,8 @@ router.put(
     try {
       const { line_items } = req.body
 
-      if (!Array.isArray(line_items)) {
-        return res.status(400).json({ error: 'line_items must be an array' })
+      if (!Array.isArray(line_items) {
+        return throw new ValidationError("line_items must be an array")
       }
 
       // First verify tenant isolation
@@ -668,7 +669,7 @@ router.put(
 
       // CRITICAL: Enforce tenant isolation
       if (docResult.rows[0].uploader_tenant_id && docResult.rows[0].uploader_tenant_id !== req.user!.tenant_id) {
-        return res.status(404).json({ error: 'Document not found' })
+        return throw new NotFoundError("Document not found")
       }
 
       // Delete existing line items
@@ -728,7 +729,7 @@ router.put(
 
       res.json({ data: result.rows })
     } catch (error) {
-      console.error(`Update receipt line items error:`, error)
+      logger.error(`Update receipt line items error:`, error) // Wave 19: Winston logger
       res.status(500).json({ error: `Internal server error` })
     }
   }
@@ -797,7 +798,7 @@ router.get(
         recent: recentResult.rows
       })
     } catch (error) {
-      console.error(`Get documents dashboard error:`, error)
+      logger.error(`Get documents dashboard error:`, error) // Wave 19: Winston logger
       res.status(500).json({ error: 'Internal server error' })
     }
   }

@@ -12,7 +12,7 @@
  */
 
 import Bull, { Queue, Job, JobOptions } from 'bull'
-import pool from '../../config/database'
+import { Pool } from 'pg'
 import { notificationService } from '../notifications/notification.service'
 import { customFieldsService } from '../custom-fields/custom-fields.service'
 import { validateColumnNames } from '../../utils/sql-safety'
@@ -53,6 +53,8 @@ export interface JobProgress {
 }
 
 export class JobQueueService {
+  constructor(private db: Pool) {}
+
   private queues: Map<string, Queue> = new Map()
   private redisConfig: any
 
@@ -257,7 +259,7 @@ export class JobQueueService {
    */
   async getJobStatus(jobId: string): Promise<any> {
     const columns = 'id, tenant_id, job_name, job_type, status, progress, result_data, created_at, updated_at'
-    const result = await pool.query(
+    const result = await this.db.query(
       'SELECT 
       id,
       type,
@@ -400,7 +402,7 @@ export class JobQueueService {
       const columnNames = Object.keys(updates);
       validateColumnNames(columnNames);
 
-      await pool.query(
+      await this.db.query(
         `UPDATE ${table} SET ${columnNames.map((k, idx) => `${k} = $${idx + 1}`).join(`, `)}
          WHERE id = $${columnNames.length + 1}`,
         [...Object.values(updates), entityId]
@@ -426,7 +428,7 @@ export class JobQueueService {
       'assets': 'id, tenant_id, asset_name, asset_type, location, status, acquisition_date, depreciation_rate, created_at, updated_at'
     }
     const columns = columnMap[table] || `*`
-    const result = await pool.query(`SELECT ${columns} FROM ${table} LIMIT 1000`)
+    const result = await this.db.query(`SELECT ${columns} FROM ${table} LIMIT 1000`)
 
     job.progress({ percentage: 100, message: `Export complete` })
 
@@ -482,7 +484,7 @@ export class JobQueueService {
     // Validate and sanitize retentionDays parameter
     const retentionDaysNum = Math.max(1, Math.min(365, retentionDays || 30))
 
-    const result = await pool.query(
+    const result = await this.db.query(
       `DELETE FROM notifications WHERE created_at < NOW() - ($1 || ` days`)::INTERVAL`,
       [retentionDaysNum]
     )
@@ -521,7 +523,7 @@ export class JobQueueService {
   // ========== Database Tracking ==========
 
   private async createJobRecord(jobId: string, jobData: JobData): Promise<void> {
-    await pool.query(
+    await this.db.query(
       `INSERT INTO job_queue (id, type, status, payload, user_id, tenant_id, created_at)
        VALUES ($1, $2, $3, $4, $5, $6, NOW())`,
       [
@@ -536,7 +538,7 @@ export class JobQueueService {
   }
 
   private async updateJobStatus(jobId: string, status: string, error?: string): Promise<void> {
-    await pool.query(
+    await this.db.query(
       `UPDATE job_queue
        SET status = $1, error_message = $2, updated_at = NOW(),
            completed_at = CASE WHEN $1 IN ('completed', 'failed', 'cancelled') THEN NOW() ELSE NULL END
@@ -546,7 +548,7 @@ export class JobQueueService {
   }
 
   private async updateJobProgress(jobId: string, progress: JobProgress): Promise<void> {
-    await pool.query(
+    await this.db.query(
       'UPDATE job_queue SET progress = $1, updated_at = NOW() WHERE id = $2',
       [JSON.stringify(progress), jobId]
     )

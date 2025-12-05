@@ -22,6 +22,7 @@ import {
 } from 'react-native';
 import { Camera, useCameraDevice } from 'react-native-vision-camera';
 import CameraService from '../services/CameraService';
+import { useAuth } from '../hooks/useAuth';
 import {
   InspectionPhotoCaptureProps,
   InspectionChecklistItem,
@@ -60,6 +61,9 @@ export const InspectionPhotoCapture: React.FC<InspectionPhotoCaptureProps> = ({
   onCancel,
   existingReport,
 }) => {
+  // SECURITY: Get authenticated user from auth context
+  const { user } = useAuth();
+
   // Camera state
   const [hasPermission, setHasPermission] = useState(false);
   const [isActive, setIsActive] = useState(true);
@@ -375,11 +379,22 @@ export const InspectionPhotoCapture: React.FC<InspectionPhotoCaptureProps> = ({
 
   const performSubmit = async () => {
     setLoading(true);
+
+    // SECURITY: Validate user is authenticated
+    if (!user || !user.id) {
+      Alert.alert(
+        'Authentication Required',
+        'You must be logged in to submit an inspection report.'
+      );
+      setLoading(false);
+      return;
+    }
+
     try {
       const report: InspectionReport = {
         id: existingReport?.id || `inspection_${Date.now()}`,
         vehicleId,
-        inspectorId: 'current_user', // TODO: Get from auth context
+        inspectorId: user.id, // SECURITY FIX: Use actual user ID from auth context
         type: inspectionType,
         startedAt: existingReport?.startedAt || new Date(),
         completedAt: new Date(),
