@@ -127,7 +127,7 @@ router.post(
 // PUT /charging-stations/:id
 router.put(
   `/:id`,
-  requirePermission('charging_station:update:fleet'),
+  csrfProtection, requirePermission('charging_station:update:fleet'),
   auditLog({ action: 'UPDATE', resourceType: 'charging_stations' }),
   async (req: AuthRequest, res: Response) => {
     try {

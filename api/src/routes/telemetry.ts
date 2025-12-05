@@ -116,7 +116,7 @@ router.post(
 // PUT /telemetry/:id
 router.put(
   `/:id`,
-  requirePermission('telemetry:view:fleet'),
+  csrfProtection, requirePermission('telemetry:view:fleet'),
   rateLimit(10, 60000),
   validate(updateTelemetrySchema, 'body'),
   auditLog({ action: 'UPDATE', resourceType: 'telemetry_data' }),
