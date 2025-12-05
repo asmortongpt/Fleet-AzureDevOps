@@ -20,6 +20,8 @@ import vectorSearchService from '../services/VectorSearchService'
 import embeddingService from '../services/EmbeddingService'
 import documentAiService from '../services/DocumentAiService'
 import { getErrorMessage } from '../utils/error-handler'
+import { csrfProtection } from '../middleware/csrf'
+
 
 const router = express.Router()
 router.use(authenticateJWT)

@@ -23,6 +23,8 @@ import syncService from '../services/sync.service'
 import teamsSync from '../jobs/teams-sync.job'
 import outlookSync from '../jobs/outlook-sync.job'
 import { getErrorMessage } from '../utils/error-handler'
+import { csrfProtection } from '../middleware/csrf'
+
 
 const router = Router()
 
@@ -177,7 +179,7 @@ router.get('/status', async (req: Request, res: Response) => {
  *       403:
  *         description: Insufficient permissions
  */
-router.post('/full', async (req: Request, res: Response) => {
+router.post('/full', csrfProtection, async (req: Request, res: Response) => {
   try {
     const userRole = (req as any).user?.role
 
@@ -408,7 +410,7 @@ router.post(`/outlook/all`, async (req: Request, res: Response) => {
  *       200:
  *         description: Error resolved successfully
  */
-router.delete('/errors/:id', async (req: Request, res: Response) => {
+router.delete('/errors/:id', csrfProtection, async (req: Request, res: Response) => {
   try {
     const { id } = req.params
 

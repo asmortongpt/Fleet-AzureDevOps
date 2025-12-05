@@ -13,6 +13,8 @@ import { authenticateJWT } from '../middleware/auth'
 import { auditLog } from '../middleware/audit'
 import { z } from 'zod'
 import { getErrorMessage } from '../utils/error-handler'
+import { csrfProtection } from '../middleware/csrf'
+
 
 const router = express.Router()
 

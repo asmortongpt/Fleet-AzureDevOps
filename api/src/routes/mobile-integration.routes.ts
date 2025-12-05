@@ -15,6 +15,8 @@ import { auditLog } from '../middleware/audit'
 import mobileIntegrationService from '../services/mobile-integration.service'
 import { z } from 'zod'
 import { getErrorMessage } from '../utils/error-handler'
+import { csrfProtection } from '../middleware/csrf'
+
 
 const router = express.Router()
 

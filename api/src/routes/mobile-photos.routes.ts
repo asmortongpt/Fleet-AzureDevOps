@@ -27,6 +27,8 @@ import photoProcessingService from '../services/photo-processing.service';
 import { v4 as uuidv4 } from 'uuid';
 import { z } from 'zod';
 import { getErrorMessage } from '../utils/error-handler'
+import { csrfProtection } from '../middleware/csrf'
+
 
 const router = express.Router();
 

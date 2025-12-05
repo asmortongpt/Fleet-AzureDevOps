@@ -13,6 +13,8 @@ import path from 'path'
 import fs from 'fs/promises'
 import { fileUploadLimiter } from '../config/rate-limiters'
 import { secureFileValidation } from '../utils/file-validation'
+import { csrfProtection } from '../middleware/csrf'
+
 
 const router = express.Router()
 router.use(authenticateJWT)

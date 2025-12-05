@@ -37,7 +37,7 @@ const router = Router()
  *   }
  * }
  */
-router.post('/', async (req: Request, res: Response) => {
+router.post('/', csrfProtection, async (req: Request, res: Response) => {
   try {
     const { query, filters } = req.body
 
@@ -194,7 +194,7 @@ router.get('/stats', async (req: Request, res: Response) => {
  *   "tenantId": "tenant-123"  // for verification
  * }
  */
-router.post('/index/:documentId', async (req: Request, res: Response) => {
+router.post('/index/:documentId', csrfProtection, async (req: Request, res: Response) => {
   try {
     const { documentId } = req.params
 
@@ -225,7 +225,7 @@ router.post('/index/:documentId', async (req: Request, res: Response) => {
  *   "tenantId": "tenant-123"
  * }
  */
-router.post('/index/batch', async (req: Request, res: Response) => {
+router.post('/index/batch', csrfProtection, async (req: Request, res: Response) => {
   try {
     const { documentIds } = req.body
 
@@ -257,6 +257,8 @@ export default router
  * Usage in main server file:
  *
  * import documentSearchRouter from './routes/document-search.example'
+import { csrfProtection } from '../middleware/csrf'
+
  *
  * // With authentication middleware
  * app.use('/api/documents/search', authenticateToken, documentSearchRouter)

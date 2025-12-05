@@ -11,6 +11,8 @@ import express, { Request, Response, Router } from 'express';
 import { queueService } from '../services/queue.service';
 import { QueueName, JobStatus } from '../types/queue.types';
 import { getErrorMessage } from '../utils/error-handler'
+import { csrfProtection } from '../middleware/csrf'
+
 
 const router: Router = express.Router();
 

@@ -26,6 +26,8 @@ import {
   mcpManager
 } from '../services/mcp/task-asset-mcp.service'
 import TaskAssetConfigManager from '../services/config/task-asset-config.service'
+import { csrfProtection } from '../middleware/csrf'
+
 
 const router = Router()
 router.use(authenticateJWT)
@@ -37,7 +39,7 @@ router.use(authenticateJWT)
  *     summary: Get AI suggestions for a task
  *     tags: [AI]
  */
-router.post('/task-suggestions', async (req: AuthRequest, res) => {
+router.post('/task-suggestions', csrfProtection, async (req: AuthRequest, res) => {
   try {
     const { title, description, type } = req.body
     const tenantId = req.user?.tenant_id
@@ -63,7 +65,7 @@ router.post('/task-suggestions', async (req: AuthRequest, res) => {
  *     summary: Suggest best assignee for a task
  *     tags: [AI]
  */
-router.post('/suggest-assignee', async (req: AuthRequest, res) => {
+router.post('/suggest-assignee', csrfProtection, async (req: AuthRequest, res) => {
   try {
     const { title, description, type, priority } = req.body
     const tenantId = req.user?.tenant_id
@@ -90,7 +92,7 @@ router.post('/suggest-assignee', async (req: AuthRequest, res) => {
  *     summary: Parse natural language into a structured task
  *     tags: [AI]
  */
-router.post('/parse-task', async (req: AuthRequest, res) => {
+router.post('/parse-task', csrfProtection, async (req: AuthRequest, res) => {
   try {
     const { input } = req.body
     const tenantId = req.user?.tenant_id
@@ -111,7 +113,7 @@ router.post('/parse-task', async (req: AuthRequest, res) => {
  *     summary: Predict asset maintenance needs
  *     tags: [AI]
  */
-router.post('/predict-maintenance', async (req: AuthRequest, res) => {
+router.post('/predict-maintenance', csrfProtection, async (req: AuthRequest, res) => {
   try {
     const { assetId } = req.body
     const tenantId = req.user?.tenant_id
@@ -132,7 +134,7 @@ router.post('/predict-maintenance', async (req: AuthRequest, res) => {
  *     summary: Get workflow suggestions for task completion
  *     tags: [AI]
  */
-router.post('/workflow-suggestion', async (req: AuthRequest, res) => {
+router.post('/workflow-suggestion', csrfProtection, async (req: AuthRequest, res) => {
   try {
     const { taskId } = req.body
     const tenantId = req.user?.tenant_id
@@ -153,7 +155,7 @@ router.post('/workflow-suggestion', async (req: AuthRequest, res) => {
  *     summary: Ask a question about a task or asset using RAG
  *     tags: [AI]
  */
-router.post('/ask-question', async (req: AuthRequest, res) => {
+router.post('/ask-question', csrfProtection, async (req: AuthRequest, res) => {
   try {
     const { question, contextId, contextType } = req.body
     const tenantId = req.user?.tenant_id
@@ -183,7 +185,7 @@ router.post('/ask-question', async (req: AuthRequest, res) => {
  *     summary: Optimize task schedule using MCP server
  *     tags: [MCP]
  */
-router.post('/mcp/optimize-schedule', async (req: AuthRequest, res) => {
+router.post('/mcp/optimize-schedule', csrfProtection, async (req: AuthRequest, res) => {
   try {
     const { tasks, constraints } = req.body
 
@@ -203,7 +205,7 @@ router.post('/mcp/optimize-schedule', async (req: AuthRequest, res) => {
  *     summary: Analyze asset lifecycle using MCP server
  *     tags: [MCP]
  */
-router.post('/mcp/analyze-asset-lifecycle', async (req: AuthRequest, res) => {
+router.post('/mcp/analyze-asset-lifecycle', csrfProtection, async (req: AuthRequest, res) => {
   try {
     const { asset } = req.body
 
@@ -265,7 +267,7 @@ router.get('/config/workflows', async (req: AuthRequest, res) => {
  *     summary: Create or update workflow template
  *     tags: [Config]
  */
-router.post('/config/workflows', async (req: AuthRequest, res) => {
+router.post('/config/workflows', csrfProtection, async (req: AuthRequest, res) => {
   try {
     const tenantId = req.user?.tenant_id
     const configManager = new TaskAssetConfigManager(tenantId!)
@@ -308,7 +310,7 @@ router.get('/config/business-rules', async (req: AuthRequest, res) => {
  *     summary: Create or update business rule
  *     tags: [Config]
  */
-router.post('/config/business-rules', async (req: AuthRequest, res) => {
+router.post('/config/business-rules', csrfProtection, async (req: AuthRequest, res) => {
   try {
     const tenantId = req.user?.tenant_id
     const configManager = new TaskAssetConfigManager(tenantId!)
@@ -329,7 +331,7 @@ router.post('/config/business-rules', async (req: AuthRequest, res) => {
  *     summary: Evaluate business rules for an entity
  *     tags: [Config]
  */
-router.post('/config/evaluate-rules', async (req: AuthRequest, res) => {
+router.post('/config/evaluate-rules', csrfProtection, async (req: AuthRequest, res) => {
   try {
     const tenantId = req.user?.tenant_id
     const { entity, triggerEvent, data } = req.body

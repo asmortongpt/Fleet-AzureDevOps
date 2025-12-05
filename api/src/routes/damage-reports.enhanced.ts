@@ -17,6 +17,8 @@ import { handleError, ErrorBoundary } from '../utils/errorHandling'
 import { rateLimiter } from '../middleware/rateLimiter'
 import helmet from 'helmet'
 import csurf from 'csurf'
+import { csrfProtection } from '../middleware/csrf'
+
 
 const router = express.Router()
 

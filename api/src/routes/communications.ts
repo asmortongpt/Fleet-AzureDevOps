@@ -18,6 +18,8 @@ import {
 } from '../schemas/communications.schema'
 import pool from '../config/database' // SECURITY: Import database pool
 import { tenantSafeQuery, validateTenantOwnership } from '../utils/dbHelpers'
+import { csrfProtection } from '../middleware/csrf'
+
 
 const router = express.Router()
 router.use(authenticateJWT)

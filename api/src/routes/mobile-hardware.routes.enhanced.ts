@@ -12,6 +12,8 @@ import rateLimit from 'express-rate-limit'
 import csurf from 'csurf'
 import { PartsService } from '../services/parts.service'
 import { asyncHandler } from '../utils/async-handler'
+import { csrfProtection } from '../middleware/csrf'
+
 
 const router = express.Router()
 
