@@ -36,6 +36,7 @@
  */
 
 import { Card, CardContent } from '@/components/ui/card'
+import { sanitizeUserInput } from '@/utils/xss-sanitizer'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'

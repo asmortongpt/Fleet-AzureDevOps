@@ -75,7 +75,7 @@ router.get('/me/permissions', async (req: Request, res: Response) => {
  * POST /api/v1/permissions/check
  * Check if current user can perform a specific action
  */
-router.post('/check', async (req: Request, res: Response) => {
+router.post('/check', csrfProtection, async (req: Request, res: Response) => {
   try {
     const user = req.user as User;
 
