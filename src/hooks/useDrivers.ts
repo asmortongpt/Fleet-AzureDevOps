@@ -1,5 +1,4 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { api } from '@/lib/api'
+import { createCrudHooks } from './useCrudResource'
 
 export interface Driver {
   id: number
@@ -20,69 +19,15 @@ export interface Driver {
   hireDate: Date
 }
 
-export function useDrivers(params?: {
-  page?: number
-  pageSize?: number
-  search?: string
-  status?: string
-}) {
-  return useQuery({
-    queryKey: ['drivers', params],
-    queryFn: async () => {
-      const response = await api.get('/drivers', { params })
-      return response.data
-    },
-  })
-}
+// Create all CRUD hooks using the shared factory
+const driverHooks = createCrudHooks<Driver>({
+  resourceName: 'drivers',
+  queryKey: 'drivers'
+})
 
-export function useDriver(id: number) {
-  return useQuery({
-    queryKey: ['driver', id],
-    queryFn: async () => {
-      const response = await api.get(`/drivers/${id}`)
-      return response.data.data
-    },
-    enabled: !!id,
-  })
-}
-
-export function useCreateDriver() {
-  const queryClient = useQueryClient()
-
-  return useMutation({
-    mutationFn: async (data: Partial<Driver>) => {
-      const response = await api.post('/drivers', data)
-      return response.data
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['drivers'] })
-    },
-  })
-}
-
-export function useUpdateDriver() {
-  const queryClient = useQueryClient()
-
-  return useMutation({
-    mutationFn: async ({ id, data }: { id: number; data: Partial<Driver> }) => {
-      const response = await api.put(`/drivers/${id}`, data)
-      return response.data
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['drivers'] })
-    },
-  })
-}
-
-export function useDeleteDriver() {
-  const queryClient = useQueryClient()
-
-  return useMutation({
-    mutationFn: async (id: number) => {
-      await api.delete(`/drivers/${id}`)
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['drivers'] })
-    },
-  })
-}
+// Export with consistent naming
+export const useDrivers = driverHooks.useList
+export const useDriver = driverHooks.useOne
+export const useCreateDriver = driverHooks.useCreate
+export const useUpdateDriver = driverHooks.useUpdate
+export const useDeleteDriver = driverHooks.useDelete
