@@ -43,7 +43,7 @@ router.use(authenticateJWT)
  *       404:
  *         description: Vehicle not found
  */
-router.post('/qr/generate/:vehicleId', requirePermission('vehicle:update:fleet'), async (req: AuthRequest, res) => {
+router.post('/qr/generate/:vehicleId',csrfProtection,  csrfProtection, requirePermission('vehicle:update:fleet'), async (req: AuthRequest, res) => {
   try {
     const { vehicleId } = req.params
     const tenantId = req.user?.tenant_id
@@ -86,7 +86,7 @@ router.post('/qr/generate/:vehicleId', requirePermission('vehicle:update:fleet')
  *       404:
  *         description: Vehicle not found
  */
-router.post('/qr/scan', requirePermission('vehicle:view:fleet'), async (req: AuthRequest, res) => {
+router.post('/qr/scan',csrfProtection,  csrfProtection, requirePermission('vehicle:view:fleet'), async (req: AuthRequest, res) => {
   try {
     const { qrData } = req.body
     const tenantId = req.user?.tenant_id
@@ -137,7 +137,7 @@ router.post('/qr/scan', requirePermission('vehicle:view:fleet'), async (req: Aut
  *       404:
  *         description: Vehicle not found
  */
-router.post('/vin', requirePermission('vehicle:view:fleet'), async (req: AuthRequest, res) => {
+router.post('/vin',csrfProtection,  csrfProtection, requirePermission('vehicle:view:fleet'), async (req: AuthRequest, res) => {
   try {
     const { vin } = req.body
     const tenantId = req.user?.tenant_id
@@ -194,7 +194,7 @@ router.post('/vin', requirePermission('vehicle:view:fleet'), async (req: AuthReq
  *       404:
  *         description: Vehicle not found
  */
-router.post('/license-plate', requirePermission('vehicle:view:fleet'), async (req: AuthRequest, res) => {
+router.post('/license-plate',csrfProtection,  csrfProtection, requirePermission('vehicle:view:fleet'), async (req: AuthRequest, res) => {
   try {
     const { licensePlate } = req.body
     const tenantId = req.user?.tenant_id
@@ -249,7 +249,7 @@ router.post('/license-plate', requirePermission('vehicle:view:fleet'), async (re
  *       501:
  *         description: OCR service not configured
  */
-router.post('/license-plate/ocr', requirePermission('vehicle:view:fleet'), async (req: AuthRequest, res) => {
+router.post('/license-plate/ocr',csrfProtection,  csrfProtection, requirePermission('vehicle:view:fleet'), async (req: AuthRequest, res) => {
   try {
     const { imageData } = req.body
     const tenantId = req.user?.tenant_id

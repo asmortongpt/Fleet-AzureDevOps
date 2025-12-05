@@ -8,6 +8,8 @@ import { auditLog } from '../middleware/audit';
 import SmartcarService from '../services/smartcar.service';
 import { buildSafeRedirectUrl, validateInternalPath } from '../utils/redirect-validator';
 import { z } from 'zod';
+import { csrfProtection } from '../middleware/csrf'
+
 
 const router = express.Router();
 

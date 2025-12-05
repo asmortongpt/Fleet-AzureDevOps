@@ -42,7 +42,7 @@ const qrDataSchema = z.object({
 
 router.post(
   '/qr/generate/:vehicleId',
-  requirePermission('vehicle:update:fleet'),
+ csrfProtection,  csrfProtection, requirePermission('vehicle:update:fleet'),
   qrGenerateLimiter,
   asyncHandler(async (req, res) => {
         const { vehicleId } = vehicleIdSchema.parse(req.params)
@@ -63,7 +63,7 @@ router.post(
 
 router.post(
   '/qr/scan',
-  requirePermission('vehicle:view:fleet'),
+ csrfProtection,  csrfProtection, requirePermission('vehicle:view:fleet'),
   qrScanLimiter,
   asyncHandler(async (req, res) => {
         const { qrData } = qrDataSchema.parse(req.body)

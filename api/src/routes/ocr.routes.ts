@@ -52,7 +52,7 @@ const upload = multer({
  * @desc Process a single document with OCR
  * @access Private
  */
-router.post('/process', upload.single('file'), async (req: Request, res: Response) => {
+router.post('/process',csrfProtection,  csrfProtection, upload.single('file'), async (req: Request, res: Response) => {
   try {
     if (!req.file) {
       return res.status(400).json({ error: `No file uploaded` })
@@ -122,7 +122,7 @@ router.post('/process', upload.single('file'), async (req: Request, res: Respons
  * @desc Process multiple documents with OCR
  * @access Private
  */
-router.post('/batch', upload.array('files', 100), async (req: Request, res: Response) => {
+router.post('/batch',csrfProtection,  csrfProtection, upload.array('files', 100), async (req: Request, res: Response) => {
   try {
     const files = req.files as Express.Multer.File[]
 
@@ -246,7 +246,7 @@ router.get('/result/:documentId', async (req: Request, res: Response) => {
  * @desc Search OCR results
  * @access Private
  */
-router.post('/search', csrfProtection, async (req: Request, res: Response) => {
+router.post('/search',csrfProtection,  csrfProtection, async (req: Request, res: Response) => {
   try {
     const { tenantId } = (req as any).user
     const { query, limit } = req.body
@@ -276,7 +276,7 @@ router.post('/search', csrfProtection, async (req: Request, res: Response) => {
  * @desc Cancel an OCR job
  * @access Private
  */
-router.delete('/job/:jobId', csrfProtection, async (req: Request, res: Response) => {
+router.delete('/job/:jobId',csrfProtection,  csrfProtection, async (req: Request, res: Response) => {
   try {
     const { jobId } = req.params
 
@@ -300,7 +300,7 @@ router.delete('/job/:jobId', csrfProtection, async (req: Request, res: Response)
  * @desc Retry a failed OCR job
  * @access Private
  */
-router.post('/job/:jobId/retry', csrfProtection, async (req: Request, res: Response) => {
+router.post('/job/:jobId/retry',csrfProtection,  csrfProtection, async (req: Request, res: Response) => {
   try {
     const { jobId } = req.params
 
@@ -439,7 +439,7 @@ router.get('/languages', async (req: Request, res: Response) => {
  * @desc Clean up old OCR jobs (admin only)
  * @access Private (Admin)
  */
-router.post('/cleanup', csrfProtection, async (req: Request, res: Response) => {
+router.post('/cleanup',csrfProtection,  csrfProtection, async (req: Request, res: Response) => {
   try {
     // TODO: Add admin check
     const daysOld = parseInt(req.body.daysOld) || 30
