@@ -2,7 +2,7 @@ import { Router } from "express"
 import { container } from '../container'
 import { TYPES } from '../types'
 import { MaintenanceController } from '../modules/maintenance/controllers/maintenance.controller'
-import { asyncHandler } from '../middleware/error-handler'
+import { asyncHandler } from '../middleware/errorHandler'
 import { maintenanceCreateSchema, maintenanceUpdateSchema } from '../schemas/maintenance.schema'
 import { validateBody, validateParams } from '../middleware/validate'
 import { authenticateJWT } from '../middleware/auth'
