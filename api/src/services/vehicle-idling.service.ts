@@ -411,12 +411,60 @@ export class VehicleIdlingService extends EventEmitter {
   }
 
   /**
-   * Reverse geocode location (stub - integrate with Azure Maps or Google Maps)
+   * Reverse geocode location using Azure Maps REST API
+   * Converts GPS coordinates to human-readable address
+   *
+   * @param eventId - The idling event ID to update
+   * @param latitude - Latitude coordinate
+   * @param longitude - Longitude coordinate
    */
   private async reverseGeocodeLocation(eventId: number, latitude: number, longitude: number): Promise<void> {
-    // TODO: Integrate with Azure Maps API or Google Maps Geocoding API
-    // For now, just update with coordinates as string
-    const locationName = `${latitude.toFixed(6)}, ${longitude.toFixed(6)}`;
+    let locationName = `${latitude.toFixed(6)}, ${longitude.toFixed(6)}`;
+
+    try {
+      // Use Azure Maps REST API for reverse geocoding
+      const azureMapsApiKey = process.env.AZURE_MAPS_API_KEY || process.env.GOOGLE_MAPS_API_KEY;
+
+      if (!azureMapsApiKey) {
+        console.warn('[IdlingService] No Azure Maps API key configured, using coordinates only');
+      } else {
+        // Call Azure Maps Search API for reverse geocoding
+        const response = await fetch(
+          `https://atlas.microsoft.com/search/address/reverse/json?api-version=1.0&subscription-key=${azureMapsApiKey}&query=${latitude},${longitude}`,
+          {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          }
+        );
+
+        if (response.ok) {
+          const data = await response.json();
+
+          if (data.addresses && data.addresses.length > 0) {
+            const address = data.addresses[0].address;
+            // Format address from Azure Maps response
+            const addressParts: string[] = [];
+
+            if (address.streetNumber) addressParts.push(address.streetNumber);
+            if (address.streetName) addressParts.push(address.streetName);
+            if (address.municipality) addressParts.push(address.municipality);
+            if (address.countrySubdivision) addressParts.push(address.countrySubdivision);
+            if (address.postalCode) addressParts.push(address.postalCode);
+
+            locationName = addressParts.length > 0
+              ? addressParts.join(', ')
+              : address.freeformAddress || locationName;
+          }
+        } else {
+          console.warn(`[IdlingService] Azure Maps API returned ${response.status}: ${response.statusText}`);
+        }
+      }
+    } catch (error: any) {
+      console.error('[IdlingService] Error reverse geocoding location:', error.message);
+      // Fall back to coordinates if geocoding fails
+    }
 
     const client = await this.pool.connect();
     try {

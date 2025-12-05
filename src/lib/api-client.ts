@@ -28,23 +28,29 @@ class APIClient {
     this.initializeCsrfToken()
   }
 
-  // SECURITY: Tokens now managed via httpOnly cookies (CRITICAL-001)
-  // No localStorage token storage to prevent XSS attacks
+  // SECURITY (CRIT-F-001): Tokens now managed ONLY via httpOnly cookies
+  // NO localStorage token storage to prevent XSS attacks
+  // These methods are deprecated stubs for backwards compatibility
   setToken(_token: string) {
-    // Token is now set by backend via Set-Cookie header
-    // This method is kept for API compatibility but does nothing
-    console.warn('setToken() is deprecated - tokens are now httpOnly cookies')
+    // DEPRECATED: Token is now set by backend via Set-Cookie header
+    // This method does nothing - kept for API compatibility only
+    console.warn('[DEPRECATED] setToken() does nothing - tokens are httpOnly cookies managed by backend')
   }
 
   clearToken() {
-    // Token cleared by backend on logout
-    // This method is kept for API compatibility but does nothing
-    console.warn('clearToken() is deprecated - tokens are now httpOnly cookies')
+    // DEPRECATED: Token cleared by backend on logout
+    // This method does nothing - kept for API compatibility only
+    console.warn('[DEPRECATED] clearToken() does nothing - tokens are httpOnly cookies managed by backend')
   }
 
   /**
    * Fetches a CSRF token from the server
    * Only fetches once and caches the result
+   *
+   * SECURITY (CRIT-F-002): CSRF Token Management
+   * - Fetches from /api/v1/csrf-token endpoint
+   * - Stores in memory only (NOT localStorage)
+   * - Automatically retries on 403 errors
    */
   private async initializeCsrfToken(): Promise<void> {
     // Skip CSRF token in development mock mode
@@ -65,20 +71,30 @@ class APIClient {
     // Create a new promise for fetching the CSRF token
     this.csrfTokenPromise = (async () => {
       try {
-        const response = await fetch(`${this.baseURL}/api/csrf`, {
+        // Try primary endpoint first
+        let response = await fetch(`${this.baseURL}/api/v1/csrf-token`, {
           method: 'GET',
           credentials: 'include', // Required for cookies
         })
 
+        // Fallback to alternate endpoint if primary fails
+        if (!response.ok) {
+          console.warn('[CSRF] Primary endpoint failed, trying fallback /api/csrf')
+          response = await fetch(`${this.baseURL}/api/csrf`, {
+            method: 'GET',
+            credentials: 'include',
+          })
+        }
+
         if (response.ok) {
           const data = await response.json()
-          this.csrfToken = data.csrfToken
-          console.log('CSRF token initialized successfully')
+          this.csrfToken = data.csrfToken || data.token || ''
+          console.log('[CSRF] Token initialized successfully')
         } else {
-          console.warn('Failed to fetch CSRF token:', response.status)
+          console.warn('[CSRF] Failed to fetch token:', response.status)
         }
       } catch (error) {
-        console.error('Error fetching CSRF token:', error)
+        console.error('[CSRF] Error fetching token:', error)
       } finally {
         this.csrfTokenPromise = null
       }

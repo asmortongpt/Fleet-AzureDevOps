@@ -10,7 +10,7 @@
  */
 
 import OpenAI from 'openai'
-import pool from '../config/database'
+import { Pool } from 'pg'
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
@@ -278,7 +278,7 @@ async function matchEntitiesToDatabase(
   if (extractedData.vehicle_identifier) {
     const identifier = extractedData.vehicle_identifier.toString().toUpperCase()
 
-    const vehicleResult = await pool.query(
+    const vehicleResult = await this.db.query(
       `SELECT id, fleet_number, license_plate, make, model, vin
        FROM vehicles
        WHERE tenant_id = $1
@@ -300,7 +300,7 @@ async function matchEntitiesToDatabase(
       }
     } else {
       // Try fuzzy matching
-      const fuzzyResult = await pool.query(
+      const fuzzyResult = await this.db.query(
         `SELECT id, fleet_number, license_plate, make, model,
                 SIMILARITY(UPPER(fleet_number), $2) as sim1,
                 SIMILARITY(UPPER(license_plate), $2) as sim2
@@ -331,7 +331,7 @@ async function matchEntitiesToDatabase(
 
   // Match vendor by name
   if (extractedData.vendor_name) {
-    const vendorResult = await pool.query(
+    const vendorResult = await this.db.query(
       `SELECT id, name,
               SIMILARITY(UPPER(name), UPPER($2)) as similarity
        FROM vendors
@@ -352,7 +352,7 @@ async function matchEntitiesToDatabase(
 
   // Match driver by name (for licenses, inspection reports)
   if (extractedData.first_name && extractedData.last_name) {
-    const driverResult = await pool.query(
+    const driverResult = await this.db.query(
       `SELECT id, first_name, last_name,
               (SIMILARITY(UPPER(first_name), UPPER($2)) + SIMILARITY(UPPER(last_name), UPPER($3))) / 2 as similarity
        FROM drivers
@@ -436,7 +436,11 @@ function validateExtractedData(
 /**
  * Main document analysis function
  */
-export async function analyzeDocument(
+
+export class AIOCRService {
+  constructor(private db: Pool) {}
+
+  async analyzeDocument(
   imageUrl: string,
   tenantId: string,
   userId: string,
@@ -486,7 +490,7 @@ export async function analyzeDocument(
     const needsReview = validationIssues.length > 0 ||
       Object.values(confidenceScores).some(c => c < 0.8)
 
-    await pool.query(
+    await this.db.query(
       `INSERT INTO document_analyses
        (tenant_id, user_id, document_url, document_type, extracted_data,
         confidence_scores, suggested_matches, validation_issues, needs_review)
@@ -514,7 +518,7 @@ export async function analyzeDocument(
 /**
  * Batch process multiple documents
  */
-export async function batchAnalyzeDocuments(
+  async batchAnalyzeDocuments(
   imageUrls: string[],
   tenantId: string,
   userId: string
@@ -537,11 +541,11 @@ export async function batchAnalyzeDocuments(
 /**
  * Get documents that need review
  */
-export async function getDocumentsNeedingReview(
+  async getDocumentsNeedingReview(
   tenantId: string,
   limit: number = 20
 ): Promise<any[]> {
-  const result = await pool.query(
+  const result = await this.db.query(
     'SELECT ' + (await getTableColumns(pool, 'document_analyses')).join(', ') + ' FROM document_analyses
      WHERE tenant_id = $1 AND needs_review = true AND reviewed = false
      ORDER BY created_at DESC
@@ -555,12 +559,12 @@ export async function getDocumentsNeedingReview(
 /**
  * Mark document as reviewed
  */
-export async function markDocumentReviewed(
+  async markDocumentReviewed(
   documentId: string,
   reviewedBy: string,
   corrections?: Record<string, any>
 ): Promise<void> {
-  await pool.query(
+  await this.db.query(
     `UPDATE document_analyses
      SET reviewed = true,
          reviewed_by = $2,
@@ -570,3 +574,7 @@ export async function markDocumentReviewed(
     [documentId, reviewedBy, corrections ? JSON.stringify(corrections) : null]
   )
 }
+
+}
+
+export default AIOCRService

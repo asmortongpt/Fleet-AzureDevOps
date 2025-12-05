@@ -5,7 +5,7 @@
 
 import { google } from 'googleapis'
 import { OAuth2Client } from 'google-auth-library'
-import pool from '../config/database'
+import { Pool } from 'pg'
 import { safePost } from '../utils/ssrf-protection'
 
 // Allowed domains for Google Calendar OAuth requests
@@ -44,54 +44,57 @@ interface TokenInfo {
   expiry_date?: number
 }
 
-/**
- * Get OAuth2 client for Google API
- */
-function getOAuth2Client(): OAuth2Client {
-  return new google.auth.OAuth2(
-    GOOGLE_CONFIG.clientId,
-    GOOGLE_CONFIG.clientSecret,
-    GOOGLE_CONFIG.redirectUri
-  )
-}
+export class GoogleCalendarService {
+  constructor(private db: Pool) {}
 
-/**
- * Get authorization URL for OAuth flow
- */
-export function getAuthorizationUrl(userId: string): string {
-  const oauth2Client = getOAuth2Client()
-
-  const scopes = [
-    'https://www.googleapis.com/auth/calendar',
-    'https://www.googleapis.com/auth/calendar.events'
-  ]
-
-  return oauth2Client.generateAuthUrl({
-    access_type: 'offline',
-    scope: scopes,
-    state: userId, // Pass user ID in state for callback
-    prompt: 'consent' // Force consent to get refresh token
-  })
-}
-
-/**
- * Exchange authorization code for tokens
- */
-export async function exchangeCodeForTokens(code: string): Promise<TokenInfo> {
-  const oauth2Client = getOAuth2Client()
-  const { tokens } = await oauth2Client.getToken(code)
-
-  return {
-    access_token: tokens.access_token!,
-    refresh_token: tokens.refresh_token,
-    expiry_date: tokens.expiry_date
+  /**
+   * Get OAuth2 client for Google API
+   */
+  private getOAuth2Client(): OAuth2Client {
+    return new google.auth.OAuth2(
+      GOOGLE_CONFIG.clientId,
+      GOOGLE_CONFIG.clientSecret,
+      GOOGLE_CONFIG.redirectUri
+    )
   }
-}
 
-/**
- * Get authenticated calendar client for a user
- */
-async function getCalendarClient(userId: string, calendarIntegrationId?: string) {
+  /**
+   * Get authorization URL for OAuth flow
+   */
+  getAuthorizationUrl(userId: string): string {
+    const oauth2Client = this.getOAuth2Client()
+
+    const scopes = [
+      'https://www.googleapis.com/auth/calendar',
+      'https://www.googleapis.com/auth/calendar.events'
+    ]
+
+    return oauth2Client.generateAuthUrl({
+      access_type: 'offline',
+      scope: scopes,
+      state: userId, // Pass user ID in state for callback
+      prompt: 'consent' // Force consent to get refresh token
+    })
+  }
+
+  /**
+   * Exchange authorization code for tokens
+   */
+  async exchangeCodeForTokens(code: string): Promise<TokenInfo> {
+    const oauth2Client = this.getOAuth2Client()
+    const { tokens } = await oauth2Client.getToken(code)
+
+    return {
+      access_token: tokens.access_token!,
+      refresh_token: tokens.refresh_token,
+      expiry_date: tokens.expiry_date
+    }
+  }
+
+  /**
+   * Get authenticated calendar client for a user
+   */
+  private async getCalendarClient(userId: string, calendarIntegrationId?: string) {
   // Get user's Google tokens from database
   const query = calendarIntegrationId
     ? 'SELECT 
@@ -143,14 +146,14 @@ async function getCalendarClient(userId: string, calendarIntegrationId?: string)
     ? [calendarIntegrationId, 'google']
     : [userId, 'google']
 
-  const result = await pool.query(query, params)
+      const result = await this.db.query(query, params)
 
   if (result.rows.length === 0) {
     throw new Error('Google Calendar integration not found or not enabled for this user')
   }
 
-  const integration = result.rows[0]
-  const oauth2Client = getOAuth2Client()
+    const integration = result.rows[0]
+    const oauth2Client = this.getOAuth2Client()
 
   // Set credentials
   oauth2Client.setCredentials({
@@ -165,10 +168,10 @@ async function getCalendarClient(userId: string, calendarIntegrationId?: string)
       const { credentials } = await oauth2Client.refreshAccessToken()
 
       // Update tokens in database
-      await pool.query(
+      await this.db.query(
         `UPDATE calendar_integrations
          SET access_token = $1, token_expiry = $2, updated_at = NOW()
-         WHERE id = $3',
+         WHERE id = $3`,
         [
           credentials.access_token,
           credentials.expiry_date ? new Date(credentials.expiry_date) : null,
@@ -183,28 +186,28 @@ async function getCalendarClient(userId: string, calendarIntegrationId?: string)
     }
   }
 
-  const calendar = google.calendar({ version: 'v3', auth: oauth2Client })
+    const calendar = google.calendar({ version: 'v3', auth: oauth2Client })
 
-  return {
-    calendar,
-    integration,
-    oauth2Client
+    return {
+      calendar,
+      integration,
+      oauth2Client
+    }
   }
-}
 
-/**
- * Store Google Calendar integration for a user
- */
-export async function storeCalendarIntegration(
+  /**
+   * Store Google Calendar integration for a user
+   */
+  async storeCalendarIntegration(
   tenantId: string,
   userId: string,
   tokens: TokenInfo,
   calendarId: string = 'primary',
   isPrimary: boolean = false
 ): Promise<any> {
-  try {
-    // Get calendar info
-    const oauth2Client = getOAuth2Client()
+    try {
+      // Get calendar info
+      const oauth2Client = this.getOAuth2Client()
     oauth2Client.setCredentials({
       access_token: tokens.access_token,
       refresh_token: tokens.refresh_token,
@@ -214,8 +217,8 @@ export async function storeCalendarIntegration(
     const calendar = google.calendar({ version: 'v3', auth: oauth2Client })
     const calendarInfo = await calendar.calendars.get({ calendarId })
 
-    // Store in database
-    const result = await pool.query(
+      // Store in database
+        const result = await this.db.query(
       `INSERT INTO calendar_integrations (
         tenant_id, user_id, provider, calendar_id, calendar_name,
         access_token, refresh_token, token_expiry,
@@ -248,23 +251,23 @@ export async function storeCalendarIntegration(
       ]
     )
 
-    return result.rows[0]
-  } catch (error) {
-    console.error('Error storing Google Calendar integration:', error)
-    throw error
+      return result.rows[0]
+    } catch (error) {
+      console.error('Error storing Google Calendar integration:', error)
+      throw error
+    }
   }
-}
 
-/**
- * Create a calendar event in Google Calendar
- */
-export async function createEvent(
+  /**
+   * Create a calendar event in Google Calendar
+   */
+  async createEvent(
   userId: string,
   eventData: GoogleCalendarEvent,
   calendarId: string = 'primary'
 ): Promise<any> {
-  try {
-    const { calendar, integration } = await getCalendarClient(userId)
+    try {
+      const { calendar, integration } = await this.getCalendarClient(userId)
 
     const event: any = {
       summary: eventData.summary,
@@ -327,14 +330,14 @@ export async function createEvent(
 /**
  * Get calendar events
  */
-export async function listEvents(
+  async listEvents(
   userId: string,
   startDate?: Date,
   endDate?: Date,
   calendarId: string = 'primary'
 ): Promise<any[]> {
-  try {
-    const { calendar, integration } = await getCalendarClient(userId)
+    try {
+      const { calendar, integration } = await this.getCalendarClient(userId)
 
     const response = await calendar.events.list({
       calendarId: integration.calendar_id || calendarId,
@@ -355,13 +358,13 @@ export async function listEvents(
 /**
  * Get a specific event
  */
-export async function getEvent(
+  async getEvent(
   userId: string,
   eventId: string,
   calendarId: string = 'primary'
 ): Promise<any> {
-  try {
-    const { calendar, integration } = await getCalendarClient(userId)
+    try {
+      const { calendar, integration } = await this.getCalendarClient(userId)
 
     const response = await calendar.events.get({
       calendarId: integration.calendar_id || calendarId,
@@ -378,14 +381,14 @@ export async function getEvent(
 /**
  * Update a calendar event
  */
-export async function updateEvent(
+  async updateEvent(
   userId: string,
   eventId: string,
   eventData: Partial<GoogleCalendarEvent>,
   calendarId: string = 'primary'
 ): Promise<any> {
-  try {
-    const { calendar, integration } = await getCalendarClient(userId)
+    try {
+      const { calendar, integration } = await this.getCalendarClient(userId)
 
     // Get existing event first
     const existingEvent = await calendar.events.get({
@@ -445,37 +448,37 @@ export async function updateEvent(
 /**
  * Delete a calendar event
  */
-export async function deleteEvent(
+  async deleteEvent(
   userId: string,
   eventId: string,
   calendarId: string = 'primary'
 ): Promise<void> {
-  try {
-    const { calendar, integration } = await getCalendarClient(userId)
+    try {
+      const { calendar, integration } = await this.getCalendarClient(userId)
 
-    await calendar.events.delete({
-      calendarId: integration.calendar_id || calendarId,
-      eventId,
-      sendUpdates: 'all'
-    })
-  } catch (error) {
-    console.error('Error deleting Google Calendar event:', error)
-    throw error
+      await calendar.events.delete({
+        calendarId: integration.calendar_id || calendarId,
+        eventId,
+        sendUpdates: 'all'
+      })
+    } catch (error) {
+      console.error('Error deleting Google Calendar event:', error)
+      throw error
+    }
   }
-}
 
 /**
  * Find available meeting times using Google Calendar's free/busy API
  */
-export async function findAvailableTimes(
+  async findAvailableTimes(
   userId: string,
   attendees: string[],
   startDate: Date,
   endDate: Date,
   duration: number = 60 // minutes
 ): Promise<any[]> {
-  try {
-    const { calendar } = await getCalendarClient(userId)
+    try {
+      const { calendar } = await this.getCalendarClient(userId)
 
     const response = await calendar.freebusy.query({
       requestBody: {
@@ -539,48 +542,48 @@ export async function findAvailableTimes(
 /**
  * Check user availability (free/busy status)
  */
-export async function checkAvailability(
+  async checkAvailability(
   userId: string,
   startDate: Date,
   endDate: Date,
   calendarIds: string[] = ['primary']
 ): Promise<any> {
-  try {
-    const { calendar } = await getCalendarClient(userId)
+    try {
+      const { calendar } = await this.getCalendarClient(userId)
 
-    const response = await calendar.freebusy.query({
-      requestBody: {
-        timeMin: startDate.toISOString(),
-        timeMax: endDate.toISOString(),
-        items: calendarIds.map(id => ({ id })),
-        timeZone: 'UTC'
-      }
-    })
+      const response = await calendar.freebusy.query({
+        requestBody: {
+          timeMin: startDate.toISOString(),
+          timeMax: endDate.toISOString(),
+          items: calendarIds.map(id => ({ id })),
+          timeZone: 'UTC'
+        }
+      })
 
-    return response.data
-  } catch (error) {
-    console.error('Error checking availability:', error)
-    throw error
+      return response.data
+    } catch (error) {
+      console.error('Error checking availability:', error)
+      throw error
+    }
   }
-}
 
 /**
  * Sync events from Google Calendar to local database
  */
-export async function syncEventsToDatabase(
+  async syncEventsToDatabase(
   userId: string,
   startDate?: Date,
   endDate?: Date
 ): Promise<{ synced: number; errors: any[] }> {
-  try {
-    const events = await listEvents(userId, startDate, endDate)
+    try {
+      const events = await this.listEvents(userId, startDate, endDate)
     const errors: any[] = []
     let synced = 0
 
     for (const event of events) {
       try {
         // Check if event already exists
-        const existingEvent = await pool.query(
+        const existingEvent = await this.db.query(
           'SELECT id FROM calendar_events WHERE event_id = $1 AND provider = $2',
           [event.id, 'google']
         )
@@ -605,7 +608,7 @@ export async function syncEventsToDatabase(
 
         if (existingEvent.rows.length > 0) {
           // Update existing event
-          await pool.query(
+          await this.db.query(
             `UPDATE calendar_events
              SET subject = $1, start_time = $2, end_time = $3, location = $4,
                  attendees = $5, status = $6, updated_at = NOW()
@@ -623,7 +626,7 @@ export async function syncEventsToDatabase(
           )
         } else {
           // Insert new event
-          await pool.query(
+          await this.db.query(
             `INSERT INTO calendar_events (
               event_id, subject, start_time, end_time, location, attendees,
               organizer, event_type, status, provider, is_online_meeting,
@@ -665,9 +668,9 @@ export async function syncEventsToDatabase(
 /**
  * List all calendars for a user
  */
-export async function listCalendars(userId: string): Promise<any[]> {
-  try {
-    const { calendar } = await getCalendarClient(userId)
+  async listCalendars(userId: string): Promise<any[]> {
+    try {
+      const { calendar } = await this.getCalendarClient(userId)
 
     const response = await calendar.calendarList.list()
 
@@ -681,10 +684,10 @@ export async function listCalendars(userId: string): Promise<any[]> {
 /**
  * Revoke Google Calendar integration
  */
-export async function revokeIntegration(userId: string, integrationId: string): Promise<void> {
+  async revokeIntegration(userId: string, integrationId: string): Promise<void> {
   try {
     // Get integration
-    const result = await pool.query(
+      const result = await this.db.query(
       'SELECT 
       id,
       tenant_id,
@@ -738,7 +741,7 @@ export async function revokeIntegration(userId: string, integrationId: string): 
     }
 
     // Delete from database
-    await pool.query(
+    await this.db.query(
       'DELETE FROM calendar_integrations WHERE id = $1',
       [integrationId]
     )
@@ -748,18 +751,6 @@ export async function revokeIntegration(userId: string, integrationId: string): 
   }
 }
 
-export default {
-  getAuthorizationUrl,
-  exchangeCodeForTokens,
-  storeCalendarIntegration,
-  createEvent,
-  listEvents,
-  getEvent,
-  updateEvent,
-  deleteEvent,
-  findAvailableTimes,
-  checkAvailability,
-  syncEventsToDatabase,
-  listCalendars,
-  revokeIntegration
 }
+
+export default GoogleCalendarService
