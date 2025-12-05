@@ -26,9 +26,9 @@ router.use(rateLimit({
 const csrfProtection = csurf({ cookie: true })
 
 // Enhanced with CSRF protection on mutations
-router.post('/',csrfProtection,  csrfProtection)
-router.put('/:id',csrfProtection,  csrfProtection)
-router.delete('/:id',csrfProtection,  csrfProtection)
+router.post('/',csrfProtection)
+router.put('/:id',csrfProtection)
+router.delete('/:id',csrfProtection)
 
 // GET /drivers
 router.get(
