@@ -57,7 +57,7 @@ const router = Router()
  *       500:
  *         description: Sync failed
  */
-router.post(`/teams/:teamId/channels/:channelId`, async (req: Request, res: Response) => {
+router.post(`/teams/:teamId/channels/:channelId`, csrfProtection, async (req: Request, res: Response) => {
   try {
     const { teamId, channelId } = req.params
     const userId = (req as any).user?.id
@@ -105,7 +105,7 @@ router.post(`/teams/:teamId/channels/:channelId`, async (req: Request, res: Resp
  *       500:
  *         description: Sync failed
  */
-router.post(`/outlook/folders/:folderId`, async (req: Request, res: Response) => {
+router.post(`/outlook/folders/:folderId`, csrfProtection, async (req: Request, res: Response) => {
   try {
     const { folderId } = req.params
     const userId = (req as any).user?.id
@@ -327,7 +327,7 @@ router.get('/jobs', async (req: Request, res: Response) => {
  *       200:
  *         description: Sync completed successfully
  */
-router.post(`/teams/all`, async (req: Request, res: Response) => {
+router.post(`/teams/all`, csrfProtection, async (req: Request, res: Response) => {
   try {
     const userId = (req as any).user?.id
 
@@ -365,7 +365,7 @@ router.post(`/teams/all`, async (req: Request, res: Response) => {
  *       200:
  *         description: Sync completed successfully
  */
-router.post(`/outlook/all`, async (req: Request, res: Response) => {
+router.post(`/outlook/all`, csrfProtection, async (req: Request, res: Response) => {
   try {
     const userId = (req as any).user?.id
 
