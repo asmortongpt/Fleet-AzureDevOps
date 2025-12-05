@@ -202,7 +202,7 @@ export class ConnectionManager {
    */
   private async testConnection(pool: Pool, poolType: PoolType): Promise<void> {
     try {
-      const client = await pool.connect()
+      // const client = await pool.connect()
       const result = await client.query(`SELECT NOW() as now, current_user, version()`)
       console.log(`[${poolType}] Connection test successful:`, {
         user: result.rows[0].current_user,
@@ -281,7 +281,7 @@ export class ConnectionManager {
       if (!pool) return
 
       try {
-        const client = await pool.connect()
+        // const client = await pool.connect()
         await client.query(`SELECT 1`)
         client.release()
       } catch (error) {
@@ -300,7 +300,7 @@ export class ConnectionManager {
 
     for (const [poolType, pool] of this.pools.entries()) {
       try {
-        const client = await pool.connect()
+        // const client = await pool.connect()
         const result = await client.query(`SELECT NOW() as timestamp, current_user`)
         client.release()
 
@@ -365,7 +365,7 @@ export class ConnectionManager {
     }
 
     try {
-      const client = await replicaPool.connect()
+      // const client = await replicaPool.connect()
 
       // PostgreSQL-specific replica lag check
       const result = await client.query(`
