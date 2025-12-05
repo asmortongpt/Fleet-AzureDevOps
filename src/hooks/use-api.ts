@@ -875,3 +875,20 @@ export function useRouteMutations() {
     delete: deleteRoute.mutateAsync,
   };
 }
+
+// Stub hooks for missing exports
+export function useSafetyIncidents() {
+  return {
+    data: [],
+    isLoading: false,
+    error: null
+  };
+}
+
+export function useChargingStations() {
+  return {
+    data: [],
+    isLoading: false,
+    error: null
+  };
+}
