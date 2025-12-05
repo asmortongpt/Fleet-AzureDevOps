@@ -492,7 +492,7 @@ export function VehicleReservationModal({
                   <FormItem>
                     <FormLabel>Pickup Location</FormLabel>
                     <FormControl>
-                      <Input placeholder="Enter pickup location" {...field} />
+                      <Input placeholder="Enter pickup location" {...field}  aria-label="Enter pickup location" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -506,7 +506,7 @@ export function VehicleReservationModal({
                   <FormItem>
                     <FormLabel>Dropoff Location</FormLabel>
                     <FormControl>
-                      <Input placeholder="Enter dropoff location" {...field} />
+                      <Input placeholder="Enter dropoff location" {...field}  aria-label="Enter dropoff location" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -545,7 +545,7 @@ export function VehicleReservationModal({
                 <FormItem>
                   <FormLabel>Purpose *</FormLabel>
                   <FormControl>
-                    <Input placeholder="Brief description of purpose" {...field} />
+                    <Input placeholder="Brief description of purpose" {...field}  aria-label="Brief description of purpose" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

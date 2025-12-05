@@ -1,0 +1,21 @@
+{
+  "backend": {
+    "di_container": true,
+    "routes_to_controllers": true,
+    "types_complete": true,
+    "all_services": true,
+    "all_repositories": true,
+    "inversify_install": false,
+    "async_jobs": false
+  },
+  "frontend": {
+    "break_down_monoliths": true,
+    "accessibility": true,
+    "additional_components": true,
+    "folder_restructure": true,
+    "zod_schemas": false,
+    "eslint_plugins": false,
+    "test_coverage": false
+  },
+  "errors": []
+}

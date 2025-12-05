@@ -11,7 +11,7 @@
  * - Integration settings
  */
 
-import pool from '../../config/database'
+import { Pool } from 'pg'
 import { buildUpdateClause } from '../../utils/sql-safety'
 
 // Allowlist of valid entity tables
@@ -97,7 +97,7 @@ export interface AutomationRule {
 export class TaskAssetConfigManager {
   private tenantId: string
 
-  constructor(tenantId: string) {
+  constructor(tenantId: string, private db: Pool) {
     this.tenantId = tenantId
   }
 
@@ -105,7 +105,7 @@ export class TaskAssetConfigManager {
    * Get all workflow templates for tenant
    */
   async getWorkflowTemplates(): Promise<WorkflowTemplate[]> {
-    const result = await pool.query(
+    const result = await this.db.query(
       `SELECT id, tenant_id, name, description, workflow_config, is_active, created_at, updated_at FROM workflow_templates WHERE tenant_id = $1 OR tenant_id IS NULL ORDER BY name`,
       [this.tenantId]
     )
@@ -116,7 +116,7 @@ export class TaskAssetConfigManager {
    * Create or update workflow template
    */
   async saveWorkflowTemplate(template: Partial<WorkflowTemplate>): Promise<WorkflowTemplate> {
-    const client = await pool.connect()
+    const client = await this.db.connect()
     try {
       await client.query('BEGIN')
 
@@ -183,7 +183,7 @@ export class TaskAssetConfigManager {
 
     query += ` ORDER BY priority DESC, name`
 
-    const result = await pool.query(query, params)
+    const result = await this.db.query(query, params)
     return result.rows
   }
 
@@ -191,7 +191,7 @@ export class TaskAssetConfigManager {
    * Create or update business rule
    */
   async saveBusinessRule(rule: Partial<BusinessRule>): Promise<BusinessRule> {
-    const client = await pool.connect()
+    const client = await this.db.connect()
     try {
       await client.query('BEGIN')
 
@@ -393,7 +393,7 @@ export class TaskAssetConfigManager {
     const { fields, values } = buildUpdateClause(parameters, 1)
 
     // Table name is validated, safe to use in query
-    await pool.query(
+    await this.db.query(
       `UPDATE ${table} SET ${fields}, updated_at = NOW()
        WHERE id = $${values.length + 1}`,
       [...values, entityId]
@@ -412,7 +412,7 @@ export class TaskAssetConfigManager {
     parameters: Record<string, any>,
     context: any
   ): Promise<void> {
-    await pool.query(
+    await this.db.query(
       `INSERT INTO tasks (tenant_id, task_title, description, task_type, priority, status, created_by)
        VALUES ($1, $2, $3, $4, $5, $6, $7)`,
       [
@@ -466,7 +466,7 @@ export class TaskAssetConfigManager {
 
     query += ` ORDER BY name`
 
-    const result = await pool.query(query, params)
+    const result = await this.db.query(query, params)
     return result.rows
   }
 
@@ -474,7 +474,7 @@ export class TaskAssetConfigManager {
    * Get automation rules
    */
   async getAutomationRules(): Promise<AutomationRule[]> {
-    const result = await pool.query(
+    const result = await this.db.query(
       `SELECT id, tenant_id, rule_name, trigger_condition, action, is_active, created_at, updated_at FROM automation_rules WHERE tenant_id = $1 AND is_active = true ORDER BY name`,
       [this.tenantId]
     )
@@ -486,7 +486,7 @@ export class TaskAssetConfigManager {
  * Create configuration tables if they don't exist
  */
 export async function createConfigTables(): Promise<void> {
-  await pool.query(`
+  await this.db.query(`
     CREATE TABLE IF NOT EXISTS workflow_templates (
       id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
       tenant_id UUID REFERENCES tenants(id) ON DELETE CASCADE,

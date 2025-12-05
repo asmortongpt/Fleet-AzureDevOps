@@ -12,8 +12,9 @@
  * - Batch indexing for performance
  */
 
-import pool from '../config/database'
+import { Pool } from 'pg'
 import SearchIndexService from './SearchIndexService'
+import logger from '../utils/logger'
 
 export interface IndexingJob {
   id: string
@@ -46,7 +47,7 @@ export class DocumentIndexer {
   private batchSize: number = 100
   private jobCheckInterval: NodeJS.Timeout | null = null
 
-  constructor() {
+  constructor(private db: Pool, private logger: typeof logger) {
     // Start background job processor
     this.startJobProcessor()
   }
@@ -62,18 +63,18 @@ export class DocumentIndexer {
     const startTime = Date.now()
 
     try {
-      console.log(`Indexing document ${documentId}...`)
+      this.logger.info(`Indexing document ${documentId}...`)
 
       // Get document data
-      const result = await pool.query(
+      const result = await this.db.query(
         `SELECT
           d.*,
           dc.category_name,
-          u.first_name || ` ` || u.last_name as uploaded_by_name
+          u.first_name || ' ' || u.last_name as uploaded_by_name
         FROM documents d
         LEFT JOIN document_categories dc ON d.category_id = dc.id
         LEFT JOIN users u ON d.uploaded_by = u.id
-        WHERE d.id = $1 AND d.tenant_id = $2',
+        WHERE d.id = $1 AND d.tenant_id = $2`,
         [documentId, tenantId]
       )
 
@@ -87,7 +88,7 @@ export class DocumentIndexer {
       const searchContent = this.buildSearchContent(document)
 
       // Update document with search vector
-      await pool.query(
+      await this.db.query(
         `UPDATE documents
          SET
            search_vector = to_tsvector('english', $1),
@@ -101,12 +102,12 @@ export class DocumentIndexer {
       const indexingTime = Date.now() - startTime
       await this.updateIndexingStats(tenantId, documentId, indexingTime, `success`)
 
-      console.log(`Document ${documentId} indexed successfully in ${indexingTime}ms`)
+      this.logger.info(`Document ${documentId} indexed successfully in ${indexingTime}ms`)
 
       // Clear search cache to reflect new content
       await SearchIndexService.clearCache()
     } catch (error) {
-      console.error(`Error indexing document ${documentId}:`, error)
+      this.logger.error(`Error indexing document ${documentId}:`, error)
       await this.updateIndexingStats(tenantId, documentId, Date.now() - startTime, `failed`)
       throw error
     }
@@ -162,7 +163,7 @@ export class DocumentIndexer {
       }
     }
 
-    return parts.join(` `)
+    return parts.join(' ')
   }
 
   /**
@@ -173,11 +174,11 @@ export class DocumentIndexer {
     tenantId: string,
     updatedFields: string[]
   ): Promise<void> {
-    console.log(`Updating index for document ${documentId} (fields: ${updatedFields.join(`, `)})`)
+    this.logger.info(`Updating index for document ${documentId} (fields: ${updatedFields.join(', ')})`)
 
     // For now, just reindex the entire document
     // In production, this could be optimized to only update specific fields
-    await this.indexDocument(documentId, tenantId, `high`)
+    await this.indexDocument(documentId, tenantId, 'high')
   }
 
   /**
@@ -185,7 +186,7 @@ export class DocumentIndexer {
    */
   async deleteDocumentIndex(documentId: string, tenantId: string): Promise<void> {
     try {
-      await pool.query(
+      await this.db.query(
         `UPDATE documents
          SET
            search_vector = NULL,
@@ -195,12 +196,12 @@ export class DocumentIndexer {
         [documentId, tenantId]
       )
 
-      console.log(`Document ${documentId} removed from index`)
+      this.logger.info(`Document ${documentId} removed from index`)
 
       // Clear search cache
       await SearchIndexService.clearCache()
     } catch (error) {
-      console.error(`Error deleting document index ${documentId}:`, error)
+      this.logger.error(`Error deleting document index ${documentId}:`, error)
       throw error
     }
   }
@@ -235,11 +236,11 @@ export class DocumentIndexer {
         countQuery += ' AND (index_status IS NULL OR index_status != \'indexed\')'
       }
 
-      const countResult = await pool.query(countQuery, countParams)
+      const countResult = await this.db.query(countQuery, countParams)
       const totalDocuments = parseInt(countResult.rows[0].count)
 
       // Create indexing job
-      const result = await pool.query(
+      const result = await this.db.query(
         `INSERT INTO indexing_jobs (
           tenant_id, job_type, status, progress,
           total_documents, processed_documents,
@@ -257,11 +258,11 @@ export class DocumentIndexer {
         ]
       )
 
-      console.log(`Created reindexing job for ${totalDocuments} documents`)
+      this.logger.info(`Created reindexing job for ${totalDocuments} documents`)
 
       return result.rows[0]
     } catch (error) {
-      console.error(`Error creating reindex job:`, error)
+      this.logger.error(`Error creating reindex job:`, error)
       throw error
     }
   }
@@ -270,18 +271,18 @@ export class DocumentIndexer {
    * Process a reindexing job in the background
    */
   private async processReindexJob(job: IndexingJob): Promise<void> {
-    console.log(`Processing reindex job ${job.id}...`)
+    this.logger.info(`Processing reindex job ${job.id}...`)
 
     try {
       // Update job status to processing
-      await pool.query(
+      await this.db.query(
         `UPDATE indexing_jobs
-         SET status = `processing`, started_at = NOW()
+         SET status = 'processing', started_at = NOW()
          WHERE id = $1`,
         [job.id]
       )
 
-      const metadata = JSON.parse((job as any).metadata || `{}`)
+      const metadata = JSON.parse((job as any).metadata || '{}')
 
       // Build query to get documents
       let query = `
@@ -305,15 +306,15 @@ export class DocumentIndexer {
       }
 
       if (!metadata.fullReindex) {
-        query += ` AND (index_status IS NULL OR index_status != `indexed`)`
+        query += ` AND (index_status IS NULL OR index_status != 'indexed')`
       }
 
       query += ` ORDER BY created_at DESC`
 
-      const result = await pool.query(query, params)
+      const result = await this.db.query(query, params)
       const documents = result.rows
 
-      console.log(`Reindexing ${documents.length} documents...`)
+      this.logger.info(`Reindexing ${documents.length} documents...`)
 
       // Process documents in batches
       let processedCount = 0
@@ -324,9 +325,9 @@ export class DocumentIndexer {
 
         // Index batch
         const indexPromises = batch.map(doc =>
-          this.indexDocument(doc.id, job.tenant_id, `normal`)
+          this.indexDocument(doc.id, job.tenant_id, 'normal')
             .catch(error => {
-              console.error(`Failed to index document ${doc.id}:`, error)
+              this.logger.error(`Failed to index document ${doc.id}:`, error)
               failedCount++
             })
         )
@@ -337,18 +338,18 @@ export class DocumentIndexer {
         const progress = Math.floor((processedCount / documents.length) * 100)
 
         // Update job progress
-        await pool.query(
+        await this.db.query(
           `UPDATE indexing_jobs
            SET progress = $1, processed_documents = $2
            WHERE id = $3`,
           [progress, processedCount, job.id]
         )
 
-        console.log(`Reindex progress: ${processedCount}/${documents.length} (${progress}%)`)
+        this.logger.info(`Reindex progress: ${processedCount}/${documents.length} (${progress}%)`)
       }
 
       // Mark job as completed
-      await pool.query(
+      await this.db.query(
         `UPDATE indexing_jobs
          SET
            status = 'completed',
@@ -359,19 +360,19 @@ export class DocumentIndexer {
         [processedCount, job.id]
       )
 
-      console.log(`Reindex job ${job.id} completed: ${processedCount} indexed, ${failedCount} failed`)
+      this.logger.info(`Reindex job ${job.id} completed: ${processedCount} indexed, ${failedCount} failed`)
     } catch (error) {
-      console.error(`Error processing reindex job ${job.id}:`, error)
+      this.logger.error(`Error processing reindex job ${job.id}:`, error)
 
       // Mark job as failed
-      await pool.query(
+      await this.db.query(
         `UPDATE indexing_jobs
          SET
-           status = `failed`,
+           status = 'failed',
            error_message = $1,
            completed_at = NOW()
          WHERE id = $2`,
-        [error instanceof Error ? error.message : `Unknown error`, job.id]
+        [error instanceof Error ? error.message : 'Unknown error', job.id]
       )
     }
   }
@@ -380,47 +381,47 @@ export class DocumentIndexer {
    * Optimize search indexes
    */
   async optimizeIndexes(tenantId: string): Promise<void> {
-    console.log(`Optimizing search indexes for tenant ${tenantId}...`)
+    this.logger.info(`Optimizing search indexes for tenant ${tenantId}...`)
 
     try {
       // Create optimization job
-      const job = await pool.query(
+      const job = await this.db.query(
         `INSERT INTO indexing_jobs (
           tenant_id, job_type, status, progress, created_at
         ) VALUES ($1, $2, $3, $4, NOW())
         RETURNING *`,
-        [tenantId, `optimize`, `processing', 0]
+        [tenantId, 'optimize', 'processing', 0]
       )
 
       const jobId = job.rows[0].id
 
       // Run VACUUM ANALYZE on documents table
-      await pool.query('VACUUM ANALYZE documents')
+      await this.db.query('VACUUM ANALYZE documents')
 
       // Rebuild indexes if needed
-      await pool.query('REINDEX TABLE documents')
+      await this.db.query('REINDEX TABLE documents')
 
       // Update statistics
-      await pool.query(
+      await this.db.query(
         `UPDATE tenant_index_stats
          SET
            last_optimization = NOW(),
            optimization_count = optimization_count + 1
-         WHERE tenant_id = $1',
+         WHERE tenant_id = $1`,
         [tenantId]
       )
 
       // Mark job as completed
-      await pool.query(
+      await this.db.query(
         `UPDATE indexing_jobs
          SET status = 'completed', progress = 100, completed_at = NOW()
          WHERE id = $1`,
         [jobId]
       )
 
-      console.log(`Index optimization completed for tenant ${tenantId}`)
+      this.logger.info(`Index optimization completed for tenant ${tenantId}`)
     } catch (error) {
-      console.error(`Error optimizing indexes:`, error)
+      this.logger.error(`Error optimizing indexes:`, error)
       throw error
     }
   }
@@ -432,7 +433,7 @@ export class DocumentIndexer {
     try {
       const [docStats, indexLog, optimization] = await Promise.all([
         // Document counts
-        pool.query(
+        this.db.query(
           `SELECT
             COUNT(*) as total_documents,
             COUNT(CASE WHEN index_status = 'indexed' THEN 1 END) as indexed_documents,
@@ -440,23 +441,23 @@ export class DocumentIndexer {
             COUNT(CASE WHEN index_status = 'failed' THEN 1 END) as failed_documents,
             SUM(file_size) as total_size
           FROM documents
-          WHERE tenant_id = $1',
+          WHERE tenant_id = $1`,
           [tenantId]
         ),
         // Average indexing time
-        pool.query(
+        this.db.query(
           `SELECT AVG(indexing_time_ms) as avg_time
           FROM document_indexing_log
           WHERE tenant_id = $1
             AND created_at > NOW() - INTERVAL '7 days'
-            AND status = 'success'',
+            AND status = 'success'`,
           [tenantId]
         ),
         // Last optimization
-        pool.query(
+        this.db.query(
           `SELECT last_optimization
           FROM tenant_index_stats
-          WHERE tenant_id = $1',
+          WHERE tenant_id = $1`,
           [tenantId]
         )
       ])
@@ -471,7 +472,7 @@ export class DocumentIndexer {
         avg_indexing_time_ms: parseFloat(indexLog.rows[0].avg_time) || 0
       }
     } catch (error) {
-      console.error('Error getting index stats:', error)
+      this.logger.error('Error getting index stats:', error)
       throw error
     }
   }
@@ -484,7 +485,7 @@ export class DocumentIndexer {
     options?: { status?: string; limit?: number }
   ): Promise<IndexingJob[]> {
     let query = `
-      SELECT ' + (await getTableColumns(pool, 'indexing_jobs')).join(', ') + ' FROM indexing_jobs
+      SELECT * FROM indexing_jobs
       WHERE tenant_id = $1
     `
     const params: any[] = [tenantId]
@@ -500,7 +501,7 @@ export class DocumentIndexer {
       query += ` LIMIT ${options.limit}`
     }
 
-    const result = await pool.query(query, params)
+    const result = await this.db.query(query, params)
     return result.rows
   }
 
@@ -516,8 +517,8 @@ export class DocumentIndexer {
 
       try {
         // Get next pending job
-        const result = await pool.query(
-          `SELECT ` + (await getTableColumns(pool, `indexing_jobs')).join(', ') + ' FROM indexing_jobs
+        const result = await this.db.query(
+          `SELECT * FROM indexing_jobs
            WHERE status = 'pending'
            ORDER BY created_at ASC
            LIMIT 1
@@ -542,13 +543,13 @@ export class DocumentIndexer {
         this.isRunning = false
         this.currentJob = null
       } catch (error) {
-        console.error('Error in job processor:', error)
+        this.logger.error('Error in job processor:', error)
         this.isRunning = false
         this.currentJob = null
       }
     }, 30000)
 
-    console.log('Document indexer job processor started')
+    this.logger.info('Document indexer job processor started')
   }
 
   /**
@@ -558,7 +559,7 @@ export class DocumentIndexer {
     if (this.jobCheckInterval) {
       clearInterval(this.jobCheckInterval)
       this.jobCheckInterval = null
-      console.log('Document indexer job processor stopped')
+      this.logger.info('Document indexer job processor stopped')
     }
   }
 
@@ -572,7 +573,7 @@ export class DocumentIndexer {
     status: 'success' | 'failed'
   ): Promise<void> {
     try {
-      await pool.query(
+      await this.db.query(
         `INSERT INTO document_indexing_log (
           tenant_id, document_id, indexing_time_ms, status, created_at
         ) VALUES ($1, $2, $3, $4, NOW())`,
@@ -580,7 +581,7 @@ export class DocumentIndexer {
       )
 
       // Update tenant stats
-      await pool.query(
+      await this.db.query(
         `INSERT INTO tenant_index_stats (
           tenant_id, total_indexed, last_indexed_at
         ) VALUES ($1, 1, NOW())
@@ -591,8 +592,8 @@ export class DocumentIndexer {
         [tenantId]
       )
     } catch (error) {
-      // Don`t fail indexing if stats update fails
-      console.error(`Error updating indexing stats:`, error)
+      // Don't fail indexing if stats update fails
+      this.logger.error('Error updating indexing stats:', error)
     }
   }
 
@@ -603,7 +604,7 @@ export class DocumentIndexer {
     documentIds: string[],
     tenantId: string
   ): Promise<{ success: number; failed: number }> {
-    console.log(`Batch indexing ${documentIds.length} documents...`)
+    this.logger.info(`Batch indexing ${documentIds.length} documents...`)
 
     let success = 0
     let failed = 0
@@ -612,24 +613,24 @@ export class DocumentIndexer {
       const batch = documentIds.slice(i, i + this.batchSize)
 
       const results = await Promise.allSettled(
-        batch.map(id => this.indexDocument(id, tenantId, `normal`))
+        batch.map(id => this.indexDocument(id, tenantId, 'normal'))
       )
 
       results.forEach(result => {
-        if (result.status === `fulfilled`) {
+        if (result.status === 'fulfilled') {
           success++
         } else {
           failed++
         }
       })
 
-      console.log(`Batch progress: ${i + batch.length}/${documentIds.length}`)
+      this.logger.info(`Batch progress: ${i + batch.length}/${documentIds.length}`)
     }
 
-    console.log(`Batch indexing completed: ${success} success, ${failed} failed`)
+    this.logger.info(`Batch indexing completed: ${success} success, ${failed} failed`)
 
     return { success, failed }
   }
 }
 
-export default new DocumentIndexer()
+export default DocumentIndexer
