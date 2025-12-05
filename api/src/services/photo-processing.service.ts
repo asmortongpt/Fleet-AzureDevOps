@@ -15,7 +15,7 @@
 import { BlobServiceClient, BlockBlobClient } from '@azure/storage-blob';
 import sharp from 'sharp';
 import ExifReader from 'exifreader';
-import pool from '../config/database';
+import { Pool } from 'pg';
 import { v4 as uuidv4 } from 'uuid';
 import OcrService from './ocr.service';
 
@@ -62,7 +62,9 @@ export interface ProcessingOptions {
   updateRelatedRecords?: boolean;
 }
 
-class PhotoProcessingService {
+export class PhotoProcessingService {
+  constructor(private db: Pool) {}
+
   private blobServiceClient: BlobServiceClient | null = null;
   private containerName: string = 'mobile-photos';
   private thumbnailContainerName: string = 'mobile-thumbnails';
@@ -136,7 +138,7 @@ class PhotoProcessingService {
     try {
       const jobId = uuidv4();
 
-      await pool.query(
+      await this.db.query(
         `INSERT INTO photo_processing_queue
          (id, tenant_id, user_id, photo_id, blob_url, status, priority, retry_count, max_retries)
          VALUES ($1, $2, $3, $4, $5, `pending`, $6, 0, 3)`,
@@ -276,7 +278,7 @@ class PhotoProcessingService {
 
       query += ` GROUP BY status, priority`;
 
-      const result = await pool.query(query, params);
+      const result = await this.db.query(query, params);
 
       return {
         byStatus: result.rows.reduce((acc, row) => {
@@ -315,7 +317,7 @@ class PhotoProcessingService {
         query += ` AND tenant_id = $1`;
       }
 
-      const result = await pool.query(query, params);
+      const result = await this.db.query(query, params);
 
       console.log(`Retrying ${result.rowCount} failed jobs`);
 
@@ -331,7 +333,7 @@ class PhotoProcessingService {
    */
   async clearCompletedJobs(daysOld: number = 7): Promise<number> {
     try {
-      const result = await pool.query(
+      const result = await this.db.query(
         `DELETE FROM photo_processing_queue
          WHERE status = 'completed'
            AND processing_completed_at < NOW() - INTERVAL `1 day` * $1`,
@@ -361,7 +363,7 @@ class PhotoProcessingService {
 
     try {
       // Get pending jobs with priority ordering
-      const result = await pool.query(
+      const result = await this.db.query(
         'SELECT ' + (await getTableColumns(pool, 'photo_processing_queue')).join(', ') + ' FROM photo_processing_queue
          WHERE status = 'pending'
            AND retry_count < max_retries
@@ -400,7 +402,7 @@ class PhotoProcessingService {
   private async processQueuedPhoto(job: any): Promise<void> {
     try {
       // Update status to processing
-      await pool.query(
+      await this.db.query(
         `UPDATE photo_processing_queue
          SET status = 'processing',
              processing_started_at = NOW()
@@ -409,7 +411,7 @@ class PhotoProcessingService {
       );
 
       // Get photo details
-      const photoResult = await pool.query(
+      const photoResult = await this.db.query(
         `SELECT 
       id,
       tenant_id,
@@ -454,7 +456,7 @@ class PhotoProcessingService {
         }
 
         // Mark job as completed
-        await pool.query(
+        await this.db.query(
           `UPDATE photo_processing_queue
            SET status = 'completed',
                processing_completed_at = NOW()
@@ -474,7 +476,7 @@ class PhotoProcessingService {
       const retryCount = job.retry_count + 1;
       const status = retryCount >= job.max_retries ? 'failed' : 'pending';
 
-      await pool.query(
+      await this.db.query(
         `UPDATE photo_processing_queue
          SET status = $1,
              retry_count = $2,
@@ -531,7 +533,7 @@ class PhotoProcessingService {
 
       if (updates.length > 0) {
         values.push(photoId);
-        await pool.query(
+        await this.db.query(
           `UPDATE mobile_photos
            SET ${updates.join(', ')}
            WHERE id = $${paramIndex}`,
@@ -555,7 +557,7 @@ class PhotoProcessingService {
 
       // Update damage report if applicable
       if (metadata.damageReportId) {
-        await pool.query(
+        await this.db.query(
           `UPDATE damage_reports
            SET processed_photo_url = $1,
                thumbnail_url = $2,
@@ -567,7 +569,7 @@ class PhotoProcessingService {
 
       // Update inspection if applicable
       if (metadata.inspectionId) {
-        await pool.query(
+        await this.db.query(
           `UPDATE vehicle_inspections
            SET photo_urls = COALESCE(photo_urls, '[]'::jsonb) || $1::jsonb,
                updated_at = NOW()
@@ -578,7 +580,7 @@ class PhotoProcessingService {
 
       // Update fuel transaction if applicable
       if (metadata.fuelTransactionId) {
-        await pool.query(
+        await this.db.query(
           `UPDATE fuel_transactions
            SET receipt_url = $1,
                receipt_ocr_text = $2,
@@ -787,4 +789,4 @@ class PhotoProcessingService {
   }
 }
 
-export default new PhotoProcessingService();
+export default PhotoProcessingService;

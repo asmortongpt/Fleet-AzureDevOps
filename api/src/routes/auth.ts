@@ -1,10 +1,16 @@
 import express, { Request, Response } from 'express'
-import pool from '../config/database'
+import { container } from '../container'
+import { asyncHandler } from '../middleware/error-handler'
+import { NotFoundError, ValidationError } from '../errors/app-error'
+import logger from '../config/logger'; // Wave 16: Add Winston logger
 import { createAuditLog } from '../middleware/audit'
 import { z } from 'zod'
-import { loginLimiter, registrationLimiter } from '../config/rate-limiters'
+// CRIT-F-004: Updated to use centralized rate limiters
+import { authLimiter, registrationLimiter, passwordResetLimiter, checkBruteForce, bruteForce } from '../middleware/rateLimiter'
 import { FIPSCryptoService } from '../services/fips-crypto.service'
 import { FIPSJWTService } from '../services/fips-jwt.service'
+import axios from 'axios'
+import jwt from 'jsonwebtoken'
 
 const router = express.Router()
 
@@ -97,40 +103,14 @@ const registerSchema = z.object({
  *                   format: date-time
  */
 // POST /api/auth/login
-router.post('/login', loginLimiter, async (req: Request, res: Response) => {
+// CRIT-F-004: Apply auth rate limiter and brute force protection
+router.post('/login', authLimiter, checkBruteForce('email'), async (req: Request, res: Response) => {
   try {
     const { email, password } = loginSchema.parse(req.body)
 
-    // DEV MODE: Accept demo credentials without database check
-    if (process.env.NODE_ENV === 'development' &&
-        email === 'admin@fleet.local' &&
-        password === 'demo123') {
-      console.log('[AUTH] DEV mode - accepting demo credentials')
-
-      const demoUser = {
-        id: 1,
-        tenant_id: 1,
-        email: 'admin@fleet.local',
-        first_name: 'Demo',
-        last_name: 'Admin',
-        role: 'admin',
-        phone: null
-      }
-
-      const token = jwt.sign(
-        {
-          id: demoUser.id,
-          email: demoUser.email,
-          role: demoUser.role,
-          tenant_id: demoUser.tenant_id,
-          auth_provider: 'demo'
-        },
-        process.env.JWT_SECRET || 'dev-secret-key',
-        { expiresIn: '24h' }
-      )
-
-      return res.json({ token, user: demoUser })
-    }
+    // SECURITY: Development backdoor removed (CRIT-SEC-001)
+    // All authentication must go through database verification
+    // No NODE_ENV bypasses allowed - violates FedRAMP AC-2
 
     // Get user
     const userResult = await pool.query(
@@ -157,7 +137,7 @@ router.post('/login', loginLimiter, async (req: Request, res: Response) => {
     const user = userResult.rows[0]
 
     // Check if account is locked (FedRAMP AC-7)
-    if (user.account_locked_until && new Date(user.account_locked_until) > new Date()) {
+    if (user.account_locked_until && new Date(user.account_locked_until) > new Date() {
       await createAuditLog(
         user.tenant_id,
         user.id,
@@ -180,7 +160,10 @@ router.post('/login', loginLimiter, async (req: Request, res: Response) => {
     const validPassword = await FIPSCryptoService.verifyPassword(password, user.password_hash)
 
     if (!validPassword) {
-      // Increment failed attempts
+      // CRIT-F-004: Record brute force attempt
+      const bruteForceResult = bruteForce.recordFailure(email)
+
+      // Increment failed attempts in database
       const newAttempts = user.failed_login_attempts + 1
       const lockAccount = newAttempts >= 3
       const lockedUntil = lockAccount ? new Date(Date.now() + 30 * 60 * 1000) : null // 30 minutes
@@ -199,7 +182,7 @@ router.post('/login', loginLimiter, async (req: Request, res: Response) => {
         'LOGIN',
         'users',
         user.id,
-        { email, attempts: newAttempts },
+        { email, attempts: newAttempts, bruteForceProtected: bruteForceResult.locked },
         req.ip || null,
         req.get('User-Agent') || null,
         `failure`,
@@ -213,6 +196,9 @@ router.post('/login', loginLimiter, async (req: Request, res: Response) => {
     }
 
     // Reset failed attempts on successful login
+    // CRIT-F-004: Clear brute force protection on success
+    bruteForce.recordSuccess(email)
+
     await pool.query(
       `UPDATE users
        SET failed_login_attempts = 0,
@@ -240,7 +226,7 @@ router.post('/login', loginLimiter, async (req: Request, res: Response) => {
 
     // Store refresh token in database for rotation tracking
     await pool.query(
-      'INSERT INTO refresh_tokens (user_id, token_hash, expires_at, created_at) VALUES ($1, $2, NOW() + INTERVAL \'7 days\', NOW())',
+      'INSERT INTO refresh_tokens (user_id, token_hash, expires_at, created_at) VALUES ($1, $2, NOW() + INTERVAL \'7 days\', NOW()',
       [user.id, Buffer.from(refreshToken).toString('base64').substring(0, 64)]
     )
 
@@ -273,7 +259,7 @@ router.post('/login', loginLimiter, async (req: Request, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ error: 'Validation error', details: error.errors })
     }
-    console.error('Login error:', error)
+    logger.error('Login error:', error) // Wave 16: Winston logger
     res.status(500).json({ error: 'Internal server error' })
   }
 })
@@ -359,7 +345,7 @@ router.post('/register', registrationLimiter, async (req: Request, res: Response
     if (error instanceof z.ZodError) {
       return res.status(400).json({ error: 'Validation error', details: error.errors })
     }
-    console.error('Register error:', error)
+    logger.error('Register error:', error) // Wave 16: Winston logger
     res.status(500).json({ error: 'Internal server error' })
   }
 })
@@ -466,7 +452,7 @@ router.post('/refresh', async (req: Request, res: Response) => {
 
     // Store new refresh token
     await pool.query(
-      'INSERT INTO refresh_tokens (user_id, token_hash, expires_at, created_at) VALUES ($1, $2, NOW() + INTERVAL \'7 days\', NOW())',
+      'INSERT INTO refresh_tokens (user_id, token_hash, expires_at, created_at) VALUES ($1, $2, NOW() + INTERVAL \'7 days\', NOW()',
       [user.id, Buffer.from(newRefreshToken).toString('base64').substring(0, 64)]
     )
 
@@ -488,7 +474,7 @@ router.post('/refresh', async (req: Request, res: Response) => {
       expiresIn: 900 // 15 minutes in seconds
     })
   } catch (error) {
-    console.error('Refresh token error:', error)
+    logger.error('Refresh token error:', error) // Wave 16: Winston logger
     res.status(500).json({ error: 'Internal server error' })
   }
 })
@@ -585,7 +571,7 @@ router.get('/me', async (req: Request, res: Response) => {
     )
 
     if (userResult.rows.length === 0) {
-      return res.status(404).json({ error: 'User not found or inactive' })
+      return throw new NotFoundError("User not found or inactive")
     }
 
     const user = userResult.rows[0]
@@ -609,8 +595,173 @@ router.get('/me', async (req: Request, res: Response) => {
     if (error.name === 'JsonWebTokenError') {
       return res.status(401).json({ error: 'Invalid token' })
     }
-    console.error('Error in /auth/me:', error.message)
+    logger.error('Error in /auth/me:', error.message) // Wave 16: Winston logger
     return res.status(500).json({ error: 'Internal server error' })
+  }
+})
+
+/**
+ * @openapi
+ * /api/auth/microsoft/login:
+ *   get:
+ *     summary: Initiate Microsoft Azure AD SSO login
+ *     description: Redirects user to Microsoft login page for OAuth authentication
+ *     tags:
+ *       - Authentication
+ *     responses:
+ *       302:
+ *         description: Redirect to Microsoft login page
+ */
+// GET /api/auth/microsoft/login - Initiate Microsoft SSO
+router.get('/microsoft/login', (req: Request, res: Response) => {
+  const AZURE_AD_CONFIG = {
+    clientId: process.env.AZURE_AD_CLIENT_ID || process.env.VITE_AZURE_AD_CLIENT_ID || 'baae0851-0c24-4214-8587-e3fabc46bd4a',
+    tenantId: process.env.AZURE_AD_TENANT_ID || process.env.VITE_AZURE_AD_TENANT_ID || '0ec14b81-7b82-45ee-8f3d-cbc31ced5347',
+    redirectUri: process.env.AZURE_AD_REDIRECT_URI || 'https://fleet.capitaltechalliance.com/api/auth/microsoft/callback'
+  }
+
+  const authUrl = `https://login.microsoftonline.com/${AZURE_AD_CONFIG.tenantId}/oauth2/v2.0/authorize?` +
+    `client_id=${AZURE_AD_CONFIG.clientId}` +
+    `&response_type=code` +
+    `&redirect_uri=${encodeURIComponent(AZURE_AD_CONFIG.redirectUri)}` +
+    `&response_mode=query` +
+    `&scope=${encodeURIComponent('openid profile email User.Read')}` +
+    `&state=1`
+
+  console.log('[AUTH] Redirecting to Azure AD:', authUrl)
+  res.redirect(authUrl)
+})
+
+/**
+ * @openapi
+ * /api/auth/microsoft/callback:
+ *   get:
+ *     summary: Microsoft Azure AD SSO callback
+ *     description: Handles OAuth callback from Microsoft and creates/authenticates user
+ *     tags:
+ *       - Authentication
+ *     responses:
+ *       302:
+ *         description: Redirect to dashboard with auth token
+ */
+// GET /api/auth/microsoft/callback - Handle Microsoft SSO callback
+router.get('/microsoft/callback', async (req: Request, res: Response) => {
+  try {
+    const { code } = req.query
+
+    if (!code || typeof code !== 'string') {
+      return res.redirect('/login?error=no_code')
+    }
+
+    const AZURE_AD_CONFIG = {
+      clientId: process.env.AZURE_AD_CLIENT_ID || process.env.VITE_AZURE_AD_CLIENT_ID || 'baae0851-0c24-4214-8587-e3fabc46bd4a',
+      clientSecret: process.env.AZURE_AD_CLIENT_SECRET || '',
+      tenantId: process.env.AZURE_AD_TENANT_ID || process.env.VITE_AZURE_AD_TENANT_ID || '0ec14b81-7b82-45ee-8f3d-cbc31ced5347',
+      redirectUri: process.env.AZURE_AD_REDIRECT_URI || 'https://fleet.capitaltechalliance.com/api/auth/microsoft/callback'
+    }
+
+    // Exchange code for token
+    const tokenResponse = await axios.post(
+      `https://login.microsoftonline.com/${AZURE_AD_CONFIG.tenantId}/oauth2/v2.0/token`,
+      new URLSearchParams({
+        client_id: AZURE_AD_CONFIG.clientId,
+        client_secret: AZURE_AD_CONFIG.clientSecret,
+        code: code,
+        redirect_uri: AZURE_AD_CONFIG.redirectUri,
+        grant_type: 'authorization_code',
+        scope: 'openid profile email User.Read'
+      }),
+      {
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+      }
+    )
+
+    const { access_token } = tokenResponse.data
+
+    // Get user info
+    const userInfoResponse = await axios.get('https://graph.microsoft.com/v1.0/me', {
+      headers: { Authorization: `Bearer ${access_token}` }
+    })
+
+    const microsoftUser = userInfoResponse.data
+    const email = (microsoftUser.mail || microsoftUser.userPrincipalName).toLowerCase()
+
+    // Get default tenant
+    const tenantResult = await pool.query('SELECT id FROM tenants ORDER BY created_at LIMIT 1')
+    if (tenantResult.rows.length === 0) {
+      return res.redirect('/login?error=no_tenant')
+    }
+    const tenantId = tenantResult.rows[0].id
+
+    // Check if user exists
+    let userResult = await pool.query(
+      'SELECT id, email, first_name, last_name, role, tenant_id FROM users WHERE email = $1',
+      [email]
+    )
+
+    let user
+    if (userResult.rows.length === 0) {
+      // Create new user
+      const insertResult = await pool.query(
+        `INSERT INTO users (tenant_id, email, first_name, last_name, role, is_active, password_hash, sso_provider, sso_provider_id)
+         VALUES ($1, $2, $3, $4, 'viewer', true, 'SSO', 'microsoft', $5)
+         RETURNING id, email, first_name, last_name, role, tenant_id`,
+        [tenantId, email, microsoftUser.givenName || 'User', microsoftUser.surname || '', microsoftUser.id]
+      )
+      user = insertResult.rows[0]
+    } else {
+      user = userResult.rows[0]
+    }
+
+    // Generate JWT token
+    const token = FIPSJWTService.generateAccessToken(
+      user.id,
+      user.email,
+      user.role,
+      user.tenant_id
+    )
+
+    await createAuditLog(
+      user.tenant_id,
+      user.id,
+      'LOGIN',
+      'users',
+      user.id,
+      { provider: 'microsoft', email },
+      req.ip || null,
+      req.get('User-Agent') || null,
+      'success'
+    )
+
+    // Check if this is a client-side fetch (JSON expected) or redirect from Azure AD
+    // Client-side fetch will have Accept: application/json header
+    const acceptsJson = req.headers.accept?.includes('application/json')
+
+    if (acceptsJson) {
+      // Return JSON for client-side OAuth flow
+      return res.json({
+        token,
+        user: {
+          id: user.id,
+          email: user.email,
+          first_name: user.first_name,
+          last_name: user.last_name,
+          role: user.role,
+          tenant_id: user.tenant_id
+        }
+      })
+    } else {
+      // Redirect to dashboard with token (legacy server-side flow)
+      res.redirect(`/?token=${encodeURIComponent(token)}`)
+    }
+  } catch (error: any) {
+    logger.error('Microsoft SSO callback error:', error.message) // Wave 16: Winston logger
+    const acceptsJson = req.headers.accept?.includes('application/json')
+    if (acceptsJson) {
+      return res.status(500).json({ error: 'Microsoft SSO authentication failed', details: error.message })
+    } else {
+      res.redirect('/login?error=sso_failed')
+    }
   }
 })
 

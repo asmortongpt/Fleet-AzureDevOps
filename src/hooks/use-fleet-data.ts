@@ -8,6 +8,8 @@ import {
   useVehicleMutations,
   useDrivers,
   useDriverMutations,
+  useMaintenance,
+  useMaintenanceMutations,
   useWorkOrders,
   useWorkOrderMutations,
   useFuelTransactions,
@@ -245,6 +247,12 @@ export function useFleetData() {
     return await routeMutations.delete(id)
   }, [routeMutations])
 
+  // Filter mileage reimbursements from fuel transactions where type='mileage'
+  const mileageReimbursements = useMemo(() =>
+    fuelTransactions.filter((transaction: any) => transaction.type === 'mileage'),
+    [fuelTransactions]
+  )
+
   return {
     vehicles,
     drivers,
@@ -254,7 +262,7 @@ export function useFleetData() {
     workOrders,
     technicians,
     fuelTransactions,
-    mileageReimbursements: [], // TODO: filter fuel transactions
+    mileageReimbursements,
     maintenanceRequests: maintenanceSchedules,
     routes,
     dataInitialized: true, // Always true with API

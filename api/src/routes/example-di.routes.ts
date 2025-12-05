@@ -1,4 +1,5 @@
 /**
+import logger from '../config/logger'; // Wave 33: Add Winston logger (FINAL WAVE!)
  * Example Routes with Dependency Injection
  *
  * This file demonstrates how to use the DI container in route handlers.
@@ -65,15 +66,15 @@ router.get('/vehicle-count', authenticateJWT, async (req: Request, res: Response
     res.json({
       success: true,
       count
-    })
+    }))
   } catch (error) {
-    console.error('Error in vehicle-count route:', error)
+    logger.error('Error in vehicle-count route:', error) // Wave 33: Winston logger (FINAL WAVE!)
     res.status(500).json({
       success: false,
       error: 'Failed to retrieve vehicle count'
-    })
+    }))
   }
-})
+}))
 
 /**
  * @openapi
@@ -109,7 +110,7 @@ router.post('/vehicle-action/:vehicleId', authenticateJWT, async (req: Request, 
       return res.status(400).json({
         success: false,
         error: 'Invalid vehicle ID'
-      })
+      }))
     }
 
     // Resolve service from container
@@ -124,13 +125,13 @@ router.post('/vehicle-action/:vehicleId', authenticateJWT, async (req: Request, 
 
     res.json(result)
   } catch (error) {
-    console.error('Error in vehicle-action route:', error)
+    logger.error('Error in vehicle-action route:', error) // Wave 33: Winston logger (FINAL WAVE!)
     res.status(500).json({
       success: false,
       error: 'Failed to perform action'
-    })
+    }))
   }
-})
+}))
 
 /**
  * @openapi
@@ -187,15 +188,15 @@ router.get('/test-di', async (req: Request, res: Response) => {
       message: hasContainer
         ? 'DI container is properly configured'
         : 'DI container is not available - ensure containerMiddleware is registered in server.ts'
-    })
+    }))
   } catch (error) {
-    console.error('Error testing DI:', error)
+    logger.error('Error testing DI:', error) // Wave 33: Winston logger (FINAL WAVE!)
     res.status(500).json({
       success: false,
       error: 'Failed to test DI container'
-    })
+    }))
   }
-})
+}))
 
 /**
  * Example of using multiple services together
@@ -221,7 +222,7 @@ router.post('/complex-operation/:vehicleId', authenticateJWT, async (req: Reques
     }
 
     // Could also use documentService here
-    // const documents = await documentService.listDocuments({ vehicleId: vehicleId.toString() })
+    // const documents = await documentService.listDocuments({ vehicleId: vehicleId.toString() }))
 
     logger.info(`Complex operation completed for vehicle ${vehicleId}`)
 
@@ -229,14 +230,14 @@ router.post('/complex-operation/:vehicleId', authenticateJWT, async (req: Reques
       success: true,
       message: `Complex operation completed`,
       actionResult
-    })
+    }))
   } catch (error) {
-    console.error('Error in complex operation:', error)
+    logger.error('Error in complex operation:', error) // Wave 33: Winston logger (FINAL WAVE!)
     res.status(500).json({
       success: false,
       error: 'Failed to complete complex operation'
-    })
+    }))
   }
-})
+}))
 
 export default router
