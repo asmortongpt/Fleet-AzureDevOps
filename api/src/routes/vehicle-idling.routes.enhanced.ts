@@ -79,8 +79,8 @@ router.get(
 );
 
 // Apply CSRF protection to all mutation endpoints
-router.post('*', csrfProtection);
-router.put('*', csrfProtection);
-router.delete('*', csrfProtection);
+router.post('*',csrfProtection,  csrfProtection);
+router.put('*',csrfProtection,  csrfProtection);
+router.delete('*',csrfProtection,  csrfProtection);
 
 export default router;
