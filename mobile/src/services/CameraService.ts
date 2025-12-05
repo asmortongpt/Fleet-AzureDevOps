@@ -586,28 +586,171 @@ class CameraService {
   }
 
   /**
-   * Sync a queue item (to be implemented based on your API)
+   * Sync a queue item based on type
    */
   private async syncQueueItem(item: QueueItem): Promise<void> {
-    // TODO: Implement actual API sync based on item.type
-    // This is a placeholder that should be replaced with actual API calls
-
     console.log(`Syncing queue item: ${item.type}`, item.data);
 
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    // Get API base URL from storage or config
+    const config = await this.getAPIConfig();
+    if (!config) {
+      throw new Error('API configuration not found');
+    }
 
-    // Example implementation:
-    // switch (item.type) {
-    //   case QueueItemType.DAMAGE_REPORT:
-    //     await api.uploadDamageReport(item.data);
-    //     break;
-    //   case QueueItemType.PHOTO_UPLOAD:
-    //     await api.uploadPhoto(item.data);
-    //     break;
-    //   default:
-    //     throw new Error(`Unknown queue item type: ${item.type}`);
-    // }
+    const { baseUrl, authToken } = config;
+
+    // Sync based on item type
+    switch (item.type) {
+      case QueueItemType.INSPECTION_PHOTO:
+        await this.uploadInspectionPhoto(baseUrl, authToken, item.data);
+        break;
+
+      case QueueItemType.DAMAGE_PHOTO:
+        await this.uploadDamagePhoto(baseUrl, authToken, item.data);
+        break;
+
+      case QueueItemType.GENERAL_PHOTO:
+        await this.uploadGeneralPhoto(baseUrl, authToken, item.data);
+        break;
+
+      case QueueItemType.DAMAGE_REPORT:
+        await this.uploadDamageReport(baseUrl, authToken, item.data);
+        break;
+
+      default:
+        throw new Error(`Unknown queue item type: ${item.type}`);
+    }
+  }
+
+  /**
+   * Get API configuration from storage
+   */
+  private async getAPIConfig(): Promise<{ baseUrl: string; authToken: string } | null> {
+    try {
+      const configData = await AsyncStorage.getItem(STORAGE_KEYS.API_CONFIG);
+      return configData ? JSON.parse(configData) : null;
+    } catch (error) {
+      console.error('Error loading API config:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Upload inspection photo
+   */
+  private async uploadInspectionPhoto(
+    baseUrl: string,
+    authToken: string,
+    data: any
+  ): Promise<void> {
+    const formData = new FormData();
+    formData.append('file', {
+      uri: data.uri,
+      type: data.mimeType || 'image/jpeg',
+      name: data.filename
+    } as any);
+    formData.append('inspection_id', data.inspectionId);
+    formData.append('metadata', JSON.stringify(data.metadata));
+
+    const response = await fetch(`${baseUrl}/api/mobile/inspections/photos`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${authToken}`,
+        'Content-Type': 'multipart/form-data'
+      },
+      body: formData
+    });
+
+    if (!response.ok) {
+      throw new Error(`Upload failed: ${response.status} ${response.statusText}`);
+    }
+  }
+
+  /**
+   * Upload damage photo
+   */
+  private async uploadDamagePhoto(
+    baseUrl: string,
+    authToken: string,
+    data: any
+  ): Promise<void> {
+    const formData = new FormData();
+    formData.append('file', {
+      uri: data.uri,
+      type: data.mimeType || 'image/jpeg',
+      name: data.filename
+    } as any);
+    formData.append('vehicle_id', data.vehicleId);
+    formData.append('damage_type', data.damageType);
+    formData.append('description', data.description || '');
+    formData.append('metadata', JSON.stringify(data.metadata));
+
+    const response = await fetch(`${baseUrl}/api/mobile/vehicles/damage-photos`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${authToken}`,
+        'Content-Type': 'multipart/form-data'
+      },
+      body: formData
+    });
+
+    if (!response.ok) {
+      throw new Error(`Upload failed: ${response.status} ${response.statusText}`);
+    }
+  }
+
+  /**
+   * Upload general photo
+   */
+  private async uploadGeneralPhoto(
+    baseUrl: string,
+    authToken: string,
+    data: any
+  ): Promise<void> {
+    const formData = new FormData();
+    formData.append('file', {
+      uri: data.uri,
+      type: data.mimeType || 'image/jpeg',
+      name: data.filename
+    } as any);
+    formData.append('category', data.category || 'general');
+    formData.append('tags', JSON.stringify(data.tags || []));
+    formData.append('metadata', JSON.stringify(data.metadata));
+
+    const response = await fetch(`${baseUrl}/api/mobile/photos`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${authToken}`,
+        'Content-Type': 'multipart/form-data'
+      },
+      body: formData
+    });
+
+    if (!response.ok) {
+      throw new Error(`Upload failed: ${response.status} ${response.statusText}`);
+    }
+  }
+
+  /**
+   * Upload damage report
+   */
+  private async uploadDamageReport(
+    baseUrl: string,
+    authToken: string,
+    data: any
+  ): Promise<void> {
+    const response = await fetch(`${baseUrl}/api/mobile/vehicles/damage-reports`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${authToken}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(data)
+    });
+
+    if (!response.ok) {
+      throw new Error(`Upload failed: ${response.status} ${response.statusText}`);
+    }
   }
 
   /**

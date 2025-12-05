@@ -3,8 +3,8 @@
  * Rate limiting, user permissions, audit logging, and usage tracking for AI features
  */
 
-import pool from '../config/database'
-import { logger } from '../utils/logger'
+import { Pool } from 'pg'
+import logger from '../utils/logger'
 import Redis from 'ioredis'
 
 export interface RateLimitCheck {
@@ -49,7 +49,10 @@ class AIControlsService {
     enterprise: { hourly: 1000, daily: 10000, tokensDaily: 1000000 }
   }
 
-  constructor() {
+  constructor(
+    private db: Pool,
+    private logger: typeof logger
+  ) {
     this.initializeRedis()
   }
 
@@ -66,17 +69,17 @@ class AIControlsService {
         })
 
         this.redis.on('error', (error) => {
-          logger.error('Redis connection error:', error)
+          this.logger.error('Redis connection error:', error)
         })
 
         this.redis.on('connect', () => {
-          logger.info('Redis connected for rate limiting')
+          this.logger.info('Redis connected for rate limiting')
         })
       } else {
-        logger.warn('Redis not configured - rate limiting will use database')
+        this.logger.warn('Redis not configured - rate limiting will use database')
       }
     } catch (error) {
-      logger.error('Failed to initialize Redis:', error)
+      this.logger.error('Failed to initialize Redis:', error)
     }
   }
 
@@ -132,7 +135,7 @@ class AIControlsService {
         userTier
       }
     } catch (error) {
-      logger.error(`Rate limit check failed:`, error)
+      this.logger.error(`Rate limit check failed:`, error)
       // Fail open to avoid blocking legitimate requests
       return {
         allowed: true,
@@ -153,7 +156,7 @@ class AIControlsService {
       }
 
       // Query database
-      const result = await pool.query(
+      const result = await this.db.query(
         `SELECT subscription_tier
          FROM users u
          JOIN tenants t ON u.tenant_id = t.id
@@ -170,7 +173,7 @@ class AIControlsService {
 
       return tier
     } catch (error) {
-      logger.error(`Failed to get user tier:`, error)
+      this.logger.error(`Failed to get user tier:`, error)
       return 'free'
     }
   }
@@ -194,7 +197,7 @@ class AIControlsService {
 
       // Fallback to database
       const interval = period === 'hour' ? '1 hour' : '1 day'
-      const result = await pool.query(
+      const result = await this.db.query(
         `SELECT COUNT(*) as count
          FROM ai_requests
          WHERE tenant_id = $1 AND user_id = $2
@@ -212,7 +215,7 @@ class AIControlsService {
 
       return count
     } catch (error) {
-      logger.error('Failed to get request count:', error)
+      this.logger.error('Failed to get request count:', error)
       return 0
     }
   }
@@ -227,7 +230,7 @@ class AIControlsService {
   ): Promise<number> {
     try {
       const interval = period === 'day' ? '1 day' : '1 month'
-      const result = await pool.query(
+      const result = await this.db.query(
         `SELECT COALESCE(SUM(tokens_used), 0) as total_tokens
          FROM ai_requests
          WHERE tenant_id = $1 AND user_id = $2
@@ -237,7 +240,7 @@ class AIControlsService {
 
       return parseInt(result.rows[0].total_tokens) || 0
     } catch (error) {
-      logger.error(`Failed to get token count:`, error)
+      this.logger.error(`Failed to get token count:`, error)
       return 0
     }
   }
@@ -267,14 +270,14 @@ class AIControlsService {
       }
 
       // Record in database for analytics
-      await pool.query(
+      await this.db.query(
         `INSERT INTO ai_usage_logs (
           tenant_id, user_id, request_type, tokens_used, cost, created_at
         ) VALUES ($1, $2, $3, $4, $5, NOW())`,
         [tenantId, userId, requestType, tokensUsed, cost]
       )
     } catch (error) {
-      logger.error(`Failed to record usage:`, error)
+      this.logger.error(`Failed to record usage:`, error)
     }
   }
 
@@ -287,7 +290,7 @@ class AIControlsService {
     feature: string
   ): Promise<boolean> {
     try {
-      const result = await pool.query(
+      const result = await this.db.query(
         `SELECT EXISTS(
           SELECT 1 FROM user_permissions
           WHERE user_id = $1 AND tenant_id = $2
@@ -299,7 +302,7 @@ class AIControlsService {
 
       return result.rows[0]?.has_permission || false
     } catch (error) {
-      logger.error(`Permission check failed:`, error)
+      this.logger.error(`Permission check failed:`, error)
       return false
     }
   }
@@ -316,7 +319,7 @@ class AIControlsService {
     userAgent?: string
   ): Promise<void> {
     try {
-      await pool.query(
+      await this.db.query(
         `INSERT INTO ai_audit_logs (
           tenant_id, user_id, action, resource_type, resource_id,
           details, ip_address, user_agent, created_at
@@ -337,7 +340,7 @@ class AIControlsService {
         ]
       )
     } catch (error) {
-      logger.error('Failed to log request:', error)
+      this.logger.error('Failed to log request:', error)
     }
   }
 
@@ -346,7 +349,7 @@ class AIControlsService {
    */
   async getUsageStats(tenantId: string, userId: string): Promise<UsageStats> {
     try {
-      const result = await pool.query(
+      const result = await this.db.query(
         `SELECT
           COUNT(*) FILTER (WHERE created_at > NOW() - INTERVAL '1 day') as requests_today,
           COUNT(*) FILTER (WHERE created_at > NOW() - INTERVAL '1 month') as requests_month,
@@ -375,7 +378,7 @@ class AIControlsService {
         quotaUsagePercent: Math.round(quotaUsagePercent)
       }
     } catch (error) {
-      logger.error('Failed to get usage stats:', error)
+      this.logger.error('Failed to get usage stats:', error)
       return {
         requestsToday: 0,
         requestsThisMonth: 0,
@@ -433,10 +436,10 @@ class AIControlsService {
       query += ` ORDER BY created_at DESC LIMIT $` + (paramCount + 1)
       params.push(filters.limit || 100)
 
-      const result = await pool.query<AuditLogEntry>(query, params)
+      const result = await this.db.query<AuditLogEntry>(query, params)
       return result.rows
     } catch (error) {
-      logger.error(`Failed to get audit logs:`, error)
+      this.logger.error(`Failed to get audit logs:`, error)
       return []
     }
   }
@@ -471,27 +474,27 @@ class AIControlsService {
   }> {
     try {
       const [auditResult, usageResult] = await Promise.all([
-        pool.query(
+        this.db.query(
           `DELETE FROM ai_audit_logs
            WHERE created_at < NOW() - INTERVAL `${daysToKeep} days``
         ),
-        pool.query(
+        this.db.query(
           `DELETE FROM ai_usage_logs
            WHERE created_at < NOW() - INTERVAL `${daysToKeep} days``
         )
       ])
 
-      logger.info(`Cleaned up old logs: ${auditResult.rowCount} audit, ${usageResult.rowCount} usage`)
+      this.logger.info(`Cleaned up old logs: ${auditResult.rowCount} audit, ${usageResult.rowCount} usage`)
 
       return {
         auditLogs: auditResult.rowCount || 0,
         usageLogs: usageResult.rowCount || 0
       }
     } catch (error) {
-      logger.error(`Failed to cleanup old logs:`, error)
+      this.logger.error(`Failed to cleanup old logs:`, error)
       return { auditLogs: 0, usageLogs: 0 }
     }
   }
 }
 
-export default new AIControlsService()
+export default AIControlsService

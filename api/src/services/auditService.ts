@@ -3,10 +3,10 @@
  * Centralized service for logging permission checks and security events
  */
 
-import pool from '../db';
+import { Pool } from 'pg';
 import { AuditLogEntry } from '../permissions/types';
 
-class AuditService {
+export class AuditService {
   /**
    * Log a permission check
    */
@@ -16,7 +16,7 @@ class AuditService {
     allowed: boolean;
   }): Promise<void> {
     try {
-      await pool.query(
+      await this.db.query(
         `INSERT INTO permission_audit_log
          (user_id, action, resource_type, resource_id, allowed, reason, timestamp, context, ip_address, user_agent)
          VALUES ($1, $2, $3, $4, $5, $6, NOW(), $7, $8, $9)`,
@@ -51,7 +51,7 @@ class AuditService {
     context?: Record<string, any>;
   }): Promise<void> {
     try {
-      await pool.query(
+      await this.db.query(
         `INSERT INTO security_audit_log
          (user_id, event_type, severity, description, ip_address, user_agent, context, timestamp)
          VALUES ($1, $2, $3, $4, $5, $6, $7, NOW())`,
@@ -112,7 +112,7 @@ class AuditService {
 
     params.push(limit, offset);
 
-    const result = await pool.query(
+    const result = await this.db.query(
       `SELECT * FROM permission_audit_log
        WHERE ${conditions.join(' AND ')}
        ORDER BY timestamp DESC
@@ -159,7 +159,7 @@ class AuditService {
 
     params.push(limit);
 
-    const result = await pool.query(
+    const result = await this.db.query(
       `SELECT * FROM permission_audit_log
        WHERE ${conditions.join(' AND ')}
        ORDER BY timestamp DESC
@@ -182,7 +182,7 @@ class AuditService {
     failed_attempts: number;
     last_accessed: Date | null;
   }> {
-    const result = await pool.query(
+    const result = await this.db.query(
       `SELECT
          COUNT(*) as total_accesses,
          COUNT(DISTINCT user_id) as unique_users,
@@ -207,7 +207,7 @@ class AuditService {
   async cleanupOldLogs(retentionDays: number = 90): Promise<number> {
     const cutoffDate = new Date(Date.now() - retentionDays * 24 * 60 * 60 * 1000);
 
-    const result = await pool.query(
+    const result = await this.db.query(
       `DELETE FROM permission_audit_log
        WHERE timestamp < $1',
       [cutoffDate]
@@ -217,4 +217,5 @@ class AuditService {
   }
 }
 
-export const auditService = new AuditService();
+// Singleton removed - use DI
+export default AuditService;

@@ -9,8 +9,9 @@
  * - Document Q&A capabilities
  */
 
-import pool from '../config/database'
+import { Pool } from 'pg'
 import OpenAI from 'openai'
+import logger from '../utils/logger'
 
 export interface DocumentChunk {
   id: string
@@ -49,14 +50,14 @@ export class DocumentRAGService {
   private chunkSize = 1000 // characters
   private chunkOverlap = 200 // characters
 
-  constructor() {
+  constructor(private db: Pool, private logger: typeof logger) {
     // Initialize OpenAI if API key is available
     if (process.env.OPENAI_API_KEY) {
       this.openai = new OpenAI({
         apiKey: process.env.OPENAI_API_KEY
       })
     } else {
-      console.warn('OpenAI API key not found. RAG features will use mock data.')
+      this.logger.warn('OpenAI API key not found. RAG features will use mock data.')
     }
   }
 
@@ -64,7 +65,7 @@ export class DocumentRAGService {
    * Generate embeddings for a document's text
    */
   async generateDocumentEmbeddings(documentId: string, text: string): Promise<void> {
-    const client = await pool.connect()
+    const client = await this.db.connect()
 
     try {
       await client.query('BEGIN')
@@ -103,11 +104,11 @@ export class DocumentRAGService {
         )
       }
 
-      await client.query(`COMMIT`)
-      console.log(`Generated ${chunks.length} embeddings for document ${documentId}`)
+      await client.query('COMMIT')
+      this.logger.info(`Generated ${chunks.length} embeddings for document ${documentId}`)
     } catch (error) {
-      await client.query(`ROLLBACK`)
-      console.error('Error generating document embeddings:', error)
+      await client.query('ROLLBACK')
+      this.logger.error('Error generating document embeddings:', error)
       throw error
     } finally {
       client.release()
@@ -173,7 +174,7 @@ export class DocumentRAGService {
   private async generateEmbedding(text: string): Promise<number[]> {
     if (!this.openai) {
       // Return mock embedding for development
-      console.warn('Using mock embedding (OpenAI not configured)')
+      this.logger.warn('Using mock embedding (OpenAI not configured)')
       return this.generateMockEmbedding()
     }
 
@@ -185,7 +186,7 @@ export class DocumentRAGService {
 
       return response.data[0].embedding
     } catch (error) {
-      console.error('Error generating embedding:', error)
+      this.logger.error('Error generating embedding:', error)
       // Fallback to mock embedding
       return this.generateMockEmbedding()
     }
@@ -230,7 +231,7 @@ export class DocumentRAGService {
         FROM document_embeddings de
         JOIN documents d ON de.document_id = d.id
         LEFT JOIN document_categories dc ON d.category_id = dc.id
-        WHERE d.tenant_id = $2 AND d.status = `active`
+        WHERE d.tenant_id = $2 AND d.status = 'active'
       `
 
       const params: any[] = [JSON.stringify(queryEmbedding), tenantId]
@@ -257,11 +258,11 @@ export class DocumentRAGService {
       sql += ` ORDER BY similarity_score DESC LIMIT $${paramCount + 1}`
       params.push(options?.limit || 10)
 
-      const result = await pool.query(sql, params)
+      const result = await this.db.query(sql, params)
 
       return result.rows
     } catch (error) {
-      console.error(`Error performing semantic search:`, error)
+      this.logger.error(`Error performing semantic search:`, error)
       throw error
     }
   }
@@ -279,7 +280,7 @@ export class DocumentRAGService {
       maxSources?: number
     }
   ): Promise<QAResult> {
-    const client = await pool.connect()
+    const client = await this.db.connect()
 
     try {
       // Search for relevant context
@@ -292,10 +293,10 @@ export class DocumentRAGService {
 
       if (searchResults.length === 0) {
         return {
-          answer: "I couldn"t find any relevant information in the documents to answer your question.",
+          answer: "I couldn't find any relevant information in the documents to answer your question.",
           sources: [],
           confidence: 0,
-          query_id: ``
+          query_id: ''
         }
       }
 
@@ -312,7 +313,7 @@ export class DocumentRAGService {
 
       if (!this.openai) {
         // Mock answer for development
-        answer = `Based on the documents, here`s what I found: ${searchResults[0].chunk_text.substring(0, 200)}... (Note: Using mock AI response - configure OpenAI API key for full functionality)`
+        answer = `Based on the documents, here's what I found: ${searchResults[0].chunk_text.substring(0, 200)}... (Note: Using mock AI response - configure OpenAI API key for full functionality)`
         confidence = 0.5
       } else {
         const response = await this.openai.chat.completions.create({
@@ -322,7 +323,7 @@ export class DocumentRAGService {
               role: 'system',
               content: `You are a helpful assistant that answers questions based on fleet management documents.
               Use the provided context to answer questions accurately. If the context doesn't contain enough information,
-              say so clearly. Always cite which source you're using in your answer.'
+              say so clearly. Always cite which source you're using in your answer.`
             },
             {
               role: 'user',
@@ -333,7 +334,7 @@ export class DocumentRAGService {
           max_tokens: 500
         })
 
-        answer = response.choices[0].message.content || `Unable to generate answer`
+        answer = response.choices[0].message.content || 'Unable to generate answer'
         confidence = 0.85 // Could be calculated based on search scores
       }
 
@@ -347,7 +348,7 @@ export class DocumentRAGService {
           response_text, matched_documents, matched_chunks,
           relevance_scores, execution_time_ms
         ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-        RETURNING id',
+        RETURNING id`,
         [
           tenantId,
           userId,
@@ -368,7 +369,7 @@ export class DocumentRAGService {
         query_id: queryResult.rows[0].id
       }
     } catch (error) {
-      console.error('Error answering question:', error)
+      this.logger.error('Error answering question:', error)
       throw error
     } finally {
       client.release()
@@ -387,7 +388,7 @@ export class DocumentRAGService {
         drq.*,
         u.first_name || ' ' || u.last_name as user_name,
         (
-          SELECT json_agg(json_build_object('id', d.id, `name`, d.file_name))
+          SELECT json_agg(json_build_object('id', d.id, 'name', d.file_name))
           FROM documents d
           WHERE d.id = ANY(drq.matched_documents)
         ) as documents
@@ -408,7 +409,7 @@ export class DocumentRAGService {
     query += ` ORDER BY drq.created_at DESC LIMIT $${paramCount + 1}`
     params.push(options?.limit || 50)
 
-    const result = await pool.query(query, params)
+    const result = await this.db.query(query, params)
     return result.rows
   }
 
@@ -420,7 +421,7 @@ export class DocumentRAGService {
     rating: number,
     comment?: string
   ): Promise<void> {
-    await pool.query(
+    await this.db.query(
       `UPDATE document_rag_queries
        SET feedback_rating = $1, feedback_comment = $2
        WHERE id = $3`,
@@ -433,19 +434,19 @@ export class DocumentRAGService {
    */
   async getAnalytics(tenantId: string): Promise<any> {
     const [totalQueries, avgRating, topQueries, recentQueries] = await Promise.all([
-      pool.query(
+      this.db.query(
         `SELECT COUNT(*) as total, AVG(execution_time_ms) as avg_time
          FROM document_rag_queries
-         WHERE tenant_id = $1',
+         WHERE tenant_id = $1`,
         [tenantId]
       ),
-      pool.query(
+      this.db.query(
         `SELECT AVG(feedback_rating) as avg_rating, COUNT(*) as rated_count
          FROM document_rag_queries
          WHERE tenant_id = $1 AND feedback_rating IS NOT NULL`,
         [tenantId]
       ),
-      pool.query(
+      this.db.query(
         `SELECT query_text, COUNT(*) as count
          FROM document_rag_queries
          WHERE tenant_id = $1
@@ -454,10 +455,10 @@ export class DocumentRAGService {
          LIMIT 10`,
         [tenantId]
       ),
-      pool.query(
+      this.db.query(
         `SELECT COUNT(*) as count
          FROM document_rag_queries
-         WHERE tenant_id = $1 AND created_at > NOW() - INTERVAL '7 days'',
+         WHERE tenant_id = $1 AND created_at > NOW() - INTERVAL '7 days'`,
         [tenantId]
       )
     ])
@@ -473,4 +474,4 @@ export class DocumentRAGService {
   }
 }
 
-export default new DocumentRAGService()
+export default DocumentRAGService
