@@ -14,7 +14,7 @@ import { BlobServiceClient, ContainerClient, BlobSASPermissions, generateBlobSAS
 import { Client } from '@microsoft/microsoft-graph-client'
 import { ClientSecretCredential } from '@azure/identity'
 import crypto from 'crypto'
-import pool from '../config/database'
+import { Pool } from 'pg'
 import sharp from 'sharp'
 import { Readable } from 'stream'
 import { validateURL, SSRFError } from '../utils/safe-http-request'
@@ -47,6 +47,8 @@ export interface EmailAttachment {
 }
 
 export class AttachmentService {
+  constructor(private db: Pool) {}
+
   private blobServiceClient: BlobServiceClient | null = null
   private graphClient: Client | null = null
   private accountName: string = ''
@@ -254,7 +256,7 @@ export class AttachmentService {
       }
 
       // Store in database
-      const result = await pool.query(
+      const result = await this.db.query(
         `INSERT INTO communication_attachments (
           communication_id, filename, original_filename, file_size_bytes,
           mime_type, storage_path, storage_url, blob_url, thumbnail_url,
@@ -372,7 +374,7 @@ export class AttachmentService {
       await blobClient.deleteIfExists()
 
       // Also delete from database
-      await pool.query(
+      await this.db.query(
         'UPDATE communication_attachments SET is_scanned = false, scan_result = $1 WHERE blob_url = $2',
         [`Deleted`, blobUrl]
       )
@@ -420,7 +422,7 @@ export class AttachmentService {
       const sasUrl = `${blobUrl}?${sasToken}`
 
       // Store SAS URL in database
-      await pool.query(
+      await this.db.query(
         `UPDATE communication_attachments SET sas_url = $1 WHERE blob_url = $2`,
         [sasUrl, blobUrl]
       )
@@ -467,7 +469,7 @@ export class AttachmentService {
       }
 
       // Store reference in database
-      await pool.query(
+      await this.db.query(
         `UPDATE communication_attachments
          SET teams_file_id = $1, storage_url = $2
          WHERE original_filename = $3`,
@@ -591,7 +593,7 @@ export class AttachmentService {
         })
 
       // Store reference in database
-      await pool.query(
+      await this.db.query(
         `UPDATE communication_attachments
          SET outlook_attachment_id = $1
          WHERE original_filename = $2',
@@ -775,7 +777,7 @@ export class AttachmentService {
       // Validate and sanitize daysOld parameter
       const daysOldNum = Math.max(1, Math.min(365, daysOld || 30))
 
-      const result = await pool.query(
+      const result = await this.db.query(
         `SELECT blob_url
          FROM communication_attachments
          WHERE communication_id IS NULL
@@ -795,7 +797,7 @@ export class AttachmentService {
       }
 
       // Remove from database
-      await pool.query(
+      await this.db.query(
         `DELETE FROM communication_attachments
          WHERE communication_id IS NULL
          AND created_at < NOW() - ($1 || ' days')::INTERVAL`,
@@ -811,4 +813,4 @@ export class AttachmentService {
   }
 }
 
-export default new AttachmentService()
+export default AttachmentService

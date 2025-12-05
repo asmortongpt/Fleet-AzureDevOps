@@ -23,7 +23,7 @@
 interface User {
   id: string
   tenant_id: number
-  scope_level?: `own` | `team` | `fleet' | 'global'
+  scope_level?: 'own' | 'team' | 'fleet' | 'global'
   vehicle_id?: string
   driver_id?: string
   team_vehicle_ids?: string[]

@@ -14,7 +14,7 @@
 
 import { ComputerVisionClient } from '@azure/cognitiveservices-computervision'
 import { ApiKeyCredentials } from '@azure/ms-rest-js'
-import pool from '../config/database'
+import { Pool } from 'pg'
 
 // Azure Computer Vision configuration
 const AZURE_CV_ENDPOINT = process.env.AZURE_COMPUTER_VISION_ENDPOINT
@@ -85,7 +85,11 @@ function sleep(ms: number): Promise<void> {
  * @param mimeType - MIME type of the document (e.g., `application/pdf`, `image/jpeg`)
  * @returns Extracted text and confidence score
  */
-export async function extractText(
+
+export class OcrService {
+  constructor(private db: Pool) {}
+
+  async extractText(
   blobUrl: string,
   mimeType: string
 ): Promise<OcrResult> {
@@ -202,10 +206,10 @@ export async function extractText(
  *
  * @param documentId - UUID of the document in the documents table
  */
-export async function processDocument(documentId: string): Promise<void> {
+  async processDocument(documentId: string): Promise<void> {
   try {
     // Fetch document details
-    const result = await pool.query(
+    const result = await this.db.query(
       `SELECT id, blob_url, mime_type, file_name
        FROM documents
        WHERE id = $1`,
@@ -220,10 +224,10 @@ export async function processDocument(documentId: string): Promise<void> {
     console.log(`🔍 Processing document: ${doc.file_name} (${doc.mime_type})`)
 
     // Extract text
-    const ocrResult = await extractText(doc.blob_url, doc.mime_type)
+    const ocrResult = await this.extractText(doc.blob_url, doc.mime_type)
 
     // Update database with OCR text
-    await pool.query(
+    await this.db.query(
       `UPDATE documents
        SET ocr_text = $1,
            ocr_confidence = $2,
@@ -238,7 +242,7 @@ export async function processDocument(documentId: string): Promise<void> {
     console.error(`❌ Failed to process document ${documentId}:`, error)
 
     // Update document with error status
-    await pool.query(
+    await this.db.query(
       `UPDATE documents
        SET ocr_error = $1,
            ocr_processed_at = CURRENT_TIMESTAMP,
@@ -257,7 +261,7 @@ export async function processDocument(documentId: string): Promise<void> {
  * @param documentIds - Array of document UUIDs to process
  * @returns Results summary with successful and failed documents
  */
-export async function batchProcessDocuments(
+  async batchProcessDocuments(
   documentIds: string[]
 ): Promise<ProcessingResults> {
   const results: ProcessingResults = {
@@ -271,7 +275,7 @@ export async function batchProcessDocuments(
   // Process documents sequentially to avoid rate limits
   for (const documentId of documentIds) {
     try {
-      await processDocument(documentId)
+      await this.processDocument(documentId)
       results.successful.push(documentId)
     } catch (error) {
       results.failed.push({
@@ -296,7 +300,7 @@ export async function batchProcessDocuments(
  * @param limit - Maximum number of documents to return
  * @returns Array of documents pending OCR
  */
-export async function getDocumentsPendingOcr(
+  async getDocumentsPendingOcr(
   tenantId?: string,
   limit: number = 50
 ): Promise<any[]> {
@@ -321,34 +325,27 @@ export async function getDocumentsPendingOcr(
     ? [tenantId, SUPPORTED_MIME_TYPES, limit]
     : [SUPPORTED_MIME_TYPES, limit]
 
-  const result = await pool.query(query, params)
+  const result = await this.db.query(query, params)
   return result.rows
 }
 
 /**
  * Check if Azure Computer Vision is configured
  */
-export function isOcrConfigured(): boolean {
+  isOcrConfigured(): boolean {
   return !!(AZURE_CV_ENDPOINT && AZURE_CV_KEY)
 }
 
 /**
  * Get OCR service status
  */
-export function getOcrStatus() {
+  getOcrStatus() {
   return {
-    configured: isOcrConfigured(),
+    configured: this.isOcrConfigured(),
     endpoint: AZURE_CV_ENDPOINT ? '***configured***' : 'not configured',
     supportedFormats: SUPPORTED_MIME_TYPES
   }
 }
-
-export default {
-  extractText,
-  processDocument,
-  batchProcessDocuments,
-  getDocumentsPendingOcr,
-  isOcrConfigured,
-  getOcrStatus,
-  SUPPORTED_MIME_TYPES
 }
+
+export default OcrService

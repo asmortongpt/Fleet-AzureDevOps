@@ -1,3 +1,6 @@
+// Initialize Datadog APM FIRST (must be before ALL other imports)
+import './config/datadog'
+
 // Initialize monitoring services FIRST (before other imports)
 import telemetryService from './monitoring/applicationInsights'
 telemetryService.initialize()
@@ -7,23 +10,24 @@ import {
   sentryRequestHandler,
   sentryTracingHandler,
   sentryErrorHandler,
-  notFoundHandler,
-  handleUnhandledRejection,
-  handleUncaughtException,
-  handleGracefulShutdown
+  notFoundHandler
 } from './middleware/sentryErrorHandler'
+
+// ARCHITECTURE FIX: Import new error handling infrastructure
+import { errorHandler } from './middleware/errorHandler'
+import { initializeProcessErrorHandlers } from './middleware/processErrorHandlers'
 
 // Initialize Sentry
 sentryService.init()
 
-// Set up process error handlers
-handleUnhandledRejection()
-handleUncaughtException()
-handleGracefulShutdown()
-
 import express from 'express'
 import cors from 'cors'
-import helmet from 'helmet'
+
+// Security middleware
+import { securityHeaders } from './middleware/security-headers'
+import { getCorsConfig, validateCorsConfiguration } from './middleware/corsConfig'
+import { globalLimiter, smartRateLimiter } from './middleware/rateLimiter'
+import { csrfProtection, getCsrfToken } from './middleware/csrf'
 
 // Core Fleet Management Routes
 import vehiclesRouter from './routes/vehicles'
@@ -135,6 +139,7 @@ import permissionsRouter from './routes/permissions'
 // Authentication & User Management Routes
 import authRouter from './routes/auth'
 import microsoftAuthRouter from './routes/microsoft-auth'
+import sessionRevocationRouter from './routes/session-revocation'
 import breakGlassRouter from './routes/break-glass'
 
 // External Integrations Routes
@@ -169,21 +174,55 @@ import { telemetryMiddleware, errorTelemetryMiddleware, performanceMiddleware } 
 const app = express()
 const PORT = process.env.PORT || 3001
 
+// Validate CORS configuration at startup
+validateCorsConfiguration()
+
 // Sentry request handler must be the first middleware
 app.use(sentryRequestHandler())
 
 // Sentry tracing handler for performance monitoring
 app.use(sentryTracingHandler())
 
-// Security middleware
-app.use(helmet({
-  contentSecurityPolicy: false, // Configure as needed
-  crossOriginEmbedderPolicy: false
+// ===========================================================================
+// SECURITY MIDDLEWARE (Applied in correct order)
+// ===========================================================================
+
+// 1. Security Headers - Must be first to set headers on all responses
+app.use(securityHeaders({
+  hsts: {
+    maxAge: 31536000, // 1 year
+    includeSubDomains: true,
+    preload: true
+  },
+  csp: {
+    directives: {
+      'default-src': ["'self'"],
+      'script-src': ["'self'"],
+      'style-src': ["'self'", "'unsafe-inline'"], // For Swagger UI
+      'img-src': ["'self'", 'data:', 'https:'],
+      'connect-src': ["'self'", process.env.AZURE_OPENAI_ENDPOINT || ''].filter(Boolean),
+      'font-src': ["'self'"],
+      'object-src': ["'none'"],
+      'frame-src': ["'none'"],
+      'base-uri': ["'self'"],
+      'form-action': ["'self'"]
+    }
+  },
+  frameOptions: 'DENY',
+  contentTypeOptions: true,
+  xssProtection: true,
+  referrerPolicy: 'strict-origin-when-cross-origin'
 }))
 
-app.use(cors())
+// 2. CORS Configuration - Strict origin validation
+app.use(cors(getCorsConfig()))
+
+// 3. Body Parsers - After security headers and CORS
 app.use(express.json({ limit: '10mb' }))
 app.use(express.urlencoded({ extended: true, limit: '10mb' }))
+
+// 4. Global Rate Limiting - Apply to all routes to prevent DoS attacks
+app.use(globalLimiter)
 
 // Add telemetry middleware
 app.use(telemetryMiddleware)
@@ -196,6 +235,11 @@ app.use((req, res, next) => {
     next()
   }
 })
+
+// CSRF Token endpoint
+app.get('/api/csrf-token', csrfProtection, getCsrfToken)
+app.get('/api/v1/csrf-token', csrfProtection, getCsrfToken)
+app.get('/api/csrf', csrfProtection, getCsrfToken)
 
 // Health check
 app.get('/health', (_req, res) => {
@@ -338,6 +382,7 @@ app.use('/api/permissions', permissionsRouter)
 
 // Authentication & User Management Routes
 app.use('/api/auth', authRouter)
+app.use('/api/auth', sessionRevocationRouter) // Session revocation endpoints (/revoke, /revoke/status)
 app.use('/api/microsoft-auth', microsoftAuthRouter)
 app.use('/api/break-glass', breakGlassRouter)
 
@@ -374,6 +419,10 @@ app.use(notFoundHandler())
 // Add error telemetry middleware
 app.use(errorTelemetryMiddleware)
 
+// ARCHITECTURE FIX: Add custom error handler BEFORE Sentry
+// This handles ApplicationError instances with proper status codes
+app.use(errorHandler)
+
 // Sentry error handler must be the last middleware
 app.use(sentryErrorHandler())
 
@@ -397,6 +446,9 @@ const server = app.listen(PORT, () => {
   console.log(`📊 Application Insights: ${telemetryService.isActive() ? 'Enabled' : 'Disabled'}`)
   console.log(`🔍 Sentry: ${process.env.SENTRY_DSN ? 'Enabled' : 'Disabled (no DSN configured)'}`)
   console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`)
+
+  // ARCHITECTURE FIX: Initialize process-level error handlers
+  initializeProcessErrorHandlers(server)
 
   // Track server startup in both monitoring systems
   telemetryService.trackEvent('ServerStartup', {

@@ -4,7 +4,7 @@
  * and calendar integrations (Microsoft + Google)
  */
 
-import pool from '../config/database'
+import { Pool } from 'pg'
 import * as microsoftCalendar from './calendar.service'
 import * as googleCalendar from './google-calendar.service'
 import { QueryResult } from 'pg'
@@ -57,7 +57,11 @@ interface ServiceBaySchedule {
 /**
  * Check for scheduling conflicts for a vehicle
  */
-export async function checkVehicleConflicts(
+
+export class SchedulingService {
+  constructor(private db: Pool) {}
+
+  async checkVehicleConflicts(
   tenantId: string,
   vehicleId: string,
   startTime: Date,
@@ -90,7 +94,7 @@ export async function checkVehicleConflicts(
       params.push(excludeReservationId)
     }
 
-    const reservations = await pool.query(query, params)
+    const reservations = await this.db.query(query, params)
 
     if (reservations.rows.length > 0) {
       conflicts.push({
@@ -102,7 +106,7 @@ export async function checkVehicleConflicts(
     }
 
     // Check maintenance appointments
-    const maintenance = await pool.query(
+    const maintenance = await this.db.query(
       `SELECT sbs.*, v.make, v.model, v.license_plate,
               sb.bay_name, at.name as appointment_type
        FROM service_bay_schedules sbs
@@ -130,7 +134,7 @@ export async function checkVehicleConflicts(
     }
 
     // Check if vehicle is out of service
-    const vehicle = await pool.query(
+    const vehicle = await this.db.query(
       'SELECT status FROM vehicles WHERE id = $1',
       [vehicleId]
     )
@@ -155,7 +159,7 @@ export async function checkVehicleConflicts(
 /**
  * Check for service bay conflicts
  */
-export async function checkServiceBayConflicts(
+  async checkServiceBayConflicts(
   tenantId: string,
   serviceBayId: string,
   startTime: Date,
@@ -187,7 +191,7 @@ export async function checkServiceBayConflicts(
       params.push(excludeScheduleId)
     }
 
-    const schedules = await pool.query(query, params)
+    const schedules = await this.db.query(query, params)
 
     if (schedules.rows.length > 0) {
       conflicts.push({
@@ -209,7 +213,7 @@ export async function checkServiceBayConflicts(
 /**
  * Check technician availability
  */
-export async function checkTechnicianAvailability(
+  async checkTechnicianAvailability(
   tenantId: string,
   technicianId: string,
   startTime: Date,
@@ -219,7 +223,7 @@ export async function checkTechnicianAvailability(
 
   try {
     // Check technician availability records
-    const availability = await pool.query(
+    const availability = await this.db.query(
       `SELECT id, tenant_id, technician_id, day_of_week, start_time, end_time, created_at, updated_at FROM technician_availability
        WHERE tenant_id = $1
          AND technician_id = $2
@@ -242,7 +246,7 @@ export async function checkTechnicianAvailability(
     }
 
     // Check existing service bay schedules
-    const schedules = await pool.query(
+    const schedules = await this.db.query(
       `SELECT sbs.*, v.make, v.model, v.license_plate, sb.bay_name
        FROM service_bay_schedules sbs
        LEFT JOIN vehicles v ON sbs.vehicle_id = v.id
@@ -281,12 +285,12 @@ export async function checkTechnicianAvailability(
 /**
  * Create vehicle reservation with calendar sync
  */
-export async function createVehicleReservation(
+  async createVehicleReservation(
   tenantId: string,
   reservation: VehicleReservation,
   syncToCalendar: boolean = true
 ): Promise<any> {
-  const client = await pool.connect()
+  const client = await this.db.connect()
 
   try {
     await client.query('BEGIN')
@@ -358,13 +362,13 @@ export async function createVehicleReservation(
 /**
  * Create maintenance appointment with service bay and calendar sync
  */
-export async function createMaintenanceAppointment(
+  async createMaintenanceAppointment(
   tenantId: string,
   appointment: MaintenanceAppointment,
   userId: string,
   syncToCalendar: boolean = true
 ): Promise<any> {
-  const client = await pool.connect()
+  const client = await this.db.connect()
 
   try {
     await client.query('BEGIN')
@@ -458,7 +462,7 @@ export async function createMaintenanceAppointment(
 /**
  * Find available service bays
  */
-export async function findAvailableServiceBays(
+  async findAvailableServiceBays(
   tenantId: string,
   facilityId: string,
   startTime: Date,
@@ -492,7 +496,7 @@ export async function findAvailableServiceBays(
 
     query += ' GROUP BY sb.id, f.name HAVING COUNT(sbs.id) = 0 ORDER BY sb.bay_number'
 
-    const result = await pool.query(query, params)
+    const result = await this.db.query(query, params)
 
     return result.rows
   } catch (error) {
@@ -504,7 +508,7 @@ export async function findAvailableServiceBays(
 /**
  * Find available vehicles for reservation
  */
-export async function findAvailableVehicles(
+  async findAvailableVehicles(
   tenantId: string,
   startTime: Date,
   endTime: Date,
@@ -546,7 +550,7 @@ export async function findAvailableVehicles(
       ORDER BY v.make, v.model
     `
 
-    const result = await pool.query(query, params)
+    const result = await this.db.query(query, params)
 
     return result.rows
   } catch (error) {
@@ -565,7 +569,7 @@ async function syncReservationToCalendars(
 ): Promise<void> {
   try {
     // Get vehicle details
-    const vehicle = await pool.query(
+    const vehicle = await this.db.query(
       `SELECT
       id,
       tenant_id,
@@ -614,7 +618,7 @@ async function syncReservationToCalendars(
     `
 
     // Get enabled calendar integrations
-    const integrations = await pool.query(
+    const integrations = await this.db.query(
       `SELECT id, tenant_id, user_id, calendar_type, calendar_id, is_synced, last_sync_at, created_at, updated_at FROM calendar_integrations
        WHERE user_id = $1 AND is_enabled = true`,
       [userId]
@@ -652,7 +656,7 @@ async function syncReservationToCalendars(
             ? 'microsoft_event_id'
             : 'google_event_id'
 
-          await pool.query(
+          await this.db.query(
             `UPDATE vehicle_reservations SET ${updateField} = $1 WHERE id = $2`,
             [eventId, reservation.id]
           )
@@ -679,7 +683,7 @@ async function syncMaintenanceToCalendars(
 ): Promise<void> {
   try {
     // Get appointment details
-    const details = await pool.query(
+    const details = await this.db.query(
       `SELECT sbs.*, v.make, v.model, v.license_plate, v.vin,
               at.name as appointment_type, sb.bay_name,
               u.first_name || ' ' || u.last_name as technician_name
@@ -710,7 +714,7 @@ async function syncMaintenanceToCalendars(
       userIds.push(appt.assigned_technician_id)
     }
 
-    const integrations = await pool.query(
+    const integrations = await this.db.query(
       `SELECT id, tenant_id, user_id, calendar_type, calendar_id, is_synced, last_sync_at, created_at, updated_at FROM calendar_integrations
        WHERE user_id = ANY($1) AND is_enabled = true`,
       [userIds]
@@ -748,7 +752,7 @@ async function syncMaintenanceToCalendars(
             ? 'microsoft_event_id'
             : 'google_event_id'
 
-          await pool.query(
+          await this.db.query(
             `UPDATE service_bay_schedules SET ${updateField} = $1 WHERE id = $2`,
             [eventId, appointment.id]
           )
@@ -768,7 +772,7 @@ async function syncMaintenanceToCalendars(
 /**
  * Get upcoming reservations for a user
  */
-export async function getUpcomingReservations(
+  async getUpcomingReservations(
   tenantId: string,
   userId: string,
   daysAhead: number = 7
@@ -777,7 +781,7 @@ export async function getUpcomingReservations(
     // Validate and sanitize daysAhead parameter
     const daysAheadNum = Math.max(1, Math.min(365, daysAhead || 7))
 
-    const result = await pool.query(
+    const result = await this.db.query(
       `SELECT vr.*, v.make, v.model, v.license_plate, v.vin,
               u.first_name || ' ' || u.last_name as driver_name
        FROM vehicle_reservations vr
@@ -803,7 +807,7 @@ export async function getUpcomingReservations(
 /**
  * Get vehicle schedule (reservations + maintenance)
  */
-export async function getVehicleSchedule(
+  async getVehicleSchedule(
   tenantId: string,
   vehicleId: string,
   startDate: Date,
@@ -811,7 +815,7 @@ export async function getVehicleSchedule(
 ): Promise<any> {
   try {
     // Get reservations
-    const reservations = await pool.query(
+    const reservations = await this.db.query(
       'SELECT vr.*, u.first_name || ' ' || u.last_name as reserved_by_name,
               du.first_name || ' ' || du.last_name as driver_name
        FROM vehicle_reservations vr
@@ -828,7 +832,7 @@ export async function getVehicleSchedule(
     )
 
     // Get maintenance appointments
-    const maintenance = await pool.query(
+    const maintenance = await this.db.query(
       `SELECT sbs.*, at.name as appointment_type, sb.bay_name,
               u.first_name || ' ' || u.last_name as technician_name
        FROM service_bay_schedules sbs
@@ -865,3 +869,7 @@ export default {
   getUpcomingReservations,
   getVehicleSchedule
 }
+
+}
+
+export default SchedulingService

@@ -1,38 +1,24 @@
 {
   "compilerOptions": {
-    "target": "ES2022",
+    "target": "ES2020",
     "module": "commonjs",
-    "lib": ["ES2022"],
-    "outDir": "./dist",
-    "rootDir": "./src",
-    // Enable strict mode for type safety - ALL CHECKS ENABLED
+    "lib": ["ES2020"],
     "strict": true,
-    // CRITICAL: Fail on errors - ENABLED FOR 100% COMPLIANCE
     "noEmitOnError": true,
-    // ALL strict checks enabled for full type safety
-    "strictNullChecks": true,
-    "strictFunctionTypes": true,
-    "strictBindCallApply": true,
-    "strictPropertyInitialization": true,
-    "noImplicitThis": true,
-    "noImplicitAny": true,
-    "alwaysStrict": true,
-    // Code quality checks - ALL ENABLED FOR 100% COMPLIANCE
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
-    // Module resolution and interop
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "resolveJsonModule": true,
     "moduleResolution": "node",
-    // Source map generation
-    "declaration": true,
-    "declarationMap": true,
-    "sourceMap": true
+    "resolveJsonModule": true,
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true
   },
   "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist", "tests", "src/**/*.test.ts", "src/**/__tests__/**", "src/__tests__/**", "src/examples/**"]
+  "exclude": ["node_modules", "dist"]
 }
