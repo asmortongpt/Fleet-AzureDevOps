@@ -263,7 +263,7 @@ router.get('/stats', requirePermission('report:view:global'), async (req: AuthRe
  *       500:
  *         description: Server error
  */
-router.post('/:id/acknowledge',csrfProtection,  csrfProtection, requirePermission('report:view:global'), async (req: AuthRequest, res) => {
+router.post('/:id/acknowledge',csrfProtection, requirePermission('report:view:global'), async (req: AuthRequest, res) => {
   try {
     const { id } = req.params
     const userId = req.user?.id
@@ -329,7 +329,7 @@ router.post('/:id/acknowledge',csrfProtection,  csrfProtection, requirePermissio
  *       500:
  *         description: Server error
  */
-router.post('/:id/resolve',csrfProtection,  csrfProtection, requirePermission('report:view:global'), async (req: AuthRequest, res) => {
+router.post('/:id/resolve',csrfProtection, requirePermission('report:view:global'), async (req: AuthRequest, res) => {
   try {
     const { id } = req.params
     const { resolution_notes } = req.body
@@ -452,7 +452,7 @@ router.get('/rules', requirePermission('report:view:global'), async (req: AuthRe
  *       500:
  *         description: Server error
  */
-router.post('/rules',csrfProtection,  csrfProtection, requirePermission('report:generate:global'), async (req: AuthRequest, res) => {
+router.post('/rules',csrfProtection, requirePermission('report:generate:global'), async (req: AuthRequest, res) => {
   try {
     // SECURITY: Validate input data
     const validatedData = createAlertRuleSchema.parse(req.body)
@@ -535,7 +535,7 @@ router.post('/rules',csrfProtection,  csrfProtection, requirePermission('report:
  *       500:
  *         description: Server error
  */
-router.put('/rules/:id',csrfProtection,  csrfProtection, requirePermission('report:generate:global'), async (req: AuthRequest, res) => {
+router.put('/rules/:id',csrfProtection, requirePermission('report:generate:global'), async (req: AuthRequest, res) => {
   try {
     // SECURITY: Validate input data
     const validatedData = updateAlertRuleSchema.parse(req.body)
@@ -620,7 +620,7 @@ router.put('/rules/:id',csrfProtection,  csrfProtection, requirePermission('repo
  *       500:
  *         description: Server error
  */
-router.delete('/rules/:id',csrfProtection,  csrfProtection, requirePermission('report:generate:global'), async (req: AuthRequest, res) => {
+router.delete('/rules/:id',csrfProtection, requirePermission('report:generate:global'), async (req: AuthRequest, res) => {
   try {
     const { id } = req.params
     const tenantId = req.user?.tenant_id
@@ -737,7 +737,7 @@ router.get(`/notifications`, requirePermission(`report:view:global`), async (req
  *       500:
  *         description: Server error
  */
-router.post('/notifications/:id/read',csrfProtection,  csrfProtection, requirePermission('report:view:global'), async (req: AuthRequest, res) => {
+router.post('/notifications/:id/read',csrfProtection, requirePermission('report:view:global'), async (req: AuthRequest, res) => {
   try {
     const { id } = req.params
     const userId = req.user?.id
@@ -780,7 +780,7 @@ router.post('/notifications/:id/read',csrfProtection,  csrfProtection, requirePe
  *       500:
  *         description: Server error
  */
-router.post('/notifications/read-all',csrfProtection,  csrfProtection, requirePermission('report:view:global'), async (req: AuthRequest, res) => {
+router.post('/notifications/read-all',csrfProtection, requirePermission('report:view:global'), async (req: AuthRequest, res) => {
   try {
     const userId = req.user?.id
 

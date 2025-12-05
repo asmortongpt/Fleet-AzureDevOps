@@ -209,7 +209,7 @@ router.get(
  */
 router.post(
   '/',
- csrfProtection,  csrfProtection, requirePermission('vendor:create:global'),
+ csrfProtection, requirePermission('vendor:create:global'),
   auditLog({ action: 'CREATE', resourceType: 'vendors' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -255,7 +255,7 @@ router.post(
  */
 router.put(
   '/:id',
- csrfProtection,  csrfProtection, requirePermission('vendor:update:global'),
+ csrfProtection, requirePermission('vendor:update:global'),
   auditLog({ action: 'UPDATE', resourceType: 'vendors' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -306,7 +306,7 @@ router.put(
  */
 router.delete(
   '/:id',
- csrfProtection,  csrfProtection, requirePermission('vendor:delete:global'),
+ csrfProtection, requirePermission('vendor:delete:global'),
   auditLog({ action: 'DELETE', resourceType: 'vendors' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -332,7 +332,7 @@ router.delete(
  */
 router.post(
   '/:id/deactivate',
- csrfProtection,  csrfProtection, requirePermission('vendor:update:global'),
+ csrfProtection, requirePermission('vendor:update:global'),
   auditLog({ action: 'UPDATE', resourceType: 'vendors' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -358,7 +358,7 @@ router.post(
  */
 router.post(
   '/bulk',
- csrfProtection,  csrfProtection, requirePermission('vendor:create:global'),
+ csrfProtection, requirePermission('vendor:create:global'),
   auditLog({ action: 'CREATE', resourceType: 'vendors' }),
   async (req: AuthRequest, res: Response) => {
     try {

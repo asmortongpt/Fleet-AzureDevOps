@@ -112,7 +112,7 @@ const OptimizationRequestSchema = z.object({
  */
 router.post(
   '/optimize',
- csrfProtection,  csrfProtection, requirePermission('route:create:fleet'),
+ csrfProtection, requirePermission('route:create:fleet'),
   auditLog({ action: 'CREATE', resourceType: 'route_optimization' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -444,7 +444,7 @@ router.get(
  */
 router.put(
   '/routes/:id/update',
- csrfProtection,  csrfProtection, requirePermission('route:update:fleet'),
+ csrfProtection, requirePermission('route:update:fleet'),
   auditLog({ action: 'UPDATE', resourceType: 'route_optimization' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -486,7 +486,7 @@ router.put(
  */
 router.post(
   '/routes/:id/stops/:stopId/complete',
- csrfProtection,  csrfProtection, requirePermission('route:update:fleet'),
+ csrfProtection, requirePermission('route:update:fleet'),
   auditLog({ action: 'UPDATE', resourceType: 'route_optimization' }),
   async (req: AuthRequest, res: Response) => {
     try {

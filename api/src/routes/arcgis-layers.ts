@@ -141,7 +141,7 @@ router.get('/:id', requirePermission('geofence:view:fleet'), async (req: AuthReq
  */
 router.post(
   '/',
- csrfProtection,  csrfProtection, requirePermission('geofence:create:fleet'),
+ csrfProtection, requirePermission('geofence:create:fleet'),
   async (req: AuthRequest, res: Response) => {
     const tenantId = req.user!.tenant_id
 
@@ -206,7 +206,7 @@ router.post(
  */
 router.put(
   '/:id',
- csrfProtection,  csrfProtection, requirePermission(`geofence:create:fleet`),
+ csrfProtection, requirePermission(`geofence:create:fleet`),
   async (req: AuthRequest, res: Response) => {
     const tenantId = req.user!.tenant_id
     const { id } = req.params
@@ -320,7 +320,7 @@ router.put(
  */
 router.delete(
   '/:id',
- csrfProtection,  csrfProtection, requirePermission('geofence:create:fleet'),
+ csrfProtection, requirePermission('geofence:create:fleet'),
   async (req: AuthRequest, res: Response) => {
     const tenantId = req.user!.tenant_id
     const { id } = req.params

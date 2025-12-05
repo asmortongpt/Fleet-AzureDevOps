@@ -314,7 +314,7 @@ router.get('/:id', authenticateJWT, async (req: AuthRequest, res: Response) => {
 // Create new vehicle reservation
 // ============================================
 
-router.post('/',csrfProtection,  csrfProtection, authenticateJWT, async (req: AuthRequest, res: Response) => {
+router.post('/',csrfProtection, authenticateJWT, async (req: AuthRequest, res: Response) => {
   try {
     const data = createReservationSchema.parse(req.body);
     const currentUser = req.user!;
@@ -460,7 +460,7 @@ router.post('/',csrfProtection,  csrfProtection, authenticateJWT, async (req: Au
 // Update reservation
 // ============================================
 
-router.put('/:id',csrfProtection,  csrfProtection, authenticateJWT, async (req: AuthRequest, res: Response) => {
+router.put('/:id',csrfProtection, authenticateJWT, async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;
     const data = updateReservationSchema.parse(req.body);
@@ -597,7 +597,7 @@ router.put('/:id',csrfProtection,  csrfProtection, authenticateJWT, async (req: 
 // Cancel reservation (soft delete)
 // ============================================
 
-router.delete('/:id',csrfProtection,  csrfProtection, authenticateJWT, async (req: AuthRequest, res: Response) => {
+router.delete('/:id',csrfProtection, authenticateJWT, async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;
     const currentUser = req.user!;
@@ -671,7 +671,7 @@ router.delete('/:id',csrfProtection,  csrfProtection, authenticateJWT, async (re
 // Approve or reject reservation (FleetManager, Admin)
 // ============================================
 
-router.post('/:id/approve',csrfProtection,  csrfProtection, authenticateJWT, async (req: AuthRequest, res: Response) => {
+router.post('/:id/approve',csrfProtection, authenticateJWT, async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;
     const data = approvalActionSchema.parse(req.body);

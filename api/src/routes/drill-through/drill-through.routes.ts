@@ -124,7 +124,7 @@ router.get('/:entityType/export', async (req: Request, res: Response) => {
  * Track drill-through analytics
  * POST /api/drill-through/analytics
  */
-router.post('/analytics',csrfProtection,  csrfProtection, async (req: Request, res: Response) => {
+router.post('/analytics',csrfProtection, async (req: Request, res: Response) => {
   try {
     const { entityType, filters, recordCount, exported, exportFormat } = req.body;
     const userId = (req as any).user?.id || null;

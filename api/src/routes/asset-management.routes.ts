@@ -190,7 +190,7 @@ router.get('/:id', requirePermission('vehicle:view:fleet'), async (req: AuthRequ
  *     summary: Create new asset
  *     tags: [Assets]
  */
-router.post('/',csrfProtection,  csrfProtection, requirePermission('vehicle:create:fleet'), async (req: AuthRequest, res) => {
+router.post('/',csrfProtection, requirePermission('vehicle:create:fleet'), async (req: AuthRequest, res) => {
   const client = await pool.connect()
 
   try {
@@ -269,7 +269,7 @@ router.post('/',csrfProtection,  csrfProtection, requirePermission('vehicle:crea
  *     summary: Update asset
  *     tags: [Assets]
  */
-router.put('/:id',csrfProtection,  csrfProtection, requirePermission('vehicle:update:fleet'), async (req: AuthRequest, res) => {
+router.put('/:id',csrfProtection, requirePermission('vehicle:update:fleet'), async (req: AuthRequest, res) => {
   const client = await pool.connect()
 
   try {
@@ -344,7 +344,7 @@ router.put('/:id',csrfProtection,  csrfProtection, requirePermission('vehicle:up
  *     summary: Assign asset to user
  *     tags: [Assets]
  */
-router.post('/:id/assign',csrfProtection,  csrfProtection, requirePermission('vehicle:update:fleet'), async (req: AuthRequest, res) => {
+router.post('/:id/assign',csrfProtection, requirePermission('vehicle:update:fleet'), async (req: AuthRequest, res) => {
   const client = await pool.connect()
 
   try {
@@ -398,7 +398,7 @@ router.post('/:id/assign',csrfProtection,  csrfProtection, requirePermission('ve
  *     summary: Transfer asset to different location
  *     tags: [Assets]
  */
-router.post('/:id/transfer',csrfProtection,  csrfProtection, requirePermission('vehicle:update:fleet'), async (req: AuthRequest, res) => {
+router.post('/:id/transfer',csrfProtection, requirePermission('vehicle:update:fleet'), async (req: AuthRequest, res) => {
   const client = await pool.connect()
 
   try {
@@ -599,7 +599,7 @@ router.get('/analytics/summary', requirePermission('report:view:global'), async 
  *     summary: Dispose/retire asset
  *     tags: [Assets]
  */
-router.delete('/:id',csrfProtection,  csrfProtection, requirePermission('vehicle:delete:fleet'), async (req: AuthRequest, res) => {
+router.delete('/:id',csrfProtection, requirePermission('vehicle:delete:fleet'), async (req: AuthRequest, res) => {
   const client = await pool.connect()
 
   try {
