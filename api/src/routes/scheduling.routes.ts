@@ -902,7 +902,7 @@ router.get('/appointment-types', async (req: Request, res: Response) => {
   try {
     const result = await pool.query(
       `SELECT id, tenant_id, name, description, duration_minutes, default_resource_id, created_at, updated_at FROM appointment_types
-       WHERE is_active = true
+       WHERE /* TODO: Add tenant_id = $X AND */ is_active = true
        ORDER BY name`
     )
 
