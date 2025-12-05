@@ -1,6 +1,6 @@
 /**
 import { container } from '../container'
-import { asyncHandler } from '../middleware/error-handler'
+import { asyncHandler } from '../middleware/errorHandler'
 import { NotFoundError, ValidationError } from '../errors/app-error'
  * Document System - Master Route Registry
  * Registers all document-related routes in the Express app
