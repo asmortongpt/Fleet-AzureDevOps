@@ -267,7 +267,7 @@ router.post('/:queueName/retry/:jobId',csrfProtection,  csrfProtection, requireA
  * POST /api/queue/:queueName/pause
  * Pause queue processing
  */
-router.post(`/:queueName/pause`, requireAdmin, async (req: Request, res: Response) => {
+router.post(`/:queueName/pause`, csrfProtection, requireAdmin, async (req: Request, res: Response) => {
   try {
     const { queueName } = req.params;
 
@@ -291,7 +291,7 @@ router.post(`/:queueName/pause`, requireAdmin, async (req: Request, res: Respons
  * POST /api/queue/:queueName/resume
  * Resume queue processing
  */
-router.post(`/:queueName/resume`, requireAdmin, async (req: Request, res: Response) => {
+router.post(`/:queueName/resume`, csrfProtection, requireAdmin, async (req: Request, res: Response) => {
   try {
     const { queueName } = req.params;
 

@@ -90,6 +90,7 @@ router.post(
 // PUT /vehicles/:id
 router.put(
   `/:id`,
+  csrfProtection,
   requirePermission('vehicle:update:global'),
   auditLog({ action: 'UPDATE', resourceType: 'vehicles' }),
   async (req: AuthRequest, res: Response) => {
