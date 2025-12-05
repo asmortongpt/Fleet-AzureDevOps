@@ -148,7 +148,7 @@ struct LegacyDashboardView: View {
                 .font(.headline)
 
             LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
-                QuickActionButton(
+                LegacyQuickActionButton(
                     icon: "play.circle.fill",
                     title: "Start Trip",
                     color: .green
@@ -156,7 +156,7 @@ struct LegacyDashboardView: View {
                     viewModel.startNewTrip()
                 }
 
-                QuickActionButton(
+                LegacyQuickActionButton(
                     icon: "car.2.fill",
                     title: "View Fleet",
                     color: .blue
@@ -164,7 +164,7 @@ struct LegacyDashboardView: View {
                     viewModel.viewAllVehicles()
                 }
 
-                QuickActionButton(
+                LegacyQuickActionButton(
                     icon: "wrench.and.screwdriver.fill",
                     title: "Maintenance",
                     color: .orange
@@ -172,7 +172,7 @@ struct LegacyDashboardView: View {
                     viewModel.viewMaintenance()
                 }
 
-                QuickActionButton(
+                LegacyQuickActionButton(
                     icon: "chart.bar.doc.horizontal.fill",
                     title: "Reports",
                     color: .purple
@@ -256,7 +256,7 @@ struct LegacyDashboardView: View {
             } else {
                 LazyVStack(spacing: 8) {
                     ForEach(viewModel.recentActivity.prefix(5)) { activity in
-                        ActivityRow(activity: activity)
+                        LegacyActivityRow(activity: activity)
                     }
                 }
                 .padding()
@@ -373,7 +373,7 @@ struct StatCard: View {
 }
 
 // MARK: - Activity Row
-struct ActivityRow: View {
+struct LegacyActivityRow: View {
     let activity: ActivityItem
 
     var body: some View {
