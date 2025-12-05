@@ -1,7 +1,7 @@
 import SwiftUI
 
 // MARK: - Quick Action Button Component
-struct QuickActionButton: View {
+struct LegacyQuickActionButton: View {
     let icon: String
     let title: String
     let color: Color
