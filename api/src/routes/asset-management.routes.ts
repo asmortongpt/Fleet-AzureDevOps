@@ -1,8 +1,4 @@
 /**
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
-import logger from '../config/logger'; // Wave 28: Add Winston logger
  * Asset Management Routes
  * Comprehensive fleet asset tracking and lifecycle management
  *
@@ -21,6 +17,10 @@ import type { AuthRequest } from '../middleware/auth'
 import { authenticateJWT } from '../middleware/auth'
 import { requirePermission } from '../middleware/permissions'
 import { csrfProtection } from '../middleware/csrf'
+import { container, pool } from '../container'
+import { asyncHandler } from '../middleware/errorHandler'
+import { NotFoundError, ValidationError } from '../errors/app-error'
+import logger from '../config/logger'
 
 
 const router = Router()
@@ -138,7 +138,7 @@ router.get('/:id', requirePermission('vehicle:view:fleet'), async (req: AuthRequ
     const result = await pool.query(
       `SELECT
         a.*,
-        u.first_name || ` ` || u.last_name as assigned_to_name,
+        u.first_name || ' ' || u.last_name as assigned_to_name,
         u.email as assigned_to_email
       FROM assets a
       LEFT JOIN users u ON a.assigned_to = u.id
@@ -147,14 +147,14 @@ router.get('/:id', requirePermission('vehicle:view:fleet'), async (req: AuthRequ
     )
 
     if (result.rows.length === 0) {
-      return throw new NotFoundError("Asset not found")
+      throw new NotFoundError("Asset not found")
     }
 
     // Get asset history
     const history = await pool.query(
       `SELECT
         ah.*,
-        u.first_name || ` ` || u.last_name as performed_by_name
+        u.first_name || ' ' || u.last_name as performed_by_name
       FROM asset_history ah
       LEFT JOIN users u ON ah.performed_by = u.id
       WHERE ah.asset_id = $1
@@ -499,7 +499,7 @@ router.get('/:id/depreciation', requirePermission('vehicle:view:fleet'), async (
     const currentDate = new Date()
 
     // Calculate years since purchase
-    const yearsSincePurchase = (currentDate.getTime() - purchaseDate.getTime() / (1000 * 60 * 60 * 24 * 365.25)
+    const yearsSincePurchase = (currentDate.getTime() - purchaseDate.getTime()) / (1000 * 60 * 60 * 24 * 365.25)
 
     // Straight-line depreciation
     const annualDepreciation = purchasePrice * (depreciationRate / 100)
@@ -624,7 +624,7 @@ router.delete('/:id',csrfProtection, requirePermission('vehicle:delete:fleet'), 
 
     if (result.rows.length === 0) {
       await client.query(`ROLLBACK`)
-      return throw new NotFoundError("Asset not found")
+      throw new NotFoundError("Asset not found")
     }
 
     // Log disposal
