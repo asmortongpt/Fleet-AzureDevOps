@@ -482,7 +482,7 @@ router.post(
 
       // Get vehicle info
       const vehicleResult = await pool.query(
-        'SELECT make, model, year FROM vehicles WHERE id = $1',
+        'SELECT make, model, year FROM vehicles WHERE /* TODO: Add tenant_id = $X AND */ id = $1',
         [vehicleId]
       )
 
