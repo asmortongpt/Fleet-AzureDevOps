@@ -2,9 +2,9 @@ import { Router } from "express"
 import { container } from '../container'
 import { asyncHandler } from '../middleware/errorHandler'
 import { NotFoundError, ValidationError } from '../errors/app-error'
-import logger from '../config/logger'; // Wave 16: Add Winston logger
-import { fuelTransactionEmulator } from '../emulators/fuel/FuelEmulator';
-import { TenantValidator } from '../utils/tenant-validator';
+import logger from '../config/logger'
+import { fuelTransactionEmulator } from '../emulators/fuel/FuelEmulator'
+import { TenantValidator } from '../utils/tenant-validator'
 import { validate } from '../middleware/validation'
 import { csrfProtection } from '../middleware/csrf'
 
@@ -15,7 +15,8 @@ import {
 } from '../schemas/fuel-transactions.schema'
 
 const router = Router()
-const validator = new TenantValidator(db);
+const db = container.resolve('db')
+const validator = new TenantValidator(db)
 
 // GET all fuel transactions
 router.get("/", validate(getFuelTransactionsQuerySchema, 'query'), async (req, res) => {
@@ -33,27 +34,22 @@ router.get("/", validate(getFuelTransactionsQuerySchema, 'query'), async (req, r
 
     let transactions = fuelTransactionEmulator.getAll()
 
-    // Apply search filter
     if (search && typeof search === 'string') {
       transactions = fuelTransactionEmulator.search(search)
     }
 
-    // Apply vehicle filter
     if (vehicleId && typeof vehicleId === 'string') {
       transactions = fuelTransactionEmulator.filterByVehicle(Number(vehicleId))
     }
 
-    // Apply driver filter
     if (driverId && typeof driverId === 'string') {
       transactions = fuelTransactionEmulator.filterByDriver(Number(driverId))
     }
 
-    // Apply payment method filter
     if (paymentMethod && typeof paymentMethod === 'string') {
       transactions = fuelTransactionEmulator.filterByPaymentMethod(paymentMethod)
     }
 
-    // Apply date range filter
     if (startDate && endDate && typeof startDate === 'string' && typeof endDate === 'string') {
       transactions = fuelTransactionEmulator.filterByDateRange(
         new Date(startDate),
@@ -61,14 +57,13 @@ router.get("/", validate(getFuelTransactionsQuerySchema, 'query'), async (req, r
       )
     }
 
-    // Apply pagination
     const total = transactions.length
     const offset = (Number(page) - 1) * Number(pageSize)
     const data = transactions.slice(offset, offset + Number(pageSize))
 
     res.json({ data, total })
   } catch (error) {
-    logger.error(error) // Wave 16: Winston logger
+    logger.error(error)
     res.status(500).json({ error: "Failed to fetch fuel transactions" })
   }
 })
@@ -82,10 +77,10 @@ router.get("/:id", asyncHandler(async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: "Failed to fetch fuel transaction" })
   }
-})
+}))
 
 // POST create fuel transaction
-router.post("/",csrfProtection,  csrfProtection, validate(createFuelTransactionSchema, 'body'), async (req, res) => {
+router.post("/", csrfProtection, validate(createFuelTransactionSchema, 'body'), async (req, res) => {
   try {
     const transaction = fuelTransactionEmulator.create(req.body)
     res.status(201).json({ data: transaction })
@@ -95,12 +90,9 @@ router.post("/",csrfProtection,  csrfProtection, validate(createFuelTransactionS
 })
 
 // PUT update fuel transaction
-router.put("/:id",csrfProtection,  csrfProtection, validate(updateFuelTransactionSchema, 'body'), async (req, res) => {
+router.put("/:id", csrfProtection, validate(updateFuelTransactionSchema, 'body'), async (req, res) => {
   try {
-    const transaction = fuelTransactionEmulator.update(Number(req.params.id), req.body)
-
-    // SECURITY: IDOR Protection - Validate foreign keys belong to tenant
-    const { vehicle_id, driver_id } = data
+    const { vehicle_id, driver_id } = req.body
 
     if (vehicle_id && !(await validator.validateVehicle(vehicle_id, req.user!.tenant_id))) {
       return res.status(403).json({
@@ -108,12 +100,15 @@ router.put("/:id",csrfProtection,  csrfProtection, validate(updateFuelTransactio
         error: 'Vehicle Id not found or access denied'
       })
     }
+
     if (driver_id && !(await validator.validateDriver(driver_id, req.user!.tenant_id))) {
       return res.status(403).json({
         success: false,
         error: 'Driver Id not found or access denied'
       })
     }
+
+    const transaction = fuelTransactionEmulator.update(Number(req.params.id), req.body)
     if (!transaction) throw new NotFoundError("Fuel transaction not found")
     res.json({ data: transaction })
   } catch (error) {
@@ -122,7 +117,7 @@ router.put("/:id",csrfProtection,  csrfProtection, validate(updateFuelTransactio
 })
 
 // DELETE fuel transaction
-router.delete("/:id",csrfProtection,  csrfProtection, asyncHandler(async (req, res) => {
+router.delete("/:id", csrfProtection, asyncHandler(async (req, res) => {
   try {
     const deleted = fuelTransactionEmulator.delete(Number(req.params.id))
     if (!deleted) throw new NotFoundError("Fuel transaction not found")
@@ -130,47 +125,6 @@ router.delete("/:id",csrfProtection,  csrfProtection, asyncHandler(async (req, r
   } catch (error) {
     res.status(500).json({ error: "Failed to delete fuel transaction" })
   }
-})
+}))
 
 export default router
-
-// IDOR Protection for UPDATE
-router.put('/:id',csrfProtection,  csrfProtection, async (req: Request, res: Response) => {
-  const { id } = req.params;
-  const tenantId = req.user?.tenantId;
-
-  // Validate ownership before update
-  const validator = new TenantValidator(pool);
-  const isValid = await validator.validateOwnership(tenantId, 'fuel_transactions', parseInt(id);
-
-  if (!isValid) {
-    return res.status(403).json({
-      success: false,
-      error: 'Access denied - resource not found or belongs to different tenant'
-    });
-  }
-
-  // Proceed with update...
-  const data = req.body;
-  // ... existing update logic
-});
-
-// IDOR Protection for DELETE
-router.delete('/:id',csrfProtection,  csrfProtection, async (req: Request, res: Response) => {
-  const { id } = req.params;
-  const tenantId = req.user?.tenantId;
-
-  // Validate ownership before delete
-  const validator = new TenantValidator(pool);
-  const isValid = await validator.validateOwnership(tenantId, 'fuel_transactions', parseInt(id);
-
-  if (!isValid) {
-    return res.status(403).json({
-      success: false,
-      error: 'Access denied - resource not found or belongs to different tenant'
-    });
-  }
-
-  // Proceed with soft delete...
-  // ... existing delete logic
-});
