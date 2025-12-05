@@ -313,7 +313,7 @@ const MaintenancePredictionSchema = z.object({
  */
 router.post(
   `/predictions/maintenance`,
-  requirePermission('report:generate:global'),
+  csrfProtection, requirePermission('report:generate:global'),
   auditLog({ action: 'CREATE', resourceType: 'ai_prediction' }),
   async (req: AuthRequest, res: Response) => {
     try {

@@ -155,7 +155,7 @@ router.post(
 // PUT /osha-compliance/300-log/:id
 router.put(
   `/300-log/:id`,
-  requirePermission('osha:submit:global'),
+  csrfProtection, requirePermission('osha:submit:global'),
   auditLog({ action: 'UPDATE', resourceType: 'osha_300_log' }),
   async (req: AuthRequest, res: Response) => {
     try {
