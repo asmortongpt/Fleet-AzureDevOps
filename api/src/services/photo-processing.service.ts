@@ -336,7 +336,7 @@ export class PhotoProcessingService {
       const result = await this.db.query(
         `DELETE FROM photo_processing_queue
          WHERE status = 'completed'
-           AND processing_completed_at < NOW() - INTERVAL `1 day` * $1`,
+           AND processing_completed_at < NOW() - INTERVAL '1 day' * $1`,
         [daysOld]
       );
 

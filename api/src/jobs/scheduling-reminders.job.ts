@@ -344,7 +344,7 @@ async function checkForConflicts(): Promise<void> {
       FROM vehicles v
       JOIN vehicle_reservations vr ON v.id = vr.vehicle_id
       WHERE vr.status IN ('confirmed', 'pending')
-        AND vr.start_time < NOW() + INTERVAL `7 days`
+        AND vr.start_time < NOW() + INTERVAL '7 days'
         AND vr.end_time > NOW()
       GROUP BY v.id, v.make, v.model, v.license_plate
       HAVING COUNT(*) > 1`
