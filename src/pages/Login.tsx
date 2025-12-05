@@ -46,6 +46,38 @@ export function Login() {
     }
   }, [navigate])
 
+  // Handle Microsoft OAuth callback
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const code = params.get('code')
+
+    if (code) {
+      console.log('[OAUTH] Authorization code received, exchanging for token...')
+
+      const apiUrl = import.meta.env.VITE_API_URL || '/api'
+      fetch(`${apiUrl}/auth/microsoft/callback?code=${encodeURIComponent(code)}`)
+        .then(res => {
+          if (!res.ok) {
+            throw new Error('Failed to exchange authorization code')
+          }
+          return res.json()
+        })
+        .then(data => {
+          if (data.token) {
+            console.log('[OAUTH] Token received, storing and redirecting...')
+            setAuthToken(data.token)
+            navigate('/', { replace: true })
+          } else {
+            throw new Error('No token in response')
+          }
+        })
+        .catch(error => {
+          console.error('[OAUTH] Callback error:', error)
+          navigate('/login?error=oauth_failed&message=' + encodeURIComponent(error.message), { replace: true })
+        })
+    }
+  }, [navigate])
+
   // Check for error messages in URL
   const params = new URLSearchParams(window.location.search)
   const urlError = params.get('error')

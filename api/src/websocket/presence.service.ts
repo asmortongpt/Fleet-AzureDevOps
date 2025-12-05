@@ -1,6 +1,6 @@
 import { Server, Socket } from "socket.io";
 import { z } from "zod";
-import { RedisClient } from "redis";
+import type { RedisClientType } from "redis";
 
 interface Presence {
   userId: string;
@@ -14,10 +14,10 @@ const presenceSchema = z.object({
 
 export class PresenceService {
   private io: Server;
-  private redis: RedisClient;
+  private redis: RedisClientType;
   private presenceMap: Map<string, Presence[]> = new Map();
 
-  constructor(io: Server, redis: RedisClient) {
+  constructor(io: Server, redis: RedisClientType) {
     this.io = io;
     this.redis = redis;
     this.initializeListeners();

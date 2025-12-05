@@ -4,7 +4,7 @@
  * Analyzes fleet utilization and generates optimization recommendations
  */
 
-import pool from '../config/database'
+import { Pool } from 'pg'
 import fleetOptimizationModel, { VehicleUtilizationData } from '../ml-models/fleet-optimization.model'
 
 export interface UtilizationMetric {
@@ -137,7 +137,7 @@ export class FleetOptimizerService {
     periodEnd: Date
   ): Promise<VehicleUtilizationData> {
     // Get vehicle info
-    const vehicleResult = await pool.query(
+    const vehicleResult = await this.db.query(
       `SELECT vehicle_number, vehicle_type, purchase_price
        FROM vehicles
        WHERE id = $1 AND tenant_id = $2',
@@ -151,7 +151,7 @@ export class FleetOptimizerService {
     const vehicle = vehicleResult.rows[0]
 
     // Get trip data
-    const tripResult = await pool.query(
+    const tripResult = await this.db.query(
       `SELECT
          COUNT(*) as trips_count,
          COALESCE(SUM(distance), 0) as total_miles,
@@ -163,7 +163,7 @@ export class FleetOptimizerService {
     )
 
     // Get maintenance data
-    const maintenanceResult = await pool.query(
+    const maintenanceResult = await this.db.query(
       `SELECT
          COALESCE(SUM(EXTRACT(EPOCH FROM (completed_date - started_date)) / 3600), 0) as maintenance_hours
        FROM work_orders
@@ -174,7 +174,7 @@ export class FleetOptimizerService {
     )
 
     // Get cost data
-    const costResult = await pool.query(
+    const costResult = await this.db.query(
       `SELECT COALESCE(SUM(amount), 0) as total_cost
        FROM cost_tracking
        WHERE vehicle_id = $1 AND tenant_id = $2
@@ -250,7 +250,7 @@ export class FleetOptimizerService {
 
     query += ` ORDER BY um.utilization_rate ASC`
 
-    const result = await pool.query(query, params)
+    const result = await this.db.query(query, params)
 
     return result.rows.map(row => ({
       vehicleId: row.vehicle_id,
@@ -278,7 +278,7 @@ export class FleetOptimizerService {
     periodEnd: Date
   ): Promise<OptimizationRecommendation[]> {
     // Get all vehicles' utilization data
-    const vehicles = await pool.query(
+    const vehicles = await this.db.query(
       'SELECT id FROM vehicles WHERE tenant_id = $1 AND status = $2',
       [tenantId, `active`]
     )
@@ -358,7 +358,7 @@ export class FleetOptimizerService {
 
     query += ' ORDER BY priority DESC, potential_savings DESC, created_at DESC'
 
-    const result = await pool.query(query, params)
+    const result = await this.db.query(query, params)
 
     return result.rows.map(row => ({
       id: row.id,
@@ -388,7 +388,7 @@ export class FleetOptimizerService {
     potentialSavings: number
   }> {
     // Get current fleet size
-    const sizeResult = await pool.query(
+    const sizeResult = await this.db.query(
       'SELECT COUNT(*) as count FROM vehicles WHERE tenant_id = $1 AND status = $2',
       [tenantId, 'active']
     )
@@ -431,7 +431,7 @@ export class FleetOptimizerService {
     periodStart: Date,
     periodEnd: Date
   ): Promise<void> {
-    const vehicles = await pool.query(
+    const vehicles = await this.db.query(
       'SELECT id FROM vehicles WHERE tenant_id = $1 AND status = $2',
       [tenantId, 'active']
     )
@@ -446,4 +446,4 @@ export class FleetOptimizerService {
   }
 }
 
-export default new FleetOptimizerService()
+export default FleetOptimizerService

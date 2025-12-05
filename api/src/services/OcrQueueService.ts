@@ -12,7 +12,7 @@
 
 import { queueService } from './queue.service';
 import ocrService, { OcrOptions, OcrProvider, OcrResult } from './OcrService';
-import pool from '../config/database';
+import { Pool } from 'pg';
 import { JobPriority, QueueName } from '../types/queue.types';
 
 // OCR Job Status
@@ -73,6 +73,8 @@ export interface BatchOcrJob {
 export class OcrQueueService {
   private isInitialized = false;
 
+  constructor(private db: Pool) {}
+
   /**
    * Initialize OCR queue processing
    */
@@ -123,7 +125,7 @@ export class OcrQueueService {
   async enqueueOcrJob(jobData: OcrJobData): Promise<string> {
     try {
       // Create job tracking record
-      const jobRecord = await pool.query(
+      const jobRecord = await this.db.query(
         `INSERT INTO ocr_jobs (
           document_id, tenant_id, user_id, file_path, file_name, file_size,
           mime_type, options, status, priority, progress
@@ -170,7 +172,7 @@ export class OcrQueueService {
       );
 
       // Update with queue job ID
-      await pool.query(
+      await this.db.query(
         `UPDATE ocr_jobs SET queue_job_id = $1 WHERE id = $2`,
         [queueJobId, jobId]
       );
@@ -194,7 +196,7 @@ export class OcrQueueService {
   ): Promise<string> {
     try {
       // Create batch record
-      const batchRecord = await pool.query(
+      const batchRecord = await this.db.query(
         `INSERT INTO ocr_batch_jobs (
           tenant_id, user_id, total_documents, completed_documents,
           failed_documents, status, options
@@ -232,7 +234,7 @@ export class OcrQueueService {
       }
 
       // Link jobs to batch
-      await pool.query(
+      await this.db.query(
         `UPDATE ocr_jobs SET batch_id = $1 WHERE id = ANY($2)`,
         [batchId, jobIds]
       );
@@ -267,7 +269,7 @@ export class OcrQueueService {
       await this.updateBatchProgress(jobId);
 
       // Update document status
-      await pool.query(
+      await this.db.query(
         `UPDATE documents
          SET ocr_status = `completed`, ocr_completed_at = NOW(), extracted_text = $1
          WHERE id = $2`,
@@ -292,7 +294,7 @@ export class OcrQueueService {
       await this.updateBatchProgress(jobId, true);
 
       // Update document status
-      await pool.query(
+      await this.db.query(
         `UPDATE documents SET ocr_status = `failed` WHERE id = $1`,
         [documentId]
       );
@@ -346,7 +348,7 @@ export class OcrQueueService {
       });
 
       // Update batch progress
-      await pool.query(
+      await this.db.query(
         `UPDATE ocr_batch_jobs
          SET completed_documents = $1, failed_documents = $2, updated_at = NOW()
          WHERE id = $3`,
@@ -355,7 +357,7 @@ export class OcrQueueService {
     }
 
     // Mark batch as completed
-    await pool.query(
+    await this.db.query(
       `UPDATE ocr_batch_jobs SET status = $1, updated_at = NOW() WHERE id = $2`,
       [OcrJobStatus.COMPLETED, batchId]
     );
@@ -401,7 +403,7 @@ export class OcrQueueService {
         values.push(error);
       }
 
-      await pool.query(
+      await this.db.query(
         `UPDATE ocr_jobs SET ${updates.join(`, `)} WHERE id = $1',
         values
       );
@@ -416,7 +418,7 @@ export class OcrQueueService {
   private async updateBatchProgress(jobId: string, isFailed: boolean = false): Promise<void> {
     try {
       // Check if job is part of a batch
-      const jobResult = await pool.query(
+      const jobResult = await this.db.query(
         'SELECT batch_id FROM ocr_jobs WHERE id = $1',
         [jobId]
       );
@@ -429,14 +431,14 @@ export class OcrQueueService {
 
       // Update batch counters
       if (isFailed) {
-        await pool.query(
+        await this.db.query(
           `UPDATE ocr_batch_jobs
            SET failed_documents = failed_documents + 1, updated_at = NOW()
            WHERE id = $1',
           [batchId]
         );
       } else {
-        await pool.query(
+        await this.db.query(
           `UPDATE ocr_batch_jobs
            SET completed_documents = completed_documents + 1, updated_at = NOW()
            WHERE id = $1',
@@ -445,7 +447,7 @@ export class OcrQueueService {
       }
 
       // Check if batch is complete
-      const batchResult = await pool.query(
+      const batchResult = await this.db.query(
         `SELECT total_documents, completed_documents, failed_documents
          FROM ocr_batch_jobs WHERE id = $1`,
         [batchId]
@@ -457,7 +459,7 @@ export class OcrQueueService {
 
         if (totalProcessed >= batch.total_documents) {
           // Batch is complete
-          await pool.query(
+          await this.db.query(
             `UPDATE ocr_batch_jobs SET status = $1, updated_at = NOW() WHERE id = $2`,
             [OcrJobStatus.COMPLETED, batchId]
           );
@@ -474,7 +476,7 @@ export class OcrQueueService {
    */
   async getJobStatus(jobId: string): Promise<OcrJobResult | null> {
     try {
-      const result = await pool.query(
+      const result = await this.db.query(
         `SELECT
           id, document_id, status, progress, result, error,
           started_at, completed_at, processing_time
@@ -510,7 +512,7 @@ export class OcrQueueService {
    */
   async getBatchStatus(batchId: string): Promise<BatchOcrJob | null> {
     try {
-      const result = await pool.query(
+      const result = await this.db.query(
         `SELECT 
       id,
       tenant_id,
@@ -558,7 +560,7 @@ export class OcrQueueService {
    */
   async cancelJob(jobId: string): Promise<void> {
     try {
-      await pool.query(
+      await this.db.query(
         `UPDATE ocr_jobs
          SET status = $1, updated_at = NOW()
          WHERE id = $2 AND status IN ($3, $4)`,
@@ -578,7 +580,7 @@ export class OcrQueueService {
   async retryJob(jobId: string): Promise<string> {
     try {
       // Get job details
-      const jobResult = await pool.query(
+      const jobResult = await this.db.query(
         `SELECT 
       id,
       document_id,
@@ -649,7 +651,7 @@ export class OcrQueueService {
 
       const params = tenantId ? [OcrJobStatus.PENDING, tenantId] : [OcrJobStatus.PENDING];
 
-      const result = await pool.query(query, params);
+      const result = await this.db.query(query, params);
       return parseInt(result.rows[0].count) || 0;
     } catch (error) {
       console.error('Error getting pending jobs count:', error);
@@ -663,7 +665,7 @@ export class OcrQueueService {
   private async resumePendingJobs(): Promise<void> {
     try {
       // Get pending jobs that were interrupted
-      const result = await pool.query(
+      const result = await this.db.query(
         `SELECT id FROM ocr_jobs
          WHERE status IN ($1, $2)
          AND created_at > NOW() - INTERVAL `24 hours`
@@ -677,7 +679,7 @@ export class OcrQueueService {
 
         for (const job of result.rows) {
           // Reset status to pending
-          await pool.query(
+          await this.db.query(
             `UPDATE ocr_jobs SET status = $1, progress = 0 WHERE id = $2`,
             [OcrJobStatus.PENDING, job.id]
           );
@@ -696,7 +698,7 @@ export class OcrQueueService {
       // Validate and sanitize daysOld parameter
       const daysOldNum = Math.max(1, Math.min(365, daysOld || 30))
 
-      const result = await pool.query(
+      const result = await this.db.query(
         `DELETE FROM ocr_jobs
          WHERE status IN ($1, $2)
          AND completed_at < NOW() - ($3 || ' days')::INTERVAL`,
@@ -736,7 +738,7 @@ export class OcrQueueService {
            FROM ocr_jobs`;
 
       const params = tenantId ? [tenantId] : [];
-      const result = await pool.query(query, params);
+      const result = await this.db.query(query, params);
 
       return {
         pending: parseInt(result.rows[0].pending) || 0,
@@ -753,4 +755,4 @@ export class OcrQueueService {
   }
 }
 
-export default new OcrQueueService();
+export default OcrQueueService;
