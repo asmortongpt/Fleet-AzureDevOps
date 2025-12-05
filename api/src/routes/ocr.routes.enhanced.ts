@@ -73,7 +73,7 @@ const ocrOptionsSchema = z.object({
  */
 router.post(
   '/process',
-  upload.single('file'),
+ csrfProtection,  csrfProtection, upload.single('file'),
   [
     body('provider').isString().optional(),
     body('languages').isString().optional(),

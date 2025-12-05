@@ -109,7 +109,7 @@ const BatchPrioritizeSchema = z.object({
  */
 router.post(
   '/prioritize',
-  requirePermission('report:generate:global'),
+ csrfProtection,  csrfProtection, requirePermission('report:generate:global'),
   async (req: AuthRequest, res) => {
     try {
       const tenantId = req.user?.tenant_id
@@ -171,7 +171,7 @@ router.post(
  */
 router.post(
   '/assign',
-  requirePermission('report:generate:global'),
+ csrfProtection,  csrfProtection, requirePermission('report:generate:global'),
   async (req: AuthRequest, res) => {
     try {
       const tenantId = req.user?.tenant_id
@@ -237,7 +237,7 @@ router.post(
  */
 router.post(
   '/dependencies',
-  requirePermission('report:view:global'),
+ csrfProtection,  csrfProtection, requirePermission('report:view:global'),
   async (req: AuthRequest, res) => {
     try {
       const tenantId = req.user?.tenant_id
@@ -278,7 +278,7 @@ router.post(
  */
 router.post(
   '/execution-order',
-  requirePermission('report:view:global'),
+ csrfProtection,  csrfProtection, requirePermission('report:view:global'),
   async (req: AuthRequest, res) => {
     try {
       const tenantId = req.user?.tenant_id
@@ -320,7 +320,7 @@ router.post(
  */
 router.post(
   '/optimize',
-  requirePermission('report:generate:global'),
+ csrfProtection,  csrfProtection, requirePermission('report:generate:global'),
   async (req: AuthRequest, res) => {
     try {
       const tenantId = req.user?.tenant_id
@@ -378,7 +378,7 @@ router.post(
  */
 router.post(
   '/batch-prioritize',
-  requirePermission('report:generate:global'),
+ csrfProtection,  csrfProtection, requirePermission('report:generate:global'),
   async (req: AuthRequest, res) => {
     try {
       const tenantId = req.user?.tenant_id

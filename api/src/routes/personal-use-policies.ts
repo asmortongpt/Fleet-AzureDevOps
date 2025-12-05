@@ -102,7 +102,7 @@ router.get(
  */
 router.put(
   '/:tenant_id',
-  requirePermission('policy:update:global'),
+ csrfProtection,  csrfProtection, requirePermission('policy:update:global'),
   auditLog({ action: 'UPDATE', resourceType: 'personal_use_policies' }),
   async (req: AuthRequest, res: Response) => {
     try {

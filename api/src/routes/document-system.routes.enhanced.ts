@@ -12,6 +12,8 @@ import aiChatRoutes from './ai-chat.routes'
 import documentGeoRoutes from './document-geo.routes'
 import searchRoutes from './search.routes'
 import storageAdminRoutes from './storage-admin.routes'
+import { csrfProtection } from '../middleware/csrf'
+
 
 export function registerDocumentSystemRoutes(app: Express): void {
   console.log('📄 Registering Document System routes...')

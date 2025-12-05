@@ -118,7 +118,7 @@ router.get(
 // POST /api/fuel-purchasing/recommend - Get fuel purchase recommendation
 router.post(
   '/recommend',
-  requirePermission('fuel_transaction:view:fleet'),
+ csrfProtection,  csrfProtection, requirePermission('fuel_transaction:view:fleet'),
   auditLog({ action: 'READ', resourceType: 'fuel_recommendations' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -253,7 +253,7 @@ router.get(
 // POST /api/fuel-purchasing/purchase-order - Create purchase order
 router.post(
   '/purchase-order',
-  requirePermission('fuel_transaction:create:own'),
+ csrfProtection,  csrfProtection, requirePermission('fuel_transaction:create:own'),
   auditLog({ action: 'CREATE', resourceType: 'fuel_purchase' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -297,7 +297,7 @@ router.get(
 // POST /api/fuel-purchasing/alerts - Create price alert
 router.post(
   '/alerts',
-  requirePermission('fuel_transaction:create:own'),
+ csrfProtection,  csrfProtection, requirePermission('fuel_transaction:create:own'),
   auditLog({ action: 'CREATE', resourceType: 'fuel_alerts' }),
   async (req: AuthRequest, res: Response) => {
     try {

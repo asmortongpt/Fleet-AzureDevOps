@@ -124,7 +124,7 @@ router.get(
 // POST /maintenance-schedules
 router.post(
   '/',
-  requirePermission('maintenance_schedule:create:fleet'),
+ csrfProtection,  csrfProtection, requirePermission('maintenance_schedule:create:fleet'),
   auditLog({ action: 'CREATE', resourceType: 'maintenance_schedules' }),
   validate([
     { field: 'vehicle_id', required: true, type: 'uuid' },
@@ -158,7 +158,7 @@ router.post(
 // PUT /maintenance-schedules/:id
 router.put(
   '/:id',
-  requirePermission('maintenance_schedule:update:fleet'),
+ csrfProtection,  csrfProtection, requirePermission('maintenance_schedule:update:fleet'),
   auditLog({ action: 'UPDATE', resourceType: 'maintenance_schedules' }),
   validate([{ field: 'id', required: true, type: 'uuid' }], 'params'),
   async (req: AuthRequest, res: Response) => {
@@ -186,7 +186,7 @@ router.put(
 // DELETE /maintenance-schedules/:id
 router.delete(
   '/:id',
-  requirePermission('maintenance_schedule:delete:fleet'),
+ csrfProtection,  csrfProtection, requirePermission('maintenance_schedule:delete:fleet'),
   auditLog({ action: 'DELETE', resourceType: 'maintenance_schedules' }),
   validate([{ field: 'id', required: true, type: 'uuid' }], 'params'),
   async (req: AuthRequest, res: Response) => {
@@ -215,7 +215,7 @@ router.delete(
 // POST /maintenance-schedules/recurring - Create recurring schedule
 router.post(
   '/recurring',
-  requirePermission('maintenance_schedule:create:fleet'),
+ csrfProtection,  csrfProtection, requirePermission('maintenance_schedule:create:fleet'),
   auditLog({ action: 'CREATE', resourceType: 'maintenance_schedules_recurring' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -277,7 +277,7 @@ router.post(
 // PUT /maintenance-schedules/:id/recurrence - Update recurrence pattern
 router.put(
   '/:id/recurrence',
-  requirePermission('maintenance_schedule:update:fleet'),
+ csrfProtection,  csrfProtection, requirePermission('maintenance_schedule:update:fleet'),
   auditLog({ action: 'UPDATE', resourceType: 'maintenance_schedules_recurrence' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -381,7 +381,7 @@ router.get(
 // POST /maintenance-schedules/:id/generate-work-order - Manual work order creation
 router.post(
   '/:id/generate-work-order',
-  requirePermission('maintenance_schedule:update:fleet'),
+ csrfProtection,  csrfProtection, requirePermission('maintenance_schedule:update:fleet'),
   auditLog({ action: 'CREATE', resourceType: 'work_orders_from_schedule' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -513,7 +513,7 @@ router.get(
 // PATCH /maintenance-schedules/:id/pause - Pause auto work order generation
 router.patch(
   '/:id/pause',
-  requirePermission('maintenance_schedule:update:fleet'),
+ csrfProtection,  csrfProtection, requirePermission('maintenance_schedule:update:fleet'),
   auditLog({ action: 'UPDATE', resourceType: 'maintenance_schedules_pause' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -543,7 +543,7 @@ router.patch(
 // PATCH /maintenance-schedules/:id/resume - Resume auto work order generation
 router.patch(
   '/:id/resume',
-  requirePermission('maintenance_schedule:update:fleet'),
+ csrfProtection,  csrfProtection, requirePermission('maintenance_schedule:update:fleet'),
   auditLog({ action: 'UPDATE', resourceType: 'maintenance_schedules_resume' }),
   async (req: AuthRequest, res: Response) => {
     try {
