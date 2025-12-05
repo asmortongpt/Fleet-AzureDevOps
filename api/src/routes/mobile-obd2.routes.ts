@@ -239,7 +239,7 @@ router.get('/adapters/:adapterId', requirePermission('vehicle:view:fleet'), asyn
     const adapter = await obd2Service.getAdapterById(tenantId, adapterId)
 
     if (!adapter) {
-      return throw new NotFoundError("Adapter not found")
+      throw new NotFoundError("Adapter not found")
     }
 
     res.json(adapter)

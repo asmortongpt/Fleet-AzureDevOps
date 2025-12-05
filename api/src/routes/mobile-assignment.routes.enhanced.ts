@@ -72,7 +72,7 @@ router.get(
     const driverResult = await pool.query(driverQuery, [user_id, tenant_id]);
 
     if (driverResult.rows.length === 0) {
-      return throw new NotFoundError("Driver profile not found");
+      throw new NotFoundError("Driver profile not found");
     }
 
     const driver_id = driverResult.rows[0].id;

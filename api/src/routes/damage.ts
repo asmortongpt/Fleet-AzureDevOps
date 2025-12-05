@@ -87,7 +87,7 @@ router.post(
   async (req: AuthRequest, res: Response) => {
     try {
       if (!req.file) {
-        return throw new ValidationError("No photo file provided")
+        throw new ValidationError("No photo file provided")
       }
 
       // SECURITY: Validate file content and size
@@ -172,11 +172,11 @@ router.post(
   async (req: AuthRequest, res: Response) => {
     try {
       if (!req.files || req.files.length === 0) {
-        return throw new ValidationError("No photo files provided")
+        throw new ValidationError("No photo files provided")
       }
 
       if (!req.body.lidarData) {
-        return throw new ValidationError("No LiDAR data provided")
+        throw new ValidationError("No LiDAR data provided")
       }
 
       logger.info('Analyzing LiDAR scan', {
@@ -244,7 +244,7 @@ router.post(
   async (req: AuthRequest, res: Response) => {
     try {
       if (!req.file) {
-        return throw new ValidationError("No video file provided")
+        throw new ValidationError("No video file provided")
       }
 
       logger.info('Analyzing video for damage', {
@@ -309,7 +309,7 @@ router.post(
   async (req: AuthRequest, res: Response) => {
     try {
       if (!req.files || req.files.length === 0) {
-        return throw new ValidationError("At least one photo is required")
+        throw new ValidationError("At least one photo is required")
       }
 
       logger.info('Starting comprehensive damage analysis', {
@@ -409,7 +409,7 @@ router.post(
       const { vehicleId, damages, photoUrls, analysisMetadata } = req.body
 
       if (!vehicleId || !damages || damages.length === 0) {
-        return throw new ValidationError("vehicleId and damages are required")
+        throw new ValidationError("vehicleId and damages are required")
       }
 
       // Validate vehicle belongs to user's tenant
