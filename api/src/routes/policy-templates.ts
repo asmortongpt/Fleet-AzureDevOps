@@ -192,6 +192,7 @@ router.post(
 // PUT /policy-templates/:id
 router.put(
   `/:id`,
+  csrfProtection,
   requirePermission('policy:update:global'),
   auditLog({ action: 'UPDATE', resourceType: 'policy_templates' }),
   async (req: AuthRequest, res: Response) => {
@@ -510,6 +511,7 @@ router.get(
 // POST /policy-templates/audits
 router.post(
   `/audits`,
+  csrfProtection,
   requirePermission('policy:create:global'),
   auditLog({ action: 'CREATE', resourceType: 'policy_compliance_audits' }),
   async (req: AuthRequest, res: Response) => {

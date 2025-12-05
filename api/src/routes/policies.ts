@@ -129,7 +129,7 @@ router.post(
 // PUT /policies/:id (FleetAdmin only for deployment)
 router.put(
   `/:id`,
-  requirePermission('policy:deploy:global'),
+  csrfProtection, requirePermission('policy:deploy:global'),
   auditLog({ action: 'UPDATE', resourceType: 'policies' }),
   async (req: AuthRequest, res: Response) => {
     try {
