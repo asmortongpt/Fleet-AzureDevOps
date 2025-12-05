@@ -6,6 +6,8 @@ import { inject } from '../config/container'
 import { VehicleService } from '../services/VehicleService'
 import { validate } from '../middleware/validate'
 import { vehicleCreateSchema, vehicleUpdateSchema } from '../schemas/vehicle.schema'
+import { csrfProtection } from '../middleware/csrf'
+
 
 const router = Router()
 
@@ -42,7 +44,7 @@ router.put('/:id', validate(vehicleUpdateSchema), async (req: Request, res: Resp
 })
 
 // DELETE /vehicles/:id - Soft delete with IDOR protection
-router.delete('/:id', async (req: Request, res: Response) => {
+router.delete('/:id', csrfProtection, async (req: Request, res: Response) => {
   const { id } = req.params
   const tenantId = req.user?.tenantId
 

@@ -8,6 +8,8 @@ import { auditLog } from '../middleware/audit'
 import { z } from 'zod'
 import { buildInsertClause, buildUpdateClause } from '../utils/sql-safety'
 import { validate } from '../middleware/validation'
+import { csrfProtection } from '../middleware/csrf'
+
 import {
   createTelemetrySchema,
   updateTelemetrySchema,

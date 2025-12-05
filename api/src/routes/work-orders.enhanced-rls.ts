@@ -32,6 +32,8 @@ import { applyFieldMasking } from '../utils/fieldMasking'
 import { preventTenantIdOverride, validateTenantReferences, injectTenantId } from '../utils/tenant-validator'
 import logger from '../config/logger'
 import { z } from 'zod'
+import { csrfProtection } from '../middleware/csrf'
+
 
 const router = express.Router()
 

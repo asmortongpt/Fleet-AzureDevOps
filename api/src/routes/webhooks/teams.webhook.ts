@@ -155,6 +155,8 @@ async function handleMessageUpdate(notification: any): Promise<void> {
     const { Client } = require('@microsoft/microsoft-graph-client')
     const { TokenCredentialAuthenticationProvider } = require('@microsoft/microsoft-graph-client/authProviders/azureTokenCredentials')
     const { ClientSecretCredential } = require('@azure/identity')
+import { csrfProtection } from '../middleware/csrf'
+
 
     const AZURE_AD_CONFIG = {
       clientId: process.env.AZURE_AD_CLIENT_ID || process.env.MICROSOFT_CLIENT_ID || '',
