@@ -1,15 +1,15 @@
 import express, { Response } from 'express'
 import { container } from '../container'
-import { asyncHandler } from '../middleware/error-handler'
 import { NotFoundError, ValidationError } from '../errors/app-error'
 import { AuthRequest, authenticateJWT } from '../middleware/auth'
 import { requirePermission } from '../middleware/permissions'
 import { auditLog } from '../middleware/audit'
 import { z } from 'zod'
-import { SqlParams } from '../types'
 import multer from 'multer'
 import { BlobServiceClient } from '@azure/storage-blob'
 import { v4 as uuidv4 } from 'uuid'
+import pool from '../config/database'
+import { tenantSafeQuery, validateTenantOwnership } from '../utils/dbHelpers'
 
 const router = express.Router()
 router.use(authenticateJWT)
@@ -31,10 +31,10 @@ const upload = multer({
     ]
 
     if (allowedTypes.includes(file.mimetype) ||
-        file.originalname.match(/\.(usdz|ply|obj|fbx|dae)$/i) {
+        file.originalname.match(/\.(usdz|ply|obj|fbx|dae)$/i)) {
       cb(null, true)
     } else {
-      cb(new Error(`Unsupported file type: ${file.mimetype}`)
+      cb(new Error(`Unsupported file type: ${file.mimetype}`))
     }
   },
 })
@@ -56,9 +56,9 @@ const damageReportSchema = z.object({
   damage_description: z.string(),
   damage_severity: z.enum(['minor', 'moderate', 'severe']),
   damage_location: z.string().optional(),
-  photos: z.array(z.string().optional(),
-  videos: z.array(z.string().optional(), // NEW: Video URLs
-  lidar_scans: z.array(z.string().optional(), // NEW: LiDAR scan URLs
+  photos: z.array(z.string()).optional(),
+  videos: z.array(z.string()).optional(), // NEW: Video URLs
+  lidar_scans: z.array(z.string()).optional(), // NEW: LiDAR scan URLs
   triposr_task_id: z.string().optional(),
   triposr_status: z.enum(['pending', 'processing', 'completed', 'failed']).optional(),
   triposr_model_url: z.string().optional(),
@@ -91,7 +91,7 @@ router.get(
       notes,
       created_at,
       updated_at FROM damage_reports WHERE tenant_id = $1`
-      const params: SqlParams = [req.user!.tenant_id]
+      const params: any[] = [req.user!.tenant_id]
 
       if (vehicle_id) {
         query += ` AND vehicle_id = $2`
@@ -101,13 +101,13 @@ router.get(
       query += ' ORDER BY created_at DESC LIMIT $' + (params.length + 1) + ' OFFSET $' + (params.length + 2)
       params.push(limit, offset)
 
-      const result = await pool.query(query, params)
+      const result = await tenantSafeQuery(query, params, req.user!.tenant_id)
 
       const countQuery = vehicle_id
         ? `SELECT COUNT(*) FROM damage_reports WHERE tenant_id = $1 AND vehicle_id = $2`
         : `SELECT COUNT(*) FROM damage_reports WHERE tenant_id = $1`
       const countParams = vehicle_id ? [req.user!.tenant_id, vehicle_id] : [req.user!.tenant_id]
-      const countResult = await pool.query(countQuery, countParams)
+      const countResult = await tenantSafeQuery(countQuery, countParams, req.user!.tenant_id)
 
       res.json({
         data: result.rows,
@@ -115,7 +115,7 @@ router.get(
           page: Number(page),
           limit: Number(limit),
           total: parseInt(countResult.rows[0].count),
-          pages: Math.ceil(countResult.rows[0].count / Number(limit)
+          pages: Math.ceil(countResult.rows[0].count / Number(limit))
         }
       })
     } catch (error) {
@@ -200,7 +200,7 @@ router.post(
       res.status(201).json(result.rows[0])
     } catch (error) {
       if (error instanceof z.ZodError) {
-        return res.status(400).json({ error: `Validation error`, details: error.errors })
+        return res.status(400).json({ error: `Validation error`, details: error.issues })
       }
       console.error('Create damage report error:', error)
       res.status(500).json({ error: 'Internal server error' })
@@ -218,7 +218,7 @@ router.put(
       const validatedData = damageReportSchema.partial().parse(req.body)
 
       const fields: string[] = []
-      const values: SqlParams = []
+      const values: any[] = []
       let paramIndex = 3
 
       Object.entries(validatedData).forEach(([key, value]) => {
@@ -244,7 +244,7 @@ router.put(
       res.json(result.rows[0])
     } catch (error) {
       if (error instanceof z.ZodError) {
-        return res.status(400).json({ error: `Validation error`, details: error.errors })
+        return res.status(400).json({ error: `Validation error`, details: error.issues })
       }
       console.error('Update damage report error:', error)
       res.status(500).json({ error: 'Internal server error' })
@@ -263,7 +263,7 @@ router.patch(
       const { triposr_status, triposr_model_url } = req.body
 
       if (!triposr_status) {
-        return throw new ValidationError("triposr_status is required")
+        throw new ValidationError("triposr_status is required")
       }
 
       const result = await pool.query(
@@ -345,7 +345,7 @@ router.post(
         try {
           // Determine media type based on MIME type and extension
           let mediaType: 'photo' | 'video' | 'lidar' = 'photo'
-          if (file.mimetype.startsWith('video/') {
+          if (file.mimetype.startsWith('video/')) {
             mediaType = 'video'
           } else if (
             file.originalname.match(/\.(usdz|ply|obj|fbx|dae)$/i) ||
