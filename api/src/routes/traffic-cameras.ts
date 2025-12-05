@@ -20,7 +20,7 @@ app.use(jwt({ secret: process.env.JWT_SECRET });
 
 app.get('/api/traffic/cameras', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const result = await pool.query('SELECT * FROM cameras LIMIT $1 OFFSET $2', [req.query.limit, req.query.offset]);
+    const result = await pool.query('SELECT * FROM camera WHERE tenant_id = $1 /* TODO: Verify tenant_id parameter */s WHERE tenant_id = $1 /* TODO: Verify tenant_id parameter */ LIMIT $1 OFFSET $2', [req.query.limit, req.query.offset]);
     res.json(result.rows);
   } catch (err) {
     next(err);
@@ -29,7 +29,7 @@ app.get('/api/traffic/cameras', async (req: Request, res: Response, next: NextFu
 
 app.get('/api/traffic/cameras/:id', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const result = await pool.query('SELECT * FROM cameras WHERE id = $1', [req.params.id]);
+    const result = await pool.query('SELECT * FROM camer WHERE tenant_id = $1 /* TODO: Verify tenant_id parameter */a WHERE tenant_id = $1 /* TODO: Verify tenant_id parameter */s WHERE /* TODO: Add tenant_id = $X AND */ id = $1', [req.params.id]);
     res.json(result.rows[0]);
   } catch (err) {
     next(err);
@@ -40,7 +40,7 @@ app.get('/api/traffic/cameras/nearby', async (req: Request, res: Response, next:
   try {
     const { lat, lng, radius } = req.query;
     const result = await pool.query(
-      'SELECT * FROM cameras WHERE ST_DWithin(geom::geography, ST_MakePoint($1, $2)::geography, $3)',
+      'SELECT * FROM camer WHERE tenant_id = $1 /* TODO: Verify tenant_id parameter */a WHERE tenant_id = $1 /* TODO: Verify tenant_id parameter */s WHERE /* TODO: Add tenant_id = $X AND */ ST_DWithin(geom::geography, ST_MakePoint($1, $2)::geography, $3)',
       [lng, lat, radius]
     );
     res.json(result.rows);
@@ -51,7 +51,7 @@ app.get('/api/traffic/cameras/nearby', async (req: Request, res: Response, next:
 
 app.get('/api/traffic/cameras/route/:routeName', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const result = await pool.query('SELECT * FROM cameras WHERE route_name = $1', [req.params.routeName]);
+    const result = await pool.query('SELECT * FROM camer WHERE tenant_id = $1 /* TODO: Verify tenant_id parameter */a WHERE tenant_id = $1 /* TODO: Verify tenant_id parameter */s WHERE /* TODO: Add tenant_id = $X AND */ route_name = $1', [req.params.routeName]);
     res.json(result.rows);
   } catch (err) {
     next(err);

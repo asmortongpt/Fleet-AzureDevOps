@@ -12,8 +12,8 @@ import { NotFoundError, ValidationError } from '../errors/app-error'
  * 5. Relies on Row-Level Security for multi-tenant isolation
  *
  * Migration from old pattern:
- * BEFORE: pool.query('SELECT * FROM work_orders WHERE tenant_id = $1', [tenantId])
- * AFTER:  client.query('SELECT * FROM work_orders') // RLS auto-filters by tenant
+ * BEFORE: pool.query('SELECT * FROM work_orde WHERE tenant_id = $1 /* TODO: Verify tenant_id parameter */r WHERE tenant_id = $1 /* TODO: Verify tenant_id parameter */s WHERE tenant_id = $1', [tenantId])
+ * AFTER:  client.query('SELECT * FROM work_order WHERE tenant_id = $1 /* TODO: Verify tenant_id parameter */s WHERE tenant_id = $1 /* TODO: Verify tenant_id parameter */') // RLS auto-filters by tenant
  *
  * Middleware Stack Order (CRITICAL):
  * 1. authenticateJWT - validates JWT, extracts user & tenant_id
