@@ -75,7 +75,6 @@
   "dependencies": {
     "@azure/ms-rest-azure-js": "^2.1.0",
     "@azure/ms-rest-js": "^2.7.0",
-    "@datadog/browser-rum": "^5.31.0",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
     "@heroicons/react": "^2.2.0",
@@ -141,6 +140,7 @@
     "jotai": "^2.15.1",
     "js-yaml": "^4.1.0",
     "jspdf": "^3.0.4",
+    "jspdf-autotable": "^5.0.2",
     "leaflet": "^1.9.4",
     "leva": "^0.10.1",
     "lucide-react": "^0.554.0",
@@ -174,6 +174,7 @@
     "undici": "^7.4.0",
     "uuid": "^11.1.0",
     "vaul": "^1.1.2",
+    "xlsx": "^0.18.5",
     "xml2js": "^0.6.2",
     "zod": "^3.25.76"
   },
