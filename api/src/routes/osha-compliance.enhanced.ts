@@ -9,6 +9,8 @@ import { z } from 'zod'
 import helmet from 'helmet'
 import rateLimit from 'express-rate-limit'
 import { serialize } from 'node-html-encoder'
+import { csrfProtection } from '../middleware/csrf'
+
 
 const router = express.Router()
 

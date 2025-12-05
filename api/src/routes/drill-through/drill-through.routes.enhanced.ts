@@ -8,6 +8,8 @@ import { generateExcel } from './utils/generateExcel';
 import { generatePDF } from './utils/generatePDF';
 import { buildDrillThroughQuery } from './utils/queryBuilder';
 import { validateEntityType, validateFilters, validateFormat } from './validators';
+import { csrfProtection } from '../middleware/csrf'
+
 
 const router = express.Router();
 

@@ -36,7 +36,7 @@ const approvalSchema = z.object({
  */
 router.post(
   '/request',
-  auditLog({ action: 'REQUEST_ELEVATION', resourceType: 'break_glass' }),
+ csrfProtection,  csrfProtection, auditLog({ action: 'REQUEST_ELEVATION', resourceType: 'break_glass' }),
   async (req: AuthRequest, res: Response) => {
     try {
       const validated = elevationRequestSchema.parse(req.body)
@@ -162,7 +162,7 @@ router.get(
  */
 router.post(
   '/:id/approve',
-  requirePermission('role:manage:global'),
+ csrfProtection,  csrfProtection, requirePermission('role:manage:global'),
   auditLog({ action: 'APPROVE_ELEVATION', resourceType: 'break_glass' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -274,7 +274,7 @@ router.post(
  */
 router.post(
   '/:id/revoke',
-  auditLog({ action: 'REVOKE_ELEVATION', resourceType: 'break_glass' }),
+ csrfProtection,  csrfProtection, auditLog({ action: 'REVOKE_ELEVATION', resourceType: 'break_glass' }),
   async (req: AuthRequest, res: Response) => {
     try {
       const sessionId = req.params.id

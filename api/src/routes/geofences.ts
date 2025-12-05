@@ -97,7 +97,7 @@ router.get(
 // POST /geofences
 router.post(
   '/',
-  requirePermission('geofence:create:fleet'),
+ csrfProtection,  csrfProtection, requirePermission('geofence:create:fleet'),
   auditLog({ action: 'CREATE', resourceType: 'geofences' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -152,7 +152,7 @@ router.put(
 // DELETE /geofences/:id
 router.delete(
   '/:id',
-  requirePermission('geofence:delete:fleet'),
+ csrfProtection,  csrfProtection, requirePermission('geofence:delete:fleet'),
   auditLog({ action: 'DELETE', resourceType: 'geofences' }),
   async (req: AuthRequest, res: Response) => {
     try {

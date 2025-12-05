@@ -4,6 +4,8 @@ import { asyncHandler } from '../middleware/errorHandler'
 import { NotFoundError, ValidationError } from '../errors/app-error'
 import { pool } from '../db'
 import { cacheService } from '../config/cache'
+import { csrfProtection } from '../middleware/csrf'
+
 
 const router = Router()
 

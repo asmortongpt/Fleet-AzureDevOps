@@ -107,7 +107,7 @@ const registerSchema = z.object({
  */
 // POST /api/auth/login
 // CRIT-F-004: Apply auth rate limiter and brute force protection
-router.post('/login', authLimiter, checkBruteForce('email'), async (req: Request, res: Response) => {
+router.post('/login',csrfProtection,  csrfProtection, authLimiter, checkBruteForce('email'), async (req: Request, res: Response) => {
   try {
     const { email, password } = loginSchema.parse(req.body)
 
@@ -275,7 +275,7 @@ router.post('/login', authLimiter, checkBruteForce('email'), async (req: Request
 })
 
 // POST /api/auth/register
-router.post('/register', registrationLimiter, async (req: Request, res: Response) => {
+router.post('/register',csrfProtection,  csrfProtection, registrationLimiter, async (req: Request, res: Response) => {
   try {
     const data = registerSchema.parse(req.body)
 
@@ -404,7 +404,7 @@ router.post('/register', registrationLimiter, async (req: Request, res: Response
  *         description: Invalid or expired refresh token
  */
 // POST /api/auth/refresh - Refresh token rotation
-router.post('/refresh', csrfProtection, async (req: Request, res: Response) => {
+router.post('/refresh',csrfProtection,  csrfProtection, async (req: Request, res: Response) => {
   try {
     const { refreshToken } = req.body
 
@@ -520,7 +520,7 @@ router.post('/refresh', csrfProtection, async (req: Request, res: Response) => {
  *         description: Logged out successfully
  */
 // POST /api/auth/logout
-router.post('/logout', csrfProtection, async (req: Request, res: Response) => {
+router.post('/logout',csrfProtection,  csrfProtection, async (req: Request, res: Response) => {
   const token = req.headers.authorization?.split(' ')[1]
   const { revokeAllTokens } = req.body
 

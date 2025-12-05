@@ -98,7 +98,7 @@ router.get(
 // POST /inspections
 router.post(
   '/',
-  requirePermission('inspection:create:own', {
+ csrfProtection,  csrfProtection, requirePermission('inspection:create:own', {
     customCheck: async (req: AuthRequest) => {
       // Validate driver_id matches the authenticated user
       const driverId = req.body.driver_id
