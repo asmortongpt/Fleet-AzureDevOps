@@ -128,7 +128,7 @@ router.get('/parts/search', requirePermission('inventory:view:global'), async (r
     const query = req.query.q as string
 
     if (!query || query.length < 1) {
-      return throw new ValidationError("Search query required")
+      throw new ValidationError("Search query required")
     }
 
     const tenantId = (req as any).user.tenant_id

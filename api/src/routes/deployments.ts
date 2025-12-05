@@ -91,7 +91,7 @@ router.post('/',
 
     // Validate required fields
     if (!environment) {
-      return throw new ValidationError("environment is required")
+      throw new ValidationError("environment is required")
     }
 
     // Validate environment
@@ -230,7 +230,7 @@ router.get('/:id',
     const deploymentResult = await pool.query(
       `SELECT
         d.*,
-        u.first_name || ` ` || u.last_name as deployed_by_name
+        u.first_name || ' ' || u.last_name as deployed_by_name
       FROM deployments d
       LEFT JOIN users u ON d.deployed_by_user_id = u.id
       WHERE d.id = $1`,
@@ -238,7 +238,7 @@ router.get('/:id',
     )
 
     if (deploymentResult.rows.length === 0) {
-      return throw new NotFoundError("Deployment not found")
+      throw new NotFoundError("Deployment not found")
     }
 
     const qualityGatesResult = await pool.query(

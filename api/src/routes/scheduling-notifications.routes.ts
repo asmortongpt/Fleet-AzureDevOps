@@ -348,7 +348,7 @@ router.post('/resend/:id',csrfProtection, async (req: Request, res: Response) =>
     if (type === 'reservation') {
       const result = await pool.query(
         `SELECT vr.*, v.make, v.model, v.license_plate, v.vin,
-                u.first_name || ` ` || u.last_name as reserved_by_name,
+                u.first_name || ' ' || u.last_name as reserved_by_name,
                 vr.tenant_id
          FROM vehicle_reservations vr
          JOIN vehicles v ON vr.vehicle_id = v.id
@@ -385,7 +385,7 @@ router.post('/resend/:id',csrfProtection, async (req: Request, res: Response) =>
       const result = await pool.query(
         `SELECT sbs.*, v.make, v.model, v.license_plate, v.vin,
                 at.name as appointment_type, sb.bay_name,
-                u.first_name || ` ` || u.last_name as technician_name,
+                u.first_name || ' ' || u.last_name as technician_name,
                 sbs.tenant_id
          FROM service_bay_schedules sbs
          LEFT JOIN vehicles v ON sbs.vehicle_id = v.id

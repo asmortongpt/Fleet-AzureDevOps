@@ -266,7 +266,7 @@ class VideoTelematicsService {
         vse.*,
         v.name as vehicle_name,
         v.vin,
-        d.first_name || ` ` || d.last_name as driver_name,
+        d.first_name || ' ' || d.last_name as driver_name,
         vc.camera_type,
         vc.camera_name
       FROM video_safety_events vse
@@ -541,7 +541,7 @@ class VideoTelematicsService {
     const videosResult = await this.db.query(
       `SELECT vse.*,
               v.name as vehicle_name,
-              d.first_name || ` ` || d.last_name as driver_name
+              d.first_name || ' ' || d.last_name as driver_name
        FROM video_safety_events vse
        JOIN vehicles v ON vse.vehicle_id = v.id
        LEFT JOIN drivers d ON vse.driver_id = d.id

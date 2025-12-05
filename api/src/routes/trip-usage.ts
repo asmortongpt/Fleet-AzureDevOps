@@ -562,7 +562,7 @@ router.post(
       )
 
       if (result.rows.length === 0) {
-        return throw new NotFoundError("Trip usage classification not found")
+        throw new NotFoundError("Trip usage classification not found")
       }
 
       const trip = result.rows[0]
@@ -619,7 +619,7 @@ router.post(
       const { rejection_reason } = req.body
 
       if (!rejection_reason || rejection_reason.trim().length === 0) {
-        return throw new ValidationError("Rejection reason is required")
+        throw new ValidationError("Rejection reason is required")
       }
 
       const result = await pool.query(

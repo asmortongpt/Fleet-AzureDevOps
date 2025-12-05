@@ -170,7 +170,7 @@ router.get(
         `SELECT vse.*,
                 v.name as vehicle_name,
                 v.vin,
-                d.first_name || ` ` || d.last_name as driver_name,
+                d.first_name || ' ' || d.last_name as driver_name,
                 vc.camera_type,
                 vc.camera_name
          FROM video_safety_events vse
@@ -182,7 +182,7 @@ router.get(
       );
 
       if (result.rows.length === 0) {
-        return throw new NotFoundError("Video event not found");
+        throw new NotFoundError("Video event not found");
       }
 
       // Log access for audit
@@ -215,7 +215,7 @@ router.get(
       const playbackUrl = await videoService.getVideoPlaybackUrl(Number(req.params.id);
 
       if (!playbackUrl) {
-        return throw new NotFoundError("Video clip not available");
+        throw new NotFoundError("Video clip not available");
       }
 
       // Log video access
@@ -400,7 +400,7 @@ router.get(
       const locker = await videoService.getEvidenceLocker(Number(req.params.id);
 
       if (!locker) {
-        return throw new NotFoundError("Evidence locker not found");
+        throw new NotFoundError("Evidence locker not found");
       }
 
       res.json(locker);
@@ -463,7 +463,7 @@ router.post(
       const { eventId } = req.body;
 
       if (!eventId) {
-        return throw new ValidationError("eventId is required");
+        throw new ValidationError("eventId is required");
       }
 
       await videoService.addToEvidenceLocker(

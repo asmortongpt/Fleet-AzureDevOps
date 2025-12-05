@@ -51,7 +51,7 @@ router.get(
       // SECURITY FIX: Add tenant_id filter to communications table directly
       let query = `
         SELECT c.*,
-               from_user.first_name || ` ` || from_user.last_name as from_user_name,
+               from_user.first_name || ' ' || from_user.last_name as from_user_name,
                COUNT(DISTINCT cel.id) as linked_entities_count
         FROM communications c
         LEFT JOIN drivers from_user ON c.from_user_id = from_user.id
@@ -136,7 +136,7 @@ router.get(
       // SECURITY FIX: Add tenant_id filter to prevent cross-tenant access
       const result = await pool.query(
         `SELECT c.*,
-                from_user.first_name || ` ` || from_user.last_name as from_user_name
+                from_user.first_name || ' ' || from_user.last_name as from_user_name
          FROM communications c
          LEFT JOIN drivers from_user ON c.from_user_id = from_user.id
          WHERE c.id = $1 AND c.tenant_id = $2`,
@@ -372,7 +372,7 @@ router.get(
         `SELECT c.*,
                 cel.link_type,
                 cel.relevance_score,
-                from_user.first_name || ` ` || from_user.last_name as from_user_name
+                from_user.first_name || ' ' || from_user.last_name as from_user_name
          FROM communications c
          JOIN communication_entity_links cel ON c.id = cel.communication_id
          LEFT JOIN drivers from_user ON c.from_user_id = from_user.id

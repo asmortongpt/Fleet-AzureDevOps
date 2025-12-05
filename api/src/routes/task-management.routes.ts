@@ -36,7 +36,7 @@ router.get('/', requirePermission('report:view:global'), async (req: AuthRequest
       SELECT
         t.*,
         u_assigned.first_name || ' ' || u_assigned.last_name as assigned_to_name,
-        u_created.first_name || ` ` || u_created.last_name as created_by_name,
+        u_created.first_name || ' ' || u_created.last_name as created_by_name,
         v.vehicle_number as related_vehicle,
         COUNT(DISTINCT tc.id) as comment_count,
         COUNT(DISTINCT ta.id) as attachment_count
