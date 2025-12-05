@@ -32,7 +32,12 @@ export const handleValidationToken = (
   const validationToken = req.query.validationToken as string
 
   if (validationToken) {
-    logger.info('📋 Webhook validation token received:', validationToken.substring(0, 20) + '...')
+    // SECURITY FIX (P0): Sanitize validation token to prevent log injection (CWE-117)
+    // Fingerprint: f2a8c4d7e9b6f3a8
+    const { sanitizeForLog } = require('../utils/logSanitizer')
+    logger.info('📋 Webhook validation token received', {
+      token: sanitizeForLog(validationToken, 20) + '...'
+    })
 
     // Return the validation token in plain text as required by Microsoft Graph
     res.type('text/plain')

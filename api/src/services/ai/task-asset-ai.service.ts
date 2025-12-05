@@ -11,7 +11,7 @@
  */
 
 import Anthropic from '@anthropic-ai/sdk'
-import pool from '../../config/database'
+import { Pool } from 'pg'
 // Note: embeddings.service doesn't exist - EmbeddingService is at ../EmbeddingService.ts
 // import embeddingService from '../EmbeddingService'
 
@@ -46,7 +46,11 @@ export interface WorkflowSuggestion {
 /**
  * Analyze task and provide intelligent suggestions
  */
-export async function analyzeTaskAndSuggest(taskData: {
+
+export class TaskAssetAIService {
+  constructor(private db: Pool) {}
+
+  async analyzeTaskAndSuggest(taskData: {
   title: string
   description?: string
   type?: string
@@ -61,7 +65,7 @@ export async function analyzeTaskAndSuggest(taskData: {
     // Temporarily disabled - embedding service import needs fixing
     const similarTasks = { rows: [] }
 
-    // const similarTasks = await pool.query(
+    // const similarTasks = await this.db.query(
     //   `SELECT
     //     id, task_title, description, priority, assigned_to,
     //     actual_hours, status, created_at,
@@ -131,7 +135,7 @@ Format your response as JSON with keys: suggestedPriority, estimatedHours, recom
  * - Skill matching
  * - Availability
  */
-export async function suggestTaskAssignee(taskData: {
+  async suggestTaskAssignee(taskData: {
   title: string
   description?: string
   type?: string
@@ -140,7 +144,7 @@ export async function suggestTaskAssignee(taskData: {
 }): Promise<{ userId: string; userName: string; confidence: number; reason: string }[]> {
   try {
     // Get users and their current workload
-    const users = await pool.query(
+    const users = await this.db.query(
       `SELECT
         u.id,
         u.first_name || ' ' || u.last_name as name,
@@ -206,13 +210,13 @@ Return as JSON array: [{ userId, confidence, reason }]`
 /**
  * Predict asset maintenance needs using ML and historical data
  */
-export async function predictAssetMaintenance(
+  async predictAssetMaintenance(
   assetId: string,
   tenant_id: string
 ): Promise<AssetMaintenancePrediction | null> {
   try {
     // Get asset details and maintenance history
-    const assetQuery = await pool.query(
+    const assetQuery = await this.db.query(
       `SELECT
         a.*,
         COUNT(am.id) as maintenance_count,
@@ -232,7 +236,7 @@ export async function predictAssetMaintenance(
     const asset = assetQuery.rows[0]
 
     // Get maintenance history
-    const maintenanceHistory = await pool.query(
+    const maintenanceHistory = await this.db.query(
       `SELECT id, tenant_id, asset_id, maintenance_type, maintenance_date, status, created_at FROM asset_maintenance
        WHERE asset_id = $1
        ORDER BY maintenance_date DESC
@@ -295,13 +299,13 @@ Return as JSON: { predictedDate, confidence, reasoning, estimatedCost, urgency }
 /**
  * Generate workflow suggestions for task completion
  */
-export async function suggestWorkflow(
+  async suggestWorkflow(
   taskId: string,
   tenant_id: string
 ): Promise<WorkflowSuggestion | null> {
   try {
     // Get task details and related information
-    const task = await pool.query(
+    const task = await this.db.query(
       `SELECT
         t.*,
         v.vehicle_number,
@@ -320,7 +324,7 @@ export async function suggestWorkflow(
     const taskData = task.rows[0]
 
     // Get subtasks and dependencies
-    const subtasks = await pool.query(
+    const subtasks = await this.db.query(
       `SELECT 
       id,
       tenant_id,
@@ -393,7 +397,7 @@ Return as JSON: { nextActions (array), dependencies (array), estimatedCompletion
 /**
  * Natural language task creation using AI
  */
-export async function parseNaturalLanguageTask(
+  async parseNaturalLanguageTask(
   input: string,
   tenant_id: string
 ): Promise<{
@@ -439,7 +443,7 @@ Extract and return as JSON:
 /**
  * RAG-powered document Q&A for assets and tasks
  */
-export async function answerQuestionAboutAssetOrTask(
+  async answerQuestionAboutAssetOrTask(
   question: string,
   contextId: string,
   contextType: 'asset' | 'task',
@@ -450,7 +454,7 @@ export async function answerQuestionAboutAssetOrTask(
     let context = ''
 
     if (contextType === 'asset') {
-      const asset = await pool.query(
+      const asset = await this.db.query(
         `SELECT a.*,
           (SELECT json_agg(am.* ORDER BY am.maintenance_date DESC)
            FROM asset_maintenance am WHERE am.asset_id = a.id) as maintenance_history
@@ -463,7 +467,7 @@ export async function answerQuestionAboutAssetOrTask(
         context = JSON.stringify(asset.rows[0], null, 2)
       }
     } else {
-      const task = await pool.query(
+      const task = await this.db.query(
         `SELECT t.*,
           (SELECT json_agg(tc.*) FROM task_comments tc WHERE tc.task_id = t.id) as comments,
           (SELECT json_agg(tci.*) FROM task_checklist_items tci WHERE tci.task_id = t.id) as checklist
@@ -499,12 +503,6 @@ Provide a clear, concise answer based only on the information in the context. If
     throw new Error('Failed to answer question')
   }
 }
-
-export default {
-  analyzeTaskAndSuggest,
-  suggestTaskAssignee,
-  predictAssetMaintenance,
-  suggestWorkflow,
-  parseNaturalLanguageTask,
-  answerQuestionAboutAssetOrTask
 }
+
+export default TaskAssetAIService

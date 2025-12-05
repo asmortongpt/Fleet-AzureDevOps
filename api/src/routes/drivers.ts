@@ -1,78 +1,85 @@
 import { Router } from "express"
-import { driverEmulator } from "../emulators/DriverEmulator"
+import { container } from '../container'
+import { TYPES } from '../types'
+import { DriverController } from '../modules/drivers/controllers/driver.controller'
+import { asyncHandler } from '../middleware/error-handler'
+import {
+  driverCreateSchema,
+  driverUpdateSchema,
+  driverQuerySchema,
+  driverIdSchema
+} from '../schemas/drivers.schema';
+import { validateBody, validateQuery, validateParams, validateAll } from '../middleware/validate';
+import { authenticateJWT } from '../middleware/auth';
+import { requireRBAC, Role, PERMISSIONS } from '../middleware/rbac';
 
 const router = Router()
+const driverController = container.get<DriverController>(TYPES.DriverController)
 
-// GET all drivers
-router.get("/", async (req, res) => {
-  try {
-    const { page = 1, pageSize = 20, search, status } = req.query
+// SECURITY: All routes require authentication
+router.use(authenticateJWT)
 
-    let drivers = driverEmulator.getAll()
+// GET all drivers - Requires authentication, any role can read
+router.get("/",
+  requireRBAC({
+    roles: [Role.ADMIN, Role.MANAGER, Role.USER, Role.GUEST],
+    permissions: [PERMISSIONS.DRIVER_READ],
+    enforceTenantIsolation: true,
+    resourceType: 'driver'
+  }),
+  validateQuery(driverQuerySchema),
+  asyncHandler((req, res, next) => driverController.getAllDrivers(req, res, next))
+)
 
-    // Apply search filter
-    if (search && typeof search === 'string') {
-      drivers = driverEmulator.search(search)
-    }
+// GET driver by ID - Requires authentication + tenant isolation
+router.get("/:id",
+  requireRBAC({
+    roles: [Role.ADMIN, Role.MANAGER, Role.USER, Role.GUEST],
+    permissions: [PERMISSIONS.DRIVER_READ],
+    enforceTenantIsolation: true,
+    resourceType: 'driver'
+  }),
+  validateParams(driverIdSchema),
+  asyncHandler((req, res, next) => driverController.getDriverById(req, res, next))
+)
 
-    // Apply status filter
-    if (status && typeof status === 'string') {
-      drivers = drivers.filter(d => d.status === status)
-    }
+// POST create driver - Requires admin or manager role
+router.post("/",
+  requireRBAC({
+    roles: [Role.ADMIN, Role.MANAGER],
+    permissions: [PERMISSIONS.DRIVER_CREATE],
+    enforceTenantIsolation: true,
+    resourceType: 'driver'
+  }),
+  validateBody(driverCreateSchema),
+  asyncHandler((req, res, next) => driverController.createDriver(req, res, next))
+)
 
-    // Apply pagination
-    const total = drivers.length
-    const offset = (Number(page) - 1) * Number(pageSize)
-    const data = drivers.slice(offset, offset + Number(pageSize))
-
-    res.json({ data, total })
-  } catch (error) {
-    console.error(error)
-    res.status(500).json({ error: "Failed to fetch drivers" })
-  }
-})
-
-// GET driver by ID
-router.get("/:id", async (req, res) => {
-  try {
-    const driver = driverEmulator.getById(Number(req.params.id))
-    if (!driver) return res.status(404).json({ error: "Driver not found" })
-    res.json({ data: driver })
-  } catch (error) {
-    res.status(500).json({ error: "Failed to fetch driver" })
-  }
-})
-
-// POST create driver
-router.post("/", async (req, res) => {
-  try {
-    const driver = driverEmulator.create(req.body)
-    res.status(201).json({ data: driver })
-  } catch (error) {
-    res.status(500).json({ error: "Failed to create driver" })
-  }
-})
-
-// PUT update driver
-router.put("/:id", async (req, res) => {
-  try {
-    const driver = driverEmulator.update(Number(req.params.id), req.body)
-    if (!driver) return res.status(404).json({ error: "Driver not found" })
-    res.json({ data: driver })
-  } catch (error) {
-    res.status(500).json({ error: "Failed to update driver" })
-  }
-})
+// PUT update driver - Requires admin or manager role + tenant isolation
+router.put("/:id",
+  requireRBAC({
+    roles: [Role.ADMIN, Role.MANAGER],
+    permissions: [PERMISSIONS.DRIVER_UPDATE],
+    enforceTenantIsolation: true,
+    resourceType: 'driver'
+  }),
+  validateAll({
+    params: driverIdSchema,
+    body: driverUpdateSchema
+  }),
+  asyncHandler((req, res, next) => driverController.updateDriver(req, res, next))
+)
 
 // DELETE driver
-router.delete("/:id", async (req, res) => {
-  try {
-    const deleted = driverEmulator.delete(Number(req.params.id))
-    if (!deleted) return res.status(404).json({ error: "Driver not found" })
-    res.json({ message: "Driver deleted successfully" })
-  } catch (error) {
-    res.status(500).json({ error: "Failed to delete driver" })
-  }
-})
+router.delete("/:id",
+  requireRBAC({
+    roles: [Role.ADMIN, Role.MANAGER],
+    permissions: [PERMISSIONS.DRIVER_DELETE],
+    enforceTenantIsolation: true,
+    resourceType: 'driver'
+  }),
+  validateParams(driverIdSchema),
+  asyncHandler((req, res, next) => driverController.deleteDriver(req, res, next))
+)
 
 export default router
