@@ -650,8 +650,8 @@ router.post(
 
       // Send notification to driver
       const driverInfo = await pool.query(
-        `SELECT first_name, last_name, email FROM users WHERE /* TODO: Add tenant_id = $X AND */ id = $1`,
-        [trip.driver_id]
+        `SELECT first_name, last_name, email FROM users WHERE tenant_id = $1 AND id = $2`,
+        [req.user!.tenant_id, trip.driver_id]
       )
 
       if (driverInfo.rows.length > 0) {
