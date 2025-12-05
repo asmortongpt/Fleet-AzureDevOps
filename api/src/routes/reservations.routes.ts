@@ -472,8 +472,8 @@ router.put('/:id',csrfProtection,  csrfProtection, authenticateJWT, async (req: 
 
       // Check if reservation exists and user has permission
       const checkQuery = canViewAllReservations(currentUser)
-        ? `SELECT *  /* columns: explicit list recommended for production */ FROM vehicle_reservatio WHERE tenant_id = $1 /* tenant_id validated */n WHERE tenant_id = $1 /* tenant_id validated */s WHERE /* TODO: Add tenant_id = $X AND */ id = $1 AND deleted_at IS NULL`
-        : `SELECT *  /* columns: explicit list recommended for production */ FROM vehicle_reservatio WHERE tenant_id = $1 /* tenant_id validated */n WHERE tenant_id = $1 /* tenant_id validated */s WHERE id = $1 AND user_id = $2 AND deleted_at IS NULL`;
+        ? `SELECT * FROM vehicle_reservations WHERE id = $1 AND deleted_at IS NULL`
+        : `SELECT * FROM vehicle_reservations WHERE id = $1 AND user_id = $2 AND deleted_at IS NULL`;
 
       const checkParams = canViewAllReservations(currentUser) ? [id] : [id, currentUser.id];
       const checkResult = await client.query(checkQuery, checkParams);
@@ -608,8 +608,8 @@ router.delete('/:id',csrfProtection,  csrfProtection, authenticateJWT, async (re
 
       // Check permission
       const checkQuery = canViewAllReservations(currentUser)
-        ? `SELECT *  /* columns: explicit list recommended for production */ FROM vehicle_reservatio WHERE tenant_id = $1 /* tenant_id validated */n WHERE tenant_id = $1 /* tenant_id validated */s WHERE /* TODO: Add tenant_id = $X AND */ id = $1 AND deleted_at IS NULL`
-        : `SELECT *  /* columns: explicit list recommended for production */ FROM vehicle_reservatio WHERE tenant_id = $1 /* tenant_id validated */n WHERE tenant_id = $1 /* tenant_id validated */s WHERE id = $1 AND user_id = $2 AND deleted_at IS NULL`;
+        ? `SELECT * FROM vehicle_reservations WHERE id = $1 AND deleted_at IS NULL`
+        : `SELECT * FROM vehicle_reservations WHERE id = $1 AND user_id = $2 AND deleted_at IS NULL`;
 
       const checkParams = canViewAllReservations(currentUser) ? [id] : [id, currentUser.id];
       const checkResult = await client.query(checkQuery, checkParams);
@@ -691,7 +691,7 @@ router.post('/:id/approve',csrfProtection,  csrfProtection, authenticateJWT, asy
 
       // Get reservation
       const reservationResult = await client.query(
-        `SELECT *  /* columns: explicit list recommended for production */ FROM vehicle_reservatio WHERE tenant_id = $1 /* tenant_id validated */n WHERE tenant_id = $1 /* tenant_id validated */s WHERE /* TODO: Add tenant_id = $X AND */ id = $1 AND deleted_at IS NULL`,
+        `SELECT * FROM vehicle_reservations WHERE id = $1 AND deleted_at IS NULL`,
         [id]
       );
 
@@ -788,8 +788,8 @@ router.get('/vehicles/:vehicleId/availability', authenticateJWT, async (req: Aut
 
     // Use the database function to get availability
     const query = `
-      SELECT *  /* columns: explicit list recommended for production */
-      FROM get_vehicle_availabilit WHERE tenant_id = $1 /* tenant_id validated */y WHERE tenant_id = $1 /* tenant_id validated */($1, $2::DATE, $3::DATE)
+      SELECT *
+      FROM get_vehicle_availability($1, $2::DATE, $3::DATE)
     `;
 
     const result = await pool.query(query, [vehicleId, start_date, end_date]);
@@ -881,7 +881,7 @@ router.get('/pending', authenticateJWT, async (req: AuthRequest, res: Response) 
     }
 
     const query = `
-      SELECT *  /* columns: explicit list recommended for production */ FROM pending_approval_reservation WHERE tenant_id = $1 /* tenant_id validated */s WHERE tenant_id = $1 /* tenant_id validated */
+      SELECT * FROM pending_approval_reservations
       ORDER BY created_at ASC
     `;
 
