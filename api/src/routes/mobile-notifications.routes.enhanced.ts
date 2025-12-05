@@ -7,7 +7,9 @@ import { authenticateJWT } from '../middleware/auth';
 import { requirePermission } from '../middleware/permissions';
 import { pushNotificationService } from '../services/push-notification.service';
 import { asyncHandler } from '../utils/asyncHandler';
-import { validateRequest } from '../middleware/validateRequest';
+import { validateRequest } from '../middleware/validateRequest'
+import { csrfProtection } from '../middleware/csrf'
+;
 
 const router = express.Router();
 

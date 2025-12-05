@@ -8,7 +8,9 @@
 import { Router, Request, Response } from 'express';
 import { queryMonitor } from '../../utils/query-monitor';
 import { getDatabaseStats } from '../../utils/database';
-import { getPoolStats, getDatabaseHealth } from '../../config/database';
+import { getPoolStats, getDatabaseHealth } from '../../config/database'
+import { csrfProtection } from '../middleware/csrf'
+;
 
 const router = Router();
 
@@ -210,7 +212,7 @@ router.get('/detailed-stats', async (req: Request, res: Response) => {
  * POST /api/monitoring/query-performance/reset
  * Reset query performance statistics
  */
-router.post('/reset', async (req: Request, res: Response) => {
+router.post('/reset', csrfProtection, async (req: Request, res: Response) => {
   try {
     queryMonitor.resetStats();
 
