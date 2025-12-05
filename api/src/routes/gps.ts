@@ -8,6 +8,8 @@ import logger from '../config/logger'; // Wave 17: Add Winston logger
  */
 
 import { Router, Request, Response } from 'express'
+import { csrfProtection } from '../middleware/csrf'
+
 import { gpsEmulator } 
 const router = Router()
 
@@ -200,7 +202,7 @@ router.get('/:vehicleId/history', (req: Request, res: Response) => {
  * POST /api/gps/start
  * Start GPS emulation (for testing/demo purposes)
  */
-router.post('/start', (req: Request, res: Response) => {
+router.post('/start', csrfProtection, (req: Request, res: Response) => {
   try {
     gpsEmulator.start()
 
@@ -221,7 +223,7 @@ router.post('/start', (req: Request, res: Response) => {
  * POST /api/gps/stop
  * Stop GPS emulation (for testing/demo purposes)
  */
-router.post('/stop', (req: Request, res: Response) => {
+router.post('/stop', csrfProtection, (req: Request, res: Response) => {
   try {
     gpsEmulator.stop()
 

@@ -10,6 +10,8 @@ import { z } from 'zod'
 import { buildInsertClause, buildUpdateClause } from '../utils/sql-safety'
 import { VideoEventSchema, VideoEventUpdateSchema } from '../models/VideoEvent'
 import { errorHandler } from '../middleware/errorHandler'
+import { csrfProtection } from '../middleware/csrf'
+
 
 const router = express.Router()
 router.use(authenticateJWT)

@@ -20,6 +20,8 @@ import { Readable } from 'stream';
 import StorageManager from '../services/StorageManager';
 import { loadStorageConfig, loadQuotaConfig, loadFailoverConfig, storageFeatures } from '../config/storage';
 import { getErrorMessage } from '../utils/error-handler'
+import { csrfProtection } from '../middleware/csrf'
+
 
 const router = express.Router();
 
@@ -226,7 +228,7 @@ router.get('/url/:key(*)', async (req: Request, res: Response) => {
  *       200:
  *         description: File deleted successfully
  */
-router.delete('/delete/:key(*)', async (req: Request, res: Response) => {
+router.delete('/delete/:key(*)', csrfProtection, async (req: Request, res: Response) => {
   try {
     const manager = await getStorageManager();
     const key = req.params.key;
@@ -357,7 +359,7 @@ router.get('/stats', async (req: Request, res: Response) => {
  *       200:
  *         description: Migration job created
  */
-router.post('/migrate', async (req: Request, res: Response) => {
+router.post('/migrate', csrfProtection, async (req: Request, res: Response) => {
   try {
     const manager = await getStorageManager();
     const { sourceProvider, targetProvider, deleteSource } = req.body;
@@ -401,7 +403,7 @@ router.post('/migrate', async (req: Request, res: Response) => {
  *       200:
  *         description: Tiering completed
  */
-router.post('/tier/auto', async (req: Request, res: Response) => {
+router.post('/tier/auto', csrfProtection, async (req: Request, res: Response) => {
   try {
     if (!storageFeatures.enableAutoTiering) {
       return res.status(400).json({
@@ -604,7 +606,7 @@ router.post('/batch/upload', upload.array('files', 10), async (req: Request, res
  *       200:
  *         description: Files deleted successfully
  */
-router.post('/batch/delete', async (req: Request, res: Response) => {
+router.post('/batch/delete', csrfProtection, async (req: Request, res: Response) => {
   try {
     const { keys } = req.body;
 

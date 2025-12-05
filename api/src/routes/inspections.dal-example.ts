@@ -25,6 +25,8 @@ import {
 } from '../services/dal'
 import { connectionManager } from '../config/connection-manager'
 import { z } from 'zod'
+import { csrfProtection } from '../middleware/csrf'
+
 
 const router = express.Router()
 router.use(authenticateJWT)

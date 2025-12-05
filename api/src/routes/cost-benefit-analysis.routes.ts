@@ -19,6 +19,8 @@ import { z } from 'zod'
 import { authenticateJWT, AuthRequest } from '../middleware/auth'
 import { requirePermission } from '../middleware/permissions'
 import { getErrorMessage } from '../utils/error-handler'
+import { csrfProtection } from '../middleware/csrf'
+
 
 const router = express.Router()
 

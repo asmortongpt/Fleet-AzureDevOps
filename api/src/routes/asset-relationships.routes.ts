@@ -18,6 +18,8 @@ import type { AuthRequest } from '../middleware/auth'
 import { authenticateJWT } from '../middleware/auth'
 import { requirePermission } from '../middleware/permissions'
 import { auditLog } from '../middleware/audit'
+import { csrfProtection } from '../middleware/csrf'
+
 
 const router = Router()
 
