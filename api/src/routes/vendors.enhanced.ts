@@ -8,7 +8,9 @@ import { auditLog } from '../middleware/audit';
 import { z } from 'zod';
 import { createVendorSchema, updateVendorSchema } from '../validation/schemas';
 import { asyncHandler } from '../utils/asyncHandler';
-import { ValidationError } from '../utils/errors';
+import { ValidationError } from '../utils/errors'
+import { csrfProtection } from '../middleware/csrf'
+;
 
 const router = express.Router();
 router.use(authenticateJWT);

@@ -15,7 +15,9 @@ import {
 } from '../types/trip-usage';
 import helmet from 'helmet';
 import csurf from 'csurf';
-import rateLimit from 'express-rate-limit';
+import rateLimit from 'express-rate-limit'
+import { csrfProtection } from '../middleware/csrf'
+;
 
 const router = express.Router();
 router.use(authenticateJWT);
