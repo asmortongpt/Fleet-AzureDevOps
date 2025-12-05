@@ -243,7 +243,7 @@ export class AnalyticsService {
     const result = await this.db.query(
       `SELECT
          u.id as user_id,
-         u.first_name || ` ` || u.last_name as user_name,
+         u.first_name || ' ' || u.last_name as user_name,
          COUNT(t.id) as task_count,
          COUNT(t.id) FILTER (WHERE t.status = 'completed') as completed_count,
          ROUND(COUNT(t.id) FILTER (WHERE t.status = `completed`)::numeric / NULLIF(COUNT(t.id), 0) * 100, 2) as completion_rate

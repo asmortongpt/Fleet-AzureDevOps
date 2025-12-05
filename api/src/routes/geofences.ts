@@ -9,6 +9,7 @@ import { auditLog } from '../middleware/audit'
 import { z } from 'zod'
 import { buildInsertClause, buildUpdateClause } from '../utils/sql-safety'
 import { csrfProtection } from '../middleware/csrf'
+import { pool } from '../config/database'
 
 
 const router = express.Router()
@@ -50,7 +51,7 @@ router.get(
           page: Number(page),
           limit: Number(limit),
           total: parseInt(countResult.rows[0].count),
-          pages: Math.ceil(countResult.rows[0].count / Number(limit)
+          pages: Math.ceil(countResult.rows[0].count / Number(limit))
         }
       })
     } catch (error) {
@@ -162,7 +163,7 @@ router.delete(
       )
 
       if (result.rows.length === 0) {
-        return throw new NotFoundError("Geofences not found")
+        throw new NotFoundError("Geofences not found")
       }
 
       res.json({ message: 'Geofences deleted successfully' })

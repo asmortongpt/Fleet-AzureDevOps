@@ -308,7 +308,7 @@ export class DriverScorecardService {
       SELECT
         ds.rank_position as rank,
         ds.driver_id,
-        d.first_name || ` ` || d.last_name as driver_name,
+        d.first_name || ' ' || d.last_name as driver_name,
         ds.overall_score,
         ds.safety_score,
         ds.efficiency_score,

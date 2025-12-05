@@ -41,7 +41,7 @@ router.get(
           page: Number(page),
           limit: Number(limit),
           total: parseInt(countResult.rows[0].count),
-          pages: Math.ceil(countResult.rows[0].count / Number(limit)
+          pages: Math.ceil(countResult.rows[0].count / Number(limit))
         }
       })
     } catch (error) {
@@ -143,7 +143,7 @@ router.delete(
       )
 
       if (result.rows.length === 0) {
-        return throw new NotFoundError("CommunicationLogs not found")
+        throw new NotFoundError("CommunicationLogs not found")
       }
 
       res.json({ message: 'CommunicationLogs deleted successfully' })

@@ -218,7 +218,7 @@ router.get(
       const result = await pool.query(query, [id, tenant_id])
 
       if (result.rows.length === 0) {
-        return throw new NotFoundError("On-call period not found")
+        throw new NotFoundError("On-call period not found")
       }
 
       res.json(result.rows[0])
@@ -401,7 +401,7 @@ router.post(
       const result = await pool.query(query, [data.acknowledged, id, tenant_id])
 
       if (result.rows.length === 0) {
-        return throw new NotFoundError("On-call period not found")
+        throw new NotFoundError("On-call period not found")
       }
 
       res.json({

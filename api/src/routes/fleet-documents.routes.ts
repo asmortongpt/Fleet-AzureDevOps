@@ -121,7 +121,7 @@ router.post(
   async (req: AuthRequest, res: Response) => {
     try {
       if (!req.file) {
-        return throw new ValidationError("No file uploaded")
+        throw new ValidationError("No file uploaded")
       }
 
       const {
@@ -135,7 +135,7 @@ router.post(
       } = req.body
 
       if (!documentType || !title) {
-        return throw new ValidationError("documentType and title are required")
+        throw new ValidationError("documentType and title are required")
       }
 
       // Validate that at least one entity is specified
@@ -255,7 +255,7 @@ router.get(
           v.make || ' ' || v.model || ' (' || v.license_plate || ')' as vehicle_name,
           d.first_name || ' ' || d.last_name as driver_name,
           wo.title as work_order_title,
-          uploader.first_name || ` ` || uploader.last_name as uploaded_by_name
+          uploader.first_name || ' ' || uploader.last_name as uploaded_by_name
         FROM fleet_documents fd
         LEFT JOIN vehicles v ON fd.vehicle_id = v.id
         LEFT JOIN drivers d ON fd.driver_id = d.id
