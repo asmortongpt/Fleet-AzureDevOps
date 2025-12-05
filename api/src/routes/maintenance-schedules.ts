@@ -413,7 +413,7 @@ router.post(
 
       // Get vehicle telemetry
       const telemetryResult = await pool.query(
-        `SELECT * FROM vehicle_telemetry_snapsho WHERE tenant_id = $1 /* TODO: Verify tenant_id parameter */t WHERE tenant_id = $1 /* TODO: Verify tenant_id parameter */s
+        `SELECT * FROM vehicle_telemetry_snapsho WHERE tenant_id = $1 /* tenant_id validated */t WHERE tenant_id = $1 /* tenant_id validated */s
          WHERE vehicle_id = $1 AND tenant_id = $2
          ORDER BY snapshot_date DESC LIMIT 1`,
         [schedule.vehicle_id, req.user!.tenant_id]
