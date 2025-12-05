@@ -46,7 +46,7 @@ router.get("/:id",
 
 // POST create driver - Requires admin or manager role
 router.post("/",
-  requireRBAC({
+ csrfProtection,  csrfProtection, requireRBAC({
     roles: [Role.ADMIN, Role.MANAGER],
     permissions: [PERMISSIONS.DRIVER_CREATE],
     enforceTenantIsolation: true,
@@ -58,7 +58,7 @@ router.post("/",
 
 // PUT update driver - Requires admin or manager role + tenant isolation
 router.put("/:id",
-  requireRBAC({
+ csrfProtection,  csrfProtection, requireRBAC({
     roles: [Role.ADMIN, Role.MANAGER],
     permissions: [PERMISSIONS.DRIVER_UPDATE],
     enforceTenantIsolation: true,
@@ -73,7 +73,7 @@ router.put("/:id",
 
 // DELETE driver
 router.delete("/:id",
-  requireRBAC({
+ csrfProtection,  csrfProtection, requireRBAC({
     roles: [Role.ADMIN, Role.MANAGER],
     permissions: [PERMISSIONS.DRIVER_DELETE],
     enforceTenantIsolation: true,

@@ -7,6 +7,8 @@ import { Pool } from 'pg';
 import passport from 'passport';
 import { Strategy as AzureStrategy } from 'passport-azure-ad-oauth2';
 import session from 'express-session';
+import { csrfProtection } from '../middleware/csrf'
+
 
 type User = {
   id: string;

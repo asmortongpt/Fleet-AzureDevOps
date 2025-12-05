@@ -84,7 +84,7 @@ router.get("/:id", asyncHandler(async (req, res) => {
 })
 
 // POST create fuel transaction
-router.post("/", validate(createFuelTransactionSchema, 'body'), async (req, res) => {
+router.post("/",csrfProtection,  csrfProtection, validate(createFuelTransactionSchema, 'body'), async (req, res) => {
   try {
     const transaction = fuelTransactionEmulator.create(req.body)
     res.status(201).json({ data: transaction })
@@ -94,7 +94,7 @@ router.post("/", validate(createFuelTransactionSchema, 'body'), async (req, res)
 })
 
 // PUT update fuel transaction
-router.put("/:id", validate(updateFuelTransactionSchema, 'body'), async (req, res) => {
+router.put("/:id",csrfProtection,  csrfProtection, validate(updateFuelTransactionSchema, 'body'), async (req, res) => {
   try {
     const transaction = fuelTransactionEmulator.update(Number(req.params.id), req.body)
 
@@ -121,7 +121,7 @@ router.put("/:id", validate(updateFuelTransactionSchema, 'body'), async (req, re
 })
 
 // DELETE fuel transaction
-router.delete("/:id", asyncHandler(async (req, res) => {
+router.delete("/:id",csrfProtection,  csrfProtection, asyncHandler(async (req, res) => {
   try {
     const deleted = fuelTransactionEmulator.delete(Number(req.params.id)
     if (!deleted) return throw new NotFoundError("Fuel transaction not found")
@@ -134,7 +134,7 @@ router.delete("/:id", asyncHandler(async (req, res) => {
 export default router
 
 // IDOR Protection for UPDATE
-router.put('/:id', csrfProtection, async (req: Request, res: Response) => {
+router.put('/:id',csrfProtection,  csrfProtection, async (req: Request, res: Response) => {
   const { id } = req.params;
   const tenantId = req.user?.tenantId;
 
@@ -155,7 +155,7 @@ router.put('/:id', csrfProtection, async (req: Request, res: Response) => {
 });
 
 // IDOR Protection for DELETE
-router.delete('/:id', csrfProtection, async (req: Request, res: Response) => {
+router.delete('/:id',csrfProtection,  csrfProtection, async (req: Request, res: Response) => {
   const { id } = req.params;
   const tenantId = req.user?.tenantId;
 

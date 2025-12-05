@@ -3,6 +3,8 @@ import { container } from '../container'
 import { asyncHandler } from '../middleware/errorHandler'
 import { NotFoundError, ValidationError } from '../errors/app-error'
 import { pool } from '../db'
+import { csrfProtection } from '../middleware/csrf'
+
 
 const router = Router()
 let requestCount = 0
