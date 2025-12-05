@@ -404,7 +404,7 @@ router.post('/register', registrationLimiter, async (req: Request, res: Response
  *         description: Invalid or expired refresh token
  */
 // POST /api/auth/refresh - Refresh token rotation
-router.post('/refresh', async (req: Request, res: Response) => {
+router.post('/refresh', csrfProtection, async (req: Request, res: Response) => {
   try {
     const { refreshToken } = req.body
 
@@ -520,7 +520,7 @@ router.post('/refresh', async (req: Request, res: Response) => {
  *         description: Logged out successfully
  */
 // POST /api/auth/logout
-router.post('/logout', async (req: Request, res: Response) => {
+router.post('/logout', csrfProtection, async (req: Request, res: Response) => {
   const token = req.headers.authorization?.split(' ')[1]
   const { revokeAllTokens } = req.body
 

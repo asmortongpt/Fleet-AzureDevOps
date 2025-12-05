@@ -122,6 +122,8 @@ router.get(
       query += ` GROUP BY c.id, from_user.first_name, from_user.last_name`
       const limitIndex = params.length + 1
       const offsetIndex = params.length + 2
+      const limitIndex = params.length + 1
+      const offsetIndex = params.length + 2
       query += ` ORDER BY c.communication_datetime DESC LIMIT ${paramIndex} OFFSET $${paramIndex + 1}`
       params.push(limit, offset)
 
