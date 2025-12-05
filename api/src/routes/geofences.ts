@@ -125,7 +125,7 @@ router.post(
 // PUT /geofences/:id
 router.put(
   `/:id`,
-  requirePermission('geofence:update:fleet'),
+  csrfProtection, requirePermission('geofence:update:fleet'),
   auditLog({ action: 'UPDATE', resourceType: 'geofences' }),
   async (req: AuthRequest, res: Response) => {
     try {
