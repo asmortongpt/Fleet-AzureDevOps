@@ -1,32 +1,26 @@
 import { z } from 'zod';
 
-const envSchema = z.object({
-  NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
+export const envSchema = z.object({
   PORT: z.string().transform(Number).default('3000'),
-  DB_HOST: z.string().default('localhost'),
-  DB_PORT: z.string().transform(Number).default('5432'),
-  DB_NAME: z.string(),
-  DB_USER: z.string(),
-  DB_PASSWORD: z.string(),
-  REDIS_HOST: z.string().default('localhost'),
-  REDIS_PORT: z.string().transform(Number).default('6379'),
+  NODE_ENV: z.enum(['development', 'staging', 'production']).default('development'),
+  DB_POOL_MIN: z.string().transform(Number).default('2'),
+  DB_POOL_MAX: z.string().transform(Number).default('10'),
   JWT_SECRET: z.string().min(32),
-  LOG_LEVEL: z.enum(['error', 'warn', 'info', 'debug']).default('info')
+  CSRF_SECRET: z.string().min(32),
+  DATABASE_URL: z.string().url(),
 });
 
 export type Env = z.infer<typeof envSchema>;
 
-export function loadConfig(): Env {
-  try {
-    return envSchema.parse(process.env);
-  } catch (err) {
-    if (err instanceof z.ZodError) {
-      console.error('Environment validation failed:');
-      err.errors.forEach(e => console.error(`  ${e.path}: ${e.message}`));
-      process.exit(1);
-    }
-    throw err;
+try {
+  envSchema.parse(process.env);
+} catch (error) {
+  if (error instanceof z.ZodError) {
+    console.error('❌ Environment validation failed:');
+    error.issues.forEach((e) => {
+      console.error(\`  - \${e.path.join('.')}: \${e.message}\`);
+    });
+    process.exit(1);
   }
+  throw error;
 }
-
-export const config = loadConfig();
