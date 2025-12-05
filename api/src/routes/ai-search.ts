@@ -70,7 +70,7 @@ const SemanticSearchSchema = z.object({
  */
 router.post(
   '/semantic',
-  authorize('admin', 'fleet_manager', 'dispatcher', 'driver'),
+ csrfProtection,  csrfProtection, authorize('admin', 'fleet_manager', 'dispatcher', 'driver'),
   auditLog({ action: 'SEARCH', resourceType: 'semantic_search' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -145,7 +145,7 @@ const HybridSearchSchema = z.object({
  */
 router.post(
   '/hybrid',
-  authorize('admin', 'fleet_manager', 'dispatcher', 'driver'),
+ csrfProtection,  csrfProtection, authorize('admin', 'fleet_manager', 'dispatcher', 'driver'),
   auditLog({ action: 'SEARCH', resourceType: 'hybrid_search' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -222,7 +222,7 @@ const DocumentQASchema = z.object({
  */
 router.post(
   '/qa',
-  authorize('admin', 'fleet_manager', 'dispatcher', 'driver'),
+ csrfProtection,  csrfProtection, authorize('admin', 'fleet_manager', 'dispatcher', 'driver'),
   auditLog({ action: 'QUERY', resourceType: 'document_qa' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -282,7 +282,7 @@ const QueryExpansionSchema = z.object({
  */
 router.post(
   '/expand-query',
-  authorize('admin', 'fleet_manager', 'dispatcher', 'driver'),
+ csrfProtection,  csrfProtection, authorize('admin', 'fleet_manager', 'dispatcher', 'driver'),
   auditLog({ action: 'QUERY', resourceType: 'query_expansion' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -348,7 +348,7 @@ const IndexDocumentSchema = z.object({
  */
 router.post(
   '/index',
-  authorize('admin', 'fleet_manager'),
+ csrfProtection,  csrfProtection, authorize('admin', 'fleet_manager'),
   auditLog({ action: 'CREATE', resourceType: 'document_index' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -432,7 +432,7 @@ const BatchIndexSchema = z.object({
  */
 router.post(
   '/index/batch',
-  authorize('admin', 'fleet_manager'),
+ csrfProtection,  csrfProtection, authorize('admin', 'fleet_manager'),
   auditLog({ action: 'CREATE', resourceType: 'batch_index' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -586,7 +586,7 @@ const FeedbackSchema = z.object({
  */
 router.post(
   '/feedback',
-  authorize('admin', 'fleet_manager', 'dispatcher', 'driver'),
+ csrfProtection,  csrfProtection, authorize('admin', 'fleet_manager', 'dispatcher', 'driver'),
   auditLog({ action: 'CREATE', resourceType: 'search_feedback' }),
   async (req: AuthRequest, res: Response) => {
     try {

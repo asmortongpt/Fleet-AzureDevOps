@@ -3,6 +3,8 @@ import { queryMonitor } from '../../utils/query-monitor';
 import { getDatabaseStats } from '../../utils/database';
 import { getPoolStats } from '../../config/database';
 import { z } from 'zod';
+import { csrfProtection } from '../middleware/csrf'
+
 
 const router = express.Router();
 

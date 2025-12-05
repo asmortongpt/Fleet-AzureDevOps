@@ -9,6 +9,8 @@ import request from 'supertest';
 import express from 'express';
 import vehicleHistoryRoutes from '../vehicle-history.routes';
 import pool from '../../config/database';
+import { csrfProtection } from '../middleware/csrf'
+
 
 // Mock authentication middleware
 const mockAuthMiddleware = (req: any, res: any, next: any) => {

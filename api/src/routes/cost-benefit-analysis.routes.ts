@@ -216,7 +216,7 @@ router.get(
 
 router.post(
   '/',
-  authenticateJWT,
+ csrfProtection,  csrfProtection, authenticateJWT,
   requirePermission('cost_benefit:create:team'),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -309,7 +309,7 @@ router.post(
 
 router.put(
   '/:id',
-  authenticateJWT,
+ csrfProtection,  csrfProtection, authenticateJWT,
   requirePermission(`cost_benefit:create:team`),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -375,7 +375,7 @@ router.put(
 
 router.post(
   '/:id/review',
-  authenticateJWT,
+ csrfProtection,  csrfProtection, authenticateJWT,
   requirePermission('cost_benefit:approve:fleet'),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -428,7 +428,7 @@ router.post(
 
 router.delete(
   '/:id',
-  authenticateJWT,
+ csrfProtection,  csrfProtection, authenticateJWT,
   requirePermission('cost_benefit:create:team'),
   async (req: AuthRequest, res: Response) => {
     try {
