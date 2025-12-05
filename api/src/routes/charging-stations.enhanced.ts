@@ -131,7 +131,7 @@ router.get(
 // POST /charging-stations
 router.post(
   '/',
-  requirePermission('charging_station:create:fleet'),
+ csrfProtection,  csrfProtection, requirePermission('charging_station:create:fleet'),
   auditLog({ action: 'CREATE', resourceType: 'charging_stations' }),
   async (req: AuthRequest, res: Response) => {
     try {

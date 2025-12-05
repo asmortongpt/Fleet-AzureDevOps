@@ -65,7 +65,7 @@ const PartScanSchema = z.object({
  *       404:
  *         description: Part not found
  */
-router.post('/parts/scan', requirePermission('inventory:view:global'), async (req: Request, res: Response) => {
+router.post('/parts/scan',csrfProtection,  csrfProtection, requirePermission('inventory:view:global'), async (req: Request, res: Response) => {
   try {
     const validated = PartScanSchema.parse(req.body)
     const tenantId = (req as any).user.tenant_id
@@ -272,7 +272,7 @@ const VehicleCheckInSchema = z.object({
  *       200:
  *         description: Check-in successful
  */
-router.post('/checkin/nfc', requirePermission('vehicle:update:fleet'), auditLog, async (req: Request, res: Response) => {
+router.post('/checkin/nfc',csrfProtection,  csrfProtection, requirePermission('vehicle:update:fleet'), auditLog, async (req: Request, res: Response) => {
   try {
     const validated = VehicleCheckInSchema.parse(req.body)
     const tenantId = (req as any).user.tenant_id
@@ -406,7 +406,7 @@ const BeaconRegistrationSchema = z.object({
  *       201:
  *         description: Beacon registered successfully
  */
-router.post('/beacons/register', requirePermission(`vehicle:update:fleet`), auditLog, async (req: Request, res: Response) => {
+router.post('/beacons/register',csrfProtection,  csrfProtection, requirePermission(`vehicle:update:fleet`), auditLog, async (req: Request, res: Response) => {
   try {
     const validated = BeaconRegistrationSchema.parse(req.body)
     const tenantId = (req as any).user.tenant_id
@@ -758,7 +758,7 @@ const AddPartToWorkOrderSchema = z.object({
  *       201:
  *         description: Part added to work order
  */
-router.post('/work-orders/:workOrderId/parts', requirePermission(`work_order:update:global`), auditLog, async (req: Request, res: Response) => {
+router.post('/work-orders/:workOrderId/parts',csrfProtection,  csrfProtection, requirePermission(`work_order:update:global`), auditLog, async (req: Request, res: Response) => {
   try {
     const workOrderId = req.params.workOrderId
     const validated = AddPartToWorkOrderSchema.parse(req.body)
@@ -827,7 +827,7 @@ const BatchAddPartsSchema = z.object({
  *       201:
  *         description: Parts added to work order
  */
-router.post('/work-orders/:workOrderId/parts/batch', requirePermission(`work_order:update:global`), auditLog, async (req: Request, res: Response) => {
+router.post('/work-orders/:workOrderId/parts/batch',csrfProtection,  csrfProtection, requirePermission(`work_order:update:global`), auditLog, async (req: Request, res: Response) => {
   try {
     const workOrderId = req.params.workOrderId
     const validated = BatchAddPartsSchema.parse(req.body)
@@ -892,7 +892,7 @@ const AssetScanSchema = z.object({
  *       404:
  *         description: Asset not found
  */
-router.post('/assets/scan', requirePermission(`asset:view:global`), async (req: Request, res: Response) => {
+router.post('/assets/scan',csrfProtection,  csrfProtection, requirePermission(`asset:view:global`), async (req: Request, res: Response) => {
   try {
     const validated = AssetScanSchema.parse(req.body)
     const tenantId = (req as any).user.tenant_id

@@ -25,7 +25,7 @@ const router = express.Router();
  * POST /api/mobile/notifications/register-device
  * Register FCM token for mobile device
  */
-router.post('/register-device', authenticateJWT, async (req, res) => {
+router.post('/register-device',csrfProtection,  csrfProtection, authenticateJWT, async (req, res) => {
   try {
     const {
       deviceToken,
@@ -79,7 +79,7 @@ router.post('/register-device', authenticateJWT, async (req, res) => {
  * DELETE /api/mobile/notifications/device/:deviceId
  * Unregister mobile device
  */
-router.delete('/device/:deviceId', authenticateJWT, async (req, res) => {
+router.delete('/device/:deviceId',csrfProtection,  csrfProtection, authenticateJWT, async (req, res) => {
   try {
     const { deviceId } = req.params;
 
@@ -110,7 +110,7 @@ router.delete('/device/:deviceId', authenticateJWT, async (req, res) => {
  */
 router.post(
   '/send',
-  authenticateJWT,
+ csrfProtection,  csrfProtection, authenticateJWT,
   requirePermission('communication:send:global'),
   async (req, res) => {
     try {
@@ -184,7 +184,7 @@ router.post(
  * POST /api/mobile/notifications/send-to-user
  * Send notification to specific user
  */
-router.post('/send-to-user', authenticateJWT, async (req, res) => {
+router.post('/send-to-user',csrfProtection,  csrfProtection, authenticateJWT, async (req, res) => {
   try {
     const {
       userId,
@@ -278,7 +278,7 @@ router.get('/preferences', authenticateJWT, async (req, res) => {
  * PUT /api/mobile/notifications/preferences
  * Update notification preferences
  */
-router.put('/preferences', authenticateJWT, async (req, res) => {
+router.put('/preferences',csrfProtection,  csrfProtection, authenticateJWT, async (req, res) => {
   try {
     const preferences = req.body;
 
@@ -308,7 +308,7 @@ router.put('/preferences', authenticateJWT, async (req, res) => {
  */
 router.post(
   '/sms/send',
-  authenticateJWT,
+ csrfProtection,  csrfProtection, authenticateJWT,
   requirePermission('communication:send:global'),
   async (req, res) => {
     try {
@@ -352,7 +352,7 @@ router.post(
  */
 router.post(
   '/sms/send-bulk',
-  authenticateJWT,
+ csrfProtection,  csrfProtection, authenticateJWT,
   requirePermission('communication:broadcast:global'),
   async (req, res) => {
     try {
@@ -403,7 +403,7 @@ router.post(
  */
 router.post(
   '/sms/send-from-template',
-  authenticateJWT,
+ csrfProtection,  csrfProtection, authenticateJWT,
   requirePermission('communication:send:global'),
   async (req, res) => {
     try {
@@ -518,7 +518,7 @@ router.get(
  */
 router.post(
   '/sms/templates',
-  authenticateJWT,
+ csrfProtection,  csrfProtection, authenticateJWT,
   requirePermission('communication:manage:global'),
   async (req, res) => {
     try {
@@ -598,7 +598,7 @@ router.get(
  * POST /api/mobile/notifications/webhooks/twilio
  * Handle Twilio delivery status webhooks
  */
-router.post('/webhooks/twilio', asyncHandler(async (req, res) => {
+router.post('/webhooks/twilio',csrfProtection,  csrfProtection, asyncHandler(async (req, res) => {
   try {
     await smsService.handleWebhook(req.body);
 
@@ -617,7 +617,7 @@ router.post('/webhooks/twilio', asyncHandler(async (req, res) => {
  * PUT /api/mobile/notifications/:id/opened
  * Track notification opened
  */
-router.put('/:id/opened', authenticateJWT, async (req, res) => {
+router.put('/:id/opened',csrfProtection,  csrfProtection, authenticateJWT, async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -640,7 +640,7 @@ router.put('/:id/opened', authenticateJWT, async (req, res) => {
  * PUT /api/mobile/notifications/:id/clicked
  * Track notification action clicked
  */
-router.put('/:id/clicked', authenticateJWT, async (req, res) => {
+router.put('/:id/clicked',csrfProtection,  csrfProtection, authenticateJWT, async (req, res) => {
   try {
     const { id } = req.params;
     const { action } = req.body;

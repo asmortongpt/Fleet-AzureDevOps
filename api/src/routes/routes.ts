@@ -160,7 +160,7 @@ router.get(
 // POST /routes
 router.post(
   '/',
-  requirePermission('route:create:fleet'),
+ csrfProtection,  csrfProtection, requirePermission('route:create:fleet'),
   auditLog({ action: 'CREATE', resourceType: 'routes' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -262,7 +262,7 @@ router.put(
 // DELETE /routes/:id
 router.delete(
   '/:id',
-  requirePermission('route:delete:fleet'),
+ csrfProtection,  csrfProtection, requirePermission('route:delete:fleet'),
   auditLog({ action: 'DELETE', resourceType: 'routes' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -286,7 +286,7 @@ router.delete(
 export default router
 
 // IDOR Protection for UPDATE
-router.put('/:id', csrfProtection, async (req: Request, res: Response) => {
+router.put('/:id',csrfProtection,  csrfProtection, async (req: Request, res: Response) => {
   const { id } = req.params;
   const tenantId = req.user?.tenantId;
 
@@ -307,7 +307,7 @@ router.put('/:id', csrfProtection, async (req: Request, res: Response) => {
 });
 
 // IDOR Protection for DELETE
-router.delete('/:id', csrfProtection, async (req: Request, res: Response) => {
+router.delete('/:id',csrfProtection,  csrfProtection, async (req: Request, res: Response) => {
   const { id } = req.params;
   const tenantId = req.user?.tenantId;
 

@@ -97,7 +97,7 @@ router.get('/', requirePermission('report:view:global'), async (req: AuthRequest
 })
 
 // Create task
-router.post('/', requirePermission('report:generate:global'), async (req: AuthRequest, res) => {
+router.post('/',csrfProtection,  csrfProtection, requirePermission('report:generate:global'), async (req: AuthRequest, res) => {
   const client = await pool.connect()
   try {
     await client.query('BEGIN')
@@ -155,7 +155,7 @@ router.post('/', requirePermission('report:generate:global'), async (req: AuthRe
 })
 
 // Update task
-router.put('/:id', requirePermission('report:generate:global'), async (req: AuthRequest, res) => {
+router.put('/:id',csrfProtection,  csrfProtection, requirePermission('report:generate:global'), async (req: AuthRequest, res) => {
   const client = await pool.connect()
   try {
     await client.query('BEGIN')
@@ -212,7 +212,7 @@ router.put('/:id', requirePermission('report:generate:global'), async (req: Auth
 })
 
 // Add comment to task
-router.post('/:id/comments', requirePermission('report:generate:global'), async (req: AuthRequest, res) => {
+router.post('/:id/comments',csrfProtection,  csrfProtection, requirePermission('report:generate:global'), async (req: AuthRequest, res) => {
   try {
     const { id } = req.params
     const { comment_text } = req.body
@@ -236,7 +236,7 @@ router.post('/:id/comments', requirePermission('report:generate:global'), async 
 })
 
 // Track time on task
-router.post('/:id/time-entries', requirePermission('report:generate:global'), async (req: AuthRequest, res) => {
+router.post('/:id/time-entries',csrfProtection,  csrfProtection, requirePermission('report:generate:global'), async (req: AuthRequest, res) => {
   try {
     const { id } = req.params
     const { hours_spent, description } = req.body

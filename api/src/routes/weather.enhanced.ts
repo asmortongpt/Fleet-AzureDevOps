@@ -11,6 +11,8 @@ import { Pool } from 'pg';
 import dotenv from 'dotenv';
 import bcrypt from 'bcrypt';
 import { z } from 'zod';
+import { csrfProtection } from '../middleware/csrf'
+
 
 dotenv.config();
 

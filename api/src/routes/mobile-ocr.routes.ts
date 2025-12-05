@@ -93,7 +93,7 @@ const ValidationSchema = z.object({
  */
 router.post(
   '/fuel-receipts/ocr',
-  requirePermission('fuel_transaction:create:own'),
+ csrfProtection,  csrfProtection, requirePermission('fuel_transaction:create:own'),
   upload.single('file'),
   auditLog({ action: 'CREATE', resourceType: 'fuel_receipt_ocr' }),
   async (req: AuthRequest, res: Response) => {
@@ -230,7 +230,7 @@ router.post(
  */
 router.post(
   '/odometer/ocr',
-  requirePermission('vehicle:update:own'),
+ csrfProtection,  csrfProtection, requirePermission('vehicle:update:own'),
   upload.single('file'),
   auditLog({ action: 'CREATE', resourceType: 'odometer_reading_ocr' }),
   async (req: AuthRequest, res: Response) => {
@@ -404,7 +404,7 @@ router.post(
  */
 router.post(
   '/ocr/validate',
-  requirePermission('fuel_transaction:view:own'),
+ csrfProtection,  csrfProtection, requirePermission('fuel_transaction:view:own'),
   auditLog({ action: 'READ', resourceType: 'ocr_validation' }),
   async (req: AuthRequest, res: Response) => {
     try {
