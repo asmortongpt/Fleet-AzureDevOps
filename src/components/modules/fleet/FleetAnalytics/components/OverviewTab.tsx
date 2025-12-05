@@ -1,11 +1,12 @@
-import { MetricCard } from "@/components/MetricCard"
-import { ChartCard } from "@/components/ChartCard"
 import {
   ChartLine,
   TrendUp,
   Wrench,
   CarProfile
 } from "@phosphor-icons/react"
+
+import { ChartCard } from "@/components/ChartCard"
+import { MetricCard } from "@/components/MetricCard"
 
 interface MonthlyFleetData {
   name: string
