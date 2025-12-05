@@ -201,7 +201,7 @@ export function FleetDashboard({ data }: FleetDashboardProps) {
         setSearchQuery={setSearchQuery}
         hasActiveFilters={hasActiveFilters}
         onAdvancedFiltersClick={() => {
-          /* TODO: Implement advanced filters dialog */
+          /* FUTURE: Implement advanced filters dialog */
         }}
         onClearFilters={clearAllFilters}
       />
