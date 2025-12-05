@@ -74,7 +74,7 @@ class Environment {
       REDIS_URL: process.env.REDIS_URL,
 
       // JWT
-      JWT_SECRET: process.env.JWT_SECRET || '',
+      JWT_SECRET: process.env.JWT_SECRET!,
       JWT_EXPIRY: process.env.JWT_EXPIRY || '24h',
 
       // Microsoft OAuth
@@ -104,6 +104,11 @@ class Environment {
 
     // Critical production requirements
     if (this.config.NODE_ENV === 'production') {
+      // Azure Key Vault is REQUIRED in production
+      if (!this.config.AZURE_KEY_VAULT_URL) {
+        errors.push('AZURE_KEY_VAULT_URL must be configured in production');
+      }
+
       // JWT secret is absolutely required
       if (!this.config.JWT_SECRET || this.config.JWT_SECRET.length < 32) {
         errors.push('JWT_SECRET must be set and at least 32 characters in production');
@@ -145,10 +150,10 @@ class Environment {
     console.log(`✅ Environment configuration validated`);
     console.log(`   - Environment: ${this.config.NODE_ENV}`);
     console.log(`   - Port: ${this.config.PORT}`);
-    console.log(`   - Database: ${this.config.DATABASE_URL ? `Configured' : 'Using individual params'}`);
-    console.log(`   - Redis: ${this.config.REDIS_URL ? `Enabled' : 'Disabled'}`);
-    console.log(`   - JWT Secret: ${this.config.JWT_SECRET ? `✅ Set' : '❌ Missing'}`);
-    console.log(`   - Microsoft OAuth: ${this.config.MICROSOFT_CLIENT_ID ? `Configured' : 'Not configured'}`);
+    console.log(`   - Database: ${this.config.DATABASE_URL ? 'Configured' : 'Using individual params'}`);
+    console.log(`   - Redis: ${this.config.REDIS_URL ? 'Enabled' : 'Disabled'}`);
+    console.log(`   - JWT Secret: ${this.config.JWT_SECRET ? '✅ Set' : '❌ Missing'}`);
+    console.log(`   - Microsoft OAuth: ${this.config.MICROSOFT_CLIENT_ID ? 'Configured' : 'Not configured'}`);
   }
 
   get<K extends keyof EnvironmentConfig>(key: K): EnvironmentConfig[K] {

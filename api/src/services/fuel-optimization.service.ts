@@ -5,7 +5,7 @@
  * Includes bulk vs retail analysis, fleet card optimization, and hedging recommendations
  */
 
-import pool from '../config/database'
+import { Pool } from 'pg'
 import fuelPurchasingService from './fuel-purchasing.service'
 import fuelPriceForecastingModel from '../ml-models/fuel-price-forecasting.model'
 
@@ -48,6 +48,8 @@ export interface HedgingRecommendation {
 }
 
 export class FuelOptimizationService {
+  constructor(private db: Pool) {}
+
   /**
    * Calculate optimal refueling locations for fleet
    */
@@ -85,7 +87,7 @@ export class FuelOptimizationService {
         params.push(vehicleIds)
       }
 
-      const result = await pool.query(query, params)
+      const result = await this.db.query(query, params)
 
       const recommendations: OptimalRefuelingLocation[] = []
 
@@ -134,7 +136,7 @@ export class FuelOptimizationService {
   }> {
     try {
       // Get current retail prices
-      const retailPriceResult = await pool.query(
+      const retailPriceResult = await this.db.query(
         `SELECT AVG(price_per_gallon) as avg_price
          FROM fuel_purchase_orders
          WHERE tenant_id = $1
@@ -224,7 +226,7 @@ export class FuelOptimizationService {
       ]
 
       // Get number of vehicles
-      const vehicleResult = await pool.query(
+      const vehicleResult = await this.db.query(
         'SELECT COUNT(*) as count FROM vehicles WHERE tenant_id = $1 AND status = 'active'',
         [tenantId]
       )
@@ -464,7 +466,7 @@ export class FuelOptimizationService {
   }> {
     try {
       // Calculate monthly gallons from purchase history
-      const purchaseResult = await pool.query(
+      const purchaseResult = await this.db.query(
         `SELECT AVG(monthly_gallons) as avg_monthly
          FROM (
            SELECT
@@ -513,4 +515,4 @@ export class FuelOptimizationService {
   }
 }
 
-export default new FuelOptimizationService()
+export default FuelOptimizationService
