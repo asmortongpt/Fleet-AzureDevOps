@@ -64,7 +64,7 @@ router.get("/", validate(getFuelTransactionsQuerySchema, 'query'), async (req, r
     // Apply pagination
     const total = transactions.length
     const offset = (Number(page) - 1) * Number(pageSize)
-    const data = transactions.slice(offset, offset + Number(pageSize)
+    const data = transactions.slice(offset, offset + Number(pageSize))
 
     res.json({ data, total })
   } catch (error) {
@@ -76,8 +76,8 @@ router.get("/", validate(getFuelTransactionsQuerySchema, 'query'), async (req, r
 // GET fuel transaction by ID
 router.get("/:id", asyncHandler(async (req, res) => {
   try {
-    const transaction = fuelTransactionEmulator.getById(Number(req.params.id)
-    if (!transaction) return throw new NotFoundError("Fuel transaction not found")
+    const transaction = fuelTransactionEmulator.getById(Number(req.params.id))
+    if (!transaction) throw new NotFoundError("Fuel transaction not found")
     res.json({ data: transaction })
   } catch (error) {
     res.status(500).json({ error: "Failed to fetch fuel transaction" })
@@ -102,19 +102,19 @@ router.put("/:id",csrfProtection,  csrfProtection, validate(updateFuelTransactio
     // SECURITY: IDOR Protection - Validate foreign keys belong to tenant
     const { vehicle_id, driver_id } = data
 
-    if (vehicle_id && !(await validator.validateVehicle(vehicle_id, req.user!.tenant_id)) {
+    if (vehicle_id && !(await validator.validateVehicle(vehicle_id, req.user!.tenant_id))) {
       return res.status(403).json({
         success: false,
         error: 'Vehicle Id not found or access denied'
       })
     }
-    if (driver_id && !(await validator.validateDriver(driver_id, req.user!.tenant_id)) {
+    if (driver_id && !(await validator.validateDriver(driver_id, req.user!.tenant_id))) {
       return res.status(403).json({
         success: false,
         error: 'Driver Id not found or access denied'
       })
     }
-    if (!transaction) return throw new NotFoundError("Fuel transaction not found")
+    if (!transaction) throw new NotFoundError("Fuel transaction not found")
     res.json({ data: transaction })
   } catch (error) {
     res.status(500).json({ error: "Failed to update fuel transaction" })
@@ -124,8 +124,8 @@ router.put("/:id",csrfProtection,  csrfProtection, validate(updateFuelTransactio
 // DELETE fuel transaction
 router.delete("/:id",csrfProtection,  csrfProtection, asyncHandler(async (req, res) => {
   try {
-    const deleted = fuelTransactionEmulator.delete(Number(req.params.id)
-    if (!deleted) return throw new NotFoundError("Fuel transaction not found")
+    const deleted = fuelTransactionEmulator.delete(Number(req.params.id))
+    if (!deleted) throw new NotFoundError("Fuel transaction not found")
     res.json({ message: "Fuel transaction deleted successfully" })
   } catch (error) {
     res.status(500).json({ error: "Failed to delete fuel transaction" })
