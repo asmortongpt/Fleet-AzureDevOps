@@ -3,7 +3,8 @@ import { container } from '../container'
 import { asyncHandler } from '../middleware/errorHandler'
 import { NotFoundError, ValidationError } from '../errors/app-error'
 import logger from '../config/logger'; // Wave 16: Add Winston logger
-import { fuelTransactionEmulator } import { TenantValidator } from '../utils/tenant-validator';
+import { fuelTransactionEmulator } from '../emulators/fuel/FuelEmulator';
+import { TenantValidator } from '../utils/tenant-validator';
 import { validate } from '../middleware/validation'
 import { csrfProtection } from '../middleware/csrf'
 
@@ -39,12 +40,12 @@ router.get("/", validate(getFuelTransactionsQuerySchema, 'query'), async (req, r
 
     // Apply vehicle filter
     if (vehicleId && typeof vehicleId === 'string') {
-      transactions = fuelTransactionEmulator.filterByVehicle(Number(vehicleId)
+      transactions = fuelTransactionEmulator.filterByVehicle(Number(vehicleId))
     }
 
     // Apply driver filter
     if (driverId && typeof driverId === 'string') {
-      transactions = fuelTransactionEmulator.filterByDriver(Number(driverId)
+      transactions = fuelTransactionEmulator.filterByDriver(Number(driverId))
     }
 
     // Apply payment method filter
