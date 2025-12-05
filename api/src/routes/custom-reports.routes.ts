@@ -12,6 +12,8 @@ import fs from 'fs/promises'
 import path from 'path'
 import { safeReadFile, PathTraversalError } from '../utils/safe-file-operations'
 import { getErrorMessage } from '../utils/error-handler'
+import { csrfProtection } from '../middleware/csrf'
+
 
 const router = express.Router()
 router.use(authenticateJWT)

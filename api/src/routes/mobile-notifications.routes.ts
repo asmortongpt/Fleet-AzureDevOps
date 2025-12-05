@@ -11,7 +11,9 @@ import express from 'express';
 import { authenticateJWT } from '../middleware/auth';
 import { requirePermission } from '../middleware/permissions';
 import { pushNotificationService } from '../services/push-notification.service';
-import { smsService } from '../services/sms.service';
+import { smsService } from '../services/sms.service'
+import { csrfProtection } from '../middleware/csrf'
+;
 
 const router = express.Router();
 

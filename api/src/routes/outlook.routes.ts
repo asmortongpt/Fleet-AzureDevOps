@@ -13,6 +13,8 @@ import { outlookService } from '../services/outlook.service'
 import { z } from 'zod'
 import { logger } from '../utils/logger'
 import { getErrorMessage } from '../utils/error-handler'
+import { csrfProtection } from '../middleware/csrf'
+
 import {
   SendEmailRequest,
   ReplyEmailRequest,

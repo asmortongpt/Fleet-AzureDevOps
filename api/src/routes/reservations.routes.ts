@@ -28,7 +28,9 @@ import { Pool } from 'pg';
 import { z } from 'zod';
 import { authenticateJWT, AuthRequest } from '../middleware/auth';
 import { getErrorMessage } from '../utils/error-handler';
-import MicrosoftIntegrationService from '../services/microsoft-integration.service';
+import MicrosoftIntegrationService from '../services/microsoft-integration.service'
+import { csrfProtection } from '../middleware/csrf'
+;
 
 const router = express.Router();
 

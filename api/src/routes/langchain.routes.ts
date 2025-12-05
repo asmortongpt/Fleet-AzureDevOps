@@ -15,6 +15,8 @@ import mcpServerRegistryService from '../services/mcp-server-registry.service'
 import { logger } from '../utils/logger'
 import { v4 as uuidv4 } from 'uuid'
 import { getErrorMessage } from '../utils/error-handler'
+import { csrfProtection } from '../middleware/csrf'
+
 
 const router = Router()
 

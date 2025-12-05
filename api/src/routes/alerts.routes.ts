@@ -20,6 +20,8 @@ import { authenticateJWT } from '../middleware/auth'
 import { requirePermission } from '../middleware/permissions'
 import alertEngine from '../services/alert-engine.service'
 import { z } from 'zod'
+import { csrfProtection } from '../middleware/csrf'
+
 
 // SECURITY: Input validation schemas
 const createAlertRuleSchema = z.object({
