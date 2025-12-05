@@ -15,8 +15,6 @@ import {
 } from '../schemas/fuel-transactions.schema'
 
 const router = Router()
-const db = container.resolve('db')
-const validator = new TenantValidator(db)
 
 // GET all fuel transactions
 router.get("/", validate(getFuelTransactionsQuerySchema, 'query'), async (req, res) => {
@@ -92,22 +90,6 @@ router.post("/", csrfProtection, validate(createFuelTransactionSchema, 'body'), 
 // PUT update fuel transaction
 router.put("/:id", csrfProtection, validate(updateFuelTransactionSchema, 'body'), async (req, res) => {
   try {
-    const { vehicle_id, driver_id } = req.body
-
-    if (vehicle_id && !(await validator.validateVehicle(vehicle_id, req.user!.tenant_id))) {
-      return res.status(403).json({
-        success: false,
-        error: 'Vehicle Id not found or access denied'
-      })
-    }
-
-    if (driver_id && !(await validator.validateDriver(driver_id, req.user!.tenant_id))) {
-      return res.status(403).json({
-        success: false,
-        error: 'Driver Id not found or access denied'
-      })
-    }
-
     const transaction = fuelTransactionEmulator.update(Number(req.params.id), req.body)
     if (!transaction) throw new NotFoundError("Fuel transaction not found")
     res.json({ data: transaction })
