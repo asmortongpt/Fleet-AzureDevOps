@@ -103,7 +103,7 @@ router.get('/vehicle-count', authenticateJWT, async (req: Request, res: Response
  *       500:
  *         description: Server error
  */
-router.post('/vehicle-action/:vehicleId', authenticateJWT, async (req: Request, res: Response) => {
+router.post('/vehicle-action/:vehicleId',csrfProtection,  csrfProtection, authenticateJWT, async (req: Request, res: Response) => {
   try {
     const reqWithContainer = req as RequestWithContainer
     const vehicleId = parseInt(req.params.vehicleId, 10)
@@ -204,7 +204,7 @@ router.get('/test-di', async (req: Request, res: Response) => {
  * Example of using multiple services together
  * This shows how to compose services for complex operations
  */
-router.post('/complex-operation/:vehicleId', authenticateJWT, async (req: Request, res: Response) => {
+router.post('/complex-operation/:vehicleId',csrfProtection,  csrfProtection, authenticateJWT, async (req: Request, res: Response) => {
   try {
     const reqWithContainer = req as RequestWithContainer
     const vehicleId = parseInt(req.params.vehicleId, 10)

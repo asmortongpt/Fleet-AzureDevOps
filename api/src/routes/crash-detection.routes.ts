@@ -76,7 +76,7 @@ const CrashReportSchema = z.object({
  *         description: Invalid request data
  */
 router.post('/crash',
-  auditLog(`crash_report_submitted`),
+ csrfProtection,  csrfProtection, auditLog(`crash_report_submitted`),
   async (req: Request, res: Response) => {
     const client = await pool.connect()
 

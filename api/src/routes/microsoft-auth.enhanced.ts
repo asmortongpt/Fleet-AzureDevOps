@@ -8,6 +8,8 @@ import bcrypt from 'bcrypt'
 import { createAuditLog } from '../middleware/audit'
 import { getValidatedFrontendUrl, buildSafeRedirectUrl } from '../utils/redirect-validator'
 import { z } from 'zod'
+import { csrfProtection } from '../middleware/csrf'
+
 
 const router = express.Router()
 

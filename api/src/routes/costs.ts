@@ -376,7 +376,7 @@ router.get('/export', async (_req, res) => {
 }))
 
 // POST create new cost entry
-router.post('/', asyncHandler(async (req, res): Promise<any> => {
+router.post('/',csrfProtection,  csrfProtection, asyncHandler(async (req, res): Promise<any> => {
   try {
     const {
       vehicleId,
@@ -448,7 +448,7 @@ router.post('/', asyncHandler(async (req, res): Promise<any> => {
 }))
 
 // POST bulk import costs
-router.post('/bulk-import', asyncHandler(async (req, res): Promise<any> => {
+router.post('/bulk-import',csrfProtection,  csrfProtection, asyncHandler(async (req, res): Promise<any> => {
   try {
     const { costs } = req.body
 

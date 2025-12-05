@@ -15,6 +15,8 @@ import { serializeError } from 'serialize-error'
 import { sendErrorResponse } from '../utils/errorHandler'
 import { logger } from '../config/logger'
 import { tenantSafeQuery } from '../utils/dbHelpers'
+import { csrfProtection } from '../middleware/csrf'
+
 
 const router = express.Router()
 

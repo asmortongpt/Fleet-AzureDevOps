@@ -8,6 +8,8 @@ import { NotFoundError, ValidationError } from '../errors/app-error'
 
 import express from 'express'
 import {
+import { csrfProtection } from '../middleware/csrf'
+
   mockVehicles,
   mockDrivers,
   mockWorkOrders,
