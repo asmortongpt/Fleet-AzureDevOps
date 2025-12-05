@@ -80,7 +80,7 @@ const upload = multer({
  */
 router.post(
   '/analyze-photo',
-  authenticateJWT,
+ csrfProtection,  csrfProtection, authenticateJWT,
   requirePermission('damage:analyze'),
   rateLimit(20, 60000), // 20 requests per minute
   upload.single('photo'),
@@ -165,7 +165,7 @@ router.post(
  */
 router.post(
   '/analyze-lidar',
-  authenticateJWT,
+ csrfProtection,  csrfProtection, authenticateJWT,
   requirePermission('damage:analyze'),
   rateLimit(10, 60000), // 10 requests per minute (more intensive)
   upload.array('photos', 10),
@@ -237,7 +237,7 @@ router.post(
  */
 router.post(
   '/analyze-video',
-  authenticateJWT,
+ csrfProtection,  csrfProtection, authenticateJWT,
   requirePermission('damage:analyze'),
   rateLimit(5, 60000), // 5 requests per minute (very intensive)
   upload.single('video'),
@@ -302,7 +302,7 @@ router.post(
  */
 router.post(
   '/comprehensive-analysis',
-  authenticateJWT,
+ csrfProtection,  csrfProtection, authenticateJWT,
   requirePermission('damage:analyze'),
   rateLimit(5, 60000), // 5 requests per minute (very intensive)
   upload.array('photos', 20),
@@ -402,7 +402,7 @@ router.post(
  */
 router.post(
   '/save',
-  authenticateJWT,
+ csrfProtection,  csrfProtection, authenticateJWT,
   requirePermission('damage:create'),
   async (req: AuthRequest, res: Response) => {
     try {

@@ -6,6 +6,8 @@
 import { createCRUDRoutes } from '../utils/crud-route-factory';
 import { PERMISSIONS } from '../middleware/rbac';
 import {
+import { csrfProtection } from '../middleware/csrf'
+
   driverCreateSchema,
   driverUpdateSchema,
   driverQuerySchema,

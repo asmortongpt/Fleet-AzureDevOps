@@ -100,7 +100,7 @@ router.get(
 // POST /charging-stations
 router.post(
   '/',
-  requirePermission('charging_station:create:fleet'),
+ csrfProtection,  csrfProtection, requirePermission('charging_station:create:fleet'),
   auditLog({ action: 'CREATE', resourceType: 'charging_stations' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -154,7 +154,7 @@ router.put(
 // DELETE /charging-stations/:id
 router.delete(
   '/:id',
-  requirePermission('charging_station:delete:fleet'),
+ csrfProtection,  csrfProtection, requirePermission('charging_station:delete:fleet'),
   auditLog({ action: 'DELETE', resourceType: 'charging_stations' }),
   async (req: AuthRequest, res: Response) => {
     try {

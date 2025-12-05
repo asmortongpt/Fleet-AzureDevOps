@@ -183,7 +183,7 @@ router.get('/channels/:id', requirePermission('route:view:fleet'), async (req: R
  *       201:
  *         description: Channel created
  */
-router.post('/channels', requirePermission('route:create:fleet'), async (req: Request, res: Response) => {
+router.post('/channels',csrfProtection,  csrfProtection, requirePermission('route:create:fleet'), async (req: Request, res: Response) => {
   try {
     const { name, description, channelType, priorityLevel, colorCode } = req.body
     const userId = (req as any).user?.id
@@ -335,7 +335,7 @@ router.get('/channels/:id/listeners', requirePermission('route:view:fleet'), asy
  *       201:
  *         description: Emergency alert created
  */
-router.post('/emergency', requirePermission('route:create:fleet'), async (req: Request, res: Response) => {
+router.post('/emergency',csrfProtection,  csrfProtection, requirePermission('route:create:fleet'), async (req: Request, res: Response) => {
   try {
     const userId = (req as any).user?.id
     const { vehicleId, alertType, location, description } = req.body
@@ -459,7 +459,7 @@ router.get('/emergency', requirePermission('route:view:fleet'), async (req: Requ
  *       200:
  *         description: Alert acknowledged
  */
-router.put('/emergency/:id/acknowledge', requirePermission('route:update:fleet'), async (req: AuthRequest, res: Response) => {
+router.put('/emergency/:id/acknowledge',csrfProtection,  csrfProtection, requirePermission('route:update:fleet'), async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params
     const userId = (req as any).user?.id
@@ -512,7 +512,7 @@ router.put('/emergency/:id/acknowledge', requirePermission('route:update:fleet')
  *       200:
  *         description: Alert resolved
  */
-router.put('/emergency/:id/resolve', requirePermission('route:update:fleet'), async (req: Request, res: Response) => {
+router.put('/emergency/:id/resolve',csrfProtection,  csrfProtection, requirePermission('route:update:fleet'), async (req: Request, res: Response) => {
   try {
     const { id } = req.params
     const userId = (req as any).user?.id
@@ -649,7 +649,7 @@ router.get('/metrics', requirePermission('route:view:fleet'), async (req: Reques
  *       200:
  *         description: WebRTC offer created
  */
-router.post('/webrtc/offer', requirePermission(`route:create:fleet`), async (req: Request, res: Response) => {
+router.post('/webrtc/offer',csrfProtection,  csrfProtection, requirePermission(`route:create:fleet`), async (req: Request, res: Response) => {
   try {
     const userId = (req as any).user?.id
     const { channelId, connectionId } = req.body
@@ -700,7 +700,7 @@ router.post('/webrtc/offer', requirePermission(`route:create:fleet`), async (req
  *       200:
  *         description: Answer processed
  */
-router.post('/webrtc/answer', requirePermission('route:create:fleet'), async (req: Request, res: Response) => {
+router.post('/webrtc/answer',csrfProtection,  csrfProtection, requirePermission('route:create:fleet'), async (req: Request, res: Response) => {
   try {
     const { connectionId, answer } = req.body
 
@@ -745,7 +745,7 @@ router.post('/webrtc/answer', requirePermission('route:create:fleet'), async (re
  *       200:
  *         description: ICE candidate added
  */
-router.post('/webrtc/ice-candidate', requirePermission('route:create:fleet'), async (req: Request, res: Response) => {
+router.post('/webrtc/ice-candidate',csrfProtection,  csrfProtection, requirePermission('route:create:fleet'), async (req: Request, res: Response) => {
   try {
     const { connectionId, candidate } = req.body
 

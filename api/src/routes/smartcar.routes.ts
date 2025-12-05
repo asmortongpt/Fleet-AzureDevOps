@@ -284,7 +284,7 @@ router.get(
  */
 router.post(
   '/vehicles/:id/lock',
-  authenticateJWT,
+ csrfProtection,  csrfProtection, authenticateJWT,
   requirePermission('vehicle:update:fleet'),
   auditLog({ action: 'UPDATE', resourceType: 'smartcar_security' }),
   async (req: AuthRequest, res: Response) => {
@@ -317,7 +317,7 @@ router.post(
  */
 router.post(
   '/vehicles/:id/unlock',
-  authenticateJWT,
+ csrfProtection,  csrfProtection, authenticateJWT,
   requirePermission('vehicle:update:fleet'),
   auditLog({ action: 'UPDATE', resourceType: 'smartcar_security' }),
   async (req: AuthRequest, res: Response) => {
@@ -350,7 +350,7 @@ router.post(
  */
 router.post(
   '/vehicles/:id/charge/start',
-  authenticateJWT,
+ csrfProtection,  csrfProtection, authenticateJWT,
   requirePermission('vehicle:update:fleet'),
   auditLog({ action: 'UPDATE', resourceType: 'smartcar_charge' }),
   async (req: AuthRequest, res: Response) => {
@@ -383,7 +383,7 @@ router.post(
  */
 router.post(
   '/vehicles/:id/charge/stop',
-  authenticateJWT,
+ csrfProtection,  csrfProtection, authenticateJWT,
   requirePermission('vehicle:update:fleet'),
   auditLog({ action: 'UPDATE', resourceType: 'smartcar_charge' }),
   async (req: AuthRequest, res: Response) => {
@@ -416,7 +416,7 @@ router.post(
  */
 router.delete(
   '/vehicles/:id/disconnect',
-  authenticateJWT,
+ csrfProtection,  csrfProtection, authenticateJWT,
   requirePermission('vehicle:manage:global'),
   auditLog({ action: 'DELETE', resourceType: 'smartcar_connection' }),
   async (req: AuthRequest, res: Response) => {
@@ -458,7 +458,7 @@ router.delete(
  */
 router.post(
   '/vehicles/:id/sync',
-  authenticateJWT,
+ csrfProtection,  csrfProtection, authenticateJWT,
   requirePermission('vehicle:update:fleet'),
   auditLog({ action: 'CREATE', resourceType: 'smartcar_sync' }),
   async (req: AuthRequest, res: Response) => {

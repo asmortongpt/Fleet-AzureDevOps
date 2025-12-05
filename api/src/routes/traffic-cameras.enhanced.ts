@@ -157,7 +157,7 @@ router.get('/meta/roads', async (req: Request, res: Response) => {
  * Sync cameras from Florida 511 API (admin only)
  * POST /api/traffic-cameras/sync
  */
-router.post('/sync', csrfProtection, async (req: Request, res: Response) => {
+router.post('/sync',csrfProtection,  csrfProtection, async (req: Request, res: Response) => {
   try {
     // Note: In production, add authentication/authorization middleware
 
