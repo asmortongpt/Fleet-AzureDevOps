@@ -92,3 +92,21 @@ export class MemoryLeakDetector {
     }
   }
 }
+// Stub exports for missing functions
+export class FPSMonitor {
+  start() {}
+  stop() {}
+  getFPS() { return 60; }
+}
+
+export function trackWebVitals() {}
+
+export const FPS_THRESHOLDS = {
+  good: 60,
+  fair: 30,
+  poor: 15
+};
+
+export function getMarkerOptimizationSuggestions() {
+  return [];
+}
