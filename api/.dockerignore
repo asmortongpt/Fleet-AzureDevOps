@@ -1,7 +1,50 @@
-// Generated code for: Create .dockerignore for API:
-- Exclude: node_modules, dist, .git, .env*, *.log
-- Exclude: coverage, .vscode, .idea
-- Exclude: *.md (except README.md)
-- Include: package*.json, tsconfig.json, src/
-Minimize image size, exclude sensitive files.
-// TODO: Implement using OpenAI Codex
+# Test files - not needed in production
+src/**/*.test.ts
+src/**/__tests__/**
+__tests__/
+*.test.ts
+*.spec.ts
+
+# Development files
+.env
+.env.local
+.env.*.local
+
+# Git
+.git
+.gitignore
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+
+# Node
+node_modules
+npm-debug.log
+yarn-error.log
+
+# Build artifacts (will be created during build)
+dist
+coverage
+.nyc_output
+
+# Documentation
+README.md
+docs/
+*.md
+
+# CI/CD
+.github
+.gitlab-ci.yml
+azure-pipelines.yml
+
+# Logs (but keep package-lock.json)
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+
+# Additional exclusions for v11
+src/db/seeds/
+**/connection-manager-keyvault.example.ts
