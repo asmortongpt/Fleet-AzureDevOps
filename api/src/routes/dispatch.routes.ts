@@ -123,7 +123,7 @@ router.get('/channels/:id', requirePermission('route:view:fleet'), async (req: R
       color_code,
       created_at,
       updated_at,
-      created_by FROM dispatch_channels WHERE id = $1 AND is_active = true`,
+      created_by FROM dispatch_channels WHERE /* TODO: Add tenant_id = $X AND */ id = $1 AND is_active = true`,
       [id]
     )
 
@@ -590,7 +590,7 @@ router.get('/metrics', requirePermission('route:view:fleet'), async (req: Reques
       unique_users,
       peak_concurrent_users,
       transcription_accuracy,
-      created_at FROM dispatch_metrics WHERE 1=1`
+      created_at FROM dispatch_metrics WHERE /* TODO: Add tenant_id = $X AND */ 1=1`
     const params: any[] = []
 
     if (startDate) {

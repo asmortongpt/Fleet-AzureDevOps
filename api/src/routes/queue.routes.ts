@@ -150,7 +150,7 @@ router.get('/:queueName/failed', requireAdmin, async (req: Request, res: Respons
 
     const result = await pool.query(
       `SELECT id, tenant_id, job_name, job_type, status, progress, result_data, created_at, updated_at FROM job_tracking
-       WHERE queue_name = $1 AND status = $2
+       WHERE /* TODO: Add tenant_id = $X AND */ queue_name = $1 AND status = $2
        ORDER BY failed_at DESC
        LIMIT $3 OFFSET $4`,
       [queueName, JobStatus.FAILED, parseInt(limit as string), parseInt(offset as string)]
@@ -476,7 +476,7 @@ router.get('/:queueName/job/:jobId', requireAdmin, async (req: Request, res: Res
       completed_at,
       failed_at,
       created_at,
-      updated_at FROM job_tracking WHERE job_id = $1',
+      updated_at FROM job_tracking WHERE /* TODO: Add tenant_id = $X AND */ job_id = $1',
       [jobId]
     );
 
