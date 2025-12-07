@@ -195,7 +195,7 @@ router.get(
       const result = await pool.query(query, [id, tenant_id])
 
       if (result.rows.length === 0) {
-        return throw new NotFoundError("Cost/benefit analysis not found")
+        throw new NotFoundError("Cost/benefit analysis not found")
       }
 
       res.json(result.rows[0])
@@ -444,7 +444,7 @@ router.delete(
       const result = await pool.query(query, [id, tenant_id])
 
       if (result.rows.length === 0) {
-        return throw new NotFoundError("Cost/benefit analysis not found")
+        throw new NotFoundError("Cost/benefit analysis not found")
       }
 
       res.json({

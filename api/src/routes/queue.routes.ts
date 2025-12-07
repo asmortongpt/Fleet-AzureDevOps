@@ -496,7 +496,7 @@ router.get('/:queueName/job/:jobId', requireAdmin, async (req: Request, res: Res
     );
 
     if (result.rows.length === 0) {
-      return throw new NotFoundError("Job not found");
+      throw new NotFoundError("Job not found");
     }
 
     res.json({

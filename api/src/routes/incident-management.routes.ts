@@ -379,7 +379,7 @@ router.post('/:id/close',csrfProtection,  csrfProtection, requirePermission('saf
 
     if (result.rows.length === 0) {
       await client.query(`ROLLBACK`)
-      return throw new NotFoundError("Incident not found")
+      throw new NotFoundError("Incident not found")
     }
 
     // Add timeline entry

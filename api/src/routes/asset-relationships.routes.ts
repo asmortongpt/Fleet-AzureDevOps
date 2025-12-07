@@ -223,7 +223,7 @@ router.get(
       )
 
       if (result.rows.length === 0) {
-        return throw new NotFoundError("Relationship not found")
+        throw new NotFoundError("Relationship not found")
       }
 
       res.json({ relationship: result.rows[0] })
@@ -316,7 +316,7 @@ router.post(
       logger.error('Error creating asset relationship:', error) // Wave 28: Winston logger
 
       if (error.constraint === 'asset_relationships_different_assets') {
-        return throw new ValidationError("Parent and child assets must be different")
+        throw new ValidationError("Parent and child assets must be different")
       }
 
       res.status(500).json({ error: 'Failed to create asset relationship' })
@@ -355,7 +355,7 @@ router.put(
 
       if (existsCheck.rows.length === 0) {
         await client.query(`ROLLBACK`)
-        return throw new NotFoundError("Relationship not found")
+        throw new NotFoundError("Relationship not found")
       }
 
       const result = await client.query(
