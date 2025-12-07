@@ -59,7 +59,7 @@ router.post(
       const { report_name } = req.body
 
       if (!report_name) {
-        return throw new ValidationError("Report name is required")
+        throw new ValidationError("Report name is required")
       }
 
       const report = await customReportService.createFromTemplate(
@@ -109,7 +109,7 @@ router.get(
       )
 
       if (!report) {
-        return throw new NotFoundError("Report not found")
+        throw new NotFoundError("Report not found")
       }
 
       res.json(report)
@@ -204,7 +204,7 @@ router.post(
       const { format = 'csv' } = req.body
 
       if (!['xlsx', 'csv', 'pdf'].includes(format) {
-        return throw new ValidationError("Invalid format. Must be xlsx, csv, or pdf")
+        throw new ValidationError("Invalid format. Must be xlsx, csv, or pdf")
       }
 
       const result = await customReportService.executeReport(
@@ -256,11 +256,11 @@ router.get(
       const executionRecord = execution.find(e => e.id === executionId)
 
       if (!executionRecord) {
-        return throw new NotFoundError("Execution not found")
+        throw new NotFoundError("Execution not found")
       }
 
       if (executionRecord.status !== 'completed') {
-        return throw new ValidationError("Report execution not completed")
+        throw new ValidationError("Report execution not completed")
       }
 
       const filePath = executionRecord.file_url
@@ -295,7 +295,7 @@ router.get(
           return res.status(403).json({ error: 'Access denied' })
         }
         logger.error('File access error:', error) // Wave 21: Winston logger
-        return throw new NotFoundError("Report file not found")
+        throw new NotFoundError("Report file not found")
       }
     } catch (error) {
       logger.error('Download report error:', error) // Wave 21: Winston logger
@@ -327,11 +327,11 @@ router.post(
       }
 
       if (!['xlsx', 'csv', 'pdf'].includes(format) {
-        return throw new ValidationError("Invalid format. Must be xlsx, csv, or pdf")
+        throw new ValidationError("Invalid format. Must be xlsx, csv, or pdf")
       }
 
       if (!Array.isArray(recipients) || recipients.length === 0) {
-        return throw new ValidationError("Recipients must be a non-empty array of email addresses")
+        throw new ValidationError("Recipients must be a non-empty array of email addresses")
       }
 
       const scheduleId = await reportScheduler.createSchedule(

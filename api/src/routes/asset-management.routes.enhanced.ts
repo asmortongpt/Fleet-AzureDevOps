@@ -26,7 +26,7 @@ router.get('/', requirePermission('vehicle:view:fleet'), async (req: AuthRequest
   try {
     const queryValidation = AssetQuerySchema.safeParse(req.query)
     if (!queryValidation.success) {
-      return throw new ValidationError("Invalid query parameters")
+      throw new ValidationError("Invalid query parameters")
     }
 
     const { type, status, location, assigned_to, search } = queryValidation.data

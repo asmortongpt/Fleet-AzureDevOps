@@ -74,7 +74,7 @@ router.get('/batch/users', authenticateJWT, async (req: Request, res: Response) 
     const { userIds } = req.query
 
     if (!userIds) {
-      return throw new ValidationError("Missing required query parameter: userIds")
+      throw new ValidationError("Missing required query parameter: userIds")
     }
 
     const userIdList = (userIds as string).split(',')

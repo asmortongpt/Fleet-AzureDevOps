@@ -121,7 +121,7 @@ router.post(
   async (req: AuthRequest, res: Response) => {
     try {
       if (!req.file) {
-        return throw new ValidationError("No file uploaded")
+        throw new ValidationError("No file uploaded")
       }
 
       const {
@@ -135,7 +135,7 @@ router.post(
       } = req.body
 
       if (!documentType || !title) {
-        return throw new ValidationError("documentType and title are required")
+        throw new ValidationError("documentType and title are required")
       }
 
       // Validate that at least one entity is specified

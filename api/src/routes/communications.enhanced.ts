@@ -46,7 +46,7 @@ router.get(
     try {
       const validationResult = communicationQuerySchema.safeParse(req.query)
       if (!validationResult.success) {
-        return throw new ValidationError("Invalid query parameters")
+        throw new ValidationError("Invalid query parameters")
       }
 
       const {

@@ -332,7 +332,7 @@ router.post('/',csrfProtection,  csrfProtection, authenticateJWT, async (req: Au
 
       if (vehicleCheck.rows.length === 0) {
         await client.query(`ROLLBACK`);
-        return throw new NotFoundError("Vehicle not found");
+        throw new NotFoundError("Vehicle not found");
       }
 
       const vehicle = vehicleCheck.rows[0];
@@ -697,7 +697,7 @@ router.post('/:id/approve',csrfProtection,  csrfProtection, authenticateJWT, asy
 
       if (reservationResult.rows.length === 0) {
         await client.query(`ROLLBACK`);
-        return throw new NotFoundError("Reservation not found");
+        throw new NotFoundError("Reservation not found");
       }
 
       const reservation = reservationResult.rows[0];
