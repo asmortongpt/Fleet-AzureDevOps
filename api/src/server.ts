@@ -471,17 +471,17 @@ const initializeJobProcessors = () => {
     return processReportJob(job)
   })
 
-  logger.info('✅ Bull job processors initialized')
+  logger.info('Bull job processors initialized')
   logger.info('  - Email queue: ready')
   logger.info('  - Notification queue: ready')
   logger.info('  - Report queue: ready')
 }
 
 const server = app.listen(PORT, () => {
-  console.log(`✅ Server running on http://localhost:${PORT}`)
-  console.log(`📊 Application Insights: ${telemetryService.isActive() ? 'Enabled' : 'Disabled'}`)
-  console.log(`🔍 Sentry: ${process.env.SENTRY_DSN ? 'Enabled' : 'Disabled (no DSN configured)'}`)
-  console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`)
+  console.log(`Server running on http://localhost:${PORT}`)
+  console.log(`Application Insights: ${telemetryService.isActive() ? 'Enabled' : 'Disabled'}`)
+  console.log(`Sentry: ${process.env.SENTRY_DSN ? 'Enabled' : 'Disabled (no DSN configured)'}`)
+  console.log(`Environment: ${process.env.NODE_ENV || 'development'}`)
 
   // ARCHITECTURE FIX: Initialize process-level error handlers
   initializeProcessErrorHandlers(server)
@@ -512,7 +512,7 @@ const server = app.listen(PORT, () => {
 
 // Graceful shutdown
 process.on('SIGTERM', async () => {
-  console.log('📊 SIGTERM signal received: flushing telemetry and closing server')
+  console.log('SIGTERM signal received: flushing telemetry and closing server')
 
   server.close(async () => {
     // Close Bull queues gracefully
@@ -529,7 +529,7 @@ process.on('SIGTERM', async () => {
 })
 
 process.on('SIGINT', async () => {
-  console.log('📊 SIGINT signal received: flushing telemetry and closing server')
+  console.log('SIGINT signal received: flushing telemetry and closing server')
 
   server.close(async () => {
     // Close Bull queues gracefully
