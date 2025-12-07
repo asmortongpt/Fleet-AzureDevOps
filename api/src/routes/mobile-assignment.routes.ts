@@ -86,7 +86,7 @@ router.get(
       const driverResult = await pool.query(driverQuery, [user_id, tenant_id]);
 
       if (driverResult.rows.length === 0) {
-        return throw new NotFoundError("Driver profile not found");
+        throw new NotFoundError("Driver profile not found");
       }
 
       const driver_id = driverResult.rows[0].id;
@@ -209,7 +209,7 @@ router.post(
       const verifyResult = await pool.query(verifyQuery, [id, tenant_id]);
 
       if (verifyResult.rows.length === 0) {
-        return throw new NotFoundError("On-call period not found");
+        throw new NotFoundError("On-call period not found");
       }
 
       if (verifyResult.rows[0].user_id !== user_id) {

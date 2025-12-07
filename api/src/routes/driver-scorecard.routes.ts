@@ -142,7 +142,7 @@ router.post(
       const { periodStart, periodEnd } = req.body
 
       if (!periodStart || !periodEnd) {
-        return throw new ValidationError("periodStart and periodEnd are required")
+        throw new ValidationError("periodStart and periodEnd are required")
       }
 
       await driverScorecardService.calculateAllDriverScores(

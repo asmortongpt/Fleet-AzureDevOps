@@ -23,7 +23,7 @@ router.get(
       const { startDate, endDate } = req.query
 
       if (!startDate || !endDate) {
-        return throw new ValidationError("startDate and endDate are required")
+        throw new ValidationError("startDate and endDate are required")
       }
 
       const summary = await costAnalysisService.getCostSummary(
@@ -50,7 +50,7 @@ router.get(
       const { startDate, endDate } = req.query
 
       if (!startDate || !endDate) {
-        return throw new ValidationError("startDate and endDate are required")
+        throw new ValidationError("startDate and endDate are required")
       }
 
       const costs = await costAnalysisService.getCostsByCategory(
@@ -77,7 +77,7 @@ router.get(
       const { startDate, endDate } = req.query
 
       if (!startDate || !endDate) {
-        return throw new ValidationError("startDate and endDate are required")
+        throw new ValidationError("startDate and endDate are required")
       }
 
       const costs = await costAnalysisService.getCostsByVehicle(
@@ -150,7 +150,7 @@ router.get(
       const { startDate, endDate } = req.query
 
       if (!startDate || !endDate) {
-        return throw new ValidationError("startDate and endDate are required")
+        throw new ValidationError("startDate and endDate are required")
       }
 
       const anomalies = await costAnalysisService.getAnomalies(
@@ -248,7 +248,7 @@ router.get(
       const { startDate, endDate } = req.query
 
       if (!startDate || !endDate) {
-        return throw new ValidationError("startDate and endDate are required")
+        throw new ValidationError("startDate and endDate are required")
       }
 
       const csv = await costAnalysisService.exportCostData(

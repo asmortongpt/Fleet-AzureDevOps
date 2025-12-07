@@ -105,7 +105,7 @@ router.put(
       )
 
       if (result.rows.length === 0) {
-        return throw new NotFoundError("Telemetry not found")
+        throw new NotFoundError("Telemetry not found")
       }
 
       res.json(telemetrySchema.parse(result.rows[0])

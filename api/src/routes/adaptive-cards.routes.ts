@@ -57,7 +57,7 @@ router.post('/vehicle-maintenance',csrfProtection,  csrfProtection, authenticate
     } else if (teamId && channelId) {
       response = await sendAdaptiveCard(teamId, channelId, card, 'Vehicle maintenance alert')
     } else {
-      return throw new ValidationError("Either userId or teamId/channelId must be provided")
+      throw new ValidationError("Either userId or teamId/channelId must be provided")
     }
 
     res.json({
@@ -92,7 +92,7 @@ router.post('/work-order',csrfProtection,  csrfProtection, authenticateJWT, asyn
     )
 
     if (workOrderResult.rows.length === 0) {
-      return throw new NotFoundError("Work order not found")
+      throw new NotFoundError("Work order not found")
     }
 
     const workOrder = workOrderResult.rows[0]
@@ -113,7 +113,7 @@ router.post('/work-order',csrfProtection,  csrfProtection, authenticateJWT, asyn
     } else if (teamId && channelId) {
       response = await sendAdaptiveCard(teamId, channelId, card, 'New work order assignment')
     } else {
-      return throw new ValidationError("Either userId or teamId/channelId must be provided")
+      throw new ValidationError("Either userId or teamId/channelId must be provided")
     }
 
     res.json({
@@ -150,7 +150,7 @@ router.post('/incident',csrfProtection,  csrfProtection, authenticateJWT, async 
     )
 
     if (incidentResult.rows.length === 0) {
-      return throw new NotFoundError("Incident not found")
+      throw new NotFoundError("Incident not found")
     }
 
     const incident = incidentResult.rows[0]
@@ -171,7 +171,7 @@ router.post('/incident',csrfProtection,  csrfProtection, authenticateJWT, async 
     } else if (teamId && channelId) {
       response = await sendAdaptiveCard(teamId, channelId, card, 'New incident report')
     } else {
-      return throw new ValidationError("Either userId or teamId/channelId must be provided")
+      throw new ValidationError("Either userId or teamId/channelId must be provided")
     }
 
     res.json({
@@ -204,7 +204,7 @@ router.post('/approval',csrfProtection,  csrfProtection, authenticateJWT, async 
     )
 
     if (approvalResult.rows.length === 0) {
-      return throw new NotFoundError("Approval request not found")
+      throw new NotFoundError("Approval request not found")
     }
 
     const approval = approvalResult.rows[0]
@@ -225,7 +225,7 @@ router.post('/approval',csrfProtection,  csrfProtection, authenticateJWT, async 
     } else if (teamId && channelId) {
       response = await sendAdaptiveCard(teamId, channelId, card, 'Approval required')
     } else {
-      return throw new ValidationError("Either userId or teamId/channelId must be provided")
+      throw new ValidationError("Either userId or teamId/channelId must be provided")
     }
 
     res.json({
@@ -252,7 +252,7 @@ router.post('/driver-performance',csrfProtection,  csrfProtection, authenticateJ
     const driverResult = await pool.query('SELECT id, tenant_id, email, first_name, last_name, role, is_active, phone, created_at, updated_at FROM users WHERE id = $1 AND role = $2', [driverId, 'driver'])
 
     if (driverResult.rows.length === 0) {
-      return throw new NotFoundError("Driver not found")
+      throw new NotFoundError("Driver not found")
     }
 
     const driver = driverResult.rows[0]
@@ -273,7 +273,7 @@ router.post('/driver-performance',csrfProtection,  csrfProtection, authenticateJ
     } else if (teamId && channelId) {
       response = await sendAdaptiveCard(teamId, channelId, card, 'Driver performance report')
     } else {
-      return throw new ValidationError("Either userId or teamId/channelId must be provided")
+      throw new ValidationError("Either userId or teamId/channelId must be provided")
     }
 
     res.json({
@@ -308,7 +308,7 @@ router.post('/fuel-receipt',csrfProtection,  csrfProtection, authenticateJWT, as
     )
 
     if (receiptResult.rows.length === 0) {
-      return throw new NotFoundError("Fuel receipt not found")
+      throw new NotFoundError("Fuel receipt not found")
     }
 
     const receipt = receiptResult.rows[0]
@@ -329,7 +329,7 @@ router.post('/fuel-receipt',csrfProtection,  csrfProtection, authenticateJWT, as
     } else if (teamId && channelId) {
       response = await sendAdaptiveCard(teamId, channelId, card, 'Fuel receipt for review')
     } else {
-      return throw new ValidationError("Either userId or teamId/channelId must be provided")
+      throw new ValidationError("Either userId or teamId/channelId must be provided")
     }
 
     res.json({
@@ -385,7 +385,7 @@ router.post('/inspection-checklist',csrfProtection,  csrfProtection, authenticat
     } else if (teamId && channelId) {
       response = await sendAdaptiveCard(teamId, channelId, card, 'Daily vehicle inspection')
     } else {
-      return throw new ValidationError("Either userId or teamId/channelId must be provided")
+      throw new ValidationError("Either userId or teamId/channelId must be provided")
     }
 
     res.json({
@@ -483,7 +483,7 @@ router.get('/preview/:cardType', authenticateJWT, async (req: Request, res: Resp
         card = await createWorkOrderCard(sampleData[cardType])
         break
       default:
-        return throw new NotFoundError("Card type not found")
+        throw new NotFoundError("Card type not found")
     }
 
     res.json({ card })

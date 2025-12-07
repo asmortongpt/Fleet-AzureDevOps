@@ -196,7 +196,7 @@ router.get('/data/:sessionId', (req: Request, res: Response) => {
     const data = obd2Emulator.getSessionData(sessionId)
 
     if (!data) {
-      return throw new NotFoundError("Session not found or no data available")
+      throw new NotFoundError("Session not found or no data available")
     }
 
     res.json(data)

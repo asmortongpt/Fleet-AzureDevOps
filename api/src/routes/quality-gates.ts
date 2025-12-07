@@ -91,7 +91,7 @@ router.post('/',
 
     // Validate required fields
     if (!gate_type || !status) {
-      return throw new ValidationError("gate_type and status are required")
+      throw new ValidationError("gate_type and status are required")
     }
 
     // Validate gate_type

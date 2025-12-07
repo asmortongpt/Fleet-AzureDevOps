@@ -95,7 +95,7 @@ router.post(`/upload`,
   async (req: AuthRequest, res) => {
   try {
     if (!req.file) {
-      return throw new ValidationError("No file uploaded")
+      throw new ValidationError("No file uploaded")
     }
 
     const tenantId = req.user?.tenant_id
@@ -210,7 +210,7 @@ router.get('/:id',
     const document = await documentManagementService.getDocumentById(id, tenantId, userId)
 
     if (!document) {
-      return throw new NotFoundError("Document not found")
+      throw new NotFoundError("Document not found")
     }
 
     res.json({ document })
@@ -315,7 +315,7 @@ router.get('/:id/download',
     const document = await documentManagementService.getDocumentById(id, tenantId, userId)
 
     if (!document) {
-      return throw new NotFoundError("Document not found")
+      throw new NotFoundError("Document not found")
     }
 
     // In production, this would serve from S3 or local storage
@@ -422,7 +422,7 @@ router.post('/search',
     const { query, categoryId, documentIds, limit, minScore } = req.body
 
     if (!query) {
-      return throw new ValidationError("Query is required")
+      throw new ValidationError("Query is required")
     }
 
     const results = await documentRAGService.semanticSearch(tenantId, query, {
@@ -478,7 +478,7 @@ router.post('/ask',
     const { question, categoryId, documentIds, maxSources } = req.body
 
     if (!question) {
-      return throw new ValidationError("Question is required")
+      throw new ValidationError("Question is required")
     }
 
     const result = await documentRAGService.askQuestion(tenantId, userId, question, {
@@ -543,7 +543,7 @@ router.post('/queries/:id/feedback',
     const { rating, comment } = req.body
 
     if (!rating || rating < 1 || rating > 5) {
-      return throw new ValidationError("Rating must be between 1 and 5")
+      throw new ValidationError("Rating must be between 1 and 5")
     }
 
     await documentRAGService.provideFeedback(id, rating, comment)

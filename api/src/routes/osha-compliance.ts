@@ -113,7 +113,7 @@ router.get(
       )
 
       if (result.rows.length === 0) {
-        return throw new NotFoundError("OSHA 300 log entry not found")
+        throw new NotFoundError("OSHA 300 log entry not found")
       }
 
       res.json(result.rows[0])

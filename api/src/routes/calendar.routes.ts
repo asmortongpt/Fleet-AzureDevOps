@@ -42,7 +42,7 @@ router.post('/events',csrfProtection,  csrfProtection, authenticateJWT, async (r
     } = req.body
 
     if (!userId || !subject || !start || !end) {
-      return throw new ValidationError("Missing required fields: userId, subject, start, end")
+      throw new ValidationError("Missing required fields: userId, subject, start, end")
     }
 
     const startDate = new Date(start)
@@ -79,7 +79,7 @@ router.get('/events', authenticateJWT, async (req: Request, res: Response) => {
     const { userId, startDate, endDate } = req.query
 
     if (!userId || !startDate || !endDate) {
-      return throw new ValidationError("Missing required query parameters: userId, startDate, endDate")
+      throw new ValidationError("Missing required query parameters: userId, startDate, endDate")
     }
 
     const start = new Date(startDate as string)
@@ -108,7 +108,7 @@ router.get('/events/:eventId', authenticateJWT, async (req: Request, res: Respon
     const { userId } = req.query
 
     if (!userId) {
-      return throw new ValidationError("Missing required query parameter: userId")
+      throw new ValidationError("Missing required query parameter: userId")
     }
 
     const event = await getEventById(userId as string, eventId)
@@ -133,7 +133,7 @@ router.patch('/events/:eventId',csrfProtection,  csrfProtection, authenticateJWT
     const { userId, subject, start, end, attendees, location, body } = req.body
 
     if (!userId) {
-      return throw new ValidationError("Missing required field: userId")
+      throw new ValidationError("Missing required field: userId")
     }
 
     const updates: any = {}
@@ -167,7 +167,7 @@ router.delete('/events/:eventId',csrfProtection,  csrfProtection, authenticateJW
     const { userId } = req.query
 
     if (!userId) {
-      return throw new ValidationError("Missing required query parameter: userId")
+      throw new ValidationError("Missing required query parameter: userId")
     }
 
     await deleteEvent(userId as string, eventId)
@@ -192,7 +192,7 @@ router.post('/events/:eventId/accept',csrfProtection,  csrfProtection, authentic
     const { userId, comment } = req.body
 
     if (!userId) {
-      return throw new ValidationError("Missing required field: userId")
+      throw new ValidationError("Missing required field: userId")
     }
 
     await acceptEvent(userId, eventId, comment)
@@ -217,7 +217,7 @@ router.post('/events/:eventId/decline',csrfProtection,  csrfProtection, authenti
     const { userId, comment } = req.body
 
     if (!userId) {
-      return throw new ValidationError("Missing required field: userId")
+      throw new ValidationError("Missing required field: userId")
     }
 
     await declineEvent(userId, eventId, comment)
@@ -242,7 +242,7 @@ router.post('/events/:eventId/tentative',csrfProtection,  csrfProtection, authen
     const { userId, comment } = req.body
 
     if (!userId) {
-      return throw new ValidationError("Missing required field: userId")
+      throw new ValidationError("Missing required field: userId")
     }
 
     await tentativelyAcceptEvent(userId, eventId, comment)
