@@ -55,7 +55,7 @@ router.get(
     try {
       const validationResult = logSchema.safeParse(req.query)
       if (!validationResult.success) {
-        return throw new ValidationError("Invalid request parameters")
+        throw new ValidationError("Invalid request parameters")
       }
 
       const { page = 1, limit = 50, year, status } = validationResult.data

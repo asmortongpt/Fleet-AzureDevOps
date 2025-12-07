@@ -96,13 +96,13 @@ router.post('/qr/scan',csrfProtection,  csrfProtection, requirePermission('vehic
     }
 
     if (!qrData) {
-      return throw new ValidationError("QR data required")
+      throw new ValidationError("QR data required")
     }
 
     const vehicle = await vehicleIdentificationService.identifyByQRCode(qrData, tenantId)
 
     if (!vehicle) {
-      return throw new NotFoundError("Vehicle not found")
+      throw new NotFoundError("Vehicle not found")
     }
 
     res.json({ vehicle })
@@ -147,7 +147,7 @@ router.post('/vin',csrfProtection,  csrfProtection, requirePermission('vehicle:v
     }
 
     if (!vin) {
-      return throw new ValidationError("VIN required")
+      throw new ValidationError("VIN required")
     }
 
     // Validate VIN format
@@ -161,7 +161,7 @@ router.post('/vin',csrfProtection,  csrfProtection, requirePermission('vehicle:v
     const vehicle = await vehicleIdentificationService.identifyByVIN(vin, tenantId)
 
     if (!vehicle) {
-      return throw new NotFoundError("Vehicle not found with this VIN")
+      throw new NotFoundError("Vehicle not found with this VIN")
     }
 
     res.json({ vehicle })
@@ -204,7 +204,7 @@ router.post('/license-plate',csrfProtection,  csrfProtection, requirePermission(
     }
 
     if (!licensePlate) {
-      return throw new ValidationError("License plate required")
+      throw new ValidationError("License plate required")
     }
 
     const vehicle = await vehicleIdentificationService.identifyByLicensePlate(
@@ -213,7 +213,7 @@ router.post('/license-plate',csrfProtection,  csrfProtection, requirePermission(
     )
 
     if (!vehicle) {
-      return throw new NotFoundError("Vehicle not found with this license plate")
+      throw new NotFoundError("Vehicle not found with this license plate")
     }
 
     res.json({ vehicle })
@@ -259,7 +259,7 @@ router.post('/license-plate/ocr',csrfProtection,  csrfProtection, requirePermiss
     }
 
     if (!imageData) {
-      return throw new ValidationError("Image data required")
+      throw new ValidationError("Image data required")
     }
 
     const vehicle = await vehicleIdentificationService.processLicensePlateImage(
@@ -268,7 +268,7 @@ router.post('/license-plate/ocr',csrfProtection,  csrfProtection, requirePermiss
     )
 
     if (!vehicle) {
-      return throw new NotFoundError("Vehicle not found")
+      throw new NotFoundError("Vehicle not found")
     }
 
     res.json({ vehicle })
@@ -313,7 +313,7 @@ router.get('/search', requirePermission('vehicle:view:fleet'), async (req: AuthR
     }
 
     if (!q || typeof q !== 'string') {
-      return throw new ValidationError("Search query required")
+      throw new ValidationError("Search query required")
     }
 
     const vehicles = await vehicleIdentificationService.searchVehicles(q, tenantId)

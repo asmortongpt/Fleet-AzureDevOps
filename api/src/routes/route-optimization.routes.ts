@@ -295,7 +295,7 @@ router.get(
       )
 
       if (!job) {
-        return throw new NotFoundError("Job not found")
+        throw new NotFoundError("Job not found")
       }
 
       // Get routes
@@ -400,7 +400,7 @@ router.get(
       )
 
       if (routeResult.rows.length === 0) {
-        return throw new NotFoundError("Route not found")
+        throw new NotFoundError("Route not found")
       }
 
       const route = routeResult.rows[0]

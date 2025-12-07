@@ -94,12 +94,12 @@ router.post(
       // Validate request body
       const validationResult = documentUploadSchema.safeParse(req.body)
       if (!validationResult.success) {
-        return throw new ValidationError("Invalid request data")
+        throw new ValidationError("Invalid request data")
       }
 
       const { file } = req
       if (!file) {
-        return throw new ValidationError("File is required")
+        throw new ValidationError("File is required")
       }
 
       const documentData = validationResult.data

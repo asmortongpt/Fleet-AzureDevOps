@@ -78,7 +78,7 @@ router.post(
   async (req: AuthRequest, res: Response) => {
     try {
       if (!req.file) {
-        return throw new ValidationError("No file uploaded")
+        throw new ValidationError("No file uploaded")
       }
 
       const { communicationId, metadata } = req.body
@@ -350,7 +350,7 @@ router.post(
   async (req: AuthRequest, res: Response) => {
     try {
       if (!req.file) {
-        return throw new ValidationError("No file uploaded")
+        throw new ValidationError("No file uploaded")
       }
 
       const { teamId, channelId } = req.params
@@ -433,13 +433,13 @@ router.post(
   async (req: AuthRequest, res: Response) => {
     try {
       if (!req.file) {
-        return throw new ValidationError("No file uploaded")
+        throw new ValidationError("No file uploaded")
       }
 
       const { messageId } = req.body
 
       if (!messageId) {
-        return throw new ValidationError("Message ID is required")
+        throw new ValidationError("Message ID is required")
       }
 
       const result = await attachmentService.uploadToOutlook(messageId, req.file)
@@ -478,7 +478,7 @@ router.post(
       const files = req.files as Express.Multer.File[] || []
 
       if (!to || !subject || !body) {
-        return throw new ValidationError("Missing required fields: to, subject, body")
+        throw new ValidationError("Missing required fields: to, subject, body")
       }
 
       const email = {
