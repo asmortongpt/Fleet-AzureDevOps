@@ -20,8 +20,8 @@ pr: none  # Production deployments are manual only
 
 variables:
   # Azure Resources (existing)
-  containerRegistry: 'fleetappregistry.azurecr.io'
-  acrName: 'fleetappregistry'
+  containerRegistry: 'fleetproductionacr.azurecr.io'
+  acrName: 'fleetproductionacr'
   imageRepository: 'fleet-app'
 
   # AKS Configuration (existing)
@@ -29,9 +29,9 @@ variables:
   aksClusterName: 'fleet-aks-cluster'
   productionNamespace: 'fleet-management'
 
-  # Service Connections (to be created in Azure DevOps)
-  azureServiceConnection: 'Azure-Production-Connection'
-  containerRegistryConnection: 'FleetACR-Connection'
+  # Service Connections (created in Azure DevOps)
+  azureServiceConnection: 'Azure-Fleet-Management'
+  containerRegistryConnection: 'fleetproductionacr'
 
   # Build Configuration
   buildId: '$(Build.BuildId)'
