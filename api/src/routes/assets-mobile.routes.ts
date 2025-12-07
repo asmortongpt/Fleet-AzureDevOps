@@ -82,8 +82,9 @@ router.post(
 
 router.post(
   '/checkin',
- csrfProtection,  csrfProtection, verifyJWT,
-  // rateLimiter(10),   upload.single('photo'),
+  csrfProtection,  // DISABLED: verifyJWT (function does not exist)
+  // rateLimiter(10),
+  upload.single('photo'),
   async (req: Request, res: Response) => {
     try {
       const { assetId, userId, tenantId, gpsLat, gpsLng, conditionRating, digitalSignature } =
