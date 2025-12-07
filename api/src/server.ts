@@ -1,10 +1,7 @@
 // Initialize Datadog APM FIRST (must be before ALL other imports)
-// Conditional import - only if dd-trace is available
-try {
-  require('./config/datadog')
-} catch (error) {
-  console.log('Datadog APM not available, skipping initialization')
-}
+// DISABLED: Datadog APM initialization disabled for now
+// TODO: Re-enable when dd-trace package is properly installed
+console.log('Datadog APM disabled')
 
 // Initialize monitoring services FIRST (before other imports)
 import telemetryService from './monitoring/applicationInsights'
