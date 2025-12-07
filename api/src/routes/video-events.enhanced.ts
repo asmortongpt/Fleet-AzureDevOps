@@ -151,7 +151,7 @@ router.put(
 
       const result = await pool.query(query, values)
       if (result.rowCount === 0) {
-        return throw new NotFoundError("VideoEvent not found or no update made")
+        throw new NotFoundError("VideoEvent not found or no update made")
       }
 
       res.json(result.rows[0])

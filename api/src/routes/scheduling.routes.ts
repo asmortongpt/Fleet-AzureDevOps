@@ -253,7 +253,7 @@ router.post('/reservations/:id/approve',csrfProtection,  csrfProtection, async (
     )
 
     if (reservationResult.rows.length === 0) {
-      return throw new NotFoundError("Reservation not found")
+      throw new NotFoundError("Reservation not found")
     }
 
     const reservation = reservationResult.rows[0]
@@ -313,7 +313,7 @@ router.post('/reservations/:id/reject',csrfProtection,  csrfProtection, async (r
     )
 
     if (reservationResult.rows.length === 0) {
-      return throw new NotFoundError("Reservation not found")
+      throw new NotFoundError("Reservation not found")
     }
 
     const reservation = reservationResult.rows[0]
@@ -610,7 +610,7 @@ router.get('/available-vehicles', async (req: Request, res: Response) => {
     const { startTime, endTime, vehicleType } = req.query
 
     if (!startTime || !endTime) {
-      return throw new ValidationError("startTime and endTime are required")
+      throw new ValidationError("startTime and endTime are required")
     }
 
     const vehicles = await schedulingService.findAvailableVehicles(
@@ -757,7 +757,7 @@ router.post('/calendar/google/callback',csrfProtection,  csrfProtection, async (
     const { code, isPrimary } = req.body
 
     if (!code) {
-      return throw new ValidationError("Authorization code is required")
+      throw new ValidationError("Authorization code is required")
     }
 
     // Exchange code for tokens
@@ -858,7 +858,7 @@ router.post('/calendar/sync',csrfProtection,  csrfProtection, async (req: Reques
     )
 
     if (result.rows.length === 0) {
-      return throw new NotFoundError("Integration not found")
+      throw new NotFoundError("Integration not found")
     }
 
     const integration = result.rows[0]
