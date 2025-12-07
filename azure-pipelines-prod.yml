@@ -28,7 +28,7 @@ variables:
   - name: NAMESPACE
     value: 'fleet-management'
   - name: REGISTRY
-    value: fleetappregistry.azurecr.io
+    value: fleetproductionacr.azurecr.io
   - name: IMAGE_NAME_FRONTEND
     value: fleet-frontend
   - name: IMAGE_NAME_API
