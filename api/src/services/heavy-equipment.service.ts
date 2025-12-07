@@ -112,7 +112,7 @@ export class HeavyEquipmentService {
         a.condition,
         a.location,
         a.assigned_to,
-        u.first_name || ` ` || u.last_name as assigned_to_name
+        u.first_name || ' ' || u.last_name as assigned_to_name
       FROM heavy_equipment he
       JOIN assets a ON he.asset_id = a.id
       LEFT JOIN users u ON a.assigned_to = u.id
@@ -310,7 +310,7 @@ export class HeavyEquipmentService {
         CASE
           WHEN eoc.expiry_date < CURRENT_DATE THEN 'expired'
           WHEN eoc.expiry_date < CURRENT_DATE + INTERVAL '30 days' THEN 'expiring_soon'
-          ELSE `valid`
+          ELSE 'valid'
         END as expiration_status
       FROM equipment_operator_certifications eoc
       JOIN drivers d ON eoc.driver_id = d.id
