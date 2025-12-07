@@ -9,9 +9,9 @@ const router = Router()
 
 router.get("/", asyncHandler(async (req, res) => {
   try {
-    res.json({ data: [], message: "Personal use charges route - under construction" }))
+    res.json({ data: [], message: "Personal use charges route - under construction" })
   } catch (error) {
-    res.status(500).json({ error: "Server error" }))
+    res.status(500).json({ error: "Server error" })
   }
 }))
 

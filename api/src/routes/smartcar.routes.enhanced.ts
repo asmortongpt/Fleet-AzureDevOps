@@ -40,7 +40,7 @@ router.get('/connect', authenticateJWT, requirePermission('vehicle:manage:global
   try {
     const validationResult = vehicleIdSchema.safeParse(req.query);
     if (!validationResult.success) {
-      return throw new ValidationError("Invalid vehicle_id query parameter");
+      throw new ValidationError("Invalid vehicle_id query parameter");
     }
 
     const { vehicle_id } = validationResult.data;

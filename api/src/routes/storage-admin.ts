@@ -611,7 +611,7 @@ router.post('/batch/delete',csrfProtection,  csrfProtection, async (req: Request
     const { keys } = req.body;
 
     if (!Array.isArray(keys) || keys.length === 0) {
-      return throw new ValidationError("keys array is required");
+      throw new ValidationError("keys array is required");
     }
 
     const manager = await getStorageManager();

@@ -40,7 +40,7 @@ router.get(
     try {
       const validation = chargingSessionSchema.safeParse(req.query)
       if (!validation.success) {
-        return throw new ValidationError("Invalid request parameters")
+        throw new ValidationError("Invalid request parameters")
       }
       const { page = '1', limit = '50' } = validation.data
       const offset = (Number(page) - 1) * Number(limit)
@@ -121,7 +121,7 @@ router.get(
     try {
       const idValidation = chargingSessionSchema.pick({ id: true }).safeParse(req.params)
       if (!idValidation.success) {
-        return throw new ValidationError("Invalid ID parameter")
+        throw new ValidationError("Invalid ID parameter")
       }
       const { id } = idValidation.data
 
@@ -165,7 +165,7 @@ router.get(
       )
 
       if (result.rows.length === 0) {
-        return throw new NotFoundError("Charging session not found")
+        throw new NotFoundError("Charging session not found")
       }
 
       const sanitizedData = Object.keys(result.rows[0]).reduce((acc, key) => {

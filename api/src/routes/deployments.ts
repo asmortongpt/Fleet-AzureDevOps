@@ -91,7 +91,7 @@ router.post('/',
 
     // Validate required fields
     if (!environment) {
-      return throw new ValidationError("environment is required")
+      throw new ValidationError("environment is required")
     }
 
     // Validate environment
@@ -238,7 +238,7 @@ router.get('/:id',
     )
 
     if (deploymentResult.rows.length === 0) {
-      return throw new NotFoundError("Deployment not found")
+      throw new NotFoundError("Deployment not found")
     }
 
     const qualityGatesResult = await pool.query(
