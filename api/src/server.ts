@@ -377,8 +377,8 @@ app.use('/api/damage', damageRouter)
 app.use('/api/damage-reports', damageReportsRouter)
 
 // Trip & Route Management Routes
-app.use('/api/routes', routeEmulatorRouter)
-app.use('/api/fleet-routes', routesRouter)
+app.use('/api/routes', routesRouter)
+app.use('/api/route-emulator', routeEmulatorRouter)
 app.use('/api/trip-usage', tripUsageRouter)
 
 // Safety & Compliance Routes
