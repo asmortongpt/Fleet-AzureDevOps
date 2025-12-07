@@ -52,7 +52,7 @@ tracer.init({
 // Export tracer for custom instrumentation
 export default tracer;
 
-console.log('✅ Datadog APM initialized:', {
+console.log('Datadog APM initialized:', {
   service: 'fleet-api',
   env: process.env.NODE_ENV || 'production',
   agent: `${process.env.DD_AGENT_HOST || 'datadog-agent.fleet-management.svc.cluster.local'}:${process.env.DD_TRACE_AGENT_PORT || 8126}`,
