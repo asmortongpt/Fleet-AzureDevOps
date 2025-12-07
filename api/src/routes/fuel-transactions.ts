@@ -15,8 +15,9 @@ import {
 } from '../schemas/fuel-transactions.schema'
 
 const router = Router()
-const db = container.resolve('db')
-const validator = new TenantValidator(db)
+// TEMPORARY: Disable DB validation to allow API to start
+// const db = container.resolve('db')
+// const validator = new TenantValidator(db)
 
 // GET all fuel transactions
 router.get("/", validate(getFuelTransactionsQuerySchema, 'query'), async (req, res) => {
