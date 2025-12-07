@@ -2,11 +2,9 @@ import express from 'express'
 import { container } from '../container'
 import { asyncHandler } from '../middleware/errorHandler'
 import { NotFoundError, ValidationError } from '../errors/app-error'
-import { checkJwt } from '../middleware/auth'
-import { checkRole } from '../middleware/role.middleware'
+import { checkJwt, authorize } from '../middleware/auth'
 import { UtilizationCalcService } from '../services/utilization-calc.service'
 import { ROICalculatorService } from '../services/roi-calculator.service'
-import { asyncHandler } from '../utils/async-handler'
 import { z } from 'zod'
 import { csrfProtection } from '../middleware/csrf'
 
@@ -34,7 +32,7 @@ const dateRangeSchema = z.object({
 router.get(
   '/utilization',
   checkJwt,
-  checkRole(['manager']),
+  authorize('manager'),
   asyncHandler(async (req, res) => {
         const { startDate, endDate } = dateRangeSchema.parse(req.query)
     const utilizationMetrics = await utilizationCalcService.getDailyUtilization(startDate, endDate)
@@ -56,7 +54,7 @@ router.get(
 router.get(
   '/roi',
   checkJwt,
-  checkRole(['manager']),
+  authorize('manager'),
   asyncHandler(async (req, res) => {
         const { startDate, endDate } = dateRangeSchema.parse(req.query)
     const roi = await roiCalculatorService.calculateROI(startDate, endDate)
@@ -75,7 +73,7 @@ router.get(
 router.get(
   '/idle-assets',
   checkJwt,
-  checkRole(['manager']),
+  authorize('manager'),
   asyncHandler(async (req, res) => {
         const idleAssets = await utilizationCalcService.getIdleAssets()
     res.json(idleAssets)
@@ -93,7 +91,7 @@ router.get(
 router.get(
   '/cost-per-mile',
   checkJwt,
-  checkRole(['manager']),
+  authorize('manager'),
   asyncHandler(async (req, res) => {
         const costPerMileData = await roiCalculatorService.getCostPerMile()
     res.json(costPerMileData)
