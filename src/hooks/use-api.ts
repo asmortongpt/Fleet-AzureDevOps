@@ -322,7 +322,8 @@ export function useVehicles(filters: VehicleFilters = { tenant_id: '' }) {
       const params = new URLSearchParams(filters as Record<string, string>);
       const res = await secureFetch(`/api/vehicles?${params}`, { method: 'GET' });
       if (!res.ok) throw new Error('Network response was not ok');
-      return res.json();
+      const response = await res.json();
+      return response.data || [];
     },
     staleTime: 5 * 60 * 1000,
     cacheTime: 10 * 60 * 1000,
@@ -337,7 +338,8 @@ export function useDrivers(filters: DriverFilters = { tenant_id: '' }) {
       const params = new URLSearchParams(filters as Record<string, string>);
       const res = await secureFetch(`/api/drivers?${params}`);
       if (!res.ok) throw new Error('Network response was not ok');
-      return res.json();
+      const response = await res.json();
+      return response.data || [];
     },
     staleTime: 5 * 60 * 1000,
     cacheTime: 10 * 60 * 1000,
@@ -352,7 +354,8 @@ export function useMaintenance(filters: MaintenanceFilters = { tenant_id: '', st
       const params = new URLSearchParams(filters as Record<string, string>);
       const res = await secureFetch(`/api/maintenance?${params}`);
       if (!res.ok) throw new Error('Network response was not ok');
-      return res.json();
+      const response = await res.json();
+      return response.data || [];
     },
     staleTime: 5 * 60 * 1000,
     cacheTime: 10 * 60 * 1000,
@@ -367,7 +370,8 @@ export function useWorkOrders(filters: WorkOrderFilters = { tenant_id: '' }) {
       const params = new URLSearchParams(filters as Record<string, string>);
       const res = await secureFetch(`/api/work-orders?${params}`);
       if (!res.ok) throw new Error('Network response was not ok');
-      return res.json();
+      const response = await res.json();
+      return response.data || [];
     },
     staleTime: 5 * 60 * 1000,
     cacheTime: 10 * 60 * 1000,
@@ -382,7 +386,8 @@ export function useFuelTransactions(filters: FuelTransactionFilters = { tenant_i
       const params = new URLSearchParams(filters as Record<string, string>);
       const res = await secureFetch(`/api/fuel-transactions?${params}`);
       if (!res.ok) throw new Error('Network response was not ok');
-      return res.json();
+      const response = await res.json();
+      return response.data || [];
     },
     staleTime: 5 * 60 * 1000,
     cacheTime: 10 * 60 * 1000,
@@ -397,7 +402,8 @@ export function useFacilities(filters: FacilityFilters = { tenant_id: '' }) {
       const params = new URLSearchParams(filters as Record<string, string>);
       const res = await secureFetch(`/api/facilities?${params}`);
       if (!res.ok) throw new Error('Network response was not ok');
-      return res.json();
+      const response = await res.json();
+      return response.data || [];
     },
     staleTime: 5 * 60 * 1000,
     cacheTime: 10 * 60 * 1000,
@@ -412,7 +418,8 @@ export function useMaintenanceSchedules(filters: MaintenanceScheduleFilters = { 
       const params = new URLSearchParams(filters as Record<string, string>);
       const res = await secureFetch(`/api/maintenance-schedules?${params}`);
       if (!res.ok) throw new Error('Network response was not ok');
-      return res.json();
+      const response = await res.json();
+      return response.data || [];
     },
     staleTime: 5 * 60 * 1000,
     cacheTime: 10 * 60 * 1000,
@@ -427,7 +434,8 @@ export function useRoutes(filters: RouteFilters = { tenant_id: '' }) {
       const params = new URLSearchParams(filters as Record<string, string>);
       const res = await secureFetch(`/api/routes?${params}`);
       if (!res.ok) throw new Error('Network response was not ok');
-      return res.json();
+      const response = await res.json();
+      return response.data || [];
     },
     staleTime: 5 * 60 * 1000,
     cacheTime: 10 * 60 * 1000,
