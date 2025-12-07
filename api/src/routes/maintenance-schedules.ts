@@ -1,32 +1,118 @@
 import express, { Response } from 'express'
 import { csrfProtection } from '../middleware/csrf'
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
+import { NotFoundError } from '../errors/app-error'
 import { AuthRequest, authenticateJWT } from '../middleware/auth'
 import { requirePermission } from '../middleware/permissions'
 import { auditLog } from '../middleware/audit'
-import { z } from 'zod'
 import { buildInsertClause, buildUpdateClause } from '../utils/sql-safety'
-import {
-  checkDueSchedules,
-  generateWorkOrder,
-  getRecurringScheduleStats,
-  validateRecurrencePattern,
-  calculateNextDueDate
-} from '../services/recurring-maintenance'
+import pool from '../config/database'
 import {
   CreateRecurringScheduleRequest,
   UpdateRecurrencePatternRequest,
-  GetDueSchedulesRequest,
   ManualWorkOrderGenerationRequest
 } from '../types/maintenance'
-import { ApiResponse } from '../utils/apiResponse'
-import { validate } from '../middleware/validation'
-import { getPaginationParams, createPaginatedResponse } from '../utils/pagination'
 
 const router = express.Router()
 router.use(authenticateJWT)
+
+// Simple pagination helper
+const getPaginationParams = (req: any) => {
+  const page = parseInt(req.query.page as string) || 1
+  const limit = parseInt(req.query.limit as string) || 20
+  const offset = (page - 1) * limit
+  return { page, limit, offset }
+}
+
+const createPaginatedResponse = (data: any[], total: number, params: any) => {
+  return {
+    data,
+    pagination: {
+      page: params.page,
+      limit: params.limit,
+      total,
+      pages: Math.ceil(total / params.limit)
+    }
+  }
+}
+
+// Simple validation helpers
+const validateRecurrencePattern = (pattern: any) => {
+  if (!pattern || !pattern.frequency) {
+    return { valid: false, errors: ['Recurrence pattern must have a frequency'] }
+  }
+  return { valid: true, errors: [] }
+}
+
+const calculateNextDueDate = async (schedule: any, fromDate: Date) => {
+  // Simple calculation - add interval to current date
+  const pattern = schedule.recurrence_pattern
+  const date = new Date(fromDate)
+
+  if (pattern.frequency === 'daily') {
+    date.setDate(date.getDate() + (pattern.interval || 1))
+  } else if (pattern.frequency === 'weekly') {
+    date.setDate(date.getDate() + (pattern.interval || 1) * 7)
+  } else if (pattern.frequency === 'monthly') {
+    date.setMonth(date.getMonth() + (pattern.interval || 1))
+  }
+
+  return date
+}
+
+const checkDueSchedules = async (tenantId: string, daysAhead: number, includeOverdue: boolean) => {
+  const futureDate = new Date()
+  futureDate.setDate(futureDate.getDate() + daysAhead)
+
+  const query = includeOverdue
+    ? 'SELECT * FROM maintenance_schedules WHERE tenant_id = $1 AND (next_due <= $2 OR next_due < NOW())'
+    : 'SELECT * FROM maintenance_schedules WHERE tenant_id = $1 AND next_due <= $2 AND next_due >= NOW()'
+
+  const result = await pool.query(query, [tenantId, futureDate])
+
+  return result.rows.map((schedule: any) => ({
+    schedule,
+    vehicle: { id: schedule.vehicle_id },
+    is_overdue: new Date(schedule.next_due) < new Date(),
+    days_until_due: Math.floor((new Date(schedule.next_due).getTime() - Date.now()) / (1000 * 60 * 60 * 24))
+  }))
+}
+
+const generateWorkOrder = async (schedule: any, telemetry: any, overrideTemplate: any) => {
+  const workOrder = {
+    tenant_id: schedule.tenant_id,
+    vehicle_id: schedule.vehicle_id,
+    type: 'preventive',
+    priority: schedule.priority || 'medium',
+    description: schedule.service_type,
+    estimated_cost: schedule.estimated_cost || 0,
+    status: 'open',
+    metadata: { schedule_id: schedule.id, ...overrideTemplate },
+    created_at: new Date()
+  }
+
+  const result = await pool.query(
+    `INSERT INTO work_orders (tenant_id, vehicle_id, type, priority, description, estimated_cost, status, metadata, created_at)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id`,
+    [workOrder.tenant_id, workOrder.vehicle_id, workOrder.type, workOrder.priority,
+     workOrder.description, workOrder.estimated_cost, workOrder.status,
+     JSON.stringify(workOrder.metadata), workOrder.created_at]
+  )
+
+  return result.rows[0].id
+}
+
+const getRecurringScheduleStats = async (tenantId: string) => {
+  const result = await pool.query(
+    `SELECT COUNT(*) as total,
+            SUM(CASE WHEN auto_create_work_order THEN 1 ELSE 0 END) as active,
+            SUM(estimated_cost) as total_estimated_cost
+     FROM maintenance_schedules
+     WHERE tenant_id = $1 AND is_recurring = true`,
+    [tenantId]
+  )
+
+  return result.rows[0]
+}
 
 // GET /maintenance-schedules
 router.get(
@@ -83,10 +169,10 @@ router.get(
         paginationParams
       )
 
-      return ApiResponse.success(res, paginatedResponse, `Maintenance schedules retrieved successfully`)
+      res.json(paginatedResponse)
     } catch (error) {
       console.error(`Get maintenance-schedules error:`, error)
-      return ApiResponse.serverError(res, `Failed to retrieve maintenance schedules`)
+      res.status(500).json({ error: `Failed to retrieve maintenance schedules` })
     }
   }
 )
@@ -96,7 +182,6 @@ router.get(
   '/:id',
   requirePermission('maintenance_schedule:view:fleet'),
   auditLog({ action: 'READ', resourceType: 'maintenance_schedules' }),
-  validate([{ field: 'id', required: true, type: 'uuid' }], 'params'),
   async (req: AuthRequest, res: Response) => {
     try {
       const result = await pool.query(
@@ -110,13 +195,13 @@ router.get(
       )
 
       if (result.rows.length === 0) {
-        return ApiResponse.notFound(res, `Maintenance schedule`)
+        return res.status(404).json({ error: 'Maintenance schedule not found' })
       }
 
-      return ApiResponse.success(res, result.rows[0], `Maintenance schedule retrieved successfully`)
+      res.json({ data: result.rows[0] })
     } catch (error) {
       console.error('Get maintenance-schedules error:', error)
-      return ApiResponse.serverError(res, 'Failed to retrieve maintenance schedule')
+      res.status(500).json({ error: 'Failed to retrieve maintenance schedule' })
     }
   }
 )
@@ -124,14 +209,9 @@ router.get(
 // POST /maintenance-schedules
 router.post(
   '/',
- csrfProtection,  csrfProtection, requirePermission('maintenance_schedule:create:fleet'),
+  csrfProtection,
+  requirePermission('maintenance_schedule:create:fleet'),
   auditLog({ action: 'CREATE', resourceType: 'maintenance_schedules' }),
-  validate([
-    { field: 'vehicle_id', required: true, type: 'uuid' },
-    { field: 'service_type', required: true, minLength: 1 },
-    { field: 'trigger_metric', required: false },
-    { field: 'interval_value', required: false, type: 'number', min: 1 }
-  ]),
   async (req: AuthRequest, res: Response) => {
     try {
       const data = req.body
@@ -147,10 +227,10 @@ router.post(
         [req.user!.tenant_id, ...values]
       )
 
-      return ApiResponse.success(res, result.rows[0], `Maintenance schedule created successfully`, 201)
+      res.status(201).json({ data: result.rows[0] })
     } catch (error) {
       console.error(`Create maintenance-schedules error:`, error)
-      return ApiResponse.serverError(res, `Failed to create maintenance schedule`)
+      res.status(500).json({ error: 'Failed to create maintenance schedule' })
     }
   }
 )
@@ -158,9 +238,9 @@ router.post(
 // PUT /maintenance-schedules/:id
 router.put(
   '/:id',
- csrfProtection,  csrfProtection, requirePermission('maintenance_schedule:update:fleet'),
+  csrfProtection,
+  requirePermission('maintenance_schedule:update:fleet'),
   auditLog({ action: 'UPDATE', resourceType: 'maintenance_schedules' }),
-  validate([{ field: 'id', required: true, type: 'uuid' }], 'params'),
   async (req: AuthRequest, res: Response) => {
     try {
       const data = req.body
@@ -172,13 +252,13 @@ router.put(
       )
 
       if (result.rows.length === 0) {
-        return ApiResponse.notFound(res, `Maintenance schedule`)
+        return res.status(404).json({ error: 'Maintenance schedule not found' })
       }
 
-      return ApiResponse.success(res, result.rows[0], `Maintenance schedule updated successfully`)
+      res.json({ data: result.rows[0] })
     } catch (error) {
       console.error(`Update maintenance-schedules error:`, error)
-      return ApiResponse.serverError(res, 'Failed to update maintenance schedule')
+      res.status(500).json({ error: 'Failed to update maintenance schedule' })
     }
   }
 )
@@ -186,9 +266,9 @@ router.put(
 // DELETE /maintenance-schedules/:id
 router.delete(
   '/:id',
- csrfProtection,  csrfProtection, requirePermission('maintenance_schedule:delete:fleet'),
+  csrfProtection,
+  requirePermission('maintenance_schedule:delete:fleet'),
   auditLog({ action: 'DELETE', resourceType: 'maintenance_schedules' }),
-  validate([{ field: 'id', required: true, type: 'uuid' }], 'params'),
   async (req: AuthRequest, res: Response) => {
     try {
       const result = await pool.query(
@@ -197,13 +277,13 @@ router.delete(
       )
 
       if (result.rows.length === 0) {
-        return ApiResponse.notFound(res, `Maintenance schedule`)
+        return res.status(404).json({ error: 'Maintenance schedule not found' })
       }
 
-      return ApiResponse.success(res, { id: result.rows[0].id }, 'Maintenance schedule deleted successfully')
+      res.json({ message: 'Maintenance schedule deleted successfully', id: result.rows[0].id })
     } catch (error) {
       console.error('Delete maintenance-schedules error:', error)
-      return ApiResponse.serverError(res, 'Failed to delete maintenance schedule')
+      res.status(500).json({ error: 'Failed to delete maintenance schedule' })
     }
   }
 )
@@ -215,7 +295,7 @@ router.delete(
 // POST /maintenance-schedules/recurring - Create recurring schedule
 router.post(
   '/recurring',
- csrfProtection,  csrfProtection, requirePermission('maintenance_schedule:create:fleet'),
+ csrfProtection, requirePermission('maintenance_schedule:create:fleet'),
   auditLog({ action: 'CREATE', resourceType: 'maintenance_schedules_recurring' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -277,7 +357,7 @@ router.post(
 // PUT /maintenance-schedules/:id/recurrence - Update recurrence pattern
 router.put(
   '/:id/recurrence',
- csrfProtection,  csrfProtection, requirePermission('maintenance_schedule:update:fleet'),
+ csrfProtection, requirePermission('maintenance_schedule:update:fleet'),
   auditLog({ action: 'UPDATE', resourceType: 'maintenance_schedules_recurrence' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -304,7 +384,7 @@ router.put(
 
       if (data.work_order_template) {
         updateFields.push(`work_order_template = $${paramIndex}`)
-        updateValues.push(JSON.stringify(data.work_order_template)
+        updateValues.push(JSON.stringify(data.work_order_template))
         paramIndex++
       }
 
@@ -381,7 +461,7 @@ router.get(
 // POST /maintenance-schedules/:id/generate-work-order - Manual work order creation
 router.post(
   '/:id/generate-work-order',
- csrfProtection,  csrfProtection, requirePermission('maintenance_schedule:update:fleet'),
+ csrfProtection, requirePermission('maintenance_schedule:update:fleet'),
   auditLog({ action: 'CREATE', resourceType: 'work_orders_from_schedule' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -513,7 +593,7 @@ router.get(
 // PATCH /maintenance-schedules/:id/pause - Pause auto work order generation
 router.patch(
   '/:id/pause',
- csrfProtection,  csrfProtection, requirePermission('maintenance_schedule:update:fleet'),
+ csrfProtection, requirePermission('maintenance_schedule:update:fleet'),
   auditLog({ action: 'UPDATE', resourceType: 'maintenance_schedules_pause' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -543,7 +623,7 @@ router.patch(
 // PATCH /maintenance-schedules/:id/resume - Resume auto work order generation
 router.patch(
   '/:id/resume',
- csrfProtection,  csrfProtection, requirePermission('maintenance_schedule:update:fleet'),
+ csrfProtection, requirePermission('maintenance_schedule:update:fleet'),
   auditLog({ action: 'UPDATE', resourceType: 'maintenance_schedules_resume' }),
   async (req: AuthRequest, res: Response) => {
     try {
