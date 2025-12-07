@@ -144,7 +144,7 @@ router.delete(
       )
 
       if (result.rows.length === 0) {
-        return throw new NotFoundError("VideoEvents not found")
+        throw new NotFoundError("VideoEvents not found")
       }
 
       res.json({ message: 'VideoEvents deleted successfully' })

@@ -208,7 +208,7 @@ router.get(
       )
 
       if (tripResult.rows.length === 0) {
-        return throw new NotFoundError("Trip not found")
+        throw new NotFoundError("Trip not found")
       }
 
       const trip = tripResult.rows[0]

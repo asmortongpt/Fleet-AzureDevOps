@@ -143,7 +143,7 @@ router.delete(
       )
 
       if (result.rows.length === 0) {
-        return throw new NotFoundError("CommunicationLogs not found")
+        throw new NotFoundError("CommunicationLogs not found")
       }
 
       res.json({ message: 'CommunicationLogs deleted successfully' })

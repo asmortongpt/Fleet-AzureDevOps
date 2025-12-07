@@ -164,7 +164,7 @@ router.delete(
       )
 
       if (result.rows.length === 0) {
-        return throw new NotFoundError("ChargingStations not found")
+        throw new NotFoundError("ChargingStations not found")
       }
 
       res.json({ message: 'ChargingStations deleted successfully' })

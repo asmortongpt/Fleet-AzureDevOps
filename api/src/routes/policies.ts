@@ -166,7 +166,7 @@ router.delete(
       )
 
       if (result.rows.length === 0) {
-        return throw new NotFoundError("Policies not found")
+        throw new NotFoundError("Policies not found")
       }
 
       res.json({ message: 'Policies deleted successfully' })

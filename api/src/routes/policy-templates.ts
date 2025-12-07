@@ -341,7 +341,7 @@ router.get(
       )
 
       if (result.rows.length === 0) {
-        return throw new NotFoundError("Employee not found")
+        throw new NotFoundError("Employee not found")
       }
 
       res.json(result.rows[0])
