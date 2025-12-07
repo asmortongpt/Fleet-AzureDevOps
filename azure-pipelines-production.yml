@@ -71,29 +71,30 @@ stages:
                 echo "Image: $(containerRegistry)/$(imageRepository):$(imageTag)"
                 echo "================================================"
 
-          # Login to ACR
-          - task: Docker@2
-            displayName: 'Login to ACR'
+          # Login to ACR and Build/Push using Azure CLI
+          - task: AzureCLI@2
+            displayName: 'Build and Push Docker Image to ACR'
             inputs:
-              command: login
-              containerRegistry: $(containerRegistryConnection)
+              azureSubscription: $(azureServiceConnection)
+              scriptType: 'bash'
+              scriptLocation: 'inlineScript'
+              inlineScript: |
+                echo "Logging into ACR: $(acrName)"
+                az acr login --name $(acrName)
 
-          # Build Docker Image
-          - task: Docker@2
-            displayName: 'Build Docker Image'
-            inputs:
-              command: build
-              repository: $(imageRepository)
-              dockerfile: '$(Build.SourcesDirectory)/Dockerfile'
-              containerRegistry: $(containerRegistryConnection)
-              tags: |
-                $(imageTag)
-                latest
-                production-$(imageTag)
-              arguments: |
-                --build-arg NODE_ENV=production
-                --build-arg BUILD_VERSION=$(imageTag)
-                --build-arg GIT_COMMIT=$(Build.SourceVersion)
+                echo "Building Docker image..."
+                docker build \
+                  --build-arg NODE_ENV=production \
+                  --build-arg BUILD_VERSION=$(imageTag) \
+                  --build-arg GIT_COMMIT=$(Build.SourceVersion) \
+                  -t $(containerRegistry)/$(imageRepository):$(imageTag) \
+                  -t $(containerRegistry)/$(imageRepository):latest \
+                  -t $(containerRegistry)/$(imageRepository):production-$(imageTag) \
+                  -f $(Build.SourcesDirectory)/Dockerfile \
+                  $(Build.SourcesDirectory)
+
+                echo "Image built successfully"
+                docker images | grep $(imageRepository)
 
           # Security Scan
           - task: Bash@3
@@ -113,17 +114,21 @@ stages:
 
                 echo "Security scan completed"
 
-          # Push to ACR
-          - task: Docker@2
-            displayName: 'Push to ACR'
+          # Push to ACR using Azure CLI
+          - task: AzureCLI@2
+            displayName: 'Push Images to ACR'
             inputs:
-              command: push
-              repository: $(imageRepository)
-              containerRegistry: $(containerRegistryConnection)
-              tags: |
-                $(imageTag)
-                latest
-                production-$(imageTag)
+              azureSubscription: $(azureServiceConnection)
+              scriptType: 'bash'
+              scriptLocation: 'inlineScript'
+              inlineScript: |
+                echo "Pushing images to ACR..."
+                docker push $(containerRegistry)/$(imageRepository):$(imageTag)
+                docker push $(containerRegistry)/$(imageRepository):latest
+                docker push $(containerRegistry)/$(imageRepository):production-$(imageTag)
+
+                echo "Images pushed successfully"
+                az acr repository show-tags --name $(acrName) --repository $(imageRepository) --output table
 
           # Publish Artifacts
           - task: PublishBuildArtifacts@1
