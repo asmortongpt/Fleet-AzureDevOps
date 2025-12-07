@@ -82,15 +82,15 @@ jobs:
           scriptLocation: 'inlineScript'
           inlineScript: |
             # Login to ACR
-            az acr login --name fleetappregistry
+            az acr login --name fleetproductionacr
 
             # Build and push the image
-            docker build -t fleetappregistry.azurecr.io/fleet-app:$(Build.BuildId) -f Dockerfile .
-            docker push fleetappregistry.azurecr.io/fleet-app:$(Build.BuildId)
+            docker build -t fleetproductionacr.azurecr.io/fleet-app:$(Build.BuildId) -f Dockerfile .
+            docker push fleetproductionacr.azurecr.io/fleet-app:$(Build.BuildId)
 
             # Also tag as latest
-            docker tag fleetappregistry.azurecr.io/fleet-app:$(Build.BuildId) fleetappregistry.azurecr.io/fleet-app:latest
-            docker push fleetappregistry.azurecr.io/fleet-app:latest
+            docker tag fleetproductionacr.azurecr.io/fleet-app:$(Build.BuildId) fleetproductionacr.azurecr.io/fleet-app:latest
+            docker push fleetproductionacr.azurecr.io/fleet-app:latest
 
       # ==================================================================
       # Update Deployment
@@ -98,7 +98,7 @@ jobs:
       - script: |
           echo "Updating fleet-app deployment..."
           kubectl set image deployment/fleet-app \
-            fleet-app=fleetappregistry.azurecr.io/fleet-app:$(Build.BuildId) \
+            fleet-app=fleetproductionacr.azurecr.io/fleet-app:$(Build.BuildId) \
             -n $(namespace)
 
           echo "Setting environment variables..."
