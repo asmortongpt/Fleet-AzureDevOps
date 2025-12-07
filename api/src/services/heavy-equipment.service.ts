@@ -161,11 +161,11 @@ export class HeavyEquipmentService {
         a.purchase_date,
         a.purchase_price,
         a.assigned_to,
-        u.first_name || ` ` || u.last_name as assigned_to_name
+        u.first_name || ' ' || u.last_name as assigned_to_name
       FROM heavy_equipment he
       JOIN assets a ON he.asset_id = a.id
       LEFT JOIN users u ON a.assigned_to = u.id
-      WHERE he.id = $1 AND he.tenant_id = $2',
+      WHERE he.id = $1 AND he.tenant_id = $2`,
       [equipmentId, tenantId]
     )
 
