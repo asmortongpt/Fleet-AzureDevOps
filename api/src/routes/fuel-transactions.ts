@@ -1,10 +1,9 @@
 import { Router } from "express"
-import { container } from '../container'
 import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
+import { NotFoundError } from '../errors/app-error'
 import logger from '../config/logger'
-import { fuelTransactionEmulator } from '../emulators/fuel/FuelEmulator'
-import { TenantValidator } from '../utils/tenant-validator'
+import { fuelTransactionEmulator } from '../emulators/FuelTransactionEmulator'
+import pool from '../config/database'
 import { validate } from '../middleware/validation'
 import { csrfProtection } from '../middleware/csrf'
 
@@ -95,18 +94,32 @@ router.put("/:id", csrfProtection, validate(updateFuelTransactionSchema, 'body')
   try {
     const { vehicle_id, driver_id } = req.body
 
-    if (vehicle_id && !(await validator.validateVehicle(vehicle_id, req.user!.tenant_id))) {
-      return res.status(403).json({
-        success: false,
-        error: 'Vehicle Id not found or access denied'
-      })
+    // Validate vehicle ownership if vehicle_id is provided
+    if (vehicle_id) {
+      const vehicleCheck = await pool.query(
+        'SELECT id FROM vehicles WHERE id = $1 AND tenant_id = $2',
+        [vehicle_id, (req as any).user?.tenant_id]
+      )
+      if (vehicleCheck.rows.length === 0) {
+        return res.status(403).json({
+          success: false,
+          error: 'Vehicle Id not found or access denied'
+        })
+      }
     }
 
-    if (driver_id && !(await validator.validateDriver(driver_id, req.user!.tenant_id))) {
-      return res.status(403).json({
-        success: false,
-        error: 'Driver Id not found or access denied'
-      })
+    // Validate driver ownership if driver_id is provided
+    if (driver_id) {
+      const driverCheck = await pool.query(
+        'SELECT id FROM drivers WHERE id = $1 AND tenant_id = $2',
+        [driver_id, (req as any).user?.tenant_id]
+      )
+      if (driverCheck.rows.length === 0) {
+        return res.status(403).json({
+          success: false,
+          error: 'Driver Id not found or access denied'
+        })
+      }
     }
 
     const transaction = fuelTransactionEmulator.update(Number(req.params.id), req.body)

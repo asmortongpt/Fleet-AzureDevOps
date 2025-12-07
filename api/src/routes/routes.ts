@@ -1,19 +1,14 @@
 import express, { Response } from 'express'
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
-import logger from '../config/logger'; // Wave 17: Add Winston logger
+import { NotFoundError } from '../errors/app-error'
+import logger from '../config/logger'
 import { AuthRequest, authenticateJWT } from '../middleware/auth'
 import { requirePermission } from '../middleware/permissions'
 import { auditLog } from '../middleware/audit'
-import { z } from 'zod'
 import { buildInsertClause, buildUpdateClause } from '../utils/sql-safety'
-import { TenantValidator } from '../utils/tenant-validator'
+import pool from '../config/database'
 import { csrfProtection } from '../middleware/csrf'
-;
 
 const router = express.Router()
-const validator = new TenantValidator(db);
 router.use(authenticateJWT)
 
 // GET /routes
@@ -81,11 +76,11 @@ router.get(
           page: Number(page),
           limit: Number(limit),
           total: parseInt(countResult.rows[0].count),
-          pages: Math.ceil(countResult.rows[0].count / Number(limit)
+          pages: Math.ceil(countResult.rows[0].count / Number(limit))
         }
       })
     } catch (error) {
-      logger.error('Get routes error:', error) // Wave 17: Winston logger
+      logger.error('Get routes error:', error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -160,7 +155,8 @@ router.get(
 // POST /routes
 router.post(
   '/',
- csrfProtection,  csrfProtection, requirePermission('route:create:fleet'),
+  csrfProtection,
+  requirePermission('route:create:fleet'),
   auditLog({ action: 'CREATE', resourceType: 'routes' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -198,8 +194,9 @@ const ALLOWED_UPDATE_FIELDS = [
 ];
 
 router.put(
-  `/:id`,
-  csrfProtection, requirePermission('route:update:fleet', {
+  '/:id',
+  csrfProtection,
+  requirePermission('route:update:fleet', {
     customCheck: async (req: AuthRequest) => {
       // Prevent modifying completed routes
       const routeResult = await pool.query(
@@ -228,18 +225,32 @@ router.put(
       // SECURITY: IDOR Protection - Validate foreign keys belong to tenant
       const { vehicle_id, driver_id } = data
 
-      if (vehicle_id && !(await validator.validateVehicle(vehicle_id, req.user!.tenant_id)) {
-        return res.status(403).json({
-          success: false,
-          error: 'Vehicle Id not found or access denied'
-        })
+      if (vehicle_id) {
+        const vehicleCheck = await pool.query(
+          'SELECT id FROM vehicles WHERE id = $1 AND tenant_id = $2',
+          [vehicle_id, req.user!.tenant_id]
+        )
+        if (vehicleCheck.rows.length === 0) {
+          return res.status(403).json({
+            success: false,
+            error: 'Vehicle Id not found or access denied'
+          })
+        }
       }
-      if (driver_id && !(await validator.validateDriver(driver_id, req.user!.tenant_id)) {
-        return res.status(403).json({
-          success: false,
-          error: 'Driver Id not found or access denied'
-        })
+
+      if (driver_id) {
+        const driverCheck = await pool.query(
+          'SELECT id FROM drivers WHERE id = $1 AND tenant_id = $2',
+          [driver_id, req.user!.tenant_id]
+        )
+        if (driverCheck.rows.length === 0) {
+          return res.status(403).json({
+            success: false,
+            error: 'Driver Id not found or access denied'
+          })
+        }
       }
+
       const { fields, values } = buildUpdateClause(data, 3)
 
       const result = await pool.query(
@@ -262,7 +273,8 @@ router.put(
 // DELETE /routes/:id
 router.delete(
   '/:id',
- csrfProtection,  csrfProtection, requirePermission('route:delete:fleet'),
+  csrfProtection,
+  requirePermission('route:delete:fleet'),
   auditLog({ action: 'DELETE', resourceType: 'routes' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -284,44 +296,3 @@ router.delete(
 )
 
 export default router
-
-// IDOR Protection for UPDATE
-router.put('/:id',csrfProtection,  csrfProtection, async (req: Request, res: Response) => {
-  const { id } = req.params;
-  const tenantId = req.user?.tenantId;
-
-  // Validate ownership before update
-  const validator = new TenantValidator(pool);
-  const isValid = await validator.validateOwnership(tenantId, 'routes', parseInt(id);
-
-  if (!isValid) {
-    return res.status(403).json({
-      success: false,
-      error: 'Access denied - resource not found or belongs to different tenant'
-    });
-  }
-
-  // Proceed with update...
-  const data = req.body;
-  // ... existing update logic
-});
-
-// IDOR Protection for DELETE
-router.delete('/:id',csrfProtection,  csrfProtection, async (req: Request, res: Response) => {
-  const { id } = req.params;
-  const tenantId = req.user?.tenantId;
-
-  // Validate ownership before delete
-  const validator = new TenantValidator(pool);
-  const isValid = await validator.validateOwnership(tenantId, 'routes', parseInt(id);
-
-  if (!isValid) {
-    return res.status(403).json({
-      success: false,
-      error: 'Access denied - resource not found or belongs to different tenant'
-    });
-  }
-
-  // Proceed with soft delete...
-  // ... existing delete logic
-});
