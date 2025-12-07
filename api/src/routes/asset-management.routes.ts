@@ -147,7 +147,7 @@ router.get('/:id', requirePermission('vehicle:view:fleet'), async (req: AuthRequ
     )
 
     if (result.rows.length === 0) {
-      return throw new NotFoundError("Asset not found")
+      throw new NotFoundError("Asset not found")
     }
 
     // Get asset history
@@ -499,7 +499,7 @@ router.get('/:id/depreciation', requirePermission('vehicle:view:fleet'), async (
     const currentDate = new Date()
 
     // Calculate years since purchase
-    const yearsSincePurchase = (currentDate.getTime() - purchaseDate.getTime() / (1000 * 60 * 60 * 24 * 365.25)
+    const yearsSincePurchase = (currentDate.getTime() - purchaseDate.getTime()) / (1000 * 60 * 60 * 24 * 365.25)
 
     // Straight-line depreciation
     const annualDepreciation = purchasePrice * (depreciationRate / 100)
@@ -624,7 +624,7 @@ router.delete('/:id',csrfProtection,  csrfProtection, requirePermission('vehicle
 
     if (result.rows.length === 0) {
       await client.query(`ROLLBACK`)
-      return throw new NotFoundError("Asset not found")
+      throw new NotFoundError("Asset not found")
     }
 
     // Log disposal
