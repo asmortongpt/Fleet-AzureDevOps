@@ -316,14 +316,13 @@ const queryKeyFactory = {
 };
 
 export function useVehicles(filters: VehicleFilters = { tenant_id: '' }) {
-  return useQuery<Vehicle[], Error>({
+  return useQuery<any, Error>({
     queryKey: queryKeyFactory.vehicles(filters),
     queryFn: async () => {
       const params = new URLSearchParams(filters as Record<string, string>);
       const res = await secureFetch(`/api/vehicles?${params}`, { method: 'GET' });
       if (!res.ok) throw new Error('Network response was not ok');
-      const response = await res.json();
-      return response.data || [];
+      return res.json();
     },
     staleTime: 5 * 60 * 1000,
     cacheTime: 10 * 60 * 1000,
@@ -332,14 +331,13 @@ export function useVehicles(filters: VehicleFilters = { tenant_id: '' }) {
 }
 
 export function useDrivers(filters: DriverFilters = { tenant_id: '' }) {
-  return useQuery<Driver[], Error>({
+  return useQuery<any, Error>({
     queryKey: queryKeyFactory.drivers(filters),
     queryFn: async () => {
       const params = new URLSearchParams(filters as Record<string, string>);
       const res = await secureFetch(`/api/drivers?${params}`);
       if (!res.ok) throw new Error('Network response was not ok');
-      const response = await res.json();
-      return response.data || [];
+      return res.json();
     },
     staleTime: 5 * 60 * 1000,
     cacheTime: 10 * 60 * 1000,
@@ -348,14 +346,13 @@ export function useDrivers(filters: DriverFilters = { tenant_id: '' }) {
 }
 
 export function useMaintenance(filters: MaintenanceFilters = { tenant_id: '', startDate: '', endDate: '' }) {
-  return useQuery<Maintenance[], Error>({
+  return useQuery<any, Error>({
     queryKey: queryKeyFactory.maintenance(filters),
     queryFn: async () => {
       const params = new URLSearchParams(filters as Record<string, string>);
       const res = await secureFetch(`/api/maintenance?${params}`);
       if (!res.ok) throw new Error('Network response was not ok');
-      const response = await res.json();
-      return response.data || [];
+      return res.json();
     },
     staleTime: 5 * 60 * 1000,
     cacheTime: 10 * 60 * 1000,
@@ -364,14 +361,13 @@ export function useMaintenance(filters: MaintenanceFilters = { tenant_id: '', st
 }
 
 export function useWorkOrders(filters: WorkOrderFilters = { tenant_id: '' }) {
-  return useQuery<WorkOrder[], Error>({
+  return useQuery<any, Error>({
     queryKey: queryKeyFactory.workOrders(filters),
     queryFn: async () => {
       const params = new URLSearchParams(filters as Record<string, string>);
       const res = await secureFetch(`/api/work-orders?${params}`);
       if (!res.ok) throw new Error('Network response was not ok');
-      const response = await res.json();
-      return response.data || [];
+      return res.json();
     },
     staleTime: 5 * 60 * 1000,
     cacheTime: 10 * 60 * 1000,
@@ -380,14 +376,13 @@ export function useWorkOrders(filters: WorkOrderFilters = { tenant_id: '' }) {
 }
 
 export function useFuelTransactions(filters: FuelTransactionFilters = { tenant_id: '' }) {
-  return useQuery<FuelTransaction[], Error>({
+  return useQuery<any, Error>({
     queryKey: queryKeyFactory.fuelTransactions(filters),
     queryFn: async () => {
       const params = new URLSearchParams(filters as Record<string, string>);
       const res = await secureFetch(`/api/fuel-transactions?${params}`);
       if (!res.ok) throw new Error('Network response was not ok');
-      const response = await res.json();
-      return response.data || [];
+      return res.json();
     },
     staleTime: 5 * 60 * 1000,
     cacheTime: 10 * 60 * 1000,
@@ -396,14 +391,13 @@ export function useFuelTransactions(filters: FuelTransactionFilters = { tenant_i
 }
 
 export function useFacilities(filters: FacilityFilters = { tenant_id: '' }) {
-  return useQuery<Facility[], Error>({
+  return useQuery<any, Error>({
     queryKey: queryKeyFactory.facilities(filters),
     queryFn: async () => {
       const params = new URLSearchParams(filters as Record<string, string>);
       const res = await secureFetch(`/api/facilities?${params}`);
       if (!res.ok) throw new Error('Network response was not ok');
-      const response = await res.json();
-      return response.data || [];
+      return res.json();
     },
     staleTime: 5 * 60 * 1000,
     cacheTime: 10 * 60 * 1000,
@@ -412,14 +406,13 @@ export function useFacilities(filters: FacilityFilters = { tenant_id: '' }) {
 }
 
 export function useMaintenanceSchedules(filters: MaintenanceScheduleFilters = { tenant_id: '' }) {
-  return useQuery<MaintenanceSchedule[], Error>({
+  return useQuery<any, Error>({
     queryKey: queryKeyFactory.maintenanceSchedules(filters),
     queryFn: async () => {
       const params = new URLSearchParams(filters as Record<string, string>);
       const res = await secureFetch(`/api/maintenance-schedules?${params}`);
       if (!res.ok) throw new Error('Network response was not ok');
-      const response = await res.json();
-      return response.data || [];
+      return res.json();
     },
     staleTime: 5 * 60 * 1000,
     cacheTime: 10 * 60 * 1000,
@@ -428,14 +421,13 @@ export function useMaintenanceSchedules(filters: MaintenanceScheduleFilters = { 
 }
 
 export function useRoutes(filters: RouteFilters = { tenant_id: '' }) {
-  return useQuery<Route[], Error>({
+  return useQuery<any, Error>({
     queryKey: queryKeyFactory.routes(filters),
     queryFn: async () => {
       const params = new URLSearchParams(filters as Record<string, string>);
       const res = await secureFetch(`/api/routes?${params}`);
       if (!res.ok) throw new Error('Network response was not ok');
-      const response = await res.json();
-      return response.data || [];
+      return res.json();
     },
     staleTime: 5 * 60 * 1000,
     cacheTime: 10 * 60 * 1000,
