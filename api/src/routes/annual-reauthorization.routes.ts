@@ -422,7 +422,7 @@ router.post(
       const result = await pool.query(query, [user_id, id, tenant_id]);
 
       if (result.rows.length === 0) {
-        return throw new NotFoundError("Reauthorization cycle not found");
+        throw new NotFoundError("Reauthorization cycle not found");
       }
 
       res.json({

@@ -162,7 +162,7 @@ router.delete(
       )
 
       if (result.rows.length === 0) {
-        return throw new NotFoundError("Geofences not found")
+        throw new NotFoundError("Geofences not found")
       }
 
       res.json({ message: 'Geofences deleted successfully' })

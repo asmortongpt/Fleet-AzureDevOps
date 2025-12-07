@@ -66,7 +66,7 @@ router.get(
       )
 
       if (result.rows.length === 0) {
-        return throw new NotFoundError("SafetyIncidents not found")
+        throw new NotFoundError("SafetyIncidents not found")
       }
 
       res.json(result.rows[0])
@@ -168,7 +168,7 @@ router.delete(
       )
 
       if (result.rows.length === 0) {
-        return throw new NotFoundError("SafetyIncidents not found")
+        throw new NotFoundError("SafetyIncidents not found")
       }
 
       res.json({ message: 'SafetyIncidents deleted successfully' })
