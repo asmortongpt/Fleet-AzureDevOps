@@ -88,7 +88,7 @@ export class EmailServiceWithQueue {
   /**
    * Send an email (queued)
    */
-  async sendEmail(to: string[], subject: string, body: string, priority: `low` | 'normal' | 'high' = 'normal') {
+  async sendEmail(to: string[], subject: string, body: string, priority: 'low' | 'normal' | 'high' = 'normal') {
     const jobId = await queueService.enqueueOutlookEmail(
       {
         to,

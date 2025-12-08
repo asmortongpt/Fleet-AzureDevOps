@@ -212,8 +212,8 @@ router.post(
         success: true,
         data: tripUsage,
         message: approvalStatus === ApprovalStatus.AUTO_APPROVED
-          ? `Trip usage recorded and auto-approved`
-          : 'Trip usage recorded and pending approval'
+                  ? 'Trip usage recorded and auto-approved'
+                  : 'Trip usage recorded and pending approval'
       })
     } catch (error: any) {
       logger.error('Create trip usage error:', error) // Wave 19: Winston logger

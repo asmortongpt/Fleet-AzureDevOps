@@ -614,7 +614,7 @@ async function syncReservationToCalendars(
       Type: ${reservation.reservation_type}<br/>
       ${reservation.pickup_location ? `Pickup: ${reservation.pickup_location}<br/>` : ``}
       ${reservation.dropoff_location ? `Dropoff: ${reservation.dropoff_location}<br/>` : ``}
-      ${reservation.purpose ? `Purpose: ${reservation.purpose}<br/>` : `'}
+      ${reservation.purpose ? `Purpose: ${reservation.purpose}<br/>' : ''}
     `
 
     // Get enabled calendar integrations
@@ -705,7 +705,7 @@ async function syncMaintenanceToCalendars(
       VIN: ${appt.vin}<br/>
       Service Type: ${appt.appointment_type}<br/>
       ${appt.bay_name ? `Service Bay: ${appt.bay_name}<br/>` : ``}
-      ${appt.technician_name ? `Technician: ${appt.technician_name}<br/>` : `'}
+      ${appt.technician_name ? `Technician: ${appt.technician_name}<br/>' : ''}
     `
 
     // Get enabled calendar integrations for relevant users
