@@ -1,21 +1,20 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Input } from "@/components/ui/input"
 import { 
-  User, 
   Phone, 
   EnvelopeSimple, 
   IdentificationCard,
-  Warning,
   Certificate,
   Plus,
   MagnifyingGlass
 } from "@phosphor-icons/react"
-import { Driver, Staff } from "@/lib/types"
 import { useState } from "react"
+
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { useFleetData } from "@/hooks/use-fleet-data"
+
 
 interface PeopleManagementProps {
   data: ReturnType<typeof useFleetData>

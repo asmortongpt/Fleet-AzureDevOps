@@ -7,10 +7,11 @@
  * Tracks which migrations have been applied to avoid re-running them.
  */
 
-import { Pool } from 'pg';
 import * as fs from 'fs';
 import * as path from 'path';
+
 import * as dotenv from 'dotenv';
+import { Pool } from 'pg';
 
 // Load environment variables
 dotenv.config();
@@ -76,9 +77,10 @@ function getMigrationFiles(): string[] {
     process.exit(1);
   }
 
+  // FIX CRIT-B-008: Use localeCompare for reliable alphabetical sorting (S2871)
   const files = fs.readdirSync(migrationsDir)
     .filter(f => f.endsWith(`.sql`))
-    .sort(); // Sort alphabetically to run in order
+    .sort((a, b) => a.localeCompare(b)); // Sort alphabetically to run in order
 
   return files;
 }

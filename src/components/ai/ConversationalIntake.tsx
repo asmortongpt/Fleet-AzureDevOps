@@ -4,14 +4,15 @@
  * Chat-like interface for natural language data entry
  */
 
-import React, { useState, useRef, useEffect } from 'react'
 import { Send, Loader2, AlertCircle, Sparkles } from 'lucide-react'
-import { Button } from '../ui/button'
-import { Input } from '../ui/input'
-import { Card } from '../ui/card'
-import { Badge } from '../ui/badge'
-import { Progress } from '../ui/progress'
+import React, { useState, useRef, useEffect } from 'react'
+
 import { apiClient } from '../../lib/api'
+import { Badge } from '../ui/badge'
+import { Button } from '../ui/button'
+import { Card } from '../ui/card'
+import { Input } from '../ui/input'
+import { Progress } from '../ui/progress'
 
 interface Message {
   role: 'user' | 'assistant'

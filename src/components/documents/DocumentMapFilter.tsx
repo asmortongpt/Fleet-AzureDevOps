@@ -9,6 +9,7 @@
  */
 
 import { useState, useTransition } from 'react'
+
 import type { DocumentCategory } from '@/lib/types'
 
 export interface DocumentMapFilterProps {

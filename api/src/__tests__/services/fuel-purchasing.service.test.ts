@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+
 import { FuelPurchasingService } from '../services/fuel-purchasing.service';
 
 /**

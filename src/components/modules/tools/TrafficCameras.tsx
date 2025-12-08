@@ -16,20 +16,6 @@
  * @module TrafficCameras
  */
 
-import React, { useState, useCallback, useMemo, useRef, useEffect } from "react"
-import { useQuery, useMutation } from "@tanstack/react-query"
-import { useInterval } from "@/hooks"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from "@/components/ui/select"
 import {
   MagnifyingGlass,
   VideoCamera,
@@ -41,10 +27,26 @@ import {
   XCircle,
   Info
 } from "@phosphor-icons/react"
-import { UniversalMap } from "@/components/UniversalMap"
-import { TrafficCamera, CameraDataSource } from "@/lib/types"
-import { apiClient } from "@/lib/api-client"
+import { useQuery, useMutation } from "@tanstack/react-query"
+import React, { useState, useCallback, useMemo, useRef, useEffect } from "react"
 import { toast } from "sonner"
+
+import { UniversalMap } from "@/components/UniversalMap"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from "@/components/ui/select"
+import { useInterval } from "@/hooks"
+import { apiClient } from "@/lib/api-client"
+import { TrafficCamera, CameraDataSource } from "@/lib/types"
+
 
 // ============================================================================
 // Types & Interfaces

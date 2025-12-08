@@ -23,10 +23,12 @@
  * - Multi-tenancy isolation requirement
  */
 
-import { Request, Response, NextFunction } from 'express'
+import { Response, NextFunction } from 'express'
+
 import pool from '../config/database'
-import { AuthRequest } from './auth'
 import logger from '../utils/logger'
+
+import { AuthRequest } from './auth'
 
 /**
  * Sets the tenant context for the current database session.

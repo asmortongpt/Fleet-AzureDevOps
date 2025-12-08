@@ -4,12 +4,10 @@
  */
 
 import { Router, Request, Response } from 'express'
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
+
 import logger from '../config/logger'
-import { csrfProtection } from '../middleware/csrf'
 import { gpsEmulator } from '../emulators/GPSEmulator'
+import { csrfProtection } from '../middleware/csrf'
 
 const router = Router()
 

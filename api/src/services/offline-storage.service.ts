@@ -12,7 +12,6 @@
  * - Background sync scheduling
  */
 
-import { Pool } from 'pg'
 
 export interface OfflineData {
   id: string

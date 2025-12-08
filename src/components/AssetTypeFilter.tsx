@@ -12,7 +12,6 @@
  * - Group and location filtering
  */
 
-import React, { useState } from 'react'
 import {
   Funnel,
   X,
@@ -20,10 +19,9 @@ import {
   Engine,
   Wrench,
   CheckCircle,
-  Calendar,
-  MapPin,
-  Users
+  Calendar
 } from '@phosphor-icons/react'
+import React, { useState } from 'react'
 
 // Import types from backend
 import type {

@@ -1,10 +1,11 @@
 import express, { Request, Response, Router } from 'express';
-import { db } from '../services/database';
-import { logger } from '../services/logger';
+
 import { authenticateToken } from '../middleware/auth';
 import { tenantIsolation } from '../middleware/tenant-isolation';
 import { validate } from '../middleware/validation';
 import { createInspectionSchema, updateInspectionSchema } from '../schemas/inspection.schema';
+import { db } from '../services/database';
+import { logger } from '../services/logger';
 import { TenantValidator } from '../utils/tenant-validator';
 
 const router: Router = express.Router();

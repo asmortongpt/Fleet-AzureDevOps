@@ -4,10 +4,10 @@
  * Tests for Azure Computer Vision OCR service
  */
 
-import { describe, it, expect, beforeAll } from 'vitest'
+import { describe, it, expect } from 'vitest'
+
 import {
   extractText,
-  processDocument,
   batchProcessDocuments,
   isOcrConfigured,
   getOcrStatus,

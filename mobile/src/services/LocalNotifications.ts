@@ -11,8 +11,8 @@ import notifee, {
   IOSNotificationPermissions,
   AndroidNotificationSetting,
 } from '@notifee/react-native';
-import { Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Platform } from 'react-native';
 
 export interface LocalNotificationOptions {
   id?: string;
