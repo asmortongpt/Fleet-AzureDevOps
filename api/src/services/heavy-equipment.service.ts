@@ -495,7 +495,7 @@ export class HeavyEquipmentService {
   /**
    * Get equipment utilization data
    */
-  async getEquipmentUtilization(equipmentId: string, startDate: string, endDate: string) {
+  async getEquipmentUtilization(equipmentId: string, startDate: string, endDate: string): Promise<any> {
     const result = await this.db.query(
       `SELECT
         eul.*,
