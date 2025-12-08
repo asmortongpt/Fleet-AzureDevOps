@@ -634,7 +634,7 @@ export class VectorSearchService {
         WHERE tenant_id = $1
           AND to_tsvector('english', content) @@ plainto_tsquery('english', $2)
         ORDER BY score DESC
-        LIMIT $3',
+        LIMIT $3`,
         [tenantId, query, options.limit]
       )
 

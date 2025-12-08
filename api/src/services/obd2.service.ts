@@ -551,7 +551,7 @@ export class OBD2ServiceBackend {
       `SELECT id, tenant_id, vehicle_id, adapter_id, user_id, session_id, session_start, session_end, engine_rpm, vehicle_speed, throttle_position, engine_coolant_temp, intake_air_temp, maf_air_flow_rate, fuel_pressure, intake_manifold_pressure, timing_advance, fuel_level, short_term_fuel_trim, long_term_fuel_trim, fuel_consumption_rate, o2_sensor_voltage, catalyst_temperature, battery_voltage, odometer_reading, location, all_pids, recorded_at FROM obd2_live_data
        WHERE tenant_id = $1 AND vehicle_id = $2
        ORDER BY recorded_at DESC
-       LIMIT $3',
+       LIMIT $3`,
       [tenantId, vehicleId, limit]
     )
 

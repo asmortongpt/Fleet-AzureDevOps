@@ -257,7 +257,7 @@ router.get('/history', async (req: Request, res: Response) => {
          AND c.communication_type = 'Email'
          AND c.subject LIKE '%Reservation%' OR c.subject LIKE '%Maintenance%'
        ORDER BY c.communication_datetime DESC
-       LIMIT $2 OFFSET $3',
+       LIMIT $2 OFFSET $3`,
       [userEmail, limit, offset]
     )
 

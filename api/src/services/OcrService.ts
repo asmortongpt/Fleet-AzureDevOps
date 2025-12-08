@@ -1103,7 +1103,7 @@ export class OcrService {
         WHERE d.tenant_id = $1
         AND to_tsvector('english', ocr.full_text) @@ plainto_tsquery('english', $2)
         ORDER BY rank DESC
-        LIMIT $3',
+        LIMIT $3`,
         [tenantId, query, limit]
       );
 
