@@ -31,6 +31,7 @@ let csrfTokenPromise: Promise<string> | null = null;
 async function getCsrfToken(): Promise<string> {
   // Skip CSRF in development mock mode
   if (import.meta.env.VITE_USE_MOCK_DATA === 'true') {
+    console.log('[CSRF] Skipping token fetch - demo mode enabled');
     return '';
   }
 
@@ -58,11 +59,11 @@ async function getCsrfToken(): Promise<string> {
         console.log('[CSRF] Token fetched successfully');
         return csrfToken;
       } else {
-        console.warn('[CSRF] Failed to fetch token:', response.status);
+        console.warn('[CSRF] Failed to fetch token:', response.status, '- API may not be available');
         return '';
       }
     } catch (error) {
-      console.error('[CSRF] Error fetching token:', error);
+      console.error('[CSRF] Error fetching token:', error, '- API backend is not available');
       return '';
     } finally {
       csrfTokenPromise = null;
@@ -92,8 +93,18 @@ export function clearCsrfToken(): void {
 /**
  * Makes a fetch request with CSRF token and credentials
  * Automatically retries once on CSRF validation failure
+ * In demo mode, returns empty responses without making network requests
  */
 async function secureFetch(url: string, options: RequestInit = {}): Promise<Response> {
+  // DEMO MODE: Return mock response without network call
+  if (import.meta.env.VITE_USE_MOCK_DATA === 'true') {
+    console.log('[API] Demo mode - skipping network request:', url);
+    return new Response(JSON.stringify({ data: [] }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }
+
   const method = options.method?.toUpperCase() || 'GET';
   const isStateChanging = ['POST', 'PUT', 'PATCH', 'DELETE'].includes(method);
 
@@ -113,33 +124,45 @@ async function secureFetch(url: string, options: RequestInit = {}): Promise<Resp
     headers['X-CSRF-Token'] = token;
   }
 
-  const response = await fetch(url, {
-    ...options,
-    headers,
-    credentials: 'include', // CRITICAL: Include httpOnly cookies
-  });
+  try {
+    const response = await fetch(url, {
+      ...options,
+      headers,
+      credentials: 'include', // CRITICAL: Include httpOnly cookies
+    });
 
-  // Handle CSRF validation failure - refresh token and retry once
-  if (response.status === 403 && isStateChanging) {
-    const errorData = await response.json().catch(() => ({}));
-    if (errorData.code === 'CSRF_VALIDATION_FAILED' || errorData.error?.includes('CSRF')) {
-      console.warn('[CSRF] Validation failed, refreshing token and retrying...');
-      await refreshCsrfToken();
-      token = await getCsrfToken();
+    // Handle CSRF validation failure - refresh token and retry once
+    if (response.status === 403 && isStateChanging) {
+      const errorData = await response.json().catch(() => ({}));
+      if (errorData.code === 'CSRF_VALIDATION_FAILED' || errorData.error?.includes('CSRF')) {
+        console.warn('[CSRF] Validation failed, refreshing token and retrying...');
+        await refreshCsrfToken();
+        token = await getCsrfToken();
 
-      if (token) {
-        headers['X-CSRF-Token'] = token;
-        const retryResponse = await fetch(url, {
-          ...options,
-          headers,
-          credentials: 'include',
-        });
-        return retryResponse;
+        if (token) {
+          headers['X-CSRF-Token'] = token;
+          const retryResponse = await fetch(url, {
+            ...options,
+            headers,
+            credentials: 'include',
+          });
+          return retryResponse;
+        }
       }
     }
-  }
 
-  return response;
+    return response;
+  } catch (error) {
+    // Network error - API backend may not be available
+    console.error('[API] Network error - API backend unavailable:', url, error);
+    console.warn('[API] Consider enabling demo mode by setting VITE_USE_MOCK_DATA=true');
+
+    // Return empty response to prevent app crash
+    return new Response(JSON.stringify({ data: [], error: 'API unavailable' }), {
+      status: 503,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }
 }
 
 interface VehicleFilters {
