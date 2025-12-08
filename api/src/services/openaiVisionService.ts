@@ -1,4 +1,5 @@
 import OpenAI from 'openai';
+
 import { logger } from '../utils/logger';
 
 export interface DamageDetectionResult {

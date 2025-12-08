@@ -1,7 +1,8 @@
 import { useEffect, useCallback, ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAppStore } from '@/stores/appStore';
 import { toast } from 'sonner';
+
+import { useAppStore } from '@/stores/appStore';
 
 interface Shortcut {
   key: string;

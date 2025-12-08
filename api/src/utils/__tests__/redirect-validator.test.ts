@@ -8,8 +8,7 @@ import {
   validateInternalPath,
   safeRedirect,
   getValidatedFrontendUrl,
-  buildSafeRedirectUrl,
-  DEFAULT_CONFIG
+  buildSafeRedirectUrl
 } from '../redirect-validator'
 
 describe('Redirect Validator - Security Tests', () => {

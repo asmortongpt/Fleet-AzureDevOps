@@ -1,4 +1,5 @@
 import React from "react";
+
 import { InspectTarget } from "@/services/inspect/types";
 
 type Props = {

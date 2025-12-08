@@ -1,7 +1,8 @@
+import * as Sentry from '@sentry/node';
 import { Request, Response, NextFunction } from 'express';
+
 import { ApplicationError } from '../errors/AppError';
 import { logError, sanitizeError } from '../utils/error-handler';
-import * as Sentry from '@sentry/node';
 
 /**
  * Global error handling middleware for Express.

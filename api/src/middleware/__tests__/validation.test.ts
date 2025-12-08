@@ -1,5 +1,5 @@
-import { validate } from '../validation';
 import { mockRequest, mockResponse, mockNext } from '../../__tests__/helpers';
+import { validate } from '../validation';
 
 describe('Validation Middleware', () => {
   it('should pass validation for valid data', () => {

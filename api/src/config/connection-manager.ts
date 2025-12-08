@@ -1,5 +1,6 @@
-import { Pool, PoolConfig } from 'pg'
 import dotenv from 'dotenv'
+import { Pool } from 'pg'
+
 import { ConnectionError } from '../services/dal/errors'
 
 dotenv.config()

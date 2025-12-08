@@ -13,14 +13,14 @@
  */
 
 import { Router } from 'express'
+
+import logger from '../config/logger'
+import { pool } from '../container'
+import { NotFoundError } from '../errors/app-error'
 import type { AuthRequest } from '../middleware/auth'
 import { authenticateJWT } from '../middleware/auth'
-import { requirePermission } from '../middleware/permissions'
 import { csrfProtection } from '../middleware/csrf'
-import { container, pool } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
-import logger from '../config/logger'
+import { requirePermission } from '../middleware/permissions'
 
 
 const router = Router()

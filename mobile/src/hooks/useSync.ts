@@ -5,6 +5,7 @@
  */
 
 import { useState, useEffect, useCallback } from 'react';
+
 import SyncManager from '../services/SyncManager';
 import { SyncProgress, NetworkState } from '../types/queue';
 

@@ -14,6 +14,7 @@
  */
 
 import { describe, it, expect, beforeAll, afterAll, vi } from 'vitest'
+
 import pool from '../../config/database'
 import {
   calculatePriorityScore,

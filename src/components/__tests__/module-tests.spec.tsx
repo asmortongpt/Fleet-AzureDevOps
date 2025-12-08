@@ -11,9 +11,9 @@
  * Created: 2025-11-24
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { render, screen, waitFor, cleanup } from '@testing-library/react'
 import React, { Suspense } from 'react'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 
 // ============================================================================
 // MOCK UTILITIES

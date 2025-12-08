@@ -4,12 +4,13 @@
  */
 
 import { Router, Request, Response } from 'express';
-import { Pool } from 'pg';
 import multer from 'multer';
-import { getSketchfabService } from '../services/sketchfab';
+import { Pool } from 'pg';
+
+import { authenticateToken } from '../middleware/auth';
 import { getAzureBlobService } from '../services/azure-blob';
 import { logger } from '../services/logger';
-import { authenticateToken } from '../middleware/auth';
+import { getSketchfabService } from '../services/sketchfab';
 
 const router = Router();
 

@@ -4,6 +4,7 @@
  */
 
 import { describe, it, expect, beforeEach } from '@jest/globals';
+
 import { PermissionEngine } from '../engine';
 import { User, UserRole } from '../types';
 

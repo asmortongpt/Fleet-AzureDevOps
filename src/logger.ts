@@ -4,6 +4,7 @@
  */
 
 import { createLogger, format, transports } from 'winston';
+
 import { sanitizeForLogging } from './logSanitizer';
 
 const logger = createLogger({

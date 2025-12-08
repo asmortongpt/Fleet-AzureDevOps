@@ -5,10 +5,11 @@
  * and integrates with OpenTelemetry and Application Insights
  */
 
-import { Pool, QueryResult, PoolClient } from 'pg';
-import { tracer, traceAsync } from '../config/telemetry';
-import { SpanStatusCode, trace, context as otelContext, Span } from '@opentelemetry/api';
+import { SpanStatusCode, Span } from '@opentelemetry/api';
 import * as appInsights from 'applicationinsights';
+import { Pool, QueryResult, PoolClient } from 'pg';
+
+import { tracer } from '../config/telemetry';
 
 // Configuration
 const SLOW_QUERY_THRESHOLD_MS = parseInt(process.env.SLOW_QUERY_THRESHOLD_MS || '500');

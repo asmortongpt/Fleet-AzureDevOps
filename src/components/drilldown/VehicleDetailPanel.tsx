@@ -3,15 +3,6 @@
  * Shows comprehensive vehicle information with action buttons
  */
 
-import React, { useState } from 'react'
-import { useDrilldown } from '@/contexts/DrilldownContext'
-import { DrilldownContent } from '@/components/DrilldownPanel'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Progress } from '@/components/ui/progress'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import useSWR from 'swr'
 import {
   Car,
   Calendar,
@@ -30,12 +21,22 @@ import {
   History,
   Play,
 } from 'lucide-react'
-import { MetricCard } from './MetricCard'
+import React, { useState } from 'react'
+import useSWR from 'swr'
+
 import { AssetRelationshipsList } from './AssetRelationshipsList'
-import { VehicleHistoryTrail } from '@/components/vehicle/VehicleHistoryTrail'
+import { MetricCard } from './MetricCard'
+
+import { DrilldownContent } from '@/components/DrilldownPanel'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Progress } from '@/components/ui/progress'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { TripPlayback } from '@/components/vehicle/TripPlayback'
+import { VehicleHistoryTrail } from '@/components/vehicle/VehicleHistoryTrail'
+import { useDrilldown } from '@/contexts/DrilldownContext'
 import {
-  ExtendedVehicleData,
   ASSET_CATEGORY_LABELS,
   ASSET_TYPE_LABELS,
   POWER_TYPE_LABELS,

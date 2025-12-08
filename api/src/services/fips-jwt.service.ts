@@ -12,9 +12,10 @@
  * - 2048-bit RSA keys (NIST recommended minimum)
  */
 
-import jwt from 'jsonwebtoken'
 import fs from 'fs'
 import path from 'path'
+
+import jwt from 'jsonwebtoken'
 
 export class FIPSJWTService {
   private static privateKey: string | null = null

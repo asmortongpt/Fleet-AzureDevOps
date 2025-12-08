@@ -1,6 +1,6 @@
-import { chromium } from 'playwright';
 import { writeFileSync } from 'fs';
-import { join } from 'path';
+
+import { chromium } from 'playwright';
 
 interface ModuleTestResult {
   name: string;

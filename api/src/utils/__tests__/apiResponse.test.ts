@@ -1,5 +1,5 @@
-import { ApiResponse } from '../apiResponse';
 import { mockResponse } from '../../__tests__/helpers';
+import { ApiResponse } from '../apiResponse';
 
 describe('ApiResponse Utility', () => {
   describe('success', () => {

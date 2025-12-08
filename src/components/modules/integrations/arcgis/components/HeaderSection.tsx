@@ -3,8 +3,9 @@
  * @module ArcGIS/components/HeaderSection
  */
 
-import { Button } from "@/components/ui/button"
 import { Plus, Download, ArrowClockwise } from "@phosphor-icons/react"
+
+import { Button } from "@/components/ui/button"
 
 interface HeaderSectionProps {
   enabledLayersCount: number

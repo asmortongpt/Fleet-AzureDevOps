@@ -1,8 +1,10 @@
 // Import necessary modules and types
-import memwatch from 'memwatch-next';
-import * as Sentry from '@sentry/node';
-import { datadogRum } from '@datadog/browser-rum';
 import { exec } from 'child_process';
+
+import { datadogRum } from '@datadog/browser-rum';
+import * as Sentry from '@sentry/node';
+import memwatch from 'memwatch-next';
+
 
 // Initialize Sentry
 Sentry.init({

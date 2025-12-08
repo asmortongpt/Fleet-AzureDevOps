@@ -1,7 +1,8 @@
-import { z, ZodError } from 'zod';
 import { Request, Response, NextFunction } from 'express';
-import { logger } from '../utils/logger'; // Assuming a logger utility is available
+import { z, ZodError } from 'zod';
+
 import { FedRAMPCompliance } from '../utils/compliance'; // Placeholder for compliance utilities
+import { logger } from '../utils/logger'; // Assuming a logger utility is available
 
 // Define the vehicle schema using Zod
 const vehicleSchema = z.object({

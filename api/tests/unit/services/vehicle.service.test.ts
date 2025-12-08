@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+
 import { VehicleService } from '../../../src/modules/fleet/services/vehicle.service';
-import { VehicleRepository } from '../../../src/modules/fleet/repositories/vehicle.repository';
 import type { Vehicle } from '../../../src/types/vehicle';
 
 describe('VehicleService', () => {

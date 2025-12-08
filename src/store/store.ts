@@ -1,7 +1,8 @@
 import { configureStore } from '@reduxjs/toolkit';
-import moduleReducer from './slices/moduleSlice';
+
 import filterReducer from './slices/filterSlice';
 import formReducer from './slices/formSlice';
+import moduleReducer from './slices/moduleSlice';
 
 /**
  * Configures the Redux store with slices for module navigation, filters, and form state.

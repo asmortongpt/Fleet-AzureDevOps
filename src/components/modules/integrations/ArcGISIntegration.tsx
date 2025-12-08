@@ -9,18 +9,20 @@
  */
 
 import { useMemo } from "react"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { ExamplesTab } from "./arcgis/components/ExamplesTab"
-import { HelpTab } from "./arcgis/components/HelpTab"
-import { useArcGISLayers } from "./arcgis/hooks/useArcGISLayers"
-import { useLayerOperations } from "./arcgis/hooks/useLayerOperations"
-import { useLayerActions } from "./arcgis/hooks/useLayerActions"
-import { exportLayersToFile } from "./arcgis/utils/layerUtils"
-import { HeaderSection } from "./arcgis/components/HeaderSection"
-import { ErrorAlert } from "./arcgis/components/ErrorAlert"
-import { LoadingState } from "./arcgis/components/LoadingState"
+
 import { EmptyState } from "./arcgis/components/EmptyState"
+import { ErrorAlert } from "./arcgis/components/ErrorAlert"
+import { ExamplesTab } from "./arcgis/components/ExamplesTab"
+import { HeaderSection } from "./arcgis/components/HeaderSection"
+import { HelpTab } from "./arcgis/components/HelpTab"
 import { LayerCard } from "./arcgis/components/LayerCard"
+import { LoadingState } from "./arcgis/components/LoadingState"
+import { useArcGISLayers } from "./arcgis/hooks/useArcGISLayers"
+import { useLayerActions } from "./arcgis/hooks/useLayerActions"
+import { useLayerOperations } from "./arcgis/hooks/useLayerOperations"
+import { exportLayersToFile } from "./arcgis/utils/layerUtils"
+
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 /**
  * Main ArcGIS Integration Component - Refactored

@@ -3,13 +3,13 @@
  * PROCUREMENT: 4 modules
  * COMMUNICATION: 9 modules
  */
-import { test, expect } from '@playwright/test';
+import { test } from '@playwright/test';
+
 import {
   navigateToModule,
   takeVisualSnapshot,
   verifyModuleLoaded,
   waitForPageReady,
-  openModal,
   closeModal,
 } from './helpers/test-helpers';
 
