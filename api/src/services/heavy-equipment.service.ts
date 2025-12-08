@@ -485,7 +485,7 @@ export class HeavyEquipmentService {
       LEFT JOIN equipment_checklist_templates ect ON emc.checklist_template_id = ect.id
       WHERE emc.equipment_id = $1
       ORDER BY emc.completed_date DESC
-      LIMIT $2',
+      LIMIT $2`,
       [equipmentId, limit]
     )
 

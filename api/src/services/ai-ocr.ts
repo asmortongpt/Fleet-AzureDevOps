@@ -549,7 +549,7 @@ export class AIOCRService {
     'SELECT ' + (await getTableColumns(pool, 'document_analyses')).join(', ') + ' FROM document_analyses
      WHERE tenant_id = $1 AND needs_review = true AND reviewed = false
      ORDER BY created_at DESC
-     LIMIT $2',
+     LIMIT $2`,
     [tenantId, limit]
   )
 
