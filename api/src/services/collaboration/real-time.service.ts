@@ -94,7 +94,7 @@ export class CollaborationService {
       socket.join(`tenant:${user.tenant_id}`)
 
       // Handle viewing entity
-      socket.on(`view:entity`, (data: { type: `task` | 'asset', id: string }) => {
+      socket.on(`view:entity`, (data: { type: 'task' | 'asset', id: string }) => {
         this.handleViewEntity(socket, data)
       })
 

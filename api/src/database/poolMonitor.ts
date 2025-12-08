@@ -216,7 +216,7 @@ export class PoolMonitor {
         poolType: metrics.poolType,
         alertType: 'WAITING_REQUESTS',
         message: `High waiting requests: ${metrics.waitingRequests} clients waiting (threshold: ${this.alertConfig.waitingRequestsThreshold})`,
-        severity: metrics.waitingRequests > this.alertConfig.waitingRequestsThreshold * 2 ? `critical` : 'warning',
+        severity: metrics.waitingRequests > this.alertConfig.waitingRequestsThreshold * 2 ? 'critical' : 'warning',
         metrics,
         timestamp: new Date()
       });
@@ -228,7 +228,7 @@ export class PoolMonitor {
         poolType: metrics.poolType,
         alertType: 'HIGH_UTILIZATION',
         message: `High pool utilization: ${metrics.utilizationPercent}% (threshold: ${this.alertConfig.utilizationThresholdPercent}%)`,
-        severity: metrics.utilizationPercent >= 95 ? `critical` : 'warning',
+        severity: metrics.utilizationPercent >= 95 ? 'critical' : 'warning',
         metrics,
         timestamp: new Date()
       });

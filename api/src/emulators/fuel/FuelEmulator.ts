@@ -79,7 +79,7 @@ export class FuelEmulator extends EventEmitter {
       gallons: Number(gallonsNeeded.toFixed(2)),
       pricePerGallon: Number(pricePerGallon.toFixed(2)),
       totalCost: Number((gallonsNeeded * pricePerGallon).toFixed(2)),
-      fuelType: this.vehicle.type === `ev` ? 'electric' : 'regular',
+      fuelType: this.vehicle.type === 'ev' ? 'electric' : 'regular',
       paymentMethod: Math.random() > 0.5 ? 'fleet_card' : 'credit',
       odometer: this.odometer,
       receiptNumber: `RCP-${Date.now()}-${Math.floor(Math.random() * 10000)}`
