@@ -623,7 +623,7 @@ export class VehicleIdlingService extends EventEmitter {
           event.idle_type || 'unknown',
           event.is_authorized || false,
           event.driver_notes,
-          `manual`
+          'manual'
         ]
       );
 
