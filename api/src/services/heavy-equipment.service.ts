@@ -291,7 +291,7 @@ export class HeavyEquipmentService {
       LEFT JOIN drivers d ON ehmr.operator_id = d.id
       WHERE ehmr.equipment_id = $1
       ORDER BY ehmr.reading_date DESC
-      LIMIT $2',
+      LIMIT $2`,
       [equipmentId, limit]
     )
 
