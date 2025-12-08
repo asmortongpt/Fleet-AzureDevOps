@@ -1,5 +1,6 @@
-import { FleetDatabase } from './FleetDatabase';
 import { VehicleRepository } from '../repositories/VehicleRepository';
+
+import { FleetDatabase } from './FleetDatabase';
 
 /**
  * Adapter to wrap RoomDatabase DAOs for DI consistency.

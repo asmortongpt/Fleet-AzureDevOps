@@ -1,7 +1,10 @@
-import React, { useState } from 'react';
 import { ChevronRight } from 'lucide-react';
-import { DrillThroughModal } from './DrillThroughModal';
+import React, { useState } from 'react';
+
 import type { DrillThroughConfig } from '../../types/drill-through';
+
+import { DrillThroughModal } from './DrillThroughModal';
+
 
 interface DrillThroughMetricProps {
   /** Display value */

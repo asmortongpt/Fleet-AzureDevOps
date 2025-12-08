@@ -3,9 +3,10 @@
  */
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { toast } from 'sonner'
+
 import { apiClient } from '@/lib/api-client'
 import { CalendarEvent } from '@/types/microsoft'
-import { toast } from 'sonner'
 
 const calendarKeys = {
   all: ['calendar'] as const,

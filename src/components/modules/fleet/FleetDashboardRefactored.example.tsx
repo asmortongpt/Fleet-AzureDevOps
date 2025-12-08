@@ -15,26 +15,27 @@
  * - Better performance (memoization in hooks)
  */
 
-import { useState } from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Plus, TrendUp, TrendDown } from '@phosphor-icons/react'
+import { useState } from 'react'
+
+import { MetricCard } from '@/components/MetricCard'
+import { EnhancedDataTable } from '@/components/shared/EnhancedDataTable'
+import { FilterBar } from '@/components/shared/FilterBar'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
 // 🎯 NEW: Import shared hooks
-import { useVehicleFilters } from '@/hooks/useVehicleFilters'
-import { useFleetMetrics } from '@/hooks/useFleetMetrics'
-import { useConfirmationDialog } from '@/hooks/useConfirmationDialog'
 import { useFleetData } from '@/hooks/use-fleet-data'
+import { useConfirmationDialog } from '@/hooks/useConfirmationDialog'
+import { useFleetMetrics } from '@/hooks/useFleetMetrics'
+import { useVehicleFilters } from '@/hooks/useVehicleFilters'
 
 // 🎯 NEW: Import shared components
-import { FilterBar } from '@/components/shared/FilterBar'
-import { EnhancedDataTable } from '@/components/shared/EnhancedDataTable'
-import { MetricCard } from '@/components/MetricCard'
 
 // 🎯 NEW: Import export utilities
-import { exportToCSV, exportToExcel } from '@/lib/export-utils'
+import { exportToExcel } from '@/lib/export-utils'
 
 export function FleetDashboardRefactored() {
   const [activeTab, setActiveTab] = useState('overview')

@@ -3,9 +3,9 @@
  * This verifies that the sharp-based implementation correctly removes GPS data
  */
 
-import fs from 'fs'
-import path from 'path'
+
 import sharp from 'sharp'
+
 import { stripEXIFData } from './src/utils/securityUtils'
 
 async function testExifStripping() {

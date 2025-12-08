@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test } from '@playwright/test';
 
 test.describe('Fleet Management UI Review', () => {
   test('should load homepage and identify issues', async ({ page }) => {

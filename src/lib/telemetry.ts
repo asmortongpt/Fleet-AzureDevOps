@@ -1,6 +1,5 @@
-import { ApplicationInsights } from '@microsoft/applicationinsights-web'
 import { ReactPlugin } from '@microsoft/applicationinsights-react-js'
-import { createBrowserRouter } from 'react-router-dom'
+import { ApplicationInsights } from '@microsoft/applicationinsights-web'
 
 /**
  * Telemetry service for frontend Application Insights

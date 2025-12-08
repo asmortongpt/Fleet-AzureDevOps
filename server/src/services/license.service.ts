@@ -1,8 +1,8 @@
 import { Pool } from 'pg';
-import bcrypt from 'bcrypt';
+
+import { auditLog } from '../utils/auditLog';
 import { Logger } from '../utils/logger';
 import { validateLicenseInput, validateTenantId, validateAllocationInput } from '../utils/validators';
-import { auditLog } from '../utils/auditLog';
 
 const pool = new Pool();
 const logger = new Logger();

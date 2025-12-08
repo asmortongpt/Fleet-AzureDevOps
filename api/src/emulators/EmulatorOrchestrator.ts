@@ -4,9 +4,25 @@
  */
 
 import { EventEmitter } from 'events'
-import { WebSocketServer, WebSocket } from 'ws'
 import * as fs from 'fs'
 import * as path from 'path'
+
+import { WebSocketServer, WebSocket } from 'ws'
+
+import { VideoTelematicsEmulator } from './video/VideoTelematicsEmulator'
+import { RadioEmulator } from './radio/RadioEmulator'
+import { DispatchEmulator } from './DispatchEmulator'
+import { VehicleInventoryEmulator } from './inventory/VehicleInventoryEmulator'
+import { InventoryEmulator } from './InventoryEmulator'
+import { CostEmulator } from './cost/CostEmulator'
+import { DriverBehaviorEmulator } from './driver/DriverBehaviorEmulator'
+import { EVChargingEmulator } from './evcharging/EVChargingEmulator'
+import { FuelEmulator } from './fuel/FuelEmulator'
+import { GPSEmulator } from './gps/GPSEmulator'
+import { IoTEmulator } from './iot/IoTEmulator'
+import { MaintenanceEmulator } from './maintenance/MaintenanceEmulator'
+import { OBD2Emulator } from './obd2/OBD2Emulator'
+import { RouteEmulator } from './route/RouteEmulator'
 import {
   EmulatorConfig,
   EmulatorState,
@@ -15,23 +31,8 @@ import {
   Vehicle,
   Route,
   Scenario,
-  Geofence,
-  EmulatorStatus
+  Geofence
 } from './types'
-import { GPSEmulator } from './gps/GPSEmulator'
-import { OBD2Emulator } from './obd2/OBD2Emulator'
-import { FuelEmulator } from './fuel/FuelEmulator'
-import { MaintenanceEmulator } from './maintenance/MaintenanceEmulator'
-import { DriverBehaviorEmulator } from './driver/DriverBehaviorEmulator'
-import { RouteEmulator } from './route/RouteEmulator'
-import { CostEmulator } from './cost/CostEmulator'
-import { IoTEmulator } from './iot/IoTEmulator'
-import { EVChargingEmulator } from './evcharging/EVChargingEmulator'
-import { VideoTelematicsEmulator } from './video/VideoTelematicsEmulator'
-import { RadioEmulator } from './radio/RadioEmulator'
-import { DispatchEmulator } from './DispatchEmulator'
-import { VehicleInventoryEmulator } from './inventory/VehicleInventoryEmulator'
-import { InventoryEmulator } from './InventoryEmulator'
 
 export class EmulatorOrchestrator extends EventEmitter {
   private config: EmulatorConfig

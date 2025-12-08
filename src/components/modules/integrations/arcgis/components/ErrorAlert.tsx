@@ -3,8 +3,9 @@
  * @module ArcGIS/components/ErrorAlert
  */
 
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Warning } from "@phosphor-icons/react"
+
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 
 interface ErrorAlertProps {
   error: string

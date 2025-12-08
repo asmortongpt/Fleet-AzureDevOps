@@ -1,14 +1,12 @@
-import express, { Request, Response } from 'express'
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
 import bcrypt from 'bcrypt'
-import { createAuditLog } from '../middleware/audit'
-import { z } from 'zod'
-import { loginLimiter, registrationLimiter } from '../config/rate-limiters'
-import { FIPSJWTService } from '../services/fips-jwt.service'
 import csurf from 'csurf'
+import express, { Request, Response } from 'express'
+import { z } from 'zod'
+
+import { loginLimiter, registrationLimiter } from '../config/rate-limiters'
 import { pool } from '../db'
+import { createAuditLog } from '../middleware/audit'
+import { FIPSJWTService } from '../services/fips-jwt.service'
 
 const router = express.Router()
 const csrfProtection = csurf({ cookie: true })

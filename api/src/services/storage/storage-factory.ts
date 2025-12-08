@@ -3,14 +3,16 @@
  * Creates the appropriate storage adapter based on configuration
  */
 
-import { StorageAdapter } from './storage-adapter.base'
-import { LocalStorageAdapter, LocalStorageConfig } from './local-storage-adapter'
+import { StorageLocationType } from '../../types/document-storage.types'
+
 import {
   AzureBlobStorageAdapter,
   S3StorageAdapter,
   CloudStorageConfig
 } from './cloud-storage-adapter'
-import { StorageLocationType } from '../../types/document-storage.types'
+import { LocalStorageAdapter, LocalStorageConfig } from './local-storage-adapter'
+import { StorageAdapter } from './storage-adapter.base'
+
 
 export type StorageConfig =
   | ({ type: 'local' } & LocalStorageConfig)

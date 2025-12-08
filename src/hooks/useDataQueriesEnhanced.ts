@@ -10,25 +10,24 @@
  */
 
 import { useQueryClient } from '@tanstack/react-query';
-import { apiClient } from '@/lib/api-client';
-import type {
-  Vehicle,
-  Driver,
-  WorkOrder,
-  FuelTransaction,
-  MaintenanceSchedule,
-  Part,
-  Vendor,
-  PurchaseOrder,
-  Invoice,
-  GISFacility,
-} from '@/lib/types';
+
 import {
   useQueryWithErrorHandling,
   useMutationWithErrorHandling,
   UseQueryWithErrorHandlingOptions,
   UseMutationWithErrorHandlingOptions,
 } from './useQueryWithErrorHandling';
+
+import { apiClient } from '@/lib/api-client';
+import type {
+  Vehicle,
+  Driver,
+  WorkOrder,
+  FuelTransaction,
+  Part,
+  Vendor,
+  GISFacility,
+} from '@/lib/types';
 
 // Query keys for consistent cache management
 export const queryKeys = {

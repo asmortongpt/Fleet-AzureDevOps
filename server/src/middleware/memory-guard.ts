@@ -1,10 +1,11 @@
+import { exec } from 'child_process';
+import path from 'path';
+
+import { datadogRum } from '@datadog/browser-rum';
+import { captureException } from '@sentry/node';
 import express, { Request, Response, NextFunction } from 'express';
 import memwatch from 'memwatch-next';
-import { captureException } from '@sentry/node';
-import { datadogRum } from '@datadog/browser-rum';
-import fs from 'fs';
-import path from 'path';
-import { exec } from 'child_process';
+
 
 interface MemoryUsage {
   heapUsed: number;
