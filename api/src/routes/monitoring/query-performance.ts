@@ -6,9 +6,10 @@
  */
 
 import { Router, Request, Response } from 'express';
-import { queryMonitor } from '../../utils/query-monitor';
-import { getDatabaseStats } from '../../utils/database';
+
 import { getPoolStats, getDatabaseHealth } from '../../config/database'
+import { getDatabaseStats } from '../../utils/database';
+import { queryMonitor } from '../../utils/query-monitor';
 import { csrfProtection } from '../middleware/csrf'
 ;
 

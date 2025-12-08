@@ -1,17 +1,18 @@
-import { useState } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Badge } from "@/components/ui/badge"
-import { Label } from "@/components/ui/label"
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow
-} from "@/components/ui/table"
+  Plus,
+  MagnifyingGlass,
+  Lightning,
+  BatteryCharging,
+  CurrencyDollar,
+  CheckCircle,
+  Leaf
+} from "@phosphor-icons/react"
+import { useState } from "react"
+import { toast } from "sonner"
+
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import {
   Dialog,
   DialogContent,
@@ -21,6 +22,8 @@ import {
   DialogTrigger,
   DialogFooter
 } from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import {
   Select,
   SelectContent,
@@ -30,18 +33,14 @@ import {
 } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
 import {
-  Plus,
-  MagnifyingGlass,
-  Lightning,
-  BatteryCharging,
-  MapPin,
-  Clock,
-  CurrencyDollar,
-  CheckCircle,
-  Warning,
-  Leaf
-} from "@phosphor-icons/react"
-import { toast } from "sonner"
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
+} from "@/components/ui/table"
+
 
 interface ChargingStation {
   id: string

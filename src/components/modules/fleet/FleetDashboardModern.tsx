@@ -4,39 +4,36 @@
  * Following Datadog/Grafana/Azure Portal design patterns
  */
 
-import { useMemo, useState, useCallback } from "react"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { CompactMetricCard } from "@/components/dashboard/CompactMetricCard"
-import { MiniChart, MiniDonutChart } from "@/components/dashboard/MiniChart"
-import { CompactVehicleList } from "@/components/dashboard/CompactVehicleList"
-import { AlertsFeed, ActivityFeed } from "@/components/dashboard/AlertsFeed"
-import { AddVehicleDialog } from "@/components/dialogs/AddVehicleDialog"
-import { ProfessionalFleetMap } from "@/components/Maps/ProfessionalFleetMap"
 import {
   Car,
   Pulse,
   BatteryMedium,
   Wrench,
   Warning,
-  Lightning,
   MapPin,
   MagnifyingGlass,
   Circle,
   Broadcast,
-  ChartLine,
-  Bell,
-  List
+  Bell
 } from "@phosphor-icons/react"
-import { Vehicle } from "@/lib/types"
+import { useMemo, useState, useCallback } from "react"
+
+import { ProfessionalFleetMap } from "@/components/Maps/ProfessionalFleetMap"
+import { AlertsFeed, ActivityFeed } from "@/components/dashboard/AlertsFeed"
+import { CompactMetricCard } from "@/components/dashboard/CompactMetricCard"
+import { CompactVehicleList } from "@/components/dashboard/CompactVehicleList"
+import { MiniChart, MiniDonutChart } from "@/components/dashboard/MiniChart"
+import { AddVehicleDialog } from "@/components/dialogs/AddVehicleDialog"
+import { Badge } from "@/components/ui/badge"
+import { Input } from "@/components/ui/input"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { useDrilldown } from "@/contexts/DrilldownContext"
 import { useFleetData } from "@/hooks/use-fleet-data"
 import { useVehicleTelemetry } from "@/hooks/useVehicleTelemetry"
-import { useDrilldown } from "@/contexts/DrilldownContext"
-import { useInspect } from "@/services/inspect/InspectContext"
+import { Vehicle } from "@/lib/types"
 import { cn } from "@/lib/utils"
+import { useInspect } from "@/services/inspect/InspectContext"
 import "@/styles/dashboard-layout.css"
 
 interface FleetDashboardModernProps {

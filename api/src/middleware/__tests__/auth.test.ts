@@ -1,6 +1,7 @@
-import { authenticateJWT, authorize } from '../auth';
-import { mockRequest, mockResponse, mockNext, createAuthToken, createMockUser } from '../../__tests__/helpers';
 import jwt from 'jsonwebtoken';
+
+import { mockRequest, mockResponse, mockNext, createAuthToken, createMockUser } from '../../__tests__/helpers';
+import { authenticateJWT, authorize } from '../auth';
 
 describe('Authentication Middleware', () => {
   const originalEnv = process.env;

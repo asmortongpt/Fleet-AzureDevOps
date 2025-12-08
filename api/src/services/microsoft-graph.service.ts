@@ -13,9 +13,18 @@
  * This is the foundation for all Microsoft integrations (Teams, Outlook, Calendar)
  */
 
-import { Client, ClientOptions } from '@microsoft/microsoft-graph-client'
+import { Client } from '@microsoft/microsoft-graph-client'
 import axios, { AxiosError, AxiosRequestConfig } from 'axios'
-import { validateOutboundUrl, SSRFError } from '../utils/ssrf-protection'
+
+import {
+  getGraphServiceConfig,
+  DEFAULT_RETRY_POLICY,
+  TOKEN_EXPIRATION_BUFFER_SECONDS,
+  MAX_TOKEN_CACHE_SIZE,
+  OAUTH_TOKEN_ENDPOINT,
+  GRAPH_API_BASE_URL,
+  GRAPH_ERROR_CODES,
+} from '../config/microsoft-graph.config'
 import {
   CachedToken,
   TokenStoreEntry,
@@ -31,16 +40,8 @@ import {
   BatchRequestItem,
   BatchResponseItem,
 } from '../types/microsoft-graph.types'
-import {
-  getGraphServiceConfig,
-  DEFAULT_RETRY_POLICY,
-  TOKEN_EXPIRATION_BUFFER_SECONDS,
-  MAX_TOKEN_CACHE_SIZE,
-  OAUTH_TOKEN_ENDPOINT,
-  GRAPH_API_BASE_URL,
-  GRAPH_ERROR_CODES,
-} from '../config/microsoft-graph.config'
 import { logger } from '../utils/logger'
+import { validateOutboundUrl } from '../utils/ssrf-protection'
 
 /**
  * Secure in-memory token cache

@@ -5,7 +5,7 @@
  * the existing Microsoft Auth flow
  */
 
-import { microsoftGraphService, MicrosoftGraphService } from '../services/microsoft-graph.service'
+import { microsoftGraphService } from '../services/microsoft-graph.service'
 import { MicrosoftTokenResponse } from '../types/microsoft-graph.types'
 
 /**

@@ -1,9 +1,11 @@
 import express, { Request, Response } from 'express';
-import { queryMonitor } from '../../utils/query-monitor';
-import { getDatabaseStats } from '../../utils/database';
-import { getPoolStats } from '../../config/database';
 import { z } from 'zod';
-import { csrfProtection } from '../middleware/csrf'
+
+import { getPoolStats } from '../../config/database';
+import { getDatabaseStats } from '../../utils/database';
+import { queryMonitor } from '../../utils/query-monitor';
+
+
 
 
 const router = express.Router();

@@ -1,5 +1,5 @@
-import React, { useRef, useCallback } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
+import React, { useRef, useCallback } from 'react';
 
 interface VirtualTableProps<T> {
   data: T[];

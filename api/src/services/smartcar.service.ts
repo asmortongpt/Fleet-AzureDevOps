@@ -6,9 +6,10 @@
  * Security: Uses SSRF-protected HTTP client to prevent server-side request forgery
  */
 
-import axios, { AxiosInstance } from 'axios'
+import { AxiosInstance } from 'axios'
 import { Pool } from 'pg'
-import { createSafeAxiosInstance, safePost, safeDelete, SSRFError } from '../utils/ssrf-protection'
+
+import { createSafeAxiosInstance, safePost, safeDelete } from '../utils/ssrf-protection'
 
 // Allowed domains for Smartcar requests
 const SMARTCAR_ALLOWED_DOMAINS = [

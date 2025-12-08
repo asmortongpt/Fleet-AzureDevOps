@@ -13,19 +13,18 @@
  * Created: 2025-11-23
  */
 
-import React, { useState, useEffect, useCallback, useMemo } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
 import {
-  Bell, Car, User, Wrench, GasPump, Warning,
-  Lightning, Clock, MapPin, ChatCircle, Envelope,
-  ArrowRight, X, Funnel, CaretDown, Check,
-  Broadcast, Pulse, CheckCircle, XCircle
+  Bell, User, Wrench, GasPump, Warning,
+  Lightning, MapPin, ChatCircle, Funnel, Check,
+  Broadcast, Pulse
 } from '@phosphor-icons/react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { formatDistanceToNow } from 'date-fns'
+import { motion, AnimatePresence } from 'framer-motion'
+import React, { useState, useEffect, useCallback, useMemo } from 'react'
+
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { Separator } from '@/components/ui/separator'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -34,12 +33,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
+import { ScrollArea } from '@/components/ui/scroll-area'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
-import { useVehicleTelemetry, type TelemetryUpdate } from '@/hooks/useVehicleTelemetry'
-import { useWebSocket, type WebSocketMessage } from '@/hooks/useWebSocket'
 import { useDrilldown } from '@/contexts/DrilldownContext'
+import { useVehicleTelemetry } from '@/hooks/useVehicleTelemetry'
+import { useWebSocket, type WebSocketMessage } from '@/hooks/useWebSocket'
 import { cn } from '@/lib/utils'
-import { formatDistanceToNow } from 'date-fns'
+
 
 // ============================================================================
 // TYPES

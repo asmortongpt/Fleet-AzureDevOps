@@ -1,5 +1,6 @@
-import { z, ZodError } from 'zod';
 import { Request, Response, NextFunction } from 'express';
+import { z, ZodError } from 'zod';
+
 import { logger } from '../utils/logger'; // Assuming a logger utility is available
 
 // Define the Zod schema for driver validation

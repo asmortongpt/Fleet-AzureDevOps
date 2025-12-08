@@ -9,14 +9,16 @@
  * @version 1.0.0
  */
 
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/react'
-import { axe, toHaveNoViolations } from 'jest-axe'
 import userEvent from '@testing-library/user-event'
-import { UniversalMap } from '../UniversalMap'
+import { axe, toHaveNoViolations } from 'jest-axe'
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
+
+import { GoogleMap } from '../GoogleMap'
 import { LeafletMap } from '../LeafletMap'
 import { MapboxMap } from '../MapboxMap'
-import { GoogleMap } from '../GoogleMap'
+import { UniversalMap } from '../UniversalMap'
+
 import type { Vehicle, GISFacility, TrafficCamera } from '@/lib/types'
 
 // Extend Jest matchers

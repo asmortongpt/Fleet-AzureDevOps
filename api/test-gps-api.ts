@@ -2,10 +2,11 @@
  * Test GPS API Endpoints
  */
 
-import express from 'express'
 import cors from 'cors'
-import gpsRouter from './src/routes/gps'
+import express from 'express'
+
 import { gpsEmulator } from './src/emulators/GPSEmulator'
+import gpsRouter from './src/routes/gps'
 
 const app = express()
 const PORT = 3002

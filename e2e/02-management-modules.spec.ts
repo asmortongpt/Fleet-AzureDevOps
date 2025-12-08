@@ -3,14 +3,13 @@
  * Tests include functional testing and visual regression
  */
 import { test, expect } from '@playwright/test';
+
 import {
   navigateToModule,
   takeVisualSnapshot,
   verifyModuleLoaded,
   waitForPageReady,
-  openModal,
   closeModal,
-  testSearch,
 } from './helpers/test-helpers';
 
 const BASE_URL = 'http://localhost:5000';

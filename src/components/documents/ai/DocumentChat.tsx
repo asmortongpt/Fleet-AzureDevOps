@@ -3,12 +3,13 @@
  * Features: Chat with document, citations, streaming AI responses
  */
 
-import { useState, useRef, useEffect } from 'react';
 import { Send, Sparkles, FileText, Loader2, Copy, ThumbsUp, ThumbsDown } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
+
 import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
+import { Textarea } from '@/components/ui/textarea';
 import { ChatMessage, DocumentMetadata } from '@/lib/documents/types';
 
 interface DocumentChatProps {

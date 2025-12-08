@@ -12,12 +12,12 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { io, Socket } from 'socket.io-client';
+
 import type {
   Transmission,
   RadioChannel,
   EmergencyAlert,
-  DispatchUnit,
-  DispatchSocketMessage
+  DispatchUnit
 } from '@/types/radio';
 
 interface UseDispatchSocketOptions {

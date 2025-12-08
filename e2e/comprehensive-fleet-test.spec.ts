@@ -1,6 +1,7 @@
-import { test, expect, Page } from '@playwright/test';
 import * as fs from 'fs';
 import * as path from 'path';
+
+import { test, expect, Page } from '@playwright/test';
 
 const FLEET_URL = 'https://fleet.capitaltechalliance.com';
 const STATIC_URL = 'https://green-pond-0f040980f.3.azurestaticapps.net';

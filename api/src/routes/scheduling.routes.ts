@@ -9,10 +9,11 @@ import logger from '../config/logger'; // Wave 20: Add Winston logger
  */
 
 import express, { Request, Response } from 'express'
-import * as schedulingService from '../services/scheduling.service'
+
+import { csrfProtection } from '../middleware/csrf'
 import * as googleCalendar from '../services/google-calendar.service'
 import schedulingNotificationService from '../services/scheduling-notification.service'
-import { csrfProtection } from '../middleware/csrf'
+import * as schedulingService from '../services/scheduling.service'
 
 
 const router = express.Router()

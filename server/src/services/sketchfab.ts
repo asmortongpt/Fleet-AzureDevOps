@@ -5,6 +5,7 @@
  */
 
 import axios, { AxiosInstance } from 'axios';
+
 import { logger } from './logger';
 
 interface SketchfabSearchParams {

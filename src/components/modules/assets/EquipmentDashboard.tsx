@@ -1,6 +1,14 @@
+import {
+  ChartBar,
+  Warning,
+  Clock,
+  Engine
+} from "@phosphor-icons/react"
 import { useState, useEffect } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { toast } from "sonner"
+
 import { Badge } from "@/components/ui/badge"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
 import {
   Table,
@@ -11,19 +19,6 @@ import {
   TableRow
 } from "@/components/ui/table"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import {
-  Wrench,
-  CalendarDots,
-  ChartBar,
-  Warning,
-  CheckCircle,
-  Clock,
-  CurrencyDollar,
-  TrendUp,
-  Engine,
-  Users
-} from "@phosphor-icons/react"
-import { toast } from "sonner"
 import { apiClient } from "@/lib/api-client"
 
 interface Equipment {

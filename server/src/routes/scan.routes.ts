@@ -1,10 +1,10 @@
 import express, { Request, Response, NextFunction } from 'express';
-import { Pool } from 'pg';
-import bcrypt from 'bcrypt';
 import helmet from 'helmet';
-import { validateSessionCreation, validateEventRecording, validateSessionClosure, validateTagLookup } from './validators';
+import { Pool } from 'pg';
+
 import { logError, logAudit } from './logger';
 import { ensureAuthenticated, getTenantId } from './middleware';
+import { validateSessionCreation, validateEventRecording, validateSessionClosure, validateTagLookup } from './validators';
 
 const router = express.Router();
 const pool = new Pool();

@@ -1,27 +1,25 @@
-import React, { useState, useMemo } from "react";
-import { HubLayout } from "../../components/layout/HubLayout";
-import { VehicleList } from "../../components/modules/VehicleList";
-import { OBD2Data } from "../../components/modules/OBD2Data";
-import { DashcamSurveillance } from "../../components/modules/DashcamSurveillance";
-import { MaintenanceHistory } from "../../components/modules/MaintenanceHistory";
-import { TelematicsInspector } from "../../components/modules/TelematicsInspector";
-import { VehicleInspection } from "../../components/modules/VehicleInspection";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../components/ui/tabs";
-import { KPIStrip, KPIMetric } from "../../components/common/KPIStrip";
-import { DataGrid } from "../../components/common/DataGrid";
-import { ColumnDef } from "@tanstack/react-table";
-import { Badge } from "../../components/ui/badge";
-import { Progress } from "../../components/ui/progress";
 import {
   Truck,
   Wrench,
-  Camera,
   Activity,
   CheckCircle,
-  AlertTriangle,
-  Clock,
   TrendUp,
 } from "@phosphor-icons/react";
+import { ColumnDef } from "@tanstack/react-table";
+import React, { useState, useMemo } from "react";
+
+import { DataGrid } from "../../components/common/DataGrid";
+import { KPIStrip, KPIMetric } from "../../components/common/KPIStrip";
+import { HubLayout } from "../../components/layout/HubLayout";
+import { DashcamSurveillance } from "../../components/modules/DashcamSurveillance";
+import { MaintenanceHistory } from "../../components/modules/MaintenanceHistory";
+import { OBD2Data } from "../../components/modules/OBD2Data";
+import { TelematicsInspector } from "../../components/modules/TelematicsInspector";
+import { VehicleInspection } from "../../components/modules/VehicleInspection";
+import { Badge } from "../../components/ui/badge";
+import { Progress } from "../../components/ui/progress";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../components/ui/tabs";
+
 
 type FleetModule = "vehicles" | "telemetry" | "maintenance" | "inspections";
 

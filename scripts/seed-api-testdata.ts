@@ -15,9 +15,10 @@
  * - Error handling and retry logic
  */
 
-import axios, { AxiosInstance } from 'axios'
 import * as fs from 'fs'
 import * as path from 'path'
+
+import axios, { AxiosInstance } from 'axios'
 
 // Environment Configuration
 const ENVIRONMENTS = {

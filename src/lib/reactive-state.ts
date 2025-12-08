@@ -5,6 +5,7 @@
 
 import { atom } from 'jotai'
 import { atomWithStorage } from 'jotai/utils'
+
 import type {
   User,
   Role,
@@ -676,7 +677,7 @@ export const filteredUsersAtom = atom((get) => {
   const filters = get(userFiltersAtom)
   const sortConfig = get(userSortConfigAtom)
 
-  let filtered = users.filter((user) => {
+  const filtered = users.filter((user) => {
     // Search filter
     if (filters.search) {
       const searchLower = filters.search.toLowerCase()

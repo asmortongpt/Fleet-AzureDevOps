@@ -9,9 +9,9 @@
  * - Document Q&A capabilities
  */
 
-import { Pool } from 'pg'
 import OpenAI from 'openai'
-import logger from '../utils/logger'
+import { Pool } from 'pg'
+
 
 export interface DocumentChunk {
   id: string
