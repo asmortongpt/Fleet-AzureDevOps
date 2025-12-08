@@ -1,13 +1,16 @@
-import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet';
+
 import { useTenantId } from '../../hooks/useTenantId';
-import { LicenseBar } from './LicenseBar';
-import { RenewalCalendar } from './RenewalCalendar';
-import { AllocationAssignment } from './AllocationAssignment';
-import { Alert } from './Alert';
 import { logger } from '../../utils/logger';
 import { validateLicenseData } from '../../utils/validation';
+
+import { Alert } from './Alert';
+import { AllocationAssignment } from './AllocationAssignment';
+import { LicenseBar } from './LicenseBar';
+import { RenewalCalendar } from './RenewalCalendar';
+
 
 interface License {
   id: string;

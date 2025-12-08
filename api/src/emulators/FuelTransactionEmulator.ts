@@ -5,8 +5,9 @@
  */
 
 import { faker } from '@faker-js/faker'
-import { vehicleEmulator } from './VehicleEmulator'
+
 import { driverEmulator } from './DriverEmulator'
+import { vehicleEmulator } from './VehicleEmulator'
 
 export interface EmulatedFuelTransaction {
   id: number
@@ -140,7 +141,7 @@ export class FuelTransactionEmulator {
 
   private generateTransactionForVehicle(id: number, vehicle: any): EmulatedFuelTransaction {
     // Get driver if assigned
-    let driverId = vehicle.assignedDriverId
+    const driverId = vehicle.assignedDriverId
     let driverName: string | undefined
 
     if (driverId) {

@@ -1,10 +1,11 @@
-import { Pool } from 'pg';
-import bcrypt from 'bcrypt';
-import { Logger } from '../utils/logger';
-import { validateAssetId, validateCondition, validateNotes, validatePhotos, validateCoordinates } from '../utils/validators';
-import { AuditLog } from '../utils/auditLog';
 import { Request, Response } from 'express';
 import helmet from 'helmet';
+import { Pool } from 'pg';
+
+import { AuditLog } from '../utils/auditLog';
+import { Logger } from '../utils/logger';
+import { validateAssetId, validateCondition, validateNotes, validatePhotos, validateCoordinates } from '../utils/validators';
+
 
 const pool = new Pool({
   // Database connection configuration

@@ -1,7 +1,13 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
+import { Plus, MagnifyingGlass } from "@phosphor-icons/react"
+
+import { AssetStatsBar } from "./AssetManagement/components/AssetStatsBar"
+import { useAssetFilters } from "./AssetManagement/hooks/useAssetFilters"
+import { useAssets } from "./AssetManagement/hooks/useAssets"
+
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
 import {
   Select,
   SelectContent,
@@ -17,10 +23,8 @@ import {
   TableHeader,
   TableRow
 } from "@/components/ui/table"
-import { Plus, MagnifyingGlass } from "@phosphor-icons/react"
-import { useAssets } from "./AssetManagement/hooks/useAssets"
-import { useAssetFilters } from "./AssetManagement/hooks/useAssetFilters"
-import { AssetStatsBar } from "./AssetManagement/components/AssetStatsBar"
+
+
 
 export function AssetManagement() {
   const { assets, loading } = useAssets()

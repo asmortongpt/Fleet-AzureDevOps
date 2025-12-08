@@ -3,7 +3,8 @@
  * Tests for Bull queue setup and management
  */
 
-import { describe, it, expect, beforeAll, afterAll, vi } from 'vitest'
+import { describe, it, expect, afterAll } from 'vitest'
+
 import {
   emailQueue,
   notificationQueue,

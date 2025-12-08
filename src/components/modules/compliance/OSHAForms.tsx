@@ -1,18 +1,20 @@
-import { useState } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Badge } from "@/components/ui/badge"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow
-} from "@/components/ui/table"
+  Plus,
+  MagnifyingGlass,
+  Warning,
+  CheckCircle,
+  Clock,
+  FileText,
+  Download,
+  Cube
+} from "@phosphor-icons/react"
+import { useState } from "react"
+import { toast } from "sonner"
+
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Checkbox } from "@/components/ui/checkbox"
 import {
   Dialog,
   DialogContent,
@@ -22,6 +24,8 @@ import {
   DialogTrigger,
   DialogFooter
 } from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import {
   Select,
   SelectContent,
@@ -29,19 +33,16 @@ import {
   SelectTrigger,
   SelectValue
 } from "@/components/ui/select"
-import { Checkbox } from "@/components/ui/checkbox"
 import {
-  Plus,
-  MagnifyingGlass,
-  FirstAid,
-  Warning,
-  CheckCircle,
-  Clock,
-  FileText,
-  Download,
-  Cube
-} from "@phosphor-icons/react"
-import { toast } from "sonner"
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
+} from "@/components/ui/table"
+import { Textarea } from "@/components/ui/textarea"
+
 
 interface OSHAForm {
   id: string

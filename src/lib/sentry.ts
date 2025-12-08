@@ -3,9 +3,9 @@
  * Provides comprehensive error tracking for the Fleet Management UI
  */
 
+import { CaptureConsole } from '@sentry/integrations'
 import * as Sentry from '@sentry/react'
 import { BrowserTracing } from '@sentry/tracing'
-import { CaptureConsole } from '@sentry/integrations'
 import { useEffect } from 'react'
 import {
   useLocation,

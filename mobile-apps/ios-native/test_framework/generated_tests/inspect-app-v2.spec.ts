@@ -3,8 +3,9 @@
  * Now with proper authentication handling
  */
 
-import { test } from '@playwright/test';
 import * as fs from 'fs';
+
+import { test } from '@playwright/test';
 
 test('Inspect Production App with Authentication', async ({ page }) => {
   console.log('🔍 Starting production app inspection with authentication...');

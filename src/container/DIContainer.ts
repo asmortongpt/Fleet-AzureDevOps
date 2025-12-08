@@ -1,9 +1,10 @@
 import { AwilixContainer } from 'awilix';
-import { VehicleRepository } from '../repositories/VehicleRepository';
+
 import { DriverRepository } from '../repositories/DriverRepository';
-import { VendorRepository } from '../repositories/VendorRepository';
 import { InspectionRepository } from '../repositories/InspectionRepository';
 import { MaintenanceRepository } from '../repositories/MaintenanceRepository';
+import { VehicleRepository } from '../repositories/VehicleRepository';
+import { VendorRepository } from '../repositories/VendorRepository';
 import { WorkOrderRepository } from '../repositories/WorkOrderRepository';
 import { Logger } from '../services/Logger';
 

@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test } from '@playwright/test';
 
 test.describe('Fleet Management - Comprehensive Site Review', () => {
   const baseUrl = 'https://fleet.capitaltechalliance.com';

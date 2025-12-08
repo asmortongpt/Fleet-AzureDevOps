@@ -1,11 +1,12 @@
 // Import necessary modules
+import { exec } from 'child_process';
 import * as fs from 'fs';
 import * as path from 'path';
-import * as memwatch from 'memwatch-next';
 import * as v8 from 'v8';
+
 import * as Sentry from '@sentry/node';
 import { Client, Configuration } from 'datadog-metrics';
-import { exec } from 'child_process';
+import * as memwatch from 'memwatch-next';
 
 // Initialize Sentry
 Sentry.init({

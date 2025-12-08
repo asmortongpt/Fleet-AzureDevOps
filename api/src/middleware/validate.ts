@@ -43,7 +43,7 @@ export const validate = (schema: AnyZodObject, options: ValidationOptions = {}) 
       const { stripUnknown = true, sanitize = true } = options;
 
       // Sanitize input if enabled
-      let data = sanitize ? sanitizeInput(req.body) : req.body;
+      const data = sanitize ? sanitizeInput(req.body) : req.body;
 
       // Validate data
       const validated = await schema.parseAsync(data);
@@ -180,7 +180,7 @@ export const validateAll = (
 
       // Finally body
       if (schemas.body) {
-        let data = sanitize ? sanitizeInput(req.body) : req.body;
+        const data = sanitize ? sanitizeInput(req.body) : req.body;
         const validated = await schemas.body.parseAsync(data);
         req.body = stripUnknown ? validated : { ...req.body, ...validated };
       }

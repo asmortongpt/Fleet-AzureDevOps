@@ -4,7 +4,7 @@
  * for City of Tallahassee Fleet Management System
  */
 
-import { Pool, PoolClient } from 'pg';
+import { Pool } from 'pg';
 
 interface RadioUnit {
   id: string;

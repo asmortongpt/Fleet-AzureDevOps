@@ -10,14 +10,15 @@
  */
 
 import { v4 as uuidv4 } from 'uuid';
+
 import {
   DataConflict,
   ConflictType,
   ConflictResolution,
   ConflictResolutionOptions,
   MergeStrategy,
-  QueueEventType,
 } from '../types/queue';
+
 import DataPersistenceManager from './DataPersistence';
 
 /**

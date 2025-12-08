@@ -4,6 +4,7 @@
  */
 
 import { useEffect, useRef, useState, useCallback } from 'react'
+
 import logger from '@/utils/logger'
 
 // CRITICAL: Preserve native Map before Leaflet pollutes global namespace

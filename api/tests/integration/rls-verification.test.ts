@@ -18,8 +18,9 @@
  * - Multi-tenancy isolation requirement
  */
 
-import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest'
 import { Pool } from 'pg'
+import { describe, it, expect, beforeAll, afterAll } from 'vitest'
+
 import TenantTestHelper, { TenantTestData } from '../helpers/tenant-test-helper'
 
 // ============================================

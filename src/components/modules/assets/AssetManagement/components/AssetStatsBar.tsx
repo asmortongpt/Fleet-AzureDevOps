@@ -1,4 +1,5 @@
 import { Package, CurrencyDollar, TrendDown } from "@phosphor-icons/react"
+
 import { MetricsBar } from "@/components/shared/MetricCard"
 
 interface AssetStatsBarProps {

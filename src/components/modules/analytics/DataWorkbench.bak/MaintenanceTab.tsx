@@ -1,9 +1,6 @@
-import { useState, useMemo } from "react"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { MetricCard } from "@/components/MetricCard"
 import { Plus, Wrench, Warning, Calendar } from "@phosphor-icons/react"
+import { useState, useMemo } from "react"
+
 import { SortIcon } from "./SortIcon"
 import {
   MaintenanceRecord,
@@ -12,6 +9,11 @@ import {
   SortField,
   SortDirection
 } from "./types"
+
+import { MetricCard } from "@/components/MetricCard"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent } from "@/components/ui/card"
 
 interface MaintenanceTabProps {
   maintenanceRecords: MaintenanceRecord[]

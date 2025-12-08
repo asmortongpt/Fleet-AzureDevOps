@@ -1,4 +1,22 @@
-import React, { useState, useMemo } from 'react';
+import {
+  PlayArrow,
+  Stop,
+  Refresh,
+  Memory,
+  Update,
+  DirectionsCar,
+  Person,
+  LocalGasStation,
+  Build,
+  MyLocation,
+  Route,
+  AttachMoney,
+  ExpandMore,
+  ExpandLess,
+  CheckCircle,
+  Error,
+  Pause
+} from '@mui/icons-material';
 import {
   Box,
   Grid,
@@ -19,25 +37,7 @@ import {
   Button,
   Tooltip
 } from '@mui/material';
-import {
-  PlayArrow,
-  Stop,
-  Refresh,
-  Memory,
-  Update,
-  DirectionsCar,
-  Person,
-  LocalGasStation,
-  Build,
-  MyLocation,
-  Route,
-  AttachMoney,
-  ExpandMore,
-  ExpandLess,
-  CheckCircle,
-  Error,
-  Pause
-} from '@mui/icons-material';
+import React, { useState, useMemo } from 'react';
 
 interface EmulatorData {
   id: string;

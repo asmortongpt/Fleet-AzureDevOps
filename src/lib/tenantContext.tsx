@@ -1,4 +1,5 @@
 import { createContext, useContext, ReactNode, useState } from "react"
+
 import { Tenant, User } from "./types"
 
 interface TenantContextType {

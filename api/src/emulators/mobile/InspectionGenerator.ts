@@ -10,6 +10,7 @@
  */
 
 import { EventEmitter } from 'events'
+
 import { PhotoGenerator, GeneratedPhoto } from './PhotoGenerator'
 
 export interface InspectionChecklistItem {

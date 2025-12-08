@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test } from '@playwright/test';
 
 test.describe('Fleet Production Site - Error Diagnosis', () => {
   test('should load fleet.capitaltechalliance.com and capture errors', async ({ page }) => {

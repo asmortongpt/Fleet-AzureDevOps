@@ -5,11 +5,12 @@
  * EXIF metadata handling, and offline queue management
  */
 
-import { Camera, CameraDevice } from 'react-native-vision-camera';
-import ImageResizer from 'react-native-image-resizer';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import RNFS from 'react-native-fs';
 import Geolocation from 'react-native-geolocation-service';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import ImageResizer from 'react-native-image-resizer';
+import { Camera, CameraDevice } from 'react-native-vision-camera';
+
 import {
   CameraOptions,
   CameraPermissionStatus,

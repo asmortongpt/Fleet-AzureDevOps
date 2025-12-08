@@ -3,7 +3,6 @@
  * Features: Grid/List view toggle, virtual scrolling, search, filters, bulk actions
  */
 
-import { useState, useMemo } from 'react';
 import {
   LayoutGrid,
   List,
@@ -17,8 +16,15 @@ import {
   Tag,
   FolderOpen
 } from 'lucide-react';
+import { useState, useMemo } from 'react';
+
+import { DocumentGrid } from './DocumentGrid';
+import { DocumentList } from './DocumentList';
+import { DocumentSidebar } from './DocumentSidebar';
+import { DocumentUploader } from './DocumentUploader';
+
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -26,12 +32,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
+import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
-import { Badge } from '@/components/ui/badge';
-import { DocumentGrid } from './DocumentGrid';
-import { DocumentList } from './DocumentList';
-import { DocumentSidebar } from './DocumentSidebar';
-import { DocumentUploader } from './DocumentUploader';
 import { useDocumentKeyboardShortcuts } from '@/hooks/documents/useKeyboardShortcuts';
 import { DocumentMetadata, ViewMode, SortField, SortOrder } from '@/lib/documents/types';
 import { filterDocuments, sortDocuments } from '@/lib/documents/utils';

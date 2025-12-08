@@ -3,10 +3,12 @@
  * Features: Pan, zoom, rotate, EXIF metadata, filters
  */
 
-import { useState, useRef } from 'react';import { Info, RotateCcw, MapPin } from 'lucide-react';
+import { Info, RotateCcw, MapPin } from 'lucide-react';
+import { useState, useRef } from 'react';
+
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { DocumentMetadata, DocumentViewerState } from '@/lib/documents/types';
 import { formatRelativeTime } from '@/lib/documents/utils';

@@ -4,7 +4,8 @@
  */
 
 import { describe, it, expect, beforeEach } from 'vitest'
-import { TaskEmulator, EmulatedTask } from '../TaskEmulator'
+
+import { TaskEmulator } from '../TaskEmulator'
 
 describe('TaskEmulator', () => {
   let taskEmulator: TaskEmulator

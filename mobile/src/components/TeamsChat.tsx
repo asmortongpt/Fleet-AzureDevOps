@@ -17,13 +17,14 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
+
+import { MessagingService } from '../services/MessagingService';
 import {
   TeamsMessage,
   TeamsChannel,
   TeamsTeam,
   MessagingContext,
 } from '../types/messaging.types';
-import { MessagingService } from '../services/MessagingService';
 
 interface TeamsChatProps {
   teamId: string;

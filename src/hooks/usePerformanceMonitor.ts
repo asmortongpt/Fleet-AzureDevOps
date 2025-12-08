@@ -2,6 +2,7 @@
 // Comprehensive error handling and JSDoc documentation
 
 import { useEffect } from 'react';
+
 import { MemoryLeakDetector } from '@/utils/performance';
 
 interface UsePerformanceMonitorOptions {
