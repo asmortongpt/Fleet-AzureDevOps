@@ -10,6 +10,7 @@
  */
 
 import { useState, useEffect, useCallback, useRef } from 'react';
+
 import type { AudioVisualizationData } from '@/types/radio';
 
 interface UseAudioVisualizationOptions {

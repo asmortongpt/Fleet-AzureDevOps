@@ -3,7 +3,8 @@
  * Tests for the Dispatch Radio Communication Emulator
  */
 
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+
 import { DispatchEmulator, DispatchTransmission } from '../emulators/DispatchEmulator';
 
 describe('DispatchEmulator', () => {

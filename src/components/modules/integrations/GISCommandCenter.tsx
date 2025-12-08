@@ -3,19 +3,21 @@
  * Geographic fleet monitoring and facility management
  */
 
-import { useMemo, useState } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { Circle, CheckCircle, Warning, Wrench, CarProfile, Buildings } from "@phosphor-icons/react"
-import { MetricCard } from "@/components/MetricCard"
-import { useFleetData } from "@/hooks/use-fleet-data"
-import { Vehicle } from "@/lib/types"
-import { useFacilities } from "@/hooks/use-api"
-import { UniversalMap } from "@/components/UniversalMap"
+import { useMemo, useState } from "react"
+
 import { FacilitiesSidebar } from "./gis/components/FacilitiesSidebar"
 import { RegionSummary } from "./gis/components/RegionSummary"
+
+import { MetricCard } from "@/components/MetricCard"
+import { UniversalMap } from "@/components/UniversalMap"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
+import { useFacilities } from "@/hooks/use-api"
+import { useFleetData } from "@/hooks/use-fleet-data"
+
 
 interface GISCommandCenterProps {
   data: ReturnType<typeof useFleetData>

@@ -4,8 +4,7 @@
  */
 
 import { create } from 'zustand';
-import { persist, createJSONStorage } from 'zustand/middleware';
-import { devtools } from 'zustand/middleware';
+import { persist, createJSONStorage , devtools } from 'zustand/middleware';
 
 interface User {
   id: string;

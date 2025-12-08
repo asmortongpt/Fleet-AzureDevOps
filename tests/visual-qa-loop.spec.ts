@@ -13,8 +13,7 @@
  * - 3D visualization integrity
  */
 
-import { test, expect, Page } from '@playwright/test'
-import { chromium } from '@playwright/test'
+import { test, expect  } from '@playwright/test'
 
 // Fortune 50 Quality Standards
 const QUALITY_STANDARDS = {

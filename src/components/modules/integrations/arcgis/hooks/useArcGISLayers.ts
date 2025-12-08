@@ -4,8 +4,10 @@
  */
 
 import { useState, useEffect, useCallback, useRef } from "react"
-import { apiClient } from "@/lib/api-client"
+
 import type { LayerWithStatus, LayerHealth } from "../types"
+
+import { apiClient } from "@/lib/api-client"
 
 interface UseArcGISLayersReturn {
   layers: LayerWithStatus[]

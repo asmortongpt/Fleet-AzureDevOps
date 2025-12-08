@@ -9,13 +9,12 @@
  * - Multi-source data integration
  */
 
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
+
 import { GISCommandCenter } from '../GISCommandCenter'
+
 import {
-  createMockVehicles,
-  createMockFacilities,
-  createMockCameras,
   setupLeafletMocks,
   mockConsole
 } from '@/test-utils'

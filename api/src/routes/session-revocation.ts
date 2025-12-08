@@ -20,14 +20,14 @@
  * - checkRevoked middleware should be added to protected routes
  */
 
-import express, { Request, Response, NextFunction } from 'express'
-import { csrfProtection } from '../middleware/csrf'
-
+import express, { Response, NextFunction } from 'express'
 import jwt from 'jsonwebtoken'
-import { asyncHandler } from '../middleware/async-handler'
-import { authenticateJWT, authorize, AuthRequest, setCheckRevoked } from '../middleware/auth'
-import { createAuditLog } from '../middleware/audit'
+
 import { pool } from '../db'
+import { asyncHandler } from '../middleware/async-handler'
+import { createAuditLog } from '../middleware/audit'
+import { authenticateJWT, authorize, AuthRequest, setCheckRevoked } from '../middleware/auth'
+import { csrfProtection } from '../middleware/csrf'
 
 const router = express.Router()
 

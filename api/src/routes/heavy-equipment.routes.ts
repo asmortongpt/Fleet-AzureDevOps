@@ -17,12 +17,13 @@ import logger from '../config/logger'; // Wave 20: Add Winston logger
  */
 
 import { Router } from 'express'
+
 import type { AuthRequest } from '../middleware/auth'
 import { authenticateJWT } from '../middleware/auth'
+import { csrfProtection } from '../middleware/csrf'
 import { requirePermission } from '../middleware/permissions'
 import heavyEquipmentService from '../services/heavy-equipment.service'
 import { getErrorMessage } from '../utils/error-handler'
-import { csrfProtection } from '../middleware/csrf'
 
 
 const router = Router()

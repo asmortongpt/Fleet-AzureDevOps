@@ -12,6 +12,7 @@ import {
   Alert,
   Linking,
 } from 'react-native';
+
 import { DTCCode, DTCSeverity } from '../types/obd2';
 
 // ============================================================================

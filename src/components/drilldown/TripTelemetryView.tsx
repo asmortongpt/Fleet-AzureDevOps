@@ -3,21 +3,20 @@
  * Shows GPS points, speed, fuel consumption, and other telemetry data
  */
 
-import React, { useState } from 'react'
-import { DrilldownContent } from '@/components/DrilldownPanel'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import useSWR from 'swr'
 import {
   MapPin,
   Activity,
   Fuel,
   Gauge,
-  Zap,
   Clock,
   TrendingUp,
-  TrendingDown,
 } from 'lucide-react'
+import React, { useState } from 'react'
+import useSWR from 'swr'
+
+import { DrilldownContent } from '@/components/DrilldownPanel'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
 interface TripTelemetryViewProps {
   tripId: string

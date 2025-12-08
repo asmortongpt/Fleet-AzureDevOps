@@ -11,7 +11,6 @@
  * - Audit trail display
  */
 
-import React, { useState, useEffect } from 'react'
 import {
   Link,
   Unlink,
@@ -21,9 +20,10 @@ import {
   Warning,
   CheckCircle,
   CalendarBlank,
-  User,
-  Trash
+  User
 } from '@phosphor-icons/react'
+import React, { useState, useEffect } from 'react'
+
 import type {
   ActiveAssetCombination,
   RelationshipHistoryEntry,

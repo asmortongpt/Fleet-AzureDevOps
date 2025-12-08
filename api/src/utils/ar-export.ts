@@ -9,9 +9,9 @@
  * - AR marker generation
  */
 
+import { execFileSync } from 'child_process';
 import * as fs from 'fs';
 import * as path from 'path';
-import { execFileSync } from 'child_process';
 
 export interface ModelConversionOptions {
   inputPath: string;

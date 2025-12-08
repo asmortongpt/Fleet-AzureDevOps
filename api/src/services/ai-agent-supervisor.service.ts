@@ -4,14 +4,11 @@
  * Uses supervisor pattern to delegate tasks and aggregate results
  */
 
+import { HumanMessage, SystemMessage } from '@langchain/core/messages'
 import { ChatOpenAI } from '@langchain/openai'
-import { ChatPromptTemplate } from '@langchain/core/prompts'
-import { StringOutputParser, JsonOutputParser } from '@langchain/core/output_parsers'
-import { HumanMessage, SystemMessage, AIMessage } from '@langchain/core/messages'
 import { Pool } from 'pg'
-import logger from '../utils/logger'
+
 import langchainOrchestratorService from './langchain-orchestrator.service'
-import mcpServerRegistryService from './mcp-server-registry.service'
 
 export interface AgentDefinition {
   id: string

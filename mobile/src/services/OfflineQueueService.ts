@@ -11,6 +11,7 @@
 
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 import { v4 as uuidv4 } from 'uuid';
+
 import {
   QueueItem,
   QueueError,
@@ -31,6 +32,7 @@ import {
   DEFAULT_QUEUE_CONFIG,
   DEFAULT_RETRY_STRATEGY,
 } from '../types/queue';
+
 import DataPersistenceManager from './DataPersistence';
 
 /**

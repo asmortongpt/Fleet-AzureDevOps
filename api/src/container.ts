@@ -1,27 +1,28 @@
 import "reflect-metadata";
 import { Container } from "inversify";
-import { TYPES } from "./types";
-import { VehicleService } from "./modules/fleet/services/vehicle.service";
-import { VehicleRepository } from "./modules/fleet/repositories/vehicle.repository";
-import { VehicleController } from "./modules/fleet/controllers/vehicle.controller";
-import { DriverService } from "./modules/drivers/services/driver.service";
-import { DriverRepository } from "./modules/drivers/repositories/driver.repository";
+
 import { DriverController } from "./modules/drivers/controllers/driver.controller";
-import { MaintenanceService } from "./modules/maintenance/services/maintenance.service";
-import { MaintenanceRepository } from "./modules/maintenance/repositories/maintenance.repository";
-import { MaintenanceController } from "./modules/maintenance/controllers/maintenance.controller";
-import { FacilityService } from "./modules/facilities/services/facility.service";
-import { FacilityRepository } from "./modules/facilities/repositories/facility.repository";
+import { DriverRepository } from "./modules/drivers/repositories/driver.repository";
+import { DriverService } from "./modules/drivers/services/driver.service";
 import { FacilityController } from "./modules/facilities/controllers/facility.controller";
-import { WorkOrderService } from "./modules/work-orders/services/work-order.service";
-import { WorkOrderRepository } from "./modules/work-orders/repositories/work-order.repository";
-import { WorkOrderController } from "./modules/work-orders/controllers/work-order.controller";
-import { IncidentService } from "./modules/incidents/services/incident.service";
-import { IncidentRepository } from "./modules/incidents/repositories/incident.repository";
+import { FacilityRepository } from "./modules/facilities/repositories/facility.repository";
+import { FacilityService } from "./modules/facilities/services/facility.service";
+import { VehicleController } from "./modules/fleet/controllers/vehicle.controller";
+import { VehicleRepository } from "./modules/fleet/repositories/vehicle.repository";
+import { VehicleService } from "./modules/fleet/services/vehicle.service";
 import { IncidentController } from "./modules/incidents/controllers/incident.controller";
-import { InspectionService } from "./modules/inspections/services/inspection.service";
-import { InspectionRepository } from "./modules/inspections/repositories/inspection.repository";
+import { IncidentRepository } from "./modules/incidents/repositories/incident.repository";
+import { IncidentService } from "./modules/incidents/services/incident.service";
 import { InspectionController } from "./modules/inspections/controllers/inspection.controller";
+import { InspectionRepository } from "./modules/inspections/repositories/inspection.repository";
+import { InspectionService } from "./modules/inspections/services/inspection.service";
+import { MaintenanceController } from "./modules/maintenance/controllers/maintenance.controller";
+import { MaintenanceRepository } from "./modules/maintenance/repositories/maintenance.repository";
+import { MaintenanceService } from "./modules/maintenance/services/maintenance.service";
+import { WorkOrderController } from "./modules/work-orders/controllers/work-order.controller";
+import { WorkOrderRepository } from "./modules/work-orders/repositories/work-order.repository";
+import { WorkOrderService } from "./modules/work-orders/services/work-order.service";
+import { TYPES } from "./types";
 
 const container = new Container();
 

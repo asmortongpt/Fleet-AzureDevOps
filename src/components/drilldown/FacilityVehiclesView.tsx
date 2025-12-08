@@ -3,11 +3,12 @@
  * Shows all vehicles at a facility with utilization metrics
  */
 
-import { DrilldownContent } from '@/components/DrilldownPanel'
-import { Card, CardContent } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import useSWR from 'swr'
 import { Car, Gauge, Fuel, Activity } from 'lucide-react'
+import useSWR from 'swr'
+
+import { DrilldownContent } from '@/components/DrilldownPanel'
+import { Badge } from '@/components/ui/badge'
+import { Card, CardContent } from '@/components/ui/card'
 
 interface FacilityVehiclesViewProps {
   facilityId: string
