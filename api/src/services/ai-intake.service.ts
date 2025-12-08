@@ -313,7 +313,7 @@ class AIIntakeService {
          FROM ai_requests
          WHERE tenant_id = $1 AND user_id = $2
          ORDER BY created_at DESC
-         LIMIT $3',
+         LIMIT $3`,
         [tenantId, userId, limit]
       )
 
