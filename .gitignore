@@ -118,3 +118,38 @@ database-credentials-*.txt
 azure-credentials-*-MASTER.txt
 deployment-info-*.txt
 diagnose-whitescreen.js
+
+# ============================================
+# Large Files - Added during cleanup
+# ============================================
+
+# 3D Models (should be stored in Git LFS or external storage)
+*.glb
+*.gltf
+*.obj
+*.fbx
+public/models/
+
+# iOS Build Artifacts and Dependencies
+mobile-apps/ios-native/Pods/
+mobile-apps/ios-native/build/
+mobile-apps/ios-native/*.xcworkspace
+mobile-apps/ios-native/DerivedData/
+
+# Test Results and Reports
+tests/load/results/
+test-results/
+playwright-report/
+duplication-report/
+coverage/
+*.webm
+*.zip
+
+# Build Outputs
+build_output*.txt
+*.log
+
+# Large JSON Reports
+*-report.json
+code-review-report.json
+
