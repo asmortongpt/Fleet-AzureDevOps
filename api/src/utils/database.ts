@@ -163,7 +163,7 @@ export function buildWhereClause(
   }
 
   return {
-    where: conditions.length > 0 ? `WHERE ${conditions.join(` AND ')}' : '`,
+    where: conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}' : '',
     values
   };
 }
