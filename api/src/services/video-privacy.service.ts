@@ -241,7 +241,7 @@ class VideoPrivacyService {
          WHERE vpq.task_type = 'privacy_blur'
            AND vpq.status = 'pending'
          ORDER BY vpq.priority, vpq.created_at
-         LIMIT $1',
+         LIMIT $1`,
         [limit]
       );
 
