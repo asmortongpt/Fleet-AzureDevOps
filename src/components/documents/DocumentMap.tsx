@@ -13,13 +13,15 @@
  * - Integration with UniversalMap (Leaflet/Google Maps)
  */
 
-import { useState, useEffect, useMemo } from 'react'
 import L from 'leaflet'
+import { useState, useEffect, useMemo } from 'react'
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet'
 import MarkerClusterGroup from 'react-leaflet-cluster'
-import type { Document, DocumentGeoData, DocumentCategory } from '@/lib/types'
-import { DocumentMapPopup } from './DocumentMapPopup'
+
 import { DocumentMapFilter } from './DocumentMapFilter'
+import { DocumentMapPopup } from './DocumentMapPopup'
+
+import type { DocumentGeoData, DocumentCategory } from '@/lib/types'
 
 // ============================================================================
 // Types & Interfaces

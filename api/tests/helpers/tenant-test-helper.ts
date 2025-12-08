@@ -10,8 +10,9 @@
  * - Cleanup utilities
  */
 
-import { Pool, PoolClient } from 'pg'
 import { randomUUID } from 'crypto'
+
+import { Pool, PoolClient } from 'pg'
 
 export interface TenantTestContext {
   tenantId: string

@@ -8,9 +8,10 @@
  * - SIGTERM/SIGINT: Graceful shutdown signals
  */
 
+import { Server } from 'http';
+
 import { isOperationalError } from '../errors/ApplicationError';
 import telemetryService from '../monitoring/applicationInsights';
-import { Server } from 'http';
 
 /**
  * Handle unhandled promise rejections

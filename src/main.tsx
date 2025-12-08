@@ -2,17 +2,16 @@
 import { initSentry } from "./lib/sentry"
 initSentry()
 
+import * as Sentry from "@sentry/react"
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import React from "react"
 import ReactDOM from "react-dom/client"
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom"
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
-import * as Sentry from "@sentry/react"
+import { BrowserRouter, Routes, Route } from "react-router-dom"
+
+import App from "./App"
+import { SentryErrorBoundary } from "./components/errors/SentryErrorBoundary"
 import { AuthProvider } from "./components/providers/AuthProvider"
 import { InspectProvider } from "./services/inspect/InspectContext"
-import { useAuth } from "./hooks/useAuth"
-import { SentryErrorBoundary } from "./components/errors/SentryErrorBoundary"
-import App from "./App"
-import Login from "./pages/Login"
 import "./index.css"
 import "./styles/design-tokens-responsive.css"
 import "./styles/responsive-utilities.css"

@@ -4,7 +4,7 @@
  */
 
 import { Pool } from 'pg'
-import logger from '../utils/logger'
+
 import {
   DocumentVersion,
   CreateVersionOptions,
@@ -12,9 +12,10 @@ import {
   DocumentNotFoundError
 } from '../types/document-storage.types'
 import { generateFileHash, generateUniqueFileName } from '../utils/document-utils'
-import { StorageFactory } from './storage/storage-factory'
-import { StorageAdapter } from './storage/storage-adapter.base'
+
 import documentAuditService from './document-audit.service'
+import { StorageAdapter } from './storage/storage-adapter.base'
+import { StorageFactory } from './storage/storage-factory'
 
 export class DocumentVersionService {
   constructor(private db: Pool, private logger: typeof logger) {}

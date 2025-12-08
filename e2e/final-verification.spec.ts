@@ -1,6 +1,7 @@
-import { test, expect } from '@playwright/test';
 import * as fs from 'fs';
 import * as path from 'path';
+
+import { test, expect } from '@playwright/test';
 
 interface TestResults {
   deployment: string;
@@ -214,7 +215,7 @@ test.describe('Fleet Management Final Verification', () => {
 
       test('should verify CORS headers (Fix #2)', async ({ page }) => {
         let corsHeaderFound = false;
-        let corsDetails: string[] = [];
+        const corsDetails: string[] = [];
 
         // Monitor responses for CORS headers
         page.on('response', async (response) => {

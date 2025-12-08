@@ -4,7 +4,8 @@
  */
 
 import { EventEmitter } from 'events';
-import type { EVChargingSession, ChargingStation, BatteryHealth } from '../types';
+
+import type { EVChargingSession, ChargingStation } from '../types';
 
 interface EVChargingConfig {
   updateIntervalMs: number;

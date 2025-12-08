@@ -2,10 +2,11 @@
  * Route Optimization Service Tests
  */
 
-import { describe, it, expect, beforeAll, afterAll } from 'vitest'
-import * as routeOptimizationService from '../services/route-optimization.service'
-import * as mapboxService from '../services/mapbox.service'
+import { describe, it, expect } from 'vitest'
+
 import pool from '../config/database'
+import * as mapboxService from '../services/mapbox.service'
+import * as routeOptimizationService from '../services/route-optimization.service'
 
 describe('Route Optimization Service', () => {
   const testStops: routeOptimizationService.Stop[] = [

@@ -1,5 +1,6 @@
-import { VehicleRepository, Vehicle } from '../repositories/VehicleRepository'
 import { Pool } from 'pg'
+
+import { VehicleRepository, Vehicle } from '../repositories/VehicleRepository'
 
 /**
  * VehiclesService

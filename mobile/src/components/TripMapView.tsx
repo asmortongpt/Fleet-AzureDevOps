@@ -9,19 +9,17 @@
  * - Playback mode with timeline
  */
 
+import Slider from '@react-native-community/slider';
 import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   StyleSheet,
-  Dimensions,
   TouchableOpacity,
   Text,
-  Animated,
-  Platform
+  Animated
 } from 'react-native';
 import MapView, { Marker, Polyline, PROVIDER_GOOGLE } from 'react-native-maps';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import Slider from '@react-native-community/slider';
 
 // =====================================================
 // Types

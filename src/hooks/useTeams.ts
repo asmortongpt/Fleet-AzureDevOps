@@ -4,11 +4,13 @@
  */
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { apiClient } from '@/lib/api-client'
-import { TeamsChannel, TeamsMessage } from '@/types/microsoft'
-import { useWebSocket } from './useWebSocket'
 import { useEffect } from 'react'
 import { toast } from 'sonner'
+
+import { useWebSocket } from './useWebSocket'
+
+import { apiClient } from '@/lib/api-client'
+import { TeamsChannel, TeamsMessage } from '@/types/microsoft'
 
 // ========== Query Keys ==========
 

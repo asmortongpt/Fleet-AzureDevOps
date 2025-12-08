@@ -1,8 +1,9 @@
+import { resolve } from 'path'
+
 import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react-swc";
-import { defineConfig, PluginOption } from "vite";
 import { visualizer } from "rollup-plugin-visualizer";
-import { resolve } from 'path'
+import { defineConfig, PluginOption } from "vite";
 import { cjsInterop } from 'vite-plugin-cjs-interop'
 
 const projectRoot = process.env.PROJECT_ROOT || import.meta.dirname

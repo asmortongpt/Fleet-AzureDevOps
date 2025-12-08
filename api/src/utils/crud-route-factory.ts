@@ -4,11 +4,14 @@
  */
 
 import { Router } from 'express';
+import { ZodSchema } from 'zod';
+
 import { container } from '../container';
-import { asyncHandler } from '../middleware/errorHandler';
 import { authenticateJWT } from '../middleware/auth';
-import { requireRBAC, Role, PERMISSIONS } from '../middleware/rbac';
+import { asyncHandler } from '../middleware/errorHandler';
+import { requireRBAC, Role } from '../middleware/rbac';
 import { validateBody, validateQuery, validateParams } from '../middleware/validate';
+
 import {
   handleListQuery,
   handleGetById,
@@ -16,7 +19,6 @@ import {
   handleUpdate,
   handleDelete,
 } from './route-helpers';
-import { ZodSchema } from 'zod';
 
 /**
  * Configuration for CRUD route factory

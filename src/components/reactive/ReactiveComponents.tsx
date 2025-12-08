@@ -3,15 +3,14 @@
  * Auto-updating components with real-time data and smooth animations
  */
 
-import React, { useMemo, useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useAtom, useAtomValue } from 'jotai'
+import React, { useMemo, useEffect, useState } from 'react'
+
 import {
   Vehicle,
   Alert,
-  TelemetryData,
   vehiclesAtom,
-  alertsAtom,
   unacknowledgedAlertsAtom,
   acknowledgeAlertAtom,
   removeAlertAtom,

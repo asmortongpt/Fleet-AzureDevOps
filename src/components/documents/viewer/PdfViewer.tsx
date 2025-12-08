@@ -4,8 +4,9 @@
  * Uses pdf.js for rendering (to be integrated)
  */
 
-import { useState, useRef, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, Search, MessageSquare } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
+
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';

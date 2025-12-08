@@ -3,14 +3,14 @@
  * Tests all maintenance-related endpoints with comprehensive coverage
  */
 
-import { describe, it, expect, beforeEach, afterAll } from 'vitest'
+import { describe, it, expect, beforeEach } from 'vitest'
+
 import {
   makeRequest,
   setupTestHooks,
   generateTestMaintenanceRecord,
   generateTestVehicle,
-  expectValidMaintenanceRecord,
-  resetEmulators
+  expectValidMaintenanceRecord
 } from './setup'
 
 describe('Maintenance API Tests', () => {

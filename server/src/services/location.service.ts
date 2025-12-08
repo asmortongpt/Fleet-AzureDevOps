@@ -1,8 +1,8 @@
 import { Pool } from 'pg';
-import bcrypt from 'bcrypt';
+
+import { AuditLog } from '../utils/auditLog';
 import { Logger } from '../utils/logger';
 import { validateLatitude, validateLongitude, validateSource } from '../utils/validators';
-import { AuditLog } from '../utils/auditLog';
 
 // FedRAMP/SOC 2 compliance: Ensure secure database connection
 const pool = new Pool({
