@@ -639,7 +639,7 @@ interface CalendarEvent {
           <h2>You`re invited to: ${subject}</h2>
           <p><strong>When:</strong> ${start.toLocaleString()} - ${end.toLocaleString()}</p>
           ${location ? `<p><strong>Where:</strong> ${location}</p>` : ``}
-          ${description ? `<p><strong>Details:</strong> ${description}</p>` : `'}
+          ${description ? `<p><strong>Details:</strong> ${description}</p>' : ''}
           <p>Please find the calendar invite attached.</p>
         `,
         icalEvent: {

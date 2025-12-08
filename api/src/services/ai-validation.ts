@@ -207,7 +207,7 @@ async function detectStatisticalAnomalies(
         if (zScore > 3) {
           anomalies.push({
             type: 'fuel_price_outlier',
-            description: `Fuel price $${data.price_per_gallon}/gal is unusually ${data.price_per_gallon > baseline.mean ? `high` : 'low'}`,
+            description: `Fuel price $${data.price_per_gallon}/gal is unusually ${data.price_per_gallon > baseline.mean ? 'high' : 'low'}`,
             expectedRange: [baseline.p25, baseline.p75],
             actualValue: data.price_per_gallon,
             zScore
@@ -282,7 +282,7 @@ async function detectStatisticalAnomalies(
         if (zScore > 3) {
           anomalies.push({
             type: 'cost_outlier',
-            description: `Estimated cost $${data.estimated_cost} is unusually ${data.estimated_cost > mean ? `high` : 'low'}`,
+            description: `Estimated cost $${data.estimated_cost} is unusually ${data.estimated_cost > mean ? 'high' : 'low'}`,
             expectedRange: [mean - stdDev, mean + stdDev],
             actualValue: data.estimated_cost,
             zScore
