@@ -259,7 +259,7 @@ export class FuelReceiptGenerator extends EventEmitter {
 
     // Device info
     const deviceInfo = {
-      platform: Math.random() > 0.6 ? `iOS` : 'Android',
+      platform: Math.random() > 0.6 ? 'iOS' : 'Android',
       os_version: Math.random() > 0.6 ? '17.2' : '14',
       app_version: '2.5.1',
       network_type: Math.random() > 0.3 ? 'WiFi' : '4G'

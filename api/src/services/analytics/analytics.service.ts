@@ -519,7 +519,7 @@ export class AnalyticsService {
       filters.push(`created_at <= `${endDate.toISOString()}``)
     }
 
-    return filters.length > 0 ? `AND ${filters.join(` AND `)}' : ''
+    return filters.length > 0 ? `AND ${filters.join(' AND ')}' : ''
   }
 
   /**

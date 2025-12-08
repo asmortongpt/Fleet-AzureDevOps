@@ -172,7 +172,7 @@ async function generateOutlookEmails(count: number): Promise<void> {
   for (let i = 0; i < count; i++) {
     const subject = SAMPLE_SUBJECTS[i % SAMPLE_SUBJECTS.length];
     const body = SAMPLE_EMAIL_BODIES[i % SAMPLE_EMAIL_BODIES.length];
-    const direction = i % 3 === 0 ? `Inbound` : 'Outbound';
+    const direction = i % 3 === 0 ? 'Inbound' : 'Outbound';
     const createdAt = new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000);
 
     await pool.query(`
@@ -233,7 +233,7 @@ async function generateCalendarEvents(count: number): Promise<void> {
       `${eventType} - Vehicle Fleet Review`,
       startDate,
       endDate,
-      i % 2 === 0 ? `Conference Room A` : 'Maintenance Bay 3',
+      i % 2 === 0 ? 'Conference Room A' : 'Maintenance Bay 3',
       JSON.stringify([
         { email: 'manager@fleet.com', name: 'Fleet Manager' },
         { email: 'supervisor@fleet.com', name: 'Supervisor' }
@@ -277,7 +277,7 @@ async function generateCommunicationLogs(count: number): Promise<void> {
       `contact${i}@example.com`,
       category,
       sentiment,
-      category === `Urgent` ? 'High' : 'Normal',
+      category === 'Urgent' ? 'High' : 'Normal',
       createdAt
     ]);
   }
