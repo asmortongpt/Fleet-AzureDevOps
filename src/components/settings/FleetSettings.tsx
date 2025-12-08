@@ -3,12 +3,12 @@
  * Fleet-specific preferences: units, view defaults, and map settings
  */
 
+import { Car, Ruler, MapTrifold, ArrowsClockwise } from '@phosphor-icons/react'
 import { useAtom } from 'jotai'
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
-import { Switch } from '@/components/ui/switch'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
-import { Slider } from '@/components/ui/slider'
 import {
   Select,
   SelectContent,
@@ -16,8 +16,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { Slider } from '@/components/ui/slider'
+import { Switch } from '@/components/ui/switch'
 import { fleetSettingsAtom, hasUnsavedChangesAtom } from '@/lib/reactive-state'
-import { Car, Ruler, MapTrifold, ArrowsClockwise } from '@phosphor-icons/react'
 
 const viewOptions = [
   { value: 'list', label: 'List View' },

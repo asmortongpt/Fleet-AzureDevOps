@@ -11,10 +11,11 @@
  * @module tests/security/cors
  */
 
-import { describe, it, expect, beforeEach, afterEach } from 'vitest'
-import request from 'supertest'
-import express, { Express } from 'express'
 import cors from 'cors'
+import express, { Express } from 'express'
+import request from 'supertest'
+import { describe, it, expect, beforeEach, afterEach } from 'vitest'
+
 import { getCorsConfig, corsUtils } from '../../src/middleware/corsConfig'
 
 describe('CORS Configuration', () => {

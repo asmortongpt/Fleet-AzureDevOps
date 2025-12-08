@@ -13,10 +13,11 @@ import {
   StyleSheet,
   Alert,
   ActivityIndicator,
-  Platform,
 } from 'react-native';
 import DocumentPicker from 'react-native-document-picker';
 import { launchImageLibrary } from 'react-native-image-picker';
+
+import { MessagingService } from '../services/MessagingService';
 import {
   EmailDraft,
   EmailRecipient,
@@ -24,7 +25,7 @@ import {
   MessagingContext,
   Contact,
 } from '../types/messaging.types';
-import { MessagingService } from '../services/MessagingService';
+
 import { MessageTemplateSelector } from './MessageTemplateSelector';
 
 interface EmailComposerProps {

@@ -1,18 +1,19 @@
 import { Router } from "express"
-import { csrfProtection } from '../middleware/csrf'
+
 import { container } from '../container'
-import { TYPES } from '../types'
-import { DriverController } from '../modules/drivers/controllers/driver.controller'
+import { authenticateJWT } from '../middleware/auth';
+import { csrfProtection } from '../middleware/csrf'
 import { asyncHandler } from '../middleware/errorHandler'
+import { requireRBAC, Role, PERMISSIONS } from '../middleware/rbac';
+import { validateBody, validateQuery, validateParams, validateAll } from '../middleware/validate';
+import { DriverController } from '../modules/drivers/controllers/driver.controller'
 import {
   driverCreateSchema,
   driverUpdateSchema,
   driverQuerySchema,
   driverIdSchema
 } from '../schemas/drivers.schema';
-import { validateBody, validateQuery, validateParams, validateAll } from '../middleware/validate';
-import { authenticateJWT } from '../middleware/auth';
-import { requireRBAC, Role, PERMISSIONS } from '../middleware/rbac';
+import { TYPES } from '../types'
 
 const router = Router()
 const driverController = container.get<DriverController>(TYPES.DriverController)

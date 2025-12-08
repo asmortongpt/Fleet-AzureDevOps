@@ -3,21 +3,22 @@
  * Displays vehicle reservations and maintenance appointments
  */
 
-import { useState, useMemo } from 'react'
 import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, addMonths, subMonths, addWeeks, subWeeks, addDays, subDays, startOfDay, endOfDay, parseISO } from 'date-fns'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { Skeleton } from '@/components/ui/skeleton'
-import { Alert, AlertDescription } from '@/components/ui/alert'
+import AlertCircleIcon from 'lucide-react/dist/esm/icons/alert-circle'
+import CalendarIcon from 'lucide-react/dist/esm/icons/calendar'
 import ChevronLeftIcon from 'lucide-react/dist/esm/icons/chevron-left'
 import ChevronRightIcon from 'lucide-react/dist/esm/icons/chevron-right'
-import CalendarIcon from 'lucide-react/dist/esm/icons/calendar'
-import AlertCircleIcon from 'lucide-react/dist/esm/icons/alert-circle'
 import TruckIcon from 'lucide-react/dist/esm/icons/truck'
 import WrenchIcon from 'lucide-react/dist/esm/icons/wrench'
+import { useState, useMemo } from 'react'
+
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { ScrollArea } from '@/components/ui/scroll-area'
+import { Skeleton } from '@/components/ui/skeleton'
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { cn } from '@/lib/utils'
 import { VehicleReservation, MaintenanceAppointment } from '@/types/scheduling'
 

@@ -10,7 +10,7 @@
  */
 
 import { Request, Response, NextFunction } from 'express'
-import * as crypto from 'crypto'
+
 import pool from '../config/database'
 import logger from '../utils/logger'
 

@@ -1,11 +1,12 @@
+import { MagnifyingGlass, Funnel, X } from "@phosphor-icons/react"
 import { useState } from "react"
+
+import { StatusBadge } from "@/components/shared"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { MagnifyingGlass, Funnel, X } from "@phosphor-icons/react"
 import { Vehicle } from "@/lib/types"
-import { StatusBadge } from "@/components/shared"
 
 interface ActiveFilter {
   id: string

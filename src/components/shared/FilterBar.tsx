@@ -35,11 +35,14 @@
  * ```
  */
 
-import { Card, CardContent } from '@/components/ui/card'
-import { sanitizeUserInput } from '@/utils/xss-sanitizer'
-import { Input } from '@/components/ui/input'
-import { Button } from '@/components/ui/button'
+import { MagnifyingGlass, X, Funnel } from '@phosphor-icons/react'
+
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent } from '@/components/ui/card'
+import { Checkbox } from '@/components/ui/checkbox'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import {
   Select,
   SelectContent,
@@ -47,9 +50,6 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select'
-import { Label } from '@/components/ui/label'
-import { Checkbox } from '@/components/ui/checkbox'
-import { MagnifyingGlass, X, Funnel } from '@phosphor-icons/react'
 import { VehicleFilters, FilterStats } from '@/hooks/useVehicleFilters'
 import { cn } from '@/lib/utils'
 

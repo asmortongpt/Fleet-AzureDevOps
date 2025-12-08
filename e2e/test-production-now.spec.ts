@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test } from '@playwright/test';
 
 test('Test production site for errors', async ({ page }) => {
   // Collect console errors

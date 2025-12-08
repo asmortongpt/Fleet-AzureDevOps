@@ -1,7 +1,9 @@
 import type { Meta, StoryObj } from "@storybook/react"
-import { LeafletMap } from "./LeafletMap"
-import { generateMockVehicles, generateMockFacilities, generateMockCameras, generateLargeVehicleDataset } from "../../.storybook/mockData"
+
 import { withMapContainer } from "../../.storybook/decorators"
+import { generateMockVehicles, generateMockFacilities, generateMockCameras, generateLargeVehicleDataset } from "../../.storybook/mockData"
+
+import { LeafletMap } from "./LeafletMap"
 
 const meta = {
   title: "Maps/LeafletMap",

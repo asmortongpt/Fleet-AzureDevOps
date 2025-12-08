@@ -5,6 +5,7 @@
 
 import { apiClient } from './api-client'
 import { MSTeamsMessage, MSOutlookEmail, Receipt, CommunicationLog } from "./types"
+
 import logger from '@/utils/logger'
 
 export class MSOfficeIntegrationService {

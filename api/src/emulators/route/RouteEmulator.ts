@@ -3,6 +3,7 @@
  */
 
 import { EventEmitter } from 'events'
+
 import { Vehicle, Route, EmulatorConfig } from '../types'
 
 export class RouteEmulator extends EventEmitter {

@@ -1,11 +1,11 @@
 // Import necessary modules
 import { Worker, isMainThread, parentPort, workerData } from 'worker_threads';
-import puppeteer from 'puppeteer';
+
 import { Queue, Worker as BullWorker, QueueScheduler } from 'bullmq';
 import Redis from 'ioredis';
+import puppeteer from 'puppeteer';
 import { createLogger, transports, format } from 'winston';
-import { FleetLocal } from 'fleet-local'; // Assuming FleetLocal is a module
-import { promisify } from 'util';
+// Assuming FleetLocal is a module
 
 // Initialize logger
 const logger = createLogger({

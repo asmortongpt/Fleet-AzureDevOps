@@ -2,13 +2,13 @@
  * Accessibility testing with axe-core
  * Tests WCAG 2.1 Level AA compliance across all modules
  */
-import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
+import { test, expect } from '@playwright/test';
+
 import {
   navigateToModule,
   takeVisualSnapshot,
   waitForPageReady,
-  assertAccessible,
 } from './helpers/test-helpers';
 
 const BASE_URL = 'http://localhost:5000';

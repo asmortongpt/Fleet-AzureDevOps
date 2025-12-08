@@ -3,13 +3,13 @@
  * Uses ONLY real API/emulator data - no hardcoded demo data
  */
 
+import { useCallback, useEffect, useMemo } from 'react'
+
 import {
   useVehicles,
   useVehicleMutations,
   useDrivers,
   useDriverMutations,
-  useMaintenance,
-  useMaintenanceMutations,
   useWorkOrders,
   useWorkOrderMutations,
   useFuelTransactions,
@@ -21,7 +21,6 @@ import {
   useRoutes,
   useRouteMutations
 } from '@/hooks/use-api'
-import { useCallback, useEffect, useMemo } from 'react'
 import logger from '@/utils/logger'
 
 // Debug flag - set to true in localStorage for verbose logging

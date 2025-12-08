@@ -5,8 +5,9 @@
  * Tests OWASP Top 10 vulnerabilities and security best practices
  */
 
-import { describe, it, expect, beforeAll } from 'vitest';
 import request from 'supertest';
+import { describe, it, expect, beforeAll } from 'vitest';
+
 import { app } from '../../src/server';
 
 describe('Security Test Suite - OWASP Top 10', () => {

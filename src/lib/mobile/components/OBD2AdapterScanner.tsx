@@ -33,7 +33,6 @@ import {
 
 import OBD2Service, {
   OBD2Adapter,
-  AdapterType,
   ConnectionType,
   DiagnosticTroubleCode,
   LiveOBD2Data

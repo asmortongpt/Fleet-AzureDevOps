@@ -9,15 +9,18 @@
  */
 
 import { useMemo } from "react"
-import { usePerformanceMonitor } from "@/hooks/usePerformanceMonitor"
-import { useAccessibility } from "@/hooks/useAccessibility"
-import { screenReaderOnly } from "@/utils/accessibility"
-import type { Vehicle, GISFacility, TrafficCamera } from "@/lib/types"
+
+import { LeafletMapError } from "./leaflet/LeafletMapError"
+import { LeafletMapLoading } from "./leaflet/LeafletMapLoading"
+import { LeafletMarkerCount } from "./leaflet/LeafletMarkerCount"
 import { useLeafletInit } from "./leaflet/hooks/useLeafletInit"
 import { useMarkerLayers, type MarkerType } from "./leaflet/hooks/useMarkerLayers"
-import { LeafletMapLoading } from "./leaflet/LeafletMapLoading"
-import { LeafletMapError } from "./leaflet/LeafletMapError"
-import { LeafletMarkerCount } from "./leaflet/LeafletMarkerCount"
+
+import { useAccessibility } from "@/hooks/useAccessibility"
+import { usePerformanceMonitor } from "@/hooks/usePerformanceMonitor"
+import type { Vehicle, GISFacility, TrafficCamera } from "@/lib/types"
+import { screenReaderOnly } from "@/utils/accessibility"
+
 
 /**
  * Map visual style options
