@@ -345,10 +345,10 @@ const queryKeyFactory = {
 };
 
 export function useVehicles(filters?: VehicleFilters) {
-  // Auto-inject tenant_id if not provided
+  // Auto-inject tenant_id if not provided (spread first, then override)
   const finalFilters: VehicleFilters = {
-    tenant_id: getTenantId(),
-    ...filters
+    ...filters,
+    tenant_id: getTenantId()
   };
   return useQuery<Vehicle[], Error>({
     queryKey: queryKeyFactory.vehicles(finalFilters),
@@ -366,8 +366,8 @@ export function useVehicles(filters?: VehicleFilters) {
 
 export function useDrivers(filters?: DriverFilters) {
   const finalFilters: DriverFilters = {
-    tenant_id: getTenantId(),
-    ...filters
+    ...filters,
+    tenant_id: getTenantId()
   };
   return useQuery<Driver[], Error>({
     queryKey: queryKeyFactory.drivers(finalFilters),
@@ -385,10 +385,10 @@ export function useDrivers(filters?: DriverFilters) {
 
 export function useMaintenance(filters?: MaintenanceFilters) {
   const finalFilters: MaintenanceFilters = {
-    tenant_id: getTenantId(),
-    startDate: '',
-    endDate: '',
-    ...filters
+    ...filters,
+    startDate: filters?.startDate || '',
+    endDate: filters?.endDate || '',
+    tenant_id: getTenantId()
   };
   return useQuery<Maintenance[], Error>({
     queryKey: queryKeyFactory.maintenance(finalFilters),
@@ -406,8 +406,8 @@ export function useMaintenance(filters?: MaintenanceFilters) {
 
 export function useWorkOrders(filters?: WorkOrderFilters) {
   const finalFilters: WorkOrderFilters = {
-    tenant_id: getTenantId(),
-    ...filters
+    ...filters,
+    tenant_id: getTenantId()
   };
   return useQuery<WorkOrder[], Error>({
     queryKey: queryKeyFactory.workOrders(finalFilters),
@@ -425,8 +425,8 @@ export function useWorkOrders(filters?: WorkOrderFilters) {
 
 export function useFuelTransactions(filters?: FuelTransactionFilters) {
   const finalFilters: FuelTransactionFilters = {
-    tenant_id: getTenantId(),
-    ...filters
+    ...filters,
+    tenant_id: getTenantId()
   };
   return useQuery<FuelTransaction[], Error>({
     queryKey: queryKeyFactory.fuelTransactions(finalFilters),
@@ -444,8 +444,8 @@ export function useFuelTransactions(filters?: FuelTransactionFilters) {
 
 export function useFacilities(filters?: FacilityFilters) {
   const finalFilters: FacilityFilters = {
-    tenant_id: getTenantId(),
-    ...filters
+    ...filters,
+    tenant_id: getTenantId()
   };
   return useQuery<Facility[], Error>({
     queryKey: queryKeyFactory.facilities(finalFilters),
@@ -463,8 +463,8 @@ export function useFacilities(filters?: FacilityFilters) {
 
 export function useMaintenanceSchedules(filters?: MaintenanceScheduleFilters) {
   const finalFilters: MaintenanceScheduleFilters = {
-    tenant_id: getTenantId(),
-    ...filters
+    ...filters,
+    tenant_id: getTenantId()
   };
   return useQuery<MaintenanceSchedule[], Error>({
     queryKey: queryKeyFactory.maintenanceSchedules(finalFilters),
@@ -482,8 +482,8 @@ export function useMaintenanceSchedules(filters?: MaintenanceScheduleFilters) {
 
 export function useRoutes(filters?: RouteFilters) {
   const finalFilters: RouteFilters = {
-    tenant_id: getTenantId(),
-    ...filters
+    ...filters,
+    tenant_id: getTenantId()
   };
   return useQuery<Route[], Error>({
     queryKey: queryKeyFactory.routes(finalFilters),
