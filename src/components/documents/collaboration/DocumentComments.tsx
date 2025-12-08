@@ -3,19 +3,20 @@
  * Features: Threaded replies, mentions, rich text, reactions
  */
 
-import { useState } from 'react';
 import { MessageSquare, Reply, MoreVertical, Trash2, Edit, CheckCircle } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
+import { useState } from 'react';
+
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Textarea } from '@/components/ui/textarea';
 import { DocumentComment } from '@/lib/documents/types';
 import { formatRelativeTime } from '@/lib/documents/utils';
 

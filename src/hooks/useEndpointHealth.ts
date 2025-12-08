@@ -4,9 +4,9 @@
  */
 
 import { useState, useEffect, useCallback, useRef } from 'react'
-import { EndpointHealth, EndpointStatus, HealthSummary, SocketConnectionInfo } from '@/types/endpoint-monitor'
+
 import { getAllEndpoints } from '@/config/endpoints'
-import apiClient from '@/lib/api-client'
+import { EndpointHealth, EndpointStatus, HealthSummary, SocketConnectionInfo } from '@/types/endpoint-monitor'
 
 interface UseEndpointHealthOptions {
   enabled?: boolean

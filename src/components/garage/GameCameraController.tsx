@@ -11,9 +11,9 @@
  * Created: 2025-11-24
  */
 
-import { useRef, useEffect, useCallback } from 'react'
-import { useThree, useFrame } from '@react-three/fiber'
 import { OrbitControls } from '@react-three/drei'
+import { useThree, useFrame } from '@react-three/fiber'
+import { useRef, useEffect } from 'react'
 import * as THREE from 'three'
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib'
 

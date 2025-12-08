@@ -1,6 +1,7 @@
-import { test, expect, Page } from '@playwright/test'
 import * as fs from 'fs'
 import * as path from 'path'
+
+import { test, Page } from '@playwright/test'
 
 /**
  * COMPREHENSIVE OPERATIONS HUB & FLEET HUB VALIDATION

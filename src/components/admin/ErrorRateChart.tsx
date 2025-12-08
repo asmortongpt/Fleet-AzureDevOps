@@ -1,3 +1,5 @@
+import { TrendingUp, TrendingDown, TrendingFlat } from '@mui/icons-material';
+import { Box, ToggleButton, ToggleButtonGroup, Typography, Chip, Grid, Select, MenuItem, FormControl, InputLabel } from '@mui/material';
 import React, { useMemo, useState } from 'react';
 import {
   LineChart,
@@ -14,8 +16,6 @@ import {
   Pie,
   Cell
 } from 'recharts';
-import { Box, ToggleButton, ToggleButtonGroup, Typography, Chip, Grid, Select, MenuItem, FormControl, InputLabel } from '@mui/material';
-import { TrendingUp, TrendingDown, TrendingFlat } from '@mui/icons-material';
 
 interface Error {
   id: string;
@@ -59,9 +59,12 @@ const ErrorRateChart: React.FC<Props> = ({ errors = [], loading }) => {
   }, [errors, timeRange, filterEndpoint]);
 
   // Get unique endpoints for filter
+  // FIX CRIT-B-007: Use localeCompare for reliable alphabetical sorting (S2871)
   const endpoints = useMemo(() => {
     const uniqueEndpoints = [...new Set(errors.map(e => e.endpoint))];
-    return uniqueEndpoints.filter(Boolean).sort();
+    return uniqueEndpoints.filter(Boolean).sort((a, b) =>
+      String(a).localeCompare(String(b))
+    );
   }, [errors]);
 
   // Process data for charts

@@ -8,14 +8,20 @@
  * - Live notifications
  * - Multi-client synchronization
  * - Connection resilience
+ *
+ * NOTE: These tests require:
+ * - WebSocket server running on port 3000
+ * - Set ENABLE_WEBSOCKET_TESTS=true to run these tests
  */
 
-import { describe, it, expect, beforeAll, afterAll, beforeEach, afterEach } from 'vitest'
+import { describe, it, expect, afterEach } from 'vitest'
 import WebSocket from 'ws'
 
 const WS_URL = process.env.WS_URL || 'ws://localhost:3000'
+const WEBSOCKET_TESTS_ENABLED = process.env.ENABLE_WEBSOCKET_TESTS === 'true'
 
-describe('WebSocket Integration', () => {
+// Skip WebSocket tests unless explicitly enabled
+describe.skipIf(!WEBSOCKET_TESTS_ENABLED)('WebSocket Integration', () => {
   let ws: WebSocket
 
   afterEach(() => {

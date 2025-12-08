@@ -11,13 +11,6 @@
  * - Fully responsive design
  */
 
-import { useState, useEffect, useCallback, useMemo } from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Progress } from '@/components/ui/progress'
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
-import { ScrollArea } from '@/components/ui/scroll-area'
 import {
   Circle,
   CaretDown,
@@ -32,10 +25,17 @@ import {
   Globe,
   Clock
 } from '@phosphor-icons/react'
-import apiClient from '@/lib/api-client'
+import { useState, useEffect, useCallback, useMemo } from 'react'
+
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
+import { Progress } from '@/components/ui/progress'
+import { ScrollArea } from '@/components/ui/scroll-area'
+import { useDispatchSocket } from '@/hooks/useDispatchSocket'
 import { useOBD2Emulator } from '@/hooks/useOBD2Emulator'
 import { useRadioSocket } from '@/hooks/useRadioSocket'
-import { useDispatchSocket } from '@/hooks/useDispatchSocket'
 
 interface EndpointStatus {
   endpoint: string

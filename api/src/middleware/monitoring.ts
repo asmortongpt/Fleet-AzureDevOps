@@ -1,5 +1,7 @@
-import { Request, Response, NextFunction } from 'express';
 import { performance } from 'perf_hooks';
+
+import { Request, Response, NextFunction } from 'express';
+
 import { sanitizeForLog } from '../utils/logSanitizer';
 
 interface RequestMetrics {

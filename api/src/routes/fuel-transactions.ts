@@ -1,13 +1,11 @@
 import { Router } from "express"
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
+
 import logger from '../config/logger'
 import { fuelTransactionEmulator } from '../emulators/fuel/FuelEmulator'
-import { TenantValidator } from '../utils/tenant-validator'
-import { validate } from '../middleware/validation'
+import { NotFoundError } from '../errors/app-error'
 import { csrfProtection } from '../middleware/csrf'
-
+import { asyncHandler } from '../middleware/errorHandler'
+import { validate } from '../middleware/validation'
 import {
   createFuelTransactionSchema,
   updateFuelTransactionSchema,

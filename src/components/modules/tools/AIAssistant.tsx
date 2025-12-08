@@ -3,7 +3,20 @@
  * Chat interface with AI supervisor, workflow execution, and agent monitoring
  */
 
-import React, { useState, useEffect, useRef, useCallback } from 'react'
+import {
+  Send as SendIcon,
+  SmartToy as BotIcon,
+  Person as PersonIcon,
+  Delete as DeleteIcon,
+  PlayArrow as PlayIcon,
+  Speed as SpeedIcon,
+  Build as BuildIcon,
+  Security as SecurityIcon,
+  AttachMoney as MoneyIcon,
+  Route as RouteIcon,
+  Description as DocumentIcon,
+  Engineering as EngineeringIcon
+} from '@mui/icons-material'
 import {
   Box,
   Paper,
@@ -31,22 +44,9 @@ import {
   CircularProgress,
   Alert
 } from '@mui/material'
-import {
-  Send as SendIcon,
-  SmartToy as BotIcon,
-  Person as PersonIcon,
-  Delete as DeleteIcon,
-  PlayArrow as PlayIcon,
-  Speed as SpeedIcon,
-  Build as BuildIcon,
-  Security as SecurityIcon,
-  AttachMoney as MoneyIcon,
-  Route as RouteIcon,
-  Description as DocumentIcon,
-  Engineering as EngineeringIcon
-} from '@mui/icons-material'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import axios from 'axios'
+import React, { useState, useEffect, useRef, useCallback } from 'react'
 
 interface Message {
   id: string

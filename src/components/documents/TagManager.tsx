@@ -3,11 +3,11 @@
  * Features: Create, edit, delete tags, color customization, bulk operations
  */
 
+import { Plus, Edit, Trash2, Palette, Search } from 'lucide-react';
 import { useState } from 'react';
-import { Plus, Edit, Trash2, Palette, Search } from 'lucide-react';import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import {
   DropdownMenu,
@@ -16,6 +16,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Tag } from '@/lib/documents/types';
 
 interface TagManagerProps {

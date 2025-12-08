@@ -8,14 +8,21 @@
  * - Natural language processing
  * - Predictive maintenance
  * - Anomaly detection
+ *
+ * NOTE: These tests require:
+ * - API server running on port 3000
+ * - AI API keys configured (OpenAI, etc.)
+ * - Set ENABLE_AI_TESTS=true to run these tests
  */
 
-import { describe, it, expect, beforeAll } from 'vitest'
 import request from 'supertest'
+import { describe, it, expect } from 'vitest'
 
 const API_URL = process.env.API_URL || 'http://localhost:3000'
+const AI_TESTS_ENABLED = process.env.ENABLE_AI_TESTS === 'true'
 
-describe('AI Features API', () => {
+// Skip all AI tests unless explicitly enabled
+describe.skipIf(!AI_TESTS_ENABLED)('AI Features API', () => {
   describe('AI Dispatch Routing', () => {
     it('should optimize dispatch routes using AI', async () => {
       const response = await request(API_URL)

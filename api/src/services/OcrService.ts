@@ -33,7 +33,7 @@ let ApiKeyCredentials: any = null;
 // Optional document parsing library imports - only load if packages are installed
 let pdfParse: any = null;
 let mammoth: any = null;
-let xlsx: any = null;
+let ExcelJS: any = null;
 
 // Lazy load optional OCR providers and document parsers
 async function loadOptionalProviders() {
@@ -79,11 +79,11 @@ async function loadOptionalProviders() {
   
 
   try {
-    const xlsxModule = await import('xlsx');
-    xlsx = xlsxModule.default;
-   catch (err) {
-    console.warn('xlsx not available - install xlsx for Excel spreadsheet OCR');
-  
+    const excelJSModule = await import('exceljs');
+    ExcelJS = excelJSModule.default;
+  } catch (err) {
+    console.warn('exceljs not available - install exceljs for Excel spreadsheet OCR');
+  }
 
 
 // OCR Provider Types
@@ -384,52 +384,60 @@ export class OcrService {
   
 
   /**
-   * Process XLSX document
+   * Process XLSX document (using exceljs for security)
    */
   private async processXLSX(
     filePath: string,
     documentId: string,
     options: OcrOptions
   ): Promise<OcrResult> {
-    const workbook = xlsx.readFile(filePath);
+    const workbook = new ExcelJS.Workbook();
+    await workbook.xlsx.readFile(filePath);
     const stats = await fs.stat(filePath);
-    let fullText = ``;
+    let fullText = '';
     const pages: OcrPage[] = [];
 
-    workbook.SheetNames.forEach((sheetName, index) => {
-      const sheet = workbook.Sheets[sheetName];
-      const sheetText = xlsx.utils.sheet_to_csv(sheet);
-      fullText += `\n--- Sheet: ${sheetName ---\n${sheetText\n`;
+    workbook.eachSheet((worksheet: any, sheetId: number) => {
+      const sheetName = worksheet.name;
+      let sheetText = '';
+
+      // Convert worksheet to CSV-like text
+      worksheet.eachRow((row: any) => {
+        const rowValues = row.values.slice(1); // Skip the first undefined element
+        sheetText += rowValues.join(',') + '\n';
+      });
+
+      fullText += `\n--- Sheet: ${sheetName} ---\n${sheetText}\n`;
 
       pages.push({
-        pageNumber: index + 1,
+        pageNumber: sheetId,
         text: sheetText,
         confidence: 1.0,
         lines: this.convertTextToLines(sheetText),
-        boundingBox: { x: 0, y: 0, width: 0, height: 0 
-      );
-    );
+        boundingBox: { x: 0, y: 0, width: 0, height: 0 }
+      });
+    });
 
     return {
       provider: OcrProvider.TESSERACT,
       documentId,
       fullText: fullText.trim(),
       pages,
-      languages: [`eng`],
+      languages: ['eng'],
       primaryLanguage: 'eng',
       averageConfidence: 1.0,
       processingTime: 0,
       metadata: {
         documentFormat: DocumentFormat.XLSX,
-        pageCount: workbook.SheetNames.length,
+        pageCount: workbook.worksheets.length,
         hasHandwriting: false,
         hasTables: true,
         hasForms: false,
         fileSize: stats.size,
         processedAt: new Date()
-      
-    ;
-  
+      }
+    };
+  }
 
   /**
    * Process text file (TXT, CSV)

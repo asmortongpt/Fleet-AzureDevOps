@@ -9,9 +9,11 @@
  */
 
 import { EventEmitter } from 'events'
+
 import { Pool } from 'pg'
-import { FuelReceiptGenerator, FuelTransaction } from './FuelReceiptGenerator'
+
 import { DamageReportGenerator, DamageReport } from './DamageReportGenerator'
+import { FuelReceiptGenerator, FuelTransaction } from './FuelReceiptGenerator'
 import { InspectionGenerator, VehicleInspection } from './InspectionGenerator'
 import { MotionSensorSimulator, MotionEvent } from './MotionSensorSimulator'
 

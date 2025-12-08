@@ -1,16 +1,5 @@
-import React, { useState, useMemo } from "react";
-import { HubLayout } from "../../components/layout/HubLayout";
-import { DataGrid } from "../../components/common/DataGrid";
-import { KPIStrip, KPIMetric } from "../../components/common/KPIStrip";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../components/ui/tabs";
-import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/card";
-import { Badge } from "../../components/ui/badge";
-import { Button } from "../../components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "../../components/ui/avatar";
-import { useInspect } from "@/services/inspect/InspectContext";
 import { ColumnDef } from "@tanstack/react-table";
 import {
-  User,
   Users,
   Shield,
   Clock,
@@ -21,6 +10,17 @@ import {
   Download,
   Plus,
 } from "lucide-react";
+import React, { useMemo } from "react";
+
+import { DataGrid } from "../../components/common/DataGrid";
+import { KPIStrip, KPIMetric } from "../../components/common/KPIStrip";
+import { HubLayout } from "../../components/layout/HubLayout";
+import { Avatar, AvatarFallback, AvatarImage } from "../../components/ui/avatar";
+import { Badge } from "../../components/ui/badge";
+import { Button } from "../../components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/card";
+
+import { useInspect } from "@/services/inspect/InspectContext";
 
 interface Driver {
   id: string;

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { fetchUserProfile } from '../services/userService';
+
 import { AppError } from '../errors/AppError';
+import { fetchUserProfile } from '../services/userService';
 
 /**
  * UserProfile component displays user information.

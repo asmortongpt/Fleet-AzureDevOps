@@ -3,8 +3,8 @@
  * Tests vehicle card component rendering, interactions, and accessibility
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';import userEvent from '@testing-library/user-event';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import '@testing-library/jest-dom';
 
 // Mock VehicleCard component (would import actual component in real implementation)

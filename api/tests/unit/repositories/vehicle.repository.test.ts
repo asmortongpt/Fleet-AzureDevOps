@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+
 import { VehicleRepository } from '../../../src/modules/fleet/repositories/vehicle.repository';
 import type { Vehicle } from '../../../src/types/vehicle';
 

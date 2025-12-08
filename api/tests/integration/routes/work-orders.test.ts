@@ -1,6 +1,6 @@
 import request from 'supertest'
+
 import app from '../../../src/index'
-import { container } from '../../../src/container'
 
 describe('work-orders Routes Integration Tests', () => {
   let authToken: string

@@ -1,8 +1,15 @@
+import {
+  QrCode,
+  Barcode,
+  Camera,
+  MagnifyingGlass,
+  CarProfile,
+  Check
+} from "@phosphor-icons/react"
 import { useState } from "react"
+import { toast } from "sonner"
+
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
   Dialog,
@@ -12,15 +19,9 @@ import {
   DialogTitle,
   DialogTrigger
 } from "@/components/ui/dialog"
-import {
-  QrCode,
-  Barcode,
-  Camera,
-  MagnifyingGlass,
-  CarProfile,
-  Check
-} from "@phosphor-icons/react"
-import { toast } from "sonner"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import apiClient from "@/lib/api-client"
 
 export interface VehicleInfo {

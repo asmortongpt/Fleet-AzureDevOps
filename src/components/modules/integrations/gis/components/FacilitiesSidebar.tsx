@@ -2,9 +2,10 @@
  * Facilities Sidebar - Displays list of facilities in the region
  */
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
 import { Buildings, CarProfile, Wrench, GasPump } from "@phosphor-icons/react"
+
+import { Badge } from "@/components/ui/badge"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import type { GISFacility } from "@/lib/types"
 
 interface FacilitiesSidebarProps {

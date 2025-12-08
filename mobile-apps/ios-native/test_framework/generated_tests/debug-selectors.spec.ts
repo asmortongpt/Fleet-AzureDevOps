@@ -2,8 +2,9 @@
  * Debug test to inspect production DOM and capture actual selectors
  */
 
-import { test, expect } from '@playwright/test';
 import * as fs from 'fs';
+
+import { test } from '@playwright/test';
 
 test('Debug Production Selectors', async ({ page }) => {
   console.log('🔍 Inspecting production UI at http://68.220.148.2');

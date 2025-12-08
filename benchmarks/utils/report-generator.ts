@@ -12,6 +12,7 @@
 
 import fs from 'fs';
 import path from 'path';
+
 import { BenchmarkResult } from './performance-metrics';
 
 // ============================================================================

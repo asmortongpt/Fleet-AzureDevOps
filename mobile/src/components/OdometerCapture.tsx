@@ -9,6 +9,8 @@
  * - Link to trip/reservation
  */
 
+import { Camera, CameraType } from 'expo-camera';
+import * as ImagePicker from 'expo-image-picker';
 import React, { useState, useRef, useEffect } from 'react';
 import {
   View,
@@ -20,11 +22,9 @@ import {
   TextInput,
   ActivityIndicator,
   Alert,
-  Platform,
 } from 'react-native';
-import { Camera, CameraType } from 'expo-camera';
-import * as ImagePicker from 'expo-image-picker';
 import { z } from 'zod';
+
 import OCRService, { OdometerData } from '../services/OCRService';
 
 // Validation schema

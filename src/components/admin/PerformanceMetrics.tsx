@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import { Speed, Timer, Storage, NetworkCheck } from '@mui/icons-material';
 import {
   Box,
   Grid,
@@ -14,7 +14,7 @@ import {
   Paper,
   CircularProgress
 } from '@mui/material';
-import { Speed, Timer, Storage, NetworkCheck } from '@mui/icons-material';
+import React, { useMemo } from 'react';
 
 interface Metrics {
   endpoints: {

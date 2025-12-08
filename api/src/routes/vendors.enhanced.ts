@@ -1,16 +1,16 @@
 import express, { Response } from 'express';
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
-import { AuthRequest, authenticateJWT } from '../middleware/auth';
-import { requirePermission } from '../middleware/permissions';
-import { auditLog } from '../middleware/audit';
 import { z } from 'zod';
-import { createVendorSchema, updateVendorSchema } from '../validation/schemas';
-import { asyncHandler } from '../utils/asyncHandler';
-import { ValidationError } from '../utils/errors'
+
+import { ValidationError } from '../errors/app-error'
+import { auditLog } from '../middleware/audit';
+import { AuthRequest, authenticateJWT } from '../middleware/auth';
 import { csrfProtection } from '../middleware/csrf'
 ;
+import { asyncHandler } from '../middleware/errorHandler'
+import { requirePermission } from '../middleware/permissions';
+import { asyncHandler } from '../utils/asyncHandler';
+import { ValidationError } from '../utils/errors'
+import { createVendorSchema } from '../validation/schemas';
 
 const router = express.Router();
 router.use(authenticateJWT);

@@ -10,9 +10,10 @@
  */
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import SQLite from 'react-native-sqlite-storage';
-import { CacheEntry, StorageStats, DatabaseMigration } from '../types/queue';
 import RNFS from 'react-native-fs';
+import SQLite from 'react-native-sqlite-storage';
+
+import { CacheEntry, StorageStats, DatabaseMigration } from '../types/queue';
 
 // Enable SQLite debugging
 SQLite.DEBUG(false);
