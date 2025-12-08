@@ -2,11 +2,12 @@
  * Examples Tab - Shows public ArcGIS service examples
  */
 
+import { Copy } from "@phosphor-icons/react"
 import { useCallback } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Copy } from "@phosphor-icons/react"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 
 interface ExampleServiceProps {
   name: string

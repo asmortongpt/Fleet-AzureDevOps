@@ -12,10 +12,11 @@
  * @module tests/logging
  */
 
+import { Request, Response, NextFunction } from 'express';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
+
 import { redactPII, generateCorrelationId, logger, securityLogger, perfLogger } from '../src/lib/logger';
 import { requestLogger, logQuery, withCorrelation } from '../src/middleware/logging';
-import { Request, Response, NextFunction } from 'express';
 
 describe('PII Redaction', () => {
   describe('Email Masking', () => {

@@ -1,7 +1,7 @@
-import { useState, useCallback, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { useState, useCallback, useEffect } from 'react';
+
 import type {
-  DrillThroughConfig,
   DrillThroughResult,
   DrillThroughEntityType,
   ExportFormat,

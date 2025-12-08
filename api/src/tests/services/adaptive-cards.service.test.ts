@@ -7,7 +7,7 @@
  * - Action handling
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 
 // Mock Adaptive Card types
 interface AdaptiveCard {

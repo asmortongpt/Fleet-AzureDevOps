@@ -14,10 +14,11 @@
  * CRITICAL: These tests use REAL database connections to verify security
  */
 
-import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest'
-import pool from '../../src/config/database'
 import { PoolClient } from 'pg'
 import { v4 as uuidv4 } from 'uuid'
+import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest'
+
+import pool from '../../src/config/database'
 
 // Test tenant UUIDs
 const TENANT_A_ID = uuidv4()

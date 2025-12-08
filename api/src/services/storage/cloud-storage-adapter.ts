@@ -4,8 +4,9 @@
  * This is a template - integrate with @azure/storage-blob or aws-sdk as needed
  */
 
-import { StorageAdapter, StorageMetadata, UploadOptions } from './storage-adapter.base'
 import { BlobServiceClient, ContainerClient } from '@azure/storage-blob'
+
+import { StorageAdapter, StorageMetadata, UploadOptions } from './storage-adapter.base'
 
 export interface CloudStorageConfig {
   provider: 's3' | 'azure_blob' | 'gcp_storage'

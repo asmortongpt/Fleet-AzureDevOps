@@ -3,10 +3,11 @@
  * Tests security vulnerabilities and access control
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
-import { generateTestToken, generateExpiredToken, createMockRequest, createMockResponse } from '../helpers/test-helpers';
+import jwt from 'jsonwebtoken';
+import { describe, it, expect } from 'vitest';
+
+import { generateTestToken, generateExpiredToken } from '../helpers/test-helpers';
 
 describe('Authentication Security Tests', () => {
   describe('Password Security', () => {

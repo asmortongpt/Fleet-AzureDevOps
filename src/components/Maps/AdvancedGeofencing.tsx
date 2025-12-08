@@ -1,9 +1,3 @@
-import React, { useState, useCallback, useRef, useEffect } from 'react'
-import { Button } from '../ui/button'
-import { Input } from '../ui/input'
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
-import { Badge } from '../ui/badge'
-import { ScrollArea } from '../ui/scroll-area'
 import {
   Circle as CircleIcon,
   Square,
@@ -13,10 +7,16 @@ import {
   Eye,
   EyeOff,
   MapPin,
-  Plus,
   Download,
   Upload
 } from 'lucide-react'
+import React, { useState, useCallback, useRef, useEffect } from 'react'
+
+import { Badge } from '../ui/badge'
+import { Button } from '../ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
+import { Input } from '../ui/input'
+import { ScrollArea } from '../ui/scroll-area'
 
 /**
  * Geofence shape types

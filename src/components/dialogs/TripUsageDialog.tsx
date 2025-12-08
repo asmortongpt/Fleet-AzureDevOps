@@ -1,16 +1,16 @@
+import { Car, Plus, Info } from "@phosphor-icons/react"
 import { useState } from "react"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog" // DialogDescription available
+import { toast } from "sonner"
+
+import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog" // DialogDescription available
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Textarea } from "@/components/ui/textarea"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Slider } from "@/components/ui/slider"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Car, Plus, Info } from "@phosphor-icons/react"
-import { toast } from "sonner"
-import { usePersonalUsePolicies, useCreateTripUsage, type TripUsageData, type Policy } from "@/hooks/usePersonalUseQueries"
+import { Textarea } from "@/components/ui/textarea"
+import { usePersonalUsePolicies, useCreateTripUsage, type TripUsageData } from "@/hooks/usePersonalUseQueries"
 interface TripUsageDialogProps {
   trigger?: React.ReactNode
   vehicleId?: string

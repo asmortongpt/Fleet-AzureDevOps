@@ -3,8 +3,8 @@
  * Implements role-based field-level access control
  */
 
-import { AuthRequest } from '../middleware/auth'
 import pool from '../config/database'
+import { AuthRequest } from '../middleware/auth'
 
 export type FieldClassification = 'Internal' | 'Confidential' | 'Restricted' | 'Sensitive'
 

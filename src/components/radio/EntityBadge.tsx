@@ -3,10 +3,11 @@
  * Displays extracted entities from radio transcriptions as colored badges
  */
 
-import { Badge } from '@/components/ui/badge';
 import { MapPin, User, Hash, Clock, AlertCircle } from 'lucide-react';
-import type { ExtractedEntity } from '@/types/radio';
+
+import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
+import type { ExtractedEntity } from '@/types/radio';
 
 interface EntityBadgeProps {
   entity: ExtractedEntity;

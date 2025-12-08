@@ -10,6 +10,8 @@
  * - Expense categorization
  */
 
+import { Camera, CameraType } from 'expo-camera';
+import * as ImagePicker from 'expo-image-picker';
 import React, { useState, useRef, useEffect } from 'react';
 import {
   View,
@@ -21,12 +23,9 @@ import {
   TextInput,
   ActivityIndicator,
   Alert,
-  Platform,
-  Dimensions,
 } from 'react-native';
-import { Camera, CameraType } from 'expo-camera';
-import * as ImagePicker from 'expo-image-picker';
 import { z } from 'zod';
+
 import OCRService, { FuelReceiptData } from '../services/OCRService';
 
 // Validation schema for fuel receipt data

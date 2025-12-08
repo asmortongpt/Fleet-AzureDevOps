@@ -6,6 +6,7 @@
  */
 
 import { getTelemetryConfig } from '../config/telemetry';
+
 import logger from '@/utils/logger'
 
 /**

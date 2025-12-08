@@ -4,14 +4,14 @@
  */
 
 import { Pool } from 'pg'
-import logger from '../utils/logger'
+
 import {
   DocumentPermission,
   GrantPermissionOptions,
   PermissionType,
-  PermissionSummary,
-  PermissionDeniedError
+  PermissionSummary
 } from '../types/document-storage.types'
+
 import documentAuditService from './document-audit.service'
 
 export class DocumentPermissionService {

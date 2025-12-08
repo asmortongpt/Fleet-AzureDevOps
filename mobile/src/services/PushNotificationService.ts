@@ -3,10 +3,11 @@
  * Handles Firebase Cloud Messaging, permissions, and notification management
  */
 
-import messaging, { FirebaseMessagingTypes } from '@react-native-firebase/messaging';
 import notifee, { AndroidImportance, AndroidStyle, EventType } from '@notifee/react-native';
-import { Platform, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import messaging, { FirebaseMessagingTypes } from '@react-native-firebase/messaging';
+import { Platform } from 'react-native';
+
 import { apiClient } from './ApiClient';
 
 export interface NotificationPayload {

@@ -4,6 +4,7 @@
  */
 
 import { Activity, Eye, Download, Share2, MessageSquare, Tag, FolderOpen, Upload } from 'lucide-react';
+
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { DocumentActivity as ActivityItem } from '@/lib/documents/types';

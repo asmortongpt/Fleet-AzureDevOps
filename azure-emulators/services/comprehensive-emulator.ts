@@ -7,8 +7,10 @@
  * - Realistic patterns based on vehicle type and department
  */
 
-import { Pool } from 'pg'
 import { EventEmitter } from 'events'
+
+import { Pool } from 'pg'
+
 import fleetConfig from '../config/tallahassee-fleet.json'
 
 // Tallahassee city boundaries

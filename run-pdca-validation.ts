@@ -3,8 +3,9 @@
  * Runs the validation without Playwright test runner
  */
 
-import { chromium, Browser, Page } from '@playwright/test';
 import { writeFileSync } from 'fs';
+
+import { chromium } from '@playwright/test';
 
 // ============================================================================
 // PLAN: Define Expected Functionality

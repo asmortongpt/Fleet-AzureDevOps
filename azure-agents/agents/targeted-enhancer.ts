@@ -5,7 +5,6 @@
  * Cost: $3.75 vs $57 (93% savings!)
  */
 
-import { promisify } from 'util';
 import fs from 'fs/promises';
 import path from 'path';
 
