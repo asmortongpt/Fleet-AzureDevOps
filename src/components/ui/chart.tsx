@@ -50,7 +50,7 @@ function ChartContainer({
   const chartId = `chart-${id || uniqueId.replace(/:/g, "")}`
 
   return (
-    <ChartContext.Provider value={{ config) }}>
+    <ChartContext.Provider value={{ config }}>
       <div
         data-slot="chart"
         data-chart={chartId}
@@ -156,8 +156,8 @@ ${colorConfig
 }
 `
           )
-          .join("\n"),
-     ) }}
+          .join("\n")
+      }}
     />
   )
 }
@@ -352,8 +352,8 @@ function ChartLegendContent({
               <div
                 className="h-2 w-2 shrink-0 rounded-[2px]"
                 style={{
-                  backgroundColor: item.color,
-               ) }}
+                  backgroundColor: item.color
+                }}
               />
             )}
             {itemConfig?.label}
