@@ -9,8 +9,8 @@
  * 5. Masks sensitive fields based on role
  */
 
-import request from 'supertest'
-import { expect, describe, it, beforeAll, afterAll } from '@jest/globals'
+import { describe, it, beforeAll, afterAll } from '@jest/globals'
+
 import pool from '../src/config/database'
 
 // Mock JWT tokens for different roles

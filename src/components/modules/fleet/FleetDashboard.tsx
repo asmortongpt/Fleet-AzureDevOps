@@ -1,16 +1,18 @@
-import { useMemo, useState, useCallback } from "react"
-import { Button } from "@/components/ui/button"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Layout, List } from "@phosphor-icons/react"
-import { Vehicle } from "@/lib/types"
-import { useFleetData } from "@/hooks/use-fleet-data"
-import { useVehicleTelemetry } from "@/hooks/useVehicleTelemetry"
-import { useDrilldown } from "@/contexts/DrilldownContext"
-import { useInspect } from "@/services/inspect/InspectContext"
-import { ProfessionalFleetMap } from "@/components/Maps/ProfessionalFleetMap"
+import { useMemo, useState, useCallback } from "react"
+
+import { FleetFiltersPanel, FleetMetricsBar, FleetTable } from "./FleetDashboard/components"
 import { useFleetFilters } from "./FleetDashboard/hooks/useFleetFilters"
 import { useFleetMetrics } from "./FleetDashboard/hooks/useFleetMetrics"
-import { FleetFiltersPanel, FleetMetricsBar, FleetTable } from "./FleetDashboard/components"
+
+import { ProfessionalFleetMap } from "@/components/Maps/ProfessionalFleetMap"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { useDrilldown } from "@/contexts/DrilldownContext"
+import { useFleetData } from "@/hooks/use-fleet-data"
+import { useVehicleTelemetry } from "@/hooks/useVehicleTelemetry"
+import { Vehicle } from "@/lib/types"
+import { useInspect } from "@/services/inspect/InspectContext"
+
 
 type LayoutMode = "split-50-50" | "split-70-30" | "map-only" | "table-only"
 

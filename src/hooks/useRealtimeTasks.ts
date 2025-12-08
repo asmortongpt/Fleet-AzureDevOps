@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import io from 'socket.io-client';
-import { Task } from '../types/Task';
+
 import { EventTypes } from '../types/EventTypes';
+import { Task } from '../types/Task';
 
 /**
  * Custom React hook for subscribing to real-time task updates.

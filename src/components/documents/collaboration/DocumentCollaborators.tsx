@@ -4,10 +4,11 @@
  */
 
 import { Users, Circle } from 'lucide-react';
+
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Collaborator } from '@/lib/documents/types';
 import { formatRelativeTime } from '@/lib/documents/utils';
 

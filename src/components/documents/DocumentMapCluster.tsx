@@ -10,6 +10,7 @@
 
 import { useState, useEffect, useMemo } from 'react'
 import { MapContainer, TileLayer, CircleMarker, Popup, useMap } from 'react-leaflet'
+
 import type { DocumentCluster, DocumentCategory } from '@/lib/types'
 
 export interface DocumentMapClusterProps {

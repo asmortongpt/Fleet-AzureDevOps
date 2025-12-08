@@ -15,13 +15,11 @@ import { NotFoundError, ValidationError } from '../errors/app-error'
  * All routes require authentication
  */
 
-import { Router, Request, Response } from 'express'
-import teamsService from '../services/teams.service'
-import { authenticateJWT, AuthRequest } from '../middleware/auth'
-import { logger } from '../utils/logger'
-import { getErrorMessage } from '../utils/error-handler'
-import { csrfProtection } from '../middleware/csrf'
+import { Router, Response } from 'express'
 
+import { authenticateJWT, AuthRequest } from '../middleware/auth'
+import { csrfProtection } from '../middleware/csrf'
+import teamsService from '../services/teams.service'
 import {
   SendMessageRequest,
   ReplyToMessageRequest,
@@ -29,6 +27,8 @@ import {
   CreateChannelRequest,
   UpdateMessageRequest
 } from '../types/teams.types'
+import { getErrorMessage } from '../utils/error-handler'
+import { logger } from '../utils/logger'
 
 const router = Router()
 

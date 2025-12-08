@@ -7,8 +7,9 @@
  * - Subscription management
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest';
 import crypto from 'crypto';
+
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 
 // Mock Outlook webhook payload types
 interface OutlookWebhookPayload {

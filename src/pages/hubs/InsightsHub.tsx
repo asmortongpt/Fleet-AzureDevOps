@@ -1,15 +1,3 @@
-import React, { useState } from "react";
-import { HubLayout } from "../../components/layout/HubLayout";
-import { ExecutiveDashboard } from "../../components/modules/ExecutiveDashboard";
-import { FleetAnalytics } from "../../components/modules/FleetAnalytics";
-import { CustomReportBuilder } from "../../components/modules/CustomReportBuilder";
-import { DataWorkbench } from "../../components/modules/DataWorkbench";
-import { CostAnalysisCenter } from "../../components/modules/CostAnalysisCenter";
-import { PredictiveMaintenance } from "../../components/modules/PredictiveMaintenance";
-import { useFleetData } from "../../hooks/use-fleet-data";
-import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/card";
-import { Button } from "../../components/ui/button";
-import { Badge } from "../../components/ui/badge";
 import {
   ChartLine,
   TrendUp,
@@ -22,6 +10,19 @@ import {
   Warning,
   CheckCircle,
 } from "@phosphor-icons/react";
+import React, { useState } from "react";
+
+import { HubLayout } from "../../components/layout/HubLayout";
+import { CostAnalysisCenter } from "../../components/modules/CostAnalysisCenter";
+import { CustomReportBuilder } from "../../components/modules/CustomReportBuilder";
+import { DataWorkbench } from "../../components/modules/DataWorkbench";
+import { ExecutiveDashboard } from "../../components/modules/ExecutiveDashboard";
+import { FleetAnalytics } from "../../components/modules/FleetAnalytics";
+import { PredictiveMaintenance } from "../../components/modules/PredictiveMaintenance";
+import { Badge } from "../../components/ui/badge";
+import { Button } from "../../components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/card";
+import { useFleetData } from "../../hooks/use-fleet-data";
 
 type InsightsModule =
   | "overview"

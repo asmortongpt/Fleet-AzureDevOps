@@ -1,7 +1,15 @@
+import {
+  CheckCircle,
+  ChartLine,
+  TrendUp,
+  TrendDown
+} from "@phosphor-icons/react"
 import { useMemo } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+
+import { MaintenanceRecord, FuelRecord } from "./types"
+
 import { Badge } from "@/components/ui/badge"
-import { Label } from "@/components/ui/label"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
   Select,
   SelectContent,
@@ -9,14 +17,8 @@ import {
   SelectTrigger,
   SelectValue
 } from "@/components/ui/select"
-import {
-  CheckCircle,
-  ChartLine,
-  TrendUp,
-  TrendDown
-} from "@phosphor-icons/react"
 import { Vehicle } from "@/lib/types"
-import { MaintenanceRecord, FuelRecord } from "./types"
+
 
 interface AnalyticsTabProps {
   vehicles: Vehicle[]

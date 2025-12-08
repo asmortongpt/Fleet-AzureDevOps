@@ -1,8 +1,9 @@
 import { injectable, inject } from "inversify";
+
 import { BaseService } from "../../../services/base.service";
-import { MaintenanceRepository } from "../repositories/maintenance.repository";
 import { TYPES } from "../../../types";
 import type { MaintenanceRecord } from "../../../types/maintenance";
+import { MaintenanceRepository } from "../repositories/maintenance.repository";
 
 @injectable()
 export class MaintenanceService extends BaseService {

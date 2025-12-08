@@ -3,8 +3,6 @@
  * Features: Drag-drop, multi-file, progress bars, file validation, thumbnails
  */
 
-import { useCallback, useState } from 'react';
-import { useDropzone } from 'react-dropzone';
 import {
   Upload,
   X,
@@ -16,14 +14,17 @@ import {
   FileText,
   Video
 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import { useCallback, useState } from 'react';
+import { useDropzone } from 'react-dropzone';
+
 import { Badge } from '@/components/ui/badge';
-import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Progress } from '@/components/ui/progress';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { UploadProgress } from '@/lib/documents/types';
 import { formatFileSize, validateFile } from '@/lib/documents/utils';
+import { cn } from '@/lib/utils';
 interface DocumentUploaderProps {
   onUpload?: (files: File[]) => void;
   onClose: () => void;

@@ -3,8 +3,9 @@
  * Using the email/password demo credentials shown on login page
  */
 
-import { test } from '@playwright/test';
 import * as fs from 'fs';
+
+import { test } from '@playwright/test';
 
 test('Inspect Production App - Email Login Flow', async ({ page }) => {
   console.log('🔍 Starting production app inspection...');

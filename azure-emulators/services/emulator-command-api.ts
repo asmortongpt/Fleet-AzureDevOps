@@ -3,8 +3,8 @@
  * Chat interface to trigger specific scenarios in the radio traffic emulator
  */
 
-import express from 'express';
 import cors from 'cors';
+import express from 'express';
 import { Pool } from 'pg';
 
 interface CommandRequest {
@@ -263,15 +263,15 @@ export class EmulatorCommandAPI {
     const client = await this.pool.connect();
     try {
       // Parse incident type
-      let incidentType = params?.type || this.parseIncidentType(command);
-      let location = params?.location ?
+      const incidentType = params?.type || this.parseIncidentType(command);
+      const location = params?.location ?
         this.findLocation(params.location) :
         this.findLocation(command) || this.locations[Math.floor(Math.random() * this.locations.length)];
 
-      let priority = params?.priority || this.parsePriority(command);
+      const priority = params?.priority || this.parsePriority(command);
 
       // Determine department
-      let department = this.getDepartmentForIncident(incidentType);
+      const department = this.getDepartmentForIncident(incidentType);
 
       // Generate incident number
       const incidentNumber = `${department.toUpperCase()}-${new Date().getFullYear()}-${String(Math.floor(Math.random() * 999999)).padStart(6, '0')}`;

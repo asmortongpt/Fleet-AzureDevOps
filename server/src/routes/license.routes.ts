@@ -1,10 +1,10 @@
 import express, { Request, Response } from 'express';
-import { Pool } from 'pg';
-import bcrypt from 'bcrypt';
 import helmet from 'helmet';
-import { validateLicenseInput, validateTenantId } from '../utils/validators';
-import { logAudit, logError } from '../utils/logger';
+import { Pool } from 'pg';
+
 import { createLicense, listLicenses, allocateLicense, getExpiringLicenses } from '../services/licenseService';
+import { logAudit, logError } from '../utils/logger';
+import { validateLicenseInput, validateTenantId } from '../utils/validators';
 
 const router = express.Router();
 const pool = new Pool(); // Ensure this is configured with your database connection settings

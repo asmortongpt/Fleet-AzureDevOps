@@ -3,8 +3,9 @@
  * Extracted from LeafletMap.tsx for better maintainability
  */
 
-import type { Vehicle, GISFacility, TrafficCamera } from "@/lib/types"
 import { VEHICLE_STATUS_COLORS, escapeHtml } from "./icons"
+
+import type { Vehicle, GISFacility, TrafficCamera } from "@/lib/types"
 
 /**
  * Creates HTML content for vehicle marker popup

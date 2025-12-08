@@ -2,7 +2,7 @@
  * Comprehensive Functionality Test
  * Tests EVERY feature across all 5 hubs
  */
-import { chromium, Browser, Page } from '@playwright/test';
+import { chromium, Page } from '@playwright/test';
 
 const BASE_URL = 'http://localhost:5173';
 

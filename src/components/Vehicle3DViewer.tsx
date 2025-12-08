@@ -11,47 +11,35 @@
  *   <Vehicle3DViewer vehicleId={id} />
  * </Suspense>
  */
-import React, { Suspense, useRef, useState, useEffect } from 'react';import { Canvas, useFrame, useThree } from '@react-three/fiber';import {
+import {
   OrbitControls,
   Environment,
   ContactShadows,
-  PerspectiveCamera,
   useGLTF,
   Html,
   Sky,
-  Stage,
   Grid,
-  BakeShadows,
-  AccumulativeShadows,
-  RandomizedLight,
-  Bounds,
-  useBounds,
   Stats,
   useProgress
 } from '@react-three/drei';
+import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { EffectComposer, Bloom, SSAO, ToneMapping, DepthOfField, Vignette } from '@react-three/postprocessing';
-import { ToneMappingMode, BlendFunction } from 'postprocessing';
-import * as THREE from 'three';
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Maximize2,
   Minimize2,
-  RotateCw,
   Camera,
-  Palette,
-  Download,
-  Box,
-  Layers,
   Eye,
   EyeOff,
-  Sun,
-  Moon,
-  Scan,
-  AlertCircle
+  Scan
 } from 'lucide-react';
+import { ToneMappingMode, BlendFunction } from 'postprocessing';
+import React, { Suspense, useRef, useState, useEffect } from 'react';import * as THREE from 'three';
+
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+
 
 /**
  * Vehicle 3D Viewer - Heavy Component (85KB gzipped)
