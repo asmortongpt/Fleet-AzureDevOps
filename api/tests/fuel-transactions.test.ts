@@ -3,14 +3,14 @@
  * Tests all fuel transaction endpoints with comprehensive coverage
  */
 
-import { describe, it, expect, beforeEach, afterAll } from 'vitest'
+import { describe, it, expect, beforeEach } from 'vitest'
+
 import {
   makeRequest,
   setupTestHooks,
   generateTestFuelTransaction,
   generateTestVehicle,
-  expectValidFuelTransaction,
-  resetEmulators
+  expectValidFuelTransaction
 } from './setup'
 
 describe('Fuel Transaction API Tests', () => {

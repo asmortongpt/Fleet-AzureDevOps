@@ -1,6 +1,7 @@
-import { defineConfig } from 'vite';
-import { visualizer } from 'rollup-plugin-visualizer';
 import path from 'path';
+
+import { visualizer } from 'rollup-plugin-visualizer';
+import { defineConfig } from 'vite';
 
 export default defineConfig({
   resolve: {

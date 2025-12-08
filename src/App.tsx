@@ -1,7 +1,21 @@
+import { withAITracking } from '@microsoft/applicationinsights-react-js'
+import {
+  Gear,
+  Bell,
+  SignOut,
+  List,
+  X
+} from "@phosphor-icons/react"
 import { useState, useMemo, useEffect, lazy, Suspense } from "react"
-import { Button } from "@/components/ui/button"
+
+import { DrilldownManager } from "@/components/DrilldownManager"
+import { EnhancedErrorBoundary } from "@/components/EnhancedErrorBoundary"
+import { ThemeToggle } from "@/components/ThemeToggle"
+import { ToastContainer } from "@/components/common/ToastContainer"
+import { RoleSwitcher } from "@/components/demo/RoleSwitcher"
+import { QueryErrorBoundary } from "@/components/errors/QueryErrorBoundary"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { ScrollArea } from "@/components/ui/scroll-area"
+import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
   DropdownMenu,
@@ -10,25 +24,9 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator
 } from "@/components/ui/dropdown-menu"
-import {
-  Gear,
-  Bell,
-  SignOut,
-  List,
-  X,
-  CarProfile
-} from "@phosphor-icons/react"
-import { navigationItems } from "@/lib/navigation"
-import { RoleSwitcher } from "@/components/demo/RoleSwitcher"
-import { ToastContainer } from "@/components/common/ToastContainer"
-import { ErrorBoundary } from "@/components/ErrorBoundary"
-import { EnhancedErrorBoundary } from "@/components/EnhancedErrorBoundary"
-import { QueryErrorBoundary } from "@/components/errors/QueryErrorBoundary"
-import { ThemeToggle } from "@/components/ThemeToggle"
-import { DrilldownManager } from "@/components/DrilldownManager"
+import { ScrollArea } from "@/components/ui/scroll-area"
 import { useFleetData } from "@/hooks/use-fleet-data"
-import { useFacilities } from "@/hooks/use-api"
-import { withAITracking } from '@microsoft/applicationinsights-react-js'
+import { navigationItems } from "@/lib/navigation"
 import telemetryService from '@/lib/telemetry'
 
 // Lazy load all modules for code splitting - reduces initial bundle by 80%+

@@ -1,5 +1,6 @@
-import { DriverRepository, Driver } from '../repositories/DriverRepository'
 import { Pool } from 'pg'
+
+import { DriverRepository, Driver } from '../repositories/DriverRepository'
 
 /**
  * DriversService

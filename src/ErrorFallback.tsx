@@ -1,6 +1,7 @@
+import { AlertTriangleIcon, RefreshCwIcon } from "lucide-react";
+
 import { Alert, AlertTitle, AlertDescription } from "./components/ui/alert";
 import { Button } from "./components/ui/button";
-import { AlertTriangleIcon, RefreshCwIcon } from "lucide-react";
 
 export const ErrorFallback = ({ error, resetErrorBoundary }) => {
   // Always show the error boundary - helps diagnose issues

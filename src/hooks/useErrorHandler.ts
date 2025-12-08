@@ -9,7 +9,7 @@
  */
 
 import { useCallback, useState, useRef } from 'react'
-import { telemetryService } from '@/lib/telemetry'
+
 import {
   categorizeError,
   determineErrorSeverity,
@@ -17,6 +17,7 @@ import {
   ErrorCategory,
   ErrorSeverity,
 } from '@/lib/error-handler'
+import { telemetryService } from '@/lib/telemetry'
 
 /**
  * Retry configuration

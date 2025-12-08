@@ -3,10 +3,6 @@
  * Displays AI-powered predictions, recommendations, and alerts
  */
 
-import React from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
 import {
   Lightbulb,
   Warning,
@@ -16,6 +12,11 @@ import {
   Sparkle,
   CheckCircle
 } from "@phosphor-icons/react"
+import React from 'react'
+
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { AIInsight } from '@/hooks/useSystemStatus'
 
 interface AIInsightsPanelProps {

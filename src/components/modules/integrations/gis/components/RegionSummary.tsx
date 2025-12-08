@@ -2,8 +2,8 @@
  * Region Summary - Displays metrics for the selected region
  */
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
 interface RegionSummaryProps {
   selectedRegion: string

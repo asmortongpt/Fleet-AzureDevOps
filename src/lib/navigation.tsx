@@ -1,4 +1,3 @@
-import { ReactNode } from "react"
 import {
   Speedometer,
   Users,
@@ -44,6 +43,7 @@ import {
   CurrencyDollar,
   Shield
 } from "@phosphor-icons/react"
+import { ReactNode } from "react"
 
 export interface NavigationItem {
   id: string

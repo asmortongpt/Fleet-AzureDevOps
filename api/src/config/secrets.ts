@@ -34,8 +34,8 @@
  * - Secrets will fall back to .env file
  */
 
-import { SecretClient } from '@azure/keyvault-secrets'
 import { DefaultAzureCredential, ClientSecretCredential } from '@azure/identity'
+import { SecretClient } from '@azure/keyvault-secrets'
 import dotenv from 'dotenv'
 
 dotenv.config()

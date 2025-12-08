@@ -3,10 +3,12 @@
  * Ensures all migrations run successfully and create expected schema
  */
 
-import { describe, it, expect, beforeAll, afterAll } from 'vitest'
-import { testPool, closeTestDatabase } from '../setup'
 import fs from 'fs'
 import path from 'path'
+
+import { describe, it, expect, afterAll } from 'vitest'
+
+import { testPool, closeTestDatabase } from '../setup'
 
 describe('Database Migrations', () => {
   const migrationsDir = path.join(__dirname, '../../db/migrations')

@@ -15,6 +15,7 @@ import NetInfo, {
   NetInfoSubscription,
 } from '@react-native-community/netinfo';
 import BackgroundFetch from 'react-native-background-fetch';
+
 import {
   NetworkState,
   ConnectionType,
@@ -24,9 +25,10 @@ import {
   QueueEventType,
   Priority,
 } from '../types/queue';
-import OfflineQueueService from './OfflineQueueService';
+
 import ConflictResolverService from './ConflictResolver';
 import DataPersistenceManager from './DataPersistence';
+import OfflineQueueService from './OfflineQueueService';
 
 /**
  * Sync state
