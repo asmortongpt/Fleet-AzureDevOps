@@ -1,6 +1,6 @@
-import React, { useMemo } from 'react';
-import { Box, Grid, Paper, Typography, LinearProgress, Chip, CircularProgress } from '@mui/material';
 import { CheckCircle, Warning, Error, HourglassEmpty } from '@mui/icons-material';
+import { Box, Grid, Paper, Typography, LinearProgress, Chip, CircularProgress } from '@mui/material';
+import React, { useMemo } from 'react';
 
 interface SystemHealth {
   status: 'healthy' | 'degraded' | 'down';

@@ -3,16 +3,7 @@
  * Shows comprehensive driver information, certifications, and stats
  */
 
-import { useDrilldown } from '@/contexts/DrilldownContext'
-import { DrilldownContent } from '@/components/DrilldownPanel'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Progress } from '@/components/ui/progress'
-import useSWR from 'swr'
 import {
-  User,
   Phone,
   Mail,
   Calendar,
@@ -23,6 +14,16 @@ import {
   Route,
   AlertTriangle,
 } from 'lucide-react'
+import useSWR from 'swr'
+
+import { DrilldownContent } from '@/components/DrilldownPanel'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Progress } from '@/components/ui/progress'
+import { useDrilldown } from '@/contexts/DrilldownContext'
+
 
 interface DriverDetailPanelProps {
   driverId: string

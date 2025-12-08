@@ -2,8 +2,9 @@
  * Shared MetricCard component
  * Eliminates duplication between FleetMetricsBar, AssetStatsBar, and similar components
  */
-import { Card } from "@/components/ui/card"
 import { ReactNode } from "react"
+
+import { Card } from "@/components/ui/card"
 
 export interface MetricCardProps {
   label: string

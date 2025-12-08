@@ -1,15 +1,3 @@
-import React, { useState } from 'react'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Switch } from '@/components/ui/switch'
-import { Separator } from '@/components/ui/separator'
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
-import { Checkbox } from '@/components/ui/checkbox'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {
   Shield,
   Info,
@@ -21,9 +9,21 @@ import {
   CheckCircle,
   Warning
 } from '@phosphor-icons/react'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import React, { useState } from 'react'
 import { toast } from 'sonner'
+
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Checkbox } from '@/components/ui/checkbox'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
+import { Separator } from '@/components/ui/separator'
+import { Switch } from '@/components/ui/switch'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {
-  PersonalUsePolicy,
   ApprovalWorkflow,
   CreatePolicyRequest
 } from '@/types/trip-usage'

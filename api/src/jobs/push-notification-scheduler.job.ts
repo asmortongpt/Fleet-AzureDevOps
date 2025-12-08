@@ -4,6 +4,7 @@
  */
 
 import cron from 'node-cron';
+
 import { pushNotificationService } from '../services/push-notification.service';
 
 class PushNotificationScheduler {

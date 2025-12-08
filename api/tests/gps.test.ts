@@ -3,11 +3,11 @@
  * Tests GPS tracking and location-related endpoints
  */
 
-import { describe, it, expect, beforeEach, afterAll } from 'vitest'
+import { describe, it, expect } from 'vitest'
+
 import {
   makeRequest,
-  setupTestHooks,
-  resetEmulators
+  setupTestHooks
 } from './setup'
 
 describe('GPS API Tests', () => {

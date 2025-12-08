@@ -10,7 +10,7 @@
  * - Render generation for marketing
  */
 
-import { Pool, PoolClient } from 'pg';
+import { Pool } from 'pg';
 
 interface Vehicle3DModel {
   id: number;

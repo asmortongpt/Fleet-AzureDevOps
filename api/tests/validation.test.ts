@@ -13,15 +13,11 @@
  * - Range validation
  */
 
-import { describe, it, expect, beforeAll, afterAll } from '@jest/globals'
-import request from 'supertest'
+import { describe, it, expect } from '@jest/globals'
 import express from 'express'
+import request from 'supertest'
+
 import { validate } from '../src/middleware/validation'
-import {
-  createTelemetrySchema,
-  updateTelemetrySchema,
-  getTelemetryQuerySchema
-} from '../src/schemas/telemetry.schema'
 import {
   createCommunicationSchema,
   updateCommunicationSchema,
@@ -32,6 +28,11 @@ import {
   updateFuelTransactionSchema,
   getFuelTransactionsQuerySchema
 } from '../src/schemas/fuel-transactions.schema'
+import {
+  createTelemetrySchema,
+  updateTelemetrySchema,
+  getTelemetryQuerySchema
+} from '../src/schemas/telemetry.schema'
 
 // Test app setup
 const app = express()

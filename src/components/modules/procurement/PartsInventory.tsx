@@ -1,17 +1,10 @@
+import { Plus, MagnifyingGlass, Package, TrendUp, TrendDown, Warning } from "@phosphor-icons/react"
 import { useState } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
+import { toast } from "sonner"
+
 import { Badge } from "@/components/ui/badge"
-import { Progress } from "@/components/ui/progress"
-import { 
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow
-} from "@/components/ui/table"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import {
   Dialog,
   DialogContent,
@@ -21,7 +14,9 @@ import {
   DialogTrigger,
   DialogFooter
 } from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Progress } from "@/components/ui/progress"
 import { 
   Select,
   SelectContent,
@@ -29,10 +24,17 @@ import {
   SelectTrigger,
   SelectValue
 } from "@/components/ui/select"
+import { 
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
+} from "@/components/ui/table"
 import { Textarea } from "@/components/ui/textarea"
-import { Plus, MagnifyingGlass, Package, TrendUp, TrendDown, Warning } from "@phosphor-icons/react"
 import { Part } from "@/lib/types"
-import { toast } from "sonner"
+
 
 export function PartsInventory() {
   const [parts, setParts] = useState<Part[]>([])

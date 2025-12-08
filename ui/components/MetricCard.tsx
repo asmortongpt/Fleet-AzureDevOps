@@ -1,4 +1,5 @@
 import React from 'react';
+
 import { useBranding } from '../context/BrandingContext';
 
 interface MetricCardProps {

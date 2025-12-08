@@ -6,8 +6,9 @@
  * This prevents information disclosure by not revealing whether the resource exists.
  */
 
-import { useNavigate } from 'react-router-dom';
 import { ShieldX, Home, ArrowLeft } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+
 import { useAuth } from '@/hooks/useAuth';
 
 export function Forbidden403Page() {

@@ -10,13 +10,13 @@
  * - Lazy loading of heavy components
  */
 
-import { test, expect, Page } from '@playwright/test';
+import { test, expect } from '@playwright/test';
+
 import {
   AuthHelper,
   NavigationHelper,
   WaitHelpers,
-  PerformanceHelper,
-  TEST_CONSTANTS
+  PerformanceHelper
 } from './test-helpers';
 
 // Performance thresholds (WCAG and Core Web Vitals standards)

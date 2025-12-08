@@ -1,19 +1,20 @@
 import { Router } from "express"
-import { csrfProtection } from '../middleware/csrf'
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
+
 import { cacheService } from '../config/cache';
+import logger from '../config/logger'; // Wave 10: Add Winston logger
+import { container } from '../container'
+import { NotFoundError, ValidationError } from '../errors/app-error'
+import { authenticateJWT } from '../middleware/auth';
+import { csrfProtection } from '../middleware/csrf'
+import { asyncHandler } from '../middleware/errorHandler'
+import { requireRBAC, Role, PERMISSIONS } from '../middleware/rbac';
+import { validateBody, validateQuery, validateParams, validateAll } from '../middleware/validate';
 import {
   vehicleCreateSchema,
   vehicleUpdateSchema,
   vehicleQuerySchema,
   vehicleIdSchema
 } from '../schemas/vehicles.schema';
-import { validateBody, validateQuery, validateParams, validateAll } from '../middleware/validate';
-import logger from '../config/logger'; // Wave 10: Add Winston logger
-import { authenticateJWT } from '../middleware/auth';
-import { requireRBAC, Role, PERMISSIONS } from '../middleware/rbac';
 
 const router = Router()
 

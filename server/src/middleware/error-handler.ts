@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
+
 import { AppInsightsClient } from '../services/AppInsightsClient';
 import { Logger } from '../services/Logger';
 

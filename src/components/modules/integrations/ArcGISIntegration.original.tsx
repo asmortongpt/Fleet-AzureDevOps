@@ -8,21 +8,6 @@
  * @version 2.1.0 (Refactored)
  */
 
-import { useState, useEffect, useCallback, useMemo, useRef } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Slider } from "@/components/ui/slider"
-import { Label } from "@/components/ui/label"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
 import {
   Plus,
   Trash,
@@ -33,7 +18,6 @@ import {
   Warning,
   ArrowClockwise,
   Download,
-  Upload,
   DotsThree,
   Copy,
   CaretUp,
@@ -41,10 +25,28 @@ import {
   Info,
   XCircle,
 } from "@phosphor-icons/react"
-import { apiClient } from "@/lib/api-client"
-import type { ArcGISLayerConfig } from "@/lib/arcgis/types"
+import { useState, useEffect, useCallback, useMemo, useRef } from "react"
+
 import { ExamplesTab } from "./arcgis/components/ExamplesTab"
 import { HelpTab } from "./arcgis/components/HelpTab"
+
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { Label } from "@/components/ui/label"
+import { Slider } from "@/components/ui/slider"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { apiClient } from "@/lib/api-client"
+import type { ArcGISLayerConfig } from "@/lib/arcgis/types"
+
 
 type LayerHealth = "healthy" | "warning" | "error" | "unknown"
 

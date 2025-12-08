@@ -23,7 +23,9 @@ import {
   Platform
 } from 'react-native'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
+
 import NFCReader from '../services/NFCReader'
+
 import BarcodeScanner from './BarcodeScanner'
 
 export type CheckInMethod = 'nfc' | 'qr' | 'manual'

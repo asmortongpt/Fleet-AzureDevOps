@@ -1,10 +1,7 @@
 import { Router, Request, Response } from 'express'
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
-import { pool } from '../db'
+
 import { cacheService } from '../config/cache'
-import { csrfProtection } from '../middleware/csrf'
+import { pool } from '../db'
 
 
 const router = Router()

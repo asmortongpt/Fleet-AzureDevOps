@@ -49,7 +49,7 @@ function injectable(): ClassDecorator {
 }
 
 function inject(identifier: ServiceIdentifier<any>): ParameterDecorator {
-  return (target: Object, propertyKey: string | symbol, parameterIndex: number) => {
+  return (target: object, propertyKey: string | symbol, parameterIndex: number) => {
     const existingInjectedParameters: any[] = Reflect.getOwnMetadata('inversify:inject', target, propertyKey) || [];
     existingInjectedParameters.push({ index: parameterIndex, identifier });
     Reflect.defineMetadata('inversify:inject', existingInjectedParameters, target, propertyKey);

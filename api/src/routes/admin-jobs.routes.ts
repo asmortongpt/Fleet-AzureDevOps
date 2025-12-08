@@ -6,6 +6,7 @@
  */
 
 import { Router, Request, Response, NextFunction } from 'express'
+
 import {
   getAllQueueStats,
   getQueueStats,
@@ -20,8 +21,8 @@ import {
   notificationQueue,
   reportQueue,
 } from '../jobs/queue'
-import logger from '../utils/logger'
 import { csrfProtection } from '../middleware/csrf'
+import logger from '../utils/logger'
 
 
 const router = Router()

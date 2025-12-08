@@ -1,9 +1,10 @@
-import { Pool } from 'pg';
 import { config } from 'dotenv';
-import { usersSeed } from './users.seed';
-import { vehiclesSeed } from './vehicles.seed';
+import { Pool } from 'pg';
+
 import { maintenanceSeed } from './maintenance.seed';
 import { partsSeed } from './parts.seed';
+import { usersSeed } from './users.seed';
+import { vehiclesSeed } from './vehicles.seed';
 
 config();
 

@@ -9,7 +9,7 @@
  * - ACT: Failures trigger automatic rollback
  */
 
-import { test, expect, Page } from '@playwright/test';
+import { test, expect } from '@playwright/test';
 
 // Use environment variable or fallback to localhost
 const APP_URL = process.env.APP_URL || 'http://localhost:5173';
