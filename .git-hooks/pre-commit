@@ -58,15 +58,18 @@ fi
 echo "Checking for potential secrets..."
 SECRETS_FOUND=false
 
-# Get all staged files except hook files
-STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACM | grep -v "^.git-hooks/" || true)
+# Get all staged files except hook files and documentation
+STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACM | grep -v "^.git-hooks/" | grep -v "CONTRIBUTING.md" | grep -v "README.md" | grep -v "^docs/" || true)
 
 if [ -n "$STAGED_FILES" ]; then
     # Get the actual diff content
     DIFF_CONTENT=$(git diff --cached -- $STAGED_FILES 2>/dev/null || true)
 
-    # Check for actual secret values, not just variable names in code
-    if echo "$DIFF_CONTENT" | grep -E "password\s*=\s*['\"][^'\"]{8,}" > /dev/null 2>&1; then
+    # Check for actual secret values, not just examples in documentation
+    # Skip lines with comments or example markers
+    SECRET_CONTENT=$(echo "$DIFF_CONTENT" | grep -v "^[+#].*[Bb]ad\|[Ee]xample\|[Dd]on't\|❌" || true)
+
+    if echo "$SECRET_CONTENT" | grep -E "password\s*=\s*['\"][^'\"]{8,}" > /dev/null 2>&1; then
         SECRETS_FOUND=true
         echo -e "${RED}❌ ERROR: Potential hardcoded password detected${NC}"
     fi
