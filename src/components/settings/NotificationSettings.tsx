@@ -3,15 +3,16 @@
  * Email, push, in-app notifications, and quiet hours
  */
 
+import { Bell, Envelope, DeviceMobile, Moon } from '@phosphor-icons/react'
 import { useAtom } from 'jotai'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Label } from '@/components/ui/label'
-import { Switch } from '@/components/ui/switch'
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
-import { Input } from '@/components/ui/input'
+
 import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
+import { Switch } from '@/components/ui/switch'
 import { notificationSettingsAtom, hasUnsavedChangesAtom } from '@/lib/reactive-state'
-import { Bell, Envelope, DeviceMobile, SpeakerHigh, Moon } from '@phosphor-icons/react'
 
 const frequencies = [
   { value: 'realtime', label: 'Real-time', description: 'Instant notifications' },

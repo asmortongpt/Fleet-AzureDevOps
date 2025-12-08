@@ -12,6 +12,7 @@
  */
 
 import { Pool } from 'pg'
+
 import { buildUpdateClause } from '../../utils/sql-safety'
 
 // Allowlist of valid entity tables

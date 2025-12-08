@@ -11,10 +11,11 @@
  * - Auto-refresh every 30 seconds
  */
 
-import { useState, useEffect } from 'react'
 import { Bell } from '@phosphor-icons/react'
-import { Button } from '@/components/ui/button'
+import { useState, useEffect } from 'react'
+
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
   DropdownMenuContent,

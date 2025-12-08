@@ -13,18 +13,19 @@
  * Created: 2025-11-23
  */
 
-import React, { useMemo } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
 import {
   Car, User, Wrench, GasPump, Package, FileText,
   ArrowRight, CaretRight, Link as LinkIcon, Stack,
   Warning, Clock, CurrencyDollar, MapPin, Truck
 } from '@phosphor-icons/react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { motion, AnimatePresence } from 'framer-motion'
+import React, { useMemo } from 'react'
+
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Separator } from '@/components/ui/separator'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { ScrollArea } from '@/components/ui/scroll-area'
+import { Separator } from '@/components/ui/separator'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import {
   useEntityLinking,

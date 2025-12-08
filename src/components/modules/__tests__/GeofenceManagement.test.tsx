@@ -9,12 +9,12 @@
  * - Alert configuration
  */
 
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
+
 import { GeofenceManagement } from '../GeofenceManagement'
+
 import {
-  createMockVehicles,
-  createMockFacilities,
   setupLeafletMocks,
   mockConsole
 } from '@/test-utils'

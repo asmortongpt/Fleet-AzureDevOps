@@ -4,9 +4,9 @@
  */
 
 import { Request, Response, NextFunction } from 'express';
-import { sentryService, Sentry } from '../monitoring/sentry';
 import { ValidationError } from 'express-validator';
-import { config } from '../config';
+
+import { sentryService, Sentry } from '../monitoring/sentry';
 
 /**
  * Custom error class for operational errors

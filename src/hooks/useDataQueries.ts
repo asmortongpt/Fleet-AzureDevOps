@@ -4,17 +4,15 @@
  */
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+
 import { apiClient } from '@/lib/api-client';
 import type {
   Vehicle,
   Driver,
   WorkOrder,
   FuelTransaction,
-  MaintenanceSchedule,
   Part,
   Vendor,
-  PurchaseOrder,
-  Invoice,
   GISFacility,
 } from '@/lib/types';
 

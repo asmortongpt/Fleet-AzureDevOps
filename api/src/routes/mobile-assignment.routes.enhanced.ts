@@ -1,17 +1,14 @@
-import express, { Request, Response } from 'express';
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
+import express, { Response } from 'express';
 import { Pool } from 'pg';
 import { z } from 'zod';
+
+import { NotFoundError } from '../errors/app-error'
 import { authenticateJWT, AuthRequest } from '../middleware/auth';
+import { asyncHandler } from '../middleware/errorHandler'
 import { requirePermission } from '../middleware/permissions';
-import { AssignmentNotificationService } from '../services/assignment-notification.service';
-import { getErrorMessage } from '../utils/error-handler';
 import { rateLimiter } from '../middleware/rate-limiter';
-import { validateSchema } from '../middleware/validate-schema';
+import { AssignmentNotificationService } from '../services/assignment-notification.service';
 import { asyncHandler } from '../utils/async-handler';
-import { csrfProtection } from '../middleware/csrf'
 
 
 const router = express.Router();

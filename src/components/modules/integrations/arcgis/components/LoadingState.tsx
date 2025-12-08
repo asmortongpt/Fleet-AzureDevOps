@@ -3,8 +3,9 @@
  * @module ArcGIS/components/LoadingState
  */
 
-import { Card, CardContent } from "@/components/ui/card"
 import { ArrowClockwise } from "@phosphor-icons/react"
+
+import { Card, CardContent } from "@/components/ui/card"
 
 /**
  * Display loading state while fetching layers

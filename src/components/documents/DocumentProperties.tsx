@@ -3,13 +3,11 @@
  * Features: Edit metadata, custom fields, version history, permissions
  */
 
-import { useState } from 'react';
 import {
   FileText,
   Calendar,
   HardDrive,
   User,
-  Tag,
   MapPin,
   Clock,
   Share2,
@@ -17,13 +15,13 @@ import {
   Save,
   X
 } from 'lucide-react';
+import { useState } from 'react';
+
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Select,
   SelectContent,
@@ -31,6 +29,8 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select';
+import { Separator } from '@/components/ui/separator';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { DocumentMetadata, FileCategory } from '@/lib/documents/types';
 import { formatFileSize, formatRelativeTime } from '@/lib/documents/utils';
 

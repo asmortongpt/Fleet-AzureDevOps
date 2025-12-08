@@ -4,7 +4,6 @@
  * Comprehensive type safety for photo capture, annotation, and inspection workflows
  */
 
-import { GeoCoordinates, GeoPosition } from 'react-native-geolocation-service';
 
 // ============================================================================
 // Core Photo Types

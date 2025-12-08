@@ -23,7 +23,9 @@ import {
   AnalyticsProvider,
   type TelemetryConfig,
 } from '../config/telemetry';
-import { DataSanitizer } from '../utils/privacy';import logger from '@/utils/logger'
+import { DataSanitizer } from '../utils/privacy';
+
+import logger from '@/utils/logger'
 
 /**
  * Analytics event

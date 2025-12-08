@@ -6,6 +6,7 @@
  */
 
 import Bull, { Queue, Job, JobOptions } from 'bull'
+
 import redisClient from '../config/redis'
 import logger from '../utils/logger'
 

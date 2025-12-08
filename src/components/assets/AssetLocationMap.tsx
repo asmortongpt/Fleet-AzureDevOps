@@ -1,14 +1,16 @@
-import React, { useEffect, useState, useCallback } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, Circle, Polygon } from 'react-leaflet';
-import { io, Socket } from 'socket.io-client';
 import axios from 'axios';
+import React, { useEffect, useState, useCallback } from 'react';
+import Helmet from 'react-helmet';
+import { MapContainer, TileLayer, Marker, Popup, Circle, Polygon } from 'react-leaflet';
 import { toast } from 'react-toastify';
+import { io, Socket } from 'socket.io-client';
+
 import 'react-toastify/dist/ReactToastify.css';
-import { validateCategory, validateStatus } from '../../utils/validators';
+import { Asset, Geofence } from '../../types';
 import { getAuthHeaders } from '../../utils/auth';
 import { logError, logAudit } from '../../utils/logger';
-import { Asset, Geofence } from '../../types';
-import Helmet from 'react-helmet';
+import { validateCategory, validateStatus } from '../../utils/validators';
+
 
 // FedRAMP/SOC 2 compliance: Ensure secure headers
 Helmet.defaultProps = {

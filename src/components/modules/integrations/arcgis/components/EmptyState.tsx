@@ -3,8 +3,9 @@
  * @module ArcGIS/components/EmptyState
  */
 
-import { Card, CardContent } from "@/components/ui/card"
 import { GlobeHemisphereWest } from "@phosphor-icons/react"
+
+import { Card, CardContent } from "@/components/ui/card"
 
 /**
  * Display empty state when no layers exist

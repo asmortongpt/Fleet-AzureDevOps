@@ -5,6 +5,7 @@
  * damage location markers, severity selection, and offline queue support
  */
 
+import Voice from '@react-native-voice/voice';
 import React, { useState, useRef, useEffect } from 'react';
 import {
   View,
@@ -18,12 +19,11 @@ import {
   Image,
   Modal,
   TextInput,
-  Platform,
 } from 'react-native';
 import { Camera, useCameraDevice } from 'react-native-vision-camera';
-import Voice from '@react-native-voice/voice';
-import CameraService from '../services/CameraService';
+
 import { useAuth } from '../hooks/useAuth';
+import CameraService from '../services/CameraService';
 import {
   DamageReportCameraProps,
   DamageAngle,

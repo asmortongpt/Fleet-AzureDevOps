@@ -8,6 +8,7 @@
 
 import { EventEmitter } from 'events'
 import { createServer } from 'http'
+
 import { WebSocketServer, WebSocket } from 'ws'
 
 interface VehicleState {

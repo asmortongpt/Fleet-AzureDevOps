@@ -10,9 +10,11 @@
  * Run with: npm run bench:regression
  */
 
-import { describe, test, expect } from 'vitest';
 import fs from 'fs';
 import path from 'path';
+
+import { describe, test, expect } from 'vitest';
+
 import {
   runBenchmark,
   compareToBaseline,
@@ -21,8 +23,6 @@ import {
 } from './utils/performance-metrics';
 import {
   generateVehicles,
-  generateFacilities,
-  generateCameras,
 } from './utils/test-data-generator';
 
 // ============================================================================
@@ -123,7 +123,7 @@ function getSystemMetadata() {
 // ============================================================================
 
 describe('Performance Regression Tests', () => {
-  let currentResults: BenchmarkResult[] = [];
+  const currentResults: BenchmarkResult[] = [];
 
   test('Baseline: Map initialization', async () => {
     const result = await runBenchmark(
