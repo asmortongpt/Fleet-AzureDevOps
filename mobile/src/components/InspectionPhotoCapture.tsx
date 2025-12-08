@@ -21,8 +21,9 @@ import {
   FlatList,
 } from 'react-native';
 import { Camera, useCameraDevice } from 'react-native-vision-camera';
-import CameraService from '../services/CameraService';
+
 import { useAuth } from '../hooks/useAuth';
+import CameraService from '../services/CameraService';
 import {
   InspectionPhotoCaptureProps,
   InspectionChecklistItem,

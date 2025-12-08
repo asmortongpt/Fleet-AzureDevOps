@@ -9,9 +9,10 @@
  * Target: 99%+ validation score on all three tools
  */
 
-import axios from 'axios';
 import * as fs from 'fs';
 import * as path from 'path';
+
+import axios from 'axios';
 
 interface ValidationResult {
   tool: 'cursor' | 'datadog' | 'retool';

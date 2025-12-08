@@ -2,21 +2,22 @@
  * Server configuration with GPS routes
  */
 
-import express from 'express'
 import cors from 'cors'
-import vehiclesRouter from './routes/vehicles'
+import express from 'express'
+
+import { gpsEmulator } from './emulators/GPSEmulator'
 import driversRouter from './routes/drivers'
 import fuelRouter from './routes/fuel-transactions'
-import maintenanceRouter from './routes/maintenance'
+import gpsRouter from './routes/gps'
 import incidentsRouter from './routes/incidents'
-import partsRouter from './routes/parts'
-import vendorsRouter from './routes/vendors'
 import invoicesRouter from './routes/invoices'
+import maintenanceRouter from './routes/maintenance'
+import partsRouter from './routes/parts'
 import purchaseOrdersRouter from './routes/purchase-orders'
+import vehiclesRouter from './routes/vehicles'
+import vendorsRouter from './routes/vendors'
 import tasksRouter from './routes/tasks'
 import chargesRouter from './routes/personal-use-charges'
-import gpsRouter from './routes/gps'
-import { gpsEmulator } from './emulators/GPSEmulator'
 
 const app = express()
 const PORT = process.env.PORT || 3001

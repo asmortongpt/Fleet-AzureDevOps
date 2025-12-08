@@ -4,6 +4,7 @@
  */
 
 import type { LayerWithStatus, LayerExportData } from "../types"
+
 import type { ArcGISLayerConfig } from "@/lib/arcgis/types"
 
 /**

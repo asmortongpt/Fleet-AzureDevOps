@@ -1,8 +1,9 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { MaintenanceService } from '../../src/services/MaintenanceService';
+
 import { MaintenanceRepository } from '../../src/repositories/MaintenanceRepository';
 import { VehicleRepository } from '../../src/repositories/VehicleRepository';
 import { Logger } from '../../src/services/Logger';
+import { MaintenanceService } from '../../src/services/MaintenanceService';
 
 describe('MaintenanceService', () => {
   let service: MaintenanceService;

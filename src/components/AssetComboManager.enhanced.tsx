@@ -10,7 +10,6 @@
  * - Props match Task 4.4 specification
  */
 
-import React, { useState, useEffect } from 'react'
 import {
   Link,
   LinkBreak,
@@ -22,15 +21,9 @@ import {
   CalendarBlank,
   User
 } from '@phosphor-icons/react'
+import React, { useState, useEffect } from 'react'
 import { toast } from 'sonner'
-import { Button } from '@/components/ui/button'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from '@/components/ui/select'
+
 import {
   AlertDialog,
   AlertDialogAction,
@@ -42,6 +35,14 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger
 } from '@/components/ui/alert-dialog'
+import { Button } from '@/components/ui/button'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select'
 import type {
   ActiveAssetCombination,
   RelationshipHistoryEntry,

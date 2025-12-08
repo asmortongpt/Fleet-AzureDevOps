@@ -15,8 +15,9 @@
  */
 
 import { describe, it, expect, beforeAll } from 'vitest'
-import { checkDatabaseConnection } from './setup'
+
 import { API_ENDPOINTS, HTTP_STATUS } from './fixtures'
+import { checkDatabaseConnection } from './setup'
 
 const BASE_URL = process.env.TEST_API_URL || 'http://localhost:3000'
 

@@ -13,10 +13,10 @@
  * to provide the best search experience.
  */
 
+import { Pool } from 'pg'
+
 import SearchIndexService, { SearchQuery, SearchResult, SearchStats } from './SearchIndexService'
 import DocumentRAGService, { SearchResult as RAGSearchResult } from './document-rag.service'
-import { Pool } from 'pg'
-import logger from '../utils/logger'
 
 export interface UnifiedSearchRequest {
   query: string

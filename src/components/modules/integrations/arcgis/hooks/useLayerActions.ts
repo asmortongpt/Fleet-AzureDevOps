@@ -4,9 +4,11 @@
  */
 
 import { useCallback } from "react"
-import { apiClient } from "@/lib/api-client"
+
 import type { LayerWithStatus } from "../types"
 import { toggleLayerEnabled, updateLayerOpacity, duplicateLayer, swapArrayItems } from "../utils/layerUtils"
+
+import { apiClient } from "@/lib/api-client"
 
 interface UseLayerActionsProps {
   layers: LayerWithStatus[]

@@ -14,12 +14,12 @@
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import NetInfo, { NetInfoState } from '@react-native-community/netinfo';
+import { AppState, AppStateStatus } from 'react-native';
+
 import PhotoUploadService, {
   UploadOptions,
-  UploadProgress,
   UploadResult,
 } from './PhotoUploadService';
-import { AppState, AppStateStatus } from 'react-native';
 
 export interface QueuedPhoto {
   id: string;

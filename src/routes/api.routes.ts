@@ -1,6 +1,7 @@
 import express from 'express';
-import { ApiResponse } from '../utils/apiResponse';
+
 import { apiResponseMiddleware } from '../middleware/apiResponseMiddleware';
+import { ApiResponse } from '../utils/apiResponse';
 
 const router = express.Router();
 

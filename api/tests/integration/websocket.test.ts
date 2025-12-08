@@ -10,7 +10,7 @@
  * - Connection resilience
  */
 
-import { describe, it, expect, beforeAll, afterAll, beforeEach, afterEach } from 'vitest'
+import { describe, it, expect, afterEach } from 'vitest'
 import WebSocket from 'ws'
 
 const WS_URL = process.env.WS_URL || 'ws://localhost:3000'

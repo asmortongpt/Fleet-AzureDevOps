@@ -4,16 +4,17 @@
  * SECURITY: Uses DOMPurify to sanitize HTML and prevent XSS attacks
  */
 
-import { useState, useEffect } from 'react';
-import { sanitizeHtml } from '@/utils/xss-sanitizer'
 
-import { Copy, Check, Search, Download } from 'lucide-react';
 import DOMPurify from 'dompurify';
+import { Copy, Check, Search, Download } from 'lucide-react';
+import { useState, useEffect } from 'react';
+
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Badge } from '@/components/ui/badge';
 import { DocumentMetadata } from '@/lib/documents/types';
+import { sanitizeHtml } from '@/utils/xss-sanitizer'
 
 interface CodeViewerProps {
   document: DocumentMetadata;

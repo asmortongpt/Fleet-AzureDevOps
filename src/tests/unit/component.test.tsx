@@ -2,7 +2,8 @@
  * Component Unit Tests with React Testing Library
  * Tests individual components in isolation
  */
-import { describe, it, expect, vi } from 'vitest';import { render, screen, fireEvent } from '@testing-library/react';import '@testing-library/jest-dom';
+import { render, screen, fireEvent } from '@testing-library/react';
+import { describe, it, expect, vi } from 'vitest';import '@testing-library/jest-dom';
 
 // Mock components for testing (update paths as needed)
 describe('Button Component', () => {

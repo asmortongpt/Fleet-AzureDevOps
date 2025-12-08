@@ -1,5 +1,6 @@
 import { z } from 'zod';
-import { uuidSchema, emailSchema, urlSchema } from './common.schema';
+
+import { uuidSchema } from './common.schema';
 
 /**
  * Comprehensive Zod validation schemas for Settings & Configuration

@@ -5,14 +5,13 @@
  */
 
 import { Request, Response, NextFunction } from 'express';
+
 import {
-  ApplicationError,
   isApplicationError,
-  isOperationalError,
   InternalServerError
 } from '../errors/ApplicationError';
-import { sanitizeForLog, sanitizeRequestForLog } from '../utils/logSanitizer';
 import telemetryService from '../monitoring/applicationInsights';
+import { sanitizeForLog, sanitizeRequestForLog } from '../utils/logSanitizer';
 
 /**
  * Extended request interface with telemetry tracking

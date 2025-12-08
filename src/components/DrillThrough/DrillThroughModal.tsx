@@ -1,5 +1,6 @@
+import { X, Filter, RefreshCw, ChevronLeft, ChevronRight } from 'lucide-react';
 import React, { useMemo, useState } from 'react';
-import { X, Download, Filter, RefreshCw, ChevronLeft, ChevronRight } from 'lucide-react';
+
 import { useDrillThrough } from '../../hooks/drill-through/useDrillThrough';
 import type { DrillThroughConfig, ExportFormat } from '../../types/drill-through';
 

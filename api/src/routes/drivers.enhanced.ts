@@ -1,18 +1,14 @@
+import csurf from 'csurf'
 import express, { Response } from 'express'
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
+import rateLimit from 'express-rate-limit'
+import helmet from 'helmet'
+
+import { auditLog } from '../middleware/audit'
 import { AuthRequest, authenticateJWT } from '../middleware/auth'
 import { requirePermission } from '../middleware/permissions'
-import { auditLog } from '../middleware/audit'
-import { applyFieldMasking } from '../utils/fieldMasking'
-import { z } from 'zod'
-import { buildInsertClause, buildUpdateClause } from '../utils/sql-safety'
-import { createUserSchema, updateUserSchema } from '../validation/schemas'
-import helmet from 'helmet'
-import rateLimit from 'express-rate-limit'
-import csurf from 'csurf'
 import { tenantSafeQuery } from '../utils/dbHelpers'
+import { applyFieldMasking } from '../utils/fieldMasking'
+
 
 const router = express.Router()
 
@@ -50,7 +46,7 @@ router.get(
 
       const user = userResult.rows[0]
       let scopeFilter = ''
-      let scopeParams: any[] = [req.user!.tenant_id]
+      const scopeParams: any[] = [req.user!.tenant_id]
 
       if (user.scope_level === `own` && user.driver_id) {
         // Drivers only see themselves

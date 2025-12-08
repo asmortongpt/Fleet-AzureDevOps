@@ -4,9 +4,11 @@
  */
 
 import { useEffect, useCallback, useRef } from "react"
-import type { Vehicle, GISFacility, TrafficCamera } from "@/lib/types"
+
 import { createVehicleIcon, createFacilityIcon, createCameraIcon } from "../utils/icons"
 import { createVehiclePopup, createFacilityPopup, createCameraPopup } from "../utils/popups"
+
+import type { Vehicle, GISFacility, TrafficCamera } from "@/lib/types"
 
 export type MarkerType = "vehicle" | "facility" | "camera"
 

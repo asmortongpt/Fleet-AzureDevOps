@@ -1,13 +1,10 @@
-import express, { Request, Response } from 'express'
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
 import axios from 'axios'
+import express, { Request, Response } from 'express'
 import jwt from 'jsonwebtoken'
+
+import { pool } from '../db'
 import { createAuditLog } from '../middleware/audit'
 import { getValidatedFrontendUrl, buildSafeRedirectUrl } from '../utils/redirect-validator'
-import { pool } from '../db'
-import { csrfProtection } from '../middleware/csrf'
 
 
 const router = express.Router()
@@ -107,7 +104,7 @@ router.get('/microsoft/callback', async (req: Request, res: Response) => {
     console.log('Final VALIDATED tenant_id being used:', tenantId)
 
     // Check if user exists
-    let userResult = await pool.query(
+    const userResult = await pool.query(
       `SELECT
       id,
       tenant_id,
