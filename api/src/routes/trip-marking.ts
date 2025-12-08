@@ -238,8 +238,8 @@ router.post(
           estimated_charge
         },
         message: approval_status === ApprovalStatus.AUTO_APPROVED
-          ? `Trip marked and auto-approved`
-          : 'Trip marked - pending approval'
+                  ? 'Trip marked and auto-approved'
+                  : 'Trip marked - pending approval'
       })
     } catch (error: any) {
       logger.error('Mark trip error:', error) // Wave 19: Winston logger
