@@ -3,9 +3,11 @@
  * @module ArcGIS/components/LayerHealthBadge
  */
 
-import { Badge } from "@/components/ui/badge"
 import { CheckCircle, XCircle, Info } from "@phosphor-icons/react"
+
 import type { LayerHealth } from "../types"
+
+import { Badge } from "@/components/ui/badge"
 
 interface LayerHealthBadgeProps {
   health?: LayerHealth

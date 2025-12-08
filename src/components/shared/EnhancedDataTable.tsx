@@ -38,7 +38,16 @@
  * ```
  */
 
-import { ReactNode, useState, useMemo } from 'react'
+import {
+  CaretUp,
+  CaretDown,
+  CaretUpDown,
+  MagnifyingGlass,
+  DownloadSimple,
+  Columns,
+  CaretLeft,
+  CaretRight
+} from '@phosphor-icons/react'
 import {
   ColumnDef,
   flexRender,
@@ -51,8 +60,19 @@ import {
   VisibilityState,
   useReactTable
 } from '@tanstack/react-table'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { useState, useMemo } from 'react'
+
+import { LoadingSkeleton } from './LoadingSkeleton'
+
 import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Checkbox } from '@/components/ui/checkbox'
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu'
 import { Input } from '@/components/ui/input'
 import {
   Select,
@@ -61,26 +81,8 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select'
-import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuTrigger
-} from '@/components/ui/dropdown-menu'
-import { Checkbox } from '@/components/ui/checkbox'
-import { LoadingSkeleton } from './LoadingSkeleton'
-import { cn } from '@/lib/utils'
-import {
-  CaretUp,
-  CaretDown,
-  CaretUpDown,
-  MagnifyingGlass,
-  DownloadSimple,
-  Columns,
-  CaretLeft,
-  CaretRight
-} from '@phosphor-icons/react'
 import { exportToCSV, exportToExcel } from '@/lib/export-utils'
+import { cn } from '@/lib/utils'
 
 export interface EnhancedDataTableProps<T> {
   data: T[]

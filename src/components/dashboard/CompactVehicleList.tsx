@@ -1,6 +1,7 @@
-import { useMemo, useRef, useEffect, useState } from "react"
 import { Car, BatteryMedium, Circle, ArrowRight } from "@phosphor-icons/react"
 import { motion } from "framer-motion"
+import { useMemo, useRef, useEffect, useState } from "react"
+
 import { Vehicle } from "@/lib/types"
 import { cn } from "@/lib/utils"
 

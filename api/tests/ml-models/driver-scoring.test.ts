@@ -4,8 +4,9 @@
  */
 
 import { describe, it, expect, beforeAll, afterAll } from 'vitest'
-import { DriverScoringModel, DriverMetrics, DriverScore } from '../../src/ml-models/driver-scoring.model'
-import { testPool, seedTestDatabase, cleanupDatabase, closeTestDatabase } from '../setup'
+
+import { DriverScoringModel, DriverMetrics } from '../../src/ml-models/driver-scoring.model'
+import { seedTestDatabase, cleanupDatabase, closeTestDatabase } from '../setup'
 
 describe('DriverScoringModel', () => {
   let model: DriverScoringModel

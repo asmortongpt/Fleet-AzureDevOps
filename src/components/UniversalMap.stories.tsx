@@ -1,7 +1,9 @@
 import type { Meta, StoryObj } from "@storybook/react"
-import { UniversalMap } from "./UniversalMap"
-import { generateMockVehicles, generateMockFacilities, generateMockCameras, generateLargeVehicleDataset } from "../../.storybook/mockData"
+
 import { withMapContainer } from "../../.storybook/decorators"
+import { generateMockVehicles, generateMockFacilities, generateMockCameras, generateLargeVehicleDataset } from "../../.storybook/mockData"
+
+import { UniversalMap } from "./UniversalMap"
 
 const meta = {
   title: "Maps/UniversalMap",

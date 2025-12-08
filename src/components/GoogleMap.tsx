@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from "react"
-import { Vehicle, GISFacility, TrafficCamera } from "@/lib/types"
+
 import { usePerformanceMonitor } from "@/hooks/usePerformanceMonitor"
+import { Vehicle, GISFacility, TrafficCamera } from "@/lib/types"
 
 /**
  * Props for the GoogleMap component

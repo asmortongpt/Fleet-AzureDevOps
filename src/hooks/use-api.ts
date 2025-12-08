@@ -1,5 +1,4 @@
 import { useQuery, useMutation, useQueryClient, QueryClient, QueryKey } from '@tanstack/react-query';
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 
 /**
  * SECURITY (CRIT-F-002): CSRF Protection Implementation

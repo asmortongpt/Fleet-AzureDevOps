@@ -1,10 +1,3 @@
-import { useMemo } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { MetricCard } from "@/components/MetricCard"
-import { ChartCard } from "@/components/ChartCard"
 import { 
   GasPump, 
   CurrencyDollar,
@@ -14,7 +7,14 @@ import {
   MapPin,
   Plus
 } from "@phosphor-icons/react"
-import { useState } from "react"
+import { useMemo , useState } from "react"
+
+import { ChartCard } from "@/components/ChartCard"
+import { MetricCard } from "@/components/MetricCard"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { useFleetData } from "@/hooks/use-fleet-data"
 
 interface FuelManagementProps {

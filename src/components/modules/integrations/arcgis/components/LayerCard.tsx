@@ -3,9 +3,16 @@
  * @module ArcGIS/components/LayerCard
  */
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
+import { Eye, EyeSlash, DotsThree, Copy, Trash, CaretUp, CaretDown } from "@phosphor-icons/react"
+
+import type { LayerWithStatus, LayerOperationState } from "../types"
+
+import { LayerControls } from "./LayerControls"
+import { LayerHealthBadge } from "./LayerHealthBadge"
+
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,10 +20,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Eye, EyeSlash, DotsThree, Copy, Trash, CaretUp, CaretDown } from "@phosphor-icons/react"
-import type { LayerWithStatus, LayerOperationState } from "../types"
-import { LayerHealthBadge } from "./LayerHealthBadge"
-import { LayerControls } from "./LayerControls"
 
 interface LayerCardProps {
   layer: LayerWithStatus

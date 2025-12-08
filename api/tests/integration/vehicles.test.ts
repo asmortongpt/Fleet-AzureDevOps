@@ -17,6 +17,13 @@
  */
 
 import { describe, it, expect, beforeAll, afterAll } from 'vitest'
+
+import {
+  API_ENDPOINTS,
+  HTTP_STATUS,
+  INVALID_VEHICLE_DATA,
+  createVehicleFixture
+} from './fixtures'
 import {
   TEST_USERS,
   TEST_VEHICLES,
@@ -24,12 +31,6 @@ import {
   checkDatabaseConnection,
   testPool
 } from './setup'
-import {
-  API_ENDPOINTS,
-  HTTP_STATUS,
-  INVALID_VEHICLE_DATA,
-  createVehicleFixture
-} from './fixtures'
 
 const BASE_URL = process.env.TEST_API_URL || 'http://localhost:3000'
 

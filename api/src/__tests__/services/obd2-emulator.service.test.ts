@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+
 import { OBD2EmulatorService } from '../services/obd2-emulator.service';
 
 /**

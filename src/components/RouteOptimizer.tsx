@@ -18,17 +18,6 @@
  * @module RouteOptimizer
  */
 
-import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
-import { Button } from './ui/button'
-import { Input } from './ui/input'
-import { Label } from './ui/label'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select'
-import { Alert, AlertDescription } from './ui/alert'
-import { Badge } from './ui/badge'
-import { UniversalMap } from './UniversalMap'
-import { useFleetData } from '@/hooks/use-fleet-data'
-import { toast } from 'sonner'
 import {
   Loader2,
   Plus,
@@ -38,13 +27,25 @@ import {
   Clock,
   DollarSign,
   MapPin,
-  Upload,
   Download,
   AlertCircle,
   CheckCircle,
   Navigation,
   Zap
 } from 'lucide-react'
+import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react'
+import { toast } from 'sonner'
+
+import { UniversalMap } from './UniversalMap'
+import { Alert, AlertDescription } from './ui/alert'
+import { Badge } from './ui/badge'
+import { Button } from './ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
+import { Input } from './ui/input'
+import { Label } from './ui/label'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select'
+
+import { useFleetData } from '@/hooks/use-fleet-data'
 import type { Vehicle, GISFacility } from '@/lib/types'
 
 /**

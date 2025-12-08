@@ -1,11 +1,12 @@
 // Import necessary modules
+import { exit } from 'process';
+
 import { Worker, Queue } from 'bull';
 import { Workbook } from 'exceljs';
+import { FleetLocal } from 'fleet-local'; // Assuming FleetLocal is an existing module
 import Redis from 'ioredis';
 import { createLogger, transports, format } from 'winston';
-import { promisify } from 'util';
-import { FleetLocal } from 'fleet-local'; // Assuming FleetLocal is an existing module
-import { exit } from 'process';
+
 
 // Initialize Redis client
 const redisClient = new Redis();

@@ -3,21 +3,20 @@
  * Real-time fleet tracking, driver safety, and compliance
  */
 
-import express, { Response } from 'express'
-import { AuthRequest, authenticateJWT } from '../middleware/auth'
-import { requirePermission, rateLimit } from '../middleware/permissions'
-import { auditLog } from '../middleware/audit'
-import SamsaraService from '../services/samsara.service'
 import crypto from 'crypto'
-import { cacheMiddleware, invalidateOnWrite } from '../middleware/cache'
-import { getErrorMessage } from '../utils/error-handler'
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
-import logger from '../config/logger' // Wave 23: Add Winston logger
+
+import express, { Response } from 'express'
+
 import pool from '../config/database' // SECURITY: Import database pool
-import { tenantSafeQuery, tenantSafeQueryMany } from '../utils/dbHelpers'
+import logger from '../config/logger' // Wave 23: Add Winston logger
+import { NotFoundError, ValidationError } from '../errors/app-error'
+import { auditLog } from '../middleware/audit'
+import { AuthRequest, authenticateJWT } from '../middleware/auth'
 import { csrfProtection } from '../middleware/csrf'
+import { requirePermission, rateLimit } from '../middleware/permissions'
+import SamsaraService from '../services/samsara.service'
+import { tenantSafeQuery } from '../utils/dbHelpers'
+import { getErrorMessage } from '../utils/error-handler'
  // SECURITY: Tenant-safe query helpers
 
 const router = express.Router()
@@ -322,20 +321,20 @@ router.get(
       const offset = (Number(page) - 1) * Number(limit)
 
       // SECURITY: Build tenant-safe safety events query with defense in depth
-      let query = `
-        SELECT
-          dse.id, dse.event_type, dse.severity, dse.latitude, dse.longitude,
-          dse.address, dse.speed_mph, dse.g_force, dse.timestamp,
-          dse.video_url, dse.video_thumbnail_url,
-          v.name as vehicle_name, v.vin,
-          d.first_name || ' ' || d.last_name as driver_name,
-          tp.display_name as provider
-        FROM driver_safety_events dse
-        JOIN vehicles v ON dse.vehicle_id = v.id
-        LEFT JOIN drivers d ON dse.driver_id = d.id
-        LEFT JOIN telematics_providers tp ON dse.provider_id = tp.id
-        WHERE v.tenant_id = $1 AND dse.tenant_id = $1
-      `
+      // FIX CRIT-B-001: Use regular string instead of template literal to avoid S6958 warning
+      let query =
+        'SELECT ' +
+        '  dse.id, dse.event_type, dse.severity, dse.latitude, dse.longitude, ' +
+        '  dse.address, dse.speed_mph, dse.g_force, dse.timestamp, ' +
+        '  dse.video_url, dse.video_thumbnail_url, ' +
+        '  v.name as vehicle_name, v.vin, ' +
+        '  d.first_name || \' \' || d.last_name as driver_name, ' +
+        '  tp.display_name as provider ' +
+        'FROM driver_safety_events dse ' +
+        'JOIN vehicles v ON dse.vehicle_id = v.id ' +
+        'LEFT JOIN drivers d ON dse.driver_id = d.id ' +
+        'LEFT JOIN telematics_providers tp ON dse.provider_id = tp.id ' +
+        'WHERE v.tenant_id = $1 AND dse.tenant_id = $1'
       const params: any[] = [req.user!.tenant_id]
 
       if (vehicle_id) {

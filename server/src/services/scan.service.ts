@@ -1,11 +1,14 @@
-import { AssetService } from './asset.service';
-import { LocationService } from './location.service';
-import { Pool } from 'pg';
-import { Logger } from '../utils/logger';
-import { AuditLogger } from '../utils/auditLogger';
-import { validateScanType, validateCoordinates } from '../utils/validators';
 import { Request, Response, NextFunction } from 'express';
 import helmet from 'helmet';
+import { Pool } from 'pg';
+
+import { AuditLogger } from '../utils/auditLogger';
+import { Logger } from '../utils/logger';
+import { validateScanType, validateCoordinates } from '../utils/validators';
+
+import { AssetService } from './asset.service';
+import { LocationService } from './location.service';
+
 
 const pool = new Pool();
 const logger = new Logger();

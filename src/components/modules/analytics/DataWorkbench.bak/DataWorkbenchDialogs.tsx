@@ -1,7 +1,9 @@
+import { MagnifyingGlass } from "@phosphor-icons/react"
 import { useState } from "react"
+
+import { AdvancedSearchCriteria } from "./types"
+
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import {
   Dialog,
   DialogContent,
@@ -10,6 +12,8 @@ import {
   DialogTitle,
   DialogFooter
 } from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import {
   Select,
   SelectContent,
@@ -17,9 +21,8 @@ import {
   SelectTrigger,
   SelectValue
 } from "@/components/ui/select"
-import { MagnifyingGlass, Plus } from "@phosphor-icons/react"
 import { Vehicle } from "@/lib/types"
-import { AdvancedSearchCriteria } from "./types"
+
 
 interface DataWorkbenchDialogsProps {
   vehicles: Vehicle[]

@@ -12,9 +12,11 @@
  * This is the enhanced version with DNS-based IP validation.
  */
 
-import { URL } from 'url';
 import dns from 'dns/promises';
+import { URL } from 'url';
+
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
+
 import { logger } from './logger';
 
 // =============================================================================

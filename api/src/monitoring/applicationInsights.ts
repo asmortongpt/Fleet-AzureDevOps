@@ -1,5 +1,4 @@
 import * as appInsights from 'applicationinsights'
-import { Request, Response } from 'express'
 
 /**
  * Custom metrics interface for Application Insights

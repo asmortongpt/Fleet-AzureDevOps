@@ -10,8 +10,7 @@ import {
   mockFuelTransactions,
   mockFacilities,
   mockMaintenanceSchedules,
-  mockRoutes,
-  paginateResults
+  mockRoutes
 } from '../data/mock-data'
 
 export const useMockData = process.env.USE_MOCK_DATA === 'true' || process.env.NODE_ENV === 'test'

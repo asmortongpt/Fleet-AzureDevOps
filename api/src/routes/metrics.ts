@@ -1,14 +1,11 @@
 import { Router, Request, Response } from 'express'
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
+
 import { pool } from '../db'
-import { csrfProtection } from '../middleware/csrf'
 
 
 const router = Router()
 let requestCount = 0
-let errorCount = 0
+const errorCount = 0
 
 router.use((req, res, next) => {
   requestCount++

@@ -10,9 +10,8 @@
  * The saved state will be stored in: test-results/auth-state.json
  */
 
+
 import { test as setup } from '@playwright/test';
-import * as fs from 'fs';
-import * as path from 'path';
 
 const authFile = 'test-results/auth-state.json';
 

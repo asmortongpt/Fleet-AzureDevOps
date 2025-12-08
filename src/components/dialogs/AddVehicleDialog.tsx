@@ -1,13 +1,14 @@
+import { Plus } from "@phosphor-icons/react"
 import { useState, useEffect } from "react"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog" // DialogDescription available
+import { toast } from "sonner"
+
 import { Button } from "@/components/ui/button"
+import { Checkbox } from "@/components/ui/checkbox"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog" // DialogDescription available
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Plus } from "@phosphor-icons/react"
 import { Vehicle } from "@/lib/types"
-import { toast } from "sonner"
 import {
   AssetCategory,
   AssetType,

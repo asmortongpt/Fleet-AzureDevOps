@@ -1,13 +1,16 @@
+import { GasPump, TrendUp, ChartLine } from "@phosphor-icons/react"
 import { useState, useMemo } from "react"
+
+import { SortIcon } from "./SortIcon"
+import { FuelRecord, FuelMetrics, SortField, SortDirection } from "./types"
+
+import { MetricCard } from "@/components/MetricCard"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
-import { MetricCard } from "@/components/MetricCard"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { GasPump, TrendUp, ChartLine } from "@phosphor-icons/react"
 import { Vehicle } from "@/lib/types"
-import { SortIcon } from "./SortIcon"
-import { FuelRecord, FuelMetrics, SortField, SortDirection } from "./types"
+
 
 interface FuelTabProps {
   fuelRecords: FuelRecord[]

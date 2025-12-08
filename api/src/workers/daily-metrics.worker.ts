@@ -1,9 +1,9 @@
 // api/src/workers/daily-metrics.worker.ts
 
 import cron from 'node-cron';
-import { config } from '../config/config';
-import { logger } from '../utils/logger';
+
 import pool from '../config/database';
+import { logger } from '../utils/logger';
 
 /**
  * Refreshes materialized views to ensure data is up to date.

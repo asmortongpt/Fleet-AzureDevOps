@@ -1,34 +1,31 @@
-import React, { useState, useMemo } from "react";
-import { HubLayout } from "../../components/layout/HubLayout";
-import { GPSTracking } from "../../components/modules/GPSTracking";
-import { UnifiedFleetMap } from "../../components/maps/UnifiedFleetMap";
-import DispatchConsole from "../../components/DispatchConsole";
-import { FuelManagement } from "../../components/modules/FuelManagement";
-import { AssetManagement } from "../../components/modules/AssetManagement";
-import { useFleetData } from "../../hooks/use-fleet-data";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../components/ui/tabs";
-import { KPIStrip, KPIMetric } from "../../components/common/KPIStrip";
-import { DataGrid } from "../../components/common/DataGrid";
-import { ColumnDef } from "@tanstack/react-table";
-import { Badge } from "../../components/ui/badge";
-import { Card } from "../../components/ui/card";
-import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "../../components/ui/resizable";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "../../components/ui/collapsible";
-import { Button } from "../../components/ui/button";
 import {
   MapPin,
   Broadcast,
   GasPump,
   Package,
-  ChartLine,
   Truck,
   NavigationArrow,
-  Warning,
-  CheckCircle,
   Clock,
   ChevronDown,
   ChevronUp,
 } from "@phosphor-icons/react";
+import { ColumnDef } from "@tanstack/react-table";
+import React, { useState, useMemo } from "react";
+
+import { DataGrid } from "../../components/common/DataGrid";
+import { KPIStrip, KPIMetric } from "../../components/common/KPIStrip";
+import { HubLayout } from "../../components/layout/HubLayout";
+import { UnifiedFleetMap } from "../../components/maps/UnifiedFleetMap";
+import { AssetManagement } from "../../components/modules/AssetManagement";
+import { FuelManagement } from "../../components/modules/FuelManagement";
+import { Badge } from "../../components/ui/badge";
+import { Button } from "../../components/ui/button";
+import { Card } from "../../components/ui/card";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "../../components/ui/collapsible";
+import { ResizablePanelGroup, ResizablePanel } from "../../components/ui/resizable";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../components/ui/tabs";
+import { useFleetData } from "../../hooks/use-fleet-data";
+
 
 type OperationsModule = "tracking" | "dispatch" | "fuel" | "assets";
 

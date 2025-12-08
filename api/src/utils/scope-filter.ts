@@ -152,7 +152,7 @@ export function applyScopeFilterForModification(
   }
 
   const params: any[] = [resourceId, user.tenant_id]
-  let paramIndex = 3
+  const paramIndex = 3
   const conditions: string[] = ['id = $1', 'tenant_id = $2']
 
   const scopeLevel = user.scope_level || 'global'
