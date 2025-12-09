@@ -1,21 +1,20 @@
 // Initialize Sentry before all other imports for proper error tracking
-import { initSentry } from "./lib/sentry"
-initSentry()
+import { initSentry } from "./lib/sentry";
+initSentry();
 
-import * as Sentry from "@sentry/react"
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
-import React from "react"
-import ReactDOM from "react-dom/client"
-import { BrowserRouter, Routes, Route } from "react-router-dom"
+import * as Sentry from "@sentry/react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import React from "react";
+import ReactDOM from "react-dom/client";
+import { RouterProvider } from "react-router-dom";
 
-import App from "./App"
-import { SentryErrorBoundary } from "./components/errors/SentryErrorBoundary"
-import { AuthProvider } from "./components/providers/AuthProvider"
-import { InspectProvider } from "./services/inspect/InspectContext"
-import "./index.css"
-import "./styles/design-tokens-responsive.css"
-import "./styles/responsive-utilities.css"
-import "./styles/dark-mode-enhancements.css"
+import { router } from "./router/routes";
+import { AuthProvider } from "./components/providers/AuthProvider";
+import { InspectProvider } from "./services/inspect/InspectContext";
+import "./index.css";
+import "./styles/design-tokens-responsive.css";
+import "./styles/responsive-utilities.css";
+import "./styles/dark-mode-enhancements.css";
 
 // Create a client
 const queryClient = new QueryClient({
@@ -26,47 +25,18 @@ const queryClient = new QueryClient({
       staleTime: 5 * 60 * 1000, // 5 minutes
     },
   },
-})
+});
 
-function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  // TEMPORARILY DISABLED: Authentication bypassed for direct dashboard access
-  // const { isAuthenticated, isLoading } = useAuth()
-
-  // if (isLoading) {
-  //   return <div>Loading authentication...</div>
-  // }
-
-  // if (!isAuthenticated) {
-  //   return <Navigate to="/login" replace />
-  // }
-
-  return <>{children}</>
-}
-
-// Use Sentry's BrowserRouter integration
-const SentryRoutes = Sentry.withSentryRouting(Routes)
+const SentryRouterProvider = Sentry.withSentryReactRouterV6Routing(RouterProvider);
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>
-      <SentryErrorBoundary level="page">
-        <AuthProvider>
-          <InspectProvider>
-            <BrowserRouter>
-              <SentryRoutes>
-                <Route
-                  path="/*"
-                  element={
-                    <SentryErrorBoundary level="section">
-                      <App />
-                    </SentryErrorBoundary>
-                  }
-                />
-              </SentryRoutes>
-            </BrowserRouter>
-          </InspectProvider>
-        </AuthProvider>
-      </SentryErrorBoundary>
+      <AuthProvider>
+        <InspectProvider>
+          <SentryRouterProvider router={router} />
+        </InspectProvider>
+      </AuthProvider>
     </QueryClientProvider>
   </React.StrictMode>
-)
+);
