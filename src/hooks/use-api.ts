@@ -870,7 +870,7 @@ export function useRouteMutations() {
 
   return {
     create: createRoute.mutateAsync,
-    update: (id: string, data: Partial<Route>) => updateRoute.mutateAsync({ id, data }),
+    update: (id: string, data: Partial<Route>) => updateRouteMutation.mutateAsync({ id, data }),
     delete: deleteRoute.mutateAsync,
   };
 }

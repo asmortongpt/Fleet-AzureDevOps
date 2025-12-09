@@ -15,8 +15,8 @@
 
 import { format } from 'date-fns';
 import { AlertCircle, Play, Pause, StopCircle, MapPin } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
 import React, { useEffect, useRef, useState } from 'react';
-import useSWR from 'swr';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -120,18 +120,6 @@ function interpolatePosition(
 }
 
 // ============================================================================
-// Fetcher Function
-// ============================================================================
-
-const fetcher = async (url: string): Promise<TripBreadcrumbsResponse> => {
-  const response = await fetch(url);
-  if (!response.ok) {
-    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-  }
-  return response.json();
-};
-
-// ============================================================================
 // Main Component
 // ============================================================================
 
@@ -150,14 +138,17 @@ export function TripPlayback({ tripId, autoPlay = false }: TripPlaybackProps) {
   const lastUpdateTimeRef = useRef<number>(0);
 
   // Fetch trip breadcrumbs data
-  const { data, error, isLoading } = useSWR<TripBreadcrumbsResponse>(
-    tripId ? `/api/v1/vehicles/trips/${tripId}/breadcrumbs` : null,
-    fetcher,
-    {
-      revalidateOnFocus: false,
-      revalidateOnReconnect: false
-    }
-  );
+  const { data, error, isLoading } = useQuery<TripBreadcrumbsResponse>({
+    queryKey: ['tripBreadcrumbs', tripId],
+    queryFn: async () => {
+      const response = await fetch(`/api/v1/vehicles/trips/${tripId}/breadcrumbs`);
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+      return response.json();
+    },
+    enabled: !!tripId,
+  });
 
   // Initialize Leaflet map
   useEffect(() => {
