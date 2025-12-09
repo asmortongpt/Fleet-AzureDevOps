@@ -86,21 +86,24 @@ export function MainLayout() {
                       {section}
                     </p>
                     <div className="space-y-1">
-                      {items.map((item) => (
-                        <Button
-                          key={item.id}
-                          variant={
-                            activeModule.id === item.id ? "secondary" : "ghost"
-                          }
-                          className="w-full justify-start gap-2"
-                          asChild
-                        >
-                          <Link to={item.path}>
-                            {item.icon}
-                            <span className="text-sm">{item.label}</span>
-                          </Link>
-                        </Button>
-                      ))}
+                      {items.map((item) => {
+                        const Icon = item.icon;
+                        return (
+                          <Button
+                            key={item.id}
+                            variant={
+                              activeModule.id === item.id ? "secondary" : "ghost"
+                            }
+                            className="w-full justify-start gap-2"
+                            asChild
+                          >
+                            <Link to={item.path}>
+                              <Icon className="w-4 h-4" />
+                              <span className="text-sm">{item.label}</span>
+                            </Link>
+                          </Button>
+                        );
+                      })}
                     </div>
                   </div>
                 );
