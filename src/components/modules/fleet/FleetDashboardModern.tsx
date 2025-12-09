@@ -14,8 +14,7 @@ import {
   MagnifyingGlass,
   Circle,
   Broadcast,
-  Bell,
-  Activity
+  Bell
 } from "@phosphor-icons/react"
 import { useMemo, useState, useCallback } from "react"
 
@@ -414,7 +413,7 @@ export function FleetDashboardModern({ data }: FleetDashboardModernProps) {
           <Tabs defaultValue="alerts" className="h-full flex flex-col">
             <div className="compact-card-header flex-shrink-0">
               <div className="compact-card-title">
-                <Activity className="w-4 h-4" />
+                <Pulse className="w-4 h-4" />
                 Activity
               </div>
               <TabsList className="h-7">
