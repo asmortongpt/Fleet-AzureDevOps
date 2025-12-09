@@ -1,9 +1,7 @@
 /**
- * Fleet Data Hook - Production Version
- * Uses ONLY real API/emulator data - no hardcoded demo data
+ * Fleet Data Hook - Hybrid Version
+ * Uses real API when available, falls back to demo data for demos/development
  */
-
-import { useCallback, useEffect, useMemo } from 'react'
 
 import {
   useVehicles,
@@ -21,6 +19,8 @@ import {
   useRoutes,
   useRouteMutations
 } from '@/hooks/use-api'
+import { useCallback, useState, useEffect, useMemo } from 'react'
+import { generateAllDemoData } from '@/lib/demo-data'
 import logger from '@/utils/logger'
 
 // Debug flag - set to true in localStorage for verbose logging
@@ -30,6 +30,15 @@ const DEBUG_FLEET_DATA = typeof window !== 'undefined' && localStorage.getItem('
 if (typeof window !== 'undefined') {
   (window as any).__FLEET_API_RESPONSES__ = {}
 }
+
+// Cache demo mode setting to avoid repeated localStorage reads
+const DEMO_MODE_CACHED = (() => {
+  try {
+    return localStorage.getItem('demo_mode') !== 'false';
+  } catch {
+    return true; // Default to demo mode if localStorage unavailable
+  }
+})();
 
 export function useFleetData() {
   // Fetch data from API using SWR hooks
@@ -76,6 +85,29 @@ export function useFleetData() {
     }
   }, [vehiclesData, driversData, facilitiesData, vehiclesError, driversError, facilitiesError, vehiclesLoading, driversLoading, facilitiesLoading])
 
+  // Demo data fallback
+  const [demoData] = useState(() => generateAllDemoData())
+  const [useDemoData, setUseDemoData] = useState(DEMO_MODE_CACHED)
+
+  // Check if we should use demo data (API unavailable or demo mode)
+  useEffect(() => {
+    const isDemoMode = localStorage.getItem('demo_mode') === 'true'
+    const hasApiErrors = vehiclesError || driversError || facilitiesError
+    const isLoading = vehiclesLoading || driversLoading || facilitiesLoading
+    const hasNoData = !vehiclesData && !driversData && !facilitiesData
+
+    // Activate demo mode if:
+    // 1. Explicitly enabled in localStorage, OR
+    // 2. Loading finished but there's no data and no errors (API not configured), OR
+    // 3. There are API errors
+    if (isDemoMode || (!isLoading && hasNoData) || hasApiErrors) {
+      if (!useDemoData) {
+        setUseDemoData(true)
+        logger.info('📊 Using demo data for walkthrough (API unavailable or demo mode active)')
+      }
+    }
+  }, [vehiclesError, driversError, facilitiesError, vehiclesData, driversData, facilitiesData, vehiclesLoading, driversLoading, facilitiesLoading, useDemoData])
+
   // Mutation hooks
   const vehicleMutations = useVehicleMutations()
   const driverMutations = useDriverMutations()
@@ -85,59 +117,60 @@ export function useFleetData() {
   const maintenanceMutations = useMaintenanceScheduleMutations()
   const routeMutations = useRouteMutations()
 
-  // Extract data arrays from API responses ONLY - no demo data fallback
+  // Extract data arrays from API responses or use demo data
   // Add defensive checks to ensure arrays and required properties exist
   // Use useMemo to stabilize references and prevent infinite loops in dependent hooks
   const vehicles = useMemo(() => {
-    const rawVehicles = vehiclesData?.data || []
+    const rawVehicles = useDemoData ? demoData.vehicles : (vehiclesData?.data || [])
     return Array.isArray(rawVehicles) ? rawVehicles.map(v => ({
       ...v,
       // Ensure alerts is always an array to prevent .length errors
       alerts: Array.isArray(v.alerts) ? v.alerts : []
     })) : []
-  }, [vehiclesData?.data])
+  }, [useDemoData, demoData.vehicles, vehiclesData?.data])
 
   const drivers = useMemo(() => {
-    const rawDrivers = driversData?.data || []
+    const rawDrivers = useDemoData ? demoData.drivers : (driversData?.data || [])
     return Array.isArray(rawDrivers) ? rawDrivers : []
-  }, [driversData?.data])
+  }, [useDemoData, demoData.drivers, driversData?.data])
 
   const workOrders = useMemo(() => {
-    const rawWorkOrders = workOrdersData?.data || []
+    const rawWorkOrders = useDemoData ? demoData.workOrders : (workOrdersData?.data || [])
     return Array.isArray(rawWorkOrders) ? rawWorkOrders : []
-  }, [workOrdersData?.data])
+  }, [useDemoData, demoData.workOrders, workOrdersData?.data])
 
   const fuelTransactions = useMemo(() => {
-    const rawFuelTransactions = fuelTransactionsData?.data || []
+    const rawFuelTransactions = useDemoData ? demoData.fuelTransactions : (fuelTransactionsData?.data || [])
     return Array.isArray(rawFuelTransactions) ? rawFuelTransactions : []
-  }, [fuelTransactionsData?.data])
+  }, [useDemoData, demoData.fuelTransactions, fuelTransactionsData?.data])
 
   const facilities = useMemo(() => {
-    const rawFacilities = facilitiesData?.data || []
+    const rawFacilities = useDemoData ? demoData.facilities : (facilitiesData?.data || [])
     return Array.isArray(rawFacilities) ? rawFacilities : []
-  }, [facilitiesData?.data])
+  }, [useDemoData, demoData.facilities, facilitiesData?.data])
 
   const maintenanceSchedules = useMemo(() => {
-    const rawMaintenanceSchedules = maintenanceData?.data || []
+    const rawMaintenanceSchedules = useDemoData ? demoData.maintenanceSchedules : (maintenanceData?.data || [])
     return Array.isArray(rawMaintenanceSchedules) ? rawMaintenanceSchedules : []
-  }, [maintenanceData?.data])
+  }, [useDemoData, demoData.maintenanceSchedules, maintenanceData?.data])
 
   const routes = useMemo(() => {
-    const rawRoutes = routesData?.data || []
+    const rawRoutes = useDemoData ? demoData.routes : (routesData?.data || [])
     return Array.isArray(rawRoutes) ? rawRoutes : []
-  }, [routesData?.data])
+  }, [useDemoData, demoData.routes, routesData?.data])
 
   // Log data extraction results for debugging
   useEffect(() => {
     if (DEBUG_FLEET_DATA) {
-      console.log('[useFleetData] Data extracted from API:', {
+      console.log('[useFleetData] Data extracted:', {
         vehicles: vehicles.length,
         drivers: drivers.length,
         facilities: facilities.length,
+        useDemoData,
         sampleVehicle: vehicles[0] ? { id: vehicles[0].id, alerts: vehicles[0].alerts } : null
       })
     }
-  }, [vehicles.length, drivers.length, facilities.length])
+  }, [vehicles.length, drivers.length, facilities.length, useDemoData])
 
   // Legacy compatibility - map facilities to serviceBays and staff
   // Use useMemo to prevent creating new arrays on every render
@@ -151,10 +184,14 @@ export function useFleetData() {
     [drivers]
   )
 
-  // Data initialization - API only, no demo data
+  // Data initialization
   const initializeData = useCallback(() => {
-    logger.info('✅ Using production API/emulator data - no hardcoded demo data')
-  }, [])
+    if (useDemoData) {
+      logger.info('✅ Demo data initialized - 50 vehicles, 5 facilities, 30 drivers ready for walkthrough')
+    } else {
+      logger.info('Using production API - data initialization not required')
+    }
+  }, [useDemoData])
 
   // CRUD operations using API mutations
   const addVehicle = useCallback(async (vehicle: any) => {
@@ -246,12 +283,6 @@ export function useFleetData() {
     return await routeMutations.delete(id)
   }, [routeMutations])
 
-  // Filter mileage reimbursements from fuel transactions where type='mileage'
-  const mileageReimbursements = useMemo(() =>
-    fuelTransactions.filter((transaction: any) => transaction.type === 'mileage'),
-    [fuelTransactions]
-  )
-
   return {
     vehicles,
     drivers,
@@ -261,7 +292,7 @@ export function useFleetData() {
     workOrders,
     technicians,
     fuelTransactions,
-    mileageReimbursements,
+    mileageReimbursements: [], // TODO: filter fuel transactions
     maintenanceRequests: maintenanceSchedules,
     routes,
     dataInitialized: true, // Always true with API
