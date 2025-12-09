@@ -1,12 +1,13 @@
-<svg width="1100" height="300" viewBox="0 0 1100 300" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <rect width="1100" height="300" fill="white"/>
-  <g transform="translate(20,20)">
-    <rect x="0" y="0" width="260" height="260" rx="58" fill="#0B1020"/>
-    <rect x="65" y="55" width="26" height="150" rx="13" fill="#2D8CFF"/>
-    <rect x="97" y="55" width="110" height="26" rx="13" fill="#2D8CFF"/>
-    <rect x="97" y="122" width="86" height="26" rx="13" fill="#2D8CFF"/>
-    <circle cx="200" cy="200" r="18" fill="#6EE7FF"/>
+<svg width="220" height="60" viewBox="0 0 220 60" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+  <g transform="scale(0.2)">
+    <g transform="translate(20,20)">
+      <rect x="0" y="0" width="260" height="260" rx="58" fill="#0B1020"/>
+      <rect x="65" y="55" width="26" height="150" rx="13" fill="#2D8CFF"/>
+      <rect x="97" y="55" width="110" height="26" rx="13" fill="#2D8CFF"/>
+      <rect x="97" y="122" width="86" height="26" rx="13" fill="#2D8CFF"/>
+      <circle cx="200" cy="200" r="18" fill="#6EE7FF"/>
+    </g>
+    <text x="320" y="175" font-family="Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif"
+          font-size="140" font-weight="700" letter-spacing="4" fill="#0B1020">FLEET</text>
   </g>
-  <text x="320" y="175" font-family="Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif"
-        font-size="140" font-weight="700" letter-spacing="4" fill="#0B1020">FLEET</text>
 </svg>
