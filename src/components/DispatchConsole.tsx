@@ -171,10 +171,7 @@ export default function DispatchConsole() {
         }
       }
     } catch (error) {
-      // Silent in demo mode - API not running
-      if (import.meta.env.DEV) {
-        console.log('[Dispatch] API not available - using demo mode')
-      }
+      console.error('Failed to load channels:', error)
     }
   }
 
@@ -225,10 +222,7 @@ export default function DispatchConsole() {
         setEmergencyAlerts(data.alerts)
       }
     } catch (error) {
-      // Silent in demo mode - API not running
-      if (import.meta.env.DEV) {
-        console.log('[Dispatch] Emergency alerts API not available - using demo mode')
-      }
+      console.error('Failed to load emergency alerts:', error)
     }
   }
 
