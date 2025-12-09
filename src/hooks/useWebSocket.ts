@@ -41,8 +41,20 @@ export function useWebSocket(options: UseWebSocketOptions = {}) {
   const wsRef = useRef<WebSocket | null>(null)
   const reconnectCountRef = useRef(0)
   const listenersRef = useRef<NativeMap<string, Set<(data: any) => void>>>(new NativeMap())
+  const [websocketAvailable, setWebsocketAvailable] = useState(true)
+
+  // Check if demo mode is enabled (no WebSocket needed)
+  const isDemoMode = typeof window !== 'undefined' && localStorage.getItem('demo_mode') !== 'false'
 
   const connect = useCallback(() => {
+    // Skip WebSocket connection in demo mode
+    if (isDemoMode) {
+      logger.info('Demo mode enabled - skipping WebSocket connection')
+      setWebsocketAvailable(false)
+      setIsConnected(false)
+      return
+    }
+
     if (wsRef.current?.readyState === WebSocket.OPEN) {
       return
     }
@@ -53,6 +65,7 @@ export function useWebSocket(options: UseWebSocketOptions = {}) {
       ws.onopen = () => {
         logger.info('WebSocket connected')
         setIsConnected(true)
+        setWebsocketAvailable(true)
         reconnectCountRef.current = 0
         onOpen?.()
       }
@@ -63,16 +76,21 @@ export function useWebSocket(options: UseWebSocketOptions = {}) {
         wsRef.current = null
         onClose?.()
 
-        // Attempt to reconnect
+        // Attempt to reconnect only if not max attempts
         if (reconnectCountRef.current < reconnectAttempts) {
           reconnectCountRef.current++
           logger.info(`Reconnecting... (${reconnectCountRef.current}/${reconnectAttempts})`)
           setTimeout(connect, reconnectInterval)
+        } else {
+          // Max reconnect attempts reached - mark as unavailable
+          logger.warn('WebSocket unavailable after max reconnect attempts')
+          setWebsocketAvailable(false)
         }
       }
 
       ws.onerror = (error) => {
-        logger.error('WebSocket error:', { error })
+        logger.warn('WebSocket error - this is expected if backend is not running:', { error })
+        setWebsocketAvailable(false)
         onError?.(error)
       }
 
@@ -100,9 +118,10 @@ export function useWebSocket(options: UseWebSocketOptions = {}) {
 
       wsRef.current = ws
     } catch (error) {
-      logger.error('Error creating WebSocket:', { error })
+      logger.warn('Error creating WebSocket - falling back to demo mode:', { error })
+      setWebsocketAvailable(false)
     }
-  }, [url, reconnectInterval, reconnectAttempts, onOpen, onClose, onError, onMessage])
+  }, [url, reconnectInterval, reconnectAttempts, onOpen, onClose, onError, onMessage, isDemoMode])
 
   const disconnect = useCallback(() => {
     if (wsRef.current) {
@@ -139,12 +158,15 @@ export function useWebSocket(options: UseWebSocketOptions = {}) {
   }, [])
 
   useEffect(() => {
-    connect()
+    // Only connect if not in demo mode
+    if (!isDemoMode) {
+      connect()
+    }
 
     return () => {
       disconnect()
     }
-  }, [connect, disconnect])
+  }, [connect, disconnect, isDemoMode])
 
   return {
     isConnected,
@@ -152,7 +174,9 @@ export function useWebSocket(options: UseWebSocketOptions = {}) {
     send,
     subscribe,
     connect,
-    disconnect
+    disconnect,
+    websocketAvailable,
+    isDemoMode
   }
 }
 
