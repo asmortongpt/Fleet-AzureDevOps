@@ -121,58 +121,6 @@ export function GoogleMap({
   const hasValidApiKey = apiKey.length > 0
 
   /**
-   * Suppress Google Maps billing errors and deprecation warnings in console
-   * Prevents "BillingNotEnabledMapError" and deprecated Marker warnings from cluttering console in demo mode
-   */
-  useEffect(() => {
-    // Store original console functions
-    const originalConsoleError = console.error
-    const originalConsoleWarn = console.warn
-
-    // Override console.error to filter out Google Maps billing errors
-    console.error = (...args: any[]) => {
-      const errorMessage = args.join(' ')
-
-      // Suppress Google Maps billing and API errors
-      if (
-        errorMessage.includes('BillingNotEnabledMapError') ||
-        errorMessage.includes('Google Maps JavaScript API error') ||
-        (errorMessage.includes('maps.googleapis.com') && errorMessage.includes('error'))
-      ) {
-        // Silent in demo mode - these are expected when billing is not enabled
-        return
-      }
-
-      // Call original console.error for all other errors
-      originalConsoleError.apply(console, args)
-    }
-
-    // Override console.warn to filter out Google Maps deprecation warnings
-    console.warn = (...args: any[]) => {
-      const warnMessage = args.join(' ')
-
-      // Suppress Google Maps deprecation warnings
-      if (
-        warnMessage.includes('google.maps.Marker is deprecated') ||
-        warnMessage.includes('AdvancedMarkerElement') ||
-        (warnMessage.includes('maps.googleapis.com') && warnMessage.includes('deprecat'))
-      ) {
-        // Silent - we acknowledge these deprecations but they don't affect functionality
-        return
-      }
-
-      // Call original console.warn for all other warnings
-      originalConsoleWarn.apply(console, args)
-    }
-
-    // Cleanup on unmount
-    return () => {
-      console.error = originalConsoleError
-      console.warn = originalConsoleWarn
-    }
-  }, [])
-
-  /**
    * Load Google Maps JavaScript API
    * Uses global promise to prevent duplicate script injections
    */
@@ -209,7 +157,7 @@ export function GoogleMap({
 
       // Create and configure script element
       const script = document.createElement("script")
-      script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places,geometry,drawing,marker&loading=async`
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places,geometry,drawing`
       script.async = true
       script.defer = true
 
@@ -296,8 +244,7 @@ export function GoogleMap({
    * Initialize or update map instance
    */
   useEffect(() => {
-    // Comprehensive check: ensure google.maps API is FULLY loaded including ControlPosition
-    if (!mapRef.current || !window.google?.maps || !window.google?.maps?.ControlPosition || isLoading || error) {
+    if (!mapRef.current || !window.google?.maps || isLoading || error) {
       return
     }
 
@@ -423,14 +370,6 @@ export function GoogleMap({
               strokeWeight: 2,
               scale: 8,
             },
-          })
-
-          // Add test ID to marker element after it's created
-          google.maps.event.addListenerOnce(marker, 'tilesloaded', () => {
-            const markerElement = marker.getElement?.()
-            if (markerElement) {
-              markerElement.setAttribute('data-testid', 'vehicle-marker')
-            }
           })
 
           const infoWindow = new google.maps.InfoWindow({
@@ -736,8 +675,8 @@ function createVehicleInfoHTML(vehicle: Vehicle): string {
       : "Unknown")
 
   return `
-    <div data-testid="marker-popup" style="padding: 14px; min-width: 220px; max-width: 320px; font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;">
-      <div data-testid="popup-vehicle-id" style="font-weight: 600; font-size: 15px; margin-bottom: 10px; color: #1f2937; border-bottom: 2px solid #e5e7eb; padding-bottom: 6px;">
+    <div style="padding: 14px; min-width: 220px; max-width: 320px; font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;">
+      <div style="font-weight: 600; font-size: 15px; margin-bottom: 10px; color: #1f2937; border-bottom: 2px solid #e5e7eb; padding-bottom: 6px;">
         ${escapeHTML(vehicle.name)}
       </div>
       <div style="font-size: 13px; color: #4b5563; margin-bottom: 6px; display: flex; justify-content: space-between;">
@@ -746,7 +685,7 @@ function createVehicleInfoHTML(vehicle: Vehicle): string {
       </div>
       <div style="font-size: 13px; color: #4b5563; margin-bottom: 6px; display: flex; justify-content: space-between;">
         <strong style="color: #6b7280;">Status:</strong>
-        <span data-testid="popup-vehicle-status" style="color: ${getVehicleColor(vehicle.status)}; font-weight: 600; text-transform: uppercase; font-size: 12px;">
+        <span style="color: ${getVehicleColor(vehicle.status)}; font-weight: 600; text-transform: uppercase; font-size: 12px;">
           ${escapeHTML(vehicle.status)}
         </span>
       </div>
