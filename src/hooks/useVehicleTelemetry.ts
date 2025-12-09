@@ -71,23 +71,20 @@ export function useVehicleTelemetry(options: UseVehicleTelemetryOptions = {}) {
     onEmulatorEvent
   } = options
 
-  // Check if demo mode is enabled (no WebSocket needed)
-  const isDemoMode = typeof window !== 'undefined' && localStorage.getItem('demo_mode') !== 'false'
-
   // Vehicle state with real-time updates
   const [vehicles, setVehicles] = useState<NativeMap<string, Vehicle>>(
     new NativeMap(initialVehicles.map(v => [v.id, v]))
   )
   const [telemetryHistory, setTelemetryHistory] = useState<NativeMap<string, TelemetryUpdate[]>>(new NativeMap())
   const [emulatorStats, setEmulatorStats] = useState<EmulatorStats | null>(null)
-  const [isEmulatorRunning, setIsEmulatorRunning] = useState(isDemoMode) // Always running in demo mode
+  const [isEmulatorRunning, setIsEmulatorRunning] = useState(false)
   const [lastUpdate, setLastUpdate] = useState<Date | null>(null)
   const [recentEvents, setRecentEvents] = useState<WebSocketMessage[]>([])
 
   const vehiclesRef = useRef(vehicles)
   vehiclesRef.current = vehicles
 
-  // WebSocket URL for emulator (only used if not in demo mode)
+  // WebSocket URL for emulator
   const wsUrl = `${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${window.location.host}/api/emulator/ws`
 
   const handleMessage = useCallback((message: WebSocketMessage) => {
@@ -283,49 +280,14 @@ export function useVehicleTelemetry(options: UseVehicleTelemetryOptions = {}) {
     }
   }, [onVehicleUpdate, onEmulatorEvent])
 
-  // Only use WebSocket if not in demo mode
-  const websocketEnabled = enabled && !isDemoMode
-
   const { isConnected, send, subscribe } = useWebSocket({
-    url: websocketEnabled ? wsUrl : undefined,
+    url: enabled ? wsUrl : undefined,
     onMessage: handleMessage
   })
 
-  // Demo mode: Use interval-based updates instead of WebSocket
+  // Subscribe to all vehicle events
   useEffect(() => {
-    if (!enabled || !isDemoMode) return
-
-    logger.info('Demo mode: Using interval-based vehicle updates (no WebSocket)')
-
-    // Simulate periodic updates every 5 seconds in demo mode
-    const interval = setInterval(() => {
-      setLastUpdate(new Date())
-
-      // Simulate minor position updates for vehicles
-      setVehicles(prev => {
-        const updated = new Map(prev)
-        prev.forEach((vehicle, id) => {
-          if (vehicle.location && vehicle.status === 'active') {
-            // Small random movement
-            const lat = vehicle.location.lat + (Math.random() - 0.5) * 0.0001
-            const lng = vehicle.location.lng + (Math.random() - 0.5) * 0.0001
-            updated.set(id, {
-              ...vehicle,
-              location: { lat, lng },
-              lastUpdated: new Date().toISOString()
-            })
-          }
-        })
-        return updated
-      })
-    }, 5000)
-
-    return () => clearInterval(interval)
-  }, [enabled, isDemoMode])
-
-  // Subscribe to all vehicle events (only if WebSocket enabled)
-  useEffect(() => {
-    if (!websocketEnabled) return
+    if (!enabled) return
 
     const unsubscribers = [
       subscribe('vehicle:telemetry', handleMessage),
@@ -348,7 +310,7 @@ export function useVehicleTelemetry(options: UseVehicleTelemetryOptions = {}) {
     return () => {
       unsubscribers.forEach(unsub => unsub())
     }
-  }, [websocketEnabled, subscribe, handleMessage])
+  }, [enabled, subscribe, handleMessage])
 
   // Sync initial vehicles
   useEffect(() => {
@@ -384,7 +346,7 @@ export function useVehicleTelemetry(options: UseVehicleTelemetryOptions = {}) {
 
   return {
     // Connection status
-    isConnected: isDemoMode ? true : isConnected, // Always "connected" in demo mode
+    isConnected,
     isEmulatorRunning,
     lastUpdate,
 
@@ -404,10 +366,7 @@ export function useVehicleTelemetry(options: UseVehicleTelemetryOptions = {}) {
     // Controls
     startEmulator,
     stopEmulator,
-    send,
-
-    // Demo mode flag
-    isDemoMode
+    send
   }
 }
 
