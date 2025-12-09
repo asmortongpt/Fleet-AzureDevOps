@@ -14,7 +14,8 @@ import {
   MagnifyingGlass,
   Circle,
   Broadcast,
-  Bell
+  Bell,
+  Activity
 } from "@phosphor-icons/react"
 import { useMemo, useState, useCallback } from "react"
 
