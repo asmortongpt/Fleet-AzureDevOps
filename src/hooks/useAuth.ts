@@ -57,6 +57,27 @@ export const useAuthProvider = () => {
   useEffect(() => {
     const initAuth = async () => {
       try {
+        // DEMO MODE: Skip auth verification, use demo user
+        const DEMO_MODE = import.meta.env.VITE_USE_MOCK_DATA === 'true' ||
+                          localStorage.getItem('demo_mode') !== 'false';
+
+        if (DEMO_MODE) {
+          // Use demo user for demo mode
+          const demoUser: User = {
+            id: 'demo-user-1',
+            email: 'demo@fleet.com',
+            firstName: 'Demo',
+            lastName: 'User',
+            role: 'admin',
+            token: 'demo-token',
+            permissions: ['*'], // Full permissions in demo
+            tenantId: '1'
+          };
+          setUserState(demoUser);
+          setIsLoading(false);
+          return;
+        }
+
         // Check if we have a valid session via httpOnly cookie
         const response = await fetch('/api/v1/auth/verify', {
           method: 'GET',
@@ -73,11 +94,18 @@ export const useAuthProvider = () => {
             role: data.user.role,
             avatar: data.user.avatar,
             token: '', // No token in localStorage anymore
+            permissions: data.user.permissions,
+            tenantId: data.user.tenant_id
           };
           setUserState(userData);
         }
       } catch (error) {
-        logger.error('Failed to initialize auth:', { error });
+        // Only log error if not in demo mode
+        const DEMO_MODE = import.meta.env.VITE_USE_MOCK_DATA === 'true' ||
+                          localStorage.getItem('demo_mode') !== 'false';
+        if (!DEMO_MODE) {
+          logger.error('Failed to initialize auth:', { error });
+        }
       } finally {
         setIsLoading(false);
       }
