@@ -31,7 +31,6 @@ let csrfTokenPromise: Promise<string> | null = null;
 async function getCsrfToken(): Promise<string> {
   // Skip CSRF in development mock mode
   if (import.meta.env.VITE_USE_MOCK_DATA === 'true') {
-    console.log('[CSRF] Skipping token fetch - demo mode enabled');
     return '';
   }
 
@@ -59,11 +58,11 @@ async function getCsrfToken(): Promise<string> {
         console.log('[CSRF] Token fetched successfully');
         return csrfToken;
       } else {
-        console.warn('[CSRF] Failed to fetch token:', response.status, '- API may not be available');
+        console.warn('[CSRF] Failed to fetch token:', response.status);
         return '';
       }
     } catch (error) {
-      console.error('[CSRF] Error fetching token:', error, '- API backend is not available');
+      console.error('[CSRF] Error fetching token:', error);
       return '';
     } finally {
       csrfTokenPromise = null;
@@ -93,49 +92,8 @@ export function clearCsrfToken(): void {
 /**
  * Makes a fetch request with CSRF token and credentials
  * Automatically retries once on CSRF validation failure
- * In demo mode, returns realistic demo data without making network requests
  */
 async function secureFetch(url: string, options: RequestInit = {}): Promise<Response> {
-  // DEMO MODE: Return demo data response without network call
-  if (import.meta.env.VITE_USE_MOCK_DATA === 'true') {
-    console.log('[API] Demo mode - returning demo data for:', url);
-
-    // Import demo data generators (will be tree-shaken in production)
-    const {
-      generateDemoVehicles,
-      generateDemoDrivers,
-      generateDemoFacilities,
-      generateDemoWorkOrders,
-      generateDemoFuelTransactions,
-      generateDemoRoutes
-    } = await import('@/lib/demo-data');
-
-    // Route URL to appropriate demo data
-    let demoData: any[] = [];
-
-    if (url.includes('/vehicles')) {
-      demoData = generateDemoVehicles(50);
-    } else if (url.includes('/drivers')) {
-      demoData = generateDemoDrivers(30);
-    } else if (url.includes('/facilities') || url.includes('/service-bays')) {
-      demoData = generateDemoFacilities();
-    } else if (url.includes('/work-orders') || url.includes('/maintenance')) {
-      demoData = generateDemoWorkOrders(30);
-    } else if (url.includes('/fuel')) {
-      demoData = generateDemoFuelTransactions(100);
-    } else if (url.includes('/routes')) {
-      demoData = generateDemoRoutes(15);
-    } else {
-      // Default: empty array for unknown endpoints
-      demoData = [];
-    }
-
-    return new Response(JSON.stringify({ data: demoData }), {
-      status: 200,
-      headers: { 'Content-Type': 'application/json' }
-    });
-  }
-
   const method = options.method?.toUpperCase() || 'GET';
   const isStateChanging = ['POST', 'PUT', 'PATCH', 'DELETE'].includes(method);
 
@@ -155,45 +113,33 @@ async function secureFetch(url: string, options: RequestInit = {}): Promise<Resp
     headers['X-CSRF-Token'] = token;
   }
 
-  try {
-    const response = await fetch(url, {
-      ...options,
-      headers,
-      credentials: 'include', // CRITICAL: Include httpOnly cookies
-    });
+  const response = await fetch(url, {
+    ...options,
+    headers,
+    credentials: 'include', // CRITICAL: Include httpOnly cookies
+  });
 
-    // Handle CSRF validation failure - refresh token and retry once
-    if (response.status === 403 && isStateChanging) {
-      const errorData = await response.json().catch(() => ({}));
-      if (errorData.code === 'CSRF_VALIDATION_FAILED' || errorData.error?.includes('CSRF')) {
-        console.warn('[CSRF] Validation failed, refreshing token and retrying...');
-        await refreshCsrfToken();
-        token = await getCsrfToken();
+  // Handle CSRF validation failure - refresh token and retry once
+  if (response.status === 403 && isStateChanging) {
+    const errorData = await response.json().catch(() => ({}));
+    if (errorData.code === 'CSRF_VALIDATION_FAILED' || errorData.error?.includes('CSRF')) {
+      console.warn('[CSRF] Validation failed, refreshing token and retrying...');
+      await refreshCsrfToken();
+      token = await getCsrfToken();
 
-        if (token) {
-          headers['X-CSRF-Token'] = token;
-          const retryResponse = await fetch(url, {
-            ...options,
-            headers,
-            credentials: 'include',
-          });
-          return retryResponse;
-        }
+      if (token) {
+        headers['X-CSRF-Token'] = token;
+        const retryResponse = await fetch(url, {
+          ...options,
+          headers,
+          credentials: 'include',
+        });
+        return retryResponse;
       }
     }
-
-    return response;
-  } catch (error) {
-    // Network error - API backend may not be available
-    console.error('[API] Network error - API backend unavailable:', url, error);
-    console.warn('[API] Consider enabling demo mode by setting VITE_USE_MOCK_DATA=true');
-
-    // Return empty response to prevent app crash
-    return new Response(JSON.stringify({ data: [], error: 'API unavailable' }), {
-      status: 503,
-      headers: { 'Content-Type': 'application/json' }
-    });
   }
+
+  return response;
 }
 
 interface VehicleFilters {
