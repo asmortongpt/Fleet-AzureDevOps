@@ -11,6 +11,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom"
 import App from "./App"
 import { SentryErrorBoundary } from "./components/errors/SentryErrorBoundary"
 import { AuthProvider } from "./components/providers/AuthProvider"
+import { ThemeProvider } from "./components/providers/ThemeProvider"
 import { InspectProvider } from "./services/inspect/InspectContext"
 import "./index.css"
 import "./styles/design-tokens-responsive.css"
@@ -48,25 +49,27 @@ const SentryRoutes = Sentry.withSentryRouting(Routes)
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <SentryErrorBoundary level="page">
-        <AuthProvider>
-          <InspectProvider>
-            <BrowserRouter>
-              <SentryRoutes>
-                <Route
-                  path="/*"
-                  element={
-                    <SentryErrorBoundary level="section">
-                      <App />
-                    </SentryErrorBoundary>
-                  }
-                />
-              </SentryRoutes>
-            </BrowserRouter>
-          </InspectProvider>
-        </AuthProvider>
-      </SentryErrorBoundary>
-    </QueryClientProvider>
+    <ThemeProvider defaultTheme="dark">
+      <QueryClientProvider client={queryClient}>
+        <SentryErrorBoundary level="page">
+          <AuthProvider>
+            <InspectProvider>
+              <BrowserRouter>
+                <SentryRoutes>
+                  <Route
+                    path="/*"
+                    element={
+                      <SentryErrorBoundary level="section">
+                        <App />
+                      </SentryErrorBoundary>
+                    }
+                  />
+                </SentryRoutes>
+              </BrowserRouter>
+            </InspectProvider>
+          </AuthProvider>
+        </SentryErrorBoundary>
+      </QueryClientProvider>
+    </ThemeProvider>
   </React.StrictMode>
 )
