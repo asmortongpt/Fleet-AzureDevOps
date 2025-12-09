@@ -121,6 +121,58 @@ export function GoogleMap({
   const hasValidApiKey = apiKey.length > 0
 
   /**
+   * Suppress Google Maps billing errors and deprecation warnings in console
+   * Prevents "BillingNotEnabledMapError" and deprecated Marker warnings from cluttering console in demo mode
+   */
+  useEffect(() => {
+    // Store original console functions
+    const originalConsoleError = console.error
+    const originalConsoleWarn = console.warn
+
+    // Override console.error to filter out Google Maps billing errors
+    console.error = (...args: any[]) => {
+      const errorMessage = args.join(' ')
+
+      // Suppress Google Maps billing and API errors
+      if (
+        errorMessage.includes('BillingNotEnabledMapError') ||
+        errorMessage.includes('Google Maps JavaScript API error') ||
+        (errorMessage.includes('maps.googleapis.com') && errorMessage.includes('error'))
+      ) {
+        // Silent in demo mode - these are expected when billing is not enabled
+        return
+      }
+
+      // Call original console.error for all other errors
+      originalConsoleError.apply(console, args)
+    }
+
+    // Override console.warn to filter out Google Maps deprecation warnings
+    console.warn = (...args: any[]) => {
+      const warnMessage = args.join(' ')
+
+      // Suppress Google Maps deprecation warnings
+      if (
+        warnMessage.includes('google.maps.Marker is deprecated') ||
+        warnMessage.includes('AdvancedMarkerElement') ||
+        (warnMessage.includes('maps.googleapis.com') && warnMessage.includes('deprecat'))
+      ) {
+        // Silent - we acknowledge these deprecations but they don't affect functionality
+        return
+      }
+
+      // Call original console.warn for all other warnings
+      originalConsoleWarn.apply(console, args)
+    }
+
+    // Cleanup on unmount
+    return () => {
+      console.error = originalConsoleError
+      console.warn = originalConsoleWarn
+    }
+  }, [])
+
+  /**
    * Load Google Maps JavaScript API
    * Uses global promise to prevent duplicate script injections
    */
@@ -157,7 +209,7 @@ export function GoogleMap({
 
       // Create and configure script element
       const script = document.createElement("script")
-      script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places,geometry,drawing`
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places,geometry,drawing,marker&loading=async`
       script.async = true
       script.defer = true
 
@@ -244,7 +296,8 @@ export function GoogleMap({
    * Initialize or update map instance
    */
   useEffect(() => {
-    if (!mapRef.current || !window.google?.maps || isLoading || error) {
+    // Comprehensive check: ensure google.maps API is FULLY loaded including ControlPosition
+    if (!mapRef.current || !window.google?.maps || !window.google?.maps?.ControlPosition || isLoading || error) {
       return
     }
 

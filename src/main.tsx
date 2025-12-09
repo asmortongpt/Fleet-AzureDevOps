@@ -54,7 +54,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
         <SentryErrorBoundary level="page">
           <AuthProvider>
             <InspectProvider>
-              <BrowserRouter>
+              <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
                 <SentryRoutes>
                   <Route
                     path="/*"
