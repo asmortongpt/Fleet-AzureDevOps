@@ -22,6 +22,7 @@ export function FleetTable({ vehicles, onVehicleClick }: FleetTableProps) {
                 <th className="text-left p-4 font-medium">Location</th>
                 <th className="text-left p-4 font-medium">Driver</th>
                 <th className="text-left p-4 font-medium">Alerts</th>
+                <th className="text-left p-4 font-medium">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -30,11 +31,13 @@ export function FleetTable({ vehicles, onVehicleClick }: FleetTableProps) {
                   key={vehicle.id}
                   className="border-b hover:bg-muted/50 cursor-pointer transition-colors"
                   onClick={() => onVehicleClick(vehicle)}
+                  data-testid="vehicle-card"
+                  data-vehicle-id={vehicle.id}
                 >
                   <td className="p-4">
                     <div>
-                      <p className="font-medium">{vehicle.number}</p>
-                      <p className="text-sm text-muted-foreground">
+                      <p className="font-medium" data-testid="vehicle-plate">{vehicle.number}</p>
+                      <p className="text-sm text-muted-foreground" data-testid="vehicle-make-model">
                         {vehicle.year} {vehicle.make} {vehicle.model}
                       </p>
                     </div>
@@ -49,6 +52,7 @@ export function FleetTable({ vehicles, onVehicleClick }: FleetTableProps) {
                             ? "bg-warning/10 text-warning border-warning/20"
                             : "bg-muted text-muted-foreground"
                       }
+                      data-testid="vehicle-status"
                     >
                       {vehicle.status}
                     </Badge>
@@ -71,13 +75,13 @@ export function FleetTable({ vehicles, onVehicleClick }: FleetTableProps) {
                     </div>
                   </td>
                   <td className="p-4">
-                    <span className="font-medium">{vehicle.mileage.toLocaleString()} mi</span>
+                    <span className="font-medium" data-testid="vehicle-mileage">{vehicle.mileage.toLocaleString()} mi</span>
                   </td>
                   <td className="p-4">
                     <span className="text-sm">{vehicle.region}</span>
                   </td>
                   <td className="p-4">
-                    <span className="text-sm">{vehicle.assignedDriver || "Unassigned"}</span>
+                    <span className="text-sm" data-testid="vehicle-driver">{vehicle.assignedDriver || "Unassigned"}</span>
                   </td>
                   <td className="p-4">
                     {vehicle.alerts && vehicle.alerts.length > 0 ? (
@@ -87,6 +91,18 @@ export function FleetTable({ vehicles, onVehicleClick }: FleetTableProps) {
                     ) : (
                       <span className="text-sm text-muted-foreground">None</span>
                     )}
+                  </td>
+                  <td className="p-4">
+                    <button
+                      className="text-sm text-primary hover:underline"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        onVehicleClick(vehicle)
+                      }}
+                      data-testid="view-details-btn"
+                    >
+                      View Details
+                    </button>
                   </td>
                 </tr>
               ))}

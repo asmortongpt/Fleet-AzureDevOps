@@ -497,19 +497,35 @@ interface OBD2Telemetry {
 async function fetchAllAssets(): Promise<GarageAsset[]> {
   try {
     // Priority 1: Try OBD2 Emulator API for realistic real-time data
-    const emulatorRes = await fetch("/api/emulator/vehicles")
-    if (emulatorRes.ok) {
-      const emulatorData = await emulatorRes.json()
-      if (emulatorData.success && Array.isArray(emulatorData.data) && emulatorData.data.length > 0) {
-        console.log("[VirtualGarage] Using OBD2 Emulator data:", emulatorData.data.length, "vehicles")
-        return normalizeEmulatorVehicles(emulatorData.data)
+    try {
+      const emulatorRes = await fetch("/api/emulator/vehicles")
+      if (emulatorRes.ok) {
+        const contentType = emulatorRes.headers.get("content-type")
+        if (contentType?.includes("application/json")) {
+          const emulatorData = await emulatorRes.json()
+          if (emulatorData.success && Array.isArray(emulatorData.data) && emulatorData.data.length > 0) {
+            console.log("[VirtualGarage] Using OBD2 Emulator data:", emulatorData.data.length, "vehicles")
+            return normalizeEmulatorVehicles(emulatorData.data)
+          }
+        }
       }
+    } catch (emulatorError) {
+      // Silently continue to fallback - emulator API not available
     }
 
     // Priority 2: Fetch from database API endpoints
     const [vehiclesRes, assetsRes] = await Promise.allSettled([
-      fetch("/api/vehicles").then(r => r.ok ? r.json() : []),
-      apiClient.get("/api/asset-management").then(r => r.assets || [])
+      fetch("/api/vehicles").then(async r => {
+        if (!r.ok) return []
+        const contentType = r.headers.get("content-type")
+        if (!contentType?.includes("application/json")) return []
+        try {
+          return await r.json()
+        } catch {
+          return []
+        }
+      }),
+      apiClient.get("/api/asset-management").then(r => r.assets || []).catch(() => [])
     ])
 
     const vehicles = vehiclesRes.status === 'fulfilled' ? vehiclesRes.value : []
@@ -562,10 +578,10 @@ async function fetchAllAssets(): Promise<GarageAsset[]> {
       return uniqueAssets
     }
 
-    console.log("[VirtualGarage] No vehicles found, returning empty")
+    console.log("[VirtualGarage] No vehicles found, falling back to demo data")
     return []
   } catch (error) {
-    console.error("Error fetching assets:", error)
+    // Silent error handling - will fall back to demo data
     return []
   }
 }
@@ -605,13 +621,19 @@ async function fetchVehicleTelemetry(vehicleId: string): Promise<OBD2Telemetry |
   try {
     const response = await fetch(`/api/emulator/vehicles/${vehicleId}/telemetry`)
     if (!response.ok) return null
-    const data = await response.json()
-    if (data.success && data.data) {
-      return data.data as OBD2Telemetry
+    const contentType = response.headers.get("content-type")
+    if (!contentType?.includes("application/json")) return null
+    try {
+      const data = await response.json()
+      if (data.success && data.data) {
+        return data.data as OBD2Telemetry
+      }
+    } catch {
+      return null
     }
     return null
-  } catch (error) {
-    console.error("Error fetching telemetry:", error)
+  } catch {
+    // Silent error - telemetry not available
     return null
   }
 }
@@ -660,7 +682,13 @@ async function fetchDamageReports(): Promise<DamageReport[]> {
   try {
     const response = await fetch("/api/damage-reports")
     if (!response.ok) return []
-    return response.json()
+    const contentType = response.headers.get("content-type")
+    if (!contentType?.includes("application/json")) return []
+    try {
+      return await response.json()
+    } catch {
+      return []
+    }
   } catch {
     return []
   }
@@ -670,7 +698,13 @@ async function fetchInspections(): Promise<Inspection[]> {
   try {
     const response = await fetch("/api/inspections")
     if (!response.ok) return []
-    return response.json()
+    const contentType = response.headers.get("content-type")
+    if (!contentType?.includes("application/json")) return []
+    try {
+      return await response.json()
+    } catch {
+      return []
+    }
   } catch {
     return []
   }
