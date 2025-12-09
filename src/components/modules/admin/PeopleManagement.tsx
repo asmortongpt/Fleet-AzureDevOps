@@ -6,7 +6,7 @@ import {
   Plus,
   MagnifyingGlass
 } from "@phosphor-icons/react"
-import { useState, useMemo } from "react"
+import { useState } from "react"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -15,33 +15,27 @@ import { Input } from "@/components/ui/input"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { useFleetData } from "@/hooks/use-fleet-data"
 
-export function PeopleManagement() {
-  // Call useFleetData directly to avoid prop reference instability
-  const data = useFleetData()
 
-  // Memoize arrays to prevent filter recalculation on every render
-  const drivers = useMemo(() => data.drivers || [], [data.drivers])
-  const staff = useMemo(() => data.staff || [], [data.staff])
+interface PeopleManagementProps {
+  data: ReturnType<typeof useFleetData>
+}
+
+export function PeopleManagement({ data }: PeopleManagementProps) {
+  const drivers = data.drivers || []
+  const staff = data.staff || []
   const [searchQuery, setSearchQuery] = useState<string>("")
   const [activeTab, setActiveTab] = useState<string>("drivers")
 
-  // Memoize filtered lists to prevent recalculation on every render
-  const filteredDrivers = useMemo(() =>
-    drivers.filter(d =>
-      !searchQuery ||
-      (d.name && d.name.toLowerCase().includes(searchQuery.toLowerCase())) ||
-      (d.employeeId && d.employeeId.toLowerCase().includes(searchQuery.toLowerCase()))
-    ),
-    [drivers, searchQuery]
+  const filteredDrivers = drivers.filter(d =>
+    !searchQuery ||
+    (d.name && d.name.toLowerCase().includes(searchQuery.toLowerCase())) ||
+    (d.employeeId && d.employeeId.toLowerCase().includes(searchQuery.toLowerCase()))
   )
 
-  const filteredStaff = useMemo(() =>
-    staff.filter(s =>
-      !searchQuery ||
-      (s.name && s.name.toLowerCase().includes(searchQuery.toLowerCase())) ||
-      (s.employeeId && s.employeeId.toLowerCase().includes(searchQuery.toLowerCase()))
-    ),
-    [staff, searchQuery]
+  const filteredStaff = staff.filter(s =>
+    !searchQuery ||
+    (s.name && s.name.toLowerCase().includes(searchQuery.toLowerCase())) ||
+    (s.employeeId && s.employeeId.toLowerCase().includes(searchQuery.toLowerCase()))
   )
 
   return (
