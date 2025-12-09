@@ -201,7 +201,7 @@ export const ProfessionalFleetMap: React.FC<ProfessionalFleetMapProps> = ({
 
           {/* Map Legend */}
           {showLegend && activeLegendItems.length > 0 && (
-            <div className="absolute bottom-4 left-4 z-10">
+            <div className="absolute top-4 left-4 z-10 max-h-[calc(100%-2rem)] overflow-y-auto">
               <Card className="shadow-lg bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/90">
                 <CardHeader className="pb-2 pt-3 px-3">
                   <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
