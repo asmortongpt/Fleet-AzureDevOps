@@ -4,7 +4,10 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 // Layout component
 import { MainLayout } from "@/components/layout/MainLayout";
 
-// Loading spinner component for Suspense fallback
+// Loading skeleton components for Suspense fallback - PREVENTS CLS
+import { FleetDashboardSkeleton } from "@/components/loading";
+
+// Generic loading spinner for non-critical modules
 const LoadingSpinner = () => (
   <div className="flex items-center justify-center min-h-[400px]">
     <div className="flex flex-col items-center gap-3">
@@ -13,6 +16,9 @@ const LoadingSpinner = () => (
     </div>
   </div>
 );
+
+// Smart fallback for dashboard routes - uses proper skeleton
+const DashboardFallback = () => <FleetDashboardSkeleton />;
 
 // --- LAZY-LOADED MODULES ---
 // FLEET
@@ -153,6 +159,16 @@ const routes = [
   { path: "profile", element: <ProfilePage /> },
 ];
 
+// Map routes to appropriate skeleton fallbacks for CLS optimization
+const getRouteFallback = (path: string) => {
+  // Dashboard routes use proper skeleton to prevent layout shift
+  if (path.includes('dashboard') || path === '') {
+    return <DashboardFallback />;
+  }
+  // All other routes use generic spinner
+  return <LoadingSpinner />;
+};
+
 export const router = createBrowserRouter([
   {
     path: "/",
@@ -161,7 +177,7 @@ export const router = createBrowserRouter([
       {
         index: true,
         element: (
-          <Suspense fallback={<LoadingSpinner />}>
+          <Suspense fallback={<DashboardFallback />}>
             <FleetDashboardModern />
           </Suspense>
         ),
@@ -169,7 +185,7 @@ export const router = createBrowserRouter([
       ...routes.map(route => ({
         path: route.path,
         element: (
-          <Suspense fallback={<LoadingSpinner />}>
+          <Suspense fallback={getRouteFallback(route.path)}>
             {route.element}
           </Suspense>
         ),
