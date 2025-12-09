@@ -25,7 +25,9 @@ interface GISCommandCenterProps {
 
 export function GISCommandCenter({ data }: GISCommandCenterProps) {
   const vehicles = data.vehicles || []
-  const { data: facilities = [] } = useFacilities()
+  const { data: facilitiesData = [] } = useFacilities()
+  // Defensive: Ensure facilities is always an array
+  const facilities = Array.isArray(facilitiesData) ? facilitiesData : []
   const [selectedRegion, setSelectedRegion] = useState<string>("all")
   const [activeTab, setActiveTab] = useState<string>("map")
   const [layerVisibility, setLayerVisibility] = useState({
