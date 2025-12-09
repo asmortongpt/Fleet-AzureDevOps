@@ -314,10 +314,11 @@ function App() {
       </a>
 
       <div className="min-h-screen bg-background flex">
-      <aside 
+      <aside
         className={`fixed left-0 top-0 h-full bg-card border-r transition-all duration-300 z-50 ${
           sidebarOpen ? "w-64" : "w-0"
         } overflow-hidden`}
+        data-testid="mobile-nav"
       >
         <div className="p-6 flex items-center justify-between border-b">
           <div className="flex items-center gap-3">
@@ -390,6 +391,17 @@ function App() {
                 size="icon"
                 onClick={() => setSidebarOpen(!sidebarOpen)}
                 title={sidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
+                data-testid="mobile-menu-toggle"
+                className="lg:hidden"
+              >
+                <List className="w-5 h-5" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setSidebarOpen(!sidebarOpen)}
+                title={sidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
+                className="hidden lg:block"
               >
                 <List className="w-5 h-5" />
               </Button>
