@@ -92,119 +92,6 @@ const SYNC_TIMEOUT = 10000 // 10 seconds
 const AUTO_SYNC_INTERVAL = 300000 // 5 minutes
 
 /**
- * Demo data for traffic cameras (Tallahassee, FL area)
- * Used as fallback when API is unavailable
- */
-const getDemoCameras = (): TrafficCamera[] => [
-  {
-    id: "demo-cam-1",
-    sourceId: "demo-source-1",
-    externalId: "I10-CAM-001",
-    name: "I-10 @ Capital Circle NE",
-    address: "I-10 Eastbound, Tallahassee, FL",
-    crossStreet1: "Interstate 10",
-    crossStreet2: "Capital Circle NE",
-    latitude: 30.4710,
-    longitude: -84.2466,
-    cameraUrl: "https://fl511.com/camera/I10-CAM-001",
-    imageUrl: "https://fl511.com/image/I10-CAM-001",
-    enabled: true,
-    operational: true,
-    lastCheckedAt: new Date().toISOString(),
-    syncedAt: new Date().toISOString(),
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString()
-  },
-  {
-    id: "demo-cam-2",
-    sourceId: "demo-source-1",
-    externalId: "US90-CAM-002",
-    name: "US-90 @ Monroe Street",
-    address: "US-90 Westbound, Tallahassee, FL",
-    crossStreet1: "US Highway 90",
-    crossStreet2: "Monroe Street",
-    latitude: 30.4382,
-    longitude: -84.2807,
-    cameraUrl: "https://fl511.com/camera/US90-CAM-002",
-    imageUrl: "https://fl511.com/image/US90-CAM-002",
-    enabled: true,
-    operational: true,
-    lastCheckedAt: new Date().toISOString(),
-    syncedAt: new Date().toISOString(),
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString()
-  },
-  {
-    id: "demo-cam-3",
-    sourceId: "demo-source-1",
-    externalId: "I10-CAM-003",
-    name: "I-10 @ Thomasville Road",
-    address: "I-10 Westbound, Tallahassee, FL",
-    crossStreet1: "Interstate 10",
-    crossStreet2: "Thomasville Road",
-    latitude: 30.4693,
-    longitude: -84.2935,
-    cameraUrl: "https://fl511.com/camera/I10-CAM-003",
-    imageUrl: "https://fl511.com/image/I10-CAM-003",
-    enabled: true,
-    operational: false,
-    lastCheckedAt: new Date().toISOString(),
-    syncedAt: new Date().toISOString(),
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString()
-  },
-  {
-    id: "demo-cam-4",
-    sourceId: "demo-source-1",
-    externalId: "US27-CAM-004",
-    name: "US-27 @ Tennessee Street",
-    address: "US-27 Northbound, Tallahassee, FL",
-    crossStreet1: "US Highway 27",
-    crossStreet2: "Tennessee Street",
-    latitude: 30.4520,
-    longitude: -84.2816,
-    cameraUrl: "https://fl511.com/camera/US27-CAM-004",
-    imageUrl: "https://fl511.com/image/US27-CAM-004",
-    enabled: true,
-    operational: true,
-    lastCheckedAt: new Date().toISOString(),
-    syncedAt: new Date().toISOString(),
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString()
-  }
-]
-
-/**
- * Demo data for camera data sources
- * Used as fallback when API is unavailable
- */
-const getDemoSources = (): CameraDataSource[] => [
-  {
-    id: "demo-source-1",
-    name: "Florida 511 Traffic Cameras",
-    description: "Real-time traffic cameras from Florida Department of Transportation",
-    sourceType: "rest_api",
-    serviceUrl: "https://fl511.com/api/cameras",
-    enabled: true,
-    syncIntervalMinutes: 15,
-    authentication: {
-      type: "none"
-    },
-    fieldMapping: {
-      id: "cameraId",
-      name: "cameraName",
-      latitude: "lat",
-      longitude: "lng"
-    },
-    lastSyncAt: new Date().toISOString(),
-    lastSyncStatus: "success",
-    totalCamerasSynced: 4,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString()
-  }
-]
-
-/**
  * Initial component state
  */
 const getInitialState = (): TrafficCamerasState => ({
@@ -248,26 +135,21 @@ export function TrafficCameras(): JSX.Element {
   // ========== TanStack Query Hooks ==========
   /**
    * Query for loading cameras and data sources
-   * Falls back to demo data on API failure to prevent CORS errors
    */
-  const { data: camerasData = [], isLoading: camerasLoading, refetch: refetchCameras } = useQuery({
+  const { data: camerasData = [], isLoading: camerasLoading } = useQuery({
     queryKey: ["trafficCameras", "cameras"],
     queryFn: async () => {
-      // Always return demo data to avoid CORS errors entirely
-      return getDemoCameras()
-    },
-    retry: false,
-    staleTime: 5 * 60 * 1000 // Cache for 5 minutes
+      const result = await apiClient.trafficCameras.list()
+      return result as TrafficCamera[]
+    }
   })
 
-  const { data: sourcesData = [], isLoading: sourcesLoading, refetch: refetchSources } = useQuery({
+  const { data: sourcesData = [], isLoading: sourcesLoading } = useQuery({
     queryKey: ["trafficCameras", "sources"],
     queryFn: async () => {
-      // Always return demo data to avoid CORS errors entirely
-      return getDemoSources()
-    },
-    retry: false,
-    staleTime: 5 * 60 * 1000 // Cache for 5 minutes
+      const result = await apiClient.trafficCameras.sources()
+      return result as CameraDataSource[]
+    }
   })
 
   /**
@@ -275,13 +157,11 @@ export function TrafficCameras(): JSX.Element {
    */
   const syncMutation = useMutation({
     mutationFn: async () => {
-      // Demo mode - simulate successful sync without API call
-      await new Promise(resolve => setTimeout(resolve, 500))
-      return { success: true }
+      return apiClient.trafficCameras.sync()
     },
     onSuccess: () => {
       setState(prev => ({ ...prev, isSyncing: false, lastSyncTime: new Date() }))
-      toast.success("Camera data synchronized successfully (demo mode)")
+      toast.success("Camera data synchronized successfully")
     },
     onError: (error) => {
       const errorMessage = error instanceof Error ? error.message : "Failed to sync camera data"
@@ -296,30 +176,16 @@ export function TrafficCameras(): JSX.Element {
    */
   useEffect(() => {
     if (!camerasLoading && !sourcesLoading) {
-      setState(prev => {
-        // Only update if data actually changed to prevent infinite loops
-        const camerasChanged = JSON.stringify(prev.cameras) !== JSON.stringify(camerasData)
-        const sourcesChanged = JSON.stringify(prev.sources) !== JSON.stringify(sourcesData)
-
-        if (camerasChanged || sourcesChanged || prev.isLoading) {
-          return {
-            ...prev,
-            cameras: camerasData || [],
-            sources: sourcesData || [],
-            isLoading: false,
-            error: null,
-            lastSyncTime: prev.lastSyncTime || new Date()
-          }
-        }
-        return prev
-      })
+      setState(prev => ({
+        ...prev,
+        cameras: camerasData || [],
+        sources: sourcesData || [],
+        isLoading: false,
+        error: null,
+        lastSyncTime: prev.lastSyncTime || new Date()
+      }))
     } else {
-      setState(prev => {
-        if (prev.isLoading !== (camerasLoading || sourcesLoading)) {
-          return { ...prev, isLoading: camerasLoading || sourcesLoading }
-        }
-        return prev
-      })
+      setState(prev => ({ ...prev, isLoading: camerasLoading || sourcesLoading }))
     }
   }, [camerasData, sourcesData, camerasLoading, sourcesLoading])
 
@@ -525,7 +391,7 @@ export function TrafficCameras(): JSX.Element {
           <XCircle className="w-16 h-16 text-destructive mx-auto mb-4" />
           <h3 className="text-lg font-semibold text-foreground mb-2">Failed to Load Cameras</h3>
           <p className="text-sm text-muted-foreground mb-4">{state.error}</p>
-          <Button onClick={() => { refetchCameras(); refetchSources(); }}>
+          <Button onClick={() => loadData(false)}>
             <ArrowsClockwise className="w-4 h-4 mr-2" />
             Retry
           </Button>
@@ -567,7 +433,7 @@ export function TrafficCameras(): JSX.Element {
                 <h4 className="font-medium text-destructive">Sync Error</h4>
                 <p className="text-sm text-muted-foreground mt-1">{state.error}</p>
               </div>
-              <Button variant="outline" size="sm" onClick={() => { refetchCameras(); refetchSources(); }}>
+              <Button variant="outline" size="sm" onClick={() => loadData(false)}>
                 Retry
               </Button>
             </div>

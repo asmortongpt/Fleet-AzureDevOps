@@ -1,256 +1,294 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from '@playwright/test'
 
-test('Fleet Production - Visual Inspection with Chromium', async ({ page, browser }) => {
-  console.log('========================================');
-  console.log('🔍 VISUAL INSPECTION - FLEET PRODUCTION');
-  console.log('========================================');
-  console.log('Frontend URL: https://gray-flower-03a2a730f.3.azurestaticapps.net');
-  console.log('Browser: Chromium');
-  console.log('');
+const BASE_URL = 'https://fleet.capitaltechalliance.com'
 
-  // Capture all console messages
-  const consoleMessages: Array<{ type: string; text: string; timestamp: Date }> = [];
-  page.on('console', msg => {
-    const entry = {
-      type: msg.type(),
-      text: msg.text(),
-      timestamp: new Date()
-    };
-    consoleMessages.push(entry);
+test.describe('Fleet Management System - Complete Visual Inspection', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto(BASE_URL)
+    await page.waitForLoadState('networkidle')
+  })
 
-    const icon = msg.type() === 'error' ? '❌' :
-                 msg.type() === 'warning' ? '⚠️' :
-                 msg.type() === 'info' ? 'ℹ️' : '📝';
-    console.log(`${icon} [${msg.type()}] ${msg.text()}`);
-  });
+  test('Homepage loads without JavaScript errors', async ({ page }) => {
+    const errors: string[] = []
+    page.on('console', msg => {
+      if (msg.type() === 'error') {
+        errors.push(msg.text())
+      }
+    })
 
-  // Capture network activity
-  const networkRequests: Array<{ url: string; status: number; method: string }> = [];
-  page.on('response', response => {
-    networkRequests.push({
-      url: response.url(),
-      status: response.status(),
-      method: response.request().method()
-    });
+    await page.waitForTimeout(3000)
 
-    if (response.status() >= 400) {
-      console.log(`❌ HTTP ${response.status()}: ${response.url()}`);
+    // Check for CaretUp error specifically
+    const hasCaretUpError = errors.some(err => err.includes('CaretUp is not defined'))
+    expect(hasCaretUpError).toBe(false)
+
+    // Take screenshot of initial state
+    await page.screenshot({ path: 'test-results/01-homepage.png', fullPage: true })
+
+    console.log(`Console errors found: ${errors.length}`)
+    if (errors.length > 0) {
+      console.log('Errors:', errors)
     }
-  });
+  })
 
-  console.log('📡 Navigating to production site...');
-  const navigationStart = Date.now();
+  test('Fleet Dashboard renders and is interactive', async ({ page }) => {
+    // Wait for dashboard to load
+    await page.waitForSelector('text=Fleet Dashboard', { timeout: 10000 })
 
-  try {
-    await page.goto('https://gray-flower-03a2a730f.3.azurestaticapps.net', {
-      waitUntil: 'networkidle',
-      timeout: 60000
-    });
-    const navigationTime = Date.now() - navigationStart;
-    console.log(`✅ Page loaded in ${navigationTime}ms`);
-  } catch (error: any) {
-    console.log(`⚠️ Navigation completed with: ${error.message}`);
-  }
+    // Check for collapsible sections (these use CaretUp icon)
+    const collapsibleTriggers = page.locator('[data-state="closed"], [data-state="open"]')
+    const count = await collapsibleTriggers.count()
+    console.log(`Found ${count} collapsible sections`)
 
-  // Wait for initial rendering
-  await page.waitForTimeout(3000);
+    // Try to expand/collapse a section if available
+    if (count > 0) {
+      await collapsibleTriggers.first().click()
+      await page.waitForTimeout(500)
+    }
 
-  console.log('');
-  console.log('========================================');
-  console.log('📊 PAGE STATE ANALYSIS');
-  console.log('========================================');
+    await page.screenshot({ path: 'test-results/02-fleet-dashboard.png', fullPage: true })
+  })
 
-  // Basic page info
-  const title = await page.title();
-  const url = page.url();
-  console.log(`Page Title: ${title}`);
-  console.log(`Current URL: ${url}`);
-  console.log('');
+  test('Navigation sidebar is functional', async ({ page }) => {
+    // Check if sidebar exists
+    const sidebar = page.locator('nav, aside, [role="navigation"]').first()
+    await expect(sidebar).toBeVisible()
 
-  // React application check
-  console.log('🔧 React Application:');
-  const reactRoot = await page.locator('#root').count();
-  const rootContent = await page.locator('#root').innerHTML().catch(() => '');
-  console.log(`  ${reactRoot > 0 ? '✅' : '❌'} React root element: ${reactRoot > 0 ? 'FOUND' : 'NOT FOUND'}`);
-  console.log(`  ${rootContent.length > 0 ? '✅' : '❌'} Root has content: ${rootContent.length} characters`);
-  console.log('');
+    // Get all navigation items
+    const navItems = page.locator('nav a, aside a, [role="navigation"] a, button[role="menuitem"]')
+    const navCount = await navItems.count()
+    console.log(`Found ${navCount} navigation items`)
 
-  // UI Component Analysis
-  console.log('🎨 UI Components:');
-  const components = {
-    navigation: await page.locator('[role="navigation"], nav').count(),
-    mainContent: await page.locator('main, [role="main"]').count(),
-    buttons: await page.locator('button').count(),
-    links: await page.locator('a').count(),
-    headings: await page.locator('h1, h2, h3, h4, h5, h6').count(),
-    forms: await page.locator('form').count(),
-    tables: await page.locator('table').count(),
-    images: await page.locator('img').count()
-  };
+    await page.screenshot({ path: 'test-results/03-navigation.png', fullPage: true })
+  })
 
-  for (const [component, count] of Object.entries(components)) {
-    const icon = count > 0 ? '✅' : '❌';
-    console.log(`  ${icon} ${component}: ${count}`);
-  }
-  console.log('');
+  test('Endpoint Monitor is accessible', async ({ page }) => {
+    // Look for Endpoint Monitor in navigation
+    const endpointMonitorLink = page.locator('text=Endpoint Monitor').first()
 
-  // Fleet-specific elements
-  console.log('🚗 Fleet Application Elements:');
-  const fleetElements = {
-    'Fleet text': await page.getByText(/fleet/i).count(),
-    'Vehicle text': await page.getByText(/vehicle/i).count(),
-    'Dashboard text': await page.getByText(/dashboard/i).count(),
-    'Driver text': await page.getByText(/driver/i).count()
-  };
+    if (await endpointMonitorLink.isVisible()) {
+      await endpointMonitorLink.click()
+      await page.waitForTimeout(2000)
 
-  for (const [element, count] of Object.entries(fleetElements)) {
-    const icon = count > 0 ? '✅' : '⚠️';
-    console.log(`  ${icon} ${element}: ${count} occurrences`);
-  }
-  console.log('');
+      // Check if endpoint monitor loaded
+      const monitorContent = page.locator('text=/endpoint|monitor|health/i')
+      await expect(monitorContent.first()).toBeVisible({ timeout: 5000 })
 
-  // Get visible text sample
-  const bodyText = await page.textContent('body') || '';
-  const visibleText = bodyText.replace(/\s+/g, ' ').trim();
-  console.log('📝 Visible Text Content:');
-  console.log(`  Total length: ${visibleText.length} characters`);
-  if (visibleText.length > 0) {
-    console.log(`  Sample: ${visibleText.substring(0, 200)}...`);
-  }
-  console.log('');
+      await page.screenshot({ path: 'test-results/04-endpoint-monitor.png', fullPage: true })
+    } else {
+      console.log('Endpoint Monitor not found in navigation')
+    }
+  })
 
-  // CSS and Styling
-  console.log('🎨 Styling:');
-  const styles = await page.evaluate(() => {
-    return {
-      stylesheets: document.styleSheets.length,
-      inlineStyles: document.querySelectorAll('[style]').length,
-      computedBackgroundColor: window.getComputedStyle(document.body).backgroundColor
-    };
-  });
-  console.log(`  ✅ Stylesheets loaded: ${styles.stylesheets}`);
-  console.log(`  ✅ Elements with inline styles: ${styles.inlineStyles}`);
-  console.log(`  ✅ Body background color: ${styles.computedBackgroundColor}`);
-  console.log('');
+  test('Executive Dashboard loads', async ({ page }) => {
+    const execDashLink = page.locator('text=Executive Dashboard').first()
 
-  // JavaScript execution
-  console.log('⚙️ JavaScript Execution:');
-  const jsCheck = await page.evaluate(() => {
-    return {
-      reactPresent: !!(window as any).React || !!document.querySelector('[data-reactroot]'),
-      windowLoaded: document.readyState === 'complete',
-      scriptsLoaded: document.scripts.length
-    };
-  });
-  console.log(`  ${jsCheck.reactPresent ? '✅' : '❌'} React detected: ${jsCheck.reactPresent}`);
-  console.log(`  ${jsCheck.windowLoaded ? '✅' : '⚠️'} Window load state: ${jsCheck.windowLoaded ? 'complete' : 'loading'}`);
-  console.log(`  ✅ Script tags: ${jsCheck.scriptsLoaded}`);
-  console.log('');
+    if (await execDashLink.isVisible()) {
+      await execDashLink.click()
+      await page.waitForTimeout(2000)
+      await page.screenshot({ path: 'test-results/05-executive-dashboard.png', fullPage: true })
+    } else {
+      console.log('Executive Dashboard not found')
+    }
+  })
 
-  // Network Analysis
-  console.log('========================================');
-  console.log('🌐 NETWORK ANALYSIS');
-  console.log('========================================');
+  test('Dispatch Console is accessible', async ({ page }) => {
+    const dispatchLink = page.locator('text=Dispatch Console').first()
 
-  const successfulRequests = networkRequests.filter(r => r.status >= 200 && r.status < 300);
-  const failedRequests = networkRequests.filter(r => r.status >= 400);
-  const jsRequests = networkRequests.filter(r => r.url.includes('.js'));
-  const cssRequests = networkRequests.filter(r => r.url.includes('.css'));
-  const apiRequests = networkRequests.filter(r => r.url.includes('/api/'));
+    if (await dispatchLink.isVisible()) {
+      await dispatchLink.click()
+      await page.waitForTimeout(2000)
+      await page.screenshot({ path: 'test-results/06-dispatch-console.png', fullPage: true })
+    } else {
+      console.log('Dispatch Console not found')
+    }
+  })
 
-  console.log(`Total requests: ${networkRequests.length}`);
-  console.log(`  ✅ Successful (2xx): ${successfulRequests.length}`);
-  console.log(`  ❌ Failed (4xx/5xx): ${failedRequests.length}`);
-  console.log(`  📜 JavaScript files: ${jsRequests.length}`);
-  console.log(`  🎨 CSS files: ${cssRequests.length}`);
-  console.log(`  🔌 API calls: ${apiRequests.length}`);
-  console.log('');
+  test('GPS Tracking module loads', async ({ page }) => {
+    const gpsLink = page.locator('text=GPS Tracking, text=Live GPS').first()
 
-  if (failedRequests.length > 0) {
-    console.log('❌ Failed Requests:');
-    failedRequests.slice(0, 10).forEach(req => {
-      console.log(`  ${req.status} ${req.method} ${req.url}`);
-    });
-    console.log('');
-  }
+    if (await gpsLink.isVisible()) {
+      await gpsLink.click()
+      await page.waitForTimeout(3000) // Wait for map to load
+      await page.screenshot({ path: 'test-results/07-gps-tracking.png', fullPage: true })
+    } else {
+      console.log('GPS Tracking not found')
+    }
+  })
 
-  // Console Messages Summary
-  console.log('========================================');
-  console.log('📋 CONSOLE MESSAGES SUMMARY');
-  console.log('========================================');
+  test('GIS Command Center loads', async ({ page }) => {
+    const gisLink = page.locator('text=GIS Command Center').first()
 
-  const errorMessages = consoleMessages.filter(m => m.type === 'error');
-  const warningMessages = consoleMessages.filter(m => m.type === 'warning');
-  const websocketErrors = errorMessages.filter(m => m.text.includes('WebSocket'));
+    if (await gisLink.isVisible()) {
+      await gisLink.click()
+      await page.waitForTimeout(3000)
+      await page.screenshot({ path: 'test-results/08-gis-command.png', fullPage: true })
+    } else {
+      console.log('GIS Command Center not found')
+    }
+  })
 
-  console.log(`Total console messages: ${consoleMessages.length}`);
-  console.log(`  ❌ Errors: ${errorMessages.length}`);
-  console.log(`  ⚠️ Warnings: ${warningMessages.length}`);
-  console.log(`  🔌 WebSocket errors: ${websocketErrors.length}`);
-  console.log('');
+  test('Maintenance Scheduling module', async ({ page }) => {
+    const maintenanceLink = page.locator('text=Maintenance').first()
 
-  if (websocketErrors.length > 0) {
-    console.log('🔌 WebSocket Connection Status:');
-    websocketErrors.forEach(err => {
-      console.log(`  ❌ ${err.text}`);
-    });
-    console.log('  ℹ️ Analysis: Frontend trying to connect to backend API');
-    console.log('  ℹ️ Expected: Will resolve once API container is running');
-    console.log('');
-  }
+    if (await maintenanceLink.isVisible()) {
+      await maintenanceLink.click()
+      await page.waitForTimeout(2000)
+      await page.screenshot({ path: 'test-results/09-maintenance.png', fullPage: true })
+    } else {
+      console.log('Maintenance not found')
+    }
+  })
 
-  // Take screenshots
-  console.log('========================================');
-  console.log('📸 CAPTURING SCREENSHOTS');
-  console.log('========================================');
+  test('Fuel Management module', async ({ page }) => {
+    const fuelLink = page.locator('text=Fuel Management').first()
 
-  await page.screenshot({
-    path: '/tmp/fleet-visual-full.png',
-    fullPage: true
-  });
-  console.log('✅ Full page: /tmp/fleet-visual-full.png');
+    if (await fuelLink.isVisible()) {
+      await fuelLink.click()
+      await page.waitForTimeout(2000)
+      await page.screenshot({ path: 'test-results/10-fuel-management.png', fullPage: true })
+    } else {
+      console.log('Fuel Management not found')
+    }
+  })
 
-  await page.screenshot({
-    path: '/tmp/fleet-visual-viewport.png',
-    fullPage: false
-  });
-  console.log('✅ Viewport: /tmp/fleet-visual-viewport.png');
+  test('Vehicle Telemetry module', async ({ page }) => {
+    const telemetryLink = page.locator('text=Telemetry').first()
 
-  // Try to capture specific elements if they exist
-  const mainElement = page.locator('main').first();
-  if (await mainElement.count() > 0) {
-    await mainElement.screenshot({
-      path: '/tmp/fleet-visual-main.png'
-    });
-    console.log('✅ Main content: /tmp/fleet-visual-main.png');
-  }
-  console.log('');
+    if (await telemetryLink.isVisible()) {
+      await telemetryLink.click()
+      await page.waitForTimeout(2000)
+      await page.screenshot({ path: 'test-results/11-telemetry.png', fullPage: true })
+    } else {
+      console.log('Telemetry not found')
+    }
+  })
 
-  // Final Assessment
-  console.log('========================================');
-  console.log('🎯 VISUAL INSPECTION SUMMARY');
-  console.log('========================================');
+  test('Virtual Garage module', async ({ page }) => {
+    const garageLink = page.locator('text=Virtual Garage, text=Garage').first()
 
-  const isReactWorking = reactRoot > 0 && rootContent.length > 0;
-  const hasUI = components.buttons > 0 || components.navigation > 0;
-  const hasContent = visibleText.length > 100;
-  const hasStyles = styles.stylesheets > 0;
-  const frontendWorking = isReactWorking && hasUI && hasContent && hasStyles;
+    if (await garageLink.isVisible()) {
+      await garageLink.click()
+      await page.waitForTimeout(2000)
+      await page.screenshot({ path: 'test-results/12-virtual-garage.png', fullPage: true })
+    } else {
+      console.log('Virtual Garage not found')
+    }
+  })
 
-  console.log(`Frontend Status: ${frontendWorking ? '✅ WORKING' : '❌ ISSUES'}`);
-  console.log(`  React rendering: ${isReactWorking ? '✅' : '❌'}`);
-  console.log(`  UI components: ${hasUI ? '✅' : '❌'}`);
-  console.log(`  Content visible: ${hasContent ? '✅' : '❌'}`);
-  console.log(`  Styles loaded: ${hasStyles ? '✅' : '❌'}`);
-  console.log('');
-  console.log(`Backend API: ${apiRequests.length > 0 && successfulRequests.some(r => r.url.includes('/api/')) ? '✅ RESPONDING' : '❌ NOT RESPONDING'}`);
-  console.log(`  API requests attempted: ${apiRequests.length}`);
-  console.log(`  WebSocket errors: ${websocketErrors.length} (expected while API is down)`);
-  console.log('');
-  console.log('========================================');
+  test('Data Workbench module', async ({ page }) => {
+    const workbenchLink = page.locator('text=Data Workbench').first()
 
-  // Assertions
-  expect(title).toBeTruthy();
-  expect(reactRoot).toBeGreaterThan(0);
-  expect(visibleText.length).toBeGreaterThan(0);
-});
+    if (await workbenchLink.isVisible()) {
+      await workbenchLink.click()
+      await page.waitForTimeout(2000)
+      await page.screenshot({ path: 'test-results/13-data-workbench.png', fullPage: true })
+    } else {
+      console.log('Data Workbench not found')
+    }
+  })
+
+  test('Fleet Analytics module', async ({ page }) => {
+    const analyticsLink = page.locator('text=Fleet Analytics').first()
+
+    if (await analyticsLink.isVisible()) {
+      await analyticsLink.click()
+      await page.waitForTimeout(2000)
+      await page.screenshot({ path: 'test-results/14-fleet-analytics.png', fullPage: true })
+    } else {
+      console.log('Fleet Analytics not found')
+    }
+  })
+
+  test('Dark mode toggle works', async ({ page }) => {
+    // Look for theme toggle button
+    const themeToggle = page.locator('button[aria-label*="theme"], button:has-text("Dark"), button:has-text("Light")').first()
+
+    if (await themeToggle.isVisible()) {
+      await page.screenshot({ path: 'test-results/15-light-mode.png', fullPage: true })
+
+      await themeToggle.click()
+      await page.waitForTimeout(500)
+
+      await page.screenshot({ path: 'test-results/16-dark-mode.png', fullPage: true })
+    } else {
+      console.log('Theme toggle not found')
+    }
+  })
+
+  test('Responsive design - Mobile viewport', async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 667 }) // iPhone SE
+    await page.goto(BASE_URL)
+    await page.waitForTimeout(2000)
+
+    await page.screenshot({ path: 'test-results/17-mobile-view.png', fullPage: true })
+  })
+
+  test('Responsive design - Tablet viewport', async ({ page }) => {
+    await page.setViewportSize({ width: 768, height: 1024 }) // iPad
+    await page.goto(BASE_URL)
+    await page.waitForTimeout(2000)
+
+    await page.screenshot({ path: 'test-results/18-tablet-view.png', fullPage: true })
+  })
+
+  test('Check for API connectivity', async ({ page }) => {
+    const apiRequests: string[] = []
+
+    page.on('request', request => {
+      if (request.url().includes('/api/')) {
+        apiRequests.push(request.url())
+      }
+    })
+
+    await page.waitForTimeout(5000)
+
+    console.log(`API requests made: ${apiRequests.length}`)
+    apiRequests.forEach(url => console.log(`  - ${url}`))
+
+    // Check for demo data initialization
+    const demoDataLog = page.locator('text=/demo.*data/i')
+    if (await demoDataLog.count() > 0) {
+      console.log('Demo data detected')
+    }
+  })
+
+  test('Performance metrics', async ({ page }) => {
+    const metrics = await page.evaluate(() => {
+      const perf = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming
+      return {
+        domContentLoaded: perf.domContentLoadedEventEnd - perf.domContentLoadedEventStart,
+        loadComplete: perf.loadEventEnd - perf.loadEventStart,
+        domInteractive: perf.domInteractive - perf.fetchStart,
+        totalLoadTime: perf.loadEventEnd - perf.fetchStart
+      }
+    })
+
+    console.log('Performance Metrics:')
+    console.log(`  DOM Content Loaded: ${metrics.domContentLoaded}ms`)
+    console.log(`  Load Complete: ${metrics.loadComplete}ms`)
+    console.log(`  DOM Interactive: ${metrics.domInteractive}ms`)
+    console.log(`  Total Load Time: ${metrics.totalLoadTime}ms`)
+
+    // Performance assertions
+    expect(metrics.totalLoadTime).toBeLessThan(10000) // Less than 10 seconds
+  })
+
+  test('Network errors check', async ({ page }) => {
+    const failedRequests: string[] = []
+
+    page.on('response', response => {
+      if (!response.ok() && response.status() !== 429) { // Ignore rate limiting
+        failedRequests.push(`${response.status()} - ${response.url()}`)
+      }
+    })
+
+    await page.waitForTimeout(5000)
+
+    console.log(`Failed requests: ${failedRequests.length}`)
+    if (failedRequests.length > 0) {
+      console.log('Failed requests:')
+      failedRequests.forEach(req => console.log(`  - ${req}`))
+    }
+  })
+})
