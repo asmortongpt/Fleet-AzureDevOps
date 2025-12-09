@@ -116,3 +116,27 @@
   font-variant-numeric: tabular-nums;
   font-feature-settings: 'tnum' 1;
 }
+
+/* Touch-friendly utility classes (WCAG 2.5.5) */
+@layer utilities {
+  .touch-target {
+    @apply min-w-[44px] min-h-[44px];
+  }
+
+  .touch-spacing {
+    @apply gap-2; /* 8px minimum spacing between touch targets */
+  }
+
+  .touch-btn {
+    @apply min-w-[44px] min-h-[44px] inline-flex items-center justify-center;
+  }
+
+  .touch-icon-btn {
+    @apply w-11 h-11 min-w-[44px] min-h-[44px] inline-flex items-center justify-center;
+  }
+
+  .touch-checkbox,
+  .touch-radio {
+    @apply w-6 h-6 min-w-[24px] min-h-[24px]; /* Larger for easier interaction */
+  }
+}
