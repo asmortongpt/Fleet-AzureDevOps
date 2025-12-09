@@ -372,6 +372,14 @@ export function GoogleMap({
             },
           })
 
+          // Add test ID to marker element after it's created
+          google.maps.event.addListenerOnce(marker, 'tilesloaded', () => {
+            const markerElement = marker.getElement?.()
+            if (markerElement) {
+              markerElement.setAttribute('data-testid', 'vehicle-marker')
+            }
+          })
+
           const infoWindow = new google.maps.InfoWindow({
             content: createVehicleInfoHTML(vehicle),
           })
@@ -675,8 +683,8 @@ function createVehicleInfoHTML(vehicle: Vehicle): string {
       : "Unknown")
 
   return `
-    <div style="padding: 14px; min-width: 220px; max-width: 320px; font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;">
-      <div style="font-weight: 600; font-size: 15px; margin-bottom: 10px; color: #1f2937; border-bottom: 2px solid #e5e7eb; padding-bottom: 6px;">
+    <div data-testid="marker-popup" style="padding: 14px; min-width: 220px; max-width: 320px; font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;">
+      <div data-testid="popup-vehicle-id" style="font-weight: 600; font-size: 15px; margin-bottom: 10px; color: #1f2937; border-bottom: 2px solid #e5e7eb; padding-bottom: 6px;">
         ${escapeHTML(vehicle.name)}
       </div>
       <div style="font-size: 13px; color: #4b5563; margin-bottom: 6px; display: flex; justify-content: space-between;">
@@ -685,7 +693,7 @@ function createVehicleInfoHTML(vehicle: Vehicle): string {
       </div>
       <div style="font-size: 13px; color: #4b5563; margin-bottom: 6px; display: flex; justify-content: space-between;">
         <strong style="color: #6b7280;">Status:</strong>
-        <span style="color: ${getVehicleColor(vehicle.status)}; font-weight: 600; text-transform: uppercase; font-size: 12px;">
+        <span data-testid="popup-vehicle-status" style="color: ${getVehicleColor(vehicle.status)}; font-weight: 600; text-transform: uppercase; font-size: 12px;">
           ${escapeHTML(vehicle.status)}
         </span>
       </div>

@@ -33,17 +33,18 @@ export function FleetFiltersPanel({
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           className="pl-9"
+          data-testid="search-input"
         />
       </div>
       <Select value={statusFilter} onValueChange={setStatusFilter}>
-        <SelectTrigger className="w-full sm:w-40">
+        <SelectTrigger className="w-full sm:w-40" data-testid="status-filter">
           <SelectValue placeholder="All Status" />
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="all">All Status</SelectItem>
-          <SelectItem value="active">Active</SelectItem>
-          <SelectItem value="service">In Service</SelectItem>
-          <SelectItem value="inactive">Inactive</SelectItem>
+          <SelectItem value="active" data-testid="filter-active">Active</SelectItem>
+          <SelectItem value="service" data-testid="filter-maintenance">In Service</SelectItem>
+          <SelectItem value="inactive" data-testid="filter-inactive">Inactive</SelectItem>
         </SelectContent>
       </Select>
       <Button variant="outline" onClick={onAdvancedFiltersClick} className="gap-2">
@@ -56,7 +57,7 @@ export function FleetFiltersPanel({
         )}
       </Button>
       {(hasActiveFilters || searchQuery) && (
-        <Button variant="ghost" onClick={onClearFilters} className="gap-2">
+        <Button variant="ghost" onClick={onClearFilters} className="gap-2" data-testid="clear-filters">
           <X className="w-4 h-4" />
           Clear
         </Button>
