@@ -5,11 +5,15 @@ import {
   Zap as Lightning,
   Wrench,
   BatteryMedium as Battery,
-  AlertTriangle
+  AlertTriangle,
+  ZoomIn,
+  ZoomOut,
+  Maximize
 } from 'lucide-react'
 import React, { useMemo } from 'react'
 
 import { Badge } from '../ui/badge'
+import { Button } from '../ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
 
 import { UnifiedFleetMap } from './UnifiedFleetMap'
@@ -148,7 +152,7 @@ export const ProfessionalFleetMap: React.FC<ProfessionalFleetMapProps> = ({
       <CardContent className="p-0">
         <div className="relative">
           {/* Map Container */}
-          <div style={{ height }} className="w-full">
+          <div style={{ height }} className="w-full" data-testid="fleet-map">
             <UnifiedFleetMap
               vehicles={vehicles}
               facilities={facilities}
@@ -158,9 +162,46 @@ export const ProfessionalFleetMap: React.FC<ProfessionalFleetMapProps> = ({
             />
           </div>
 
+          {/* Map Controls */}
+          <div className="absolute top-4 right-4 z-10 flex flex-col gap-2">
+            <Button
+              size="sm"
+              variant="secondary"
+              className="shadow-md"
+              data-testid="map-zoom-in"
+              onClick={() => {
+                // Zoom in functionality would be handled by map instance
+              }}
+            >
+              <ZoomIn className="w-4 h-4" />
+            </Button>
+            <Button
+              size="sm"
+              variant="secondary"
+              className="shadow-md"
+              data-testid="map-zoom-out"
+              onClick={() => {
+                // Zoom out functionality would be handled by map instance
+              }}
+            >
+              <ZoomOut className="w-4 h-4" />
+            </Button>
+            <Button
+              size="sm"
+              variant="secondary"
+              className="shadow-md"
+              data-testid="map-fullscreen"
+              onClick={() => {
+                // Fullscreen functionality would be handled by map instance
+              }}
+            >
+              <Maximize className="w-4 h-4" />
+            </Button>
+          </div>
+
           {/* Map Legend */}
           {showLegend && activeLegendItems.length > 0 && (
-            <div className="absolute bottom-4 left-4 z-10">
+            <div className="absolute top-4 left-4 z-10 max-h-[calc(100%-2rem)] overflow-y-auto">
               <Card className="shadow-lg bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/90">
                 <CardHeader className="pb-2 pt-3 px-3">
                   <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">

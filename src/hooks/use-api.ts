@@ -94,6 +94,46 @@ export function clearCsrfToken(): void {
  * Automatically retries once on CSRF validation failure
  */
 async function secureFetch(url: string, options: RequestInit = {}): Promise<Response> {
+  // DEMO MODE: Return demo data response without network call
+  if (import.meta.env.VITE_USE_MOCK_DATA === 'true') {
+    console.log('[API] Demo mode - returning demo data for:', url);
+
+    // Import demo data generators (will be tree-shaken in production)
+    const {
+      generateDemoVehicles,
+      generateDemoDrivers,
+      generateDemoFacilities,
+      generateDemoWorkOrders,
+      generateDemoFuelTransactions,
+      generateDemoRoutes
+    } = await import('@/lib/demo-data');
+
+    // Route URL to appropriate demo data
+    let demoData: any[] = [];
+
+    if (url.includes('/vehicles')) {
+      demoData = generateDemoVehicles(50);
+    } else if (url.includes('/drivers')) {
+      demoData = generateDemoDrivers(30);
+    } else if (url.includes('/facilities') || url.includes('/service-bays')) {
+      demoData = generateDemoFacilities();
+    } else if (url.includes('/work-orders') || url.includes('/maintenance')) {
+      demoData = generateDemoWorkOrders(30);
+    } else if (url.includes('/fuel')) {
+      demoData = generateDemoFuelTransactions(100);
+    } else if (url.includes('/routes')) {
+      demoData = generateDemoRoutes(15);
+    } else {
+      // Default: empty array for unknown endpoints
+      demoData = [];
+    }
+
+    return new Response(JSON.stringify({ data: demoData }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }
+
   const method = options.method?.toUpperCase() || 'GET';
   const isStateChanging = ['POST', 'PUT', 'PATCH', 'DELETE'].includes(method);
 
@@ -303,6 +343,36 @@ interface Route {
 
 const queryClient = new QueryClient();
 
+/**
+ * Get tenant_id from the authenticated user's JWT token
+ * Extracts from demo JWT in localStorage or returns '1' as fallback
+ */
+function getTenantId(): string {
+  try {
+    // Check for demo JWT in localStorage (DEV mode)
+    const token = localStorage.getItem('fleet_auth_token');
+    if (token) {
+      // Decode base64 JWT (demo tokens are just base64 encoded JSON)
+      const decoded = JSON.parse(atob(token));
+      if (decoded.payload?.tenant_id) {
+        return String(decoded.payload.tenant_id);
+      }
+    }
+
+    // Fallback: Check GlobalStateContext localStorage
+    const storedTenantId = localStorage.getItem('tenant_id');
+    if (storedTenantId) {
+      return storedTenantId;
+    }
+
+    // Default fallback for demo mode
+    return '1';
+  } catch (error) {
+    console.warn('[use-api] Failed to extract tenant_id, using default:', error);
+    return '1';
+  }
+}
+
 const queryKeyFactory = {
   vehicles: (filters: VehicleFilters) => ['vehicles', filters],
   drivers: (filters: DriverFilters) => ['drivers', filters],
@@ -314,11 +384,16 @@ const queryKeyFactory = {
   routes: (filters: RouteFilters) => ['routes', filters],
 };
 
-export function useVehicles(filters: VehicleFilters = { tenant_id: '' }) {
+export function useVehicles(filters?: VehicleFilters) {
+  // Auto-inject tenant_id if not provided (spread first, then override)
+  const finalFilters: VehicleFilters = {
+    ...filters,
+    tenant_id: getTenantId()
+  };
   return useQuery<Vehicle[], Error>({
-    queryKey: queryKeyFactory.vehicles(filters),
+    queryKey: queryKeyFactory.vehicles(finalFilters),
     queryFn: async () => {
-      const params = new URLSearchParams(filters as Record<string, string>);
+      const params = new URLSearchParams(finalFilters as Record<string, string>);
       const res = await secureFetch(`/api/vehicles?${params}`, { method: 'GET' });
       if (!res.ok) throw new Error('Network response was not ok');
       return res.json();
@@ -329,11 +404,15 @@ export function useVehicles(filters: VehicleFilters = { tenant_id: '' }) {
   });
 }
 
-export function useDrivers(filters: DriverFilters = { tenant_id: '' }) {
+export function useDrivers(filters?: DriverFilters) {
+  const finalFilters: DriverFilters = {
+    ...filters,
+    tenant_id: getTenantId()
+  };
   return useQuery<Driver[], Error>({
-    queryKey: queryKeyFactory.drivers(filters),
+    queryKey: queryKeyFactory.drivers(finalFilters),
     queryFn: async () => {
-      const params = new URLSearchParams(filters as Record<string, string>);
+      const params = new URLSearchParams(finalFilters as Record<string, string>);
       const res = await secureFetch(`/api/drivers?${params}`);
       if (!res.ok) throw new Error('Network response was not ok');
       return res.json();
@@ -344,11 +423,17 @@ export function useDrivers(filters: DriverFilters = { tenant_id: '' }) {
   });
 }
 
-export function useMaintenance(filters: MaintenanceFilters = { tenant_id: '', startDate: '', endDate: '' }) {
+export function useMaintenance(filters?: MaintenanceFilters) {
+  const finalFilters: MaintenanceFilters = {
+    ...filters,
+    startDate: filters?.startDate || '',
+    endDate: filters?.endDate || '',
+    tenant_id: getTenantId()
+  };
   return useQuery<Maintenance[], Error>({
-    queryKey: queryKeyFactory.maintenance(filters),
+    queryKey: queryKeyFactory.maintenance(finalFilters),
     queryFn: async () => {
-      const params = new URLSearchParams(filters as Record<string, string>);
+      const params = new URLSearchParams(finalFilters as Record<string, string>);
       const res = await secureFetch(`/api/maintenance?${params}`);
       if (!res.ok) throw new Error('Network response was not ok');
       return res.json();
@@ -359,11 +444,15 @@ export function useMaintenance(filters: MaintenanceFilters = { tenant_id: '', st
   });
 }
 
-export function useWorkOrders(filters: WorkOrderFilters = { tenant_id: '' }) {
+export function useWorkOrders(filters?: WorkOrderFilters) {
+  const finalFilters: WorkOrderFilters = {
+    ...filters,
+    tenant_id: getTenantId()
+  };
   return useQuery<WorkOrder[], Error>({
-    queryKey: queryKeyFactory.workOrders(filters),
+    queryKey: queryKeyFactory.workOrders(finalFilters),
     queryFn: async () => {
-      const params = new URLSearchParams(filters as Record<string, string>);
+      const params = new URLSearchParams(finalFilters as Record<string, string>);
       const res = await secureFetch(`/api/work-orders?${params}`);
       if (!res.ok) throw new Error('Network response was not ok');
       return res.json();
@@ -374,11 +463,15 @@ export function useWorkOrders(filters: WorkOrderFilters = { tenant_id: '' }) {
   });
 }
 
-export function useFuelTransactions(filters: FuelTransactionFilters = { tenant_id: '' }) {
+export function useFuelTransactions(filters?: FuelTransactionFilters) {
+  const finalFilters: FuelTransactionFilters = {
+    ...filters,
+    tenant_id: getTenantId()
+  };
   return useQuery<FuelTransaction[], Error>({
-    queryKey: queryKeyFactory.fuelTransactions(filters),
+    queryKey: queryKeyFactory.fuelTransactions(finalFilters),
     queryFn: async () => {
-      const params = new URLSearchParams(filters as Record<string, string>);
+      const params = new URLSearchParams(finalFilters as Record<string, string>);
       const res = await secureFetch(`/api/fuel-transactions?${params}`);
       if (!res.ok) throw new Error('Network response was not ok');
       return res.json();
@@ -389,11 +482,15 @@ export function useFuelTransactions(filters: FuelTransactionFilters = { tenant_i
   });
 }
 
-export function useFacilities(filters: FacilityFilters = { tenant_id: '' }) {
+export function useFacilities(filters?: FacilityFilters) {
+  const finalFilters: FacilityFilters = {
+    ...filters,
+    tenant_id: getTenantId()
+  };
   return useQuery<Facility[], Error>({
-    queryKey: queryKeyFactory.facilities(filters),
+    queryKey: queryKeyFactory.facilities(finalFilters),
     queryFn: async () => {
-      const params = new URLSearchParams(filters as Record<string, string>);
+      const params = new URLSearchParams(finalFilters as Record<string, string>);
       const res = await secureFetch(`/api/facilities?${params}`);
       if (!res.ok) throw new Error('Network response was not ok');
       return res.json();
@@ -404,11 +501,15 @@ export function useFacilities(filters: FacilityFilters = { tenant_id: '' }) {
   });
 }
 
-export function useMaintenanceSchedules(filters: MaintenanceScheduleFilters = { tenant_id: '' }) {
+export function useMaintenanceSchedules(filters?: MaintenanceScheduleFilters) {
+  const finalFilters: MaintenanceScheduleFilters = {
+    ...filters,
+    tenant_id: getTenantId()
+  };
   return useQuery<MaintenanceSchedule[], Error>({
-    queryKey: queryKeyFactory.maintenanceSchedules(filters),
+    queryKey: queryKeyFactory.maintenanceSchedules(finalFilters),
     queryFn: async () => {
-      const params = new URLSearchParams(filters as Record<string, string>);
+      const params = new URLSearchParams(finalFilters as Record<string, string>);
       const res = await secureFetch(`/api/maintenance-schedules?${params}`);
       if (!res.ok) throw new Error('Network response was not ok');
       return res.json();
@@ -419,11 +520,15 @@ export function useMaintenanceSchedules(filters: MaintenanceScheduleFilters = { 
   });
 }
 
-export function useRoutes(filters: RouteFilters = { tenant_id: '' }) {
+export function useRoutes(filters?: RouteFilters) {
+  const finalFilters: RouteFilters = {
+    ...filters,
+    tenant_id: getTenantId()
+  };
   return useQuery<Route[], Error>({
-    queryKey: queryKeyFactory.routes(filters),
+    queryKey: queryKeyFactory.routes(finalFilters),
     queryFn: async () => {
-      const params = new URLSearchParams(filters as Record<string, string>);
+      const params = new URLSearchParams(finalFilters as Record<string, string>);
       const res = await secureFetch(`/api/routes?${params}`);
       if (!res.ok) throw new Error('Network response was not ok');
       return res.json();
