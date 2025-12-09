@@ -13,7 +13,6 @@ export interface MetricCardProps {
   variant?: 'primary' | 'success' | 'warning' | 'destructive' | 'default'
   onClick?: () => void
   className?: string
-  testId?: string
 }
 
 const variantStyles = {
@@ -33,21 +32,19 @@ export function MetricCard({
   icon,
   variant = 'default',
   onClick,
-  className = "",
-  testId
+  className = ""
 }: MetricCardProps) {
   return (
     <Card
       className={`p-4 ${onClick ? 'cursor-pointer hover:shadow-md transition-shadow' : ''} ${className}`}
       onClick={onClick}
-      data-testid={testId}
     >
       <div className="flex items-center gap-3">
         <div className={`p-2 rounded-lg ${variantStyles[variant]}`}>
           {icon}
         </div>
         <div>
-          <p className="text-2xl font-bold" data-testid={testId ? `${testId}-value` : undefined}>{value}</p>
+          <p className="text-2xl font-bold">{value}</p>
           <p className="text-xs text-muted-foreground">{label}</p>
         </div>
       </div>
@@ -65,7 +62,6 @@ export interface MetricsBarProps {
     xl?: number
   }
   gap?: string
-  testId?: string
 }
 
 /**
@@ -74,8 +70,7 @@ export interface MetricsBarProps {
 export function MetricsBar({
   metrics,
   columns = { base: 2, sm: 3, lg: 5 },
-  gap = "4",
-  testId
+  gap = "4"
 }: MetricsBarProps) {
   const gridCols = [
     columns.base && `grid-cols-${columns.base}`,
@@ -86,7 +81,7 @@ export function MetricsBar({
   ].filter(Boolean).join(' ')
 
   return (
-    <div className={`grid ${gridCols} gap-${gap}`} data-testid={testId}>
+    <div className={`grid ${gridCols} gap-${gap}`}>
       {metrics.map((metric, index) => (
         <MetricCard key={index} {...metric} />
       ))}

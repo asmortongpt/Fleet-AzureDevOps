@@ -14,8 +14,8 @@
  */
 
 import { Request, Response, NextFunction } from 'express'
-import { RateLimitError } from './errorHandler'
-import { securityLogger } from '../utils/logger'
+import { RateLimitError } from './error-handler'
+import { securityLogger } from `../utils/logger`
 
 /**
  * Rate limit configuration
