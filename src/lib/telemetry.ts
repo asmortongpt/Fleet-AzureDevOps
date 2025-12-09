@@ -17,6 +17,12 @@ class TelemetryService {
                             import.meta.env.VITE_APPLICATIONINSIGHTS_CONNECTION_STRING
 
     if (!connectionString) {
+      // Silently disable telemetry in development without warnings
+      if (import.meta.env.DEV) {
+        return null
+      }
+
+      // Only warn in production if connection string is missing
       console.warn('⚠️ Application Insights connection string not found. Frontend telemetry disabled.')
       console.warn('Set VITE_APPLICATION_INSIGHTS_CONNECTION_STRING in your .env file')
       return null
