@@ -127,7 +127,7 @@ const LoadingSpinner = () => (
 
 function App() {
   const [activeModule, setActiveModule] = useState("dashboard")
-  const [sidebarOpen, setSidebarOpen] = useState(true)
+  const [sidebarOpen, setSidebarOpen] = useState(false)
   const [reactPlugin] = useState(() => telemetryService.initialize())
 
   const fleetData = useFleetData()
