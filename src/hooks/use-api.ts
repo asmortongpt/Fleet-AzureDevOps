@@ -94,6 +94,46 @@ export function clearCsrfToken(): void {
  * Automatically retries once on CSRF validation failure
  */
 async function secureFetch(url: string, options: RequestInit = {}): Promise<Response> {
+  // DEMO MODE: Return demo data response without network call
+  if (import.meta.env.VITE_USE_MOCK_DATA === 'true') {
+    console.log('[API] Demo mode - returning demo data for:', url);
+
+    // Import demo data generators (will be tree-shaken in production)
+    const {
+      generateDemoVehicles,
+      generateDemoDrivers,
+      generateDemoFacilities,
+      generateDemoWorkOrders,
+      generateDemoFuelTransactions,
+      generateDemoRoutes
+    } = await import('@/lib/demo-data');
+
+    // Route URL to appropriate demo data
+    let demoData: any[] = [];
+
+    if (url.includes('/vehicles')) {
+      demoData = generateDemoVehicles(50);
+    } else if (url.includes('/drivers')) {
+      demoData = generateDemoDrivers(30);
+    } else if (url.includes('/facilities') || url.includes('/service-bays')) {
+      demoData = generateDemoFacilities();
+    } else if (url.includes('/work-orders') || url.includes('/maintenance')) {
+      demoData = generateDemoWorkOrders(30);
+    } else if (url.includes('/fuel')) {
+      demoData = generateDemoFuelTransactions(100);
+    } else if (url.includes('/routes')) {
+      demoData = generateDemoRoutes(15);
+    } else {
+      // Default: empty array for unknown endpoints
+      demoData = [];
+    }
+
+    return new Response(JSON.stringify({ data: demoData }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }
+
   const method = options.method?.toUpperCase() || 'GET';
   const isStateChanging = ['POST', 'PUT', 'PATCH', 'DELETE'].includes(method);
 
