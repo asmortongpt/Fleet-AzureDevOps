@@ -10,7 +10,12 @@ import authRoutes from './routes/auth';
 import vehiclesRoutes from './routes/vehicles';
 import driversRoutes from './routes/drivers';
 import facilitiesRoutes from './routes/facilities';
+import cacheRoutes from './routes/cache-monitoring';
+import gdprRoutes from './routes/gdpr';
+import complianceRoutes from './routes/soc2-compliance';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler';
+import { apiVersioning, versionInfoEndpoint } from './middleware/api-versioning';
+import { startDataRetentionCron, startDataRetentionReportCron } from './jobs/data-retention.cron';
 
 // Import Wave 4+ middleware
 import { csrfProtection, getCsrfToken, csrfErrorHandler } from '../../api/src/middleware/csrf';
@@ -56,6 +61,12 @@ app.use(cookieParser());
 
 // Request monitoring middleware
 app.use(monitorRequests);
+
+// API versioning middleware (applies to all /api routes)
+app.use('/api', apiVersioning);
+
+// API version info endpoint
+app.get('/api/version', versionInfoEndpoint);
 
 // Rate limiting
 const authLimiter = rateLimit({
@@ -140,6 +151,15 @@ app.use('/api/vehicles', vehiclesRoutes);
 app.use('/api/drivers', driversRoutes);
 app.use('/api/facilities', facilitiesRoutes);
 
+// Cache monitoring routes (admin only - add auth middleware in production)
+app.use('/api/cache', cacheRoutes);
+
+// GDPR compliance routes
+app.use('/api/gdpr', gdprRoutes);
+
+// SOC 2 compliance monitoring routes
+app.use('/api/compliance', complianceRoutes);
+
 // Health endpoint at /api/health (frontend expects this)
 app.get('/api/health', async (_req: Request, res: Response): Promise<void> => {
   try {
@@ -219,6 +239,10 @@ async function startServer() {
         logger.error('Session cleanup error', { error: error instanceof Error ? error.message : error });
       }
     }, 60 * 60 * 1000); // 1 hour
+
+    // Start GDPR data retention cron jobs
+    startDataRetentionCron();
+    startDataRetentionReportCron();
 
   } catch (error) {
     logger.error('Failed to start server', { error: error instanceof Error ? error.message : error });
