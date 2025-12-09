@@ -183,7 +183,7 @@ function App() {
       case "dispatch-console":
         return <DispatchConsole />
       case "people":
-        return <PeopleManagement data={fleetData} />
+        return <PeopleManagement />
       case "garage":
         return <GarageService data={fleetData} />
       case "virtual-garage":
