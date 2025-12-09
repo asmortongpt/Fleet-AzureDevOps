@@ -196,10 +196,7 @@ export function PerformanceMonitor({
           return [...filtered, vital]
         })
       })
-      // Only add cleanup if it's a function
-      if (typeof unsubscribe === 'function') {
-        monitors.push(unsubscribe)
-      }
+      monitors.push(unsubscribe)
     }
 
     // Cleanup
