@@ -141,7 +141,7 @@ export function FleetDashboard({ data }: FleetDashboardProps) {
   }
 
   return (
-    <div className="space-y-6 p-6" data-testid="dashboard-container">
+    <div className="space-y-6 p-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -196,19 +196,17 @@ export function FleetDashboard({ data }: FleetDashboardProps) {
       />
 
       {/* Filters */}
-      <div data-testid="fleet-filters">
-        <FleetFiltersPanel
-          statusFilter={statusFilter}
-          setStatusFilter={setStatusFilter}
-          searchQuery={searchQuery}
-          setSearchQuery={setSearchQuery}
-          hasActiveFilters={hasActiveFilters}
-          onAdvancedFiltersClick={() => {
-            /* FUTURE: Implement advanced filters dialog */
-          }}
-          onClearFilters={clearAllFilters}
-        />
-      </div>
+      <FleetFiltersPanel
+        statusFilter={statusFilter}
+        setStatusFilter={setStatusFilter}
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        hasActiveFilters={hasActiveFilters}
+        onAdvancedFiltersClick={() => {
+          /* FUTURE: Implement advanced filters dialog */
+        }}
+        onClearFilters={clearAllFilters}
+      />
 
       {/* Layout */}
       {renderLayout()}
