@@ -64,12 +64,12 @@ COPY --from=builder /app/dist /usr/share/nginx/html
 # COPY scripts/runtime-config.sh /docker-entrypoint.d/01-runtime-config.sh
 # RUN chmod +x /docker-entrypoint.d/01-runtime-config.sh
 
-# Expose port 3000
-EXPOSE 3000
+# Expose port 8080 (matches Kubernetes service and health probes)
+EXPOSE 8080
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
-  CMD wget --no-verbose --tries=1 --spider http://localhost:3000/health || exit 1
+  CMD wget --no-verbose --tries=1 --spider http://localhost:8080/health || exit 1
 
 # Start nginx
 CMD ["nginx", "-g", "daemon off;"]
