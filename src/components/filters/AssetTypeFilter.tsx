@@ -152,14 +152,14 @@ export const AssetTypeFilter: React.FC<AssetTypeFilterProps> = ({
               size="sm"
               onClick={handleClearAll}
               className="text-sm text-gray-600 hover:text-gray-900 transition-colors"
-            >
+             aria-label="Action button">
               Clear all
             </Button>
           )}
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => setIsExpanded(!isExpanded)}
+            onClick={() => setIsExpanded(!isExpanded)} aria-label="Action button"
             className="text-gray-400 hover:text-gray-600 transition-colors"
           >
             {isExpanded ? <X className="w-5 h-5" /> : <Funnel className="w-5 h-5" />}

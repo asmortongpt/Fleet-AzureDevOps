@@ -284,7 +284,7 @@ export function DriverPerformanceView({
           </Tabs>
 
           {/* Action Button */}
-          <Button onClick={handleViewTrips} className="w-full">
+          <Button onClick={handleViewTrips} className="w-full" aria-label="Action button">
             View Trip Details
           </Button>
         </div>

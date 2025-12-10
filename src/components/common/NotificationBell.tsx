@@ -140,7 +140,7 @@ export function NotificationBell({ onNavigate }: { onNavigate: (module: string) 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" className="relative">
+        <Button variant="ghost" size="icon" className="relative" aria-label="Action button">
           <Bell className="w-5 h-5" />
           {unreadCount > 0 && (
             <Badge
@@ -161,7 +161,7 @@ export function NotificationBell({ onNavigate }: { onNavigate: (module: string) 
               size="sm"
               className="h-auto p-1 text-xs"
               onClick={markAllAsRead}
-            >
+             aria-label="Action button">
               Mark all read
             </Button>
           )}

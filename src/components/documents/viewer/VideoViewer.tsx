@@ -202,7 +202,7 @@ export function VideoViewer({ document }: VideoViewerProps) {
                 <Button
                   variant="ghost"
                   size="icon"
-                  onClick={() => skip(-10)}
+                  onClick={() => skip(-10)} aria-label="Action button"
                   className="text-white hover:bg-white/20"
                   aria-label="Skip backward 10 seconds"
                 >
@@ -211,7 +211,7 @@ export function VideoViewer({ document }: VideoViewerProps) {
                 <Button
                   variant="ghost"
                   size="icon"
-                  onClick={() => skip(10)}
+                  onClick={() => skip(10)} aria-label="Action button"
                   className="text-white hover:bg-white/20"
                   aria-label="Skip forward 10 seconds"
                 >
@@ -257,7 +257,7 @@ export function VideoViewer({ document }: VideoViewerProps) {
                       variant="ghost"
                       size="sm"
                       className="text-white hover:bg-white/20"
-                    >
+                     aria-label="Action button">
                       <Settings className="mr-2 h-4 w-4" />
                       {playbackRate}x
                     </Button>

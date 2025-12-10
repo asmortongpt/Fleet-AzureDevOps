@@ -68,7 +68,7 @@ export function DocumentChat({ document, messages, onSendMessage, isLoading = fa
                     variant="outline"
                     size="sm"
                     className="text-left justify-start"
-                    onClick={() => onSendMessage(question)}
+                    onClick={() => onSendMessage(question)} aria-label="Action button"
                   >
                     {question}
                   </Button>
@@ -112,7 +112,7 @@ export function DocumentChat({ document, messages, onSendMessage, isLoading = fa
             disabled={!input.trim() || isLoading}
             size="icon"
             className="h-[80px]"
-          >
+           aria-label="Action button">
             <Send className="h-4 w-4" />
           </Button>
         </div>
@@ -176,10 +176,10 @@ function MessageBubble({ message, document }: { message: ChatMessage; document: 
 
         <div className="flex items-center justify-between pt-2">
           <div className="flex items-center gap-1">
-            <Button variant="ghost" size="icon" className="h-6 w-6">
+            <Button variant="ghost" size="icon" className="h-6 w-6" aria-label="Action button">
               <ThumbsUp className="h-3 w-3" />
             </Button>
-            <Button variant="ghost" size="icon" className="h-6 w-6">
+            <Button variant="ghost" size="icon" className="h-6 w-6" aria-label="Action button">
               <ThumbsDown className="h-3 w-3" />
             </Button>
           </div>
@@ -188,7 +188,7 @@ function MessageBubble({ message, document }: { message: ChatMessage; document: 
             size="sm"
             className="h-6 text-xs"
             onClick={handleCopy}
-          >
+           aria-label="Action button">
             {copied ? (
               <>
                 <Copy className="mr-1 h-3 w-3" />

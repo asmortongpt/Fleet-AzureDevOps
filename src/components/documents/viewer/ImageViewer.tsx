@@ -121,7 +121,7 @@ export function ImageViewer({ document, state, onStateChange }: ImageViewerProps
               size="sm"
               onClick={resetView}
               className="shadow-lg"
-            >
+             aria-label="Action button">
               <RotateCcw className="mr-2 h-4 w-4" />
               Reset view
             </Button>
@@ -138,7 +138,7 @@ export function ImageViewer({ document, state, onStateChange }: ImageViewerProps
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={() => setShowExif(false)}
+                onClick={() => setShowExif(false)} aria-label="Action button"
                 aria-label="Close details"
               >
                 ×
@@ -245,7 +245,7 @@ export function ImageViewer({ document, state, onStateChange }: ImageViewerProps
           <Button
             variant="secondary"
             size="sm"
-            onClick={() => setShowExif(true)}
+            onClick={() => setShowExif(true)} aria-label="Action button"
             className="shadow-lg"
           >
             <Info className="mr-2 h-4 w-4" />

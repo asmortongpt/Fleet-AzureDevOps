@@ -96,19 +96,19 @@ export function DataWorkbench({ data }: DataWorkbenchProps) {
           </p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={handleImport}>
+          <Button variant="outline" onClick={handleImport} aria-label="Action button">
             <Upload className="w-4 h-4 mr-2" />
             Import
           </Button>
-          <Button variant="outline" onClick={handleExport}>
+          <Button variant="outline" onClick={handleExport} aria-label="Action button">
             <Download className="w-4 h-4 mr-2" />
             Export
           </Button>
-          <Button variant="outline" onClick={handleRefresh}>
+          <Button variant="outline" onClick={handleRefresh} aria-label="Action button">
             <ArrowsClockwise className="w-4 h-4 mr-2" />
             Refresh
           </Button>
-          <Button onClick={() => setIsAddVehicleDialogOpen(true)}>
+          <Button onClick={() => setIsAddVehicleDialogOpen(true)} aria-label="Action button">
             <Plus className="w-4 h-4 mr-2" />
             Add Vehicle
           </Button>

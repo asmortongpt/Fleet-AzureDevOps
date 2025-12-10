@@ -84,8 +84,8 @@ export function DriverManagement() {
       header: "Actions",
       cell: () => (
         <div className="flex gap-2">
-          <Button variant="ghost" size="sm"><Edit className="w-4 h-4" /></Button>
-          <Button variant="ghost" size="sm"><Trash className="w-4 h-4" /></Button>
+          <Button variant="ghost" size="sm" aria-label="Action button"><Edit className="w-4 h-4" /></Button>
+          <Button variant="ghost" size="sm" aria-label="Action button"><Trash className="w-4 h-4" /></Button>
         </div>
       ),
     },
@@ -95,7 +95,7 @@ export function DriverManagement() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-3xl font-bold">Driver Management</h2>
-        <Button><Plus className="w-4 h-4 mr-2" /> Add Driver</Button>
+        <Button aria-label="Action button"><Plus className="w-4 h-4 mr-2" /> Add Driver</Button>
       </div>
 
       <Card>
