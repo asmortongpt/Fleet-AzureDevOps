@@ -618,7 +618,7 @@ export function CustomReportBuilder() {
 
               {/* Actions */}
               <div className="flex gap-2">
-                <Button onClick={handleSaveReport}>
+                <Button onClick={handleSaveReport} aria-label="Save changes">
                   <FloppyDisk className="w-4 h-4 mr-2" />
                   Save Report
                 </Button>

@@ -276,10 +276,10 @@ export function VendorManagement() {
               </div>
             </div>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
+              <Button variant="outline" onClick={() => setIsAddDialogOpen(false)} aria-label="Cancel">
                 Cancel
               </Button>
-              <Button onClick={handleAddVendor}>Add Vendor</Button>
+              <Button onClick={handleAddVendor} aria-label="Create item">Add Vendor</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
@@ -575,7 +575,7 @@ export function VendorManagement() {
             </div>
           )}
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsDetailsDialogOpen(false)}>
+            <Button variant="outline" onClick={() => setIsDetailsDialogOpen(false)} aria-label="Cancel">
               Close
             </Button>
           </DialogFooter>
