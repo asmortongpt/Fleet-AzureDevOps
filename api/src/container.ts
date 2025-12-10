@@ -56,6 +56,26 @@ import { CostAnalysisService } from "./services/cost-analysis.service";
 import { FleetOptimizerService } from "./services/fleet-optimizer.service";
 import { ExecutiveDashboardService } from "./services/executive-dashboard.service";
 
+// Services - Integration & Utility (Batch 3)
+import { AssignmentNotificationService } from "./services/assignment-notification.service";
+import DriverSafetyAIService from "./services/driver-safety-ai.service";
+import EVChargingService from "./services/ev-charging.service";
+import { MicrosoftGraphService } from "./services/microsoft-graph.service";
+import { MicrosoftIntegrationService } from "./services/microsoft-integration.service";
+import { MobileIntegrationService } from "./services/mobile-integration.service";
+import { OBD2EmulatorService } from "./services/obd2-emulator.service";
+import OCPPService from "./services/ocpp.service";
+import { OfflineStorageService } from "./services/offline-storage.service";
+import { OpenAIVisionService } from "./services/openaiVisionService";
+import { QRGeneratorService } from "./services/qr-generator.service";
+import { ROICalculatorService } from "./services/roi-calculator.service";
+import SamsaraService from "./services/samsara.service";
+import SmartcarService from "./services/smartcar.service";
+import { UtilizationCalcService } from "./services/utilization-calc.service";
+import { VehicleIdlingService } from "./services/vehicle-idling.service";
+import VehicleModelsService from "./services/vehicle-models.service";
+import VideoTelematicsService from "./services/video-telematics.service";
+
 // Repositories - Module Pattern
 import { DriverRepository } from "./modules/drivers/repositories/driver.repository";
 import { FacilityRepository } from "./modules/facilities/repositories/facility.repository";
@@ -236,5 +256,42 @@ container.bind(TYPES.FuelPurchasingService).to(FuelPurchasingService).inSingleto
 container.bind(TYPES.CostAnalysisService).to(CostAnalysisService).inSingletonScope();
 container.bind(TYPES.FleetOptimizerService).to(FleetOptimizerService).inSingletonScope();
 container.bind(TYPES.ExecutiveDashboardService).to(ExecutiveDashboardService).inSingletonScope();
+
+// Integration & Utility Services (Batch 3)
+// Vehicle Assignment & Notifications
+container.bind(TYPES.AssignmentNotificationService).toDynamicValue(() => new AssignmentNotificationService(pool)).inSingletonScope();
+
+// Vehicle Management & Analytics
+container.bind(TYPES.UtilizationCalcService).toDynamicValue(() => new UtilizationCalcService(pool)).inSingletonScope();
+container.bind(TYPES.ROICalculatorService).toDynamicValue(() => new ROICalculatorService(pool)).inSingletonScope();
+container.bind(TYPES.VehicleModelsService).toDynamicValue(() => new VehicleModelsService(pool)).inSingletonScope();
+container.bind(TYPES.VehicleIdlingService).toDynamicValue(() => new VehicleIdlingService(pool)).inSingletonScope();
+
+// External Integrations (Telematics & IoT)
+container.bind(TYPES.SmartcarService).toConstantValue(SmartcarService).inSingletonScope();
+container.bind(TYPES.SamsaraService).toConstantValue(SamsaraService).inSingletonScope();
+container.bind(TYPES.OBD2EmulatorService).toConstantValue(OBD2EmulatorService).inSingletonScope();
+
+// EV & Charging Management
+container.bind(TYPES.OCPPService).toConstantValue(OCPPService).inSingletonScope();
+container.bind(TYPES.EVChargingService).toConstantValue(EVChargingService).inSingletonScope();
+
+// Video & Safety
+container.bind(TYPES.VideoTelematicsService).toConstantValue(VideoTelematicsService).inSingletonScope();
+container.bind(TYPES.DriverSafetyAIService).toConstantValue(DriverSafetyAIService).inSingletonScope();
+
+// AI & Vision
+container.bind(TYPES.OpenAIVisionService).to(OpenAIVisionService).inSingletonScope();
+
+// Mobile & Offline
+container.bind(TYPES.MobileIntegrationService).to(MobileIntegrationService).inSingletonScope();
+container.bind(TYPES.OfflineStorageService).to(OfflineStorageService).inSingletonScope();
+
+// Utilities
+container.bind(TYPES.QRGeneratorService).to(QRGeneratorService).inSingletonScope();
+
+// Microsoft Integration
+container.bind(TYPES.MicrosoftGraphService).to(MicrosoftGraphService).inSingletonScope();
+container.bind(TYPES.MicrosoftIntegrationService).to(MicrosoftIntegrationService).inSingletonScope();
 
 export { container };
