@@ -35,6 +35,7 @@ import { RouteRepository } from "./repositories/RouteRepository";
 import { PermissionRepository } from "./repositories/PermissionRepository";
 import { VehicleAssignmentRepository } from "./repositories/VehicleAssignmentRepository";
 import { ReservationRepository } from "./repositories/ReservationRepository";
+import { TelematicsRepository } from "./repositories/TelematicsRepository";
 import { TYPES } from "./types";
 
 const container = new Container();
@@ -106,5 +107,8 @@ container.bind(TYPES.VehicleAssignmentRepository).to(VehicleAssignmentRepository
 
 // Reservation module
 container.bind(TYPES.ReservationRepository).to(ReservationRepository);
+
+// Telematics module
+container.bind(TYPES.TelematicsRepository).to(TelematicsRepository);
 
 export { container };
