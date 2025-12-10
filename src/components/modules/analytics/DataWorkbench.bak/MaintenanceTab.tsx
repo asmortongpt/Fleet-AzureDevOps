@@ -122,7 +122,7 @@ export function MaintenanceTab({ maintenanceRecords, onScheduleService }: Mainte
           <Button
             variant={maintenanceFilter === "all" ? "default" : "outline"}
             size="sm"
-            onClick={() => setMaintenanceFilter("all")}
+            onClick={() => setMaintenanceFilter("all")} aria-label="Action button"
             aria-pressed={maintenanceFilter === "all"}
           >
             All
@@ -130,7 +130,7 @@ export function MaintenanceTab({ maintenanceRecords, onScheduleService }: Mainte
           <Button
             variant={maintenanceFilter === "upcoming" ? "default" : "outline"}
             size="sm"
-            onClick={() => setMaintenanceFilter("upcoming")}
+            onClick={() => setMaintenanceFilter("upcoming")} aria-label="Action button"
             aria-pressed={maintenanceFilter === "upcoming"}
           >
             Upcoming
@@ -138,7 +138,7 @@ export function MaintenanceTab({ maintenanceRecords, onScheduleService }: Mainte
           <Button
             variant={maintenanceFilter === "overdue" ? "default" : "outline"}
             size="sm"
-            onClick={() => setMaintenanceFilter("overdue")}
+            onClick={() => setMaintenanceFilter("overdue")} aria-label="Action button"
             aria-pressed={maintenanceFilter === "overdue"}
           >
             Overdue
@@ -146,7 +146,7 @@ export function MaintenanceTab({ maintenanceRecords, onScheduleService }: Mainte
           <Button
             variant={maintenanceFilter === "completed" ? "default" : "outline"}
             size="sm"
-            onClick={() => setMaintenanceFilter("completed")}
+            onClick={() => setMaintenanceFilter("completed")} aria-label="Action button"
             aria-pressed={maintenanceFilter === "completed"}
           >
             Completed

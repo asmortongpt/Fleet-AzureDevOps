@@ -490,7 +490,7 @@ export function VehicleDetailPanel({ vehicleId }: VehicleDetailPanelProps) {
                   size="sm"
                   variant="outline"
                   onClick={handleToggleLocationHistory}
-                >
+                 aria-label="Action button">
                   {showLocationHistory ? 'Hide' : 'Show'} History
                 </Button>
               </div>
@@ -516,21 +516,21 @@ export function VehicleDetailPanel({ vehicleId }: VehicleDetailPanelProps) {
                       <Button
                         size="sm"
                         variant="outline"
-                        onClick={() => handleDateRangeChange('day')}
+                        onClick={() => handleDateRangeChange('day')} aria-label="Action button"
                       >
                         Last 24h
                       </Button>
                       <Button
                         size="sm"
                         variant="outline"
-                        onClick={() => handleDateRangeChange('week')}
+                        onClick={() => handleDateRangeChange('week')} aria-label="Action button"
                       >
                         Last Week
                       </Button>
                       <Button
                         size="sm"
                         variant="outline"
-                        onClick={() => handleDateRangeChange('month')}
+                        onClick={() => handleDateRangeChange('month')} aria-label="Action button"
                       >
                         Last Month
                       </Button>
@@ -558,7 +558,7 @@ export function VehicleDetailPanel({ vehicleId }: VehicleDetailPanelProps) {
                           <Button
                             size="sm"
                             variant="outline"
-                            onClick={() => setSelectedTripId(null)}
+                            onClick={() => setSelectedTripId(null)} aria-label="Action button"
                           >
                             Clear Selection
                           </Button>
@@ -584,11 +584,11 @@ export function VehicleDetailPanel({ vehicleId }: VehicleDetailPanelProps) {
 
           {/* Action Buttons */}
           <div className="grid grid-cols-2 gap-3">
-            <Button onClick={handleViewTrips} className="w-full">
+            <Button onClick={handleViewTrips} className="w-full" aria-label="Action button">
               <Route className="h-4 w-4 mr-2" />
               View Trips
             </Button>
-            <Button onClick={handleViewMaintenance} variant="outline" className="w-full">
+            <Button onClick={handleViewMaintenance} variant="outline" className="w-full" aria-label="Action button">
               <Calendar className="h-4 w-4 mr-2" />
               Maintenance
             </Button>

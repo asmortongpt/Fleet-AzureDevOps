@@ -327,7 +327,7 @@ function EmptyState() {
       <p className="text-muted-foreground max-w-sm mb-6">
         Upload your first document to get started, or adjust your search filters.
       </p>
-      <Button>
+      <Button aria-label="Action button">
         <Download className="mr-2 h-4 w-4" />
         Upload documents
       </Button>

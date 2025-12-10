@@ -472,8 +472,8 @@ router.put('/:id',csrfProtection, authenticateJWT, async (req: AuthRequest, res:
 
       // Check if reservation exists and user has permission
       const checkQuery = canViewAllReservations(currentUser)
-        ? `SELECT * FROM vehicle_reservations WHERE id = $1 AND deleted_at IS NULL`
-        : `SELECT * FROM vehicle_reservations WHERE id = $1 AND user_id = $2 AND deleted_at IS NULL`;
+        ? `SELECT id, tenant_id, vehicle_id, reserved_by, driver_id, reservation_type, start_time, end_time, pickup_location, dropoff_location, estimated_miles, purpose, status, approval_status, approved_by, approved_at, rejection_reason, actual_start_time, actual_end_time, actual_miles, start_odometer, end_odometer, calendar_event_id, microsoft_event_id, google_event_id, notes, reminder_sent, created_at, updated_at FROM vehicle_reservations WHERE id = $1 AND deleted_at IS NULL`
+        : `SELECT id, tenant_id, vehicle_id, reserved_by, driver_id, reservation_type, start_time, end_time, pickup_location, dropoff_location, estimated_miles, purpose, status, approval_status, approved_by, approved_at, rejection_reason, actual_start_time, actual_end_time, actual_miles, start_odometer, end_odometer, calendar_event_id, microsoft_event_id, google_event_id, notes, reminder_sent, created_at, updated_at FROM vehicle_reservations WHERE id = $1 AND user_id = $2 AND deleted_at IS NULL`;
 
       const checkParams = canViewAllReservations(currentUser) ? [id] : [id, currentUser.id];
       const checkResult = await client.query(checkQuery, checkParams);
@@ -608,8 +608,8 @@ router.delete('/:id',csrfProtection, authenticateJWT, async (req: AuthRequest, r
 
       // Check permission
       const checkQuery = canViewAllReservations(currentUser)
-        ? `SELECT * FROM vehicle_reservations WHERE id = $1 AND deleted_at IS NULL`
-        : `SELECT * FROM vehicle_reservations WHERE id = $1 AND user_id = $2 AND deleted_at IS NULL`;
+        ? `SELECT id, tenant_id, vehicle_id, reserved_by, driver_id, reservation_type, start_time, end_time, pickup_location, dropoff_location, estimated_miles, purpose, status, approval_status, approved_by, approved_at, rejection_reason, actual_start_time, actual_end_time, actual_miles, start_odometer, end_odometer, calendar_event_id, microsoft_event_id, google_event_id, notes, reminder_sent, created_at, updated_at FROM vehicle_reservations WHERE id = $1 AND deleted_at IS NULL`
+        : `SELECT id, tenant_id, vehicle_id, reserved_by, driver_id, reservation_type, start_time, end_time, pickup_location, dropoff_location, estimated_miles, purpose, status, approval_status, approved_by, approved_at, rejection_reason, actual_start_time, actual_end_time, actual_miles, start_odometer, end_odometer, calendar_event_id, microsoft_event_id, google_event_id, notes, reminder_sent, created_at, updated_at FROM vehicle_reservations WHERE id = $1 AND user_id = $2 AND deleted_at IS NULL`;
 
       const checkParams = canViewAllReservations(currentUser) ? [id] : [id, currentUser.id];
       const checkResult = await client.query(checkQuery, checkParams);
@@ -691,7 +691,7 @@ router.post('/:id/approve',csrfProtection, authenticateJWT, async (req: AuthRequ
 
       // Get reservation
       const reservationResult = await client.query(
-        `SELECT * FROM vehicle_reservations WHERE id = $1 AND deleted_at IS NULL`,
+        `SELECT id, tenant_id, vehicle_id, reserved_by, driver_id, reservation_type, start_time, end_time, pickup_location, dropoff_location, estimated_miles, purpose, status, approval_status, approved_by, approved_at, rejection_reason, actual_start_time, actual_end_time, actual_miles, start_odometer, end_odometer, calendar_event_id, microsoft_event_id, google_event_id, notes, reminder_sent, created_at, updated_at FROM vehicle_reservations WHERE id = $1 AND deleted_at IS NULL`,
         [id]
       );
 

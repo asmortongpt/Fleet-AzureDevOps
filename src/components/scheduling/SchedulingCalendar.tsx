@@ -238,26 +238,26 @@ export function SchedulingCalendar({
         </div>
         <div className="flex items-center justify-between mt-4">
           <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" onClick={navigatePrevious}>
+            <Button variant="outline" size="sm" onClick={navigatePrevious} aria-label="Action button">
               <ChevronLeftIcon className="h-4 w-4" />
             </Button>
-            <Button variant="outline" size="sm" onClick={navigateNext}>
+            <Button variant="outline" size="sm" onClick={navigateNext} aria-label="Action button">
               <ChevronRightIcon className="h-4 w-4" />
             </Button>
-            <Button variant="outline" size="sm" onClick={navigateToday}>
+            <Button variant="outline" size="sm" onClick={navigateToday} aria-label="Action button">
               Today
             </Button>
           </div>
           <h3 className="text-lg font-semibold">{dateRange.title}</h3>
           <div className="flex items-center gap-4">
             {onCreateReservation && (
-              <Button variant="outline" size="sm" onClick={() => onCreateReservation(selectedDate || currentDate)}>
+              <Button variant="outline" size="sm" onClick={() => onCreateReservation(selectedDate || currentDate)} aria-label="Action button">
                 <TruckIcon className="h-4 w-4 mr-1" />
                 New Reservation
               </Button>
             )}
             {onCreateMaintenance && (
-              <Button variant="outline" size="sm" onClick={() => onCreateMaintenance(selectedDate || currentDate)}>
+              <Button variant="outline" size="sm" onClick={() => onCreateMaintenance(selectedDate || currentDate)} aria-label="Action button">
                 <WrenchIcon className="h-4 w-4 mr-1" />
                 New Maintenance
               </Button>

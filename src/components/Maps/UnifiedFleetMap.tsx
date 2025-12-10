@@ -347,7 +347,7 @@ export const UnifiedFleetMap: React.FC<UnifiedFleetMapProps> = ({
               <Button
                 size="sm"
                 variant="outline"
-                onClick={() => toggleAllLayers(true)}
+                onClick={() => toggleAllLayers(true)} aria-label="Action button"
                 className="text-xs"
               >
                 <Eye className="w-3 h-3 mr-1" />
@@ -356,7 +356,7 @@ export const UnifiedFleetMap: React.FC<UnifiedFleetMapProps> = ({
               <Button
                 size="sm"
                 variant="outline"
-                onClick={() => toggleAllLayers(false)}
+                onClick={() => toggleAllLayers(false)} aria-label="Action button"
                 className="text-xs"
               >
                 <EyeOff className="w-3 h-3 mr-1" />
@@ -365,7 +365,7 @@ export const UnifiedFleetMap: React.FC<UnifiedFleetMapProps> = ({
               <Button
                 size="sm"
                 variant="ghost"
-                onClick={() => setShowControls(false)}
+                onClick={() => setShowControls(false)} aria-label="Action button"
                 className="text-xs"
               >
                 <Settings className="w-3 h-3" />
@@ -381,7 +381,7 @@ export const UnifiedFleetMap: React.FC<UnifiedFleetMapProps> = ({
           <Button
             size="sm"
             variant="default"
-            onClick={() => setShowControls(true)}
+            onClick={() => setShowControls(true)} aria-label="Action button"
             className="shadow-lg"
           >
             <Layers className="w-4 h-4 mr-1" />
