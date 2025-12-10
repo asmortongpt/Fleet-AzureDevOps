@@ -1,7 +1,6 @@
 /**
  * Centralized Error Exports
- *
- * Export all error classes from a single location for easy imports
+ * ARCHITECTURE FIX (BACKEND-3, BACKEND-8): Single source of truth for error handling
  */
 
 // Export all error classes
@@ -13,21 +12,18 @@ export {
   NotFoundError,
   ConflictError,
   UnprocessableEntityError,
-  InternalServerError,
+  RateLimitError,
+  InternalError,
+  BadGatewayError,
   ServiceUnavailableError,
   DatabaseError,
-  ExternalApiError
+  ExternalAPIError,
+  isAppError,
+  isOperationalError
 } from './AppError';
 
-// Re-export middleware error handler for backward compatibility
+// Re-export middleware for convenience
 export {
   errorHandler,
-  asyncHandler,
-  notFoundHandler,
-  registerProcessErrorHandlers,
-  // Also export legacy error names for compatibility
-  AuthenticationError,
-  AuthorizationError,
-  RateLimitError,
-  ExternalServiceError
+  asyncHandler
 } from '../middleware/errorHandler';
