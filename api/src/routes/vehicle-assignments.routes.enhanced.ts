@@ -1,8 +1,8 @@
 import express, { Request, Response } from 'express'
 import { container } from '../container'
+import { TYPES } from '../types'
 import { asyncHandler } from '../middleware/errorHandler'
 import { NotFoundError, ValidationError } from '../errors/app-error'
-import { Pool } from 'pg'
 import { z } from 'zod'
 import { authenticateJWT, AuthRequest } from '../middleware/auth'
 import { requirePermission } from '../middleware/permissions'
@@ -10,14 +10,13 @@ import { AssignmentNotificationService } from '../services/assignment-notificati
 import { getErrorMessage } from '../utils/error-handler'
 import helmet from 'helmet'
 import rateLimit from 'express-rate-limit'
-import bcrypt from 'bcrypt'
-import { check, validationResult } from 'express-validator'
 import { csrfProtection } from '../middleware/csrf'
-
+import { VehicleAssignmentRepository } from '../repositories/VehicleAssignmentRepository'
+import { connectionManager } from '../config/connection-manager'
 
 const router = express.Router()
-router.use(helmet()
-router.use(express.json()
+router.use(helmet())
+router.use(express.json())
 
 const apiLimiter = rateLimit({
   windowMs: 60 * 1000, // 1 minute
@@ -26,13 +25,17 @@ const apiLimiter = rateLimit({
   legacyHeaders: false,
 })
 
-// Get database pool from app context
-let pool: Pool
+// Get repository and services from DI container
+const getRepository = (): VehicleAssignmentRepository => {
+  return container.get<VehicleAssignmentRepository>(TYPES.VehicleAssignmentRepository)
+}
+
+// Notification service (initialized with pool)
 let notificationService: AssignmentNotificationService
 
-export function setDatabasePool(dbPool: Pool) {
-  pool = dbPool
-  notificationService = new AssignmentNotificationService(dbPool)
+export function setDatabasePool() {
+  const pool = connectionManager.getWritePool()
+  notificationService = new AssignmentNotificationService(pool)
 }
 
 // =====================================================
@@ -54,7 +57,7 @@ const createAssignmentSchema = z
     authorized_use: z.string().optional(),
     commuting_authorized: z.boolean().default(false),
     on_call_only: z.boolean().default(false),
-    geographic_constraints: z.record(z.any().optional(),
+    geographic_constraints: z.record(z.any()).optional(),
     requires_secured_parking: z.boolean().default(false),
     secured_parking_location_id: z.string().uuid().optional(),
     recommendation_notes: z.string().optional(),
@@ -94,7 +97,7 @@ const validate = (schema: z.ZodSchema) => {
   return (req: Request, res: Response, next: Function) => {
     const result = schema.safeParse(req.body)
     if (!result.success) {
-      return res.status(400).json(result.error.format()
+      return res.status(400).json(result.error.format())
     }
     next()
   }
@@ -110,59 +113,242 @@ router.get(
   authenticateJWT,
   requirePermission('vehicle_assignment:view:team'),
   apiLimiter,
-  async (req: AuthRequest, res: Response) => {
-    try {
-      const {
-        page = '1',
-        limit = '50',
-        assignment_type,
-        lifecycle_state,
-        driver_id,
-        vehicle_id,
-        department_id,
-      } = req.query
-
-      const queryParams = []
-      let queryStr = 'SELECT id, tenant_id, vehicle_id, driver_id, department_id, assignment_type, start_date, end_date, is_ongoing, lifecycle_state, authorized_use, commuting_authorized, on_call_only, recommended_by_user_id, recommended_at, recommendation_notes, approval_status, approved_by_user_id, approved_at, denied_by_user_id, denied_at, approval_notes, denial_reason, geographic_constraints, requires_secured_parking, secured_parking_location_id, cost_benefit_analysis_id, created_at, updated_at, created_by_user_id, end_date, assignment_type FROM vehicle_assignments WHERE 1=1'
-
-      if (assignment_type) {
-        queryParams.push(assignment_type)
-        queryStr += ` AND assignment_type = $${queryParams.length}`
-      }
-
-      if (lifecycle_state) {
-        queryParams.push(lifecycle_state)
-        queryStr += ` AND lifecycle_state = $${queryParams.length}`
-      }
-
-      if (driver_id) {
-        queryParams.push(driver_id)
-        queryStr += ` AND driver_id = $${queryParams.length}`
-      }
-
-      if (vehicle_id) {
-        queryParams.push(vehicle_id)
-        queryStr += ` AND vehicle_id = $${queryParams.length}`
-      }
-
-      if (department_id) {
-        queryParams.push(department_id)
-        queryStr += ` AND department_id = $${queryParams.length}`
-      }
-
-      const offset = (parseInt(page as string) - 1) * parseInt(limit as string)
-      queryParams.push(offset, parseInt(limit as string)
-      queryStr += ` OFFSET $${queryParams.length - 1} LIMIT $${queryParams.length}`
-
-      const { rows } = await pool.query(queryStr, queryParams)
-      res.json(rows)
-    } catch (error) {
-      console.error(error)
-      res.status(500).send(getErrorMessage(error)
+  asyncHandler(async (req: AuthRequest, res: Response) => {
+    const tenantId = req.user?.tenant_id
+    if (!tenantId) {
+      throw new ValidationError('Tenant ID is required')
     }
-  }
+
+    const {
+      page = '1',
+      limit = '50',
+      assignment_type,
+      lifecycle_state,
+      driver_id,
+      vehicle_id,
+      department_id,
+    } = req.query
+
+    const repository = getRepository()
+
+    const filters = {
+      assignment_type: assignment_type as string | undefined,
+      lifecycle_state: lifecycle_state as string | undefined,
+      driver_id: driver_id as string | undefined,
+      vehicle_id: vehicle_id as string | undefined,
+      department_id: department_id as string | undefined,
+    }
+
+    const result = await repository.findByTenantWithFilters(
+      tenantId,
+      filters,
+      {
+        page: parseInt(page as string, 10),
+        limit: parseInt(limit as string, 10),
+      }
+    )
+
+    res.json({
+      data: result.data,
+      pagination: {
+        page: parseInt(page as string, 10),
+        limit: parseInt(limit as string, 10),
+        total: result.total,
+        totalPages: Math.ceil(result.total / parseInt(limit as string, 10)),
+      },
+    })
+  })
 )
 
-// Additional route handlers (POST, PUT, DELETE) would follow the same pattern of security, validation, and error handling
+// =====================================================
+// GET /vehicle-assignments/:id
+// Get single assignment by ID
+// =====================================================
+
+router.get(
+  '/:id',
+  authenticateJWT,
+  requirePermission('vehicle_assignment:view:team'),
+  apiLimiter,
+  asyncHandler(async (req: AuthRequest, res: Response) => {
+    const { id } = req.params
+    const tenantId = req.user?.tenant_id
+    if (!tenantId) {
+      throw new ValidationError('Tenant ID is required')
+    }
+
+    const repository = getRepository()
+    const assignment = await repository.findByIdAndTenant(id, tenantId)
+
+    if (!assignment) {
+      throw new NotFoundError('Vehicle assignment')
+    }
+
+    res.json(assignment)
+  })
+)
+
+// =====================================================
+// POST /vehicle-assignments
+// Create new assignment
+// =====================================================
+
+router.post(
+  '/',
+  authenticateJWT,
+  requirePermission('vehicle_assignment:create'),
+  csrfProtection,
+  validate(createAssignmentSchema),
+  apiLimiter,
+  asyncHandler(async (req: AuthRequest, res: Response) => {
+    const tenantId = req.user?.tenant_id
+    const userId = req.user?.id
+    if (!tenantId || !userId) {
+      throw new ValidationError('Tenant ID and User ID are required')
+    }
+
+    const repository = getRepository()
+    const assignment = await repository.createAssignment(tenantId, {
+      ...req.body,
+      created_by_user_id: userId,
+      lifecycle_state: 'draft',
+    })
+
+    // Send notification (async, don't block response)
+    if (notificationService) {
+      notificationService
+        .notifyNewAssignment(assignment)
+        .catch(err => console.error('Failed to send assignment notification:', err))
+    }
+
+    res.status(201).json(assignment)
+  })
+)
+
+// =====================================================
+// PUT /vehicle-assignments/:id
+// Update assignment
+// =====================================================
+
+router.put(
+  '/:id',
+  authenticateJWT,
+  requirePermission('vehicle_assignment:update'),
+  csrfProtection,
+  validate(updateAssignmentSchema),
+  apiLimiter,
+  asyncHandler(async (req: AuthRequest, res: Response) => {
+    const { id } = req.params
+    const tenantId = req.user?.tenant_id
+    if (!tenantId) {
+      throw new ValidationError('Tenant ID is required')
+    }
+
+    const repository = getRepository()
+    const assignment = await repository.updateAssignment(id, tenantId, req.body)
+
+    res.json(assignment)
+  })
+)
+
+// =====================================================
+// PATCH /vehicle-assignments/:id/lifecycle
+// Update lifecycle state
+// =====================================================
+
+router.patch(
+  '/:id/lifecycle',
+  authenticateJWT,
+  requirePermission('vehicle_assignment:update'),
+  csrfProtection,
+  validate(assignmentLifecycleSchema),
+  apiLimiter,
+  asyncHandler(async (req: AuthRequest, res: Response) => {
+    const { id } = req.params
+    const tenantId = req.user?.tenant_id
+    if (!tenantId) {
+      throw new ValidationError('Tenant ID is required')
+    }
+
+    const { lifecycle_state, notes } = req.body
+
+    const repository = getRepository()
+    const assignment = await repository.updateLifecycleState(
+      id,
+      tenantId,
+      lifecycle_state,
+      notes
+    )
+
+    res.json(assignment)
+  })
+)
+
+// =====================================================
+// POST /vehicle-assignments/:id/approve-deny
+// Approve or deny assignment
+// =====================================================
+
+router.post(
+  '/:id/approve-deny',
+  authenticateJWT,
+  requirePermission('vehicle_assignment:approve'),
+  csrfProtection,
+  validate(approvalActionSchema),
+  apiLimiter,
+  asyncHandler(async (req: AuthRequest, res: Response) => {
+    const { id } = req.params
+    const tenantId = req.user?.tenant_id
+    const userId = req.user?.id
+    if (!tenantId || !userId) {
+      throw new ValidationError('Tenant ID and User ID are required')
+    }
+
+    const { action, notes } = req.body
+
+    const repository = getRepository()
+    let assignment
+
+    if (action === 'approve') {
+      assignment = await repository.approveAssignment(id, tenantId, userId, notes)
+    } else {
+      assignment = await repository.denyAssignment(id, tenantId, userId, notes)
+    }
+
+    // Send notification (async, don't block response)
+    if (notificationService) {
+      notificationService
+        .notifyAssignmentStatusChange(assignment)
+        .catch(err => console.error('Failed to send status change notification:', err))
+    }
+
+    res.json(assignment)
+  })
+)
+
+// =====================================================
+// DELETE /vehicle-assignments/:id
+// Delete assignment
+// =====================================================
+
+router.delete(
+  '/:id',
+  authenticateJWT,
+  requirePermission('vehicle_assignment:delete'),
+  csrfProtection,
+  apiLimiter,
+  asyncHandler(async (req: AuthRequest, res: Response) => {
+    const { id } = req.params
+    const tenantId = req.user?.tenant_id
+    if (!tenantId) {
+      throw new ValidationError('Tenant ID is required')
+    }
+
+    const repository = getRepository()
+    await repository.deleteAssignment(id, tenantId)
+
+    res.status(204).send()
+  })
+)
 
 export default router
