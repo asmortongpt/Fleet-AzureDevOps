@@ -436,7 +436,7 @@ export function GeofenceManagement() {
               <Button variant="outline" onClick={() => { setIsAddDialogOpen(false); resetForm(); }}>
                 Cancel
               </Button>
-              <Button onClick={handleSaveGeofence}>
+              <Button onClick={handleSaveGeofence} aria-label="Save changes">
                 {selectedGeofence ? "Update" : "Create"} Geofence
               </Button>
             </DialogFooter>

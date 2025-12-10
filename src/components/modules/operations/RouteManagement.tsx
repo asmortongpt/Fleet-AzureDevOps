@@ -255,10 +255,10 @@ export function RouteManagement({ data }: RouteManagementProps) {
                 />
               </div>
               <div className="flex justify-end gap-2">
-                <Button variant="outline" onClick={() => setDialogOpen(false)}>
+                <Button variant="outline" onClick={() => setDialogOpen(false)} aria-label="Cancel">
                   Cancel
                 </Button>
-                <Button onClick={handleCreateRoute}>
+                <Button onClick={handleCreateRoute} aria-label="Create item">
                   Create Route
                 </Button>
               </div>

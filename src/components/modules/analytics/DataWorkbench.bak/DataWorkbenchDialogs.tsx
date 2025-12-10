@@ -166,7 +166,7 @@ export function DataWorkbenchDialogs({
             <Button variant="outline" onClick={onAddVehicleClose}>
               Cancel
             </Button>
-            <Button onClick={handleSaveVehicle}>
+            <Button onClick={handleSaveVehicle} aria-label="Save changes">
               Add Vehicle
             </Button>
           </DialogFooter>

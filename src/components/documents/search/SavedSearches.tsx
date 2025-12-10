@@ -121,7 +121,7 @@ export function SavedSearches({
             )}
 
             <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
+              <Button variant="outline" onClick={() => setIsDialogOpen(false)} aria-label="Cancel">
                 Cancel
               </Button>
               <Button onClick={handleSave} disabled={!searchName.trim()}>

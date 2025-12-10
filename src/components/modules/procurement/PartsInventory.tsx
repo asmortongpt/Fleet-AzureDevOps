@@ -280,10 +280,10 @@ export function PartsInventory() {
               </div>
             </div>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
+              <Button variant="outline" onClick={() => setIsAddDialogOpen(false)} aria-label="Cancel">
                 Cancel
               </Button>
-              <Button onClick={handleAddPart}>Add Part</Button>
+              <Button onClick={handleAddPart} aria-label="Add part to inventory"> Add Part</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
