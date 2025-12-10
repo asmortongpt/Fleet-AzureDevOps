@@ -148,21 +148,21 @@ export function GISCommandCenter({ data }: GISCommandCenterProps) {
                 <Button
                   size="sm"
                   variant={layerVisibility.vehicles ? "default" : "outline"}
-                  onClick={() => toggleLayer("vehicles")}
+                  onClick={() => toggleLayer("vehicles")} aria-label="Action button"
                 >
                   Vehicles
                 </Button>
                 <Button
                   size="sm"
                   variant={layerVisibility.facilities ? "default" : "outline"}
-                  onClick={() => toggleLayer("facilities")}
+                  onClick={() => toggleLayer("facilities")} aria-label="Action button"
                 >
                   Facilities
                 </Button>
                 <Button
                   size="sm"
                   variant={layerVisibility.routes ? "default" : "outline"}
-                  onClick={() => toggleLayer("routes")}
+                  onClick={() => toggleLayer("routes")} aria-label="Action button"
                 >
                   Routes
                 </Button>

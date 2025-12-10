@@ -32,7 +32,7 @@ function ExampleService({ name, url, type, description }: ExampleServiceProps) {
       </div>
       <div className="flex items-center gap-2">
         <code className="flex-1 text-xs bg-muted p-2 rounded font-mono truncate">{url}</code>
-        <Button size="sm" variant="outline" onClick={copyToClipboard}>
+        <Button size="sm" variant="outline" onClick={copyToClipboard} aria-label="Action button">
           <Copy className="w-3 h-3 mr-1" />
           Copy
         </Button>

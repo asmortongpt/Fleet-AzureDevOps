@@ -83,12 +83,12 @@ export const QueryErrorFallback: React.FC<QueryErrorFallbackProps> = ({
             onClick={resetErrorBoundary}
             variant="default"
             className="flex items-center gap-2"
-          >
+           aria-label="Action button">
             <RefreshCw className="h-4 w-4" />
             Try Again
           </Button>
           <Button
-            onClick={() => window.location.reload()}
+            onClick={() => window.location.reload()} aria-label="Action button"
             variant="outline"
           >
             Reload Page
@@ -187,7 +187,7 @@ export const QueryErrorDisplay: React.FC<QueryErrorDisplayProps> = ({
             variant="outline"
             size="sm"
             className="mt-3"
-          >
+           aria-label="Action button">
             <RefreshCw className="h-3 w-3 mr-1" />
             Retry
           </Button>
@@ -211,7 +211,7 @@ export const InlineQueryError: React.FC<{
       <AlertCircle className="h-4 w-4 flex-shrink-0" />
       <span className="flex-1">{errorMessage}</span>
       {onRetry && (
-        <Button onClick={onRetry} variant="ghost" size="sm">
+        <Button onClick={onRetry} variant="ghost" size="sm" aria-label="Action button">
           <RefreshCw className="h-3 w-3" />
         </Button>
       )}

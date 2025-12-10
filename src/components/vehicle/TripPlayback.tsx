@@ -497,7 +497,7 @@ export function TripPlayback({ tripId, autoPlay = false }: TripPlaybackProps) {
                     size="sm"
                     variant={isPlaying ? 'default' : 'outline'}
                     onClick={handlePlayPause}
-                  >
+                   aria-label="Action button">
                     {isPlaying ? (
                       <>
                         <Pause className="h-4 w-4 mr-1" />
@@ -510,7 +510,7 @@ export function TripPlayback({ tripId, autoPlay = false }: TripPlaybackProps) {
                       </>
                     )}
                   </Button>
-                  <Button size="sm" variant="outline" onClick={handleStop}>
+                  <Button size="sm" variant="outline" onClick={handleStop} aria-label="Action button">
                     <StopCircle className="h-4 w-4 mr-1" />
                     Stop
                   </Button>
@@ -524,7 +524,7 @@ export function TripPlayback({ tripId, autoPlay = false }: TripPlaybackProps) {
                       key={speed}
                       size="sm"
                       variant={playbackSpeed === speed ? 'default' : 'outline'}
-                      onClick={() => handleSpeedChange(speed)}
+                      onClick={() => handleSpeedChange(speed)} aria-label="Action button"
                       className="w-12"
                     >
                       {speed}x

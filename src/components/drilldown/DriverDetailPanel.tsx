@@ -250,13 +250,12 @@ export function DriverDetailPanel({ driverId }: DriverDetailPanelProps) {
 
           {/* Action Buttons */}
           <div className="grid grid-cols-2 gap-3">
-            <Button onClick={handleViewPerformance} className="w-full">
+            <Button onClick={handleViewPerformance} className="w-full" aria-label="Action button">
               <TrendingUp className="h-4 w-4 mr-2" />
               View Performance
             </Button>
             <Button
-              onClick={() =>
-                push({
+              onClick={() => push({
                   id: `driver-trips-${driverId}`,
                   type: 'driver-trips',
                   label: 'Trip History',
