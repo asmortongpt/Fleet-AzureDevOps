@@ -15,11 +15,10 @@ export const useRealtimeTasks = () => {
   const [socket, setSocket] = useState<SocketIOClient.Socket | null>(null);
 
   useEffect(() => {
-    // Initialize Socket.IO client
+    // SECURITY (CRIT-F-001): httpOnly cookies sent automatically via withCredentials
+    // No manual token passing required - backend reads from httpOnly cookie
     const newSocket = io(process.env.REACT_APP_WEBSOCKET_URL!, {
-      auth: {
-        token: localStorage.getItem('token'), // Assuming JWT token is stored in localStorage
-      },
+      withCredentials: true, // Include httpOnly cookies in WebSocket handshake
     });
 
     setSocket(newSocket);

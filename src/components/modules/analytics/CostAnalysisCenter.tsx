@@ -131,8 +131,8 @@ export function CostAnalysisCenter() {
       const response = await fetch(
         `/api/cost-analysis/export?startDate=${dateRange.startDate.toISOString()}&endDate=${dateRange.endDate.toISOString()}`,
         {
+        credentials: 'include',
           headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
           }
         }
       )

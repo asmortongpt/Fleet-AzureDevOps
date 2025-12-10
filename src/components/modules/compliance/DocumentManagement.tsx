@@ -148,9 +148,9 @@ export function DocumentManagement() {
       formData.append('isPublic', uploadData.isPublic.toString())
 
       const response = await fetch(`${import.meta.env.VITE_API_URL}/documents/upload`, {
+        credentials: 'include',
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
         },
         body: formData
       })

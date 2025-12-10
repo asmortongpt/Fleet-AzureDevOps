@@ -98,10 +98,12 @@ const AIAssistant: React.FC = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const queryClient = useQueryClient()
 
-  // Helper function to get auth token
-  const getAuthHeader = useCallback(() => {
-    const token = localStorage.getItem('token')
-    return { Authorization: `Bearer ${token}` }
+  // SECURITY (CRIT-F-001): httpOnly cookies sent automatically via withCredentials
+  // No Authorization header needed - token is in httpOnly cookie
+  const getAxiosConfig = useCallback(() => {
+    return {
+      withCredentials: true // Include httpOnly cookies in axios requests
+    }
   }, [])
 
   // Fetch agents using TanStack Query
@@ -109,7 +111,7 @@ const AIAssistant: React.FC = () => {
     queryKey: ['agents'],
     queryFn: async () => {
       const response = await axios.get('/api/langchain/agents', {
-        headers: getAuthHeader()
+        ...getAxiosConfig()
       })
       return response.data?.agents
     },
@@ -121,7 +123,7 @@ const AIAssistant: React.FC = () => {
     queryKey: ['workflows'],
     queryFn: async () => {
       const response = await axios.get('/api/langchain/workflows', {
-        headers: getAuthHeader()
+        ...getAxiosConfig()
       })
       return response.data?.workflows
     },
@@ -133,7 +135,7 @@ const AIAssistant: React.FC = () => {
     queryKey: ['mcpServers'],
     queryFn: async () => {
       const response = await axios.get('/api/langchain/mcp/servers', {
-        headers: getAuthHeader()
+        ...getAxiosConfig()
       })
       return response.data?.servers
     },
@@ -200,7 +202,7 @@ You can chat with me naturally, or run structured workflows for complex tasks. H
           sessionId
         },
         {
-          headers: getAuthHeader()
+          ...getAxiosConfig()
         }
       )
 
@@ -239,7 +241,7 @@ You can chat with me naturally, or run structured workflows for complex tasks. H
   const clearChat = async () => {
     try {
       await axios.delete(`/api/langchain/sessions/${sessionId}`, {
-        headers: getAuthHeader()
+        ...getAxiosConfig()
       })
       setMessages([])
       // Optionally refetch initial message
@@ -294,7 +296,7 @@ You can chat with me naturally, or run structured workflows for complex tasks. H
           sessionId
         },
         {
-          headers: getAuthHeader()
+          ...getAxiosConfig()
         }
       )
 
