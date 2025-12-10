@@ -5,14 +5,14 @@ async function seedTasks() {
 
   try {
     // Create project
-    const [project] = await pool.query(`
+    const projectResult = await pool.query(`
       INSERT INTO projects (name, repo, default_branch)
       VALUES ($1, $2, $3)
       ON CONFLICT DO NOTHING
       RETURNING id
     `, ['Fleet', 'https://github.com/asmortongpt/Fleet', 'main']);
 
-    const projectId = project?.id || (await pool.query('SELECT id FROM projects WHERE name = $1', ['Fleet'])).rows[0].id;
+    const projectId = projectResult.rows[0]?.id || (await pool.query('SELECT id FROM projects WHERE name = $1', ['Fleet'])).rows[0].id;
 
     console.log(`Project ID: ${projectId}`);
 
