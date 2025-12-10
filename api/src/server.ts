@@ -157,7 +157,8 @@ import obd2EmulatorRouter from './routes/obd2-emulator.routes'
 
 // System Management Routes
 import monitoringRouter from './routes/monitoring'
-import healthRouter from './routes/health.routes'
+import healthRouter from './routes/health.routes' // Microsoft integration health
+import healthSystemRouter from './routes/health-system.routes' // Comprehensive system health (BACKEND-12)
 import healthDetailedRouter from './routes/health-detailed'
 import performanceRouter from './routes/performance.routes'
 import telemetryRouter from './routes/telemetry'
@@ -409,7 +410,8 @@ app.use('/api/obd2-emulator', obd2EmulatorRouter)
 
 // System Management Routes
 app.use('/api/monitoring', monitoringRouter)
-app.use('/api/health', healthRouter)
+app.use('/api/health', healthSystemRouter) // Comprehensive system health (BACKEND-12)
+app.use('/api/health/microsoft', healthRouter) // Microsoft integration health
 app.use('/api/health-detailed', healthDetailedRouter)
 app.use('/api/performance', performanceRouter)
 app.use('/api/telemetry', telemetryRouter)
