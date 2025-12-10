@@ -96,8 +96,8 @@ const MobileEmployeeDashboard: React.FC = () => {
   const fetchDashboardData = async () => {
     try {
       const response = await fetch('/api/mobile/dashboard/employee', {
+        credentials: 'include',
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
         },
       });
 
@@ -125,10 +125,10 @@ const MobileEmployeeDashboard: React.FC = () => {
   const acknowledgeOnCall = async (periodId: string) => {
     try {
       const response = await fetch(`/api/mobile/on-call/${periodId}/acknowledge`, {
+        credentials: 'include',
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
         },
         body: JSON.stringify({ acknowledged: true }),
       });
@@ -157,10 +157,10 @@ const MobileEmployeeDashboard: React.FC = () => {
       }
 
       const response = await fetch('/api/mobile/callback-trip', {
+        credentials: 'include',
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
         },
         body: JSON.stringify({
           ...callbackForm,
