@@ -153,3 +153,4 @@ build_output*.txt
 *-report.json
 code-review-report.json
 
+REMEDIATION_CARDS_ALL.md
