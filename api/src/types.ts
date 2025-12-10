@@ -58,6 +58,26 @@ export const TYPES = {
   FleetOptimizerService: Symbol.for("FleetOptimizerService"),
   ExecutiveDashboardService: Symbol.for("ExecutiveDashboardService"),
 
+  // Integration & Utility Services (Batch 3)
+  AssignmentNotificationService: Symbol.for("AssignmentNotificationService"),
+  DriverSafetyAIService: Symbol.for("DriverSafetyAIService"),
+  EVChargingService: Symbol.for("EVChargingService"),
+  MicrosoftGraphService: Symbol.for("MicrosoftGraphService"),
+  MicrosoftIntegrationService: Symbol.for("MicrosoftIntegrationService"),
+  MobileIntegrationService: Symbol.for("MobileIntegrationService"),
+  OBD2EmulatorService: Symbol.for("OBD2EmulatorService"),
+  OCPPService: Symbol.for("OCPPService"),
+  OfflineStorageService: Symbol.for("OfflineStorageService"),
+  OpenAIVisionService: Symbol.for("OpenAIVisionService"),
+  QRGeneratorService: Symbol.for("QRGeneratorService"),
+  ROICalculatorService: Symbol.for("ROICalculatorService"),
+  SamsaraService: Symbol.for("SamsaraService"),
+  SmartcarService: Symbol.for("SmartcarService"),
+  UtilizationCalcService: Symbol.for("UtilizationCalcService"),
+  VehicleIdlingService: Symbol.for("VehicleIdlingService"),
+  VehicleModelsService: Symbol.for("VehicleModelsService"),
+  VideoTelematicsService: Symbol.for("VideoTelematicsService"),
+
   // Repositories
   VehicleRepository: Symbol.for("VehicleRepository"),
   DriverRepository: Symbol.for("DriverRepository"),
