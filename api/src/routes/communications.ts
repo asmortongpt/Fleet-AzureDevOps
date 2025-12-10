@@ -1,5 +1,5 @@
 import express, { Response } from 'express'
-import { container } from '../container'
+import { Container } from '../config/container'
 import { asyncHandler } from '../middleware/errorHandler'
 import { NotFoundError, ValidationError, ForbiddenError } from '../errors/app-error'
 import { AuthRequest, authenticateJWT } from '../middleware/auth'
@@ -16,10 +16,12 @@ import {
   getCommunicationsQuerySchema,
   createCommunicationTemplateSchema
 } from '../schemas/communications.schema'
-import pool from '../config/database' // SECURITY: Import database pool
+import { CommunicationRepository } from '../repositories/CommunicationRepository'
 import { tenantSafeQuery, validateTenantOwnership } from '../utils/dbHelpers'
 import { csrfProtection } from '../middleware/csrf'
 
+// REPOSITORY PATTERN: Get CommunicationRepository from DI container
+const communicationRepo = Container.resolve<CommunicationRepository>('CommunicationRepository')
 
 const router = express.Router()
 router.use(authenticateJWT)
@@ -46,76 +48,29 @@ router.get(
         status,
         search
       } = req.query
-      const offset = (Number(page) - 1) * Number(limit)
 
-      // SECURITY FIX: Add tenant_id filter to communications table directly
-      let query = `
-        SELECT c.*,
-               from_user.first_name || ' ' || from_user.last_name as from_user_name,
-               COUNT(DISTINCT cel.id) as linked_entities_count
-        FROM communications c
-        LEFT JOIN drivers from_user ON c.from_user_id = from_user.id
-        LEFT JOIN communication_entity_links cel ON c.id = cel.communication_id
-        WHERE c.tenant_id = $1
-      `
-      const params: any[] = [req.user!.tenant_id]
-      let paramIndex = 2
-
-      if (communication_type) {
-        query += ` AND c.communication_type = $${paramIndex}`
-        params.push(communication_type)
-        paramIndex++
+      // REPOSITORY PATTERN: Use findAllWithFilters method
+      const filters = {
+        communication_type: communication_type as string | undefined,
+        category: category as string | undefined,
+        priority: priority as string | undefined,
+        status: status as string | undefined,
+        search: search as string | undefined
       }
 
-      if (category) {
-        query += ` AND (c.ai_detected_category = $${paramIndex} OR c.manual_category = $${paramIndex})`
-        params.push(category)
-        paramIndex++
-      }
-
-      if (priority) {
-        query += ` AND (c.ai_detected_priority = $${paramIndex} OR c.manual_priority = $${paramIndex})`
-        params.push(priority)
-        paramIndex++
-      }
-
-      if (status) {
-        query += ` AND c.status = $${paramIndex}`
-        params.push(status)
-        paramIndex++
-      }
-
-      if (search) {
-        query += ` AND (
-          c.subject ILIKE $${paramIndex} OR
-          c.body ILIKE $${paramIndex} OR
-          c.from_contact_name ILIKE $${paramIndex}
-        )`
-        params.push(`%${search}%`)
-        paramIndex++
-      }
-
-      query += ` GROUP BY c.id, from_user.first_name, from_user.last_name`
-      query += ` ORDER BY c.communication_datetime DESC LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`
-      params.push(limit, offset)
-
-      const result = await pool.query(query, params)
-
-      // SECURITY FIX: Add tenant_id filter to count query
-      const countQuery = `
-        SELECT COUNT(DISTINCT c.id)
-        FROM communications c
-        WHERE c.tenant_id = $1
-      `
-      const countResult = await pool.query(countQuery, [req.user!.tenant_id])
+      const result = await communicationRepo.findAllWithFilters(
+        filters,
+        { page: Number(page), limit: Number(limit) },
+        req.user!.tenant_id
+      )
 
       res.json({
-        data: result.rows,
+        data: result.data,
         pagination: {
           page: Number(page),
           limit: Number(limit),
-          total: parseInt(countResult.rows[0].count),
-          pages: Math.ceil(countResult.rows[0].count / Number(limit)
+          total: result.total,
+          pages: Math.ceil(result.total / Number(limit))
         }
       })
     } catch (error) {
@@ -133,51 +88,17 @@ router.get(
   auditLog({ action: 'READ', resourceType: 'communications' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      // SECURITY FIX: Add tenant_id filter to prevent cross-tenant access
-      const result = await pool.query(
-        `SELECT c.*,
-                from_user.first_name || ' ' || from_user.last_name as from_user_name
-         FROM communications c
-         LEFT JOIN drivers from_user ON c.from_user_id = from_user.id
-         WHERE c.id = $1 AND c.tenant_id = $2`,
-        [req.params.id, req.user!.tenant_id]
+      // REPOSITORY PATTERN: Use findByIdWithDetails method
+      const communication = await communicationRepo.findByIdWithDetails(
+        parseInt(req.params.id),
+        req.user!.tenant_id
       )
 
-      if (result.rows.length === 0) {
+      if (!communication) {
         throw new NotFoundError("Communication not found")
       }
 
-      // SECURITY FIX: Get linked entities - verify they belong to tenant's communication
-      const linksResult = await pool.query(
-        `SELECT cel.entity_type, cel.entity_id, cel.link_type, cel.relevance_score, cel.auto_detected
-         FROM communication_entity_links cel
-         JOIN communications c ON cel.communication_id = c.id
-         WHERE cel.communication_id = $1 AND c.tenant_id = $2
-         ORDER BY cel.relevance_score DESC`,
-        [req.params.id, req.user!.tenant_id]
-      )
-
-      // SECURITY FIX: Get attachments - verify they belong to tenant's communication
-      const attachmentsResult = await pool.query(
-        `SELECT
-      ca.id,
-      ca.communication_id,
-      ca.file_name,
-      ca.file_path,
-      ca.file_type,
-      ca.file_size,
-      ca.created_at
-         FROM communication_attachments ca
-         JOIN communications c ON ca.communication_id = c.id
-         WHERE ca.communication_id = $1 AND c.tenant_id = $2`,
-        [req.params.id, req.user!.tenant_id]
-      )
-
-      res.json({
-        ...result.rows[0],
-        linked_entities: linksResult.rows,
-        attachments: attachmentsResult.rows
-      })
+      res.json(communication)
     } catch (error) {
       console.error(`Get communication error:`, error)
       res.status(500).json({ error: 'Internal server error' })
@@ -196,47 +117,15 @@ router.post(
     try {
       const { linked_entities, ...data } = req.body
 
-      // SECURITY FIX: Add tenant_id and created_by to the insert
-      const { columnNames, placeholders, values } = buildInsertClause(
+      // REPOSITORY PATTERN: Use createWithLinks method
+      const communication = await communicationRepo.createWithLinks(
         data,
-        [`tenant_id`, `created_by`],
-        1
+        linked_entities,
+        req.user!.tenant_id,
+        req.user!.id
       )
 
-      const result = await pool.query(
-        `INSERT INTO communications (${columnNames}) VALUES (${placeholders}) RETURNING *`,
-        [req.user!.tenant_id, req.user!.id, ...values]
-      )
-
-      const communicationId = result.rows[0].id
-
-      // Link entities if provided (FIXED: Batch insert to avoid N+1 query)
-      if (linked_entities && Array.isArray(linked_entities) && linked_entities.length > 0) {
-        // Build batch insert query
-        const values: any[] = []
-        const placeholders: string[] = []
-
-        linked_entities.forEach((link, index) => {
-          const baseIndex = index * 4 + 1
-          placeholders.push(`($${baseIndex}, $${baseIndex + 1}, $${baseIndex + 2}, $${baseIndex + 3})`)
-          values.push(
-            communicationId,
-            link.entity_type,
-            link.entity_id,
-            link.link_type || `Related`
-          )
-        })
-
-        // Single batch insert instead of N queries
-        await pool.query(
-          `INSERT INTO communication_entity_links (communication_id, entity_type, entity_id, link_type, manually_added)
-           VALUES ${placeholders.join(`, `)}
-           ON CONFLICT (communication_id, entity_type, entity_id) DO NOTHING`,
-          values
-        )
-      }
-
-      res.status(201).json(result.rows[0])
+      res.status(201).json(communication)
     } catch (error) {
       console.error(`Create communication error:`, error)
       res.status(500).json({ error: `Internal server error` })
@@ -254,25 +143,20 @@ router.put(
   async (req: AuthRequest, res: Response) => {
     try {
       const data = req.body
-      const fields = Object.keys(data)
-        .map((key, i) => `${key} = $${i + 4}`)
-        .join(`, `)
-      const values = Object.values(data)
 
-      // SECURITY FIX: Add tenant_id to WHERE clause to prevent cross-tenant updates
-      const result = await pool.query(
-        `UPDATE communications
-         SET ${fields}, updated_at = NOW(), updated_by = $2
-         WHERE id = $1 AND tenant_id = $3
-         RETURNING *`,
-        [req.params.id, req.user!.id, req.user!.tenant_id, ...values]
+      // REPOSITORY PATTERN: Use updateCommunication method
+      const communication = await communicationRepo.updateCommunication(
+        parseInt(req.params.id),
+        data,
+        req.user!.tenant_id,
+        req.user!.id
       )
 
-      if (result.rows.length === 0) {
+      if (!communication) {
         throw new NotFoundError(`Communication not found`)
       }
 
-      res.json(result.rows[0])
+      res.json(communication)
     } catch (error) {
       console.error(`Update communication error:`, error)
       res.status(500).json({ error: `Internal server error` })
@@ -294,26 +178,20 @@ router.post(
     try {
       const { entity_type, entity_id, link_type = 'Related' } = req.body
 
-      // SECURITY FIX: Validate that communication belongs to tenant before linking
-      const commCheck = await pool.query(
-        `SELECT id FROM communications WHERE id = $1 AND tenant_id = $2`,
-        [req.params.id, req.user!.tenant_id]
+      // REPOSITORY PATTERN: Use linkEntity method
+      const link = await communicationRepo.linkEntity(
+        parseInt(req.params.id),
+        entity_type,
+        entity_id,
+        link_type,
+        req.user!.tenant_id
       )
 
-      if (commCheck.rows.length === 0) {
+      if (!link) {
         throw new ForbiddenError('Cannot link entities to communications from other tenants')
       }
 
-      const result = await pool.query(
-        `INSERT INTO communication_entity_links (communication_id, entity_type, entity_id, link_type, manually_added)
-         VALUES ($1, $2, $3, $4, TRUE)
-         ON CONFLICT (communication_id, entity_type, entity_id) DO UPDATE
-         SET link_type = $4
-         RETURNING *`,
-        [req.params.id, entity_type, entity_id, link_type]
-      )
-
-      res.status(201).json(result.rows[0])
+      res.status(201).json(link)
     } catch (error) {
       console.error(`Link communication to entity error:`, error)
       res.status(500).json({ error: `Internal server error` })
@@ -328,19 +206,14 @@ router.delete(
   auditLog({ action: 'DELETE', resourceType: 'communication_entity_links' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      // SECURITY FIX: Verify communication belongs to tenant before deleting link
-      const result = await pool.query(
-        `DELETE FROM communication_entity_links cel
-         USING communications c
-         WHERE cel.id = $1
-           AND cel.communication_id = $2
-           AND cel.communication_id = c.id
-           AND c.tenant_id = $3
-         RETURNING cel.id`,
-        [req.params.link_id, req.params.id, req.user!.tenant_id]
+      // REPOSITORY PATTERN: Use unlinkEntity method
+      const deleted = await communicationRepo.unlinkEntity(
+        parseInt(req.params.link_id),
+        parseInt(req.params.id),
+        req.user!.tenant_id
       )
 
-      if (result.rows.length === 0) {
+      if (!deleted) {
         throw new NotFoundError(`Link not found`)
       }
 
@@ -365,39 +238,22 @@ router.get(
     try {
       const { entity_type, entity_id } = req.params
       const { page = 1, limit = 50 } = req.query
-      const offset = (Number(page) - 1) * Number(limit)
 
-      // SECURITY FIX: Add tenant_id filter to prevent cross-tenant entity access
-      const result = await pool.query(
-        `SELECT c.*,
-                cel.link_type,
-                cel.relevance_score,
-                from_user.first_name || ' ' || from_user.last_name as from_user_name
-         FROM communications c
-         JOIN communication_entity_links cel ON c.id = cel.communication_id
-         LEFT JOIN drivers from_user ON c.from_user_id = from_user.id
-         WHERE cel.entity_type = $1 AND cel.entity_id = $2 AND c.tenant_id = $3
-         ORDER BY c.communication_datetime DESC
-         LIMIT $4 OFFSET $5`,
-        [entity_type, entity_id, req.user!.tenant_id, limit, offset]
-      )
-
-      // SECURITY FIX: Count only communications belonging to tenant
-      const countResult = await pool.query(
-        `SELECT COUNT(*)
-         FROM communication_entity_links cel
-         JOIN communications c ON cel.communication_id = c.id
-         WHERE cel.entity_type = $1 AND cel.entity_id = $2 AND c.tenant_id = $3`,
-        [entity_type, entity_id, req.user!.tenant_id]
+      // REPOSITORY PATTERN: Use findByEntityType method
+      const result = await communicationRepo.findByEntityType(
+        entity_type,
+        parseInt(entity_id),
+        { page: Number(page), limit: Number(limit) },
+        req.user!.tenant_id
       )
 
       res.json({
-        data: result.rows,
+        data: result.data,
         pagination: {
           page: Number(page),
           limit: Number(limit),
-          total: parseInt(countResult.rows[0].count),
-          pages: Math.ceil(countResult.rows[0].count / Number(limit)
+          total: result.total,
+          pages: Math.ceil(result.total / Number(limit))
         }
       })
     } catch (error) {
@@ -419,29 +275,10 @@ router.get(
   auditLog({ action: 'READ', resourceType: 'communications_followups' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      // SECURITY FIX: Add tenant_id filter to follow-ups query
-      const result = await pool.query(
-        `SELECT c.*,
-                from_user.first_name || ' ' || from_user.last_name as from_user_name,
-                CASE
-                  WHEN c.follow_up_by_date < CURRENT_DATE THEN 'Overdue'
-                  WHEN c.follow_up_by_date = CURRENT_DATE THEN 'Due Today'
-                  ELSE 'Upcoming'
-                END AS follow_up_status,
-                COUNT(DISTINCT cel.id) as linked_entities_count
-         FROM communications c
-         LEFT JOIN drivers from_user ON c.from_user_id = from_user.id
-         LEFT JOIN communication_entity_links cel ON c.id = cel.communication_id
-         WHERE c.tenant_id = $1
-           AND c.requires_follow_up = TRUE
-           AND c.follow_up_completed = FALSE
-           AND c.status != 'Closed'
-         GROUP BY c.id, from_user.first_name, from_user.last_name
-         ORDER BY c.follow_up_by_date ASC NULLS LAST`,
-        [req.user!.tenant_id]
-      )
+      // REPOSITORY PATTERN: Use findPendingFollowUps method
+      const followUps = await communicationRepo.findPendingFollowUps(req.user!.tenant_id)
 
-      res.json({ data: result.rows })
+      res.json({ data: followUps })
     } catch (error) {
       console.error('Get pending follow-ups error:', error)
       res.status(500).json({ error: 'Internal server error' })
@@ -462,29 +299,13 @@ router.get(
     try {
       const { category } = req.query
 
-      // SECURITY FIX: Add tenant_id filter to templates query
-      let query = `SELECT
-      id,
-      tenant_id,
-      name,
-      type,
-      subject,
-      body,
-      variables,
-      is_active,
-      created_at,
-      updated_at FROM communication_templates WHERE tenant_id = $1 AND is_active = TRUE`
-      const params: any[] = [req.user!.tenant_id]
+      // REPOSITORY PATTERN: Use findTemplates method
+      const templates = await communicationRepo.findTemplates(
+        category as string | undefined,
+        req.user!.tenant_id
+      )
 
-      if (category) {
-        query += ` AND template_category = $2`
-        params.push(category)
-      }
-
-      query += ` ORDER BY template_name`
-
-      const result = await pool.query(query, params)
-      res.json({ data: result.rows })
+      res.json({ data: templates })
     } catch (error) {
       console.error(`Get communication templates error:`, error)
       res.status(500).json({ error: 'Internal server error' })
@@ -502,19 +323,14 @@ router.post(
     try {
       const data = req.body
 
-      // SECURITY FIX: Add tenant_id and created_by to template insert
-      const { columnNames, placeholders, values } = buildInsertClause(
+      // REPOSITORY PATTERN: Use createTemplate method
+      const template = await communicationRepo.createTemplate(
         data,
-        [`tenant_id`, `created_by`],
-        1
+        req.user!.tenant_id,
+        req.user!.id
       )
 
-      const result = await pool.query(
-        `INSERT INTO communication_templates (${columnNames}) VALUES (${placeholders}) RETURNING *`,
-        [req.user!.tenant_id, req.user!.id, ...values]
-      )
-
-      res.status(201).json(result.rows[0])
+      res.status(201).json(template)
     } catch (error) {
       console.error(`Create communication template error:`, error)
       res.status(500).json({ error: `Internal server error` })
@@ -534,56 +350,10 @@ router.get(
   auditLog({ action: 'READ', resourceType: 'communications_dashboard' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      // SECURITY FIX: Total communications this month - use c.tenant_id directly
-      const totalResult = await pool.query(
-        `SELECT COUNT(*) as total,
-                COUNT(CASE WHEN requires_follow_up = TRUE AND follow_up_completed = FALSE THEN 1 END) as pending_followups
-         FROM communications c
-         WHERE c.tenant_id = $1
-         AND c.communication_datetime >= DATE_TRUNC('month', CURRENT_DATE)`,
-        [req.user!.tenant_id]
-      )
+      // REPOSITORY PATTERN: Use getDashboardStats method
+      const stats = await communicationRepo.getDashboardStats(req.user!.tenant_id)
 
-      // SECURITY FIX: By type - use c.tenant_id directly
-      const byTypeResult = await pool.query(
-        `SELECT communication_type, COUNT(*) as count
-         FROM communications c
-         WHERE c.tenant_id = $1
-         AND c.communication_datetime >= DATE_TRUNC('month', CURRENT_DATE)
-         GROUP BY communication_type
-         ORDER BY count DESC`,
-        [req.user!.tenant_id]
-      )
-
-      // SECURITY FIX: By priority - use c.tenant_id directly
-      const byPriorityResult = await pool.query(
-        `SELECT COALESCE(ai_detected_priority, manual_priority, 'Unassigned') as priority,
-                COUNT(*) as count
-         FROM communications c
-         WHERE c.tenant_id = $1
-         AND c.communication_datetime >= DATE_TRUNC('month', CURRENT_DATE)
-         GROUP BY priority
-         ORDER BY count DESC`,
-        [req.user!.tenant_id]
-      )
-
-      // SECURITY FIX: Overdue follow-ups - use c.tenant_id directly
-      const overdueResult = await pool.query(
-        `SELECT COUNT(*) as overdue_followups
-         FROM communications c
-         WHERE c.tenant_id = $1
-         AND c.requires_follow_up = TRUE
-         AND c.follow_up_completed = FALSE
-         AND c.follow_up_by_date < CURRENT_DATE`,
-        [req.user!.tenant_id]
-      )
-
-      res.json({
-        summary: totalResult.rows[0],
-        by_type: byTypeResult.rows,
-        by_priority: byPriorityResult.rows,
-        overdue: overdueResult.rows[0]
-      })
+      res.json(stats)
     } catch (error) {
       console.error(`Get communications dashboard error:`, error)
       res.status(500).json({ error: `Internal server error` })
