@@ -29,9 +29,9 @@ variables:
   aksClusterName: 'fleet-aks-cluster'
   productionNamespace: 'fleet-management'
 
-  # Service Connections (to be created in Azure DevOps)
-  azureServiceConnection: 'Azure-Production-Connection'
-  containerRegistryConnection: 'FleetACR-Connection'
+  # Service Connections (existing in Azure DevOps)
+  azureServiceConnection: 'Azure-Fleet-Management'
+  containerRegistryConnection: 'Azure-Fleet-Management'
 
   # Build Configuration
   buildId: '$(Build.BuildId)'
