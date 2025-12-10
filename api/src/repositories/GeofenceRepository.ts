@@ -1,75 +1,99 @@
-import { Pool } from 'pg'
+import { injectable } from 'inversify'
 
-import { BaseRepository } from './BaseRepository'
+import { BaseRepository, PaginatedResult, PaginationOptions, QueryContext } from './BaseRepository'
 
+/**
+ * Geofence entity with complete field definitions
+ */
 export interface Geofence {
   id: number
   tenant_id: number
+  name: string
+  description?: string
+  geometry: any // PostGIS geometry or GeoJSON
+  type: string
+  radius?: number
+  is_active: boolean
   created_at: Date
   updated_at: Date
-  // Add entity-specific fields
+  created_by?: string
+  updated_by?: string
 }
 
+/**
+ * GeofenceRepository - Handles geofence data operations
+ *
+ * Security:
+ * - All queries use parameterized statements ($1, $2, $3)
+ * - Tenant isolation enforced on all operations
+ * - Inherits BaseRepository security patterns
+ */
+@injectable()
 export class GeofenceRepository extends BaseRepository<Geofence> {
-  constructor(pool: Pool) {
-    super(pool, 'geofences')
+  protected tableName = 'geofences'
+  protected idColumn = 'id'
+
+  /**
+   * Find all geofences with pagination for a tenant
+   */
+  async findAllPaginated(
+    context: QueryContext,
+    options: PaginationOptions = {}
+  ): Promise<PaginatedResult<Geofence>> {
+    return this.findAll(context, options)
   }
 
-  async findByTenantId(tenantId: number): Promise<Geofence[]> {
-    const query = `
-      SELECT * FROM ${this.tableName}
-      WHERE tenant_id = $1
-      ORDER BY created_at DESC
-    `
-    return this.query(query, [tenantId])
+  /**
+   * Find active geofences for a tenant
+   */
+  async findActiveGeofences(context: QueryContext): Promise<Geofence[]> {
+    const pool = this.getPool(context)
+
+    const result = await pool.query(
+      `SELECT
+        id,
+        tenant_id,
+        name,
+        description,
+        geometry,
+        type,
+        radius,
+        is_active,
+        created_at,
+        updated_at
+      FROM ${this.tableName}
+      WHERE tenant_id = $1 AND is_active = true
+      ORDER BY created_at DESC`,
+      [context.tenantId]
+    )
+
+    return result.rows
   }
 
-  async findByIdAndTenant(id: number, tenantId: number): Promise<Geofence | null> {
-    const query = `
-      SELECT * FROM ${this.tableName}
-      WHERE id = $1 AND tenant_id = $2
-    `
-    const results = await this.query(query, [id, tenantId])
-    return results[0] || null
-  }
+  /**
+   * Find geofences by type for a tenant
+   */
+  async findByType(type: string, context: QueryContext): Promise<Geofence[]> {
+    const pool = this.getPool(context)
 
-  async create(data: Partial<Geofence>): Promise<Geofence> {
-    const fields = Object.keys(data).join(', ')
-    const placeholders = Object.keys(data).map((_, i) => `${i + 1}`).join(', ')
+    const result = await pool.query(
+      `SELECT
+        id,
+        tenant_id,
+        name,
+        description,
+        geometry,
+        type,
+        radius,
+        is_active,
+        created_at,
+        updated_at
+      FROM ${this.tableName}
+      WHERE tenant_id = $1 AND type = $2
+      ORDER BY created_at DESC`,
+      [context.tenantId, type]
+    )
 
-    const query = `
-      INSERT INTO ${this.tableName} (${fields})
-      VALUES (${placeholders})
-      RETURNING *
-    `
-
-    const results = await this.query(query, Object.values(data))
-    return results[0]
-  }
-
-  async update(id: number, tenantId: number, data: Partial<Geofence>): Promise<Geofence | null> {
-    const setClause = Object.keys(data)
-      .map((key, i) => `${key} = $${i + 2}`)
-      .join(', ')
-
-    const query = `
-      UPDATE ${this.tableName}
-      SET ${setClause}, updated_at = NOW()
-      WHERE id = $1 AND tenant_id = $${Object.keys(data).length + 2}
-      RETURNING *
-    `
-
-    const results = await this.query(query, [id, ...Object.values(data), tenantId])
-    return results[0] || null
-  }
-
-  async delete(id: number, tenantId: number): Promise<boolean> {
-    const query = `
-      DELETE FROM ${this.tableName}
-      WHERE id = $1 AND tenant_id = $2
-    `
-
-    const result = await this.query(query, [id, tenantId])
-    return result.rowCount > 0
+    return result.rows
   }
 }
