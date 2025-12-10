@@ -84,9 +84,7 @@ const CarbonFootprintTracker: React.FC = () => {
 
   const loadCarbonData = async () => {
     try {
-      const token = localStorage.getItem('token');
       const headers = {
-        'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json'
       };
 
@@ -113,7 +111,8 @@ const CarbonFootprintTracker: React.FC = () => {
         url += `&vehicleId=${selectedVehicle}`;
       }
 
-      const response = await fetch(url, { headers });
+      const response = await fetch(url, {
+        credentials: 'include', headers });
       const data = await response.json();
 
       if (data.success) {
@@ -126,7 +125,8 @@ const CarbonFootprintTracker: React.FC = () => {
       const currentMonth = new Date().getMonth() + 1;
       const esgResponse = await fetch(
         `/api/ev/esg-report?period=monthly&year=${currentYear}&month=${currentMonth}`,
-        { headers }
+        {
+        credentials: 'include', headers }
       );
       const esgData = await esgResponse.json();
       if (esgData.success) {

@@ -128,8 +128,8 @@ export default function DispatchConsole() {
     const loadChannels = async () => {
       try {
         const response = await fetch('/api/dispatch/channels', {
+        credentials: 'include',
           headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`
           }
         });
         const data = await response.json();
