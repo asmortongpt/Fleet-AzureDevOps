@@ -1,27 +1,47 @@
 import "reflect-metadata";
 import { Container } from "inversify";
 
+// Controllers
 import { DriverController } from "./modules/drivers/controllers/driver.controller";
-import { DriverRepository } from "./modules/drivers/repositories/driver.repository";
-import { DriverService } from "./modules/drivers/services/driver.service";
 import { FacilityController } from "./modules/facilities/controllers/facility.controller";
-import { FacilityRepository } from "./modules/facilities/repositories/facility.repository";
-import { FacilityService } from "./modules/facilities/services/facility.service";
 import { VehicleController } from "./modules/fleet/controllers/vehicle.controller";
-import { VehicleRepository } from "./modules/fleet/repositories/vehicle.repository";
-import { VehicleService } from "./modules/fleet/services/vehicle.service";
 import { IncidentController } from "./modules/incidents/controllers/incident.controller";
-import { IncidentRepository } from "./modules/incidents/repositories/incident.repository";
-import { IncidentService } from "./modules/incidents/services/incident.service";
 import { InspectionController } from "./modules/inspections/controllers/inspection.controller";
-import { InspectionRepository } from "./modules/inspections/repositories/inspection.repository";
-import { InspectionService } from "./modules/inspections/services/inspection.service";
 import { MaintenanceController } from "./modules/maintenance/controllers/maintenance.controller";
-import { MaintenanceRepository } from "./modules/maintenance/repositories/maintenance.repository";
-import { MaintenanceService } from "./modules/maintenance/services/maintenance.service";
 import { WorkOrderController } from "./modules/work-orders/controllers/work-order.controller";
-import { WorkOrderRepository } from "./modules/work-orders/repositories/work-order.repository";
+
+// Services - Module Pattern
+import { DriverService } from "./modules/drivers/services/driver.service";
+import { FacilityService } from "./modules/facilities/services/facility.service";
+import { VehicleService } from "./modules/fleet/services/vehicle.service";
+import { IncidentService } from "./modules/incidents/services/incident.service";
+import { InspectionService } from "./modules/inspections/services/inspection.service";
+import { MaintenanceService } from "./modules/maintenance/services/maintenance.service";
 import { WorkOrderService } from "./modules/work-orders/services/work-order.service";
+
+// Services - Monitoring & Logging (Batch 1)
+import { ApplicationInsightsService } from "./config/app-insights";
+import { CacheService } from "./config/cache";
+import { SentryService } from "./monitoring/sentry";
+import { AnalyticsService } from "./services/analytics/analytics.service";
+import { NotificationService } from "./services/notifications/notification.service";
+import { JobQueueService } from "./services/queue/job-queue.service";
+import { MCPServerService } from "./services/mcp-server.service";
+import { CustomFieldsService } from "./services/custom-fields/custom-fields.service";
+import { QueueService } from "./services/queue.service";
+import { CameraSyncService } from "./services/camera-sync";
+import { EmailNotificationService } from "./services/email-notifications";
+
+// Repositories - Module Pattern
+import { DriverRepository } from "./modules/drivers/repositories/driver.repository";
+import { FacilityRepository } from "./modules/facilities/repositories/facility.repository";
+import { VehicleRepository } from "./modules/fleet/repositories/vehicle.repository";
+import { IncidentRepository } from "./modules/incidents/repositories/incident.repository";
+import { InspectionRepository } from "./modules/inspections/repositories/inspection.repository";
+import { MaintenanceRepository } from "./modules/maintenance/repositories/maintenance.repository";
+import { WorkOrderRepository } from "./modules/work-orders/repositories/work-order.repository";
+
+// Repositories - Other
 import { BreakGlassRepository } from "./repositories/BreakGlassRepository";
 import { GeofenceRepository } from "./repositories/GeofenceRepository";
 import { SyncRepository } from "./repositories/SyncRepository";
@@ -52,6 +72,7 @@ import { PurchaseOrderRepository } from "./repositories/PurchaseOrderRepository"
 import { ReimbursementRepository } from "./repositories/ReimbursementRepository";
 import { TaskRepository } from "./repositories/TaskRepository";
 import { VendorRepository } from "./repositories/VendorRepository";
+
 import { TYPES } from "./types";
 
 const container = new Container();
@@ -144,5 +165,18 @@ container.bind(TYPES.PurchaseOrderRepository).to(PurchaseOrderRepository);
 container.bind(TYPES.ReimbursementRepository).to(ReimbursementRepository);
 container.bind(TYPES.TaskRepository).to(TaskRepository);
 container.bind(TYPES.VendorRepository).to(VendorRepository);
+
+// Monitoring & Logging Services (Batch 1)
+container.bind(TYPES.ApplicationInsightsService).to(ApplicationInsightsService).inSingletonScope();
+container.bind(TYPES.CacheService).to(CacheService).inSingletonScope();
+container.bind(TYPES.SentryService).to(SentryService).inSingletonScope();
+container.bind(TYPES.AnalyticsService).to(AnalyticsService).inSingletonScope();
+container.bind(TYPES.NotificationService).to(NotificationService).inSingletonScope();
+container.bind(TYPES.JobQueueService).to(JobQueueService).inSingletonScope();
+container.bind(TYPES.MCPServerService).to(MCPServerService).inSingletonScope();
+container.bind(TYPES.CustomFieldsService).to(CustomFieldsService).inSingletonScope();
+container.bind(TYPES.QueueService).to(QueueService).inSingletonScope();
+container.bind(TYPES.CameraSyncService).to(CameraSyncService).inSingletonScope();
+container.bind(TYPES.EmailNotificationService).to(EmailNotificationService).inSingletonScope();
 
 export { container };
