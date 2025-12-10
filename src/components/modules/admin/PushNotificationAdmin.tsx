@@ -74,8 +74,8 @@ const PushNotificationAdmin: React.FC = () => {
   // Fetch functions for queries
   const fetchStats = async (): Promise<NotificationStats> => {
     const response = await fetch('/api/push-notifications/stats', {
+        credentials: 'include',
       headers: {
-        Authorization: `Bearer ${localStorage.getItem('token')}`
       }
     });
     const data = await response.json();
@@ -85,8 +85,8 @@ const PushNotificationAdmin: React.FC = () => {
 
   const fetchHistory = async (): Promise<NotificationHistory[]> => {
     const response = await fetch('/api/push-notifications/history?limit=50', {
+        credentials: 'include',
       headers: {
-        Authorization: `Bearer ${localStorage.getItem('token')}`
       }
     });
     const data = await response.json();
@@ -96,8 +96,8 @@ const PushNotificationAdmin: React.FC = () => {
 
   const fetchTemplates = async (): Promise<NotificationTemplate[]> => {
     const response = await fetch('/api/push-notifications/templates', {
+        credentials: 'include',
       headers: {
-        Authorization: `Bearer ${localStorage.getItem('token')}`
       }
     });
     const data = await response.json();
@@ -107,8 +107,8 @@ const PushNotificationAdmin: React.FC = () => {
 
   const fetchUsers = async () => {
     const response = await fetch('/api/users', {
+        credentials: 'include',
       headers: {
-        Authorization: `Bearer ${localStorage.getItem('token')}`
       }
     });
     const data = await response.json();
@@ -141,10 +141,10 @@ const PushNotificationAdmin: React.FC = () => {
   const sendNotificationMutation = useMutation({
     mutationFn: async (body: any) => {
       const response = await fetch(body.endpoint, {
+        credentials: 'include',
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('token')}`
         },
         body: JSON.stringify(body.payload)
       });
@@ -177,10 +177,10 @@ const PushNotificationAdmin: React.FC = () => {
   const scheduleNotificationMutation = useMutation({
     mutationFn: async (body: any) => {
       const response = await fetch('/api/push-notifications/schedule', {
+        credentials: 'include',
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('token')}`
         },
         body: JSON.stringify(body)
       });
@@ -213,10 +213,10 @@ const PushNotificationAdmin: React.FC = () => {
   const sendFromTemplateMutation = useMutation({
     mutationFn: async (body: any) => {
       const response = await fetch('/api/push-notifications/send-from-template', {
+        credentials: 'include',
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('token')}`
         },
         body: JSON.stringify(body)
       });
@@ -249,9 +249,9 @@ const PushNotificationAdmin: React.FC = () => {
   const testNotificationMutation = useMutation({
     mutationFn: async () => {
       const response = await fetch('/api/push-notifications/test', {
+        credentials: 'include',
         method: 'POST',
         headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`
         }
       });
       const data = await response.json();

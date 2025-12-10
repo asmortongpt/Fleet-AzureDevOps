@@ -65,14 +65,14 @@ export function useDispatchSocket(options: UseDispatchSocketOptions = {}) {
 
     const SOCKET_URL = import.meta.env.VITE_DISPATCH_SOCKET_URL || 'http://localhost:8000';
 
+    // SECURITY (CRIT-F-001): httpOnly cookies sent automatically
+    // No need to pass token manually - it's included in cookie header
     const socket = io(SOCKET_URL, {
       transports: ['websocket', 'polling'],
       reconnection: true,
       reconnectionDelay: 1000 * Math.pow(2, reconnectAttemptsRef.current),
       reconnectionAttempts: maxReconnectAttempts,
-      auth: {
-        token: localStorage.getItem('token')
-      }
+      withCredentials: true // Include httpOnly cookies in WebSocket handshake
     });
 
     socket.on('connect', () => {
