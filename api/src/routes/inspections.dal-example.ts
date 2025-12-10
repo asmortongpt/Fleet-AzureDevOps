@@ -1,7 +1,4 @@
 /**
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
  * Inspections Routes - DAL Example Implementation
  *
  * This file demonstrates advanced DAL usage including:
@@ -26,13 +23,15 @@ import {
 import { connectionManager } from '../config/connection-manager'
 import { z } from 'zod'
 import { csrfProtection } from '../middleware/csrf'
+import { container } from '../container'
+import { TYPES } from '../types'
 
 
 const router = express.Router()
 router.use(authenticateJWT)
 
 // Initialize repository
-const inspectionRepo = new InspectionRepository()
+const inspectionRepo = container.get<InspectionRepository>(TYPES.InspectionRepository)
 
 // Validation schemas
 const inspectionCreateSchema = z.object({
