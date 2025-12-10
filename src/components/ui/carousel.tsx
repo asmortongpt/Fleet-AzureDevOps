@@ -195,7 +195,7 @@ function CarouselPrevious({
       disabled={!canScrollPrev}
       onClick={scrollPrev}
       {...props}
-    >
+     aria-label="Action button">
       <ArrowLeft />
       <span className="sr-only">Previous slide</span>
     </Button>
@@ -225,7 +225,7 @@ function CarouselNext({
       disabled={!canScrollNext}
       onClick={scrollNext}
       {...props}
-    >
+     aria-label="Action button">
       <ArrowRight />
       <span className="sr-only">Next slide</span>
     </Button>

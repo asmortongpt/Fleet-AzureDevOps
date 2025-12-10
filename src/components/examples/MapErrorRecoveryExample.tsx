@@ -187,14 +187,14 @@ export function MapErrorRecoveryExample() {
               <Button
                 variant={selectedProvider === 'leaflet' ? 'default' : 'outline'}
                 className="w-full"
-                onClick={() => setSelectedProvider('leaflet')}
+                onClick={() => setSelectedProvider('leaflet')} aria-label="Action button"
               >
                 OpenStreetMap (Free)
               </Button>
               <Button
                 variant={selectedProvider === 'google' ? 'default' : 'outline'}
                 className="w-full"
-                onClick={() => setSelectedProvider('google')}
+                onClick={() => setSelectedProvider('google')} aria-label="Action button"
               >
                 Google Maps (API Key)
               </Button>
@@ -211,7 +211,7 @@ export function MapErrorRecoveryExample() {
                 variant="outline"
                 className="w-full"
                 size="sm"
-                onClick={() => simulateError('network')}
+                onClick={() => simulateError('network')} aria-label="Action button"
                 disabled={errorSimulation !== null}
               >
                 Network Error
@@ -220,7 +220,7 @@ export function MapErrorRecoveryExample() {
                 variant="outline"
                 className="w-full"
                 size="sm"
-                onClick={() => simulateError('timeout')}
+                onClick={() => simulateError('timeout')} aria-label="Action button"
                 disabled={errorSimulation !== null}
               >
                 Timeout Error
@@ -229,7 +229,7 @@ export function MapErrorRecoveryExample() {
                 variant="outline"
                 className="w-full"
                 size="sm"
-                onClick={() => simulateError('rate-limit')}
+                onClick={() => simulateError('rate-limit')} aria-label="Action button"
                 disabled={errorSimulation !== null}
               >
                 Rate Limit
@@ -238,7 +238,7 @@ export function MapErrorRecoveryExample() {
                 variant="outline"
                 className="w-full"
                 size="sm"
-                onClick={() => simulateError('api-error')}
+                onClick={() => simulateError('api-error')} aria-label="Action button"
                 disabled={errorSimulation !== null}
               >
                 API Error
@@ -260,7 +260,7 @@ export function MapErrorRecoveryExample() {
               <Button
                 variant="outline"
                 className="w-full"
-                onClick={() => setShowHealthDashboard(!showHealthDashboard)}
+                onClick={() => setShowHealthDashboard(!showHealthDashboard)} aria-label="Action button"
               >
                 {showHealthDashboard ? 'Hide' : 'Show'} Health Dashboard
               </Button>
@@ -272,7 +272,7 @@ export function MapErrorRecoveryExample() {
             <CardHeader>
               <div className="flex items-center justify-between">
                 <CardTitle className="text-lg">Event Log</CardTitle>
-                <Button variant="ghost" size="sm" onClick={() => setEventLog([])}>
+                <Button variant="ghost" size="sm" onClick={() => setEventLog([])} aria-label="Action button">
                   Clear
                 </Button>
               </div>

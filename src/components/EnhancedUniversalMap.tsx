@@ -346,14 +346,14 @@ export function EnhancedUniversalMap(props: EnhancedUniversalMapProps) {
                     size="sm"
                     onClick={handleManualRecovery}
                     disabled={errorRecovery.isRecovering}
-                  >
+                   aria-label="Action button">
                     {errorRecovery.isRecovering ? 'Recovering...' : 'Retry'}
                   </Button>
                   {currentProvider === 'google' && (
                     <Button
                       size="sm"
                       variant="outline"
-                      onClick={() => handleProviderSwitch('leaflet')}
+                      onClick={() => handleProviderSwitch('leaflet')} aria-label="Action button"
                     >
                       Use Free Map
                     </Button>
@@ -362,7 +362,7 @@ export function EnhancedUniversalMap(props: EnhancedUniversalMapProps) {
                     size="sm"
                     variant="ghost"
                     onClick={errorRecovery.clearError}
-                  >
+                   aria-label="Action button">
                     Dismiss
                   </Button>
                 </div>

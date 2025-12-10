@@ -55,7 +55,7 @@ export function ThreeDViewer({ document }: ThreeDViewerProps) {
           </div>
         </div>
 
-        <Button onClick={handleDownload} size="lg">
+        <Button onClick={handleDownload} size="lg" aria-label="Action button">
           <Download className="mr-2 h-5 w-5" />
           Download model
         </Button>

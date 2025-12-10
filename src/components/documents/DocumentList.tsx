@@ -128,7 +128,7 @@ export function DocumentList({
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => onSort('name')}
+                  onClick={() => onSort('name')} aria-label="Action button"
                   className="h-8 -ml-3"
                 >
                   <FileIcon className="mr-2 h-4 w-4" />
@@ -140,7 +140,7 @@ export function DocumentList({
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => onSort('type')}
+                  onClick={() => onSort('type')} aria-label="Action button"
                   className="h-8 -ml-3"
                 >
                   Type
@@ -151,7 +151,7 @@ export function DocumentList({
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => onSort('size')}
+                  onClick={() => onSort('size')} aria-label="Action button"
                   className="h-8 -ml-3"
                 >
                   <HardDrive className="mr-2 h-4 w-4" />
@@ -163,7 +163,7 @@ export function DocumentList({
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => onSort('date')}
+                  onClick={() => onSort('date')} aria-label="Action button"
                   className="h-8 -ml-3"
                 >
                   <Calendar className="mr-2 h-4 w-4" />

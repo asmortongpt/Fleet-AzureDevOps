@@ -359,7 +359,7 @@ export function DriverPerformance({ data }: DriverPerformanceProps) {
                           </div>
                         </div>
                       </div>
-                      <Button size="sm">
+                      <Button size="sm" aria-label="Action button">
                         Schedule Review
                       </Button>
                     </div>
@@ -536,10 +536,10 @@ export function DriverPerformance({ data }: DriverPerformanceProps) {
             </div>
           )}
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsDetailsDialogOpen(false)}>
+            <Button variant="outline" onClick={() => setIsDetailsDialogOpen(false)} aria-label="Action button">
               Close
             </Button>
-            <Button>Schedule Review</Button>
+            <Button aria-label="Action button">Schedule Review</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

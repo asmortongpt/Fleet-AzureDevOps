@@ -129,7 +129,7 @@ export function DocumentSidebar({
       <div className="p-4 border-b">
         <div className="flex items-center justify-between mb-3">
           <h2 className="text-sm font-semibold text-sidebar-foreground">Documents</h2>
-          <Button variant="ghost" size="icon" className="h-8 w-8">
+          <Button variant="ghost" size="icon" className="h-8 w-8" aria-label="Action button">
             <Plus className="h-4 w-4" />
           </Button>
         </div>

@@ -520,7 +520,7 @@ export default function DispatchConsole() {
             size="lg"
             onClick={sendEmergencyAlert}
             className="gap-2"
-          >
+           aria-label="Action button">
             <AlertTriangle className="h-5 w-5" />
             Emergency Alert
           </Button>
@@ -545,7 +545,7 @@ export default function DispatchConsole() {
                     style={{
                       borderLeft: `4px solid ${getChannelColor(channel)}`
                     }}
-                    onClick={() => setSelectedChannel(channel.id)}
+                    onClick={() => setSelectedChannel(channel.id)} aria-label="Action button"
                   >
                     <Radio className="h-4 w-4 mr-2" />
                     <div className="flex-1 text-left">
@@ -630,7 +630,7 @@ export default function DispatchConsole() {
             <Button
               variant="outline"
               className="w-full"
-              onClick={() => setIsMuted(!isMuted)}
+              onClick={() => setIsMuted(!isMuted)} aria-label="Action button"
             >
               {isMuted ? (
                 <>
@@ -776,7 +776,7 @@ export default function DispatchConsole() {
                             {new Date(transmission.transmissionStart).toLocaleString()}
                           </div>
                         </div>
-                        <Button size="sm" variant="outline">
+                        <Button size="sm" variant="outline" aria-label="Action button">
                           <Play className="h-4 w-4 mr-1" />
                           Play
                         </Button>

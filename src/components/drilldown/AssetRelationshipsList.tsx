@@ -147,7 +147,7 @@ export function AssetRelationshipsList({ vehicleId }: AssetRelationshipsListProp
               </div>
             </div>
 
-            <Button variant="ghost" size="sm" className="ml-2">
+            <Button variant="ghost" size="sm" className="ml-2" aria-label="Action button">
               View
             </Button>
           </div>
@@ -155,7 +155,7 @@ export function AssetRelationshipsList({ vehicleId }: AssetRelationshipsListProp
       ))}
 
       {/* Action button to manage relationships */}
-      <Button variant="outline" className="w-full" size="sm">
+      <Button variant="outline" className="w-full" size="sm" aria-label="Action button">
         <Link2 className="h-4 w-4 mr-2" />
         Manage Attachments
       </Button>

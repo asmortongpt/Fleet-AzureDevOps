@@ -447,7 +447,7 @@ export default function DispatchConsole() {
                               <Button
                                 size="small"
                                 color="inherit"
-                                onClick={() => dispatch.acknowledgeAlert(alert.id)}
+                                onClick={() => dispatch.acknowledgeAlert(alert.id)} aria-label="Action button"
                               >
                                 ACK
                               </Button>

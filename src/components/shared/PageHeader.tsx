@@ -36,7 +36,7 @@ export function PageHeader({ title, description, actions = [] }: PageHeaderProps
                 key={idx}
                 onClick={action.onClick}
                 variant={action.variant || 'default'}
-              >
+               aria-label="Action button">
                 {Icon && <Icon className="w-4 h-4 mr-2" />}
                 {action.label}
               </Button>

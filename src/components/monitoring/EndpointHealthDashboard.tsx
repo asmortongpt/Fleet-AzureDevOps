@@ -188,7 +188,7 @@ export function EndpointHealthDashboard({
               </CardTitle>
             </div>
             <Button
-              onClick={() => testAllEndpoints()}
+              onClick={() => testAllEndpoints()} aria-label="Action button"
               disabled={isLoading}
               size="sm"
               variant="outline"
@@ -268,7 +268,7 @@ export function EndpointHealthDashboard({
               </CardTitle>
             </div>
             <Button
-              onClick={() => setShowSockets(!showSockets)}
+              onClick={() => setShowSockets(!showSockets)} aria-label="Action button"
               size="sm"
               variant="ghost"
               className="text-gray-700 dark:text-gray-300"
@@ -343,7 +343,7 @@ export function EndpointHealthDashboard({
                 size="sm"
                 variant="ghost"
                 className="text-gray-700 dark:text-gray-300"
-              >
+               aria-label="Action button">
                 Expand All
               </Button>
               <Button
@@ -351,7 +351,7 @@ export function EndpointHealthDashboard({
                 size="sm"
                 variant="ghost"
                 className="text-gray-700 dark:text-gray-300"
-              >
+               aria-label="Action button">
                 Collapse All
               </Button>
             </div>

@@ -128,7 +128,7 @@ export function PredictiveMaintenance({ data }: PredictiveMaintenanceProps) {
                     </p>
                   </div>
 
-                  <Button size="sm" variant="outline">
+                  <Button size="sm" variant="outline" aria-label="Action button">
                     Schedule Service
                   </Button>
                 </div>
