@@ -453,7 +453,8 @@ app.use('/api/v1/obd2-emulator', obd2EmulatorRouter)
 
 // System Management Routes - V1
 app.use('/api/v1/monitoring', monitoringRouter)
-app.use('/api/v1/health', healthRouter)
+app.use('/api/v1/health', healthRouter) // Comprehensive health (BACKEND-12)
+app.use('/api/v1/health/microsoft', healthMicrosoftRouter) // Microsoft integration health
 app.use('/api/v1/health-detailed', healthDetailedRouter)
 app.use('/api/v1/performance', performanceRouter)
 app.use('/api/v1/telemetry', telemetryRouter)
@@ -599,9 +600,10 @@ app.use('/api/video-telematics', videoTelematicsRouter)
 app.use('/api/emulator', emulatorRouter)
 app.use('/api/obd2-emulator', obd2EmulatorRouter)
 
-// System Management Routes - DEPRECATED
+// System Management Routes - DEPRECATED (use /api/v1 instead)
 app.use('/api/monitoring', monitoringRouter)
-app.use('/api/health', healthRouter)
+app.use('/api/health', healthRouter) // Comprehensive health (BACKEND-12)
+app.use('/api/health/microsoft', healthMicrosoftRouter) // Microsoft integration health
 app.use('/api/health-detailed', healthDetailedRouter)
 app.use('/api/performance', performanceRouter)
 app.use('/api/telemetry', telemetryRouter)
