@@ -36,6 +36,16 @@ import annualReauthorizationRouter from './routes/annual-reauthorization.routes'
 import arcgisLayersRouter from './routes/arcgis-layers'
 import assetAnalyticsRouter from './routes/asset-analytics.routes'
 import assetManagementRouter from './routes/asset-management.routes'
+import assetsMobileRouter from './routes/assets-mobile.routes'
+import assignmentReportingRouter from './routes/assignment-reporting.routes'
+import attachmentsRouter from './routes/attachments.routes'
+import authRouter from './routes/auth'
+import billingReportsRouter from './routes/billing-reports'
+import breakGlassRouter from './routes/break-glass'
+import calendarRouter from './routes/calendar.routes'
+import chargingSessionsRouter from './routes/charging-sessions'
+import chargingStationsRouter from './routes/charging-stations'
+import communicationLogsRouter from './routes/communication-logs'
 import driversRouter from './routes/drivers'
 import vehiclesRouter from './routes/vehicles'
 import fuelRouter from './routes/fuel-transactions'
@@ -48,11 +58,9 @@ import purchaseOrdersRouter from './routes/purchase-orders'
 import tasksRouter from './routes/tasks'
 
 // Asset Management Routes
-import assetsMobileRouter from './routes/assets-mobile.routes'
 import heavyEquipmentRouter from './routes/heavy-equipment.routes'
 
 // Dispatch & Communication Routes
-import communicationLogsRouter from './routes/communication-logs'
 import teamsRouter from './routes/teams.routes'
 
 // GPS & Tracking Routes
@@ -70,20 +78,16 @@ import workOrdersRouter from './routes/work-orders'
 
 // EV Management Routes
 import evManagementRouter from './routes/ev-management.routes'
-import chargingSessionsRouter from './routes/charging-sessions'
-import chargingStationsRouter from './routes/charging-stations'
 
 // Document Management Routes
 import documentsRouter from './routes/documents'
 import fleetDocumentsRouter from './routes/fleet-documents.routes'
-import attachmentsRouter from './routes/attachments.routes'
 import ocrRouter from './routes/ocr.routes'
 
 // Financial & Cost Management Routes
 import costsRouter from './routes/costs'
 import costAnalysisRouter from './routes/cost-analysis.routes'
 import costBenefitAnalysisRouter from './routes/cost-benefit-analysis.routes'
-import billingReportsRouter from './routes/billing-reports'
 import mileageReimbursementRouter from './routes/mileage-reimbursement'
 import chargesRouter from './routes/personal-use-charges'
 import personalUsePoliciesRouter from './routes/personal-use-policies'
@@ -92,7 +96,6 @@ import fuelPurchasingRouter from './routes/fuel-purchasing.routes'
 // Reporting & Analytics Routes
 import executiveDashboardRouter from './routes/executive-dashboard.routes'
 import customReportsRouter from './routes/custom-reports.routes'
-import assignmentReportingRouter from './routes/assignment-reporting.routes'
 import driverScorecardRouter from './routes/driver-scorecard.routes'
 
 // AI & Automation Routes
@@ -101,7 +104,6 @@ import fleetOptimizerRouter from './routes/fleet-optimizer.routes'
 
 // Task & Schedule Management Routes
 import schedulingRouter from './routes/scheduling.routes'
-import calendarRouter from './routes/calendar.routes'
 import onCallManagementRouter from './routes/on-call-management.routes'
 
 // Mobile & Integration Routes
@@ -138,10 +140,8 @@ import policiesRouter from './routes/policies'
 import permissionsRouter from './routes/permissions'
 
 // Authentication & User Management Routes
-import authRouter from './routes/auth'
 import microsoftAuthRouter from './routes/microsoft-auth'
 import sessionRevocationRouter from './routes/session-revocation'
-import breakGlassRouter from './routes/break-glass'
 
 // External Integrations Routes
 import smartcarRouter from './routes/smartcar.routes'
