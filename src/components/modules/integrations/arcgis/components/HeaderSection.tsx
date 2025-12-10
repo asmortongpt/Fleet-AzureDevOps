@@ -29,17 +29,17 @@ export function HeaderSection({ enabledLayersCount, hasLayers, onExport, onRefre
       <div className="flex gap-2">
         {hasLayers && (
           <>
-            <Button variant="outline" size="sm" onClick={onExport}>
+            <Button variant="outline" size="sm" onClick={onExport} aria-label="Action button">
               <Download className="w-4 h-4 mr-2" />
               Export
             </Button>
-            <Button variant="outline" size="sm" onClick={onRefresh}>
+            <Button variant="outline" size="sm" onClick={onRefresh} aria-label="Action button">
               <ArrowClockwise className="w-4 h-4 mr-2" />
               Refresh
             </Button>
           </>
         )}
-        <Button>
+        <Button aria-label="Action button">
           <Plus className="w-4 h-4 mr-2" />
           Add Layer
         </Button>

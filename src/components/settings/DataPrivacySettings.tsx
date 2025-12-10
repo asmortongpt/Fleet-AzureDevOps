@@ -225,7 +225,7 @@ export function DataPrivacySettings() {
             You can request a copy of all your personal data and fleet information. We'll prepare
             a downloadable archive in JSON format.
           </p>
-          <Button onClick={handleExportData} disabled={isExporting} className="gap-2">
+          <Button onClick={handleExportData} disabled={isExporting} className="gap-2" aria-label="Action button">
             <Download className="w-4 h-4" />
             {isExporting ? 'Preparing Export...' : 'Request Data Export'}
           </Button>
@@ -245,7 +245,7 @@ export function DataPrivacySettings() {
           <p className="text-sm text-muted-foreground mb-4">
             Learn more about how we collect, use, and protect your data.
           </p>
-          <Button variant="outline" asChild>
+          <Button variant="outline" asChild aria-label="Action button">
             <a href="/privacy-policy" target="_blank" rel="noopener noreferrer">
               View Privacy Policy
             </a>
@@ -276,7 +276,7 @@ export function DataPrivacySettings() {
 
           <AlertDialog>
             <AlertDialogTrigger asChild>
-              <Button variant="destructive" className="gap-2">
+              <Button variant="destructive" className="gap-2" aria-label="Action button">
                 <Trash className="w-4 h-4" />
                 Delete Account
               </Button>

@@ -83,7 +83,7 @@ export function LayerCard({
                 className="h-5 w-5"
                 onClick={onMoveUp}
                 disabled={index === 0 || isLoading}
-              >
+               aria-label="Action button">
                 <CaretUp className="w-3 h-3" />
               </Button>
               <Button
@@ -92,16 +92,16 @@ export function LayerCard({
                 className="h-5 w-5"
                 onClick={onMoveDown}
                 disabled={index === totalLayers - 1 || isLoading}
-              >
+               aria-label="Action button">
                 <CaretDown className="w-3 h-3" />
               </Button>
             </div>
-            <Button variant="ghost" size="icon" onClick={onToggle} disabled={isLoading}>
+            <Button variant="ghost" size="icon" onClick={onToggle} disabled={isLoading} aria-label="Action button">
               {layer.enabled ? <Eye className="w-4 h-4" /> : <EyeSlash className="w-4 h-4" />}
             </Button>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" disabled={isLoading}>
+                <Button variant="ghost" size="icon" disabled={isLoading} aria-label="Action button">
                   <DotsThree className="w-4 h-4" />
                 </Button>
               </DropdownMenuTrigger>

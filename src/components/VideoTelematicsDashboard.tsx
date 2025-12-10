@@ -358,7 +358,7 @@ export default function VideoTelematicsDashboard() {
                 </div>
 
                 <div className="flex items-end">
-                  <Button onClick={loadVideoEvents} className="w-full">Apply Filters</Button>
+                  <Button onClick={loadVideoEvents} className="w-full" aria-label="Action button">Apply Filters</Button>
                 </div>
               </div>
             </CardContent>
@@ -449,7 +449,7 @@ export default function VideoTelematicsDashboard() {
                           <Button
                             size="sm"
                             variant="default"
-                            onClick={() => handlePlayVideo(event)}
+                            onClick={() => handlePlayVideo(event)} aria-label="Action button"
                           >
                             <Play className="h-4 w-4 mr-1" />
                             Play Video
@@ -460,7 +460,7 @@ export default function VideoTelematicsDashboard() {
                               <Button
                                 size="sm"
                                 variant="outline"
-                                onClick={() => handleReviewEvent(event.id, true, false)}
+                                onClick={() => handleReviewEvent(event.id, true, false)} aria-label="Action button"
                               >
                                 <CheckCircle className="h-4 w-4 mr-1" />
                                 Mark Reviewed
@@ -469,7 +469,7 @@ export default function VideoTelematicsDashboard() {
                               <Button
                                 size="sm"
                                 variant="outline"
-                                onClick={() => handleReviewEvent(event.id, true, true)}
+                                onClick={() => handleReviewEvent(event.id, true, true)} aria-label="Action button"
                               >
                                 <XCircle className="h-4 w-4 mr-1" />
                                 False Positive
@@ -481,7 +481,7 @@ export default function VideoTelematicsDashboard() {
                             <Button
                               size="sm"
                               variant="outline"
-                              onClick={() => handleMarkForCoaching(event.id)}
+                              onClick={() => handleMarkForCoaching(event.id)} aria-label="Action button"
                             >
                               <Users className="h-4 w-4 mr-1" />
                               Requires Coaching
@@ -589,7 +589,7 @@ export default function VideoTelematicsDashboard() {
                         {event.severity}
                       </Badge>
                     </div>
-                    <Button size="sm" onClick={() => handlePlayVideo(event)}>
+                    <Button size="sm" onClick={() => handlePlayVideo(event)} aria-label="Action button">
                       <Play className="h-4 w-4 mr-1" />
                       Review Video
                     </Button>

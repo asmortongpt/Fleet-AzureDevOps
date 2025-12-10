@@ -160,7 +160,7 @@ const MutationExample: React.FC = () => {
             type="submit"
             disabled={createVehicle.isPending}
             className="w-full"
-          >
+           aria-label="Action button">
             {createVehicle.isPending ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -220,7 +220,7 @@ const ErrorBoundaryExample: React.FC = () => {
       </CardHeader>
       <CardContent className="space-y-4">
         <Button
-          onClick={() => setShouldError(!shouldError)}
+          onClick={() => setShouldError(!shouldError)} aria-label="Action button"
           variant={shouldError ? 'destructive' : 'default'}
         >
           {shouldError ? 'Reset Error' : 'Trigger Error'}
@@ -253,28 +253,28 @@ const LoadingStatesExample: React.FC = () => {
           <div className="flex gap-2">
             <Button
               variant={loadingType === 'table' ? 'default' : 'outline'}
-              onClick={() => setLoadingType('table')}
+              onClick={() => setLoadingType('table')} aria-label="Action button"
               size="sm"
             >
               Table
             </Button>
             <Button
               variant={loadingType === 'card' ? 'default' : 'outline'}
-              onClick={() => setLoadingType('card')}
+              onClick={() => setLoadingType('card')} aria-label="Action button"
               size="sm"
             >
               Card
             </Button>
             <Button
               variant={loadingType === 'list' ? 'default' : 'outline'}
-              onClick={() => setLoadingType('list')}
+              onClick={() => setLoadingType('list')} aria-label="Action button"
               size="sm"
             >
               List
             </Button>
             <Button
               variant={loadingType === 'dashboard' ? 'default' : 'outline'}
-              onClick={() => setLoadingType('dashboard')}
+              onClick={() => setLoadingType('dashboard')} aria-label="Action button"
               size="sm"
             >
               Dashboard

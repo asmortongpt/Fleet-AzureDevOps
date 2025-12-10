@@ -138,7 +138,7 @@ export function AIInsightsPanel({ insights, onDismiss }: AIInsightsPanelProps) {
                       variant="ghost"
                       size="sm"
                       className="h-5 w-5 p-0 hover:bg-muted"
-                      onClick={() => onDismiss(insight.id)}
+                      onClick={() => onDismiss(insight.id)} aria-label="Action button"
                     >
                       <X className="w-3 h-3" />
                     </Button>
@@ -159,7 +159,7 @@ export function AIInsightsPanel({ insights, onDismiss }: AIInsightsPanelProps) {
                     </span>
                   </div>
                   {insight.actionable && (
-                    <Button variant="link" size="sm" className="h-5 text-[10px] p-0">
+                    <Button variant="link" size="sm" className="h-5 text-[10px] p-0" aria-label="Action button">
                       Take Action →
                     </Button>
                   )}

@@ -291,7 +291,7 @@ export function DamageStrip({
             size="sm"
             className="h-8 w-8 p-0"
             onClick={onToggleExpand}
-          >
+           aria-label="Action button">
             {isExpanded ? (
               <CaretDown className="w-5 h-5" />
             ) : (
@@ -321,7 +321,7 @@ export function DamageStrip({
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => setShowPins(!showPins)}
+            onClick={() => setShowPins(!showPins)} aria-label="Action button"
             className="h-8"
           >
             {showPins ? (
@@ -333,7 +333,7 @@ export function DamageStrip({
           </Button>
 
           {onAddDamage && (
-            <Button variant="outline" size="sm" className="h-8">
+            <Button variant="outline" size="sm" className="h-8" aria-label="Action button">
               <Plus className="w-4 h-4 mr-2" />
               Add Damage
             </Button>

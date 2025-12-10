@@ -169,7 +169,7 @@ export function VehicleTripsList({ vehicleId, vehicleName }: VehicleTripsListPro
 
           {/* Load More */}
           {trips.length > 0 && trips.length % 20 === 0 && (
-            <Button variant="outline" className="w-full">
+            <Button variant="outline" className="w-full" aria-label="Action button">
               Load More Trips
             </Button>
           )}
