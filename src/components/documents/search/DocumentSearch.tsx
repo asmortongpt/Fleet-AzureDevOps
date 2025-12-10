@@ -115,7 +115,7 @@ export function DocumentSearch({
           <Button
             variant={showFilters ? 'secondary' : 'ghost'}
             size="sm"
-            onClick={() => setShowFilters(!showFilters)}
+            onClick={() => setShowFilters(!showFilters)} aria-label="Action button"
             aria-label="Toggle filters"
           >
             <Filter className="h-4 w-4" />

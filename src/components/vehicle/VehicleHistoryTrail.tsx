@@ -340,7 +340,7 @@ export function VehicleHistoryTrail({
               size="sm"
               variant="outline"
               onClick={toggleVisibility}
-            >
+             aria-label="Action button">
               {visible ? (
                 <>
                   <EyeOff className="h-4 w-4 mr-1" />

@@ -281,17 +281,17 @@ export function ArcGISIntegration() {
         <div className="flex gap-2">
           {hasLayers && (
             <>
-              <Button variant="outline" size="sm" onClick={handleExportLayers}>
+              <Button variant="outline" size="sm" onClick={handleExportLayers} aria-label="Action button">
                 <Download className="w-4 h-4 mr-2" />
                 Export
               </Button>
-              <Button variant="outline" size="sm" onClick={() => loadLayers()}>
+              <Button variant="outline" size="sm" onClick={() => loadLayers()} aria-label="Action button">
                 <ArrowClockwise className="w-4 h-4 mr-2" />
                 Refresh
               </Button>
             </>
           )}
-          <Button>
+          <Button aria-label="Action button">
             <Plus className="w-4 h-4 mr-2" />
             Add Layer
           </Button>
@@ -366,7 +366,7 @@ export function ArcGISIntegration() {
                               variant="ghost"
                               size="icon"
                               className="h-5 w-5"
-                              onClick={() => handleMoveLayerUp(layer.id)}
+                              onClick={() => handleMoveLayerUp(layer.id)} aria-label="Action button"
                               disabled={index === 0 || operation?.loading}
                             >
                               <CaretUp className="w-3 h-3" />
@@ -375,7 +375,7 @@ export function ArcGISIntegration() {
                               variant="ghost"
                               size="icon"
                               className="h-5 w-5"
-                              onClick={() => handleMoveLayerDown(layer.id)}
+                              onClick={() => handleMoveLayerDown(layer.id)} aria-label="Action button"
                               disabled={index === layers.length - 1 || operation?.loading}
                             >
                               <CaretDown className="w-3 h-3" />
@@ -384,14 +384,14 @@ export function ArcGISIntegration() {
                           <Button
                             variant="ghost"
                             size="icon"
-                            onClick={() => handleToggleLayer(layer.id)}
+                            onClick={() => handleToggleLayer(layer.id)} aria-label="Action button"
                             disabled={operation?.loading}
                           >
                             {layer.enabled ? <Eye className="w-4 h-4" /> : <EyeSlash className="w-4 h-4" />}
                           </Button>
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="icon" disabled={operation?.loading}>
+                              <Button variant="ghost" size="icon" disabled={operation?.loading} aria-label="Action button">
                                 <DotsThree className="w-4 h-4" />
                               </Button>
                             </DropdownMenuTrigger>

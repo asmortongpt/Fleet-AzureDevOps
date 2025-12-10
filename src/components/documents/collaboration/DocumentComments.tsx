@@ -124,7 +124,7 @@ export function DocumentComments({
               onClick={handleSubmit}
               disabled={!newComment.trim()}
               size="sm"
-            >
+             aria-label="Action button">
               Post comment
             </Button>
           </div>
@@ -190,7 +190,7 @@ function CommentThread({
               variant="ghost"
               size="sm"
               className="h-7 text-xs"
-              onClick={() => setReplyTo(comment.id)}
+              onClick={() => setReplyTo(comment.id)} aria-label="Action button"
             >
               <Reply className="mr-1 h-3 w-3" />
               Reply
@@ -201,7 +201,7 @@ function CommentThread({
                 variant="ghost"
                 size="sm"
                 className="h-7 text-xs"
-                onClick={() => onResolve(comment.id)}
+                onClick={() => onResolve(comment.id)} aria-label="Action button"
               >
                 <CheckCircle className="mr-1 h-3 w-3" />
                 Resolve
@@ -211,7 +211,7 @@ function CommentThread({
             {isOwner && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" className="h-7 w-7">
+                  <Button variant="ghost" size="icon" className="h-7 w-7" aria-label="Action button">
                     <MoreVertical className="h-3 w-3" />
                   </Button>
                 </DropdownMenuTrigger>
@@ -249,13 +249,13 @@ function CommentThread({
                   onClick={() => {
                     setReplyTo(null);
                     setReplyContent('');
-                  }}
+                  } aria-label="Action button"}
                 >
                   Cancel
                 </Button>
                 <Button
                   size="sm"
-                  onClick={() => onReply(replyContent)}
+                  onClick={() => onReply(replyContent)} aria-label="Action button"
                   disabled={!replyContent.trim()}
                 >
                   Reply

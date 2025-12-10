@@ -287,7 +287,7 @@ export function TimelineDrawer({
             size="sm"
             className="h-8 w-8 p-0"
             onClick={onClose}
-          >
+           aria-label="Action button">
             <X className="w-4 h-4" />
           </Button>
         </div>
@@ -332,7 +332,7 @@ export function TimelineDrawer({
 
       {/* Footer */}
       <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-slate-700/50 bg-slate-950">
-        <Button variant="outline" size="sm" className="w-full">
+        <Button variant="outline" size="sm" className="w-full" aria-label="Action button">
           <CaretDoubleRight className="w-4 h-4 mr-2" />
           View Full History
         </Button>

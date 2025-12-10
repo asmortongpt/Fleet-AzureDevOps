@@ -319,13 +319,13 @@ export const AssetComboManager: React.FC<AssetComboManagerProps> = ({
             onClick={() => {
               setShowHistory(!showHistory)
               if (!showHistory) fetchRelationshipHistory()
-            }}
+            } aria-label="Action button"}
           >
             <Clock className="w-4 h-4 mr-2" />
             {showHistory ? 'Hide' : 'Show'} History
           </Button>
           <Button
-            onClick={() => setShowCreateDialog(true)}
+            onClick={() => setShowCreateDialog(true)} aria-label="Action button"
             disabled={availableAssets.length === 0}
           >
             <Plus className="w-4 h-4 mr-2" />
@@ -385,7 +385,7 @@ export const AssetComboManager: React.FC<AssetComboManagerProps> = ({
                   {/* Detach Button with Confirmation */}
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
-                      <Button variant="destructive" size="sm">
+                      <Button variant="destructive" size="sm" aria-label="Action button">
                         <LinkBreak className="w-4 h-4 mr-2" />
                         Detach
                       </Button>
@@ -560,14 +560,14 @@ export const AssetComboManager: React.FC<AssetComboManagerProps> = ({
             <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-gray-50">
               <Button
                 variant="outline"
-                onClick={() => setShowCreateDialog(false)}
+                onClick={() => setShowCreateDialog(false)} aria-label="Action button"
               >
                 Cancel
               </Button>
               <Button
                 onClick={handleAttach}
                 disabled={!selectedAssetId}
-              >
+               aria-label="Action button">
                 <Link className="w-4 h-4 mr-2" />
                 Attach Asset
               </Button>

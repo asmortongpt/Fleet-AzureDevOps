@@ -198,7 +198,7 @@ export function CostAnalysisCenter() {
           </p>
         </div>
         {(isAdmin || canViewFinancial) && (
-          <Button onClick={exportData} className="flex items-center gap-2">
+          <Button onClick={exportData} className="flex items-center gap-2" aria-label="Action button">
             <Download className="h-4 w-4" weight="bold" />
             Export to Excel
           </Button>

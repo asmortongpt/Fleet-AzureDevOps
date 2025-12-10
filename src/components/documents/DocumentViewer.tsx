@@ -147,7 +147,7 @@ export function DocumentViewer({
               <p className="text-muted-foreground mb-4">
                 Office document preview coming soon
               </p>
-              <Button onClick={handleDownload}>
+              <Button onClick={handleDownload} aria-label="Action button">
                 <Download className="mr-2 h-4 w-4" />
                 Download to view
               </Button>
@@ -162,7 +162,7 @@ export function DocumentViewer({
               <p className="text-muted-foreground mb-4">
                 Preview not available for this file type
               </p>
-              <Button onClick={handleDownload}>
+              <Button onClick={handleDownload} aria-label="Action button">
                 <Download className="mr-2 h-4 w-4" />
                 Download file
               </Button>
@@ -237,7 +237,7 @@ export function DocumentViewer({
                   variant="outline"
                   size="icon"
                   onClick={handleZoomIn}
-                  disabled={viewerState.zoom >= 400}
+                  disabled={viewerState.zoom  aria-label="Action button">= 400}
                   aria-label="Zoom in (Ctrl++)"
                 >
                   <ZoomIn className="h-4 w-4" />

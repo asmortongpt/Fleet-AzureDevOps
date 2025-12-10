@@ -100,7 +100,7 @@ router.get(
       } = req.query;
 
       const queryParams = [];
-      let queryStr = 'SELECT * FROM vehicle_assignments WHERE 1=1';
+      let queryStr = 'SELECT id, tenant_id, vehicle_id, driver_id, department_id, assignment_type, start_date, end_date, is_ongoing, lifecycle_state, authorized_use, commuting_authorized, on_call_only, recommended_by_user_id, recommended_at, recommendation_notes, approval_status, approved_by_user_id, approved_at, denied_by_user_id, denied_at, approval_notes, denial_reason, geographic_constraints, requires_secured_parking, secured_parking_location_id, cost_benefit_analysis_id, created_at, updated_at, created_by_user_id, end_date, assignment_type FROM vehicle_assignments WHERE 1=1';
 
       if (assignment_type) {
         queryParams.push(assignment_type);

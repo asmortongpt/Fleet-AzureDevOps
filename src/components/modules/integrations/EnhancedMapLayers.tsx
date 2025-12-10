@@ -511,7 +511,7 @@ export function EnhancedMapLayers() {
       <AlertDescription className="flex items-center justify-between">
         <span>{error?.message || 'An error occurred'}</span>
         {onRetry && (
-          <Button variant="outline" size="sm" onClick={onRetry}>
+          <Button variant="outline" size="sm" onClick={onRetry} aria-label="Action button">
             <ArrowClockwise className="h-4 w-4 mr-2" />
             Retry
           </Button>
@@ -709,7 +709,7 @@ export function EnhancedMapLayers() {
                         <Button
                           variant={layer.enabled ? "default" : "outline"}
                           size="sm"
-                          onClick={() => toggleLayer(layer.id)}
+                          onClick={() => toggleLayer(layer.id)} aria-label="Action button"
                           disabled={hasError}
                           className="flex-shrink-0 ml-2"
                         >
@@ -848,7 +848,7 @@ export function EnhancedMapLayers() {
                 <Button
                   variant="outline"
                   className="mt-4"
-                  onClick={() => toggleLayer('weather')}
+                  onClick={() => toggleLayer('weather')} aria-label="Action button"
                 >
                   Enable Weather Layer
                 </Button>
@@ -978,7 +978,7 @@ export function EnhancedMapLayers() {
                         </span>
                       </div>
 
-                      <Button variant="outline" size="sm" className="w-full mt-2">
+                      <Button variant="outline" size="sm" className="w-full mt-2" aria-label="Action button">
                         <VideoCamera className="mr-2 h-4 w-4" />
                         View Live Stream
                       </Button>

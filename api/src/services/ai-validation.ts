@@ -514,7 +514,7 @@ export class AIValidationService {
   limit: number = 10
 ): Promise<any[]> {
   const result = await this.db.query(
-    `SELECT * FROM ai_validations
+    `SELECT id, tenant_id, user_id, entity_type, entity_id, validation_result, is_valid, confidence, warnings, anomalies, suggestions, auto_applied, created_at FROM ai_validations
      WHERE tenant_id = $1 AND entity_type = $2 AND entity_id = $3
      ORDER BY created_at DESC
      LIMIT $4`,

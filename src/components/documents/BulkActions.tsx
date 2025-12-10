@@ -124,7 +124,7 @@ export function BulkActions({
           <div className="flex items-center gap-2">
             <CheckSquare className="h-5 w-5 text-primary" />
             <span className="font-medium">{selectedDocuments.length} selected</span>
-            <Button variant="ghost" size="sm" onClick={onClearSelection}>
+            <Button variant="ghost" size="sm" onClick={onClearSelection} aria-label="Action button">
               Clear
             </Button>
           </div>
@@ -132,32 +132,32 @@ export function BulkActions({
           <div className="h-6 w-px bg-border" />
 
           <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" onClick={handleDownload} disabled={isExecuting}>
+            <Button variant="outline" size="sm" onClick={handleDownload} disabled={isExecuting} aria-label="Action button">
               <Download className="mr-2 h-4 w-4" />
               Download
             </Button>
 
-            <Button variant="outline" size="sm" onClick={() => {}} disabled={isExecuting}>
+            <Button variant="outline" size="sm" onClick={() => {} aria-label="Action button"} disabled={isExecuting}>
               <Share2 className="mr-2 h-4 w-4" />
               Share
             </Button>
 
             {canEdit && (
-              <Button variant="outline" size="sm" onClick={handleTag} disabled={isExecuting}>
+              <Button variant="outline" size="sm" onClick={handleTag} disabled={isExecuting} aria-label="Action button">
                 <Tag className="mr-2 h-4 w-4" />
                 Tag
               </Button>
             )}
 
             {canEdit && (
-              <Button variant="outline" size="sm" onClick={handleMove} disabled={isExecuting}>
+              <Button variant="outline" size="sm" onClick={handleMove} disabled={isExecuting} aria-label="Action button">
                 <FolderOpen className="mr-2 h-4 w-4" />
                 Move
               </Button>
             )}
 
             {canEdit && (
-              <Button variant="outline" size="sm" onClick={() => {}} disabled={isExecuting}>
+              <Button variant="outline" size="sm" onClick={() => {} aria-label="Action button"} disabled={isExecuting}>
                 <Archive className="mr-2 h-4 w-4" />
                 Archive
               </Button>
@@ -169,7 +169,7 @@ export function BulkActions({
                 size="sm"
                 onClick={handleDelete}
                 disabled={isExecuting}
-              >
+               aria-label="Action button">
                 <Trash2 className="mr-2 h-4 w-4" />
                 Delete
               </Button>
@@ -262,7 +262,7 @@ export function BulkActions({
           <DialogFooter>
             <Button
               variant="outline"
-              onClick={() => setShowConfirm(false)}
+              onClick={() => setShowConfirm(false)} aria-label="Action button"
               disabled={isExecuting}
             >
               Cancel
@@ -275,7 +275,7 @@ export function BulkActions({
                 (currentOperation === 'tag' && selectedTags.length === 0)
               }
               variant={currentOperation === 'delete' ? 'destructive' : 'default'}
-            >
+             aria-label="Action button">
               {isExecuting ? 'Processing...' : 'Confirm'}
             </Button>
           </DialogFooter>

@@ -64,7 +64,7 @@ export function RadioFeed({ channelId, onChannelSelect, transmissions }: RadioFe
                   key={channel.id}
                   variant={channelId === channel.id ? 'default' : 'outline'}
                   className="w-full justify-start"
-                  onClick={() => onChannelSelect(channel.id)}
+                  onClick={() => onChannelSelect(channel.id)} aria-label="Action button"
                   disabled={!channel.active}
                 >
                   <div className="flex flex-col items-start gap-1">
@@ -149,7 +149,7 @@ export function RadioFeed({ channelId, onChannelSelect, transmissions }: RadioFe
 
                       {/* Audio Player */}
                       <div className="mt-3 flex items-center gap-2">
-                        <Button size="sm" variant="ghost">
+                        <Button size="sm" variant="ghost" aria-label="Action button">
                           <Play className="h-4 w-4" />
                         </Button>
                         <div className="flex-1 h-1 bg-muted rounded-full">

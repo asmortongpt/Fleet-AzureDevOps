@@ -485,7 +485,7 @@ export class DocumentIndexer {
     options?: { status?: string; limit?: number }
   ): Promise<IndexingJob[]> {
     let query = `
-      SELECT * FROM indexing_jobs
+      SELECT id, tenant_id, job_type, status, progress, total_documents, processed_documents, error_message, metadata, started_at, completed_at, created_at FROM indexing_jobs
       WHERE tenant_id = $1
     `
     const params: any[] = [tenantId]
@@ -518,7 +518,7 @@ export class DocumentIndexer {
       try {
         // Get next pending job
         const result = await this.db.query(
-          `SELECT * FROM indexing_jobs
+          `SELECT id, tenant_id, job_type, status, progress, total_documents, processed_documents, error_message, metadata, started_at, completed_at, created_at FROM indexing_jobs
            WHERE status = 'pending'
            ORDER BY created_at ASC
            LIMIT 1

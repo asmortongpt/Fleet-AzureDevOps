@@ -291,11 +291,11 @@ export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps)
 
           {/* Action Buttons */}
           <div className="grid grid-cols-2 gap-3">
-            <Button onClick={handleViewParts} className="w-full">
+            <Button onClick={handleViewParts} className="w-full" aria-label="Action button">
               <Package className="h-4 w-4 mr-2" />
               View Parts
             </Button>
-            <Button onClick={handleViewLabor} variant="outline" className="w-full">
+            <Button onClick={handleViewLabor} variant="outline" className="w-full" aria-label="Action button">
               <Users className="h-4 w-4 mr-2" />
               View Labor
             </Button>

@@ -357,7 +357,7 @@ export function RealTimeEventHub({
             {showFilters && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="sm" className="h-8">
+                  <Button variant="ghost" size="sm" className="h-8" aria-label="Action button">
                     <Funnel className="w-4 h-4 mr-1" />
                     {filters.size > 0 && (
                       <Badge variant="secondary" className="text-xs ml-1">

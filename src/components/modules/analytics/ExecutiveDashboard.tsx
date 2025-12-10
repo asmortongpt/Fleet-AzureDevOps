@@ -378,11 +378,11 @@ export function ExecutiveDashboard() {
             size="sm"
             onClick={handleRefresh}
             disabled={loading}
-          >
+           aria-label="Action button">
             <ArrowsClockwise className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
             Refresh
           </Button>
-          <Button variant="outline" size="sm" onClick={handleExportPDF}>
+          <Button variant="outline" size="sm" onClick={handleExportPDF} aria-label="Action button">
             <Download className="w-4 h-4 mr-2" />
             Export PDF
           </Button>
@@ -588,7 +588,7 @@ export function ExecutiveDashboard() {
                         <p className="text-sm text-muted-foreground mb-3">{insight.message}</p>
                         <div className="flex items-center gap-2">
                           {insight.actionable && (
-                            <Button size="sm" variant="outline">
+                            <Button size="sm" variant="outline" aria-label="Action button">
                               Take Action
                             </Button>
                           )}
@@ -753,19 +753,19 @@ export function ExecutiveDashboard() {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-4 gap-3">
-            <Button variant="outline" className="h-20 flex-col gap-2">
+            <Button variant="outline" className="h-20 flex-col gap-2" aria-label="Action button">
               <Truck className="w-6 h-6" />
               <span className="text-xs">Fleet Overview</span>
             </Button>
-            <Button variant="outline" className="h-20 flex-col gap-2">
+            <Button variant="outline" className="h-20 flex-col gap-2" aria-label="Action button">
               <Wrench className="w-6 h-6" />
               <span className="text-xs">Schedule Maintenance</span>
             </Button>
-            <Button variant="outline" className="h-20 flex-col gap-2">
+            <Button variant="outline" className="h-20 flex-col gap-2" aria-label="Action button">
               <ChartLine className="w-6 h-6" />
               <span className="text-xs">View Reports</span>
             </Button>
-            <Button variant="outline" className="h-20 flex-col gap-2">
+            <Button variant="outline" className="h-20 flex-col gap-2" aria-label="Action button">
               <Users className="w-6 h-6" />
               <span className="text-xs">Driver Management</span>
             </Button>

@@ -337,7 +337,7 @@ const EVChargingDashboard: React.FC = () => {
           <h1 className="text-3xl font-bold text-gray-900">EV Charging Dashboard</h1>
           <p className="text-gray-600 mt-1">Manage charging stations and monitor active sessions</p>
         </div>
-        <Button onClick={handleRefresh} variant="outline" disabled={isLoading}>
+        <Button onClick={handleRefresh} variant="outline" disabled={isLoading} aria-label="Action button">
           <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
           </svg>
@@ -469,7 +469,7 @@ const EVChargingDashboard: React.FC = () => {
                           <Button
                             size="sm"
                             variant="outline"
-                            onClick={() => handleRemoteStop(session.transaction_id)}
+                            onClick={() => handleRemoteStop(session.transaction_id)} aria-label="Action button"
                             disabled={remoteStopMutation.isPending}
                           >
                             Stop
@@ -544,7 +544,7 @@ const EVChargingDashboard: React.FC = () => {
                         size="sm"
                         variant="outline"
                         className="flex-1"
-                        onClick={() => createReservation(station.id)}
+                        onClick={() => createReservation(station.id)} aria-label="Action button"
                       >
                         <CalendarIcon className="w-4 h-4 mr-1" />
                         Reserve
@@ -553,7 +553,7 @@ const EVChargingDashboard: React.FC = () => {
                         <Button
                           size="sm"
                           className="flex-1"
-                          onClick={() => handleRemoteStart(station.station_id, 1)}
+                          onClick={() => handleRemoteStart(station.station_id, 1)} aria-label="Action button"
                           disabled={remoteStartMutation.isPending}
                         >
                           <BoltIcon className="w-4 h-4 mr-1" />
@@ -595,7 +595,7 @@ const EVChargingDashboard: React.FC = () => {
                         <Button
                           variant="destructive"
                           size="sm"
-                          onClick={() => handleRemoteStop(session.transaction_id)}
+                          onClick={() => handleRemoteStop(session.transaction_id)} aria-label="Action button"
                           disabled={remoteStopMutation.isPending}
                         >
                           Stop Charging

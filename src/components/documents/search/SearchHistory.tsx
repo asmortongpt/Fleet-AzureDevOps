@@ -54,7 +54,7 @@ export function SearchHistory({
           size="sm"
           onClick={onClear}
           className="text-xs"
-        >
+         aria-label="Action button">
           Clear all
         </Button>
       </div>
@@ -89,7 +89,7 @@ export function SearchHistory({
                 variant="ghost"
                 size="icon"
                 className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
-                onClick={() => onRemove(index)}
+                onClick={() => onRemove(index)} aria-label="Action button"
                 aria-label="Remove from history"
               >
                 <X className="h-4 w-4" />
