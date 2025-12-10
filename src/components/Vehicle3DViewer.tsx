@@ -709,7 +709,7 @@ export function Vehicle3DViewer({
             size="sm"
             onClick={openARView}
             className="bg-black/70 backdrop-blur-sm hover:bg-black/90"
-           aria-label="Action button">
+            aria-label="View vehicle in augmented reality">
             <Scan className="h-4 w-4 mr-2" />
             View in AR
           </Button>
@@ -718,7 +718,7 @@ export function Vehicle3DViewer({
             size="sm"
             onClick={takeScreenshot}
             className="bg-black/70 backdrop-blur-sm hover:bg-black/90"
-           aria-label="Action button">
+            aria-label="Take screenshot of 3D view">
             <Camera className="h-4 w-4" />
           </Button>
           <Button
@@ -726,7 +726,7 @@ export function Vehicle3DViewer({
             size="sm"
             onClick={toggleFullscreen}
             className="bg-black/70 backdrop-blur-sm hover:bg-black/90"
-           aria-label="Action button">
+            aria-label={isFullscreen ? "Exit fullscreen mode" : "Enter fullscreen mode"}>
             {isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
           </Button>
         </div>
@@ -753,7 +753,8 @@ export function Vehicle3DViewer({
                       key={name}
                       variant="outline"
                       size="sm"
-                      onClick={() => setCameraPreset(preset)} aria-label="Action button"
+                      onClick={() => setCameraPreset(preset)}
+                      aria-label={`Switch to ${name.replace(/([A-Z])/g, ' $1').trim()} camera view`}
                       className="capitalize"
                     >
                       {name.replace(/([A-Z])/g, ' $1').trim()}
@@ -768,28 +769,32 @@ export function Vehicle3DViewer({
                   <Button
                     variant={environment === 'studio' ? 'default' : 'outline'}
                     size="sm"
-                    onClick={() => setEnvironment('studio')} aria-label="Action button"
+                    onClick={() => setEnvironment('studio')}
+                    aria-label="Set studio environment lighting"
                   >
                     Studio
                   </Button>
                   <Button
                     variant={environment === 'sunset' ? 'default' : 'outline'}
                     size="sm"
-                    onClick={() => setEnvironment('sunset')} aria-label="Action button"
+                    onClick={() => setEnvironment('sunset')}
+                    aria-label="Set sunset environment lighting"
                   >
                     Sunset
                   </Button>
                   <Button
                     variant={environment === 'city' ? 'default' : 'outline'}
                     size="sm"
-                    onClick={() => setEnvironment('city')} aria-label="Action button"
+                    onClick={() => setEnvironment('city')}
+                    aria-label="Set city environment lighting"
                   >
                     City
                   </Button>
                   <Button
                     variant={environment === 'night' ? 'default' : 'outline'}
                     size="sm"
-                    onClick={() => setEnvironment('night')} aria-label="Action button"
+                    onClick={() => setEnvironment('night')}
+                    aria-label="Set night environment lighting"
                   >
                     Night
                   </Button>
@@ -827,7 +832,8 @@ export function Vehicle3DViewer({
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setShowDamage(!showDamage)} aria-label="Action button"
+                  onClick={() => setShowDamage(!showDamage)}
+                  aria-label={showDamage ? "Hide damage markers" : "Show damage markers"}
                 >
                   {showDamage ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
                 </Button>
@@ -867,21 +873,24 @@ export function Vehicle3DViewer({
                   <Button
                     variant={quality === 'low' ? 'default' : 'outline'}
                     size="sm"
-                    onClick={() => setQuality('low')} aria-label="Action button"
+                    onClick={() => setQuality('low')}
+                    aria-label="Set rendering quality to low"
                   >
                     Low (30 FPS)
                   </Button>
                   <Button
                     variant={quality === 'medium' ? 'default' : 'outline'}
                     size="sm"
-                    onClick={() => setQuality('medium')} aria-label="Action button"
+                    onClick={() => setQuality('medium')}
+                    aria-label="Set rendering quality to medium"
                   >
                     Medium (60 FPS)
                   </Button>
                   <Button
                     variant={quality === 'high' ? 'default' : 'outline'}
                     size="sm"
-                    onClick={() => setQuality('high')} aria-label="Action button"
+                    onClick={() => setQuality('high')}
+                    aria-label="Set rendering quality to high"
                   >
                     High (Ultra)
                   </Button>
@@ -893,7 +902,8 @@ export function Vehicle3DViewer({
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setEnablePostProcessing(!enablePostProcessing)} aria-label="Action button"
+                  onClick={() => setEnablePostProcessing(!enablePostProcessing)}
+                  aria-label={enablePostProcessing ? "Disable post-processing effects" : "Enable post-processing effects"}
                 >
                   {enablePostProcessing ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
                 </Button>
@@ -904,7 +914,8 @@ export function Vehicle3DViewer({
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setShowStats(!showStats)} aria-label="Action button"
+                  onClick={() => setShowStats(!showStats)}
+                  aria-label={showStats ? "Hide performance stats" : "Show performance stats"}
                 >
                   {showStats ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
                 </Button>

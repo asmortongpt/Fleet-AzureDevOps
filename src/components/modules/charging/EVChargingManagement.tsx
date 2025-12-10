@@ -437,7 +437,7 @@ export function EVChargingManagement() {
               <Button variant="outline" onClick={() => setIsAddStationOpen(false)}>
                 Cancel
               </Button>
-              <Button onClick={handleSaveStation}>Add Station</Button>
+              <Button onClick={handleSaveStation} aria-label="Save changes">Add Station</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>

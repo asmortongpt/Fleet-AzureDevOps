@@ -458,7 +458,7 @@ export function PurchaseOrders() {
             </div>
           )}
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsDetailsDialogOpen(false)}>
+            <Button variant="outline" onClick={() => setIsDetailsDialogOpen(false)} aria-label="Cancel">
               Close
             </Button>
             {selectedOrder && selectedOrder.status === "pending-approval" && (
@@ -604,10 +604,10 @@ export function PurchaseOrders() {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
+            <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)} aria-label="Cancel">
               Cancel
             </Button>
-            <Button onClick={handleCreatePO}>
+            <Button onClick={handleCreatePO} aria-label="Create item">
               Create Purchase Order
             </Button>
           </DialogFooter>

@@ -206,10 +206,10 @@ export function MaintenanceRequest({ data }: MaintenanceRequestProps) {
               </div>
 
               <div className="flex justify-end gap-2">
-                <Button variant="outline" onClick={() => setDialogOpen(false)}>
+                <Button variant="outline" onClick={() => setDialogOpen(false)} aria-label="Cancel">
                   Cancel
                 </Button>
-                <Button onClick={handleSubmit}>
+                <Button onClick={handleSubmit} aria-label="Submit form">
                   Submit Request
                 </Button>
               </div>
