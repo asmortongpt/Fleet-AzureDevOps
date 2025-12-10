@@ -12,7 +12,7 @@
 
 import { Pool } from 'pg'
 
-import { DatabaseError } from '../../middleware/errorHandler'
+import { DatabaseError } from "../../errors/AppError"'
 import { GenericRepository } from '../base'
 
 export interface Driver {
