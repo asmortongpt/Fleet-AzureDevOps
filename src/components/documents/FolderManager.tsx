@@ -77,7 +77,7 @@ export function FolderManager({
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-semibold">Folders</h3>
-        <Button onClick={() => setShowCreateDialog(true)}>
+        <Button onClick={() => setShowCreateDialog(true)} aria-label="Show CreateDialog">
           <FolderPlus className="mr-2 h-4 w-4" />
           New folder
         </Button>

@@ -419,6 +419,7 @@ export function EnhancedTaskManagement() {
                       size="sm"
                       onClick={() => getAISuggestions(newTask)}
                       disabled={isLoadingAI}
+                      aria-label="Get AI suggestions for task"
                     >
                       <Brain className="w-4 h-4 mr-1" />
                       {isLoadingAI ? "Analyzing..." : "Get AI Suggestions"}
@@ -525,10 +526,10 @@ export function EnhancedTaskManagement() {
                 </div>
               </div>
               <DialogFooter>
-                <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
+                <Button variant="outline" onClick={() => setIsAddDialogOpen(false)} aria-label="Cancel task creation">
                   Cancel
                 </Button>
-                <Button onClick={handleAddTask}>Create Task</Button>
+                <Button onClick={handleAddTask} aria-label="Create new task">Create Task</Button>
               </DialogFooter>
             </DialogContent>
           </Dialog>
@@ -556,10 +557,10 @@ export function EnhancedTaskManagement() {
             />
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsNLPDialogOpen(false)}>
+            <Button variant="outline" onClick={() => setIsNLPDialogOpen(false)} aria-label="Cancel AI task creation">
               Cancel
             </Button>
-            <Button onClick={createTaskFromNLP} disabled={isLoadingAI}>
+            <Button onClick={createTaskFromNLP} disabled={isLoadingAI} aria-label="Create task from natural language">
               {isLoadingAI ? "Processing..." : "Create Task"}
             </Button>
           </DialogFooter>
@@ -649,7 +650,7 @@ export function EnhancedTaskManagement() {
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm">
+              <Button variant="outline" size="sm" aria-label="Open filter menu">
                 <Funnel className="w-4 h-4 mr-2" />
                 Filters
                 <CaretDown className="w-4 h-4 ml-2" />
@@ -716,6 +717,7 @@ export function EnhancedTaskManagement() {
               variant={viewMode === 'table' ? 'secondary' : 'ghost'}
               size="sm"
               onClick={() => setViewMode('table')}
+              aria-label="Switch to table view"
             >
               <List className="w-4 h-4" />
             </Button>
@@ -723,6 +725,7 @@ export function EnhancedTaskManagement() {
               variant={viewMode === 'kanban' ? 'secondary' : 'ghost'}
               size="sm"
               onClick={() => setViewMode('kanban')}
+              aria-label="Switch to kanban view"
             >
               <KanbanIcon className="w-4 h-4" />
             </Button>
@@ -730,6 +733,7 @@ export function EnhancedTaskManagement() {
               variant={viewMode === 'calendar' ? 'secondary' : 'ghost'}
               size="sm"
               onClick={() => setViewMode('calendar')}
+              aria-label="Switch to calendar view"
             >
               <Calendar className="w-4 h-4" />
             </Button>
@@ -737,6 +741,7 @@ export function EnhancedTaskManagement() {
               variant={viewMode === 'gantt' ? 'secondary' : 'ghost'}
               size="sm"
               onClick={() => setViewMode('gantt')}
+              aria-label="Switch to gantt chart view"
             >
               <ChartBar className="w-4 h-4" />
             </Button>
@@ -746,7 +751,7 @@ export function EnhancedTaskManagement() {
           {selectedTasks.size > 0 && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm">
+                <Button variant="outline" size="sm" aria-label="Open bulk actions menu">
                   <Rows className="w-4 h-4 mr-2" />
                   Actions ({selectedTasks.size})
                 </Button>
@@ -772,7 +777,7 @@ export function EnhancedTaskManagement() {
           {/* Export */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm">
+              <Button variant="outline" size="sm" aria-label="Export tasks">
                 <Download className="w-4 h-4 mr-2" />
                 Export
               </Button>
@@ -904,7 +909,7 @@ export function EnhancedTaskManagement() {
                         <TableCell onClick={e => e.stopPropagation()}>
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="sm">
+                              <Button variant="ghost" size="sm" aria-label="Open task actions menu">
                                 <DotsThree className="w-4 h-4" />
                               </Button>
                             </DropdownMenuTrigger>

@@ -109,7 +109,7 @@ export function MileageReimbursement({ data }: MileageReimbursementProps) {
           <h1 className="text-3xl font-semibold tracking-tight">Mileage Reimbursement</h1>
           <p className="text-muted-foreground mt-1">Submit and manage mileage reimbursement requests</p>
         </div>
-        <Button onClick={() => setShowForm(!showForm)}>
+        <Button onClick={() => setShowForm(!showForm)} aria-label="Toggle Form">
           {showForm ? (
             <>
               <X className="w-4 h-4 mr-2" />
@@ -282,7 +282,7 @@ export function MileageReimbursement({ data }: MileageReimbursementProps) {
             )}
 
             <div className="mt-6 flex gap-3">
-              <Button onClick={handleSubmit}>
+              <Button onClick={handleSubmit} aria-label="Submit form">
                 Submit Request
               </Button>
               <Button variant="outline" onClick={() => setShowForm(false)}>
