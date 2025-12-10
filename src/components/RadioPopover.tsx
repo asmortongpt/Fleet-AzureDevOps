@@ -94,7 +94,8 @@ export function RadioPopover({ className }: RadioPopoverProps) {
           variant="outline"
           className={`relative ${className}`}
           size="sm"
-         aria-label="Action button">
+          aria-label="Action button"
+        >
           <Radio className="w-4 h-4 mr-2" />
           Radio
           {emergencyCount > 0 && (
@@ -120,7 +121,8 @@ export function RadioPopover({ className }: RadioPopoverProps) {
               size="sm"
               onClick={openFullConsole}
               className="h-7"
-             aria-label="Action button">
+              aria-label="Action button"
+            >
               <ExternalLink className="w-3 h-3 mr-1" />
               Full View
             </Button>
@@ -136,7 +138,8 @@ export function RadioPopover({ className }: RadioPopoverProps) {
                   variant={selectedChannel === channel.id ? "default" : "outline"}
                   size="sm"
                   className="flex-1"
-                  onClick={() => setSelectedChannel(channel.id)} aria-label="Action button"
+                  onClick={() => setSelectedChannel(channel.id)}
+                  aria-label="Action button"
                 >
                   {channel.active && <Circle className="w-2 h-2 mr-1 fill-green-500 text-green-500" />}
                   {channel.name}
@@ -149,8 +152,9 @@ export function RadioPopover({ className }: RadioPopoverProps) {
           <Button
             className={`w-full h-12 ${isTransmitting ? 'bg-red-600 hover:bg-red-700' : ''}`}
             onMouseDown={handlePTT}
-            onMouseUp={() = aria-label="Action button"> setIsTransmitting(false)}
+            onMouseUp={() => setIsTransmitting(false)}
             onMouseLeave={() => setIsTransmitting(false)}
+            aria-label="Action button"
           >
             {isTransmitting ? (
               <>
