@@ -101,8 +101,8 @@ export default function EvidenceLocker() {
       if (filters.legalHold !== 'all') params.append('legalHold', filters.legalHold);
 
       const response = await fetch(`/api/video/evidence-locker?${params.toString()}`, {
+        credentials: 'include',
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
       });
 
@@ -120,8 +120,8 @@ export default function EvidenceLocker() {
   const loadLockerDetails = async (lockerId: number) => {
     try {
       const response = await fetch(`/api/video/evidence-locker/${lockerId}`, {
+        credentials: 'include',
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
       });
 
@@ -138,9 +138,9 @@ export default function EvidenceLocker() {
   const handleCreateLocker = async () => {
     try {
       const response = await fetch('/api/video/evidence-locker', {
+        credentials: 'include',
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify(newLocker)
@@ -167,8 +167,8 @@ export default function EvidenceLocker() {
   const getVideoPlaybackUrl = async (eventId: number) => {
     try {
       const response = await fetch(`/api/video/events/${eventId}/clip`, {
+        credentials: 'include',
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
       });
 

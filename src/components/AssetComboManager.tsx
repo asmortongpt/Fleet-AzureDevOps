@@ -86,8 +86,8 @@ export const AssetComboManager: React.FC<AssetComboManagerProps> = ({
     setLoading(true)
     try {
       const response = await fetch('/api/asset-relationships/active', {
+        credentials: 'include',
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
       })
 
@@ -105,8 +105,8 @@ export const AssetComboManager: React.FC<AssetComboManagerProps> = ({
   const fetchVehicles = async () => {
     try {
       const response = await fetch('/api/vehicles?limit=1000', {
+        credentials: 'include',
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
       })
 
@@ -122,8 +122,8 @@ export const AssetComboManager: React.FC<AssetComboManagerProps> = ({
   const fetchRelationshipHistory = async (assetId: string) => {
     try {
       const response = await fetch(`/api/asset-relationships/history/${assetId}`, {
+        credentials: 'include',
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
       })
 
@@ -157,10 +157,10 @@ export const AssetComboManager: React.FC<AssetComboManagerProps> = ({
       }
 
       const response = await fetch('/api/asset-relationships', {
+        credentials: 'include',
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
         },
         body: JSON.stringify(payload)
       })
@@ -197,9 +197,9 @@ export const AssetComboManager: React.FC<AssetComboManagerProps> = ({
 
     try {
       const response = await fetch(`/api/asset-relationships/${relationshipId}/deactivate`, {
+        credentials: 'include',
         method: 'PATCH',
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
       })
 
