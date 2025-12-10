@@ -21,6 +21,19 @@ export const TYPES = {
   InspectionService: Symbol.for("InspectionService"),
   DocumentService: Symbol.for("DocumentService"),
 
+  // Monitoring & Logging Services
+  ApplicationInsightsService: Symbol.for("ApplicationInsightsService"),
+  CacheService: Symbol.for("CacheService"),
+  SentryService: Symbol.for("SentryService"),
+  AnalyticsService: Symbol.for("AnalyticsService"),
+  NotificationService: Symbol.for("NotificationService"),
+  JobQueueService: Symbol.for("JobQueueService"),
+  MCPServerService: Symbol.for("MCPServerService"),
+  CustomFieldsService: Symbol.for("CustomFieldsService"),
+  QueueService: Symbol.for("QueueService"),
+  CameraSyncService: Symbol.for("CameraSyncService"),
+  EmailNotificationService: Symbol.for("EmailNotificationService"),
+
   // Repositories
   VehicleRepository: Symbol.for("VehicleRepository"),
   DriverRepository: Symbol.for("DriverRepository"),
