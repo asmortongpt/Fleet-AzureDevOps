@@ -20,7 +20,9 @@
  */
 
 import { Pool, PoolClient } from 'pg'
+
 import { DatabaseError } from '../../middleware/errorHandler'
+
 import { TransactionCallback } from './types'
 
 export class TransactionManager {

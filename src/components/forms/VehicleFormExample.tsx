@@ -13,15 +13,16 @@
  * - Auto-save draft state
  */
 
-import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { vehicleSchema, type VehicleFormData } from '@/schemas'
+import { CheckCircle2, AlertCircle, Loader2 } from 'lucide-react'
+import { useForm } from 'react-hook-form'
+
 import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { CheckCircle2, AlertCircle, Loader2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { vehicleSchema, type VehicleFormData } from '@/schemas'
 
 interface VehicleFormProps {
   initialData?: Partial<VehicleFormData>
