@@ -423,7 +423,7 @@ router.post('/refresh',csrfProtection, async (req: Request, res: Response) => {
     // SECURITY: Add tenant_id filter to prevent cross-tenant token use
     const tokenHash = Buffer.from(refreshToken).toString('base64').substring(0, 64)
     const tokenResult = await pool.query(
-      `SELECT * FROM refresh_tokens
+      `SELECT id, user_id, token_hash, expires_at, created_at, revoked_at FROM refresh_tokens
        WHERE user_id = $1 AND tenant_id = $2 AND token_hash = $3 AND revoked_at IS NULL AND expires_at > NOW()`,
       [decoded.id, decoded.tenant_id, tokenHash]
     )

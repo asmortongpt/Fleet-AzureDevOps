@@ -259,7 +259,7 @@ export const TaskInspector: React.FC<TaskInspectorProps> = ({ id, initialTab = '
                     <p className="font-medium">{task.assignedTo.name}</p>
                     <p className="text-sm text-gray-600 capitalize">{task.assignedTo.type}</p>
                   </div>
-                  <Button variant="outline" size="sm">View Profile</Button>
+                  <Button variant="outline" size="sm" aria-label="Action button">View Profile</Button>
                 </div>
               </Card>
             )}
@@ -272,7 +272,7 @@ export const TaskInspector: React.FC<TaskInspectorProps> = ({ id, initialTab = '
                     <p className="font-medium">{task.relatedVehicle.name}</p>
                     <p className="text-sm text-gray-600">Vehicle ID: {task.relatedVehicle.id}</p>
                   </div>
-                  <Button variant="outline" size="sm">View Vehicle</Button>
+                  <Button variant="outline" size="sm" aria-label="Action button">View Vehicle</Button>
                 </div>
               </Card>
             )}
@@ -302,13 +302,13 @@ export const TaskInspector: React.FC<TaskInspectorProps> = ({ id, initialTab = '
                     {task.checklist.filter(item => item.completed).length} of {task.checklist.length} items completed
                   </span>
                   {task.status === 'pending' && (
-                    <Button onClick={handleStartTask} disabled={processing} size="sm">
+                    <Button onClick={handleStartTask} disabled={processing} size="sm" aria-label="Action button">
                       {processing ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
                       Start Task
                     </Button>
                   )}
                   {task.status === 'in-progress' && task.progress === 100 && (
-                    <Button onClick={handleCompleteTask} disabled={processing} size="sm">
+                    <Button onClick={handleCompleteTask} disabled={processing} size="sm" aria-label="Action button">
                       {processing ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
                       Complete Task
                     </Button>

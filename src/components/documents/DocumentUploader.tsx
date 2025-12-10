@@ -251,20 +251,20 @@ export function DocumentUploader({
               className="flex-1"
             >
               <input {...getInputProps()} />
-              <Button variant="outline" className="w-full">
+              <Button variant="outline" className="w-full" aria-label="Action button">
                 <Upload className="mr-2 h-4 w-4" />
                 Add more files
               </Button>
             </div>
 
             <div className="flex gap-2">
-              <Button variant="outline" onClick={onClose}>
+              <Button variant="outline" onClick={onClose} aria-label="Action button">
                 Cancel
               </Button>
               <Button
                 onClick={handleUpload}
                 disabled={!allComplete || !hasFiles}
-              >
+               aria-label="Action button">
                 {allComplete ? 'Done' : 'Uploading...'}
               </Button>
             </div>

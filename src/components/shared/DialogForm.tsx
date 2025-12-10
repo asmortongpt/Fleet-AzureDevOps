@@ -21,10 +21,10 @@ export function DialogForm({ open, onOpenChange, title, children, onSubmit }: Di
         <form onSubmit={async (e) => { e.preventDefault(); await onSubmit(); }}>
           {children}
           <div className="flex justify-end gap-2 mt-4">
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)} aria-label="Action button">
               Cancel
             </Button>
-            <Button type="submit">Submit</Button>
+            <Button type="submit" aria-label="Action button">Submit</Button>
           </div>
         </form>
       </DialogContent>

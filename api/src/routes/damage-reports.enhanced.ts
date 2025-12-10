@@ -93,7 +93,7 @@ router.get(
       const offset = (Number(page) - 1) * Number(limit)
 
       const query = {
-        text: `SELECT * FROM damage_reports WHERE vehicle_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3`,
+        text: `SELECT id, tenant_id, vehicle_id, reported_by, damage_description, damage_severity, damage_location, photos, triposr_task_id, triposr_status, triposr_model_url, linked_work_order_id, inspection_id, created_at, updated_at FROM damage_reports WHERE vehicle_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3`,
         values: [vehicle_id, limit, offset],
       }
 

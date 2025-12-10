@@ -70,7 +70,7 @@ app.get('/api/weather/forecast', async (req: Request, res: Response, next: NextF
 
 app.get('/api/weather/alerts', async (_req: Request, res: Response, next: NextFunction) => {
   try {
-    const result = await pool.query('SELECT * FROM alerts WHERE state = $1', ['Florida']);
+    const result = await pool.query('SELECT id, tenant_id, rule_id, alert_type, severity, title, message, entity_type, entity_id, link, status, channels_sent, acknowledged_by, acknowledged_at, resolved_by, resolved_at, resolution_notes, created_at, updated_at FROM alerts WHERE state = $1', ['Florida']);
     res.json(result.rows);
   } catch (err) {
     next(err);
