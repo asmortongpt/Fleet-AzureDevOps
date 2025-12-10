@@ -209,7 +209,7 @@ export default function EvidenceLocker() {
           <h1 className="text-3xl font-bold">Evidence Locker</h1>
           <p className="text-muted-foreground">Secure storage for incident videos and documentation</p>
         </div>
-        <Button onClick={() => setShowCreateDialog(true)}>
+        <Button onClick={() => setShowCreateDialog(true)} aria-label="Show CreateDialog">
           <Plus className="h-4 w-4 mr-2" />
           New Case
         </Button>
