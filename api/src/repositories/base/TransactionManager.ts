@@ -1,139 +1,116 @@
-/**
- * Transaction Management Utilities
- *
- * Provides a clean interface for executing database transactions
- * with automatic rollback on errors and proper connection cleanup.
- *
- * USAGE:
- *   const txManager = new TransactionManager(pool)
- *
- *   const result = await txManager.withTransaction(async (client) => {
- *     await client.query('INSERT INTO table1 ...', [val1])
- *     await client.query('UPDATE table2 ...', [val2])
- *     return { success: true }
- *   })
- *
- * SECURITY:
- * - All queries within transactions MUST use parameterized queries
- * - Transactions automatically rolled back on any error
- * - Connections always released (even on error)
- */
-
 import { Pool, PoolClient } from 'pg'
 
-import { DatabaseError } from '../../middleware/errorHandler'
-
-import { TransactionCallback } from './types'
-
+/**
+ * Transaction Manager Utility
+ * Provides transaction context for multiple repository operations
+ *
+ * Example usage:
+ * const txn = new TransactionManager(pool)
+ * await txn.execute(async (client) => {
+ *   await vehicleRepo.create(vehicleData, tenantId, client)
+ *   await maintenanceRepo.create(maintenanceData, tenantId, client)
+ *   // Both operations committed atomically
+ * })
+ */
 export class TransactionManager {
-  constructor(private pool: Pool) {}
+  private pool: Pool
+  private client: PoolClient | null = null
+  private isActive: boolean = false
+
+  constructor(pool: Pool) {
+    this.pool = pool
+  }
 
   /**
-   * Execute a callback within a database transaction
-   *
-   * @param callback - Async function that receives a PoolClient
-   * @returns Result from callback
-   * @throws DatabaseError if transaction fails
+   * Begin transaction
+   * Acquires connection from pool and executes BEGIN
    */
-  async withTransaction<R>(callback: TransactionCallback<R>): Promise<R> {
-    const client = await this.pool.connect()
+  async begin(): Promise<void> {
+    if (this.isActive) {
+      throw new Error('Transaction already active')
+    }
+    this.client = await this.pool.connect()
+    await this.client.query('BEGIN')
+    this.isActive = true
+  }
 
+  /**
+   * Commit transaction
+   * Commits changes and releases connection back to pool
+   */
+  async commit(): Promise<void> {
+    if (!this.isActive || !this.client) {
+      throw new Error('No active transaction to commit')
+    }
+    await this.client.query('COMMIT')
+    this.client.release()
+    this.client = null
+    this.isActive = false
+  }
+
+  /**
+   * Rollback transaction
+   * Reverts all changes and releases connection
+   */
+  async rollback(): Promise<void> {
+    if (!this.isActive || !this.client) {
+      throw new Error('No active transaction to rollback')
+    }
+    await this.client.query('ROLLBACK')
+    this.client.release()
+    this.client = null
+    this.isActive = false
+  }
+
+  /**
+   * Execute callback within transaction
+   * Automatically handles BEGIN, COMMIT, and ROLLBACK on error
+   */
+  async execute<T>(callback: (client: PoolClient) => Promise<T>): Promise<T> {
+    await this.begin()
     try {
-      // Begin transaction
-      await client.query('BEGIN')
-
-      // Execute callback with client
-      const result = await callback(client)
-
-      // Commit transaction
-      await client.query('COMMIT')
-
+      if (!this.client) {
+        throw new Error('Transaction client not initialized')
+      }
+      const result = await callback(this.client)
+      await this.commit()
       return result
     } catch (error) {
-      // Rollback on any error
-      await client.query('ROLLBACK')
-
-      throw new DatabaseError('Transaction failed', {
-        error: error instanceof Error ? error.message : String(error),
-        stack: error instanceof Error ? error.stack : undefined
-      })
-    } finally {
-      // Always release connection back to pool
-      client.release()
+      await this.rollback()
+      throw error
     }
   }
 
   /**
-   * Execute a callback within a READ ONLY transaction
-   * Useful for complex queries that need consistent snapshot
-   *
-   * @param callback - Async function that receives a PoolClient
-   * @returns Result from callback
+   * Get current transaction client
+   * Returns null if no transaction is active
    */
-  async withReadOnlyTransaction<R>(callback: TransactionCallback<R>): Promise<R> {
-    const client = await this.pool.connect()
-
-    try {
-      // Begin read-only transaction
-      await client.query('BEGIN TRANSACTION READ ONLY')
-
-      // Execute callback with client
-      const result = await callback(client)
-
-      // Commit (no changes made, but releases locks)
-      await client.query('COMMIT')
-
-      return result
-    } catch (error) {
-      // Rollback on any error
-      await client.query('ROLLBACK')
-
-      throw new DatabaseError('Read-only transaction failed', {
-        error: error instanceof Error ? error.message : String(error),
-        stack: error instanceof Error ? error.stack : undefined
-      })
-    } finally {
-      // Always release connection back to pool
-      client.release()
-    }
+  getClient(): PoolClient | null {
+    return this.client
   }
 
   /**
-   * Execute a callback within a transaction with custom isolation level
-   *
-   * @param isolationLevel - Transaction isolation level
-   * @param callback - Async function that receives a PoolClient
-   * @returns Result from callback
+   * Check if transaction is active
    */
-  async withIsolationLevel<R>(
-    isolationLevel: 'READ UNCOMMITTED' | 'READ COMMITTED' | 'REPEATABLE READ' | 'SERIALIZABLE',
-    callback: TransactionCallback<R>
-  ): Promise<R> {
-    const client = await this.pool.connect()
-
-    try {
-      // Set isolation level and begin transaction
-      await client.query(`BEGIN TRANSACTION ISOLATION LEVEL ${isolationLevel}`)
-
-      // Execute callback with client
-      const result = await callback(client)
-
-      // Commit transaction
-      await client.query('COMMIT')
-
-      return result
-    } catch (error) {
-      // Rollback on any error
-      await client.query('ROLLBACK')
-
-      throw new DatabaseError(`Transaction failed (${isolationLevel})`, {
-        isolationLevel,
-        error: error instanceof Error ? error.message : String(error),
-        stack: error instanceof Error ? error.stack : undefined
-      })
-    } finally {
-      // Always release connection back to pool
-      client.release()
-    }
+  isTransactionActive(): boolean {
+    return this.isActive
   }
+}
+
+/**
+ * Helper function for quick transactions
+ * Simplifies transaction usage for single operations
+ *
+ * Example:
+ * await withTransaction(pool, async (client) => {
+ *   await client.query('INSERT INTO ...', [...])
+ *   await client.query('UPDATE ...', [...])
+ * })
+ */
+export async function withTransaction<T>(
+  pool: Pool,
+  callback: (client: PoolClient) => Promise<T>
+): Promise<T> {
+  const txn = new TransactionManager(pool)
+  return txn.execute(callback)
 }
