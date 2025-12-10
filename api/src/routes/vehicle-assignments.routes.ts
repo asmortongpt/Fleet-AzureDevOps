@@ -1,9 +1,4 @@
 /**
-import { container } from '../container'
-import { csrfProtection } from '../middleware/csrf'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
-import logger from '../config/logger'; // Wave 26: Add Winston logger
  * Vehicle Assignments API Routes
  * Supports BR-3 (Employee & Assignment Management) and BR-8 (Temporary Assignment Management)
  *
@@ -22,6 +17,11 @@ import { authenticateJWT, AuthRequest } from '../middleware/auth';
 import { requirePermission } from '../middleware/permissions';
 import { AssignmentNotificationService } from '../services/assignment-notification.service';
 import { getErrorMessage } from '../utils/error-handler'
+import { container } from '../container'
+import { TYPES } from '../types'
+import { csrfProtection } from '../middleware/csrf'
+import { NotFoundError, ValidationError } from '../errors/app-error'
+import logger from '../config/logger'; // Wave 26: Add Winston logger
 
 const router = express.Router();
 
@@ -31,7 +31,7 @@ let notificationService: AssignmentNotificationService;
 
 export function setDatabasePool(dbPool: Pool) {
   pool = dbPool;
-  notificationService = new AssignmentNotificationService(dbPool);
+  notificationService = container.get<AssignmentNotificationService>(TYPES.AssignmentNotificationService);
 }
 
 // =====================================================

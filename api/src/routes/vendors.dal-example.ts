@@ -1,7 +1,4 @@
 /**
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
  * Vendors Routes - DAL Example Implementation
  *
  * This file demonstrates how to use the Data Access Layer (DAL) with repositories
@@ -32,13 +29,15 @@ import { handleDatabaseError, NotFoundError, ValidationError, withTransaction } 
 import { connectionManager } from '../config/connection-manager'
 import { z } from 'zod'
 import { csrfProtection } from '../middleware/csrf'
+import { container } from '../container'
+import { TYPES } from '../types'
 
 
 const router = express.Router()
 router.use(authenticateJWT)
 
 // Initialize repository
-const vendorRepo = new VendorRepository()
+const vendorRepo = container.get<VendorRepository>(TYPES.VendorRepository)
 
 // Validation schema for vendor creation/updates
 const vendorSchema = z.object({
