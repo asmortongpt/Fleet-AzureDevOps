@@ -237,7 +237,7 @@ export function DocumentViewer({
                   variant="outline"
                   size="icon"
                   onClick={handleZoomIn}
-                  disabled={viewerState.zoom  aria-label="Action button">= 400}
+                  disabled={viewerState.zoom >= 400}
                   aria-label="Zoom in (Ctrl++)"
                 >
                   <ZoomIn className="h-4 w-4" />

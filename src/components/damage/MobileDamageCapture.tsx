@@ -304,9 +304,10 @@ export function MobileDamageCapture({ onAnalysisComplete }: MobileDamageCaptureP
                 Take Photo ({capturedFiles.length})
               </Button>
               <Button
-                onClick={() => fileInputRef.current?.click()} aria-label="Action button"
+                onClick={() => fileInputRef.current?.click()}
                 variant="outline"
                 className="flex-1"
+                aria-label="Action button"
               >
                 <Upload className="mr-2 h-4 w-4" />
                 Upload Photo
@@ -339,8 +340,9 @@ export function MobileDamageCapture({ onAnalysisComplete }: MobileDamageCaptureP
                     onClick={() => {
                       setCapturedFiles([]);
                       setCaptureMode(null);
-                    } aria-label="Action button"}
+                    }}
                     variant="outline"
+                    aria-label="Action button"
                   >
                     Cancel
                   </Button>
@@ -381,9 +383,10 @@ export function MobileDamageCapture({ onAnalysisComplete }: MobileDamageCaptureP
                 Record Video
               </Button>
               <Button
-                onClick={() => videoInputRef.current?.click()} aria-label="Action button"
+                onClick={() => videoInputRef.current?.click()}
                 variant="outline"
                 className="flex-1"
+                aria-label="Action button"
               >
                 <Upload className="mr-2 h-4 w-4" />
                 Upload Video
@@ -405,8 +408,9 @@ export function MobileDamageCapture({ onAnalysisComplete }: MobileDamageCaptureP
                     onClick={() => {
                       setCapturedFiles([]);
                       setCaptureMode(null);
-                    } aria-label="Action button"}
+                    }}
                     variant="outline"
+                    aria-label="Action button"
                   >
                     Cancel
                   </Button>
@@ -456,7 +460,8 @@ export function MobileDamageCapture({ onAnalysisComplete }: MobileDamageCaptureP
                 alert(
                   'LiDAR scanning requires native iOS integration. Install Polycam or 3D Scanner app and import the scan.'
                 );
-              } aria-label="Action button"}
+              }}
+              aria-label="Action button"
             >
               <Scan className="mr-2 h-4 w-4" />
               Launch 3D Scanner
