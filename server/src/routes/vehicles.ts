@@ -2,30 +2,24 @@ import express, { Request, Response, Router } from 'express';
 
 import { db } from '../services/database';
 import { logger } from '../services/logger';
+import { VehiclesService } from '../services/vehicles.service';
+import { VehiclesRepository } from '../repositories/vehicles.repository';
 
 const router: Router = express.Router();
+
+// Initialize service layer
+const vehiclesRepository = new VehiclesRepository(db);
+const vehiclesService = new VehiclesService(vehiclesRepository);
 
 // GET /api/vehicles - Get all vehicles
 router.get('/', async (_req: Request, res: Response): Promise<void> => {
   try {
-    const result = await db.query(
-      `SELECT
-        v.id, v.vehicle_number, v.make, v.model, v.year,
-        v.vin, v.license_plate, v.status, v.mileage,
-        v.fuel_type, v.last_service_date, v.next_service_date,
-        v.assigned_driver_id, v.facility_id,
-        d.name as driver_name,
-        f.name as facility_name
-      FROM vehicles v
-      LEFT JOIN drivers d ON v.assigned_driver_id = d.id
-      LEFT JOIN facilities f ON v.facility_id = f.id
-      ORDER BY v.vehicle_number`
-    );
+    const result = await vehiclesService.getVehicles();
 
     res.json({
       success: true,
-      data: result || [],
-      count: result?.length || 0
+      data: result.data || [],
+      count: result.count || 0
     });
   } catch (error) {
     logger.error('Error fetching vehicles', { error });
@@ -40,31 +34,21 @@ router.get('/', async (_req: Request, res: Response): Promise<void> => {
 router.get('/:id', async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    const result = await db.query(
-      `SELECT
-        v.*,
-        d.name as driver_name,
-        f.name as facility_name
-      FROM vehicles v
-      LEFT JOIN drivers d ON v.assigned_driver_id = d.id
-      LEFT JOIN facilities f ON v.facility_id = f.id
-      WHERE v.id = $1`,
-      [id]
-    );
+    const vehicle = await vehiclesService.getVehicleById(id);
 
-    if (!result || result.length === 0) {
+    res.json({
+      success: true,
+      data: vehicle
+    });
+  } catch (error) {
+    if (error instanceof Error && error.name === 'NotFoundError') {
       res.status(404).json({
         success: false,
-        error: 'Vehicle not found'
+        error: error.message
       });
       return;
     }
 
-    res.json({
-      success: true,
-      data: result[0]
-    });
-  } catch (error) {
     logger.error('Error fetching vehicle', { error });
     res.status(500).json({
       success: false,
