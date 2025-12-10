@@ -15,13 +15,15 @@ import {
   DamageReportUpdateInput
 } from '../repositories/DamageReportRepository'
 import { QueryContext } from '../repositories/BaseRepository'
+import { container } from '../container'
+import { TYPES } from '../types'
 
 
 const router = express.Router()
 router.use(authenticateJWT)
 
 // Initialize repository
-const damageReportRepository = new DamageReportRepository()
+const damageReportRepository = container.get<DamageReportRepository>(TYPES.DamageReportRepository)
 
 // Configure multer for media uploads (photos, videos, LiDAR scans)
 const upload = multer({
