@@ -71,38 +71,42 @@ stages:
                 echo "Image: $(containerRegistry)/$(imageRepository):$(imageTag)"
                 echo "================================================"
 
-          # Login to ACR
-          - task: Docker@2
-            displayName: 'Login to ACR'
+          # Build and Push using Azure CLI (works with Azure RM connection)
+          - task: AzureCLI@2
+            displayName: 'Build and Push Docker Image to ACR'
             inputs:
-              command: login
-              containerRegistry: $(containerRegistryConnection)
+              azureSubscription: $(azureServiceConnection)
+              scriptType: 'bash'
+              scriptLocation: 'inlineScript'
+              inlineScript: |
+                echo "Building and pushing image to ACR..."
+                az acr build \
+                  --registry $(acrName) \
+                  --image $(imageRepository):$(imageTag) \
+                  --image $(imageRepository):latest \
+                  --image $(imageRepository):production-$(imageTag) \
+                  --file $(Build.SourcesDirectory)/Dockerfile \
+                  --build-arg NODE_ENV=production \
+                  --build-arg BUILD_VERSION=$(imageTag) \
+                  --build-arg GIT_COMMIT=$(Build.SourceVersion) \
+                  $(Build.SourcesDirectory)
 
-          # Build Docker Image
-          - task: Docker@2
-            displayName: 'Build Docker Image'
-            inputs:
-              command: build
-              repository: $(imageRepository)
-              dockerfile: '$(Build.SourcesDirectory)/Dockerfile'
-              containerRegistry: $(containerRegistryConnection)
-              tags: |
-                $(imageTag)
-                latest
-                production-$(imageTag)
-              arguments: |
-                --build-arg NODE_ENV=production
-                --build-arg BUILD_VERSION=$(imageTag)
-                --build-arg GIT_COMMIT=$(Build.SourceVersion)
+                echo "✅ Build and push completed"
+                echo "Image: $(containerRegistry)/$(imageRepository):$(imageTag)"
 
-          # Security Scan
-          - task: Bash@3
-            displayName: 'Security Scan'
+          # Security Scan (scan directly from ACR after build)
+          - task: AzureCLI@2
+            displayName: 'Security Scan with Trivy'
             inputs:
-              targetType: 'inline'
-              script: |
+              azureSubscription: $(azureServiceConnection)
+              scriptType: 'bash'
+              scriptLocation: 'inlineScript'
+              inlineScript: |
                 echo "Installing Trivy scanner..."
                 curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin
+
+                echo "Logging into ACR..."
+                az acr login --name $(acrName)
 
                 echo "Scanning image for vulnerabilities..."
                 trivy image --severity HIGH,CRITICAL \
@@ -111,19 +115,7 @@ stages:
                   --output $(Build.ArtifactStagingDirectory)/trivy-report.json \
                   $(containerRegistry)/$(imageRepository):$(imageTag)
 
-                echo "Security scan completed"
-
-          # Push to ACR
-          - task: Docker@2
-            displayName: 'Push to ACR'
-            inputs:
-              command: push
-              repository: $(imageRepository)
-              containerRegistry: $(containerRegistryConnection)
-              tags: |
-                $(imageTag)
-                latest
-                production-$(imageTag)
+                echo "✅ Security scan completed"
 
           # Publish Artifacts
           - task: PublishBuildArtifacts@1
