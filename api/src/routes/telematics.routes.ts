@@ -14,13 +14,15 @@ import { auditLog } from '../middleware/audit'
 import { AuthRequest, authenticateJWT } from '../middleware/auth'
 import { csrfProtection } from '../middleware/csrf'
 import { requirePermission, rateLimit } from '../middleware/permissions'
+import { TelematicsRepository } from '../repositories/TelematicsRepository'
 import SamsaraService from '../services/samsara.service'
-import { tenantSafeQuery } from '../utils/dbHelpers'
 import { getErrorMessage } from '../utils/error-handler'
- // SECURITY: Tenant-safe query helpers
 
 const router = express.Router()
 router.use(authenticateJWT)
+
+// Initialize TelematicsRepository
+const telematicsRepo = new TelematicsRepository(pool)
 
 // Initialize Samsara service
 let samsaraService: SamsaraService | null = null
@@ -44,15 +46,10 @@ router.get(
   auditLog({ action: 'READ', resourceType: 'telematics_providers' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const result = await pool.query(
-        `SELECT id, name, display_name, supports_webhooks, supports_video,
-                supports_temperature, supports_hos, created_at
-         FROM telematics_providers
-         ORDER BY display_name`
-      )
+      const providers = await telematicsRepo.getAllProviders()
 
       res.json({
-        providers: result.rows,
+        providers,
         configured: {
           samsara: !!process.env.SAMSARA_API_TOKEN,
           geotab: !!process.env.GEOTAB_DATABASE,
@@ -87,49 +84,32 @@ router.post(
       }
 
       // SECURITY: Verify vehicle belongs to tenant before connecting
-      const vehicleCheck = await tenantSafeQuery(
-        `SELECT id FROM vehicles WHERE id = $1 AND tenant_id = $2`,
-        [vehicle_id, req.user!.tenant_id],
-        req.user!.tenant_id
-      )
+      const vehicleOwned = await telematicsRepo.verifyVehicleOwnership(vehicle_id, req.user!.tenant_id)
 
-      if (vehicleCheck.rows.length === 0) {
+      if (!vehicleOwned) {
         return res.status(404).json({ error: 'Vehicle not found or access denied' })
       }
 
       // Get provider ID (system table, no tenant_id required)
-      const providerResult = await pool.query(
-        `SELECT id FROM telematics_providers WHERE name = $1`,
-        [provider_name]
-      )
+      const provider = await telematicsRepo.getProviderByName(provider_name)
 
-      if (providerResult.rows.length === 0) {
+      if (!provider) {
         return res.status(404).json({ error: `Provider not found` })
       }
 
-      const provider_id = providerResult.rows[0].id
-
       // SECURITY: Create connection with tenant_id isolation
-      const result = await tenantSafeQuery(
-        `INSERT INTO vehicle_telematics_connections
-         (vehicle_id, provider_id, external_vehicle_id, access_token, metadata, last_sync_at, sync_status, tenant_id)
-         VALUES ($1, $2, $3, $4, $5, NOW(), 'active', $6)
-         ON CONFLICT (vehicle_id, provider_id)
-         DO UPDATE SET
-           external_vehicle_id = EXCLUDED.external_vehicle_id,
-           access_token = EXCLUDED.access_token,
-           metadata = EXCLUDED.metadata,
-           sync_status = 'active',
-           updated_at = NOW()
-         WHERE vehicle_telematics_connections.tenant_id = $6
-         RETURNING *`,
-        [vehicle_id, provider_id, external_vehicle_id, access_token, JSON.stringify(metadata || {}), req.user!.tenant_id],
+      const connection = await telematicsRepo.upsertConnection(
+        vehicle_id,
+        provider.id,
+        external_vehicle_id,
+        access_token,
+        metadata,
         req.user!.tenant_id
       )
 
       res.status(201).json({
         message: 'Vehicle connected successfully',
-        connection: result.rows[0]
+        connection
       })
     } catch (error: any) {
       logger.error('Connect vehicle error:', error) // Wave 23: Winston logger
@@ -150,22 +130,9 @@ router.get(
   async (req: AuthRequest, res: Response) => {
     try {
       // SECURITY: Tenant-safe connections query with double check
-      const result = await tenantSafeQuery(
-        `SELECT
-           vtc.id, vtc.vehicle_id, vtc.external_vehicle_id,
-           vtc.last_sync_at, vtc.sync_status, vtc.sync_error, vtc.metadata,
-           tp.name as provider_name, tp.display_name as provider_display_name,
-           v.name as vehicle_name, v.vin
-         FROM vehicle_telematics_connections vtc
-         JOIN telematics_providers tp ON vtc.provider_id = tp.id
-         JOIN vehicles v ON vtc.vehicle_id = v.id
-         WHERE v.tenant_id = $1 AND vtc.tenant_id = $1
-         ORDER BY v.name, tp.display_name`,
-        [req.user!.tenant_id],
-        req.user!.tenant_id
-      )
+      const connections = await telematicsRepo.getAllConnections(req.user!.tenant_id)
 
-      res.json({ connections: result.rows })
+      res.json({ connections })
     } catch (error) {
       logger.error(`Get connections error:`, error) // Wave 23: Winston logger
       res.status(500).json({ error: `Internal server error` })
@@ -185,26 +152,16 @@ router.get(
   async (req: AuthRequest, res: Response) => {
     try {
       // SECURITY: Get real-time location with tenant isolation
-      const result = await tenantSafeQuery(
-        `SELECT
-           vt.latitude, vt.longitude, vt.heading, vt.speed_mph, vt.address,
-           vt.timestamp, vt.engine_state,
-           tp.display_name as provider
-         FROM vehicle_telemetry vt
-         JOIN telematics_providers tp ON vt.provider_id = tp.id
-         JOIN vehicles v ON vt.vehicle_id = v.id
-         WHERE vt.vehicle_id = $1 AND v.tenant_id = $2 AND vt.tenant_id = $2
-         ORDER BY vt.timestamp DESC
-         LIMIT 1`,
-        [req.params.id, req.user!.tenant_id],
+      const location = await telematicsRepo.getLatestLocation(
+        parseInt(req.params.id, 10),
         req.user!.tenant_id
       )
 
-      if (result.rows.length === 0) {
+      if (!location) {
         return res.status(404).json({ error: `No location data found` })
       }
 
-      res.json(result.rows[0])
+      res.json(location)
     } catch (error) {
       logger.error(`Get vehicle location error:`, error) // Wave 23: Winston logger
       res.status(500).json({ error: 'Internal server error' })
@@ -224,30 +181,16 @@ router.get(
   async (req: AuthRequest, res: Response) => {
     try {
       // SECURITY: Get vehicle stats with tenant isolation
-      const result = await tenantSafeQuery(
-        `SELECT
-           vt.odometer_miles, vt.fuel_percent, vt.fuel_gallons,
-           vt.battery_percent, vt.battery_voltage_12v,
-           vt.engine_rpm, vt.engine_state, vt.engine_hours,
-           vt.temperature_f, vt.oil_life_percent, vt.coolant_temp_f,
-           vt.is_charging, vt.charge_rate_kw, vt.estimated_range_miles,
-           vt.timestamp,
-           tp.display_name as provider
-         FROM vehicle_telemetry vt
-         JOIN telematics_providers tp ON vt.provider_id = tp.id
-         JOIN vehicles v ON vt.vehicle_id = v.id
-         WHERE vt.vehicle_id = $1 AND v.tenant_id = $2 AND vt.tenant_id = $2
-         ORDER BY vt.timestamp DESC
-         LIMIT 1`,
-        [req.params.id, req.user!.tenant_id],
+      const stats = await telematicsRepo.getLatestStats(
+        parseInt(req.params.id, 10),
         req.user!.tenant_id
       )
 
-      if (result.rows.length === 0) {
+      if (!stats) {
         return res.status(404).json({ error: `No stats data found` })
       }
 
-      res.json(result.rows[0])
+      res.json(stats)
     } catch (error) {
       logger.error(`Get vehicle stats error:`, error) // Wave 23: Winston logger
       res.status(500).json({ error: 'Internal server error' })
@@ -269,35 +212,18 @@ router.get(
       const { start_time, end_time, limit = 1000 } = req.query
 
       // SECURITY: Build tenant-safe historical location query
-      let query = `
-        SELECT
-          vt.latitude, vt.longitude, vt.heading, vt.speed_mph,
-          vt.odometer_miles, vt.timestamp, vt.address
-        FROM vehicle_telemetry vt
-        JOIN vehicles v ON vt.vehicle_id = v.id
-        WHERE vt.vehicle_id = $1 AND v.tenant_id = $2 AND vt.tenant_id = $2
-      `
-      const params: any[] = [req.params.id, req.user!.tenant_id]
-
-      if (start_time) {
-        params.push(start_time)
-        query += ` AND vt.timestamp >= $${params.length}`
-      }
-
-      if (end_time) {
-        params.push(end_time)
-        query += ` AND vt.timestamp <= $${params.length}`
-      }
-
-      query += ` ORDER BY vt.timestamp DESC LIMIT $${params.length + 1}`
-      params.push(limit)
-
-      const result = await tenantSafeQuery(query, params, req.user!.tenant_id)
+      const points = await telematicsRepo.getHistoricalTelemetry(
+        parseInt(req.params.id, 10),
+        req.user!.tenant_id,
+        start_time as string | undefined,
+        end_time as string | undefined,
+        Number(limit)
+      )
 
       res.json({
         vehicle_id: req.params.id,
-        points: result.rows,
-        count: result.rows.length
+        points,
+        count: points.length
       })
     } catch (error) {
       logger.error(`Get vehicle history error:`, error) // Wave 23: Winston logger
@@ -321,67 +247,30 @@ router.get(
       const offset = (Number(page) - 1) * Number(limit)
 
       // SECURITY: Build tenant-safe safety events query with defense in depth
-      // FIX CRIT-B-001: Use regular string instead of template literal to avoid S6958 warning
-      let query =
-        'SELECT ' +
-        '  dse.id, dse.event_type, dse.severity, dse.latitude, dse.longitude, ' +
-        '  dse.address, dse.speed_mph, dse.g_force, dse.timestamp, ' +
-        '  dse.video_url, dse.video_thumbnail_url, ' +
-        '  v.name as vehicle_name, v.vin, ' +
-        '  d.first_name || \' \' || d.last_name as driver_name, ' +
-        '  tp.display_name as provider ' +
-        'FROM driver_safety_events dse ' +
-        'JOIN vehicles v ON dse.vehicle_id = v.id ' +
-        'LEFT JOIN drivers d ON dse.driver_id = d.id ' +
-        'LEFT JOIN telematics_providers tp ON dse.provider_id = tp.id ' +
-        'WHERE v.tenant_id = $1 AND dse.tenant_id = $1'
-      const params: any[] = [req.user!.tenant_id]
-
-      if (vehicle_id) {
-        params.push(vehicle_id)
-        query += ` AND dse.vehicle_id = $${params.length}`
+      const filters = {
+        vehicleId: vehicle_id ? Number(vehicle_id) : undefined,
+        driverId: driver_id ? Number(driver_id) : undefined,
+        eventType: event_type as string | undefined,
+        severity: severity as string | undefined,
+        startDate: start_date as string | undefined,
+        endDate: end_date as string | undefined
       }
 
-      if (driver_id) {
-        params.push(driver_id)
-        query += ` AND dse.driver_id = $${params.length}`
-      }
+      const events = await telematicsRepo.getSafetyEvents(
+        req.user!.tenant_id,
+        filters,
+        { limit: Number(limit), offset }
+      )
 
-      if (event_type) {
-        params.push(event_type)
-        query += ` AND dse.event_type = $${params.length}`
-      }
-
-      if (severity) {
-        params.push(severity)
-        query += ` AND dse.severity = $${params.length}`
-      }
-
-      if (start_date) {
-        params.push(start_date)
-        query += ` AND dse.timestamp >= $${params.length}`
-      }
-
-      if (end_date) {
-        params.push(end_date)
-        query += ` AND dse.timestamp <= $${params.length}`
-      }
-
-      query += ` ORDER BY dse.timestamp DESC LIMIT $${params.length + 1} OFFSET $${params.length + 2}`
-      params.push(limit, offset)
-
-      const result = await tenantSafeQuery(query, params, req.user!.tenant_id)
-
-      const countQuery = query.split('ORDER BY')[0].replace(/SELECT .* FROM/, 'SELECT COUNT(*) FROM')
-      const countResult = await tenantSafeQuery(countQuery, params.slice(0, -2), req.user!.tenant_id)
+      const total = await telematicsRepo.countSafetyEvents(req.user!.tenant_id, filters)
 
       res.json({
-        events: result.rows,
+        events,
         pagination: {
           page: Number(page),
           limit: Number(limit),
-          total: parseInt(countResult.rows[0].count),
-          pages: Math.ceil(countResult.rows[0].count / Number(limit))
+          total,
+          pages: Math.ceil(total / Number(limit))
         }
       })
     } catch (error) {
@@ -412,23 +301,17 @@ router.post(
       }
 
       // SECURITY: Get Samsara external ID with tenant isolation
-      const connResult = await tenantSafeQuery(
-        `SELECT vtc.external_vehicle_id
-         FROM vehicle_telematics_connections vtc
-         JOIN vehicles v ON vtc.vehicle_id = v.id
-         WHERE vtc.vehicle_id = $1
-         AND v.tenant_id = $2
-         AND vtc.tenant_id = $2
-         AND vtc.provider_id = (SELECT id FROM telematics_providers WHERE name = 'samsara')`,
-        [vehicle_id, req.user!.tenant_id],
+      const connection = await telematicsRepo.getConnection(
+        vehicle_id,
+        'samsara',
         req.user!.tenant_id
       )
 
-      if (connResult.rows.length === 0) {
+      if (!connection) {
         throw new NotFoundError("Vehicle not connected to Samsara")
       }
 
-      const externalVehicleId = connResult.rows[0].external_vehicle_id
+      const externalVehicleId = connection.external_vehicle_id
 
       // Request video from Samsara
       const videoRequest = await samsaraService.requestVideo(
@@ -500,12 +383,18 @@ csrfProtection, async (req: express.Request, res: Response) => {
         }
       }
 
+      // Get Samsara provider ID
+      const provider = await telematicsRepo.getProviderByName('samsara')
+      if (!provider) {
+        throw new Error('Samsara provider not found')
+      }
+
       // Log webhook event
-      await pool.query(
-        `INSERT INTO telematics_webhook_events
-         (provider_id, event_type, external_id, payload, processed)
-         VALUES ((SELECT id FROM telematics_providers WHERE name = 'samsara'), $1, $2, $3, false)`,
-        [req.body.eventType, req.body.id, JSON.stringify(req.body)]
+      await telematicsRepo.logWebhookEvent(
+        provider.id,
+        req.body.eventType,
+        req.body.id,
+        req.body
       )
 
       // TODO: Process webhook event based on type
@@ -580,46 +469,18 @@ router.get(
   async (req: AuthRequest, res: Response) => {
     try {
       // SECURITY: Get latest locations for all vehicles with tenant isolation
-      const locationsResult = await tenantSafeQuery(
-        `SELECT DISTINCT ON (v.id)
-           v.id, v.name, v.vin, v.make, v.model,
-           lvt.latitude, lvt.longitude, lvt.heading, lvt.speed_mph,
-           lvt.address, lvt.engine_state, lvt.timestamp
-         FROM vehicles v
-         LEFT JOIN latest_vehicle_telemetry lvt ON v.id = lvt.vehicle_id
-         WHERE v.tenant_id = $1 AND v.status = 'active'
-         ORDER BY v.id, lvt.timestamp DESC`,
-        [req.user!.tenant_id],
-        req.user!.tenant_id
-      )
+      const vehicles = await telematicsRepo.getDashboardVehicles(req.user!.tenant_id)
 
       // SECURITY: Get recent safety events (last 24 hours) with tenant isolation
-      const eventsResult = await tenantSafeQuery(
-        `SELECT COUNT(*) as count, event_type, severity
-         FROM driver_safety_events dse
-         JOIN vehicles v ON dse.vehicle_id = v.id
-         WHERE v.tenant_id = $1 AND dse.tenant_id = $1 AND dse.timestamp >= NOW() - INTERVAL '24 hours'
-         GROUP BY event_type, severity
-         ORDER BY count DESC`,
-        [req.user!.tenant_id],
-        req.user!.tenant_id
-      )
+      const safety_events = await telematicsRepo.getDashboardSafetyEvents(req.user!.tenant_id)
 
       // SECURITY: Get active diagnostic codes with tenant isolation
-      const diagnosticsResult = await tenantSafeQuery(
-        `SELECT COUNT(*) as count, severity
-         FROM vehicle_diagnostic_codes vdc
-         JOIN vehicles v ON vdc.vehicle_id = v.id
-         WHERE v.tenant_id = $1 AND vdc.tenant_id = $1 AND vdc.cleared_at IS NULL
-         GROUP BY severity`,
-        [req.user!.tenant_id],
-        req.user!.tenant_id
-      )
+      const diagnostics = await telematicsRepo.getDashboardDiagnostics(req.user!.tenant_id)
 
       res.json({
-        vehicles: locationsResult.rows,
-        safety_events: eventsResult.rows,
-        diagnostics: diagnosticsResult.rows,
+        vehicles,
+        safety_events,
+        diagnostics,
         timestamp: new Date().toISOString()
       })
     } catch (error) {
