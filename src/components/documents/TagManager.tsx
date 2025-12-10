@@ -85,7 +85,7 @@ export function TagManager({ tags, onCreateTag, onUpdateTag, onDeleteTag }: TagM
             />
           </div>
         </div>
-        <Button onClick={() => setShowCreateDialog(true)}>
+        <Button onClick={() => setShowCreateDialog(true)} aria-label="Show CreateDialog">
           <Plus className="mr-2 h-4 w-4" />
           Create tag
         </Button>

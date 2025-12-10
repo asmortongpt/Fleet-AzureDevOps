@@ -324,7 +324,7 @@ export function DocumentManagement() {
               </div>
             </div>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setIsUploadDialogOpen(false)}>
+              <Button variant="outline" onClick={() => setIsUploadDialogOpen(false)} aria-label="Cancel">
                 Cancel
               </Button>
               <Button onClick={handleFileUpload}>
