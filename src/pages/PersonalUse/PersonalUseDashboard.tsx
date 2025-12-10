@@ -76,9 +76,9 @@ interface ReimbursementRequest {
 }
 
 const apiClient = async (url: string) => {
-  const token = localStorage.getItem('token')
   const response = await fetch(url, {
-    headers: { Authorization: `Bearer ${token}` }
+        credentials: 'include',
+    withCredentials: true
   })
   if (!response.ok) throw new Error('Failed to fetch')
   return response.json()
