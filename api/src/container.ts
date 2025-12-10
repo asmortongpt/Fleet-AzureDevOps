@@ -22,6 +22,19 @@ import { MaintenanceService } from "./modules/maintenance/services/maintenance.s
 import { WorkOrderController } from "./modules/work-orders/controllers/work-order.controller";
 import { WorkOrderRepository } from "./modules/work-orders/repositories/work-order.repository";
 import { WorkOrderService } from "./modules/work-orders/services/work-order.service";
+import { BreakGlassRepository } from "./repositories/BreakGlassRepository";
+import { GeofenceRepository } from "./repositories/GeofenceRepository";
+import { SyncRepository } from "./repositories/SyncRepository";
+import { VideoEventRepository } from "./repositories/VideoEventRepository";
+import { TripRepository } from "./repositories/TripRepository";
+import { TripUsageRepository } from "./repositories/TripUsageRepository";
+import { PersonalUsePolicyRepository } from "./repositories/PersonalUsePolicyRepository";
+import { ReimbursementRequestRepository } from "./repositories/ReimbursementRequestRepository";
+import { HealthCheckRepository } from "./repositories/HealthCheckRepository";
+import { RouteRepository } from "./repositories/RouteRepository";
+import { PermissionRepository } from "./repositories/PermissionRepository";
+import { VehicleAssignmentRepository } from "./repositories/VehicleAssignmentRepository";
+import { ReservationRepository } from "./repositories/ReservationRepository";
 import { TYPES } from "./types";
 
 const container = new Container();
@@ -60,5 +73,38 @@ container.bind(TYPES.IncidentController).to(IncidentController);
 container.bind(TYPES.InspectionService).to(InspectionService);
 container.bind(TYPES.InspectionRepository).to(InspectionRepository);
 container.bind(TYPES.InspectionController).to(InspectionController);
+
+// Break-Glass module
+container.bind(TYPES.BreakGlassRepository).to(BreakGlassRepository);
+
+// Geofence module
+container.bind(TYPES.GeofenceRepository).to(GeofenceRepository);
+
+// Sync module
+container.bind(TYPES.SyncRepository).to(SyncRepository);
+
+// Video Event module
+container.bind(TYPES.VideoEventRepository).to(VideoEventRepository);
+
+// Trip and Personal Use modules
+container.bind(TYPES.TripRepository).to(TripRepository);
+container.bind(TYPES.TripUsageRepository).to(TripUsageRepository);
+container.bind(TYPES.PersonalUsePolicyRepository).to(PersonalUsePolicyRepository);
+container.bind(TYPES.ReimbursementRequestRepository).to(ReimbursementRequestRepository);
+
+// Health Check module
+container.bind(TYPES.HealthCheckRepository).to(HealthCheckRepository);
+
+// Route module
+container.bind(TYPES.RouteRepository).to(RouteRepository);
+
+// Permission module
+container.bind(TYPES.PermissionRepository).to(PermissionRepository);
+
+// Vehicle Assignment module
+container.bind(TYPES.VehicleAssignmentRepository).to(VehicleAssignmentRepository);
+
+// Reservation module
+container.bind(TYPES.ReservationRepository).to(ReservationRepository);
 
 export { container };
