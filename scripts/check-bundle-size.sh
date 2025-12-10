@@ -39,11 +39,21 @@ echo -e "${BLUE}📊 Calculating bundle sizes...${NC}"
 echo ""
 
 # Get main entry point size (uncompressed)
-MAIN_SIZE=$(find dist/assets/js -name "main-*.js" -exec du -k {} \; | cut -f1 | head -1)
+MAIN_SIZE=$(find dist/assets -name "index-*.js" -o -name "main-*.js" 2>/dev/null | xargs du -k 2>/dev/null | cut -f1 | head -1)
+if [ -z "$MAIN_SIZE" ]; then
+  MAIN_SIZE=0
+fi
 MAIN_SIZE_KB=$((MAIN_SIZE))
 
 # Get total bundle size (uncompressed)
-TOTAL_SIZE=$(du -sk dist/assets/js | cut -f1)
+if [ -d "dist/assets" ]; then
+  TOTAL_SIZE=$(find dist/assets -name "*.js" -exec du -k {} \; 2>/dev/null | awk '{sum+=$1} END {print sum}')
+  if [ -z "$TOTAL_SIZE" ]; then
+    TOTAL_SIZE=0
+  fi
+else
+  TOTAL_SIZE=0
+fi
 TOTAL_SIZE_KB=$((TOTAL_SIZE))
 
 # Try to get gzipped sizes if gzip is available
@@ -53,7 +63,7 @@ if command -v gzip &> /dev/null; then
   trap "rm -rf $TEMP_DIR" EXIT
 
   # Copy and gzip main file
-  MAIN_FILE=$(find dist/assets/js -name "main-*.js" | head -1)
+  MAIN_FILE=$(find dist/assets -name "index-*.js" -o -name "main-*.js" 2>/dev/null | head -1)
   if [ -f "$MAIN_FILE" ]; then
     cp "$MAIN_FILE" "$TEMP_DIR/main.js"
     gzip -9 "$TEMP_DIR/main.js"
@@ -64,13 +74,15 @@ if command -v gzip &> /dev/null; then
 
   # Calculate total gzipped size
   TOTAL_GZIP_SIZE=0
-  for file in dist/assets/js/*.js; do
-    [ -f "$file" ] || continue
-    cp "$file" "$TEMP_DIR/$(basename "$file")"
-    gzip -9 "$TEMP_DIR/$(basename "$file")"
-    SIZE=$(du -k "$TEMP_DIR/$(basename "$file").gz" | cut -f1)
-    TOTAL_GZIP_SIZE=$((TOTAL_GZIP_SIZE + SIZE))
-  done
+  if [ -d "dist/assets" ]; then
+    find dist/assets -name "*.js" 2>/dev/null | while read -r file; do
+      [ -f "$file" ] || continue
+      cp "$file" "$TEMP_DIR/$(basename "$file")"
+      gzip -9 "$TEMP_DIR/$(basename "$file")"
+      SIZE=$(du -k "$TEMP_DIR/$(basename "$file").gz" | cut -f1)
+      TOTAL_GZIP_SIZE=$((TOTAL_GZIP_SIZE + SIZE))
+    done
+  fi
 else
   MAIN_GZIP_SIZE=0
   TOTAL_GZIP_SIZE=0
@@ -139,13 +151,17 @@ echo ""
 echo "┌────────────────────────────────────────────┬──────────┐"
 echo "│ Chunk                                      │ Size (KB)│"
 echo "├────────────────────────────────────────────┼──────────┤"
-find dist/assets/js -name "*.js" -exec du -k {} \; | \
-  sort -rn | \
-  head -5 | \
-  while read -r size file; do
-    filename=$(basename "$file" | cut -c1-42)
-    printf "│ %-42s │ %8d │\n" "$filename" "$size"
-  done
+if [ -d "dist/assets" ]; then
+  find dist/assets -name "*.js" -exec du -k {} \; 2>/dev/null | \
+    sort -rn | \
+    head -5 | \
+    while read -r size file; do
+      filename=$(basename "$file" | cut -c1-42)
+      printf "│ %-42s │ %8d │\n" "$filename" "$size"
+    done
+else
+  echo "│ No chunks found                            │        0 │"
+fi
 echo "└────────────────────────────────────────────┴──────────┘"
 echo ""
 
