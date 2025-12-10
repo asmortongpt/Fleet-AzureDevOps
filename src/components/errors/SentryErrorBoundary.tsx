@@ -247,7 +247,7 @@ export class SentryErrorBoundary extends Component<Props, State> {
                   size="sm"
                   onClick={this.toggleDetails}
                   className="w-full justify-between"
-                >
+                 aria-label="Action button">
                   <span>Technical Details</span>
                   {this.state.showDetails ? (
                     <ChevronUp className="h-4 w-4" />
@@ -261,16 +261,16 @@ export class SentryErrorBoundary extends Component<Props, State> {
             </CardContent>
 
             <CardFooter className="flex gap-2">
-              <Button onClick={this.handleReset} variant="default" className="flex-1">
+              <Button onClick={this.handleReset} variant="default" className="flex-1" aria-label="Action button">
                 <RefreshCw className="h-4 w-4 mr-2" />
                 Try Again
               </Button>
-              <Button onClick={this.handleGoHome} variant="outline" className="flex-1">
+              <Button onClick={this.handleGoHome} variant="outline" className="flex-1" aria-label="Action button">
                 <Home className="h-4 w-4 mr-2" />
                 Go Home
               </Button>
               {this.state.eventId && (
-                <Button onClick={this.handleReportFeedback} variant="outline" size="icon">
+                <Button onClick={this.handleReportFeedback} variant="outline" size="icon" aria-label="Action button">
                   <Bug className="h-4 w-4" />
                 </Button>
               )}
@@ -299,7 +299,7 @@ export class SentryErrorBoundary extends Component<Props, State> {
                   size="sm"
                   onClick={this.toggleDetails}
                   className="mt-2"
-                >
+                 aria-label="Action button">
                   {this.state.showDetails ? 'Hide' : 'Show'} Details
                 </Button>
                 {this.renderErrorDetails()}
@@ -307,7 +307,7 @@ export class SentryErrorBoundary extends Component<Props, State> {
             )}
           </CardContent>
           <CardFooter className="pt-3">
-            <Button onClick={this.handleReset} size="sm">
+            <Button onClick={this.handleReset} size="sm" aria-label="Action button">
               <RefreshCw className="h-3 w-3 mr-1" />
               Retry
             </Button>
@@ -330,7 +330,7 @@ export class SentryErrorBoundary extends Component<Props, State> {
             size="sm"
             variant="ghost"
             className="mt-2"
-          >
+           aria-label="Action button">
             <RefreshCw className="h-3 w-3 mr-1" />
             Retry
           </Button>

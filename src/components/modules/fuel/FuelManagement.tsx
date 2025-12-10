@@ -57,7 +57,7 @@ export function FuelManagement({ data }: FuelManagementProps) {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-semibold tracking-tight">Fuel Management</h1>
-        <Button>
+        <Button aria-label="Action button">
           <Plus className="w-4 h-4 mr-2" />
           Add Transaction
         </Button>
@@ -171,7 +171,7 @@ export function FuelManagement({ data }: FuelManagementProps) {
                         </Badge>
                       </td>
                       <td className="px-4 py-3 text-sm text-right">
-                        <Button variant="ghost" size="sm">
+                        <Button variant="ghost" size="sm" aria-label="Action button">
                           View
                         </Button>
                       </td>

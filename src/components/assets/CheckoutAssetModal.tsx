@@ -105,7 +105,7 @@ const CheckoutAssetModal: React.FC<CheckoutAssetModalProps> = ({ show, onHide, a
               <Form.Control type="text" {...register('signature')} isInvalid={!!errors.signature} />
               <Form.Control.Feedback type="invalid">{errors.signature?.message}</Form.Control.Feedback>
             </Form.Group>
-            <Button variant="primary" type="submit">Checkout</Button>
+            <Button variant="primary" type="submit" aria-label="Action button">Checkout</Button>
           </Form>
         </Modal.Body>
       </Modal>

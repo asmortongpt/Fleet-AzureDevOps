@@ -145,7 +145,7 @@ export function useProtectedContent({
  *
  * @example
  * <RequirePermission permission="vehicle:delete">
- *   <Button onClick={deleteVehicle}>Delete</Button>
+ *   <Button onClick={deleteVehicle} aria-label="Action button">Delete</Button>
  * </RequirePermission>
  */
 export function RequirePermission({

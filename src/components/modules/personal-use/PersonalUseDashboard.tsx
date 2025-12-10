@@ -62,7 +62,7 @@ const ErrorDisplay = ({ error, onRetry }: { error: string; onRetry: () => void }
     <AlertTitle>Error</AlertTitle>
     <AlertDescription className="flex items-center justify-between">
       <span>{error}</span>
-      <Button variant="outline" size="sm" onClick={onRetry}>
+      <Button variant="outline" size="sm" onClick={onRetry} aria-label="Action button">
         <ArrowsClockwise className="w-4 h-4 mr-2" />
         Retry
       </Button>
@@ -285,26 +285,30 @@ export const PersonalUseDashboard: React.FC<PersonalUseDashboardProps> = ({
           </p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={() => {
-            if (userRole === 'driver') {
-              queryClient.invalidateQueries({ queryKey: ['personal-use-limits', userId] })
-              queryClient.invalidateQueries({ queryKey: ['trip-usage', userId] })
-              queryClient.invalidateQueries({ queryKey: ['personal-use-charges-dashboard', userId] })
-            } else {
-              queryClient.invalidateQueries({ queryKey: ['trip-usage-pending-approval'] })
-            }
-          }}>
+          <Button
+            variant="outline"
+            onClick={() => {
+              if (userRole === 'driver') {
+                queryClient.invalidateQueries({ queryKey: ['personal-use-limits', userId] })
+                queryClient.invalidateQueries({ queryKey: ['trip-usage', userId] })
+                queryClient.invalidateQueries({ queryKey: ['personal-use-charges-dashboard', userId] })
+              } else {
+                queryClient.invalidateQueries({ queryKey: ['trip-usage-pending-approval'] })
+              }
+            }}
+            aria-label="Refresh personal use dashboard data"
+          >
             <ArrowsClockwise className="w-4 h-4 mr-2" />
             Refresh
           </Button>
-          <Button variant="outline" onClick={exportToCSV}>
+          <Button variant="outline" onClick={exportToCSV} aria-label="Action button">
             <Download className="w-4 h-4 mr-2" />
             Export
           </Button>
           {userRole === 'driver' && (
             <TripUsageDialog
               trigger={
-                <Button>
+                <Button aria-label="Action button">
                   <Plus className="w-4 h-4 mr-2" />
                   Record Trip
                 </Button>
@@ -602,7 +606,7 @@ export const PersonalUseDashboard: React.FC<PersonalUseDashboardProps> = ({
                               {getStatusBadge(trip.approval_status)}
                             </TableCell>
                             <TableCell>
-                              <Button variant="ghost" size="sm">
+                              <Button variant="ghost" size="sm" aria-label="Action button">
                                 <FileText className="w-4 h-4" />
                               </Button>
                             </TableCell>
@@ -766,7 +770,7 @@ export const PersonalUseDashboard: React.FC<PersonalUseDashboardProps> = ({
                                 <Button
                                   size="sm"
                                   variant="default"
-                                  onClick={() => handleApproveTrip(trip.id)}
+                                  onClick={() => handleApproveTrip(trip.id)} aria-label="Action button"
                                 >
                                   <CheckCircle className="w-4 h-4 mr-1" />
                                   Approve
@@ -774,7 +778,7 @@ export const PersonalUseDashboard: React.FC<PersonalUseDashboardProps> = ({
                                 <Button
                                   size="sm"
                                   variant="destructive"
-                                  onClick={() => handleRejectTrip(trip.id)}
+                                  onClick={() => handleRejectTrip(trip.id)} aria-label="Action button"
                                 >
                                   <XCircle className="w-4 h-4 mr-1" />
                                   Reject

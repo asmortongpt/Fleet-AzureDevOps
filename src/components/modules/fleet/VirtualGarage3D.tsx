@@ -358,7 +358,7 @@ export function VirtualGarage3D({ data }: { data?: any }) {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => setIsTimelineOpen(!isTimelineOpen)}
+              onClick={() => setIsTimelineOpen(!isTimelineOpen)} aria-label="Action button"
               className={cn(isTimelineOpen && 'bg-primary text-primary-foreground')}
             >
               <Clock className="w-4 h-4 mr-2" />
@@ -367,7 +367,7 @@ export function VirtualGarage3D({ data }: { data?: any }) {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => setIsDamageStripExpanded(!isDamageStripExpanded)}
+              onClick={() => setIsDamageStripExpanded(!isDamageStripExpanded)} aria-label="Action button"
               className={cn(isDamageStripExpanded && 'bg-primary text-primary-foreground')}
             >
               <Warning className="w-4 h-4 mr-2" />
