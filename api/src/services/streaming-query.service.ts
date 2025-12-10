@@ -282,12 +282,21 @@ export class StreamingQueryService {
       params = []
     } = options
 
+    // Validate cursor column to prevent SQL injection
+    const ALLOWED_CURSOR_COLUMNS = ['id', 'created_at', 'updated_at', 'name', 'timestamp', 'date', 'status', 'priority']
+    if (!ALLOWED_CURSOR_COLUMNS.includes(cursorColumn)) {
+      throw new Error(`Invalid cursor column: ${cursorColumn}. Allowed columns: ${ALLOWED_CURSOR_COLUMNS.join(', ')}`)
+    }
+
+    // Validate direction to prevent SQL injection
+    const validDirection = ['asc', 'desc'].includes(direction.toLowerCase()) ? direction.toLowerCase() : 'asc'
+
     // Build query with cursor
     let query = baseQuery
     const queryParams = [...params]
 
     if (cursorValue !== undefined) {
-      const operator = direction === 'asc' ? '>' : '<'
+      const operator = validDirection === 'asc' ? '>' : '<'
       const cursorCondition = `${cursorColumn} ${operator} $${queryParams.length + 1}`
 
       if (where) {
@@ -299,8 +308,9 @@ export class StreamingQueryService {
       queryParams.push(cursorValue)
     }
 
-    // Add ORDER BY and LIMIT
-    query += ` ORDER BY ${cursorColumn} ${direction.toUpperCase()} LIMIT ${limit + 1}`
+    // Add ORDER BY and LIMIT with parameterized limit
+    query += ` ORDER BY ${cursorColumn} ${validDirection.toUpperCase()} LIMIT $${queryParams.length + 1}`
+    queryParams.push(limit + 1)
 
     // Execute query
     const result = await pool.query(query, queryParams)
