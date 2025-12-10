@@ -1,13 +1,14 @@
 import express, { Response } from 'express'
 import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
 import logger from '../config/logger'; // Wave 19: Add Winston logger
-import { AuthRequest, authenticateJWT, authorize } from '../middleware/auth'
+import { AuthRequest, authenticateJWT } from '../middleware/auth'
 import { auditLog } from '../middleware/audit'
 import { z } from 'zod'
-import { getErrorMessage } from '../utils/error-handler'
 import { csrfProtection } from '../middleware/csrf'
+import { TYPES } from '../types'
+import { TripRepository } from '../repositories/TripRepository'
+import { TripUsageRepository } from '../repositories/TripUsageRepository'
+import { PersonalUsePolicyRepository } from '../repositories/PersonalUsePolicyRepository'
 
 import {
   UsageType,
@@ -17,7 +18,11 @@ import {
 } from '../types/trip-usage'
 
 const router = express.Router()
-router.use(authenticateJWT)
+
+// Get repositories from DI container
+const tripRepository = container.get<TripRepository>(TYPES.TripRepository)
+const tripUsageRepository = container.get<TripUsageRepository>(TYPES.TripUsageRepository)
+const policyRepository = container.get<PersonalUsePolicyRepository>(TYPES.PersonalUsePolicyRepository)
 
 // Validation schemas
 const markTripSchema = z.object({
@@ -46,7 +51,9 @@ const splitTripSchema = z.object({
  */
 router.post(
   '/:id/mark',
- csrfProtection, auditLog({ action: 'UPDATE', resourceType: 'trips' }),
+  authenticateJWT,
+  csrfProtection,
+  auditLog({ action: 'UPDATE', resourceType: 'trips' }),
   async (req: AuthRequest, res: Response) => {
     try {
       const tripId = req.params.id
@@ -56,7 +63,7 @@ router.post(
         return res.status(400).json({
           success: false,
           error: 'Invalid request data',
-          details: validation.error.errors
+          details: validation.error.issues
         })
       }
 
@@ -71,170 +78,101 @@ router.post(
       }
 
       // Get trip details
-      const tripResult = await pool.query(
-        `SELECT t.*, v.id as vehicle_id
-         FROM trips t
-         LEFT JOIN vehicles v ON t.vehicle_id = v.id
-         WHERE t.id = $1 AND t.tenant_id = $2`,
-        [tripId, req.user!.tenant_id]
-      )
+      const trip = await tripRepository.findTripWithVehicle(tripId, req.user!.tenant_id)
 
-      if (tripResult.rows.length === 0) {
+      if (!trip) {
         return res.status(404).json({
           success: false,
           error: `Trip not found`
         })
       }
 
-      const trip = tripResult.rows[0]
       const miles_total = trip.distance_miles || 0
 
       // Calculate mileage breakdown
-      const { business_miles, personal_miles } = calculateMileageBreakdown(
+      const { business_miles: milesBusiness, personal_miles: milesPersonal } = calculateMileageBreakdown(
         miles_total,
         usage_type,
         business_percentage
       )
 
       // Get policy for cost preview
-      const policyResult = await pool.query(
-        `SELECT 
-      id,
-      tenant_id,
-      name,
-      description,
-      rate_per_mile,
-      rate_type,
-      effective_date,
-      expiry_date,
-      is_active,
-      created_at,
-      updated_at FROM personal_use_policies WHERE tenant_id = $1`,
-        [req.user!.tenant_id]
-      )
+      const policy = await policyRepository.findByTenant(req.user!.tenant_id)
 
       let estimated_charge = 0
-      if (policyResult.rows.length > 0) {
-        const policy = policyResult.rows[0]
-        if (policy.charge_personal_use) {
-          const rate = policy.personal_use_rate_per_mile || 0.50
-          estimated_charge = calculateCharge(personal_miles, rate)
-        }
+      if (policy && policy.charge_personal_use) {
+        const rate = policy.personal_use_rate_per_mile || 0.50
+        estimated_charge = calculateCharge(milesPersonal, rate)
       }
 
       // Determine approval status
       let approval_status = ApprovalStatus.PENDING
 
-      const autoApproveResult = await pool.query(
-        `SELECT auto_approve_under_miles, require_approval
-         FROM personal_use_policies
-         WHERE tenant_id = $1`,
-        [req.user!.tenant_id]
-      )
+      const approvalSettings = await policyRepository.getApprovalSettings(req.user!.tenant_id)
 
-      if (autoApproveResult.rows.length > 0) {
-        const policy = autoApproveResult.rows[0]
-        if (!policy.require_approval) {
+      if (approvalSettings) {
+        if (!approvalSettings.require_approval) {
           approval_status = ApprovalStatus.AUTO_APPROVED
         } else if (
-          policy.auto_approve_under_miles &&
-          personal_miles <= policy.auto_approve_under_miles
+          approvalSettings.auto_approve_under_miles &&
+          milesPersonal <= approvalSettings.auto_approve_under_miles
         ) {
           approval_status = ApprovalStatus.AUTO_APPROVED
         }
       }
 
       // Create or update trip usage classification
-      const existingUsage = await pool.query(
-        `SELECT id FROM trip_usage_classification WHERE trip_id = $1`,
-        [tripId]
-      )
+      const existingUsage = await tripUsageRepository.findByTripId(tripId)
 
       let usageId: string
-      const now = new Date().toISOString()
+      const now = new Date()
 
-      if (existingUsage.rows.length > 0) {
+      if (existingUsage) {
         // Update existing classification
-        const updateResult = await pool.query(
-          `UPDATE trip_usage_classification
-           SET usage_type = $1,
-               business_percentage = $2,
-               business_purpose = $3,
-               personal_notes = $4,
-               miles_total = $5,
-               miles_business = $6,
-               miles_personal = $7,
-               approval_status = $8,
-               updated_at = $9
-           WHERE id = $10
-           RETURNING *`,
-          [
+        const updated = await tripUsageRepository.updateUsageClassification(
+          existingUsage.id,
+          {
             usage_type,
             business_percentage,
             business_purpose,
             personal_notes,
             miles_total,
-            business_miles,
-            personal_miles,
-            approval_status,
-            now,
-            existingUsage.rows[0].id
-          ]
+            miles_business: milesBusiness,
+            miles_personal: milesPersonal,
+            approval_status
+          }
         )
-        usageId = updateResult.rows[0].id
+        usageId = updated.id
       } else {
         // Create new classification
-        const insertResult = await pool.query(
-          `INSERT INTO trip_usage_classification (
-            tenant_id, trip_id, vehicle_id, driver_id,
-            usage_type, business_percentage, business_purpose, personal_notes,
-            miles_total, miles_business, miles_personal,
-            trip_date, start_location, end_location,
-            approval_status, created_by_user_id
-          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
-          RETURNING *`,
-          [
-            req.user!.tenant_id,
-            tripId,
-            trip.vehicle_id,
-            trip.driver_id || req.user!.id,
-            usage_type,
-            business_percentage,
-            business_purpose,
-            personal_notes,
-            miles_total,
-            business_miles,
-            personal_miles,
-            trip.start_time || now,
-            trip.start_location,
-            trip.end_location,
-            approval_status,
-            req.user!.id
-          ]
-        )
-        usageId = insertResult.rows[0].id
+        const created = await tripUsageRepository.createUsageClassification({
+          tenant_id: req.user!.tenant_id,
+          trip_id: tripId,
+          vehicle_id: trip.vehicle_id,
+          driver_id: trip.driver_id || req.user!.id,
+          usage_type,
+          business_percentage,
+          business_purpose,
+          personal_notes,
+          miles_total,
+          miles_business: milesBusiness,
+          miles_personal: milesPersonal,
+          trip_date: trip.start_time || now,
+          start_location: trip.start_location,
+          end_location: trip.end_location,
+          approval_status,
+          created_by_user_id: req.user!.id
+        })
+        usageId = created.id
       }
 
       // Get complete usage record
-      const usageResult = await pool.query(
-        `SELECT 
-      id,
-      tenant_id,
-      trip_id,
-      classification,
-      reason,
-      classified_by,
-      classified_at,
-      notes,
-      created_at,
-      updated_at FROM trip_usage_classification WHERE id = $1`,
-        [usageId]
-      )
+      const usageRecord = await tripUsageRepository.findById(usageId)
 
       res.json({
         success: true,
         data: {
-          ...usageResult.rows[0],
+          ...usageRecord,
           estimated_charge
         },
         message: approval_status === ApprovalStatus.AUTO_APPROVED
@@ -243,10 +181,10 @@ router.post(
       })
     } catch (error: any) {
       logger.error('Mark trip error:', error) // Wave 19: Winston logger
-      res.status(500).json({
+      return res.status(500).json({
         success: false,
         error: 'Failed to mark trip',
-        details: getErrorMessage(error)
+        details: error.message
       })
     }
   }
@@ -258,7 +196,9 @@ router.post(
  */
 router.post(
   '/start-personal',
- csrfProtection, auditLog({ action: 'CREATE', resourceType: 'trips' }),
+  authenticateJWT,
+  csrfProtection,
+  auditLog({ action: 'CREATE', resourceType: 'trips' }),
   async (req: AuthRequest, res: Response) => {
     try {
       const validation = startPersonalTripSchema.safeParse(req.body)
@@ -267,19 +207,17 @@ router.post(
         return res.status(400).json({
           success: false,
           error: 'Invalid request data',
-          details: validation.error.errors
+          details: validation.error.issues
         })
       }
 
       const { vehicle_id, start_location, notes } = validation.data
 
-      // Verify vehicle belongs to tenant
-      const vehicleResult = await pool.query(
-        `SELECT id FROM vehicles WHERE id = $1 AND tenant_id = $2`,
-        [vehicle_id, req.user!.tenant_id]
-      )
+      // Verify vehicle belongs to tenant (using VehicleRepository would be ideal, but keeping simple)
+      const vehicleRepo = container.get<any>(TYPES.VehicleRepository)
+      const vehicle = await vehicleRepo.findByIdAndTenant(vehicle_id, req.user!.tenant_id)
 
-      if (vehicleResult.rows.length === 0) {
+      if (!vehicle) {
         return res.status(404).json({
           success: false,
           error: `Vehicle not found`
@@ -287,42 +225,32 @@ router.post(
       }
 
       // Create trip usage classification (without trip_id for now)
-      const result = await pool.query(
-        `INSERT INTO trip_usage_classification (
-          tenant_id, vehicle_id, driver_id,
-          usage_type, personal_notes,
-          miles_total, miles_business, miles_personal,
-          trip_date, start_location,
-          approval_status, created_by_user_id
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
-        RETURNING *`,
-        [
-          req.user!.tenant_id,
-          vehicle_id,
-          req.user!.id,
-          UsageType.PERSONAL,
-          notes,
-          0, // Will be updated when trip completes
-          0,
-          0,
-          new Date(),
-          start_location,
-          ApprovalStatus.PENDING,
-          req.user!.id
-        ]
-      )
+      const result = await tripUsageRepository.createUsageClassification({
+        tenant_id: req.user!.tenant_id,
+        vehicle_id,
+        driver_id: req.user!.id,
+        usage_type: UsageType.PERSONAL,
+        personal_notes: notes,
+        miles_total: 0, // Will be updated when trip completes
+        miles_business: 0,
+        miles_personal: 0,
+        trip_date: new Date(),
+        start_location,
+        approval_status: ApprovalStatus.PENDING,
+        created_by_user_id: req.user!.id
+      })
 
       res.status(201).json({
         success: true,
-        data: result.rows[0],
+        data: result,
         message: `Personal trip started`
       })
     } catch (error: any) {
       logger.error(`Start personal trip error:`, error) // Wave 19: Winston logger
-      res.status(500).json({
+      return res.status(500).json({
         success: false,
         error: 'Failed to start personal trip',
-        details: getErrorMessage(error)
+        details: error.message
       })
     }
   }
@@ -334,7 +262,9 @@ router.post(
  */
 router.patch(
   '/:id/split',
- csrfProtection, auditLog({ action: 'UPDATE', resourceType: 'trips' }),
+  authenticateJWT,
+  csrfProtection,
+  auditLog({ action: 'UPDATE', resourceType: 'trips' }),
   async (req: AuthRequest, res: Response) => {
     try {
       const tripId = req.params.id
@@ -344,117 +274,74 @@ router.patch(
         return res.status(400).json({
           success: false,
           error: 'Invalid request data',
-          details: validation.error.errors
+          details: validation.error.issues
         })
       }
 
       const { business_percentage, business_purpose, personal_notes } = validation.data
 
       // Get trip details
-      const tripResult = await pool.query(
-        `SELECT t.*, v.id as vehicle_id
-         FROM trips t
-         LEFT JOIN vehicles v ON t.vehicle_id = v.id
-         WHERE t.id = $1 AND t.tenant_id = $2`,
-        [tripId, req.user!.tenant_id]
-      )
+      const trip = await tripRepository.findTripWithVehicle(tripId, req.user!.tenant_id)
 
-      if (tripResult.rows.length === 0) {
+      if (!trip) {
         return res.status(404).json({
           success: false,
           error: `Trip not found`
         })
       }
 
-      const trip = tripResult.rows[0]
       const miles_total = trip.distance_miles || 0
 
       // Calculate split
-      const { business_miles, personal_miles } = calculateMileageBreakdown(
+      const { business_miles: milesBusiness2, personal_miles: milesPersonal2 } = calculateMileageBreakdown(
         miles_total,
         UsageType.MIXED,
         business_percentage
       )
 
       // Get policy for cost preview
-      const policyResult = await pool.query(
-        `SELECT 
-      id,
-      tenant_id,
-      name,
-      description,
-      rate_per_mile,
-      rate_type,
-      effective_date,
-      expiry_date,
-      is_active,
-      created_at,
-      updated_at FROM personal_use_policies WHERE tenant_id = $1`,
-        [req.user!.tenant_id]
-      )
+      const policy = await policyRepository.findByTenant(req.user!.tenant_id)
 
       let estimated_charge = 0
-      if (policyResult.rows.length > 0) {
-        const policy = policyResult.rows[0]
-        if (policy.charge_personal_use) {
-          const rate = policy.personal_use_rate_per_mile || 0.50
-          estimated_charge = calculateCharge(personal_miles, rate)
-        }
+      if (policy && policy.charge_personal_use) {
+        const rate = policy.personal_use_rate_per_mile || 0.50
+        estimated_charge = calculateCharge(milesPersonal2, rate)
       }
 
       // Update or create trip usage classification
-      const result = await pool.query(
-        `INSERT INTO trip_usage_classification (
-          tenant_id, trip_id, vehicle_id, driver_id,
-          usage_type, business_percentage, business_purpose, personal_notes,
-          miles_total, miles_business, miles_personal,
-          trip_date, start_location, end_location,
-          approval_status, created_by_user_id
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
-        ON CONFLICT (trip_id)
-        DO UPDATE SET
-          usage_type = EXCLUDED.usage_type,
-          business_percentage = EXCLUDED.business_percentage,
-          business_purpose = EXCLUDED.business_purpose,
-          personal_notes = EXCLUDED.personal_notes,
-          miles_business = EXCLUDED.miles_business,
-          miles_personal = EXCLUDED.miles_personal,
-          updated_at = NOW()
-        RETURNING *`,
-        [
-          req.user!.tenant_id,
-          tripId,
-          trip.vehicle_id,
-          trip.driver_id || req.user!.id,
-          UsageType.MIXED,
-          business_percentage,
-          business_purpose,
-          personal_notes,
-          miles_total,
-          business_miles,
-          personal_miles,
-          trip.start_time || new Date(),
-          trip.start_location,
-          trip.end_location,
-          ApprovalStatus.PENDING,
-          req.user!.id
-        ]
-      )
+      const result = await tripUsageRepository.upsertUsageClassification({
+        tenant_id: req.user!.tenant_id,
+        trip_id: tripId,
+        vehicle_id: trip.vehicle_id,
+        driver_id: trip.driver_id || req.user!.id,
+        usage_type: UsageType.MIXED,
+        business_percentage,
+        business_purpose,
+        personal_notes,
+        miles_total,
+        miles_business: milesBusiness2,
+        miles_personal: milesPersonal2,
+        trip_date: trip.start_time || new Date(),
+        start_location: trip.start_location,
+        end_location: trip.end_location,
+        approval_status: ApprovalStatus.PENDING,
+        created_by_user_id: req.user!.id
+      })
 
       res.json({
         success: true,
         data: {
-          ...result.rows[0],
+          ...result,
           estimated_charge
         },
         message: `Trip split successfully`
       })
     } catch (error: any) {
       logger.error(`Split trip error:`, error) // Wave 19: Winston logger
-      res.status(500).json({
+      return res.status(500).json({
         success: false,
         error: 'Failed to split trip',
-        details: getErrorMessage(error)
+        details: error.message
       })
     }
   }
@@ -464,46 +351,23 @@ router.patch(
  * GET /api/trips/my-personal
  * Get driver's personal trip history
  */
-router.get('/my-personal', async (req: AuthRequest, res: Response) => {
+router.get('/my-personal', authenticateJWT, async (req: AuthRequest, res: Response) => {
   try {
     const { start_date, end_date, limit = '50', offset = '0' } = req.query
 
-    let query = `
-      SELECT
-        t.*,
-        v.make, v.model, v.license_plate,
-        p.personal_use_rate_per_mile as rate
-      FROM trip_usage_classification t
-      LEFT JOIN vehicles v ON t.vehicle_id = v.id
-      LEFT JOIN personal_use_policies p ON t.tenant_id = p.tenant_id
-      WHERE t.driver_id = $1
-        AND t.tenant_id = $2
-        AND (t.usage_type = 'personal' OR t.usage_type = 'mixed')
-    `
-
-    const params: any[] = [req.user!.id, req.user!.tenant_id]
-    let paramIndex = 3
-
-    if (start_date) {
-      query += ` AND t.trip_date >= $${paramIndex}`
-      params.push(start_date)
-      paramIndex++
-    }
-
-    if (end_date) {
-      query += ` AND t.trip_date <= $${paramIndex}`
-      params.push(end_date)
-      paramIndex++
-    }
-
-    query += ` ORDER BY t.trip_date DESC LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`
-    params.push(parseInt(limit as string)
-    params.push(parseInt(offset as string)
-
-    const result = await pool.query(query, params)
+    const { trips, total } = await tripUsageRepository.getDriverPersonalTrips(
+      req.user!.id,
+      req.user!.tenant_id,
+      {
+        startDate: start_date ? new Date(start_date as string) : undefined,
+        endDate: end_date ? new Date(end_date as string) : undefined,
+        limit: parseInt(limit as string),
+        offset: parseInt(offset as string)
+      }
+    )
 
     // Calculate estimated charges for each trip
-    const tripsWithCharges = result.rows.map(trip => {
+    const tripsWithCharges = trips.map(trip => {
       const rate = trip.rate || 0.50
       const estimated_charge = calculateCharge(trip.miles_personal, rate)
       return {
@@ -512,31 +376,22 @@ router.get('/my-personal', async (req: AuthRequest, res: Response) => {
       }
     })
 
-    // Get total count
-    const countResult = await pool.query(
-      `SELECT COUNT(*)
-       FROM trip_usage_classification
-       WHERE driver_id = $1 AND tenant_id = $2
-         AND (usage_type = 'personal' OR usage_type = 'mixed')',
-      [req.user!.id, req.user!.tenant_id]
-    )
-
     res.json({
       success: true,
       data: tripsWithCharges,
       pagination: {
-        total: parseInt(countResult.rows[0].count),
+        total,
         limit: parseInt(limit as string),
         offset: parseInt(offset as string),
-        has_more: parseInt(countResult.rows[0].count) > parseInt(offset as string) + tripsWithCharges.length
+        has_more: total > parseInt(offset as string) + tripsWithCharges.length
       }
     })
   } catch (error: any) {
     logger.error('Get personal trips error:', error) // Wave 19: Winston logger
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       error: 'Failed to retrieve personal trips',
-      details: getErrorMessage(error)
+      details: error.message
     })
   }
 })
@@ -545,25 +400,13 @@ router.get('/my-personal', async (req: AuthRequest, res: Response) => {
  * GET /api/trips/:id/usage
  * Get trip usage classification details
  */
-router.get('/:id/usage', async (req: AuthRequest, res: Response) => {
+router.get('/:id/usage', authenticateJWT, async (req: AuthRequest, res: Response) => {
   try {
     const tripId = req.params.id
 
-    const result = await pool.query(
-      `SELECT
-        t.*,
-        u.name as created_by_name,
-        a.name as approved_by_name,
-        v.make, v.model, v.license_plate
-      FROM trip_usage_classification t
-      LEFT JOIN users u ON t.created_by_user_id = u.id
-      LEFT JOIN users a ON t.approved_by_user_id = a.id
-      LEFT JOIN vehicles v ON t.vehicle_id = v.id
-      WHERE t.trip_id = $1 AND t.tenant_id = $2`,
-      [tripId, req.user!.tenant_id]
-    )
+    const result = await tripUsageRepository.findWithUserDetails(tripId, req.user!.tenant_id)
 
-    if (result.rows.length === 0) {
+    if (!result) {
       return res.status(404).json({
         success: false,
         error: `Trip usage classification not found`
@@ -571,44 +414,27 @@ router.get('/:id/usage', async (req: AuthRequest, res: Response) => {
     }
 
     // Get cost preview
-    const policyResult = await pool.query(
-      `SELECT 
-      id,
-      tenant_id,
-      name,
-      description,
-      rate_per_mile,
-      rate_type,
-      effective_date,
-      expiry_date,
-      is_active,
-      created_at,
-      updated_at FROM personal_use_policies WHERE tenant_id = $1`,
-      [req.user!.tenant_id]
-    )
+    const policy = await policyRepository.findByTenant(req.user!.tenant_id)
 
     let estimated_charge = 0
-    if (policyResult.rows.length > 0) {
-      const policy = policyResult.rows[0]
-      if (policy.charge_personal_use) {
-        const rate = policy.personal_use_rate_per_mile || 0.50
-        estimated_charge = calculateCharge(result.rows[0].miles_personal, rate)
-      }
+    if (policy && policy.charge_personal_use) {
+      const rate = policy.personal_use_rate_per_mile || 0.50
+      estimated_charge = calculateCharge(result.miles_personal, rate)
     }
 
     res.json({
       success: true,
       data: {
-        ...result.rows[0],
+        ...result,
         estimated_charge
       }
     })
   } catch (error: any) {
     logger.error(`Get trip usage error:`, error) // Wave 19: Winston logger
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       error: 'Failed to retrieve trip usage',
-      details: getErrorMessage(error)
+      details: error.message
     })
   }
 })
