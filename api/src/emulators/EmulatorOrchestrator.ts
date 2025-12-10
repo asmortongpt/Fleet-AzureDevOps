@@ -9,19 +9,18 @@ import * as path from 'path'
 
 import { WebSocketServer, WebSocket } from 'ws'
 
-import { VideoTelematicsEmulator } from './video/VideoTelematicsEmulator'
-import { RadioEmulator } from './radio/RadioEmulator'
 import { DispatchEmulator } from './DispatchEmulator'
-import { VehicleInventoryEmulator } from './inventory/VehicleInventoryEmulator'
 import { InventoryEmulator } from './InventoryEmulator'
 import { CostEmulator } from './cost/CostEmulator'
 import { DriverBehaviorEmulator } from './driver/DriverBehaviorEmulator'
 import { EVChargingEmulator } from './evcharging/EVChargingEmulator'
 import { FuelEmulator } from './fuel/FuelEmulator'
 import { GPSEmulator } from './gps/GPSEmulator'
+import { VehicleInventoryEmulator } from './inventory/VehicleInventoryEmulator'
 import { IoTEmulator } from './iot/IoTEmulator'
 import { MaintenanceEmulator } from './maintenance/MaintenanceEmulator'
 import { OBD2Emulator } from './obd2/OBD2Emulator'
+import { RadioEmulator } from './radio/RadioEmulator'
 import { RouteEmulator } from './route/RouteEmulator'
 import {
   EmulatorConfig,
@@ -33,6 +32,7 @@ import {
   Scenario,
   Geofence
 } from './types'
+import { VideoTelematicsEmulator } from './video/VideoTelematicsEmulator'
 
 export class EmulatorOrchestrator extends EventEmitter {
   private config: EmulatorConfig
