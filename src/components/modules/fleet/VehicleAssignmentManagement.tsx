@@ -135,8 +135,8 @@ const VehicleAssignmentManagement: React.FC = () => {
     setLoading(true);
     try {
       const response = await fetch('/api/vehicle-assignments?limit=100', {
+        credentials: 'include',
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
         },
       });
       const data = await response.json();
@@ -151,8 +151,8 @@ const VehicleAssignmentManagement: React.FC = () => {
   const fetchOnCallPeriods = async () => {
     try {
       const response = await fetch('/api/on-call-periods/active/current', {
+        credentials: 'include',
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
         },
       });
       const data = await response.json();
@@ -165,8 +165,8 @@ const VehicleAssignmentManagement: React.FC = () => {
   const fetchComplianceExceptions = async () => {
     try {
       const response = await fetch('/api/reports/policy-compliance', {
+        credentials: 'include',
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
         },
       });
       const data = await response.json();
@@ -179,10 +179,10 @@ const VehicleAssignmentManagement: React.FC = () => {
   const handleApproveAssignment = async (assignmentId: string) => {
     try {
       const response = await fetch(`/api/vehicle-assignments/${assignmentId}/approve`, {
+        credentials: 'include',
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
         },
         body: JSON.stringify({ action: 'approve' }),
       });
@@ -198,10 +198,10 @@ const VehicleAssignmentManagement: React.FC = () => {
   const handleDenyAssignment = async (assignmentId: string, reason: string) => {
     try {
       const response = await fetch(`/api/vehicle-assignments/${assignmentId}/approve`, {
+        credentials: 'include',
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
         },
         body: JSON.stringify({ action: 'deny', notes: reason }),
       });

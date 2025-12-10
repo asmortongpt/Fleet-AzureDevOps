@@ -50,8 +50,8 @@ const MobileManagerView: React.FC = () => {
   const fetchDashboardData = async () => {
     try {
       const response = await fetch('/api/mobile/dashboard/manager', {
+        credentials: 'include',
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
         },
       });
 
@@ -69,10 +69,10 @@ const MobileManagerView: React.FC = () => {
   const handleQuickApproval = async (assignmentId: string, action: 'approve' | 'deny') => {
     try {
       const response = await fetch(`/api/mobile/assignment/${assignmentId}/quick-approve`, {
+        credentials: 'include',
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
         },
         body: JSON.stringify({
           action,
