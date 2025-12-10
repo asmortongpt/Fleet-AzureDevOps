@@ -191,7 +191,7 @@ export function DataGrid<TData extends { id?: string | number }>({
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => table.setPageIndex(0)}
+            onClick={() => table.setPageIndex(0)} aria-label="Action button"
             disabled={!table.getCanPreviousPage()}
             className="h-8 w-8"
           >
@@ -200,7 +200,7 @@ export function DataGrid<TData extends { id?: string | number }>({
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => table.previousPage()}
+            onClick={() => table.previousPage()} aria-label="Action button"
             disabled={!table.getCanPreviousPage()}
             className="h-8 w-8"
           >
@@ -215,7 +215,7 @@ export function DataGrid<TData extends { id?: string | number }>({
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => table.nextPage()}
+            onClick={() => table.nextPage()} aria-label="Action button"
             disabled={!table.getCanNextPage()}
             className="h-8 w-8"
           >
@@ -224,7 +224,7 @@ export function DataGrid<TData extends { id?: string | number }>({
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => table.setPageIndex(table.getPageCount() - 1)}
+            onClick={() => table.setPageIndex(table.getPageCount() - 1)} aria-label="Action button"
             disabled={!table.getCanNextPage()}
             className="h-8 w-8"
           >

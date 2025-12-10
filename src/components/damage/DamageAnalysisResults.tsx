@@ -347,7 +347,7 @@ export function DamageAnalysisResults({
       {/* Action Buttons */}
       <div className="flex gap-4 sticky bottom-4 bg-white p-4 rounded-lg shadow-lg border">
         {onMap3D && (
-          <Button variant="outline" onClick={onMap3D} className="flex-1">
+          <Button variant="outline" onClick={onMap3D} className="flex-1" aria-label="Action button">
             <MapPin className="mr-2 h-4 w-4" />
             Map to 3D Model
           </Button>
@@ -357,7 +357,7 @@ export function DamageAnalysisResults({
           onClick={handleConfirm}
           className="flex-1"
           disabled={selectedDamages.length === 0}
-        >
+         aria-label="Action button">
           <CheckCircle className="mr-2 h-4 w-4" />
           Confirm & Save ({selectedDamages.length} Selected)
         </Button>

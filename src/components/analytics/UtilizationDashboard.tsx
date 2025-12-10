@@ -86,8 +86,8 @@ const UtilizationDashboard: React.FC = () => {
       <div>
         <h2>Idle Assets</h2>
         <Table columns={columns} dataSource={idleAssets} rowKey="id" />
-        <Button onClick={() => exportToCSV(idleAssets, 'idle_assets.csv')}>Export to CSV</Button>
-        <Button onClick={() => exportToExcel(idleAssets, 'idle_assets.xlsx')}>Export to Excel</Button>
+        <Button onClick={() => exportToCSV(idleAssets, 'idle_assets.csv')} aria-label="Action button">Export to CSV</Button>
+        <Button onClick={() => exportToExcel(idleAssets, 'idle_assets.xlsx')} aria-label="Action button">Export to Excel</Button>
       </div>
       <div>
         <h2>Utilization Rate</h2>

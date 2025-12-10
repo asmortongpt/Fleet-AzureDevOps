@@ -153,7 +153,7 @@ export function FacilityDetailPanel({ facilityId }: FacilityDetailPanelProps) {
             </Card>
           )}
 
-          <Button onClick={handleViewVehicles} className="w-full">
+          <Button onClick={handleViewVehicles} className="w-full" aria-label="Action button">
             <Car className="h-4 w-4 mr-2" />
             View All Vehicles
           </Button>

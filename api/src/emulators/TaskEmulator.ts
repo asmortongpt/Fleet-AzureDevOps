@@ -517,7 +517,7 @@ export class TaskEmulator {
   async getTasksByStatus(status: string): Promise<EmulatedTask[]> {
     if (!this.pool) throw new Error('Database not initialized')
 
-    const query = 'SELECT * FROM tasks WHERE status = $1 ORDER BY due_date ASC'
+    const query = 'SELECT id, tenant_id, task_title, description, task_type, priority, status, assigned_to, created_by, due_date, start_date, completed_date, estimated_hours, actual_hours, completion_percentage, vehicle_id, work_order_id, parent_task_id, tags, metadata, created_at, updated_at FROM tasks WHERE status = $1 ORDER BY due_date ASC'
     const result = await this.pool.query(query, [status])
 
     return result.rows as EmulatedTask[]
@@ -530,7 +530,7 @@ export class TaskEmulator {
   async getTasksByVehicle(vehicleId: number): Promise<EmulatedTask[]> {
     if (!this.pool) throw new Error('Database not initialized')
 
-    const query = 'SELECT * FROM tasks WHERE assigned_to_vehicle = $1 ORDER BY priority DESC, due_date ASC'
+    const query = 'SELECT id, tenant_id, task_title, description, task_type, priority, status, assigned_to, created_by, due_date, start_date, completed_date, estimated_hours, actual_hours, completion_percentage, vehicle_id, work_order_id, parent_task_id, tags, metadata, created_at, updated_at FROM tasks WHERE assigned_to_vehicle = $1 ORDER BY priority DESC, due_date ASC'
     const result = await this.pool.query(query, [vehicleId])
 
     return result.rows as EmulatedTask[]

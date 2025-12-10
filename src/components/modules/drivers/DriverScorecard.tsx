@@ -192,7 +192,7 @@ export function DriverScorecard() {
                     variant="outline"
                     size="sm"
                     className="mt-3"
-                    onClick={() => fetchDriverDetails(leaderboard[1])}
+                    onClick={() => fetchDriverDetails(leaderboard[1])} aria-label="Action button"
                   >
                     View Details
                   </Button>
@@ -217,7 +217,7 @@ export function DriverScorecard() {
                     variant="default"
                     size="sm"
                     className="mt-3 w-full"
-                    onClick={() => fetchDriverDetails(leaderboard[0])}
+                    onClick={() => fetchDriverDetails(leaderboard[0])} aria-label="Action button"
                   >
                     View Details
                   </Button>
@@ -241,7 +241,7 @@ export function DriverScorecard() {
                     variant="outline"
                     size="sm"
                     className="mt-3"
-                    onClick={() => fetchDriverDetails(leaderboard[2])}
+                    onClick={() => fetchDriverDetails(leaderboard[2])} aria-label="Action button"
                   >
                     View Details
                   </Button>
@@ -294,7 +294,7 @@ export function DriverScorecard() {
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => fetchDriverDetails(driver)}
+                          onClick={() => fetchDriverDetails(driver)} aria-label="Action button"
                         >
                           Details
                         </Button>

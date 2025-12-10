@@ -89,7 +89,7 @@ export function SearchFilters({ filters, onChange, availableTags = [] }: SearchF
           size="sm"
           disabled={isPending}
           className={isPending ? 'opacity-70' : ''}
-        >
+         aria-label="Action button">
           <FileType className="mr-2 h-4 w-4" />
           Filters
           {activeFilterCount > 0 && (
@@ -105,7 +105,7 @@ export function SearchFilters({ filters, onChange, availableTags = [] }: SearchF
           <h3 className="font-semibold">Filters</h3>
           <div className="flex items-center gap-2">
             {activeFilterCount > 0 && (
-              <Button variant="ghost" size="sm" onClick={clearFilters}>
+              <Button variant="ghost" size="sm" onClick={clearFilters} aria-label="Action button">
                 Clear all
               </Button>
             )}
@@ -202,7 +202,7 @@ export function SearchFilters({ filters, onChange, availableTags = [] }: SearchF
               <div className="space-y-2">
                 <Popover>
                   <PopoverTrigger asChild>
-                    <Button variant="outline" size="sm" className="w-full justify-start">
+                    <Button variant="outline" size="sm" className="w-full justify-start" aria-label="Action button">
                       {filters.dateFrom ? filters.dateFrom.toLocaleDateString() : 'From date'}
                     </Button>
                   </PopoverTrigger>
@@ -219,7 +219,7 @@ export function SearchFilters({ filters, onChange, availableTags = [] }: SearchF
 
                 <Popover>
                   <PopoverTrigger asChild>
-                    <Button variant="outline" size="sm" className="w-full justify-start">
+                    <Button variant="outline" size="sm" className="w-full justify-start" aria-label="Action button">
                       {filters.dateTo ? filters.dateTo.toLocaleDateString() : 'To date'}
                     </Button>
                   </PopoverTrigger>
