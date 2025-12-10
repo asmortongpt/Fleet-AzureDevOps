@@ -748,7 +748,7 @@ export function VehicleInventory({
               </div>
             </div>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setIsUsageDialogOpen(false)}>
+              <Button variant="outline" onClick={() => setIsUsageDialogOpen(false)} aria-label="Cancel">
                 Cancel
               </Button>
               <Button onClick={handleRecordUsage}>Record Usage</Button>
