@@ -6,10 +6,14 @@ import { validate } from '../middleware/validation';
 import { createInspectionSchema, updateInspectionSchema } from '../schemas/inspection.schema';
 import { db } from '../services/database';
 import { logger } from '../services/logger';
-import { TenantValidator } from '../utils/tenant-validator';
+import { InspectionsService } from '../services/inspections.service';
+import { InspectionsRepository } from '../repositories/inspections.repository';
 
 const router: Router = express.Router();
-const validator = new TenantValidator(db);
+
+// Initialize service layer
+const inspectionsRepository = new InspectionsRepository(db);
+const inspectionsService = new InspectionsService(inspectionsRepository);
 
 /**
  * GET /api/inspections - Get all inspections (with tenant isolation)
@@ -19,28 +23,20 @@ router.get('/', authenticateToken, tenantIsolation, async (req: Request, res: Re
   try {
     const tenantId = req.user?.tenantId;
 
-    // SECURITY: Always filter by tenant_id to enforce multi-tenancy
-    const result = await db.query(
-      `SELECT
-        i.id, i.vehicle_id, i.inspector_id, i.inspection_type,
-        i.inspection_date, i.result, i.checklist_items, i.overall_condition,
-        i.defects_found, i.corrective_actions_required, i.follow_up_required,
-        i.follow_up_date, i.odometer_reading, i.attachments, i.notes,
-        i.created_at, i.created_by, i.updated_at, i.updated_by,
-        v.vehicle_number, v.make, v.model,
-        u.name as inspector_name
-      FROM inspections i
-      LEFT JOIN vehicles v ON i.vehicle_id = v.id
-      LEFT JOIN users u ON i.inspector_id = u.id
-      WHERE i.tenant_id = $1 AND i.deleted_at IS NULL
-      ORDER BY i.inspection_date DESC`,
-      [tenantId]
-    );
+    if (!tenantId) {
+      res.status(401).json({
+        success: false,
+        error: 'Tenant ID is required'
+      });
+      return;
+    }
+
+    const result = await inspectionsService.getInspections(tenantId);
 
     res.json({
       success: true,
-      data: result || [],
-      count: result?.length || 0
+      data: result.data || [],
+      count: result.count || 0
     });
   } catch (error) {
     logger.error('Error fetching inspections', {
@@ -64,32 +60,29 @@ router.get('/:id', authenticateToken, tenantIsolation, async (req: Request, res:
     const { id } = req.params;
     const tenantId = req.user?.tenantId;
 
-    // SECURITY: Validate tenant ownership to prevent cross-tenant access
-    const result = await db.query(
-      `SELECT
-        i.*,
-        v.vehicle_number, v.make, v.model,
-        u.name as inspector_name
-      FROM inspections i
-      LEFT JOIN vehicles v ON i.vehicle_id = v.id
-      LEFT JOIN users u ON i.inspector_id = u.id
-      WHERE i.id = $1 AND i.tenant_id = $2 AND i.deleted_at IS NULL`,
-      [id, tenantId]
-    );
-
-    if (!result || result.length === 0) {
-      res.status(404).json({
+    if (!tenantId) {
+      res.status(401).json({
         success: false,
-        error: 'Inspection not found'
+        error: 'Tenant ID is required'
       });
       return;
     }
 
+    const inspection = await inspectionsService.getInspectionById(id, tenantId);
+
     res.json({
       success: true,
-      data: result[0]
+      data: inspection
     });
   } catch (error) {
+    if (error instanceof Error && error.name === 'NotFoundError') {
+      res.status(404).json({
+        success: false,
+        error: error.message
+      });
+      return;
+    }
+
     logger.error('Error fetching inspection', {
       error: error instanceof Error ? error.message : 'Unknown error',
       inspectionId: req.params.id,
@@ -110,82 +103,30 @@ router.post('/', authenticateToken, tenantIsolation, validate(createInspectionSc
   try {
     const tenantId = req.user?.tenantId;
     const userId = req.user?.id;
-    const {
-      vehicle_id,
-      inspector_id,
-      inspection_type,
-      inspection_date,
-      result,
-      checklist_items,
-      overall_condition,
-      defects_found,
-      corrective_actions_required,
-      follow_up_required,
-      follow_up_date,
-      odometer_reading,
-      attachments,
-      notes
-    } = req.body;
 
-    // SECURITY FIX: Validate foreign keys belong to tenant (IDOR protection)
-    if (vehicle_id && !(await validator.validateVehicle(vehicle_id, tenantId))) {
-      res.status(403).json({
+    if (!tenantId || !userId) {
+      res.status(401).json({
         success: false,
-        error: 'Vehicle not found or access denied'
+        error: 'Authentication required'
       });
       return;
     }
 
-    if (inspector_id && !(await validator.validateInspector(inspector_id, tenantId))) {
-      res.status(403).json({
-        success: false,
-        error: 'Inspector not found or access denied'
-      });
-      return;
-    }
-
-    // SECURITY: Insert with tenant_id and audit fields
-    const result_data = await db.query(
-      `INSERT INTO inspections (
-        tenant_id, vehicle_id, inspector_id, inspection_type, inspection_date,
-        result, checklist_items, overall_condition, defects_found,
-        corrective_actions_required, follow_up_required, follow_up_date,
-        odometer_reading, attachments, notes, created_by, updated_by
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
-      RETURNING *`,
-      [
-        tenantId,
-        vehicle_id,
-        inspector_id,
-        inspection_type,
-        inspection_date || new Date().toISOString(),
-        result,
-        checklist_items ? JSON.stringify(checklist_items) : null,
-        overall_condition,
-        defects_found,
-        corrective_actions_required,
-        follow_up_required,
-        follow_up_date,
-        odometer_reading,
-        attachments ? JSON.stringify(attachments) : null,
-        notes,
-        userId,
-        userId
-      ]
-    );
-
-    logger.info('Inspection created', {
-      inspectionId: result_data[0]?.id,
-      vehicleId: vehicle_id,
-      userId,
-      tenantId
-    });
+    const inspection = await inspectionsService.createInspection(req.body, tenantId, userId);
 
     res.status(201).json({
       success: true,
-      data: result_data[0]
+      data: inspection
     });
   } catch (error) {
+    if (error instanceof Error && error.name === 'ForbiddenError') {
+      res.status(403).json({
+        success: false,
+        error: error.message
+      });
+      return;
+    }
+
     logger.error('Error creating inspection', {
       error: error instanceof Error ? error.message : 'Unknown error',
       userId: req.user?.id,
@@ -207,57 +148,30 @@ router.put('/:id', authenticateToken, tenantIsolation, validate(updateInspection
     const { id } = req.params;
     const tenantId = req.user?.tenantId;
     const userId = req.user?.id;
-    const updates = req.body;
 
-    // Build dynamic UPDATE query with only provided fields
-    const fields = Object.keys(updates);
-    const values = Object.values(updates).map(value => {
-      // Convert arrays to JSON strings for checklist_items and attachments
-      if (Array.isArray(value)) {
-        return JSON.stringify(value);
-      }
-      return value;
-    });
-
-    if (fields.length === 0) {
-      res.status(400).json({
+    if (!tenantId || !userId) {
+      res.status(401).json({
         success: false,
-        error: 'No fields to update'
+        error: 'Authentication required'
       });
       return;
     }
 
-    const setClause = fields.map((field, index) => `${field} = $${index + 3}`).join(', ');
-
-    // SECURITY: Update with tenant validation and audit trail
-    const result = await db.query(
-      `UPDATE inspections
-       SET ${setClause}, updated_by = $1, updated_at = NOW()
-       WHERE id = $2 AND tenant_id = $${fields.length + 3} AND deleted_at IS NULL
-       RETURNING *`,
-      [userId, id, ...values, tenantId]
-    );
-
-    if (!result || result.length === 0) {
-      res.status(404).json({
-        success: false,
-        error: 'Inspection not found or access denied'
-      });
-      return;
-    }
-
-    logger.info('Inspection updated', {
-      inspectionId: id,
-      updatedFields: fields,
-      userId,
-      tenantId
-    });
+    const inspection = await inspectionsService.updateInspection(id, req.body, tenantId, userId);
 
     res.json({
       success: true,
-      data: result[0]
+      data: inspection
     });
   } catch (error) {
+    if (error instanceof Error && error.name === 'NotFoundError') {
+      res.status(404).json({
+        success: false,
+        error: error.message
+      });
+      return;
+    }
+
     logger.error('Error updating inspection', {
       error: error instanceof Error ? error.message : 'Unknown error',
       inspectionId: req.params.id,
@@ -280,34 +194,29 @@ router.delete('/:id', authenticateToken, tenantIsolation, async (req: Request, r
     const tenantId = req.user?.tenantId;
     const userId = req.user?.id;
 
-    // SECURITY: Soft delete with tenant validation
-    const result = await db.query(
-      `UPDATE inspections
-       SET deleted_at = NOW(), updated_by = $1, updated_at = NOW()
-       WHERE id = $2 AND tenant_id = $3 AND deleted_at IS NULL
-       RETURNING id`,
-      [userId, id, tenantId]
-    );
-
-    if (!result || result.length === 0) {
-      res.status(404).json({
+    if (!tenantId || !userId) {
+      res.status(401).json({
         success: false,
-        error: 'Inspection not found or already deleted'
+        error: 'Authentication required'
       });
       return;
     }
 
-    logger.info('Inspection deleted (soft)', {
-      inspectionId: id,
-      userId,
-      tenantId
-    });
+    await inspectionsService.deleteInspection(id, tenantId, userId);
 
     res.json({
       success: true,
       message: 'Inspection deleted successfully'
     });
   } catch (error) {
+    if (error instanceof Error && error.name === 'NotFoundError') {
+      res.status(404).json({
+        success: false,
+        error: error.message
+      });
+      return;
+    }
+
     logger.error('Error deleting inspection', {
       error: error instanceof Error ? error.message : 'Unknown error',
       inspectionId: req.params.id,
