@@ -1,14 +1,14 @@
 import express, { Response } from 'express'
 
-import { pool } from '../config/database'
-import logger from '../config/logger'; // Wave 18: Add Winston logger
+import logger from '../config/logger'
+import { container } from '../container'
 import { NotFoundError } from '../errors/app-error'
 import { auditLog } from '../middleware/audit'
 import { AuthRequest, authenticateJWT } from '../middleware/auth'
 import { csrfProtection } from '../middleware/csrf'
 import { requirePermission } from '../middleware/permissions'
-import { buildInsertClause, buildUpdateClause } from '../utils/sql-safety'
-
+import { GeofenceRepository } from '../repositories/GeofenceRepository'
+import { TYPES } from '../types'
 
 const router = express.Router()
 router.use(authenticateJWT)
@@ -20,40 +20,24 @@ router.get(
   auditLog({ action: 'READ', resourceType: 'geofences' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const { page = 1, limit = 50 } = req.query
-      const offset = (Number(page) - 1) * Number(limit)
+      const repository = container.get<GeofenceRepository>(TYPES.GeofenceRepository)
+      const { page = 1, limit = 50, sortBy, sortOrder } = req.query
 
-      const result = await pool.query(
-        `SELECT 
-      id,
-      tenant_id,
-      name,
-      description,
-      geometry,
-      type,
-      radius,
-      is_active,
-      created_at,
-      updated_at FROM geofences WHERE tenant_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3`,
-        [req.user!.tenant_id, limit, offset]
-      )
+      const context = {
+        userId: req.user!.id.toString(),
+        tenantId: req.user!.tenant_id.toString()
+      }
 
-      const countResult = await pool.query(
-        `SELECT COUNT(*) FROM geofences WHERE tenant_id = $1`,
-        [req.user!.tenant_id]
-      )
-
-      res.json({
-        data: result.rows,
-        pagination: {
-          page: Number(page),
-          limit: Number(limit),
-          total: parseInt(countResult.rows[0].count),
-          pages: Math.ceil(countResult.rows[0].count / Number(limit))
-        }
+      const result = await repository.findAllPaginated(context, {
+        page: Number(page),
+        limit: Number(limit),
+        sortBy: sortBy as string,
+        sortOrder: sortOrder as 'ASC' | 'DESC'
       })
+
+      res.json(result)
     } catch (error) {
-      logger.error(`Get geofences error:`, error) // Wave 18: Winston logger
+      logger.error('Get geofences error:', error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -66,28 +50,22 @@ router.get(
   auditLog({ action: 'READ', resourceType: 'geofences' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const result = await pool.query(
-        `SELECT
-      id,
-      tenant_id,
-      name,
-      description,
-      geometry,
-      type,
-      radius,
-      is_active,
-      created_at,
-      updated_at FROM geofences WHERE id = $1 AND tenant_id = $2`,
-        [req.params.id, req.user!.tenant_id]
-      )
+      const repository = container.get<GeofenceRepository>(TYPES.GeofenceRepository)
 
-      if (result.rows.length === 0) {
-        return res.status(404).json({ error: `Geofences not found` })
+      const context = {
+        userId: req.user!.id.toString(),
+        tenantId: req.user!.tenant_id.toString()
       }
 
-      res.json(result.rows[0])
+      const geofence = await repository.findById(Number(req.params.id), context)
+
+      if (!geofence) {
+        return res.status(404).json({ error: 'Geofence not found' })
+      }
+
+      res.json(geofence)
     } catch (error) {
-      logger.error('Get geofences error:', error) // Wave 18: Winston logger
+      logger.error('Get geofence error:', error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -96,54 +74,58 @@ router.get(
 // POST /geofences
 router.post(
   '/',
- csrfProtection, requirePermission('geofence:create:fleet'),
+  csrfProtection,
+  requirePermission('geofence:create:fleet'),
   auditLog({ action: 'CREATE', resourceType: 'geofences' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const data = req.body
+      const repository = container.get<GeofenceRepository>(TYPES.GeofenceRepository)
 
-      const { columnNames, placeholders, values } = buildInsertClause(
-        data,
-        [`tenant_id`],
-        1
-      )
+      const context = {
+        userId: req.user!.id.toString(),
+        tenantId: req.user!.tenant_id.toString()
+      }
 
-      const result = await pool.query(
-        `INSERT INTO geofences (${columnNames}) VALUES (${placeholders}) RETURNING *`,
-        [req.user!.tenant_id, ...values]
-      )
+      // Remove id and tenant_id from body if present (will be set by repository)
+      const { id, tenant_id, ...data } = req.body
 
-      res.status(201).json(result.rows[0])
+      const geofence = await repository.create(data, context)
+
+      res.status(201).json(geofence)
     } catch (error) {
-      logger.error(`Create geofences error:`, error) // Wave 18: Winston logger
-      res.status(500).json({ error: `Internal server error` })
+      logger.error('Create geofence error:', error)
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )
 
 // PUT /geofences/:id
 router.put(
-  `/:id`,
-  csrfProtection, requirePermission('geofence:update:fleet'),
+  '/:id',
+  csrfProtection,
+  requirePermission('geofence:update:fleet'),
   auditLog({ action: 'UPDATE', resourceType: 'geofences' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const data = req.body
-      const { fields, values } = buildUpdateClause(data, 3)
+      const repository = container.get<GeofenceRepository>(TYPES.GeofenceRepository)
 
-      const result = await pool.query(
-        `UPDATE geofences SET ${fields}, updated_at = NOW() WHERE id = $1 AND tenant_id = $2 RETURNING *`,
-        [req.params.id, req.user!.tenant_id, ...values]
-      )
-
-      if (result.rows.length === 0) {
-        return res.status(404).json({ error: `Geofences not found` })
+      const context = {
+        userId: req.user!.id.toString(),
+        tenantId: req.user!.tenant_id.toString()
       }
 
-      res.json(result.rows[0])
+      // Remove id and tenant_id from body if present
+      const { id, tenant_id, ...data } = req.body
+
+      const geofence = await repository.update(Number(req.params.id), data, context)
+
+      res.json(geofence)
     } catch (error) {
-      logger.error(`Update geofences error:`, error) // Wave 18: Winston logger
-      res.status(500).json({ error: `Internal server error` })
+      if (error instanceof NotFoundError) {
+        return res.status(404).json({ error: 'Geofence not found' })
+      }
+      logger.error('Update geofence error:', error)
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )
@@ -151,22 +133,26 @@ router.put(
 // DELETE /geofences/:id
 router.delete(
   '/:id',
- csrfProtection, requirePermission('geofence:delete:fleet'),
+  csrfProtection,
+  requirePermission('geofence:delete:fleet'),
   auditLog({ action: 'DELETE', resourceType: 'geofences' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const result = await pool.query(
-        'DELETE FROM geofences WHERE id = $1 AND tenant_id = $2 RETURNING id',
-        [req.params.id, req.user!.tenant_id]
-      )
+      const repository = container.get<GeofenceRepository>(TYPES.GeofenceRepository)
 
-      if (result.rows.length === 0) {
-        throw new NotFoundError("Geofences not found")
+      const context = {
+        userId: req.user!.id.toString(),
+        tenantId: req.user!.tenant_id.toString()
       }
 
-      res.json({ message: 'Geofences deleted successfully' })
+      await repository.delete(Number(req.params.id), context)
+
+      res.json({ message: 'Geofence deleted successfully' })
     } catch (error) {
-      logger.error('Delete geofences error:', error) // Wave 18: Winston logger
+      if (error instanceof NotFoundError) {
+        return res.status(404).json({ error: 'Geofence not found' })
+      }
+      logger.error('Delete geofence error:', error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }

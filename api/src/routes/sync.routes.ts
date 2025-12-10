@@ -1,8 +1,4 @@
 /**
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
-import logger from '../config/logger'; // Wave 26: Add Winston logger
  * Fleet Management - Message Sync Routes
  *
  * Endpoints:
@@ -20,14 +16,22 @@ import logger from '../config/logger'; // Wave 26: Add Winston logger
 
 import { Router, Request, Response } from 'express'
 
+import { container } from '../container'
+import { asyncHandler } from '../middleware/errorHandler'
+import { NotFoundError, ValidationError } from '../errors/app-error'
+import logger from '../config/logger' // Wave 26: Add Winston logger
 import outlookSync from '../jobs/outlook-sync.job'
 import teamsSync from '../jobs/teams-sync.job'
 import { csrfProtection } from '../middleware/csrf'
 import syncService from '../services/sync.service'
 import { getErrorMessage } from '../utils/error-handler'
-
+import { SyncRepository } from '../repositories/SyncRepository'
+import { TYPES } from '../types'
 
 const router = Router()
+
+// Get repository from DI container
+const syncRepository = container.get<SyncRepository>(TYPES.SyncRepository)
 
 /**
  * @openapi
@@ -195,7 +199,7 @@ router.post('/full',csrfProtection, async (req: Request, res: Response) => {
     console.log(`Full re-sync requested by ${(req as any).user?.email}`)
 
     // Clear all delta tokens
-    await pool.query(`UPDATE sync_state SET delta_token = NULL`)
+    await syncRepository.clearAllDeltaTokens()
 
     // Trigger both sync jobs
     const teamsResult = await syncService.syncAllTeamsChannels()
@@ -289,20 +293,12 @@ router.get('/jobs', async (req: Request, res: Response) => {
   try {
     const limit = parseInt(req.query.limit as string) || 50
 
-    const result = await pool.query(`
-      SELECT
-        id, tenant_id, entity_type, sync_direction, status,
-        total_records, processed_records, failed_records, error_message,
-        started_at, completed_at, created_at
-      FROM sync_jobs
-      ORDER BY started_at DESC
-      LIMIT $1
-    `, [limit])
+    const jobs = await syncRepository.getRecentJobs(limit)
 
     res.json({
       success: true,
-      jobs: result.rows,
-      totalJobs: result.rows.length
+      jobs: jobs,
+      totalJobs: jobs.length
     })
   } catch (error: any) {
     logger.error('Error getting sync jobs:', error) // Wave 26: Winston logger
@@ -415,10 +411,7 @@ router.delete('/errors/:id',csrfProtection, async (req: Request, res: Response) 
   try {
     const { id } = req.params
 
-    await pool.query(
-      `UPDATE sync_errors SET resolved = true WHERE id = $1`,
-      [id]
-    )
+    await syncRepository.resolveError(id)
 
     res.json({
       success: true,
@@ -454,39 +447,13 @@ router.get('/health', async (req: Request, res: Response) => {
     const webhooksHealthy = await syncService.areWebhooksHealthy()
 
     // Get recent job stats
-    const jobStats = await pool.query(`
-      SELECT
-        job_type,
-        COUNT(*) as total_runs,
-        COUNT(*) FILTER (WHERE status = 'completed') as successful_runs,
-        COUNT(*) FILTER (WHERE status = 'failed') as failed_runs,
-        AVG(duration_ms) as avg_duration_ms,
-        MAX(started_at) as last_run_at
-      FROM sync_jobs
-      WHERE started_at > NOW() - INTERVAL '24 hours'
-      GROUP BY job_type
-    `)
+    const jobStats = await syncRepository.getJobStats()
 
     // Get error stats
-    const errorStats = await pool.query(`
-      SELECT
-        COUNT(*) as total_errors,
-        COUNT(*) FILTER (WHERE resolved = false) as unresolved_errors
-      FROM sync_errors
-      WHERE created_at > NOW() - INTERVAL '24 hours'
-    `)
+    const errorStats = await syncRepository.getErrorStats()
 
     // Get sync state stats
-    const syncStateStats = await pool.query(`
-      SELECT
-        resource_type,
-        COUNT(*) as total_resources,
-        COUNT(*) FILTER (WHERE sync_status = 'success') as successful_syncs,
-        COUNT(*) FILTER (WHERE sync_status = 'failed') as failed_syncs,
-        MAX(last_sync_at) as last_sync_at
-      FROM sync_state
-      GROUP BY resource_type
-    `)
+    const syncStateStats = await syncRepository.getSyncStateStats()
 
     const teamsStatus = teamsSync.getStatus()
     const outlookStatus = outlookSync.getStatus()
@@ -501,13 +468,13 @@ router.get('/health', async (req: Request, res: Response) => {
         jobs: {
           teams: teamsStatus,
           outlook: outlookStatus,
-          stats: jobStats.rows
+          stats: jobStats
         },
         errors: {
-          total: parseInt(errorStats.rows[0]?.total_errors) || 0,
-          unresolved: parseInt(errorStats.rows[0]?.unresolved_errors) || 0
+          total: parseInt(errorStats.total_errors?.toString() || '0') || 0,
+          unresolved: parseInt(errorStats.unresolved_errors?.toString() || '0') || 0
         },
-        syncState: syncStateStats.rows
+        syncState: syncStateStats
       }
     })
   } catch (error: any) {
