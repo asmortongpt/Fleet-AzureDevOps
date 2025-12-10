@@ -441,7 +441,7 @@ export function PolicyEngineWorkbench() {
               >
                 Cancel
               </Button>
-              <Button onClick={handleSavePolicy}>
+              <Button onClick={handleSavePolicy} aria-label="Save changes">
                 {selectedPolicy ? "Update" : "Create"} Policy
               </Button>
             </DialogFooter>
