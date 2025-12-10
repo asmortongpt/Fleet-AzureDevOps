@@ -337,7 +337,7 @@ export function VideoTelematics() {
           </p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={() => setIsPrivacySettingsDialogOpen(true)}>
+          <Button variant="outline" onClick={() => setIsPrivacySettingsDialogOpen(true)} aria-label="Open dialog">
             <ShieldCheck className="w-4 h-4 mr-2" />
             Privacy Settings
           </Button>
@@ -628,7 +628,7 @@ export function VideoTelematics() {
             </div>
           )}
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsViewDialogOpen(false)}>
+            <Button variant="outline" onClick={() => setIsViewDialogOpen(false)} aria-label="Cancel">
               Close
             </Button>
             <Button>
@@ -860,10 +860,10 @@ export function VideoTelematics() {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsPrivacySettingsDialogOpen(false)}>
+            <Button variant="outline" onClick={() => setIsPrivacySettingsDialogOpen(false)} aria-label="Cancel">
               Cancel
             </Button>
-            <Button onClick={handleSavePrivacySettings}>
+            <Button onClick={handleSavePrivacySettings} aria-label="Save changes">
               <Lock className="w-4 h-4 mr-2" />
               Save Settings
             </Button>

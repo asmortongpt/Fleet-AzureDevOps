@@ -455,7 +455,7 @@ export function MaintenanceScheduling() {
             </div>
           )}
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsDetailsDialogOpen(false)}>
+            <Button variant="outline" onClick={() => setIsDetailsDialogOpen(false)} aria-label="Cancel">
               Close
             </Button>
             {selectedSchedule && selectedSchedule.status !== "completed" && (
@@ -558,10 +558,10 @@ export function MaintenanceScheduling() {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsScheduleDialogOpen(false)}>
+            <Button variant="outline" onClick={() => setIsScheduleDialogOpen(false)} aria-label="Cancel">
               Cancel
             </Button>
-            <Button onClick={handleSaveSchedule}>
+            <Button onClick={handleSaveSchedule} aria-label="Save changes">
               Schedule Service
             </Button>
           </DialogFooter>

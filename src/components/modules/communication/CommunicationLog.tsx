@@ -321,7 +321,7 @@ export function CommunicationLog() {
               <Button variant="outline" onClick={() => { setIsAddDialogOpen(false); resetForm(); }}>
                 Cancel
               </Button>
-              <Button onClick={handleSaveLog}>
+              <Button onClick={handleSaveLog} aria-label="Save changes">
                 Save Log
               </Button>
             </DialogFooter>

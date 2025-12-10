@@ -384,10 +384,10 @@ export function TaskManagement() {
               </div>
             </div>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
+              <Button variant="outline" onClick={() => setIsAddDialogOpen(false)} aria-label="Cancel">
                 Cancel
               </Button>
-              <Button onClick={handleAddTask}>Create Task</Button>
+              <Button onClick={handleAddTask} aria-label="Create item">Create Task</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
@@ -759,7 +759,7 @@ export function TaskManagement() {
                     placeholder="Type your comment..."
                     rows={3}
                   />
-                  <Button onClick={handleAddComment}>
+                  <Button onClick={handleAddComment} aria-label="Create item">
                     <ChatCircle className="w-4 h-4 mr-2" />
                     Post Comment
                   </Button>
@@ -768,7 +768,7 @@ export function TaskManagement() {
             </Tabs>
           )}
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsDetailsDialogOpen(false)}>
+            <Button variant="outline" onClick={() => setIsDetailsDialogOpen(false)} aria-label="Cancel">
               Close
             </Button>
           </DialogFooter>
