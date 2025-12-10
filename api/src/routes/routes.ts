@@ -11,10 +11,12 @@ import { buildInsertClause, buildUpdateClause } from '../utils/sql-safety'
 import { TenantValidator } from '../utils/tenant-validator'
 import { csrfProtection } from '../middleware/csrf'
 import { connectionManager } from '../config/connection-manager'
+import { container } from '../container'
+import { TYPES } from '../types'
 
 const router = express.Router()
-const routeRepo = new RouteRepository()
-const driverRepo = new DriverRepository()
+const routeRepo = container.get<RouteRepository>(TYPES.RouteRepository)
+const driverRepo = container.get<DriverRepository>(TYPES.DriverRepository)
 const pool = connectionManager.getWritePool()
 const validator = new TenantValidator(pool)
 
