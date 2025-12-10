@@ -437,7 +437,7 @@ export function Notifications() {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setResolveDialogOpen(false)}>
+            <Button variant="outline" onClick={() => setResolveDialogOpen(false)} aria-label="Cancel">
               Cancel
             </Button>
             <Button onClick={resolveAlert}>

@@ -217,7 +217,7 @@ export function CustomFormBuilder() {
                 <Button variant="outline" onClick={() => { setEditingForm(null); setIsCreating(false); }}>
                   Cancel
                 </Button>
-                <Button onClick={handleSaveForm}>
+                <Button onClick={handleSaveForm} aria-label="Save changes">
                   <Save className="mr-2 h-4 w-4" />
                   Save Form
                 </Button>

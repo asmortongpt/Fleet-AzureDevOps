@@ -419,17 +419,17 @@ export function InventoryManagement() {
           </p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={() => setIsBarcodeDialogOpen(true)}>
+          <Button variant="outline" onClick={() => setIsBarcodeDialogOpen(true)} aria-label="Open barcode scanner">
             <Barcode className="w-4 h-4 mr-2" />
             Scan Barcode
           </Button>
-          <Button variant="outline" onClick={handleExport}>
+          <Button variant="outline" onClick={handleExport} aria-label="Export data">
             <DownloadSimple className="w-4 h-4 mr-2" />
             Export
           </Button>
           <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
             <DialogTrigger asChild>
-              <Button>
+              <Button aria-label="Add new part to inventory">
                 <Plus className="w-4 h-4 mr-2" />
                 Add Part
               </Button>
@@ -577,10 +577,10 @@ export function InventoryManagement() {
                 </div>
               </div>
               <DialogFooter>
-                <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
+                <Button variant="outline" onClick={() => setIsAddDialogOpen(false)} aria-label="Cancel">
                   Cancel
                 </Button>
-                <Button onClick={handleAddPart}>Add Part</Button>
+                <Button onClick={handleAddPart} aria-label="Save new part">Add Part</Button>
               </DialogFooter>
             </DialogContent>
           </Dialog>
@@ -738,6 +738,7 @@ export function InventoryManagement() {
             sortOrder: filters.sortOrder === "asc" ? "desc" : "asc"
           })}
           title={`Sort ${filters.sortOrder === "asc" ? "Descending" : "Ascending"}`}
+          aria-label={`Sort ${filters.sortOrder === "asc" ? "descending" : "ascending"}`}
         >
           <ArrowsClockwise className={`w-4 h-4 transition-transform ${filters.sortOrder === "desc" ? "rotate-180" : ""}`} />
         </Button>
@@ -817,7 +818,7 @@ export function InventoryManagement() {
                         <TableCell className="text-right">
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="sm">
+                              <Button variant="ghost" size="sm" aria-label="Open part actions menu">
                                 <DotsThreeVertical className="w-4 h-4" />
                               </Button>
                             </DropdownMenuTrigger>
@@ -889,10 +890,10 @@ export function InventoryManagement() {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsBarcodeDialogOpen(false)}>
+            <Button variant="outline" onClick={() => setIsBarcodeDialogOpen(false)} aria-label="Cancel">
               Cancel
             </Button>
-            <Button onClick={handleBarcodeScanner}>Lookup</Button>
+            <Button onClick={handleBarcodeScanner} aria-label="Lookup barcode">Lookup</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -1028,10 +1029,10 @@ export function InventoryManagement() {
               </div>
             </div>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
+              <Button variant="outline" onClick={() => setIsEditDialogOpen(false)} aria-label="Cancel">
                 Cancel
               </Button>
-              <Button onClick={handleUpdatePart}>Save Changes</Button>
+              <Button onClick={handleUpdatePart} aria-label="Save part changes">Save Changes</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
@@ -1122,10 +1123,10 @@ export function InventoryManagement() {
               </div>
             </div>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setIsTransactionDialogOpen(false)}>
+              <Button variant="outline" onClick={() => setIsTransactionDialogOpen(false)} aria-label="Cancel">
                 Cancel
               </Button>
-              <Button onClick={handleCreateTransaction}>Record Transaction</Button>
+              <Button onClick={handleCreateTransaction} aria-label="Record inventory transaction">Record Transaction</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>

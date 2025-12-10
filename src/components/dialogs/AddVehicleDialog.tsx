@@ -713,7 +713,7 @@ export function AddVehicleDialog({ onAdd }: AddVehicleDialogProps) {
           <Button variant="outline" onClick={() => setOpen(false)}>
             Cancel
           </Button>
-          <Button onClick={handleSubmit}>
+          <Button onClick={handleSubmit} aria-label="Submit form">
             Add Vehicle
           </Button>
         </div>
