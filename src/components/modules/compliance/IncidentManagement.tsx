@@ -531,10 +531,10 @@ export function IncidentManagement() {
               </div>
             </div>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
+              <Button variant="outline" onClick={() => setIsAddDialogOpen(false)} aria-label="Cancel">
                 Cancel
               </Button>
-              <Button onClick={handleAddIncident}>Report Incident</Button>
+              <Button onClick={handleAddIncident} aria-label="Create item">Report Incident</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
@@ -909,7 +909,7 @@ export function IncidentManagement() {
                       placeholder="Due date"
                     />
                   </div>
-                  <Button onClick={handleAddAction}>Add Action</Button>
+                  <Button onClick={handleAddAction} aria-label="Create item">Add Action</Button>
                 </div>
               </TabsContent>
 
@@ -947,7 +947,7 @@ export function IncidentManagement() {
             </Tabs>
           )}
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsDetailsDialogOpen(false)}>
+            <Button variant="outline" onClick={() => setIsDetailsDialogOpen(false)} aria-label="Cancel">
               Close
             </Button>
           </DialogFooter>
@@ -996,7 +996,7 @@ export function IncidentManagement() {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsCloseDialogOpen(false)}>
+            <Button variant="outline" onClick={() => setIsCloseDialogOpen(false)} aria-label="Cancel">
               Cancel
             </Button>
             <Button onClick={handleCloseIncident}>Close Incident</Button>

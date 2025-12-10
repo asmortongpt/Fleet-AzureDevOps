@@ -512,7 +512,7 @@ export function OSHAForms() {
               >
                 Cancel
               </Button>
-              <Button onClick={handleSaveForm}>
+              <Button onClick={handleSaveForm} aria-label="Save changes">
                 {selectedForm ? "Update" : "Create"} Form
               </Button>
             </DialogFooter>
