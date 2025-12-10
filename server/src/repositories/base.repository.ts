@@ -1,5 +1,3 @@
-server/src/repositories/base.repository.ts
-```typescript
 import { Pool, QueryResult } from 'pg';
 
 interface BaseEntity {
@@ -69,66 +67,3 @@ export abstract class BaseRepository<T extends BaseEntity> {
     return result.rows;
   }
 }
-```
-
-server/src/repositories/vehicle.repository.ts
-```typescript
-import { Pool } from 'pg';
-import { BaseRepository } from './base.repository';
-
-interface Vehicle {
-  id: number;
-  tenant_id: number;
-  vin: string;
-  make: string;
-  model: string;
-  year: number;
-  created_at?: Date;
-  updated_at?: Date;
-  deleted_at?: Date | null;
-}
-
-export class VehicleRepository extends BaseRepository<Vehicle> {
-  constructor(db: Pool) {
-    super('vehicles', db);
-  }
-
-  async findByVin(vin: string, tenantId: number): Promise<Vehicle | null> {
-    const result = await this.query<Vehicle>(
-      'SELECT * FROM vehicles WHERE vin = $1 AND tenant_id = $2 AND deleted_at IS NULL',
-      [vin, tenantId]
-    );
-    return result.rows[0] || null;
-  }
-}
-```
-
-server/src/repositories/driver.repository.ts
-```typescript
-import { Pool } from 'pg';
-import { BaseRepository } from './base.repository';
-
-interface Driver {
-  id: number;
-  tenant_id: number;
-  name: string;
-  license_number: string;
-  created_at?: Date;
-  updated_at?: Date;
-  deleted_at?: Date | null;
-}
-
-export class DriverRepository extends BaseRepository<Driver> {
-  constructor(db: Pool) {
-    super('drivers', db);
-  }
-
-  async findByLicenseNumber(licenseNumber: string, tenantId: number): Promise<Driver | null> {
-    const result = await this.query<Driver>(
-      'SELECT * FROM drivers WHERE license_number = $1 AND tenant_id = $2 AND deleted_at IS NULL',
-      [licenseNumber, tenantId]
-    );
-    return result.rows[0] || null;
-  }
-}
-```
