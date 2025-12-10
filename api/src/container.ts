@@ -32,6 +32,30 @@ import { QueueService } from "./services/queue.service";
 import { CameraSyncService } from "./services/camera-sync";
 import { EmailNotificationService } from "./services/email-notifications";
 
+// Services - Business Logic (Batch 2)
+import SyncService from "./services/sync.service";
+import TeamsService from "./services/teams.service";
+import { OutlookService } from "./services/outlook.service";
+import { ExcelExportService } from "./services/excel-export.service";
+import AIDispatchService from "./services/ai-dispatch";
+import WebRTCService from "./services/webrtc.service";
+import { DocumentRAGService } from "./services/document-rag.service";
+import { DocumentManagementService } from "./services/document-management.service";
+import { DocumentSearchService } from "./services/document-search.service";
+import { VectorSearchService } from "./services/VectorSearchService";
+import { EmbeddingService } from "./services/EmbeddingService";
+import { SearchIndexService } from "./services/SearchIndexService";
+import { DocumentAuditService } from "./services/document-audit.service";
+import { DocumentVersionService } from "./services/document-version.service";
+import { DocumentStorageService } from "./services/document-storage.service";
+import { RouteOptimizationService } from "./services/route-optimization.service";
+import { DriverScorecardService } from "./services/driver-scorecard.service";
+import { VehicleIdentificationService } from "./services/vehicle-identification.service";
+import { FuelPurchasingService } from "./services/fuel-purchasing.service";
+import { CostAnalysisService } from "./services/cost-analysis.service";
+import { FleetOptimizerService } from "./services/fleet-optimizer.service";
+import { ExecutiveDashboardService } from "./services/executive-dashboard.service";
+
 // Repositories - Module Pattern
 import { DriverRepository } from "./modules/drivers/repositories/driver.repository";
 import { FacilityRepository } from "./modules/facilities/repositories/facility.repository";
@@ -74,6 +98,7 @@ import { TaskRepository } from "./repositories/TaskRepository";
 import { VendorRepository } from "./repositories/VendorRepository";
 
 import { TYPES } from "./types";
+import { pool } from "./config/db-pool";
 
 const container = new Container();
 
@@ -178,5 +203,38 @@ container.bind(TYPES.CustomFieldsService).to(CustomFieldsService).inSingletonSco
 container.bind(TYPES.QueueService).to(QueueService).inSingletonScope();
 container.bind(TYPES.CameraSyncService).to(CameraSyncService).inSingletonScope();
 container.bind(TYPES.EmailNotificationService).to(EmailNotificationService).inSingletonScope();
+
+// Business Logic Services (Batch 2)
+// Note: SyncService, TeamsService, AIDispatchService, and WebRTCService export singleton instances
+container.bind(TYPES.SyncService).toConstantValue(SyncService).inSingletonScope();
+container.bind(TYPES.TeamsService).toConstantValue(TeamsService).inSingletonScope();
+container.bind(TYPES.AIDispatchService).toConstantValue(AIDispatchService).inSingletonScope();
+container.bind(TYPES.WebRTCService).toConstantValue(WebRTCService).inSingletonScope();
+
+// Document Management Services
+container.bind(TYPES.DocumentRAGService).to(DocumentRAGService).inSingletonScope();
+container.bind(TYPES.DocumentManagementService).to(DocumentManagementService).inSingletonScope();
+container.bind(TYPES.DocumentSearchService).to(DocumentSearchService).inSingletonScope();
+container.bind(TYPES.DocumentAuditService).to(DocumentAuditService).inSingletonScope();
+container.bind(TYPES.DocumentVersionService).to(DocumentVersionService).inSingletonScope();
+container.bind(TYPES.DocumentStorageService).to(DocumentStorageService).inSingletonScope();
+
+// Search & Vector Services
+container.bind(TYPES.VectorSearchService).to(VectorSearchService).inSingletonScope();
+container.bind(TYPES.EmbeddingService).to(EmbeddingService).inSingletonScope();
+container.bind(TYPES.SearchIndexService).to(SearchIndexService).inSingletonScope();
+
+// Outlook & Excel Services
+container.bind(TYPES.OutlookService).toDynamicValue(() => new OutlookService(pool)).inSingletonScope();
+container.bind(TYPES.ExcelExportService).to(ExcelExportService).inSingletonScope();
+
+// Fleet Optimization & Scoring Services
+container.bind(TYPES.RouteOptimizationService).to(RouteOptimizationService).inSingletonScope();
+container.bind(TYPES.DriverScorecardService).to(DriverScorecardService).inSingletonScope();
+container.bind(TYPES.VehicleIdentificationService).to(VehicleIdentificationService).inSingletonScope();
+container.bind(TYPES.FuelPurchasingService).to(FuelPurchasingService).inSingletonScope();
+container.bind(TYPES.CostAnalysisService).to(CostAnalysisService).inSingletonScope();
+container.bind(TYPES.FleetOptimizerService).to(FleetOptimizerService).inSingletonScope();
+container.bind(TYPES.ExecutiveDashboardService).to(ExecutiveDashboardService).inSingletonScope();
 
 export { container };
