@@ -23,7 +23,7 @@
 
 import { Pool, PoolClient } from 'pg'
 
-import { NotFoundError, DatabaseError } from '../../middleware/errorHandler'
+import { NotFoundError, DatabaseError } from '../../errors/AppError'
 import { isValidIdentifier } from '../../utils/sql-safety'
 
 import { IRepository } from './IRepository'
