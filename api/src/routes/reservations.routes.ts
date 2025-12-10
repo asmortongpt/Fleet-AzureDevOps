@@ -45,14 +45,8 @@ export function setDatabasePool(dbPool: Pool) {
   pool = dbPool;
   microsoftService = new MicrosoftIntegrationService(dbPool);
 
-  // Initialize repository
-  try {
-    reservationRepo = container.get<ReservationRepository>(TYPES.ReservationRepository);
-  } catch (error) {
-    // Fallback: create repository manually if not in container
-    logger.warn('ReservationRepository not found in DI container, creating manually');
-    reservationRepo = new ReservationRepository();
-  }
+  // Initialize repository from DI container
+  reservationRepo = container.get<ReservationRepository>(TYPES.ReservationRepository);
 }
 
 // ============================================

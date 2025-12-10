@@ -17,12 +17,14 @@ import { requirePermission, rateLimit } from '../middleware/permissions'
 import { TelematicsRepository } from '../repositories/TelematicsRepository'
 import SamsaraService from '../services/samsara.service'
 import { getErrorMessage } from '../utils/error-handler'
+import { container } from '../container'
+import { TYPES } from '../types'
 
 const router = express.Router()
 router.use(authenticateJWT)
 
 // Initialize TelematicsRepository
-const telematicsRepo = new TelematicsRepository(pool)
+const telematicsRepo = container.get<TelematicsRepository>(TYPES.TelematicsRepository)
 
 // Initialize Samsara service
 let samsaraService: SamsaraService | null = null
