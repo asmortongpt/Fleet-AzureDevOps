@@ -8,7 +8,6 @@ import { auditLog } from '../middleware/audit'
 import { AuthRequest, authenticateJWT } from '../middleware/auth'
 import { requirePermission } from '../middleware/permissions'
 import { tenantSafeQuery } from '../utils/dbHelpers'
-import { sendErrorResponse } from '../utils/errorHandler'
 import { applyFieldMasking } from '../utils/fieldMasking'
 
 
