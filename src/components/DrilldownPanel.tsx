@@ -172,7 +172,7 @@ export function DrilldownContent({
           </p>
         </div>
         {onRetry && (
-          <Button onClick={onRetry} variant="outline" size="sm">
+          <Button onClick={onRetry} variant="outline" size="sm" aria-label="Action button">
             Try Again
           </Button>
         )}

@@ -1,5 +1,6 @@
 import { lazy, Suspense } from "react";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 
 // Layout component
 import { MainLayout } from "@/components/layout/MainLayout";
@@ -161,17 +162,21 @@ export const router = createBrowserRouter([
       {
         index: true,
         element: (
-          <Suspense fallback={<LoadingSpinner />}>
-            <FleetDashboardModern />
-          </Suspense>
+          <ErrorBoundary>
+            <Suspense fallback={<LoadingSpinner />}>
+              <FleetDashboardModern />
+            </Suspense>
+          </ErrorBoundary>
         ),
       },
       ...routes.map(route => ({
         path: route.path,
         element: (
-          <Suspense fallback={<LoadingSpinner />}>
-            {route.element}
-          </Suspense>
+          <ErrorBoundary>
+            <Suspense fallback={<LoadingSpinner />}>
+              {route.element}
+            </Suspense>
+          </ErrorBoundary>
         ),
       })),
     ],

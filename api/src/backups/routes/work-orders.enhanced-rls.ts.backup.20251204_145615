@@ -12,8 +12,8 @@ import { NotFoundError, ValidationError } from '../errors/app-error'
  * 5. Relies on Row-Level Security for multi-tenant isolation
  *
  * Migration from old pattern:
- * BEFORE: pool.query('SELECT * FROM work_orders WHERE tenant_id = $1', [tenantId])
- * AFTER:  client.query('SELECT * FROM work_orders') // RLS auto-filters by tenant
+ * BEFORE: pool.query('SELECT id, tenant_id, work_order_number, vehicle_id, schedule_id, title, description, work_type, priority, status, scheduled_date, scheduled_start_time, scheduled_end_time, actual_start_time, actual_end_time, assigned_vendor_id, assigned_technician, assigned_by, odometer_in, odometer_out, engine_hours_in, engine_hours_out, fuel_level_in, fuel_level_out, services_performed, parts_used, labor_hours, estimated_cost, parts_cost, labor_cost, tax, total_cost, purchase_order_id, invoice_number, invoice_date, payment_status, inspection_results, issues_found, recommendations, photos, documents, requires_approval, approved_by, approved_at, approval_notes, created_by, created_at, updated_at, completed_at, cancelled_at, cancellation_reason FROM work_orders WHERE tenant_id = $1', [tenantId])
+ * AFTER:  client.query('SELECT id, tenant_id, work_order_number, vehicle_id, schedule_id, title, description, work_type, priority, status, scheduled_date, scheduled_start_time, scheduled_end_time, actual_start_time, actual_end_time, assigned_vendor_id, assigned_technician, assigned_by, odometer_in, odometer_out, engine_hours_in, engine_hours_out, fuel_level_in, fuel_level_out, services_performed, parts_used, labor_hours, estimated_cost, parts_cost, labor_cost, tax, total_cost, purchase_order_id, invoice_number, invoice_date, payment_status, inspection_results, issues_found, recommendations, photos, documents, requires_approval, approved_by, approved_at, approval_notes, created_by, created_at, updated_at, completed_at, cancelled_at, cancellation_reason FROM work_orders') // RLS auto-filters by tenant
  *
  * Middleware Stack Order (CRITICAL):
  * 1. authenticateJWT - validates JWT, extracts user & tenant_id

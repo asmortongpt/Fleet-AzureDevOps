@@ -237,7 +237,7 @@ export class EnhancedErrorBoundary extends Component<Props, State> {
                   onClick={this.handleReset}
                   variant="default"
                   className="flex-1"
-                >
+                 aria-label="Action button">
                   <RefreshCw className="w-4 h-4 mr-2" />
                   Try Again
                 </Button>
@@ -245,7 +245,7 @@ export class EnhancedErrorBoundary extends Component<Props, State> {
                   onClick={this.handleReload}
                   variant="outline"
                   className="flex-1"
-                >
+                 aria-label="Action button">
                   <RefreshCw className="w-4 h-4 mr-2" />
                   Reload Page
                 </Button>
@@ -253,7 +253,7 @@ export class EnhancedErrorBoundary extends Component<Props, State> {
                   onClick={this.handleGoHome}
                   variant="outline"
                   className="flex-1"
-                >
+                 aria-label="Action button">
                   <Home className="w-4 h-4 mr-2" />
                   Go Home
                 </Button>
@@ -266,7 +266,7 @@ export class EnhancedErrorBoundary extends Component<Props, State> {
                   variant="ghost"
                   className="w-full"
                   size="sm"
-                >
+                 aria-label="Action button">
                   <Bug className="w-4 h-4 mr-2" />
                   Download Error Log
                 </Button>

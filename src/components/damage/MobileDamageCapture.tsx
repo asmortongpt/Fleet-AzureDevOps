@@ -299,12 +299,12 @@ export function MobileDamageCapture({ onAnalysisComplete }: MobileDamageCaptureP
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex gap-4">
-              <Button onClick={handlePhotoCapture} variant="default" className="flex-1">
+              <Button onClick={handlePhotoCapture} variant="default" className="flex-1" aria-label="Action button">
                 <Camera className="mr-2 h-4 w-4" />
                 Take Photo ({capturedFiles.length})
               </Button>
               <Button
-                onClick={() => fileInputRef.current?.click()}
+                onClick={() => fileInputRef.current?.click()} aria-label="Action button"
                 variant="outline"
                 className="flex-1"
               >
@@ -331,7 +331,7 @@ export function MobileDamageCapture({ onAnalysisComplete }: MobileDamageCaptureP
                 </div>
 
                 <div className="flex gap-2">
-                  <Button onClick={analyzePhotos} variant="default" className="flex-1">
+                  <Button onClick={analyzePhotos} variant="default" className="flex-1" aria-label="Action button">
                     <CheckCircle className="mr-2 h-4 w-4" />
                     Analyze {capturedFiles.length} Photo{capturedFiles.length > 1 ? 's' : ''}
                   </Button>
@@ -339,7 +339,7 @@ export function MobileDamageCapture({ onAnalysisComplete }: MobileDamageCaptureP
                     onClick={() => {
                       setCapturedFiles([]);
                       setCaptureMode(null);
-                    }}
+                    } aria-label="Action button"}
                     variant="outline"
                   >
                     Cancel
@@ -376,12 +376,12 @@ export function MobileDamageCapture({ onAnalysisComplete }: MobileDamageCaptureP
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex gap-4">
-              <Button onClick={handleVideoCapture} variant="default" className="flex-1">
+              <Button onClick={handleVideoCapture} variant="default" className="flex-1" aria-label="Action button">
                 <Video className="mr-2 h-4 w-4" />
                 Record Video
               </Button>
               <Button
-                onClick={() => videoInputRef.current?.click()}
+                onClick={() => videoInputRef.current?.click()} aria-label="Action button"
                 variant="outline"
                 className="flex-1"
               >
@@ -397,7 +397,7 @@ export function MobileDamageCapture({ onAnalysisComplete }: MobileDamageCaptureP
                 </div>
 
                 <div className="flex gap-2">
-                  <Button onClick={analyzeVideo} variant="default" className="flex-1">
+                  <Button onClick={analyzeVideo} variant="default" className="flex-1" aria-label="Action button">
                     <CheckCircle className="mr-2 h-4 w-4" />
                     Analyze Video
                   </Button>
@@ -405,7 +405,7 @@ export function MobileDamageCapture({ onAnalysisComplete }: MobileDamageCaptureP
                     onClick={() => {
                       setCapturedFiles([]);
                       setCaptureMode(null);
-                    }}
+                    } aria-label="Action button"}
                     variant="outline"
                   >
                     Cancel
@@ -456,7 +456,7 @@ export function MobileDamageCapture({ onAnalysisComplete }: MobileDamageCaptureP
                 alert(
                   'LiDAR scanning requires native iOS integration. Install Polycam or 3D Scanner app and import the scan.'
                 );
-              }}
+              } aria-label="Action button"}
             >
               <Scan className="mr-2 h-4 w-4" />
               Launch 3D Scanner

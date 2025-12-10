@@ -38,7 +38,7 @@ export function DrilldownBreadcrumbs() {
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => goToLevel(index)}
+            onClick={() => goToLevel(index)} aria-label="Action button"
             className={cn(
               "h-8 px-3 text-sm font-medium",
               index === levels.length - 1

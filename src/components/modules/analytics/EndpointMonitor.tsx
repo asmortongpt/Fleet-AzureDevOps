@@ -274,7 +274,7 @@ export function EndpointMonitor() {
                 onClick={monitorEndpoints}
                 disabled={isMonitoring}
                 className="h-8 text-xs"
-              >
+               aria-label="Action button">
                 <ArrowsClockwise className={`w-3.5 h-3.5 mr-1.5 ${isMonitoring ? 'animate-spin' : ''}`} />
                 Refresh
               </Button>
