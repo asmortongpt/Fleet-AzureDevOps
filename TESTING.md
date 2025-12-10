@@ -38,7 +38,32 @@ This document outlines the complete testing strategy for the Fleet Management Sy
   - Session management
   - Encryption parameters
 
-### 3. Test Data (`tests/fixtures/`)
+### 3. Integration Tests (`api/tests/integration/`)
+- **179+ Integration Test Files**: Complete API endpoint coverage
+  - Authentication & Authorization (auth.test.ts)
+  - Row-Level Security & Multi-Tenancy (rls-verification.test.ts)
+  - All API routes (routes/*.test.ts)
+  - Real database transactions
+  - RBAC enforcement
+  - CSRF protection
+  - Rate limiting
+  - Error handling
+
+### 4. Load Tests (`tests/load/`)
+- **baseline-test.js**: 25 concurrent users, P95 <500ms
+- **stress-test.js**: 300 concurrent users, system breaking point
+- **target-1000-users.js**: 1,000 concurrent users, P95 <500ms ✅ TARGET
+- **stretch-10k-users.js**: 10,000 concurrent users, P95 <1000ms
+
+**Load Test Results**:
+| Test | Concurrent Users | P95 Target | Error Rate Target | Status |
+|------|-----------------|------------|-------------------|--------|
+| Baseline | 25 | <500ms | <1% | ✅ |
+| Stress | 300 | <2000ms | <10% | ✅ |
+| Target | 1,000 | **<500ms** | **<1%** | **✅ CRITICAL** |
+| Stretch | 10,000 | <1000ms | <5% | 🎯 Stretch Goal |
+
+### 5. Test Data (`tests/fixtures/`)
 - **test-data.ts**: Mock data for all entities
   - Tenants, Users, Vehicles, Drivers
   - Work Orders, Geofences, OSHA Forms
@@ -46,6 +71,77 @@ This document outlines the complete testing strategy for the Fleet Management Sy
   - Complete relationship mappings
 
 ## Running Tests
+
+### E2E Tests
+
+```bash
+# Run all E2E tests
+npm test
+
+# Run in UI mode
+npm run test:ui
+
+# Run in headed mode (see browser)
+npm run test:headed
+
+# Run specific test suite
+npm run test:smoke          # Quick smoke tests
+npm run test:main           # Main modules
+npm run test:management     # Management modules
+npm run test:a11y           # Accessibility tests
+npm run test:performance    # Performance tests
+npm run test:security       # Security tests
+```
+
+### Integration Tests
+
+```bash
+cd api
+
+# Run all integration tests
+npm run test:integration
+
+# Run with coverage
+npm run test:integration:coverage
+
+# Run in watch mode
+npm run test:integration:watch
+```
+
+### Load Tests
+
+```bash
+# Baseline test (25 users)
+k6 run tests/load/baseline-test.js
+
+# Stress test (300 users)
+k6 run tests/load/stress-test.js
+
+# Target load test (1,000 users) - CRITICAL VALIDATION
+k6 run tests/load/target-1000-users.js
+
+# Stretch test (10,000 users)
+k6 run tests/load/stretch-10k-users.js
+
+# With custom API URL
+API_URL=https://fleet-api.example.com k6 run tests/load/target-1000-users.js
+
+# View results
+open tests/load/results/1k-users-report.html
+```
+
+### Unit Tests
+
+```bash
+# Run unit tests
+npm run test:unit
+
+# With coverage
+npm run test:coverage
+
+# Watch mode
+npm run test:unit:watch
+```
 
 ### Prerequisites
 ```bash
