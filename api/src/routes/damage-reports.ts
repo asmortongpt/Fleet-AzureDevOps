@@ -4,17 +4,24 @@ import multer from 'multer'
 import { v4 as uuidv4 } from 'uuid'
 import { z } from 'zod'
 
-import pool from '../config/database'
 import { ValidationError } from '../errors/app-error'
 import { auditLog } from '../middleware/audit'
 import { AuthRequest, authenticateJWT } from '../middleware/auth'
 import { csrfProtection } from '../middleware/csrf'
 import { requirePermission } from '../middleware/permissions'
-import { tenantSafeQuery } from '../utils/dbHelpers'
+import {
+  DamageReportRepository,
+  DamageReportCreateInput,
+  DamageReportUpdateInput
+} from '../repositories/DamageReportRepository'
+import { QueryContext } from '../repositories/BaseRepository'
 
 
 const router = express.Router()
 router.use(authenticateJWT)
+
+// Initialize repository
+const damageReportRepository = new DamageReportRepository()
 
 // Configure multer for media uploads (photos, videos, LiDAR scans)
 const upload = multer({
@@ -76,50 +83,22 @@ router.get(
   async (req: AuthRequest, res: Response) => {
     try {
       const { page = 1, limit = 50, vehicle_id } = req.query
-      const offset = (Number(page) - 1) * Number(limit)
 
-      let query = `SELECT
-      id,
-      tenant_id,
-      vehicle_id,
-      reporter_id,
-      incident_date,
-      description,
-      severity,
-      location,
-      photos,
-      estimated_cost,
-      status,
-      notes,
-      created_at,
-      updated_at FROM damage_reports WHERE tenant_id = $1`
-      const params: any[] = [req.user!.tenant_id]
-
-      if (vehicle_id) {
-        query += ` AND vehicle_id = $2`
-        params.push(vehicle_id)
+      const context: QueryContext = {
+        userId: req.user!.id,
+        tenantId: req.user!.tenant_id
       }
 
-      query += ' ORDER BY created_at DESC LIMIT $' + (params.length + 1) + ' OFFSET $' + (params.length + 2)
-      params.push(limit, offset)
-
-      const result = await tenantSafeQuery(query, params, req.user!.tenant_id)
-
-      const countQuery = vehicle_id
-        ? `SELECT COUNT(*) FROM damage_reports WHERE tenant_id = $1 AND vehicle_id = $2`
-        : `SELECT COUNT(*) FROM damage_reports WHERE tenant_id = $1`
-      const countParams = vehicle_id ? [req.user!.tenant_id, vehicle_id] : [req.user!.tenant_id]
-      const countResult = await tenantSafeQuery(countQuery, countParams, req.user!.tenant_id)
-
-      res.json({
-        data: result.rows,
-        pagination: {
+      const result = await damageReportRepository.findAllWithPagination(
+        context,
+        {
           page: Number(page),
           limit: Number(limit),
-          total: parseInt(countResult.rows[0].count),
-          pages: Math.ceil(countResult.rows[0].count / Number(limit))
+          vehicle_id: vehicle_id as string | undefined
         }
-      })
+      )
+
+      res.json(result)
     } catch (error) {
       console.error(`Get damage reports error:`, error)
       res.status(500).json({ error: 'Internal server error' })
@@ -134,30 +113,21 @@ router.get(
   auditLog({ action: 'READ', resourceType: 'damage_reports' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const result = await pool.query(
-        `SELECT
-      id,
-      tenant_id,
-      vehicle_id,
-      reporter_id,
-      incident_date,
-      description,
-      severity,
-      location,
-      photos,
-      estimated_cost,
-      status,
-      notes,
-      created_at,
-      updated_at FROM damage_reports WHERE id = $1 AND tenant_id = $2`,
-        [req.params.id, req.user!.tenant_id]
+      const context: QueryContext = {
+        userId: req.user!.id,
+        tenantId: req.user!.tenant_id
+      }
+
+      const damageReport = await damageReportRepository.findByIdMapped(
+        req.params.id,
+        context
       )
 
-      if (result.rows.length === 0) {
+      if (!damageReport) {
         return res.status(404).json({ error: `Damage report not found` })
       }
 
-      res.json(result.rows[0])
+      res.json(damageReport)
     } catch (error) {
       console.error('Get damage report error:', error)
       res.status(500).json({ error: 'Internal server error' })
@@ -174,32 +144,33 @@ router.post(
     try {
       const validatedData = damageReportSchema.parse(req.body)
 
-      const result = await pool.query(
-        `INSERT INTO damage_reports (
-          tenant_id, vehicle_id, reported_by, damage_description,
-          damage_severity, damage_location, photos, videos, lidar_scans,
-          triposr_task_id, triposr_status, triposr_model_url,
-          linked_work_order_id, inspection_id
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14) RETURNING *`,
-        [
-          req.user!.tenant_id,
-          validatedData.vehicle_id,
-          validatedData.reported_by || req.user!.id,
-          validatedData.damage_description,
-          validatedData.damage_severity,
-          validatedData.damage_location || null,
-          validatedData.photos || [],
-          validatedData.videos || [], // NEW: videos array
-          validatedData.lidar_scans || [], // NEW: LiDAR scans array
-          validatedData.triposr_task_id || null,
-          validatedData.triposr_status || 'pending',
-          validatedData.triposr_model_url || null,
-          validatedData.linked_work_order_id || null,
-          validatedData.inspection_id || null
-        ]
+      const context: QueryContext = {
+        userId: req.user!.id,
+        tenantId: req.user!.tenant_id
+      }
+
+      const createInput: DamageReportCreateInput = {
+        vehicle_id: validatedData.vehicle_id,
+        reported_by: validatedData.reported_by,
+        damage_description: validatedData.damage_description,
+        damage_severity: validatedData.damage_severity,
+        damage_location: validatedData.damage_location,
+        photos: validatedData.photos,
+        videos: validatedData.videos,
+        lidar_scans: validatedData.lidar_scans,
+        triposr_task_id: validatedData.triposr_task_id,
+        triposr_status: validatedData.triposr_status,
+        triposr_model_url: validatedData.triposr_model_url,
+        linked_work_order_id: validatedData.linked_work_order_id,
+        inspection_id: validatedData.inspection_id
+      }
+
+      const result = await damageReportRepository.createDamageReport(
+        createInput,
+        context
       )
 
-      res.status(201).json(result.rows[0])
+      res.status(201).json(result)
     } catch (error) {
       if (error instanceof z.ZodError) {
         return res.status(400).json({ error: `Validation error`, details: error.issues })
@@ -219,31 +190,36 @@ router.put(
     try {
       const validatedData = damageReportSchema.partial().parse(req.body)
 
-      const fields: string[] = []
-      const values: any[] = []
-      let paramIndex = 3
-
-      Object.entries(validatedData).forEach(([key, value]) => {
-        fields.push(`${key} = $${paramIndex}`)
-        values.push(value)
-        paramIndex++
-      })
-
-      if (fields.length === 0) {
-        return res.status(400).json({ error: `No fields to update` })
+      const context: QueryContext = {
+        userId: req.user!.id,
+        tenantId: req.user!.tenant_id
       }
 
-      const result = await pool.query(
-        `UPDATE damage_reports SET ${fields.join(`, `)}, updated_at = NOW()
-         WHERE id = $1 AND tenant_id = $2 RETURNING *`,
-        [req.params.id, req.user!.tenant_id, ...values]
+      const updateInput: DamageReportUpdateInput = {
+        damage_description: validatedData.damage_description,
+        damage_severity: validatedData.damage_severity,
+        damage_location: validatedData.damage_location,
+        photos: validatedData.photos,
+        videos: validatedData.videos,
+        lidar_scans: validatedData.lidar_scans,
+        triposr_task_id: validatedData.triposr_task_id,
+        triposr_status: validatedData.triposr_status,
+        triposr_model_url: validatedData.triposr_model_url,
+        linked_work_order_id: validatedData.linked_work_order_id,
+        inspection_id: validatedData.inspection_id
+      }
+
+      const result = await damageReportRepository.updateDamageReport(
+        req.params.id,
+        updateInput,
+        context
       )
 
-      if (result.rows.length === 0) {
+      if (!result) {
         return res.status(404).json({ error: `Damage report not found` })
       }
 
-      res.json(result.rows[0])
+      res.json(result)
     } catch (error) {
       if (error instanceof z.ZodError) {
         return res.status(400).json({ error: `Validation error`, details: error.issues })
@@ -268,18 +244,23 @@ router.patch(
         throw new ValidationError("triposr_status is required")
       }
 
-      const result = await pool.query(
-        `UPDATE damage_reports
-         SET triposr_status = $1, triposr_model_url = $2, updated_at = NOW()
-         WHERE id = $3 AND tenant_id = $4 RETURNING *`,
-        [triposr_status, triposr_model_url || null, req.params.id, req.user!.tenant_id]
+      const context: QueryContext = {
+        userId: req.user!.id,
+        tenantId: req.user!.tenant_id
+      }
+
+      const result = await damageReportRepository.updateTripoSRStatus(
+        req.params.id,
+        triposr_status,
+        triposr_model_url || null,
+        context
       )
 
-      if (result.rows.length === 0) {
+      if (!result) {
         return res.status(404).json({ error: `Damage report not found` })
       }
 
-      res.json(result.rows[0])
+      res.json(result)
     } catch (error) {
       console.error(`Update TripoSR status error:`, error)
       res.status(500).json({ error: 'Internal server error' })
@@ -294,12 +275,17 @@ router.delete(
   auditLog({ action: 'DELETE', resourceType: 'damage_reports' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const result = await pool.query(
-        `DELETE FROM damage_reports WHERE id = $1 AND tenant_id = $2 RETURNING id`,
-        [req.params.id, req.user!.tenant_id]
+      const context: QueryContext = {
+        userId: req.user!.id,
+        tenantId: req.user!.tenant_id
+      }
+
+      const deleted = await damageReportRepository.deleteDamageReport(
+        req.params.id,
+        context
       )
 
-      if (result.rows.length === 0) {
+      if (!deleted) {
         return res.status(404).json({ error: `Damage report not found` })
       }
 
