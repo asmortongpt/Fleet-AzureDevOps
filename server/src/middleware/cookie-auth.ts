@@ -1,5 +1,3 @@
-server/src/middleware/cookie-auth.ts
-```typescript
 import { Request, Response, NextFunction } from 'express';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
@@ -85,66 +83,3 @@ export const clearAuthCookies = (req: Request, res: Response) => {
     res.status(500).send('Internal Server Error');
   }
 };
-```
-
-src/hooks/use-auth.ts
-```typescript
-import { useState, useEffect } from 'react';
-import { useHistory } from 'react-router-dom';
-import { Logger } from '../utils/logger';
-
-export const useAuth = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-  const history = useHistory();
-
-  useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const response = await fetch('/api/auth/check', {
-          method: 'GET',
-          credentials: 'include',
-        });
-
-        if (response.status === 200) {
-          setIsAuthenticated(true);
-        } else if (response.status === 401) {
-          setIsAuthenticated(false);
-          history.push('/login');
-        }
-      } catch (error) {
-        Logger.error('Error checking authentication', error);
-        setIsAuthenticated(false);
-      }
-    };
-
-    checkAuth();
-  }, [history]);
-
-  return { isAuthenticated };
-};
-```
-
-src/lib/api-client.ts
-```typescript
-export const apiClient = async (url: string, options: RequestInit = {}) => {
-  try {
-    const response = await fetch(url, {
-      ...options,
-      credentials: 'include',
-    });
-
-    if (!response.ok) {
-      if (response.status === 401) {
-        // Handle unauthorized access
-        window.location.href = '/login';
-      }
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    return await response.json();
-  } catch (error) {
-    console.error('API Client Error:', error);
-    throw error;
-  }
-};
-```
