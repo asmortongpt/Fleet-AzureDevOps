@@ -3,6 +3,7 @@ import { Pool } from 'pg';
 import { CacheService } from '../config/cache';
 import { DriverService } from '../services/DriverService';
 import { VehicleService } from '../services/VehicleService';
+import { CommunicationRepository } from '../repositories/CommunicationRepository';
 
 export class Container {
   private static instances = new Map<string, any>();
@@ -23,6 +24,9 @@ export class Container {
     this.register('VehicleService', () => new VehicleService(pool));
     this.register('DriverService', () => new DriverService(pool));
     this.register('CacheService', () => new CacheService());
+
+    // Register repositories
+    this.register('CommunicationRepository', () => new CommunicationRepository(pool));
 
     // Register database pool
     this.register('DatabasePool', () => pool);

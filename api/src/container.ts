@@ -36,6 +36,22 @@ import { PermissionRepository } from "./repositories/PermissionRepository";
 import { VehicleAssignmentRepository } from "./repositories/VehicleAssignmentRepository";
 import { ReservationRepository } from "./repositories/ReservationRepository";
 import { TelematicsRepository } from "./repositories/TelematicsRepository";
+import { AlertRepository } from "./repositories/AlertRepository";
+import { AttachmentRepository } from "./repositories/AttachmentRepository";
+import { ChargingSessionRepository } from "./repositories/ChargingSessionRepository";
+import { ChargingStationRepository } from "./repositories/ChargingStationRepository";
+import { CostRepository } from "./repositories/CostRepository";
+import { DamageReportRepository } from "./repositories/DamageReportRepository";
+import { DeploymentRepository } from "./repositories/DeploymentRepository";
+import { DocumentRepository } from "./repositories/DocumentRepository";
+import { FuelRepository } from "./repositories/FuelRepository";
+import { InvoiceRepository } from "./repositories/InvoiceRepository";
+import { PartRepository } from "./repositories/PartRepository";
+import { PolicyRepository } from "./repositories/PolicyRepository";
+import { PurchaseOrderRepository } from "./repositories/PurchaseOrderRepository";
+import { ReimbursementRepository } from "./repositories/ReimbursementRepository";
+import { TaskRepository } from "./repositories/TaskRepository";
+import { VendorRepository } from "./repositories/VendorRepository";
 import { TYPES } from "./types";
 
 const container = new Container();
@@ -110,5 +126,23 @@ container.bind(TYPES.ReservationRepository).to(ReservationRepository);
 
 // Telematics module
 container.bind(TYPES.TelematicsRepository).to(TelematicsRepository);
+
+// Additional Core Repositories
+container.bind(TYPES.AlertRepository).to(AlertRepository);
+container.bind(TYPES.AttachmentRepository).to(AttachmentRepository);
+container.bind(TYPES.ChargingSessionRepository).to(ChargingSessionRepository);
+container.bind(TYPES.ChargingStationRepository).to(ChargingStationRepository);
+container.bind(TYPES.CostRepository).to(CostRepository);
+container.bind(TYPES.DamageReportRepository).to(DamageReportRepository);
+container.bind(TYPES.DeploymentRepository).to(DeploymentRepository);
+container.bind(TYPES.DocumentRepository).to(DocumentRepository);
+container.bind(TYPES.FuelRepository).to(FuelRepository);
+container.bind(TYPES.InvoiceRepository).to(InvoiceRepository);
+container.bind(TYPES.PartRepository).to(PartRepository);
+container.bind(TYPES.PolicyRepository).to(PolicyRepository);
+container.bind(TYPES.PurchaseOrderRepository).to(PurchaseOrderRepository);
+container.bind(TYPES.ReimbursementRepository).to(ReimbursementRepository);
+container.bind(TYPES.TaskRepository).to(TaskRepository);
+container.bind(TYPES.VendorRepository).to(VendorRepository);
 
 export { container };
