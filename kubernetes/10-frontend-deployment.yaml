@@ -36,7 +36,7 @@ spec:
 
       containers:
       - name: fleet-frontend
-        image: fleetappregistry.azurecr.io/fleet-frontend:v3.0-production-rebuild
+        image: fleetproductionacr.azurecr.io/fleet-frontend:latest
         imagePullPolicy: Always
 
         # Security context for container

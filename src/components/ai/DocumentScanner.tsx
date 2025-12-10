@@ -192,8 +192,9 @@ export function DocumentScanner({
             <div className="flex gap-2 justify-center">
               <Button
                 type="button"
-                onClick={() => fileInputRef.current?.click()} aria-label="Action button"
+                onClick={() => fileInputRef.current?.click()}
                 disabled={isProcessing}
+                aria-label="Action button"
               >
                 <File className="w-4 h-4 mr-2" />
                 Browse Files
@@ -211,8 +212,9 @@ export function DocumentScanner({
                     input.capture = 'environment'
                     input.onchange = (e: any) => handleFileSelect(e.target.files)
                     input.click()
-                  } aria-label="Action button"}
+                  }}
                   disabled={isProcessing}
+                  aria-label="Action button"
                 >
                   <Camera className="w-4 h-4 mr-2" />
                   Take Photo
@@ -275,7 +277,8 @@ export function DocumentScanner({
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => setSelectedFile(selectedFile === file.name ? null : file.name)} aria-label="Action button"
+                          onClick={() => setSelectedFile(selectedFile === file.name ? null : file.name)}
+                          aria-label="Action button"
                         >
                           <Eye className="w-4 h-4" />
                         </Button>
@@ -283,7 +286,8 @@ export function DocumentScanner({
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => removeFile(file.name)} aria-label="Action button"
+                        onClick={() => removeFile(file.name)}
+                        aria-label="Action button"
                       >
                         <X className="w-4 h-4" />
                       </Button>
