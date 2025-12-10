@@ -13,9 +13,9 @@
  * - Responsive design
  */
 
+import { useQuery } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import { AlertCircle, Play, Pause, StopCircle, MapPin } from 'lucide-react';
-import { useQuery } from '@tanstack/react-query';
 import React, { useEffect, useRef, useState } from 'react';
 
 import { Badge } from '@/components/ui/badge';
