@@ -1,7 +1,4 @@
 /**
-import { container } from '../container'
-import { asyncHandler } from '../middleware/errorHandler'
-import { NotFoundError, ValidationError } from '../errors/app-error'
  * Detailed Health Check API Endpoint
  * Provides comprehensive system status for production monitoring
  *
@@ -19,11 +16,12 @@ import { NotFoundError, ValidationError } from '../errors/app-error'
  */
 
 import express, { Request, Response } from 'express';
-import { Pool } from 'pg';
 import os from 'os';
 import { promisify } from 'util';
 import { exec } from 'child_process';
-import { csrfProtection } from '../middleware/csrf'
+import { container } from '../container';
+import { HealthCheckRepository } from '../repositories/HealthCheckRepository';
+import { TYPES } from '../types';
 
 
 const router = express.Router();
@@ -107,54 +105,25 @@ async function checkDatabase(): Promise<ComponentHealth> {
       };
     }
 
-    const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+    // Get repository from DI container
+    const healthCheckRepo = container.get<HealthCheckRepository>(TYPES.HealthCheckRepository);
 
-    // Test connection
-    const pingResult = await pool.query(`SELECT 1 as ping`);
-
-    // Get database stats
-    const statsResult = await pool.query(`
-      SELECT
-        pg_database.datname,
-        pg_size_pretty(pg_database_size(pg_database.datname) AS size,
-        (SELECT count(*) FROM pg_stat_activity WHERE datname = pg_database.datname) AS connections
-      FROM pg_database
-      WHERE datname = current_database()
-    `);
-
-    // Get table counts
-    const tableCountResult = await pool.query(`
-      SELECT
-        schemaname,
-        COUNT(*) as table_count
-      FROM pg_tables
-      WHERE schemaname NOT IN ('pg_catalog', 'information_schema')
-      GROUP BY schemaname
-    `);
-
-    // Check for slow queries
-    const slowQueriesResult = await pool.query(`
-      SELECT COUNT(*) as slow_query_count
-      FROM pg_stat_statements
-      WHERE mean_exec_time > 1000
-      LIMIT 1
-    `).catch(() => ({ rows: [{ slow_query_count: 0 }] }); // If pg_stat_statements not available
-
-    await pool.end();
+    // Use repository methods instead of direct pool.query()
+    const { stats, tables, slowQueries } = await healthCheckRepo.getAllHealthMetrics();
 
     const latency = Date.now() - startTime;
-    const connections = statsResult.rows[0]?.connections || 0;
+    const connections = stats.connections || 0;
 
     return {
       status: latency < 100 && connections < 50 ? 'healthy' : 'degraded',
       message: 'Database connection successful',
       latency,
       details: {
-        database: statsResult.rows[0]?.datname || 'unknown',
-        size: statsResult.rows[0]?.size || 'unknown',
+        database: stats.datname || 'unknown',
+        size: stats.size || 'unknown',
         activeConnections: connections,
-        tables: tableCountResult.rows[0]?.table_count || 0,
-        slowQueries: slowQueriesResult.rows[0]?.slow_query_count || 0,
+        tables: tables[0]?.table_count || 0,
+        slowQueries: slowQueries.slow_query_count || 0,
         responseTime: `${latency}ms`
       },
       lastCheck: new Date().toISOString()
@@ -308,7 +277,7 @@ async function checkDisk(): Promise<ComponentHealth> {
     const parts = stdout.trim().split(/\s+/);
 
     const usage = parts[4] || '0%';
-    const usagePercent = parseInt(usage.replace('%', '');
+    const usagePercent = parseInt(usage.replace('%', ''));
 
     return {
       status: usagePercent < 80 ? 'healthy' : usagePercent < 90 ? 'degraded' : 'critical',
@@ -490,7 +459,7 @@ router.get('/component/:name', requireAdmin, async (req: Request, res: Response)
   if (!checkFunction) {
     return res.status(404).json({
       error: 'Not Found',
-      message: `Component `${name}` not found`,
+      message: `Component "${name}" not found`,
       availableComponents: Object.keys(checks)
     });
   }

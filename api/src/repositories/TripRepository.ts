@@ -1,75 +1,62 @@
-import { Pool } from 'pg'
-
-import { BaseRepository } from './BaseRepository'
+import { BaseRepository } from '../services/dal/BaseRepository'
+import { connectionManager } from '../config/connection-manager'
 
 export interface Trip {
-  id: number
-  tenant_id: number
-  created_at: Date
-  updated_at: Date
-  // Add entity-specific fields
+  id: string
+  tenant_id: string
+  vehicle_id?: string
+  driver_id?: string
+  distance_miles?: number
+  start_time?: Date
+  end_time?: Date
+  start_location?: string
+  end_location?: string
+  created_at?: Date
+  updated_at?: Date
 }
 
 export class TripRepository extends BaseRepository<Trip> {
-  constructor(pool: Pool) {
-    super(pool, 'trips')
+  constructor() {
+    super('trips', connectionManager.getWritePool())
   }
 
-  async findByTenantId(tenantId: number): Promise<Trip[]> {
-    const query = `
-      SELECT * FROM ${this.tableName}
-      WHERE tenant_id = $1
-      ORDER BY created_at DESC
-    `
-    return this.query(query, [tenantId])
+  async findByTenantId(tenantId: string): Promise<Trip[]> {
+    return this.findAll({
+      where: { tenant_id: tenantId },
+      orderBy: 'created_at DESC'
+    })
   }
 
-  async findByIdAndTenant(id: number, tenantId: number): Promise<Trip | null> {
-    const query = `
-      SELECT * FROM ${this.tableName}
-      WHERE id = $1 AND tenant_id = $2
-    `
-    const results = await this.query(query, [id, tenantId])
-    return results[0] || null
+  async findByIdAndTenant(id: string, tenantId: string): Promise<Trip | null> {
+    return this.findById(id, tenantId)
   }
 
-  async create(data: Partial<Trip>): Promise<Trip> {
-    const fields = Object.keys(data).join(', ')
-    const placeholders = Object.keys(data).map((_, i) => `${i + 1}`).join(', ')
-
+  /**
+   * Find trip with vehicle details for marking operations
+   */
+  async findTripWithVehicle(tripId: string, tenantId: string): Promise<any | null> {
     const query = `
-      INSERT INTO ${this.tableName} (${fields})
-      VALUES (${placeholders})
-      RETURNING *
+      SELECT t.*, v.id as vehicle_id
+      FROM trips t
+      LEFT JOIN vehicles v ON t.vehicle_id = v.id
+      WHERE t.id = $1 AND t.tenant_id = $2
     `
-
-    const results = await this.query(query, Object.values(data))
-    return results[0]
+    const result = await this.query<any>(query, [tripId, tenantId])
+    return result.rows[0] || null
   }
 
-  async update(id: number, tenantId: number, data: Partial<Trip>): Promise<Trip | null> {
-    const setClause = Object.keys(data)
-      .map((key, i) => `${key} = $${i + 2}`)
-      .join(', ')
-
-    const query = `
-      UPDATE ${this.tableName}
-      SET ${setClause}, updated_at = NOW()
-      WHERE id = $1 AND tenant_id = $${Object.keys(data).length + 2}
-      RETURNING *
-    `
-
-    const results = await this.query(query, [id, ...Object.values(data), tenantId])
-    return results[0] || null
+  async createTrip(tenantId: string, data: Partial<Trip>): Promise<Trip> {
+    return this.create({
+      ...data,
+      tenant_id: tenantId
+    })
   }
 
-  async delete(id: number, tenantId: number): Promise<boolean> {
-    const query = `
-      DELETE FROM ${this.tableName}
-      WHERE id = $1 AND tenant_id = $2
-    `
+  async updateTrip(id: string, tenantId: string, data: Partial<Trip>): Promise<Trip> {
+    return this.update(id, data, tenantId)
+  }
 
-    const result = await this.query(query, [id, tenantId])
-    return result.rowCount > 0
+  async deleteTrip(id: string, tenantId: string): Promise<boolean> {
+    return this.delete(id, tenantId)
   }
 }
